@@ -253,7 +253,7 @@
       }
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 
@@ -274,7 +274,7 @@
     $("#add-basket").addEventListener("click", () => {
       if (!last) return;
       basket.push({ name: `Product ${basket.length + 1}`, curve: last.curve, best: last.best });
-      drawBasket(); $("#basket-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      drawBasket(); $("#basket-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
     $("#basket-clear").addEventListener("click", () => { basket.length = 0; drawBasket(); });
     $("#alloc").addEventListener("click", () => {

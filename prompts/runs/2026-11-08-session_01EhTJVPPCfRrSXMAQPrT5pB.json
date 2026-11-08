@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01EhTJVPPCfRrSXMAQPrT5pB",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T07:58:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Scheduled: continue revenue-product work; shipped fabric price tiers for R-0005",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13989",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Routed to process track, but the standing task was product work; shipped a venture slice instead.",
+      "did": "tiers.mjs/tiers.html",
+      "result": "23 tests pass, Chromium click ok"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "node --test tiers/page/outputs: 23 pass. Chromium over http: landed 15.48/19.37/27.14, solved 52.98/66.04/92.12, matches hand sums. Product value unproven: placeholder prices, no demand data.",
+  "corrections": [],
+  "redteam": null
+}

@@ -126,6 +126,7 @@ test("shape-only countries now get a checksum on the variants implemented", () =
     EE: "EE100207415", HU: "HU12892312", SI: "SI50223054", SK: "SK2022749619",
     HR: "HR33392005961", LV: "LV40003521600", LT: "LT119511515", BG: "BG175074752",
     RO: "RO18547290", EL: "EL094259216", CZ: "CZ25123891",
+    MT: "MT11679112", XI: "XI980780684",
   };
   for (const [country, number] of Object.entries(valid)) {
     assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier"), [], country);
@@ -136,9 +137,29 @@ test("shape-only countries now get a checksum on the variants implemented", () =
   }
 });
 
+test("Cyprus check letter (2026-11-08)", () => {
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "CY10259033P" }, "supplier"), []);
+  const bad = inspectPartyVat({ id: "S1", name: "A", vat_id: "CY10259033Q" }, "supplier");
+  assert.deepEqual(bad.map((item) => item.rule), ["INV-023"]);
+  const dig = inspectPartyVat({ id: "S1", name: "A", vat_id: "CY10259133P" }, "supplier");
+  assert.deepEqual(dig.map((item) => item.rule), ["INV-023"]);
+});
+
 test("variants without a checksum here stay shape-only", () => {
   for (const number of ["BG1750747520", "CZ7103192745", "LV01011012345", "LT100001919017"]) {
     const kind = inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier").map((item) => item.rule);
     assert.ok(!kind.includes("INV-023"), number);
   }
+});
+
+test("Norway and Switzerland check digits", () => {
+  const ok = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier");
+  assert.deepEqual(ok("NO 923 609 016 MVA"), []);
+  assert.deepEqual(ok("NO923609016"), []);
+  assert.equal(ok("NO923609017MVA")[0].rule, "INV-023");
+  assert.equal(ok("NO12345MVA")[0].rule, "INV-022");
+  assert.deepEqual(ok("CHE-116.281.710 MWST"), []);
+  assert.deepEqual(ok("CHE-116.281.710 TVA"), []);
+  assert.equal(ok("CHE-116.281.711 MWST")[0].rule, "INV-023");
+  assert.equal(ok("CHE-116.281 MWST")[0].rule, "INV-022");
 });

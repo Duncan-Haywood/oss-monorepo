@@ -222,7 +222,7 @@ python3 openapi_diff.py old.json new.json --fail-on-breaking  # exit 2 only if a
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("diff_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", () => runDiff(els.oldSpec.value, els.newSpec.value));

@@ -8,10 +8,10 @@ import { readStatement, checkRunningBalance } from "./bank.mjs";
 const read = (f) => readStatement(readFileSync(new URL(`./fixtures/${f}`, import.meta.url), "utf8"));
 const cases = [
   ["usbank-checking.csv", "us-bank", [320000, -8999, -6026]],
-  ["navyfed-checking.csv", null, [320000, -8999]],
+  ["navyfed-checking.csv", "navy-federal", [320000, -8999]],
   ["citi-status-card.csv", "citi", [-6026, 50000]],
-  ["truist-checking.csv", null, [320000, -8999]],
-  ["td-us-checking.csv", null, [320000, -8999]],
+  ["truist-checking.csv", "truist", [320000, -8999]],
+  ["td-us-checking.csv", "td-bank", [320000, -8999]],
   ["bofa-checking-summary.csv", "bank-of-america", [320000, -8999, -6026, -100000]],
 ];
 for (const [file, bank, cents] of cases) {

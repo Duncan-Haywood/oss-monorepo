@@ -1,0 +1,14 @@
+days 196  km 22000  fielded mean 112.2 km/day = 1.30 m/s along-track
+tws_m/s  beam_reach_km/day  best_angle_km/day (60-150 deg)
+   2.0         125         127
+   3.0         174         175
+   4.0         232         234
+   5.0         260         262
+   6.0         299         302
+   8.0         303         303
+  10.0         303         303
+model drone reaches the fielded mean at a steady wind of about:
+  beam reach: 2.0 m/s
+January: model buoy median free 272, corridor 237 km/day; fielded/free 0.41, fielded/corridor 0.47
+July: model buoy median free 219, corridor 179 km/day; fielded/free 0.51, fielded/corridor 0.63
+solar ceiling 86 km/day: fielded/solar 1.31

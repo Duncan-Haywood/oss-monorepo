@@ -109,6 +109,22 @@ const EXTRA_CHECKS = {
       return check === Number(b[7]);
     },
   },
+  // Cyprus: 8 digits and a check letter; a number cannot start 12.
+  CY: {
+    applies: (b) => /^\d{8}[A-Z]$/.test(b),
+    ok: (b) => {
+      if (b.startsWith("12")) return false;
+      const odd = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21];
+      let total = 0;
+      for (let i = 0; i < 8; i += 1) total += i % 2 === 0 ? odd[Number(b[i])] : Number(b[i]);
+      return String.fromCharCode(65 + (total % 26)) === b[8];
+    },
+  },
+  // Malta: 8 digits; the last two are 37 minus the weighted first six, mod 37.
+  MT: {
+    applies: (b) => /^[1-9]\d{7}$/.test(b),
+    ok: (b) => 37 - (weighted(b.slice(0, 6), [3, 4, 6, 7, 8, 9]) % 37) === Number(b.slice(6)),
+  },
 };
 EXTRA_CHECKS.GR = EXTRA_CHECKS.EL;
 
@@ -145,9 +161,12 @@ function classify(country, body) {
   if (country === "LU") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IE") return ieShape(body) ? "checksum" : "bad-format";
   if (country === "GB" || country === "UK") return /^\d+$/.test(body) && (body.length === 9 || body.length === 12) ? "checksum" : "bad-format";
+  if (country === "NO") return /^\d{9}(MVA)?$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CH") return /^E\d{9}(MWST|TVA|IVA)?$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
   if (EXTRA_CHECKS[country]?.applies(body)) return "checksum";
+  if (country === "XI" && /^\d+$/.test(body) && (body.length === 9 || body.length === 12)) return "checksum";
   if (/^[A-Z0-9]+$/.test(body) && lengths.includes(body.length)) return "format";
   return "bad-format";
 }
@@ -337,6 +356,14 @@ function gbOk(digits) {
   return (total + check) % 97 === 0 || (total + 55 + check) % 97 === 0;
 }
 
+// Norway (organisasjonsnummer, brreg) and Switzerland (UID, BFS) share one
+// shape: weighted mod-11 over eight digits; check = 11 - remainder, 11 -> 0,
+// 10 -> the number is never issued.
+function mod11Check(nine, weights) {
+  const check = 11 - (weighted(nine.slice(0, 8), weights) % 11);
+  return check !== 10 && (check === 11 ? 0 : check) === Number(nine[8]);
+}
+
 function checksumOk(country, body) {
   if (country === "DE") return deOk(body);
   if (country === "FR") return frOk(body);
@@ -353,6 +380,9 @@ function checksumOk(country, body) {
   if (country === "LU") return luOk(body);
   if (country === "IE") return ieOk(body);
   if (country === "GB" || country === "UK") return gbOk(body);
+  if (country === "NO") return mod11Check(body.slice(0, 9), [3, 2, 7, 6, 5, 4, 3, 2]);
+  if (country === "CH") return mod11Check(body.slice(1, 10), [5, 4, 3, 2, 7, 6, 5, 4]);
+  if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;
 }

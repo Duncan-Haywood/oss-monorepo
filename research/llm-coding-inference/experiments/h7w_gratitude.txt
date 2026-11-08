@@ -1,0 +1,6 @@
+GoEmotions gratitude, corpus 6000, prevalence 0.0545, coder J 0.868 (sens 0.936, spec 0.932), n 1000, 500 draws
+rule | share of draws using cells % | coverage % | half-width pts
+pooled | 0 | 95.6 | 1.014
+lib default | 97 | 85.0 | 0.497
+lib neg_guard=3 | 27 | 96.6 | 0.908
+lib default+neg3 | 27 | 94.8 | 0.912

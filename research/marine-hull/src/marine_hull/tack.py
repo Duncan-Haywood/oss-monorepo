@@ -37,17 +37,26 @@ def bound(p, dt):
     return float(np.sum(np.maximum(p[0], p[1])) * dt)
 
 
+def _require_short_tack(tau, span, name):
+    """These controllers model a tack as a share of ONE step or block (`span` seconds). A longer tack used to be clipped to
+    `span` silently (found in milestone 6x). Refuse it instead of returning a wrong number."""
+    if tau > span * (1 + 1e-9):
+        raise ValueError(f"{name}: tack time tau={tau} s exceeds its one-step model ({span} s); "
+                         "use sim_corridor/sim_header/dp_clairvoyant_dead, which carry dead time across steps")
+
+
 def sim_corridor(p, c, dt, corr, tau):
     x, y, sg, n_t = 0.0, 0.0, 0, 0
     pen = 0.0
     for k in range(p.shape[1]):
-        f = 1.0 - pen
-        pen = 0.0
+        used = min(1.0, pen)      # a tack longer than one step carries its dead time into the next steps
+        f = 1.0 - used
+        pen -= used
         x += p[sg, k] * dt * f
         y += c[sg, k] * dt * f
         if y >= corr and c[sg, k] > 0 or y <= -corr and c[sg, k] < 0:
             y = max(-corr, min(corr, y))
-            sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+            sg ^= 1; n_t += 1; pen = tau / dt
     return x, n_t
 
 
@@ -55,8 +64,9 @@ def sim_header(p, c, dt, corr, tau, margin, dwell_steps):
     x, y, sg, n_t, since = 0.0, 0.0, 0, 0, 10 ** 9
     pen = 0.0
     for k in range(p.shape[1]):
-        f = 1.0 - pen
-        pen = 0.0
+        used = min(1.0, pen)      # a tack longer than one step carries its dead time into the next steps
+        f = 1.0 - used
+        pen -= used
         x += p[sg, k] * dt * f
         y += c[sg, k] * dt * f
         since += 1
@@ -66,7 +76,7 @@ def sim_header(p, c, dt, corr, tau, margin, dwell_steps):
         out = (y >= corr and c[1 - sg, k] > 0) or (y <= -corr and c[1 - sg, k] < 0)
         if edge or (headed and not out):
             y = max(-corr, min(corr, y))
-            sg ^= 1; n_t += 1; pen = min(1.0, tau / dt); since = 0
+            sg ^= 1; n_t += 1; pen = tau / dt; since = 0
     return x, n_t
 
 
@@ -91,12 +101,28 @@ def dp_clairvoyant(p, c, dt, corr, tau, dy=25.0):
     return float(max(V[0][len(grid) // 2], V[1][len(grid) // 2]))
 
 
+def dp_clairvoyant_dead(p, c, dt, corr, m, dy=25.0):
+    """Clairvoyant optimum when a tack is m whole steps of dead time (no progress, no cross movement; tau = m*dt).
+    m = 1 equals dp_clairvoyant with tau = dt. Tacking at step k jumps to step k + m on the other tack at the same y."""
+    grid = np.arange(-corr, corr + dy / 2, dy)
+    n = p.shape[1]
+    Vs = np.zeros((n + 1, 2, len(grid)))
+    for k in range(n - 1, -1, -1):
+        for sg in (0, 1):
+            y2 = np.clip(grid + c[sg, k] * dt, -corr, corr)
+            stay = p[sg, k] * dt + np.interp(y2, grid, Vs[k + 1, sg])
+            sw = Vs[min(k + m, n), 1 - sg]
+            Vs[k, sg] = np.maximum(stay, sw)
+    return float(max(Vs[0, 0][len(grid) // 2], Vs[0, 1][len(grid) // 2]))
+
+
 def sim_mpc(p, c, dt, corr, tau, horizon, fcfun, step=5, dy=50.0, margin=0.0):
     """Receding-horizon tack control on a forecast. Every `step` minutes the controller gets the forecast rates for the next
     `horizon` minutes, fcfun(k) -> (pf, cf) arrays of shape (2, horizon) on the 1-minute grid, plans the best tack sequence on
     `step`-minute blocks by value iteration over (tack, y), and executes only its first decision on the true rates p, c. The
     corridor edge forces a tack as in sim_corridor. A voluntary tack also needs the plan to beat staying by `margin` times
     the block's best forecast progress (hysteresis against chattering on forecast noise). Returns (progress m, number of tacks)."""
+    _require_short_tack(tau, step * dt, "sim_mpc")
     grid = np.arange(-corr, corr + dy / 2, dy)
     nb = max(1, horizon // step)
     f = 1.0 - min(1.0, tau / (step * dt))      # share of a block left after a tack
@@ -133,7 +159,7 @@ def sim_mpc(p, c, dt, corr, tau, horizon, fcfun, step=5, dy=50.0, margin=0.0):
             y += c[sg, k] * dt * fac
             if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
                 y = max(-corr, min(corr, y))
-                sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+                sg ^= 1; n_t += 1; pen = tau / dt
     return x, n_t
 
 
@@ -145,6 +171,7 @@ def dp_values(p, c, dt, corr, tau, dy=25.0, edge_tack=True):
     sim_corridor, sim_header and sim_policy force a tack at the edge. With edge_tack=True (default) the DP obeys the same rule:
     a step whose raw cross-line motion leaves the corridor is followed by a tack at the next step (the value of the other
     tack, at the clamped y, with the tack loss). edge_tack=False reproduces dp_clairvoyant exactly."""
+    _require_short_tack(tau, dt, "dp_values")
     grid = np.arange(-corr, corr + dy / 2, dy)
     n = p.shape[1]
     V = np.zeros((n + 1, 2, len(grid)))
@@ -171,6 +198,7 @@ def sim_policy(p, c, ps, cs, dt, corr, tau, grid, V, margin=0.0):
     model by `margin` times the model's best progress that step. The corridor edge forces a tack as in sim_corridor. With
     (ps, cs) = (p, c) this is the clairvoyant policy; with a smoothed (ps, cs) it is a controller that knows the wind's slow
     behaviour for the whole day exactly and nothing faster. Returns (progress m, number of tacks)."""
+    _require_short_tack(tau, dt, "sim_policy")
     f = 1.0 - min(1.0, tau / dt)
     x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0
     for k in range(p.shape[1]):
@@ -185,7 +213,7 @@ def sim_policy(p, c, ps, cs, dt, corr, tau, grid, V, margin=0.0):
         y += c[sg, k] * dt * fac
         if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
             y = max(-corr, min(corr, y))
-            sg ^= 1; n_t += 1; pen = min(1.0, tau / dt)
+            sg ^= 1; n_t += 1; pen = tau / dt
     return x, n_t
 
 
@@ -203,6 +231,7 @@ def sim_replan(p, c, dt, corr, tau, forecast, every=60, margin=0.0, dwell=0):
     """Receding full-day controller. At step k0 (every `every` steps) call forecast(k0) -> (ps, cs), model rates for steps
     k0..n-1 (shape (2, n-k0)); solve dp_values on them and follow that policy on the TRUE rates until the next replan.
     The boat tacks only when switching beats staying by `margin` times the best model progress of that step (0 = 5d), and only if at least `dwell` steps have passed since the last tack of either kind (0 = 5d). The boat's own tack and y carry over. Returns (progress m, number of tacks)."""
+    _require_short_tack(tau, dt, "sim_replan")
     f = 1.0 - min(1.0, tau / dt)
     n = p.shape[1]
     x, y, sg, n_t, pen = 0.0, 0.0, 0, 0, 0.0
@@ -238,3 +267,55 @@ def lead_forecast(p, c, k0, T, smooth_min=15, trail=60):
         a = np.ones_like(L, dtype=float) if np.isinf(T) else (np.exp(-L / T) if T > 0 else (L == 0) * 1.0)
         out.append(a * sm + (1 - a) * past)
     return out[0], out[1]
+
+
+def dp_values_dead(p, c, dt, corr, m, dy=25.0):
+    """Like dp_values, but a tack is m whole steps of dead time (tau = m*dt, no progress, no cross movement), so it can
+    exceed one step. V[k, sg, y] is the value of being on tack sg at step k with no tack in progress; tacking at step k
+    gives V[k+m, other, y]. A step whose raw motion leaves the corridor is followed by a forced tack (as sim_header does).
+    m = 1 is NOT identical to dp_values (which shortens one step rather than skipping it), but equals dp_clairvoyant_dead
+    when the forced edge tack is switched off in hindsight; tested against it on a window without edge hits."""
+    grid = np.arange(-corr, corr + dy / 2, dy)
+    n = p.shape[1]
+    V = np.zeros((n + 1, 2, len(grid)))
+    for k in range(n - 1, -1, -1):
+        kk = min(k + m, n)
+        for sg in (0, 1):
+            raw = grid + c[sg, k] * dt
+            clipped = np.clip(raw, -corr, corr)
+            stay = p[sg, k] * dt + np.interp(clipped, grid, V[k + 1, sg])
+            hit = ((raw >= corr) & (c[sg, k] > 0)) | ((raw <= -corr) & (c[sg, k] < 0))
+            if hit.any():
+                k1 = min(k + 1 + m, n)
+                forced = p[sg, k] * dt + np.interp(clipped, grid, V[k1, 1 - sg])
+                stay = np.where(hit, forced, stay)
+            V[k, sg] = np.maximum(stay, V[kk, 1 - sg])
+    return grid, V
+
+
+def sim_replan_dead(p, c, dt, corr, m, forecast, every=60, margin=0.0):
+    """sim_replan with dead time: a tack (chosen or forced at the corridor edge) costs m whole steps with no progress and
+    no cross movement. At each replan step k0, forecast(k0) -> (ps, cs) for steps k0..n-1 feeds dp_values_dead; the boat
+    follows that policy on the TRUE rates until the next replan. While a tack is in progress it cannot tack again.
+    Returns (progress m, number of tacks)."""
+    n = p.shape[1]
+    x, y, sg, n_t, dead = 0.0, 0.0, 0, 0, 0
+    for k0 in range(0, n, every):
+        ps, cs = forecast(k0)
+        grid, V = dp_values_dead(ps, cs, dt, corr, m)
+        for k in range(k0, min(n, k0 + every)):
+            if dead > 0:
+                dead -= 1
+                continue
+            j, o = k - k0, 1 - sg
+            stay = ps[sg, j] * dt + np.interp(np.clip(y + cs[sg, j] * dt, -corr, corr), grid, V[j + 1, sg])
+            sw = np.interp(y, grid, V[min(j + m, ps.shape[1]), o])
+            if sw > stay + margin * max(ps[0, j], ps[1, j]) * dt:
+                sg = o; n_t += 1; dead = m - 1
+                continue
+            x += p[sg, k] * dt
+            y += c[sg, k] * dt
+            if (y >= corr and c[sg, k] > 0) or (y <= -corr and c[sg, k] < 0):
+                y = max(-corr, min(corr, y))
+                sg ^= 1; n_t += 1; dead = m
+    return x, n_t

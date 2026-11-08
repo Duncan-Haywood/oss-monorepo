@@ -48,3 +48,15 @@ test('says plainly when protection is refused or unsupported, and flags an old b
   const none = run({ noStorageApi: true });
   assert.match(none.el.textContent, /not supported here/);
 });
+
+test('importing the module has no side effects (the CLI rewrite runs only when executed directly)', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const { mkdtempSync, writeFileSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  const mod = new URL('./storage-guard.mjs', import.meta.url).href;
+  const script = join(mkdtempSync(join(tmpdir(), 'sg-')), 'importer.mjs');
+  writeFileSync(script, `import ${JSON.stringify(mod)};\n`);
+  const out = execFileSync(process.execPath, [script], { encoding: 'utf8' });
+  assert.equal(out, '', 'import must not print "storage guard applied" or rewrite ventures pages');
+});

@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01E5sJKmrh9cyekATChEfRnd",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "How's progress going? Let's add to the tasks performance engineering on the website. Lots of downtimes and painfully slow load speeds needs to be fixed. Not sure what happened there.",
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T04:34:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Add site-performance direction and tasks; first measurement",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 13478,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/verify-live.sh",
+      "issue": "Retries every request up to 5 times, so the deploy check passes on a site that answers only intermittently and times nothing."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/reports/2026-11-06-site-performance-baseline.md",
+    "docs/posts/2026-11-06-the-site-index-pages-weigh-megabytes.md"
+  ],
+  "goal": null,
+  "notes": "Local build of main ebbba998 (1m43s), page-weight.mjs on it. node --test page-weight.test.mjs 3/3, pytest portfolio/work 6/6, workctl validate ok. Live site unreachable from session (proxy 403 on marisstella.app), so no live timings; 100k/day Worker cap is a hypothesis.",
+  "corrections": [],
+  "redteam": null
+}

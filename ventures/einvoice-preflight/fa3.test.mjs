@@ -97,3 +97,26 @@ test("a cut-off file is PL-017 and skips the other checks", () => {
   assert.deepEqual(r.findings.map((f) => f.rule), ["PL-017"]);
   assert.match(r.skipped[0], /cut off/);
 });
+
+test("correction and settlement seeds pass the schema gate and say what they skip", () => {
+  for (const f of ["fa3-correction.xml", "fa3-settlement.xml"]) {
+    const r = checkFa3(read(f));
+    assert.deepEqual(r.findings, [], f);
+    assert.equal(r.skipped.length, 1, f);
+  }
+});
+
+test("transport seed (carrier, cargo, route, a second transport by the 'other' branch) passes the schema gate and the sums", () => {
+  const r = checkFa3(read("fa3-transport.xml"));
+  assert.deepEqual(r.findings, []);
+  const noCargo = read("fa3-transport.xml").replace(/<OpisLadunku>1<\/OpisLadunku>\s*/, "");
+  assert.deepEqual(rules(noCargo), ["PL-013"]); // the next element is then out of place
+});
+
+test("a correction missing its corrected-invoice block, and a settlement with its advance block out of order, are found", () => {
+  const noRef = read("fa3-correction.xml").replace(/<DaneFaKorygowanej>[\s\S]*?<\/DaneFaKorygowanej>\s*/g, "");
+  assert.deepEqual(rules(noRef), ["PL-014"]);
+  const s = read("fa3-settlement.xml");
+  const moved = s.replace(/(<ZaliczkaCzesciowa>[\s\S]*?<\/ZaliczkaCzesciowa>)\s*/, "").replace("</Fa>", "$1</Fa>".replace("$1", s.match(/<ZaliczkaCzesciowa>[\s\S]*?<\/ZaliczkaCzesciowa>/)[0]) );
+  assert.ok(rules(moved).includes("PL-013"));
+});

@@ -178,7 +178,7 @@
       $("#year-table tbody").innerHTML = b.rows.map((r) => `<tr><td>${r.year}</td><td class="n">${usd(r.savings)}</td><td class="n">${usd(r.om + r.loanPaid)}</td><td class="n">${usd(r.net)}</td><td class="n${r.cumulative >= 0 ? " hot" : ""}">${usd(r.cumulative)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

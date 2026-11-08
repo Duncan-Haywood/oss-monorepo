@@ -187,7 +187,7 @@
       $("#long tbody").innerHTML = r.longRows.map((x) => `<tr><td>${Math.round(x.change * 100)}% longer</td><td class="n">${money(x.cost)}</td><td class="n">${delta(x.delta)}</td><td class="n">${x.unserved}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Factory Currency Risk Calculator: What a Rate Move Does to Your Clothing Order</title>
+  <meta name="description" content="Paying a factory in dollars or yuan with euros or pounds? See cost and profit if the rate moves before the balance is due, the move that wipes out your profit, and what a forward quote would lock. Free, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Factory currency risk">
+  <meta property="og:description" content="Cost and profit if the exchange rate moves before the balance is due. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Factory currency risk (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="cashflow.html">Launch cash flow</a> · <a href="quotes.html">Factory quotes</a> · <a href="prices.html">Price by market</a></p>
+  <h1>What if the exchange rate moves before you pay the factory?</h1>
+  <p>Factories often quote in dollars or yuan and want a deposit up front and the balance before shipping. Your shelf prices are in euros, pounds or something else. Between the deposit and the balance the rate can move. This shows what that does to your cost and profit, how big a move wipes you out, and what a forward rate would lock in.</p>
+  <p class="placeholder">Moves are scenarios you pick, not a forecast. Forward rates and fees are what you type from a bank or payment provider's quote. Not financial advice.</p>
+  <div class="grid">
+    <section>
+      <h2>Your order</h2>
+      <label for="of">Factory order total (factory currency)</label><input id="of" type="number" min="0" step="any" value="10000">
+      <div class="row"><div><label for="dp">Deposit paid now (%)</label><input id="dp" type="number" min="0" max="100" step="any" value="30"></div><div><label for="rt">Rate today (your currency per 1 factory unit)</label><input id="rt" type="number" min="0" step="any" value="0.92"></div></div>
+      <div class="row"><div><label for="oh">Other costs, your currency (freight, duty, labels)</label><input id="oh" type="number" min="0" step="any" value="2000"></div><div><label for="rv">Expected revenue, your currency</label><input id="rv" type="number" min="0" step="any" value="20000"></div></div>
+      <label for="gq">Garments (for price per piece)</label><input id="gq" type="number" min="1" step="1" value="500">
+      <h2 style="margin-top:14px">Forward quote (optional)</h2>
+      <div class="row"><div><label for="fr">Forward rate for the balance</label><input id="fr" type="number" min="0" step="any" value="0.95"></div><div><label for="ff">Fee, your currency</label><input id="ff" type="number" min="0" step="any" value="30"></div></div>
+    </section>
+    <section><h2>Break-even</h2><output id="be" aria-live="polite"></output><h2 style="margin-top:14px">If the rate moves before the balance</h2><output id="st" aria-live="polite"></output><h2 style="margin-top:14px">Forward rate</h2><output id="fw" aria-live="polite"></output><div id="nt"></div></section>
+  </div>
+</main>
+  <script type="module">
+    import { stress, breakEvenMove, forward, priceToCover, notes } from "./fx.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const v = id => parseFloat($(id).value);
+    const m0 = x => x.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    const sg = x => (x > 0 ? "+" : "") + m0(x);
+    function run() {
+      try {
+        const o = { orderForeign: v("#of"), depositPct: v("#dp"), rate: v("#rt"), otherHome: v("#oh"), revenueHome: v("#rv") };
+        const be = breakEvenMove(o);
+        $("#be").innerHTML = be === null ? `<p class="big">No balance to move</p>` : be < -0.9999 ? `<p class="big">No rate loses money</p>` : `<p class="big">${(be * 100).toFixed(1)}%</p><p class="tag">The move in the rate, deposit to balance, at which profit reaches zero.</p>`;
+        const rows = stress(o);
+        $("#st").innerHTML = `<table><tr><th scope="col">Move</th><th scope="col" class="num">Cost</th><th scope="col" class="num">Profit</th><th scope="col" class="num">vs no move</th><th scope="col" class="num">Margin</th><th scope="col" class="num">Price rise per piece to cover</th></tr>${rows.map(r => `<tr${r.move === 0 ? ' class="hit"' : ""}><td>${r.move > 0 ? "+" : ""}${(r.move * 100).toFixed(0)}%</td><td class="num">${m0(r.cost)}</td><td class="num">${m0(r.profit)}</td><td class="num">${sg(r.profitChange)}</td><td class="num">${r.marginPct.toFixed(1)}%</td><td class="num">${priceToCover(o, r.move, v("#gq") || 1).toFixed(2)}</td></tr>`).join("")}</table>`;
+        const fr = v("#fr");
+        if (Number.isFinite(fr) && fr > 0) {
+          const f = forward(o, fr, v("#ff") || 0);
+          $("#fw").innerHTML = `<p>Locked cost ${m0(f.lockedCost)}, profit ${m0(f.lockedProfit)}. The forward is ${f.premiumPct.toFixed(1)}% above today's rate${f.evenMove === null ? "" : `; paying at the spot rate instead costs the same only if the rate moves ${(f.evenMove * 100).toFixed(1)}%`}.</p>`;
+        } else $("#fw").innerHTML = `<p class="tag">Type a forward rate to compare.</p>`;
+        $("#nt").innerHTML = notes(o).map(n => `<p class="notes">${esc(n)}</p>`).join("");
+      } catch (e) { ["#be", "#st", "#fw", "#nt"].forEach(i => $(i).innerHTML = ""); $("#be").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; }
+    }
+    document.addEventListener("input", () => { run(); recordUsage("fx_calc"); });
+    run(); recordUsage("fx_open");
+  </script>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice. Exchange rates and forward quotes are figures you type; the result is a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+</body>
+</html>

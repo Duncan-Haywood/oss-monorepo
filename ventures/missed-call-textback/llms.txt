@@ -1,0 +1,12 @@
+# Missed Call Text-Back: send one polite text to every caller you miss
+
+> Free, open-source (MIT) missed-call text-back for contractors and local service businesses: a calculator for what unanswered calls cost, a message checker, and a self-host Twilio agent (one text per caller per 24 hours, quiet hours, STOP/START/HELP, signed webhooks). Results are estimates from numbers you type, not legal, tax, financial or professional advice.
+
+## Pages
+
+- [Calculator and message check](https://marisstella.app/missed-call-textback/)
+- [Guide for contractors](https://marisstella.app/missed-call-textback/missed-call-text-back-for-contractors.html)
+
+## Source
+
+- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/missed-call-textback): MIT licensed. Tested against a fake Twilio only; no real call yet.

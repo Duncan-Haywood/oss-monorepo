@@ -155,3 +155,11 @@ test("the example loads, reconciles and produces a summary", () => {
   assert.match(t, /Whatnot sales 2026-/);
   assert.match(t, /nothing uploaded/);
 });
+
+test("processing fee is charged on price plus buyer shipping plus tax (hand sum)", () => {
+  // 20 + 5 + 1.60 = 26.60; 26.60 * 2.9% + 0.30 = 1.07140; commission 8% of 20 = 1.60
+  const f = scheduleFee(20, 5, 1.6);
+  near(f.processing, 26.6 * 0.029 + 0.3, 1e-9);
+  near(f.commission, 1.6, 1e-9);
+  near(f.fee, 1.6 + 1.0714, 1e-9);
+});

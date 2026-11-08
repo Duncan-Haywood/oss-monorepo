@@ -20,7 +20,7 @@ export function slabConcrete(s) {
   if (shape === "pier" && !(s.diameter >= 6 && s.diameter <= 60)) errors.push("Pier diameter must be between 6 and 60 in.");
   if (!Number.isInteger(count) || count < 1 || count > 500) errors.push("Count is a whole number from 1 to 500.");
   if (!(waste >= 0 && waste <= 0.5)) errors.push("Waste is a fraction from 0 to 0.5.");
-  if (!(bag in BAG_YIELD)) errors.push("Bag size is 40, 60 or 80 lb.");
+  if (!Object.hasOwn(BAG_YIELD, bag)) errors.push("Bag size is 40, 60 or 80 lb.");
   if (errors.length) return { ok: false, errors };
   const area = shape === "pier" ? Math.PI * (/** @type {number} */ (s.diameter) / 2) ** 2 : /** @type {number} */ (s.length) * /** @type {number} */ (s.width);
   const cuFt = area * /** @type {number} */ (s.depth) * count / 1728;
@@ -38,6 +38,46 @@ export function slabConcrete(s) {
 export function slabText(r) {
   if (!r.ok) return /** @type {any} */ (r).errors.map((e) => `  - ${e}`);
   const out = [`Concrete: ${r.cuFt.toFixed(1)} cu ft = ${r.cuYd.toFixed(2)} cu yd`, `With waste: ${r.withWaste.toFixed(2)} cu yd, so order ${r.orderYd.toFixed(2)} cu yd of ready-mix`, `Or ${r.bags} bags of ${r.bag} lb mix`];
+  for (const n of r.notes) out.push(`- ${n}`);
+  return out;
+}
+
+/** Control-joint rules of thumb (typed; the engineer's or local book's figures win): spacing is 30 times the slab thickness (the usual 24 to 36 range), never over 15 ft, panels no longer than 1.5 times their width, saw cut at least 1/4 of the thickness, cut within 6 to 18 hours of the pour. */
+export const JOINT_RULES = { spacingFactor: 30, maxSpacing: 180, maxAspect: 1.5, cutFraction: 0.25 };
+
+/** Control-joint layout for a rectangular slab on grade: panels that stay inside the spacing limit and the aspect limit, the saw-cut length and the cut depth.
+ *  @param {{ length?: number, width?: number, depth?: number, spacingFactor?: number, maxSpacing?: number }} s inches
+ *  @returns {{ ok: true, spacing: number, cutsAlongLength: number, cutsAlongWidth: number, panelLength: number, panelWidth: number, panels: number, sawCutFeet: number, cutDepth: number, notes: string[] } | { ok: false, errors: string[] }} */
+export function controlJoints(s) {
+  if (!s || typeof s !== "object" || Array.isArray(s)) return { ok: false, errors: ["Give the slab as an object with length, width and depth in inches."] };
+  const factor = s.spacingFactor ?? JOINT_RULES.spacingFactor, cap = s.maxSpacing ?? JOINT_RULES.maxSpacing;
+  const errors = textNumberErrors(s, ["length", "width", "depth", "spacingFactor", "maxSpacing"]);
+  if (!(s.depth >= 2 && s.depth <= 24)) errors.push("Thickness must be between 2 and 24 in.");
+  if (!(s.length >= 12 && s.length <= 4800)) errors.push("Length must be between 1 and 400 ft.");
+  if (!(s.width >= 12 && s.width <= 4800)) errors.push("Width must be between 1 and 400 ft.");
+  if (!(factor >= 12 && factor <= 48)) errors.push("Spacing factor is from 12 to 48 times the thickness.");
+  if (!(cap >= 24 && cap <= 360)) errors.push("Maximum spacing is from 2 to 30 ft.");
+  if (errors.length) return { ok: false, errors };
+  const L = /** @type {number} */ (s.length), W = /** @type {number} */ (s.width), D = /** @type {number} */ (s.depth);
+  const spacing = Math.min(factor * D, cap);
+  // Equal panels: the fewest that keep each panel at or under the spacing.
+  const nL = Math.ceil(L / spacing - 1e-9), nW = Math.ceil(W / spacing - 1e-9);
+  const panelLength = L / nL, panelWidth = W / nW;
+  const cutsAlongLength = nL - 1, cutsAlongWidth = nW - 1;
+  const sawCutFeet = (cutsAlongLength * W + cutsAlongWidth * L) / 12;
+  const notes = [];
+  const aspect = Math.max(panelLength, panelWidth) / Math.min(panelLength, panelWidth);
+  if (aspect > JOINT_RULES.maxAspect) notes.push(`Panels come out ${panelLength.toFixed(0)} x ${panelWidth.toFixed(0)} in, longer than ${JOINT_RULES.maxAspect} times their width: add a joint across the long side or ask the engineer.`);
+  notes.push("Saw within 6 to 18 hours of the pour, before random cracks start. Joints run through to meet columns, walls and any re-entrant corner.");
+  return { ok: true, spacing, cutsAlongLength, cutsAlongWidth, panelLength, panelWidth, panels: nL * nW, sawCutFeet, cutDepth: D * JOINT_RULES.cutFraction, notes };
+}
+
+/** Plain-text lines for a `controlJoints` result.
+ *  @param {ReturnType<typeof controlJoints>} r */
+export function jointText(r) {
+  if (!r.ok) return /** @type {any} */ (r).errors.map((e) => `  - ${e}`);
+  const f = (/** @type {number} */ n) => (Math.round(n * 10) / 10).toString();
+  const out = [`Control joints: ${r.panels} panels of ${f(r.panelLength)} x ${f(r.panelWidth)} in (spacing limit ${f(r.spacing)} in)`, `Saw cuts: ${r.cutsAlongLength} across the length, ${r.cutsAlongWidth} across the width, ${f(r.sawCutFeet)} ft in all, ${f(r.cutDepth)} in deep`];
   for (const n of r.notes) out.push(`- ${n}`);
   return out;
 }

@@ -337,3 +337,144 @@ test("cross wing: main courses are shortened under the wing, and the sheet count
   assert.ok(Math.abs(all - kept - 2 * cw) < 1e-6, `${all} ${kept} ${cw}`);
   assert.equal(l.planeCourses.left[0].pieces.reduce((s, p) => s + p.length, 0), all); // the far plane is whole
 });
+
+test("roofing nails by hand: 320 per square, 150 per lb, 30 lb boxes", () => {
+  const l = layoutRoof(sampleRoof(), plan());
+  const nails = Math.ceil(l.roofing.squares * 1.1 * 320 - 1e-9);
+  assert.equal(l.roofing.nails, nails);
+  assert.ok(Math.abs(l.roofing.nailLb - nails / 150) < 1e-9);
+  assert.equal(l.roofing.nailBoxes, Math.ceil(nails / 150 / 30 - 1e-9));
+  const t = layoutRoof({ ...sampleRoof(), roofing: { nailsPerSquare: 400, nailsPerLb: 100, nailBoxLb: 5 } }, plan());
+  assert.equal(t.roofing.nails, Math.ceil(t.roofing.squares * 1.1 * 400 - 1e-9));
+  assert.equal(t.roofing.nailBoxes, Math.ceil(t.roofing.nails / 100 / 5 - 1e-9));
+  assert.match(roofText(l).join("\n"), /lb of roofing nails/);
+});
+
+test("roof sheathing nails: 4 x 8 sheet, rafters at 16 in = 48 edge + 2 lines x 8 field = 64 per sheet, plus 10%", () => {
+  const l = layoutRoof(sampleRoof(), plan());
+  assert.equal(l.sheets.nailsPerSheet, 64); // 288 in perimeter / 6 = 48; ceil(48/16) - 1 = 2 lines x 96/12 = 16
+  assert.equal(l.sheets.nails, Math.ceil(64 * l.sheets.count * 1.1 - 1e-9));
+  const t = layoutRoof({ ...sampleRoof(), sheet: { edgeNailSpacing: 4, fieldNailSpacing: 8 } }, plan());
+  assert.equal(t.sheets.nailsPerSheet, 72 + 2 * 12);
+});
+
+test("roof sheathing H-clips: opt-in, one per 16 in bay along a 96 in edge = 6 per sheet, plus 10%", () => {
+  const off = layoutRoof(sampleRoof(), plan());
+  assert.equal(off.sheets.clips, undefined);
+  const l = layoutRoof({ ...sampleRoof(), sheet: { clips: true, clipPrice: 0.5 } }, plan());
+  assert.equal(l.sheets.clipsPerSheet, 6);
+  assert.equal(l.sheets.clips, Math.ceil(6 * l.sheets.count * 1.1 - 1e-9));
+  assert.equal(l.sheets.clipCost, l.sheets.clips * 0.5);
+  assert.equal(layoutRoof({ ...sampleRoof(), spacing: 24, sheet: { clips: true } }, plan()).sheets.clipsPerSheet, 4);
+});
+
+test("underlayment cap nails: opt-in, typed per-square rate x squares x waste, boxes of 2000", () => {
+  assert.equal(layoutRoof(sampleRoof(), plan()).roofing.underlaymentNails, undefined);
+  const g = layoutRoof({ ...sampleRoof(), roofing: { underlaymentNailsPerSquare: 100 } }, plan()).roofing;
+  assert.equal(g.underlaymentNails, Math.ceil(g.squares * g.waste * 100 - 1e-9));
+  assert.equal(g.underlaymentNailBoxes, Math.ceil(g.underlaymentNails / 2000 - 1e-9));
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { underlaymentNailsPerSquare: 100, underlaymentNailBox: 500 } }, plan()).roofing.underlaymentNailBoxes, Math.ceil(g.underlaymentNails / 500 - 1e-9));
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { underlaymentNailsPerSquare: -1 } }, plan()).roofing.underlaymentNails, undefined);
+});
+
+test("ice and water shield: opt-in, 24 in inside the wall, by hand", () => {
+  const off = layoutRoof(sampleRoof(), plan());
+  assert.equal(off.roofing.iceShieldRolls, undefined);
+  const l = layoutRoof({ ...sampleRoof(), roofing: { iceShield: 24 } }, plan());
+  const k = Math.sqrt(1 + (4 / 12) ** 2), area = l.roofing.eaveFeet * (12 + 24) * k / 12;
+  assert.ok(Math.abs(l.roofing.iceShieldArea - area) < 1e-6);
+  assert.equal(l.roofing.iceShieldRolls, Math.ceil(area * 1.1 / 200 - 1e-9));
+  const t = layoutRoof({ ...sampleRoof(), roofing: { iceShield: 36, iceShieldRoll: 100, iceShieldWaste: 1 } }, plan());
+  assert.equal(t.roofing.iceShieldRolls, Math.ceil(t.roofing.eaveFeet * (12 + 36) * k / 12 / 100 - 1e-9));
+  const h = layoutRoof(hipRoof({ roofing: { iceShield: 24 } }), plan());
+  assert.ok(h.roofing.iceShieldRolls >= 1);
+  assert.match(roofText(l).join("\n"), /ice and water shield/);
+});
+
+test("valley flashing rolls: two valleys per wing, 10% waste, 50 ft rolls, by hand", () => {
+  const l = layoutRoof(wingRoof(), plan());
+  assert.equal(l.roofing.valleyFlashingRolls, Math.ceil(l.roofing.valleyFeet * 1.1 / 50 - 1e-9));
+  assert.ok(Math.abs(l.roofing.valleyFeet - 2 * l.wing.valleyLength / 12) < 1e-9);
+  const t = layoutRoof({ ...wingRoof(), roofing: { valleyRollFeet: 10, valleyWaste: 1 } }, plan());
+  assert.equal(t.roofing.valleyFlashingRolls, Math.ceil(t.roofing.valleyFeet / 10 - 1e-9));
+  assert.equal(layoutRoof(sampleRoof(), plan()).roofing.valleyFlashingRolls, undefined);
+});
+
+test("pipe boots: the typed count plus one spare, nothing when not typed", () => {
+  assert.equal(layoutRoof(sampleRoof(), plan()).roofing.pipeBoots, undefined);
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { pipeBoots: 3 } }, plan()).roofing.pipeBoots, 4);
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { pipeBoots: 3, pipeBootSpares: 0 } }, plan()).roofing.pipeBoots, 3);
+  assert.equal(layoutRoof(hipRoof({ roofing: { pipeBoots: 2 } }), plan()).roofing.pipeBoots, 3);
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { pipeBoots: 2.5 } }, plan()).roofing.pipeBoots, undefined);
+});
+
+test("ridge cap and starter nails by hand, opt-in", () => {
+  const base = layoutRoof(sampleRoof(), plan());
+  const l = layoutRoof({ ...sampleRoof(), roofing: { capNailsPerFoot: 4, starterNailsPerFoot: 2 } }, plan());
+  const r = base.roofing, w = r.nails === base.roofing.nails ? 1.1 : 1.1;
+  const cap = Math.ceil(r.ridgeFeet * 4 * w - 1e-9), st = Math.ceil(r.eaveFeet * 2 * w - 1e-9);
+  assert.equal(l.roofing.capNails, cap);
+  assert.equal(l.roofing.starterNails, st);
+  assert.equal(l.roofing.nails, r.nails + cap + st);
+  assert.equal(base.roofing.underlaymentNails, undefined);
+});
+
+test("drip edge nails: opt-in, typed spacing along eave and rake plus one per piece, by hand", () => {
+  assert.equal(layoutRoof(sampleRoof(), plan()).roofing.dripEdgeNails, undefined);
+  const g = layoutRoof({ ...sampleRoof(), roofing: { dripEdgeNailSpacing: 12 } }, plan()).roofing;
+  assert.equal(g.dripEdgeNails, Math.ceil((g.eaveFeet + g.rakeFeet) * 12 / 12 - 1e-9) + g.dripEdgePieces);
+  assert.ok(g.dripEdgeNails > 0);
+  const h = layoutRoof(hipRoof({ roofing: { dripEdgeNailSpacing: 10 } }), plan()).roofing;
+  assert.equal(h.dripEdgeNails, Math.ceil(h.eaveFeet * 12 / 10 - 1e-9) + h.dripEdgePieces);
+  assert.equal(layoutRoof({ ...sampleRoof(), roofing: { dripEdgeNailSpacing: 0 } }, plan()).roofing.dripEdgeNails, undefined);
+});
+
+test("drip edge nail boxes: only when a box size is typed, boxes round up, by hand", () => {
+  const r = (roofing) => layoutRoof({ ...sampleRoof(), roofing }, plan()).roofing;
+  assert.equal(r({ dripEdgeNailSpacing: 12 }).dripEdgeNailBoxes, undefined);
+  const g = r({ dripEdgeNailSpacing: 12, dripEdgeNailBox: 100 });
+  assert.equal(g.dripEdgeNailBoxes, Math.ceil(g.dripEdgeNails / 100 - 1e-9));
+  assert.equal(r({ dripEdgeNailSpacing: 12, dripEdgeNailBox: g.dripEdgeNails }).dripEdgeNailBoxes, 1);
+  assert.equal(r({ dripEdgeNailSpacing: 12, dripEdgeNailBox: g.dripEdgeNails - 1 }).dripEdgeNailBoxes, 2);
+  assert.equal(r({ dripEdgeNailBox: 100 }).dripEdgeNailBoxes, undefined);
+});
+
+test("roof sheathing nail boxes: typed box size only, whole boxes (hand check)", () => {
+  assert.equal(layoutRoof(sampleRoof(), plan()).sheets.nailBoxes, undefined);
+  const l = layoutRoof({ ...sampleRoof(), sheet: { nailBox: 500 } }, plan());
+  assert.equal(l.sheets.nailBoxes, Math.ceil(l.sheets.nails / 500 - 1e-9));
+  assert.ok(l.notes.some((n) => /nail boxes: \d+ nails in boxes of 500/.test(n)));
+  assert.equal(layoutRoof({ ...sampleRoof(), sheet: { nailBox: 0 } }, plan()).sheets.nailBoxes, undefined);
+  const c = layoutRoof({ ...sampleRoof(), sheet: { nailBox: 500, clips: true } }, plan());
+  assert.ok(c.notes.some((n) => /H-clips/.test(n)) && c.notes.some((n) => /nail boxes/.test(n)));
+});
+
+test("layoutRoof, layoutSiding, layoutTrim and the opening fixers refuse null input with a reason, not a TypeError", async () => {
+  const { layoutRoof } = await import("./roof.mjs");
+  const { layoutSiding } = await import("./siding.mjs");
+  const { layoutTrim } = await import("./trim.mjs");
+  const { shallowHeaders, trimOpenings, doorsToFloor } = await import("./shallowheaders.mjs");
+  for (const bad of [null, undefined, 5, "x", []]) {
+    assert.equal(layoutRoof(bad, {}).ok, false);
+  }
+  assert.equal(layoutRoof({ width: 300, length: 480, pitch: 6 }, null).ok, false);
+  assert.equal(layoutSiding({}, undefined).ok, false);
+  assert.equal(layoutTrim({}, undefined).ok, false);
+  for (const f of [shallowHeaders, trimOpenings, doorsToFloor]) assert.deepEqual(f(null), []);
+});
+
+test("typed roofing settings are refused when they would order nonsense (2026-11-08)", () => {
+  // before: waste -1 ordered -39 shingle bundles, a 0 roll length or box weight gave null counts
+  const bad = [
+    [{ roofing: { waste: -1 } }, /waste/], [{ roofing: { bundlesPerSquare: 0 } }, /bundlesPerSquare/],
+    [{ roofing: { nailsPerLb: "x" } }, /nailsPerLb/], [{ roofing: { underlaymentRoll: 0 } }, /underlaymentRoll/],
+    [{ roofing: { nailBoxLb: 0 } }, /nailBoxLb/], [{ roofing: 5 }, /roofing settings/],
+  ];
+  for (const [ov, re] of bad) {
+    const l = layoutRoof({ ...sampleRoof(), ...ov }, plan());
+    assert.equal(l.ok, false, JSON.stringify(ov));
+    assert.ok(l.errors.some((m) => re.test(m)), JSON.stringify(ov) + " " + JSON.stringify(l.errors));
+  }
+  const good = layoutRoof({ ...sampleRoof(), roofing: { waste: 1.1, bundlesPerSquare: 3, underlaymentRoll: 400 } }, plan());
+  assert.ok(good.ok, JSON.stringify(good.errors));
+});

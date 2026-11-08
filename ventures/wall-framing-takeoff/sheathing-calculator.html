@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wall sheathing calculator: how many OSB or plywood sheets for the walls of a house</title>
+  <meta name="description" content="Free wall sheathing calculator: type a house size, wall height and openings and get the number of 4 ft wide OSB or plywood sheets, which length to buy, cut-outs and offcut. Runs in your browser.">
+  <meta property="og:title" content="Wall sheathing calculator">
+  <meta property="og:description" content="House size, wall height and openings in; sheets to buy out. Private, free, in your browser.">
+  <link rel="canonical" href="./sheathing-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many sheets of sheathing do I need for a 40 x 24 ft house with 8 ft walls?", "acceptedAnswer": {"@type": "Answer", "text": "With no openings, 32 sheets: the 40 ft walls take 10 sheets each and the 24 ft walls 6 each, on vertical 4 ft sheets. The walls stand 97-1/8 in tall (a precut stud plus the bottom plate and double top plate), so a 4x8 sheet is too short and the order is 4x9 sheets: 1,152 sq ft bought for 1,036 sq ft of wall."}}, {"@type": "Question", "name": "Is a 4x8 sheet long enough for an 8 ft wall?", "acceptedAnswer": {"@type": "Answer", "text": "No. A wall framed with 92-5/8 in precut studs is 97-1/8 in tall with its three plates, 1-1/8 in more than a 4x8 sheet. Either buy 9 ft sheets, or use 8 ft sheets with a second narrow course and a blocked joint, which the whole-house takeoff can lay out. This page buys the cheapest single-length sheet that covers the wall."}}, {"@type": "Question", "name": "What do 6 windows and 2 doors change?", "acceptedAnswer": {"@type": "Answer", "text": "On the same 40 x 24 ft house, 6 windows of 36 x 48 in and 2 doors of 36 x 82-1/2 in spread round the walls take 113 sq ft off the wall area (923 sq ft left to sheathe) but still add a sheet: 33 sheets of 4x9, 1,188 sq ft bought, 22% offcut. Cut-outs are mostly waste, because a panel is cut around an opening and the piece rarely fits anywhere else."}}, {"@type": "Question", "name": "Horizontal or vertical sheets?", "acceptedAnswer": {"@type": "Answer", "text": "Vertical sheets run floor to top plate and every edge lands on a stud. Turned sideways, the same house with the windows and doors takes 27 sheets of 4x12 (38 panels), but each course joint needs blocking. The page runs both so you can compare; the choice is a design one."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Wall sheathing calculator</h1>
+  <p>Type the house, the wall height and how many windows and doors. The framing engine lays out four walls, breaks each 4 ft sheet on a stud, cuts around the openings and picks the cheapest sheet length by column generation. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">House length (ft, or 40' 0")</label><input id="len" value="40"></div>
+      <div><label for="wid">House width (ft)</label><input id="wid" value="24"></div>
+      <div><label for="ht">Wall height (precut studs)</label><select id="ht"><option value="8ft">8 ft</option><option value="9ft">9 ft</option><option value="10ft">10 ft</option></select></div>
+      <div><label for="win">Windows (36 x 48 in)</label><input id="win" type="number" min="0" max="40" value="6"></div>
+      <div><label for="door">Doors (36 x 82-1/2 in)</label><input id="door" type="number" min="0" max="40" value="2"></div>
+      <div><label for="ori">Sheet direction</label><select id="ori"><option value="vertical">Vertical</option><option value="horizontal">Horizontal</option></select></div>
+      <div><label for="sl">Sheet length</label><select id="sl"><option value="0">Cheapest of 8, 9, 10, 12 ft</option><option value="108">9 ft</option><option value="120">10 ft</option><option value="144">12 ft</option></select></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Sheathe a whole house with real walls, tees and gables</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Wall height.</strong> A precut stud plus the bottom plate and the double top plate, so an "8 ft" wall is 97-1/8 in tall.</li>
+    <li><strong>Panels.</strong> Sheets are 4 ft wide. Joints land on studs, a sliver narrower than 12 in is avoided by pulling the last joint back, and the openings are cut out of the panels they cross.</li>
+    <li><strong>Order.</strong> Panels are packed into sheets and the sheet length is chosen to minimise area bought; the lower bound shows how close to the best order it is.</li>
+    <li><strong>Openings.</strong> This page spreads your windows and doors evenly. A real plan has them where the architect put them, which the takeoff tool takes exactly.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many sheets of sheathing do I need for a 40 x 24 ft house with 8 ft walls?</h3>
+  <p>With no openings, 32 sheets: the 40 ft walls take 10 sheets each and the 24 ft walls 6 each, on vertical 4 ft sheets. The walls stand 97-1/8 in tall (a precut stud plus the bottom plate and double top plate), so a 4x8 sheet is too short and the order is 4x9 sheets: 1,152 sq ft bought for 1,036 sq ft of wall.</p>
+  <h3>Is a 4x8 sheet long enough for an 8 ft wall?</h3>
+  <p>No. A wall framed with 92-5/8 in precut studs is 97-1/8 in tall with its three plates, 1-1/8 in more than a 4x8 sheet. Either buy 9 ft sheets, or use 8 ft sheets with a second narrow course and a blocked joint, which the whole-house takeoff can lay out. This page buys the cheapest single-length sheet that covers the wall.</p>
+  <h3>What do 6 windows and 2 doors change?</h3>
+  <p>On the same 40 x 24 ft house, 6 windows of 36 x 48 in and 2 doors of 36 x 82-1/2 in spread round the walls take 113 sq ft off the wall area (923 sq ft left to sheathe) but still add a sheet: 33 sheets of 4x9, 1,188 sq ft bought, 22% offcut. Cut-outs are mostly waste, because a panel is cut around an opening and the piece rarely fits anywhere else.</p>
+  <h3>Horizontal or vertical sheets?</h3>
+  <p>Vertical sheets run floor to top plate and every edge lands on a stud. Turned sideways, the same house with the windows and doors takes 27 sheets of 4x12 (38 panels), but each course joint needs blocking. The page runs both so you can compare; the choice is a design one.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers, fittings)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, grout, carpet)</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li><li><a href="board-foot-calculator.html">Board foot calculator (board feet, cubic feet and cost)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House size, pitch, overhangs, panel widths and waste are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Soffit, fascia and channel counts follow the layout stated above; the manufacturer's panel sizes and your supplier's catalogue govern what you buy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House size, wall height and openings are your inputs; nailing schedules, shear-wall requirements and the sheet thickness are not checked. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Sheet counts follow the layout stated above; your plans and supplier govern what you buy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<script type="module">
+    import { takeoff, parseLength } from "./engine.mjs";
+    import { sheathe, houseSheathingPlan, sheathingText } from "./sheathing.mjs";
+    const $ = (id) => document.getElementById(id);
+    const ft = (v) => { const s = String(v).trim(); return /^[\d.]+$/.test(s) ? +s * 12 : parseLength(s); };
+    const run = () => {
+      try {
+        const h = houseSheathingPlan({ length: ft($("len").value), width: ft($("wid").value), height: $("ht").value, windows: +$("win").value, doors: +$("door").value, orientation: $("ori").value, sheetLength: +$("sl").value || 0 });
+        if (!h.ok) { $("out").textContent = h.errors.join("\n"); return; }
+        const r = takeoff(h.plan);
+        if (!r.ok) { $("out").textContent = (r.errors || []).join("\n"); return; }
+        $("out").textContent = sheathingText(sheathe(h.plan, r)).join("\n");
+      } catch (e) { $("out").textContent = String(e && e.message || e); }
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

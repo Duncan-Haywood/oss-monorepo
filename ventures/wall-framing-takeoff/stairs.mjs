@@ -56,9 +56,9 @@ export function validateStair(s) {
   if (!(s.totalRise >= 12)) errors.push("Total rise (finished floor to finished floor) must be at least 1 ft.");
   else if (s.totalRise > L.maxRise) errors.push(`A flight can rise at most ${formatLength(L.maxRise)} between landings; ${formatLength(s.totalRise)} needs a landing, so lay out each flight on its own.`);
   if (s.tread != null && !(s.tread >= L.minTread)) errors.push(`Tread ${s.tread} in is under the ${L.minTread} in minimum.`);
-  if (s.stringer && !(s.stringer in DEPTH)) errors.push(`Unknown stringer size ${s.stringer}.`);
-  if (s.treadBoard && !(s.treadBoard in DEPTH)) errors.push(`Unknown tread board size ${s.treadBoard}.`);
-  if (s.riserBoard && !(s.riserBoard in DEPTH)) errors.push(`Unknown riser board size ${s.riserBoard}.`);
+  if (s.stringer && !Object.hasOwn(DEPTH, s.stringer)) errors.push(`Unknown stringer size ${s.stringer}.`);
+  if (s.treadBoard && !Object.hasOwn(DEPTH, s.treadBoard)) errors.push(`Unknown tread board size ${s.treadBoard}.`);
+  if (s.riserBoard && !Object.hasOwn(DEPTH, s.riserBoard)) errors.push(`Unknown riser board size ${s.riserBoard}.`);
   if (s.width != null && !(s.width >= L.minWidth)) errors.push(`Stair width ${s.width} in is under the ${L.minWidth} in minimum.`);
   if (s.width != null && s.width > 120) errors.push("Stair width over 10 ft is outside what this layout checks.");
   if (s.stringerSpacing != null && !(s.stringerSpacing > 0 && s.stringerSpacing <= 48)) errors.push(`Stringer spacing ${s.stringerSpacing} in must be over 0 and at most 48 in.`);
@@ -71,9 +71,12 @@ export function validateStair(s) {
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStair(input, plan) {
+  if (input == null || typeof input !== "object" || Array.isArray(input)) return { ok: false, id: "Stair", errors: ["Stair settings are an object."] };
   const s = { id: "Stair", tread: 10, stringer: "2x12", width: 36, riserBoard: null, treadThickness: 1.5, treadBoard: "2x12", treadGap: 0.25, nosing: 1, stringerSpacing: 16, floorThickness: 12.25, ...input };
   const L = { ...STAIR_LIMITS, ...(input.limits || {}) };
   const errors = validateStair({ ...s, limits: input.limits });
+  if (input.rail != null && (typeof input.rail !== "object" || Array.isArray(input.rail))) errors.push("rail must be an object.");
+  else if (input.rail && input.rail.sides != null && ![1, 2].includes(input.rail.sides)) errors.push(`rail.sides must be 1 or 2, not ${JSON.stringify(input.rail.sides)}.`);
   if (errors.length) return { ok: false, id: s.id, errors };
 
   // Fewest equal risers under the limit; a tread chosen by the person stays, else the 2R+T comfort rule (25 in) bounded below by the code minimum.
@@ -156,6 +159,7 @@ export function layoutStair(input, plan) {
  * @param {string[]} notes
  */
 export function layoutRail(g, r, notes) {
+  if (!g || typeof g !== "object" || !(g.riser > 0) || !(g.tread > 0) || !(g.pitch > 0) || !(g.run > 0) || !r || typeof r !== "object") throw new TypeError("layoutRail needs the stair geometry (riser, tread, pitch, run) and a rail object; layoutStair checks these first.");
   const L = { ...RAIL_LIMITS, ...(r.limits || {}) };
   const sides = r.sides ?? 1, bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4";
   const hh = r.handrailHeight ?? 36;
@@ -233,6 +237,7 @@ export function stairCuts(l) {
  */
 export function checkStringer(l, c) {
   const errors = [];
+  if (!l || typeof l !== "object" || !l.stringer || typeof l.stringer !== "object" || !(l.run > 0)) return { ok: false, errors: ["checkStringer needs a stair layout from layoutStair (with a stringer and a run)."] };
   for (const [k, lo, hi] of [["liveLoad", 1, 200], ["deadLoad", 0, 200], ["Fb", 10, 5000], ["Fv", 1, 500], ["E", 200000, 3000000]]) {
     if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`stringerCheck.${k} must be typed, from ${lo} to ${hi} (${k === "liveLoad" || k === "deadLoad" ? "psf" : "psi"}); no default is shipped.`);
   }
@@ -381,7 +386,7 @@ export function layoutStairWithLanding(input, plan) {
   const upper = layoutStair({ ...rest, id: `${id}, upper flight`, totalRise: rise2, ...(openingLength != null ? { openingLength } : {}) }, plan);
   const errors = [...(lower.ok ? [] : lower.errors), ...(upper.ok ? [] : upper.errors)];
   const joistSize = lc.joist || "2x8", deckSize = lc.deckBoard || input.treadBoard || "2x12", spacing = lc.spacing || 16;
-  for (const [k, v] of [["joist", joistSize], ["deck board", deckSize]]) if (!(v in DEPTH)) errors.push(`Unknown landing ${k} size ${v}.`);
+  for (const [k, v] of [["joist", joistSize], ["deck board", deckSize]]) if (!Object.hasOwn(DEPTH, v)) errors.push(`Unknown landing ${k} size ${v}.`);
   if (errors.length) return { ok: false, id, errors };
   const joists = Math.ceil((width - THICK) / spacing - 1e-9) + 1;
   const deckBoards = Math.ceil((depth + 0.25) / (DEPTH[deckSize] + 0.25) - 1e-9);
@@ -512,7 +517,7 @@ export function checkLandingJoists(j, c) {
   if (!inr(c?.Fv, 50, 500)) errors.push("joistCheck.Fv is the joist's allowable shear stress in psi (50 to 500).");
   if (!inr(c?.E, 200000, 3000000)) errors.push("joistCheck.E is the joist's modulus of elasticity in psi (200000 to 3000000).");
   if (c?.deflLimit != null && !inr(c.deflLimit, 120, 720)) errors.push("joistCheck.deflLimit is the span ratio (L/360 by default), 120 to 720.");
-  if (!(j.size in DEPTH)) errors.push(`Unknown landing joist size ${j.size}.`);
+  if (!Object.hasOwn(DEPTH, j.size)) errors.push(`Unknown landing joist size ${j.size}.`);
   if (errors.length) return { ok: false, errors };
   const b = THICK, d = DEPTH[j.size], L = j.span, lim = c.deflLimit ?? 360;
   const w = ((c.deadPsf + c.livePsf) * j.spacing) / 144, wl = (c.livePsf * j.spacing) / 144; // lb per inch
@@ -603,7 +608,7 @@ export function winderText(c) {
   out.push(c.ok ? "  Winders pass the 6 in and 10 in rules as typed." : `  Winders fail: ${c.problems.join("; ")}. The smallest inner radius that passes is ${c.minInnerRadius.toFixed(1)} in.`);
   if (c.treads) {
     out.push(`  Straight-edge depths: ${c.chordNarrow.toFixed(2)} in narrow, ${c.chordWalk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.chordWide.toFixed(2)} in wide${c.chordPasses ? "" : " (a straight edge fails where the arc passes: add radius)"}`);
-    if (c.framing) out.push(`  Framing under the winders: ${c.framing.supports} radial supports of ${formatInches(c.framing.supportLength)} (${formatInches(c.framing.totalLength)} all told; ${c.framing.shared} shared by two treads), each tread spanning up to ${formatInches(c.framing.treadSpan)} between two of them at the wall end.${c.framing.spanOk == null ? " Check that span against your own tread table." : c.framing.spanOk ? ` Within the ${formatInches(c.framing.treadSpanMax)} most.` : ` Over the ${formatInches(c.framing.treadSpanMax)} most: add a support under each tread, use thicker treads or a smaller inner radius.`}`);
+    if (c.framing) out.push(`  Framing under the winders: ${c.framing.supports} radial supports of ${formatInches(c.framing.supportLength)} (${formatInches(c.framing.totalLength)} all told; ${c.framing.shared} shared by two treads), ${c.framing.boards ? `cut from ${c.framing.boards.count} ${formatInches(c.framing.boards.stock)} boards (${c.framing.boards.perBoard} to a board), ` : ""}each tread spanning up to ${formatInches(c.framing.treadSpan)} between two of them at the wall end.${c.framing.spanOk == null ? " Check that span against your own tread table." : c.framing.spanOk ? ` Within the ${formatInches(c.framing.treadSpanMax)} most.` : ` Over the ${formatInches(c.framing.treadSpanMax)} most: add a support under each tread, use thicker treads or a smaller inner radius.`}`);
     for (const t of c.treads) out.push(`  Winder tread ${t.index}: ${t.area.toFixed(1)} sq in, cut from a ${formatInches(t.blank.x)} x ${formatInches(t.blank.y)} blank`);
   }
   return out;
@@ -617,7 +622,7 @@ export function winderText(c) {
 // straight-edge ("chord") depth 2 x radius x sin(theta/2) at the narrow end,
 // 12 in out and the wide end. A chord is shorter than the arc `checkWinders`
 // measures, so `chordPasses` is the stricter answer for a straight edge.
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, supportStock?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function layoutWinders(w) {
   const c = checkWinders(w);
   if (!c.problems) return c;
@@ -645,6 +650,12 @@ export function layoutWinders(w) {
   // is checked against `maxTreadSpan`; otherwise it is reported for your table.
   const tt = w.treadThickness, spanMax = typeof w.treadSpanMax === "number" ? w.treadSpanMax : typeof tt === "number" ? maxTreadSpan(tt) : null;
   const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: chordWide, shared: count - 1, treadSpanMax: spanMax, spanOk: spanMax == null ? null : chordWide <= spanMax + 1e-9 };
+  // Stock boards for the supports (2026-11-08): typed `supportStock` length in inches; each support is one piece `width` long, so a board yields floor(stock / width) of them (no kerf). Null when no stock is typed; a stock shorter than a support gives 0 pieces per board and is rejected in `boards`.
+  const ss = w.supportStock;
+  if (typeof ss === "number" && ss > 0) {
+    const per = Math.floor(ss / width + 1e-9);
+    framing.boards = per >= 1 ? { stock: ss, perBoard: per, count: Math.ceil((count + 1) / per) } : null;
+  }
   return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses, framing };
 }
 
@@ -666,4 +677,47 @@ export function linkStairReaction(plan, parseLength) {
   if (!sl.ok || !sk || sk.errors.length || !sk.totalReaction) return `headerCheck.stairFrom ${hc.stairFrom}: the stair's stringerCheck gave no reaction (${[...(sl.errors || []), ...(sk?.errors || [])].join("; ") || "check the stair"}).`;
   hc.stairReaction = sk.totalReaction; hc.stairReactionLive = sk.totalReactionLive;
   return null;
+}
+
+// Spiral stairs (2026-11-07): the model residential code's spiral exception
+// (IRC R311.7.10.1 as typed in SPIRAL_LIMITS; the edition is the user's to
+// confirm): 26 in clear width, a tread at least 6-3/4 in deep measured 12 in
+// from the narrow edge, a riser no taller than 9-1/2 in, 6 ft 6 in of headroom
+// and equal treads. Each of `treadsPerTurn` treads turns 360/treadsPerTurn
+// degrees about the centre pole; depth is radius x angle (the arc, as for
+// winders). Hand-arithmetic tests only; no real spiral stair plan or maker's table.
+export const SPIRAL_LIMITS = { minClearWidth: 26, walkline: 12, minWalkDepth: 6.75, maxRiser: 9.5, headroom: 78 };
+
+/** @param {{ totalRise: number, outerDiameter: number, poleDiameter?: number, treadsPerTurn?: number, handrailIntrusion?: number, limits?: Partial<typeof SPIRAL_LIMITS> }} s */
+export function checkSpiral(s) {
+  const L = { ...SPIRAL_LIMITS, ...(s.limits || {}) };
+  const { totalRise, outerDiameter } = s, pole = s.poleDiameter ?? 4, per = s.treadsPerTurn ?? 12, rail = s.handrailIntrusion ?? 0;
+  const errors = [];
+  for (const [k, v] of [["totalRise", totalRise], ["outerDiameter", outerDiameter]]) if (!(typeof v === "number" && Number.isFinite(v) && v > 0)) errors.push(`${k} is a positive number of inches.`);
+  if (!(typeof pole === "number" && pole >= 0)) errors.push("The pole diameter is zero or more.");
+  if (!Number.isInteger(per) || per < 3) errors.push("Treads per turn is a whole number of three or more.");
+  if (!(typeof rail === "number" && rail >= 0)) errors.push("The handrail intrusion is zero or more.");
+  if (!errors.length && outerDiameter <= pole) errors.push("The outer diameter must exceed the pole diameter.");
+  if (errors.length) return { ok: false, errors };
+  const theta = (2 * Math.PI) / per, rOut = outerDiameter / 2, rPole = pole / 2;
+  const clearWidth = rOut - rPole - rail;
+  const walkDepth = (rPole + L.walkline) * theta;
+  const risers = Math.ceil(totalRise / L.maxRiser - 1e-9), riser = totalRise / risers;
+  const problems = [];
+  if (clearWidth < L.minClearWidth - 1e-9) problems.push(`clear width ${clearWidth.toFixed(2)} in is under ${L.minClearWidth} in`);
+  if (walkDepth < L.minWalkDepth - 1e-9) problems.push(`tread ${L.walkline} in from the narrow edge is ${walkDepth.toFixed(2)} in deep, under ${L.minWalkDepth} in`);
+  // Most treads per turn that still pass the depth rule, i.e. the steepest fan.
+  const maxPerTurn = Math.floor((2 * Math.PI * (rPole + L.walkline)) / L.minWalkDepth + 1e-9);
+  // Headroom: one full turn climbs per*riser; the opening above a tread must clear `headroom`.
+  const turnRise = per * riser, headroomOk = turnRise >= L.headroom - 1e-9;
+  if (!headroomOk) problems.push(`one turn climbs ${turnRise.toFixed(2)} in, under the ${L.headroom} in of headroom: the opening above would be too low`);
+  return { ok: problems.length === 0, risers, treads: risers - 1, riser, anglePerTread: 360 / per, clearWidth, walkDepth, maxTreadsPerTurn: maxPerTurn, turnRise, problems, limits: L };
+}
+
+export function spiralText(c) {
+  if (!c.problems) return c.errors.map((e) => `  - ${e}`);
+  return [
+    `  Spiral stair: ${c.risers} risers of ${c.riser.toFixed(3)} in (limit ${c.limits.maxRiser} in), ${c.treads} treads of ${c.anglePerTread.toFixed(1)} degrees, clear width ${c.clearWidth.toFixed(2)} in, ${c.walkDepth.toFixed(2)} in deep ${c.limits.walkline} in from the narrow edge`,
+    c.ok ? "  The spiral passes the rules as typed." : `  The spiral fails: ${c.problems.join("; ")}. At most ${c.maxTreadsPerTurn} treads per turn pass the depth rule.`,
+  ];
 }

@@ -189,7 +189,7 @@
       $("#sens").innerHTML = r.sens.map((s) => `<tr><th scope="row">${esc(s.label)}</th><td>${usd(s.net)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = r.livesFree ? "The rent covers the building's costs." : "The rent does not cover all of the building's costs.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

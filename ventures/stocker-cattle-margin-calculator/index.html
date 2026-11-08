@@ -154,7 +154,7 @@
       $("#death-rows").innerHTML = r.deathSteps.map((s) => `<tr><th scope="row">${s.deathPct}%</th><td>${usd(s.marginPerHead)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Margin ${usd(r.margin)} for the pen, ${usd(r.marginPerHead)} a head.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -15,17 +15,25 @@
 //    thickness x grout density), in whole bags.
 //  - "carpet": cut from a roll of `rollWidth` (default 144 in). Per room the
 //    roll runs along the longer side, one strip per roll width across the
-//    shorter side, each strip the long side plus a trim allowance; seams =
+//    shorter side, each strip the long side plus a trim allowance (with
+//    `carpet.rollDirection: "best"` the roll may run the other way when that
+//    uses less carpet); seams =
 //    strips - 1; pad is the room area plus waste; tack strip is the perimeter.
 //
-// Not counted: transitions, stair nosing, subfloor prep or leveling, adhesive
+//  - transitions: each room may carry `doorways` (a whole number); every doorway
+//    takes one strip of `transition.doorWidth` (default 36 in) cut from a bar of
+//    `transition.barLength` (default 72 in), so whole bars = doorways / pieces
+//    per bar. Count each doorway once (give it to one of the two rooms).
+//
+// Not counted: stair nosing, subfloor prep or leveling, adhesive
 // and fasteners for plank, caulk, a room's closets or alcoves (add them as
 // rooms), cuts around fixtures, or pattern matching in the carpet.
 
 import { textNumberErrors } from "./numfields.mjs";
 
 const KINDS = ["plank", "tile", "carpet"];
-const NUMS = ["boxSqFt", "waste", "diagonalWaste", "underlaymentRollSqFt", "boxPrice", "underlaymentPrice", "tileWidth", "tileLength", "joint", "thickness", "thinsetSqFtPerBag", "groutLbPerCuFt", "groutBagLb", "tilePrice", "thinsetPrice", "groutPrice", "rollWidth", "trimAllowance", "padWaste", "carpetPrice", "padPrice", "tackStripLength", "tackPrice"];
+const NUMS = ["boxSqFt", "waste", "diagonalWaste", "underlaymentRollSqFt", "boxPrice", "underlaymentPrice", "tileWidth", "tileLength", "joint", "thickness", "thinsetSqFtPerBag", "groutLbPerCuFt", "groutBagLb", "tilePrice", "thinsetPrice", "groutPrice", "rollWidth", "trimAllowance", "padWaste", "carpetPrice", "padPrice", "tackStripLength", "tackPrice", "doorWidth", "barLength", "barPrice"];
+const TRANS = "transition";
 
 /** @param {any} d */
 export function validateFlooring(d) {
@@ -36,9 +44,10 @@ export function validateFlooring(d) {
   d.rooms.forEach((/** @type {any} */ r, /** @type {number} */ i) => {
     if (!r || typeof r !== "object") { e.push(`Room ${i + 1} is not an object.`); return; }
     for (const k of ["width", "depth"]) if (typeof r[k] !== "number" || !(r[k] > 0 && r[k] <= 1e5)) e.push(`Room ${i + 1} (${r.name ?? "unnamed"}): ${k} must be a number of inches above 0.`);
+    if (r.doorways != null && !(Number.isInteger(r.doorways) && r.doorways >= 0 && r.doorways <= 50)) e.push(`Room ${i + 1} (${r.name ?? "unnamed"}): doorways must be a whole number from 0 to 50.`);
     if (!KINDS.includes(r.kind)) e.push(`Room ${i + 1} (${r.name ?? "unnamed"}): kind must be one of ${KINDS.join(", ")}.`);
   });
-  for (const k of KINDS) {
+  for (const k of [...KINDS, TRANS]) {
     const s = d[k];
     if (s == null) continue;
     if (typeof s !== "object" || Array.isArray(s)) { e.push(`${k} settings are an object.`); continue; }
@@ -52,10 +61,15 @@ export function validateFlooring(d) {
   if (t.joint != null && !(t.joint >= 0 && t.joint <= 2)) e.push("joint must be between 0 and 2 in.");
   if (t.thickness != null && !(t.thickness > 0 && t.thickness <= 2)) e.push("thickness must be above 0 and at most 2 in.");
   for (const k of ["thinsetSqFtPerBag", "groutLbPerCuFt", "groutBagLb"]) if (t[k] != null && !(t[k] > 0)) e.push(`${k} must be above 0.`);
+  if (c.rollDirection != null && c.rollDirection !== "best" && c.rollDirection !== "long") e.push('rollDirection must be "long" (default) or "best".');
   if (c.rollWidth != null && !(c.rollWidth >= 36 && c.rollWidth <= 240)) e.push("rollWidth must be between 36 and 240 in.");
   if (c.trimAllowance != null && !(c.trimAllowance >= 0 && c.trimAllowance <= 48)) e.push("trimAllowance must be between 0 and 48 in.");
   if (c.tackStripLength != null && !(c.tackStripLength >= 1 && c.tackStripLength <= 20)) e.push("tackStripLength must be between 1 and 20 ft.");
   if (p.underlaymentRollSqFt != null && !(p.underlaymentRollSqFt > 0)) e.push("underlaymentRollSqFt must be above 0.");
+  const tr = d[TRANS] || {};
+  if (tr.doorWidth != null && !(tr.doorWidth >= 12 && tr.doorWidth <= 120)) e.push("doorWidth must be between 12 and 120 in.");
+  if (tr.barLength != null && !(tr.barLength >= 12 && tr.barLength <= 240)) e.push("barLength must be between 12 and 240 in.");
+  if (tr.doorWidth != null || tr.barLength != null) { const dw = tr.doorWidth ?? 36, bl = tr.barLength ?? 72; if (dw > bl) e.push("doorWidth cannot be longer than barLength."); }
   return e;
 }
 
@@ -66,7 +80,7 @@ export function layoutFlooring(d) {
   const errors = validateFlooring(d);
   if (errors.length) return { ok: false, errors };
   const p = d.plank || {}, t = d.tile || {}, c = d.carpet || {};
-  /** @type {any} */ const out = { ok: true, errors: [], rooms: d.rooms.length, plank: null, tile: null, carpet: null, cost: null };
+  /** @type {any} */ const out = { ok: true, errors: [], rooms: d.rooms.length, plank: null, tile: null, carpet: null, transitions: null, cost: null };
   /** @param {string} k */ const of = (k) => d.rooms.filter((/** @type {any} */ r) => r.kind === k);
   const sq = (/** @type {any} */ r) => r.width * r.depth / 144;
   let cost = 0, priced = false;
@@ -82,7 +96,7 @@ export function layoutFlooring(d) {
     const rolls = p.underlayment ? up(area / (p.underlaymentRollSqFt ?? 100)) : 0;
     const bc = p.boxPrice != null ? boxes * p.boxPrice : null, uc = rolls && p.underlaymentPrice != null ? rolls * p.underlaymentPrice : null;
     if (bc != null || uc != null) { cost += (bc ?? 0) + (uc ?? 0); priced = true; }
-    out.plank = { rooms: pr.length, sqFt: area, orderSqFt: need, boxSqFt: boxSq, boxes, leftoverSqFt: boxes * boxSq - need, underlaymentRolls: rolls, cost: bc != null || uc != null ? (bc ?? 0) + (uc ?? 0) : null };
+    out.plank = { boxPrice: p.boxPrice ?? null, underlaymentPrice: p.underlaymentPrice ?? null, rooms: pr.length, sqFt: area, orderSqFt: need, boxSqFt: boxSq, boxes, leftoverSqFt: boxes * boxSq - need, underlaymentRolls: rolls, cost: bc != null || uc != null ? (bc ?? 0) + (uc ?? 0) : null };
   }
 
   const tr = of("tile");
@@ -104,7 +118,7 @@ export function layoutFlooring(d) {
     const parts = [tc, t.thinsetPrice != null ? thinsetBags * t.thinsetPrice : null, t.groutPrice != null ? groutBags * t.groutPrice : null];
     const tcost = parts.some((x) => x != null) ? parts.reduce((s, x) => s + (x ?? 0), 0) : null;
     if (tcost != null) { cost += tcost; priced = true; }
-    out.tile = { rooms: tr.length, sqFt: area, orderSqFt: need, tileWidth: w, tileLength: l, joint: j, tiles, thinsetBags, groutLb, groutBags, cost: tcost };
+    out.tile = { tilePrice: t.tilePrice ?? null, thinsetPrice: t.thinsetPrice ?? null, groutPrice: t.groutPrice ?? null, rooms: tr.length, sqFt: area, orderSqFt: need, tileWidth: w, tileLength: l, joint: j, tiles, thinsetBags, groutLb, groutBags, cost: tcost };
   }
 
   const cr = of("carpet");
@@ -113,10 +127,14 @@ export function layoutFlooring(d) {
     let linIn = 0, seams = 0, areaSq = 0, perim = 0;
     const perRoom = cr.map((/** @type {any} */ r) => {
       const long = Math.max(r.width, r.depth), short = Math.min(r.width, r.depth);
-      const strips = up(short / rw);
-      const len = long + allow;
+      let strips = up(short / rw), len = long + allow, turned = false;
+      // `rollDirection: "best"` also tries the roll across the long side and keeps whichever uses fewer linear inches (fewer seams on a tie)
+      if (c.rollDirection === "best") {
+        const s2 = up(long / rw), l2 = short + allow;
+        if (s2 * l2 < strips * len - 1e-9 || (Math.abs(s2 * l2 - strips * len) <= 1e-9 && s2 < strips)) { strips = s2; len = l2; turned = true; }
+      }
       linIn += strips * len; seams += strips - 1; areaSq += sq(r); perim += 2 * (r.width + r.depth) / 12;
-      return { name: r.name ?? null, strips, stripLength: len, seams: strips - 1 };
+      return { name: r.name ?? null, strips, stripLength: len, seams: strips - 1, acrossLongSide: turned };
     });
     const rollSqYd = linIn * rw / 1296;
     const padSqYd = areaSq / 9 * (1 + (c.padWaste ?? 0.05));
@@ -125,7 +143,15 @@ export function layoutFlooring(d) {
     const tk = c.tackPrice != null ? up(tack / (c.tackStripLength ?? 4)) * c.tackPrice : null;
     const ccost = [cc, pc, tk].some((x) => x != null) ? (cc ?? 0) + (pc ?? 0) + (tk ?? 0) : null;
     if (ccost != null) { cost += ccost; priced = true; }
-    out.carpet = { rooms: cr.length, sqFt: areaSq, rollWidth: rw, rollSqYd, rollLinearFeet: linIn / 12, seams, padSqYd, tackFeet: tack, perRoom, cost: ccost };
+    out.carpet = { carpetPrice: c.carpetPrice ?? null, padPrice: c.padPrice ?? null, tackPrice: c.tackPrice ?? null, tackStripLength: c.tackStripLength ?? 4, rooms: cr.length, sqFt: areaSq, rollWidth: rw, rollSqYd, rollLinearFeet: linIn / 12, seams, padSqYd, tackFeet: tack, perRoom, cost: ccost };
+  }
+  const doorways = d.rooms.reduce((/** @type {number} */ n, /** @type {any} */ r) => n + (r.doorways ?? 0), 0);
+  if (doorways > 0) {
+    const tt = d[TRANS] || {}, dw = tt.doorWidth ?? 36, bl = tt.barLength ?? 72;
+    const perBar = Math.floor(bl / dw + 1e-9), bars = up(doorways / perBar);
+    const tc = tt.barPrice != null ? bars * tt.barPrice : null;
+    if (tc != null) { cost += tc; priced = true; }
+    out.transitions = { doorways, doorWidth: dw, barLength: bl, piecesPerBar: perBar, bars, barPrice: tt.barPrice ?? null, cost: tc };
   }
   out.cost = priced ? cost : null;
   return out;
@@ -137,7 +163,8 @@ export function flooringText(f) {
   if (f.plank) l.push(`  Plank: ${f.plank.sqFt.toFixed(0)} sq ft in ${f.plank.rooms} room(s), ${f.plank.orderSqFt.toFixed(0)} with waste -> ${f.plank.boxes} boxes of ${f.plank.boxSqFt} sq ft (${f.plank.leftoverSqFt.toFixed(1)} sq ft left over)${f.plank.underlaymentRolls ? `; ${f.plank.underlaymentRolls} underlayment roll(s)` : ""}.`);
   if (f.tile) l.push(`  Tile: ${f.tile.sqFt.toFixed(0)} sq ft of ${f.tile.tileWidth} x ${f.tile.tileLength} in tile, ${f.tile.joint} in joints -> ${f.tile.tiles} tiles, ${f.tile.thinsetBags} bags thinset, ${f.tile.groutLb.toFixed(1)} lb grout (${f.tile.groutBags} bags).`);
   if (f.carpet) l.push(`  Carpet: ${f.carpet.sqFt.toFixed(0)} sq ft of floor from a ${f.carpet.rollWidth / 12} ft roll -> ${f.carpet.rollLinearFeet.toFixed(1)} linear ft (${f.carpet.rollSqYd.toFixed(1)} sq yd), ${f.carpet.seams} seam(s); pad ${f.carpet.padSqYd.toFixed(1)} sq yd; tack strip ${f.carpet.tackFeet.toFixed(0)} ft.`);
+  if (f.transitions) l.push(`  Transitions: ${f.transitions.doorways} doorway(s) of ${f.transitions.doorWidth} in -> ${f.transitions.bars} bar(s) of ${f.transitions.barLength} in (${f.transitions.piecesPerBar} per bar).`);
   if (f.cost != null) l.push(`  Flooring cost: ${f.cost.toFixed(2)}.`);
-  l.push("  Defaults are typed figures, not code or a maker's: use your product's box size, tile size and coverage. Transitions, nosing, subfloor prep and adhesive are not counted.");
+  l.push("  Defaults are typed figures, not code or a maker's: use your product's box size, tile size and coverage. Stair nosing, subfloor prep and adhesive are not counted.");
   return l;
 }

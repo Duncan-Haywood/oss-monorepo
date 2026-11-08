@@ -161,7 +161,7 @@
       $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.guests}</th><td>${x.chefHrs}</td><td>${usd(x.cost)}</td><td>${usd(x.price)}</td><td>${usd(x.pricePerGuest)}</td><td>${usd(x.profit)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Quote ${usd(r.job.price)}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

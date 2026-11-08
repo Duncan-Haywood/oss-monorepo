@@ -44,7 +44,7 @@
       .cls td { padding: 4px 6px; } .cls input { padding: 7px 8px; }
     .total { font-size: 1.6rem; font-weight: 700; color: #1f4a5d; }
   </style>
-<style>/* mobile-overflow-guard */table{display:block;max-width:100%;overflow-x:auto}</style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
 </head>
 <body>
   <header>
@@ -171,7 +171,7 @@
         out.hidden = false;
         $("#form-status").textContent = "";
         record("book_checked");
-        out.scrollIntoView({ behavior: "smooth", block: "start" });
+        out.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       } catch (e) {
         out.hidden = true;
         $("#form-status").textContent = e.message;

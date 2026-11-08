@@ -192,7 +192,7 @@
       $("#summary").value = summaryText(r, { currency: n.currency });
       report.hidden = false;
       status.textContent = `Read ${n.items.length} sales.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

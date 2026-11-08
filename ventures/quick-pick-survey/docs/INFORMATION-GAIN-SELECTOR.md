@@ -490,3 +490,157 @@ Reproduce: `NOISY_ITEMS=1000 NOISY_ANSWERS=3000 NOISY_RESPONDENTS=3
 NOISY_CONDITIONS=clean NOISY_CHECKPOINTS=500,1000,1500,2000,3000
 NOISY_TIMEOUT_MS=7000000 NOISY_OUT=/tmp/o.txt npx vitest run -c
 vitest.integration.config.ts src/app/api/trials/noisyRespondents`.
+
+### The dip belongs to the staged selector (2026-11-05)
+
+The "Next" item above, run: `NOISY_SELECTOR=standard` (new) sets the survey's
+`pairSelector` to the shipped selector, everything else the same (clean
+respondent, 1000 items, 3 respondents x 3000 answers, real routes, local
+Postgres 16, 304 s). The fixed set is the items rated at 500 answers (107 to
+109 here; the shipped selector rates slightly different items). Mean of the 3:
+
+| answers | rated items | Spearman, all rated | Spearman, fixed set |
+|---|---|---|---|
+| 500 | 108 | 0.711 | 0.711 |
+| 1000 | 205 | 0.621 | 0.801 |
+| 1500 | 296 | 0.600 | 0.795 |
+| 2000 | 395 | 0.576 | 0.786 |
+| 3000 | 588 | 0.557 | 0.770 |
+
+Reading: with the shipped selector the fixed set **improves** from 500 to 1000
+answers (0.71 to 0.80) and then holds (0.77 to 0.80); it does not fall the way
+the staged selector's did (0.80, 0.72, 0.67, 0.62, 0.72). So the fixed-set dip
+is a property of the staged selector, not of the rating update. The all-rated
+column falls for both, as the set widens (coverage). Caveats: 3 respondents,
+one seed family; the shipped selector starts lower at 500 answers (0.71 vs
+0.80), so staged is ahead early and behind by 1000; the table does not say
+which is better for a real survey (staged was chosen on settled items kept at
+300 answers, a different measure). Next: find why the staged selector's later
+pairs hurt settled items (candidates above: pairing settled items with new
+high-RD items; near-tie pairs), e.g. log the pair mix per 500 answers, then
+test a variant that stops pairing settled items with unrated ones.
+Reproduce: the command above with `NOISY_SELECTOR=standard`.
+
+### Pair mix of the staged selector, in process: no dip reproduced (2026-11-05)
+
+The "Next" item above, first half: `src/lib/pairMix.simulation.test.ts` (new; no
+database, 1000 items, 3000 answers, clean respondent, seeds 11 to 13, mean of
+3, about 170 s) logs, per 500 answers, the share of served pairs that are
+settled+settled (`ss`, both rd < 150), settled+open (`so`), open+open (`oo`),
+the share touching an unseen item, the mean true gap of the pair, and the
+Spearman over the items rated at 500 answers (fixed set).
+
+| selector | answers | rated | all rated | fixed set | ss | so | oo | unseen | gap |
+|---|---|---|---|---|---|---|---|---|---|
+| staged | 500 | 113 | 0.788 | 0.788 | 0.00 | 0.46 | 0.54 | 0.22 | 0.51 |
+| staged | 1000 | 213 | 0.807 | 0.804 | 0.00 | 0.80 | 0.20 | 0.20 | 0.48 |
+| staged | 2000 | 413 | 0.816 | 0.809 | 0.00 | 0.80 | 0.20 | 0.20 | 0.49 |
+| staged | 3000 | 613 | 0.818 | 0.811 | 0.00 | 0.80 | 0.20 | 0.20 | 0.51 |
+| shipped | 500 | 108 | 0.741 | 0.741 | 0.08 | 0.39 | 0.54 | 0.20 | 0.59 |
+| shipped | 1000 | 206 | 0.769 | 0.832 | 0.10 | 0.51 | 0.39 | 0.18 | 0.62 |
+| shipped | 2000 | 393 | 0.773 | 0.870 | 0.12 | 0.49 | 0.39 | 0.17 | 0.62 |
+| shipped | 3000 | 587 | 0.769 | 0.880 | 0.11 | 0.48 | 0.41 | 0.18 | 0.61 |
+
+Reading: (1) **the dip does not appear here.** The staged fixed set holds at
+0.79 to 0.81 and the all-rated score at 0.81 to 0.82, where the route runs gave
+0.80, 0.72, 0.67, 0.62, 0.72 and 0.62 to 0.50. So the dip is not a property of
+the pair-picking function with a plain Glicko-2 loop on one respondent; look
+at what the route adds (several respondents pooled, stored ratings and RD
+drift between sessions, repeat-pair and recency rules, how `rd` reaches the
+selector). (2) What the staged selector does serve: **never** two settled items
+(0.00 against the shipped 0.08 to 0.12), 80% settled-with-open after 500
+answers, steady 20% pairs with an unseen item, and a smaller true gap (0.48 to
+0.51 against 0.61), i.e. closer matches. The shipped selector keeps more
+settled+settled pairs and its fixed set climbs to 0.88; staged is higher on all
+rated items (0.82 against 0.77) because it widens coverage faster. (3) The
+route's absolute numbers are below this loop's for both selectors (shipped
+fixed set 0.77 to 0.80 against 0.83 to 0.88), so the gap between route and
+simulation exists for the shipped selector too. Caveats: 3 seeds, the sim's
+`rd` is the in-memory Glicko state, one respondent. Next: run the same
+selector inside the route's per-respondent loop with pooled ratings (no
+Postgres needed if the pooling function is called directly) to find which
+route step adds the dip; the settled+settled-free mix is the first suspect
+only if the route's settled items lose pairs they would have had.
+Reproduce: `MEASURE_OUT=out.txt npx vitest run -c vitest.simulations.config.ts
+src/lib/pairMix.simulation.test.ts`.
+
+### Noiseless answerer in process: still no dip (2026-11-06)
+
+The route tests answer noiselessly (the item listed first always wins); the
+in-process loop above sampled a logistic answer. `pairMix.simulation.test.ts`
+now takes `MIX_ANSWERER=noiseless` (the higher true value always wins), same
+1000 items, 3000 answers, seeds 11 to 13, plain Glicko-2 loop, 500-answer steps
+(2500 added). Fixed set, mean of 3:
+
+| selector | 500 | 1000 | 1500 | 2000 | 2500 | 3000 |
+|---|---|---|---|---|---|---|
+| staged | 0.978 | 0.981 | 0.981 | 0.979 | 0.979 | 0.978 |
+| shipped | 0.921 | 0.969 | 0.974 | 0.976 | 0.978 | 0.978 |
+
+Reading: **the answerer is not the cause.** With deterministic answers the
+staged fixed set holds at 0.98 (route runs: 0.80, 0.72, 0.67, 0.62, 0.72), and
+the pair mix is the same as before (no settled+settled pairs, 80% settled+open,
+20% unseen). It also ranks far higher than the route does for both selectors,
+so the loop and the route differ in something else. Left to test, each one
+change at a time in the loop: how `recentPairKeys` and `timesShown` are built
+from stored trials (the route reads the latest 10 by `shownAt`, ties at one
+millisecond are unordered), `rd` and `volatility` read back from the database
+(`loadRatedItems`), and the A/B slot shuffle. Caveats: 3 seeds, one
+respondent, hand-run; the route numbers are from 2026-11-04/05.
+Reproduce: `MIX_ANSWERER=noiseless MEASURE_OUT=out.txt npx vitest run -c
+vitest.simulations.config.ts src/lib/pairMix.simulation.test.ts`.
+
+### Route-style call in the loop: still no dip (2026-11-08)
+
+`pairMix.simulation.test.ts` takes `MIX_ROUTE=1` (and `MIX_SELECTOR=staged|shipped`
+to run one selector). It makes the loop's call match `/api/trials/next`: no
+injected `rand` (the selector falls back to `Math.random`), `firstOptionShare`
+passed only after 30 decided answers and measured on the slot-A share, and a
+random A/B slot shuffle before the answer. Noiseless answerer, staged, 1000
+items, seeds 11 to 13, fixed set at 500 / 1000 / 1500 / 2000 / 2500 / 3000
+answers:
+
+| loop | 500 | 1000 | 1500 | 2000 | 2500 | 3000 |
+|---|---|---|---|---|---|---|
+| plain | 0.978 | 0.981 | 0.981 | 0.979 | 0.979 | 0.978 |
+| route-style call | 0.979 | 0.983 | 0.983 | 0.982 | 0.982 | 0.981 |
+
+Reading: **the slot shuffle, the default RNG and the first-option gate are not
+the cause.** `ParticipantItemRating.rating/rd/volatility` are `Float` (Postgres
+double precision), so reading `rd` back from the database loses nothing either.
+Left to test: how `recentPairKeys` is built from stored trials (latest 10 by
+`shownAt`, ties at one millisecond unordered), `timesShown` from the
+`groupBy` (counts unanswered rows too), and item order out of `findMany`
+(unordered; the route test's cuids rise with the true order, which the loop's
+random truth does not copy). Those need Postgres or a stub of the three reads.
+Caveats: 3 seeds, one respondent, hand-run, clean answerer.
+Reproduce: `MIX_ROUTE=1 MIX_ANSWERER=noiseless MIX_SELECTOR=staged MEASURE_OUT=out.txt
+npx vitest run -c vitest.simulations.config.ts src/lib/pairMix.simulation.test.ts`.
+
+### Found: the dip came from admitting items in id order (2026-11-08)
+
+`pairMix.simulation.test.ts` takes `MIX_TRUTH_ORDER=1`: the hidden value falls with
+the item's position (item-0000 best), as in the route tests (lower sortOrder wins),
+instead of the loop's random truth. Route-style call, noiseless, staged, 1000 items,
+seeds 11 to 13, fixed set at 500 / 1000 / 1500 / 2000 / 2500 / 3000 answers:
+
+| truth | 500 | 1000 | 1500 | 2000 | 2500 | 3000 |
+|---|---|---|---|---|---|---|
+| random (before) | 0.975 | 0.976 | 0.976 | 0.975 | 0.973 | 0.973 |
+| in id order (before) | 0.821 | 0.745 | 0.666 | 0.617 | 0.658 | 0.709 |
+| in id order, hash admission | 0.981 | 0.982 | 0.984 | 0.985 | 0.985 | 0.985 |
+
+The route's dip reproduces with no database, so it was not the route's reads
+(recent pairs, times shown, item order out of `findMany`): it was `admissionOrder`,
+which admitted items alphabetically by id inside each category. When ids follow
+a meaningful order (cuids rise with creation; an author who lists items by price,
+date or quality creates them in that order) the first stages saw a slice of the
+range, not a spread, and the rating of that slice degraded as the window grew.
+`admissionOrder` now sorts by a hash of the id (`admissionHash`: FNV-1a with a
+murmur finalizer; the first try, FNV-1a alone, clustered near-identical ids and
+only reached 0.92). Same id, same place, so the set still only grows. Unit
+tests: `pairing.test.ts`, "admissionOrder". The fast suite passes (300 tests).
+Caveats: noiseless answerer, 3 seeds, one respondent, hand-run; the live-Postgres
+`noisyRespondents` run was not repeated here (needs `scripts/test-db.sh start`).
+Reproduce: `MIX_TRUTH_ORDER=1 MIX_ROUTE=1 MIX_ANSWERER=noiseless MIX_SELECTOR=staged
+MEASURE_OUT=out.txt npx vitest run -c vitest.simulations.config.ts src/lib/pairMix.simulation.test.ts`.

@@ -18,9 +18,21 @@ class MarkupBasics(unittest.TestCase):
         html = OK.format('<script>x="<img>"</script><script type="application/ld+json">{"a":"<img>"}</script>')
         self.assertEqual(c.problems(html), [])
 
+    def test_iframe_title_and_javascript_href(self):
+        self.assertEqual(c.problems(OK.format('<iframe src="/a" title="Map"></iframe>')), [])
+        self.assertEqual(c.problems(OK.format('<iframe src="/a"></iframe>')), ['<iframe> without title'])
+        self.assertEqual(c.problems(OK.format('<a href=" JavaScript:void(0)">x</a>')), ['javascript: href'])
+
     def test_missing_head_bits(self):
         self.assertEqual(c.problems('<html><body></body></html>'),
                          ['no <html lang>', 'no charset', 'no viewport meta'])
+
+    def test_http_equiv_content_type_counts_as_charset(self):
+        head = '<html lang="en"><head>{}<meta name="viewport" content="x"></head></html>'
+        ok = head.format('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">')
+        self.assertEqual(c.problems(ok), [])
+        other = head.format('<meta http-equiv="refresh" content="5">')
+        self.assertEqual(c.problems(other), ['no charset'])
 
     def test_other_meta_is_not_a_viewport(self):
         page = '<html lang="en"><head><meta charset="utf-8"><meta name="description" content="x"></head></html>'

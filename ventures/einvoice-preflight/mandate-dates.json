@@ -262,13 +262,6 @@
    "status": "In force (version 4.4)"
   },
   {
-   "date": "2025-10-23",
-   "country": "Slovenia",
-   "page": "slovenia-e-invoice-mandate.html",
-   "note": "1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; vendor guides)",
-   "status": "Upcoming"
-  },
-  {
    "date": "2025-11-01",
    "country": "Singapore",
    "page": "singapore-invoicenow-e-invoice-mandate.html",
@@ -437,6 +430,13 @@
    "status": "In force (2026 order reported, unconfirmed)"
   },
   {
+   "date": "2026-09-29",
+   "country": "Mauritania",
+   "page": "mauritania-stt-e-invoice-mandate.html",
+   "note": "STT platform: public entities reported to require supplier invoice declaration before payment from 1 November 2026 (circular of 29 September 2026; secondary guides, circular unread)",
+   "status": "Public suppliers (reported 1 Nov 2026)"
+  },
+  {
    "date": "2026-09-30",
    "country": "Japan",
    "page": "japan-invoice-system-e-invoice-mandate.html",
@@ -493,11 +493,25 @@
    "status": "Phased (2026 expansion reported, unconfirmed)"
   },
   {
+   "date": "2026-11-01",
+   "country": "Mauritania",
+   "page": "mauritania-stt-e-invoice-mandate.html",
+   "note": "STT platform: public entities reported to require supplier invoice declaration before payment from 1 November 2026 (circular of 29 September 2026; secondary guides, circular unread)",
+   "status": "Public suppliers (reported 1 Nov 2026)"
+  },
+  {
    "date": "2026-11-15",
    "country": "Dominican Republic",
    "page": "dominican-republic-dgii-e-invoice-mandate.html",
    "note": "small and micro taxpayers 15 November 2026 after a reported final extension (secondary sources, DGII notices unread)",
    "status": "Phased by taxpayer size (November 2026 waves)"
+  },
+  {
+   "date": "2026-12-01",
+   "country": "El Salvador",
+   "page": "el-salvador-dte-e-invoice-mandate.html",
+   "note": "version 2.0 of the compliance rules reported mandatory from 1 December 2026 (secondary guides and trackers, Hacienda texts unread)",
+   "status": "In force (v2.0 reported 1 Dec 2026)"
   },
   {
    "date": "2026-12-31",
@@ -512,6 +526,13 @@
    "page": "denmark-e-invoice-mandate.html",
    "note": "Bookkeeping Act systems, SAF-T 2.0 from 1 Jan 2027, default NemHandel registration reported for 2027 (secondary sources, partly draft)",
    "status": "Upcoming"
+  },
+  {
+   "date": "2027-01-01",
+   "country": "Germany",
+   "page": "germany-e-invoice-mandate.html",
+   "note": "issue from 1 Jan 2027 (prior-year turnover above EUR 800,000)",
+   "status": "In force (receiving)"
   },
   {
    "date": "2027-01-01",
@@ -634,6 +655,13 @@
   },
   {
    "date": "2028-01-01",
+   "country": "Germany",
+   "page": "germany-e-invoice-mandate.html",
+   "note": "1 Jan 2028 (everyone)",
+   "status": "In force (receiving)"
+  },
+  {
+   "date": "2028-01-01",
    "country": "Latvia",
    "page": "latvia-e-invoice-mandate.html",
    "note": "domestic B2B postponed to 1 Jan 2028 (vendor guides)",
@@ -650,7 +678,7 @@
    "date": "2028-01-01",
    "country": "Slovenia",
    "page": "slovenia-e-invoice-mandate.html",
-   "note": "1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; vendor guides)",
+   "note": "1 Jan 2028 for domestic B2B (ZIERDED, gazette text read 2026-11-07; provider rules apply earlier)",
    "status": "Upcoming"
   },
   {

@@ -228,7 +228,7 @@ node check.mjs --script https://example.com/static/main.js --json</code></pre>
     }).join('');
 
     els.reportCard.hidden = false;
-    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
   }
 
   function parseScriptUrls() {

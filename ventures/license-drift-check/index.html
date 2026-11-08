@@ -217,7 +217,7 @@ node cli.mjs diff baseline.json current.json --ignore left-pad,is-odd</code></pr
 
       els.reportCard.hidden = false;
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", renderReport);

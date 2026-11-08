@@ -138,7 +138,7 @@
       $("#rows").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.name)}</th><td>${usd(x.advanced)}</td><td>${usd(x.cost)}</td><td>${x.pctOfInvoice}%</td><td>${x.apr}%</td><td>${usd(x.rebate)}</td><td>${usd(x.yearly)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Cheapest: ${r.best.name} at ${usd(r.best.cost)} per invoice.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -210,7 +210,7 @@ node check.mjs --provider azure --bucket your-container --account your-storage-a
       <tr><th>State</th><td>${escapeHtml(report.state)}</td></tr>`;
 
     els.reportCard.hidden = false;
-    els.reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: 'start' });
   }
 
   function runCheck(payload, event) {

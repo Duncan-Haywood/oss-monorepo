@@ -66,7 +66,8 @@ test("the fresh set is reported, not tuned: numbers recorded in README stay as m
   // update the README; do not tune on this file.
   assert.equal(s.n, 40);
   // Scored 15/22/11 on 2026-10-21; the 2026-10-24 "cease ..." patterns moved it to 16/23/10 (see eval/README.md); the 2026-10-25 opt-out patterns to 17/24/9.
-  assert.equal(s.right, 17);
+  // 2026-11-07: the "quick call" and "who do I talk to" patterns moved it to 18 (see eval/README.md).
+  assert.equal(s.right, 18);
   assert.equal(s.acted, 24);
   assert.equal(s.guessRight, 9);
 });
@@ -93,9 +94,11 @@ test("second fresh set (2026-10-24, written by another session, scored once): nu
   assert.equal(s.n, 41);
   // 27 when scored once; 28 after 2026-11-02, when "I left X" counted as a wrong-person reply (one item, no regression).
   // Row 9 (a full mailbox, first labelled bounce) was relabelled out_of_office on 2026-11-05 when full mailboxes became soft bounces; the count stays 28.
-  assert.equal(s.right, 28);
-  assert.equal(s.acted, 32);
-  assert.equal(s.actedRight, 25);
+  // 29 after 2026-11-09 ("this isn't for us" style declines, one item, no regression).
+  // 30 after 2026-11-11 ("stop following up" is an opt-out, one item, no regression).
+  assert.equal(s.right, 30);
+  assert.equal(s.acted, 33);
+  assert.equal(s.actedRight, 27);
   assert.equal(s.unsubMissed, 2);
   assert.equal(s.guessRight, 3);
 });
@@ -172,9 +175,10 @@ test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes mi
   // 34 before 2026-11-02, when "I left Orchid in August" started counting as a wrong-person reply (one item).
   // 35 before 2026-11-03, when "X left the company" was added as a wrong-person phrasing (one item).
   // 37 after 2026-11-04, when "isn't something we'd ever need" became a decline (one item).
-  assert.equal(s.right, 37);
-  assert.equal(s.acted, 37);
-  assert.equal(s.actedRight, 37);
+  // 38 after 2026-11-11 ("stop following up" is an opt-out, one item).
+  assert.equal(s.right, 38);
+  assert.equal(s.acted, 38);
+  assert.equal(s.actedRight, 38);
   assert.equal(s.unsubMissed, 0);
 });
 
@@ -312,7 +316,7 @@ test("ninth set (2026-11-04b): 30 mixed replies, scored once before the change a
   assert.equal(s.n, 30);
   assert.equal(s.unsubMissed, 0);
   assert.equal(s.overreach, 0);
-  assert.equal(s.right, 28);
+  assert.equal(s.right, 29);
 });
 
 test("an unsubscribe link line inside an auto-reply is not an opt-out, but a first-person ask in one still is", () => {
@@ -372,6 +376,34 @@ test("fresh set 2026-11-06: scored once at 25/30 (0 overreach, 0 opt-outs missed
     assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
 });
 
+test("fresh set 2026-11-07: scored once at 26/30 (1 overreach), 29/30 after three narrow patches; a tuned set. Left on purpose: a one-pager to forward to a CFO reads as a forward", () => {
+  const s = score(load("fresh-2026-11-07.jsonl"));
+  assert.equal(s.right, 29);
+  assert.equal(s.unsubMissed, 0);
+  const T = "2026-11-07";
+  for (const [body, want] of [["I'd like to see this. Can we do a quick call tomorrow?", "interested"], ["This is exactly what we need. Who should I talk to to get started?", "interested"], ["Honestly it looks like another tool that will spam our prospects and hurt our domain reputation.", "objection"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("fresh set 2026-11-08: scored once at 25/30 (1 overreach, 1 opt-out missed), 30/30 after three narrow patches and two label rulings; a tuned set", () => {
+  const s = score(load("fresh-2026-11-08.jsonl"));
+  assert.equal(s.right, 30);
+  assert.equal(s.unsubMissed, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["Haal me van je lijst af alstublieft. Geen mails meer.", "unsubscribe"], ["Come back to me once we close our funding round, probably spring.", "not_now"], ["Sounds like another tool that sends spam under our name. We got burned by that before.", "objection"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("fresh set 2026-11-09: scored once at 18/30 (1 overreach, 2 opt-outs missed), 30/30 after narrow patches; a tuned set", () => {
+  const s = score(load("fresh-2026-11-09.jsonl"));
+  assert.equal(s.n, 30);
+  assert.equal(s.right, 30);
+  assert.equal(s.unsubMissed, 0);
+  const T = "2026-11-09";
+  for (const [body, want] of [["Proszę usunąć mój adres z waszej listy mailingowej.", "unsubscribe"], ["How many times do I need to say it? Out. Of. Your. Database.", "unsubscribe"], ["Appreciate the persistence but this isn't for us. Best of luck.", "not_interested"], ["Reach out again once that's done, likely end of Q2.", "not_now"], ["Tack för ditt mejl. Jag är på semester till och med 24 november.", "out_of_office"], ["Can you send me a time that works for a 20 minute demo next week?", "interested"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
 // Full mailbox (2026-11-05). First tried as a soft bounce; 8 of the 117 real bounces in eval/bounce-corpus are final
 // "returned to sender" notices for a full mailbox, so the category stays bounce. The subtype only changes the task.
 test("a full mailbox stays a bounce, tagged mailbox_full, and the task says the address may be real", () => {
@@ -385,4 +417,85 @@ test("a full mailbox stays a bounce, tagged mailbox_full, and the task says the 
   assert.equal(u.subtype, null);
   const r = runInbox({ replies: "From: MAILER-DAEMON@x.com\nSubject: Mail delivery failed\n\nThe following address failed: mark@oldco.example (mailbox is full / user over quota)", prospects: "email,name,company\nmark@oldco.example,Mark,OldCo\n", offer: SAMPLE_OFFER, today: T });
   assert.ok(JSON.stringify(r).includes("mailbox is full, so the address is probably still real"), JSON.stringify(r.tasks));
+});
+
+// 2026-11-05: probed with fresh agent-written replies; both fell to "unclear" before.
+test("a bare 'not the right person' with a referral is a handover, 'just signed with' a rival is a competitor objection", async () => {
+  const { triage } = await import("./engine.mjs");
+  const a = triage("Not the right person, try our head of ops, Mike Lin (mike@acme.io).", "2026-11-05");
+  assert.equal(a.category, "left_company");
+  assert.equal(a.referral.email, "mike@acme.io");
+  const b = triage("Thanks but we just signed with a competitor last week. Good luck!", "2026-11-05");
+  assert.equal(b.category, "objection");
+  assert.equal(b.subtype, "competitor");
+});
+
+test("negated, product-feature and third-party stop words are not opt-outs (2026-11-08 probe)", () => {
+  const notStop = [
+    "Please don't stop sending the pricing details, I'd like to see them before our call on Thursday.",
+    "Love it. Don't take me off the shortlist, send over the case study please.",
+    "Do you handle unsubscribe links and suppression lists for us?",
+    "My colleague asked me to unsubscribe from a different vendor's emails, not yours. Can you tell me what your product does exactly?",
+    "Not unsubscribing, quite the opposite. Tell me more about the pilot.",
+  ];
+  for (const body of notStop) assert.notEqual(triage({ from: "p@x.example", subject: "Re: hi", body }, "2026-11-08").category, "unsubscribe", body);
+  // look-alikes that still stop
+  for (const body of ["How do I unsubscribe?", "Please don't contact me again.", "Unsubscribe me.", "Don't stop by, just remove me from your list."])
+    assert.equal(triage({ from: "p@x.example", subject: "Re: hi", body }, "2026-11-08").category, "unsubscribe", body);
+});
+
+test("'was out of the office' in a past-tense apology is not an away notice", () => {
+  const t = triage({ from: "p@x.example", subject: "Re: hi", body: "Sorry for the late reply, I was out of the office. Yes, let's set up a 20 minute call." }, "2026-11-08");
+  assert.notEqual(t.category, "out_of_office");
+});
+
+test("fresh set 2026-11-08c (sixteenth, a false-interested probe): scored once at 13/20 (3 overreach), 17/20 after narrow patches; a tuned set", () => {
+  const s = score(load("fresh-2026-11-08c.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 17);
+  assert.equal(s.overreach, 1); // "we just signed with another vendor" drafts an objection answer; the label says not_interested, arguably wrong
+  assert.equal(s.unsubMissed, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["Happy to chat in theory, but our board froze all new tooling for good. Please close the file.", "not_interested"], ["I'd be open to a demo after our fiscal year ends on 30 June. Please come back then.", "not_now"], ["Yes, let's talk. Does Wednesday at 3pm work? Not interested in the other plan, just the starter one.", "interested"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("fresh set 2026-11-08d (seventeenth, a false-bounce and false-away probe): scored once at 9/20, 16/20 after one narrow veto; a tuned set", () => {
+  const s = score(load("fresh-2026-11-08d.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 16);
+  assert.equal(s.overreach, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["Your message wasn't delivered to my colleague, can you resend it to me instead? Also, what does it cost?", "question"], ["I'm travelling for work until the 20th, so ping me after that and we can talk.", "not_now"], ["Our team is on leave for the whole quarter and we've no appetite for new tools. Please close the file.", "not_interested"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+  // machines still win: a daemon sender or a header signal is never a person, whatever it says
+  assert.equal(triage({ from: "mailer-daemon@x.example", subject: "Undeliverable", body: "Delivery has failed. Can we help? 550 5.1.1 user unknown" }, T).category, "bounce");
+  assert.equal(triage({ subject: "Automatic reply", body: "I am out of the office until 12 December with limited access to email." }, T).category, "out_of_office");
+});
+
+test("fresh set 2026-11-08e (nineteenth, a false-not-now and wrong-person probe): scored once at 9/20, 15/20 after three narrow changes (16/20 with the 2026-11-11 vetoes); a tuned set", () => {
+  const s = score(load("fresh-2026-11-08e.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 16);
+  assert.equal(s.overreach, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["We're in the middle of a CRM migration. Does your tool work with HubSpot imports?", "question"], ["Timing isn't right for us because the price is double what we pay for our current tool. Can you do better?", "objection"], ["Not now, not later, not ever. We have no use for this. Please close the file.", "not_interested"], ["Wrong person, but also wrong product. We'd never buy this. Don't follow up.", "not_interested"], ["Swamped until the end of the quarter. Ping me in February and I'll look then.", "not_now"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("fresh set 2026-11-11 (eighteenth, a false not-now and wrong-person probe): scored once at 9/20 (6 live leads read as a departed contact), 18/20 after narrow vetoes; a tuned set", () => {
+  const s = score(load("fresh-2026-11-11.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 18);
+  assert.equal(s.overreach, 0);
+  const T = "2026-11-11";
+  for (const [body, want] of [
+    ["I'm not the right person for budget but I'm the one who'd use it. Happy to see a demo, I'll loop in finance. Friday?", "interested"],
+    ["Wrong time, not wrong person. Reach out in January.", "not_now"],
+    ["Please stop following up.", "unsubscribe"],
+    ["Call me later today, around 3pm. I'm free after lunch.", "interested"],
+    ["I'm not the right contact for this. Try our CFO, Priya Rao (priya@acmefreight.example).", "left_company"],
+    ["Sam no longer works here. For anything else please email info@acmefreight.example.", "left_company"],
+    ["Check back in March when our contract renews.", "not_now"],
+  ]) assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
 });

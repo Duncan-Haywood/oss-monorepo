@@ -178,7 +178,7 @@
       $("#channel-rows").innerHTML = r.parts.map((p) => `<tr><td>${esc(p.name)}</td><td class="n">${p.gal.toFixed(0)}</td><td class="n">${money(p.revenue)}</td><td class="n">${money(p.net)}</td><td class="n">${money2(p.netPerGal)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Season worked out.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

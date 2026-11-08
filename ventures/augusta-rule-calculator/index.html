@@ -161,7 +161,7 @@
       $("#rate-table tbody").innerHTML = a.rateTable.map((s) => `<tr class="${s.label === "Your rate" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.rate)}</td><td class="n">${usd(s.gross)}</td><td class="n">${usd(s.net)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

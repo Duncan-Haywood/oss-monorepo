@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235f1b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Restaurant Staff Schedule: Lunch, Dinner And Weekend Brunch</title>
+  <meta name="description" content="How to schedule a small restaurant team across lunch, dinner and weekend brunch, with a worked seven-person week from real builder output: 28 of 30 service-shifts covered, 29 once back-to-back close-then-open shifts are allowed, and the one Monday gap that is a hiring decision. Free, private.">
+  <meta property="og:title" content="Restaurant Staff Schedule: Lunch, Dinner, Brunch">
+  <meta property="og:description" content="A worked seven-person restaurant week with real builder output.">
+  <link rel="canonical" href="./restaurant-staff-schedule.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many people should a restaurant schedule per service?", "acceptedAnswer": {"@type": "Answer", "text": "Schedule to covers you expect, not a fixed headcount. Enter the people needed for each service block, from your own sales by day, and the builder says which blocks it could not fill."}}, {"@type": "Question", "name": "Why does the builder avoid close-then-open shifts?", "acceptedAnswer": {"@type": "Answer", "text": "By default it keeps 10 hours between shifts, so nobody closes at 10pm and opens at 10am. In the worked example, allowing it covers one more shift for $86 more payroll; whether that is worth it is your call."}}, {"@type": "Question", "name": "Does it handle tipped staff and tip pooling?", "acceptedAnswer": {"@type": "Answer", "text": "It schedules hours at the wage you enter. The command line version also has a tip-pool split by hours worked (--tips); it does not know tip-credit rules in your state."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f2f4f7; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1f5f86; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d9dfe6; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1f5f86; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4c5a68; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; Shift roster builder</a></p>
+  <h1>Restaurant staff schedule: covering lunch, dinner and brunch with a small team</h1>
+  <p>A small restaurant schedules services, not just people: lunch on weekdays, two or three on dinner, brunch on weekends, and each person works only some days and hours. The useful question is which services cannot be covered with the team you have, and whether a close-then-open shift would close the gap, before the week is posted.</p>
+  <p><a class="cta" href="./">Open the free roster builder</a></p>
+  <h2>A worked example</h2>
+  <p>An invented restaurant has seven people (wages $14 to $22 an hour) and 30 service-shifts: two people at weekday lunch 10 to 3, two at dinner 4 to 10 every day, one extra on Friday and Saturday dinner, and two at weekend brunch 10 to 3. Availability runs from Eli's weekday days (Mon-Sat 9-18) to Gus's weekends only. This is the CLI's real output with the default 10 hours of rest:</p>
+  <table>
+    <tr><th>Person</th><th>Shifts</th></tr>
+    <tr><td>Ana</td><td>Tue and Wed lunch, Thu to Sat dinner</td></tr>
+    <tr><td>Ben</td><td>Mon, Tue, Wed, Fri dinner, Thu lunch</td></tr>
+    <tr><td>Cleo</td><td>Wed dinner, Fri and Sat extra dinner, Sun dinner</td></tr>
+    <tr><td>Dev</td><td>Fri lunch, Sat and Sun brunch</td></tr>
+    <tr><td>Eli</td><td>Monday to Friday lunch</td></tr>
+    <tr><td>Fay</td><td>Tue, Thu, Sat, Sun dinner</td></tr>
+    <tr><td>Gus</td><td>Sat and Sun brunch</td></tr>
+  </table>
+  <p>28 of 30 service-shifts are covered for $2,800 with no overtime. Two stay open on Monday: one lunch place and one dinner place, because only Ben and Eli can work Mondays. The roster says who is free but already on another shift, which is the answer to give a candidate: Monday needs a second weekday person, not a longer week for the same two. It also notes that Eli gets 25 hours, 11 under their 36-hour minimum, and that without Fay 17 more hours go uncovered.</p>
+  <p>Allow close-then-open shifts (rest set to 0) and it covers 29 of 30 for $2,886, $86 more. Whether that is worth a tired opener is a decision the numbers let you make; the default says no.</p>
+  <p>Hand-building this usually hides the Monday gap until the weekend before. Listing the open shifts with reasons first turns it into a hiring or availability question.</p>
+  <p><a class="cta" href="./">Try it with your own team</a></p>
+  <h2>Questions</h2>
+  <h3>How many people should a restaurant schedule per service?</h3>
+  <p>Schedule to covers you expect, not a fixed headcount. Enter the people needed for each service block, from your own sales by day, and the builder says which blocks it could not fill.</p>
+  <h3>Why does the builder avoid close-then-open shifts?</h3>
+  <p>By default it keeps 10 hours between shifts, so nobody closes at 10pm and opens at 10am. In the worked example, allowing it covers one more shift for $86 more payroll; whether that is worth it is your call.</p>
+  <h3>Does it handle tipped staff and tip pooling?</h3>
+  <p>It schedules hours at the wage you enter. The command line version also has a tip-pool split by hours worked (--tips); it does not know tip-credit rules in your state.</p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal, tax or financial advice. The example is invented.</p>
+    <p>Everything the roster builder does runs in your browser; your staff list is never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional. Related: <a href="how-to-avoid-clopening.html">close-then-open shifts</a>, <a href="how-to-make-an-employee-schedule.html">how to make an employee schedule</a>, <a href="whose-availability-is-worth-widening.html">whose availability to widen</a>.</p>
+  </footer>
+</body>
+</html>

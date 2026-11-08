@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-05",
+  "session": "https://claude.ai/code/session_01AcxTtKzbkbmLcT6HUJBAzB",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-05T16:09:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13354",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "create_pull_request returned 500 once; retry worked"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says Hearth & Horizon stories are 3,500-6,000 words, but recent shelf stories are about 1,100-1,400; I followed the recent practice."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "search_issues MCP tool named in step 1 is absent in cloud; used gh api search instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Story is ~1,100 words, under the bible's stated length",
+      "did": "matched recent shelf length",
+      "result": "tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-05-the-verge-that-looked-thin.md"
+  ],
+  "goal": null,
+  "notes": "creative: hearth-and-horizon, The Verge That Looked Thin (the-verge-that-looked-thin), text only (audio 423 MB over cap).",
+  "corrections": [],
+  "redteam": null
+}

@@ -91,7 +91,7 @@
   <header>
     <p class="eyebrow">Free clothing design studio</p>
     <h1>Say what you want on the shirt. See it, change it, know what it costs.</h1>
-    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them. <a href="for-independent-clothing-designers.html">Who it is for and what it does</a> · <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Wardrobe planner</a> · <a href="fit.html">Size finder and size run</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="labels.html">Label checker</a> · <a href="prices.html">Price by market</a></p>
+    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them. <a href="for-independent-clothing-designers.html">Who it is for and what it does</a> · <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Wardrobe planner</a> · <a href="fit.html">Size finder and size run</a> · <a href="camera.html">Try it on from a photo</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="labels.html">Label checker</a> · <a href="prices.html">Price by market</a> · <a href="preorder.html">Pre-order planner</a> · <a href="reorder.html">Reorder planner</a> · <a href="orderlines.html">Colour and size order matrix</a> · <a href="returns.html">Returns calculator</a> · <a href="spec.html">Measurement spec and sample check</a> · <a href="inspection.html">Final inspection sample size</a> · <a href="freight.html">Freight: sea vs air per garment</a> · <a href="channels.html">Where to sell</a> · <a href="cashflow.html">Launch cash flow</a> · <a href="tna.html">Time and action calendar</a> · <a href="duty.html">Import duty by destination</a> · <a href="wholesale.html">Wholesale to shops</a> · <a href="linesheet.html">Line sheet for shops</a> · <a href="barcodes.html">Barcodes (GTIN)</a> · <a href="partners.html">Partner-brand commission</a> · <a href="bom.html">Bill of materials and order</a> · <a href="shrink.html">Fabric shrinkage allowance</a> · <a href="timeline.html">Production timeline</a> · <a href="tiers.html">Fabric price tiers</a>  · <a href="startup.html">Start-up budget</a> · <a href="fx.html">Factory currency risk</a> · <a href="testing.html">Safety tests to ask for</a> · <a href="pod.html">Factory run or print-on-demand</a></p>
   </header>
 
   <div class="workspace">
@@ -127,7 +127,7 @@
         <details id="gl-panel">
           <summary>3D garment (preview)</summary>
           <p class="muted">A solid shape built from the drawing's outline, with your front and back artwork mapped on. Drag to turn it, scroll to zoom. It has no drape, seams or real sleeves, so it shows how artwork sits on a rounded body, not fit. Runs in your browser; nothing is sent.</p>
-          <div class="bar"><button class="btn small" type="button" id="gl-spin" aria-pressed="false">Spin</button></div>
+          <div class="bar"><button class="btn small" type="button" id="gl-spin" aria-pressed="false">Spin</button> <button class="btn small" type="button" id="gl-vr" hidden title="Needs a headset with WebXR, such as Quest Browser">View in VR</button></div>
           <div id="gl-view"></div>
         </details>
         <div class="notes" id="compat" aria-live="polite"></div>
@@ -238,6 +238,7 @@
           <div><label for="marketing">Launch marketing budget</label><input id="marketing" type="number" min="0" step="50"></div>
         </div>
         <output id="results" aria-live="polite"></output>
+        <p class="muted" id="brief-file">Launch brief across devices: <button class="btn small" type="button" id="brief-dl">Download brief file</button> <label class="btn small" for="brief-up">Load a brief file</label><input type="file" id="brief-up" accept="application/json,.json" hidden> <span id="brief-msg" role="status"></span></p>
         <details>
           <summary>Supplier sheet (your manufacturer's prices)</summary>
           <p class="muted">Prices per metre of fabric, per garment for cut and sew, and setup plus per-piece for each decoration method. Per-colour methods (screen, high-density, puff) multiply by the ink colours.</p>
@@ -261,9 +262,13 @@
             <div><label for="s-packaging">Packaging per garment</label><input id="s-packaging" type="number" min="0" step="0.05"></div>
             <div><label for="s-freight">Freight to you per garment</label><input id="s-freight" type="number" min="0" step="0.05"></div>
           </div>
+          <p id="bom-row" hidden><button class="btn small" type="button" id="bom-use">Fill trims and packaging from my bill of materials</button> <span id="bom-note" aria-live="polite"></span></p>
           <div class="row3">
             <div><label for="s-duty">Import duty (%)</label><input id="s-duty" type="number" min="0" max="60" step="0.5"></div>
+            <div><label for="s-dest">Look it up for selling in</label><select id="s-dest"><option value="">Choose a market</option><option value="US">United States</option><option value="EU">European Union</option><option value="UK">United Kingdom</option></select></div>
+            <div><label for="s-origin">Made in</label><select id="s-origin"><option value="">Other</option><option>Bangladesh</option><option>Cambodia</option><option>Nepal</option></select></div>
           </div>
+          <p class="muted" id="s-duty-note">Fills the duty box from the tariff heading for this garment and fabric (rates typed from memory, unchecked: see <a href="duty.html">import duty</a>). Check the figure with your customs broker.</p>
           <div class="bar">
             <button class="btn small" type="button" id="sheet-export">Download sheet (CSV)</button>
             <label class="btn small" style="margin:0">Import sheet (CSV)<input id="sheet-import" type="file" accept=".csv,text/csv" class="sr"></label>
@@ -313,6 +318,21 @@
         <ul id="sh-shelf" class="muted"></ul>
         <output id="sh-out" aria-live="polite"></output>
         <div class="bar"><button class="btn small" type="button" id="sh-add">Put this design on the shelf</button> <button class="btn small" type="button" id="sh-dl">Download storefront (HTML)</button></div>
+      </section>
+
+      <section aria-labelledby="h-clr">
+        <h2 id="h-clr">Unsold stock: a markdown ladder</h2>
+        <p class="muted">How much of the run sells at full price, what each markdown recovers after tax and fees, and what is left. Weekly sales and how much a discount lifts them are guesses until you have real sales: replace them.</p>
+        <div class="row">
+          <div><label for="c-rate">Sales a week at full price</label><input id="c-rate" type="number" min="0" step="any" value="4"></div>
+          <div><label for="c-weeks">Full-price weeks</label><input id="c-weeks" type="number" min="0" max="520" step="1" value="8"></div>
+          <div><label for="c-el">Discount lift (elasticity)</label><input id="c-el" type="number" min="0" max="6" step="0.1" value="2"></div>
+          <div><label for="c-scrap">Leftover unit fetches</label><input id="c-scrap" type="number" min="0" step="any" value="0"></div>
+        </div>
+        <label for="c-steps">Markdown steps, one per line: percent off, weeks</label>
+        <textarea id="c-steps" rows="3" spellcheck="false">30, 4
+50, 4</textarea>
+        <output id="clr-out" aria-live="polite"></output>
       </section>
 
       <section aria-labelledby="h-mkt">
@@ -389,11 +409,15 @@
     import { renderDesign, placementBox, esc } from "./render.mjs";
     import { renderTurntable } from "./turntable.mjs";
     import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv } from "./suppliers.mjs";
+    import { dutyPctFor } from "./duty.mjs";
     import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
+    import { loadBomExtras } from "./bom.mjs";
+    import { briefFromStudio, saveBrief, loadBrief, briefToFile, briefFromFile } from "./launchbrief.mjs";
     import { techPack, techPackHtml, quoteRequest } from "./techpack.mjs";
     import { launchKit } from "./launchkit.mjs";
     import { storefront } from "./storefront.mjs";
     import { addToShelf, removeFromShelf, shelfToShop, loadShelf } from "./shelf.mjs";
+    import { clearancePlan } from "./clearance.mjs";
     import { marketingPlan, calendarCsv, learnFromTest, channelSplit, DEFAULT_ASSUMPTIONS } from "./marketing.mjs";
     import { inkTradeoff } from "./inktradeoff.mjs";
     import { singleInkFilm, contrastInk, halftoneSvg, halftoneBrief } from "./halftone.mjs";
@@ -630,7 +654,7 @@
     const planFields = { target: "targetMarginPct", tax: "salesTaxPct", channel: "channelFeePct", payfee: "paymentFeePct", payfixed: "paymentFixed", unsold: "unsoldPct", marketing: "marketingBudget" };
     for (const [id, key] of Object.entries(planFields)) {
       $("#" + id).value = plan[key];
-      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) { plan[key] = v; store.set(PLAN_KEY, plan); renderCost(); renderMarketing(); } });
+      $("#" + id).addEventListener("input", e => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) { plan[key] = v; store.set(PLAN_KEY, plan); renderCost(); renderMarketing(); renderClearance(); } });
     }
     $("#quantity").addEventListener("change", e => commit({ op: "quantity", value: e.target.value }));
     $("#price").addEventListener("change", e => commit({ op: "price", value: e.target.value }));
@@ -656,6 +680,30 @@
     sheetNum("s-packaging", (s, v) => { s.packagingPerUnit = v; });
     sheetNum("s-freight", (s, v) => { s.freightPerUnit = v; });
     sheetNum("s-duty", (s, v) => { s.dutyPct = v; });
+    {
+      const e = loadBomExtras();
+      if (e) {
+        $("#bom-row").hidden = false;
+        $("#bom-use").addEventListener("click", () => {
+          const n = loadBomExtras(); if (!n) return;
+          sheetEdited(s => { s.trimsPerUnit = n.trimsPerUnit; s.packagingPerUnit = n.packagingPerUnit; });
+          $("#bom-note").textContent = `Set trims ${n.trimsPerUnit.toFixed(2)} and packaging ${n.packagingPerUnit.toFixed(2)} per garment (waste included) from the bill of materials.`;
+        });
+      }
+    }
+    const lookUpDuty = () => {
+      const dest = $("#s-dest").value; if (!dest) return;
+      const g = d().garment, f = FABRICS[d().fabric];
+      const price = (sheet.fabrics[d().fabric] || 0) * (sheet.metresPerGarment[g] || 0) * (1 + (sheet.wastagePct || 0) / 100) + (sheet.cutAndSew[g] || 0);
+      const origin = $("#s-origin").value;
+      const pct = dutyPctFor({ garmentId: g, polyesterShare: f ? f.polyester : 0, destination: dest, origin, haveOriginProof: false, factoryPrice: price, freightPerGarment: sheet.freightPerUnit || 0 });
+      const note = $("#s-duty-note");
+      if (pct === null) { note.textContent = "Type the fabric price, metres and cut-and-sew above first, so there is a factory price to work from."; return; }
+      sheetEdited(s => { s.dutyPct = pct; });
+      note.textContent = `Set to ${pct}% for ${dest}. Rates typed from memory, unchecked.` + (origin ? ` Zero-duty entry from ${origin} needs an origin proof; use the import duty page to apply it.` : "");
+    };
+    $("#s-dest").addEventListener("change", lookUpDuty);
+    $("#s-origin").addEventListener("change", lookUpDuty);
     $("#sheet-export").addEventListener("click", () => download(`${slugify(sheet.name)}.csv`, supplierToCsv(sheet), "text/csv"));
     $("#sheet-import").addEventListener("change", async e => {
       const f = e.target.files[0]; e.target.value = "";
@@ -716,6 +764,18 @@
       navigator.clipboard?.writeText(url);
       log(`Share link copied${d().placements.some(p => p.kind === "image") ? " (uploaded images are not in the link; send the design file instead)" : ""}.`);
       recordUsage("share_link");
+    });
+    $("#brief-dl").addEventListener("click", () => {
+      const text = briefToFile(loadBrief());
+      $("#brief-msg").textContent = text ? "" : "Cost a design above first; there is no brief yet.";
+      if (text) download("launch-brief.json", text, "application/json");
+    });
+    $("#brief-up").addEventListener("change", async ev => {
+      const f = ev.target.files[0]; if (!f) return;
+      const { brief, error } = briefFromFile(await f.text());
+      if (error) { $("#brief-msg").textContent = error; return; }
+      saveBrief(brief);
+      $("#brief-msg").textContent = `Loaded: ${brief.quantity} at ${brief.price} ${brief.currency}. The launch tools now start from it.`;
     });
     function download(name, text, type) {
       const a = document.createElement("a");
@@ -854,7 +914,12 @@
         glView = mountViewer($("#gl-view"));
       }
       glView.setDesign(d());
+      if (glView.vrSupported && await glView.vrSupported()) $("#gl-vr").hidden = false;
     }
+    $("#gl-vr").addEventListener("click", async () => {
+      try { if (!(await glView?.enterVR?.())) alert("VR is not available here, or the preview is not ready yet."); }
+      catch (e) { alert("Could not start VR: " + (e.message || e)); }
+    });
     function scheduleGl() { clearTimeout(glTimer); glTimer = setTimeout(renderGl, 250); }
     $("#gl-panel").addEventListener("toggle", renderGl);
     $("#gl-spin").addEventListener("click", () => {
@@ -891,6 +956,8 @@
           <div class="kpi"><span>Cash needed up front</span><div class="big">${money(e.cashUpFront, c)}</div></div>
           <div class="kpi"><span>Price for a ${plan.targetMarginPct}% margin</span><div class="big">${money(e.priceForTargetMargin, c)}</div></div>
         </div>`;
+        const briefSaved = !e.cost.landed ? false : saveBrief(briefFromStudio(design, sheet, plan, e.cost));
+        if (briefSaved) html += `<p class="muted">These numbers now start the launch tools: <a href="cashflow.html">cash flow</a>, <a href="preorder.html">pre-order</a>, <a href="wholesale.html">wholesale</a>, <a href="reorder.html">reorder</a> and <a href="tna.html">time and action</a>. They stay in this browser.</p>`;
         html += `<p class="muted">If ${e.sellableUnits} of ${design.quantity} sell at ${money(e.price, c)}: ${e.profitIfSellable >= 0 ? "profit" : "loss"} of ${money(Math.abs(e.profitIfSellable), c)} after the run and the launch budget.</p>`;
         if (e.notes.length) html += `<div class="notes">${e.notes.map(esc).join("<br>")}</div>`;
         html += `<table><caption class="sr">Cost per garment</caption><tr><th>Cost per garment</th><th class="num">${c}</th><th>How</th></tr>${e.cost.lines.map(l => `<tr><td>${esc(l.label)}</td><td class="num">${l.value.toFixed(2)}</td><td class="muted">${esc(l.detail)}</td></tr>`).join("")}<tr><th>Landed</th><th class="num">${e.cost.landed.toFixed(2)}</th><td></td></tr></table>`;
@@ -951,7 +1018,7 @@
       $("#s-freight").value = sheet.freightPerUnit ?? 0;
       $("#s-duty").value = sheet.dutyPct ?? 0;
       renderCost();
-      renderMarketing();
+      renderMarketing(); renderClearance();
       $("#quote").textContent = quoteRequest(design);
       const kit = launchKit(design);
       $("#lk-desc").textContent = kit.description;
@@ -962,6 +1029,23 @@
       }
     }
 
+
+    // ---- unsold stock ----
+    function renderClearance() {
+      let html = "";
+      try {
+        const e = economics(d(), sheet, plan);
+        const steps = $("#c-steps").value.split("\n").map(l => l.trim()).filter(Boolean).map(l => { const [o, w] = l.split(/[ ,]+/).map(Number); return { offPct: o, weeks: w }; });
+        const r = clearancePlan({ landed: e.cost.landed, price: d().price, quantity: d().quantity, weeklyRate: Number($("#c-rate").value), fullPriceWeeks: Number($("#c-weeks").value), elasticity: Number($("#c-el").value), scrapPerUnit: Number($("#c-scrap").value), steps, currency: e.currency }, plan);
+        html = `<div class="kpis"><div class="kpi"><span>Sold at full price</span><div class="big">${r.fullPriceSharePct}%</div></div><div class="kpi"><span>Sold in all</span><div class="big">${r.sellThroughPct}%</div></div><div class="kpi"><span>Left unsold</span><div class="big">${r.unsold}</div></div><div class="kpi"><span>Profit after the ladder</span><div class="big">${money(r.totalProfit, r.currency)}</div></div></div>`;
+        html += `<table><caption class="sr">Markdown ladder</caption><tr><th>Stage</th><th class="num">Price</th><th class="num">Weeks</th><th class="num">Sold</th><th class="num">Profit per sale</th><th class="num">Left</th></tr>${r.rows.map(x => `<tr><td>${esc(x.label)}</td><td class="num">${x.price.toFixed(2)}</td><td class="num">${x.weeks}</td><td class="num">${x.sold}</td><td class="num">${x.profitPerSale.toFixed(2)}</td><td class="num">${x.stockLeft}</td></tr>`).join("")}</table>`;
+        if (r.notes.length) html += `<div class="notes">${r.notes.map(esc).join("<br>")}</div>`;
+      } catch (err) {
+        html = `<p class="notes">${esc(err.message)}</p>`;
+      }
+      $("#clr-out").innerHTML = html;
+    }
+    for (const id of ["c-rate", "c-weeks", "c-el", "c-scrap", "c-steps"]) $("#" + id).addEventListener("input", renderClearance);
 
     // ---- launch marketing ----
     const MKT_KEY = "clothing-design-studio-marketing";
@@ -1038,7 +1122,7 @@
       mkt = { ...mkt, ...lastTest.assumptions };
       store.set(MKT_KEY, mkt);
       $("#m-cpc").value = mkt.cpc; $("#m-conv").value = mkt.conversionPct;
-      renderMarketing();
+      renderMarketing(); renderClearance();
       recordUsage("ad_test_applied");
     });
     $("#mkt-csv").addEventListener("click", () => {

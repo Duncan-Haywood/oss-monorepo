@@ -98,3 +98,92 @@ test("plate straps: joints and single-top-plate ties by hand", () => {
   assert.ok(validateFasteners({ plateStraps: { perJoint: 3 } }).length === 1);
   assert.match(fastenerText(l).join("\n"), /7 plate strap\(s\)/);
 });
+
+test("wall bracing: count per wall and brace length by hand, off by default", () => {
+  const r = { walls: [
+    { id: "A", length: 480, height: 97.125, members: [] }, // ceil(480/300) = 2
+    { id: "B", length: 300, height: 97.125, members: [] }, // exactly 1
+    { id: "C", length: 36, height: 97.125, members: [] },  // under 48 in: skipped
+  ] };
+  assert.equal(layoutFasteners({}, {}, r).wallBracing, null);
+  const l = layoutFasteners({ wallBracing: { price: 20 } }, {}, r).wallBracing;
+  assert.equal(l.count, 3);
+  assert.equal(l.walls, 2);
+  assert.ok(Math.abs(l.feet - (3 * 97.125 * Math.SQRT2) / 12) < 1e-9); // 45 degrees: height x sqrt 2
+  assert.equal(l.cost, 60);
+  const steep = layoutFasteners({ wallBracing: { angle: 60, spacing: 120 } }, {}, r).wallBracing;
+  assert.equal(steep.count, 4 + 3); // 480/120 = 4, 300/120 -> 3
+  assert.ok(Math.abs(steep.feet - (7 * 97.125) / Math.sin(Math.PI / 3) / 12) < 1e-9);
+  assert.ok(fastenerText(layoutFasteners({ wallBracing: true }, {}, r)).some((t) => t.includes("wall brace")));
+  for (const bad of [{ spacing: 5 }, { angle: 80 }, { minWallLength: 1 }, { price: -1 }])
+    assert.ok(validateFasteners({ wallBracing: bad }).length > 0, JSON.stringify(bad));
+  assert.ok(validateFasteners({ wallBracing: "yes" }).length > 0);
+});
+
+test("wall bracing nails: typed per brace, joins the nail total, off by default", () => {
+  const r = { walls: [{ id: "A", length: 480, height: 97.125, members: [] }] };
+  const off = layoutFasteners({ wallBracing: true }, {}, r);
+  assert.equal(off.total, 0);
+  const on = layoutFasteners({ wallBracing: { nailsPerBrace: 12 } }, {}, r);
+  assert.equal(on.total, 24); // 2 braces x 12
+  assert.equal(on.walls.find((w) => w.id === "A").nails, 24);
+  assert.equal(on.connections.find((c) => c.name === "Wall braces").nails, 24);
+  for (const bad of [-1, 1.5, 500]) assert.ok(validateFasteners({ wallBracing: { nailsPerBrace: bad } }).length > 0);
+});
+
+test("blocking pieces are end-nailed: two ends, typed nails per end, by hand", () => {
+  const r = { walls: [wall(Array.from({ length: 5 }, () => m("blocking", "fire blocking")))] };
+  const l = layoutFasteners({ waste: 0 }, {}, r);
+  assert.equal(l.connections.find((c) => c.name === "Blocking ends").nails, 5 * 2 * 2);
+  assert.equal(layoutFasteners({ waste: 0, blockingEndNails: 3 }, {}, r).total, 5 * 2 * 3);
+  assert.ok(validateFasteners({ blockingEndNails: 9 }).length > 0);
+});
+
+test("roof nails: plate toenails, ridge nails and collar tie ends, by hand", () => {
+  const r = { walls: [wall([])], roof: { rafters: new Array(10).fill({}), jacks: new Array(4).fill({}), collarTies: new Array(3).fill({}), wingRafters: new Array(2).fill({}) } };
+  const base = layoutFasteners({}, {}, r).total;
+  const l = layoutFasteners({ roofNails: true }, {}, r);
+  // bearings 12 commons + 4 jacks = 16 x 3; ridge 12 x 3; collar 3 ties x 2 ends x 4
+  assert.equal(l.total - base, 48 + 36 + 24);
+  assert.deepEqual(l.roofNails, { commons: 12, jacks: 4, collarTies: 3, rafterToPlate: 3, rafterToRidge: 3, collarTieEnd: 4, count: 108 });
+  const z = layoutFasteners({ roofNails: { rafterToPlate: 2, rafterToRidge: 0, collarTieEnd: 0 } }, {}, r);
+  assert.equal(z.total - base, 32);
+  assert.equal(layoutFasteners({ roofNails: true }, {}, { walls: [wall([])], roof: { trusses: { count: 5 }, rafters: [] } }).roofNails, null);
+  assert.equal(layoutFasteners({ roofNails: { rafterToPlate: 1.5 } }, {}, r).ok, false);
+  // trusses: 5 trusses x 2 bearings x 2 toenails = 20, only when typed
+  const tr = { walls: [wall([])], roof: { trusses: { count: 5 }, rafters: [] } };
+  const tb = layoutFasteners({}, {}, tr).total;
+  const tl = layoutFasteners({ roofNails: { trussToPlate: 2 } }, {}, tr);
+  assert.equal(tl.total - tb, 20);
+  assert.deepEqual(tl.roofNails, { trusses: 5, trussBearings: 10, trussToPlate: 2, count: 20 });
+  assert.equal(layoutFasteners({ roofNails: { trussToPlate: 21 } }, {}, tr).ok, false);
+  assert.equal(layoutFasteners({}, {}, r).roofNails, null);
+});
+
+test("wall brace price per foot: feet x price, price each wins, bounds checked (hand arithmetic)", () => {
+  const r = { walls: [{ id: "A", length: 480, height: 97.125, members: [] }] };
+  const feet = (2 * 97.125 * Math.SQRT2) / 12;
+  const l = layoutFasteners({ wallBracing: { pricePerFoot: 1.5 } }, {}, r).wallBracing;
+  assert.ok(Math.abs(l.cost - feet * 1.5) < 1e-9);
+  assert.equal(layoutFasteners({ wallBracing: { price: 20, pricePerFoot: 1.5 } }, {}, r).wallBracing.cost, 40);
+  for (const bad of [-1, 1e5]) assert.ok(validateFasteners({ wallBracing: { pricePerFoot: bad } }).length > 0);
+});
+
+import { validateFasteners as _vf } from "./fasteners.mjs";
+import { validateFence as _vfence } from "./fence.mjs";
+import { validateWallTile as _vwt } from "./walltile.mjs";
+import _test from "node:test";
+import _assert from "node:assert/strict";
+_test("box sizes and per-connection counts must be whole (2026-11-08 probe)", () => {
+  assert_(_vf({ nailsPerBox: 50.5 }).length > 0);
+  assert_(_vf({ studEndNails: 2.5 }).length > 0);
+  assert_(_vf({ nailsPerBox: 1000, studEndNails: 2 }).length === 0);
+  assert_(_vfence({ runs: [100], fence: { fastenersPerBox: 10.5 } }).length > 0);
+  assert_(_vfence({ runs: [100], fence: { fastenersPerCrossing: 2.5 } }).length > 0);
+  assert_(_vfence({ runs: [100], fence: { fastenersPerBox: 500, fastenersPerCrossing: 2 } }).length === 0);
+  const s = [{ name: "a", width: 10, height: 8 }];
+  assert_(_vwt({ surfaces: s, tile: { screwsPerBox: 1e-9 } }).length > 0);
+  assert_(_vwt({ surfaces: s, tile: { screwsPerBox: 100.5 } }).length > 0);
+  assert_(_vwt({ surfaces: s, tile: { screwsPerBox: 100 } }).length === 0);
+});
+function assert_(c) { _assert.ok(c); }

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Retaining wall block calculator: blocks, caps, base gravel, drainage stone and geogrid</title>
+  <meta name="description" content="Free segmental retaining wall takeoff: type each wall length and exposed height in feet and your block size and get blocks with waste, caps, compacted base, drainage gravel, fabric, drain pipe, geogrid and cap adhesive. Runs in your browser.">
+  <meta property="og:title" content="Retaining wall block calculator">
+  <meta property="og:description" content="Wall length, height and block size in, blocks, caps, gravel, fabric and geogrid out. Private, free, in your browser.">
+  <link rel="canonical" href="./retaining-wall-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many retaining wall blocks and caps for a 40 ft wall 3 ft high with a 12 ft return 2 ft high?", "acceptedAnswer": {"@type": "Answer", "text": "The 40 ft wall shows 6 courses of 6 in blocks and buries 1 more, so 7 courses of 30 blocks (16 in long) is 210, 221 with 5% waste; the 12 ft run is 5 courses of 9, 48 with waste. That is 269 blocks, 1.87 per sq ft of face, and 42 cap blocks. The block sizes, burial and waste are the ones you type; the calculator only adds them."}}, {"@type": "Question", "name": "How much gravel, fabric and drain pipe does that wall need?", "acceptedAnswer": {"@type": "Answer", "text": "A 12 in block with 6 in of base each side sits on a 24 in wide, 6 in deep trench: 2.41 cu yd loose after a 1.25 compaction factor, about 3.37 tons at 1.4 tons per cu yd. The drainage zone, 12 in wide behind the full built height, is 6.30 cu yd or about 8.5 tons at 1.35. Fabric is 326 sq ft, the drain pipe runs the 52 ft of wall and 3 tubes of cap adhesive cover it. Walls over about 4 ft usually need geogrid and an engineer's design; check your jurisdiction."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Retaining wall block calculator</h1>
+  <p>Type each straight wall as a length and an exposed height in feet, and your block and cap size, and you get blocks with waste (including the buried first course), cap blocks, compacted base gravel and drainage stone in cubic yards and tons, fabric, drain pipe, geogrid when you type its spacing, cap adhesive and a cost if you type prices. Every default (block size, burial, base depth, drainage width, compaction, waste) is a figure to replace with your own. Nothing is uploaded; it runs in your browser. It does not design the wall: surcharge, slopes, water, soil, corners and permits are yours to check.</p>
+  <form id="f" onsubmit="return false">
+    <label for="json">Retaining wall settings (JSON: walls with length and height in feet, and block: blockLength, blockHeight, blockDepth, capLength, buryIn, waste, baseDepth, baseOverhang, drainWidth, compaction, geogridEvery, geogridLength, prices)</label>
+    <textarea id="json" rows="22" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">{
+  "walls": [
+    {
+      "length": 40,
+      "height": 3
+    },
+    {
+      "length": 12,
+      "height": 2
+    }
+  ],
+  "block": {
+    "blockLength": 16,
+    "blockHeight": 6,
+    "blockDepth": 12,
+    "capLength": 16,
+    "buryIn": 6,
+    "waste": 0.05,
+    "baseDepth": 6,
+    "baseOverhang": 6,
+    "drainWidth": 12,
+    "compaction": 1.25
+  }
+}</textarea>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, plumbing and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Blocks and caps.</strong> Exposed height over block height rounds up to whole courses, plus the courses needed to bury your embedment; each course is the length over the block length rounded up; waste is added and the total rounded up. Caps are a separate unit along the top.</li>
+    <li><strong>Gravel and fabric.</strong> The base trench is the block depth plus your overhang each side, bought loose, so its volume is multiplied by your compaction factor. Drainage stone fills your width behind the whole built height; fabric wraps it with a 2 ft lap. Tons come from your densities.</li>
+    <li><strong>Pipe, grid and adhesive.</strong> Drain pipe follows the wall (or the feet you type); geogrid layers go every N courses at your length when you type them; adhesive is tubes at your feet per tube.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many retaining wall blocks and caps for a 40 ft wall 3 ft high with a 12 ft return 2 ft high?</h3>
+  <p>The 40 ft wall shows 6 courses of 6 in blocks and buries 1 more, so 7 courses of 30 blocks (16 in long) is 210, 221 with 5% waste; the 12 ft run is 5 courses of 9, 48 with waste. That is 269 blocks, 1.87 per sq ft of face, and 42 cap blocks. The block sizes, burial and waste are the ones you type; the calculator only adds them.</p>
+  <h3>How much gravel, fabric and drain pipe does that wall need?</h3>
+  <p>A 12 in block with 6 in of base each side sits on a 24 in wide, 6 in deep trench: 2.41 cu yd loose after a 1.25 compaction factor, about 3.37 tons at 1.4 tons per cu yd. The drainage zone, 12 in wide behind the full built height, is 6.30 cu yd or about 8.5 tons at 1.35. Fabric is 326 sq ft, the drain pipe runs the 52 ft of wall and 3 tubes of cap adhesive cover it. Walls over about 4 ft usually need geogrid and an engineer's design; check your jurisdiction.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, thinset, grout, backer)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="board-foot-calculator.html">Board foot calculator (board feet, cubic feet and cost)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Wall lengths, heights and block sizes are your inputs and are not checked against any span table or code, height limit, property line or utility location. <strong>You are responsible for the design and the permit.</strong> A wall that holds back soil is a structure: heights over about 4 ft, slopes or loads above, water and poor soil need an engineer. Call before you dig.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Counts add the sizes you type; soil, surcharge, drainage design, geogrid design, batter, footing frost depth and underground utilities are not checked. Follow your block maker's manual and your local code.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutRetaining, retainingText } from "./retaining.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      let d;
+      try { d = JSON.parse($("json").value); } catch (e) { $("out").textContent = "That is not valid JSON: " + e.message; return; }
+      const p = layoutRetaining(d);
+      $("out").textContent = p.ok === false ? p.errors.join("\n") : retainingText(p).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

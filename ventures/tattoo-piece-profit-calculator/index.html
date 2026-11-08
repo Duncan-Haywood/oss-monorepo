@@ -166,7 +166,7 @@
       $("#lt tbody").innerHTML = r.ladder.length ? r.ladder.map((x) => `<tr><td class="n">${x.needleHours}</td><td class="n">${money2(x.price)}</td><td class="n">${money2(x.floor)}</td><td class="n">${money2(x.effectiveHourly)}</td><td class="n">${money2(x.needleRateNeeded)}</td><td><span class="pill ${x.coversTarget ? "good" : "high"}">${x.coversTarget ? "yes" : "no"}</span></td></tr>`).join("") : `<tr><td colspan="6">Enter the needle rate you quote to see this table.</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -100,6 +100,26 @@ pub struct Wall {
 }
 
 impl Wall {
+    /// False for a wall whose layers name concrete, masonry or similar and no
+    /// wood; true for wood, and for a wall with no layer information (unknown
+    /// is kept). The match is on the material names, so it is a filter for a
+    /// US-style Revit export, not a structural classification.
+    pub fn maybe_wood_framed(&self) -> bool {
+        let has = |m: &Layer, keys: &[&str]| { let n = m.material.to_lowercase(); keys.iter().any(|k| n.contains(k)) };
+        if self.layers.is_empty() { return true; }
+        if self.layers.iter().any(|l| has(l, &["wood", "stud", "timber", "lumber", "lvl", "joist"])) { return true; }
+        !self.layers.iter().any(|l| has(l, &["concrete", "masonry", "cmu", "brick", "block", "stone", "steel", "metal"]))
+    }
+    /// Share of the wall's length taken by doors, windows and openings.
+    pub fn open_fraction(&self) -> f64 {
+        let l = self.length();
+        if l > 0.0 { (self.openings.iter().map(|o| o.to - o.from).sum::<f64>() / l).min(1.0) } else { 0.0 }
+    }
+    /// A short stub that is mostly one opening: a door or window frame modelled as a wall
+    /// (a 37 in "wall" holding a 32 in door). Framing it as a wall cannot fit king and jack studs.
+    pub fn is_frame_stub(&self) -> bool {
+        self.length() < 1.2 && self.open_fraction() > 0.75
+    }
     pub fn length(&self) -> f64 { ((self.end[0] - self.start[0]).powi(2) + (self.end[1] - self.start[1]).powi(2)).sqrt() }
 }
 
@@ -134,6 +154,13 @@ pub struct Stats {
     pub openings_without_geometry: usize,
     /// Doors and windows filling an opening in something other than a wall (a roof, a slab).
     pub openings_in_other_hosts: usize,
+    /// Unfilled voids dropped because a door or window fills most of their width.
+    pub voids_covered_by_fills: usize,
+    /// Unfilled voids under 12 in tall, treated as penetrations (pipe, vent, box), not framed openings.
+    pub voids_small_dropped: usize,
+    /// Unfilled voids floating above the floor and under 1.5 m (stair or sloped-top cutouts).
+    pub voids_floating_dropped: usize,
+    pub voids_end_trimmed: usize,
 }
 
 struct Ctx<'m, 'a> {
@@ -344,10 +371,23 @@ pub fn read(m: &Model) -> Building {
             }
         }
     }
-    for w in &mut walls { w.openings.sort_by(|p, q| p.from.total_cmp(&q.from)); }
+    for w in &mut walls {
+        drop_redundant_voids(w, &mut b.stats);
+        trim_open_ends(w, &mut b.stats);
+        w.openings.sort_by(|p, q| p.from.total_cmp(&q.from));
+    }
     let _ = wall_frames;
     if b.stats.walls_without_geometry > 0 {
         b.warnings.push(format!("{} wall(s) had no axis and no readable body and were skipped.", b.stats.walls_without_geometry));
+    }
+    if b.stats.voids_end_trimmed > 0 {
+        b.warnings.push(format!("{} wall end(s) with no joined wall began or ended in an unfilled void; the wall was shortened to where framing starts.", b.stats.voids_end_trimmed));
+    }
+    if b.stats.voids_floating_dropped > 0 {
+        b.warnings.push(format!("{} unfilled void(s) that start above the floor and stay under 1.5 m were dropped as cutouts (a stair or sloped-top profile), not doors; frame those by hand.", b.stats.voids_floating_dropped));
+    }
+    if b.stats.voids_covered_by_fills + b.stats.voids_small_dropped > 0 {
+        b.warnings.push(format!("{} unfilled void(s) were dropped as not framed openings: {} mostly covered by a door or window in the same wall, {} under 12 in tall or 3 in wide (pipe, vent or box penetrations, slivers beside a jamb).", b.stats.voids_covered_by_fills + b.stats.voids_small_dropped, b.stats.voids_covered_by_fills, b.stats.voids_small_dropped));
     }
     if b.stats.doors_windows_unhosted > 0 {
         b.warnings.push(format!("{} door(s)/window(s) could not be placed in any wall (no fill relationship and no wall under them).", b.stats.doors_windows_unhosted));
@@ -364,6 +404,59 @@ pub fn read(m: &Model) -> Building {
     }
     b.walls = walls;
     b
+}
+
+/// Revit often leaves an unfilled cut in a wall next to (or behind) the doors and windows set in it,
+/// and small round or box cuts for pipes. Neither is a framed opening, and keeping them stacks
+/// openings on the same stretch of wall. Dropped here: a void under 12 in tall or 3 in wide (a gap beside a jamb or a trim reveal, narrower than a stud can frame), and a void whose
+/// width is at least half covered by door and window fills in the same wall.
+pub fn drop_redundant_voids(w: &mut Wall, st: &mut Stats) {
+    let fills: Vec<(f64, f64)> = w.openings.iter().filter(|o| o.kind != OpeningKind::Void).map(|o| (o.from, o.to)).collect();
+    w.openings.retain(|o| {
+        if o.kind != OpeningKind::Void { return true; }
+        if o.height < 0.3048 || o.to - o.from < 0.0762 { st.voids_small_dropped += 1; return false; }
+        if o.sill > 0.1 && o.sill + o.height < 1.5 { st.voids_floating_dropped += 1; return false; }
+        let width = o.to - o.from;
+        if width <= 0.0 { return true; }
+        let mut spans: Vec<(f64, f64)> = fills.iter().map(|&(a, b)| (a.max(o.from), b.min(o.to))).filter(|&(a, b)| b > a).collect();
+        spans.sort_by(|p, q| p.0.total_cmp(&q.0));
+        let (mut covered, mut end) = (0.0, f64::MIN);
+        for (a, b) in spans { let a = a.max(end); if b > a { covered += b - a; end = b; } }
+        if covered >= 0.5 * width { st.voids_covered_by_fills += 1; return false; }
+        true
+    });
+}
+
+/// An unfilled void that runs from a wall's free end (no wall joined there) is not an opening to
+/// frame: the wall simply starts or stops past it (a wall modelled longer than its built part).
+/// The wall is shortened by the void's width and its other openings move with it. A void at a
+/// joined end stays, since the join makes the wall's end a real corner.
+pub fn trim_open_ends(w: &mut Wall, st: &mut Stats) {
+    let len = w.length();
+    if len < 1e-6 || w.arc.is_some() { return; }
+    let u = [(w.end[0] - w.start[0]) / len, (w.end[1] - w.start[1]) / len];
+    if w.joined_start.is_empty() {
+        if let Some(i) = w.openings.iter().position(|o| o.kind == OpeningKind::Void && o.from < 0.01 && o.to < len - 0.3) {
+            let cut = w.openings[i].to;
+            if w.openings.iter().enumerate().all(|(j, o)| j == i || o.from >= cut - 1e-9) {
+                w.openings.remove(i);
+                w.start = [w.start[0] + u[0] * cut, w.start[1] + u[1] * cut];
+                for o in &mut w.openings { o.from -= cut; o.to -= cut; }
+                st.voids_end_trimmed += 1;
+            }
+        }
+    }
+    let len = w.length();
+    if w.joined_end.is_empty() {
+        if let Some(i) = w.openings.iter().position(|o| o.kind == OpeningKind::Void && o.to > len - 0.01 && o.from > 0.3) {
+            let from = w.openings[i].from;
+            if w.openings.iter().enumerate().all(|(j, o)| j == i || o.to <= from + 1e-9) {
+                w.openings.remove(i);
+                w.end = [w.start[0] + u[0] * from, w.start[1] + u[1] * from];
+                st.voids_end_trimmed += 1;
+            }
+        }
+    }
 }
 
 fn bbox(p: &[V3]) -> (f64, f64, f64, f64) {

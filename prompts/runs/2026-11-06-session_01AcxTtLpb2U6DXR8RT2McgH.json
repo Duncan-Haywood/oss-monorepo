@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01AcxTtLpb2U6DXR8RT2McgH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled run: read prompt.md and follow it",
+  "input_sha256": "55dd81fad16072d8e3804d06191e6a5c5d69e2d63326fc0da83957b2e35fd225",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T18:11:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13614",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/wall-framing-takeoff/ROADMAP.md",
+      "issue": "2026-11-06 fireblock entry said 'no budget line' but budget.mjs already had one; a new page also needs a nav link added to every sibling page (page.test.mjs enforces) which no doc mentions."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-06-fireblocking-calculator.md",
+    "ventures/wall-framing-takeoff/ROADMAP.md"
+  ],
+  "goal": null,
+  "notes": "Ran page, fireblock and fireblock-fuzz suites locally (100 pass); venture-preflight and full suite not run.",
+  "corrections": [],
+  "redteam": null
+}

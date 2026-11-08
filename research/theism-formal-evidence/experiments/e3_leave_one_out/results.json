@@ -1,0 +1,145 @@
+{
+ "flippers": [
+  "moral_evil",
+  "natural_evil",
+  "hiddenness"
+ ],
+ "full_P_N": 0.7597469266479578,
+ "items": {
+  "canon28": {
+   "P_N": 0.7597469266479578,
+   "P_christian_box": [
+    1.2508121731914235e-05,
+    0.9993687718036769
+   ],
+   "basis": "sweep",
+   "delta": 0.0,
+   "level": "church",
+   "verdict_flips": false
+  },
+  "development": {
+   "P_N": 0.7597469266479578,
+   "P_christian_box": [
+    1.2505407184415573e-05,
+    0.9998002589296633
+   ],
+   "basis": "sweep",
+   "delta": 0.0,
+   "level": "church",
+   "verdict_flips": false
+  },
+  "experience": {
+   "P_N": 0.8170788341999743,
+   "P_christian_box": [
+    1.2504548769121256e-05,
+    0.9999367604382448
+   ],
+   "basis": "argued",
+   "delta": 0.05733190755201645,
+   "level": "theism",
+   "verdict_flips": false
+  },
+  "filioque": {
+   "P_N": 0.7597469266479578,
+   "P_christian_box": [
+    1.2508121731914235e-05,
+    0.9993687718036769
+   ],
+   "basis": "sweep",
+   "delta": 0.0,
+   "level": "church",
+   "verdict_flips": false
+  },
+  "fine_tuning": {
+   "P_N": 0.9900990099009903,
+   "P_christian_box": [
+    1.2504548769121256e-05,
+    0.99987363144781
+   ],
+   "basis": "sweep",
+   "delta": 0.23035208325303247,
+   "level": "theism",
+   "verdict_flips": false
+  },
+  "goodness": {
+   "P_N": 0.8762293189310646,
+   "P_christian_box": [
+    2.494892220907099e-05,
+    0.9999362540652399
+   ],
+   "basis": "published",
+   "delta": 0.11648239228310675,
+   "level": "theism",
+   "verdict_flips": false
+  },
+  "hiddenness": {
+   "P_N": 0.5,
+   "P_christian_box": [
+    0.00012500322825955568,
+    0.9999368233977415
+   ],
+   "basis": "sweep",
+   "delta": -0.25974692664795784,
+   "level": "theism",
+   "verdict_flips": true
+  },
+  "honorius": {
+   "P_N": 0.7597469266479578,
+   "P_christian_box": [
+    1.2508121731914235e-05,
+    0.9993687718036769
+   ],
+   "basis": "sweep",
+   "delta": 0.0,
+   "level": "church",
+   "verdict_flips": false
+  },
+  "moral_evil": {
+   "P_N": 0.4145013213281906,
+   "P_christian_box": [
+    0.00012500322825955568,
+    0.9999368549522406
+   ],
+   "basis": "published",
+   "delta": -0.3452456053197672,
+   "level": "theism",
+   "verdict_flips": true
+  },
+  "natural_evil": {
+   "P_N": 0.09090909090909094,
+   "P_christian_box": [
+    0.001245821996364197,
+    0.9999368803310273
+   ],
+   "basis": "sweep",
+   "delta": -0.6688378357388669,
+   "level": "theism",
+   "verdict_flips": true
+  },
+  "prayer": {
+   "P_N": 0.8170788341999743,
+   "P_christian_box": [
+    1.2504548769121256e-05,
+    0.9999367604382448
+   ],
+   "basis": "published",
+   "delta": 0.05733190755201645,
+   "level": "theism",
+   "verdict_flips": false
+  },
+  "roman_primacy_early": {
+   "P_N": 0.7597469266479578,
+   "P_christian_box": [
+    1.2508121731914235e-05,
+    0.9993687718036769
+   ],
+   "basis": "sweep",
+   "delta": 0.0,
+   "level": "church",
+   "verdict_flips": false
+  }
+ },
+ "max_abs_delta_item": "natural_evil",
+ "max_abs_delta_sourced": 0.3452456053197672,
+ "verdict_full": true
+}

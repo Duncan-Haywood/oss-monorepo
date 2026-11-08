@@ -163,7 +163,7 @@
       $("#sens").innerHTML = r.tickets.map((x) => `<tr class="${x.pct === 0 ? "drive" : ""}"><th scope="row">${x.pct > 0 ? "+" : ""}${x.pct}%</th><td>${usd(x.ticket)}</td><td>${usd(x.net)}</td><td>${cpd(x.costPerDollar)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Net ${usd(r.model.net)}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

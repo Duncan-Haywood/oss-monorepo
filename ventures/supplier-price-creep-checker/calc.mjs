@@ -250,7 +250,9 @@ export function claimText(result, opts = {}) {
   return parts.length ? parts.join("\n\n----------------------------------------\n\n") : "No contract overcharges or one-off spikes were found, so there is nothing to send.";
 }
 
-const csvCell = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+// Formula guard: text starting = + - @ (or tab/CR) would run as a formula in a spreadsheet; prefix an apostrophe (plain numbers such as -12.50 stay numbers).
+const defuse = (s) => (/^[=+\-@\t\r]/.test(s) && !/^[+-]?\d[\d.,]*$/.test(s) ? "'" + s : s);
+const csvCell = (v) => { const s = defuse(String(v)); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(result) {
   const head = ["Supplier", "Item", "Unit", "Purchases", "First date", "Last date", "First price", "Latest price", "Change %", "Annualised impact", "Contract overcharge", "Spikes", "Flag"];
   const rows = result.items.map((i) => [i.supplier, i.label, i.unit, i.purchases, i.firstDate, i.lastDate, (i.baselinePrice / 10000).toFixed(4), (i.latestPrice / 10000).toFixed(4), i.changePct.toFixed(2), (i.annualImpact / 10000).toFixed(2), (i.overchargeTotal / 10000).toFixed(2), i.spikes.length, flagOf(i)]);

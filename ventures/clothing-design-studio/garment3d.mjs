@@ -8,7 +8,7 @@
  * pushed out of the plane by a rounded profile of its distance from the edge,
  * z = sqrt(d (2R - d)). The front drawing is mapped on the front surface and the
  * back drawing on the back, so artwork sits where the designer put it and turns
- * with the garment. It has no drape, seams, gathers or true sleeve tubes, and it
+ * with the garment. It has no drape, seams or gathers (sleeves are round tubes, `sleeveTubes`), and it
  * is not a fit check or a pattern. Real cloth simulation and body models are the
  * next step in ROADMAP.md.
  */
@@ -77,19 +77,69 @@ export function smooth(zs, W, H, v, passes = 2) {
   return a;
 }
 
+/** Body half-width, shoulder point and blend band of the drawn garments (drawing units). */
+export const ARM = Object.freeze({ bodyHalf: 153, blend: 55, shoulderX: 138, shoulderY: 62, centre: 250 });
+const smoothstep = t => { const c = Math.max(0, Math.min(1, t)); return c * c * (3 - 2 * c); };
+
+/** Where a drawing point goes when the arms drop by `drop` radians; returns [x, y, angle, side]. */
+export function dropArm(x, y, drop) {
+  const dx0 = x - ARM.centre, side = dx0 < 0 ? -1 : 1;
+  const w = smoothstep((Math.abs(dx0) - ARM.bodyHalf) / ARM.blend);
+  const a = drop * w;
+  if (!a) return [x, y, 0, side];
+  const dx = side * dx0 - ARM.shoulderX, dy = y - ARM.shoulderY;
+  const c = Math.cos(a), s = Math.sin(a);
+  return [ARM.centre + side * (ARM.shoulderX + dx * c - dy * s), ARM.shoulderY + dx * s + dy * c, a, side];
+}
+
+/**
+ * Sleeve tubes: beyond the body columns a sleeve is a cylinder, not a pillow.
+ * In each column the deepest inside distance is the sleeve's half-width h (in
+ * cells); the profile there becomes a circle of radius h, z = sqrt(d (2h - d)),
+ * so the cross-section is round and as deep as the sleeve is wide. It is blended
+ * in with the same band as the arm swing, so the body keeps its pillow and no seam
+ * tears. Changes `zs` in place; returns the largest sleeve depth in drawing units.
+ */
+export function sleeveTubes(zs, dist, g, box = VIEWBOX) {
+  const { vcols: W, vrows: H, v, cell } = g;
+  let deepest = 0;
+  for (let i = 0; i < W; i++) {
+    const dx0 = box.x + i * cell - ARM.centre;
+    const w = smoothstep((Math.abs(dx0) - ARM.bodyHalf) / ARM.blend);
+    if (!w) continue;
+    let h = 0;
+    for (let j = 0; j < H; j++) if (v[j * W + i]) h = Math.max(h, dist[j * W + i]);
+    if (!h) continue;
+    for (let j = 0; j < H; j++) {
+      const k = j * W + i;
+      if (!v[k]) continue;
+      const d = Math.min(dist[k], h);
+      const tube = cell * Math.sqrt(Math.max(0, d * (2 * h - d)));
+      zs[k] = zs[k] * (1 - w) + tube * w;
+      if (w === 1) deepest = Math.max(deepest, zs[k]);
+    }
+  }
+  return deepest;
+}
+
 /**
  * Build the mesh. Returns flat typed arrays:
  *   positions (x, y, z) centred on the drawing's middle, y up, z toward the viewer
  *   uvs, normals, indices (Uint32), and the counts.
+ * `armDrop` (radians, 0 = flat T as drawn) lets the sleeves hang: vertices
+ * beyond the body columns swing down and in about the shoulder point, with the
+ * angle fading in over `ARM_BLEND` so the armpit seam never tears. Only
+ * positions and normals move; uvs keep the drawing, so artwork stays put.
  * Front vertices come first, then back. The back's u is mirrored so the back
  * drawing reads correctly seen from behind.
  */
-export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 58, box = VIEWBOX } = {}) {
+export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 58, box = VIEWBOX, armDrop = 0, tubes = true } = {}) {
   const g = maskGrid(inside, { cell, box });
   const { vcols: W, vrows: H, v } = g;
   const dist = edgeDistance(g);
   let zs = new Float32Array(W * H);
   for (let k = 0; k < zs.length; k++) zs[k] = v[k] ? height(dist[k], cell, radius, thickness) : 0;
+  if (tubes) sleeveTubes(zs, dist, g, box);
   zs = smooth(zs, W, H, v);
   const n = W * H;
   const positions = new Float32Array(n * 6);
@@ -99,8 +149,9 @@ export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 5
   const zAt = (i, j) => (i < 0 || j < 0 || i >= W || j >= H ? 0 : zs[j * W + i]);
   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) {
     const k = j * W + i;
-    const x = box.x + i * cell, y = box.y + j * cell;
-    const u = (x - box.x) / box.width, vv = (y - box.y) / box.height;
+    const x0 = box.x + i * cell, y0 = box.y + j * cell;
+    const [x, y, ang, sd] = armDrop ? dropArm(x0, y0, armDrop) : [x0, y0, 0, 1];
+    const u = (x0 - box.x) / box.width, vv = (y0 - box.y) / box.height;
     // normal from the height field: (-dz/dx, -dz/dy, 1) with y flipped to y-up
     const dzdx = (zAt(i + 1, j) - zAt(i - 1, j)) / (2 * cell);
     const dzdy = (zAt(i, j + 1) - zAt(i, j - 1)) / (2 * cell);
@@ -110,7 +161,12 @@ export function buildGarmentMesh(inside, { cell = 4, radius = 105, thickness = 5
       positions[o * 3] = x - cx;
       positions[o * 3 + 1] = -(y - cy);
       positions[o * 3 + 2] = s * zs[k];
-      const nx = -dzdx * s, ny = dzdy * s, nz = s;  // y-up flips dzdy's sign
+      let nx = -dzdx * s, ny = dzdy * s;
+      const nz = s;  // y-up flips dzdy's sign
+      if (ang) {  // the same swing as the position (y-up: the drawing's clockwise is anticlockwise here)
+        const c = Math.cos(ang), sn = Math.sin(ang), mx = nx * sd;
+        nx = sd * (mx * c + ny * sn); ny = -mx * sn + ny * c;
+      }
       const len = Math.hypot(nx, ny, nz) || 1;
       normals[o * 3] = nx / len; normals[o * 3 + 1] = ny / len; normals[o * 3 + 2] = nz / len;
       uvs[o * 2] = side ? 1 - u : u;
@@ -172,4 +228,16 @@ export function project(m, [x, y, z]) {
   const Y = m[1] * x + m[5] * y + m[9] * z + m[13];
   const W = m[3] * x + m[7] * y + m[11] * z + m[15];
   return [X / W, Y / W, W];
+}
+
+/**
+ * Model matrix for a headset: the garment is drawn in drawing units (about 1 mm
+ * each, so a size-M chest is roughly 520), so scale by `scale` (metres per unit),
+ * turn it by `yaw`, and hang it `distance` m in front of the floor origin with
+ * its middle `height` m up. Combine with the headset's own view and projection:
+ * mvp = projection * view * model.
+ */
+export function xrModelMatrix({ yaw = 0, scale = 0.001, height = 1.3, distance = 1.0 } = {}) {
+  const s = new Float32Array([scale, 0, 0, 0, 0, scale, 0, 0, 0, 0, scale, 0, 0, 0, 0, 1]);
+  return multiply(translation(0, height, -distance), multiply(rotationY(yaw), s));
 }

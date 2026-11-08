@@ -127,7 +127,7 @@ URL at all.
 
 `portfolio/DIRECTION.md` says deploy beats another build until a stranger can
 reach something. That means the site the flip publishes has to *be* the
-products. This is that site: 33 tools at the time of writing, each already
+products. This is that site: over a thousand tools (1331 when audited on 2026-11-07), each already
 built, tested, and free.
 
 ## What gets published
@@ -215,7 +215,7 @@ node --test platform/pages/updates.test.mjs
   three impossible: a page is listed because it shipped, at the URL it shipped
   to. Nobody has to remember to update a sitemap again.
 - **Dead ends.** Every venture page was written as a standalone site, so none of
-  them linked to any other. The hub linked down into 33 tools and nothing linked
+  them linked to any other. The hub linked down into the first 33 tools and nothing linked
   back or across: someone arriving from a search result at
   `does-subscribe-and-save-still-pay.html` saw one calculator and had no route to
   the other 32. The build injects a bar at the top of every published page ("←

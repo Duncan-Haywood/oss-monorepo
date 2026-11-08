@@ -2,6 +2,72 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-07 · Paper catch-up: 7g to 7v into Section 6 (no new experiment)
+- Added one paragraph to `paper/paper.md` Section 6 covering 7g to 7v (why coder cells bought little: the prevalence-free ceiling of 7i, the fitted-lambda explanation of 7l, rare-category undercoverage and the k = 3 negative-cell guard through 7v). Numbers come from the outcome lines here and were spot-checked against `h7i_cell_contrast.txt`, `h7s_*.txt`.
+- Found: `experiments/h7l_fixed_lambda.txt` held a 20-draw smoke run (cells/pooled at fitted lambda 1.000), not the 1,000 draws the 7l entry reports. Reran `python3 experiments/h7l_fixed_lambda.py 1000` (14 s): 0.915 / 0.834 / 0.995, coverage 94.2 to 95.5%, matching the entry; the file now holds that run.
+- Still not in the paper: 7a to 7f (library code, reference check). Open: second LLM or corpus before dropping tau.
+
+## 2026-11-07 · Paper catch-up: 7w to 7z into Section 6 (no experiment)
+- Added one paragraph to `paper/paper.md` Section 6 and updated its status row; every number checked against the result files. Still missing from the paper: 7a to 7v. Open: second LLM or corpus before dropping tau.
+
+## 2026-11-07 · Milestone 7z: does 7y's reading hold on a held-out, high-prevalence category (GoEmotions `neutral`, 23.3%, weak coder J 0.194)? (planned before the runs; `experiments/h7y_drop_screen.py neutral 500 <n>`, n = 500 and 2,000, same cached Qwen2.5-1.5B scores)
+- Why: 7y's three categories were ones the default was tuned on; `neutral` is cached, rare-category machinery is irrelevant at 23%, and the coder is weak (sens 0.64, spec 0.55). Not tuned on, so it is a free held-out check.
+- **Prediction:** all three rules cover 93% or more and none is more than 2% narrower than pooled (a weak coder at high prevalence gives cells nothing to gain). Refuted if `neg_guard=3` alone covers under 93%.
+
+### Outcome (`experiments/h7y_neutral_n500.txt`, `h7y_neutral_n2000.txt`; 500 draws, +/- 1.9 points; one run each)
+- n = 500: pooled 95.4% / 3.506 pts; shipped default 95.8 / 3.498 (cells in 6%); `neg_guard=3` alone 93.8 / 3.483 (cells in 100%).
+- n = 2000: pooled 95.4 / 1.529; shipped default 94.2 / 1.529 (cells 0%); `neg_guard=3` alone 95.6 / 1.516.
+- Prediction supported but only just: `neg_guard=3` alone covers 93.8% at n = 500, 0.8 points over the bar and 1.2 under nominal, inside binomial noise, and it is only 0.7 to 0.9% narrower than pooled. The screen costs nothing here (it falls back to pooled), and dropping it buys under 1%. So the evidence for removing tau supports "harmless" at high prevalence and "useful" only at 1 to 8% with n large; it does not make it a gain everywhere.
+- Limits: one LLM (1.5B), one corpus, one run each, a category with a weak coder. Library default unchanged. Still open: a second LLM or corpus.
+
+## 2026-11-07 · Milestone 7y: does dropping the tau/guard-20 screen (keeping `neg_guard=3`) hold at other audit sizes? (planned before the 500-draw runs; `experiments/h7y_drop_screen.py <category> 500 <n>`, pilot = n/2; same cached Qwen2.5-1.5B scores, corpus and cut as 7x)
+- Why: 7x's open item. n = 500 and 2,000 for fear (1.15%), sadness (2.30%), admiration (8.1%); rules: pooled, shipped default, `neg_guard=3` alone. 500 draws (+/- 1.9 points). One run each.
+- **Prediction:** `neg_guard=3` alone covers 93% or more in all 6 cells and is at least as narrow as pooled everywhere; the shipped default gives away width at rare prevalence. Refuted if any cell of `neg_guard=3` alone is under 93%.
+
+### Outcome (`experiments/h7y_*_n500.txt`, `h7y_*_n2000.txt`)
+- Coverage of `neg_guard=3` alone: 93.6 to 96.2% in all 6 cells (lowest: sadness n = 2000, 93.6%), so the prediction's coverage half holds. Pooled: 93.4 to 95.6%. Shipped default: 93.4 to 95.4%.
+- Half-width (points), `neg_guard=3` alone vs pooled: fear 0.892 vs 0.887 (n 500), 0.309 vs 0.373 (n 2000, 17% narrower); sadness 1.164 vs 1.201 (3%), 0.367 vs 0.516 (29%); admiration 1.911 vs 2.093 (9%), 0.678 vs 0.914 (26%). At n = 500 it is within 3% of pooled for the two rare categories (cells used in 12% and 26% of draws); wider than pooled in one cell by 0.6% (fear n = 500, inside noise).
+- Shipped default vs `neg_guard=3` alone: the same at n = 500 for fear and sadness (screen sends 100% of draws to pooled), 20% wider at fear n = 2000 (cells in 1% of draws), 8% wider at sadness n = 2000, equal at admiration.
+- Reading: the screen costs width only when the audit is large enough to buy a gain (about 2,000 items in a 6,683-item corpus, so a third of the corpus), and nothing at n = 500, where no rule gains. Prediction supported, with one qualification: "at least as narrow as pooled everywhere" fails by 0.6% in one cell, within noise.
+- Limits: one LLM (1.5B, zero-shot), one corpus, three categories, 500 draws, n = 2,000 is a third of the corpus (finite-population effects). The three categories are those the library default was already tuned on. I did not change the library default: one coder is not enough to remove a safeguard, and the 7w failure (85%) came from the screen's guard being too lax, not from it being too strict.
+- Next: a second LLM coder or a second corpus before dropping tau; a Wilson-type interval for pooled under 0.5%.
+
+## 2026-11-06 · Milestone 7x: does the shipped default (`neg_guard = 3`) hold with a real zero-shot LLM coder at 1 to 5% prevalence? (planned before the 500-draw runs; a 5-draw smoke run only checked the script executes: fear prevalence 1.15%, J 0.46)
+- Why: 7w's open item, an LLM coder rather than the word-presence scorer. `experiments/h7x_llm_coder.py <category> <reps>`: GoEmotions, the cached Qwen2.5-1.5B-Instruct zero-shot scores (`gollm_*.tsv`, from `llm_code_goemotions.py`), label-free cut so coder-positives are 3x the train prevalence (as 6ab), whole 70% test part as the corpus (6,683 items), n = 1000, pilot 500, fitted lambda, 500 draws (+/- 1.9 points). Rules: pooled; old default (neg_guard 0); shipped default (neg_guard 3); neg_guard=3 alone. Categories fear, sadness, admiration (the three with cached scores and prevalence under about 6%).
+- **Prediction:** the shipped default covers 93% or more in all three and is no wider than pooled; it is at least 5% narrower than pooled where coder J is 0.4 or more. The old default may undercover in the highest-J category. Refuted if the shipped default covers under 93% in any category.
+
+### Outcome (`experiments/h7x_fear.txt`, `h7x_sadness.txt`, `h7x_admiration.txt`; 500 draws, coverage +/- 1.9 points; one run each)
+- Admiration (prevalence **8.1%**, not under 6% as I wrote above; I had not looked up its prevalence; coder J 0.649): pooled 94.6% / 1.422 pts; old default 94.2 / 1.119; shipped default 94.0 / 1.143 (cells in 97%); neg_guard=3 alone 95.2 / 1.142.
+- Fear (1.15%, J 0.461): pooled 97.8 / 0.588; old default 95.4 / 0.589; shipped default 95.2 / 0.582 (cells in 0%); neg_guard=3 alone 97.0 / 0.545 (cells in 52%).
+- Sadness (2.30%, J 0.623): pooled 94.8 / 0.808; old default 94.0 / 0.804; shipped default 93.8 / 0.804 (cells in 1%); neg_guard=3 alone 97.0 / 0.694 (cells in 69%).
+- **Coverage half of the prediction supported:** the shipped default covers 93.8 to 95.2% in all three, and the old default did not undercover with this coder (94.0 to 95.4%), so the 85% failure of 7w is specific to the word-presence scorer at 5.45%, not shown for the LLM coder.
+- **Width half refuted:** the shipped default is 20% narrower than pooled at admiration, but 1% (fear) and 0.5% (sadness) at J 0.46 and 0.62, because the tau 0.3 screen sends nearly every 1 to 2% draw to the pooled design (cells in 0 to 1% of draws). The same two categories under `neg_guard=3` alone (tau and guard off) are 7% and 14% narrower than pooled at 97.0% coverage (above nominal, so conservative). So at rare prevalence with an LLM coder the tau/guard-20 screen, not the negative-cell guard, is what gives away the gain.
+- Limits: one LLM (a 1.5B model, one zero-shot prompt), three categories, one corpus, 500 draws, one run each; the width of `neg_guard=3` alone rests on 97.0% coverage, 1.1 points above the 95% target within noise of about 1.9. I did not test whether `neg_guard=3` alone is safe for the word-presence scorer at 5% (7w: 96.6%, yes) and the 20-guard screen was chosen on an earlier corpus.
+- Next: decide whether the default should drop the tau 0.3 screen (7w and 7x agree that `neg_guard=3` alone covers 96.6 to 97.0% in the three categories where it was run: gratitude, fear, sadness; admiration 95.2%) with a second LLM or a held-out category; a Wilson-type interval for the pooled arm under 0.5%.
+
+## 2026-11-06 · Milestone 7w: does `neg_guard=3` inside `audit_design` hold end to end, and should it be the default? (planned before the runs; same corpus, coder and draws as 7t, script `experiments/h7w_library_negguard.py`)
+- Why: 7u/7v's open items: a library-level check (7t hand-rolled the k rule and set tau/guard around `plan_audit`) and a category near 0.4%. Rules: pooled; library default (tau 0.3, guard 20, `neg_guard=0`); `neg_guard=3` alone (tau 0, guard 0); library default plus `neg_guard=3`. Categories gratitude (5.45%, J 0.87) and embarrassment (0.42%, J 0.11, about 25 positives in the 6,000 corpus; 500-draw runs, +/- 1.9 points).
+- **Prediction:** at gratitude the default screen undercovers (below 93%) because guard 20 is passed at 5% and the negative cell is thin; `neg_guard=3` covers 93% or more and is about 10% narrower than pooled. At embarrassment every rule is about pooled (the coder is near useless and positives are few), coverage of pooled may sit below 93% from the normal interval. Refuted if default+neg3 covers under 93% at gratitude.
+
+### Outcome (`experiments/h7w_gratitude.txt`, `h7w_embarrassment.txt`; one run each)
+- Gratitude: pooled 95.6% / 1.014 pts; **library default 85.0 / 0.497** (cells in 97% of draws); neg_guard=3 alone 96.6 / 0.908 (cells in 27%); default+neg3 94.8 / 0.912 (27%).
+- Embarrassment (J 0.114): pooled 93.6 / 0.391; library default 93.6 / 0.382 (cells 0%); neg_guard=3 alone 95.2 / 0.383 (cells 9%); default+neg3 94.8 / 0.379 (0%). All within noise of pooled; no rule loses coverage and none gains width.
+- Prediction supported. The finding that matters: the shipped default screen undercovers at 85.0% on a real high-J coder at 5% prevalence, 10 points under nominal and far outside the 1.9-point band, and the library-level guard (not just the hand-rolled rule) fixes it at a 10% width gain over pooled (0.912 vs 1.014).
+- **Library change:** `neg_guard` now defaults to `NEG_GUARD = 3` in `screen` and `plan_audit` (`neg_guard=0` restores the old behaviour); the two old tests that relied on the unguarded screen pass `neg_guard=0` and one asserts the new default. 23 tests pass.
+- Limits: one corpus, two categories, a non-LLM coder, 500 draws, one run each; k = 3 was chosen on NaijaSenti. The 0.4% category cannot show a gain: coder sensitivity is 0.12.
+- Next: an LLM coder (not the word-presence scorer) at 2 to 5% prevalence; a Wilson-type interval for the pooled arm at under 0.5%.
+
+## 2026-11-05 · Milestone 7v: does the k = 3 negative-cell guard hold at 1 to 2% prevalence on GoEmotions? (planned before the 500-draw runs; a 5-draw smoke run only checked the script executes: fear prevalence 1.22%, J 0.34)
+- Why: 7u's open item, a 1 to 2% GoEmotions category. Same script as 7t (`experiments/h7t_goemotions.py`), categories fear (about 1.2%, weak coder) and sadness (about 2%).
+- **Prediction:** k3 covers 93% or more in both (the guard falls back to pooled when the coder-negative cell has under 3 pilot positives, which at 1% and n = 1000 is common). Pooled with fitted lambda may undercover at 1.2% (normal interval, 12 positives in the pilot): if pooled is below 93% then k3 is too, and the finding is that the normal interval, not the guard, fails. Refuted if k3 covers under 93% while pooled covers 93% or more.
+
+### Outcome (`experiments/h7t_fear.txt`, `h7t_sadness.txt`; 500 draws, coverage +/- 1.9 points; one run each)
+- Fear (prevalence 1.22%, real coder J 0.339): pooled 95.2% / 0.609 pts; g10 96.4 / 0.600 (cells in 9%); **k3 94.8 / 0.562** (cells in 70%); k5 96.2 / 0.593.
+- Sadness (2.22%, J 0.412): pooled **92.4** / 0.802; g10 94.2 / 0.753; **k3 95.2 / 0.726** (cells in 94%); k5 94.6 / 0.754.
+- Prediction supported: k3 covers 94.8 and 95.2%, and not refuted (pooled does not cover more than k3 anywhere). k3 is 7.7% (fear) and 9.5% (sadness) narrower than pooled, a smaller gain than at 4 to 5% (10 to 21%), because these coders are weak (J 0.34 to 0.41). Pooled with a fitted lambda sits at 92.4% on sadness, 0.6 points under the 93% bar and inside the +/- 1.9 binomial noise, so I do not call it a failure. Unlike 7t (J 0.77 to 0.87), g10 does not undercover here: with a weak coder the cells are rarely informative enough to hurt.
+- Limits: two categories, one corpus, one non-LLM coder family, 500 draws, one run each. The k = 3 value still comes from NaijaSenti. Not run: a library-level coverage check with `neg_guard=3` on `plan_audit` end to end (the 7t script goes through `plan_audit` with tau set by the k rule, so the screen itself is not exercised).
+- Next: h7g/7h-style rerun with `neg_guard=3` inside `screen`; a 0.3 to 0.5% category (Wilson-type interval problem).
+
 ## 2026-11-05 · Milestone 7u: the k = 3 negative-cell guard becomes library code (`neg_guard`; no experiment)
 - `audit_design.screen` and `plan_audit` take `neg_guard` (default 0, so every earlier check is unchanged); `NEG_GUARD = 3` is the value 7r to 7t supported. With it, a pilot with fewer than 3 human positives among coder-negative items plans a pooled audit. Test `test_neg_guard_pools_when_the_coder_negative_cell_has_no_positives`; 23 tests pass.
 - Not changed: the default is still the tau/guard-20 screen, because k = 3 was chosen on NaijaSenti and confirmed on only two GoEmotions categories with one non-LLM coder. A library-level coverage rerun (h7g/h7h style) with `neg_guard=3` is the open item, as is a 1 to 2% GoEmotions category.

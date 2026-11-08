@@ -171,7 +171,7 @@
       $("#proj-table tbody").innerHTML = a.rows.map((r) => `<tr><td>${r.year}</td><td>${r.age}</td><td class="n">${r.factor}</td><td class="n">${r.delayed ? "April 1 next year" : usd(r.rmd)}</td><td class="n">${usd(r.qcd)}</td><td class="n">${usd(r.taxable)}</td><td class="n">${usd(r.tax)}</td><td class="n">${usd(r.end)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

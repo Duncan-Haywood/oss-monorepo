@@ -229,7 +229,86 @@ export function detectColumns(header) {
   if (cols.amount === -1 && cols.debit === -1 && cols.credit === -1 && h.includes("gross amount") && h.includes("fee") && h.includes("net amount")) cols.amount = h.indexOf("net amount");
   // Stripe's balance-transactions export (Amount, Fee, Net, Created (UTC)):
   // Net is what moved the Stripe balance; Amount is the gross before the fee.
-  if (h.includes("fee") && h.includes("net") && h.includes("created (utc)") && cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
+  if (h.includes("fee") && h.includes("net") && ["created (utc)", "created utc", "balance transaction id", "reporting category"].some((k) => h.includes(k)) && cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
+  // Shopify Payments' transactions export (Transaction Date, Type, Order, Payout Status, Payout ID,
+  // Amount, Fee, Net): Net is what reaches the bank; the description is "type order", not the card brand.
+  if (h.includes("payout status") && h.includes("payout id") && h.includes("fee") && h.includes("net") && h.includes("order") && h.includes("type")) {
+    if (cols.amount !== -1 && h[cols.amount] === "amount") cols.amount = h.indexOf("net");
+    cols.desc = h.indexOf("order");
+  }
+  // Ko-fi's transactions CSV (DateTime (UTC), From, Message, Item, Received, Given, Currency,
+  // TransactionType, TransactionId): Received is money in and Given money out (a tip or
+  // purchase the creator made), so they read as credit and debit; the type is the description.
+  if (h.includes("received") && h.includes("given") && h.includes("transactiontype")) {
+    cols.credit = h.indexOf("received");
+    cols.debit = h.indexOf("given");
+    cols.amount = -1;
+    cols.desc = h.indexOf("transactiontype");
+    if (cols.date === -1) cols.date = Math.max(h.indexOf("datetime (utc)"), h.findIndex((x) => x.startsWith("datetime")));
+  }
+  // Square's transactions export (Gross Sales, Discounts, Net Sales, Tax, Tip, Total Collected, Fees,
+  // Net Total, Transaction ID, Event Type): Net Total is what Square pays out after its fee; the
+  // description is the item or note, falling back to the event type (Payment, Refund).
+  if (h.includes("net total") && h.includes("gross sales") && h.includes("fees") && h.includes("transaction id")) {
+    cols.amount = h.indexOf("net total");
+    cols.debit = -1;
+    cols.credit = -1;
+    cols.balance = -1;
+    cols.desc = h.includes("description") ? h.indexOf("description") : h.includes("event type") ? h.indexOf("event type") : cols.desc;
+  }
+  // Gumroad's sales CSV (Item Name, Buyer Name, Item Price, Sale Price, Gumroad Fee, Net Total,
+  // Date): Net Total is what Gumroad pays out after its fee; the item sold is the description,
+  // never the buyer's name or email. Layout from memory of its help page; made-up rows only.
+  if (h.includes("net total") && h.includes("item name") && (h.includes("gumroad fee") || h.includes("sale price"))) {
+    cols.amount = h.indexOf("net total");
+    cols.desc = h.indexOf("item name");
+  }
+  // Patreon's earnings report (Date, Event Type, Creator Share, Creator Platform Fee, Creator
+  // Payment Processing Fee ...): Creator Share is what the creator keeps after Patreon's fees, so it
+  // is the amount; the event type is the description, never the patron's name. Column names from a
+  // third-party importer's notes (Patreon's own docs list none); made-up rows only, no real export.
+  if (h.includes("creator share") && h.includes("event type")) {
+    cols.amount = h.indexOf("creator share");
+    cols.debit = -1;
+    cols.credit = -1;
+    cols.balance = -1;
+    cols.desc = h.indexOf("event type");
+  }
+  // Paddle's transactions CSV (Transaction ID, Status, Billed At, Product, Total, Fee, Earnings ...):
+  // Earnings is what Paddle, as merchant of record, leaves for the seller after tax and its fee, so it
+  // is the amount; the product is the description, never the customer. Header from memory of the
+  // Paddle Billing export; made-up rows only, no real export.
+  if (h.includes("earnings") && h.includes("transaction id") && h.includes("billed at")) {
+    cols.amount = h.indexOf("earnings");
+    cols.debit = -1;
+    cols.credit = -1;
+    cols.balance = -1;
+    cols.date = h.indexOf("billed at");
+    cols.desc = h.includes("product") ? h.indexOf("product") : h.indexOf("status");
+  }
+  // Lemon Squeezy's orders export (order_number, user_email, currency, subtotal, discount_total, tax, total,
+  // status, created_at, ...): totals are whole minor units (2900 = $29.00, as in its API), so the reader
+  // divides by 100; the customer's name and email are never the description. No fee column: this books
+  // gross sales, and the payout's fee line comes from the bank. Header from memory; made-up rows only.
+  if (h.includes("order number") && h.includes("user email") && h.includes("total") && h.includes("created at")) {
+    cols.amount = h.indexOf("total");
+    cols.debit = -1;
+    cols.credit = -1;
+    cols.balance = -1;
+    cols.date = h.indexOf("created at");
+    cols.minor = true;
+    const p = ["product name", "product", "variant name", "identifier"].find((k) => h.includes(k));
+    cols.desc = p ? h.indexOf(p) : h.indexOf("order number");
+  }
+  // Creator-support exports (Buy Me a Coffee style: Transaction ID, Date, Supporter Name, Supporter Email,
+  // Item, Amount, Currency, Fee, Net, Status): the supporter's name and email are personal data, so the
+  // description is the item or type, never the person; refunded rows are skipped, not booked as income.
+  // Header from memory; made-up rows only.
+  if (h.includes("supporter name") && h.includes("amount") && (h.includes("date") || h.includes("created at"))) {
+    const p = ["item", "type", "product", "membership", "tier"].find((k) => h.includes(k));
+    cols.desc = p ? h.indexOf(p) : -1;
+    cols.skipRefunds = true;
+  }
   // Paytm's wallet statement (Date, Activity, Source/Destination, Wallet Txn ID,
   // Comment, Debit, Credit, ..., Status): the activity is the description.
   if (cols.desc === -1 && h.includes("activity") && h.includes("wallet txn id")) cols.desc = h.indexOf("activity");
@@ -362,7 +441,7 @@ export function sniffBank(rows) {
     if (/^bank account\|date\|narrative\|debit amount\|credit amount\|balance/.test(h)) return "westpac";
     if (/^date\|amount\|account number\|\|transaction type\|transaction details\|balance/.test(h)) return "nab";
     if (/^date\|description\|amount\|running bal/.test(h)) return "bank-of-america";
-    if (/^type\|product\|started date\|completed date\|description\|amount\|fee\|currency\|state\|balance/.test(h)) return "revolut";
+    if (/^type\|product\|started date\|completed date\|description\|amount\|fee\|currency\|state(\||$)/.test(h)) return "revolut";
     if (/^transaction id\|date\|time\|type\|name\|emoji\|category\|amount\|currency/.test(h)) return "monzo";
     if (/^date\|counter party\|reference\|type\|amount \((gbp|eur|usd)\)\|balance/.test(h)) return "starling";
     if (/^date \(utc\)\|description\|amount\|status\|source account/.test(h)) return "mercury";
@@ -384,6 +463,10 @@ export function sniffBank(rows) {
     if (/^transaction date\|posted date\|card no\.\|description\|category\|debit\|credit/.test(h)) return "capital-one";
     if (/^trans\. date\|post date\|description\|amount\|category/.test(h)) return "discover";
     if (/^status\|date\|description\|debit\|credit/.test(h)) return "citi";
+    // Debit/Credit/Balance layouts, headers from memory (no real export tried): Navy Federal, Truist, TD Bank.
+    if (/^transaction date\|posting date\|description\|debit\|credit\|balance/.test(h)) return "navy-federal";
+    if (/^date\|description\|check number\|debit\|credit\|balance/.test(h)) return "truist";
+    if (/^date\|check no\|description\|debit\|credit\|balance/.test(h)) return "td-bank";
     // Ramp lists card spend as positive amounts, under a "user transaction time" column.
     if (/^(id\|)?user transaction time\|/.test(h)) return "ramp";
     if (/^date\|transaction\|name\|memo\|amount/.test(h)) return "us-bank";
@@ -409,7 +492,7 @@ export function sniffBank(rows) {
     if (/^transaction id\|transaction date\|transaction type\|transaction information\|paid in\|paid out\|balance/.test(h)) return "tide";
     if (/^date\|description\|amount\|status\|check number\|category/.test(h)) return "novo";
     if (/^date\|interest date\|amount\|account\|counterparty\|name\|description/.test(h)) return "bunq";
-    if (/^date\|description\|(card member\|account #\|)?amount/.test(h)) return "amex";
+    if (/^date\|(date processed\|)?description\|(card member\|account #\|)?amount/.test(h)) return "amex";
     // Swisscard's cashback export (columns from the tariochbctools importer): charges are positive.
     if (/^transaction date\|description\|amount\|currency\|(status\|)?merchant category\|registered category/.test(h)) return "swisscard";
   }
@@ -924,7 +1007,14 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const actionCol = bank === "schwab-brokerage" || bank === "fidelity" ? hdr.indexOf("action") : -1;
   let tradesSkipped = 0;
   for (let i = first; i < rows.length; i++) {
-    const r = rows[i];
+    let r = rows[i];
+    // Bank of America writes a Zelle memo with a comma as two cells ("...Thanks," Jasper!""..."), shifting the
+    // amount right by one. When the amount cell is not an amount but the next one is, rejoin the split text.
+    if (headerAt !== -1 && columns.amount > columns.desc && columns.debit === -1 && columns.desc !== -1 && String(r[columns.amount] ?? "").trim() !== "" && !/^[-+(]?[$£€¥]?\s*\d/.test(String(r[columns.amount]).trim()) && !AMT.test(String(r[columns.amount] ?? "").trim().replace(/\s/g, "")) && AMT.test(String(r[columns.amount + 1] ?? "").trim().replace(/\s/g, "")) && String(r[columns.amount + 1]).trim() !== "") {
+      const j = columns.amount;
+      r = [...r.slice(0, columns.desc), r.slice(columns.desc, j + 1).join(","), ...r.slice(j + 1)];
+      r = [...r.slice(0, columns.desc + 1), ...Array(Math.max(0, j - columns.desc - 1)).fill(""), ...r.slice(columns.desc + 1)];
+    }
     const acctName = acctCol === -1 ? "" : String(r[acctCol] ?? "").trim();
     if (acctName && String(r[columns.date] ?? "").trim()) accountNames.add(acctName);
     if (onlyAccount !== undefined && acctName !== onlyAccount) continue;
@@ -939,6 +1029,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       if (/^(you (bought|sold)|reinvestment)\b/i.test(String(r[actionCol] ?? "").trim())) { tradesSkipped++; continue; }
     }
     if (stateCol !== -1 && !okState.test(String(r[stateCol] ?? "").trim())) { problems.push(`Line ${i + 1}: state ${String(r[stateCol] ?? "").trim() || "blank"}, not a completed transaction, skipped.`); continue; }
+    if ((columns.minor || columns.skipRefunds) && anyState !== -1 && /^(refunded|partial refund|partially refunded)$/i.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: order ${String(r[anyState]).trim()}; book the refund from the payout, row skipped.`); continue; }
     if (anyState !== -1 && NOT_BOOKED.test(String(r[anyState] ?? "").trim())) { problems.push(`Line ${i + 1}: status ${String(r[anyState]).trim()}, not a booked transaction, skipped.`); continue; }
     // German and Italian "Valuta" is often the value date; only a three-letter code counts as a currency.
     if (curCol !== -1 && /^[a-z]{3}$/i.test(String(r[curCol] ?? "").trim())) currencies.add(r[curCol].trim().toUpperCase());
@@ -964,6 +1055,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
       const side = (k) => { if (k === -1) return 0; const c = parseCents(r[k], decimalComma); return Number.isNaN(c) ? NaN : Math.abs(c || 0); };
       cents = side(columns.credit) - side(columns.debit);
     }
+    if (columns.minor && Number.isFinite(cents)) cents = Math.round(cents / 100);
     if (!Number.isFinite(cents)) { problems.push(`Line ${i + 1}: unreadable amount, skipped.`); continue; }
     if (drcrCol !== -1) {
       const m = String(r[drcrCol] ?? "").trim().toLowerCase();
@@ -1046,7 +1138,7 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   if (invert === undefined && out.every((r) => r.balance === null) && columns.amount !== -1) {
     // Discover's header is distinctive and its export always lists charges as positive, so a
     // file with no recognisable payment row (a month of purchases only) still flips.
-    const pos = chargesArePositive(out) ?? (bank === "discover" || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null);
+    const pos = chargesArePositive(out) ?? (bank === "discover" || (bank === "amex" && hdr.includes("card member")) || bank === "ramp" || bank === "apple-card" || bank === "swisscard" ? true : null);
     if (pos) { flip = true; inferred = "Charges were positive (the payment rows are negative), so signs were flipped."; }
   }
   // A trade list (ticker, qty, price, amount; Maybe's import shape) states the value bought as
@@ -1059,6 +1151,15 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   // One unsigned-looking amount column, nothing says which way: a card export that lists only purchases (PC Financial's) reads as income.
   else if (invert === undefined && bank !== "schwab-brokerage" && columns.amount !== -1 && columns.debit === -1 && columns.credit === -1 && dirCol === -1 && out.length >= 2 && out.every((r) => r.cents > 0))
     problems.push(`Every amount is positive, so all ${out.length} lines were booked as money in. If this is a card or spending export, they are charges: import with the signs flipped (invert).`);
+  if (bank === "bank-of-america") {
+    // BofA's file opens with a summary block (beginning balance, total credits, total debits, ending balance): check it against the rows read.
+    const num = (re) => { const m = text.match(re); if (!m) return null; const v = Number(m[1].replace(/[,\s]/g, "")); return Number.isFinite(v) ? Math.round(v * 100) : null; };
+    const cr = num(/^\s*"?Total credits"?\s*,[^,\n]*,\s*"?(-?[\d,.]+)"?/im), db = num(/^\s*"?Total debits"?\s*,[^,\n]*,\s*"?(-?[\d,.]+)"?/im);
+    if (cr !== null && db !== null && out.length) {
+      const rc = out.filter((r) => r.cents > 0).reduce((a, r) => a + r.cents, 0), rd = out.filter((r) => r.cents < 0).reduce((a, r) => a + r.cents, 0);
+      if (rc !== cr || rd !== -Math.abs(db)) problems.push(`The statement summary says credits ${(cr / 100).toFixed(2)} and debits ${(db / 100).toFixed(2)}, but the rows read add to credits ${(rc / 100).toFixed(2)} and debits ${(rd / 100).toFixed(2)}. A row may be missing, duplicated or mis-signed; check the file against the bank's statement.`);
+    }
+  }
   if (ambiguousNote) inferred = [inferred, ambiguousNote + "."].filter(Boolean).join(" ");
   if (localeNote) inferred = [inferred, localeNote + " (inferred from the file; pass dayFirst / decimalComma to override)."].filter(Boolean).join(" ");
   return { rows: out, problems, columns, bank, inferred, ...(accountNames.size > 1 ? { accountNames: [...accountNames] } : {}) };

@@ -4,7 +4,7 @@ A follow-up to `research/robofab-armaccel` (its "time-optimal (bang-bang) profil
 
 **Live page:** https://marisstella.app/research/robofab-armbang/
 
-- **Time-optimal saves 20 to 29% of total carry time.** Over nine arm and torque cases (links 0.08, 0.12, 0.20 m; limits 2, 5, 10 N m) the six-part total drops by 21 to 29% (for 0.12 m links at 5 N m, 0.419 s to 0.332 s). The min-jerk times here use a 0.001 s search grid; `robofab-armaccel` used 0.01 s, so its totals are a little higher than the min-jerk column here.
+- **Time-optimal saves 21 to 29% of total carry time.** Over nine arm and torque cases (links 0.08, 0.12, 0.20 m; limits 2, 5, 10 N m) the six-part total drops by 21 to 29% (for 0.12 m links at 5 N m, 0.419 s to 0.332 s). The min-jerk times here use a 0.001 s search grid; `robofab-armaccel` used 0.01 s, so its totals are a little higher than the min-jerk column here.
 - **The price is a harder grip: 1.2 to 2.4 times the jaw force.** Across all 54 part-and-case combinations, the peak jaw force bound under the time-optimal move is 1.18 to 2.41 times that of min-jerk. The 5.95 g cover on the 0.12 m arm at 5 N m needs 2.66 N per jaw instead of 1.49 N. The time-optimal acceleration jumps, which min-jerk avoids.
 - **So friction binds sooner.** Since time-optimal motion needs more grip for the same part, a jaw-force-limited design gives back part of the time saved. This note does not compute that trade (see Next steps).
 - **Caveat on the range.** As in `robofab-armaccel`, the bound `m sqrt((g + a_up)^2 + a_rad^2) / (2 mu)` was checked against MuJoCo only up to 40 m/s^2 in `robofab-graspmove`, and most cases here exceed that. I did not re-simulate them.
@@ -38,7 +38,7 @@ Per-part tables for nine cases are in `experiments/results.txt`: min-jerk time, 
 - The path is fixed to the joint-space line; true time optimality over all paths is not attempted, and the min-jerk comparator is the one shortest duration on a 0.001 s grid at the same path.
 - The computed profile exceeds the torque limit by up to 0.8% at nodes because of the 400-step grid and finite-difference accelerations.
 - The path acceleration is estimated by differences of the speed profile, so the jaw force at the switching points is approximate (a true bang-bang has a step there).
-- One planar arm, no wrist orientation, no link-table collision, no joint-speed limit, no motor dynamics, no payload swing.
+- One planar arm in the vertical plane: each target is reduced to its distance from the base, so the base (yaw) turn between the pick and lift points (10 to 118 degrees across the six parts at 0.12 m links, up to 173 at 0.08 m) is neither timed nor loaded; the carry times cover the in-plane motion only. No wrist orientation, no link-table collision, no joint-speed limit, no motor dynamics, no payload swing.
 - The jaw bound is not re-simulated beyond 40 m/s^2.
 - Simulated results are not claims about physical arms or grippers.
 

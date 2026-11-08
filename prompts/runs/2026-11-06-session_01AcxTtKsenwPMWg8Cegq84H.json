@@ -1,0 +1,47 @@
+{
+ "date": "2026-11-06",
+ "session": "https://claude.ai/code/session_01AcxTtKsenwPMWg8Cegq84H",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled: read prompt.md and follow it",
+ "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-06T05:23:10Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13488",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompt.md",
+   "issue": "Stop hook demanded a commit while a 20-minute data pull was still running; committed the script early."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-06-permit-duration-prior.md",
+  "research/build-data/LOG.md session 34"
+ ],
+ "goal": null,
+ "notes": "",
+ "corrections": [],
+ "redteam": null
+}

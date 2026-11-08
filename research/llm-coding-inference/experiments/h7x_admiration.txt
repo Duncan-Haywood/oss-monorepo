@@ -1,0 +1,6 @@
+GoEmotions admiration, LLM Qwen2.5-1.5B-Instruct, corpus 6683, prevalence 0.0811, coder J 0.649 (sens 0.843, spec 0.806), n 1000, 500 draws
+rule | share of draws using cells % | coverage % | half-width pts
+pooled | 0 | 94.6 | 1.422
+old default (neg_guard 0) | 100 | 94.2 | 1.119
+shipped default (neg_guard 3) | 97 | 94.0 | 1.143
+neg_guard=3 alone | 97 | 95.2 | 1.142

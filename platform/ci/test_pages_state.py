@@ -91,6 +91,15 @@ def branch(sha="a" * 40, message="Publish site built from " + "b" * 40, date=Non
     }
 
 
+class ReadRepo(unittest.TestCase):
+    def test_missing_default_branch_falls_back_to_main(self):
+        self.assertEqual(ps.read_repo(lambda path: {})["default_branch"], "main")
+
+    def test_default_branch_passed_through(self):
+        got = ps.read_repo(lambda path: {"default_branch": "trunk"})
+        self.assertEqual(got["default_branch"], "trunk")
+
+
 class PlanVerdict(unittest.TestCase):
     def test_private_with_pages_is_likely_up(self):
         verdict, reason = ps.plan_verdict(

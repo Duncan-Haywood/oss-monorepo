@@ -42,7 +42,7 @@
     .changed { color: #7f1d1d; font-weight: 700; }
     footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
   </style>
-<style>/* mobile-overflow-guard */table{display:block;max-width:100%;overflow-x:auto}</style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
 </head>
 <body>
   <header>
@@ -265,7 +265,7 @@ node cli.mjs check current.json               # live Marketplace lookup -- the o
 
       els.reportCard.hidden = false;
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", renderReport);

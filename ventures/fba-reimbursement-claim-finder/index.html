@@ -211,7 +211,7 @@
       $("#summary").value = summaryText(a);
       report.hidden = false;
       status.textContent = `Read ${l.items.length} ledger rows` + (r ? `, ${r.items.length} reimbursement rows` : "") + (sh ? `, ${sh.items.length} shipment rows` : "") + ".";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

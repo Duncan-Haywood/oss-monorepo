@@ -279,7 +279,9 @@ export function validate(text, opts = {}) {
 
 // ---- exports -----------------------------------------------------------------
 
-const csvCell = (v) => { const s = String(v ?? ""); return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+// Formula guard: text starting = + - @ (or tab/CR) would run as a formula in a spreadsheet; prefix an apostrophe (plain numbers such as -12.50 stay numbers).
+const defuse = (s) => (/^[=+\-@\t\r]/.test(s) && !/^[+-]?\d[\d.,]*$/.test(s) ? "'" + s : s);
+const csvCell = (v) => { const s = defuse(String(v ?? "")); return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 const csvRow = (a) => a.map(csvCell).join(",");
 const fmtDate = (iso, order) => { if (!iso) return ""; const [y, m, d] = iso.split("-"); return order === "dmy" ? `${d}/${m}/${y}` : order === "mdy" ? `${m}/${d}/${y}` : iso; };
 const journalsOf = (journals, id) => journals.filter((j) => j.payoutId === id).length;

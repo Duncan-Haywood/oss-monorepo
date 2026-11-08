@@ -6,7 +6,7 @@
 // length. Fewest panels first, then the most even widths. Pure functions;
 // inches throughout. A layout aid, not engineering: lifting, bracing and
 // shipping are for the builder.
-import { formatLength, DEPTH, mergeCuts, optimizeStock } from "./engine.mjs";
+import { formatLength, DEPTH, mergeCuts, optimizeStock, samplePlan, defaultStock, takeoff } from "./engine.mjs";
 
 const EPS = 1e-6;
 const r3 = (n) => Math.round(n * 1000) / 1000;
@@ -245,4 +245,49 @@ export function panelPullText(po) {
     for (const b of p.boards) lines.push(`  ${b.size} ${formatLength(b.boardLength)} #${b.board}: cut ${b.cuts.map((c) => formatLength(c)).join(", ")}${b.sharedWith ? ` (board also feeds ${b.sharedWith} other panel${b.sharedWith > 1 ? "s" : ""})` : ""}`);
   }
   return lines;
+}
+
+/**
+ * One straight wall for the standalone panel page: length, precut height,
+ * evenly spread windows (36 x 48 in) and doors (36 x 82-1/2 in), the longest
+ * shop panel, and optional sheathing weight. Returns panels with their
+ * lumber, sheathing and total weights. A handling estimate, not a load figure.
+ * @param {{length: number, height: string, windows: number, doors: number, panelMax: number, sheathPsf?: number}} o length and panelMax in inches
+ */
+export function wallPanelReport(o) {
+  const pre = { "8ft": 92.625, "9ft": 104.625, "10ft": 116.625 }[o?.height];
+  if (!pre) return { ok: false, errors: ["Wall height must be 8ft, 9ft or 10ft (precut studs)."] };
+  if (typeof o.length !== "number" || !Number.isFinite(o.length) || o.length < 48 || o.length > 1200) return { ok: false, errors: ["Wall length must be 4 ft to 100 ft (48 to 1200 in)."] };
+  const whole = (v) => Number.isInteger(v) && v >= 0 && v <= 20;
+  if (!whole(o.windows) || !whole(o.doors)) return { ok: false, errors: ["Windows and doors must be whole numbers from 0 to 20."] };
+  const bad = panelMaxError(o.panelMax);
+  if (bad) return { ok: false, errors: [bad] };
+  const psf = o.sheathPsf ?? 0;
+  if (typeof psf !== "number" || !Number.isFinite(psf) || psf < 0 || psf > 10) return { ok: false, errors: ["Sheathing weight must be 0 to 10 lb per sq ft."] };
+  const kinds = [];
+  for (let i = 0; i < o.doors; i++) kinds.push("door");
+  for (let i = 0; i < o.windows; i++) kinds.push("window");
+  // interleave so doors and windows alternate along the wall
+  const doors = kinds.filter((k) => k === "door"), wins = kinds.filter((k) => k === "window"), order = [];
+  while (doors.length || wins.length) { if (wins.length) order.push(wins.shift()); if (doors.length) order.push(doors.shift()); }
+  if (order.length * 36 + (order.length + 1) * 12 > o.length) return { ok: false, errors: [`${order.length} openings of 36 in with 12 in between and at the ends do not fit a ${o.length} in wall.`] };
+  const openings = /** @type {any[]} */ (order).map((kind, k) => ({ kind, label: `${kind} ${k + 1}`, offset: Math.round((o.length * (k + 1)) / (order.length + 1) - 18), width: 36, height: kind === "door" ? 82.5 : 48, header: "2x10" }));
+  const plan = samplePlan();
+  plan.studLength = pre;
+  plan.stock = defaultStock(pre);
+  plan.walls = [{ id: "Wall", length: o.length, stud: "2x4", corner: true, openings }];
+  const r = takeoff(plan);
+  if (!r.ok) return { ok: false, errors: r.errors || ["The layout failed."] };
+  const pan = panelizeWall(r.walls[0], o.panelMax);
+  const parts = panelParts(r.walls[0], pan, { sheathPsf: psf, openings });
+  const totalLb = Math.round(parts.reduce((t, p) => t + p.totalLb, 0) * 10) / 10;
+  return { ok: true, over: pan.over, panels: parts, totalLb, heaviestLb: Math.max(...parts.map((p) => p.totalLb)) };
+}
+
+export function wallPanelText(rep) {
+  if (!rep.ok) return rep.errors;
+  return [
+    ...rep.panels.map((p) => `${p.name}: ${formatLength(p.width)} wide, ${p.pieceCount} pieces, lumber ${p.lb} lb${p.sheathLb ? ` + sheathing ${p.sheathLb} lb` : ""} = ${p.totalLb} lb`),
+    `Total ${rep.totalLb} lb in ${rep.panels.length} panel${rep.panels.length === 1 ? "" : "s"}; heaviest ${rep.heaviestLb} lb.${rep.over ? " A panel is over the limit: no cut line is clear." : ""}`,
+  ];
 }

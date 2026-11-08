@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtJEwQfVMLCBnZscVcu",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T09:08:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14002",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/wall-framing-takeoff/ROADMAP.md",
+      "issue": "Lists hvac and plumbing as having no page, but hvac-calculator.html and plumbing-calculator.html exist; the flagship next: also still lists Schultz blockers that later notes say are resolved."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Did not rewrite the flagship next: (stale, but too long to verify this run).",
+      "did": "Landed a small engine slice instead (moveOpeningToWall, one test, no page wiring).",
+      "result": "Small; partial."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-08-moving-a-door-to-another-wall-in-the-sketch-editor.md"
+  ],
+  "goal": null,
+  "notes": "Sketch tests 19/19 pass. Venture preflight and page click-check not run. Page drag not wired.",
+  "corrections": [],
+  "redteam": null
+}

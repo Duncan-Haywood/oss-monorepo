@@ -157,7 +157,7 @@
       $("#tiers").innerHTML = r.tiers.map((t) => `<tr><th scope="row">${esc(t.name)}</th><td>${usd(t.price)}</td><td>${usd(t.perServing)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Target price ${usd(r.price)}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -215,3 +215,91 @@ fn hostile_input_never_panics() {
     s.insert_str(s.find("ENDSEC;\nEND").unwrap(), &noise);
     let _ = read_str(&s).unwrap();
 }
+
+#[test]
+fn wood_only_filter_keeps_wood_and_unknown_and_drops_concrete() {
+    use ifc_engine::ifc::Layer;
+    let b = wall(100, (0.0, 0.0), (1.0, 0.0), (0.0, 0.0), (4.0, 0.0), 2.7, 0.1);
+    let mut m = read_str(&file("m", 0.0, &b)).unwrap();
+    let mut w = m.walls.remove(0);
+    let l = |s: &str| Layer { material: s.to_string(), thickness: 0.05 };
+    assert!(w.maybe_wood_framed(), "no layer data: unknown is kept");
+    // names as Revit writes them in the Schultz Residence model
+    w.layers = vec![l("Gypsum Wall Board"), l("Wood - Stud Layer")];
+    assert!(w.maybe_wood_framed());
+    w.layers = vec![l("Concrete - Cast-in-Place Concrete")];
+    assert!(!w.maybe_wood_framed());
+    w.layers = vec![l("Concrete Masonry Units"), l("Gypsum Wall Board")];
+    assert!(!w.maybe_wood_framed());
+    w.layers = vec![l("Gypsum Wall Board"), l("Paint")];
+    assert!(w.maybe_wood_framed(), "a finish-only wall is not called masonry");
+}
+
+#[test]
+fn voids_behind_fills_and_small_penetrations_are_not_framed_openings() {
+    // Schultz Residence "Window Wall" pattern: an unfilled cut 2.0 m wide behind two windows,
+    // plus a 0.2 m pipe hole and a real cased passage with no fill.
+    let mut b = wall(100, (2.0, 1.0), (0.0, 1.0), (0.0, 0.0), (8.0, 0.0), 2.7, 0.2);
+    b += &opening(700, 104, (0.0, 0.0, 0.05), 2.0, 0.4, 0.95); // the stray cut, covered by the windows
+    b += &opening(710, 104, (0.1, 0.0, 1.0), 0.9, 0.4, 1.2);
+    b += &opening(720, 104, (1.1, 0.0, 1.0), 0.9, 0.4, 1.2);
+    b += "#730=IFCWINDOW('w1',$,'W1',$,$,#907,$,$,1.2,0.9);#731=IFCWINDOW('w2',$,'W2',$,$,#907,$,$,1.2,0.9);\n\
+#740=IFCRELVOIDSELEMENT('v',$,$,$,#100,#700);\n\
+#741=IFCRELVOIDSELEMENT('v1',$,$,$,#100,#710);#742=IFCRELFILLSELEMENT('f1',$,$,$,#710,#730);\n\
+#743=IFCRELVOIDSELEMENT('v2',$,$,$,#100,#720);#744=IFCRELFILLSELEMENT('f2',$,$,$,#720,#731);\n";
+    b += &opening(800, 104, (3.0, 0.0, 0.5), 0.1, 0.4, 0.2); // pipe hole
+    b += "#840=IFCRELVOIDSELEMENT('v3',$,$,$,#100,#800);\n";
+    b += &opening(850, 104, (5.0, 0.0, 0.0), 0.9, 0.4, 2.1); // cased passage
+    b += "#890=IFCRELVOIDSELEMENT('v4',$,$,$,#100,#850);\n";
+    let m = read_str(&file("m", 0.0, &b)).unwrap();
+    let kinds: Vec<_> = m.walls[0].openings.iter().map(|o| (o.kind, o.id)).collect();
+    assert_eq!(kinds, [(OpeningKind::Window, 730), (OpeningKind::Window, 731), (OpeningKind::Void, 850)], "{kinds:?}");
+    assert_eq!(m.stats.voids_covered_by_fills, 1);
+    assert_eq!(m.stats.voids_small_dropped, 1);
+    assert!(m.warnings.iter().any(|w| w.contains("2 unfilled void(s) were dropped")), "{:?}", m.warnings);
+}
+
+#[test]
+fn floating_low_voids_are_stair_cutouts_not_doors() {
+    let mut b = wall(100, (2.0, 1.0), (0.0, 1.0), (0.0, 0.0), (6.0, 0.0), 2.7, 0.2);
+    b += &opening(700, 104, (0.0, 0.0, 0.3), 0.8, 0.4, 0.5); // floating, 0.8 m top: a cutout
+    b += "#740=IFCRELVOIDSELEMENT('v',$,$,$,#100,#700);\n";
+    b += &opening(2000, 104, (3.0, 0.0, 0.0), 0.9, 0.4, 2.1); // cased passage to the floor: kept
+    b += "#2040=IFCRELVOIDSELEMENT('v2',$,$,$,#100,#2000);\n";
+    let m = read_str(&file("m", 0.0, &b)).unwrap();
+    let o = &m.walls[0].openings;
+    assert_eq!(o.len(), 1, "{o:?}");
+    assert!((o[0].from - 3.0).abs() < 1e-9);
+    assert_eq!(m.stats.voids_floating_dropped, 1);
+}
+
+#[test]
+fn void_at_a_free_wall_end_shortens_the_wall_and_slivers_drop() {
+    let mut b = wall(100, (2.0, 1.0), (0.0, 1.0), (0.0, 0.0), (6.0, 0.0), 2.7, 0.2);
+    b += &opening(700, 104, (0.0, 0.0, 0.0), 0.8, 0.4, 2.1); // 0 to 0.8 m at the free start: wall starts past it
+    b += "#740=IFCRELVOIDSELEMENT('v',$,$,$,#100,#700);\n";
+    b += &opening(2000, 104, (3.0, 0.0, 0.0), 0.04, 0.4, 2.1); // 4 cm sliver: not frameable
+    b += "#2040=IFCRELVOIDSELEMENT('v2',$,$,$,#100,#2000);\n";
+    let m = read_str(&file("m", 0.0, &b)).unwrap();
+    let w = &m.walls[0];
+    assert!(w.openings.is_empty(), "{:?}", w.openings);
+    assert!((w.length() - 5.2).abs() < 1e-6, "{}", w.length());
+    assert_eq!(m.stats.voids_end_trimmed, 1);
+    assert_eq!(m.stats.voids_small_dropped, 1);
+}
+
+#[test]
+fn frame_stub_is_a_short_wall_that_is_mostly_opening() {
+    let mut b = wall(100, (2.0, 1.0), (0.0, 1.0), (0.0, 0.0), (8.0, 0.0), 2.7, 0.2);
+    b += &opening(850, 104, (5.0, 0.0, 0.0), 0.9, 0.4, 2.1);
+    b += "#890=IFCRELVOIDSELEMENT('v4',$,$,$,#100,#850);\n";
+    let mut m = read_str(&file("m", 0.0, &b)).unwrap();
+    let mut w = m.walls.remove(0);
+    assert_eq!(w.openings.len(), 1);
+    assert!(!w.is_frame_stub(), "8 m wall with a 0.9 m opening");
+    w.end = [w.start[0] + 0.946, w.start[1]];
+    w.openings[0].from = 0.165; w.openings[0].to = 0.946;
+    assert!(w.is_frame_stub(), "37 in wall with a 31 in door");
+    w.end = [w.start[0] + 3.0, w.start[1]];
+    assert!(!w.is_frame_stub(), "3 m wall with the same opening");
+}

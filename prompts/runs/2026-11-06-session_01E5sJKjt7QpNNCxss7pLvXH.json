@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01E5sJKjt7QpNNCxss7pLvXH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T21:19:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13646",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "map shows prompt.md over its line budget; routing docs long for a one-step run"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-06-ocean-drone-drift-is-noise.md",
+    "research/marine-hull/LOG.md 6v"
+  ],
+  "goal": null,
+  "notes": "Ran experiments/run_saildrone_current_vector.py locally (<10s); research homepage build.py printed ok. Exploratory, no prediction logged first.",
+  "corrections": [],
+  "redteam": null
+}

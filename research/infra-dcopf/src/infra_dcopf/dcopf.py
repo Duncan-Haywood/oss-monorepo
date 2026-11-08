@@ -63,6 +63,26 @@ def solve_dc(net):
     return n
 
 
+def clamp_setpoints(net):
+    """Copy of `net` with every generator (and the external grid) voltage setpoint moved
+    into its bus's [min_vm_pu, max_vm_pu] band. The AC OPF chooses setpoints inside the
+    band; the cases ship some outside it (case39 gen at bus 35: 1.0636 against 1.06)."""
+    n = copy.deepcopy(net)
+    for tab in (n.gen, n.ext_grid):
+        for i in tab.index:
+            b = tab.at[i, "bus"]
+            tab.at[i, "vm_pu"] = float(np.clip(tab.at[i, "vm_pu"], n.bus.at[b, "min_vm_pu"], n.bus.at[b, "max_vm_pu"]))
+    return n
+
+
+def uniform_setpoints(net, v):
+    """Copy of `net` with every generator and the external grid held at v pu."""
+    n = copy.deepcopy(net)
+    n.gen["vm_pu"] = v
+    n.ext_grid["vm_pu"] = v
+    return n
+
+
 def ac_check_of_dispatch(net, dc_solved):
     """Fix gens at the DC dispatch, run an AC power flow and return its violations."""
     n = copy.deepcopy(net)
@@ -212,3 +232,97 @@ def penalty_adjusted_dc(net, iters=12, tol_mw=0.05, damp=0.5):
             break
         loss = new
     return sol, hist, pf
+
+
+def q_violations(n):
+    """Boolean arrays (gens, ext grid) for reactive output outside [min_q, max_q] after a power flow on `n`."""
+    tol = 1e-6
+    g = ((n.res_gen.q_mvar.values < n.gen.min_q_mvar.values - tol) | (n.res_gen.q_mvar.values > n.gen.max_q_mvar.values + tol))
+    e = ((n.res_ext_grid.q_mvar.values < n.ext_grid.min_q_mvar.values - tol) | (n.res_ext_grid.q_mvar.values > n.ext_grid.max_q_mvar.values + tol))
+    return g, e
+
+
+def q_balancing_setpoints(net, dc_solved, step=0.0025, iters=80):
+    """Per-generator voltage-setpoint search for a fixed DC dispatch: start from the band-clamped
+    case setpoints; each pass runs an AC power flow, moves a generator that is over its Qmax down by
+    `step` pu and one under its Qmin up by `step` (external grid likewise), within the bus band, and
+    stops when no bus is out of band and no Q limit is broken. A heuristic, not an optimiser.
+    Returns (net with setpoints, passes used, feasible flag)."""
+    n = clamp_setpoints(net)
+    n.gen["p_mw"] = dc_solved.res_gen.p_mw.values
+    for it in range(iters):
+        try:
+            pp.runpp(n, init="flat", numba=False)
+        except Exception:
+            return n, it, False
+        vm = n.res_bus.vm_pu
+        vbad = int(((vm > n.bus.max_vm_pu + 1e-9) | (vm < n.bus.min_vm_pu - 1e-9)).sum())
+        gq, eq = q_violations(n)
+        if vbad == 0 and not gq.any() and not eq.any():
+            return n, it, True
+        for tab, res, mask in ((n.gen, n.res_gen, gq), (n.ext_grid, n.res_ext_grid, eq)):
+            for j, i in enumerate(tab.index):
+                if not mask[j]:
+                    continue
+                over = res.q_mvar.values[j] > tab.at[i, "max_q_mvar"]
+                b = tab.at[i, "bus"]
+                v = tab.at[i, "vm_pu"] + (-step if over else step)
+                tab.at[i, "vm_pu"] = float(np.clip(v, n.bus.at[b, "min_vm_pu"], n.bus.at[b, "max_vm_pu"]))
+    return n, iters, False
+
+
+def reactive_redispatch(net, dc_solved, tol_mw=1e-3):
+    """AC OPF with every generator's real power pinned to the DC dispatch (+/- tol_mw), so only
+    voltages, reactive power and the slack are free. Returns the solved net, or None when
+    pandapower returns no solution (which is not a proof of infeasibility)."""
+    n = copy.deepcopy(net)
+    p = dc_solved.res_gen.p_mw.values
+    n.gen["p_mw"] = p
+    n.gen["min_p_mw"] = p - tol_mw
+    n.gen["max_p_mw"] = p + tol_mw
+    try:
+        pp.runopp(n, verbose=False)
+    except Exception:
+        return None
+    return n
+
+
+def ac_optimum_penalty_dc(net, ac=None):
+    """One-shot penalty-factor DC OPF with the loss sensitivities taken at the AC
+    optimum instead of at a DC dispatch, and the loss level set to the AC optimum's
+    own losses (no iteration, so nothing to damp). Returns (DC solution on the
+    penalised costs, factors) or (None, None) if the AC OPF or the sensitivities fail."""
+    ac = ac if ac is not None else solve_ac(net)
+    if ac is None:
+        return None, None
+    sens = loss_sensitivities(net, ac)
+    if sens is None:
+        return None, None
+    pf = penalty_factors(sens)
+    loss = _losses(ac)
+    n = copy.deepcopy(net)
+    n.load["p_mw"] = net.load.p_mw * (1.0 + loss / float(net.load.p_mw.sum()))
+    rows = n.poly_cost.index[n.poly_cost.et == "gen"]
+    elem = n.poly_cost.loc[rows, "element"].astype(int).values
+    cols = ["cp1_eur_per_mw", "cp2_eur_per_mw2"]
+    n.poly_cost.loc[rows, cols] = n.poly_cost.loc[rows, cols].values * pf[elem][:, None]
+    return solve_dc(n), pf
+
+
+def previous_interval_penalty_dc(net, prev_ac, prev_net):
+    """Penalty-factor DC OPF for `net` using factors and the loss share taken from an
+    AC optimum solved on a *different* load level (`prev_net`, solution `prev_ac`),
+    standing in for the previous dispatch interval. No AC solve at `net` itself.
+    Returns (DC solution, factors) or (None, None)."""
+    sens = loss_sensitivities(prev_net, prev_ac)
+    if sens is None:
+        return None, None
+    pf = penalty_factors(sens)
+    share = _losses(prev_ac) / float(prev_net.load.p_mw.sum())
+    n = copy.deepcopy(net)
+    n.load["p_mw"] = net.load.p_mw * (1.0 + share)
+    rows = n.poly_cost.index[n.poly_cost.et == "gen"]
+    elem = n.poly_cost.loc[rows, "element"].astype(int).values
+    cols = ["cp1_eur_per_mw", "cp2_eur_per_mw2"]
+    n.poly_cost.loc[rows, cols] = n.poly_cost.loc[rows, cols].values * pf[elem][:, None]
+    return solve_dc(n), pf

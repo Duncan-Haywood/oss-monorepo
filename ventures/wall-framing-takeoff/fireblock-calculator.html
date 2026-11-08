@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fireblocking calculator: blocks and boards for tall wall cavities</title>
+  <meta name="description" content="Free fireblocking takeoff: type your walls and the cavity limit from your code and get block rows, blocks cut to each stud bay, and boards to buy. Runs in your browser.">
+  <meta property="og:title" content="Fireblocking calculator">
+  <meta property="og:description" content="Walls and a cavity limit in, block rows, bay-width blocks and boards out. Private, free, in your browser.">
+  <link rel="canonical" href="./fireblock-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many fireblocking blocks and boards do three tall walls need at a 10 ft cavity limit?", "acceptedAnswer": {"@type": "Answer", "text": "Each wall here is 144 in studs plus two plates, 147 in tall, which is over the typed 10 ft (120 in) limit, so each gets 1 row of blocks: 13 blocks in the 20 ft great-room wall, 8 in the 10 ft entry wall and 6 in the 8 ft closet wall, 27 blocks in all. Packed into 8 ft boards with a saw kerf, the 2x4 blocks fill 4 boards (buy 5 with 5% waste) and the 2x6 blocks fill 2 (buy 3), 8 boards, 44.00 at 5.50 a board."}}, {"@type": "Question", "name": "What changes if my code or inspector wants a tighter limit?", "acceptedAnswer": {"@type": "Answer", "text": "Type a smaller cavity limit and the rows follow: at 5 ft the same walls need 2 rows each, 54 blocks, 12 boards (8 of 2x4 and 4 of 2x6), 66.00. The limit is always the figure you type; the page does not look up a code, and ceiling and floor levels, soffits, stairs, chases and penetrations are not counted."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Fireblocking calculator</h1>
+  <p>Type your walls (length in inches, stud size, openings) and the cavity limit your code or inspector gives, and the blocking follows: how many rows each tall wall needs, one block per stud bay cut to the bay width, packed into boards, with a cost if you type a board price. The same fireblock engine as the whole-house takeoff. The limit is the figure you type; it is not looked up. Ceiling and floor levels, soffits, stairs, chases and penetrations are not counted.</p>
+  <form id="f" onsubmit="return false">
+    <label for="json">Plan (JSON: studLength for the wall height, walls with id, length, stud, openings; fireblock with intervalFt, boardFt, waste, boardPrice, rows)</label>
+    <textarea id="json" rows="16" spellcheck="false" style="width:100%;box-sizing:border-box;font:.9rem ui-monospace,monospace;padding:8px">{
+  "studLength": 144,
+  "walls": [
+    { "id": "Great room east", "length": 240, "stud": "2x4", "corner": true, "openings": [ { "kind": "window", "offset": 60, "width": 48, "height": 60, "header": "2x10" } ] },
+    { "id": "Entry", "length": 120, "stud": "2x6" },
+    { "id": "Closet", "length": 96, "stud": "2x4" }
+  ],
+  "fireblock": { "intervalFt": 10, "boardFt": 8, "waste": 0.05, "boardPrice": 5.5 }
+}</textarea>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, plumbing and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Rows.</strong> A wall as tall as or under the cavity limit needs none, since the plates close its top and bottom. A taller wall gets ceil(height / limit) - 1 rows, spaced evenly (or the number you type in <code>rows</code>).</li>
+    <li><strong>Blocks.</strong> One block per row in each bay between neighbouring full-height studs, cut to the clear gap, from the wall's own stud size.</li>
+    <li><strong>Boards.</strong> Blocks are packed into boards first-fit decreasing with the saw kerf, then waste (5% by default) is added and rounded up.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many fireblocking blocks and boards do three tall walls need at a 10 ft cavity limit?</h3>
+  <p>Each wall here is 144 in studs plus two plates, 147 in tall, which is over the typed 10 ft (120 in) limit, so each gets 1 row of blocks: 13 blocks in the 20 ft great-room wall, 8 in the 10 ft entry wall and 6 in the 8 ft closet wall, 27 blocks in all. Packed into 8 ft boards with a saw kerf, the 2x4 blocks fill 4 boards (buy 5 with 5% waste) and the 2x6 blocks fill 2 (buy 3), 8 boards, 44.00 at 5.50 a board.</p>
+  <h3>What changes if my code or inspector wants a tighter limit?</h3>
+  <p>Type a smaller cavity limit and the rows follow: at 5 ft the same walls need 2 rows each, 54 blocks, 12 boards (8 of 2x4 and 4 of 2x6), 66.00. The limit is always the figure you type; the page does not look up a code, and ceiling and floor levels, soffits, stairs, chases and penetrations are not counted.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li><li><a href="board-foot-calculator.html">Board foot calculator (board feet, cubic feet and cost)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. The cavity limit is the figure you typed, not a code lookup, and the output is not checked against any span table or code, a real house or an inspector.<strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder or software company. Fireblocking at ceiling and floor levels, soffits, stairs, chases, draftstopping, fire-resistance ratings and sealing of penetrations are not looked at. Ask your building department.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutFireblock, fireblockText } from "./fireblock.mjs";
+    import { takeoff, samplePlan, defaultStock } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const run = () => {
+      let d;
+      try { d = JSON.parse($("json").value); } catch (e) { $("out").textContent = "That is not valid JSON: " + e.message; return; }
+      if (d == null || typeof d !== "object" || Array.isArray(d)) { $("out").textContent = "The plan is a JSON object."; return; }
+      const plan = { ...samplePlan(), ...d };
+      if (d.studLength != null && d.stock == null) plan.stock = defaultStock(d.studLength);
+      let r;
+      try { r = takeoff(plan); } catch (e) { $("out").textContent = "Could not lay out those walls: " + e.message; return; }
+      if (r.ok === false) { $("out").textContent = r.errors.join("\n"); return; }
+      const f = layoutFireblock(d.fireblock || {}, r);
+      $("out").textContent = f.ok === false ? f.errors.join("\n") : fireblockText(f).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

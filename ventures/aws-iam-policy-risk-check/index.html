@@ -140,7 +140,7 @@
       $("#findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.sid)}: ${esc(f.title)}</h4><p>${esc(f.detail)}</p><p class="note"><strong>Fix:</strong> ${esc(f.fix)}</p></div>`).join("") || "<p>No findings. That is not proof the policy is safe; see what is not modelled below.</p>";
       report.hidden = false;
       status.textContent = `Read ${s.statements} statement(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

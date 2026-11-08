@@ -172,7 +172,30 @@ export function activeSetSize(answeredCount: number, totalItems: number): number
 }
 
 /**
- * Stable admission order: round-robin across categories, alphabetical within
+ * FNV-1a hash (murmur finalizer) of an item id. Admission order inside a category follows it, not
+ * the id itself: ids (cuids, or ids a survey author numbered by price, date or
+ * quality) often follow a meaningful order, and admitting alphabetically then
+ * hands the first stage a slice of the range instead of a spread
+ * (docs/INFORMATION-GAIN-SELECTOR.md, 2026-11-08). Same id, same hash, so the
+ * set still only grows between requests.
+ */
+export function admissionHash(id: string): number {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  // Finalizer: ids that differ in the last character must not land next to each other.
+  h ^= h >>> 16;
+  h = Math.imul(h, 0x85ebca6b);
+  h ^= h >>> 13;
+  h = Math.imul(h, 0xc2b2ae35);
+  h ^= h >>> 16;
+  return h >>> 0;
+}
+
+/**
+ * Stable admission order: round-robin across categories, hash order within
  * each. Deterministic, so the set only ever grows between requests — an item
  * that has collected answers can never drop out and strand them — and
  * category-balanced, so the early core spans the space instead of covering
@@ -189,7 +212,7 @@ export function admissionOrder(items: PairItem[]): PairItem[] {
 
   const groups = [...byCategory.entries()]
     .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
-    .map(([, group]) => group.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)));
+    .map(([, group]) => group.sort((a, b) => admissionHash(a.id) - admissionHash(b.id) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0)));
 
   const ordered: PairItem[] = [];
   for (let round = 0; ordered.length < items.length; round++) {

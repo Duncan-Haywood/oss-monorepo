@@ -167,7 +167,7 @@
       $("#rows").innerHTML = r.table.map((x) => `<tr><th scope="row">${x.pct}%</th><td>${x.jobs}</td><td>${usd(x.revenue)}</td><td>${usd(x.profit)}</td><td>${x.hours}</td><td>${x.utilizationPct}%</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Season profit ${usd(r.season.profit)}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

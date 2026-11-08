@@ -51,6 +51,7 @@ function buy(gal, price, fivePrice) {
 export function layoutPaint(d, plan) {
   const errors = validatePaint(d);
   if (errors.length) return { ok: false, errors };
+  if (plan == null || typeof plan !== "object" || !Array.isArray(plan.walls)) return { ok: false, errors: ["The plan needs a wall list to paint."] };
   const height = d.height ?? (plan.studLength ? Math.round((plan.studLength + 4.5) / 12) * 12 : 96);
   const coats = d.coats ?? 2, primerCoats = d.primerCoats ?? 0, ceilingCoats = d.ceilingCoats ?? coats;
   const cov = d.coverage ?? 350, pcov = d.primerCoverage ?? 300, waste = d.waste ?? 0.1;
@@ -77,6 +78,7 @@ export function layoutPaint(d, plan) {
     wallSqFt: wallSq, openingSqFt: openIn / 144, ceilingSqFt: ceilSq, doorSqFt: doorSq, doorLeaves: doors, trimFeet: d.trimFeet ?? 0,
     paintGallonsExact: paintGal, primerGallonsExact: primerGal,
     paintGallons: paint.gallons, paintPails: paint.pails, primerGallons: primer.gallons,
+    gallonPrice: d.gallonPrice ?? null, fivePrice: d.fivePrice ?? null, primerPrice: d.primerPrice ?? null,
     cost: paint.cost != null || primer.cost != null ? (paint.cost ?? 0) + (primer.cost ?? 0) : null,
   };
 }

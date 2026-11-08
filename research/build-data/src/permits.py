@@ -109,6 +109,24 @@ def summarise(path):
     return c
 
 
+def merge_manifest(path, man):
+    """Write `man` to `path`, keeping cities an earlier pull recorded that this one
+    did not touch (a `--cities austin` pull used to replace the whole file, 2026-11-06).
+    Each city carries its own `pulled` date, since the cities can now differ."""
+    old = {}
+    try:
+        with open(path) as fh:
+            old = json.load(fh).get("cities", {})
+    except (OSError, ValueError, AttributeError):
+        pass
+    for c in man["cities"].values():
+        c.setdefault("pulled", man["pulled"])
+    merged = dict(man, cities={**old, **man["cities"]})
+    with open(path, "w") as fh:
+        json.dump(merged, fh, indent=1)
+    return merged
+
+
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument("cmd", choices=["pull"])
@@ -124,8 +142,7 @@ def main(argv=None):
                                    **summarise(os.path.join(a.out, f"{city}.csv")))
         print(city, man["cities"][city], flush=True)
     here = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(here, "..", "results", "manifest.json"), "w") as fh:
-        json.dump(man, fh, indent=1)
+    merge_manifest(os.path.join(here, "..", "results", "manifest.json"), man)
 
 
 if __name__ == "__main__":

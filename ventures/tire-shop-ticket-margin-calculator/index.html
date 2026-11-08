@@ -171,7 +171,7 @@
       $("#dt tbody").innerHTML = r.discounts.flatMap((d) => d.cuts.map((c) => `<tr><td>${esc(d.name)}</td><td class="n">-${c.pct}%</td><td class="n">${money2(c.perTicketLoss)}</td><td class="n">${c.volumeGain === null ? "not recoverable" : pct(c.volumeGain)}</td><td>${c.fits === null ? "n/a" : c.fits ? "yes" : "no"}</td></tr>`)).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

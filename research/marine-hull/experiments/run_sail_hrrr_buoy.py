@@ -11,6 +11,10 @@ from marine_hull.tack import circ_mean, rates, bound, sim_header, sim_replan, le
 from run_sail_tack import polar, load, DT, CORR, DWELL
 
 TAU, EVERY, LAT = 30.0, 4, 3
+# 5l: BUOY_Z = anemometer height in m; observed speeds are scaled to 10 m with the neutral log law (z0 = 1.5e-4 m, open sea). Unset = 5k (no correction).
+BUOY_Z = float(os.environ.get("BUOY_Z", "0"))
+Z0 = 1.5e-4
+ZFAC = np.log(10.0 / Z0) / np.log(BUOY_Z / Z0) if BUOY_Z else 1.0
 MONTH0 = {"202401": dt.datetime(2024, 1, 1), "202407": dt.datetime(2024, 7, 1)}
 H = {}
 
@@ -40,6 +44,7 @@ def job(path):
     b = os.path.basename(path); st, ym = b.split("_")[2], b.split("_")[3][:6]
     tab = hrrr(ym)
     s, d, t, tm = load(path)
+    s = s * ZFAC
     t0m = MONTH0[ym]
     rows, errs = [], []
     for i, w0 in enumerate(range(0, len(s) - 1440, 1440)):
@@ -93,6 +98,7 @@ def main():
     allr = [r for rr, _ in res for r in rr]
     allr_e = [(os.path.basename(f), e) for f, (_, ee) in zip(files, res) for e in ee]
     rng = np.random.default_rng(7)
+    print(f"anemometer height {BUOY_Z or 'uncorrected'} (speed factor {ZFAC:.3f})")
     print(f"every {EVERY}th window; hourly replan; shares of the no-corridor no-tack-cost bound; HRRR newest cycle issued >= {LAT} h before replan")
     for name, tag in (("January", "_202401"), ("July", "_202407")):
         rs = [r for r in allr if tag in r["path"]]

@@ -212,3 +212,52 @@ test("heating cost: seasonal heat / (efficiency x BTU per unit) x typed price, b
   const bad = layoutInsulation({ assembly: { heatingSystems: [{ efficiency: 0, unitBtu: 1, pricePerUnit: 1 }] } }, p, r);
   assert.equal(bad.ok, false);
 });
+
+test("ventilation: ASHRAE 62.2 rate by hand, heat recovery cuts its load, partial input refused", () => {
+  const r = { walls: [wall([m(0, 0, 96, 1.5), m(0, 94.5, 96, 1.5), m(0, 1.5, 1.5, 93)])] };
+  const p = { defaultHeaderHeight: 82.5, walls: [{ id: "A", length: 96, openings: [] }] };
+  const base = layoutInsulation({ assembly: {} }, p, r).assembly.heat.ua;
+  const v = layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }, p, r).assembly.heat;
+  assert.ok(Math.abs(v.ventCfm - 90) < 1e-9); // 60 + 30
+  assert.ok(Math.abs(v.ventilationUA - 97.2) < 1e-9); // 1.08 x 90
+  assert.ok(Math.abs(v.ua - (base + 97.2)) < 1e-9);
+  const h = layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3, ventRecoveryEff: 0.75 } }, p, r).assembly.heat;
+  assert.ok(Math.abs(h.ventilationUA - 24.3) < 1e-9);
+  assert.match(insulationText(layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }, p, r)).join("\n"), /Ventilation: ASHRAE 62.2 rate 90.0 cfm/);
+  // The closing note lists only what is really missing.
+  const t1 = insulationText(layoutInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }, p, r)).join("\n");
+  assert.match(t1, /Not in it: roof, floor, air leakage;/);
+  const t2 = insulationText(layoutInsulation({ assembly: {} }, p, r)).join("\n");
+  assert.match(t2, /Not in it: roof, floor, air leakage, ventilation;/);
+  assert.equal(layoutInsulation({ assembly: {} }, p, r).assembly.heat.ventilationUA, null);
+  // The air-leakage line only says ventilation is missing when it is.
+  const air = { ach50: 3, nFactor: 20, volumeCuFt: 16000 };
+  assert.match(insulationText(layoutInsulation({ assembly: air }, p, r)).join("\n"), /mechanical ventilation is not in it/);
+  assert.doesNotMatch(insulationText(layoutInsulation({ assembly: { ...air, ventFloorSqFt: 2000, ventBedrooms: 3 } }, p, r)).join("\n"), /mechanical ventilation is not in it/);
+  assert.equal(validateInsulation({ assembly: { ventFloorSqFt: 2000 } }).length, 1);
+  assert.equal(validateInsulation({ assembly: { ventBedrooms: 2, ventFloorSqFt: 1500, ventRecoveryEff: 0.99 } }).length, 1);
+});
+
+test("ventBedrooms must be a whole number", () => {
+  const e = validateInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 2.5 } });
+  assert.ok(e.some((x) => /ventBedrooms must be a whole number/.test(x)), JSON.stringify(e));
+  assert.deepEqual(validateInsulation({ assembly: { ventFloorSqFt: 2000, ventBedrooms: 3 } }), []);
+});
+
+test("assembly: null is ignored, not dereferenced (guards the && in the assembly check)", () => {
+  assert.deepEqual(validateInsulation({ assembly: null }), []);
+});
+
+test("a wall with no members has no panel height, so no cavity", () => {
+  const l = layoutInsulation({}, plan, { walls: [wall([])] });
+  assert.equal(l.walls[0].cavitySqFt, 0);
+});
+
+test("attic.ceiling that is not a list of rectangles is an error, not a crash", () => {
+  for (const ceiling of [[null], 5, "abc", {}]) {
+    let e;
+    assert.doesNotThrow(() => { e = validateInsulation({ attic: { ceiling } }); }, JSON.stringify(ceiling));
+    assert.ok(e.length > 0, JSON.stringify(ceiling));
+  }
+  assert.deepEqual(validateInsulation({ attic: { ceiling: [{ width: 10, depth: 10 }] } }), []);
+});

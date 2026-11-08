@@ -172,7 +172,7 @@
       return true;
     }
 
-    $("#calc").addEventListener("click", () => { if (run()) { record("deal_evaluated"); report.scrollIntoView({ behavior: "smooth", block: "start" }); } });
+    $("#calc").addEventListener("click", () => { if (run()) { record("deal_evaluated"); report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); } });
     $("#load-ok").addEventListener("click", () => {
       const s = sampleInputs();
       for (const f of FIELDS) $("#" + f.id).value = s[f.id];

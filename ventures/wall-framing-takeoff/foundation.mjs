@@ -56,14 +56,14 @@ export function validateFoundation(f) {
     if (!(p.pad >= 8 && p.pad <= 96) || !(p.padDepth >= 6 && p.padDepth <= 48)) e.push(`Pier group ${i + 1}: pad must be 8 to 96 in square and 6 to 48 in deep.`);
     if (p.column && (p.column < 6 || p.column > p.pad || !(p.columnHeight > 0))) e.push(`Pier group ${i + 1}: column must be at least 6 in, no wider than the pad, with a height.`);
     if (p.load != null && !(p.load > 0 && p.load <= 200000)) e.push(`Pier group ${i + 1}: load is the service load per pier in lb, above 0 and at most 200,000.`);
-    if (p.bar != null && !(p.bar in BAR_LB_FT)) e.push(`Pier group ${i + 1}: bar size #${p.bar} is not one of #3 to #6.`);
+    if (p.bar != null && !Object.hasOwn(BAR_LB_FT, p.bar)) e.push(`Pier group ${i + 1}: bar size #${p.bar} is not one of #3 to #6.`);
   }
   for (const [i, t] of (ft.steps || []).entries()) {
     if (!(t.rise >= 4 && t.rise <= 24)) e.push(`Footing step ${i + 1}: rise must be between 4 and 24 in.`);
     if (!(t.length >= 24 && t.length <= 2 * (f.width + f.depth))) e.push(`Footing step ${i + 1}: the lowered run must be at least 24 in and no longer than the perimeter.`);
   }
   if (!Number.isInteger(ft.bars) || ft.bars < 0 || ft.bars > 8) e.push("Footing bars must be a whole number from 0 to 8.");
-  for (const [n, b] of [["Footing", ft.bar], ["Stem", f.stem?.bar ?? 4], ["Slab", f.slab?.bar ?? 3]]) if (!(b in BAR_LB_FT)) e.push(`${n} bar size #${b} is not one of #3 to #6.`);
+  for (const [n, b] of [["Footing", ft.bar], ["Stem", f.stem?.bar ?? 4], ["Slab", f.slab?.bar ?? 3]]) if (!Object.hasOwn(BAR_LB_FT, b)) e.push(`${n} bar size #${b} is not one of #3 to #6.`);
   const st = { height: 32, thickness: 8, spacing: 32, ...f.stem };
   if ((f.type ?? "stem") === "stem") {
     if (!(st.height >= 8 && st.height <= 120)) e.push("Stem wall height must be between 8 and 120 in.");
@@ -86,6 +86,7 @@ export function validateFoundation(f) {
     const a = { spacing: 72, endDistance: 12, plateStock: 192, ...f.anchorBolts };
     if (!(a.spacing >= 12 && a.spacing <= 120)) e.push("Anchor bolt spacing must be between 12 and 120 in.");
     if (!(a.endDistance >= 4 && a.endDistance <= 24)) e.push("Anchor bolt end distance must be between 4 and 24 in.");
+    if (/** @type {any} */ (a).sealRoll != null && !(/** @type {any} */ (a).sealRoll >= 10 && /** @type {any} */ (a).sealRoll <= 500)) e.push("Sill seal roll length must be between 10 and 500 ft.");
     if (!(a.plateStock >= 96 && a.plateStock <= 240)) e.push("Sill plate stock must be between 8 and 20 ft.");
     if (a.plateStock < 4 * a.endDistance) e.push("Sill plate stock is too short for the end distance.");
   }
@@ -244,13 +245,17 @@ export function layoutFoundation(f) {
     const a = { spacing: 72, endDistance: 12, plateStock: 192, diameter: 0.5, embed: 7, ...f.anchorBolts };
     const t = type === "stem" ? st.thickness : ft.width;
     const sides = [cw + t, cw + t, cd + t, cd + t];
-    let pieces = 0, bolts = 0;
+    let pieces = 0, bolts = 0, plateIn = 0;
     for (const L of sides) {
+      plateIn += L;
       const n = Math.ceil(L / a.plateStock - 1e-9), p = L / n;
       pieces += n;
       bolts += n * Math.max(2, Math.ceil((p - 2 * a.endDistance) / a.spacing - 1e-9) + 1);
     }
-    anchors = { bolts, pieces, diameter: a.diameter, embed: a.embed, spacing: a.spacing, endDistance: a.endDistance, plateStock: a.plateStock };
+    // Sill seal (foam gasket) runs under every plate piece; a typed roll length (default 50 ft) sets the rolls, 5% added for laps and cuts.
+    const sealRollFt = /** @type {any} */ (a).sealRoll ?? 50;
+    const plateFeet = plateIn / 12;
+    anchors = { bolts, pieces, plateFeet: Math.round(plateFeet * 100) / 100, sealRolls: Math.ceil(plateFeet * 1.05 / sealRollFt - 1e-9), sealRollFt, diameter: a.diameter, embed: a.embed, spacing: a.spacing, endDistance: a.endDistance, plateStock: a.plateStock };
   }
   const notes = [
     f.cornerBars ? "Horizontal bars run straight along each side with an L-bar at every corner and layer; chairs are not counted." : "Footing bars are one continuous loop (bent at the corners on site); corner L-bars and chairs are not counted.",
@@ -287,6 +292,7 @@ export function foundationText(l) {
   for (const r of l.rebar) out.push(`    ${String(r.qty).padStart(4)}  #${r.bar} x ${r.length.toFixed(1)} ft  ${r.what} (${r.feet.toFixed(0)} ft)`);
   out.push(`  Forms: ${l.forms.contactSqFt} sq ft of contact (${l.forms.plywoodSheets} sheets of 4x8 ply with 10% spare), ${l.forms.edgeLinearFt} ft of edge board, ${l.forms.stakes} stakes`);
   if (l.anchors) out.push(`  Anchor bolts: ${l.anchors.bolts} (${l.anchors.diameter} in x ${l.anchors.embed} in embed, with nut and washer) for ${l.anchors.pieces} sill plate pieces`);
+  if (l.anchors) out.push(`  Sill plate: ${l.anchors.pieces} treated boards, ${l.anchors.plateFeet} ft; sill seal: ${l.anchors.sealRolls} roll(s) of ${l.anchors.sealRollFt} ft (5% added)`);
   out.push(`  Under the slab (${l.slabSqFt} sq ft): ${l.base.cuYd} cu yd of ${l.base.thickness} in gravel, ${l.vaporBarrierSqFt} sq ft of vapor barrier with laps`);
   for (const n of l.notes) out.push(`  - ${n}`);
   return out;

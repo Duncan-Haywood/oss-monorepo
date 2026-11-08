@@ -200,7 +200,7 @@
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.customer ? esc(f.customer) + ": " : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("") || "<p>No findings.</p>";
       report.hidden = false;
       status.textContent = `${dollars(s.exposureCents)} of tax at stake.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     const read = async (fileSel, pasteSel) => { const f = $(fileSel).files[0]; return f ? await f.text() : $(pasteSel).value; };

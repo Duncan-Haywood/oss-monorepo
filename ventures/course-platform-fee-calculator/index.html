@@ -50,6 +50,7 @@
   <header>
     <p class="note">COURSE PLATFORM FEE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Which course platform leaves you the most?</h1>
+    <p class="answer-source" data-answer-lead>A percentage-fee platform beats a flat-fee plan only at low volume: Gumroad is reported at 10% plus $0.50 per direct sale with card processing on top, while Podia's paid plan is reported at $39 a month with no platform transaction fee, so the flat plan wins once monthly sales pass the crossover this calculator computes for your price. Source: secondary 2026 fee guides, as recorded in this calculator's own notes; the platforms' pricing pages were not re-fetched, so confirm there. As of 2026-11-06.</p>
     <p>Enter your price and how many you sell a month. You get what you keep on each platform after its plan fee,
     transaction fee and card processing, and the <strong>sales-per-month crossover</strong> where a flat-fee plan starts to
     beat a percentage cut. Every platform's pricing page quotes only its own bundle; this puts them side by side.</p>
@@ -188,7 +189,7 @@
       report.hidden = false;
       status.textContent = "";
       record("fees_compared");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     resetRows();

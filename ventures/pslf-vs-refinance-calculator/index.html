@@ -166,7 +166,7 @@
       $("#leave-table tbody").innerHTML = a.leave.length ? a.leave.map((l) => `<tr><td>${l.years}</td><td class="n">${usd(l.total)}</td><td class="n">${usd(a.refiTotal)}</td><td class="n">${usd(a.refiTotal - l.total)}</td></tr>`).join("") : `<tr><td colspan="4">Not applicable: no payments remain before forgiveness.</td></tr>`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

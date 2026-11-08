@@ -1,0 +1,51 @@
+blocks 131536; 2018 fit cells (>= 30 blocks): 158 of 204, covering 77911 blocks
+
+fit grid: weighted mean-square error (m/s)^2 on 2018 cell means (sail_area rows, hull_scale columns)
+area\hs       1     1.5       2       3       4       6       8
+   0.5    0.102   0.232   0.361   0.555   0.695   0.909   1.043
+     1    0.091   0.059   0.106   0.241   0.372   0.568   0.715
+   1.5    0.277   0.091   0.059   0.116   0.203   0.379   0.522
+     2    0.505   0.205   0.095   0.071   0.120   0.256   0.392
+     3    0.941   0.506   0.282   0.105   0.072   0.128   0.223
+     5    1.624   1.070   0.715   0.355   0.186   0.081   0.095
+
+best grid point: sail_area 1.5, hull_scale 2, MSE 0.059; default (5, 1) MSE 1.624
+refined fit: sail_area 0.90 m2, hull_scale 1.20, MSE 0.056
+
+test: 329 2019 drone-days, observed median 79 km/day
+model daily distance / observed (median, 10th, 90th), by daily mean wind; 1.00 is perfect; n in brackets
+ default:
+    0- 4 m/s [122] median 2.68  10th 1.98  90th 3.64
+    4- 6 m/s [ 60] median 2.73  10th 2.00  90th 3.58
+    6- 8 m/s [ 66] median 2.26  10th 1.91  90th 3.53
+    8-10 m/s [ 52] median 1.96  10th 1.65  90th 2.35
+   10-30 m/s [ 29] median 1.61  10th 1.37  90th 2.13
+    0-30 m/s [329] median 2.39  10th 1.69  90th 3.46
+ fitted:
+    0- 4 m/s [122] median 1.06  10th 0.74  90th 1.45
+    4- 6 m/s [ 60] median 1.21  10th 0.96  90th 1.61
+    6- 8 m/s [ 66] median 1.16  10th 0.97  90th 1.71
+    8-10 m/s [ 52] median 1.15  10th 0.98  90th 1.44
+   10-30 m/s [ 29] median 1.14  10th 0.99  90th 1.30
+    0-30 m/s [329] median 1.14  10th 0.90  90th 1.51
+ empirical:
+    0- 4 m/s [122] median 1.40  10th 1.13  90th 1.76
+    4- 6 m/s [ 60] median 1.27  10th 1.12  90th 1.70
+    6- 8 m/s [ 66] median 1.25  10th 1.12  90th 1.95
+    8-10 m/s [ 52] median 1.15  10th 1.06  90th 1.45
+   10-30 m/s [ 29] median 1.11  10th 1.01  90th 1.49
+    0-30 m/s [329] median 1.28  10th 1.08  90th 1.72
+ scalar 0.33 x default (all winds): median 0.79  10th 0.56  90th 1.14
+median absolute daily-distance error: fitted 0.17, empirical 0.28, scalar 0.24
+
+FITTED PARAMS for 6n: sail_area=0.900 hull_scale=1.200
+
+block coverage on 2019: share of blocks with SOG <= model speed (a right 90th-percentile bound gives 0.90)
+    0- 4 m/s [ 18921 blocks] coverage 0.539
+    4- 6 m/s [  9456 blocks] coverage 0.762
+    6- 8 m/s [  9542 blocks] coverage 0.762
+    8-10 m/s [  8040 blocks] coverage 0.762
+   10-30 m/s [  7188 blocks] coverage 0.752
+    0-30 m/s [ 53147 blocks] coverage 0.681
+   all winds [53147 blocks] coverage 0.681 (target 0.9)
+fastest-quartile days [82]: observed median 151 km/day; fitted model/observed median 1.11

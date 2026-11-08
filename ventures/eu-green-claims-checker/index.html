@@ -155,7 +155,7 @@
       $("#claim-rows").innerHTML = r.hits.map((c) => "<tr><td>" + KIND[c.kind] + "</td><td>" + esc(c.label) + "</td><td>" + esc(c.rule) + "</td><td>" + esc(c.fix) + "</td></tr>").join("");
       report.hidden = false;
       status.textContent = "Done. Check your national law and authority before relying on this.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

@@ -56,6 +56,7 @@
   <header>
     <p class="note">OVERTIME PAY CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>What's the overtime pay — and what if there were two rates?</h1>
+    <p class="answer-source" data-answer-lead>Under the federal FLSA, a covered, non-exempt employee must be paid at least one and one-half times their regular rate for hours over 40 in a workweek, and a week worked at two rates uses the weighted-average regular rate, not either rate alone. Source: U.S. Department of Labor, Wage and Hour Division, Fact Sheet #23 (revised October 2019) and 29 CFR 778.115. As of 2026-11-08, the federal rule; a state, contract or union agreement can require more.</p>
     <p>Two calculators for the arithmetic a payroll week raises: standard
     time-and-a-half overtime for one hourly rate, and the FLSA
     <strong>weighted-average (blended rate)</strong> method for a workweek
@@ -224,7 +225,7 @@
       singleEls.report.hidden = false;
       singleEls.status.textContent = "";
       record("overtime_calculated");
-      singleEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      singleEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate-single").addEventListener("click", () => {
@@ -306,7 +307,7 @@
       blendedEls.report.hidden = false;
       blendedEls.status.textContent = "";
       record("blended_calculated");
-      blendedEls.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      blendedEls.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     const COPY_HINT = "Copies every pay rate and its hours, the blended regular rate, the overtime premium, and the total as plain text to paste into a payroll record or a pay question. The “arithmetic only” note is copied with it.";

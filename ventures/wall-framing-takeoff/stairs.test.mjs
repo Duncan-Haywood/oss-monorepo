@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan, formatLength } from "./engine.mjs";
 import { layoutStair, stairCuts, stairText, sampleStair, validateStair, layoutStairWithLanding, landingCuts, landingText, checkPostSlenderness, checkLandingPostColumn, checkLandingJoists, flightPostLoad } from "./stairs.mjs";
-import { checkStringer, checkTread, checkGuardPost } from "./stairs.mjs";
+import { checkStringer, checkTread, checkGuardPost, layoutRail } from "./stairs.mjs";
 import { checkWinders, winderText, layoutLandingGuard } from "./stairs.mjs";
 
 const plan = () => ({ ...samplePlan(), walls: [] });
@@ -621,4 +621,58 @@ test("hostile landing and stair sizes are refused, not turned into billions of p
   assert.ok(validateStair({ ...sampleStair(), treadThickness: 1e9 }).length > 0);
   assert.ok(validateStair({ ...sampleStair(), nosing: 99 }).length > 0);
   assert.deepEqual(validateStair(sampleStair()), []);
+});
+
+test("layoutStair refuses null/non-object settings and a bad rail with a reason (2026-11-07)", () => {
+  for (const bad of [null, undefined, 5, "x", []]) {
+    const r = layoutStair(bad, plan());
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /object/);
+  }
+  for (const sides of ["x", -1, 0, 3, 1.5, NaN]) {
+    const r = layoutStair({ totalRise: 108, tread: 10, rail: { sides } }, plan());
+    assert.equal(r.ok, false, `sides ${sides}`);
+  }
+  assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: "yes" }, plan()).ok, false);
+  assert.equal(layoutStair({ totalRise: 108, tread: 10, rail: { sides: 2 } }, plan()).ok, true);
+});
+
+import { checkSpiral, spiralText } from "./stairs.mjs";
+test("spiral stair: hand-computed", () => {
+  // 60 in outer diameter, 4 in pole, 12 treads per turn, 110 in rise.
+  const c = checkSpiral({ totalRise: 110, outerDiameter: 60, poleDiameter: 4, treadsPerTurn: 12 });
+  assert.equal(c.risers, 12); // ceil(110 / 9.5) = 12
+  assert.ok(Math.abs(c.riser - 110 / 12) < 1e-9);
+  assert.ok(Math.abs(c.clearWidth - 28) < 1e-9); // 30 - 2
+  assert.ok(Math.abs(c.walkDepth - 14 * (Math.PI / 6)) < 1e-9); // 7.330
+  assert.equal(c.ok, true);
+  assert.equal(c.maxTreadsPerTurn, 13); // floor(2 pi 14 / 6.75) = floor(13.03)
+  // 48 in outer diameter leaves 22 in clear: fails width.
+  const n = checkSpiral({ totalRise: 110, outerDiameter: 48 });
+  assert.equal(n.ok, false); assert.match(n.problems[0], /clear width/);
+  // 16 treads per turn: depth 14 * pi/8 = 5.50 in < 6.75.
+  const d = checkSpiral({ totalRise: 110, outerDiameter: 60, treadsPerTurn: 16 });
+  assert.equal(d.ok, false); assert.ok(d.problems.some((p) => /deep/.test(p)));
+  // Low rise per turn: 6 treads of 9 in = 54 in < 78 headroom.
+  assert.equal(checkSpiral({ totalRise: 54, outerDiameter: 60, treadsPerTurn: 6 }).ok, false);
+  assert.equal(checkSpiral({ totalRise: 0, outerDiameter: 60 }).ok, false);
+  assert.equal(checkSpiral({ totalRise: 100, outerDiameter: 3, poleDiameter: 4 }).ok, false);
+  assert.ok(spiralText(c)[0].includes("12 risers"));
+});
+
+test("checkStringer and layoutRail refuse what layoutStair did not make (2026-11-08)", () => {
+  for (const v of [null, 5, "x", {}]) {
+    const r = checkStringer(v, {});
+    assert.equal(r.ok, false);
+    assert.ok(r.errors[0].includes("layoutStair"));
+    assert.throws(() => layoutRail(v, {}, []), /layoutRail needs/);
+  }
+});
+
+test("winder support boards: 4 supports of 36 in from 96 in stock is 2 to a board, so 2 boards (hand)", () => {
+  const f = layoutWinders({ count: 3, innerRadius: 12, supportStock: 96 }).framing;
+  assert.deepEqual(f.boards, { stock: 96, perBoard: 2, count: 2 });
+  assert.equal(layoutWinders({ count: 4, innerRadius: 16, width: 42, supportStock: 96 }).framing.boards.count, 3); // 5 supports, 2 per board
+  assert.equal(layoutWinders({ count: 3, innerRadius: 12, supportStock: 30 }).framing.boards, null);
+  assert.equal(layoutWinders({ count: 3, innerRadius: 12 }).framing.boards, undefined);
 });

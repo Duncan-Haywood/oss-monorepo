@@ -162,7 +162,7 @@
       $("#rows tbody").innerHTML = r.schedule.map((x) => `<tr><td>${x.year}</td><td class="n">${money(x.revenue)}</td><td class="n">${money(x.cash)}</td><td class="n">${money(x.pv)}</td><td class="n">${money(x.cumPv)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

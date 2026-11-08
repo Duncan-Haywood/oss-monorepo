@@ -53,6 +53,20 @@ class CullTests(unittest.TestCase):
         self.assertEqual(score.unmatched, ())
         self.assertEqual(len(write_sidecars(result).sidecars_written), 5)
 
+    def test_keeper_margin_and_close_call(self) -> None:
+        result = cull_folder(self.root, analyzer=self.analyzer)
+        keeper = next(i for i in result.items if i.role == "keeper" and i.group == 1)
+        self.assertIsNotNone(keeper.margin)
+        self.assertEqual(keeper.close_call, keeper.margin < 0.03)
+        lone = next(i for i in result.items if i.path == "c1.jpg")
+        self.assertIsNone(lone.margin)
+        self.assertFalse(lone.close_call)
+        data = json.loads(
+            (write_report(result, self.root / "out")[0]).read_text(encoding="utf-8")
+        )
+        self.assertIn("close_calls", data["summary"])
+        self.assertIn("margin", data["items"][0])
+
     def test_picks_sharpest_keeper_and_flags_rejects(self) -> None:
         result = cull_folder(self.root, analyzer=self.analyzer)
         roles = {i.path: i.role for i in result.items}
@@ -94,6 +108,20 @@ class CullTests(unittest.TestCase):
         self.assertEqual(score.picks_rejected, ("a3.jpg", "b1.jpg"))
         self.assertAlmostEqual(score.false_reject_rate or 0, 2 / 3)
         self.assertEqual(dict(score.reject_reasons), {"blurry": 1, "closed eyes": 1})
+
+    def test_close_call_recall_against_picks(self) -> None:
+        result = cull_folder(self.root, analyzer=self.analyzer)
+        # a1 is the alternate in a2's burst: picking it is a keeper miss with the keeper's margin.
+        score = score_against_picks(result, ["a1.jpg", "c1.jpg"])
+        self.assertEqual(score.keeper_misses, 1)
+        keeper = next(i for i in result.items if i.role == "keeper" and i.group == result.items[0].group)
+        self.assertEqual(score.keeper_miss_margins, (keeper.margin,))
+        self.assertEqual(score.misses_flagged_close, 0)  # the lead is far over 0.03
+        self.assertGreater(score.margin_to_flag_all_misses or 0, keeper.margin)
+        _, html_path = write_report(result, self.root / "out2", score)
+        self.assertIn("Keeper missed in 1 groups", html_path.read_text())
+        self.assertEqual(score_against_picks(result, ["a2.jpg"]).keeper_misses, 0)
+        self.assertIsNone(score_against_picks(result, ["a2.jpg"]).margin_to_flag_all_misses)
 
     def test_picks_file_and_report(self) -> None:
         picks = self.root / "picks.txt"
@@ -169,3 +197,29 @@ class ThumbnailTests(CullTests):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NearDuplicateGroupingTest(unittest.TestCase):
+    def test_groups_match_the_hamming_distance_definition(self):
+        import random
+        from types import SimpleNamespace
+
+        from shootflow.cull import NEAR_DUPLICATE_MAX_DISTANCE, _group
+        from shootflow.frame_analysis import hamming_distance
+
+        rng = random.Random(3)
+        bases = [rng.getrandbits(64) for _ in range(5)]
+        rows = []
+        for n in range(60):
+            value = rng.choice(bases)
+            for bit in rng.sample(range(64), rng.randint(0, 6)):
+                value ^= 1 << bit
+            rows.append((Path(f"p{n:03d}.jpg"), SimpleNamespace(dhash=f"{value:016x}"), None))
+        groups = _group(rows)
+        where = {row[0]: g for g, group in enumerate(groups) for row in group}
+        self.assertEqual(sum(len(g) for g in groups), len(rows))
+        self.assertLess(len(groups), len(rows))
+        for a in rows:
+            for b in rows:
+                if hamming_distance(a[1].dhash, b[1].dhash) <= NEAR_DUPLICATE_MAX_DISTANCE:
+                    self.assertEqual(where[a[0]], where[b[0]])

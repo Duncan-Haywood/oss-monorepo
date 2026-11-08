@@ -40,12 +40,35 @@ export function openingSizes(info) {
       if (!(o.height > 0)) continue;
       const m = (o.from + o.to) / 2;
       const kind = o.kind === "void" ? (o.sill > 0.0508 ? "window" : "door") : undefined;
-      sizes.push({ x: (w.start[0] + ux * m) * k, y: (w.start[1] + uy * m) * k, height: o.height * k, header: (o.sill + o.height) * k, kind });
+      const sill = Math.max(0, o.sill); // Revit puts a door's sill a hair below the floor (-0.035 m): the door still starts at the floor
+      sizes.push({ x: (w.start[0] + ux * m) * k, y: (w.start[1] + uy * m) * k, width: (o.to - o.from) * k, sill: sill * k, height: o.height * k, header: (sill + o.height) * k, kind });
     }
   }
-  return (mid) => {
-    let best = null, bd = 6;
-    for (const q of sizes) { const d = Math.hypot(q.x - mid.x, q.y - mid.y); if (d <= bd) { bd = d; best = q; } }
+  // Stacked units (an awning over a casement) share one offset: the DXF width, when given, picks the unit
+  // of that width; units of one width fall to the lowest sill (the door or full-height unit).
+  return (mid, width) => {
+    let best = null, bc = Infinity, bs = Infinity;
+    for (const q of sizes) {
+      const d = Math.hypot(q.x - mid.x, q.y - mid.y);
+      if (d > 6) continue;
+      const c = d + (width > 0 ? 2 * Math.abs(q.width - width) : 0);
+      if (c < bc - 0.25 || (Math.abs(c - bc) <= 0.25 && q.sill < bs)) { bc = c; bs = q.sill; best = q; }
+    }
     return best && { height: Math.round(best.height * 16) / 16, headerHeight: Math.round(best.header * 16) / 16, ...(best.kind ? { kind: best.kind } : {}) };
+  };
+}
+
+/**
+ * `wallHeight` for planFromDxf, from the engine's plan JSON: the model's own wall height
+ * (inches, plate to plate) for the wall whose centre is nearest the DXF wall's centre.
+ * @param {{ walls: any[] }} info the result of `plan(bytes, storey)`
+ */
+export function wallHeights(info) {
+  const k = 1 / 0.0254, ws = [];
+  for (const w of info?.walls ?? []) if (w.height > 0) ws.push({ x: ((w.start[0] + w.end[0]) / 2) * k, y: ((w.start[1] + w.end[1]) / 2) * k, h: w.height * k });
+  return (mid) => {
+    let best, bd = 6;
+    for (const q of ws) { const d = Math.hypot(q.x - mid.x, q.y - mid.y); if (d <= bd) { bd = d; best = q.h; } }
+    return best === undefined ? undefined : Math.round(best * 16) / 16;
   };
 }

@@ -34,6 +34,40 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // ACH company-entry tags (2026-11-08, ach-des-tag.test.mjs): a real US bank export (an anonymized BofA business export,
+  // poindexter12/maxwells-wallet, payee names scrambled) carried the transaction type in "DES:"; with the payees gone, the tag
+  // was the only signal. Only tags that name one account are used: PAYROLL out is wages, ASSN DUES out is dues, INTERNET out
+  // is utilities. DIRECT DEP, PAYMENT and ACH PMT fit several accounts and USATAXPYMT stays unsuggested (see the IRS note below).
+  ["6150", "out", /\bdes:payroll\b/],
+  ["6170", "out", /\bdes:assn dues\b/],
+  ["6140", "out", /\bdes:internet\b/],
+  // Gap probe 33 (2026-11-07, eval/probe33.mjs): florists, sign shops, beekeepers, mobile mechanics, podcasters.
+  ["6060", "out", /hive tracks|riverside\.?fm|riverside fm/],
+  ["4000", "in", /banner order.*(customer|payment)|brake job.*(customer|payment)/],
+  // Gap probe 32 (2026-11-07, eval/probe32.mjs): tattoo artists, court reporters, locksmiths, yoga instructors, bike repair shops.
+  // Software first: "ink" alone otherwise files a booking app as supplies.
+  ["6060", "out", /booking app subscription|pos software subscription/],
+  ["6100", "out", /eikon device|tattoo supplies|locksmith supply|key blanks/],
+  ["6170", "out", /yoga teacher training|teacher training workshop/],
+  ["4000", "in", /yoga class.*(student|payment)/],
+  // Gap probe 31 (2026-11-07, eval/probe31.mjs): mobile notaries, pool cleaners, piano tuners, dog trainers, home inspectors.
+  // Software first: "piano" alone otherwise files a tuning app as supplies.
+  ["6060", "out", /piano tuning app|tuning app subscription/],
+  ["6170", "out", /pool and hot tub alliance|certification council|association of certified home inspectors/],
+  ["6100", "out", /poolcorp|scp distributors|tuning lever|muting felt/],
+  ["4000", "in", /pool cleaning.*(customer|payment)/],
+  // Gap probe 30 (2026-11-07, eval/probe30.mjs): 3D-print sellers, chimney sweeps, appliance repair, arborists, professional organizers.
+  ["6170", "out", /fireplace institute/],
+  ["6060", "out", /ultimaker cura|chimney inspection software|cura cloud/],
+  ["6100", "out", /flue liner|container store|elfa shelving/],
+  ["4000", "in", /printables.*(sales|payout)|chimney (cleaning|sweep|inspection).*(customer|payment)|appliance service call|tree (removal|trimming|service).*(customer|payment)/],
+  // Gap probe 29 (2026-11-07, eval/probe29.mjs): court reporters, window-film installers, bike repair, solar installers, interpreters.
+  // Placed first: "energy", "permit" and "membership" otherwise hit utilities (6140) and marketing (6000).
+  ["6110", "out", /(electrical|solar|building) permit|court reporter licen[cs]e/],
+  ["6170", "out", /certified energy practitioners|\bnabcep\b|window film association|translators association|interpreters for the deaf/],
+  ["6060", "out", /expressscribe|opensolar|aurora solar|plotter cut|trados|memoq/],
+  ["6100", "out", /enphase|solaredge|llumar|\bxpel\b|jenson usa|window film\b|tint film/],
+  ["4000", "in", /bike tune.?up|solar install.*(deposit|customer)|translation agency|veritext|esquire deposition/],
   // Gap probe 24 (2026-11-05, eval/probe24.mjs): chiropractors, locksmiths, tree services, towing operators, mobile DJs, appliance repair.
   ["4000", "in", /(blue cross|bcbs|aetna|cigna|unitedhealthcare|humana)\b.*(claim|payment|eft)|autoclub.*(dispatch|tow)|agero|urgent\.ly/],
   ["6110", "out", /board of chiropractic|locksmith licen[cs]e/],
@@ -122,6 +156,26 @@ export const BUILT_IN = [
   ["6100", "out", /laguna clay|\bskutt\b|\bamaco\b|stenograph/],
   ["6110", "out", /court reporter licen[cs]e/],
   ["4000", "in", /deposition transcript|transcript fee/],
+  // Gap probe 28 (2026-11-05, eval/probe28.mjs): upholsterers, farriers, sign makers, auto-glass repair, soap makers.
+  // Eighteen rows had no suggestion.
+  ["6100", "out", /britex|upholstery supply|farrier products|mustad|urethane adhesive|bramble berry|wholesale supplies plus/],
+  ["6070", "out", /sailrite|brooke forge/],
+  ["6060", "out", /flexi ?sign|soapcalc/],
+  ["4000", "in", /reupholstery|horse shoeing|sign installation|windshield repair|soap sales/],
+  ["6170", "out", /upholstery association|farriers association|sign association|glass association|glass technician cert|soap guild/],
+  // Gap probe 27 (2026-11-05, eval/probe27.mjs): locksmiths, piano tuners, chimney sweeps, mobile welders, home stagers.
+  // Miller Electric (welders) hit the utilities rule through "electric", so it comes before it. Fourteen rows had no suggestion.
+  ["6100", "out", /miller electric|rotobrush|national chimney supply|rooms to go|cort furniture/],
+  ["6060", "out", /tunelab|roomsketcher/],
+  ["4000", "in", /lockout service|piano tuning|tuning service|regulation fee|weld repair|staging fee/],
+  ["6170", "out", /hearth,? patio|american welding society|staging association/],
+  // Gap probe 26 (2026-11-05, eval/probe26.mjs): drone pilots, sign-language interpreters, genealogists, wedding DJs, bike mechanics.
+  // Fifteen rows had no suggestion.
+  ["6070", "out", /pioneer dj/],
+  ["6060", "out", /altitude angel|ancestry\.com|newspapers\.com|findmypast|dronedeploy/],
+  ["4000", "in", /aerial survey|vrs interpreting|wedding reception|tune.?up service|research report/],
+  ["6170", "out", /registry of interpreters|interpreter certification|professional genealogists|united bicycle institute|\bfaa part 107\b/],
+  ["6100", "out", /county recorder|park tool|quality bicycle products/],
   // Gap probe 11 (2026-10-31, eval/probe11.mjs): pressure washers, jewelry makers, mobile notaries, sign shops, beekeepers.
   // First in the list: a notary bond hit the legal-fees rule and a craft-show booth fee the platform-fee rule.
   ["6030", "out", /notary (public )?bond|notary errors/],
@@ -131,6 +185,10 @@ export const BUILT_IN = [
   ["6060", "out", /flexisign/],
   ["6000", "out", /nextdoor ads/],
   ["4000", "in", /signing service fee|honey sales/],
+  // Pest control operators (2026-11-07, pest.test.mjs): chemical distributors as supplies, route software, recurring-plan deposits as sales.
+  ["6100", "out", /\bbasf\b.*pest|pest.*(supply|control products)|univar pest|\bsyngenta\b|bell labs|control solutions/],
+  ["6060", "out", /pestroutes|fieldroutes|pestpac|\bworkwave\b/],
+  ["4000", "in", /pest (plan|control|service)|termite (bond|inspection)|mosquito (plan|program)|quarterly pest/],
   // Gap probe 10 (2026-10-30, eval/probe10.mjs): cottage bakers, drone pilots, locksmiths, streamers, locum clinicians.
   // First in the list: Elgato and B&H were filed as postage, a farmers-market booth fee as platform fees.
   ["6100", "out", /sugar art supply|costco business center|\bdji\b|battery barn|hillman group|southern lock|keyless entry/],
@@ -425,6 +483,10 @@ export const BUILT_IN = [
   ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
   ["6140", "out", /verizon|at&t|\batt\*|\batt (?:bill|wireless|internet|mobility|u-verse)|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
   ["6150", "out", /net pay|payroll(?! tax)|wages/],
+  // Written after scoring two real Apple Card exports (eval/applecard.mjs, 109 purchases, Apple's own category labels; tuned on that data, README Next): a grocer's fuel pumps are fuel, not meals, so this sits ahead of the H-E-B meals rule.
+  ["6160", "out", /\bgas\/car ?wash|\bgas (station|mart)\b|\bcar ?wash\b|\bgarage\b|passport p(ar)?k(in)?g|\bpkg\d/],
+  ["6120", "out", /\bcruise\b|royal caribbean|carnival cruise|norwegian cruise/],
+  ["6060", "out", /youtube ?(premium|music|tv)/],
   ["6160", "out", /shell oil|chevron|exxon|mobil\b|\bbp\b|sunoco|valero|\barco\b|phillips 66|quiktrip|speedway|casey's|firestone|safelite|gas station|fuel|jiffy lube|car wash|autozone|parking|toll/],
   ["6170", "out", /udemy|coursera|chegg|datacamp|skillshare|linkedin learning|masterclass|pearson|mcgraw|tuition|conference|membership dues|association dues|chamber of commerce/],
   ["6180", "out", /fedex|\bups\b|dhl|pirate ship|shipstation|shippo/],
@@ -477,6 +539,13 @@ export const BUILT_IN = [
   ["6130", "out", /\bgrocer(y|ies|s)\b|\bsupermarket\b/],  // plain-word payees (Maybe fixture, 2026-10-25): "Grocery Store".
   ["6140", "out", /\b(mobile|cell(ular)?) phone\b|\bphone (provider|company|bill)\b|\b(internet|broadband) (provider|service)\b/],
   ["6160", "out", /shell\/shell/],
+  // Canadian card descriptors, from a real Capital One export (eval/capone-card.mjs; the wider rules above are US-first).
+  ["6160", "out", /^shell(\s+#?\d+)?\s*$|\bpetro-?\s?can\b|\bpetro-canada\b|\besso\b|\bpioneer energy\b|\bhusky\b/],
+  ["6140", "out", /\bfido\b|\bkoodo\b|\bfreedom mobile\b|\bbell (mobility|canada)\b|\btelus\b|\bvirgin plus\b|\bchatr\b/],
+  ["6120", "out", /\bpresto\b.*\breload\b|\bgo (transit|tvm)\b|\bvia rail\b|\bttc\b/],
+  ["6130", "out", /\bjollibee\b|\bcongee\b|\buncle tetsu\b|\bmary brown|\bswiss chalet\b|\bharvey'?s\b/],
+  ["6030", "out", /\bbelairdirect\b|\bintact insurance\b|\bdesjardins assurance\b/],
+  ["6010", "out", /\bover-?limit fee\b|\bannual fee\b/],
   ["6100", "out", /bambu lab|joann stores|alro steel|mas epoxies|lakeshore carbide|\bvevor\b|bulksupplements/],
   ["6120", "out", /cheapoair|delta internet/],
   ["6000", "out", /discountmugs/],
@@ -506,6 +575,11 @@ export const BUILT_IN = [
   ["6150", "out", /^paychex\b|\bpaychex (payroll|inc)/],
   ["4000", "in", /amazon (payments )?(settlement|payout|disburse)/],
   ["6110", "out", /\bdiv(ision)? of corp|secretary of state|business license/],
+  // A real Chase card export (eval/billcat-card.mjs, 2026-11-07): US regional chains and card-feed names it left blank.
+  ["6130", "out", /freddy'?s\b|skyline chili|gold star chili|texas roadhouse|cheesecake|graeter|auntie anne|big boy|maggiano|cracker barrel|culver'?s|bob evans|steak ?n ?shake|whataburger|cook out|zaxby|bojangles|waffle house|raising cane/],
+  ["6160", "out", /united dairy farmers|\bcountrymark\b|\bsheetz\b|buc-?ee|\bcircle k\b|\bthorntons\b|kwik (trip|star)|love'?s travel|flying j|pilot travel|\bparkmobile\b|\bpaybyphone\b|\bspothero\b|^raceway \d|^tom thumb #/],
+  ["6060", "out", /disney ?(\+|plus)|\bhulu\b|paramount ?\+|\bpeacock\b/],
+  ["6120", "out", /disney resorts|\bhyatt\b|holiday inn|best western|hampton inn|courtyard by|la quinta/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,

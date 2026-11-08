@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Start-up Budget for a Clothing Line: Cash Before the First Sale</title>
+  <meta name="description" content="Add the one-off costs of a first run (patterns, samples, photos, labels, trademark) to the factory order: cash needed at order and before the first sale, and how many sales earn it back. Free, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Start-up budget for a clothing line">
+  <meta property="og:description" content="Cash before the first sale and the sales to earn it back. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Clothing start-up budget (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"one-off start-up costs added to a factory order; cash at order and before the first sale; one-offs per garment; sales to break even; CSV download"}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style></head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="cashflow.html">Launch cash flow</a> · <a href="bom.html">Bill of materials</a> · <a href="preorder.html">Pre-order planner</a></p>
+  <h1>How much cash does a first run really need?</h1>
+  <p>The factory quote is not the whole bill. Patterns, sample rounds, photos, labels and a trademark search are paid before you sell anything. Type them next to the run and see the cash needed at order, before the first sale, and how many sales earn it all back.</p>
+  <p class="placeholder">The lines below are placeholders, not prices from anywhere. Replace them with your own quotes.</p>
+  <div class="grid">
+    <section>
+      <h2>One-off costs</h2>
+      <table id="items"><tr><th scope="col">Line</th><th scope="col">Amount</th><th scope="col">Times</th></tr></table>
+      <p><button id="add" type="button">Add a line</button></p>
+      <h2 style="margin-top:14px">The run</h2>
+      <div class="row"><div><label for="l">Landed cost per garment</label><input id="l" type="number" min="0" step="any" value="14"></div><div><label for="q">Run size</label><input id="q" type="number" min="1" step="1" value="200"></div></div>
+      <div class="row"><div><label for="p">Shelf price</label><input id="p" type="number" min="0" step="any" value="45"></div><div><label for="d">Deposit at order %</label><input id="d" type="number" min="0" max="100" step="any" value="30"></div></div>
+      <div class="row"><div><label for="tax">Sales tax in the price %</label><input id="tax" type="number" min="0" step="any" value="22"></div><div><label for="pf">Card fee %</label><input id="pf" type="number" min="0" step="any" value="3"></div></div>
+      <div class="row"><div><label for="un">Expected unsold %</label><input id="un" type="number" min="0" max="100" step="any" value="10"></div><div><label for="mk">Ad budget</label><input id="mk" type="number" min="0" step="any" value="300"></div></div>
+    </section>
+    <section><h2>The bill</h2><output id="out" aria-live="polite"></output><div id="nt"></div><p><button id="csv" type="button">Download CSV</button></p></section>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Every price is your input; whether anyone pays a higher price for a better fabric is a test, not a formula. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+  <script type="module">
+    import { launchBudget, budgetCsv, exampleItems } from "./startup.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const num = el => { const v = parseFloat(el.value); return Number.isFinite(v) ? v : 0; };
+    const n = id => num($(id));
+    function addRow(it) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><input class="nm" aria-label="Line name" style="width:150px" value="${esc(it.name)}"></td><td><input class="am" aria-label="Amount" type="number" min="0" step="any" value="${it.amount}"></td><td><input class="qt" aria-label="Times" type="number" min="0" step="any" value="${it.qty}" style="width:60px"></td>`;
+      $("#items").appendChild(tr);
+    }
+    exampleItems().forEach(addRow);
+    let last = null;
+    const f = v => v == null ? "n/a" : v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    function run() {
+      const items = [...document.querySelectorAll("#items tr")].slice(1).map(tr => ({ name: tr.querySelector(".nm").value, amount: num(tr.querySelector(".am")), qty: num(tr.querySelector(".qt")) }));
+      const plan = { salesTaxPct: n("#tax"), channelFeePct: 0, paymentFeePct: n("#pf"), paymentFixed: 0.3, unsoldPct: n("#un"), marketingBudget: n("#mk") };
+      try {
+        last = launchBudget({ items, landed: n("#l"), quantity: Math.max(1, Math.round(n("#q"))), price: n("#p"), depositPct: n("#d") }, plan);
+      } catch (e) { $("#out").textContent = e.message; $("#nt").innerHTML = ""; last = null; return; }
+      const b = last;
+      $("#out").innerHTML = `<p class="big">${f(b.cashBeforeFirstSale)}</p><p class="tag">cash out before the first sale (one-offs ${f(b.oneOff)} + run ${f(b.runCost)} + ads ${f(b.marketing)})</p>
+        <table><tr><th scope="row">Cash at order (deposit)</th><td class="num">${f(b.cashAtOrder)}</td></tr>
+        <tr><th scope="row">One-offs per garment made</th><td class="num">${f(b.oneOffPerGarment)}</td></tr>
+        <tr><th scope="row">One-offs per garment you expect to sell</th><td class="num">${f(b.oneOffPerSellable)}</td></tr>
+        <tr><th scope="row">Profit per sale before one-offs</th><td class="num">${f(b.profitPerSaleBeforeOneOffs)}</td></tr>
+        <tr><th scope="row">Sales to earn everything back</th><td class="num">${b.breakEvenUnits ?? "n/a"} of ${b.sellableUnits}</td></tr>
+        <tr><th scope="row">Profit if the sellable pieces sell</th><td class="num">${f(b.profitIfSellable)}</td></tr></table>
+        <h3>Biggest one-offs</h3><table>${b.lines.filter(l => l.total > 0).slice(0, 6).map(l => `<tr><td>${esc(l.name)}</td><td class="num">${f(l.total)}</td><td class="num">${l.sharePct}%</td></tr>`).join("")}</table>`;
+      $("#nt").innerHTML = b.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("");
+    }
+    $("#add").addEventListener("click", () => { addRow({ name: "New line", amount: 0, qty: 1 }); run(); });
+    $("#csv").addEventListener("click", () => { if (!last) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([budgetCsv(last)], { type: "text/csv" })); a.download = "startup-budget.csv"; a.click(); recordUsage("startup_csv"); });
+    document.addEventListener("input", () => { run(); recordUsage("startup_calc"); });
+    run(); recordUsage("startup_open");
+  </script>
+</body>
+</html>

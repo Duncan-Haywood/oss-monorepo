@@ -27,6 +27,10 @@ class Sentences(unittest.TestCase):
         long = "This first sentence is comfortably longer than the minimum unit."
         self.assertGreaterEqual(len(long), N.MIN_UNIT)
         self.assertEqual(N.sentences(long + " Yes."), [long + " Yes."])
+        # The "tiny" cutoff is MIN_UNIT // 2 (20 characters): 16 characters still merges.
+        mid = "Yes it was fine."
+        self.assertTrue(N.MIN_UNIT // 3 <= len(mid) < N.MIN_UNIT // 2)
+        self.assertEqual(N.sentences(long + " " + mid), [long + " " + mid])
 
     def test_keeps_abbreviations_and_acronyms_whole(self):
         units = N.sentences("We asked Dr. Okafor about it at length, over coffee. The A.I. Agent said nothing useful at all today.")
@@ -100,6 +104,11 @@ class Render(unittest.TestCase):
         self.assertNotEqual(k, N.Narrator(models=self.n.models, g2p="misaki")._key("x"))
         self.assertEqual(k, N.Narrator(models=self.n.models, g2p="espeak")._key("x"))
 
+    def test_store_into_an_existing_shard_directory(self):
+        self.n._store("ab" + "0" * 62, np.zeros(10, dtype=np.float32))
+        self.n._store("ab" + "1" * 62, np.zeros(10, dtype=np.float32))  # same shard: must not raise
+        self.assertIsNotNone(self.n._cached("ab" + "1" * 62))
+
     def test_cache_round_trip_is_close(self):
         audio = np.sin(np.linspace(0, 100, 4800)).astype(np.float32) * 0.8
         self.n._store("ab" * 32, audio)
@@ -145,6 +154,30 @@ class Voicing(unittest.TestCase):
         self.assertEqual(rt.InferenceSession.call_args[0][0], str(self.dir / N.MODEL_FILES[0]))
         self.assertEqual(kokoro_onnx.Kokoro.from_session.call_args[0][1], str(self.dir / N.MODEL_FILES[1]))
 
+    def test_misaki_g2p_is_built_without_the_transformer_and_per_accent(self):
+        import types
+        from unittest import mock
+
+        misaki = types.SimpleNamespace(en=mock.MagicMock(), espeak=mock.MagicMock())
+        mods = {
+            "onnxruntime": mock.MagicMock(),
+            "kokoro_onnx": types.SimpleNamespace(Kokoro=mock.MagicMock()),
+            "misaki": misaki,
+            "misaki.en": misaki.en,
+            "misaki.espeak": misaki.espeak,
+        }
+        old = (N._KOKORO, N._G2P)
+        try:
+            with mock.patch.dict(sys.modules, mods):
+                N._load(str(self.dir), 1, g2p="misaki", lang="en-gb")
+                N._load(str(self.dir), 1, g2p="misaki", lang="en-us")
+        finally:
+            N._KOKORO, N._G2P = old
+        gb, us = misaki.en.G2P.call_args_list
+        self.assertIs(gb.kwargs["trf"], False)  # the transformer is a heavy optional dependency
+        self.assertIs(gb.kwargs["british"], True)
+        self.assertIs(us.kwargs["british"], False)
+
     def test_few_units_never_get_a_pool_when_one_worker_asked(self):
         from unittest import mock
 
@@ -156,11 +189,88 @@ class Voicing(unittest.TestCase):
             out = n.voice_units(units)
         self.assertEqual(set(out), set(units))
 
+    def test_single_process_uses_every_core_as_threads(self):
+        from unittest import mock
+
+        n = N.Narrator(models=self.dir / "m", cache=self.dir / "c", g2p="espeak", workers=1)
+        with mock.patch.object(N, "ensure_models"), mock.patch.object(N, "_load") as load, \
+                mock.patch.object(N, "default_workers", return_value=(4, 1)), \
+                mock.patch.object(N, "_voice", return_value=np.zeros(10, dtype=np.float32)):
+            n.voice_units(["one long enough sentence here."])
+        self.assertEqual(load.call_args[0][1], 4)
+
     def test_empty_script_renders_nothing(self):
         n = N.Narrator(models=self.dir / "m", cache=self.dir / "c", g2p="espeak")
         out = n.render([])
         self.assertEqual(out.shape, (0,))
         self.assertEqual(out.dtype, np.float32)
+
+
+class DefaultWorkers(unittest.TestCase):
+    def test_one_process_per_usable_core_single_threaded(self):
+        from unittest import mock
+        with mock.patch.object(N.os, "sched_getaffinity", create=True, side_effect=lambda pid: {0, 1, 2} if pid == 0 else {9}):
+            self.assertEqual(N.default_workers(), (3, 1))
+
+    def test_never_fewer_than_one_process(self):
+        from unittest import mock
+        with mock.patch.object(N.os, "sched_getaffinity", create=True, return_value=set()):
+            self.assertEqual(N.default_workers(), (1, 1))
+
+
+class DefaultWorkersFallback(unittest.TestCase):
+    def test_no_affinity_and_unknown_cpu_count_means_one_core(self):
+        from unittest import mock
+        had = hasattr(N.os, "sched_getaffinity")
+        orig = getattr(N.os, "sched_getaffinity", None)
+        if had:
+            del N.os.sched_getaffinity
+        try:
+            with mock.patch.object(N.os, "cpu_count", return_value=None):
+                self.assertEqual(N.default_workers(), (1, 1))
+            with mock.patch.object(N.os, "cpu_count", return_value=6):
+                self.assertEqual(N.default_workers(), (6, 1))
+        finally:
+            if had:
+                N.os.sched_getaffinity = orig
+
+
+class G2PChoice(unittest.TestCase):
+    def test_misaki_is_english_only(self):
+        self.assertEqual(N.Narrator(lang="fr-fr", g2p="misaki").g2p, "espeak")
+        self.assertEqual(N.Narrator(lang="en-gb", g2p="misaki").g2p, "misaki")
+        self.assertEqual(N.Narrator(lang="fr-fr", g2p="espeak").g2p, "espeak")
+
+
+class CacheKeyModelSize(unittest.TestCase):
+    def test_missing_model_differs_from_a_one_byte_model(self):
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d)
+        n = N.Narrator(models=d, cache=None, g2p="espeak")
+        missing = n._key("x")
+        (d / N.MODEL_FILES[0]).write_bytes(b"x")
+        self.assertNotEqual(missing, n._key("x"))
+
+
+class PoolScheduling(unittest.TestCase):
+    def test_pool_hands_out_one_unit_at_a_time(self):
+        from unittest import mock
+        d = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d)
+        n = N.Narrator(models=d / "m", cache=d / "c", g2p="espeak", workers=2)
+        units = ["one long enough sentence here.", "two long enough sentence here."]
+        pool = mock.MagicMock()
+        pool.map.return_value = [np.zeros(10, dtype=np.float32)] * 2
+        with mock.patch.object(N, "ensure_models"), mock.patch.object(N, "ProcessPoolExecutor", return_value=pool):
+            n.voice_units(units)
+        self.assertEqual(pool.map.call_args.kwargs["chunksize"], 1)
+
+
+class FfmpegFailure(unittest.TestCase):
+    def test_a_failing_ffmpeg_raises(self):
+        import subprocess
+        with self.assertRaises(subprocess.CalledProcessError):
+            N._ffmpeg(["-af", "nonexistent_filter_xyz", "-f", "null", "-"], np.zeros(100, dtype=np.float32))
 
 
 class Fade(unittest.TestCase):

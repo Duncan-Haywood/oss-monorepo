@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-08",
+ "subject": "research/selfrep-exactdp",
+ "stratum": "research",
+ "seed": "2026-11-08",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an applied mathematician or operations researcher in numerical optimal control (dynamic programming, Bellman/Kushner-Dupuis style discretisation) who would first ask: is the table value really the optimum of what is claimed, does it match an independent solver, and is the continuous-time gap bounded?",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "What it is: src/selfrep_exactdp/model.py (72 lines), a backward DP on a geometric fleet grid n_i=r^(i/m) with controls u_j=(r^(j/m)-1)/(k dt), so each Euler step lands on a grid point. Ran python3 experiments/run.py (about 20 s): regenerated results.txt differs from the committed one only in the three wall-time columns. Recomputed with code I wrote (/tmp scratch, numpy, no import of the author's modules) from the stated model (k=1/50, T=600, R=c(1-exp(-g/c)), Euler 1 h): (1) s=50 all-copy closed form 50*1.02^600 = 7,228,914.056 vs table 7,228,914.1 (match). (2) best bang-bang by closed-form scan: c=1e4 ts=485 J=888,949.27; c=1e3 ts=393 J=188,185.69 (both match results.txt to the digit). (3) independent top-down memoised DP on the same lattice, m=2, c=1e4, s=0: 922,505.487 vs table 922,505.5 (match). (4) a different method, projected-gradient (Adam) ascent with an adjoint gradient on the free 600-step control vector: c=1e4 s=0 930,940 (DP m=16: 930,815, 0.013% below); c=1e3 s=0 201,611 (DP 201,579, 0.016% below); c=1e4 s=12.5 1,926,846 (DP 1,924,322, 0.13% below). So the DP numbers are valid lower bounds, converged as claimed, and the gains over the switch recompute to 4.72%, 7.13%, 6.62% (README: 4.7, 7.1, 6.5 at m=16). One miss: c=1e3 s=12.5, where results.txt/README say one switch is optimal, my free-control optimum is 1,819,190 vs switch 1,807,228 (+0.66%); true on the m<=8 control set as stated, but not a property of the problem (see defects). I did not run the model against a source outside the repo (the model itself is assumed, not a standard).",
+  "completeness": "Checked each README claim against a file or run: 5 unit tests (ran, 5 pass); experiments/run.py reproduces results.txt (yes); figure.py and gain_vs_resolution.svg exist (svg present, not re-rendered); 6 cases and resolutions up to m=8, m=16 for three cases (results.txt has exactly these); exactness table vs own-policy value below 1e-13 (max 1.1e-14 in results.txt); monotone in m (results show it, and a test asserts it); limitations and next steps listed honestly. The live page https://marisstella.app/research/selfrep-exactdp/ was not loaded (no network check). No stubs or TODOs. Not done and not claimed: Euler-step refinement, cash constraint, closed form.",
+  "verification": "python3 -m unittest discover -s tests: 5 tests, OK. Seeded mutations in model.py, each reverted: (a) terminal value s*n scaled by 0.9: 3 of 5 tests failed (caught); (b) control offset 1.0000001 in controls(): 4 of 5 failed (caught); (c) revenue inflated 3% for intermediate u only: 1 of 5 failed (caught, but only by the m=1..4 table-vs-policy test, thin margin); (d) revenue changed at u=1 only: no failure, but that is an equivalent mutant (g=0 so revenue is 0). Weaknesses: tests use one small problem (k=0.1, T=30, c=20); the table-equals-policy-value check re-runs the same recursion, so it verifies implementation consistency, not optimality (nothing compares against an independent optimiser or a published solution); no test of the s=0 gain case with a hand number.",
+  "craft": "Read model.py, tests/test_exactdp.py, experiments/run.py, figure.py (skim), pyproject.toml. Clean, short, documented, no dead code except an unused local `reach` in exact_dp (line with 'reach = (t + 1) * m + 1') and unused imports of Params/revenue/run re-exports. sys.path hacking of sibling projects by relative path (src/selfrep_exactdp/model.py parents[3]) works but ties the package to the monorepo layout; pyproject declares no dependencies although it imports four sibling trees, so pip install elsewhere breaks. No input validation (m<1, s<0, dt not dividing horizon: steps rounded silently). Pure-Python triple loop is O(T^2 m^2) memory-light but about 3 s at m=16; fine here.",
+  "claims": "Checked: headline 4.7% / 7.1% / 6.5% (recomputed above, OK); 'table equals value of own policy to 1e-14' (results.txt max 1.1e-14, OK); 'm=16 converged to about 0.1%' (moves 0.04-0.19 pp, OK; free-control gap 0.01-0.13%); 'nested sets so value cannot fall' (true by construction and tested); 'copies about 458 / 349 steps, intermediate 88 / 194, goods 54 / 57' (matches results.txt). Overreach: the 'Why the earlier tables were low' paragraph asserts interpolation error was the cause of the selfrep-dpgrid gap; this project shows the exact table has no gap but does not re-run dpgrid with finer grids to isolate the cause. 'certified' in the title means certified against the project's own Euler recursion and control set, which the Limitations section says; the c=1e3 s=12.5 'one switch is optimal' bullet is qualified 'on this control set' but is false for the continuous problem. Assumed inputs (a, c, s) are labelled assumed throughout; disclaimer-style limits present; no fabricated sources (Jones et al. 2011 and Bellman 1957 are real).",
+  "fitness": "Walked the research question as a follow-up researcher: could I build on it? Yes for method (a short, correct, reusable commensurate-grid DP, and an exact reference for tests of other solvers), and the result that a smooth copy-then-sell phase beats a single switch by 5-7% when s=0 is sound (I reproduced it with a different optimiser). Limits: this is a numerical-methods step inside a stylised toy model with every economic input assumed (market capacity c, goods value a, resale s), the scientific content is incremental on selfrep-dpgrid and selfrep-singulararc (the latter already derives the singular-arc form analytically, and the DP is not compared against it here), and nearest outside prior work is standard: commensurate or semi-Lagrangian grids and Markov-chain approximation (Kushner and Dupuis; Falcone and Ferretti), and the copy-then-singular-arc-then-stop structure is the classic Pontryagin result for exponential-growth investment problems (Bryson and Ho). Nothing here is new to the field; novelty is local to the repository. Not at a publishable-paper level on its own, so 2.",
+  "domain": "Compared against standard practice in numerical optimal control: Bellman backward induction on a lattice with controls matched to the grid is textbook (Kushner-Dupuis Markov chain approximation; Falcone-Ferretti semi-Lagrangian schemes avoid interpolation similarly), and the author's claims (exact on control set, monotone in m, lower bound on continuous optimum) are what a numerical analyst would state, and my adjoint-gradient check confirms the lower-bound and convergence claims numerically. Departures: no a-priori error bound for the control-set gap (only empirical convergence), Euler step 1 h fixed, no comparison to the Pontryagin singular arc, and the replicating-shop economics (no cash constraint, no wear, assumed market) would not be signed off as a decision model, only as a method demonstration, which the README says."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "README and results.txt report that at c=1e3, s=12.5 one switch is optimal (100.000% up to m=8), but that case was not run at m=16, although the README's own c=1e4, s=12.5 result shows coarse control sets hide gains. An independent free-control optimiser finds +0.66% (1,819,190 vs 1,807,228), so the bullet is true only of the m<=8 control set and reads as a property of the problem.",
+   "where": "research/selfrep-exactdp/README.md (Results bullet 2); research/selfrep-exactdp/experiments/run.py (ms tuple excludes (1e3, 12.5))"
+  },
+  {
+   "severity": "low",
+   "what": "Tests have no independent oracle: table-equals-policy-value re-runs the same recursion, and every test uses one small problem; no hand-computed s=0 gain case.",
+   "where": "research/selfrep-exactdp/tests/test_exactdp.py"
+  },
+  {
+   "severity": "low",
+   "what": "The claim that interpolation caused the selfrep-dpgrid gap is inferred, not tested by refining the dpgrid grid.",
+   "where": "research/selfrep-exactdp/README.md (Method, 'Why the earlier tables were low')"
+  },
+  {
+   "severity": "low",
+   "what": "Unused local `reach`, unused re-exported names, undeclared sibling dependencies in pyproject, no validation of m<1 or dt not dividing the horizon.",
+   "where": "research/selfrep-exactdp/src/selfrep_exactdp/model.py; research/selfrep-exactdp/pyproject.toml"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "A short, correct numerical-methods result: I reproduced the 4.7%, 7.1% and 6.5% gains over the best single switch with three methods the author did not use (closed forms, an independent memoised DP, and an adjoint-gradient free-control optimiser that puts the true optimum 0.01-0.13% above the m=16 table), and three of four seeded bugs were caught by the 5 tests. It meets the bar on correctness, claims and verification, with a median of 3, and is finished against what it says. Its weaknesses are scientific rather than computational: the content is incremental on two sibling projects in a toy model with assumed economics, the nearest outside prior work (commensurate-grid DP, Pontryagin singular arcs) is standard, so fitness is 2; and one bullet (c=1e3, s=12.5 'one switch is optimal') is a control-set artefact, since a free-control optimiser finds +0.66%. Recommended small fix: run that case at m=16 and 32 (or reword the bullet to 'on the m<=8 control sets')."
+}

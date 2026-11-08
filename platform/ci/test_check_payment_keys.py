@@ -38,6 +38,10 @@ class FindingsIn(unittest.TestCase):
                    'const url = "https://checkout.stripe.com/pay/cs_test_1";\n')
         self.assertEqual(self.kinds(), [])
 
+    def test_mixed_case_payment_link_host_fails(self):
+        self.write("src/pay.html", '<a href="https://BUY.Stripe.com/aBcDeFgHiJkL">Pay</a>\n')
+        self.assertEqual(self.kinds(), ["Stripe payment link"])
+
     def test_live_key_fails(self):
         self.write("src/stripe.ts", f'const stripe = new Stripe("{LIVE}");\n')
         self.assertEqual(self.kinds(), ["live Stripe key"])
@@ -93,6 +97,11 @@ class FindingsIn(unittest.TestCase):
             with self.subTest(name=name):
                 self.write(name, text)
         self.assertEqual(len(self.kinds()), 4)
+
+    def test_uppercase_env_style_button_id_fails(self):
+        # `.env.example`-style files name the variable in capitals.
+        self.write(".env.example", "PAYPAL_HOSTED_BUTTON_ID=ABCD1234EF\n")
+        self.assertEqual(self.kinds(), ["PayPal hosted button"])
 
     def test_paypal_env_lookups_pass(self):
         self.write("a.ts", "const o = { hosted_button_id: process.env.PAYPAL_BUTTON };\n")

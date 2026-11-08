@@ -203,6 +203,14 @@ global media culture met with probability B per step (Shibanai, Yasuno and Ishig
   boundary or the exact q grid, so I report a disagreement with a number I read in the paper,
   not a refutation. The earlier "q about 30 to 50 on small lattices" is the finite-size end of
   this curve.
+  **Resolved (2026-11-05): the 300 is a Poisson mean.** Castellano et al. draw traits from a
+  Poisson distribution with mean q, not uniformly on 1..q. Two Poisson(q) draws agree with
+  probability about 1/(2 sqrt(pi q)), so Poisson q = 300 behaves like a uniform alphabet of about
+  61. With Poisson traits (`axelrod.c ... poisson`, F = 10, 40 runs per cell,
+  `experiments/culture/poisson_results.txt`) the S = 0.5 crossing is q = 135 (L = 20), 180
+  (L = 40), 230 (L = 80), rising toward their 300; the collision-rate mapping predicted 147,
+  199, 240 (within 10%). The uniform-trait runs above were a different parameterisation, not a
+  bug. L = 150 was not run.
 
 F, q, B and the single global media culture are chosen, not measured; the finding is about
 simulated agents. Next: L = 150 and more runs per cell, noise (Klemm et al. 2003), and
@@ -278,6 +286,8 @@ Milestone 7 of track 24 (Turchin 2003; Turchin and Nefedov 2009). A fixed-land e
 
 
 **Second run (lags, `experiments/history/lag_results.txt`):** adding a generational delay to elite recruitment (`lag`) and a delay to political stress (`plag`) gives oscillations with a period in the 150 to 400 year band in up to 23 of 54 cells (lag 200 years), none at lag 50 or below. But the largest population swing in any of 1350 cells is 8.9% of the mean (most under 3%) with no unrest, so the period check passes and the amplitude check fails: delay alone does not make secular cycles. Next is a collapse reset. See `LOG.md` (2026-10-31).
+
+**Third run (collapse reset, `experiments/history/collapse_results.txt`):** a state collapse that fires when instability reaches a threshold (elites lose 50%, peasants 20%, fiscal strength to a tenth) lifts the largest population swing to 0.42 of the mean (from 0.09). In 55 of 576 cells the period is 150 to 400 years with swing >= 0.10, but 29 of those are chained collapses at the 50-year refractory floor; 16 cells, all with a 200-year elite lag, have collapses 150 to 400 years apart. Elite cap and welfare do not change collapse counts (mean 31.2, 31.2, 31.0), so the policy question stays open. Reset sizes are chosen, not measured. See `LOG.md` (2026-11-08).
 
 ## Likert agents and a pluggable policy (milestone 8, stub only)
 

@@ -437,3 +437,134 @@ measured freeze shocks used as ground truth.
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/FrozenJuice.csv>
   (Rdatasets; AER is GPL-2/3 as software, the values are a published statistic).
 - **Used by:** `frozen-juice.test.mjs`, `eval/frozen-juice.mjs`.
+
+## michigan-huron.csv
+
+Yearly average level of Lakes Michigan-Huron (one lake hydraulically), 1918 to 2009, 92 rows, in metres
+(`michHuron` column of DAAG's `greatLakes`, from the Great Lakes water-level records).
+
+- **Retrieved:** 2026-11-06 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/DAAG/greatLakes.csv>.
+- **Licence:** a published series of 92 numbers; only those are used here.
+- **Used by:** `michigan-huron.test.mjs`.
+
+# Example data: US personal saving rate, monthly 1967-2015
+
+`us-saving-rate.csv`: personal saving as a percentage of disposable income
+(FRED series PSAVERT), 574 months from 1967-07 to 2015-04.
+
+- **Retrieved:** 2026-11-06 from the `psavert` column of ggplot2's `economics`
+  data, <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/ggplot2/economics.csv>.
+- **Licence:** US Bureau of Economic Analysis data via FRED, a US government
+  work in the public domain; the Rdatasets copy is as published by ggplot2 (MIT).
+
+# Example data: Box-Jenkins sales and US census population
+
+`bjsales.csv`: 150 company sales values (Box and Jenkins, *Time Series Analysis*, series M), R's `datasets::BJsales`.
+`uspop.csv`: US census population in millions, 1790 to 1970 (19 rows), R's `datasets::uspop`.
+
+- **Retrieved:** 2026-11-06 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/BJsales.csv> and `.../uspop.csv`.
+- **Licence:** R datasets (GPL-2 | GPL-3 package); the numbers are published sales figures and census counts. Used as a test fixture only.
+- **Used by:** `eval/smooth-pair.mjs`, `smooth-pair.test.mjs`.
+
+# Example data: US median duration of unemployment, monthly 1967-2015
+
+`us-unemployment-duration.csv`: median weeks unemployed (FRED series UEMPMED), 574 months from 1967-07 to 2015-04.
+
+- **Retrieved:** 2026-11-06 from the `uempmed` column of ggplot2's `economics`
+  data, <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/ggplot2/economics.csv>.
+- **Licence:** US Bureau of Labor Statistics data via FRED, a US government
+  work in the public domain; the Rdatasets copy is as published by ggplot2 (MIT).
+- **Used by:** `us-unemployment-duration.test.mjs`.
+
+# Example data: Australian beer production, 1956-2010
+
+`ausbeer.csv`: quarterly beer production in Australia, 218 quarters, 1956Q1 to
+2010Q2 (megalitres; `ausbeer` from the R package fpp2, Hyndman). The `quarter`
+column is built from the `time` column of the source.
+
+- **Retrieved:** 2026-11-07 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/ausbeer.csv>.
+- **Licence:** fpp2 is GPL-3; the numbers are the Australian Bureau of Statistics'
+  published series. Only the 218 numbers are used here.
+- **Used by:** `eval/ausbeer.mjs`, `ausbeer.test.mjs`.
+
+# Example data: Boston Marathon winning times, 1897-2016
+
+`boston-marathon.csv`: winning time in minutes for each year, 120 values (`marathon` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/marathon.csv>.
+- **Licence:** fpp2 is GPL-3; the numbers are the Boston Athletic Association's published results. Only the 120 numbers are used here.
+- **Used by:** `eval/boston-marathon.mjs`, `boston-marathon.test.mjs`.
+
+## saudi-oil.csv
+
+`saudi-oil.csv`: annual oil production in Saudi Arabia, millions of tonnes, 1965-2013, 49 values (`oil` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/oil.csv> (values rounded to 3 places).
+- **Licence:** fpp2 is GPL-3 on CRAN; the figures are public production statistics. Kept as a small test fixture with its source named.
+- **Used by:** `saudi-oil.test.mjs`.
+
+## au-departures.csv (added 2026-11-08)
+
+- **What:** monthly short-term resident departures from Australia, thousands, 498 months 1976-01 to 2017-06 (the `resshort` column of `fpp2::departures`).
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/departures.csv> (month labels added from the series start).
+- **Licence:** fpp2 is GPL-3 on CRAN; the figures are public ABS statistics. Kept as a small test fixture with its source named.
+- **Used by:** `au-departures.test.mjs`.
+
+# Example data: Australian air transport passengers, 1970-2016
+
+`ausair.csv`: annual passengers in millions, 47 values (`ausair` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/ausair.csv>.
+- **Licence:** fpp2 is GPL-3; the numbers are published Australian aviation statistics. Only the 47 numbers are used here.
+- **Used by:** `eval/ausair.mjs`, `ausair.test.mjs`.
+
+## us-female-murder-rate.csv (added 2026-11-08)
+
+`us-female-murder-rate.csv`: US female murder rate per 100,000 standard population, 1950-2004, 55 values (`wmurders` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/wmurders.csv> (values rounded to 3 places).
+- **Licence:** fpp2 is GPL-3 on CRAN; the figures are public US vital statistics. Kept as a small test fixture with its source named.
+- **Used by:** `eval/us-female-murder-rate.mjs`, `us-female-murder-rate.test.mjs`.
+
+# Example data: Australian quarterly cement production, 1956Q1-2014Q1
+
+`qcement.csv`: 233 quarters of Australian portland cement production (millions
+of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/qcement.csv>
+  (the `time` column turned into `YYYYQn` labels).
+- **Licence:** fpp2 is GPL-3; Rdatasets redistributes it. The values are
+  Australian Bureau of Statistics counts, kept here as a test fixture.
+- **Used by:** `qcement.test.mjs`, README "Cement and the 2000 GST".
+## nightingale-disease.csv (2026-11-08)
+
+- **What:** monthly Crimean War British army deaths from disease per 1,000 per year, April 1854 to March 1856 (24 points), the `Disease.rate` column of Florence Nightingale's data.
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/HistData/Nightingale.csv>.
+- **Licence:** HistData is GPL-2 on CRAN; the figures are 1850s public statistics. Kept as a small test fixture with its source named.
+- **Used by:** `nightingale.test.mjs`, README "A documented fall in 24 points".
+## us-electricity.csv (added 2026-11-08)
+
+`us-electricity.csv`: US monthly net electricity generation, billion kWh, 1973-01 to 2013-06, 486 values (`usmelec` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/usmelec.csv> (time column turned into `YYYY-MM` labels).
+- **Licence:** fpp2 is GPL-3 on CRAN; the figures are public US statistics. Kept as a small test fixture with its source named.
+- **Used by:** `us-electricity.test.mjs`.
+
+## au-gas.csv (added 2026-11-08)
+
+`au-gas.csv`: Australian monthly gas production, 1956-01 to 1995-08, 476 values, unit as in the source (`gas` from the R forecast package, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/forecast/gas.csv> (time column turned into `YYYY-MM` labels).
+- **Licence:** forecast is GPL-3 on CRAN; the figures are public statistics. Kept as a small test fixture with its source named.
+- **Used by:** `au-gas.test.mjs`.

@@ -175,7 +175,7 @@
       $("#summary").value = summaryText(r);
       report.hidden = false;
       status.textContent = `Read ${n.items.length} order lines and ${st.items.length} stock rows.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     const readFile = async (id, box) => { const f = $(id).files[0]; return f ? decodeBuffer(await f.arrayBuffer()) : $(box).value; };

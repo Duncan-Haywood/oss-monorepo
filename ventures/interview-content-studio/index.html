@@ -325,7 +325,7 @@ node cli.mjs studio.json --interview "Bakery launch" --format md</pre>
     $("prev").addEventListener("click", () => { if (qIndex > 0) { qIndex--; paintQuestions(true); } });
     $("next").addEventListener("click", () => {
       if (qIndex < QUESTIONS.length - 1) { qIndex++; paintQuestions(true); }
-      else { build(); $("plan").scrollIntoView({ behavior: "smooth" }); }
+      else { build(); $("plan").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }
     });
     $("mode").addEventListener("click", () => { showAll = !showAll; paintQuestions(false); });
     $("interview-select").addEventListener("change", (e) => { state.activeId = e.target.value; qIndex = 0; persist(); paintQuestions(false); clearResult(); });

@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01EhTJVLnQ5oTse9bp1iuQq6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue revenue software work, merge when done",
+  "model": "claude-sonnet-5-5",
+  "projects": [
+    "ventures/wall-framing-takeoff"
+  ],
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The router drew the research track, but the scheduled task asked for revenue product work.",
+      "did": "Built a paver patio calculator (engine, page, tests, post) in the top flagship venture.",
+      "result": "Shipped with tests."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-07-how-many-pavers-for-a-patio.md"
+  ],
+  "notes": "paver.test.mjs and page.test.mjs pass; full wall-framing-takeoff suite result in PR. Hand tests only; no real patio takeoff checked.",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13712"
+}

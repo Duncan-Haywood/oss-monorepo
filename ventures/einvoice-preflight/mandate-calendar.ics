@@ -563,21 +563,6 @@ URL:https://example.invalid/einvoice-preflight/costa-rica-hacienda-e-invo
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:805b6bad36accf84@einvoice-preflight
-DTSTAMP:20260101T000000Z
-DTSTART;VALUE=DATE:20251023
-DTEND;VALUE=DATE:20251024
-SUMMARY:Slovenia: 1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; v
- endor guides)
-DESCRIPTION:Slovenia (Upcoming). 1 Jan 2028 for domestic B2B (law adopted
-  23 Oct 2025; vendor guides). Detail and sources: https://example.invali
- d/einvoice-preflight/slovenia-e-invoice-mandate.html. Not legal or tax a
- dvice.
-URL:https://example.invalid/einvoice-preflight/slovenia-e-invoice-mandate
- .html
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:b7bb738b9034ab9f@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20251101
@@ -932,6 +917,23 @@ URL:https://example.invalid/einvoice-preflight/rwanda-eis-e-invoice-manda
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:2a06ebefbaee60ac@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260929
+DTEND;VALUE=DATE:20260930
+SUMMARY:Mauritania: STT platform: public entities reported to require sup
+ plier invoice declaration before p...
+DESCRIPTION:Mauritania (Public suppliers (reported 1 Nov 2026)). STT plat
+ form: public entities reported to require supplier invoice declaration b
+ efore payment from 1 November 2026 (circular of 29 September 2026; secon
+ dary guides\, circular unread). Detail and sources: https://example.inva
+ lid/einvoice-preflight/mauritania-stt-e-invoice-mandate.html. Not legal 
+ or tax advice.
+URL:https://example.invalid/einvoice-preflight/mauritania-stt-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:e71601f8996ac128@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260930
@@ -1060,6 +1062,23 @@ URL:https://example.invalid/einvoice-preflight/ghana-e-vat-e-invoice-mand
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:59ac688c41a5ee45@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20261101
+DTEND;VALUE=DATE:20261102
+SUMMARY:Mauritania: STT platform: public entities reported to require sup
+ plier invoice declaration before p...
+DESCRIPTION:Mauritania (Public suppliers (reported 1 Nov 2026)). STT plat
+ form: public entities reported to require supplier invoice declaration b
+ efore payment from 1 November 2026 (circular of 29 September 2026; secon
+ dary guides\, circular unread). Detail and sources: https://example.inva
+ lid/einvoice-preflight/mauritania-stt-e-invoice-mandate.html. Not legal 
+ or tax advice.
+URL:https://example.invalid/einvoice-preflight/mauritania-stt-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:538e3fb1aa2ac5c0@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20261115
@@ -1073,6 +1092,22 @@ DESCRIPTION:Dominican Republic (Phased by taxpayer size (November 2026 wa
  nvoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/dominican-republic-dgii-e-
  invoice-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2853dd0acb1738d6@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20261201
+DTEND;VALUE=DATE:20261202
+SUMMARY:El Salvador: version 2.0 of the compliance rules reported mandato
+ ry from 1 December 2026 (secondary ...
+DESCRIPTION:El Salvador (In force (v2.0 reported 1 Dec 2026)). version 2.
+ 0 of the compliance rules reported mandatory from 1 December 2026 (secon
+ dary guides and trackers\, Hacienda texts unread). Detail and sources: h
+ ttps://example.invalid/einvoice-preflight/el-salvador-dte-e-invoice-mand
+ ate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/el-salvador-dte-e-invoice-
+ mandate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
@@ -1102,6 +1137,21 @@ DESCRIPTION:Denmark (Upcoming). Bookkeeping Act systems\, SAF-T 2.0 from
  nvoice-preflight/denmark-e-invoice-mandate.html. Not legal or tax advice
  .
 URL:https://example.invalid/einvoice-preflight/denmark-e-invoice-mandate.
+ html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7968dfcd7d213054@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:Germany: issue from 1 Jan 2027 (prior-year turnover above EUR 800
+ \,000)
+DESCRIPTION:Germany (In force (receiving)). issue from 1 Jan 2027 (prior-
+ year turnover above EUR 800\,000). Detail and sources: https://example.i
+ nvalid/einvoice-preflight/germany-e-invoice-mandate.html. Not legal or t
+ ax advice.
+URL:https://example.invalid/einvoice-preflight/germany-e-invoice-mandate.
  html
 TRANSP:TRANSPARENT
 END:VEVENT
@@ -1349,6 +1399,19 @@ URL:https://example.invalid/einvoice-preflight/bulgaria-e-invoice-mandate
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:9e7886ef543af70d@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20280101
+DTEND;VALUE=DATE:20280102
+SUMMARY:Germany: 1 Jan 2028 (everyone)
+DESCRIPTION:Germany (In force (receiving)). 1 Jan 2028 (everyone). Detail
+  and sources: https://example.invalid/einvoice-preflight/germany-e-invoi
+ ce-mandate.html. Not legal or tax advice.
+URL:https://example.invalid/einvoice-preflight/germany-e-invoice-mandate.
+ html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:3de5d363ae5248e6@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20280101
@@ -1377,16 +1440,16 @@ URL:https://example.invalid/einvoice-preflight/luxembourg-e-invoice-manda
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:c464bd7fcd55d84b@einvoice-preflight
+UID:f15489e059cd67bf@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20280101
 DTEND;VALUE=DATE:20280102
-SUMMARY:Slovenia: 1 Jan 2028 for domestic B2B (law adopted 23 Oct 2025; v
- endor guides)
-DESCRIPTION:Slovenia (Upcoming). 1 Jan 2028 for domestic B2B (law adopted
-  23 Oct 2025; vendor guides). Detail and sources: https://example.invali
- d/einvoice-preflight/slovenia-e-invoice-mandate.html. Not legal or tax a
- dvice.
+SUMMARY:Slovenia: 1 Jan 2028 for domestic B2B (ZIERDED\, gazette text rea
+ d 2026-11-07; provider rules appl...
+DESCRIPTION:Slovenia (Upcoming). 1 Jan 2028 for domestic B2B (ZIERDED\, g
+ azette text read 2026-11-07; provider rules apply earlier). Detail and s
+ ources: https://example.invalid/einvoice-preflight/slovenia-e-invoice-ma
+ ndate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/slovenia-e-invoice-mandate
  .html
 TRANSP:TRANSPARENT

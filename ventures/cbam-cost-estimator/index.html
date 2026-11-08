@@ -180,7 +180,7 @@
       $("#price-rows").innerHTML = r.priceLadder.map((p) => `<tr><td class="n">${eur(p.price)}</td><td class="n">${eur(p.cost)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Replace the illustrative emission figures with verified data before relying on this.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

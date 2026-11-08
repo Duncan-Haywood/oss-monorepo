@@ -72,3 +72,37 @@ test("tackStripLength of 0 or below is refused, not an infinite or negative cost
     assert.match(r.errors.join(" "), /tackStripLength/);
   }
 });
+
+test("transitions by hand: 5 doorways of 36 in from 72 in bars, 2 per bar -> 3 bars", () => {
+  const f = layoutFlooring({ rooms: [{ width: 120, depth: 120, kind: "plank", doorways: 3 }, { width: 96, depth: 96, kind: "tile", doorways: 2 }], transition: { barPrice: 20 } });
+  assert.ok(f.ok);
+  assert.equal(f.transitions.doorways, 5);
+  assert.equal(f.transitions.piecesPerBar, 2);
+  assert.equal(f.transitions.bars, 3);
+  assert.equal(f.cost, 60);
+  assert.ok(flooringText(f).some((l) => l.includes("3 bar(s)")));
+});
+
+test("transitions: a 48 in door from a 72 in bar gets one piece per bar; bad values refused", () => {
+  const f = layoutFlooring({ rooms: [{ width: 120, depth: 120, kind: "plank", doorways: 3 }], transition: { doorWidth: 48 } });
+  assert.equal(f.transitions.bars, 3);
+  assert.ok(validateFlooring({ rooms: [{ width: 1, depth: 1, kind: "plank", doorways: 1.5 }] }).length);
+  assert.ok(validateFlooring({ rooms: [{ width: 1, depth: 1, kind: "plank", doorways: 1 }], transition: { doorWidth: 80, barLength: 72 } }).length);
+  assert.equal(layoutFlooring({ rooms: [{ width: 120, depth: 120, kind: "plank" }] }).transitions, null);
+});
+
+test("carpet rollDirection best: 14 x 13 ft across the long side uses 2 x 162 in, not 2 x 174 in", () => {
+  const room = [{ width: 168, depth: 156, kind: "carpet" }];
+  const d = layoutFlooring({ rooms: room });
+  near(d.carpet.rollLinearFeet, 29); // default unchanged: 2 strips x (168 + 6) in
+  const b = layoutFlooring({ rooms: room, carpet: { rollDirection: "best" } });
+  // across the 168 in side: ceil(168 / 144) = 2 strips, each 156 + 6 = 162 in -> 324 in = 27 ft
+  near(b.carpet.rollLinearFeet, 27);
+  assert.equal(b.carpet.seams, 1);
+  assert.equal(b.carpet.perRoom[0].acrossLongSide, true);
+  // 12 x 8 ft: along the long side is one strip of 150 in; across it is one strip of 102 in (96 + 6) ... 144 in roll fits 96 in, 1 strip
+  const c = layoutFlooring({ rooms: [{ width: 144, depth: 96, kind: "carpet" }], carpet: { rollDirection: "best" } });
+  near(c.carpet.rollLinearFeet, 102 / 12); // 144 in side: 1 strip x (96 + 6)
+  assert.equal(c.carpet.seams, 0);
+  assert.match(layoutFlooring({ rooms: room, carpet: { rollDirection: "up" } }).errors.join(" "), /rollDirection/);
+});

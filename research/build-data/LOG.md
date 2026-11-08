@@ -1,5 +1,279 @@
 # build-data log
 
+## Session 55, 2026-11-08: milestone 7g, why the dequantised interval collapsed in coverage (diagnosis from saved results; no new data run)
+
+Why: session 54 left "investigate the dequantisation collapse" open. No predictions were written first; this is a post hoc reading of `results/prior_table3_cov_2024.json` (`src/dequant_diag.py`, output `results/dequant_diag.txt`) plus a mechanism I checked by hand on toy rows.
+- **Pattern:** the dequantised variant loses coverage against the raw interval in exactly the 4 of 15 model cells where its qhat is negative (-0.09 to -0.33 days: full model Chicago a2i 0.862 raw to 0.558, full SF a2i 0.891 to 0.343, table Austin a2i 0.839 to 0.765, full Austin a2i 0.813 to 0.783). In the 11 cells with qhat >= 0 coverage never fell (minimum change +0.000).
+- **Mechanism (hypothesis, consistent with the table, not yet confirmed on the feeds):** with qhat < 0 `cqr_interval` raises the lower end to -qhat and lowers the upper end by |qhat|. A same-day row has lo = hi = 0 and y = 0, so the interval becomes [0.14, -0.14] and covers nothing; jitter makes qhat a small non-zero negative number where plain CQR pinned it at exactly 0. Chicago and SF a2i are the zero-inflated cells, which fits.
+- Change: `conformal.cqr_interval_nonempty` leaves a lower end already at the floor alone when narrowing and keeps hi >= lo; two unit tests (the toy row above is covered by the new function and missed by the old one; for qhat >= 0 the two agree). All 14 conformal tests pass.
+- Not done: re-running milestone 7f with the new interval needs the permit feeds, pandas and lightgbm, none of which this session had. Until that is run, no coverage figure for the fix is claimed.
+- Next: rerun `prior_table3_cov.py` with `cqr_interval_nonempty` for the dequantised arm; then decide the shipped prior per city.
+
+## Session 54, 2026-11-08: milestone 7f, do conformalised table intervals hold 80% coverage? (H10, planned before running)
+
+Why: session 53's three-key table (type x work class x cost bucket) keeps most of the boosted pinball gain at q0.1/q0.5/q0.9, but its intervals were never checked, and a readable prior is only shippable if its 80% interval means 80%. `src/prior_table3_cov.py` builds the table on train rows only (<= 2022), takes CQR scores of its [q10, q90] interval on the calibration year (2023), widens by the conformal quantile (session 19's dequantised variant is reported beside the plain one), and scores coverage and mean width on test year 2024. Same recipe on the per-type baseline and on the full LightGBM model (2 seeds; its early stopping sees the calibration year, as in session 8). Fresh pulls.
+**H10 (before running):** the conformalised table interval covers within 3 points of 80% in at least 4 of the 5 city/target sets, and its mean width is no more than 1.25x the conformalised full model's in at least 3 of 5. **Refuted if** coverage is outside the band in 2 or more sets. Prior from H2 (session 8): Chicago and SF a2i probably over-cover because same-day ties pin the quantile at 0, so I expect the plain variant to fail there and the dequantised one to pass.
+
+### Outcome (`results/prior_table3_cov_2024.json`; test year 2024; feeds pulled 2026-11-08; 2 seeds)
+Conformalised 80% interval, coverage / mean width in days, plain CQR (Chicago a2i / SF a2i / SF i2c / Austin a2i / Austin i2c):
+- table (type x work class x cost bucket): 0.832 / 0.834 / 0.842 / 0.839 / 0.842; widths 118.0 / 41.5 / 399.9 / 160.9 / 290.2
+- per-type baseline: 0.885 / 0.826 / 0.857 / 0.823 / 0.845; widths 54.9 / 31.6 / 374.4 / 155.3 / 325.1
+- full LightGBM: 0.862 / 0.891 / 0.833 / 0.813 / 0.811; widths 67.0 / 61.7 / 404.2 / 170.4 / 290.3
+- Dequantised variant, table: 0.825 / 0.834 / 0.837 / 0.765 / 0.836.
+- **H10 refuted on coverage.** The 77 to 83% band holds in 0 of 5 sets with plain CQR (all over-cover by 3.2 to 4.2 points) and in 1 of 5 dequantised. The width half held: the table is within 1.25x the full model's width in 4 of 5 sets (ratios 1.76 Chicago, 0.67 SF a2i, 0.99, 0.94, 1.00). Over-coverage is the safe direction, but it means the interval is not tight.
+- **Prior failed.** I expected dequantisation to fix the ties; for the table it did not (0.837 SF i2c, 0.765 Austin a2i). For the full model the dequantised variant collapsed in Chicago and SF a2i (0.558, 0.343 against 0.862, 0.891 plain), so session 19's jitter is unsafe there and is not used for any claim here. I did not investigate why.
+- Reading: the table is a usable prior at the median and its interval is conservative, but Chicago a2i's table interval is 1.76x as wide as the full model's (118 vs 67 days) and 2.1x the baseline's, so for Chicago the per-type baseline interval is the better shipped interval.
+- Limits: one test year, 2 seeds, one bucket scheme, no bootstrap on coverage (n_test is large, so the binomial error is under 0.5 points), table built on train only (<= 2022), not train + calibration as in session 53's pinball shares.
+- Next: decide the shipped prior per city (table median, baseline interval for Chicago) and investigate the dequantisation collapse.
+
+## Session 53, 2026-11-08: milestone 7e, an empirical type x work class x cost-bucket table (H9)
+
+Why: session 52's ladder said type + work class + cost carries most of the boosted gain, but as refit models on a continuous cost. This builds the readable version, an empirical quantile table (`src/prior_table3.py`, tests in `tests/test_prior_table3.py`) on train + calibration rows, cells under 30 rows backing off to type x work class, then type, then the city. Same harness split, test year 2024, 2 seeds for the full model, fresh pulls (manifest refreshed).
+**H9, disclosure:** I did not write the hypothesis into this log before running. The reading below applies session 52's H8 threshold after the fact: the table keeps at least 50% of the full model's mean pinball gain over the per-type baseline in at least 3 of 5 sets. Treat the verdict as post hoc.
+
+### Outcome (`results/prior_table3_2024.json`)
+Mean share of the full model's gain kept (Chicago a2i / SF a2i / SF i2c / Austin a2i / Austin i2c):
+- type x cost bucket: 0.24 / 0.59 / 0.35 / 0.17 / 0.11
+- type x work class: 0.27 / 0.02 / 0.00 / 0.41 / 0.76
+- type x work class x cost bucket: **0.80 / 0.59 / 0.35 / 0.67 / 0.87**
+- The three-key table reaches 50% in 4 of 5 sets (threshold met). It is the first readable table here to keep most of the gain in Chicago and Austin.
+- SF has no work class field (the feed maps it to none), so its three-key table equals the type x bucket table: same share, 0.59 and 0.35. SF i2c stays below 50%.
+- Austin a2i q0.1 and q0.5 keep 0.45 and 0.68 and q0.9 0.88; Austin i2c 0.75 to 0.96.
+- Caveats: Chicago's 0.80 is q0.5 only (the full model has no gain over the baseline at q0.1 and q0.9, so those shares are undefined, as in session 51). Austin's three-key table has about 195 cells, so it is a lookup, not a short chart. One test year, 2 seeds, one bucket scheme, no intervals on the shares. Coverage of intervals from the table was not checked.
+- Next: test the table's interval coverage on 2024 (conformalise it), and decide whether a Chicago and Austin table can ship to `ventures/`.
+
+## Session 52, 2026-11-08: milestone 7d, which table dimensions carry the boosted gain? (H8, planned before running)
+
+Why: session 51 (H7, key-only refit) also failed, and its next step was to add another key; this ladder answers which. Session 50 refuted the flattening of the boosted model to a type x cost-bucket table (H6) and left "flatten differently" open. A quantile model on type and cost bucket alone is just the empirical lookup (already tried), so the useful question is which extra dimension a readable table needs. `src/prior_ladder.py` refits the same LightGBM quantile models on nested feature subsets (type; +cost; +work class; +description length; +area; all seven) and reports the share of the full model's mean pinball gain over the per-type baseline that each subset keeps (mean over q10/q50/q90; harness split, test year 2024, 2 seeds, fresh pulls).
+**H8 (before running):** type + cost + work class (a three-dimension table) keeps at least 50% of the full model's gain in at least 3 of the 5 city/target sets; type alone keeps under 25% in at least 3 of 5. **Refuted if** type + cost + work class keeps at least 50% in 2 or fewer sets. Secondary prediction: description length is the single step that adds the most share in Austin a2i (session 50's note that gain comes from description length).
+
+### Outcome (`results/prior_ladder_2024.json`; test year 2024; feeds pulled 2026-11-08; 2 seeds)
+Share of the full model's mean pinball gain over the per-type baseline kept by each subset (Chicago a2i / SF a2i / SF i2c / Austin a2i / Austin i2c):
+- type only: 0.00 / 0.16 / -0.28 / 0.01 / 0.02
+- + log cost: 0.23 / 0.59 / 0.87 / 0.20 / 0.11
+- + work class: 0.69 / 0.59 / 0.87 / 0.62 / 0.85
+- + description length: 0.94 / 0.99 / 0.98 / 0.93 / 0.89
+- + area: 0.97 / 1.03 / 1.08 / 1.02 / 1.00 (month and weekday add nothing visible; all = 1 by definition)
+- **H8 held.** Type + cost + work class keeps at least 50% in 5 of 5 sets (needed 3); type alone keeps under 25% in 5 of 5 (needed 3).
+- **Secondary prediction failed.** In Austin a2i the largest single step is work class (+0.42), not description length (+0.31).
+- Reading: session 50's table lacked work class, which carries most of the gain; description length then adds 0.04 to 0.37. A readable table should be type x work class x cost bucket. Caveat: these are refit models on a continuous log cost, not tables; whether a table of those three dimensions keeps the share is untested, and cells get thin (min 30 rows).
+- Limits: one test year, 2 seeds, one feature order (greedy, not a Shapley split, so step sizes depend on the order), no intervals on the shares.
+- Next: build the type x work class x cost-bucket empirical table (with the shrinkage of session 50's fallbacks) and test H9 against the share these models keep.
+
+## Session 51, 2026-11-08: milestone 7c, quantile model refit on permit type x cost bucket only (H7, planned before running)
+
+Why: session 50 (H6) flattened the full boosted model by cell medians and kept almost none of the gain. This refits a LightGBM quantile model whose only inputs are the two table keys (`src/prior_refit.py`), so each cell's value is the model's own prediction and no flattening step is left to blame. Harness split, test year 2024, 2 seeds, fresh pulls. Austin's host was unreachable from this session (curl code 000), so only three of the five sets can run: Chicago a2i, SF a2i, SF i2c.
+**H7 (before running):** the key-only refit keeps at least 50% of the full boosted model's mean pinball gain over the per-type baseline (mean over q10/q50/q90) in at least 2 of the 3 testable sets. **Refuted if** it keeps under 50% in 2 or more. Secondary prediction: it beats the empirical type x bucket lookup in at least 2 of 3 sets.
+### Outcome (`results/prior_refit_eval_2024.json`; test year 2024; feeds pulled 2026-11-08; Chicago and SF only)
+- **H7 refuted.** Share of the full boosted model's mean pinball gain kept by the key-only refit: Chicago a2i 0.16, SF a2i 0.63, SF i2c 0.42. One of three sets reaches 50%; two fail (refuted at 2 or more). Chicago's figure averages q0.5 only: the full boosted model is worse than the baseline at q0.1 and q0.9 there (2.70 vs 2.69; 11.72 vs 11.08), so the mean-of-shares there is not a clean number.
+- **Secondary prediction held, by a hair.** Mean pinball over the three quantiles, refit vs empirical lookup: Chicago 10.44 vs 10.46, SF a2i 8.99 vs 9.12, SF i2c 34.96 vs 35.03. The refit is ahead in 3 of 3 but by under 1.5%; that is no evidence of smoothing beyond noise (one split, 2 seeds).
+- Reading: removing the flattening step (session 50's suspect) did not rescue the table. SF a2i keeps most of the gain at q0.5 and q0.9 (0.78, 0.82); SF i2c keeps 0.34 to 0.56. Whatever the full model gets beyond type and cost (description length, area, month) is not in a two-key table. In Chicago a2i q0.9 the type x bucket table is worse than the per-type baseline (16.2 vs 11.1), as the empirical lookup was in session 50, so cost buckets hurt there.
+- Decision: still no boosted table published; the empirical per-type prior stays the shipped artefact. Neither table-flattening route (median of predictions, key-only refit) works, so the remaining option is shipping the model with a small evaluator, or adding the next most useful key (area or month) to the table.
+- Limits: Austin not run (host unreachable from this session); one test year; 2 seeds; one bucket scheme; no bootstrap intervals.
+- Next: add one more key (SF and Chicago area, or application month) and see how the share grows, or the JS evaluator route.
+
+## Session 50, 2026-11-08: milestone 7b, a model-based permit-duration prior as a readable table (H6, planned before running)
+
+Why: paper section 7 item 5 and sessions 48 to 49 list "a model-based (boosted quantile) version for `ventures/`" as the one open deliverable. A model file is not something a calculator can ship; a table is. So the question is how much of the boosted gain survives when the model is flattened to a permit-type x cost-bucket lookup.
+Design (`src/prior_boosted.py`, tests in `tests/test_prior_boosted.py`): cost buckets unknown, <1k, 1k-10k, 10k-100k, 100k-1M, >=1M dollars; each cell value is the median of the 2-seed boosted q10/q50/q90 predictions over the calibration-year permits in the cell (cells under 30 rows fall back to the type, then the city). Harness split, test year 2024 (train <= 2022, calibration 2023), five city/target sets, fresh pulls. Compared with the harness per-type baseline, an empirical type x bucket lookup on the same train + calibration rows, and the full boosted model. A second split (test year 2025, partial year) supplies the table that is published (calibration 2024) and a second out-of-time check.
+**H6 (before running):** the boosted-grid lookup keeps at least 50% of the full boosted model's pinball gain over the per-type baseline (mean over q10/q50/q90) in at least 4 of the 5 city/target sets. **Refuted if** it keeps under 50% in 2 or more sets. Secondary prediction: the grid beats the empirical type x bucket lookup in at least 3 of 5 sets (smoothing helps where cells are thin).
+
+### Outcome (`results/prior_boosted_eval_2024.json`; test year 2024; feeds pulled 2026-11-08)
+- **H6 refuted.** Share of the full boosted model's mean pinball gain kept by the boosted-grid lookup: Chicago a2i 0.04, SF a2i 0.83, SF i2c -0.03, Austin a2i -0.03, Austin i2c -0.10. Only 1 of 5 sets reaches 50% (needed 4; refuted at 2 or more failing).
+- **Secondary prediction failed.** The boosted grid beats the empirical type x cost-bucket lookup in 2 of 5 sets (Chicago, SF a2i), not 3.
+- Why, as far as the numbers show: the median over a cell of the model's q90 predictions is not the cell's q90 (Austin a2i q0.9: grid 42.6 against baseline 37.1 and full model 23.6), and most of the boosted gain at q0.5 comes from description length, area and month, which a type x cost table drops. The empirical lookup is also not safe: Chicago q0.9 is 16.4 against 11.1 for the baseline.
+- Decision: the boosted table is **not published**; a prior that keeps none of the gain would mislead a calculator. The empirical per-type prior (4.7) stays the shipped artefact. `src/prior_boosted.py` and the eval file stay as the negative result.
+- Limits: one flattening rule (median of predictions), one bucket scheme, 2 seeds, test year 2024 only; the 2025 check was not run because nothing was to be published.
+- Next: flatten differently (refit a quantile model on type and cost bucket only, or ship the LightGBM model with a lookup of its inputs), or publish the model file with a small JS evaluator.
+
+## Session 49b, 2026-11-07: independent refit of the same cells (replication note; not landed as results)
+
+A second run refit the 2022 and 2023 paired cells at the same time as session 49 above (3 seeds, same code, feeds pulled the same day) and kept its numbers out of `results/` once the first landed. Its bootstrap-Holm counts: 2022 uncorrected 10, Holm 9; 2023 uncorrected 12, Holm 8; pooled 45 cells uncorrected 32, Holm 23, BH 31. Session 49 above has pooled 33, 22, 31. So two refits of identical code on identical data differ by one cell in several counts: the cell counts carry about one cell of refit noise, and any claim resting on a single borderline cell (SF a2i q0.5) is not stable. My prediction (pooled Holm 24 to 26) failed by one. Lesson: re-run the programme `CLAIM CHECK` before a long job.
+
+## Session 49, 2026-11-07: milestone 27 (part), bootstrap p-values for 2022 and 2023 and the pooled 45-cell Holm (planned before running)
+
+Why: session 47 saved bootstrap p for 2024 only; the pooled 45-cell Holm of session 46 still rests on the normal approximation.
+Plan: rerun `paired_neural_boosted.py` for 2022 and 2023 (3 seeds, ten city/target runs, fresh pulls; now carrying `p_boot`), then `paired_boot_table.py` for each year and `all`.
+**Prediction (before running):** pooled over 45 cells, bootstrap Holm keeps within +-3 of the normal-approximation count of 24 (BH within +-3 of 29); the cells lost in session 46 (SF a2i q0.5 2024 etc.) stay lost or borderline.
+
+**Outcome: prediction held.** Pooled over 45 cells: uncorrected 33, Holm(boot) 22, BH(boot) 31 (normal approximation on the same files: 33, 24, 29), within the +-3 band. Per year (`results/paired_boot_p_<year>.txt`): 2022 10 uncorrected, Holm 8; 2023 13 uncorrected, Holm 9; 2024 10 and 10. SF a2i q0.5 2024 loses significance under pooled Holm (p_boot 0.006). One run-environment lesson: running several runs at once on 4 cores took over 40 CPU-minutes without finishing; one at a time takes 1 to 3 minutes each.
+Caveat: the refit on fresh pulls changed the 2022 and 2023 splits (2022 now 5 worse / 5 better / 5 tie; 2023 now 7 / 6 / 2, against 6/5/4 and 6/5/4 before), so single-cell significance is not stable under refit; the earlier session summaries describe earlier fits.
+Limits: percentile-bootstrap sign p; cells share data; one untuned MLP.
+Next: publish boosted quantile tables for `ventures/`.
+
+## Session 48, 2026-11-07: paper catch-up (no data run: all three feed hosts refused by the proxy, CONNECT 403)
+
+Why: session 47 added bootstrap p-values for 2024 but left the paper without them. No hypothesis (a writing step); no number in `results/` changed.
+Done: paper 4.6a now reports the 2024 bootstrap-p multiplicity result (10 of 15 under uncorrected, Holm and BH, same cells as the normal approximation; SF a2i q0.5 closest at p 0.006) and the floor of 0.001. Fixed a stale "multiplicity covers 2024 only" limit.
+Next: rerun 2022 and 2023 with `p_boot` when a network reaches the feeds, then pool the 45 cells on bootstrap p; publish boosted quantile tables for `ventures/`.
+
+## Session 47, 2026-11-07: milestone 27 (part), bootstrap p-values saved for the 2024 paired cells (planned before running)
+
+Why: sessions 43 and 46 corrected for multiplicity with a normal approximation to each interval. This replaces it for 2024 with p computed from the week-block bootstrap draws themselves.
+**Prediction (before running):** Holm on the bootstrap p keeps the same 10 of 15 cells as the normal approximation; the cell nearest the line stays SF a2i q0.5.
+Done: `boot_pvalue` in `src/paired_neural_boosted.py` (same seed and resampling as the stored interval; p = 2 min(tail) with +1 smoothing, so resolution is 0.001 at 2000 draws), test `tests/test_paired_boot.py`, `src/paired_boot_table.py`, `results/paired_boot_p_2024.txt`. Fresh pulls today; `paired_*_2024.json` re-run (3 seeds, same code), now carrying `p_boot`.
+Outcome: **prediction held.** Uncorrected 10, Holm 10, BH 10 of 15, identical cells to the normal approximation. SF a2i q0.5 has p_boot 0.006 (normal 0.0023), the closest to the line; SF a2i q0.1 stays non-significant (0.085). The normal approximation's tiny values (1e-58) were not literal; the bootstrap floors at 0.001. Point estimates match session 42's (e.g. SF a2i q0.9 +5.74% vs +5.77%) within refit noise.
+Limits: 2024 only (2022 and 2023 not rerun); percentile-bootstrap sign p, not studentised; floor 0.001 limits Holm resolution only if more than 50 cells are pooled; draws themselves are not stored, only p.
+Next: rerun 2022 and 2023 with p_boot and replace the pooled 45-cell Holm; publish boosted quantile tables for `ventures/`.
+
+## Session 46, 2026-11-07: milestone 27 (part), Holm/BH on 2022 and 2023 and on all 45 paired cells (committed results only, no pull)
+
+Why: session 45 left 2022 and 2023 with uncorrected intervals. No hypothesis was logged before computing (the script change was small and I ran it straight away); stated here so the record is honest, not as a pre-registration. The expectation I held was that correction would remove a few cells in the weaker years.
+Done: `src/paired_multiplicity.py` takes a year or `all` (2024 output unchanged byte for byte), new tests, `results/paired_multiplicity_{2022,2023,all}.txt`, paper 4.6a. Same normal approximation to each stored interval as session 43.
+Outcome: 2022 uncorrected 11, Holm 9, BH 11 of 15. 2023 uncorrected 11, Holm 8, BH 8 of 15. Pooled over 45 cells: uncorrected 32, Holm 24, BH 29. So 2024 was the cleanest year (all 10 survive); in 2022 and 2023 two to three of the "significant" cells are lost under Holm. Lost under pooled Holm: SF a2i q0.5 2024 (+1.11%), SF i2c q0.9 2022, SF a2i q0.1 and q0.9 2022, Austin 2023 a2i q0.9 and i2c q0.1, Chicago 2023 a2i q0.1 and q0.9 (several survive BH).
+Limits: approximate p (normal approximation, draws not saved); pooling treats 45 cells as one family although they share data across quantiles and years; the counts are therefore descriptive.
+Next: save bootstrap draws so p comes from the bootstrap; publish boosted quantile tables for `ventures/`.
+
+## Session 45, 2026-11-07: milestone 27 (part), per-permit paired bootstrap on neural minus boosted for test year 2022 (planned before running)
+
+Why: sessions 42 and 44 ran the paired test for 2024 and 2023; 2022 was the open year. Feeds reachable (Chicago 852,489 rows, SF 1,298,001, Austin 2,384,199, pulled today).
+Plan: `src/paired_neural_boosted.py --test-year 2022`, 3 seeds, five city/target pairs, same code; new `src/summarise_paired.py` (+ test) writes the summary file (it reproduces the 2023 summary byte for byte).
+**Prediction (before reading any 2022 cell):** 2022 follows the 2023 and 2024 pattern at the edges but favours neural more, since session 38 had neural ahead in 9 of 15 cells in 2022 (mean -0.42%): neural significantly better in at least 4 of 15 cells and significantly worse in at most 5; SF i2c worse at all three quantiles for the third year running; Chicago a2i q0.9 significantly better for neural for the third year running.
+
+### Outcome (`results/paired_summary_2022.txt`; 15 cells)
+- **Prediction half-failed.** Neural significantly better in 5 of 15 (predicted at least 4: held), significantly worse in 6 (predicted at most 5: failed), indistinguishable in 4. SF i2c is worse at all three quantiles (+0.43, +0.89, +0.81%): held. Chicago a2i q0.9 is better by point estimate (-0.96%) but its interval (-2.44 to +0.77) includes 0: failed.
+- Three-year view: SF i2c is worse at all three quantiles in 2022, 2023 and 2024 (9 of 9 cells), the only stable loss. Significantly worse / better counts by year: 2022 6/5, 2023 6/5, 2024 8/2. Chicago q0.9 is better by point estimate in all three years but significant in two. Austin i2c flips sign by quantile in 2022 (q0.1 +2.31%, q0.9 -5.57%).
+- Limits: 15 uncorrected intervals (multiplicity check exists only for 2024); one untuned MLP; week-block bootstrap treats weeks as exchangeable; `results/manifest.json` refreshed by today's pull, so boosted numbers differ slightly from older committed runs.
+- Next: Holm/BH for 2022 and 2023 once draws are saved; publish boosted quantile tables for `ventures/`.
+
+## Session 44, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted for test year 2023 (planned before running)
+
+Why: session 42 ran the paired test for 2024 only (neural significantly worse in 8 of 15 cells, better in 2). Cell-level numbers for 2023 (session 38) showed neural within a few percent either side. Feeds are reachable again, so 2023 can be tested per permit.
+Plan: `src/paired_neural_boosted.py --test-year 2023`, 3 seeds, five city/target pairs, same code as session 42, fresh pulls.
+**Prediction (before running):** the 2024 pattern is not stable: neural is significantly worse in at least 2 but at most 6 of 15 cells, SF i2c is again worse at all three quantiles (session 38 had +0.7 to +2.0% there), and Chicago q0.9 is again significantly better for neural.
+
+### Outcome (`results/paired_summary_2023.txt`; 2023, 15 cells, feeds pulled today: Chicago 852,489 rows, SF 1,298,001, Austin 2,384,199)
+- **Prediction held.** Neural significantly worse in 6 of 15 (inside the 2 to 6 band, at its edge), significantly better in 5, indistinguishable in 4. SF i2c is worse at all three quantiles (+1.87, +2.03, +1.67%); Chicago a2i q0.9 is significantly better for neural (-1.27%).
+- Cross-year: only SF i2c (worse) and Chicago q0.9 (better) repeat from 2024. The 2024 SF a2i q0.9 (+5.77%) and Austin a2i q0.1 (+2.73%) deficits do not persist in 2023 (+1.06% and +0.02%, intervals include 0). Austin a2i q0.5 and q0.9 favour neural in 2023 (-1.86, -3.85%) but not in 2024. So most neural-versus-boosted differences are year-specific.
+- Limits: 15 uncorrected intervals; one untuned MLP; Austin a2i q0.9 interval is wide (-8.5 to -1.0) so its size is uncertain; 2022 not rerun; the week-block bootstrap assumes exchangeable weeks.
+- Next: 2022 for the same test; publish boosted quantile tables for `ventures/`.
+
+## Session 43, 2026-11-06: milestone 27 (part), multiplicity correction on the paired cells (committed results only; all three feed hosts refused again, CONNECT 403)
+
+Hypothesis (written before computing): after Holm correction at 0.05 over the 15 paired cells, at most 6 of session 42's 8 "significantly worse" cells survive, because several intervals sit near 0 (SF a2i q0.1 and q0.5, Austin i2c q0.5).
+Done: `src/paired_multiplicity.py` (+ tests with hand counts for Holm and BH), `results/paired_multiplicity_2024.txt`, paper 4.6a. Approximate p from a normal approximation to each stored interval, since bootstrap draws were not saved.
+Outcome: **hypothesis refuted.** Holm and BH both keep all 10 cells whose interval excludes 0 (8 worse, 2 better). The nearest to the line is SF a2i q0.5 (p about 0.006). The near-zero cells I expected to fail (SF a2i q0.1, p about 0.08; Austin i2c q0.5) were already non-significant, not borderline-significant.
+Limits: p-values are approximate (normal approximation, small p's like 1e-58 are not literal); 2024 only; does not address dependence between weeks or between quantile levels of one city.
+Next: rerun the paired bootstrap for 2022 and 2023 on a network that reaches the feeds, saving the draws so p-values come from the bootstrap itself.
+
+## Session 42, 2026-11-06: milestone 27 (part), per-permit paired bootstrap on neural minus boosted (planned before running)
+
+Why: session 40 found a 2024 neural deficit (mean +1.14%, sign p 0.035) from cell-level numbers only; cells share data, so that p is descriptive. The feeds are reachable again (Chicago, SF, Austin all HTTP 200 this session), so the per-permit paired test is possible.
+Plan: `src/paired_neural_boosted.py` refits boosted (3 seeds) and the MLP (3 seeds) on the same split, keeps per-row seed-averaged pinball loss, and bootstraps the paired difference by test week, for the five city/target pairs in test year 2024, then 2023 if time allows.
+**Prediction (before running):** the paired intervals for neural minus boosted include 0 in at least 10 of 15 cells (2024), but the point estimate is positive (neural worse) in at least 10 of 15; no cell has neural significantly better.
+
+### Outcome (`results/paired_summary_2024.txt`; 2024 only, 15 cells, feeds pulled today)
+- **Prediction mostly failed.** Intervals include 0 in only 5 of 15 cells (predicted at least 10); the point estimate has neural worse in 11 of 15 (predicted at least 10: held); neural is significantly better in 2 cells (Chicago q0.5 -0.46%, q0.9 -3.30%), where I predicted none.
+- Neural is significantly worse in 8 cells, mostly SF (q0.9 +5.77%, SF i2c all three quantiles +1.3 to +2.1%) and Austin a2i q0.1 (+2.73%) and i2c q0.9 (+1.36%). So "tie" from the cell-level view hides city-specific differences: the net near-zero mean comes from Chicago's gain offsetting SF and Austin losses.
+- Limits: 2024 only; one untuned MLP and a boosted model with fixed settings; 3 seeds each averaged per row; week-block bootstrap treats weeks as exchangeable; 15 intervals with no multiplicity correction, so a few of the 8 could be chance; the feeds were re-pulled (counts in `results/manifest.json`), so boosted numbers differ slightly from earlier committed ones.
+- Next: the same for 2022 and 2023; publish boosted quantile tables for `ventures/`.
+
+## Session 41, 2026-11-06: paper housekeeping (no data run: all three feed hosts refused by the proxy)
+
+Probed data.cityofchicago.org, data.sf.gov, data.sfgov.org and data.austintexas.gov: every one returned CONNECT 403, so no pull and **no number changed**.
+Done: section 4.7 moved after 4.5 so the results sections run in order; to-do item 4 was stale (H1 already runs over 2022 to 2024) and now names the open item, the per-permit paired bootstrap on neural minus boosted, which needs saved predictions and fresh pulls.
+Next: that bootstrap on a network that reaches the feeds; boosted quantile tables for `ventures/`.
+
+## Session 40, 2026-11-06: milestone 27 (part), sign test and bootstrap on the neural-versus-boosted cells
+
+Hypothesis (before running): the mean difference over 45 cells has a 95% bootstrap interval containing 0, and the 2024 deficit (neural ahead in 3 of 15) is not separable from chance at p < 0.05.
+Done: `src/neural_sign_test.py`, `tests/test_neural_sign_test.py`, `results/neural_sign_test.txt` (committed results only, no pull).
+Outcome: all years mean +0.22% (95% bootstrap -0.30 to +0.75; sign p 0.23), so the overall tie holds. 2022 mean -0.42%, 2023 -0.06% (both intervals contain 0). **Second half of the hypothesis failed:** 2024 mean +1.14% (interval +0.21 to +2.13), neural ahead in 3 of 15, sign p 0.035. Neural is slightly but consistently worse in 2024.
+Limits: cells share data across quantiles and years, so they are not independent and the p-values are descriptive; four looks, no multiplicity correction (0.035 would not survive one); this is not the per-permit paired bootstrap, which needs the saved predictions.
+Next: per-permit paired bootstrap (needs numpy and fresh pulls); publish boosted tables for `ventures/`.
+
+## Session 39, 2026-11-06: milestone 27 (part), three-year neural comparison written up from committed results
+
+Hypothesis (before the aggregation): across all 45 cells (5 pairs x 3 quantiles x 2022-2024) the neural net is within 3% of boosted in at least 42, and the mean relative difference is within +/-1%.
+Done: no new pull (no data run needed). `src/summarise_neural.py` + `tests/test_summarise_neural.py`, `results/neural_vs_boosted_table.md`, paper section 4.6a, limitations line updated.
+Outcome: 43 of 45 within 3%, neural ahead in 18, mean +0.22%. Hypothesis holds. Per year within 3%: 14, 15, 14 of 15; neural ahead: 9, 6, 3 of 15 (2022 to 2024), a decline that is not tested and may be noise.
+Limits: aggregation only, no bootstrap interval on the difference; one untuned architecture.
+Next: publish boosted quantile tables for `ventures/`; a paired bootstrap on neural minus boosted.
+
+## Session 38, 2026-11-06: milestone 27 (part), neural baseline over test years 2022 and 2023
+
+Hypothesis (stated in the session 33 next-step, written into the log only after the run): the small embedding MLP stays within 3% of the boosted pinball in every cell in 2022 and 2023, as in 14 of 15 cells in 2024, and is not better than boosted.
+Done: fresh pulls of all three feeds (Chicago 852,332, SF 1,297,940, Austin 2,383,942 rows; `results/manifest.json` refreshed), `src/neural.py` unchanged, 3 seeds, all five city/target pairs, Y = 2022 and 2023: `results/neural_*_2022.json`, `results/neural_*_2023.json`.
+Outcome (neural pinball relative to boosted, % at q0.1/0.5/0.9; negative = neural better): 2022 Chicago a2i +0.4/+1.5/-1.0; SF a2i -1.3/-0.1/-0.9; SF i2c +0.7/+0.7/+0.2; Austin a2i -0.1/-2.9/-1.2; Austin i2c +2.7/-0.9/-4.3. 2023 Chicago a2i -0.3/+0.6/-1.3; SF a2i -2.1/+0.3/+1.2; SF i2c +1.2/+1.3/+2.0; Austin a2i +0.2/-2.0/-2.9; Austin i2c +1.4/+0.1/-0.8.
+- Within 3%: 14 of 15 in 2022 (miss: Austin i2c q0.9, neural 4.3% better) and 15 of 15 in 2023. Over three years, 43 of 45 cells. The "within 3%" half holds.
+- The "not better" half fails: neural is ahead in 15 of 30 cells here, mostly by under 3%. Read as a tie with boosted, not a loss; no claim that either family wins.
+- Raw 80% coverage stays poor for the neural net where the target has many zeros (Chicago a2i 0.24 and 0.29, SF a2i 0.30 and 0.31; softplus outputs cannot hit y = 0) and 0.67 to 0.76 elsewhere.
+Limits: one untuned architecture, 3 seeds, no bootstrap interval on the neural-versus-boosted difference, the within-3% band is a convention.
+Next: publish boosted quantile tables for `ventures/`; paper section on the three-year neural comparison.
+
+## Session 37, 2026-11-06: milestone 3 (part), H1 over test years 2022 and 2023
+
+Hypothesis (written before the run): the boosted quantile model beats the per-city, per-type empirical-quantile baseline on pinball loss in at least 11 of the 15 city/target/quantile cells in each of test years 2022 and 2023, as it did in 13 of 15 in 2024 (Chicago a2i at q0.1 and q0.9 being the cells most likely to fail).
+Done: fresh pulls of all three feeds (hosts reachable; Chicago 852,332 rows, SF 1,297,940, Austin 2,383,942), `src/boosted.py` with the harness split (train <= Y-2, calibrate Y-1, test Y), 3 seeds, for all five city/target pairs and Y = 2022, 2023: `results/boosted_*_2022.json`, `results/boosted_*_2023.json`.
+Outcome: 15 of 15 cells in 2022, 14 of 15 in 2023 (the miss: Chicago a2i q0.1, +0.1%, a tie). Hypothesis holds. Pinball change against the baseline (negative = better) at q0.1/0.5/0.9: Chicago a2i 2022 -0.0/-10.0/-8.6, 2023 +0.1/-11.2/-5.9; SF a2i 2022 -2.4/-14.8/-30.8, 2023 -2.8/-13.8/-22.5; SF i2c 2022 -7.2/-13.6/-15.5, 2023 -6.4/-12.7/-13.0; Austin a2i 2022 -3.1/-20.3/-36.4, 2023 -3.5/-20.6/-32.8; Austin i2c 2022 -11.2/-20.0/-25.7, 2023 -9.2/-20.0/-26.1. The 2024 miss at Chicago a2i q0.9 (+6.5%) is the only q0.9 loss in three years, so it looks year-specific, not structural.
+- Caveat: raw 80% interval coverage is 0.67 to 0.83 in 2022 and 0.73 to 0.83 in 2023 (Austin i2c lowest), under-covering where 2024 over-covered in Chicago and SF; the quantile models are not calibrated, which is what the conformal sections address.
+Limits: 3 seeds (2024 files use their earlier seed count); one model family; Chicago is issued-only (survivorship); the gain over the baseline is on pinball, not on any decision.
+Next: publish boosted quantile tables for `ventures/`; repeat the neural baseline over 2022 and 2023.
+
+## Session 36, 2026-11-06: milestone 7 (part), prior written up in the paper
+
+Data hosts (Chicago, SF, Austin) were refused by the proxy this session, so no new pull. Done from committed results only: `src/summarise_prior.py` writes `results/permit_prior_table.md` from `results/permit_prior.json`; paper section 4.7 reports the table, the per-type spread (per-type a2i medians 0 to 24 days Chicago, 0 to 533 SF, 15 to 182 Austin) and the two sessions' pre-registered hypotheses; to-do item 5 updated (Austin is in).
+Limits: no new measurement; descriptive quantiles only.
+Next: publish boosted quantile tables; multiple test years for H1 (needs the data hosts).
+
+## Session 35, 2026-11-06: milestone 7 (part), Austin added to the permit-duration prior
+
+Hypothesis (written before the pull): over 2022 to 2024 Austin's application-to-issue same-day share is below 20% (session 5 found 6% in 2024) and its issue-to-completion median is above 60 days (session 5: 2024 baseline median about 55 to 57 days, so this one could fail).
+Plan: fresh Austin pull (host reachable this session), rerun `src/prior.py` over the three feeds' CSVs, extend `results/permit_prior.json`.
+Done: fresh Austin pull (8 minutes, 221 MB CSV outside git), `src/prior.py` on Austin alone over 2022 to 2024, its two entries merged into `results/permit_prior.json` (Chicago and SF entries from session 34 unchanged).
+Outcome: Austin a2i n=172,780, same-day 4.8%, q10/q50/q90 = 1/25/320 days (5 types, nothing folded); Austin i2c n=163,246, same-day 0.45%, 7/111/467 days (5 types). Both hypotheses hold (same-day 4.8% < 20%; i2c median 111 > 60).
+Limits: descriptive empirical quantiles, no model; Austin's a2i q90 of 320 days is long-tailed and includes applications that were slow to be issued after review; Austin rows without an issue date are excluded from a2i; i2c window keyed on issue year.
+Next: publish boosted quantile tables; multiple test years for H1.
+
+## Session 34, 2026-11-06: milestone 7 (part), permit-duration prior data file
+
+Hypothesis (before the run): over 2022 to 2024 the pooled median application-to-issue lag is 0 or 1 day in Chicago and SF and the SF issue-to-completion median is above 90 days.
+Done: `src/prior.py` + `tests/test_prior.py` (hand-counted type-7 quantiles, small types folded, window filter); fresh Chicago and SF pulls; `results/permit_prior.json`. Austin's host was unreachable this session, so Austin is not in the file.
+Outcome: Chicago a2i n=106,195, same-day 48%, q10/q50/q90 = 0/1/68 days (9 types); SF a2i n=69,869, same-day 52%, 0/0/95 (7 types, 10 rows in small types folded); SF i2c n=55,307, same-day 0.1%, 14/119/481 (6 types, 32 small-type rows). Hypothesis holds.
+Limits: descriptive empirical quantiles, no model; Chicago is issued-only (survivorship); i2c window keyed on issue year; no Austin; the model-based prior (boosted) is not published yet.
+Next: add Austin when reachable; publish the boosted quantile tables; multiple test years for H1.
+
+## Session 33, 2026-11-05: milestone 27, neural quantile baseline on all five city/target pairs
+
+Hypothesis: a small embedding MLP is within 3% of the boosted models' pinball at each level, and not better. (Held before the first run but not written in the log until after; Austin's two cells were run after seeing the other three, so the Austin part is not blind.)
+Done: `src/neural.py` (imports `boosted.py`'s frame, features, bootstrap; torch CPU), `tests/test_neural.py` (monotone, non-negative, learns a planted type gap), fresh pulls of all three feeds, 3 seeds, test year 2024, `results/neural_*_2024.json`.
+Outcome (neural pinball relative to committed boosted; positive = worse): Chicago a2i +0.6/0.0/-3.0%; SF a2i +0.9/+1.2/+5.9%; SF i2c +1.8/+2.6/+2.9%; Austin a2i +2.5/+0.1/+1.6%; Austin i2c -0.2/+0.3/-0.1% (q0.1/0.5/0.9). Within 3% in 14 of 15 cells (Chicago q0.9 is -2.97%); the one miss is SF a2i q0.9 (+5.9%). Neural is ahead only at Chicago q0.9, where boosted is itself worse than the baseline; the rest are ties or small losses, so the hypothesis holds except SF a2i q0.9.
+- Caveats: raw neural 80% interval coverage is 0.30 (SF a2i) and 0.53 (Chicago a2i) because softplus outputs are strictly positive and miss every y = 0; same-day Brier slightly worse than boosted.
+Limits: one architecture, untuned, 3 seeds, one test year.
+Next: tune once (width, lr, same-day loss weight) or move to multiple test years for H1.
+
+## Session 32, 2026-11-05: milestone 26, SF i2c with the H2g backtest rules (planned before running)
+
+Plan: the session 27/29/31 grid and backtest on SF issue-to-completion (i2c), test years 2021 to 2024, one job at a time, 1 seed, then `python3 src/conformal_tau_backtest.py sf --i2c`. Pre-registered (as session 31): coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below the fixed (0.1, 0.9) pair in at least 2 of 3. Prior 40%: SF i2c has almost no exact zeros, like Austin i2c, which failed both halves.
+Done: fresh SF pull (1,297,940 rows per the live count; Chicago and Austin hosts were refused by the proxy this session, so only SF could run), `results/conformal_tau_drift_sf_i2c_{2021..2024}.json`, `results/conformal_tau_backtest_sf_i2c.txt`.
+Outcome (1 seed, intervals over weeks only):
+| year | chosen pair | test coverage [CI] | width (days) | narrower than (0.1, 0.9) |
+|---|---|---|---|---|
+| 2022 | (0.2, 0.75) | 0.818 [0.810, 0.826] | 370.3 | 12% |
+| 2023 | (0.2, 0.75) | 0.830 [0.822, 0.837] | 343.0 | 17% |
+| 2024 | (0.2, 0.65) | 0.857 [0.846, 0.867] | 293.6 | 28% |
+- **Both halves of H2g hold as counted separately for SF i2c** (coverage inside 77 to 83% in 2 of 3 years; width 15% or more narrower in 2 of 3), unlike Austin i2c. Read strictly "in the same years", only 2023 passes both: 2022 is not narrow enough (12%) and 2024 over-covers (0.857), so the joint result is 1 of 3. I report the separate counts as the pre-registered rule and flag the joint one as the stricter reading.
+- The width gain is real but the years that gain most (2024) are the ones that over-cover, i.e. the guard picks a narrow pair whose backtest-year coverage did not carry to the test year. Widths stay near 300 to 370 days at 80%: SF build time is only weakly predictable at the quantile level.
+- Limits: 1 seed, 3 cells, SF only (Chicago has no i2c), the narrower-pair claim rests on the 2022 to 2024 backtest years only.
+Next: paper section 4.2c gets SF i2c and the joint-versus-separate caveat; then the neural baseline.
+
+## Session 31, 2026-11-05: milestone 25, Austin i2c with the H2g backtest rules (planned before running)
+
+Plan: the same grid and backtest as sessions 27 and 29 on Austin i2c (issue to completion), test years 2021 to 2024, one job at a time, 1 seed, then `python3 src/conformal_tau_backtest.py austin --i2c` (the script now takes `--i2c`). Pre-registered: coverage in 77 to 83% in at least 2 of 3 test years (2022 to 2024) and width at least 15% below (0.1, 0.9) in at least 2 of 3. Prior 35%: i2c has few exact zeros, so a narrow pair should buy less than in Chicago, and the Austin a2i width half failed on the same logic.
+
+Done: fresh Austin pull (2,383,942 rows; 2,185,057 completed; 3,533 negative build times dropped), `conformal_tau_drift_run.py --city austin --target i2c` for 2021 to 2024, one job at a time, 1 seed, `results/conformal_tau_drift_austin_i2c_{2021..2024}.json`; `results/conformal_tau_backtest_austin_i2c.txt`.
+Outcome (1 seed):
+| year | chosen pair | test coverage [CI] | width (days) | vs (0.1, 0.9) |
+|---|---|---|---|---|
+| 2022 | (0.1, 0.9) fallback | 0.786 [0.777, 0.795] | 307.8 | 0% |
+| 2023 | (0.2, 0.75) | 0.842 [0.835, 0.849] | 283.6 | -6% |
+| 2024 | (0.2, 0.65) | 0.835 [0.828, 0.842] | 237.6 | -18% |
+- **H2g is refuted for Austin i2c on both halves**: coverage inside 77 to 83% in 1 of 3 years (2022), width 15% or more below the fixed pair in 1 of 3 (2024). The 2023 and 2024 picks over-cover by 3 to 4 points.
+- Backtest-year coverage under the fixed pair ran 0.731, 0.786, 0.837, 0.819 for 2021 to 2024: 10 points of drift, as for Austin a2i. Widths are 240 to 310 days at 80%, so i2c is barely predictable at the quantile level and a narrower pair buys little.
+- Summary over the three cities and both a2i/i2c cells now run: the width gain of a narrow pair is large only where the target is zero-inflated (Chicago, SF a2i); Austin a2i and i2c are not.
+- Limits: 1 seed, 3 cells, loader still counts every Austin row as issued, 3,533 negative build times dropped; SF i2c not run under H2g.
+Next: SF i2c under H2g, or the neural baseline.
+
 ## Session 30, 2026-11-05: paper section 4.2c gets Austin a2i (a writing step; no experiment, no result changed)
 
 Re-ran `python3 src/conformal_tau_backtest.py austin` (reproduces session 29: inside 77 to 83% in 2 of 3, narrower by 15% in 1 of 3) and added the Austin paragraph and limits to `paper/paper.md` 4.2c; to-do item 2 now names only Austin i2c. Post: `docs/posts/2026-11-05-permit-intervals-austin-narrow-pairs.md`.

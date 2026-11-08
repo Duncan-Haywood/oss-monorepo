@@ -158,7 +158,7 @@
       $("#deadlines").innerHTML = gapDeadlines(parseDate(input.today)).map((d) => `<tr><td>${esc(d.year)}</td><td class="n">${esc(d.deadline)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify your record and the quote on GOV.UK before paying.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

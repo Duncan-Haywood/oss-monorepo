@@ -109,7 +109,7 @@ document.querySelector('#build').onclick=()=>{
   document.querySelector('#draft').value=packet.draft;
   document.querySelector('#output').hidden=false;
   event('packet_built');
-  document.querySelector('#output').scrollIntoView({behavior:'smooth'});
+  document.querySelector('#output').scrollIntoView({behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"});
 };
 
 </script></body></html>

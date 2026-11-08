@@ -1,0 +1,50 @@
+{
+ "rows": [
+  {
+   "who": "S. D. Unwin, The Probability of God (2003)",
+   "published": "P(God) = 0.67",
+   "product": 2.0,
+   "computed": 0.6666666666666666
+  },
+  {
+   "who": "M. Shermer, Scientific American (July 2004), using Unwin's method",
+   "published": "P(God) = 0.02",
+   "product": 0.00025000000000000006,
+   "computed": 0.00024993751562109475
+  }
+ ],
+ "order_invariant": true,
+ "odds_needed_for_2pct": 0.020408163265306124,
+ "single_D_fixes": [
+  {
+   "item": "goodness",
+   "published_D": 0.5,
+   "D_needed": 40.81632653061224
+  },
+  {
+   "item": "moral evil",
+   "published_D": 0.1,
+   "D_needed": 8.163265306122447
+  },
+  {
+   "item": "natural evil",
+   "published_D": 0.1,
+   "D_needed": 8.163265306122447
+  },
+  {
+   "item": "intranatural miracles",
+   "published_D": 1,
+   "D_needed": 81.63265306122447
+  },
+  {
+   "item": "extranatural miracles",
+   "published_D": 0.5,
+   "D_needed": 40.81632653061224
+  },
+  {
+   "item": "religious experience",
+   "published_D": 0.1,
+   "D_needed": 8.163265306122447
+  }
+ ]
+}

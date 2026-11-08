@@ -1,0 +1,17 @@
+NACA 64A010, section lift slope a0 (per rad); UIUC LSAT Vol. 1 (Champine, clean) vs NeuralFoil xxxlarge n_crit 9
+thin-airfoil value 2 pi = 6.283; ratio = NF / UIUC for fit windows |alpha| <= 2 / 3 / 4 deg
+
+      Re UIUC a0 (w3) NF a0 (w3) ratio w2 ratio w3 ratio w4
+   22100        2.970      1.720    0.464    0.579    0.602
+   30600        2.652      1.441    0.452    0.543    0.548
+   40600        3.299      1.201    0.198    0.364    0.421
+   50600        4.304      1.020    0.087    0.237    0.540
+   60900        5.596      1.870    0.002    0.334    0.755
+   80800        6.644      6.869    0.765    1.034    1.112
+  101000        7.543      9.582    1.279    1.270    1.205
+  204000        6.719      8.239    1.175    1.226    1.192
+  305400        5.909      6.635    1.118    1.123    1.105
+
+P1: mean ratio (w3) over Re 1e5 to 2.1e5 (2 runs): 1.248  -> held
+P2: ratio (w3) at Re <= 4.1e4: 22100: 0.579, 30600: 0.543, 40600: 0.364  -> held
+P3: max/min ratio (w3) over all 9 runs minus 1 = 435.9%  -> held

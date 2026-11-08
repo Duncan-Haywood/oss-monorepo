@@ -157,6 +157,15 @@ class CampaignTest(unittest.TestCase):
                 redteam.campaign(self.target, 2, seed=1, repo=self.repo, timeout=5)
 
 
+class RecordPathTest(unittest.TestCase):
+    def test_missing_record_fails_before_the_campaign_runs(self):
+        with mock.patch.object(redteam, "campaign") as camp:
+            with self.assertRaises(SystemExit) as cm:
+                redteam.main(["campaign", "--target", "x.py", "--record", "/nonexistent/run.json"])
+        self.assertIn("no such run record", str(cm.exception))
+        camp.assert_not_called()
+
+
 class TallyTest(unittest.TestCase):
     def test_never_measured_is_not_zero(self):
         t = redteam.tally([{"track": "ventures"}])

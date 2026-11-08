@@ -51,7 +51,7 @@
     td.short { color: #9a3412; font-weight: 700; }
     textarea.small { min-height: 90px; }
   </style>
-<style>/* mobile-overflow-guard */table{display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style>
 </head>
 <body>
   <header>
@@ -165,7 +165,7 @@
       $("#fix-list").innerHTML = fix.changes.slice(0, 200).map((c) => `<li>${esc(c)}</li>`).join("") + (fix.changes.length > 200 ? `<li>…and ${fix.changes.length - 200} more.</li>` : "");
       report.hidden = false;
       status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.cards} card(s).` : `No errors in ${s.cards} card(s).`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

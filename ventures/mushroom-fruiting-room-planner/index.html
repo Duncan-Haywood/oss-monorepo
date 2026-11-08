@@ -169,7 +169,7 @@
       $("#week-rows").innerHTML = r.weeks.map((w) => `<tr><td class="n">${w.week}</td><td class="n">${Math.round(w.occupied)}</td><td class="n">${w.harvestLb.toFixed(0)}</td><td class="n">${money(w.income)}</td><td class="n">${money(w.spend)}</td><td class="n">${money(w.cash)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Plan updated.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calc").addEventListener("click", () => { run(); record("plan_built"); });

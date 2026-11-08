@@ -199,7 +199,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const { files } = generate();
   for (const [name, html] of Object.entries(files)) writeFileSync(new URL(name, import.meta.url), html);
   // Every hand-written page beside the tool (the marketing page, the HOA packet, any new one) goes in too, so a new page is never left out.
-  const hand = readdirSync(new URL('.', import.meta.url)).filter((f) => f.endsWith('.html') && f !== 'index.html' && !(f in files)).sort((x, y) => (x === HAND_FILE ? -1 : y === HAND_FILE ? 1 : x.localeCompare(y)));
+  const hand = readdirSync(new URL('.', import.meta.url)).filter((f) => f.endsWith('.html') && f !== 'index.html' && !(f in files) && !/<meta[^>]*robots[^>]*noindex/i.test(readFileSync(new URL(f, import.meta.url), 'utf8'))).sort((x, y) => (x === HAND_FILE ? -1 : y === HAND_FILE ? 1 : x.localeCompare(y)));
   const urls = ['', ...hand, ...Object.keys(files)];
   const base = 'https://example.invalid/shed-designer/';
   writeFileSync(new URL('sitemap.xml', import.meta.url), `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map((u) => `<url><loc>${base}${u}</loc></url>`).join('')}</urlset>`);

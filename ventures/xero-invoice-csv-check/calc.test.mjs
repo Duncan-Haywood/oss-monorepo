@@ -185,6 +185,18 @@ test("repair converts an Excel serial date even with no target format, and respe
   assert.equal(parseCsv(told.text).rows[1].cells[2], "2026-03-04");
 });
 
+test("repair keeps a month-first file month-first when it converts a serial date", () => {
+  // Quality audit 2026-11-07: with no output format chosen, serial 46300 (5 Oct 2026) was written 05/10/2026
+  // in a US file, which a month-first Xero organisation imports as 10 May.
+  const detected = repair(file("A,1,11/27/2026,46300,x,1,5,,200,T,"));
+  assert.equal(parseCsv(detected.text).rows[1].cells[3], "10/05/2026");
+  assert.ok(detected.changes.some((c) => /MM\/DD\/YYYY/.test(c)));
+  const told = repair(file("A,1,46300,03/04/2026,x,1,5,,200,T,"), { sourceOrder: "mdy" });
+  assert.equal(parseCsv(told.text).rows[1].cells[2], "10/05/2026");
+  // Day-first and unknown files keep the old default.
+  assert.equal(parseCsv(repair(file("A,1,27/11/2026,46300,x,1,5,,200,T,")).text).rows[1].cells[3], "05/10/2026");
+});
+
 test("repair never changes a description", () => {
   const input = file("A,1,01/10/2026,31/10/2026,\"  padded, with comma \",1,5,,200,T,");
   assert.equal(parseCsv(repair(input).text).rows[1].cells[4], "  padded, with comma ");

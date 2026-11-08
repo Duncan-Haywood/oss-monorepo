@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wall panel calculator: how long, how many and how heavy are prefab framing panels</title>
+  <meta name="description" content="Free wall panel calculator: type a wall length, height and openings and the longest panel your truck or table takes, and get the panel widths, piece counts and weight of each. Runs in your browser.">
+  <meta property="og:title" content="Wall panel calculator">
+  <meta property="og:description" content="Wall length, openings and longest panel in; panel widths and weights out. Private, free, in your browser.">
+  <link rel="canonical" href="./panel-calculator.html">
+  
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+  </style>
+</head>
+<body>
+  <h1>Wall panel calculator</h1>
+  <p>Framing walls flat in a shop or on a slab and tipping them up needs panels short enough for the truck, the table or two people. Type one wall and the longest panel you can handle. The framing engine lays out every stud, king, jack, header and cripple, then cuts only where no member crosses the line, so each panel is built from whole members. Weights use kiln-dried SPF at 28 lb/ft3 and 40 lb/ft3 for the treated bottom plate. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="len">Wall length (ft, or 40' 0")</label><input id="len" value="40"></div>
+      <div><label for="ht">Wall height (precut studs)</label><select id="ht"><option value="8ft">8 ft</option><option value="9ft">9 ft</option><option value="10ft">10 ft</option></select></div>
+      <div><label for="win">Windows (36 x 48 in)</label><input id="win" type="number" min="0" max="20" value="1"></div>
+      <div><label for="door">Doors (36 x 82-1/2 in)</label><input id="door" type="number" min="0" max="20" value="1"></div>
+      <div><label for="pm">Longest panel (ft)</label><input id="pm" value="12"></div>
+      <div><label for="sh">Sheathing on the panel</label><select id="sh"><option value="0">None (bare frame)</option><option value="1.5">OSB or plywood, 1.5 lb/sq ft</option></select></div>
+    </div>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Panelize a whole house and print a drawing per panel</a></p>
+
+  <h2>The method</h2>
+  <ol>
+    <li><strong>Layout first.</strong> The wall is laid out with studs on layout, kings, jacks, headers and cripples exactly as in the takeoff tool.</li>
+    <li><strong>Cut lines.</strong> A panel edge may fall only where it crosses no stud, king, jack, cripple, header, sill or block. The fewest panels win, then the most even widths. If no clear line exists under your limit the page says so.</li>
+    <li><strong>Plates.</strong> Top and bottom plates are trimmed to each panel, so the panel weights include only the plate length in that panel.</li>
+    <li><strong>Weight.</strong> Lumber weight is volume times density; sheathing is the area on the panel less the openings, times your pounds per sq ft. A handling estimate only. Lifting, bracing, rigging and shipping are for the builder.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How long can a prefab wall panel be?</h3>
+  <p>It depends on your truck bed or trailer, table, crane or crew, not on a code number. Many shops keep panels near 12 ft so two people can lift a bare frame. Type your own limit above.</p>
+  <h3>How heavy is a framed wall panel?</h3>
+  <p>The 40 ft wall in the form above, with a window and a door, is four panels; a bare 2x4 frame of about 10 to 12 ft weighs roughly 90 to 160 lb, and sheathing adds roughly the same again. The page prints each panel.</p>
+  <h3>Does this check lifting or bracing?</h3>
+  <p>No. It reports lumber and sheathing weight only.</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="panel-calculator.html">Wall panel calculator (shop panel widths and weights)</a></li><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers, fittings)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, grout, carpet)</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li></ul></nav>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. House size, pitch, overhangs, panel widths and waste are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Panel widths and weights follow the layout stated above; the manufacturer's panel sizes and your supplier's catalogue govern what you buy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+<script type="module">
+    import { wallPanelReport, wallPanelText } from "./panels.mjs";
+    import { parseLength } from "./engine.mjs";
+    const $ = (id) => document.getElementById(id);
+    const ft = (v) => { const s = String(v).trim(); return /^[\d.]+$/.test(s) ? +s * 12 : parseLength(s); };
+    const run = () => {
+      try {
+        const r = wallPanelReport({ length: ft($("len").value), height: $("ht").value, windows: +$("win").value, doors: +$("door").value, panelMax: ft($("pm").value), sheathPsf: +$("sh").value });
+        $("out").textContent = wallPanelText(r).join("\n");
+      } catch (e) { $("out").textContent = String(e && e.message || e); }
+    };
+    $("f").addEventListener("input", run);
+    run();
+  </script>
+</body>
+</html>

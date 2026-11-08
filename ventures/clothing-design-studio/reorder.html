@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reorder Planner for Clothing Brands: When to Order Before You Sell Out</title>
+  <meta name="description" content="Free reorder planner for small clothing brands: the reorder point, safety stock, order-by date, cash tied up and sales lost if the factory order goes in late. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Reorder planner for clothing brands">
+  <meta property="og:description" content="When to reorder from the factory so a bestseller does not sell out. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Reorder planner (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="prices.html">Price by market</a> · <a href="quotes.html">Compare quotes</a> · <a href="fit.html">Size finder</a> · <a href="preorder.html">Pre-order planner</a> · <a href="wholesale.html">Wholesale</a></p>
+  <h1>Order again before you sell out.</h1>
+  <p>Factories take weeks. Type how fast a piece sells, how long the factory plus freight takes and what is on your shelf: get the reorder point, the date to order by, how much cash the order ties up, and what a late order costs in missed sales.</p>
+  <p class="placeholder">A forecast from numbers you type, not a promise. Weekly sales are modelled as a normal curve; a viral post or a season turning is lumpier, so treat the safety stock as a floor for a fast seller. Order by size, not on the average.</p>
+  <div class="grid">
+    <section>
+      <h2>Your numbers</h2>
+      <div class="row"><div><label for="rate">Sold per week (average)</label><input id="rate" type="number" min="0.01" step="any" value="20"></div><div><label for="sd">Week-to-week spread (pieces)</label><input id="sd" type="number" min="0" step="any" value="10"></div></div>
+      <div class="row"><div><label for="lead">Lead time, order to shelf (weeks)</label><input id="lead" type="number" min="0.5" step="0.5" value="9"></div><div><label for="svc">Chance of not running out %</label><select id="svc"><option>80</option><option>85</option><option>90</option><option selected>95</option><option>98</option><option>99</option></select></div></div>
+      <div class="row"><div><label for="hand">On the shelf now (pieces)</label><input id="hand" type="number" min="0" step="1" value="400"></div><div><label for="ord">Already on order</label><input id="ord" type="number" min="0" step="1" value="0"></div></div>
+      <div class="row"><div><label for="cover">Weeks one order should cover</label><input id="cover" type="number" min="1" step="1" value="12"></div><div><label for="moq">Factory minimum (pieces)</label><input id="moq" type="number" min="1" step="1" value="100"></div></div>
+      <div class="row"><div><label for="landed">Landed cost per piece</label><input id="landed" type="number" min="0" step="0.01" value="12"></div><div><label for="profit">Profit per piece sold</label><input id="profit" type="number" step="0.01" value="15"></div></div>
+      <label for="today">Today</label><input id="today" type="date">
+    </section>
+    <div><section><h2>Result</h2><output id="result" aria-live="polite"></output></section>
+    <section id="sizes"><h2>By size</h2>
+      <p class="tag">Splits the weekly sales by a size mix you type (percent of sales) and plans each size alone. The factory minimum applies to the whole order.</p>
+      <div class="row"><div><label for="mchest">Audience average chest (cm)</label><input id="mchest" type="number" min="60" max="170" step="any" value="100"></div><div><label for="schest">Spread (cm)</label><input id="schest" type="number" min="2" max="30" step="any" value="9"></div></div>
+      <p><button type="button" id="fillMix">Fill the size mix from this audience</button> <span class="tag" id="fillNote"></span></p>
+      <table id="sizeInputs"><tr><th scope="col">Size</th><th scope="col">Mix %</th><th scope="col">On shelf</th><th scope="col">On order</th></tr>
+      </table><output id="sizeResult" aria-live="polite"></output></section></div>
+  </div>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Conversion and traffic are your estimates; the result is a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { reorderPlan, reorderBySize } from "./reorder.mjs";
+    import { sizeRun } from "./fit.mjs";
+    import { recordUsage } from "./usage.mjs";
+    import { applyBrief } from "./launchbrief.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const n = id => +$(id).value;
+    $("#today").value = new Date().toISOString().slice(0, 10);
+    function render() {
+      const r = reorderPlan({ weeklyRate: n("#rate"), weeklySd: n("#sd"), leadWeeks: n("#lead"), service: n("#svc"), onHand: n("#hand"), onOrder: n("#ord"), coverWeeks: n("#cover"), moq: n("#moq"), landed: n("#landed"), profitPerUnit: n("#profit"), today: $("#today").value || undefined });
+      if (r.error) { $("#result").innerHTML = `<p class="placeholder">${esc(r.error)}</p>`; return; }
+      $("#result").innerHTML = `<p class="big">${r.orderNow ? "ORDER NOW" : "Order by " + esc(r.orderByDate ?? "in " + r.weeksUntilReorder + " weeks")}</p>
+        <table>
+          <tr><th scope="col">Measure</th><th scope="col" class="num">Value</th></tr>
+          <tr><td>Reorder point (pieces)</td><td class="num"><b>${r.reorderPoint}</b> (${r.demandInLeadTime} sold in the lead time + ${r.safetyStock} safety)</td></tr>
+          <tr><td>Stock plus on order</td><td class="num">${r.position}</td></tr>
+          <tr><td>Runs out on (if nothing is ordered)</td><td class="num">${esc(r.stockoutDate ?? r.weeksOfStock + " weeks")}</td></tr>
+          <tr><td>Order size</td><td class="num"><b>${r.quantity}</b> (${r.weeksCovered} weeks)</td></tr>
+          <tr><td>Cash tied up</td><td class="num"><b>${r.cashTiedUp}</b></td></tr>
+          <tr><td>Arrives (if ordered at that date)</td><td class="num">${esc(r.arrivalDate ?? "")}</td></tr>
+          <tr><td>Sales missed if ordered today</td><td class="num">${r.lostUnits}${r.lostProfit !== undefined ? ` (profit ${r.lostProfit})` : ""}</td></tr>
+        </table>
+        ${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
+    }
+    $("#sizeInputs").insertAdjacentHTML("beforeend", ["XS","S","M","L","XL","2XL"].map((z,i)=>`<tr data-size="${z}"><td>${z}</td><td><input class="mix" type="number" min="0" step="any" value="${[0,15,35,30,15,5][i]}" aria-label="${z} mix percent"></td><td><input class="hnd" type="number" min="0" step="1" value="${[0,60,140,120,60,20][i]}" aria-label="${z} on shelf"></td><td><input class="ord2" type="number" min="0" step="1" value="0" aria-label="${z} on order"></td></tr>`).join(""));
+    $("#fillMix").addEventListener("click", () => {
+      const r = sizeRun(1000, { meanChest: n("#mchest"), sdChest: n("#schest") });
+      if (!r.ok) { $("#fillNote").textContent = r.error; return; }
+      document.querySelectorAll("#sizes tr[data-size]").forEach(tr => {
+        const z = tr.dataset.size === "2XL" ? "XXL" : tr.dataset.size;
+        const p = r.sharePct[z] ?? 0, tot = +$("#rate").value;
+        tr.querySelector(".mix").value = p;
+        tr.querySelector(".hnd").value = Math.round(tot * p / 100 * 4);
+      });
+      $("#fillNote").textContent = "Mix from a normal chest curve and the typical size chart; shelf set to four weeks of sales per size. Replace with your own sell-through.";
+      renderSizes(); recordUsage("reorder_fill_mix");
+    });
+    function renderSizes() {
+      const mix = {}, onHand = {}, onOrder = {};
+      document.querySelectorAll("#sizes tr[data-size]").forEach(tr => {
+        const z = tr.dataset.size, m = +tr.querySelector(".mix").value;
+        if (m > 0) { mix[z] = m; onHand[z] = +tr.querySelector(".hnd").value; onOrder[z] = +tr.querySelector(".ord2").value; }
+      });
+      const r = reorderBySize({ mix, onHand, onOrder, weeklyRate: n("#rate"), weeklySd: n("#sd"), leadWeeks: n("#lead"), service: n("#svc"), coverWeeks: n("#cover"), moq: n("#moq"), landed: n("#landed"), profitPerUnit: n("#profit") });
+      if (r.error) { $("#sizeResult").innerHTML = `<p class="placeholder">${esc(r.error)}</p>`; return; }
+      $("#sizeResult").innerHTML = `<table><tr><th scope="col">Size</th><th scope="col" class="num">Per week</th><th scope="col" class="num">Reorder point</th><th scope="col" class="num">Have</th><th scope="col" class="num">Order</th></tr>
+        ${r.lines.map(l => `<tr><td>${esc(l.size)}</td><td class="num">${l.weeklySales}</td><td class="num">${l.reorderPoint}</td><td class="num">${l.position}</td><td class="num"><b>${l.order}</b>${l.orderNow ? "" : ` <span class="tag">in ${l.weeksUntilReorder} wk</span>`}</td></tr>`).join("")}</table>
+        <p><b>Order total ${r.orderTotal}</b>, cash tied up ${r.cashTiedUp}</p>${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
+    }
+    { const note = applyBrief("reorder"); if (note) { const el = document.createElement("p"); el.className = "tag"; el.id = "brief-note"; el.textContent = note; document.querySelector("section").prepend(el); } }
+    document.querySelectorAll("section input, section select").forEach(el => el.addEventListener("input", () => { render(); renderSizes(); recordUsage("reorder_check"); }));
+    render(); renderSizes(); recordUsage("reorder_open");
+  </script>
+</body>
+</html>

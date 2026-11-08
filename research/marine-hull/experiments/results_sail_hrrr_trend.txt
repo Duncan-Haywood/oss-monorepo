@@ -1,0 +1,19 @@
+every 4th window; hourly replan; shares of the bound; trend = HRRR change since replan added to trailing-30-min observed wind
+
+January: 72 windows from 9 stations; header 0.889
+  T0       : 0.883; minus header +0.0 pts (boot 95% -0.4..+0.3); tacks/day 134
+  trend1   : 0.879; minus header +0.1 pts (boot 95% -0.2..+0.4); tacks/day 159
+  trend05  : 0.884; minus header +0.1 pts (boot 95% -0.2..+0.4); tacks/day 176
+  trendfade: 0.881; minus header +0.1 pts (boot 95% -0.2..+0.4); tacks/day 170
+  trend1 minus T0: +0.2 pts (boot 95% -0.1..+1.2)
+  trend05 minus T0: +0.3 pts (boot 95% +0.0..+1.2)
+  trendfade minus T0: +0.2 pts (boot 95% +0.0..+0.8)
+
+July: 80 windows from 10 stations; header 0.898
+  T0       : 0.888; minus header -0.2 pts (boot 95% -0.9..-0.0); tacks/day 96
+  trend1   : 0.874; minus header -0.6 pts (boot 95% -1.1..-0.2); tacks/day 146
+  trend05  : 0.880; minus header -0.3 pts (boot 95% -0.6..-0.0); tacks/day 124
+  trendfade: 0.881; minus header -0.3 pts (boot 95% -0.8..-0.1); tacks/day 118
+  trend1 minus T0: -0.2 pts (boot 95% -0.7..-0.0)
+  trend05 minus T0: -0.0 pts (boot 95% -0.1..+0.3)
+  trendfade minus T0: -0.0 pts (boot 95% -0.1..+0.1)

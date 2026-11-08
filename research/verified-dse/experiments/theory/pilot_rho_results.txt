@@ -1,0 +1,7 @@
+m | statistic | cells | median coverage P(T >= ratio(x*)) | cells with coverage >= 0.8 | cells where ratio(x*)<1 (guaranteed): share of pilots with T<1 | cells ratio(x*)>=1: share of pilots with T<1 (false certificates)
+8 | T | 40 | 0.892 | 27 | 0.493 (n=11) | 0.041 (n=29)
+8 | T3 | 40 | 0.723 | 17 | 0.548 (n=11) | 0.088 (n=29)
+16 | T | 40 | 0.968 | 27 | 0.700 (n=11) | 0.039 (n=29)
+16 | T3 | 40 | 0.700 | 14 | 0.790 (n=11) | 0.103 (n=29)
+24 | T | 40 | 0.993 | 28 | 0.848 (n=11) | 0.033 (n=29)
+24 | T3 | 40 | 0.837 | 20 | 0.904 (n=11) | 0.096 (n=29)

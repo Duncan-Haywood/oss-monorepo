@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01EhTJVPqQF9RyFm7wUunV8K",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled prompt)",
+  "input_sha256": "62fafedee7b816cd0bb2f7c77e22f56343aa160e16342e41d54b3daf97281623",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-07T16:58:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13841",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "No perf item was workable (P063 is owner-held), so the run measured where venture commits go instead.",
+      "did": "Counted venture commits on main 2026-10-31 to 11-07 and wrote a post and agent note.",
+      "result": "88% of focused venture commits went to 11 of 1,339 ventures; no product change landed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-07-where-the-venture-commits-went.md",
+    "docs/reports/venture-commit-concentration-2026-11-07.md"
+  ],
+  "goal": null,
+  "notes": "Metric: venture touches per venture from git log on a shallow clone, commits touching >3 ventures dropped. wall-framing-takeoff 376 of 1005. Honest outcome: measurement write-up only; flagships (wall-framing, ai-bookkeeper) need real inputs, and parallel sessions were already on the Schultz IFC thread.",
+  "corrections": [],
+  "redteam": null
+}

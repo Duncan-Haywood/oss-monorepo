@@ -229,7 +229,7 @@
       $("#stress tbody").innerHTML = b.stress.map((s) => `<tr><td>${Math.round(s.scale * 100)}%${s.scale === 1 ? " (as pasted)" : ""}</td><td class="n">${signedPct(s.savingsPct)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

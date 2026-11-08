@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { maskGrid, edgeDistance, height, smooth, buildGarmentMesh, orbitMatrix, project, multiply, rotationY, identity } from "./garment3d.mjs";
+import { sleeveTubes, maskGrid, edgeDistance, height, smooth, buildGarmentMesh, orbitMatrix, project, multiply, rotationY, identity } from "./garment3d.mjs";
 import { VIEWBOX } from "./catalogue.mjs";
 
 const disc = (cx, cy, r) => (x, y) => (x - cx) ** 2 + (y - cy) ** 2 <= r * r;
@@ -70,4 +70,83 @@ test("smoothing keeps outside vertices at zero and never exceeds the maximum", (
   const raw = new Float32Array(g.v.length).map((_, k) => (g.v[k] ? (k % 2 ? 50 : 10) : 0));
   const s = smooth(raw, g.vcols, g.vrows, g.v);
   for (let k = 0; k < s.length; k++) { if (!g.v[k]) assert.equal(s[k], 0); assert.ok(s[k] <= 50 + 1e-6); }
+});
+
+import { dropArm, ARM } from "./garment3d.mjs";
+import { GARMENTS } from "./catalogue.mjs";
+
+test("armDrop 0 leaves positions as before; the body columns never move", () => {
+  assert.deepEqual(dropArm(250, 300, 0.4).slice(0, 2), [250, 300]);
+  assert.deepEqual(dropArm(250 + ARM.bodyHalf, 200, 0.4).slice(0, 2), [250 + ARM.bodyHalf, 200]);
+  const a = buildGarmentMesh(disc(cx, cy, 150), { cell: 6 }), b = buildGarmentMesh(disc(cx, cy, 150), { cell: 6, armDrop: 0 });
+  assert.deepEqual(Array.from(a.positions), Array.from(b.positions));
+});
+
+test("arms swing down and in, mirrored left and right, by the full angle at the sleeve end", () => {
+  const r = dropArm(470, 260, 0.4), l = dropArm(30, 260, 0.4);
+  assert.ok(r[1] > 260 && r[0] < 470, "right sleeve end drops and moves toward the body");
+  assert.ok(Math.abs((r[0] - 250) + (l[0] - 250)) < 1e-9 && Math.abs(r[1] - l[1]) < 1e-9, "mirror images");
+  // hand check: rotating (82, 198) about the shoulder by 0.4 rad (full weight at 220 from centre)
+  const c = Math.cos(0.4), s = Math.sin(0.4);
+  assert.ok(Math.abs(r[0] - (250 + 138 + 82 * c - 198 * s)) < 1e-9 && Math.abs(r[1] - (62 + 82 * s + 198 * c)) < 1e-9);
+  assert.equal(r[2], 0.4);
+});
+
+test("a long-sleeve mesh with dropped arms stays valid, uvs unchanged, and keeps the torso", async () => {
+  const outline = GARMENTS.longsleeve.outline.front;
+  const inside = (x, y) => { // the outline as a polygon, via its straight segments only
+    const pts = [...outline.matchAll(/(-?\d+) (-?\d+)/g)].map(m => [+m[1], +m[2]]);
+    let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const [xi, yi] = pts[i], [xj, yj] = pts[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+    } return c;
+  };
+  const flat = buildGarmentMesh(inside), hung = buildGarmentMesh(inside, { armDrop: 0.35 });
+  assert.equal(hung.indices.length, flat.indices.length);
+  assert.deepEqual(Array.from(hung.uvs), Array.from(flat.uvs));
+  let moved = 0, torsoMoved = 0;
+  for (let k = 0; k < flat.positions.length; k += 3) {
+    assert.ok(Number.isFinite(hung.positions[k]) && Number.isFinite(hung.positions[k + 1]));
+    const d = Math.hypot(hung.positions[k] - flat.positions[k], hung.positions[k + 1] - flat.positions[k + 1]);
+    if (d > 1e-6) moved++;
+    if (Math.abs(flat.positions[k]) < ARM.bodyHalf - 1 && d > 1e-6) torsoMoved++;
+  }
+  assert.ok(moved > 100 && torsoMoved === 0, `${moved} moved, ${torsoMoved} torso`);
+  for (let k = 0; k < hung.normals.length; k += 3) assert.ok(Math.abs(Math.hypot(hung.normals[k], hung.normals[k + 1], hung.normals[k + 2]) - 1) < 1e-4);
+});
+
+test("sleeve tubes: a flat band beyond the body gets a round section as deep as it is wide", () => {
+  const band = (x, y) => Math.abs(y - cy) <= 30 && Math.abs(x - ARM.centre) <= 240;
+  const g = maskGrid(band, { cell: 3 });
+  const d = edgeDistance(g);
+  const zs = new Float32Array(g.v.length);
+  const deepest = sleeveTubes(zs, d, g);
+  assert.ok(deepest > 26 && deepest < 34, `sleeve depth ${deepest} for a 30-unit half-width`);
+  const mid = Math.round((cy - VIEWBOX.y) / 3) * g.vcols + Math.round((ARM.centre - VIEWBOX.x) / 3);
+  assert.equal(zs[mid], 0);
+});
+
+test("buildGarmentMesh works with tubes off and on", () => {
+  for (const tubes of [false, true]) {
+    const m = buildGarmentMesh(disc(cx, cy, 200), { cell: 8, tubes, armDrop: 0.3 });
+    for (const i of m.indices) assert.ok(i < m.vertexCount);
+    for (const x of m.positions) assert.ok(Number.isFinite(x));
+  }
+});
+
+test("xrModelMatrix puts the garment's middle in front of the wearer at height", async () => {
+  const { xrModelMatrix, multiply, identity } = await import("./garment3d.mjs");
+  const m = xrModelMatrix({ yaw: 0, scale: 0.001, height: 1.3, distance: 1 });
+  const at = (mm, [x, y, z]) => [0, 1, 2].map(r => mm[r] * x + mm[4 + r] * y + mm[8 + r] * z + mm[12 + r]);
+  const [cx, cy, cz] = at(m, [0, 0, 0]);
+  assert.ok(Math.abs(cx) < 1e-6 && Math.abs(cy - 1.3) < 1e-6 && Math.abs(cz + 1) < 1e-6);
+  // a point 260 units (about half a chest) to the right is 0.26 m right of centre
+  const [rx] = at(m, [260, 0, 0]);
+  assert.ok(Math.abs(rx - 0.26) < 1e-6);
+  // a quarter turn swings that point from x to depth
+  const q = xrModelMatrix({ yaw: Math.PI / 2, scale: 0.001, height: 0, distance: 0 });
+  const [qx, , qz] = at(q, [1000, 0, 0]);
+  assert.ok(Math.abs(qx) < 1e-5 && Math.abs(Math.abs(qz) - 1) < 1e-5);
+  // an identity view and projection leave the model matrix as is
+  assert.deepEqual(Array.from(multiply(identity(), m)), Array.from(m));
 });

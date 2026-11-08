@@ -161,7 +161,7 @@
       $("#pt tbody").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.product)}</td><td class="n">${money2(x.groceryOnly)}</td><td class="n">${money2(x.costPerUnit)}</td><td class="n">${money2(x.prices.online)}</td><td class="n">${money2(x.prices.market)}</td><td class="n">${money2(x.prices.wholesale)}</td><td class="n">${money2(x.shelfPrice)}</td><td class="n">${x.price === null ? "—" : money2(x.price)}</td><td class="n">${x.earnedPerHour == null ? "—" : money2(x.earnedPerHour)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

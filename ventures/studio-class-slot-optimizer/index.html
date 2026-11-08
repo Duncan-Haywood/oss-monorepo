@@ -165,7 +165,7 @@
       $("#slots tbody").innerHTML = r.rows.map((s) => `<tr><td>${esc(s.slot)}</td><td class="n">${s.classes}</td><td class="n">${s.adjMean.toFixed(1)}</td><td class="n">${pct(s.fill, 0)}</td><td class="n">${money(s.perClass)}</td><td class="n">${money(s.cutGain)} (${money(s.cutGainRange80[0])} to ${money(s.cutGainRange80[1])})</td><td><span class="pill ${s.verdict === "cut or move" ? "high" : s.verdict === "watch" ? "medium" : s.verdict === "keep" ? "good" : "info"}">${esc(s.verdict)}</span></td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

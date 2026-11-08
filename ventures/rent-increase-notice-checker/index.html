@@ -169,7 +169,7 @@
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill high">${f.severity}</span>${esc(f.title)}</h4></div>`).join("");
       report.hidden = false;
       status.textContent = `${s.ok} of ${s.units} units can go out.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

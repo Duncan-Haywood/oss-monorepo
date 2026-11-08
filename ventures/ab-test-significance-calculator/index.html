@@ -222,7 +222,7 @@
       $("#methods tbody").innerHTML = rows.map(([m, v, n]) => `<tr><td>${esc(m)}</td><td class="n">${esc(v)}</td><td>${esc(n)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

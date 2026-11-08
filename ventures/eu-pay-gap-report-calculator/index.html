@@ -144,7 +144,7 @@
         : `<tr><th scope="row">${esc(c.category)}</th><td>${c.women}</td><td>${c.men}</td><td colspan="4">not comparable: one gender only</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Calculated from ${r.counts.women + r.counts.men} workers.` + (r.counts.skipped ? ` ${r.counts.skipped} unreadable row(s) skipped.` : "");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

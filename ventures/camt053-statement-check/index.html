@@ -165,7 +165,7 @@
       $("#download-fixed").disabled = !cleaned.changes.length;
       report.hidden = false;
       status.textContent = s.errors ? `Found ${s.errors} error(s) in ${s.transactions} entr${s.transactions === 1 ? "y" : "ies"}.` : `No errors in ${s.transactions} entr${s.transactions === 1 ? "y" : "ies"}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

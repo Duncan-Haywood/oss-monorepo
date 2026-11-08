@@ -6,7 +6,7 @@
  */
 import { GARMENTS, VIEWBOX } from "./catalogue.mjs";
 import { renderDesign } from "./render.mjs";
-import { buildGarmentMesh, orbitMatrix, rotationMatrix } from "./garment3d.mjs";
+import { buildGarmentMesh, orbitMatrix, rotationMatrix, multiply, xrModelMatrix } from "./garment3d.mjs";
 
 const VS = `attribute vec3 p; attribute vec3 n; attribute vec2 t;
 uniform mat4 mvp; uniform mat4 rot; varying vec2 vt; varying vec3 vn;
@@ -73,7 +73,7 @@ export function mountViewer(host, { size = 1024 } = {}) {
     if (meshKey === garmentId) return;
     meshKey = garmentId;
     const path = new Path2D(GARMENTS[garmentId].outline.front);
-    const m = buildGarmentMesh((x, y) => mask.isPointInPath(path, x, y));
+    const m = buildGarmentMesh((x, y) => mask.isPointInPath(path, x, y), { armDrop: 0.3 });
     upload("p", m.positions); upload("n", m.normals); upload("t", m.uvs);
     upload("i", m.indices, gl.ELEMENT_ARRAY_BUFFER);
     count = m.indices.length; frontCount = m.frontCount; state.triangles = m.triangleCount;
@@ -92,13 +92,16 @@ export function mountViewer(host, { size = 1024 } = {}) {
   }
 
   function draw() {
-    if (!state.ready) return;
+    if (!state.ready || state.xr) return;
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.957, 0.945, 0.918, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);
     const mvp = orbitMatrix({ yaw: state.yaw, pitch: state.pitch, distance: state.distance, aspect: canvas.width / canvas.height });
+    drawMesh(mvp, rotationMatrix(state.yaw, state.pitch));
+  }
+  function drawMesh(mvp, rot) {
+    gl.enable(gl.DEPTH_TEST);
     gl.uniformMatrix4fv(U("mvp"), false, mvp);
-    gl.uniformMatrix4fv(U("rot"), false, rotationMatrix(state.yaw, state.pitch));
+    gl.uniformMatrix4fv(U("rot"), false, rot);
     gl.bindBuffer(gl.ARRAY_BUFFER, bufs.p); gl.enableVertexAttribArray(loc.p); gl.vertexAttribPointer(loc.p, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, bufs.n); gl.enableVertexAttribArray(loc.n); gl.vertexAttribPointer(loc.n, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, bufs.t); gl.enableVertexAttribArray(loc.t); gl.vertexAttribPointer(loc.t, 2, gl.FLOAT, false, 0, 0);
@@ -113,6 +116,40 @@ export function mountViewer(host, { size = 1024 } = {}) {
   }
   const ext = gl.getExtension("OES_element_index_uint");
   if (!ext) { host.textContent = "This browser's WebGL cannot draw the garment mesh; the flat turntable still works."; return { setDesign() {}, spin() {}, dispose() {}, state }; }
+
+  // Headset: an immersive-vr session draws the same mesh once per eye, life-size
+  // (about 1 mm per drawing unit), 1 m ahead at chest height. Untested on a real
+  // headset; it needs a WebXR browser (Quest Browser, or desktop Chrome with a runtime).
+  let xrSession = null;
+  async function enterVR() {
+    if (!navigator.xr || !state.ready) return false;
+    if (!(await navigator.xr.isSessionSupported("immersive-vr"))) return false;
+    await gl.makeXRCompatible();
+    xrSession = await navigator.xr.requestSession("immersive-vr", { optionalFeatures: ["local-floor"] });
+    let space;
+    try { space = await xrSession.requestReferenceSpace("local-floor"); }
+    catch { space = await xrSession.requestReferenceSpace("local"); }
+    xrSession.updateRenderState({ baseLayer: new XRWebGLLayer(xrSession, gl) });
+    state.xr = true;
+    const model = () => xrModelMatrix({ yaw: state.yaw });
+    const frame = (t, f) => {
+      if (!xrSession) return;
+      xrSession.requestAnimationFrame(frame);
+      const pose = f.getViewerPose(space); if (!pose) return;
+      const layer = xrSession.renderState.baseLayer;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, layer.framebuffer);
+      gl.clearColor(0.957, 0.945, 0.918, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      const m = model();
+      for (const v of pose.views) {
+        const vp = layer.getViewport(v); gl.viewport(vp.x, vp.y, vp.width, vp.height);
+        drawMesh(multiply(v.projectionMatrix, multiply(v.transform.inverse.matrix, m)), rotationMatrix(state.yaw, 0));
+      }
+    };
+    xrSession.addEventListener("end", () => { xrSession = null; state.xr = false; gl.bindFramebuffer(gl.FRAMEBUFFER, null); draw(); });
+    xrSession.requestAnimationFrame(frame);
+    return true;
+  }
+  const vrSupported = async () => !!navigator.xr && await navigator.xr.isSessionSupported("immersive-vr").catch(() => false);
 
   // drag / wheel / keys
   let drag = null, raf = 0, timer = null;
@@ -132,8 +169,8 @@ export function mountViewer(host, { size = 1024 } = {}) {
     if (!k) return; e.preventDefault(); state.yaw += k[0]; state.pitch = Math.max(-0.6, Math.min(0.6, state.pitch + k[1])); redraw();
   });
   return {
-    setDesign, state, draw,
+    setDesign, state, draw, enterVR, vrSupported,
     spin(on) { clearInterval(timer); timer = on ? setInterval(() => { state.yaw += 0.05; draw(); }, 40) : null; },
-    dispose() { clearInterval(timer); cancelAnimationFrame(raf); },
+    dispose() { clearInterval(timer); cancelAnimationFrame(raf); xrSession?.end(); },
   };
 }

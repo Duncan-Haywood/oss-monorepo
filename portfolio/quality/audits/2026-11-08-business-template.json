@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-08",
+  "subject": "platform/business-template",
+  "stratum": "platform",
+  "seed": "2026-11-08",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior platform/web engineer who has shipped repo scaffolding and CI for agent-run projects, plus a small-business bookkeeper for the ledger tool",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `python3 -m unittest discover -s platform/business-template`: 11 tests OK. Generated a repo with `new_business.py --type local-service` into scratch: placeholders filled, ops/check.py 'ok', route.py routes to intake. Recomputed independently (by hand): (1) a 9-posting ledger with equity, sales tax liability and two months: Nov P&L Income 200.00, Hosting 19.99, net 180.01 matches `books.py pnl --month 2026-11`; (2) bank balance 1000+240.50-19.99-50 = 1170.51 matches `books.py balance`; (3) router weights: 20000 seeded draws at launch stage gave marketing 0.400, sales 0.194, product 0.154, finance 0.105, review 0.050 against configured 0.40/0.20/0.15/0.10/0.05 (within sampling error). All matched. Shown only with Decimal arithmetic, so no float drift. Departure: P&L prints expenses as negative numbers and `Net profit` as a plain sum; right but non-conventional.",
+    "completeness": "Claimed features checked by running: generator for all 5 presets (test passes each, including the generated repo's own check and ops tests); `--answer` with unknown id rejected (exit 2); non-empty dir refused; --interactive (mocked tests); route.py intake/review/--skip/--function; record.py writes ops/runs/*.json; books.py check/pnl/balance; check.py duplicate owner ids, bad weights, open questions past intake. Not mechanised, only instructed in prompts: 24-hour/3-run default-fill of intake questions, the intake GitHub issue, ops/reviews/ (directory not shipped; created by the review run). SETUP.md tells users to configure `.claude/settings.json` but ships none. README says MIT but the generated repo ships no LICENSE. No stubs/TODOs found.",
+    "verification": "Test command above: 11 OK. Seeded mutation 1: removed the month filter in template/ops/books.py pnl (`if month and not ...startswith(month)` replaced by `if False:`): ALL 11 tests still passed, so a user-visible wrong P&L figure would ship. Reverted with git checkout. Seeded mutation 2: `runs_since_review(runs) >= every` to `> every` in template/ops/route.py: 5 failures, caught (via the generated repo's own test run). Also confirmed by probing that books.py check accepts garbage dates (`abcd-ef-gh`, `2026-13-45`) and blank txn ids with 0 problems, and no test covers either. Tests are strong on the generator and router, thin on books.py (4 tests, no month filter, no balance, no date validation, no CLI).",
+    "craft": "Read new_business.py, test_new_business.py, template/ops/{books,route,check,record,test_ops}.py, both workflows, presets/saas.json. Standard library only, type hints, Decimal for money, pure functions with injectable rng/root, clear docstrings, sensible exit codes, CI actions SHA-pinned in the repo workflow. Defects: date check is a length-and-dash heuristic, not a parse; blank txn ids group together and pass; placeholder scan in check.py trips on any user text containing `{{WORD}}` (an idea like 'uses {{FOO}} syntax' makes the generated repo's CI red with 'unfilled template placeholder'); claude-run.yml concurrency group is keyed on run_id so it never serialises runs, uses unpinned `@v1` actions with contents/PR/issues write; shutil.copytree plus in-place text rewrite is fine but slugify drops non-ASCII names to 'business'. Minor duplication of FUNCTIONS list between check.py and route/brief files.",
+    "claims": "Each README claim traced: prompt.md, ops/route.py, functions/*.md (8 briefs), BUSINESS.md, OWNER.md, GUARDRAILS.md, ops/books.py, ops/check.py, ops/record.py all exist and do what the table says (check.py does the listed checks, verified by running). 'Open source (MIT), standard-library Python' true for code; no LICENSE file in the template or generated repo (low). 'Payment code ships off' is an instruction in GUARDRAILS.md, not enforced by code (the template ships no payment code). Limits section is honest about legal/finance being drafts and about cost. 'Generates a repository for every preset and runs its check and tests' backed by test and by business-template-ci.yml. No evidence offered that hourly runs actually produce a working business; README does not claim one.",
+    "fitness": "Walked the job: a venture author runs the one-line generator, gets a repo with CI, router, owner checklist and books in under 3 seconds, and SETUP.md gives three scheduling routes. Good for bootstrapping. Gaps: the real work is delegated to prompts the template cannot verify (intake fallback, review, stage moves, collision avoidance via open-PR scan are all honour-system); no end-to-end evidence of a business produced by it; no site/product scaffold (`site/` is created by a run); no secret-handling or Claude permission config shipped; books tool lacks reconciliation, opening balances and any tax handling, so a venture still needs an accountant's tooling to close a period. Usable as a starting point, not as something that reliably ships a product.",
+    "domain": "Compared against plain-text accounting practice (ledger/beancount: valid dates, per-transaction balance, trial balance, account declarations) and standard GitHub Actions hardening. books.py has per-txn/per-currency balance, source-document requirement and Decimal, which is good. Departures a bookkeeper would flag in the first hour: invalid dates accepted, blank txn ids merge unrelated postings, no trial-balance/accounting-equation report, month P&L untested, expense sign shown negative. A platform engineer would flag unpinned actions and a non-functional concurrency group in a write-permission workflow that can spend paid API budget, though the schedule ships commented out and the guardrails keep the owner in control of money, which is the right design. Safe-by-default choices (schedule off, private repo advice, secrets never in files) are what a reviewer would sign off."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "books.py pnl month filter is untested: removing it leaves all 11 tests green, so a wrong monthly P&L would ship",
+      "where": "platform/business-template/template/ops/test_ops.py (BooksTest) / template/ops/books.py:80"
+    },
+    {
+      "severity": "medium",
+      "what": "books.py check accepts invalid dates ('abcd-ef-gh', '2026-13-45') and blank txn ids (unrelated postings merge into one balanced transaction); verified with a 4-row ledger reporting 0 problems",
+      "where": "platform/business-template/template/ops/books.py:55-60"
+    },
+    {
+      "severity": "medium",
+      "what": "check.py flags any user text containing {{UPPER_WORD}} as an unfilled placeholder, so an idea or answer with that syntax makes the generated repo's CI fail",
+      "where": "platform/business-template/template/ops/check.py:25,100-104"
+    },
+    {
+      "severity": "low",
+      "what": "claude-run.yml concurrency group uses github.run_id so it never serialises runs; actions/claude-code-action@v1 not SHA-pinned in a workflow with contents/PR/issues write",
+      "where": "platform/business-template/template/.github/workflows/claude-run.yml:15-17"
+    },
+    {
+      "severity": "low",
+      "what": "README says MIT but the generated repo ships no LICENSE; SETUP.md refers to .claude/settings.json that is not shipped; ops/reviews/ referenced but not created",
+      "where": "platform/business-template/template/SETUP.md:46,35,68"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A competent, honest, small scaffold: the generator, router, run-record and CI gate work end to end for all five presets, three independently recomputed outputs (ledger P&L, bank balance, router weight distribution) were right, and the README does not oversell. It does not meet the bar because verification is 2: a seeded bug in the monthly P&L filter survived every test, and the ledger validator accepts invalid dates and blank transaction ids. Fitness and domain are 2 because the autonomous-business behaviour rests on prompts nobody mechanically checks, and the books tool stops short of what a bookkeeper needs to close a month. Completeness is 3 (everything the README lists exists and runs; some behaviours are instructions only)."
+}

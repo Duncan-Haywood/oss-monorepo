@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-08",
+  "subject": "ventures/shift-roster-builder",
+  "stratum": "flagship",
+  "seed": "2026-11-08",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a payroll specialist who checks FLSA weekly and California daily overtime, rest-gap premiums and meal-break pay, together with a restaurant or retail operations manager who builds the weekly roster",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Round 2, independent of the round-1 cases. Fixtures written in the scratchpad, run through `node cli.mjs --hours|--rest-under|--from-sales`, each recomputed by hand first. (1) One person at $20, Mon-Fri 8am-5pm = 45 h: FLSA 40 h at 1x + 5 h at 1.5x = 800+150 = $950; tool 950.00, 5.00 OT h. (2) California-style week, `--daily-ot-after 8 --daily-dt-after 12`, daily hours Mon 10, Tue 13, Wed-Sat 8 each: straight 8+8+32 = 48, so 8 h move to weekly OT; straight 40, OT 2+4+8 = 14, DT 1: 40*20 + 14*30 + 1*40 = $1,260; tool 1260.00, 15.00 OT h (14 OT + 1 DT, as counted). (3) One 14 h day, 8/12 tiers: 8*20 + 4*30 + 2*40 = $360; tool 360.00. (4) `--meal-after 6 --meal-min 30`, five 8 h shifts at $20: 7.5 paid h each = $750; tool 750.00 (hours column still shows 40 scheduled, as documented). (5) `--ot-after 35 --ot-mult 2` on a 40 h week at $20: 700 + 5*40 = $900; tool 900.00. (6) 7 days x 8 h, $20: 40*20 + 16*30 = $1,280 with `--consec 7`; tool 1280.00; with the default `--consec 6` it builds 6 days, $1,040. (7) `--rest 8 --rest-under 11`, Mon 3pm-11pm then Tue 7am-3pm (8 h rest) then Wed 9am (18 h) at $25: one flagged turnaround, premium $25; tool listed exactly that pair, $25. (8) Optimiser: 3 staff ($20 cap 40, $30, $25 cap 16), 7 shifts totalling 55 h with a 10 h rest rule. By hand the cheapest legal cover is A takes Mon-Fri days (40 h, $800), C takes Mon evening + Sat (15 h, $375) = $1,175; `--balance 0` printed $1,175 with exactly that roster. At the default balance 25 it printed $1,370 (A 24 h, B 23 h, C 8 h), i.e. it pays $195 more to even out hours; that is the documented slider, but the report does not say how much payroll the balancing cost. (9) `--from-sales`: two Mondays of hourly sales (100/300/500/200 and x3), `--splh 100` => weekday-hour averages 200/600/1000/400 => heads 2/6/10/4 = 22 person-hours; tool said 22 needed, 22 scheduled and its shift lines stack to 2/6/10/4 per hour. All 9 matched. Departure found: an overnight shift is paid on its start day. Sat 8pm-6am (10 h) with `--daily-ot-after 8` printed $220 (8 h + 2 h OT); under a California midnight workday that is 4 h Sat + 6 h Sun, no daily OT, $200. README line 62 says 'A shift counts on the day it starts' for daily overtime but does not warn that this can overpay or misassign across midnight. Limits: I did not run eval/ilp-check.py.",
+    "completeness": "Full suite `cd ventures/shift-roster-builder && node --test *.test.mjs` (in the background): 265 tests, 265 pass, 0 fail, 659 s (round 1 saw 264 in 438 s; one test added by the 2026-11-08 sales work). Exercised end to end by me: roster build, `--hours`, `--csv`-style output, daily OT and double time, weekly threshold and multiplier, meal minutes, `--consec 7`, rest gaps and `--rest-under`, balance slider, exact-check message, `--from-sales` (demand.mjs, new 2026-11-08, with a page shifts-from-sales.html and page-sales.test.mjs), `--help` lists every flag in the README that I spot-checked. Not individually run by me: server.mjs self-hosting, ICS, webhooks, PWA, the other static SEO pages (covered only by their passing tests). No stubs found in the paths I ran. sitemap.xml lists pages with relative `./` locs (`<loc>./index.html</loc>`), which crawlers do not accept as absolute URLs.",
+    "verification": "Test command as above, 265/265. Seeded mutation (on a COPY of the sources in the scratchpad, so the shared checkout was never edited; `git status` clean for the venture): calc.mjs:452 in `validList`, `s.start < maxEnd + restMin` changed to `... + restMin - 120` (rest rule relaxed by 2 h). `node --test calc.test.mjs cli.test.mjs`: 174 tests, 171 pass, 3 fail ('rest rule blocks a close followed by an open, and the reason says so'; two coverRepair tests). Caught, by three tests. I did not re-run round 1's weekly-overtime mutation (calc.mjs:497), which caught by 1 of 147 calc tests and 0 CLI tests, so that thinness is carried forward as unverified-fixed: no test change to cli.test.mjs targets it (git log shows no quality fix commit). Suite is slow (11 min) which makes it hard to run before each merge, but it is thorough on the rest and solver paths.",
+    "craft": "Read calc.mjs (parseStaff/parseShifts 205-345, payParts/payroll 470-520, validList 445-456), cli.mjs help and flow, demand.mjs header, llms.txt, sitemap.xml. Plain dependency-free ESM, pure functions, line-numbered parse errors. Defects: (a) calc.mjs is still one 2,900-line module (parsing, solver, bounds, payroll, ICS, trades). (b) The shifts parser still rejects `Mon 8am-5pm, 1` with only 'could not read the day \"Mon 8am-5pm\"' (calc.mjs:333 area), no hint to use commas; round 1 flagged this and it is unfixed. (c) sitemap.xml uses relative `./x.html` locs. (d) README.md is 79 KB with benchmark history ahead of manager instructions. (e) payParts buckets by start day (calc.mjs:480), with the midnight-crossing consequence above. Positive: sampleStaff/sampleShifts built in so `--example` works with no files.",
+    "claims": "Checked: disclaimers present in `--help` ('Planning aid, not legal advice'), index.html and the `--rest-under` output ('not a statement of what any scheduling law requires'); live URL in README and VENTURE.yaml is marisstella.app (backed by CLAUDE.md hosting section); the 'checked against an exact search' line is printed by the tool and my case 8 agreed with the optimum when balance was 0; 'overnight end at or before start runs overnight' (README:63) works; README states 'not priced' for 7th-day premium and the tool did not price it (case 6, 1,280 is plain OT). Not backed or stale: (a) llms.txt still links every page to https://duncan-haywood.github.io/oss-monorepo/shift-roster-builder/, the retired Pages address, and says nothing of the marisstella.app address; round 1 flagged this, unfixed. (b) README opener 'you can now build a week's schedule that nobody has to be moved around in ... used to be an hour of spreadsheet shuffling' is an outcome claim no file measures. (c) 'Checked against an exact search: no roster ... scores better by more than $0.50 of score' reads as a payroll claim to a manager but scores include the balance penalty (case 8: $1,370 shown vs $1,175 cheapest). (d) Daily-OT start-day bucketing is documented in the README but its midnight consequence is not stated.",
+    "fitness": "Job walked: a manager with a 3-person team writes staff and shifts files and gets a legal, costed roster with open shifts and reasons (`--example` and my cases); `--from-sales` turns an hourly sales export into shift lines, which I verified numerically. The roster respects the rest rule and hour caps, which is the Sunday-night job. Friction: comma-only shift format with an unhelpful error, an availability cell needed per person, default balance slider silently raising payroll by $195 on a small week, and no time clock or notifications (README says so). The server/self-hosting was not run by me.",
+    "domain": "Compared with FLSA 29 CFR 778 (weekly 1.5x after 40 h; the multiplier and threshold are configurable), California Labor Code 510 (daily 8/12 tiers; weekly OT on only the non-daily-OT hours: the tool does this correctly in case 2), meal-break unpaid minutes, and rest-gap premium arithmetic like Oregon or NYC fast-food rules (explicitly labelled arithmetic). Page presets for CA 8/12, Alaska 8 and Colorado 12 exist per README:62 (round 1 said none; that was wrong for the page, the CLI takes flags). Departures a payroll specialist would raise: workday is the shift start day rather than a configurable 24 h workday so overnight shifts across a daily-OT boundary can be mis-priced (case $220 vs $200); workweek fixed Monday-Sunday; seventh-consecutive-day premium flagged but not priced (stated); regular-rate effects of differentials are only a flat add-on; no meal/rest-break violation premiums. All stated or small for a planning aid, so a specialist would accept it with those limits."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Daily overtime and double time bucket an overnight shift on the day it starts. A Sat 8pm-6am shift with daily OT after 8 is priced $220 (2 h OT); a midnight-to-midnight California workday gives 4 h + 6 h and $200. README says 'a shift counts on the day it starts' but not that this can misprice overnight shifts.",
+      "where": "ventures/shift-roster-builder/calc.mjs:480-496"
+    },
+    {
+      "severity": "medium",
+      "what": "Round 1 defect not fixed: shifts parser rejects the natural 'Mon 8am-5pm' form with 'could not read the day' and no hint about the comma format.",
+      "where": "ventures/shift-roster-builder/calc.mjs:333"
+    },
+    {
+      "severity": "medium",
+      "what": "Round 1 defect not fixed and unverified: the weekly overtime threshold (calc.mjs:497) is guarded by one calc test and no CLI test (round 1 mutation). No new test was added.",
+      "where": "ventures/shift-roster-builder/calc.mjs:497"
+    },
+    {
+      "severity": "medium",
+      "what": "At the default balance 25 the roster costs $195 more than the cheapest legal roster on a 3-person week ($1,370 vs $1,175) and the report neither says so nor shows the balancing cost; the 'checked against an exact search' line is about a score, not payroll, and a manager will read it as payroll.",
+      "where": "ventures/shift-roster-builder/cli.mjs (report footer), calc.mjs scoring"
+    },
+    {
+      "severity": "low",
+      "what": "Round 1 defect not fixed: llms.txt links every page to the retired duncan-haywood.github.io address instead of https://marisstella.app/shift-roster-builder/.",
+      "where": "ventures/shift-roster-builder/llms.txt:9-11"
+    },
+    {
+      "severity": "low",
+      "what": "sitemap.xml has relative locs (`./index.html`), which are invalid for search engines (sitemaps need absolute URLs).",
+      "where": "ventures/shift-roster-builder/sitemap.xml"
+    },
+    {
+      "severity": "low",
+      "what": "calc.mjs is a 2,900-line single module and README.md is 79 KB with benchmark history ahead of manager instructions.",
+      "where": "ventures/shift-roster-builder/calc.mjs, README.md"
+    }
+  ],
+  "fix_prs": [
+    "llms.txt links moved to marisstella.app in the round-19 PR (score is before the fix)"
+  ],
+  "verdict": "Round 2 independently reproduces round 1's finding at the same level. Nine outputs I computed by hand matched the tool exactly (FLSA 45 h = $950, a California week with daily tiers and the weekly-on-straight-time-only rule = $1,260, a 14 h day = $360, meal minutes, a 35 h threshold at 2x, a seven-day week = $1,280, the rest-gap premium, the hand-derived cheapest cover of $1,175 at balance 0, and the sales-to-shifts conversion), and all 265 tests pass in 659 s. A seeded rest-rule mutation was caught by three tests. It stays below the bar on claims and craft: none of the round-1 defects (stale llms.txt, comma-format error, thin overtime test, monolith) was fixed in the 24 hours between audits, and I found three new issues, the most important being that daily overtime is bucketed by shift start day so an overnight shift can be mispriced by $20 on a 10 h night (not warned about), and that the default balance setting quietly costs $195 on a small week while the 'exact check' line reads as a payroll guarantee. Scores are essentially unchanged from round 1 (3/3/3/2/2/3/3); it does not meet the bar because claims is 2, and the arithmetic is the strongest part."
+}

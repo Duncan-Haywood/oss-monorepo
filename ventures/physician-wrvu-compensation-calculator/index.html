@@ -305,7 +305,7 @@
       if (compare) { renderCompare(compareOffers(collect("a"), collect("b"))); record("offers_compared"); }
       status.textContent = "";
       record("comp_estimated");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#compare-on").addEventListener("change", (e) => { $("#offer-b").hidden = !e.target.checked; });

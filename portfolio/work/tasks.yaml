@@ -170,3 +170,174 @@ tasks:
     hours: 40
     status: open
     added: 2026-11-03
+
+  # --- site-performance (owner, 2026-11-06) --------------------------------
+  # Baseline and reasoning: docs/reports/2026-11-06-site-performance-baseline.md.
+  - id: site-perf-baseline
+    direction: site-performance
+    title: Measure page weight across the built site and write the baseline
+    done_when: >-
+      platform/pages/page-weight.mjs with tests reports HTML size, gzip,
+      inline script and style per page and the share of files that run
+      Worker code; a report with the numbers from a build of main.
+    hours: 4
+    status: done
+    added: 2026-11-06
+    notes: Landed with this direction. No live numbers; the session's proxy blocks marisstella.app.
+
+  - id: site-perf-uptime-probe
+    direction: site-performance
+    title: Probe the live site on a schedule with no retries and keep the history in a file
+    done_when: >-
+      A script times status, time to first byte and total time for the front
+      page, /writing/, /research/, a tool page and a post, with no retries,
+      from a GitHub runner, every hour or so; it appends results to a file
+      (an artifact or a data branch, not main) and a reader prints uptime and
+      p50/p95 per path over a day and a week.
+    hours: 8
+    status: open
+    added: 2026-11-06
+    notes: >-
+      The scheduled workflow lives under .github/ (control plane), so it is its
+      own small PR that waits for the owner's approval. The script and its
+      tests can land first. It must not push commits to main.
+      2026-11-07: the script landed (platform/ci/site_probe.py, `probe` and
+      `report`, tests in test_site_probe.py) with an 80-minute run from a cloud
+      session in docs/reports/2026-11-07-live-site-measurements.md. Left: the
+      hourly workflow and its history store.
+
+  - id: site-perf-worker-budget
+    direction: site-performance
+    title: Confirm or rule out the free plan's 100,000 Worker requests a day as the downtime
+    done_when: >-
+      Per-day invocations and errors for both Workers over at least a week,
+      read from Cloudflare's analytics (GraphQL API or the dashboard), are
+      recorded in docs/reports/ with what they show.
+    hours: 3
+    status: open
+    added: 2026-11-06
+    blocked_on: >-
+      Analytics read access: the deploy token may lack it. The owner can read
+      Workers & Pages > the two Workers > Metrics instead.
+
+  - id: site-perf-paginate-indexes
+    direction: site-performance
+    title: Split /writing/ and /research/ into pages under 150 kB
+    done_when: >-
+      /writing/ (2,325 kB) and /research/ (1,441 kB) render a first page
+      under 150 kB with links to numbered pages or per-topic pages; every
+      post and project is still reachable in at most two clicks; sitemaps
+      and check.mjs pass; page-weight.mjs numbers before and after in the PR.
+    hours: 10
+    status: done
+    done: 2026-11-06
+    added: 2026-11-06
+    notes: >-
+      /writing/ done 2026-11-06 (2,325 kB to 113 kB: newest 50 posts, 49 numbered
+      pages of 58 kB, posts.json read by the finder on demand; writing.mjs,
+      PAGE_SIZE). /research/ done 2026-11-06 (1,441 kB to 142 kB: 2 cards a theme,
+      more-cards.json on search or "Show all"; research/_homepage/build.py).
+      Left: big topic pages (research/topics/twins/ 307 kB).
+
+  - id: site-perf-one-worker
+    direction: site-performance
+    title: Get the site under 20,000 files so one Worker serves it all as static assets
+    done_when: >-
+      The deployed site is under about 18,000 files (22,812 on 2026-11-06;
+      5,127 are share-card.png, 4,234 are .mjs), the shard Worker and the
+      run_worker_first paths are retired, and no page request runs code.
+    hours: 16
+    status: open
+    added: 2026-11-06
+    notes: >-
+      Options to weigh: one share card per section instead of per page, or
+      shared engine modules instead of per-venture .mjs copies. The
+      wrangler.toml and workflow parts may touch the control plane.
+
+  - id: site-perf-inline-script
+    direction: site-performance
+    title: Move large inline scripts on /guides/, /compare/ and the front page into cached files
+    done_when: >-
+      Inline script on /guides/ (285 kB), /compare/ (162 kB) and the front
+      page (89 kB) is under 20 kB each, the rest served as cacheable .js
+      files; the pages still work (Playwright load, no console errors).
+    hours: 6
+    status: open
+    added: 2026-11-06
+
+  - id: site-perf-budget-check
+    direction: site-performance
+    title: Fail a PR run that adds an HTML page over the weight budget
+    done_when: >-
+      After the heavy pages are fixed, the Portfolio Pages PR run runs
+      page-weight.mjs --strict (a hygiene check: fatal on PRs, warn on
+      deploys, as check.mjs does), with a short allowlist for exceptions.
+    hours: 3
+    status: open
+    added: 2026-11-06
+    blocked_on: site-perf-paginate-indexes and site-perf-inline-script
+
+  # Added 2026-11-07 from live measurements:
+  # docs/reports/2026-11-07-live-site-measurements.md.
+  - id: site-perf-modulepreload
+    direction: site-performance
+    title: List each tool page's static import graph as modulepreload links
+    done_when: >-
+      The build adds <link rel="modulepreload"> for every module a page
+      statically imports when its import chain is two or more levels deep
+      (platform/pages/preload.mjs, tests); a tool page loads with no console
+      errors; before and after load times in the report.
+    hours: 4
+    status: done
+    added: 2026-11-07
+    notes: Landed with the live measurements report.
+
+  - id: site-perf-asset-cache-headers
+    direction: site-performance
+    title: Give images and fonts a cache lifetime instead of max-age=0
+    done_when: >-
+      Fonts, share cards and other images are served with a lifetime of a day
+      or more (a `_headers` rule written by split.mjs for both Workers), shown
+      by a live `curl -I`; HTML, CSS and modules keep must-revalidate until
+      their URLs carry a content hash (next task).
+    hours: 2
+    status: open
+    added: 2026-11-07
+    notes: >-
+      Every file on the site, CSS and icons included, answers
+      `cache-control: public, max-age=0, must-revalidate` (checked
+      2026-11-07), so a repeat visit revalidates each one. Images and fonts
+      are safe to cache: a stale one never breaks a page.
+
+  - id: site-perf-hashed-modules
+    direction: site-performance
+    title: Serve tool modules and shared CSS/JS under content-hashed URLs with a year's cache
+    done_when: >-
+      Module and stylesheet URLs carry a content hash (in the file name or a
+      ?v= query rewritten in every importer), those files are served
+      `immutable` for a year, HTML stays must-revalidate, and a warm visit to
+      a tool page makes no module requests.
+    hours: 12
+    status: open
+    added: 2026-11-07
+    notes: >-
+      Long caching without hashed URLs is unsafe: new HTML importing an old
+      cached engine.mjs that lacks a new export fails the whole module graph.
+
+  - id: site-perf-sw-cache-churn
+    direction: site-performance
+    title: Stop every deploy from wiping each visitor's offline cache
+    done_when: >-
+      The service worker's cache is keyed so that a deploy which changes only
+      blog posts or research pages does not invalidate the cached tool pages
+      (for example, per-file revalidation or a hash of the tool files only),
+      and navigations do not show a page from the previous build after a
+      deploy; tests in offline.test.mjs.
+    hours: 8
+    status: open
+    added: 2026-11-07
+    notes: >-
+      offlineCacheName hashes every file in the build, and the site deploys
+      about every ten minutes (baseline report, finding 3), so the cache
+      that should make repeat visits instant is replaced on almost every
+      visit, and its cache-first navigations serve the last build first.

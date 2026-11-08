@@ -151,6 +151,19 @@ test("a DXF floor plan goes straight to a takeoff, or to plan JSON with --plan-o
   assert.equal(run(["house.dxf"], g(0, "EOF")).code, 2);
 });
 
+test("--stack takes a drawing as a floor, as the first file does, and a missing file stops it", () => {
+  const g = (c, v) => `${c}\n${v}\n`;
+  const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
+  const box = (w, d) => g(0, "SECTION") + g(2, "ENTITIES") + L("WALL", 0, 0, w, 0) + L("WALL", w, 0, w, d) + L("WALL", w, d, 0, d) + L("WALL", 0, d, 0, 0) + g(0, "ENDSEC");
+  const files = { "a.dxf": box(480, 336), "b.dxf": box(360, 240) };
+  const rd = (p) => { if (!(p in files)) throw new Error(`no file ${p}`); return files[p]; };
+  const r = main(["a.dxf", "--stack=b.dxf"], rd);
+  assert.equal(r.code, 0);
+  assert.match(r.out, /Stacked 2 floors into one order \(a: 4 walls, b: 4 walls\)/);
+  assert.match(r.out, /8 walls/);
+  assert.equal(main(["a.dxf", "--stack=missing.dxf"], rd).code, 2);
+});
+
 test("--wall-layer reads a drawing whose layers are not named like wall", () => {
   const g = (c, v) => `${c}\n${v}\n`;
   const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
@@ -418,4 +431,178 @@ test("--flooring adds finish flooring orders", () => {
   const bad = run(["p.json", "--flooring"], { ...samplePlan(), flooring: { rooms: [] } });
   assert.equal(bad.code, 1);
   assert.match(bad.out, /flooring has problems/);
+});
+
+test("--orders prints order-by dates and flags late items against a given day", () => {
+  const plan = { ...samplePlan(), schedule: { start: "2026-03-02", activities: [{ id: "a", name: "Slab", days: 3 }, { id: "b", name: "Framing", days: 5, after: ["a"] }], orders: [{ item: "Trusses", for: "b", leadDays: 28 }] } };
+  const ok = run(["plan.json", "--orders=2026-03-01"], plan);
+  assert.equal(ok.code, 0);
+  assert.match(ok.out, /Trusses.*LATE by/);
+  assert.match(run(["plan.json", "--orders", "--csv"], plan).out, /^order_by,item/);
+  const bad = run(["plan.json", "--orders"], { ...plan, schedule: { ...plan.schedule, orders: undefined } });
+  assert.equal(bad.code, 1);
+});
+
+test("--json: a refusal prints {ok:false, errors} on stdout, keeps the exit code and the text on stderr", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { fileURLToPath } = await import("node:url");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const dir = mkdtempSync(join(tmpdir(), "wft-"));
+  const ex = spawnSync("node", [fileURLToPath(new URL("./cli.mjs", import.meta.url)), "--example"], { encoding: "utf8" });
+  writeFileSync(join(dir, "p.json"), ex.stdout);
+  const r = spawnSync("node", [fileURLToPath(new URL("./cli.mjs", import.meta.url)), join(dir, "p.json"), "--roof", "--json"], { encoding: "utf8" });
+  assert.equal(r.status, 2);
+  const j = JSON.parse(r.stdout);
+  assert.equal(j.ok, false);
+  assert.equal(j.code, 2);
+  assert.ok(j.errors[0].includes("no `roof` object"));
+  assert.ok(r.stderr.includes("no `roof` object"));
+  const good = spawnSync("node", [fileURLToPath(new URL("./cli.mjs", import.meta.url)), join(dir, "p.json"), "--json"], { encoding: "utf8" });
+  assert.equal(good.status, 0);
+  assert.ok(JSON.parse(good.stdout).walls);
+});
+
+test("--add-board adds a longer board so a plate longer than 16 ft can be ordered", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "Long", length: 300, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 40, width: 189, height: 82.5, header: "2x10" }] }];
+  const read = () => JSON.stringify(plan);
+  const without = main(["plan.json"], read);
+  // Since 2026-11-07 the plates may splice over the header, so the 16 ft default now orders this wall too, with a note.
+  assert.equal(without.code, 0, without.out);
+  assert.match(without.out, /over a header/);
+  const r = main(["plan.json", "--add-board=2x4:20ft"], read);
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /Added a 2x4 20' 0" board at 20, priced per foot/);
+  assert.match(r.out, /20' 0"/);
+  const priced = main(["plan.json", "--add-board=2x4:240in:31.5"], read);
+  assert.match(priced.out, /Added a 2x4 20' 0" board at 31.5\./);
+});
+
+test("--add-board refuses a malformed board and an unpriced size it cannot price from", () => {
+  const read = () => JSON.stringify(samplePlan());
+  for (const bad of ["--add-board=2x4", "--add-board=2x4:zzz", "--add-board=2x4:20ft:abc", "--add-board=2x4:20ft:1:2", "--add-board=2x4:2000ft"]) {
+    const r = main(["plan.json", bad], read);
+    assert.equal(r.code, 1, bad);
+    assert.match(r.out, /is not SIZE:LENGTH\[:PRICE\]/);
+  }
+  const r = main(["plan.json", "--add-board=4x4:12ft"], read);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /no 4x4 on the lumber list to price from/);
+});
+
+test("--paver adds the paver takeoff from the plan's paver object", () => {
+  const plan = { ...samplePlan(), paver: { areas: [{ width: 10, length: 10 }] } };
+  const { code, out } = main(["p.json", "--paver"], () => JSON.stringify(plan));
+  assert.equal(code, 0);
+  assert.match(out, /PAVERS/);
+  assert.match(out, /100\.00 sq ft/);
+  const none = main(["p.json", "--paver"], () => JSON.stringify(samplePlan()));
+  assert.equal(none.code, 2);
+  const bad = main(["p.json", "--paver"], () => JSON.stringify({ ...samplePlan(), paver: { areas: [] } }));
+  assert.equal(bad.code, 1);
+  assert.match(bad.out, /pavers have problems/i);
+});
+
+test("--skip-refused frames the good walls and lists the refused one", () => {
+  const plan = samplePlan();
+  plan.walls = [
+    { id: "Good", length: 192, stud: "2x4", openings: [] },
+    { id: "Bad", length: 120, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 0, width: 36, height: 82.5, header: "2x6" }] },
+  ];
+  const read = () => JSON.stringify(plan);
+  const stop = main(["plan.json"], read);
+  assert.equal(stop.code, 1);
+  const r = main(["plan.json", "--skip-refused"], read);
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /SKIPPED 1 WALL/);
+  assert.match(r.out, /Wall Bad: .*king studs/);
+  assert.doesNotMatch(r.out, /Wall Good: /);
+  plan.walls = [plan.walls[1]];
+  const all = main(["plan.json", "--skip-refused"], read);
+  assert.equal(all.code, 1);
+  assert.match(all.out, /Every wall was refused/);
+});
+
+test("--skip-refused does not refuse a wall only because the wall it tees into was skipped", () => {
+  const plan = samplePlan();
+  plan.walls = [
+    { id: "Through", length: 192, stud: "2x4", tees: [96], openings: [{ kind: "door", label: "D", offset: 0, width: 36, height: 82.5, header: "2x6" }] },
+    { id: "Stub", length: 96, stud: "2x4", tee: { wall: "Through", at: 96 }, openings: [] },
+  ];
+  const r = main(["plan.json", "--skip-refused"], () => JSON.stringify(plan));
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /SKIPPED 1 WALL/);
+  assert.match(r.out, /Wall Stub: its tee lap onto skipped wall Through was dropped/);
+  assert.doesNotMatch(r.out, /- Wall Stub: /);
+});
+
+test("--shallow-headers swaps a header too deep for the plates and notes it", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "Tall", length: 192, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 48, width: 36, height: 85.5, headerHeight: 85.5, header: "2x10" }] }];
+  const read = () => JSON.stringify(plan);
+  const stop = main(["plan.json"], read);
+  assert.equal(stop.code, 1);
+  assert.match(stop.out, /too tall/);
+  const r = main(["plan.json", "--shallow-headers"], read);
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /Note: Wall Tall, D: 2x10 header is .* too deep .* 2x\d+ \(/);
+  const none = main(["plan.json", "--shallow-headers"], () => JSON.stringify({ ...plan, walls: [{ ...plan.walls[0], openings: [{ ...plan.walls[0].openings[0], headerHeight: 91, height: 91 }] }] }));
+  assert.equal(none.code, 1);
+  assert.match(none.out, /nothing on the lumber list fits|too tall/);
+  const trimmed = main(["plan.json", "--shallow-headers", "--trim-openings"], () => JSON.stringify({ ...plan, walls: [{ ...plan.walls[0], openings: [{ ...plan.walls[0].openings[0], headerHeight: 91, height: 91 }] }] }));
+  assert.equal(trimmed.code, 0, trimmed.out);
+  assert.match(trimmed.out, /Note: Wall Tall, D: the opening is .* in taller than the room/);
+});
+
+test("--trim-openings lowers a door sitting on a threshold to the floor and leaves a raised one refused", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "Tall", length: 192, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 48, width: 36, height: 80, headerHeight: 80, header: "2x6" }] }];
+  const door = plan.walls[0].openings[0];
+  const withDoor = (o) => () => JSON.stringify({ ...plan, walls: [{ ...plan.walls[0], openings: [{ ...door, ...o }] }] });
+  const h = 82;
+  const low = main(["plan.json", "--shallow-headers", "--trim-openings"], withDoor({ headerHeight: h, height: h - 1.5 - 1.625 }));
+  assert.equal(low.code, 0, low.out);
+  assert.match(low.out, /door bottom is 1\.63 in above the floor/);
+  const raised = main(["plan.json", "--shallow-headers", "--trim-openings"], withDoor({ headerHeight: h, height: h - 1.5 - 39 }));
+  assert.equal(raised.code, 1);
+  assert.match(raised.out, /should reach the floor/);
+});
+
+test("--doors-to-floor frames a raised door down to the floor, keeping the leaf, and notes it", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "Tall", length: 192, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 48, width: 36, height: 80, headerHeight: 80 + 1.5 + 39, header: "2x6" }] }];
+  const read = () => JSON.stringify(plan);
+  const off = main(["plan.json", "--skip-refused"], read);
+  assert.match(off.out, /should reach the floor/);
+  const on = main(["plan.json", "--doors-to-floor"], read);
+  assert.equal(on.code, 0, on.out);
+  assert.match(on.out, /door bottom is 39\.00 in above the floor/);
+});
+
+test("--whole-house equals the four flags it stands for", () => {
+  const plan = samplePlan();
+  plan.walls = [
+    { id: "Good", length: 192, stud: "2x4", openings: [] },
+    { id: "Bad", length: 120, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 0, width: 36, height: 82.5, header: "2x6" }] },
+  ];
+  const read = () => JSON.stringify(plan);
+  const a = main(["plan.json", "--whole-house"], read);
+  const b = main(["plan.json", "--skip-refused", "--doors-to-floor", "--shallow-headers", "--trim-openings"], read);
+  assert.equal(a.code, b.code);
+  assert.equal(a.out, b.out);
+  assert.match(a.out, /SKIPPED 1 WALL/);
+});
+
+test("--fixed-plan prints the plan after --skip-refused, without the refused wall, and stops", () => {
+  const plan = samplePlan();
+  plan.walls = [
+    { id: "Good", length: 192, stud: "2x4", openings: [] },
+    { id: "Bad", length: 120, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 0, width: 36, height: 82.5, header: "2x6" }] },
+  ];
+  const r = main(["plan.json", "--skip-refused", "--fixed-plan"], () => JSON.stringify(plan));
+  assert.equal(r.code, 0, r.out);
+  const out = JSON.parse(r.out);
+  assert.deepEqual(out.walls.map((w) => w.id), ["Good"]);
 });

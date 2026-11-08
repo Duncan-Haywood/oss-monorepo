@@ -47,6 +47,7 @@
   <header>
     <p class="note">INHERITED IRA 10-YEAR RULE · 2026 BRACKETS · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>How much should you take from an inherited IRA each year?</h1>
+    <p class="answer-source" data-answer-lead>A non-spouse heir who is not an eligible designated beneficiary must empty an inherited IRA by December 31 of the 10th year after the owner's death, and if the owner had already reached their required beginning date, must also take a yearly minimum in years 1 to 9, with a 25% excise tax (10% if corrected within two years) on any shortfall. Source: IRC section 401(a)(9)(H) and section 4974, as described in IRS Publication 590-B. As of 2026-11-08.</p>
     <p>Most non-spouse heirs must empty an inherited IRA within 10 years. Enter the balance and your other income
     and get a <strong>year-by-year withdrawal plan at the lowest federal tax</strong>, compared with waiting until
     year 10 and with equal withdrawals, plus the yearly <strong>required minimum</strong> if the owner had already
@@ -173,7 +174,7 @@
       report.hidden = false;
       status.textContent = rmdRequired && !v("factor") ? `Used an approximate life-expectancy factor of ${approxLifeFactor(v("age"))} for age ${v("age")}; enter the exact IRS figure to be precise.` : "";
       record("plan_calculated");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", runCalculate);

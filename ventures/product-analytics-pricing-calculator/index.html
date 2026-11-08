@@ -41,7 +41,7 @@
     input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
     .row { display: flex; gap: 18px; flex-wrap: wrap; }
   </style>
-<style>/* mobile-overflow-guard */table{display:block;max-width:100%;overflow-x:auto}</style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
 </head>
 <body>
   <header>
@@ -150,7 +150,7 @@ node cli.mjs compare --events 30000000 --prices prices.json --json</pre>
       $("#estimate").textContent = `${PRICES_AS_OF}. Volume grows from ${vol.toLocaleString("en-US")} to ${proj.endVolume.toLocaleString("en-US")} over 12 months. Your numbers and editable prices; not a quote.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

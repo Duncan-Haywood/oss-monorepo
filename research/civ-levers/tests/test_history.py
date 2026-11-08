@@ -27,3 +27,14 @@ def test_zero_lags_reproduce_baseline():
 def test_lags_keep_equilibrium_without_instability():
     N = run(years=3000, m=0.0, me=0.0, rho=0.0, n0=0.4, lag=50, plag=50)[1]
     assert abs(N[-1] - 1.0) < 0.01
+
+
+def test_collapse_off_reproduces_baseline():
+    a = run(years=400, collapse_thr=None)[1]
+    assert (a == run(years=400)[1]).all() and run.collapses == []
+
+
+def test_collapse_fires_and_cuts_population():
+    N = run(years=1500, rho=0.12, m=0.05, k=4, g=8.0, collapse_thr=0.1)[1]
+    assert len(run.collapses) >= 1
+    assert all(b - a >= 50 for a, b in zip(run.collapses, run.collapses[1:]))

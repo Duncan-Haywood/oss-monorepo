@@ -149,7 +149,7 @@
       $("#hypo").innerHTML = r.hypo.map((h) => `<tr><th scope="row">${usd(h.amount)}</th><td>${h.mod.toFixed(3)}</td><td>${usd(h.perYear)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Estimated mod " + r.mod.toFixed(3) + ".";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

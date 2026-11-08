@@ -74,3 +74,39 @@ test("a wing at a different pitch is noted, not counted, in gutters", () => {
   assert.equal(g.runs, 2);
   assert.match(g.wingNotes[0], /own pitch/);
 });
+
+test("splash blocks: none by default, one per downspout when asked, priced", () => {
+  assert.equal(layoutGutters({ waste: 0 }, gable()).splashBlocks, 0);
+  const g = layoutGutters({ waste: 0, splashBlocks: true, splashBlockPrice: 6 }, gable());
+  assert.equal(g.splashBlocks, 4); // same 4 downspouts as the first test
+  assert.equal(g.cost, 24);
+  assert.ok(guttersText(g).join("\n").includes("4 splash blocks"));
+  assert.ok(validateGutters({ splashBlocks: "yes" }).length > 0);
+  assert.ok(validateGutters({ splashBlockPrice: -1 }).length > 0);
+});
+
+test("leaf guards: none by default, one section per gutter section when asked, priced", () => {
+  assert.equal(layoutGutters({ waste: 0 }, gable()).leafGuards, 0);
+  const base = layoutGutters({ waste: 0 }, gable());
+  const g = layoutGutters({ waste: 0, leafGuards: true, leafGuardPrice: 5 }, gable());
+  assert.equal(g.leafGuards, base.gutters);
+  assert.equal(g.cost, 5 * base.gutters);
+  assert.ok(guttersText(g).join("\n").includes("leaf guard sections"));
+  assert.ok(validateGutters({ leafGuards: 1 }).length > 0);
+  assert.ok(validateGutters({ leafGuardPrice: -1 }).length > 0);
+});
+
+test("sealant: none by default, tubes from joints when asked, priced", () => {
+  assert.equal(layoutGutters({ waste: 0 }, gable()).sealantTubes, 0);
+  const b = layoutGutters({ waste: 0 }, gable());
+  const g = layoutGutters({ waste: 0, sealant: true, jointsPerTube: 5, sealantPrice: 7 }, gable());
+  const splices = Math.max(0, b.gutters - b.runs);
+  const joints = splices + b.endCaps + 2 * b.outsideCorners + b.downspouts;
+  assert.equal(g.joints, joints);
+  assert.equal(g.sealantTubes, Math.ceil(joints / 5));
+  assert.equal(g.cost, 7 * g.sealantTubes);
+  assert.ok(guttersText(g).join("\n").includes("sealant tubes"));
+  assert.ok(validateGutters({ sealant: 1 }).length > 0);
+  assert.ok(validateGutters({ jointsPerTube: 0 }).length > 0);
+  assert.ok(validateGutters({ sealantPrice: -1 }).length > 0);
+});

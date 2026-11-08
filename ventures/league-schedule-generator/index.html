@@ -657,7 +657,7 @@
       if (r.added.length) bits.push(`added ${r.added.join(", ")}`);
       status.textContent = `Next season set up from ${r.fields.start}${bits.length ? " (" + bits.join("; ") + ")" : ""}. Teams, courts and times carried over; dates and results cleared. Click Build the schedule.`;
       record("next_season");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     });
     $("#clear-all").addEventListener("click", () => {
       for (const id of ["teams", "start", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "results", "pins", "rainouts", "withdrawals", "lateTeams", "officials", "grounds", "linked"]) $("#" + id).value = "";

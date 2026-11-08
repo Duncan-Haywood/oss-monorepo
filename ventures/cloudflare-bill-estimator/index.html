@@ -41,7 +41,7 @@
     input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
     .row { display: flex; gap: 18px; flex-wrap: wrap; }
   </style>
-<style>/* mobile-overflow-guard */table{display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style>
 </head>
 <body>
   <header>
@@ -177,7 +177,7 @@ node cli.mjs estimate usage.csv --prices prices.json --assume assumptions.json</
       $("#estimate").textContent = `${PRICES_AS_OF}. Your usage numbers and editable prices; not a measurement of any invoice.`;
       $("#report-card").hidden = false;
       record("estimate_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
     $("#load-csv").addEventListener("click", () => {

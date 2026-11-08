@@ -19,6 +19,7 @@ from shootflow.frame_analysis import (
     noise_sigma_from_frame,
     tilt_from_frame,
 )
+from shootflow.frame_analysis import _aspect_from_banner
 from shootflow.story import AssetAnalysis
 
 FFMPEG = shutil.which("ffmpeg")
@@ -70,6 +71,29 @@ class TiltTests(unittest.TestCase):
         for degrees in (-4.0, 3.0, 6.0):
             tilt, _ = tilt_from_frame(_horizon(degrees))
             self.assertAlmostEqual(tilt, degrees, delta=1.0, msg=f"{degrees}")
+
+    def test_squashed_frame_is_read_back_with_the_pictures_own_aspect(self) -> None:
+        # A 4:3 picture stretched into the 16:9 frame: a 6 degree lean (tan 0.105)
+        # is drawn with tan 0.105 * 0.75, about 4.5 degrees.
+        squashed = _horizon(math.degrees(math.atan(math.tan(math.radians(6.0)) * 0.75)))
+        raw, _ = tilt_from_frame(squashed)
+        fixed, _ = tilt_from_frame(squashed, stretch=(4 / 3) / (16 / 9))
+        self.assertAlmostEqual(raw, 4.5, delta=0.6)
+        self.assertAlmostEqual(fixed, 6.0, delta=0.6)
+
+    def test_grain_and_texture_do_not_vote(self) -> None:
+        rng = random.Random(3)
+        noise = bytes(rng.randrange(60, 200) for _ in range(SIZE))
+        _, confidence = tilt_from_frame(noise)
+        self.assertLess(confidence, 0.1)  # chance (3/30) is subtracted, so noise reads about 0
+
+    def test_aspect_comes_from_the_ffmpeg_banner(self) -> None:
+        line = "  Stream #0:0: Video: mjpeg (Baseline), yuvj420p, {size} [SAR {sar} DAR 4:3], 25 fps"
+        self.assertAlmostEqual(_aspect_from_banner(line.format(size="640x480", sar="1:1")), 4 / 3)
+        self.assertAlmostEqual(_aspect_from_banner(line.format(size="1440x1080", sar="4:3")), 16 / 9)
+        sideways = line.format(size="4000x3000", sar="1:1") + "\n displaymatrix: rotation of -90.00 degrees"
+        self.assertAlmostEqual(_aspect_from_banner(sideways), 3 / 4)
+        self.assertIsNone(_aspect_from_banner("no video here"))
 
     def test_flat_frame_and_diagonals_are_not_penalised(self) -> None:
         self.assertEqual(tilt_from_frame(bytes([120]) * SIZE), (0.0, 0.0))

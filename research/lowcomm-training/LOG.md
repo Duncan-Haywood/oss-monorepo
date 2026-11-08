@@ -2,6 +2,35 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 6p (H6 scale-up): which form in omega fits the three H = 64 keep levels? Analysis only, no new training (planned before running)
+
+- Why: 6o's "Next" asked for a threshold refit. The training run for keep 1/12 or 1/32 costs about 70 minutes of 4-core CPU, so this step first asks what the data already in `scale.jsonl` can and cannot say. Reads the per-seed paired differences at size 2, H = 64: omega 3 (6 seeds), 7 (4 seeds), 15 (6 seeds).
+- Forms fitted to the three cell means, weighted by 1/se^2 of each paired excess: `linear` (a omega), `power` (a omega^g, g on a grid 0.5 to 8), `hinge` (a max(0, omega - w0), w0 on a grid 0 to 14), `zero_then_jump` is not fitted (no free parameter to identify from one point above the floor). Three points and one or two parameters, so the score is leave-one-cell-out prediction error in se units, plus a parametric bootstrap (cell means redrawn from their normal approximation, 4,000 draws) for the share of draws in which the best form changes and the interval for the hinge's w0.
+- **H6p-i** (prior 80%): `linear` is the worst form by leave-one-out error. **H6p-ii** (prior 60%): the bootstrap interval for w0 excludes 3 (the threshold is above the lowest keep level) but includes 7. **H6p-iii** (prior 85%): with three cells the data cannot pick between `power` and `hinge` (the leave-one-out errors differ by less than 1 se on a majority of bootstrap draws). Refuted if any of these fails as stated.
+- Not tested: whether the switch is in omega or in keep (with one compressor they are one variable), any other H, any other width.
+
+### Outcome of 6p (`experiments/gpt_scale/threshold_fit.py`, `threshold_fit_6p.txt`; no training)
+- Cells (omega, paired excess, se): (3, -0.0068, 0.0044), (7, -0.0016, 0.0038), (15, +0.0440, 0.0041). Fit chi-square: linear 36.6, power 2.68 (exponent at the grid ceiling, 8), hinge 2.65 (w0 = 7, slope 0.0055 per omega). Linear is rejected outright; the other two are indistinguishable.
+- Leave-one-cell-out error (RMS, se units): linear 8.0, hinge 7.6, power 7.0. All are large because leaving out omega 15 asks a form to extrapolate to a point that carries the whole effect; this score cannot rank power against hinge.
+- **H6p-i held, narrowly:** linear is worst on the observed data, but in the bootstrap it is worst on 75% of draws (power on 25%). **H6p-ii held:** hinge w0 bootstrap 2.5/50/97.5 percentiles 6, 7, 7 (excludes 3, includes 7); this interval is tight partly because w0 is pinned to the middle cell on an integer grid, so read it as "the knee is not below omega 3", not as a located threshold. **H6p-iii held, barely:** |LOO power - LOO hinge| is under 1 se on 56% of draws.
+- What this settles: the omega-linear rule for size 2 at H = 64 is dead on these cells (36.6 chi-square on 1 parameter). What it cannot: whether the cost is a threshold or a steep power (exponent at least 8 at the grid edge, i.e. unbounded in the data). Only a fourth keep level between omega 7 and 15 (keep 1/12, omega 11) or beyond (keep 1/32, omega 31) separates them; the hinge predicts +0.022 at omega 11 and +0.13 at omega 31, a power-8 form predicts a far smaller value at 11 than the hinge and a far larger one at 31.
+- Limits: three cells, one H, one width; cells treated as independent; normal approximation to the paired mean at 4 to 6 seeds.
+- Next: the keep 1/12 run (about 70 min on 4 cores, seeds 0 to 3), registered with the two predictions above.
+
+## 2026-11-06 · Milestone 6o (H6 scale-up): where between omega 3 and 15 does the size-2 cost switch on? Keep 1/8 (omega 7) at H = 64, four seeds (planned before running)
+
+- Why: 6n's "Next". At H = 64 the paired excess is -0.0068 (omega 3) and +0.0440 (omega 15); omega-linearity was refuted. Keep 1/8 (omega 7) sits between them.
+- Setup (`scale.py run keep8`): size 2, H = 64, keep 1/8, seeds 0 to 3, paired with the uncompressed H = 64 seeds 0 to 3. Four seeds (not six) to fit one 4-core batch; the 1/32 level is left for a later step.
+- **H6o-i** (prior 50%): the excess at omega 7 is below the omega-linear interpolation between the two measured levels (a convex or threshold form), i.e. below -0.0068 + (7-3)/(15-3) x 0.0508 = +0.0101. **H6o-ii** (prior 35%): the excess at omega 7 is within 2 se of zero (the switch lies above omega 7). Refuted if the paired excess exceeds +0.0101 (H6o-i) or is more than 2 se from zero (H6o-ii).
+
+### Outcome of 6o (`experiments/gpt_scale/scale_results_6o.txt`; 4 runs, about 18 min each on 4 cores)
+- Paired excess at H = 64, keep 1/8 (omega 7): **-0.0016** (sd 0.0076, se 0.0038), per-seed -0.0056, -0.0100, +0.0068, +0.0023. Indistinguishable from zero.
+- **H6o-i held** (excess below the +0.0101 interpolation; the observation is 3.1 se below it). **H6o-ii held** (0.4 se from zero). Prior 50% and 35%.
+- Reading: with 6n, three keep levels at H = 64 give omega 3: -0.007, omega 7: -0.002, omega 15: +0.044. The cost is nil up to omega 7 and appears only between omega 7 and 15 (keep 1/8 to 1/16). A threshold or sharply convex form fits; a product of omega and a smooth function does not. This is one H, one width.
+- Limits: four seeds; standard errors treat cells as independent; the threshold location is bracketed, not found (keep 1/12 is untested); other H not checked.
+- Next: keep 1/12 or 1/32 at H = 64 to place the threshold, then refit with a threshold form and score it leave-one-out; add to `paper/section_compression.md`.
+
+
 ## 2026-10-31 · Milestone 6n (H6 scale-up): is the size-2 excess linear in omega? Keep 1/4 at H = 64, six seeds (planned before running)
 
 - Why: 6m's "Next". Keep-level dependence was one cell (1/4 at H = 16, two seeds). The rule says excess is proportional to omega = 1/keep - 1 (3 at keep 1/4, 15 at 1/16).

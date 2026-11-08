@@ -192,7 +192,7 @@ node cli.mjs analyze orders.csv --deterrence 0.5 --drag 5 --json --fail-on warn<
       els.estimate.textContent = report.count ? `${MODEL_NOTE}. Try a policy change for a few weeks and compare conversion and return rate before keeping it.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

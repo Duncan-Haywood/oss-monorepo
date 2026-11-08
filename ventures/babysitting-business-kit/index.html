@@ -541,7 +541,7 @@
         else el.value = v === true ? "yes" : v === false ? "no" : Array.isArray(v) ? v.join(", ") : v ?? "";
       }
       form.dataset.editing = obj.id || "";
-      form.scrollIntoView({ behavior: "smooth", block: "start" });
+      form.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     function upsert(kind, form, shape) {
       const o = shape(readForm(form));

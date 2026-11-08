@@ -184,7 +184,7 @@
       $("#xml-out").value = r.xml || "";
       report.hidden = false;
       status.textContent = r.xml ? `File ready: ${s.payments} payment(s), EUR ${s.total}.` : `No file written: fix the ${s.errors} error(s) listed.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     function example(text, note) {

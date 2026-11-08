@@ -41,12 +41,13 @@
     input[type=number] { width: 7em; padding: 6px; border: 1px solid #a8b3c1; border-radius: 6px; }
     .row { display: flex; gap: 18px; flex-wrap: wrap; }
   </style>
-<style>/* mobile-overflow-guard */table{display:block;max-width:100%;overflow-x:auto}</style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
 </head>
 <body>
   <header>
     <p class="note">MERCHANT OF RECORD FEE CALCULATOR · RUNS IN YOUR BROWSER</p>
     <h1>Stripe or a merchant of record: what do you actually keep?</h1>
+    <p class="answer-source" data-answer-lead>A merchant of record charges more per sale than running Stripe yourself but files sales tax and VAT for you: Paddle and Lemon Squeezy list 5% plus $0.50 per transaction and Polar lists 4% plus $0.40 (plus 0.5% on subscriptions), so the gap shrinks as your average sale grows and your own filing cost is what this calculator weighs against it. Source: the three platforms' own pricing pages (paddle.com/pricing, lemonsqueezy.com/pricing, polar.sh/resources/pricing), read 2026-11-07; payout, currency, dispute and negotiated rates are extra. As of 2026-11-07.</p>
     <p>Enter your <strong>monthly revenue</strong>, average sale price and international share. Get <strong>Stripe, Stripe Tax, Paddle, Lemon Squeezy and Polar</strong> priced side by side, with <strong>the cost of filing sales tax and VAT yourself</strong> counted where the platform is not the seller, plus the <strong>monthly revenue where the cheapest option changes</strong>.</p>
     <p class="note">Nothing is uploaded. Calculated in this browser from numbers you enter and approximate list prices you can edit. It cannot see your account and is not tax advice.</p>
   </header>
@@ -155,7 +156,7 @@ node cli.mjs compare --revenue 5000 --prices prices.json --json</pre>
       $("#estimate").textContent = `${PRICES_AS_OF}. Revenue grows from ${fmt(revenue)} to ${fmt(proj.endRevenue)} a month over 12 months. Your numbers and editable prices; not a quote, not tax advice.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

@@ -394,3 +394,112 @@ test("validateFloor refuses hostile penetrations, limits and text loads (2026-11
   assert.ok(bad({ limits: { hole: "0.9" } }).length);
   assert.ok(bad({ headerCheck: { liveLoad: "40", deadLoad: 10, Fb: 1000, Fv: 150, E: 1.4e6 }, cantilever: 24 }).length);
 });
+
+test("subfloor adhesive: tubes from joist and rim feet, hand-counted, off by default", () => {
+  const base = layoutFloor(sampleFloor(), plan());
+  assert.equal(base.adhesive, null);
+  const l = layoutFloor({ ...sampleFloor(), adhesive: true, adhesivePrice: 6 }, plan());
+  const inches = l.joists.reduce((t, j) => t + j.length, 0) + l.rims.reduce((t, r) => t + r.length, 0);
+  // 3/8 in bead: pi/4 x 0.375^2 = 0.11045 cu in per inch; 28 oz tube = 50.53 cu in; 10% waste
+  const want = Math.ceil((inches * 0.110447 * 1.1) / (28 * 1.8047) - 1e-9);
+  assert.equal(l.adhesive.tubes, want);
+  assert.ok(want >= 10 && want < 60);
+  const b = budget({ floor: l }, {});
+  const line = b.lines.find((x) => x.item === "Subfloor adhesive tubes");
+  assert.equal(line.qty, want);
+  assert.equal(line.unitPrice, 6);
+  assert.ok(floorText(l).some((t) => t.includes("Adhesive")));
+});
+
+test("subfloor adhesive settings are validated", () => {
+  for (const bad of [{ adhesive: "yes" }, { adhesiveTubeOz: 2 }, { adhesiveBead: 3 }, { adhesiveWaste: 0.5 }])
+    assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
+});
+
+test("subfloor fasteners: count from joist and rim feet, hand-counted, off by default", () => {
+  assert.equal(layoutFloor(sampleFloor(), plan()).fasteners, null);
+  const l = layoutFloor({ ...sampleFloor(), subfloorFasteners: true, fastenerPrice: 30 }, plan());
+  const inches = l.joists.reduce((t, j) => t + j.length, 0) + l.rims.reduce((t, r) => t + r.length, 0);
+  const want = Math.ceil((inches / 8) * 1.05 - 1e-9);
+  assert.equal(l.fasteners.count, want);
+  assert.equal(l.fasteners.boxes, Math.ceil(want / 1000));
+  const line = budget({ floor: l }, {}).lines.find((x) => x.item === "Subfloor fastener boxes");
+  assert.equal(line.qty, l.fasteners.boxes);
+  assert.equal(line.unitPrice, 30);
+  assert.ok(floorText(l).some((t) => t.includes("Fasteners")));
+  for (const bad of [{ subfloorFasteners: 1 }, { fastenerSpacing: 1 }, { fastenerBoxCount: 5 }, { fastenerWaste: 3 }])
+    assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
+});
+
+test("subfloor fasteners: edge and field schedule on a plain floor, hand-counted", () => {
+  // 20 x 8 ft floor, 2x8 at 16 in, no rim: 96 in of joist length is covered by two 48 in courses of 240 in each.
+  const f = { id: "t", width: 240, depth: 96, joist: "2x8", spacing: 16, rim: false, subfloorFasteners: true, fastenerEdgeSpacing: 6, fastenerFieldSpacing: 12, fastenerWaste: 1 };
+  const l = layoutFloor(f, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  const pieces = l.courses.reduce((n, c) => n + c.pieces.length, 0);
+  const interior = l.centres.filter((x) => x > 0 && x < 240).length; // joist lines strictly inside the floor
+  assert.equal(l.courses.length, 2);
+  assert.equal(pieces, 2 * 3); // 240 in = 96 + 96 + 48
+  // ends: 6 pieces x 2 x 48 in; field: 16 interior joists less none on a piece end... count independently below
+  let field = 0;
+  for (const c of l.courses) for (const p of c.pieces) field += 48 * l.centres.filter((x) => x > p.x + 1e-6 && x < p.x + p.length - 1e-6).length;
+  const want = Math.ceil((6 * 2 * 48) / 6 + field / 12 - 1e-9);
+  assert.equal(l.fasteners.count, want);
+  assert.equal(l.fasteners.schedule.edgeFeet, (6 * 2 * 48) / 12);
+  assert.ok(interior > 0 && l.fasteners.schedule.fieldFeet > 0);
+  // a rim adds the long edges of the first and last course
+  const r = layoutFloor({ ...f, rim: true }, plan());
+  assert.equal(r.fasteners.schedule.edgeFeet, (6 * 2 * 48 + 240 + 240) / 12);
+  for (const bad of [{ fastenerEdgeSpacing: 1 }, { fastenerFieldSpacing: 40 }])
+    assert.ok(validateFloor({ ...f, ...bad }, plan()).length > 0, JSON.stringify(bad));
+});
+
+test("framing nails: joist-end and rim counts hand-counted on a plain floor, off unless typed", () => {
+  assert.equal(layoutFloor(sampleFloor(), plan()).framingNails, null);
+  const l = layoutFloor({ ...sampleFloor(), joistEndNails: 3, rimNailSpacing: 16, joistNailPrice: 12 }, plan());
+  const pieces = l.joists.filter((j) => !j.header).length;
+  assert.equal(l.hangers.count, 0);
+  assert.equal(l.framingNails.bearingEnds, 2 * pieces);
+  assert.equal(l.framingNails.endNails, 6 * pieces);
+  assert.equal(l.framingNails.rimNails, l.rims.reduce((t, r) => t + Math.ceil(r.length / 16 - 1e-9), 0));
+  assert.equal(l.framingNails.boxes, Math.ceil(l.framingNails.count / 1000));
+  const line = budget({ floor: l }, {}).lines.find((x) => x.item === "Joist and rim nail boxes");
+  assert.equal(line.qty, l.framingNails.boxes);
+  assert.equal(line.unitPrice, 12);
+  for (const bad of [{ joistEndNails: 2.5 }, { joistEndNails: 40 }, { rimNailSpacing: 1 }, { joistNailBoxCount: 5 }])
+    assert.ok(validateFloor({ ...sampleFloor(), ...bad }, plan()).length > 0, JSON.stringify(bad));
+});
+
+test("framing nails: blocking end nails are two ends per piece, off unless typed", () => {
+  const f = { ...sampleFloor(), blockingRows: 1 };
+  const l = layoutFloor({ ...f, blockEndNails: 2 }, plan());
+  assert.ok(l.blocks.length > 0);
+  assert.equal(l.framingNails.blockNails, 4 * l.blocks.length);
+  assert.equal(l.framingNails.count, l.framingNails.blockNails);
+  assert.equal(layoutFloor(f, plan()).framingNails, null);
+  for (const bad of [2.5, -1, 21]) assert.ok(validateFloor({ ...f, blockEndNails: bad }, plan()).length > 0, String(bad));
+});
+
+test("framing nails: tail joist ends in hangers are not counted as bearing ends", () => {
+  const f = { ...sampleFloor(), openings: [{ x: 96, y: 96, width: 48, depth: 48 }], joistEndNails: 3 };
+  const l = layoutFloor(f, plan());
+  assert.ok(l.ok, JSON.stringify(l.errors));
+  assert.ok(l.hangers.tail > 0);
+  assert.equal(l.framingNails.bearingEnds, 2 * l.joists.filter((j) => !j.header).length - l.hangers.tail);
+});
+
+test("floor refuses a plan with no stock list, a bad opening entry and a null layout instead of throwing", () => {
+  for (const bad of [undefined, null, 5, {}, { stock: "x" }, { stock: [null] }]) {
+    const r = layoutFloor(sampleFloor(), bad);
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /stock list/);
+  }
+  for (const o of [null, 5, "x"]) {
+    const r = layoutFloor({ ...sampleFloor(), openings: [o] }, plan());
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /openings are a list of objects/);
+  }
+  assert.equal(layoutFloor({ ...sampleFloor(), openings: "x" }, plan()).ok, false);
+  assert.deepEqual(floorCuts(null), []);
+  assert.deepEqual(floorCuts(undefined), []);
+});

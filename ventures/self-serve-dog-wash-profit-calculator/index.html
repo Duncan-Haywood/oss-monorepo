@@ -204,7 +204,7 @@
       $("#month-rows").innerHTML = r.months.map((x) => `<tr><td class="n">${x.month}</td><td>${x.calendar}</td><td class="n">${Math.round(x.washes)}</td><td class="n">${whole(x.revenue)}</td><td class="n">${whole(x.operating)}</td><td class="n">${whole(x.cash)}</td><td class="n">${whole(x.cumulative)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `${r.findings.filter((f) => f.severity === "high").length} high-severity finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

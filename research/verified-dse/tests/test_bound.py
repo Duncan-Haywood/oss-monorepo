@@ -147,5 +147,12 @@ class T(unittest.TestCase):
         self.assertGreater(hits, 20)
 
 
+    def test_pilot_top_inversion_counts_a_rung_tie_as_an_inversion(self):
+        # points 0 and 1 tie on the rung; y[0] is the best. The rung ranks 1 "at or ahead of" 0, so the
+        # inversion is log(y[1]/y[0]); a strict `<` would report 0 here.
+        self.assertAlmostEqual(pilot_top_inversion([5, 5], [2.0, 6.0], [0, 1], top=1), math.log(3))
+        self.assertEqual(pilot_top_inversion([5, 6], [2.0, 6.0], [0, 1], top=1), 0.0)
+
+
 if __name__ == "__main__":
     unittest.main()

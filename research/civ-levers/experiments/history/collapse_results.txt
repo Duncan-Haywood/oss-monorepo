@@ -1,0 +1,65 @@
+civ-history collapse results (run_collapse.py; do not edit by hand)
+576 cells x 3 levers; 2500 years, first 500 dropped; band 150-400 y; grid {'rho': (0.03, 0.06, 0.12), 'm': (0.02, 0.05), 'k': (4, 8), 'g': (2.0, 4.0, 8.0, 16.0), 'lag': (0, 50, 100, 200), 'collapse_thr': (0.1, 0.3, 0.5)}; levers {'none': {}, 'elite_cap': {'elite_cap': 0.06}, 'welfare': {'welfare': 0.2}}
+
+lever none     : both-cells with median collapse interval 150-400 y: 16; pinned near the 50 y refractory floor (<100 y): 29
+lever none     : cells 576, in-band 112, swing>=0.10 143, both 55, max swing 0.418, cells with collapses 330, mean collapses (those) 31.18
+lever elite_cap: both-cells with median collapse interval 150-400 y: 17; pinned near the 50 y refractory floor (<100 y): 25
+lever elite_cap: cells 576, in-band 110, swing>=0.10 139, both 51, max swing 0.416, cells with collapses 326, mean collapses (those) 31.17
+lever welfare  : both-cells with median collapse interval 150-400 y: 16; pinned near the 50 y refractory floor (<100 y): 32
+lever welfare  : cells 576, in-band 118, swing>=0.10 140, both 57, max swing 0.417, cells with collapses 322, mean collapses (those) 31.01
+
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 50, 'collapse_thr': 0.1} period 162 swing 0.115 collapses 25 median interval 81
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'collapse_thr': 0.3} period 252 swing 0.172 collapses 16 median interval 201
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 4.0, 'lag': 100, 'collapse_thr': 0.3} period 197 swing 0.115 collapses 10 median interval 196
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 4.0, 'lag': 200, 'collapse_thr': 0.3} period 215 swing 0.156 collapses 18 median interval 50
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 8.0, 'lag': 100, 'collapse_thr': 0.3} period 156 swing 0.139 collapses 26 median interval 106
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 8.0, 'lag': 100, 'collapse_thr': 0.5} period 173 swing 0.120 collapses 12 median interval 174
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.3} period 187 swing 0.143 collapses 22 median interval 50
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.5} period 232 swing 0.127 collapses 8 median interval 232
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.3} period 201 swing 0.123 collapses 30 median interval 50
+both {'rho': 0.03, 'm': 0.02, 'k': 4, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.5} period 177 swing 0.158 collapses 23 median interval 89
+both {'rho': 0.03, 'm': 0.02, 'k': 8, 'g': 4.0, 'lag': 100, 'collapse_thr': 0.1} period 163 swing 0.159 collapses 24 median interval 114
+both {'rho': 0.03, 'm': 0.02, 'k': 8, 'g': 4.0, 'lag': 100, 'collapse_thr': 0.3} period 175 swing 0.130 collapses 12 median interval 175
+both {'rho': 0.03, 'm': 0.02, 'k': 8, 'g': 4.0, 'lag': 200, 'collapse_thr': 0.3} period 202 swing 0.207 collapses 20 median interval 50
+both {'rho': 0.03, 'm': 0.02, 'k': 8, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.3} period 177 swing 0.200 collapses 23 median interval 88
+both {'rho': 0.03, 'm': 0.02, 'k': 8, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.5} period 200 swing 0.153 collapses 10 median interval 200
+both {'rho': 0.03, 'm': 0.02, 'k': 8, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.3} period 158 swing 0.186 collapses 25 median interval 79
+both {'rho': 0.03, 'm': 0.02, 'k': 8, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.5} period 162 swing 0.206 collapses 25 median interval 81
+both {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'collapse_thr': 0.3} period 299 swing 0.318 collapses 14 median interval 50
+both {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 4.0, 'lag': 50, 'collapse_thr': 0.1} period 153 swing 0.175 collapses 26 median interval 104
+both {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 4.0, 'lag': 200, 'collapse_thr': 0.3} period 252 swing 0.295 collapses 15 median interval 126
+both {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 8.0, 'lag': 100, 'collapse_thr': 0.3} period 179 swing 0.263 collapses 22 median interval 50
+both {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.3} period 217 swing 0.271 collapses 18 median interval 50
+both {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 16.0, 'lag': 100, 'collapse_thr': 0.3} period 157 swing 0.249 collapses 25 median interval 79
+both {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 16.0, 'lag': 100, 'collapse_thr': 0.5} period 175 swing 0.208 collapses 12 median interval 175
+both {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.3} period 190 swing 0.242 collapses 21 median interval 95
+both {'rho': 0.03, 'm': 0.05, 'k': 4, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.5} period 205 swing 0.288 collapses 19 median interval 102
+both {'rho': 0.03, 'm': 0.05, 'k': 8, 'g': 4.0, 'lag': 100, 'collapse_thr': 0.1} period 185 swing 0.304 collapses 22 median interval 50
+both {'rho': 0.03, 'm': 0.05, 'k': 8, 'g': 4.0, 'lag': 200, 'collapse_thr': 0.3} period 278 swing 0.292 collapses 8 median interval 278
+both {'rho': 0.03, 'm': 0.05, 'k': 8, 'g': 8.0, 'lag': 100, 'collapse_thr': 0.1} period 161 swing 0.305 collapses 25 median interval 80
+both {'rho': 0.03, 'm': 0.05, 'k': 8, 'g': 8.0, 'lag': 100, 'collapse_thr': 0.3} period 164 swing 0.237 collapses 13 median interval 164
+both {'rho': 0.03, 'm': 0.05, 'k': 8, 'g': 8.0, 'lag': 100, 'collapse_thr': 0.5} period 177 swing 0.253 collapses 12 median interval 177
+both {'rho': 0.03, 'm': 0.05, 'k': 8, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.3} period 202 swing 0.392 collapses 20 median interval 50
+both {'rho': 0.03, 'm': 0.05, 'k': 8, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.5} period 238 swing 0.314 collapses 8 median interval 238
+both {'rho': 0.03, 'm': 0.05, 'k': 8, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.3} period 179 swing 0.384 collapses 22 median interval 50
+both {'rho': 0.03, 'm': 0.05, 'k': 8, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.5} period 184 swing 0.418 collapses 22 median interval 50
+both {'rho': 0.06, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'collapse_thr': 0.3} period 199 swing 0.143 collapses 20 median interval 50
+both {'rho': 0.06, 'm': 0.02, 'k': 4, 'g': 4.0, 'lag': 200, 'collapse_thr': 0.3} period 171 swing 0.127 collapses 24 median interval 50
+both {'rho': 0.06, 'm': 0.02, 'k': 4, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.5} period 184 swing 0.106 collapses 11 median interval 184
+both {'rho': 0.06, 'm': 0.02, 'k': 8, 'g': 4.0, 'lag': 200, 'collapse_thr': 0.3} period 164 swing 0.183 collapses 25 median interval 82
+both {'rho': 0.06, 'm': 0.02, 'k': 8, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.5} period 161 swing 0.131 collapses 12 median interval 162
+both {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 50, 'collapse_thr': 0.1} period 171 swing 0.206 collapses 21 median interval 84
+both {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'collapse_thr': 0.3} period 240 swing 0.265 collapses 17 median interval 119
+both {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 4.0, 'lag': 200, 'collapse_thr': 0.3} period 202 swing 0.241 collapses 20 median interval 50
+both {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.3} period 174 swing 0.212 collapses 23 median interval 87
+both {'rho': 0.06, 'm': 0.05, 'k': 4, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.5} period 167 swing 0.256 collapses 24 median interval 50
+both {'rho': 0.06, 'm': 0.05, 'k': 8, 'g': 4.0, 'lag': 100, 'collapse_thr': 0.1} period 151 swing 0.272 collapses 27 median interval 76
+both {'rho': 0.06, 'm': 0.05, 'k': 8, 'g': 4.0, 'lag': 200, 'collapse_thr': 0.3} period 228 swing 0.258 collapses 9 median interval 228
+both {'rho': 0.06, 'm': 0.05, 'k': 8, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.3} period 166 swing 0.354 collapses 24 median interval 116
+both {'rho': 0.06, 'm': 0.05, 'k': 8, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.5} period 196 swing 0.272 collapses 10 median interval 196
+both {'rho': 0.06, 'm': 0.05, 'k': 8, 'g': 16.0, 'lag': 200, 'collapse_thr': 0.5} period 153 swing 0.382 collapses 26 median interval 104
+both {'rho': 0.12, 'm': 0.02, 'k': 4, 'g': 2.0, 'lag': 200, 'collapse_thr': 0.3} period 156 swing 0.112 collapses 26 median interval 106
+both {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 2.0, 'lag': 200, 'collapse_thr': 0.3} period 188 swing 0.202 collapses 22 median interval 50
+both {'rho': 0.12, 'm': 0.05, 'k': 4, 'g': 4.0, 'lag': 200, 'collapse_thr': 0.3} period 159 swing 0.178 collapses 25 median interval 80
+both {'rho': 0.12, 'm': 0.05, 'k': 8, 'g': 4.0, 'lag': 50, 'collapse_thr': 0.1} period 275 swing 0.209 collapses 15 median interval 138
+both {'rho': 0.12, 'm': 0.05, 'k': 8, 'g': 8.0, 'lag': 200, 'collapse_thr': 0.5} period 164 swing 0.223 collapses 12 median interval 164

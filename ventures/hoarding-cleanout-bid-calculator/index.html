@@ -163,7 +163,7 @@
       $("#rows").innerHTML = r.sensitivity.map((x) => `<tr class="${x.multiplier === 1 ? "drive" : x.profitAtQuote < 0 ? "off" : ""}"><th scope="row">${x.multiplier === 1 ? "As estimated" : Math.round(x.multiplier * 100) + "%"}</th><td>${x.yards}</td><td>${x.days}</td><td>${x.containers}</td><td>${usd(x.cost)}</td><td>${usd(x.profitAtQuote)}</td><td>${x.marginAtQuotePct}%</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Quote ${usd(r.job.price)}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

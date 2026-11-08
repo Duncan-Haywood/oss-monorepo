@@ -47,6 +47,7 @@
   <header>
     <p class="note">ESTATE TAX EXEMPTION CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Project your 2026 federal estate tax under the permanent $15M exclusion.</h1>
+    <p class="answer-source" data-answer-lead>The federal basic exclusion amount for a 2026 date of death is $15,000,000 per person, and the annual gift exclusion for 2026 is $19,000 per recipient. Source: IRS, "What's New — Estate and Gift Tax" (basic exclusion table, Public Law 119-21 amending IRC section 2010(c)(3)). As of 2026-11-08.</p>
     <p>The One Big Beautiful Bill Act permanently set the federal estate,
     gift, and generation-skipping transfer (GST) tax basic exclusion at
     <strong>$15,000,000 per person</strong> for 2026 — up to
@@ -209,7 +210,7 @@
       els.report.hidden = false;
       els.status.textContent = "";
       record("estimate_calculated");
-      els.report.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#calculate").addEventListener("click", runCalculate);

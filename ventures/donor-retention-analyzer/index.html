@@ -202,7 +202,7 @@
       $("#bt-note").textContent = r.holdout ? `Fitted on dates before ${r.holdout.asOf}, the model predicted ${r.holdout.predicted.toFixed(0)} of ${r.holdout.donors} donors would give in the following year; ${r.holdout.actual} did (a ${pct(r.holdout.gap, 0)} miss; over 25% is called unstable).` : "Not enough history to hold a year out and check the model.";
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

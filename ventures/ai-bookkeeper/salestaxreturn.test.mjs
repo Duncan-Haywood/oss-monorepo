@@ -440,3 +440,19 @@ test("a due date that rolls across New Year lands in the later year's calendar (
   for (const s of Object.keys(STATE_DUE_DAYS)) for (const f of ["monthly", "quarterly", "semiannual", "annual"]) for (const y of [2026, 2027, 2028])
     for (const e of salesTaxDueDates(y, { state: s, frequency: f })) assert.ok(![0, 6].includes(new Date(`${e.due}T00:00:00Z`).getUTCDay()), `${s} ${f} ${e.due}`);
 });
+
+test("NE, MS and OK returns are due the 20th (official text via search excerpts 2026-11-07)", () => {
+  for (const st of ["NE", "MS", "OK"]) {
+    assert.equal(stateDueDay(st, "monthly"), 20);
+    assert.equal(stateDueDay(st, "quarterly"), 20);
+  }
+  assert.equal(dueDate("2026-09", 20), "2026-10-20");
+});
+
+test("AZ and IN carry a filing note that names the open question, other states stay silent", () => {
+  assert.match(stateFilingNote("az", "monthly"), /20th.*month-end|month-end.*20th/s);
+  assert.match(stateFilingNote("IN", "quarterly"), /INTIME/);
+  assert.equal(stateDueDay("AZ", "monthly"), 20);
+  assert.equal(STATE_DUE_DAYS.IN, 30);
+  assert.equal(stateFilingNote("KS", "quarterly"), null);
+});

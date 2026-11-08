@@ -103,7 +103,7 @@ export function scheduleC(books, { from = null, to = null, mealsPct = 50, map = 
   };
 }
 
-const q = (s) => (/[",\n]/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+import { q } from "./csvq.mjs";
 // One row per account, so a preparer can see what sits under each line.
 export function scheduleCCsv(sc) {
   const d = (c) => (c / 100).toFixed(2);

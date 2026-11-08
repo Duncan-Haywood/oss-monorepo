@@ -166,7 +166,7 @@
       $("#rows").innerHTML = line("Tax paid so far", r.taxPaid) + line(`Expected on ${r.code.canonical}`, r.onCode) + line(`Expected on standard ${r.std.canonical}`, r.onStd) + line("Paid minus standard code", r.vsStd, "total");
       report.hidden = false;
       status.textContent = "Done. Verify against your HMRC online account before you rely on this.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

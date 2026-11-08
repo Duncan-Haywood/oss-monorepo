@@ -169,7 +169,7 @@
       $("#ladder").innerHTML = r.ladder.map((l) => `<tr><th scope="row">${l.qty}${l.isOrder ? " (this order)" : ""}</th><td>${usd(l.unit)}</td><td>${usd(l.cost)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Quote calculated.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

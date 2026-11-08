@@ -235,6 +235,7 @@ TASK_HINTS: list[tuple[str, tuple[str, ...]]] = [
                   "ios android", "marketing sites", "portfolio site")),
     ("research", ("research programme", "research program", "phd", "paper")),
     ("process", ("the prompts", "the process", "routing", "backlog")),
+    ("quality", ("quality audit", "quality-audit")),
 ]
 
 

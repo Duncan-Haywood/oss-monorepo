@@ -167,7 +167,7 @@
       $("#size-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label === "Your expected production" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.prod)}</td><td class="n">${usd(s.a)}</td><td class="n">${usd(s.b)}</td><td class="n">${usd(s.diff)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -18,6 +18,8 @@
 import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
 
+import { groupRamps } from './ramps.mjs';
+
 export const PAPERS = [
   {
     authors: 'Ryan Prescott Adams and David J. C. MacKay',
@@ -73,7 +75,7 @@ export const DEFAULTS = {
   model: 'mean',
   // 'bic', 'aic', 'hannan-quinn', or a number (the cost of one extra change).
   penalty: 'bic',
-  // Shortest segment PELT may return; null means 2 for 'mean' and 5 for
+  // Shortest segment PELT may return; null means 2 for 'mean' and 10 for
   // 'meanvar', where a variance fitted to two or three points is so unreliable
   // that its likelihood gain alone would justify a change.
   minSegment: null,
@@ -292,8 +294,8 @@ function solveSym(H, b) {
 const RANGE_TEMPER = 1.15;
 // Clumpy counts scored with the NB cost: 1.15 held the planted bend on 145 of 161 found bends (90%), 1.4 on 153 (95%), 1.7 on 157 (README, 2026-10-26).
 const RANGE_TEMPER_NB = 1.4;
-// Measured coverage (README, 2026-10-26 and 27): 94% over 277 found bends on tuning-free seeds, 82% (65 of 79) where the slope bump is steep (0.04).
-const GROWTH_RANGE_NB_NOTE = 'Clumpy-count ranges held the true bend on about 94% of simulated series, but only about 82% where the growth change is steep (and the range narrow): treat a narrow range as optimistic.';
+// Measured coverage (README, 2026-10-26 and 27): 94% over 277 found bends on tuning-free seeds, 80% (173 of 217, 2026-11-08) where the slope bump is steep (0.04).
+const GROWTH_RANGE_NB_NOTE = 'Clumpy-count ranges held the true bend on about 94% of simulated series, but only about 80% where the growth change is steep (and the range narrow): treat a narrow range as optimistic.';
 export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0, diag = null } = {}) {
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
@@ -2007,6 +2009,7 @@ export function analyze(input = {}) {
     ...(burstInfo ? { bursts: burstInfo } : {}),
     ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
     ...(excursions.length ? { excursions } : {}),
+    ...(changes.length > 1 && groupRamps(changes, segments, values.length, { values }).length ? { ramps: groupRamps(changes, segments, values.length, { values }) } : {}),
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {

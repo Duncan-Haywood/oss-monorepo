@@ -291,7 +291,7 @@
       fillFx(r);
       fillMapping(r);
       render(r);
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return r;
     }
 

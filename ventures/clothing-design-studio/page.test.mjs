@@ -6,7 +6,7 @@ import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 import { economics, quantityBreaks } from "./costing.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html"];
+const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "clothing-minimum-order-quantity.html", "sunglasses-profit-margin.html", "wholesale.html", "reorder.html", "orderlines.html", "returns.html", "cashflow.html", "tna.html", "salestax.html", "eutax.html", "discount.html", "spec.html", "timeline.html", "tiers.html", "startup.html", "testing.html"];
 
 test("every page carries the no-warranty clause, a sponsor link and its own title and description", () => {
   for (const f of PAGES) {
@@ -67,4 +67,63 @@ test("the studio page offers the storefront download and warns before publishing
   for (const id of ["sh-brand", "sh-email", "sh-link", "sh-ship", "sh-ret", "sh-dl", "sh-add", "sh-shelf"]) assert.ok(html.includes(`id="${id}"`), id);
   assert.match(html, /import \{ storefront \} from "\.\/storefront\.mjs"/);
   assert.match(html, /we hold no keys/);
+});
+
+test("the import-duty guide matches what duty.mjs computes", async () => {
+  const { compareDestinations, landedByDestination } = await import("./duty.mjs");
+  const i = { product: "tee-cotton", quantity: 500, factoryPrice: 5, freightTotal: 600, insuranceTotal: 0 };
+  const html = read("import-duty-on-clothing.html");
+  for (const r of compareDestinations(i)) {
+    assert.ok(html.includes(r.landedPerGarment.toFixed(2)), `landed ${r.destination}`);
+    assert.ok(html.includes(r.duty.toFixed(2)), `duty ${r.destination}`);
+    assert.ok(html.includes(r.customsValue.toLocaleString("en", { minimumFractionDigits: 2 })), `value ${r.destination}`);
+  }
+  const eu = compareDestinations(i)[1];
+  assert.ok(html.includes(eu.importVat.toFixed(2)));
+  const bd = landedByDestination({ ...i, destination: "EU", origin: "Bangladesh", haveOriginProof: true });
+  assert.ok(html.includes(bd.landedPerGarment.toFixed(2)));
+  assert.match(html, /placeholders and unchecked defaults/);
+  assert.match(html, /No warranty/);
+});
+
+test("the MOQ guide matches what preorder.mjs computes", async () => {
+  const { planPreorder } = await import("./preorder.mjs");
+  const base = { price: 35, landed: 12, moq: 300, taxPct: 20, conversionPct: 2, days: 30, fixedCosts: 800 };
+  const html = read("clothing-minimum-order-quantity.html");
+  const money = v => Math.abs(v).toLocaleString("en");
+  const paid = planPreorder({ ...base, cpc: 0.4, visitorsPerDay: 150 });
+  const free = planPreorder({ ...base, cpc: 0, visitorsPerDay: 150 });
+  const fast = planPreorder({ ...base, cpc: 0, visitorsPerDay: 400 });
+  assert.ok(html.includes(`${paid.ordersNeeded} orders`));
+  assert.ok(html.includes(paid.visitorsNeeded.toLocaleString("en")));
+  assert.ok(html.includes(`day ${paid.dayReached}`) && html.includes(`day ${fast.dayReached}`));
+  assert.ok(paid.profitIfFunded < 0 && html.includes(`-${money(paid.profitIfFunded)}`));
+  assert.ok(html.includes(money(paid.lossIfFails)));
+  assert.ok(html.includes(money(free.profitIfFunded)) && html.includes(money(free.lossIfFails)));
+  assert.ok(html.includes(paid.breakEvenPrice.toFixed(2)));
+  assert.ok(html.includes(money(paid.adCost)));
+  assert.equal(fast.pFunded < 0.001, true);
+  assert.match(html, /an assumption typed for illustration/);
+});
+
+test("the sunglasses profit page matches what returns.mjs computes", async () => {
+  const { returnsPlan } = await import("./returns.mjs");
+  const html = read("sunglasses-profit-margin.html");
+  const landed = Math.round((21.5 + 21.5 * 0.029) * 100) / 100;
+  assert.equal(landed, 22.12);
+  const run = (shelf, returnPct, extra = {}) => returnsPlan({ price: Math.round((shelf / 1.21) * 100) / 100, landed, shipOut: 4, feePct: 2.9, feeFixed: 0.3, returnPct, exchangePct: 0, resaleablePct: 90, salvagePct: 20, returnLabel: 5, handling: 1.5, ...extra });
+  for (const shelf of [60, 65, 70]) for (const rp of [5, 12, 20]) {
+    const r = run(shelf, rp);
+    assert.ok(html.includes(`<td class="num">${r.perOrder.profit.toFixed(2)}</td>`), `${shelf}/${rp}`);
+  }
+  const main = run(65, 12);
+  assert.equal(main.perOrder.profit, 20.96);
+  assert.ok(html.includes(`${main.perOrder.profit.toFixed(2)} per order`) && html.includes(`${main.marginPct}% of the net price`));
+  assert.equal(Math.round((65 - 65 / 1.21) * 100) / 100, 11.28);
+  assert.equal(Math.round((25 - main.perOrder.profit) * 100) / 100, 4.04);
+  assert.equal(Math.round((run(65, 5).perOrder.profit - run(65, 20).perOrder.profit) * 100) / 100, 5.98);
+  assert.equal(Math.round((run(70, 12).perOrder.profit - run(60, 12).perOrder.profit) * 100) / 100, 7.03);
+  const target = run(65, 12, { targetProfit: 10 }).priceForTarget;
+  assert.ok(html.includes((Math.round(target * 1.21 * 100) / 100).toFixed(2)), "price for target");
+  assert.match(html, /an assumption typed for illustration/);
 });

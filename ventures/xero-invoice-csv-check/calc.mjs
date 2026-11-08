@@ -433,7 +433,10 @@ export function repair(input, opts = {}) {
         if (!fmt && !serial) continue;
         const p = parseDate(v, srcOrder);
         if (!p || !validYmd(p.y, p.m, p.d) || p.twoDigit || (p.ambiguous && !srcOrder)) continue;
-        set(n, formatDate(p, fmt || "DD/MM/YYYY"), "date", `${n} rewritten as ${fmt || "DD/MM/YYYY"}`);
+        // With no format chosen, keep the file's own day/month order: a month-first file whose serial dates came out
+        // day-first would import 5 Oct as 10 May (quality audit 2026-11-07, portfolio/quality/audits/).
+        const out = fmt || (srcOrder === "mdy" ? "MM/DD/YYYY" : "DD/MM/YYYY");
+        set(n, formatDate(p, out), "date", `${n} rewritten as ${out}`);
       }
     }
     return { cells, line: r.line, key: get("InvoiceNumber").trim() };

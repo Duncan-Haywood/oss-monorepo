@@ -1,0 +1,55 @@
+{
+ "date": "2026-11-07",
+ "session": "https://claude.ai/code/session_01AcxTtJdBd8UhbMYfaFdX73",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-07T19:09:48Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13865",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/energy-density/README.md",
+   "issue": "Next steps 1 and 2 (energy-practical, volumetric ceilings) had already landed as sibling projects; the list is stale and pick_track prints it as the next step."
+  },
+  {
+   "file": "research/CLAUDE.md",
+   "issue": "PubChem PUG View is reachable through the proxy and gives sourced densities, but the host list does not mention it."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "research/PROGRAMMES.md",
+   "why": "Advanced a small sourcing step on an existing project rather than a full programme step; did that and recorded it; pytest absent and source unchanged, so unit tests were not run."
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-07-battery-volume-ceilings-density-check.md"
+ ],
+ "goal": null,
+ "notes": "Local checks: research/_homepage/build.py ok, check_md_links ok. CI queued (starved) when merged.",
+ "corrections": [],
+ "redteam": null
+}

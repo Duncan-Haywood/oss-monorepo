@@ -27,8 +27,8 @@ CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 - take-up: floating pulley 300 mm across (twice the 150 mm bend radius) on a 489 mm track, 129 mm stroke, hose 487 mm fixed plus twice the travel; travel allowed per pose -15 deg 15-27; +0 deg 0-0; +15 deg 15-23; +30 deg 62-97; +45 deg 129-183 mm; spring 10 N (assumed); every pose reachable
 - hopper frame: full tub 116 N; sway load 60 N; braces carry 149 N (x) and 186 N (y) against buckling loads of 2472 and 2120 N; a post alone buckles at 2635 N (pinned ends, 2040 weak axis; section figures are assumptions)
 - net: 3000 wide x 2470 mm tall between the poles
-- wind: 69 N on the net at 8 m/s (solidity 0.2, Cd 1.2); ballast needed over the made-part mass (hopper posts, shelf and spigot not credited): 15 kg
-- made-part mass (estimate, excludes bought-in parts): 37.0 kg
+- wind: 69 N on the net at 8 m/s (solidity 0.2, Cd 1.2); ballast needed over the made-part mass (hopper posts, shelf and spigot not credited): 11 kg
+- made-part mass (estimate, excludes bought-in parts): 40.8 kg
 
 STATUS
 Design v0.1, not yet built, and the launcher head throws balls at 30+ m/s:

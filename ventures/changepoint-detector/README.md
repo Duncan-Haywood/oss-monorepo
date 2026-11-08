@@ -22,7 +22,7 @@ methods from published papers, run on your own data, with the papers cited.
   doi:[10.1080/01621459.2012.737745](https://doi.org/10.1080/01621459.2012.737745).
   Exact minimum of Gaussian -2 log-likelihood plus a penalty per change, for a
   change in mean (noise sd estimated once from the median absolute difference
-  of successive points) or in mean and variance (minimum segment 5 by default).
+  of successive points) or in mean and variance (minimum segment 10 by default).
   A third model, `poisson`, is for count series (visits, orders, incidents
   per day): the cost is the Poisson -2 log-likelihood with one rate per
   segment, and the Bayesian pass uses the Gamma-Poisson conjugate pair
@@ -54,7 +54,7 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test` (47 tests). What they check:
+`node --test` (321 tests). What they check:
 
 - **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
   planted changes, mean and mean-and-variance models, several penalties) the
@@ -65,8 +65,8 @@ where it departs from the paper.
 
 - **Against the literature:** on the Nile series (data/SOURCE.md) PELT puts
   the change at index 28, the first year of the new level being 1899: the
-  same answer Cobb (1978) gives and R's `changepoint::cpt.mean(Nile,
-  method = "PELT")` reports (`cpts = 28`). Output of `node cli.mjs --example`
+  same answer Cobb (1978) gives (R's `changepoint::cpt.mean(Nile)` is expected
+  to agree but was not run here). Output of `node cli.mjs --example`
   on 2026-10-20: segments 1871-1898 (mean 1097.75, sd 135.0) and 1899-1970
   (mean 849.97, sd 124.8); Bayesian probability 79% at 1899, the only point
   above 50%. The mean-and-variance model gives the same single change.
@@ -362,12 +362,14 @@ series, 40 each, in `engine.test.mjs`):
 - **Growth-change range scored with the NB cost (2026-10-23).** The 2026-10-22 fix widened a Poisson-scored range by `1 + mean / size`. The range now refits each candidate knot with the negative-binomial cost itself (`eval/growth-change-interval-nb.mjs 100 <seed> 0.35 nb`, seeds 2026, 7, 99, three bump sizes): the planted bend sits inside the range on 145 of 161 found bends (90%) against 142 of 161 (88%) for the ratio widening, with narrower ranges (seed 2026, median width 79, 70 and 61 points against 139, 100 and 61). The weakest cell is still bump 0.04 on seed 7 (10 of 15). Runs a few seconds per series.
 - **Growth-change range on clumpy counts widened to 95% (2026-10-26).** The NB-scored range covered the planted bend on 145 of 161 found bends (90%). The NB path now tempers the weights by 1.4 instead of 1.15 (`RANGE_TEMPER_NB`; Poisson keeps 1.15). Tuning seeds 2026, 7, 99 (`eval/growth-change-interval-nb.mjs 100 <seed> 0.35 nb`): 1.15 covered 145/161, 1.4 153/161 (95%), 1.7 157/161 (97.5%, wider ranges). Held-out seeds 3, 11, 500, run once at 1.4: 161 of 170 found bends (94.7%); the weakest cell is still bump 0.04 (38 of 44, 86%). Output in `eval/growth-change-interval-nb-temper.out.txt`. Ranges are about 15% wider than before. Two further fresh seeds (41, 77; never used for tuning, 2026-10-26) covered 101 of 107 found bends (94.4%), so the 95% holds on 277 found bends across five untuned-or-held-out seeds taken together; the bump 0.04 cell stays low (18 of 21, 86%, small counts), so treat ranges on steep bends as slightly optimistic. Open: a real series with a documented slope break.
 - **The steep-bend range is under-covered (2026-10-27, `eval/growth-change-interval-nb-steep.out.txt`).** Four more fresh seeds (5, 13, 29, 61; same script, temper 1.4, nothing tuned) covered 198 of 215 found bends (92.1%): bump 0.015 83/84 (99%), 0.025 68/73 (93%), 0.04 47/58 (81%). With the earlier 21 steep bends that is 65 of 79 (82%) for bump 0.04, so the 95% label is optimistic there; the steep cell has the narrowest median ranges (43 to 52 points against 90 or more). Not retuned: raising the temper for steep bends would be fitting this one synthetic design. Synthetic only; a real series with a documented steep slope break is still wanted. From 2026-10-27 the NB growth range carries this caveat itself: the CLI prints a note under it and the JSON has `trend.growthChangeRangeNote` (not set for Poisson).
+- **Steep-bend range, replicated (2026-11-08, `eval/growth-change-interval-nb-steep-only.mjs`, output `.out.txt`, no code change).** Four fresh seeds (9101-9104, 250 series each, bump 0.04 only, temper 1.4, nothing tuned): found 138 bends, range held the planted knot on 108 (78%; per seed 74, 89, 61, 88%). With the 79 earlier steep bends that is 173 of 217 (80%). So the shortfall is real, not seed noise, and the note under the range (about 82%) is slightly generous: 80% is the better figure. Still not retuned (a temper chosen on this one synthetic design would be fitting it); a real series with a documented steep slope break is still wanted. Only 14% of the series were scored as found (the bend must also be located within 20 points), so the 80% is conditional on a successful detection.
 - **A real count series with a documented break: the UK seat-belt law (2026-10-26).** Monthly car drivers killed or seriously injured in Great Britain, 1969-1984 (`data/uk-driver-deaths.csv`, 192 months); the front-seat belt law took effect on 31 January 1983 (Harvey and Durbin 1986). `node eval/seatbelt-law.mjs` (output in `eval/seatbelt-law.out.txt`, test `seatbelt-law.test.mjs`). `--model poisson --period 12 --overdispersion nb` returns 8 changes, one of them 1983-01 (1600 to 1329 a month) with `range95` 1983-01 to 1983-02, which holds the first full month under the law; the other changes include the winter-1973 dip (1973-11, range 1973-10 to 1973-11, fuel rationing and the new speed limits that winter) and the 1974 rebound. Adding `--trend bends` gives the same date and range. Two things the series shows: plain `--model poisson --period 12` treats the clumpy counts as exact Poisson and returns 33 changes, so use `--overdispersion nb` on counts like these; and `--model mean --period 12` finds 1983-01 (range 1982-12 to 1983-02) but also a 2-month dip in 1981-12 and 1982-02 that the count model does not report. One series, one documented break, 0 of 1 misses: this shows the range is not absurd on real data, not that it is calibrated (the calibration is the seeded sets above). The date is one month before the law's first full month, as the January 1983 count is already low.
 - **A real ramp series: West German unemployment, 1962-1991 (2026-11-05).** Quarterly rate (`data/german-unemployment.csv`, 120 quarters, unadjusted and seasonally adjusted, from AER `GermanUnemployment`). It is near 1% to 1973, ramps through the 1974-75 recession to about 4.5%, then through the 1980-82 recession to about 9%, so there is no clean step to date. `--model mean` returns 24 changes on the adjusted column and 10 on the unadjusted one (it reads each ramp as a staircase). `--model mean --ar1` returns 2: 1974Q3 (1.05 to 4.33) and 1981Q4 (4.33 to 8.28) adjusted, 1974Q4 and 1981Q4 unadjusted. `--ar1` also drops the real 1966-67 recession bump (the default finds it as 1967Q1, 0.7 to 2.2), and `--period 4 --ar1` on the unadjusted column keeps only one change, 1981Q3, and loses 1974: giving the period costs the step. `--ar1 joint` returns 4 (1974Q4, 1981Q4, 1982Q4, 1989Q1). `--model trend` returns 12. Test `german-unemployment.test.mjs`. One series: the dates `--ar1` keeps sit on the two documented recessions, but the rate had been ramping for a year or more before them, so they mark the midpoint of a ramp, not an event; this adds a second real case of `--ar1` taming an over-cut, and the same price as in Gallup (a smaller real change goes).
 - **A real inflation series with documented regime changes: Argentina, 1970-1989 (2026-11-05).** Quarterly log change of the CPI (`data/argentina-inflation.csv`, 79 quarters, from AER `ArgentinaCPI`). Two breaks are documented: the Austral Plan of 14 June 1985 and the 1989 hyperinflation. `--model mean` returns 10 changes, among them 1985Q3 (mean 0.661 to 0.165 a quarter, 9.5 noise sd) and 1989Q2 (0.278 to 1.16); `--model mean --ar1` returns 5 and keeps both (1985Q3: 0.539 to 0.254; 1989Q2). `--model meanvar` misses the plan's quarter: it puts the change at 1985Q2 as a 0.65 sd move (the quarter before the plan is a huge spike, so the variance term absorbs it), and `--model mean` without `--ar1` reports the series' rho of 0.57 and warns that its 10 steps are probably over-cut. Test `argentina-inflation.test.mjs`. One series, two documented breaks, 0 of 2 missed by the mean model; the other 8 default changes (1975Q3, 1976Q3, 1982Q3 ...) have no documentation behind them, so this says the dates are right on real data, not that the count is.
 - **Shocks with a measured cause: Florida orange-juice prices, 1950-2000 (2026-11-05).** Monthly real price (`data/frozen-juice.csv`, 612 months, AER `FrozenJuice`) with `fdd`, Orlando freezing degree days, as ground truth: eight months have 19 or more (1958-01, 1963-01, 1970-01, 1977-02, 1981-02, 1984-01, 1985-02, 1990-01). Default `--model mean`: 148 changes, all 8 freezes found (within 2 months), but only 13 of the 148 sit near one. `--ar1`: 10 changes, 3 of 8 freezes (1958, 1963, 1977). `meanvar`: 32 changes, 5 of 8. So a setup that stops the over-cut loses most real shocks and one that keeps them over-cuts: item (4) of `next:` has a measured case now. `eval/frozen-juice.mjs`, test `frozen-juice.test.mjs`. Fdd is not a perfect truth (a freeze's price effect lags and depends on the crop), so read the 13 of 148 as a ceiling on precision, not a rate.
 - **A real daily count series with a documented shock: Puerto Rico deaths and Hurricane Maria (2026-10-29).** All-cause deaths per day, 1,201 days from 2015-01-01 (`data/puerto-rico-daily-deaths.csv`, R's `dslabs::pr_death_counts`). Maria made landfall on 2017-09-20; the count was 106 that day against a 60-day mean of 78.5. `node eval/maria-deaths.mjs` (output `eval/maria-deaths.out.txt`, test `maria-deaths.test.mjs`). All five setups (`mean` and `poisson --overdispersion nb`, with no season, weekly 7 or yearly 365) put a change within a day of landfall, 78.8 to 82.1 per day before and 101.7 to 119.8 after, and the `range95` holds 2017-09-20 in all five (a single day in three of them). The cost is the same as for Ansett: 9 to 11 other changes, mostly the winter peak and the rebound (a drop to about 90 on 2017-10-08 or 10-29), which a three-year series cannot pin as a yearly cycle (a yearly period gave 10, not fewer). The detector reports the rebound as a second change rather than a burst. Two real events now hold, one closure and one shock.
 - **A real monthly series with a documented rule change: Peace Bridge traffic and the 2009 passport requirement (2026-11-01).** Monthly vehicle traffic over the Buffalo-Fort Erie bridge, 156 months from 2003-01 (`data/peace-bridge.csv`, R's `Stat2Data::PeaceBridge2003`). The US required passports for land crossings from 2009-06-01, inside the 2008-09 recession. `node eval/peace-bridge.mjs` (output `eval/peace-bridge.out.txt`, test `peace-bridge.test.mjs`). The seasonal mean model (`--period 12`) puts a step down on exactly 2009-06 (498 to 466, `range95` 2009-05 to 2009-06), but it returns 14 changes, most of them 3 to 6 month swings (including a reversal 2009-09 back up to 503), so the passport step is found and is not distinguishable from the recession or the other wobbles. The seasonal count model (`poisson nb`) is worse on the date: its nearest change is 2008-12, and a wide `range95` (2009-02 to 2011-03) is what holds June 2009. Without a season both models chase the July-August peak (26 to 29 changes). One series and a confounded event: this shows the range can hold a documented date, not that the step is the rule's effect and not that this series is quiet elsewhere (it is not), so the open item "a closure series quiet outside the closure" stays open.
+- **Two more smooth real series (2026-11-06).** Box-Jenkins sales in logs (`data/bjsales.csv`, 150 values, R's `datasets::BJsales`) and US census population 1790-1970 in logs (`data/uspop.csv`, 19 values). BJsales has no documented break: `--model trend` reports 12 changes, `--model mean` 25 (with the range warning), `--model mean --ar1 auto` 1 (at 90, a 1.5-sd shift), and `--noise-floor 1` changes nothing (12). So the over-cut of smooth drift is not special to austres, and an AR(1) error term is the one thing that tames it here. uspop is short and `--model trend` reports one change, at 1890, where the growth rate per decade falls from 0.29 to 0.14 in logs (95% range 1880 to 1910): a slowdown that is real in the census counts (recalled that the rate fell through the 19th century; no paper read), not a labelled test. The level model gives 8 and the AR(1) model 0. `node eval/smooth-pair.mjs` (output `eval/smooth-pair.out.txt`, test `smooth-pair.test.mjs`). Still wanted: a documented break inside a long smooth series.
 - **A smooth real series with no break: Australian residents, quarterly 1971-1993 (2026-11-04).** 89 values in logs (`data/austres.csv`, R's `datasets::austres`). Nothing documented changed, yet `--model trend` reports 10 changes (and a cycle warning), a level-only model 43 (with the range warning), and `--model mean --ar1 auto` 9. A near-deterministic growth curve has almost no noise, so any bend clears the penalty: the tool over-cuts a smooth, low-noise series, and the warnings (cycle, range) are the only signal. A negative result, listed, not scored; no fix yet. `node eval/austres.mjs` (output `eval/austres.out.txt`, test `austres.test.mjs`). Wanted: a noise floor tied to the series' own scale.
 
   **First fix: `--noise-floor k` (2026-11-04, off by default).** sigma is at least `k` times the median absolute step between neighbours, so a steady drift per step sets a floor even when the scatter of the differences is tiny; white noise has median |step| of about 0.95 sigma, so `k` below 1 never binds on a flat noisy series. On austres `--model trend` goes 10 changes (k=0), 4 (0.5), 3 (1), 1 (2); `--model mean --ar1 auto` 9, 3, 2, 1; the level-only model still reports a staircase (22 at k=1), as it must on a growing series. Cost: on 200 synthetic series with one 1.5-sd step the step is found 160 times with or without the floor (k=1), but the floor bound on 15 and changed the answer there. k is a knob, not a calibrated default: no k is justified yet by a documented real break in a drifting series. **Real series (2026-11-04):** `node eval/noise-floor-real.mjs` (output `eval/noise-floor-real.out.txt`, test `noise-floor-real.test.mjs`) runs k = 0, 0.5, 1, 2 on six committed real series (Nile, Lake Huron, Peace Bridge with a 12-month season, airmiles in logs, UK gas in logs, New Haven temperature). k up to 1 changes no answer on any of them, so k=1 costs nothing on these; k=2 does: Peace Bridge goes 14 changes to 4 and loses the documented 2009-06 change, New Haven's 1944 step vanishes, Lake Huron goes 10 to 5. So k=1 is the largest value tried that is safe here; none of the six is a drifting series with a documented break, so that is still the missing evidence for a default. `node eval/noise-floor.mjs` (output `eval/noise-floor.out.txt`, test `noise-floor.test.mjs`). **A drifting real series (2026-11-04, negative result):** `data/us-real-gdp.csv` is log US real GDP, 1950Q1 to 2000Q4 (204 quarters, R's `AER::USMacroG`, source in `data/SOURCE.md`); the documented break is the early-1970s productivity slowdown (recalled, no paper read, so a plausibility check, not a labelled test). `node eval/noise-floor-gdp.mjs` (output `eval/noise-floor-gdp.out.txt`, test `noise-floor-gdp.test.mjs`): `--model mean` returns 60, 40 and 26 changes at k = 0, 1, 2 (a staircase, as expected on growth); `--model trend` returns 20, 14 and 7. Only k=2 gets near a short list, and then 1974Q4 is the nearest to the slowdown but sits among six other cuts at business-cycle dates (1953Q4, 1957Q4, 1965Q3, 1978Q4, 1983Q3, 1990Q4). So no k in {0, 1, 2} isolates the documented break here, and k=2 already costs documented breaks on the real series above: the evidence for a calibrated default is still missing, and this series says the knob alone is not enough on a cyclical drift. **Differencing instead (2026-11-04):** `node eval/gdp-growth.mjs` (output `eval/gdp-growth.out.txt`, test `gdp-growth.test.mjs`) runs the level models on annualised quarterly growth, no k. `--model mean` gives 10 changes (1950Q4, 1953Q3, 1954Q2, 1957Q4, 1958Q2, 1973Q3, 1975Q2, 1979Q1, 1983Q1, 1984Q3): the 1973Q3 cut lines up with the slowdown, among business-cycle cuts; with `--ar1 auto` it reports none; `--model meanvar` reports exactly one, 1984Q3, the Great Moderation (recalled date, not a paper read). So on a drifting series differencing first beats any k tried above, and the volatility break is the cleaner finding. The slowdown itself is not isolated by a mean shift alone. Not tried: a k between 1 and 2, a robust trend fit under the steps.
@@ -526,6 +528,19 @@ The last "not tried" item above: fit the holiday factor only inside short window
 | casual | 7 | 52 | 58 | 0.84 to 2.71 (median 1.75) |
 
 Negative again. Short windows do not make the list remove changes: it adds five (registered) and six (casual) over the seven windows, and fits are two to four holidays each, so they scatter (the registered factor even goes above 1 once). Holiday dips on this series are real in the pooled data but too few per window to estimate. The feature still has no real series where it earns its place; wanted is a shop's or office's daily counts with many closed days. One dataset, made-up window length (84 days, not tuned).
+
+## A yearly (period 365) term on the bike-share days (2026-11-05, negative result)
+
+The remaining "not tried" item for the bike-share series. `node eval/holiday-bikes-yearly.mjs` (output `eval/holiday-bikes-yearly.out.txt`, test `holiday-bikes-yearly.test.mjs`) runs `--model poisson --overdispersion nb` with `--period 365` instead of 7, with and without the dataset's 21 holidays.
+
+| series | period | changes, no list | changes, with list | holiday factor |
+|---|---|---|---|---|
+| registered | 7 | 56 | 61 | 0.877 |
+| registered | 365 | 134 | 125 | 0.894 |
+| casual | 7 | 70 | 77 | 1.796 |
+| casual | 365 | 129 | 120 | 1.032 |
+
+A period of 365 more than doubles the changes (134 and 129): two years give each day-of-year factor only two observations, so the fit follows noise and PELT cuts around it. With that term the list does remove changes (nine in each series), but only because a factor fitted on two points per day-of-year already absorbs part of a holiday; the casual factor falls to 1.03 against the raw ratio of 1.41. Read it as: a yearly term needs more than two cycles, and the holiday list is still not shown to earn its place on this series. Wanted: a daily series of five or more years with a mild yearly swing and deep holiday dips (US births, 11 years, is the one so far, below).
 
 ## Holidays on real daily births: the first real series where the list helps (2026-11-04)
 
@@ -1537,3 +1552,176 @@ Not done: no model with a slow return (an AR(1) around a level, with steps) is f
 - `--ar1` is the same trade as the Australian arrivals: it drops the false alarms and also the real 1973 shock.
 - Nothing cuts 1964Q1, the jump from 57 to 80 after the Kennedy assassination: the rally decays within a year, so it reads as a spike, not a step (flagship item 4 again).
 - Wanted: the approval series at monthly resolution, where the 1964 rally is longer.
+
+## Lakes Michigan-Huron: a fall to a new, lower level (2026-11-06)
+
+`data/michigan-huron.csv` is the yearly mean level of Lakes Michigan-Huron, 1918-2009, 92 rows, metres (DAAG `greatLakes`; `michigan-huron.test.mjs`, 3 tests). The lake fell from 176.98 m in 1997 to 175.95 m in 2001 and has stayed low since, a documented drop. The series is nearly a random walk (lag-1 rho about 0.9). Run 2026-11-06, no tuning:
+
+| Setup | Cuts |
+|---|---|
+| Defaults | 12, including 1999 (the others: 1923, 1928, 1931, 1942, 1951, 1956, 1963, 1966, 1969, 1985, 1988) |
+| `--bootstrap` | 9, including 1999 |
+| `--ar1` | none |
+| `--model meanvar` | 2: 1969, 1999 (range for 1999: 1999 to 2000) |
+
+- The same trade as Lake Huron: the default finds the real fall but also cuts the slow swings, `--ar1` removes all of it including the real fall, and the rho warning fires.
+- `meanvar` is the tidiest here, but its own warning says the leftover has autocorrelation (lag 1: 0.61) and clustered volatility, so 1969 is a candidate, not a finding.
+- Wanted: a lake-level series with a documented step that `--ar1` keeps (flagship item 0, 4b).
+
+## US personal saving rate: a slow decline cut into steps (2026-11-06)
+
+`data/us-saving-rate.csv` is the US personal saving rate, monthly 1967-07 to 2015-04, 574 rows (FRED PSAVERT via ggplot2
+`economics`; `us-saving-rate.test.mjs`, 3 tests). It falls gradually from about 12% to about 2% by 2005 and then jumps in
+2008-09: mostly drift, with one documented shock. Run 2026-11-06, no tuning, rho about 0.75:
+
+| setup | changes | notes |
+|---|---|---|
+| default `mean` | 56 | a step every ten months or so; the range warning fires |
+| `--bootstrap` | 49 | barely helps |
+| `--ar1` | 7 | 1970-03, 1975-12, 1985-02, 1993-07, 1999-03, 2005-01, 2008-10 |
+| `meanvar` | 24 | |
+
+So this is another case where the default over-cuts a drift, and `--ar1` is the setup that reads it sensibly, though its
+seven cuts are a staircase down the decline and only 2008-10 is a documented event. The drift warning (`driftWarning`) did not fire
+here. One series, no truth labels besides 2008, no tuning, so it is a case study and not a calibration.
+
+## US median unemployment duration: a documented level shift among recession cycles (2026-11-06)
+
+`data/us-unemployment-duration.csv` is the median number of weeks unemployed, monthly 1967-07 to 2015-04, 574 rows (FRED
+UEMPMED via ggplot2 `economics`; `us-unemployment-duration.test.mjs`, 3 tests). It swings 4 to 12 weeks with each recession,
+then climbs to about 25 weeks in 2009-10 and stays high until 2015: the largest and best documented shift in the series.
+Run 2026-11-06, no tuning, rho about 0.69:
+
+| setup | changes | notes |
+|---|---|---|
+| default `mean` | 53 | cuts every recession and recovery; the rho range warning fires |
+| `--bootstrap` | 48 | barely helps |
+| `--ar1` | 15 | includes 2009-02, 2009-06, 2009-11 (the rise is cut three times, not once) |
+| `meanvar` | 27 | has 2008-07 and 2009-05; the leftover-autocorrelation warning fires |
+
+So all four setups find the 2009 rise, but none reports it as one step: a ramp from 10 to 25 weeks over a year is cut into
+two or three, and the default adds recession cycles on top. One series, no truth labels besides the 2009 rise, so it is a case
+study and not a calibration. Wanted: a way to merge adjacent cuts that belong to one ramp (flagship item 0).
+
+## Ramps: adjacent same-direction cuts reported as one (2026-11-07)
+
+`ramps.mjs` (`groupRamps`, `ramps.test.mjs`, 3 tests) is a post-process on the changes already found. Two or more
+consecutive changes that move the level the same way, with every segment between them at most a fiftieth of the series
+long (at least 3 points), are listed once as a `ramp` in the JSON and in the CLI. The changes themselves are unchanged.
+On the unemployment-duration series with `--ar1` the three 2009 cuts become one rise, 2009-02 to 2009-11, 9.19 to 21.32
+weeks (+12.13); 2012-02 to 2012-12 shows as a two-cut fall. It is a grouping rule, not a test: a run of real steps
+close together also groups, and there is no calibration on labelled ramps. Wanted: a series with documented ramps and
+documented close steps, to see which way it errs.
+
+### Gap rule on synthetic ramps and staircases (2026-11-07, `eval/ramp-gap.mjs`, synthetic only)
+
+n = 300, N(0,1) noise, 40 seeds per cell, default `maxGap` 6, plain `analyze` (no `--ar1`). Truth A: a linear rise of height H starting at
+point 120 over L points. Truth B: two steps of H/2, L points apart. Output: `eval/ramp-gap.out.txt`.
+
+| truth | H | L (span or gap) | ramp reported |
+|---|---|---|---|
+| ramp | 8 | 6 / 12 / 24 / 48 | 38 / 30 / 8 / 0 of 40 |
+| ramp | 4 | 6 / 12 / 24 / 48 | 5 / 7 / 0 / 0 of 40 |
+| two steps | 8 | 6 / 12 / 24 / 48 | 38 / 0 / 1 / 0 of 40 |
+| two steps | 4 | 6 / 12 / 24 / 48 | 24 / 0 / 0 / 0 of 40 |
+
+Reading: a gap of 6 reports a ramp from two steps 6 points apart as often as from a real 6-point ramp (38 of 40 both), so the rule cannot tell
+them apart there. That is by design ("not a test"). New: with a ramp of 24 to 48 points the rule almost never fires (0 to 8 of 40), because PELT
+cuts a long ramp into segments longer than 6; the cut count per series rises (3.0 to 3.6 at H=8) while the grouping stays silent. Two
+steps 12 or more apart are never grouped, correctly. So `maxGap` at a fiftieth of the series catches short ramps and misses long ones; widening
+it would also group genuine staircases. Synthetic, one noise model: not a calibration on real ramps, which are still wanted.
+
+### Ramps by fit (2026-11-08, `eval/ramp-gap.mjs`, `eval/ramp-gap-fit.out.txt`, synthetic only)
+
+`analyze` now passes the series to `groupRamps`, which groups same-direction cuts separated by up to a fifth of the series, then keeps a
+run as one ramp only if a flat-line-flat fit (two levels, a straight line between two knots placed anywhere from the previous cut to
+the next one; 4 parameters) beats the steps PELT found by BIC (2k+1 parameters for k cuts, so the steps pay for their positions). If the
+run fails, its last cut is dropped and it is tried again. Called without `values`, `groupRamps` keeps the old gap rule. Same simulation
+as above (n = 300, N(0,1), 40 seeds, plain `analyze`), ramp reported of 40:
+
+| truth | H | L = 6 / 12 / 24 / 48 | gap rule before | by fit now |
+|---|---|---|---|---|
+| ramp | 8 | | 38 / 30 / 8 / 0 | 27 / 29 / 39 / 40 |
+| ramp | 4 | | 5 / 7 / 0 / 0 | 5 / 17 / 33 / 33 |
+| two steps | 8 | | 38 / 0 / 1 / 0 | 1 / 1 / 0 / 0 |
+| two steps | 4 | | 24 / 0 / 0 / 0 | 6 / 9 / 3 / 0 |
+
+Reading: long ramps (24 to 48 points) are now found in 33 to 40 of 40 instead of 0 to 8, and two steps 6 apart are no longer called a ramp
+(38 to 1 of 40 at H=8). The price: a 6-point ramp of height 8 is found 27 of 40 instead of 38, and H=4 steps 12 apart are called a ramp 9 of 40
+(a small step pair next to noise looks like a bent line). Short ramps and close steps are genuinely alike in the data; this rule only claims
+that a long one is a line. The real 2009 US unemployment-duration rise is still one ramp (test `ramps.test.mjs`). Still synthetic with one noise
+model, no `--ar1`; no labelled real ramps tested. Next: sticky noise (`--ar1`), and real documented ramps.
+
+### Ramps in sticky noise (2026-11-08, `eval/ramp-ar1.mjs`, `eval/ramp-ar1.out.txt`, test `ramp-ar1.test.mjs`, synthetic only)
+
+The "Next: sticky noise" item above, run: n = 300, AR(1) noise with unit marginal sd, 40 seeds per cell, ramp of height 8 starting at 120. Series with a ramp reported, plain `analyze` against `ar1: true` (cuts per series in brackets):
+
+| noise | truth | plain | `--ar1` |
+|---|---|---|---|
+| rho 0 | none | 0 / 40 (0.1) | 0 / 40 (0.0) |
+| rho 0 | ramp over 12 / 24 / 48 | 34 / 38 / 40 | 34 / 38 / 40 |
+| rho 0.5 | none | 0 / 40 (11.7) | 0 / 40 (0.1) |
+| rho 0.5 | ramp over 12 | 38 / 40 (13.8) | 13 / 40 (1.5) |
+| rho 0.5 | ramp over 24 | 35 / 40 (14.5) | 35 / 40 (1.9) |
+| rho 0.5 | ramp over 48 | 33 / 40 (13.8) | 37 / 40 (2.7) |
+
+Reading: with rho 0.5 the plain run makes 12 to 15 cuts per series, so a "ramp" there is one of many groups and says little (the 33 to 38 of 40 do not mean the plain run finds the ramp: it cuts the noise as well). `--ar1` brings the cuts to 0.1 on a null and 1.5 to 2.7 on a ramp, and keeps the ramp from 24 points up (35 to 37 of 40, all on the truth span). The price is that a short, 12-point ramp is found only 13 of 40 times, because the wider noise scale reads it as one step or nothing. Synthetic, one noise model, one height; real documented ramps are still wanted.
+
+## A real series that rises, then flattens and falls: Australian beer (2026-11-07)
+
+`data/ausbeer.csv` is quarterly Australian beer production, 1956Q1 to 2010Q2 (218 points, fpp2's `ausbeer`, source in `data/SOURCE.md`). Production grew to the mid-1970s and drifted down afterwards (recalled, not checked against a paper: a plausibility check, not a labelled test). `eval/ausbeer.mjs` (output `eval/ausbeer.out.txt`, test `ausbeer.test.mjs`) runs it with `--period 4`.
+
+- **Level only (`mean`):** 10 steps raw, 11 on the log. A slow rise and fall is read as a staircase.
+- **`--trend bend`, log series:** one slope change at **1976Q2**, range **1975Q2 to 1978Q1**, with the slope falling afterwards.
+- **`--trend bend`, raw series:** 1977Q3, but the range runs from **1974Q3 to 1989Q1**, 15 years wide. The same bend is dated, but the raw scale cannot place it.
+- **`--trend bends`:** an early bend at 1961Q4 and the mid-1970s one on both scales; the log run adds one at 1990Q3 (range 1988Q3 to 1994Q2). Steps left over include 1983Q1, 1988Q2 and 1992Q1 in most runs; what happened in those quarters was not checked.
+
+Read plainly: here the log scale gives a much tighter range than raw, the opposite of UK gas (README, above), where the log lost the bend. One series, no claim about rates.
+
+## Boston Marathon: a documented step the data does not show (2026-11-08)
+
+`data/boston-marathon.csv` (winning times in minutes, 1897-2016, 120 values, fpp2 `marathon`) was tried as the "documented break inside a long smooth series" the flagship wanted. The course was lengthened from about 24.5 to the full 26.2 miles in 1924 (recalled from the Boston Athletic Association's history; the BAA page was not read). It is not a test: the winners' mean is 153.0 minutes in 1897-1923 and 152.2 in 1924-1950, because faster runners offset the longer course. No model dates a change at 1924. The default reports 9 changes (1900 to 1978, with the range warning), `--model mean --ar1 auto` 6, `--model trend` 7, `--model meanvar` 5; all four date changes at 1953 and 1978, and the first three at 1932. Listed, not scored: no label in the data says what 1953 or 1978 were. `node eval/boston-marathon.mjs` (output `eval/boston-marathon.out.txt`, test `boston-marathon.test.mjs`). Still wanted: a documented step whose size shows in the series.
+
+### Saudi oil production (2026-11-08)
+
+`data/saudi-oil.csv` (millions of tonnes a year, 1965-2013, 49 values, fpp2 `oil`) is a long real series whose big moves have names, recalled and not read from a source: the 1973 embargo and price jump, the 1982-85 fall when Saudi Arabia cut output as swing producer, and the 1990-91 Gulf War surge. The default level model reports 8 changes (1971, 1973, 1979, 1982, 1984, 1988, 1991, 2003); the 1973 one has a mean of 272.5 before and 417.2 after, 5.4 noise sd. `--model trend` reports four (1972, 1982, 1986, 1991), one near each event. `--model meanvar` reports 1991 and 2003. `--model mean --ar1 auto` reports none: the year-to-year persistence of production absorbs the 1970s rise, the 1980s fall and the 1991 surge as one slow wave, the same over-absorbing seen on GDP. So on this series the AR(1) setting hides three events a reader would call real, which fits the case against reading `--ar1 auto` as an over-cut cure. Not a scored benchmark: no label file exists, and 1979, 1984, 1988 and 2003 are unexplained. `saudi-oil.test.mjs`, source in `data/SOURCE.md`. Still wanted: the same on a series with a source-labelled date.
+
+## Australian departures: two documented shocks no model cuts (2026-11-08)
+
+Monthly short-term resident departures from Australia, 1976-01 to 2017-06 (498 months, `fpp2::departures`, `data/au-departures.csv`, `au-departures.test.mjs`). The Bali bombing (2002-10) and SARS (2003-04 to 06) are documented dips in outbound travel. With `--period 12`: the seasonal mean model cuts 42 times, `--ar1` 28 (`auto` the same), `--model trend` 21. The mean models have no cut between 2002-09 and 2003-07 (nearest 2003-12, a growth step, not the shock). The trend model cuts 2003-03, one month before SARS began, so it is a trend break that happens to sit beside the shock, not a detection of it. The series grows about eightfold with a widening season, so most cuts are the over-fit staircase on drift that the block-variance warning already describes. Reading: a 3-month dip inside a growing, widening season is below what the penalty keeps, and nothing here is a real step to test against. Still wanted: a documented step inside a cycle.
+
+## Australian air passengers: one date the models agree on (2026-11-08)
+
+`data/ausair.csv` (annual air transport passengers in millions, 1970-2016, 47 values, fpp2 `ausair`) is a smooth, fast-growing series with two events recalled from memory (not read from a source): the 1989 domestic pilots' dispute and the 2001 Ansett collapse with 11 September. `--model mean --ar1 auto` reports one change, 2002; `--model trend` reports 1989, 1993, 2002 and 2010; `--model meanvar` reports 1980, 1991 and 2002 (with the range warning). Three of four models date 2002, one year after the events (annual data, so the first full year of lower traffic), and only the trend model dates 1989. The default mean model reports 13 changes, 1973 to 2015, with the range warning: the same over-cut on smooth growth as GDP and the Saudi oil series. Not a scored result: the size of either event is not known from a source, only the dates are. `node eval/ausair.mjs` (output `eval/ausair.out.txt`, test `ausair.test.mjs`). Still wanted: a documented real ramp or close steps.
+
+## US female murder rate: two slope bends where homicide turned (2026-11-08)
+
+`data/us-female-murder-rate.csv` (per 100,000, 1950-2004, 55 values, fpp2 `wmurders`, source in `data/SOURCE.md`) rises through the 1960s, plateaus in the 1970s and falls from the 1990s. US homicide peaking near 1980 and again about 1991-93 is recalled, not read from a source, so this is a plausibility check, not a labelled test. The level model cuts it 10 times (1960 to 2002), the staircase-on-a-shape over-cut seen on GDP and beer. `--ar1 auto` keeps one (1966), `--model trend` five (1963, 1976, 1983, 1994, 2001), `--model meanvar` three (1960, 1971, 1995). `--trend bends` finds two slope changes: **1980** (range 1975 to 1983) and **1993** (range 1990 to 1994), one at each recalled turning point, the second inside a range of five years. `--trend bend` alone dates 1980 with a wide range (1970 to 1983). Read plainly: when the shape is a rise then a fall, the bend model, not the step models, gives the dates a reader would expect. One series, a female-only rate, no claim about rates for others. `node eval/us-female-murder-rate.mjs` (output `eval/us-female-murder-rate.out.txt`, test `us-female-murder-rate.test.mjs`). Still wanted: a documented break with a source-labelled date.
+
+## Cement and the 2000 GST: a step inside a seasonal, wandering series (2026-11-08)
+
+`data/qcement.csv` (Australian quarterly cement production, 1956Q1 to 2014Q1, 233 values, `fpp2::qcement`, source in `data/SOURCE.md`, `qcement.test.mjs`). Australia's goods and services tax began on 1 July 2000 (recalled, not checked against a source): 2000Q2 is the year's high (2.07), then 1.90 and 1.65. This is the "real step inside a cycle" the flagship asked for, with `--period 4` on the log.
+
+- **Dated, among 20 or more other cuts.** The level model (raw or log) puts a change at 2000Q4 (raw also 2001Q4); `--model trend` at 2000Q3 and 2001Q4; `--trend bend` at 2000Q3. Each of these cuts the series 20 to 25 times, because production wanders with the building cycle (the log level model has 25 changes), so the GST date is one cut among many, not a finding the tool singles out.
+- **Absorbed, not missed on purpose.** `--ar1 auto` (8 changes), `--ar1 joint` (6) and `--model meanvar` (9) date nothing in 1999 to 2001: the 2000 fall is read as part of a wandering level. `--slope-breaks` clears no bar on the bent log series.
+- **What it says.** A documented step coinciding with a pull-forward bulge is found only by the over-cutting models and lost by the ones that fix the over-cutting. The same trade as the Saudi oil and Australian departures series: no setting both keeps the 2000 date and stays quiet elsewhere. Still wanted: a real step in a series that does not wander.
+## A documented fall in 24 points: Crimean War disease deaths (2026-11-08)
+
+A real series with a dated cause: the British army's monthly death rate from disease in the Crimea, April 1854 to March 1856 (Nightingale's figures, `data/nightingale-disease.csv`, source in `data/SOURCE.md`). The Sanitary Commission reached the Crimea in March 1855 and deaths fell from there. Run with `node cli.mjs --model mean --min-segment 3`:
+
+- PELT cuts four steps: up at 1854-08 and 1854-12, **down at 1855-03** (826 to 269 per 1,000, 80% Bayesian probability within 3 points), and down again at 1855-07. The first fall is dated to the month of the Commission.
+- With `--log` the fall is dated 1855-04 (one month late) and the tool reports three cuts from 1855-04 to 1856-01 as "one fall from 6.57 to 1.89", which is the right reading: the decline is a ramp, not a step.
+- The warning that the series is autocorrelated (rho about 0.95) fires, as it should, and `--slope-breaks` refuses at 24 points (needs 40).
+
+Limits: 24 points, one series, one cause; the Commission's arrival coincided with winter ending, so this shows the date lines up, not that the tool separates sanitation from season (no seasonal term fits in 24 months). Test: `nightingale.test.mjs`. This is a documented fall dated within a month, not yet a real break clearing the slope-break bar.
+## US electricity generation: a documented stall the slope test cannot yet claim (2026-11-08)
+
+`data/us-electricity.csv` (US monthly net generation, 1973-01 to 2013-06, 486 months, fpp2 `usmelec`, `us-electricity.test.mjs`). US generation grew for decades and peaked in 2007 (recalled, not read from a source). With `--period 12` the fixed-season `mean` model cuts it 38 times, because the summer peak grows with the level; `--ar1 joint` keeps three (1978-09, 1989-02, 1998-05) and none is near 2007. On annual totals (40 values) the slope-break test puts its best kink at 2007 (growth about +67 a year before, -20 after) but W = 7.5 against a bar of 9.2 (p = 0.10): five post-peak years are too few, so the detector reports no slope break. This is a real documented break that does not clear the bar, an honest negative; the clearing case is still wanted.
+
+## Australian gas production: a documented takeoff that clears the slope-break bar, narrowly (2026-11-08)
+
+`data/au-gas.csv` (monthly gas production, 1956-01 to 1995-08, 476 months, forecast `gas`, `au-gas.test.mjs`). Production was small until natural gas came into use around 1969-70 (recalled, not read from a source). On the 39 full annual totals (1956 to 1994) the slope-break test reports one knot at 1969: about +1,200 a year before and +22,900 after, W = 12.23 against a bar of 12.08 (p = 0.048, 499 reps). This is the first real documented break that clears the bar, and only just: a margin of about 1%, so a different bootstrap seed could flip it. On logs it finds nothing (W 1.7 against a bar of 21), because the growth is near-exponential rather than one bend. Limits: one series, one cause, date and cause from memory; the knot is a bend in a linear trend, not proof the policy caused it. Still wanted: a documented break that clears by a wide margin.
+
+## Australian gas: how borderline is the clearing? (2026-11-08)
+
+The gas takeoff above cleared its bar by about 1% with seed 1. `eval/au-gas-seeds.mjs` reruns the test over 20 Monte Carlo seeds (`eval/au-gas-seeds.out.txt`, test in `au-gas.test.mjs`): at 499 reps W = 12.23 clears the bar for **17 of 20 seeds** (p 0.032 to 0.066; bar 10.6 to 13.5); at 1,999 reps it clears for **19 of 20** (p 0.035 to 0.052; bar 11.2 to 12.4). Read plainly: the p-value is about 0.045, so this is a borderline real break, not a rout, and a single-seed "clears" should be quoted with that. Raising `reps` narrows the bar's wobble but cannot make the evidence stronger. Still wanted: a documented break clearing by a wide margin.

@@ -56,3 +56,19 @@ test("no openings, bad settings, text and CSV (formula cells neutralised)", () =
   assert.equal(csv.split("\n").length, 2);
   assert.match(csv, /"'=cmd\(\): door"/);
 });
+
+test("header height must be a positive number at least as tall as the opening", () => {
+  const bad = (hh) => layoutOpeningSchedule({}, { walls: [{ id: "A", openings: [{ kind: "window", width: 36, height: 48, headerHeight: hh }] }] });
+  assert.equal(bad("80").ok, false);
+  assert.equal(bad(-5).ok, false);
+  assert.equal(bad(40).ok, false);
+  assert.equal(bad(48).ok, true);
+  assert.equal(layoutOpeningSchedule({}, { defaultHeaderHeight: "x", walls: [] }).ok, false);
+});
+
+test("a default header height below a window's height is refused, not a negative sill", () => {
+  const r = layoutOpeningSchedule({}, { defaultHeaderHeight: 60, walls: [{ id: "A", openings: [{ kind: "window", width: 36, height: 72, offset: 10 }] }] });
+  assert.equal(r.ok, false);
+  assert.match(r.errors[0], /defaultHeaderHeight \(60\)/);
+  assert.equal(layoutOpeningSchedule({}, { defaultHeaderHeight: 60, walls: [{ id: "A", openings: [{ kind: "door", width: 36, height: 80, offset: 10 }] }] }).ok, true);
+});

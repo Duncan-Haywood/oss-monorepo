@@ -170,3 +170,36 @@ test("opening tape: sill and jamb runs summed by hand, whole rolls (2026-10-31)"
   assert.equal(layoutSiding({ openingTape: 1 }, p).ok, false);
   assert.equal(layoutSiding({ openingTape: true, tapeRollFeet: 5 }, p).ok, false);
 });
+
+test("siding nails by hand: 12 courses of 144 in at 16 in, 1 row, waste 0", () => {
+  const p = plan([{ id: "A", length: 144 }]);
+  const off = layoutSiding({ waste: 0, exposure: 8, stock: 144 }, p);
+  assert.equal(off.nails, null);
+  const s = layoutSiding({ waste: 0, exposure: 8, stock: 144, nails: true, nailBoxPrice: 30 }, p);
+  assert.equal(s.nails.count, 12 * 144 / 16 + 12); // 108 along the runs, one per board end
+  assert.ok(Math.abs(s.nails.lb - 120 / 200) < 1e-9);
+  assert.equal(s.nails.boxes, 1);
+  assert.match(sidingText(s).join("\n"), /Siding nails: 120/);
+  const v = layoutSiding({ waste: 0, style: "vertical", stock: 96, nails: true, nailSpacing: 12, nailRows: 3, nailsPerLb: 100, nailBoxLb: 1 }, p);
+  assert.equal(v.nails.rows, 3);
+  assert.equal(v.nails.boxes, Math.ceil(v.nails.count / 100 / 1 - 1e-9));
+  assert.ok(validateSiding({ nails: "yes" }).length && validateSiding({ nailRows: 0 }).length);
+});
+
+test("caulk: opening perimeters and corner board edges by hand, whole tubes (2026-11-05)", () => {
+  // 36 x 48 window: 168 in; 60 x 80 door: 280 in; openings 448 in. Corners: 4 x 2 edges x wall height.
+  const p = plan([{ id: "A", length: 240, openings: [{ kind: "window", offset: 20, width: 36, height: 48 }, { kind: "door", offset: 100, width: 60, height: 80 }] }]);
+  assert.equal(layoutSiding({ waste: 0 }, p).caulk, null);
+  const s = layoutSiding({ waste: 0, caulk: true, corners: 0, caulkPrice: 5 }, p);
+  assert.ok(Math.abs(s.caulk.feet - 448 / 12) < 1e-9); // 37.33 ft
+  // 10.1 oz x 1.8047 = 18.23 cu in; 1/4 in fillet = 0.03125 sq in -> 583.3 in = 48.6 ft per tube -> 1 tube
+  assert.ok(Math.abs(s.caulk.feetPerTube - 48.61) < 0.01);
+  assert.equal(s.caulk.tubes, 1);
+  assert.equal(s.cost, 5);
+  const c = layoutSiding({ waste: 0, caulk: true, corners: 4 }, p);
+  assert.ok(Math.abs(c.caulk.feet - (448 + 8 * c.height) / 12) < 1e-9);
+  assert.equal(c.caulk.tubes, Math.ceil(c.caulk.feet / c.caulk.feetPerTube - 1e-9));
+  assert.ok(sidingText(s).some((x) => x.includes("Caulk: 37 ft")));
+  assert.equal(layoutSiding({ caulk: 1 }, p).ok, false);
+  assert.equal(layoutSiding({ caulk: true, caulkBead: 3 }, p).ok, false);
+});

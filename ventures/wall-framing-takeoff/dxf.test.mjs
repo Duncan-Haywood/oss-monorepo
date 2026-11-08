@@ -242,3 +242,15 @@ test("planFromDxf and parseDxf refuse a DXF that is not text instead of throwing
     assert.deepEqual(parseDxf(v).segs, []);
   }
 });
+
+test("a door drawn 1.4 in from a wall end slides in to 3 in; a far one is left alone", () => {
+  const lines = house().filter((l) => l[0] !== "A-DOOR");
+  lines.push(["A-DOOR", ft(40) - 38 - 1.4, 0, ft(40) - 1.4, 0]);
+  const r = planFromDxf(dxf(lines));
+  const o = r.plan.walls[0].openings[0];
+  assert.equal(480 - (o.offset + o.width), 3);
+  assert.match(r.notes.join(" "), /moved in to 3/);
+  const r2 = planFromDxf(dxf(house()));
+  assert.equal(r2.plan.walls[0].openings[0].offset, 204);
+  assert.doesNotMatch(r2.notes.join(" "), /moved in to 3/);
+});

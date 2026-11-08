@@ -161,7 +161,7 @@
       $("#entries").innerHTML = r.statements.flatMap((st) => st.entries.map((e) => `<tr><td>${e.line}</td><td>${esc(e.bookDate)}</td><td>${esc(e.counterparty)}</td><td>${esc(e.ref || e.bankRef)}</td><td>${esc(e.text)}</td><td class="n">${money(e.amount, e.currency)}</td></tr>`)).join("") || `<tr><td colspan="6">No entries.</td></tr>`;
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s).` : `No errors in ${s.entries} entr${s.entries === 1 ? "y" : "ies"}.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#validate").addEventListener("click", async () => {

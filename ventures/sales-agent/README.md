@@ -47,6 +47,8 @@ It sends nothing.
 
 **Warm-up planner (2026-11-03, `sendramp.mjs`, `sendramp.test.mjs`, 6 tests, page `cold-email-warmup-planner.html`).** Mailboxes plus a target volume in, a day-by-day ramp (default 10 a day per mailbox, +5 every 3 days, capped at 40), the mailbox count the target needs, and a CSV out. The defaults are conservative rules of thumb, not provider limits and not measured against real deliverability; the page says so. A second free lead magnet in front of the inbox agent.
 
+**List cleaner (2026-11-06, `listcheck.mjs`, `listcheck.test.mjs`, 10 tests, page `cold-email-list-checker.html`).** A pasted list or CSV with an email column in; each row send, review or drop: invalid syntax, mistyped domains (gmial.com, with the fix suggested), disposable domains, role accounts, free-mail domains, duplicates (case and +tag folded) and the user's own suppression list. Offline: it cannot tell whether a mailbox exists. Tests use invented addresses. The header detector first matched "not-an-email" as a header; found by the test and fixed.
+
 **Authentication checker (2026-11-03, `authcheck.mjs`, `authcheck.test.mjs`, 13 tests, page `cold-email-auth-checker.html`).** Pasted SPF, DKIM and DMARC TXT records in, plain-English errors and warnings out (SPF over 10 lookups, `+all`, `?all`, `ptr`; DMARC missing or bad `p`, `pct`, `rua`; DKIM revoked, bad base64, 1024-bit, `t=y`), plus which of the three are still missing. Parsing only: no DNS lookups, key size estimated from base64 length, rules from the author's reading of RFC 7208, 7489 and 6376 and recalled Google/Yahoo bulk-sender rules, not checked against a live receiver. Third free lead magnet in front of the inbox agent.
 
 **Quoted history is not a second reply (2026-11-03, `engine.test.mjs`).** A top-posted Outlook reply carries our own email under a `From: / Sent:` block (or `-----Original Message-----`, an underscore rule, a forwarded divider); the paste splitter read that as a second message, and our footer's "reply stop" came out as an unsubscribe. Fixed in `splitAtFromHeaders`; found with hand-written layouts, no real mailbox.
@@ -220,6 +222,7 @@ the quote. Notes are agent-written, not real calls.
   the real cadence builder.
 - `eval/`: the labelled sets, `run.mjs` (rules and guesses) and `model.mjs`
   (a model, on your key).
+- `invite.mjs`: a tentative `.ics` file for an exact time a prospect proposed (2026-11-06; `cli.mjs` writes `invites/`). Floating time, no zone guessed; none for "Friday morning" or "after 3pm". Nothing is sent; `invite.test.mjs`. 2026-11-06: the self-host approval queue links the same file under an interested reply with an exact time (`GET /api/invite?id=`, behind the admin token, audited, refused for suppressed addresses; fake mailbox only, `self-host/agent.test.mjs`).
 - `cli.mjs`, `index.html`, `usage.mjs` (local-only counters with an opt-out).
 
 `node --test` runs the suite.

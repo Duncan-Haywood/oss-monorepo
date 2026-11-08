@@ -214,9 +214,34 @@ class T(unittest.TestCase):
 
             self.assertIsNone(pyenv.venv_install("/usr/bin/python3", ["numpy"], d, run, quiet))
 
+    def test_main_skips_the_install_lock_when_a_candidate_already_imports(self):
+        import fcntl, tempfile, io, contextlib
+        with tempfile.TemporaryDirectory() as d:
+            venv = os.path.join(d, "venv")
+            with open(os.path.join(d, ".pyenv.lock"), "w") as held:
+                fcntl.flock(held, fcntl.LOCK_EX)  # another install holds it
+                old = os.environ.get("PYENV_VENV")
+                os.environ["PYENV_VENV"] = venv
+                try:
+                    out = io.StringIO()
+                    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                        rc = pyenv.main(["json"])  # would block forever if it waited
+                finally:
+                    if old is None:
+                        os.environ.pop("PYENV_VENV")
+                    else:
+                        os.environ["PYENV_VENV"] = old
+        self.assertEqual(rc, 0)
+        self.assertTrue(out.getvalue().strip())
+
     def test_real_interpreter_imports_stdlib(self):
         self.assertTrue(pyenv.imports(sys.executable, ["json"]))
         self.assertFalse(pyenv.imports(sys.executable, ["no_such_module_xyz"]))
+
+    def test_version_specifiers_are_not_part_of_the_import_name(self):
+        self.assertEqual(pyenv.import_name("pillow>=9"), "PIL")
+        self.assertEqual(pyenv.import_name("scikit-learn==1.4"), "sklearn")
+        self.assertEqual(pyenv.import_name("numpy"), "numpy")
 
     def test_pip_names_map_to_import_names(self):
         self.assertEqual(pyenv.import_name("scikit-learn"), "sklearn")
@@ -228,6 +253,16 @@ class T(unittest.TestCase):
         self.assertEqual(pyenv.PIP_NAMES["opendssdirect"], "OpenDSSDirect.py")
         self.assertEqual(pyenv.import_name("some-pkg:somemod"), "somemod")
         self.assertEqual(pyenv.PIP_NAMES["somemod"], "some-pkg")
+
+    def test_requirements_file_expands(self):
+        with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as f:
+            f.write("# c\nnumpy==2.4.6\ntorch==2.1  # cpu\n-e .\ncadquery[x]>=2 ; python_version>'3'\n\npytest\n")
+        try:
+            self.assertEqual(pyenv.read_requirements(f.name), ["numpy", "torch", "cadquery", "pytest"])
+            self.assertEqual(pyenv.expand_args(["scipy", "-r", f.name]),
+                             ["scipy", "numpy", "torch", "cadquery", "pytest"])
+        finally:
+            os.unlink(f.name)
 
     def test_heartbeat_logs_until_stopped(self):
         logs = []

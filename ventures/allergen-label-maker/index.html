@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Allergen Label Maker — Free Allergen Matrix and PPDS Labels</title>
+  <meta name="description" content="Free allergen label maker: paste your ingredient lists, get an allergen matrix for the 14 UK/EU allergens (or the US 9) and print-ready Natasha's Law labels with allergens in bold. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Which of the 14 allergens is in each dish? Free allergen matrix and PPDS labels">
+  <meta property="og:description" content="Ingredient lists in, allergen matrix and print-ready labels out. UK/EU 14 or US 9. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b91c1c'/%3E%3Cpath d='M16 7v12M16 24v1' stroke='%23fff' stroke-width='3.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <style>
+    .label { border: 2px solid #111; padding: .6rem .8rem; margin: .6rem 0; max-width: 26rem; background: #fff; color: #111; break-inside: avoid; }
+    .label h4 { margin: 0 0 .3rem; font-size: 1.05rem; color: #111; }
+    .label p { margin: .2rem 0; font-size: .9rem; color: #111; }
+    td.mark, th.mark { text-align: center; }
+    @media print { body * { visibility: hidden; } #labels, #labels * { visibility: visible; } #labels { position: absolute; left: 0; top: 0; } }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Allergen Label Maker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"}, "description": "Paste ingredient lists, get an allergen matrix for the 14 UK/EU allergens (or the US 9) and print-ready PPDS labels with allergens emphasised. Runs in your browser; nothing is uploaded.", "featureList": "14 UK/EU allergens, US major 9, allergen matrix, PPDS label with allergens in bold, supplier allergen tags, may-contain line, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is Natasha's Law?", "acceptedAnswer": {"@type": "Answer", "text": "Since 1 October 2021, food that a business packs on the premises where it is sold to the customer (a sandwich made in the shop and wrapped, a bakery's boxed cakes) must carry a label with the food's name and a full ingredients list, with the 14 allergens emphasised in the list. It applies in England; Scotland, Wales and Northern Ireland have their own versions of the same rule. This tool prepares the wording. Check the rule against the Food Standards Agency guidance for your premises."}}, {"@type": "Question", "name": "Which allergens must be declared?", "acceptedAnswer": {"@type": "Answer", "text": "In the UK and the EU, fourteen: celery, cereals containing gluten, crustaceans, eggs, fish, lupin, milk, molluscs, mustard, peanuts, sesame, soya, sulphur dioxide and sulphites (above 10 mg/kg or 10 mg/litre), and tree nuts. In the US, nine major allergens: milk, egg, fish, crustacean shellfish, tree nuts, peanuts, wheat, soybeans and sesame. Switch the box to see either list."}}, {"@type": "Question", "name": "How does the tool decide something contains an allergen?", "acceptedAnswer": {"@type": "Answer", "text": "It reads the ingredient names you typed against a word list, including the contents of brackets, and handles look-alikes such as coconut milk, cocoa butter, butternut squash and rice flour. It cannot look inside a branded product: for those, add the supplier's allergens in square brackets, like pesto [milk, tree nuts], and the tool uses exactly that."}}, {"@type": "Question", "name": "What does 'check' mean?", "acceptedAnswer": {"@type": "Answer", "text": "Some foods nearly always contain an allergen without naming it: hummus (sesame), Worcestershire sauce (fish), pasta (gluten), dried apricots (sulphites). The tool marks these 'check' so you confirm them against the supplier's label. A 'check' is never printed on a label as a declaration until you confirm it by typing the allergen in square brackets."}}, {"@type": "Question", "name": "What about 'may contain' warnings?", "acceptedAnswer": {"@type": "Answer", "text": "Add | may=peanuts, sesame after the dish name to print a precautionary line. Whether a warning is justified is a risk assessment you make about your kitchen; the tool only prints what you ask for."}}, {"@type": "Question", "name": "Is this legal advice, and where does my data go?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a drafting aid and it can be wrong; the person who sells the food is responsible for the label. Everything runs in your browser and nothing is uploaded."}}]}</script>
+</head>
+<body>
+  <header>
+    <p class="note">ALLERGEN LABEL MAKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Which of the 14 allergens is in each dish, and what goes on the label?</h1>
+    <p>Paste each dish's ingredients. You get an allergen matrix for your menu or allergen folder, and a print-ready label for each pre-packed dish with the allergens in bold, the way Natasha's Law asks for them. Switch to the US list of nine if you sell there.</p>
+    <p class="note">A drafting aid that reads the words you type. It can be wrong, and it cannot see inside a branded product: confirm every dish against your suppliers' labels.</p>
+  </header>
+  <main>
+    <section class="card" aria-labelledby="h-0">
+      <h2 id="h-0">1. Your dishes</h2>
+      <p class="note">Start each dish with <code># Name</code>, then list its ingredients in descending order of weight, separated by commas. Put sub-ingredients in brackets. For a branded product, state what its label says in square brackets: <code>pesto [milk, tree nuts]</code>, or <code>[none]</code>. Add <code>| may=peanuts, sesame</code> after the name for a "may contain" line.</p>
+      <label for="dishes">Dishes</label>
+      <textarea id="dishes" rows="18" spellcheck="false"></textarea>
+    </section>
+    <section class="card" aria-labelledby="h-1">
+      <h2 id="h-1">2. Which law</h2>
+      <div class="grid">
+        <div><label for="region">Allergen list</label>
+          <select id="region"><option value="uk">UK and EU: 14 allergens</option><option value="us">US: 9 major allergens</option></select></div>
+        <div><label for="business">Business name for the labels (optional)</label><input id="business" type="text" maxlength="80"></div>
+      </div>
+      <button type="button" id="run">Check allergens</button>
+      <button type="button" class="secondary" id="example">Reset to the example</button>
+      <button type="button" class="secondary" id="csv">Download matrix as CSV</button>
+      <button type="button" class="secondary" id="print">Print labels</button>
+      <button type="button" class="secondary" id="menu">Download customer allergen page</button>
+    </section>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Allergen matrix</h2>
+      <p class="note"><strong>C</strong> contains (named in the ingredients or stated by you), <strong>?</strong> check the supplier label (this food usually contains it), <strong>m</strong> may contain (your precautionary line).</p>
+      <div id="result"></div>
+      <h2>Labels</h2>
+      <p class="note">Natasha's Law labels carry the food's name and the full ingredients list with allergens emphasised. Allergens marked "check" are not bolded until you confirm them. Print this section, or use Print labels.</p>
+      <div id="labels"></div>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>What is Natasha's Law?</h3>
+      <p>Since 1 October 2021, food that a business packs on the premises where it is sold to the customer (a sandwich made in the shop and wrapped, a bakery's boxed cakes) must carry a label with the food's name and a full ingredients list, with the 14 allergens emphasised in the list. It applies in England; Scotland, Wales and Northern Ireland have their own versions of the same rule. This tool prepares the wording. Check the rule against the Food Standards Agency guidance for your premises.</p>
+      <h3>Which allergens must be declared?</h3>
+      <p>In the UK and the EU, fourteen: celery, cereals containing gluten, crustaceans, eggs, fish, lupin, milk, molluscs, mustard, peanuts, sesame, soya, sulphur dioxide and sulphites (above 10 mg/kg or 10 mg/litre), and tree nuts. In the US, nine major allergens: milk, egg, fish, crustacean shellfish, tree nuts, peanuts, wheat, soybeans and sesame. Switch the box to see either list.</p>
+      <h3>How does the tool decide something contains an allergen?</h3>
+      <p>It reads the ingredient names you typed against a word list, including the contents of brackets, and handles look-alikes such as coconut milk, cocoa butter, butternut squash and rice flour. It cannot look inside a branded product: for those, add the supplier's allergens in square brackets, like pesto [milk, tree nuts], and the tool uses exactly that.</p>
+      <h3>What does 'check' mean?</h3>
+      <p>Some foods nearly always contain an allergen without naming it: hummus (sesame), Worcestershire sauce (fish), pasta (gluten), dried apricots (sulphites). The tool marks these 'check' so you confirm them against the supplier's label. A 'check' is never printed on a label as a declaration until you confirm it by typing the allergen in square brackets.</p>
+      <h3>What about 'may contain' warnings?</h3>
+      <p>Add | may=peanuts, sesame after the dish name to print a precautionary line. Whether a warning is justified is a risk assessment you make about your kitchen; the tool only prints what you ask for.</p>
+      <h3>Is this legal advice, and where does my data go?</h3>
+      <p>No. It is a drafting aid and it can be wrong; the person who sells the food is responsible for the label. Everything runs in your browser and nothing is uploaded.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your food counts as pre-packed for direct sale, your local rules (England, Scotland, Wales, Northern Ireland, the EU states and the US states differ in detail), the exact wording your Trading Standards or environmental health officer expects, whether a "may contain" warning is justified in your kitchen, the sulphite level in a product (the 10 mg/kg limit needs the supplier's figure), and every branded product's real recipe. Hidden allergens in recipes you did not list, cross-contact and changes of supplier are yours to manage. The word list is a reading aid, not a legal definition.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../recipe-costing-calculator/">recipe costing calculator</a> and the <a href="../menu-engineering-calculator/">menu engineering calculator</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, or financial advice, and it does not replace a qualified advisor or your local authority's food safety officer. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any labeling, allergen, food-safety, tax or pricing obligation that applies to you. A missed allergen can seriously harm a customer: check every label against your suppliers' information. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
+    <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>csv_downloaded</code>, <code>labels_printed</code>, <code>menu_downloaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { menuPage } from "./menupage.mjs";
+    import { EXAMPLE, analyse, labelFor, matrixCsv, esc, labelsFor } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    let last = null;
+    const why = (map, LABELS) => [...map.entries()].map(([k, v]) => `${esc(LABELS[k])}: ${[...new Set(v.map((x) => esc(x.ingredient) + " (" + esc(x.via) + ")"))].join("; ")}`);
+    function run() {
+      const region = $("region").value;
+      const a = analyse($("dishes").value, region);
+      last = a;
+      let h = "";
+      if (a.errors.length) h += `<div class="finding"><span class="pill">Fix these</span><ul>${a.errors.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`;
+      if (!a.results.length) h += '<div class="finding"><span class="pill">Check inputs</span> Add a dish that starts with # and a name.</div>';
+      else {
+        h += `<div class="scroll"><table><thead><tr><th>Dish</th>${a.columns.map((c) => `<th class="mark" title="${esc(c[1])}">${esc(c[1])}</th>`).join("")}</tr></thead><tbody>`;
+        for (const r of a.results) h += `<tr><td>${esc(r.name)}</td>${a.columns.map(([k]) => `<td class="mark">${r.declared.has(k) ? "<strong>C</strong>" : r.check.has(k) ? "?" : r.mayKeys.includes(k) ? "m" : ""}</td>`).join("")}</tr>`;
+        h += "</tbody></table></div>";
+        for (const r of a.results) {
+          const lines = [...why(r.declared, labelsFor(region)), ...why(r.check, labelsFor(region)).map((x) => x + " (check)")];
+          if (!lines.length && !r.advisories.length) continue;
+          h += `<div class="finding"><h4>${esc(r.name)}</h4>`;
+          if (lines.length) h += `<ul>${lines.map((x) => `<li>${x}</li>`).join("")}</ul>`;
+          for (const adv of r.advisories) h += `<p class="note">${esc(adv)}</p>`;
+          h += "</div>";
+        }
+        const none = a.results.filter((r) => !r.declaredKeys.length && !r.checkKeys.length && !r.errors.length);
+        if (none.length) h += `<p class="note">No allergen words found in: ${none.map((r) => esc(r.name)).join(", ")}. That means none were typed, not that the dish is safe: look for ingredients you left out.</p>`;
+      }
+      $("result").innerHTML = h;
+      const biz = $("business").value.trim();
+      $("labels").innerHTML = a.results.filter((r) => !r.errors.length).map((r) => {
+        const l = labelFor(r, region);
+        return `<div class="label"><h4>${esc(l.name)}</h4><p><strong>Ingredients:</strong> ${l.ingredientsHtml}</p>${l.contains.length ? `<p><strong>Contains:</strong> ${l.contains.map(esc).join(", ")}</p>` : ""}${l.may.length ? `<p>May also contain ${l.may.map((x) => esc(x.toLowerCase())).join(", ")}.</p>` : ""}${r.checkKeys.length ? `<p class="note">Confirm before printing: ${r.checkKeys.map((k) => esc(labelsFor(region)[k])).join(", ")}</p>` : ""}${biz ? `<p>${esc(biz)}</p>` : ""}</div>`;
+      }).join("");
+      $("out").hidden = false;
+      record("analysis_run");
+    }
+    function csv() {
+      if (!last) run();
+      const blob = new Blob([matrixCsv(last)], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "allergen-matrix.csv";
+      link.click();
+      URL.revokeObjectURL(link.href);
+      record("csv_downloaded");
+    }
+    function menu() {
+      run();
+      const html = menuPage(last, { business: $("business").value, updated: new Date().toISOString().slice(0, 10) });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+      link.download = "allergen-guide.html";
+      link.click();
+      URL.revokeObjectURL(link.href);
+      record("menu_downloaded");
+    }
+    $("menu").addEventListener("click", menu);
+    $("dishes").value = EXAMPLE;
+    $("run").addEventListener("click", run);
+    $("region").addEventListener("change", () => { if (last) run(); });
+    $("csv").addEventListener("click", csv);
+    $("print").addEventListener("click", () => { if (!last) run(); record("labels_printed"); window.print(); });
+    $("example").addEventListener("click", () => { $("dishes").value = EXAMPLE; record("example_loaded"); run(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

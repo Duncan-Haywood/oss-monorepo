@@ -217,13 +217,14 @@ export function validatePlan(plan) {
       if (!isRec(op)) return;
       for (const k of ["offset", "width", "height"]) if (!isNum(op[k])) shape.push(`${at}, ${op.label || op.kind || "opening"}: "${k}" must be a number of inches.`);
       if (op.headerHeight !== undefined && !isNum(op.headerHeight)) shape.push(`${at}, ${op.label || op.kind || "opening"}: "headerHeight" must be a number of inches.`);
+      if (op.label !== undefined && typeof op.label !== "string") shape.push(`${at}, opening: "label" must be text.`);
     });
     if (!isNum(w.length)) shape.push(`${at}: "length" must be a number of inches.`);
     if (w.studLength !== undefined && !isNum(w.studLength)) shape.push(`${at}: "studLength" must be a number of inches.`);
     else if (w.studLength !== undefined && !(w.studLength >= 24 && w.studLength <= 240)) errors.push(`${at}: stud length must be between 24 and 240 inches.`);
     if (Array.isArray(w.tees) && !w.tees.every(isNum)) shape.push(`${at}: every tee must be a number of inches from the wall start.`);
   });
-  if (Array.isArray(plan.stock)) plan.stock.forEach((st, i) => { if (!isRec(st)) return; for (const k of ["length", "price"]) if (st[k] !== undefined && !isNum(st[k])) shape.push(`Lumber list entry ${i + 1}: "${k}" must be a number.`); });
+  if (Array.isArray(plan.stock)) plan.stock.forEach((st, i) => { if (!isRec(st)) return; if (st.label !== undefined && typeof st.label !== "string") shape.push(`Lumber list entry ${i + 1}: "label" must be text.`); for (const k of ["length", "price"]) if (st[k] !== undefined && !isNum(st[k])) shape.push(`Lumber list entry ${i + 1}: "${k}" must be a number.`); });
   if (shape.length) return shape;
   if (!(plan.studSpacing >= 8 && plan.studSpacing <= 48)) errors.push("Stud spacing must be between 8 and 48 inches.");
   if (!(plan.studLength >= 24 && plan.studLength <= 240)) errors.push("Stud length must be between 24 and 240 inches.");
@@ -248,7 +249,7 @@ export function validatePlan(plan) {
     if (!(wall.length >= 12)) { errors.push(`${name}: length must be at least 12 inches.`); continue; }
     if (wall.length > 12000) { errors.push(`${name}: length must be at most 12000 inches (1000 ft).`); continue; }
     const stud = wall.stud || "2x4";
-    if (!(stud in DEPTH) || (stud !== "2x4" && stud !== "2x6")) errors.push(`${name}: studs must be 2x4 or 2x6.`);
+    if (!Object.hasOwn(DEPTH, stud) || (stud !== "2x4" && stud !== "2x6")) errors.push(`${name}: studs must be 2x4 or 2x6.`);
     if (!sizes.has(plateSize(wall))) errors.push(`${name}: no ${plateSize(wall)} boards in the lumber list.`);
     if (!sizes.has(stud)) errors.push(`${name}: no ${stud} boards in the lumber list.`);
     for (const t of wall.tees || []) {
@@ -285,7 +286,7 @@ export function validatePlan(plan) {
       prevEnd = z.end;
       prevName = op.label || op.kind;
       const g = openingGeometry(plan, wall, op);
-      if (!(op.header in DEPTH)) errors.push(`${on}: header must be one of ${Object.keys(DEPTH).join(", ")}.`);
+      if (!Object.hasOwn(DEPTH, op.header)) errors.push(`${on}: header must be one of ${Object.keys(DEPTH).join(", ")}.`);
       else if (!sizes.has(op.header)) errors.push(`${on}: no ${op.header} boards in the lumber list.`);
       if (wall.gable && g.topCripple < -EPS) {
         // On a gable wall the header may rise into the triangle: it must clear the sloped plate at the end where the roof is lowest.
@@ -386,7 +387,7 @@ function planFor(plan, wall) {
   return wall && wall.studLength !== undefined ? { ...plan, studLength: wall.studLength } : plan;
 }
 
-function openingGeometry(plan, wall, op) {
+export function openingGeometry(plan, wall, op) {
   plan = planFor(plan, wall);
   const top = THICK + plan.studLength; // underside of the top plate, from the bottom of the bottom plate
   const headerHeight = op.headerHeight ?? plan.defaultHeaderHeight;
@@ -564,7 +565,12 @@ export function layoutWall(plan, wall) {
   const lap = plateLaps(plan, wall);
   const [topA, topB] = [lap.topStart, L + lap.topEnd];
   const [capA, capB] = [lap.capStart, L + lap.capEnd];
-  const topJoints = splitPlate(topA, topB, centres, studStock, []);
+  let topJoints = splitPlate(topA, topB, centres, studStock, []);
+  // Fallback: a header carries the plates across an opening, so a joint over it is sound framing. Candidate points every 16 in inside each opening.
+  const headerPts = [];
+  for (const o of ops) for (let x = o.offset + 16; x < o.offset + o.width - EPS; x += 16) headerPts.push(x);
+  const withHeaders = [...centres, ...headerPts].sort((p, q) => p - q);
+  let usedHeader = false;
   // The cap plate is cut where a partition's cap plate runs over this wall (tee laps); each run is spliced on its own.
   const capSegs = [];
   let capAt = capA;
@@ -574,7 +580,16 @@ export function layoutWall(plan, wall) {
   }
   if (capB > capAt + EPS) capSegs.push([capAt, capB]);
   const forbidden = topJoints ? topJoints.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap]) : [];
-  const capRuns = topJoints ? capSegs.map(([a, b]) => splitPlate(a, b, centres, studStock, forbidden)) : [null];
+  let capRuns = topJoints ? capSegs.map(([a, b]) => splitPlate(a, b, centres, studStock, forbidden)) : [null];
+  if (!topJoints || !capRuns.every(Boolean)) {
+    const t2 = splitPlate(topA, topB, withHeaders, studStock, []);
+    if (t2) {
+      const f2 = t2.map((j) => [j - plan.topPlateLap, j + plan.topPlateLap]);
+      const c2 = capSegs.map(([a, b]) => splitPlate(a, b, withHeaders, studStock, f2));
+      if (c2.every(Boolean)) { topJoints = t2; capRuns = c2; usedHeader = true; }
+    }
+  }
+  if (usedHeader) notes.push("Top plates: no splice over studs alone fit the boards listed; joints also sit over a header (it carries the plates). Check this against the engineer's design.");
   const capJoints = capRuns.every(Boolean) ? capRuns.flat() : null;
   if (!topJoints || !capJoints) notes.push(`Top plates: no way to splice them over studs with joints ${formatInches(plan.topPlateLap)} apart using the boards listed; shown as one piece each.`);
   const pieces = (a, b, joints) => {
@@ -957,7 +972,7 @@ export function verifyWall(/** @type {any} */ w, wall) {
   if (!full.some((m) => m.x + m.w > w.length - EPS)) problems.push("no stud at the wall end");
   const centres = full.map((m) => m.x + THICK / 2);
   for (const [k, list] of Object.entries(w.joints)) {
-    for (const j of list) if (!centres.some((c) => Math.abs(c - j) < 1 / 32)) problems.push(`${k} plate joint at ${formatLength(j)} is not over a full stud`);
+    for (const j of list) if (!centres.some((c) => Math.abs(c - j) < 1 / 32) && !(wall.openings || []).some((o) => j > o.offset + EPS && j < o.offset + o.width - EPS)) problems.push(`${k} plate joint at ${formatLength(j)} is not over a full stud`);
   }
   return problems;
 }
@@ -1109,6 +1124,7 @@ export function simplexMaxLE(A, b, c) {
  * 1/16 in) with demands; boards have integer capacity (length + kerf) and a
  * price. Returns the LP bound and the patterns with their LP values.
  */
+const FARLEY_GAP = 1e-4;
 function columnGeneration(items, boards) {
   const n = items.length;
   /** @type {{ board: number, counts: number[] }[]} */
@@ -1132,16 +1148,40 @@ function columnGeneration(items, boards) {
     addPattern(best, counts);
   });
   let lp = { value: 0, y: [], x: [] };
+  // Farley's bound: the duals y scaled down by the largest value-to-price ratio any board's
+  // knapsack reaches are dual feasible, so lp.value over that ratio is a lower bound on the
+  // true LP optimum at every round. Stop when the two are within FARLEY_GAP: on a whole house
+  // (900+ pieces, 180+ lengths) the last 0.01% took thousands of columns and over 12 minutes.
+  let farley = 0;
+  let lastAdded = 0;
+  let stopped = false;
   for (let round = 0; round < 400; round++) {
+    // Keep the LP small: once the pool is three times the item count, drop patterns the LP
+    // does not use (they are re-found by the knapsack if they are wanted again). The
+    // newest columns stay so the next solve has what this round priced in.
+    if (patterns.length > 3 * n + 60) {
+      const keepFrom = patterns.length - lastAdded;
+      const kept = patterns.filter((_, j) => j >= keepFrom || lp.x[j] > 1e-9);
+      if (kept.length < patterns.length) {
+        patterns.length = 0;
+        seen.clear();
+        for (const p of kept) { patterns.push(p); seen.add(`${p.board}:${p.counts.join(",")}`); }
+      }
+    }
     lp = simplexMaxLE(patterns.map((p) => p.counts), items.map((it) => it.d), patterns.map((p) => boards[p.board].price));
     let added = 0;
+    let ratio = 0;
     boards.forEach((bd, k) => {
       const ks = boundedKnapsack(items.map((it) => it.w), lp.y, items.map((it) => it.d), bd.cap);
+      if (bd.price > 0) ratio = Math.max(ratio, ks.value / bd.price);
       if (ks.value > bd.price * (1 + 1e-9) + 1e-9 && addPattern(k, ks.counts)) added++;
     });
+    lastAdded = added;
     if (!added) break;
+    if (ratio > 1) farley = Math.max(farley, lp.value / ratio);
+    if (farley > 0 && lp.value - farley <= FARLEY_GAP * lp.value) { stopped = true; break; }
   }
-  return { bound: lp.value, patterns, x: lp.x };
+  return { bound: stopped ? farley : lp.value, patterns, x: lp.x };
 }
 
 /** First fit decreasing onto the longest board, then each bar shrunk to the cheapest board that holds it. */
@@ -1245,7 +1285,11 @@ export function optimizeStock(pieces, stock, kerf = 0.125) {
   const ffd = firstFitDecreasing(items, boards);
   const lpCost = costOf(lpBars, boards);
   const ffdCost = costOf(ffd, boards);
-  const exact = exactStock(items, boards);
+  // The LP bound is a floor on any order, so a cover that already meets it is optimal and
+  // the exact search cannot improve it (it would only restate the cost as the bound).
+  const lpFloor = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(first.bound - 1e-6) : first.bound;
+  const atBound = Math.min(lpCost, ffdCost) <= lpFloor + 1e-9;
+  const exact = atBound ? null : exactStock(items, boards);
   let bars = lpCost <= ffdCost + 1e-9 ? lpBars : ffd;
   let method = lpCost <= ffdCost + 1e-9 ? "column generation" : "first fit decreasing";
   if (exact && exact.cost < costOf(bars, boards) - 1e-9) {
@@ -1365,6 +1409,8 @@ export function takeoff(plan, extraCuts = []) {
     const needed = pieces.reduce((s, p) => s + p.length * p.qty, 0);
     orders.push({ size, ...res, lines: [...lines.values()].sort((a, b) => b.length - a.length), bought, needed, naive: naiveCost(pieces, stock) });
   }
+  const cull = cullAllowance(/** @type {any} */ (plan).culls, orders);
+  if (cull.errors.length) return { ok: false, errors: cull.errors };
   const cost = orders.reduce((s, o) => s + o.cost, 0);
   const bound = orders.reduce((s, o) => s + o.bound, 0);
   const bought = orders.reduce((s, o) => s + o.bought, 0);
@@ -1377,6 +1423,7 @@ export function takeoff(plan, extraCuts = []) {
     walls,
     cuts,
     orders,
+    culls: cull.lines,
     summary: {
       walls: walls.length,
       wallFeet: lf,
@@ -1387,12 +1434,43 @@ export function takeoff(plan, extraCuts = []) {
       bound,
       gap: bound > 0 ? (cost - bound) / bound : 0,
       naiveCost: naive,
+      ...(cull.lines.length ? { cullBoards: cull.boards, cullCost: cull.cost, costWithCulls: cost + cull.cost } : {}),
       waste: bought > 0 ? (bought - needed) / bought : 0,
       boughtFeet: bought / 12,
       neededFeet: needed / 12,
     },
     notes: walls.flatMap((w) => w.notes.map((n) => `${w.id}: ${n}`)),
   };
+}
+
+/**
+ * Spare boards for crooked, twisted or split lumber a framer sets aside at the yard or on site.
+ * Typed, never assumed: plan `culls: {pct, bySize?: {"2x4": pct}}` adds ceil(boards x pct) of each ordered
+ * line (same length and price) and reports them apart, so the cut-list order and its LP bound stay the
+ * pure layout. Whole boards only; the rate is the builder's own experience, no industry figure is shipped.
+ * @param {any} culls @param {any[]} orders
+ */
+function cullAllowance(culls, orders) {
+  const out = { errors: /** @type {string[]} */ ([]), lines: /** @type {any[]} */ ([]), boards: 0, cost: 0 };
+  if (culls == null) return out;
+  if (typeof culls !== "object" || Array.isArray(culls)) { out.errors.push("culls must be an object: {pct, bySize}."); return out; }
+  const ok = (v) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 0.5;
+  if (culls.pct != null && !ok(culls.pct)) out.errors.push("culls.pct must be a fraction from 0 to 0.5 (0.05 = 5%).");
+  const by = culls.bySize || {};
+  for (const [k, v] of Object.entries(by)) if (!ok(v)) out.errors.push(`culls.bySize["${k}"] must be a fraction from 0 to 0.5.`);
+  if (out.errors.length) return out;
+  for (const o of orders) {
+    const pct = by[o.size] ?? culls.pct ?? 0;
+    if (!(pct > 0)) continue;
+    for (const l of o.lines) {
+      const qty = Math.ceil(l.qty * pct - 1e-9);
+      if (qty < 1) continue;
+      out.lines.push({ size: o.size, length: l.length, label: l.label, price: l.price, qty, pct, cost: qty * l.price });
+      out.boards += qty;
+      out.cost += qty * l.price;
+    }
+  }
+  return out;
 }
 
 /** Buying every piece on its own cheapest board that fits: the no-planning baseline. */
@@ -1412,6 +1490,7 @@ export function toCsv(result) {
   const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const rows = [["section", "size", "length_in", "length", "qty", "detail"]];
   for (const o of result.orders) for (const l of o.lines) rows.push(["order", o.size, String(l.length), formatLength(l.length), String(l.qty), l.label || `price ${l.price}`]);
+  for (const l of result.culls || []) rows.push(["cull", l.size, String(l.length), formatLength(l.length), String(l.qty), `spare for culls (${(100 * l.pct).toFixed(1)}%)`]);
   for (const c of result.cuts) rows.push(["cut", c.size, String(c.length), formatInches(c.length), String(c.qty), `${c.kind} (${c.walls.join("; ")})`]);
   for (const o of result.orders) {
     o.bars.forEach((b, i) => rows.push(["board", o.size, String(b.length), formatLength(b.length), "1", `#${i + 1}: ${b.cuts.map((c) => `${formatInches(c.length)} ${c.ref}`).join(" + ")}; offcut ${formatInches(b.offcut)}`]));

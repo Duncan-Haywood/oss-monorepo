@@ -1,0 +1,34 @@
+July holdout, tau 240 s, hourly replan, every 4th window; 11 stations, 88 windows; shares of the no-corridor no-tack-cost bound
+
+all stations: 88 windows; header 0.775
+  T0     0.772; tacks/day 42
+  hold   0.753; tacks/day 41
+  ridge05 0.752; tacks/day 44
+  ridge1 0.756; tacks/day 46
+  Tinf   0.857; tacks/day 38
+  ridge1 minus T0: -1.2 pts (mean -1.3; boot 95% of median -2.2..-0.4)
+  ridge05 minus T0: -0.3 pts (mean -1.2; boot 95% of median -1.0..+0.3)
+  ridge1 minus ridge05: -0.3 pts (mean -0.1; boot 95% of median -0.7..+0.1)
+  Tinf minus T0: +10.9 pts (mean +12.0; boot 95% of median +7.4..+13.3)
+
+San Francisco (best skill in 6zd): 8 windows; header 0.802
+  T0     0.809; tacks/day 28
+  hold   0.805; tacks/day 31
+  ridge05 0.800; tacks/day 34
+  ridge1 0.790; tacks/day 34
+  Tinf   0.855; tacks/day 34
+  ridge1 minus T0: -1.3 pts (mean -1.7; boot 95% of median -3.2..-0.6)
+  ridge05 minus T0: -0.3 pts (mean -0.4; boot 95% of median -1.4..+0.5)
+  ridge1 minus ridge05: -1.3 pts (mean -1.4; boot 95% of median -2.9..+0.4)
+  Tinf minus T0: +4.6 pts (mean +4.5; boot 95% of median +3.5..+5.6)
+
+Pensacola: 8 windows; header 0.797
+  T0     0.777; tacks/day 40
+  hold   0.741; tacks/day 50
+  ridge05 0.693; tacks/day 50
+  ridge1 0.686; tacks/day 62
+  Tinf   0.869; tacks/day 27
+  ridge1 minus T0: -4.5 pts (mean -6.4; boot 95% of median -13.6..-2.8)
+  ridge05 minus T0: -3.9 pts (mean -5.7; boot 95% of median -14.2..+1.0)
+  ridge1 minus ridge05: -0.3 pts (mean -0.7; boot 95% of median -3.6..+3.9)
+  Tinf minus T0: +13.9 pts (mean +13.4; boot 95% of median +7.8..+18.9)

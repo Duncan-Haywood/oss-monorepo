@@ -49,6 +49,7 @@
   <header>
     <p class="note">TFSA OVER-CONTRIBUTION CHECKER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>How much TFSA room do you have, and what would an excess cost?</h1>
+    <p class="answer-source" data-answer-lead>The TFSA annual limit is $7,000 for 2026, and the CRA taxes an excess at 1% of the highest excess amount for each month it stays in the account. Source: Canada Revenue Agency, "TFSA: contributions" and Income Tax Act s. 207.03. As of 2026-11-07, the limit as held in this tool's table; your CRA My Account figure is the one that counts.</p>
     <p>Enter your year of birth and what you have put in and taken out. You get your room, whether a planned deposit goes over, and the CRA's 1% a month tax on an excess.</p>
     <p class="note">A first read written from the CRA's published rules without a live lookup. Your CRA My Account figure is the one that counts. Not tax advice.</p>
   </header>
@@ -146,7 +147,7 @@
       $("#tests").innerHTML = r.rows.map((x) => `<tr><td>${x.year}</td><td class="n">${cad(x.limit)}</td><td class="n">${cad(x.cumulative)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Verify against the source named in the summary.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
     $("#calc").addEventListener("click", () => { if (run()) record("analysis_run"); });

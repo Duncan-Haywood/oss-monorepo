@@ -213,7 +213,7 @@
       $("#result").hidden = false;
       $("#result-title").textContent = title;
       $("#result-body").innerHTML = html;
-      $("#result").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#result").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#make-link").addEventListener("click", () => {
@@ -237,7 +237,7 @@
       if (!out) return;
       record("pass_started");
       startReveal(out.group, out.assign, true);
-      $("#reveal-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#reveal-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
 
     $("#show-list").addEventListener("click", () => {

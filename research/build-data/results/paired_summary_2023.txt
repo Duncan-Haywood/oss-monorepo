@@ -1,0 +1,20 @@
+Per-permit paired week-block bootstrap, neural minus boosted pinball, test year 2023, 3 seeds each, 2000 resamples of test weeks.
+Values are % of the boosted pinball; negative = neural better. Source: results/paired_*_2023.json (feeds pulled 2026-11-07).
+
+austin  a2i q0.1: +0.01% (95% -0.30 to +0.34)
+austin  a2i q0.5: -2.18% (95% -3.24 to -1.16)  *
+austin  a2i q0.9: -3.77% (95% -8.19 to -1.01)  *
+austin  i2c q0.1: +0.64% (95% +0.20 to +1.07)  *
+austin  i2c q0.5: +0.14% (95% -0.21 to +0.46)
+austin  i2c q0.9: -0.84% (95% -1.47 to -0.21)  *
+chicago a2i q0.1: -0.35% (95% -0.68 to -0.02)  *
+chicago a2i q0.5: +0.62% (95% +0.23 to +0.99)  *
+chicago a2i q0.9: -1.27% (95% -2.58 to -0.06)  *
+sf      a2i q0.1: -1.88% (95% -2.42 to -1.32)  *
+sf      a2i q0.5: +0.83% (95% +0.03 to +1.73)  *
+sf      a2i q0.9: +1.87% (95% +0.66 to +3.01)  *
+sf      i2c q0.1: +2.25% (95% +1.92 to +2.57)  *
+sf      i2c q0.5: +2.32% (95% +1.89 to +2.74)  *
+sf      i2c q0.9: +1.17% (95% +0.61 to +1.69)  *
+
+* = interval excludes 0. 15 cells: interval includes 0 in 2, neural significantly worse in 7, significantly better in 6.

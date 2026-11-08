@@ -126,7 +126,7 @@
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
     <p>Everything runs in your browser. Your leads are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Related tools: the <a href="../home-service-lead-roi-analyzer/">home service lead ROI analyzer</a> (which paid source books jobs), the <a href="../quote-follow-up-timing/">quote follow-up timing tool</a> and the <a href="../bid-win-rate-optimizer/">bid win rate optimizer</a>.</p>
+    <p>Related tools: the <a href="../home-service-lead-roi-analyzer/">home service lead ROI analyzer</a> (which paid source books jobs), the <a href="../quote-follow-up-timing/">quote follow-up timing tool</a> the <a href="../bid-win-rate-optimizer/">bid win rate optimizer</a> and <a href="../missed-call-textback/">missed-call text-back</a> (what unanswered calls cost, and a text that answers them within seconds).</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -160,7 +160,7 @@
       $("#curve").textContent = `Each step up in ln(1 + minutes) changes the log-odds of winning by ${num(r.fit.b, 2)} (90% range ${num(r.slopeLo, 2)} to ${num(r.slopeHi, 2)}). At ${num(r.target, 0)} minutes the curve puts your win chance at ${pct(r.rateAtTarget, 0)}. ${r.slopeSignificant ? "The trend is clearly different from zero." : "The trend is not clearly different from zero, so read the gain as a ceiling."}`;
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

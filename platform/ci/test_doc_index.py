@@ -157,6 +157,47 @@ class GlobAndCli(unittest.TestCase):
             self.assertEqual(counts["python-env"], 1)
             self.assertEqual(counts["money"], 0)
 
+    def test_topic_counts_post_column_counts_posts_once_per_topic(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = tree(Path(d))
+            (root / "docs" / "posts" / "2026-10-02-p.md").write_text("---\ntitle: P\ntags: [Deepen, merge-base]\n---\n")
+            posts = {t[0]: t[3] for t in di.topic_counts(root)}
+            self.assertEqual(posts["shallow-clone"], 1)  # two aliases of one topic count once
+            self.assertEqual(posts["money"], 0)  # a topic with no post reads 0, not 1
+
+    def test_print_find_shows_guidance_lines_and_topic_only_or_project_only_terms(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = tree(Path(d))
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                di.print_find(di.find("merge-base", root))
+            text = out.getvalue()
+            self.assertIn("topic shallow-clone: Shallow clones", text)
+            self.assertIn("[runbook] guide.md:", text)
+            self.assertIn('"shallow clones"', text)
+            for term, expect in (("vtm", "project vtm"), ("money", "topic money")):
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    di.print_find(di.find(term, root))
+                self.assertNotIn("names no topic or project", out.getvalue(), term)
+
+
+class Parsing(unittest.TestCase):
+    def test_frontmatter_skips_indented_comment_and_colonless_lines(self):
+        text = "---\nkind: note\n  nested: x\n# c: y\nno colon here\ndate: 2026-01-02\n---\nbody\n"
+        meta, body = di.parse_frontmatter(text)
+        self.assertEqual(meta, {"kind": "note", "date": "2026-01-02"})
+        self.assertEqual(body, "body\n")
+
+    def test_project_slugs_ignore_files_and_hidden_dirs(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "ventures" / "real").mkdir(parents=True)
+            (root / "ventures" / ".hidden").mkdir()
+            (root / "ventures" / "_private").mkdir()
+            (root / "ventures" / "afile").write_text("x")
+            self.assertEqual(di.project_slugs(root), {"real": "ventures/real"})
+
 
 class RealTree(unittest.TestCase):
     def test_repository_taxonomy_and_reports_check(self):

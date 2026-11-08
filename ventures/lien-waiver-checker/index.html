@@ -163,7 +163,7 @@
         : '<div class="finding">Nothing flagged by these rules. They read wording only and cannot tell you the waiver is enforceable or safe.</div>';
       report.hidden = false;
       status.textContent = `${r.findings.filter((g) => g.severity !== "info").length} finding(s) to look at.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

@@ -165,7 +165,7 @@
       $("#sens").innerHTML = r.sizes.map((x) => `<tr><th scope="row">${x.gallons.toLocaleString("en-US")}</th><td>${usd(x.closePrice)}</td><td>${usd(x.openPrice)}</td><td>${usd(x.season)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Close ${usd(r.close.price)}, open ${usd(r.open.price)}.`;
-      if (scroll) report.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (scroll) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

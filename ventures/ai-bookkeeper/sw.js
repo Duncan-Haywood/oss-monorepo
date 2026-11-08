@@ -1,7 +1,7 @@
 // Offline shell for the installed app. Caches this directory's own files only;
 // there are no third-party requests and nothing is sent anywhere. The list is the
 // import closure of index.html; page.test.mjs fails if it falls out of date.
-const CACHE = "ai-bookkeeper-v9";
+const CACHE = "ai-bookkeeper-v10";
 const SHELL = [
   "./", "./accruals.mjs", "./ai.mjs", "./assets.mjs", "./bai2.mjs",
   "./bank.mjs", "./billpay.mjs", "./budget.mjs", "./byok.mjs", "./categorize.mjs",
@@ -11,7 +11,7 @@ const SHELL = [
   "./payouts.mjs", "./plaid.mjs", "./payroll.mjs", "./pdftext.mjs", "./prepaid.mjs", "./receipts.mjs",
   "./cashbasis.mjs", "./compare.mjs", "./reconcile.mjs", "./recurring.mjs", "./salestaxreturn.mjs", "./scorp.mjs", "./sepa.mjs", "./statement.mjs",
   "./statementtext.mjs", "./taxdepr.mjs", "./taxforms.mjs", "./textcodec.mjs", "./usage.mjs",
-  "./xls.mjs", "./xlsx.mjs", "./xmlent.mjs", "./yearend.mjs", "./manifest.webmanifest",
+  "./csvq.mjs", "./xls.mjs", "./xlsx.mjs", "./xmlent.mjs", "./yearend.mjs", "./manifest.webmanifest",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/apple-touch-icon.png",
 ];
 

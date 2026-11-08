@@ -42,8 +42,17 @@ const PILOTS = {
   'ucr-fee-calculator': async (m) => m.parseFees(m.DEFAULT_FEES_TEXT).brackets.map((b) => b.fee),
   'amazon-fba-calculator': async (m) => [m.SELLER_PLAN_DEFAULTS.individualPerUnit, m.SELLER_PLAN_DEFAULTS.professionalMonthly],
   'card-processing-fee-audit': async (m) => [m.STRIPE_STANDARD_PUBLISHED.perTransaction],
+  'freelance-platform-fee-calculator': async (m) => [100, 100 - m.FIVERR_FEE_PERCENT], // 100: the worked example order in the lead
+  'course-platform-fee-calculator': async (m) => [m.PRESETS[0].txFlat, m.PRESETS[2].monthlyFee], // Gumroad flat per-sale fee, Podia paid plan
+  'merchant-of-record-fee-calculator': async (m) => [m.DEFAULT_PROVIDERS.paddle.fixed, m.DEFAULT_PROVIDERS.polar.fixed], // Paddle/Lemon Squeezy and Polar per-transaction fixed fees
+  '401k-loan-vs-withdrawal-calculator': async (m) => [m.LOAN_FLOOR, m.LOAN_CAP], // statutory loan floor and cap, IRC 72(p)(2)
   'poshmark-fee-calculator': async (m) => [m.FLAT_FEE, m.COMMISSION_THRESHOLD, m.BREAK_EVEN_PRICE],
+  '529-to-roth-rollover-calculator': async (m) => [m.DEFAULTS.lifetimeCap], // statutory lifetime cap, IRC 529(c)(3)(E)
+  'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
 };
+
+// slugs whose engine is not calc.mjs
+const MODULE = { 'merchant-of-record-fee-calculator': 'engine.mjs' };
 
 for (const [slug, figures] of Object.entries(PILOTS)) {
   test(`${slug}: lead is sourced, dated and matches the calc module`, async () => {
@@ -53,9 +62,89 @@ for (const [slug, figures] of Object.entries(PILOTS)) {
     const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
     assert.match(text, /Source:/);
     assert.match(text, /(?:verified|as of) \d{4}-\d{2}(?:-\d{2})?/i);
-    const allowed = (await figures(await import(new URL(`${slug}/calc.mjs`, root)))).map(Number);
+    const allowed = (await figures(await import(new URL(`${slug}/${MODULE[slug] || 'calc.mjs'}`, root)))).map(Number);
     const stated = [...text.matchAll(/\$([\d,]+(?:\.\d+)?)/g)].map((x) => Number(x[1].replace(/,/g, '')));
     assert.ok(stated.length > 0, 'lead states no figure');
     for (const n of stated) assert.ok(allowed.includes(n), `$${n} is not a figure exported by ${slug}/calc.mjs`);
   });
 }
+
+// Statutory-timing lead (no dollar figures): the stages it names must be the
+// ones the planner's calc module models, and it must cite the rule and a date.
+test('patent-maintenance-fee-planner: lead is sourced, dated and matches the modelled stages', async () => {
+  const slug = 'patent-maintenance-fee-planner';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { STAGES } = await import(new URL(`${slug}/calc.mjs`, root));
+  for (const s of STAGES) {
+    assert.ok(text.includes(s.label.replace('-year', '')) || text.includes(s.label), `lead omits the ${s.label} stage`);
+    assert.equal(s.dueMonths - s.openMonths, 6);
+    assert.equal(s.graceMonths - s.dueMonths, 6);
+  }
+});
+
+// TFSA lead: the stated 2026 limit must be the one the checker's table holds, and the 1% rate its text names.
+test('tfsa-over-contribution-checker: lead is sourced, dated and matches the limits table', async () => {
+  const slug = 'tfsa-over-contribution-checker';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { LIMITS } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/\$([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.deepEqual(stated, [LIMITS[2026]]);
+  assert.match(text, /1%/);
+});
+
+// Overtime lead (no dollar figures): the 40-hour threshold and 1.5x multiplier it states must be the calculator's defaults.
+test('overtime-pay-calculator: lead is sourced, dated and matches the calculator defaults', async () => {
+  const slug = 'overtime-pay-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { computeSingleRateOvertime } = await import(new URL(`${slug}/calc.mjs`, root));
+  const r = computeSingleRateOvertime({ hourlyRate: 10, hoursWorked: 41 });
+  assert.match(text, /one and one-half times/);
+  assert.match(text, /over 40 in a workweek/);
+  assert.equal(r.overtimeRate ?? r.summary?.overtimeRate, 15);
+});
+
+// Solo 401(k) lead: every dollar figure and the 20% rate it states must be the calculator's own constants.
+test('solo-401k-contribution-calculator: lead is sourced, dated and matches the limits', async () => {
+  const slug = 'solo-401k-contribution-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { LIMITS_2026: L, EMPLOYER_CONTRIBUTION_RATE } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/\$([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.deepEqual(stated, [L.employeeDeferral, L.catchUp50, L.catchUp60to63, L.annualAdditions]);
+  assert.match(text, new RegExp(`${EMPLOYER_CONTRIBUTION_RATE * 100}%`));
+});
+
+// Inherited-IRA lead (no dollar figures): the 10-year window and the excise-tax rates it states must be what the planner models.
+test('inherited-ira-10-year-withdrawal-planner: lead is sourced, dated and matches the planner', async () => {
+  const slug = 'inherited-ira-10-year-withdrawal-planner';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { normalize } = await import(new URL(`${slug}/calc.mjs`, root));
+  assert.equal(normalize({ years: 99 }).years, 10, 'planner caps the window at 10 years');
+  assert.match(text, /10th year/);
+  assert.match(text, /25% excise tax \(10% if corrected within two years\)/);
+  assert.ok(html.includes('25% excise tax on the amount you should have taken, reduced to 10%'));
+});

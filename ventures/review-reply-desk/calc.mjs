@@ -321,7 +321,9 @@ export function summarize(rows) {
 }
 
 export function toCsv(rows) {
-  const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+// Formula guard: text starting = + - @ (or tab/CR) would run as a formula in a spreadsheet; prefix an apostrophe (plain numbers such as -12.50 stay numbers).
+const defuse = (s) => (/^[=+\-@\t\r]/.test(s) && !/^[+-]?\d[\d.,]*$/.test(s) ? "'" + s : s);
+  const q = (v) => `"${defuse(String(v ?? "")).replace(/"/g, '""')}"`;
   const head = ["reviewer", "rating", "sentiment", "topics", "flags", "review", "reply"];
   const lines = rows.map((x) => [x.review.reviewer, x.analysis.rating, x.analysis.sentiment, x.analysis.topics.join("; "), x.analysis.flags.map((f) => f.id).join("; "), x.review.body, x.reply].map(q).join(","));
   return [head.join(","), ...lines].join("\n");

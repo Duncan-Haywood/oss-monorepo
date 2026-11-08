@@ -183,7 +183,7 @@
       costs = c.costs;
       if (!render()) return false;
       status.textContent = `Read ${rows.length} transaction rows.` + (c.bad.length ? ` Ignored cost line(s): ${c.bad.slice(0, 5).join(", ")}.` : "");
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

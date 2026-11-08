@@ -1,0 +1,54 @@
+{
+ "date": "2026-11-07",
+ "session": "https://claude.ai/code/session_01AcxTtLH7SCfcNbsdUFUX3G",
+ "track": "explore",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-07T17:08:43Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13845",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "prompts/explore/prompt-0.md",
+   "issue": "Its sweep list is the only place to record a clean sweep, but prompts/ is CODEOWNERS-gated, so a run that updates it holds its PR for the owner; I left it unchanged."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/explore/prompt-0.md",
+   "why": "Did not update the clean-sweeps list (control plane).",
+   "did": "Recorded the result in docs/reports/blank-inputs-sweep.md",
+   "result": "PR stays free of owner approval"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-07-blank-and-zero-inputs-sweep.md",
+  "docs/reports/blank-inputs-sweep.md"
+ ],
+ "goal": null,
+ "notes": "Explore: blank/zero-input sweep, 1279 pages, 0 hits; detector verified against a planted bug. A stale shallow origin/main briefly made a revert delete a line; fixed by refetching.",
+ "corrections": [],
+ "redteam": null
+}

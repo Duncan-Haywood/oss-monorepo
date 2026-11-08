@@ -50,7 +50,7 @@
     footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
     @media (max-width: 760px) { body { padding: 16px; } .grid, .fields { grid-template-columns: 1fr; } }
   </style>
-<style>/* mobile-overflow-guard */table{display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style>
+<style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;min-width:0!important;overflow-x:auto}code{overflow-wrap:anywhere}pre{max-width:100%;overflow-x:auto}fieldset,section,form,div,main{min-width:0}input,select,textarea{max-width:100%}</style>
 </head>
 <body>
   <header>
@@ -311,7 +311,7 @@ vendor-watch check</code></pre>
       renderReport(buildReport(saved.previous, snapshot));
       record("report_built");
       els.status.textContent = `Compared against the previous capture of ${vendor} — ${pageType}.`;
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });
 
     els.watches.addEventListener("click", (event) => {
@@ -322,7 +322,7 @@ vendor-watch check</code></pre>
         if (snapshots.length > 1) {
           renderReport(buildReport(snapshots[snapshots.length - 2], snapshots[snapshots.length - 1]));
           record("report_built");
-          els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+          els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
         }
       }
       if (forgetId) {

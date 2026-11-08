@@ -190,7 +190,7 @@
       $("#sizes").innerHTML = r.byDiameter.map((t) => `<tr><th scope="row">${t.diameter} in.</th><td class="n">${Math.round(t.bf)}</td><td class="n">${t.minutes}</td><td class="n">${money2(t.cost)}</td><td class="n">${money2(t.revenue)}</td><td class="n">${money2(t.net)}</td><td class="n">${money2(t.breakEvenPerBf)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = `Break-even ${money2(j.breakEvenPerBf)}/bf or ${money2(j.breakEvenHourly)}/hr; quote ${money2(j.quotePerBf)}/bf or ${money2(j.quoteHourly)}/hr.`;
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

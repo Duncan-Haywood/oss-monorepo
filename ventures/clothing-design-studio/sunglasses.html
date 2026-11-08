@@ -101,6 +101,8 @@
           <div><label for="marketing">Launch budget</label><input id="marketing" type="number" min="0" step="50" value="500"></div>
         </div>
         <output id="results" aria-live="polite"></output>
+        <p><button class="btn" type="button" id="to-launch">Use these numbers in the launch tools</button> <span id="to-launch-note" role="status"></span></p>
+        <p class="notes">Fills the boxes on the <a href="cashflow.html">cash flow</a>, <a href="preorder.html">pre-order</a>, <a href="wholesale.html">wholesale</a>, <a href="reorder.html">reorder</a> and <a href="tna.html">time-and-action</a> pages from this pair. It replaces the garment numbers saved from the studio. Stays in this browser.</p>
       </section>
       <section>
         <h2>Quote request</h2>
@@ -118,6 +120,7 @@
     <p>In the EU and UK sunglasses are personal protective equipment, category I. Ask the factory for an EN ISO 12312-1 test report, the filter category to mark on the temple, and a declaration of conformity. In the US, sunglasses need the FDA impact-resistance (drop-ball) test. Check the current rules for your market; this is not legal advice.</p>
   </section>
 </main>
+  <p><a href="sunglasses-profit-margin.html">Worked example: made for 20 euros, sold for 65, what is left?</a></p>
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, regulatory, tax, financial or manufacturing advice, and it does not replace a qualified professional. The notes on EU, UK and US requirements are prompts for questions to ask, not a compliance check. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including trademark and design rights in any frame shape or logo. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Privacy.</strong> Everything runs in your browser; nothing is uploaded. Anonymous counts of which features are used stay in this browser.</p>
@@ -128,6 +131,7 @@
     import { FRAME_STYLES, FRAME_MATERIALS, LENSES, LOGO_METHODS, CASES, newEyewear, eyewearNotes, eyewearCost, eyewearQuoteRequest, renderEyewear, sizeLabel, EXAMPLE_EYEWEAR_SUPPLIER } from "./eyewear.mjs";
     import { sellingSide, money } from "./costing.mjs";
     import { recordUsage } from "./usage.mjs";
+    import { briefFromEyewear, saveBrief } from "./launchbrief.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     const fill = (id, obj) => { $(id).innerHTML = Object.values(obj).map(o => `<option value="${o.id}">${o.label}</option>`).join(""); };
@@ -173,6 +177,20 @@
       $("#quote").textContent = eyewearQuoteRequest(e);
       try { localStorage.setItem(KEY, JSON.stringify(e)); } catch {}
     }
+    $("#to-launch").addEventListener("click", () => {
+      read();
+      let ok = false;
+      try {
+        const c = eyewearCost(e, EXAMPLE_EYEWEAR_SUPPLIER);
+        const override = +$("#override").value;
+        const landed = override > 0 ? override : c.landed;
+        const brief = briefFromEyewear({ quantity: e.quantity, price: e.price }, { ...EXAMPLE_EYEWEAR_SUPPLIER, example: !(override > 0) },
+          { salesTaxPct: +$("#tax").value || 0, channelFeePct: +$("#channel").value || 0, paymentFeePct: 3, paymentFixed: 0.3 }, { landed, currency: c.currency });
+        ok = saveBrief(brief);
+      } catch {}
+      $("#to-launch-note").textContent = ok ? "Saved. Open any launch tool and its boxes fill from this pair." : "Could not save (browser storage is blocked or the numbers are incomplete).";
+      if (ok) recordUsage("eyewear_launch_brief");
+    });
     write(); render();
     document.querySelectorAll("input, select").forEach(el => el.addEventListener("input", () => { read(); render(); recordUsage("eyewear_edit"); }));
     $("#copy").addEventListener("click", () => navigator.clipboard?.writeText($("#quote").textContent).then(() => recordUsage("eyewear_quote_copy")));

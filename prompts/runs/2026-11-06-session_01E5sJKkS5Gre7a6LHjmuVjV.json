@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-06",
+  "session": "https://claude.ai/code/session_01E5sJKkS5Gre7a6LHjmuVjV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-06T19:20:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13625",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took a sibling-class security fix (CSV formula injection) in flagship 2 ai-bookkeeper instead of the top flagship slice.",
+      "did": "fixed 5 unguarded CSV writers",
+      "result": "55 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-06-bookkeeper-tax-csv-formula-injection.md",
+    "docs/reports/2026-11-06-ai-bookkeeper-csv-injection.md"
+  ],
+  "goal": null,
+  "notes": "Merged with local node tests only; no CI check runs had appeared on the PR yet.",
+  "corrections": [],
+  "redteam": null
+}

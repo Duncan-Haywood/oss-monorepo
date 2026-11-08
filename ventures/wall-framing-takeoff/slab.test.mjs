@@ -28,3 +28,31 @@ test("bad input is refused with reasons, not NaN", () => {
   }
   assert.match(slabText(slabConcrete({ length: 144, width: 144, depth: 4 })).join("\n"), /order 2\.00 cu yd/);
 });
+
+import { controlJoints } from "./slab.mjs";
+
+test("controlJoints: 24 x 24 ft, 4 in slab: spacing 10 ft, 2 cuts each way, 9 panels, 96 ft of saw cut, 1 in deep", () => {
+  const r = controlJoints({ length: 288, width: 288, depth: 4 });
+  assert.ok(r.ok);
+  assert.equal(r.spacing, 120);
+  assert.equal(r.cutsAlongLength, 2); // 288/120 = 2.4 -> 3 panels, 2 cuts
+  assert.equal(r.panels, 9);
+  assert.equal(r.panelLength, 96);
+  assert.equal(r.sawCutFeet, (2 * 288 + 2 * 288) / 12);
+  assert.equal(r.cutDepth, 1);
+});
+
+test("controlJoints: a slab inside the spacing needs no joint; spacing never passes 15 ft; bad input is refused", () => {
+  const small = controlJoints({ length: 100, width: 100, depth: 4 });
+  assert.ok(small.ok); assert.equal(small.panels, 1); assert.equal(small.sawCutFeet, 0);
+  assert.equal(controlJoints({ length: 600, width: 300, depth: 8 }).spacing, 180);
+  assert.equal(controlJoints({ length: 288, width: 288, depth: "4" }).ok, false);
+  assert.equal(controlJoints({ length: 288, width: 288, depth: 1 }).ok, false);
+  assert.equal(controlJoints(null).ok, false);
+});
+
+test("controlJoints: a long thin slab warns about panel shape", () => {
+  const r = controlJoints({ length: 117, width: 60, depth: 4 }); // 117/120 -> 1 panel, 60/120 -> 1: aspect 1.95
+  assert.ok(r.ok);
+  assert.ok(r.notes.some((n) => /longer than/.test(n)));
+});

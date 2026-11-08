@@ -58,10 +58,11 @@ def main():
             text = text[:m.start(1) + tm.end(0)] + f'\nseo_title: {q}' + text[m.start(1) + tm.end(0):]
             open(f, 'w', encoding='utf-8').write(text)
     if a.check:
-        for name, n, title in skipped:
-            over.append(name)
-        if over:
-            print('over the title budget with no seo_title: ' + ', '.join(over))
+        # A headline with a clean cut gets one automatically (writing.mjs,
+        # autoSeoTitle); only a headline with no cut needs a person.
+        stuck = [name for name, n, title in skipped]
+        if stuck:
+            print('over the title budget, no seo_title and no clean cut: ' + ', '.join(stuck))
             raise SystemExit(1)
         return
     for name, n, title in skipped:

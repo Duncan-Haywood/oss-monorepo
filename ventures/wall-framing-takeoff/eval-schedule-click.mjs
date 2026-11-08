@@ -99,6 +99,18 @@ await page.fill("#rg", "walls=9-14");
 check(/need min <= days <= max/.test(await page.textContent("#out")), "day ranges field: a range that excludes the typed days is refused");
 await page.fill("#rg", "");
 check(!/Schedule risk/.test(await page.textContent("#out")), "day ranges field: cleared removes the risk block");
+// long-lead orders: walls start 2026-03-02 + footings..slab; read the date from the report
+await page.fill("#lo", "windows=walls/42, trusses=roof/28/5");
+const lo1 = await page.textContent("#out");
+check(/Order-by dates/.test(lo1) && /windows/.test(lo1) && /trusses/.test(lo1) && /lead 28 d \+ 5 d buffer/.test(lo1), "long-lead orders field: order-by lines appear");
+await page.fill("#td", "2030-01-01");
+check(/LATE by/.test(await page.textContent("#out")), "long-lead orders: a far-future today flags items late");
+await page.fill("#lo", "windows=nope/42");
+check(/is not an activity id/.test(await page.textContent("#out")), "long-lead orders: unknown activity is named");
+await page.fill("#lo", "garbage");
+check(/Long-lead orders: write each as/.test(await page.textContent("#out")), "long-lead orders: bad text explained");
+await page.fill("#lo", ""); await page.fill("#td", "");
+check(!/Order-by dates/.test(await page.textContent("#out")), "long-lead orders: cleared removes the block");
 // invalid JSON must not export the previous schedule
 await page.fill("#src", "{not json");
 let downloaded = false;

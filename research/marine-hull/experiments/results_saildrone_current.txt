@@ -1,0 +1,6 @@
+near-calm (wind < 1 m/s) blocks: 2018 3224, 2019 1735; p90 SOG 2018 0.478 m/s, 2019 0.499; median 2018 0.296, 2019 0.342
+fit cells 96, blocks 33680
+fit with current c=0.478: sail_area 0.68, hull_scale 4.05, MSE 0.0047  (6q no-current MSE 0.053, 6n drone no current 0.0592)
+6n drone       2019 coverage (n=18921 total) 0-4: 0.545  0-2: 0.245  2-3: 0.668  3-4: 0.748
+6n drone + c   2019 coverage (n=18921 total) 0-4: 0.962  0-2: 0.935  2-3: 0.979  3-4: 0.975
+fit + current  2019 coverage (n=18921 total) 0-4: 0.829  0-2: 0.805  2-3: 0.869  3-4: 0.815

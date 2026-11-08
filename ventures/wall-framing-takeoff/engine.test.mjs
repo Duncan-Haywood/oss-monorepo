@@ -1112,3 +1112,61 @@ test("a wall's own studLength (9 ft beside 8 ft) sets that wall's studs and heig
   plan.walls[0].studLength = "9ft";
   assert.match(takeoff(plan).errors.join(" "), /Front: "studLength" must be a number/);
 });
+
+test("typed cull allowance adds whole spare boards per order line, apart from the layout order", () => {
+  const plan = samplePlan();
+  const none = takeoff(plan);
+  assert.deepEqual(none.culls, []);
+  assert.equal(none.summary.cullBoards, undefined);
+  const r = takeoff({ ...plan, culls: { pct: 0.05, bySize: { "2x6": 0.1 } } });
+  assert.ok(r.ok);
+  assert.equal(r.summary.cost, none.summary.cost, "layout order cost is unchanged");
+  assert.equal(r.summary.bound, none.summary.bound);
+  let boards = 0, cost = 0;
+  for (const o of r.orders) for (const l of o.lines) {
+    const pct = o.size === "2x6" ? 0.1 : 0.05;
+    const want = Math.ceil(l.qty * pct - 1e-9);
+    const got = r.culls.find((c) => c.size === o.size && c.length === l.length && c.label === l.label);
+    assert.equal(got ? got.qty : 0, want);
+    boards += want; cost += want * l.price;
+  }
+  assert.equal(r.summary.cullBoards, boards);
+  assert.ok(Math.abs(r.summary.cullCost - cost) < 1e-9);
+  assert.ok(Math.abs(r.summary.costWithCulls - (none.summary.cost + cost)) < 1e-9);
+  assert.match(toCsv(r), /^cull,/m);
+  assert.doesNotMatch(toCsv(none), /^cull,/m);
+});
+
+test("cull allowance refuses rates outside 0 to 50% and non-objects", () => {
+  for (const culls of [{ pct: 0.6 }, { pct: -0.1 }, { pct: "5" }, { bySize: { "2x4": 2 } }, [], 5]) {
+    const r = takeoff({ ...samplePlan(), culls });
+    assert.equal(r.ok, false, JSON.stringify(culls));
+  }
+  assert.ok(takeoff({ ...samplePlan(), culls: { pct: 0 } }).ok);
+});
+
+test("a wall too long for one board with only an opening between its jacks splices the plates over the header", () => {
+  const plan = base();
+  const wall = { id: "A", length: 245, openings: [{ kind: "window", offset: 28, width: 189, height: 48, sill: 30, header: "2x10" }] };
+  const w = layoutWall(plan, wall);
+  assert.deepEqual(verifyWall(w, wall), []);
+  assert.ok(w.notes.some((n) => /over a header/.test(n)), w.notes.join("; "));
+  assert.ok(w.joints.top.length >= 1 && w.joints.cap.length >= 1);
+  for (const c of w.joints.cap) for (const t of w.joints.top) assert.ok(Math.abs(c - t) >= plan.topPlateLap - 1e-9);
+});
+
+test("a whole-house order (180+ lengths, 900+ pieces, 7 boards) finishes and sits within 1% of its bound", async () => {
+  const { optimizeStock } = await import("./engine.mjs");
+  let s = 987654321;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const lens = Array.from({ length: 190 }, () => Math.round((8 + r() * 100) * 8) / 8);
+  const pieces = Array.from({ length: 950 }, (_, i) => ({ length: lens[Math.floor(r() * lens.length)], qty: 1, ref: `p${i}` }));
+  const stock = [96, 104, 116, 120, 144, 192, 240].map((length) => ({ length, price: Math.round(length / 12 * 0.75 * 100) / 100 }));
+  const t0 = Date.now();
+  const o = optimizeStock(pieces, stock);
+  const ms = Date.now() - t0;
+  assert.ok(o.bound <= o.cost + 1e-9, "the bound is a floor");
+  assert.ok(o.cost <= o.bound * 1.01, `cost ${o.cost} within 1% of bound ${o.bound}`);
+  assert.equal(o.bars.reduce((n, b) => n + b.cuts.length, 0), 950, "every piece is cut");
+  assert.ok(ms < 30000, `took ${ms} ms`);
+});

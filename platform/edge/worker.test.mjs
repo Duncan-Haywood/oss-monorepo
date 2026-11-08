@@ -64,6 +64,20 @@ const req = (path, { method = 'POST', body, headers = {}, cf } = {}) => {
   return r;
 };
 
+test('/hit answers an empty 204 whether the hit was counted or refused, so a refusal tells a page nothing', async () => {
+  const e = env();
+  const cases = [
+    req('/hit', { body: JSON.stringify({ p: 'roof-bid' }) }),
+    req('/hit', { body: JSON.stringify({ p: 'roof-bid' }), headers: { dnt: '1' } }),
+    req('/hit', { body: JSON.stringify({ p: '../etc' }) }),
+  ];
+  for (const r of cases) {
+    const res = await worker.fetch(r, e);
+    assert.equal(res.status, 204);
+    assert.equal(await res.text(), '');
+  }
+});
+
 test('a hit is counted per day and slug, and /counts returns it', async () => {
   const e = env();
   for (let i = 0; i < 2; i++) await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid', r: 'npm', s: 'google' }) }), e);
@@ -71,6 +85,7 @@ test('a hit is counted per day and slug, and /counts returns it', async () => {
   await worker.fetch(req('/hit', { body: JSON.stringify({ p: 'roof-bid' }), headers: { dnt: '1' } }), e);
   await worker.fetch(req('/hit', { body: JSON.stringify({ p: '../etc' }) }), e);
   const res = await worker.fetch(req('/counts', { method: 'GET' }), e);
+  assert.equal(res.status, 200);
   const { days } = await res.json();
   const [day] = Object.keys(days);
   assert.deepEqual(days[day], { 'roof-bid': 3, 'ref:npm': 2, 'src:google': 2, 'dev:desktop': 3 }, 'a source outside the closed list is dropped');

@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-07",
+  "subject": "ventures/changepoint-detector",
+  "stratum": "flagship",
+  "seed": "2026-11-07-d",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "an applied statistician / econometrician who has used R's changepoint and strucchange packages and Python's ruptures on real series: first checks that the segmentation equals the exact optimum of the stated cost and penalty, that the penalty and noise-scale conventions are stated, and that autocorrelation, seasonality and trend (the usual sources of false breaks) are handled or disclosed",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran the engine and recomputed against my own exact O(n^2) optimal-partitioning DP in Python/numpy (written in this audit, not the author's code, no pruning). (1) Poisson, data/coal-mining-disasters.csv, penalty 2 log n: engine changepoints [41, 97] (1892, 1948), mine [41, 97], cost 125.43; 1892 is also within the 1885-1895 range the coal-mining literature gives. (2) Gaussian mean, data/lake-huron.csv with the MAD-of-differences noise sd (0.5451): engine segment starts [14,48,54,56,67,76,81,88,91,94], mine identical. (3) Gaussian mean, data/airmiles.csv (sd 1072.47): engine 6 changes [9,14,16,18,20,22], mine identical. (4) meanvar, pelt() with minSegment 5 on airmiles and lake-huron: engine [8,14,19] and [14,48,68,74] against my DP [8,14,19] and [14,48,68,74], also equal to the engine's own optimalPartitioning. (5) Nile: independent segment means 1097.75 and 849.97, sds 135.00 and 124.78, shift 2.149 noise sd, matching `cli.mjs --example` (1097.75, 849.97, 2.15) and the cited Cobb/R cpt.mean split at 1899. (6) tools.mjs call analyze on a hand-made 10.43 to 20.43 step returned one change at point 8, means 10.43 and 20.43, as computed by hand. No wrong number found. Limit: R's changepoint was not run (README discloses this); the Bayesian pass was not independently recomputed beyond the author's closed-form tests.",
+    "completeness": "Claims checked in README, llms.txt and the page: PELT mean model (works, exact vs my DP); meanvar (works); poisson (works, coal data); Nile --example (output as claimed, 79% BOCPD at 1899); CLI --help and --example run; agent/MCP call via platform/agents/tools.mjs call returns segments and summary; page index.html has the claimed disclaimer, opt-out button, no network calls (page.test.mjs asserts no fetch/XHR/beacon, passes); internal links (how-do-you-know page, change-report-for-analysts.html, LICENSE, sibling tools) exist. Extras (ar1, period/drift, trend/bend, overdispersion/nb, bursts, episodes, holidays) are covered by the 291 passing tests and eval/ scripts with committed outputs; I did not rerun every eval. Stubs and TODOs: none found in the files read. VENTURE.yaml stage is still 'prototype'.",
+    "verification": "Ran `node --test '*.test.mjs'` in ventures/changepoint-detector (79 test files, run in the background, 540 s): 291 tests, 291 pass, 0 fail. Mutation: in engine.mjs penaltyValue changed `case 'bic': return k * Math.log(n)` to `... * 0.8` (a 20 percent weaker penalty, which changes real output). The Nile test, the exactness test and cli.test.mjs, great-moderation and slope-pvalue (14 tests) all still passed; the full engine.test.mjs filtered to PELT/penalty/Nile/BIC tests (11 tests) failed 1: 'BIC rarely invents a change in pure noise', a seeded statistical test. So the bug was caught, but by one statistical test and not by any test that pins the penalty value or the Nile result at a different penalty; a smaller drift would likely slip through. Reverted with git checkout (git status clean). Strengths: PELT vs brute force, vs the ruptures package (100 of 100, committed fixture) and closed-form BOCPD evidence checks are real independent oracles.",
+    "craft": "Read engine.mjs (2243 lines, 128 KB, all of PELT, BOCPD, seasonal, AR(1/2), trend, Poisson, holidays, bursts, episodes in one module), cli.mjs, ramps.mjs, makeCost/pelt/penaltyValue/robustSd in detail, usage.mjs, page.test.mjs. The core is clean: prefix-sum costs, a variance floor against -infinity, validated penalty names with clear errors, Poisson input validation with row numbers, dependency-free. Defects: one 2243-line module with an analyze() that is hundreds of lines of option branching; 79 test files and ~180 eval files dumped flat in the venture directory root/eval; README is 1652 lines (196 KB) of dated experiment logs rather than a README; minimum-segment default is written in three places (engine DEFAULTS comment says null=5 for meanvar, README line 25 says 5, code line 1860 uses 10); docs headed with a date two days in the future (2026-11-09). No silent fallbacks found in the paths read.",
+    "claims": "Backed: the Nile numbers (rerun, match), the ruptures 100-of-100 check (data/ruptures-crosscheck.json, make_ruptures_fixture.py exist), the page's no-upload claim (page.test.mjs, no fetch in index.html, usage counted in localStorage only, opt-out present), the not-advice and no-SLA text on the page, citations with DOIs, and the honest 'R changepoint still unchecked' note. Not backed: README line 57 says `node --test` (47 tests) but the suite has 291 tests in 79 files; README line 25 and the page FAQ ('needs at least five points per segment') state a meanvar minimum segment of 5 while the code default is 10 (engine.mjs:1860; README line 698 says the default changed, 'until 2026-11-09', a future date); the engine DEFAULTS comment also says 5. A user reading the page would believe the wrong minimum. The llms.txt example.invalid URLs and relative sitemap/robots URLs are build-time placeholders that platform/pages/build.mjs replaces, so not counted. The 'Not verified' limits are stated where they apply.",
+    "fitness": "Job walked through: an analyst with a metric CSV asks 'did it shift, and when'. CLI on a CSV and on --example gives segments with means, sds, shift in noise sds, a 95 percent range for the change and a Bayesian probability; the page does the same with a chart; the agent call returns JSON plus a plain-language summary. The how-do-you-know guide covers the traps (autocorrelation, seasonality, trend) that stop a naive user. Gaps: no multivariate data, no covariate/regression breaks, many options with a long README to learn them, and the meanvar default minimum of 10 may hide short volatility episodes (the README documents this). Good enough that a practitioner would use it for a one-off question, with R/ruptures for pipelines as llms.txt itself says.",
+    "domain": "Compared with Killick, Fearnhead and Eckley (2012), Adams and MacKay (2007), R changepoint (cpt.mean/cpt.meanvar/cpt.np, default penalty MBIC) and ruptures Pelt. PELT with K = 0 pruning on Gaussian and Poisson costs is exactly the optimum (verified). Departures a statistician would flag, all disclosed in PAPERS: BIC uses 2 log n (mean) and 3 log n (meanvar) per change where R's default is MBIC, so counts of changes can differ from R at its defaults; the noise sd is a MAD of successive differences, fixed once (as in R's normalised use), not re-estimated per segment; BOCPD prior is empirical-Bayes from the data; BOCPD reports a lagged probability instead of the paper's raw run-length-0 mass, with the reason given. Handles the standard failure modes (AR(1) with a measured false-alarm drop from 40 of 40 to 4 of 40, seasonal and trend adjustment, overdispersed counts, bootstrap penalty). A practitioner would sign off with the stated limits."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "README line 25 states the meanvar model needs/uses a minimum segment of 5 points, but the code default is 10 (README later says it changed, citing 2026-11-09, a date after today); a user reading the README gets the wrong minimum and may wonder why short volatility changes are not reported. (Lead correction: the index.html FAQ cited by the auditor does not contain this claim; only the README does.)",
+      "where": "README.md:25, engine.mjs:76-80 comment vs engine.mjs:1860"
+    },
+    {
+      "severity": "low",
+      "what": "README states 47 tests; the suite has 291 tests in 79 files, all passing.",
+      "where": "ventures/changepoint-detector/README.md:57"
+    },
+    {
+      "severity": "low",
+      "what": "No test pins the BIC/AIC/HQ penalty values or the Nile result under a changed penalty: scaling the BIC penalty by 0.8 was caught only by the seeded pure-noise false-alarm test.",
+      "where": "ventures/changepoint-detector/engine.mjs:1285, engine.test.mjs"
+    },
+    {
+      "severity": "low",
+      "what": "engine.mjs is a single 2243-line module with a very long analyze(); 79 test files and about 180 eval files sit flat in the venture directory; README is 1652 lines of dated experiment logs, which buries the usage and limits a new user needs.",
+      "where": "ventures/changepoint-detector/engine.mjs, README.md"
+    },
+    {
+      "severity": "low",
+      "what": "Default BIC penalty is 2 log n per change, not R changepoint's default MBIC, so change counts can differ from R at default settings; the README does not put this next to the 'same as R' Nile claim.",
+      "where": "ventures/changepoint-detector/engine.mjs:1281-1291"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The statistics are right and unusually well verified: five outputs (Poisson on coal-mining, Gaussian mean on Lake Huron and airmiles, meanvar, Nile) match an exact optimal-partitioning DP I wrote independently, 291 of 291 tests pass, and a seeded weaker-penalty bug was caught (by one statistical test). A statistician would use it with the stated limits, so correctness, completeness, verification, fitness and domain score 3. It does not meet the bar because claims score 2: the page FAQ and README state a meanvar minimum segment of 5 while the code default is 10, and the README's test count (47 against 291) is stale. Craft is 2: the core is clean, but the project is one 2243-line module with a 1652-line README of experiment logs. Fix forward: correct the FAQ and README minimum-segment text, update the test count, and add a test that pins the penalty values."
+}

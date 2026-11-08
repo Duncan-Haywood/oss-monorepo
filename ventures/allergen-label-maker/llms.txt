@@ -1,0 +1,19 @@
+# Allergen Label Maker
+
+> Free allergen matrix and print-ready pre-packed food (Natasha's Law) labels. Paste each dish's ingredients, get the 14 UK/EU allergens (or the US 9) per dish, and a label with allergens in bold. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). It reads the ingredient words a person types; it is a drafting aid, not legal advice, and a person must confirm every label against supplier information.
+
+## Pages
+
+- [The tool](https://marisstella.app/allergen-label-maker/)
+
+## How it works
+
+- Word list for the 14 allergens (UK and EU Regulation 1169/2011 Annex II) and the 9 US major allergens, with look-alike exceptions (coconut milk, cocoa butter, butternut squash, rice flour).
+- Foods that usually contain an allergen without naming it (hummus, Worcestershire sauce, pasta, dried apricots) are marked "check", never printed as a declaration.
+- Supplier allergens can be stated in square brackets, `pesto [milk, tree nuts]`; that statement overrides guesses.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/allergen-label-maker): MIT licensed.

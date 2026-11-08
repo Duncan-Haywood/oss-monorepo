@@ -2,6 +2,113 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · README status line rewritten (no flow run, no new numbers)
+- Why: the quality audit called the README status line garbled: one 3,000-character sentence listing milestones 68 to 9 backwards. Replaced with a five-bullet headline summary (rung bias, halving versus random, the pilot certificate, proof prediction, limits) with links to the experiment results; all figures copied from existing log entries and result files.
+- Limits: the per-milestone sections below the status line are unchanged; detail-routed mult24/mult32 cells still pending.
+
+## 2026-11-08 · Milestone 98: tests that constrain the headline metric, page text brought up to date (no flow run, no new numbers)
+- Why: the 2026-11-08 quality audit (`portfolio/quality/audits/2026-11-08-verified-dse.json`) seeded four mutations; two passed all 18 tests: `pick_regret` choosing `max(cheap)` instead of `min(cheap)` (the programme's headline metric) and the tie rule in `pilot_top_inversion` (`<=` to `<`). The existing `pick_regret` test happened to give the same value for min and max.
+- Change: `tests/test_stats.py` gains a case where the cheap minimum and maximum pick different reference values and one for averaging over cheap ties; `tests/test_bound.py` gains a rung-tie case for `pilot_top_inversion`. Re-running both mutations: each now fails (2 and 3 failures); unmutated, all new tests pass. `test_proof_success` errors on import in this container (a missing dependency), as it did before the change.
+- Page text: `project.json` lede and summary said "milestones 1 to 3 done"; the lede now states the current headline results (milestones 6, 96, 97) and the summary opening no longer claims only milestone 1.
+- Limits: the other ~40 experiment directories are still guarded only by byte-identical regeneration; the README status line is still the long milestone list the audit called garbled.
+- Next: detail-routed mult24/mult32 cells; a README status line rewrite.
+
+## 2026-11-08 · Milestone 97: any certified pilot point gives the ceiling, not only the pilot's best (no flow run)
+- Why: milestone 96's proof holds for every pilot point with ratio < 1, but its ceiling used the pilot's best point and so needed T < 1. The ceiling c = min y over certified pilot points exists whenever any pilot point is certified. Predictions (written first, m = 16): (1) zero violations of returned <= c; (2) more pilots get a ceiling than have T < 1; (3) the extra pilots' ceiling is looser (larger mean excess over the pool minimum) than the T < 1 pilots'.
+- **Outcome** (`experiments/theory/pilot_cert_anypoint.py`, `pilot_cert_anypoint_results.txt`, `tests/test_pilot_cert_anypoint.py`; 12,000 pilots per m, 50 tie-breaks each). All three held. (1) 0 violations in 145,050 / 219,950 / 253,450 draws at m = 8 / 16 / 24. (2) the share of pilots with a ceiling is 0.242 / 0.367 / 0.422 against 0.166 / 0.221 / 0.257 with T < 1. (3) mean excess of the ceiling is 11.4 / 10.2 / 9.6% for the extra pilots against 4.3 / 3.0 / 2.0% for T < 1 pilots.
+- Reading: using every certified pilot point raises the share of pilots that yield a guarantee by about 1.5x at m = 16, but the added ceilings are 3x looser. A practitioner can use it, with the loosening stated.
+- Limits: same cached 40-cell table and pilot seeds as 84, 95 and 96; 50 tie-breaks (fewer than 96's 200, for time); the ceiling is relative to the pilot, not the optimum; assumes certified pilot points are routed and kept in the final answer set.
+- Next: detail-routed mult24/mult32 cells. MLCAD's site (checked 2026-11-08) still shows only the 2026 symposium (camera-ready July 2026); the 2027 call is not posted, so the template check waits.
+
+## 2026-11-08 · Milestone 96: what a pilot certificate does guarantee, no worse than the pilot's best (no flow run)
+- Why: milestone 95 refuted "T<1 bounds regret against the optimum". The certificate does bound something: ratio(p) < 1 means p is inside every cut's top-k under any tie-break (rho counts ties), so halving returns y <= y(p). Predictions (written first, m = 16): (1) zero violations; (2) the search beats the pilot-best in under half of certified draws; (3) the pilot-best's mean excess over the pool minimum exceeds mean realised regret.
+- **Outcome** (`experiments/theory/pilot_cert_guarantee.py`, `pilot_cert_guarantee_results.txt`, `tests/test_pilot_cert_guarantee.py`, tie-heavy random instances plus the committed table). (1) held: 0 violations in 397,400 / 529,800 / 617,000 draws at m = 8 / 16 / 24. (2) **refuted at m = 16**: the search improves on the pilot-best in 0.519 of draws (0.609 at m = 8, 0.391 at m = 24). (3) held: mean excess of the pilot-best 4.2 / 3.0 / 2.0% against realised regret 1.3 / 1.1 / 0.8%.
+- Reading: a certified pilot gives a deterministic, observable ceiling on the returned cost (the pilot's best), with no assumption on the table; it is about 2.7x the realised regret on average, and says nothing relative to the unknown optimum. This is the part of the open regret certificate (Section 6 item 4) that is provable; the optimum-relative part stays open.
+- Limits: same cached 40-cell table and pilots as milestones 84 and 95; the statement is trivial once stated, its content is measuring how loose it is; assumes the pilot point is routed and kept in the final answer set.
+- Next: detail-routed mult24/mult32 cells.
+
+## 2026-11-07 · Milestone 95: what a pilot certificate says about realised regret (no flow run)
+- Why: milestones 84 to 93 describe T<1 by whether the optimum is guaranteed; a practitioner conditions on the certificate. Predictions (written first, m = 16): (1) precision about 0.87; (2) P(regret 0 | certified) above 0.9 and above the uncertified share; (3) no certified cell's mean regret above 5%.
+- **Outcome** (`experiments/theory/pilot_cert_regret.py`, `pilot_cert_regret_results.txt`, `tests/test_pilot_cert_regret.py`). (1) held: 0.872. (2) half: 0.873 zero-regret after a certificate (0.315 after none), so the 0.9 floor is refuted (m = 24: 0.907). (3) **refuted**: tight/adder_op16 from the R2 start is not guaranteed yet 0.50 of its pilots are certified and its mean relative regret is 13.9%. Mean regret certified 1.1% against 7.0% uncertified at m = 16.
+- Reading: the certificate is a good screen, not a bound; the regret certificate (Section 6 item 4) stays open.
+- Limits: same cached 40-cell table; 200 tie-breaks; cells weighted equally.
+- Next: detail-routed mult24/mult32 cells.
+
+## 2026-11-07 · Milestone 94: exact-power result written into the paper (no flow run, no new numbers)
+- Why: milestones 92 and 93 sat in this log but PAPER.md Section 4 carried only the milestone 92 bound. Added the tie-aware exact formula, its enumeration check, the 33-combination agreement (max |z| 2.32) and the median exact power to the "bound on false certificates" paragraph; nothing re-measured, all figures copied from `pilot_rho_exact_results.txt` and the milestone 93 entry.
+- Limits: `paper/main.tex` regenerated with pandoc only; `main.pdf` not rebuilt (no TeX here); official MLCAD style unchecked.
+- Next: detail-routed mult24/mult32 cells (about 12 core-hours per cell).
+
+## 2026-11-07 · Milestone 93: closed form for the certificate's power, tie-aware (no flow run)
+- Why: milestone 92 left a 0.06 to 0.10 gap between its hit-probability bound and the empirical P(T<1). T<1 holds iff the pilot's y-best point is in G, which has an exact probability. Predictions (written first): (1) the formula equals enumeration; (2) in all 33 cell x m combinations the empirical share (92's 300 pilots) is within 3 binomial sigma of it; (3) y has no ties, so the plain rank formula applies.
+- **Outcome** (`experiments/theory/pilot_rho_exact.py`, `pilot_rho_exact_results.txt`, `tests/test_pilot_rho_exact.py`). (1) held, with the tie-aware form P(T<1) = sum over y-tie groups g of (G_g/s_g)[C(n-B_g,m) - C(n-B_g-s_g,m)]/C(n,m); the test enumerates all pilots on 60 small instances with many ties. (2) held: 0 of 33 beyond 3 sigma, max |z| 1.99 / 2.32 / 1.89 at m = 8 / 16 / 24; median |empirical - exact| 0.031 / 0.012 / 0.010, against 92's median gap of 0.09 / 0.095 / 0.062. (3) **refuted**: every guaranteed cell has duplicated y (11 to 48 of 50 to 52 values), so the first version of the formula was wrong in principle; the tie-aware version gives the same medians (median exact power 0.513 / 0.727 / 0.875), because tied points are mostly outside G.
+- Reading: the power of the pilot certificate is computable from rung scores and y-ties alone, so a pilot size for a target power can be chosen before running it (not only the hit-probability upper bound). Bound minus exact is a median 0.07 to 0.10.
+- Limits: still the same cached 40-cell table, 11 guaranteed cells, 300 pilots per cell (so sigma about 0.03); the formula needs y of the whole pool, so it is an evaluation tool, not something a live search can compute; no regret statement for T >= 1.
+- Next: detail-routed mult24/mult32 cells; check the template for the next MLCAD call.
+
+## 2026-11-07 · Milestone 92: exact power of the rank-displacement certificate (no flow run)
+- Why: milestone 90 bounded false certificates but not how often a valid certificate is issued. T is the ratio of the pilot's lowest-y point, so T < 1 needs that point in G = {ratio < 1}; hence P(T<1) <= P(pilot hits G) = 1 - C(n-g,m)/C(n,m). Predictions (written first): (1) this bounds the empirical share in all 11 guaranteed cells; (2) the median gap at m = 8 exceeds 0.1.
+- **Outcome** (`experiments/theory/pilot_rho_power.py`, `pilot_rho_power_results.txt`). (1) held: 0 violations at m = 8, 16, 24 (3-sigma binomial slack). (2) **refuted**: median gap 0.089 / 0.095 / 0.062 at m = 8 / 16 / 24 (max 0.19 / 0.37 / 0.26), so the hit probability (median 0.60 / 0.87 / 0.97) is a fairly tight upper bound on the empirical power (0.49 / 0.72 / 0.88). Median |G| is 5 and the median pilot size for a hit probability of 0.9 is 18 points. `tests/test_pilot_rho_power.py` checks the formula by enumeration.
+- Limits: an upper bound on power from rung scores alone, not exact (equality needs G's members to beat everything else on y); 11 guaranteed cells; same cached table; no regret certificate.
+- Next: detail-routed mult24/mult32 cells; MLCAD 2026's CFP (found by search: six pages, ACM format, deadline May 2026) is past, so the template must be re-checked for the next call.
+
+## 2026-11-06 · Milestone 91: full BibTeX author lists checked against arXiv and Crossref (no flow run, no new numbers)
+- Why: milestones 86 to 89 left `references.bib` with "and others" in six entries because arxiv.org and doi.org were blocked. Both hosts answered this session. Prediction (written first): the lists copied from PROPOSAL.md are correct for the lead authors and only truncated.
+- **Outcome:** six truncated entries filled from the arXiv API (Takeno 7 authors, Li 5, Balandat 7, Huang 16, Cheng et al. 5, the entry that had no author at all) and Crossref (Mirhoseini 20). Prediction **refuted in one case**: Kandasamy et al. 2016 (1603.06288) omitted Junier B. Oliva, now added. The other four complete entries (Jamieson, Falkner, Yu, Angelopoulos) match. `tests/test_bib.py` 2 passed.
+- Limits: titles were not diffed beyond a visual check; `main.pdf` not rebuilt (no TeX in this container), the bib change only adds authors.
+- Next: detail-routed mult24/mult32 cells; official MLCAD style and page limit.
+
+## 2026-11-06 · Milestone 90: a theorem bounding false pilot certificates of the rank-displacement statistic (no flow run)
+- Why: PAPER.md Section 6 item 4. Milestone 84 measured false certificates at about 4% but gave no reason. Predictions written before running: (1) |G| <= k_last in all 40 cells, where G = candidates with ratio < 1; (2) the empirical false-certificate share is at most 1 - C(n-g,m)/C(n,m) in every cell; (3) the bound is loose (median empirical/bound under 0.5).
+- Proof sketch: ratio < 1 forces rho_last < k_last, and at most k_last candidates have that; a false certificate needs the pilot to hit G while x* is outside it. `experiments/theory/pilot_rho_bound.py`, `pilot_rho_bound_results.txt`, `tests/test_pilot_rho_bound.py` (random instances with ties).
+- **Outcome:** (1) held in 40 of 40 cells. (2) held: 0 violations at m = 8, 16, 24. (3) held where measurable. In the 29 non-guaranteed cells, g = 0 in 22, so no false certificate is possible there; in the other 7 the largest empirical/bound is 0.71, 0.63, 0.48 (median 0.26, 0.09, 0.04). The 4% mean of milestone 84 is those 7 cells.
+- Limits: bounds false certificates only (not regret when T >= 1, not certificate power); assumes a uniform pilot of distinct points; same cached table, one tool build.
+- Next: unchanged (detail-routed mult24/mult32 full cells; full BibTeX author lists when a host is reachable).
+
+## 2026-11-06 · Milestone 89: overfull boxes in the LaTeX build removed (no flow run, no new numbers)
+- Why: milestone 88's next item. `build.sh` now sets `\emergencystretch`, a 2 pt `\tabcolsep` and footnote-size longtables, and `paper/breakpaths.py` lets LaTeX break `\texttt{}` file paths after `/` and `_`.
+- Check: TeX Live reinstalled in this container; `pdflatex`, `bibtex`, `pdflatex` twice give 6 pages, 0 overfull boxes (was 8, largest 48 pt), no errors, no undefined citations; `pdftotext` 5,926 words (5,892 before; the difference is hyphenation and break points splitting tokens, no text was added or removed). Nothing re-measured. `pytest` is not installed in this container so `tests/` was not rerun.
+- Limits: official MLCAD style and page limit unchecked; `references.bib` author lists still end "and others" (arxiv.org and doi.org returned 403 through the egress proxy again, so ids could not be re-verified and I did not fill authors from memory).
+- Next: full author lists once a host is reachable; detail-routed mult24/mult32 cells.
+
+## 2026-11-06 · Milestone 88: LaTeX build compiled with BibTeX, PDF rebuilt (no flow run, no new numbers)
+- Why: milestone 87's next item. TeX Live (latex-base, recommended, publishers, science) installed from apt; `build.sh` then `pdflatex`, `bibtex`, `pdflatex` twice.
+- Check: compiles with no errors and no undefined citations or references; 6 pages; `pdftotext` gives 5,892 words (PAPER.md body plus the bibliography now typeset by BibTeX). 8 overfull-box warnings remain, all wide tables or long inline paragraphs (largest 48 pt). `paper/main.pdf` is the rebuilt file, replacing the stale one with inline references.
+- Limits: official MLCAD template and page limit still unchecked; author lists in `references.bib` still end "and others" for some entries; arxiv/doi not re-verified this session.
+- Next: fix the overfull tables; full author lists; detail-routed mult24/mult32 cells.
+
+## 2026-11-06 · Milestone 87: citations wired to BibTeX in the LaTeX build (no flow run, no new numbers)
+- Why: milestone 86's next item. `paper/wirecite.py` (called by `build.sh`) rewrites each `arXiv:ID` / `doi:ID` in `main.tex` to `\cite{key}` using `references.bib` and appends `\bibliographystyle{IEEEtran}` / `\bibliography{references}`. `tests/test_bib.py` gained a test of the rewrite.
+- Check: `main.tex` now has 11 `\cite{}` (one per id in PAPER.md) and no bare `arXiv:`/`doi:`; `tests/` 20 passed, 1 skipped. `pdflatex`/`bibtex` are not installed here, so the PDF was **not rebuilt** and `main.pdf` is stale (still inline references); the LaTeX has not been compiled.
+- Next: compile on a machine with TeX, fix overfull tables; detail-routed mult24/mult32 full cells.
+
+## 2026-11-06 · Milestone 85: IEEEtran LaTeX draft of the paper, built from PAPER.md (no flow run, no new numbers)
+- Why: Section 6 item 5 (typesetting). `paper/build.sh` converts `PAPER.md` with pandoc into `paper/main.tex` (IEEEtran conference class) so the markdown stays the single source; `pdflatex` twice gives `paper/main.pdf`.
+- Check: the PDF compiles to 6 pages and `pdftotext` gives 5,710 words against 5,709 in `PAPER.md` (nothing dropped); 8 overfull-box warnings remain (wide tables). Nothing was re-measured.
+- Limits: the author block is anonymous, the references stay inline as in `PAPER.md` (no BibTeX file yet), and the official MLCAD style and page limit are unchecked.
+- Next: BibTeX bibliography and fixing the overfull tables; detail-routed mult24/mult32 cells.
+
+## 2026-11-06 · Milestone 86: BibTeX file for the paper's 11 cited sources (no flow run, no new numbers)
+- Why: milestone 85's next item. `paper/references.bib` holds the 12 sources PROPOSAL.md lists (11 cited in PAPER.md, plus ABC); `tests/test_bib.py` checks every arXiv id and DOI in PAPER.md has an entry.
+- Limits: authors and titles are copied from PROPOSAL.md, which looked them up when the programme opened; entries where it names only lead authors end "and others" and need full author lists before submission. The egress proxy returned 403 for arxiv.org and doi.org this session, so `cite_check.py` could not re-verify. `pdflatex` is not installed here, so `build.sh` was not changed to emit `\bibliography` and the PDF was not rebuilt; PAPER.md still cites inline.
+- Next: wire `\cite` keys and `\bibliography{references}` into the build, fix overfull tables, detail-routed mult24/mult32 cells.
+
+## 2026-11-05 · Milestone 84: can a pilot observe the optimum's rank displacement? (predictions written before the run)
+- Why: PAPER.md Section 6 item 4 (pilot-side certificate). Milestone 44's zero-regret condition rho_j(x*) < k_j needs the unrouted optimum's rank; rung scores are known for the whole pool, so rho_j(p) is exact for every routed pilot point. `experiments/theory/pilot_rho.py`: statistic T = ratio of the pilot's best routed point, T3 = smallest ratio among its best three; coverage = share of pilots with T >= ratio(x*); a "certificate" is T < 1. m = 8, 16, 24; 300 pilots per cell; 40 cells; no flow run.
+- Predictions: (1) median coverage of T below 0.8 at m = 16 (a best routed point is not the optimum and the optimum is often displaced less); (2) T3 covers more than T; (3) in cells where the optimum is not guaranteed (ratio >= 1) a nonzero share of pilots still gets T < 1 (false certificates).
+- **Outcome** (`experiments/theory/pilot_rho_results.txt`). Median coverage P(T >= ratio(x*)) over 40 cells: T 0.89 / 0.97 / 0.99 and T3 0.72 / 0.70 / 0.84 at m = 8 / 16 / 24; cells with coverage >= 0.8: T 27 / 27 / 28, T3 17 / 14 / 20. Using T < 1 as a certificate: in the 11 cells where the optimum satisfies the zero-regret condition, T < 1 for 0.49 / 0.70 / 0.85 of pilots; in the 29 cells where it does not, a false certificate in 0.041 / 0.039 / 0.033 of pilots (T3: 0.09 / 0.10 / 0.10).
+- Predictions: (1) **refuted** (median coverage 0.968 at m = 16, not below 0.8); (2) **refuted** (T3 covers less, as taking a minimum can only lower the statistic); (3) held (3 to 4% false certificates for T, about 10% for T3).
+- Reading: the pilot's best routed point is usually at least as displaced by the rung as the pool optimum, so its observable ratio dominates the optimum's in most cells, but 13 of 40 cells at m = 16 have coverage under 0.8 and the empirical false-certificate share is about 4%. Like the top-3-vs-all statistic it is evidence on this table (coverage over pilots within a fixed cell, not over designs), not a theorem. Its advantage over milestones 38 to 43 is that it needs no excess estimate, only exact rung ranks and a routed pilot.
+- Next: unchanged (detail-routed mult24/mult32 cells, template typesetting).
+
+
+## 2026-11-05 · Milestone 83: reproduce.sh now covers 23 cached-table analyses it omitted (no flow run, no new numbers)
+- Why: `reproduce.sh` claims to re-derive every number in PAPER.md, but 23 analysis scripts that produce tables the paper cites (theory/optimum_rank, disjoint_check, with_replacement, quantile_counterexample; tail_risk; corner_replay; hostile, unseen, util65, large, detail_route and rung_bias_26q3 replays; and others) had no line in it.
+- Prediction (written before running): all 23 exit 0 and leave `git status -- experiments` empty, i.e. reproduce committed output exactly, since they are seeded. If any changed a committed table, that table's PAPER.md figure would need checking.
+- **Outcome:** all 23 exit 0 (slowest `rung_bias_26q3/replay.py`, 180 s; the rest 0 to 60 s) and no committed file changed. Prediction held. Appended them to `reproduce.sh` with a second `git diff --stat` check. `tests/` pass (18 passed, 1 skipped).
+- Limits: this shows determinism on this container (Python 3, numpy as installed), not across library versions; scripts that need the flow (`run.py` files) are still outside it.
+- Next: unchanged (detail-routed mult24/mult32 cells, template typesetting).
+
 ## 2026-11-05 · Milestone 82: programme summary post (no flow run, no new numbers)
 - Why: 81 milestones sit in this log with no programme-wide summary for a reader. Wrote `docs/posts/2026-11-05-verified-dse-what-81-milestones-found.md` from logged outcomes only (H1 to H4 headline results, pilot gate, bound, tool-version caveat).
 - Check: every figure was copied from this log and `PAPER.md`; nothing re-measured.

@@ -15,7 +15,7 @@ const DEFAULT_R = { "2x4": 15, "2x6": 21 };
 
 import { textNumberErrors } from "./numfields.mjs";
 /** @typedef {{ rValue?: number, rPerInch?: number, bagCuFt?: number, price?: number, heel?: number, baffles?: boolean, baffleLength?: number, baffleWidth?: number, ceiling?: { width: number, depth: number }[] }} Attic */
-/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number, heatingSystems?: {name?: string, efficiency: number, unitBtu: number, pricePerUnit: number}[], slabEdgeF?: number, ach50?: number, nFactor?: number, volumeCuFt?: number }} Assembly */
+/** @typedef {{ continuousR?: number, sheathingR?: number, drywallR?: number, insideFilmR?: number, outsideFilmR?: number, framingRPerInch?: number, assumedFramingFraction?: number, ceilingR?: number, ceilingFromAttic?: boolean, windowU?: number, doorU?: number, designDeltaF?: number, heatingDegreeDays?: number, heatingSystems?: {name?: string, efficiency: number, unitBtu: number, pricePerUnit: number}[], slabEdgeF?: number, ach50?: number, nFactor?: number, volumeCuFt?: number, ventFloorSqFt?: number, ventBedrooms?: number, ventRecoveryEff?: number }} Assembly */
 /** @typedef {{ bagSqFt?: number, waste?: number, rValue?: number, price?: number, attic?: Attic, rim?: boolean, assembly?: Assembly | boolean }} Insulation */
 
 // Typical handbook layer values (ASHRAE Fundamentals), typed defaults: replace with your product's
@@ -29,7 +29,7 @@ export function validateInsulation(d) {
   if (d == null || typeof d !== "object" || Array.isArray(d)) return ["Insulation settings are an object."];
   e.push(...textNumberErrors(d, ['bagSqFt', 'waste', 'rValue', 'price']));
   if (d.attic && typeof d.attic === "object") e.push(...textNumberErrors(d.attic, ['rValue', 'rPerInch', 'bagCuFt', 'price', 'heel', 'baffleLength', 'baffleWidth']).map((x) => "Attic " + x));
-  if (d.assembly && typeof d.assembly === "object") e.push(...textNumberErrors(d.assembly, ['ach50', 'assumedFramingFraction', 'ceilingR', 'continuousR', 'designDeltaF', 'doorU', 'drywallR', 'framingRPerInch', 'heatingDegreeDays', 'insideFilmR', 'nFactor', 'outsideFilmR', 'sheathingR', 'slabEdgeF', 'volumeCuFt', 'windowU']).map((x) => "Assembly " + x));
+  if (d.assembly && typeof d.assembly === "object") e.push(...textNumberErrors(d.assembly, ['ach50', 'assumedFramingFraction', 'ceilingR', 'continuousR', 'designDeltaF', 'doorU', 'drywallR', 'framingRPerInch', 'heatingDegreeDays', 'insideFilmR', 'nFactor', 'outsideFilmR', 'sheathingR', 'slabEdgeF', 'ventBedrooms', 'ventFloorSqFt', 'ventRecoveryEff', 'volumeCuFt', 'windowU']).map((x) => "Assembly " + x));
   if (e.length) return e;
   if (d.bagSqFt != null && !(d.bagSqFt >= 10 && d.bagSqFt <= 500)) e.push("Insulation bag coverage must be between 10 and 500 sq ft.");
   if (d.waste != null && !(d.waste >= 0 && d.waste <= 0.3)) e.push("Insulation waste must be between 0 and 0.3.");
@@ -44,6 +44,10 @@ export function validateInsulation(d) {
     if (a.slabEdgeF != null && !(a.slabEdgeF >= 0 && a.slabEdgeF <= 2)) e.push("Assembly slabEdgeF must be between 0 and 2 (BTU/h per ft of edge per F).");
     for (const [k, lo, hi] of /** @type {const} */ ([["ach50", 0, 40], ["nFactor", 5, 40], ["volumeCuFt", 100, 200000]])) if (a[k] != null && !(a[k] >= lo && a[k] <= hi)) e.push(`Assembly ${k} must be between ${lo} and ${hi}.`);
     if ((a.ach50 != null || a.nFactor != null || a.volumeCuFt != null) && !(a.ach50 != null && a.nFactor != null && a.volumeCuFt != null)) e.push("Air leakage needs all three of ach50 (blower-door result), nFactor (climate/height divisor) and volumeCuFt.");
+    for (const [k, lo, hi] of /** @type {const} */ ([["ventFloorSqFt", 100, 50000], ["ventBedrooms", 0, 20], ["ventRecoveryEff", 0, 0.95]])) if (a[k] != null && !(a[k] >= lo && a[k] <= hi)) e.push(`Assembly ${k} must be between ${lo} and ${hi}.`);
+    if (a.ventBedrooms != null && a.ventBedrooms >= 0 && a.ventBedrooms <= 20 && !Number.isInteger(a.ventBedrooms)) e.push("Assembly ventBedrooms must be a whole number of bedrooms.");
+    if ((a.ventFloorSqFt != null) !== (a.ventBedrooms != null)) e.push("Ventilation needs both ventFloorSqFt (conditioned floor area) and ventBedrooms; ASHRAE 62.2 rate = 0.03 x floor area + 7.5 x (bedrooms + 1) cfm.");
+    if (a.ventRecoveryEff != null && a.ventFloorSqFt == null) e.push("ventRecoveryEff (heat-recovery effectiveness) needs ventFloorSqFt and ventBedrooms.");
     if (a.heatingDegreeDays != null && !(a.heatingDegreeDays > 0 && a.heatingDegreeDays <= 15000)) e.push("Assembly heatingDegreeDays must be between 0 and 15000 (F-days, base 65).");
     if (a.heatingSystems != null) {
       if (!Array.isArray(a.heatingSystems)) e.push("Assembly heatingSystems is a list of {name, efficiency, unitBtu, pricePerUnit}.");
@@ -61,7 +65,8 @@ export function validateInsulation(d) {
     if (a.rPerInch != null && !(a.rPerInch >= 1 && a.rPerInch <= 8)) e.push("Attic R per inch must be between 1 and 8 (read it from the bag's coverage chart).");
     if (a.bagCuFt != null && !(a.bagCuFt > 0 && a.bagCuFt <= 200)) e.push("Attic bag volume must be between 0 and 200 cubic feet.");
     if (a.heel != null && !(a.heel >= 1 && a.heel <= 30)) e.push("Attic heel height must be between 1 and 30 inches (the clear height above the top plate at the eave).");
-    for (const c of a.ceiling || []) if (!(c.width > 0 && c.depth > 0)) e.push("Each attic ceiling rectangle needs a positive width and depth (inches).");
+    if (a.ceiling != null && !Array.isArray(a.ceiling)) e.push("Attic ceiling is a list of {width, depth} rectangles (inches).");
+    else for (const c of a.ceiling || []) if (!(c && c.width > 0 && c.depth > 0)) e.push("Each attic ceiling rectangle needs a positive width and depth (inches).");
   }
   return e;
 }
@@ -239,9 +244,12 @@ function heatLoss(e, d, plan) {
   // Air leakage: natural ACH = ACH50 / N (typed); sensible load 0.018 BTU/h per cu ft per F (air density x specific heat).
   const achNat = a.ach50 != null ? a.ach50 / /** @type {number} */ (a.nFactor) : null;
   const infiltrationUA = achNat != null ? 0.018 * /** @type {number} */ (a.volumeCuFt) * achNat : null;
-  const ua = opaqueUA + (winUA ?? 0) + (doorUA ?? 0) + (slabEdgeUA ?? 0) + (infiltrationUA ?? 0);
+  // Mechanical ventilation: ASHRAE 62.2 whole-house rate, sensible load 1.08 BTU/h per cfm per F, less typed heat-recovery effectiveness.
+  const ventCfm = a.ventFloorSqFt != null ? 0.03 * a.ventFloorSqFt + 7.5 * (/** @type {number} */ (a.ventBedrooms) + 1) : null;
+  const ventilationUA = ventCfm != null ? 1.08 * ventCfm * (1 - (a.ventRecoveryEff ?? 0)) : null;
+  const ua = opaqueUA + (winUA ?? 0) + (doorUA ?? 0) + (slabEdgeUA ?? 0) + (infiltrationUA ?? 0) + (ventilationUA ?? 0);
   return {
-    achNat, infiltrationUA,
+    achNat, infiltrationUA, ventCfm, ventilationUA,
     slabEdgeFt: a.slabEdgeF != null ? edgeFt : null, slabEdgeUA,
     windowSqFt: win, doorSqFt: door, opaqueUA, windowUA: winUA, doorUA, ua, complete,
     designBtuh: a.designDeltaF != null ? ua * a.designDeltaF : null,
@@ -305,12 +313,13 @@ export function insulationText(d) {
     if (h) {
       l.push(`  Wall heat loss (conduction): UA ${h.ua.toFixed(1)} BTU/h per F = opaque ${h.opaqueUA.toFixed(1)}${h.windowUA != null ? ` + windows ${h.windowUA.toFixed(1)} (${h.windowSqFt.toFixed(0)} sq ft)` : ""}${h.doorUA != null ? ` + doors ${h.doorUA.toFixed(1)} (${h.doorSqFt.toFixed(0)} sq ft)` : ""}${h.complete ? "" : ` (INCOMPLETE: type windowU/doorU for the ${h.windowUA == null && h.windowSqFt > 0 ? `${h.windowSqFt.toFixed(0)} sq ft of windows` : ""}${h.windowUA == null && h.windowSqFt > 0 && h.doorUA == null && h.doorSqFt > 0 ? " and " : ""}${h.doorUA == null && h.doorSqFt > 0 ? `${h.doorSqFt.toFixed(0)} sq ft of doors` : ""}; they are left out)`}`);
       if (h.slabEdgeUA != null) l.push(`    Slab edge: ${h.slabEdgeFt.toFixed(1)} ft of exterior wall x F-factor ${e.settings.slabEdgeF} adds ${h.slabEdgeUA.toFixed(1)} (the F-factor is the one you typed from your code table)`);
-      if (h.infiltrationUA != null) l.push(`    Air leakage: ${e.settings.ach50} ACH50 / N ${e.settings.nFactor} = ${h.achNat.toFixed(2)} natural air changes per hour x ${e.settings.volumeCuFt} cu ft x 0.018 adds ${h.infiltrationUA.toFixed(1)}; mechanical ventilation is not in it`);
+      if (h.infiltrationUA != null) l.push(`    Air leakage: ${e.settings.ach50} ACH50 / N ${e.settings.nFactor} = ${h.achNat.toFixed(2)} natural air changes per hour x ${e.settings.volumeCuFt} cu ft x 0.018 adds ${h.infiltrationUA.toFixed(1)}${h.ventilationUA != null ? "" : "; mechanical ventilation is not in it"}`);
+      if (h.ventilationUA != null) l.push(`    Ventilation: ASHRAE 62.2 rate ${h.ventCfm.toFixed(1)} cfm (0.03 x ${e.settings.ventFloorSqFt} sq ft + 7.5 x (${e.settings.ventBedrooms} + 1)) x 1.08${e.settings.ventRecoveryEff ? ` x (1 - ${e.settings.ventRecoveryEff} recovery)` : ""} adds ${h.ventilationUA.toFixed(1)}; a typed rate other than 62.2 is not read`);
       if (h.ceilingUA != null) l.push(`    Ceiling under the attic: ${h.ceilingSqFt.toFixed(0)} sq ft at R-${h.ceilingR.toFixed(1)} adds ${h.ceilingUA.toFixed(1)} (walls ${h.wallUA.toFixed(1)}); the totals below include it`);
       if (h.designBtuh != null) l.push(`    Design load through the ${h.ceilingUA != null ? "shell" : "walls"}: ${Math.round(h.designBtuh).toLocaleString("en-US")} BTU/h at ${e.settings.designDeltaF} F inside-outside`);
       if (h.annualKBtu != null) l.push(`    Seasonal conduction: ${Math.round(h.annualKBtu).toLocaleString("en-US")} kBTU at ${e.settings.heatingDegreeDays} heating degree-days (base 65 F)`);
       for (const y of h.systems || []) l.push(`    Heating cost, ${y.name}: ${y.units.toFixed(1)} units of fuel a year, ${y.cost.toFixed(2)} (efficiency and prices are the ones you typed)`);
-      l.push(`    ${h.ceilingUA != null ? "Walls and flat ceiling only: floor, air leakage" : "Walls only: roof, floor, air leakage"} and ventilation are not in it, so it is not a Manual J load. Window and door U-factors and the climate figures are the ones you typed.`);
+      { const out = [h.ceilingUA != null ? null : "roof", "floor", h.infiltrationUA != null ? null : "air leakage", h.ventilationUA != null ? null : "ventilation"].filter(Boolean); l.push(`    Not in it: ${out.join(", ")}; so it is not a Manual J load. Window and door U-factors and the climate figures are the ones you typed.`); }
     }
     l.push("    Layer values are typical handbook figures you can replace (insulation.assembly); windows, doors, air leakage and compressed batts are not in it. Not an energy-code compliance check.");
   }

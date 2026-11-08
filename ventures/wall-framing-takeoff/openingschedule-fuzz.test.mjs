@@ -26,7 +26,7 @@ test("fuzz: opening schedule accounts for every opening once, with unique marks"
       const openings = [];
       for (let j = 0, m = Math.floor(rand() * 7); j < m; j++) {
         const kind = rand() < 0.35 ? "door" : "window";
-        const o = { kind, width: pick(rand, [24, 30, 36, 36, 48, 72, 36.5]), height: pick(rand, [48, 60, 80, 82]), offset: j * 100 };
+        const o = { kind, width: pick(rand, [24, 30, 36, 36, 48, 72, 36.5]), height: pick(rand, kind === "door" ? [80, 82] : [48, 60, 78]), offset: j * 100 };
         if (rand() < 0.3) o.header = pick(rand, ["2x8", "2x10", "2x12"]);
         if (rand() < 0.3) o.headerPlies = pick(rand, [2, 3]);
         if (rand() < 0.3) o.headerHeight = pick(rand, [80, 82, 84]);

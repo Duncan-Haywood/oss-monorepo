@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>US Sales Tax for a Clothing Brand: Which States You Must Collect In</title>
+  <meta name="description" content="Free economic-nexus checker for small online clothing brands: type your sales and orders by US state and see where you passed the sales tax threshold, where you are close, and roughly what you owe. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="US sales tax nexus checker for clothing brands">
+  <meta property="og:description" content="Where have you crossed a state sales tax threshold? Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"US sales tax nexus checker (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="prices.html">Price by market</a> · <a href="duty.html">Import duty</a> · <a href="cashflow.html">Cash flow</a> · <a href="fit.html">Size finder</a></p>
+  <h1>Which US states must you collect sales tax in?</h1>
+  <p>Since the 2018 Wayfair decision a state can require an online seller anywhere to collect its sales tax once the seller's sales into the state pass a threshold, usually 100,000 USD or 200 orders in a year. Type your sales and orders on your own store for each state you sell into. The page says where you are over, where your plan crosses, and what the tax on the later sales comes to at the state base rate.</p>
+  <p class="placeholder">The thresholds, base rates and clothing exemptions are typed from memory for 24 states and were not checked against the states' sites when this page was built; states change them often. Every figure can be overridden, and the list is not complete. Local city and county taxes are not included. Check with the state, or your cart's tax service, before you register or stop collecting.</p>
+  <section>
+    <h2>Your sales by state (this calendar year)</h2>
+    <table id="rows"><thead><tr><th>State</th><th>Sales (USD)</th><th>Orders</th><th>Planned more sales</th><th>Clothing exempt?</th><th></th></tr></thead><tbody></tbody></table>
+    <p><button id="add" type="button">Add a state</button></p>
+    <p class="tag">Marketplace sales (Etsy, Amazon) are taxed by the marketplace: leave them out. Some states count them toward the line anyway.</p>
+  </section>
+  <section><h2>Result</h2><output id="result" aria-live="polite"></output></section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional styling advice, and it does not replace a qualified professional. Thresholds, rates and clothing rules are typed by hand from memory and were not checked against any state when this page was built. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+
+  <script type="module">
+    import { nexusCheck, STATES, NO_SALES_TAX } from "./salestax.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const opts = Object.values(STATES).map(s => `<option value="${s.code}">${esc(s.name)}</option>`).join("") + NO_SALES_TAX.map(c => `<option value="${c}">${c} (no sales tax)</option>`).join("");
+    function addRow(state = "FL", sales = 0, orders = 0) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><select>${opts}</select></td><td><input type="number" min="0" step="1" value="${sales}"></td><td><input type="number" min="0" step="1" value="${orders}"></td><td><input type="number" min="0" step="1" value="0"></td><td><input type="checkbox"></td><td><button type="button" aria-label="Remove row">x</button></td>`;
+      tr.querySelector("select").value = state;
+      tr.querySelector("button").addEventListener("click", () => { tr.remove(); render(); });
+      $("#rows tbody").append(tr);
+    }
+    function render() {
+      const rows = [...document.querySelectorAll("#rows tbody tr")].map(tr => { const i = tr.querySelectorAll("input"); return { state: tr.querySelector("select").value, salesUsd: i[0].value, transactions: i[1].value, plannedSalesUsd: i[2].value, clothingExempt: i[3].checked }; });
+      const r = nexusCheck(rows);
+      if (!r.ok) { $("#result").innerHTML = `<p class="notes">${esc(r.error)}</p>`; return; }
+      const f = n => Math.round(n).toLocaleString("en-US");
+      $("#result").innerHTML = `<p><span class="big">${r.summary.overCount}</span> state${r.summary.overCount === 1 ? "" : "s"} over the line, ${r.summary.watchCount} to watch. Tax on sales past the line at base rates: <b>${f(r.summary.taxOwedUsd)} USD</b>.</p>` +
+        `<table><tr><th>State</th><th>Status</th><th class="num">Limit</th><th class="num">Base rate</th><th class="num">Tax on later sales</th><th>What to do</th></tr>${r.rows.map(x => `<tr><td>${esc(x.name)}</td><td>${esc(x.status)}</td><td class="num">${x.salesThresholdUsd ? f(x.salesThresholdUsd) + (x.transactionThreshold ? " " + x.rule + " " + x.transactionThreshold + " orders" : "") : "-"}</td><td class="num">${x.ratePct ?? "-"}</td><td class="num">${x.owedUsd ? f(x.owedUsd) : "-"}</td><td>${esc(x.message)}</td></tr>`).join("")}</table>`;
+    }
+    $("#add").addEventListener("click", () => { addRow("CA"); render(); });
+    $("#rows").addEventListener("input", () => { render(); recordUsage("salestax_check"); });
+    addRow("FL", 120000, 900); addRow("CA", 40000, 300); addRow("NY", 60000, 150);
+    render(); recordUsage("salestax_open");
+  </script>
+</body>
+</html>

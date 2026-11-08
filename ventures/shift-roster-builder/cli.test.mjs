@@ -207,6 +207,13 @@ test("--cover lists direct takers, else a hand-over chain, and says when the shi
   assert.match(run(staff, shifts, { cover: "later" }).out, /needs a shift like/);
   const direct = run("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 40, 0, Mon 8-16\nCy, 15, 40, 0, Mon 8-16\n", "Mon, 8, 16, 1, open\n", { cover: "Mon 8:00" });
   assert.match(direct.out, /Can take it outright/);
+  const j = JSON.parse(run(staff, shifts, { cover: "Mon 08:00-16:00", mode: "json" }).out);
+  assert.equal(j.shift.now, "Ana");
+  assert.equal(j.outright.length, 0);
+  assert.equal(j.chains[0].moves, 2);
+  assert.deepEqual(j.chains[0].steps.map((x) => [x.to, x.from]), [["Ben", "Ana"], ["Cy", "Ben"]]);
+  const jd = JSON.parse(run("Ana, 10, 40, 0, Mon 8-16\nBen, 20, 40, 0, Mon 8-16\n", "Mon, 8, 16, 1, open\n", { cover: "Mon 8:00", mode: "json" }).out);
+  assert.ok(jd.outright.length >= 1 && jd.outright[0].name);
 });
 
 test("--rest-under with --last-week names the Sunday-to-Monday turnaround", () => {
@@ -277,6 +284,18 @@ test("--tips splits a pot to the cent and --short-under lists short shifts", () 
   assert.match(run(staff, shifts, { shortUnder: 0.5 }).out, /No assigned shift/);
 });
 
+test("--long-over lists shifts longer than the limit and not those equal to it", () => {
+  assert.throws(() => parseArgs(["--long-over", "24"]), /between 0 and 24/);
+  assert.equal(parseArgs(["--long-over", "10", "a", "b"]).longOver, 10);
+  const staff = "Ana, 10, 60, 0, Mon 6-22; Tue 6-22\n";
+  const shifts = "Mon, 8, 20, 1, long\nTue, 8, 16, 1, even\n";
+  const l = run(staff, shifts, { longOver: 8 });
+  assert.match(l.out, /1 shift\(s\) over 8 h/);
+  assert.match(l.out, /Ana\s+Mon .*12 h/);
+  assert.doesNotMatch(l.out, /Tue/);
+  assert.match(run(staff, shifts, { longOver: 12 }).out, /No assigned shift is over 12 h/);
+});
+
 test("--swap checks one trade and names the rule that stops it", () => {
   const staff = "Ana, 10, 40, 0, Mon 8-16; Tue 8-16\nBen, 12, 40, 0, Mon 8-16; Tue 8-16\n";
   const shifts = "Mon, 8, 16, 1, a\nTue, 8, 16, 1, b\n";
@@ -290,4 +309,20 @@ test("--swap checks one trade and names the rule that stops it", () => {
   const bad = run("Ana, 10, 40, 0, Mon 8-16\nBen, 12, 40, 0, Tue 8-16\n", shifts, { swap: "Mon 08:00,Tue 08:00" });
   assert.match(bad.out, /breaks a rule/);
   assert.match(bad.out, /not available/);
+});
+
+test("--days-off lists people without that many days off in a row", () => {
+  assert.throws(() => parseArgs(["--days-off", "7"]), /1 to 6/);
+  assert.equal(parseArgs(["--days-off", "2"]).daysOff, 2);
+});
+
+test("--budget compares payroll with a budget and lists drops that close the gap", () => {
+  assert.throws(() => parseArgs(["--budget", "0"]), /positive dollar/);
+  assert.equal(parseArgs(["--budget", "$1,200", "a", "b"]).budget, 1200);
+  const staff = "Ana, 10, 60, 0, Mon 6-22; Tue 6-22\nBen, 20, 60, 0, Mon 6-22; Tue 6-22\n";
+  const shifts = "Mon, 8, 16, 2, a\nTue, 8, 16, 1, b\n";
+  assert.match(run(staff, shifts, { budget: 1000 }).out, /under/);
+  const lo = run(staff, shifts, { budget: 300 });
+  assert.match(lo.out, /\$\d+\.\d\d over/);
+  assert.match(lo.out, /saves \$/);
 });

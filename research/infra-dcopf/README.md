@@ -41,6 +41,44 @@ Next step 1 asked for a case whose published ratings bind. MATPOWER `case300` (3
 - **The AC prices are not credible.** Bus prices range from -2954 to 115 per MWh at load 0.6, 31 to 83 at 0.7, and -16 to 1366 at 0.8, against a DC price of about 32 to 36. The AC-optimum cost is 2.6 to 4.0 % *above* the DC cost, and the DC dispatch run through AC power flow costs 0.7 to 2.0 % *less* than the claimed AC optimum, which cannot happen at a true optimum. So these are local or poorly converged points of a non-convex problem, not optima.
 - **Conclusion for this step:** I could not separate the loss and congestion components of price on case300 with this solver. The comparison needs a different AC OPF solver (for example IPOPT through PowerModels.jl or MATPOWER's own MIPS/IPOPT) and a check against MATPOWER's published case300 optimum; both are outside this container. Until then, the case118 LMP result above is the only price comparison here, and case300 AC cost figures should not be quoted.
 
+## Voltage violations: a setpoint and reactive problem, not a dispatch one (added 2026-11-05, `experiments/run_voltage.py`, `results_voltage.txt`)
+Next step 3 asked whether voltage-band constraints in the LP would remove case39's violations. Before building that LP I held the *same* DC dispatch under AC with different voltage controls (case39, loads 0.6, 0.8, 1.0; pandapower, one solver):
+- **Setpoints matter, not P.** As shipped, the PV buses are held at the case's `vm_pu` (up to 1.064, above the 1.06 band), giving 15, 5 and 1 buses out of band. Clamping setpoints into the band alone fixes almost nothing (14, 5, 1; the last is 1.0600 by rounding). A single uniform setpoint (1.005, 1.010, 1.015) gives **0 voltage violations** at 0.02 to 0.07 % cost difference from the AC optimum.
+- **But that breaks reactive limits.** pandapower does not enforce generator Q limits in a power flow; checking them, the uniform setpoint leaves 5, 3 and 3 generators outside their Qmin/Qmax, and no uniform setpoint on a 0.005 grid satisfies both voltage and Q at any of the three loads.
+- **A simple per-generator rule fails too:** nudging each generator's setpoint against its own Q violation (`q_balancing_setpoints`) found a feasible profile at load 1.0 only, not at 0.6 or 0.8 (a heuristic, not an optimiser).
+- **The DC dispatch itself is fine.** An AC OPF with real power pinned to the DC dispatch (`reactive_redispatch`, only voltages, Q and slack free) finds a feasible profile at 0.6 and 0.8 on case39 (vmax 1.06, cost **0.023 and 0.039 %** above the AC optimum) and on case30 (0.078, 0.069 %). At load 1.0 pandapower returned no solution on either case, which is not proof of infeasibility.
+- **Reading:** the violations come from fixed voltage setpoints and reactive capability, which the DC model (and a plain power flow) leave uncontrolled. A voltage-aware *P* dispatch is not what is missing; a voltage/Q stage after the DC dispatch is. Not shown: that this holds on other cases, with N-1, or at full load. No LP with voltage-band constraints was built, so step 3 as written is answered by a different route.
+
+## Penalty factors taken at the AC optimum (added 2026-11-06, `experiments/run_penalty_acopt.py`, `results_penalty_acopt.txt`)
+Next step 2 asked for loss sensitivities at the AC optimum instead of at a DC dispatch. `ac_optimum_penalty_dc` solves the AC OPF, takes the finite-difference loss sensitivities there (same `loss_sensitivities`, slack as reference), sets the loss level to the AC optimum's own losses, and solves the DC OPF once on penalty-scaled costs (no iteration, nothing to damp). AC cost of the resulting dispatch above the AC optimum, case118:
+
+| load | plain DC | uniform loss share | iterated penalty factors | factors at AC optimum |
+|---|---|---|---|---|
+| 0.6 | 0.728 % | 0.635 % | 0.559 % | 0.563 % |
+| 0.8 | 0.750 % | 0.577 % | 0.461 % | 0.464 % |
+| 1.0 | 1.479 % | 1.179 % | 1.345 % | **0.367 %** |
+| 1.1 | 1.678 % | 1.149 % | 2.236 % | **0.339 %** |
+
+- **The failure at high load was the sensitivity point, not the idea.** With sensitivities at the AC optimum the penalty-factor dispatch recovers about 75 % (load 1.0) and 80 % (1.1) of plain DC's excess, against 9 % and -33 % for the iterated version; at 0.6 and 0.8 the two versions agree (within 0.004 points).
+- **This is a diagnostic bound, not a method.** It uses the AC optimum, which a DC planner does not have; it shows what factors evaluated at the right operating point can do. A practical scheme needs factors from a good estimate of that point (for example a previous interval's AC solution).
+- Case30 and case39: differences are within 0.1 % and change sign, as before, so not interpretable; load 1.1 has no AC solution there. One solver, one dispatch point per cell.
+
+## Penalty factors from a previous interval (added 2026-11-07, `experiments/run_prev_interval.py`, `results_prev_interval.txt`)
+Next step 2 asked for a usable scheme: `previous_interval_penalty_dc` takes factors and loss share from the AC optimum at a *different* load level (standing in for the previous dispatch interval) and solves one DC OPF at the current load, with no AC solve there. AC cost above the current AC optimum, case118 (prediction before running: a 0.1 step keeps most of the gain, a 0.2 step much less):
+
+| previous load | current load | plain DC | factors from previous | factors at current optimum |
+|---|---|---|---|---|
+| 0.5 | 0.6 | 0.728 % | 0.570 % | 0.563 % |
+| 0.7 | 0.8 | 0.750 % | 0.472 % | 0.464 % |
+| 0.9 | 1.0 | 1.479 % | 0.402 % | 0.367 % |
+| 1.0 | 1.1 | 1.678 % | 0.368 % | 0.339 % |
+| 0.8 | 1.0 | 1.479 % | 0.703 % | 0.367 % |
+| 1.0 | 0.8 | 0.750 % | 0.471 % | 0.464 % |
+
+- A 0.1 load step keeps 88 to 90 % of the oracle's gain at high load (0.402 vs 0.367 against plain 1.479) and nearly all at low load. Supported.
+- A 0.2 upward step (0.8 to 1.0) keeps about 70 % of it (0.703 %); stale factors still beat plain DC, but the sensitivity point matters, consistent with the earlier finding. Stepping down (1.0 to 0.8) costs almost nothing.
+- Limits: one network (case118), a load scale stands in for a real interval (same load shape, no outages or renewables), one solver, one dispatch point per cell.
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
@@ -72,10 +110,54 @@ Findings (one case, one load level, preliminary):
 - The load-weighted "rent" column is a proxy (sum of (LMP minus system mean) times load), not settlement-grade congestion rent. The AC proxy includes losses, so the DC-AC rent difference mixes both effects. Separating them needs nodal loss factors (next step 2).
 - Correlation of bus prices is undefined (nan) while the DC prices are flat, and 0.31 to 0.39 once two lines bind.
 
+## Case300 with a converging AC solver (loss versus congestion), 2026-11-06
+Next step 1 above, done. `experiments/run_case300_pypower.py` uses PYPOWER's primal-dual interior-point AC OPF (`pip install pypower`, a port of MATPOWER's PIPS). **Validation first:** on unmodified case300 it returns 719,725.08 $/h, equal to MATPOWER's published optimum (719,725.08) to the cent, where pandapower's solver failed in 15 of 18 cells (above).
+Loss and congestion are separated by differencing two AC solves: with no branch limits, the bus-price spread is losses (and voltage effects) only; adding limits and subtracting leaves the congestion part. Case300's own ratings do not bind, so the n most loaded branches are capped at a fraction f of their free-flow value (binding by construction; capping all branches is infeasible and the solver says so). Full table: `experiments/results_case300_pypower.txt`.
+
+| load | f | n capped | AC cost rise from limits | AC loss-only price spread ($/MWh) | AC congestion part (max abs shift) | DC price spread |
+|---|---|---|---|---|---|---|
+| 0.8 | 0.90 | 3 | 0.025 % | 7.15 | 1.53 | 1.93 |
+| 0.8 | 0.90 | 10 | 0.179 % | 7.15 | 25.63 | 6.75 |
+| 1.0 | 0.90 | 3 | 0.067 % | 9.57 | 2.45 | 3.13 |
+| 1.0 | 0.80 | 3 | 0.275 % | 9.57 | 5.57 | 5.60 |
+
+Findings (this one case, 12 converged cells of 18 attempted; 6 were infeasible for AC or both):
+- Losses alone spread bus prices by 7 to 10 $/MWh, larger than the congestion spread when only 3 branches bind. A DC model, whose spread is congestion only, therefore misses the larger part of the price gap in that regime; with 10 caps the congestion part (25.6) dominates.
+- DC's congestion spread tracks the AC congestion shift within about 0.2 to 1.0 $/MWh when 3 branches bind (5.60 vs 5.57 at load 1.0, f 0.8) and understates it badly with 10 (6.75 vs 25.63): once many limits bind, the DC price is a poor guide.
+- DC cost is 1.4 to 1.9 % below AC cost in every cell, because DC drops losses; this is not DC "being cheaper".
+- Limitation: caps are synthetic, not published ratings. The loss/congestion split by differencing is an approximation (the two solves can also differ through voltage-limit effects).
+
+## A real hourly load profile (added 2026-11-08, `experiments/run_hourly_profile.py`, `results_hourly_profile.txt`)
+Next step 2 asked for a real time series. The load shape is the AEP zone's hourly load in PJM for two 168-hour weeks of 2017 (`data/`, source in `data/README.md`), scaled so the 2017 peak hour is 1.1 of case118's load; every hour is a full AC OPF plus three DC dispatches on case118. "Previous hour" takes penalty factors and the loss share from the AC optimum of hour h-1 (what an operator has); "oracle" takes them at hour h. Excess is the AC cost of the dispatch above the AC optimum of that hour.
+
+| week | plain DC | previous-hour factors | oracle factors |
+|---|---|---|---|
+| winter, 16 Jan (mean / median) | 0.734 / 0.729 % | 0.499 / 0.492 % | 0.498 / 0.493 % |
+| summer, 17 Jul (mean / median) | 1.053 / 0.809 % | 0.436 / 0.445 % | 0.431 / 0.428 % |
+
+- Hour-ahead factors keep essentially all of the oracle gain (the means differ by under 0.01 point) and cut plain DC's excess by about 32 % in winter and 59 % in summer, over 334 of 336 hours (the first hour of each week has no previous hour; every other hour converged).
+- Hourly load moves slowly relative to the 0.1 steps tested before, so this is the favourable case; the factors would age worse across a morning ramp or an outage.
+- Limits: one case with unscaled generation costs, a zone's load shape applied uniformly to every bus, one solver (pandapower), no unit commitment, ramping or congestion (case118's ratings do not bind), and a mirrored copy of PJM data whose licence I took from the mirror's description, not from PJM.
+
+## Stale factors at the steepest real ramps (added 2026-11-08, `experiments/run_stale_factors.py`, `results_stale_factors.txt`)
+Next step 2 asked for a ramp stress test. Factors taken from the AC optimum L hours earlier (L = 1, 3, 6, 12, 24) are applied at the 10 hours of the 2017 AEP shape (same scaling as above) with the largest load change over L hours (at least 4 hours apart). Mean excess AC cost over that hour's AC optimum, 10 hours per lag, all converged:
+
+| lag | plain DC | stale factors | oracle factors |
+|---|---|---|---|
+| 1 h | 0.763 % | 0.470 % | 0.459 % |
+| 3 h | 0.732 % | 0.486 % | 0.483 % |
+| 6 h | 0.922 % | 0.544 % | 0.477 % |
+| 12 h | 1.406 % | 0.584 % | 0.422 % |
+| 24 h | 0.878 % | 0.514 % | 0.441 % |
+
+- Prediction (before running): factors age gracefully for ramps of a few hours and lose most of the gain at 12 hours. Half refuted: the gap to oracle grows from 0.01 point (1 h, 3 h) to 0.16 point (12 h), but stale factors still beat plain DC in every one of the 50 hours, and at 12 h they cut plain DC's excess by 58 %.
+- The ramps worth worrying about are the afternoon-peak ones: the 12 h hours at 16:00 to 17:00 show plain DC at 1.6 to 1.8 %, stale 0.55 to 0.60 %, oracle 0.34 to 0.36 %. Most overnight hours sit near 0.72 for plain DC regardless of lag, so the mean across lags is driven by which hours the ramp selection picks, not by the lag alone: read within a row, not down the columns.
+- Limits: 10 hours per lag, one case (case118), one load shape applied uniformly to every bus (so factors age less than with uneven regional ramps), no outage (a topology change would age them faster; not tested), one solver.
+
 ## Next steps
-1. Repeat the LMP comparison on a case whose published ratings bind, with an AC OPF solver that converges on case300 (see the section above: pandapower's does not); check the solver against MATPOWER's published case300 optimum first, then separate the loss and congestion components of the price.
-2. Penalty factors were tried (above) with mixed results; next, take sensitivities at the AC optimum or use a distributed slack.
-3. Reactive-aware fix: add voltage-band constraints to the LP and see whether case39's violations go away.
+1. Solver validated and loss/congestion split done with synthetic caps (section above). Next: a case whose published ratings bind (e.g. a PGLib-OPF congested case) and an exact decomposition from the AC duals instead of differencing.
+2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp stress test done (above). Next: an outage stress test (a line trip invalidates the factors at once), a DC-based estimate of the point, or a distributed slack.
+3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
 ## Reproduce
 ```bash
@@ -83,9 +165,15 @@ pip install pytest numpy pandapower
 cd research/infra-dcopf
 python -m pytest -q tests                     # 11 tests, about 20 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
+PYTHONPATH=src python experiments/run_penalty_acopt.py  # about 3 min; writes results_penalty_acopt.txt
+PYTHONPATH=src python experiments/run_prev_interval.py  # about 2 min; writes results_prev_interval.txt
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
+PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs pypower; writes results_case300_pypower.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
+PYTHONPATH=src python experiments/run_hourly_profile.py  # about 25 min; writes results_hourly_profile.txt
+PYTHONPATH=src:experiments python experiments/run_stale_factors.py  # about 4 min; writes results_stale_factors.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
+PYTHONPATH=src python experiments/run_voltage.py  # voltage setpoint study, about 1 min; writes results_voltage.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
 ```
 

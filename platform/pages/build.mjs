@@ -38,6 +38,7 @@ import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES 
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { fixPostTitleClashes } from './page-identity.mjs';
+import { addModulePreloads } from './preload.mjs';
 import { buildStories, STORIES_PATH } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
@@ -463,7 +464,7 @@ const NON_WEB_EXTENSIONS = new Set([
 ]);
 
 // Files whose contents get the placeholder origin swapped for the real one.
-const REWRITABLE = new Set(['.html', '.xml', '.txt', '.json', '.mjs', '.js', '.webmanifest']);
+const REWRITABLE = new Set(['.html', '.xml', '.txt', '.json', '.mjs', '.js', '.webmanifest', '.ics']);
 
 // Ordered: the first rule whose test matches wins.
 // `categoryFor` runs for every slug on every page and link the build writes,
@@ -842,6 +843,9 @@ const CATEGORY_RULES = [
       'menu-engineering-calculator',
       'food-truck-event-margin-calculator',
       'pour-cost-calculator',
+      // `allergen-label-maker` joined 2026-11-07 on its first commit: allergen matrix and pre-packed food labels for the cafes,
+      // bakeries and caterers served here, one hop from `recipe-costing-calculator`.
+      'allergen-label-maker',
       // `catering-quote-calculator` joined 2026-10-02 on its first commit: per-guest event pricing for the
       // operator who sells food, one hop from `food-truck-event-margin-calculator`.
       'catering-quote-calculator',
@@ -1899,6 +1903,10 @@ const CATEGORY_RULES = [
       // `nacha-file-validator` joined 2026-10-04 on its first commit: it checks the ACH payment file a bookkeeper
       // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
       // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.
+      // `vsme-report-builder` moved here 2026-11-06 from the catch-all, which had grown past the bound
+      // `build.test.mjs` puts on it: a small business assembling its sustainability report is back-office
+      // compliance paperwork, like the filings in this section. `stranded-branch-finder` went to `ci`.
+      || slug === 'vsme-report-builder'
       || slug === 'nacha-file-validator'
       // `w2-efw2-file-validator` joined 2026-10-04 on its first commit: it checks the W-2 wage file a payroll
       // preparer exports before it goes to SSA -- the same back-office payroll job as the deposit-penalty calculator.
@@ -3402,7 +3410,7 @@ const CATEGORY_RULES = [
     // and `agent-instructions-drift-check`, which it links; landing it here
     // keeps the catch-all inside its bound.
     test: (slug) =>
-      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit)/.test(
+      /^(jwt-security-check|page-seo-audit|actions-|workflow-audit|pinned-actions|coverage-drop-check|flaky-test-finder|ci-test-shard-balancer|datadog-bill-estimator|vercel-bill-estimator|neon-bill-estimator|cloudflare-bill-estimator|upstash-redis-bill-estimator|error-tracking-pricing-calculator|product-analytics-pricing-calculator|auth-mau-pricing-calculator|git-timesheet|email-api-pricing-calculator|ci-minutes-pricing-calculator|cdn-bandwidth-pricing-calculator|object-storage-pricing-calculator|search-api-pricing-calculator|training-gpu-pricing-calculator|uptime-monitoring-pricing-calculator|speech-to-text-pricing-calculator|video-hosting-pricing-calculator|log-management-pricing-calculator|feature-flag-pricing-calculator|merchant-of-record-fee-calculator|ppp-pricing-table-generator|llm-output-regression-diff|app-store-commission-calculator|sms-segment-cost-calculator|supabase-bill-estimator|webhook-signature-debugger|webhook-relay|ai-crawler-access|license-drift-check|license-compat-check|npm-lifecycle-script-check|npm-provenance-check|vscode-extension-drift-check|dependency-confusion-check|dependabot-config-check|slopsquatting-check|ios-privacy-manifest-check|android-data-safety-check|structured-data-drift-check|json-ld-rich-result-validator|env-example-drift-check|llm-call-cost-scan|llm-spend-guard|liability-audit|lambda-memory-rightsizer|k8s-requests-rightsizer|rds-instance-rightsizer|lambda-vs-fargate-cost-breakeven|dynamodb-capacity-mode-advisor|ebs-volume-cost-advisor|nat-gateway-cost-advisor|cloudwatch-logs-cost-advisor|bigquery-query-cost-advisor|snowflake-warehouse-cost-advisor|rds-instance-cost-advisor|databricks-cluster-cost-advisor|s3-storage-class-savings|s3-storage-class-advisor|postgres-explain-analyzer|pg-stat-statements-analyzer|postgres-index-auditor|prometheus-cardinality-cost|slo-burn-rate-alerts|regex-redos-check|package-exports-drift-check|chrome-extension-permission-check|wordpress-plugin-review-check|obsidian-plugin-review-check|caption-quality-check|cors-misconfig-check|merchant-feed-check|sri-check|email-auth-check|dmarc-report-reader|pwa-installability-check|security-headers-check|docker-base-image-pin-check|docker-base-image-eol-check|docker-build-secrets-check|docker-cache-order-check|node-version-drift-check|social-preview-check|cookie-security-check|oidc-trust-policy-check|canonical-tag-check|cache-control-check|hreflang-reciprocity-check|sitemap-lastmod-freshness-check|security-txt-check|redirect-chain-check|k8s-rollout-safety-check|k8s-deprecated-api-check|helm-values-schema-check|k8s-resource-limits-check|app-store-screenshot-check|app-listing-metadata-check|llms-txt-generator|release-notes-generator|json-to-types-generator|csv-to-sql-generator|codeowners-shadow-check|ai-coding-plan-cost-calculator|llm-api-pricing-calculator|aws-commitment-breakeven-calculator|aws-bill-change-explainer|llm-usage-log-analyzer|sql-migration-lock-check|terraform-plan-|sbom-diff-check|cron-dst-drift-check|cron-heartbeat|status-keeper|visit-keeper|dunning-engine|waitlist-keeper|license-keeper|mrr-pulse|rev-rec|feedback-board|form-inbox|cancel-flow|agent-instructions-drift-check|openapi-breaking-change-check|required-checks-drift-check|subpath-robots-check|deploy-concurrency-check|branch-protection-drift-check|supabase-rls-check|firebase-rules-check|source-map-leak-check|graphql-introspection-exposure-check|git-exposure-check|dotenv-exposure-check|subdomain-takeover-check|cloud-bucket-exposure-check|backup-file-exposure-check|mcp-config-risk-check|hidden-unicode-check|skill-manifest-check|caa-record-check|claude-code-settings-check|claude-skill-scaffold-generator|claude-code-subagent-check|claude-code-hooks-security-check|pypi-provenance-check|pip-audit-triage|cargo-audit-triage|referrer-permissions-policy-check|jwt-verification-misuse-check|docker-compose-security-check|git-bus-factor-check|lockfile-license-check|npm-audit-triage|npm-lockfile-duplicates-check|dupehound|requirements-pin-check|incident-postmortem-timeline|oncall-load-analyzer|soc2-readiness|k8s-pod-security-check|agent-permission-config-check|agent-workroom|s3-bucket-exposure-check|aws-iam-policy-risk-check|devsec-toolkit|stranded-branch-finder)/.test(
         slug,
       ),
   },
@@ -5581,7 +5589,10 @@ export async function copyTree(from, to, baseUrl) {
     if (!entry.isFile() || !isPublishable(entry.name)) continue;
 
     if (REWRITABLE.has(path.extname(entry.name))) {
-      const contents = await fs.readFile(src, 'utf8');
+      let contents = await fs.readFile(src, 'utf8');
+      // iCalendar folds lines at 75 octets, which can split the placeholder
+      // across a fold; unfold first so the swap sees whole URLs (RFC 5545 3.1).
+      if (path.extname(entry.name) === '.ics') contents = contents.replace(/\r?\n[ \t]/g, '');
       const rewritten = rewriteOrigin(contents, baseUrl);
       await fs.writeFile(
         dest,
@@ -9842,6 +9853,14 @@ body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status
  * than in each venture: a calculator that adopts the proposal next week is
  * covered without touching it. */
 @media print{.pf-chrome{display:none !important}}
+/* Reflow guard, from the 60-page hand-pasted mobile-overflow-guard snippet
+ * (docs/reports/2026-11-04-mobile-overflow.md). Only the rules that cannot
+ * change a table's layout: a positioned table keeps absolutely placed .sr
+ * labels inside its scroller, a long pre scrolls inside itself, and form
+ * controls never outgrow the column. */
+table{position:relative}
+pre{max-width:100%;overflow-x:auto}
+input,select,textarea{max-width:100%}
 input[type=file]{max-width:100%;cursor:pointer}
 input[type=file]::file-selector-button{font:inherit;color:inherit;background:rgba(128,128,128,.14);border:1px solid rgba(128,128,128,.55);border-radius:7px;padding:6px 14px;margin-right:12px;cursor:pointer}
 input[type=file]::file-selector-button:hover{background:rgba(128,128,128,.26)}
@@ -11206,7 +11225,7 @@ ${asOf}`;
 const LLMS_INDEX_DESC_MAX = 140;
 const LLMS_INDEX_TOOLS_PER_CATEGORY = 4;
 
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false } = {}) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false, updated = '' } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // The index (`llms.txt`) keeps each tool to its first sentence, capped, so
   // the file fits one fetch (539 KB did not: backlog P052); `llms-full.txt`
@@ -11366,7 +11385,7 @@ advice or a determination made on anyone's behalf; each page carries its own
 limitations.
 
 ${network}${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
-${researchSection ? `${researchSection}\n` : ''}${optional}`;
+${researchSection ? `${researchSection}\n` : ''}${optional}${/^\d{4}-\d{2}-\d{2}/.test(updated) ? `\n${llmsAsOfLine(updated)}\n` : ''}`;
 }
 
 export function renderNotFound(baseUrl) {
@@ -12085,7 +12104,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
-  const llmsOptions = { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length };
+  const llmsOptions = { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length, updated: [...sourceDates.values()].filter((d) => /^\d{4}-/.test(d)).sort().pop() ?? '' };
   await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, llmsOptions));
   await fs.writeFile(path.join(outDir, 'llms-full.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, { ...llmsOptions, full: true }));
   // Read from the committed file, not from `git log`: the in-cluster build
@@ -12176,6 +12195,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     ? await moveAudioToCdn({ outDir, base, repoRoot: REPO_ROOT, log })
     : { moved: 0, kept: 0, bytes: 0 };
 
+  // After every pass that writes HTML or module scripts, before the offline
+  // layer, which hashes the finished pages: tool pages list their whole
+  // static import graph as modulepreload links, so the browser fetches it in
+  // one round instead of one round per import level (preload.mjs).
+  const preloads = await addModulePreloads(outDir, { listFiles });
+
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
   // rewritten. Reversed, every deploy would cache a page missing its nav.
@@ -12189,6 +12214,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
     highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards, audio, retitled,
+    preloads,
   };
 }
 
@@ -12304,4 +12330,5 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
   console.log(`Made the sponsor link countable on ${result.sponsored.length} page(s).`);
   console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
+  console.log(`Module preload: ${result.preloads.links} link(s) on ${result.preloads.pages} page(s); deepest import chain ${result.preloads.deepest}.`);
 }

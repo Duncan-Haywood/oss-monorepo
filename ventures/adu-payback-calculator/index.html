@@ -193,7 +193,7 @@
       $("#ct tbody").innerHTML = r.costSens.map((s) => `<tr><td class="n">${lab(s.delta)}</td><td class="n">${money(s.cost)}</td><td class="n">${money(s.cashYear1)}</td><td class="n">${pct(s.irr)}</td><td class="n">${s.npv === null ? "n/a" : money(s.npv)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

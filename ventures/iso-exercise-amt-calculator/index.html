@@ -154,7 +154,7 @@
       $("#size-table tbody").innerHTML = a.rows.map((r) => `<tr class="${r.isCrossover ? "best" : ""}"><td class="n">${r.options.toLocaleString("en-US")}${r.isCrossover ? " (crossover)" : ""}</td><td class="n">${usd(r.cost)}</td><td class="n">${usd(r.spread)}</td><td class="n">${usd(r.amt)}</td><td class="n">${usd(r.cash)}</td><td class="n">${r.marginal === null ? "" : (r.marginal * 100).toFixed(1) + "%"}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";
-      report.scrollIntoView({ behavior: "smooth", block: "start" });
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 

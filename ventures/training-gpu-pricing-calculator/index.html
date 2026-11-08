@@ -186,7 +186,7 @@ node cli.mjs providers</pre>
       $("#estimate").textContent = `${PRICES_AS_OF}. Busy hours grow from ${hours} to ${proj.endBusyHours} a month over 12 months. Your numbers and editable prices; not a quote.`;
       $("#report-card").hidden = false;
       record("compare_run");
-      $("#report-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#report-card").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
     $("#calc").addEventListener("click", render);
 

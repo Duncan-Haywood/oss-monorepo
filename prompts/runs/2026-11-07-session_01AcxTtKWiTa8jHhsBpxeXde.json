@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-07",
+  "session": "https://claude.ai/code/session_01AcxTtKWiTa8jHhsBpxeXde",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-07T10:06:39Z",
+  "ended": "2026-11-07T10:14:39Z",
+  "wall_minutes": 8.5,
+  "tokens_in": 9606774,
+  "tokens_out": 101600,
+  "cost_usd": 4.3426,
+  "tool_calls": 144,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13781",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Says to use --seed <date>-b only if an open PR holds today's seed; a merged round already used the bare date, so the default draw silently returns new subjects. Unclear which is intended."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-07-quality-audit-round-2.md"
+  ],
+  "goal": null,
+  "notes": "Quality track (round 3 after merging a parallel round 2). Seed 2026-11-07-b. Subjects: ventures/ai-bookkeeper (flagship), lash-studio-profit-calculator, amazon-seller-profit-analyzer, research/precision-scores, accel-kwssparse, platform/audio. Share meeting bar: 1 of 5 sampled (precision-scores). Fix PRs: same PR corrects two unbacked ai-bookkeeper claims (README, llms.txt); other defects left in audit files. Six audits by parallel subagents; spot-checked lash, amazon, accel, precision-scores, ai-bookkeeper recomputations myself.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1de28403-96ec-504f-8de9-f6b58917cb2e",
+    "transcripts": 7,
+    "first": "2026-11-07T10:06:39Z",
+    "last": "2026-11-07T10:15:09Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 131,
+        "input": 272,
+        "output": 101600,
+        "thinking": 25000,
+        "cache_read": 9042006,
+        "cache_write_5m": 493579,
+        "cache_write_1h": 70917,
+        "api_equivalent_usd": 4.3426,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 131,
+      "input": 272,
+      "output": 101600,
+      "thinking": 25000,
+      "cache_read": 9042006,
+      "cache_write_5m": 493579,
+      "cache_write_1h": 70917,
+      "api_equivalent_usd": 4.3426,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.941,
+    "tool_calls": 144,
+    "tools": {
+      "Bash": 115,
+      "Read": 12,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "bash": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.5,
+      "active_minutes": 5.1,
+      "model_minutes": 2.4,
+      "tool_minutes": 2.71,
+      "waiting_on_human_minutes": 3.39,
+      "human_prompts": 9,
+      "stalls": 0,
+      "subagent_minutes": 16.22
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "six audits with recomputation and seeded mutations",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 138.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

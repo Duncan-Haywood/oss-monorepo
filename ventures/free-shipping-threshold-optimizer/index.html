@@ -181,7 +181,7 @@ node cli.mjs analyze orders.csv --top-up 15 --drag 5 --json --fail-on warn</pre>
       els.estimate.textContent = report.count ? `${MODEL_NOTE}. Try a change for a few weeks and compare average order value and conversion before keeping it.` : "";
       els.reportCard.hidden = false;
       record("analyze_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#analyze").addEventListener("click", renderReport);

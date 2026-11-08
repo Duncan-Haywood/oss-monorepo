@@ -54,6 +54,22 @@ class Main(unittest.TestCase):
             self.assertEqual(r.main(["--root", d]), 0)
 
 
+class IndexReadme(unittest.TestCase):
+    def test_stale_index_fails_then_write_fixes_and_current_passes(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "research" / "_homepage").mkdir(parents=True)
+            (root / "research" / "_homepage" / "projects.json").write_text(
+                json.dumps({"themes": [{"id": "t", "name": "T", "projects": []}]}))
+            index = root / "research" / "README.md"
+            index.write_text("# R\n\n- x\n")
+            self.assertEqual(r.main(["--root", d]), 1)
+            self.assertEqual(index.read_text(), "# R\n\n- x\n")  # check mode never writes
+            self.assertEqual(r.main(["--root", d, "--write"]), 0)
+            self.assertIn("topics/t/", index.read_text())
+            self.assertEqual(r.main(["--root", d]), 0)
+
+
 class Topics(unittest.TestCase):
     DATA = {"themes": [{"id": "chip", "name": "Chip &amp; loops", "projects": [{"slug": "a"}]},
                        {"id": "x", "projects": []}]}
@@ -63,6 +79,12 @@ class Topics(unittest.TestCase):
         self.assertIn(f"- [Chip & loops]({r.BASE}topics/chip/)", block)
         self.assertNotIn("topics/x/", block)
         self.assertTrue(block.startswith(r.TOPICS_START) and block.endswith(r.TOPICS_END))
+
+    def test_one_stray_marker_does_not_crash_or_replace(self):
+        for stray in (r.TOPICS_START, r.TOPICS_END):
+            out = r.with_topics(f"# R\n\n{stray}\n\n- a\n", "BLOCK")
+            self.assertIn("BLOCK", out)
+            self.assertIn("- a", out)
 
     def test_inserted_before_first_list_item_then_replaced_in_place(self):
         text = "# R\n\nIntro.\n\n- [`research/a`](a) — one.\n"

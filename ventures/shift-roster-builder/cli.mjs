@@ -22,8 +22,9 @@ import { readFile } from "node:fs/promises";
 import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
+import { demandShifts } from "./demand.mjs";
 import {
-  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, carryOverStaff, dailyLabor, salesPerLaborHour, sampleStaff, sampleShifts,
+  parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
 } from "./calc.mjs";
 
@@ -63,14 +64,23 @@ Options:
   --rest-under <h>    list every pair of one person's shifts with less than <h> hours between them (a close then an open) and the premium
                       on your numbers: --premium-hours (default 1 hour of pay each) and --exempt "Ben" (they asked for it). Arithmetic, not a statement of any law
   --import-shifts <csv> convert a published-schedule export (date, start, end, position rows) to shift lines on stdout; notes on stderr
+  --from-sales <csv>  build the shift lines from an hourly sales export (date-time and sales columns) at --splh <$> sales per labor hour (required):
+                      the average of each weekday-hour sets the heads needed (at least --min-staff, default 1), cut into shifts of --min-shift to
+                      --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
+                      the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
+                      --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date)
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
                       --splh <$> flags days with more or fewer hours than that sales per labor hour calls for
   --tips <$>          split a tip pot over the planned hours, in whole cents that add back to the pot
   --short-under <h>   list every assigned shift shorter than <h> hours (a commute for little pay; some cities owe reporting-time pay)
+  --budget <$>        compare the week's payroll with a labor budget; if over, list drops that close the gap (safe ones first)
+  --long-over <h>     list every assigned shift longer than <h> hours (a double or long stretch; some places owe a premium or a break)
+  --days-off <n>      list everyone without <n> days off in a row this week (a day counts on the day a shift starts; the week is not wrapped)
   --cover "<Day HH:MM>" a call-out or open shift that starts then (add -HH:MM to tell two apart): who could take it outright, else the
-                      shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change
+                      shortest chains of hand-overs (one person takes it and gives up a shift a third takes; --max-moves n, default 3) with the pay change;
+                      with --json the same answer as data (shift, outright, blocked, chains) for a call-out bot or script
   --swap "<Day HH:MM>,<Day HH:MM>"  check one trade: the owners of those two shifts exchange them. Says whether both weeks stay inside
                       every hard rule (rest, hour limits, availability, role), the rule that stops each person if not, and the pay change
   --max-moves <n>     longest hand-over chain for --cover (1-5, default 3)
@@ -102,6 +112,14 @@ export function parseArgs(argv) {
     else if (a === "--open-post") o.mode = "open-post";
     else if (a === "--person") { o.person = argv[++i]; if (!o.person) throw new Error("--person needs a name"); }
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
+    else if (a === "--from-sales") { o.fromSales = argv[++i]; if (!o.fromSales) throw new Error("--from-sales needs a CSV file"); }
+    else if (a === "--skip-dates") { o.demand = { ...o.demand, skipDates: String(argv[++i] || "").split(/[,\s]+/).filter(Boolean) }; if (!o.demand.skipDates.length) throw new Error("--skip-dates needs dates like 2026-11-26,2026-12-25"); }
+    else if (a === "--half-life") { const v = Number(argv[++i]); if (!(v > 0)) throw new Error("--half-life needs a positive number of weeks"); o.demand = { ...o.demand, halfLife: v }; }
+    else if (a === "--min-staff" || a === "--min-shift" || a === "--max-shift" || a === "--open" || a === "--close") {
+      const v = Number(argv[++i]);
+      if (!Number.isFinite(v) || v < 0) throw new Error(`${a} needs a number`);
+      (o.demand ||= {})[{ "--min-staff": "minStaff", "--min-shift": "minShift", "--max-shift": "maxShift", "--open": "open", "--close": "close" }[a]] = v;
+    }
     else if (a === "--import-staff") { o.importStaff = argv[++i]; if (!o.importStaff) throw new Error("--import-staff needs a CSV file"); }
     else if (a === "--check") o.check = true;
     else if (a === "--swap") { o.swap = argv[++i]; if (!o.swap) throw new Error('--swap needs two shifts like "Tue 17:00,Sat 09:00"'); }
@@ -135,6 +153,21 @@ export function parseArgs(argv) {
       const v = Number(argv[++i]);
       if (!(v > 0 && v <= 24)) throw new Error("--short-under needs hours between 0 and 24");
       o.shortUnder = v;
+    }
+    else if (a === "--budget") {
+      const v = Number(String(argv[++i]).replace(/[$,]/g, ""));
+      if (!(v > 0)) throw new Error("--budget needs a positive dollar amount");
+      o.budget = v;
+    }
+    else if (a === "--long-over") {
+      const v = Number(argv[++i]);
+      if (!(v > 0 && v < 24)) throw new Error("--long-over needs hours between 0 and 24");
+      o.longOver = v;
+    }
+    else if (a === "--days-off") {
+      const v = Number(argv[++i]);
+      if (!Number.isInteger(v) || v < 1 || v > 6) throw new Error("--days-off needs a whole number of days from 1 to 6");
+      o.daysOff = v;
     }
     else if (a === "--sales") o.sales = argv[++i] || "";
     else if (a === "--labor-target") {
@@ -234,6 +267,33 @@ function shortReport(r, opts) {
   const head = rows.length ? `${rows.length} shift(s) under ${num(opts.shortUnder)} h.` : `No assigned shift is under ${num(opts.shortUnder)} h.`;
   return [head, ...lines, ""].join("\n");
 }
+function longReport(r, opts) {
+  const rows = longShifts(r, opts.longOver);
+  const lines = rows.map((x) => `${x.person.padEnd(12)} ${x.day} ${fmtClock(x.startMin)}-${fmtClock(x.endMin)}  ${num(x.hours)} h`);
+  const head = rows.length ? `${rows.length} shift(s) over ${num(opts.longOver)} h.` : `No assigned shift is over ${num(opts.longOver)} h.`;
+  return [head, ...lines, ""].join("\n");
+}
+function budgetReport(staff, slots, r, opts) {
+  const b = budgetCheck(r, opts.budget);
+  const $ = (x) => "$" + x.toFixed(2);
+  if (!b) return "Nothing to compare: no payroll.\n";
+  if (!b.over) return `Payroll ${$(b.payroll)} against a ${$(b.budget)} budget: ${$(b.headroom)} under (${b.pct.toFixed(1)}%).\n`;
+  const need = b.payroll - b.budget;
+  const t = trimOptions(staff, slots, r);
+  const rows = [];
+  let got = 0;
+  for (const x of (t.rows || [])) { if (got >= need - 0.005) break; rows.push(x); got += x.saves; }
+  const lines = rows.map((x) => `${x.person.padEnd(12)} ${DAYS[x.slot.day % 7]} ${fmtClock(x.slot.startMin)}-${fmtClock(x.slot.endMin)}  ${num(x.hoursSaved)} h  saves ${$(x.saves)}  ${x.leavesEmpty ? "LEAVES SHIFT EMPTY" : "shift stays covered"}${x.breaksMinimum ? ", under their minimum hours" : ""}`);
+  const head = `Payroll ${$(b.payroll)} against a ${$(b.budget)} budget: ${$(need)} over (about ${num(b.cutHours)} paid h at the average cost).`;
+  const tail = got >= need - 0.005 ? `These ${rows.length} drop(s) add up to about ${$(got)}; savings are per drop and overtime is priced across the week, so re-run to confirm.` : `Even every drop listed does not close the gap.`;
+  return [head, ...lines, tail, ""].join("\n");
+}
+function daysOffReport(r, opts) {
+  const d = daysOffRuns(r, opts.daysOff);
+  const lines = d.short.map((x) => `${x.person.padEnd(12)} works ${x.daysWorked} day(s), longest run off ${x.longestOff}`);
+  const head = d.short.length ? `${d.short.length} of ${d.rows.length} people have no ${opts.daysOff} days off in a row.` : `Everyone has ${opts.daysOff} days off in a row.`;
+  return [head, ...lines, ""].join("\n");
+}
 function salesReport(staff, opts, r) {
   const dl = dailyLabor(r, staff, opts.sales);
   if (!dl.hasSales) return "No daily sales read: give seven figures, Monday first, e.g. --sales \"1200,900,950,1000,1800,2600,2100\".\n";
@@ -294,7 +354,10 @@ export function run(staffText, shiftsText, opts = {}) {
   if (opts.cover) return { code: 0, out: coverReport(st.staff, sh.slots, r, opts) };
   if (opts.sales) return { code, out: salesReport(st.staff, opts, r) };
   if (opts.tips) return { code, out: tipsReport(r, opts) };
+  if (opts.budget) return { code, out: budgetReport(st.staff, sh.slots, r, opts) };
+  if (opts.daysOff) return { code, out: daysOffReport(r, opts) };
   if (opts.shortUnder) return { code, out: shortReport(r, opts) };
+  if (opts.longOver) return { code, out: longReport(r, opts) };
   if (opts.hoursWatch) return { code, out: hoursWatchReport(r, opts) };
   if (opts.restUnder) return { code, out: restReport(st.staff, opts, rosterCsv(r)) };
   if (opts.postedCsv) return { code, out: changesReport(st.staff, opts, rosterCsv(r)) };
@@ -330,14 +393,19 @@ function coverReport(staff, slots, r, opts) {
   if (direct.error) return direct.error + "\n";
   const money2 = (x) => (x >= 0 ? "+" : "-") + money(Math.abs(x));
   const lines = [head, ""];
+  const asJson = opts.mode === "json";
+  const data = { shift: { day: DAYS[s.day], start: fmtClock(s.startMin), end: fmtClock(s.endMin), label: s.label || "", role: s.role || "", now: r.owner[i] >= 0 ? staff[r.owner[i]].name : null }, outright: [], blocked: [], chains: [], maxMoves: opts.maxMoves ?? 3 };
   if (direct.fits.length) {
+    data.outright = direct.fits.map((f) => ({ name: f.name, extraCost: f.extraCost, hoursAfter: f.hoursAfter, overtimeAfter: f.overtimeAfter }));
     lines.push("Can take it outright, everyone else keeps their shifts (cheapest first):");
     for (const f of direct.fits) lines.push(`  ${f.name}: payroll ${money2(f.extraCost)}, ${num(f.hoursAfter)} h that week${f.overtimeAfter > 0 ? `, ${num(f.overtimeAfter)} h overtime` : ""}`);
   } else {
     lines.push("Nobody can take it without giving something up.");
     for (const b of direct.blocked) lines.push(`  ${b.name}: ${b.reason}`);
+    data.blocked = direct.blocked.map((b) => ({ name: b.name, reason: b.reason }));
     const c = coverChain(staff, slots, r, i, {}, { maxMoves: opts.maxMoves ?? 3 });
     if (c.error) return c.error + "\n";
+    data.chains = c.chains.map((ch) => ({ moves: ch.moves, extraCost: ch.extraCost, steps: ch.steps.map((x) => ({ to: x.to, from: x.from || null, day: DAYS[x.slot.day], start: fmtClock(x.slot.startMin), end: fmtClock(x.slot.endMin) })) }));
     lines.push("");
     if (!c.chains.length) lines.push(`No chain of up to ${opts.maxMoves ?? 3} hand-overs keeps every rule. Try --max-moves ${(opts.maxMoves ?? 3) + 1}, or post the shift.`);
     else {
@@ -345,6 +413,7 @@ function coverReport(staff, slots, r, opts) {
       c.chains.forEach((ch, k) => lines.push(`  ${k + 1}. ${ch.moves} shifts move, payroll ${money2(ch.extraCost)}: ` + ch.steps.map((x) => `${x.to} takes ${DAYS[x.slot.day]} ${clock(x.slot)}${x.from ? ` from ${x.from}` : ""}`).join("; then ")));
     }
   }
+  if (asJson) return JSON.stringify(data, null, 2) + "\n";
   lines.push("", "Checks the hard rules in the staff file for everyone touched; people outside the chain keep their shifts. Planning aid, not legal advice.");
   return lines.join("\n") + "\n";
 }
@@ -414,6 +483,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       const r = importShiftsCsv(await readFile(o.importShifts, "utf8"));
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.rows) process.exit(1);
+      process.stdout.write(r.shiftsText + "\n"); process.exit(0);
+    }
+    if (o.fromSales) {
+      if (!(o.splh > 0)) throw new Error("--from-sales needs --splh <sales per labor hour>");
+      const r = demandShifts(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh });
+      for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
+      if (!r.shiftsText) process.exit(1);
+      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${r.extra} extra from the shortest-shift rule); average week sales ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
     }
     if (o.importStaff) {

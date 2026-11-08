@@ -1890,8 +1890,17 @@ export function absencePlan(staff, slots, roster, name, days = null, options = {
   return { ok: true, person: staff[who].name, moves, open, extraCost, owner };
 }
 
+// One CSV cell. A name or label that starts with = + - @ (or a tab or CR) would run as a formula when the file is
+// opened in a spreadsheet, so it gets a leading apostrophe; parseRosterCsv strips that again on the way back in.
+export function csvCell(v) {
+  let s = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+const unDefuse = (t) => (/^'[=+\-@\t\r]/.test(t) ? t.slice(1) : t);
+
 export function rosterCsv(r) {
-  const q = (s) => (/[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s);
+  const q = csvCell;
   const rows = ["day,start,end,hours,label,assigned_to,role"];
   for (const a of r.assignments) {
     const s = a.slot;
@@ -2007,7 +2016,7 @@ export function lastShiftEnds(csv) {
       else if (ch === '"') inQ = true; else if (ch === ",") { c.push(cur); cur = ""; } else cur += ch;
     }
     c.push(cur);
-    const who = (c[5] || "").trim();
+    const who = unDefuse((c[5] || "").trim());
     if (!who || who === "UNFILLED") continue;
     const d = dayIndex((c[0] || "").replace(/\s*\(overnight\)/i, "").trim());
     const start = parseTime(c[1]);
@@ -2037,14 +2046,14 @@ export function parseRosterCsv(csv) {
       else if (ch === '"') inQ = true; else if (ch === ",") { c.push(cur); cur = ""; } else cur += ch;
     }
     c.push(cur);
-    const person = (c[5] || "").trim();
+    const person = unDefuse((c[5] || "").trim());
     if (!person || person === "UNFILLED") continue;
     const day = dayIndex((c[0] || "").replace(/\s*\(overnight\)/i, "").trim());
     const start = parseTime(c[1]);
     let end = parseTime(c[2]);
     if (day < 0 || Number.isNaN(start) || Number.isNaN(end)) continue;
     if (end <= start) end += 1440;
-    out.push({ person, day, start: day * 1440 + start, end: day * 1440 + end, label: (c[4] || "").trim() });
+    out.push({ person, day, start: day * 1440 + start, end: day * 1440 + end, label: unDefuse((c[4] || "").trim()) });
   }
   return out;
 }
@@ -2476,6 +2485,38 @@ export function shortShifts(r, minHours = 4) {
   return out;
 }
 
+// Every assigned shift longer than `maxHours` (a double, or a stretch some rules call for extra pay or a break on).
+// A heads-up only; the search does not enforce it. A shift of exactly `maxHours` is not listed.
+export function longShifts(r, maxHours = 10) {
+  const out = [];
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    const { day, startMin, endMin } = a.slot;
+    const hours = ((endMin <= startMin ? endMin + 1440 : endMin) - startMin) / 60;
+    if (hours > maxHours) out.push({ person: a.person, day: DAYS[day % 7], startMin, endMin, hours });
+  }
+  return out;
+}
+
+// Each person's longest run of consecutive days off in the Monday-to-Sunday week, and who has no run of `minRun` days
+// (a "two days off in a row" wish, or a rule some workplaces set). A day counts as worked on the day a shift starts, so
+// a closing shift past midnight does not take the next day. A person with no shift has all seven days off. The week is
+// not wrapped, so Sun plus the next Mon is not counted. A heads-up only; the search does not enforce it.
+export function daysOffRuns(r, minRun = 2) {
+  const worked = new Map((r.people || []).map((p) => [p.name, new Set()]));
+  for (const a of r.assignments || []) {
+    if (!a.person) continue;
+    if (!worked.has(a.person)) worked.set(a.person, new Set());
+    worked.get(a.person).add(a.slot.day % 7);
+  }
+  const rows = [...worked].map(([person, days]) => {
+    let best = 0, cur = 0;
+    for (let d = 0; d < 7; d++) { cur = days.has(d) ? 0 : cur + 1; if (cur > best) best = cur; }
+    return { person, daysWorked: days.size, longestOff: best, short: best < minRun };
+  }).sort((a, b) => a.person.localeCompare(b.person));
+  return { rows, short: rows.filter((x) => x.short) };
+}
+
 // What a seventh-consecutive-day premium would add for each person who works all seven days of the week (the last day
 // is DAYS[6], so this assumes the workweek starts on Monday). California's rule is 1.5x for the first `firstHours` of
 // that day and 2x after; both multipliers are yours to set. Returns only the extra over straight time (burden
@@ -2683,7 +2724,7 @@ export function tipPool(r, pot) {
 
 export function hoursCsv(r) {
   const rows = ["person,shifts,hours,overtime_hours,estimated_payroll,minimum_hours,hours_under_minimum"];
-  for (const p of r.people) rows.push([p.name.includes(",") ? `"${p.name}"` : p.name, p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));
+  for (const p of r.people) rows.push([csvCell(p.name), p.shifts, p.hours.toFixed(2), p.otHours.toFixed(2), p.cost.toFixed(2), p.minHours, p.short.toFixed(2)].join(","));
   return rows.join("\n") + "\n";
 }
 

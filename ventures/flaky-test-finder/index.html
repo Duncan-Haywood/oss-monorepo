@@ -227,7 +227,7 @@ python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
         ? "Only one run given — flakiness detection is limited to Surefire's own retry elements. Add a second run for full coverage."
         : "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", () => runCheck(collectRuns()));

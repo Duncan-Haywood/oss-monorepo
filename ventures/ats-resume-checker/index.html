@@ -225,7 +225,7 @@ Reach me at jordan.rivera@example.com`;
       els.reportCard.hidden = false;
       els.status.textContent = "";
       record("check_run");
-      els.reportCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#check").addEventListener("click", () => {
@@ -290,7 +290,7 @@ Nice to have:
       $("#matched-list").innerHTML = result.matched.map((m) => chip(m.term, "")).join("") || `<li class="note">None yet.</li>`;
       card.hidden = false;
       record("match_run");
-      card.scrollIntoView({ behavior: "smooth", block: "start" });
+      card.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     }
 
     $("#match").addEventListener("click", () => {
