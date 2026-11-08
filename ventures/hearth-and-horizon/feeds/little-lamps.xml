@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Bernadette and the Spring in the Mud</title>
+      <link>https://example.invalid/hearth-and-horizon/bernadette-and-the-spring-in-the-mud.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/bernadette-and-the-spring-in-the-mud.html</guid>
+      <pubDate>Sun, 08 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Bernadette Soubirous, a small, poor, often poorly girl of Lourdes who went to look for firewood one cold February day in 1858 and came home with something to tell. Told from her own account and the records of the time, with what she said she saw told as what she said, and a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. Her feast day is the 16th of April. Setting: Lourdes, in the south of France, about a hundred and seventy years ago. Read the full text at https://example.invalid/hearth-and-horizon/bernadette-and-the-spring-in-the-mud.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Bernadette Soubirous, a small, poor, often poorly girl of Lourdes who went to look for firewood one cold February day in 1858 and came home with something to tell. Told from her own account and the records of the time, with what she said she saw told as what she said, and a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. Her feast day is the 16th of April.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Lucy and the Lamp in the Dark</title>
       <link>https://example.invalid/hearth-and-horizon/lucy-and-the-lamp-in-the-dark.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/lucy-and-the-lamp-in-the-dark.html</guid>
