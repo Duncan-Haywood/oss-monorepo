@@ -1,8 +1,8 @@
 ---
 title: "A 2 PM sale was being staffed as 2 AM"
 date: 2026-11-08
-tags: [scheduling, bug, open-source]
-description: "The shift-roster builder's sales-to-shifts step ignored AM/PM on ISO timestamps. A one-regex fix and a test, found by probing the parser with exports a till might write."
+tags: [scheduling, bugs, open-source]
+description: "The shift-roster builder ignored AM/PM on ISO timestamps, so a 2 PM sale was staffed as 2 AM. A one-regex fix and a test, found by probing the parser."
 ---
 
 The free [shift roster builder](https://marisstella.app/shift-roster-builder/) can turn an hourly sales export into the shifts a week needs. Probing the parser with timestamps a till might write, `2026-03-05 2:00 PM` came out as hour 2 and `12:00 AM` as hour 12: afternoon demand was staffed in the small hours. Slash-format dates already handled AM/PM; the ISO branch did not.
