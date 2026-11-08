@@ -2,7 +2,7 @@
 title: "Can a photo culler tell when a horizon is crooked? A test on real photos"
 date: 2026-11-08
 tags: [photo-editing, computer-vision, evaluation]
-description: "We rotated real photographs by known angles and checked whether the tilt score followed. The first detector did not; a line-based one does on a pitch photo, and still fails on facades."
+description: "We rotated real photos by known angles to test the tilt score. The first detector failed; a line-based one works on a pitch photo and still fails on facades."
 ---
 
 A culling tool that ranks shots should notice a crooked horizon. Our tilt score passed its synthetic tests, but on real photographs rotated by 1 to 8 degrees it read near zero with confidence under 0.1.

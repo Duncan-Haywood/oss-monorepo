@@ -120,7 +120,8 @@
     .faq h3 { margin-top: 16px; }
     footer { padding-top: 24px; padding-bottom: 32px; color: var(--muted); font-size: 14px; }
     @media (max-width: 640px) { .cmd { flex-wrap: wrap; } .cmd input { flex-basis: 100%; } .hud .keys { display: none; } }
-  </style>
+  th[scope="row"] { font-weight: inherit; background: none; color: inherit; }
+</style>
 </head>
 <body>
 <header>
@@ -200,13 +201,13 @@
   <div class="panel">
     <table>
       <tbody>
-        <tr><td><code>fix the login redirect for Builder</code></td><td>New task on Builder's desk. Anything that isn't a command below is a new task.</td></tr>
-        <tr><td><code>add task: rotate deploy key @Scout #ops !</code></td><td>Typed shorthand: <code>@agent</code>, <code>#tag</code>, <code>!</code> for high priority (or say "urgent").</td></tr>
-        <tr><td><code>start 2</code> · <code>finish 2</code></td><td>Move task 2 to in progress, or to done.</td></tr>
-        <tr><td><code>move login to review</code> · <code>mark task three done</code></td><td>Refer to a task by number or by the start of its title.</td></tr>
-        <tr><td><code>assign 4 to Reviewer</code></td><td>Hand a task to another desk.</td></tr>
-        <tr><td><code>add agent called Atlas</code></td><td>A new desk.</td></tr>
-        <tr><td><code>delete 5</code></td><td>Remove a task.</td></tr>
+        <tr><th scope="row"><code>fix the login redirect for Builder</code></th><td>New task on Builder's desk. Anything that isn't a command below is a new task.</td></tr>
+        <tr><th scope="row"><code>add task: rotate deploy key @Scout #ops !</code></th><td>Typed shorthand: <code>@agent</code>, <code>#tag</code>, <code>!</code> for high priority (or say "urgent").</td></tr>
+        <tr><th scope="row"><code>start 2</code> · <code>finish 2</code></th><td>Move task 2 to in progress, or to done.</td></tr>
+        <tr><th scope="row"><code>move login to review</code> · <code>mark task three done</code></th><td>Refer to a task by number or by the start of its title.</td></tr>
+        <tr><th scope="row"><code>assign 4 to Reviewer</code></th><td>Hand a task to another desk.</td></tr>
+        <tr><th scope="row"><code>add agent called Atlas</code></th><td>A new desk.</td></tr>
+        <tr><th scope="row"><code>delete 5</code></th><td>Remove a task.</td></tr>
       </tbody>
     </table>
     <p class="lede" style="margin-top:8px">A command that could mean two tasks does nothing and says so, so a misheard word never moves the wrong card.</p>
