@@ -448,3 +448,11 @@ test("NE, MS and OK returns are due the 20th (official text via search excerpts 
   }
   assert.equal(dueDate("2026-09", 20), "2026-10-20");
 });
+
+test("AZ and IN carry a filing note that names the open question, other states stay silent", () => {
+  assert.match(stateFilingNote("az", "monthly"), /20th.*month-end|month-end.*20th/s);
+  assert.match(stateFilingNote("IN", "quarterly"), /INTIME/);
+  assert.equal(stateDueDay("AZ", "monthly"), 20);
+  assert.equal(STATE_DUE_DAYS.IN, 30);
+  assert.equal(stateFilingNote("KS", "quarterly"), null);
+});
