@@ -1,6 +1,8 @@
 ---
 title: "A mistyped Mexican RFC now fails the invoice preflight"
 date: 2026-11-08
+description: "The e-invoice preflight now checks the Mexican RFC check digit on invoice parties; what the rule is pinned to, and the typos it still misses."
+tags: [einvoice-preflight, mexico, validation]
 ---
 
 The e-invoice preflight already had a Mexico page with an RFC check digit. Until today the invoice validator itself did not use it: an `MX` tax id was only recognised as a country prefix.
