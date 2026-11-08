@@ -1,66 +1,68 @@
 {
- "date": "2026-11-08",
- "subject": "platform/ci",
- "stratum": "platform",
- "seed": "2026-11-08-b",
- "auditor": "agent session (Claude), see run record",
- "status": "audited",
- "professional": "a senior release/CI platform engineer (SRE class) who owns a monorepo's merge gates and CI tooling. First checks: does a gate give a wrong answer silently (false green), do the tests fail when the logic is broken, and do the operator messages point at things that exist.",
- "scores": {
-  "correctness": 3,
-  "completeness": 2,
-  "verification": 3,
-  "craft": 3,
-  "claims": 2,
-  "fitness": 3,
-  "domain": 3
- },
- "evidence": {
-  "correctness": "Sampled 5 core scripts (unlanded_work.py 472 lines, ci_starvation.py 508, run_workflow_locally.py 1391, quality_audit.py 272, pyenv.py 296) of ~112 non-test scripts. Recomputed 4 outputs independently: (1) Wilson interval for (k,n) in {(3,10),(0,5),(7,7),(1,2),(12,37)} against a separate closed-form quadratic solution of the score equation: all agree to 1e-16 (3/10 -> 0.1078 to 0.6032). (2) `quality_audit.py summary` headline '16 of 84 sampled meet the bar' recomputed from the raw audit JSON with my own latest-per-subject and gate+median code: 84 and 16, identical. (3) ci_starvation.classify on hand-built jobs: runner_id 0 -> starved, 9 -> ran, None+skipped -> skipped, None -> raises; `--from-json` run printed 1 of 2 never got a runner, exit 1, as hand-expected. (4) `python3 platform/ci/unlanded_work.py` on this checkout exited 1 with STRANDED, correct because the tree had an uncommitted path (research/impact-twin/.../model.py, not mine). Not reached: run_workflow_locally.py output not recomputed (its --for-changes run exceeded 120 s and I stopped it), so the 1391-line file is scored on tests and reading only. Capped at 3 for that and the defects below.",
-  "completeness": "Claims checked: CLAUDE.md names unlanded_work.py (works, exit code honest), ci_starvation.py --run (offline --from-json works; live --run needs network/token, not exercised), run_workflow_locally.py --for-changes (starts, did not finish in 120 s, not verified end to end), quality_audit.py sample/validate/summary (all work; `validate` run: see below), pyenv.py (ran: installed pytest+numpy, printed interpreter path, exit 0). Dead pointer: ci_starvation.py lines 45 and 271 tell the operator to report unblocks in `gitops/ci/README.md`, but gitops/ was deleted on 2026-10-30 per CLAUDE.md; the directory does not exist. Untested scripts: of the .py files, only check_orphan_pages, check_pages_links, check_svg_names, main_health, runner_probe lack a sibling test_*.py (5 of ~110, good). 220 entries in the directory with no index of which gate is wired into which workflow was not found by me. Score 2 because a printed instruction in a core tool points at a deleted file and one core script was not verified end to end.",
-  "verification": "Ran `python3 -m pytest -q test_ci_starvation.py test_pyenv.py test_quality_audit.py test_unlanded_work.py` -> 141 passed, 3 subtests, 3.96 s; `pytest test_run_workflow_locally.py` -> 119 passed, 1 skipped, 2.5 s. Seeded 3 mutations, each reverted with git checkout (tree clean of my edits): (a) quality_audit.meets_bar median `>= BAR` -> `> BAR`: 2 tests failed (test_bar_needs_every_gate, test_summary_uses_latest...); (b) ci_starvation.seconds `elapsed >= 0` -> `> 0`: 1 failed (test_a_job_finishing_within_its_first_second_lasted_zero_seconds); (c) Wilson denominator `1 + z*z/n` -> `1 + z/n`: 1 failed (test_wilson_known_values). 3 of 3 caught, by named boundary tests. Held back from 4 because no mutation run on unlanded_work.py or run_workflow_locally.py and no coverage figure.",
-  "craft": "Read quality_audit.py, ci_starvation.py (classify, seconds, report), pyenv.py (import_name, imports, index_reachable), unlanded_work.py header and structure. Good: stdlib only, injected `run`/`api` seams for tests, long comments recording measured incidents, explicit PENDING/SKIPPED verdicts. Defects: (1) pyenv.import_name('pillow>=9') returns 'pillow>=9' (version specifiers are not stripped) and import_name('pillow') returns 'pillow' not 'PIL' unless in table, so `imports()` builds `import pillow>=9`, a SyntaxError, returns False and triggers a reinstall every call; 'opencv-python' -> 'opencv_python' (only the -headless pair maps to cv2). (2) pyenv.index_reachable swallows every exception with a bare `except Exception` and returns False (silent fallback, a TLS/proxy error reads as 'index down'). (3) quality_audit.load_audits has no try/except: one malformed audit JSON crashes validate/summary with a traceback rather than a validate error; summarize() KeyErrors on an audit missing `subject`/`date`/`stratum`, and validate_audit does not check `seed`. (4) summarize()['rounds'] counts every audit file by date, not latest-per-subject, while every other figure uses latest, so a round's number can disagree with the scoreboard. (5) classify treats runner_id 0 + conclusion skipped as STARVED (only runner_id None is SKIPPED) and a string '0' as RAN.",
-  "claims": "Checked: ci_starvation.py docstring claim that a managed-Pages run must not report recovery -> backed by is_managed_pages and tests (is_managed_pages matches workflow_name 'pages build and deployment'). unlanded_work.py claim 'exit 0 means nothing stranded, not that the PR merged' -> its report text says so. quality_audit.py docstring 'standard library only' -> true (imports are all stdlib). CLAUDE.md claim that the `PY=$(pyenv.py ...)` form finds or installs an interpreter -> true, I ran it. Unbacked/stale: `gitops/ci/README.md` named twice as where to report (file gone); unlanded_work.py header cites 'four complete ventures' and '1,251 merged' figures from 2026-10-05 that cannot be re-derived from the repo now (historical, labelled with a date, so low severity). The module docstring of quality_audit.py says tests are in test_quality_audit.py: true (9 tests).",
-  "fitness": "Job walked: an agent session ends work and needs to know whether it is landed (unlanded_work.py: ran, got a correct, actionable STRANDED message listing the dirty path and next step), whether a red CI is starvation (ci_starvation --from-json: correct verdict, exit code 1, message), and whether a Python with pytest/numpy exists (pyenv: yes, ~1 min install). The intended user (an agent or the owner) can finish those jobs. Not walked: live ci_starvation --run against GitHub and run_workflow_locally --for-changes to completion.",
-  "domain": "Compared with practice for merge-gate tooling: tests assert on the real boundary (zero-second job, gate+median), verdict is decided on one authoritative field (runner_id) and reasoned in comments, exit codes are meaningful, partial-clone probing of refs/pull/*/head to find stranded commits is a sound git technique. Departures: no cancelled-vs-starved distinction (a cancelled-before-start job with runner_id 0 is reported as starved), no coverage measurement, 112 scripts in one flat directory with no machine-readable map of gate -> workflow."
- },
- "defects": [
-  {
-   "severity": "medium",
-   "what": "Operator-facing message and docstring send the reader to gitops/ci/README.md, which was deleted on 2026-10-30; the instruction in a core tool's output cannot be followed.",
-   "where": "platform/ci/ci_starvation.py:45,271"
+  "date": "2026-11-08",
+  "subject": "platform/ci",
+  "stratum": "platform",
+  "seed": "2026-11-08-b",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior release/CI platform engineer (SRE class) who owns a monorepo's merge gates and CI tooling. First checks: does a gate give a wrong answer silently (false green), do the tests fail when the logic is broken, and do the operator messages point at things that exist.",
+  "scores": {
+    "correctness": 3,
+    "completeness": 2,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 3
   },
-  {
-   "severity": "medium",
-   "what": "pyenv.import_name does not strip version specifiers or extras ('pillow>=9' -> 'pillow>=9') and lacks mappings such as opencv-python -> cv2, pillow -> PIL when not in the table; imports() then emits invalid `import pillow>=9`, returns False and reinstalls on every call.",
-   "where": "platform/ci/pyenv.py:72-80,102-107"
+  "evidence": {
+    "correctness": "Sampled 5 core scripts (unlanded_work.py 472 lines, ci_starvation.py 508, run_workflow_locally.py 1391, quality_audit.py 272, pyenv.py 296) of ~112 non-test scripts. Recomputed 4 outputs independently: (1) Wilson interval for (k,n) in {(3,10),(0,5),(7,7),(1,2),(12,37)} against a separate closed-form quadratic solution of the score equation: all agree to 1e-16 (3/10 -> 0.1078 to 0.6032). (2) `quality_audit.py summary` headline '16 of 84 sampled meet the bar' recomputed from the raw audit JSON with my own latest-per-subject and gate+median code: 84 and 16, identical. (3) ci_starvation.classify on hand-built jobs: runner_id 0 -> starved, 9 -> ran, None+skipped -> skipped, None -> raises; `--from-json` run printed 1 of 2 never got a runner, exit 1, as hand-expected. (4) `python3 platform/ci/unlanded_work.py` on this checkout exited 1 with STRANDED, correct because the tree had an uncommitted path (research/impact-twin/.../model.py, not mine). Not reached: run_workflow_locally.py output not recomputed (its --for-changes run exceeded 120 s and I stopped it), so the 1391-line file is scored on tests and reading only. Capped at 3 for that and the defects below.",
+    "completeness": "Claims checked: CLAUDE.md names unlanded_work.py (works, exit code honest), ci_starvation.py --run (offline --from-json works; live --run needs network/token, not exercised), run_workflow_locally.py --for-changes (starts, did not finish in 120 s, not verified end to end), quality_audit.py sample/validate/summary (all work; `validate` run: see below), pyenv.py (ran: installed pytest+numpy, printed interpreter path, exit 0). Dead pointer: ci_starvation.py lines 45 and 271 tell the operator to report unblocks in `gitops/ci/README.md`, but gitops/ was deleted on 2026-10-30 per CLAUDE.md; the directory does not exist. Untested scripts: of the .py files, only check_orphan_pages, check_pages_links, check_svg_names, main_health, runner_probe lack a sibling test_*.py (5 of ~110, good). 220 entries in the directory with no index of which gate is wired into which workflow was not found by me. Score 2 because a printed instruction in a core tool points at a deleted file and one core script was not verified end to end.",
+    "verification": "Ran `python3 -m pytest -q test_ci_starvation.py test_pyenv.py test_quality_audit.py test_unlanded_work.py` -> 141 passed, 3 subtests, 3.96 s; `pytest test_run_workflow_locally.py` -> 119 passed, 1 skipped, 2.5 s. Seeded 3 mutations, each reverted with git checkout (tree clean of my edits): (a) quality_audit.meets_bar median `>= BAR` -> `> BAR`: 2 tests failed (test_bar_needs_every_gate, test_summary_uses_latest...); (b) ci_starvation.seconds `elapsed >= 0` -> `> 0`: 1 failed (test_a_job_finishing_within_its_first_second_lasted_zero_seconds); (c) Wilson denominator `1 + z*z/n` -> `1 + z/n`: 1 failed (test_wilson_known_values). 3 of 3 caught, by named boundary tests. Held back from 4 because no mutation run on unlanded_work.py or run_workflow_locally.py and no coverage figure.",
+    "craft": "Read quality_audit.py, ci_starvation.py (classify, seconds, report), pyenv.py (import_name, imports, index_reachable), unlanded_work.py header and structure. Good: stdlib only, injected `run`/`api` seams for tests, long comments recording measured incidents, explicit PENDING/SKIPPED verdicts. Defects: (1) pyenv.import_name('pillow>=9') returns 'pillow>=9' (version specifiers are not stripped) and import_name('pillow') returns 'pillow' not 'PIL' unless in table, so `imports()` builds `import pillow>=9`, a SyntaxError, returns False and triggers a reinstall every call; 'opencv-python' -> 'opencv_python' (only the -headless pair maps to cv2). (2) pyenv.index_reachable swallows every exception with a bare `except Exception` and returns False (silent fallback, a TLS/proxy error reads as 'index down'). (3) quality_audit.load_audits has no try/except: one malformed audit JSON crashes validate/summary with a traceback rather than a validate error; summarize() KeyErrors on an audit missing `subject`/`date`/`stratum`, and validate_audit does not check `seed`. (4) summarize()['rounds'] counts every audit file by date, not latest-per-subject, while every other figure uses latest, so a round's number can disagree with the scoreboard. (5) classify treats runner_id 0 + conclusion skipped as STARVED (only runner_id None is SKIPPED) and a string '0' as RAN.",
+    "claims": "Checked: ci_starvation.py docstring claim that a managed-Pages run must not report recovery -> backed by is_managed_pages and tests (is_managed_pages matches workflow_name 'pages build and deployment'). unlanded_work.py claim 'exit 0 means nothing stranded, not that the PR merged' -> its report text says so. quality_audit.py docstring 'standard library only' -> true (imports are all stdlib). CLAUDE.md claim that the `PY=$(pyenv.py ...)` form finds or installs an interpreter -> true, I ran it. Unbacked/stale: `gitops/ci/README.md` named twice as where to report (file gone); unlanded_work.py header cites 'four complete ventures' and '1,251 merged' figures from 2026-10-05 that cannot be re-derived from the repo now (historical, labelled with a date, so low severity). The module docstring of quality_audit.py says tests are in test_quality_audit.py: true (9 tests).",
+    "fitness": "Job walked: an agent session ends work and needs to know whether it is landed (unlanded_work.py: ran, got a correct, actionable STRANDED message listing the dirty path and next step), whether a red CI is starvation (ci_starvation --from-json: correct verdict, exit code 1, message), and whether a Python with pytest/numpy exists (pyenv: yes, ~1 min install). The intended user (an agent or the owner) can finish those jobs. Not walked: live ci_starvation --run against GitHub and run_workflow_locally --for-changes to completion.",
+    "domain": "Compared with practice for merge-gate tooling: tests assert on the real boundary (zero-second job, gate+median), verdict is decided on one authoritative field (runner_id) and reasoned in comments, exit codes are meaningful, partial-clone probing of refs/pull/*/head to find stranded commits is a sound git technique. Departures: no cancelled-vs-starved distinction (a cancelled-before-start job with runner_id 0 is reported as starved), no coverage measurement, 112 scripts in one flat directory with no machine-readable map of gate -> workflow."
   },
-  {
-   "severity": "medium",
-   "what": "quality_audit.load_audits and summarize are unguarded: a malformed audit JSON raises a traceback in validate/summary instead of a reported problem; an audit with no subject/date/stratum raises KeyError in summarize; validate never checks `seed`.",
-   "where": "platform/ci/quality_audit.py:80-88,155-160"
-  },
-  {
-   "severity": "low",
-   "what": "summarize()['rounds'] counts every audit file per date while strata/dimension figures use latest-per-subject, so per-round meets_bar can disagree with the scoreboard after a re-audit.",
-   "where": "platform/ci/quality_audit.py:176-180"
-  },
-  {
-   "severity": "low",
-   "what": "ci_starvation.classify reports a skipped job with runner_id 0 as STARVED and a string runner_id '0' as RAN; cancelled-before-start (runner_id 0) is not distinguished from starvation.",
-   "where": "platform/ci/ci_starvation.py:155-176"
-  },
-  {
-   "severity": "low",
-   "what": "pyenv.index_reachable swallows every exception and returns False, hiding TLS/proxy errors as 'index unreachable'.",
-   "where": "platform/ci/pyenv.py:115"
-  },
-  {
-   "severity": "low",
-   "what": "No sibling tests for check_orphan_pages, check_pages_links, check_svg_names, main_health, runner_probe; no coverage figure for the directory; run_workflow_locally --for-changes did not finish in 120 s on a clean-ish tree with no progress note.",
-   "where": "platform/ci/"
-  }
- ],
- "fix_prs": [],
- "verdict": "platform/ci is a mature, well-tested toolbox: the five sampled core scripts pass 260 tests, three seeded mutations in boundary logic were each caught, and four independently recomputed outputs (Wilson intervals, the 16-of-84 scoreboard, starvation verdicts, the stranded-work exit code) were right. It is held below the bar by claims and completeness: a core tool's output points operators at a deleted gitops/ci/README.md, pyenv mishandles pip specifiers it advertises accepting, and quality_audit crashes rather than reports on malformed input. Only 5 of ~112 scripts were sampled and run_workflow_locally was not run to completion, so this is an estimate for the directory, not a full audit. Scores are before any fix."
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Operator-facing message and docstring send the reader to gitops/ci/README.md, which was deleted on 2026-10-30; the instruction in a core tool's output cannot be followed.",
+      "where": "platform/ci/ci_starvation.py:45,271"
+    },
+    {
+      "severity": "medium",
+      "what": "pyenv.import_name does not strip version specifiers or extras ('pillow>=9' -> 'pillow>=9') and lacks mappings such as opencv-python -> cv2, pillow -> PIL when not in the table; imports() then emits invalid `import pillow>=9`, returns False and reinstalls on every call.",
+      "where": "platform/ci/pyenv.py:72-80,102-107"
+    },
+    {
+      "severity": "medium",
+      "what": "quality_audit.load_audits and summarize are unguarded: a malformed audit JSON raises a traceback in validate/summary instead of a reported problem; an audit with no subject/date/stratum raises KeyError in summarize; validate never checks `seed`.",
+      "where": "platform/ci/quality_audit.py:80-88,155-160"
+    },
+    {
+      "severity": "low",
+      "what": "summarize()['rounds'] counts every audit file per date while strata/dimension figures use latest-per-subject, so per-round meets_bar can disagree with the scoreboard after a re-audit.",
+      "where": "platform/ci/quality_audit.py:176-180"
+    },
+    {
+      "severity": "low",
+      "what": "ci_starvation.classify reports a skipped job with runner_id 0 as STARVED and a string runner_id '0' as RAN; cancelled-before-start (runner_id 0) is not distinguished from starvation.",
+      "where": "platform/ci/ci_starvation.py:155-176"
+    },
+    {
+      "severity": "low",
+      "what": "pyenv.index_reachable swallows every exception and returns False, hiding TLS/proxy errors as 'index unreachable'.",
+      "where": "platform/ci/pyenv.py:115"
+    },
+    {
+      "severity": "low",
+      "what": "No sibling tests for check_orphan_pages, check_pages_links, check_svg_names, main_health, runner_probe; no coverage figure for the directory; run_workflow_locally --for-changes did not finish in 120 s on a clean-ish tree with no progress note.",
+      "where": "platform/ci/"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14058"
+  ],
+  "verdict": "platform/ci is a mature, well-tested toolbox: the five sampled core scripts pass 260 tests, three seeded mutations in boundary logic were each caught, and four independently recomputed outputs (Wilson intervals, the 16-of-84 scoreboard, starvation verdicts, the stranded-work exit code) were right. It is held below the bar by claims and completeness: a core tool's output points operators at a deleted gitops/ci/README.md, pyenv mishandles pip specifiers it advertises accepting, and quality_audit crashes rather than reports on malformed input. Only 5 of ~112 scripts were sampled and run_workflow_locally was not run to completion, so this is an estimate for the directory, not a full audit. Scores are before any fix."
 }
