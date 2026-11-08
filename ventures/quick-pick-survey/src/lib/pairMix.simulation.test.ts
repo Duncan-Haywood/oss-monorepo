@@ -36,6 +36,9 @@ const NOISELESS = process.env.MIX_ANSWERER === "noiseless";
 // (the selector uses Math.random), a first-option share only after 30 decided
 // answers (slot A share), and a random A/B slot shuffle before the answer.
 const ROUTE = process.env.MIX_ROUTE === "1";
+// MIX_TRUTH_ORDER=1: the hidden value falls with the item's position (item-0000 best),
+// as in the route tests (lower sortOrder wins) and unlike the loop's random truth.
+const TRUTH_ORDER = process.env.MIX_TRUTH_ORDER === "1";
 const ONLY_SELECTOR = process.env.MIX_SELECTOR; // "staged" | "shipped"
 
 type Policy = typeof selectNextPair;
@@ -47,7 +50,7 @@ function run(policy: Policy, seed: number) {
   const items: PairItem[] = [];
   const timesShown = new Map<string, number>();
   for (let i = 0; i < N; i++) {
-    truth.push(rand() * 2 - 1);
+    truth.push(TRUTH_ORDER ? 1 - (2 * i) / (N - 1) : rand() * 2 - 1);
     state.push({ ...DEFAULT_GLICKO_STATE });
     items.push({ id: `item-${String(i).padStart(4, "0")}`, rating: DEFAULT_GLICKO_STATE.rating, rd: DEFAULT_GLICKO_STATE.rd, category: `category-${i % 6}`, dimensions: [`dimension-${i % 4}`] });
   }

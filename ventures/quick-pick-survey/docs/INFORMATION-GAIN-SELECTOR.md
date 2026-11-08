@@ -616,3 +616,31 @@ random truth does not copy). Those need Postgres or a stub of the three reads.
 Caveats: 3 seeds, one respondent, hand-run, clean answerer.
 Reproduce: `MIX_ROUTE=1 MIX_ANSWERER=noiseless MIX_SELECTOR=staged MEASURE_OUT=out.txt
 npx vitest run -c vitest.simulations.config.ts src/lib/pairMix.simulation.test.ts`.
+
+### Found: the dip came from admitting items in id order (2026-11-08)
+
+`pairMix.simulation.test.ts` takes `MIX_TRUTH_ORDER=1`: the hidden value falls with
+the item's position (item-0000 best), as in the route tests (lower sortOrder wins),
+instead of the loop's random truth. Route-style call, noiseless, staged, 1000 items,
+seeds 11 to 13, fixed set at 500 / 1000 / 1500 / 2000 / 2500 / 3000 answers:
+
+| truth | 500 | 1000 | 1500 | 2000 | 2500 | 3000 |
+|---|---|---|---|---|---|---|
+| random (before) | 0.975 | 0.976 | 0.976 | 0.975 | 0.973 | 0.973 |
+| in id order (before) | 0.821 | 0.745 | 0.666 | 0.617 | 0.658 | 0.709 |
+| in id order, hash admission | 0.981 | 0.982 | 0.984 | 0.985 | 0.985 | 0.985 |
+
+The route's dip reproduces with no database, so it was not the route's reads
+(recent pairs, times shown, item order out of `findMany`): it was `admissionOrder`,
+which admitted items alphabetically by id inside each category. When ids follow
+a meaningful order (cuids rise with creation; an author who lists items by price,
+date or quality creates them in that order) the first stages saw a slice of the
+range, not a spread, and the rating of that slice degraded as the window grew.
+`admissionOrder` now sorts by a hash of the id (`admissionHash`: FNV-1a with a
+murmur finalizer; the first try, FNV-1a alone, clustered near-identical ids and
+only reached 0.92). Same id, same place, so the set still only grows. Unit
+tests: `pairing.test.ts`, "admissionOrder". The fast suite passes (300 tests).
+Caveats: noiseless answerer, 3 seeds, one respondent, hand-run; the live-Postgres
+`noisyRespondents` run was not repeated here (needs `scripts/test-db.sh start`).
+Reproduce: `MIX_TRUTH_ORDER=1 MIX_ROUTE=1 MIX_ANSWERER=noiseless MIX_SELECTOR=staged
+MEASURE_OUT=out.txt npx vitest run -c vitest.simulations.config.ts src/lib/pairMix.simulation.test.ts`.
