@@ -190,6 +190,8 @@ function classify(country, body) {
   if (country === "PE") return /^\d{11}$/.test(body) ? "checksum" : "bad-format";
   if (country === "CL") return /^\d{7,8}[0-9K]$/.test(body) ? "checksum" : "bad-format";
   if (country === "CO") return /^\d{9,11}$/.test(body) ? "checksum" : "bad-format";
+
+  if (country === "KZ") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
@@ -452,6 +454,17 @@ function inGstinOk(body) {
   return chars[(36 - (sum % 36)) % 36] === body[14];
 }
 
+// Kazakhstan BIN/IIN (12 digits): weights 1..11 mod 11; a remainder of 10 retries with
+// weights 3..11,1,2; a second 10 is invalid. The 12th digit is the check. The rule is the
+// widely published one, not the state revenue committee's text; pinned on a hand-computed number.
+function kzBinOk(body) {
+  const d = digitsOf(body);
+  const run = (w) => d.slice(0, 11).reduce((sum, x, i) => sum + x * w[i], 0) % 11;
+  let r = run([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+  if (r === 10) r = run([3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 2]);
+  return r !== 10 && r === d[11];
+}
+
 function checksumOk(country, body) {
   if (country === "DE") return deOk(body);
   if (country === "FR") return frOk(body);
@@ -481,6 +494,7 @@ function checksumOk(country, body) {
   if (country === "CL") return checkRut(body).ok;
   if (country === "CO") return checkNit(`${body.slice(0, -1)}-${body.slice(-1)}`).ok;
   if (country === "IN") return inGstinOk(body);
+  if (country === "KZ") return kzBinOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;

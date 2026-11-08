@@ -219,4 +219,10 @@ test("Latin American tax ids on a party (2026-11-08)", () => {
   assert.deepEqual(rules("BR12ABC34501DE35"), []);
   assert.deepEqual(rules("BR111.444.777-35"), []);
   assert.deepEqual(rules("BR1112"), ["INV-022"]);
+
+test("Kazakhstan BIN check digit (2026-11-08, hand-computed number)", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("KZ040701200547"), []);
+  assert.deepEqual(rules("KZ040701200548"), ["INV-023"]);
+  assert.deepEqual(rules("KZ0407012005"), ["INV-022"]);
 });
