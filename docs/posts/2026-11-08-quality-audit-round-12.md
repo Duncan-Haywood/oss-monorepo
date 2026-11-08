@@ -2,7 +2,7 @@
 title: "Quality audit round 12: one of five audited subjects at the bar, and an empty directory in the sample"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Seed 2026-11-08, six subjects: only an exact-DP research project meets the bar; a flagship, two ventures and a statistics project miss on claims or verification; platform/skills is an empty placeholder."
+description: "Seed 2026-11-08, six subjects: only selfrep-exactdp meets the bar; four miss on claims or verification, and platform/skills is an empty placeholder."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix.
