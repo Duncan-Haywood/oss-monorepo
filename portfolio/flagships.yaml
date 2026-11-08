@@ -38,21 +38,22 @@ flagships:
       History, dates and how each slice was checked: ventures/wall-framing-
       takeoff/README.md and ROADMAP.md (recent: whole-house run on the Schultz IFC
       frames every wood wall on all three floors with `--whole-house`; `--stack`
-      2026-11-08 orders several floors' plans together, run it on the Schultz
-      floors next; stepped walls, door and window schedule, wall panels, schedule
-      and cash flow; deck ledger fastener check 2026-11-08). Wanted, all needing
-      real inputs: a real builder's activity list and draw schedule for
-      `--schedule` (payment lag, retainage); a real permitted deck plan (deck
-      framing, guards and stairs are hand arithmetic only); stair stringer and
-      landing post tables, winder radial supports, lateral-load connector and
-      anchor sizes; a real architect's DXF; a real US wood-framed IFC and a
-      framer's takeoff of the Schultz house to compare with (open: 2nd Floor Int 1
-      and 3rd Floor Int 9 tees and door-near-end cases, README); a plumber's real
-      drain runs for `--drilling`; a real foundation plan; ceiling steps against a
-      real soffit; trim, drywall and siding against real orders and hangs; bid
-      leveling on real bids and a real sub's labor rates; gable sheathing nested
-      on real sheets; insulation against a real order. When a slice lands, replace
-      its item here and put its history in the README.
+      2026-11-08 orders several floors' plans together (run on the Schultz floors
+      2026-11-08: 49 walls, 0.28% less than ordering apart); stepped walls, door
+      and window schedule, wall panels, schedule and cash flow; deck ledger
+      fastener check 2026-11-08). Wanted, all needing real inputs: a real
+      builder's activity list and draw schedule for `--schedule` (payment lag,
+      retainage); a real permitted deck plan (deck framing, guards and stairs are
+      hand arithmetic only); stair stringer and landing post tables, winder radial
+      supports, lateral-load connector and anchor sizes; a real architect's DXF; a
+      real US wood-framed IFC and a framer's takeoff of the Schultz house to
+      compare with (open: 2nd Floor Int 1 and 3rd Floor Int 9 tees and door-near-
+      end cases, README); a plumber's real drain runs for `--drilling`; a real
+      foundation plan; ceiling steps against a real soffit; trim, drywall and
+      siding against real orders and hangs; bid leveling on real bids and a real
+      sub's labor rates; gable sheathing nested on real sheets; insulation against
+      a real order. When a slice lands, replace its item here and put its history
+      in the README.
   - venture: ai-bookkeeper
     why: >-
       A double-entry ledger in integer cents with a four-layer categorizer that
