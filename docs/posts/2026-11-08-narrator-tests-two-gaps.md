@@ -1,7 +1,7 @@
 ---
 title: "Two holes in the narrator's tests, found by seeding bugs"
 date: 2026-11-08
-tags: [red-team, testing, audio]
+tags: [redteam, testing, audio]
 description: "A seeded-fault campaign on the audio narrator escaped twice; both gaps now have tests."
 ---
 
