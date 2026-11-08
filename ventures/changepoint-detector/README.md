@@ -1737,3 +1737,12 @@ Limits: 24 points, one series, one cause; the Commission's arrival coincided wit
 ## Australian gas: how borderline is the clearing? (2026-11-08)
 
 The gas takeoff above cleared its bar by about 1% with seed 1. `eval/au-gas-seeds.mjs` reruns the test over 20 Monte Carlo seeds (`eval/au-gas-seeds.out.txt`, test in `au-gas.test.mjs`): at 499 reps W = 12.23 clears the bar for **17 of 20 seeds** (p 0.032 to 0.066; bar 10.6 to 13.5); at 1,999 reps it clears for **19 of 20** (p 0.035 to 0.052; bar 11.2 to 12.4). Read plainly: the p-value is about 0.045, so this is a borderline real break, not a rout, and a single-seed "clears" should be quoted with that. Raising `reps` narrows the bar's wobble but cannot make the evidence stronger. Still wanted: a documented break clearing by a wide margin.
+
+## Australian arrivals from Japan: three documented shocks, found by different models (2026-11-08)
+
+`data/au-arrivals-japan.csv` (quarterly short-term arrivals from Japan, 1981Q1 to 2012Q3, 127 values, `fpp2::arrivals`, `au-arrivals-japan.test.mjs`; the series was in the repository only for the drift warning). Three shocks with known causes, dates recalled, not read from a source: the Asian financial crisis (1997-98), SARS (2003) and the global financial crisis (2008-09).
+
+- **Default mean model:** twelve cuts, including 1998Q4, 2003Q2 and 2009Q1. The crisis dates are found, among eight other cuts in a growing, cyclic series.
+- **`--model trend`:** four cuts (1987Q2, 1996Q2, 2003Q4, 2008Q2): SARS and the crisis year, but not 1998.
+- **`--model meanvar`:** dates 1998Q4 and 2008Q2 and nothing in 2003. **`--ar1 auto`:** eight cuts, keeps 1998Q4, loses SARS.
+- **What it says.** SARS, a two-quarter dip, is found only by the level and trend models; the models that fix over-cutting absorb it, as with the cement GST step. No model dates all three shocks and keeps the cut count low. One series, one country pair, no significance tested here.
