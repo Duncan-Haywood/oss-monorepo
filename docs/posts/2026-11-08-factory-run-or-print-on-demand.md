@@ -1,5 +1,6 @@
 ---
 title: "When does a factory run beat print-on-demand for a first clothing line?"
+seo_title: "Factory run or print-on-demand for a first line?"
 date: 2026-11-08
 tags: [clothing, ecommerce, clothing-design-studio]
 description: "A new page compares a factory run, print-on-demand and a mix of the two for one design under uncertain demand, and finds the sales level where the factory wins."

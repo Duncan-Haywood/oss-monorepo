@@ -1,5 +1,6 @@
 ---
 title: "Can a real panel survey measure how tolerant people are of other views?"
+seo_title: "Can a panel survey measure tolerance of other views?"
 date: 2026-11-08
 tags: [research, civ-levers, opinion-dynamics, GSS]
 description: "We fitted a bounded-confidence model to the GSS 2016-2020 panel. The data could not tell a finite tolerance from plain regression to the mean."

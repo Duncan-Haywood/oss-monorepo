@@ -1,5 +1,6 @@
 ---
 title: "Framing allowance rules against a real house: one is close, one over-orders by a quarter"
+seo_title: "Framing allowance rules against a real house"
 date: 2026-11-08
 tags: [construction, lumber, wall-framing-takeoff]
 description: "Two common stud-count rules of thumb set against a counted lumber order on a real three-floor house, with the numbers and what they do not show."
