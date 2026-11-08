@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fabric Shrinkage Calculator: What Size to Cut So the Washed Garment Fits</title>
+  <meta name="description" content="Wash a swatch, type the before and after lengths, and get the shrinkage in each direction, the size to cut so the washed garment lands on spec, and the extra fabric it costs. Free, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Fabric shrinkage allowance">
+  <meta property="og:description" content="Cut size and extra cloth from a wash test. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Fabric shrinkage allowance (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="spec.html">Measurement spec</a> · <a href="bom.html">Bill of materials</a> · <a href="inspection.html">Final inspection</a></p>
+  <h1>What size should you cut so the washed garment fits?</h1>
+  <p>Cotton jersey and many knits shrink in the first wash, more along the length than the width. Mark a swatch, wash it the way a customer would, measure again, and this works out how much bigger to cut each piece, and how much extra cloth that buys.</p>
+  <p class="placeholder">Your readings are the input; no test method or limit is assumed. If your buyer or contract names a method and a tolerance, use theirs. Not QC or legal advice.</p>
+  <div class="grid">
+    <section>
+      <h2>Wash-test readings</h2>
+      <p class="tag">One swatch per line: marked distance before, then after, same unit (cm). Mark at least 3 swatches, 35 to 50 cm apart, away from the edge.</p>
+      <label for="len">Along the length (wales)</label><textarea id="len" rows="4" style="width:100%;box-sizing:border-box">50 47
+50 47.5
+50 46.5</textarea>
+      <label for="wid">Across the width (courses)</label><textarea id="wid" rows="4" style="width:100%;box-sizing:border-box">50 49
+50 49.2
+50 48.8</textarea>
+      <h2 style="margin-top:14px">Finished (washed) measurements</h2>
+      <p class="tag">One per line: name, length or width, size in cm.</p>
+      <textarea id="pts" rows="6" style="width:100%;box-sizing:border-box">Body length, length, 70
+Sleeve length, length, 22
+Half chest, width, 52
+Hem width, width, 52</textarea>
+      <h2 style="margin-top:14px">Cloth cost (optional)</h2>
+      <div class="row"><div><label for="cloth">Cloth per garment (m)</label><input id="cloth" type="number" min="0" step="any" value="1.3"></div><div><label for="price">Price per metre</label><input id="price" type="number" min="0" step="any" value="5.2"></div></div>
+      <label for="qty">Garments in the run</label><input id="qty" type="number" min="0" step="1" value="300">
+    </section>
+    <section><h2>Shrinkage</h2><output id="sh" aria-live="polite"></output><h2 style="margin-top:14px">Size to cut</h2><output id="cut" aria-live="polite"></output><h2 style="margin-top:14px">Extra cloth</h2><output id="up" aria-live="polite"></output><div id="nt"></div></section>
+  </div>
+</main>
+  <script type="module">
+    import { summarise, cutSize, clothUplift, notes } from "./shrink.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const nums = line => (line.match(/-?\d+(?:\.\d+)?/g) || []).map(Number);
+    const reads = id => $(id).value.split("\n").filter(l => l.trim()).map((l, i) => { const [b, a] = nums(l); if (b === undefined || a === undefined) throw new Error(`Line ${i + 1} of the readings needs two numbers.`); return { before: b, after: a }; });
+    const pc = v => (v * 100).toFixed(1) + "%";
+    function run() {
+      const out = ["#sh", "#cut", "#up", "#nt"];
+      try {
+        const L = summarise(reads("#len")), W = summarise(reads("#wid"));
+        $("#sh").innerHTML = `<p class="big">${pc(L.mean)} long, ${pc(W.mean)} wide</p><p class="tag">Length: ${L.n} swatches, ${pc(L.min)} to ${pc(L.max)}. Width: ${W.n} swatches, ${pc(W.min)} to ${pc(W.max)}.</p>`;
+        const sh = { length: L.mean, width: W.mean };
+        const rows = $("#pts").value.split("\n").filter(l => l.trim()).map((l, i) => {
+          const p = l.split(","); const dir = (p[1] || "").trim().toLowerCase(); const v = parseFloat(p[2]);
+          if (p.length < 3 || !Number.isFinite(v)) throw new Error(`Measurement line ${i + 1}: write name, length or width, size.`);
+          return { name: p[0].trim(), dir, fin: v, ...cutSize(v, dir, sh) };
+        });
+        $("#cut").innerHTML = `<table><tr><th scope="col">Point</th><th scope="col" class="num">Washed spec</th><th scope="col" class="num">Cut at</th><th scope="col" class="num">Ends at if cut to spec</th></tr>${rows.map(r => `<tr><td>${esc(r.name)} (${r.dir})</td><td class="num">${r.fin.toFixed(1)}</td><td class="num"><strong>${r.cut.toFixed(1)}</strong></td><td class="num">${r.ifIgnored.toFixed(1)}</td></tr>`).join("")}</table>`;
+        const u = clothUplift({ ...sh, clothPerGarment: +$("#cloth").value || 0, pricePerUnit: +$("#price").value || 0, garments: +$("#qty").value || 0 });
+        $("#up").innerHTML = `<p class="big">${u.extraPct.toFixed(1)}% more cloth</p><p>${u.extraPerGarment.toFixed(2)} m more per garment, ${u.extraCostPerGarment.toFixed(2)} in cloth each, ${u.extraCostRun.toFixed(0)} over the run. Area rule: it ignores how pieces pack on the cloth width.</p>`;
+        $("#nt").innerHTML = [...notes(L, "Length"), ...notes(W, "Width")].map(n => `<p class="notes">${esc(n)}</p>`).join("");
+      } catch (e) { out.forEach(o => $(o).innerHTML = ""); $("#sh").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; }
+    }
+    document.addEventListener("input", () => { run(); recordUsage("shrink_calc"); });
+    run(); recordUsage("shrink_open");
+  </script>
+</body>
+</html>
