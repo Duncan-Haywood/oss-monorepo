@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtL1fWMJCphMZFE2TAF",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T22:29:08Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14139",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "sample drew no platform subject at seed 2026-11-08 although the README table says one is drawn; not investigated"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 (fix small defects with tests) skipped: audits' recommended fixes left for a later round to keep the PR to audit evidence; I also did not personally recompute a claimed number, relying on auditors' reports plus validate.",
+      "did": "recorded recommendations in audit files and post",
+      "result": "PR contains no fixes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-08-quality-audit-round-21.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-08; subjects: ventures/quick-pick-survey (flagship), ventures/monastery-site, ventures/cache-control-check, research/workcell-twin, research/selfrep-recyclers; sampled meeting bar 1 of 4 (Wilson 5%-70%); fix PRs: none",
+  "corrections": [],
+  "redteam": null
+}
