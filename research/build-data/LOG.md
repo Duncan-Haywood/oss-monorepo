@@ -1,5 +1,12 @@
 # build-data log
 
+## Session 56, 2026-11-08: milestone 7g (part), nonempty interval wired into the coverage run (no data run: feed hosts refused by the proxy)
+
+Why: session 55 built `cqr_interval_nonempty` but left the rerun of `prior_table3_cov.py` for a session with the feeds. This session's probe was refused (CONNECT 403 on all four data hosts; no pandas/lightgbm installed either), so **no number in `results/` changed and no coverage figure for the fix is claimed**.
+Done: `src/prior_table3_cov.py` `interval_stats` now reports a third arm, `dequantised_nonempty` (same jittered scores, `cqr_interval_nonempty`), beside `plain` and `dequantised`. `py_compile` passes; the 14 conformal tests pass (the function is unit tested, session 55); the script itself was not run, as it needs pandas and the feeds.
+Prediction for the rerun (written before it runs): `dequantised_nonempty` coverage is within 3 points of 80% in at least 4 of 5 sets, and no cell falls more than 1 point below its raw-interval coverage. Refuted if the 4 collapsing cells (Chicago and SF a2i full model, Austin a2i table and full model) stay more than 3 points under raw.
+Next: `python3 src/prior_table3_cov.py DIR --test-year 2024 --seeds 2` on a network that reaches the feeds.
+
 ## Session 55, 2026-11-08: milestone 7g, why the dequantised interval collapsed in coverage (diagnosis from saved results; no new data run)
 
 Why: session 54 left "investigate the dequantisation collapse" open. No predictions were written first; this is a post hoc reading of `results/prior_table3_cov_2024.json` (`src/dequant_diag.py`, output `results/dequant_diag.txt`) plus a mechanism I checked by hand on toy rows.
