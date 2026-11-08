@@ -50,7 +50,15 @@ _TILT_FREE_DEGREES = 0.5
 _TILT_FULL_PENALTY_DEGREES = 5.0
 _TILT_STORY_WEIGHT = 0.08
 _TILT_SEARCH_DEGREES = 15
-_TILT_MIN_EDGES = 200
+_TILT_MIN_EDGES = 30
+_TILT_MIN_ENERGY = 40.0
+_TILT_MIN_COHERENCE = 0.5
+_TILT_WINDOW_DEGREES = 1.5
+_TILT_BINS_PER_DEGREE = 4
+_TILT_SMOOTH_DEGREES = 1.5
+_VIDEO_SIZE_PATTERN = re.compile(r"Video:.*?[\s,](\d{2,5})x(\d{2,5})[\s,\[]")
+_SAMPLE_ASPECT_PATTERN = re.compile(r"SAR\s+(\d+):(\d+)")
+_ROTATION_PATTERN = re.compile(r"rotation of\s+(-?\d+(?:\.\d+)?)")
 _NOISE_FREE_SIGMA = 2.0
 _NOISE_FULL_PENALTY_SIGMA = 12.0
 _NOISE_TECHNICAL_WEIGHT = 0.15
@@ -109,11 +117,13 @@ def analyze_media(tools: FfmpegTools, source: Path, *, media_type: str) -> Frame
 
     if media_type == "photo" and is_raw_path(source):
         return _analyze_raw_preview(tools, source)
-    duration = _probe_duration(tools, source) if media_type == "video" else None
+    duration, aspect = _probe_stream(tools, source)
+    if media_type != "video":
+        duration = None
     frames = _decode_frames(tools, source, media_type=media_type, duration=duration)
     if not frames:
         raise FfmpegMediaError(f"ffmpeg decoded no frames from {source.name}")
-    return metrics_from_frames(frames, duration_seconds=duration)
+    return metrics_from_frames(frames, duration_seconds=duration, source_aspect=aspect)
 
 
 def _analyze_raw_preview(tools: FfmpegTools, source: Path) -> FrameMetrics:
@@ -125,10 +135,11 @@ def _analyze_raw_preview(tools: FfmpegTools, source: Path) -> FrameMetrics:
     with tempfile.TemporaryDirectory(prefix="shootflow-raw-") as scratch:
         jpeg = Path(scratch) / "preview.jpg"
         jpeg.write_bytes(preview)
+        _, aspect = _probe_stream(tools, jpeg)
         frames = _decode_frames(tools, jpeg, media_type="photo", duration=None)
     if not frames:
         raise FfmpegMediaError(f"ffmpeg decoded no frames from the preview in {source.name}")
-    return metrics_from_frames(frames)
+    return metrics_from_frames(frames, source_aspect=aspect)
 
 
 def metrics_from_frames(
@@ -137,8 +148,15 @@ def metrics_from_frames(
     duration_seconds: float | None = None,
     width: int = FRAME_WIDTH,
     height: int = FRAME_HEIGHT,
+    source_aspect: float | None = None,
 ) -> FrameMetrics:
-    """Compute metrics from raw 8-bit grayscale frames of ``width`` x ``height``."""
+    """Compute metrics from raw 8-bit grayscale frames of ``width`` x ``height``.
+
+    ``source_aspect`` is the picture's displayed width over height. The frames
+    are stretched to ``width`` x ``height`` whatever the picture's shape, which
+    squashes every angle; the tilt reading undoes that. ``None`` means the
+    frames are taken as undistorted.
+    """
 
     if not frames:
         raise ValueError("at least one frame is required")
@@ -158,7 +176,8 @@ def metrics_from_frames(
         motion = _clamp(sum(diffs) / len(diffs) / 32.0)
     variance = sorted(sharpness_values)[len(sharpness_values) // 2]
     framing, subject_x, subject_y = framing_from_frame(frames[best], width, height)
-    tilt, tilt_confidence = tilt_from_frame(frames[best], width, height)
+    stretch = 1.0 if not source_aspect else source_aspect / (width / height)
+    tilt, tilt_confidence = tilt_from_frame(frames[best], width, height, stretch)
     noise_sigma = noise_sigmas[best]
     return FrameMetrics(
         sharpness=round(variance / (variance + _SHARPNESS_HALF_POINT), 6),
@@ -215,45 +234,84 @@ def framing_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRA
     return _clamp(0.6 * placement + 0.4 * isolation), cx, cy
 
 
-def tilt_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> tuple[float, float]:
+def tilt_from_frame(
+    frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT, stretch: float = 1.0
+) -> tuple[float, float]:
     """Estimate how far the frame leans off level: ``(tilt_degrees, confidence)``.
 
-    Strong edges vote with their gradient magnitude for the angle they sit off
-    the nearest axis (horizon, doorframe, wall: the world is mostly axis
-    aligned). The estimate is the weighted mean angle of the votes within
-    15 degrees of an axis, around the busiest degree. Confidence is the share
-    of strong-edge weight inside that window, 0 when there are too few strong
-    edges (a plain sky, a texture) to say. Positive tilt means the right side is
-    lower. A frame of tilted subjects (a diagonal staircase, a dancer) has
-    confidence near 0 and is not penalised.
+    Sobel gradients are pooled over 5x5 windows into a structure tensor, which
+    gives each window one edge direction and a coherence (1 for a straight edge,
+    near 0 for texture, a corner or noise). Only coherent windows vote, with
+    their edge energy times coherence, for the angle they sit off the nearest
+    axis (horizon, doorframe, wall: the world is mostly axis aligned). The votes
+    within 15 degrees of an axis go into quarter-degree bins, smoothed, and the
+    estimate is the weighted mean of the votes within 1.5 degrees of the
+    smoothed peak. Confidence is the share of near-axis vote weight inside that
+    window, 0 when there are too few coherent edges (a plain sky, a texture) to
+    say. Positive tilt means the right side is lower. A frame of tilted subjects
+    (a diagonal staircase, a dancer) has confidence near 0 and is not penalised.
+
+    ``stretch`` is the picture's aspect over the frame's: a 3:2 photo squashed
+    into a 16:9 frame has stretch 0.84, and vertical differences are scaled by it
+    so a 5 degree lean reads 5 degrees, not 4.
     """
 
-    votes: list[tuple[float, float]] = []
+    count = width * height
+    gx = [0.0] * count
+    gy = [0.0] * count
     for y in range(1, height - 1):
-        row, below, above = y * width, (y + 1) * width, (y - 1) * width
+        above, row, below = (y - 1) * width, y * width, (y + 1) * width
         for x in range(1, width - 1):
-            gx = frame[row + x + 1] - frame[row + x - 1]
-            gy = frame[below + x] - frame[above + x]
-            magnitude = math.hypot(gx, gy)
-            if magnitude < 20.0:
+            gx[row + x] = (
+                frame[above + x + 1] + 2 * frame[row + x + 1] + frame[below + x + 1]
+                - frame[above + x - 1] - 2 * frame[row + x - 1] - frame[below + x - 1]
+            )
+            gy[row + x] = (
+                frame[below + x - 1] + 2 * frame[below + x] + frame[below + x + 1]
+                - frame[above + x - 1] - 2 * frame[above + x] - frame[above + x + 1]
+            ) * stretch
+    reach = 2
+    votes: list[tuple[float, float]] = []
+    for y in range(reach, height - reach, 2):
+        for x in range(reach, width - reach, 2):
+            sxx = sxy = syy = 0.0
+            for yy in range(y - reach, y + reach + 1):
+                base = yy * width
+                for xx in range(x - reach, x + reach + 1):
+                    ax, ay = gx[base + xx], gy[base + xx]
+                    sxx += ax * ax
+                    sxy += ax * ay
+                    syy += ay * ay
+            energy = sxx + syy
+            if energy < 4.0 * _TILT_MIN_ENERGY * _TILT_MIN_ENERGY:
                 continue
-            angle = math.degrees(math.atan2(gy, gx)) % 90.0
-            votes.append((angle - 90.0 if angle > 45.0 else angle, magnitude))
-    if len(votes) < _TILT_MIN_EDGES:
+            coherence = math.hypot(sxx - syy, 2.0 * sxy) / energy
+            if coherence < _TILT_MIN_COHERENCE:
+                continue
+            # Direction of the gradient; the edge runs at right angles to it.
+            angle = math.degrees(0.5 * math.atan2(2.0 * sxy, sxx - syy)) % 90.0
+            votes.append((angle - 90.0 if angle > 45.0 else angle, math.sqrt(energy) * coherence))
+    near = [(d, w) for d, w in votes if abs(d) <= _TILT_SEARCH_DEGREES]
+    near_weight = sum(w for _, w in near)
+    if len(near) < _TILT_MIN_EDGES or near_weight <= 0.0:
         return 0.0, 0.0
-    # Votes near +-45 degrees are diagonals, not horizons; the window ignores them.
-    bins = [0.0] * (2 * _TILT_SEARCH_DEGREES + 1)
-    for deviation, weight in votes:
-        if abs(deviation) <= _TILT_SEARCH_DEGREES:
-            bins[round(deviation) + _TILT_SEARCH_DEGREES] += weight
-    peak = max(range(len(bins)), key=lambda index: bins[index]) - _TILT_SEARCH_DEGREES
-    window = [(d, w) for d, w in votes if abs(d - peak) <= 1.5]
+    per = _TILT_BINS_PER_DEGREE
+    bins = [0.0] * (2 * _TILT_SEARCH_DEGREES * per + 1)
+    for deviation, weight in near:
+        bins[round((deviation + _TILT_SEARCH_DEGREES) * per)] += weight
+    spread = int(3 * _TILT_SMOOTH_DEGREES * per)
+    kernel = [math.exp(-0.5 * (i / (_TILT_SMOOTH_DEGREES * per)) ** 2) for i in range(-spread, spread + 1)]
+    smooth = [
+        sum(bins[j + i] * kernel[i + spread] for i in range(-spread, spread + 1) if 0 <= j + i < len(bins))
+        for j in range(len(bins))
+    ]
+    peak = max(range(len(smooth)), key=lambda index: smooth[index]) / per - _TILT_SEARCH_DEGREES
+    window = [(d, w) for d, w in near if abs(d - peak) <= _TILT_WINDOW_DEGREES]
     window_weight = sum(w for _, w in window)
     if window_weight <= 0.0:
         return 0.0, 0.0
     mean = sum(d * w for d, w in window) / window_weight
-    confidence = window_weight / sum(w for _, w in votes)
-    return mean, _clamp(confidence)
+    return mean, _clamp(window_weight / near_weight)
 
 
 def noise_sigma_from_frame(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> float:
@@ -342,7 +400,13 @@ def _decode_frames(
     return [data[i : i + _FRAME_BYTES] for i in range(0, len(data) - _FRAME_BYTES + 1, _FRAME_BYTES)]
 
 
-def _probe_duration(tools: FfmpegTools, source: Path) -> float | None:
+def _probe_stream(tools: FfmpegTools, source: Path) -> tuple[float | None, float | None]:
+    """Read ``(duration seconds, displayed width / height)`` from ffmpeg's banner.
+
+    Either is ``None`` when ffmpeg does not print it. The aspect allows for a
+    non-square pixel and a sideways phone photo (a 90 degree display matrix).
+    """
+
     try:
         completed = subprocess.run(
             [tools.ffmpeg, "-hide_banner", "-nostdin", "-i", f"file:{source}"],
@@ -353,12 +417,28 @@ def _probe_duration(tools: FfmpegTools, source: Path) -> float | None:
             check=False,
         )
     except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None, None
+    banner = completed.stderr.decode("utf-8", errors="replace")
+    duration = None
+    match = _DURATION_PATTERN.search(banner)
+    if match is not None:
+        hours, minutes, seconds = match.groups()
+        duration = round(int(hours) * 3600 + int(minutes) * 60 + float(seconds), 3)
+    return duration, _aspect_from_banner(banner)
+
+
+def _aspect_from_banner(banner: str) -> float | None:
+    size = _VIDEO_SIZE_PATTERN.search(banner)
+    if size is None:
         return None
-    match = _DURATION_PATTERN.search(completed.stderr.decode("utf-8", errors="replace"))
-    if match is None:
-        return None
-    hours, minutes, seconds = match.groups()
-    return round(int(hours) * 3600 + int(minutes) * 60 + float(seconds), 3)
+    width, height = int(size.group(1)), int(size.group(2))
+    sample = _SAMPLE_ASPECT_PATTERN.search(banner)
+    if sample is not None and int(sample.group(1)) > 0 and int(sample.group(2)) > 0:
+        width = width * int(sample.group(1)) / int(sample.group(2))
+    rotation = _ROTATION_PATTERN.search(banner)
+    if rotation is not None and round(float(rotation.group(1)) / 90.0) % 2 != 0:
+        width, height = height, width
+    return width / height
 
 
 def _laplacian_variance(frame: bytes, width: int, height: int) -> float:
