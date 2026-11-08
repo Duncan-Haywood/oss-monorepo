@@ -15,7 +15,7 @@ const NOMINAL = { "2x6": 5.5, "2x8": 7.25, "2x10": 9.25, "2x12": 11.25 };
 const POST = { "4x4": 3.5, "6x6": 5.5 };
 const CU_IN_PER_YD = 46656;
 
-/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, postCheck?: { deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number }, beamCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }, joistCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, border?: number | boolean, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, blocking?: { every: number }, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
+/** @typedef {{ id?: string, width: number, depth: number, height: number, joist?: string, spacing?: number, beam?: string, beamPlies?: number, freestanding?: boolean, postCheck?: { deadPsf: number, livePsf: number, fc: number, emin: number, fcPerp?: number }, beamCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }, joistCheck?: { deadPsf: number, livePsf: number, Fb: number, Fv: number, E: number, deflLimit?: number }, ledgerCheck?: { deadPsf: number, livePsf: number, fastenerCapacity: number, perFastenerSpacing?: number }, overhang?: number, postSize?: string, postInset?: number, maxPostSpacing?: number, border?: number | boolean, deckBoard?: { width?: number, thickness?: number, gap?: number, size?: string }, footing?: { diameter?: number, depth?: number, bagYield?: number }, screwsPerBox?: number, blocking?: { every: number }, railPostSpacing?: number, guard?: false | { sides?: ("outer"|"left"|"right"|"inner")[], threshold?: number, railBoard?: string, balusterWidth?: number, postWidth?: number, limits?: object }, spanTable?: { joist: string, spacing: number, maxSpan: number }[], stock?: { size: string, length: number, price: number }[] }} Deck */
 
 export function sampleDeck() {
   return { id: "Rear deck", width: 192, depth: 144, height: 36, joist: "2x8", spacing: 16, beam: "2x10", beamPlies: 2, overhang: 12, postSize: "6x6" };
@@ -248,6 +248,7 @@ export function layoutDeck(d) {
     ok: true, id, width: d.width, depth: d.depth, height: d.height, joistSize: joist, beamSize: beam, beamPlies: plies, postSize, spacing, freestanding, overhang,
     centres, joists, rims, posts, postLength: postLen, beamPieces, beamBoards, concrete, rows, deckBoards, borderBoards, borderCourses: nb, fieldWidth: fieldW, fieldDepth: fieldD, joints, screws, screwBoxes: Math.ceil(screws / screwsPerBox), hardware, railPosts, guard, blocking,
     joistCheck: d.joistCheck ? checkDeckJoists({ size: joist, spacing, span: joistSpan, overhang }, d.joistCheck) : undefined,
+    ledgerCheck: d.ledgerCheck ? (freestanding ? { ok: false, errors: ["ledgerCheck needs an attached deck; a freestanding deck has no ledger on the house."] } : checkDeckLedger({ width: d.width, joistSpan, overhang, hardwareQty: Math.ceil(d.width / 16) * 2 }, d.ledgerCheck)) : undefined,
     beamCheck: d.beamCheck ? checkDeckBeam({ size: beam, plies, joistSpan, overhang, posts }, d.beamCheck) : undefined,
     postCheck: d.postCheck ? checkDeckPosts({ joistSpan, overhang, posts, postSize, postLength: postLen, beamPlies: plies, footingDiameter: concrete.diameter }, d.postCheck) : undefined,
     lumber, orders, area, cost: orders.reduce((s, o) => s + o.cost, 0), joistSpan, warnings, notes,
@@ -368,6 +369,34 @@ export function checkDeckBeam(b, spec) {
   return { ok: true, size: b.size, plies: b.plies, span: L, w, bending: { stress: fb, allowable: spec.Fb, moment: M }, shear: { stress: fv, allowable: spec.Fv, force: V }, deflection: { value: defl, limit }, passes: fb <= spec.Fb && fv <= spec.Fv && defl <= limit };
 }
 
+/**
+ * Ledger-to-house fastener check from typed figures (nothing is shipped). The ledger takes the joists' reaction on
+ * the house side, w (L^2 - c^2) / (2 L) per joist, which per foot of ledger is (dead + live) psf x (L^2 - c^2) /
+ * (2 L) / 12 (L the joist span, c the cantilever). The fasteners' allowable lateral (shear) value in lb each is
+ * typed from the maker's or your code's table, already adjusted for the house rim and the ledger. Provided spacing
+ * is the plan's two fasteners per 16 in (8 in each on average) unless `perFastenerSpacing` says otherwise; required
+ * is capacity / load per inch. Withdrawal, the house rim's own strength, flashing and the lateral-load connectors
+ * are yours.
+ * @param {{ width: number, joistSpan: number, overhang: number, hardwareQty: number }} l
+ * @param {{ deadPsf: number, livePsf: number, fastenerCapacity: number, perFastenerSpacing?: number }} spec
+ */
+export function checkDeckLedger(l, spec) {
+  const errors = [];
+  const inr = (v, lo, hi) => Number.isFinite(v) && v >= lo && v <= hi;
+  if (!inr(spec?.deadPsf, 0, 100)) errors.push("ledgerCheck.deadPsf is the dead load in psf, 0 to 100.");
+  if (!inr(spec?.livePsf, 0, 200)) errors.push("ledgerCheck.livePsf is the live load in psf, 0 to 200.");
+  if (!inr(spec?.fastenerCapacity, 50, 5000)) errors.push("ledgerCheck.fastenerCapacity is one fastener's allowable lateral value in lb (50 to 5000), from the maker's table.");
+  if (spec?.perFastenerSpacing != null && !inr(spec.perFastenerSpacing, 2, 48)) errors.push("ledgerCheck.perFastenerSpacing is inches of ledger per fastener (2 to 48); the plan's default is 8.");
+  if (errors.length) return { ok: false, errors };
+  const L = l.joistSpan, c = l.overhang;
+  const loadPerIn = ((spec.deadPsf + spec.livePsf) * (L * L - c * c)) / (2 * L) / 12 / 12; // lb per inch of ledger
+  const provided = spec.perFastenerSpacing ?? 8;
+  const required = spec.fastenerCapacity / loadPerIn; // largest inches per fastener
+  const needed = Math.ceil((loadPerIn * l.width) / spec.fastenerCapacity);
+  const count = Math.ceil(l.width / provided);
+  return { ok: true, loadPerFoot: loadPerIn * 12, totalLoad: loadPerIn * l.width, requiredSpacing: required, providedSpacing: provided, fastenersNeeded: needed, fastenersPlanned: count, hardwareQty: l.hardwareQty, passes: provided <= required + 1e-9 };
+}
+
 export function deckText(l) {
   if (!l.ok) return l.errors.map((e) => `  - ${e}`);
   const out = [`${l.id}: ${formatLength(l.width)} x ${formatLength(l.depth)}, ${formatInches(l.height)} above grade, ${l.freestanding ? "freestanding" : "ledger on the house"}`];
@@ -386,6 +415,11 @@ export function deckText(l) {
     const c = l.joistCheck;
     if (!c.ok) out.push(...c.errors.map((e) => `  ! ${e}`));
     else out.push(`  Joist check (typed figures, ${c.size}): bending ${Math.round(c.bending.stress)} of ${c.bending.allowable} psi, shear ${Math.round(c.shear.stress)} of ${c.shear.allowable} psi, midspan live deflection ${c.midspanDeflection.value.toFixed(2)} of ${c.midspanDeflection.limit.toFixed(2)} in${c.tipDeflection.limit === Infinity ? "" : `, tip ${c.tipDeflection.value.toFixed(2)} of ${c.tipDeflection.limit.toFixed(2)} in`} - ${c.passes ? "passes" : "FAILS"}; notches, holes, hanger and ledger connections are yours`);
+  }
+  if (l.ledgerCheck) {
+    const c = l.ledgerCheck;
+    if (!c.ok) out.push(...c.errors.map((e) => `  ! ${e}`));
+    else out.push(`  Ledger check (typed figures): ${Math.round(c.loadPerFoot)} lb per ft of ledger, ${c.fastenersNeeded} fasteners needed, one per ${c.requiredSpacing.toFixed(1)} in at most; you have one per ${c.providedSpacing} in (${c.fastenersPlanned}, hardware list ${c.hardwareQty}) - ${c.passes ? "passes" : "FAILS"}; withdrawal, house rim strength, flashing and lateral connectors are yours`);
   }
   if (l.beamCheck) {
     const c = l.beamCheck;

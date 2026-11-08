@@ -42,7 +42,8 @@ flagships:
       and draw schedule for `--schedule` (payment lag, retainage); a real
       permitted deck plan (deck framing, guards and stairs are hand arithmetic
       only); stair stringer and landing post tables, winder radial supports,
-      connector and anchor sizes; a real architect's DXF; a real US
+      lateral-load connector and anchor sizes (deck ledger fastener spacing from a typed
+      lateral value landed 2026-11-08, README); a real architect's DXF; a real US
       wood-framed IFC (the Rust IFC reader, ifc-engine/, is on the page's
       IFC upload as WASM since 2026-11-03 and run in Chromium on the Duplex and
       Schependomlaan models 2026-11-04; a one-wall wood-framed file ran 2026-11-04 and fixed the lost opening sizes; a whole wood-framed house was run 2026-11-07 (Schultz Residence, README: `--wood-only` added; `--add-board` lets the 3rd Floor frame, 2026-11-07; next: a 32 in door clipped to a stub that ends in a tee (2nd Floor Int 10, which `--drop-frame-stubs` clears, README), tees 0.1 in apart (2nd Floor Int 1) and a door 0.035 m from a wall end (3rd Floor Int 9), which still stop floors framing; slivers and open-end voids fixed 2026-11-07) and still needs a framer's takeoff to compare with) to map its
