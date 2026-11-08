@@ -671,8 +671,16 @@ test("checkStringer and layoutRail refuse what layoutStair did not make (2026-11
 
 test("winder support boards: 4 supports of 36 in from 96 in stock is 2 to a board, so 2 boards (hand)", () => {
   const f = layoutWinders({ count: 3, innerRadius: 12, supportStock: 96 }).framing;
-  assert.deepEqual(f.boards, { stock: 96, perBoard: 2, count: 2 });
+  assert.deepEqual(f.boards, { stock: 96, perBoard: 2, count: 2, kerf: 0 });
   assert.equal(layoutWinders({ count: 4, innerRadius: 16, width: 42, supportStock: 96 }).framing.boards.count, 3); // 5 supports, 2 per board
   assert.equal(layoutWinders({ count: 3, innerRadius: 12, supportStock: 30 }).framing.boards, null);
   assert.equal(layoutWinders({ count: 3, innerRadius: 12 }).framing.boards, undefined);
+});
+
+test("winder support boards with kerf: three 32 in supports fit 96 in only without kerf (hand)", () => {
+  const w = { count: 5, innerRadius: 12, width: 32, supportStock: 96 };
+  assert.equal(layoutWinders(w).framing.boards.count, 2); // 6 supports, 3 per board
+  const k = layoutWinders({ ...w, supportKerf: 0.125 }).framing.boards; // 96.25 needed
+  assert.equal(k.perBoard, 2);
+  assert.equal(k.count, 3); // 6 supports, 2 per board
 });
