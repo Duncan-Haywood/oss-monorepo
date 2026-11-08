@@ -1,5 +1,6 @@
 ---
 title: "Adding collapse made a toy civilization cycle, but only a third of the 'cycles' are real"
+seo_title: "A toy civilization cycles once collapse is added"
 date: 2026-11-08
 tags: [research, simulation, social-science]
 description: "A collapse reset lifts a toy civilization's swings from 9% to 42%, but 29 of 55 apparent 150-400 year cycles are collapses chained at the refractory floor."

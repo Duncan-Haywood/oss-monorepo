@@ -1,5 +1,6 @@
 ---
 title: "A changepoint detector on 41 years of Australian travel: Bali and SARS are not found"
+seo_title: "A changepoint detector on 41 years of Australian travel"
 date: 2026-11-08
 tags: [changepoint-detector, negative-result, time-series]
 description: "Monthly Australian resident departures 1976-2017: no seasonal mean model cuts at the Bali bombing or SARS, and the trend model's nearest cut is a month early."

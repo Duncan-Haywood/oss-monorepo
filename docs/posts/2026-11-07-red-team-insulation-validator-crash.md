@@ -1,5 +1,6 @@
 ---
 title: "Red-teaming the insulation takeoff: a bad ceiling list crashed the validator"
+seo_title: "Red-teaming the insulation takeoff"
 date: 2026-11-07
 description: "A mutation campaign on the wall-framing insulation module found that a null or non-list attic ceiling crashed validation instead of returning an error."
 tags: [redteam, wall-framing-takeoff, testing]

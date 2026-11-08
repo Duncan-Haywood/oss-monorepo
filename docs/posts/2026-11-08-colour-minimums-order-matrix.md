@@ -1,5 +1,6 @@
 ---
 title: "Four colours of 75 tees: the factory's per-colour minimum sets how many colours you can order"
+seo_title: "Per-colour factory minimums set how many tee colours to order"
 date: 2026-11-08
 tags: [clothing, manufacturing, tools, small-business]
 description: "A free order matrix splits a clothing run into colours and sizes in whole pieces and flags colours under the factory's per-colour minimum."

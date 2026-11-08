@@ -1,5 +1,6 @@
 ---
 title: "Try a shirt on from two taps: a private camera try-on for clothing brands"
+seo_title: "Try a shirt on from two taps"
 date: 2026-11-07
 description: "A free in-browser try-on for clothing brands: tap two shoulders on a photo and the garment outline in your size is drawn to scale. Nothing is uploaded."
 tags: [clothing-design-studio, try-on, fashion]

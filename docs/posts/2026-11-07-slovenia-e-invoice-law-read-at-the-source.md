@@ -1,5 +1,6 @@
 ---
 title: "Slovenia's e-invoice law, read from the gazette: a date we had wrong and the fines"
+seo_title: "Slovenia's e-invoice law, read from the gazette"
 date: 2026-11-07
 description: "Reading Slovenia's ZIERDED in the official gazette corrects one date on our mandate page and adds the fine amounts the vendor guides left out."
 tags: [e-invoicing, slovenia, einvoice-preflight]

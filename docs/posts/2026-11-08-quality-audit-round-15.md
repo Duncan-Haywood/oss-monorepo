@@ -1,5 +1,6 @@
 ---
 title: "Quality audit round 15: one of five sampled subjects meets the bar, and a meal app category is wrong"
+seo_title: "Quality audit round 15: one of five subjects meets the bar"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
 description: "Seed 2026-11-08-d: the Schedule C categorizer meets the bar. The flagship bookkeeper does not, for stale claims. UBER EATS is deducted at 100%, not 50%."

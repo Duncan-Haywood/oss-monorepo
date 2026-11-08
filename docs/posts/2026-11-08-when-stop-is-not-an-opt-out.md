@@ -1,5 +1,6 @@
 ---
 title: "When 'don't stop' gets read as 'stop': false opt-outs in a cold-email reply triager"
+seo_title: "When 'don't stop' gets read as 'stop'"
 date: 2026-11-08
 tags: [sales-agent, cold-email, evaluation]
 description: "A probe of 20 stop-word look-alikes made our open-source reply triager suppress 6 interested leads; a narrow veto fixed all 6."

@@ -1,5 +1,6 @@
 ---
 title: "A French door on a 39 inch sill, and the last wall that would not frame"
+seo_title: "A French door on a 39 inch sill"
 date: 2026-11-08
 tags: [construction, wall-framing, ifc, open-source]
 description: "The wall-framing takeoff now frames every wood wall of a real three-storey house model, after an opt-in flag drops a mis-modelled raised door to the floor."

@@ -1,3 +1,7 @@
+---
+kind: note
+tagged: auto
+---
 # Button clicks after filling inputs: clean (2026-11-08)
 
 `platform/ci/check_button_clicks.js` takes a `FILL` environment variable. With `FILL=<v>`, every

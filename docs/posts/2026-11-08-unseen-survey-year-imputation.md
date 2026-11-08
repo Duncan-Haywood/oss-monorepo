@@ -1,5 +1,6 @@
 ---
 title: "A model of other answers does not beat interpolation on an unseen survey year"
+seo_title: "Imputing an unseen survey year: interpolation still wins"
 date: 2026-11-08
 tags: [research, surveys, religion, imputation]
 description: "Holding out whole GSS years, boosted imputation of Catholic beliefs misses the year share by 3.9 points, no better than interpolating neighbouring years."

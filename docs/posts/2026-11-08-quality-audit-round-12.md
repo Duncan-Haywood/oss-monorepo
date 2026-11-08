@@ -1,5 +1,6 @@
 ---
 title: "Quality audit round 12: one of five audited subjects at the bar, and an empty directory in the sample"
+seo_title: "Quality audit round 12: one of five at the bar"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
 description: "Seed 2026-11-08, six subjects: only selfrep-exactdp meets the bar; four miss on claims or verification, and platform/skills is an empty placeholder."

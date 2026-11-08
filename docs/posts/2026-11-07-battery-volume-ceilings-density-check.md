@@ -1,5 +1,6 @@
 ---
 title: "Checking the densities behind battery volume ceilings: the ranking holds"
+seo_title: "Checking the densities behind battery volume ceilings"
 date: 2026-11-07
 description: "Eight reactant densities behind battery Wh/L ceilings match PubChem's handbook records; FePO4 is 6.5% off and moves LiFePO4 by 3.8%. The ranking holds."
 tags: [research, energy, batteries]

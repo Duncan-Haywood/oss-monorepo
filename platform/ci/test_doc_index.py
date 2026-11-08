@@ -157,6 +157,30 @@ class GlobAndCli(unittest.TestCase):
             self.assertEqual(counts["python-env"], 1)
             self.assertEqual(counts["money"], 0)
 
+    def test_topic_counts_post_column_counts_posts_once_per_topic(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = tree(Path(d))
+            (root / "docs" / "posts" / "2026-10-02-p.md").write_text("---\ntitle: P\ntags: [Deepen, merge-base]\n---\n")
+            posts = {t[0]: t[3] for t in di.topic_counts(root)}
+            self.assertEqual(posts["shallow-clone"], 1)  # two aliases of one topic count once
+            self.assertEqual(posts["money"], 0)  # a topic with no post reads 0, not 1
+
+    def test_print_find_shows_guidance_lines_and_topic_only_or_project_only_terms(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = tree(Path(d))
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                di.print_find(di.find("merge-base", root))
+            text = out.getvalue()
+            self.assertIn("topic shallow-clone: Shallow clones", text)
+            self.assertIn("[runbook] guide.md:", text)
+            self.assertIn('"shallow clones"', text)
+            for term, expect in (("vtm", "project vtm"), ("money", "topic money")):
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    di.print_find(di.find(term, root))
+                self.assertNotIn("names no topic or project", out.getvalue(), term)
+
 
 class Parsing(unittest.TestCase):
     def test_frontmatter_skips_indented_comment_and_colonless_lines(self):

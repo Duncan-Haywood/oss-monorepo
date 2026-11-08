@@ -1,5 +1,6 @@
 ---
 title: "A readable permit-duration table keeps most of the boosted gain in two of three cities"
+seo_title: "A readable permit-duration table keeps most of the gain"
 date: 2026-11-08
 tags: [research, construction, permits, open-data]
 description: "An empirical table on permit type, work class and cost bucket keeps 67 to 87% of a boosted model gain in Chicago and Austin, but not in San Francisco i2c."
