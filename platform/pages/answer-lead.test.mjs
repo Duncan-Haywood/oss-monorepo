@@ -99,3 +99,19 @@ test('tfsa-over-contribution-checker: lead is sourced, dated and matches the lim
   assert.deepEqual(stated, [LIMITS[2026]]);
   assert.match(text, /1%/);
 });
+
+// Overtime lead (no dollar figures): the 40-hour threshold and 1.5x multiplier it states must be the calculator's defaults.
+test('overtime-pay-calculator: lead is sourced, dated and matches the calculator defaults', async () => {
+  const slug = 'overtime-pay-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { computeSingleRateOvertime } = await import(new URL(`${slug}/calc.mjs`, root));
+  const r = computeSingleRateOvertime({ hourlyRate: 10, hoursWorked: 41 });
+  assert.match(text, /one and one-half times/);
+  assert.match(text, /over 40 in a workweek/);
+  assert.equal(r.overtimeRate ?? r.summary?.overtimeRate, 15);
+});
