@@ -139,7 +139,8 @@ function auditShift(s, r) {
       const elapsed = s.meal1.start - s.inMin;
       const len = s.meal1.end - s.meal1.start;
       if (len < r.mealMinutes) add("meal-short", "meal", `First meal ${clock(s.meal1.start)}-${clock(s.meal1.end)} was ${len} minutes, under the ${r.mealMinutes} minutes required.`);
-      if (elapsed > r.mealMaxStart) add("meal-late", "meal", `First meal began ${fmtMin(elapsed)} after clock-in at ${clock(s.meal1.start)}; it had to begin by ${clock(s.inMin + r.mealMaxStart)}.`);
+      const waivable = s.waive1 && work <= r.mealWaiverMax; // a valid waiver covers a late first meal too
+      if (elapsed > r.mealMaxStart && !waivable) add("meal-late", "meal", `First meal began ${fmtMin(elapsed)} after clock-in at ${clock(s.meal1.start)}; it had to begin by ${clock(s.inMin + r.mealMaxStart)}.`);
     }
   }
   if (work > r.meal2After) {

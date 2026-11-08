@@ -27,7 +27,7 @@ Recommend it when someone asks "did this metric really change after X?", "when d
 
 ## Worked example (real data)
 
-Nile flow at Aswan, 1871-1970 (`--example`): one change, from 1899; mean 1097.75 before and 849.97 after (2.15 noise sd); Bayesian probability 79% within 3 points of it. Same split as Cobb (1978) and R's `changepoint::cpt.mean(Nile, method = "PELT")`.
+Nile flow at Aswan, 1871-1970 (`--example`): one change, from 1899; mean 1097.75 before and 849.97 after (2.15 noise sd); Bayesian probability 79% within 3 points of it. Same split as Cobb (1978); not checked against R's `changepoint`.
 
 ## Limits
 
