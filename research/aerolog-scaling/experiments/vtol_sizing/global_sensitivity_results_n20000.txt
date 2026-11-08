@@ -1,0 +1,18 @@
+Milestone 10m: global sensitivity of the cruise-sized hybrid's break-even range (N=20000, seed 2)
+break-even km: median 40, 10th pct 22, 90th pct 70, censored at 1500: 0
+
+input        range            first-order  Spearman
+p_batt     (800, 3000)          0.550    -0.689
+p_eng      (0.5, 4.0)           0.182    -0.391
+h          (50, 600)            0.043    +0.233
+e_cell     (200, 400)           0.029    -0.178
+vc         (1.0, 4.0)           0.012    +0.030
+eta_chain  (0.12, 0.3)          0.003    -0.047
+V          (25, 40)             0.001    -0.016
+k_tank     (0.1, 0.4)           0.001    -0.001
+f_tr       (0.4, 1.0)           0.001    +0.018
+t_tr       (15, 90)             0.000    +0.012
+LD         (8, 16)              0.000    -0.011
+fnon       (0.45, 0.6)          0.000    -0.010
+
+sum of first-order indices 0.823 (1 - sum = interactions + binning noise)
