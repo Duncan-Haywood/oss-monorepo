@@ -431,12 +431,17 @@ function hits(list, s) { for (const re of list) { const m = s.match(re); if (m) 
  * Order matters and is the policy: anything that asks for less contact beats anything that asks for more, so
  * "interested, but please take me off this list" is an unsubscribe.
  */
+const signal0 = (r) => (typeof r === "string" ? "" : r.signal || "");
 export function triage(reply, today) {
   const body = typeof reply === "string" ? reply : reply.body;
   const subject = typeof reply === "string" ? "" : reply.subject || "";
   const from = typeof reply === "string" ? "" : reply.from || "";
   const all = [subject, ...sentences(body)];
-  const find = (key) => { for (const s of all) { const m = hits(RULES[key], s); if (m) return { s, m: m[0] }; } return null; };
+  // Added 2026-11-08 after the seventeenth set (eval/fresh-2026-11-08d.jsonl, a false-bounce and false-away probe): a
+  // person writing to us who happens to mention a bounce, a return, or an away notice (a question, a "let's", "ping me")
+  // is not a machine. Real away notices and delivery failures carry no ask; a header signal or a daemon sender still wins.
+  const human = !signal0(reply) && !/^(mailer-daemon|postmaster|no-?reply|do-?not-?reply)\b/i.test(from) && /\?|\b(let'?s|can we|could we|would love|i'?d (love|like)|send me|ping me|no thanks|no appetite|free (on|for|tomorrow)|please close)\b/i.test(typeof reply === "string" ? reply : body);
+  const find = (key) => { if (human && (key === "bounce" || key === "out_of_office")) return null; for (const s of all) { const m = hits(RULES[key], s); if (m) return { s, m: m[0] }; } return null; };
   const res = (category, ev, extra = {}) => ({ category, subtype: null, confidence: "clear", evidence: ev ? ev.s : "", matched: ev ? ev.m : "", date: null, referral: null, ...extra });
 
   let ev;

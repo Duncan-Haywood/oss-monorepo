@@ -1,0 +1,20 @@
+{"label": "interested", "subject": "Re: quick question", "body": "Sorry, my last email bounced back from your side, I think your server rejected it. Yes, I'd like a call. Thursday 2pm?"}
+{"label": "question", "subject": "Re: quick question", "body": "Your message wasn't delivered to my colleague, can you resend it to me instead? Also, what does it cost?"}
+{"label": "question", "subject": "Re: quick question", "body": "Is your tool able to detect an undeliverable address before sending? How does that work?"}
+{"label": "objection", "subject": "Re: quick question", "body": "We keep getting returned mail from our own outreach, so deliverability worries me. How would you stop us hurting our domain?"}
+{"label": "interested", "subject": "Re: quick question", "body": "Auto-reply: no, kidding. I'm actually here. Would love to see a demo this week."}
+{"label": "not_now", "subject": "Re: quick question", "body": "I'm travelling for work until the 20th, so ping me after that and we can talk."}
+{"label": "interested", "subject": "Re: quick question", "body": "I'll be back in the office Monday but I'm free on a call tomorrow if you want to talk before then. 10am?"}
+{"label": "not_interested", "subject": "Re: quick question", "body": "Our team is on leave for the whole quarter and we've no appetite for new tools. Please close the file."}
+{"label": "question", "subject": "Re: quick question", "body": "Does your product handle automatic replies and out of office notices when sequencing? That's our main worry."}
+{"label": "interested", "subject": "Re: quick question", "body": "Thanks for following up. I was away last week, hence the silence. Send me the deck and let's book 20 minutes."}
+{"label": "objection", "subject": "Re: quick question", "body": "Mail delivery is the whole problem for us. Our last vendor had awful inbox placement. Why would yours be better?"}
+{"label": "question", "subject": "Re: quick question", "body": "The address you used doesn't exist anymore, I'm using my new one now. Can you send the pricing to this one?"}
+{"label": "out_of_office", "subject": "Re: quick question", "body": "Automatic reply: I am out of the office until 12 December with limited access to email. For urgent matters contact sam@acme.example."}
+{"label": "bounce", "subject": "Re: quick question", "body": "Mail Delivery Subsystem: Delivery has failed to these recipients. 550 5.1.1 The email account that you tried to reach does not exist."}
+{"label": "out_of_office", "subject": "Re: quick question", "body": "Thank you for your email. I'm on parental leave and will return on 5 January. I will reply on my return."}
+{"label": "left_company", "subject": "Re: quick question", "body": "Hi, Dana left the company in September and this mailbox is not monitored. Please contact info@acme.example."}
+{"label": "not_now", "subject": "Re: quick question", "body": "We're out of budget until Q1, check back in February."}
+{"label": "question", "subject": "Re: quick question", "body": "Quick one: when your emails are rejected by the receiving server, does the tool pause the sequence automatically?"}
+{"label": "interested", "subject": "Re: quick question", "body": "I am currently travelling but I read this on my phone and it looks great. Can we do a call when I'm back on the 14th?"}
+{"label": "not_interested", "subject": "Re: quick question", "body": "This was returned to sender in our system as spam so I assume it's not relevant. No thanks."}
