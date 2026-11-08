@@ -293,6 +293,8 @@ const RULES = {
     P("stuur (mij|ons) (geen|niet meer)"), P("geen (e-?mails|mailtjes|berichten) meer"), P("verwijder (mij|ons|mijn)\\b"), P("schrijf (mij|me) uit"),
     P("\\b(cancellatemi|rimuovetemi|toglietemi|disiscriv)"), P("non (voglio|vogliamo) pi[uù] ricevere"),
     P("n[ãa]o (me )?(envie|mande|escreva|contate)n? mais"), P("remov(a|am|er) (meu|minha|o meu)\\b"), P("cancelar (a )?inscri"),
+    // Added 2026-11-10 (eval/fresh-2026-11-10.jsonl): Turkish "listenizden çıkarın".
+    P("listenizden [cç][ıi]kar"), P("poista minut"),
     P("\\b(schrijf|schrijven) (mij|me|ons) uit\\b"), P("\\buitschrijven\\b"), P("verwijder (mij|me|mijn|ons)\\b"), P("mail (mij|ons) (niet|nooit) meer"),
     // Added 2026-11-04 after a probe of 24 more phrasings in SV, DA, NO, PL, TR, FI, CS, RO missed 13 (agent-written, unscored on real mail):
     // cancel/unsubscribe verbs, "no more mails", "stop sending", "remove me from the list", "don't write to me again".
@@ -382,6 +384,8 @@ const RULES = {
     P("\\bnot for (us|me)\\b"), P("\\b(this|that|it) (isn'?t|is not) for (us|me)\\b"), P("\\bdecided against (it|this|that)\\b"), P("\\bstill the same answer\\b"), P("\\bya tenemos (una )?soluci[óo]n\\b"), P("\\b(we'?re|we are) not the right (company|business|fit|org|organi[sz]ation)\\b"), P("\\bnot something (we|i)'?(re| are| am)? (looking|interested)\\b"), P("\\bnot looking (for|to)\\b"), P("\\bplease don'?t follow up\\b"), P("\\bwe'?ll never\\b"),
     // Added 2026-11-04 after eval/fresh-2026-11-04b.jsonl (agent-written, 30 mixed replies) went 23/30 with 0 overreach: "isn't something we'd ever need".
     P("\\b(isn'?t|is not) something (we|i)('d| would)? ever (need|use|want)\\b"),
+    // Added 2026-11-10: "not something we'd ever buy".
+    P("\\bnot something (we|i)('d| would)? ever (buy|purchase|pay for)\\b"),
   ],
   objection_price: [
     P("\\b(over|beyond|outside|above) (what (we|i) can (spend|afford|pay)|our (budget|range|price range))\\b"), P("\\bmoney is tight\\b"), P("\\bhard to justify\\b"), P("\\b(cost|price|pricing|quote)s?\\b.*\\b(too high|way over|steep|out of reach)\\b"),P("\\btoo (expensive|pricey|costly|much)\\b"), P("\\bsounds (expensive|pricey|costly)\\b"), P("\\b(can'?t|cannot|couldn'?t) afford\\b"), P("\\b(no|don'?t have (the |a )?|out of) budget\\b"), P("\\bprice is (too )?(high|steep)\\b"), P("\\bcheaper\\b")],
@@ -408,6 +412,8 @@ const RULES = {
     P("\\b(book|grab|find|pick) (a )?(time|slot)\\b"), P("\\bhow (about|does) (monday|tuesday|wednesday|thursday|friday|next week|tomorrow)\\b"), P("\\b(free|available|works for me) (on |at )?(monday|tuesday|wednesday|thursday|friday|tomorrow|next week|this week|\\d)\\b"),
     P("\\b(i'?m|we'?re|i am|we are) (interested|keen|curious)\\b"), P("\\b(set up|schedule|book) (a )?(demo|call|meeting|time)\\b"), P("\\bcalendly\\b"), P("\\b(happy|glad|open|keen|willing) to (take a look|learn more|hear more|chat|talk|connect)\\b"), P("\\b(tell|show) me more\\b"), P("\\bsend (me |over )?(more info|details|the deck|a proposal|pricing)\\b"),
     P("\\bsounds (interesting|good|great|promising|useful)\\b"), P("^\\s*intrigued\\b"), P("\\bcall me (on|at)\\b"), P("\\b(send|share|give) (me )?(\\d|two|three|a few|some)\\S*( or \\d| to \\d)?\\s*(times|slots|options)\\b"), P("\\b(let'?s|lets) (talk|chat|connect)\\b"), P("\\bcan we (talk|chat|meet|speak|connect|jump on|hop on)\\b"), P("\\bwhen (are|is) (you|a good time)\\b"), P("\\bloop(ing)? in\\b"),
+    // Added 2026-11-10: "send over a short deck", "we've been looking for something like this".
+    P("\\bsend (me |over )?(a |the )?(short |quick )?deck\\b"), P("\\b(we|i)('ve| have) (actually )?been looking for (something|a way|a tool)\\b"),
     // Added 2026-11-04 after eval/fresh-2026-11-04b.jsonl (agent-written, 30 mixed replies) went 23/30 with 0 overreach: "book me in", "open to a quick intro call", "Does Friday morning work?".
     P("\\b(book|sign|put) (me|us) (in|up|down)\\b"), P("\\bopen to (a|an) (quick |short )?(intro |introductory )?(call|chat|demo|meeting)\\b"), P("\\bdoes (monday|tuesday|wednesday|thursday|friday|tomorrow|next week)( \\w+)? work\\b"),
     // Added 2026-11-07 after eval/fresh-2026-11-07.jsonl (agent-written) missed these: "a quick call tomorrow", "who should I talk to to get started".
