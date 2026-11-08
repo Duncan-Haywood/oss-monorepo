@@ -31,5 +31,5 @@ test("overrides replace the typed figures; no-tax states and bad input", () => {
   assert.equal(nexusCheck([{ state: "ZZ", salesUsd: 1 }]).ok, false);
   assert.equal(nexusCheck([{ state: "FL", salesUsd: -1 }]).ok, false);
   assert.equal(nexusCheck([]).ok, false);
-  assert.ok(Object.keys(STATES).length >= 20);
+  assert.ok(Object.keys(STATES).length >= 47);
 });

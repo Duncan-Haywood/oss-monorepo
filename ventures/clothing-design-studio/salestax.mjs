@@ -21,6 +21,7 @@
 
 /** code: [name, salesThresholdUsd, transactionThreshold|null, rule, baseRatePct, clothing note] */
 const RAW = {
+  AK: ["Alaska", 100000, 200, "or", 0, "No state sales tax; many boroughs and cities charge their own (Alaska Remote Seller Sales Tax Commission), so use the override."],
   AL: ["Alabama", 250000, null, "sales", 4, ""],
   AZ: ["Arizona", 100000, null, "sales", 5.6, ""],
   AR: ["Arkansas", 100000, null, "sales", 6.5, ""],
@@ -45,6 +46,28 @@ const RAW = {
   VA: ["Virginia", 100000, 200, "or", 4.3, ""],
   WA: ["Washington", 100000, null, "sales", 6.5, ""],
   WI: ["Wisconsin", 100000, null, "sales", 5, ""],
+  DC: ["District of Columbia", 100000, 200, "or", 6, "Clothing is taxable."],
+  HI: ["Hawaii", 100000, 200, "or", 4, "General excise tax, not a sales tax; the rate varies by island."],
+  IA: ["Iowa", 100000, null, "sales", 6, "Clothing is taxable."],
+  ID: ["Idaho", 100000, null, "sales", 6, ""],
+  KS: ["Kansas", 100000, null, "sales", 6.5, ""],
+  KY: ["Kentucky", 100000, 200, "or", 6, ""],
+  LA: ["Louisiana", 100000, null, "sales", 4.45, ""],
+  ME: ["Maine", 100000, 200, "or", 5.5, ""],
+  MO: ["Missouri", 100000, null, "sales", 4.225, ""],
+  MS: ["Mississippi", 250000, null, "sales", 7, ""],
+  ND: ["North Dakota", 100000, null, "sales", 5, ""],
+  NE: ["Nebraska", 100000, 200, "or", 5.5, ""],
+  NM: ["New Mexico", 100000, null, "sales", 4.875, "Gross receipts tax, charged on sales into the state."],
+  NV: ["Nevada", 100000, 200, "or", 6.85, ""],
+  OK: ["Oklahoma", 100000, null, "sales", 4.5, ""],
+  RI: ["Rhode Island", 100000, 200, "or", 7, "Clothing under 250 USD an item is exempt."],
+  SC: ["South Carolina", 100000, null, "sales", 6, ""],
+  SD: ["South Dakota", 100000, null, "sales", 4.2, ""],
+  UT: ["Utah", 100000, 200, "or", 4.85, ""],
+  VT: ["Vermont", 100000, 200, "or", 6, "Clothing is exempt."],
+  WV: ["West Virginia", 100000, 200, "or", 6, ""],
+  WY: ["Wyoming", 100000, null, "sales", 4, ""],
 };
 
 export const STATES = Object.freeze(Object.fromEntries(Object.entries(RAW).map(([code, [name, salesUsd, transactions, rule, ratePct, clothing]]) =>
