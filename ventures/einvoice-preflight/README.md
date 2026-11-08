@@ -54,6 +54,8 @@ code, the XRechnung 3.x specification identifier, and a seller tax identifier.
 Off by default. JS (page and API) only; the Python CLI does not apply it yet.
 It is an offline observation, not the KoSIT validator.
 
+**VAT check digits for CY, MT and XI (2026-11-08).** Cyprus (check letter), Malta (mod 37) and Northern Ireland digit forms (mod 97, as GB) now fail INV-023 on a bad check digit, in `vat.mjs` and `vat.py`. Same sourcing as below: public algorithms from memory, one published example number and a mutation each; no authority text read.
+
 **VAT check digits for 11 more countries (2026-10-30).** EE, HU, SI, SK, HR, LV (companies), LT (9 digits), BG (9 digits), RO, EL and CZ (8 digits) now fail INV-023 on a bad check digit, not only INV-022 on length (`vat.mjs` and `vat.py`). Algorithms from memory of the public descriptions (python-stdnum), each tested on a published example number and a one-digit mutation; no real invoice, no tax-authority text read. Variants not implemented stay length-only.
 
 **Peppol profile.** Tick "Also apply the Peppol BIS Billing 3.0 rules" on the

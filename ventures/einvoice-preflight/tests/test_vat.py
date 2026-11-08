@@ -103,6 +103,13 @@ class VatChecksumTest(unittest.TestCase):
         # Every genuinely valid legacy-format Irish VAT number therefore
         # failed this check.
 
+    def test_cy_mt_xi_check_digits(self):
+        for good in ["CY10259033P", "MT11679112", "XI980780684"]:
+            self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": good}, "supplier"), [], good)
+        for bad in ["CY10259033Q", "CY10259133P", "MT11679113", "XI980780685"]:
+            findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": bad}, "supplier")
+            self.assertEqual([item["rule"] for item in findings], ["INV-023"], bad)
+
     def test_explicit_wrong_shape_is_format_not_checksum(self):
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "DE123"}, "customer")
         self.assertEqual([item["rule"] for item in findings], ["INV-022"])
@@ -128,8 +135,8 @@ class VatChecksumTest(unittest.TestCase):
 
     def test_format_only_country_accepts_published_length(self):
         self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "HU12892312"}, "supplier"), [])
-        # MT stays shape-only: no checksum is implemented for it.
-        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "MT12345678"}, "supplier"), [])
+        # A 10-digit BG number stays shape-only: no checksum is implemented for it.
+        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "BG1750747520"}, "supplier"), [])
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "HU123"}, "supplier")
         self.assertEqual([item["rule"] for item in findings], ["INV-022"])
 
