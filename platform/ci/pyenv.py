@@ -77,6 +77,7 @@ def import_name(arg):
         pkg, mod = arg.split(":", 1)
         PIP_NAMES.setdefault(mod, pkg)
         return mod
+    arg = re.split(r"[<>=!~\[; ]", arg, maxsplit=1)[0]  # drop a version specifier or extras
     return IMPORT_NAMES.get(arg.lower(), arg.replace("-", "_"))
 
 
