@@ -159,6 +159,7 @@ export function layoutStair(input, plan) {
  * @param {string[]} notes
  */
 export function layoutRail(g, r, notes) {
+  if (!g || typeof g !== "object" || !(g.riser > 0) || !(g.tread > 0) || !(g.pitch > 0) || !(g.run > 0) || !r || typeof r !== "object") throw new TypeError("layoutRail needs the stair geometry (riser, tread, pitch, run) and a rail object; layoutStair checks these first.");
   const L = { ...RAIL_LIMITS, ...(r.limits || {}) };
   const sides = r.sides ?? 1, bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4";
   const hh = r.handrailHeight ?? 36;
@@ -236,6 +237,7 @@ export function stairCuts(l) {
  */
 export function checkStringer(l, c) {
   const errors = [];
+  if (!l || typeof l !== "object" || !l.stringer || typeof l.stringer !== "object" || !(l.run > 0)) return { ok: false, errors: ["checkStringer needs a stair layout from layoutStair (with a stringer and a run)."] };
   for (const [k, lo, hi] of [["liveLoad", 1, 200], ["deadLoad", 0, 200], ["Fb", 10, 5000], ["Fv", 1, 500], ["E", 200000, 3000000]]) {
     if (c?.[k] == null || !(c[k] >= lo && c[k] <= hi)) errors.push(`stringerCheck.${k} must be typed, from ${lo} to ${hi} (${k === "liveLoad" || k === "deadLoad" ? "psf" : "psi"}); no default is shipped.`);
   }
