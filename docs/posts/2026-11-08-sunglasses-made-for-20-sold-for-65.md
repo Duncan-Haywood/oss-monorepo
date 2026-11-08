@@ -2,7 +2,7 @@
 title: "Sunglasses made for 20 euros, sold for 65: what is left?"
 date: 2026-11-08
 tags: [clothing-design-studio, ecommerce, unit-economics]
-description: "A worked example from a designer interview: about 21 euros profit per order after VAT, duty, fees and returns, which is also the most a customer can cost to win."
+description: "A worked example from a designer interview: about 21 euros profit per order after VAT, duty, fees and returns, also the most a customer can cost to win."
 ---
 
 A designer planning a branded sunglasses line estimated 20 euros to make and 60 to 70 to sell. The Clothing Design Studio now has a worked example that runs those numbers through its returns model.
