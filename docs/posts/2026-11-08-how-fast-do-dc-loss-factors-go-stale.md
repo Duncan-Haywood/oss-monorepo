@@ -2,7 +2,7 @@
 title: "How fast do DC loss factors go stale?"
 date: 2026-11-08
 tags: [research, power-systems, opf, open-data]
-description: "On IEEE case118 with a real PJM-zone load shape, penalty factors up to 12 hours old still cut a plain DC dispatch's excess AC cost by 58 % at the steepest ramps."
+description: "On IEEE case118 with a real PJM-zone load shape, penalty factors 12 hours old still cut a plain DC dispatch's excess AC cost by 58 % at the steepest ramps."
 ---
 
 A DC optimal power flow ignores losses, so its dispatch costs a little more than the AC optimum. Penalty factors fix most of that, but an operator only has factors from an earlier interval. Last time they held up on a real hourly week. This run pushed on them: factors taken 1, 3, 6, 12 and 24 hours earlier, applied at the ten steepest load ramps of 2017 in the AEP zone's hourly shape, on case118.
