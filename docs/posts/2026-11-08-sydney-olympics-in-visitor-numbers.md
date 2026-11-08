@@ -1,5 +1,6 @@
 ---
 title: "Can a changepoint detector find the Sydney Olympics in visitor numbers?"
+seo_title: "Can a changepoint detector find the Sydney Olympics?"
 date: 2026-11-08
 tags: [changepoint-detector, time-series, tourism]
 description: "Quarterly US arrivals to Australia, run through four detector models: two date the Olympics quarter exactly, two lose it."

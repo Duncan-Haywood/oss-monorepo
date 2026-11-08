@@ -13,6 +13,8 @@ const money = (/** @type {number} */ x) => x.toLocaleString("en-US", { minimumFr
  * @param {{client?: string, project?: string, date?: string, validDays?: number, inclusions?: string[], exclusions?: string[], terms?: string[], partial?: boolean, payments?: {name: string, pct: number}[]}} [p]
  */
 export function proposal(b, p = {}) {
+  if (!b || typeof b !== "object" || !Array.isArray(b.unpriced) || !Array.isArray(b.sections)) return { ok: false, error: "A proposal needs a budget (the result of budget())." };
+  if (!p || typeof p !== "object") p = {};
   if (b.unpriced.length && !p.partial) {
     return { ok: false, error: `${b.unpriced.length} line(s) have no price (${b.unpriced.slice(0, 3).join("; ")}${b.unpriced.length > 3 ? "; ..." : ""}). Price them, or pass partial to issue the proposal with a stated gap.` };
   }
@@ -82,6 +84,7 @@ const escHtml = (/** @type {string} */ s) => String(s).replace(/[&<>"']/g, (c) =
  * @returns {string}
  */
 export function proposalHtml(q, opts = {}) {
+  if (!q || typeof q !== "object") q = { ok: false, error: "No proposal to show." };
   const head = `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Proposal${q.ok && q.meta.project ? ": " + escHtml(q.meta.project) : ""}</title><style>body{font:14px/1.5 system-ui,sans-serif;max-width:46rem;margin:2rem auto;padding:0 1rem;color:#111}h1{font-size:1.5rem;margin:0 0 .25rem}table{width:100%;border-collapse:collapse;margin:.5rem 0}td,th{padding:.3rem .4rem;border-bottom:1px solid #ccc;text-align:left}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}tr.total td{font-weight:700;border-top:2px solid #111}.warn{border:2px solid #b00;padding:.5rem;margin:1rem 0;font-weight:700}.small{font-size:.85rem;color:#444}@media print{body{margin:0}}${opts.css || ""}</style></head><body>${opts.header || ""}`;
   if (!q.ok) return head + `<h1>Proposal not issued</h1><p>${escHtml(q.error)}</p></body></html>`;
   const h = [head, `<h1>Proposal${q.meta.project ? ": " + escHtml(q.meta.project) : ""}</h1>`];
