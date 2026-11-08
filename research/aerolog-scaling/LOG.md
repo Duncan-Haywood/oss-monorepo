@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-08 · Milestone 10n: total-effect Sobol indices for the break-even range (predictions in `vtol_sizing/total_effect.py`'s docstring, fixed before the run)
+- Why: 10m's "Next" asked for total-effect indices; its binned first-order indices summed to 0.82 and the gap was read as interactions. `experiments/vtol_sizing/total_effect.py` uses Saltelli sampling with Jansen estimators (N = 20,000, 280,000 model runs, 300 bootstrap draws, about 30 s on 4 cores) over 10m's ranges and model.
+### Outcome (`experiments/vtol_sizing/total_effect_results.txt`)
+- **P1 held:** pack peak power: first-order 0.562, total 0.650 (+0.088). **P2 refuted:** engine specific power is second (0.189 first, 0.208 total) but gains only 0.019, below the 0.03 predicted. **P3 held:** total effects sum to 1.17. **P4 held** (checked on the seven inputs with first-order index below 0.01 at N = 20,000 in 10m, not five): every one has total effect below 0.02.
+- New: climb height h (first 0.026, total 0.112), climb rate vc (first -0.002, total 0.106) and cell energy density e_cell (0.011, 0.067) matter almost only through interactions: one-at-a-time and first-order rankings hide them. p_batt, p_eng, h, vc and e_cell carry essentially all of it; the other seven inputs have total effect at most 0.013, so a datasheet hunt for them is wasted.
+- Correction to 10m: its binned first-order indices summed to 0.82; the Jansen estimator gives 0.70 (several slightly negative, which is estimator noise of order 0.015), so the binned figure was biased up by binning and interactions are about 0.47 of the variance, not 0.18. The ranking and the 0.55 for p_batt stand.
+- Limits: ranges are still mine, not datasheet values; uniform independent inputs (peak power and cell energy density are in reality anticorrelated, which this ignores); one seed; the output is the break-even range with no cap hit. Preliminary.
+- Next: source p_batt, p_eng, h, vc and e_cell ranges from datasheets (the only five that matter); then rerun with a correlated p_batt-e_cell sample.
+
 ## 2026-11-08 · Milestone 10m: which input decides the cruise-sized hybrid's break-even? A global sensitivity run (predictions in `vtol_sizing/global_sensitivity.py`'s docstring, fixed before the run)
 - Why: 10k's "pack peak power now decides the result" was read off one-at-a-time sweeps. `experiments/vtol_sizing/global_sensitivity.py` (stdlib, imports 10k) draws all 12 inputs together (uniform ranges in the script) and ranks them by first-order index and Spearman correlation on the break-even range against the 250 Wh/kg battery aircraft. Data hosts (UIUC, NTRS) still unreachable, so ranges remain plausible sweeps, not datasheet values.
 ### Outcome (`experiments/vtol_sizing/global_sensitivity_results.txt`, N=4,000; `..._n20000.txt`, N=20,000, seed 2)
