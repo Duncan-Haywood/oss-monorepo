@@ -8,7 +8,8 @@ Each identifier is looked up (Crossref for DOIs, DataCite when Crossref has no s
 and printed with the title and year the registry holds, so you can compare it
 with what the README claims the source says. A lookup that fails exits 1:
 the id is mistyped or invented. A host that refuses the lookup (403, 429, 5xx,
-as the cloud proxy sometimes does) prints SKIP and does not fail the run;
+as the cloud proxy sometimes does) or a connection that never completes
+(proxy connect rejected, DNS, timeout) prints SKIP and does not fail the run;
 open the source by hand and say in the README that it was not machine-checked. Citations without a DOI or arXiv id (datasheets, standards, URLs)
 are not checked here: open them.
 """
@@ -101,7 +102,10 @@ def main(argv):
                     else:  # proxy block, rate limit or outage: says nothing about the id
                         blocked += 1
                         print(f"  SKIP {kind}:{i}  host unreachable (HTTP {e.code}); open the source and say so in the README")
-                except (urllib.error.URLError, ValueError, KeyError, OSError) as e:
+                except (urllib.error.URLError, OSError) as e:  # no answer at all (proxy connect rejected, DNS, timeout)
+                    blocked += 1
+                    print(f"  SKIP {kind}:{i}  host unreachable ({e}); open the source and say so in the README")
+                except (ValueError, KeyError) as e:  # the registry answered with no such record
                     bad += 1
                     print(f"  FAIL {kind}:{i}  {e}")
     if blocked:
