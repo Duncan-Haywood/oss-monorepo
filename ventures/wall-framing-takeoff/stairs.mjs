@@ -608,7 +608,7 @@ export function winderText(c) {
   out.push(c.ok ? "  Winders pass the 6 in and 10 in rules as typed." : `  Winders fail: ${c.problems.join("; ")}. The smallest inner radius that passes is ${c.minInnerRadius.toFixed(1)} in.`);
   if (c.treads) {
     out.push(`  Straight-edge depths: ${c.chordNarrow.toFixed(2)} in narrow, ${c.chordWalk.toFixed(2)} in at ${c.limits.winderWalkline} in out, ${c.chordWide.toFixed(2)} in wide${c.chordPasses ? "" : " (a straight edge fails where the arc passes: add radius)"}`);
-    if (c.framing) out.push(`  Framing under the winders: ${c.framing.supports} radial supports of ${formatInches(c.framing.supportLength)} (${formatInches(c.framing.totalLength)} all told; ${c.framing.shared} shared by two treads), each tread spanning up to ${formatInches(c.framing.treadSpan)} between two of them at the wall end.${c.framing.spanOk == null ? " Check that span against your own tread table." : c.framing.spanOk ? ` Within the ${formatInches(c.framing.treadSpanMax)} most.` : ` Over the ${formatInches(c.framing.treadSpanMax)} most: add a support under each tread, use thicker treads or a smaller inner radius.`}`);
+    if (c.framing) out.push(`  Framing under the winders: ${c.framing.supports} radial supports of ${formatInches(c.framing.supportLength)} (${formatInches(c.framing.totalLength)} all told; ${c.framing.shared} shared by two treads), ${c.framing.boards ? `cut from ${c.framing.boards.count} ${formatInches(c.framing.boards.stock)} boards (${c.framing.boards.perBoard} to a board), ` : ""}each tread spanning up to ${formatInches(c.framing.treadSpan)} between two of them at the wall end.${c.framing.spanOk == null ? " Check that span against your own tread table." : c.framing.spanOk ? ` Within the ${formatInches(c.framing.treadSpanMax)} most.` : ` Over the ${formatInches(c.framing.treadSpanMax)} most: add a support under each tread, use thicker treads or a smaller inner radius.`}`);
     for (const t of c.treads) out.push(`  Winder tread ${t.index}: ${t.area.toFixed(1)} sq in, cut from a ${formatInches(t.blank.x)} x ${formatInches(t.blank.y)} blank`);
   }
   return out;
@@ -622,7 +622,7 @@ export function winderText(c) {
 // straight-edge ("chord") depth 2 x radius x sin(theta/2) at the narrow end,
 // 12 in out and the wide end. A chord is shorter than the arc `checkWinders`
 // measures, so `chordPasses` is the stricter answer for a straight edge.
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, supportStock?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function layoutWinders(w) {
   const c = checkWinders(w);
   if (!c.problems) return c;
@@ -650,6 +650,12 @@ export function layoutWinders(w) {
   // is checked against `maxTreadSpan`; otherwise it is reported for your table.
   const tt = w.treadThickness, spanMax = typeof w.treadSpanMax === "number" ? w.treadSpanMax : typeof tt === "number" ? maxTreadSpan(tt) : null;
   const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: chordWide, shared: count - 1, treadSpanMax: spanMax, spanOk: spanMax == null ? null : chordWide <= spanMax + 1e-9 };
+  // Stock boards for the supports (2026-11-08): typed `supportStock` length in inches; each support is one piece `width` long, so a board yields floor(stock / width) of them (no kerf). Null when no stock is typed; a stock shorter than a support gives 0 pieces per board and is rejected in `boards`.
+  const ss = w.supportStock;
+  if (typeof ss === "number" && ss > 0) {
+    const per = Math.floor(ss / width + 1e-9);
+    framing.boards = per >= 1 ? { stock: ss, perBoard: per, count: Math.ceil((count + 1) / per) } : null;
+  }
   return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses, framing };
 }
 
