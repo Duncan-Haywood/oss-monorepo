@@ -74,3 +74,28 @@ export function trimOpenings(plan) {
   }
   return notes;
 }
+
+/**
+ * --doors-to-floor: a door whose bottom is more than a threshold above the
+ * plate (a Revit sill of 39 in on a French door whose leaf is 79.5 in) is
+ * almost always a modelling error, not a raised door. Frame it with the leaf
+ * height kept and the bottom on the floor, header lowered with it, and say by
+ * how much. A placeholder for fixing the sill in the source model.
+ * @param {any} plan  a plan object; walls are changed in place
+ * @returns {string[]} one note per door lowered
+ */
+export function doorsToFloor(plan) {
+  const notes = [];
+  for (const wall of plan.walls || []) {
+    if (!wall || wall.gable) continue;
+    for (const op of wall.openings || []) {
+      if (!op || typeof op !== "object" || op.kind !== "door") continue;
+      const g = openingGeometry(plan, wall, op);
+      const raise = g.roBottom - THICK;
+      if (!(raise > DOOR_THRESHOLD_MAX + 1e-9)) continue;
+      op.headerHeight = g.headerHeight - raise;
+      notes.push(`Wall ${wall.id}, ${op.label || op.kind}: the door bottom is ${raise.toFixed(2)} in above the floor in the model, so it was framed ${raise.toFixed(2)} in lower, leaf kept at ${op.height} in, to reach the floor. Check the sill in the source model.`);
+    }
+  }
+  return notes;
+}

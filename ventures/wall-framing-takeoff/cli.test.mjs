@@ -556,3 +556,14 @@ test("--trim-openings lowers a door sitting on a threshold to the floor and leav
   assert.equal(raised.code, 1);
   assert.match(raised.out, /should reach the floor/);
 });
+
+test("--doors-to-floor frames a raised door down to the floor, keeping the leaf, and notes it", () => {
+  const plan = samplePlan();
+  plan.walls = [{ id: "Tall", length: 192, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 48, width: 36, height: 80, headerHeight: 80 + 1.5 + 39, header: "2x6" }] }];
+  const read = () => JSON.stringify(plan);
+  const off = main(["plan.json", "--skip-refused"], read);
+  assert.match(off.out, /should reach the floor/);
+  const on = main(["plan.json", "--doors-to-floor"], read);
+  assert.equal(on.code, 0, on.out);
+  assert.match(on.out, /door bottom is 39\.00 in above the floor/);
+});
