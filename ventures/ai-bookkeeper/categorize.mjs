@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // ACH company-entry tags (2026-11-08, ach-des-tag.test.mjs): a real US bank export (an anonymized BofA business export,
+  // poindexter12/maxwells-wallet, payee names scrambled) carried the transaction type in "DES:"; with the payees gone, the tag
+  // was the only signal. Only tags that name one account are used: PAYROLL out is wages, ASSN DUES out is dues, INTERNET out
+  // is utilities. DIRECT DEP, PAYMENT and ACH PMT fit several accounts and USATAXPYMT stays unsuggested (see the IRS note below).
+  ["6150", "out", /\bdes:payroll\b/],
+  ["6170", "out", /\bdes:assn dues\b/],
+  ["6140", "out", /\bdes:internet\b/],
   // Gap probe 33 (2026-11-07, eval/probe33.mjs): florists, sign shops, beekeepers, mobile mechanics, podcasters.
   ["6060", "out", /hive tracks|riverside\.?fm|riverside fm/],
   ["4000", "in", /banner order.*(customer|payment)|brake job.*(customer|payment)/],
