@@ -19,7 +19,7 @@
   "tool_calls": 20,
   "task": null,
   "projects": [],
-  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14133",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/13981",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -31,20 +31,18 @@
   "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [
+  "doc_friction": [
     {
-      "file": "prompts/polish/prompt-0.md",
-      "why": "Did not build or screenshot the full site (3-20 min); picked a small SEO/AEO lead instead.",
-      "did": "Ran answer-lead and venture tests only.",
-      "result": "Tests green."
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 'Next up' list in PRODUCTION.md had no unclaimed entries, so choosing an episode meant picking one from the episodes directory listing by hand."
     }
   ],
+  "deviations": [],
   "writeups": [
-    "docs/reports/polish-2026-11-08-tiktok-shop-lead.md (no blog post: small change, noted here)"
+    "docs/posts/2026-11-08-the-woman-at-the-well-of-sychar.md"
   ],
   "goal": null,
-  "notes": "Answer-first lead on tiktok-shop-fee-calculator, percentage-only test; answer-lead 34/34, venture suite 113/113.",
+  "notes": "Creative track, Saints by Candlelight episode 74 the-woman-at-the-well-of-sychar (John 4), text only; audio folders at 423 MB, over the 400 MB line. check-script ok (6391 words), venture tests 14 pass. No agent doc written.",
   "corrections": [],
   "redteam": null,
   "usage": {
