@@ -184,3 +184,18 @@ export function loadBomExtras(storage = globalThis.localStorage) {
     return e && ok(e.trimsPerUnit) && ok(e.packagingPerUnit) ? { trimsPerUnit: e.trimsPerUnit, packagingPerUnit: e.packagingPerUnit } : null;
   } catch { return null; }
 }
+
+const RUN_KEY = "cds.runQty";
+
+/** The run the order matrix plans (cut pieces, spares included), kept for the bill of materials page. */
+export function saveRunQty(qty, storage = globalThis.localStorage) {
+  if (!Number.isInteger(qty) || qty < 1 || qty > 1e6) return false;
+  try { storage.setItem(RUN_KEY, String(qty)); return true; } catch { return false; }
+}
+
+export function loadRunQty(storage = globalThis.localStorage) {
+  try {
+    const n = Number(storage.getItem(RUN_KEY));
+    return Number.isInteger(n) && n >= 1 && n <= 1e6 ? n : null;
+  } catch { return null; }
+}

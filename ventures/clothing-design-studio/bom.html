@@ -66,11 +66,13 @@
 
 
   <script type="module">
-    import { EXAMPLE_LINES, bomCost, orderFor, breakEvenQuantity, orderCsv, parseLines, sheetExtras, saveBomExtras } from "./bom.mjs";
+    import { EXAMPLE_LINES, bomCost, orderFor, breakEvenQuantity, orderCsv, parseLines, sheetExtras, saveBomExtras, loadRunQty } from "./bom.mjs";
     import { recordUsage } from "./usage.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
     $("#lines").value = EXAMPLE_LINES.map(l => [l.name, l.unit, l.perGarment, l.wastePct, l.unitCost, l.packSize, l.moq].join(",")).join("\n");
+    const fromMatrix = loadRunQty();
+    if (fromMatrix) { $("#qty").value = fromMatrix; }
     let last = null;
     function run() {
       const { lines, errors } = parseLines($("#lines").value);

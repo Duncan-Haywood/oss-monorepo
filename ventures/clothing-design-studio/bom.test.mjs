@@ -57,3 +57,15 @@ test("bom extras round-trip through storage and reject junk", () => {
   st.setItem("clothing-design-studio-bom", "{not json");
   assert.equal(loadBomExtras(st), null);
 });
+
+import { saveRunQty, loadRunQty } from "./bom.mjs";
+test("run quantity round-trips through storage and rejects junk", () => {
+  const m = new Map(), st = { getItem: k => m.has(k) ? m.get(k) : null, setItem: (k, v) => m.set(k, v) };
+  assert.equal(loadRunQty(st), null);
+  assert.ok(saveRunQty(309, st));
+  assert.equal(loadRunQty(st), 309);
+  for (const bad of [0, -5, 2.5, NaN, 1e7, "9"]) assert.equal(saveRunQty(bad, st), false);
+  assert.equal(loadRunQty(st), 309);
+  m.set("cds.runQty", "abc"); assert.equal(loadRunQty(st), null);
+  assert.equal(loadRunQty({ getItem() { throw new Error("blocked"); } }), null);
+});
