@@ -53,15 +53,18 @@ function slashTags(t) {
 // :86: free text, or German-style structured "?20..?29" purpose lines and "?32?33" name.
 // Lines the bank cut at the 65-character SWIFT width continue mid-word, so they join with nothing;
 // a shorter line ended on purpose (ABN AMRO, ING and KNAB free text), so the next one is a new word.
-function joinLines(t) {
-  const lines = t.split("\n");
-  return lines.reduce((acc, l, i) => (i === 0 ? l : acc + (lines[i - 1].length >= 63 || /\?\d\d/.test(t) || /^\/[A-Z]{3,4}\//.test(t) ? "" : " ") + l), "");
+function joinLines(t, wordWrap = false) {
+  const lines = t.split("\n").filter((l, i, a) => l !== "" || i === 0 || i === a.length - 1);
+  return lines.reduce((acc, l, i) => (i === 0 ? l : acc + (lines[i - 1].length >= 63 || (!wordWrap && /\?\d\d/.test(t)) || /^\/[A-Z]{3,4}\//.test(t) ? "" : " ") + l), "");
 }
 function field86(t) {
   t = t.replace(/\r/g, "");
   // Triodos writes the structured subfields as "000>10..>20..>21.." (">" where others use "?").
-  if (/^\d{3}>\d\d/.test(t)) t = t.replace(/>(\d\d)/g, "?$1");
-  t = joinLines(t).replace(/\u00ad/g, "-");
+  // Polish banks (mBank, PKO, ING Slask, Santander) write ">20" straight away, no leading code, and
+  // wrap at word ends, so a line shorter than the SWIFT width starts a new word (mt940js test files).
+  let gt = false;
+  if (/^(\d{3})?>\d\d/.test(t)) { gt = /^>/.test(t); t = t.replace(/>(\d\d)/g, "?$1"); }
+  t = joinLines(t, gt).replace(/\u00ad/g, "-");
   if (/^\/[A-Z]{3,4}\//.test(t)) { const d = slashTags(t); if (d) return d; }
   if (!/\?\d\d/.test(t)) return unesc(t);
   const sub = {};
