@@ -10,13 +10,13 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
   checkSource, checkAll, optOutUsage, resolveKey, describe,
-  checkPage, checkAllPages, checkOrder, checkAllPageOrders, describeOrder,
+  checkPage, checkAllPages, checkOrder, checkAllPageOrders, describeOrder, findPages,
 } from "./one-opt-out.mjs";
 
 const ONE_KEY = `
@@ -227,4 +227,28 @@ test("every venture usage module spells the opt-out exactly one way", () => {
     results.filter((r) => r.status === "pass").length > 200,
     "most modules do offer an opt-out; if this drops, discovery broke, not the catalogue",
   );
+});
+
+test("findPages skips node_modules, dist and dot directories but finds the rest", () => {
+  // Mutant: `||` -> `&&` in the skip test made the walker descend into every
+  // directory, so a vendored or built copy of a page was audited as ours.
+  const dir = mkdtempSync(join(tmpdir(), "one-opt-out-walk-"));
+  try {
+    for (const skipped of ["node_modules", "dist", ".cache"]) {
+      mkdirSync(join(dir, skipped));
+      writeFileSync(join(dir, skipped, "index.html"), "<p>x</p>");
+    }
+    mkdirSync(join(dir, "app"));
+    writeFileSync(join(dir, "app", "index.html"), "<p>x</p>");
+    assert.deepEqual(findPages(dir), [join(dir, "app", "index.html")]);
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("describeOrder names only records-first results; describeOrder text says where to move the restore", () => {
+  // Mutants: `!==` -> `===` and `+` -> `-` in the message went unseen because
+  // the catalogue-wide test only calls describeOrder on a failing page, and
+  // the catalogue is clean.
+  assert.equal(describeOrder({ name: "a.html", status: "pass" }), "a.html: pass");
+  const msg = describeOrder({ name: "a.html", status: "records-first", call: "recordUsage(", line: 7 });
+  assert.match(msg, /^a\.html: `recordUsage\(` appears at line 7, above the restore\. Move the restore to the top of this script: anything counted before it is counted against the control's default state rather than the visitor's choice$/);
 });
