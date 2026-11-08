@@ -1,0 +1,23 @@
+{
+  "id": "P064",
+  "title": "perf: every Portfolio Pages build job re-runs the 19 s shed gallery search; its stamp is never cached",
+  "status": "open",
+  "owner": "owner",
+  "effect": 1,
+  "cost": 1,
+  "problem": "portfolio-pages.yml build job step 'Search the Shed Designer gallery with this checkout's prices' runs make-gallery.mjs. The script already skips the search when .gallery-stamp (gitignored) matches the hash of the engine sources and data, but a fresh runner never has the stamp, so every one of 34 build jobs pays the full search (19 s median, 10.3 job-minutes over the 600-run window, 1.7% of the pool). Locally: 25.7 s wall cold, instant on a repeat. The edit is in .github/, which CODEOWNERS holds for the owner.",
+  "evidence": [
+    "python3 platform/ci/ci_profile.py --runs 600 --steps 15, 2026-11-08: Portfolio Pages build, 34 runs, 10.3 min, 19 s median, 'Search the Shed Designer gallery with this checkout's prices'",
+    "local: node ventures/shed-designer/make-gallery.mjs 25.7 s real cold; the second run prints 'skipping the search' and exits at once (the stamp)",
+    "docs/history/ci-perf-2026-11-08-gallery-search-stamp.md"
+  ],
+  "change": "Before the step, actions/cache/restore the stamp keyed on hashFiles('ventures/shed-designer/*.mjs', 'ventures/shed-designer/data/**') (exclude tests and gallery-data.mjs to match inputsHash(), or accept a slightly wider key); the restored stamp plus the checked-out gallery-data.mjs makes the script skip. After a real search on a non-PR run, actions/cache/save the stamp. Safe only if the committed gallery-data.mjs equals the search output for that hash: confirm with make-gallery.mjs --check on main first (gallery.test.mjs already fails when they disagree). Alternative needing no cache: have the PR gate keep gallery-data.mjs current and skip the CI step entirely when --check passes in the test job.",
+  "touches": [".github/workflows/portfolio-pages.yml"],
+  "metric": "Pages build job 'Search the Shed Designer gallery' seconds (ci_profile.py --steps)",
+  "baseline": "19 s median per build job, 2026-11-08",
+  "opened": "2026-11-08",
+  "source": "docs/history/ci-perf-2026-11-08-gallery-search-stamp.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}
