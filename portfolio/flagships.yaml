@@ -119,7 +119,7 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` is uncalibrated and no k isolates GDP's 1970s break; the slope-break test (`--slope-breaks`, README) dates it at 1971Q2 but not significantly; a bar by n and rho landed 2026-11-04 (W 6.5 < bar 9.6, README); wanted: a real break that clears it; cycles and drift: an exact
+      History: README and git. Open: (0) smooth low-noise series over-cut: `--noise-floor k` is uncalibrated and no k isolates GDP's 1970s break; the slope-break test (`--slope-breaks`, README) dates it at 1971Q2 but not significantly; a bar by n and rho landed 2026-11-04 (W 6.5 < bar 9.6, README); wanted: a real break that clears it (Boston Marathon 1924 course change tried 2026-11-08: invisible in the winners' means, README); cycles and drift: an exact
       AR(2) likelihood inside PELT was no better than AR(1) (README); a real documented step inside a cycle; a cycle
       check not tied to rho (treering: drift not told from a cycle);
       a documented real run of 5+ steps to test the block-variance warning

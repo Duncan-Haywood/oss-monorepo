@@ -488,3 +488,12 @@ column is built from the `time` column of the source.
 - **Licence:** fpp2 is GPL-3; the numbers are the Australian Bureau of Statistics'
   published series. Only the 218 numbers are used here.
 - **Used by:** `eval/ausbeer.mjs`, `ausbeer.test.mjs`.
+
+# Example data: Boston Marathon winning times, 1897-2016
+
+`boston-marathon.csv`: winning time in minutes for each year, 120 values (`marathon` from fpp2, Hyndman).
+
+- **Retrieved:** 2026-11-08 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/marathon.csv>.
+- **Licence:** fpp2 is GPL-3; the numbers are the Boston Athletic Association's published results. Only the 120 numbers are used here.
+- **Used by:** `eval/boston-marathon.mjs`, `boston-marathon.test.mjs`.

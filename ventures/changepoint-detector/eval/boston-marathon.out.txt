@@ -1,0 +1,6 @@
+Boston marathon: n 120, 1897 to 2016, minutes
+  mean 1897-1923 153.0, 1924-1950 152.2
+  default: 9 change(s) [1900 1907 1909 1911 1927 1932 1953 1969 1978], rangeWarning
+  mean, ar1 auto: 6 change(s) [1900 1910 1927 1932 1953 1978]
+  trend: 7 change(s) [1902 1909 1913 1921 1932 1953 1978]
+  meanvar: 5 change(s) [1910 1927 1939 1953 1978]
