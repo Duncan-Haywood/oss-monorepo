@@ -46,6 +46,7 @@ import { scheduleRisk, riskText } from "./risk.mjs";
 import { procurement, procurementText, procurementCsv } from "./procurement.mjs";
 import { schedule, scheduleText, scheduleCsv, resolveRates, templateSchedule } from "./schedule.mjs";
 import { planFromDxf } from "./dxf.mjs";
+import { stackFloors } from "./stackfloors.mjs";
 
 /** `--wall-layer=RE`, `--door-layer=RE`, `--window-layer=RE`: layer-name patterns (case-insensitive) for drawings whose layers are not named like "wall". */
 function layerOptions(argv) {
@@ -70,6 +71,7 @@ Usage:
   node cli.mjs plan.json --overhang   run sheathing past corners to cover the next wall's end stud (vertical sheets)
   node cli.mjs plan.json --rim-lap=9.25  run sheathing that many inches below the bottom plate to cover the rim board (vertical sheets)
   node cli.mjs plan.json --horizontal sheets long side along the wall (implies --sheathing)
+  node cli.mjs 1st.json --stack=2nd.json,3rd.json      order several floors' plan files together (ids get the file name in front; one lumber list, one cutting-stock order)
   node cli.mjs plan.json --add-board=2x4:20ft[:price]  add a longer board to the lumber list (repeatable; a DXF or IFC read has the 16 ft default only; unpriced boards cost per foot like the longest of that size)
   node cli.mjs plan.json --whole-house  shorthand for --doors-to-floor --shallow-headers --trim-openings --skip-refused: frame a whole-house read through the model's own height conflicts, each change noted (placeholders, check them against the source model)
   node cli.mjs plan.json --doors-to-floor  a door whose bottom is more than 2 in above the floor in the model (a 39 in sill on a French door) is framed down to the floor, leaf height kept, with a note
@@ -220,6 +222,28 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     }
   } catch (e) {
     return { code: 2, out: `Could not read the plan: ${e instanceof Error ? e.message : e}` };
+  }
+  // --stack=FILE,FILE: more floors' plan JSON files, ordered together with this one (ids get the file's name in front).
+  const stackArg = argv.find((a) => a.startsWith("--stack="))?.slice(8);
+  if (stackArg !== undefined) {
+    const base = (f) => f.replace(/^.*[\\/]/, "").replace(/\.[^.]*$/, "");
+    const files = stackArg.split(",").filter(Boolean);
+    if (!files.length) return { code: 1, out: "--stack=FILE,FILE needs at least one more plan file." };
+    try {
+      const floors = [{ name: base(args[0]), plan }];
+      for (const f of files) {
+        const raw = JSON.parse(readInput(f)); const p2 = normalise(raw);
+        for (const w of p2.walls || []) if (w && typeof w.studLength === "string") w.studLength = parseLength(w.studLength);
+        const ex = /** @type {any} */ (expandSteppedWalls(p2));
+        if (!ex.ok) return { code: 1, out: `${f}: the stepped walls have problems:\n${ex.errors.map((e) => `  - ${e}`).join("\n")}` };
+        floors.push({ name: base(f), plan: ex.plan });
+      }
+      const st = stackFloors(floors);
+      if (!st.ok) return { code: 1, out: `Could not stack the floors:\n${st.errors.map((e) => `  - ${e}`).join("\n")}` };
+      plan = st.plan; dxfNotes += st.notes.map((n) => `Note: ${n}`).join("\n") + "\n\n";
+    } catch (e) {
+      return { code: 2, out: `Could not read a stacked plan: ${e instanceof Error ? e.message : e}` };
+    }
   }
   // --add-board=SIZE:LENGTH[:PRICE] (repeatable) puts a longer board on the lumber list, for a DXF or IFC read (which carries no stock) or a plan that lacks one.
   const boardNotes = [];

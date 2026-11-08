@@ -160,6 +160,8 @@ def _classify(country: str, body: str) -> str:
         return "unknown"
     if country in _EXTRA and _EXTRA[country][0](body):
         return "checksum"
+    if country == "XI" and body.isascii() and body.isdigit() and len(body) in (9, 12):
+        return "checksum"
     if body.isalnum() and len(body) in lengths:
         return "format"
     return "bad-format"
@@ -195,6 +197,8 @@ def _checksum_ok(country: str, body: str) -> bool:
     if country == "IE":
         return _ie(body)
     if country in {"GB", "UK"}:
+        return _gb(body)
+    if country == "XI":
         return _gb(body)
     if country in _EXTRA:
         return _EXTRA[country][1](body)
@@ -265,7 +269,17 @@ _EXTRA = {
     "EL": (_digits(9), _el),
     "GR": (_digits(9), _el),
     "CZ": (_digits(8, "012345678"), _cz),
+    "CY": (lambda b: len(b) == 9 and b[:8].isascii() and b[:8].isdigit() and "A" <= b[8] <= "Z", lambda b: _cy(b)),
+    "MT": (_digits(8, "123456789"), lambda b: 37 - (_w(b[:6], [3, 4, 6, 7, 8, 9]) % 37) == int(b[6:])),
 }
+
+
+def _cy(b: str) -> bool:
+    if b.startswith("12"):
+        return False
+    odd = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21]
+    total = sum(odd[int(c)] if i % 2 == 0 else int(c) for i, c in enumerate(b[:8]))
+    return chr(65 + total % 26) == b[8]
 
 
 def _de(digits: str) -> bool:
