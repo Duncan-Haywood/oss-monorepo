@@ -13,6 +13,8 @@
  * Sizes are split inside each colour on the same shares, so size totals can
  * differ from the target by a piece or two from rounding; both are returned.
  */
+import { assignCodes, validate } from "./gtin.mjs";
+
 const MAX_PIECES = 1e6, MAX_COLOURS = 40, MAX_SIZES = 20;
 
 function apportion(total, weights) {
@@ -80,11 +82,30 @@ export function planMatrix(o) {
     cutTotal: rows.reduce((a, r) => a + r.cutQty, 0), maxColours, underMinCount: under.length, notes };
 }
 
+/**
+ * GTIN-13 per colour and size from the brand's own GS1 company prefix (gtin.mjs),
+ * in the order of the table (colour by colour, sizes inside). Returns the codes
+ * as `gtins[colourIndex][sizeName]`, or an error when the prefix is unusable.
+ */
+export function planGtins(plan, { prefix, start = 0, style = "Style", existing = "" } = {}) {
+  if (!plan || !plan.ok) return { ok: false, error: "Plan the matrix first." };
+  const res = assignCodes({ prefix, start, existing, styles: [{ name: style || "Style", colours: plan.rows.map(r => r.colour), sizes: plan.sizeNames }] });
+  if (!res.ok) return res;
+  const gtins = plan.rows.map(() => ({}));
+  let k = 0;
+  for (let i = 0; i < plan.rows.length; i++) for (const n of plan.sizeNames) gtins[i][n] = res.rows[k++].gtin;
+  return { ok: true, gtins, warnings: res.warnings, next: res.next, itemNumbersLeft: res.itemNumbersLeft };
+}
+
 /** Quantity table as CSV. A leading = + - @ in a name is defused so a spreadsheet will not run it. */
-export function matrixCsv(plan, { style = "" } = {}) {
+export function matrixCsv(plan, { style = "", gtins = null } = {}) {
   if (!plan || !plan.ok) return "";
   const cell = v => { let t = String(v); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
-  const out = [["Style", "Colour", "Size", "Order qty", "Cut qty (with spares)"].join(",")];
-  for (const r of plan.rows) for (const n of plan.sizeNames) out.push([style, r.colour, n, r.sizes[n], r.cutSizes[n]].map(cell).join(","));
+  const out = [["Style", "Colour", "Size", "Order qty", "Cut qty (with spares)"].concat(gtins ? ["GTIN"] : []).join(",")];
+  plan.rows.forEach((r, i) => { for (const n of plan.sizeNames) {
+    const row = [style, r.colour, n, r.sizes[n], r.cutSizes[n]].map(cell);
+    if (gtins) row.push(gtins[i]?.[n] ?? ""); // digits only, never a formula
+    out.push(row.join(","));
+  } });
   return out.join("\n") + "\n";
 }

@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { planMatrix, matrixCsv } from "./orderlines.mjs";
+import { planMatrix, matrixCsv, planGtins } from "./orderlines.mjs";
+import { validate } from "./gtin.mjs";
 
 const sizes = [{ name: "S", share: 20 }, { name: "M", share: 40 }, { name: "L", share: 30 }, { name: "XL", share: 10 }];
 
@@ -64,4 +65,27 @@ test("csv defuses formulas and quotes commas", () => {
   assert.match(csv, /"Red, deep"/);
   assert.equal(csv.split("\n").length, 4);
   assert.equal(matrixCsv({ ok: false }), "");
+});
+
+test("GTIN column: one valid, distinct code per colour and size, in table order", () => {
+  const p = planMatrix({ total: 60, colours: [{ name: "Black", share: 1 }, { name: "Sand", share: 1 }], sizes: [{ name: "S", share: 1 }, { name: "M", share: 1 }] });
+  const g = planGtins(p, { prefix: "0614141", start: 1, style: "Tee" });
+  assert.equal(g.ok, true);
+  // hand-worked: 7-digit prefix leaves 5 item digits; item 1 -> 061414100001 + check digit 2
+  assert.equal(g.gtins[0].S, "0614141000012");
+  assert.equal(g.gtins[0].M, "0614141000029");
+  const all = g.gtins.flatMap(r => Object.values(r));
+  assert.equal(new Set(all).size, 4);
+  for (const c of all) assert.equal(validate(c).ok, true);
+  const csv = matrixCsv(p, { style: "Tee", gtins: g.gtins }).split("\n");
+  assert.equal(csv[0], "Style,Colour,Size,Order qty,Cut qty (with spares),GTIN");
+  assert.equal(csv[1], "Tee,Black,S,15,15,0614141000012");
+  assert.equal(csv[4], "Tee,Sand,M,15,15," + g.gtins[1].M);
+  assert.equal(matrixCsv(p).split("\n")[0].includes("GTIN"), false);
+});
+
+test("GTIN column: bad prefix and failed plan are errors, not codes", () => {
+  const p = planMatrix({ total: 10, colours: [{ name: "A", share: 1 }], sizes: [{ name: "M", share: 1 }] });
+  assert.equal(planGtins(p, { prefix: "123" }).ok, false);
+  assert.equal(planGtins({ ok: false }, { prefix: "0614141" }).ok, false);
 });

@@ -63,10 +63,14 @@ M, 30
 L, 30
 XL, 15
 2XL, 10</textarea>
+      <h3>Barcodes (optional)</h3>
+      <div class="row"><div><label for="gprefix">Your GS1 company prefix (7 to 10 digits)</label><input id="gprefix" type="text" inputmode="numeric" maxlength="12" placeholder="leave empty for no GTIN column"></div><div><label for="gstart">First item number</label><input id="gstart" type="number" min="0" step="1" value="0"></div></div>
+      <p class="tag">With a prefix, the CSV gains a GTIN-13 per colour and size (check digit computed). Use the prefix GS1 issued you; <a href="barcodes.html">Barcodes</a> explains the rest and prints labels.</p>
       <p class="tag">One per line: a name, a comma, a share (any numbers; they are scaled). The size finder's "Split the order" gives shares for an audience.</p>
     </section>
     <div><section><h2>Result</h2><output id="result" aria-live="polite"></output>
-      <p><button type="button" id="dl">Download purchase-order CSV</button> <button type="button" id="tobom">Use the cut total in the bill of materials</button> <span id="tobomNote" aria-live="polite" class="tag"></span></p></section></div>
+      <p><button type="button" id="dl">Download purchase-order CSV</button> <button type="button" id="tobom">Use the cut total in the bill of materials</button> <span id="tobomNote" aria-live="polite" class="tag"></span></p>
+      <p id="gnote" class="tag" aria-live="polite"></p></section></div>
   </div>
 </main>
   <footer>
@@ -76,7 +80,7 @@ XL, 15
   </footer>
 
   <script type="module">
-    import { planMatrix, matrixCsv } from "./orderlines.mjs";
+    import { planMatrix, matrixCsv, planGtins } from "./orderlines.mjs";
     import { recordUsage } from "./usage.mjs";
     import { saveRunQty } from "./bom.mjs";
     const $ = s => document.querySelector(s);
@@ -100,7 +104,14 @@ XL, 15
     $("#dl").addEventListener("click", () => {
       if (!last || !last.ok) return;
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([matrixCsv(last, { style: $("#style").value })], { type: "text/csv" }));
+      const prefix = $("#gprefix").value.trim(); let gtins = null; $("#gnote").textContent = "";
+      if (prefix) {
+        const g = planGtins(last, { prefix, start: Number($("#gstart").value), style: $("#style").value });
+        if (!g.ok) { $("#gnote").textContent = g.error; return; }
+        gtins = g.gtins; $("#gnote").textContent = `GTIN column added. Next free item number: ${g.next}.` + (g.warnings.length ? " " + g.warnings.join(" ") : "");
+      }
+      const style = $("#style").value;
+      a.href = URL.createObjectURL(new Blob([matrixCsv(last, { style, gtins })], { type: "text/csv" }));
       a.download = "order-matrix.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       recordUsage("matrix_download");
     });
