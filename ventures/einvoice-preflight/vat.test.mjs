@@ -163,3 +163,15 @@ test("Norway and Switzerland check digits", () => {
   assert.equal(ok("CHE-116.281.711 MWST")[0].rule, "INV-023");
   assert.equal(ok("CHE-116.281 MWST")[0].rule, "INV-022");
 });
+
+test("Australia, New Zealand and Serbia check digits", () => {
+  const ok = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier");
+  assert.deepEqual(ok("AU 51 824 753 556"), []);
+  assert.equal(ok("AU51824753557")[0].rule, "INV-023");
+  assert.equal(ok("AU1234")[0].rule, "INV-022");
+  assert.deepEqual(ok("NZ 49-091-850"), []);
+  assert.deepEqual(ok("NZ049091850"), []);
+  assert.equal(ok("NZ49091851")[0].rule, "INV-023");
+  assert.deepEqual(ok("RS101134702"), []);
+  assert.equal(ok("RS101134703")[0].rule, "INV-023");
+});
