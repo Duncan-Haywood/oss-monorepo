@@ -28,21 +28,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [
-    {
-      "file": "prompts/creative/prompt-0.md",
-      "issue": "The 'Next up' list in PRODUCTION.md had no unclaimed entries, so choosing an episode meant picking one from the episodes directory listing by hand."
-    }
-  ],
+  "doc_friction": [],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-08-the-woman-at-the-well-of-sychar.md"
+    "docs/posts/2026-11-08-wave-glider-vendor-numbers.md",
+    "research/marine-hull/LOG.md 6zh"
   ],
   "goal": null,
-  "notes": "Creative track, Saints by Candlelight episode 74 the-woman-at-the-well-of-sychar (John 4), text only; audio folders at 423 MB, over the 400 MB line. check-script ok (6391 words), venture tests 14 pass. No agent doc written.",
+  "notes": "Small sourcing step; 5-20 W average still unopened. Homepage build ok, md links ok.",
   "corrections": [],
   "redteam": null,
   "usage": {
