@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-07",
+ "subject": "ventures/medical-bill-error-checker",
+ "stratum": "venture",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), 2026-11-07 round 10",
+ "status": "audited",
+ "professional": "a certified professional coder / medical billing advocate (CPC or CPB, hospital or advocacy side) who audits itemized bills against CPT descriptors, CMS NCCI procedure-to-procedure edits, MUEs and modifier rules. They would check first: whether the panel/component and once-a-day tables match the CPT code definitions, how modifiers (59, X{EPSU}, 25, 26, TC) are read and where they come from in a real export, whether dates and codes from a real hospital file are matched, and whether a flagged dollar figure is a question or a claim.",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran the code (node scratch scripts p.mjs and a Chromium page run) and recomputed by hand. (1) Sample bill totals: 1850+1240+310+85+74+190+45+45+520+68+132 = 4559; tool total 4559. Patient owed 350+1240+50+85+74+40+10+10+100+60+132 = 2151; tool 2151. 'Most in question' by hand = unbundling 85+74 (159) + duplicate venipuncture 45 + lower ED level 1240 + arithmetic 520-150-300=70 vs 100 (30) + 68-10-30=28 vs 60 (32) = 1506; tool 1506. Match. (2) Panel tables against the CPT code definitions (from memory; cms.gov and AMA were unreachable through the proxy, so not re-read today): 80053 = 14 tests (albumin 82040, bilirubin 82247, calcium 82310, CO2 82374, chloride 82435, creatinine 82565, glucose 82947, ALP 84075, potassium 84132, protein 84155, sodium 84295, AST 84450, ALT 84460, BUN 84520) matches PANEL_MAP; 80048 = 8 tests matches; 80061 = 82465/83718/84478 matches; 85025 includes 85027+85004 and 93000 includes 93005+93010 match. (3) Arithmetic rule charge - paid - |adj| = owed matches line 10 and 11 by hand. (4) Wrong or silent outputs found by probing: a modifier-suffixed code that is not two digits ('82947-XE', also any '-XS/-XP/-XU') is NOT stripped by cleanCode (calc.mjs:125, regex /-\\d{2}$/), so the line becomes code '82947-XE', is reported as 'code not in a recognised format' and skipped by every rule (the XE/XS/XP/XU entries in the modifier list at calc.mjs:252 are unreachable). A bill with a separate 'Modifier' column (the usual layout in practice-management exports) has the column ignored (no alias in ALIASES, calc.mjs:77-86), so '80053 + 82947 with modifier 59' is reported as a HIGH unbundling item with $20 in question, not downgraded to information as the README says. Dates compare as raw strings, so '03/04/2026' and '3/4/2026' are different days and the unbundling of 80053+82947 is silently missed. '99213-25' trips the 'not a recognised format' info because codeKind is run on rawCode (calc.mjs:283,287) not the cleaned code. Panels 80050 (general health) and 80076 (hepatic function) with 84450 produce no flag. Capped at 2 because a user-visible HIGH flag with dollars is wrong for a documented input shape.",
+  "completeness": "Checked each README/page claim end to end: duplicate lines (works, sample and 3-line case), once-a-day codes (works, qty 2 on 36415 flagged), panel components (works for the 5 panels listed), distinct-service modifier downgrade (works only for a 2-digit suffix such as -59, 91), two visit levels same day (99283+99284 flagged, lower-priced line), arithmetic (works), uncoded lines info (works), CSV with semicolon/tab/pipe delimiters, BOM and UTF-16 (calc tests pass), letter generation and CSV/summary export (function tests), Load sample / Check / letter on the live page (Chromium loaded index.html: 5 items, $1,506 in question, letter filled, no console errors, no external requests, no horizontal scroll at 375 px). Not done and not claimed: NCCI PTP edit table, MUE, No Surprises Act, facility vs professional. Everything the README promises works; the stage is 'prototype' and says so.",
+  "verification": "`node --test '*.test.mjs'` in ventures/medical-bill-error-checker: 50 tests, 50 pass, 0 fail, 0.26 s. Seeded three mutations in calc.mjs, each reverted with git checkout (git status clean): (a) duplicate threshold calc.mjs:203 `group.length < 2` -> `< 3`: 2 tests failed (quantity-not-double-reported, sample-surfaces-every-rule-family); the plain 'identical lines flagged' test still passed because it uses three lines, so a two-line duplicate is covered only indirectly. (b) arithmetic calc.mjs:274 drop Math.abs(adj): 2 tests failed (arithmetic, negative adjustments). (c) family rule `present.length > 1` -> `> 2`: 2 tests failed (ER levels, sample). All caught. Gaps: no test for non-numeric modifiers, a separate modifier column, date format variants, or 80050/80076, so the defects in correctness are invisible to the suite; no test feeds a real portal export (none was available).",
+  "craft": "Read calc.mjs (357 lines), the module script and head of index.html, page.test.mjs, calc.test.mjs titles, usage.mjs. Good: one pure no-DOM module, quoted-field CSV parser with line numbers, accounting-style negatives '(1,234.00)', header alias matching, tests assert no network calls, specific error strings for unreadable files. Defects: dead modifier entries XE/XS/XP/XU (calc.mjs:252) behind the 2-digit-only strip (calc.mjs:125-126); modifier parsed only from the code string; codeKind(rawCode) used for the format info rather than the cleaned code (calc.mjs:283,287); no date normalisation (calc.mjs:198,215,240); a one-line quantity finding carries $0 yet counts a line in flaggedLines (36415 qty 2, calc.mjs:226-230, 298); the 'quantity' rule duplicates tests already expressed as the once-a-day set rather than the NCCI MUE values. Acceptable for a senior JS reviewer, with notes.",
+  "claims": "Checked against files: 'nothing uploaded' - page.test.mjs asserts no fetch/XHR/beacon in index.html, calc.mjs, usage.mjs; my Chromium run recorded zero external requests. Disclaimer ('No warranty', not medical/legal advice, user verifies, CPT trademark, independence) is in README.md and index.html:127. 'Flags are questions' - the letter text asks and never alleges (calc.test 'never accuses'). The README is candid: column aliases 'unverified against real exports', 'not checked: medical necessity, fair pricing, full national edit tables, other modifiers, facility versus professional billing', VENTURE.yaml says the lists 'have not been checked by a certified coder'. 'Distinct-service modifier ... downgraded' holds only for the 2-digit suffix form (see correctness); the FAQ and rule text mention '59' only, so it is not overclaimed but the README line is broader than the behaviour. Stale: llms.txt:9 points to the retired duncan-haywood.github.io address instead of https://marisstella.app/medical-bill-error-checker/. README says tests run with `node --test` (not the repo's working '*.test.mjs' form).",
+  "fitness": "Walked the job as a patient with a hospital bill: they must first obtain a CSV. Hospital itemized statements and portal downloads are mostly PDF or paper; there is no PDF or OCR route, only CSV or pasted text, so the typical patient cannot start without retyping. If they have a CSV, the sample file works end to end and the draft letter is usable (asks for itemization, a collections hold, never accuses). Gaps in the first hour: separate Modifier column ignored (false high flag for a documented 59 line), -XE/-XS/-XP/-XU codes silently skipped, M/D/YYYY vs MM/DD/YYYY mismatch silently hides findings, no 'No Surprises Act' or good-faith-estimate comparison, no EOB matching. Useful as a free lead-magnet checklist, not yet a tool a billing advocate would rely on.",
+  "domain": "Compared with CPT panel definitions, CMS NCCI PTP edits (modifier indicator 0/1, modifiers 59 and X{EPSU}), MUEs, and AMA CPT E/M guidance. Panel contents, 99281-99285/99211-99215/99202-99205 level families, and 71045-71048 views are right as far as I could check from memory; the once-a-day set is a reasonable heuristic but is not the MUE table (36415 can legitimately be billed per draw, 85025 and 80053 repeated tests are real), and the tool says it is a question. Departures a coder would raise: (1) no NCCI PTP table at all, only about 5 panels, so most real unbundling (e.g. 12001 repair with 99213, 36415 with a lab panel, 93005 with 93010) is invisible; (2) modifier handling is limited to a code-string suffix and misses XE/XS/XP/XU, column-based modifiers, and 25 on E/M; (3) 99283+99284 same date is flagged as a medium item without allowing for ED-to-observation admissions or separate encounters; (4) no facility revenue-code/HCPCS pairing, no NSA balance-billing or good-faith estimate checks. The README states most of this, so the method is signable only as a first-pass checklist."
+ },
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Modifier suffixes other than two digits are not stripped from the code, so '82947-XE' (and -XS/-XP/-XU) becomes an unrecognised code and is skipped by all rules; the XE/XS/XP/XU entries in the distinct-service modifier list can never match.",
+   "where": "ventures/medical-bill-error-checker/calc.mjs:125"
+  },
+  {
+   "severity": "high",
+   "what": "No alias for a separate Modifier column, so a legitimate 82947 with modifier 59 billed with 80053 is shown as a HIGH unbundling item with dollars in question, contradicting the README rule that a distinct-service modifier downgrades it to information.",
+   "where": "ventures/medical-bill-error-checker/calc.mjs:77"
+  },
+  {
+   "severity": "medium",
+   "what": "Dates are compared as raw strings, so 03/04/2026 and 3/4/2026 are different days and same-day duplicate, unbundling and visit-level findings are silently missed.",
+   "where": "ventures/medical-bill-error-checker/calc.mjs:198"
+  },
+  {
+   "severity": "medium",
+   "what": "Panel table is five panels; 80050 and 80076 (and every NCCI PTP pair) are unchecked, and there is no PDF route, so most real bills yield no findings and the tool cannot be told apart from 'bill is fine'.",
+   "where": "ventures/medical-bill-error-checker/calc.mjs:167"
+  },
+  {
+   "severity": "low",
+   "what": "The 'not a recognised format' info is computed on the raw code, so '99213-25' is reported as unrecognised although it was parsed.",
+   "where": "ventures/medical-bill-error-checker/calc.mjs:283"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt links the retired duncan-haywood.github.io address instead of marisstella.app.",
+   "where": "ventures/medical-bill-error-checker/llms.txt:9"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Honest, small and candid about its limits: the 50 tests pass, three seeded mutations (duplicate threshold, arithmetic, visit-family rule) were each caught, the page loads and runs the sample in Chromium with no errors or external requests, and the sample's total (4559), patient balance (2151) and 'most in question' (1506) recompute exactly by hand, as do the panel component lists against the CPT definitions. It does not meet the bar because correctness is 2: a certified coder feeding it a realistic export would hit wrong output within the first hour. A separate Modifier column is ignored, so a legitimate modifier-59 line gets a HIGH unbundling flag with dollars, and -XE/-XS/-XP/-XU codes are silently dropped from every rule; M/D/YYYY vs MM/DD/YYYY dates hide findings. Tests do not exercise these inputs, which is why they pass. Fitness and domain are 2: the real input is usually a PDF, and with five panels and no NCCI edit table most unbundling is not detectable, which the README says. Small safe fix: widen the strip in cleanCode to /-(\\d{2}|[A-Z]{2})$/, add a 'modifier' alias, and normalise dates before grouping. Re-check with the scratch probes described in evidence and `node --test '*.test.mjs'`."
+}

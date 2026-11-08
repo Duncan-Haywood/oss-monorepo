@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-07",
+ "subject": "ventures/league-schedule-generator",
+ "stratum": "flagship",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), 2026-11-07 round 10",
+ "status": "audited",
+ "professional": "a rec-league commissioner / tournament director who builds seasonal round-robin schedules and brackets for 6 to 24 teams. They would check first: that every team plays every other the right number of times with no team double-booked, that byes are even in an odd league, that home and away are balanced with few back-to-back runs, that the play-off bracket gives the byes to the top seeds in the standard seeding, and that the table ranks teams level on points the way their league's rules say.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 3,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed with an independent scratch script (probe.mjs, written for this audit, not using the test suite) against calc.mjs exports. (1) Circle-method properties for every n from 2 to 30, single and double: round count is N-1 (or 2(N-1)) with N the even-rounded team count; no team twice in a round; every pair meets exactly once (twice for double); in odd leagues each team gets exactly one bye per leg; single round robin has exactly n-2 home/away breaks for every even n (the known minimum, de Werra 1981) and home minus away within 1; double has home equal to away for every team. 0 violations in 58 (n, mode) combinations. (2) Single-elimination: seedOrder(8) = 1,8,4,5,2,7,3,6 and seedOrder(16) matches the standard bracket seeding (1 v 16, 8 v 9, 4 v 13, 5 v 12 ...); for k = 2,3,5,6,7,9,12,13,17 games = k-1 and byes = size-k with the byes to the top seeds (6 teams: 1 and 2 get byes, 4v5 and 3v6 played), which is the NCAA-style layout. Double elimination games for k = 3,4,5,8,9 = 2k-2 (plus the conditional reset game). (3) Standings by hand: 4 teams, six results; I hand-worked A 4 pts +1 GD 3 GF, B 4 pts +1 GD 5 GF, D 4 pts -2 GD, C 3 pts; the tool ranks B, A, D, C (GD then GF), and with head-to-head on the A/B/D three-way tie the hand mini-table (3 pts each, GD +1, +1, -2, then GF 3 v 2) gives the same order. (4) Volleyball set scoring: 3-2 gives 2 and 1, 3-0 gives 3 and 0 (FIVB). (5) swissRounds(n) = ceil(log2 n) for 2,3,4,8,9,16,17,32. Also loaded the single-league page in headless Chromium through eval/browser-click-single.mjs: the standings table shows Aces 5 / Blockers 1 / Champs 0 with set scoring ticked (the script's own assertion fails, see defects, but the page is right). No wrong number found. Not 4: odd-league breaks come out as 0 only because countBreaks resets a team's run on a bye (calc.mjs:485); that is a reasonable convention but not one the README states.",
+  "completeness": "README is 73 KB and lists a very large feature set. Checked end to end (library calls and the suite): circle-method single and double round robin with byes for odd n; home/away balance; rounds-to-play shorter season; single-elimination and double-elimination brackets; standings with configurable win-draw-loss, head-to-head, adjustments, set scoring; Swiss round count; the 365-test suite covering rainouts, withdrawals, late teams, pinned matches, court closures, linked teams, officials, exports and the multi-division planner; the single-league page loads in Chromium and builds a table with no page errors. Not exercised by me: server.mjs live hosting, the ICS import in a real calendar (README itself says the Google/Outlook CSV was not tried against a live account), ladder, mexicano, americano pages. Stub/gap: VENTURE.yaml stage is prototype and its one hypothesis is status untested; head-to-head ignores set scoring (defect).",
+  "verification": "Ran `node --test '*.test.mjs'` in ventures/league-schedule-generator (Node 22.23.4): 365 tests, 365 pass, 0 fail, 65.6 s. Seeded two mutations in calc.mjs, each reverted with git checkout (git status clean for the venture afterwards). Mutation A, roundRobin home/away at calc.mjs:366, `[b, a]` replaced by `[a, b]`: 22 failures, including the hand-computed 5-team round robin, the minimum-breaks test for every size 2..24 and the home/away within one game test. Caught well. Mutation B, standings final tie-break at calc.mjs:2103, `y.gf - x.gf` replaced by `x.gf - y.gf` (teams level on points and goal difference ranked by FEWER goals scored): 365 of 365 pass, nothing failed. Not caught. So the scheduling core is strongly guarded but a ranking bug that reverses the goals-for tie-break would ship; tiebreak.test.mjs is 1.1 KB. Also eval/browser-click-single.mjs reports two false FAILs (stale-table race, see defects), so the browser check is flaky. Score 2 because a mutation in code that decides who qualifies for the play-offs went undetected.",
+  "craft": "Read calc.mjs roundRobin 355-384, countBreaks 478-493, standings 2038-2113, seedOrder and playoffBracket 2506-2584, doubleEliminationBracket start, swissPairings start, plus eval/browser-click-single.mjs. Good: zero dependencies, ES modules, JSDoc that explains the circle-method construction and why home/away is built in rather than patched, an independent validateSchedule, fuzz scripts and mutation scripts in eval/, validation errors with reasons. Defects: calc.mjs is one 3,200-line, 166 KB file mixing parsing, scheduling, exports, standings, brackets and five tournament formats; standings() is a 75-line function with a nested recursive resolver and long one-line expressions; headToHead mini-table at 2080-2087 duplicates the points logic and ignores setScoring; the browser eval reads the table before the re-render. Acceptable for a senior JS reviewer with those notes; not clean.",
+  "claims": "Checked: 'minimum possible home/away breaks' (n-2 for even n) reproduced for all even n up to 30; 'every pair meets once, byes in odd leagues' reproduced; 'home/away within one game' reproduced; play-off byes to top seeds reproduced; 'a 3-2 win earns 2 points, the loser 1' reproduced; the README sample 'Tested against hand-computed 4- and 5-team leagues and a seeded random check of every size from 2 to 24' backed by named tests that ran and passed; No-warranty disclaimer present at README.md:115 and index.html:346 and says the organiser must verify every date. Weak points: README.md:~46 says `node --test` runs the suite, the working command in Node 22 is `node --test '*.test.mjs'`; eval/browser-click-single.mjs header names `node eval/browser-click.mjs` (a different script); llms.txt links to the old duncan-haywood.github.io address rather than marisstella.app; the README measured-numbers paragraphs (breaks -12%, -3.5%) are specific to the example league and seeds, but are labelled as such. No claim a user would act on was found false.",
+  "fitness": "Walked the job as a commissioner: paste 6 to 12 team names, pick start and weekday, get dated single or double round robin with byes, court and slot assignment, blackout dates, CSV/ICS/text exports, enter results, get a ranked table, seed a play-off bracket from it, move a rainout. The library path works and the page builds without errors in Chromium. First-hour gaps: odd-league tie-breaks beyond points, GD and GF (e.g. wins, fewest goals against, sets ratio) are not offered; the head-to-head option is a plain toggle with no way to choose the order of criteria; set-scoring tables do not use set scoring inside head-to-head; no registration or payments by design. A volunteer organiser could finish the job.",
+  "domain": "Compared against the circle (polygon) method, de Werra's 1981 minimum-breaks result for round robins, standard single-elimination seeding (1 v 2^k, NCAA-style top-seed byes), FIFA/UEFA head-to-head-then-recursive-subset tie-break order (the code's own comment cites it), FIVB 3/2/1/0 set points and Swiss round counts of ceil(log2 n). Matches all of these on what I recomputed. Departures: the default tie-break order is points, GD, GF, which suits football but not leagues that rank by wins or head-to-head first (a toggle exists); breaks in odd leagues are counted as reset by a bye; bracket seeding for 6 teams is correct, but I did not check a consolation or third-place layout beyond the flag. A commissioner would sign this off for a rec league with the stated limits."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The standings final tie-break (goals for, among teams level on points, head-to-head and goal difference) can be reversed and no test fails: seeded mutation `y.gf - x.gf` -> `x.gf - y.gf` left all 365 tests green. This ordering decides play-off seeding.",
+   "where": "ventures/league-schedule-generator/calc.mjs:2103"
+  },
+  {
+   "severity": "medium",
+   "what": "With head-to-head ticked and set scoring ticked together, the head-to-head mini-table awards plain win/draw/loss points and ignores setScoring, so a 3-2 set win counts as a full win inside the mini-table while the main table gives 2 and 1; ties can be broken in a way that disagrees with the visible points.",
+   "where": "ventures/league-schedule-generator/calc.mjs:2080"
+  },
+  {
+   "severity": "low",
+   "what": "eval/browser-click-single.mjs reports false FAILs (`ticked: 3-0 = 3, 3-2 = 2 and 1` and `unticking restores the default`) because pts() waits for `#standings-wrap:not([hidden])`, which is already visible from the previous build, and reads the old table; the page itself shows Aces 5, Blockers 1, Champs 0. The browser check is racy and cannot be trusted as written.",
+   "where": "ventures/league-schedule-generator/eval/browser-click-single.mjs:45"
+  },
+  {
+   "severity": "low",
+   "what": "countBreaks resets a team's home/away run on a bye, so odd-team leagues always report 0 breaks; a fair convention but unstated, and a commissioner comparing against another tool that counts across byes will see different numbers.",
+   "where": "ventures/league-schedule-generator/calc.mjs:485"
+  },
+  {
+   "severity": "low",
+   "what": "README says `node --test` runs the suite; the working command is `node --test '*.test.mjs'`, and eval/browser-click-single.mjs's header names a different script. llms.txt points at the retired github.io host.",
+   "where": "ventures/league-schedule-generator/README.md:46"
+  },
+  {
+   "severity": "low",
+   "what": "calc.mjs is a single 3,200-line file holding parsing, scheduling, exports, standings, brackets and five formats; standings() is a 75-line function with a nested recursive resolver.",
+   "where": "ventures/league-schedule-generator/calc.mjs:2038"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The schedule core a league commissioner checks first is right: for every n from 2 to 30, single and double, my independent script found each pair meeting the correct number of times, no double-booked team, one bye per team per leg in odd leagues, exactly n-2 home/away breaks for even n (the known minimum) and home equal to away in double round robins; standard bracket seeding and game counts, a hand-worked 4-team table with and without head-to-head, FIVB set points and Swiss round counts also matched. The 365-test suite passes and a seeded home/away bug failed 22 tests, but a seeded bug reversing the goals-for tie-break, which decides play-off seeding, failed none, and the repo's own single-league browser check reports false failures from a stale-table race, so verification scores 2 and the venture does not meet the bar (verification below 3) though it is finished (completeness 3). Recheckable with `node --test '*.test.mjs'`, the mutation at calc.mjs:2103 and `node eval/browser-click-single.mjs`. Small safe fix: add a test with two teams level on points and GD but different GF (and a head-to-head plus set-scoring case), and make the eval script wait for the table to change."
+}

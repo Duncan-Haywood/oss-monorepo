@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-07",
+ "subject": "platform/seo",
+ "stratum": "platform",
+ "seed": "2026-11-07",
+ "auditor": "agent session (Claude), 2026-11-07 round 10",
+ "status": "audited",
+ "professional": "a senior technical SEO (someone who runs indexation audits and Search Console for a large programmatic site). They would check first: that robots.txt and the sitemap index are reachable and list only canonical 200 URLs, that every sampled page is indexable (no noindex by header or meta, self-referencing canonical on the exact https host), and that the ranking numbers come from Search Console rather than from one agent's web-search tool.",
+ "scores": {
+  "correctness": 2,
+  "completeness": 2,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran, not just read. Recomputed against files and by hand, not against the author's tests: (1) STATUS.md vs a fresh `probe.py report`: identical apart from one trailing newline; the table cells (brand 2 of 3, name 3 of 8, intent 3 of 12, 0 found) match my own count of history/observations.jsonl (9 rows: 8 claude-websearch readings, 2 brand, 3 name, 3 intent, plus one audit row) and of queries.json (3 brand, 8 name, 12 intent = 23, matching EXPERIMENTS.md '8 of 23'). (2) rank_of on hand-built result lists: a www./query-string hit ranks 2 as it should, an off-site URL carrying the domain in its query string is not counted, a sibling path (wall-framing-takeoff-2) is correctly refused. (3) audit_page on crafted HTML: a long title (71 chars) warns, a canonical on another path blocks. But two things a technical SEO checks first are wrong: `norm()` drops scheme and www., so a canonical of `http://www.marisstella.app/x/` for page `https://marisstella.app/x/` is reported clean (returned ([], [])), as is a canonical carrying `?utm=1`; and a robots meta written unquoted (`<meta name=robots content=noindex>`) is not seen, because `attr()` only matches quoted values. Both are false negatives in the check that exists to find indexing blockers. (4) The recorded live-site numbers (1327 child sitemaps, 20 pages, 0 blockers on 2026-11-03; 1,343 URLs submitted to IndexNow) could NOT be re-checked: every request to marisstella.app returned a proxy 403 CONNECT failure (curl and probe.py), so they are unconfirmed. I could only confirm that the build writes one child sitemap per surface plus sitemap-hub.xml (platform/pages/build.mjs:10988), which is consistent with 1327 children but is not a count. Capped at 2: two false-negative paths in the audit and no live recomputation.",
+  "completeness": "README claims checked. `next` works (lists never-probed queries first). `record` works (unit-tested, run in the suite). `report [--write]` works and reproduces STATUS.md. `audit` was run here and CRASHED: `python3 platform/seo/probe.py audit --dry-run` died with an uncaught urllib.error.URLError traceback (Tunnel connection failed: 403) and exit 1, instead of the documented 'exit 2 nothing was measured'. `brave` and `gsc` need keys that do not exist (BRAVE_API_KEY, GSC_SERVICE_ACCOUNT_JSON, and no verified Search Console property: site-verification.json lists no tokens), so they are stubs in practice: never run against the real API, so their correctness is unproven. The only readings in the loop are 8 claude-websearch queries from one day (2026-11-03) and one audit; nothing since, and 15 of 23 tracked queries have never been probed. The loop's own purpose (judge a change by whether rankings moved) has no usable reading yet; E1 and E2 are honestly marked pending (earliest read 2026-11-10 and 11-17).",
+  "verification": "Ran `python3 platform/ci/test_seo_probe.py`: 23 tests, OK, 0.3 s, no network. Seeded five single-line mutations in probe.py, one at a time, reverting each with git checkout (git status clean afterwards): (M1) rank_of prefix match without the path boundary, caught by test_prefix_needs_a_path_boundary; (M2) canonical comparison replaced with `elif False`, caught by test_noindex_and_wrong_canonical_block; (M3) title limit 70 -> 700, caught by test_long_title_and_two_h1_are_warnings; (M4) scorecard best rank min -> max, caught by test_record_then_report; (M5) `next` ordering reversed, caught by test_next_orders_never_seen_first. All five caught. Gaps: cmd_audit (sitemap sampling, off-site check, robots parsing, exit codes), sitemap_locs, cmd_brave have zero direct references in the test file, which is how the offline crash and the exit-code claim went unnoticed; and no test pins the scheme/www canonical case or unquoted attributes that I found.",
+  "craft": "Read probe.py in full (580 lines, one file, stdlib only, typed, clear section headers, small functions) and platform/ci/test_seo_probe.py. Good: append-only history, dated rows, 'unmeasured, never zero' discipline, openssl-CLI JWT signing so no dependencies, a duplicate-id and tier check on queries.json, politeness sampling on sitemaps. Defects: http() (probe.py:183-191) only catches HTTPError, so any connection/DNS/proxy failure raises and the audit exits 1 with a traceback, which collides with EXIT_DEFECT=1 'the audit found a defect'; norm() (probe.py:108) is reused for canonical comparison where scheme and www matter; attr() (probe.py:338) regex needs quotes; the child-sitemap fetch loop (probe.py:~420) records an HTTP failure as a blocker but not a fetch exception; the report's 'change since previous' (probe.py scorecard) subtracts found-counts between readings that cover different sets of queries (3 of 8 now vs whatever was observed before), so the delta is not like for like; gsc `norm(...).startswith(norm(q['expect']))` lacks the path boundary that rank_of has; `for extra in ('llms.txt',)` is a one-item loop left from a longer list.",
+  "claims": "Checked: STATUS.md numbers (match history, regenerated identically); README 'works today' for claude-websearch and 'A missing key exits 2 and records nothing' (true for brave and gsc: ran both paths in the test suite); EXPERIMENTS baseline '8 of 23 queries, 0 found' (true); E2 'Next candidates: platform code still writes the old base' (true, grep finds duncan-haywood.github.io in platform/distribution/{bluesky,citation,mcp}.mjs, hub/compose.mjs and 20+ actions READMEs); the claim that the README and VENTURE.yaml rewrite was complete (0 of ventures/*/README.md and research READMEs still name the old host; 1332 ventures READMEs name marisstella.app) holds. Not backed or false: the probe.py docstring and README say the audit 'works' and that no egress gives exit 2, but offline it crashes with exit 1 (above); 'audit: works; 0 blockers on 2026-11-03' rests on one history row I could not re-run (site unreachable here); README says the audit checks 'canonical' but it does not catch an http/www canonical (above). The loop's headline is honest ('unmeasured, not zero'), and the disclaimers about what Google does are not overclaimed.",
+  "fitness": "Walked the job of the owner's goal ('optimize ranking on google and for AI agents web search, with a feedback loop'): measure (next/record), change (EXPERIMENTS.md), re-measure (report). It is a sound skeleton, but a technical SEO would say the signal is thin: ranks come from a single agent's web-search tool, 8 queries once, with no Search Console (clicks, impressions, indexed-page count, coverage) because the property is not verified; the audit samples about 20 pages out of roughly 2.6k URLs and 10 of 1327 child sitemaps; no 'site:' or indexed-count reading is tracked (the baseline notes it is not in the history). For the job 'tell me whether a change moved rankings' a user cannot yet rely on it; for the job 'give me a quick indexability smoke test' it works but misses two canonical/robots cases.",
+  "domain": "Compared against standard technical-SEO audit practice (Google's documentation on canonicalisation and robots meta, sitemap protocol, Search Console coverage reports). Right: separating brand/name/intent tiers and refusing to read an intent miss before the brand tier appears; treating long titles as snippet-rewrite warnings not blockers; sitemap-index sampling; noting 'unmeasured' vs 'zero'; logging experiments with an earliest read date. Departs: canonical identity must be an exact URL match on scheme, host and path (a canonical to the http or www variant is a classic split-signal defect), and norm() erases exactly that; the audit never checks the sampled URLs against the sitemap's own canonical host, redirects, trailing-slash behaviour or hreflang; title length is in characters, where Google truncates by pixel width (about 580 px); it is unrealistic to infer 'rank' from one web-search call per query without noting personalisation and variance (n=1 per query per day). Fine for a young site with the stated limits, but a senior SEO would not sign off the audit as an indexability gate."
+ },
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The audit's canonical check compares norm() of both URLs, which drops scheme, www. and query string, so a canonical pointing at http:// or www. or ?utm= variant of the page is reported clean (verified: audit_page returned ([], []) for canonical http://www.marisstella.app/x/ on https://marisstella.app/x/). It is the check meant to find indexing blockers.",
+   "where": "platform/seo/probe.py:365"
+  },
+  {
+   "severity": "high",
+   "what": "A connection, DNS or proxy failure is not caught: http() handles only HTTPError, so `probe.py audit` raises URLError and exits 1 with a traceback (reproduced offline). Exit 1 means 'the audit found a defect' and exit 2 'unmeasured' per the docstring, so an outage reads as a defect to any caller that checks the code. The same hole affects brave and gsc.",
+   "where": "platform/seo/probe.py:183"
+  },
+  {
+   "severity": "medium",
+   "what": "An unquoted robots meta (`<meta name=robots content=noindex>`) is invisible to the audit, because attr() only matches quoted attribute values; a noindex page would pass. cmd_audit, sitemap_locs and the off-site check have no tests, which is why neither this nor the crash was caught.",
+   "where": "platform/seo/probe.py:338"
+  },
+  {
+   "severity": "medium",
+   "what": "Report 'change since previous' subtracts found-counts over different query sets (queries present in the previous reading vs the latest), so the delta is not like for like once coverage grows.",
+   "where": "platform/seo/probe.py:516"
+  },
+  {
+   "severity": "low",
+   "what": "gsc hit test uses startswith without the path boundary rank_of has, so /wall-framing-takeoff-2/ would count as /wall-framing-takeoff/.",
+   "where": "platform/seo/probe.py:291"
+  },
+  {
+   "severity": "low",
+   "what": "Recorded live-audit numbers (STATUS.md 1327 child sitemaps, 0 blockers) rest on one 2026-11-03 run; nothing re-audited in four days and 15 of 23 tracked queries have never been probed.",
+   "where": "platform/seo/STATUS.md:1"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "platform/seo is a sound, honest, small measurement skeleton: its bookkeeping reproduces (STATUS.md regenerates identically and matches my count of the history file and queries.json), its 23 tests pass and catch all five single-line bugs I seeded, and the docs say plainly that nothing has ranked yet and what is unmeasured. It falls short of the bar on correctness and claims. The audit, the one tool that tests the live site, has a canonical comparison that cannot see an http/www/query-string canonical and a robots-meta parser that misses unquoted attributes, and when the site cannot be reached it crashes with exit 1 rather than the documented 'unmeasured' exit 2; none of that is tested because cmd_audit has no test. I could not re-check the recorded live-site figures because marisstella.app was blocked by the proxy in this session (HTTP 403 on CONNECT), so those are unconfirmed rather than wrong. The loop has also produced only one day of readings (8 of 23 queries, all misses) and no Search Console data, so it cannot yet say whether any SEO change helped. Scores are before any fix; the fixes are small (compare scheme and host exactly in the canonical check, catch URLError and return EXIT_UNMEASURED, accept unquoted attributes, test cmd_audit with a stubbed http)."
+}
