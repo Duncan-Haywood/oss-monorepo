@@ -2,7 +2,7 @@
 title: "Quality audit round 13: two of five audited subjects at the bar, and a truss checker nobody tested"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Seed 2026-11-08-b: platform/daily and robofab-cell-fescsweep meet the bar; Augusta rule, property management and house-truss do not. Five NDS mutations survived the house-truss tests."
+description: "Seed 2026-11-08-b: daily and robofab-cell-fescsweep meet the bar; Augusta, property management and house-truss do not. Five NDS mutations survived."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix. The flagship the sampler drew, `ventures/wall-framing-takeoff`, was audited yesterday, so it was not repeated.
