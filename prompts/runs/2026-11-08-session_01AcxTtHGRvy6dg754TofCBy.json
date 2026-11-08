@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtHGRvy6dg754TofCBy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T19:07:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14105",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Small slice of flagship 5 rather than a 300-hour-scale effort; no flagship next: rewrite needed.",
+      "did": "Lithuanian 12-digit VAT check digit + test + post",
+      "result": "vat.test.mjs 15/15; CI not waited for"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-08-lithuanian-12-digit-vat-check-digit.md"
+  ],
+  "goal": null,
+  "notes": "Weights from memory, flagged as such in the post.",
+  "corrections": [],
+  "redteam": null
+}
