@@ -1,6 +1,6 @@
 ---
 kind: note
-topics: [analysis]
+topics: [product-build, depth, outbound-hosts]
 date: 2026-11-08
 ---
 # wall-framing-takeoff: allowance bench on the real Schultz house
