@@ -38,9 +38,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "none: one-line check fix, no post (deviation-free skip: nothing to report beyond the fix)",
+  "writeups": [],
   "goal": null,
-  "notes": "Critique via main_health.py; no backlog ids touched. Fix cascaded: second tilt post also needed seo_title.",
+  "notes": "Critique via main_health.py; no backlog ids touched. Fix cascaded: second tilt post also needed seo_title. No post: one-line check fix.",
   "corrections": [],
   "redteam": null,
   "usage": {
