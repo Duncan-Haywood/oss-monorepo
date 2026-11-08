@@ -34,6 +34,7 @@ const pct = (/** @type {number[]} */ sorted, /** @type {number} */ p) => sorted[
  * @param {{ runs?: number, seed?: number }} [opts]
  */
 export function scheduleRisk(input, opts = {}) {
+  if (opts == null || typeof opts !== "object") return { ok: false, errors: ["Risk options are an object (runs, seed)."] };
   const runs = opts.runs ?? 1000;
   if (!(Number.isInteger(runs) && runs >= 10 && runs <= 20000)) return { ok: false, errors: ["runs must be a whole number from 10 to 20000."] };
   const base = /** @type {any} */ (schedule(input));
