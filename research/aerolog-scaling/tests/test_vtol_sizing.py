@@ -41,3 +41,18 @@ def test_cruise_sizing_beats_hover_sizing_at_low_engine_power():
     ch = _cruise_hybrid()
     import hybrid_mass_law as hm
     assert ch.hyb_cruise(150e3, .479, .5, .25, .2) > hm.hyb_free(150e3, .479, .5, .25, .2)
+
+
+def test_total_effect_indices_on_additive_toy():
+    # Jansen estimators on f = x0 + 2*x1 (uniform 0..1): S = ST = 0.2, 0.8 exactly (no interaction)
+    import random, sys, os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "experiments", "vtol_sizing"))
+    from total_effect import idx
+    rng = random.Random(0); N = 20000
+    A = [(rng.random(), rng.random()) for _ in range(N)]
+    B = [(rng.random(), rng.random()) for _ in range(N)]
+    f = lambda x: x[0] + 2 * x[1]
+    fa, fb = [f(x) for x in A], [f(x) for x in B]
+    fab1 = [f((b[0], a[1])) for a, b in zip(A, B)]
+    s1, st = idx(fa, fb, fab1, list(range(N)))
+    assert abs(s1 - 0.2) < 0.02 and abs(st - 0.2) < 0.02
