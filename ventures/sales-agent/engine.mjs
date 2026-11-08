@@ -393,7 +393,7 @@ const RULES = {
     P("\\bnot something (we|i)('d| would)? ever (buy|purchase|pay for)\\b"),
   ],
   objection_price: [
-    P("\\b(over|beyond|outside|above) (what (we|i) can (spend|afford|pay)|our (budget|range|price range))\\b"), P("\\bmoney is tight\\b"), P("\\bhard to justify\\b"), P("\\b(cost|price|pricing|quote)s?\\b.*\\b(too high|way over|steep|out of reach)\\b"),P("\\btoo (expensive|pricey|costly|much)\\b"), P("\\bsounds (expensive|pricey|costly)\\b"), P("\\b(can'?t|cannot|couldn'?t) afford\\b"), P("\\b(no|don'?t have (the |a )?|out of) budget\\b"), P("\\bprice is (too )?(high|steep)\\b"), P("\\bcheaper\\b")],
+    P("\\b(over|beyond|outside|above) (what (we|i) can (spend|afford|pay)|our (budget|range|price range))\\b"), P("\\bmoney is tight\\b"), P("\\bhard to justify\\b"), P("\\b(cost|price|pricing|quote)s?\\b.*\\b(too high|way over|steep|out of reach)\\b"),P("\\btoo (expensive|pricey|costly|much)\\b"), P("\\bsounds (expensive|pricey|costly)\\b"), P("\\b(can'?t|cannot|couldn'?t) afford\\b"), P("\\b(no|don'?t have (the |a )?|out of) budget\\b"), P("\\bprice is (too )?(high|steep)\\b"), P("\\bcheaper\\b"), P("\\bdouble what (we|i) (pay|spend)\\b"), P("\\b(costs?|priced) (more|higher) than\\b")],
   objection_competitor: [
     P("\\b(under |in a |have a |signed a )?(contract|agreement) with\\b.*\\b(until|through|expires|renew)"), P("\\blocked (in|into)\\b"), P("\\balready (pay|paying|use|using|subscribe|subscribed)\\b.{0,12}\\b(for|to)\\b"),
     P("\\bswitched to\\b"), P("\\b(just |recently |last (week|month) )?(signed|went|gone|renewed) with\\b"), P("\\b(chose|selected|picked|went for) (another|a different|a competitor|\\w+ instead)\\b"),P("\\b(no|not) plan(s|ning)? to (change|switch|move)\\b"), P("\\balready (does|handles|covers|has|do)\\b"),P("\\b(we|i) (already )?(use|have|work with|are using|'?re using|rely on)\\b.*\\b(already|currently|happy|for (this|that))\\b"), P("\\balready (have|use|using|work with|got)\\b"), P("\\bhappy with (our|what|the)\\b"), P("\\b(locked|signed) (in|into)\\b.*\\bcontract\\b"), P("\\bin a contract\\b"), P("\\bbuilt (it|this|our own) (in[- ]house|ourselves)\\b"), P("\\bbuilt (our|my) own\\b"), P("\\bin[- ]house\\b"), P("\\bin[- ]house (solution|tool|team)\\b")],
@@ -482,12 +482,15 @@ export function triage(reply, today) {
     const d = (() => { for (const s of all) { if (/\b(back|return|returning|until|till|away|leave|office|reply|jusqu|retour|hasta|vuelta|at[ée]|volto|bis|zur[üu]ck|fino|tot)\b/i.test(s)) { const f = findDate(s, today); if (f) return f; } } return null; })();
     return res("out_of_office", ev, { date: d?.date || null, dateText: d?.text || null, referral, why: d ? `away until ${d.date}` : "away, no return date given" });
   }
+  // Added 2026-11-08 (eighteenth set, a false-not-now and wrong-person probe): "not later, not ever", "no need to check back",
+  // "close the file" are a final no, whatever "not now" or "wrong person" sits beside them.
+  const finalNo = /\b(not (later|ever)|no need to (check back|follow up|circle back)|(don'?t|do not) (follow up|check back|circle back)|close the file)\b/i.test(body);
   // Added 2026-11-11 (eval/fresh-2026-11-11.jsonl, a false not-now and wrong-person probe): "I'm not the right person for budget
   // but I'd use it, Friday?", "my colleague left but I've taken over, what are you offering?", "wrong time, not wrong person" and
   // "the wrong person to convince" are live leads or objections, not a departed contact. A left-company notice with a referral
   // address stays one; without one, a question or a go-ahead in the same reply means a person is still here and engaged.
   const stillHere = !referral && (/\?|\b(let'?s (talk|chat|set|do|schedule|have)|yes,|happy to (see|chat|talk|take)|i do now|(i'?ve|i have) (now )?taken over|(i'?m|i am) the one who)\b/i.test(body) || /\b(not|isn'?t) (the |a )?wrong person\b|\bwrong (person|one) to (convince|sell|pitch|persuade)\b|\bwrong time\b/i.test(body));
-  if (!stillHere && (ev = find("left_company"))) return res("left_company", ev, { referral, why: referral ? `points you to ${referral.email}` : "not the right contact" });
+  if (!finalNo && !stillHere && (ev = find("left_company"))) return res("left_company", ev, { referral, why: referral ? `points you to ${referral.email}` : "not the right contact" });
 
   // A sentence that asks to meet anywhere in the reply counts, not only the first positive one ("Sounds interesting.
   // Could you send times?" is an explicit ask).
@@ -495,8 +498,13 @@ export function triage(reply, today) {
   let meet = null, explicitMeeting = false;
   for (const s of all) { const m = hits(RULES.meeting, s); if (m) { const ex = EXPLICIT.test(m[0]); if (!meet || (ex && !explicitMeeting)) { meet = { s, m: m[0] }; explicitMeeting = ex; } if (ex) break; } }
   // "I'd have said not now last month, but things changed" and "not now and not later either" are not a deferral (2026-11-11).
-  const notNow = /\b(would|'d) have said (not|no)\b|\bnow is (actually )?(a )?(perfect|good|great|the right) time\b|\bnot (right )?now,? (and|or|but) not (later|ever|in the future)|\bnot (now|later),? (not|nor) (ever|later)\b/i.test(body) ? null : find("not_now");
+  let notNow = /\b(would|'d) have said (not|no)\b|\bnow is (actually )?(a )?(perfect|good|great|the right) time\b|\bnot (right )?now,? (and|or|but) not (later|ever|in the future)|\bnot (now|later),? (not|nor) (ever|later)\b/i.test(body) ? null : find("not_now");
+  // A question about the product beside "in the middle of a migration" is a question; "timing isn't right because the price is
+  // double" and "budget is set, your tool costs more" are price objections, not a date to come back (2026-11-08).
+  if (notNow && /\b(middle|midst) of\b/i.test(notNow.m) && /\?/.test(body)) notNow = null;
+  if (notNow && find("objection_price") && !findDate(notNow.s, today)) notNow = null;
   const notInt = find("not_interested");
+  if (finalNo && !meet) { const ev2 = notInt || notNow; return res("not_interested", ev2, { why: "declined for good" }); }
 
   // "Open to a demo after our fiscal year ends ... come back then" is a date, not a request for times (2026-11-08).
   const futureOnly = meet && notNow && /\b(after|once|until|when) (our|the|we|i|my)\b/i.test(meet.s);

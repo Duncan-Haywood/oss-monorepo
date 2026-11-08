@@ -473,6 +473,16 @@ test("fresh set 2026-11-08d (seventeenth, a false-bounce and false-away probe): 
   assert.equal(triage({ subject: "Automatic reply", body: "I am out of the office until 12 December with limited access to email." }, T).category, "out_of_office");
 });
 
+test("fresh set 2026-11-08e (nineteenth, a false-not-now and wrong-person probe): scored once at 9/20, 15/20 after three narrow changes (16/20 with the 2026-11-11 vetoes); a tuned set", () => {
+  const s = score(load("fresh-2026-11-08e.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 16);
+  assert.equal(s.overreach, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["We're in the middle of a CRM migration. Does your tool work with HubSpot imports?", "question"], ["Timing isn't right for us because the price is double what we pay for our current tool. Can you do better?", "objection"], ["Not now, not later, not ever. We have no use for this. Please close the file.", "not_interested"], ["Wrong person, but also wrong product. We'd never buy this. Don't follow up.", "not_interested"], ["Swamped until the end of the quarter. Ping me in February and I'll look then.", "not_now"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
 test("fresh set 2026-11-11 (eighteenth, a false not-now and wrong-person probe): scored once at 9/20 (6 live leads read as a departed contact), 18/20 after narrow vetoes; a tuned set", () => {
   const s = score(load("fresh-2026-11-11.jsonl"));
   assert.equal(s.n, 20);
