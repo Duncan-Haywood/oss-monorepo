@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b26'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Board foot calculator: board feet, cubic feet and lumber cost</title>
+  <meta name="description" content="Free board foot calculator: type thickness, width, length and count for each board and get board feet, cubic feet, waste and cost per board foot, per piece or per foot. Nominal or milled sizes. Runs in your browser.">
+  <meta property="og:title" content="Board foot calculator">
+  <meta property="og:description" content="Thickness, width, length and count in; board feet, cubic feet and cost out. Private, free, in your browser.">
+  <link rel="canonical" href="./board-foot-calculator.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many board feet are in a 2x4x8?", "acceptedAnswer": {"@type": "Answer", "text": "A 2x4x8 is 2 x 4 x 8 / 12 = 5.33 board feet on the size it is sold as, which is how lumber is priced. Milled to its usual finished 1-1/2 by 3-1/2 inches it holds 3.5 board feet of wood. A bundle of 10 is 53.33 board feet sold. Your lumberyard decides which size it prices on, so ask."}}, {"@type": "Question", "name": "How many board feet and what cost for ten 1x6x12 boards at $4.50 a board foot?", "acceptedAnswer": {"@type": "Answer", "text": "Each 1x6x12 is 1 x 6 x 12 / 12 = 6 board feet, so ten are 60 board feet and cost 60 x $4.50 = $270.00. With 10% waste you would buy about 66 board feet, $297.00. The price is the one you type; the calculator only multiplies."}}, {"@type": "Question", "name": "How do I convert 8/4 hardwood to board feet?", "acceptedAnswer": {"@type": "Answer", "text": "Quarters are eighths of an inch over four: 8/4 is 2 inches thick, 4/4 is 1 inch and 5/4 is 1.25 inches. Two 8/4 boards 6 inches wide and 10 feet long are 2 x 6 x 10 / 12 = 10 board feet each, 20 in all; at $14 a board foot that is $280.00, or $308.00 with 10% waste (buy 22 board feet)."}}]}</script>
+  <style>
+    :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
+    body { max-width: 760px; margin: auto; padding: 24px 16px; }
+    a { color: #1d5c7a; }
+    h1 { font-size: clamp(1.6rem, 4.4vw, 2.3rem); line-height: 1.15; color: #33302a; }
+    h2 { font-size: 1.15rem; margin-top: 28px; color: #33302a; }
+    p, li { line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd3; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .cta { display: inline-block; background: #1d5c7a; color: #fff; padding: 10px 14px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    label { display:block; font-size:.9rem; margin:8px 0 2px; }
+    input, select { font: inherit; padding: 6px; width: 100%; box-sizing: border-box; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0 12px; }
+    pre { background:#fff; border:1px solid #dcd7cb; padding:10px; overflow-x:auto; font-size:.9rem; white-space:pre-wrap; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7cb; padding-top: 14px; font-size: .86rem; color: #555044; }
+      .row { display:grid; grid-template-columns: 1.4fr repeat(4,1fr) 1.1fr auto; gap: 6px; align-items:end; margin-bottom: 6px; }
+    @media (max-width: 640px) { .row { grid-template-columns: 1fr 1fr; } }
+    button { font: inherit; padding: 6px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Board foot calculator</h1>
+  <p>A board foot is 144 cubic inches: thickness in inches times width in inches times length in feet, divided by 12. Add a line for each kind of board (thickness may be typed in quarters, like 4/4 or 8/4), and you get board feet, cubic feet, waste, and a cost if you type a price per board foot, per piece or per linear foot. Lumber is priced on the size it is sold as, so a 2x4 counts as 2 by 4 even though it is milled smaller; the tool shows both. Nothing leaves your browser.</p>
+  <form id="f" onsubmit="return false">
+    <div class="grid">
+      <div><label for="basis">Count board feet on</label><select id="basis"><option value="nominal">Sold size (nominal 2x4, rough 4/4)</option><option value="actual">Milled size (1.5 x 3.5 for a 2x4)</option></select></div>
+      <div><label for="waste">Waste (%)</label><input id="waste" type="number" min="0" max="100" step="1" value="10"></div>
+    </div>
+    <div id="rows"></div>
+    <p><button type="button" id="add">Add a line</button></p>
+  </form>
+  <pre id="out" aria-live="polite"></pre>
+  <p><a class="cta" href="index.html">Do the whole house: framing, sheathing, plumbing and more in one takeoff</a></p>
+
+  <h2>How it is counted</h2>
+  <ol>
+    <li><strong>Each line.</strong> Thickness (in) x width (in) x length (ft) / 12, times the count. Quarters are converted: 4/4 is 1 in, 5/4 is 1.25 in, 8/4 is 2 in, and a thickness typed in quarters is hardwood, never swapped for a milled softwood size.</li>
+    <li><strong>Sold or milled.</strong> Softwood dimension lumber and rough hardwood are priced on the size they are sold as. The milled column uses the usual finished sizes (a 2x4 is 1-1/2 by 3-1/2, a 2x6 is 1-1/2 by 5-1/2, a 1x6 is 3/4 by 5-1/2); sizes not on that list are used as typed.</li>
+    <li><strong>Cost.</strong> A price per board foot is applied to the sold size (or the milled size if you pick milled). A price per piece or per linear foot ignores board feet. Waste is a percentage you type and is added on top.</li>
+  </ol>
+
+  <h2>Questions</h2>
+  <h3>How many board feet are in a 2x4x8?</h3>
+  <p>A 2x4x8 is 2 x 4 x 8 / 12 = 5.33 board feet on the size it is sold as, which is how lumber is priced. Milled to its usual finished 1-1/2 by 3-1/2 inches it holds 3.5 board feet of wood. A bundle of 10 is 53.33 board feet sold. Your lumberyard decides which size it prices on, so ask.</p>
+  <h3>How many board feet and what cost for ten 1x6x12 boards at $4.50 a board foot?</h3>
+  <p>Each 1x6x12 is 1 x 6 x 12 / 12 = 6 board feet, so ten are 60 board feet and cost 60 x $4.50 = $270.00. With 10% waste you would buy about 66 board feet, $297.00. The price is the one you type; the calculator only multiplies.</p>
+  <h3>How do I convert 8/4 hardwood to board feet?</h3>
+  <p>Quarters are eighths of an inch over four: 8/4 is 2 inches thick, 4/4 is 1 inch and 5/4 is 1.25 inches. Two 8/4 boards 6 inches wide and 10 feet long are 2 x 6 x 10 / 12 = 10 board feet each, 20 in all; at $14 a board foot that is $280.00, or $308.00 with 10% waste (buy 22 board feet).</p>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="board-foot-calculator.html">Board foot calculator (board feet, cubic feet and cost)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, thinset, grout, backer)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="index.html">Wall framing takeoff (studs, cut list, order)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="drywall-calculator.html">Drywall calculator (sheets, tape, compound)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, carpet)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li></ul></nav>
+  
+  <footer>
+    <p><strong>No warranty.</strong> This page and the tool it links to are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, construction, building-code, legal or financial advice, and do not replace a qualified professional, your plans or your building department. Areas, depths and sizes are your inputs and are not checked against any span table or code, height limit, property line, utility location or permit rule. <strong>You are responsible for reviewing and verifying the output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. Board feet multiply the sizes you type; species, grade, moisture, true milled sizes beyond the common softwood list, and your lumberyard's own pricing rules are not checked. Ask your supplier whether they price on nominal or actual size.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice.</p>
+    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { layoutBoardFoot, boardFootText } from "./boardfoot.mjs";
+    const $ = (id) => document.getElementById(id);
+    const rows = $("rows");
+    const field = (cls, label, attrs) => `<div><label>${label}<input class="${cls}" aria-label="${label}" ${attrs}></label></div>`;
+    const addRow = (v = {}) => {
+      const d = document.createElement("div");
+      d.className = "row";
+      d.innerHTML = field("label", "Label (optional)", `type="text" maxlength="40" value="${v.label ?? ""}"`) + field("t", "Thickness (in or 4/4)", `type="text" inputmode="decimal" value="${v.t ?? "2"}"`) + field("w", "Width (in)", `type="number" min="0" step="any" value="${v.w ?? "4"}"`) + field("l", "Length (ft)", `type="number" min="0" step="any" value="${v.l ?? "8"}"`) + field("c", "Count", `type="number" min="1" step="1" value="${v.c ?? "1"}"`) +
+        `<div><label>Price<input class="p" aria-label="Price (leave blank for none)" type="number" min="0" step="any" value="${v.p ?? ""}"></label></div><div><label>per<select class="u" aria-label="Price is per"><option value="pricePerBf">board foot</option><option value="pricePerPiece">piece</option><option value="pricePerFt">linear foot</option></select></label></div>`;
+      d.querySelector(".u").value = v.u ?? "pricePerBf";
+      const del = document.createElement("button"); del.type = "button"; del.textContent = "Remove"; del.setAttribute("aria-label", "Remove this line");
+      del.onclick = () => { d.remove(); run(); };
+      d.append(del);
+      rows.append(d);
+    };
+    const run = () => {
+      const lines = [...rows.children].map((r) => {
+        const q = (c) => r.querySelector("." + c).value.trim();
+        const num = (c) => (q(c) === "" ? undefined : Number(q(c)));
+        const l = { thickness: q("t") === "" ? 0 : (/^[0-9.]+$/.test(q("t")) ? Number(q("t")) : q("t")), width: num("w") ?? 0, length: num("l") ?? 0, count: num("c") };
+        if (q("label")) l.label = q("label");
+        if (q("p") !== "") l[r.querySelector(".u").value] = Number(q("p"));
+        return l;
+      });
+      const w = $("waste").value.trim();
+      const p = layoutBoardFoot({ basis: $("basis").value, waste: w === "" ? 0 : Number(w) / 100, lines });
+      $("out").textContent = p.ok === false ? p.errors.join("\n") : boardFootText(p).join("\n");
+    };
+    $("f").addEventListener("input", run);
+    $("add").onclick = () => { addRow(); run(); };
+    addRow({ label: "Studs", t: "2", w: "4", l: "8", c: "40", p: "3.5", u: "pricePerPiece" });
+    addRow({ label: "Walnut", t: "8/4", w: "6", l: "10", c: "2", p: "14", u: "pricePerBf" });
+    run();
+  </script>
+</body>
+</html>
