@@ -1,8 +1,8 @@
 ---
-title: "Quality audit round 14: the flagship meets the bar, a Chrome-permission checker tells users to add a permission that doesn't exist"
+title: "Quality audit round 14: the flagship meets the bar, none of five sampled subjects does"
 date: 2026-11-08
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Seed 2026-11-08-c: only the flagship wall-framing-takeoff meets the bar; none of five sampled subjects does. A Chrome-permission checker flags permissions that do not exist."
+description: "Seed 2026-11-08-c: only wall-framing-takeoff meets the bar. A Chrome permission checker flags a permission that does not exist."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix.
