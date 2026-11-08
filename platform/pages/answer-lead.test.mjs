@@ -181,3 +181,17 @@ test('aca-subsidy-cliff-calculator: lead is sourced, dated and matches the calcu
   assert.match(text, new RegExp(`${BANDS[0][1].toFixed(2)}%`));
   assert.match(text, new RegExp(`${BANDS[BANDS.length - 1][2].toFixed(2)}%`));
 });
+
+// TikTok Shop lead (percentages only): the rates it states must be the ones the presets hold.
+test('tiktok-shop-fee-calculator: lead is sourced, dated and matches the fee presets', async () => {
+  const slug = 'tiktok-shop-fee-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { FEE_SCHEDULE_PRESETS: P } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/(\d+(?:\.\d+)?)%/g)].map((x) => Number(x[1]));
+  assert.deepEqual(stated, [P.us_standard.referralRate, P.oct_2026.referralRate, P.oct_2026.facilitationRate]);
+});
