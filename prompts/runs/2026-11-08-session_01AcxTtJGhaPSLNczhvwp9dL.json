@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtJGhaPSLNczhvwp9dL",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T10:12:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14016",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Pool reading showed Pages test, conflict-markers and validate-install steps all already analysed in earlier docs; no fresh perf target was found in the time spent."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Local Pages build of main failed on an over-long post description, so fixing red main replaced a speed-up.",
+      "did": "Shortened the description 172 to 156 chars; build exits 0.",
+      "result": "Build restored; no timing metric measured."
+    }
+  ],
+  "writeups": "none: one-line fix; no post or history doc (stated in notes)",
+  "goal": null,
+  "notes": "Perf track, no speed metric. ci_profile --runs 600: Test the site builder is the top step (156.6 job-min), already covered by many docs/history passes. Conflict-markers unit tests warm 2.8 s (cold 19.8 s I/O). Building main exposed a red Pages build from #14011; fixed in PR 14016. No post/agent doc.",
+  "corrections": [],
+  "redteam": null
+}
