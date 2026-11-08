@@ -217,13 +217,14 @@ export function validatePlan(plan) {
       if (!isRec(op)) return;
       for (const k of ["offset", "width", "height"]) if (!isNum(op[k])) shape.push(`${at}, ${op.label || op.kind || "opening"}: "${k}" must be a number of inches.`);
       if (op.headerHeight !== undefined && !isNum(op.headerHeight)) shape.push(`${at}, ${op.label || op.kind || "opening"}: "headerHeight" must be a number of inches.`);
+      if (op.label !== undefined && typeof op.label !== "string") shape.push(`${at}, opening: "label" must be text.`);
     });
     if (!isNum(w.length)) shape.push(`${at}: "length" must be a number of inches.`);
     if (w.studLength !== undefined && !isNum(w.studLength)) shape.push(`${at}: "studLength" must be a number of inches.`);
     else if (w.studLength !== undefined && !(w.studLength >= 24 && w.studLength <= 240)) errors.push(`${at}: stud length must be between 24 and 240 inches.`);
     if (Array.isArray(w.tees) && !w.tees.every(isNum)) shape.push(`${at}: every tee must be a number of inches from the wall start.`);
   });
-  if (Array.isArray(plan.stock)) plan.stock.forEach((st, i) => { if (!isRec(st)) return; for (const k of ["length", "price"]) if (st[k] !== undefined && !isNum(st[k])) shape.push(`Lumber list entry ${i + 1}: "${k}" must be a number.`); });
+  if (Array.isArray(plan.stock)) plan.stock.forEach((st, i) => { if (!isRec(st)) return; if (st.label !== undefined && typeof st.label !== "string") shape.push(`Lumber list entry ${i + 1}: "label" must be text.`); for (const k of ["length", "price"]) if (st[k] !== undefined && !isNum(st[k])) shape.push(`Lumber list entry ${i + 1}: "${k}" must be a number.`); });
   if (shape.length) return shape;
   if (!(plan.studSpacing >= 8 && plan.studSpacing <= 48)) errors.push("Stud spacing must be between 8 and 48 inches.");
   if (!(plan.studLength >= 24 && plan.studLength <= 240)) errors.push("Stud length must be between 24 and 240 inches.");
