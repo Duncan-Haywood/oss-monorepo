@@ -1,6 +1,6 @@
 ---
 title: "Anderson's repair of Gödel's ontological argument still collapses in every small model we can search"
-seo_title: "Does Anderson's emendation of Gödel's ontological argument avoid modal collapse? A finite-model search"
+seo_title: "Does Anderson's Gödel emendation avoid modal collapse?"
 date: 2026-11-09
 tags: [research, theism-formal-evidence, modal-logic]
 description: "An exhaustive search of S5 models up to five (world, individual) cells finds no model of Anderson's emended Gödel axioms with two or more worlds, a prediction we made and lost."
