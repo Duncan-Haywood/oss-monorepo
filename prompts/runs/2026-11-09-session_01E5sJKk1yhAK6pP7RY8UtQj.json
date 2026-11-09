@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14167",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,23 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "no blog post for a small perf change; history doc written instead",
+      "did": "history doc only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-09-check-page-reads-shared.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Metric: platform/pages/check.mjs wall on a built site (7864 pages). Before 18.8/18.9/19.5 s, after 14.3/14.2/15.8 s, `time node check.mjs /tmp/pdist`, one local machine. check.test.mjs 97 pass. P063/P064 need .github edits (owner). No blog post: small internal perf change.",
   "corrections": [],
   "redteam": null
 }
