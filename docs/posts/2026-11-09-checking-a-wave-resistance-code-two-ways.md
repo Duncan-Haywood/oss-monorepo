@@ -3,7 +3,7 @@ title: "Checking a wave-resistance code two ways, and why a form factor is a bra
 seo_title: "Michell wave resistance, Wigley hull: integral and tank-curve check"
 date: 2026-11-09
 tags: [research, marine-hull, naval-architecture, validation]
-description: "Our Michell wave resistance matches an independent integral within 0.01%, but a six-point tank curve implies a form factor of 0 to 0.5 until model size is known."
+description: "Our Michell wave resistance matches an independent integral within 0.01%; but a six-point tank curve implies a form factor of 0 to 0.5 until size is known."
 ---
 
 The marine-hull programme ranks small survey craft by range per kWh, and its
