@@ -514,3 +514,17 @@ test("Dominican RNC/cedula and Venezuelan RIF match python-stdnum 2.2 verdicts o
     assert.deepEqual(rules(cc + n), valid ? [] : ["INV-023"], cc + n);
   }
 });
+
+test("Russia INN, Canada BN and Dominican RNC get a check-digit test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("RU7707083893"), []);
+  assert.deepEqual(rules("RU7707083894"), ["INV-023"]);
+  assert.deepEqual(rules("RU500100732259"), []);
+  assert.deepEqual(rules("RU500100732258"), ["INV-023"]);
+  assert.deepEqual(rules("RU123"), ["INV-022"]);
+  assert.deepEqual(rules("CA123456782RT0001"), []);
+  assert.deepEqual(rules("CA123456783RT0001"), ["INV-023"]);
+  assert.deepEqual(rules("CA12345"), ["INV-022"]);
+  assert.deepEqual(rules("DO101001577"), []);
+  assert.deepEqual(rules("DO101001578"), ["INV-023"]);
+});
