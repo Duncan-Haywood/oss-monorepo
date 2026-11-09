@@ -1,6 +1,6 @@
 ---
 title: "AR(1) correction or a noise floor: which keeps a changepoint tool honest on a drifting series?"
-seo_title: "Changepoint detection on drifting series: AR(1) correction vs noise floor"
+seo_title: "Changepoint detection on drifting series: AR(1) vs noise floor"
 date: 2026-11-09
 tags: [changepoint-detector, time-series, evaluation]
 description: "On 60 synthetic drifting series with one known step, AR(1) correction removes false cuts but misses the step in a third to two thirds of runs."
