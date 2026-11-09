@@ -67,3 +67,12 @@ test("a bare five-digit number is not a postal address (quality audit 2026-11-07
   const withZip = body + " Brightline, Austin, TX 78701";
   assert.ok(!presend({ ...good, body: withZip }).errors.some((x) => x.rule === "postal-address"));
 });
+
+test("country names and aliases map to the same regime as the code (2026-11-09)", async () => {
+  const { regime } = await import("./presend.mjs");
+  for (const [name, code] of [["Germany", "DE"], ["united states", "US"], ["USA", "US"], ["Deutschland", "DE"], ["United Kingdom.", "GB"], ["the Netherlands", "NL"], ["Switzerland", "CH"], ["Canada", "CA"]]) {
+    assert.equal(regime(name).code, code, name);
+  }
+  assert.equal(regime("Germany").kind, "consent");
+  assert.equal(regime("Narnia").kind, "unknown");
+});
