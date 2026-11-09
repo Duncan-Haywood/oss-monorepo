@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01EhTJVNzzgKTi2M3DtmtkWG",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T11:00:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "clothing-design-studio: curved graded pattern pieces (pattern.mjs, pattern.html), SVG and DXF",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 14256,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Took R-0005 (clothing studio) rather than the top flagship: the flagship next: lists wanted only real inputs a run cannot get.",
+      "did": "Built pattern maker",
+      "result": "landed working slice"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Flagship queue was dominated by hostile-input sweeps and items needing real inputs; picked R-0005 and built a depth feature needing none. pattern.test.mjs 10 pass; clothing-design-studio suite and journey test pass; headless Chromium run clean. Proportions untested against a real sample.",
+  "corrections": [],
+  "redteam": null
+}
