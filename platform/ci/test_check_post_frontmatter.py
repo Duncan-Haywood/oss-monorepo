@@ -5,12 +5,16 @@ import datetime
 import unittest
 from pathlib import Path
 
-from check_post_frontmatter import ROOT, main, problems
+from check_post_frontmatter import ROOT, main, problems, tag_key
 
 GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD"\ntags: [a, b]\n---\nbody\n'
 
 
 class T(unittest.TestCase):
+    def test_tag_key_es_plural(self):
+        self.assertEqual(tag_key("taxes"), tag_key("tax"))
+        self.assertNotEqual(tag_key("cases"), tag_key("cas"))
+
     def test_good(self):
         self.assertEqual(problems("2026-10-24-x.md", GOOD), [])
 

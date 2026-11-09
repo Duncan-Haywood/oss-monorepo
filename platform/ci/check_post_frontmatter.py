@@ -65,8 +65,10 @@ def problems(name, text, today=None):
 
 
 def tag_key(tag):
-    """Spelling-insensitive form of a tag: case, hyphens and a trailing plural s dropped."""
+    """Spelling-insensitive form of a tag: case, hyphens and a trailing plural s or es dropped."""
     k = re.sub(r"[^a-z0-9]", "", tag.lower())
+    if k.endswith("es") and len(k) > 4 and k[-3] in "xzh":  # taxes -> tax; not "cases"
+        return k[:-2]
     return k[:-1] if k.endswith("s") and len(k) > 3 else k
 
 

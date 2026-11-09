@@ -1,7 +1,7 @@
 ---
 title: "A babysitter's real federal tax, next to the amount to save"
 date: 2026-10-30
-tags: [babysitting-business-kit, taxes, self-employment, estimated-tax]
+tags: [babysitting-business-kit, tax, self-employment, estimated-tax]
 description: "With $20,000 of babysitting profit and no other income, a single filer owes about $3,025 federal. The new estimate, a safe-harbor plan and a Schedule C sheet."
 ---
 
