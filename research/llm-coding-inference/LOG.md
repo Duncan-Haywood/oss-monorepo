@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 7ab: does the guard-only rule hold on a second corpus (NaijaSenti negative share, nb-in-language coder, corpus J 0.39)? (script ran before this entry was written; the prediction below was not committed ahead of the run; `experiments/h7ab_naija_guard_only.py 500`)
+- Why: the open item since 7y was a second corpus. Same corpus and coder as 7h (6,000 tweets, prevalence 32.7%), n = 400 and 1,000, pilot n/2, 500 draws (+/- 1.9 points).
+- **Prediction (stated after seeing the output, so weaker than a pre-registered one):** `neg_guard=3` alone covers 93% or more; width within 2% of pooled, since 7h found the coder buys under 1% here.
+
+### Outcome (`experiments/h7ab_naija_guard_only.txt`; one run)
+- Coverage: pooled 96.6 (n 400), 93.2 (n 1,000); shipped default 95.0, 92.6; guard-only 94.0, 95.8. Half-width (points): pooled 4.067 / 2.441; shipped 4.050 / 2.427; guard-only 4.059 / 2.427, i.e. 0.2 to 0.6% narrower.
+- Prediction partly met: guard-only covers 94.0 and 95.8% (both at or above 93%) and is within 1% of pooled. The shipped default at n = 1,000 is 92.6%, under 93, but pooled is 93.2 in the same draws, so with +/- 1.9 points this is sampling noise on a shared set of draws, not a rule failure; I did not rerun with more draws.
+- Limits: one second corpus at high prevalence (the rare-category risk 7r targeted is not exercised: the coder-negative cell holds many positives), one coder, one run, 500 draws. The guard-only rule is safe here and buys nothing, as 7h found. Library default unchanged. Still open: a rare category on a second corpus; a second model family.
+
 ## 2026-11-09 · Milestone 7aa: does 7y's reading hold with a second, weaker LLM (Qwen2.5-0.5B-Instruct, fear J 0.264, sadness J 0.265)? (prediction written after the scores were cached and before the rule comparison ran; `LLM=Qwen2.5-0.5B-Instruct experiments/h7y_drop_screen.py <category> 500 <n>`)
 - Why: the open item since 7y was a second LLM. Scored the same GoEmotions test part (6,683 items) for fear and sadness with Qwen2.5-0.5B-Instruct zero-shot (`llm_code_goemotions.py`, about 7 min per category on 4 CPU cores); same cut rule, seed and draws as 7y. The script now reads the model from `LLM` (default unchanged).
 - **Prediction:** `neg_guard=3` alone covers 93% or more in all four cells (two categories, n = 500 and 2,000). Refuted if any cell is under 93%. A weaker coder should shrink the width gain; I expected under 10% at n = 2,000.
