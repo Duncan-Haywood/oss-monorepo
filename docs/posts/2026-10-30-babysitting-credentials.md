@@ -2,7 +2,7 @@
 title: "Babysitter setup: an EIN does not replace your SSN on Form W-10"
 date: 2026-10-30
 description: "A credentials tracker with 60/30/7-day expiry reminders, a readiness checklist, and a setup guide that found the IRS form contradicts a common EIN tip."
-tags: [babysitting-business-kit, taxes, small-business]
+tags: [babysitting-business-kit, tax, small-business]
 ---
 
 The [Babysitting Business Kit](https://duncan-haywood.github.io/oss-monorepo/babysitting-business-kit/) now tracks the sitter's own paperwork: CPR and First Aid, a background check, a driver's license and car insurance (only if they drive kids), liability insurance and any local license. Each has an issue date, an expiry date, the provider and a note on where the paper is. No license, policy or Social Security number is stored.
