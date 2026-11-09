@@ -3,6 +3,32 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-09 · Milestone 5b, fourth GSS-only step: about half the third-plus non-Hispanic white rise is cohort replacement, the rest is not separable from zero
+
+Run: `experiments/m5e_cohort/run.py` (output `results.txt`, tables `t19`, `t20`; same weights and 500-draw PSU
+bootstrap, seed 1, as 5a to 5d). **Order of events:** the prediction was written into the script's docstring before it
+ran: raised-Catholic is fixed at age 16, so a genuine flow cannot rise within a birth cohort; I expected most of the rise
+to be cohort replacement and the within-cohort terms near zero. Population: third-plus generation non-Hispanic whites,
+2000 onward, five birth cohorts, exact midpoint split into replacement plus one within-cohort term per cohort (asserted).
+A first run dropped the pre-1930 cohort (empty in 2021-24) from the totals and gave a wrong start (25.8%); fixed so an
+empty cohort takes the other period's rate, and the totals now match 5d (27.0% to 29.4%).
+
+- **Levels.** Raised-Catholic share by cohort rises with recency up to 1975: before 1930 16.2%, 1930-44 23.4%,
+  1945-59 28.6%, 1960-74 28.8%, 1975+ 29.8% (2000-09). In 2021-24 the 1975+ cohort is 26.7% (n=2,315) and the cohort
+  is 43% of the group, up from 19%.
+- **2000-09 to 2021-24** (+2.40 points [+0.73, +4.37]): replacement **+1.07 [+0.64, +1.54]**, within-cohort **+1.33
+  [-0.27, +3.23]**. By cohort: 1945-59 **+1.05 [+0.20, +1.88]**, 1930-44 +0.55 [0.00, +1.08], 1960-74 +0.68
+  [-0.06, +1.50], 1975+ **-0.94 [-1.84, +0.08]**.
+- **My prediction is only partly supported.** Replacement is positive and clear, but it is about 45% of the rise, not
+  most of it, and the within-cohort term (55%) has an interval that includes zero, so the data neither show nor rule out a
+  within-cohort rise. The one cohort that rises clearly is 1945-59 (aged 41 to 79 across the span), while the youngest
+  cohort's rate fell.
+- **Limits.** The within-cohort rise in older cohorts is what recall error, differential mortality (Catholic-raised
+  people dying later or earlier) or a change in who answers by web would produce; none of these is tested here. No fertility
+  measure, so H4 stays undecided.
+- **Next.** NCHS births and ACS immigration series (5b proper), or the 2016-2020 panel to check whether the same people
+  report the same religion at 16 across waves (recall stability).
+
 ## 2026-11-08 · Milestone 5b, third GSS-only step: the third-plus-generation rise is among non-Hispanic whites, not Hispanics
 
 Run: `experiments/m5d_ethnicity/run.py` (output `results.txt`, tables `t17`, `t18`; same weights and 500-draw PSU
