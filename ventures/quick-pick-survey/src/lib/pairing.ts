@@ -34,6 +34,12 @@ export type PairingInput = {
    */
   firstOptionShare?: number;
   /**
+   * How far this person's recent answers fall short of what their own ratings
+   * predict, as a z-score (`answerAgreement`): near 0 when honest, below -2
+   * when random. Below -2 the staged window stops admitting new items.
+   */
+  answerAgreement?: number;
+  /**
    * The same person's ratings for these items under their OTHER perspectives,
    * used only to choose which pair to show. See `selectionRating`.
    */
@@ -231,9 +237,12 @@ export function admissionOrder(items: PairItem[]): PairItem[] {
 export function activeItems(
   items: PairItem[],
   answeredCount: number,
-  timesShown: Map<string, number>
+  timesShown: Map<string, number>,
+  admissionPaused = false
 ): PairItem[] {
-  const size = activeSetSize(answeredCount, items.length);
+  const size = admissionPaused && items.length > NO_STAGING_BELOW
+    ? Math.min(items.length, CORE_SET_SIZE)
+    : activeSetSize(answeredCount, items.length);
   if (size >= items.length) return items;
 
   const ordered = admissionOrder(items);
@@ -242,6 +251,50 @@ export function activeItems(
     if ((timesShown.get(item.id) ?? 0) > 0) active.add(item.id);
   }
   return items.filter((i) => active.has(i.id));
+}
+
+/**
+ * Random answering test. For each decided answer, the Glicko model (ratings and
+ * deviations BEFORE the answer, as a trial row stores them) gives the chance
+ * that the picked item wins. An honest respondent picks the favoured item about
+ * as often as the model says; a random one picks it half the time, below what
+ * the model expects once ratings have separated. The statistic is the z-score
+ * of observed minus expected picks of the favoured item: near 0 when honest,
+ * negative when random. A raw agreement share does not work: the selector pairs
+ * close items on purpose, so an honest respondent agrees with the ratings only
+ * 0.53 to 0.58 of the time, against 0.4 to 0.63 for a random one (measured
+ * 2026-11-09, `admissionPause.simulation.test.ts`).
+ */
+export const AGREEMENT_Z_PAUSE_BELOW = -2;
+export const AGREEMENT_MIN_DECIDED = 40;
+/** Most recent decided answers the route and the simulation score. */
+export const AGREEMENT_WINDOW = 80;
+
+export type DecidedPick = { picked: number; other: number; pickedRd: number; otherRd: number };
+
+export function answerAgreement(picks: ReadonlyArray<DecidedPick>, minDecided = AGREEMENT_MIN_DECIDED): number | undefined {
+  let obs = 0;
+  let exp = 0;
+  let varSum = 0;
+  let counted = 0;
+  for (const { picked, other, pickedRd, otherRd } of picks) {
+    if (picked === other) continue;
+    const phi = Math.sqrt(pickedRd * pickedRd + otherRd * otherRd) / GLICKO_SCALE;
+    const pPicked = 1 / (1 + Math.exp((-glickoG(phi) * (picked - other)) / GLICKO_SCALE));
+    // Score the favoured item: did the person pick it, and how likely was that.
+    const pFav = Math.max(pPicked, 1 - pPicked);
+    const pickedFav = picked > other ? 1 : 0;
+    obs += pickedFav;
+    exp += pFav;
+    varSum += pFav * (1 - pFav);
+    counted++;
+  }
+  if (counted < minDecided || varSum === 0) return undefined;
+  return (obs - exp) / Math.sqrt(varSum);
+}
+
+export function admissionPaused(z: number | undefined): boolean {
+  return z !== undefined && z < AGREEMENT_Z_PAUSE_BELOW;
 }
 
 /**
@@ -282,12 +335,13 @@ export function selectNextPair({
   recentPairKeys,
   answeredCount = 0,
   priorRatings,
+  answerAgreement: agreement,
   rand = Math.random,
 }: PairingInput): [string, string] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
 
   // Deepen a core set before broadening — see activeSetSize above.
-  const pool = activeItems(items, answeredCount, timesShown);
+  const pool = activeItems(items, answeredCount, timesShown, admissionPaused(agreement));
 
   const shownCounts = pool.map((i) => timesShown.get(i.id) ?? 0);
   const avgShown = shownCounts.reduce((a, b) => a + b, 0) / pool.length;
@@ -393,11 +447,11 @@ export function capPool(pool: PairItem[], timesShown: Map<string, number>, cap: 
 }
 
 export function selectNextPairByInformation(
-  { items, timesShown, recentPairKeys, answeredCount = 0, rand = Math.random }: PairingInput,
+  { items, timesShown, recentPairKeys, answeredCount = 0, answerAgreement: agreement, rand = Math.random }: PairingInput,
   { conflictBonus = 1, coverageWeight = 0, poolCap = INFO_POOL_CAP }: InformationOptions = {}
 ): [string, string] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
-  const pool = capPool(activeItems(items, answeredCount, timesShown), timesShown, poolCap);
+  const pool = capPool(activeItems(items, answeredCount, timesShown, admissionPaused(agreement)), timesShown, poolCap);
   const avgShown = pool.reduce((sum, i) => sum + (timesShown.get(i.id) ?? 0), 0) / pool.length;
   const lag = (i: PairItem) => Math.max(0, avgShown - (timesShown.get(i.id) ?? 0));
 
