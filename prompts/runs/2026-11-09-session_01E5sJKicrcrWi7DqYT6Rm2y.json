@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01E5sJKicrcrWi7DqYT6Rm2y",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T04:21:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14195",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Remaining pool levers (P063) are all CODEOWNERS paths, so a perf run cannot land them; no perf item is self-landable."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Pool reading found no new lever; fixed a red doc_index test on main found while timing local tests, and no blog post (CI fix only).",
+      "did": "fixed 8 aeo topic tags and one missing front matter",
+      "result": "doc_index check ok; test_doc_index 16 passed"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-09-doc-index-red-test.md"
+  ],
+  "goal": null,
+  "notes": "Metric: platform/ci test suite 1 failed/1741 passed (105.8 s) before; doc_index.py check 9 problems before, ok after. Pool reading: ci_profile --runs 100, 95 jobs, 27.8 job-min, checkout 14.5.",
+  "corrections": [],
+  "redteam": null
+}
