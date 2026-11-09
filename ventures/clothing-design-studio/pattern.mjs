@@ -16,16 +16,16 @@
  * woven-cloth pattern (no darts). The proportions below are typical drafting
  * ratios of the chest measurement, typed from common drafting practice and
  * NOT checked against any pattern maker's block or a real sample garment; a
- * factory or pattern maker's own block always wins. Hoodies need a hood and
- * a pocket, which are not drafted here.
+ * factory or pattern maker's own block always wins. A hoodie adds a two-piece hood
+ * (neck edge solved to the neck seam) and a kangaroo pocket; no hem or cuff rib.
  */
 import { garmentMeasurements, BODY_CHEST_CM } from "./fit.mjs";
 
 const r2 = v => Math.round(v * 100) / 100;
 const KAPPA = 0.5522847498;
 
-export const DRAFTED = Object.freeze(["tee", "longsleeve", "crewneck"]);
-export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { tee: 22, longsleeve: 62, crewneck: 62 } });
+export const DRAFTED = Object.freeze(["tee", "longsleeve", "crewneck", "hoodie"]);
+export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { tee: 22, longsleeve: 62, crewneck: 62, hoodie: 63 } });
 
 /* ---------- geometry ---------- */
 
@@ -91,7 +91,8 @@ export function offsetRing(ring, dists) {
     // mitre: solve  p.n0 = d0 + base.n0,  p.n1 = d1 + base.n1
     const det = n0[0] * n1[1] - n0[1] * n1[0];
     let p;
-    if (Math.abs(det) < 1e-6) p = [ring[i][0] + n1[0] * d1, ring[i][1] + n1[1] * d1];
+    if (cos > 0.97 && Math.abs(d0 - d1) > 1e-9) p = [ring[i][0] + (n0[0] * d0 + n1[0] * d1) / 2, ring[i][1] + (n0[1] * d0 + n1[1] * d1) / 2]; // smooth join where the allowance changes
+    else if (Math.abs(det) < 1e-6) p = [ring[i][0] + n1[0] * d1, ring[i][1] + n1[1] * d1];
     else {
       const b0 = d0 + n0[0] * ring[i][0] + n0[1] * ring[i][1], b1 = d1 + n1[0] * ring[i][0] + n1[1] * ring[i][1];
       p = [(b0 * n1[1] - b1 * n0[1]) / det, (n0[0] * b1 - n1[0] * b0) / det];
@@ -197,8 +198,58 @@ function sleevePiece(g, b, front, back, garment, o) {
   };
 }
 
+/** Length of a polyline's first segment run of the given kind. */
+const segLen = (piece, kind) => piece.segs.filter(s => s.kind === kind).reduce((a, s) => a + len(s.pts), 0);
+
+/**
+ * One side of a two-piece hood (cut two, one reversed). Its neck edge is a
+ * straight line as long as the body's neck seam (front neck + back neck, one
+ * side), the check a pattern maker does with a tape. Face opening on the left
+ * (drawcord casing allowance), centre-back seam over the crown on the right.
+ */
+function hoodPiece(g, front, back) {
+  const bc = g.bodyChest;
+  const N = segLen(front, "neck") + segLen(back, "neck");
+  const H = 0.37 * bc + 0.04 * (g.chest - bc) + 1;           // neck edge to crown
+  const D = Math.max(N + 6, 0.29 * bc + 0.05 * (g.chest - bc)); // front to back at the widest
+  const A = [0, 0], B = [N, 0];
+  // one smooth cubic from the neck corner over the forehead to the crown (a hard corner would
+  // make the seam allowance loop); the lower part is the face opening, the rest the crown seam
+  const crownTop = [0.5 * D, H];
+  const P = [A, [-0.16 * D, 0.5 * H], [-0.02 * D, 1.04 * H], crownTop];
+  const arc = Array.from({ length: 49 }, (_, i) => bez(P[0], P[1], P[2], P[3], i / 48));
+  const face = arc.slice(0, 25), crown = arc.slice(24);
+  const backCrown = flat(crownTop, [0.8 * D, H], [N + 0.35 * D, 0.82 * H], [N + 0.3 * D, 0.5 * H], 24);
+  const nape = flat([N + 0.3 * D, 0.5 * H], [N + 0.3 * D, 0.2 * H], [N + 0.1 * D, 0.04 * H], B, 16);
+  const segs = [
+    { kind: "hoodNeck", pts: [B, A] },
+    { kind: "hoodFace", pts: face },
+    { kind: "hoodCrown", pts: crown },
+    { kind: "hoodCrown", pts: backCrown },
+    { kind: "hoodCrown", pts: nape },
+  ];
+  return {
+    name: "hood", qty: 2, cutOnFold: false, segs, neckEdgeLen: N, hoodHeight: H, hoodDepth: D,
+    notches: [{ at: [N * 0.5, 0], label: "shoulder" }, { at: A, label: "CF" }, { at: B, label: "CB" }],
+    grain: [[N * 0.5, H * 0.2], [N * 0.5, H * 0.75]],
+  };
+}
+
+/** Kangaroo pocket: wider at the bottom, hand openings on the slanted sides, top and bottom sewn to the body. */
+function pocketPiece(g) {
+  const bc = g.bodyChest;
+  const wb = 0.36 * bc + 0.1 * (g.chest - bc), wt = 0.78 * wb, h = 0.21 * bc;
+  const segs = [
+    { kind: "pocketJoin", pts: [[-wt / 2, 0], [wt / 2, 0]] },
+    { kind: "pocketOpening", pts: [[wt / 2, 0], [wb / 2, h]] },
+    { kind: "pocketJoin", pts: [[wb / 2, h], [-wb / 2, h]] },
+    { kind: "pocketOpening", pts: [[-wb / 2, h], [-wt / 2, 0]] },
+  ];
+  return { name: "pocket", qty: 1, cutOnFold: false, segs, pocketW: wb, pocketH: h, notches: [{ at: [0, 0], label: "centre" }], grain: [[0, h * 0.2], [0, h * 0.8]] };
+}
+
 function finish(piece, o) {
-  const allow = { neck: o.neckSeamCm, shoulder: o.seamCm, armhole: o.seamCm, side: o.seamCm, hem: o.hemCm, fold: 0, cap: o.seamCm, sleeveSeam: o.seamCm, sleeveHem: o.hemCm };
+  const allow = { neck: o.neckSeamCm, shoulder: o.seamCm, armhole: o.seamCm, side: o.seamCm, hem: o.hemCm, fold: 0, cap: o.seamCm, sleeveSeam: o.seamCm, sleeveHem: o.hemCm, hoodNeck: o.seamCm, hoodFace: o.hemCm, hoodCrown: o.seamCm, pocketOpening: o.seamCm + 0.5, pocketJoin: o.seamCm };
   const ring = [], dists = [];
   piece.segs.forEach(s => {
     const pts = s.pts;
@@ -237,7 +288,7 @@ function dedupeRing(ring, dists) {
  * @returns {{ok:boolean, error?:string, pieces?:object[], checks?:object, block?:object}}
  */
 export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_CM, ...opt } = {}) {
-  if (!DRAFTED.includes(garment)) return { ok: false, error: garment === "hoodie" ? "A hoodie needs a hood and a pocket, which are not drafted here; use a crewneck block." : `No block for "${garment}".` };
+  if (!DRAFTED.includes(garment)) return { ok: false, error: `No block for "${garment}".` };
   const g = garmentMeasurements(garment, fit, sizeChart)[size];
   if (!g) return { ok: false, error: `Size ${size} is not in the size chart.` };
   const o = { ...DEFAULTS, ...opt, sleeveLenCm: { ...DEFAULTS.sleeveLenCm, ...(opt.sleeveLenCm || {}) } };
@@ -249,7 +300,9 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
   const front = bodyPiece(b, "front", o), back = bodyPiece(b, "back", o);
   const sleeve = sleevePiece(g, b, front, back, garment, o);
   if (sleeve.error) return { ok: false, error: sleeve.error };
-  const pieces = [front, back, sleeve].map(p => finish(p, o));
+  const hood = garment === "hoodie" ? hoodPiece(g, front, back) : null;
+  const pocket = garment === "hoodie" ? pocketPiece(g) : null;
+  const pieces = [front, back, sleeve, hood, pocket].filter(Boolean).map(p => finish(p, o));
   const s = sleeve.solved;
   const checks = {
     frontArmholeCm: r2(front.armholeLen), backArmholeCm: r2(back.armholeLen),
@@ -258,6 +311,12 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     capHeightCm: r2(s.h), capHeightRatio: r2(s.h / (front.armholeLen + back.armholeLen)),
     allSimple: pieces.every(p => p.simple),
   };
+  if (hood) {
+    checks.neckSeamCm = r2(segLen(front, "neck") + segLen(back, "neck"));
+    checks.hoodNeckEdgeCm = r2(hood.neckEdgeLen);
+    checks.hoodHeightCm = r2(hood.hoodHeight); checks.hoodDepthCm = r2(hood.hoodDepth);
+    checks.pocketWidthCm = r2(pocket.pocketW); checks.pocketHeightCm = r2(pocket.pocketH);
+  }
   const notes = [];
   if (checks.capHeightRatio < 0.22) notes.push("The sleeve cap is flat (a drop shoulder); the sleeve will hang with little shaping.");
   if (checks.capHeightRatio > 0.4) notes.push("The sleeve cap is tall; check the armhole depth against the sleeve width.");
@@ -355,6 +414,7 @@ export function checkText(d) {
     `${d.garment} ${d.size} (${d.fit}): seam ${d.seam.seamCm} cm, neck ${d.seam.neckSeamCm} cm, hem ${d.seam.hemCm} cm`,
     `Front armhole ${c.frontArmholeCm} cm, back armhole ${c.backArmholeCm} cm`,
     `Sleeve cap ${c.capFrontCm} + ${c.capBackCm} cm = ease ${c.capEaseCm} cm over the armholes; cap height ${c.capHeightCm} cm`,
+    ...(c.hoodNeckEdgeCm ? [`Hood neck edge ${c.hoodNeckEdgeCm} cm to sew onto a neck seam of ${c.neckSeamCm} cm (one side); hood ${c.hoodHeightCm} cm high, ${c.hoodDepthCm} cm front to back; pocket ${c.pocketWidthCm} x ${c.pocketHeightCm} cm`] : []),
     c.allSimple ? "No piece crosses itself." : "A piece crosses itself: check the block.",
     ...d.notes,
   ].join("\n");

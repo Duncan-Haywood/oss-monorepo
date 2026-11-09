@@ -119,7 +119,8 @@ test("nested cutting plan lays the real outlines, uses less cloth than rectangle
   assert.deepEqual(nst.groups.map(g => [g.lays, g.plies]), rect.groups.map(g => [g.lays, g.plies]));
   assert.ok(markerSvg(nst.groups[0]).includes("<svg"));
   assert.ok(/drafted outlines/.test(nst.notes.join(" ")));
-  // a garment with no draft (hoodie) falls back to rectangles
+  // the hoodie (hood and pocket drafted 2026-11-09) nests too, and uses less cloth than rectangles
   const h = cuttingPlan("hoodie", { M: 4 }, { nested: true });
-  assert.ok(h.ok && !h.nested);
+  assert.ok(h.ok && h.nested);
+  assert.ok(h.metresToBuy < cuttingPlan("hoodie", { M: 4 }).metresToBuy);
 });
