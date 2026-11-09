@@ -3,7 +3,7 @@ title: "Holtrop-Mennen resistance for slender hulls: the c15 rule that was missi
 seo_title: "Holtrop Mennen c15 coefficient slender hull wave resistance"
 date: 2026-11-09
 tags: [research, marine-hull, ship-resistance]
-description: "Cross-reading a third open Holtrop-Mennen implementation found a missing rule for slender hulls in ours and a typo in theirs; the fix raises wave resistance up to 17% for very slender hulls."
+description: "A third open Holtrop-Mennen implementation showed our c15 rule for slender hulls was missing; coding it raises wave resistance up to 17% for very slender hulls."
 ---
 
 The marine-hull programme compares small survey-boat hulls with the
