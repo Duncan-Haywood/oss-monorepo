@@ -1,9 +1,9 @@
 ---
 title: "Does a spike label fire on real stock returns, and on what?"
-seo_title: "Outlier vs changepoint on stock returns: a spike label tested on DJIA, DAX, SMI, CAC, FTSE"
+seo_title: "Spike label vs changepoints on real stock returns"
 date: 2026-11-09
 tags: [changepoint-detection, time-series, outliers]
-description: "The changepoint detector's --spikes label stays silent on five real return series with the variance model, and on the mean model it marks real crash days, not data errors."
+description: "The --spikes label stays silent on five real return series with the variance model; with the mean model it marks real crash days, not data errors."
 ---
 
 The changepoint detector reports a one-day outlier as a pair of changes either
