@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 3l: README and paper draft carry the post-3k Holtrop-Mennen numbers (an editing step, no experiment)
+- Why: 3k fixed the inverted lambda branch and regenerated `results_holtrop.txt` and `results_holtrop_yacht.txt`, but the README (milestone 3 and 3g lines) and `paper/DRAFT.md` (hypotheses paragraph) still quoted the pre-fix figures.
+- Outcome: Wigley tank point +17% to +22% became +19% to +24% (regression area) and +31% to +37% became +33% to +39% (true area); the share within 20% at Fn 0.2 to 0.3 on the Delft yachts became 42% to 82% (was 44% to 79%), read off `results_holtrop_yacht.txt`. Survey-regime median over-prediction (1.3 to 2.2 times) is unchanged. "Coefficients not checked against the paper" now says they were checked against the 1982 worked example (second-hand transcription).
+- Next: a tank curve for paper section 3 item 1; a second worked example for the 1984 terms.
+
 ## 2026-11-08 · Milestone 3k: does marine_hull's Holtrop-Mennen reproduce the 1982 paper's worked example? (a check against the paper's printed numbers)
 - Why: since milestone 3c the coefficients were typed from memory and agreed with public implementations, never with the paper. The p. 170 worked example (205 m ship, 25 kt, every intermediate printed) is transcribed in the MIT-licensed Archibald validation script (julesricheux/Archibald, `examples/01 - Validation/holtrop_1982_example.py`, read through a git clone this session). That is a second-hand copy of the paper, not the paper. Plan (`experiments/run_holtrop_1982.py`): feed the example's inputs, with its published bulb and transom factors c2, c5 and wetted area, and compare 1+k1, RW, CA, RA with the printed values.
 - **Prediction (before running):** 1+k1, RW and RA each within 3% of print (prior 60%). Refuted if any is off by more.
