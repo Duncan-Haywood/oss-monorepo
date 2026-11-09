@@ -3,6 +3,11 @@ from quantization_twin import *
 
 
 class M(unittest.TestCase):
+    def test_gains_known_values(self):
+        # hand values for a=0.9, Q=1, R=1: Riccati prior then K=P/(P+R); Sheppard uses R+D^2/12
+        self.assertAlmostEqual(opt_gain(0.9, 1.0, 1.0), 0.59741, places=4)
+        self.assertAlmostEqual(sheppard_gain(0.9, 1.0, 1.0, 4.0), 0.43969, places=4)
+
     def test_no_quantization_matches_exact(self):
         a, Q, R = 0.9, 1.0, 1.0
         Ks = [0.3, opt_gain(a, Q, R), 0.8]
