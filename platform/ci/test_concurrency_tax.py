@@ -1,8 +1,10 @@
 """Tests for concurrency_tax.py's pull-ref listing, which must read both the
 probe clone's `refs/pull/<n>` and a working repository's `refs/pull/<n>/head`."""
+import atexit
 import contextlib
 import io
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -38,7 +40,21 @@ def commit(repo, msg, name=None):
     return git(repo, "rev-parse", "HEAD")
 
 
+_TEMPLATE = None
+
+
 def make_repo(tmp):
+    """Copy of the fixture below, built once per process (tests still use a real
+    git repository; each gets its own copy, so mutations stay local)."""
+    global _TEMPLATE
+    if _TEMPLATE is None:
+        _TEMPLATE = tempfile.mkdtemp(prefix="ct-template-")
+        atexit.register(shutil.rmtree, _TEMPLATE, ignore_errors=True)
+        _build_repo(_TEMPLATE)
+    shutil.copytree(_TEMPLATE, tmp, dirs_exist_ok=True)
+
+
+def _build_repo(tmp):
     """main with a base commit; PR 5 has two own commits (one housekeeping) and
     merges main back in once; PR 6 has one clean commit; PR 7 has 51 own commits."""
     git(tmp, "init", "-q", "-b", "main")
