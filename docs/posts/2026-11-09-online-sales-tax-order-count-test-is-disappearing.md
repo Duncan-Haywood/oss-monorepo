@@ -1,6 +1,6 @@
 ---
 title: "The 200-order sales tax test is disappearing: four states changed in 18 months"
-seo_title: "Economic nexus 200 transactions dropped: Illinois, Kentucky, Utah, Alaska"
+seo_title: "Economic nexus: 200-transaction test dropped in IL, KY, UT, AK"
 date: 2026-11-09
 tags: [clothing-design-studio, sales-tax, small-business]
 description: "Illinois, Kentucky, Utah and Alaska now use a dollar test only for online sellers; what that means for a small clothing brand."
