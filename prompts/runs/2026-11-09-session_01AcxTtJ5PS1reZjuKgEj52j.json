@@ -1,0 +1,117 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01AcxTtJ5PS1reZjuKgEj52j",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled run: read prompt.md and follow it",
+  "input_sha256": "55dd81fad16072d8e3804d06191e6a5c5d69e2d63326fc0da83957b2e35fd225",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-09T05:06:27Z",
+  "ended": "2026-11-09T05:19:07Z",
+  "wall_minutes": 12.83,
+  "tokens_in": 2344009,
+  "tokens_out": 11285,
+  "cost_usd": 0.8437,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14202",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py backgrounded inside a subshell wrote no output; rerunning it in the foreground (it returned in under 120 s) was simpler."
+    }
+  ],
+  "deviations": [],
+  "writeups": "docs/posts/2026-11-09-three-ways-to-make-a-survey-model-period-aware-tie.md; research/christian-belief-models/LOG.md entry 2026-11-09",
+  "goal": null,
+  "notes": "m3_local_window: hgb_w5 3.44 vs interp 3.43 vs plain hgb 3.87 mean abs year-level error; predictions 1,2 held, 3,4 refuted. build.py ok, check_md_links ok. No agent doc in docs/reports (nothing the next run needs beyond LOG.md).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "340b616a-c459-517e-b762-723b7375c464",
+    "transcripts": 1,
+    "first": "2026-11-09T05:06:27Z",
+    "last": "2026-11-09T05:19:16Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 29,
+        "input": 57,
+        "output": 11285,
+        "thinking": 1370,
+        "cache_read": 2275009,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68943,
+        "api_equivalent_usd": 0.8437,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 57,
+      "output": 11285,
+      "thinking": 1370,
+      "cache_read": 2275009,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68943,
+      "api_equivalent_usd": 0.8437,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 27,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.83,
+      "active_minutes": 12.82,
+      "model_minutes": 1.97,
+      "tool_minutes": 10.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
