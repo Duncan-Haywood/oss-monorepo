@@ -54,7 +54,7 @@ where it departs from the paper.
 
 ## Verification
 
-`node --test` (321 tests). What they check:
+`node --test` (343 tests). What they check:
 
 - **Against an independent PELT:** on 100 seeded cases (60-200 points, 0-3
   planted changes, mean and mean-and-variance models, several penalties) the
