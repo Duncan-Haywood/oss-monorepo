@@ -3,7 +3,7 @@ title: "Anderson's repair of Gödel's ontological argument still collapses in ev
 seo_title: "Does Anderson's Gödel emendation avoid modal collapse?"
 date: 2026-11-09
 tags: [research, theism-formal-evidence, modal-logic]
-description: "An exhaustive search of S5 models up to five (world, individual) cells finds no model of Anderson's emended Gödel axioms with two or more worlds, a prediction we made and lost."
+description: "Exhaustive search of S5 models up to five cells finds no multi-world model of Anderson's emended Gödel axioms, a prediction we made and lost."
 ---
 
 Scott's version of Gödel's argument is known to collapse: whatever is true is
