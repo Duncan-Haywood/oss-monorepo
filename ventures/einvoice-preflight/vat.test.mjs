@@ -147,10 +147,24 @@ test("Cyprus check letter (2026-11-08)", () => {
 });
 
 test("variants without a checksum here stay shape-only", () => {
-  for (const number of ["BG1750747520", "CZ7103192745", "LV01011012345"]) {
+  for (const number of ["CZ715319274", "LV01011012345"]) {
     const kind = inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier").map((item) => item.rule);
     assert.ok(!kind.includes("INV-023"), number);
   }
+});
+
+test("Bulgarian 10-digit and Czech birth-number check digits (2026-11-09)", () => {
+  const find = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // BG: 7523169263 is python-stdnum's published EGN example. Any of three public rules may pass,
+  // so about a quarter of wrong digits slip through; this catches the rest.
+  assert.deepEqual(find("BG7523169263"), []);
+  assert.deepEqual(find("BG7523169264"), ["INV-023"]);
+  // CZ: a 10-digit birth number is divisible by 11 (or first nine leave 10 and the last is 0).
+  assert.deepEqual(find("CZ7103192745"), []);
+  assert.deepEqual(find("CZ7103192746"), ["INV-023"]);
+  assert.deepEqual(find("CZ7113192745"), ["INV-023"]); // month 13
+  assert.deepEqual(find("CZ7103322745"), ["INV-023"]); // day 32
+  assert.ok(!find("CZ715319274").includes("INV-023")); // 9 digits: no check digit before 1954
 });
 
 test("Norway and Switzerland check digits", () => {

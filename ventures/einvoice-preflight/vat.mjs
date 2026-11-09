@@ -113,7 +113,12 @@ const EXTRA_CHECKS = {
       return b[10] === "1" && sum === Number(b[11]);
     },
   },
-  BG: { applies: (b) => /^\d{9}$/.test(b), ok: (b) => mod11Retry(b, MOD11_RETRY.BG) },
+  // 9 digits: legal entity. 10 digits: a natural person's EGN, a foreigner's number or the
+  // "other" form; valid when any of the three public check-digit rules holds.
+  BG: {
+    applies: (b) => /^\d{9,10}$/.test(b),
+    ok: (b) => (b.length === 9 ? mod11Retry(b, MOD11_RETRY.BG) : bgTenDigitOk(b)),
+  },
   RO: {
     applies: (b) => /^[1-9]\d{1,9}$/.test(b),
     ok: (b) => {
@@ -131,10 +136,12 @@ const EXTRA_CHECKS = {
       return (total % 11) % 10 === Number(b[8]);
     },
   },
-  // 8-digit legal entities only; 9- and 10-digit numbers (individuals) stay shape-only.
+  // 8-digit legal entities, and 10-digit birth numbers (individuals, born 1954 on); a 9-digit
+  // birth number (before 1954) carries no check digit and stays shape-only.
   CZ: {
-    applies: (b) => /^[0-8]\d{7}$/.test(b),
+    applies: (b) => /^[0-8]\d{7}$|^\d{10}$/.test(b),
     ok: (b) => {
+      if (b.length === 10) return czBirthNumberOk(b);
       let check = 11 - (weighted(b.slice(0, 7), [8, 7, 6, 5, 4, 3, 2]) % 11);
       if (check === 10) check = 0;
       if (check === 11) check = 1;
@@ -159,6 +166,26 @@ const EXTRA_CHECKS = {
   },
 };
 EXTRA_CHECKS.GR = EXTRA_CHECKS.EL;
+
+function bgTenDigitOk(b) {
+  const last = Number(b[9]);
+  let egn = weighted(b.slice(0, 9), [2, 4, 8, 5, 10, 9, 7, 3, 6]) % 11;
+  if (egn === 10) egn = 0;
+  if (egn === last) return true;
+  if (weighted(b.slice(0, 9), [21, 19, 17, 13, 11, 9, 7, 3, 1]) % 10 === last) return true;
+  const other = 11 - (weighted(b.slice(0, 9), [4, 3, 2, 7, 6, 5, 4, 3, 2]) % 11);
+  return other < 10 && other === last;
+}
+
+// Czech and Slovak birth number (rodne cislo), 10 digits: first nine mod 11 (10 counts as 0),
+// month 01-12 (+20 when the serial runs out, +50 women, +70 both), day 01-31.
+function czBirthNumberOk(b) {
+  const month = Number(b.slice(2, 4));
+  const day = Number(b.slice(4, 6));
+  const monthOk = [1, 21, 51, 71].some((base) => month >= base && month <= base + 11);
+  if (!monthOk || day < 1 || day > 31) return false;
+  return (Number(b.slice(0, 9)) % 11) % 10 === Number(b[9]);
+}
 
 function deOkIso7064(first, check) {
   let product = 10;
