@@ -1,0 +1,16 @@
+n=120, reps=60, one step of 4 sd at t=60, model trend, AR(1) phi 0.5
+noise sd 1 (drift 0.2 per step, step 4)
+  k=0: changes 4.77, step found 59/60, other cuts 3.67
+  k=1: changes 4.50, step found 59/60, other cuts 3.40
+  k=1.5: changes 1.80, step found 59/60, other cuts 0.80
+  k=2: changes 1.25, step found 60/60, other cuts 0.25
+noise sd 0.3 (drift 0.2 per step, step 1.2)
+  k=0: changes 4.70, step found 59/60, other cuts 3.62
+  k=1: changes 3.07, step found 59/60, other cuts 2.07
+  k=1.5: changes 1.27, step found 60/60, other cuts 0.27
+  k=2: changes 1.02, step found 60/60, other cuts 0.02
+noise sd 0.1 (drift 0.2 per step, step 0.4)
+  k=0: changes 4.70, step found 59/60, other cuts 3.62
+  k=1: changes 1.00, step found 60/60, other cuts 0.00
+  k=1.5: changes 0.38, step found 23/60, other cuts 0.00
+  k=2: changes 0.00, step found 0/60, other cuts 0.00
