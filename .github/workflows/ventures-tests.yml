@@ -39,9 +39,27 @@ jobs:
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 30
     steps:
+      # Sparse and blob-filtered (P063): the job needs platform/, .github/,
+      # docs/ and portfolio/ plus the ventures the change touched, not all
+      # 51k files (checkout was a median 22.7 s of ~106 s). The touched
+      # ventures are added by "Check out the touched ventures" below. The two
+      # story ventures' .mjs files stay (the full directories are ~390 MB):
+      # platform/pages/stories.mjs imports them, and clauses.mjs loads it for
+      # any slug. Non-cone patterns, as checklist-coverage.yml uses.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/*/
+            /platform/
+            /.github/
+            /docs/
+            /portfolio/
+            /ventures/hearth-and-horizon/*.mjs
+            /ventures/saints-by-candlelight/*.mjs
       # Every step below only diffs BASE against HEAD, which needs the two
       # commits' trees, not the history between them. A full clone (5.3 GB)
       # was a median 95s of a 107s job; depth 1 plus this one-commit fetch is
@@ -61,6 +79,22 @@ jobs:
               git fetch --quiet --no-tags origin "$BASE" || echo "::warning::could not fetch base $BASE"
             fi
           fi
+      - name: Check out the touched ventures
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -eu
+          # No usable BASE means every venture is tested: take the full tree.
+          if [ -z "${BASE:-}" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            git sparse-checkout disable
+            exit 0
+          fi
+          # --no-renames: a tree diff needs no blobs, so no lazy fetches.
+          slugs=$(git diff --name-only --no-renames "$BASE" HEAD -- ventures | cut -d/ -f2 | sort -u)
+          for s in $slugs; do
+            [ -d "ventures/$s" ] || [ -n "$(git ls-tree --name-only HEAD "ventures/$s/")" ] || continue
+            git sparse-checkout add "ventures/$s"
+          done
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"

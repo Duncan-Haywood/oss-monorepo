@@ -1,7 +1,7 @@
 {
   "id": "P063",
   "title": "perf: ventures-tests checks out all 51k files to test the ventures a PR touches",
-  "status": "open",
+  "status": "in-progress",
   "owner": "owner",
   "effect": 1,
   "cost": 1,
@@ -13,12 +13,14 @@
     "docs/history/ci-perf-2026-11-07-pool-reading-cache-hit-confirmed.md"
   ],
   "change": "checkout with filter: blob:none and a cone sparse-checkout of platform, .github, docs, portfolio; after 'Fetch the base commit', run git sparse-checkout add ventures/<slug> for each slug in `git diff --name-only --no-renames $BASE HEAD -- ventures`, or git sparse-checkout disable when BASE is empty or zero. Check venture suites that read another venture (a handful of prose refs only) and that clauses.mjs/typecheck.mjs see their ventures. Read the after number from ci_profile.py.",
-  "touches": [".github/workflows/ventures-tests.yml"],
+  "touches": [
+    ".github/workflows/ventures-tests.yml"
+  ],
   "metric": "ventures tests checkout seconds per job (ci_profile.py)",
   "baseline": "22.7 s per job, 2026-11-07",
   "opened": "2026-11-07",
   "source": "docs/history/ci-perf-2026-11-07-pool-reading-cache-hit-confirmed.md",
   "pr": null,
-  "result": null,
+  "result": "Workflow change drafted 2026-11-09 with the platform/pages->story-ventures import trap handled; after number pending (docs/history/ci-perf-2026-11-09-ventures-tests-sparse-checkout.md).",
   "history": []
 }
