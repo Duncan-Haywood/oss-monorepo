@@ -17,6 +17,7 @@ import { checkNpwp } from "./indonesia.mjs";
 import { checkRegistrationNumber as checkJapanRegistration } from "./japan.mjs";
 import { checkEgyptTrn } from "./egypt.mjs";
 import { checkKraPin } from "./kenya.mjs";
+import { checkKoreanBrn } from "./korea.mjs";
 
 const FORMAT_ONLY = {
   BG: [9, 10],
@@ -462,17 +463,6 @@ function rsPibOk(body) {
   return (11 - product) % 10 === Number(body[8]);
 }
 
-// South Korean business registration number: weights 1,3,7,1,3,7,1,3,5 plus the
-// tens digit of the ninth digit times 5; the tenth digit tops the total up to a multiple of 10.
-function krBrnOk(body) {
-  const d = digitsOf(body);
-  const weights = [1, 3, 7, 1, 3, 7, 1, 3, 5];
-  let sum = 0;
-  for (let i = 0; i < 9; i += 1) sum += d[i] * weights[i];
-  sum += Math.floor((d[8] * 5) / 10);
-  return (10 - (sum % 10)) % 10 === d[9];
-}
-
 // Indian GSTIN: the fifteenth character is a base-36 check over the first fourteen,
 // with factors 1 and 2 alternating.
 function inGstinOk(body) {
@@ -567,7 +557,7 @@ function checksumOk(country, body) {
   if (country === "NZ") return nzIrdOk(body);
   if (country === "RS") return rsPibOk(body);
   if (country === "TR") return checkTurkishTaxId(body).ok;
-  if (country === "KR") return krBrnOk(body);
+  if (country === "KR") return checkKoreanBrn(body).ok;
   if (country === "BR") return checkBrazilId(body).ok;
   if (country === "AR") return checkCuit(body).ok;
   if (country === "PE") return checkRuc(body).ok;
