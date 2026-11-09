@@ -51,6 +51,7 @@
       <label for="size">Size</label><select id="size"><option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option><option>XXL</option></select>
       <div class="row"><div><label for="seamCm">Seam allowance cm</label><input id="seamCm" type="number" min="0" max="10" step="0.1" value="1"></div>
       <div><label for="hemCm">Hem allowance cm</label><input id="hemCm" type="number" min="0" max="10" step="0.1" value="2.5"></div></div>
+      <label><input id="rib" type="checkbox"> Rib hem and cuffs (crewneck and hoodie): 6 cm bands cut to 85% of the opening</label>
       <label for="capEaseCm">Sleeve cap ease cm (knit: 0 to 2)</label><input id="capEaseCm" type="number" min="0" max="10" step="0.1" value="1">
       <p><button id="dl-dxf" type="button">Download DXF (this size)</button> <button id="dl-all" type="button">Download DXF (all sizes)</button></p>
       <p><label>Paper <select id="paper"><option value="a4">A4</option><option value="letter">US Letter</option></select></label> <button id="dl-pdf" type="button">Download tiled PDF for a home printer (1:1)</button></p>
@@ -85,7 +86,7 @@
     import { recordUsage } from "./usage.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-    const opts = () => ({ fit: $("#fit").value, seamCm: +$("#seamCm").value, hemCm: +$("#hemCm").value, capEaseCm: +$("#capEaseCm").value });
+    const opts = () => ({ fit: $("#fit").value, seamCm: +$("#seamCm").value, hemCm: +$("#hemCm").value, capEaseCm: +$("#capEaseCm").value, rib: $("#rib").checked && ["crewneck", "hoodie"].includes($("#garment").value) });
     function save(name, text, type) {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type }));
