@@ -1,5 +1,6 @@
 ---
 title: "Saints by Candlelight, episode 76: Peter and John and the man at the Beautiful Gate"
+seo_title: "Saints by Candlelight 76: Peter and John at the Beautiful Gate"
 date: 2026-11-09
 description: "A new bedtime episode from Acts 3 and 4: a man carried to the same gate for forty years, two fishermen with no money, and a council that has nothing to say."
 tags: [creative, saints-by-candlelight, podcast]
