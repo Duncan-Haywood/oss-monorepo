@@ -1,0 +1,25 @@
+K (final keep) | 1 | 2 | 3 | 5 | 8
+cells with c >= 1 (of 20) | 0 | 2 | 6 | 6 | 7
+median c | 0 | 0 | 0 | 0 | 0
+monotone in K in every cell: True
+cell (tag, design, n): c at each K
+tight adder_op16 n=50: 0 0 1 1 1
+tight adder_ripple16 n=52: 0 0 0 0 0
+tight mult8 n=50: 0 0 0 0 0
+tight mac4 n=50: 0 0 1 2 2
+tight alu8 n=50: 0 0 0 0 0
+tight popcount16 n=50: 0 0 0 0 0
+tight barrel16 n=50: 0 0 0 0 0
+tight crc16 n=50: 0 0 0 0 0
+tight cmp_sat12 n=50: 0 1 2 4 4
+tight fifo8x4 n=50: 0 0 0 0 0
+relaxed adder_op16 n=50: 0 0 1 1 1
+relaxed adder_ripple16 n=52: 0 0 0 0 0
+relaxed mult8 n=50: 0 0 0 0 2
+relaxed mac4 n=50: 0 0 1 2 2
+relaxed alu8 n=50: 0 0 0 0 0
+relaxed popcount16 n=50: 0 0 0 0 0
+relaxed barrel16 n=50: 0 0 0 0 0
+relaxed crc16 n=50: 0 0 0 0 0
+relaxed cmp_sat12 n=50: 0 1 2 3 4
+relaxed fifo8x4 n=50: 0 0 0 0 0
