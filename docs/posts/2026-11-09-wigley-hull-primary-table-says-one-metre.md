@@ -1,6 +1,6 @@
 ---
 title: "What does a primary Wigley hull table say about the model length?"
-seo_title: "Wigley hull resistance, Michell theory and ITTC 1957: implied form factor"
+seo_title: "Wigley hull resistance: Michell theory, ITTC 1957, form factor"
 date: 2026-11-09
 tags: [research, marine-hull, ship-resistance]
 description: "Opening the primary Table 5 of an open-access CFD paper narrows the implied Wigley form factor from -0.13..+0.58 to about -0.04 at a 1 m model."
