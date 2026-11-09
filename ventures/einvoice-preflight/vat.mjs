@@ -253,6 +253,11 @@ function classify(country, body) {
   if (country === "ZA") return /^4\d{9}$/.test(body) ? "format" : "bad-format";
   // UAE: a Tax Registration Number is 15 digits (FTA). No public check digit; shape only.
   if (country === "AE") return /^\d{15}$/.test(body) ? "format" : "bad-format";
+  // Singapore: a GST number is M + letter/digit + 7 digits + a character, or the UEN (8 or 9 digits
+  // and a letter, or T/S/R + 2 digits + 2 letters + 4 digits + a letter). Philippines: a TIN is 9
+  // digits plus a 3-digit branch code. Shape only; IRAS and BIR text unread.
+  if (country === "SG") return /^(M[0-9A-Z]\d{7}[A-Z0-9]|\d{8}[A-Z]|\d{9}[A-Z]|[RST]\d{2}[A-Z]{2}\d{4}[A-Z])$/.test(body) ? "format" : "bad-format";
+  if (country === "PH") return /^\d{9}(\d{3})?$/.test(body) ? "format" : "bad-format";
   if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
   if (country === "TW") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "TH") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
