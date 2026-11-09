@@ -107,6 +107,7 @@ export function openingScheduleText(s) {
 /** @param {any} s */
 export function openingScheduleCsv(s) {
   const q = (/** @type {any} */ v) => { const t = String(v ?? ""); return /^[=+\-@\t\r]/.test(t) || /[",\n]/.test(t) ? `"${(/^[=+\-@\t\r]/.test(t) ? "'" : "") + t.replace(/"/g, '""')}"` : t; };
+  if (!s || !Array.isArray(s.rows)) throw new TypeError("openingScheduleCsv needs an opening schedule result");
   const out = ["mark,kind,count,ro_width_in,ro_height_in,unit_width_in,unit_height_in,header,header_plies,header_height_in,sill_height_in,locations"];
   for (const r of s.rows) out.push([r.mark, r.kind, r.count, fmt(r.width), fmt(r.height), fmt(r.unitWidth), fmt(r.unitHeight), r.header, r.headerPlies, r.headerHeight ?? "", r.sillHeight ?? "", r.locations.map((/** @type {any} */ x) => `${x.wall}: ${x.label}`).join("; ")].map(q).join(","));
   return out.join("\n");
