@@ -42,3 +42,13 @@ largest |diff| 0.01%
  0.354    6.120    1.284    3.064         +0.58      4.654
  0.408    6.910    3.030    2.989         +0.30      6.317
    implied k: mean +0.44, range +0.30 to +0.58
+
+(c) primary table: reference area implied by Table 5 (CFX columns), rho = 998
+   L implied by V and Fn: [1. 1. 1. 1. 1. 1.] m
+   area implied by F/(0.5 rho V^2 Ct): [0.0771 0.0771 0.0771 0.0771 0.0771 0.0771] m2
+   listed 0.135, exact full-hull 0.1488, exact half-hull 0.0744
+
+   implied k at the stated L = 1.00 m, CT_exp re-based to the exact area S_exact if it was quoted on:
+   CT quoted on 0.135 (listed)        : k mean -0.17, range -0.27 to -0.07
+   CT quoted on exact 0.1488          : k mean -0.04, range -0.13 to +0.05
+   CT quoted on 0.0771 (CFX-implied)  : k mean -0.68, range -0.88 to -0.58
