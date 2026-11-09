@@ -126,7 +126,7 @@ flagships:
       (0) smooth low-noise series are over-cut: `--noise-floor k` is uncalibrated
       (k=1.5 and `--ar1 joint` each win on synthetic drift at different phi;
       wanted: all three on real drift); the slope-break test dates GDP's 1970s
-      break at 1971Q2 but not significantly; wanted: a real documented break
+      break at 1971Q2 but not significantly; (a real variance regime, T-bill changes 1979-10 to 1982-09, found 2026-11-09, README); wanted: a real documented break
       that clears the bar widely, a real step inside a cycle, a cycle check not
       tied to rho, a real run of 5+ steps for the block-variance warning, real
       documented ramps and close steps (`ramps` is synthetic only). (1) range95:
