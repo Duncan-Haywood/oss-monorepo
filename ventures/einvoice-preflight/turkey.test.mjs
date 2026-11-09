@@ -26,3 +26,10 @@ test("rejects wrong length, letters, a leading zero TCKN and empty input", () =>
   for (const bad of ["", null, "123456789", "12345678901234", "12345abcde"]) assert.equal(checkTurkishTaxId(bad).ok, false, String(bad));
   assert.equal(checkTckn("01234567890").ok, false);
 });
+
+test("every nine-digit VKN prefix has exactly one valid check digit", () => {
+  for (const prefix of ["123456789", "100000000", "999999999", "000000001", "482917365"]) {
+    const valid = [...Array(10).keys()].filter((c) => checkVkn(prefix + c).ok);
+    assert.equal(valid.length, 1, prefix);
+  }
+});
