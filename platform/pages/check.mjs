@@ -343,11 +343,18 @@ async function checkInlineScripts(site, servedPages, problems) {
   // Bounded concurrency: one `node --check` per distinct inline script, about
   // 1,500 on a full artifact, and spawning them all at once is what makes a
   // check that should take seconds take minutes.
+  //
+  // Most bodies are fine, and one process per body was the whole cost (about
+  // 1,460 spawns, ~20 s of the run). One child parses them all in-process
+  // (parse-batch.mjs); only a body it does not vouch for is spawned with
+  // `node --check`, so the verdict and its message are still node's.
+  const parsed = await parseBatch(jobs);
+  const pending = jobs.filter((_, i) => !parsed.has(i));
   const LIMIT = 8;
   let next = 0;
   async function worker() {
-    while (next < jobs.length) {
-      const job = jobs[next++];
+    while (next < pending.length) {
+      const job = pending[next++];
       try {
         await execFileAsync(process.execPath, ['--check', job.scratchFile]);
       } catch (error) {
@@ -362,8 +369,30 @@ async function checkInlineScripts(site, servedPages, problems) {
       }
     }
   }
-  await Promise.all(Array.from({ length: Math.min(LIMIT, jobs.length) }, worker));
+  await Promise.all(Array.from({ length: Math.min(LIMIT, pending.length) }, worker));
   await fs.rm(scratch, { recursive: true, force: true });
+}
+
+/** Indexes of `jobs` that parse cleanly, from one child process; empty on any trouble. */
+async function parseBatch(jobs) {
+  if (!jobs.length) return new Set();
+  try {
+    const child = execFile(
+      process.execPath,
+      ['--experimental-vm-modules', '--no-warnings', fileURLToPath(new URL('./parse-batch.mjs', import.meta.url))],
+      { maxBuffer: 64 * 1024 * 1024 },
+    );
+    const done = new Promise((resolve, reject) => {
+      let out = '';
+      child.stdout.on('data', (chunk) => (out += chunk));
+      child.on('error', reject);
+      child.on('close', (code) => (code === 0 ? resolve(out) : reject(new Error(`exit ${code}`))));
+    });
+    child.stdin.end(JSON.stringify(jobs.map((job) => [job.scratchFile, path.extname(job.scratchFile).slice(1)])));
+    return new Set(JSON.parse(await done));
+  } catch {
+    return new Set();
+  }
 }
 
 /**
