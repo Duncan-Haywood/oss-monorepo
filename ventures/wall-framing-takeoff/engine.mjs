@@ -1068,9 +1068,19 @@ export function boundedKnapsack(weights, values, bounds, cap) {
  * solution of min c.x subject to A^T x >= b, x >= 0.
  */
 export function simplexMaxLE(A, b, c) {
+  const lp = lpStart(A, b, c, 0);
+  lpPrimal(lp);
+  return lpResult(lp);
+}
+
+/**
+ * The same LP as a tableau that can take more rows. `spare` is how many rows may be added
+ * with `lpAddRow` before the caller must start over.
+ */
+function lpStart(A, b, c, spare) {
   const m = A.length;
   const n = b.length;
-  const W = n + m + 1;
+  const W = n + m + spare + 1;
   const T = [];
   for (let r = 0; r < m; r++) {
     const row = new Float64Array(W);
@@ -1082,8 +1092,34 @@ export function simplexMaxLE(A, b, c) {
   const z = new Float64Array(W);
   for (let j = 0; j < n; j++) z[j] = -b[j];
   const basis = Array.from({ length: m }, (_, r) => n + r);
+  return { m, n, W, T, z, basis, cap: m + spare, nzIdx: new Int32Array(W) };
+}
+
+function lpPivot(lp, leave, enter) {
+  const { m, W, T, z, nzIdx } = lp;
+  const pr = T[leave];
+  const pv = pr[enter];
+  // The pivot row of a cutting-stock tableau is mostly zeros: touch only its nonzero
+  // columns (subtracting f * 0 changes nothing, so the result is identical).
+  let nz = 0;
+  for (let j = 0; j < W; j++) {
+    if (pr[j] !== 0) { pr[j] /= pv; nzIdx[nz++] = j; }
+  }
+  for (let r = 0; r < m; r++) {
+    if (r === leave) continue;
+    const row = T[r];
+    const f = row[enter];
+    if (f !== 0) for (let k = 0; k < nz; k++) { const j = nzIdx[k]; row[j] -= f * pr[j]; }
+  }
+  const f = z[enter];
+  for (let k = 0; k < nz; k++) { const j = nzIdx[k]; z[j] -= f * pr[j]; }
+  lp.basis[leave] = enter;
+}
+
+/** Primal simplex from a primal-feasible tableau. */
+function lpPrimal(lp) {
+  const { m, W, T, z, basis } = lp;
   let stall = 0;
-  const nzIdx = new Int32Array(W);
   for (let iter = 0; iter < 50000; iter++) {
     let enter = -1;
     if (m <= 150 || stall > 20) {
@@ -1107,24 +1143,53 @@ export function simplexMaxLE(A, b, c) {
     }
     if (leave < 0) throw new Error("LP unbounded: a piece is longer than every board");
     stall = ratio <= 1e-12 ? stall + 1 : 0;
-    const pr = T[leave];
-    const pv = pr[enter];
-    // The pivot row of a cutting-stock tableau is mostly zeros: touch only its nonzero
-    // columns (subtracting f * 0 changes nothing, so the result is identical).
-    let nz = 0;
-    for (let j = 0; j < W; j++) {
-      if (pr[j] !== 0) { pr[j] /= pv; nzIdx[nz++] = j; }
-    }
-    for (let r = 0; r < m; r++) {
-      if (r === leave) continue;
-      const row = T[r];
-      const f = row[enter];
-      if (f !== 0) for (let k = 0; k < nz; k++) { const j = nzIdx[k]; row[j] -= f * pr[j]; }
-    }
-    const f = z[enter];
-    for (let k = 0; k < nz; k++) { const j = nzIdx[k]; z[j] -= f * pr[j]; }
-    basis[leave] = enter;
+    lpPivot(lp, leave, enter);
   }
+}
+
+/**
+ * Add the row `counts . y <= c` to an optimal tableau (so the duals stay feasible) and
+ * restore primal feasibility with dual simplex pivots. Returns false when the tableau has
+ * no spare room or the pivots did not settle: the caller starts over with `lpStart`.
+ */
+function lpAddRow(lp, counts, c) {
+  const { n, W, T, basis } = lp;
+  if (lp.m >= lp.cap) return false;
+  const row = new Float64Array(W);
+  for (let j = 0; j < n; j++) row[j] = counts[j];
+  row[n + lp.m] = 1;
+  row[W - 1] = c;
+  for (let r = 0; r < lp.m; r++) {
+    const v = basis[r];
+    const f = v < n ? counts[v] : 0;
+    if (f !== 0) { const tr = T[r]; for (let j = 0; j < W; j++) if (tr[j] !== 0) row[j] -= f * tr[j]; }
+  }
+  T.push(row);
+  basis.push(n + lp.m);
+  lp.m++;
+  const { z } = lp;
+  for (let iter = 0; iter < 5000; iter++) {
+    let leave = -1;
+    let low = -1e-9;
+    for (let r = 0; r < lp.m; r++) if (T[r][W - 1] < low) { low = T[r][W - 1]; leave = r; }
+    if (leave < 0) return true;
+    let enter = -1;
+    let best = Infinity;
+    for (let j = 0; j < W - 1; j++) {
+      const a = T[leave][j];
+      if (a < -1e-12) {
+        const q = Math.max(0, z[j]) / -a;
+        if (q < best - 1e-12) { best = q; enter = j; }
+      }
+    }
+    if (enter < 0) return false;
+    lpPivot(lp, leave, enter);
+  }
+  return false;
+}
+
+function lpResult(lp) {
+  const { m, n, W, T, z, basis } = lp;
   const y = new Array(n).fill(0);
   basis.forEach((v, r) => { if (v < n) y[v] = T[r][W - 1]; });
   const x = Array.from({ length: m }, (_, r) => Math.max(0, z[n + r]));
@@ -1168,6 +1233,8 @@ function columnGeneration(items, boards) {
   let farley = 0;
   let lastAdded = 0;
   let stopped = false;
+  let tab = null;
+  let tabRows = 0;
   for (let round = 0; round < 400; round++) {
     // Keep the LP small: once the pool is three times the item count, drop patterns the LP
     // does not use (they are re-found by the knapsack if they are wanted again). The
@@ -1176,12 +1243,26 @@ function columnGeneration(items, boards) {
       const keepFrom = patterns.length - lastAdded;
       const kept = patterns.filter((_, j) => j >= keepFrom || lp.x[j] > 1e-9);
       if (kept.length < patterns.length) {
+        tab = null;
         patterns.length = 0;
         seen.clear();
         for (const p of kept) { patterns.push(p); seen.add(`${p.board}:${p.counts.join(",")}`); }
       }
     }
-    lp = simplexMaxLE(patterns.map((p) => p.counts), items.map((it) => it.d), patterns.map((p) => boards[p.board].price));
+    // Warm start: the patterns found last round are new rows on the previous optimal tableau
+    // (dual simplex), not a fresh solve. A pruned pool, a full tableau or a stalled pivot
+    // run starts over cold.
+    const demand = items.map((it) => it.d);
+    let ok = tab && tabRows <= patterns.length;
+    if (ok) {
+      for (let j = tabRows; j < patterns.length && ok; j++) ok = lpAddRow(tab, patterns[j].counts, boards[patterns[j].board].price);
+    }
+    if (!ok) {
+      tab = lpStart(patterns.map((p) => p.counts), demand, patterns.map((p) => boards[p.board].price), 4 * n + 200);
+      lpPrimal(tab);
+    }
+    tabRows = patterns.length;
+    lp = lpResult(tab);
     let added = 0;
     let ratio = 0;
     boards.forEach((bd, k) => {
