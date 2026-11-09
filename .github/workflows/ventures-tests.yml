@@ -42,6 +42,16 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # P063: the steps need platform/, .github/, docs/ and portfolio/ plus
+          # the ventures a change touches, not all 51k files (research/ and
+          # prompts/ are never read). The touched ventures are added below,
+          # once BASE is known; blobs arrive on demand.
+          filter: blob:none
+          sparse-checkout: |
+            platform
+            .github
+            docs
+            portfolio
       # Every step below only diffs BASE against HEAD, which needs the two
       # commits' trees, not the history between them. A full clone (5.3 GB)
       # was a median 95s of a 107s job; depth 1 plus this one-commit fetch is
@@ -60,6 +70,12 @@ jobs:
             else
               git fetch --quiet --no-tags origin "$BASE" || echo "::warning::could not fetch base $BASE"
             fi
+            slugs=$(git diff --name-only --no-renames "$BASE" HEAD -- ventures | cut -d/ -f2 | sort -u)
+            # shellcheck disable=SC2086
+            [ -z "$slugs" ] || git sparse-checkout add $(for s in $slugs; do echo "ventures/$s"; done)
+          else
+            # No usable BASE (workflow_dispatch, a new branch): every venture runs.
+            git sparse-checkout disable
           fi
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
