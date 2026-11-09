@@ -57,6 +57,14 @@
     </section>
     <section><h2>Pieces</h2><output id="result" aria-live="polite"></output></section>
   </div>
+  <section><h2>Nest on the cloth</h2>
+    <p>The real cut outlines packed onto your fabric width, so the armhole and neck curves sit in each other's gaps. Grain stays lengthwise; pieces may turn 180 degrees unless the cloth has a nap.</p>
+    <div class="row"><div><label for="nw">Fabric width cm</label><input id="nw" type="number" min="60" max="300" step="1" value="150"></div>
+    <div><label for="nn">Garments in this size</label><input id="nn" type="number" min="1" max="10" step="1" value="2"></div></div>
+    <label><input id="now" type="checkbox"> One-way fabric (nap or print): no turning</label>
+    <p><button id="nest-go" type="button">Nest pieces</button></p>
+    <output id="nested" aria-live="polite"></output>
+  </section>
   <section><h2>Grading: every size on top of each other</h2><output id="grading" aria-live="polite"></output></section>  <!-- journey -->
   <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
     <strong>1. Design the thing</strong> on the <a href="launch.html">launch path for a clothing line</a>.
@@ -73,6 +81,7 @@
   <script type="module">
     import { draft, grade, pieceSvg, gradeSvg, dxf, checkText } from "./pattern.mjs";
     import { tiledPdf } from "./tiledpdf.mjs";
+    import { nestRatio, verifyNest, nestSvg } from "./nest.mjs";
     import { recordUsage } from "./usage.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -105,6 +114,14 @@
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([Uint8Array.from(r.pdf, c => c.charCodeAt(0))], { type: "application/pdf" }));
       a.download = `${g}-${z}-tiled.pdf`; document.body.appendChild(a); a.click(); a.remove(); recordUsage("pattern_pdf");
+    });
+    $("#nest-go").addEventListener("click", () => {
+      const n = Math.round(Number($("#nn").value)), w = Number($("#nw").value);
+      const r = nestRatio($("#garment").value, { [$("#size").value]: n }, { fit: $("#fit").value, widthCm: w, oneWay: $("#now").checked, draftOpts: opts() });
+      if (!r.ok) { $("#nested").innerHTML = `<p class="placeholder">${esc(r.error)}</p>`; return; }
+      const v = verifyNest(r);
+      $("#nested").innerHTML = `<p><strong>${r.lengthCm} cm</strong> of marker for ${r.garments} garment${r.garments > 1 ? "s" : ""}, ${r.efficiencyPct}% of the cloth is pattern. About <strong>${r.metresPerGarment} m per garment</strong> with ${r.endLossCm} cm end loss. Exact overlap check: ${v.ok ? "passed" : esc(v.problems.join("; "))}.</p><div style="overflow:auto;max-width:100%">${nestSvg(r, { pxPerCm: 3 })}</div><p class="placeholder">A cautious estimate: a factory's CAD marker tilts pieces and tunes gaps. Its own consumption figure wins.</p>`;
+      recordUsage("pattern_nest");
     });
     document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("pattern_check"); }));
     render(); recordUsage("pattern_open");
