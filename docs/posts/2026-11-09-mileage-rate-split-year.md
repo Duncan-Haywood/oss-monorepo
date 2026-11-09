@@ -1,5 +1,6 @@
 ---
 title: "The 2026 IRS mileage rate is two numbers, so the page now says so first"
+seo_title: "2026 IRS mileage rate: two numbers, split at July 1"
 date: 2026-11-09
 tags: [seo, aeo, tax]
 description: "The mileage deduction calculator now opens with a sourced, dated answer: 72.5 cents a mile to June 30, 76 cents from July 1."

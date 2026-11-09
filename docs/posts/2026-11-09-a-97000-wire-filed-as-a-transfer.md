@@ -3,7 +3,7 @@ title: "A $97,000 wire that our bookkeeper filed as a transfer to yourself"
 seo_title: "Bank wire categorized as an own-account transfer"
 date: 2026-11-09
 description: "Testing AI Bookkeeper on a real business Chase export found outgoing third-party wires suggested as own-account transfers. What was wrong and the fix."
-topic: bookkeeping
+topic: tools
 tags: [bookkeeping, testing, categorization, open-source]
 ---
 
