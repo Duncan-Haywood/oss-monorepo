@@ -94,7 +94,11 @@ export function hourlySales(text, o = {}) {
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
   const head = splitCsvRow(lines[0], sep).map(norm);
   const find = (k) => head.findIndex((h) => SYN[k].includes(h));
-  const ix = { stamp: find("stamp"), day: find("day"), sales: find("sales") };
+  const ix = { stamp: find("stamp"), day: find("day"), sales: find("sales"), clock: -1 };
+  // A separate date column and time column ("Date,Time,Net Sales" is how many POS exports come): join them into one stamp.
+  const dateCol = head.findIndex((h) => ["date", "day date", "business date", "sale date", "order date"].includes(h));
+  const timeCol = head.findIndex((h, i) => i !== dateCol && ["time", "hour", "sale time", "order time", "start time", "interval", "period"].includes(h));
+  if (dateCol >= 0 && timeCol >= 0) { ix.stamp = dateCol; ix.clock = timeCol; }
   if (ix.sales < 0) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + ")."); return out; }
   if (ix.stamp < 0) { out.notes.push("No date-time or hour column found."); return out; }
   const entries = []; // {day, hour, key, amount}
@@ -102,8 +106,9 @@ export function hourlySales(text, o = {}) {
   lines.slice(1).forEach((line, i) => {
     const c = splitCsvRow(line, sep);
     const amount = readAmount(c[ix.sales]);
-    const st = readStamp(c[ix.stamp], ix.day >= 0 ? c[ix.day] : undefined);
-    if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${c[ix.stamp] || ""}"`); return; }
+    const stampText = ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
+    const st = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined);
+    if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampText || ""}"`); return; }
     if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "") { out.skipped.push(`row ${i + 2}: could not read the sales "${c[ix.sales] || ""}"`); return; }
     if (amount < 0) { out.skipped.push(`row ${i + 2}: negative sales (a refund?) skipped`); return; }
     if (st.key && skip.has(isoKey(st.key))) { skippedDays.add(st.key); return; }
