@@ -3,7 +3,7 @@ title: "Does a photo-straightness confidence score mean anything? We rotated rea
 seo_title: "Photo tilt detection confidence checked on real photos"
 date: 2026-11-09
 tags: [photo-editing, shootflow, calibration]
-description: "Rotating ten real sample photos by known angles shows ShootFlow's tilt confidence tracks accuracy: 45% of low-confidence readings land within a degree, 85% of high-confidence ones."
+description: "Rotating ten real photos by known angles shows ShootFlow tilt confidence tracks accuracy: 45% within a degree at low confidence, 85% at high."
 ---
 
 ShootFlow's culling tool penalises crooked frames, but only in proportion to a
