@@ -1,0 +1,11 @@
+--period 8               24
+--log --period 8         18
+--period 9               19
+--log --period 9         16
+--period 10              16
+--log --period 10        18
+--period 11              17
+--log --period 11        12
+--period 12              18
+--log --period 12        10
+--period 10 --drift      17

@@ -1841,3 +1841,12 @@ Monthly CO2, 1958-03 to 2026-09 (`data/co2-mauna-loa.csv`, 823 values, the inter
 - **Found by every count-aware or log setup, to the day.** Poisson with negative-binomial dispersion and the Gaussian log model, on both registered and casual riders, cut **2012-10-29** (start) and **2012-10-31** (recovery), each with a `range95` of that one index. The 10-30 half-recovery day sits inside the outage segment.
 - **The plain Gaussian level model dates it wrongly for casual riders.** It cuts 10-28, a day early (the casual series has 84 changes under it, 59 to 70 under the others), and has no cut at 10-29 or 10-31. Registered riders are fine under it (cuts 10-29 and 10-31). So on a series with a seasonal count, the log or count model is the setup that matters; this is the first real series here where a Gaussian level model misdates a known event by a day.
 - **Not checked:** the other cuts in the window (11-22 to 11-26, Thanksgiving week, likely holidays; the dataset's holiday flag does not cover it) are not examined; one event, one city.
+
+## Lynx: a known period does not remove the cycle (2026-11-09, negative result)
+
+`node eval/lynx-period.mjs` (output `eval/lynx-period.out.txt`, test `lynx-period.test.mjs`). The Canadian lynx trappings (`data/lynx.csv`, 114 years, 1821-1934, about a 10-year cycle, no documented step) are cut 23 times by the default model, and every cut is a false alarm. The result's own warning says "give the period with `--period`". This run checks that advice on the one series where the period is known.
+
+- **It helps a little and never reaches zero.** `--period 8` to `12` leaves 24, 19, 16, 17 and 18 steps; with `--log` 18, 16, 18, 12 and 10; `--period 10 --drift` 17. The best case, `--log --period 12`, still cuts 10 times.
+- **Why.** The cycle is irregular: its length runs from 8 to 12 years and its peaks differ several-fold, so a fixed-length seasonal profile cannot absorb it. The residual is still cyclic.
+- **What does remove them:** `--ar1` (0 cuts, README "Two cyclic real series"), which treats the cycle as autocorrelation instead.
+- **Reading.** The warning's hint to give `--period` is right for a calendar cycle (12 months, 7 days) and weak for a biological or solar one. One series, no rate claimed; sunspots (11 years) not rerun with a period.
