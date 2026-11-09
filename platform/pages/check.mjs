@@ -292,7 +292,7 @@ async function collectSitemapUrls(site, basePath, relative, seen, out, problems)
  * `.mjs` parses as ESM, `.js` as a classic script, matching what the `type`
  * attribute tells the browser.
  */
-async function checkInlineScripts(site, servedPages, problems) {
+async function checkInlineScripts(site, servedPages, problems, readPage = (r) => fs.readFile(path.join(site, r), 'utf8')) {
   const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'pages-parse-'));
   const jobs = [];
   // Most inline scripts are the site's own, injected into every page, so the
@@ -303,7 +303,7 @@ async function checkInlineScripts(site, servedPages, problems) {
   const byBody = new Map();
 
   for (const relative of servedPages) {
-    const html = await fs.readFile(path.join(site, relative), 'utf8');
+    const html = await readPage(relative);
     let index = 0;
     for (const match of html.matchAll(SCRIPT_BLOCK_RE)) {
       const [, attrs, body] = match;
@@ -1048,7 +1048,18 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
 
   problems.push(...checkServedExtensions(files));
 
-  await checkInlineScripts(site, servedPages, problems);
+  // Four passes read every served page (inline scripts, hidden-attribute
+  // contrast, canonical origin, placeholder origin). One read per page, shared:
+  // the promise is kept so the 32-wide pass and the serial ones never race to
+  // read the same file twice. About 185 MB of HTML on the real site.
+  const pageReads = new Map();
+  const readPage = (relative) => {
+    let read = pageReads.get(relative);
+    if (!read) pageReads.set(relative, (read = fs.readFile(path.join(site, relative), 'utf8')));
+    return read;
+  };
+
+  await checkInlineScripts(site, servedPages, problems, readPage);
 
   // ---- Elements hidden in markup that CSS puts back on the page -----------
   //
@@ -1059,7 +1070,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     const sheetCache = new Map();
     const seen = new Set();
     for (const relative of servedPages) {
-      const html = await fs.readFile(path.join(site, relative), 'utf8');
+      const html = await readPage(relative);
       if (!HIDDEN_ATTR_RE.test(html)) continue;
       const css = await linkedStylesheets(site, relative, html, sheetCache);
       if (!css) continue;
@@ -1144,7 +1155,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
   if (siteBase) {
     const prefix = `${siteBase.origin}${siteBase.pathname}`;
     for (const relative of servedPages) {
-      const html = await fs.readFile(path.join(site, relative), 'utf8');
+      const html = await readPage(relative);
       const canonical = /<link\b[^>]*\brel=["']canonical["'][^>]*\bhref=["']([^"']+)["']/i.exec(html);
       if (!canonical) continue;
       if (/^https?:/i.test(canonical[1]) && !canonical[1].startsWith(prefix)) {
@@ -1246,7 +1257,7 @@ export async function checkSite(site, { minProducts = 1 } = {}) {
     if (!TEXT_EXTENSIONS.has(extension)) return [];
 
     const found = [];
-    const text = await fs.readFile(path.join(site, relative), 'utf8');
+    const text = extension === '.html' ? await readPage(relative) : await fs.readFile(path.join(site, relative), 'utf8');
     if (text.includes(PLACEHOLDER_ORIGIN)) {
       found.push(`${relative}: still contains ${PLACEHOLDER_ORIGIN}`);
     }
