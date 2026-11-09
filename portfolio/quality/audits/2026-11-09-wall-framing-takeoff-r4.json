@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-09",
+  "subject": "ventures/wall-framing-takeoff",
+  "stratum": "flagship",
+  "seed": "2026-11-09",
+  "auditor": "agent session (Claude), fourth audit of this flagship, see run record",
+  "status": "audited",
+  "professional": "a lead framer / framing estimator for residential wood-frame construction, who checks stud counts and marks, opening framing (kings, jacks, headers, cripples), plate splices, stair and rafter geometry and the lumber order first",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran node cli.mjs on a plan I wrote (one 20 ft 2x4 wall at 16 o.c., a 36 in window at 30 in with 2x6 header, a 120 in door at 100 in with 2x12 header, header height 82.5) and recomputed by hand as a framer would. (1) Opening framing: window kings at 27 and 67-1/2 in (30 - 1.5 jack - 1.5 king = 27; 66 + 1.5 = 67.5), door kings at 97 and 221-1/2 (100 - 3 = 97; 220 + 1.5), header 120 + 2 x 1.5 = 123 in (2-2x12) and 36 + 3 = 39 in (2x6), jacks 82.5 - 1.5 = 81 in, rough sill 36 in, cripples under the window 82.5 - 48 - 1.5 plate - 1.5 sill = 31-1/2 in, above the window 94-1/8 - (82.5 + 5.5) = 6-1/8 in, tool identical; over the door the gap is 94.125 - (82.5 + 11.25) = 0.375 = 3/8 in and the tool says exactly that and flags it. (2) Layout marks: 16 o.c. stud left edges at centre - 0.75 give 15-1/4, 79-1/4, 95-1/4, 223-1/4 in with the 31/47/63/111/.. studs correctly displaced by openings; plates 144 + 96 top and 171-3/4 + 68-1/4 cap sum to 240 in with the cap joint 28 in from the top joint (offset rule), bottom plates 100 + 20 + door 120 = 240. (3) Stair, 105 in rise, 10 in tread, 36 in wide: ceil(105/7.75) = 14 risers of 7.5 in, 13 treads, run 130 in = 10 ft 10 in, 2R+T = 25.00, atan(7.5/10) = 36.9 deg, 13 treads of 36 in each one 2x12 for 11 in of tread plus nosing; tool identical. Stringer 14 ft 10-1/4 in (178-1/4 in) against a notch-line length of 167.1 in: plausible with tails but I did not verify the 11 in allowance against a stringer layout, so not counted as checked. (4) Gable roof 288 x 360 in, 8:12, 12 in overhang: run 144 + 12 = 156, x sqrt(1 + (8/12)^2) = 1.2019 gives 187.5 in (tool 187-1/2); 16 rafters per side x 2 = 32 (360/24 + 1); sheathing 187.5 x 384 x 2 / 144 = 1000 sq ft (tool 1000); birdsmouth plumb cut 3.5 x 8/12 = 2.33 in (2-5/16) and 27% of a 2x8 vs the 25% limit, flagged. With a 16 in overhang the tool refused (rafter 16 ft 5/16 in exceeds the longest listed 2x8), also right (160 x 1.2019 = 192.3 in). No wrong number found.",
+    "completeness": "Ran: layout and marks, cut list, cheapest order with proof label, --stairs, --roof (including its sheathing, roofing and birdsmouth lines), plan validation messages (wall needs an id, opening outside the wall, header taller than the opening), refusal of an oversize rafter. Not exercised by me: IFC/DXF import, PDF, panels, bids, scheduling; their test files exist and the suite passes. One test is skipped. Verified since r3: commits 28f3b86c, 976f57cf, c26e1c25, 9df35f6f added input refusals and a winder kerf fix; none changes the open r3 gaps. No stub or dead link met in what I ran.",
+    "verification": "Ran node --test '*.test.mjs' in ventures/wall-framing-takeoff (background): 1140 tests, 1139 pass, 0 fail, 1 skipped, 98 s. Seeded mutation: engine.mjs line 402, jack length headerHeight - THICK changed to headerHeight - THICK - THICK (every jack 1.5 in short). Ran engine, engine-fuzz, cli, mutation-sweep and headers tests: 143 tests, 1 failed ('a window gets kings, jacks, a header, a sill and cripples on layout, all hand-checked'). Caught, but by a single test, the same single-test weakness r2 recorded for this exact mutation and r3 for the plate-lap one; not fixed. File reverted with git checkout, git status clean.",
+    "craft": "Re-read the structure: engine.mjs is 1502 lines (r3: 1499) with layoutWall and layoutGable still duplicating the opening loop, cli.mjs 630 lines, README.md still one very large file with bullets of thousands of characters. Recent commits add input-refusal checks (plain-language errors, good) but no refactor. Good: JSDoc typedefs and @ts-check, validators with plain errors, hostile-input and fuzz tests, headers.mjs is small and clear. A senior JS reviewer would still ask for engine/cli to be split before accepting; unchanged since r2, so 2.",
+    "claims": "Checked README/page claims against runs: 'stud layout at 16, 19.2 or 24 o.c.' (16 checked this round, others in r3), 'plate splices on studs with the cap joints kept away from the top plate joints' (cap joint 28 in from top joint in my run, and the mutation test in r3 enforces it), 'cheapest mix of board lengths with a lower bound' (order line shows cost, bound and 0.00% gap, 'proven cheapest' per material), stairs and roof lines match hand sums. Limits are printed in the output ('Header sizes and jack counts are your inputs and are not checked against a span table or code', roof notes say rafter size is not checked). README line 152 still says 1,039 tests across 124 files on 2026-11-07; today's run is 1140 tests: dated so true then, but stale. No unbacked headline claim found.",
+    "fitness": "Job walked: a framer enters a 20 ft wall with a window and a 10 ft door and gets studs, kings, jacks, headers, cripples, marks, a cut list and a priced order with a proven bound in under a second; adding --stairs and --roof gives a stair and a gable in the same run. The tool surfaces a 3/8 in gap over the door and a header-spacer note, which a framer would want. Friction: JSON input is hand-written (and the key names are not obvious: wall needs id, opening needs kind and offset, error messages do point to them), a 10 ft door is framed with one king and one jack per side with no per-opening warning, and 4 stair stringers at 36 in is conservative with no note.",
+    "domain": "Compared against IRC R602 practice, R311.7 stair limits (7-3/4 max riser, 10 in min tread) and R802 rafter/birdsmouth practice (birdsmouth depth limit 25% of rafter). Stud, king, jack, header, cripple and sill arithmetic matches what a framer cuts, and the birdsmouth check is a real code rule applied correctly. Departures: no default header span table (user supplies it, by design); jacks and kings default to 1 per side for any width (a 120 in door gets 1 jack per side; IRC R602.7 and the span tables need more for wide openings) with only the generic footer; 1/2 in header spacers noted not ordered; ridge board count 0 when none typed."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "A 120 in (10 ft) door opening is framed with 1 king and 1 jack per side (4 jacks for a window plus the door) and there is no per-opening warning; only the generic footer says jack counts are inputs. A framer or inspector would expect 2 jacks, or a warning, on a wide header. Present since the 2026-11-07 audit and not fixed.",
+      "where": "ventures/wall-framing-takeoff/engine.mjs:337 (const kings = op.kings ?? 1) and the jack default in openingGeometry"
+    },
+    {
+      "severity": "medium",
+      "what": "Core opening geometry is guarded by a single test: shortening every jack by 1.5 in (engine.mjs:402) fails 1 of 143 tests across engine, engine-fuzz, cli, mutation-sweep and headers files. Same weakness r2 found for this mutation; a second hand-checked jack/king assertion in the wall or CLI layer would catch it twice.",
+      "where": "ventures/wall-framing-takeoff/engine.mjs:402, engine.test.mjs"
+    },
+    {
+      "severity": "low",
+      "what": "No default header span table, even labelled as an example; header size is entirely the user's input.",
+      "where": "ventures/wall-framing-takeoff/headers.mjs:1-8"
+    },
+    {
+      "severity": "low",
+      "what": "README test count is stale (1,039 tests, 124 files, 2026-11-07 vs 1140 tests today) and the README is one very large file; the 4 stringers at 36 in and 11 in stringer tail allowance are not explained in output.",
+      "where": "ventures/wall-framing-takeoff/README.md:152"
+    },
+    {
+      "severity": "low",
+      "what": "layoutGable repeats layoutWall's opening-framing loop; engine.mjs (1502 lines) and cli.mjs (630 lines) are monoliths. Noted in r1 to r3, unchanged.",
+      "where": "ventures/wall-framing-takeoff/engine.mjs:414-830"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Fourth audit of the flagship. Every number I recomputed by hand matched: opening framing (kings, jacks, header lengths, cripples, the 3/8 in gap over a door), 16 o.c. marks, a 14-riser stair, and a gable roof (rafter length, count, sheathing area, birdsmouth plumb cut and its 25% limit). The suite passes (1139 of 1140, 1 skipped) and a seeded jack-length bug was caught, but by only one test, the weakness r2 recorded. It meets the bar with a median of 3 and the same scores as r3. Since r3 only input-refusal and a winder kerf fix landed; the wide-opening jack default, the single-test guard, the monolithic engine and the stale README count are all unfixed, so the trend is flat. Score is before any fix."
+}
