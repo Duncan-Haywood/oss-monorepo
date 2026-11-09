@@ -257,3 +257,15 @@ test("opening edits refuse a NaN, text or infinite position instead of storing a
     assert.equal(sk.openings[0].wall, 1);
   }
 });
+
+test("addOpening refuses a kind that is not door or window (before: null, NaN or text was stored and saved as null)", () => {
+  const { sk, ws } = house();
+  const id = ws[0].id ?? ws[0];
+  for (const k of [null, undefined, NaN, Infinity, "gate", 5, {}]) {
+    const r = addOpening(sk, id, k, 100, 36);
+    assert.equal(r.ok, false, String(k));
+  }
+  assert.equal(sk.openings.length, 0);
+  assert.equal(addOpening(sk, id, "door", 100, 36).ok, true);
+  assert.equal(addOpening(sk, id, "window", 200, 36).ok, true);
+});

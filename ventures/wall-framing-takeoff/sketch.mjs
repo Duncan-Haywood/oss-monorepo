@@ -125,6 +125,7 @@ export function nearestWall(sk, p, tol = 10) {
 export function addOpening(sk, wallId, kind, along, width) {
   const w = sk.walls.find((x) => x.id === wallId);
   if (!w) return { ok: false, error: "No such wall." };
+  if (kind !== "door" && kind !== "window") return { ok: false, error: "An opening is a door or a window." };
   if (!(width > 0)) return { ok: false, error: "The opening needs a width." };
   if (badNum(along)) return { ok: false, error: "That position is not a real number." };
   const L = len(w);
