@@ -620,3 +620,10 @@ canada-fertility.csv: Canada total fertility rate 1931-1968 (carData::Hartnagel,
 - **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/datasets/global-temp/main/data/monthly.csv> (datahub.io `global-temp`, republishing NOAA/NASA GCAG).
 - **Licence:** the datahub packaging is ODC-PDDL; the underlying figures are public US government data. Kept as a test fixture with its source named.
 - **Used by:** `global-temp.test.mjs`, README "Global temperature: a documented 1945 step".
+
+## co2-mauna-loa.csv
+
+- **What:** Mauna Loa monthly atmospheric CO2 (ppm, interpolated column), 1958-03 to 2026-09, 823 values.
+- **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/datasets/co2-ppm/main/data/co2-mm-mlo.csv> (datahub.io `co2-ppm`, republishing NOAA GML).
+- **Licence:** ODC-PDDL packaging; underlying figures are public US government data. Kept as a test fixture with its source named.
+- **Used by:** `co2-mauna-loa.test.mjs`, README "Mauna Loa CO2".
