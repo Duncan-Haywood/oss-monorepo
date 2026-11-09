@@ -187,6 +187,8 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
+      Tilt confidence checked on 60 rotated real-photo readings 2026-11-09:
+      45% within 1 degree below 0.05, 85% above 0.15 (eval/README-real-photo-calibration.md).
       Real-photo calibration 2026-11-08 (tools/real_photo_calibration.py,
       eval/README-real-photo-calibration.md; two OpenCV sample photos):
       sharpness, grain and exposure respond correctly to known blur, noise and
