@@ -38,7 +38,9 @@
       "result": "n/a"
     }
   ],
-  "writeups": "research/aerolog-scaling/LOG.md milestone 10r",
+  "writeups": [
+    "research/aerolog-scaling/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
