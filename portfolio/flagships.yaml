@@ -248,8 +248,8 @@ flagships:
       actuator brackets (shuttle and elevation) and azimuth drive, then the netting
       trough that rolls balls to the hopper inlet. Launch window landed 2026-11-08
       (`Feeder.launch_window`: 17.9 to 26.8 m/s at 3000 rpm topspin, none at 4000);
-      then check the head's plate clearance against the ball path with the flight
-      model's launch speeds.
+      plate clearance landed 2026-11-09 (3.5 deg yaw tolerance, cad/README.md);
+      then size the wheel-axle squaring (tolerance stack) against that 3.5 deg.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
