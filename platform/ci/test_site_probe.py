@@ -86,6 +86,19 @@ class PlainProbe(unittest.TestCase):
 
 
 class Proxy(unittest.TestCase):
+    def test_bare_host_proxy_defaults_to_port_80(self):
+        with mock.patch.dict(os.environ, {"HTTPS_PROXY": "proxy.test"}, clear=True):
+            self.assertEqual(site_probe._proxy_for("marisstella.app"), ("proxy.test", 80))
+        with mock.patch.dict(os.environ, {"HTTPS_PROXY": "proxy.test:3128"}, clear=True):
+            self.assertEqual(site_probe._proxy_for("marisstella.app"), ("proxy.test", 3128))
+
+    def test_is_ok_status_boundaries(self):
+        ok = lambda s: site_probe.is_ok({"status": s, "total": 0.1})
+        self.assertTrue(ok(200) and ok(399))
+        # a missing total counts as 0 s, so even a tight budget leaves it up
+        self.assertTrue(site_probe.is_ok({"status": 200}, slow=0.5))
+        self.assertFalse(ok(199) or ok(400) or ok(None))
+
     def test_no_proxy_match(self):
         env = {"HTTPS_PROXY": "http://127.0.0.1:3128", "NO_PROXY": "localhost,.example.com"}
         with mock.patch.dict(os.environ, env, clear=True):
