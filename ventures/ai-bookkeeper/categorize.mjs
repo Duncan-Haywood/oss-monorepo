@@ -455,11 +455,13 @@ export const BUILT_IN = [
   // Cross-border client payments arriving through a payout service are sales (still reviewed, never posted by themselves).
   ["4000", "in", /\bwise payout\b|\bpayoneer\b/],
   ["6010", "out", /annual fee|late (payment )?fee|foreign transaction fee|cash advance fee|returned item fee|\batm fee|wire transfer fee|balance transfer fee/],
-  ["transfer", "any", /\btransfer\b|\bxfer\b|to savings|from savings|to checking|from checking|online banking transfer/],
+  // A wire to or from a named third party (VIA: ... A/C: <beneficiary>, B/O: <originator>, a CHIPS credit)
+  // is not a move between your own accounts: leaving it unsuggested keeps a $97,000 payment out of the transfer clearing account.
+  ["transfer", "any", /(?<!wire )\btransfer\b(?!.*\b(?:via|a\/c|b\/o):)|\bxfer\b|to savings|from savings|to checking|from checking|online banking transfer/],
   ["transfer", "any", /payment thank you|^autopay|autopay payment|card ?payment|credit card payment|amex epayment|epayment|capital one.*(pmt|payment)|chase card/],
   ["3100", "out", /personal|venmo cashout/],
   ["3010", "in", /owner contribution|capital contribution|owner deposit/],
-  ["6010", "out", /stripe fee|paypal fee|square fee|merchant fee|processing fee|service charge|monthly fee|monthly service fee|maintenance fee|wire fee|overdraft|nsf fee|bank fee|account fee|analysis charge|analysis fee/],
+  ["6010", "out", /\bach (pmnts?|payments?) (initial |origination |return )?fee|stripe fee|paypal fee|square fee|merchant fee|processing fee|service charge|monthly fee|monthly service fee|maintenance fee|wire fee|overdraft|nsf fee|bank fee|account fee|analysis charge|analysis fee/],
   ["4200", "in", /^interest payment|interest paid|interest earned|interest credit|\binterest\b.*(savings|deposit)/],
   ["2100", "out", /sales tax|dept\.? (of )?(tax|revenue|taxation)|department of revenue|comptroller/],
   ["2200", "out", /\bsba loan|loan (pmt|payment)/],
@@ -717,7 +719,10 @@ export function suggest(txn, model) {
   // Processor and bank wrappers hide the merchant behind words the keyword
   // rules read as something else: "PAYPAL INST XFER NETFLIX" is not a transfer.
   const bi = text.replace(/paypal\s+inst\s+xfer\s*/, "paypal ").replace(/(withdrawal from|subscription payment:|preapproved payment bill user payment:|buyer payment:)\s*/, "");
-  for (const [account, rd, re] of off.has("built-in") ? [] : BUILT_IN) {
+  // A wire names its counterparty after VIA:, A/C: or B/O:, and those names trip unrelated keyword rules (a bank's
+  // name read as a utility). Whose money it is only a person can say, so it waits unsuggested.
+  const thirdPartyWire = !off.has("built-in") && /\b(wire transfer|chips credit|fedwire|book transfer (credit|debit))\b/.test(bi) && /\b(via|a\/c|b\/o):/.test(bi);
+  for (const [account, rd, re] of off.has("built-in") || thirdPartyWire ? [] : BUILT_IN) {
     if (rd !== "any" && rd !== d) continue;
     if (account !== "transfer" && model.codes && !model.codes.has(account)) continue;
     if (re.test(bi)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
