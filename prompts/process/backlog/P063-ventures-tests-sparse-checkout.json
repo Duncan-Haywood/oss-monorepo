@@ -1,7 +1,7 @@
 {
   "id": "P063",
   "title": "perf: ventures-tests checks out all 51k files to test the ventures a PR touches",
-  "status": "in-progress",
+  "status": "in_progress",
   "owner": "owner",
   "effect": 1,
   "cost": 1,
