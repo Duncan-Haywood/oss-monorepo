@@ -1,9 +1,9 @@
 ---
 title: "Is a wardrobe-set discount worth it? A calculator for the break-even share of one-piece buyers"
-seo_title: "Bundle pricing calculator for a clothing brand: when a set discount pays"
+seo_title: "Bundle pricing calculator for clothing brands: set discounts"
 date: 2026-11-09
 tags: [clothing-design-studio, pricing, bundles]
-description: "A free calculator for clothing brands: what a wardrobe set earns after fees and shipping, and the share of set buyers who must be one-piece shoppers for the discount to pay."
+description: "A free calculator for clothing brands: what a wardrobe set earns after fees and shipping, and how many set buyers must be one-piece shoppers to pay."
 ---
 
 A designer planning a limited wardrobe set (a tee, trousers and a jacket) has
