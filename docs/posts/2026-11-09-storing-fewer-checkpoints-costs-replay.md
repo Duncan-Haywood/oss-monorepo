@@ -1,6 +1,6 @@
 ---
 title: "What does it cost to store fewer training checkpoints and still be auditable?"
-seo_title: "Verifiable training: checkpoint storage versus recomputation on challenge"
+seo_title: "Verifiable training: checkpoint storage versus audit replay cost"
 date: 2026-11-09
 tags: [research, verifiable-training-mechanisms]
 description: "Storing every fifth checkpoint cuts storage fivefold and raises the expected audit replay from 3.3% to 10% of training."
