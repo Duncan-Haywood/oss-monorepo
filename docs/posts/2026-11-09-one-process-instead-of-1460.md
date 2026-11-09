@@ -2,7 +2,8 @@
 title: "One process instead of 1,460: parsing inline scripts in a batch"
 date: 2026-11-09
 seo_title: "Cutting a site check from 28 s to 17 s"
-description: "The built-site check started one node process per distinct inline script. One child that parses them all cut the step by 11 seconds, with the old path kept as the fallback."
+description: "The built-site check spawned one node process per inline script. One child that parses them all cut the step by 11 seconds; the old path stays as fallback."
+tags: [performance, ci]
 ---
 
 Every merge builds the catalogue, and a step then checks the output. One check
