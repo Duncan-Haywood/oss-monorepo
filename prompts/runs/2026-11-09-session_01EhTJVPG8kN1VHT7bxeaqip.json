@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14284",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -165,7 +165,7 @@
         "file": "ventures/npm-lifecycle-script-check/engine.mjs",
         "issue": "diff --ignore only covered packages whose script changed; a newly added dependency with an install script (e.g. esbuild) could not be accepted, so the exit code stayed 1 forever. Fixed with a failing test first.",
         "patched": true,
-        "patched_in": "this PR"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14284"
       }
     ]
   }
