@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Paper text catch-up for milestones 97 to 104 (no flow run, no new numbers)
+- Why: PAPER.md stopped at milestone 97's neighbours; 99 to 104 (pilot size, exact plateau, first keep, schedule cost) lived only in this log. Added one paragraph to the pilot-certificate section; every figure is copied from the entries below and their result files, and it states 102's correction by 103.
+- Not done: `paper/main.tex` not regenerated (no LaTeX in this container); detail-routed mult24/mult32 cells (about 12 core-hours per cell) remain the next experiment.
+
 ## 2026-11-09 · Milestone 104: the wide three-rung schedule is slightly cheaper than the two-rung ladder, not dearer (no flow run)
 - Why: milestone 103 left the price of certifying open. Predictions (written first, in `pilot_cert_cost.py`): (1) the F = 35 three-rung schedule (keeps 35, 16, 8) costs more wall-clock than the two-rung ladder (keeps 16, 5) in at least 15 of 20 cells; (2) both cost under half of routing the whole pool; (3) they certify the same cells.
 - **Outcome** (`experiments/theory/pilot_cert_cost.py`, `pilot_cert_cost_results.txt`, `tests/test_pilot_cert_cost.py`; per-cell mean stage times from the cached table). (3) held: both certify 18 of 20, the same cells (adder_ripple16 in both clocks is the exception). (1) **refuted**: the three-rung schedule costs more in 0 of 20 cells; median cost ratio 0.91 (it saves 15 r2 evaluations at the price of 50 r1 scores). (2) **refuted**: both are under half of all-routed in 1 of 20 cells (typical 40 s against 50 to 60 s; only mult8 tight, 113 s, and fifo8x4 clear it).
