@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 101: a larger final keep rescues only a third of the three-rung cells (no flow run)
+- Why: milestone 100 left open whether a keep schedule with a larger final k makes the 20 three-rung cells certifiable. Predictions (written first): (1) the number certified is non-decreasing in the final keep K in every cell; (2) at K = 2 fewer than 5 of 20 cells have a certified point; (3) at K = 5 at least 15 of 20 do.
+- **Outcome** (`experiments/theory/pilot_cert_keep.py`, `pilot_cert_keep_results.txt`, `tests/test_pilot_cert_keep.py`; exact counting on the cached table, keep (n//3, n//9, K)). (1) held. (2) held: 2 of 20 at K = 2. (3) **refuted**: cells with a certified point at K = 1 / 2 / 3 / 5 / 8 are 0 / 2 / 6 / 6 / 7 of 20; the median cell has none even at K = 8.
+- Reading: widening the last cut helps only the cells where the r3 score already ranks the optimum-like points near the top (cmp_sat12, mac4, adder_op16); for 13 of 20 cells no K up to 8 certifies a point, so the middle cut (k = 5) or the rung scores themselves bind. The ladder choice from milestone 100 (drop the cheapest rung) remains the cheaper route to a guarantee.
+- Limits: same cached table, n = 50, one eta; only K varied (the middle keep was not); certification only, regret and cost of the larger K not run.
+- Next: vary the middle keep too; detail-routed mult24/mult32 cells.
+
 ## 2026-11-08 · Milestone 100: the 0.45 plateau is the cells, counted exactly (no flow run)
 - Why: milestone 99 guessed the plateau in the share of pilots with a ceiling was set by cells with no certified point and did not count them. Predictions (written first): (1) the exact share, 1 - C(n-c,m)/C(n,m) averaged over cells with c certified points, matches 99's simulated share to within 0.005 at every m; (2) at least a quarter of the 40 cells have c = 0; (3) the share of cells with c >= 1 is within 0.1 above the m = 40 value.
 - **Outcome** (`experiments/theory/pilot_cert_cells.py`, `pilot_cert_cells_results.txt`, `tests/test_pilot_cert_cells.py`; no sampling). (2) held: 22 of 40 cells have c = 0. (3) held: the share of cells with c >= 1 is 0.450, against 0.448 at m = 40. (1) missed narrowly: the largest gap is +0.0062 at m = 12 (others at most 0.0038), a little above 0.005, which is Monte Carlo noise at 12,000 pilots (se about 0.004) but is stated as a miss.
