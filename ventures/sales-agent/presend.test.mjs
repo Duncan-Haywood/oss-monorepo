@@ -76,3 +76,18 @@ test("country names and aliases map to the same regime as the code (2026-11-09)"
   assert.equal(regime("Germany").kind, "consent");
   assert.equal(regime("Narnia").kind, "unknown");
 });
+
+test("opt-out phrased as an offer to remove, quoted stop, or in German/French/Spanish counts (2026-11-09)", () => {
+  const strip = (t) => presend({ ...good, body: good.body.replace("reply stop and I won't write again", t) });
+  for (const t of ["just let me know and I'll remove you from my list", "reply 'stop' and that's it", "tell me to stop and I will", "antworten Sie \"Abmelden\"", "répondez pour vous désinscrire", "responda para darse de baja"]) {
+    assert.ok(!rules(strip(t)).includes("opt-out"), t);
+  }
+  assert.ok(rules(strip("have a great week")).includes("opt-out"));
+});
+test("a German street-then-number address and a postcode-city line are found", () => {
+  const body = (addr) => good.body.replace("221 Baker Street, Springfield 62704", addr);
+  for (const a of ["Musterstr. 1, Berlin", "Hauptstraße 12", "Brightline GmbH, 10115 Berlin"]) {
+    assert.ok(!presend({ ...good, country: "DE", body: body(a) }).warnings.concat(presend({ ...good, country: "DE", body: body(a) }).errors).some((x) => x.rule === "postal-address"), a);
+  }
+  assert.ok(presend({ ...good, country: "US", body: body("Brightline") }).errors.some((x) => x.rule === "postal-address"));
+});
