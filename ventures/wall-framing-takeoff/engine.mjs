@@ -1083,6 +1083,7 @@ export function simplexMaxLE(A, b, c) {
   for (let j = 0; j < n; j++) z[j] = -b[j];
   const basis = Array.from({ length: m }, (_, r) => n + r);
   let stall = 0;
+  const nzIdx = new Int32Array(W);
   for (let iter = 0; iter < 50000; iter++) {
     let enter = -1;
     if (m <= 150 || stall > 20) {
@@ -1108,14 +1109,20 @@ export function simplexMaxLE(A, b, c) {
     stall = ratio <= 1e-12 ? stall + 1 : 0;
     const pr = T[leave];
     const pv = pr[enter];
-    for (let j = 0; j < W; j++) pr[j] /= pv;
+    // The pivot row of a cutting-stock tableau is mostly zeros: touch only its nonzero
+    // columns (subtracting f * 0 changes nothing, so the result is identical).
+    let nz = 0;
+    for (let j = 0; j < W; j++) {
+      if (pr[j] !== 0) { pr[j] /= pv; nzIdx[nz++] = j; }
+    }
     for (let r = 0; r < m; r++) {
       if (r === leave) continue;
-      const f = T[r][enter];
-      if (f !== 0) for (let j = 0; j < W; j++) T[r][j] -= f * pr[j];
+      const row = T[r];
+      const f = row[enter];
+      if (f !== 0) for (let k = 0; k < nz; k++) { const j = nzIdx[k]; row[j] -= f * pr[j]; }
     }
     const f = z[enter];
-    for (let j = 0; j < W; j++) z[j] -= f * pr[j];
+    for (let k = 0; k < nz; k++) { const j = nzIdx[k]; z[j] -= f * pr[j]; }
     basis[leave] = enter;
   }
   const y = new Array(n).fill(0);
