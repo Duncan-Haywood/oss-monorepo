@@ -128,7 +128,7 @@ def run(rows, test_year, neg=0):
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("data_dir")
-    p.add_argument("--city", required=True, choices=["chicago", "sf", "austin"])
+    p.add_argument("--city", required=True, choices=["chicago", "sf", "austin", "seattle"])
     p.add_argument("--target", required=True, choices=["a2i", "i2c"])
     p.add_argument("--test-year", type=int, required=True)
     a = p.parse_args()
