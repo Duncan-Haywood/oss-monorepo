@@ -85,7 +85,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
     entries.map(([id]) => truth.get(id)!),
     entries.map(([, s]) => s.rating)
   );
-  return { under, rankAccuracy, touched: timesShown.size };
+  return { under, rankAccuracy, touched: timesShown.size, truth };
 }
 
 export function spearman(xs: number[], ys: number[]): number {
