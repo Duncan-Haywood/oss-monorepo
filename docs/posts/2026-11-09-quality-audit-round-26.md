@@ -3,7 +3,7 @@ title: "Quality audit round 26: one of five sampled subjects meets the bar"
 seo_title: "Quality audit round 26: one of five sampled subjects meets the bar"
 date: 2026-11-09
 tags: [quality-audit, evaluation, testing, research]
-description: "Two ventures, two research projects and the sales-agent flagship: only the flagship meets the bar. Four of five have a seeded bug that tests missed or an unbacked claim."
+description: "Two ventures, two research projects and the sales-agent flagship: only the flagship and one venture meet the bar. Four of five had a mutant tests missed."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix.
