@@ -28,3 +28,10 @@ owner: duncan
 # Liability: generates a file from the user's own list, no warranty, independent of every bank and the EPC, no promise the
 # bank accepts it, user reviews every payment and confirms changed bank details with the payee. Reference data read from
 # memory of public sources.
+
+hypotheses:
+  - claim: >-
+      Euro-area treasurers whose bank now offers SEPA Instant for file uploads will search "CSV to SEPA instant
+      payment file" and use the instant switch (added 2026-11-09) to get a pain.001 tagged INST with the 100,000 EUR
+      per-payment cap checked, measured as the share of conversions run with instant on.
+    status: untested
