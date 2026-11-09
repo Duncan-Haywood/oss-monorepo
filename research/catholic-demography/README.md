@@ -70,7 +70,8 @@ python3 experiments/m1_subgroups/run.py      # needs pandas and numpy; about 60 
 python3 experiments/m1_subgroups/figure.py   # stdlib only
 python3 experiments/m3_mode/run.py           # mode effect on 2021-24 attendance; about 30 s
 python3 experiments/m3b_randomised/run.py     # randomised mode arms, 2022 and 2024; about 60 s
-python3 -m pytest -q test_cathdem.py         # estimator and recode tests, no download needed
+PY=$(python3 platform/ci/pyenv.py pytest numpy pandas)   # bare python3 lacks all three; scipy is not needed
+"$PY" -m pytest -q research/catholic-demography/test_cathdem.py   # from the repo root; no download needed
 ```
 
 Data: Davern, Bautista, Freese, Herd and Morgan, *General Social Survey 1972-2024*, NORC at the
