@@ -3,15 +3,15 @@
  "source": "Cloudflare GraphQL Analytics API (httpRequests1dGroups, httpRequestsAdaptiveGroups, workersInvocationsAdaptive) via platform/counter/pull-cloudflare.mjs",
  "zone": "marisstella.app",
  "last_pull": {
-  "on": "2026-11-08",
+  "on": "2026-11-09",
   "window": [
-   "2026-10-25",
-   "2026-11-07"
+   "2026-10-26",
+   "2026-11-08"
   ],
   "days_pulled": 14,
   "errors": [
    "httpRequests1dGroups: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58",
-   "httpRequestsAdaptiveGroups 2026-10-25: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58"
+   "httpRequestsAdaptiveGroups 2026-10-26: GraphQL answered 200: Actor 'com.cloudflare.api.token.8ebdd7e2ac70757f89604198d2541b59' does not have permission 'com.cloudflare.api.account.zone.analytics.read' for zone d80eab23317aeac52c143f3e2fc92e58"
   ]
  },
  "days": {
@@ -203,6 +203,22 @@
     },
     "monorepo-projects-site": {
      "requests": 23246,
+     "errors": 0
+    }
+   }
+  },
+  "2026-11-08": {
+   "workers": {
+    "monorepo-projects-site": {
+     "requests": 7937,
+     "errors": 0
+    },
+    "monorepo-projects-site-shard": {
+     "requests": 13,
+     "errors": 0
+    },
+    "monorepo-projects-edge": {
+     "requests": 127,
      "errors": 0
     }
    }

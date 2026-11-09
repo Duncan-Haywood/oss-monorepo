@@ -1,9 +1,9 @@
 {
- "generated_for": "2026-11-08",
- "data_through": "2026-11-08",
+ "generated_for": "2026-11-09",
+ "data_through": "2026-11-09",
  "latest_day": {
-  "day": "2026-11-08",
-  "page_loads": 5
+  "day": "2026-11-09",
+  "page_loads": 10
  },
  "weeks": [
   {
@@ -32,12 +32,23 @@
    "week": "2026-W45",
    "monday": "2026-11-02",
    "days": 7,
-   "page_loads": 83,
-   "tool_loads": 44,
-   "tools": 14,
+   "page_loads": 126,
+   "tool_loads": 86,
+   "tools": 16,
    "top_tool": "secret-santa-draw",
    "feedback": 0,
-   "crawler_beacons": 66889
+   "crawler_beacons": 66932
+  },
+  {
+   "week": "2026-W46",
+   "monday": "2026-11-09",
+   "days": 1,
+   "page_loads": 10,
+   "tool_loads": 10,
+   "tools": 6,
+   "top_tool": "employee-cost-calculator",
+   "feedback": 0,
+   "crawler_beacons": 12
   }
  ]
 }
