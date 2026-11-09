@@ -1,6 +1,6 @@
 ---
 title: "Does giving a changepoint detector the cycle length stop it cutting the lynx cycle into steps?"
-seo_title: "Changepoint detection on a 10-year animal cycle: the period option, tested"
+seo_title: "Changepoint detection on a 10-year lynx cycle: the period option"
 date: 2026-11-09
 tags: [changepoint-detector, time-series, negative-result]
 description: "On 114 years of Canadian lynx trappings the default finds 23 false steps; setting the period leaves 10 to 24."
