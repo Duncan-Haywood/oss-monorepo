@@ -111,3 +111,9 @@ test("money formatters", () => {
   assert.equal(money(1234.6), "$1,235");
   assert.equal(money2(-5), "-$5.00");
 });
+
+test("minimumTripCharge grosses the trip cost up for the card fee: tripCost / (1 - fee)", () => {
+  const r = analyze({ ownerHourly: 40, overheadPerMonth: 500, billableHoursPerMonth: 100, driveMinutesOneWay: 30, milesRoundTrip: 20, costPerMile: 0.5, cardFeePct: 3, quotedRate: 80 }, one("A,2,10,150"));
+  near(r.minimumTripCharge, r.tripCost / (1 - 0.03));
+  assert.ok(r.minimumTripCharge > r.tripCost);
+});
