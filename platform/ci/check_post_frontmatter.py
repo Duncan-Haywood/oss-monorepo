@@ -17,6 +17,12 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+try:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "pages"))
+    from propose_seo_titles import cut as _cut
+except Exception:  # the check is an early warning; never let the import break the others
+    _cut = None
+
 REQUIRED = ("title", "date", "description", "tags")
 
 
@@ -52,6 +58,10 @@ def problems(name, text, today=None):
     seo = fields.get("seo_title", "").strip("\"'")
     if len(seo) > 70:
         out.append(f"seo_title is {len(seo)} characters; keep it to 70")
+    # Over 70 with no seo_title needs a clean cut (writing.mjs autoSeoTitle) or a person's
+    # seo_title; main_health found 7 posts like this in two days (P065), so say so on the PR.
+    if not seo and len(title) > 70 and _cut and not _cut(title):
+        out.append(f"title is {len(title)} characters with no clean cut to 70; add an `seo_title:` of 70 or fewer")
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")

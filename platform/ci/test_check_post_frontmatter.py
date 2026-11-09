@@ -26,7 +26,7 @@ class T(unittest.TestCase):
         self.assertEqual(len(problems("2026-10-25-x.md", GOOD)), 1)
 
     def test_long_title_only_for_new_posts(self):
-        t = GOOD.replace('title: "T"', 'title: "' + "x" * 111 + '"')
+        t = GOOD.replace('title: "T"', 'title: "' + "A clean headline for search results: " + "x" * 74 + '"')
         self.assertEqual(problems("2026-11-05-x.md", t.replace("2026-10-24", "2026-11-05"), datetime.date(2026, 11, 5)), ["title is 111 characters; keep it to 110"])
         self.assertEqual(problems("2026-10-24-x.md", t), [])
 
@@ -110,3 +110,9 @@ class T(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_title_over_seo_budget_with_no_cut_is_flagged():
+    t = "---\ntitle: " + "word" * 20 + "\ndate: 2026-11-09\ndescription: " + "d" * 70 + "\ntags: [a]\n---\n"
+    assert any("no clean cut" in p for p in problems("2026-11-09-a.md", t))
+    assert not any("no clean cut" in p for p in problems("2026-11-09-a.md", t.replace("\ndate", "\nseo_title: short\ndate")))
