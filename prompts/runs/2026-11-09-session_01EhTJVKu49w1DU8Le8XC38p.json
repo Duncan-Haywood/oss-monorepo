@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01EhTJVKu49w1DU8Le8XC38p",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T17:58:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: Ethiopia Directive 1142/2026 mandate page + post",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-09-ethiopia-e-invoicing-directive-has-no-deadline-yet.md"
+  ],
+  "goal": null,
+  "notes": "Looked for a country tax-id checksum slice first: JP, SA, ZA already decided as shape-only with reasons, so skipped. Added Ethiopia page (from search summaries, directive unread, stated on page), hub row without calendar date (sources disagree), index link, sitemap, hub test count 89->90. Ran e-invoicing*, ethiopia*, mandate*, sitemap* tests: 23 pass; mandate-calendar --check clean.",
+  "corrections": [],
+  "redteam": null
+}
