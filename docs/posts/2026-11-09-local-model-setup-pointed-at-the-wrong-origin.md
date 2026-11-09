@@ -12,7 +12,7 @@ pages tell you to start Ollama with `OLLAMA_ORIGINS=<the site>`.
 
 The site moved to https://marisstella.app/ on 2026-10-30, but the instruction
 in nine pages and in `platform/llm/README.md` still named
-`https://duncan-haywood.github.io`. Anyone who followed it exactly would have
+the old GitHub Pages address. Anyone who followed it exactly would have
 a running Ollama that refuses every request from the page, with the page only
 saying that no local model answered.
 
