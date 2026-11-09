@@ -278,6 +278,11 @@ function classify(country, body) {
   if (country === "TW") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "TH") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "UA") return /^\d{8}$/.test(body) ? "checksum" : /^\d{10}$/.test(body) ? "format" : "bad-format";
+  // Russia INN (10 digits company, 12 individual), Canada BN / GST-HST (9 digits, optional RT0001-style
+  // program account) and Dominican Republic RNC (9 digits). Tax authority texts unread.
+  if (country === "RU") return /^(\d{10}|\d{12})$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CA") return /^\d{9}(R[A-Z]\d{4})?$/.test(body) ? "checksum" : "bad-format";
+  if (country === "DO") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
@@ -587,7 +592,23 @@ function thTinOk(body) {
   return (11 - (sum % 11)) % 10 === Number(body[12]);
 }
 
+// Russia INN: 10 digits, one control digit; 12 digits, two. Each is sum(weights*digits) mod 11 mod 10.
+function ruInnOk(body) {
+  const ctl = (n, w) => (w.reduce((a, x, i) => a + x * Number(body[i]), 0) % 11) % 10 === Number(body[n]);
+  if (body.length === 10) return ctl(9, [2, 4, 10, 3, 5, 9, 4, 6, 8]);
+  return ctl(10, [7, 2, 4, 10, 3, 5, 9, 4, 6, 8]) && ctl(11, [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8]);
+}
+
+// Dominican RNC: first 8 digits weighted 7,9,8,6,5,4,3,2; r = sum mod 11; check is 2 if r=0, 1 if r=1, else 11-r.
+function doRncOk(body) {
+  const r = [7, 9, 8, 6, 5, 4, 3, 2].reduce((a, w, i) => a + w * Number(body[i]), 0) % 11;
+  return (r === 0 ? 2 : r === 1 ? 1 : 11 - r) === Number(body[8]);
+}
+
 function checksumOk(country, body) {
+  if (country === "RU") return ruInnOk(body);
+  if (country === "CA") return luhnOk(body.slice(0, 9));
+  if (country === "DO") return doRncOk(body);
   if (country === "TW") return twGuiOk(body);
   if (country === "TH") return thTinOk(body);
   if (country === "DE") return deOk(body);
