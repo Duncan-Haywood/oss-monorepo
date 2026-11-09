@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 6b: what grid supply and pack inventory does a hub need for the sized cargo VTOL's own pack? (predictions in `experiments/hub_throughput/cargo_hub.py`'s docstring, fixed before the run)
+- Why: milestone 6's "Next": it used a small multicopter's charge time; here the pack comes from `vtol_sizing/run.py` (100 kg payload, 250 Wh/kg cell, kpack 0.7), charged at a swept C-rate over the 20 to 90% window.
+### Outcome (`experiments/hub_throughput/cargo_hub_results.txt`)
+- Pack energy: 2.9, 5.2, 11.6, 23.2 kWh at 25, 50, 100, 150 km (MTOW 198 to 392 kg). **P1 refuted:** 11.6 kWh at 100 km, not 50 to 200; the guess forgot that the 2 minutes of hover and a 20% reserve are small against a 282 kg aircraft.
+- 8 chargers at 1C (42 min per charge): 11.4 flights/h and 0.09 MW grid at 100 km (0.19 MW at 150 km, 0.37 MW at 150 km and 2C). **P2 refuted on grid power:** the largest case is 0.37 MW, under the 0.4 MW bar; spare inventory of 24 packs is 0.28 MWh and 1.6 t of cells at 100 km (3.2 t at 150 km), so the inventory mass half holds only at 150 km.
+- **P3 held:** flights per hour per charger depend on C-rate only (5.7, 11.4, 22.9 per hour at 0.5, 1, 2C); pack size sets charger kW (12 kW at 100 km, 1C) and spare mass.
+- Reading: for a 100 km cargo VTOL the hub is an ordinary 3-phase service (about 100 kW), not a grid project; the binding cost is the 24-pack inventory and the charge-time-limited rate.
+- Limits: C-rate swept, not sourced for this pack; no taper; sizing inputs are assumed (milestone 10a). Preliminary.
+- Next: arrival bursts; charge taper from a cell datasheet.
+
 ## 2026-11-09 · Milestone 6 (hub): which resource binds first at a delivery-drone hub? (predictions in `experiments/hub_throughput/run.py`'s docstring, fixed before the run)
 - Why: the track's ground-side question, untouched until now. Discrete-event model of pads, chargers and spare packs, validated against Erlang C; swap time (Matternet, under 60 s) and charge time (DJI Dock 2, 32 min for 20 to 90%) are vendor figures.
 ### Outcome (`experiments/hub_throughput/results.txt`)
