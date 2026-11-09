@@ -1,6 +1,6 @@
 ---
 title: "A conformal interval that covered 34% instead of 80%, and the one-line cause"
-seo_title: "Conformal prediction interval coverage collapse, building permit durations"
+seo_title: "Conformal interval coverage collapse in permit duration models"
 date: 2026-11-09
 tags: [research, build-data, conformal-prediction]
 description: "On open permit data, adding jitter to a conformalised interval cut its coverage to 34%. A fix to a negative correction restores 89%."
