@@ -7,17 +7,19 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-sonnet-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-09T00:07:03Z",
   "ended": "2026-11-09T00:08:27Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 3.52,
+  "tokens_in": 1747808,
+  "tokens_out": 8061,
+  "cost_usd": 0.5949,
+  "tool_calls": 27,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14154",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -413,5 +415,75 @@
     ],
     "real_defects": [],
     "notes": "Campaigns on venture_live_links (8/8), security_alerts (4/8 -> gaps closed), site_probe (4/8 -> 3 gaps closed, 1 equivalent). Open items from earlier records are control-plane workflow edits needing their own owner-approved PR; left unpatched."
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "115b897e-6878-5ba0-8793-19a3029f5158",
+    "transcripts": 1,
+    "first": "2026-11-09T00:07:03Z",
+    "last": "2026-11-09T00:10:33Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 27,
+        "input": 51,
+        "output": 8061,
+        "thinking": 1044,
+        "cache_read": 1704420,
+        "cache_write_5m": 0,
+        "cache_write_1h": 43337,
+        "api_equivalent_usd": 0.5949,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 51,
+      "output": 8061,
+      "thinking": 1044,
+      "cache_read": 1704420,
+      "cache_write_5m": 0,
+      "cache_write_1h": 43337,
+      "api_equivalent_usd": 0.5949,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 27,
+    "tools": {
+      "Bash": 24,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.52,
+      "active_minutes": 3.52,
+      "model_minutes": 1.53,
+      "tool_minutes": 1.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
   }
 }
