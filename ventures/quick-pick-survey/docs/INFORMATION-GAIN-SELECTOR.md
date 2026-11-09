@@ -664,3 +664,25 @@ Mean at 3000 answers: 0.981 (all 613 rated items 0.979; top-slot share 0.51).
 Before the hash admission the same run gave 0.62 to 0.71 at 3000. The dip is
 gone through the routes, not only in process. Caveats: noiseless answerer, 3
 respondents, one run, one item count (1000).
+
+### A lapsing answerer through the real routes at 3000 answers (2026-11-09)
+
+The other half of the 2026-11-08 "Next": `NOISY_ITEMS=1000 NOISY_ANSWERS=3000
+NOISY_RESPONDENTS=3 NOISY_CONDITIONS=lapse20 NOISY_CHECKPOINTS=500,1000,1500,2000,3000`
+through `noisyRespondents.integration.test.ts` (real routes, local Postgres 16
+from `scripts/test-db.sh start`, 664 s, test passed). A lapse is a random answer
+in place of the true one, 20% of the time. Fixed set = the 113 items rated at 500
+answers. Spearman of the fixed set, per respondent at 500 / 1000 / 1500 / 2000 / 3000:
+
+| respondent | 500 | 1000 | 1500 | 2000 | 3000 |
+|---|---|---|---|---|---|
+| 0 | 0.924 | 0.938 | 0.936 | 0.938 | 0.941 |
+| 1 | 0.936 | 0.948 | 0.950 | 0.952 | 0.946 |
+| 2 | 0.935 | 0.948 | 0.948 | 0.953 | 0.952 |
+
+Mean over all 613 rated items at 3000 answers: 0.938 (top-slot share 0.50).
+There is no dip: the fixed set rises from about 0.93 to about 0.95 and stays
+there, so the hash admission holds for a person who lapses, at about 0.04 below
+the noiseless 0.981, which is what a 20% lapse costs. Caveats: 3 respondents, one
+run, one item count (1000), lapse rate 20% only, a lapse that is uniform random
+(not a tired person whose lapses cluster late in the session).
