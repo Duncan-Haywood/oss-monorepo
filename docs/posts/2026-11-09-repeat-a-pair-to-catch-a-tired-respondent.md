@@ -1,6 +1,6 @@
 ---
 title: "Can you catch a tired survey respondent by repeating a question?"
-seo_title: "Repeat-pair consistency checks in adaptive pairwise surveys: why they need lopsided pairs"
+seo_title: "Repeat-pair consistency checks in adaptive pairwise surveys"
 date: 2026-11-09
 tags: [quick-pick-survey, pairwise-comparison, negative-result]
 description: "Repeating an adaptive survey's own pairs needs 3,549 repeats to spot a respondent who answers 20% at random; a lopsided catch pair needs about 100."
