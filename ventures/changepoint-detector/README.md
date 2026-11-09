@@ -1821,3 +1821,11 @@ Annual global temperature anomaly, 1880-2024 (`data/global-temp-annual.csv`, 145
 - **Reading:** on a drifting series the step models cut a staircase (8 cuts for the level model), as on GDP and beer. The agreement at 1946 is the useful result; the other cuts have no documentation behind them. One series, one recalled date: it says the detector can date a real step on real data, not how often it will.
 
 Still wanted: the 1976 acceleration found by a bend model on a series long enough to place it (a longer or less smooth record).
+
+## Mauna Loa CO2: a smooth acceleration, no step (2026-11-09)
+
+Monthly CO2, 1958-03 to 2026-09 (`data/co2-mauna-loa.csv`, 823 values, the interpolated column of NOAA GML as republished by datahub.io `co2-ppm`; `eval/co2-mauna-loa.mjs`, output `eval/co2-mauna-loa.out.txt`, test `co2-mauna-loa.test.mjs`, retrieved 2026-11-09). From the literature, recalled and not read from a source here: the yearly rise grows from about 0.8 ppm in the 1960s to over 2 ppm lately, smoothly, with no step. So the right answer is no steps and at most a gentle bend.
+
+- **Every step model over-cuts it.** The level model cuts 126 times, `--model trend` 30, `--period 12 --trend bend` 46, `--trend bends` 41. This is item (0) of the flagship list (smooth, low-noise series) on a second real series: the seasonal cycle and the curvature are tiny against the month-to-month noise, so PELT buys steps for curvature.
+- **`--noise-floor 1.5` helps only a little here:** 41 steps down to 30, slope changes unchanged. `--ar1 auto` 22 steps, `--ar1 joint` 18, and both move the slope bends to 1972-07 and 1994-06 (range to 2002-11) from 1965-03, 1978-05 and 2001-11. No setting agrees with another on where the acceleration "is", and none is quiet. A curve with no kink has no true change date, so the dates are the estimator's choice, not findings.
+- **What it says about the tool:** on a smooth quadratic-like record the step count is not a number to quote; read `--trend bends` ranges, and treat a range that moves with the AR(1) setting as no date at all. Wanted: a curvature (quadratic) trend option that explains the series with zero cuts, so a smooth acceleration is reported as one.
