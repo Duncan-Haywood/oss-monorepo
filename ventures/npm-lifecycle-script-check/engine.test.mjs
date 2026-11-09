@@ -198,3 +198,18 @@ test("currentlyScripted: lists only the scripted packages, riskiest first", () =
   const scripted = currentlyScripted(list);
   assert.deepEqual(scripted.map((e) => e.name), ["loud-script", "quiet-script"]);
 });
+
+test("diffSnapshots: --ignore also accepts a newly added dependency that runs a script", () => {
+  const baseline = parseSnapshot(JSON.stringify([{ name: "a", version: "1.0.0", hasInstallScript: false }]));
+  const current = parseSnapshot(JSON.stringify([
+    { name: "a", version: "1.0.0", hasInstallScript: false },
+    { name: "esbuild", version: "0.19.0", scripts: { postinstall: "node install.js" } },
+    { name: "other", version: "1.0.0", scripts: { postinstall: "x" } },
+  ]));
+  const result = diffSnapshots(baseline, current, { ignore: ["ESBuild"] });
+  assert.deepEqual(result.added.map((a) => a.name), ["other"]);
+  assert.deepEqual(result.ignoredChanges.map((c) => [c.name, c.kind]), [["esbuild", "added"]]);
+  assert.equal(summarizeDiff(result).status, "changed");
+  const onlyIgnored = diffSnapshots(baseline, current, { ignore: ["esbuild", "other"] });
+  assert.notEqual(summarizeDiff(onlyIgnored).status, "changed");
+});
