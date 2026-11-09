@@ -30,6 +30,10 @@ class T(unittest.TestCase):
         r = self.tree({"manifest.json": json.dumps({"files": [{"src": "gone.png"}]})})
         self.assertEqual(list(c.manifest_missing(r / "manifest.json")), [])
 
+    def test_screenshots_only_manifest_skipped(self):
+        r = self.tree({"manifest.json": json.dumps({"screenshots": [{"src": "gone.png"}]})})
+        self.assertEqual(list(c.manifest_missing(r / "manifest.json")), [])
+
     def test_sw_precache(self):
         r = self.tree({"sw.js": "cache.addAll(['./', './a.js', './b.css', 'https://x/y.js']);", "a.js": ""})
         self.assertEqual(list(c.sw_missing(r / "sw.js")), ["./b.css"])
