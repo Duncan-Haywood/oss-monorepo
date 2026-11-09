@@ -272,6 +272,14 @@ function classify(country, body) {
   if (country === "TN") return tnMfShapeOk(body) ? "format" : "bad-format";
   // Belarus UNP: 9 digits (the digit rule below), or two letters and 7 digits for some individuals (shape only).
   if (country === "BY") return /^\d{9}$/.test(body) ? "checksum" : /^[A-Z]{2}\d{7}$/.test(body) ? "format" : "bad-format";
+  // Western Balkans and Iceland, shape only (python-stdnum structures; tax authority texts unread):
+  // Albania NIPT = letter (J,K,L), 8 digits, letter; Bosnia JIB 12 digits; Montenegro PIB 8 digits;
+  // North Macedonia EDB 13 digits; Iceland VSK number 5 or 6 digits.
+  if (country === "AL") return /^[A-M]\d{8}[A-Z]$/.test(body) ? "format" : "bad-format";
+  if (country === "BA") return /^\d{12}$/.test(body) ? "format" : "bad-format";
+  if (country === "ME") return /^\d{8}$/.test(body) ? "format" : "bad-format";
+  if (country === "MK") return /^\d{13}$/.test(body) ? "format" : "bad-format";
+  if (country === "IS") return /^\d{5,6}$/.test(body) ? "format" : "bad-format";
   if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
   if (country === "MD") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "GE") return /^(\d{9}|\d{11})$/.test(body) ? "format" : "bad-format";
