@@ -1221,6 +1221,10 @@ def backfill_prs(root: Path, write: bool = True) -> list[tuple[str, str]]:
     commit that added the record. A record is committed before its PR exists, so many
     (68 of 69 red-team ones) never name it. Needs real history: a shallow clone finds none."""
     found = []
+    shallow = set()  # boundary commits of a shallow clone "add" every file: their subject is not the record's PR
+    gitdir = subprocess.run(["git", "rev-parse", "--git-dir"], cwd=root.parent, capture_output=True, text=True).stdout.strip()
+    if gitdir and (root.parent / gitdir / "shallow").is_file():
+        shallow = set((root.parent / gitdir / "shallow").read_text().split())
     for path in sorted((root / "runs").glob("*.json")):
         text = path.read_text()
         try:
@@ -1229,14 +1233,19 @@ def backfill_prs(root: Path, write: bool = True) -> list[tuple[str, str]]:
             continue
         if not isinstance(rec, dict) or rec.get("pr") or rec.get("repo"):
             continue
-        out = subprocess.run(["git", "log", "HEAD", "--diff-filter=A", "--format=%s", "--", str(path)],
+        out = subprocess.run(["git", "log", "HEAD", "--diff-filter=A", "--format=%H %s", "--", str(path)],
                              cwd=root.parent, capture_output=True, text=True).stdout.splitlines()
-        m = re.search(r"\(#(\d+)\)$", out[-1].strip()) if out else None
+        sha, _, subject = out[-1].partition(" ") if out else ("", "", "")
+        m = re.search(r"\(#(\d+)\)$", subject.strip()) if sha and sha not in shallow else None
         if m:
             found.append((path.name, m.group(1)))
             if write:
-                rec["pr"] = m.group(1)
-                path.write_text(json.dumps(rec, indent=2) + ("\n" if text.endswith("\n") else ""))
+                # edit the one line in place: re-dumping the JSON reformats every array in the file
+                new, n = re.subn(r'("pr":\s*)(null|"")', lambda g: f'{g.group(1)}"{m.group(1)}"', text, count=1)
+                if not n:  # key absent: fall back to a re-dump
+                    rec["pr"] = m.group(1)
+                    new = json.dumps(rec, indent=2) + ("\n" if text.endswith("\n") else "")
+                path.write_text(new)
     return found
 
 
