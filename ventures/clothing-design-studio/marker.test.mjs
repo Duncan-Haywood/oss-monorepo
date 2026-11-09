@@ -109,3 +109,17 @@ test("cut ticket CSV: spares and totals reconcile with the plan", () => {
   assert.equal(Number(total[9]), plan.metresToBuy);
   assert.equal(cutTicketCsv({ ok: false }), "");
 });
+
+test("nested cutting plan lays the real outlines, uses less cloth than rectangles, and draws them", () => {
+  const order = { S: 2, M: 4, L: 2 };
+  const rect = cuttingPlan("tee", order);
+  const nst = cuttingPlan("tee", order, { nested: true });
+  assert.ok(rect.ok && nst.ok && nst.nested && !rect.nested);
+  assert.ok(nst.metresToBuy < rect.metresToBuy, `${nst.metresToBuy} < ${rect.metresToBuy}`);
+  assert.deepEqual(nst.groups.map(g => [g.lays, g.plies]), rect.groups.map(g => [g.lays, g.plies]));
+  assert.ok(markerSvg(nst.groups[0]).includes("<svg"));
+  assert.ok(/drafted outlines/.test(nst.notes.join(" ")));
+  // a garment with no draft (hoodie) falls back to rectangles
+  const h = cuttingPlan("hoodie", { M: 4 }, { nested: true });
+  assert.ok(h.ok && !h.nested);
+});
