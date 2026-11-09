@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 10q: paper draft catches up with milestones 10m to 10p (no new simulation)
+- New Section 4.14 of `paper/draft.md` reports the global and total-effect sensitivity runs and the Molicel-cell and derating sweeps; `paper/check_numbers.py` gains 7 results-file checks (all pass). Data hosts (NTRS, Molicel, Limitless, RCGroups) all returned no answer through the proxy again, so engine specific power and continuous-discharge curves are still unsourced.
+- Next: source engine specific power and a continuous-discharge curve when a host answers; a correlated p_batt-e_cell rerun of 10n.
+
 ## 2026-11-09 · Milestone 10p: how far below its maximum rating must a cell's continuous discharge fall before the hybrid's break-even leaves the tens of km? (predictions in `vtol_sizing/derated_cells.py`'s docstring, fixed before the run)
 - Why: 10o's "Next" was the continuous-discharge curve. Every data host (molicel.com, engine makers) returned a proxy 403 this session, so nothing could be read; this is a sweep of the maximum current by a derating d, not a sourced result.
 ### Outcome (`experiments/vtol_sizing/derated_cells_results.txt`)
