@@ -255,6 +255,10 @@ def main(argv: list[str] | None = None) -> int:
             for p in picks:
                 extra = f" (of {p['population']})" if p.get("population") else ""
                 print(f"  {p['stratum']:<9} {p['subject']}{extra}  last audited: {p['last_audited'] or 'never'}")
+            drawn = {p["stratum"] for p in picks}
+            for st in STRATA:
+                if st not in drawn:
+                    print(f"  {st:<9} none drawn: every subject was audited in the last {SKIP_DAYS} days (or none exist)")
         return 0
     audits = load_audits()
     if args.cmd == "validate":
