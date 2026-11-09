@@ -1189,8 +1189,17 @@ function lpDualSettle(lp) {
   const { z } = lp;
   for (let iter = 0; iter < 20000; iter++) {
     let leave = -1;
-    let low = -1e-9;
-    for (let r = 0; r < lp.m; r++) if (T[r][W - 1] < low) { low = T[r][W - 1]; leave = r; }
+    let score = 0;
+    for (let r = 0; r < lp.m; r++) {
+      const v = T[r][W - 1];
+      if (v >= -1e-9) continue;
+      // Approximate dual steepest edge: infeasibility squared over the row's norm squared.
+      const tr = T[r];
+      let nn = 1;
+      for (let j = 0; j < W - 1; j++) if (tr[j] !== 0) nn += tr[j] * tr[j];
+      const sc = (v * v) / nn;
+      if (sc > score) { score = sc; leave = r; }
+    }
     if (leave < 0) return true;
     let enter = -1;
     let best = Infinity;
