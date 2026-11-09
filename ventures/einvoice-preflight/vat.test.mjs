@@ -338,3 +338,15 @@ test("Taiwan GUI and Thailand TIN check digits reach the party VAT check", () =>
   assert.deepEqual(rules("TH0105536112015"), ["INV-023"]);
   assert.deepEqual(rules("TH010553611201"), ["INV-022"]);
 });
+
+test("Saudi and South African VAT numbers get a shape check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("SA300075588700003"), []);
+  assert.deepEqual(rules("SA310175397400003"), []);
+  assert.deepEqual(rules("SA200075588700003"), ["INV-022"]);
+  assert.deepEqual(rules("SA300075588700002"), ["INV-022"]);
+  assert.deepEqual(rules("SA30007558870003"), ["INV-022"]);
+  assert.deepEqual(rules("ZA4123456789"), []);
+  assert.deepEqual(rules("ZA3123456789"), ["INV-022"]);
+  assert.deepEqual(rules("ZA41234"), ["INV-022"]);
+});

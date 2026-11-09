@@ -247,6 +247,10 @@ function classify(country, body) {
   if (country === "EG") return /^\d{9}$/.test(body) && checkEgyptTrn(body).ok ? "format" : "bad-format";
   if (country === "ID") return checkNpwp(body).ok ? "format" : "bad-format";
   if (country === "KE") return checkKraPin(body).ok ? "format" : "bad-format";
+  // Shape only: a Saudi VAT registration number is 15 digits, starting and ending with 3 (ZATCA's
+  // published rule); a South African VAT number is 10 digits starting with 4 (SARS). No check digit.
+  if (country === "SA") return /^3\d{13}3$/.test(body) ? "format" : "bad-format";
+  if (country === "ZA") return /^4\d{9}$/.test(body) ? "format" : "bad-format";
   if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
   if (country === "TW") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "TH") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
