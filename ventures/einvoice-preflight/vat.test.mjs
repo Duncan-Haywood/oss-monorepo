@@ -252,6 +252,19 @@ test("Ukrainian EDRPOU check digit", () => {
   assert.deepEqual(rules("UA2156076"), ["INV-022"]);
 });
 
+test("Guatemalan NIT check character (hand-computed, not registered NITs)", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // 123456: 7+12+15+16+15+12 = 77, mod 11 = 0, check 0.  12345: 50, mod 11 = 6, check 5.
+  // 1000009: 8+18 = 26, mod 11 = 4, check 7.  100001: 7+2 = 9, check 2.
+  // 23: 6+6 = 12, mod 11 = 1, check 10 = K.
+  for (const ok of ["GT1234560", "GT123455", "GT10000097", "GT1000012", "GT23K", "GT2-3-K"]) {
+    assert.deepEqual(rules(ok), [], ok);
+  }
+  assert.deepEqual(rules("GT123456"), ["INV-023"]);
+  assert.deepEqual(rules("GT23-1"), ["INV-023"]);
+  assert.deepEqual(rules("GT1"), ["INV-022"]);
+});
+
 test("Uruguay RUT and Vietnam MST check digits reach the party VAT check", () => {
   const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
   // Published examples: Antel's RUT (uruguay.test.mjs) and python-stdnum's MST example.

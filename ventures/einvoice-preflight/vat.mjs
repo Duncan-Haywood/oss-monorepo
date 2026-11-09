@@ -202,6 +202,7 @@ function classify(country, body) {
   if (country === "UY") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
   if (country === "VN") return /^\d{10}(\d{3})?$|^\d{12}$/.test(body) ? "checksum" : "bad-format";
   if (country === "KZ") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
   if (country === "UA") return /^\d{8}$/.test(body) ? "checksum" : /^\d{10}$/.test(body) ? "format" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
@@ -493,6 +494,17 @@ function uaEdrpouOk(body) {
   return r === d[7];
 }
 
+// Guatemalan NIT (SAT taxpayer number): digits then one check character, 0-9 or K.
+// The base digits are weighted from n+1 down to 2 (rightmost base digit by 2); with
+// s the sum the check is (11 - s mod 11) mod 11, written K for 10. The rule is the
+// one open-source validators describe; the SAT's own text is unread.
+function gtNitOk(body) {
+  const base = body.slice(0, -1);
+  const s = [...base].reduce((a, ch, i) => a + Number(ch) * (base.length + 1 - i), 0);
+  const c = (11 - (s % 11)) % 11;
+  return body[body.length - 1] === (c === 10 ? "K" : String(c));
+}
+
 function checksumOk(country, body) {
   if (country === "DE") return deOk(body);
   if (country === "FR") return frOk(body);
@@ -527,6 +539,7 @@ function checksumOk(country, body) {
   if (country === "VN") return checkMst(body).ok;
   if (country === "KZ") return kzBinOk(body);
   if (country === "UA") return uaEdrpouOk(body);
+  if (country === "GT") return gtNitOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;
