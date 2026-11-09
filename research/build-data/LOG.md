@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 58, 2026-11-09: milestone 7g, rerun of the coverage run with `cqr_interval_nonempty` (prediction from session 56: refuted in part)
+
+Why: session 56 wired the fix in and left the rerun for a network that reaches the feeds. This time all three hosts answered. A first pull died on an HTTP 503 after four retries; `permits.fetch` now retries 8 times with backoff capped at 60 s. Fresh pull 2026-11-09 (manifest refreshed: Chicago 852,598, SF 1,298,097, Austin 2,384,446 rows), `python3 src/prior_table3_cov.py DIR --test-year 2024 --seeds 2`, results in `results/prior_table3_cov_2024.json` (now with the third arm).
+Prediction (session 56, written before the run): `dequantised_nonempty` within 3 points of 80% in at least 4 of 5 sets, and no cell more than 1 point below its raw-interval coverage.
+
+### Outcome (coverage, 2024 test year; raw / dequantised / dequantised_nonempty)
+- The fix does what session 55 diagnosed. The collapsed cells recover: full model Chicago a2i 0.862 / 0.558 / **0.861**; full SF a2i 0.891 / 0.343 / **0.890**; table Austin a2i 0.839 / 0.765 / **0.825**; full Austin a2i 0.813 / 0.783 / **0.805**. The other 11 cells are identical to the dequantised arm.
+- **Part 1 refuted.** Within 77 to 83%: table 2 of 5 sets (Chicago a2i 0.825, Austin a2i 0.825; the other three are 0.834 to 0.837), full model 3 of 5 (SF i2c 0.829, Austin a2i 0.805, Austin i2c 0.808; Chicago and SF a2i over-cover at 0.861 and 0.890). Neither reaches 4. The misses are over-coverage, the safe direction.
+- **Part 2 refuted narrowly.** The worst cell is table Austin a2i, 1.4 points under its raw 0.839 (0.825); the other three collapsing cells are within 0.9 points of raw. Nothing is near the earlier 30 to 55 point losses.
+- Reading: `cqr_interval_nonempty` makes the dequantised interval safe to use (no cell below 0.80 by more than 0.5 points, versus 0.343 before), so session 19's jitter is no longer excluded from claims. It does not tighten Chicago or SF a2i, whose full-model intervals stay conservative. For the shipped prior the table median plus the per-type baseline interval for Chicago (session 54's reading) stands.
+- Limits: one test year, 2 seeds, no bootstrap on coverage (n_test large, binomial error under 0.5 points), prediction's "sets" read per model since it did not say which.
+Next: decide the shipped prior per city from these coverages and put the choice in `paper/` section 4.7.
+
 ## Session 57, 2026-11-09: paper catch-up for milestones 7c to 7g (no data run: feed hosts refused by the proxy; no pandas)
 
 Why: the paper stopped at 4.7b while sessions 51 to 56 had results in the log only. Probe: `curl` to the Chicago, SF and Austin hosts returned code 000 again, so **no number in `results/` changed and nothing new is claimed**.
