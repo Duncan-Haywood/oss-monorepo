@@ -3,7 +3,7 @@ title: "A certified chip-flow search is not a zero-regret one"
 seo_title: "Multi-rung chip flow search: certificate vs routed regret"
 date: 2026-11-09
 tags: [research, chip-design, verified-dse, search]
-description: "On 20 SKY130 design-clock cells, a wider three-rung screening schedule loses 1.18% routed area-delay on average, against 2.27% for a two-rung ladder and 5.38% for random routing."
+description: "On 20 SKY130 design-clock cells, a wider three-rung screening schedule loses 1.18% routed area-delay, against 2.27% for two rungs and 5.38% for random."
 ---
 
 In `verified-dse` we ask when cheap pre-routing scores can be trusted to shortlist designs for place-and-route. Earlier milestones showed a three-rung schedule (keep 35 of 50, then 16, then route 8) certifies 18 of 20 design-clock cells and costs about 9% less wall-clock than a two-rung ladder (keep 16, route 5).
