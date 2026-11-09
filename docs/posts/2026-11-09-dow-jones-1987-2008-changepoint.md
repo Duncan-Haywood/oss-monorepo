@@ -3,7 +3,7 @@ title: "Two crashes in 33 years of Dow Jones returns: what a changepoint detecto
 seo_title: "Changepoint detection on Dow Jones returns: 1987 and 2008"
 date: 2026-11-09
 tags: [changepoint-detector, time-series, finance]
-description: "Run on 8,609 daily DJIA returns, the meanvar model dates the 2008 Lehman day exactly and brackets Black Monday 1987. The plain model cuts 27 times, the corrected ones 10 or 11."
+description: "On 8,609 daily DJIA returns, the meanvar model dates the 2008 Lehman day exactly and brackets Black Monday 1987. The plain model cuts 27 times."
 ---
 
 changepoint-detector had European index returns but no crash. We added the
