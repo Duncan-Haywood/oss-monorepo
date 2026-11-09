@@ -242,3 +242,12 @@ test("Mexico RFC on a party (2026-11-08, RFCs pinned in mexico.test.mjs)", () =>
   const rfc = body + checkDigit(body);
   assert.deepEqual(rules("MX" + rfc), []);
 });
+
+test("Ukrainian EDRPOU check digit", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  for (const ok of ["21560766", "14360570", "20077720", "00032129", "40081195"]) {
+    assert.deepEqual(rules(`UA${ok}`), [], ok);
+  }
+  assert.deepEqual(rules("UA21560767"), ["INV-023"]);
+  assert.deepEqual(rules("UA2156076"), ["INV-022"]);
+});
