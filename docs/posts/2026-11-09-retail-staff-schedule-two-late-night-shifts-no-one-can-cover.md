@@ -1,6 +1,6 @@
 ---
 title: "A four-person shop can't cover late-night shopping: what the roster said"
-seo_title: "Retail staff schedule example: covering late-night shopping with part-timers"
+seo_title: "Retail staff schedule example: late-night shopping with part-timers"
 date: 2026-11-09
 tags: [shift-roster-builder, scheduling, retail]
 description: "A worked boutique week: 17 of 19 floor-shifts covered for $1,445, and the two Thursday and Friday late-night shifts that need a fifth person."
