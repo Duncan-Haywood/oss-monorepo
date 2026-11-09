@@ -160,3 +160,9 @@ if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
             fn(); print("ok", name)
+
+
+def test_e7_anderson_collapses_under_full_semantics():
+    e7 = _load("e7_anderson")
+    assert [e7.search(1, d)["models"] for d in (1, 2, 3)] == [1, 2, 3]
+    assert e7.search(2, 1)["models"] == 0 and e7.search(3, 1)["models"] == 0 and e7.search(2, 2)["models"] == 0
