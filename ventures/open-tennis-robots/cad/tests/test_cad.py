@@ -194,6 +194,16 @@ class FeederParamsTest(unittest.TestCase):
         # wider plate gap, more yaw allowed
         self.assertGreater(Feeder(plate_half_y=45.0).plate_clearance()["yaw_tol_deg"], c["yaw_tol_deg"])
 
+    def test_axle_squaring_stack_fits_inside_the_plate_yaw_limit(self):
+        p = Feeder()
+        a = p.axle_squaring()
+        self.assertAlmostEqual(a["limit_deg"], p.plate_clearance()["yaw_tol_deg"])
+        self.assertLessEqual(a["rss_deg"], a["worst_deg"])
+        self.assertAlmostEqual(a["worst_deg"], a["motor_seat_deg"] + a["bore_offset_deg"] + a["plate_parallel_deg"])
+        self.assertGreater(a["margin"], 3.0)  # the shipped tolerances leave room: no reaming needed
+        # a sloppy build eats the margin
+        self.assertLess(Feeder(plate_slot_play_mm=4.0, seat_gap_mm=1.0).axle_squaring()["margin"], a["margin"])
+
     def test_launch_checks_tie_the_head_to_the_flight_model(self):
         p = Feeder()
         self.assertAlmostEqual(p.nip_len, 74.0, delta=0.5)

@@ -308,6 +308,11 @@ class Feeder:
     wheel_rpm_max: float = 7000.0  # same default: motor and bearing limit (assumption)
     ball_stiff_n_mm: float = 20.0  # force per mm of squeeze between the wheels (assumption: measure it)
     wheel_mu: float = 0.8         # rubber on felt (assumption: measure it)
+    # Wheel-axle squaring stack (assumptions: laser-cut 5052 plates, spacers cut on a saw; measure the first build).
+    seat_gap_mm: float = 0.25     # motor face lifted off the plate at one edge (flatness, burr)
+    bore_pos_tol_mm: float = 0.15  # laser bore position error, each plate
+    plate_slot_play_mm: float = 0.4  # plates' x-offset from tab-and-slot clearance
+    spacer_len_tol_mm: float = 0.3  # spacer length difference front to rear
     hose_id: float = 72.0
     hose_od: float = 82.0
     hose_min_bend: float = 150.0  # smallest bend radius the hose tolerates
@@ -742,6 +747,26 @@ class Feeder:
         t = run / 1000 / v if v > 0 else math.inf
         return {"gap_mm": gap, "run_mm": run, "transit_ms": t * 1000, "yaw_tol_deg": yaw,
                 "side_speed_ms": gap / 1000 / t if t > 0 else math.inf}
+
+    def axle_squaring(self) -> dict:
+        """Wheel-axle yaw against the head plates (2026-11-09): the tolerance stack for `plate_clearance`'s limit.
+        The axle's direction is set by two things: the motor face seating on the motor plate (flatness and burrs
+        lift one edge by `seat_gap_mm` over the motor diameter) and the two bores not being exactly opposite each
+        other (laser position error on each plate plus the plates' x-offset from their spacer slots) over the span
+        between the bearings. Plates that are not parallel add the spacer length difference over the plate length.
+        Returns each term in degrees, the worst-case sum, the root-sum-square, the limit and the margin
+        (limit / worst case). All the tolerances are assumptions to replace with a measurement."""
+        span = 2 * (self.plate_half_y + self.plate_t / 2)
+        seat = math.degrees(math.atan2(self.seat_gap_mm, self.motor_d))
+        bores = math.degrees(math.atan2(2 * self.bore_pos_tol_mm + self.plate_slot_play_mm, span))
+        length = self.head_x1 - self.head_x0
+        par = math.degrees(math.atan2(self.spacer_len_tol_mm, length))
+        terms = {"motor_seat_deg": seat, "bore_offset_deg": bores, "plate_parallel_deg": par}
+        worst = sum(terms.values())
+        rss = math.sqrt(sum(v * v for v in terms.values()))
+        limit = self.plate_clearance()["yaw_tol_deg"]
+        return {**terms, "worst_deg": worst, "rss_deg": rss, "limit_deg": limit,
+                "margin": limit / worst if worst > 0 else math.inf}
 
     def retain_strain_bad(self) -> str:
         if not 0.5 < self.retain_frac < 0.95:
