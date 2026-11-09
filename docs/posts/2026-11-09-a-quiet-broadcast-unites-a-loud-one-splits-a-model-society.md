@@ -1,6 +1,6 @@
 ---
 title: "A quiet broadcast unites a model society; a loud one splits it"
-seo_title: "Axelrod culture model with mass media: when a broadcast homogenises or fragments"
+seo_title: "Axelrod culture model with media: when a broadcast unites or splits"
 date: 2026-11-09
 tags: [research, civ-levers, culture, simulation]
 description: "In Axelrod's culture model on 20 and 40 wide lattices, a rare broadcast pulls an ordered society onto one culture and a frequent one shatters it."
