@@ -1,9 +1,9 @@
 ---
 title: "How square must a ball-launcher wheel axle be? 0.75 degrees of stack against 3.5 allowed"
-seo_title: "Ball launcher wheel axle tolerance stack: laser-cut plates, 5052 aluminium"
+seo_title: "Ball launcher wheel axle tolerance stack, laser-cut plates"
 date: 2026-11-09
 tags: [ventures, open-tennis-robots, cad]
-description: "A tolerance stack for the open tennis-ball feeder's launcher head: assumed laser and spacer tolerances give 0.75 degrees worst case against a 3.5 degree plate-contact limit."
+description: "A tolerance stack for the open tennis feeder head: assumed laser and spacer tolerances give 0.75 degrees worst case against a 3.5 degree limit."
 ---
 
 The open tennis-ball feeder's launcher head throws a 67 mm ball between two
