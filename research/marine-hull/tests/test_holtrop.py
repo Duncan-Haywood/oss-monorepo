@@ -77,3 +77,19 @@ def test_1982_example_sum():
 
 def test_default_form_factor_is_the_1984_one():
     assert abs(_ex()["1+k1"] - 1.1851) < 0.0005
+
+
+def test_c15_three_way_rule_is_continuous_and_ends_at_zero():
+    from marine_hull.holtrop import c15_coefficient
+    assert c15_coefficient(1.0, 1 / 400) == -1.69385                      # L^3/V = 400
+    just_above = c15_coefficient(1.0, 1 / 512.001)
+    assert abs(just_above - (-1.69385)) < 1e-4                          # continuous at 512
+    assert abs(c15_coefficient(1.0, 1 / 1726.9) - 0.0) < 1e-3          # reaches 0 at 1726.91
+    assert c15_coefficient(1.0, 1 / 2000) == 0.0
+
+
+def test_slender_hull_wave_resistance_uses_new_c15():
+    # L^3/V = 1000: c15 = -0.846, so the hump term differs from the old fixed value
+    L, vol = 60.0, 60.0 ** 3 / 1000
+    r = hm_resistance(0.3 * math.sqrt(9.80665 * L), L, 5.0, 2.5, vol, 0.85, 0.75)
+    assert r["RW"] > 0
