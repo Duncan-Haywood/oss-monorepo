@@ -686,3 +686,29 @@ there, so the hash admission holds for a person who lapses, at about 0.04 below
 the noiseless 0.981, which is what a 20% lapse costs. Caveats: 3 respondents, one
 run, one item count (1000), lapse rate 20% only, a lapse that is uniform random
 (not a tired person whose lapses cluster late in the session).
+
+### Lapses that start late in a session (2026-11-09)
+
+The other open "Next" item: a respondent who answers well, then tires. Condition
+`lapselate` (new in `noisyRespondents.integration.test.ts`): no lapses for the
+first 2000 answers, then a random answer 50% of the time. Run:
+`NOISY_ITEMS=1000 NOISY_ANSWERS=3000 NOISY_RESPONDENTS=3 NOISY_CONDITIONS=lapselate
+NOISY_CHECKPOINTS=500,1000,1500,2000,2500,3000` through the real routes and local
+Postgres 16 (643 s, test passed). Fixed set = the 113 items rated at 500 answers.
+
+| respondent | all items @2000 | all items @2500 | all items @3000 | fixed set @2000 | fixed set @3000 |
+|---|---|---|---|---|---|
+| 0 | 0.979 | 0.920 | 0.886 | 0.984 | 0.984 |
+| 1 | 0.983 | 0.930 | 0.886 | 0.985 | 0.983 |
+| 2 | 0.983 | 0.937 | 0.895 | 0.981 | 0.980 |
+
+Mean over all 613 rated items at 3000 answers: 0.889 (top-slot share 0.50).
+
+Reading: items settled before the fatigue are not damaged (fixed set stays
+0.98). The fall in the all-items score is the 200 items first admitted after
+answer 2000, which only ever see answers that are half random; they sit lower
+than the 0.924-0.953 of a respondent who lapses throughout, because they have no
+clean answers to lean on. The selector does not slow down or stop admitting new
+items when answers turn noisy. Untried: a stop or "answers look random" signal
+(for example a run of answers that disagree with the current ordering) that
+pauses admission. Not measured: a real respondent's fatigue curve.
