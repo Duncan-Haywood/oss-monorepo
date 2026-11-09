@@ -10,6 +10,7 @@
  * count towards some states' thresholds, but the marketplace remits the tax;
  * this page is for sales on your own store.
  *
+ * Updated 2026-11-09 from web search results (Avalara, Apr 2026; Taxually, Oct 2026): Illinois dropped its 200-order test on 2026-01-01, Kentucky on 2026-08-01 (HB 757), Utah on 2025-07-01 and Alaska's remote-seller commission on 2025-01-01, so those four are sales-only. Maine is listed by one source as dropped and is left as typed pending a check.
  * THE THRESHOLDS, STATE BASE RATES AND CLOTHING RULES BELOW ARE TYPED FROM
  * MEMORY, NOT CHECKED against any state's revenue department site (the build
  * host could not reach them, 2026-11-06). States change them every year, and
@@ -21,7 +22,7 @@
 
 /** code: [name, salesThresholdUsd, transactionThreshold|null, rule, baseRatePct, clothing note] */
 const RAW = {
-  AK: ["Alaska", 100000, 200, "or", 0, "No state sales tax; many boroughs and cities charge their own (Alaska Remote Seller Sales Tax Commission), so use the override."],
+  AK: ["Alaska", 100000, null, "sales", 0, "No state sales tax; many boroughs and cities charge their own (Alaska Remote Seller Sales Tax Commission), so use the override."],
   AL: ["Alabama", 250000, null, "sales", 4, ""],
   AZ: ["Arizona", 100000, null, "sales", 5.6, ""],
   AR: ["Arkansas", 100000, null, "sales", 6.5, ""],
@@ -30,7 +31,7 @@ const RAW = {
   CT: ["Connecticut", 100000, 200, "and", 6.35, "Clothing under 50 USD an item is exempt."],
   FL: ["Florida", 100000, null, "sales", 6, ""],
   GA: ["Georgia", 100000, 200, "or", 4, ""],
-  IL: ["Illinois", 100000, 200, "or", 6.25, ""],
+  IL: ["Illinois", 100000, null, "sales", 6.25, ""],
   IN: ["Indiana", 100000, null, "sales", 7, ""],
   MA: ["Massachusetts", 100000, null, "sales", 6.25, "Clothing is exempt up to 175 USD an item."],
   MD: ["Maryland", 100000, 200, "or", 6, ""],
@@ -51,7 +52,7 @@ const RAW = {
   IA: ["Iowa", 100000, null, "sales", 6, "Clothing is taxable."],
   ID: ["Idaho", 100000, null, "sales", 6, ""],
   KS: ["Kansas", 100000, null, "sales", 6.5, ""],
-  KY: ["Kentucky", 100000, 200, "or", 6, ""],
+  KY: ["Kentucky", 100000, null, "sales", 6, ""],
   LA: ["Louisiana", 100000, null, "sales", 4.45, ""],
   ME: ["Maine", 100000, 200, "or", 5.5, ""],
   MO: ["Missouri", 100000, null, "sales", 4.225, ""],
@@ -64,7 +65,7 @@ const RAW = {
   RI: ["Rhode Island", 100000, 200, "or", 7, "Clothing under 250 USD an item is exempt."],
   SC: ["South Carolina", 100000, null, "sales", 6, ""],
   SD: ["South Dakota", 100000, null, "sales", 4.2, ""],
-  UT: ["Utah", 100000, 200, "or", 4.85, ""],
+  UT: ["Utah", 100000, null, "sales", 4.85, ""],
   VT: ["Vermont", 100000, 200, "or", 6, "Clothing is exempt."],
   WV: ["West Virginia", 100000, 200, "or", 6, ""],
   WY: ["Wyoming", 100000, null, "sales", 4, ""],
