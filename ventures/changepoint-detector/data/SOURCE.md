@@ -596,3 +596,12 @@ of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/USMacroSWM.csv>.
 - **Licence:** AER is GPL-2/3 on CRAN; the figures are public US statistics. Kept as a small test fixture with its source named.
 - **Used by:** `us-cpi-monthly.test.mjs`.
+
+# Example data: Dow Jones Industrial Average daily returns, 1980-01-03 to 2012-12-31
+
+`djia-returns.csv`: 8,609 daily log returns in percent (100 x ln(P_t / P_t-1)) of the DJIA close, from the `DJIA8012` series in R's AER package (first close 1980-01-02 is the base).
+
+- **Retrieved:** 2026-11-09 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/DJIA8012.csv>.
+- **Licence:** AER is GPL-2/3 on CRAN; the figures are public index levels. Kept as a test fixture with its source named.
+- **Used by:** `djia-returns.test.mjs`, README "Dow Jones returns: 1987 and 2008".

@@ -1728,6 +1728,21 @@ Monthly short-term resident departures from Australia, 1976-01 to 2017-06 (498 m
 - **Still over-cut.** Every model cuts 21 or more times over 35 years of growth, and the neighbours differ (`--ar1 auto` also 1999-01, `bend` also 2001-09). A cut at 2000-09 is not evidence of the tax alone: 1999-01 is a cut with no documented cause.
 - **Not done.** No source read for the tax date or for the size of the turnover effect; no calibration of `--noise-floor` on this series.
 
+## Dow Jones returns: 1987 and 2008 (2026-11-09)
+
+`data/djia-returns.csv` (DJIA daily log returns in percent, 1980-01-03 to 2012-12-31, 8,609 days, `AER::DJIA8012`, source in `data/SOURCE.md`, `djia-returns.test.mjs`). Two dated events: Black Monday, 19 October 1987, and the Lehman failure, 15 September 2008 (both recalled, not checked against a source). The longest series in the folder, and the first with a crash inside it. All runs `--model meanvar`:
+
+| Run | Cuts | 1987 | 2008 |
+|---|---|---|---|
+| plain | 27 | 1987-10-14, 1987-10-28 (brackets the crash) | 2008-09-15 (the Lehman day itself), 2008-12-03 |
+| `--dispersion` | 10 | 1987-10-06 | 2008-09-04 |
+| `--bootstrap` | 11 | 1987-10-14, 1987-10-28 | 2008-09-04 |
+
+- **Found by all three.** The crash is a short high-variance window, so the plain and bootstrap runs cut either side of it (14 and 28 October) and `--dispersion` cuts once, 13 days before it. 2008 is cut within 11 days of Lehman by every run.
+- **Shared cuts.** 1991-12-31, 1997-03-13, 2003-07-28, 2007-07-10, 2011-08-02 and 2011-12-21 are cut by both `--dispersion` and `--bootstrap`. Whether each marks a real variance regime is not checked against a source (2011-08 is the month of the US downgrade, recalled).
+- **Plain over-cuts, as on other returns.** 27 cuts against 10 to 11 once dispersion or the bootstrap is on. Several plain cuts come in pairs 14 days apart (1987-10-14/28, 1989-10-13/27, 1997-10-21/11-04), the pattern of a single spike bracketed on both sides.
+- **Not done.** `--robust` did not finish in 9 minutes on 8,609 points, so it has no row (cause not profiled; `--robust` is the slow path here). No source read for either event date. No comparison to the DAX, SMI and CAC rise at row 1482 (1997) beyond noting 1997-03-13 sits near it.
+
 ## A documented fall in 24 points: Crimean War disease deaths (2026-11-08)
 
 A real series with a dated cause: the British army's monthly death rate from disease in the Crimea, April 1854 to March 1856 (Nightingale's figures, `data/nightingale-disease.csv`, source in `data/SOURCE.md`). The Sanitary Commission reached the Crimea in March 1855 and deaths fell from there. Run with `node cli.mjs --model mean --min-segment 3`:
