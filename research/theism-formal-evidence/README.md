@@ -69,7 +69,7 @@ Limit: the model assumes the unreliable route yields reports under both hypothes
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
 - `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results and the S4 countermodel.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`: these regenerate `results.md` and `results.json`.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`: these regenerate `results.md` and `results.json`.
 - `test_theism.py`: 15 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
