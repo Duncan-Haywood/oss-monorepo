@@ -1,6 +1,6 @@
 ---
 title: "Six more raw TypeErrors gone from the wall-framing takeoff"
-seo_title: "Wall framing takeoff: input checks for floor header checks and CSV exports"
+seo_title: "Wall framing takeoff: input checks for floor and CSV exports"
 date: 2026-11-09
 tags: [ventures, wall-framing-takeoff, robustness]
 description: "Calling every wall-framing-takeoff export with null found six more that threw an unhelpful TypeError; now each says what it needs."
