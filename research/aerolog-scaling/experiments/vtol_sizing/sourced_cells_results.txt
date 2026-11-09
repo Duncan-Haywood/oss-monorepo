@@ -1,0 +1,6 @@
+Milestone 10o: break-even range (km) with pack inputs from Molicel cell specifications
+cell   e_cell Wh/kg  cell W/kg  pack W/kg(k=0.7)  base-case km   others sampled: median [p10, p90]   engine 2 kW/kg base km
+P42A       230       2314       1620          44          42 [32, 62]                  34
+P45B       242       2420       1694          42          40 [30, 58]                  32
+P50B       265       3180       2226          32          30 [22, 52]                  24
+P50S       260       5070       3549          22          28 [14, 52]                  14

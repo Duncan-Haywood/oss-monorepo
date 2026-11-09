@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 10o: break-even range with pack inputs from manufacturer cell specifications (predictions in `vtol_sizing/sourced_cells.py`'s docstring, fixed before the run)
+- Why: 10n's "Next" (source the ranges that matter). Manufacturer hosts answered this session. `experiments/vtol_sizing/sourced_cells.py` reads Molicel's published energy density, current rating and mass for four 21700 cells (P42A, P45B, P50B, P50S) and feeds each as a paired (e_cell, p_batt), so the anticorrelation 10n ignored is now in the inputs. Pack power = rated max current x 3.6 V / cell mass x kpack 0.7.
+### Outcome (`experiments/vtol_sizing/sourced_cells_results.txt`)
+- Base-case break-even against the 250 Wh/kg battery aircraft: P42A 44 km, P45B 42, P50B 32, P50S 22. With the other ten inputs sampled over 10m's ranges (N = 3,000): median 42 / 40 / 30 / 28 km.
+- **P1 refuted by 3 km:** P50S gives 22 km, below the 25 to 60 predicted. **P2 held:** P50S is lowest (22 km, under 30). **P3 held:** medians 42 versus 28 km (factor 1.5), p10-p90 bands [32, 62] and [14, 52] overlap.
+- Reading: choosing among real high-power 21700 cells moves the hybrid's break-even from about 44 to 22 km at the base case, a factor of 2 on one component, and engine specific power 2 kW/kg moves it further (34 to 14 km). Of the 12 inputs, pack power from a datasheet is now sourced; the pack energy density spread among these cells (230 to 265 Wh/kg) matters little, consistent with 10k.
+- Limits: the page's "discharge current" is a maximum rating, not a flight-pack continuous rating (the P50S 100 A figure in particular would overheat a cell in a 60 s hover), so cell power is an upper bound and the break-even for P50S is a lower bound; kpack 0.7 is still an assumption; engine specific power, climb height and climb rate remain swept, not sourced; the datasheet PDFs sit behind a form, so only the product pages were read. Preliminary.
+- Next: replace the maximum rating with the continuous-discharge curve from a datasheet (or a published pack teardown), and source engine specific power (the other input with total effect above 0.2).
+
 ## 2026-11-08 · Milestone 10n: total-effect Sobol indices for the break-even range (predictions in `vtol_sizing/total_effect.py`'s docstring, fixed before the run)
 - Why: 10m's "Next" asked for total-effect indices; its binned first-order indices summed to 0.82 and the gap was read as interactions. `experiments/vtol_sizing/total_effect.py` uses Saltelli sampling with Jansen estimators (N = 20,000, 280,000 model runs, 300 bootstrap draws, about 30 s on 4 cores) over 10m's ranges and model.
 ### Outcome (`experiments/vtol_sizing/total_effect_results.txt`)
