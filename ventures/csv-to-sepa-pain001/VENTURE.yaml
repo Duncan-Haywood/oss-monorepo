@@ -35,3 +35,4 @@ hypotheses:
       payment file" and use the instant switch (added 2026-11-09) to get a pain.001 tagged INST with the 100,000 EUR
       per-payment cap checked, measured as the share of conversions run with instant on.
     status: untested
+    evidence: in-repo
