@@ -1,8 +1,8 @@
 ---
 title: "A decimal comma quietly made a sales export a thousand times too small"
-seo_title: "Hourly sales CSV import: decimal comma, accounting negatives, month-name dates"
+seo_title: "Hourly sales CSV import: decimal comma, negatives, month-name dates"
 date: 2026-11-09
-tags: [shift-roster-builder, scheduling, csv, bug]
+tags: [shift-roster-builder, scheduling, csv, bugs]
 description: "Probing the sales-to-shifts importer of a free shift scheduler with made-up exports found four formats it misread, one of them without any warning."
 ---
 
