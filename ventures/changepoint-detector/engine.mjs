@@ -1815,6 +1815,7 @@ export function analyze(input = {}) {
   let burstInfo = null;
   const rawCounts = values;
   if (o.episodes && model !== 'poisson') throw new Error('Episodes are for counts: use model "poisson".');
+  if (o.spikes && model === 'poisson') throw new Error('Spikes are for continuous series: use model "mean" or "meanvar"; counts have --bursts and --episodes.');
   if (o.bursts) {
     if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
     const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
@@ -2001,19 +2002,6 @@ export function analyze(input = {}) {
     const fg = fisherG(stepResiduals(values, p.changepoints));
     if (fg.p < 0.01 && fg.period >= 3) cycleWarning = `The residuals about these ${p.changepoints.length} steps carry a periodic component (peak at about ${round(fg.period, 1)} points, p ${fg.p < 1e-4 ? '< 0.0001' : round(fg.p, 4)}), so some steps may be a cycle read as regime changes, not separate changes: on sunspots (an 11-year cycle) the default found 46 steps and none were real. If the period is known, give it with --period; otherwise read the dates with care.`;
   }
-  // a spike: a segment of at most 3 points between two segments whose levels agree (within a third of the excursion) and
-  // which sits more than 4 noise sds off them is an outlier cut out as a pair of steps (gold 2026-11-09, README). A label for
-  // the reader, not a test; mean and meanvar models only.
-  let spikes = [];
-  if ((model === 'mean' || model === 'meanvar') && !period && isFinite(sigma) && sigma > 0) {
-    for (let k = 1; k + 1 < segments.length; k++) {
-      const s = segments[k], a = segments[k - 1], c = segments[k + 1];
-      if (s.n > 3 || a.n < 5 || c.n < 5) continue;
-      const nb = (a.mean * a.n + c.mean * c.n) / (a.n + c.n), size = s.mean - nb;
-      if (Math.abs(size) > 4 * sigma && Math.abs(a.mean - c.mean) < Math.abs(size) / 3) spikes.push({ from: s.from, to: s.to, startIndex: s.start, endIndex: s.end, size: round(size), sizeInNoiseSds: round(size / sigma, 1) });
-    }
-  }
-  const spikeWarning = spikes.length ? `${spikes.length === 1 ? 'One short segment looks' : `${spikes.length} short segments look`} like ${spikes.length === 1 ? 'an outlier' : 'outliers'} rather than ${spikes.length === 1 ? 'a regime' : 'regimes'}: ${spikes.map((s) => `${s.from === s.to ? s.from : `${s.from} to ${s.to}`} (${s.size > 0 ? '+' : ''}${s.size}, ${Math.abs(s.sizeInNoiseSds)} noise sds off its neighbours)`).join('; ')}. The level before and after agree, so the pair of changes around ${spikes.length === 1 ? 'it is' : 'each is'} probably one bad point: check the data point, or drop it and re-run.` : null;
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -2059,11 +2047,11 @@ export function analyze(input = {}) {
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(driftWarning ? { driftWarning } : {}),
     ...(cycleWarning ? { cycleWarning } : {}),
-    ...(spikeWarning ? { spikeWarning, spikes } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
     ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
+    ...(o.spikes ? { spikes: findSpikes(changes, sigma, typeof o.spikes === 'number' ? { maxSpan: o.spikes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex], base: round(e.base), baseAfter: round(e.baseAfter), excursion: round(e.excursion), excursionInNoiseSd: e.excursionInNoiseSd === null ? null : round(e.excursionInNoiseSd, 1) })) } : {}),
     ...(excursions.length ? { excursions } : {}),
     ...(changes.length > 1 && groupRamps(changes, segments, values.length, { values }).length ? { ramps: groupRamps(changes, segments, values.length, { values }) } : {}),
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
@@ -2145,6 +2133,34 @@ export function findEpisodes(cps, n, { maxLen = Math.max(5, Math.round(n / 10)),
     if (net >= maxNet * jump) continue;
     out.push({ kind: up ? 'burst' : 'dip', startIndex: a.index, endIndex: b.index - 1, length: len, level: a.meanAfter, baseBefore: a.meanBefore, baseAfter: b.meanAfter, jumpFactor: Math.round(Math.exp(jump) * 100) / 100, netFactor: Math.round(Math.exp(net) * 100) / 100 });
     k++;
+  }
+  return out;
+}
+
+/**
+ * Spikes in a continuous series: a run of adjacent changes that spans at most `maxSpan` points and leaves the
+ * level where it began (the level after the last change within `maxNet` of the excursion of the level before the
+ * first) is one outlier, not a regime. A bad price or a one-day shock is reported by the mean model as a pair or
+ * triple of changes either side of it. Labels only: the changes themselves are not altered.
+ * `cps` are the changes from analyze() (index, meanBefore, meanAfter); sd is the noise sd; n the series length.
+ * The excursion must be at least `minSd` noise sd, so a small wobble is not labelled.
+ */
+export function findSpikes(cps, sd, { maxSpan = 5, maxNet = 0.5, minSd = 3 } = {}) {
+  const out = [];
+  for (let k = 0; k + 1 < cps.length;) {
+    let best = -1;
+    for (let j = k + 1; j < cps.length && cps[j].index - cps[k].index <= maxSpan; j++) {
+      const base = cps[k].meanBefore, end = cps[j].meanAfter;
+      let ex = 0, sign = 0;
+      for (let m = k; m < j; m++) { const d = cps[m].meanAfter - base; if (Math.abs(d) > Math.abs(ex)) { ex = d; sign = Math.sign(d); } }
+      if (Math.abs(ex) >= minSd * sd && Math.abs(end - base) < maxNet * Math.abs(ex)) best = j;
+    }
+    if (best < 0) { k++; continue; }
+    const base = cps[k].meanBefore;
+    let ex = 0;
+    for (let m = k; m < best; m++) { const d = cps[m].meanAfter - base; if (Math.abs(d) > Math.abs(ex)) ex = d; }
+    out.push({ kind: ex > 0 ? 'spike' : 'dip', startIndex: cps[k].index, endIndex: cps[best].index - 1, length: cps[best].index - cps[k].index, changes: best - k + 1, base, baseAfter: cps[best].meanAfter, excursion: ex, excursionInNoiseSd: sd > 0 ? ex / sd : null });
+    k = best + 1;
   }
   return out;
 }

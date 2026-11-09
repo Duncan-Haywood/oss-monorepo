@@ -37,18 +37,3 @@ test('gold returns, meanvar: 10 cuts plain, 5 robust or dispersion-scaled, 2 wit
   assert.equal(cuts(ret, rl, { model: 'meanvar', dispersion: true }).length, 5);
   assert.equal(cuts(ret, rl, { model: 'meanvar', bootstrap: true }).join(), '762,772');
 });
-
-test('gold levels: the spike flag names the bad day (labels 769 to 770, 30 noise sds); returns flag two other short runs; clean step silent', () => {
-  const r = analyze({ values: v, labels, model: 'mean' });
-  const hit = r.spikes.find((s) => s.from === '769' && s.to === '770');
-  assert.ok(hit && hit.sizeInNoiseSds > 25);
-  assert.match(r.spikeWarning, /outlier/);
-  // returns: the bad day is a +/- pair that nets to about zero, so it is not flagged; two other short excursions are
-  assert.deepEqual(analyze({ values: ret, labels: rl, model: 'mean' }).spikes.map((s) => s.from), ['55', '418']);
-  let seed = 7; const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648 - 0.5; };
-  const noise = Array.from({ length: 80 }, () => rnd());
-  const step = noise.map((x, i) => (i < 40 ? 10 : 0) + x);
-  assert.equal(analyze({ values: step, model: 'mean' }).spikeWarning, undefined);
-  const sp = noise.map((x, i) => (i === 20 || i === 21 ? x + 10 : x));
-  assert.equal(analyze({ values: sp, model: 'mean' }).spikes?.length, 1);
-});

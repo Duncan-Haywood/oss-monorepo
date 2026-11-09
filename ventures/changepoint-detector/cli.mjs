@@ -28,6 +28,7 @@ Options:
   --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar subtract it, poisson fits multiplicative factors
   --holidays <a,b,...>      with --model poisson: row labels (dates, or 1-based row numbers) of known holidays; one fitted factor on their rate, so a holiday dip is not read as a step; write label=kind (e.g. 2026-12-25=closed) to fit one factor per kind
   --bursts [ratio]          with --model poisson: single days far above both neighbours' level (default 2.5x and a Poisson-sized excess) are cut back to it before fitting, so a spike is not read as two changes; listed in the result
+  --spikes [n]              with a mean or meanvar model: label a run of changes within n points (default 5) that returns to the starting level (a bad price, a one-day shock) as one spike or dip, listed in the result; the changes are unchanged
   --episodes [n]            with --model poisson: label an up-step followed within n points (default a tenth of the series) by a step back to about the old level as one burst episode, listed in the result; the changes are unchanged
   --burst-runs n            with --bursts: also cut back runs of 2 to n days (default off) that sit 2x above the same-phase level on both sides
   --log                     take natural logs first (positive values; mean, meanvar, trend): a steady percentage growth is a straight line, not a staircase; segments also show the geometric mean and each change its ratio
@@ -73,6 +74,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--bootstrap') opt.bootstrap = true;
     else if (a === '--overdispersion') opt.overdispersion = argv[i + 1] === 'nb' ? (i++, 'nb') : argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--bursts') opt.bursts = argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
+    else if (a === '--spikes') opt.spikes = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--episodes') opt.episodes = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--burst-runs') opt.burstRuns = Number(argv[++i]);
     else if (a === '--slope-breaks') opt.slopeBreaks = argv[i + 1] && /^[1-3]$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
@@ -109,7 +111,6 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     if (r.rangeWarning) lines.push(`  (${r.rangeWarning})`);
     if (r.driftWarning) lines.push(`  (${r.driftWarning})`);
     if (r.cycleWarning) lines.push(`  (${r.cycleWarning})`);
-    if (r.spikeWarning) lines.push(`  (${r.spikeWarning})`);
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
   if (r.ramps) {
@@ -136,6 +137,10 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     lines.push('', 'Episodes (a step and its step back, read as one burst):');
     for (const e of r.episodes) lines.push(`  ${e.from} – ${e.to}: ${e.kind} at ${e.level}/point against ${e.baseBefore} before and ${e.baseAfter} after (${e.jumpFactor}x episode, ${e.netFactor}x net)`);
   } else if (r.episodes) lines.push('', 'Episodes: none.');
+  if (r.spikes && r.spikes.length) {
+    lines.push('', 'Spikes (changes that return to the starting level, read as one outlier):');
+    for (const e of r.spikes) lines.push(`  ${e.from}${e.endIndex > e.startIndex ? ` – ${e.to}` : ''}: ${e.kind}, ${e.excursion} from a level of ${e.base} (${e.excursionInNoiseSd} noise sd), back to ${e.baseAfter}; ${e.changes} changes`);
+  } else if (r.spikes) lines.push('', 'Spikes: none.');
   if (r.bocpd.detections.length) {
     lines.push('', `Bayesian changes (probability >= ${r.bocpd.threshold}):`);
     for (const d of r.bocpd.detections) lines.push(`  ${d.label}  ${(d.probability * 100).toFixed(0)}%`);

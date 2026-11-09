@@ -2,6 +2,12 @@
 fetched, not stored) by known angles and bins readings by confidence.
 
     PYTHONPATH=src python3 tools/tilt_confidence_check.py
+
+Needs Pillow and ffmpeg and takes about 10 minutes (pure-Python tilt, ~1 min a
+photo): start it in the background. In the cloud container the default
+``python3`` has a Pillow that fails with ``cannot import name '_imaging'``;
+``/usr/bin/python3`` imports it fine. Re-run 2026-11-09 reproduced the recorded
+bands (n=60, 62% within 1 degree; 45%, 64%, 85% by confidence band).
 """
 import sys, urllib.request, tempfile, statistics
 from pathlib import Path
