@@ -302,3 +302,10 @@ test("Israel check digit and Japan, Egypt, Kenya shapes reach the party VAT chec
   assert.deepEqual(rules("KEA123456789Z"), []);
   assert.deepEqual(rules("KEX123456789Z"), ["INV-022"]);
 });
+
+test("Indonesia NPWP shape reaches the party VAT check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("ID012345678901234"), []);
+  assert.deepEqual(rules("ID123456789012345"), []);
+  assert.deepEqual(rules("ID12345"), ["INV-022"]);
+});

@@ -13,6 +13,7 @@ import { checkMst } from "./vietnam.mjs";
 import { checkRuc as checkEcuadorRuc } from "./ecuador.mjs";
 import { checkRuc as checkParaguayRuc } from "./paraguay.mjs";
 import { checkIsraeliId } from "./israel.mjs";
+import { checkNpwp } from "./indonesia.mjs";
 import { checkRegistrationNumber as checkJapanRegistration } from "./japan.mjs";
 import { checkEgyptTrn } from "./egypt.mjs";
 import { checkKraPin } from "./kenya.mjs";
@@ -216,6 +217,7 @@ function classify(country, body) {
   if (country === "IL") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "JP") return /^T?\d{13}$/.test(body) ? "format" : "bad-format";
   if (country === "EG") return /^\d{9}$/.test(body) && checkEgyptTrn(body).ok ? "format" : "bad-format";
+  if (country === "ID") return checkNpwp(body).ok ? "format" : "bad-format";
   if (country === "KE") return checkKraPin(body).ok ? "format" : "bad-format";
   if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
   if (country === "UA") return /^\d{8}$/.test(body) ? "checksum" : /^\d{10}$/.test(body) ? "format" : "bad-format";
