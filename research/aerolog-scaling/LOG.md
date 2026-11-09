@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 6c: how many spare packs does a cargo-VTOL hub need when orders arrive in bursts? (predictions in `experiments/hub_throughput/cargo_hub_bursts.py`'s docstring, fixed before the run)
+- Why: milestone 6b's "Next". Same hub as 6b (8 pads, 8 chargers, 1C, 42 min charge, 180 s swap and load); batches of k orders arrive together (batch rate Poisson, same mean flights/h), k swept 1 to 16, at 70% and 85% of the 11.4 flights/h charger limit. 5 seeds, stdlib, 40 s.
+### Outcome (`experiments/hub_throughput/cargo_hub_bursts_results.txt`)
+- **P1 held:** Poisson at 70% load with 24 spares has p95 wait 0 s. **P2 held:** k = 8 gives p95 4,964 s at 24 spares (mean 719 s), far above 3x.
+- **P3 held:** spares needed for p95 wait <= 300 s at 70% load: 12 (k=1), 16 (k=2), 24 (k=4), 48 (k=8), over 64 (k=16). At 85% load: 16, 28, 48, over 64. Pack count needed grows roughly with the burst size, because a burst takes k packs at once and chargers refill them at 0.19 packs/min.
+- Reading: 6b's "3 x chargers" spare rule is a Poisson rule; with bursts of 8 orders it is half what the hub needs, and the pack inventory (kWh and tonnes of cells) doubles or worse. Bursts matter more to inventory than grid power, which stays at the charger limit.
+- Limits: batch size is swept, no demand-burst data was sourced; at k=16 the 8 pads alone force 180 s of wait for the second half of a batch; no charge taper; sizing inputs assumed (milestone 10a). Preliminary.
+- Next: a demand trace (public delivery-order timestamps) instead of fixed batches; charge taper from a cell datasheet.
+
 ## 2026-11-09 · Milestone 6b: what grid supply and pack inventory does a hub need for the sized cargo VTOL's own pack? (predictions in `experiments/hub_throughput/cargo_hub.py`'s docstring, fixed before the run)
 - Why: milestone 6's "Next": it used a small multicopter's charge time; here the pack comes from `vtol_sizing/run.py` (100 kg payload, 250 Wh/kg cell, kpack 0.7), charged at a swept C-rate over the 20 to 90% window.
 ### Outcome (`experiments/hub_throughput/cargo_hub_results.txt`)
