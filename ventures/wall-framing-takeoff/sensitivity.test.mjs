@@ -62,3 +62,8 @@ test("sensitivity refuses hostile budgets and swings with a reason", async () =>
   assert.throws(() => sensitivity({ ...good(), taxRate: "0.1" }), /taxRate/);
   assert.throws(() => sensitivity({ ...good(), profit: NaN }), /profit/);
 });
+
+test("restack refuses input that is not a budget with a reason; a bad factors value reads as no shock", () => {
+  for (const bad of [null, undefined, 5, "x", {}, []]) assert.throws(() => restack(bad), /needs a budget result/);
+  for (const f of [null, 5, "x"]) assert.deepEqual(restack(hand, f), { total: 1655, bid: 2002.55 });
+});
