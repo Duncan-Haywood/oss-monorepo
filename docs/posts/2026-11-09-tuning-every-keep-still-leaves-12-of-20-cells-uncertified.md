@@ -1,6 +1,8 @@
 ---
 title: "Tuning every keep still leaves 12 of 20 search cells without a certificate"
 date: 2026-11-09
+tags: [research, verified-dse, successive-halving]
+description: "Widening both the middle and final keep in 20 three-rung chip design-search cells certifies a point in only 8, so the rung set binds, not the schedule."
 ---
 
 In our multi-fidelity chip design search, a design point is *certified* when it
