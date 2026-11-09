@@ -12,6 +12,8 @@ const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
  * @param {Record<string, number>} [factors]
  */
 export function restack(b, factors = {}) {
+  if (!b || typeof b !== "object" || !Array.isArray(b.sections)) throw new Error("sensitivity: restack needs a budget result with a sections list.");
+  if (!factors || typeof factors !== "object") factors = {};
   let materials = 0, labor = 0, allow = 0;
   for (const s of b.sections) {
     const v = s.subtotal * (factors[s.name] ?? 1);
