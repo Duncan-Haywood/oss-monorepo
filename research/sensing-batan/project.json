@@ -1,6 +1,0 @@
-{
- "theme": "sensing",
- "title": "What does unmodelled tangential (decentring) lens distortion cost a self-calibrating bundle adjustment?",
- "lede": "a tangential coefficient p1 = 0.01 (p2 = -0.008) set to zero raises the surface error from 0.0018 to 0.0041 object radii on the wide rig (0.0020 on the narrow one) and leaks into the fitted k2; fitting p1, p2 recovers them and removes the cost. Synthetic only",
- "summary": "Takes the next step of <code>sensing-bapp</code>. Images are rendered with Brown&ndash;Conrady tangential coefficients <code>p<sub>1</sub></code>, <code>p<sub>2</sub></code> from 0 to 0.02; one adjustment sets them to zero, the other fits them, both with focal length, <code>k<sub>1</sub></code>, <code>k<sub>2</sub></code>, poses and points free. On the wide rig (distance 2) <code>p<sub>1</sub></code> = 0.01 raises the surface error from 0.0018 to 0.0041 object radii (0.0077 at 0.02); on the narrow rig it is 0.0015 to 0.0020, but the held <code>k2</code> there is pulled from &minus;0.16 to +0.45 at 0.02. Fitting recovers the coefficients (0.0086 and &minus;0.0080 for 0.0100 and &minus;0.0080) and holds the error flat; at 2 px of noise the benefit is gone. Limits: synthetic, coefficients swept not measured, principal point at centre, one camera, correct matches, 8 seeds."
-}

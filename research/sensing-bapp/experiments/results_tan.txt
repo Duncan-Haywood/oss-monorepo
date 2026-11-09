@@ -1,4 +1,4 @@
-sensing-batan: self-calibrating bundle adjustment with true tangential distortion (p1, p2 = p, -0.8 p). 8 seeds per cell, 300 features. Synthetic only.
+sensing-bapp: self-calibrating bundle adjustment with true tangential distortion (p1, p2 = p, -0.8 p). 8 seeds per cell, 300 features. Synthetic only.
 Rendering: k1 = -0.2, k2 = +0.1, 0.5 px noise, 12 views, every pose wrong, principal point at the centre; rig of sensing-bak2wide (f = 200 x distance).
 held = focal, k1, k2 free with p1 = p2 = 0; free = also fits p1, p2. Surface error in object radii.
 

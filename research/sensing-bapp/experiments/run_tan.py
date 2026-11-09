@@ -1,4 +1,4 @@
-"""Sweeps for sensing-batan. Writes results.txt (stdout is the same text).
+"""Sweeps for sensing-bapp. Writes results_tan.txt (stdout is the same text).
 
     PYTHONPATH=src python experiments/run.py
 """
@@ -8,7 +8,7 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parent / "src"))
-from sensing_batan import run_trial_tan  # noqa: E402
+from sensing_bapp import run_trial_tan  # noqa: E402
 
 SEEDS = 8
 HEAD = "tri  held  free  p1_est  p2_est  p1_sd  k2_held  k2_free  f_err_held  f_err_free"
@@ -26,7 +26,7 @@ def cell(p=0.0, **kw):
 def main():
     out = []
     p = out.append
-    p(f"sensing-batan: self-calibrating bundle adjustment with true tangential distortion (p1, p2 = p, -0.8 p). {SEEDS} seeds per cell, 300 features. Synthetic only.")
+    p(f"sensing-bapp: self-calibrating bundle adjustment with true tangential distortion (p1, p2 = p, -0.8 p). {SEEDS} seeds per cell, 300 features. Synthetic only.")
     p("Rendering: k1 = -0.2, k2 = +0.1, 0.5 px noise, 12 views, every pose wrong, principal point at the centre; rig of sensing-bak2wide (f = 200 x distance).")
     p("held = focal, k1, k2 free with p1 = p2 = 0; free = also fits p1, p2. Surface error in object radii.")
     p("")
@@ -46,7 +46,7 @@ def main():
     for s in [0.1, 0.5, 1.0, 2.0]:
         p(f"{s} " + cell(0.01, dist=2.0, sigma_px=s))
     text = "\n".join(out) + "\n"
-    (HERE / "results.txt").write_text(text)
+    (HERE / "results_tan.txt").write_text(text)
     print(text, end="")
 
 

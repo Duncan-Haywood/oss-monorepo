@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from sensing_batan import run_trial_tan, project_tan  # noqa: E402
+from sensing_bapp import run_trial_tan, project_tan  # noqa: E402
 from sensing_recon import orbit_cameras, make_object  # noqa: E402
 
 

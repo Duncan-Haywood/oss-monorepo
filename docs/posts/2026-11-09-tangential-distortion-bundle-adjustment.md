@@ -26,4 +26,4 @@ calibration, the principal point is held at the centre in both fits, so the
 principal-point/tangential confound is untested. That is the next step.
 
 Code, tests and the results table:
-[`research/sensing-batan`](https://marisstella.app/research/sensing-batan/).
+[`research/sensing-bapp`](https://marisstella.app/research/sensing-bapp/).
