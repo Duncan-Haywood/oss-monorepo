@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01EhTJVQ4WXmqXrkwAPEzQho",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T17:56:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: Tunisia MF shape check in party VAT check + post",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The route drew the polish track, but the scheduled task asked for revenue-product work, so I shipped a venture slice instead.",
+      "did": "Added TN matricule fiscal shape check",
+      "result": "vat.test.mjs 31 pass, checks/id-blindspots/tunisia page tests 36 pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Verification run locally: node --test vat.test.mjs (31 pass) and checks.test.mjs id-blindspots.test.mjs tunisia page test (36 pass). Shape only; control letter unchecked, MF unseen in a real invoice. Remaining FORMAT_ONLY countries (UZ, GE, AM, TZ, UG, ZM, RW) have no public check digit I could verify; Ghana TIN left out because Ghana Card PINs are also TINs.",
+  "corrections": [],
+  "redteam": null
+}
