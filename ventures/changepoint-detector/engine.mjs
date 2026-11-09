@@ -1815,6 +1815,7 @@ export function analyze(input = {}) {
   let burstInfo = null;
   const rawCounts = values;
   if (o.episodes && model !== 'poisson') throw new Error('Episodes are for counts: use model "poisson".');
+  if (o.spikes && model === 'poisson') throw new Error('Spikes are for continuous series: use model "mean" or "meanvar"; counts have --bursts and --episodes.');
   if (o.bursts) {
     if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
     const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
@@ -2050,6 +2051,7 @@ export function analyze(input = {}) {
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
     ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
+    ...(o.spikes ? { spikes: findSpikes(changes, sigma, typeof o.spikes === 'number' ? { maxSpan: o.spikes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex], base: round(e.base), baseAfter: round(e.baseAfter), excursion: round(e.excursion), excursionInNoiseSd: e.excursionInNoiseSd === null ? null : round(e.excursionInNoiseSd, 1) })) } : {}),
     ...(excursions.length ? { excursions } : {}),
     ...(changes.length > 1 && groupRamps(changes, segments, values.length, { values }).length ? { ramps: groupRamps(changes, segments, values.length, { values }) } : {}),
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
@@ -2131,6 +2133,34 @@ export function findEpisodes(cps, n, { maxLen = Math.max(5, Math.round(n / 10)),
     if (net >= maxNet * jump) continue;
     out.push({ kind: up ? 'burst' : 'dip', startIndex: a.index, endIndex: b.index - 1, length: len, level: a.meanAfter, baseBefore: a.meanBefore, baseAfter: b.meanAfter, jumpFactor: Math.round(Math.exp(jump) * 100) / 100, netFactor: Math.round(Math.exp(net) * 100) / 100 });
     k++;
+  }
+  return out;
+}
+
+/**
+ * Spikes in a continuous series: a run of adjacent changes that spans at most `maxSpan` points and leaves the
+ * level where it began (the level after the last change within `maxNet` of the excursion of the level before the
+ * first) is one outlier, not a regime. A bad price or a one-day shock is reported by the mean model as a pair or
+ * triple of changes either side of it. Labels only: the changes themselves are not altered.
+ * `cps` are the changes from analyze() (index, meanBefore, meanAfter); sd is the noise sd; n the series length.
+ * The excursion must be at least `minSd` noise sd, so a small wobble is not labelled.
+ */
+export function findSpikes(cps, sd, { maxSpan = 5, maxNet = 0.5, minSd = 3 } = {}) {
+  const out = [];
+  for (let k = 0; k + 1 < cps.length;) {
+    let best = -1;
+    for (let j = k + 1; j < cps.length && cps[j].index - cps[k].index <= maxSpan; j++) {
+      const base = cps[k].meanBefore, end = cps[j].meanAfter;
+      let ex = 0, sign = 0;
+      for (let m = k; m < j; m++) { const d = cps[m].meanAfter - base; if (Math.abs(d) > Math.abs(ex)) { ex = d; sign = Math.sign(d); } }
+      if (Math.abs(ex) >= minSd * sd && Math.abs(end - base) < maxNet * Math.abs(ex)) best = j;
+    }
+    if (best < 0) { k++; continue; }
+    const base = cps[k].meanBefore;
+    let ex = 0;
+    for (let m = k; m < best; m++) { const d = cps[m].meanAfter - base; if (Math.abs(d) > Math.abs(ex)) ex = d; }
+    out.push({ kind: ex > 0 ? 'spike' : 'dip', startIndex: cps[k].index, endIndex: cps[best].index - 1, length: cps[best].index - cps[k].index, changes: best - k + 1, base, baseAfter: cps[best].meanAfter, excursion: ex, excursionInNoiseSd: sd > 0 ? ex / sd : null });
+    k = best + 1;
   }
   return out;
 }
