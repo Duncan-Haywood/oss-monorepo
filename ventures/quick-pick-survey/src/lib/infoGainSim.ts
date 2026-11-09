@@ -5,6 +5,9 @@
  */
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "@/lib/glicko2";
 import {
+  AGREEMENT_WINDOW,
+  answerAgreement,
+  type DecidedPick,
   pairKey,
   selectNextPair,
   type PairItem,
@@ -28,7 +31,7 @@ export type Policy = typeof selectNextPair;
  * `positionBias` is the share of answers that take the first option shown whatever
  * the items are (negative: the second option). Both draw nothing extra at 0, so older seeds reproduce.
  */
-export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0) {
+export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false) {
   const rand = mulberry32(seed);
   const truth = new Map<string, number>();
   const state = new Map<string, GlickoState>();
@@ -47,6 +50,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
     });
   }
   const recent: string[] = [];
+  const picks: DecidedPick[] = [];
   let firstPicks = 0;
   for (let answered = 0; answered < budget; answered++) {
     const live = items.map((item) => {
@@ -59,11 +63,13 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
       recentPairKeys: new Set(recent),
       answeredCount: answered,
       firstOptionShare: answered > 0 ? firstPicks / answered : undefined,
+      answerAgreement: useAgreement ? answerAgreement(picks.slice(-AGREEMENT_WINDOW)) : undefined,
       rand,
     });
     const pA = 1 / (1 + Math.exp(-2 * (truth.get(aId)! - truth.get(bId)!)));
-    const pickedFirst = positionBias > 0 && rand() < positionBias ? true : positionBias < 0 && rand() < -positionBias ? false : lapse > 0 && rand() < lapse ? rand() < 0.5 : rand() < pA;
+    const pickedFirst = positionBias > 0 && rand() < positionBias ? true : positionBias < 0 && rand() < -positionBias ? false : lapse > 0 && answered >= lapseFrom && rand() < lapse ? rand() < 0.5 : rand() < pA;
     if (pickedFirst) firstPicks++;
+    { const sa = state.get(aId)!, sb = state.get(bId)!; picks.push(pickedFirst ? { picked: sa.rating, other: sb.rating, pickedRd: sa.rd, otherRd: sb.rd } : { picked: sb.rating, other: sa.rating, pickedRd: sb.rd, otherRd: sa.rd }); }
     const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, pickedFirst ? "A" : "B");
     state.set(aId, a);
     state.set(bId, b);
@@ -79,7 +85,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
     entries.map(([id]) => truth.get(id)!),
     entries.map(([, s]) => s.rating)
   );
-  return { under, rankAccuracy };
+  return { under, rankAccuracy, touched: timesShown.size };
 }
 
 export function spearman(xs: number[], ys: number[]): number {

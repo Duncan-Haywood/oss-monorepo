@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FIRST_OPTION_FALLBACK_SHARE, PairItem, admissionHash, admissionOrder, pairKey, sameCategoryBias, selectNextPair, selectNextPairHybrid, surveyConfidence } from "./pairing";
+import { type DecidedPick, AGREEMENT_Z_PAUSE_BELOW, activeItems, admissionPaused, answerAgreement, FIRST_OPTION_FALLBACK_SHARE, PairItem, admissionHash, admissionOrder, pairKey, sameCategoryBias, selectNextPair, selectNextPairHybrid, surveyConfidence } from "./pairing";
 
 function items(n: number, category = "cat"): PairItem[] {
   return Array.from({ length: n }, (_, i) => ({
@@ -147,5 +147,42 @@ describe("admissionOrder", () => {
     const b = admissionOrder([...list].reverse()).map((i) => i.id);
     expect(b).toEqual(a);
     expect(admissionHash("i7")).toBe(admissionHash("i7"));
+  });
+});
+
+describe("answer agreement and the admission pause", () => {
+  const pick = (picked: number, other: number): DecidedPick => ({ picked, other, pickedRd: 60, otherRd: 60 });
+  it("is undefined below the minimum and skips equal ratings", () => {
+    expect(answerAgreement([pick(1600, 1500)])).toBeUndefined();
+    expect(answerAgreement([pick(1500, 1500), pick(1500, 1500)], 1)).toBeUndefined();
+  });
+  it("is near zero for answers that follow the model and strongly negative for coin flips", () => {
+    let seed = 7;
+    const rand = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
+    const honest: DecidedPick[] = [];
+    const random: DecidedPick[] = [];
+    for (let i = 0; i < 80; i++) {
+      const d = 200 + rand() * 200;
+      const pFav = 1 / (1 + Math.exp(-d / 173.7178 / Math.sqrt(1 + (3 * (85 / 173.7178) ** 2) / Math.PI ** 2)));
+      honest.push(rand() < pFav ? pick(1500 + d, 1500) : pick(1500, 1500 + d));
+      random.push(rand() < 0.5 ? pick(1500 + d, 1500) : pick(1500, 1500 + d));
+    }
+    expect(answerAgreement(honest)!).toBeGreaterThan(-2);
+    expect(answerAgreement(random)!).toBeLessThan(-2);
+  });
+  it("pauses only below the threshold", () => {
+    expect(admissionPaused(undefined)).toBe(false);
+    expect(admissionPaused(AGREEMENT_Z_PAUSE_BELOW)).toBe(false);
+    expect(admissionPaused(AGREEMENT_Z_PAUSE_BELOW - 0.01)).toBe(true);
+  });
+  it("a paused window stays at the core set plus anything already shown", () => {
+    const pool = items(60);
+    const outside = admissionOrder(pool)[40].id;
+    const shown = new Map([[outside, 2]]);
+    const grown = activeItems(pool, 400, shown, false);
+    const paused = activeItems(pool, 400, shown, true);
+    expect(grown.length).toBeGreaterThan(paused.length);
+    expect(paused.length).toBe(15);
+    expect(paused.some((i) => i.id === outside)).toBe(true);
   });
 });

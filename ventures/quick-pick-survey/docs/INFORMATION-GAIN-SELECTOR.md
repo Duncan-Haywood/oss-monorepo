@@ -712,3 +712,34 @@ clean answers to lean on. The selector does not slow down or stop admitting new
 items when answers turn noisy. Untried: a stop or "answers look random" signal
 (for example a run of answers that disagree with the current ordering) that
 pauses admission. Not measured: a real respondent's fatigue curve.
+
+## An "answers look random" pause: measured, not wired in (2026-11-09)
+
+The untried signal above, built and measured. `answerAgreement` (in
+`src/lib/pairing.ts`) scores the last 80 decided answers on the ratings a trial
+row stores BEFORE each answer: observed picks of the favoured item minus the
+Glicko-expected number, as a z-score. `activeItems` takes an `admissionPaused`
+flag that holds the window at the core set plus items already shown.
+
+Two things failed first. Scoring against the ratings fitted afterwards gave a
+random respondent 0.87 to 0.92 agreement (each answer has just moved its own
+pair). A raw agreement share before the answer does not separate them either:
+the selector pairs close items on purpose, so an honest respondent agrees 0.53
+to 0.58 of the time and a random one 0.4 to 0.63.
+
+The z-score is better but not usable
+(`admissionPause.simulation.test.ts`, 120 items, staged hybrid, 6 seeds, every
+25th answer from 120 to 500):
+
+| respondent | mean z | sd | share of readings below -2 |
+|---|---|---|---|
+| honest | -0.53 | 0.97 | 0.07 |
+| 20% lapses | -0.83 | 1.32 | 0.20 |
+| fully random | -1.16 | 1.21 | 0.22 |
+
+Random answering is caught 22% of the time and an honest respondent is paused
+7% of the time. The mean sits below zero even for honest answers, because
+Glicko ratings are overconfident early. So the route is unchanged: no pause
+ships. The function and flag stay, unwired, so the result can be reproduced.
+What might work: a respondent-level repeat-pair consistency test (re-ask an
+earlier pair and compare), which does not depend on the rating scale.
