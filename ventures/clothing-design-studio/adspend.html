@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ad Spend Calculator for Clothing Brands: What a Customer May Cost</title>
+  <meta name="description" content="Free ad spend calculator for small clothing brands: cost per customer from click price and conversion, break-even ROAS, the most a customer may cost, with and without repeat orders, and what a monthly budget buys. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Ad spend calculator for clothing brands">
+  <meta property="og:description" content="What a new customer may cost in ads before you lose money. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Ad spend calculator (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="returns.html">Returns</a> · <a href="channels.html">Where to sell</a> · <a href="prices.html">Price by market</a> · <a href="preorder.html">Pre-order planner</a> · <a href="cashflow.html">Launch cash flow</a></p>
+  <h1>What may a new customer cost in ads?</h1>
+  <p>Type what an order earns before ads (work it out in the <a href="returns.html">returns calculator</a>), your click price and the share of clicks that buy. Get the cost of a customer, break-even ROAS, the most you can pay for a click or a customer, and what a monthly budget buys.</p>
+  <p class="placeholder">Arithmetic on numbers you type, not a forecast. Real click prices rise as you spend more, and repeat orders are a guess until you have a year of them. Test with a small budget first.</p>
+  <div class="grid">
+    <section>
+      <h2>Your numbers</h2>
+      <label for="profit">Profit per order before ads</label><input id="profit" type="number" step="any" value="20">
+      <label for="orderValue">Order value (what the customer pays)</label><input id="orderValue" type="number" min="0" step="any" value="50">
+      <label for="cpc">Cost per click</label><input id="cpc" type="number" min="0" step="any" value="0.8">
+      <label for="conversionPct">Clicks that buy %</label><input id="conversionPct" type="number" min="0" step="any" value="2">
+      <label for="repeat">Repeat orders per customer in a year</label><input id="repeat" type="number" min="0" step="any" value="0.3">
+      <label for="budget">Monthly ad budget</label><input id="budget" type="number" min="0" step="any" value="1000">
+    </section>
+    <section><h2>Result</h2><output id="result" aria-live="polite"></output></section>
+  </div>  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>6. Sell it and keep selling</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="channels.html">Where to sell</a> · <a href="salestax.html">US sales tax</a> · <a href="eutax.html">EU VAT and one-stop shop</a> · <a href="eprfr.html">French textile eco-contribution</a></div>
+    <div>Before: <a href="reorder.html">Reorder planner</a></div>
+  </nav>
+  <!-- /journey -->
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Click price, conversion and repeat orders are your estimates; the result is arithmetic on them, not a forecast or a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+
+  <script type="module">
+    import { adPlan } from "./adspend.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const ids = ["profit","orderValue","cpc","conversionPct","repeat","budget"];
+    const n = v => v === null ? "n/a" : v;
+    function render() {
+      const o = {}; for (const id of ids) o[id] = +$("#" + id).value;
+      const r = adPlan(o);
+      if (r.error) { $("#result").innerHTML = `<p class="placeholder">${esc(r.error)}</p>`; return; }
+      $("#result").innerHTML = `<p class="big">A customer costs ${r.cac} in ads: ${esc(r.verdict)}</p>
+        <p>ROAS now <b>${r.roas}</b>. Break-even ROAS: <b>${n(r.breakEvenRoasFirstOrder)}</b> on the first order, <b>${n(r.breakEvenRoasWithRepeat)}</b> counting repeat orders.</p>
+        <table><tr><th scope="col"></th><th scope="col" class="num">First order only</th><th scope="col" class="num">With repeat orders</th></tr>
+        <tr><td>Most a customer may cost</td><td class="num">${r.maxCacFirstOrder}</td><td class="num">${r.maxCacWithRepeat}</td></tr>
+        <tr><td>Most a click may cost</td><td class="num">${r.maxCpcFirstOrder}</td><td class="num">${r.maxCpcWithRepeat}</td></tr>
+        <tr><td>Least conversion needed %</td><td class="num">${n(r.minConversionPctFirstOrder)}</td><td class="num">${n(r.minConversionPctWithRepeat)}</td></tr>
+        <tr><td>Result per customer</td><td class="num">${r.firstOrderResultPerCustomer}</td><td class="num">${r.yearResultPerCustomer}</td></tr></table>
+        ${r.budget ? `<p>A budget of ${+$("#budget").value} buys about <b>${r.budget.customers}</b> customers and ${r.budget.revenue} of sales: ${r.budget.firstOrderResult} on first orders, ${r.budget.yearResult} over a year.</p>` : ""}
+        <h3>If conversion is off</h3><table><tr><th scope="col">Conversion</th><th scope="col" class="num">Cost of a customer</th><th scope="col" class="num">Result per customer, year</th></tr>
+        ${r.sensitivity.map(s => `<tr><td>${s.conversionTimes}x</td><td class="num">${s.cac}</td><td class="num">${s.yearResultPerCustomer}</td></tr>`).join("")}</table>
+        ${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
+    }
+    document.querySelectorAll("section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("adspend_check"); }));
+    render(); recordUsage("adspend_open");
+  </script>
+</body>
+</html>
