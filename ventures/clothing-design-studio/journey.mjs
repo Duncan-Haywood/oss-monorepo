@@ -22,7 +22,7 @@ export const STAGES = [
   { id: "make", title: "5. Make it and check it", why: "Dates, specifications and inspection are where a first run usually goes wrong.",
     pages: [["timeline.html", "Production timeline"], ["tna.html", "Time and action calendar"], ["spec.html", "Measurement spec and sample check"], ["testing.html", "Safety tests to ask for"], ["inspection.html", "Final inspection sample size"], ["labels.html", "Label checker"], ["barcodes.html", "Barcodes (GTIN)"]] },
   { id: "sell", title: "6. Sell it and keep selling", why: "Tax, channels and reorders decide whether the first run turns into a business.",
-    pages: [["channels.html", "Where to sell"], ["salestax.html", "US sales tax"], ["eutax.html", "EU VAT and one-stop shop"], ["eprfr.html", "French textile eco-contribution"], ["linesheet.html", "Wholesale line sheet"], ["partners.html", "Partner-brand commission"], ["reorder.html", "Reorder planner"]] },
+    pages: [["channels.html", "Where to sell"], ["salestax.html", "US sales tax"], ["eutax.html", "EU VAT and one-stop shop"], ["eprfr.html", "French textile eco-contribution"], ["linesheet.html", "Wholesale line sheet"], ["partners.html", "Partner-brand commission"], ["reorder.html", "Reorder planner"], ["adspend.html", "Ad spend: what a customer may cost"]] },
 ];
 
 /** Pages that are not tools on the path: the hub itself and the landing page. */
