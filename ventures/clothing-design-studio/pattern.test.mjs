@@ -71,8 +71,7 @@ test("grading: each step up in size widens the body by half the chest step and d
   assert.ok(row("Armhole depth").steps.every(v => v > 1 && v < 3));
 });
 
-test("refusals: hoodie, unknown garment or size, bad allowance", () => {
-  assert.equal(draft("hoodie", "M").ok, false);
+test("refusals: unknown garment or size, bad allowance", () => {
   assert.equal(draft("cape", "M").ok, false);
   assert.equal(draft("tee", "Q").ok, false);
   assert.equal(draft("tee", "M", { seamCm: -1 }).ok, false);
@@ -90,4 +89,31 @@ test("SVG and DXF: 1:1 centimetre units, notches, layers, escaping", () => {
   for (const k of ["CUT", "STITCH", "GRAIN", "NOTCH", "EOF"]) assert.ok(x.includes(k), k);
   assert.equal((x.match(/POLYLINE/g) || []).length, (x.match(/SEQEND/g) || []).length);
   assert.match(checkText(d), /ease 1 cm/);
+});
+
+test("hoodie: hood neck edge equals the neck seam, pieces are simple, pocket and hood sized sensibly", () => {
+  for (const s of ["XS", "M", "XXL"]) {
+    const d = draft("hoodie", s);
+    assert.ok(d.ok, d.error);
+    assert.deepEqual(d.pieces.map(p => p.name), ["front", "back", "sleeve", "hood", "pocket"]);
+    assert.ok(d.checks.allSimple);
+    assert.ok(Math.abs(d.checks.hoodNeckEdgeCm - d.checks.neckSeamCm) < 0.01);
+    // independent walk: the stitch ring of the hood starts with its straight neck edge B -> A
+    const hood = d.pieces.find(p => p.name === "hood");
+    assert.ok(Math.abs(Math.hypot(hood.stitch[0][0] - hood.stitch[1][0], hood.stitch[0][1] - hood.stitch[1][1]) - d.checks.neckSeamCm) < 0.01);
+    assert.equal(hood.qty, 2);
+    assert.ok(d.checks.hoodHeightCm > 30 && d.checks.hoodHeightCm < 50, `hood height ${d.checks.hoodHeightCm}`);
+    assert.ok(d.checks.hoodDepthCm > 25 && d.checks.hoodDepthCm < 40, `hood depth ${d.checks.hoodDepthCm}`);
+    assert.ok(d.checks.pocketWidthCm < d.block.Q * 2);
+  }
+  assert.match(checkText(draft("hoodie", "M")), /Hood neck edge/);
+  assert.ok(grade("hoodie").monotone);
+});
+
+test("hoodie: pocket hand openings carry a larger allowance than the joined edges; hood is bigger in bigger sizes", () => {
+  const d = draft("hoodie", "M", { seamCm: 1 });
+  const pocket = d.pieces.find(p => p.name === "pocket");
+  assert.equal(pocket.bbox.w > pocket.stitch.reduce((a, p) => Math.max(a, p[0]), -1e9) - pocket.stitch.reduce((a, p) => Math.min(a, p[0]), 1e9), true);
+  const big = draft("hoodie", "XXL");
+  assert.ok(big.checks.hoodHeightCm > d.checks.hoodHeightCm);
 });

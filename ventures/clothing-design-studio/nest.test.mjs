@@ -61,7 +61,9 @@ test("refusals: narrow cloth, bad counts, empty, bad grid", () => {
   assert.equal(nestRatio("tee", { M: 1.5 }).ok, false);
   assert.equal(nestRatio("tee", { M: 0 }).ok, false);
   assert.equal(nest([sh("a", 5, 5)], { gridCm: 9 }).ok, false);
-  assert.equal(nestRatio("hoodie", { M: 1 }).ok, false);
+  assert.equal(nestRatio("cape", { M: 1 }).ok, false);
+  const hd = nestRatio("hoodie", { M: 1 });
+  assert.ok(hd.ok && hd.verified !== false);
 });
 
 test("svg names the cloth and pieces", () => {
