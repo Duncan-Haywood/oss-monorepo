@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01AcxTtGU8rbyeminfe3HLrJ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T10:10:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14250",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/llm-coding-inference/LOG.md",
+      "why": "Prediction for 7ab was written after seeing the output, not before; disclosed in the log and post."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-a-safeguard-that-costs-nothing-on-a-second-corpus.md",
+    "research/llm-coding-inference/LOG.md 7ab"
+  ],
+  "goal": null,
+  "notes": "Research track, programme llm-coding-inference; 7ab second-corpus check. 23 tests pass, homepage build ok. No agent doc in docs/reports (nothing the next run needs beyond LOG.md).",
+  "corrections": [],
+  "redteam": null
+}
