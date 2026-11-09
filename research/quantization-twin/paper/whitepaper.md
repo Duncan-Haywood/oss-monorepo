@@ -24,7 +24,7 @@ Plant `x' = a x + w`, `w~N(0,Q)`, `a=0.9`, `Q=1`; sensor `y = D·round((x+v)/D)`
 ## 4. Findings
 1. **The twin's gain is cheap to ignore only while `D` is below the noise scale.** With `R=0.01` the cost is already 6.7% at `D=1` (10σ_v).
 2. **Sheppard retuning recovers essentially all of it** (gain choice within ≤1% MSE of the best grid gain in all 12 configurations), even where its MSE *formula* is wrong.
-3. **The MSE claim fails when `D` exceeds the state's scale** (stationary std of `x` ≈ 1.5 with these parameters): the quantizer output is mostly 0 and ±D, the error is signal-dependent, and the white-noise closed form under-predicts by up to 43%. A twin that reports Sheppard-corrected accuracy would be optimistic in this regime although its gain is near-optimal.
+3. **The MSE claim fails when `D` exceeds the state's scale** (stationary std of `x` is √(Q/(1−a²)) ≈ 2.29 with these parameters; the rule is approximate, since at `R`=1 the formula still holds at `D`=4: the real condition is `D` against the total measurement spread): the quantizer output is mostly 0 and ±D, the error is signal-dependent, and the white-noise closed form under-predicts by up to 43%. A twin that reports Sheppard-corrected accuracy would be optimistic in this regime although its gain is near-optimal.
 
 ## 5. Limitations and next steps
 Scalar, Gaussian, fixed-gain, no saturation, one `a`/`Q`. Only one seed per configuration, so differences under ~1% are not resolved. No claim is made about real sensors. Next: dithered vs undithered sensors, a state-dependent gain (extended filter), and a quantization-aware filter.
