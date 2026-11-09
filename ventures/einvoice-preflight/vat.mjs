@@ -198,6 +198,7 @@ function classify(country, body) {
   if (country === "MX") return /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{2}[0-9A]$/.test(body) || body === "XAXX010101000" || body === "XEXX010101000" ? "checksum" : "bad-format";
 
   if (country === "KZ") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "UA") return /^\d{8}$/.test(body) ? "checksum" : /^\d{10}$/.test(body) ? "format" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
@@ -471,6 +472,23 @@ function kzBinOk(body) {
   return r !== 10 && r === d[11];
 }
 
+// Ukrainian EDRPOU (8 digits, legal entities): weights 1..7 (7,1..6 for 30000000-60000000)
+// mod 11; a remainder of 10 retries with each weight plus 2, and a second 10 means check 0.
+// The ten-digit RNOKPP of sole traders is shape-checked only. Pinned on five well-known
+// published EDRPOUs; the tax service's own text is unread.
+function uaEdrpouOk(body) {
+  const d = digitsOf(body);
+  const n = Number(body);
+  const base = n > 30000000 && n < 60000000 ? [7, 1, 2, 3, 4, 5, 6] : [1, 2, 3, 4, 5, 6, 7];
+  const run = (w) => d.slice(0, 7).reduce((sum, x, i) => sum + x * w[i], 0) % 11;
+  let r = run(base);
+  if (r === 10) {
+    r = run(base.map((x) => x + 2));
+    if (r === 10) r = 0;
+  }
+  return r === d[7];
+}
+
 function checksumOk(country, body) {
   if (country === "DE") return deOk(body);
   if (country === "FR") return frOk(body);
@@ -502,6 +520,7 @@ function checksumOk(country, body) {
   if (country === "MX") return checkRfc(body).ok;
   if (country === "IN") return inGstinOk(body);
   if (country === "KZ") return kzBinOk(body);
+  if (country === "UA") return uaEdrpouOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;

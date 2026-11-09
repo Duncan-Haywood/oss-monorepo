@@ -144,7 +144,7 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (tax-id check digits for AU, NZ, RS, KR, IN, TR, BR, AR, PE, CL, CO, MX in vat.mjs (Mexico's RFC wired 2026-11-08; the normaliser keeps & and Ñ after an MX prefix; RFC rule still pinned to four known RFCs, SAT text unread); Turkey's VKN weights match a public implementation (2026-11-09), GIB text unread; Poland KSeF page from search excerpts, Sejm text
+      History: README and git (tax-id check digits for AU, NZ, RS, KR, IN, TR, BR, AR, PE, CL, CO, MX in vat.mjs (Mexico's RFC wired 2026-11-08; the normaliser keeps & and Ñ after an MX prefix; RFC rule still pinned to four known RFCs, SAT text unread); Turkey's VKN weights match a public implementation (2026-11-09); Ukraine's EDRPOU (8 digits) wired 2026-11-09, pinned on five well-known published numbers, tax service text unread, ten-digit RNOKPP shape only, GIB text unread; Poland KSeF page from search excerpts, Sejm text
       unread; UK page read against gov.uk 2026-10-30; South Korea from memory, NTS
       unread). Open: ZATCA rules on a real sandbox invoice and credit or debit
       note (both made up), the Saxon route; FatturaPA code lists (TD29, RF20) and
