@@ -112,6 +112,9 @@ const along = (/** @type {number} */ len, /** @type {number} */ sp) => Math.ceil
  * @param {{ walls: any[], sheathing?: any }} result the takeoff result (members placed per wall)
  */
 export function layoutFasteners(d, plan, result) {
+  if (!plan || typeof plan !== "object" || !result || typeof result !== "object" || !Array.isArray(result.walls)) {
+    throw new TypeError("layoutFasteners needs a plan and a takeoff result with a walls list");
+  }
   const errors = validateFasteners(d);
   if (errors.length) return { ok: false, errors };
   const c = { ...DEFAULTS, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v != null)) };

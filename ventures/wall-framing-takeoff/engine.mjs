@@ -412,6 +412,9 @@ export function openingGeometry(plan, wall, op) {
  * @param {Wall} wall
  */
 export function layoutWall(plan, wall) {
+  if (!plan || typeof plan !== "object" || !wall || typeof wall !== "object") {
+    throw new TypeError("layoutWall needs a plan object and a wall object");
+  }
   plan = planFor(plan, wall);
   if (wall.gable) return layoutGable(plan, wall);
   const L = wall.length;
