@@ -239,3 +239,21 @@ test("an opening moves to another wall, and bad moves change nothing", () => {
   assert.equal(sk.openings.filter((o) => o.wall === id2).length, 2);
   void b; void tiny; void w2;
 });
+
+test("opening edits refuse a NaN, text or infinite position instead of storing a NaN offset", async () => {
+  const s = await import("./sketch.mjs");
+  for (const bad of [NaN, Infinity, -Infinity, "x", null, undefined]) {
+    const sk = { walls: [], openings: [], nextId: 1 };
+    s.addWall(sk, { x: 0, y: 0 }, { x: 120, y: 0 });
+    s.addWall(sk, { x: 0, y: 0 }, { x: 0, y: 120 });
+    assert.equal(s.addOpening(sk, 1, "door", bad, 36).ok, false);
+    assert.equal(sk.openings.length, 0);
+    const ok = s.addOpening(sk, 1, "door", 60, 36);
+    assert.equal(ok.ok, true);
+    assert.equal(s.moveOpening(sk, ok.opening.id, bad).ok, false);
+    assert.equal(s.moveOpeningToWall(sk, ok.opening.id, 2, bad).ok, false);
+    assert.equal(s.resizeOpening(sk, ok.opening.id, "a", bad).ok, false);
+    assert.equal(sk.openings[0].offset, 42);
+    assert.equal(sk.openings[0].wall, 1);
+  }
+});
