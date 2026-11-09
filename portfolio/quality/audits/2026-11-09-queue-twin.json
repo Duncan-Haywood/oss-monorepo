@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-09",
+  "subject": "research/queue-twin",
+  "stratum": "research",
+  "seed": "2026-11-09",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "an applied-probability / queueing researcher (Whitt, Asmussen lineage) refereeing for a simulation or operations-research workshop; they would check first that the P-K algebra and Lindley simulation agree, that the heavy-tail and estimation claims are not textbook results restated, and that the 'fails most of the time' repair result is judged against the baseline a one-sided SLA implies",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran the 8 unit tests (OK, 1.5 s). Recomputed independently with my own event-style M/G/1 simulator (track server-free time, not the repo's Lindley loop) and closed forms, seeds not the repo's: (1) M/D/1 at rho=0.8, exact rho/(2(1-rho))=2.000, mine 1.993; (2) M/Gamma c2=4, rho=2/3, P-K 5.000, mine 4.967 (3e6 jobs); (3) M/lognormal c2=4 at the twin's load: mean 5.014 vs P-K 5.000, and P(W>twin t99=12.599)=0.1157 vs repo 0.1174 (11.7x claim, consistent); (4) exact-structure check of the tail machinery with M/H2/1 (c2=4) via the P-K geometric sum of equilibrium residuals: mean 4.998 (5.0); (5) hand algebra for the README capacities 2w/(1+c2+2w) at w=2: 0.667/0.444/0.286/0.133 and real waits 5/10/26 (2.5x/5x/13x) all correct; twin P99 ln(rho/0.01)/(1-rho)=12.60 correct; (6) the plug-in bias claim: my own 2000-repeat run of sample c2 on lognormal c2=4 gives median 1.77/2.45/3.09 at n=25/100/400 (repo 1.73/2.51/3.04) and violation 0.90/0.83/0.73 (repo 0.89/0.81/0.78; n=400 differs by about 2 se of the repo's 400 repeats). Re-ran experiments/run.py (rc 0): output byte-identical to experiments/results.txt. No wrong number found. Not independently checked: Pareto alpha<2 growth (qualitatively standard; repo sim only).",
+    "completeness": "Every item the README and whitepaper list was checked and works: P-K vs Lindley table (within 1 se in all 4 rows, verified from results.txt), over-admission table, P99 tail, Pareto infinite-variance growth, plug-in and bootstrap repair, figure admitted_load.svg exists, test count 8 matches, run.py reproduces results.txt exactly. research/README.md bullet present. Gaps: the 'Live page' https://marisstella.app/research/queue-twin/ returned HTTP 000 through the session proxy, so it could not be loaded here (unverified, not counted as broken); no TODOs or stubs found. The 'twin' is a formula plus a simulator, not a twin of any real instrument.",
+    "verification": "PYTHONPATH=src python3 -m unittest discover -s tests: 8 tests OK. Seeded three mutations in src/queue_twin/model.py and reverted each (git diff clean): (M1) pk_wait scales c2 by 0.8 when c2>1: 3 tests failed (caught); (M2) arrival rate in lindley() multiplied by 1.02: 1 test failed (caught); (M3) fit_c2 divides by n instead of n-1: 8 tests OK, NOT caught. fit_c2 is the estimator behind the headline negative result (section 4), and nothing tests that section: no test of rho_from_c2 on a known sample, of the t99/exp_tail value at rho=2/3, of Pareto scaling beyond the mean, or of run.py output (the 60 s script has no regression check; I confirmed manually it reproduces). Several Monte Carlo tests use loose deltas (c2 delta 0.6, wait delta 0.05-0.08). Most tests check P-K against itself (inversion, ratio identity), which cannot fail on an algebra error that is applied consistently.",
+    "craft": "Read src/queue_twin/model.py (83 lines), tests/test_model.py, experiments/run.py, figure.py (size only), pyproject.toml. Clean, dependency-free, readable, seeded, docstrings with formulas. Defects: no input validation, so pk_wait(1.5, 1) silently returns -3.0 and rho=1 raises ZeroDivisionError, admissible_rho accepts c2<-1; pareto_moments/sample_pareto accept alpha<=1 (mean infinite, xm<=0) without error; rho_from_c2, mean_wait_at and wait_exp are one-line aliases that add API surface only; lindley() materialises every wait in a list and run.py sorts 3e6 floats; the experiments hard-code the SLA and repeat counts at module level so nothing is importable; the plug-in violation event is computed as pk_wait(rho_hat,c2_true)>W with no tolerance.",
+    "claims": "Checked against files: the README headline numbers (0.667 / 0.444 / 0.286 / 0.133, 2.5x/5x/13x, 11.7%/20.5%, 3.8x/9.0x P99, 1.6->3.3->6.2 growth, 89/81/78/70% and 46%) each appear in experiments/results.txt, which run.py reproduces exactly. Limits and 'Stylised' disclosure are stated up front and in the whitepaper, with no lab data claimed and non-affiliation with the named groups stated. Weaknesses, none changing a number: (a) 'wrong most of the time' for the plug-in repair is partly a baseline artefact, since any estimator centred on the true capacity violates a one-sided mean-wait SLA about half the time; the paper never says so, and the part that is a finding is the bias, not the 89%; (b) 'needs far more than n=1600 to reach a nominal 10%' is extrapolated, the experiment stops at 1600; (c) 'the bootstrap cannot see tail mass the log did not contain' is asserted, not tested (no parametric or Hill-type comparator); (d) the Zhao et al. 2020 sim-to-real RL survey in References is not used anywhere in the text; (e) the title says 'up to 5x' (load ratio) while the body's largest headline is 13x (wait ratio), which is consistent but invites misreading.",
+    "fitness": "A researcher could build on the code and the P-K/Lindley validation, but the contribution is small: the (1+c2)/2 inflation of the mean wait relative to M/M/1 is the textbook P-K consequence, infinite mean wait for Pareto alpha<=2 is textbook, and the only new-looking piece, the repair experiment, is one estimator and one percentile bootstrap, with no better-calibrated alternative (Hill/tail-index fit, parametric lognormal fit, upper-confidence on the second moment) tried. No real service-time data. Nearest prior work (from knowledge, not fetched this session): Kingman's heavy-traffic approximation and Whitt's GI/G/1 approximations for variability sensitivity; Asmussen 2003 and the heavy-tailed-queue literature for infinite-variance behaviour; Schruben & Kulkarni 1982 and later input-uncertainty work (Zouaoui & Wilson; Barton) on parameter-estimation error propagating into queueing predictions. The repo's own framing, a lab-instrument digital twin, is the novelty claim, and it rests on a straw-man twin (a DES builder would sample the logged empirical service distribution, not assume exponential). A workshop-note at best; not a main-track result.",
+    "domain": "A queueing researcher would accept the method (P-K, Lindley recursion, batch-means standard errors, burn-in) as sound and the sims as correct. Departures: variance sensitivity of the M/G/1 wait is a known result and the paper does not position against Kingman, Whitt or the input-uncertainty literature (only a classical-citation list plus an unrelated RL survey); the burn-in of 5000 jobs at rho=0.7 with c2=4 is short for heavy-tailed autocorrelation (the batch-means se would reveal it, and agrees), but no warm-up diagnostics are shown; the Pareto 'keeps growing' evidence is median-of-5-seeds, with no tail-index estimate or confidence statement; the repair compares against no standard alternative (e.g. empirical second moment with a Cornish-Fisher or bootstrap-t bound). Method sound, framing and literature positioning below what a referee would pass."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The headline negative result (plug-in and bootstrap repair, section 4) has no test: mutating fit_c2 from n-1 to n leaves all 8 tests green. Core P-K tests largely check P-K against itself.",
+      "where": "research/queue-twin/tests/test_model.py (no test of fit_c2/rho_from_c2/repair); src/queue_twin/model.py:71-74"
+    },
+    {
+      "severity": "medium",
+      "what": "Repair result is presented as 'wrong most of the time' without the 50% baseline for a one-sided SLA with a median-centred estimator, and without a tail-aware comparator (Hill / parametric fit); 'needs far more than n=1600' is extrapolated beyond the tested range.",
+      "where": "research/queue-twin/paper/whitepaper.md section 4; README.md"
+    },
+    {
+      "severity": "medium",
+      "what": "Novelty is low: (1+c2)/2 inflation and infinite mean wait for alpha<=2 are textbook P-K/heavy-tail results, and the paper cites no variability-sensitivity or input-uncertainty literature (Kingman, Whitt, Schruben-Kulkarni); the 'exponential twin' is a straw man.",
+      "where": "research/queue-twin/paper/whitepaper.md (References)"
+    },
+    {
+      "severity": "low",
+      "what": "No input validation: pk_wait(1.5, 1) returns -3.0, rho=1 raises ZeroDivisionError, admissible_rho accepts c2<-1, sample_pareto accepts alpha<=1.",
+      "where": "research/queue-twin/src/queue_twin/model.py:11-15,22-24,46-53"
+    },
+    {
+      "severity": "low",
+      "what": "Zhao, Queralta & Westerlund (2020) sim-to-real RL survey is listed in References but not used; trivial alias functions (rho_from_c2, mean_wait_at, wait_exp) widen the API for no gain.",
+      "where": "research/queue-twin/paper/whitepaper.md; src/queue_twin/model.py:18,77-82"
+    },
+    {
+      "severity": "low",
+      "what": "Live page could not be loaded from the audit session (HTTP 000 via proxy), so the published page was not checked.",
+      "where": "https://marisstella.app/research/queue-twin/"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The numbers are right: I recomputed the P-K capacities, the 12.6 twin P99, the 11.7x tail miss and the c2-hat bias with independent code and closed forms (M/D/1, M/Gamma, M/H2/1 geometric-sum), and run.py reproduces results.txt byte for byte, so correctness, completeness and claims reach the bar. It does not meet the bar overall because verification scores 2: a seeded fit_c2 mutation (n-1 to n) survives all 8 tests, and the headline repair experiment is untested; two of three seeded mutations in the core formula and simulator were caught and all were reverted. The work is also thin as research: the central effect is the textbook P-K variability sensitivity, the repair experiment lacks a baseline and a tail-aware comparator, and the literature positioning (Kingman, Whitt, input-uncertainty) is missing, so fitness and domain score 2. A good, honest, reproducible teaching-grade note, not a publishable result as it stands. A small safe fix is to add validation to pk_wait/admissible_rho and tests that pin fit_c2 on a known sample and the t99/exp_tail value."
+}
