@@ -3,7 +3,7 @@ title: "What a tiring respondent does to a pairwise ranking"
 seo_title: "Pairwise ranking survey with respondent fatigue: measured effect"
 date: 2026-11-09
 tags: [quick-pick-survey, ranking, testing]
-description: "A simulated respondent answers well for 2000 comparisons, then half their answers turn random. The items already ranked hold at 0.98; the late ones fall to about 0.89."
+description: "A simulated respondent answers well for 2000 comparisons, then half turn random. Ranked items hold at 0.98; items admitted later fall to about 0.89."
 ---
 
 Quick Pick Survey ranks up to thousands of items from "which do you prefer?"
