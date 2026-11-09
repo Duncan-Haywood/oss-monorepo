@@ -11,6 +11,14 @@ Follow-up to `codesign-aero-cant-bound`, and five sibling READMEs that all defer
 - **The force costs position accuracy.** Re-scoring the force-aware designs with the force switched off improves them (J 3.33 to 2.61 at the 35° bound, 3.04 to 2.83 at 80°): the force is a disturbance the controller has to work around, not free authority. The sign comes from the layout: with this arm and spin assignment a positive roll torque pushes the vehicle the way a roll tilt would not (an unhelpful, non-minimum-phase-like axis) while pitch is the helpful axis.
 - **Cant still buys yaw, not position.** Against no cant, paired by seed and scored with the physical model, yaw RMS falls 5.8° (bound 35°) and 6.0° (bound 80°), better in 5 of 5 seeds each, and position RMS is unchanged within noise (+0.03 m and 0.00 m). The combined score J = √((pos/0.1 m)² + (yaw/10°)²) improves by 0.18 and 0.48, better in 3 and 4 of 5 seeds: weak. Three seeds at the 35° bound and two at 80° land on the same ~2.42 optimum (about 0.145 m, 19.5°), against 2.90 for the best no-cant seed, but the others stop in worse local optima (one seed per cell is above 5): the optimiser budget, not the physics, limits the seed-to-seed spread.
 
+## Restart check: how much of the seed noise was the optimiser? (2026-11-09)
+`experiments/run_restart.py` repeats the 3200-evaluation CMA-ES run with 8 seeds (not 5), then restarts it from each seed's best point (sigma 0.1, a further 3200 evaluations), physical model only, same 64 held-out episodes (`results_restart.txt`, simulated).
+- **Yaw is robust:** cant cuts yaw RMS by 5.5° (35° bound) and 5.2° (80°) before restart, 6.0° and 5.2° after, better in 8 of 8 paired seeds in every case.
+- **Position stays flat:** +0.06 m and +0.11 m before restart, -0.03 m and +0.10 m after; better in only 2 to 5 of 8 seeds.
+- **Restart helps the 35° bound most:** mean J 3.73 to 2.99 (no cant: 3.61 to 3.58), and the paired J gain over no cant goes from +0.12 (4 of 8 better) to -0.59 (6 of 8 better). Five of 8 seeds now sit at or near the 2.4 optimum. This supports the earlier weak J result, with the caveat that the gain comes as much from the no-cant arm failing to improve (its restart moves some seeds worse on held-out episodes, i.e. overfit to the 16 training episodes) as from cant improving.
+- **The 80° bound does not recover:** mean J 4.18 to 4.05, worse than no cant in 4 of 8 seeds; three seeds stay above 4. A wider cant range is harder to search in 12 dimensions at this budget; it is not shown to be a worse design.
+- Limit: 8 seeds, no significance test, restart selected on 16 training episodes. This does not address the model limits listed above.
+
 ## Method
 `src/codesign_aero_cant_poshold/aero.py`: the earlier model (sizing closure, attitude dynamics, gust, wide plant randomisation) plus `rollout_pos`: world position and velocity, perfect altitude hold (vertical force balances weight; the small vertical part of the lateral force is neglected), wind drag force 0.5 ρ A v|v| from the same gust that drives the torque, and the body lateral force from the *actual* (lagged, saturated) roll/pitch torque. An outer PID on noisy position (σ 0.02 m) and velocity (σ 0.05 m/s) turns the position error into roll/pitch references (small-angle, rotated by measured yaw, clipped at 20°); an inner PID tracks them. `couple=False` switches only the lateral force off. `rotor_layout` is the explicit four-rotor allocation used by the tests to verify the closed form and the yaw authority of `size`. Experiment (`experiments/run.py`): bound ∈ {0°, 35°, 80°} × (force in or out of the design loop) × 5 seeds; each trained design is scored on held-out episodes with the force both on and off. Same cost cap ($300) and clearance rule as the parents. No LLM is used.
 
@@ -30,7 +38,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 - Cost, mass, motor model, κ and plant ranges are inherited assumed fits. No hardware.
 
 ## Next steps
-Longer episodes with a wind step to test position drift; a PX4 or other full-stack software-in-the-loop check of the sign of the lateral force on both axes; compare at equal cost with a larger propeller or a yaw-only motor upgrade; seed the optimiser from the best design to remove the local-optimum noise.
+Longer episodes with a wind step to test position drift; a PX4 or other full-stack software-in-the-loop check of the sign of the lateral force on both axes; compare at equal cost with a larger propeller or a yaw-only motor upgrade; a larger training-episode set so restarts stop overfitting.
 
 ## Owner steps
 Measure sideways thrust from a 3D-printed canted-arm quad on a load cell while commanding roll torque. Not done here.
