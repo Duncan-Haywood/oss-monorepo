@@ -1,6 +1,6 @@
 ---
 title: "The 1976 warming acceleration: our break test finds the year but cannot confirm it"
-seo_title: "Slope break test on global temperature 1880-2024: 1976 found, not significant"
+seo_title: "Slope break test on global temperature: 1976 found, not significant"
 date: 2026-11-09
 tags: [changepoint-detector, negative-result, climate-data]
 description: "On 145 years of global temperature, the best slope split is 1976, but the test statistic is 1.8 against a bar of 8.4 (p 0.80)."
