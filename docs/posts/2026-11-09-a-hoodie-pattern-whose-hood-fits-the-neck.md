@@ -1,6 +1,6 @@
 ---
 title: "A hoodie pattern whose hood is sewn to a neck it was measured against"
-seo_title: "Free hoodie pattern generator: hood, kangaroo pocket, graded sizes, DXF and PDF"
+seo_title: "Free hoodie pattern generator: hood, pocket, graded sizes, DXF, PDF"
 date: 2026-11-09
 tags: [clothing-design-studio, tools, patterns]
 description: "The Clothing Design Studio now drafts a hoodie, hood and pocket included, with the hood's neck edge checked against the neck seam it joins."

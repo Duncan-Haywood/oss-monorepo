@@ -1,6 +1,6 @@
 ---
 title: "Shape checks for Albanian, Bosnian, Montenegrin, Macedonian and Icelandic tax IDs on e-invoices"
-seo_title: "Albania, Bosnia, Montenegro, North Macedonia, Iceland tax ID validator for e-invoices"
+seo_title: "Balkans and Iceland tax ID validator for e-invoices"
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id, balkans, iceland]
 description: "einvoice-preflight now flags malformed tax numbers for five more countries before an invoice is sent."
