@@ -280,6 +280,8 @@ function classify(country, body) {
   if (country === "ME") return /^\d{8}$/.test(body) ? "format" : "bad-format";
   if (country === "MK") return /^\d{13}$/.test(body) ? "format" : "bad-format";
   if (country === "IS") return /^\d{5,6}$/.test(body) ? "format" : "bad-format";
+  // China unified social credit code (GB 32100-2015): 18 characters, 0-9 and A-Y without I, O, S, V, Z.
+  if (country === "CN") return /^[0-9A-HJ-NP-RT-UW-Y]{18}$/.test(body) ? "checksum" : "bad-format";
   if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
   if (country === "MD") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "GE") return /^(\d{9}|\d{11})$/.test(body) ? "format" : "bad-format";
@@ -645,6 +647,17 @@ function byUnpOk(body) {
   return String(sum % 11) === body[8];
 }
 
+// China unified social credit code, 18 characters: the last is a check character. Each of the first 17
+// maps to its index in 0-9A-Y (no I, O, S, V, Z); weights 1,3,9,27,19,26,16,17,20,29,25,13,8,24,10,30,28;
+// check = (31 - sum mod 31) mod 31. Rule from the national standard GB 32100-2015 as reproduced by
+// python-stdnum cn.uscc; the standard's own text is unread.
+const CN_USCC = "0123456789ABCDEFGHJKLMNPQRTUWXY";
+function cnUsccOk(body) {
+  const w = [1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28];
+  const sum = w.reduce((a, x, i) => a + x * CN_USCC.indexOf(body[i]), 0);
+  return CN_USCC[(31 - (sum % 31)) % 31] === body[17];
+}
+
 // Taiwan GUI (統一編號), 8 digits: weights 1,2,1,2,1,2,4,1, each product's digits added;
 // valid when the total is a multiple of 5 (the divisor since 2023; it was 10), and a 7 in
 // the seventh place also accepts total + 1. Open-source rule (python-stdnum tw.ubn); the
@@ -718,6 +731,7 @@ function checksumOk(country, body) {
   if (country === "MD") return mdIdnoOk(body);
   if (country === "AZ") return azVoenOk(body);
   if (country === "BY") return byUnpOk(body);
+  if (country === "CN") return cnUsccOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;
