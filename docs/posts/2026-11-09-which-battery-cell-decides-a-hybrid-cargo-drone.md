@@ -1,9 +1,9 @@
 ---
 title: "Which battery cell decides when a hybrid cargo drone beats a battery one?"
-seo_title: "Hybrid vs battery cargo VTOL break-even range by Li-ion cell (Molicel P42A to P50S)"
+seo_title: "Hybrid vs battery cargo VTOL break-even by Li-ion cell"
 date: 2026-11-09
 tags: [research, aerolog-scaling, uav, hybrid-electric]
-description: "In our cargo VTOL sizing model, swapping between four published Molicel 21700 cells moves the range where a hybrid starts to beat a battery aircraft from 44 km to 22 km."
+description: "In our cargo VTOL sizing model, four published Molicel 21700 cells move the hybrid-versus-battery break-even range from 44 km down to 22 km."
 ---
 
 Earlier milestones of the aerolog-scaling programme found that one input, the
