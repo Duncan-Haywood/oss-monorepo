@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 10r: does coupling pack peak power to cell energy density change the break-even? (predictions in `vtol_sizing/correlated_pack.py`'s docstring, fixed before the run)
+- Why: 10n's "Next" and its limit "uniform independent inputs; peak power and cell energy density are anticorrelated". `experiments/vtol_sizing/correlated_pack.py` couples p_batt and e_cell with a Gaussian copula at rank correlation rho = -0.9 to +0.3 (marginals unchanged on 10m's ranges; N = 4,000, seed 7, stdlib, about 1 minute). rho is swept, not measured: the four Molicel cells of 10o are too few to fit it.
+### Outcome (`experiments/vtol_sizing/correlated_pack_results.txt`)
+- Median break-even 40 km at rho = -0.9, -0.6, -0.3 and 0, 38 km at +0.3; p10 to p90 is 24 to 68 km at -0.9 and 22 to 68 km at the others. **P1 held** (moves 2 km, bar 6). **P2 held** (width 44 against 46 km, 4%). **P3 held** (40 against 40 km).
+- Reading: the independence assumption in 10m and 10n does not change the break-even distribution; the energy side of the pack does not bind at these ranges, so the p_batt-e_cell trade-off cannot move the result. The conclusion that pack peak power decides it stands.
+- Limits: Gaussian copula only; rho swept; ranges are 10m's, not sourced; the other model limits of 10j to 10k apply. Preliminary. `paper/check_numbers.py` and Section 4.14 are not yet updated for this result.
+- Next: add 10r to Section 4.14 and `check_numbers.py`; source engine specific power and a continuous-discharge curve when a host answers.
+
 ## 2026-11-09 · Milestone 10q: paper draft catches up with milestones 10m to 10p (no new simulation)
 - New Section 4.14 of `paper/draft.md` reports the global and total-effect sensitivity runs and the Molicel-cell and derating sweeps; `paper/check_numbers.py` gains 7 results-file checks (all pass). Data hosts (NTRS, Molicel, Limitless, RCGroups) all returned no answer through the proxy again, so engine specific power and continuous-discharge curves are still unsourced.
 - Next: source engine specific power and a continuous-discharge curve when a host answers; a correlated p_batt-e_cell rerun of 10n.
