@@ -1,6 +1,7 @@
 ---
 title: "Stacking floors survived hostile plans"
 seo_title: "Wall framing takeoff: --stack hostile input check"
+description: "Probing the --stack floor-stacking code with hostile plans found no crash; five tests now pin the behaviour."
 date: 2026-11-09
 tags: [wall-framing-takeoff, testing]
 ---
