@@ -1,9 +1,9 @@
 ---
 title: "Choosing the simplex row by its norm cut a lumber-order solve by a third"
-seo_title: "Cutting stock LP: dual steepest edge speeds up whole-house lumber optimisation"
+seo_title: "Dual steepest edge speeds up cutting-stock lumber optimisation"
 date: 2026-11-09
 tags: [wall-framing-takeoff, cutting-stock, optimization]
-description: "A one-rule change in the dual simplex inside a framing lumber optimiser took a 950-piece order from 1.9 s to 1.4 s with the result still within 0.06% of the LP bound."
+description: "A one-rule change in the dual simplex of a framing lumber optimiser took a 950-piece order from 1.9 s to 1.4 s, still within 0.06% of the LP bound."
 ---
 
 The wall-framing takeoff orders lumber for a whole house with a
