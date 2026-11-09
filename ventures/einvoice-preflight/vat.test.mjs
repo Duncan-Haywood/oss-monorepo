@@ -263,4 +263,15 @@ test("Guatemalan NIT check character (hand-computed, not registered NITs)", () =
   assert.deepEqual(rules("GT123456"), ["INV-023"]);
   assert.deepEqual(rules("GT23-1"), ["INV-023"]);
   assert.deepEqual(rules("GT1"), ["INV-022"]);
+
+test("Uruguay RUT and Vietnam MST check digits reach the party VAT check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // Published examples: Antel's RUT (uruguay.test.mjs) and python-stdnum's MST example.
+  assert.deepEqual(rules("UY211003420017"), []);
+  assert.deepEqual(rules("UY211003420018"), ["INV-023"]);
+  assert.deepEqual(rules("UY21100342001"), ["INV-022"]);
+  assert.deepEqual(rules("VN0100233488"), []);
+  assert.deepEqual(rules("VN0100233488001"), []);
+  assert.deepEqual(rules("VN0100233489"), ["INV-023"]);
+  assert.deepEqual(rules("VN01002334"), ["INV-022"]);
 });
