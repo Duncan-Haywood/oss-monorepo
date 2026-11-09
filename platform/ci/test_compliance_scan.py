@@ -66,6 +66,12 @@ class Scan(unittest.TestCase):
                    "<p>Jobber says it serves over 200,000 users (as of 2026-10).</p>")
         self.assertEqual(self.found("unsourced-competitor-figure"), ["ventures/a/vs-jobber.html"])
 
+    def test_competitor_professional_count_is_found_too(self):
+        self.write("ventures/a/vs-housecall-pro.html",
+                   "<p>It is used by over 200,000 field service professionals.</p>")
+        self.assertEqual(self.found("unsourced-competitor-figure"),
+                         ["ventures/a/vs-housecall-pro.html"])
+
     def test_real_key_is_found_and_placeholders_are_not(self):
         self.write("infra/notes.md", f"key = {REAL_AWS}\n")
         self.write("docs/example.md", "AKIAIOSFODNN7EXAMPLE and sk-ant-api03-" + "x" * 40 + "\n")
