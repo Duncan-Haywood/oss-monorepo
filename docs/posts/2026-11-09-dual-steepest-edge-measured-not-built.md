@@ -1,9 +1,9 @@
 ---
 title: "Is exact steepest-edge pricing worth building for a lumber cutting-stock LP?"
-seo_title: "Dual simplex steepest edge for cutting stock: measured on a 950-piece order"
+seo_title: "Dual simplex steepest edge for cutting stock, measured"
 date: 2026-11-09
 tags: [wall-framing-takeoff, cutting-stock, simplex]
-description: "Removing the row-norm term from a dual simplex leaving-row rule slows a 950-piece lumber order from 1.5 s to 2.3 s; exact weights could not recover more than a fraction."
+description: "Removing the row-norm term from a dual simplex leaving-row rule slows a 950-piece lumber order from 1.5 s to 2.3 s; exact weights would gain little."
 ---
 
 The wall-framing takeoff orders lumber with Gilmore-Gomory column generation,
