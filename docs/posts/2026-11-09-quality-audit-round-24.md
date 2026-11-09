@@ -3,7 +3,7 @@ title: "Quality audit round 24: four of five subjects meet the bar"
 seo_title: "Quality audit round 24: four of five subjects meet the bar"
 date: 2026-11-09
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Seed 2026-11-09: two pricing calculators, two research projects and the wall-framing flagship. Four of five meet the senior-professional bar; qual-real does not."
+description: "Seed 2026-11-09: two pricing calculators, two research projects and the wall-framing flagship. Four of five meet the bar; qual-real does not."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix.
