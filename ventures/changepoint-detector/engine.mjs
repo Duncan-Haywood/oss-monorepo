@@ -2001,6 +2001,19 @@ export function analyze(input = {}) {
     const fg = fisherG(stepResiduals(values, p.changepoints));
     if (fg.p < 0.01 && fg.period >= 3) cycleWarning = `The residuals about these ${p.changepoints.length} steps carry a periodic component (peak at about ${round(fg.period, 1)} points, p ${fg.p < 1e-4 ? '< 0.0001' : round(fg.p, 4)}), so some steps may be a cycle read as regime changes, not separate changes: on sunspots (an 11-year cycle) the default found 46 steps and none were real. If the period is known, give it with --period; otherwise read the dates with care.`;
   }
+  // a spike: a segment of at most 3 points between two segments whose levels agree (within a third of the excursion) and
+  // which sits more than 4 noise sds off them is an outlier cut out as a pair of steps (gold 2026-11-09, README). A label for
+  // the reader, not a test; mean and meanvar models only.
+  let spikes = [];
+  if ((model === 'mean' || model === 'meanvar') && !period && isFinite(sigma) && sigma > 0) {
+    for (let k = 1; k + 1 < segments.length; k++) {
+      const s = segments[k], a = segments[k - 1], c = segments[k + 1];
+      if (s.n > 3 || a.n < 5 || c.n < 5) continue;
+      const nb = (a.mean * a.n + c.mean * c.n) / (a.n + c.n), size = s.mean - nb;
+      if (Math.abs(size) > 4 * sigma && Math.abs(a.mean - c.mean) < Math.abs(size) / 3) spikes.push({ from: s.from, to: s.to, startIndex: s.start, endIndex: s.end, size: round(size), sizeInNoiseSds: round(size / sigma, 1) });
+    }
+  }
+  const spikeWarning = spikes.length ? `${spikes.length === 1 ? 'One short segment looks' : `${spikes.length} short segments look`} like ${spikes.length === 1 ? 'an outlier' : 'outliers'} rather than ${spikes.length === 1 ? 'a regime' : 'regimes'}: ${spikes.map((s) => `${s.from === s.to ? s.from : `${s.from} to ${s.to}`} (${s.size > 0 ? '+' : ''}${s.size}, ${Math.abs(s.sizeInNoiseSds)} noise sds off its neighbours)`).join('; ')}. The level before and after agree, so the pair of changes around ${spikes.length === 1 ? 'it is' : 'each is'} probably one bad point: check the data point, or drop it and re-run.` : null;
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -2046,6 +2059,7 @@ export function analyze(input = {}) {
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(driftWarning ? { driftWarning } : {}),
     ...(cycleWarning ? { cycleWarning } : {}),
+    ...(spikeWarning ? { spikeWarning, spikes } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
