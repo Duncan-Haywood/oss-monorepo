@@ -1,6 +1,6 @@
 ---
 title: "When the autocorrelation fix erases a real step: Canada's baby boom"
-seo_title: "Changepoint detection on Canadian fertility 1931-1968: --ar1 finds no change"
+seo_title: "Changepoints in Canadian fertility 1931-1968: --ar1 finds none"
 date: 2026-11-09
 tags: [changepoint-detector, time-series, real-data]
 description: "On Canada's fertility rate, every changepoint model that may cut dates the 1946 baby boom, but the autocorrelation correction finds no change at all."
