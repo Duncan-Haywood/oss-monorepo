@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 107: "skip r1, keep 8" survives smaller pools, but its edge over the 105 schedule is within noise (no flow run)
+- Why: milestone 106 left open whether (50, 8, 8) only wins because F = 50 is the whole pool. Predictions (written first, in `pilot_cert_sched_poolsize.py`): (1) skip-r1 has mean regret at most the 105-style schedule's plus 0.3 points at every pool size; (2) its regret rises as the pool shrinks (N = 20 above N = 40); (3) it beats random routing of 8 points at every N.
+- **Outcome** (`experiments/theory/pilot_cert_sched_poolsize.py`, `pilot_cert_sched_poolsize_results.txt`, `tests/test_pilot_cert_sched_poolsize.py`; 20 random subsets per cell and design, 20 tie-break draws each, regret against the subsample minimum). Skip-r1 against the 105-style (0.7N, 16, 8): N = 20 0.45% vs 0.73%, N = 30 0.92% vs 1.19%, N = 40 1.00% vs 1.06%; random routing of 8: 3.39, 4.41, 4.77%. (1) held. (3) held. (2) **refuted**: regret falls with N because routing 8 of 20 covers a larger share of the pool, so the minimum is easier to hit; the quantity is not comparable across N.
+- Reading: skip-r1 is never worse by more than the margin, but better in only 6, 5 and 5 of 10 designs at the three sizes, so the advantage is a small mean shift carried by few designs, as in 106. Nothing here argues against it; nothing makes it a clear win.
+- Limits: subsamples of the same 50-point pools (not new pools), so pool sizes above 50 are untested; 20 subsets, not a bootstrap over designs; the 0.7N cap is one choice of first keep; cost not re-priced.
+- Next: detail-routed mult24/mult32 cells (about 12 core-hours per cell); a fresh pool larger than 50.
+
 ## 2026-11-09 · Milestone 106: choosing the keeps by leave-one-design-out lands on "skip r1, keep 8", and holds up (no flow run)
 - Why: 105's schedules were picked after seeing the table, so its regret comparison was in-sample (its own limit). Predictions (written first, in `pilot_cert_sched_lodo.py`): (1) the held-out mean regret of the grid-selected schedule is at most the 105 schedule's plus 0.5 points; (2) it exceeds the in-grid oracle's by at least 0.2 points; (3) the choice differs between folds.
 - **Outcome** (`experiments/theory/pilot_cert_sched_lodo.py`, `pilot_cert_sched_lodo_results.txt`, `tests/test_pilot_cert_sched_lodo.py`; grid F in 16/25/35/50, M in 8/16, K in 3/5/8, 100 draws per cell, mean over both clocks, selection on the other nine designs). (1) held: 0.95% selected against 1.17% for (35, 16, 8). (2) **refuted narrowly**: oracle 0.77%, gap 0.18 points. (3) **refuted**: all ten folds choose (50, 8, 8).
