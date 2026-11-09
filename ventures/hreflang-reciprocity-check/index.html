@@ -192,7 +192,7 @@ node check.mjs https://example.com/en/ --max-alternates 20</pre>
             <button type="button" class="small secondary paste-toggle" data-index="${index}">Paste HTML instead</button>
             <p class="status-note fetch-status" data-index="${index}"></p>
             <div class="alt-manual" data-index="${index}">
-              <textarea class="small alt-html" data-index="${index}" spellcheck="false" placeholder="Paste ${escapeHtml(r.href)}'s HTML here..."></textarea>
+              <textarea aria-label="HTML of the alternate page" class="small alt-html" data-index="${index}" spellcheck="false" placeholder="Paste ${escapeHtml(r.href)}'s HTML here..."></textarea>
               <button type="button" class="small use-pasted" data-index="${index}">Use this HTML</button>
             </div>
           ` : ''}

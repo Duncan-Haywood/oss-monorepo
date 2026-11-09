@@ -162,10 +162,10 @@ spec:
       wrap.className = "file-block";
       wrap.innerHTML = `
         <div class="file-block-head">
-          <input type="text" class="fname" placeholder="deployment.yaml" value="${escapeHtml(name)}">
+          <input type="text" class="fname" aria-label="File name" placeholder="deployment.yaml" value="${escapeHtml(name)}">
           <button type="button" class="secondary small remove-file">Remove</button>
         </div>
-        <textarea class="ftext" spellcheck="false" placeholder="Paste the Kubernetes manifest here"></textarea>
+        <textarea aria-label="Paste the Kubernetes manifest here" class="ftext" spellcheck="false" placeholder="Paste the Kubernetes manifest here"></textarea>
       `;
       wrap.querySelector(".ftext").value = text;
       wrap.querySelector(".remove-file").addEventListener("click", () => {
