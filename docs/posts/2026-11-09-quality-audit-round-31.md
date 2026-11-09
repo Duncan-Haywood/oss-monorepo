@@ -1,6 +1,6 @@
 ---
-title: "Quality audit round 31 (a second audit of round 30's subjects): none of four sampled subjects meets the bar"
-seo_title: "Quality audit round 31 (a second audit of round 30's subjects): none of four sampled subjects meets the bar"
+title: "Quality audit round 31: a second audit of round 30, none meets the bar"
+seo_title: "Quality audit round 31: a second look, none meets the bar"
 date: 2026-11-09
 tags: [quality-audit, evaluation, testing, research]
 description: "A second, independent audit of round 30's five subjects: none meets the bar, and it disagrees with the first on rank-elicitation (a factor-of-4 error)."
