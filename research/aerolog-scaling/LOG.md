@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 10p: how far below its maximum rating must a cell's continuous discharge fall before the hybrid's break-even leaves the tens of km? (predictions in `vtol_sizing/derated_cells.py`'s docstring, fixed before the run)
+- Why: 10o's "Next" was the continuous-discharge curve. Every data host (molicel.com, engine makers) returned a proxy 403 this session, so nothing could be read; this is a sweep of the maximum current by a derating d, not a sourced result.
+### Outcome (`experiments/vtol_sizing/derated_cells_results.txt`)
+- Base-case break-even (km) at d = 1 / 0.75 / 0.5 / 0.33 / 0.25: P42A 44 / 58 / 86 / 130 / 170; P45B 42 / 56 / 82 / 124 / 164; P50B 32 / 42 / 64 / 94 / 124; P50S 22 / 28 / 40 / 60 / 78.
+- **P1 held** (reproduces 10o). **P2 held** (monotone for all four). **P3 refuted:** at d = 0.5 the P50S is at 40 km, not above 60, and at d = 0.25 only two of four cells pass 150 km.
+- Reading: break-even roughly doubles for every halving of the continuous rating, and the P50S, the cell with the lowest break-even, stays under 80 km even at a quarter of its maximum. The ordering of cells never changes.
+- Limits: d is swept, not read from a datasheet; the other base-case inputs (engine 1 kW/kg, kpack 0.7) are 10o's assumptions. Preliminary.
+- Next: read the continuous-discharge curve when a host answers; source engine specific power.
+
 ## 2026-11-09 · Milestone 10o: break-even range with pack inputs from manufacturer cell specifications (predictions in `vtol_sizing/sourced_cells.py`'s docstring, fixed before the run)
 - Why: 10n's "Next" (source the ranges that matter). Manufacturer hosts answered this session. `experiments/vtol_sizing/sourced_cells.py` reads Molicel's published energy density, current rating and mass for four 21700 cells (P42A, P45B, P50B, P50S) and feeds each as a paired (e_cell, p_batt), so the anticorrelation 10n ignored is now in the inputs. Pack power = rated max current x 3.6 V / cell mass x kpack 0.7.
 ### Outcome (`experiments/vtol_sizing/sourced_cells_results.txt`)
