@@ -1,6 +1,6 @@
 ---
 title: "Sales exports say 'noon' and 'Thursday 2 PM': the shift builder now reads both"
-seo_title: "Hourly sales export to staff schedule: noon, midnight, weekday-and-hour cells"
+seo_title: "Sales export to staff schedule: noon, midnight, weekday-hour cells"
 date: 2026-11-09
 tags: [shift-roster-builder, scheduling, pos]
 description: "The sales-to-shifts reader in shift-roster-builder now accepts noon, midnight and a weekday name leading the hour in one cell."
