@@ -53,6 +53,7 @@
       <div><label for="hemCm">Hem allowance cm</label><input id="hemCm" type="number" min="0" max="10" step="0.1" value="2.5"></div></div>
       <label for="capEaseCm">Sleeve cap ease cm (knit: 0 to 2)</label><input id="capEaseCm" type="number" min="0" max="10" step="0.1" value="1">
       <p><button id="dl-dxf" type="button">Download DXF (this size)</button> <button id="dl-all" type="button">Download DXF (all sizes)</button></p>
+      <p><label>Paper <select id="paper"><option value="a4">A4</option><option value="letter">US Letter</option></select></label> <button id="dl-pdf" type="button">Download tiled PDF for a home printer (1:1)</button></p>
     </section>
     <section><h2>Pieces</h2><output id="result" aria-live="polite"></output></section>
   </div>
@@ -71,6 +72,7 @@
   </footer>
   <script type="module">
     import { draft, grade, pieceSvg, gradeSvg, dxf, checkText } from "./pattern.mjs";
+    import { tiledPdf } from "./tiledpdf.mjs";
     import { recordUsage } from "./usage.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -96,6 +98,14 @@
     }
     $("#dl-dxf").addEventListener("click", () => { save(`${$("#garment").value}-${$("#size").value}.dxf`, dxf(draft($("#garment").value, $("#size").value, opts())), "application/dxf"); recordUsage("pattern_dxf"); });
     $("#dl-all").addEventListener("click", () => { const gr = grade($("#garment").value, null, opts()); if (gr.ok) save(`${$("#garment").value}-graded.dxf`, dxf(gr.drafts), "application/dxf"); recordUsage("pattern_dxf"); });
+    $("#dl-pdf").addEventListener("click", () => {
+      const g = $("#garment").value, z = $("#size").value, d = draft(g, z, opts());
+      if (!d.ok) return;
+      const r = tiledPdf(d.pieces.map(p => ({ ...p, size: z })), { paper: $("#paper").value, title: `${g} ${z}` });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([Uint8Array.from(r.pdf, c => c.charCodeAt(0))], { type: "application/pdf" }));
+      a.download = `${g}-${z}-tiled.pdf`; document.body.appendChild(a); a.click(); a.remove(); recordUsage("pattern_pdf");
+    });
     document.querySelectorAll("section select, section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("pattern_check"); }));
     render(); recordUsage("pattern_open");
   </script>
