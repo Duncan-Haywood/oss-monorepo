@@ -309,3 +309,18 @@ test("Indonesia NPWP shape reaches the party VAT check", () => {
   assert.deepEqual(rules("ID123456789012345"), []);
   assert.deepEqual(rules("ID12345"), ["INV-022"]);
 });
+
+test("Taiwan GUI and Thailand TIN check digits reach the party VAT check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // 04595257: 0+8+5+9+5+4+2+7 = 40, a multiple of 5. Hand-computed, not checked against the registry.
+  assert.deepEqual(rules("TW04595257"), []);
+  assert.deepEqual(rules("TW04595258"), ["INV-023"]);
+  assert.deepEqual(rules("TW0459525"), ["INV-022"]);
+  // Seventh digit 7 also accepts total + 1: 10000073 totals 14 (15 is a multiple of 5); 10000072 totals 13 (14): refused.
+  assert.deepEqual(rules("TW10000073"), []);
+  assert.deepEqual(rules("TW10000072"), ["INV-023"]);
+  // Thailand: 0105536112014 -> sum of first 12 weighted 13..2 is 7 mod 11, check (11-7) mod 10 = 4.
+  assert.deepEqual(rules("TH0105536112014"), []);
+  assert.deepEqual(rules("TH0105536112015"), ["INV-023"]);
+  assert.deepEqual(rules("TH010553611201"), ["INV-022"]);
+});

@@ -16,12 +16,32 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Joseph and the Dream in the Night</title>
+      <link>https://example.invalid/hearth-and-horizon/joseph-and-the-dream-in-the-night.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/joseph-and-the-dream-in-the-night.html</guid>
+      <pubDate>Mon, 09 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Joseph, the carpenter of Nazareth, who listened, got up in the night and did what he was asked, as the Gospels tell it. Scripture is told straight, with small invented details marked, and a note for grown-ups on what is recorded and what is ours. For ages 3 to 8, about nine minutes read aloud. His feasts are the 19th of March and the 1st of May. Setting: Nazareth, Bethlehem and Egypt, about two thousand years ago. Read the full text at https://example.invalid/hearth-and-horizon/joseph-and-the-dream-in-the-night.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Joseph, the carpenter of Nazareth, who listened, got up in the night and did what he was asked, as the Gospels tell it. Scripture is told straight, with small invented details marked, and a note for grown-ups on what is recorded and what is ours. For ages 3 to 8, about nine minutes read aloud. His feasts are the 19th of March and the 1st of May.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Six Hundred Grams of Flour</title>
       <link>https://example.invalid/hearth-and-horizon/six-hundred-grams-of-flour.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/six-hundred-grams-of-flour.html</guid>
       <pubDate>Mon, 09 Nov 2026 12:00:00 GMT</pubDate>
       <description>A leak ruins most of a lunar station's altar-bread flour, and the freight ship is late again. The station's greenhouse assistant shows the priest how long six hundred grams lasts, what three square metres of wheat under lamps would cost, and which Masses can wait for the harvest. Setting: Cabeus Rim Station (invented), the lunar south pole, Sun 12 Dec 2094. Read the full text at https://example.invalid/hearth-and-horizon/six-hundred-grams-of-flour.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
       <itunes:summary>A leak ruins most of a lunar station's altar-bread flour, and the freight ship is late again. The station's greenhouse assistant shows the priest how long six hundred grams lasts, what three square metres of wheat under lamps would cost, and which Masses can wait for the harvest.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
+      <title>The Flame That Is a Ball</title>
+      <link>https://example.invalid/hearth-and-horizon/the-flame-that-is-a-ball.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-flame-that-is-a-ball.html</guid>
+      <pubDate>Mon, 09 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A crew of fourteen wants candles for the Easter Vigil, and the station's assistant has the arithmetic. In free fall a flame goes out in still air, fourteen candles would add half again to the chapel's carbon dioxide and nearly double its heat, and the smoke detector cannot tell a vigil from a fire. One candle, one watcher and fourteen small lamps is the plan, and the question the priest cannot answer is whether it is enough. Setting: Chapel of Saint Florian, Wren Station, low Earth orbit (invented), Holy Saturday, 7 April 2091. Read the full text at https://example.invalid/hearth-and-horizon/the-flame-that-is-a-ball.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A crew of fourteen wants candles for the Easter Vigil, and the station's assistant has the arithmetic. In free fall a flame goes out in still air, fourteen candles would add half again to the chapel's carbon dioxide and nearly double its heat, and the smoke detector cannot tell a vigil from a fire. One candle, one watcher and fourteen small lamps is the plan, and the question the priest cannot answer is whether it is enough.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>
