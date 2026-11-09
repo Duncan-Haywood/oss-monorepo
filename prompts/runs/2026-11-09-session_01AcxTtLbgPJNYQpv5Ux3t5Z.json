@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01AcxTtLbgPJNYQpv5Ux3t5Z",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T16:11:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14309",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/paper/DRAFT.md",
+      "issue": "Said jtse.utm.my was unreachable; it now serves the journal (issue/view/6, article 35), so host-blocked notes go stale between sessions."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "No post-merge CLAIM CHECK or pick_track re-run; step was under an hour."
+    }
+  ],
+  "writeups": "docs/posts/2026-11-09-a-wigley-hull-table-that-disagrees-with-its-own-area.md; research/marine-hull/LOG.md 3n",
+  "goal": null,
+  "notes": "Opened primary Table 5 of Ahmed et al. 2015: transcription exact, L=1 m, implied k -0.04; CFX columns imply 0.0771 m2 reference area. Tests pass, homepage build ok.",
+  "corrections": [],
+  "redteam": null
+}
