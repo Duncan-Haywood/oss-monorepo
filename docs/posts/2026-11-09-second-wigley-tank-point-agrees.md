@@ -1,6 +1,6 @@
 ---
 title: "Do two towing tanks agree on the Wigley hull's form factor?"
-seo_title: "Wigley hull form factor from two towing tanks: Michell theory and ITTC 1957"
+seo_title: "Wigley hull form factor from two towing tanks (Michell, ITTC 1957)"
 date: 2026-11-09
 tags: [research, marine-hull, ship-resistance]
 description: "A 4 m Wigley tank point (Ju 1983) implies a form factor of -0.06 to +0.01 over Michell and ITTC 1957, matching the 1 m result from another lab."
