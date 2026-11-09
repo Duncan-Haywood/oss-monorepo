@@ -1,7 +1,7 @@
 ---
 title: Restarting the optimiser confirms it: rotor cant buys yaw, not position
 date: 2026-11-09
-tags: [research, codesign, quadrotor]
+tags: [research, co-design, quadrotor]
 description: "Restarting the optimiser with 8 seeds shows rotor cant cuts quadrotor yaw error 5 to 6 degrees in every seed but leaves position hold unchanged, in simulation."
 ---
 
