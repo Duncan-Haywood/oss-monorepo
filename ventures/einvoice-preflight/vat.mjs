@@ -10,6 +10,8 @@ import { checkTurkishTaxId } from "./turkey.mjs";
 import { checkRfc } from "./mexico.mjs";
 import { checkRut as checkUruguayRut } from "./uruguay.mjs";
 import { checkMst } from "./vietnam.mjs";
+import { checkRuc as checkEcuadorRuc } from "./ecuador.mjs";
+import { checkRuc as checkParaguayRuc } from "./paraguay.mjs";
 
 const FORMAT_ONLY = {
   BG: [9, 10],
@@ -201,6 +203,8 @@ function classify(country, body) {
 
   if (country === "UY") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
   if (country === "VN") return /^\d{10}(\d{3})?$|^\d{12}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "EC") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "PY") return /^\d{6,10}$/.test(body) ? "checksum" : "bad-format";
   if (country === "KZ") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
   if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
   if (country === "UA") return /^\d{8}$/.test(body) ? "checksum" : /^\d{10}$/.test(body) ? "format" : "bad-format";
@@ -537,6 +541,8 @@ function checksumOk(country, body) {
   if (country === "IN") return inGstinOk(body);
   if (country === "UY") return checkUruguayRut(body).ok;
   if (country === "VN") return checkMst(body).ok;
+  if (country === "EC") return checkEcuadorRuc(body).ok;
+  if (country === "PY") return checkParaguayRuc(body).ok;
   if (country === "KZ") return kzBinOk(body);
   if (country === "UA") return uaEdrpouOk(body);
   if (country === "GT") return gtNitOk(body);
