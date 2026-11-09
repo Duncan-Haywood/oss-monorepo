@@ -287,6 +287,10 @@ The rule was written after the numbers in 4.7c and 4.7d were seen, so it is a de
 
 The per-type baseline interval is the narrowest in four of five sets, so the empirical table of 4.7 is already the right thing to publish for the interval, and neither the boosted model nor the flattened table improves on it there. Only Austin i2c shows no gap between the three. The boosted model's gain (4.1) is in the pinball loss at the quantiles, not in a tighter calibrated interval. This is one test year and two seeds with no bootstrap on width; the baseline's interval is wider than 80% in practice (coverage 0.82 to 0.89), so it is safe but not tight.
 
+### 4.7f Width intervals for the ship decision (session 60)
+
+A week-block bootstrap (2000 draws, `../src/width_boot.py`, `../results/width_boot_2024.json`) of the paired width difference, table minus per-type baseline, with the dequantised nonempty interval: Chicago a2i +62.6 days [55.3, 70.6], SF a2i +9.6 [9.0, 10.2], SF i2c +25.2 [23.1, 27.6], Austin a2i +4.6 [0.2, 9.3], Austin i2c -34.5 [-36.9, -32.1]. All five intervals exclude zero and agree in sign with the ship choice of 4.7e; Austin a2i is a near-tie. The bootstrap resamples test weeks only; the calibration quantile is held fixed, and there is one test year.
+
 ## 5 Limitations
 
 One test year (2024) for H3, H4, H5 (H1 and the neural comparison also run for 2022 and 2023); three seeds (two for conformal); one fixed

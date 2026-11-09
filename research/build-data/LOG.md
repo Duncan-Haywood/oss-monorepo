@@ -1,5 +1,22 @@
 # build-data log
 
+## Session 60, 2026-11-09: milestone 7i, week-block bootstrap of interval width (per-type baseline vs three-key table)
+
+Why: session 59 left "width intervals by bootstrap over weeks" open; its ship rule compared point widths. Fresh pull 2026-11-09 (all three hosts reachable), `python3 src/width_boot.py DIR --test-year 2024`, results in `results/width_boot_2024.json`, 2 unit tests.
+Prediction (written before the run): the baseline-vs-table width difference has a 95% interval excluding zero in every set, and the sign matches session 59's ship choice (baseline narrower in four sets, table in Austin i2c).
+Outcome (mean 80% width in days, dequantised nonempty CQR; difference = table minus baseline, 95% week-block bootstrap, 2000 draws):
+| set | baseline cov / width | table cov / width | diff [95% CI] |
+|---|---|---|---|
+| Chicago a2i | 0.885 / 55.3 | 0.825 / 117.9 | +62.6 [55.3, 70.6] |
+| SF a2i | 0.826 / 32.6 | 0.834 / 42.2 | +9.6 [9.0, 10.2] |
+| SF i2c | 0.844 / 373.5 | 0.837 / 398.8 | +25.2 [23.1, 27.6] |
+| Austin a2i | 0.823 / 156.1 | 0.825 / 160.6 | +4.6 [0.2, 9.3] |
+| Austin i2c | 0.839 / 324.1 | 0.836 / 289.6 | -34.5 [-36.9, -32.1] |
+- Prediction confirmed: all five intervals exclude zero and signs match session 59. Austin a2i is marginal (lower end 0.2 days on a width of 156), so "baseline narrower" there is barely distinguishable from a tie.
+- The point values reproduce session 58/59's coverages and widths to the logged digits, which checks the new script against the old run.
+- Limits: one test year, the bootstrap resamples weeks of one calibration fit (the calibration quantile is not re-drawn), post hoc ship rule unchanged.
+Next: a fourth city after a licence check; the full-model width interval.
+
 ## Session 59, 2026-11-09: milestone 7h, which interval to ship per city (post hoc rule, no new data)
 
 Why: sessions 54 to 58 left "decide the shipped prior per city" open. No feeds were pulled; this reads `results/prior_table3_cov_2024.json`.
