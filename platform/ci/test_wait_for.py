@@ -53,6 +53,27 @@ class WaitFor(unittest.TestCase):
         self.assertEqual(wait("/nonexistent/x.log", timeout=0, clock=lambda: 0.0, nap=nap), (False, []))
         self.assertFalse(wait_until("false", timeout=0, clock=lambda: 0.0, nap=nap))
 
+    def test_wait_polls_until_the_marker_appears_before_the_deadline(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            t = [0.0]
+            def nap(s):
+                t[0] += s
+                if t[0] >= 4:
+                    open(p, "w").write("DONE\n")
+            ok, lines = wait(p, timeout=10, interval=2, clock=lambda: t[0], nap=nap)
+            self.assertTrue(ok)
+            self.assertEqual(lines, ["DONE"])
+
+    def test_wait_pid_deadline_is_inclusive_and_polls(self):
+        def nap(_):
+            raise AssertionError("slept past the deadline")
+        self.assertFalse(wait_pid(1, timeout=0, clock=lambda: 0.0, nap=nap, alive=lambda p: True))
+        t = [0.0]
+        states = iter([True, True, False])
+        self.assertTrue(wait_pid(1, timeout=10, interval=2, clock=lambda: t[0],
+                                 nap=lambda s: t.__setitem__(0, t[0] + s), alive=lambda p: next(states)))
+
     def _main(self, *argv):
         out, err = io.StringIO(), io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
