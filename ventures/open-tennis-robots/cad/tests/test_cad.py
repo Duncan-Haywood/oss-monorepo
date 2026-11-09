@@ -181,6 +181,19 @@ class FeederParamsTest(unittest.TestCase):
         self.assertEqual(Feeder(ball_stiff_n_mm=15.0).launch_window()[2], "nip traction")
         self.assertEqual(Feeder(ball_stiff_n_mm=5.0).launch_window()[:2], (0.0, 0.0))
 
+    def test_plate_clearance_is_a_yaw_tolerance(self):
+        p = Feeder()
+        c = p.plate_clearance()
+        self.assertAlmostEqual(c["gap_mm"], 6.5)
+        self.assertAlmostEqual(c["run_mm"], 110 + 33.5 + p.nip_x)
+        self.assertAlmostEqual(math.tan(math.radians(c["yaw_tol_deg"])), c["gap_mm"] / c["run_mm"])
+        # slower ball: longer in the head, so the same sideways speed margin shrinks
+        self.assertLess(p.plate_clearance(18.0)["side_speed_ms"], c["side_speed_ms"])
+        self.assertAlmostEqual(c["side_speed_ms"], c["yaw_tol_deg"] and
+                               25.0 * math.tan(math.radians(c["yaw_tol_deg"])), places=6)
+        # wider plate gap, more yaw allowed
+        self.assertGreater(Feeder(plate_half_y=45.0).plate_clearance()["yaw_tol_deg"], c["yaw_tol_deg"])
+
     def test_launch_checks_tie_the_head_to_the_flight_model(self):
         p = Feeder()
         self.assertAlmostEqual(p.nip_len, 74.0, delta=0.5)
