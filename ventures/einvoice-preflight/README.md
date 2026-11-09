@@ -54,6 +54,8 @@ code, the XRechnung 3.x specification identifier, and a seller tax identifier.
 Off by default. JS (page and API) only; the Python CLI does not apply it yet.
 It is an offline observation, not the KoSIT validator.
 
+**Azerbaijan VOEN check digit (2026-11-09).** An `AZ` number of 10 digits now fails INV-023 unless the ninth digit equals the weighted sum of the first eight (4,1,8,6,2,7,5,3) mod 11 and the tenth is 1 or 2 (a remainder of 10 fits no digit, so such numbers are refused, as python-stdnum does). In `vat.mjs` only (`vat.py` does not cover AZ). Pinned on python-stdnum's three doctest numbers (1401555071 valid, 1401555081 bad digit, 1400057424 bad status); the Ministry of Taxes text is unread, and no real VOEN from an invoice was tried.
+
 **VAT check digits for Bulgarian 10-digit and Czech 10-digit numbers (2026-11-09).** A BG number of 10 digits (a natural person's EGN, a foreigner's number or the "other" form) now fails INV-023 unless one of the three public check-digit rules holds, so about a quarter of wrong last digits still pass; a CZ 10-digit birth number (individuals, born 1954 on) must have a valid month and day and a first nine digits that leave the last digit mod 11. 9-digit CZ numbers carry no check digit and stay shape-only. In `vat.mjs` and `vat.py`; pinned on python-stdnum's published EGN example and a mutation each; no authority text read.
 
 **VAT check digits for CY, MT and XI (2026-11-08).** Cyprus (check letter), Malta (mod 37) and Northern Ireland digit forms (mod 97, as GB) now fail INV-023 on a bad check digit, in `vat.mjs` and `vat.py`. Same sourcing as below: public algorithms from memory, one published example number and a mutation each; no authority text read.
