@@ -1850,3 +1850,11 @@ Monthly CO2, 1958-03 to 2026-09 (`data/co2-mauna-loa.csv`, 823 values, the inter
 - **Why.** The cycle is irregular: its length runs from 8 to 12 years and its peaks differ several-fold, so a fixed-length seasonal profile cannot absorb it. The residual is still cyclic.
 - **What does remove them:** `--ar1` (0 cuts, README "Two cyclic real series"), which treats the cycle as autocorrelation instead.
 - **Reading.** The warning's hint to give `--period` is right for a calendar cycle (12 months, 7 days) and weak for a biological or solar one. One series, no rate claimed; sunspots (11 years) not rerun with a period.
+
+## Gold prices: a random walk, and a bad data point (2026-11-09)
+
+`gold-price.test.mjs`, data `data/gold.csv` (forecast::gold, daily 1985-1989, 1074 priced days). No documented level shift; day 770 reads 593.7 against about 485 either side, a known data error (recalled from the forecasting literature, source unread).
+
+- **Levels:** the default mean model returns 113 changes, a staircase on a random walk (as on every drifting series here); `--ar1` brings it to 24. Cuts at 769 and 771 bracket the bad day, among the staircase.
+- **Daily log returns (%):** the mean model returns 7 cuts, including 769, 771 and 773 around day 770. `--model meanvar` gives 10; `--robust` and `--dispersion` 5; `--bootstrap` 2 (762 and 772). So on returns the penalty choice moves the count from 10 to 2; the bad day shows as a cut only in the mean model.
+- **Reading.** Difference a random walk first. A one-day outlier is reported as a pair of changes either side of it, not as an outlier: this tool has no spike flag for continuous series (the Poisson model has `--bursts`). One series, no rate claimed.

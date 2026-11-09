@@ -627,3 +627,10 @@ canada-fertility.csv: Canada total fertility rate 1931-1968 (carData::Hartnagel,
 - **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/datasets/co2-ppm/main/data/co2-mm-mlo.csv> (datahub.io `co2-ppm`, republishing NOAA GML).
 - **Licence:** ODC-PDDL packaging; underlying figures are public US government data. Kept as a test fixture with its source named.
 - **Used by:** `co2-mauna-loa.test.mjs`, README "Mauna Loa CO2".
+
+## gold.csv
+
+- **What:** daily gold price (US dollars), 1985-01-01 to 1989-03-31, 1108 rows (`day` index, `price`); 34 days are blank.
+- **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/forecast/gold.csv> (R `forecast::gold`; the `time` and `value` columns).
+- **Licence:** Rdatasets republishes the `forecast` package data (GPL-3 package); a price series is a fact, kept as a test fixture with its source named.
+- **Used by:** `gold-price.test.mjs`, README "Gold prices".
