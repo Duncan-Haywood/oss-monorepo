@@ -95,11 +95,13 @@ export function hourlySales(text, o = {}) {
   const skip = new Set((o.skipDates || []).map(isoKey));
   const halfLife = o.halfLife === undefined ? 0 : Number(o.halfLife);
   if (o.halfLife !== undefined && !(halfLife > 0)) throw new Error("half-life must be a positive number of weeks");
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  // Excel writes "sep=," as a first line when it saves a CSV for another locale; it is not a header.
+  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim()).filter((l, i) => !(i === 0 && /^"?sep=.?"?\s*$/i.test(l.trim())));
   const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), rows: 0, skipped: [], notes: [] };
   if (lines.length < 2) { out.notes.push("Needs a header row and at least one row of sales."); return out; }
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
-  const head = splitCsvRow(lines[0], sep).map(norm);
+  // "Net Sales (USD)" and "Sales [GBP]" are the column "Net Sales": a bracketed unit is dropped from a header.
+  const head = splitCsvRow(lines[0], sep).map((h) => norm(String(h).replace(/[(\[][^)\]]*[)\]]/g, " ")));
   const find = (k) => head.findIndex((h) => SYN[k].includes(h));
   const ix = { stamp: find("stamp"), day: find("day"), sales: find("sales"), clock: -1 };
   // A separate date column and time column ("Date,Time,Net Sales" is how many POS exports come): join them into one stamp.

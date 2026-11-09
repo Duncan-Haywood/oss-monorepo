@@ -166,3 +166,13 @@ test("noon, midnight and a weekday name leading the hour in one cell are read", 
   assert.equal(one.avg[3][14], 40);
   assert.equal(one.avg[4][14], 8);
 });
+
+test("an Excel sep= first line and a bracketed currency unit in the header are read past", () => {
+  const a = hourlySales("sep=,\nDate,Net Sales\n2026-03-05 14:00,100\n");
+  assert.equal(a.rows, 1);
+  assert.equal(a.avg[3][14], 100);
+  const b = hourlySales("Date,Net Sales (USD)\n2026-03-05 14:00,100\n");
+  assert.equal(b.rows, 1);
+  const c = hourlySales("Date,Sales [GBP]\n2026-03-05 14:00,100\n");
+  assert.equal(c.rows, 1);
+});
