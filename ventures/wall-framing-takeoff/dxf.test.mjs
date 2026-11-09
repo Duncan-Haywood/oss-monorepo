@@ -254,3 +254,12 @@ test("a door drawn 1.4 in from a wall end slides in to 3 in; a far one is left a
   assert.equal(r2.plan.walls[0].openings[0].offset, 204);
   assert.doesNotMatch(r2.notes.join(" "), /moved in to 3/);
 });
+
+test("planFromDxf treats null or non-object options as none (was a raw TypeError)", () => {
+  const base = planFromDxf(dxf(house()));
+  for (const bad of [null, 5, "x", [], NaN]) {
+    const r = planFromDxf(dxf(house()), bad);
+    assert.equal(r.ok, base.ok);
+  }
+  assert.equal(planFromDxf(null, null).ok, false);
+});
