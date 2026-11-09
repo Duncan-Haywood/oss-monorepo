@@ -1,0 +1,27 @@
+Milestone 6: delivery-drone hub throughput (pads, chargers, spare packs)
+
+A. Validation: single pad group, exponential service 180 s, 4 pads, mean wait vs Erlang C
+rho 0.50: simulated    15.8 s, Erlang C    15.7 s, error +0.6%
+rho 0.70: simulated    64.2 s, Erlang C    64.3 s, error -0.2%
+rho 0.85: simulated   207.2 s, Erlang C   206.8 s, error +0.2%
+
+B. Saturation throughput (flights/h), load time 120 s, pack share used 70%: analytic limit and simulated at 150% offered load
+pads chargers spares | charge-in-place limit | swap pad limit | swap charger limit | simulated swap (binding)
+   4        4      8 |                   9.8 |           80.0 |               10.7 |     10.7 (chargers)
+   4        8     12 |                   9.8 |           80.0 |               21.4 |     21.4 (chargers)
+   8        8     16 |                  19.7 |          160.0 |               21.4 |     21.4 (chargers)
+   8       16     24 |                  19.7 |          160.0 |               42.9 |     42.9 (chargers)
+   8        4     16 |                  19.7 |          160.0 |               10.7 |     10.7 (chargers)
+
+C. Spare packs: 8 pads, 8 chargers, offered load 90% of the binding limit; mean and p95 wait (s) vs spares
+spares   9: mean wait    789.9 s, p95   2804.7 s
+spares  10: mean wait    549.6 s, p95   2255.2 s
+spares  12: mean wait    372.3 s, p95   1905.8 s
+spares  16: mean wait    173.4 s, p95   1234.7 s
+spares  24: mean wait     37.3 s, p95     16.9 s
+spares  32: mean wait     12.2 s, p95      0.0 s
+
+D. Load time sweep (8 pads, 16 chargers, 24 spares): swap pad limit and charger limit flights/h
+T_load   60 s: pad limit  240.0, charger limit   42.9 -> binds: chargers
+T_load  120 s: pad limit  160.0, charger limit   42.9 -> binds: chargers
+T_load  300 s: pad limit   80.0, charger limit   42.9 -> binds: chargers
