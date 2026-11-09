@@ -650,6 +650,23 @@ class WriteupTest(PromptTestCase):
 
 
 class BackfillPrTest(unittest.TestCase):
+    def test_shallow_boundary_commit_is_not_trusted(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            src, dst = Path(d) / "src", Path(d) / "dst"
+            (src / "prompts" / "runs").mkdir(parents=True)
+            git = lambda *a, cwd=src: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                                                     cwd=cwd, check=True, capture_output=True)
+            git("init", "-q")
+            (src / "prompts" / "runs" / "a.json").write_text(json.dumps({"pr": None}))
+            git("add", "-A")
+            git("commit", "-qm", "unrelated (#999)")
+            (src / "x").write_text("x")
+            git("add", "-A")
+            git("commit", "-qm", "later (#1000)")
+            git("clone", "-q", "--depth=1", f"file://{src}", str(dst), cwd=Path(d))
+            self.assertEqual(promptctl.backfill_prs(dst / "prompts", write=False), [])
+
     def test_pr_number_comes_from_the_squash_subject(self):
         import subprocess
         with tempfile.TemporaryDirectory() as d:
