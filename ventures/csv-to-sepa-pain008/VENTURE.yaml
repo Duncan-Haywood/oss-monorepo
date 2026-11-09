@@ -31,3 +31,7 @@ owner: duncan
 # Liability: generates a file from the user's own list, no warranty, independent of every bank and the EPC, no promise the
 # bank accepts it, user holds the signed mandates, sends the pre-notification and confirms bank details. Reference data read
 # from memory of public sources.
+
+hypotheses:
+  - claim: "Club treasurers and small collectors will pick a collection date from the tool's TARGET-calendar warning (Good Friday, Easter Monday, 1 May, 25/26 Dec, weekends, under one business day of lead) rather than learning from a bank rejection; measured as the share of conversions whose date finding is raised and followed by a re-run with a different date."
+    status: untested

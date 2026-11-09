@@ -120,3 +120,30 @@ test("the sibling validator finds no errors in what this tool writes", { skip: !
     }
   }
 });
+
+import { easterSunday, targetClosedReason, nextTargetDay, addTargetDays } from "./calc.mjs";
+
+test("TARGET closing days: Easter dates, fixed holidays, weekends", () => {
+  assert.equal(easterSunday(2026).toISOString().slice(0, 10), "2026-04-05");
+  assert.equal(easterSunday(2027).toISOString().slice(0, 10), "2027-03-28");
+  const d = (s) => new Date(s + "T00:00:00Z");
+  assert.equal(targetClosedReason(d("2026-04-03")), "Good Friday");
+  assert.equal(targetClosedReason(d("2026-04-06")), "Easter Monday");
+  assert.equal(targetClosedReason(d("2026-12-25")), "Christmas Day");
+  assert.equal(targetClosedReason(d("2026-10-24")), "a weekend");
+  assert.equal(targetClosedReason(d("2026-10-26")), null);
+  assert.equal(nextTargetDay(d("2026-04-02")).toISOString().slice(0, 10), "2026-04-07");
+  assert.equal(addTargetDays(d("2026-12-24"), 1).toISOString().slice(0, 10), "2026-12-28");
+});
+
+test("a collection date on Good Friday warns and names the next open day; one day ahead warns on lead time", () => {
+  const good = convert(sampleFile(), { ...S, date: "2026-04-03", today: new Date(Date.UTC(2026, 2, 20)) });
+  const f = good.findings.find((x) => /Good Friday/.test(x.title));
+  assert.ok(f); assert.match(f.detail, /2026-04-07/);
+  const tight = convert(sampleFile(), { ...S, date: "2026-10-20", today: new Date(Date.UTC(2026, 9, 20)) });
+  assert.ok(tight.findings.some((x) => /Collection date is today/.test(x.title)));
+  const thin = convert(sampleFile(), { ...S, date: "2026-10-24", today: new Date(Date.UTC(2026, 9, 23)) });
+  assert.ok(thin.findings.some((x) => /Less than one business day/.test(x.title)));
+  const fri = convert(sampleFile(), { ...S, date: "2026-10-26", today: new Date(Date.UTC(2026, 9, 24)) });
+  assert.ok(!fri.findings.some((x) => /Less than one business day/.test(x.title)));
+});
