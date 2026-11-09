@@ -12,7 +12,7 @@ Every sweep so far checked markup: titles, ids, links, labels. None asked what a
 
 Of 3,609 HTML files under `ventures/`, 1,932 carry an executable script and form controls (`input`, `select`, `button`). Exactly one of them has a `<noscript>` element. For the other 1,931, a visitor with scripts blocked, a locked-down corporate browser, or a crawler that does not execute JavaScript sees fields and a button that do nothing, and no word on why.
 
-The count came from a short script over the source tree. JSON-LD blocks were not counted as scripts. Some of the 1,932 may be pages whose controls are decorative; the notice only claims the tool needs JavaScript, so the cost of a false positive is a sentence.
+The count came from a short script over the source tree. JSON-LD blocks were not counted as scripts. The built site is wider than the source tree (generated pages count too): the full build added the notice to 2,069 pages, and `check.mjs` still passes. Some of these may be pages whose controls are decorative; the notice only claims the tool needs JavaScript, so the cost of a false positive is a sentence.
 
 ## The fix
 
