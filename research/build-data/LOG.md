@@ -1,5 +1,11 @@
 # build-data log
 
+## Session 57, 2026-11-09: paper catch-up for milestones 7c to 7g (no data run: feed hosts refused by the proxy; no pandas)
+
+Why: the paper stopped at 4.7b while sessions 51 to 56 had results in the log only. Probe: `curl` to the Chicago, SF and Austin hosts returned code 000 again, so **no number in `results/` changed and nothing new is claimed**.
+Done: `paper/paper.md` section 4.7c reports H7 (refuted), H9 (marked post hoc, as the log says) and H10 (refuted) and the session 55 dequantisation diagnosis, with the figures checked against `results/prior_table3_cov_2024.json`; section 7 item 5 updated. The session 56 `dequantised_nonempty` arm is described as unrun.
+Next: unchanged from session 56: `python3 src/prior_table3_cov.py DIR --test-year 2024 --seeds 2` where the feeds are reachable, against the prediction written there.
+
 ## Session 56, 2026-11-08: milestone 7g (part), nonempty interval wired into the coverage run (no data run: feed hosts refused by the proxy)
 
 Why: session 55 built `cqr_interval_nonempty` but left the rerun of `prior_table3_cov.py` for a session with the feeds. This session's probe was refused (CONNECT 403 on all four data hosts; no pandas/lightgbm installed either), so **no number in `results/` changed and no coverage figure for the fix is claimed**.
