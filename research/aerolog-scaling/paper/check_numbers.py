@@ -68,6 +68,13 @@ CHECKS = [
     ("experiments/vtol_sizing/climb_transition_hybrid_results.txt", "100   1   30  0.6    1 -> 41", "10k: 41 km at 1 m/s"),
     ("experiments/vtol_sizing/climb_transition_hybrid_results.txt", "100   4   30  0.6    1 -> 59", "10k: 59 km at 4 m/s"),
     ("experiments/vtol_sizing/climb_transition_hybrid_results.txt", "100   2   30  0.6    4 -> 33", "10k: 33 km at 4 kW/kg"),
+    ("experiments/vtol_sizing/total_effect_results.txt", "0.562 [+0.552,+0.573]        0.650", "10n: p_batt first 0.562, total 0.650"),
+    ("experiments/vtol_sizing/total_effect_results.txt", "sum first-order 0.699; sum total-effect 1.172", "10n: sums 0.70, 1.17"),
+    ("experiments/vtol_sizing/sourced_cells_results.txt", "P50S       260       5070       3549          22", "10o: P50S 22 km"),
+    ("experiments/vtol_sizing/sourced_cells_results.txt", "P42A       230       2314       1620          44", "10o: P42A 44 km"),
+    ("experiments/vtol_sizing/derated_cells_results.txt", "P42A    44       58       86       130      170", "10p: P42A derating row"),
+    ("experiments/vtol_sizing/derated_cells_results.txt", "P50S    22       28       40       60       78", "10p: P50S derating row"),
+    ("experiments/vtol_sizing/global_sensitivity_results_n20000.txt", "sum of first-order indices 0.823", "10m: first-order sum 0.82"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]
