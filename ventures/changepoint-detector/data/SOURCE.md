@@ -613,3 +613,10 @@ canada-fertility.csv: Canada total fertility rate 1931-1968 (carData::Hartnagel,
 - **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/Ecdat/Irates.csv> (Ecdat, monthly 1946-12 to 1991-02).
 - **Licence:** Ecdat is GPL-2/3 on CRAN; public yields. Kept as a test fixture with its source named.
 - **Used by:** `tbill-volatility.test.mjs`, README "Treasury yield volatility: the 1979 to 1982 regime".
+
+## global-temp-annual.csv
+
+- **What:** global mean surface temperature anomaly (degrees C against the 1951-80 base), annual mean of the 12 monthly values, 1880-2024, 145 values (`GCAG` source in the monthly file).
+- **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/datasets/global-temp/main/data/monthly.csv> (datahub.io `global-temp`, republishing NOAA/NASA GCAG).
+- **Licence:** the datahub packaging is ODC-PDDL; the underlying figures are public US government data. Kept as a test fixture with its source named.
+- **Used by:** `global-temp.test.mjs`, README "Global temperature: a documented 1945 step".
