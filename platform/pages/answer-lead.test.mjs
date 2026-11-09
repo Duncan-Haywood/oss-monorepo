@@ -197,3 +197,19 @@ test('tiktok-shop-fee-calculator: lead is sourced, dated and matches the fee pre
   const stated = [...text.matchAll(/(\d+(?:\.\d+)?)%/g)].map((x) => Number(x[1]));
   assert.deepEqual(stated, [P.us_standard.referralRate, P.oct_2026.referralRate, P.oct_2026.facilitationRate]);
 });
+
+// 401(k) plan fee lead (no dollar figures): it must state the no-safe-harbor rule the calculator's own header says, and cite ERISA 404(a) and 408(b)(2).
+test('401k-plan-fee-calculator: lead is sourced, dated and matches the calculator header', async () => {
+  const slug = '401k-plan-fee-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  assert.match(text, /No law sets a maximum/);
+  assert.match(text, /408\(b\)\(2\)/);
+  assert.equal([...text.matchAll(/\$[\d,]+/g)].length, 0, 'lead should state no dollar figure');
+  const calc = readFileSync(new URL(`${slug}/calc.mjs`, root), 'utf8');
+  assert.match(calc, /no legal safe-harbor percentage/);
+});
