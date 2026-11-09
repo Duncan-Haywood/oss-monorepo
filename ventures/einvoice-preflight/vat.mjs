@@ -270,6 +270,8 @@ function classify(country, body) {
   // unless the category is E. Structure from python-stdnum tn.mf; the control letter's own rule is not
   // published there, so it is not checked, and the Tunisian tax text is unread.
   if (country === "TN") return tnMfShapeOk(body) ? "format" : "bad-format";
+  // Belarus UNP: 9 digits (the digit rule below), or two letters and 7 digits for some individuals (shape only).
+  if (country === "BY") return /^\d{9}$/.test(body) ? "checksum" : /^[A-Z]{2}\d{7}$/.test(body) ? "format" : "bad-format";
   if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
   if (country === "MD") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "GE") return /^(\d{9}|\d{11})$/.test(body) ? "format" : "bad-format";
@@ -626,6 +628,15 @@ function azVoenOk(body) {
   return (body[9] === "1" || body[9] === "2") && String(sum % 11) === body[8];
 }
 
+// Belarus UNP (9 digits): the ninth digit is the weighted sum of the first eight (weights
+// 29,23,19,17,13,7,5,3) mod 11; a remainder of 10 fits no digit and is refused. Rule from
+// python-stdnum by.unp and its doctest number 200988541; the Ministry of Taxes text is unread.
+function byUnpOk(body) {
+  const w = [29, 23, 19, 17, 13, 7, 5, 3];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return String(sum % 11) === body[8];
+}
+
 // Taiwan GUI (統一編號), 8 digits: weights 1,2,1,2,1,2,4,1, each product's digits added;
 // valid when the total is a multiple of 5 (the divisor since 2023; it was 10), and a 7 in
 // the seventh place also accepts total + 1. Open-source rule (python-stdnum tw.ubn); the
@@ -698,6 +709,7 @@ function checksumOk(country, body) {
   if (country === "VE") return veRifOk(body);
   if (country === "MD") return mdIdnoOk(body);
   if (country === "AZ") return azVoenOk(body);
+  if (country === "BY") return byUnpOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;
