@@ -45,3 +45,25 @@ test('findSpikes: a cancelling pair is a dip; a step and a small wobble are not'
 test('counts reject --spikes', () => {
   assert.throws(() => analyze({ values: [1, 2, 3, 4, 5, 6], model: 'poisson', spikes: true }), /Spikes are for continuous/);
 });
+
+// Real returns (data/*-returns.csv, 2026-11-09 measurement, README "--spikes on five real return series").
+const returnsOf = (name) => {
+  const rows = readFileSync(new URL(`./data/${name}-returns.csv`, import.meta.url), 'utf8').trim().split('\n').slice(1).map((l) => l.split(','));
+  return { values: rows.map((r) => +r[1]), labels: rows.map((r) => r[0]) };
+};
+
+test('real returns: with the variance model --spikes labels nothing on DJIA, DAX, SMI, CAC and FTSE', () => {
+  for (const n of ['djia', 'dax', 'smi', 'cac', 'ftse']) {
+    const r = analyze({ ...returnsOf(n), model: 'meanvar', spikes: true });
+    assert.deepEqual(r.spikes, [], n);
+  }
+});
+
+test('real returns: with the mean model --spikes labels 18 DJIA days, among them the 1987 crash and the 2001 reopening', () => {
+  const r = analyze({ ...returnsOf('djia'), model: 'mean', spikes: true });
+  assert.equal(r.spikes.length, 18);
+  const has = (kind, from) => r.spikes.some((s) => s.kind === kind && s.from === from);
+  assert.ok(has('dip', '1987-10-16'));
+  assert.ok(has('dip', '2001-09-17'));
+  assert.ok(has('spike', '2008-10-10'));
+});
