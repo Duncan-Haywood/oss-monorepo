@@ -727,6 +727,22 @@ class Feeder:
             lo, hi = (mid, hi) if all(state(mid)) else (lo, mid)
         return vmin, lo, ("wheel rpm" if not state(hi)[1] else "nip traction")
 
+    def plate_clearance(self, v: float | None = None) -> dict:
+        """Ball against the head plates after release (2026-11-09). The ball leaves the wheels with its centre at
+        -nip_x and is free of the plates when its centre is a ball radius past `head_x1`; over that run it has
+        `plate_half_y - ball_d/2` either side. Returns the side gap, the run, the transit time at `v` (default
+        `launch_v_max`), the largest yaw error (deg) that still clears and the sideways speed that would just touch.
+        Topspin and gravity act in the plates' plane (z), and the plates span head_z0..head_z1 around the ball, so
+        only yaw (a wheel pair out of square with the plates, or a sideways push from a worn wheel) can hit them."""
+        v = self.launch_v_max if v is None else v
+        r = self.ball_d / 2
+        gap = self.plate_half_y - r
+        run = self.head_x1 + r + self.nip_x
+        yaw = math.degrees(math.atan2(gap, run)) if run > 0 else 90.0
+        t = run / 1000 / v if v > 0 else math.inf
+        return {"gap_mm": gap, "run_mm": run, "transit_ms": t * 1000, "yaw_tol_deg": yaw,
+                "side_speed_ms": gap / 1000 / t if t > 0 else math.inf}
+
     def retain_strain_bad(self) -> str:
         if not 0.5 < self.retain_frac < 0.95:
             return "retainer gap must be 50 to 95% of the ball diameter"
