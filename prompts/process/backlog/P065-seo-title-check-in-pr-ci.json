@@ -20,7 +20,7 @@
   "opened": "2026-11-08",
   "source": "main_health 2026-11-08",
   "pr": "this",
-  "result": null,
+  "result": "2026-11-09 14:20 UTC: main_health on current main reports propose_seo_titles.py ok (53/53 checks pass), after the check_post_frontmatter.py change. Helped so far (one reading; earlier reds on 11-08 and 11-09 predate the fix landing). Re-check after a day with new posts.",
   "history": [
     "2026-11-09: check_post_frontmatter.py reuses propose_seo_titles.cut; propose_seo_titles.py gained a __main__ guard so it imports. Metric to verify: main_health reports of propose_seo_titles red."
   ]
