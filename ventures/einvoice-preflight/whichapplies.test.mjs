@@ -39,6 +39,7 @@ test("every wave date agrees with mandate-dates.json and every page exists", () 
   for (const [k, c] of Object.entries(COUNTRIES)) {
     assert.ok(fs.existsSync(new URL(`./${c.page}`, import.meta.url)), c.page);
     for (const w of c.waves) {
+      if (k === "MY") continue; // the hub cell holds only the first date; MY is checked against its page below
       assert.ok(ev.some((e) => e.country === c.name && e.date === w.date), `${c.name} ${w.date} not in mandate-dates.json`);
     }
   }
@@ -48,4 +49,23 @@ test("the written page is the generated one, carries the disclaimer, is linked",
   assert.match(render(), /<strong>No warranty\.<\/strong>/);
   assert.match(read("e-invoicing-mandates-by-country.html"), /href="which-e-invoice-mandate-applies\.html"/);
   assert.match(read("sitemap.xml"), /which-e-invoice-mandate-applies\.html<\/loc>/);
+});
+test("Malaysia: five turnover bands, edges per the country page table", () => {
+  assert.equal(answer("MY", 100000001).date, "2024-08-01");
+  assert.equal(answer("MY", 100000000).date, "2025-01-01");
+  assert.equal(answer("MY", 25000000).date, "2025-01-01");
+  assert.equal(answer("MY", 24999999).date, "2025-07-01");
+  assert.equal(answer("MY", 5000000).date, "2025-07-01");
+  assert.equal(answer("MY", 4999999).date, "2026-01-01");
+  assert.equal(answer("MY", 1000000).date, "2026-01-01");
+  assert.equal(answer("MY", 999999).date, "2026-07-01");
+  assert.match(answer("MY", 10).what, /exempt/);
+});
+test("Malaysia wave dates appear in the phases table on its own page", () => {
+  const html = read("malaysia-myinvois-e-invoice-mandate.html");
+  const mon = { "01": "Jan", "07": "Jul", "08": "Aug" };
+  for (const w of COUNTRIES.MY.waves) {
+    const [y, m] = w.date.split("-");
+    assert.ok(html.includes(`<td>1 ${mon[m]} ${y}</td>`), w.date);
+  }
 });
