@@ -61,7 +61,7 @@ def to_schema(city, row):
                 area=g("area"), description_len=str(len(g("description"))))
 
 
-def fetch(u, tries=4):
+def fetch(u, tries=8):
     for k in range(tries):
         try:
             with urllib.request.urlopen(u, timeout=120) as r:
@@ -69,7 +69,7 @@ def fetch(u, tries=4):
         except Exception:
             if k == tries - 1:
                 raise
-            time.sleep(2 ** (k + 1))
+            time.sleep(min(60, 2 ** (k + 1)))
 
 
 def pull(city, out_dir, max_rows=None, page=50000):

@@ -294,3 +294,7 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 4. A fourth city after a licence check (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, and the guarded-interval coverage rerun (4.7c) needs the feeds.
 6. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
+
+### 4.7d Coverage after the nonempty fix (session 58, 2026-11-09)
+
+Re-running the conformal coverage experiment of 4.7c on fresh pulls with `cqr_interval_nonempty` removes the collapse: the full model's dequantised coverage goes from 0.558 to 0.861 (Chicago a2i) and from 0.343 to 0.890 (SF a2i), and the table's Austin a2i coverage from 0.765 to 0.825. The prediction that at least 4 of 5 sets fall within 77 to 83% was refuted (table 2 of 5, full model 3 of 5; the rest over-cover), as was the bound of 1 point below raw coverage (worst cell 1.4 points). Numbers are in `results/prior_table3_cov_2024.json` and `LOG.md`, session 58.
