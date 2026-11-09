@@ -1,6 +1,8 @@
 ---
 title: "Nesting a tee from its real curves: 0.88 m per shirt, and where it falls short"
 date: 2026-11-09
+tags: [clothing-design-studio, pattern-nesting]
+description: "The clothing design studio now nests real curved pattern pieces on a fabric width: 0.88 m per shirt on 150 cm cloth, and where the estimate falls short."
 ---
 
 The clothing design studio now lays the drafted pattern pieces, curves and all, on a fabric width. The old estimate packed rectangles, so a sleeve cap and an armhole never shared space. The new one rasterises each cut outline on a 0.5 cm grid, keeps the grain, allows a 180 degree turn, and tries 15 orders for the shortest marker.

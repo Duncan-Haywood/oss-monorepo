@@ -1,6 +1,6 @@
 ---
 title: "Catching a mistyped Russian, Canadian or Dominican tax id before the invoice goes out"
-seo_title: "Check Russian INN, Canadian GST/HST number and Dominican RNC check digits"
+seo_title: "Check Russian INN, Canadian GST/HST and Dominican RNC check digits"
 date: 2026-11-09
 tags: [einvoice-preflight, tax-id]
 description: "The free e-invoice preflight now tests the check digits of Russian INN, Canadian business numbers and Dominican RNC party ids, offline."
