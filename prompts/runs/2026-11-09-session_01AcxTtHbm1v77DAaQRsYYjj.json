@@ -43,7 +43,10 @@
       "result": "all three passed"
     }
   ],
-  "writeups": "docs/posts/2026-11-09-swapping-drone-batteries-moves-the-bottleneck-to-the-chargers.md; LOG.md and README entry",
+  "writeups": [
+    "docs/posts/2026-11-09-swapping-drone-batteries-moves-the-bottleneck-to-the-chargers.md",
+    "research/aerolog-scaling/LOG.md"
+  ],
   "goal": null,
   "notes": "",
   "corrections": [],
