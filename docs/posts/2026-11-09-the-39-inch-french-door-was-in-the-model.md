@@ -1,6 +1,6 @@
 ---
 title: "A French door that floats 39 inches up: the framing engine was right"
-seo_title: "IFC door sill 39 in: model placement, not a takeoff bug (Schultz Residence)"
+seo_title: "IFC door sill 39 in: a model placement, not a takeoff bug"
 date: 2026-11-09
 tags: [construction, wall-framing, ifc]
 description: "Tracing a refused wall in a real Revit house back to its source: the file places the door 0.994 m above the wall."
