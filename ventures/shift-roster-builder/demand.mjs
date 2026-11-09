@@ -25,6 +25,24 @@ const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, 
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const dayOfName = (s) => DAYNAMES.indexOf(String(s).trim().toLowerCase().slice(0, 3));
 
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+const MON = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\.?";
+const CLOCK = "(?:,?\\s+(?:at\\s+)?|[T]\\s*)(\\d{1,2})(?::\\d{2})?(?::\\d{2})?\\s*([ap]m?)?";
+const MONTHNAME = new RegExp(`^${MON}\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(\\d{4})${CLOCK}`, "i");
+const MONTHNAME_DMY = new RegExp(`^(\\d{1,2})(?:st|nd|rd|th)?\\s+${MON}\\s+(\\d{4})${CLOCK}`, "i");
+
+// Sales cell -> number or NaN. "(12.50)" is -12.50; "1.234,50" and "12,5" use a decimal comma, "1,234" and "1,234.50" a thousands comma.
+export function readAmount(raw) {
+  let t = String(raw ?? "").trim();
+  if (!t) return NaN;
+  const neg = /^\(.*\)$/.test(t) || /^-|-$/.test(t.replace(/[$£€\s]/g, ""));
+  t = t.replace(/[$£€\s()+-]/g, "");
+  if (t.includes(",") && t.includes(".")) t = t.lastIndexOf(",") > t.lastIndexOf(".") ? t.replace(/\./g, "").replace(",", ".") : t.replace(/,/g, "");
+  else if (t.includes(",")) t = /^\d{1,3}(,\d{3})+$/.test(t) ? t.replace(/,/g, "") : t.replace(",", ".");
+  if (!/^\d*\.?\d+$|^\d+\.$/.test(t)) return NaN;
+  return neg ? -Number(t) : Number(t);
+}
+
 // -> {day 0..6 (Monday = 0), hour 0..23, key (date or "" for no date)} or null.
 function readStamp(tok, dayTok) {
   const s = String(tok || "").trim();
@@ -35,12 +53,21 @@ function readStamp(tok, dayTok) {
     // "2026-03-05 2:00 PM": a 12-hour clock must be converted, not read as 2 AM (and 12 AM is hour 0).
     if (m[5]) { if (hr < 1 || hr > 12) return null; hr = (hr % 12) + (m[5][0].toLowerCase() === "p" ? 12 : 0); }
   }
-  else if ((m = /^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2}|\d{4})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?\s*([ap]m?)?/i.exec(s))) {
-    y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
-    if (+m[1] > 12) { d = +m[1]; mo = +m[2]; } else { mo = +m[1]; d = +m[2]; }
-    hr = +m[4];
+  else if ((m = /^(\d{1,2})([\/.-])(\d{1,2})[\/.-](\d{2}|\d{4})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?\s*([ap]m?)?/i.exec(s))) {
+    y = +m[4] < 100 ? 2000 + +m[4] : +m[4];
+    // A dotted date (05.03.2026) is day first, as in continental Europe; slashes and dashes stay month first unless the first number is over 12.
+    if (+m[1] > 12 || m[2] === ".") { d = +m[1]; mo = +m[3]; } else { mo = +m[1]; d = +m[3]; }
+    hr = +m[5];
+    if (m[6]) { if (hr < 1 || hr > 12) return null; hr = (hr % 12) + (m[6][0].toLowerCase() === "p" ? 12 : 0); }
+  } else if ((m = MONTHNAME.exec(s) || MONTHNAME_DMY.exec(s))) {
+    // "Mar 5, 2026 2 PM" / "5 March 2026 14:00": month names (English), day first or month first.
+    const dmy = /^\d/.test(s);
+    const mon = MONTHS.indexOf((dmy ? m[2] : m[1]).slice(0, 3).toLowerCase());
+    if (mon < 0) return null;
+    y = +m[3]; mo = mon + 1; d = +(dmy ? m[1] : m[2]); hr = +m[4];
     if (m[5]) { if (hr < 1 || hr > 12) return null; hr = (hr % 12) + (m[5][0].toLowerCase() === "p" ? 12 : 0); }
-  } else if (dayTok !== undefined && (m = /^(\d{1,2})(?::\d{2})?\s*([ap]m?)?$/i.exec(s))) {
+  } else if (dayTok !== undefined && (m = /^(\d{1,2})(?::\d{2})?\s*([ap]m?)?(?:\s*[-\u2013to]+\s*\d{1,2}(?::\d{2})?\s*(?:[ap]m?)?)?$/i.exec(s))) {
+    // An interval such as "14:00-15:00" or "2 PM - 3 PM" is read by its start.
     const di = dayOfName(dayTok);
     if (di < 0) return null;
     hr = +m[1];
@@ -74,7 +101,7 @@ export function hourlySales(text, o = {}) {
   let undated = 0, skippedDays = new Set();
   lines.slice(1).forEach((line, i) => {
     const c = splitCsvRow(line, sep);
-    const amount = Number(String(c[ix.sales] || "").replace(/[$£€,\s]/g, ""));
+    const amount = readAmount(c[ix.sales]);
     const st = readStamp(c[ix.stamp], ix.day >= 0 ? c[ix.day] : undefined);
     if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${c[ix.stamp] || ""}"`); return; }
     if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "") { out.skipped.push(`row ${i + 2}: could not read the sales "${c[ix.sales] || ""}"`); return; }
