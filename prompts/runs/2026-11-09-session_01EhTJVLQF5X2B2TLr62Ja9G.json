@@ -20,5 +20,6 @@
       "result": "node --test vat.test.mjs: 31 pass"
     }
   ],
-  "notes": "Rule from python-stdnum by.unp; authority text unread."
+  "notes": "Rule from python-stdnum by.unp; authority text unread.",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14344"
 }
