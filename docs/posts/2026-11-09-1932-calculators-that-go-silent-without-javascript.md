@@ -2,7 +2,7 @@
 title: "1,932 calculators that go silent without JavaScript"
 seo_title: "1,932 calculators that go silent without JavaScript"
 date: 2026-11-09
-tags: [accessibility, progressive-enhancement, static-sites, build-tooling]
+tags: [accessibility, progressive-enhancement, static-site, build-tooling]
 description: "A sweep of the venture pages found 1,932 with form controls that only work by script and one with a noscript fallback. The build now adds a plain notice."
 ---
 
