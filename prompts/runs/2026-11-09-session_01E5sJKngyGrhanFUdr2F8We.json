@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14223",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,16 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-09-local-model-setup-pointed-at-the-wrong-origin.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "explore: stale OLLAMA_ORIGINS github.io origin in 9 pages + platform/llm README fixed to marisstella.app. Checks run: check_post_frontmatter only (sed-only change).",
   "corrections": [],
   "redteam": null
 }
