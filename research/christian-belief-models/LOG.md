@@ -1,5 +1,10 @@
 # Research log: christian-belief-models
 
+## 2026-11-09 · Milestone 3 (part): does fitting on the nearest years only fix the held-out-year bias? (predictions written before the run; outcome below)
+
+- Why: the period-shift check (entry below) left the best variant, `hgb_shift` (3.38 points), at parity with interpolation (3.43), and the level shift did not close the gap on fast-moving items, which suggests the relation between other answers and the item changed, not only its level. `experiments/m3_local_window/run.py` fits the year-free logit and hgb only on training years within 5 or 10 years of the held-out year (fallback to all other years when the window has under 600 respondents or one class). Same 13 items, 307 item-years, 200 bootstrap draws and baselines. The predictions were written after the job started but before I opened any output.
+- Predictions: (1) the best window variant has a lower mean absolute year-level error than plain hgb (3.87) by at least 10%; (2) it does not beat interpolation (3.43) by more than 0.3 points; (3) the 5-year window is better than the 10-year one on the fast-moving items (same-sex marriage, cohabitation) and worse on the slow ones (attendance, premarital sex), where less data costs more than drift; (4) at least 78% of year intervals contain zero for the best variant. Refuted if the best window variant is no better than plain hgb on mean error.
+
 ## 2026-11-08 · Milestone 3 (part): does a period term fix the held-out-year bias? (predictions written before the run; outcome below)
 
 - Why: the held-out-year check (entry below) left hgb no better than carrying neighbouring years' shares, worst where opinion moved fast, since with `year` removed the model cannot learn a trend. `experiments/m3_period_shift/run.py` repeats it with three fixes: `logit_year` (linear year term), and `logit_shift` / `hgb_shift`, a logit offset fitted so the year-free model reproduces the observed share in the nearest earlier and later asked years, interpolated in year. Same items, years, bootstrap (200 draws) and baselines. The hgb neighbour fit is in-sample, so its offsets are optimistic (disclosed).
