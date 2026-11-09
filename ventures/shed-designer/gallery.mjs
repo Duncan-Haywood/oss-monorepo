@@ -80,12 +80,44 @@ export const sizeOf = (d) => [d.width, d.length].sort((a, b) => a - b).map((x) =
  * @param {import('./estimate.mjs').Prices} [prices]
  */
 export function gallerySearches(prices) {
+  return { free: gallerySearch('free', prices), house: gallerySearch('house', prices), barn: gallerySearch('barn', prices) };
+}
+
+/**
+ * One of the three searches. They are independent, so make-gallery.mjs runs
+ * them in worker threads (gallery-worker.mjs) and a 4-core runner waits for
+ * the slowest instead of the sum.
+ * @param {'free'|'house'|'barn'} key
+ * @param {import('./estimate.mjs').Prices} [prices]
+ */
+export function gallerySearch(key, prices) {
   const clean = (/** @type {any} */ r) => ({ ...r, kept: r.all.filter((/** @type {any} */ s) => s.feasible && buildShed(s.design).warnings.length === 0) });
-  return {
-    free: clean(searchDesigns({ base: base(), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, objectives: OBJECTIVES_USED, knobs: { style: OTHER_STYLES } })),
-    house: clean(searchDesigns({ base: base(HOUSE), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, objectives: OBJECTIVES_USED, knobs: { style: OTHER_STYLES } })),
-    barn: clean(searchDesigns({ base: base(HOUSE), prices, budget: BARN_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, objectives: OBJECTIVES_USED, knobs: { style: ['gambrel'] } })),
-  };
+  switch (key) {
+    case 'free': return clean(searchDesigns({ base: base(), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, objectives: OBJECTIVES_USED, knobs: { style: OTHER_STYLES } }));
+    case 'house': return clean(searchDesigns({ base: base(HOUSE), prices, budget: GALLERY_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, objectives: OBJECTIVES_USED, knobs: { style: OTHER_STYLES } }));
+    case 'barn': return clean(searchDesigns({ base: base(HOUSE), prices, budget: BARN_BUDGET, constraints: CONSTRAINTS, fixed: HOUSE_FIXED, objectives: OBJECTIVES_USED, knobs: { style: ['gambrel'] } }));
+    default: throw new Error(`unknown gallery search ${key}`);
+  }
+}
+
+/**
+ * The same three searches as gallerySearches, each in its own worker thread.
+ * A structured clone keeps the identity of `front` and `kept` entries inside
+ * `all` (generateGallery relies on `kept.includes(x)`), because each search
+ * crosses the thread boundary as one message.
+ * @param {import('./estimate.mjs').Prices} [prices]
+ * @returns {Promise<ReturnType<typeof gallerySearches>>}
+ */
+export async function gallerySearchesParallel(prices) {
+  const { Worker } = await import('node:worker_threads');
+  const keys = /** @type {const} */ (['free', 'house', 'barn']);
+  const done = await Promise.all(keys.map((key) => new Promise((resolve, reject) => {
+    const w = new Worker(new URL('./gallery-worker.mjs', import.meta.url), { workerData: { key, prices } });
+    w.once('message', resolve);
+    w.once('error', reject);
+    w.once('exit', (code) => { if (code !== 0) reject(new Error(`gallery search ${key} exited ${code}`)); });
+  })));
+  return { free: done[0], house: done[1], barn: done[2] };
 }
 
 const money = (/** @type {number} */ n) => {
