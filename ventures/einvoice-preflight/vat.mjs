@@ -260,6 +260,19 @@ function classify(country, body) {
   // Malaysia: an LHDN income tax number (TIN) is a prefix (C company, IG individual, OG, SG, D, F, PT,
   // TA, TC, TN, TR, TP, J, LE, CS) and 8 to 11 digits. Shape only; LHDN text unread.
   if (country === "MY") return /^(C|IG|OG|SG|D|F|PT|TA|TC|TN|TR|TP|J|LE|CS)\d{8,11}$/.test(body) ? "format" : "bad-format";
+  // Shape only, tax authority texts unread: Morocco ICE 15 digits; Azerbaijan VOEN 10 digits; Uzbekistan
+  // INN 9 digits; Moldova IDNO 13 digits; Georgia 9 digits (company) or 11 (individual); Armenia TIN 8
+  // digits; Tanzania TIN 9 digits; Uganda TIN 10 digits; Zambia TPIN 10 digits; Rwanda TIN 9 digits.
+  if (country === "MA") return /^\d{15}$/.test(body) ? "format" : "bad-format";
+  if (country === "AZ") return /^\d{10}$/.test(body) ? "format" : "bad-format";
+  if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
+  if (country === "MD") return /^\d{13}$/.test(body) ? "format" : "bad-format";
+  if (country === "GE") return /^(\d{9}|\d{11})$/.test(body) ? "format" : "bad-format";
+  if (country === "AM") return /^\d{8}$/.test(body) ? "format" : "bad-format";
+  if (country === "TZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
+  if (country === "UG") return /^\d{10}$/.test(body) ? "format" : "bad-format";
+  if (country === "ZM") return /^\d{10}$/.test(body) ? "format" : "bad-format";
+  if (country === "RW") return /^\d{9}$/.test(body) ? "format" : "bad-format";
   if (country === "PH") return /^\d{9}(\d{3})?$/.test(body) ? "format" : "bad-format";
   if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
   if (country === "TW") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
