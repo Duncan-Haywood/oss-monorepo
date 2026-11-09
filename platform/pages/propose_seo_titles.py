@@ -70,4 +70,5 @@ def main():
     print(f'{done} proposed{" and written" if a.apply else ""}, {len(skipped)} with no clean cut')
 
 
-main()
+if __name__ == '__main__':
+    main()
