@@ -37,6 +37,18 @@ class RenderTest(unittest.TestCase):
         self.assertEqual(sorted(files), ["QUEUE.md", "alerts/2.md", "alerts/3.md",
                                          "alerts/5.md", "alerts/9.md"])
 
+    def test_every_severity_label_ranks_in_order(self):
+        # critical > high = error > medium = warning > low > note > unknown.
+        labels = ["critical", "high", "medium", "low", "note", "unknown"]
+        alerts = [alert(n, lv) for n, lv in zip(range(1, 7), reversed(labels[:5]))]
+        alerts.append(alert(7, None, "mystery"))
+        files = render(alerts)
+        order = [int(line.split("#")[1].split(" ")[0]) for line in files["QUEUE.md"].splitlines()
+                 if line.startswith("- [")]
+        self.assertEqual(order, [5, 4, 3, 2, 1, 7])
+        self.assertEqual(security_alerts.RANK["error"], security_alerts.RANK["high"])
+        self.assertEqual(security_alerts.RANK["warning"], security_alerts.RANK["medium"])
+
     def test_closed_alerts_have_no_file(self):
         files = render([alert(1, "high", state="fixed"), alert(2, "high", state="dismissed")])
         self.assertEqual(list(files), ["QUEUE.md"])
