@@ -227,3 +227,19 @@ test('mileage-deduction-calculator: lead is sourced, dated and matches the 2026 
   const stated = [...text.matchAll(/(\d+(?:\.\d+)?) cents/g)].map((x) => Number(x[1]));
   assert.deepEqual(stated, [R.businessH1 * 100, R.businessH2 * 100]);
 });
+
+// Estimated tax penalty lead: the thresholds it states must be the ones the calculator holds.
+test('estimated-tax-penalty-calculator: lead is sourced, dated and matches the calculator thresholds', async () => {
+  const slug = 'estimated-tax-penalty-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { HIGH_INCOME_AGI, DE_MINIMIS } = await import(new URL(`${slug}/calc.mjs`, root));
+  const dollars = [...text.matchAll(/\$([\d,]+)/g)].map((d) => Number(d[1].replace(/,/g, '')));
+  assert.deepEqual(dollars, [HIGH_INCOME_AGI, DE_MINIMIS]);
+  assert.match(text, /90%/);
+  assert.match(text, /110%/);
+});
