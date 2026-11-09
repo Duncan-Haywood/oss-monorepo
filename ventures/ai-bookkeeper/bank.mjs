@@ -256,6 +256,16 @@ export function detectColumns(header) {
     cols.balance = -1;
     cols.desc = h.includes("description") ? h.indexOf("description") : h.includes("event type") ? h.indexOf("event type") : cols.desc;
   }
+  // Open Collective's transactions export (datetime, shortId, description, type, kind, amount,
+  // paymentProcessorFee, netAmount, balance, currency ...): the running balance moves by netAmount,
+  // not by amount (a $10 contribution with a $0.80 card fee moves it $9.20), so netAmount is the
+  // amount. Header from memory of the export; made-up rows only, no real file.
+  if (h.includes("netamount") && h.includes("paymentprocessorfee") && h.includes("shortid")) {
+    cols.amount = h.indexOf("netamount");
+    cols.debit = -1;
+    cols.credit = -1;
+    if (h.includes("description")) cols.desc = h.indexOf("description");
+  }
   // Gumroad's sales CSV (Item Name, Buyer Name, Item Price, Sale Price, Gumroad Fee, Net Total,
   // Date): Net Total is what Gumroad pays out after its fee; the item sold is the description,
   // never the buyer's name or email. Layout from memory of its help page; made-up rows only.
