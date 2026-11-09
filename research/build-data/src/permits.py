@@ -24,6 +24,11 @@ FEEDS = {
                  estimated_cost="total_job_valuation", applied="applieddate",
                  issued="issue_date", completed="completed_date", area="original_zip",
                  description="description")),
+    "seattle": dict(host="data.seattle.gov", dataset="76t5-zqzr", order="permitnum",
+        map=dict(permit_id="permitnum", permit_type="permittypemapped", work_class="permitclassmapped",
+                 estimated_cost="estprojectcost", applied="applieddate",
+                 issued="issueddate", completed="completeddate", area="originalzip",
+                 description="description")),
 }
 SCHEMA = ["city", "permit_id", "permit_type", "work_class", "estimated_cost", "applied",
           "issued", "completed", "area", "description_len"]

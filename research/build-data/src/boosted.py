@@ -141,7 +141,7 @@ def run(df, test_year, seeds, neg=0):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
-    ap.add_argument("--city", required=True, choices=["chicago", "sf", "austin"])
+    ap.add_argument("--city", required=True, choices=["chicago", "sf", "austin", "seattle"])
     ap.add_argument("--target", required=True, choices=["a2i", "i2c"])
     ap.add_argument("--test-year", type=int, required=True)
     ap.add_argument("--seeds", type=int, default=5)

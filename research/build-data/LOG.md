@@ -1,5 +1,13 @@
 # build-data log
 
+## Session 61, 2026-11-09: fourth city, Seattle (licence checked; H1 and H2 rerun, no prediction written first)
+
+Why: "a fourth city after a licence check" had been open since session 60. Seattle `76t5-zqzr` metadata says Public Domain (`datasheets/seattle.md`). Pulled 2026-11-09 (194,184 rows). `python3 src/boosted.py DIR --city seattle --target T --test-year 2024 --seeds 3`, then `src/conformal_run.py`; results `results/boosted_seattle_*_2024.json`, `results/conformal_dq_seattle_*_2024.json`.
+- H1 holds: boosted beats the per-type baseline at q0.1/0.5/0.9 in both targets, every 95% week-block interval below zero (a2i q0.5 46.5 to 35.8 days; i2c q0.5 88.3 to 72.5; smallest gain i2c q0.9, 47.1 to 46.0).
+- Coverage (nominal 80%): boosted raw 0.850 (a2i), 0.833 (i2c); conformal 0.852, 0.815; dequantised 0.770 (a2i, qhat_dq -0.59, the zero-inflation collapse of session 55) and 0.813.
+- Limits: one test year; `baselines.py` (needs xgboost, install timed out) and CatBoost not run; nonempty-CQR arm and the table models not run for Seattle; `prior_table3.py` FILES lists Seattle but was not run.
+Next: nonempty CQR and the per-type table for Seattle, then add it to H4 transfer.
+
 ## Session 60, 2026-11-09: milestone 7i, week-block bootstrap of interval width (per-type baseline vs three-key table)
 
 Why: session 59 left "width intervals by bootstrap over weeks" open; its ship rule compared point widths. Fresh pull 2026-11-09 (all three hosts reachable), `python3 src/width_boot.py DIR --test-year 2024`, results in `results/width_boot_2024.json`, 2 unit tests.

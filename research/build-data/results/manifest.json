@@ -40,6 +40,19 @@
    "negative_issue_lag": 863,
    "negative_build_time": 3533,
    "pulled": "2026-11-09"
+  },
+  "seattle": {
+   "dataset": "76t5-zqzr",
+   "host": "data.seattle.gov",
+   "rows": 194184,
+   "applied": 148050,
+   "issued": 141221,
+   "completed": 108173,
+   "cost": 158952,
+   "both_applied_issued": 139078,
+   "negative_issue_lag": 15,
+   "negative_build_time": 10,
+   "pulled": "2026-11-09"
   }
  }
 }
