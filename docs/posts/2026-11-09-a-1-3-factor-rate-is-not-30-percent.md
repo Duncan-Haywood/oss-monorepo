@@ -2,7 +2,7 @@
 title: "A 1.3 factor rate on a factory-run advance is not 30%: it is about 150% a year"
 seo_title: "Factor rate to APR for a clothing brand's factory deposit"
 date: 2026-11-09
-tags: [clothing-design-studio, finance, calculator]
+tags: [clothing-design-studio, finance, calculators]
 description: "A free calculator turns a cash-advance factor rate, a loan fee, a card APR and 2/10 net 30 supplier terms into one yearly rate and a cost per garment."
 ---
 
