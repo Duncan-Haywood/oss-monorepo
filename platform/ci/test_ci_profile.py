@@ -166,3 +166,29 @@ class Main(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_http_api_retries_truncated_body():
+    import http.client
+    import io
+    import ci_profile
+
+    calls = []
+
+    class Resp(io.BytesIO):
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            return False
+
+    class Bad(Resp):
+        def read(self, *a):
+            raise http.client.IncompleteRead(b"", 5)
+
+    def opener(req, timeout=0):
+        calls.append(1)
+        return Bad() if len(calls) < 3 else Resp(b'{"ok": 1}')
+
+    assert ci_profile.http_api(opener=opener)("x") == {"ok": 1}
+    assert len(calls) == 3
