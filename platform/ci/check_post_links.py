@@ -10,6 +10,10 @@ import re
 import sys
 from urllib.parse import unquote
 
+# Products are mounted at /<slug>/, never /ventures/<slug>/ (build.mjs, "A
+# venture's sitemap"): a post that links the latter hands readers a 404.
+WRONG_MOUNT = re.compile(r'https?://marisstella\.app/ventures/')
+
 LINK = re.compile(r'!?\[[^\]]*\]\(([^)\s]+)')
 SKIP = re.compile(r'^(https?:|mailto:|tel:|#|/)')
 
@@ -27,6 +31,8 @@ def broken(posts_dir):
         path = os.path.join(posts_dir, name)
         with open(path, encoding='utf8') as fh:
             text = strip_code(fh.read())
+        for m in WRONG_MOUNT.finditer(text):
+            out.append((path, text[m.start():m.start() + 60].split(')')[0]))
         for m in LINK.finditer(text):
             url = m.group(1)
             if SKIP.match(url):
