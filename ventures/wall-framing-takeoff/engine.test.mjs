@@ -1180,3 +1180,13 @@ test("layoutWall, layoutFasteners and layoutInsulation refuse missing plan or re
   assert.throws(() => layoutFasteners({}, {}, {}), /layoutFasteners needs/);
   assert.throws(() => layoutInsulation({}, {}, undefined), /layoutInsulation needs/);
 });
+
+test("a door wider than 4 ft on the default jacks and kings gets a note; explicit jacks or a narrow door do not", () => {
+  const plan = base();
+  const mk = (extra, width = 120) => ({ id: "W", length: 288, openings: [{ kind: "door", label: "Garage", offset: 60, width, height: 82.5, header: "2x12", ...extra }] });
+  const wide = layoutWall(plan, mk({}));
+  assert.ok(wide.notes.some((n) => /Garage \(120"\) wider than 4 ft.*default 1 jack and 1 king/.test(n)), wide.notes.join("\n"));
+  assert.ok(!layoutWall(plan, mk({ jacks: 2 })).notes.some((n) => /wider than 4 ft/.test(n)));
+  assert.ok(!layoutWall(plan, mk({ kings: 2 })).notes.some((n) => /wider than 4 ft/.test(n)));
+  assert.ok(!layoutWall(plan, mk({}, 36)).notes.some((n) => /wider than 4 ft/.test(n)));
+});
