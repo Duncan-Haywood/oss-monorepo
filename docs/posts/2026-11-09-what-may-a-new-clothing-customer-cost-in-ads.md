@@ -1,6 +1,6 @@
 ---
 title: "What may a new customer cost a small clothing brand in ads?"
-seo_title: "Ad spend calculator for clothing brands: break-even ROAS and customer cost"
+seo_title: "Ad spend calculator for clothing brands: break-even ROAS and CAC"
 date: 2026-11-09
 tags: [clothing-design-studio, tools, pricing]
 description: "A free calculator turns click price and conversion into the cost of a customer, then compares it with what an order earns."
