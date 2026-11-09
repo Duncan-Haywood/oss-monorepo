@@ -92,7 +92,7 @@ cases. Results: [`experiments/results_time.txt`](experiments/results_time.txt).
 
 - Milestone 3k (`experiments/run_michell_lowk.py`, 729 cases): Michell wave term with tank-bound form factors (k 0.03 to 0.15): the catamaran out-ranges the monohull in 7 cases (1.0%, milestone 2: 3.3%) and in 0 of 243 at equal length; all wins pair a 3 m monohull with a longer catamaran.
 - Milestone 3i (`experiments/run_yacht_formfactor.py`): the 22 Delft yacht hulls imply a form factor of at most 0.06 (median, 10th to 90th percentile 0.03 to 0.13) at Fn 0.125, against 0.29 to 0.36 from Holtrop-Mennen's k1 and the programme's central 0.25: the 3g low-speed over-prediction is the form factor. Keeled yachts, wetted area from the HM regression, mirror unverified.
-- Milestone 3g (Holtrop-Mennen vs 308 Delft yacht-series tank points, `experiments/run_holtrop_yacht.py`): HM is within 20% for 44% to 79% of points at Fn 0.2 to 0.3, but over-predicts residuary resistance 1.3 to 2.2 times (median) at Fn 0.125 to 0.2, the survey regime; swept Cm, Cwp, model length; yacht hulls with keels; exploratory.
+- Milestone 3g (Holtrop-Mennen vs 308 Delft yacht-series tank points, `experiments/run_holtrop_yacht.py`): HM is within 20% for 42% to 82% of points at Fn 0.2 to 0.3, but over-predicts residuary resistance 1.3 to 2.2 times (median) at Fn 0.125 to 0.2, the survey regime; swept Cm, Cwp, model length; yacht hulls with keels; exploratory.
 
 - Milestone 4b (Slocum coefficients from `gliderflight`, 2,430 cases): at equal hotel load the glider has the
   longer best range in 0 cases (median AUV/glider energy ratio 0.36); the break-even AUV hotel load is a median
@@ -148,7 +148,7 @@ the flag state's and local authority's rules (COLREGs, harbour master, permits).
 
 ## Next steps
 
-Milestone 3 (Holtrop-Mennen is implemented, `src/marine_hull/holtrop.py`, and run on one Wigley tank point: +17% to +22% on its own area with the m2 low-speed wave form (the m4 alternative moves total resistance by at most 2.4%, LOG 3e and 3f); coefficients not yet checked against the paper, see LOG 3c to 3f; a small-hull tank curve is still needed) and milestones 5 to 7 in the proposal; the measured hotel load of a fielded glider and AUV is the number milestone 4 needs most. AI-assisted (Claude Code).
+Milestone 3 (Holtrop-Mennen is implemented, `src/marine_hull/holtrop.py`, and run on one Wigley tank point: +19% to +24% on its own area with the m2 low-speed wave form (the m4 alternative moves total resistance by at most 2.4%, LOG 3e and 3f); coefficients checked against the 1982 worked example (LOG 3k, which fixed an inverted lambda branch; figures here are the post-fix ones), see LOG 3c to 3k; a small-hull tank curve is still needed) and milestones 5 to 7 in the proposal; the measured hotel load of a fielded glider and AUV is the number milestone 4 needs most. AI-assisted (Claude Code).
 
 Milestone 6k (check against a fielded drone): Saildrone SD 1020 averaged 112 km/day over its 196-day, 22,000 km Antarctic circumnavigation (2019, vendor release). The wind-driven drone model of 6h to 6j gives 179 to 272 km/day on buoy winds and 303 km/day at Southern Ocean wind, so it is an upper bound by a factor of 2 to 3, and the 6h wind-over-sun margin is overstated by about that much. The fielded mean is still 1.3 times the solar ceiling. One vehicle, one press-release figure; `experiments/run_fielded_check.py`, `LOG.md`.
 
