@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { buildShed, normalize } from './model.mjs';
 import { evaluateDesign } from './designsearch.mjs';
-import { GALLERY, GALLERY_LIMIT_SQFT, GALLERY_MAX_RATIO, GALLERY_MAX_PEAK, GALLERY_RULES, HOUSE_FIXED, gallerySearches, generateGallery, sizeOf } from './gallery.mjs';
+import { GALLERY, GALLERY_LIMIT_SQFT, GALLERY_MAX_RATIO, GALLERY_MAX_PEAK, GALLERY_RULES, HOUSE_FIXED, gallerySearches, gallerySearchesParallel, generateGallery, sizeOf } from './gallery.mjs';
 import { GALLERY_DESIGNS } from './gallery-data.mjs';
 import { galleryModule } from './make-gallery.mjs';
 
@@ -45,8 +45,8 @@ test('the stored gallery: 8 to 12 cards, one per entry, each under the limit, ev
 // differing from it is not a failure: other changes to the engine or the
 // prices move it all the time. It is reported, and `node make-gallery.mjs`
 // brings the file up to date.
-test('the search run now gives a valid gallery whose reasons are true; drift from gallery-data.mjs is reported, not failed', (t) => {
-  const runs = gallerySearches();
+test('the search run now gives a valid gallery whose reasons are true; drift from gallery-data.mjs is reported, not failed', async (t) => {
+  const runs = await gallerySearchesParallel();
   const fresh = generateGallery(undefined, runs);
   meetsRules(fresh);
   const by = Object.fromEntries(fresh.map((g) => [g.id, g]));
@@ -109,4 +109,16 @@ test('a first-time visitor opens on the balanced gallery design, which passes cl
   // A copy: editing the open design never edits the gallery card.
   d.length += 12;
   assert.notEqual(firstDesign().length, d.length);
+});
+
+// The worker-thread path make-gallery.mjs uses must give the serial path's
+// answer. Costs and the rows are compared on the cheapest search only, so the
+// test stays quick; the full gallery from the parallel runs is checked above.
+test('a search run in a worker thread equals the same search run here, with front and kept still pointing into all', async () => {
+  const [par, ser] = [await gallerySearchesParallel(), gallerySearches()];
+  for (const k of ['free', 'house', 'barn']) {
+    assert.deepEqual(par[k].all.map((x) => x.cost), ser[k].all.map((x) => x.cost), k);
+    assert.ok(par[k].kept.every((x) => par[k].all.includes(x)), `${k}: kept entries are the same objects as in all`);
+    assert.ok(par[k].front.every((x) => par[k].all.includes(x)), `${k}: front entries are the same objects as in all`);
+  }
 });

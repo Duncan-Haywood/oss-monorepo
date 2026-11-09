@@ -12,12 +12,16 @@
     "docs/history/ci-perf-2026-11-08-gallery-search-stamp.md"
   ],
   "change": "Before the step, actions/cache/restore the stamp keyed on hashFiles('ventures/shed-designer/*.mjs', 'ventures/shed-designer/data/**') (exclude tests and gallery-data.mjs to match inputsHash(), or accept a slightly wider key); the restored stamp plus the checked-out gallery-data.mjs makes the script skip. After a real search on a non-PR run, actions/cache/save the stamp. Safe only if the committed gallery-data.mjs equals the search output for that hash: confirm with make-gallery.mjs --check on main first (gallery.test.mjs already fails when they disagree). Alternative needing no cache: have the PR gate keep gallery-data.mjs current and skip the CI step entirely when --check passes in the test job.",
-  "touches": [".github/workflows/portfolio-pages.yml"],
+  "touches": [
+    ".github/workflows/portfolio-pages.yml"
+  ],
   "metric": "Pages build job 'Search the Shed Designer gallery' seconds (ci_profile.py --steps)",
   "baseline": "19 s median per build job, 2026-11-08",
   "opened": "2026-11-08",
   "source": "docs/history/ci-perf-2026-11-08-gallery-search-stamp.md",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    "2026-11-09: make-gallery runs its three searches in worker threads, 24.9 s to 13.8 s locally (docs/history/ci-perf-2026-11-09-gallery-search-threads.md); the stamp cache would still save the rest."
+  ]
 }
