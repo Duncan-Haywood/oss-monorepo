@@ -1,5 +1,15 @@
 # build-data log
 
+## Session 59, 2026-11-09: milestone 7h, which interval to ship per city (post hoc rule, no new data)
+
+Why: sessions 54 to 58 left "decide the shipped prior per city" open. No feeds were pulled; this reads `results/prior_table3_cov_2024.json`.
+Disclosure: the rule was written after seeing the numbers, so this is a decision, not a hypothesis test. Rule (`src/ship_decision.py`, 4 unit tests): among per-type baseline, three-key table and full model, all with the dequantised nonempty interval, ship the narrowest with 2024 coverage >= 0.77; widths within 1% tie toward the more readable model.
+- Outcome: per-type baseline in Chicago a2i (cov 0.885, width 55.3 d), SF a2i (0.826, 32.6), SF i2c (0.844, 373.5), Austin a2i (0.823, 156.1); table in Austin i2c (0.836, 289.6, tied with the full model at 289.5). The readable per-type table already published (section 4.7) is the interval to ship in four of five sets; the boosted gain is in pinball loss, not a tighter calibrated interval.
+- Paper: new 4.7e; 4.7d moved before section 5 (it sat after section 7); stale "not run on the feeds" sentences in 4.7c and the to-do list updated.
+- Limits: one test year, 2 seeds, no width bootstrap, over-coverage 0.82 to 0.89 means safe not tight.
+Next: width intervals by bootstrap over weeks for the per-type baseline vs table in Austin i2c; a fourth city after a licence check.
+
+
 ## Session 58, 2026-11-09: milestone 7g, rerun of the coverage run with `cqr_interval_nonempty` (prediction from session 56: refuted in part)
 
 Why: session 56 wired the fix in and left the rerun for a network that reaches the feeds. This time all three hosts answered. A first pull died on an HTTP 503 after four retries; `permits.fetch` now retries 8 times with backoff capped at 60 s. Fresh pull 2026-11-09 (manifest refreshed: Chicago 852,598, SF 1,298,097, Austin 2,384,446 rows), `python3 src/prior_table3_cov.py DIR --test-year 2024 --seeds 2`, results in `results/prior_table3_cov_2024.json` (now with the third arm).
