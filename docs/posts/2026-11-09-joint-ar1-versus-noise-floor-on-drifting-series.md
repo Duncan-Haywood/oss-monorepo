@@ -1,9 +1,9 @@
 ---
 title: "Which fix for over-cut drifting series finds the step: a noise floor or joint AR(1)?"
-seo_title: "Changepoint detection on drifting autocorrelated series: noise floor vs joint AR(1)"
+seo_title: "Changepoints on drifting series: noise floor vs joint AR(1)"
 date: 2026-11-09
 tags: [changepoint-detector, simulation]
-description: "On 60 seeded drifting series per cell, joint AR(1) finds a known step 60 of 60 times at phi 0.8, where plain AR(1) finds 27 and a noise floor leaves 3 false cuts."
+description: "On 60 seeded drifting series per cell, joint AR(1) finds a known step 60 of 60 times at phi 0.8; plain AR(1) finds 27, a floor leaves 3 false cuts."
 ---
 
 A changepoint detector fed a smoothly drifting series with correlated noise
