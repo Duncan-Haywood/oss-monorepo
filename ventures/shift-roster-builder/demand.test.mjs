@@ -108,3 +108,32 @@ test("an ISO date with a 12-hour clock reads PM and midnight correctly", () => {
   assert.deepEqual(hours("2026-03-05T14:00:00.000,100"), [14]);
   assert.equal(hourlySales("time,sales\n2026-03-05 13:00 PM,100\n").rows, 0);
 });
+
+test("sales cells: accounting negatives, decimal commas and thousands commas", async () => {
+  const { readAmount } = await import("./demand.mjs");
+  assert.equal(readAmount("(12.50)"), -12.5);
+  assert.equal(readAmount("-$3"), -3);
+  assert.equal(readAmount("1.234,50"), 1234.5);
+  assert.equal(readAmount("12,5"), 12.5);
+  assert.equal(readAmount("1,234"), 1234);
+  assert.equal(readAmount("$1,234.50"), 1234.5);
+  assert.equal(readAmount("€ 99"), 99);
+  assert.ok(Number.isNaN(readAmount("n/a")));
+  assert.ok(Number.isNaN(readAmount("")));
+});
+
+test("month-name stamps and hour intervals are read", () => {
+  const a = hourlySales('Time,Net Sales\n"Mar 5, 2026 2 PM",100\n5 March 2026 14:00,50\n"March 6th, 2026 12:00 AM",9\n');
+  assert.equal(a.rows, 3, JSON.stringify(a.skipped));
+  assert.equal(a.avg[3][14], 150); // Thursday 5 Mar 2026: two rows in one hour add up
+  assert.equal(a.avg[4][0], 9);
+  const b = hourlySales("Hour,Sales,Day\n14:00-15:00,100,Mon\n2 PM - 3 PM,100,Tue\n9,5,Wed\n");
+  assert.equal(b.rows, 3, JSON.stringify(b.skipped));
+  assert.equal(b.avg[0][14], 100);
+  assert.equal(b.avg[1][14], 100);
+});
+
+test("a European export with decimal commas is not silently mis-scaled", () => {
+  const r = hourlySales("Time;Net Sales\n05.03.2026 14:00;1.234,50\n");
+  assert.equal(r.avg[3][14], 1234.5);
+});

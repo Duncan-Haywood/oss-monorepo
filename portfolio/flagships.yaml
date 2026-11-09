@@ -180,7 +180,7 @@ flagships:
       does; eval/relaxation-check.py). Landed 2026-10-27 to 2026-11-06 (pay and premium flags, a 20 s time budget for weeks over 150 shifts, cover chains, carry-over, notice and seniority rules): see the README.
       Measured: carry-over costs 0 open hours, so a joint multi-week solve is
       dropped; with coverage proven pay is within 0.7% of the bound.
-      2026-11-07: `--from-sales` builds shift lines from an hourly sales export at a sales-per-labor-hour target (`demand.mjs`, hand-built sales only); page `shifts-from-sales.html` 2026-11-07 (loaded in Chromium, sample and bad-input refusal); `--skip-dates` and `--half-life` leave out event days and weight recent weeks (hand-built). Next: branch-and-price on the Dantzig-Wolfe LP (the coverage search gap, the one unproven 8x22 week); a real POS hourly export for --from-sales and the page; a real published-schedule export for --import-shifts. 
+      2026-11-07: `--from-sales` builds shift lines from an hourly sales export at a sales-per-labor-hour target (`demand.mjs`, hand-built sales only); page `shifts-from-sales.html` 2026-11-07 (loaded in Chromium, sample and bad-input refusal); `--skip-dates` and `--half-life` leave out event days and weight recent weeks (hand-built). Next: branch-and-price on the Dantzig-Wolfe LP (the coverage search gap, the one unproven 8x22 week); a real POS hourly export for --from-sales and the page (2026-11-09: decimal commas, (refund) cells, month-name dates and hour intervals now read, made-up exports only); a real published-schedule export for --import-shifts. 
 
   - venture: photo-editing
     why: >-
