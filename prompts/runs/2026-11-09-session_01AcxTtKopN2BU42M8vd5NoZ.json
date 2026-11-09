@@ -38,7 +38,7 @@
       "result": "check_post_frontmatter and promptctl validate pass"
     }
   ],
-  "writeups": "none: small CI fix, no post",
+  "writeups": [],
   "goal": null,
   "notes": "",
   "corrections": [],
