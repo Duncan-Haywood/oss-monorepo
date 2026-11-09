@@ -213,3 +213,17 @@ test('401k-plan-fee-calculator: lead is sourced, dated and matches the calculato
   const calc = readFileSync(new URL(`${slug}/calc.mjs`, root), 'utf8');
   assert.match(calc, /no legal safe-harbor percentage/);
 });
+
+// Mileage lead (cents per mile, no dollar figures): the rates it states must be the ones the calculator holds.
+test('mileage-deduction-calculator: lead is sourced, dated and matches the 2026 rates', async () => {
+  const slug = 'mileage-deduction-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { RATES_2026: R } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/(\d+(?:\.\d+)?) cents/g)].map((x) => Number(x[1]));
+  assert.deepEqual(stated, [R.businessH1 * 100, R.businessH2 * 100]);
+});
