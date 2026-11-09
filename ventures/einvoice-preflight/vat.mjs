@@ -265,6 +265,11 @@ function classify(country, body) {
   // digits; Tanzania TIN 9 digits; Uganda TIN 10 digits; Zambia TPIN 10 digits; Rwanda TIN 9 digits.
   if (country === "MA") return /^\d{15}$/.test(body) ? "format" : "bad-format";
   if (country === "AZ") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
+  // Tunisia MF (matricule fiscal): 7 digits and a control letter (never I, O or U), then optionally a
+  // VAT code (A, P, B, D, N), a category code (M, P, C, N, E) and a 3-digit branch number that is 000
+  // unless the category is E. Structure from python-stdnum tn.mf; the control letter's own rule is not
+  // published there, so it is not checked, and the Tunisian tax text is unread.
+  if (country === "TN") return tnMfShapeOk(body) ? "format" : "bad-format";
   if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
   if (country === "MD") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "GE") return /^(\d{9}|\d{11})$/.test(body) ? "format" : "bad-format";
@@ -603,6 +608,12 @@ function veRifOk(body) {
 function mdIdnoOk(body) {
   const w = [7, 3, 1];
   return body.slice(0, 12).split("").reduce((a, c, i) => a + w[i % 3] * Number(c), 0) % 10 === Number(body[12]);
+}
+
+function tnMfShapeOk(body) {
+  const m = /^\d{7}[A-HJ-NP-TV-Z]([ABDNP])([MPCNE])(\d{3})$/.exec(body);
+  if (m) return m[3] === "000" || m[2] === "E";
+  return /^\d{7}[A-HJ-NP-TV-Z]$/.test(body);
 }
 
 // Azerbaijan VOEN (10 digits): the ninth digit is the weighted sum of the first eight (weights
