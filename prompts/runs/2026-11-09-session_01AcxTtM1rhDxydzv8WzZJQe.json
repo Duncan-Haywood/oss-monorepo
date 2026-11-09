@@ -36,7 +36,10 @@
       "why": "Small paper-catch-up step only (no new experiment); no blog post written, budget-limited."
     }
   ],
-  "writeups": "LOG milestone 10s; paper Section 4.14 extended",
+  "writeups": [
+    "research/aerolog-scaling/LOG.md",
+    "research/aerolog-scaling/paper/draft.md"
+  ],
   "goal": null,
   "notes": "Landed paper/check_numbers catch-up for 10r.",
   "corrections": [],
