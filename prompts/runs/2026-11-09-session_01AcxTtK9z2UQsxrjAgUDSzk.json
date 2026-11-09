@@ -44,7 +44,7 @@
     "paper 4.7d"
   ],
   "goal": null,
-  "notes": "First pull died on HTTP 503 after 4 retries (~10 min lost); retries raised to 8. Prediction from session 56 refuted. test_baselines skipped: xgboost not installed. No check for conformal CI beyond local tests.",
+  "notes": "First pull died on HTTP 503 after 4 retries (~10 min lost); retries raised to 8. Prediction from session 56 refuted. test_baselines skipped: xgboost not installed. No check for conformal CI beyond local tests. CI on PR 14214 was red (validate: flagships.yaml next: over cap for changepoint-detector and einvoice-preflight, other runs' post seo_title/description lengths; test: 170 node failures) from files this PR does not touch; same state on main. Merged on that basis; local checks for the diff passed (51 build-data tests, homepage build ok).",
   "corrections": [],
   "redteam": null
 }
