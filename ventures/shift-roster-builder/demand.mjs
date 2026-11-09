@@ -45,7 +45,14 @@ export function readAmount(raw) {
 
 // -> {day 0..6 (Monday = 0), hour 0..23, key (date or "" for no date)} or null.
 function readStamp(tok, dayTok) {
-  const s = String(tok || "").trim();
+  let s = String(tok || "").trim();
+  // "noon" and "midnight" are hour 12 PM and 12 AM.
+  s = s.replace(/\b(?:12\s*)?noon\b/i, "12 PM").replace(/\b(?:12\s*)?midnight\b/i, "12 AM");
+  // "Thursday 2 PM" in one cell (no separate day column): the weekday name leads the hour.
+  if (dayTok === undefined) {
+    const w = /^([a-z]{3,9})\.?,?\s+(\d{1,2}(?::\d{2})?\s*(?:[ap]m?)?(?:\s*[-\u2013]\s*\d{1,2}(?::\d{2})?\s*(?:[ap]m?)?)?)$/i.exec(s);
+    if (w && dayOfName(w[1]) >= 0) return readStamp(w[2], w[1]);
+  }
   let m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?(?:\.\d+)?\s*([ap]m?)?/i.exec(s);
   let y, mo, d, hr;
   if (m) {
