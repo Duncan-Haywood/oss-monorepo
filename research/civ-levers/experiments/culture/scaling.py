@@ -32,7 +32,7 @@ def cell(L, F, q, runs, seed):
     except subprocess.TimeoutExpired:
         return None
     rows = [ln.split() for ln in out.strip().splitlines()]
-    return [(float(a), int(b), int(c)) for a, b, c in rows] or None
+    return [(float(r[0]), int(r[1]), int(r[2])) for r in rows] or None
 
 
 def mean(x):

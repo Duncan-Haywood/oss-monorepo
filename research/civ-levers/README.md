@@ -212,6 +212,23 @@ global media culture met with probability B per step (Shibanai, Yasuno and Ishig
   199, 240 (within 10%). The uniform-trait runs above were a different parameterisation, not a
   bug. L = 150 was not run.
 
+- **Broadcast on an ordered society at larger lattices (2026-11-09, `experiments/culture/media.py`,
+  `media_results.txt`, `axelrod.c ... <mode> B`).** The Python run above started broadcasts at
+  q where the society was already one culture only for small L. With the C core, q at 60 to 70% of
+  the B = 0 transition (so no media gives one culture, S 0.79 to 0.99), L = 20 and 40, uniform F = 3
+  and F = 10 and Poisson F = 10, 24 runs per cell: **a weak broadcast homogenises and a strong
+  one fragments, with a threshold that falls as the lattice grows.** F = 10 uniform, L = 40, q = 30:
+  at B = 0.01 the largest region is 0.98 and 98% of sites hold the media culture exactly; at
+  B = 0.03, 0.92; at B = 0.1, 0.60 (234 regions); at B = 0.3, 0.10. The B where S crosses 0.5
+  is about 0.2 at L = 20 and 0.11 at L = 40 (F = 10 uniform), about 0.09 and 0.04 (Poisson F = 10),
+  and about 0.02 and 0.01 (F = 3, from a lower start at L = 20): it falls with L in all three, so
+  I would not extrapolate a fixed B_c to a country-sized lattice; only two sizes were run. F = 3 at L = 40
+  shows no homogenising stage: S is 0.94 without media and 0.87 at B = 0.003. This
+  refines the earlier "fragments rather than homogenises" reading, which came from q where the
+  society was already disordered (q = 20, 40) or from B above this threshold. Not run: noise
+  (Klemm et al. 2003), more than one media culture, L > 40, a fixed media seed per cell (one seed
+  base, 24 runs; each run draws its own media culture).
+
 F, q, B and the single global media culture are chosen, not measured; the finding is about
 simulated agents. Next: L = 150 and more runs per cell, noise (Klemm et al. 2003), and
 contacting the paper's setup (periodic boundaries, q grid) to explain the factor of five.
