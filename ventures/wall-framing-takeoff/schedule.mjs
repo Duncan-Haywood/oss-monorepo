@@ -339,6 +339,7 @@ export function scheduleText(s) {
  * @param {any} s */
 export function scheduleCsv(s) {
   const q = (/** @type {any} */ v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
+  if (!s || typeof s !== "object") throw new TypeError("scheduleCsv needs a schedule result");
   if (!s.ok) return s.errors.map((/** @type {string} */ e) => q("error: " + e)).join("\n") + "\n";
   const rows = [["id", "name", "crew", "days", "start", "finish", "slack", "critical", "note"],
     ...s.rows.slice().sort((/** @type {any} */ a, /** @type {any} */ b) => a.leveledStart - b.leveledStart || a.es - b.es).map((/** @type {any} */ r) => [r.id, r.name ?? "", r.crew ?? "", r.days, r.startDate, r.finishDate, r.slack, r.critical ? "yes" : "no", r.derived ?? ""])];

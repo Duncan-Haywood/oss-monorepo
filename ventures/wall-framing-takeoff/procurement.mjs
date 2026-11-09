@@ -72,6 +72,7 @@ export function procurementText(p) {
 export function procurementCsv(p) {
   const q = (/** @type {any} */ v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; };
   const c = (/** @type {any} */ v) => { const s = q(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  if (!p || !Array.isArray(p.rows)) throw new TypeError("procurementCsv needs a procurement result");
   const head = "order_by,item,supplier,lead_days,buffer_days,activity,need_date,critical,status,days_late,cost";
   return [head, ...p.rows.map((/** @type {any} */ r) => [r.orderBy, r.item, r.supplier, r.leadDays, r.bufferDays, r.activity, r.needDate, r.critical ? "yes" : "no", r.status, r.daysLate, r.cost ?? ""].map(c).join(","))].join("\n") + "\n";
 }
