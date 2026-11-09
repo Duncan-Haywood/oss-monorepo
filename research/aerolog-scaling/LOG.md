@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 6 (hub): which resource binds first at a delivery-drone hub? (predictions in `experiments/hub_throughput/run.py`'s docstring, fixed before the run)
+- Why: the track's ground-side question, untouched until now. Discrete-event model of pads, chargers and spare packs, validated against Erlang C; swap time (Matternet, under 60 s) and charge time (DJI Dock 2, 32 min for 20 to 90%) are vendor figures.
+### Outcome (`experiments/hub_throughput/results.txt`)
+- Validation: simulated mean wait within 0.6% of Erlang C at utilisation 0.5, 0.7, 0.85. **P3 held.**
+- 4 pads, 4 chargers: charge-in-place saturates at 9.8 flights/h; swap's pad limit is 80/h (8.2x) but its charger limit is 10.7/h, so measured swap is 1.09x charge-in-place. **P1 as worded (pad limit) held; the practical gain is not 8x.** Swapping moves the bottleneck from the pad to the chargers, it does not remove the energy-to-pack limit.
+- Chargers bound in every swap case run (pads 4 to 8, chargers 4 to 16, load 1 to 5 min). **P2 held** (chargers, not pads, bind unless chargers exceed about 3.7 per pad at 70% pack use).
+- Spare packs: at 90% of the binding limit (8 pads, 8 chargers) mean wait is 790 s with 9 spares, 37 s with 24, 12 s with 32; the pack inventory needs about 3 times the charger count to stop queueing.
+- Limits: Poisson arrivals, linear charge time (real charge curves taper), a single pack per aircraft, vendor figures for two small multicopter systems not a cargo VTOL, no cell thermal limits. Preliminary.
+- Next: size chargers and packs for the cargo VTOL's pack energy from vtol_sizing (kWh not 70% of a small pack), and add arrival bursts.
+
 ## 2026-11-09 · Milestone 10r: does coupling pack peak power to cell energy density change the break-even? (predictions in `vtol_sizing/correlated_pack.py`'s docstring, fixed before the run)
 - Why: 10n's "Next" and its limit "uniform independent inputs; peak power and cell energy density are anticorrelated". `experiments/vtol_sizing/correlated_pack.py` couples p_batt and e_cell with a Gaussian copula at rank correlation rho = -0.9 to +0.3 (marginals unchanged on 10m's ranges; N = 4,000, seed 7, stdlib, about 1 minute). rho is swept, not measured: the four Molicel cells of 10o are too few to fit it.
 ### Outcome (`experiments/vtol_sizing/correlated_pack_results.txt`)
