@@ -31,24 +31,24 @@
       <li>Safe ingest: planned copies with checksums, manifests and conflict detection; source media is never deleted.</li>
       <li>A catalog built from ingest manifests, and loaders for per-asset analysis output bound to a trusted production plan.</li>
       <li>Assembly of explicit render tasks, with resumable, lock-protected status files and a dry-run worker and scheduler.</li>
-      <li><strong>Cull a folder of photos offline:</strong> <code>shootflow cull FOLDER --out REPORT</code> scores every still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames as rejects. It writes an HTML report and, with <code>--write-xmp</code>, Lightroom/Bridge sidecars (keeper 4 stars, alternate 2, reject -1). Your photos are only read, and nothing is uploaded.</li>
+      <li><strong>Cull a folder of photos offline:</strong> <code>PYTHONPATH=src python3 -m shootflow.cli cull FOLDER --out REPORT</code> scores every still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames as rejects. It writes an HTML report and, with <code>--write-xmp</code>, Lightroom/Bridge sidecars (keeper 4 stars, alternate 2, reject -1). Your photos are only read, and nothing is uploaded.</li>
       <li>Check it against your own taste: <code>--picks FILE</code> lists the frames you would keep and the report shows how often its keeper was one of yours and how many of your picks it flagged reject. It has not yet been measured on a real wedding or event shoot, so run that check before trusting it.</li>
     </ul>
   </section>
   <section>
     <h2>What does not exist yet</h2>
-    <p>The renderers are dry-run placeholders: ShootFlow does not yet render video or grade images, and there is no app. The direction is a Mac app for human review or editor handoff. Treat this as a design and a tested core, not a finished product.</p>
+    <p>There is no app and no installed <code>shootflow</code> command yet (run it as <code>PYTHONPATH=src python3 -m shootflow.cli</code>). Rendering and grading go through local ffmpeg adapters that are tested on small synthetic media, not yet on a full shoot; the dry-run adapter is the default for planning. The direction is a Mac app for human review or editor handoff. Treat this as a design and a tested core, not a finished product.</p>
   </section>
   <section id="faq">
     <h2>Questions</h2>
     <h3>Does ShootFlow delete or change the photos on my memory card?</h3>
     <p>No. Ingest copies with checksums and writes a manifest, and the source media is never deleted. Keep your own backups regardless: this is early-stage software.</p>
     <h3>How do I cull a folder of photos offline?</h3>
-    <p>Run <code>shootflow cull FOLDER --out REPORT</code>. It scores each still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames as rejects. Your photos are only read, and nothing is uploaded.</p>
+    <p>Run <code>PYTHONPATH=src python3 -m shootflow.cli cull FOLDER --out REPORT</code>. It scores each still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames as rejects. Your photos are only read, and nothing is uploaded.</p>
     <h3>Can it write Lightroom or Bridge ratings?</h3>
     <p>Yes, with <code>--write-xmp</code> it writes sidecar files: keeper 4 stars, alternate 2, reject -1.</p>
     <h3>Does it render video or grade images yet?</h3>
-    <p>No. The renderers are dry-run placeholders and there is no app yet. Treat it as a design and a tested core.</p>
+    <p>Partly. Local ffmpeg adapters can grade and render, but they are tested only on small synthetic media, not a full shoot, and there is no app yet. Treat it as a tested core.</p>
     <h3>Has the culling been tested on real shoots?</h3>
     <p>Not yet on a real wedding or event shoot. Pass <code>--picks FILE</code> with the frames you would keep and the report shows how often its keeper matched yours, so you can check it against your own taste first.</p>
   </section>
