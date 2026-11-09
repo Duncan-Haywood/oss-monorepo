@@ -79,6 +79,7 @@
       <div><label for="debtor-bic">Your BIC (optional)</label><input id="debtor-bic" autocomplete="off" placeholder="CAIXESBBXXX"></div>
       <div><label for="exec-date">Execution date</label><input type="date" id="exec-date"></div>
       <div><label for="version">File version</label><select id="version"><option value="pain.001.001.03">pain.001.001.03 (most banks)</option><option value="pain.001.001.09">pain.001.001.09 (newer)</option></select></div>
+      <div class="checkbox-row"><input type="checkbox" id="instant"><label for="instant">Send as SEPA Instant (arrives in seconds, 100,000 EUR per payment at most; your bank must offer it for file uploads)</label></div>
       <div class="checkbox-row"><input type="checkbox" id="batch" checked><label for="batch">Book as one batch line on my statement</label></div>
     </div>
     <p>
@@ -169,7 +170,7 @@
       const now = new Date();
       return {
         debtorName: $("#debtor-name").value, debtorIban: $("#debtor-iban").value, debtorBic: $("#debtor-bic").value,
-        date: $("#exec-date").value, version: $("#version").value, batchBooking: $("#batch").checked,
+        date: $("#exec-date").value, version: $("#version").value, batchBooking: $("#batch").checked, instant: $("#instant").checked,
         created: localStamp(now), today: new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())),
       };
     };
