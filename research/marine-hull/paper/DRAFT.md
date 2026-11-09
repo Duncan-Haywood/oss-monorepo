@@ -138,7 +138,7 @@ Limits to carry with it: one tack price per row (tau is pure dead time), 10 buoy
 ## 3. What would make it submittable
 
 1. Milestone 3: one published small-hull resistance *curve* (Wigley or a tank series) reproduced to
-   a stated error (one point, Ju 1983 via Wang et al. 2017, is done: milestone 3a; zenodo.org was reachable). Data hosts tried and refused or unreachable from the session: eprints.soton.ac.uk
+   a stated error (one point, Ju 1983 via Wang et al. 2017, is done: milestone 3a; six points of Kajitani et al. 1983, read second-hand from Ahmed et al. 2015 Table 5 through a public transcription, give an implied form factor that moves from about 0 to 0.5 with the unknown model length: milestone 3m; the primary table is still needed). Data hosts tried and refused or unreachable from the session: eprints.soton.ac.uk
    (401), jtse.utm.my (connection reset), mdpi.com and jmr.unican.es (earlier sessions).
    A run with a reachable host, or the owner supplying a table, unblocks it.
 2. Open and cite the Wave Glider sheet, the module datasheets and the Renewable Energy 2022 paper
