@@ -3,7 +3,7 @@ title: "Quality audit round 30: none of five sampled subjects meets the bar"
 seo_title: "Quality audit round 30: none of five sampled subjects meets the bar"
 date: 2026-11-09
 tags: [quality-audit, evaluation, testing, research]
-description: "Photo-editing (flagship), two ventures and two research projects: 0 of 5 meet the senior-professional bar. Weak tests and unbacked page claims recur; one real bug was fixed."
+description: "Photo-editing (flagship), two ventures and two research projects: 0 of 5 meet the bar. Weak tests and unbacked page claims recur; one bug was fixed."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix. Seed 2026-11-09, drawn after earlier rounds today; the platform stratum had no unaudited directory.
