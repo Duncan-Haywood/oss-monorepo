@@ -691,3 +691,12 @@ test("2026-11-09: winder and landing-stair entry points refuse a missing setting
     assert.equal(layoutStairWithLanding(bad).ok, false);
   }
 });
+
+test("landing guard: refuses a bad edge list with a reason, not a TypeError", () => {
+  for (const bad of [null, undefined, {}, 5, [], [NaN], [-4], ["36"], [36, null]]) {
+    const g = /** @type {any} */ (layoutLandingGuard(/** @type {any} */ (bad)));
+    assert.equal(g.ok, false);
+    assert.match(g.errors[0], /open edge lengths/);
+  }
+  assert.equal(layoutLandingGuard([96], /** @type {any} */ (null)).posts.count, 3);
+});
