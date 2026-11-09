@@ -155,3 +155,14 @@ test("a year-first date with slashes or dots is read like the ISO form", () => {
   assert.equal(r.rows, 2, JSON.stringify(r.skipped));
   assert.equal(r.avg[3][14], 15); // two Thursdays
 });
+
+test("noon, midnight and a weekday name leading the hour in one cell are read", () => {
+  const r = hourlySales("Day,Hour,Sales\nMonday,12 noon,50\nMon,midnight,5\nTue,noon,7\n");
+  assert.equal(r.rows, 3, JSON.stringify(r.skipped));
+  assert.equal(r.avg[0][12], 50);
+  assert.equal(r.avg[0][0], 5);
+  const one = hourlySales("Time,Sales\nThursday 2 PM,40\nFri 14:00-15:00,8\n");
+  assert.equal(one.rows, 2, JSON.stringify(one.skipped));
+  assert.equal(one.avg[3][14], 40);
+  assert.equal(one.avg[4][14], 8);
+});
