@@ -1,6 +1,6 @@
 ---
 title: "Which permit-duration interval should a tool ship: a table, or a boosted model?"
-seo_title: "Building permit duration prediction interval: simple per-type table vs LightGBM"
+seo_title: "Permit duration interval: per-type table vs LightGBM, three cities"
 date: 2026-11-09
 tags: [research, build-data, permits, conformal]
 description: "On three cities' open permit feeds, a plain per-type table gives the narrowest calibrated 80% interval in four of five city-target sets."
