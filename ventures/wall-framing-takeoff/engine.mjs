@@ -1165,7 +1165,7 @@ function lpPrimal(lp) {
  * restore primal feasibility with dual simplex pivots. Returns false when the tableau has
  * no spare room or the pivots did not settle: the caller starts over with `lpStart`.
  */
-function lpAddRow(lp, counts, c) {
+function lpAddRow(lp, counts, c, settle = true) {
   const { n, W, T, basis } = lp;
   if (lp.m >= lp.cap) return false;
   const row = new Float64Array(W);
@@ -1180,8 +1180,14 @@ function lpAddRow(lp, counts, c) {
   T.push(row);
   basis.push(n + lp.m);
   lp.m++;
+  return settle ? lpDualSettle(lp) : true;
+}
+
+/** Dual simplex pivots until every right-hand side is nonnegative; false if they did not settle. */
+function lpDualSettle(lp) {
+  const { W, T } = lp;
   const { z } = lp;
-  for (let iter = 0; iter < 5000; iter++) {
+  for (let iter = 0; iter < 20000; iter++) {
     let leave = -1;
     let low = -1e-9;
     for (let r = 0; r < lp.m; r++) if (T[r][W - 1] < low) { low = T[r][W - 1]; leave = r; }
@@ -1268,7 +1274,8 @@ function columnGeneration(items, boards) {
     const demand = items.map((it) => it.d);
     let ok = tab && tabRows <= patterns.length;
     if (ok) {
-      for (let j = tabRows; j < patterns.length && ok; j++) ok = lpAddRow(tab, patterns[j].counts, boards[patterns[j].board].price);
+      for (let j = tabRows; j < patterns.length && ok; j++) ok = lpAddRow(tab, patterns[j].counts, boards[patterns[j].board].price, false);
+      if (ok) ok = lpDualSettle(tab);
     }
     if (!ok) {
       tab = lpStart(patterns.map((p) => p.counts), demand, patterns.map((p) => boards[p.board].price), 4 * n + 200);
