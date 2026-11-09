@@ -767,3 +767,25 @@ test('a non-input element with the right id is not treated as a rate field', () 
   assert.equal(m.nodes.wage.value, 31);
   assert.equal(m.nodes.burden.value, 22);
 });
+
+// ---------------------------------------------------------------------------
+// Red-team 2026-11-09: three mutants escaped the suite; these catch them.
+// ---------------------------------------------------------------------------
+test('clear forgets the saved rates, counts one event and hides the saved list', () => {
+  const m = mount({ stored: JSON.stringify({ hourlyWage: 20, burdenRate: 10 }) });
+  m.click('clear');
+  assert.equal(m.data.has(SHOP_RATES_KEY), false);
+  assert.equal(m.usage().shop_rates_cleared, 1);
+  assert.match(m.nodes['pf-rates-status'].textContent, /^Forgotten/);
+  // the other buttons must not clear anything
+  const k = mount({ stored: JSON.stringify({ hourlyWage: 20, burdenRate: 10 }) });
+  k.click('apply');
+  assert.equal(k.data.has(SHOP_RATES_KEY), true);
+  assert.equal(k.usage().shop_rates_cleared, undefined);
+});
+
+test('the bar and its panel paragraphs use valid margins (a unitless 1 would be dropped by the browser)', () => {
+  const css = renderShopRatesStyle();
+  assert.match(css, /\.pf-rates\{[^}]*margin:0 auto 12px;/);
+  assert.match(css, /\.pf-rates-panel p\{margin:0 0 10px\}/);
+});
