@@ -2,6 +2,17 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 7aa: does 7y's reading hold with a second, weaker LLM (Qwen2.5-0.5B-Instruct, fear J 0.264, sadness J 0.265)? (prediction written after the scores were cached and before the rule comparison ran; `LLM=Qwen2.5-0.5B-Instruct experiments/h7y_drop_screen.py <category> 500 <n>`)
+- Why: the open item since 7y was a second LLM. Scored the same GoEmotions test part (6,683 items) for fear and sadness with Qwen2.5-0.5B-Instruct zero-shot (`llm_code_goemotions.py`, about 7 min per category on 4 CPU cores); same cut rule, seed and draws as 7y. The script now reads the model from `LLM` (default unchanged).
+- **Prediction:** `neg_guard=3` alone covers 93% or more in all four cells (two categories, n = 500 and 2,000). Refuted if any cell is under 93%. A weaker coder should shrink the width gain; I expected under 10% at n = 2,000.
+
+### Outcome (`experiments/h7y_{fear,sadness}_n{500,2000}_0.5B.txt`; 500 draws, +/- 1.9 points; one run each)
+- Coverage, `neg_guard=3` alone: fear 96.6 (n 500), 96.0 (n 2000); sadness 96.2, 95.4. Pooled 93.8 to 95.8; shipped default 94.6 to 97.8. Prediction supported: no cell under 93%.
+- Half-width against pooled for `neg_guard=3` alone: n = 500 fear +1.9% (wider), sadness +3.4% (wider); n = 2,000 fear -9.6%, sadness -6.0%. Shipped default: -0.3 to -2.2% at n = 500 and 0 / -2.2% at n = 2,000, since the screen sends nearly every draw to pooled (cells in 0 to 26%).
+- Against the 1.5B coder (J 0.46 and 0.62) the n = 2,000 gain is smaller (17% and 29%), as expected, but it does not vanish: a coder with J 0.26 still buys 6 to 10% at a third of the corpus. At n = 500 the guard-only rule costs 2 to 3% width with the weak coder, where with 1.5B it was within 3%.
+- Limits: two categories only, one corpus, two sizes of one model family (not a second family), one run each. Library default unchanged. Still open: a second corpus, a different model family.
+- Next: second corpus; the n = 500 width cost suggests keeping the screen off only when n is large relative to the pilot.
+
 ## 2026-11-08 · Paper catch-up: 7a to 7f into Section 6 (no experiment)
 - Added one paragraph to `paper/paper.md` Section 6 (library code, 7c end-to-end match, 7d 2,000-draw 94.1%, 7f reference check); numbers checked against `h7d_admiration_2000.txt` and the 7c to 7f entries. Section 6 now covers 6 to 7z. Open: second LLM or corpus before dropping tau; LaTeX in the venue format.
 

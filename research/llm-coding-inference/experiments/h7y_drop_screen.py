@@ -17,7 +17,9 @@ import h6r_rare_pilot as P  # noqa: E402
 import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
 
-SEED, MODEL = 20261107, "Qwen2.5-1.5B-Instruct"
+import os
+SEED, MODEL = 20261107, os.environ.get("LLM", "Qwen2.5-1.5B-Instruct")  # 7aa: LLM=Qwen2.5-0.5B-Instruct for a second LLM
+SUF = "" if MODEL == "Qwen2.5-1.5B-Instruct" else "_" + MODEL.split("-")[1]
 RULES = (("pooled", 2.0, 0, 0), ("shipped default (neg_guard 3)", A.TAU, A.GUARD, A.NEG_GUARD), ("neg_guard=3 alone", 0.0, 0, A.NEG_GUARD))
 
 
@@ -55,7 +57,7 @@ def main():
             hw += (hi - lo) / 2; cov += lo <= truth <= hi
         line = f"{name} | {100*nc/REPS:.0f} | {100*cov/REPS:.1f} | {100*hw/REPS:.3f}"
         out.append(line); print(line, flush=True)
-    print(out[0]); (HERE / f"h7y_{CAT}_n{N}.txt").write_text("\n".join(out) + "\n")
+    print(out[0]); (HERE / f"h7y_{CAT}_n{N}{SUF}.txt").write_text("\n".join(out) + "\n")
 
 
 main()
