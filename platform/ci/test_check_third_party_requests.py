@@ -31,6 +31,12 @@ class ThirdPartyRequests(unittest.TestCase):
                 '<script src="app.js"></script>')
         self.assertEqual(h(html), [])
 
+    def test_input_only_src_is_a_request(self):
+        # <input type=image src=...> fetches; a value/href-like attribute does not.
+        self.assertEqual(h('<input type="image" src="https://t.io/p.gif">'), ["t.io"])
+        self.assertEqual(h('<input value="x" href="https://t.io/p">'), [])
+        self.assertEqual(h('<input data-src="https://t.io/p">'), [])
+
     def test_css_url_and_import(self):
         html = '<style>@import "https://x.test.io/a.css";b{background:url(https://y.io/i.png)}</style>'
         self.assertEqual(h(html), ["x.test.io", "y.io"])
