@@ -35,3 +35,4 @@ owner: duncan
 hypotheses:
   - claim: "Club treasurers and small collectors will pick a collection date from the tool's TARGET-calendar warning (Good Friday, Easter Monday, 1 May, 25/26 Dec, weekends, under one business day of lead) rather than learning from a bank rejection; measured as the share of conversions whose date finding is raised and followed by a re-run with a different date."
     status: untested
+    evidence: in-repo
