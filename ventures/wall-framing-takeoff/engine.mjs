@@ -641,6 +641,9 @@ export function layoutWall(plan, wall) {
   } else if (plan.studLength > 120 + EPS) {
     notes.push(`the studs are ${formatInches(plan.studLength)}: fire blocking is needed at most 10 ft apart (set blocking.fire).`);
   }
+  // A wide opening left on the default one jack and one king per side: the default is a convenience, not a code answer.
+  const wideDefault = zones.filter((z) => z.op.width > 48 + EPS && z.op.jacks === undefined && z.op.kings === undefined).map((z) => `${z.op.label || z.op.kind} (${formatInches(z.op.width)})`);
+  if (wideDefault.length) notes.push(`${wideDefault.join(", ")} wider than 4 ft framed with the default 1 jack and 1 king per side: wide headers usually need more jacks (set jacks and kings per opening from your span table or engineer).`);
   if (shortCripples.length) notes.push(`short top cripples over ${shortCripples.join(", ")}. Header sizes are yours to check.`);
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
