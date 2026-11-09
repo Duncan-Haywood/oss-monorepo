@@ -1,12 +1,12 @@
 ---
-title: "Quality audit round 30: none of four sampled subjects meets the bar"
-seo_title: "Quality audit round 30: none of four sampled subjects meets the bar"
+title: "Quality audit round 31 (a second audit of round 30's subjects): none of four sampled subjects meets the bar"
+seo_title: "Quality audit round 31 (a second audit of round 30's subjects): none of four sampled subjects meets the bar"
 date: 2026-11-09
 tags: [quality-audit, evaluation, testing, research]
-description: "Two ventures, two research projects and the photo-editing flagship: none meets the bar. A factor-of-4 error in a research headline; seeded bugs the tests miss."
+description: "A second, independent audit of round 30's five subjects: none meets the bar, and it disagrees with the first on rank-elicitation (a factor-of-4 error)."
 ---
 
-Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix. Seed 2026-11-09 (the platform stratum had no unaudited directory).
+Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix. Seed 2026-11-09. A parallel session drew the same seed and landed round 30 (#14327) while this one ran, so this is a second, independent audit of the same five subjects, filed as `*-b.json`. Where the two disagree (for example rank-elicitation correctness 2 here against 3 there, because of the Brier factor-of-4 below) the audit files carry the evidence.
 
 ## The number
 
