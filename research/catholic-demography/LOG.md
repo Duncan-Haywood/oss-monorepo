@@ -3,6 +3,28 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-09 · Milestone 5b, fifth GSS-only step: the within-cohort rise is a web-interview effect
+
+Run: `experiments/m5f_mode/run.py` (output `results.txt`, tables `t21`, `t22`; same weights and 500-draw PSU bootstrap,
+seed 1, as 5a to 5e). **Order of events:** the prediction was written into the script's docstring before it ran: if the
++1.33 within-cohort term of 5e came from who answers by web, the in-person-only 2021-24 sample would show a within-cohort term
+near zero and the web minus in-person gap would be positive in most cohorts. Population as 5e; 2021-24 split by GSS `mode`
+(1 in person n=1,279; 4 web n=4,048; telephone and video, n=611, are in the pooled series only).
+
+- **Raised-Catholic share, 2021-24.** In person 25.7% [23.0, 28.1], web 31.0% [29.5, 32.8]; 2000-09 was 27.0%.
+- **Within-cohort term against 2000-09.** In person **-2.53 [-5.35, -0.17]**, web **+3.05 [+0.99, +4.88]**; replacement is
+  the same sign and size in both (+1.20 and +0.96). Web minus in person within 2021-24: R +5.34 [+2.45, +8.28], almost all
+  within-cohort (+5.71 [+2.85, +8.69]). Web exceeds in person in each of the four cohorts present (1930-44 +10.5 points,
+  1945-59 +3.7, 1960-74 +8.7, 1975+ +4.3).
+- **My prediction is supported, more strongly than I stated it:** the in-person term is not near zero but negative, so the
+  pooled +1.33 is a mixture of a falling in-person series and a rising web series. Cohort replacement (about +1 point) is the
+  only component that agrees across modes.
+- **Limits.** Mode is not randomised: web respondents differ in who they are (and the 2021 wave was a web push), so this is a
+  mode-by-respondent difference, not a pure measurement effect; m3b used the 2022 split-ballot design for attendance and the
+  same test is open here. In person after 2020 is a small sample (n=117 to 468 per cohort). Weights are not mode-adjusted.
+  Reading the 2021-24 rise in raised-Catholic as real would need that check first. H4 stays undecided.
+- **Next.** Check the 2022 randomised mode comparison for `rel16`, then NCHS/ACS series (5b proper).
+
 ## 2026-11-09 · Milestone 5b, fourth GSS-only step: about half the third-plus non-Hispanic white rise is cohort replacement, the rest is not separable from zero
 
 Run: `experiments/m5e_cohort/run.py` (output `results.txt`, tables `t19`, `t20`; same weights and 500-draw PSU
