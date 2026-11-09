@@ -1,8 +1,8 @@
 ---
 title: "Why \"every 76 years\" is six months out for Halley's comet: a Hearth & Horizon story"
-seo_title: "Halley's comet 2061: why the 76-year rule is wrong and what Kepler gives"
+seo_title: "Halley's comet 2061: why the 76-year rule is wrong"
 date: 2026-11-09
-description: "A new Hearth & Horizon story: Kepler gives Halley 75.4 years, the rule of 76 lands 196 days after the predicted 28 July 2061 perihelion, and a boy and an old man share a notebook."
+description: "A new Hearth & Horizon story: Kepler gives Halley 75.4 years, so the 76-year rule lands 196 days after the predicted 28 July 2061 perihelion."
 tags: [hearth-and-horizon, fiction, arithmetic, astronomy]
 ---
 
