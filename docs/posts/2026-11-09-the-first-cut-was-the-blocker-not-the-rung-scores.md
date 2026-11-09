@@ -3,7 +3,7 @@ title: "The first cut, not the rung scores, blocked a design-search guarantee"
 seo_title: "Successive halving certificate: first keep, chip design search"
 date: 2026-11-09
 tags: [research, verified-dse, successive-halving]
-description: "Correcting yesterday's claim: widening the first keep certifies 18 of 20 three-rung chip design-search cells, against 8 with the first keep at a third of the pool."
+description: "Correcting yesterday: widening the first keep certifies 18 of 20 three-rung chip design-search cells, against 8 with the first keep at a third of the pool."
 ---
 
 Yesterday's post said that even the widest middle and final cuts left 12 of 20
