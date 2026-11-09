@@ -1793,3 +1793,13 @@ The gas takeoff above cleared its bar by about 1% with seed 1. `eval/au-gas-seed
 - **`--bootstrap --ar1`** is refused by the CLI, as documented.
 
 One series, dates from the literature, no rate claimed. It adds a second look at the 1973 and 1981 dates at monthly resolution, where the quarterly series put them within a quarter.
+
+## Canada's baby boom: a documented step that every model dates, and a series where `--ar1` finds nothing (2026-11-09)
+
+`data/canada-fertility.csv` is Canada's total fertility rate (births per 1,000 women), 1931 to 1968, 38 values (`carData::Hartnagel`, column `tfr`; `canada-fertility.test.mjs`, 3 tests). The postwar baby boom starting in 1946 is the documented step (date recalled, not read from a source); the 1960s fall is a decline over several years, not a step.
+
+- **Default mean model:** seven cuts (1933, 1942, 1946, 1953, 1963, 1965, 1967). 1946 is one of them, 3018 to 3488 (a jump of 356 in one year, 3018 to 3374). The series has rho about 0.95, so the other six are mostly a staircase over drifting levels, and the tool says so.
+- **`--model meanvar`:** two cuts, 1946 (2869 to 3651, 8.8 noise sds, 95% Bayesian probability) and 1959, where the volatility rises as the fall begins. `--model trend`: 1937, 1946, 1962.
+- **`--ar1` and `--ar1 joint`:** no change at all, 1946 included. With rho 0.95 and 38 points, widening the noise scale swallows a real step; this is the opposite failure to the over-cutting `--ar1` fixes elsewhere.
+- **`--slope-breaks`:** refused, 38 points is under its 40-point minimum.
+- **What it says.** The one documented date is found by every model that is allowed to cut, so on a strongly autocorrelated series with a real step, `meanvar` was the model that gave the cleanest, shortest answer. One series, no rate claimed; it is a second real case, after the Peace Bridge, of `--ar1` removing a true change.

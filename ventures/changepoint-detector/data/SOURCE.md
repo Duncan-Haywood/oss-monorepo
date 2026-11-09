@@ -605,3 +605,4 @@ of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/DJIA8012.csv>.
 - **Licence:** AER is GPL-2/3 on CRAN; the figures are public index levels. Kept as a test fixture with its source named.
 - **Used by:** `djia-returns.test.mjs`, README "Dow Jones returns: 1987 and 2008".
+canada-fertility.csv: Canada total fertility rate 1931-1968 (carData::Hartnagel, column tfr via Rdatasets).
