@@ -50,6 +50,7 @@ const PILOTS = {
   '529-to-roth-rollover-calculator': async (m) => [m.DEFAULTS.lifetimeCap], // statutory lifetime cap, IRC 529(c)(3)(E)
   'child-tax-credit-calculator': async (m) => [m.CTC_PER_CHILD, m.ODC_PER_DEPENDENT, m.ACTC_CAP_PER_CHILD, m.PHASEOUT_THRESHOLD_OTHER, m.PHASEOUT_THRESHOLD_JOINT],
   'dependent-care-fsa-vs-credit-calculator': async (m) => [m.FSA_LIMIT, m.CAP_ONE, m.CAP_TWO, m.FSA_LIMIT / 2, 5000], // FSA limit, credit caps, separate-return half, and the pre-2026 FSA limit named as context; 26 USC 129 and 21
+  'home-office-deduction-calculator': async (m) => [m.SIMPLIFIED_RATE, m.SIMPLIFIED_MAX_SQFT, m.SIMPLIFIED_MAX],
   'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
 };
 
