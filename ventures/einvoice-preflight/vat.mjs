@@ -264,7 +264,7 @@ function classify(country, body) {
   // INN 9 digits; Moldova IDNO 13 digits; Georgia 9 digits (company) or 11 (individual); Armenia TIN 8
   // digits; Tanzania TIN 9 digits; Uganda TIN 10 digits; Zambia TPIN 10 digits; Rwanda TIN 9 digits.
   if (country === "MA") return /^\d{15}$/.test(body) ? "format" : "bad-format";
-  if (country === "AZ") return /^\d{10}$/.test(body) ? "format" : "bad-format";
+  if (country === "AZ") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
   if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
   if (country === "MD") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "GE") return /^(\d{9}|\d{11})$/.test(body) ? "format" : "bad-format";
@@ -605,6 +605,16 @@ function mdIdnoOk(body) {
   return body.slice(0, 12).split("").reduce((a, c, i) => a + w[i % 3] * Number(c), 0) % 10 === Number(body[12]);
 }
 
+// Azerbaijan VOEN (10 digits): the ninth digit is the weighted sum of the first eight (weights
+// 4,1,8,6,2,7,5,3) mod 11, so a remainder of 10 fits no digit and the number is refused; the tenth
+// digit is the taxpayer status, 1 (legal person) or 2 (natural person). Rule from python-stdnum
+// az.voen and its three doctest numbers; the Ministry of Taxes text is unread.
+function azVoenOk(body) {
+  const w = [4, 1, 8, 6, 2, 7, 5, 3];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return (body[9] === "1" || body[9] === "2") && String(sum % 11) === body[8];
+}
+
 // Taiwan GUI (統一編號), 8 digits: weights 1,2,1,2,1,2,4,1, each product's digits added;
 // valid when the total is a multiple of 5 (the divisor since 2023; it was 10), and a 7 in
 // the seventh place also accepts total + 1. Open-source rule (python-stdnum tw.ubn); the
@@ -676,6 +686,7 @@ function checksumOk(country, body) {
   if (country === "DO") return doTaxIdOk(body);
   if (country === "VE") return veRifOk(body);
   if (country === "MD") return mdIdnoOk(body);
+  if (country === "AZ") return azVoenOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;

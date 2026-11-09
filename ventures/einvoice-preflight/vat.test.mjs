@@ -363,7 +363,9 @@ test("Saudi and South African VAT numbers get a shape check", () => {
   assert.deepEqual(rules("MYX12345678"), ["INV-022"]);
   assert.deepEqual(rules("MA001234567000012"), []);
   assert.deepEqual(rules("MA12345678"), ["INV-022"]);
-  assert.deepEqual(rules("AZ1234567890"), []);
+  assert.deepEqual(rules("AZ1401555071"), []);
+  assert.deepEqual(rules("AZ1401555081"), ["INV-023"]);
+  assert.deepEqual(rules("AZ1400057424"), ["INV-023"]);
   assert.deepEqual(rules("AZ12345"), ["INV-022"]);
   assert.deepEqual(rules("UZ123456789"), []);
   assert.deepEqual(rules("MD1234567890122"), []);
