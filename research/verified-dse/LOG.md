@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 102: widening the middle keep adds one cell over the final keep alone (no flow run)
+- Why: milestone 101 varied only the final keep K; 13 of 20 three-rung cells stayed uncertifiable. Predictions (written first, in `pilot_cert_mid.py`): (1) certified-cell count non-decreasing in the middle keep M and in K; (2) at K = 1 widening M certifies at most 2 of 20; (3) at M = 16, K = 8 at most 12 of 20.
+- **Outcome** (`experiments/theory/pilot_cert_mid.py`, `pilot_cert_mid_results.txt`, `tests/test_pilot_cert_mid.py`; exact counting on the cached table, keep (n//3, M, K)). All three held. Cells with a certified point: K = 1 gives 0 at every M from 2 to 16; at K = 3 or 5 it is 4 (M = 2), 6 (M >= 5); at K = 8 it is 4, 7, 8, 8, 8 for M = 2, 5, 8, 12, 16.
+- Reading: the middle cut binds only below M = 5 and saturates at M = 8. Even the widest corner (M = 16, K = 8, a third of the pool through the middle rung) certifies 8 of 20, against 7 at the 101 schedule: 12 of 20 cells have no certified point whatever the keeps, so the rung scores themselves, not the schedule, are what block a guarantee. Together with 100 this says: drop the cheapest rung rather than tune keeps.
+- Limits: same cached table, n = 50, one eta, first keep fixed at n//3; certification only, no regret or cost of the wider schedules.
+- Next: vary the first keep; detail-routed mult24/mult32 cells.
+
 ## 2026-11-09 · Milestone 101: a larger final keep rescues only a third of the three-rung cells (no flow run)
 - Why: milestone 100 left open whether a keep schedule with a larger final k makes the 20 three-rung cells certifiable. Predictions (written first): (1) the number certified is non-decreasing in the final keep K in every cell; (2) at K = 2 fewer than 5 of 20 cells have a certified point; (3) at K = 5 at least 15 of 20 do.
 - **Outcome** (`experiments/theory/pilot_cert_keep.py`, `pilot_cert_keep_results.txt`, `tests/test_pilot_cert_keep.py`; exact counting on the cached table, keep (n//3, n//9, K)). (1) held. (2) held: 2 of 20 at K = 2. (3) **refuted**: cells with a certified point at K = 1 / 2 / 3 / 5 / 8 are 0 / 2 / 6 / 6 / 7 of 20; the median cell has none even at K = 8.

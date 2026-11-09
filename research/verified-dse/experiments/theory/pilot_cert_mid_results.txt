@@ -1,0 +1,28 @@
+cells with c >= 1 (of 20); rows M (middle keep), columns K (final keep) = 1 3 5 8
+M= 2 |  0  4  4  4
+M= 5 |  0  6  6  7
+M= 8 |  0  6  6  8
+M=12 |  0  6  6  8
+M=16 |  0  6  6  8
+monotone in M and K in every cell: True
+cell (tag, design, n): c at (M, K) = (5,5) (16,8)
+tight adder_op16 n=50: 1 1
+tight adder_ripple16 n=52: 0 0
+tight mult8 n=50: 0 3
+tight mac4 n=50: 2 5
+tight alu8 n=50: 0 0
+tight popcount16 n=50: 0 0
+tight barrel16 n=50: 0 0
+tight crc16 n=50: 0 0
+tight cmp_sat12 n=50: 4 6
+tight fifo8x4 n=50: 0 0
+relaxed adder_op16 n=50: 1 1
+relaxed adder_ripple16 n=52: 0 0
+relaxed mult8 n=50: 0 3
+relaxed mac4 n=50: 2 5
+relaxed alu8 n=50: 0 0
+relaxed popcount16 n=50: 0 0
+relaxed barrel16 n=50: 0 0
+relaxed crc16 n=50: 0 0
+relaxed cmp_sat12 n=50: 3 6
+relaxed fifo8x4 n=50: 0 0
