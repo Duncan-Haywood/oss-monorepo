@@ -1,6 +1,8 @@
 ---
 title: "Monthly US inflation, 1947 to 2004: three dates a changepoint tool finds, and a postwar mess it over-cuts"
 date: 2026-11-09
+description: "A changepoint detector run on 695 months of real US CPI inflation dates the 1973 surge and the 1981 Volcker fall, and over-cuts the 1947-52 postwar noise."
+tags: [changepoint-detection, inflation, time-series]
 ---
 
 We ran the open changepoint-detector on 695 months of US CPI inflation. With block-bootstrap penalties it dated the 1973 surge (August, 4.7 to 11.2 percent annualised), the Volcker disinflation (October 1981, 11.0 to 3.8) and a three-month dip in early 1986 that lines up with the oil-price collapse. The plain mean model returned 28 changes, 14 of them in 1947-52, where price controls ended and the Korean War spiked prices. Those are noise read as a staircase.
