@@ -1026,20 +1026,31 @@ export function mergeCuts(cuts, extra) {
  * sum(weight*count) <= cap and count <= bound. Returns { value, counts }.
  */
 export function boundedKnapsack(weights, values, bounds, cap) {
+  return boundedKnapsackMulti(weights, values, bounds, [cap])[0];
+}
+
+/**
+ * The same knapsack for several capacities at once: one table filled to the largest
+ * capacity holds the best value for every smaller one (best[c] is the best within c),
+ * so each capacity needs only its own walk back. Returns [{ value, counts }] in the
+ * order of `caps`.
+ */
+export function boundedKnapsackMulti(weights, values, bounds, caps) {
+  const top = Math.max(...caps);
   const chunks = [];
   weights.forEach((w, i) => {
-    let left = Math.min(bounds[i], Math.floor(cap / w));
+    let left = Math.min(bounds[i], Math.floor(top / w));
     for (let k = 1; left > 0; k *= 2) {
       const take = Math.min(k, left);
       chunks.push({ i, n: take, w: w * take, v: values[i] * take });
       left -= take;
     }
   });
-  const best = new Float64Array(cap + 1);
-  const keep = chunks.map(() => new Uint8Array(cap + 1));
+  const best = new Float64Array(top + 1);
+  const keep = chunks.map(() => new Uint8Array(top + 1));
   chunks.forEach((ch, k) => {
     if (ch.v <= 0) return;
-    for (let c = cap; c >= ch.w; c--) {
+    for (let c = top; c >= ch.w; c--) {
       const cand = best[c - ch.w] + ch.v;
       if (cand > best[c] + 1e-12) {
         best[c] = cand;
@@ -1047,15 +1058,17 @@ export function boundedKnapsack(weights, values, bounds, cap) {
       }
     }
   });
-  const counts = new Array(weights.length).fill(0);
-  let c = cap;
-  for (let k = chunks.length - 1; k >= 0; k--) {
-    if (keep[k][c]) {
-      counts[chunks[k].i] += chunks[k].n;
-      c -= chunks[k].w;
+  return caps.map((cap) => {
+    const counts = new Array(weights.length).fill(0);
+    let c = cap;
+    for (let k = chunks.length - 1; k >= 0; k--) {
+      if (keep[k][c]) {
+        counts[chunks[k].i] += chunks[k].n;
+        c -= chunks[k].w;
+      }
     }
-  }
-  return { value: best[cap], counts };
+    return { value: best[cap], counts };
+  });
 }
 
 /**
@@ -1265,8 +1278,9 @@ function columnGeneration(items, boards) {
     lp = lpResult(tab);
     let added = 0;
     let ratio = 0;
+    const priced = boundedKnapsackMulti(items.map((it) => it.w), lp.y, items.map((it) => it.d), boards.map((bd) => bd.cap));
     boards.forEach((bd, k) => {
-      const ks = boundedKnapsack(items.map((it) => it.w), lp.y, items.map((it) => it.d), bd.cap);
+      const ks = priced[k];
       if (bd.price > 0) ratio = Math.max(ratio, ks.value / bd.price);
       if (ks.value > bd.price * (1 + 1e-9) + 1e-9 && addPattern(k, ks.counts)) added++;
     });

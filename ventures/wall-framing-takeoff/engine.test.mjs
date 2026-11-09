@@ -1190,3 +1190,25 @@ test("a door wider than 4 ft on the default jacks and kings gets a note; explici
   assert.ok(!layoutWall(plan, mk({ kings: 2 })).notes.some((n) => /wider than 4 ft/.test(n)));
   assert.ok(!layoutWall(plan, mk({}, 36)).notes.some((n) => /wider than 4 ft/.test(n)));
 });
+
+test("boundedKnapsackMulti equals one knapsack per capacity", async () => {
+  const { boundedKnapsack, boundedKnapsackMulti } = await import("./engine.mjs");
+  let s = 42;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let t = 0; t < 20; t++) {
+    const n = 3 + Math.floor(r() * 8);
+    const w = Array.from({ length: n }, () => 20 + Math.floor(r() * 200));
+    const v = Array.from({ length: n }, () => r() * 2);
+    const b = Array.from({ length: n }, () => 1 + Math.floor(r() * 4));
+    const caps = [300, 500, 900].map((c) => c + Math.floor(r() * 50));
+    const multi = boundedKnapsackMulti(w, v, b, caps);
+    caps.forEach((cap, k) => {
+      const one = boundedKnapsack(w, v, b, cap);
+      assert.ok(Math.abs(multi[k].value - one.value) < 1e-9);
+      const used = multi[k].counts.reduce((a, c, i) => a + c * w[i], 0);
+      assert.ok(used <= cap);
+      const val = multi[k].counts.reduce((a, c, i) => a + c * v[i], 0);
+      assert.ok(Math.abs(val - multi[k].value) < 1e-9);
+    });
+  }
+});
