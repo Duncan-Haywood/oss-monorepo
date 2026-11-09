@@ -1,6 +1,6 @@
 ---
 title: "How many spare batteries does a cargo-drone hub need when orders arrive in bursts?"
-seo_title: "Drone delivery hub spare battery packs: burst arrivals queueing simulation"
+seo_title: "Drone hub spare battery packs: burst arrivals queueing model"
 date: 2026-11-09
 tags: [research, aerolog-scaling, drone-delivery]
 description: "A queueing simulation of a cargo-VTOL hub: batches of eight orders need about four times the spare packs that Poisson arrivals do."
