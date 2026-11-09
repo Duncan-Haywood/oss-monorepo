@@ -1,6 +1,6 @@
 ---
 title: "What can a small clothing brand pay to win a customer?"
-seo_title: "Customer lifetime value for a clothing brand: how much can you pay per customer"
+seo_title: "Clothing brand customer lifetime value: what can you pay per customer"
 date: 2026-11-09
 tags: [clothing-design-studio, pricing, marketing]
 description: "A new free calculator turns repeat purchases into the most a clothing brand can spend to win a customer, and the years to earn it back."
