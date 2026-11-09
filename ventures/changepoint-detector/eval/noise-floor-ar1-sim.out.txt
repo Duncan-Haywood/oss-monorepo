@@ -1,0 +1,19 @@
+n=120, reps=60, one step of 4 sd at t=60, model trend (ar1 arms: --model mean --trend --ar1), AR(1) phi 0.5
+noise sd 1 (drift 0.2 per step, step 4)
+  k=0 ar1=off: changes 4.77, step found 59/60, other cuts 3.67
+  k=0 ar1=on: changes 1.07, step found 36/60, other cuts 0.47
+  k=1 ar1=on: changes 1.07, step found 36/60, other cuts 0.47
+  k=1.5 ar1=off: changes 1.80, step found 59/60, other cuts 0.80
+  k=1.5 ar1=on: changes 0.53, step found 26/60, other cuts 0.10
+noise sd 0.3 (drift 0.2 per step, step 1.2)
+  k=0 ar1=off: changes 4.70, step found 59/60, other cuts 3.62
+  k=0 ar1=on: changes 1.08, step found 42/60, other cuts 0.37
+  k=1 ar1=on: changes 1.08, step found 42/60, other cuts 0.37
+  k=1.5 ar1=off: changes 1.27, step found 60/60, other cuts 0.27
+  k=1.5 ar1=on: changes 0.73, step found 36/60, other cuts 0.13
+noise sd 0.1 (drift 0.2 per step, step 0.4)
+  k=0 ar1=off: changes 4.70, step found 59/60, other cuts 3.62
+  k=0 ar1=on: changes 1.08, step found 39/60, other cuts 0.42
+  k=1 ar1=on: changes 1.08, step found 39/60, other cuts 0.42
+  k=1.5 ar1=off: changes 0.38, step found 23/60, other cuts 0.00
+  k=1.5 ar1=on: changes 0.72, step found 32/60, other cuts 0.18
