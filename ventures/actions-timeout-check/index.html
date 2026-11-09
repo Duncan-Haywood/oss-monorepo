@@ -48,6 +48,7 @@
   <header>
     <p class="note">ACTIONS TIMEOUT-MINUTES CHECK · RUNS IN YOUR BROWSER</p>
     <h1>Which of your Actions jobs can hang for six hours?</h1>
+    <p class="answer-source" data-answer-lead>A GitHub Actions job with no <code>timeout-minutes</code> is cancelled only after 360 minutes (six hours), which is both the default and the maximum; setting a lower value is how you cap a hung job. Source: GitHub Docs, "Workflow syntax for GitHub Actions", <code>jobs.&lt;job_id&gt;.timeout-minutes</code>. As of 2026-11-09.</p>
     <p>A GitHub-hosted job with no <code>timeout-minutes</code> is cancelled only after GitHub's default of <strong>360 minutes</strong>. One deadlocked test or stalled download then holds a runner — and on a private repository, bills minutes — for six hours instead of a few. Paste your workflow YAML below and this page lists every job that has no timeout, or one set to the 360 default, with the worst-case billed minutes for its runner and the one-line fix.</p>
     <p class="note">Nothing is uploaded. The YAML you paste is read in this browser and never leaves your device, and this tool makes no network calls of its own.</p>
   </header>

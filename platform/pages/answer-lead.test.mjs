@@ -243,3 +243,18 @@ test('estimated-tax-penalty-calculator: lead is sourced, dated and matches the c
   assert.match(text, /90%/);
   assert.match(text, /110%/);
 });
+
+// Actions timeout lead: the 360-minute default it states must be the one the classifier flags.
+test('actions-timeout-check: lead is sourced, dated and matches the classifier default', async () => {
+  const slug = 'actions-timeout-check';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  assert.match(text, /\b360 minutes/);
+  const { scanText } = await import(new URL(`${slug}/classify.mjs`, root));
+  const f = scanText('on: push\njobs:\n  a:\n    runs-on: ubuntu-latest\n    timeout-minutes: 360\n    steps:\n      - run: x\n');
+  assert.ok(f.some((x) => x.type === 'job-timeout-at-default'), 'classifier no longer treats 360 as the default');
+});
