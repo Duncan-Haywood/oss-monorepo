@@ -74,6 +74,8 @@ CHECKS = [
     ("experiments/vtol_sizing/sourced_cells_results.txt", "P42A       230       2314       1620          44", "10o: P42A 44 km"),
     ("experiments/vtol_sizing/derated_cells_results.txt", "P42A    44       58       86       130      170", "10p: P42A derating row"),
     ("experiments/vtol_sizing/derated_cells_results.txt", "P50S    22       28       40       60       78", "10p: P50S derating row"),
+    ("experiments/vtol_sizing/correlated_pack_results.txt", "-0.9      40   24   68     44", "10r: rho -0.9 row"),
+    ("experiments/vtol_sizing/correlated_pack_results.txt", "+0.3      38   22   68     46", "10r: rho +0.3 row"),
     ("experiments/vtol_sizing/global_sensitivity_results_n20000.txt", "sum of first-order indices 0.823", "10m: first-order sum 0.82"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
