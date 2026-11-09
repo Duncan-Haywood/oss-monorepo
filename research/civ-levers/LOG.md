@@ -1,5 +1,11 @@
 # civ-levers research log
 
+## 2026-11-09 · Broadcast on an ordered society, larger L (milestone 4, fifth run)
+
+- Plan: `axelrod.c` gains a global media field (sixth/seventh args `uniform|poisson B`; B = 0 draws no media so old streams are unchanged, tested). Earlier broadcast tests (L = 24, Python) used q where the no-media society was already fragmented in part. Choose q at 60 to 70% of the B = 0 transition at each (F, L, trait law) and sweep B 0 to 0.3 at L = 20, 40. Hypotheses: H1 a weak broadcast (B <= 0.01) raises S or media-share above 0.8 where the cell is ordered; H2 B_c (S = 0.5) falls as L rises; H3 strong B = 0.3 leaves S < 0.3 in every cell. I looked at a 6-run pilot before fixing the 24-run grid (the q choices were made from the pilot's ordered B = 0 cells; hypotheses were stated after seeing it, so treat them as confirmatory only for the 24-run data, which is a fresh draw).
+- Outcome (`experiments/culture/media_results.txt`): **H1 held for F = 10** (L = 40: S 0.98, media-share 0.98 at B = 0.01; Poisson L = 40 B = 0.003 media-share 0.79) and **not for F = 3** (S falls from 0.94 to 0.87 at B = 0.003 at L = 40). **H2 held**: S = 0.5 crossing about 0.2 to 0.11 (F = 10 uniform, L 20 to 40), 0.09 to 0.04 (Poisson), 0.02 to 0.01 (F = 3). **H3 held** in all six cells at B = 0.3 (S 0.05 to 0.26; the largest is F = 10 uniform, L = 20).
+- Caveats: two lattice sizes, crossings read by eye from a coarse B grid (no interpolated intervals); one media culture per run; no noise.
+
 ## 2026-11-08 · Plan: can the GSS panel pin down the tolerance epsilon? (milestone 6, `civ-calibrate`, first run, written before the run)
 
 - Data: the General Social Survey 2016-2020 panel (NORC, release 1, public download, `GSS_2020_panel_stata.zip`): the same respondents re-asked in 2016 and 2020 (4 years) and 2018 and 2020 (2 years). The cumulative GSS file has no respondent linkage, so it cannot be used. Items: the attitude items asked in both waves on 4 to 10 point scales, rescaled to [0, 1].
