@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Six Hundred Grams of Flour</title>
+      <link>https://example.invalid/hearth-and-horizon/six-hundred-grams-of-flour.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/six-hundred-grams-of-flour.html</guid>
+      <pubDate>Mon, 09 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A leak ruins most of a lunar station's altar-bread flour, and the freight ship is late again. The station's greenhouse assistant shows the priest how long six hundred grams lasts, what three square metres of wheat under lamps would cost, and which Masses can wait for the harvest. Setting: Cabeus Rim Station (invented), the lunar south pole, Sun 12 Dec 2094. Read the full text at https://example.invalid/hearth-and-horizon/six-hundred-grams-of-flour.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A leak ruins most of a lunar station's altar-bread flour, and the freight ship is late again. The station's greenhouse assistant shows the priest how long six hundred grams lasts, what three square metres of wheat under lamps would cost, and which Masses can wait for the harvest.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Twelve Kilos of Bell</title>
       <link>https://example.invalid/hearth-and-horizon/twelve-kilos-of-bell.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/twelve-kilos-of-bell.html</guid>
