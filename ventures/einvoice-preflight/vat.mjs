@@ -12,6 +12,10 @@ import { checkRut as checkUruguayRut } from "./uruguay.mjs";
 import { checkMst } from "./vietnam.mjs";
 import { checkRuc as checkEcuadorRuc } from "./ecuador.mjs";
 import { checkRuc as checkParaguayRuc } from "./paraguay.mjs";
+import { checkIsraeliId } from "./israel.mjs";
+import { checkRegistrationNumber as checkJapanRegistration } from "./japan.mjs";
+import { checkEgyptTrn } from "./egypt.mjs";
+import { checkKraPin } from "./kenya.mjs";
 
 const FORMAT_ONLY = {
   BG: [9, 10],
@@ -206,6 +210,13 @@ function classify(country, body) {
   if (country === "EC") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "PY") return /^\d{6,10}$/.test(body) ? "checksum" : "bad-format";
   if (country === "KZ") return /^\d{12}$/.test(body) ? "checksum" : "bad-format";
+  // IL has a check digit (python-stdnum rule, ITA text unread). JP, EG and KE are shape only:
+  // Japan's invoice number is T plus 13 digits (the "T" may be left off after the JP prefix);
+  // a corporate number's first digit is checked, an individual's is not, so no checksum verdict.
+  if (country === "IL") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "JP") return /^T?\d{13}$/.test(body) ? "format" : "bad-format";
+  if (country === "EG") return /^\d{9}$/.test(body) && checkEgyptTrn(body).ok ? "format" : "bad-format";
+  if (country === "KE") return checkKraPin(body).ok ? "format" : "bad-format";
   if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
   if (country === "UA") return /^\d{8}$/.test(body) ? "checksum" : /^\d{10}$/.test(body) ? "format" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
@@ -543,6 +554,7 @@ function checksumOk(country, body) {
   if (country === "VN") return checkMst(body).ok;
   if (country === "EC") return checkEcuadorRuc(body).ok;
   if (country === "PY") return checkParaguayRuc(body).ok;
+  if (country === "IL") return checkIsraeliId(body).ok;
   if (country === "KZ") return kzBinOk(body);
   if (country === "UA") return uaEdrpouOk(body);
   if (country === "GT") return gtNitOk(body);

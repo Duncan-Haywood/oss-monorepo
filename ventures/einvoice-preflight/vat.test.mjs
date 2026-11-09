@@ -287,3 +287,18 @@ test("Ecuador RUC and Paraguay RUC check digits reach the party VAT check", () =
   assert.deepEqual(rules("PY80016875-4"), ["INV-023"]);
   assert.deepEqual(rules("PY12"), ["INV-022"]);
 });
+
+test("Israel check digit and Japan, Egypt, Kenya shapes reach the party VAT check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // 000000018 is the hand-worked example in israel.mjs.
+  assert.deepEqual(rules("IL000000018"), []);
+  assert.deepEqual(rules("IL000000019"), ["INV-023"]);
+  assert.deepEqual(rules("IL12345"), ["INV-022"]);
+  assert.deepEqual(rules("JPT1234567890123"), []);
+  assert.deepEqual(rules("JP1234567890123"), []);
+  assert.deepEqual(rules("JPT12345"), ["INV-022"]);
+  assert.deepEqual(rules("EG123-456-789"), []);
+  assert.deepEqual(rules("EG12345678"), ["INV-022"]);
+  assert.deepEqual(rules("KEA123456789Z"), []);
+  assert.deepEqual(rules("KEX123456789Z"), ["INV-022"]);
+});
