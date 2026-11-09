@@ -558,7 +558,7 @@ export function lineRss(x, ks) {
  * Returns { adjusted, slope } with the slope per point; the adjusted series
  * keeps the mean level of the input.
  */
-export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false, joint = false, knotMargin = 0.1 } = {}) {
+export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false, joint = false, knotMargin = 0.1, quad = false } = {}) {
   const n = x.length;
   const d = [];
   for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
@@ -619,6 +619,48 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
     return { s, knots, y, bic: (n * Math.log(Math.max(rss, 1e-12) / n)) / infl + params * Math.log(n) };
   };
   let best = fit([]);
+  if (quad && n >= 40) {
+    // a smooth curve: slope s plus curvature q (slope grows by 2q per point), both fitted within the steps' segments
+    const qline = (s, q) => (t) => s * (t - c) + q * (t - c) ** 2;
+    let s = best.s[0], q = 0;
+    const pooled2 = (bounds) => {
+      let a11 = 0, a12 = 0, a22 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i + 1 < bounds.length; i++) {
+        const lo = bounds[i], hi = bounds[i + 1], len = hi - lo;
+        if (len < 8) continue;
+        let mu = 0, mw = 0, mx = 0;
+        for (let t = lo; t < hi; t++) { mu += t - c; mw += (t - c) ** 2; mx += x[t]; }
+        mu /= len; mw /= len; mx /= len;
+        for (let t = lo; t < hi; t++) {
+          const u = t - c - mu, w = (t - c) ** 2 - mw, z = x[t] - mx;
+          a11 += u * u; a12 += u * w; a22 += w * w; b1 += u * z; b2 += w * z;
+        }
+      }
+      const det = a11 * a22 - a12 * a12;
+      if (!(det > 1e-12 * a11 * a22) || !(a11 > 0)) return null;
+      return [(b1 * a22 - b2 * a12) / det, (a11 * b2 - a12 * b1) / det];
+    };
+    for (let k = 0; k < passes; k++) {
+      const cps = segment(detrend(qline(s, q)), 3);
+      const next = pooled2([0, ...cps, n]);
+      if (!next) break;
+      const done = Math.abs(next[0] - s) < 1e-9 && Math.abs(next[1] - q) < 1e-12;
+      [s, q] = next;
+      if (done) break;
+    }
+    const y = detrend(qline(s, q)), cps = segment(y, 1), bounds = [0, ...cps, n];
+    let rss = 0;
+    for (let i = 0; i + 1 < bounds.length; i++) {
+      let m = 0; for (let t = bounds[i]; t < bounds[i + 1]; t++) m += y[t];
+      m /= bounds[i + 1] - bounds[i];
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) rss += (y[t] - m) ** 2;
+    }
+    const infl = ar1 ? longRunSd(1, ar1Rho(y)) ** 2 : 1;
+    const bic = (n * Math.log(Math.max(rss, 1e-12) / n)) / infl + (2 + 2 * cps.length) * Math.log(n);
+    // keep the curvature only if it lowers the BIC against the straight line under steps
+    if (bic < best.bic) return { adjusted: y, slope: s, curvature: q, curved: true };
+    return { adjusted: detrend(line(best.s, [])), slope: best.s[0], curved: false };
+  }
   if (maxBends && n >= 40) {
     const step = Math.max(1, Math.round(n / 40));
     const gap = Math.ceil(0.15 * n);
@@ -1826,7 +1868,7 @@ export function analyze(input = {}) {
       exposure = holidayFit.exposure;
     }
   }
-  let slope = null, slopeAfter, knot, knots, slopes, knotRanges;
+  let slope = null, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved;
   let growth = null, countKnot, growthAfter, countKnots, countRates, countRanges;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
   if (o.trend && model === 'poisson') {
@@ -1837,7 +1879,7 @@ export function analyze(input = {}) {
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
   } else if (o.trend) {
-    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
+    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved } = trendAdjust(values, { quad: o.trend === 'quad', penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   nbAfterExposure();
   let sigma = robustSd(values);
@@ -1996,7 +2038,7 @@ export function analyze(input = {}) {
     noiseSd: round(sigma),
     ...(noiseFloorHit ? { noiseFloor: noiseFloorK } : {}),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure || seasonMultiplicative ? 3 : undefined)), ...(exposure || seasonMultiplicative ? { multiplicative: true } : {}) } } : {}),
-    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
+    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(curved !== undefined ? { curved, ...(curved ? { curvaturePerPoint2: round(curvature, 9), slopeChangePerPoint: round(2 * curvature, 9) } : {}) } : {}), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })), ...(o.overdispersion === 'nb' ? { growthChangeRangeNote: GROWTH_RANGE_NB_NOTE } : {}) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
     ...(dispersion ? { dispersion } : {}),
