@@ -606,3 +606,10 @@ of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
 - **Licence:** AER is GPL-2/3 on CRAN; the figures are public index levels. Kept as a test fixture with its source named.
 - **Used by:** `djia-returns.test.mjs`, README "Dow Jones returns: 1987 and 2008".
 canada-fertility.csv: Canada total fertility rate 1931-1968 (carData::Hartnagel, column tfr via Rdatasets).
+
+## us-tbill-1m-changes.csv
+
+- **What:** month-on-month change of the US 1-month Treasury yield (`r1`, % per year), 1947-01 to 1991-02, 530 changes, computed from the levels.
+- **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/Ecdat/Irates.csv> (Ecdat, monthly 1946-12 to 1991-02).
+- **Licence:** Ecdat is GPL-2/3 on CRAN; public yields. Kept as a test fixture with its source named.
+- **Used by:** `tbill-volatility.test.mjs`, README "Treasury yield volatility: the 1979 to 1982 regime".

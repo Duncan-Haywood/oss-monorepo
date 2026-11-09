@@ -1803,3 +1803,11 @@ One series, dates from the literature, no rate claimed. It adds a second look at
 - **`--ar1` and `--ar1 joint`:** no change at all, 1946 included. With rho 0.95 and 38 points, widening the noise scale swallows a real step; this is the opposite failure to the over-cutting `--ar1` fixes elsewhere.
 - **`--slope-breaks`:** refused, 38 points is under its 40-point minimum.
 - **What it says.** The one documented date is found by every model that is allowed to cut, so on a strongly autocorrelated series with a real step, `meanvar` was the model that gave the cleanest, shortest answer. One series, no rate claimed; it is a second real case, after the Peace Bridge, of `--ar1` removing a true change.
+
+## Treasury yield volatility: the 1979 to 1982 regime
+
+Checked 2026-11-09. `data/us-tbill-1m-changes.csv` is the monthly change of the US 1-month T-bill yield, 1947-01 to 1991-02 (530 points, source in `data/SOURCE.md`). The documented event (cited from memory, sources unread) is the Fed's reserves-targeting period, October 1979 to October 1982, a regime of much higher volatility. `tbill-volatility.test.mjs` (6 tests), `--model meanvar`, no tuning:
+
+- **Found by all three variants:** 1979-10 is cut with `range95` 1979-05/06 to 1979-10/1980-01 (plain, `--dispersion`, `--robust`). The segment sd is 1.78 against 0.40 before and 0.52 after. The end is cut at 1982-09 (range 1982-09 to 1983-01), one month before October 1982, in the first month the rate stops moving as it did.
+- **Other cuts differ by variant:** plain gives 8 cuts (1974-05 and 1975-03 bracket a 10-month trough, the 1974 recession), `--dispersion` 6, `--robust` 4. The plain run's extra cuts are likely the clustered volatility the result's own warning names (Ljung-Box of squares 21.6 against a 5% line of 11.1); I did not test that.
+- **Not checked:** the 1979-10 range is one-sided (it stops at the cut), so its upper end is the cut itself; a series other than `r1` (the 3-month and 12-month yields are in the same file upstream).
