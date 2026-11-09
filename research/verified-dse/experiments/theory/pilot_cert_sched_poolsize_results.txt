@@ -1,0 +1,7 @@
+pool N | skip-r1 (N,8,8) % | 105-style (0.7N,16,8) % | random 8 % | skip-r1 better in k of 10 designs
+20 | 0.45 | 0.73 | 3.39 | 6
+30 | 0.92 | 1.19 | 4.41 | 5
+40 | 1.00 | 1.06 | 4.77 | 5
+(1) skip-r1 minus 105-style <= 0.3 at every N: True
+(2) skip-r1 regret N=20 above N=40: False
+(3) skip-r1 beats random 8 at every N: True
