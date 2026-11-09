@@ -469,6 +469,9 @@ export const BUILT_IN = [
   ["6000", "out", /google ads|facebook|facebk|meta ads|fb ads|instagram ads|linkedin ads|tiktok ads|yelp|mailchimp|constant contact|vistaprint/],
   ["6020", "out", /upwork|fiverr|toptal|gusto contractor|contractor pay|subcontract/],
   ["6020", "out", /\bbount(y|ies)\b/],
+  // From a real Wells Fargo export (wells-fargo-real.test.mjs): "ALLSTATE INS CO INS PREM FEB 26" had no suggestion.
+  ["6030", "out", /\bins prem(ium)?\b|\ballstate\b|\bfarmers ins|\bnationwide (mutual|ins)|\btravelers\b|\bamerican family\b|\bauto-?owners\b/],
+  ["6140", "out", /\bcp ?energy\b|\bcenterpoint energy\b|\bxcel energy\b|\bconsumers energy\b|\bdte energy\b|\bentergy\b/],
   ["6030", "out", /insurance|\bins (billing|premium)|hartford|cigna|anthem|lemonade|prudential|blue cross|united healthcare|hiscox|next insurance|thimble|state farm|geico|liberty mutual|progressive/],
   ["6050", "out", /attorney|law office|cpa\b|accountant|bookkeep|tax prep|legalzoom|registered agent/],
   ["6060", "out", /adobe|microsoft|google ?(workspace|gsuite)|gsuite|dropbox|notion|slack|zoom\.us|zoom video|figma|github|atlassian|jetbrains|1password|openai|openrouter|anthropic|chatgpt|zapier|airtable|squarespace|wix|godaddy|namecheap|cloudflare|aws|amazon web services|digitalocean|heroku|vercel|netlify|quickbooks|xero|intuit|canva|shopify plan|apple\.com\/bill|google cloud|bitbucket|gitlab|fastly|google ?\*? ?cloud|linode|vultr|hetzner|backblaze|rackspace|fly\.io|evernote|cursor|miro|lastpass|microsoft|azure|twilio|datadog|sentry/],
