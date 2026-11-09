@@ -1,5 +1,5 @@
 ---
-title: "A compliance scanner caught 25 unsourced competitor claims, then missed 6 more"
+title: "A compliance scanner caught 25 unsourced competitor claims, then missed 4 more"
 seo_title: "Unsourced competitor user counts on comparison pages"
 date: 2026-11-09
 tags: [compliance, honest-marketing, tooling]
@@ -17,10 +17,10 @@ CI had been clean, showed all 25 hits. Each page had the figure in a
 paragraph, a FAQ JSON-LD answer and a comment. I removed the clause from all
 of them, so the pages now state only the competitor's identity and category.
 
-Fixing those hits exposed a gap. Six vs-Housecall-Pro pages said "used by over
+Fixing those hits exposed a gap. Four vs-Housecall-Pro pages said "used by over
 200,000 field service professionals". The rule's noun list had no
 "professionals", so the scanner reported zero while the same unsourced claim
-sat in six more files. I added the noun, removed the claim from those pages,
+sat in four more files. I added the noun, removed the claim from those pages,
 and added a regression test. The scan now reports 0 for the rule, and the
 affected ventures' `vs-*` test suites still pass.
 
