@@ -266,7 +266,7 @@ function classify(country, body) {
   if (country === "MA") return /^\d{15}$/.test(body) ? "format" : "bad-format";
   if (country === "AZ") return /^\d{10}$/.test(body) ? "format" : "bad-format";
   if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
-  if (country === "MD") return /^\d{13}$/.test(body) ? "format" : "bad-format";
+  if (country === "MD") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "GE") return /^(\d{9}|\d{11})$/.test(body) ? "format" : "bad-format";
   if (country === "AM") return /^\d{8}$/.test(body) ? "format" : "bad-format";
   if (country === "TZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
@@ -598,6 +598,13 @@ function veRifOk(body) {
   return body[9] === "00987654321"[t % 11];
 }
 
+// Moldova IDNO (13 digits): the first 12 weighted 7,3,1 repeating; the sum mod 10 is the 13th digit.
+// Rule from python-stdnum md.idno; the State Tax Service text is unread.
+function mdIdnoOk(body) {
+  const w = [7, 3, 1];
+  return body.slice(0, 12).split("").reduce((a, c, i) => a + w[i % 3] * Number(c), 0) % 10 === Number(body[12]);
+}
+
 // Taiwan GUI (統一編號), 8 digits: weights 1,2,1,2,1,2,4,1, each product's digits added;
 // valid when the total is a multiple of 5 (the divisor since 2023; it was 10), and a 7 in
 // the seventh place also accepts total + 1. Open-source rule (python-stdnum tw.ubn); the
@@ -668,6 +675,7 @@ function checksumOk(country, body) {
   if (country === "GT") return gtNitOk(body);
   if (country === "DO") return doTaxIdOk(body);
   if (country === "VE") return veRifOk(body);
+  if (country === "MD") return mdIdnoOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;
