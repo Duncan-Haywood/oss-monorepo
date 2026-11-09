@@ -99,3 +99,12 @@ test('a post that reuses a tool page title is renamed, not left to fail the depl
   assert.deepEqual(checkPageIdentity(pages), []);
   assert.deepEqual(resolvePostTitleClashes(new Map([['tool/index.html', tool]])), []);
 });
+
+test('a post with its own title is left alone, and a skipped page does not reserve a title', () => {
+  const pages = new Map([
+    ['writing/a/index.html', '<title>Own title</title><h1>A</h1>'],
+    ['404.html', '<title>Not found</title><h1>x</h1>'],
+    ['writing/b/index.html', '<title>Not found</title><h1>B</h1>'],
+  ]);
+  assert.deepEqual(resolvePostTitleClashes(pages), []);
+});
