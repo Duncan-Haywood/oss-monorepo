@@ -550,3 +550,13 @@ test("Russia INN, Canada BN and Dominican RNC get a check-digit test", () => {
   assert.deepEqual(rules("DO101001577"), []);
   assert.deepEqual(rules("DO101001578"), ["INV-023"]);
 });
+
+test("China unified social credit code gets a check-character test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("CN91350100M000100Y43"), []);
+  assert.deepEqual(rules("CN91350100M000100Y44"), ["INV-023"]);
+  assert.deepEqual(rules("CN91440300MA5ABCDE1H"), []);
+  assert.deepEqual(rules("CN91440300MA5ABCDE1J"), ["INV-023"]);
+  assert.deepEqual(rules("CN9135010OM000100Y43"), ["INV-022"]);
+  assert.deepEqual(rules("CN12345"), ["INV-022"]);
+});
