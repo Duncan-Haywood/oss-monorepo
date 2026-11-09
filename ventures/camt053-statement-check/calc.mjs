@@ -199,7 +199,7 @@ export function validate(text) {
 
   const txs = [], currencies = new Set();
   let credits = 0, debits = 0;
-  const lastClose = new Map(); // account -> { signed, date, ccy, id }
+  const chains = new Map(); // account -> statements, checked in date order after the loop
 
   for (const st of p.statements) {
     const label = st.id ? `statement ${st.id}` : "a statement";
@@ -260,14 +260,26 @@ export function validate(text) {
       if (declared !== "" && d != null && d !== actual) findings.push(f("warning", `Total ${label2} sum does not match`, `TxsSummry says ${declared} but the booked ${label2} entries total ${fmtAmount(actual)}.`, sm.line));
     }
 
-    // Continuity: this statement must open where the previous one for the same account closed.
-    if (st.account && op && op.signed != null) {
-      const prev = lastClose.get(st.account);
-      if (prev && prev.ccy === op.amount.ccy && prev.signed !== op.signed && op.code === "OPBD")
-        findings.push(f("error", "Statement does not continue", `It opens at ${fmtAmount(op.signed)} but the previous statement for ${st.account}${prev.id ? ` (${prev.id})` : ""} closed at ${fmtAmount(prev.signed)}. A day, a month or a transaction is missing between them.`, op.line));
+    // Continuity is checked after the loop, in date order (banks often export months in any order).
+    if (st.account && op) {
+      if (!chains.has(st.account)) chains.set(st.account, []);
+      chains.get(st.account).push({ st, op, cl, idx: chains.get(st.account).length });
     }
-    if (st.account && cl && cl.signed != null) lastClose.set(st.account, { signed: cl.signed, ccy: cl.amount.ccy, id: st.id });
     for (const e of st.entries) if (e.signed != null && !(e.status === "PDNG" || e.status === "INFO")) { if (e.signed > 0) credits += e.signed; else debits += e.signed; }
+  }
+  for (const [account, list] of chains) {
+    const key = (x) => x.st.from || x.op.date || "";
+    const ordered = [...list].sort((x, y) => (key(x) < key(y) ? -1 : key(x) > key(y) ? 1 : x.idx - y.idx));
+    for (let i = 1; i < ordered.length; i++) {
+      const prev = ordered[i - 1], cur = ordered[i];
+      if (prev.cl && prev.cl.signed != null && cur.op.signed != null && prev.cl.amount.ccy === cur.op.amount.ccy && prev.cl.signed !== cur.op.signed && cur.op.code === "OPBD") {
+        const sameOrder = list.indexOf(prev) < list.indexOf(cur);
+        findings.push(f("error", "Statement does not continue", `It opens at ${fmtAmount(cur.op.signed)} but the previous statement for ${account}${prev.st.id ? ` (${prev.st.id})` : ""} closed at ${fmtAmount(prev.cl.signed)}. A day, a month or a transaction is missing between them.${sameOrder ? "" : " (The file lists the statements out of date order; they were compared in date order.)"}`, cur.op.line));
+      }
+      const pf = prev.st.from, pt = prev.st.to, cf = cur.st.from;
+      if (pf && pt && cf && cf > pf && cf <= pt)
+        findings.push(f("warning", "Statement periods overlap", `This statement starts ${cf}, inside the previous one for ${account}${prev.st.id ? ` (${prev.st.id})` : ""}, which covers ${pf} to ${pt}. Entries in the overlap may be imported twice.`, cur.st.line));
+    }
   }
   findings.sort((a, b) => ({ error: 0, warning: 1, info: 2 }[a.severity] - { error: 0, warning: 1, info: 2 }[b.severity]) || a.line - b.line);
   return {
