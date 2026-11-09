@@ -46,7 +46,7 @@ export function readAmount(raw) {
 // -> {day 0..6 (Monday = 0), hour 0..23, key (date or "" for no date)} or null.
 function readStamp(tok, dayTok) {
   const s = String(tok || "").trim();
-  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?(?:\.\d+)?\s*([ap]m?)?/i.exec(s);
+  let m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?(?:\.\d+)?\s*([ap]m?)?/i.exec(s);
   let y, mo, d, hr;
   if (m) {
     y = +m[1]; mo = +m[2]; d = +m[3]; hr = +m[4];

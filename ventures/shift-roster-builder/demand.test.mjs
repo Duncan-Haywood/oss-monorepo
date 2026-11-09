@@ -149,3 +149,9 @@ test("a separate Date column and Time column are joined into one stamp", () => {
   assert.equal(bad.rows, 0);
   assert.match(bad.skipped[0], /2026-03-05 late/);
 });
+
+test("a year-first date with slashes or dots is read like the ISO form", () => {
+  const r = hourlySales("Date,Net Sales\n2026/03/05 14:00,10\n2026.03.12 2:00 PM,20\n");
+  assert.equal(r.rows, 2, JSON.stringify(r.skipped));
+  assert.equal(r.avg[3][14], 15); // two Thursdays
+});
