@@ -4044,6 +4044,47 @@ export async function markSponsorLinksIn(outDir) {
   return marked;
 }
 
+const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
+const NOSCRIPT_CONTROL_RE = /<(?:input|select|button|textarea)\b/i;
+const BODY_OPEN_RE = /<body\b[^>]*>/i;
+export const NOSCRIPT_NOTICE =
+  '<noscript><p role="note" style="margin:0;padding:12px 16px;background:#fff4d6;color:#4a3300;'
+  + 'border-bottom:1px solid #d9b45a;font:600 15px/1.4 system-ui,sans-serif">'
+  + 'This tool needs JavaScript to calculate. Turn it on for this page and reload; '
+  + 'without it the fields below will not do anything.</p></noscript>';
+
+/**
+ * Adds a "needs JavaScript" notice to a page whose controls only work by script.
+ *
+ * Measured 2026-11-09: 1,932 venture pages carried a script and form controls,
+ * and one had a `<noscript>` fallback. A visitor with scripts off (a blocker, a
+ * locked-down browser, a crawler that does not execute them) saw fields and a
+ * button that did nothing, with no word why. Pages with no script or no
+ * controls are left alone, as is a page that already has its own `<noscript>`.
+ * Idempotent.
+ */
+export function addNoscriptNotice(html) {
+  if (/<noscript\b/i.test(html)) return html;
+  if (!NOSCRIPT_SCRIPT_RE.test(html) || !NOSCRIPT_CONTROL_RE.test(html)) return html;
+  const body = BODY_OPEN_RE.exec(html);
+  if (!body) return html;
+  const at = body.index + body[0].length;
+  return html.slice(0, at) + NOSCRIPT_NOTICE + html.slice(at);
+}
+
+/** Applies `addNoscriptNotice` across the finished site; returns the files changed. */
+export async function addNoscriptNoticesIn(outDir) {
+  const changed = [];
+  for (const file of (await listFiles(outDir)).filter((f) => f.endsWith('.html'))) {
+    const html = await fs.readFile(file, 'utf8');
+    const next = addNoscriptNotice(html);
+    if (next === html) continue;
+    await fs.writeFile(file, next);
+    changed.push(path.relative(outDir, file));
+  }
+  return changed;
+}
+
 // The optional-support line (`sponsorsNote`, site-nav.mjs) rides in
 // `renderSiteFooterNav`, so every site-owned page that ends in the shared link
 // row carries it — the category hubs and comparison pages included, which a
@@ -12178,6 +12219,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // this rewrites HTML, so a cache named from a hash taken earlier would ship
   // pages that no longer match it.
   const sponsored = await markSponsorLinksIn(outDir);
+  const noscripted = await addNoscriptNoticesIn(outDir);
 
   // After every generator has written its pages and the chrome has wrapped
   // them: a card for each page still on the site-wide one (research, writing,
@@ -12213,7 +12255,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
 
   return {
     outDir, baseUrl: base, surfaces, repairs, wrapped, rated, saved, shared, described,
-    highlighted, narrowed, embedded, sponsored, offline, comparisons, shareCards, audio, retitled,
+    highlighted, narrowed, embedded, sponsored, noscripted, offline, comparisons, shareCards, audio, retitled,
     preloads,
   };
 }
@@ -12329,6 +12371,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   console.log(`Kept ${result.narrowed.length} page(s) with a table from scrolling sideways on a phone.`);
   console.log(`Added an embed offer to ${result.embedded.length} tool entry page(s).`);
   console.log(`Made the sponsor link countable on ${result.sponsored.length} page(s).`);
+  console.log(`Added a JavaScript-needed notice to ${result.noscripted.length} page(s).`);
   console.log(`Drew ${result.shareCards.cards.length} page share card(s); completed share tags on ${result.shareCards.changed.length} page(s).`);
   console.log(`Module preload: ${result.preloads.links} link(s) on ${result.preloads.pages} page(s); deepest import chain ${result.preloads.deepest}.`);
 }
