@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customer Lifetime Value for a Clothing Brand: What Can You Pay to Win a Customer?</title>
+  <meta name="description" content="Free repeat-customer calculator for small clothing brands: first-order profit, value over several years, how much you can pay for a customer and the years to earn it back. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Customer lifetime value for a clothing brand">
+  <meta property="og:description" content="What a new customer is worth over years, and what you can pay to win one. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Repeat-customer value (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="returns.html">Returns</a> · <a href="discount.html">Discounts</a> · <a href="channels.html">Where to sell</a> · <a href="launch.html">Launch path</a></p>
+  <h1>What is a new customer worth, and what can you pay to win one?</h1>
+  <p>A first order often barely covers an ad. The money is in the second and third. Type your price, cost, how many customers stay each year and how often they order: get the value of a customer over several years, the most you can pay to win one, and the years to earn a given ad cost back.</p>
+  <p class="placeholder">Arithmetic on numbers you type, not a forecast. Retention and orders per year are guesses until you have a year of your own orders.</p>
+  <div class="grid">
+    <section>
+      <h2>Your numbers</h2>
+      <label for="price">Selling price</label><input id="price" type="number" min="0" step="any" value="50">
+      <label for="landed">Landed cost per piece</label><input id="landed" type="number" min="0" step="any" value="15">
+      <label for="ship">Shipping you pay per parcel</label><input id="ship" type="number" min="0" step="any" value="5">
+      <label for="feePct">Payment fee %</label><input id="feePct" type="number" min="0" step="any" value="2.9">
+      <label for="feeFixed">Fixed payment fee</label><input id="feeFixed" type="number" min="0" step="any" value="0.3">
+      <label for="retentionPct">Customers still buying each year %</label><input id="retentionPct" type="number" min="0" step="any" value="25">
+      <label for="ordersPerYear">Orders a year from those who stay</label><input id="ordersPerYear" type="number" min="0" step="any" value="1.5">
+      <label for="repeatContribution">Profit per repeat order (blank: same as first)</label><input id="repeatContribution" type="number" step="any" value="">
+      <label for="years">Years to count</label><input id="years" type="number" min="1" max="20" step="1" value="3">
+      <label for="discountPct">Yearly discount rate %</label><input id="discountPct" type="number" min="0" step="any" value="10">
+      <label for="targetRatio">Value to cost ratio you want</label><input id="targetRatio" type="number" min="1" step="any" value="3">
+      <label for="cac">What you pay to win a customer (blank: skip)</label><input id="cac" type="number" min="0" step="any" value="25">
+    </section>
+    <section><h2>Result</h2><output id="result" aria-live="polite"></output></section>
+  </div>
+  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>3. Set the price</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="prices.html">Price by market</a> · <a href="pricepoint.html">Best price from a price test</a> · <a href="returns.html">Returns: what an order really earns</a> · <a href="discount.html">Discount: orders a sale needs</a></div>
+    <div>Before: <a href="bundle.html">Set pricing: is a bundle discount worth it?</a> · Next: <a href="wholesale.html">Wholesale price</a></div>
+  </nav>
+  <!-- /journey -->
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Retention and order rates are your estimates; the result is a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+  <script type="module">
+    import { repeatValue } from "./repeat.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const ids = ["price","landed","ship","feePct","feeFixed","retentionPct","ordersPerYear","repeatContribution","years","discountPct","targetRatio","cac"];
+    function render() {
+      const o = {};
+      for (const id of ids) { const v = $("#" + id).value; if (v !== "") o[id === "repeatContribution" ? id : id] = +v; }
+      const r = repeatValue(o);
+      if (r.error) { $("#result").innerHTML = `<p class="placeholder">${esc(r.error)}</p>`; return; }
+      $("#result").innerHTML = `<p class="big">${r.ltv} per customer over ${r.years.length} years</p>
+        <p>First order earns <b>${r.firstOrderProfit}</b>; repeat orders are <b>${r.repeatShareOfLtv ?? "n/a"}%</b> of the value.</p>
+        <p>Most you can pay to win a customer at ${r.targetRatio}:1 is <b>${r.maxCacAtRatio}</b>. If only the first order counted: <b>${r.maxCacFirstOrderOnly}</b>.</p>
+        ${r.cac === null ? "" : `<p>At ${r.cac} per customer: value is <b>${r.ltvToCac}x</b> the cost; ${r.paybackYears === null ? "not earned back in this time" : r.paybackYears === 0 ? "earned back by the first order" : `earned back in year ${r.paybackYears}`}.</p>`}
+        <table><tr><th scope="col">Year</th><th scope="col" class="num">Still buying %</th><th scope="col" class="num">Cumulative profit</th></tr>
+        ${r.years.map(y => `<tr><td>${y.year}</td><td class="num">${y.active}</td><td class="num">${y.cumulative}</td></tr>`).join("")}</table>
+        ${r.notes.map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
+    }
+    document.querySelectorAll("section input").forEach(el => el.addEventListener("input", () => { render(); recordUsage("repeat_check"); }));
+    render(); recordUsage("repeat_open");
+  </script>
+</body>
+</html>
