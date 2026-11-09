@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-09",
+  "subject": "ventures/hardwood-refinishing-bid-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-09",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a hardwood floor refinishing contractor / estimator (NWFA-literate, prices sand-and-finish and screen-and-recoat jobs, stairs included)",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 1,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran node --test '*.test.mjs' (102 pass). Recomputed independently in a separate Python script (not reusing calc.mjs): default 800 sq ft/12 treads/2 closets full sand poly-only = 75.3 h, loaded wage 54.60, labour 4,111.38, finish area 848, 6 gal, supplies 152.64, direct 4,959.02, total cost 5,702.87, price /0.75 = 7,603.83 (matches README/page, $9.50/sq ft). Living-room screen preset 16.5 h, cost 1,527.09, price 2,036.11 (matches). Stairs-trap hallway 33.108 h, cost 2,699.94, price 3,599.92 (matches). Margin-on-price and overhead-on-direct arithmetic is right. BUT the hallway figures are for the 'stain' preset (no extra coat); the pages describe the job as a stain COLOR CHANGE, which in the calculator is 36.78 h, cost 2,930.51, price 3,907.34, so the flat-rate gap numbers on the comparison page are for a different job than described. Arithmetic is right; reading the inputs against the trade is where it falls to 2 (stairs 0.4 h/tread and 4 sq ft/tread are optimistic; tool allows screen+stain, which is not a real job).",
+    "completeness": "Checked: field/treads/closets/method/stain/extra-coat pricing (works), walk-away price and proposed-price margin (works), presets (4, work), copy bid summary, share link (share.mjs, tests), printable proposal (proposal.mjs), opt-out usage control, three SEO/comparison pages (load, content present). All claimed features exist and run in tests. Gaps: VENTURE.yaml stage prototype, all 3 hypotheses untested; README states multi-floor and split labour rates not supported (disclosed).",
+    "verification": "102 tests, 0 fail. Seeded mutation 1: price = cost*(1+margin) instead of cost/(1-margin): 4 tests failed (7, 9, 16, 90) - caught. Mutation 2: Math.ceil -> Math.round on gallons: 1 failure (test 90, worked-example figures on presets) - caught only by the pinned-figure test, not by a gallon-rounding unit test. Both reverted via git checkout (git status clean). Weakness: many tests pin the author's own numbers, so a wrong default hour rate would not be caught.",
+    "craft": "Read calc.mjs, usage.mjs, parts of index.html. calc.mjs is pure, validated inputs, throws on bad input, no silent fallbacks, JSDoc complete. Defects: hoursPerTread/stain/coverage live only as index.html defaults (not in calc.mjs presets); no guard that screen method cannot be combined with stain/color_change; canonical, og:url, sitemap and robots all point at example.invalid; llms.txt links the retired github.io address. usage.mjs JSON.parse of stored value is unguarded (corrupt value throws).",
+    "claims": "Backed: $7,604 / $9.50 / 75.3 h / $5,703 (recomputed); 16.9% of hallway hours on stairs (5.6/33.1, backs 'more than 15%'); $2,036.11/$5.09/$1,272.57/$2,699.94/$3,599.92 numbers recompute; no-network and usage claims (usage.mjs stores only event name and date, honours DNT/GPC, opt-out removes counters); disclaimer present on page, README and proposal. NOT backed: pages call the hallway job a 'stain color change' but the priced preset is plain stain (no extra coat), so the headline gap on vs-a-flat-price page is attributed to the wrong job; FAQ says a colour change needs an extra finish coat because 'covering an existing colour takes one more pass', which is not trade practice; vs-jobber.html (public page) says 'Jobber's own site is not reachable from this session', agent-process text leaking to users; canonical/og/sitemap URLs are example.invalid so SEO claims are unserved; llms.txt URLs differ from production. README opening says users 'can now send a floor price' as a result claim with no user evidence.",
+    "fitness": "Walked a real job: 800 sq ft sand and finish with 12 treads. A contractor gets a clear walk-away number, margin as share of price, and a pasteable proposal, and can override every rate. But defaults would underbid: 0.4 h/tread is low for sand + edge + stain/finish of tread and riser, 4 sq ft/tread is below a typical 10x42 in tread plus 7x42 in riser (~5 sq ft); no drying/recoat days, no minimum charge, no dust-containment as a cost line beyond a flat $185, no sanding-pass/grit or dustless-system model, a single blended wage. Usable as a worksheet by someone who replaces the defaults, not by a newcomer.",
+    "domain": "Compared with typical NWFA-style sand-and-finish practice (3 sanding passes, e.g. coarse/medium/fine, edger and buffer, 2-3 coats of finish, screen-and-recoat for same-colour maintenance only). The model collapses sanding to one hours-per-100 number: 8 h/100 sq ft crew-hours (12.5 sq ft per crew-hour) is plausible for a 2-person crew, 3.5 h/100 for screen-and-recoat is plausible; 450 sq ft/gal/coat is within the 400-600 range of label coverage. Departures: stain colour change treated as an extra finish coat (a colour change means sanding to bare wood, not an extra coat); screen method may be combined with stain; stain is one coat only; no grit or number of passes input; stair area and hours low; no cure/recoat time. A senior refinisher would accept the structure but retune the defaults and reject the colour-change logic."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Comparison page and presets describe the 250 sq ft/14-tread job as a stain COLOR CHANGE but the figures ($2,699.94 cost, $3,599.92 price, gap) are for plain stain; color_change prices at $3,907.34. A wrong job label on the headline number.",
+      "where": "ventures/hardwood-refinishing-bid-calculator/vs-a-flat-price-per-square-foot.html:105"
+    },
+    {
+      "severity": "high",
+      "what": "Stain color change modelled as an extra finish coat with rationale 'covering an existing colour takes one more pass'; a colour change requires sanding to bare wood, not an extra coat. Domain-incorrect rule drives page copy and preset.",
+      "where": "ventures/hardwood-refinishing-bid-calculator/calc.mjs:32 and index.html:12"
+    },
+    {
+      "severity": "medium",
+      "what": "canonical, og:url, sitemap.xml and robots.txt Sitemap all use example.invalid; search engines will ignore or reject them.",
+      "where": "ventures/hardwood-refinishing-bid-calculator/sitemap.xml:3"
+    },
+    {
+      "severity": "medium",
+      "what": "Public vs-jobber page contains agent-process text 'Jobber's own site is not reachable from this session'.",
+      "where": "ventures/hardwood-refinishing-bid-calculator/vs-jobber.html:48"
+    },
+    {
+      "severity": "medium",
+      "what": "Default stair inputs optimistic (0.4 h/tread, 4 sq ft/tread incl. riser) so the headline stairs-share and prices understate stair cost; screen method can be combined with stain.",
+      "where": "ventures/hardwood-refinishing-bid-calculator/index.html:157"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links the retired github.io address instead of marisstella.app.",
+      "where": "ventures/hardwood-refinishing-bid-calculator/llms.txt:9"
+    },
+    {
+      "severity": "low",
+      "what": "usage.mjs JSON.parse on stored counters is unguarded; corrupt localStorage value throws in recordUsage.",
+      "where": "ventures/hardwood-refinishing-bid-calculator/usage.mjs:15"
+    },
+    {
+      "severity": "low",
+      "what": "Gallon rounding has no dedicated unit test; mutation Math.ceil->Math.round was only caught by a pinned-example test.",
+      "where": "ventures/hardwood-refinishing-bid-calculator/calc.test.mjs"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The arithmetic is correct: three outputs (default $7,603.83, living room $2,036.11, hallway $3,599.92) recompute exactly from an independent script, 102 tests pass and two seeded mutations were caught. It is finished against what it says it does. It does not meet the bar because claims is 1: the headline comparison number is labelled as a colour-change job but is the plain-stain job, the colour-change rule itself is not how refinishers work, a public page leaks agent text, and canonical/sitemap URLs are example.invalid. A refinishing estimator would keep the cost-structure idea (stairs, closets, margin on price) and retune the optimistic stair defaults before relying on it."
+}
