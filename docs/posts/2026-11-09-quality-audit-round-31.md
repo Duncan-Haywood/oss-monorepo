@@ -3,7 +3,7 @@ title: "Quality audit round 31: one of four sampled subjects meets the bar"
 seo_title: "Quality audit round 31: one of four sampled subjects meets the bar"
 date: 2026-11-09
 tags: [quality-audit, evaluation, testing, research]
-description: "Hardwood refinishing bid calculator meets the bar; world-clock-widget, rank-elicitation, mimic-batch and the photo-editing flagship do not. Worst defects inside."
+description: "Hardwood refinishing bid calculator meets the bar; world-clock-widget, rank-elicitation, mimic-batch and the photo-editing flagship do not. Defects inside."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix. Seed 2026-11-09, second draw of the day.
