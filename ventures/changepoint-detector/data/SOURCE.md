@@ -577,3 +577,13 @@ of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/USMacroSWM.csv> (row 1 is 1947-01; logs differenced here).
 - **Licence:** AER is GPL-2/3 on CRAN; the figures are public US statistics. Kept as a small test fixture with its source named.
 - **Used by:** `ip-growth.test.mjs`.
+
+# Example data: Australian monthly café turnover, 1982-04 to 2017-09
+
+`auscafe.csv`: 426 months of Australian café, restaurant and catering turnover (billions of dollars), the `auscafe` series of R's fpp2 package (Hyndman).
+
+- **Retrieved:** 2026-11-09 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/fpp2/auscafe.csv>
+  (the `time` column turned into `YYYY-MM` labels; the series starts 1982-04).
+- **Licence:** fpp2 is GPL-3; Rdatasets redistributes it. The values are Australian Bureau of Statistics figures, kept here as a test fixture.
+- **Used by:** `auscafe.test.mjs`, README "Cafés and the 2000 GST".

@@ -1717,6 +1717,14 @@ Monthly short-term resident departures from Australia, 1976-01 to 2017-06 (498 m
 - **Dated, among 20 or more other cuts.** The level model (raw or log) puts a change at 2000Q4 (raw also 2001Q4); `--model trend` at 2000Q3 and 2001Q4; `--trend bend` at 2000Q3. Each of these cuts the series 20 to 25 times, because production wanders with the building cycle (the log level model has 25 changes), so the GST date is one cut among many, not a finding the tool singles out.
 - **Absorbed, not missed on purpose.** `--ar1 auto` (8 changes), `--ar1 joint` (6) and `--model meanvar` (9) date nothing in 1999 to 2001: the 2000 fall is read as part of a wandering level. `--slope-breaks` clears no bar on the bent log series.
 - **What it says.** A documented step coinciding with a pull-forward bulge is found only by the over-cutting models and lost by the ones that fix the over-cutting. The same trade as the Saudi oil and Australian departures series: no setting both keeps the 2000 date and stays quiet elsewhere. Still wanted: a real step in a series that does not wander.
+## Cafés and the 2000 GST: the same step, found by every model (2026-11-09)
+
+`data/auscafe.csv` (Australian monthly café, restaurant and catering turnover, 1982-04 to 2017-09, 426 values, `fpp2::auscafe`, source in `data/SOURCE.md`, `auscafe.test.mjs`). The GST began on 1 July 2000 (recalled, not checked against a source), the same event as the cement section above.
+
+- **Dated by all six models.** Raw level (49 cuts), log level (44), `--trend bend` (28), `--model trend` (21), `--ar1 auto` (27) and `--model meanvar` (24) each cut at 2000-09, two months after the tax. Cement's `--ar1` and `meanvar` runs absorbed the same event; here they keep it, so the absorption seen there is a property of that series, not of the models.
+- **Still over-cut.** Every model cuts 21 or more times over 35 years of growth, and the neighbours differ (`--ar1 auto` also 1999-01, `bend` also 2001-09). A cut at 2000-09 is not evidence of the tax alone: 1999-01 is a cut with no documented cause.
+- **Not done.** No source read for the tax date or for the size of the turnover effect; no calibration of `--noise-floor` on this series.
+
 ## A documented fall in 24 points: Crimean War disease deaths (2026-11-08)
 
 A real series with a dated cause: the British army's monthly death rate from disease in the Crimea, April 1854 to March 1856 (Nightingale's figures, `data/nightingale-disease.csv`, source in `data/SOURCE.md`). The Sanitary Commission reached the Crimea in March 1855 and deaths fell from there. Run with `node cli.mjs --model mean --min-segment 3`:
