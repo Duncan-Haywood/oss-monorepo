@@ -1,4 +1,4 @@
-// "Which e-invoice duty applies to me, and from when?" For six countries whose
+// "Which e-invoice duty applies to me, and from when?" For seven countries whose
 // start date depends on the business's size, the size cut-offs below are the
 // ones the repo's own country pages cite (each rule names its page). A
 // business is placed in a wave by one typed number; nothing is looked up.
@@ -44,6 +44,14 @@ export const COUNTRIES = {
     waves: [
       { when: (x) => x > 5000000, date: "2027-04-01", what: "Fawtara is reported as mandatory (annual supplies above OMR 5 million), Decision 189/2026." },
       { when: () => true, date: "2027-10-01", what: "Fawtara is reported as mandatory for the others." } ] },
+  MY: { name: "Malaysia", currency: "MYR", input: "number", prompt: "Annual turnover (MYR)", page: "malaysia-myinvois-e-invoice-mandate.html",
+    always: "Documents go to LHDN's MyInvois system, which validates them; sources disagree on the smallest wave and a relaxation period is reported to run to 31 December 2027.",
+    waves: [
+      { when: (x) => x > 100000000, date: "2024-08-01", what: "MyInvois e-invoicing started for you (turnover above RM100 million)." },
+      { when: (x) => x >= 25000000, date: "2025-01-01", what: "MyInvois e-invoicing started for you (turnover RM25 million to RM100 million)." },
+      { when: (x) => x >= 5000000, date: "2025-07-01", what: "MyInvois e-invoicing started for you (turnover RM5 million to RM25 million)." },
+      { when: (x) => x >= 1000000, date: "2026-01-01", what: "MyInvois e-invoicing started for you (turnover RM1 million to RM5 million, Phase 4 announced June 2025)." },
+      { when: () => true, date: "2026-07-01", what: "Reported start for turnover up to RM1 million, with a RM500,000 exemption announced; some sources say businesses below RM1 million are exempt. Check LHDN." } ] },
   FR: { name: "France", currency: "", input: "class", prompt: "Company size", page: "france-e-invoice-mandate.html",
     always: "Every business must be able to receive e-invoices from 1 September 2026.",
     note: "France defines size by headcount and balance sheet, not one number; pick the class your accountant uses.",
@@ -71,7 +79,7 @@ export function render() {
   const style = hub.match(/<style>[\s\S]*?<\/style>/)[0];
   const icon = hub.match(/<link rel="icon"[^>]*>/)[0];
   const title = "Which e-invoicing deadline applies to my business? Check by country and size";
-  const desc = "Type your country and yearly turnover and see the date your e-invoicing duty starts in Germany, Spain, the UAE, Poland, Oman or France. Runs in your browser; nothing is sent.";
+  const desc = "Type your country and yearly turnover and see the date your e-invoicing duty starts in Germany, Spain, the UAE, Poland, Oman, Malaysia or France. Runs in your browser; nothing is sent.";
   const data = Object.fromEntries(Object.entries(COUNTRIES).map(([k, c]) => [k, {
     name: c.name, input: c.input, prompt: c.prompt, always: c.always, note: c.note ?? null, page: c.page,
     waves: c.waves.map((w) => ({ date: w.date, what: w.what, test: w.when.toString() })) }]));
