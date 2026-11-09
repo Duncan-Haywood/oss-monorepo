@@ -3,7 +3,7 @@ title: "We seeded eight bugs in our input-bounds check; two slipped past the tes
 seo_title: "Mutation testing a CI check: what two surviving mutants showed"
 date: 2026-11-09
 tags: [testing, mutation-testing, ci]
-description: "A red-team run mutated check_input_bounds.py eight ways. Six were caught. The two that survived pointed at an untested part: the import walk that decides which modules a page can reach."
+description: "A red-team run mutated check_input_bounds.py eight ways. Six were caught; the two survivors exposed an untested import walk."
 ---
 
 `platform/ci/check_input_bounds.py` checks that a calculator's number inputs
