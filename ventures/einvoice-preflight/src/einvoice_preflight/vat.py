@@ -244,7 +244,26 @@ def _el(body: str) -> bool:
     return (total % 11) % 10 == int(body[8])
 
 
+def _bg_ten(b: str) -> bool:
+    last = int(b[9])
+    if _w(b[:9], [2, 4, 8, 5, 10, 9, 7, 3, 6]) % 11 % 10 == last:
+        return True
+    if _w(b[:9], [21, 19, 17, 13, 11, 9, 7, 3, 1]) % 10 == last:
+        return True
+    other = 11 - _w(b[:9], [4, 3, 2, 7, 6, 5, 4, 3, 2]) % 11
+    return other < 10 and other == last
+
+
+def _cz_birth(b: str) -> bool:
+    month, day = int(b[2:4]), int(b[4:6])
+    if not any(base <= month <= base + 11 for base in (1, 21, 51, 71)) or not 1 <= day <= 31:
+        return False
+    return int(b[:9]) % 11 % 10 == int(b[9])
+
+
 def _cz(body: str) -> bool:
+    if len(body) == 10:
+        return _cz_birth(body)
     check = 11 - _w(body[:7], [8, 7, 6, 5, 4, 3, 2]) % 11
     check = {10: 0, 11: 1}.get(check, check)
     return check == int(body[7])
@@ -254,8 +273,8 @@ def _digits(n: int, first: str = "0123456789"):
     return lambda b: len(b) == n and b.isascii() and b.isdigit() and b[0] in first
 
 
-# country: (applies, ok). Variants not listed (10-digit BG, 12-digit LT,
-# 9/10-digit CZ, LV natural persons) stay shape-only. Same checks as vat.mjs.
+# country: (applies, ok). Variants not listed (12-digit LT,
+# 9-digit CZ, LV natural persons) stay shape-only. Same checks as vat.mjs.
 _EXTRA = {
     "EE": (_digits(9), lambda b: b[0] == "1" and _w(b, [3, 7, 1, 3, 7, 1, 3, 7, 1]) % 10 == 0),
     "HU": (_digits(8), lambda b: _w(b, [9, 7, 3, 1, 9, 7, 3, 1]) % 10 == 0),
@@ -264,11 +283,14 @@ _EXTRA = {
     "HR": (_digits(11), _hr),
     "LV": (_digits(11, "456789"), lambda b: _w(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 == 3),
     "LT": (_digits(9), lambda b: b[7] == "1" and _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 1])),
-    "BG": (_digits(9), lambda b: _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 10])),
+    "BG": (
+        lambda b: len(b) in (9, 10) and b.isascii() and b.isdigit(),
+        lambda b: _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 10]) if len(b) == 9 else _bg_ten(b),
+    ),
     "RO": (lambda b: b.isascii() and b.isdigit() and 2 <= len(b) <= 10 and b[0] != "0", _ro),
     "EL": (_digits(9), _el),
     "GR": (_digits(9), _el),
-    "CZ": (_digits(8, "012345678"), _cz),
+    "CZ": (lambda b: (len(b) == 8 and b[0] != "9" or len(b) == 10) and b.isascii() and b.isdigit(), _cz),
     "CY": (lambda b: len(b) == 9 and b[:8].isascii() and b[:8].isdigit() and "A" <= b[8] <= "Z", lambda b: _cy(b)),
     "MT": (_digits(8, "123456789"), lambda b: 37 - (_w(b[:6], [3, 4, 6, 7, 8, 9]) % 37) == int(b[6:])),
 }
