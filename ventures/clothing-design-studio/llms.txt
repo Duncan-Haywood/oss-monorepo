@@ -60,6 +60,7 @@ Safety tests (testing.html): pick adult or children's clothing, children's sleep
 - [Bill of materials and order calculator](https://marisstella.app/clothing-design-studio/bom.html)
 - [Returns calculator: what an order earns after returns](https://marisstella.app/clothing-design-studio/returns.html)
 - [Discount calculator: how many more orders a sale needs](https://marisstella.app/clothing-design-studio/discount.html)
+- [Bundle pricing calculator: is a wardrobe-set discount worth it?](https://marisstella.app/clothing-design-studio/bundle.html)
 - [Sales channel calculator: own shop vs marketplace fees](https://marisstella.app/clothing-design-studio/channels.html)
 - [Launch cash-flow planner: how much cash does your first order need?](https://marisstella.app/clothing-design-studio/cashflow.html)
 - [Pre-order campaign planner: will your line reach the factory minimum?](https://marisstella.app/clothing-design-studio/preorder.html)
