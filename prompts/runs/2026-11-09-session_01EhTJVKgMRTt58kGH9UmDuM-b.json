@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01EhTJVKgMRTt58kGH9UmDuM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "task": "Deepen flagship 8 (quick-pick-survey): repeat-pair consistency probe for fatigue",
+  "projects": [
+    "ventures/quick-pick-survey"
+  ],
+  "pr": 14354,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight's open items need primary-source tax-authority hosts (financnisprava.cz, skat.dk, vid.gov.lv, gov.il, eur-lex), all unreachable from the cloud proxy, so none could be advanced"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-09-repeat-a-pair-to-catch-a-tired-respondent.md"
+  ],
+  "notes": "Negative result by calculation on simulator strengths: repeating the hybrid's own pairs needs 3549 repeats to tell honest from 20% lapses; a lopsided catch pair needs about 100. Not wired in. Checks: repeatProbe simulation passes, tsc and eslint clean. No real respondents."
+}

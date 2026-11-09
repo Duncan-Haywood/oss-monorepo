@@ -743,3 +743,32 @@ Glicko ratings are overconfident early. So the route is unchanged: no pause
 ships. The function and flag stay, unwired, so the result can be reproduced.
 What might work: a respondent-level repeat-pair consistency test (re-ask an
 earlier pair and compare), which does not depend on the rating scale.
+
+## A repeat-pair probe for fatigue: measured, not worth building (2026-11-09)
+
+The next idea after the rating-based pause: re-ask a pair the respondent
+already answered and compare. A repeat agrees with the first answer with
+probability q^2 + (1-q)^2, where q is the chance the first option is picked.
+That is 1.0 for a lopsided pair and 0.5 for a coin flip, and the selector
+shows close pairs on purpose.
+
+`src/lib/repeatProbe.simulation.test.ts` takes the pairs the staged hybrid
+really shows (answers 120 to 500, 120 items, 6 seeds, 2280 pairs) and computes
+the expected agreement from the simulator's true strengths. The repeats needed
+are for a one-sided 5% z test with 80% power.
+
+| pairs repeated | honest | 20% lapses | random | repeats to tell honest from 20% lapses | from random |
+|---|---|---|---|---|---|
+| the hybrid's own pairs | 0.614 | 0.573 | 0.500 | 3549 | 465 |
+| uniformly drawn pairs | 0.673 | 0.610 | 0.500 | 1467 | 195 |
+| a lopsided catch pair (win chance 0.97) | 0.942 | 0.783 | 0.500 | 103 | 18 |
+
+Repeating the selector's own pairs cannot work: honest agreement is only 0.61,
+so a respondent would need to answer thousands of repeats. A deliberately
+lopsided catch pair (top against bottom of the current ordering) separates
+random answering in about 18 repeats, and a 20% lapser in about 100. Each
+repeat is a wasted answer for ranking, so a real design would spend about
+5% of answers on them and would only help for long sessions. Not built: it
+adds respondent burden for a rare failure, and the rank-accuracy cost of lapses
+up to 20% was already small (see the lapse sweep above). Not measured: a real
+respondent's fatigue curve. `simulate` now also returns the true strengths.
