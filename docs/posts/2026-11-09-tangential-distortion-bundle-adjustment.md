@@ -1,6 +1,6 @@
 ---
 title: "What does ignoring tangential lens distortion cost a self-calibrating bundle adjustment?"
-seo_title: "Tangential distortion in bundle adjustment: synthetic cost and k2 leakage"
+seo_title: "Tangential distortion in bundle adjustment: cost and k2 leakage"
 date: 2026-11-09
 tags: [research, sensing, bundle-adjustment, camera-calibration]
 description: "In simulation, setting Brown tangential distortion to zero doubles the 3D error on a wide rig at p = 0.01 and corrupts the fitted k2 on a narrow one."
