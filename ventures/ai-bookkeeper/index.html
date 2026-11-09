@@ -120,7 +120,7 @@
     <div class="check"><input id="remember" type="checkbox"><label for="remember">Remember these settings in this browser</label></div>
     <button type="button" class="secondary" id="detect">Find a model on this computer</button>
     <button type="button" id="ask-ai">Suggest accounts for the review queue</button>
-    <p class="note">What is sent, from your browser straight to the provider you chose: the dates, descriptions and amounts of up to 40 lines still in review, your chart of accounts, and up to 40 lines you already filed as examples. A local model keeps it all on your computer. For Ollama on a web page, start it with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code>.</p>
+    <p class="note">What is sent, from your browser straight to the provider you chose: the dates, descriptions and amounts of up to 40 lines still in review, your chart of accounts, and up to 40 lines you already filed as examples. A local model keeps it all on your computer. For Ollama on a web page, start it with <code>OLLAMA_ORIGINS=https://marisstella.app</code>.</p>
   </section>
 
   <section class="card" aria-labelledby="h-assets">
@@ -1214,7 +1214,7 @@
     $("#detect").addEventListener("click", async () => {
       $("#ai-state").textContent = "Looking for Ollama, LM Studio and llama.cpp on this computer...";
       const found = await detectLocal();
-      if (!found.length) { $("#ai-state").textContent = "No local model answered. Start Ollama with OLLAMA_ORIGINS=https://duncan-haywood.github.io (or turn on CORS in LM Studio's server settings), allow this page to reach your computer if the browser asks, and try again."; return; }
+      if (!found.length) { $("#ai-state").textContent = "No local model answered. Start Ollama with OLLAMA_ORIGINS=https://marisstella.app (or turn on CORS in LM Studio's server settings), allow this page to reach your computer if the browser asks, and try again."; return; }
       $("#provider").value = found[0].provider;
       if (found[0].models[0]) $("#model").value = found[0].models[0];
       rememberAi();
