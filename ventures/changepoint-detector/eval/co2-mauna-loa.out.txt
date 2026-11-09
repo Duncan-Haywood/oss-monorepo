@@ -6,3 +6,9 @@ mean, period 12, trend bends | steps: 41 1958-08 1958-10 1962-10 1964-11 1967-03
 period 12, bends, noise-floor 1.5 | steps: 30 1962-10 1964-11 1967-03 1971-02 1972-10 1973-05 | slope changes: 1965-03[1965-02..1965-03] 1978-05[1977-11..1980-03] 2001-11[2001-09..2011-05]
 period 12, bends, ar1 auto | steps: 22 1963-07 1969-03 1972-10 1973-12 1975-03 1976-03 | slope changes: 1972-07[1972-07..1972-07] 1994-06[2001-07..2002-11]
 period 12, bends, ar1 joint | steps: 18 1962-10 1969-03 1972-10 1973-12 1975-03 1988-02 | slope changes: 1972-07[1972-07..1972-07] 1994-06[2001-07..2002-11]
+period 12, quad | curved: true, slope change per month 0.00013244291335, per year per year 0.0191 ppm
+period 12, quad | steps: 46 1958-08 1958-10 1960-10 1962-10 1963-10 1964-11 | slope changes: none
+period 12, quad, ar1 auto | curved: true, slope change per month 0.0001231400311, per year per year 0.0177 ppm
+period 12, quad, ar1 auto | steps: 25 1960-10 1962-10 1963-10 1964-11 1967-06 1971-02 | slope changes: none
+period 12, quad, noise-floor 1.5 | curved: true, slope change per month 0.00013244291335, per year per year 0.0191 ppm
+period 12, quad, noise-floor 1.5 | steps: 32 1960-10 1962-10 1963-10 1964-11 1967-03 1971-02 | slope changes: none

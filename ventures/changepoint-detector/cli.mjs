@@ -33,7 +33,7 @@ Options:
   --log                     take natural logs first (positive values; mean, meanvar, trend): a steady percentage growth is a straight line, not a staircase; segments also show the geometric mean and each change its ratio
   --multiplicative           with --period (mean/meanvar): the season is a factor, not an amount, so it scales with the level (positive values only; not with --drift)
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
-  --trend [bend|bends]          fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
+  --trend [bend|bends|quad]        fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
                             'bend' lets the slope change once, 'bends' up to three times, chosen by BIC (counts, --model poisson: a change of growth rate, 'bends' up to two);
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
   --slope-breaks [n]        test for up to n (default 3) changes of the growth rate on the differences (use with --log for a percentage growth): each break is dated and has a Wald statistic against a calibrated bar of 11; 40 or more points
@@ -77,7 +77,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--burst-runs') opt.burstRuns = Number(argv[++i]);
     else if (a === '--slope-breaks') opt.slopeBreaks = argv[i + 1] && /^[1-3]$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--joint-knots') opt.jointKnots = true;
-    else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' ? argv[++i] : true;
+    else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' || argv[i + 1] === 'quad' ? argv[++i] : true;
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
     else if (a === '--noise-floor') opt.noiseFloor = argv[i + 1] && !argv[i + 1].startsWith('-') ? Number(argv[++i]) : true;
     else if (flags[a]) {
