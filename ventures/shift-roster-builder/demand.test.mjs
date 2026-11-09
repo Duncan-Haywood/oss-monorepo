@@ -137,3 +137,15 @@ test("a European export with decimal commas is not silently mis-scaled", () => {
   const r = hourlySales("Time;Net Sales\n05.03.2026 14:00;1.234,50\n");
   assert.equal(r.avg[3][14], 1234.5);
 });
+
+test("a separate Date column and Time column are joined into one stamp", () => {
+  const r = hourlySales("Date,Time,Net Sales\n2026-03-05,2:00 PM,120\n2026-03-05,15:00,80\n2026-03-12,14:30,60\n");
+  assert.equal(r.rows, 3, JSON.stringify(r.skipped));
+  assert.equal(r.avg[3][14], 90); // two Thursdays: (120 + 60) / 2
+  assert.equal(r.avg[3][15], 40);
+  const m = hourlySales("Date;Hour;Sales\n05.03.2026;14;10\n");
+  assert.equal(m.avg[3][14], 10);
+  const bad = hourlySales("Date,Time,Net Sales\n2026-03-05,late,1\n");
+  assert.equal(bad.rows, 0);
+  assert.match(bad.skipped[0], /2026-03-05 late/);
+});
