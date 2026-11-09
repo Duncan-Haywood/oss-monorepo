@@ -51,7 +51,7 @@ browser calls `http://localhost` directly. Three things decide whether that work
 and the page should say them:
 
 - **CORS.** Ollama accepts only its own local origins by default; start it with
-  `OLLAMA_ORIGINS=https://duncan-haywood.github.io` (or the deployer's origin).
+  `OLLAMA_ORIGINS=https://marisstella.app` (or the deployer's origin).
   LM Studio has a CORS switch in its server settings. `llama-server` answers
   cross-origin requests by default.
 - **Local network permission.** Recent Chrome versions ask the visitor before a
