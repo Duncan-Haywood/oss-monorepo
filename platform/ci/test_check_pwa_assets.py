@@ -1,3 +1,5 @@
+import contextlib
+import io
 import json
 import tempfile
 import unittest
@@ -37,6 +39,41 @@ class T(unittest.TestCase):
         self.assertEqual(c.main(["--root", str(r)]), 1)
         (r / "v" / "a.js").write_text("")
         self.assertEqual(c.main(["--root", str(r)]), 0)
+
+    def test_local_skips_unresolvable_refs(self):
+        base = Path("/b")
+        for ref in ("", "?v=1", "#x", "https://x/a.png", "//cdn/a.png", "data:x", "/abs.png", "${dir}/a.png"):
+            self.assertIsNone(c._local(base, ref), ref)
+        self.assertEqual(c._local(base, "a.png?v=1#h"), base / "a.png")
+
+    def run_main(self, root):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = c.main(["--root", str(root)])
+        return code, out.getvalue()
+
+    def test_main_file_selection_and_count(self):
+        r = self.tree({
+            "a/manifest.json": json.dumps({"icons": [{"src": "gone.png"}]}),
+            "b/app.webmanifest": json.dumps({"icons": [{"src": "gone2.png"}]}),
+            "c/other.json": json.dumps({"icons": [{"src": "gone3.png"}]}),
+            "d/manifest.txt": json.dumps({"icons": [{"src": "gone4.png"}]}),
+            "e/service-worker.js": "['./gone5.js']",
+            "node_modules/x/sw.js": "['./gone6.js']",
+        })
+        code, out = self.run_main(r)
+        self.assertEqual(code, 1)
+        for n in ("gone.png", "gone2.png", "gone5.js"):
+            self.assertIn(n, out)
+        for n in ("gone3", "gone4", "gone6"):
+            self.assertNotIn(n, out)
+        self.assertIn("3 manifests and service workers, 3 missing", out)
+
+    def test_help_uses_first_doc_line(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
+            c.main(["--help"])
+        self.assertIn("Fail if a PWA web manifest", out.getvalue())
 
 
 if __name__ == "__main__":
