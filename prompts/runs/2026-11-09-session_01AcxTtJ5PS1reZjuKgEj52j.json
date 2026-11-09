@@ -38,7 +38,10 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-09-three-ways-to-make-a-survey-model-period-aware-tie.md; research/christian-belief-models/LOG.md entry 2026-11-09",
+  "writeups": [
+    "docs/posts/2026-11-09-three-ways-to-make-a-survey-model-period-aware-tie.md",
+    "research/christian-belief-models/LOG.md"
+  ],
   "goal": null,
   "notes": "m3_local_window: hgb_w5 3.44 vs interp 3.43 vs plain hgb 3.87 mean abs year-level error; predictions 1,2 held, 3,4 refuted. build.py ok, check_md_links ok. No agent doc in docs/reports (nothing the next run needs beyond LOG.md).",
   "corrections": [],
