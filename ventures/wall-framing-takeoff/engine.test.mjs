@@ -1170,3 +1170,13 @@ test("a whole-house order (180+ lengths, 900+ pieces, 7 boards) finishes and sit
   assert.equal(o.bars.reduce((n, b) => n + b.cuts.length, 0), 950, "every piece is cut");
   assert.ok(ms < 30000, `took ${ms} ms`);
 });
+
+test("layoutWall, layoutFasteners and layoutInsulation refuse missing plan or result with a plain message", async () => {
+  const { layoutWall } = await import("./engine.mjs");
+  const { layoutFasteners } = await import("./fasteners.mjs");
+  const { layoutInsulation } = await import("./insulation.mjs");
+  assert.throws(() => layoutWall({}, null), /layoutWall needs/);
+  assert.throws(() => layoutWall(null, {}), /layoutWall needs/);
+  assert.throws(() => layoutFasteners({}, {}, {}), /layoutFasteners needs/);
+  assert.throws(() => layoutInsulation({}, {}, undefined), /layoutInsulation needs/);
+});

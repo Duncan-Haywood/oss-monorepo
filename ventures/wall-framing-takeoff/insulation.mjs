@@ -123,6 +123,9 @@ function layoutAttic(a, waste, drywall, roof) {
  * @param {{ walls: any[] }} result the takeoff result (members placed per wall)
  */
 export function layoutInsulation(d, plan, result) {
+  if (!plan || typeof plan !== "object" || !result || typeof result !== "object" || !Array.isArray(result.walls)) {
+    throw new TypeError("layoutInsulation needs a plan and a takeoff result with a walls list");
+  }
   let full = layoutWalls(d, plan, result);
   if (!full.ok) return full;
   if (d.rim) {
