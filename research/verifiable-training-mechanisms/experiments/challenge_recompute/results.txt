@@ -1,0 +1,32 @@
+T = 600 steps. s = commitment spacing, K = storage spacing (multiple of s), k = sampled segments (replay budget B = k s steps).
+expected challenge compute per job = k*((K-s)/2 + s) steps; worst case k*K (every sample at the far offset); storage = 4N*T/K bytes
+
+s    K    k   B    | exp steps    % of T    worst %T  | storage 1e8 params   1e9 params
+1    1    20  20   | 20.0         3.3       3.3       | 240 GB            2400 GB
+1    1    40  40   | 40.0         6.7       6.7       | 240 GB            2400 GB
+1    5    20  20   | 60.0         10.0      16.7      | 48 GB             480 GB
+1    5    40  40   | 120.0        20.0      33.3      | 48 GB             480 GB
+1    20   20  20   | 210.0        35.0      66.7      | 12 GB             120 GB
+1    20   40  40   | 420.0        70.0      133.3     | 12 GB             120 GB
+1    600  20  20   | 6010.0       1001.7    2000.0    | 0 GB              4 GB
+1    600  40  40   | 12020.0      2003.3    4000.0    | 0 GB              4 GB
+5    5    4   20   | 20.0         3.3       3.3       | 48 GB             480 GB
+5    5    8   40   | 40.0         6.7       6.7       | 48 GB             480 GB
+5    25   4   20   | 60.0         10.0      16.7      | 10 GB             96 GB
+5    25   8   40   | 120.0        20.0      33.3      | 10 GB             96 GB
+5    100  4   20   | 210.0        35.0      66.7      | 2 GB              24 GB
+5    100  8   40   | 420.0        70.0      133.3     | 2 GB              24 GB
+5    600  4   20   | 1210.0       201.7     400.0     | 0 GB              4 GB
+5    600  8   40   | 2420.0       403.3     800.0     | 0 GB              4 GB
+20   20   1   20   | 20.0         3.3       3.3       | 12 GB             120 GB
+20   20   2   40   | 40.0         6.7       6.7       | 12 GB             120 GB
+20   100  1   20   | 60.0         10.0      16.7      | 2 GB              24 GB
+20   100  2   40   | 120.0        20.0      33.3      | 2 GB              24 GB
+20   400  1   20   | 210.0        35.0      66.7      | 1 GB              6 GB
+20   400  2   40   | 420.0        70.0      133.3     | 1 GB              6 GB
+20   600  1   20   | 310.0        51.7      100.0     | 0 GB              4 GB
+20   600  2   40   | 620.0        103.3     200.0     | 0 GB              4 GB
+
+Check: K = s gives exactly B steps (no overhead): True
+Check: K = T (keep only the initial weights) costs k*((T-s)/2+s) = 1210 steps at s=5,k=4 (202% of T): replay degenerates to partial retraining.
+s=5, B=20: largest K with expected challenge compute <= 10% of T is K = 25 (storage 5.0x smaller than K=s).
