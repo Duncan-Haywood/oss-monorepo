@@ -684,3 +684,10 @@ test("winder support boards with kerf: three 32 in supports fit 96 in only witho
   assert.equal(k.perBoard, 2);
   assert.equal(k.count, 3); // 6 supports, 2 per board
 });
+
+test("2026-11-09: winder and landing-stair entry points refuse a missing settings object with a reason", () => {
+  for (const bad of [null, 5, "x", []]) {
+    assert.equal(checkWinders(bad).ok, false);
+    assert.equal(layoutStairWithLanding(bad).ok, false);
+  }
+});

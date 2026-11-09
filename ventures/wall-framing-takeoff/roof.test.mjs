@@ -511,3 +511,10 @@ test("uplift on a hip roof is ignored with a note, not guessed", () => {
   const l = layoutRoof({ ...sampleRoof(), shape: "hip", length: 480, ridge: null, ceilingJoist: undefined, collarTies: false, uplift: { pressure: 20, capacity: 175 } }, plan());
   if (l.ok) { assert.equal(l.uplift, undefined); assert.ok(l.notes.some((n) => n.includes("not sized for hip roofs"))); }
 });
+
+test("2026-11-09: validateRoof reports a missing stock list instead of throwing", async () => {
+  const { validateRoof } = await import("./roof.mjs");
+  const r = { ...sampleRoof(), wing: { width: 120, projection: 120, valley: "2x8" } };
+  assert.doesNotThrow(() => validateRoof(r));
+  assert.ok(validateRoof(r).some((m) => /No 2x8 boards/.test(m)));
+});

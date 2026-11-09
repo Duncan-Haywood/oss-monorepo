@@ -370,6 +370,7 @@ export function stairText(l) {
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStairWithLanding(input, plan) {
+  if (input == null || typeof input !== "object" || Array.isArray(input)) return { ok: false, id: "Stair", errors: ["Stair settings are an object."] };
   const L = { ...STAIR_LIMITS, ...(input.limits || {}) };
   const lc = typeof input.landing === "object" && input.landing ? input.landing : {};
   const id = input.id || "Stair";
@@ -579,6 +580,7 @@ export const WINDER_LIMITS = { winderWalkline: 12, winderWalkDepth: 10, winderMi
 
 /** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function checkWinders(w) {
+  if (w == null || typeof w !== "object" || Array.isArray(w)) return { ok: false, errors: ["Winder settings are an object."] };
   const L = { ...WINDER_LIMITS, ...(w.limits || {}) };
   const count = w.count ?? 3, turn = w.turn ?? 90, width = w.width ?? 36, r = w.innerRadius ?? 0;
   const errors = [];

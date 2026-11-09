@@ -121,3 +121,8 @@ test("a negative or non-numeric window sill is rejected, gable and shed", () => 
     assert.equal(f({ width: 72, eaveHeight: 60, pitch, mainPitch: 8, window: { width: 36, height: 24, sill: 0 } }).ok, true);
   }
 });
+
+test("2026-11-09: layoutShedDormer refuses missing settings with a reason", async () => {
+  const { layoutShedDormer } = await import("./dormer.mjs");
+  for (const bad of [null, 5, "x", []]) assert.equal(layoutShedDormer(bad).ok, false);
+});
