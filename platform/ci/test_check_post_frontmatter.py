@@ -53,6 +53,11 @@ class T(unittest.TestCase):
         t2 = t.replace('title: "' + "x" * 80 + '"\n', 'title: "' + "x" * 80 + '"\nseo_title: "short title"\n')
         self.assertEqual(problems("2026-10-24-x.md", t2), [])
 
+    def test_title_of_71_flags_and_70_does_not(self):
+        t = lambda n: GOOD.replace('title: "T"\n', 'title: "' + "x" * n + '"\n')
+        self.assertEqual(problems("2026-10-24-x.md", t(71)), ["title is 71 characters with no clean cut to 70; add `seo_title:` (70 max)"])
+        self.assertEqual(problems("2026-10-24-x.md", t(70)), [])
+
     def test_future_date(self):
         t = GOOD.replace("2026-10-24", "2026-10-27")
         today = datetime.date(2026, 10, 25)
