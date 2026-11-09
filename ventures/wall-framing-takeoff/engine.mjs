@@ -1180,13 +1180,14 @@ function lpAddRow(lp, counts, c, settle = true) {
   T.push(row);
   basis.push(n + lp.m);
   lp.m++;
-  return settle ? lpDual(lp) : true;
+  return settle ? lpDualSettle(lp) : true;
 }
 
-/** Dual simplex pivots until every row is primal feasible; false if they did not settle. */
-function lpDual(lp) {
-  const { W, T, z } = lp;
-  for (let iter = 0; iter < 5000; iter++) {
+/** Dual simplex pivots until every right-hand side is nonnegative; false if they did not settle. */
+function lpDualSettle(lp) {
+  const { W, T } = lp;
+  const { z } = lp;
+  for (let iter = 0; iter < 20000; iter++) {
     let leave = -1;
     let low = -1e-9;
     for (let r = 0; r < lp.m; r++) if (T[r][W - 1] < low) { low = T[r][W - 1]; leave = r; }
@@ -1274,7 +1275,7 @@ function columnGeneration(items, boards) {
     let ok = tab && tabRows <= patterns.length;
     if (ok) {
       for (let j = tabRows; j < patterns.length && ok; j++) ok = lpAddRow(tab, patterns[j].counts, boards[patterns[j].board].price, false);
-      if (ok) ok = lpDual(tab);
+      if (ok) ok = lpDualSettle(tab);
     }
     if (!ok) {
       tab = lpStart(patterns.map((p) => p.counts), demand, patterns.map((p) => boards[p.board].price), 4 * n + 200);
