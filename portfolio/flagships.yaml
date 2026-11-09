@@ -52,7 +52,7 @@ flagships:
       foundation plan; ceiling steps against a real soffit; trim, drywall and
       siding against real orders and hangs; bid leveling on real bids and a real
       sub's labor rates; gable sheathing nested on real sheets; insulation against
-      a real order. When a slice lands, replace its item here and put its history
+      a real order. Cutting-stock speed is settled for now (exact steepest-edge weights measured, not worth building, ROADMAP 2026-11-09 later). When a slice lands, replace its item here and put its history
       in the README.
   - venture: ai-bookkeeper
     why: >-
