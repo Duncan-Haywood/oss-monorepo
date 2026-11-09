@@ -17,7 +17,7 @@
  * ratios of the chest measurement, typed from common drafting practice and
  * NOT checked against any pattern maker's block or a real sample garment; a
  * factory or pattern maker's own block always wins. A hoodie adds a two-piece hood
- * (neck edge solved to the neck seam) and a kangaroo pocket; no hem or cuff rib.
+ * (neck edge solved to the neck seam) and a kangaroo pocket; hem and cuff rib bands are optional (`rib: true`, crewneck and hoodie).
  */
 import { garmentMeasurements, BODY_CHEST_CM } from "./fit.mjs";
 
@@ -25,7 +25,7 @@ const r2 = v => Math.round(v * 100) / 100;
 const KAPPA = 0.5522847498;
 
 export const DRAFTED = Object.freeze(["tee", "longsleeve", "crewneck", "hoodie"]);
-export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { tee: 22, longsleeve: 62, crewneck: 62, hoodie: 63 } });
+export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { tee: 22, longsleeve: 62, crewneck: 62, hoodie: 63 }, rib: false, hemRibCm: 6, cuffRibCm: 6, hemRibRatio: 0.85, cuffRibRatio: 0.85 });
 
 /* ---------- geometry ---------- */
 
@@ -174,7 +174,7 @@ export function solveCap(w, targetFront, targetBack) {
 function sleevePiece(g, b, front, back, garment, o) {
   const bc = g.bodyChest;
   const w = 0.22 * bc + 0.1 * (g.chest - bc) + 1;            // bicep width, flat
-  const sl = o.sleeveLenCm[garment];
+  const sl = o.sleeveLenCm[garment] - (o.rib ? o.cuffRibCm : 0);
   const hemW = garment === "tee" ? w - 2.5 : Math.max(0.13 * bc, w * 0.62);
   const solved = solveCap(w, front.armholeLen + o.capEaseCm / 2, back.armholeLen + o.capEaseCm / 2);
   if (!solved.ok) return { error: "no sleeve cap reaches the armhole length at this width" };
@@ -195,6 +195,29 @@ function sleevePiece(g, b, front, back, garment, o) {
       { at: solved.cap.right[Math.round(solved.cap.right.length * 0.45)], label: "B" },
     ],
     grain: [[0, sl * 0.15], [0, sl * 0.85]],
+  };
+}
+
+/** Flat width of the sleeve's hem edge. */
+const sleeveHemWidth = piece => len(piece.segs.find(s => s.kind === "sleeveHem").pts);
+
+/**
+ * A rib band: one strip folded along its length (fold in the middle), cut to
+ * `ratio` of the opening it is sewn to because rib stretches. Finished height
+ * is `h`; the cut strip is twice that. Notches at quarters help even stretching.
+ */
+function ribPiece(name, length, h, qty) {
+  const W = length, H = 2 * h;
+  const segs = [
+    { kind: "ribJoin", pts: [[0, 0], [W, 0]] },
+    { kind: "ribJoin", pts: [[W, 0], [W, H]] },
+    { kind: "ribJoin", pts: [[W, H], [0, H]] },
+    { kind: "ribJoin", pts: [[0, H], [0, 0]] },
+  ];
+  return {
+    name, qty, cutOnFold: false, segs, ribLen: W,
+    notches: [1, 2, 3].map(i => ({ at: [W * i / 4, 0], label: `${i}/4` })).concat([{ at: [0, h], label: "fold" }]),
+    grain: [[W * 0.2, h], [W * 0.8, h]],
   };
 }
 
@@ -249,7 +272,7 @@ function pocketPiece(g) {
 }
 
 function finish(piece, o) {
-  const allow = { neck: o.neckSeamCm, shoulder: o.seamCm, armhole: o.seamCm, side: o.seamCm, hem: o.hemCm, fold: 0, cap: o.seamCm, sleeveSeam: o.seamCm, sleeveHem: o.hemCm, hoodNeck: o.seamCm, hoodFace: o.hemCm, hoodCrown: o.seamCm, pocketOpening: o.seamCm + 0.5, pocketJoin: o.seamCm };
+  const allow = { neck: o.neckSeamCm, shoulder: o.seamCm, armhole: o.seamCm, side: o.seamCm, hem: o.hemCm, fold: 0, cap: o.seamCm, sleeveSeam: o.seamCm, sleeveHem: o.hemCm, hoodNeck: o.seamCm, hoodFace: o.faceCm ?? o.hemCm, ribJoin: o.seamCm, hoodCrown: o.seamCm, pocketOpening: o.seamCm + 0.5, pocketJoin: o.seamCm };
   const ring = [], dists = [];
   piece.segs.forEach(s => {
     const pts = s.pts;
@@ -295,14 +318,26 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
   for (const k of ["seamCm", "neckSeamCm", "hemCm", "capEaseCm"]) {
     if (!(Number.isFinite(o[k]) && o[k] >= 0 && o[k] <= 10)) return { ok: false, error: `${k} must be a number from 0 to 10.` };
   }
+  if (opt.rib) {
+    if (!["crewneck", "hoodie"].includes(garment)) return { ok: false, error: "Rib bands are drafted for the crewneck and hoodie only." };
+    for (const k of ["hemRibCm", "cuffRibCm"]) if (!(Number.isFinite(o[k]) && o[k] >= 3 && o[k] <= 15)) return { ok: false, error: `${k} must be a number from 3 to 15.` };
+    for (const k of ["hemRibRatio", "cuffRibRatio"]) if (!(Number.isFinite(o[k]) && o[k] >= 0.6 && o[k] <= 1)) return { ok: false, error: `${k} must be a number from 0.6 to 1.` };
+    o.faceCm = o.hemCm; o.hemCm = o.seamCm; // the band takes the hem allowance's place
+  }
   const b = bodyBlock(g);
+  if (o.rib) b.L -= o.hemRibCm;
   if (!(b.Q - b.sx > 3 && b.ad > b.sd + 8 && b.L > b.ad + 10)) return { ok: false, error: "This size and fit leave no room for an armhole and a body length." };
   const front = bodyPiece(b, "front", o), back = bodyPiece(b, "back", o);
   const sleeve = sleevePiece(g, b, front, back, garment, o);
   if (sleeve.error) return { ok: false, error: sleeve.error };
   const hood = garment === "hoodie" ? hoodPiece(g, front, back) : null;
   const pocket = garment === "hoodie" ? pocketPiece(g) : null;
-  const pieces = [front, back, sleeve, hood, pocket].filter(Boolean).map(p => finish(p, o));
+  let ribs = [];
+  if (o.rib) {
+    const hemOpening = 4 * b.Q, cuffOpening = sleeveHemWidth(sleeve) * 2;
+    ribs = [ribPiece("hemRib", hemOpening * o.hemRibRatio, o.hemRibCm, 1), ribPiece("cuffRib", cuffOpening * o.cuffRibRatio, o.cuffRibCm, 2)];
+  }
+  const pieces = [front, back, sleeve, hood, pocket, ...ribs].filter(Boolean).map(p => finish(p, o));
   const s = sleeve.solved;
   const checks = {
     frontArmholeCm: r2(front.armholeLen), backArmholeCm: r2(back.armholeLen),
@@ -311,6 +346,11 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     capHeightCm: r2(s.h), capHeightRatio: r2(s.h / (front.armholeLen + back.armholeLen)),
     allSimple: pieces.every(p => p.simple),
   };
+  if (o.rib) {
+    checks.hemOpeningCm = r2(4 * b.Q); checks.hemRibLengthCm = r2(ribs[0].ribLen);
+    checks.cuffOpeningCm = r2(sleeveHemWidth(sleeve) * 2); checks.cuffRibLengthCm = r2(ribs[1].ribLen);
+    checks.bodyLengthCm = r2(b.L); checks.finishedBodyLengthCm = r2(b.L + o.hemRibCm);
+  }
   if (hood) {
     checks.neckSeamCm = r2(segLen(front, "neck") + segLen(back, "neck"));
     checks.hoodNeckEdgeCm = r2(hood.neckEdgeLen);
@@ -415,6 +455,7 @@ export function checkText(d) {
     `Front armhole ${c.frontArmholeCm} cm, back armhole ${c.backArmholeCm} cm`,
     `Sleeve cap ${c.capFrontCm} + ${c.capBackCm} cm = ease ${c.capEaseCm} cm over the armholes; cap height ${c.capHeightCm} cm`,
     ...(c.hoodNeckEdgeCm ? [`Hood neck edge ${c.hoodNeckEdgeCm} cm to sew onto a neck seam of ${c.neckSeamCm} cm (one side); hood ${c.hoodHeightCm} cm high, ${c.hoodDepthCm} cm front to back; pocket ${c.pocketWidthCm} x ${c.pocketHeightCm} cm`] : []),
+    ...(c.hemRibLengthCm ? [`Rib: hem band ${c.hemRibLengthCm} cm for a ${c.hemOpeningCm} cm opening, cuff band ${c.cuffRibLengthCm} cm for a ${c.cuffOpeningCm} cm opening; body cut ${c.bodyLengthCm} cm, ${c.finishedBodyLengthCm} cm finished with the band`] : []),
     c.allSimple ? "No piece crosses itself." : "A piece crosses itself: check the block.",
     ...d.notes,
   ].join("\n");

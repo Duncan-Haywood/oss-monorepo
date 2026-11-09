@@ -114,3 +114,5 @@ many-session project. Each milestone below lands as a working slice.
 - 2026-11-09: `nest.mjs`, nesting marker from the real cut outlines of `pattern.mjs` (raster bottom-left, exact overlap check, page block on `pattern.html`); see README. No factory marker compared yet.
 
 - 2026-11-09: hoodie drafted (hood neck edge solved to the neck seam, kangaroo pocket), nests; see README. Next: rib bands, zip front, a real hoodie to compare.
+
+- 2026-11-09: rib hem and cuff bands (`rib: true` in `pattern.mjs`, checkbox on `pattern.html`); see README. Typed ratio 0.85 and 6 cm height, no real rib compared. Next: nest the bands, a zip front.

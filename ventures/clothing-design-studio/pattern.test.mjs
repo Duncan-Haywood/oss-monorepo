@@ -117,3 +117,27 @@ test("hoodie: pocket hand openings carry a larger allowance than the joined edge
   const big = draft("hoodie", "XXL");
   assert.ok(big.checks.hoodHeightCm > d.checks.hoodHeightCm);
 });
+
+test("rib bands: lengths are the stated share of the opening, body and sleeve are cut shorter by the band, off by default", () => {
+  for (const g of ["crewneck", "hoodie"]) for (const s of ["XS", "M", "XXL"]) {
+    const plain = draft(g, s), d = draft(g, s, { rib: true });
+    assert.ok(d.ok && d.checks.allSimple);
+    assert.equal(plain.pieces.some(p => p.name.endsWith("Rib")), false);
+    const hem = d.pieces.find(p => p.name === "hemRib"), cuff = d.pieces.find(p => p.name === "cuffRib");
+    assert.equal(hem.qty, 1); assert.equal(cuff.qty, 2);
+    // independent: opening is the flat front hem width x 2 (front + back) x 2 (half pieces on the fold)
+    const front = d.pieces.find(p => p.name === "front");
+    const hemW = Math.max(...front.stitch.map(p => p[0])) * 2 * 2;
+    assert.ok(Math.abs(d.checks.hemRibLengthCm - 0.85 * hemW) < 0.02, `${g} ${s}`);
+    const sl = d.pieces.find(p => p.name === "sleeve"), slp = plain.pieces.find(p => p.name === "sleeve");
+    assert.ok(Math.abs((slp.bbox.h - sl.bbox.h) - (6 + (2.5 - 1))) < 0.01, "sleeve is shorter by the cuff height plus the hem allowance it no longer needs");
+    assert.ok(Math.abs(d.checks.finishedBodyLengthCm - plain.block.L) < 0.01);
+    // rib stitch rectangle is length x twice the finished height
+    const xs = hem.stitch.map(p => p[0]), ys = hem.stitch.map(p => p[1]);
+    assert.ok(Math.abs((Math.max(...xs) - Math.min(...xs)) - d.checks.hemRibLengthCm) < 0.01);
+    assert.ok(Math.abs((Math.max(...ys) - Math.min(...ys)) - 12) < 0.01);
+  }
+  assert.ok(draft("hoodie", "M", { rib: true, hemRibRatio: 0.5 }).error);
+  assert.ok(draft("tee", "M", { rib: true }).error);
+  assert.match(checkText(draft("crewneck", "M", { rib: true })), /Rib: hem band/);
+});
