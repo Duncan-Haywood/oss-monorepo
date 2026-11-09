@@ -275,6 +275,8 @@ function classify(country, body) {
   if (country === "RW") return /^\d{9}$/.test(body) ? "format" : "bad-format";
   if (country === "PH") return /^\d{9}(\d{3})?$/.test(body) ? "format" : "bad-format";
   if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
+  if (country === "DO") return /^(\d{9}|\d{11})$/.test(body) ? "checksum" : "bad-format";
+  if (country === "VE") return /^[VEJPG]\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "TW") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "TH") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "UA") return /^\d{8}$/.test(body) ? "checksum" : /^\d{10}$/.test(body) ? "format" : "bad-format";
@@ -282,7 +284,6 @@ function classify(country, body) {
   // program account) and Dominican Republic RNC (9 digits). Tax authority texts unread.
   if (country === "RU") return /^(\d{10}|\d{12})$/.test(body) ? "checksum" : "bad-format";
   if (country === "CA") return /^\d{9}(R[A-Z]\d{4})?$/.test(body) ? "checksum" : "bad-format";
-  if (country === "DO") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
   if (lengths === undefined) return "unknown";
@@ -573,6 +574,30 @@ function gtNitOk(body) {
   return body[body.length - 1] === (c === 10 ? "K" : String(c));
 }
 
+// Dominican Republic (DGII): a 9-digit RNC, weights 7,9,8,6,5,4,3,2, check (10 - s mod 11) mod 9 + 1;
+// an 11-digit cedula passes the Luhn test. A few real RNCs predate the rule and fail it (python-stdnum
+// keeps a list; so do we). Rule from python-stdnum do.rnc and do.cedula; the DGII text is unread.
+const DO_RNC_EXCEPTIONS = new Set(["101581601", "101582245", "101595422", "101595785", "131188691", "401007374",
+  "501341601", "501378067", "501620371", "501651319", "501651823", "501651845", "501651926", "501656006",
+  "501658167", "501670785", "501676936", "501680158", "504654542", "504680029", "504681442", "505038691"]);
+function doTaxIdOk(body) {
+  if (body.length === 11) return luhnOk(body);
+  if (DO_RNC_EXCEPTIONS.has(body)) return true;
+  const w = [7, 9, 8, 6, 5, 4, 3, 2];
+  const s = w.reduce((a, x, i) => a + x * Number(body[i]), 0) % 11;
+  return body[8] === String(((10 - s) % 9 + 9) % 9 + 1);
+}
+
+// Venezuela RIF (SENIAT): a type letter (V, E, J, P, G), 8 digits and a check digit. Weights 3,2,7,6,5,4,3,2
+// plus 4, 8, 12, 16 or 20 for the letter; check is "00987654321"[total mod 11]. Rule from python-stdnum
+// ve.rif; the SENIAT text is unread.
+function veRifOk(body) {
+  const base = { V: 4, E: 8, J: 12, P: 16, G: 20 }[body[0]];
+  const w = [3, 2, 7, 6, 5, 4, 3, 2];
+  const t = w.reduce((a, x, i) => a + x * Number(body[i + 1]), base);
+  return body[9] === "00987654321"[t % 11];
+}
+
 // Taiwan GUI (統一編號), 8 digits: weights 1,2,1,2,1,2,4,1, each product's digits added;
 // valid when the total is a multiple of 5 (the divisor since 2023; it was 10), and a 7 in
 // the seventh place also accepts total + 1. Open-source rule (python-stdnum tw.ubn); the
@@ -599,16 +624,9 @@ function ruInnOk(body) {
   return ctl(10, [7, 2, 4, 10, 3, 5, 9, 4, 6, 8]) && ctl(11, [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8]);
 }
 
-// Dominican RNC: first 8 digits weighted 7,9,8,6,5,4,3,2; r = sum mod 11; check is 2 if r=0, 1 if r=1, else 11-r.
-function doRncOk(body) {
-  const r = [7, 9, 8, 6, 5, 4, 3, 2].reduce((a, w, i) => a + w * Number(body[i]), 0) % 11;
-  return (r === 0 ? 2 : r === 1 ? 1 : 11 - r) === Number(body[8]);
-}
-
 function checksumOk(country, body) {
   if (country === "RU") return ruInnOk(body);
   if (country === "CA") return luhnOk(body.slice(0, 9));
-  if (country === "DO") return doRncOk(body);
   if (country === "TW") return twGuiOk(body);
   if (country === "TH") return thTinOk(body);
   if (country === "DE") return deOk(body);
@@ -648,6 +666,8 @@ function checksumOk(country, body) {
   if (country === "KZ") return kzBinOk(body);
   if (country === "UA") return uaEdrpouOk(body);
   if (country === "GT") return gtNitOk(body);
+  if (country === "DO") return doTaxIdOk(body);
+  if (country === "VE") return veRifOk(body);
   if (country === "XI") return body.length === 9 || body.length === 12 ? gbOk(body) : false;
   if (EXTRA_CHECKS[country]) return EXTRA_CHECKS[country].ok(body);
   return false;
