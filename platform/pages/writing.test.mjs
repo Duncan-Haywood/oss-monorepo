@@ -395,3 +395,21 @@ test('posts.json rows are the finder cards: slug, title, description, date, minu
   assert.equal(rows[0][3], '2026-10-01');
   assert.match(rows[0][7], /agents/);
 });
+
+test('reading time rounds words / 230 to the nearest minute (exactly 345 words is 2, not 1)', () => {
+  const mk = (n) => {
+    const root = repoWith({ '2026-10-01-long.md': post('Long', '2026-10-01').replace('Body text', `${Array.from({ length: n }, () => 'w').join(' ')} Body text`) });
+    return loadPosts(root)[0];
+  };
+  const base = mk(0).words;
+  const p = mk(345 - base);
+  assert.equal(p.words, 345);
+  assert.equal(p.minutes, 2);
+});
+
+test('buildWriting creates a missing nested output directory', async () => {
+  const root = repoWith({ '2026-10-01-hello.md': post('Hello', '2026-10-01') });
+  const out = path.join(mkdtempSync(path.join(os.tmpdir(), 'wout-')), 'a', 'b');
+  await buildWriting(out, BASE, { root });
+  assert.ok((await fs.stat(path.join(out, 'writing', 'index.html'))).isFile());
+});

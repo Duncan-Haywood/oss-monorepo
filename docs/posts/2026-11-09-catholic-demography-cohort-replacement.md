@@ -1,5 +1,6 @@
 ---
 title: "How much of the rise in US adults raised Catholic is younger cohorts replacing older ones?"
+seo_title: "Catholic upbringing rise in the US: cohort replacement share"
 date: 2026-11-09
 tags: [research, catholic-demography, GSS, demography]
 description: "GSS 2000-2024: about 45% of the rise among third-plus-generation non-Hispanic whites is cohort replacement; the rest is not separable from zero."

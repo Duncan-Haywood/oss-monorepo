@@ -1,5 +1,6 @@
 ---
 title: "Monthly US inflation, 1947 to 2004: three dates a changepoint tool finds, and a postwar mess it over-cuts"
+seo_title: "US inflation 1947-2004: three dates a changepoint tool finds"
 date: 2026-11-09
 description: "A changepoint detector run on 695 months of real US CPI inflation dates the 1973 surge and the 1981 Volcker fall, and over-cuts the 1947-52 postwar noise."
 tags: [changepoint-detection, inflation, time-series]
