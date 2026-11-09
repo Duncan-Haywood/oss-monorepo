@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-09 · Milestone 103: the first keep, not the later ones, blocked certification (no flow run); corrects 102
+- Why: 102 concluded 12 of 20 three-rung cells have no certified point "whatever the keeps" and blamed the rung scores, but it held the first keep at n//3 = 16. Predictions (written first, in `pilot_cert_first.py`): (1) certified-cell count non-decreasing in the first keep F; (2) the r1 cut stops binding by F = 35; (3) at F = 50 with (M, K) = (16, 8) at most 8 of 20 cells certified.
+- **Outcome** (`experiments/theory/pilot_cert_first.py`, `pilot_cert_first_results.txt`, `tests/test_pilot_cert_first.py`; exact counting). (1) held. (2) refuted narrowly: at (16, 8) cells with a certified point are 6 / 8 / 12 / 18 / 18 for F = 8 / 16 / 25 / 35 / 50, so it stops binding between 25 and 35 (at (5, 3): 6 / 6 / 10 / 15 / 16). (3) **refuted**: 18 of 20, not at most 8.
+- Reading: 102's claim that the rung scores themselves block a guarantee was wrong; the r1 cut at a third of the pool was discarding the optimum-like points. With a generous first keep (about 70% of the pool through r1, 16 to the last rung's 8 survivors) 18 of 20 cells are certifiable; the 2 left are adder_ripple16 (ties) in both clocks. The cost: a keep of 35 of 50 at r1 saves little over scoring everything at r2, which fits milestone 100's advice to drop the cheapest rung. The ladder-versus-schedule trade (certified fraction against wall-clock) is the open question.
+- Limits: same cached table, n = 50, one eta; certification only, no regret or cost of the wider schedule.
+- Next: cost of the F = 35 schedule against the two-rung ladder; detail-routed mult24/mult32 cells.
+
 ## 2026-11-09 · Milestone 102: widening the middle keep adds one cell over the final keep alone (no flow run)
 - Why: milestone 101 varied only the final keep K; 13 of 20 three-rung cells stayed uncertifiable. Predictions (written first, in `pilot_cert_mid.py`): (1) certified-cell count non-decreasing in the middle keep M and in K; (2) at K = 1 widening M certifies at most 2 of 20; (3) at M = 16, K = 8 at most 12 of 20.
 - **Outcome** (`experiments/theory/pilot_cert_mid.py`, `pilot_cert_mid_results.txt`, `tests/test_pilot_cert_mid.py`; exact counting on the cached table, keep (n//3, M, K)). All three held. Cells with a certified point: K = 1 gives 0 at every M from 2 to 16; at K = 3 or 5 it is 4 (M = 2), 6 (M >= 5); at K = 8 it is 4, 7, 8, 8, 8 for M = 2, 5, 8, 12, 16.
