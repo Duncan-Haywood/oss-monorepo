@@ -41,7 +41,10 @@
       "why": "No post-merge CLAIM CHECK or pick_track re-run; step was under an hour."
     }
   ],
-  "writeups": "docs/posts/2026-11-09-a-wigley-hull-table-that-disagrees-with-its-own-area.md; research/marine-hull/LOG.md 3n",
+  "writeups": [
+    "docs/posts/2026-11-09-a-wigley-hull-table-that-disagrees-with-its-own-area.md",
+    "research/marine-hull/LOG.md"
+  ],
   "goal": null,
   "notes": "Opened primary Table 5 of Ahmed et al. 2015: transcription exact, L=1 m, implied k -0.04; CFX columns imply 0.0771 m2 reference area. Tests pass, homepage build ok.",
   "corrections": [],

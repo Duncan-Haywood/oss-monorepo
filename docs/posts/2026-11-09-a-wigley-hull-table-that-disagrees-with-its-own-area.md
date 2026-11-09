@@ -1,6 +1,6 @@
 ---
 title: "Which area does a published Wigley hull resistance table use?"
-seo_title: "Wigley hull resistance coefficient reference area, thin-ship theory check"
+seo_title: "Wigley hull resistance reference area: a thin-ship theory check"
 date: 2026-11-09
 tags: [research, marine-hull, wigley-hull, ship-resistance]
 description: "Opening the primary table of a Wigley hull CFD paper fixes the model at 1 m, then shows its own columns imply a reference area it never lists."
