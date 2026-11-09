@@ -163,6 +163,7 @@ export function dormerText(r) {
  *  engineer's). Not counted: overhangs, flashing, the opening in the main roof, windows.
  *  @param {{ width: number, eaveHeight: number, pitch: number, mainPitch: number, spacing?: number, studSize?: string, rafterSize?: string, ledgerSize?: string, headerSize?: string, roofOpening?: boolean | { depth?: number, mainSpacing?: number, headerSize?: string, trimmerSize?: string }, window?: { width: number, height?: number, sill?: number } }} d */
 export function layoutShedDormer(d) {
+  if (d == null || typeof d !== "object" || Array.isArray(d)) return { ok: false, errors: ["Dormer settings are an object."] };
   const e = [];
   if (!(d.width >= 36 && d.width <= 240)) e.push("Dormer width must be between 3 and 20 ft.");
   if (!(d.eaveHeight >= 24 && d.eaveHeight <= 96)) e.push("Dormer eave height must be between 2 and 8 ft.");

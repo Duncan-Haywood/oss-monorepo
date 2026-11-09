@@ -113,7 +113,7 @@ export function validateRoof(r, plan) {
     const at = w.at ?? r.length / 2;
     if (!(at - w.width / 2 >= 0 && at + w.width / 2 <= r.length)) errors.push("The wing must sit inside the main roof's length: `at` (its centre, from the first gable wall) +- half its width.");
     if (w.valley && !Object.hasOwn(DEPTH, w.valley)) errors.push(`Unknown valley size ${w.valley}.`);
-    else if (w.valley && !plan.stock.some((s) => s.size === w.valley)) errors.push(`No ${w.valley} boards listed in the stock.`);
+    else if (w.valley && !(Array.isArray(plan?.stock) && plan.stock.some((s) => s?.size === w.valley))) errors.push(`No ${w.valley} boards listed in the stock.`);
   }
   if (r.wing && r.wing2) {
     const a = r.wing, b = r.wing2;
@@ -123,7 +123,7 @@ export function validateRoof(r, plan) {
     const sizes = [["rafter", r.rafter ?? "2x8"], ...(r.ridge ? [["ridge", r.ridge]] : []), ...(r.ceilingJoist ? [["ceiling joist", r.ceilingJoist]] : [])];
     for (const [what, size] of sizes) {
       if (!Object.hasOwn(DEPTH, size)) errors.push(`Unknown ${what} size ${size}.`);
-      else if (!plan.stock.some((s) => s.size === size)) errors.push(`No ${size} boards listed in the stock.`);
+      else if (!(Array.isArray(plan?.stock) && plan.stock.some((s) => s?.size === size))) errors.push(`No ${size} boards listed in the stock.`);
     }
   }
   return errors;
