@@ -1,6 +1,8 @@
 ---
 title: Restarting the optimiser confirms it: rotor cant buys yaw, not position
 date: 2026-11-09
+tags: [research, codesign, quadrotor]
+description: "Restarting the optimiser with 8 seeds shows rotor cant cuts quadrotor yaw error 5 to 6 degrees in every seed but leaves position hold unchanged, in simulation."
 ---
 
 A canted-rotor quadrotor, co-designed with position hold, had a weak headline: yaw clearly better, the combined score better in only 3 to 4 of 5 seeds, with some seeds stuck in poor local optima. We reran with 8 seeds and restarted CMA-ES from each seed's best point.
