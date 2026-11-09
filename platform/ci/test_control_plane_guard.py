@@ -51,6 +51,25 @@ class Patterns(unittest.TestCase):
         self.assertEqual(guard.owner_logins(RULES), {"owner"})
 
 
+class MiddleSlashAnchors(unittest.TestCase):
+    """A pattern with a slash in the middle is anchored to the root, as in gitignore."""
+
+    def test_inner_slash_pattern_does_not_match_nested_copy(self):
+        rules = guard.parse_codeowners("docs/*.md @owner\n")
+        self.assertTrue(guard.owners_for("docs/a.md", rules))
+        self.assertFalse(guard.owners_for("ventures/docs/a.md", rules))
+
+
+class MainExitCode(unittest.TestCase):
+    def test_check_coverage_exit_code_follows_problems(self):
+        from unittest import mock
+
+        with mock.patch.object(guard, "check_coverage", return_value=[]):
+            self.assertEqual(guard.main(["--check-coverage"]), 0)
+        with mock.patch.object(guard, "check_coverage", return_value=["x has no code owner"]):
+            self.assertEqual(guard.main(["--check-coverage"]), 1)
+
+
 class QuestionMark(unittest.TestCase):
     def test_question_mark_is_exactly_one_non_slash_character(self):
         rules = guard.parse_codeowners("/key-?.pem @owner\n")
