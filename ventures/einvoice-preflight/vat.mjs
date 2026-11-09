@@ -220,6 +220,8 @@ function classify(country, body) {
   if (country === "ID") return checkNpwp(body).ok ? "format" : "bad-format";
   if (country === "KE") return checkKraPin(body).ok ? "format" : "bad-format";
   if (country === "GT") return /^\d{2,12}[0-9K]$/.test(body) ? "checksum" : "bad-format";
+  if (country === "TW") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "TH") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "UA") return /^\d{8}$/.test(body) ? "checksum" : /^\d{10}$/.test(body) ? "format" : "bad-format";
   if (country === "IN") return /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(body) ? "checksum" : "bad-format";
   const lengths = FORMAT_ONLY[country];
@@ -522,7 +524,28 @@ function gtNitOk(body) {
   return body[body.length - 1] === (c === 10 ? "K" : String(c));
 }
 
+// Taiwan GUI (統一編號), 8 digits: weights 1,2,1,2,1,2,4,1, each product's digits added;
+// valid when the total is a multiple of 5 (the divisor since 2023; it was 10), and a 7 in
+// the seventh place also accepts total + 1. Open-source rule (python-stdnum tw.ubn); the
+// Ministry of Finance text was not read.
+function twGuiOk(body) {
+  const weights = [1, 2, 1, 2, 1, 2, 4, 1];
+  const total = digitsOf(body).reduce((sum, d, i) => {
+    const product = d * weights[i];
+    return sum + Math.floor(product / 10) + (product % 10);
+  }, 0);
+  return total % 5 === 0 || (body[6] === "7" && (total + 1) % 5 === 0);
+}
+
+// Thailand TIN / juristic id, 13 digits: first 12 weighted 13..2, check = (11 - sum mod 11) mod 10.
+function thTinOk(body) {
+  const sum = digitsOf(body.slice(0, 12)).reduce((acc, d, i) => acc + d * (13 - i), 0);
+  return (11 - (sum % 11)) % 10 === Number(body[12]);
+}
+
 function checksumOk(country, body) {
+  if (country === "TW") return twGuiOk(body);
+  if (country === "TH") return thTinOk(body);
   if (country === "DE") return deOk(body);
   if (country === "FR") return frOk(body);
   if (country === "BE") return beOk(body);
