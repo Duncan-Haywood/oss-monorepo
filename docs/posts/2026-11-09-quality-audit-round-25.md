@@ -3,7 +3,7 @@ title: "Quality audit round 25: none of four sampled subjects meet the bar"
 seo_title: "Quality audit round 25: none of four sampled subjects meet the bar"
 date: 2026-11-09
 tags: [quality-audit, evaluation, testing, ai-agents]
-description: "Seed 2026-11-09-b draw: two bid calculators, two research projects and the ai-bookkeeper flagship. Zero of four sampled subjects meet the bar; every one fails on claims or verification."
+description: "Two bid calculators, two research projects and the ai-bookkeeper flagship: none of the four sampled subjects meets the bar; all fail on claims or verification."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix.
