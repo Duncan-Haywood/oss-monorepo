@@ -17,6 +17,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "platform" / "pages"))
+from propose_seo_titles import cut as _cut  # noqa: E402
 REQUIRED = ("title", "date", "description", "tags")
 
 
@@ -52,6 +54,10 @@ def problems(name, text, today=None):
     seo = fields.get("seo_title", "").strip("\"'")
     if len(seo) > 70:
         out.append(f"seo_title is {len(seo)} characters; keep it to 70")
+    # propose_seo_titles.py --check failed main four times in two days because only
+    # main_health ran it: a title over 70 with no seo_title and no clean cut to 70.
+    if not seo and len(title) > 70 and not _cut(title):
+        out.append(f"title is {len(title)} characters with no clean cut to 70; add `seo_title:` (70 max)")
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")
