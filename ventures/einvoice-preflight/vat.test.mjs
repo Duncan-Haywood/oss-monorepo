@@ -276,3 +276,14 @@ test("Uruguay RUT and Vietnam MST check digits reach the party VAT check", () =>
   assert.deepEqual(rules("VN0100233489"), ["INV-023"]);
   assert.deepEqual(rules("VN01002334"), ["INV-022"]);
 });
+
+test("Ecuador RUC and Paraguay RUC check digits reach the party VAT check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // Same numbers the ecuador and paraguay tests pin (hand-computed / published examples).
+  assert.deepEqual(rules("EC1790010937001"), []);
+  assert.deepEqual(rules("EC1790010938001"), ["INV-023"]);
+  assert.deepEqual(rules("EC179001093700"), ["INV-022"]);
+  assert.deepEqual(rules("PY80016875-5"), []);
+  assert.deepEqual(rules("PY80016875-4"), ["INV-023"]);
+  assert.deepEqual(rules("PY12"), ["INV-022"]);
+});
