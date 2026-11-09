@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Green Claims Checker for Clothing Product Copy (EU 2024/825)</title>
+  <meta name="description" content="Paste your product copy and see which environmental words EU consumer law now bans or wants proof for: eco-friendly, carbon neutral, sustainable, own badges. Free, in your browser, nothing uploaded.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Green claims checker for clothing copy">
+  <meta property="og:description" content="Find eco-friendly, carbon neutral and other risky claims in your product copy. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Green claims checker (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"flags generic environmental claims, offset-based neutrality claims, own badges, future promises and unproven recycled or organic wording; suggests safer wording; CSV download"}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+      textarea { width: 100%; box-sizing: border-box; min-height: 220px; padding: 9px; border: 1px solid var(--line); border-radius: 8px; font: inherit; }
+    .ban { border-left: 4px solid #9b1c1c; } .proof { border-left: 4px solid #b98a2e; }
+    .hit { border: 1px solid var(--line); background:#fff; border-radius: 8px; padding: 8px 10px; margin: 8px 0; font-size: .9rem; }
+  </style></head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="labels.html">Label checker</a> · <a href="eprfr.html">French textile eco-contribution</a> · <a href="launch.html">Launch path</a></p>
+  <h1>Is your product copy a green claim problem?</h1>
+  <p>Paste the words from a product page, hangtag or ad. The checker lists phrases that EU consumer law now bans or wants proof for, from <em>eco-friendly</em> and <em>carbon neutral</em> to a badge you drew yourself, and offers wording that says the same true thing safely.</p>
+  <p class="placeholder">A list of phrases, not a lawyer. EU Directive 2024/825 applies from 27 September 2026, each country wrote its own version, and a regulator decides a case. A clean result means no listed phrase was found, not that the copy is clear. English only. Nothing you paste leaves your browser.</p>
+  <div class="grid">
+    <section>
+      <h2>Your copy</h2>
+      <label for="tx">Product description, hangtag or ad text</label>
+      <textarea id="tx">Our eco-friendly hoodie is carbon neutral and made from recycled materials. Wear our Green Planet badge with pride. We will be net-zero by 2030. REACH compliant. Shell: 100% organic cotton (GOTS certified).</textarea>
+    </section>
+    <section><h2>Findings</h2><output id="out" aria-live="polite"></output><div id="hits"></div><p><button id="csv" type="button">Download CSV</button></p></section>
+  </div>
+  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>6. Sell it and keep selling</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="channels.html">Where to sell</a> · <a href="salestax.html">US sales tax</a> · <a href="eutax.html">EU VAT and one-stop shop</a> · <a href="eprfr.html">French textile eco-contribution</a></div>
+    <div>Before: <a href="eprfr.html">French textile eco-contribution</a> · Next: <a href="linesheet.html">Wholesale line sheet</a></div>
+  </nav>
+  <!-- /journey -->
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, manufacturing or intellectual-property advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Rules: Directive (EU) 2024/825 amending the Unfair Commercial Practices Directive 2005/29/EC (generic environmental claims, offset-based neutrality claims, sustainability labels, future-performance claims, legal requirements as a feature, whole-product claims). Read from the directive's published summary, not from a lawyer; check Annex I and your national law. The UK, US and others have their own rules (the UK's CMA Green Claims Code, the US FTC Green Guides) that this page does not apply.</p>
+  </footer>
+  <script type="module">
+    import { checkClaims, claimsCsv } from "./greenclaims.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    let res = null;
+    function run() {
+      try {
+        res = checkClaims($("#tx").value);
+        $("#out").textContent = res.summary;
+        $("#hits").innerHTML = res.findings.map(f => `<div class="hit ${f.severity}"><strong>${esc(f.phrase)}</strong> <span class="tag">line ${f.line} · ${esc(f.label)} · ${f.severity === "ban" ? "banned in this form" : "needs proof"}</span><br>${esc(f.why)}<br><em>Safer:</em> ${esc(f.safer)}<br><span class="tag">…${esc(f.context)}…</span></div>`).join("");
+      } catch (err) { $("#out").textContent = err.message; $("#hits").innerHTML = ""; res = null; }
+    }
+    $("#csv").addEventListener("click", () => { if (!res) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([claimsCsv(res)], { type: "text/csv" })); a.download = "green-claims.csv"; a.click(); recordUsage("greenclaims_csv"); });
+    $("#tx").addEventListener("input", () => { run(); recordUsage("greenclaims_check"); });
+    run(); recordUsage("greenclaims_open");
+  </script>
+</body>
+</html>
