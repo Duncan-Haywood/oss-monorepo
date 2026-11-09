@@ -2,8 +2,8 @@
 title: "Fabric quoted by the kilo, the metre or gsm: a free converter for clothing brands"
 seo_title: "GSM to kilos and metres: fabric weight and price converter"
 date: 2026-11-09
-tags: [clothing-design-studio, fabric, calculator]
-description: "A first-time clothing brand gets knit cloth quoted per kilo and a factory quotes per metre. A free converter turns gsm and width into metres per kilo and a run into kilos to order."
+tags: [clothing-design-studio, fabric, calculators]
+description: "Knit cloth is quoted per kilo, factories quote per metre. A free converter turns gsm and width into metres per kilo and a garment run into kilos to order."
 ---
 
 A mill quotes knit jersey at 8 per kilo. The factory quotes the same cloth at
