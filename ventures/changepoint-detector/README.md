@@ -1763,3 +1763,15 @@ The gas takeoff above cleared its bar by about 1% with seed 1. `eval/au-gas-seed
 - **`--model trend`:** five cuts (1986Q4, 1989Q1, 1997Q3, 2000Q3, 2002Q1): the Olympics quarter exactly, 9/11 one quarter-plus later.
 - **`--model meanvar`:** six cuts, 2002Q2 but not 2000. **`--ar1 auto`:** six cuts, no 2000Q3.
 - **What it says.** The one-quarter Olympics spike is dated to the right quarter only by the level and trend models; the models that curb over-cutting absorb it, as with SARS in the Japan series. Without tests of significance here, and with a dozen other cuts in the default model, treat the match as suggestive. One series.
+
+## A monthly inflation series: three documented dates, and a postwar mess (2026-11-09)
+
+`data/us-cpi-monthly.csv` is US CPI inflation by month, 1947-02 to 2004-12 (695 points, source in `data/SOURCE.md`), a monthly companion to the quarterly series above. `us-cpi-monthly.test.mjs` (2 tests) runs the `mean` model:
+
+- **Defaults:** 28 changes, 14 of them before 1953: pairs of two-month segments in 1947-48 and 1950-52 (the end of price controls, the Korean War spike), so the plain model reads a noisy postwar stretch as a staircase.
+- **`--ar1`:** 14 changes. **`--bootstrap`:** 16. Both keep 1973-08 (4.7 to 11.2), 1981-10 (11.0 to 3.8 with `--bootstrap`, the Volcker fall) and 1967-06 (1.5 to 4.7, a weak 1.5 noise sd). Only `--bootstrap` keeps 1986-02 to 1986-04, a three-month dip to -4.4 that matches the 1986 oil-price collapse, and it then cuts it back up, so it reads as a shock, not a regime.
+- **Not found:** a clean 1979 surge. `--bootstrap` merges 1978-04 to 1981-09 into one 11.0 segment; the defaults split it at 1979-02 and 1980-07.
+- **Warning:** with `--bootstrap` the block-variance warning fires (block means vary 56.8 times white noise, rho 0.26): the 1947-52 steps and the 1991-02 drop (4.5 to 2.5, under 1 sd) are the ones to doubt.
+- **`--bootstrap --ar1`** is refused by the CLI, as documented.
+
+One series, dates from the literature, no rate claimed. It adds a second look at the 1973 and 1981 dates at monthly resolution, where the quarterly series put them within a quarter.

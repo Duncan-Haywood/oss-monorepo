@@ -587,3 +587,12 @@ of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
   (the `time` column turned into `YYYY-MM` labels; the series starts 1982-04).
 - **Licence:** fpp2 is GPL-3; Rdatasets redistributes it. The values are Australian Bureau of Statistics figures, kept here as a test fixture.
 - **Used by:** `auscafe.test.mjs`, README "Cafés and the 2000 GST".
+
+# Example data: US monthly CPI inflation, 1947-02 to 2004-12
+
+`us-cpi-monthly.csv`: 1200 x ln(CPI_t / CPI_t-1), 695 months (`cpi` in `USMacroSWM` from R's AER package, Stock and Watson data; row 1 is 1947-01, logs differenced here).
+
+- **Retrieved:** 2026-11-09 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/USMacroSWM.csv>.
+- **Licence:** AER is GPL-2/3 on CRAN; the figures are public US statistics. Kept as a small test fixture with its source named.
+- **Used by:** `us-cpi-monthly.test.mjs`.
