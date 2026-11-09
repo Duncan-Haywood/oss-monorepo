@@ -1,8 +1,8 @@
 ---
 title: "A sales export with separate Date and Time columns read as zero rows"
-seo_title: "Shift roster builder: read POS exports with a Date column and a Time column"
+seo_title: "Shift roster builder: POS exports with Date and Time columns"
 date: 2026-11-09
-tags: [shift-roster-builder, scheduling, bugfix]
+tags: [shift-roster-builder, scheduling, bugs]
 description: "shift-roster-builder's --from-sales now joins a Date column and a Time column, a common POS export layout that used to read zero rows."
 ---
 
