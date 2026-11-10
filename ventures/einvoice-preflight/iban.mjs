@@ -170,6 +170,7 @@ function checkExplicit(value, path) {
 }
 
 export function inspectPaymentIban(invoice) {
+  if (!invoice || typeof invoice !== "object") return [];
   const payment = invoice.payment;
   if (!payment || typeof payment !== "object" || Array.isArray(payment)) return [];
   const iban = payment.iban;
