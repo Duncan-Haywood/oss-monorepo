@@ -42,7 +42,7 @@
     "docs/posts/2026-11-10-shift-roster-column-generation.md"
   ],
   "goal": "flagship depth",
-  "notes": "Security queue empty, IDEAS and website requests empty; routed ventures via --task. Picked flagship 6's algorithm-only milestone (no outside data). bnp.test.mjs 8/8 pass. cg-bench: CG floor = enumerated floor = HiGHS optimum on all 16 default-seed bench weeks; rolling-gap set 0 proven 48 in 635 nodes/3.5 s (copy-level branching: 100,001 nodes/497 s unproven; HiGHS 48 in 0.1 s). buildRoster set 0: open 48, floor 48, coverage proven, 18 s (before: floor 41, 16.5 s). ilp-export 12x30: floor = open on all four. Full calc/cli suite and rolling-gap bench results appended below when they finish.",
+  "notes": "Security queue empty, IDEAS and website requests empty; routed ventures via --task. Picked flagship 6's algorithm-only milestone (no outside data). bnp.test.mjs 8/8 pass. cg-bench: CG floor = enumerated floor = HiGHS optimum on all 16 default-seed bench weeks; rolling-gap set 0 proven 48 in 635 nodes/3.5 s (copy-level branching: 100,001 nodes/497 s unproven; HiGHS 48 in 0.1 s). buildRoster set 0: open 48, floor 48, coverage proven, 18 s (before: floor 41, 16.5 s). ilp-export 12x30: floor = open on all four. node --test bnp/calc/cli: 184/184 pass. rolling-gap-bench 10 28 4 4: floor 1040 = open 1040 (gap 36 h -> 0 h).",
   "corrections": [],
   "redteam": null
 }
