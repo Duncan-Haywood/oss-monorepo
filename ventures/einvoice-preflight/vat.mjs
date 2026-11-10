@@ -224,9 +224,9 @@ function classify(country, body) {
   if (country === "ES") return esShape(body) ? "checksum" : "bad-format";
   if (country === "PL") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
   if (country === "SE") return /^\d+$/.test(body) && (body.length === 10 || body.length === 12) ? "checksum" : "bad-format";
-  if (country === "DK") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "DK") return /^[1-9]\d{7}$/.test(body) ? "checksum" : "bad-format";
   if (country === "FI") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
-  if (country === "PT") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "PT") return /^[1-9]\d{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "LU") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IE") return ieShape(body) ? "checksum" : "bad-format";
   if (country === "GB" || country === "UK") return /^\d+$/.test(body) && (body.length === 9 || body.length === 12) ? "checksum" : "bad-format";
@@ -338,7 +338,10 @@ function classify(country, body) {
   if (lengths === undefined) return "unknown";
   if (EXTRA_CHECKS[country]?.applies(body)) return "checksum";
   if (country === "XI" && /^\d+$/.test(body) && (body.length === 9 || body.length === 12)) return "checksum";
-  if (/^[A-Z0-9]+$/.test(body) && lengths.includes(body.length)) return "format";
+  // Cyprus is eight digits and a letter; every other country here is digits only (python-stdnum
+  // differential, 2026-11-11: letters used to pass, e.g. CZA97957793, EEU93038463).
+  const shapeOk = country === "CY" ? /^\d{8}[A-Z]$/.test(body) : /^\d+$/.test(body);
+  if (shapeOk && lengths.includes(body.length)) return "format";
   return "bad-format";
 }
 
