@@ -1,0 +1,38 @@
+20 calibration seeds x 75 segments (s = 20); main zone = mean lr >= 0.1 lr0: 60 segments (t0 < 1200), tail zone 15.
+Thresholds by calibration half (global max | main-zone max | tail-zone max):
+  A (100-109)  global 0.3067 | main 0.1735 | tail 0.3067  (main/global 0.57)
+  B (110-119)  global 0.1555 | main 0.1555 | tail 0.1497  (main/global 1.00)
+  all 20       global 0.3067 | main 0.1735 | tail 0.3067  (main/global 0.57)
+  A/B ratio:   global 1.97 | main 1.12 | tail 2.05
+Honest false flags on held-out seeds (share of segments):
+  fit A global: other half 0.0000 (0/750), test honest 0.0000 (0/1500)
+  fit A zoned : other half 0.0000 (0/750), test honest 0.0007 (1/1500)
+  fit B global: other half 0.0080 (6/750), test honest 0.0020 (3/1500)
+  fit B zoned : other half 0.0080 (6/750), test honest 0.0020 (3/1500)
+Cheats, thresholds fitted on A: flag share, mean q, catch at k = [5, 20] (global rule -> zoned rule)
+  honest       flag 0.000 -> 0.001  q  0.00 ->  0.05  k=5: 0.000 -> 0.003  k=20: 0.000 -> 0.013
+  W=1500 all   flag 0.001 -> 0.019  q  0.10 ->  1.40  k=5: 0.007 -> 0.092  k=20: 0.027 -> 0.346
+  W=300 early  flag 0.192 -> 0.201  q 14.40 -> 15.05  k=5: 0.666 -> 0.685  k=20: 0.993 -> 0.995
+  W=300 late   flag 0.197 -> 0.197  q 14.75 -> 14.80  k=5: 0.676 -> 0.678  k=20: 0.994 -> 0.994
+  W=100 early  flag 0.067 -> 0.068  q  5.05 ->  5.10  k=5: 0.301 -> 0.304  k=20: 0.801 -> 0.804
+  W=100 late   flag 0.067 -> 0.067  q  5.00 ->  5.05  k=5: 0.299 -> 0.301  k=20: 0.798 -> 0.801
+  W=30 early   flag 0.027 -> 0.027  q  2.00 ->  2.00  k=5: 0.130 -> 0.130  k=20: 0.465 -> 0.465
+  W=30 late    flag 0.027 -> 0.027  q  2.00 ->  2.05  k=5: 0.130 -> 0.133  k=20: 0.465 -> 0.472
+Cheats, thresholds fitted on B: flag share, mean q, catch at k = [5, 20] (global rule -> zoned rule)
+  honest       flag 0.002 -> 0.002  q  0.15 ->  0.15  k=5: 0.010 -> 0.010  k=20: 0.037 -> 0.037
+  W=1500 all   flag 0.035 -> 0.039  q  2.65 ->  2.90  k=5: 0.168 -> 0.182  k=20: 0.554 -> 0.584
+  W=300 early  flag 0.203 -> 0.205  q 15.25 -> 15.35  k=5: 0.690 -> 0.692  k=20: 0.995 -> 0.995
+  W=300 late   flag 0.201 -> 0.201  q 15.05 -> 15.05  k=5: 0.685 -> 0.685  k=20: 0.995 -> 0.995
+  W=100 early  flag 0.069 -> 0.069  q  5.20 ->  5.20  k=5: 0.309 -> 0.309  k=20: 0.809 -> 0.809
+  W=100 late   flag 0.067 -> 0.067  q  5.05 ->  5.05  k=5: 0.301 -> 0.301  k=20: 0.801 -> 0.801
+  W=30 early   flag 0.030 -> 0.031  q  2.25 ->  2.30  k=5: 0.145 -> 0.148  k=20: 0.502 -> 0.509
+  W=30 late    flag 0.028 -> 0.028  q  2.10 ->  2.10  k=5: 0.136 -> 0.136  k=20: 0.480 -> 0.480
+Cheats, thresholds fitted on all 20: flag share, mean q, catch at k = [5, 20] (global rule -> zoned rule)
+  honest       flag 0.000 -> 0.001  q  0.00 ->  0.05  k=5: 0.000 -> 0.003  k=20: 0.000 -> 0.013
+  W=1500 all   flag 0.001 -> 0.019  q  0.10 ->  1.40  k=5: 0.007 -> 0.092  k=20: 0.027 -> 0.346
+  W=300 early  flag 0.192 -> 0.201  q 14.40 -> 15.05  k=5: 0.666 -> 0.685  k=20: 0.993 -> 0.995
+  W=300 late   flag 0.197 -> 0.197  q 14.75 -> 14.80  k=5: 0.676 -> 0.678  k=20: 0.994 -> 0.994
+  W=100 early  flag 0.067 -> 0.068  q  5.05 ->  5.10  k=5: 0.301 -> 0.304  k=20: 0.801 -> 0.804
+  W=100 late   flag 0.067 -> 0.067  q  5.00 ->  5.05  k=5: 0.299 -> 0.301  k=20: 0.798 -> 0.801
+  W=30 early   flag 0.027 -> 0.027  q  2.00 ->  2.00  k=5: 0.130 -> 0.130  k=20: 0.465 -> 0.465
+  W=30 late    flag 0.027 -> 0.027  q  2.00 ->  2.05  k=5: 0.130 -> 0.133  k=20: 0.465 -> 0.472
