@@ -5,6 +5,17 @@
 Why: session 64 left "does the Seattle i2c transfer gain survive a second test year (2023)". Fresh four-feed pull 2026-11-10 (same row counts as session 64). `python3.13 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2023`.
 Prediction (before the run): Seattle i2c transfer beats Seattle's own per-type baseline at q0.5 in 2023 with a 95% week-block CI below zero (as in 2024); Seattle a2i transfer is worse than baseline at q0.9. Refuted if the i2c q0.5 CI includes zero or is above it, or a2i q0.9 is not worse.
 
+Outcome (2023, relative change of mean pinball loss vs Seattle's own per-type baseline, 95% week-block bootstrap; `results/transfer_seattle_{a2i,i2c}_2023_4city.json`; test rows 5,106 a2i, 4,387 i2c; 3 seeds):
+| target (sources) | q0.1 | q0.5 | q0.9 | 80% coverage (baseline) |
+|---|---|---|---|---|
+| a2i (Chicago, SF, Austin) | -0.1% (CI spans 0) | +0.5% (CI spans 0) | +27.1% (worse) | 0.613 (0.868) |
+| i2c (SF, Austin) | -6.7% | -7.3% | +11.2% (worse) | 0.681 (0.827) |
+- Prediction held on both parts: i2c q0.5 CI is below zero, a2i q0.9 is worse. The a2i row reproduces 2024 almost exactly.
+- The i2c gain does not fully survive the second year: it holds at q0.1 and q0.5 (2024: -8.6%, -10.7%) but q0.9 flips to worse (+11.2%; 2024: -5.1%). So "transfer beats Seattle's own baseline at every quantile" was a 2024 result only; the stable part is the lower and middle quantiles.
+- Transfer intervals under-cover in both years (0.613 and 0.681 in 2023). An own-city model on the same features beats the baseline at all three quantiles in both targets (i2c -8.9, -12.5, -3.4%; a2i -4.0, -18.8, -15.3%) with coverage 0.829 and 0.814.
+- Limits: two test years, 3 seeds, two source cities for i2c, class map not retuned, the q0.9 flip is not explained (untested guess: Seattle's 2023 upper tail differs from the SF and Austin tails).
+Next: unchanged milestones; a third test year (2022) would need the source train cut to year <= 2020.
+
 ## Session 64, 2026-11-10: Seattle in H4 transfer (no prediction written first)
 
 Why: sessions 62 and 63 left "Seattle in H4 transfer". `src/transfer.py` now lists Seattle in `CITIES`, and writes `*_4city.json` so the three-city files stay as they were. Fresh four-feed pull 2026-11-10 (Chicago 852,615, SF 1,298,097, Austin 2,384,452, Seattle 194,184 rows), `python3 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle`, results `results/transfer_seattle_{a2i,i2c}_2024_4city.json`.
