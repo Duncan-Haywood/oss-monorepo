@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKnntyA1dyLvLbph5bn",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T19:19:16Z",
+  "ended": "2026-11-10T19:30:25Z",
+  "wall_minutes": 11.3,
+  "tokens_in": 5573942,
+  "tokens_out": 33586,
+  "cost_usd": 2.7442,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14589",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "api.crossref.org refused by the egress proxy and export.arxiv.org did not resolve, so research/_shared/cite_check.py could not run; citations checked by web search instead (two DOIs from memory, marked in PROPOSAL.md)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "The draw named track 18, which had 25 single-step projects and no programme; the output listed 'Next steps' items whose new directories programme_check would reject, so the right move (open a programme) had to be inferred from PROGRAMMES.md."
+    },
+    {
+      "file": "platform/ci/post_similarity.py",
+      "issue": "Unlike check_post_frontmatter/check_post_links it takes no file argument (rejects a path), so checking one new post needs --root or a full scan."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-hanger-simulator-fidelity.md",
+    "research/hanger-codesign/README.md",
+    "research/hanger-codesign/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Opened programme hanger-codesign (proposal, 19 works, 4 hypotheses, RA-L target) and ran milestone 1: 2D chain vs 3D sheet on four KES-FB fabrics. P1 refuted on a tie for 2nd place; P2-P4 held; 3D slab = 2D to 0.004 cm; 3 cm-arm solver error 0.05-0.11 cm vs width margin 0.08-0.13 cm. Local checks: 4 unit tests pass; research/_homepage/build.py ok; programme_check ok; check_md_links ok; research_live_links --write; post frontmatter/links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "33a39ad0-55e2-5545-854c-58419b04f62e",
+    "transcripts": 1,
+    "first": "2026-11-10T19:19:16Z",
+    "last": "2026-11-10T19:30:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 104,
+        "output": 33586,
+        "thinking": 7755,
+        "cache_read": 5451103,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122735,
+        "api_equivalent_usd": 2.7442,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 104,
+      "output": 33586,
+      "thinking": 7755,
+      "cache_read": 5451103,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122735,
+      "api_equivalent_usd": 2.7442,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 44,
+      "WebSearch": 13,
+      "ToolSearch": 2,
+      "Write": 2,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.3,
+      "active_minutes": 11.3,
+      "model_minutes": 7.81,
+      "tool_minutes": 3.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "proposal with literature check (~5 h) plus one model-comparison experiment and write-up (~5 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 364.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
