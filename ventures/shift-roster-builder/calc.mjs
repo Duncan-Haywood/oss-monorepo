@@ -1328,6 +1328,116 @@ export function openFloorByColumnGeneration(staff, slots, options = {}, cfg = {}
   const pricer = makeSetPricer(ctx, cfg);
   return columnGenerationOpen(ctx.P, len, pricer, { cls: pricer.cls, ...cfg });
 }
+// Pricing oracle for the whole-score column generation: person p's valid set with the largest  sum of w[s]  -  personScore,
+// holding every shift in `need` and none in `ban`. personScore is not a sum over shifts (overtime tiers, the squared fairness
+// term, the hours shortfall, split-shift days), so the depth-first search bounds a branch with pieces that are each a valid floor
+// on the score of any set that adds to the current list:
+//   - pay without the split-shift premium, plus each added shift's straight-time pay x the lowest pay multiplier (adding hours
+//     never moves an hour to a cheaper tier), plus the avoid cost, plus the least extra tough-shift cost, minus the prefer bonus;
+//   - the shortfall and fairness terms at their least over every total the person could still reach (both convex in hours);
+//   - the split premium at 0 (adding a shift can close a gap, so the current count is not a floor).
+// The added shifts then enter as a fractional knapsack on the weekly hours left. `maxNodes` caps one call (exact: false).
+function makeScorePricer(ctx, { maxNodes = 2000000 } = {}) {
+  const { P, S, elig, slots, staff, o, target, avgWage } = ctx;
+  const mins = slots.map((s) => s.end - s.start);
+  const items = Array.from({ length: P }, (_, p) => [...Array(S).keys()].filter((i) => elig[p][i] && validList(ctx, p, [i])));
+  const cls = shiftClasses(ctx);
+  const burden = Math.max(0, 1 + o.burdenPct / 100);
+  const minMult = Math.max(0, Math.min(1, o.otMult, o.dtMult));
+  const kFair = (o.balance / 100) * avgWage * 0.1;
+  const tw = o.toughBalance > 0 ? (o.toughBalance / 100) * avgWage : 0;
+  // Least score increase from adding shift i to any list of person p (everything but the hours terms and the split premium).
+  const incLB = staff.map((person, p) => Float64Array.from({ length: S }, (_, i) => {
+    if (!elig[p][i]) return 0;
+    let v = burden * person.wage * minMult * (paidMinutes(o, slots[i]) / 60);
+    if (ctx.diffMin.length) v += burden * (ctx.diffMin[i] / 60) * (o.diffPerHour + (person.wage * o.diffPct) / 100);
+    if (tw && toughSlot(slots[i])) v += tw * (1 + 2 * (person.toughBefore || 0));
+    v += avoidPenalty(ctx, p, [i]) - preferBonus(ctx, p, [i]);
+    return v;
+  }));
+  // The fixed part of the floor for a list: its pay without the split premium, avoid, tough and prefer terms.
+  const fixedLB = (p, list) => {
+    let pay = payroll(ctx, p, list);
+    if (o.splitPremium > 0) pay -= burden * splitDays(ctx, list) * o.splitPremium;
+    return pay + toughPenalty(ctx, p, list) + avoidPenalty(ctx, p, list) - preferBonus(ctx, p, list);
+  };
+  // Least of shortfall + fairness over hours h in [lo, hi]. Convex, so the least is at an end or a stationary point.
+  const quad = (p, h) => Math.max(0, staff[p].minHours - h) * o.shortfallValue + kFair * (h - target[p]) ** 2;
+  const minQuad = (p, lo, hi) => {
+    const t = target[p], mh = staff[p].minHours;
+    let best = Math.min(quad(p, lo), quad(p, hi));
+    for (const h of [t, mh, kFair > 0 ? t + o.shortfallValue / (2 * kFair) : mh]) if (h > lo && h < hi) best = Math.min(best, quad(p, h));
+    return best;
+  };
+  const pricer = (p, w, need, ban) => {
+    const base = need.length ? need.slice().sort((a, b) => slots[a].start - slots[b].start || a - b) : [];
+    if (base.length && !validList(ctx, p, base)) return { set: null, value: -Infinity, cost: Infinity, exact: true };
+    const needCls = new Set(need.map((i) => cls[i]));
+    const top = new Map();
+    for (const i of items[p]) {
+      if (ban.has(i) || needCls.has(cls[i])) continue;
+      const t = top.get(cls[i]);
+      if (t === undefined || w[i] > w[t]) top.set(cls[i], i);
+    }
+    const u = new Float64Array(S);
+    for (const i of top.values()) u[i] = w[i] - incLB[p][i];
+    const cand = [...top.values()].sort((a, b) => u[b] / mins[b] - u[a] / mins[a] || a - b);
+    const capMin = staff[p].maxHours * 60;
+    const wOf = (list) => list.reduce((a, i) => a + w[i], 0);
+    let bestSet = base, bestCost = personScore(ctx, p, base), bestVal = wOf(base) - bestCost, nodes = 0, exact = true;
+    const knap = (x, room) => {
+      let v = 0;
+      for (; x < cand.length && room > 0; x++) {
+        const i = cand[x];
+        if (u[i] <= 0) break;
+        if (mins[i] <= room) { v += u[i]; room -= mins[i]; } else { v += (u[i] * room) / mins[i]; room = 0; }
+      }
+      return v;
+    };
+    // Upper bound on the value of any valid set that adds shifts from cand[x..] to `list`.
+    const upper = (x, list, wv, used) => {
+      let reach = 0;
+      for (let k = x; k < cand.length; k++) reach += mins[cand[k]];
+      const room = Math.max(0, Math.min(capMin - used, reach));
+      return wv - fixedLB(p, list) + knap(x, capMin - used) - minQuad(p, used / 60, (used + room) / 60);
+    };
+    const go = (x, list, wv, used) => {
+      if (!exact) return;
+      if (++nodes > maxNodes) { exact = false; return; }
+      if (list !== base) {
+        const c = personScore(ctx, p, list);
+        if (wv - c > bestVal + 1e-9) { bestVal = wv - c; bestSet = list; bestCost = c; }
+      }
+      if (upper(x, list, wv, used) <= bestVal + 1e-9) return;
+      for (let k = x; k < cand.length; k++) {
+        const i = cand[k];
+        if (used + mins[i] > capMin + 1e-9) continue;
+        const nl = insertSorted(ctx, list, i);
+        if (!validList(ctx, p, nl)) continue;
+        go(k + 1, nl, wv + w[i], used + mins[i]);
+        if (!exact) return;
+      }
+    };
+    const baseMin = base.reduce((a, i) => a + mins[i], 0);
+    go(0, base, wOf(base), baseMin);
+    return { set: bestSet, value: bestVal, cost: bestCost, exact, nodes };
+  };
+  pricer.cls = cls;
+  return pricer;
+}
+// Lower bound on the whole roster score (pay, penalties and BIG per open hour) by branch-and-price with column generation: the
+// Dantzig-Wolfe LP with one column per (person, valid set) costed at personScore, solved by columnGenerationOpen with costed
+// columns and makeScorePricer as the oracle. Unlike priceScoreBound (subgradient prices on enumerated sets) it solves the LP
+// exactly, needs no enumeration, and branches; `incumbentScore - tolerance` is the cutoff, so `proven` means no roster beats
+// the incumbent by more than the tolerance. Returns columnGenerationOpen's result: floor is the score bound.
+export function scoreBoundByColumnGeneration(staff, slots, options = {}, cfg = {}) {
+  return scoreColumnGeneration(buildContext(staff, slots, options), cfg);
+}
+function scoreColumnGeneration(ctx, { incumbentScore = Infinity, tolerance = 0, maxNodes = 2000000, ...cfg } = {}) {
+  const len = ctx.slots.map((s) => (s.end - s.start) / 60);
+  const pricer = makeScorePricer(ctx, { maxNodes });
+  return columnGenerationOpen(ctx.P, len, pricer, { cls: pricer.cls, openCost: len.map((h) => BIG * h), unit: 0, incumbentOpen: incumbentScore, tolerance, ...cfg });
+}
 function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null, incumbentScore = null, scoreRounds = 300, cutoff = null } = {}) {
   const { P, S, elig, slots } = ctx;
   const len = slots.map((s) => (s.end - s.start) / 60);
@@ -1665,8 +1775,25 @@ export function buildRoster(staff, slots, options = {}) {
   // Optional proof: for small problems search exhaustively (with pruning) and say how far the annealed roster is from the best possible.
   let optimality = null;
   if ((o.exact === true || (o.exact === "auto" && ctx.S <= EXACT_AUTO_SLOTS)) && !over()) {
-    const ex = exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance });
     const annealScore = best.score;
+    // Whole-score branch-and-price first (scoreColumnGeneration: the Dantzig-Wolfe LP costed at each person's score, solved by
+    // column generation). On the 12 seeded weeks of eval/score-cg-bench.mjs it proved every roster best to within the tolerance in
+    // at most 0.2 s, where the exact search below left 9 of 12 unproven after 8 s, and it found a cheaper roster on 3. When it
+    // proves the roster the exact search is skipped; otherwise its bound joins the exact search's. `scoreCG: false` turns it off.
+    let cg = null;
+    if (o.scoreCG !== false) {
+      try {
+        cg = scoreColumnGeneration(ctx, { incumbentScore: best.score, tolerance: o.exactTolerance, nodeLimit: o.scoreCGNodes ?? 20000, ms: o.scoreCGMs ?? o.exactMs, maxNodes: o.scoreCGPricingNodes ?? 200000 });
+      } catch { cg = null; } // a solver failure leaves the exact search to do the work alone
+      if (cg?.roster) {
+        const own = Array.from(cg.roster);
+        if (ownerValid(ctx, own)) { const t = scoreOwner(ctx, own).total; if (t < best.score - 1e-9) best = { owner: own, score: t }; }
+      }
+    }
+    const ex = cg?.proven
+      ? { proven: true, rootBound: best.score, coverOpen: Math.floor(best.score / BIG + 1e-9), coverNodes: 0, nodes: 0, owner: null }
+      : exactSearch(ctx, best.score, { nodeLimit: o.exactNodes, timeLimitMs: o.exactMs, tolerance: o.exactTolerance });
+    if (cg && !cg.proven) ex.rootBound = Math.max(ex.rootBound, cg.floor);
     if (ex.owner && ex.score < best.score - 1e-9) best = { owner: ex.owner, score: ex.score };
     const gap = ex.proven ? annealScore - best.score : best.score - Math.min(ex.rootBound, best.score);
     optimality = {
@@ -1675,6 +1802,7 @@ export function buildRoster(staff, slots, options = {}) {
       forcedOpenHours: ex.proven ? Math.floor(best.score / BIG + 1e-9) : Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)),
       coverageProven: ex.proven || Math.max(Math.floor(ex.rootBound / BIG + 1e-9), Math.floor(ex.coverOpen + 1e-9)) === Math.floor(best.score / BIG + 1e-9),
       tolerance: o.exactTolerance, coverOpen: ex.coverOpen, coverNodes: ex.coverNodes, gap: Math.max(0, gap), gapPct: annealScore > 0 ? (Math.max(0, gap) / annealScore) * 100 : 0, nodes: ex.nodes,
+      scoreCG: cg ? { proven: cg.proven, rootLP: cg.rootLP, bound: cg.floor, nodes: cg.stats.nodes, columns: cg.stats.columns, inexactPricing: cg.stats.inexactPricing, ms: cg.stats.ms } : null,
     };
   }
   const res = summarise(ctx, best.owner);

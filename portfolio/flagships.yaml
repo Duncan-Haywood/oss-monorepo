@@ -179,9 +179,12 @@ flagships:
       bugs fixed (one crashed buildRoster with exact on a 20-person week); CG floor = HiGHS
       optimum on all 12 weeks of 20-60 people; dive on ties plus a warm-started LP prove every 20,
       30 and 40 person week (40 in about 40 s); the oracle was never inexact (max 116k nodes).
-      Next: the pay bound by the same column generation (price each person's set by pay and
-      penalties, not only hours, to prove cost on weeks the exact search leaves unproven);
-      60-person weeks (floor = optimum but no roster in 60 s: a faster LP or rounding at the root)
+      Pay bound by column generation landed 2026-11-10, later (scoreBoundByColumnGeneration,
+      makeScorePricer; eval/score-cg-bench.mjs): buildRoster proves 12 of 12 pay-gap weeks to
+      within $0.50 (exact search alone 3 of 12, $5,906 unproven) in 4-198 ms each; 20x56 3 of 3
+      in 2-6 s; 30x84 1 of 2 in 120 s (eval/score-cg-scale-bench.mjs). Next: the unproven
+      30-person score week and 40-person score weeks (a stronger pricing bound, cuts or a
+      faster LP); 60-person weeks (floor = optimum but no roster in 60 s: a faster LP or rounding at the root)
       and buildRoster taking 3-5 min on 40-person weeks with exact on and no time limit; a real
       POS hourly export for --from-sales and the page (many stamp and number formats read, made-up
       exports only); a real published-schedule export for --import-shifts.
