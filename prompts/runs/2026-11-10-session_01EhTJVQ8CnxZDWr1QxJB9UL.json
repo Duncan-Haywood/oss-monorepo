@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVQ8CnxZDWr1QxJB9UL",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "3bacb6da1d6597aa438387432ba02aaf5ca117fccd8dc4fb52cfe978038d7aa0",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T17:02:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14558,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "huggingface.co answered 403 to CONNECT this session, so the programme's open item (a second LLM family) could not run; the system python lacks numpy but /usr/bin/python3.13 has it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled prompt asks for venture/revenue work; the master router drew the research track, and I followed the router.",
+      "did": "advanced research programme llm-coding-inference",
+      "result": "one milestone landed"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Milestone 7ae of llm-coding-inference: separated audit size n from audit share n/N (7ad's confound) by subsampling the GoEmotions corpus, cached Qwen2.5-1.5B scores, 3 categories x 5 cells x 1,000 draws (~10 min each, run in parallel). Prediction committed in the script docstring before the run (commit 1 of PR 14558). P1 (coverage >= 93% in all 15 cells) supported, 93.6 to 96.7%; P2 (share drives the gain) refuted: at n/N 0.30 the width ratio falls 0.942 -> 0.715 (sadness) as n goes 500 -> 2,000; P3 supported. Checks: pytest research/llm-coding-inference 23 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links 0 missing; check_post_frontmatter and check_post_links clean for the new post. Paper Section 6 paragraph and status row updated; blog post docs/posts/2026-11-10-audit-size-not-audit-share.md.",
+  "corrections": [],
+  "redteam": null
+}
