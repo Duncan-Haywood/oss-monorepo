@@ -1200,3 +1200,38 @@ test("duties: only playing teams, one duty a night, spread within one, CSV escap
   assert.ok(many.unfilled.length > 0 || many.rows.length === s.nights.length * 10);
   assert.deepEqual(validateDivisionDuties(s, [{ name: "Gate", perNight: 10 }], many), []);
 });
+
+test("team sheets: every fixture once per side, duties on the right night, rota page, escaping", async () => {
+  const { parseDivisionDuties, assignDivisionDuties, divisionsTeamSheetsHtml } = await import("./divisions.mjs");
+  const s = build();
+  const pd = parseDivisionDuties("Snack stand: 2\nScoreboard: 1");
+  const r = assignDivisionDuties(s, pd.duties);
+  const html = divisionsTeamSheetsHtml(s, { title: "Spring <League>", contact: "a@b.c", duties: r });
+  const sheets = html.split('<section class="sheet">').slice(1);
+  const teamCount = s.divisions.reduce((n, d) => n + d.teams.length, 0);
+  assert.equal(sheets.length, teamCount + 1, "one sheet per team plus the rota");
+  const matches = s.nights.reduce((n, x) => n + x.matches.length, 0);
+  const fixtureRows = sheets.slice(0, -1).reduce((n, sh) => n + (sh.match(/<td>(Home|Away)<\/td>/g) || []).length, 0);
+  assert.equal(fixtureRows, 2 * matches, "each match appears on both teams' sheets");
+  // duties on sheets equal the rota rows, and each sits on a night the team plays
+  const dutyCells = sheets.slice(0, -1).flatMap((sh) => [...sh.matchAll(/<td class="d">([^<]*)<\/td>/g)].map((m) => m[1]).filter(Boolean).flatMap((c) => c.split(", ")));
+  assert.equal(dutyCells.length, r.rows.length);
+  const first = r.rows[0];
+  const sheet = sheets.find((sh) => sh.startsWith(`<h2>${first.team} <span>${first.division}</span>`));
+  assert.ok(sheet, "sheet for the first duty's team");
+  assert.match(sheet, new RegExp(`<td>${dayLabel(first.day)}</td>[^\\n]*<td class="d">[^<]*${first.duty}`));
+  assert.match(sheets.at(-1), /<h2>Duty rota<\/h2>/);
+  assert.ok(html.includes("Spring &lt;League&gt;") && !html.includes("<League>"), "title escaped");
+  assert.match(html, /Questions: a@b\.c/);
+  assert.match(html, /No warranty/);
+  // without duties: no duty column, no rota
+  const plain = divisionsTeamSheetsHtml(s);
+  assert.ok(!plain.includes("Your duty") && !plain.includes("Duty rota"));
+  // unfilled slots are marked on the rota
+  const many = assignDivisionDuties(s, parseDivisionDuties("Gate: 10").duties);
+  if (many.unfilled.length) assert.match(divisionsTeamSheetsHtml(s, { duties: many }), /no team free/);
+  // hostile team names are escaped
+  const evil = build({ divisions: [{ name: "D<1>", teams: ["<img src=x onerror=alert(1)>", "B", "C", "D"] }] });
+  const eh = divisionsTeamSheetsHtml(evil);
+  assert.ok(!eh.includes("<img src=x"), "team name escaped");
+});

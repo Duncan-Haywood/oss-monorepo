@@ -161,6 +161,11 @@
     <label for="duties">Team duties, one per line with teams per playing night (Snack stand: 2)</label>
     <textarea id="duties" rows="3" placeholder="Snack stand: 2&#10;Scoreboard: 1"></textarea>
     <button type="button" class="secondary" id="dl-duties">Download team duty rota (text)</button>
+    <label for="sheet-title">Title for the team sheets (league and season)</label>
+    <input id="sheet-title" type="text" maxlength="120" placeholder="Spring rec league">
+    <label for="sheet-contact">Contact line on each sheet (optional)</label>
+    <input id="sheet-contact" type="text" maxlength="160" placeholder="Organiser: name, phone or email">
+    <button type="button" class="secondary" id="dl-team-sheets">Download team sheets to print (each team's games and duties)</button>
     <button type="button" class="secondary" id="dl-notices" hidden>Download rainout change notices (text)</button>
     <button type="button" class="secondary" id="dl-off-msgs" hidden>Download a message per official (.txt)</button>
     <button type="button" class="secondary" id="copy-text">Copy as plain text</button>
@@ -195,7 +200,7 @@
   </footer>
 
   <script type="module">
-    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, blackoutsFromCsv, parseDivisions as parseDivisionsText, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsChangeNotices, divisionsBookings, divisionsFacilityCost, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsDutiesText, availabilitySheetCsv, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining } from "./divisions.mjs";
+    import { parseDivisionOfficials, assignDivisionOfficials, validateDivisionOfficials, suggestFairnessWeight, encodeDivisionFields, decodeDivisionFields, readDivisionsSpec, buildDivisions, applyDivisionRainouts, parseDivisionBlackouts, applyDivisionBlackouts, blackoutsFromCsv, parseDivisions as parseDivisionsText, rainoutOptions, validateDivisions, carryVenueHistory, divisionsCsv, divisionsSeasonGridCsv, divisionsScoreSheetsHtml, divisionsText, divisionsIcs, divisionsTeamMessages, divisionsOfficialMessages, divisionsChangeNotices, divisionsBookings, divisionsFacilityCost, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsDutiesText, divisionsTeamSheetsHtml, availabilitySheetCsv, divisionsStandings, divisionsTieBreakNotes, divisionsStandingsCsv, divisionsPlayoffs, divisionsWeeklyUpdate, divisionsOverdue, divisionsRace, divisionsRemaining } from "./divisions.mjs";
     import { dayIso, parseDate } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
@@ -301,6 +306,18 @@
       const dr = assignDivisionDuties(last, pd.duties), de = validateDivisionDuties(last, pd.duties, dr);
       if (de.length) { $("#form-status").textContent = "Duty check failed: " + de[0]; return; }
       download("team-duty-rota.txt", divisionsDutiesText(dr), "text/plain"); record("divisions_duties_downloaded");
+    });
+    $("#dl-team-sheets").addEventListener("click", () => {
+      if (!last) return;
+      let dr = null;
+      if ($("#duties").value.trim()) {
+        const pd = parseDivisionDuties($("#duties").value);
+        if (pd.errors.length) { $("#form-status").textContent = pd.errors.join(" "); return; }
+        dr = assignDivisionDuties(last, pd.duties);
+        const de = validateDivisionDuties(last, pd.duties, dr);
+        if (de.length) { $("#form-status").textContent = "Duty check failed: " + de[0]; return; }
+      }
+      download("team-sheets.html", divisionsTeamSheetsHtml(last, { title: $("#sheet-title").value, contact: $("#sheet-contact").value, duties: dr }), "text/html"); record("divisions_team_sheets_downloaded");
     });
     $("#dl-notices").addEventListener("click", () => { const n = divisionsChangeNotices(lastMoves); if (!n.group) return; download("rainout-change-notices.txt", [n.group, ...n.teams.map((x) => x.text)].join("\n\n----\n\n") + "\n", "text/plain"); record("divisions_notices_downloaded"); });
     $("#dl-off-msgs").addEventListener("click", () => { if (!last) return; download("official-messages.txt", divisionsOfficialMessages(last).map((m) => m.text).join("\n\n----\n\n"), "text/plain"); record("divisions_text_shared"); });

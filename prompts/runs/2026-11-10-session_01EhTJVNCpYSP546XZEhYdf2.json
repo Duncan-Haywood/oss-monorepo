@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVNCpYSP546XZEhYdf2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T17:02:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 9 (league-schedule-generator): duties in the print pack",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 14560,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took flagship 9 instead of the top row (wall-framing-takeoff): it had 269 commits in 7 days, and every open item needs real inputs this session could not get. League's next step needed no outside data.",
+      "did": "multi-division team sheets with duties",
+      "result": "landed, tests and browser click green"
+    },
+    {
+      "file": "ventures/league-schedule-generator/printpack.mjs",
+      "why": "The existing print pack is single-league and paid (dark). Duties exist only on the multi-division page, so I built a free multi-division sheet set instead of extending the paid pack.",
+      "did": "divisionsTeamSheetsHtml",
+      "result": "free and unbranded"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-league-team-sheets-with-duties.md"
+  ],
+  "goal": null,
+  "notes": "run_venture_tests.py league-schedule-generator: ok (82.9s). divisions.test.mjs 93 pass, page.test.mjs 54 pass, eval/browser-click.mjs all ok, including team-sheets.html. Made-up league only.",
+  "corrections": [],
+  "redteam": null
+}
