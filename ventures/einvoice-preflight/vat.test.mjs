@@ -651,3 +651,11 @@ test("BG other-form, MT and GB branch/post-2010 numbers python-stdnum accepts ar
   for (const v of ok) assert.deepEqual(inspectPartyVat({ vat_id: v }, "seller"), [], v);
   assert.notEqual(inspectPartyVat({ vat_id: "MT43376758" }, "seller").length, 0);
 });
+
+test("letters in digit-only VAT numbers and a leading zero in DK or PT are bad-format (differential vs python-stdnum, 2026-11-11)", () => {
+  for (const v of ["CZA97957793", "EEU93038463", "HUA1266236", "ROA637736264", "DK08772789", "PT055118372"]) {
+    assert.deepEqual(inspectPartyVat({ vat_id: v }, "seller").map((f) => f.rule), ["INV-022"], v);
+  }
+  assert.deepEqual(inspectPartyVat({ vat_id: "CY10259033P" }, "seller"), []);
+  assert.deepEqual(inspectPartyVat({ vat_id: "CZ699001257" }, "seller").map((f) => f.rule).filter((r) => r === "INV-022"), []);
+});
