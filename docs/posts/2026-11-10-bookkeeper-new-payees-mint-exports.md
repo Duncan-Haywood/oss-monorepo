@@ -1,6 +1,6 @@
 ---
 title: "A city name was overruling the bookkeeper's keywords: what 2,900 real bank lines showed"
-seo_title: "Bank transaction categorization on real Mint exports: first-seen payees"
+seo_title: "Bank transaction categorization on real Mint exports: new payees"
 description: "ai-bookkeeper on ten public Mint exports: a city token sent meals to dues. One guard took held-out errors from 9.3% to 5.9%."
 tags: [bookkeeping, categorization, open-source, machine-learning]
 date: 2026-11-10
