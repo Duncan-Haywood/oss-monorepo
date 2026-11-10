@@ -1,6 +1,6 @@
 ---
 title: "The tennis-ball feeder's take-up track: the ties are fine, the hose pull is the unknown"
-seo_title: "Open tennis robot feeder CAD: slot-nut tie loads for a hose take-up track"
+seo_title: "Open tennis robot feeder CAD: tie loads for a hose take-up track"
 date: 2026-11-10
 tags: [open-tennis-robots, cad, hardware]
 description: "A statics check on the two brackets that tie the feeder's hose take-up track to its hopper frame, and what it says about what to measure first."
