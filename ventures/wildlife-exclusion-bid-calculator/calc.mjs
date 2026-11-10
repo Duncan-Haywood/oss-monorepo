@@ -182,7 +182,7 @@ function round(value) {
  *   is what makes the "free inspection" line visible.
  *
  * @param {number} input.trapsSet
- * @param {number} input.trapSetMinutes       On-site, to place all traps.
+ * @param {number} input.trapSetMinutes       On-site, to place one trap (charged per trap).
  * @param {number} input.trapDays             Days traps stay out.
  * @param {number} input.trapChecksPerDay     Return visits per day. Most states
  *   require every 24 hours; this is an input, not a rule this tool asserts.
