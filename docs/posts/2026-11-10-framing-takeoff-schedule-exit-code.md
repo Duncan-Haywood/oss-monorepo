@@ -3,7 +3,7 @@ title: "A report that says it failed should exit like it failed"
 seo_title: "Wall framing takeoff CLI: --schedule exit codes fixed"
 date: 2026-11-10
 tags: [construction, cli, testing, open-source]
-description: "Running every report flag of the wall framing takeoff CLI on one small plan showed that --schedule printed its error but exited 0, unlike --orders and --risk. Now it exits 1."
+description: "Running every report flag of the wall framing takeoff CLI on one plan showed --schedule printed its error but exited 0, unlike --orders and --risk. Now it exits 1."
 ---
 
 The [wall framing takeoff](../../ventures/wall-framing-takeoff/) command line
