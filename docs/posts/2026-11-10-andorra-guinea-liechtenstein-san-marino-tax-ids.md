@@ -1,6 +1,6 @@
 ---
 title: "Tax ID checks for Andorra, Guinea, Liechtenstein and San Marino on e-invoices"
-seo_title: "Andorra NRT, Guinea NIFp, Liechtenstein, San Marino tax ID validator for e-invoices"
+seo_title: "Andorra, Guinea, Liechtenstein, San Marino tax ID check for e-invoices"
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, andorra, guinea, liechtenstein, san-marino]
 description: "einvoice-preflight now checks an Andorra NRT, a Guinea NIFp (Luhn), a Liechtenstein PEID and a San Marino COE on a party's tax ID."
