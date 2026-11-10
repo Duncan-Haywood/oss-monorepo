@@ -74,15 +74,9 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords measured on one real makerspace's bank
-      export (72.7% suggested, 96% right, tuned on itself) and a real Chase card (78.4%), two Apple Cards (56.9% to 63.8%), a Canadian Capital One card (51.9% to 80.0%) and synthetic
-      sets (README Next); labelled books 2026-11-10 (Open Collective, README): learning 63-87% right from memos, 43-65% from payee names; next: new payees; wanted: a firm's own labelled bank books; (1) the AI layer in
+      first: (0) built-in keywords on real bank and card exports (HISTORY); labelled books 2026-11-10 (Open Collective, README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; real bank lines (ten Mint exports, six held out, README): classifier no longer overrules a keyword on a city word, first-seen 68.7% right, 15.6% wrong; guess held out on Hack Club 2026-11-10 (wrong 4% to 25%, README); next: gate the guess, one-off local merchants (card MCC, the AI layer); wanted: a firm's own labelled bank books; (1) the AI layer in
       fill-only mode on real bank descriptions, more seeds, a bigger model
-      (synthetic so far); (2) the bank readers on real exports
-      from Chase, Bank of America, Wells Fargo, Amex, Capital One and
-      others (six US layouts pinned on made-up rows 2026-11-04); (3) a real Stripe PayPal eBay or Amazon settlement export for
-      the payment-processor import (`form1099k`: try a real 1099-K; Adyen:
-      wanted a real settlement file); (4) a real supplier's terms letter
+      (synthetic so far); (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) a real Stripe, PayPal, eBay, Amazon or Adyen settlement export, and a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
       through real OCR (SROIE: totals 76.2%, dates 80.2%, merchants 45.8%;
@@ -131,7 +125,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every trial: README and git. Labelled benchmark landed 2026-11-10 (README "A labelled benchmark", `eval/tcpd.mjs`): 31 Turing Change Point Dataset series, TCPDBench metrics ported (published scores reproduced to 2e-16); BOCPD F1 0.706 and consensus every-setting 0.702 vs best published binseg 0.714 and "no change" 0.663, but the page's default level model 0.477; tier hit rates 39/28/25% now printed under `--consensus`.
-      Split-half default search 2026-11-10 (README "A default chosen by split half", eval/tcpd-defaults.mjs): no level setting reliably beats "no change" (local floor k=2 w25 +0.025, CI -0.093..0.136) but it beats the old default on 27 of 28 series (+0.211), so an over-cut warning and a page control ship (following it: F1 0.655, 20 better, 0 worse). Next, most valuable first: (a) the 11 download-only TCPD series as a clean held-out check of the warning and BOCPD (in-sample so far); (b) a BOCPD-led page summary (most stable on both halves, 0.704/0.708, p 0.052 vs zero).
+      Split-half default search 2026-11-10 (README "A default chosen by split half", eval/tcpd-defaults.mjs): over-cut warning and page control shipped. Held out 2026-11-10 (README "Held out", eval/tcpd-heldout.mjs; the 7 univariate series TCPD does not ship, md5-checked): every-setting consensus F1 0.711 (binseg 0.727, zero 0.639), BOCPD 0.622 (so no BOCPD-led summary), warning beat plain level on 6/6; the page now leads with "Agreed changes". Next, most valuable first: (a) a multivariate panel for the 3 multi-dim TCPD series (apple, bee_waggle_6, occupancy); (b) why the consensus misses measles' marked change (1 cut, F1 0.643 vs amoc 0.947); (c) the analyst report and CLI default text leading with agreed changes too.
       Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-

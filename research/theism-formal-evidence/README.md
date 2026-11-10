@@ -63,14 +63,25 @@ P(Christian) to 0.5 only if ω < 10^−43.2 (10^−41.5 at 0.1/0.1 priors). E2's
 the dispute moves to L itself, i.e. the per-item ratios, which this ledger does not source.
 Limit: the model assumes the unreliable route yields reports under both hypotheses alike.
 
+**M2 (part), a theorem for Anderson's repair (E10, 2026-11-10).** E7 to E9 searched for models
+of Anderson's emendation of Gödel's argument. E10 proves what they were finding: over any finite
+property algebra (the unions of the blocks of some partition of world-individual cells), Anderson's
+axioms have a model exactly when one block is made of whole individuals, one model per such block.
+So the God-like individual has no contingent property, and the algebra cannot contain "being such
+that p" for any contingent p: the repair avoids modal collapse only for propositions its property
+space cannot express. Under full property semantics there is no model with two or more worlds at
+any finite size. The exhaustive search agrees on all 563 partitions it was run on. Finite models,
+S5, constant domain only; the proof is on paper (in `experiments/e10_theorem/results.md`), not yet
+in Lean, and whether the characterisation is already in the literature is still to check.
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
 - `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results and the S4 countermodel.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`: these regenerate `results.md` and `results.json`.
-- `test_theism.py`: 15 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`: these regenerate `results.md` and `results.json`.
+- `test_theism.py`: 20 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
 
@@ -82,6 +93,7 @@ python3 research/theism-formal-evidence/experiments/e3_leave_one_out/run.py
 python3 research/theism-formal-evidence/experiments/e4_godel_scott/run.py
 python3 research/theism-formal-evidence/experiments/e5_shared_cause/run.py
 python3 research/theism-formal-evidence/experiments/e6_shermer_check/run.py
+python3 research/theism-formal-evidence/experiments/e10_theorem/run.py   # about 6 s
 cd research/theism-formal-evidence/lean && lake build   # needs Lean 4 (toolchain pinned in lean-toolchain)
 ```
 

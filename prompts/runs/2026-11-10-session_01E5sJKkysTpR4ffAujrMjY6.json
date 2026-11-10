@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKkysTpR4ffAujrMjY6",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T21:18:21Z",
+  "ended": "2026-11-10T21:31:30Z",
+  "wall_minutes": 15.09,
+  "tokens_in": 6641835,
+  "tokens_out": 28697,
+  "cost_usd": 2.6241,
+  "tool_calls": 85,
+  "task": "Polish: phone-width screenshot sweep of hub, indexes, posts and flagships; fix the floating mic icon painted out by page svg CSS",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14610",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First comment added inside ASSISTANT_LAUNCHER_JS used backticks and broke the template literal; comments inside it also ship to every page and count toward the 3,600-byte budget, so the note moved to the JSDoc above",
+      "fixed": true
+    },
+    {
+      "what": "First fix missed wall-framing-takeoff's bordered svg rule (icon 22x22); the browser sweep caught it and border:0 was added",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/assistant.mjs",
+      "issue": "Comments inside the ASSISTANT_LAUNCHER_JS template literal ship in pf-site.js and count against the 3,600-byte test budget; nothing says so, and a backtick in one breaks the module."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "The recent polish reports are almost all answer-first leads; the prompt's own 'screenshot hub, flagship, research, Stories, a post' step found a 65-page visual defect none of them had seen, so that step deserves more weight than the reports' 'Next' lists."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "A full rebuild after the fix would take another ~15 minutes; I patched the launcher CSS string into the built dist/pf-site.js from the new source and swept that instead",
+      "did": "Ran ask-voice-icon.mjs over all 1,338 tool pages against the patched dist",
+      "result": "955 of 955 pages with the button draw the mic; CI's pages build covers the real rebuild"
+    },
+    {
+      "file": "platform/ci/browser_checks.py",
+      "why": "Wiring the new check into browser_checks.py touches control-plane CI, which needs owner review; kept out so this PR is not held",
+      "did": "Documented the check in platform/pages/README.md and listed the wiring as next in the report",
+      "result": "pending"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-the-mic-button-that-drew-a-white-square.md",
+    "docs/reports/polish-2026-11-10-mic-icon-white-square.md"
+  ],
+  "goal": null,
+  "notes": "Full site build passed on main before the change (8,246 pages). Sweep before: 1,338 tool pages, 955 with the button, 65 blank icons + 1 wrong size. After: 955 ok, 0 bad (ask-voice-icon.mjs exit 0). assistant.test.mjs 17/17. check_post_frontmatter.py exit 0. node --test 'platform/pages/*.test.mjs': 1,497 tests, 1,496 pass, 0 fail, 1 skipped.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dab80ca1-553d-508d-a6a4-f220b03931b0",
+    "transcripts": 1,
+    "first": "2026-11-10T21:18:21Z",
+    "last": "2026-11-10T21:33:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 142,
+        "output": 28697,
+        "thinking": 4311,
+        "cache_read": 6549219,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92474,
+        "api_equivalent_usd": 2.6241,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 142,
+      "output": 28697,
+      "thinking": 4311,
+      "cache_read": 6549219,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92474,
+      "api_equivalent_usd": 2.6241,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 68,
+      "Read": 12,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.09,
+      "active_minutes": 15.09,
+      "model_minutes": 4.86,
+      "tool_minutes": 10.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: find, trace and fix a CSS clash across 65 pages, write a browser sweep, before/after shots and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 152.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

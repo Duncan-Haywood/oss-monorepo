@@ -1969,3 +1969,26 @@ The flagship's item (a) asked for a level-model default that beats "no change" o
 
 Limits: 31 series is a small sample and the bootstrap is over series; the warning was checked on TCPD, which also chose the floor, so its numbers there are in-sample (the split-half rows are the out-of-sample evidence); a smooth logistic curve with white noise does not trigger it (a local line follows the bend), random walks and AR(1) noise do (`overcut.test.mjs`).
 
+
+## Held out: the TCPD series nobody tuned on, and agreed changes on the page (2026-11-10)
+
+Every choice above (the default panel, the over-cut warning and its refit, the split-half table) was made on the 31 univariate series that TCPD ships in its repository. TCPD has 42 annotated series; the other 10 are built by scripts that download from web.archive.org, which this sandbox cannot reach (and one of the 32 shipped files is multi-dimensional, which is why earlier sections said 11). `sh eval/tcpd-fetch.sh tcpd-data` now also fetches those 10 built files from a public copy at a pinned commit and keeps each only if its md5 is in TCPD's own `checksums.json`; all 10 matched, so they are byte-identical to TCPD's build. They go in `tcpd-data/heldout/`, so `eval/tcpd.mjs` and `eval/tcpd-defaults.mjs` still score the same 31. `node eval/tcpd-heldout.mjs tcpd-data` (output in `eval/tcpd-heldout.out.txt`) scores the frozen settings on the 7 univariate ones (bitcoin, iceland_tourism, measles, ratner_stock, robocalls, scanline_126007, scanline_42049); apple, bee_waggle_6 and occupancy have 2 to 4 dimensions and are listed, not scored, since the detector is univariate.
+
+| setting | F1 held out (7) | cover | F1 shipped (31) | F1 pooled (38) |
+|---|---|---|---|---|
+| `--consensus` every setting | **0.711** | **0.742** | 0.702 | 0.704 |
+| BOCPD detections | 0.622 | 0.558 | 0.706 | 0.690 |
+| level, following the over-cut warning | 0.497 | 0.394 | 0.655 | 0.625 |
+| level (plain) | 0.296 | 0.191 | 0.477 | 0.444 |
+| zero (published) | 0.639 | 0.597 | 0.663 | 0.658 |
+| binseg (published) | 0.727 | 0.731 | 0.714 | 0.716 |
+
+What held and what did not:
+
+- **The over-cut warning replicates.** It fired on 6 of 7 held-out series; following it beat the plain level model on all 6 (+0.201 F1, 95% bootstrap interval 0.098 to 0.297, sign test p 0.031). It still does not beat reporting no change (-0.142, interval -0.436 to 0.120).
+- **BOCPD did not hold up.** The flagship's item (b) proposed a BOCPD-led page summary because BOCPD was the most stable on the two shipped halves. Held out it falls to 0.622, below "no change": on measles (991 weekly counts) it reports 27 changes where the annotators mark about one. Item (b) is answered no.
+- **The every-setting consensus held up.** 0.711 held out against 0.702 in sample, the best cover of any method on these 7 (0.742, binseg 0.731), and 0.704 pooled over 38, second only to binseg (0.716). It cuts conservatively: on measles it keeps 1 change (F1 0.643) where the level model keeps 167 (0.024). Against "no change" it is +0.072 held out (interval -0.097 to 0.263; better on 3, worse on 1), not a significant win on 7 series.
+
+**What shipped.** The page now runs the six-setting panel whenever the level model is chosen and leads the results with an "Agreed changes" line (`agreedText` in `consensus.mjs`): the changes every setting finds, with direction, then the held-out figures it is quoting (F1 0.71 vs 0.30 for the single level model in the table below it, 0.64 for reporting nothing). When no change is agreed, it says so and calls the table's changes candidates. The table and chart are unchanged, so the hundred-odd real-series tests pinned to the level model still hold. `agreed-text.test.mjs` checks the wording and that the quoted figures match `eval/tcpd-heldout.out.txt`. The panel runs in about 0.2 s on the Nile example in headless Chromium.
+
+Limits: 7 held-out series is a very small sample (two are image scanlines); the bootstrap is over series; the mirrored files were checked by md5 against TCPD's published checksums, not rebuilt from source here.
