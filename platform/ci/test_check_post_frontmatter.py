@@ -49,6 +49,27 @@ class T(unittest.TestCase):
         self.assertEqual(tag_key("taxes"), tag_key("tax"))
         self.assertNotEqual(tag_key("cases"), tag_key("cas"))
 
+    def test_named_posts_are_checked_alone(self):
+        with tempfile.TemporaryDirectory() as d:
+            posts = Path(d) / "docs" / "posts"
+            posts.mkdir(parents=True)
+            (posts / "2026-10-24-good.md").write_text(GOOD.replace("[a, b]", "[Tax]"))
+            (posts / "2026-10-24-bad.md").write_text(GOOD.replace("tags: [a, b]\n", "")
+                                                     .replace('"DDD', '"EEE'))
+            (posts / "2026-10-24-other.md").write_text(GOOD.replace("[a, b]", "[taxes]").replace('"DDD', '"FFF'))
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["--root", d, str(posts / "2026-10-24-bad.md")]), 1)
+            self.assertIn("missing `tags`", out.getvalue())
+            self.assertNotIn("spelled", out.getvalue())  # bad.md has no tags in the Tax/taxes group
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                self.assertEqual(main(["--root", d, str(posts / "2026-10-24-good.md")]), 1)
+            self.assertIn("tag spelled 2 ways", out.getvalue())
+            self.assertNotIn("missing", out.getvalue())
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main(["--root", d, str(posts / "nope.md")]), 1)
+
     def test_good(self):
         self.assertEqual(problems("2026-10-24-x.md", GOOD), [])
 
