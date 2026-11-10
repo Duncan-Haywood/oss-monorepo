@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14461",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -36,7 +36,7 @@
       "why": "No blog post or real-defect hunt beyond a brief read: small run; two open defects need control-plane PRs with owner approval, left open."
     }
   ],
-  "writeups": null,
+  "writeups": [],
   "goal": null,
   "notes": "",
   "corrections": [],
