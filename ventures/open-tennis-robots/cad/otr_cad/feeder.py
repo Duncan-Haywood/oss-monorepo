@@ -485,7 +485,7 @@ def take_up_parts(p: Feeder) -> list[Part]:
                   spec=f"Rigid round tube, {bore:g} mm bore, about {od:g} mm OD, cut {L:.0f} mm; slot {slot_w:g} mm wide "
                        f"in the rear wall from the top end down {top - slot_z0:.0f} mm",
                   notes=f"Hangs from the outlet socket, open at the bottom. The hose's collar slides {t['stroke_mm']:.0f} mm in it "
-                        f"(free hose {t['free_mm'][0]:.0f} to {t['free_mm'][1]:.0f} mm over the elevation range). Deburr the bore.")
+                        f"(free hose {t['free_mm'][0]:.0f} to {t['free_mm'][1]:.0f} mm over the elevation and azimuth range). Deburr the bore.")
     cd = bore - 2.0
     tab = 12.0
     collar = Cylinder(cd / 2, p.collar_h_mm) + Box(tab + (od - cd) / 2 + 2.0, slot_w - 2.0, 12.0).moved(
@@ -645,10 +645,10 @@ def take_up_line(p: Feeder) -> str:
     if t is None:
         return ("take-up: NO sleeve fits (the outlet is too low for a vertical sleeve plus one falling curve at every pose; "
                 "Feeder.lowest_sleeve_outlet finds the height that works)")
-    ps = "; ".join(f"{e:+.0f} deg {a:.0f}-{b:.0f}" for e, a, b in t["poses"])
+    ps = "; ".join(f"{e:+.0f}/{az:.0f} deg {a:.0f}-{b:.0f}" for e, az, a, b in t["poses"])
     return (f"take-up: sleeve {t['sleeve_id_mm']:g} mm bore, {t['tube_mm']:.0f} mm long, under the outlet; the hose's collar "
             f"slides {t['stroke_mm']:.0f} mm in it, so the free hose runs {t['free_mm'][0]:.0f} to {t['free_mm'][1]:.0f} mm "
-            f"from {t['start_z']:.0f} mm up; slide allowed per pose {ps} mm; hose cut {t['hose_cut_mm']:g} mm; spring "
+            f"from {t['start_z']:.0f} mm up; slide allowed per pose (elevation/azimuth, -azimuth mirrors) {ps} mm; hose cut {t['hose_cut_mm']:g} mm; spring "
             f"{t['spring_n']:g} N (assumed); balls fall straight down the sleeve, then at least {p.feed_min_slope_deg:g} deg")
 
 
