@@ -250,7 +250,7 @@ def _bg_ten(b: str) -> bool:
         return True
     if _w(b[:9], [21, 19, 17, 13, 11, 9, 7, 3, 1]) % 10 == last:
         return True
-    other = 11 - _w(b[:9], [4, 3, 2, 7, 6, 5, 4, 3, 2]) % 11
+    other = (11 - _w(b[:9], [4, 3, 2, 7, 6, 5, 4, 3, 2]) % 11) % 11
     return other < 10 and other == last
 
 
@@ -292,7 +292,7 @@ _EXTRA = {
     "GR": (_digits(9), _el),
     "CZ": (lambda b: (len(b) == 8 and b[0] != "9" or len(b) == 10) and b.isascii() and b.isdigit(), _cz),
     "CY": (lambda b: len(b) == 9 and b[:8].isascii() and b[:8].isdigit() and "A" <= b[8] <= "Z", lambda b: _cy(b)),
-    "MT": (_digits(8, "123456789"), lambda b: 37 - (_w(b[:6], [3, 4, 6, 7, 8, 9]) % 37) == int(b[6:])),
+    "MT": (_digits(8, "123456789"), lambda b: _w(b, [3, 4, 6, 7, 8, 9, 10, 1]) % 37 == 0),
 }
 
 
@@ -495,9 +495,8 @@ def _gb(digits: str) -> bool:
     check = int(digits[7:9])
     if len(digits) not in (9, 12):
         return False
-    if len(digits) == 12 and digits[9:] != "000":
-        return False
-    return (total + check) % 97 == 0 or (total + 55 + check) % 97 == 0
+    rem = (total + check) % 97
+    return rem == 0 or (int(digits[:3]) >= 100 and rem in (42, 55))
 
 
 def _finding(rule: str, message: str, fix: str, path: str) -> dict[str, str]:

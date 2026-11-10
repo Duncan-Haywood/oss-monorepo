@@ -170,7 +170,9 @@ const EXTRA_CHECKS = {
   // Malta: 8 digits; the last two are 37 minus the weighted first six, mod 37.
   MT: {
     applies: (b) => /^[1-9]\d{7}$/.test(b),
-    ok: (b) => 37 - (weighted(b.slice(0, 6), [3, 4, 6, 7, 8, 9]) % 37) === Number(b.slice(6)),
+    // Sum of all eight digits weighted 3,4,6,7,8,9,10,1 is divisible by 37 (python-stdnum mt.vat), so
+    // the last two digits may be 37 - s, 74 - s or, when s is 0, 00 as well as 37.
+    ok: (b) => weighted(b, [3, 4, 6, 7, 8, 9, 10, 1]) % 37 === 0,
   },
 };
 EXTRA_CHECKS.GR = EXTRA_CHECKS.EL;
@@ -181,7 +183,7 @@ function bgTenDigitOk(b) {
   if (egn === 10) egn = 0;
   if (egn === last) return true;
   if (weighted(b.slice(0, 9), [21, 19, 17, 13, 11, 9, 7, 3, 1]) % 10 === last) return true;
-  const other = 11 - (weighted(b.slice(0, 9), [4, 3, 2, 7, 6, 5, 4, 3, 2]) % 11);
+  const other = (11 - (weighted(b.slice(0, 9), [4, 3, 2, 7, 6, 5, 4, 3, 2]) % 11)) % 11;
   return other < 10 && other === last;
 }
 
@@ -517,12 +519,14 @@ function ieOk(body) {
 
 function gbOk(digits) {
   if (digits.length !== 9 && digits.length !== 12) return false;
-  if (digits.length === 12 && digits.slice(9) !== "000") return false;
+  // A 12-digit number is a branch trader: the last three digits are the branch and are not checked.
   const weights = [8, 7, 6, 5, 4, 3, 2];
   let total = 0;
   for (let i = 0; i < 7; i += 1) total += Number(digits[i]) * weights[i];
   const check = Number(digits.slice(7, 9));
-  return (total + check) % 97 === 0 || (total + 55 + check) % 97 === 0;
+  const sum = (total + check) % 97;
+  // From 100 on (the numbers HMRC issues after 2010) a remainder of 42 or 55 is also valid; below 100 only 0.
+  return sum === 0 || (Number(digits.slice(0, 3)) >= 100 && (sum === 42 || sum === 55));
 }
 
 // Norway (organisasjonsnummer, brreg) and Switzerland (UID, BFS) share one
