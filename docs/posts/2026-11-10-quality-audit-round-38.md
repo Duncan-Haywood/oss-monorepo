@@ -3,7 +3,7 @@ title: "Quality audit round 38: one of four sampled subjects meets the bar"
 seo_title: "Quality audit round 38: one of four sampled subjects meets the bar"
 date: 2026-11-10
 tags: [quality-audit, evaluation, testing, research]
-description: "One of four sampled subjects meets the senior-professional bar: a trade-show ROI planner. A basis calculator and two research twins fall short on tests or claims."
+description: "One of four sampled subjects meets the senior-professional bar: a trade-show ROI planner. A basis calculator and two research twins miss on tests or claims."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix. Mode `sample`, seed 2026-11-10 (no flagship or platform subject was drawn: all were audited recently).
