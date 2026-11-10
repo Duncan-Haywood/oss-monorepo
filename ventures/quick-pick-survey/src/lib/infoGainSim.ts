@@ -7,6 +7,7 @@ import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "@/lib/g
 import {
   AGREEMENT_WINDOW,
   answerAgreement,
+  FIRST_OPTION_MIN_DECIDED,
   type DecidedPick,
   pairKey,
   selectNextPair,
@@ -31,7 +32,7 @@ export type Policy = typeof selectNextPair;
  * `positionBias` is the share of answers that take the first option shown whatever
  * the items are (negative: the second option). Both draw nothing extra at 0, so older seeds reproduce.
  */
-export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false) {
+export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false, onAnswer?: (answered: number, rds: number[]) => void) {
   const rand = mulberry32(seed);
   const truth = new Map<string, number>();
   const state = new Map<string, GlickoState>();
@@ -62,7 +63,10 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
       timesShown,
       recentPairKeys: new Set(recent),
       answeredCount: answered,
-      firstOptionShare: answered > 0 ? firstPicks / answered : undefined,
+      // As the route: no share until FIRST_OPTION_MIN_DECIDED answers (it was
+      // passed from the first answer before 2026-11-10, which only mattered
+      // once the staged selector could switch before 120 answers).
+      firstOptionShare: answered >= FIRST_OPTION_MIN_DECIDED ? firstPicks / answered : undefined,
       answerAgreement: useAgreement ? answerAgreement(picks.slice(-AGREEMENT_WINDOW)) : undefined,
       rand,
     });
@@ -77,6 +81,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
     timesShown.set(bId, (timesShown.get(bId) ?? 0) + 1);
     recent.push(pairKey(aId, bId));
     if (recent.length > 10) recent.shift();
+    onAnswer?.(answered + 1, [...state.values()].map((s) => s.rd));
   }
   const entries = [...state.entries()];
   const under = (t: number) => entries.filter(([, s]) => s.rd < t).length;

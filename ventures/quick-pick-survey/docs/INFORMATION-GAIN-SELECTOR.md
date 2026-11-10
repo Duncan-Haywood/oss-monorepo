@@ -95,8 +95,10 @@ migration, builder checkbox) is the next step.
 `pairSelector`, and the admin form has a "Question order" menu. `/api/trials/next`
 uses the survey's value when set and otherwise follows the `PAIR_SELECTOR`
 environment variable, so existing surveys behave as before. `staged` helps
-long lists answered at length (see above); for short lists it equals the
-standard selector for the first 120 answers.
+long lists answered at length (see above). Since 2026-11-10 it uses the
+information selector from the first answer on lists up to 120 items ("A
+switch point that depends on list length", below); before that it equalled
+the standard selector for the first 120 answers whatever the list length.
 
 ## Latency at long lists
 
@@ -772,3 +774,90 @@ repeat is a wasted answer for ranking, so a real design would spend about
 adds respondent burden for a rare failure, and the rank-accuracy cost of lapses
 up to 20% was already small (see the lapse sweep above). Not measured: a real
 respondent's fatigue curve. `simulate` now also returns the true strengths.
+
+## A switch point that depends on list length (2026-11-10)
+
+The staged selector ran the shipped selector for the first 120 answers on
+every list. On a 15-item list a respondent rarely answers 120 pairs, so they
+never reached the information selector, which beat the shipped one on real
+people's rankings in all 25 cells (REAL-RANKINGS.md). The 120 had been chosen
+on 41 and 220 items against "items under rd 150", described as the couple
+screen's bar. **The couple screen's bar is not rd 150.** `couples.ts` needs
+`MIN_ITEMS_FOR_CROSS_PERSON` (8) items under `CONFIDENT_RD` (200) in each
+person's ranking before it compares two people. So this run measured that bar.
+
+`scripts/couple-bar-sweep.ts` (synthetic respondent of `infoGainSim.ts`, 30
+seeds per row, no lapse): the answer count at which a respondent first has 8
+items under rd 200 (median / 90th percentile), and mean rank accuracy at 2, 4
+and 8 answers per item. "by length" is the new default.
+
+| items | shipped | information | staged @120 | staged by length (@0) | rank at 2n: shipped / by length | 4n | 8n |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 8 | 26 / 36 | 19 / 20 | 26 / 36 | 19 / 20 | 0.603 / 0.691 | 0.781 / 0.817 | 0.869 / 0.890 |
+| 11 | 29 / 31 | 21 / 21 | 29 / 31 | 21 / 21 | 0.582 / 0.640 | 0.747 / 0.738 | 0.864 / 0.868 |
+| 15 | 34 / 38 | 27 / 27 | 34 / 38 | 27 / 27 | 0.604 / 0.726 | 0.754 / 0.826 | 0.858 / 0.897 |
+| 20 | 40 / 44 | 34 / 34 | 40 / 44 | 34 / 34 | 0.669 / 0.705 | 0.776 / 0.825 | 0.879 / 0.885 |
+| 30 | 39 / 44 | 35 / 35 | 39 / 44 | 35 / 35 | 0.638 / 0.662 | 0.781 / 0.820 | 0.884 / 0.896 |
+| 41 | 39 / 45 | 35 / 35 | 39 / 45 | 35 / 36 | 0.557 / 0.631 | 0.771 / 0.814 | 0.880 / 0.893 |
+| 60 | 38 / 44 | 35 / 36 | 38 / 44 | 35 / 36 | 0.516 / 0.567 | 0.756 / 0.805 | 0.876 / 0.889 |
+| 80 | 40 / 44 | 35 / 36 | 40 / 44 | 35 / 36 | 0.495 / 0.530 | 0.740 / 0.798 | 0.876 / 0.897 |
+| 120 | 40 / 45 | 35 / 36 | 40 / 45 | 35 / 36 (same rule) | 0.462 / 0.507 | 0.719 / 0.785 | 0.878 / 0.894 |
+
+The 120-item "by length" row is the information column (at 120 items the
+rule switches at 0); it is copied from there.
+
+What it shows:
+
+- **The information selector reaches the couple bar 4 to 8 answers sooner at
+  every length, and more predictably** (p90 within one answer of the median,
+  against 5 to 10 answers later for shipped). It spreads early answers over
+  items it is unsure of, and 8 items under rd 200 needs breadth, not depth.
+- **It ranks better at every length and budget measured but one**, 11 items at
+  4n (0.738 against 0.747, inside seed noise).
+- **Where the shipped selector still wins: items under rd 150 on long lists
+  answered briefly.** `scripts/switch-point-sweep.ts` (20 to 40 seeds) has the
+  shipped selector ahead on rd 150 while answers are below about three per item:
+  41 items at 82 to 90 answers, 3.6 to 4.5 items against 0.5 to 0.9. Above that
+  the information selector is far ahead (41 items at 164 answers: 40.8 against
+  17.1). No screen uses rd 150, so this run does not weigh it.
+- **Switching part way costs both.** The same sweep shows a hand-over in the
+  middle of a session dropping items under rd 150 below either pure selector
+  (60 items, 180 answers: 9.3 at a switch of 120, 18.2 shipped, 40.8
+  information): the information selector starts on items the shipped one left
+  half settled. That is a second reason to pick one selector per list rather
+  than switch.
+
+**Decision.** `hybridSwitchAt(itemCount)` returns 0 for lists up to
+`INFO_FROM_START_MAX_ITEMS` (120) and 120 above, and `selectNextPairHybrid`
+uses it unless a caller passes `switchAt`. The first-option fallback is
+unchanged: after 30 decided answers (`FIRST_OPTION_MIN_DECIDED`, now exported
+and used by both the route and the simulator), a share at or beyond 0.7 still
+gets the shipped selector. Lists over 120 items keep the 120-answer switch
+because they were not measured here.
+
+**Simulator change.** `infoGainSim.ts` passed the first-option share from the
+first answer, while the route waits for 30. With a switch at 120 that never
+mattered; with a switch at 0 a chance share of 0.7 after three answers flipped
+the simulated respondent to the shipped selector and cost 0.02 rank at 41
+items and 300 answers. The simulator now waits for 30 answers, as the route
+does. No earlier table changes: they all switched at 120 or later.
+
+**On real people** (`scripts/real-rankings-eval.ts --seeds 200`, which now
+prints a `staged` row): staged equals the information row in all 25 cells
+(breakfast 15 items, T-shirts 11), so it is at least the shipped selector's
+Spearman against a new crowd in every cell (+0.00 to +0.06) and picks the
+crowd's favourite more often in 21 of 25 (the same in 1, less often in 3).
+
+**Not tested, and the known cost.** Heavy careless answering: with 35% to 50%
+of answers at random, the information selector trailed the shipped one on 15
+and 30 items by up to 0.06 rank (30 seeds; it was ahead on 8, 11 and 20 items
+and at 10% lapse everywhere). The staged selector has no fallback for that,
+only for position bias; the "answers look random" signal measured on
+2026-11-09 is the candidate. Lists over 120 items, real pairwise answers and a
+couple screen opened by two real people are also untested.
+
+Tests: `pairing.test.ts` (the rule, and the 15-item and 200-item pairs; both
+fail with the old fixed switch), `infoGainPairing.simulation.test.ts` (the
+couple bar at 11 and 41 items; the rd 150 assertion now holds only where the
+rule still switches at 120 or at 300 answers).
+

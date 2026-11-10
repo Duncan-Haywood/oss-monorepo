@@ -228,17 +228,17 @@ flagships:
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md (survey builder, pooled
       random-effects ranking with rank ranges, information-gain and staged
-      selectors, pool cap, lapse and repeat-probe studies, synthetic to
-      2026-11-09). Real people's rankings 2026-11-10 (PrefLib breakfast 42x15,
-      T-shirt 30x11, scored against the people not asked): vs the people asked
-      0.93-0.98, vs a new crowd 0.72-0.77 and 0.85, so people not answers are
-      the limit; overlap ranges hold 96-100% but span ~13 of 15 places at
-      20x20; a 1.96-se difference rule stays off (2-10% wrong); the information
-      selector beats shipped in all 25 cells. Next: a staged switch point that
-      depends on list length (it waits 120 answers, so short lists never reach
-      the better selector), checked against the couple screen's settled-item
-      bar; then real pairwise answers from a real survey.
-
+      selectors, pool cap, lapse and repeat-probe studies; PrefLib real
+      rankings 2026-11-10). Switch point by list length 2026-11-10
+      (INFORMATION-GAIN-SELECTOR.md, scripts/couple-bar-sweep.ts): the couple
+      screen's real bar is 8 items under rd 200, not rd 150; the information
+      selector reaches it 4-8 answers sooner at 8-120 items and ranks better, so
+      "staged" now uses it from the first answer up to 120 items (equals the
+      information row on real rankings, all 25 cells). Next: a careless-answer
+      fallback for the staged selector (35-50% random answers cost up to 0.06
+      rank at 15 and 30 items; the 2026-11-09 "answers look random" signal is the
+      candidate); the switch rule above 120 items on the couple bar; then real
+      pairwise answers from a real survey.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

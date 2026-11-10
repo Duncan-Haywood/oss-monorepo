@@ -175,8 +175,9 @@ model Survey {
   /// the fixed identity utilities (e.g. "combined").
   identitySurveySlug String?
   /// How the next pair is chosen: null follows the PAIR_SELECTOR env var,
-  /// "standard" is the shipped selector, "staged" switches to the information
-  /// score after 120 answers (docs/INFORMATION-GAIN-SELECTOR.md).
+  /// "standard" is the shipped selector, "staged" uses the information score
+  /// from the first answer on lists up to 120 items and after 120 answers on
+  /// longer ones (hybridSwitchAt, docs/INFORMATION-GAIN-SELECTOR.md).
   pairSelector       String?
   createdAt          DateTime   @default(now())
 
