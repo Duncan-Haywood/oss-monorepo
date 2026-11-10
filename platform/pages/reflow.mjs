@@ -335,6 +335,14 @@ export const REFLOW_CSS = `
    gets a chance to act there, so a command block's copy-pasteable single
    line is untouched. */
 :where(code){overflow-wrap:break-word}
+/* Cause (4) a third time, in plain body copy with no <code> around it.
+   Measured 2026-11-10 on /about/, 341px inside a 320px window: a list item
+   naming "generativelanguage.googleapis.com," as plain text. Same reasoning
+   as the two rules above: break-word only acts on a word that would overflow
+   on its own, so every line that already fit is laid out identically. Table
+   cells are left out on purpose: the table wrapper above scrolls a wide table
+   rather than breaking its figures. */
+:where(p,li,dd,blockquote,figcaption){overflow-wrap:break-word}
 `;
 
 /**
