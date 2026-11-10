@@ -2,7 +2,7 @@
 title: "A silent NumPy broadcast bug misled a quadrotor optimiser, and which results survived"
 seo_title: "NumPy broadcasting bug when batch size equals episode count: a quadrotor co-design case"
 date: 2026-11-10
-tags: [numpy, bug, simulation, codesign, reproducibility]
+tags: [numpy, bugs, simulation, co-design, reproducibility]
 description: "A (N,1) array multiplied into (N,E,2) works silently when N equals E. How it hid in a canted-rotor quadrotor study, and what changed after the rerun."
 ---
 
