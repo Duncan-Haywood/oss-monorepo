@@ -4,12 +4,12 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231b687e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Mechanics Lien Deadline Calculator — Free, 6 States</title>
-  <meta name="description" content="Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, Washington, and Georgia. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.">
+  <meta name="description" content="Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, Washington, Georgia, and Colorado. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.">
   <meta property="og:title" content="Mechanics Lien Deadline Calculator — free, 6 states">
   <meta property="og:description" content="Preliminary notice and lien filing dates from your first and last day on the job, with days remaining. Entirely client-side.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mechanics Lien Deadline Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the preliminary-notice deadline and the lien-filing deadline for a subcontractor or material supplier in California, Texas, Florida, Arizona, Washington, and Georgia from the first and last date labor or materials were furnished, with weekend flags and days remaining. Entirely client-side; nothing is uploaded.","featureList":"Preliminary notice and lien filing dates, five states, Texas commercial and residential month rules, California and Arizona notice-of-completion shortening, weekend safe dates, days remaining"}
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Mechanics Lien Deadline Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Computes the preliminary-notice deadline and the lien-filing deadline for a subcontractor or material supplier in California, Texas, Florida, Arizona, Washington, Georgia, and Colorado from the first and last date labor or materials were furnished, with weekend flags and days remaining. Entirely client-side; nothing is uploaded.","featureList":"Preliminary notice and lien filing dates, seven states, Texas commercial and residential month rules, California and Arizona notice-of-completion shortening, weekend safe dates, days remaining"}
   </script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a preliminary notice in a mechanics lien claim?","acceptedAnswer":{"@type":"Answer","text":"A preliminary notice (called a Notice to Owner in Florida, a notice of unpaid balance in Texas, and a 20-day preliminary notice in Arizona) is a written notice a subcontractor or supplier sends to the owner and general contractor early in a job, to preserve the right to file a lien later. Several states make it a condition of lien rights, so a missed deadline can cost the claim."}},{"@type":"Question","name":"How long do I have to file a mechanics lien after finishing the work?","acceptedAnswer":{"@type":"Answer","text":"It depends on the state. California allows 90 days after completion of the project, or 30 days after the owner records a notice of completion. Florida allows 90 days after your last furnishing, Washington 90 days after your last furnishing, Arizona 120 days after completion or 60 days after a recorded notice of completion, and Texas the 15th day of the 4th month on commercial work or the 3rd month on residential work."}},{"@type":"Question","name":"When does the preliminary notice clock start?","acceptedAnswer":{"@type":"Answer","text":"For California, Arizona, Florida, and Washington it starts on the day you first furnished labor or materials: 20 days in California and Arizona, 45 days in Florida, and 60 days in Washington (10 days on new single-family residential work). Texas instead counts months: the 15th day of the 3rd month after the month of unpaid work on commercial jobs, or the 2nd month on residential jobs."}},{"@type":"Question","name":"Why does the calculator use my last furnishing date when I do not know the completion date?","acceptedAnswer":{"@type":"Answer","text":"Some states measure the lien deadline from completion of the whole project. Your own last day on the job can only be the same as or earlier than completion, so using it gives the same date or an earlier, safer one. Entering the real completion date can only move the deadline later."}},{"@type":"Question","name":"Is this legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. This tool applies a simplified reading of published state timing rules to the dates you enter, for a first-tier subcontractor or supplier. It does not model second-tier claimants, public projects, required notice content, delivery method, or foreclosure deadlines, and lien rights can be lost by missing a deadline. Confirm every date with a construction attorney or the current statute before relying on it."}}]}</script>
   <style>
@@ -53,7 +53,7 @@
     <strong>lien filing</strong>. Both run from dates on your own job. Enter
     the day you first furnished labor or materials and the day you last did,
     and this tool shows both dates for California, Texas, Florida, Arizona,
-    Washington, or Georgia — and how many days are left.</p>
+    Washington, Georgia, or Colorado — and how many days are left.</p>
     <p class="note">Nothing is uploaded. Your dates are read in this browser
     and never leave your device — see the privacy note in the footer.</p>
   </header>
@@ -69,6 +69,7 @@
           <option value="TX">Texas — 15th of the 2nd/3rd month; lien 15th of the 3rd/4th month</option>
           <option value="FL">Florida — 45-day notice; lien 90 days after last furnishing</option>
           <option value="AZ">Arizona — 20-day notice; lien 120 days after completion</option>
+          <option value="CO">Colorado — notice of intent 10 days before; lien 4 months</option>
           <option value="GA">Georgia — 30-day notice; lien 90 days</option>
           <option value="WA">Washington — 60-day (10 residential) notice; lien 90 days</option>
         </select>
@@ -138,7 +139,7 @@
       <li><strong>First-tier claimants only.</strong> Second-tier and lower
       suppliers and subcontractors often have different or shorter clocks —
       not modeled.</li>
-      <li><strong>Six states only.</strong> Every other state has its own
+      <li><strong>Seven states only.</strong> Every other state has its own
       rules; none are guessed here.</li>
       <li><strong>No public projects.</strong> Bond-claim and payment-bond
       deadlines on public work are separate and not modeled.</li>

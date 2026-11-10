@@ -49,7 +49,7 @@ All in [`calc.mjs`](calc.mjs), pure functions, no dependencies:
 
 - Not legal advice; lien rights are lost by missing a deadline.
 - First-tier claimants only; second-tier clocks differ.
-- Six states only (California, Texas, Florida, Arizona, Washington, Georgia).
+- Seven states only (California, Texas, Florida, Arizona, Washington, Georgia, Colorado). Colorado added 2026-11-10 from law-firm and lien-service explainers that agree on 4 months and a 10-day notice of intent (statute text not opened; its residential and extension wrinkles are flagged in the result). Nevada and Oregon were searched the same day and left out: sources conflict on notice-of-completion and notice timing.
 - No public-project bond claims, no holidays, no notice content or delivery
   rules, no foreclosure deadlines.
 - Point-in-time figures; statutes change.
