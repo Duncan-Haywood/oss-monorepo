@@ -960,7 +960,7 @@ export function ar2ProfileFit(x, { penalty = 'bic', minSegment = 3, phi1s = rang
 // ---------------------------------------------------------------- input
 
 /** Split one CSV line, honouring double quotes. */
-function splitLine(line, semi = false) {
+export function splitLine(line, semi = false) {
   const out = [];
   let cur = '';
   let q = false;
@@ -978,7 +978,7 @@ function splitLine(line, semi = false) {
   return out;
 }
 
-const numCell = (s, decimalComma = false) => {
+export const numCell = (s, decimalComma = false) => {
   if (s == null) return NaN;
   const t = decimalComma
     ? String(s).replace(/[$\s.]/g, '').replace(',', '.')

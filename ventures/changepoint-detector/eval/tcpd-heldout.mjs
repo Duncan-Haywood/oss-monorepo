@@ -3,8 +3,8 @@
 // checksums.json). Every setting scored here, the over-cut warning and its refit included,
 // was fixed on the 31 shipped series (eval/tcpd.mjs, eval/tcpd-defaults.mjs) before any of
 // these series was opened, so this is the first out-of-sample reading of those choices.
-// The detector is univariate: the multi-dimensional series (apple, bee_waggle_6, occupancy)
-// are listed and left out, not scored on one column.
+// The multi-dimensional series (apple, bee_waggle_6, occupancy) are scored in eval/tcpd-multi.mjs;
+// here they are listed and left out, not scored on one column.
 //
 // usage: sh eval/tcpd-fetch.sh tcpd-data && node eval/tcpd-heldout.mjs tcpd-data > eval/tcpd-heldout.out.txt
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
