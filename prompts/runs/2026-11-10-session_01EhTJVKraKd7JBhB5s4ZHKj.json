@@ -17,7 +17,8 @@
   "tool_calls": null,
   "task": null,
   "projects": [
-    "platform/ci"
+    "platform/ci",
+    "ventures/shed-designer"
   ],
   "pr": 14570,
   "repo": null,
@@ -53,7 +54,7 @@
     "docs/posts/2026-11-10-seventy-seven-tests-ci-never-ran.md"
   ],
   "goal": "Critique mode (backlog had only owner/blocked rows): close the gap where venture Python tests no workflow names never run in CI.",
-  "notes": "Lens: checks that never fire. Started from a 2026-11-10 doc_friction report (run_venture_tests.py said '0 suites run' for photo-editing). Scan: 53 ventures with Python tests, 47 covered by a workflow step, 6 not (stranded-branch-finder 37, workflow-audit 16, actions-runtime-deprecation-check 9, actions-continue-on-error-check 8, local-site-studio 7, shed-designer pytest-style). Verification: platform/ci test_run_venture_tests 13 OK (5 new); run_venture_tests.py on those ventures all ok; main_health.py 55/55 green before change. Follow-up: shed-designer's test_recheck_prices.py is pytest-style and still unrun (unittest sees 0 tests). No backlog ids touched.",
+  "notes": "Lens: checks that never fire. Started from a 2026-11-10 doc_friction report (run_venture_tests.py said '0 suites run' for photo-editing). Scan: 53 ventures with Python tests, 47 covered by a workflow step, 6 not (stranded-branch-finder 37, workflow-audit 16, actions-runtime-deprecation-check 9, actions-continue-on-error-check 8, local-site-studio 7, shed-designer pytest-style). Verification: platform/ci test_run_venture_tests 13 OK (5 new); run_venture_tests.py on those ventures all ok; main_health.py 55/55 green before change. Follow-up: shed-designer's test_recheck_prices.py is pytest-style and still unrun (unittest sees 0 tests). No backlog ids touched. Also fixed a stale shed-designer browser test (picker.browser.test.mjs: filled length '10' when the default is already 10 ft, so it timed out); passes now.",
   "corrections": [],
   "redteam": null
 }

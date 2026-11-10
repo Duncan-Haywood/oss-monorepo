@@ -46,3 +46,10 @@ pytest, is a later step.
 Command: `python3 platform/ci/run_venture_tests.py <slug>`. Scan used: the
 script's own `has_python_tests` and `test_commands` over every
 `ventures/*` directory and `.github/workflows/*.yml` on 2026-11-10.
+
+**A stale test found on the way.** Checking the runner against shed-designer
+turned up an unrelated failure: a browser test filled the length field with
+`10` and waited for a card's price to change. The default design is now
+10 by 10 ft, so the value never changed and the test timed out after 5 s. It
+now types a length the open design does not have. (CI skips that file when
+Playwright is missing, which is why it had not shown up there.)
