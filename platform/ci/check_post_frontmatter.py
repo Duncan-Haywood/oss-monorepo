@@ -9,6 +9,11 @@ up to three weeks ahead on 2026-10-25, so they topped the feed and carried a
 false `datePublished`) and that `tags` is a non-empty list.
 
     python3 platform/ci/check_post_frontmatter.py [--root DIR]   # exit 1 if any
+    python3 platform/ci/check_post_frontmatter.py docs/posts/NEW.md   # just these
+
+Named posts are checked alone, and the cross-post checks (tag spellings,
+shared descriptions) report only groups that include one of them. Runs kept
+passing a file and getting a usage error (two friction reports, 2026-11-10).
 """
 import argparse
 import datetime
@@ -113,17 +118,37 @@ def duplicate_descriptions(texts):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT))
+    ap.add_argument("posts", nargs="*", help="check only these posts (default: every post)")
     args = ap.parse_args(argv)
     bad = 0
     texts = {f.name: f.read_text(encoding="utf-8") for f in sorted((Path(args.root) / "docs" / "posts").glob("*.md"))}
+    named = set()
+    for p in args.posts:
+        f = Path(p)
+        if not f.is_file():
+            print(f"{p}: no such file")
+            bad += 1
+            continue
+        texts[f.name] = f.read_text(encoding="utf-8")
+        named.add(f.name)
     for name, text in texts.items():
+        if named and name not in named:
+            continue
         for p in problems(name, text):
             print(f"{name}: {p}")
             bad += 1
+    own_tags = set()
+    for name in named:
+        m = re.search(r"^tags:\s*\[(.*?)\]", texts[name], re.M)
+        own_tags |= {t.strip().strip("\"'") for t in (m.group(1).split(",") if m else [])}
     for group in tag_variants(texts):
+        if named and not own_tags & set(group):
+            continue
         print(f"tag spelled {len(group)} ways: {', '.join(group)}; pick one")
         bad += 1
     for group in duplicate_descriptions(texts):
+        if named and not named & set(group):
+            continue
         print(f"one description on {len(group)} posts: {', '.join(group)}; word each for its own post")
         bad += 1
     return 1 if bad else 0
