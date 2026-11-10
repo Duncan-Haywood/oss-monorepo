@@ -208,6 +208,22 @@ class FirmwareTest(unittest.TestCase):
         self.assertFalse(any(e[0] == "drive" for e in hw.log))
         self.assertEqual(c.rejected, 1)
 
+    def test_watchdog_trips_across_the_ticks_wrap(self):
+        # ticks_ms() wraps at 2**30 ms on the ESP32; raw values once reached the
+        # controller and a Pi that went quiet just before the wrap was never
+        # caught (quality audit 2026-11-10).
+        start = controller.TICKS_PERIOD - 1000
+        clock = controller.MonoClock(start)
+        hw = FakeHw()
+        c = controller.Controller(hw, controller.ROLE_FEEDER, clock.read(start))
+        c.tick(protocol.encode(protocol.HEARTBEAT), clock.read(controller.TICKS_PERIOD - 100))
+        self.assertFalse(c.watchdog_tripped)
+        for raw in (controller.TICKS_PERIOD - 1, 50, 400):
+            c.tick(b"", clock.read(raw))
+        self.assertEqual(clock.ms, 1400)
+        self.assertTrue(c.watchdog_tripped)
+        self.assertIn(("stop_all",), hw.log)
+
     def test_watchdog_stops_and_recovers(self):
         hw = FakeHw()
         c = controller.Controller(hw, controller.ROLE_FEEDER, 0)

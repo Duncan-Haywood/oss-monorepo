@@ -252,12 +252,16 @@ class CollectorHw:
 def run():
     hw = FeederHw() if ROLE == controller.ROLE_FEEDER else CollectorHw()
     uart = UART(2, baudrate=115200, tx=17, rx=16)
-    now = time.ticks_ms()
+    # Every time the controller and hw.update() see comes from MonoClock, not
+    # raw ticks_ms(): those wrap after ~12.4 days and broke the watchdog,
+    # telemetry and feed-gate timing (quality audit 2026-11-10).
+    clock = controller.MonoClock(time.ticks_ms())
+    now = clock.read(time.ticks_ms())
     ctl = controller.Controller(hw, ROLE, now)
     last = now
     while True:
-        now = time.ticks_ms()
-        dt = time.ticks_diff(now, last)
+        now = clock.read(time.ticks_ms())
+        dt = now - last
         rx = uart.read() or b""
         tx = ctl.tick(rx, now)
         if tx:
