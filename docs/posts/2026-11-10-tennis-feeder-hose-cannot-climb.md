@@ -1,9 +1,9 @@
 ---
 title: "The ball feeder's hose take-up sent balls uphill, so it is now a sliding sleeve"
-seo_title: "Gravity ball feed hose take-up: why a floating pulley fails and a sliding sleeve works"
+seo_title: "Gravity-fed ball hose take-up: floating pulley vs sliding sleeve"
 date: 2026-11-10
 tags: [open-tennis-robots, cad, build123d, mechanism-design]
-description: "open-tennis-robots dropped its floating-pulley hose take-up: wrapping a ball-carrying hose 180 degrees makes one leg climb. A sliding sleeve under the outlet replaces it, and sizing it moved the hopper outlet up 300 mm."
+description: "A ball-carrying hose wrapped 180 degrees round a pulley climbs on one leg. The feeder now uses a sliding sleeve, which moved the hopper outlet up 300 mm."
 ---
 
 The tennis feeder's balls roll from a tub down a flexible hose to the launcher
