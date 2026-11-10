@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { main, unknownFlag, BARE_FLAGS, VALUE_FLAGS } from "./cli.mjs";
 
 test("a mistyped flag stops the run with a suggestion", () => {
@@ -55,4 +57,18 @@ test("drawing-only options on a plan JSON, and --swing without --sensitivity, ar
   }
   assert.match(main([f, "--swing=10"]).out, /only applies with --sensitivity/);
   assert.equal(main([f, "--sensitivity", "--swing=10"]).code, 0);
+});
+
+test("panel-only options without a positive --panel-max are refused, not ignored", () => {
+  const dir = mkdtempSync(join(tmpdir(), "wft-"));
+  const file = join(dir, "plan.json");
+  writeFileSync(file, main(["--example"]).out);
+  for (const f of ["--panel-order", "--pull-lists", "--panel-sheets", "--sheathing-psf=1.5"]) {
+    for (const extra of [[], ["--panel-max=0"]]) {
+      const r = main([file, f, ...extra]);
+      assert.equal(r.code, 1, f + extra);
+      assert.match(r.out, /only applies with --panel-max=/);
+    }
+    assert.equal(main([file, f, "--panel-max=12ft"]).code, 0, f);
+  }
 });
