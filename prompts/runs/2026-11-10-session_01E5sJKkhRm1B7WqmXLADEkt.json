@@ -36,7 +36,9 @@
     }
   ],
   "deviations": [],
-  "writeups": "docs/posts/2026-11-10-window-that-the-sky-does-not-need.md",
+  "writeups": [
+    "docs/posts/2026-11-10-window-that-the-sky-does-not-need.md"
+  ],
   "goal": null,
   "notes": "creative: hearth-and-horizon, slug the-window-that-the-sky-does-not-need; text only (audio 423 MB > 400). check_post_frontmatter fails on two other runs' posts (not mine).",
   "corrections": [],
