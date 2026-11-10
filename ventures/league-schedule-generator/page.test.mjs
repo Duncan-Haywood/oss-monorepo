@@ -845,6 +845,13 @@ test("multi-division page: season cost button feeds divisionsFacilityCost", () =
   assert.match(html, /divisionsFacilityCost\(last, \$\("#cost-rates"\)\.value/);
 });
 
+test("multi-division page: duty rota button feeds assignDivisionDuties and re-checks it", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ["duties", "dl-duties"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /import \{[^}]*assignDivisionDuties[^}]*validateDivisionDuties[^}]*divisionsDutiesText[^}]*\} from "\.\/divisions\.mjs"/);
+  assert.match(html, /assignDivisionDuties\(last, pd\.duties\)/);
+});
+
 test("single-league page shows why tied teams are ranked as they are", async () => {
   const { readFileSync } = await import("node:fs");
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
