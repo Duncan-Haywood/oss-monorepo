@@ -60,7 +60,7 @@
     "ventures/changepoint-detector/README.md (new entry under the noise-floor section)"
   ],
   "goal": null,
-  "notes": "No agent doc in docs/reports: the README entry and flagships.yaml next: carry what the next run needs. Verification: node --test noise-floor-local-window.test.mjs noise-floor-local-real.test.mjs passed 6/6; the existing 7-point output is byte-identical after the exact-constant change; the full suite python3 platform/ci/run_venture_tests.py changepoint-detector result is below.",
+  "notes": "No agent doc in docs/reports: the README entry and flagships.yaml next: carry what the next run needs. Verification: node --test noise-floor-local-window.test.mjs noise-floor-local-real.test.mjs passed 6/6; the existing 7-point output is byte-identical after the exact-constant change; the full suite python3 platform/ci/run_venture_tests.py changepoint-detector: ok (526.8s), 1 suites run, 0 failed.",
   "corrections": [],
   "redteam": null,
   "usage": {
