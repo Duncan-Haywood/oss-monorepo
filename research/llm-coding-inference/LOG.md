@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 7ad: across all 18 guard-only cells of 7y to 7ac, when does dropping the screen pay? (no new draws; prediction in the script docstring before it ran; `experiments/h7ad_pool_cells.py`)
+- Why: the screen question has been answered cell by cell for six entries; this reads every committed result file together (3 corpora, 2 model sizes, prevalence 1% to 33%, n/N 0.03 to 0.30) so the decision rests on one table, `experiments/h7ad_pool_cells.txt`.
+- **Prediction:** guard-only coverage is 93% or more in every cell; every cell with n/N >= 0.25 has a width ratio (guard-only / pooled) <= 1.00; every cell with ratio > 1.02 has n/N <= 0.08.
+
+### Outcome
+- Prediction supported on all three counts. Minimum coverage 93.6% (sadness n = 2000, 500 draws, +/- 1.9). All six cells at n/N near 0.30 have ratio 0.71 to 0.99 (0.71 sadness, 0.74 admiration, 0.83 fear with the 1.5B coder; 0.90 and 0.94 with the 0.5B coder; 0.99 neutral, J 0.19). Only two cells exceed 1.02 (0.5B at n = 500: 1.019 fear, 1.034 sadness), both at n/N = 0.075.
+- Reading: the screen buys nothing in coverage (the guard does that) and costs width when the audit is a sizeable share of the corpus and the coder is informative. Worst case seen for dropping it is 3.4% wider, best case 29% narrower. I chose the thresholds after seeing the cell list (18 cells from a handful of corpus/coder pairs, not independent), so this is a description, not a tested law.
+- Limits: reuses earlier runs (mixed 500 and 1,000 draws), n/N is confounded with n, a constructed rare prevalence for 7ac, no naturally rare category on a second corpus. Library default unchanged. Still open: that category; a second model family.
+
 ## 2026-11-10 · Milestone 7ac: does the guard-only rule hold for a rare category on a second corpus (NaijaSenti negative share thinned to 1% and 3%, nb-in-language coder)? (prediction committed in the script docstring before the 1,000-draw runs; `experiments/h7ac_naija_rare.py 1000 <prev>`)
 - Why: 7ab's open item. NaijaSenti negative is 32.7% prevalent, so it never exercised the rare case. I kept every non-negative item of the whole test part and subsampled the negatives by label (seed 7) to 1% or 3% of the corpus (30,172 and 30,794 items). The coder is untouched (corpus J 0.393 and 0.384). The thinning is by design, so this is a constructed prevalence on real text, not a naturally rare category. n = 1,000 and 3,000, pilot n/2, 1,000 draws (+/- 1.4 points).
 - **Prediction:** `neg_guard=3` alone covers 93% or more in all four cells and is no wider than pooled. Refuted if any cell is under 93%.
