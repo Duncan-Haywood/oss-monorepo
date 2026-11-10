@@ -3,7 +3,7 @@ title: "Why a Google Contacts CSV import comes in blank"
 seo_title: "Google Contacts CSV import blank or skipped email column: the cause"
 date: 2026-11-10
 tags: [google-contacts, csv, migration, open-source]
-description: "Google silently drops any column whose heading it does not recognise. Here is the spelling trap behind most blank Google Contacts imports, and a free local checker."
+description: "Google silently drops any column whose heading it does not recognise. The spelling trap behind most blank Google Contacts imports, and a free local checker."
 ---
 
 The most common reason a Google Contacts CSV import "comes in blank" is not a
