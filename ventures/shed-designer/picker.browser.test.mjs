@@ -273,7 +273,10 @@ test('each card shows its looks terms and its cost against the open design; the 
   // The line follows the open design: change it and the card's figure moves.
   await page.keyboard.press('Escape');
   const before = await first.locator('.pick-delta').innerText();
-  await page.fill('#lengthFt', '10');
+  // A length the open design does not already have (the default became 10 ft,
+  // so filling '10' changed nothing and this waited out its timeout).
+  const len = Number(await page.$eval('#lengthFt', (e) => e.value));
+  await page.fill('#lengthFt', String(len === 14 ? 12 : 14));
   await page.locator('#lengthFt').blur();
   await page.waitForFunction((b) => document.querySelector('#starts .pick .pick-delta')?.textContent !== b, before, { timeout: 5000 });
   assert.ok(await noSideScroll(page));

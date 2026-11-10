@@ -19,6 +19,17 @@ class FakeVentures(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
         self.addCleanup(self.tmp.cleanup)
+        self.wf = self.root / ".wf"
+        self.wf.mkdir()
+        wf = mock.patch.object(rvt, "WORKFLOWS", self.wf)
+        wf.start()
+        self.addCleanup(wf.stop)
+        rvt.python_run_elsewhere.cache_clear()
+        self.addCleanup(rvt.python_run_elsewhere.cache_clear)
+
+    OWN_CI = ("jobs:\n  t:\n    defaults:\n      run:\n        working-directory: ventures/own\n"
+              "    steps:\n      - run: pip install pytest\n      - run: python3 -m pytest -q\n")
+    PY_PASS = "import unittest\nclass T(unittest.TestCase):\n    def test_x(self): self.assertTrue(True)\n"
 
     def venture(self, slug, files):
         for name, body in files.items():
@@ -87,18 +98,37 @@ class FakeVentures(unittest.TestCase):
 
     def test_python_tests_are_left_to_a_venture_s_own_workflow(self):
         self.venture("own", {"test_x.py": "raise SystemExit(1)\n"})
-        with mock.patch.object(rvt, "workflows_naming", return_value={"own": ["own-ci.yml"]}):
-            self.assertFalse(rvt.has_tests("own"))
-            note = rvt.skip_note("own")
-        self.assertIn(".github/workflows/own-ci.yml", note)
+        (self.wf / "own-ci.yml").write_text(self.OWN_CI)
+        self.assertFalse(rvt.has_tests("own"))
+        self.assertIn(".github/workflows/own-ci.yml: `python3 -m pytest -q`", rvt.skip_note("own"))
+
+    def test_a_workflow_that_only_names_the_path_does_not_cover_python(self):
+        # 2026-11-10: four ventures were named by a workflow (a trigger filter,
+        # a node step) that never ran their Python tests.
+        self.venture("shared", {"test_a.py": self.PY_PASS})
+        (self.wf / "other.yml").write_text(
+            "on:\n  push:\n    paths:\n      - 'ventures/shared/**'\n"
+            "jobs:\n  t:\n    steps:\n      - working-directory: research/x\n"
+            "        run: python3 -m unittest discover\n")
+        self.assertTrue(rvt.has_tests("shared"))
+        self.assertTrue(rvt.run("shared")[1])
+        (self.wf / "other.yml").write_text(
+            "jobs:\n  t:\n    steps:\n      - working-directory: ventures/shared\n"
+            "        run: python3 -m unittest discover\n")
+        rvt.python_run_elsewhere.cache_clear()
+        self.assertFalse(rvt.has_tests("shared"))
+
+    def test_pytest_style_files_unittest_cannot_see_are_not_a_failure(self):
+        self.venture("pyt", {"test_a.py": "def test_x():\n    assert False\n"})
+        self.assertTrue(rvt.run("pyt")[1])
 
     def test_a_named_venture_without_a_suite_says_why(self):
         self.venture("own", {"test_x.py": ""})
-        with mock.patch.object(rvt, "workflows_naming", return_value={"own": ["own-ci.yml"]}), \
-                mock.patch("sys.stdout") as out:
+        (self.wf / "own-ci.yml").write_text(self.OWN_CI)
+        with mock.patch("sys.stdout") as out:
             self.assertEqual(rvt.main(["own", "gone"]), 0)
         printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
-        self.assertIn("skip own: no *.test.mjs; its tests run in .github/workflows/own-ci.yml", printed)
+        self.assertIn("skip own: no *.test.mjs; its Python tests run in .github/workflows/own-ci.yml", printed)
         self.assertIn("skip gone: no such venture", printed)
 
 
