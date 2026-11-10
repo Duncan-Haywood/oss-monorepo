@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Sixteen Sunrises and One Bell</title>
+      <link>https://example.invalid/hearth-and-horizon/sixteen-sunrises-and-one-bell.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/sixteen-sunrises-and-one-bell.html</guid>
+      <pubDate>Tue, 10 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A new crew member wants to pray Lauds at dawn, and finds the station has about fifteen and a half of them a day. The station's assistant works out how long the orbit takes, how long the night lasts, and why the sunrise that comes after the bell is a better sign than one chosen to be on time. Setting: The cupola room of the ring station Corona Minor (invented), low Earth orbit, 420 km up, Friday 13 March 2099. Read the full text at https://example.invalid/hearth-and-horizon/sixteen-sunrises-and-one-bell.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A new crew member wants to pray Lauds at dawn, and finds the station has about fifteen and a half of them a day. The station's assistant works out how long the orbit takes, how long the night lasts, and why the sunrise that comes after the bell is a better sign than one chosen to be on time.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Star That Is Not Quite North</title>
       <link>https://example.invalid/hearth-and-horizon/the-star-that-is-not-quite-north.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-star-that-is-not-quite-north.html</guid>
