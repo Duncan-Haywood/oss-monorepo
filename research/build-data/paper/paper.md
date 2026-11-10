@@ -249,8 +249,18 @@ description length and calendar, and its "class" for a new city says which sourc
 catch-all the permit resembles. This narrows what 4.4 and 4.8 can claim: they test whether
 those four generic fields transfer, not whether permit types do. A class map retuned on each
 feed's real vocabulary is the test that would separate the two (to do 6); `src/transfer.py`
-now also stores the source training shares so the next run measures overlap on the training
-years directly.
+also stores the source training shares; for Seattle 2022 they give an overlap of 0.27 (a2i) and
+0.20 (i2c), and 0.006 and 0.00 without "other" (session 69), close to the test-year proxy.
+
+Why the catch-all is so large (session 69, `../src/other_vocab.py`, `../results/other_vocab.md`):
+each feed has only 4 to 9 raw permit types, and in two cities the field does not name the kind
+of work. Chicago's permit types are review tracks ("express permit program" 40.5% of rows since
+2015, "easy permit process" 22.9%), and Seattle's is "building" for 90.1% of rows. The work-class
+field rescues only Austin, whose "building permit" rows carry new, repair, remodel or demolition
+(the same keyword map would class 25.4% of Austin's rows from it); Chicago's work class repeats the
+review track and Seattle's is residential or non-residential. So a map retuned on structured fields
+cannot give Chicago or Seattle a work type: that needs the description text, which the loader
+keeps only as a length.
 
 ### 4.5 Pooled model plus a small local sample (H5 holds; secondary refuted)
 
@@ -327,12 +337,13 @@ Seattle's "Building Permits" feed (`76t5-zqzr`, 194,184 rows pulled 2026-11-10) 
 - **Coverage and the ship rule** (`../results/prior_table3_cov_2024_seattle.json`, nonempty dequantised CQR, nominal 80%): baseline 0.887 (a2i) and 0.851 (i2c), table 0.833 and 0.820, full model 0.845 and 0.821. The 77 to 83% band holds in three of six cells; the other three over-cover. Seattle is the first city where the ship rule of 4.7e picks the full model rather than the per-type baseline: it is narrowest in both targets (232.3 and 606.8 days, 7 to 9% under the baseline). The week-block bootstrap of 4.7f (`../results/width_boot_2024_seattle.json`) gives the three-key table minus baseline as -7.4 days [-13.3, -1.1] (a2i) and -18.3 [-23.4, -12.9] (i2c), so unlike the other cities the table is narrower than the baseline in both targets. The full-model width was not bootstrapped.
 - **H4 (transfer) is refuted for Seattle i2c in 2024** (`../results/transfer_seattle_{a2i,i2c}_2024_4city.json`; sources Chicago, SF and Austin for a2i, SF and Austin for i2c, since Chicago has no i2c). Relative change of mean pinball loss against Seattle's own per-type baseline: a2i 0.0% (q0.1), +0.7% (q0.5, interval spans 0), +27.4% (q0.9, worse); i2c -8.6%, -10.7%, -5.1%, all intervals below zero. This is the first held-out cell where a model trained on other cities beat the held-out city's own baseline at all three quantiles. The transfer intervals still under-cover (80% coverage 0.644 a2i, 0.720 i2c, against baselines at 0.890 and 0.882).
 - **Second test year, 2023** (session 65, prediction written first; `../results/transfer_seattle_{a2i,i2c}_2023_4city.json`): the a2i row reproduces 2024 (q0.1 -0.1%, q0.5 +0.5% with the interval spanning 0, q0.9 +27.1%, coverage 0.613). The i2c gain holds at q0.1 (-6.7%) and q0.5 (-7.3%) but q0.9 flips to +11.2% (worse; 2024: -5.1%), coverage 0.681. So "transfer beats the city's own baseline at every quantile" was a 2024 result; the part that held in both years is the lower and middle quantiles. The q0.9 flip is unexplained (an untested guess is that Seattle's 2023 upper tail differs from the SF and Austin tails). An own-city model on the same harmonised features beats the baseline at all three quantiles in both years (2023 i2c -8.9, -12.5, -3.4%), so what costs the transfer model its edge is the move between cities rather than the feature set.
+- **Third test year, 2022** (session 69, prediction written in session 68 before the run; `../results/transfer_seattle_{a2i,i2c}_2022_4city.json`; train to 2020, early stopping on 2021): all three predicted parts held. a2i: -0.1% (q0.1), +0.1% (q0.5, interval spans 0), +35.8% (q0.9, worse), coverage 0.547 against the baseline's 0.821. i2c: -11.4%, -4.2%, +14.1% (q0.9 worse), coverage 0.672 against 0.814. Over 2022 to 2024 the stable pattern is: i2c better at q0.1 and q0.5 in all three years, a2i worse at q0.9 in all three (+27 to +36%), every transfer interval under-covering (0.547 to 0.720). The i2c upper quantile is worse in two of three years, so the 2024 all-quantile gain is the outlier. The own-city model again beats the baseline at every quantile (2022 i2c -12.8, -14.4, -8.2%).
 
-Limits: two test years for transfer and one for the rest, 3 seeds (2 for coverage), i2c has two source cities, Seattle's baseline is trained on a smaller history than the other cities', `baselines.py` (XGBoost) and CatBoost were not run for Seattle, and the ship rule is post hoc. H4 as worded in the abstract (13 of 15 cells worse) describes the three original cities and is not changed by Seattle.
+Limits: three test years for transfer and one for the rest, 3 seeds (2 for coverage), i2c has two source cities, Seattle's baseline is trained on a smaller history than the other cities', `baselines.py` (XGBoost) and CatBoost were not run for Seattle, and the ship rule is post hoc. H4 as worded in the abstract (13 of 15 cells worse) describes the three original cities and is not changed by Seattle.
 
 ## 5 Limitations
 
-One test year (2024) for H3, H4, H5 (H1 and the neural comparison also run for 2022 and 2023); three seeds (two for conformal); one fixed
+One test year (2024) for H3, H4, H5 in the original three cities (H1 and the neural comparison also run for 2022 and 2023; Seattle transfer for 2022 to 2024); three seeds (two for conformal); one fixed
 configuration per library (defaults, untuned); the neural net (4.6) is one untuned architecture; the
 harmonised class map is a keyword rule not validated against hand labels, and its classes barely overlap between cities (4.4a), so the transfer results test the generic fields only; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
@@ -352,7 +363,7 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 1. Tune the neural net and libraries; per-library tuning (Austin a2i CatBoost gap).
 2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); (H2g now run for every city and target that has one; see 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
-4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2023 and 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
+4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2022 to 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
-6. Retune the harmonised class map on each feed's own permit-type vocabulary (4.4a: overlap without "other" is 0.00 to 0.19), validate it on a hand-labelled sample, and rerun H4.
+6. Build a work-type class from the description text for Chicago and Seattle (4.4a: their structured fields do not name the work; overlap without "other" is 0.00 to 0.19) and from `work_class` for Austin, validate it on a hand-labelled sample, and rerun H4.
 7. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.

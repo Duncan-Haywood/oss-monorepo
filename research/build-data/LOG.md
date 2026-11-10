@@ -1,5 +1,27 @@
 # build-data log
 
+## Session 69, 2026-11-10: Seattle transfer in a third test year, 2022 (session 68's prediction run: it held), and why the class map cannot be retuned on permit type
+
+Why: session 68 wrote a prediction for the 2022 transfer test but could not pull the feeds. They answered again at 18:08 UTC; fresh four-feed pull 2026-11-10 (Chicago 852,615, SF 1,298,152, Austin 2,384,746, Seattle 194,184 rows; `results/manifest.json`). `python3.12 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2022` (source and own train to year <= 2020, early stopping on 2021, test 2022; code unchanged).
+Prediction (session 68, written before this run): (P1) Seattle i2c transfer beats the baseline at q0.1 and q0.5, CIs below zero; (P2) Seattle a2i transfer worse at q0.9, CI above zero; (P3) both transfer 80% coverages below 0.75.
+
+Outcome (2022, relative change of mean pinball loss against Seattle's own per-type baseline, 95% week-block bootstrap of the difference in days; `results/transfer_seattle_{a2i,i2c}_2022_4city.json`; test rows 6,139 a2i and 4,776 i2c; 3 seeds):
+| target (sources) | q0.1 | q0.5 | q0.9 | 80% coverage (baseline) |
+|---|---|---|---|---|
+| a2i (Chicago, SF, Austin) | -0.1% [-0.02, -0.00 d] | +0.1% (CI spans 0) | +35.8% [16.3, 20.1 d] worse | 0.547 (0.821) |
+| i2c (SF, Austin) | -11.4% [-4.7, -3.9 d] | -4.2% [-6.4, -3.7 d] | +14.1% [7.1, 12.4 d] worse | 0.672 (0.814) |
+- All three parts held: P1 (both CIs below zero), P2 (+35.8%), P3 (0.547 and 0.672).
+- Not predicted: i2c q0.9 is worse again (+14.1%), as in 2023 (+11.2%). Over three test years the i2c upper quantile is worse in two and better only in 2024 (-5.1%), so the 2024 all-quantile win was the exception, not the 2023 flip. Stable across 2022 to 2024: i2c q0.1 and q0.5 better (-6.7 to -11.4%, -4.2 to -10.7%), a2i q0.9 worse (+27 to +36%), every transfer interval under-covers (0.547 to 0.720).
+- An own-city model on the same harmonised features beats the baseline at every quantile again (a2i -3.9, -20.3, -17.5%; i2c -12.8, -14.4, -8.2%), coverage 0.782 and 0.821.
+- First direct measure of class overlap on the training years (`class_share_source_train`, added in session 68): Seattle 2022 test is 90% "other" and 10% "demolition"; the a2i sources' training years are 26% "other" and 0.6% "demolition", the i2c sources' 20% and 0%. Overlap is 0.27 (a2i) and 0.20 (i2c), and 0.006 and 0.00 without "other", so session 68's test-year proxy (0.32 / 0.15, 0.01 / 0.00) was close.
+
+Second piece, session 68's "list the top permit types per city that map to 'other'": new `src/other_vocab.py` (stdlib; reads `RULES` out of `transfer.py` with `ast`) on the same pull, rows applied 2015 on; `results/other_vocab.md`, `.json`.
+- Each feed has only 4 to 9 raw permit types. The catch-all is large because of what the field means, not because the keywords miss: Chicago's permit types are review tracks ("express permit program" 40.5% of rows, "easy permit process" 22.9%, elevator 3.1%), and Seattle's is "building" for 90.1% of rows.
+- `work_class` rescues only Austin: its "building permit" rows (22.3%) carry new / repair / remodel / demolition, which the same keyword map would class for 25.4% of Austin's rows. Chicago's work class repeats the review track and Seattle's is residential / non-residential, so neither feed holds the kind of work in a structured field.
+- So "retune the class map on each feed's vocabulary" (to do 6) cannot work for Chicago or Seattle with the fields we keep: it needs the description text (the loader stores only its length) or a different field. Paper 4.4a and to do 6 updated.
+- Limits: three test years, 3 seeds, i2c has two source cities, class map not retuned; vocabulary counts are from one pull and rows with no application date are left out (Seattle 84,986 of 194,184 rows remain from 2015 on).
+Next: keep a hashed or keyword-flag form of the description in the loader so a work-type class can be built for Chicago and Seattle, then rerun H4; a Seattle-free Austin retune (work_class) as the first test; full-model width bootstrap.
+
 ## Session 68, 2026-11-10: harmonised classes barely overlap between cities (2022 transfer prediction written, not run: feeds unreachable)
 
 Why: sessions 65 to 67 left "third transfer test year (2022)". With `--test-year 2022` the split is source and own train to year <= 2020, early-stopping year 2021, test 2022 (`src/transfer.py`, unchanged).
