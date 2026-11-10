@@ -9,6 +9,8 @@ wins **3.3%** of 6,561 cases, still none at equal length, and wave resistance mo
 only 4%. Milestone 5 adds a hydrofoil rung: in 2,916 swept cases a foilborne 200 kg craft never out-ranges the monohull (best case about a quarter of its range; foil coefficients swept, not sourced). Preliminary: Michell is checked against one published Wigley tank point only (milestone 3a: with no form factor the model is within a few per cent; at the central k = 0.25 it is about 20% high). Milestone 3b checks the placeholder wave term against five tank speeds of a published 2.8 m catamaran (Zenodo 18459868, CC BY 4.0): it is 35 to 43% low at Fn 0.33 to 0.58 and no single wave scale keeps all five within 20%, so it is not safe above Fn 0.3 (the programme's survey speeds are below that). See [`PROPOSAL.md`](PROPOSAL.md) and
 [`LOG.md`](LOG.md).
 
+**SUBOFF check (milestone 3u).** Integrating the DARPA SUBOFF bare-hull equations gives 5.988 m² of wetted area, and with it the measured DTMB tow-tank resistance implies a bare-hull form factor 1+k = **1.17** (1.14 to 1.18 over water viscosity) above 5 m/s. Hoerner's streamlined-body formula gives 1.07, **8% low**; the bow tripwire's drag is part of that gap. See [`LOG.md`](LOG.md).
+
 **Live page:** https://marisstella.app/research/marine-hull/
 
 **Programme.** Track 23 (`marine`, autonomous water vehicles) in [`../PROJECTS.md`](../PROJECTS.md).
@@ -19,7 +21,8 @@ lab has reviewed this.
 
 ```bash
 cd research/marine-hull
-PYTHONPATH=src python3 -m pytest tests -q          # 45 tests
+PYTHONPATH=src python3 -m pytest tests -q          # 112 tests
+PYTHONPATH=src python3 experiments/run_suboff_bare.py > experiments/results_suboff_bare.txt   # milestone 3u (SUBOFF bare-hull form factor), under 1 s
 PYTHONPATH=src python3 experiments/run_solar.py > experiments/results_solar.txt   # milestone 5c, 5 s
 PYTHONPATH=src python3 experiments/run_solar_mass.py > experiments/results_solar_mass.txt   # milestone 5d, 10 s
 PYTHONPATH=src python3 experiments/run_solar_sites.py > experiments/results_solar_sites.txt   # milestone 5e, 1 s
