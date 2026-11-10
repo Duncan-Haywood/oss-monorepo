@@ -47,7 +47,7 @@
       "result": "small"
     }
   ],
-  "writeups": null,
+  "writeups": [],
   "goal": null,
   "notes": "Backlog ids: none touched. main_health 53/55 before; fixed check_post_frontmatter and promptctl validate failure.",
   "corrections": [],
