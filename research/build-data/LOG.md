@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 65, 2026-11-10: Seattle H4 transfer on a second test year, 2023 (prediction written before the run)
+
+Why: session 64 left "does the Seattle i2c transfer gain survive a second test year (2023)". Fresh four-feed pull 2026-11-10 (same row counts as session 64). `python3.13 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2023`.
+Prediction (before the run): Seattle i2c transfer beats Seattle's own per-type baseline at q0.5 in 2023 with a 95% week-block CI below zero (as in 2024); Seattle a2i transfer is worse than baseline at q0.9. Refuted if the i2c q0.5 CI includes zero or is above it, or a2i q0.9 is not worse.
+
 ## Session 64, 2026-11-10: Seattle in H4 transfer (no prediction written first)
 
 Why: sessions 62 and 63 left "Seattle in H4 transfer". `src/transfer.py` now lists Seattle in `CITIES`, and writes `*_4city.json` so the three-city files stay as they were. Fresh four-feed pull 2026-11-10 (Chicago 852,615, SF 1,298,097, Austin 2,384,452, Seattle 194,184 rows), `python3 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle`, results `results/transfer_seattle_{a2i,i2c}_2024_4city.json`.
