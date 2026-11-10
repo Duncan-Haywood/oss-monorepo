@@ -1,0 +1,17 @@
+n 122
+
+meanvar, defaults: 3 changes
+  Jun 1 2003  mean -0.0092 -> 0.0090
+  Nov 1 2007  mean 0.0090 -> -0.0466
+  Mar 1 2009  mean -0.0466 -> 0.0338
+
+meanvar, --robust: 3 changes
+  Mar 1 2003  mean -0.0137 -> 0.0109
+  Nov 1 2007  mean 0.0109 -> -0.0466
+  Mar 1 2009  mean -0.0466 -> 0.0338
+
+meanvar, --bootstrap: 0 changes
+
+mean, defaults: 2 changes
+  Sep 1 2008  mean -0.0008 -> -0.0928
+  Mar 1 2009  mean -0.0928 -> 0.0338

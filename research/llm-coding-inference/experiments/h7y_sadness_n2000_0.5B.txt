@@ -1,0 +1,5 @@
+GoEmotions sadness, LLM Qwen2.5-0.5B-Instruct, corpus 6683, prevalence 0.0230, coder J 0.265 (sens 0.325, spec 0.941), n 2000, 500 draws
+rule | share of draws using cells % | coverage % | half-width pts
+pooled | 0 | 95.8 | 0.547
+shipped default (neg_guard 3) | 26 | 94.6 | 0.535
+neg_guard=3 alone | 100 | 95.4 | 0.514

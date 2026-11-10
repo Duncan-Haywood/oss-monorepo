@@ -54,8 +54,10 @@ export function measure(plan, maxes = PANEL_MAXES, seamSpacing = SEAM_SPACING) {
   return { ok: true, members, totalNails: nails.total, stick, rows };
 }
 
-const cases = [["example house (invented)", samplePlan()]];
-for (const n of [1, 2]) {
+const files = process.argv.slice(2).filter((a) => a.endsWith(".json"));
+/** @type {[string, any][]} */
+const cases = files.length ? files.map((f) => [f.split("/").pop() ?? f, JSON.parse(readFileSync(f, "utf8"))]) : [["example house (invented)", samplePlan()]];
+if (!files.length) for (const n of [1, 2]) {
   const r = planFromDxf(readFileSync(new URL(`./fixtures/open-house-plans-${n}.dxf`, import.meta.url), "utf8"));
   if (r.ok) cases.push([`Open House Plans ${n} (CC0, generated)`, { ...samplePlan(), ...r.plan }]);
 }

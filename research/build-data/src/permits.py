@@ -7,6 +7,9 @@ row counts and the pull date goes to results/manifest.json (in git).
 """
 import argparse, csv, datetime, io, json, os, sys, time, urllib.parse, urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import classmap  # noqa: E402
+
 # schema column -> source column (None: the feed has no such field; cell stays empty)
 FEEDS = {
     "chicago": dict(host="data.cityofchicago.org", dataset="ydr8-5enu", order="id",
@@ -24,9 +27,17 @@ FEEDS = {
                  estimated_cost="total_job_valuation", applied="applieddate",
                  issued="issue_date", completed="completed_date", area="original_zip",
                  description="description")),
+    "seattle": dict(host="data.seattle.gov", dataset="76t5-zqzr", order="permitnum",
+        map=dict(permit_id="permitnum", permit_type="permittypemapped", work_class="permitclassmapped",
+                 estimated_cost="estprojectcost", applied="applieddate",
+                 issued="issueddate", completed="completeddate", area="originalzip",
+                 description="description")),
 }
 SCHEMA = ["city", "permit_id", "permit_type", "work_class", "estimated_cost", "applied",
-          "issued", "completed", "area", "description_len"]
+          "issued", "completed", "area", "description_len", "desc_class", "desc_class_v2"]
+# desc_class (session 70): the description's keyword class (classmap.describe). The raw text is
+# not stored: it can name people and addresses, and only the class is needed. desc_class_v2
+# (session 71): the same text under classmap.DESC_RULES_V2, the rules revised against hand labels.
 
 
 def url(city, limit, offset):
@@ -58,10 +69,12 @@ def to_schema(city, row):
     return dict(city=city, permit_id=g("permit_id"), permit_type=g("permit_type").lower(),
                 work_class=g("work_class").lower(), estimated_cost=cost,
                 applied=day(g("applied")), issued=day(g("issued")), completed=day(g("completed")),
-                area=g("area"), description_len=str(len(g("description"))))
+                area=g("area"), description_len=str(len(g("description"))),
+                desc_class=classmap.describe(g("description")),
+                desc_class_v2=classmap.describe(g("description"), 2))
 
 
-def fetch(u, tries=4):
+def fetch(u, tries=8):
     for k in range(tries):
         try:
             with urllib.request.urlopen(u, timeout=120) as r:
@@ -69,7 +82,7 @@ def fetch(u, tries=4):
         except Exception:
             if k == tries - 1:
                 raise
-            time.sleep(2 ** (k + 1))
+            time.sleep(min(60, 2 ** (k + 1)))
 
 
 def pull(city, out_dir, max_rows=None, page=50000):

@@ -22,5 +22,30 @@ class Harmonise(unittest.TestCase):
             self.assertIn(transfer.harmonise(s), transfer.CLASSES)
 
 
+@unittest.skipIf(transfer is None, "needs pandas and lightgbm")
+class Frame(unittest.TestCase):
+    HDR = "city,permit_id,permit_type,work_class,estimated_cost,applied,issued,completed,area,description_len"
+
+    def write(self, rows, extra=""):
+        import tempfile
+        f = tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False)
+        f.write(self.HDR + extra + "\n" + "\n".join(rows) + "\n")
+        f.close()
+        self.addCleanup(os.unlink, f.name)
+        return f.name
+
+    def test_cascade_uses_description_class_only_for_other(self):
+        p = self.write(["seattle,1,building,residential,100,2020-01-01,2020-02-01,,98101,40,new_construction",
+                        "seattle,2,electrical,residential,100,2020-01-01,2020-01-05,,98101,10,demolition",
+                        "seattle,3,building,residential,100,2020-01-01,2020-01-09,,98101,5,other"], ",desc_class")
+        self.assertEqual(list(transfer.frame(p, "a2i")[0].cls), ["other", "electrical", "other"])
+        self.assertEqual(list(transfer.frame(p, "a2i", "cascade")[0].cls), ["new_construction", "electrical", "other"])
+
+    def test_cascade_refuses_an_old_pull(self):
+        p = self.write(["seattle,1,building,,100,2020-01-01,2020-02-01,,98101,40"])
+        with self.assertRaises(SystemExit):
+            transfer.frame(p, "a2i", "cascade")
+
+
 if __name__ == "__main__":
     unittest.main()

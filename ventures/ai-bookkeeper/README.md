@@ -52,7 +52,7 @@ spreadsheet, or a bookkeeping subscription with a bank login.
 | `opening.mjs` | Opening balances from a trial balance CSV (`code,amount` in natural sign, or `code,debit,credit`), dated; whatever does not balance goes to 3000 and is reported. For starting mid-stream with a receivable, a loan, equipment and prior earnings already on the books. CLI `opening FILE --date D`; agents `opening: {csv, date}`. |
 | `payroll.mjs` | Pay-run register to books: wages, employer taxes, the 2300 liability, bank-line matching and a Form 941 worksheet. |
 | `ledger.mjs` | The double-entry core, in integer cents: a 37-account small-business chart (or your own), entries that must balance, trial balance, monthly profit and loss, and a balance sheet where unclosed profit shows as current earnings, and an indirect-method cash flow statement (`cashFlow`, in `report`) that must tie to the change in the bank accounts (since 2026-10-26 depreciation is an operating add-back and a disposal shows proceeds in investing; 2026-10-26 `freeCashFlow` = operations less fixed-asset purchases; `monthlyBurn` and `runwayMonths` = cash used by operations and investing per month, and closing cash over it, null when not burning; 2026-10-27 `cashFlowByMonth` gives each month's statement and the last three months' burn and runway, in the CLI `report` and a table on the page; 2026-10-27 `ratios` (in `report`, the CLI and the page): gross and net margin, working capital, current and quick ratio, debt to equity, each null rather than invented when its denominator is zero or negative, with the loan counted as long term). |
-| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords. Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
+| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
 | `engine.mjs` | Import, transfer pairing, auto-posting, confirming, the journal, close checks and exports. `analyze()` is the one call for agents and the CLI. |
 | `ai.mjs` | The optional fifth layer, through `byok.mjs` (a synced copy of `platform/llm/byok.mjs`): Anthropic, OpenAI, Gemini, any OpenAI-compatible endpoint, or Ollama, LM Studio or llama.cpp on your own computer. |
 
@@ -154,13 +154,19 @@ carrying a right suggestion:
 
 | layers | posted alone, right | right in all | wrong suggestions | no suggestion |
 |---|---|---|---|---|
-| all | 62.6% | 88.8% | 100 | 6.4% |
-| without memory | 0% | 85.9% | 77 | 10.4% |
-| without the classifier | 62.6% | 86.8% | 68 | 9.8% |
-| without built-in keywords | 62.6% | 85.8% | 100 | 9.3% |
-| memory only | 62.6% | 81.1% | 68 | 15.6% |
-| classifier only | 0% | 78.2% | 77 | 18.1% |
-| built-in keywords only | 0% | 54.7% | 0 | 45.3% |
+| all | 62.5% | 90.4% | 111 | 4.2% |
+| without memory | 0% | 88.1% | 88 | 7.7% |
+| without the classifier | 62.5% | 89.7% | 82 | 6.3% |
+| without built-in keywords | 62.5% | 86.0% | 121 | 8.1% |
+| without the new-payee guess | 62.5% | 90.3% | 100 | 4.8% |
+| memory only | 62.5% | 81.0% | 68 | 15.6% |
+| classifier only | 0% | 78.1% | 77 | 18.2% |
+| built-in keywords only | 0% | 67.6% | 90 | 28.0% |
+
+Rerun 2026-11-10 (2,071 lines; the earlier table, 2,074 lines, predates later keyword
+work). On this synthetic year the new-payee guess adds 0.1 points and 11 wrong
+suggestions: the generator's payees are businesses the keywords already know. Its real
+test is the labelled books below.
 
 Reading it, same caveat as above (synthetic data, keywords written by the
 generator's author): memory alone gets to 81%, and the other two layers add
@@ -188,6 +194,192 @@ variables as the page (`LLM_PROVIDER=ollama LLM_MODEL=...`, or a provider key).
 about the script, not a model, and are not a result. On one seed the review
 queue is 157 lines and the deterministic top suggestion is right on 63.7%,
 with 22.3% having none: that is the bar a model has to beat.
+
+### Labelled books from five fiscal hosts (2026-11-10)
+
+`node eval/opencollective-labelled.mjs --host <slug> --pages 10` reads paid expenses from
+Open Collective's public API, each with the accounting category the fiscal host's own
+finance team assigned: real memos and payees, with an answer key the keyword author did not
+write. Records are fetched at run time and never copied here (payees include private
+people, so only aggregates are reported). Each host category is mapped to one or two chart
+accounts in `MAPS`; categories with no counterpart (grants, donations, "Administrative")
+are left unscored. "Online" is the import loop month by month: each line is suggested from
+every earlier month's filed lines, then filed with the host's answer. Text is the memo the
+submitter typed.
+
+| host | scored lines | always the commonest category | keywords alone, before | after | online, before | after | posted alone (wrong) |
+|---|---|---|---|---|---|---|---|
+| opensource (rules written from it) | 8,386 | 47.5% | 21.5% | 38.5% | 87.0% | 87.4% | 46.8% (71, 1.8%) |
+| foundation (rules written from it) | 6,749 | 29.3% | 23.3% | 35.6% | 61.0% | 62.9% | 16.6% (30, 2.7%) |
+| raft (held out) | 1,581 | 18.8% | 16.4% | 26.3% | 71.3% | 73.1% | 27.8% (7, 1.6%) |
+| pact_collective (held out) | 2,063 | 62.8% | 9.3% | 16.4% | 73.3% | 73.9% | 25.5% (9, 1.7%) |
+| metagov (held out) | 1,226 | 57.2% | 13.1% | 23.2% | 74.6% | 74.7% | 14.5% (2, 1.1%) |
+
+"Right of all" throughout. The rules added are the words people type on an expense
+("web hosting", "legal services", "maintenance and development", "printing",
+"supplies", "groceries"), last in `BUILT_IN` so a vendor name wins. On the three held-out
+hosts, measured before and after with no rule written from them, keywords alone went from
+9-16% to 16-26% right.
+
+What it says, with care:
+
+- **Learning does most of the work.** From memos alone the loop is right on 63-87% of
+  lines, against 19-63% for always picking a host's commonest category. On pact_collective
+  that margin is only 11 points: most of its lines are one category.
+- **Bank-style text is much harder.** With the payee's name only (what a bank line
+  carries), online right falls to 43-65%, and a payee seen for the first time is right on
+  9-17%. A memo, receipt or invoice line is worth carrying into the books.
+- **Hosts disagree on conventions.** pact_collective files programme groceries as
+  supplies; the keywords say meals and are wrong 60% of the time they speak there (40.1%
+  right of suggested). Memory learns the host's convention within a few months.
+- **Lines posted without review were wrong 1.1% to 2.7% of the time** at the default 0.85.
+- These are reimbursement and invoice records, not bank lines, the mapping to the chart is
+  this repository's, and the newest 10,000 paid expenses were read for the two big hosts
+  (all of them for the other three).
+
+### Labelled bank lines from Mint exports (2026-11-10)
+
+Open Collective's records carry memos and payee names, not bank text, and the step after them
+was "new payees": how often a line from a merchant never seen before is right. A public Mint
+export has exactly that: the raw bank descriptor ("Original Description") beside the category
+Mint chose or its owner corrected. `node eval/mint-labelled.mjs --set tune|held|all` reads ten
+such files from public GitHub repositories at pinned commits (fetched at run time, never copied:
+they are personal spending, so only totals are written here) and replays each one month by
+month like the import loop. Only money out in Mint categories that name one chart account is
+scored (restaurants, travel, fuel, utilities, fees, taxes, rent and so on; groceries, shopping
+and transfers are left out). Mint's category column is never shown to the categoriser. Four
+files ("tune", 2,159 scored lines) were read for misses; six ("held", 767 lines from 2012 to
+2023) were not looked at until the change was final.
+
+Lines are replayed with their real amounts through the same model the engine builds, including
+the new-payee guess (next section). "Before" is `main` with that guess already landed.
+
+| held-out files, 767 lines | right before | right after | wrong before | wrong after |
+|---|---|---|---|---|
+| keywords alone, every line | 52.3% | 54.0% | 1.8% | 1.8% |
+| learning loop, every line | 76.5% | 79.1% | 13.2% | 10.7% |
+| learning loop, a payee seen for the first time (403) | 65.5% | 68.7% | 18.6% | 15.6% |
+| same loop with the new-payee guess off, every line | 71.7% | 74.4% | 8.7% | 6.3% |
+| same, a payee seen for the first time | 57.6% | 60.8% | 11.7% | 8.7% |
+
+On the tune files the loop went 93.2% to 94.6% right (first-seen 87.5% to 89.6%). On bank
+text the new-payee guess adds about 8 points right on first-seen payees here and about 7
+points wrong: most bank spending in these books is meals, so the plurality is often right.
+
+Three changes, each found on the tune files:
+
+- **A city name overruled a keyword.** The naive Bayes layer runs before the built-in keywords
+  and spoke at p >= 0.5. On one Brooklyn checking account, a few lines filed to dues taught it
+  that "brooklyn" meant dues, so Shake Shack and a deli the keywords knew as meals went to dues
+  (that file: keywords alone 57.8% right, the learning loop 35.6%). The classifier now needs
+  p >= 0.95 to overrule a keyword that fires; with no keyword it speaks at 0.5 as before. This
+  is most of the held-out gain (measured before the new-payee guess landed, every line at one fixed amount: 72.0% right and
+  8.9% wrong without it, 75.0% and 5.9% with it).
+- **Bank wrapper words became the payee.** "PRE-AUTHORIZATION DEBIT AT DUNKIN" and "Pending
+  DEBIT PURCHASE ... AT GRAFTON ST" keyed every line of a bank to "authorization at" or
+  "pending at", so payee memory pooled every merchant together. `pending`, `authorization`,
+  `at`, `on`, `non`, `pin` are now noise words in the payee key. Memory saved under the old
+  key for such lines is not found again; those keys pooled every merchant, so little is lost.
+- **Keywords.** Restaurant words on bank lines (kitchen, grille, pub, tavern, cantina,
+  trattoria, crepe, barbeque, soup, sandwich, burger,) and Seamless's glued descriptor
+  ("SEAMLSSTHEMILL"); "taxi" no longer matches an Ohio tax site ("OHTAXITES"), and "southwest"
+  no longer sends Moe's Southwest Grill to airfare.
+
+What it says, with care: the labels are agreement with Mint, a commercial merchant database,
+plus each owner's corrections, not a bookkeeper's answer key, and the books are personal. Most
+first-seen misses are one-off local restaurants whose names say nothing ("PEASANT", "BLUE
+PIT"); no keyword can know them, and a merchant category code from the card network or a model
+would. Tests: `mint-labelled.test.mjs` (5, made-up rows).
+### New payees (2026-11-10)
+
+The labelled books above showed the weak spot: from the payee's name alone, a payee seen
+for the first time got a suggestion on 8-33% of lines and was right on 5-21%. Memory and
+the classifier know nothing about a new name, and most names carry no keyword. So a sixth
+layer, `guessNewPayee` in `categorize.mjs`, reads only two things a new line still has:
+what kind of name it is (`payeeShape`: a person, a business by its suffix or trade word, or
+other) and its size (under $50, $500, $5,000, or more). It counts the account of every
+other payee's first filed line in the same view, and offers the plurality when at least 8
+payees are in that view and at least 40% of them agree; otherwise it backs off from shape
+and size to shape, size, then direction, and stops at the first view with 8 payees if that
+view is split. It is a suggestion for review only: confidence at most 0.5, never posted
+alone, and the AI layer in fill mode still takes the line. The thresholds were set before
+the first reading and not tuned.
+
+Online, each line at its real amount, first-time payees only, right of all:
+
+| host | text | before | after | the same layer, direction only | right of suggested, before / after |
+|---|---|---|---|---|---|
+| opensource | payee | 21.2% | 56.8% | 55.2% | 64.5% / 63.3% |
+| foundation | payee | 10.3% | 19.5% | 10.3% (split, says nothing) | 50.0% / 40.2% |
+| raft (held out) | payee | 13.8% | 32.6% | 13.8% (split) | 71.9% / 43.9% |
+| pact_collective (held out) | payee | 4.7% | 41.4% | 41.4% | 58.3% / 52.4% |
+| metagov (held out) | payee | 16.5% | 65.4% | 67.1% | 75.0% / 68.9% |
+| the five, memo text | memo | 61.2-84.0% | 64.3-84.9% | | |
+
+What it says, with care:
+
+- **Most of the gain on three hosts is just "the account most new payees go to".** Where
+  one category dominates (opensource, pact_collective, metagov) the direction-only prior
+  does as well, and on metagov 1.7 points better. Shape and size earn their place where
+  the prior is split: foundation and raft, where the prior alone says nothing and the
+  layer gets 9 and 19 points.
+- **It costs wrong suggestions.** On raft, 42% of first-time lines now carry a wrong
+  guess, against 5% before; the reviewer changes a low-confidence pill instead of picking
+  from blank. Right of suggested falls on every host. Nothing more posts alone: auto-posted
+  share and its error count are identical with the layer on and off.
+- With memo text the keywords and classifier already cover most lines, so the layer adds
+  1-3 points.
+- These are reimbursement and invoice records with the payee's display name, not bank
+  descriptions; "person" is a guess from the name's form, not a lookup.
+
+Reproduce: `node eval/opencollective-labelled.mjs --host raft --variants payee,memo --new-payee`
+(the cache file name changed to `-v2` because amounts are now fetched). Tests:
+`new-payee.test.mjs` (5).
+
+### New payees, held out: a ledger, a bank export and a card (2026-11-10)
+
+The reading above is on Open Collective, the data the layer was designed on. This one is
+on three labelled public sets it never saw, from raw.githubusercontent.com (Open
+Collective's API was refused from this session):
+`node eval/new-payees.mjs --hackclub main.ledger --makerspace DIR --chase cc_transactions.csv [--no-new-payee] [--levels direction] [--min-share 0.5]`
+(fetch commands in the file's header; nothing is copied here). Each set is replayed day
+by day at its real amounts (`hackclub-ledger.mjs` reads amounts since this run). Every
+line is suggested from all earlier filed lines, and lines whose payee key and direction
+are new are scored separately. On Chase the label is Chase's own category, so its
+bank-category layer is off.
+
+First-time lines, right / wrong of all:
+
+| set | first-seen lines | layer off | layer on | direction-only prior | new-payee suggestions right |
+|---|---|---|---|---|---|
+| Hack Club ledger (US nonprofit, clean payee names, 2015-2017) | 184 | 41.8% / 4.3% | 53.3% / 25.0% | 48.9% / 26.6% | 21 of 59 (35.6%) |
+| makerspace bank exports (raw bank text, 2020-2023) | 16 | 68.8% / 12.5% | unchanged | unchanged | never fires (too few payees) |
+| Chase card (one person, Sep-Dec 2023) | 79 | 77.2% / 1.3% | 93.7% / 5.1% | 93.7% / 5.1% | 13 of 16 (81.3%) |
+
+What it says:
+
+- **On a second domain, the layer still adds right answers: 11.5 points on Hack Club and
+  16.5 on Chase.** On Chase it is entirely the prior (a personal card is mostly food), as on
+  three of the Open Collective hosts. On Hack Club, shape and size add 4.4 points over the
+  prior.
+- **The cost is larger here.** On Hack Club, a first-time line now carries a wrong guess
+  25.0% of the time, against 4.3% before, and only 35.6% of the layer's own suggestions
+  are right. That is under the 40% share the layer asks of its evidence. Nothing more
+  posts alone (confidence at most 0.5).
+- **"Person" is mostly not people on bank-style text.** `payeeShape` calls any two to
+  four plain words a person. On Hack Club that is 83 payees, of which about 20 are
+  people (the rest are "Bristol Farms", "Spice Kit", "Holy Grill"). On Chase it is 50
+  payees and none are people ("SUPER WOK", "DD DOORDASH TACOCASA").
+  A variant that required a common given name as the first word (about 400 names; a
+  "words" shape for the rest) was tried and **not kept**: measured before the Mint-exports classifier change merged the
+  same day, Hack Club went from 51.1% / 26.1% to 52.2% / 27.2%, Chase was unchanged, and it could not be checked on Open Collective,
+  where the people's names are more varied.
+- **A sweep of the 40% share, for information, not tuned here.** On Hack Club, right /
+  wrong is 53.3/25.0 at 0.4, 50.5/15.8 at 0.5, 44.6/12.0 at 0.6 and 43.5/8.2 at 0.7. On
+  Chase it is 93.7/5.1, 88.6/5.1, 84.8/3.8 and 78.5/2.5. At 0.5, Hack Club's wrong
+  guesses drop 9 points for 3 points of right, but Chase gives up 5 points of right for
+  nothing. Whether a reviewer is better served by fewer, surer pills is the same open
+  question as above. A default change should be read on Open Collective too.
 
 ### Round-trip property test (2026-10-22)
 
@@ -388,7 +580,7 @@ a 1099-K); payees over the line without a W-9 and unfiled bank lines from the ye
 are warned about. Payees are grouped by the first two payee words of the bank line,
 so two spellings of one person can split: check the list. It is a worksheet, not a
 filing: whether someone is a contractor, and exemptions such as corporations, are
-yours to decide. `cli.mjs contractors --filing` (`nec1099FilingCsv`, and a button on the page) writes one row per payee over the line in the Form 1099-NEC's own box names (box 1, box 4) for a filing service's import sheet; services take their own column layouts, so it is the form's boxes, not any one service's file, and the TIN and address columns are blank because none is stored. The $2,000 line from 2026 is read on the IRS's own Instructions for Forms 1099-MISC and 1099-NEC (irs.gov/pub/irs-pdf/i1099mec.pdf, read with pdftotext 2026-10-23, along with the Form 945 instructions): they also say backup withholding is reported in box 4 and that a 1099-NEC is required for anyone you withheld from regardless of amount, and Form 945 line 2 is where it goes; the warning now says so. The 24% rate itself sits in Pub. 1099 part N, which was not fetched. `necDeadline` gives the filing date (January 31, rolled to the next weekday: February 1, 2027 for 2026 payments). From 2027 the $2,000 is indexed to inflation, so the worksheet warns unless you pass a threshold. Test: `taxforms.test.mjs`.
+yours to decide. `cli.mjs contractors --filing` (`nec1099FilingCsv`, and a button on the page) writes one row per payee over the line in the Form 1099-NEC's own box names (box 1, box 4) for a filing service's import sheet; services take their own column layouts, so it is the form's boxes, not any one service's file, and the TIN and address columns are blank because none is stored. The $2,000 line from 2026 is read on the IRS's own Instructions for Forms 1099-MISC and 1099-NEC (irs.gov/pub/irs-pdf/i1099mec.pdf, read with pdftotext 2026-10-23, along with the Form 945 instructions): they also say backup withholding is reported in box 4 and that a 1099-NEC is required for anyone you withheld from regardless of amount, and Form 945 line 2 is where it goes; the warning now says so. The 24% rate itself sits in Pub. 1099 part N, which was not fetched. `necDeadline` gives the filing date (January 31, rolled to the next weekday: February 1, 2027 for 2026 payments). From 2027 the $2,000 is indexed to inflation, so the worksheet warns unless you pass a threshold. Test: `taxforms.test.mjs`. `cli.mjs contractors --iris [--payer payer.json]` (`nec1099IrisCsv`, and a page button) writes the same payees in the IRS IRIS Taxpayer Portal's 1099-NEC template layout for tax year 2025, 54 columns from Form Type to State 2 - Special Data Entries, with the payer block from `payer.json` (`name`, `tin`, `tinType`, `address`, `city`, `state`, `zip`, `phone`). The template itself was not read (irs.gov is blocked from where this was built, and the portal hands it out behind its login): its header row is the one four independent open-source IRIS tools agree on, and the sibling `ventures/irs-iris-1099-csv-check` reads the same layout; `iris-export.test.mjs` runs the export through that checker and gets only the W-9 fields (recipient TIN type, TIN and address) as errors, and a clean result once they are filled. A name with a business word (LLC, Inc, Studio, ...) goes on the business line as name type B; any other is split at its last space into first and last name, type I, and the notes say it was a guess.
 
 `cli.mjs b-notice 2026-10-05 [--received DATE] [--second [--first-notice DATE] [--b-notice-sent DATE]]` (`bNoticeDates` in `taxforms.mjs`) turns an IRS CP2100/CP2100A notice date into two dates: mail the First (or Second) B Notice within 15 business days, and start 24% backup withholding on later payments within 30 business days if the payee has not returned a signed W-9. Business days skip weekends and observed federal holidays; the count starts from the later of the notice date and the day it arrived. Rules read on the IRS B-program and CP2100 pages, then checked against Pub. 1281 itself on 2026-10-23 (Rev. 12-2023, pdftotext; pp. 14-15, Q&A 15-19): the 15 and 30 business-day windows match. Pub. 1281 adds three points now in the helper: for a Second B Notice the 30 business days run from the date of that B notice (`--b-notice-sent`; without it the CP2100 date is used, which can be earlier), a second CP2100 in the same calendar year as the first may be disregarded (`--first-notice`, Q17), and withholding stops within 30 calendar days of a signed W-9. An undeliverable B notice means withholding starts at once (Q18, not modelled). The page sets the start date from receipt, so `--received` matters. Test: `taxforms.test.mjs`.
 
@@ -958,6 +1150,7 @@ one per customer, part-payments, the `--min` cut); on the page (2026-10-22): und
 - bank2ynab's sample files, 2026-10-24 (`bank.mjs`, `textcodec.mjs`, `bank2ynab-samples.test.mjs`, 4 tests): imported the 40 files in bank2ynab's `test/test-data` (MIT, github.com/bank2ynab/bank2ynab; real column layouts, made-up rows) with the CLI. Six read nothing or lost lines; four fixed. A German card export (`Buchungsbetrag`, `Transaktionsbeschreibung`) and a UK card export (`Date Processed`) had no matching headers; `Pending` dates are now reported as pending rather than as unreadable. A Singapore export that puts a detail line (no date, no amount) under each transaction skipped every detail line with an "unreadable date" error; it now joins the description above. A Czech export in Windows-1250 with no letter unique to that codepage decoded as 1252 and read nothing; the codepage is now taken from Czech and Polish column names (`částka`, `účtu`, `Kwota`), and `Zaúčtovaná částka` and `Zpráva` are aliases. Not fixed: single-row header-less files (`dba33...csv`, `statement_1.csv`: one line is too little to infer columns from) and a Swedbank-style `.dat` (`kta_ei.dat`, pipe records). Still no real current export from a named bank.
 - Real Capital One card export, 2026-11-07 (`eval/capone-card.mjs`, `real-capone-card.test.mjs`, `categorize.mjs`): one public GitHub file (pythoninoffice/tutorials `sample_data/cc_statement.csv`, 533 rows of a Canadian card, no licence file, fetched at run time, never copied). The reader recognised the layout as `capital-one` and read all 533 rows, 18 payments in. Scored on the 135 purchases whose Capital One category names one account (Dining, Gas/Automotive, Phone/Cable, Fee/Interest, Insurance, Other Travel, Professional Services, Entertainment): before, 54.1% suggested, 95.9% right of suggested, 51.9% right of all, because the keywords were US-first and left PETROCAN, a bare SHELL, FIDO, PRESTO reloads and local restaurants blank. Added Canadian fuel, phone, transit, food, insurance and overlimit-fee descriptors: 82.2% suggested, 97.3% right of suggested, 80.0% right of all, 3 wrong. Tuned on this same file, so the after figures are optimistic; the 365 purchases in personal categories (Merchandise, "Internet" = Amazon Marketplace) are unscored. Still wrong: Intuit Canada (Capital One: Professional Services, ours: software), Eventbrite (ours: advertising), DHL (ours: shipping). Test lines are written, not copied.
 - Real Bank of America checking export, 2026-11-08 (`bank.mjs`, `bofa-split-memo.test.mjs`, 2 tests): a public GitHub file (ShiweiHe0713/MoneyChat, 662 rows Aug 2023 to May 2024; fetched at run time, never copied, personal data). Its own summary block disagreed with the rows read (credits 15,311.58 vs 15,236.58), which exposed a real fault: BofA writes a Zelle memo containing a comma as two cells, so the amount sat one cell right and was read from the tail of the memo (a -40.30 payment became +47.00, balance -40.30) with no warning. Fixed: when the amount cell is not an amount but the next cell is, the split text is rejoined. After the fix the summary matches and the file reads with 0 problems. Also read cleanly, no change: a real Chase checking export (782 rows, 2024), a newer BofA file and a Discover card file (the latter two look generated, so not counted as real).
+- Real business Chase checking export, 2026-11-09 (`categorize.mjs`, `third-party-wires.test.mjs`, 3 tests): a public MIT-licensed GitHub file (Delta-Compute/DeltaCFOAgent, 53 rows Apr to Jun 2024; fetched at run time, never copied). The reader took it as `chase-checking` with no problems. Found: outgoing wires to a named third party ($97,000 and $42,410) were suggested as own-account transfers, one even as a utility because the beneficiary bank's name tripped a keyword; ACH origination fees had no suggestion. Now wires and CHIPS or book-transfer credits that name a counterparty (VIA:, A/C:, B/O:) get no suggestion and wait for a person; ACH fees file as bank fees. 53 rows: 43 suggested, 0 wrong on read-through, 10 wait (the wires and credits, an ACH payment to a person). One bank, one company: not a rate.
 - Real Wells Fargo checking export, 2026-11-09 (`categorize.mjs`, `wells-fargo-real.test.mjs`, 3 tests): a public GitHub file in the headerless `"date","amount","*","","description"` layout (jmcroft7/local-money `src/data/wellsFargo.csv`, 71 rows Jan to Mar 2026, one person's spending, no licence file; fetched at run time, never copied). The reader named it `wells-fargo` and read all 71 rows with no problems: the first real file in that layout (HISTORY had only hand-written ones). Keyword layer on its 63 debits: 10 suggested before, 14 after. Added: `INS PREM` and Allstate, Travelers and other insurers (6030) and CenterPoint, Xcel and other energy utilities (6140). The other 49 are personal (groceries, streaming, gas stations, Apple Card and credit-union payments) and rightly blank; no labels, so right-of-suggested is unmeasured. Wells Fargo's own descriptors (`PURCHASE AUTHORIZED ON mm/dd ... S<digits> CARD ####`) carry the merchant mid-string and still match. Still no labelled business Wells Fargo book.
 - Real Amex exports, 2026-11-07 (`bank.mjs`, `amex-au-layout.test.mjs`, 2 tests): two public GitHub files in Amex's layout (bartonhammond/finance-nue, danTaler/Savvr; fetched at run time, never copied, personal data). The US one read correctly (signs flipped off its payment row). The Australian one, with a `Date Processed` column and `Amount ` with a trailing space, was not recognised as Amex, and with no payment row nothing flipped the signs, so every purchase was booked as money in with no warning. Fixed: the layout is sniffed with the extra column, and a file with `Card Member` always flips (Amex lists charges as positive). Plain `Date,Description,Amount` files are unchanged (guard test). Still no fresh Bank of America or Wells Fargo export.
 - ofxstatement plugins' layouts, 2026-11-04 (`ofxstatement-layouts.test.mjs`, 2 tests): the sdists of ofxstatement-revolut and ofxstatement-n26 on PyPI name the real column layouts (the OTP, PayPal and N26 sdists carry no sample files). Revolut (Type, Product, Started/Completed Date, Fee, State, Balance) and N26 read correctly as they are: pending and reverted rows are skipped with a named warning, the fee joins the amount. No code change; the tests guard it. Still no fresh export from Chase, Bank of America, Wells Fargo or Amex.

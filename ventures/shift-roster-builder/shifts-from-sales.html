@@ -85,6 +85,12 @@
         });
         problem.hidden = true;
       } catch (e) { problem.hidden = false; problem.textContent = e.message; $("#out").textContent = ""; $("#summary").textContent = ""; $("#table").innerHTML = ""; return; }
+      if (!r.rows && $("#csv").value.trim()) {
+        problem.hidden = false;
+        problem.textContent = [...r.notes, ...r.skipped.slice(0, 3)].join(" ") || "No sales rows could be read from that text.";
+        $("#out").textContent = ""; $("#summary").textContent = ""; $("#table").innerHTML = "";
+        return;
+      }
       $("#out").textContent = r.shiftsText || "Paste sales above.";
       const notes = [...r.notes, ...r.skipped.slice(0, 5)];
       $("#summary").innerHTML = r.rows ? `${r.needed} labor hours needed, ${r.scheduled} scheduled (${r.extra} extra from minimum shift length).<br>${notes.map(esc).join("<br>")}` : notes.map(esc).join("<br>");

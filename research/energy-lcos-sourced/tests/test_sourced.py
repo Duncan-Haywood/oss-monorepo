@@ -66,3 +66,17 @@ def test_degenerate_spread_reproduces_point_winner():
 def test_short_and_long_durations_are_stable():
     s = win_shares(td, alternatives(td, atb), [1, 500], n=200, seed=2)
     assert s[1]["li-ion (LFP)"] > 0.9 and s[500]["compressed air (cavern)"] > 0.9
+
+
+def test_charge_price_picks_cheapest_hours_per_window():
+    import importlib.util, pathlib
+    path = pathlib.Path(__file__).resolve().parents[1] / "experiments" / "run_price.py"
+    src = path.read_text().split("td, _ = load()")[0]   # definitions only, no data run
+    ns = {"__file__": str(path)}
+    exec(compile(src, str(path), "exec"), ns)
+    flat = [10.0] * 8760
+    assert ns["charge_price"](flat, 4) == pytest.approx(10.0)
+    day = [0.0] * 4 + [100.0] * 20               # cheapest 4 h of every day cost 0
+    assert ns["charge_price"](day * 365, 4) == pytest.approx(0.0)
+    # 24 h is cycled 83 times a year, so its window is 105 h (4.4 days) and holds 17.5 zero-price hours of 24 needed
+    assert 0.0 < ns["charge_price"](day * 365, 24) < 100.0

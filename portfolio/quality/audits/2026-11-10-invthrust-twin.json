@@ -1,0 +1,235 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/invthrust-twin",
+  "stratum": "research",
+  "drawn_by": "sample",
+  "seed": "2026-11-10",
+  "auditor": "agent session (Claude), subagent of quality-audit round",
+  "status": "audited",
+  "professional": "a flight-control engineer (multirotor/eVTOL) who identifies thrust maps and tunes altitude loops, reviewing as a controls researcher",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran the tests (7 OK) and run.py (output identical to results.txt). Recomputed against sources the author did not write: closed-form second-order overshoot 0.04599 and analytic settling 5.9787 s (README 0.0460 / 5.98); hand arithmetic 2^0.8-1=0.741 and 1.4^2-1=0.960 (table 0.741 / 0.960); an independent RK4 written from scratch at dt=0.25 ms reproduced overshoot 0.0644/0.0344/0.0460/0.0450/0.1018/0.0712/0.0877 and settling 6.71/6.68/6.81. No wrong number found.",
+    "completeness": "Every README feature works: 7 tests, run.py regenerates results.txt byte-for-byte, figure.py writes inv.svg, the homepage entry exists. Stated next steps (online identification, motor lag) are honestly labelled as not done. Scope is small but complete for what it claims.",
+    "verification": "Tests run: 7 OK in 0.07 s. Six hand-seeded mutations: 4 caught (ceiling, RK4 weight, exact exponent, overshoot sign), 2 survived: linear inverse ignoring n_hat (all linear tests use n_hat=2, so the misidentified-exponent regime, the project's headline, is untested for the linear controller) and settle_time tolerance (no test). No test pins any number in results.txt for n_hat != 2. Gate fails at 2.",
+    "craft": "Read model.py (65 lines), tests, run.py. Clean, small, stdlib only, silent clamps are documented in the docstring, ValueError on unknown mode. Defects: settle_time returns inf on non-settling but run.py would print 'inf' silently; step() builds a full list per run; run.py's loops duplicate the sim call pattern; no pytest config. Nothing a reviewer would block.",
+    "claims": "Each README result traced to results.txt and reproduced independently. Limits are stated (1-D, no lag, arbitrary exponent range, assumed ceiling, one gain pair). One gap: 'Builds on' names no prior art for thrust-map inversion in flight controllers, and 'textbook practice' is asserted without a citation.",
+    "fitness": "A researcher can reuse the 65-line model, but the result is a single-gain-pair (zeta 0.7), three-exponent sweep on a noiseless 1-D plant with a hand-picked exponent range and no motor lag. Findings (inversion halves the asymmetry; misidentified exponent dominates) are plausible but a small sensitivity study, below the PhD programme bar in research/CLAUDE.md and not a step in a named programme.",
+    "domain": "A flight-control engineer would note: real multirotor thrust-vs-throttle is commonly modelled as a blend of linear and quadratic (PX4 THR_MDL_FAC) and measured on a thrust stand, not a pure power law with exponent 1.5-2.5; the exponent range and 2x ceiling are assumed, not sourced (research/CLAUDE.md 'Run the numbers'); feedback linearisation with model mismatch has a standard robustness analysis (Khalil, Nonlinear Systems, ch. 13) not cited; motor lag, which dominates real altitude loops, is deferred. Method is sound but unanchored to practice."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Twin overshoot at zeta=0.7",
+      "method": "closed form exp(-pi z/sqrt(1-z^2)) for a 2nd-order system (textbook)",
+      "command": "python3 -c 'import math;print(math.exp(-math.pi*.7/math.sqrt(1-.49)))'",
+      "expected": "0.0460 (README)",
+      "observed": "0.04599",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Twin 2% settling time at zeta=0.7, wn=1 (5.98 s)",
+      "method": "analytic step response 1-e^{-zwt}(cos wd t + z/wd sin wd t), last 2% exit scanned at 0.1 ms",
+      "command": "own script ind.py",
+      "expected": "5.98 s",
+      "observed": "5.9787 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Exact-inverse n_hat=2.5 realised accel at a_cmd=g (table 0.741)",
+      "method": "hand: r=2^(1/2.5)=1.3195, g(r^2-1)",
+      "command": "python3 -c 'print(2**0.8-1)'",
+      "expected": "0.741",
+      "observed": "0.7411",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Linear-inverse n_hat=2.5 at a_cmd=g (0.960)",
+      "method": "hand: r=1+1/2.5=1.4, r^2-1",
+      "command": "python3 -c 'print(1.4**2-1)'",
+      "expected": "0.960",
+      "observed": "0.960",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Overshoot up/down, linear n=2, p=2 (0.0644/0.0344) and exact n=2 (0.0460/0.0450)",
+      "method": "independent RK4 re-implementation at dt=0.25 ms",
+      "command": "python3 /tmp/claude-0/s/ind.py (independent RK4 at dt=0.25 ms, own code, not model.py)",
+      "expected": "0.0644 0.0344 0.0460 0.0450",
+      "observed": "0.0644 0.0344 0.0460 0.0450",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Overshoot n_hat=2.5, p=2: linear up 0.1018, exact up 0.0712 / down 0.0877",
+      "method": "independent RK4 re-implementation",
+      "command": "python3 /tmp/claude-0/s/ind.py (independent RK4 at dt=0.25 ms, own code, not model.py)",
+      "expected": "0.1018, 0.0712, 0.0877",
+      "observed": "0.1018, 0.0712, 0.0877",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Settling at n_hat=2.5, p=2: linear up 6.71, exact up 6.68 / down 6.81",
+      "method": "independent RK4 re-implementation",
+      "command": "python3 /tmp/claude-0/s/ind.py (independent RK4 at dt=0.25 ms, own code, not model.py)",
+      "expected": "6.71, 6.68, 6.81",
+      "observed": "6.71, 6.68, 6.81",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "README: exact descent at n=2,p=2 is 0.0450 not 0.0460 because the floor binds",
+      "method": "independent sim reproduces 0.0450 (and 0.0460 up); floor mechanism not separately isolated",
+      "command": "ind.py",
+      "expected": "0.0450",
+      "observed": "0.0450",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README reproduce block: unittest, run.py regenerates results.txt, figure.py writes inv.svg",
+      "method": "ran all three",
+      "command": "cd research/invthrust-twin && PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt; python3 experiments/figure.py",
+      "expected": "identical / svg written",
+      "observed": "diff empty; inv.svg written (git checkout restored)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README claims 7 tests",
+      "method": "count + run",
+      "command": "cd research/invthrust-twin && PYTHONPATH=src python3 -m unittest discover -s tests -v",
+      "expected": "7 tests OK",
+      "observed": "Ran 7 tests ... OK",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Headline: gap falls 3.00 -> 0.09 (n=2); 3.67 -> 1.65 (n=2.5); n=1.5 1.63 -> 0.79",
+      "method": "results.txt section 3 vs README and research/README.md bullet",
+      "command": "grep results.txt",
+      "expected": "3.00/0.09, 3.67/1.65, 1.63/0.79",
+      "observed": "matches (0.09 vs 0.10 from rounded cells is rounding)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Claim 'exact inverse realises a_cmd exactly while a_cmd in [-g,3g]'",
+      "method": "test_exact_inverse_is_identity_inside_limits plus own sim",
+      "command": "unittest",
+      "expected": "identity",
+      "observed": "identity at 6 points",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Builds on' cites no specific paper; says feedback linearisation is textbook",
+      "method": "read README; no PX4/ArduPilot thrust-curve citation",
+      "command": "read",
+      "expected": "nearest prior work named",
+      "observed": "none named",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Tests cover the n_hat != 2 linear inverse (the headline regime)",
+      "method": "seeded mutation, see mutations",
+      "command": "unittest",
+      "expected": "a test fails",
+      "observed": "survived",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "Exponent 1.5-2.5 and ceiling 2x hover tied to a datasheet/propeller data",
+      "method": "README Limitations says arbitrary/assumed; research/CLAUDE.md 'Run the numbers'",
+      "command": "read",
+      "expected": "sourced range",
+      "observed": "assumed",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/invthrust_twin/model.py:15",
+      "change": "linear inverse n_hat*g -> 2*g (ignores the assumed exponent)",
+      "caught": false,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/invthrust_twin/model.py:20",
+      "change": "throttle ceiling 2.0 -> 2.5",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/invthrust_twin/model.py:43",
+      "change": "RK4 weight 2*k3x -> k3x",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/invthrust_twin/model.py:17",
+      "change": "exact exponent 1/n_hat -> 1/2",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/invthrust_twin/model.py:54",
+      "change": "settle_time tol 0.02 -> 0.05",
+      "caught": false,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/invthrust_twin/model.py:50",
+      "change": "overshoot sign s forced to +1 (breaks descent steps)",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Linear-inverse behaviour for n_hat != 2 is untested: a mutation replacing n_hat with 2 passes all 7 tests, and no test pins any headline overshoot/gap number.",
+      "where": "research/invthrust-twin/tests/test_model.py:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Thrust exponent range (1.5-2.5) and throttle ceiling are assumed, not taken from thrust-stand data or a datasheet; the nearest prior work (PX4 thrust-curve factor THR_MDL_FAC, feedback-linearisation robustness) is not cited.",
+      "where": "research/invthrust-twin/README.md:26",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "settle_time is untested (tolerance mutation survives) and the 6.7 s settling numbers rest on it.",
+      "where": "research/invthrust-twin/src/invthrust_twin/model.py:54",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Explanation that the descent 0.0450 vs 0.0460 is due to the throttle floor is asserted, not isolated by a run with the floor removed.",
+      "where": "research/invthrust-twin/README.md:15",
+      "category": "overclaim",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Numerically correct and honestly scoped: every table value reproduced against closed forms and an independent integrator, and the README states its limits. It does not meet the bar because verification is 2 (two of six seeded bugs survive, including the n_hat-misidentified linear inverse that is the project's point), and fitness and domain are 2: a single-gain, assumed-exponent, noiseless 1-D sensitivity study with no cited prior art or sourced thrust data, below the PhD-level programme bar. Recommended small fixes: add a test pinning accel(G,2.5,'linear') == 0.96*G and a settle_time test against the analytic 5.98 s; cite PX4 THR_MDL_FAC and a thrust-stand dataset."
+}

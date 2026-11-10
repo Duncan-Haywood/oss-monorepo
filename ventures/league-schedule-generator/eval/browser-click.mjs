@@ -93,7 +93,10 @@ const w = await page.locator("#fairnessWeight").inputValue();
 check(w !== "" && Number.isFinite(Number(w)), `suggest button fills the weight box (${sug.slice(0, 60)})`);
 check(await page.locator("#venueFairness").isChecked(), "suggest button turns venue fairness on");
 
+await page.fill("#duties", "Snack stand: 2\nScoreboard: 1");
 for (const [btn, name, test] of [
+  ["#dl-duties", "team-duty-rota.txt", (t) => /Snack stand/.test(t) && /Scoreboard/.test(t)],
+  ["#dl-team-sheets", "team-sheets.html", (t) => /Duty rota/.test(t) && /Your duty/.test(t) && (t.match(/class="sheet"/g) || []).length > 2],
   ["#dl-grid", "division-season-grid.csv", (t) => t.split("\n").length > 2 && t.includes(",")],
   ["#dl-cost", "season-cost.txt", (t) => /Total: /.test(t) && /Fee per team/.test(t)],
   ["#dl-bookings", "facility-booking-request.txt", (t) => t.startsWith("Facility booking request (") && /venue/.test(t) && t.split("\n").length > 3],

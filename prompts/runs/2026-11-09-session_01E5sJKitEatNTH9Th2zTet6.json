@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01E5sJKitEatNTH9Th2zTet6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T18:21:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14332",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Skipped running venture-preflight and an agent doc: change is an eval script, README section and post only",
+      "did": "ran the check script on 60 real readings",
+      "result": "confidence tracks accuracy"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-does-photo-tilt-confidence-mean-anything.md",
+    "ventures/photo-editing/eval/README-real-photo-calibration.md"
+  ],
+  "goal": null,
+  "notes": "photo-editing flagship: tools/tilt_confidence_check.py, 60 rotated real-photo readings binned by confidence.",
+  "corrections": [],
+  "redteam": null
+}

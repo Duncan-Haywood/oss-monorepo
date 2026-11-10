@@ -1,0 +1,255 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/gig-driver-earnings-report-analyzer",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent audit subagent",
+  "status": "audited",
+  "professional": "a gig-economy tax preparer (EA/CPA) who reviews drivers' trip logs and mileage",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran a harness (scratchpad t.mjs) on hand-computable files: net 6.6, 7.92/hr, 0.44/mi match python arithmetic; extra-miles cost 6.00, km 6.21371, dmy and midnight spans right. Two input-handling failures found (see defects); arithmetic itself held. IRS rates only cross-checked against the sibling venture, not fetched.",
+    "completeness": "node --test '*.test.mjs' ran 33 pass 0 fail. Checked claimed total-row skipping, negative rows, UTF-16, km, dmy, Total-only splitting: all worked. Claimed time-of-day results fail for the common separate Date and Time column layout. Stage is prototype, no real export tested (VENTURE.yaml admits this).",
+    "verification": "33 tests pass. Four seeded mutations: extra-miles factor, daypart boundary and PM conversion caught; MIN_TRIPS 5->2 survived (ranking threshold untested). No test covers separate Date/Time columns or semicolon-with-dot decimals.",
+    "craft": "Read calc.mjs (pure functions, no DOM) and page tests. Clean, but silent fallbacks: unreadable miles/minutes become null, bad tip becomes 0, decimalComma is inferred from the delimiter. README test command is bare 'node --test'.",
+    "claims": "Loaded https://marisstella.app/gig-driver-earnings-report-analyzer/ (200, canonical correct); served llms.txt has marisstella.app, so the github.io host in source llms.txt is source-only. Privacy and disclaimer claims backed by page.test.mjs. Limits and not-modelled list present on page.",
+    "fitness": "A driver with a one-file export with Date incl. time, Earnings, Miles, Minutes finishes the job; a driver whose export splits Date and Time loses time-of-day output silently; a dot-decimal semicolon file gives 100x pay. No real app export was ever used.",
+    "domain": "Compared against IRS standard mileage rate practice and gig tax-prep habit: using the standard rate as vehicle cost is a stated proxy; per-trip miles exclude deadhead except via the extra percent; no SE tax or deduction view, and said so."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Two-trip file net, cost, net/hr, net/mile at $0.76/mi",
+      "method": "hand arithmetic in python3: (12-3.8)+(6-7.6)=6.6; 6.6/(50/60); 6.6/15",
+      "command": "node t.mjs (scratchpad harness importing calc.mjs)",
+      "expected": "net 6.6, 7.92/hr, 0.44/mi",
+      "observed": "6.6, 7.92, 0.44",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Vehicle cost with 20% unpaid miles and online hours: 10 mi at $0.50",
+      "method": "hand: 10*1.2*0.50=6.00; net 10-6=4 over 1 online hour",
+      "command": "node t.mjs (scratchpad harness importing calc.mjs)",
+      "expected": "cost 6, 4/hr",
+      "observed": "6, 4",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Kilometre conversion 10 km",
+      "method": "NIST/SI: 1 km = 0.621371 mi",
+      "command": "node t.mjs (scratchpad harness importing calc.mjs)",
+      "expected": "6.21371 mi",
+      "observed": "6.21371",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Day-first dates 13/09/2026 and 02/09/2026 in one file",
+      "method": "ISO 8601 / calendar: 13th forces day-first",
+      "command": "node t.mjs (scratchpad harness importing calc.mjs)",
+      "expected": "2026-09-13, 2026-09-02",
+      "observed": "2026-09-13, 2026-09-02",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Span past midnight 23:50 to 00:10",
+      "method": "clock arithmetic",
+      "command": "node t.mjs",
+      "expected": "20 min",
+      "observed": "20",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Semicolon file with dot decimals (12.50, 3.2) as the page reads it (decimalComma true for ';')",
+      "method": "plain reading of the number; node t2.mjs mirrors index.html:151",
+      "command": "node t2.mjs",
+      "expected": "pay 12.5, miles 3.2",
+      "observed": "pay 1250, miles 32",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Separate Date and Time columns, Time 18:30",
+      "method": "the common export shape; README says a time enables time-of-day results",
+      "command": "node t.mjs (scratchpad harness importing calc.mjs)",
+      "expected": "hasTime true",
+      "observed": "hasTime false",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "IRS mileage rate default 0.76 from 2026-07-01, 0.725 before, 0.70 for 2025",
+      "method": "IRS notices cited in README (Notice 2026-10); not fetched here, matches sibling venture calc.mjs written in this repo",
+      "command": "grep -n 0.725 ventures/mileage-deduction-method-calculator/calc.mjs",
+      "expected": "0.725/0.76",
+      "observed": "matches sibling; no independent IRS fetch",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Duration '12:40' read as minutes",
+      "method": "code comment says two parts read as h:mm; mm:ss is common in app exports",
+      "command": "node t.mjs (scratchpad harness importing calc.mjs)",
+      "expected": "ambiguous: 12.67 or 760 min",
+      "observed": "760 min",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "node --test '*.test.mjs' in the subject",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "33 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Claimed: negative adjustment row and Total row handled",
+      "method": "README Input section; run",
+      "command": "node t.mjs (scratchpad harness importing calc.mjs)",
+      "expected": "total row skipped with reason, -3.5 kept",
+      "observed": "skipped line 3 'total row', gross -3.5",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Claimed: UTF-16, tab/semicolon readers",
+      "method": "calc.test.mjs 'delimiter and UTF-16 decoding' passes",
+      "command": "node --test '*.test.mjs'",
+      "expected": "pass",
+      "observed": "pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served page loads and canonical points at marisstella.app",
+      "method": "curl https://marisstella.app/gig-driver-earnings-report-analyzer/",
+      "command": "curl -s -o /dev/null -w %{http_code}",
+      "expected": "200",
+      "observed": "200",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served llms.txt has the marisstella.app host (source says github.io)",
+      "method": "curl served llms.txt; build rewrites hosts",
+      "command": "curl -s https://marisstella.app/gig-driver-earnings-report-analyzer/llms.txt",
+      "expected": "marisstella.app",
+      "observed": "marisstella.app",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'file never uploaded' claim",
+      "method": "page.test.mjs asserts no fetch/XHR/sendBeacon in index.html",
+      "command": "node --test page.test.mjs",
+      "expected": "pass",
+      "observed": "pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README 'Tests: node --test'",
+      "method": "Node 22 rejects bare 'node --test .' per CLAUDE.md",
+      "command": "grep -n 'node --test' README.md",
+      "expected": "glob form",
+      "observed": "bare 'node --test'",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "IRS standard rate as per-mile cost, with extra-unpaid-miles percent",
+      "method": "IRS standard mileage rate covers fixed and variable costs (Notice 2026-10 as cited); gig-driver tax practice uses it for deduction, not out-of-pocket cost",
+      "command": "read index.html:76",
+      "expected": "stated as proxy with advice to use own cost",
+      "observed": "stated on page",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:286",
+      "change": "x.miles * (1 + extra) * costPerMile -> x.miles * costPerMile",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:232",
+      "change": "MIN_TRIPS 5 -> 2",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:231",
+      "change": "daypart hour >= from -> hour > from",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:parseWhen",
+      "change": "PM adds 11 hours instead of 12",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "A semicolon-delimited file with dot decimals is read as decimal-comma: 12.50 becomes 1250 and 3.2 miles becomes 32, no warning",
+      "where": "ventures/gig-driver-earnings-report-analyzer/index.html:151",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Separate Date and Time columns: the 'time' header is only an alias of the date field, so the time column is ignored and time-of-day results are dropped silently",
+      "where": "ventures/gig-driver-earnings-report-analyzer/calc.mjs:7",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "MIN_TRIPS threshold for ranking groups is untested: changing 5 to 2 leaves all 33 tests green",
+      "where": "ventures/gig-driver-earnings-report-analyzer/calc.mjs:232",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Two-part durations such as 12:40 are read as h:mm (760 min) though app exports often use mm:ss",
+      "where": "ventures/gig-driver-earnings-report-analyzer/calc.mjs:77",
+      "category": "input-handling",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "README says 'Tests: node --test', which Node 22 rejects; the glob form is needed",
+      "where": "ventures/gig-driver-earnings-report-analyzer/README.md:32",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Source llms.txt links the github.io host; the build rewrites it and the served file is correct",
+      "where": "ventures/gig-driver-earnings-report-analyzer/llms.txt:9",
+      "category": "source-only",
+      "origin": "audit"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Arithmetic is right: hand-computed net, per-hour, per-mile, extra-miles cost, km and day-first parsing all matched, and the served page matches its claims. It is held to prototype by input handling: a separate Time column is ignored and a semicolon file with dot decimals is silently read 100x, and one of four seeded mutations (the ranking threshold) survived. It meets the bar on the computed gates but fitness is 2 because no real export was ever used."
+}

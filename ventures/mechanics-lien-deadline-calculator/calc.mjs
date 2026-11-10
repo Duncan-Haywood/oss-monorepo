@@ -123,6 +123,19 @@ export const STATE_RULES = {
   },
 };
 
+STATE_RULES.CO = {
+  name: "Colorado",
+  citation: "Colo. Rev. Stat. § 38-22-109",
+  // Colorado has no early preliminary notice for private work. The step
+  // before filing is a notice of intent to lien, served at least 10 days
+  // before the lien statement is filed; it is modeled as that date.
+  prelim: { type: "days_before_lien", days: 10 },
+  lien: { type: "months_after_last", months: 4 },
+  lienLabel: "record a lien statement",
+  prelimLabel: "notice of intent to lien",
+  prelimExtra: "Colorado has no early preliminary notice on private work; the date shown is the last day to serve the notice of intent (10 days before the lien deadline). Sources conflict on a shorter 2-month window for one- and two-family homes sold to a bona fide purchaser and on notices extending the time, so a shorter or longer date may apply; confirm with the statute.",
+};
+
 export const PROJECT_TYPES = ["commercial", "residential"];
 
 export function parseDate(value) {
@@ -179,8 +192,21 @@ function describeDays(n) {
   return `${n} day${n === 1 ? "" : "s"}`;
 }
 
+// Same day-of-month N months later, clamped to the month's last day.
+function addMonths(date, months) {
+  const y = date.getUTCFullYear();
+  const m = date.getUTCMonth() + months;
+  const last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  return new Date(Date.UTC(y, m, Math.min(date.getUTCDate(), last)));
+}
+
 function resolveLien(rule, ctx) {
   switch (rule.type) {
+    case "months_after_last":
+      return {
+        date: addMonths(ctx.last, rule.months),
+        description: `${rule.months} months after the claimant's last furnishing of labor or materials`,
+      };
     case "days_after_last":
       return {
         date: addDays(ctx.last, rule.days),
@@ -223,6 +249,12 @@ function resolveLien(rule, ctx) {
 
 function resolvePrelim(rule, ctx) {
   switch (rule.type) {
+    case "days_before_lien":
+      if (!ctx.lienDate) return { date: null, description: "needs your last furnishing date" };
+      return {
+        date: addDays(ctx.lienDate, -rule.days),
+        description: `${describeDays(rule.days)} before the lien-filing deadline`,
+      };
     case "days_after_first":
       return {
         date: addDays(ctx.first, rule.days),
@@ -311,13 +343,15 @@ export function lienDeadlines({
     const prelimRule = info.prelimByProject ? info.prelimByProject[pt] : info.prelim;
     const lienRule = info.lienByProject ? info.lienByProject[pt] : info.lien;
 
-    if (first) prelim = decorate(resolvePrelim(prelimRule, { first }), now);
     if (last) {
       lien = decorate(
         resolveLien(lienRule, { last, completion, noticeOfCompletion: noc }),
         now,
       );
     }
+    if (prelimRule.type === "days_before_lien") {
+      if (lien) prelim = decorate(resolvePrelim(prelimRule, { lienDate: lien.date }), now);
+    } else if (first) prelim = decorate(resolvePrelim(prelimRule, { first }), now);
   }
 
   for (const [kind, d, label] of [

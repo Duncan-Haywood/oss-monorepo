@@ -1,0 +1,14 @@
+held-out design | chosen (F,M,K) | held-out regret% chosen | 105 schedule (35,16,8) | in-grid oracle | oracle (F,M,K)
+adder_op16 | (50, 8, 8) | 0.00 | 0.00 | 0.00 | (25, 8, 8)
+adder_ripple16 | (50, 8, 8) | 0.00 | 0.00 | 0.00 | (16, 8, 3)
+mult8 | (50, 8, 8) | 0.22 | 1.38 | 0.00 | (50, 16, 5)
+mac4 | (50, 8, 8) | 0.00 | 0.00 | 0.00 | (16, 8, 5)
+alu8 | (50, 8, 8) | 0.00 | 0.00 | 0.00 | (35, 8, 3)
+popcount16 | (50, 8, 8) | 0.00 | 0.00 | 0.00 | (35, 8, 8)
+barrel16 | (50, 8, 8) | 9.30 | 9.30 | 7.69 | (25, 16, 8)
+crc16 | (50, 8, 8) | 0.00 | 1.04 | 0.00 | (50, 8, 3)
+cmp_sat12 | (50, 8, 8) | 0.00 | 0.00 | 0.00 | (16, 8, 3)
+fifo8x4 | (50, 8, 8) | 0.00 | 0.00 | 0.00 | (25, 8, 5)
+mean held-out regret %: chosen 0.95, 105 schedule 1.17, oracle 0.77
+distinct chosen schedules over 10 folds: 1: [(50, 8, 8)]
+in-sample best of grid on all 10 designs: (50, 8, 8) at 0.95%; widest (50,16,8) 1.08%

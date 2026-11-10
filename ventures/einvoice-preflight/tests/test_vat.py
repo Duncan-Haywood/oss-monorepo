@@ -135,8 +135,11 @@ class VatChecksumTest(unittest.TestCase):
 
     def test_format_only_country_accepts_published_length(self):
         self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "HU12892312"}, "supplier"), [])
-        # A 10-digit BG number stays shape-only: no checksum is implemented for it.
-        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "BG1750747520"}, "supplier"), [])
+        # A 10-digit BG number now has a check digit (any of the three public rules).
+        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "BG7523169263"}, "supplier"), [])
+        self.assertEqual([i["rule"] for i in inspect_party_vat({"id": "S1", "name": "A", "vat_id": "BG7523169264"}, "supplier")], ["INV-023"])
+        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "CZ7103192745"}, "supplier"), [])
+        self.assertEqual([i["rule"] for i in inspect_party_vat({"id": "S1", "name": "A", "vat_id": "CZ7103192746"}, "supplier")], ["INV-023"])
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "HU123"}, "supplier")
         self.assertEqual([item["rule"] for item in findings], ["INV-022"])
 
@@ -210,3 +213,11 @@ class VatInvoiceIntegrationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_french_letter_keys_and_siren_luhn():
+    from einvoice_preflight import vat
+    assert vat._fr("4Z123456782")
+    for bad in ("Z4123456782", "IO334175221", "4Z123456783", "40303265046"):
+        assert not vat._fr(bad), bad
+    assert vat._fr("40303265045")

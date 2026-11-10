@@ -193,6 +193,8 @@ export function layoutRail(g, r, notes) {
  * @param {number} [sharedCorners]
  */
 export function layoutLandingGuard(edges, r = {}, sharedCorners = 0) {
+  if (!Array.isArray(edges) || !edges.length || edges.some((e) => typeof e !== "number" || !Number.isFinite(e) || e <= 0)) return /** @type {any} */ ({ ok: false, errors: ["layoutLandingGuard needs a list of open edge lengths in inches, each a positive number."] });
+  if (r == null || typeof r !== "object") r = {};
   const L = { ...RAIL_LIMITS, ...(r.limits || {}) };
   const bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4", thick = 1.5;
   let posts = 0, balusters = 0, gapMax = 0;
@@ -624,7 +626,7 @@ export function winderText(c) {
 // straight-edge ("chord") depth 2 x radius x sin(theta/2) at the narrow end,
 // 12 in out and the wide end. A chord is shorter than the arc `checkWinders`
 // measures, so `chordPasses` is the stricter answer for a straight edge.
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, supportStock?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, supportStock?: number, supportKerf?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function layoutWinders(w) {
   const c = checkWinders(w);
   if (!c.problems) return c;

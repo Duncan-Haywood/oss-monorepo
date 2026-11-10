@@ -110,3 +110,16 @@ test("a payment ID with a leading, trailing or double slash is warned about", ()
   assert.equal(slash.length, 1);
   assert.equal(slash[0].line, 2);
 });
+
+test("instant mode tags the batch INST and refuses a payment over 100,000.00", () => {
+  const S3 = { debtorName: "Me", debtorIban: "ES9121000418450200051332", date: "2026-12-01" };
+  const csv = "payee,iban,amount,reference\nAcme GmbH,DE89370400440532013000,100000.00,Invoice 1\n";
+  const normal = convert(csv, S3);
+  assert.ok(!normal.xml.includes("INST"));
+  const inst = convert(csv, { ...S3, instant: true });
+  assert.ok(inst.xml.includes("<SvcLvl><Cd>SEPA</Cd></SvcLvl><LclInstrm><Cd>INST</Cd></LclInstrm>"));
+  const over = convert(csv.replace("100000.00", "100000.01"), { ...S3, instant: true });
+  assert.equal(over.xml, null);
+  assert.ok(over.findings.some((f) => /instant limit/.test(f.title)));
+  assert.ok(convert(csv.replace("100000.00", "100000.01"), S3).xml);
+});

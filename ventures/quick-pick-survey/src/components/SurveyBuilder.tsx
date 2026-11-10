@@ -88,7 +88,7 @@ export function SurveyBuilder() {
           <select className={INPUT} value={pairSelector} onChange={(e) => setPairSelector(e.target.value)} aria-label="Question order">
             <option value="">Server default</option>
             <option value="standard">Standard</option>
-            <option value="staged">Sharper after 120 answers (large option lists)</option>
+            <option value="staged">Sharper: most informative pairs (from the first answer up to 120 options)</option>
           </select>
         </label>
         <button type="submit" disabled={busy || !title.trim() || !items.trim()} className="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-neutral-950 disabled:opacity-50">

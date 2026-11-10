@@ -43,6 +43,7 @@ FLAG_BUMPER = 4
 FLAG_HOPPER_EMPTY = 8
 FLAG_HOPPER_FULL = 16
 FLAG_LOW_BATTERY = 32
+FLAG_AZ_UNHOMED = 64     # azimuth stepper has no position yet (homing, or lost after an abrupt stop)
 
 
 def crc8(data):

@@ -407,6 +407,10 @@ const RULES = {
     P("\\b(drivers|reps|staff|team|people|users|crew)\\b.{0,30}\\bwon'?t (adopt|use|switch)\\b"), P("\\b(reps|staff|team|people|users|crew|drivers)\\b.{0,15}\\b(hate|dislike|resent)\\b.{0,30}\\b(click|extra|another|app|tool|step)"), P("\\bwe tried (that|this|something (like|similar))\\b.*\\b(fail|didn'?t work|flopped)"), 
     // Added 2026-11-07: a deliverability worry ("spam our prospects", "hurt our domain reputation") is an objection, not a reply to read.
     // Added 2026-11-08: "sends spam under our name", "we got burned by that before".
+    // Added 2026-11-10 (eval/fresh-2026-11-13.jsonl, a question/objection/interest probe): "tried something similar ... a mess, sceptical",
+    // "doesn't fit a business our size".
+    P("\\b(we|i) tried (that|this|something (like|similar))\\b.{0,60}\\b(mess|messy|sceptical|skeptical|waste|useless|poor)\\b"), P("\\b(sceptical|skeptical)\\b"),
+    P("\\b(don'?t|doesn'?t|do not|does not) (think (this|it) )?fits? (a |our )?(business|company|team|firm)\\b"),
     P("\\bspam\\b.{0,30}\\bunder (our|my) name\\b"), P("\\b(we|i)('ve| have)? (got|been|were|was) burned\\b"),
     P("\\b(spam|annoy|irritate) (our|my|the) (prospects|customers|clients|leads)\\b"), P("\\b(hurt|damage|harm|ruin) (our|my|the) (domain|sender|email|brand) (reputation|score)\\b")],
   meeting: [
@@ -431,6 +435,52 @@ const RULES = {
 function hits(list, s) { for (const re of list) { const m = s.match(re); if (m) return m; } return null; }
 
 /**
+ * Sentences that use a stop word without asking for a stop, found on real mail (eval/enron.mjs, 2026-11-10: 9,534 real
+ * Enron replies, 399 stops fired, most of them wrong). A sentence that matches its category's veto is skipped for that
+ * category only. Narrow on purpose; each line names the real phrasing it answers.
+ */
+// Confidentiality notices ("if you have received this in error ... delete this message from your system") ask nothing.
+const DISCLAIMER = /\b(intended recipient|in error|by mistake|received this (e-?mail|message|communication)|confidential(ity)? (notice|information)|privileged)\b/i;
+// List and newsletter footers: an instruction with a mechanism ("To unsubscribe from this group, send an email to",
+// "click here to unsubscribe"), not a person asking.
+const LIST_FOOTER = /\b(to|how to|you can|you may) (unsubscribe|opt[- ]?out|be removed)\b|\bunsubscribe\b.{0,80}\b(click|send an? e-?mail|send a message|visit|go to|link|mailto|in the (subject|title|body)|reply with|at any time)\b|\b(click|follow) (here|this link|the link)\b.{0,40}\bunsubscribe\b|\bno longer wish to (receive|subscribe)\b.{0,80}\b(click|forward|send|visit|e-?mail)\b|\b-unsubscribe@|\bleave-[\w-]+@/i;
+const VETO = {
+  unsubscribe: [DISCLAIMER, LIST_FOOTER,
+    // "an opt-out clause", "opt-out program", "optout language", "a mutual no solicitation provision".
+    /\bopt[- ]?out (clause|program|programme|language|provision|period|right|option|form|election)s?\b|\b(re|fw|fwd): .*\boptout\b|\bno[- ]solicitation"? provisions?\b/i,
+    // "take legal action against generators" in a forwarded news story: a threat to us names us ("you", "your company").
+    /\blegal action\b(?!.{0,40}\b(you|your)\b)/i],
+  left_company: [DISCLAIMER,
+    // "I left you a voicemail", "I've left messages at CDEC", "I have left Coralina a message", "when I left", "we left it out".
+    /\bleft (you |him |her |them |\w+ |\w+ \w+ )?(a |two |several |some |another )?(voice[- ]?mails?|vms?|messages?|notes?|word|blank)\b|\b(as soon as|when|since|before|after|until|once|by the time) (i|we|he|she|they) left\b|\b(i|we) left (it|that|this|them|the (meeting|office|details|tax|room)|early|there|a little)\b|\b(has|have) left (me|us) (speechless|brain|with)\b|\bwhat do we have left\b|\bhave left (that|it|this) to\b|\bleft (out|off)\b/i,
+    // Sign-off contact lines: "If you have any questions, please contact me at x5702", "please contact Sherri Sera for the
+    // dial-in number", "please email me the draft". A referral away from the writer names someone else for *this*.
+    /\b(if|should|in the event|in the interim|any (questions|queries)|questions|further (information|concerns)|additional information|for the (weekly|dial|number)|to (schedule|arrange|register|make|confirm)|regarding|re this|as soon as possible)\b.{0,200}\b(please )?(contact|e-?mail|call)\b|\b(please )?(contact|e-?mail|call) .{0,120}\b(if|should you|with (any|questions|your)|for (the|a|more|further)|to (schedule|arrange|make|discuss|confirm)|regarding|re this|before|when it is)\b/i,
+    /\bplease (contact|e-?mail|email|call) (me|us|my office|our office|him|her|them|one of us)\b/i,
+    // "how you would like us to handle this", "able to handle this", "before this goes to VEPCO", "if you do not work for".
+    /\b(to|me|us|we|i|you) handle (this|that|these)\b|\b(before|after|when|until|once) this goes to\b|\bif you (do not|don'?t) work\b|\buntil (he|she) retired\b/i],
+  not_interested: [DISCLAIMER,
+    // "there is no need to e-dash the deal", "no need to thank me", "no need for the attitude", "ENA Tax says we don't need to
+    // register", "they don't need to check the bill", "files we don't need".
+    /\bthere('?s| is| was| will be)( really)? no need\b|\bno need (to (thank|get|take|reiterate|make|review|send me)|for (the|a|an|this|additional|formal|exhibit))\b|\b(they|you|he|she|it|tax|counsel) (don'?t|do not|doesn'?t|does not) need\b|\b(don'?t|do not) need (to (register|wait|check|tell|worry|sign)|board|outside|an? \w+ one|credit|tickets)\b|\bwe (don'?t|do not) need\.?\s*$|\b(files|anything) we (don'?t|do not) need\b/i,
+    // "I'll pass on SMU news to Chris", "I will pass it along", "I will pass your comments on", "pass it by your desk".
+    /\b(i'?ll|i will|we'?ll|we will) pass (it|this|that|them|your|the) (on|along|to|by)\b|\b(i'?ll|i will|we'?ll|we will) pass (it |this |that |them |your \w+ |the \w+ )?(on|along)\b.{0,60}\bto\b|\bpass (it|this|that) along\b/i,
+    // "the counterparty is not interested", "tell them you're not interested", "I will assume that you are not interested".
+    /\b(is|are|you'?re|your|they'?re|he'?s|she'?s|assume (that )?\w+ (is|are)) not interested\b/i,
+    // "we are fine with changing", "were fine with it", "we're all set on the language".
+    /\b(we'?re|we are|were) (all )?(fine|good) with (?!(our|what we|the (current|one|tool|system|vendor|provider)))|\b(we'?re|we are|were) (all )?set on\b|\b\w+(,| and) \w+,? and \w+ were fine\b|\bwere set up\b/i],
+  out_of_office: [DISCLAIMER,
+    // Someone else, a plan or a condition, not an away notice: "Please advise if you are planning to be out of the office",
+    // "slipped out of the office", "calling in from out of the office", "when he gets back in the office", "I'm out of here".
+    /\b(if|whether) (you|i|i'?m|i am|he|she|they)\b.{0,30}\b(out|back)\b|\bwhen (he|she|they) (gets?|is|are|comes?) back\b|\bwhen i am out\b|\b(planning|plan) to be out of the office\b|\b(stepped|slipped|step|slip) out of the office\b|\bfrom out of the office\b|\bpipelines are out\b|\bout of here\b|\bfirst day back\b|\bdays you are\b/i,
+    // "I will return same to you", "will return a fully executed copy", "will return (and goes beyond 3/31/02)".
+    /\bwill return (a|the|it|same|your|this|that|my|copies|copy|to you|countersigned|fully|\(|and)\b|\bwill be back to you\b/i,
+    // "$800,ooo".
+    /[\d,']ooo\b/i],
+};
+const vetoed = (key, s) => (VETO[key] || []).some((re) => re.test(s));
+
+/**
  * Classify one reply. Returns { category, subtype, confidence: "clear" | "weak", evidence, date, referral, why }.
  * Order matters and is the policy: anything that asks for less contact beats anything that asks for more, so
  * "interested, but please take me off this list" is an unsubscribe.
@@ -445,7 +495,10 @@ export function triage(reply, today) {
   // person writing to us who happens to mention a bounce, a return, or an away notice (a question, a "let's", "ping me")
   // is not a machine. Real away notices and delivery failures carry no ask; a header signal or a daemon sender still wins.
   const human = !signal0(reply) && !/^(mailer-daemon|postmaster|no-?reply|do-?not-?reply)\b/i.test(from) && /\?|\b(let'?s|can we|could we|would love|i'?d (love|like)|send me|ping me|no thanks|no appetite|free (on|for|tomorrow)|please close)\b/i.test(typeof reply === "string" ? reply : body);
-  const find = (key) => { if (human && (key === "bounce" || key === "out_of_office")) return null; for (const s of all) { const m = hits(RULES[key], s); if (m) return { s, m: m[0] }; } return null; };
+  // "RE: Fw: Undeliverable: Fw: Last schedule" from a person: the bounce is in the subject they replied to (2026-11-10).
+  const replySubject = /^\s*(re|fw|fwd|aw|wg|tr)\s*:/i.test(subject) && !signal0(reply) && !/^(mailer-daemon|postmaster)@/i.test(from);
+  const all0 = all;
+  const find = (key) => { if (human && (key === "bounce" || key === "out_of_office")) return null; if (key === "bounce" && replySubject) { for (const s of all0.slice(1)) { const m = hits(RULES.bounce, s); if (m) return { s, m: m[0] }; } return null; } for (const s of all) { if (vetoed(key, s)) continue; const m = hits(RULES[key], s); if (m) return { s, m: m[0] }; } return null; };
   const res = (category, ev, extra = {}) => ({ category, subtype: null, confidence: "clear", evidence: ev ? ev.s : "", matched: ev ? ev.m : "", date: null, referral: null, ...extra });
 
   let ev;
@@ -455,7 +508,10 @@ export function triage(reply, today) {
   if (signal === "dsn-temporary") return res("out_of_office", { s: "delivery status Status 4.x.x", m: "4.x.x" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
   if (!signal && /\b(mail delivery warning|has been postponed|continue to try to deliver)\b/i.test(all.join("\n")) && /^(mailer-daemon|postmaster)@|delivery/i.test(from + subject)) return res("out_of_office", { s: all.find((x) => /postponed|delivery warning|continue to try/i.test(x)) || subject, m: "delivery delayed" }, { subtype: "delivery_delayed", why: "delivery delayed, not failed; no address change" });
   if (signal === "auto-reply" && !find("bounce") && !/^(mailer-daemon|postmaster)@/i.test(from)) { const d = (() => { for (const s of all) { const f = findDate(s, today); if (f && /\b(back|return|until|till|away|leave|office)\b/i.test(s)) return f; } return null; })(); return res("out_of_office", { s: "Auto-Submitted header", m: "auto-replied" }, { date: d?.date || null, dateText: d?.text || null, why: "sent by an auto-responder (header), not a person" }); }
-  if ((ev = find("bounce")) || /^(mailer-daemon|postmaster)@/i.test(from)) return res("bounce", ev || { s: from, m: from }, { subtype: /\b(mailbox|inbox|account|disk) (is )?(full|over (its )?quota)|\bquota exceeded\b|\bover quota\b|\btoo much mail\b|\bdisk quota\b/i.test(all.join("\n")) && !/\b(user unknown|no such user|does not exist|address (not found|rejected)|5\.1\.[01])\b/i.test(all.join("\n")) ? "mailbox_full" : null, why: "a delivery failure, not a person" });
+  // Some servers send auto-replies from postmaster@ (real: "Auto Reply to your message ...", "The following text is an
+  // automated response ... I am on maternity leave", eval/enron.mjs 2026-11-10). With no failure wording it is an away notice.
+  const autoFromPostmaster = /^(mailer-daemon|postmaster)@/i.test(from) && /\b(auto(matic|mated)?[- ]?(reply|response)|out of (the )?office)\b/i.test(subject + "\n" + body) && !find("bounce");
+  if (!autoFromPostmaster && ((ev = find("bounce")) || /^(mailer-daemon|postmaster)@/i.test(from))) return res("bounce", ev || { s: from, m: from }, { subtype: /\b(mailbox|inbox|account|disk) (is )?(full|over (its )?quota)|\bquota exceeded\b|\bover quota\b|\btoo much mail\b|\bdisk quota\b/i.test(all.join("\n")) && !/\b(user unknown|no such user|does not exist|address (not found|rejected)|5\.1\.[01])\b/i.test(all.join("\n")) ? "mailbox_full" : null, why: "a delivery failure, not a person" });
   // Footer boilerplate ("To stop these messages unsubscribe in settings", "To unsubscribe click here") inside an auto-reply is
   // the sender's mail system talking, not an opt-out; with no first-person ask it does not outrank the away notice (2026-11-04).
   const boiler = (e) => e && /\b(to|how to) (stop|unsubscribe)\b|\bunsubscribe (in|from|via|using|at|here|link)\b|\bclick (here|the link)\b/i.test(e.s) && !/\bunsubscribe (me|us)\b|\b(remove|take|delete) (me|us|my|our)\b|\bplease (stop|unsubscribe|remove)\b/i.test(e.s);
@@ -466,7 +522,7 @@ export function triage(reply, today) {
   const NOT_AN_ASK = /\b(don'?t|do not|never|won'?t|not) (stop|take (me|us) off|remove (me|us)|unsubscrib\w*)\b|\b(different|another|other|your competitor'?s|a) (vendor|supplier|company|sender)'?s? (emails?|list|newsletters?)\b|\bnot yours\b|^(do|does|can|will|is|are) (you|your|the|it)\b[^?]*\b(unsubscribe|opt[- ]?out|suppression)\b[^?]*\?$/i;
   const askAll = [subject, ...sentences(body)];
   let uev = null;
-  for (const s of askAll) { const m = hits(RULES.unsubscribe, s); if (m && !(NOT_AN_ASK.test(s) && !/\b(please )?(stop|unsubscribe|remove|take) (me|us) (off|from)\b|\bunsubscribe (me|us)\b/i.test(s.replace(/\b(don'?t|do not|never|won'?t|not) (stop|take (me|us) off|remove (me|us)|unsubscrib\w*)\b/ig, "")))) { uev = { s, m: m[0] }; break; } }
+  for (const s of askAll) { if (vetoed("unsubscribe", s)) continue; const m = hits(RULES.unsubscribe, s); if (m && !(NOT_AN_ASK.test(s) && !/\b(please )?(stop|unsubscribe|remove|take) (me|us) (off|from)\b|\bunsubscribe (me|us)\b/i.test(s.replace(/\b(don'?t|do not|never|won'?t|not) (stop|take (me|us) off|remove (me|us)|unsubscrib\w*)\b/ig, "")))) { uev = { s, m: m[0] }; break; } }
   ev = uev;
   if (ev && !(boiler(ev) && find("out_of_office"))) return res("unsubscribe", ev, { why: "asked not to be contacted" });
 

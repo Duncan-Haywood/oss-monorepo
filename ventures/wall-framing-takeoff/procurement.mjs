@@ -12,7 +12,7 @@ function weekdayBack(ds) { let d = ds; for (;;) { const w = new Date(d + "T00:00
 /** @param {string} a @param {string} b */
 function daysBetween(a, b) { return Math.round((new Date(b + "T00:00:00Z").getTime() - new Date(a + "T00:00:00Z").getTime()) / 86400000); }
 /** @param {any} v */
-function isDate(v) { return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(new Date(v + "T00:00:00Z").getTime()); }
+function isDate(v) { return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && (() => { const d = new Date(v + "T00:00:00Z"); return !isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v; })(); }
 
 /**
  * @param {any} sched result of schedule() (ok: true)
@@ -21,7 +21,7 @@ function isDate(v) { return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(
  */
 export function procurement(sched, orders, today) {
   const errors = [];
-  if (!sched || !sched.ok) return { ok: false, errors: ["The schedule has problems; fix them first (--schedule)."] };
+  if (!sched || !sched.ok) return { ok: false, errors: ["The schedule has problems; fix them first (--schedule).", ...(sched && Array.isArray(sched.errors) ? sched.errors.map((/** @type {any} */ e) => String(e)) : [])] };
   if (!Array.isArray(orders) || !orders.length) return { ok: false, errors: ["Add `orders` to the plan's schedule: [{item, for: activityId, leadDays}]."] };
   if (today != null && !isDate(today)) return { ok: false, errors: [`today "${today}" is not a date (YYYY-MM-DD).`] };
   const byId = new Map(sched.rows.map((/** @type {any} */ r) => [r.id, r]));
@@ -72,6 +72,7 @@ export function procurementText(p) {
 export function procurementCsv(p) {
   const q = (/** @type {any} */ v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; };
   const c = (/** @type {any} */ v) => { const s = q(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  if (!p || !Array.isArray(p.rows)) throw new TypeError("procurementCsv needs a procurement result");
   const head = "order_by,item,supplier,lead_days,buffer_days,activity,need_date,critical,status,days_late,cost";
   return [head, ...p.rows.map((/** @type {any} */ r) => [r.orderBy, r.item, r.supplier, r.leadDays, r.bufferDays, r.activity, r.needDate, r.critical ? "yes" : "no", r.status, r.daysLate, r.cost ?? ""].map(c).join(","))].join("\n") + "\n";
 }

@@ -101,6 +101,6 @@ def test_shape_only_countries_get_checksums_matching_vat_mjs():
         bad = number[:-2] + str((int(number[-2]) + 1) % 10) + number[-1]
         found = inspect_party_vat({"id": "S1", "name": "A", "vat_id": bad}, "supplier")
         assert [f["rule"] for f in found] == ["INV-023"], number
-    for number in ["BG1750747520", "CZ7103192745", "LV01011012345", "LT100001919017"]:
+    for number in ["BG1750747520", "CZ7103192745", "LV32867300679", "LT100001919017"]:
         found = inspect_party_vat({"id": "S1", "name": "A", "vat_id": number}, "supplier")
         assert "INV-023" not in [f["rule"] for f in found], number

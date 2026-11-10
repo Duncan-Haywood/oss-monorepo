@@ -1,0 +1,29 @@
+n=120, reps=60, drift 0.2, one step of 4 sd at t=60, model trend, AR(1) phi 0.5; order 1 = --noise-floor k, order 2 = plus --noise-floor-diff2
+noise sd 1 (step 4.00)
+  none          step found 59/60, other cuts 3.67
+  order1 k=1    step found 59/60, other cuts 3.40
+  order1 k=1.5  step found 59/60, other cuts 0.80
+  order2 k=1    step found 59/60, other cuts 3.63
+  order2 k=1.5  step found 59/60, other cuts 1.32
+  order2 k=2    step found 60/60, other cuts 0.30
+noise sd 0.3 (step 1.20)
+  none          step found 59/60, other cuts 3.62
+  order1 k=1    step found 59/60, other cuts 2.07
+  order1 k=1.5  step found 60/60, other cuts 0.27
+  order2 k=1    step found 59/60, other cuts 3.53
+  order2 k=1.5  step found 60/60, other cuts 1.32
+  order2 k=2    step found 59/60, other cuts 0.37
+noise sd 0.1 (step 0.40)
+  none          step found 59/60, other cuts 3.62
+  order1 k=1    step found 60/60, other cuts 0.00
+  order1 k=1.5  step found 23/60, other cuts 0.00
+  order2 k=1    step found 59/60, other cuts 3.52
+  order2 k=1.5  step found 60/60, other cuts 1.15
+  order2 k=2    step found 60/60, other cuts 0.25
+noise sd 0.03 (step 0.12)
+  none          step found 59/60, other cuts 3.30
+  order1 k=1    step found  0/60, other cuts 0.00
+  order1 k=1.5  step found  0/60, other cuts 0.00
+  order2 k=1    step found 59/60, other cuts 3.25
+  order2 k=1.5  step found 60/60, other cuts 1.08
+  order2 k=2    step found 60/60, other cuts 0.10

@@ -1,15 +1,15 @@
 part,qty,stock,notes
-feed_hose,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 750 mm","Hopper outlet to the column socket. Longest chord 705 mm; bows to 239 mm radius at the closest pose; needs 150. Hose clips at both sockets (hose clamps, 80-90 mm)."
-take_up_track,1,"2040 T-slot, cut 489 mm, M5 tapped both ends","Vertical, outboard of the -y hopper brace. Carries the take-up carriage over a 129 mm stroke (one pulley diameter and 30 mm each end besides). The tie to the hopper frame is not modelled."
+feed_hose,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 810 mm",Take-up sleeve's lower end to the column socket (sleeve_take_up_design). Longest chord 1014 mm; bows to 426 mm radius at the closest pose; needs 150. Top end bonded into the take-up collar; a hose clamp at the column socket.
+take_up_sleeve,1,"Rigid round tube, 96 mm bore, about 102 mm OD, cut 300 mm; slot 10 mm wide in the rear wall from the top end down 262 mm","Hangs from the outlet socket, open at the bottom. The hose's collar slides 236 mm in it (free hose 521 to 757 mm over the elevation and azimuth range). Deburr the bore."
 net_beam,1,"2040 T-slot, cut 3000 mm",Front member of the base and the foot of the net. Cut square.
 rear_rail,1,"2040 T-slot, cut 900 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
 side_rail,2,"2040 T-slot, cut 660 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
 mast_rail,2,"2040 T-slot, cut 860 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
 mast_post,4,"2040 T-slot, cut 445 mm, M5 tapped both ends",Four posts carry the mast plate.
-hopper_post_rear,2,"2040 T-slot, cut 1564 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
-hopper_post_front,2,"2040 T-slot, cut 1509 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
-hopper_brace_x,2,"2020 T-slot, cut 1295 mm, ends mitred to 12 deg","Outside each side pair of posts, rear foot to front head; a 2020 corner bracket or a gusset at each end (M5), tightened before the tub is filled."
-hopper_brace_y,1,"2020 T-slot, cut 1398 mm, ends mitred to 19 deg","Behind the rear posts, left foot to right head, out of the head's swing (the head's rear reaches x = -560 mm at +45 deg). The shelf, bolted to all four posts, holds the front posts' heads to the rear pair in plan, so one brace braces the frame along the net."
+hopper_post_rear,2,"2040 T-slot, cut 1874 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
+hopper_post_front,2,"2040 T-slot, cut 1819 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
+hopper_brace_x,2,"2020 T-slot, cut 1600 mm, ends mitred to 9 deg","Outside each side pair of posts, rear foot to front head; a 2020 corner bracket or a gusset at each end (M5), tightened before the tub is filled."
+hopper_brace_y,1,"2020 T-slot, cut 1706 mm, ends mitred to 17 deg","Behind the rear posts, left foot to right head, out of the head's swing (the head's rear reaches x = -560 mm at +45 deg). The shelf, bolted to all four posts, holds the front posts' heads to the rear pair in plan, so one brace braces the frame along the net."
 camera_bar,1,"2020 T-slot, cut 800 mm",Stereo cameras mount on this; widen it for more depth accuracy.
 net_pole_vertical,2,"25 mm OD x 1.5 mm aluminium tube (or fibreglass), cut 2437 mm",Two 1.2 m sections joined by a sleeve if it must fit a car.
 net_pole_top,1,"25 mm OD x 1.5 mm aluminium tube, cut 3020 mm",Two sections joined by a sleeve at the middle.

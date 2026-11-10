@@ -10,6 +10,7 @@
   <url><loc>https://example.invalid/hearth-and-horizon/benedict-and-the-raven.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/bernadette-and-the-spring-in-the-mud.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/boil-it-once.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/born-on-the-first-of-january.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/brendan-and-the-island-that-was-a-whale.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/brigid-and-the-cloak.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/brother-martin-and-the-mice.html</loc></url>
@@ -22,6 +23,7 @@
   <url><loc>https://example.invalid/hearth-and-horizon/eleven-steps.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/elizabeth-and-the-bread-that-became-roses.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/enough-to-be-bread.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/father-says-its-fine.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/feels-like-minus-one.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/fifteen-minutes.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/forty-eight-degrees.html</loc></url>
@@ -29,12 +31,16 @@
   <url><loc>https://example.invalid/hearth-and-horizon/fourteen-watt-hours-short.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/frances-cabrini-and-the-big-water.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/francis-and-the-wolf-of-gubbio.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/francis-xavier-and-the-little-bell.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/giles-and-the-doe.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/hilda-and-the-cowherd-who-could-not-sing.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/hugh-and-the-swan-of-stow.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/instance-42.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/isidore-and-the-angels-who-ploughed.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/jerome-and-the-lion-in-the-doorway.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/john-bosco-and-the-juggler-boy.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/joseph-and-the-dream-in-the-night.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/juan-diego-and-the-roses-in-december.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/kevin-and-the-blackbird.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/lucy-and-the-lamp-in-the-dark.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/margaret-and-the-book-in-the-river.html</loc></url>
@@ -51,7 +57,9 @@
   <url><loc>https://example.invalid/hearth-and-horizon/point-two.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/seven-rolls-for-a-vestry.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/six-centimetres-in-the-middle.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/six-hundred-grams-of-flour.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/sixteen-amps-and-a-hot-cupboard.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/sixteen-sunrises-and-one-bell.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/sixty-one-point-three.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/sixty-two-in-a-hundred.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/ten-and-a-half-seconds.html</loc></url>
@@ -66,6 +74,7 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-beans-on-low.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-bell-at-half-past-three.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-bell-that-is-five-seconds-late.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-bell-that-the-air-forgets.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-bell-will-not-carry.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-bird-that-would-not-be-hurried.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-black-grains.html</loc></url>
@@ -81,9 +90,11 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-candle-that-says-four-hours.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-candlemas-air.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-candles-breathe.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-candles-that-are-not-lit.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-censer-that-swings-slow.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-chairs-behind-the-car.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-charter-that-is-seventy-years-late.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-christmas-the-sun-sits-on.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-clean-plate.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-clear-reading.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-clock-that-gains-in-winter.html</loc></url>
@@ -92,6 +103,7 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-coin-on-the-ice.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-cold-corner-of-the-dormitory.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-cold-meter.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-comet-that-comes-twice.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-condition-at-the-farm.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-condition-in-the-trust.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-control-vial.html</loc></url>
@@ -109,6 +121,7 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-dry-bread.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-dry-ice-in-the-closed-room.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-dust-on-the-beams.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-earth-that-is-not-lit.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-eclipse-turn.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-eighteenth-place.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-false-start.html</loc></url>
@@ -119,6 +132,7 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-finger-that-reads-ninety-four.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-first-draw.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-fish-goes-in-frozen.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-flame-that-is-a-ball.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-float-test.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-folded-paper.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-foot-of-the-ladder.html</loc></url>
@@ -170,8 +184,10 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-lid-stays-down.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-lid-that-held.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-lid-that-stayed-shut.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-light-that-the-sea-takes.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-line-through-the-snow.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-lines-that-did-not-fit.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-litany-that-answers-late.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-long-sea.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-loop-that-leaks.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-low-meadow.html</loc></url>
@@ -194,6 +210,7 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-peas-in-the-jar.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-pendulum-that-is-short-of-a-turn.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-pile-that-smells-of-ammonia.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-pipe-that-goes-flat-in-december.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-pitch-of-the-cold-church.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-plate-is-for-a-cold-tyre.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-plate-on-the-door-pillar.html</loc></url>
@@ -201,7 +218,9 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-pot-on-the-cold-stove.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-pot-that-needs-dry-air.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-procession-that-weighs-more-one-way.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-quarter-percent-a-sol.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-quiet-crypt.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-rainbow-that-is-below-the-horizon.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-rate-that-was-flat.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-remainder-after-four-forty.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-rest-that-is-one-point-three-seconds.html</loc></url>
@@ -227,6 +246,7 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-second-slope.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-seed-that-was-two-years-old.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-shadow-rule.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-shadow-that-moves-a-degree-in-two-hours.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-sheet-and-the-gap.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-shelf-that-smiles.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-short-load.html</loc></url>
@@ -239,8 +259,10 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-soup-that-did-not-take-twelve-hours.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-square-that-came-out-small.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-stack-that-sweats.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-star-that-is-not-quite-north.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-stone-that-keeps-the-sun.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-sun-that-rises-three-times.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-sun-that-stops-at-the-edge.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-tail-of-the-procession.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-tank-that-covers-a-quarter.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-tap-that-let-go-at-night.html</loc></url>
@@ -250,26 +272,36 @@
   <url><loc>https://example.invalid/hearth-and-horizon/the-third-year.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-thirty-minute-cycle.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-three-blank-pages.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-tide-that-is-fifty-minutes-late.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-timeout-at-four.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-tin-that-said-twenty-five.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-tower-that-waits.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-transfer-that-takes-two-hundred-and-fifty-nine-days.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-turn-at-half-past-seven.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-turn-round-time.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-two-on-the-eighth.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-urn-at-the-end-of-the-reel.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-verge-that-looked-thin.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-voice-that-slides-off-the-dial.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-warm-pack.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-warm-pew.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-warm-stack.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-water-in-the-honey.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-water-that-boils-at-nought.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-water-that-boils-down.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-water-that-does-not-stay-water.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-water-that-stays-in-the-air.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-wave-that-takes-fifteen-hours.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-week-that-is-a-day.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-weighed-bucket.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-weight-of-a-hive.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-weight-on-the-pfarrsaal.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-well-that-took-the-bleach.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-wet-road-at-the-school-gate.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-wind-at-two-oclock.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-wind-that-is-not-air.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-window-closes-at-eleven.html</loc></url>
+  <url><loc>https://example.invalid/hearth-and-horizon/the-window-that-the-sky-does-not-need.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-wine-that-leaves-in-october.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-wood-that-reads-twenty-eight.html</loc></url>
   <url><loc>https://example.invalid/hearth-and-horizon/the-wooden-spoon.html</loc></url>

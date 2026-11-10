@@ -112,6 +112,37 @@ export function parseTable(text) {
 }
 
 
+// TARGET closing days (the euro payment system's calendar): 1 Jan, Good Friday, Easter Monday, 1 May, 25 and 26 Dec.
+// Easter by the anonymous Gregorian (Meeus/Jones/Butcher) algorithm. A SEPA collection settles only on an open day.
+export function easterSunday(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25);
+  const g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4;
+  const l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mo = Math.floor((h + l - 7 * m + 114) / 31), day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(Date.UTC(y, mo - 1, day));
+}
+export function targetClosedReason(d) {
+  const dow = d.getUTCDay();
+  if (dow === 0 || dow === 6) return "a weekend";
+  const y = d.getUTCFullYear(), md = `${d.getUTCMonth() + 1}-${d.getUTCDate()}`;
+  const fixed = { "1-1": "New Year's Day", "5-1": "Labour Day (1 May)", "12-25": "Christmas Day", "12-26": "26 December" };
+  if (fixed[md]) return fixed[md];
+  const e = easterSunday(y).getTime();
+  if (d.getTime() === e - 2 * 864e5) return "Good Friday";
+  if (d.getTime() === e + 864e5) return "Easter Monday";
+  return null;
+}
+export function nextTargetDay(d) {
+  let x = new Date(d.getTime() + 864e5);
+  while (targetClosedReason(x)) x = new Date(x.getTime() + 864e5);
+  return x;
+}
+export function addTargetDays(d, n) {
+  let x = d;
+  for (let k = 0; k < n; k++) x = nextTargetDay(x);
+  return x;
+}
+
 // Creditor identifier (ISO 7064 mod 97-10): country, two check digits, a three-character business code that is left out
 // of the check, then the national identifier. DE98ZZZ09999999999 is the Bundesbank's published example.
 export function checkCreditorId(raw) {
@@ -194,11 +225,18 @@ export function convert(text, settings = {}) {
   if (!cBic.ok) add("error", null, "Your BIC is not valid", "A BIC is 8 or 11 letters and digits (for example COBADEFFXXX). Leave it blank if your bank allows that.");
   const date = normaliseDate(settings.date);
   if (!date) add("error", null, "Collection date missing", "Enter the date as YYYY-MM-DD, the day the money should be taken from the debtors' accounts.");
-  else if ([0, 6].includes(date.getUTCDay())) add("warning", null, "Collection date is a weekend", "Direct debits settle on TARGET business days. Your bank will move this to the next one, or reject the file.");
+  else {
+    const closed = targetClosedReason(date);
+    if (closed) add("warning", null, `Collection date falls on ${closed}`, `TARGET is closed, so direct debits do not settle that day. Your bank will move it or reject the file; the next open day is ${isoDate(nextTargetDay(date))}.`);
+  }
   const today = settings.today ? new Date(Date.UTC(settings.today.getUTCFullYear(), settings.today.getUTCMonth(), settings.today.getUTCDate())) : null;
   if (date && today) {
     if (date <= today) add("error", null, "Collection date is today or in the past", "Banks need the file before the collection date: one business day for CORE and B2B in most banks, often more for the cut-off. Pick a later business day.");
-    else if ((date - today) / 864e5 > 365) add("warning", null, "Collection date is more than a year away", "Most banks reject far-future dates. Check it is not a typo.");
+    else {
+      const earliest = addTargetDays(today, 1);
+      if (date < earliest) add("warning", null, "Less than one business day before the collection date", `Core and B2B files need to reach the bank at least one TARGET business day ahead (earliest open day: ${isoDate(earliest)}); most banks also have a cut-off time.`);
+    }
+    if ((date - today) / 864e5 > 365) add("warning", null, "Collection date is more than a year away", "Most banks reject far-future dates. Check it is not a typo.");
   }
   const created = settings.created || new Date().toISOString().slice(0, 19);
   const msgId = transliterate(String(settings.msgId || `MSG-${created.replace(/\D/g, "").slice(0, 14)}`)).slice(0, 35);

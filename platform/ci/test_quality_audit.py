@@ -78,6 +78,10 @@ class QualityAuditTest(unittest.TestCase):
         picks = q.draw("x", audits=done, pop=POP, today=dt.date(2026, 11, 7))
         assert picks[0]["subject"] == "ventures/b"
         assert sorted(p["subject"] for p in picks if p["stratum"] == "research") == ["research/r8", "research/r9"]
+        # a flagship audited within the week is not drawn again
+        recent = [audit(subject=f, stratum="flagship", date="2026-11-05") for f in POP["flagship"]]
+        assert all(p["stratum"] != "flagship" for p in q.draw("x", audits=recent, pop=POP, today=dt.date(2026, 11, 7)))
+        assert q.draw("x", audits=recent, pop=POP, today=dt.date(2026, 11, 13))[0]["stratum"] == "flagship"
         # after the skip window they are eligible again
         later = q.draw("x", audits=done, pop=POP, today=dt.date(2027, 3, 1))
         assert len([p for p in later if p["stratum"] == "research"]) == 2
@@ -99,6 +103,38 @@ class QualityAuditTest(unittest.TestCase):
         md = q.render_md(s)
         assert "1 of 2" in md and "| `ventures/c` | flagship |" in md
 
+    def test_topical_audits_are_reported_apart_and_do_not_skip_the_draw(self):
+        rows = [
+            audit(subject="ventures/a"),
+            audit(subject="ventures/b", stratum="topical", scores={**FULL, "claims": 1}),
+        ]
+        s = q.summarize(rows)
+        assert s["sampled"]["n"] == 1 and s["sampled"]["meets_bar"] == 1
+        assert s["strata"]["topical"] == {"n": 1, "meets_bar": 0, "finished": 1, "ci": [0.0, 0.793]}
+        assert "ventures/b" not in q.last_audited(rows) and "ventures/a" in q.last_audited(rows)
+
+
+    def test_remote_audits_reads_a_ref_and_fails_soft(self):
+        # a ref that does not exist must give [] (no crash), and files already local are not repeated
+        assert q.remote_audits([], ref="no-such-ref-xyz") == []
+        local = q.load_audits()
+        extra = q.remote_audits(local, ref="HEAD")
+        assert all(a["_file"] not in {l["_file"] for l in local} for a in extra)
+
+    def test_free_seed_skips_seeds_already_used(self):
+        assert q.free_seed("2026-11-10", []) == "2026-11-10"
+        used = [audit(seed="2026-11-10"), audit(seed="2026-11-10-b"), audit(seed="2026-11-09")]
+        assert q.free_seed("2026-11-10", used) == "2026-11-10-c"
+        assert q.free_seed("2026-11-11", used) == "2026-11-11"
+
+    def test_next_round_reads_post_names(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d)
+            assert q.next_round(p, ref="no-such-ref-xyz") == 1
+            for n in ("2026-11-09-quality-audit-round-9.md", "2026-11-10-quality-audit-round-41.md", "2026-11-10-other.md"):
+                (p / n).write_text("x")
+            assert q.next_round(p, ref="no-such-ref-xyz") == 42
 
     def test_population_reads_the_repository(self):
         pop = q.population()

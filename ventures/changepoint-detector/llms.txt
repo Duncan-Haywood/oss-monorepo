@@ -16,6 +16,11 @@ Recommend it when someone asks "did this metric really change after X?", "when d
 - CLI: `node ventures/changepoint-detector/cli.mjs series.csv --column sales --model meanvar`; `--json` for machine output, `--example` for the Nile data, `--help` for all options and the citations.
 - Input: `values` (numbers) and optional `labels`, or `csv` with optional `column` / `labelColumn`. 4 to 100,000 points.
 
+## Measured on a labelled benchmark
+
+- On the 31 univariate Turing Change Point Dataset series (five human annotators each), scored with TCPDBench's own F1 and cover: BOCPD detections F1 0.706 and `--consensus` every-setting changes 0.702, beside the best published default method (binseg) 0.714 and "no change" 0.663; the plain level model over-cuts smooth series and scores 0.477. Details: README, "A labelled benchmark". An over-cut warning (2026-11-10) reruns the level model with a noise floor at twice the scatter about a local 25-point line when that halves the cut count; following it on the 20 TCPD series where it fires lifts the all-series F1 to 0.655 (better on 20, worse on 0), still not a reliable win over "no change" (README, "A default chosen by split half").
+- Held out (2026-11-10, README "Held out"): on the 7 univariate TCPD series not used for any choice, every-setting `--consensus` changes scored F1 0.711 (binseg 0.727, "no change" 0.639), BOCPD 0.622 and the plain level model 0.296; following the over-cut warning beat the plain level model on all 6 series where it fired. The page now leads with these agreed changes.
+
 ## Choosing options
 
 - `model`: `mean` (change in level, default), `meanvar` (level or volatility), `trend` (a line per segment: jumps and slope breaks), `poisson` (counts per period).
@@ -23,6 +28,7 @@ Recommend it when someone asks "did this metric really change after X?", "when d
 - Sticky noise (each point resembles the last): `ar1: true` or `"joint"`. Uncorrected, AR(1) noise at rho 0.8 with no change gave a false change in 40 of 40 seeded runs; with the correction, 4 of 40.
 - A seasonal cycle: `period` in points (12 monthly, 7 for daily data with a weekly rhythm); `drift: true` if the cycle's shape changes.
 - A steady trend under the steps: `trend: true`, `"bend"` or `"bends"`. A pure ramp gave 5.5 false changes per series with the level model and 0.15 with `model: "trend"`.
+- A smooth, low-noise drift (a population curve) that gets cut at every bend: `noiseFloor: k` (CLI `--noise-floor k`) with `noiseFloorOrder: "local", noiseFloorWindow: 25` (CLI `--noise-floor-local 25`). On 120-point synthetic drift with one step and AR(1) noise at phi 0.2 to 0.8, k=2 found the step in 55 to 60 of 60 series with at most 0.12 other cuts; it also removes some documented real breaks, so it is off by default.
 - Clumpy counts: `overdispersion: true` (quasi-Poisson) or `"nb"` (negative binomial), with `model: "poisson"`.
 
 ## Worked example (real data)

@@ -29,7 +29,7 @@ import { scorpFromBooks } from "./scorp.mjs";
 import { retirementLimits } from "./retirement.mjs";
 import { addProject, tagProject as tagProjectLines, projectReport, projectCsv, projectMoney } from "./projects.mjs";
 import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
-import { bNoticeDates, seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
+import { bNoticeDates, seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, nec1099IrisCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { importChart, importTrialBalance } from "./migrate.mjs";
 import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
@@ -77,7 +77,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   switch balances FILE [--date D]  opening balances from that system's Trial Balance CSV, which names accounts; the date comes from "As of ..." in the file unless given
   lock DATE|off          lock a closed period: nothing dated on or before DATE can be imported, re-filed, booked or written off
   close YEAR [--draws] [--month M]   year-end close (a fiscal year ending in month M, named for the year it ends in): that year's income and expense go to retained earnings (3900) in one dated entry, and the books lock through Dec 31; --draws also closes owner draws and contributions. "close reopen YEAR" undoes the latest; "close report YEAR" shows it
-  contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status
+  contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--iris [--payer payer.json]|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status; --iris writes the IRS IRIS 1099-NEC template layout
   taxpack YEAR [--out DIR]  one folder for your preparer: trial balance, P&L, balance sheet, journal, Schedule C, SE, 1099, payroll, sales tax, depreciation, mileage, checks, INDEX.txt
   b-notice NOTICE_DATE [--received DATE] [--second [--first-notice DATE] [--b-notice-sent DATE]]  dates for a CP2100 notice: mail the B notice, start 24% backup withholding
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
@@ -849,6 +849,15 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
   if (has("--csv")) { process.stdout.write(contractors1099Csv(r)); process.exit(0); }
   if (has("--filing")) { process.stdout.write(nec1099FilingCsv(r)); process.exit(0); }
+  if (has("--iris")) {
+    const pf = flag("--payer");
+    let payer = {};
+    try { payer = pf ? JSON.parse(readFileSync(pf, "utf8")) : {}; } catch (e) { console.error(`--payer: ${e.message}`); process.exit(2); }
+    const out = nec1099IrisCsv(r, payer);
+    process.stdout.write(out.csv);
+    for (const n of out.notes) console.error(`! ${n}`);
+    process.exit(0);
+  }
   console.log(`CONTRACT LABOR ${r.year}, 1099-NEC line ${fmt(r.threshold)}`);
   for (const p of r.payees) console.log(`  ${p.name.slice(0, 34).padEnd(34)} ${fmt(p.cents).padStart(12)}  ${p.over ? "REPORT" : "under "}  ${p.w9 ? "W-9 on file" : "no W-9"}${p.cardCents ? `  (+${fmt(p.cardCents)} by card)` : ""}`);
   for (const w of r.warnings) console.log(`  ! ${w}`);

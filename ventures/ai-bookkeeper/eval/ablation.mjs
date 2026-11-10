@@ -12,7 +12,7 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d :
 const SEEDS = +arg("--seeds", 5);
 const ALL = ["rule", "memory", "learned", "built-in"];
 // The synthetic studio has no rules, so "rule" is never exercised and is left out.
-const LAYERS = ["memory", "learned", "built-in"];
+const LAYERS = ["memory", "learned", "built-in", "new-payee"];
 const configs = [
   { name: "all layers", skip: [] },
   ...LAYERS.map((l) => ({ name: `without ${l}`, skip: [l] })),

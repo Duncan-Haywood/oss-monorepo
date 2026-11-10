@@ -1,0 +1,216 @@
+{
+ "date": "2026-11-10",
+ "subject": "research/interval-scores",
+ "stratum": "research",
+ "seed": "2026-11-10",
+ "auditor": "agent session (Claude), 2026-11-10 round",
+ "status": "audited",
+ "professional": "a forecast-verification statistician (Gneiting/Raftery school) who refereed proper-scoring-rule papers; first checks the interval score formula and its closed-form expectation, then the novelty against Gneiting & Raftery 2007 and the repo's own interval-elicitation, then the detection-power arithmetic",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed with a scipy/numpy script that does not import interval_scores: optimal score 4phi(z)/alpha at alpha 0.5/0.1/0.01 (matches to 1e-14), scale-misreport regrets 0.5189/0.1516/0.5961, shift regret 2.3237 vs quadratic 2.0627, Cauchy regret 1.36099 and 1.18047 by quadrature, detection n 20.15 and 328 by 4M-draw Monte Carlo (reported 20.1, 326.2), coverage n 290/467/133. All agree. The Winkler formula matches Gneiting & Raftery 2007. One correctness failure is of method rather than arithmetic: detection_n (model.py:111) is a 50%-power sample size while coverage_n (:117) is ~95%-power, yet section 5 compares them.",
+  "completeness": "README claims: strict propriety, closed-form regret for normal and Cauchy, exact optimal score, level-dependent asymmetry, Cauchy bounded paired differences. All present in code and results. Ran `PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt`: identical. 7 tests ran OK in 0.76 s. Bounded variant explicitly not developed (stated limit). figure.py exists, not run beyond reading.",
+  "verification": "7 tests pass. 6 hand-seeded mutations: 4 caught, 2 survived: detection_n z*z -> z (model.py:111, a headline output of section 5, no test) and the binomial variance term in coverage_n (:117). The only coverage_n test asserts the result is > 0, so mutation (a-b)**2 -> (a-b) was caught only by a sign flip, not by magnitude. paired_moments variance is checked nowhere. Core regret and score formulas are well tested against quadrature (that part would catch real bugs).",
+  "craft": "Read model.py, tests, run.py. Stdlib only, short, readable, docstrings with the derivation. Defects: no input validation (alpha outside (0,1), l>u, p outside (0,1) for quantile, kind other than 'cauchy' silently treated as normal); optimal_score ignores kind and silently gives the normal answer; normal quantile by 200-step bisection on [-40,40] rather than erfinv; paired_moments is a 240k-point pure-Python Simpson loop per call; tests check sums to 3 decimals only.",
+  "claims": "Section 2-4 numbers are backed by results.txt and reproduce. Failed: section 5 'score sees width errors much faster than coverage count' compares unlike powers and an undefined 'comparable' miscalibration (lam=0.85 needs 326 tasks, more than coverage n=290 at true 0.05). Novelty: abstract presents the Winkler regret closed form and finite Cauchy paired difference as findings, but interval-elicitation already states exact Winkler regret finite for Cauchy; section 6 discloses the companion relationship but the README does not. Disclaimer/limits section present. 'Strictly proper' is textbook (Gneiting & Raftery 2007).",
+  "fitness": "A researcher could build on the closed forms and the practical rule (compare reports by paired differences), but there is no real-data check, no named venue, and the drift scenario (verifier drift tolerance) is a modelling assumption not tied to any dataset. Nearest prior work: Gneiting & Raftery 2007 (interval score, propriety), Gneiting 2011 (quantiles as optimal point forecasts), Bracher et al. 2021 (WIS), and this repo's interval-elicitation. The new parts are small: level-dependent narrow/wide asymmetry table and detection-n tables. Below the PhD+ programme bar in research/CLAUDE.md (no programme, no real data, no artefact a practitioner adopts).",
+  "domain": "A verification statistician would accept the score and the propriety argument; they would object that the closed form E S*=4 s phi(z)/alpha is a known textbook identity (G&R 2007 eq. for normal), that detection power is inconsistent, that the Cauchy 'no mean' claim for scores is fine but unemphasised as standard (Cauchy has no mean, so any unbounded-loss score fails), and that Wald-type coverage_n at small n is approximate with no continuity correction."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Optimal expected score 4 phi(z)/alpha, alpha=0.1",
+   "method": "Gneiting & Raftery 2007 (JASA 102:359) interval score S_alpha; expectation by scipy quad, independent of model.py",
+   "command": "scipy.integrate.quad of the Winkler score against scipy.stats.norm (numpy/scipy script)",
+   "expected": "4.12543",
+   "observed": "4.125426 (quad) vs 4.125426 (closed form)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Optimal expected score at alpha=0.5 and 0.01",
+   "method": "same, by quad",
+   "command": "same script",
+   "expected": "2.5422 / 5.7839",
+   "observed": "2.542213 / 5.783897; both agree to 1e-14",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Scale-misreport regret / optimal score, alpha=0.1, lam=0.5, 1.4, 2",
+   "method": "direct quad of E[S(-lam z,lam z)] - E[S(-z,z)], scipy",
+   "command": "same script",
+   "expected": "0.519 / 0.152 / 0.596 (whitepaper section 3)",
+   "observed": "0.51887 / 0.15160 / 0.59613",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Common shift delta=1 regret and quadratic approximation, alpha=0.1",
+   "method": "direct quad; curvature 2 f(z)/alpha",
+   "command": "same script",
+   "expected": "2.3237 / 2.0627",
+   "observed": "2.32371 / 2.06271",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cauchy paired-difference regret lam=0.6 and 1.5, alpha=0.1",
+   "method": "scipy.stats.cauchy quad of score difference incl. tail mass",
+   "command": "same script",
+   "expected": "1.3610 / 1.1805",
+   "observed": "1.36099 / 1.18047",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Detection n at lam=0.5 and 0.85 (paired z-test, alpha=0.1)",
+   "method": "4M-draw numpy Monte Carlo of paired variance and mean",
+   "command": "same script",
+   "expected": "20.1 / 326.2",
+   "observed": "20.15 / 328.0 (MC noise)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "coverage_n(0.1, 0.05/0.15/0.2)",
+   "method": "hand formula from Wald-type two-proportion sample size with z for size and power",
+   "command": "numpy one-liner",
+   "expected": "290/467/133",
+   "observed": "290.4/467.3/132.6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Whitepaper E5 comparison: score detection n vs coverage n are the same test power",
+   "method": "textbook: n = (z_a+z_b)^2 var/mean^2 for power; detection_n uses z^2 only (50% power), coverage_n uses z+z (95% power)",
+   "command": "read model.py:111 and :117",
+   "expected": "same power on both sides",
+   "observed": "detection_n is 50% power, coverage_n ~95%: factor ~4 not accounted for in 'score sees width errors much faster'",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "unittest",
+   "command": "cd research/interval-scores && PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "7 pass",
+   "observed": "Ran 7 tests in 0.756s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments/run.py reproduces experiments/results.txt byte for byte",
+   "method": "diff",
+   "command": "PYTHONPATH=src python3 experiments/run.py | diff - results.txt",
+   "expected": "identical",
+   "observed": "identical (seeded RNG)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Whitepaper section 2: simulated mean matches closed form to 0.003",
+   "method": "results.txt E1 vs closed form",
+   "command": "read results.txt",
+   "expected": "<=0.003",
+   "observed": "max gap 0.002",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Whitepaper section 6 'Companion to interval-elicitation ... this note adds the closed-form optimum, misreport asymmetry, detection tables'; novelty vs interval-elicitation",
+   "method": "read research/interval-elicitation/README.md",
+   "command": "grep -il winkler research/*/README.md",
+   "expected": "Winkler regret, Cauchy finite regret not already there",
+   "observed": "interval-elicitation already states exact Winkler regret and finite-for-Cauchy; overlap is disclosed but the Cauchy-bounded-difference result is not new here",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Whitepaper section 5: 'score sees width errors much faster than a coverage count sees comparable miscalibration'",
+   "method": "section 5 vs model.py:111,117",
+   "command": "read",
+   "expected": "like-for-like power",
+   "observed": "unsupported: different power, and 'comparable' miscalibration undefined (lam=0.85 needs 326 tasks, more than coverage 0.05 at 290)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/interval_scores/model.py:84",
+   "change": "(2/alpha)*max(y-u,0) -> (1/alpha)*max(y-u,0)",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/interval_scores/model.py:111",
+   "change": "z*z*var/(mean*mean) -> z*var/(mean*mean) in detection_n",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/interval_scores/model.py:117",
+   "change": "denominator (a-b)**2 -> (a-b) in coverage_n",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/interval_scores/model.py:117",
+   "change": "z*sqrt(b*(1-b)) -> z*sqrt(b) in coverage_n",
+   "caught": false,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/interval_scores/model.py:35",
+   "change": "Cauchy int_cdf 0.5*s*log1p -> 1.0*s*log1p",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/interval_scores/model.py:96",
+   "change": "optimal_score 4*s*pdf -> 2*s*pdf",
+   "caught": true,
+   "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Detection-n comparison uses 50% power for the score test (detection_n z^2) and ~95% power for the coverage test (coverage_n z+z), so the whitepaper section 5 conclusion that the score detects faster is not like for like (about 4x factor on the score side)",
+   "where": "src/interval_scores/model.py:111",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Novelty overstated: Winkler regret closed form and finite-Cauchy paired result already in research/interval-elicitation; README does not say so",
+   "where": "research/interval-scores/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "detection_n and coverage_n (headline section 5 outputs) have no test of their values; mutations survived or were caught only by sign",
+   "where": "tests/test_model.py:33",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "No input validation; optimal_score ignores kind and silently returns the normal answer for Cauchy; unknown kind treated as normal",
+   "where": "src/interval_scores/model.py:91",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The mathematics is correct: every headline number (optimal score, misreport regrets, shift curvature, Cauchy regrets, detection n, coverage n) recomputed independently, and experiments/run.py reproduces results.txt exactly. It does not meet the bar: claims is 2 because the section 5 detection-vs-coverage comparison mixes 50% and 95% power and novelty over interval-elicitation and Gneiting & Raftery 2007 is overstated, and verification is 2 because 2 of 6 seeded mutations survived, both in the detection-sample-size functions. As research it is a competent but small exercise on a known score, with no real data. Median is 2."
+}

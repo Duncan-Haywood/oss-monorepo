@@ -9,8 +9,12 @@ test("a state over the sales line must register; one under need not", () => {
   assert.deepEqual(r.summary.registerIn, ["FL"]);
 });
 test("200 orders alone trip an 'or' state but not an 'and' state or a sales-only state", () => {
-  const r = nexusCheck([{ state: "IL", salesUsd: 9000, transactions: 200 }, { state: "NY", salesUsd: 9000, transactions: 200 }, { state: "FL", salesUsd: 9000, transactions: 900 }]);
+  const r = nexusCheck([{ state: "GA", salesUsd: 9000, transactions: 200 }, { state: "NY", salesUsd: 9000, transactions: 200 }, { state: "FL", salesUsd: 9000, transactions: 900 }]);
   assert.deepEqual(r.rows.map(x => x.status), ["over", "under", "under"]);
+});
+test("Illinois, Kentucky, Utah and Alaska are sales-only since the order test was dropped", () => {
+  for (const state of ["IL", "KY", "UT", "AK"]) assert.equal(nexusCheck([{ state, salesUsd: 9000, transactions: 5000 }]).rows[0].status, "under", state);
+  assert.equal(nexusCheck([{ state: "IL", salesUsd: 100000 }]).rows[0].status, "over");
 });
 test("New York needs both tests", () => {
   assert.equal(nexusCheck([{ state: "NY", salesUsd: 600000, transactions: 50 }]).rows[0].status, "under");

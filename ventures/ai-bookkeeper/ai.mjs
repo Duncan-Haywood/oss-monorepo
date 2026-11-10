@@ -74,7 +74,8 @@ export function parseReply(text) {
 // answer takes over the suggestion. A 3B local model measured worse than the
 // rules in "replace" (eval/ai-eval.mjs, README Next), so "fill" is the default.
 export async function aiSuggest(config, books, { max = 40, offset = 0, fetch, maxTokens = 3000, mode = "fill" } = {}) {
-  const hasOwn = (t) => t.suggestion?.account && t.suggestion.source !== "ai";
+  // A new-payee guess is only a prior from other payees, so the model may fill over it.
+  const hasOwn = (t) => t.suggestion?.account && t.suggestion.source !== "ai" && t.suggestion.source !== "new-payee";
   const queue = books.transactions.filter((t) => t.status === "review" && (mode === "replace" || !hasOwn(t))).slice(offset, offset + max);
   const unchanged = () => ({ books, suggested: 0, dropped: 0 });
   if (!queue.length) return { ...unchanged(), source: "fallback", error: mode === "replace" ? "nothing is waiting for review" : "every review line already has a suggestion from the rules, memory or classifier" };

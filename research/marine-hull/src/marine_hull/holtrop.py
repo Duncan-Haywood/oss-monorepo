@@ -18,6 +18,18 @@ import math
 from .hull import G, cf_ittc57
 
 
+def c15_coefficient(length, volume):
+    """Holtrop and Mennen c15 by L^3/volume: -1.69385 below 512, linear in L/volume^(1/3) up to
+    1726.91, zero beyond (the rule printed in the 1984 re-analysis, as read in the MIT-licensed
+    Archibald implementation, milestone 3p; not checked against the paper itself)."""
+    l3v = length ** 3 / volume
+    if l3v < 512:
+        return -1.69385
+    if l3v < 1726.91:
+        return -1.69385 + (length / volume ** (1 / 3) - 8) / 2.36
+    return 0.0
+
+
 def hm_resistance(v, length, beam, draft, volume, cm, cwp, lcb_pct=0.0, c_stern=0.0, rho=1025.0, nu=1.1892e-6, low_form="m2",
                   s=None, wave_scale=1.0, c2=1.0, c5=1.0, k_form="1984"):
     """Return a dict of components in newtons for one speed (m/s).
@@ -53,7 +65,7 @@ def hm_resistance(v, length, beam, draft, volume, cm, cwp, lcb_pct=0.0, c_stern=
     lam = 1.446 * cp - (0.36 if length / beam >= 12 else 0.03 * length / beam)   # branch fixed in milestone 3k
     c16 = 8.07981 * cp - 13.8673 * cp ** 2 + 6.984388 * cp ** 3 if cp <= 0.8 else 1.73014 - 0.7067 * cp
     m1 = 0.0140407 * length / draft - 1.75254 * volume ** (1 / 3) / length - 4.79323 * beam / length - c16
-    c15 = -1.69385   # valid for L^3/volume <= 512 (the standard three-way rule is not coded)
+    c15 = c15_coefficient(length, volume)   # three-way rule (milestone 3p); was -1.69385 for every hull
     w = volume * rho * G
 
     def rw_a(f):   # low-speed branch: low_form "m2" = c15 Cp^2 exp(-0.1/Fn^2) (1984-style, default);

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GSM to Kilos and Metres: Fabric Weight and Price Converter</title>
+  <meta name="description" content="Free fabric calculator for clothing brands: convert GSM and width to metres per kilo, a price per kilo to a price per metre, and a garment run to the kilos to order with a mill minimum. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="GSM, kilos and metres for fabric">
+  <meta property="og:description" content="Convert fabric price per kilo to per metre and a garment run to kilos. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Fabric weight converter (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="bom.html">Bill of materials</a> · <a href="shrink.html">Shrinkage</a> · <a href="quotes.html">Compare quotes</a> · <a href="launch.html">Launch path</a></p>
+  <h1>Fabric quoted by the kilo, the metre or by gsm: what does it come to?</h1>
+  <p>Knit mills quote by the kilo, factories and shops by the metre, and a sample says "180 gsm". Type the weight and width to see metres per kilo, a price in the other unit, and how many kilos a garment run needs, rounded up to the mill's minimum.</p>
+  <p class="placeholder">Arithmetic on numbers you type. Use the cut width (a tube of knit is double its flat width) and ask the mill whether its weight is before or after finishing.</p>
+  <div class="grid">
+    <section>
+      <h2>The cloth</h2>
+      <label for="gsm">Weight, grams per square metre (gsm)</label><input id="gsm" type="number" min="1" step="any" value="180">
+      <label for="oz">or ounces per square yard</label><input id="oz" type="number" min="0" step="any" placeholder="e.g. 6">
+      <label for="width">Cut width (cm)</label><input id="width" type="number" min="10" step="any" value="150">
+      <label for="perKg">Price per kg (blank: use per metre)</label><input id="perKg" type="number" min="0" step="any" value="8">
+      <label for="perMetre">Price per metre (used when per kg is blank)</label><input id="perMetre" type="number" min="0" step="any" value="">
+      <h2 style="margin-top:14px">The run</h2>
+      <label for="garments">Garments</label><input id="garments" type="number" min="1" step="1" value="300">
+      <label for="mpg">Metres of cloth per garment, waste included</label><input id="mpg" type="number" min="0" step="any" value="1.3">
+      <label for="minKg">Mill minimum, kg (0 if none)</label><input id="minKg" type="number" min="0" step="any" value="120">
+    </section>
+    <section><h2>Result</h2><output id="result" aria-live="polite"></output></section>
+  </div>  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>2. Know what one piece costs</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="how-much-does-it-cost-to-make-a-t-shirt.html">Worked example: what a t-shirt costs</a> · <a href="bom.html">Bill of materials and order</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="tiers.html">Fabric price tiers</a></div>
+    <div>Before: <a href="shrink.html">Fabric shrinkage allowance</a> · Next: <a href="freight.html">Freight per garment</a></div>
+  </nav>
+  <!-- /journey -->
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Retention and order rates are your estimates; the result is a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+  <script type="module">
+    import { convertPrice, orderFromGarments, notes, gsmFromOzYd2 } from "./gsm.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const f = (x, d = 2) => (Math.round(x * 10 ** d) / 10 ** d).toLocaleString("en", { maximumFractionDigits: d });
+    const n = id => $("#" + id).value === "" ? undefined : +$("#" + id).value;
+    function render(from) {
+      if (from === "oz" && n("oz") !== undefined) { try { $("#gsm").value = +gsmFromOzYd2(n("oz")).toFixed(1); } catch {} }
+      try {
+        const gsm = n("gsm"), widthCm = n("width");
+        const p = convertPrice({ gsm, widthCm, perKg: n("perKg"), perMetre: n("perMetre") });
+        const o = orderFromGarments({ gsm, widthCm, garments: n("garments"), metresPerGarment: n("mpg"), pricePerKg: p.perKg, minKg: n("minKg") ?? 0 });
+        $("#result").innerHTML = `<p class="big">${f(p.metresPerKg, 2)} m of cloth in a kilo</p>
+          <p>One metre weighs <b>${f(p.kgPerMetre * 1000, 0)} g</b>. Price: <b>${f(p.perKg)}</b> per kg = <b>${f(p.perMetre, 3)}</b> per metre.</p>
+          <table><tr><th scope="col">The run</th><th scope="col" class="num"></th></tr>
+          <tr><td>Cloth needed</td><td class="num">${f(o.metres, 1)} m = ${f(o.kg, 1)} kg</td></tr>
+          <tr><td>Kilos to buy${o.surplusKg > 0 ? " (minimum applies)" : ""}</td><td class="num">${f(o.kgBought, 1)} kg</td></tr>
+          <tr><td>Surplus cloth</td><td class="num">${f(o.surplusKg, 1)} kg (${f(o.garmentsFromBought - n("garments"), 0)} more garments)</td></tr>
+          <tr><td>Cloth cost</td><td class="num">${f(o.cost)} = ${f(o.costPerGarment)} per garment</td></tr></table>
+          ${notes({ gsm, widthCm }).map(t => `<p class="notes">${esc(t)}</p>`).join("")}`;
+      } catch (e) { $("#result").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; }
+    }
+    document.querySelectorAll("section input").forEach(el => el.addEventListener("input", () => { render(el.id); recordUsage("gsm_check"); }));
+    render(); recordUsage("gsm_open");
+  </script>
+</body>
+</html>

@@ -56,8 +56,10 @@ test("related-tool links point at ventures that exist", () => {
   for (const m of links) assert.ok(existsSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
 
-test("every required column the code knows is named on the page", async () => {
-  const { COLUMNS, REQUIRED } = await import("./calc.mjs");
-  const html = page("index.html");
-  for (const c of REQUIRED) { assert.ok(COLUMNS.includes(c), c); assert.ok(html.includes(c), c); }
+test("the template's key columns are named on the page", async () => {
+  const { TEMPLATE_NEC, TEMPLATE_MISC } = await import("./calc.mjs");
+  const html = page("index.html").replace(/&amp;/g, "&");
+  for (const c of ["Form Type", "Tax Year", "Payer TIN Type", "Payer Taxpayer ID Number", "Recipient Name Type", "Recipient Address Line 1", "Form Account Number", "2nd TIN Notice", "Box 1 - Nonemployee Compensation", "Combined Federal/State Filing (CF/SF)"]) { assert.ok(TEMPLATE_NEC.includes(c), c); assert.ok(html.includes(c), c); }
+  assert.ok(TEMPLATE_MISC.includes("Box 1 - Rents") && html.includes("Box 1 - Rents"));
+  assert.ok(html.includes(`${TEMPLATE_NEC.length} columns`) && html.includes(`${TEMPLATE_MISC.length} (A to BL)`));
 });

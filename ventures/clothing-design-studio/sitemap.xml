@@ -17,10 +17,14 @@
   <url><loc>./orderlines.html</loc></url>
   <url><loc>./returns.html</loc></url>
   <url><loc>./repeat.html</loc></url>
+  <url><loc>./pattern.html</loc></url>
+  <url><loc>./financing.html</loc></url>
   <url><loc>./adspend.html</loc></url>
   <url><loc>./spec.html</loc></url>
+  <url><loc>./colour.html</loc></url>
   <url><loc>./inspection.html</loc></url>
   <url><loc>./shrink.html</loc></url>
+  <url><loc>./gsm.html</loc></url>
   <url><loc>./fx.html</loc></url>
   <url><loc>./tiers.html</loc></url>
   <url><loc>./startup.html</loc></url>
@@ -46,4 +50,5 @@
   <url><loc>./clothing-minimum-order-quantity.html</loc></url>
   <url><loc>./sunglasses-profit-margin.html</loc></url>
   <url><loc>./timeline.html</loc></url>
+  <url><loc>./greenclaims.html</loc></url>
 </urlset>

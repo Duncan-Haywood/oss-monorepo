@@ -1,0 +1,255 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtKeGPnzCogT2hHhPCp",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-10T15:05:50Z",
+  "ended": "2026-11-10T15:08:08Z",
+  "wall_minutes": 2.67,
+  "tokens_in": 969203,
+  "tokens_out": 4661,
+  "cost_usd": 0.3811,
+  "tool_calls": 16,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14544",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 open list holds only control-plane entries; nothing said what to do when the whole list is owner-gated (I skipped them)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Campaign on check_input_bounds.py: 8/8 caught. Real finds came from the red shorts.test baseline: a 161-char post description and two future-dated posts (CI check_post_frontmatter was red on main). No blog post: run was a small repair. The 2 open entries need control-plane edits, left open.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_input_bounds.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_input_bounds  (in platform/ci)",
+        "seed": 2436831,
+        "commit": "e711f9a8",
+        "sites": 23,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 154,
+            "col": 50,
+            "operator": "eq-flip",
+            "before": "too_low = declared_min <= limit if op == \"<=\" else declared_min < limit",
+            "after": "too_low = declared_min <= limit if op != \"<=\" else declared_min < limit",
+            "line_text": "            too_low = declared_min <= limit if op == \"<=\" else declared_min < limit",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 154,
+            "col": 76,
+            "operator": "lt-to-le",
+            "before": "too_low = declared_min <= limit if op == \"<=\" else declared_min < limit",
+            "after": "too_low = declared_min <= limit if op == \"<=\" else declared_min <= limit",
+            "line_text": "            too_low = declared_min <= limit if op == \"<=\" else declared_min < limit",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 173,
+            "col": 17,
+            "operator": "div-to-times",
+            "before": "todo = [base / m for m in IMPORT_RE.findall(start_text)]",
+            "after": "todo = [base * m for m in IMPORT_RE.findall(start_text)]",
+            "line_text": "    todo = [base / m for m in IMPORT_RE.findall(start_text)]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 197,
+            "col": 15,
+            "operator": "plus-to-minus",
+            "before": "source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "after": "source - \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "line_text": "        source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 197,
+            "col": 22,
+            "operator": "plus-to-minus",
+            "before": "source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "after": "source + \"\\n\" - \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "line_text": "        source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 214,
+            "col": 43,
+            "operator": "times-to-div",
+            "before": "field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "after": "field_bounds = [(op, limit / 100) for op, limit in field_bounds]",
+            "line_text": "                field_bounds = [(op, limit * 100) for op, limit in field_bounds]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 229,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "after": "root = Path(argv[1]) if len(argv) > 2 else Path(\"ventures\")",
+            "line_text": "    root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 245,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 1",
+            "after": "return 2",
+            "line_text": "        return 1",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-11-10-marine-hull-no-slender-curve.md",
+        "issue": "description 161 chars (limit 160); turned platform/distribution/shorts.test.mjs red on main",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14544"
+      },
+      {
+        "file": "docs/posts/2026-11-11-einvoice-vat-letters-passed.md",
+        "issue": "post dated in the future; check_post_frontmatter failed (renamed+redated with its sibling)",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14544"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "397e7492-3c7f-5dde-b061-9dbe78e6b258",
+    "transcripts": 1,
+    "first": "2026-11-10T15:05:50Z",
+    "last": "2026-11-10T15:08:30Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 16,
+        "input": 33,
+        "output": 4661,
+        "thinking": 405,
+        "cache_read": 932161,
+        "cache_write_5m": 0,
+        "cache_write_1h": 37009,
+        "api_equivalent_usd": 0.3811,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 16,
+      "input": 33,
+      "output": 4661,
+      "thinking": 405,
+      "cache_read": 932161,
+      "cache_write_5m": 0,
+      "cache_write_1h": 37009,
+      "api_equivalent_usd": 0.3811,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 16,
+    "tools": {
+      "Bash": 13,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.67,
+      "active_minutes": 2.67,
+      "model_minutes": 0.9,
+      "tool_minutes": 1.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

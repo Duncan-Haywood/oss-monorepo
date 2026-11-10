@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-09",
+  "subject": "ventures/world-clock-widget",
+  "stratum": "venture",
+  "seed": "2026-11-09",
+  "auditor": "agent session (Claude), 2026-11-09 round, subagent",
+  "status": "audited",
+  "professional": "a time-zone / astronomical-computing practitioner (someone who maintains a world-clock or almanac tool): first checks are that local times and DST offsets agree with the IANA tz database, that sunrise/sunset agree with an independent solar-position source to within a minute or two, and that high-latitude and date-line cases do not produce nonsense",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "swift is NOT installed in this environment (`which swift` empty), so the Swift core (Sources/WorldClockCore, the iOS app and widget) was never compiled or run: it was read only, and its correctness is unverified here. The web surface (site/solar.mjs, a port of SolarCalculator.swift) was run under Node 22. Recomputed independently in Python (stdlib zoneinfo + a from-scratch NOAA/Meeus solar-position implementation, scratchpad chk.py): (1) UTC offsets for all 40 catalogue cities on 4 dates (160 values) all equal zoneinfo, and the New York DST transitions (2026-03-08 06:59Z -300 / 07:00Z -240; 2026-11-01 05:59Z -240 / 06:00Z -300) match zoneinfo exactly; (2) 320 sunrise/sunset instants (40 cities x equinox, both solstices, 2026-11-09) agree with the NOAA implementation: median absolute difference 0.16 min, maximum 1.3 min (Reykjavik 2026-03-20), none over 3 min, so 'roughly a minute' holds for the instants; (3) the day-anchoring fix: Tokyo sunrise 2026-06-21 04:25 JST and Auckland 06-22 07:33 land on the right local day. Wrong output found: Reykjavik (64.15N) from 2026-06-16 for 13 days in 2026: sunset falls at 00:03 local, i.e. before sunrise on the same local date, so daylightMinutes returns -171 (page renders formatDuration(-171) as '-3h -51m') and isDaylight returns false at midday (page says 'night'). The Swift CityClockSnapshot.isDaytime has a wrap-around branch for this case; the JS port dropped it. Hand-seeded and Swift outputs were not recomputed because there is no toolchain.",
+    "completeness": "Checked claims: 40-city catalogue (40 City( entries, matches the JS list, enforced by a test); default eight cities; NOAA algorithm; no network request (grep for fetch/XMLHttp/sendBeacon in site/ finds none); DST via browser IANA data (works, see correctness); share link ?cities= (parseCityIds tested); sort by time of day, remove, reachability bands (tested); three site pages and llms.txt exist; LICENSE linked from index.html is copied by platform/pages/build.mjs. Swift app, widget views, App Intents, App Group store: present as source, never built by anyone (README says so openly; VENTURE.yaml marks the ios line blocked-on-owner, stage prototype). README 'Tests' section lists only the solar and snapshot suites though CityCatalogTests and CityTimeFormattingTests also exist (minor drift). The web product is end to end; the headline app/widget has never reached a user.",
+    "verification": "Ran `node --test` on each of site/*.test.mjs: 11+28+7+7 = 53 tests, all pass. CI (.github/workflows/world-clock-widget-ci.yml) also runs `swift build`/`swift test` in swift:5.9 for WorldClockCore; not runnable here. Seeded three mutations in site/solar.mjs, reverting each with git checkout (source unmodified, git status clean): (a) OFFICIAL_ZENITH 90.83 -> 90.5 (shifts events ~1.5-2 min): 28/28 solar tests still pass, NOT caught; (b) sunrise hour angle base 360 -> 359 (shifts every sunrise by 4 min) plus widening the polar guard: 28/28 pass, NOT caught; (c) reachability band edge 17 -> 18: caught (1 failure). Cause: the only absolute-time check is London's solstice with a 20-minute tolerance, while the prose claims one-minute accuracy; the equinox test only asserts sunrise < sunset. No test covers Reykjavik in summer, so the negative-daylight bug passes, and no test compares the JS isDaylight with Swift's wrap-around. Test names say 'matches the published times' but one city, one day.",
+    "craft": "Read: Sources/WorldClockCore/{SolarCalculator,CityClockSnapshot,CityTimeFormatting,City,SharedStore,CityCatalog}.swift, Sources/WorldClockWidget/CityTimelineProvider.swift, site/solar.mjs, site/usage.mjs, parts of site/index.html. Good: locale/timezone-keyed DateFormatter cache behind a lock with the reason documented, formatter parts cache in JS, day-anchoring nudge with a comment recording the bug, opt-out and DNT honoured, HTML escaped, catalogue drift test. Defects: the JS port is a copy of the Swift engine that already diverges (isDaytime wrap-around missing; daylightMinutes never guards sunset < sunrise); City.timeZone silently falls back to .current on a bad identifier (a clock that shows the wrong zone rather than failing); SharedStore silently falls back to .standard; formatDuration emits '-3h -51m' for negative input; the Swift code could not be compiled here so a reviewer cannot confirm it builds with the Linux toolchain; CityTimelineProvider builds 60 entries with Date() once so entries drift if the system delays the refresh (design note, low).",
+    "claims": "Checked: 'accurate to roughly a minute outside the polar circles' (page, README, llms.txt): true for the instants (max 1.3 min vs NOAA over 320 events) but the shipped Reykjavik row shows negative daylight length for 13 days, so the page's own sentence is contradicted for a catalogue city outside the polar circle; README 'No city sits inside the polar circles ... exercised in tests but not in the shipped UI' true. 'No network request of any kind' (page, FAQ, llms.txt): backed (no fetch/beacon in site/). 'Do Not Track and Global Privacy Control honoured': backed in usage.mjs. 'DST handled by browser IANA db': backed. VENTURE.yaml: 'site/solar.mjs is a direct port ... so the two cannot silently disagree about a sunrise': sunrise instants agree, but daytime classification already disagrees (Reykjavik), and the catalogue-drift test is the only link. VENTURE.yaml 'the code is complete and tested' for the iOS line: contradicted by README's own 'unverified' paragraph and by the absence of any app/widget test or build. llms.txt links the old duncan-haywood.github.io host (CLAUDE.md says that serves redirects now) instead of marisstella.app; site/sitemap.xml uses example.invalid placeholder hosts (presumably rewritten by the build; not verified). Disclaimer and no-warranty text present on the main page and covers navigation/religious use.",
+    "fitness": "Job: a person coordinating across time zones wants to see current local time, whether it is a sane hour to call, and sunrise/sunset for several cities. Walked through via the logic (Node, no browser run): 40 cities, correct local times and offsets, reachability band, daylight mark, 'vs you' offset delta, shareable URL; all correct for every city except Reykjavik in mid-June. Limits (disclosed): fixed city list, no search, no weekends/holidays, band heuristic is a nudge. The iOS app and widget, the product the repo is named for, cannot be installed by anyone until the owner takes an account action. A page was not rendered in a browser in this audit.",
+    "domain": "Compared against the IANA tz database (via Python zoneinfo) and the NOAA/Meeus solar-position equations. Offsets and DST transition instants match exactly; sunrise/sunset within 1.3 min of NOAA with the standard 90.833-degree zenith (code uses 90.83). A practitioner would accept the method, and the page's disclaimer correctly excludes navigation and religious observance. Departures: no civil/nautical twilight, no elevation, no midnight-sun / polar-day state for cities with sunset after local midnight (Reykjavik), and the Almanac algorithm is a 1990 low-precision method rather than Meeus/SPA, which is fine at this scale."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Reykjavik mid-summer (2026-06-16 for 13 days): sunset lands at 00:03 local, before sunrise; daylightMinutes returns -171 so the page shows daylight length '-3h -51m' and marks the city 'night' at midday. Swift CityClockSnapshot handles this wrap-around, the JS port dropped it, and solar.test.mjs explicitly avoids the case ('equinox is safe').",
+      "where": "ventures/world-clock-widget/site/solar.mjs:259-300 (daylightMinutes, isDaylight)"
+    },
+    {
+      "severity": "medium",
+      "what": "Sunrise/sunset tests use a 20-minute tolerance against a claimed one-minute accuracy and one city; seeded mutations that shift every sunrise by 2 to 4 minutes pass all 28 solar tests.",
+      "where": "ventures/world-clock-widget/site/solar.test.mjs:63-86"
+    },
+    {
+      "severity": "medium",
+      "what": "The Swift core, app and widget (the product's headline surface) were not buildable here and the app/widget have no tests; VENTURE.yaml calls the ios code 'complete and tested' while README says app and widget are unverified.",
+      "where": "ventures/world-clock-widget/VENTURE.yaml (product_lines ios note), README.md 'Known limitations'"
+    },
+    {
+      "severity": "low",
+      "what": "City.timeZone silently falls back to the device zone on an invalid identifier, so a typo would show the wrong city time with no error.",
+      "where": "ventures/world-clock-widget/Sources/WorldClockCore/City.swift:30"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links to the legacy duncan-haywood.github.io host rather than marisstella.app; README Tests section omits two existing Swift test files.",
+      "where": "ventures/world-clock-widget/llms.txt:9-11; README.md Tests"
+    },
+    {
+      "severity": "low",
+      "what": "formatDuration has no guard for negative input and prints '-3h -51m'.",
+      "where": "ventures/world-clock-widget/site/solar.mjs:336-342"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The web tool is a competent, honest, mostly correct product: all 160 UTC offsets and DST transitions match Python zoneinfo, and 320 sunrise/sunset instants agree with an independent NOAA implementation to within 1.3 minutes. It does not meet the bar because correctness and verification fall short: Reykjavik shows negative daylight length and 'night' at midday for about two weeks each summer (the Swift original handles it, the JS port does not), and the tests would not notice a 2 to 4 minute sunrise error (two of three seeded mutations survived; the tolerance is 20 minutes against a one-minute claim). Swift was not installed, so the Swift core, app and widget were read but not run; their correctness and the CI swift job are unverified by this audit, and the app and widget have never reached a user. Finished: yes for the web line, no for iOS."
+}

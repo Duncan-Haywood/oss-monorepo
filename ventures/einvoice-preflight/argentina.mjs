@@ -17,17 +17,18 @@ export function checkDigit(first10) {
   return m === 11 ? "0" : m === 10 ? null : String(m);
 }
 
-// kind is only a hint from the prefix: 20, 23, 24, 27 person; 30, 33, 34 company.
+// kind is only a hint from the prefix: 20, 23, 24, 27 person; 30, 33, 34 company; 50, 51, 55 foreign
+// (python-stdnum ar.cuit lists them "for international purposes"; the ARCA text is unread).
 export function checkCuit(raw) {
   const s = String(raw || "").replace(/[\s.-]/g, "");
   if (!/^\d{11}$/.test(s)) {
     return { ok: false, cuit: s, kind: null, problems: ["A CUIT is 11 digits, usually written 33-69345023-9."] };
   }
   const p = s.slice(0, 2);
-  const kind = ["20", "23", "24", "27"].includes(p) ? "person" : ["30", "33", "34"].includes(p) ? "company" : null;
+  const kind = ["20", "23", "24", "27"].includes(p) ? "person" : ["30", "33", "34"].includes(p) ? "company" : ["50", "51", "55"].includes(p) ? "foreign" : null;
   const want = checkDigit(s);
   if (want === null) return { ok: false, cuit: s, kind, problems: ["The first ten digits leave no valid check digit, so this number is not issued."] };
   if (s[10] !== want) return { ok: false, cuit: s, kind, problems: [`The check digit should be ${want}, not ${s[10]}.`] };
-  if (!kind) return { ok: false, cuit: s, kind, problems: ["The check digit fits, but the prefix is not one of 20, 23, 24, 27, 30, 33 or 34."] };
+  if (!kind) return { ok: false, cuit: s, kind, problems: ["The check digit fits, but the prefix is not one of 20, 23, 24, 27, 30, 33, 34, 50, 51 or 55."] };
   return { ok: true, cuit: s, kind, problems: [] };
 }

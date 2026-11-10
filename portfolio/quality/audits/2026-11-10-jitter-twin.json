@@ -1,0 +1,237 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/jitter-twin",
+  "stratum": "research",
+  "seed": "2026-11-10",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a networked-control / Markov-jump-systems researcher (random-delay stability, MJLS) reviewing for a controls or robotics venue",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Re-ran experiments/run.py (101 s): byte-identical to results.txt. Recomputed independently in numpy (scratch ind.py): the full Kronecker second-moment operator over (mode,state) with eigvals instead of the author's power iteration, characteristic-polynomial roots for constant delay, a linear solve for the stationary variance, and a separate vectorised Monte Carlo of the raw recursion and of the Lyapunov exponent. Constant-delay thresholds 2/1/0.618034/0.445042/0.347296 match the closed form; i.i.d. thresholds 1.0000/0.95237/0.66832/0.64207 match; variances 4.017857/4.915201 (k=0.8) and 6.264531/15.152825 (k=0.6, rho=0.9/0.99) match; direct simulation 6.2648 vs 6.2645; kc(kc+1)=1/p holds to 1e-13; a.s. thresholds 1.843 and exponents agree. Only blemish: rho>=0.9 thresholds are 2e-4 to 3e-4 off the exact value in the 4th printed decimal (0.6723 vs 0.67211, 0.6236 vs 0.62337) and d=3,4 numerical column 4e-4 off (disclosed). Numbers are right for the stated model.",
+    "completeness": "Claimed: Markov-jump threshold machinery, i.i.d. results, persistence results, variance inflation, the a.s. vs MS contrast, experiments, whitepaper, figure, 8 tests: all present and working. 8 tests pass in 14.2 s (README says about 12 s); run.py takes 101 s (about 90 s). The only figure shows the constant-delay formula check, not the persistence headline. No stubs or TODOs; the whitepaper's next steps are labelled future work. Live page not loaded (no network check).",
+    "verification": "`PYTHONPATH=src python3 -m unittest discover -s tests` -> Ran 8 tests OK. Three seeded mutations (reverted, git status clean, files compared with a saved copy): (1) lyapunov ignores persistence, draw(P[mode]) -> draw(probs): all 8 tests pass (not caught); (2) transposed P in _push: pass (not caught; the MS threshold appears spectrum-equivalent so it is partly an equivalent mutant, but stationary_var and non-symmetric cases are unpinned); (3) stationary_var noise weight loses p: caught by the twin-versus-{0,2} variance test. 1 of 3 caught. The tests are good where they use closed forms (constant-delay formula, kc(kc+1)=1/p, twin variance equality, effective_delay inverse) but nothing tests the a.s. simulator under persistence or any non-symmetric marginal with rho>0, and nothing pins results.txt.",
+    "craft": "Read src/jitter_twin/model.py (about 170 lines), tests/test_model.py, experiments/run.py and figure.py header. Clean, documented, pure Python with small functions, no dead code, and the monotonicity assumption of the bisection is stated. Defects: pure-Python matrices make run.py 100 s (numpy would be seconds and allow eigvals instead of power iteration); power iteration is fixed at 1500 iterations with no convergence check, biasing thresholds at 2e-4 to 4e-4; no validation of probs or rho; ms_critical_gain returns inf silently if stable at kmax=2.5; the one figure covers section 1 only.",
+    "claims": "Every number in the README abstract and whitepaper checked against results.txt: all equal. Limits and 'Stylised' disclaimer present; the empirical status of the kc(kc+1)=1/p fit and of the variance coincidence is stated, as is the one-seed Monte Carlo and the d>=3 4e-4 accuracy. Problems: the whitepaper title 'halves the mean-square gain margin' is not backed (the threshold falls at most 38%, 1.000 to 0.624, floor 0.618); the Builds-on line cites research groups whose papers are not reproduced (disclosed); the closest prior work on Markov-delay jump systems is not cited. The rho-dependent power-iteration bias is undisclosed.",
+    "fitness": "A researcher could use the machinery (it is correct and small) and the observation that the delay histogram does not fix mean-square stability, but the contribution is an application of standard MJLS theory to a scalar integrator with an invented delay process, validated against another simulation. Nearest prior work: Nilsson, Bernhardsson & Wittenmark 1998 (Markov and i.i.d. random delay in control loops), Zhang, Branicky & Phillips 2001, Costa-Fragoso-Marques 2005 (second-moment operator is their Theorem), Hespanha et al. 2007 survey. The i.i.d. vs Markov distinction and MS vs a.s. gap are known; what is new is only the sticky-redraw one-parameter sweep and the twin-certification framing. No delay traces, no estimation of rho from data (listed as next step). Not a publishable standalone result at the programme's PhD bar.",
+    "domain": "A controls researcher would first ask whether the delay process is realisable (a freshest-sample sensor cannot jump from delay 0 to 2; age grows by one per step), whether a scalar integrator with gain k is representative, and why the sinusoidal-stable-gain bound is the right comparison (it is exact for the stated plant). They would accept the MJLS second-moment method and the MS-versus-a.s. distinction (correct and well explained) and the sticky-redraw construction with exact lag-1 autocorrelation rho. They would want a delay model from queueing or bus data, the distinction between MS and a.s. requirements tied to a real safety criterion, and the Markov-delay literature cited."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "constant-delay MS thresholds d=0..4",
+      "method": "roots of z^(d+1)-z^d+k=0, stability = max|z|<1, bisected in numpy (not the author's sine formula or power iteration)",
+      "command": "python3 ind.py (numpy; Kronecker-product second-moment operator over (mode,state), numpy eigvals, no power iteration; scratch script, not in repo)",
+      "expected": "2, 1, 0.618034, 0.445042, 0.347296",
+      "observed": "2.0, 1.0, 0.618034, 0.445042, 0.347296; author's formula matches; author's numerical column 0.444680 and 0.346901 for d=3,4 (disclosed 4e-4 power-iteration bias)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "i.i.d. MS critical gains {0,2}, {0,1,2}, {0..4}, {1,3}",
+      "method": "exact spectral radius of the full Kronecker second-moment operator with numpy eigvals + bisection",
+      "command": "python3 ind.py (numpy; Kronecker-product second-moment operator over (mode,state), numpy eigvals, no power iteration; scratch script, not in repo)",
+      "expected": "1.0000, 0.9524, 0.6683, 0.6421",
+      "observed": "1.0000, 0.95237, 0.66832, 0.64207 (results.txt 1.0000, 0.9524, 0.6683, 0.6421)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "persistence thresholds at rho=0.5, 0.9, 0.99 for {0,2}",
+      "method": "same numpy eigenvalue method with sticky chain",
+      "command": "python3 ind.py (numpy; Kronecker-product second-moment operator over (mode,state), numpy eigvals, no power iteration; scratch script, not in repo)",
+      "expected": "0.8749, 0.6723, 0.6236 (results.txt)",
+      "observed": "0.87495, 0.67211, 0.62337: differences 2e-4 to 3e-4 at rho>=0.9, rounded in results.txt to 4 decimals so the last digit is off (power iteration under-converged near the threshold)",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "stationary variance k=0.8: twin, {0,2}, {0,1,2}; k=0.6 rho=0.9 and 0.99",
+      "method": "direct linear solve (I-K)q=b in numpy rather than the author's fixed-point iteration",
+      "command": "python3 ind.py (numpy; Kronecker-product second-moment operator over (mode,state), numpy eigvals, no power iteration; scratch script, not in repo)",
+      "expected": "4.0179, 4.0179, 4.9152; 6.2645, 15.1528",
+      "observed": "4.017857, 4.017857, 4.915201; 6.264531, 15.152825",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "variance by brute-force simulation, k=0.6 rho=0.9",
+      "method": "numpy Monte Carlo of the actual recursion x[n+1]=x[n]-k x[n-d_n]+w, 20000 chains x 1500 steps, own RNG",
+      "command": "python3 ind.py (numpy; Kronecker-product second-moment operator over (mode,state), numpy eigvals, no power iteration; scratch script, not in repo)",
+      "expected": "6.2645",
+      "observed": "6.2648",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "almost-sure thresholds i.i.d. and rho=0.9 for {0,2}; exponents at k=1.3, 1.6, 1.8",
+      "method": "independent vectorised numpy Lyapunov exponent (4000 chains, renormalised) and bisection; different RNG",
+      "command": "python3 as.py (scratch)",
+      "expected": "1.842, 1.757; -0.1224, -0.0260, +0.0009",
+      "observed": "1.843, 1.773; -0.1236, -0.0286, -0.0019 (rho=0.9 differs by 0.016, within Monte-Carlo noise given one-seed sd the author discloses)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "kc(kc+1)=1/p fit for {0,2}, p=0.2, 0.8",
+      "method": "exact eigenvalue threshold from numpy",
+      "command": "python3 ind.py (numpy; Kronecker-product second-moment operator over (mode,state), numpy eigvals, no power iteration; scratch script, not in repo)",
+      "expected": "5.0, 1.25",
+      "observed": "5.00000000000005, 1.2499999999999976 (fit holds to 1e-13; the whitepaper calls it unproved, and it is likely exact)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "smallest rho making k=0.9 MS-unstable",
+      "method": "numpy spectral radius at rho=0.43 and 0.44 brackets the crossing",
+      "command": "python3 ind.py (numpy; Kronecker-product second-moment operator over (mode,state), numpy eigvals, no power iteration; scratch script, not in repo)",
+      "expected": "0.435",
+      "observed": "radius 0.99879 at 0.43, 1.00115 at 0.44: crossing about 0.435",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "experiments/run.py reproduces experiments/results.txt",
+      "method": "re-run and diff",
+      "command": "cd research/jitter-twin; PYTHONPATH=src python3 experiments/run.py > out; diff out experiments/results.txt",
+      "expected": "identical, about 90 s",
+      "observed": "identical, 101 s on this container (README says about 90 s)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README test claim: 8 tests, about 12 s",
+      "method": "run",
+      "command": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "expected": "8 tests OK, ~12 s",
+      "observed": "Ran 8 tests OK in 14.2 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "every number in the README abstract against results.txt",
+      "method": "grep/read each (1.000, 0.952, 0.668 vs 0.618; 1.000/0.875/0.672/0.624; rho=0.435; 2.56/6.26/15.2; a.s. 1.84)",
+      "command": "read README.md vs experiments/results.txt",
+      "expected": "all present",
+      "observed": "all present and equal",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "whitepaper title 'halves the mean-square gain margin'",
+      "method": "compare with results.txt section 3: threshold 1.000 to 0.624 at rho=0.99",
+      "command": "read paper/whitepaper.md title",
+      "expected": "threshold at most halved",
+      "observed": "threshold falls 38% (a 50% reduction never occurs; the worst case is the constant-delay-2 bound 0.618); 'halves' is wrong unless margin means something undefined",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README 'Builds on' cites prior work on networked control with random/Markov delay",
+      "method": "search for the nearest prior work: Nilsson, Bernhardsson & Wittenmark 1998 (Automatica, random delays, Markov delay LQG), Zhang, Branicky & Phillips 2001 (IEEE Control Systems Mag., stability of networked control systems as jump systems), Costa et al. 2005",
+      "command": "grep Costa|Hespanha|Nilsson|Zhang paper/whitepaper.md README.md",
+      "expected": "Markov-delay MJLS work cited",
+      "observed": "Costa and Hespanha survey cited; Nilsson 1998 and Zhang-Branicky-Phillips 2001 (direct Markov-delay jump-system analyses) are not",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "experiments/figure.py and the figure",
+      "method": "read figure.py",
+      "command": "sed -n 1,20p experiments/figure.py",
+      "expected": "figure of the headline persistence result",
+      "observed": "only plots section 1 (constant-delay thresholds, closed form vs numerical); no figure of the persistence effect, the headline",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "is a delay process {0,2} with jumps 0 to 2 physically a sensor delay?",
+      "method": "control practice: a controller using the freshest arrived sample has d[n+1] <= d[n]+1 (age grows by one per step), so 0 to 2 is impossible",
+      "command": "reason from model.py:delay_matrices and the sticky chain",
+      "expected": "delay process respects age dynamics",
+      "observed": "chain draws any delay each step (uses an older sample than the previous step); acceptable for random-delay modelling per Nilsson 1998 but not for a freshest-sample sensor, and not stated as an assumption",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/jitter-twin/src/jitter_twin/model.py:123",
+      "change": "mode = draw(P[mode]) -> draw(probs): lyapunov ignores delay persistence",
+      "caught": false,
+      "test_cmd": "cd research/jitter-twin; PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/jitter-twin/src/jitter_twin/model.py:149",
+      "change": "T[j][0][0] += p*sigma*sigma -> += sigma*sigma (noise weight drops the mode probability)",
+      "caught": true,
+      "test_cmd": "cd research/jitter-twin; PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/jitter-twin/src/jitter_twin/model.py:53",
+      "change": "P[i][j] -> P[j][i] (transposed mode-transition matrix in the second-moment push)",
+      "caught": false,
+      "test_cmd": "cd research/jitter-twin; PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Tests never exercise lyapunov/as_critical_gain with rho>0, so the a.s. persistence column of results section 3 (and the claim that the a.s. threshold is nearly insensitive to rho) has no test; a seeded mutation that ignores persistence in the simulator passes all 8 tests",
+      "where": "research/jitter-twin/src/jitter_twin/model.py:123; tests/test_model.py",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Transposing the transition matrix in _push passes every test: persistence tests use the symmetric HALF law, so P equals its transpose (the MS threshold turned out spectrum-equivalent in the cases tried, but stationary_var and non-uniform marginals with rho>0 are unpinned). No test uses a non-uniform marginal with rho>0 or compares to an independent solution",
+      "where": "research/jitter-twin/src/jitter_twin/model.py:53; tests/test_model.py",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Not new: Markov-jump-linear-system stability of networked control with random and Markov-correlated delay is the subject of Nilsson et al. 1998 and Zhang-Branicky-Phillips 2001 (neither cited); the persistence effect is the known gap between i.i.d. and Markov delay models. The delay is a sticky-redraw chain that can jump 0 to 2 (an older sample than the previous step), the plant is a scalar integrator, and the 'real' system is simulated with no delay trace",
+      "where": "research/jitter-twin/paper/whitepaper.md (References, Model)",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "Whitepaper title says bursty delay 'halves the mean-square gain margin'; results.txt show a 38% threshold fall at most (1.000 to 0.624), bounded by the constant-delay-2 threshold 0.618",
+      "where": "research/jitter-twin/paper/whitepaper.md:1",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Power iteration under-converges near the threshold: rho=0.9 threshold printed 0.6723 vs exact 0.6721, d=3,4 table 0.444680/0.346901 vs 0.445042/0.347296 (the d>=3 bias is disclosed, the rho bias is not)",
+      "where": "research/jitter-twin/src/jitter_twin/model.py:56-79 (ms_rho, iters=1500)",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Only figure plots the constant-delay formula check, not the persistence result; no test pins results.txt to run.py, no input validation (probs not checked to sum to 1, rho>=1, delays with gaps)",
+      "where": "research/jitter-twin/experiments/figure.py; src/jitter_twin/model.py:31",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "README test and run timings drifted (about 12 s measured 14.2 s, about 90 s measured 101 s)",
+      "where": "research/jitter-twin/README.md:7-8",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The numbers are right: run.py regenerates results.txt byte-identically, and an independent numpy implementation (full Kronecker second-moment operator with eigvals, linear-solve variance, raw-recursion Monte Carlo, independent Lyapunov exponents) reproduces every headline value, the 0.435 crossing and kc(kc+1)=1/p, with only 2e-4 to 4e-4 power-iteration bias in the 4th decimal at high persistence. The README is honest about being stylised. It fails the bar on verification alone: of three seeded mutations the tests missed two, including one that makes the almost-sure simulator ignore delay persistence (the whole a.s.-versus-rho column of result 3 is untested) and one transposing the mode-transition matrix (all persistence tests use a symmetric law). Scores are fitness and domain 2: the result is a standard Markov-jump-system analysis (Nilsson 1998, Zhang-Branicky-Phillips 2001, not cited) on a scalar integrator with a simulated, partly unphysical delay process and no data, and the whitepaper title overstates the effect ('halves' versus at most a 38% fall). Worst defect: the untested persistence path in the a.s. simulator plus the research-design gap of missing prior work and no delay trace. Does not meet the bar (verification 2)."
+}

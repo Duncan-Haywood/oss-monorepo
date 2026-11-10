@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVNyV9NuJbzuLvUXXV9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T20:14:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 7 (photo-editing): develop DNG raw files into 16-bit masters, checked against LibRaw on real camera files",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": 14594,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 18,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First LibRaw comparison on the Canon had 10% of pixels over one 8-bit step (deep shadows) and Nikon highlight-edge outliers up to 75 steps",
+      "fix": "clamp each sensel at 0 and at its white-balanced clip level before demosaicing, as LibRaw does; now 0 pixels over one step on both files"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing next said raw.pixls.us/rawsamples.ch 403 so real RAW was unavailable; rawpy's GitHub test folder (git clone --filter=blob:none, then checkout single files) has real CR2/NEF and pypi rawpy gives LibRaw as a reference. Noted in the entry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Took flagship 7 instead of flagship 1: wall-framing-takeoff had 265 commits in 7 days and every open item on it needs outside real inputs; photo-editing's RAW development was agent-doable with a real-data check available.",
+      "did": "built raw_develop.py and a LibRaw differential",
+      "result": "landed with real-file agreement within one 8-bit step"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-a-dng-developer-checked-against-libraw.md",
+    "ventures/photo-editing/eval/raw-develop-libraw-2026-11-10.md"
+  ],
+  "goal": "Flagship deepening: RAW development was the open item on photo-editing's next.",
+  "notes": "Verification: PYTHONPATH=src python3 -m unittest discover -s tests in ventures/photo-editing: 537 tests, 2 not passing, both environmental and unrelated to this change (test_workspace_health permission test fails as root, documented in AGENTS.md; test_real_photo_calibration imports the system Pillow, which is broken in this container: ImportError _imaging). tests/test_raw_develop.py 18/18 OK. ruff check (0.15.8) and mypy (1.19.1) clean. LibRaw differential (rawpy 0.28.0 / LibRaw 0.22.2): Nikon NEF full 4284x2844 max 0.51 step, half max 0.46; Canon 5D II CR2 full 5634x3752 max 0.60, half max 0.53; 0 pixels over one step in all four. Speed: 37 s / 65 s full size in pure Python. Real files were not committed (third-party test images).",
+  "corrections": [],
+  "redteam": null
+}

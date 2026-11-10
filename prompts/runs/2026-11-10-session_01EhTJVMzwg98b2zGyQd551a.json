@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVMzwg98b2zGyQd551a",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (venture brief)",
+  "input_sha256": "1d71fee6daa2e7637953515060022553aa3d70214b86f9b171a3b1ae9ee265f0",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T00:57:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14394",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/routing",
+      "why": "Router drew the research track but the scheduled brief asks for revenue products.",
+      "did": "Followed venture work (flagship einvoice-preflight, small slice; larger flagships need real inputs).",
+      "result": "node --test vat.test.mjs: 33 pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "UA RNOKPP check digit from python-stdnum ua.rntrc (tax service text unread); vat.test.mjs 33 pass, checks/fa3/server tests 52 pass. Route drew research; the stored brief is venture work, so ventures was followed.",
+  "corrections": [],
+  "redteam": null
+}

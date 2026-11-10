@@ -251,6 +251,64 @@ class FirmwareTest(unittest.TestCase):
         self.assertTrue(vals[0] & protocol.FLAG_ESTOP)
         self.assertEqual(vals[1:], (120, 4000, 2000, 25600))
 
+    def _axis(self):
+        return controller.StepperAxis(200 * 4 * 10 / 360, 60.0, 120.0, -32.0, -30.0, 30.0)
+
+    def test_azimuth_stepper_homes_then_moves(self):
+        ax = self._axis()
+        sent, t = 0, 0
+        ax.target(10.0)                       # remembered while unhomed
+        while not ax.homed:
+            sent += ax.update(10, t >= 1000)  # the switch closes after 1 s of creeping
+            t += 10
+        self.assertLess(sent, 0)              # it crept toward negative angles
+        self.assertEqual(ax.pos, -32.0)
+        sent = 0
+        for _ in range(300):
+            sent += ax.update(10, False)
+        self.assertAlmostEqual(ax.pos, 10.0, places=6)
+        self.assertEqual(sent, round(42.0 * ax.k))   # every step from the switch to the goal, none lost to rounding
+
+    def test_azimuth_trapezoid_takes_the_sized_time(self):
+        ax = self._axis()
+        ax.update(10, True)                   # at home (-32 deg); the goal is still 0
+        for _ in range(300):
+            ax.update(10, False)
+        self.assertEqual(ax.pos, 0.0)
+        ax.target(30.0)
+        t, peak, sent = 0, 0.0, 0
+        while abs(ax.pos - 30.0) > 1e-9 or ax.v:
+            sent += ax.update(10, False)
+            peak = max(peak, abs(ax.v))
+            t += 10
+            self.assertLess(t, 3000)
+        # triangular profile: 2 * sqrt(30 / 120) = 1.0 s, the time cad/ sized the stepper for
+        self.assertLessEqual(abs(t - 1000), 30)
+        self.assertLessEqual(peak, 60.0 + 1e-9)
+        self.assertEqual(sent, round(30.0 * ax.k))
+        ax.target(99.0)                       # clamped to the turntable's range
+        self.assertEqual(ax.goal, 30.0)
+
+    def test_azimuth_abrupt_stop_rehomes_and_broken_switch_faults(self):
+        ax = self._axis()
+        ax.update(10, True)
+        ax.target(30.0)
+        for _ in range(40):
+            ax.update(10, False)
+        self.assertGreater(abs(ax.v), 10.0)
+        ax.stop()                             # e-stop at speed: steps may be lost
+        self.assertFalse(ax.homed)
+        for _ in range(2000):                 # switch never closes: 70 deg at 5 deg/s is 14 s
+            ax.update(10, False)
+        self.assertTrue(ax.fault)
+        self.assertEqual(ax.update(10, True), 0)
+        slow = self._axis()
+        slow.update(10, True)
+        slow.stop()                           # a stop at rest keeps the home
+        self.assertTrue(slow.homed)
+        self.assertNotIn(protocol.FLAG_AZ_UNHOMED, (protocol.FLAG_ESTOP, protocol.FLAG_WATCHDOG, protocol.FLAG_BUMPER,
+                                                     protocol.FLAG_HOPPER_EMPTY, protocol.FLAG_HOPPER_FULL,
+                                                     protocol.FLAG_LOW_BATTERY))
 
 if __name__ == "__main__":
     unittest.main()

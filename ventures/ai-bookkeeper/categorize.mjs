@@ -15,7 +15,7 @@
 // normalised payee. Pure functions, no DOM, no network.
 
 const NOISE = new Set(("pos ach debit credit card purchase checkcard visa mastercard mc dda withdrawal deposit payment pmt pymt web ppd ccd id ref trn txn " +
-  "recurring online mobile preauthorized pre auth authorized on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
+  "recurring online mobile preauthorized pre auth authorized authorization authorisation pending non pin at on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
   "al ak az ar ca co ct de fl ga hi ia il in ks ky la ma md me mi mn mo ms mt nc nd ne nh nj nm nv ny oh ok or pa ri sc sd tn tx ut va vt wa wi wv wy").split(" "));
 
 // "SQ *BLUE BOTTLE 0412 OAKLAND CA" -> tokens ["blue","bottle","oakland"], key "blue bottle".
@@ -34,6 +34,47 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 39 (2026-11-10, eval/probe39.mjs): pool service, personal trainers, wedding DJs, upholsterers, farriers.
+  ["6110", "out", /upholstery shop license/],
+  ["6170", "out", /pool and spa alliance|national strength trainers|american disc jockey|upholsterers international|american farriers/],
+  ["6060", "out", /skimmer pool route|dj music pool|farrier business software/],
+  ["5000", "out", /foam factory/],
+  ["4000", "in", /personal training session payment|wedding dj deposit|sofa recovering deposit/],
+  // Gap probe 38 (2026-11-10, eval/probe38.mjs): locksmiths, florists, tattoo artists, massage therapists, phone repair shops.
+  ["6110", "out", /massage therapy license/],
+  ["6170", "out", /bodywork and massage|repair association/],
+  ["6060", "out", /locksmith dispatch|floral pos|repairdesk/],
+  ["6100", "out", /ifixit pro/],
+  ["5000", "out", /hillman key|mobilesentrix/],
+  ["4000", "in", /wedding flowers deposit|tattoo session deposit|massage session payment|screen replacement payment/],
+  // Gap probe 37 (2026-11-10, eval/probe37.mjs): doulas, estheticians, snow plowers, taxidermists, vehicle-wrap installers.
+  ["6110", "out", /state wildlife taxidermy permit/],
+  ["6170", "out", /dona international|cappa certification|associated skin care|snow and ice management assoc|national taxidermists assoc|wrap installers guild/],
+  ["6100", "out", /pump station and nursery|western plow parts|mckenzie taxidermy|sally beauty pro/],
+  ["6060", "out", /doula software|plowsite|flexisign|vagaro/],
+  ["5000", "out", /rock salt bulk|animal eyes and forms|avery dennison graphics|3m commercial graphics/],
+  ["4000", "in", /birth doula services|facial treatment payment|snow plowing contract payment|deer mount deposit|vehicle wrap deposit/],
+  // Gap probe 36 (2026-11-10, eval/probe36.mjs): house cleaners, window washers, HVAC installers, mobile welders, bike repair shops.
+  ["6170", "out", /residential cleaning services|pressure washing resource|bicycle retailers assoc/],
+  ["6060", "out", /lightspeed retail/],
+  ["6100", "out", /molly maid franchise supplies|sorbo window/],
+  ["5000", "out", /\bqbp wholesale/],
+  ["4000", "in", /house cleaning payment|window cleaning deposit|hvac install deposit|welding repair payment/],
+  // Gap probe 35 (2026-11-10, eval/probe35.mjs): drone photographers, notary signing agents, dog groomers, piano tuners, beekeepers.
+  ["6110", "out", /part 107 registration|state apiary|notary commission/],
+  ["6170", "out", /unmanned vehicle systems|notary association|dog groomers association|piano technicians guild|beekeeping federation/],
+  ["6060", "out", /dronedeploy|airmap|\bmoego\b|tunelab|snapdocs/],
+  ["6100", "out", /\bdji store|petedge|andis clipper|schaff piano|mann lake|dadant|notary essentials/],
+  ["5000", "out", /package bees|\bnuc purchase/],
+  ["4000", "in", /snapdocs signing|grooming deposit|piano tuning payment|honey jar wholesale/],
+  // Gap probe 34 (2026-11-10, eval/probe34.mjs): court-record researchers, wedding officiants, home stagers, car detailers, stone fabricators.
+  ["6110", "out", /county clerk.*(records|copy)|american marriage ministries|universal life church (ordination|license|licence)/],
+  ["6170", "out", /legal searchers|staging professionals|marble institute|stone fabricators/],
+  ["6060", "out", /\bpacer service|lexisnexis|tracers information|detailers app|slabsmith|honeybook/],
+  ["6100", "out", /universal life church supplies|wayfair|homegoods|diamond blade/],
+  ["6080", "out", /staged home rental/],
+  ["5000", "out", /\bmsi surfaces|stone slab supplier/],
+  ["4000", "in", /realtor staging|countertop deposit/],
   // ACH company-entry tags (2026-11-08, ach-des-tag.test.mjs): a real US bank export (an anonymized BofA business export,
   // poindexter12/maxwells-wallet, payee names scrambled) carried the transaction type in "DES:"; with the payees gone, the tag
   // was the only signal. Only tags that name one account are used: PAYROLL out is wages, ASSN DUES out is dues, INTERNET out
@@ -455,11 +496,13 @@ export const BUILT_IN = [
   // Cross-border client payments arriving through a payout service are sales (still reviewed, never posted by themselves).
   ["4000", "in", /\bwise payout\b|\bpayoneer\b/],
   ["6010", "out", /annual fee|late (payment )?fee|foreign transaction fee|cash advance fee|returned item fee|\batm fee|wire transfer fee|balance transfer fee/],
-  ["transfer", "any", /\btransfer\b|\bxfer\b|to savings|from savings|to checking|from checking|online banking transfer/],
+  // A wire to or from a named third party (VIA: ... A/C: <beneficiary>, B/O: <originator>, a CHIPS credit)
+  // is not a move between your own accounts: leaving it unsuggested keeps a $97,000 payment out of the transfer clearing account.
+  ["transfer", "any", /(?<!wire )\btransfer\b(?!.*\b(?:via|a\/c|b\/o):)|\bxfer\b|to savings|from savings|to checking|from checking|online banking transfer/],
   ["transfer", "any", /payment thank you|^autopay|autopay payment|card ?payment|credit card payment|amex epayment|epayment|capital one.*(pmt|payment)|chase card/],
   ["3100", "out", /personal|venmo cashout/],
   ["3010", "in", /owner contribution|capital contribution|owner deposit/],
-  ["6010", "out", /stripe fee|paypal fee|square fee|merchant fee|processing fee|service charge|monthly fee|monthly service fee|maintenance fee|wire fee|overdraft|nsf fee|bank fee|account fee|analysis charge|analysis fee/],
+  ["6010", "out", /\bach (pmnts?|payments?) (initial |origination |return )?fee|stripe fee|paypal fee|square fee|merchant fee|processing fee|service charge|monthly fee|monthly service fee|maintenance fee|wire fee|overdraft|nsf fee|bank fee|account fee|analysis charge|analysis fee/],
   ["4200", "in", /^interest payment|interest paid|interest earned|interest credit|\binterest\b.*(savings|deposit)/],
   ["2100", "out", /sales tax|dept\.? (of )?(tax|revenue|taxation)|department of revenue|comptroller/],
   ["2200", "out", /\bsba loan|loan (pmt|payment)/],
@@ -482,7 +525,10 @@ export const BUILT_IN = [
   ["6080", "out", /wework|regus|coworking|office rent|monthly rent|rent payment|paying the rent|property management|miete\b|loyer\b|alquiler|storage unit|public storage/],
   ["6100", "out", /home depot|lowes|ace hardware|menards|harbor freight|uline|grainger/],
   ["6110", "out", /business licen[cs]e|secretary of|annual report|franchise tax|permit fee/],
-  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta air|united air|american air|southwest|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
+  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta air|united air|american air|southwest(?!\s+grill)|southwes\s{2,}\d|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
+  // Real Mint exports (2026-11-10, eval/mint-labelled.mjs, "tune" files only): restaurant words and chains on bank
+  // lines, Seamless's glued descriptor ("SEAMLSSTHEMILL"), and the airline rule no longer fires on "Moe's Southwest Grill".
+  ["6130", "out", /\bseamle?ss|\bkitchen\b(?!\s*(supply|store|aid|cabinet|collection))|\bgrille\b|\bpub\b|\btavern\b|\bcantina\b|\btrattoria\b|\bpizzeria\b|\bcreperie\b|\bcrepes?\b|\bbarb[ae]c?(ue|que)\b|\bsoup\b|\bsandwich|\bqdoba\b|\bsweetgreen\b|\bcava mezze\b|\bbrioche doree\b|\beurest\b|\bmeatball shop\b|\bburgers?\b(?!\s*king)/],
   ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
   ["6140", "out", /verizon|at&t|\batt\*|\batt (?:bill|wireless|internet|mobility|u-verse)|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
   ["6150", "out", /net pay|payroll(?! tax)|wages/],
@@ -502,7 +548,7 @@ export const BUILT_IN = [
   // From Hack Club's public HCB card feed (eval/hcb-memos.mjs): merchants a student-run nonprofit pays, rules written looking at the first 40 organisations only.
   ["6060", "out", /\bzoom\b|porkbun|name-?cheap|neon\.tech|gmass|help ?scout|descript\b|typeform|streamyard|restream|assemblyai|fillout|\bshopify\b|spotify|domain\.com|tryhackme|sentry|supabase|render\.com|planetscale|mongodb|replit|posthog|\bloom\b|calendly|airtable|webflow|framer|1password|bitwarden|tailscale/],
   ["6000", "out", /\bluma\b|eventbrite|meetup\.com|hootsuite|buffer\.com|printful|sticker ?app/],
-  ["6120", "out", /\bhotel\b|\binn\b|\bmotel\b|\bresort\b|airport|clipper|\bubers?\b|\bcab ride|taxi|greyhound|flixbus|megabus|frontier air|spirit air|alaska air|\bhostel/],
+  ["6120", "out", /\bhotel\b|\binn\b|\bmotel\b|\bresort\b|airport|clipper|\bubers?\b|\bcab ride|\btaxi(?!derm)|taxi\b|greyhound|flixbus|megabus|frontier air|spirit air|alaska air|\bhostel/],
   ["6130", "out", /h-e-b|\bheb\b|kroger|publix|aldi\b|taqueria|tacos|in-n-out|99 ranch|\bhmart\b|food ?4 ?less|wawa|7-eleven|sheetz|boba|vending|doughnut|donut|subway\b|jimmy john|five guys|shake shack|raising cane|whataburger|culver|jersey mike|pho\b|thai\b|catering/],
   ["6180", "out", /federal express|usps|shiprocket|\bgo ?shippo|easypost|pitney bowes/],
   ["6070", "out", /wb mason|pitney bowes|postage|\bstaples\b/],
@@ -583,6 +629,20 @@ export const BUILT_IN = [
   ["6160", "out", /united dairy farmers|\bcountrymark\b|\bsheetz\b|buc-?ee|\bcircle k\b|\bthorntons\b|kwik (trip|star)|love'?s travel|flying j|pilot travel|\bparkmobile\b|\bpaybyphone\b|\bspothero\b|^raceway \d|^tom thumb #/],
   ["6060", "out", /disney ?(\+|plus)|\bhulu\b|paramount ?\+|\bpeacock\b/],
   ["6120", "out", /disney resorts|\bhyatt\b|holiday inn|best western|hampton inn|courtyard by|la quinta/],
+  // Labelled books (eval/opencollective-labelled.mjs, 2026-11-10): the words people type on an expense or invoice
+  // ("web hosting", "legal services", "printing", "supplies"), written from two fiscal hosts' misses and checked on three
+  // hosts no rule was written from. Last in the list, so a vendor name above always wins. "Gas", "maintenance" and a
+  // bare "development" fit two accounts and stay unsuggested.
+  ["6170", "out", /\bprofessional development\b|\bconference (registration|ticket|fee)s?\b/],
+  ["6020", "out", /\bmaintenance (and|&) development\b|\bdevelopment (expense|work|services?|and support)\b|\b(software|web|website|app|plugin|frontend|backend) development\b|\bconsult(ing|ancy)( services| fees?)?\b|\bcontractor (fees?|services|payment)\b|\bfreelance (work|services)\b/],
+  ["6050", "out", /\blegal (services|fees?|counsel|advice)\b|\battorney'?s? fees?\b|\b(accounting|bookkeeping|audit) (services|fees?)\b|\btax preparation\b/],
+  ["6060", "out", /\b(web |server |cloud |vps )?hosting\b|\bdomain (name )?(renewal|registration)\b|\b(monthly|annual|yearly) subscription\b|\bsubscription (fee|renewal|payment)\b|\binfomaniak\b|\bdiscourse\b|\bcontabo\b|\bovh\b|\bscaleway\b|\bnebius\b|\bmacstadium\b|read ?the ?docs|digital ?ocean|\bhetzner\b|\birccloud\b|\bnamecheap\b|\bporkbun\b|\bgandi\b/],
+  ["6070", "out", /\boffice supplies\b|\bprinting\b|\bprint(ed)? materials\b|\bphotocop(y|ies|ying)\b/],
+  // A big-box store stays blank even when the line says "supplies": the same receipt is often stock, meals and the owner's own shopping.
+  ["6100", "out", /^(?!.*\b(sams? club|sam's club|costco|walmart|target|amazon|bj'?s wholesale)\b).*\b(supplies|materials)\b/],
+  ["6130", "out", /\bgrocer(y|ies)\b|\bcatering\b|\bsnacks\b|\b(team|working|business) (lunch|dinner|meal)\b|\bcomida\b|^food$/],
+  ["6120", "out", /\brideshare\b|\bairfare\b|\bflights?\b|\btrain tickets?\b|\btravel (expenses?|costs?|reimbursement)\b|\blodging\b|\bhotel\b/],
+  ["6180", "out", /\bpostage\b|\bshipping (costs?|fees?|labels?)\b/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
@@ -623,6 +683,62 @@ export function classify(model, txn, allowed = null) {
   return scores.map(([account, s]) => ({ account, p: Math.exp(s - max) / z })).sort((a, b) => b.p - a.p);
 }
 
+// Layer 6: a payee seen for the first time. Nothing in its name is known, so the
+// only evidence is what kind of name it is and how big the line is, read against
+// the first line of every other payee you filed. A weak prior: it is offered for
+// review (never posted, confidence at most 0.5), the AI layer may still fill over it.
+// Measured on five fiscal hosts' labelled books (eval/opencollective-labelled.mjs,
+// README "New payees").
+const BUSINESS = /\b(inc|llc|l\.l\.c|ltd|limited|corp|corporation|co|company|gmbh|ag|sa|sas|sarl|srl|bv|nv|pty|plc|llp|pllc|pc|kk|oy|ab|as|aps|foundation|association|assn|group|labs?|studios?|services?|solutions|consulting|media|design|software|technologies|technology|tech|systems|partners|agency|collective|club|university|college|school|press|shop|store|market|company|cooperative|coop|network|institute|society|church|bank|hotel|airlines?|restaurant|cafe|coffee|pharmacy|hosting|cloud|insurance|realty|properties|holdings|enterprises|international|global|center|centre)\b|\.(com|io|org|net|co|dev|app|ai)\b|\b(www)\b/i;
+const P2P = /^(zelle|venmo|cash app|cashapp|paypal|wise|revolut|apple cash)\b[\s:*]*(payment |transfer )?(to |from )?/i;
+
+// "Jane Q. Doe" -> "person", "Acme Hosting LLC" -> "business", "SQ *4412 STORE" -> "other".
+export function payeeShape(desc) {
+  const s = String(desc ?? "").trim().replace(P2P, "").replace(/\s+(conf(irmation)?|ref)\s*#?\s*\S+$/i, "").trim();
+  if (!s) return "other";
+  if (BUSINESS.test(s)) return "business";
+  if (/^[\p{L}'’-]+(\s+[\p{L}'’.-]+){1,3}$/u.test(s) && !/\d/.test(s)) return "person";
+  return "other";
+}
+const sizeBand = (cents) => { const d = Math.abs(cents ?? 0) / 100; return d < 50 ? "s" : d < 500 ? "m" : d < 5000 ? "l" : "xl"; };
+
+// From history: each payee's first filed line, counted by direction, shape and size.
+export function trainNewPayee(history) {
+  const first = new Map(), t = new Map();
+  for (const h of history) {
+    const k = `${h.key}|${h.dir}`;
+    if (!h.key || first.has(k)) continue;
+    first.set(k, h);
+  }
+  const add = (key, account) => { const m = t.get(key) ?? new Map(); m.set(account, (m.get(account) ?? 0) + 1); t.set(key, m); };
+  for (const h of first.values()) {
+    if (!h.account || h.account === "transfer") continue;
+    const shape = h.shape ?? "?", band = sizeBand(h.cents);
+    add(`${h.dir}|${shape}|${band}`, h.account); add(`${h.dir}|${shape}`, h.account); add(`${h.dir}||${band}`, h.account); add(`${h.dir}`, h.account);
+  }
+  return { tables: t, payees: first.size };
+}
+
+// `levels` (eval only) limits which views are tried, to measure what shape and size add.
+export const NEW_PAYEE = { minPayees: 8, minShare: 0.4, maxConfidence: 0.5, levels: null };
+// -> { account, share, n, of, level } or null.
+export function guessNewPayee(np, txn, allowed = null, opts = NEW_PAYEE) {
+  if (!np?.tables?.size) return null;
+  const d = dir(txn.cents), shape = payeeShape(txn.desc), band = sizeBand(txn.cents);
+  const views = [[`${d}|${shape}|${band}`, "shape and size"], [`${d}|${shape}`, "shape"], [`${d}||${band}`, "size"], [d, "direction"]];
+  for (const [key, level] of views.filter(([, l]) => !opts.levels || opts.levels.includes(l))) {
+    const m = np.tables.get(key);
+    if (!m) continue;
+    const rows = [...m].filter(([a]) => !allowed || allowed(a));
+    const of = rows.reduce((a, [, n]) => a + n, 0);
+    if (of < opts.minPayees) continue;
+    const [account, n] = rows.sort((a, b) => b[1] - a[1])[0];
+    if (n / of < opts.minShare) return null; // the best-supported view is split: say nothing rather than back off to a coarser guess
+    return { account, share: n / of, n, of, level, shape, band };
+  }
+  return null;
+}
+
 // Memory: per payee key and direction, how often each account was chosen.
 export function buildMemory(history) {
   const m = new Map();
@@ -660,7 +776,7 @@ export function parseRules(text, accounts) {
 
 // -> { account, confidence (0..1), source, reason, alternatives: [{account, p}] }
 // `model` is { rules, memory, classifier, codes:Set }. `model.skip` (a Set of
-// "rule", "memory", "learned", "built-in") switches layers off, for the ablation
+// "rule", "memory", "learned", "built-in", "bank-category", "new-payee") switches layers off, for the ablation
 // in eval/ablation.mjs; it is never set in normal use.
 // Layer 5: the category label the bank or app itself put on the line. Only labels that
 // name one account unambiguously; everything else stays in review. Lower confidence than
@@ -710,14 +826,21 @@ export function suggest(txn, model) {
   }
 
   const ranked = off.has("learned") ? [] : classify(model.classifier, txn, (a) => model.codes?.has(a) ?? true);
-  if (ranked.length && ranked[0].p >= 0.5) {
+  // When a built-in keyword names the merchant, the classifier must be near-certain to
+  // overrule it: on real Mint exports (eval/mint-labelled.mjs, 2026-11-10) a shared city
+  // token ("brooklyn") was enough to send a deli and a burger chain to dues at p >= 0.5.
+  const keyword = ranked.length && !off.has("built-in") && BUILT_IN.some(([a, rd, re]) => (rd === "any" || rd === d) && (a === "transfer" || !model.codes || model.codes.has(a)) && re.test(text));
+  if (ranked.length && ranked[0].p >= (keyword ? 0.95 : 0.5)) {
     return { account: ranked[0].account, confidence: Math.min(ranked[0].p, 0.85), source: "learned", reason: `similar to lines you filed here (${Math.round(ranked[0].p * 100)}%)`, alternatives: ranked.slice(1, 3) };
   }
 
   // Processor and bank wrappers hide the merchant behind words the keyword
   // rules read as something else: "PAYPAL INST XFER NETFLIX" is not a transfer.
   const bi = text.replace(/paypal\s+inst\s+xfer\s*/, "paypal ").replace(/(withdrawal from|subscription payment:|preapproved payment bill user payment:|buyer payment:)\s*/, "");
-  for (const [account, rd, re] of off.has("built-in") ? [] : BUILT_IN) {
+  // A wire names its counterparty after VIA:, A/C: or B/O:, and those names trip unrelated keyword rules (a bank's
+  // name read as a utility). Whose money it is only a person can say, so it waits unsuggested.
+  const thirdPartyWire = !off.has("built-in") && /\b(wire transfer|chips credit|fedwire|book transfer (credit|debit))\b/.test(bi) && /\b(via|a\/c|b\/o):/.test(bi);
+  for (const [account, rd, re] of off.has("built-in") || thirdPartyWire ? [] : BUILT_IN) {
     if (rd !== "any" && rd !== d) continue;
     if (account !== "transfer" && model.codes && !model.codes.has(account)) continue;
     if (re.test(bi)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
@@ -726,9 +849,17 @@ export function suggest(txn, model) {
     const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
   }
+  if (key && !off.has("new-payee") && model.newPayee && !model.memory?.has(`${key}|in`) && !model.memory?.has(`${key}|out`)) {
+    const opts = model.newPayeeOpts ?? NEW_PAYEE;
+    const g = guessNewPayee(model.newPayee, txn, (a) => model.codes?.has(a) ?? true, opts);
+    if (g) {
+      const kind = { person: "named people", business: "businesses", other: "payees like this", "?": "payees" }[g.level.includes("shape") ? g.shape : "?"];
+      return { account: g.account, confidence: Math.min(g.share, opts.maxConfidence ?? NEW_PAYEE.maxConfidence), source: "new-payee", reason: `new payee: ${g.n} of the ${g.of} ${kind} you filed${g.level.includes("size") ? " at this size" : ""} went here first`, alternatives: ranked.slice(0, 2) };
+    }
+  }
   return { account: null, confidence: 0, source: "none", reason: key ? `nothing known about "${key}" yet` : "the description is empty", alternatives: ranked.slice(0, 3) };
 }
 
 export function historyRecord(txn, account) {
-  return { key: payeeKey(txn.desc), tokens: payeeTokens(txn.desc), dir: dir(txn.cents), cents: txn.cents, account };
+  return { key: payeeKey(txn.desc), tokens: payeeTokens(txn.desc), dir: dir(txn.cents), cents: txn.cents, shape: payeeShape(txn.desc), account };
 }

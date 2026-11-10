@@ -61,6 +61,7 @@ test("a short cutting table forces more lays; an impossible one is refused", () 
   const tight = cuttingPlan("tee", { M: 120 }, { maxMarkerCm: 300, maxPlies: 5 });
   assert.ok(tight.ok && tight.groups[0].lays > roomy.groups[0].lays);
   assert.ok(tight.groups[0].markerLengthCm <= 300);
+  assert.equal(cuttingPlan("crewneck", { XL: 2 }, { nested: true, rib: "separate", ribWidthCm: 80 }).ok, false);
   assert.equal(cuttingPlan("tee", { M: 500 }, { maxMarkerCm: 100, maxPlies: 1 }).ok, false);
 });
 
@@ -108,4 +109,33 @@ test("cut ticket CSV: spares and totals reconcile with the plan", () => {
   assert.equal(body.reduce((a, r) => a + Number(r[7]), 0), Number(total[7]));
   assert.equal(Number(total[9]), plan.metresToBuy);
   assert.equal(cutTicketCsv({ ok: false }), "");
+});
+
+test("nested cutting plan lays the real outlines, uses less cloth than rectangles, and draws them", () => {
+  const order = { S: 2, M: 4, L: 2 };
+  const rect = cuttingPlan("tee", order);
+  const nst = cuttingPlan("tee", order, { nested: true });
+  assert.ok(rect.ok && nst.ok && nst.nested && !rect.nested);
+  assert.ok(nst.metresToBuy < rect.metresToBuy, `${nst.metresToBuy} < ${rect.metresToBuy}`);
+  assert.deepEqual(nst.groups.map(g => [g.lays, g.plies]), rect.groups.map(g => [g.lays, g.plies]));
+  assert.ok(markerSvg(nst.groups[0]).includes("<svg"));
+  assert.ok(/drafted outlines/.test(nst.notes.join(" ")));
+  // the hoodie (hood and pocket drafted 2026-11-09) nests too, and uses less cloth than rectangles
+  const h = cuttingPlan("hoodie", { M: 4 }, { nested: true });
+  assert.ok(h.ok && h.nested);
+  assert.ok(h.metresToBuy < cuttingPlan("hoodie", { M: 4 }).metresToBuy);
+});
+
+test("rib bands: laid in the body cloth, or on their own rib knit with its own metres", () => {
+  const self = cuttingPlan("crewneck", { M: 4 }, { nested: true, rib: "self" });
+  const plain = cuttingPlan("crewneck", { M: 4 }, { nested: true });
+  const sep = cuttingPlan("crewneck", { M: 4 }, { nested: true, rib: "separate", ribWidthCm: 150 });
+  assert.ok(self.ok && plain.ok && sep.ok);
+  assert.ok(sep.ribMetresToBuy > 0 && sep.rib.widthCm === 150);
+  assert.equal(self.ribMetresToBuy, undefined);
+  assert.ok(self.metresToBuy >= sep.metresToBuy, "bands in the body cloth cost at least as much body cloth");
+  assert.ok(/own rib knit|laid apart/.test(sep.notes.join(" ")));
+  assert.equal(cuttingPlan("tee", { M: 4 }, { nested: true, rib: "self" }).ok, false);
+  assert.equal(cuttingPlan("crewneck", { M: 4 }, { rib: "self" }).ok, false);
+  assert.equal(cuttingPlan("crewneck", { M: 4 }, { nested: true, rib: "x" }).ok, false);
 });

@@ -1961,6 +1961,22 @@ narrow-viewport change.
 
 Not in CI, for the same reason as the five above.
 
+### Checking the floating mic on every tool page
+
+`ask-voice-icon.mjs` loads each tool page at 390 px and checks that the
+injected "Speak or type" button (`assistant.mjs`) still draws its microphone:
+icon fill differs from what is behind it, no background of its own, 20x20.
+The button is injected into pages the build does not style, so a page's bare
+`svg { background: #fff }` reached it: on 2026-11-10, 65 of 955 pages with the
+button showed a blank white square, and wall-framing-takeoff's bordered `svg`
+rule grew the icon to 22 px. Same `BASE_URL` / `DIST` / `PLAYWRIGHT` variables
+as `sideways.mjs`; exits 1 listing each failing page. Not in CI (Playwright),
+not yet in `browser_checks.py` (control-plane CI, its own PR).
+
+```
+node platform/pages/ask-voice-icon.mjs
+```
+
 ## Reflow, and the two things that widen a page
 
 `reflow.mjs` is the build half of what `sideways.mjs` measures. Its header

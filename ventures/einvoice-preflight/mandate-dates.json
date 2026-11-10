@@ -248,6 +248,13 @@
    "status": "In force (PAC duties from 2026)"
   },
   {
+   "date": "2025-08-02",
+   "country": "Malawi",
+   "page": "malawi-mra-eis-e-invoice-mandate.html",
+   "note": "replacing fiscal devices: live from 2 Aug 2025",
+   "status": "In force or piloting (date disputed)"
+  },
+  {
    "date": "2025-09-01",
    "country": "Costa Rica",
    "page": "costa-rica-hacienda-e-invoice-mandate.html",
@@ -326,6 +333,27 @@
   },
   {
    "date": "2026-02-01",
+   "country": "Malawi",
+   "page": "malawi-mra-eis-e-invoice-mandate.html",
+   "note": "mandatory start moved to 1 Feb 2026",
+   "status": "In force or piloting (date disputed)"
+  },
+  {
+   "date": "2026-02-01",
+   "country": "Malawi",
+   "page": "malawi-mra-eis-e-invoice-mandate.html",
+   "note": "a pilot from 1 Feb 2026 to 30 Apr 2026",
+   "status": "In force or piloting (date disputed)"
+  },
+  {
+   "date": "2026-02-01",
+   "country": "Malawi",
+   "page": "malawi-mra-eis-e-invoice-mandate.html",
+   "note": "and mandatory use reported from 1 May 2026 (one tracker says 1 Feb 2026; vendor guides, MRA notices unread)",
+   "status": "In force or piloting (date disputed)"
+  },
+  {
+   "date": "2026-02-01",
    "country": "Poland",
    "page": "poland-ksef-e-invoice-mandate.html",
    "note": "KSeF: 1 Feb 2026 largest taxpayers",
@@ -344,6 +372,20 @@
    "page": "singapore-invoicenow-e-invoice-mandate.html",
    "note": "GST InvoiceNow: 1 Apr 2026",
    "status": "In force, phasing in"
+  },
+  {
+   "date": "2026-04-30",
+   "country": "Malawi",
+   "page": "malawi-mra-eis-e-invoice-mandate.html",
+   "note": "a pilot from 1 Feb 2026 to 30 Apr 2026",
+   "status": "In force or piloting (date disputed)"
+  },
+  {
+   "date": "2026-05-01",
+   "country": "Malawi",
+   "page": "malawi-mra-eis-e-invoice-mandate.html",
+   "note": "and mandatory use reported from 1 May 2026 (one tracker says 1 Feb 2026; vendor guides, MRA notices unread)",
+   "status": "In force or piloting (date disputed)"
   },
   {
    "date": "2026-05-06",

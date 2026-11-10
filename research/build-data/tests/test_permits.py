@@ -15,6 +15,14 @@ def test_sf_row_maps_to_schema():
                                zipcode="94114", description="abc"))
     assert r["permit_type"] == "otc alterations" and r["applied"] == "2019-03-22"
     assert r["completed"] == "" and r["estimated_cost"] == "15000.0" and r["description_len"] == "3"
+    assert r["desc_class"] == "other" and set(r) == set(P.SCHEMA)
+
+
+def test_description_class_kept_not_text():
+    r = P.to_schema("seattle", dict(permitnum="1", permittypemapped="Building",
+                                    description="Construct new single family residence per plan"))
+    assert r["desc_class"] == "new_construction" and r["description_len"] == "46"
+    assert "Construct" not in "".join(r.values())
 
 
 def test_missing_field_stays_empty():

@@ -1,22 +1,27 @@
 {
   "id": "P065",
   "title": "seo: run propose_seo_titles.py --check on PRs; it is only caught by main_health, and posts keep landing over the title budget",
-  "status": "open",
-  "owner": "owner",
+  "status": "done",
+  "owner": "agent",
   "effect": 2,
   "cost": 1,
   "problem": "propose_seo_titles.py --check fails when a post's title is over budget and has no seo_title. No workflow under .github/workflows runs it (grep, 2026-11-08), so it is only found by platform/ci/main_health.py. The same day main_health found 2 such posts (photo tilt meter) and then 5 more (roof uplift, Sydney Olympics, Korea/India check digits, Japan arrivals, ABN/IRD/PIB). Earlier broken-main incidents: docs/history/pages-build-perf-2026-11-06-broken-main-seo-title.md. The workflow edit is in .github/, held for the owner by CODEOWNERS.",
   "evidence": [
     "python3 platform/ci/main_health.py, 2026-11-08: FAIL propose_seo_titles.py, 5 posts",
-    "grep -rln propose_seo_titles .github/workflows: no match"
+    "grep -rln propose_seo_titles .github/workflows: no match",
+    "python3 platform/ci/main_health.py, 2026-11-09: FAIL check_post_frontmatter, propose_seo_titles, promptctl validate (2 posts over title budget: sales-exports noon/Thursday, mileage-rate-split-year); fixed in the same run"
   ],
-  "change": "Add a step running 'python3 platform/pages/propose_seo_titles.py --check' (under a second) to the PR docs/posts check job, or to an existing always-run lint job.",
-  "touches": [".github/workflows/"],
+  "change": "Add a step running 'python3 platform/pages/propose_seo_titles.py --check' (under a second) to the PR docs/posts check job, or to an existing always-run lint job. Shipped without touching .github/: check_post_frontmatter.py (already run on every PR by portfolio-validate.yml) now flags a title over 70 with no seo_title and no clean cut.",
+  "touches": [
+    ".github/workflows/"
+  ],
   "metric": "number of main_health runs that report propose_seo_titles.py red",
   "baseline": "2 of the last 2 runs on 2026-11-08",
   "opened": "2026-11-08",
   "source": "main_health 2026-11-08",
-  "pr": null,
-  "result": null,
-  "history": []
+  "pr": "this",
+  "result": "2026-11-09 14:20 UTC: main_health on current main reports propose_seo_titles.py ok (53/53 checks pass), after the check_post_frontmatter.py change. Helped so far (one reading; earlier reds on 11-08 and 11-09 predate the fix landing). Re-check after a day with new posts.",
+  "history": [
+    "2026-11-09: check_post_frontmatter.py reuses propose_seo_titles.cut; propose_seo_titles.py gained a __main__ guard so it imports. Metric to verify: main_health reports of propose_seo_titles red."
+  ]
 }

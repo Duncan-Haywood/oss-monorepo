@@ -1,0 +1,441 @@
+{
+ "min_year": 2015,
+ "cities": {
+  "chicago": {
+   "n_rows": 474959,
+   "n_types": 9,
+   "class_share": {
+    "alteration": 0.1930777182872627,
+    "demolition": 0.022665114251967013,
+    "new_construction": 0.03836752224928889,
+    "other": 0.6799050023265166,
+    "sign": 0.0659846428849648
+   },
+   "other_share": 0.6799050023265166,
+   "n_other_types": 5,
+   "top_other": [
+    {
+     "permit_type": "permit \u2013 express permit program",
+     "rows": 192454,
+     "share": 0.4052012910588072
+    },
+    {
+     "permit_type": "permit - easy permit process",
+     "rows": 108813,
+     "share": 0.22909977492794115
+    },
+    {
+     "permit_type": "permit - elevator equipment",
+     "rows": 14871,
+     "share": 0.03131007097454728
+    },
+    {
+     "permit_type": "permit - scaffolding",
+     "rows": 3574,
+     "share": 0.007524860040550869
+    },
+    {
+     "permit_type": "permit - reinstate revoked pmt",
+     "rows": 3215,
+     "share": 0.006769005324670129
+    }
+   ],
+   "other_work_class": [
+    {
+     "work_class": "express permit program",
+     "rows": 192454,
+     "share": 0.4052012910588072,
+     "cls": "other"
+    },
+    {
+     "work_class": "easy permit",
+     "rows": 78599,
+     "share": 0.16548586299027915,
+     "cls": "other"
+    },
+    {
+     "work_class": "easy permit web",
+     "rows": 37003,
+     "share": 0.07790777730288298,
+     "cls": "other"
+    },
+    {
+     "work_class": "conveyance device permit",
+     "rows": 14871,
+     "share": 0.03131007097454728,
+     "cls": "other"
+    }
+   ],
+   "cascade": {
+    "n_rows": 474959,
+    "class_share": {
+     "alteration": 0.4122945348966964,
+     "demolition": 0.028457193147197968,
+     "electrical": 0.1669301981855276,
+     "fire": 0.01235264517568885,
+     "mechanical": 0.011165174257146407,
+     "new_construction": 0.0717851435597599,
+     "other": 0.19187129836470096,
+     "plumbing": 0.03759271852938885,
+     "sign": 0.06755109388389313
+    },
+    "type_other_rows": 322927,
+    "type_other_rescued_share": 0.717796901466895,
+    "rescued_to": {
+     "alteration": 0.3224227147311931,
+     "electrical": 0.2455198852991543,
+     "plumbing": 0.055291133909521346,
+     "new_construction": 0.04915042718633004,
+     "fire": 0.018168192811378422,
+     "mechanical": 0.016421668055009338,
+     "demolition": 0.008518953199949214,
+     "sign": 0.0023039262743592206
+    }
+   },
+   "cascade2": {
+    "n_rows": 474959,
+    "class_share": {
+     "alteration": 0.36739802804031507,
+     "demolition": 0.028307706559934646,
+     "electrical": 0.24911413406209798,
+     "fire": 0.018930055015275,
+     "mechanical": 0.00960082870310911,
+     "new_construction": 0.048290484020726,
+     "other": 0.18788990207575812,
+     "plumbing": 0.023821003497143965,
+     "sign": 0.0666478580256401
+    },
+    "type_other_rows": 322927,
+    "type_other_rescued_share": 0.7236527140808914,
+    "rescued_to": {
+     "electrical": 0.3663955011504148,
+     "alteration": 0.2563892148999619,
+     "plumbing": 0.03503578208077986,
+     "fire": 0.027842205823607195,
+     "new_construction": 0.014594629746041674,
+     "mechanical": 0.014120838455750061,
+     "demolition": 0.008299089267853107,
+     "sign": 0.0009754526564827345
+    }
+   }
+  },
+  "sf": {
+   "n_rows": 375496,
+   "n_types": 9,
+   "class_share": {
+    "alteration": 0.9721248695059335,
+    "demolition": 0.003022668683554552,
+    "new_construction": 0.005432814197754437,
+    "other": 0.0019307795555744934,
+    "sign": 0.017488868057183034
+   },
+   "other_share": 0.0019307795555744934,
+   "n_other_types": 2,
+   "top_other": [
+    {
+     "permit_type": "",
+     "rows": 603,
+     "share": 0.0016058759613950615
+    },
+    {
+     "permit_type": "grade or quarry or fill or excavate",
+     "rows": 122,
+     "share": 0.000324903594179432
+    }
+   ],
+   "other_work_class": [
+    {
+     "work_class": "",
+     "rows": 725,
+     "share": 0.0019307795555744934,
+     "cls": "other"
+    }
+   ],
+   "cascade": {
+    "n_rows": 375496,
+    "class_share": {
+     "alteration": 0.9721781323902252,
+     "demolition": 0.0030519632699149923,
+     "electrical": 0.0015845708076783773,
+     "new_construction": 0.005520697956835759,
+     "other": 0.00017576751816264356,
+     "sign": 0.017488868057183034
+    },
+    "type_other_rows": 725,
+    "type_other_rescued_share": 0.9089655172413793,
+    "rescued_to": {
+     "electrical": 0.8206896551724138,
+     "new_construction": 0.04551724137931035,
+     "alteration": 0.027586206896551724,
+     "demolition": 0.015172413793103448
+    }
+   },
+   "cascade2": {
+    "n_rows": 375496,
+    "class_share": {
+     "alteration": 0.9721807955344398,
+     "demolition": 0.0030519632699149923,
+     "electrical": 0.0015872339518929629,
+     "new_construction": 0.005518034812621173,
+     "other": 0.00017310437394805803,
+     "sign": 0.017488868057183034
+    },
+    "type_other_rows": 725,
+    "type_other_rescued_share": 0.9103448275862069,
+    "rescued_to": {
+     "electrical": 0.8220689655172414,
+     "new_construction": 0.044137931034482755,
+     "alteration": 0.028965517241379312,
+     "demolition": 0.015172413793103448
+    }
+   }
+  },
+  "austin": {
+   "n_rows": 761595,
+   "n_types": 5,
+   "class_share": {
+    "electrical": 0.29230365220359905,
+    "mechanical": 0.18614618005632916,
+    "other": 0.25781156651501125,
+    "plumbing": 0.26373860122506054
+   },
+   "other_share": 0.25781156651501125,
+   "n_other_types": 2,
+   "top_other": [
+    {
+     "permit_type": "building permit",
+     "rows": 170103,
+     "share": 0.2233509936383511
+    },
+    {
+     "permit_type": "driveway / sidewalks",
+     "rows": 26245,
+     "share": 0.03446057287666017
+    }
+   ],
+   "other_work_class": [
+    {
+     "work_class": "new",
+     "rows": 87260,
+     "share": 0.11457533203342984,
+     "cls": "new_construction"
+    },
+    {
+     "work_class": "repair",
+     "rows": 38801,
+     "share": 0.05094702565011588,
+     "cls": "alteration"
+    },
+    {
+     "work_class": "remodel",
+     "rows": 36532,
+     "share": 0.04796775188912742,
+     "cls": "alteration"
+    },
+    {
+     "work_class": "addition and remodel",
+     "rows": 17206,
+     "share": 0.022592060084428076,
+     "cls": "alteration"
+    },
+    {
+     "work_class": "demolition",
+     "rows": 10775,
+     "share": 0.014147939521661776,
+     "cls": "demolition"
+    },
+    {
+     "work_class": "interior demo non-structural",
+     "rows": 2436,
+     "share": 0.0031985504106513303,
+     "cls": "alteration"
+    },
+    {
+     "work_class": "shell",
+     "rows": 988,
+     "share": 0.0012972774243528384,
+     "cls": "other"
+    },
+    {
+     "work_class": "modification",
+     "rows": 919,
+     "share": 0.0012066780900609904,
+     "cls": "other"
+    },
+    {
+     "work_class": "addition",
+     "rows": 681,
+     "share": 0.0008941760384456306,
+     "cls": "alteration"
+    },
+    {
+     "work_class": "relocation",
+     "rows": 348,
+     "share": 0.0004569357729501901,
+     "cls": "other"
+    },
+    {
+     "work_class": "life safety",
+     "rows": 287,
+     "share": 0.0003768407093008751,
+     "cls": "other"
+    },
+    {
+     "work_class": "demo",
+     "rows": 106,
+     "share": 0.00013918158601356365,
+     "cls": "other"
+    }
+   ],
+   "cascade": {
+    "n_rows": 761595,
+    "class_share": {
+     "alteration": 0.1258792402786258,
+     "demolition": 0.015068376236713739,
+     "electrical": 0.2924664683985583,
+     "mechanical": 0.1861501191578201,
+     "new_construction": 0.11560868965788904,
+     "other": 0.0010609313348958437,
+     "plumbing": 0.26376486190166687,
+     "sign": 1.3130338303166381e-06
+    },
+    "type_other_rows": 196348,
+    "type_other_rescued_share": 0.9958848574979119,
+    "rescued_to": {
+     "alteration": 0.4882606392731273,
+     "new_construction": 0.4484232077739524,
+     "demolition": 0.05844724672520219,
+     "electrical": 0.0006315317701224357,
+     "plumbing": 0.0001018599629229735,
+     "mechanical": 1.5278994438446023e-05,
+     "sign": 5.092998146148675e-06
+    }
+   },
+   "cascade2": {
+    "n_rows": 761595,
+    "class_share": {
+     "alteration": 0.12598953512037236,
+     "demolition": 0.015061811067562155,
+     "electrical": 0.2924047558085334,
+     "fire": 2.6260676606332763e-06,
+     "mechanical": 0.1861501191578201,
+     "new_construction": 0.11560868965788904,
+     "other": 0.0010215403199863445,
+     "plumbing": 0.2637596097663456,
+     "sign": 1.3130338303166381e-06
+    },
+    "type_other_rows": 196348,
+    "type_other_rescued_share": 0.9960376474422963,
+    "rescued_to": {
+     "alteration": 0.4886884511174038,
+     "new_construction": 0.4484232077739524,
+     "demolition": 0.05842178173447145,
+     "electrical": 0.000392160857253448,
+     "plumbing": 8.14879703383788e-05,
+     "mechanical": 1.5278994438446023e-05,
+     "fire": 1.018599629229735e-05,
+     "sign": 5.092998146148675e-06
+    }
+   }
+  },
+  "seattle": {
+   "n_rows": 84986,
+   "n_types": 4,
+   "class_share": {
+    "demolition": 0.0946391170310404,
+    "other": 0.9053608829689596
+   },
+   "other_share": 0.9053608829689596,
+   "n_other_types": 3,
+   "top_other": [
+    {
+     "permit_type": "building",
+     "rows": 76535,
+     "share": 0.9005600922504883
+    },
+    {
+     "permit_type": "grading",
+     "rows": 331,
+     "share": 0.003894759136799002
+    },
+    {
+     "permit_type": "roof",
+     "rows": 77,
+     "share": 0.0009060315816722754
+    }
+   ],
+   "other_work_class": [
+    {
+     "work_class": "residential",
+     "rows": 55617,
+     "share": 0.6544254347774927,
+     "cls": "other"
+    },
+    {
+     "work_class": "non-residential",
+     "rows": 20398,
+     "share": 0.24001600263572823,
+     "cls": "other"
+    },
+    {
+     "work_class": "n/a",
+     "rows": 928,
+     "share": 0.010919445555738592,
+     "cls": "other"
+    }
+   ],
+   "cascade": {
+    "n_rows": 84986,
+    "class_share": {
+     "alteration": 0.5999576400818959,
+     "demolition": 0.10265220153907702,
+     "electrical": 0.0014708304897277198,
+     "fire": 8.236650742475231e-05,
+     "mechanical": 0.0031534605699762314,
+     "new_construction": 0.09499211634857506,
+     "other": 0.19720895206269268,
+     "plumbing": 0.0002706328101099005,
+     "sign": 0.00021179959052079167
+    },
+    "type_other_rows": 76943,
+    "type_other_rescued_share": 0.7821764163081761,
+    "rescued_to": {
+     "alteration": 0.6626723678567251,
+     "new_construction": 0.10492182524726096,
+     "demolition": 0.00885070766671432,
+     "mechanical": 0.0034830978776496887,
+     "electrical": 0.0016245792339783995,
+     "plumbing": 0.00029892257905202554,
+     "sign": 0.00023393940969288954,
+     "fire": 9.097643710279038e-05
+    }
+   },
+   "cascade2": {
+    "n_rows": 84986,
+    "class_share": {
+     "alteration": 0.631504012425576,
+     "demolition": 0.10096957145882851,
+     "electrical": 0.00341232673616831,
+     "fire": 0.00012943308309603936,
+     "mechanical": 0.0022709622761395995,
+     "new_construction": 0.19273762737392042,
+     "other": 0.06858776739698304,
+     "plumbing": 0.00022356623443861343,
+     "sign": 0.00016473301484950462
+    },
+    "type_other_rows": 76943,
+    "type_other_rescued_share": 0.9242426211611192,
+    "rescued_to": {
+     "alteration": 0.6975163432670938,
+     "new_construction": 0.21288486282052949,
+     "demolition": 0.006992189023043032,
+     "electrical": 0.003769023822829887,
+     "mechanical": 0.002508350337262649,
+     "plumbing": 0.00024693604356471673,
+     "sign": 0.00018195287420558076,
+     "fire": 0.00014296297259009917
+    }
+   }
+  }
+ }
+}

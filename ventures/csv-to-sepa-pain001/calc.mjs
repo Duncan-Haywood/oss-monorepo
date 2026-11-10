@@ -7,6 +7,9 @@ export const VERSIONS = {
   "pain.001.001.09": { bic: "BICFI", wrapDate: true },
 };
 
+// SEPA Instant Credit Transfer (SCT Inst): the scheme's per-payment ceiling, in cents (EPC, 100 000 EUR since 9 Oct 2023).
+export const INSTANT_LIMIT_CENTS = 10000000n;
+
 export const IBAN_LENGTHS = {
   AD: 24, AT: 20, BE: 16, BG: 22, CH: 21, CY: 28, CZ: 24, DE: 22, DK: 18, EE: 20, ES: 24, FI: 18, FR: 27, GB: 22,
   GI: 23, GR: 27, HR: 21, HU: 28, IE: 22, IS: 26, IT: 27, LI: 21, LT: 20, LU: 20, LV: 21, MC: 27, MT: 31, NL: 18,
@@ -147,7 +150,7 @@ function normaliseDate(s) {
 export const isoDate = (d) => d.toISOString().slice(0, 10);
 
 // Converts the CSV text to a pain.001 file. `settings`: debtorName, debtorIban, debtorBic, date (YYYY-MM-DD), version,
-// msgId, created (ISO local time, no zone), batchBooking. Returns { xml, findings, summary, payments }.
+// msgId, created (ISO local time, no zone), batchBooking, instant (SCT Inst: tags the batch INST, caps each payment at 100 000 EUR). Returns { xml, findings, summary, payments }.
 export function convert(text, settings = {}) {
   const findings = [];
   const add = (severity, line, title, detail) => findings.push({ severity, line: line || null, title, detail });
@@ -168,6 +171,7 @@ export function convert(text, settings = {}) {
   else if ([0, 6].includes(date.getUTCDay())) add("warning", null, "Execution date is a weekend", "SEPA transfers settle on TARGET business days. Your bank will move this to the next one, or reject the file.");
   const today = settings.today ? new Date(Date.UTC(settings.today.getUTCFullYear(), settings.today.getUTCMonth(), settings.today.getUTCDate())) : null;
   if (date && today && date < today) add("error", null, "Execution date is in the past", "Pick today or a later business day.");
+  const instant = settings.instant === true;
   const created = settings.created || new Date().toISOString().slice(0, 19);
   const msgId = transliterate(String(settings.msgId || `MSG-${created.replace(/\D/g, "").slice(0, 14)}`)).slice(0, 35);
 
@@ -201,7 +205,10 @@ export function convert(text, settings = {}) {
     p.iban = ib.iban;
     const am = parseCents(cell(r, "amount"));
     if (!am.ok) { add("error", line, `Amount for ${p.name || "this row"} does not pass`, `"${cell(r, "amount")}" ${am.problem}.`); p.ok = false; }
-    else p.cents = am.cents;
+    else {
+      p.cents = am.cents;
+      if (instant && am.cents > INSTANT_LIMIT_CENTS) { add("error", line, `Amount for ${p.name || "this row"} is over the instant limit`, `SEPA Instant payments are capped at 100,000.00 EUR each; send this one as a normal credit transfer.`); p.ok = false; }
+    }
     const bic = checkBic(cell(r, "bic"));
     if (!bic.ok) { add("error", line, `BIC for ${p.name || "this row"} is not valid`, "A BIC is 8 or 11 letters and digits. Leave the cell blank if it is not needed: SEPA payments are routed by the IBAN alone."); p.ok = false; }
     p.bic = bic.bic;
@@ -231,11 +238,11 @@ export function convert(text, settings = {}) {
   const total = good.reduce((s, p) => s + p.cents, 0n);
   const summary = { rows: payments.length, payments: good.length, errors, warnings: findings.length - errors, total: formatCents(total), version };
   let xml = null;
-  if (!errors && good.length) xml = buildXml({ version, v, msgId, created, date: isoDate(date), debtorName, debtorIban: dIban.iban, debtorBic: dBic.bic, batch: settings.batchBooking !== false, payments: good });
+  if (!errors && good.length) xml = buildXml({ instant, version, v, msgId, created, date: isoDate(date), debtorName, debtorIban: dIban.iban, debtorBic: dBic.bic, batch: settings.batchBooking !== false, payments: good });
   return { xml, findings, summary, payments };
 }
 
-export function buildXml({ version, v, msgId, created, date, debtorName, debtorIban, debtorBic, batch, payments }) {
+export function buildXml({ instant = false, version, v, msgId, created, date, debtorName, debtorIban, debtorBic, batch, payments }) {
   const total = formatCents(payments.reduce((s, p) => s + p.cents, 0n));
   const e = xmlEscape;
   const dateEl = v.wrapDate ? `<ReqdExctnDt><Dt>${date}</Dt></ReqdExctnDt>` : `<ReqdExctnDt>${date}</ReqdExctnDt>`;
@@ -257,7 +264,7 @@ export function buildXml({ version, v, msgId, created, date, debtorName, debtorI
       <BtchBookg>${batch ? "true" : "false"}</BtchBookg>
       <NbOfTxs>${payments.length}</NbOfTxs>
       <CtrlSum>${total}</CtrlSum>
-      <PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl></PmtTpInf>
+      <PmtTpInf><SvcLvl><Cd>SEPA</Cd></SvcLvl>${instant ? "<LclInstrm><Cd>INST</Cd></LclInstrm>" : ""}</PmtTpInf>
       ${dateEl}
       <Dbtr><Nm>${e(debtorName)}</Nm></Dbtr>
       <DbtrAcct><Id><IBAN>${debtorIban}</IBAN></Id></DbtrAcct>

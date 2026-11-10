@@ -285,3 +285,14 @@ test('sanity ratios land in the range a tree service recognises', () => {
   assert.equal(result.breakEvenPrice, result.jobCost);
   assert.ok(result.recommendedPrice > result.jobCost);
 });
+
+test('hazard premiums: dead/hazard adds 20%, all three flags add 85% (quality audit 2026-11-10)', () => {
+  const base = { crewHourlyRate: 100, travelMinutes: 0 };
+  const tree = { dbhInches: 12, heightFeet: 50, species: 'mixed', access: 'street', haul: 'leave' };
+  const dead = calculateBid({ ...base, trees: [{ ...tree, deadHazard: true }] }).trees[0];
+  assert.equal(dead.hazardPremium, 0.2);
+  assert.ok(Math.abs(dead.removalHours - 1.2) < 1e-12);
+  const all = calculateBid({ ...base, trees: [{ ...tree, deadHazard: true, nearPower: true, nearStructure: true }] }).trees[0];
+  assert.ok(Math.abs(all.hazardPremium - 0.85) < 1e-12);
+  assert.ok(Math.abs(all.removalHours - 1.85) < 1e-12);
+});

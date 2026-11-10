@@ -18,6 +18,8 @@
  * factory quotes. The factory's own marker consumption always wins.
  */
 import { garmentMeasurements, BODY_CHEST_CM } from "./fit.mjs";
+import { nestRatio, nestSvg } from "./nest.mjs";
+import { DRAFTED } from "./pattern.mjs";
 
 const round1 = v => Math.round(v * 10) / 10;
 const round2 = v => Math.round(v * 100) / 100;
@@ -80,8 +82,14 @@ export function packStrip(rects, width) {
  * One marker for a ratio of sizes, e.g. { S: 1, M: 2, L: 1 }.
  * Pieces of all sizes in the ratio are packed together.
  */
-export function markerFor(garment, ratio, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, edgeCm = 1.5, seam = SEAM_ALLOWANCE_CM } = {}) {
+export function markerFor(garment, ratio, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, edgeCm = 1.5, seam = SEAM_ALLOWANCE_CM, nested = false, rib = false, only = null } = {}) {
   const usable = fabricWidthCm - 2 * edgeCm;
+  // nested: lay the real drafted outlines (nest.mjs) instead of rectangles; only for the drafted garments, up to 20 of a size
+  if (nested && DRAFTED.includes(garment) && Object.values(ratio).every(n => !(n > 0) || (Number.isInteger(n) && n <= 20))) {
+    const r = nestRatio(garment, Object.fromEntries(Object.entries(ratio).filter(([, n]) => n > 0)), { fit, widthCm: fabricWidthCm, edgeCm, endLossCm: 0, only, draftOpts: { sizeChart, ...(rib ? { rib: true } : {}) } });
+    if (r.ok) return { ok: true, markerLengthCm: r.lengthCm, usableWidthCm: usable, utilisationPct: round1(r.efficiencyPct), pieces: r.pieces.length, edgeCm, nested: r };
+    // a piece wider than the cloth etc.: fall through to rectangles, which report the same limits in their own words
+  }
   const rects = [];
   for (const [size, n] of Object.entries(ratio)) {
     if (!(n > 0)) continue;
@@ -109,7 +117,14 @@ export function markerFor(garment, ratio, { fit = "regular", sizeChart = BODY_CH
  * @param {Record<string, number>} counts  pieces wanted per size
  * @param {{fit?:string, sizeChart?:object, fabricWidthCm?:number, maxPlies?:number, maxMarkerCm?:number, endLossCm?:number, nestingGainPct?:number, maxSparePct?:number}} [opts]
  */
-export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, maxPlies = 60, maxMarkerCm = 1000, endLossCm = 6, nestingGainPct = 0, maxSparePct = 5, seam = SEAM_ALLOWANCE_CM } = {}) {
+export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY_CHEST_CM, fabricWidthCm = 150, maxPlies = 60, maxMarkerCm = 1000, endLossCm = 6, nestingGainPct = 0, maxSparePct = 5, seam = SEAM_ALLOWANCE_CM, nested = false, rib = null, ribWidthCm = 150 } = {}) {
+  // rib: null (none), "self" (bands cut from the body cloth) or "separate" (bands laid on their own rib knit, ribWidthCm wide); crewneck and hoodie, nested lays only
+  if (rib) {
+    if (!["self", "separate"].includes(rib)) return { ok: false, error: "rib must be \"self\" or \"separate\"." };
+    if (!nested) return { ok: false, error: "Rib bands are laid from the drafted outlines: tick the nesting option." };
+    if (!["crewneck", "hoodie"].includes(garment)) return { ok: false, error: "Rib bands are drafted for the crewneck and hoodie only." };
+    if (!(ribWidthCm >= 30 && ribWidthCm <= 300)) return { ok: false, error: "Rib width should be between 30 and 300 cm." };
+  }
   const want = Object.fromEntries(Object.entries(counts || {}).map(([k, v]) => [k, Math.max(0, Math.round(Number(v) || 0))]).filter(([, v]) => v > 0));
   const total = Object.values(want).reduce((a, b) => a + b, 0);
   if (!total) return { ok: false, error: "Give at least one piece." };
@@ -158,9 +173,26 @@ export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY
     const better = !chosen ? true : cand.ok !== chosen.ok ? cand.ok : cand.ok ? cand.metres < chosen.metres - 1e-9 : (cand.spares < chosen.spares || (cand.spares === chosen.spares && cand.metres < chosen.metres - 1e-9));
     if (better) chosen = cand;
   }
+  // Lays and plies are chosen on the fast rectangle packing; with `nested` each chosen marker is then re-laid from the real outlines
+  // (a raster nest costs seconds, far too many to run for every lays x plies candidate).
+  if (nested) {
+    const re = chosen.solved.map(g => markerFor(garment, g.ratio, { fit, sizeChart, fabricWidthCm, seam, nested: true, rib: !!rib, only: rib === "separate" ? "body" : null }));
+    if (re.every(m => m.ok && m.nested)) {
+      chosen.solved.forEach((g, i) => { g.m = re[i]; g.metres = g.lays * g.plies * (re[i].markerLengthCm * gain + endLossCm) / 100; });
+      chosen.metres = chosen.solved.reduce((a, g) => a + g.metres, 0);
+    }
+  }
+  let ribPlan = null;
+  if (rib === "separate") {
+    const rr = chosen.solved.map(g => markerFor(garment, g.ratio, { fit, sizeChart, fabricWidthCm: ribWidthCm, seam, nested: true, rib: true, only: "rib" }));
+    const bad = rr.find(r => !r.ok || !r.nested);
+    if (bad) return { ok: false, error: `The rib bands do not fit a ${ribWidthCm} cm wide rib knit (the hem band of an XL hoodie is about 118 cm long and lies across the width): ${bad.error || "try a wider knit or lay them in the body cloth (rib: self)."}` };
+    const lens = rr.map((r, i) => chosen.solved[i].lays * chosen.solved[i].plies * (r.markerLengthCm + endLossCm) / 100);
+    ribPlan = { widthCm: ribWidthCm, metres: round2(lens.reduce((a, b) => a + b, 0)), perGroupMetres: lens.map(round2) };
+  }
   const groups = chosen.solved.map(g => ({
     sizes: g.sizes, lays: g.lays, plies: g.plies, ratio: g.ratio,
-    placed: g.m.placed, edgeCm: g.m.edgeCm, usableWidthCm: g.m.usableWidthCm, fabricWidthCm, nestingGainPct,
+    placed: g.m.placed, nested: g.m.nested, edgeCm: g.m.edgeCm, usableWidthCm: g.m.usableWidthCm, fabricWidthCm, nestingGainPct,
     markerLengthCm: round1(g.m.markerLengthCm * gain), utilisationPct: g.m.utilisationPct,
     metres: round2(g.metres), extraPieces: Object.fromEntries(Object.entries(g.ratio).map(([s, r]) => [s, r * g.lays * g.plies - want[s]]).filter(([, v]) => v > 0)),
   }));
@@ -169,15 +201,20 @@ export function cuttingPlan(garment, counts, { fit = "regular", sizeChart = BODY
   const notes = [];
   if (Object.keys(over).length) notes.push(`Rounding a ratio up cuts spares: ${Object.entries(over).map(([s, v]) => `${v} ${s}`).join(", ")}. They are in the cloth to buy; keep them as stock or trim the order.`);
   if (area < 75) notes.push(`Only ${round1(area)}% of the cloth is covered by pattern pieces; a CAD marker nests the curves and usually does better.`);
-  notes.push("Pieces are rectangles on the grain, so this errs towards more cloth than a CAD marker. It is not the factory's cutting plan.");
+  if (ribPlan) notes.push(`Rib: ${ribPlan.metres} m of ${ribWidthCm} cm wide rib knit for the hem and cuff bands, laid apart from the body cloth (the metres above are body cloth only). Rib is bought by its own width, stretch and weight: check them with the mill.`);
+  else if (rib === "self") notes.push("Rib bands are laid in the body cloth (self-fabric bands), so the metres above include them.");
+  const isNested = groups.every(g => g.nested);
+  notes.push(isNested ? "Pieces are the drafted outlines laid on the grain by a greedy raster nest; a CAD marker usually does a few points better. It is not the factory's cutting plan." : "Pieces are rectangles on the grain, so this errs towards more cloth than a CAD marker. It is not the factory's cutting plan.");
   return {
     ok: true,
     pieces: total,
     groups,
     utilisationPct: round1(area),
+    nested: isNested,
     metresToBuy: round2(chosen.metres),
     metresPerPiece: round2(chosen.metres / total),
     extraPieces: over,
+    ...(ribPlan ? { rib: ribPlan, ribMetresToBuy: ribPlan.metres } : {}),
     notes,
   };
 }
@@ -191,6 +228,7 @@ const escXml = v => String(v).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt
  * length but not the drawing, and the caption says so.
  */
 export function markerSvg(group, { pxPerCm = 3 } = {}) {
+  if (group && group.nested) return nestSvg(group.nested, { pxPerCm });
   if (!group || !Array.isArray(group.placed)) return "";
   const W = group.fabricWidthCm, edge = group.edgeCm ?? 0;
   const L = Math.max(...group.placed.map(p => p.y + p.l), 0);

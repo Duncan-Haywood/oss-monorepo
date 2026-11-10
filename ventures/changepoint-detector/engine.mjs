@@ -558,7 +558,7 @@ export function lineRss(x, ks) {
  * Returns { adjusted, slope } with the slope per point; the adjusted series
  * keeps the mean level of the input.
  */
-export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false, joint = false, knotMargin = 0.1 } = {}) {
+export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false, joint = false, knotMargin = 0.1, quad = false } = {}) {
   const n = x.length;
   const d = [];
   for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
@@ -619,6 +619,48 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
     return { s, knots, y, bic: (n * Math.log(Math.max(rss, 1e-12) / n)) / infl + params * Math.log(n) };
   };
   let best = fit([]);
+  if (quad && n >= 40) {
+    // a smooth curve: slope s plus curvature q (slope grows by 2q per point), both fitted within the steps' segments
+    const qline = (s, q) => (t) => s * (t - c) + q * (t - c) ** 2;
+    let s = best.s[0], q = 0;
+    const pooled2 = (bounds) => {
+      let a11 = 0, a12 = 0, a22 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i + 1 < bounds.length; i++) {
+        const lo = bounds[i], hi = bounds[i + 1], len = hi - lo;
+        if (len < 8) continue;
+        let mu = 0, mw = 0, mx = 0;
+        for (let t = lo; t < hi; t++) { mu += t - c; mw += (t - c) ** 2; mx += x[t]; }
+        mu /= len; mw /= len; mx /= len;
+        for (let t = lo; t < hi; t++) {
+          const u = t - c - mu, w = (t - c) ** 2 - mw, z = x[t] - mx;
+          a11 += u * u; a12 += u * w; a22 += w * w; b1 += u * z; b2 += w * z;
+        }
+      }
+      const det = a11 * a22 - a12 * a12;
+      if (!(det > 1e-12 * a11 * a22) || !(a11 > 0)) return null;
+      return [(b1 * a22 - b2 * a12) / det, (a11 * b2 - a12 * b1) / det];
+    };
+    for (let k = 0; k < passes; k++) {
+      const cps = segment(detrend(qline(s, q)), 3);
+      const next = pooled2([0, ...cps, n]);
+      if (!next) break;
+      const done = Math.abs(next[0] - s) < 1e-9 && Math.abs(next[1] - q) < 1e-12;
+      [s, q] = next;
+      if (done) break;
+    }
+    const y = detrend(qline(s, q)), cps = segment(y, 1), bounds = [0, ...cps, n];
+    let rss = 0;
+    for (let i = 0; i + 1 < bounds.length; i++) {
+      let m = 0; for (let t = bounds[i]; t < bounds[i + 1]; t++) m += y[t];
+      m /= bounds[i + 1] - bounds[i];
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) rss += (y[t] - m) ** 2;
+    }
+    const infl = ar1 ? longRunSd(1, ar1Rho(y)) ** 2 : 1;
+    const bic = (n * Math.log(Math.max(rss, 1e-12) / n)) / infl + (2 + 2 * cps.length) * Math.log(n);
+    // keep the curvature only if it lowers the BIC against the straight line under steps
+    if (bic < best.bic) return { adjusted: y, slope: s, curvature: q, curved: true };
+    return { adjusted: detrend(line(best.s, [])), slope: best.s[0], curved: false };
+  }
   if (maxBends && n >= 40) {
     const step = Math.max(1, Math.round(n / 40));
     const gap = Math.ceil(0.15 * n);
@@ -1773,6 +1815,7 @@ export function analyze(input = {}) {
   let burstInfo = null;
   const rawCounts = values;
   if (o.episodes && model !== 'poisson') throw new Error('Episodes are for counts: use model "poisson".');
+  if (o.spikes && model === 'poisson') throw new Error('Spikes are for continuous series: use model "mean" or "meanvar"; counts have --bursts and --episodes.');
   if (o.bursts) {
     if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
     const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
@@ -1826,7 +1869,7 @@ export function analyze(input = {}) {
       exposure = holidayFit.exposure;
     }
   }
-  let slope = null, slopeAfter, knot, knots, slopes, knotRanges;
+  let slope = null, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved;
   let growth = null, countKnot, growthAfter, countKnots, countRates, countRanges;
   const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
   if (o.trend && model === 'poisson') {
@@ -1837,7 +1880,7 @@ export function analyze(input = {}) {
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
   } else if (o.trend) {
-    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
+    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved } = trendAdjust(values, { quad: o.trend === 'quad', penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   nbAfterExposure();
   let sigma = robustSd(values);
@@ -1847,7 +1890,19 @@ export function analyze(input = {}) {
   const noiseFloorK = o.noiseFloor === true ? 1 : Number(o.noiseFloor) || 0;
   let noiseFloorHit = false;
   if (noiseFloorK > 0 && values.length > 2) {
-    const fl = noiseFloorK * median(values.slice(1).map((v, i) => Math.abs(v - values[i])));
+    // order 2 (o.noiseFloorOrder === 2) uses second differences, which cancel a steady drift per step; the factor 0.578
+    // (= 0.954 / 1.651, the white-noise medians of |d1| and |d2| in sd units) keeps k on the same scale as order 1.
+    // order 3 uses third differences (cancel a quadratic drift); 0.3166 = 0.955 / 3.016 keeps k on the same white-noise scale.
+    // 'local': residuals of a least-squares line (or quadratic, noiseFloorDegree 2) over each centred window of
+    // noiseFloorWindow points (default 7), rescaled to the white-noise first-difference scale (localFitScale).
+    const localW = Math.floor(Number(o.noiseFloorWindow) || 7) | 1, localDeg = o.noiseFloorDegree === 2 ? 2 : 1;
+    const fl = o.noiseFloorOrder === 'local' && values.length > localW
+      ? noiseFloorK * localFitScale(values, localW, localDeg)
+      : o.noiseFloorOrder === 3 && values.length > 4
+      ? noiseFloorK * 0.3166 * median(values.slice(3).map((v, i) => Math.abs(v - 3 * values[i + 2] + 3 * values[i + 1] - values[i])))
+      : o.noiseFloorOrder === 2 && values.length > 3
+      ? noiseFloorK * 0.578 * median(values.slice(2).map((v, i) => Math.abs(v - 2 * values[i + 1] + values[i])))
+      : noiseFloorK * median(values.slice(1).map((v, i) => Math.abs(v - values[i])));
     if (fl > sigma) { sigma = fl; noiseFloorHit = true; }
   }
   let rho = null;
@@ -1959,6 +2014,19 @@ export function analyze(input = {}) {
     const fg = fisherG(stepResiduals(values, p.changepoints));
     if (fg.p < 0.01 && fg.period >= 3) cycleWarning = `The residuals about these ${p.changepoints.length} steps carry a periodic component (peak at about ${round(fg.period, 1)} points, p ${fg.p < 1e-4 ? '< 0.0001' : round(fg.p, 4)}), so some steps may be a cycle read as regime changes, not separate changes: on sunspots (an 11-year cycle) the default found 46 steps and none were real. If the period is known, give it with --period; otherwise read the dates with care.`;
   }
+  // over-cut check (TCPD, eval/tcpd-defaults.mjs, README 2026-11-10): on the 31 Turing Change Point Dataset series the plain
+  // level model scored below reporting no change (F1 0.477 vs 0.663), mostly by cutting smooth or trending series into
+  // hundreds of steps. A noise floor of 2x the local-line residual scale (window 25) raised F1 on 27 of the 28 series where it
+  // differed (+0.21). So when the plain level model cuts 5 or more times and that floor halves the count, say so.
+  let overcut = null;
+  if (model === 'mean' && !noiseFloorK && !o.ar1 && !o.trend && !period && !o.log && p.changepoints.length >= 5 && values.length > 25) {
+    const floorSd = 2 * localFitScale(values, 25, 1);
+    if (floorSd > sigma) {
+      const refit = pelt(values, { model: 'mean', penalty, minSegment, sigma: floorSd });
+      if (refit.changepoints.length * 2 <= p.changepoints.length) overcut = { cuts: p.changepoints.length, refitCuts: refit.changepoints.length, floorSd: round(floorSd), refitAt: refit.changepoints.map((i) => labels[i]) };
+    }
+  }
+  const overcutWarning = overcut ? `${overcut.cuts} steps may be over-cutting a smooth or trending series: with the noise floor set to twice the scatter about a local line (--noise-floor 2 --noise-floor-local 25; page: smooth or trending series) the same search keeps ${overcut.refitCuts}${overcut.refitCuts ? ` (${overcut.refitAt.slice(0, 8).join(', ')}${overcut.refitCuts > 8 ? ', ...' : ''})` : ''}. On 31 labelled real series (Turing Change Point Dataset) that floor matched the annotators better on 27 of 28 that it changed; neither setting reliably beat reporting no change, so check the dates.` : null;
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1996,7 +2064,7 @@ export function analyze(input = {}) {
     noiseSd: round(sigma),
     ...(noiseFloorHit ? { noiseFloor: noiseFloorK } : {}),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure || seasonMultiplicative ? 3 : undefined)), ...(exposure || seasonMultiplicative ? { multiplicative: true } : {}) } } : {}),
-    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
+    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(curved !== undefined ? { curved, ...(curved ? { curvaturePerPoint2: round(curvature, 9), slopeChangePerPoint: round(2 * curvature, 9) } : {}) } : {}), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })), ...(o.overdispersion === 'nb' ? { growthChangeRangeNote: GROWTH_RANGE_NB_NOTE } : {}) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
     ...(dispersion ? { dispersion } : {}),
@@ -2004,10 +2072,12 @@ export function analyze(input = {}) {
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(driftWarning ? { driftWarning } : {}),
     ...(cycleWarning ? { cycleWarning } : {}),
+    ...(overcutWarning ? { overcutWarning, overcut } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
     ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
+    ...(o.spikes ? { spikes: findSpikes(changes, sigma, typeof o.spikes === 'number' ? { maxSpan: o.spikes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex], base: round(e.base), baseAfter: round(e.baseAfter), excursion: round(e.excursion), excursionInNoiseSd: e.excursionInNoiseSd === null ? null : round(e.excursionInNoiseSd, 1) })) } : {}),
     ...(excursions.length ? { excursions } : {}),
     ...(changes.length > 1 && groupRamps(changes, segments, values.length, { values }).length ? { ramps: groupRamps(changes, segments, values.length, { values }) } : {}),
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
@@ -2089,6 +2159,34 @@ export function findEpisodes(cps, n, { maxLen = Math.max(5, Math.round(n / 10)),
     if (net >= maxNet * jump) continue;
     out.push({ kind: up ? 'burst' : 'dip', startIndex: a.index, endIndex: b.index - 1, length: len, level: a.meanAfter, baseBefore: a.meanBefore, baseAfter: b.meanAfter, jumpFactor: Math.round(Math.exp(jump) * 100) / 100, netFactor: Math.round(Math.exp(net) * 100) / 100 });
     k++;
+  }
+  return out;
+}
+
+/**
+ * Spikes in a continuous series: a run of adjacent changes that spans at most `maxSpan` points and leaves the
+ * level where it began (the level after the last change within `maxNet` of the excursion of the level before the
+ * first) is one outlier, not a regime. A bad price or a one-day shock is reported by the mean model as a pair or
+ * triple of changes either side of it. Labels only: the changes themselves are not altered.
+ * `cps` are the changes from analyze() (index, meanBefore, meanAfter); sd is the noise sd; n the series length.
+ * The excursion must be at least `minSd` noise sd, so a small wobble is not labelled.
+ */
+export function findSpikes(cps, sd, { maxSpan = 5, maxNet = 0.5, minSd = 3 } = {}) {
+  const out = [];
+  for (let k = 0; k + 1 < cps.length;) {
+    let best = -1;
+    for (let j = k + 1; j < cps.length && cps[j].index - cps[k].index <= maxSpan; j++) {
+      const base = cps[k].meanBefore, end = cps[j].meanAfter;
+      let ex = 0, sign = 0;
+      for (let m = k; m < j; m++) { const d = cps[m].meanAfter - base; if (Math.abs(d) > Math.abs(ex)) { ex = d; sign = Math.sign(d); } }
+      if (Math.abs(ex) >= minSd * sd && Math.abs(end - base) < maxNet * Math.abs(ex)) best = j;
+    }
+    if (best < 0) { k++; continue; }
+    const base = cps[k].meanBefore;
+    let ex = 0;
+    for (let m = k; m < best; m++) { const d = cps[m].meanAfter - base; if (Math.abs(d) > Math.abs(ex)) ex = d; }
+    out.push({ kind: ex > 0 ? 'spike' : 'dip', startIndex: cps[k].index, endIndex: cps[best].index - 1, length: cps[best].index - cps[k].index, changes: best - k + 1, base, baseAfter: cps[best].meanAfter, excursion: ex, excursionInNoiseSd: sd > 0 ? ex / sd : null });
+    k = best + 1;
   }
   return out;
 }
@@ -2240,4 +2338,28 @@ export function garchSigma(x) {
     if (!moved) break;
   }
   return h(best[0], best[1]).map(Math.sqrt);
+}
+
+// Median absolute residual of centred local polynomial fits (window w, odd; degree 1 = line, 2 = quadratic), divided by the
+// white-noise value of that median so the result is on the first-difference scale (0.954 sd on white noise).
+// The fitted value at the centre of a least-squares fit is a fixed linear filter (Savitzky-Golay): for a line it is the
+// window mean; for a quadratic, c_j = (3(3m^2+3m-1) - 15 j^2) / ((2m-1)(2m+1)(2m+3)) with m = (w-1)/2. The residual is a
+// projection, so its variance on white noise is (1 - c_0) sd^2 and, for Gaussian noise, its median |.| is 0.6745 times that sd
+// exactly (the 7-point line gives 0.6245; the 0.627 used before 2026-11-10 was a simulation of the same number).
+export function localFitScale(v, w = 7, degree = 1) {
+  w = Math.floor(Number(w) || 7); if (w % 2 === 0) w += 1;
+  const m = (w - 1) / 2;
+  if (degree !== 1 && degree !== 2) throw new Error('The local-fit noise floor takes degree 1 (line) or 2 (quadratic).');
+  if (degree === 1 ? w < 3 : w < 5) throw new Error(`The local-fit noise floor needs a window of at least ${degree === 1 ? 3 : 5} points for degree ${degree}.`);
+  const c = [];
+  for (let j = -m; j <= m; j++) c.push(degree === 1 ? 1 / w : (3 * (3 * m * m + 3 * m - 1) - 15 * j * j) / ((2 * m - 1) * (2 * m + 1) * (2 * m + 3)));
+  const c0 = c[m];
+  const res = [];
+  for (let t = m; t < v.length - m; t++) {
+    let f = 0;
+    for (let j = -m; j <= m; j++) f += c[j + m] * v[t + j];
+    res.push(Math.abs(v[t] - f));
+  }
+  if (!res.length) return 0;
+  return median(res) / (0.67449 * Math.sqrt(1 - c0)) * 0.954;
 }

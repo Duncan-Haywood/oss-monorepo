@@ -14,3 +14,18 @@ def test_detects_missing_and_ignores_code_and_encoding():
             '[ok](a%20b/x.md#h) `[no](nope.md)` [bad](gone.svg)\n```\n[c](zz.md)\n```\n[w](https://e.com)')
         got = c.broken(d)
         assert [u for _, u in got] == ['gone.svg']
+
+
+def test_wrong_venture_mount_is_flagged(tmp_path):
+    import check_post_links as c
+    (tmp_path / 'a.md').write_text('[x](https://marisstella.app/ventures/foo/a.html) [y](https://marisstella.app/foo/a.html)\n')
+    bad = c.broken(str(tmp_path))
+    assert len(bad) == 1 and '/ventures/foo' in bad[0][1]
+
+
+def test_file_argument_checks_one_post(tmp_path, capsys):
+    (tmp_path / 'ok.md').write_text('[a](ok.md)\n')
+    (tmp_path / 'bad.md').write_text('[a](gone.md)\n')
+    assert c.main(['x', str(tmp_path / 'ok.md')]) == 0
+    assert c.main(['x', str(tmp_path / 'bad.md')]) == 1
+    assert 'gone.md' in capsys.readouterr().out

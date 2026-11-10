@@ -11,6 +11,7 @@
 // first from fa3-xsd.mjs (PL-012..PL-017). This is an offline observation, not
 // KSeF's acceptance and not tax advice. Findings never repeat a tax number.
 
+import { roundHalfUpToCents } from "./checks.mjs";
 import { parseXmlTree } from "./ubl.mjs";
 import { checkAgainstFa3Schema } from "./fa3-xsd.mjs";
 
@@ -28,7 +29,7 @@ const NET_FIELDS = ["P_13_1", "P_13_2", "P_13_3", "P_13_4", "P_13_5", "P_13_6_1"
 const VAT_FIELDS = ["P_14_1", "P_14_2", "P_14_3", "P_14_4", "P_14_5"];
 
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
-const cents = (n) => Math.round(n * 100) / 100;
+const cents = roundHalfUpToCents;
 const child = (node, name) => (node ? node.children.find((c) => c.name === name) : undefined);
 const kids = (node, name) => (node ? node.children.filter((c) => c.name === name) : []);
 const txt = (node, ...names) => {

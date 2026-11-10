@@ -60,6 +60,23 @@ class DeadLinks(unittest.TestCase):
                 "- [ok](https://duncan-haywood.github.io/oss-monorepo/foo/guide.html)\n")
             self.assertEqual(c.dead_links(root), [])
 
+    def test_main_exit_code(self):
+        import contextlib, io
+        old = c.REPO
+        try:
+            with tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                v = root / "ventures" / "foo"
+                v.mkdir(parents=True)
+                (v / "llms.txt").write_text("- [ok](https://duncan-haywood.github.io/oss-monorepo/foo/)\n")
+                c.REPO = root
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(c.main(), 0)
+                    (v / "llms.txt").write_text("- [bad](https://duncan-haywood.github.io/oss-monorepo/nope/x.html)\n")
+                    self.assertEqual(c.main(), 1)
+        finally:
+            c.REPO = old
+
 
 if __name__ == "__main__":
     unittest.main()

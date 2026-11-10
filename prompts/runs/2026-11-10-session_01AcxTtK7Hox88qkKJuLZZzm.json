@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtK7Hox88qkKJuLZZzm",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T19:06:31Z",
+  "ended": "2026-11-10T19:14:26Z",
+  "wall_minutes": 8.2,
+  "tokens_in": 2483186,
+  "tokens_out": 14472,
+  "cost_usd": 1.2556,
+  "tool_calls": 35,
+  "task": "polish: make sideways.mjs SAMPLE always probe site section index pages (next item from polish-2026-11-10-site-pages-reflow)",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14585",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to import playwright from '/opt/node-tools/node_modules/playwright/index.js' in ESM scripts; sideways.mjs instead needs PLAYWRIGHT=<that path> env, which the prompt does not mention (found by reading the script header)."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-10-site-pages-reflow.md",
+      "issue": "Says /404.html renders unstyled locally because of DEFAULT_BASE_URL; true, but the bigger trap for sampling was that pf-site.css links sit 22-328 KB into index pages after inline styles, so a head-only sniff misses them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not screenshot the five surfaces at phone and desktop widths; took the 'Next' item the previous polish note left today (pinned index pages in the sideways sample), which is the 'a check that keeps it fixed' kind of run.",
+      "did": "Measured with sideways.mjs SAMPLE=300 at 360 and 320 px on a full build, plus a planted regression.",
+      "result": "Check now catches the regression class; clean build 0/300 at both widths."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-sideways-check-pins-index-pages.md",
+    "docs/reports/polish-2026-11-10-sideways-sample-pins-indexes.md"
+  ],
+  "goal": null,
+  "notes": "Full node platform/pages/build.mjs completed (DONE). sideways.mjs SAMPLE=300: 0/300 at 360px and 320px; planted nowrap path on built research/index.html flagged (+345px). Even spread old algorithm: 0/8 main indexes at N=300 and N=400, 1/8 at N=1000. sideways-sample.test.mjs 3/3 pass. check_post_frontmatter.py exit 0 (after shortening the post description from 186 chars). node --test platform/pages/*.test.mjs: 1496 tests, 1495 pass, 0 fail, 1 skipped.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "79f1ea36-4be4-5e20-b643-2a0f55afe9b9",
+    "transcripts": 1,
+    "first": "2026-11-10T19:06:31Z",
+    "last": "2026-11-10T19:14:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 62,
+        "output": 14472,
+        "thinking": 1673,
+        "cache_read": 2422953,
+        "cache_write_5m": 0,
+        "cache_write_1h": 60171,
+        "api_equivalent_usd": 1.2556,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 62,
+      "output": 14472,
+      "thinking": 1673,
+      "cache_read": 2422953,
+      "cache_write_5m": 0,
+      "cache_write_1h": 60171,
+      "api_equivalent_usd": 1.2556,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.2,
+      "active_minutes": 8.2,
+      "model_minutes": 3.23,
+      "tool_minutes": 4.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior front-end engineer: diagnose sample gap, write module+test, verify on full build",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 238.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -51,6 +51,9 @@ const PILOTS = {
   'child-tax-credit-calculator': async (m) => [m.CTC_PER_CHILD, m.ODC_PER_DEPENDENT, m.ACTC_CAP_PER_CHILD, m.PHASEOUT_THRESHOLD_OTHER, m.PHASEOUT_THRESHOLD_JOINT],
   'dependent-care-fsa-vs-credit-calculator': async (m) => [m.FSA_LIMIT, m.CAP_ONE, m.CAP_TWO, m.FSA_LIMIT / 2, 5000], // FSA limit, credit caps, separate-return half, and the pre-2026 FSA limit named as context; 26 USC 129 and 21
   'home-office-deduction-calculator': async (m) => [m.SIMPLIFIED_RATE, m.SIMPLIFIED_MAX_SQFT, m.SIMPLIFIED_MAX],
+  'sep-ira-contribution-calculator': async (m) => [m.LIMITS_2026.annualAdditions, m.LIMITS_2026.compensationLimit],
+  'social-security-benefits-tax-calculator': async (m) => [m.BASES.single.b1, m.BASES.single.b2, m.BASES.mfj.b1, m.BASES.mfj.b2], // statutory base amounts, IRC 86(b)
+  'medicare-irmaa-cliff-calculator': async (m) => [m.tiers('single')[0].to, m.tiers('mfj')[0].to, m.tiers('single').at(-1).from, m.tiers('mfj').at(-1).from, m.STANDARD_PART_B, m.tiers('single')[1].partBSurcharge, m.tiers('single').at(-1).partBSurcharge], // thresholds, standard Part B, first-tier and top-tier surcharges
   'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
 };
 
@@ -212,4 +215,64 @@ test('401k-plan-fee-calculator: lead is sourced, dated and matches the calculato
   assert.equal([...text.matchAll(/\$[\d,]+/g)].length, 0, 'lead should state no dollar figure');
   const calc = readFileSync(new URL(`${slug}/calc.mjs`, root), 'utf8');
   assert.match(calc, /no legal safe-harbor percentage/);
+});
+
+// Mileage lead (cents per mile, no dollar figures): the rates it states must be the ones the calculator holds.
+test('mileage-deduction-calculator: lead is sourced, dated and matches the 2026 rates', async () => {
+  const slug = 'mileage-deduction-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { RATES_2026: R } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/(\d+(?:\.\d+)?) cents/g)].map((x) => Number(x[1]));
+  assert.deepEqual(stated, [R.businessH1 * 100, R.businessH2 * 100]);
+});
+
+// Estimated tax penalty lead: the thresholds it states must be the ones the calculator holds.
+test('estimated-tax-penalty-calculator: lead is sourced, dated and matches the calculator thresholds', async () => {
+  const slug = 'estimated-tax-penalty-calculator';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { HIGH_INCOME_AGI, DE_MINIMIS } = await import(new URL(`${slug}/calc.mjs`, root));
+  const dollars = [...text.matchAll(/\$([\d,]+)/g)].map((d) => Number(d[1].replace(/,/g, '')));
+  assert.deepEqual(dollars, [HIGH_INCOME_AGI, DE_MINIMIS]);
+  assert.match(text, /90%/);
+  assert.match(text, /110%/);
+});
+
+// Actions timeout lead: the 360-minute default it states must be the one the classifier flags.
+test('actions-timeout-check: lead is sourced, dated and matches the classifier default', async () => {
+  const slug = 'actions-timeout-check';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  assert.match(text, /\b360 minutes/);
+  const { scanText } = await import(new URL(`${slug}/classify.mjs`, root));
+  const f = scanText('on: push\njobs:\n  a:\n    runs-on: ubuntu-latest\n    timeout-minutes: 360\n    steps:\n      - run: x\n');
+  assert.ok(f.some((x) => x.type === 'job-timeout-at-default'), 'classifier no longer treats 360 as the default');
+});
+
+// AU GST lead: the thresholds and 21-day window it states must be the checker's own constants.
+test('au-gst-registration-checker: lead is sourced, dated and matches the thresholds', async () => {
+  const slug = 'au-gst-registration-checker';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { THRESHOLD, NONPROFIT_THRESHOLD } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/AUD ([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.deepEqual(stated, [THRESHOLD, NONPROFIT_THRESHOLD]);
+  assert.match(text, /21 days/);
 });

@@ -9,6 +9,11 @@ up to three weeks ahead on 2026-10-25, so they topped the feed and carried a
 false `datePublished`) and that `tags` is a non-empty list.
 
     python3 platform/ci/check_post_frontmatter.py [--root DIR]   # exit 1 if any
+    python3 platform/ci/check_post_frontmatter.py docs/posts/NEW.md   # just these
+
+Named posts are checked alone, and the cross-post checks (tag spellings,
+shared descriptions) report only groups that include one of them. Runs kept
+passing a file and getting a usage error (two friction reports, 2026-11-10).
 """
 import argparse
 import datetime
@@ -17,6 +22,23 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "platform" / "pages"))
+try:
+    from propose_seo_titles import cut as _cut  # noqa: E402
+except ImportError:
+    # Run without platform/pages beside it: prompts-ci's sparse checkout, or
+    # prompts/test_promptctl.py, which copies this file alone onto a fixture.
+    # Crashing there made promptctl read "no problems" and kept prompts-ci red
+    # on main for 14 h (2026-11-10). This is propose_seo_titles.cut, kept in
+    # step by test_check_post_frontmatter.py.
+    def _cut(title, budget=70, minimum=25):
+        for sep in (": ", "? "):
+            i = title.find(sep)
+            if i >= 0:
+                head = title[:i + (1 if sep == "? " else 0)]
+                if minimum <= len(head) <= budget:
+                    return head
+        return None
 REQUIRED = ("title", "date", "description", "tags")
 
 
@@ -52,6 +74,10 @@ def problems(name, text, today=None):
     seo = fields.get("seo_title", "").strip("\"'")
     if len(seo) > 70:
         out.append(f"seo_title is {len(seo)} characters; keep it to 70")
+    # propose_seo_titles.py --check failed main four times in two days because only
+    # main_health ran it: a title over 70 with no seo_title and no clean cut to 70.
+    if not seo and len(title) > 70 and not _cut(title):
+        out.append(f"title is {len(title)} characters with no clean cut to 70; add `seo_title:` (70 max)")
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")
@@ -59,8 +85,10 @@ def problems(name, text, today=None):
 
 
 def tag_key(tag):
-    """Spelling-insensitive form of a tag: case, hyphens and a trailing plural s dropped."""
+    """Spelling-insensitive form of a tag: case, hyphens and a trailing plural s or es dropped."""
     k = re.sub(r"[^a-z0-9]", "", tag.lower())
+    if k.endswith("es") and len(k) > 4 and k[-3] in "xzh":  # taxes -> tax; not "cases"
+        return k[:-2]
     return k[:-1] if k.endswith("s") and len(k) > 3 else k
 
 
@@ -90,17 +118,37 @@ def duplicate_descriptions(texts):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", default=str(ROOT))
+    ap.add_argument("posts", nargs="*", help="check only these posts (default: every post)")
     args = ap.parse_args(argv)
     bad = 0
     texts = {f.name: f.read_text(encoding="utf-8") for f in sorted((Path(args.root) / "docs" / "posts").glob("*.md"))}
+    named = set()
+    for p in args.posts:
+        f = Path(p)
+        if not f.is_file():
+            print(f"{p}: no such file")
+            bad += 1
+            continue
+        texts[f.name] = f.read_text(encoding="utf-8")
+        named.add(f.name)
     for name, text in texts.items():
+        if named and name not in named:
+            continue
         for p in problems(name, text):
             print(f"{name}: {p}")
             bad += 1
+    own_tags = set()
+    for name in named:
+        m = re.search(r"^tags:\s*\[(.*?)\]", texts[name], re.M)
+        own_tags |= {t.strip().strip("\"'") for t in (m.group(1).split(",") if m else [])}
     for group in tag_variants(texts):
+        if named and not own_tags & set(group):
+            continue
         print(f"tag spelled {len(group)} ways: {', '.join(group)}; pick one")
         bad += 1
     for group in duplicate_descriptions(texts):
+        if named and not named & set(group):
+            continue
         print(f"one description on {len(group)} posts: {', '.join(group)}; word each for its own post")
         bad += 1
     return 1 if bad else 0

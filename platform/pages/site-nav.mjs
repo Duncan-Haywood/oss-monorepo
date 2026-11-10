@@ -23,6 +23,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
+import { REFLOW_CSS } from './reflow.mjs';
 import { markSvg } from './sharecard.mjs';
 
 export const SITE_NAME = 'Maris Stella Labs';
@@ -441,7 +442,7 @@ footer:has(.pfs-foot) h2,footer:has(.pfs-foot) strong{color:#eef2f8}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
 .pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
 .pfs-support{margin:18px 0 0;font-size:14px;line-height:1.6}
-footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 24px;
+footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:4px 24px;
   margin-top:26px;padding-top:22px;border-top:1px solid rgba(148,170,210,.24);line-height:1.6}
 footer .pfs-foot>span{display:none}
 footer .pfs-foot+*{margin-top:16px}
@@ -508,9 +509,20 @@ html{overflow-x:clip}
 @media (max-width:600px){.pf-hero{padding-top:18px}}
 `;
 
-/** Contents of `pf-site.css`, the stylesheet every site-owned page links. */
+/**
+ * Contents of `pf-site.css`, the stylesheet every site-owned page links.
+ *
+ * `REFLOW_CSS` rides at the end, as it does in `pf-chrome.css`. Until
+ * 2026-11-10 it rode only there, so the 4,538 site-owned pages (the hub,
+ * /research/, /writing/, /stories/, /compare/ ...) had none of the sideways-
+ * scroll guards the venture pages got: measured that day at 390px, /research/
+ * was 428px wide because a featured card quoted
+ * `<code>experiments/hub_throughput/cargo_hub_trace_taper.py</code>`, an
+ * unbreakable token that `:where(code){overflow-wrap:break-word}` exists to
+ * break. Every rule in it has zero specificity, so a page's own CSS still wins.
+ */
 export function renderSiteStyle() {
-  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}`;
+  return `${SITE_TOKENS_CSS.trimStart()}${SITE_HEADER_CSS}${SITE_FOOTER_CSS}${SITE_HERO_CSS}${REFLOW_CSS}`;
 }
 
 /** The `<link>` a site-owned page puts in its head. */

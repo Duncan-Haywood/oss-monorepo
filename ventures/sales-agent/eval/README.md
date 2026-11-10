@@ -31,6 +31,7 @@ error (rules too narrow) is what these sets show reliably.
 | `fresh-2026-11-08c.jsonl` | 20 | Sixteenth set, a false-"interested" probe: polite declines, conditional yeses and partial noes that read positive ("happy to chat in theory ... close the file", "open to a demo after our fiscal year ... come back then", "not interested in the other plan" beside a proposed time). Before the change: 13/20, 3 overreach (two would have drafted a meeting reply to a decline or a later-date request). After narrow patches (decline phrases, "come back then" as not-now, a conditional demo plus not-now is not-now, a proposed time beats a partial no): 17/20, 1 overreach. The one left is a label call: "we just signed with another vendor" reads as a competitor objection and drafts an answer, where I labelled it a decline. No older set changed. Agent-written, unscored on real mail. |
 | `fresh-2026-11-11.jsonl` | 20 | Eighteenth set, a false not-now and wrong-person probe: live leads that use the stop words ("I'm not the right person for budget but I'm the one who'd use it ... Friday?", "my colleague left but I've taken over ... what are you offering?", "wrong time, not wrong person", "I'd have said not now last month", "call me later today") beside real departed-contact and not-now notices. Before the change: 9/20, 1 overreach; 6 live leads would have been marked a departed contact (no more outreach), 3 not-now misreads. After narrow vetoes (a reply with a question or go-ahead and no referral address is not a departed contact; negated or same-day "not now"/"later" is not a deferral) and three additions ("stop following up" and "no more follow-ups" are opt-outs, found by the probe; "can you do Wednesday" is a meeting ask): 18/20, 0 overreach, no other set got worse and four improved by one. The 2 left go to a person. Agent-written, unscored on real mail. |
 | `fresh-2026-11-12.jsonl` | 20 | Twentieth set, an auto-reply, bounce and non-English opt-out probe (German, French, Spanish stops, GDPR erasure, one-word STOP, out-of-office with return dates, mailbox-full and unknown-user bounces). Before the change: 19/20; the miss was "on sabbatical, messages are not monitored". After one narrow pattern pair in `engine.mjs`: 20/20, overreach 0. Agent-written and short, so 100% is a ceiling check, not a measure on real mail. |
+| `fresh-2026-11-13.jsonl` | 20 | Twenty-first set, a question, objection and interest probe (pricing, trial, integration questions; incumbent, budget, security, size objections; booking and next-step interest). Scored once before any change: 17/20, no overreach; the two objection misses went to a person. Two narrow objection patches ("tried something similar ... a mess, sceptical", "doesn't fit a business our size"): 19/20, and the 2026-10-25 set gained one (38 to 39). Left unpatched on purpose: "Looks relevant. Looping in my colleague Dan who owns this" reads as a handover (wrong person); a person sees both readings. Agent-written, so a tuned score, not a forecast. |
 | `fresh-2026-11-08d.jsonl` | 20 | Seventeenth set, a false-bounce and false-away probe: people who mention a bounce, an undeliverable address, a trip or a leave while asking something or agreeing to a call ("my last email bounced ... Yes, I'd like a call", "I'm travelling until the 20th, ping me after", "does your tool handle out of office notices?"), beside 4 real machine notices. Before the change: 9/20, 0 overreach; 3 real replies would have marked a live lead's address bounced (email stopped for good) and 6 were read as away notices. After one narrow veto (a reply with a question or an ask, no header signal and no daemon sender is not a bounce or an away notice): 16/20, 0 overreach. The 4 left are interested/objection versus question label calls. Agent-written, unscored on real mail. |
 
 `bounce-corpus/` and `bounces.mjs` are the exception to "hand-written": 117 real
@@ -142,3 +143,74 @@ for good) grows relative to a missed one, since there are about thirteen
 non-opt-outs for each real opt-out. We have not measured the false-opt-out rate
 on real text. The data is from one vendor's campaigns, and the opt-out tag
 merges hostile replies, so treat the 1.7% as a rough figure.
+
+## Real mail: the Enron corpus, added 2026-11-10
+
+The first check of the reply rules on real people's writing at scale. `eval/enron.mjs`
+reads raw messages exactly the way the self-host server does (`self-host/imap.mjs`
+`parseMessage` and `toReplyBlock`, then `parseReplies` and `triage`) and counts what
+each one is filed as.
+
+**Data.** The Enron email corpus (CMU release; FERC made it public), from the CC0
+copy at `github.com/asimov-datasets/enron.com` (commit `0c07e58`, one xz-compressed
+RFC 822 message per file under `.bitcache/blobs/<2 hex>/`). Nothing from it is
+committed. To fetch the same sample:
+
+```
+git clone --depth 1 --no-checkout https://github.com/asimov-datasets/enron.com.git enron
+cd enron && git checkout HEAD -- '.bitcache/blobs/0*' '.bitcache/blobs/1*'
+find .bitcache/blobs -name '*.xz' -print0 | xargs -0 -P 8 -n 500 xz -dk
+node eval/enron.mjs <path>/.bitcache/blobs/1? --replies --labels eval/enron-labels/held.json
+```
+
+(`1?` stands for the sixteen folders `10`..`1f`; pass a directory holding links to
+them.) 64,655 files; after removing the same message filed in several folders and
+keeping `RE:` subjects, 9,534 replies in the `0*` half and 9,619 in the `1*` half.
+
+**What it can and cannot say.** These are internal business replies, not replies to
+cold outreach, so the corpus says nothing about how well the rules sort a sales
+inbox. It does say how often a *stop* (unsubscribe, bounce, left the company, not
+interested, out of office: a lead suppressed, paused or marked gone) fires on real
+writing, and whether those stops are right. That is the costly error the
+agent-written sets could not measure.
+
+**Method.** The `0*` half was the tuning half: every stop the rules fired there (399)
+was read and labelled right, wrong or ambiguous, and narrow vetoes were written from
+the wrong ones (`VETO` in `engine.mjs`). The `1*` half was held out and scored once
+after the change: the union of the stops the old and new rules fired (420) was
+labelled from a shuffled list with the engine hidden. Labels:
+`eval/enron-labels/{dev,held}.json` (Message-ID, category before and after, label;
+no text). "Right" means that, read as a reply to an outreach email, the sentence
+means that stop ("No.", "Take me off this list", "I am out of the office until
+Monday"). One agent wrote the vetoes and the labels; no second reader yet.
+
+| Stops fired on `RE:` replies | Before | After |
+|---|---|---|
+| Tuning half (9,534): right / wrong / ambiguous | 100 / 285 / 14 (399) | 99 / 61 / 13 (173) |
+| **Held-out half (9,619), scored once** | **113 / 291 / 16 (420)** | **108 / 124 / 15 (247)** |
+| Held-out precision (ambiguous as wrong) | 27% | 44% |
+| Held-out wrong stops per 1,000 replies | 30 | 13 |
+| Real auto-replies (subject or `Auto-Submitted`), both halves | 90 of 92 | 91 of 92 |
+
+What fired wrongly, most to least: confidentiality footers ("if you received this in
+error ... delete this message from your system" read as an opt-out), sign-off contact
+lines ("if you have any questions, please contact me at x5702" read as a referral to
+someone else, so the lead was marked gone), "I left you a voicemail" and "when I
+left" read as leaving the company, list footers ("To unsubscribe from this group,
+send an email to"), "there is no need to ...", "I'll pass it on to ...", "the
+counterparty is not interested", "we are fine with ...", "please advise if you are
+planning to be out of the office", "I will return a signed copy". One real fault in
+the other direction: an auto-reply sent from `postmaster@` ("I am on maternity
+leave; please contact ...") was read as a bounce, which marks a live address dead;
+it is now an away notice.
+
+The held-out half lost 5 right stops, all referrals worded like a sign-off ("please
+contact Bob Williams re this; he is the litigation manager", "I will be out
+tomorrow, so please contact Bill with questions"). They now reach a person as a
+question or unclear rather than stopping the lead, the cheaper direction. The 124
+wrong stops left are mostly third-person "no need"/"don't need", news text, quoted
+Lotus Notes history the stripper does not cut (`Name@ENRON 03/06/2000 ... To: ...
+Subject:`), and replies under a "Returned mail" subject. Whether the vetoes cost
+opt-outs in real sales replies is not measured: Enron holds only a few dozen real
+"take me off this list" replies, all still caught, and the agent-written opt-out
+sets did not move.

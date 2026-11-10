@@ -13,6 +13,7 @@ from machine import ADC, PWM, UART, Pin
 
 import config
 import controller
+import protocol
 
 ROLE = getattr(config, "ROLE", controller.ROLE_FEEDER)
 
@@ -94,11 +95,35 @@ class Tach:
         self.rpm = int(n * 60000 / dt) if dt else 0
 
 
+class StepDir:
+    """Step/dir pins of a stepper driver (TMC2209 or A4988 class) and a home switch to GND."""
+
+    def __init__(self, step, direction, home):
+        self.step = Pin(step, Pin.OUT, value=0)
+        self.dir = Pin(direction, Pin.OUT, value=0)
+        self.home = Pin(home, Pin.IN, Pin.PULL_UP)
+
+    def home_closed(self):
+        return self.home.value() == 0
+
+    def pulse(self, n):
+        self.dir.value(1 if n > 0 else 0)
+        for _ in range(abs(n)):        # a few tens per tick at most (60 deg/s, see config); the driver needs >= 1 us high
+            self.step.value(1)
+            time.sleep_us(2)
+            self.step.value(0)
+            time.sleep_us(2)
+
+
 class FeederHw:
     def __init__(self):
         self.esc_top, self.esc_bottom = Servo(25), Servo(26)
         self.tach_top, self.tach_bottom = Tach(34), Tach(35)
-        self.elev, self.azim, self.gate = Servo(27, 500, 2500), Servo(14, 500, 2500), Servo(13)
+        self.elev, self.gate = Servo(27, 500, 2500), Servo(13)
+        # Azimuth: NEMA 17 through the 15:150 gear sector (cad/README.md, "Azimuth drive"), homed on a switch.
+        self.azim_pins = StepDir(14, 21, 22)
+        self.azim = controller.StepperAxis(200 * config.AZ_MICROSTEPS * config.AZ_RATIO / 360, config.AZ_VMAX_DEG_S,
+                                           config.AZ_ACCEL_DEG_S2, config.AZ_HOME_DEG, -30.0, 30.0)
         self.base = Motor(32, 33)
         self.base_enc = Encoder(18, 19)
         self.estop_pin = Pin(4, Pin.IN, Pin.PULL_UP)
@@ -123,13 +148,14 @@ class FeederHw:
         self.base_vmax = 0
         self.feeding = 0
         self.gate.frac(0)
+        self.azim.stop()
 
     def set_launch_rpm(self, top, bottom):
         self.target_rpm = (top, bottom)
 
     def set_aim(self, elev_cdeg, az_cdeg):
         self.elev.frac((elev_cdeg + 1500) / 6000)   # -15..45 deg over the servo range
-        self.azim.frac((az_cdeg + 3000) / 6000)     # -30..30 deg
+        self.azim.target(az_cdeg / 100)             # -30..30 deg; driven once homed
 
     def feed(self, n):
         self.feeding += n
@@ -150,7 +176,7 @@ class FeederHw:
         return False
 
     def flags(self):
-        return 0
+        return 0 if self.azim.homed else protocol.FLAG_AZ_UNHOMED
 
     def base_y_mm(self):
         return int(self.base_enc.count / config.BASE_COUNTS_PER_MM)
@@ -162,6 +188,7 @@ class FeederHw:
         return int(self.adc.read_uv() / 1000 * config.BATTERY_DIVIDER)
 
     def update(self, dt, now):
+        self.azim_pins.pulse(self.azim.update(dt, self.azim_pins.home_closed()))
         self.tach_top.update(dt)
         self.tach_bottom.update(dt)
         for i, (esc, tach) in enumerate(((self.esc_top, self.tach_top), (self.esc_bottom, self.tach_bottom))):

@@ -1,5 +1,216 @@
 # build-data log
 
+## Session 71, 2026-11-10: the description rules measured against hand labels (v1 60% / 78% held out, revised v2 85% / 95%), and the first transfer run with a work-type class
+
+Why: session 70 wrote description keyword rules (`classmap.DESC_RULES`) without classifying a single real description, and noted that its P1 measures coverage, not correctness. The Socrata hosts answered this session (Chicago, SF, Seattle 200 at 21:08 UTC; Austin timed out on the first probe).
+- New `src/desc_eval.py` (stdlib). `sample` draws applications whose permit_type and work_class both map to "other" (the rows the description must rescue) from one year in Chicago and Seattle, and keeps the text outside git; `score` scores the rules against hand labels and writes `results/desc_rules_eval.json` with each row's (label, v1, v2) codes so the numbers recompute from git alone. Labels: `results/desc_labels_2023.txt`, `results/desc_labels_2022.txt` (codes only; the protocol is in the script's docstring).
+- Labeller: the agent running this session, from the text alone, without the rules' output; one labeller, so no inter-rater agreement. A mixed job takes its principal job; administrative rows, elevators, scaffolds, telecom equipment and plain "monthly maintenance" are "other".
+- Dev sample (2023, 200 per city): v1 agrees with the labels on 56.0% of Chicago rows and 77.0% of Seattle rows. Main errors: "erect" sends solar arrays, fences and scaffolds to new construction (15 Chicago rows were solar alone); fire-alarm permits that mention a tenant build-out go to alteration; electrical service, panel, fixture and camera work has no rule (22 Chicago electrical rows fall to "other"); Seattle's "Construct west two-family dwelling" has no "new" (25 of 52 new-construction rows fall to "other"); seismic retrofits have no rule; contractor-change rows are classed by the trade they name.
+- `classmap.DESC_RULES_V2` answers each of those patterns (listed in the code). On the dev sample it scores 92.5% and 96.5%, which is optimistic by construction.
+- Held-out sample (2022, 150 per city, a different seed and offsets), labelled after v2 was written and before either rule set was run on it:
+
+| city | n | v1 accuracy | v2 accuracy (95% Wilson) | rows only v1 right / only v2 right | exact McNemar p |
+|---|---|---|---|---|---|
+| Chicago | 150 | 60.0% | 85.3% [78.8, 90.1] | 2 / 40 | 4.1e-10 |
+| Seattle | 150 | 78.0% | 95.3% [90.7, 97.7] | 1 / 27 | 2.2e-07 |
+
+- So session 70's rules were wrong on two rows in five in Chicago; the session 70 predictions P1 to P4 are still scored on them below (they were pre-registered on v1), and the revised rules get their own run.
+- The loader now writes `desc_class_v2` beside `desc_class`; `transfer.py --classes cascade2` uses it, and `other_vocab.py` reports both.
+Prediction for the v2 run (written before any transfer run with either rule set; same test year, seeds and thresholds as session 70's P1 to P4): (P1') the v2 cascade gives a class other than "other" to at least half of the permit-type "other" rows in Chicago and in Seattle; (P2') Seattle a2i overlap with its source mix on the training years, without "other", is at least 0.30; (P3') Seattle a2i transfer is still worse than the own-city baseline at q0.9 (CI above zero); (P4') Seattle i2c transfer at q0.5 moves less than 3 points from the type-only run.
+- Limits (labels): one labeller (the agent); samples are the first rows Socrata returns for the year at the chosen offsets, shuffled, not a uniform draw over the year; only Chicago and Seattle are checked (SF and Austin are mostly classed by their structured fields).
+
+Outcome, fresh four-feed pull 2026-11-10 21:17 to 21:33 UTC (row counts as session 69; `results/manifest.json` unchanged), `python3.13 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2024 --classes {cascade,cascade2,type}`. Relative change of mean pinball loss against Seattle's own per-type baseline, 95% week-block bootstrap of the difference in days (`results/transfer_seattle_{a2i,i2c}_2024_4city_{cascade,cascade2}.json`; test rows 5,541 a2i and 4,313 i2c; 3 seeds). "type" is the same-pull rerun of the session 64 configuration; its a2i numbers reproduce session 64 exactly, its i2c numbers differ by up to 1.6 points (the Seattle feed changed since), so the committed session 64 files are left as they were and the rerun is quoted here only.
+
+| target | classes | q0.1 | q0.5 | q0.9 | 80% coverage (baseline 0.890 / 0.882) | class overlap with sources, without "other" |
+|---|---|---|---|---|---|---|
+| a2i | type (rerun) | +0.0% (CI spans 0) | +0.7% (spans 0) | +27.4% [7.7, 10.6 d] | 0.644 | 0.006 |
+| a2i | cascade (v1) | -0.0% [-0.01, -0.00 d] | +2.2% [0.6, 1.4 d] worse | +41.7% [12.1, 15.9 d] | 0.703 | 0.512 |
+| a2i | cascade2 (v2) | -0.1% [-0.01, -0.00 d] | -0.5% (spans 0) | +15.9% [3.8, 6.8 d] | 0.755 | 0.501 |
+| i2c | type (rerun) | -8.4% [-2.9, -1.8 d] | -10.4% [-11.2, -7.3 d] | -3.5% (spans 0) | 0.723 | 0.002 |
+| i2c | cascade (v1) | -10.1% [-3.3, -2.4 d] | -11.2% [-11.6, -8.0 d] | +1.2% (spans 0) | 0.816 | 0.449 |
+| i2c | cascade2 (v2) | -10.9% [-3.5, -2.6 d] | -11.4% [-11.9, -8.2 d] | +1.2% (spans 0) | 0.797 | 0.448 |
+
+- Session 70 predictions (v1 rules), all four held: P1 the cascade classes 71.8% of Chicago's and 78.2% of Seattle's permit-type "other" rows (`results/other_vocab.md`); P2 Seattle a2i overlap without "other" is 0.512 (from 0.006); P3 a2i q0.9 transfer still worse (+41.7%, CI above zero); P4 i2c q0.5 moves 0.5 points from the committed type-only run (-10.7% to -11.2%; 0.8 from the same-pull rerun).
+- v2 predictions, all four held: P1' 72.4% and 92.4%; P2' 0.501; P3' +15.9%, CI above zero; P4' -11.4% (0.7 points from -10.7%, 1.0 from the rerun).
+- Not predicted: the work type matters for the upper tail. With the noisy v1 class the a2i q0.9 penalty grows (+27.4% to +41.7%) and q0.5 turns significantly worse; with the v2 class it falls to +15.9% and coverage rises from 0.644 to 0.755. So session 70's reading of P3 ("the upper-tail gap is a duration-distribution mismatch, not a class problem") is only partly right: P3 held, but about two fifths of the q0.9 gap (27.4 to 15.9 points) goes with a cleaner class. Same-pull own-city boosted models gain too (a2i q0.1 -5.5% to -9.6%, i2c q0.9 -3.6% to -5.2%).
+- i2c q0.9 does not improve: -3.5% (type) to +1.2% (both cascades), all spanning zero.
+- Limits: one test year, 3 seeds, Seattle only; no interval on the difference between class configurations (each is compared with the baseline, not with each other); the v2 rules were written against 2023 descriptions, the early-stopping year here, never against the 2024 test rows.
+Next: the same three class configurations for Seattle 2022 and 2023 and with Chicago and Austin held out; a paired bootstrap of v2 against type-only transfer; a second labeller for the 2022 sample; full-model width bootstrap.
+
+## Session 70, 2026-11-10: the loader now keeps a work-type class from the description (feeds unreachable again; rerun prediction written)
+
+Why: session 69 found Chicago's and Seattle's structured fields do not name the kind of work, so a retuned class map needs the description, which the loader kept only as a length. Every Socrata host answered 403 to CONNECT through this session's egress proxy at 20:10 UTC (as in session 68), so this session builds and tests the code path and writes the prediction; it reports no new number.
+- New `src/classmap.py` (stdlib): the session 10 map `RULES` moved here unchanged (every committed result reproduces; `transfer.py` and `other_vocab.py` import it), plus `DESC_RULES` for free text and `cascade(permit_type, work_class, desc_class)`, the first non-"other" class in that order. The description rules put whole-job phrases first (demolish/wreck; erect, "construct new", "new single family ..."), structural alteration words next, single trades after, generic repair words last, because a description lists trades inside bigger jobs and "new" alone ("install new water heater") is not new construction. They were written from documented field meanings and common permit phrasing, before any real description was classified with them; 16 description phrases in `tests/test_classmap.py` pin the intended behaviour, not its accuracy.
+- `src/permits.py` writes a `desc_class` column at pull time and still stores no description text (it can name people and addresses; only the class is needed).
+- `src/transfer.py --classes cascade` builds the class from the cascade and writes `*_cascade.json`; the default `type` is the old behaviour. `src/other_vocab.py` now also reports, per city, the share of permit-type "other" rows the cascade rescues and to which classes.
+Prediction for the first run with data (2024 test year, `--classes cascade`, 3 seeds; written before any description was classified):
+- (P1) The cascade gives a class other than "other" to at least half of the permit-type "other" rows in Chicago and in Seattle (`other_vocab.md`). Refuted below 50% in either city.
+- (P2) Seattle's a2i overlap with its source mix on the training years, without "other", rises from 0.006 (session 69, 2022) to at least 0.30. Refuted below 0.30.
+- (P3) Seattle a2i transfer is still worse than Seattle's own per-type baseline at q0.9 (95% week-block CI above zero): the upper-tail gap is a duration-distribution mismatch, not a class problem. Refuted if the CI includes or is below zero.
+- (P4) Seattle i2c transfer at q0.5 changes by less than 3 points of relative pinball loss from the type-only run (-10.7% in 2024): the generic fields carry what transfer gains. Refuted if it moves 3 points or more either way.
+- Limits: the description rules are unvalidated; P1 measures coverage, not correctness. A hand-labelled sample needs the text, which the loader deliberately drops, so validation needs a one-off local sample kept outside git.
+Next: pull with the new loader, run `other_vocab.py` and `transfer.py --classes cascade` against P1 to P4; hand-label about 200 descriptions per city (kept outside git) to measure the description rules' accuracy; full-model width bootstrap.
+
+## Session 69, 2026-11-10: Seattle transfer in a third test year, 2022 (session 68's prediction run: it held), and why the class map cannot be retuned on permit type
+
+Why: session 68 wrote a prediction for the 2022 transfer test but could not pull the feeds. They answered again at 18:08 UTC; fresh four-feed pull 2026-11-10 (Chicago 852,615, SF 1,298,152, Austin 2,384,746, Seattle 194,184 rows; `results/manifest.json`). `python3.12 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2022` (source and own train to year <= 2020, early stopping on 2021, test 2022; code unchanged).
+Prediction (session 68, written before this run): (P1) Seattle i2c transfer beats the baseline at q0.1 and q0.5, CIs below zero; (P2) Seattle a2i transfer worse at q0.9, CI above zero; (P3) both transfer 80% coverages below 0.75.
+
+Outcome (2022, relative change of mean pinball loss against Seattle's own per-type baseline, 95% week-block bootstrap of the difference in days; `results/transfer_seattle_{a2i,i2c}_2022_4city.json`; test rows 6,139 a2i and 4,776 i2c; 3 seeds):
+| target (sources) | q0.1 | q0.5 | q0.9 | 80% coverage (baseline) |
+|---|---|---|---|---|
+| a2i (Chicago, SF, Austin) | -0.1% [-0.02, -0.00 d] | +0.1% (CI spans 0) | +35.8% [16.3, 20.1 d] worse | 0.547 (0.821) |
+| i2c (SF, Austin) | -11.4% [-4.7, -3.9 d] | -4.2% [-6.4, -3.7 d] | +14.1% [7.1, 12.4 d] worse | 0.672 (0.814) |
+- All three parts held: P1 (both CIs below zero), P2 (+35.8%), P3 (0.547 and 0.672).
+- Not predicted: i2c q0.9 is worse again (+14.1%), as in 2023 (+11.2%). Over three test years the i2c upper quantile is worse in two and better only in 2024 (-5.1%), so the 2024 all-quantile win was the exception, not the 2023 flip. Stable across 2022 to 2024: i2c q0.1 and q0.5 better (-6.7 to -11.4%, -4.2 to -10.7%), a2i q0.9 worse (+27 to +36%), every transfer interval under-covers (0.547 to 0.720).
+- An own-city model on the same harmonised features beats the baseline at every quantile again (a2i -3.9, -20.3, -17.5%; i2c -12.8, -14.4, -8.2%), coverage 0.782 and 0.821.
+- First direct measure of class overlap on the training years (`class_share_source_train`, added in session 68): Seattle 2022 test is 90% "other" and 10% "demolition"; the a2i sources' training years are 26% "other" and 0.6% "demolition", the i2c sources' 20% and 0%. Overlap is 0.27 (a2i) and 0.20 (i2c), and 0.006 and 0.00 without "other", so session 68's test-year proxy (0.32 / 0.15, 0.01 / 0.00) was close.
+
+Second piece, session 68's "list the top permit types per city that map to 'other'": new `src/other_vocab.py` (stdlib; reads `RULES` out of `transfer.py` with `ast`) on the same pull, rows applied 2015 on; `results/other_vocab.md`, `.json`.
+- Each feed has only 4 to 9 raw permit types. The catch-all is large because of what the field means, not because the keywords miss: Chicago's permit types are review tracks ("express permit program" 40.5% of rows, "easy permit process" 22.9%, elevator 3.1%), and Seattle's is "building" for 90.1% of rows.
+- `work_class` rescues only Austin: its "building permit" rows (22.3%) carry new / repair / remodel / demolition, which the same keyword map would class for 25.4% of Austin's rows. Chicago's work class repeats the review track and Seattle's is residential / non-residential, so neither feed holds the kind of work in a structured field.
+- So "retune the class map on each feed's vocabulary" (to do 6) cannot work for Chicago or Seattle with the fields we keep: it needs the description text (the loader stores only its length) or a different field. Paper 4.4a and to do 6 updated.
+- Limits: three test years, 3 seeds, i2c has two source cities, class map not retuned; vocabulary counts are from one pull and rows with no application date are left out (Seattle 84,986 of 194,184 rows remain from 2015 on).
+Next: keep a hashed or keyword-flag form of the description in the loader so a work-type class can be built for Chicago and Seattle, then rerun H4; a Seattle-free Austin retune (work_class) as the first test; full-model width bootstrap.
+
+## Session 68, 2026-11-10: harmonised classes barely overlap between cities (2022 transfer prediction written, not run: feeds unreachable)
+
+Why: sessions 65 to 67 left "third transfer test year (2022)". With `--test-year 2022` the split is source and own train to year <= 2020, early-stopping year 2021, test 2022 (`src/transfer.py`, unchanged).
+Prediction (written before the run, from the 2023 and 2024 rows): (P1) Seattle i2c transfer beats Seattle's own per-type baseline at q0.1 and q0.5 with 95% week-block CIs below zero; (P2) Seattle a2i transfer is worse than the baseline at q0.9 (CI above zero); (P3) both transfer intervals under-cover (80% coverage below 0.75). No prediction for i2c q0.9, which flipped sign between 2024 and 2023. Refuted part by part if the stated CI or coverage condition fails.
+
+Not run: every Socrata host (data.cityofchicago.org, data.sf.gov, data.austintexas.gov, data.seattle.gov) answered 403 to CONNECT through this session's egress proxy (17:18 UTC), so no feed could be pulled; the prediction above stands, unrun, for the next session with data access.
+Instead, a diagnostic from committed files only: `src/class_overlap.py` reads the `class_share_test` of every `results/transfer_*.json` and measures how much the harmonised class (the one categorical feature transfer shares across cities) overlaps between a held-out city and its row-weighted source mix (source shares from the same test year, a proxy for the training years). `results/class_overlap_2024.md`:
+| target | held out | top class (share) | 'other' | overlap | without 'other' |
+|---|---|---|---|---|---|
+| a2i | austin | electrical (0.31) | 0.22 | 0.22 | 0.00 |
+| a2i | chicago | other (0.69) | 0.69 | 0.34 | 0.19 |
+| a2i | seattle | other (0.91) | 0.91 | 0.32 | 0.01 |
+| a2i | sf | alteration (0.97) | 0.00 | 0.10 | 0.10 |
+| i2c | austin | electrical (0.32) | 0.21 | 0.00 | 0.00 |
+| i2c | seattle | other (0.91) | 0.91 | 0.15 | 0.00 |
+| i2c | sf | alteration (0.98) | 0.00 | 0.00 | 0.00 |
+- The keyword map sends each city into its own classes: overlap without the catch-all is 0.00 or 0.01 in five of seven cells, at most 0.19 (Chicago). i2c Austin and SF share no class at all.
+- So H4 (sessions 10, 64, 65) tested whether log cost, description length and calendar transfer, not permit type. That narrows what the paper can say (new section 4.4a; limitations and to-do updated). It does not change any reported number.
+- `src/transfer.py` now also writes `class_share_source_train`, so the next run measures overlap on the training years directly.
+- Limits: test-year shares stand in for training-year shares; the raw permit-type vocabularies are not in git, so I could not say which strings fall to "other" (that needs a pull).
+Next: run the session 68 prediction when the feeds are reachable; retune the class map on each feed's real vocabulary (start by listing the top permit types per city that map to "other"), then rerun H4; full-model width bootstrap.
+
+## Session 67, 2026-11-10: Seattle folded into the paper's title and abstract (no new compute)
+
+Why: session 66 left "fold Seattle into the abstract". The title now says four-city; the abstract keeps findings (1) to (5) as three-city statements and adds a paragraph for Seattle (H1 19 of 21 cells, table narrower than baseline, mixed transfer in 2023 and 2024), every number copied from section 4.8.
+Next: third transfer test year (2022); full-model width bootstrap; retune the class map.
+
+## Session 66, 2026-11-10: paper section 4.8 for the fourth city (no new compute)
+
+Why: sessions 61 to 65 added Seattle to the programme but `paper/paper.md` still said "three-city" with no fourth city. Added section 4.8 (H1, coverage and ship rule, width bootstrap, H4 transfer in 2024 and 2023) with every number copied from sessions 61 to 65 and `results/*seattle*`, and updated the limitations and to-do items. The title and abstract still describe the three original cities on purpose; folding Seattle into them is left for the final rewrite.
+Next: third transfer test year (2022, needs the source train cut to year <= 2020); full-model width bootstrap; retune the class map; fold Seattle into the abstract.
+
+## Session 65, 2026-11-10: Seattle H4 transfer on a second test year, 2023 (prediction written before the run)
+
+Why: session 64 left "does the Seattle i2c transfer gain survive a second test year (2023)". Fresh four-feed pull 2026-11-10 (same row counts as session 64). `python3.13 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2023`.
+Prediction (before the run): Seattle i2c transfer beats Seattle's own per-type baseline at q0.5 in 2023 with a 95% week-block CI below zero (as in 2024); Seattle a2i transfer is worse than baseline at q0.9. Refuted if the i2c q0.5 CI includes zero or is above it, or a2i q0.9 is not worse.
+
+Outcome (2023, relative change of mean pinball loss vs Seattle's own per-type baseline, 95% week-block bootstrap; `results/transfer_seattle_{a2i,i2c}_2023_4city.json`; test rows 5,106 a2i, 4,387 i2c; 3 seeds):
+| target (sources) | q0.1 | q0.5 | q0.9 | 80% coverage (baseline) |
+|---|---|---|---|---|
+| a2i (Chicago, SF, Austin) | -0.1% (CI spans 0) | +0.5% (CI spans 0) | +27.1% (worse) | 0.613 (0.868) |
+| i2c (SF, Austin) | -6.7% | -7.3% | +11.2% (worse) | 0.681 (0.827) |
+- Prediction held on both parts: i2c q0.5 CI is below zero, a2i q0.9 is worse. The a2i row reproduces 2024 almost exactly.
+- The i2c gain does not fully survive the second year: it holds at q0.1 and q0.5 (2024: -8.6%, -10.7%) but q0.9 flips to worse (+11.2%; 2024: -5.1%). So "transfer beats Seattle's own baseline at every quantile" was a 2024 result only; the stable part is the lower and middle quantiles.
+- Transfer intervals under-cover in both years (0.613 and 0.681 in 2023). An own-city model on the same features beats the baseline at all three quantiles in both targets (i2c -8.9, -12.5, -3.4%; a2i -4.0, -18.8, -15.3%) with coverage 0.829 and 0.814.
+- Limits: two test years, 3 seeds, two source cities for i2c, class map not retuned, the q0.9 flip is not explained (untested guess: Seattle's 2023 upper tail differs from the SF and Austin tails).
+Next: unchanged milestones; a third test year (2022) would need the source train cut to year <= 2020.
+
+## Session 64, 2026-11-10: Seattle in H4 transfer (no prediction written first)
+
+Why: sessions 62 and 63 left "Seattle in H4 transfer". `src/transfer.py` now lists Seattle in `CITIES`, and writes `*_4city.json` so the three-city files stay as they were. Fresh four-feed pull 2026-11-10 (Chicago 852,615, SF 1,298,097, Austin 2,384,452, Seattle 194,184 rows), `python3 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle`, results `results/transfer_seattle_{a2i,i2c}_2024_4city.json`.
+Disclosure: I wrote no prediction before the run, so this is descriptive. The earlier H4 prior (session 10) was that transfer is worse than the own baseline.
+Outcome (2024, relative change of mean pinball loss, transfer minus Seattle's own per-type baseline, 95% week-block bootstrap):
+| target (sources) | q0.1 | q0.5 | q0.9 | 80% coverage (baseline 0.890 / 0.882) |
+|---|---|---|---|---|
+| a2i (Chicago, SF, Austin) | 0.0% (tie) | +0.7% (CI spans 0) | +27.4% (worse) | 0.644 |
+| i2c (SF, Austin) | -8.6% | -10.7% | -5.1% (all CIs below 0) | 0.720 |
+- Seattle a2i matches the Austin a2i pattern from session 10 (a tie at low quantiles because most predictions are zero, worse at q0.9) and its transfer interval under-covers (0.644).
+- Seattle i2c is the first cell in the programme where transfer beats the held-out city's own baseline at all three quantiles; H4 as worded (transfer no better) is refuted there. An own-city model on the same harmonised features does better still (-11.3, -14.4, -3.6%), and the transfer interval still under-covers (0.720), so it is a better point forecast, not a calibrated one.
+- Limits: one test year, 3 seeds, i2c has two source cities, Seattle's baseline is trained on a smaller history (194k rows), the harmonised class map was not retuned.
+Next: bootstrap the full-model width; test whether the Seattle i2c transfer gain survives a second test year (2023).
+
+## Session 63, 2026-11-10: Seattle week-block bootstrap of the width gap (no prediction written first)
+
+Why: session 62 left the Seattle width gap as a point estimate. Fresh pull 2026-11-10 (194,184 rows, unchanged), `python3 src/width_boot.py DIR --test-year 2024 --only seattle:a2i seattle:i2c` (the script now tags its output file when `--only` is given, so `results/width_boot_2024.json` is not overwritten; Seattle goes to `results/width_boot_2024_seattle.json`).
+Disclosure: I did not write a prediction before the run; this is a descriptive interval, not a hypothesis test.
+Outcome (dequantised nonempty CQR, mean 80% width in days; difference = table minus baseline, 95% week-block bootstrap, 2000 draws):
+| set | baseline cov / width | table cov / width | diff [95% CI] |
+|---|---|---|---|
+| Seattle a2i | 0.887 / 256.7 | 0.833 / 249.3 | -7.4 [-13.3, -1.1] |
+| Seattle i2c | 0.851 / 660.5 | 0.820 / 642.2 | -18.3 [-23.4, -12.9] |
+- Unlike the other three cities (baseline narrower in four of five sets), the three-key table is narrower than the per-type baseline in both Seattle targets, both intervals exclude zero; the a2i gap (3% of width) is small. Point values reproduce session 62's coverages and widths to the logged digits.
+- Limits: one test year, the bootstrap does not redraw the calibration quantile, width of the full model (the narrowest in session 62) not bootstrapped, post hoc.
+Next: Seattle in H4 transfer; bootstrap the full-model width.
+
+## Session 62, 2026-11-10: Seattle nonempty CQR and per-type table (prediction written before the run)
+
+Why: session 61 left the nonempty-CQR arm and the table models unrun for Seattle. Fresh pull 2026-11-10 (194,184 rows, same as session 61). `python3 src/prior_table3_cov.py DIR --test-year 2024 --seeds 2 --cities seattle` (new `--cities` flag; writes `results/prior_table3_cov_2024_seattle.json` so the five-set file is not overwritten).
+Prediction (before the run): `dequantised_nonempty` coverage of the per-type baseline and the table lies within 77 to 83% in both Seattle targets, and the ship rule of session 59 picks the per-type baseline for both (as in four of the five earlier sets). Refuted if a cell is outside 77 to 83% or the table is narrower in either target.
+
+Outcome (2024, nonempty dequantised interval, coverage / mean 80% width in days; `results/prior_table3_cov_2024_seattle.json`):
+| target | baseline | table | full |
+|---|---|---|---|
+| a2i | 0.887 / 256.7 | 0.833 / 249.3 | 0.845 / 232.3 |
+| i2c | 0.851 / 660.5 | 0.820 / 642.2 | 0.821 / 606.8 |
+- Prediction refuted on both parts. Coverage: three of six cells are outside 77 to 83% (baseline 0.887 and 0.851, table a2i 0.833, full a2i 0.845), all over-coverage, the safe direction. Ship rule (`src/ship_decision.py`, unchanged): the full model is narrowest in both targets (232.3 and 606.8 days, 7 to 9% under the baseline), so Seattle is the first city where the full model ships, not the per-type baseline.
+- The `dequantised` arm reproduces session 61's 0.770 for full a2i (table 0.757, baseline 0.792) and the nonempty arm repairs it to 0.845, same mechanism as session 58.
+- Limits: one test year, 2 seeds, no width bootstrap for Seattle (the 7 to 9% gap is a point estimate), ship rule post hoc.
+Next: week-block bootstrap of the Seattle width gap (`src/width_boot.py`), then Seattle in H4 transfer.
+
+## Session 61, 2026-11-09: fourth city, Seattle (licence checked; H1 and H2 rerun, no prediction written first)
+
+Why: "a fourth city after a licence check" had been open since session 60. Seattle `76t5-zqzr` metadata says Public Domain (`datasheets/seattle.md`). Pulled 2026-11-09 (194,184 rows). `python3 src/boosted.py DIR --city seattle --target T --test-year 2024 --seeds 3`, then `src/conformal_run.py`; results `results/boosted_seattle_*_2024.json`, `results/conformal_dq_seattle_*_2024.json`.
+- H1 holds: boosted beats the per-type baseline at q0.1/0.5/0.9 in both targets, every 95% week-block interval below zero (a2i q0.5 46.5 to 35.8 days; i2c q0.5 88.3 to 72.5; smallest gain i2c q0.9, 47.1 to 46.0).
+- Coverage (nominal 80%): boosted raw 0.850 (a2i), 0.833 (i2c); conformal 0.852, 0.815; dequantised 0.770 (a2i, qhat_dq -0.59, the zero-inflation collapse of session 55) and 0.813.
+- Limits: one test year; `baselines.py` (needs xgboost, install timed out) and CatBoost not run; nonempty-CQR arm and the table models not run for Seattle; `prior_table3.py` FILES lists Seattle but was not run.
+Next: nonempty CQR and the per-type table for Seattle, then add it to H4 transfer.
+
+## Session 60, 2026-11-09: milestone 7i, week-block bootstrap of interval width (per-type baseline vs three-key table)
+
+Why: session 59 left "width intervals by bootstrap over weeks" open; its ship rule compared point widths. Fresh pull 2026-11-09 (all three hosts reachable), `python3 src/width_boot.py DIR --test-year 2024`, results in `results/width_boot_2024.json`, 2 unit tests.
+Prediction (written before the run): the baseline-vs-table width difference has a 95% interval excluding zero in every set, and the sign matches session 59's ship choice (baseline narrower in four sets, table in Austin i2c).
+Outcome (mean 80% width in days, dequantised nonempty CQR; difference = table minus baseline, 95% week-block bootstrap, 2000 draws):
+| set | baseline cov / width | table cov / width | diff [95% CI] |
+|---|---|---|---|
+| Chicago a2i | 0.885 / 55.3 | 0.825 / 117.9 | +62.6 [55.3, 70.6] |
+| SF a2i | 0.826 / 32.6 | 0.834 / 42.2 | +9.6 [9.0, 10.2] |
+| SF i2c | 0.844 / 373.5 | 0.837 / 398.8 | +25.2 [23.1, 27.6] |
+| Austin a2i | 0.823 / 156.1 | 0.825 / 160.6 | +4.6 [0.2, 9.3] |
+| Austin i2c | 0.839 / 324.1 | 0.836 / 289.6 | -34.5 [-36.9, -32.1] |
+- Prediction confirmed: all five intervals exclude zero and signs match session 59. Austin a2i is marginal (lower end 0.2 days on a width of 156), so "baseline narrower" there is barely distinguishable from a tie.
+- The point values reproduce session 58/59's coverages and widths to the logged digits, which checks the new script against the old run.
+- Limits: one test year, the bootstrap resamples weeks of one calibration fit (the calibration quantile is not re-drawn), post hoc ship rule unchanged.
+Next: a fourth city after a licence check; the full-model width interval.
+
+## Session 59, 2026-11-09: milestone 7h, which interval to ship per city (post hoc rule, no new data)
+
+Why: sessions 54 to 58 left "decide the shipped prior per city" open. No feeds were pulled; this reads `results/prior_table3_cov_2024.json`.
+Disclosure: the rule was written after seeing the numbers, so this is a decision, not a hypothesis test. Rule (`src/ship_decision.py`, 4 unit tests): among per-type baseline, three-key table and full model, all with the dequantised nonempty interval, ship the narrowest with 2024 coverage >= 0.77; widths within 1% tie toward the more readable model.
+- Outcome: per-type baseline in Chicago a2i (cov 0.885, width 55.3 d), SF a2i (0.826, 32.6), SF i2c (0.844, 373.5), Austin a2i (0.823, 156.1); table in Austin i2c (0.836, 289.6, tied with the full model at 289.5). The readable per-type table already published (section 4.7) is the interval to ship in four of five sets; the boosted gain is in pinball loss, not a tighter calibrated interval.
+- Paper: new 4.7e; 4.7d moved before section 5 (it sat after section 7); stale "not run on the feeds" sentences in 4.7c and the to-do list updated.
+- Limits: one test year, 2 seeds, no width bootstrap, over-coverage 0.82 to 0.89 means safe not tight.
+Next: width intervals by bootstrap over weeks for the per-type baseline vs table in Austin i2c; a fourth city after a licence check.
+
+
+## Session 58, 2026-11-09: milestone 7g, rerun of the coverage run with `cqr_interval_nonempty` (prediction from session 56: refuted in part)
+
+Why: session 56 wired the fix in and left the rerun for a network that reaches the feeds. This time all three hosts answered. A first pull died on an HTTP 503 after four retries; `permits.fetch` now retries 8 times with backoff capped at 60 s. Fresh pull 2026-11-09 (manifest refreshed: Chicago 852,598, SF 1,298,097, Austin 2,384,446 rows), `python3 src/prior_table3_cov.py DIR --test-year 2024 --seeds 2`, results in `results/prior_table3_cov_2024.json` (now with the third arm).
+Prediction (session 56, written before the run): `dequantised_nonempty` within 3 points of 80% in at least 4 of 5 sets, and no cell more than 1 point below its raw-interval coverage.
+
+### Outcome (coverage, 2024 test year; raw / dequantised / dequantised_nonempty)
+- The fix does what session 55 diagnosed. The collapsed cells recover: full model Chicago a2i 0.862 / 0.558 / **0.861**; full SF a2i 0.891 / 0.343 / **0.890**; table Austin a2i 0.839 / 0.765 / **0.825**; full Austin a2i 0.813 / 0.783 / **0.805**. The other 11 cells are identical to the dequantised arm.
+- **Part 1 refuted.** Within 77 to 83%: table 2 of 5 sets (Chicago a2i 0.825, Austin a2i 0.825; the other three are 0.834 to 0.837), full model 3 of 5 (SF i2c 0.829, Austin a2i 0.805, Austin i2c 0.808; Chicago and SF a2i over-cover at 0.861 and 0.890). Neither reaches 4. The misses are over-coverage, the safe direction.
+- **Part 2 refuted narrowly.** The worst cell is table Austin a2i, 1.4 points under its raw 0.839 (0.825); the other three collapsing cells are within 0.9 points of raw. Nothing is near the earlier 30 to 55 point losses.
+- Reading: `cqr_interval_nonempty` makes the dequantised interval safe to use (no cell below 0.80 by more than 0.5 points, versus 0.343 before), so session 19's jitter is no longer excluded from claims. It does not tighten Chicago or SF a2i, whose full-model intervals stay conservative. For the shipped prior the table median plus the per-type baseline interval for Chicago (session 54's reading) stands.
+- Limits: one test year, 2 seeds, no bootstrap on coverage (n_test large, binomial error under 0.5 points), prediction's "sets" read per model since it did not say which.
+Next: decide the shipped prior per city from these coverages and put the choice in `paper/` section 4.7.
+
 ## Session 57, 2026-11-09: paper catch-up for milestones 7c to 7g (no data run: feed hosts refused by the proxy; no pandas)
 
 Why: the paper stopped at 4.7b while sessions 51 to 56 had results in the log only. Probe: `curl` to the Chicago, SF and Austin hosts returned code 000 again, so **no number in `results/` changed and nothing new is claimed**.

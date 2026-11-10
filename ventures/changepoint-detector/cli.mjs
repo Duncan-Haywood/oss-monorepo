@@ -28,12 +28,13 @@ Options:
   --period <n>              remove a seasonal cycle of n points first (12 monthly, 7 daily-weekly); mean/meanvar subtract it, poisson fits multiplicative factors
   --holidays <a,b,...>      with --model poisson: row labels (dates, or 1-based row numbers) of known holidays; one fitted factor on their rate, so a holiday dip is not read as a step; write label=kind (e.g. 2026-12-25=closed) to fit one factor per kind
   --bursts [ratio]          with --model poisson: single days far above both neighbours' level (default 2.5x and a Poisson-sized excess) are cut back to it before fitting, so a spike is not read as two changes; listed in the result
+  --spikes [n]              with a mean or meanvar model (with --log, excursions are log ratios): label a run of changes within n points (default 5) that returns to the starting level (a bad price, a one-day shock) as one spike or dip, listed in the result; the changes are unchanged
   --episodes [n]            with --model poisson: label an up-step followed within n points (default a tenth of the series) by a step back to about the old level as one burst episode, listed in the result; the changes are unchanged
   --burst-runs n            with --bursts: also cut back runs of 2 to n days (default off) that sit 2x above the same-phase level on both sides
   --log                     take natural logs first (positive values; mean, meanvar, trend): a steady percentage growth is a straight line, not a staircase; segments also show the geometric mean and each change its ratio
   --multiplicative           with --period (mean/meanvar): the season is a factor, not an amount, so it scales with the level (positive values only; not with --drift)
   --drift                   with --period: let the seasonal shape change over time (growing amplitude, moving peak)
-  --trend [bend|bends]          fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
+  --trend [bend|bends|quad]        fit one linear trend under the steps and remove it (a ramp is not read as many small changes);
                             'bend' lets the slope change once, 'bends' up to three times, chosen by BIC (counts, --model poisson: a change of growth rate, 'bends' up to two);
                             with --model poisson, a common log-linear growth rate (multiplicative, composes with --period)
   --slope-breaks [n]        test for up to n (default 3) changes of the growth rate on the differences (use with --log for a percentage growth): each break is dated and has a Wald statistic against a calibrated bar of 11; 40 or more points
@@ -46,6 +47,11 @@ Options:
   --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
   --threshold <p>           report Bayesian changes at or above p (default: ${DEFAULTS.threshold})
   --example                 run on the bundled Nile river flow series
+  --noise-floor [k]         the noise scale is at least k (default 1) times the median absolute step between neighbours, so a smooth low-noise drift is not cut at every bend (off by default)
+  --noise-floor-diff2/-diff3  take that floor from second or third differences instead
+  --noise-floor-local [w]   take it from residuals of centred w-point line fits (default 7)
+  --noise-floor-quad [w]    the same with centred w-point quadratic fits
+  --consensus [n]           run six settings (level, level under a trend with AR(1), the same with joint AR(1), noise floor, trend, trend with floor) and list each change by how many agree (changes within n points, default 2% of the series, are one); takes --log, --period, --penalty, --min-segment, --column
   --json                    print the full result as JSON
   -h, --help                this help
 
@@ -73,12 +79,18 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--bootstrap') opt.bootstrap = true;
     else if (a === '--overdispersion') opt.overdispersion = argv[i + 1] === 'nb' ? (i++, 'nb') : argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--bursts') opt.bursts = argv[i + 1] && /^\d+(\.\d+)?$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
+    else if (a === '--spikes') opt.spikes = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--episodes') opt.episodes = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--burst-runs') opt.burstRuns = Number(argv[++i]);
     else if (a === '--slope-breaks') opt.slopeBreaks = argv[i + 1] && /^[1-3]$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--joint-knots') opt.jointKnots = true;
-    else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' ? argv[++i] : true;
+    else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' || argv[i + 1] === 'quad' ? argv[++i] : true;
+    else if (a === '--consensus') opt.consensus = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
+    else if (a === '--noise-floor-diff2') opt.noiseFloorOrder = 2;
+    else if (a === '--noise-floor-diff3') opt.noiseFloorOrder = 3;
+    else if (a === '--noise-floor-local') { opt.noiseFloorOrder = 'local'; if (argv[i + 1] && /^\d+$/.test(argv[i + 1])) opt.noiseFloorWindow = Number(argv[++i]); }
+    else if (a === '--noise-floor-quad') { opt.noiseFloorOrder = 'local'; opt.noiseFloorDegree = 2; if (argv[i + 1] && /^\d+$/.test(argv[i + 1])) opt.noiseFloorWindow = Number(argv[++i]); }
     else if (a === '--noise-floor') opt.noiseFloor = argv[i + 1] && !argv[i + 1].startsWith('-') ? Number(argv[++i]) : true;
     else if (flags[a]) {
       if (i + 1 >= argv.length) throw new Error(`${a} needs a value`);
@@ -98,6 +110,13 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     }
   }
   if (typeof opt.holidays === 'string') opt.holidays = opt.holidays.split(',').map((h) => h.trim()).filter(Boolean);
+  if (opt.consensus) {
+    const { consensus: cons, consensusText } = await import('./consensus.mjs');
+    const { consensus: tol, ...rest } = opt;
+    const c = cons(rest, { tolerance: tol === true ? null : tol });
+    out((json ? JSON.stringify(c, null, 2) : consensusText(c)) + '\n');
+    return 0;
+  }
   const r = analyze(opt);
   if (json) { out(JSON.stringify(r, null, 2) + '\n'); return 0; }
   const lines = [r.summary, ''];
@@ -109,6 +128,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     if (r.rangeWarning) lines.push(`  (${r.rangeWarning})`);
     if (r.driftWarning) lines.push(`  (${r.driftWarning})`);
     if (r.cycleWarning) lines.push(`  (${r.cycleWarning})`);
+    if (r.overcutWarning) lines.push(`  (${r.overcutWarning})`);
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
   if (r.ramps) {
@@ -135,6 +155,10 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     lines.push('', 'Episodes (a step and its step back, read as one burst):');
     for (const e of r.episodes) lines.push(`  ${e.from} – ${e.to}: ${e.kind} at ${e.level}/point against ${e.baseBefore} before and ${e.baseAfter} after (${e.jumpFactor}x episode, ${e.netFactor}x net)`);
   } else if (r.episodes) lines.push('', 'Episodes: none.');
+  if (r.spikes && r.spikes.length) {
+    lines.push('', 'Spikes (changes that return to the starting level, read as one outlier):');
+    for (const e of r.spikes) lines.push(`  ${e.from}${e.endIndex > e.startIndex ? ` – ${e.to}` : ''}: ${e.kind}, ${e.excursion} from a level of ${e.base} (${e.excursionInNoiseSd} noise sd), back to ${e.baseAfter}; ${e.changes} changes`);
+  } else if (r.spikes) lines.push('', 'Spikes: none.');
   if (r.bocpd.detections.length) {
     lines.push('', `Bayesian changes (probability >= ${r.bocpd.threshold}):`);
     for (const d of r.bocpd.detections) lines.push(`  ${d.label}  ${(d.probability * 100).toFixed(0)}%`);

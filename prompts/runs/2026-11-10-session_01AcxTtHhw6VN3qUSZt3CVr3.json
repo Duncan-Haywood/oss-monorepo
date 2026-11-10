@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtHhw6VN3qUSZt3CVr3",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T08:08:13Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14470",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "Step was a paper write-up of already-run Seattle results, not new compute; the programme's milestone 7 (paper) is the open item.",
+      "did": "added paper section 4.8, LOG entry, post",
+      "result": "homepage build and md link check ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-seattle-transfer-second-year.md",
+    "research/build-data/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, no ideas or requests. Drew build-data programme. Local checks: research/_homepage/build.py ok, check_md_links ok. CI not awaited before merge attempt.",
+  "corrections": [],
+  "redteam": null
+}

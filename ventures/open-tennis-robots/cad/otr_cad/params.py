@@ -40,6 +40,9 @@ def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
     return length, kmax, smin
 
 
+COLLAR_SOCKET_MM = 25.0  # depth of the hose socket in the sleeve take-up's printed collar
+
+
 @functools.lru_cache(maxsize=4096)
 def _hose_curve_range(ox: float, oz: float, mx: float, mz: float, tilt_rad: float,
                       r_min: float, slope_min: float, step: float = 25.0) -> tuple[float, float] | None:
@@ -57,6 +60,60 @@ def _hose_curve_range(ox: float, oz: float, mx: float, mz: float, tilt_rad: floa
             if kmax <= 1 / r_min and smin >= slope_min:
                 lo = length if lo is None else min(lo, length)
                 hi = length if hi is None else max(hi, length)
+    return None if lo is None else (lo, hi)
+
+
+@functools.lru_cache(maxsize=4096)
+def _hose_curve_range_3d(o: tuple, m: tuple, u: tuple, r_min: float, slope_min: float,
+                         step: float = 25.0, n: int = 24) -> tuple[float, float] | None:
+    """3-D form of `_hose_curve_range` (2026-11-10): the hose leaves outlet point `o` straight down and enters socket
+    mouth `m` along the unit column axis `u` (pointing out of the socket, up the column), which need not lie in the
+    x-z plane once the head turns in azimuth. Same Bezier family, bend limit and fall limit; the fall is measured
+    from the horizontal plane (tangent's z against its horizontal length). Shortest and longest fitting hose, or None."""
+    kcap = 1 / r_min
+    tan_min = math.tan(math.radians(slope_min))
+    ts = [k / n for k in range(n + 1)]
+    lo = hi = None
+    cnt = int(900 / step)
+    for i in range(1, cnt + 1):
+        l0 = i * step
+        p0 = o
+        p1 = (o[0], o[1], o[2] - l0)
+        for j in range(1, cnt + 1):
+            l1 = j * step
+            p2 = (m[0] + l1 * u[0], m[1] + l1 * u[1], m[2] + l1 * u[2])
+            p3 = m
+            d01 = [p1[c] - p0[c] for c in range(3)]
+            d12 = [p2[c] - p1[c] for c in range(3)]
+            d23 = [p3[c] - p2[c] for c in range(3)]
+            s0 = [p2[c] - 2 * p1[c] + p0[c] for c in range(3)]
+            s1 = [p3[c] - 2 * p2[c] + p1[c] for c in range(3)]
+            ok = True
+            for t in ts:
+                w = 1 - t
+                a = [3 * w * w * d01[c] + 6 * w * t * d12[c] + 3 * t * t * d23[c] for c in range(3)]
+                h = math.hypot(a[0], a[1])
+                if abs(a[2]) < tan_min * h - 1e-12:      # flatter than the fall limit
+                    ok = False
+                    break
+                b = [6 * w * s0[c] + 6 * t * s1[c] for c in range(3)]
+                cx = a[1] * b[2] - a[2] * b[1]
+                cy = a[2] * b[0] - a[0] * b[2]
+                cz = a[0] * b[1] - a[1] * b[0]
+                sp = math.sqrt(a[0] ** 2 + a[1] ** 2 + a[2] ** 2)
+                if sp > 1e-9 and math.sqrt(cx * cx + cy * cy + cz * cz) > kcap * sp ** 3:
+                    ok = False
+                    break
+            if not ok:
+                continue
+            length, prev = 0.0, p0
+            for t in ts[1:]:
+                w = 1 - t
+                q = tuple(w ** 3 * p0[c] + 3 * w * w * t * p1[c] + 3 * w * t * t * p2[c] + t ** 3 * p3[c] for c in range(3))
+                length += math.dist(prev, q)
+                prev = q
+            lo = length if lo is None else min(lo, length)
+            hi = length if hi is None else max(hi, length)
     return None if lo is None else (lo, hi)
 
 
@@ -263,6 +320,8 @@ class Feeder:
     launch_z: float = 1000.0      # ball path height
     elev_min: float = -15.0
     elev_max: float = 45.0
+    az_max: float = 30.0          # head turns this far either side of straight ahead (hardware/feeder-catcher.md)
+    az_steps: int = 2             # azimuth poses checked from 0 to az_max (the hopper sits on y = 0, so -az mirrors +az)
 
     # Cheeks that hold the head's pivot bolt.
     cheek_x_half: float = 60.0
@@ -308,6 +367,18 @@ class Feeder:
     wheel_rpm_max: float = 7000.0  # same default: motor and bearing limit (assumption)
     ball_stiff_n_mm: float = 20.0  # force per mm of squeeze between the wheels (assumption: measure it)
     wheel_mu: float = 0.8         # rubber on felt (assumption: measure it)
+    # Wheel-axle squaring stack (assumptions: laser-cut 5052 plates, spacers cut on a saw; measure the first build).
+    seat_gap_mm: float = 0.25     # motor face lifted off the plate at one edge (flatness, burr)
+    bore_pos_tol_mm: float = 0.15  # laser bore position error, each plate
+    plate_slot_play_mm: float = 0.4  # plates' x-offset from tab-and-slot clearance
+    spacer_len_tol_mm: float = 0.3  # spacer length difference front to rear
+    # Sleeve take-up (2026-11-10): the hose's top end slides up and down inside a rigid vertical sleeve under the
+    # outlet, so the ball path stays a vertical drop plus one falling curve (assumptions: measure the first build).
+    sleeve_overlap_mm: float = 20.0   # the collar never comes nearer than this to the sleeve's lower end
+    sleeve_clear_mm: float = 14.0     # sleeve bore over the hose OD: room for the printed collar's socket wall
+    sleeve_wall_mm: float = 3.0       # rigid tube wall (assumption: a drain or ducting tube; measure yours)
+    sleeve_top_mm: float = 20.0       # outlet to the sleeve's top end (the printed socket under the sloped shelf)
+    collar_h_mm: float = 40.0         # printed collar bonded on the hose's top end, slides in the sleeve
     hose_id: float = 72.0
     hose_od: float = 82.0
     hose_min_bend: float = 150.0  # smallest bend radius the hose tolerates
@@ -321,11 +392,13 @@ class Feeder:
     packing: float = 0.55         # fraction of the tub's inside volume that balls fill, with a sloped floor
     want_balls: int = 120
     shelf_slope_deg: float = 12.0  # falls toward the net, to the outlet
-    hopper_out_x: float = -330.0
-    hopper_out_z: float = 1700.0   # underside of the shelf at the outlet (1560 left no hose curve at -15 or +45 deg, 2026-11-03)
+    hopper_out_x: float = -400.0   # -330 until 2026-11-10; -400 is as far back as the front posts allow (30 mm in from the shelf's front edge)
+    hopper_out_z: float = 2025.0   # underside of the shelf at the outlet: the lowest at which the sleeve take-up fits every pose
+                                   # (1560 left no hose curve at -15 or +45 deg, 2026-11-03; 1700 needed a pulley loop, 2026-11-10;
+                                   # 2000 fitted azimuth 0 only: at +45 deg turned 30 deg the shortest hose was 31 mm too long, 2026-11-10)
     post_front_x: float = -380.0
     post_rear_x: float = -640.0
-    shelf_post_y: float = 225.0
+    shelf_post_y: float = 245.0    # 225 until 2026-11-10: turned 30 deg at 15-35 deg nose up, the head's plates cut into the front posts
     # Hopper frame loads and bracing (all assumptions to replace with a measurement).
     tub_mass_kg: float = 1.6          # empty storage tub
     side_load_g: float = 0.25         # sway load at the shelf as a fraction of the full hopper's weight
@@ -337,6 +410,34 @@ class Feeder:
     brace_foot_z: float = 120.0       # lower brace end above the deck
     brace_head_z: float = 120.0       # upper brace end below the shelf underside
     brace_min_factor: float = 3.0     # Euler buckling load over the brace's working load
+    # Azimuth drive (2026-11-10): a NEMA 17 stepper hangs under the mast plate at +y and turns the turntable through a
+    # bought steel pinion meshing with a printed gear sector bolted under the turntable plate's +y edge. The head turns
+    # +-az_max only, so only a sector is made; the rest of the plate is trimmed inside the pinion's reach. Teeth are
+    # printed, not cut in the plate: m1.5 slots are about 1.2 mm wide, too fine to laser in 5 mm aluminium.
+    az_module: float = 1.5            # mm; a 15-tooth m1.5 pinion with a 5 mm bore is a stock part
+    az_pinion_teeth: int = 15
+    az_gear_teeth: int = 150          # full-circle count of the sector's teeth (pitch radius 112.5 mm)
+    az_pressure_deg: float = 20.0
+    az_sector_margin_deg: float = 8.0  # teeth beyond +-az_max at each end, so the pinion never runs off the sector
+    az_clear_mm: float = 3.0          # trimmed plate edge inside the pinion's tip circle
+    az_gear_gap_mm: float = 1.5       # printed sector's underside above the mast plate
+    az_backlash_mm: float = 0.10      # tooth thinning at the pitch circle, printed into the sector (assumption: measure it)
+    print_min_gap_mm: float = 0.8     # narrowest slot a 0.4 mm nozzle prints cleanly (two line widths; assumption)
+    az_slew_deg: float = 30.0         # largest move between two shots: drill.example.json's corners at y +-2.5 m, x 9.5 m are 29.5 deg apart
+    az_slew_s: float = 1.0            # time allowed for it: half of a 2 s feed interval, about a commercial machine's fastest (assumption)
+    az_inertia_kgm2: float = 0.32     # turning inertia; the build measures it from the CAD (0.31 nose up 45 deg, 0.11 level) and fails if this is below it
+    az_bearing_mu: float = 0.02       # lazy-susan bearing, rolling friction at its ball circle (assumption)
+    az_gear_eff: float = 0.90         # spur mesh efficiency, greased (assumption)
+    az_shock: float = 1.5             # service factor on the tooth load (stepper start, a knock on the head)
+    petg_bend_allow_mpa: float = 10.0  # printed PETG tooth-root bending, well under its ~50 MPa flexural strength (assumption)
+    hose_pull_n: float = 5.0          # hose tension at the column socket (the take-up's assumption)
+    stepper_torque_nm: float = 0.30   # pull-out torque at the slew speed (assumption: a 0.45 N m 17HS4401 class at 24 V; read your curve)
+    stepper_hold_nm: float = 0.40     # holding torque when energised (same class)
+    stepper_rotor_kgm2: float = 5.4e-6  # rotor inertia (54 g cm^2, same class)
+    stepper_steps: int = 200
+    stepper_body_mm: float = 48.0     # 42.3 mm square, this long under its flange
+    az_torque_factor: float = 2.0     # pull-out (and holding) torque over the needed torque
+    aim_range_m: float = 24.0         # net to the far baseline: where an azimuth error is read as a sideways miss
 
     # ---- derived -----------------------------------------------------------
     @property
@@ -614,7 +715,8 @@ class Feeder:
         return None if t is None else max(t, 0.0) / ratio
 
     def take_up_design(self, tension_n: float = 5.0, margin_mm: float = 30.0) -> dict | None:
-        """A floating-pulley take-up sized from the pose ranges (2026-11-04). The hose runs fixed length `fixed_mm` plus
+        """A floating-pulley take-up sized from the pose ranges (2026-11-04). Rejected 2026-11-10: the 180 deg wrap turns
+        the ball path uphill (`pulley_take_up_passes_balls`); kept to compare with `sleeve_take_up_design`. The hose runs fixed length `fixed_mm` plus
         twice the pulley's travel x (ratio 2). Fixed length is the shortest longest-fit, so x never goes below 0; each
         pose needs x in [(lo - fixed)/2, (hi - fixed)/2]. Pulley diameter is twice the hose's minimum bend radius; the
         track is the stroke plus one pulley diameter plus a margin at each end. The spring pulls the pulley with twice the
@@ -635,6 +737,99 @@ class Feeder:
         d = 2 * self.hose_min_bend
         return {"fixed_mm": fixed, "stroke_mm": stroke, "pulley_d_mm": d, "track_mm": stroke + d + 2 * margin_mm,
                 "spring_n": 2 * tension_n, "poses": poses, "ok": ok}
+
+    def pulley_wrap_max_deg(self) -> float:
+        """Largest angle a ball-carrying hose may wrap round a pulley (2026-11-10). On a horizontal axle the hose's
+        direction turns by the wrap angle; starting from straight down it must stay at least `feed_min_slope_deg`
+        below horizontal, so the wrap can be at most 90 - that. A floating pulley stores hose only with a 180 deg wrap,
+        which turns the hose back upward on one leg: balls that roll by gravity cannot climb it."""
+        return 90.0 - self.feed_min_slope_deg
+
+    def pulley_take_up_passes_balls(self) -> bool:
+        """False whenever a floating-pulley take-up is needed: its 180 deg wrap exceeds `pulley_wrap_max_deg`."""
+        return 180.0 <= self.pulley_wrap_max_deg()
+
+    def mouth_world_3d(self, elev_deg: float, az_deg: float) -> tuple[tuple, tuple]:
+        """Socket mouth (x, y, z) and the column's unit axis (up the column, out of the socket) with the head tilted
+        `elev_deg` nose up and turned `az_deg` on the turntable, whose axis is the vertical through (head_x, 0)."""
+        mx, mz = self.mouth_world(elev_deg)
+        t, a = math.radians(elev_deg), math.radians(az_deg)
+        r = mx - self.head_x
+        pos = (self.head_x + r * math.cos(a), r * math.sin(a), mz)
+        axis = (-math.sin(t) * math.cos(a), -math.sin(t) * math.sin(a), math.cos(t))
+        return pos, axis
+
+    def _ranges_from(self, ox: float, oz: float, steps: int = 4, az: bool = True):
+        """(elevation, azimuth, hose range or None) for each pose, from a start point straight above (ox, 0, oz).
+        Azimuth 0 uses the planar `_hose_curve_range`; turned poses use `_hose_curve_range_3d` (added 2026-11-10:
+        before that the take-up was sized at azimuth 0 only). `az=False` gives the azimuth-0 poses alone."""
+        azs = [0.0] if not az or self.az_max <= 0 else [self.az_max * k / self.az_steps for k in range(self.az_steps + 1)]
+        out = []
+        for i in range(steps + 1):
+            e = self.elev_min + (self.elev_max - self.elev_min) * i / steps
+            for a in azs:
+                if a == 0.0:
+                    mx, mz = self.mouth_world(e)
+                    rng = _hose_curve_range(ox, oz, mx, mz, math.radians(e), self.hose_min_bend, self.feed_min_slope_deg)
+                else:
+                    m, u = self.mouth_world_3d(e, a)
+                    m = tuple(round(v, 9) for v in m)
+                    u = tuple(round(v, 12) for v in u)
+                    rng = _hose_curve_range_3d((ox, 0.0, oz), m, u, self.hose_min_bend, self.feed_min_slope_deg)
+                out.append((e, a, rng))
+        return out
+
+    def sleeve_take_up_design(self, tension_n: float = 5.0, step_mm: float = 25.0, max_mm: float = 600.0,
+                              azimuth: bool = True) -> dict | None:
+        """A take-up that keeps the ball path falling (2026-11-10). A rigid vertical sleeve hangs `sleeve_mm` under the
+        hopper outlet; the hose's top end slides inside it, held up by a constant-force spring, so the free hose starts at
+        the sleeve's lower end and its free length changes by the slide. Balls drop straight down the sleeve into the hose,
+        then follow the one falling curve that `_hose_curve_range` checks. `sleeve_mm` (outlet to the sleeve's lower
+        end) must hold the stroke (longest shortest-fit minus shortest longest-fit, from the lower start), the collar,
+        the gap under the shelf and `sleeve_overlap_mm`. Searches sleeve lengths
+        upward in `step_mm`; None if no length up to `max_mm` works (a longer sleeve lowers the start, which can only
+        be done while every pose still has a curve). The spring pulls `tension_n` on one hose leg (assumption).
+        Poses are (elevation, azimuth, slide low, slide high); since 2026-11-10 they include the head turned to
+        `az_max` (`azimuth=False` sizes at azimuth 0 alone, as before)."""
+        ox, oz = self.hopper_out_x, self.hopper_out_z
+        ls = self.sleeve_overlap_mm
+        seen_fit = False
+        while ls <= max_mm + 1e-9:
+            r = self._ranges_from(ox, oz - ls, az=azimuth)
+            if any(x is None for _, _, x in r):
+                if seen_fit:
+                    return None    # dropping further only loses poses
+                ls += step_mm
+                continue
+            seen_fit = True
+            fixed = min(hi for _, _, (lo, hi) in r)
+            stroke = max(0.0, max(lo for _, _, (lo, hi) in r) - fixed)
+            if stroke + self.sleeve_overlap_mm + self.collar_h_mm + self.sleeve_top_mm <= ls + 1e-9:
+                poses = [(e, a, max(0.0, lo - fixed), hi - fixed) for e, a, (lo, hi) in r]
+                return {"sleeve_mm": ls, "start_z": oz - ls, "stroke_mm": stroke, "free_mm": (fixed, fixed + stroke),
+                        "hose_cut_mm": math.ceil((fixed + stroke + self.sleeve_overlap_mm + COLLAR_SOCKET_MM) / 10) * 10,
+                        "tube_mm": ls - self.sleeve_top_mm, "collar_travel": (ls - self.sleeve_overlap_mm - stroke, ls - self.sleeve_overlap_mm),
+                        "sleeve_id_mm": self.hose_od + self.sleeve_clear_mm, "spring_n": tension_n, "poses": poses}
+            ls += step_mm
+        return None
+
+    def lowest_sleeve_outlet(self, xs=(-600.0, -550.0, -500.0, -450.0, -400.0, -350.0),
+                             z_lo: float = 1650.0, z_hi: float = 2100.0, z_step: float = 25.0) -> list[tuple]:
+        """For each outlet x, the lowest outlet height (to `z_step`) at which `sleeve_take_up_design` works, with its
+        design: (x, z or None, design or None). Slow (a few seconds per x): for the README, not the build."""
+        from dataclasses import replace
+        out = []
+        for x in xs:
+            hit = (x, None, None)
+            z = z_lo
+            while z <= z_hi + 1e-9:
+                d = replace(self, hopper_out_x=float(x), hopper_out_z=float(z)).sleeve_take_up_design()
+                if d is not None:
+                    hit = (x, z, d)
+                    break
+                z += z_step
+            out.append(hit)
+        return out
 
     def hose_take_up_by_elev_max(self, maxes=(15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0)):
         """(top elevation, take-up mm or None) with the hose fitted over elev_min..that top elevation instead of the
@@ -685,6 +880,185 @@ class Feeder:
         bad += self.check_feed()
         bad += self.check_hopper_frame()
         bad += self.check_launch()
+        bad += self.check_azimuth()
+        return bad
+
+    # ---- azimuth drive (2026-11-10) -------------------------------------------
+    @property
+    def az_gear_r(self) -> float:
+        return self.az_module * self.az_gear_teeth / 2
+
+    @property
+    def az_pinion_r(self) -> float:
+        return self.az_module * self.az_pinion_teeth / 2
+
+    @property
+    def az_centre_dist(self) -> float:
+        """Turntable axis to the stepper shaft, mm. The stepper sits on +y, under the mast plate."""
+        return self.az_gear_r + self.az_pinion_r
+
+    @property
+    def az_ratio(self) -> float:
+        return self.az_gear_teeth / self.az_pinion_teeth
+
+    @property
+    def az_trim_r(self) -> float:
+        """Radius the turntable plate is trimmed to outside the toothed sector: inside the pinion's tip circle."""
+        return self.az_centre_dist - (self.az_pinion_r + self.az_module) - self.az_clear_mm
+
+    @property
+    def az_sector_half_deg(self) -> float:
+        return self.az_max + self.az_sector_margin_deg
+
+    @property
+    def az_gear_inner_r(self) -> float:
+        """Inner edge of the printed sector."""
+        return self.az_gear_r - 1.25 * self.az_module - 18.0
+
+    @property
+    def az_bolt_r(self) -> float:
+        """M4 bolts through the plate into the sector's heat-set inserts."""
+        return (self.az_gear_inner_r + self.az_trim_r) / 2
+
+    def az_tooth_half_angle(self, r: float) -> float:
+        """Half the gear tooth's angular thickness (rad) at radius r: involute flank, thinned by `az_backlash_mm` at
+        the pitch circle."""
+        a = math.radians(self.az_pressure_deg)
+        rp = self.az_gear_r
+        rb = rp * math.cos(a)
+        inv = lambda x: math.tan(x) - x  # noqa: E731
+        ar = math.acos(min(1.0, rb / r))
+        s_p = math.pi * self.az_module / 2 - self.az_backlash_mm
+        return s_p / (2 * rp) + inv(a) - inv(ar)
+
+    def az_root_gap_mm(self) -> float:
+        """Narrowest slot in the printed sector: the tooth space at the root circle (no fillet)."""
+        rr = self.az_gear_r - 1.25 * self.az_module
+        return rr * (2 * math.pi / self.az_gear_teeth - 2 * self.az_tooth_half_angle(rr))
+
+    def az_tip_land_mm(self) -> float:
+        ra = self.az_gear_r + self.az_module
+        return ra * 2 * self.az_tooth_half_angle(ra)
+
+    @property
+    def az_gear_face_mm(self) -> float:
+        """Printed sector thickness: it fills the bearing gap under the turntable plate, less `az_gear_gap_mm`."""
+        return self.bearing_h - self.az_gear_gap_mm
+
+    def az_hose_torque_nm(self) -> float:
+        """Hose pull about the turntable axis, worst pose. A taut hose without bending stiffness pulls its end toward
+        its other end, so the force is `hose_pull_n` along the chord from the socket mouth to the hose's start (the
+        take-up sleeve's lower end, or the outlet if no sleeve fits); its moment about the vertical axis is zero with
+        the head straight ahead and grows as it turns. The hose's own bending and twisting stiffness is not modelled:
+        hang a hose and measure the torque with a spring scale on the head."""
+        t = self.sleeve_take_up_design()
+        sx, sz = self.hopper_out_x, (t["start_z"] if t else self.hopper_out_z)
+        azs = [self.az_max * k / self.az_steps for k in range(self.az_steps + 1)] if self.az_max > 0 else [0.0]
+        worst = 0.0
+        for i in range(5):
+            e = self.elev_min + (self.elev_max - self.elev_min) * i / 4
+            for a in azs:
+                (mx, my, mz), _ = self.mouth_world_3d(e, a)
+                dx, dy, dz = sx - mx, -my, sz - mz
+                n = math.sqrt(dx * dx + dy * dy + dz * dz)
+                rx, ry = mx - self.head_x, my
+                worst = max(worst, abs(rx * dy - ry * dx) / n * self.hose_pull_n / 1000)
+        return worst
+
+    def azimuth_drive(self, inertia_kgm2: float | None = None, load_n: float = 60.0) -> dict:
+        """Size the stepper and the gear sector for a `az_slew_deg` move in `az_slew_s` (triangular speed profile:
+        half the time speeding up, half slowing down). `inertia_kgm2` is the turning inertia about the turntable axis
+        (default `az_inertia_kgm2`; the build measures it from the CAD); `load_n` is the weight on the bearing.
+
+        Torques at the turntable: inertia x peak angular acceleration, the bearing's rolling friction
+        (mu x load x ball-circle radius) and the hose bound. The motor sees them through the ratio and mesh efficiency,
+        plus its own rotor and the pinion speeding up. Tooth bending is Lewis' equation, Y = 0.484 - 2.87/z for 20 deg
+        full-depth teeth, face width = the printed sector's thickness, tangential load x `az_shock`. Aim resolution is one full step
+        at the output; backlash is `az_backlash_mm` over the pitch radius."""
+        j = self.az_inertia_kgm2 if inertia_kgm2 is None else inertia_kgm2
+        th = math.radians(self.az_slew_deg)
+        t = self.az_slew_s
+        alpha = 4 * th / t ** 2
+        omega = 2 * th / t
+        t_inertia = j * alpha
+        t_bearing = self.az_bearing_mu * load_n * self.bearing_d / 2 / 1000
+        t_hose = self.az_hose_torque_nm()
+        t_out = t_inertia + t_bearing + t_hose
+        rp_m = (self.az_pinion_r + self.az_module) / 1000
+        pinion_j = 0.5 * (7850 * math.pi * rp_m ** 2 * 0.012) * rp_m ** 2   # steel disc, 12 mm long (bound)
+        t_motor = t_out / (self.az_ratio * self.az_gear_eff) + (self.stepper_rotor_kgm2 + pinion_j) * alpha * self.az_ratio
+        rpm = omega * self.az_ratio * 60 / (2 * math.pi)
+        f_t = t_out / (self.az_gear_r / 1000) * self.az_shock
+        y = 0.484 - 2.87 / self.az_gear_teeth
+        sigma = f_t / (self.az_gear_face_mm * self.az_module * y)
+        step = self.stepper_steps * self.az_ratio
+        step_deg = 360 / step
+        back_deg = math.degrees(self.az_backlash_mm / self.az_gear_r)
+        hold_static = (t_bearing + t_hose) / (self.az_ratio * self.az_gear_eff)
+        return {
+            "alpha_rad_s2": alpha, "omega_rad_s": omega, "inertia_kgm2": j,
+            "torque_inertia_nm": t_inertia, "torque_bearing_nm": t_bearing, "torque_hose_nm": t_hose,
+            "torque_out_nm": t_out, "torque_motor_nm": t_motor, "motor_rpm": rpm,
+            "torque_margin": self.stepper_torque_nm / t_motor, "hold_margin": self.stepper_hold_nm / max(hold_static, 1e-9),
+            "tooth_force_n": f_t, "tooth_stress_mpa": sigma, "lewis_y": y,
+            "step_deg": step_deg, "step_miss_mm": math.tan(math.radians(step_deg)) * self.aim_range_m * 1000,
+            "backlash_deg": back_deg, "backlash_miss_mm": math.tan(math.radians(back_deg)) * self.aim_range_m * 1000,
+            "root_gap_mm": self.az_root_gap_mm(), "tip_land_mm": self.az_tip_land_mm(),
+            "fastest_slew_s": self.fastest_slew_s(j, load_n),
+        }
+
+    def fastest_slew_s(self, inertia_kgm2: float, load_n: float = 60.0) -> float:
+        """Shortest `az_slew_s` that still keeps `az_torque_factor` on the motor (bisection; the hose and friction terms
+        do not shrink with time, so a slow enough move always passes unless they alone eat the margin)."""
+        from dataclasses import replace
+        lo, hi = 0.02, 10.0
+        if replace(self, az_slew_s=hi)._margin_only(inertia_kgm2, load_n) < self.az_torque_factor:
+            return math.inf
+        for _ in range(50):
+            mid = (lo + hi) / 2
+            m = replace(self, az_slew_s=mid)._margin_only(inertia_kgm2, load_n)
+            lo, hi = (lo, mid) if m >= self.az_torque_factor else (mid, hi)
+        return hi
+
+    def _margin_only(self, j: float, load_n: float) -> float:
+        th = math.radians(self.az_slew_deg)
+        alpha = 4 * th / self.az_slew_s ** 2
+        t_out = j * alpha + self.az_bearing_mu * load_n * self.bearing_d / 2 / 1000 + self.az_hose_torque_nm()
+        rp_m = (self.az_pinion_r + self.az_module) / 1000
+        pinion_j = 0.5 * (7850 * math.pi * rp_m ** 2 * 0.012) * rp_m ** 2
+        t_motor = t_out / (self.az_ratio * self.az_gear_eff) + (self.stepper_rotor_kgm2 + pinion_j) * alpha * self.az_ratio
+        return self.stepper_torque_nm / t_motor
+
+    def check_azimuth(self, inertia_kgm2: float | None = None) -> list[str]:
+        bad = []
+        d = self.azimuth_drive(inertia_kgm2)
+        if d["torque_margin"] < self.az_torque_factor:
+            bad.append(f"azimuth stepper needs {d['torque_motor_nm']:.3f} N m for {self.az_slew_deg:g} deg in "
+                       f"{self.az_slew_s:g} s against {self.stepper_torque_nm:g} N m pull-out ({self.az_torque_factor:g}x wanted)")
+        if d["hold_margin"] < self.az_torque_factor:
+            bad.append("azimuth stepper cannot hold the head against the hose and bearing drag")
+        if d["tooth_stress_mpa"] > self.petg_bend_allow_mpa:
+            bad.append(f"printed azimuth gear teeth bend at {d['tooth_stress_mpa']:.1f} MPa (allowed {self.petg_bend_allow_mpa:g})")
+        if d["root_gap_mm"] < self.print_min_gap_mm:
+            bad.append(f"printed azimuth gear slots are {d['root_gap_mm']:.2f} mm wide, under {self.print_min_gap_mm:g} mm")
+        if d["tip_land_mm"] < self.print_min_gap_mm:
+            bad.append("printed azimuth gear teeth come to a point")
+        if self.az_gear_face_mm < 6.0:
+            bad.append("bearing gap too thin for the printed azimuth gear sector")
+        # The trimmed plate must clear everything bolted to it (cheek feet, bearing bolts) and the bearing itself.
+        foot_r = max(math.hypot(35.0 + 12.0, self.plate_half_y + self.plate_t + self.cheek_gap + self.plate_t + 20.0), 0)
+        if self.az_trim_r < max(foot_r, self.bearing_d / 2) + 5:
+            bad.append("turntable plate trimmed for the pinion cuts into the cheek feet or the bearing")
+        if self.az_sector_half_deg + 90 > 180 - 5 or self.az_gear_inner_r < self.bearing_d / 2 + 5:
+            bad.append("azimuth gear sector does not fit outside the bearing")
+        if self.az_bolt_r + 6 > self.az_trim_r or self.az_bolt_r - 6 < self.az_gear_inner_r:
+            bad.append("azimuth gear sector's bolts miss the turntable plate")
+        # The stepper's square body under the mast plate must sit inside the plate and clear the +y posts.
+        half = 42.3 / 2
+        if self.az_centre_dist + half > self.post_half_y + 40 - 5:
+            bad.append("azimuth stepper overhangs the mast plate")
+        if self.post_dx - 10 < half + 5:
+            bad.append("azimuth stepper hits the mast posts")
         return bad
 
     def check_launch(self) -> list[str]:
@@ -726,6 +1100,42 @@ class Feeder:
             mid = (lo + hi) / 2
             lo, hi = (mid, hi) if all(state(mid)) else (lo, mid)
         return vmin, lo, ("wheel rpm" if not state(hi)[1] else "nip traction")
+
+    def plate_clearance(self, v: float | None = None) -> dict:
+        """Ball against the head plates after release (2026-11-09). The ball leaves the wheels with its centre at
+        -nip_x and is free of the plates when its centre is a ball radius past `head_x1`; over that run it has
+        `plate_half_y - ball_d/2` either side. Returns the side gap, the run, the transit time at `v` (default
+        `launch_v_max`), the largest yaw error (deg) that still clears and the sideways speed that would just touch.
+        Topspin and gravity act in the plates' plane (z), and the plates span head_z0..head_z1 around the ball, so
+        only yaw (a wheel pair out of square with the plates, or a sideways push from a worn wheel) can hit them."""
+        v = self.launch_v_max if v is None else v
+        r = self.ball_d / 2
+        gap = self.plate_half_y - r
+        run = self.head_x1 + r + self.nip_x
+        yaw = math.degrees(math.atan2(gap, run)) if run > 0 else 90.0
+        t = run / 1000 / v if v > 0 else math.inf
+        return {"gap_mm": gap, "run_mm": run, "transit_ms": t * 1000, "yaw_tol_deg": yaw,
+                "side_speed_ms": gap / 1000 / t if t > 0 else math.inf}
+
+    def axle_squaring(self) -> dict:
+        """Wheel-axle yaw against the head plates (2026-11-09): the tolerance stack for `plate_clearance`'s limit.
+        The axle's direction is set by two things: the motor face seating on the motor plate (flatness and burrs
+        lift one edge by `seat_gap_mm` over the motor diameter) and the two bores not being exactly opposite each
+        other (laser position error on each plate plus the plates' x-offset from their spacer slots) over the span
+        between the bearings. Plates that are not parallel add the spacer length difference over the plate length.
+        Returns each term in degrees, the worst-case sum, the root-sum-square, the limit and the margin
+        (limit / worst case). All the tolerances are assumptions to replace with a measurement."""
+        span = 2 * (self.plate_half_y + self.plate_t / 2)
+        seat = math.degrees(math.atan2(self.seat_gap_mm, self.motor_d))
+        bores = math.degrees(math.atan2(2 * self.bore_pos_tol_mm + self.plate_slot_play_mm, span))
+        length = self.head_x1 - self.head_x0
+        par = math.degrees(math.atan2(self.spacer_len_tol_mm, length))
+        terms = {"motor_seat_deg": seat, "bore_offset_deg": bores, "plate_parallel_deg": par}
+        worst = sum(terms.values())
+        rss = math.sqrt(sum(v * v for v in terms.values()))
+        limit = self.plate_clearance()["yaw_tol_deg"]
+        return {**terms, "worst_deg": worst, "rss_deg": rss, "limit_deg": limit,
+                "margin": limit / worst if worst > 0 else math.inf}
 
     def retain_strain_bad(self) -> str:
         if not 0.5 < self.retain_frac < 0.95:

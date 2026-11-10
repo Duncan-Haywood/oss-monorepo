@@ -108,3 +108,136 @@ test("an ISO date with a 12-hour clock reads PM and midnight correctly", () => {
   assert.deepEqual(hours("2026-03-05T14:00:00.000,100"), [14]);
   assert.equal(hourlySales("time,sales\n2026-03-05 13:00 PM,100\n").rows, 0);
 });
+
+test("sales cells: accounting negatives, decimal commas and thousands commas", async () => {
+  const { readAmount } = await import("./demand.mjs");
+  assert.equal(readAmount("(12.50)"), -12.5);
+  assert.equal(readAmount("-$3"), -3);
+  assert.equal(readAmount("1.234,50"), 1234.5);
+  assert.equal(readAmount("12,5"), 12.5);
+  assert.equal(readAmount("1,234"), 1234);
+  assert.equal(readAmount("$1,234.50"), 1234.5);
+  assert.equal(readAmount("€ 99"), 99);
+  assert.ok(Number.isNaN(readAmount("n/a")));
+  assert.ok(Number.isNaN(readAmount("")));
+});
+
+test("month-name stamps and hour intervals are read", () => {
+  const a = hourlySales('Time,Net Sales\n"Mar 5, 2026 2 PM",100\n5 March 2026 14:00,50\n"March 6th, 2026 12:00 AM",9\n');
+  assert.equal(a.rows, 3, JSON.stringify(a.skipped));
+  assert.equal(a.avg[3][14], 150); // Thursday 5 Mar 2026: two rows in one hour add up
+  assert.equal(a.avg[4][0], 9);
+  const b = hourlySales("Hour,Sales,Day\n14:00-15:00,100,Mon\n2 PM - 3 PM,100,Tue\n9,5,Wed\n");
+  assert.equal(b.rows, 3, JSON.stringify(b.skipped));
+  assert.equal(b.avg[0][14], 100);
+  assert.equal(b.avg[1][14], 100);
+});
+
+test("a European export with decimal commas is not silently mis-scaled", () => {
+  const r = hourlySales("Time;Net Sales\n05.03.2026 14:00;1.234,50\n");
+  assert.equal(r.avg[3][14], 1234.5);
+});
+
+test("a separate Date column and Time column are joined into one stamp", () => {
+  const r = hourlySales("Date,Time,Net Sales\n2026-03-05,2:00 PM,120\n2026-03-05,15:00,80\n2026-03-12,14:30,60\n");
+  assert.equal(r.rows, 3, JSON.stringify(r.skipped));
+  assert.equal(r.avg[3][14], 90); // two Thursdays: (120 + 60) / 2
+  assert.equal(r.avg[3][15], 40);
+  const m = hourlySales("Date;Hour;Sales\n05.03.2026;14;10\n");
+  assert.equal(m.avg[3][14], 10);
+  const bad = hourlySales("Date,Time,Net Sales\n2026-03-05,late,1\n");
+  assert.equal(bad.rows, 0);
+  assert.match(bad.skipped[0], /2026-03-05 late/);
+});
+
+test("a year-first date with slashes or dots is read like the ISO form", () => {
+  const r = hourlySales("Date,Net Sales\n2026/03/05 14:00,10\n2026.03.12 2:00 PM,20\n");
+  assert.equal(r.rows, 2, JSON.stringify(r.skipped));
+  assert.equal(r.avg[3][14], 15); // two Thursdays
+});
+
+test("noon, midnight and a weekday name leading the hour in one cell are read", () => {
+  const r = hourlySales("Day,Hour,Sales\nMonday,12 noon,50\nMon,midnight,5\nTue,noon,7\n");
+  assert.equal(r.rows, 3, JSON.stringify(r.skipped));
+  assert.equal(r.avg[0][12], 50);
+  assert.equal(r.avg[0][0], 5);
+  const one = hourlySales("Time,Sales\nThursday 2 PM,40\nFri 14:00-15:00,8\n");
+  assert.equal(one.rows, 2, JSON.stringify(one.skipped));
+  assert.equal(one.avg[3][14], 40);
+  assert.equal(one.avg[4][14], 8);
+});
+
+test("an Excel sep= first line and a bracketed currency unit in the header are read past", () => {
+  const a = hourlySales("sep=,\nDate,Net Sales\n2026-03-05 14:00,100\n");
+  assert.equal(a.rows, 1);
+  assert.equal(a.avg[3][14], 100);
+  const b = hourlySales("Date,Net Sales (USD)\n2026-03-05 14:00,100\n");
+  assert.equal(b.rows, 1);
+  const c = hourlySales("Date,Sales [GBP]\n2026-03-05 14:00,100\n");
+  assert.equal(c.rows, 1);
+});
+
+test("sales read with a currency code and Excel serial date-times", async () => {
+  const { readAmount, hourlySales } = await import("./demand.mjs");
+  assert.equal(readAmount("USD 40.00"), 40);
+  assert.equal(readAmount("40.00 EUR"), 40);
+  assert.equal(readAmount("(CAD 5.00)"), -5);
+  const r = hourlySales("Date,Net Sales\n46328.5833,100\n46329.375,40");
+  assert.equal(r.rows, 2);
+  assert.equal(r.avg[0][14], 100); // Monday 2 Nov 2026, 14:00 (the fraction .5833 is 13:59:57, rounded to the minute)
+  assert.equal(r.avg[1][9], 40);
+});
+
+test("a time zone suffix is not read as AM/PM, and weekday-led and dd-Mon-yyyy stamps read", () => {
+  const at = (stamp) => {
+    const r = hourlySales(`Date,Net Sales\n"${stamp}",100`);
+    return r.rows ? r.avg.flatMap((d, i) => d.map((v, h) => (v ? [i, h] : null))).filter(Boolean)[0] : null;
+  };
+  // PST/PDT start with "P" and AEST with "A": before, 02:00 PST was read as 2 PM.
+  assert.deepEqual(at("2026-03-05 02:00 PST"), [3, 2]);
+  assert.deepEqual(at("2026-03-05 02:00 PDT"), [3, 2]);
+  assert.deepEqual(at("3/5/2026 02:00 AEST"), [3, 2]);
+  assert.deepEqual(at("Mar 5, 2026 2:00 PST"), [3, 2]);
+  // a real PM marker still counts
+  assert.deepEqual(at("2026-03-05 2:00 PM PST"), [3, 14]);
+  assert.deepEqual(at("2026-03-05 2PM"), [3, 14]);
+  // weekday name ahead of a full date, and dd-Mon-yyyy
+  assert.deepEqual(at("Thu, 05 Mar 2026 14:00:00"), [3, 14]);
+  assert.deepEqual(at("Thursday, March 5, 2026 2 PM"), [3, 14]);
+  assert.deepEqual(at("Thu Mar 5 2026 2:00 PM"), [3, 14]);
+  assert.deepEqual(at("05-Mar-2026 14:00"), [3, 14]);
+  // the existing weekday + hour cell still reads
+  assert.deepEqual(at("Thursday 2 PM"), [3, 14]);
+});
+
+test("Toast-, Clover- and Square-style header names are read (net price, order total, order date, transaction time)", async () => {
+  const { hourlySales } = await import("./demand.mjs");
+  for (const csv of [
+    "Opened,Net Price\n3/5/2026 2:03 PM,12.50\n3/5/2026 3:03 PM,9",
+    "Order Date,Order Total\n05-Mar-2026 02:03 PM,12\n05-Mar-2026 03:03 PM,9",
+    "Transaction Time,Transaction Amount\n2026-03-05 14:03:22,12\n2026-03-05 15:03:22,9",
+  ]) {
+    const r = hourlySales(csv);
+    assert.equal(r.rows, 2, csv);
+    assert.ok(r.avg[3][14] > 0 && r.avg[3][15] > 0, csv);
+  }
+});
+
+test("compact stamps 20260305 1400 and 20260305T140000Z read as Thursday 14:00", () => {
+  for (const t of ["20260305 1400", "20260305T1400", "20260305T140000Z"]) {
+    const r = hourlySales(`Time,Sales\n${t},50\n`);
+    assert.equal(r.rows, 1, t);
+    assert.ok(r.avg[3][14] === 50, t);
+  }
+});
+
+test("one day-first date settles the order for the whole file; with none, month first and a note", () => {
+  const dm = hourlySales("Time,Sales\n05/03/2026 14:00,10\n25/03/2026 14:00,20\n");
+  assert.ok(dm.avg[3][14] > 0, "5 March 2026 is a Thursday");
+  assert.ok(dm.notes.some((n) => /day first/.test(n)));
+  const md = hourlySales("Time,Sales\n03/25/2026 14:00,10\n05/03/2026 14:00,20\n");
+  assert.ok(md.avg[6][14] > 0, "May 3 2026 is a Sunday");
+  const amb = hourlySales("Time,Sales\n05/03/2026 14:00,10\n");
+  assert.ok(amb.avg[6][14] > 0);
+  assert.ok(amb.notes.some((n) => /could be 5 March or May 3/.test(n)));
+});

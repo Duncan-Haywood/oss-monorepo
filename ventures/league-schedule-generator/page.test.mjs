@@ -845,6 +845,21 @@ test("multi-division page: season cost button feeds divisionsFacilityCost", () =
   assert.match(html, /divisionsFacilityCost\(last, \$\("#cost-rates"\)\.value/);
 });
 
+test("multi-division page: duty rota button feeds assignDivisionDuties and re-checks it", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ["duties", "dl-duties"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /import \{[^}]*assignDivisionDuties[^}]*validateDivisionDuties[^}]*divisionsDutiesText[^}]*\} from "\.\/divisions\.mjs"/);
+  assert.match(html, /assignDivisionDuties\(last, pd\.duties\)/);
+});
+
+test("multi-division page: team sheets button prints each team's games with its duties", () => {
+  const html = page("multi-division-league-schedule.html");
+  for (const id of ["sheet-title", "sheet-contact", "dl-team-sheets"]) assert.ok(html.includes(`id="${id}"`), id);
+  assert.match(html, /import \{[^}]*divisionsTeamSheetsHtml[^}]*\} from "\.\/divisions\.mjs"/);
+  assert.match(html, /divisionsTeamSheetsHtml\(last, \{ title: \$\("#sheet-title"\)\.value, contact: \$\("#sheet-contact"\)\.value, duties: dr \}\)/);
+  assert.match(html, /record\("divisions_team_sheets_downloaded"\)/);
+});
+
 test("single-league page shows why tied teams are ranked as they are", async () => {
   const { readFileSync } = await import("node:fs");
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");

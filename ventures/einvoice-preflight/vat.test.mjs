@@ -146,11 +146,25 @@ test("Cyprus check letter (2026-11-08)", () => {
   assert.deepEqual(dig.map((item) => item.rule), ["INV-023"]);
 });
 
-test("variants without a checksum here stay shape-only", () => {
-  for (const number of ["BG1750747520", "CZ7103192745", "LV01011012345"]) {
+test("variants without a checksum here stay shape-only or pass their own rule", () => {
+  for (const number of ["CZ530101123", "LV32867300679"]) {
     const kind = inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier").map((item) => item.rule);
     assert.ok(!kind.includes("INV-023"), number);
   }
+});
+
+test("Bulgarian 10-digit and Czech birth-number check digits (2026-11-09)", () => {
+  const find = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // BG: 7523169263 is python-stdnum's published EGN example. Any of three public rules may pass,
+  // so about a quarter of wrong digits slip through; this catches the rest.
+  assert.deepEqual(find("BG7523169263"), []);
+  assert.deepEqual(find("BG7523169264"), ["INV-023"]);
+  // CZ: a 10-digit birth number is divisible by 11 (or first nine leave 10 and the last is 0).
+  assert.deepEqual(find("CZ7103192745"), []);
+  assert.deepEqual(find("CZ7103192746"), ["INV-023"]);
+  assert.deepEqual(find("CZ7113192745"), ["INV-023"]); // month 13
+  assert.deepEqual(find("CZ7103322745"), ["INV-023"]); // day 32
+  assert.ok(!find("CZ530101123").includes("INV-023")); // 9 digits: no check digit before 1954
 });
 
 test("Norway and Switzerland check digits", () => {
@@ -286,4 +300,412 @@ test("Ecuador RUC and Paraguay RUC check digits reach the party VAT check", () =
   assert.deepEqual(rules("PY80016875-5"), []);
   assert.deepEqual(rules("PY80016875-4"), ["INV-023"]);
   assert.deepEqual(rules("PY12"), ["INV-022"]);
+});
+
+test("Israel check digit and Japan, Egypt, Kenya shapes reach the party VAT check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // 000000018 is the hand-worked example in israel.mjs.
+  assert.deepEqual(rules("IL000000018"), []);
+  assert.deepEqual(rules("IL000000019"), ["INV-023"]);
+  assert.deepEqual(rules("IL12345"), ["INV-022"]);
+  assert.deepEqual(rules("JPT1234567890123"), []);
+  assert.deepEqual(rules("JP1234567890123"), []);
+  assert.deepEqual(rules("JPT12345"), ["INV-022"]);
+  assert.deepEqual(rules("EG123-456-789"), []);
+  assert.deepEqual(rules("EG12345678"), ["INV-022"]);
+  assert.deepEqual(rules("KEA123456789Z"), []);
+  assert.deepEqual(rules("KEX123456789Z"), ["INV-022"]);
+});
+
+test("Indonesia NPWP shape reaches the party VAT check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("ID012345678901234"), []);
+  assert.deepEqual(rules("ID123456789012345"), []);
+  assert.deepEqual(rules("ID12345"), ["INV-022"]);
+});
+
+test("Taiwan GUI and Thailand TIN check digits reach the party VAT check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // 04595257: 0+8+5+9+5+4+2+7 = 40, a multiple of 5. Hand-computed, not checked against the registry.
+  assert.deepEqual(rules("TW04595257"), []);
+  assert.deepEqual(rules("TW04595258"), ["INV-023"]);
+  assert.deepEqual(rules("TW0459525"), ["INV-022"]);
+  // Seventh digit 7 also accepts total + 1: 10000073 totals 14 (15 is a multiple of 5); 10000072 totals 13 (14): refused.
+  assert.deepEqual(rules("TW10000073"), []);
+  assert.deepEqual(rules("TW10000072"), ["INV-023"]);
+  // Thailand: 0105536112014 -> sum of first 12 weighted 13..2 is 7 mod 11, check (11-7) mod 10 = 4.
+  assert.deepEqual(rules("TH0105536112014"), []);
+  assert.deepEqual(rules("TH0105536112015"), ["INV-023"]);
+  assert.deepEqual(rules("TH010553611201"), ["INV-022"]);
+});
+
+test("Saudi and South African VAT numbers get a shape check", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("SA300075588700003"), []);
+  assert.deepEqual(rules("SA310175397400003"), []);
+  assert.deepEqual(rules("SA200075588700003"), ["INV-022"]);
+  assert.deepEqual(rules("SA300075588700002"), ["INV-022"]);
+  assert.deepEqual(rules("SA30007558870003"), ["INV-022"]);
+  assert.deepEqual(rules("ZA4123456789"), []);
+  assert.deepEqual(rules("ZA3123456789"), ["INV-022"]);
+  assert.deepEqual(rules("ZA41234"), ["INV-022"]);
+  assert.deepEqual(rules("AE1001234567890033"), ["INV-022"]);
+  assert.deepEqual(rules("AE100123456700003"), []);
+  assert.deepEqual(rules("AE10012345"), ["INV-022"]);
+  // UEN check letters (examples from python-stdnum sg.uen): business, local company, other entity.
+  assert.deepEqual(rules("SG00192200M"), []);
+  assert.deepEqual(rules("SG00192200K"), ["INV-023"]);
+  assert.deepEqual(rules("SG197401143C"), []);
+  assert.deepEqual(rules("SG197401143D"), ["INV-023"]);
+  assert.deepEqual(rules("SGS16FC0121D"), []);
+  assert.deepEqual(rules("SGT01FC6132D"), []);
+  assert.deepEqual(rules("SGT01FC6132E"), ["INV-023"]);
+  assert.deepEqual(rules("SGM2000123"), ["INV-022"]);
+  assert.deepEqual(rules("SGM200012345"), []);
+  assert.deepEqual(rules("PH123456789"), []);
+  assert.deepEqual(rules("PH123456789012"), []);
+  assert.deepEqual(rules("PH1234567890"), ["INV-022"]);
+  assert.deepEqual(rules("MYC2584563200"), []);
+  assert.deepEqual(rules("MYIG12345678090"), []);
+  assert.deepEqual(rules("MYX12345678"), ["INV-022"]);
+  assert.deepEqual(rules("MA001561191000066"), []);
+  assert.deepEqual(rules("MA002136093000040"), []);
+  assert.deepEqual(rules("MA001561191000065"), ["INV-023"]);
+  assert.deepEqual(rules("MA12345678"), ["INV-022"]);
+  assert.deepEqual(rules("AZ1401555071"), []);
+  assert.deepEqual(rules("AZ1401555081"), ["INV-023"]);
+  assert.deepEqual(rules("AZ1400057424"), ["INV-023"]);
+  assert.deepEqual(rules("AZ12345"), ["INV-022"]);
+  assert.deepEqual(rules("BY200988541"), []);
+  assert.deepEqual(rules("BY200988542"), ["INV-023"]);
+  assert.deepEqual(rules("BY1234"), ["INV-022"]);
+  assert.deepEqual(rules("AL J91402501L"), []);
+  assert.deepEqual(rules("AL 12345"), ["INV-022"]);
+  assert.deepEqual(rules("BA20000000000"), ["INV-022"]);
+  assert.deepEqual(rules("BA123456789012"), []);
+  assert.deepEqual(rules("ME02655284"), []);
+  assert.deepEqual(rules("ME02655283"), ["INV-023"]);
+  assert.deepEqual(rules("MK4030000375897"), []);
+  assert.deepEqual(rules("MK4020990116747"), []);
+  assert.deepEqual(rules("MK4030000375890"), ["INV-023"]);
+  assert.deepEqual(rules("SN3067221"), []);
+  assert.deepEqual(rules("SN30672212G2"), []);
+  assert.deepEqual(rules("SN30672213G2"), ["INV-022"]);
+  assert.deepEqual(rules("SN3067222"), ["INV-023"]);
+  assert.deepEqual(rules("SN12345670AZ"), ["INV-022"]);
+  assert.deepEqual(rules("GHC0000803561"), []);
+  assert.deepEqual(rules("GHC0000803562"), ["INV-023"]);
+  assert.deepEqual(rules("GHX0000803561"), ["INV-022"]);
+  assert.deepEqual(rules("SV06140507071048"), []);
+  assert.deepEqual(rules("SV06140507071040"), ["INV-023"]);
+  assert.deepEqual(rules("SV2614050707104"), ["INV-022"]);
+  assert.deepEqual(rules("DZ416001000000007"), []);
+  assert.deepEqual(rules("DZ12345"), ["INV-022"]);
+  assert.deepEqual(rules("GN693770885"), []);
+  assert.deepEqual(rules("GN693770880"), ["INV-023"]);
+  assert.deepEqual(rules("GN12345"), ["INV-022"]);
+  assert.deepEqual(rules("ADF123456Z"), []);
+  assert.deepEqual(rules("ADA700000A"), []);
+  assert.deepEqual(rules("ADF823456Z"), ["INV-022"]);
+  assert.deepEqual(rules("ADA600000A"), ["INV-022"]);
+  assert.deepEqual(rules("ADB123456Z"), ["INV-022"]);
+  assert.deepEqual(rules("LI12345"), []);
+  assert.deepEqual(rules("LI123"), ["INV-022"]);
+  assert.deepEqual(rules("SM12345"), []);
+  assert.deepEqual(rules("SM123456"), ["INV-022"]);
+  assert.deepEqual(rules("IS12345"), []);
+  assert.deepEqual(rules("IS1"), ["INV-022"]);
+  assert.deepEqual(rules("UZ123456789"), []);
+  assert.deepEqual(rules("MD1234567890122"), []);
+  assert.deepEqual(rules("MD1234567890123"), ["INV-023"]);
+  assert.deepEqual(rules("MD123456789012"), ["INV-022"]);
+  assert.deepEqual(rules("GE123456789"), []);
+  assert.deepEqual(rules("GE12345678901"), []);
+  assert.deepEqual(rules("GE1234567890"), ["INV-022"]);
+  assert.deepEqual(rules("AM12345678"), []);
+  assert.deepEqual(rules("TZ123456789"), []);
+  assert.deepEqual(rules("UG1234567890"), []);
+  assert.deepEqual(rules("ZM1234567890"), []);
+  assert.deepEqual(rules("TN1234567M"), []);
+  assert.deepEqual(rules("TN1234567MAM000"), []);
+  assert.deepEqual(rules("TN1234567MAE001"), []);
+  assert.deepEqual(rules("TN1234567MAM001"), ["INV-022"]);
+  assert.deepEqual(rules("TN1219773U"), ["INV-022"]);
+  assert.deepEqual(rules("TN1234567MAX000"), ["INV-022"]);
+  assert.deepEqual(rules("TN12345"), ["INV-022"]);
+  assert.deepEqual(rules("RW123456789"), []);
+  assert.deepEqual(rules("RW12345678A"), ["INV-022"]);
+});
+
+test("Dominican RNC/cedula and Venezuelan RIF match python-stdnum 2.2 verdicts on 120 seeded numbers", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // Docstring examples of python-stdnum do.rnc and ve.rif (rule source; DGII and SENIAT text unread).
+  assert.deepEqual(rules("DO1-01-85004-3"), []);
+  assert.deepEqual(rules("DO101850042"), ["INV-023"]);
+  assert.deepEqual(rules("DO1018A0043"), ["INV-022"]);
+  assert.deepEqual(rules("VEV-11470283-4"), []);
+  assert.deepEqual(rules("VEV-11470283-3"), ["INV-023"]);
+  assert.deepEqual(rules("VEX114702834"), ["INV-022"]);
+  // Each row is [country, number, python-stdnum says valid], generated with Python seed 1.
+  const rows = [
+  ["DO", "690736625", true],
+  ["DO", "341925412", true],
+  ["DO", "114426942", true],
+  ["VE", "V685878310", true],
+  ["DO", "396217232", true],
+  ["DO", "611597143", true],
+  ["DO", "51702821649", true],
+  ["DO", "97541921363", true],
+  ["DO", "10007569436", true],
+  ["VE", "G588202439", true],
+  ["DO", "212690184", true],
+  ["VE", "J087413844", true],
+  ["DO", "81706964566", true],
+  ["DO", "739820518", true],
+  ["DO", "28751907362", true],
+  ["DO", "136719061", true],
+  ["DO", "136243652", true],
+  ["DO", "732983868", true],
+  ["VE", "V702480031", true],
+  ["DO", "94653019888", true],
+  ["VE", "E240130060", true],
+  ["DO", "561092812", true],
+  ["VE", "P589367273", true],
+  ["DO", "697825252", true],
+  ["DO", "59056055599", true],
+  ["VE", "E337970128", true],
+  ["DO", "792352451", true],
+  ["DO", "511513191", true],
+  ["DO", "27749925866", true],
+  ["VE", "E334485490", true],
+  ["VE", "V250789820", true],
+  ["DO", "634873096", true],
+  ["DO", "05561959221", true],
+  ["VE", "G373598234", true],
+  ["VE", "G652602489", true],
+  ["VE", "J435928390", true],
+  ["DO", "14084853333", true],
+  ["DO", "78323455549", true],
+  ["VE", "E767162734", true],
+  ["DO", "66340404129", true],
+  ["DO", "291417776", false],
+  ["DO", "31706690743", false],
+  ["VE", "G150008063", false],
+  ["DO", "608377835", false],
+  ["DO", "33740681241", false],
+  ["VE", "J868344978", false],
+  ["DO", "85178128657", false],
+  ["VE", "V704999622", false],
+  ["DO", "830388368", false],
+  ["DO", "59574890682", false],
+  ["VE", "G836075983", false],
+  ["DO", "867565088", false],
+  ["DO", "99579032892", false],
+  ["VE", "V840110704", false],
+  ["DO", "24824475771", false],
+  ["VE", "V465634148", false],
+  ["DO", "396030620", false],
+  ["DO", "27868387380", false],
+  ["VE", "P956042304", false],
+  ["DO", "08093972980", false],
+  ["VE", "P351396937", false],
+  ["DO", "164870596", false],
+  ["DO", "40235925634", false],
+  ["DO", "122283459", false],
+  ["DO", "84555143972", false],
+  ["VE", "G815061622", false],
+  ["DO", "519961983", false],
+  ["DO", "91454981741", false],
+  ["VE", "V409016103", false],
+  ["DO", "16684847513", false],
+  ["VE", "J000495765", false],
+  ["DO", "98754283433", false],
+  ["VE", "J141719536", false],
+  ["DO", "405259435", false],
+  ["DO", "18999133036", false],
+  ["VE", "V481100457", false],
+  ["DO", "721851822", false],
+  ["DO", "22541894232", false],
+  ["VE", "G059832468", false],
+  ["DO", "203417684", false],
+  ["DO", "87870652470", false],
+  ["VE", "P900592922", false],
+  ["DO", "446962913", false],
+  ["DO", "70285873357", false],
+  ["VE", "P365894301", false],
+  ["DO", "852834448", false],
+  ["DO", "52791198962", false],
+  ["VE", "E463907656", false],
+  ["DO", "828081414", false],
+  ["DO", "12917366625", false],
+  ["VE", "P297316986", false],
+  ["DO", "144368038", false],
+  ["DO", "79009343242", false],
+  ["VE", "G344947285", false],
+  ["DO", "761396341", false],
+  ["DO", "01908421859", false],
+  ["VE", "J685850177", false],
+  ["DO", "548659716", false],
+  ["DO", "63804983798", false],
+  ["VE", "P427983580", false],
+  ["DO", "696659917", false],
+  ["DO", "34062642190", false],
+  ["VE", "J468427472", false],
+  ["DO", "780481961", false],
+  ["VE", "J383354118", false],
+  ["DO", "578802484", false],
+  ["DO", "59368627495", false],
+  ["VE", "E493096563", false],
+  ["DO", "431297929", false],
+  ["DO", "47822275463", false],
+  ["VE", "V341136571", false],
+  ["DO", "200903078", false],
+  ["VE", "P762334789", false],
+  ["DO", "637457913", false],
+  ["VE", "E200628096", false],
+  ["DO", "421740080", false],
+  ["DO", "82041613072", false],
+  ["VE", "J376544330", false],
+  ["DO", "992569880", false],
+  ["DO", "58683861491", false],
+  ];
+  for (const [cc, n, valid] of rows) {
+    assert.deepEqual(rules(cc + n), valid ? [] : ["INV-023"], cc + n);
+  }
+});
+
+test("Russia INN, Canada BN and Dominican RNC get a check-digit test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("RU7707083893"), []);
+  assert.deepEqual(rules("RU7707083894"), ["INV-023"]);
+  assert.deepEqual(rules("RU500100732259"), []);
+  assert.deepEqual(rules("RU500100732258"), ["INV-023"]);
+  assert.deepEqual(rules("RU123"), ["INV-022"]);
+  assert.deepEqual(rules("CA123456782RT0001"), []);
+  assert.deepEqual(rules("CA123456783RT0001"), ["INV-023"]);
+  assert.deepEqual(rules("CA12345"), ["INV-022"]);
+  assert.deepEqual(rules("DO101001577"), []);
+  assert.deepEqual(rules("DO101001578"), ["INV-023"]);
+});
+
+test("China unified social credit code gets a check-character test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("CN91350100M000100Y43"), []);
+  assert.deepEqual(rules("CN91350100M000100Y44"), ["INV-023"]);
+  assert.deepEqual(rules("CN91440300MA5ABCDE1H"), []);
+  assert.deepEqual(rules("CN91440300MA5ABCDE1J"), ["INV-023"]);
+  assert.deepEqual(rules("CN9135010OM000100Y43"), ["INV-022"]);
+  assert.deepEqual(rules("CN12345"), ["INV-022"]);
+});
+
+test("Ukrainian RNOKPP (10 digits) gets a check-digit test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("UA1759013776"), []);
+  assert.deepEqual(rules("UA2530414071"), []);
+  assert.deepEqual(rules("UA1759013770"), ["INV-023"]);
+  // negative weighted sum (first digit 9, rest zero): -9 mod 11 = 2, as Python computes it
+  assert.deepEqual(rules("UA9000000002"), []);
+  assert.deepEqual(rules("UA9000000000"), ["INV-023"]);
+  assert.deepEqual(rules("UA175901377"), ["INV-022"]);
+});
+
+test("Mozambique NUIT gets a check-digit test, Costa Rica ids a shape test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("MZ400339910"), []);
+  assert.deepEqual(rules("MZ400005834"), []);
+  assert.deepEqual(rules("MZ400339911"), ["INV-023"]);
+  assert.deepEqual(rules("MZ12345"), ["INV-022"]);
+  assert.deepEqual(rules("CR3101999999"), []);
+  assert.deepEqual(rules("CR310199999"), []);
+  assert.deepEqual(rules("CR12345"), ["INV-022"]);
+  assert.deepEqual(rules("CR31O1999999"), ["INV-022"]);
+});
+
+test("Andorra NRT and Faroese V-number get a shape test, Guinea NIFp a Luhn test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("ADF123456Z"), []);
+  assert.deepEqual(rules("ADA700001B"), []);
+  assert.deepEqual(rules("ADF700000Z"), ["INV-022"]);
+  assert.deepEqual(rules("ADA100000B"), ["INV-022"]);
+  assert.deepEqual(rules("ADB123456Z"), ["INV-022"]);
+  assert.deepEqual(rules("FO123456"), []);
+  assert.deepEqual(rules("FO12345"), ["INV-022"]);
+  assert.deepEqual(rules("GN12345"), ["INV-022"]);
+  assert.deepEqual(rules("GN123456782"), []);
+  assert.deepEqual(rules("GN123456789"), ["INV-023"]);
+});
+
+test("Czech 8-digit numbers cannot start 9; 9-digit specials starting 6 have a check digit (2026-11-10)", () => {
+  const find = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // Examples are python-stdnum's: 25123891 (legal entity) and 640903926 (special case).
+  assert.deepEqual(find("CZ25123891"), []);
+  assert.deepEqual(find("CZ640903926"), []);
+  assert.deepEqual(find("CZ640903927"), ["INV-023"]);
+  assert.deepEqual(find("CZ651714069"), []); // the check digit's raw remainder goes negative in JS
+  // 9 as first digit with a correct check digit: 90000001 has check digit 1 by the legal-entity formula.
+  assert.deepEqual(find("CZ90000001"), ["INV-023"]);
+});
+
+test("BG other-form, MT and GB branch/post-2010 numbers python-stdnum accepts are not flagged (2026-11-10)", () => {
+  const ok = ["BG2871577350", "BG4990639480", "GB443489680", "GB391366393", "GB426560749110", "MT43376757", "MT16206152"];
+  for (const v of ok) assert.deepEqual(inspectPartyVat({ vat_id: v }, "seller"), [], v);
+  assert.notEqual(inspectPartyVat({ vat_id: "MT43376758" }, "seller").length, 0);
+});
+
+test("letters in digit-only VAT numbers and a leading zero in DK or PT are bad-format (differential vs python-stdnum, 2026-11-11)", () => {
+  for (const v of ["CZA97957793", "EEU93038463", "HUA1266236", "ROA637736264", "DK08772789", "PT055118372"]) {
+    assert.deepEqual(inspectPartyVat({ vat_id: v }, "seller").map((f) => f.rule), ["INV-022"], v);
+  }
+  assert.deepEqual(inspectPartyVat({ vat_id: "CY10259033P" }, "seller"), []);
+  assert.deepEqual(inspectPartyVat({ vat_id: "CZ699001257" }, "seller").map((f) => f.rule).filter((r) => r === "INV-022"), []);
+});
+
+// python-stdnum differential, 2026-11-11 (eval/vat-differential-reverse.py): prefix rules.
+const vatFlagged = (v) => inspectPartyVat({ vat_id: v }, "seller").length > 0;
+test("BE 10-digit numbers must start 0 or 1", () => {
+  assert.equal(vatFlagged("BE6185580330"), true);
+});
+test("IT office code must be 001-100, 120, 121, 888 or 999", () => {
+  assert.equal(vatFlagged("IT00743110157"), false);
+  assert.equal(vatFlagged("IT00743111015"), true);
+});
+test("RO numbers with a leading zero are flagged", () => {
+  assert.equal(vatFlagged("RO053937617"), true);
+  assert.equal(vatFlagged("RO18547290"), false);
+});
+test("CZ 9-digit birth numbers need a real date before 1954", () => {
+  assert.equal(vatFlagged("CZ530101123"), false);
+  assert.equal(vatFlagged("CZ541301123"), true);
+  assert.equal(vatFlagged("CZ640903926"), false);
+});
+test("LV personal codes: old format needs a real date, 32 prefix a check digit", () => {
+  assert.equal(vatFlagged("LV40003521600"), false);
+  assert.equal(vatFlagged("LV16117519997"), false);
+  assert.equal(vatFlagged("LV16137519997"), true);
+  assert.equal(vatFlagged("LV32867300679"), false);
+  assert.equal(vatFlagged("LV32867300677"), true);
+});
+
+test("French TVA letter keys, the I/O ban and the SIREN Luhn digit", () => {
+  // Vectors from python-stdnum 2.2 `fr.tva` (docstring and generated); 4Z123456782 is its example.
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "FR4Z123456782" }, "supplier"), []);
+  const bad = ["FRZ4123456782", "FRIO334175221", "FR4Z123456783", "FR40303265046"];
+  for (const number of bad) {
+    assert.ok(inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier").length, number);
+  }
+  // Monaco numbers (SIREN 000...) carry no Luhn digit.
+  assert.equal(frMonacoCheck(), true);
+});
+function frMonacoCheck() {
+  // key from (12 + 3 * (siren mod 97)) mod 97 for siren 000123456
+  const siren = "000123456";
+  const key = String((12 + 3 * (Number(siren) % 97)) % 97).padStart(2, "0");
+  return inspectPartyVat({ id: "S1", name: "A", vat_id: `FR${key}${siren}` }, "supplier").length === 0;
+}
+
+test("TR accepts a 10-digit VKN and an 11-digit TCKN, each with its own check digits", () => {
+  const bad = (n) => inspectPartyVat({ vat_id: `TR${n}` }, "seller").length > 0;
+  assert.equal(bad("12345678"), true);
+  assert.equal(bad("10000000146"), false); // valid T.C. Kimlik number (stdnum tckimlik docs)
+  assert.equal(bad("10000000147"), true);
 });

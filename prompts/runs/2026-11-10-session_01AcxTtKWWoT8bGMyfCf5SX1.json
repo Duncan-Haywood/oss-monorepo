@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtKWWoT8bGMyfCf5SX1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T21:06:32Z",
+  "ended": "2026-11-10T21:17:10Z",
+  "wall_minutes": 13.74,
+  "tokens_in": 8349320,
+  "tokens_out": 33440,
+  "cost_usd": 3.3433,
+  "tool_calls": 76,
+  "task": "Deepen (flagship 2) ai-bookkeeper item (0) new payees; a parallel session landed the same layer first (PR #14605), so this run ships only the page text for it",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14604",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    "First amount-aware fetch asked for `amount{ valueInCents }`; the API wants `amountV2{ valueInCents currency }` (HTTP 400). Fixed and refetched.",
+    "First background fetch loop was started with the old query and killed partway; its cached pages (no -v2 suffix) are ignored by the new cache key.",
+    "Duplicate work: PR #14605 (another session, same flagship item, same layer name and source 'new-payee') merged while this run's PR #14604 was in CI. Mine (direction + amount bucket, no name shape) scored lower on held-out raft (first-seen 18.1% vs 32.6%), so it was dropped and the branch reset to main."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "eval/opencollective-labelled.mjs (ai-bookkeeper)",
+      "issue": "The labelled-books eval scored every line at -$100 because the query never fetched amounts, so the classifier's amount features were untested on real data; noticed only when a prototype's amount feature changed nothing. Now fetched (cache key -v2)."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "The duplicate search ran at PR-open time and found nothing; the overlap came from a session that opened its PR minutes later on the same flagship item. allocate.py hands the same top Deepen row to every concurrent ventures run, so two runs built the same layer in parallel. A claim marker (e.g. a draft PR titled with the flagship item) checked again just before heavy work would have caught it."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Concurrent ventures runs all get flagship 1's row (ai-bookkeeper, 74 commits in 7 days); nothing spreads simultaneous runs across flagships."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: the parallel session's post (docs/posts/2026-11-10-ai-bookkeeper-new-payees.md) already covers the layer, and a second post on a weaker variant would mislead.",
+      "did": "page text only, plus this record",
+      "result": "no duplicate post"
+    }
+  ],
+  "writeups": [],
+  "goal": "Raise accuracy on first-seen payees without changing what posts unreviewed",
+  "notes": "Built and measured a new-payee layer (direction + amount bucket base rate; payee-name text, first-seen right of all 5-21% -> 18-58%, auto-post errors unchanged, synthetic benchmark unchanged; ai-bookkeeper suite 2,431/2,431, venture-preflight clean). Before merging, found PR #14605 had merged the same item with a name-shape signal that does better on held-out hosts (raft 32.6% vs 18.1%). Reset the branch to main and kept only what main lacked: the page's 'how it categorizes' paragraph (index.html) still said 'Four layers' and did not mention the bank-category hint or the new-payee guess; it now describes both as review-only hints, matching NEW_PAYEE (8 payees, split says nothing, confidence <= 0.5). Verification: node --test page.test.mjs new-payee.test.mjs 30/30 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e9f99a4c-0ea7-5449-8b9c-913582019a6b",
+    "transcripts": 1,
+    "first": "2026-11-10T21:06:32Z",
+    "last": "2026-11-10T21:20:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 141,
+        "output": 33440,
+        "thinking": 7070,
+        "cache_read": 8220445,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128734,
+        "api_equivalent_usd": 3.3433,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 141,
+      "output": 33440,
+      "thinking": 7070,
+      "cache_read": 8220445,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128734,
+      "api_equivalent_usd": 3.3433,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 66,
+      "Monitor": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.74,
+      "active_minutes": 13.74,
+      "model_minutes": 7.78,
+      "tool_minutes": 5.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an ML engineer designing, implementing and measuring a new categorizer layer on five real datasets, plus docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 299.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -9,9 +9,13 @@ Feed: a column of balls drops into the pocket of a printed shuttle that slides
 between the head plates and carries one ball forward to the wheels (its solid
 rear shuts the column meanwhile); a hose runs up to a tub on a sloped shelf.
 
+Azimuth (2026-11-10): a NEMA 17 stepper under the mast plate turns a bought
+m1.5 pinion that meshes with a printed gear sector bolted under the turntable
+plate; the plate is trimmed inside the pinion's reach.
+
 Not modelled yet: the netting and its trough, the hopper agitator, the shuttle
-actuator and its bracket, the elevation actuator and its bracket, the azimuth
-drive, and the cable runs. They are listed in `hardware/feeder-catcher.md`.
+actuator and its bracket, the elevation actuator and its bracket, and the
+cable runs. They are listed in `hardware/feeder-catcher.md`.
 """
 
 from __future__ import annotations
@@ -23,10 +27,12 @@ from build123d import (
     Box,
     BuildSketch,
     Circle,
+    Cone,
     Cylinder,
     Location,
     Locations,
     Mode,
+    Polygon,
     RectangleRounded,
     SlotOverall,
     extrude,
@@ -36,6 +42,9 @@ from .collector import ROT_XZ, ROT_Y_AXIS, Part, _holes
 from .params import Feeder
 
 BATTERY_X = -450.0  # battery centre on the deck
+AZ_BOSS_D = 23.0       # NEMA 17 pilot boss is 22 mm across
+AZ_MOTOR_PITCH = 31.0  # NEMA 17 M3 square
+SPIGOT_BOLT_R = 64.0  # M4 ring of the sleeve socket under the shelf (48 until 2026-11-10; the sleeve's wall now sits there)
 
 
 # ---------------------------------------------------------------- helpers
@@ -128,33 +137,104 @@ def trunnion_cheek(p: Feeder) -> Part:
                 notes="Holds the head's M8 pivot bolt; a printed foot on each cheek bolts it to the turntable plate.")
 
 
+MAST_NOTCH_R = 115.0  # the head's plates reach below the mast plate's top only beyond 119.6 mm behind the axis (+45 deg)
+
+
+def _mast_notch(p: Feeder) -> list[tuple[float, float]]:
+    """Cut-out at the mast plate's rear: everything beyond MAST_NOTCH_R behind the axis that the head's plates
+    (half-width plate_half_y + plate_t, plus 5 mm) sweep over when it turns +-az_max. Found 2026-11-10 by the
+    azimuth sweep: nose up 45 deg and turned 15 deg, the guard plate cut 78 mm^3 into the plate's rear edge."""
+    w = p.plate_half_y + p.plate_t + 5.0
+    rs = [MAST_NOTCH_R + k * 10.0 for k in range(15)]
+    ang = lambda r: math.radians(p.az_max) + math.asin(min(1.0, w / r))  # noqa: E731
+    upper = [(p.head_x - r * math.cos(ang(r)), r * math.sin(ang(r))) for r in rs]
+    a0 = ang(MAST_NOTCH_R)
+    arc = [(p.head_x - MAST_NOTCH_R * math.cos(a0 * (2 * k / 12 - 1)), MAST_NOTCH_R * math.sin(a0 * (2 * k / 12 - 1)))
+           for k in range(1, 12)]
+    lower = [(x, -y) for x, y in reversed(upper)]
+    return upper + [(p.head_x - 400.0, upper[-1][1]), (p.head_x - 400.0, -upper[-1][1])] + lower + arc
+
+
 def mast_plate(p: Feeder) -> Part:
     with BuildSketch() as s:
         with Locations((p.head_x, 0)):
             RectangleRounded(2 * p.post_dx + 60, 2 * p.post_half_y + 80, 10)
         _holes([(x, y) for x, y in _post_xy(p)], 5.5)
         _holes([(p.head_x + x, y) for x, y in _ring(60, 4)], 5.5)
+        Polygon(*_mast_notch(p), align=None, mode=Mode.SUBTRACT)  # the head's rear dips past it, nose up and turned
         with Locations((p.head_x, 0)):
             Circle(20, mode=Mode.SUBTRACT)  # cables to the turntable
+        with Locations((p.head_x, p.az_centre_dist)):
+            Circle(AZ_BOSS_D / 2, mode=Mode.SUBTRACT)  # azimuth stepper's boss and shaft
+        _holes(_az_motor_holes(p), 3.4)
     face = s.sketch
     return Part("mast_plate", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
                 [Location((0, 0, p.mast_top_z))], flat=face, thickness=p.plate_t,
-                notes="Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing.")
+                notes="Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing; the azimuth "
+                      "stepper hangs under it on four M3 screws.")
+
+
+def _az_motor_holes(p: Feeder):
+    return [(p.head_x + sx * AZ_MOTOR_PITCH / 2, p.az_centre_dist + sy * AZ_MOTOR_PITCH / 2) for sx in (-1, 1) for sy in (-1, 1)]
+
+
+def _az_bolt_angles(p: Feeder):
+    """Plate-frame angles (deg from +x) of the three M4 bolts holding the gear sector."""
+    h = p.az_sector_half_deg - 6.0
+    return [90.0 - h, 90.0, 90.0 + h]
+
+
+def _az_bolts(p: Feeder):
+    r = p.az_bolt_r
+    return [(p.head_x + r * math.cos(math.radians(a)), r * math.sin(math.radians(a))) for a in _az_bolt_angles(p)]
 
 
 def turntable_plate(p: Feeder) -> Part:
+    h = math.radians(p.az_sector_half_deg)
+    r_out = p.az_trim_r + 5.0
+    wedge = [(p.head_x, 0.0)] + [(p.head_x + r_out * math.cos(math.pi / 2 + h * (2 * i / 24 - 1)),
+                                   r_out * math.sin(math.pi / 2 + h * (2 * i / 24 - 1))) for i in range(25)]
     with BuildSketch() as s:
         with Locations((p.head_x, 0)):
             RectangleRounded(2 * p.cheek_x_half + 80, 2 * (p.plate_half_y + p.plate_t + p.cheek_gap + 2 * p.plate_t + 30), 10)
+        Polygon(*wedge, align=None)                       # carries the gear sector's bolts
+        with Locations((p.head_x, 0)):
+            Circle(p.az_trim_r, mode=Mode.INTERSECT)      # inside the pinion's tip circle at every azimuth
         _holes([(p.head_x + x, y) for x, y in _ring(60, 4, 45)], 5.5)
         _holes([(x, sy * yy) for x, yy in _foot_xy(p) for sy in (-1, 1)], 4.4)
+        _holes(_az_bolts(p), 4.4)
         with Locations((p.head_x, 0)):
             Circle(20, mode=Mode.SUBTRACT)
     face = s.sketch
     z = p.mast_top_z + p.plate_t + p.bearing_h
     return Part("turntable_plate", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
                 [Location((0, 0, z))], flat=face, thickness=p.plate_t,
-                notes="Bolts to the rotating ring of the bearing; a servo or stepper drives it (not modelled).")
+                notes=f"Bolts to the rotating ring of the bearing. Trimmed to a {p.az_trim_r:g} mm radius so the azimuth "
+                      f"pinion clears it at every angle; the printed gear sector bolts under its +y edge (3 x M4).")
+
+
+def az_gear_profile(p: Feeder, pts_per_flank: int = 6) -> list[tuple[float, float]]:
+    """Gear sector outline about the turntable axis (axis at the origin), from +x counter-clockwise: tooth flanks
+    are involutes, thinned by the backlash allowance; tooth spaces span plate angles 90 +- the sector half-angle."""
+    rp = p.az_gear_r
+    ra, rr = rp + p.az_module, rp - 1.25 * p.az_module
+    pitch = 2 * math.pi / p.az_gear_teeth
+    h = math.radians(p.az_sector_half_deg)
+    n = int(h // pitch)
+    radii = [rr + (ra - rr) * k / pts_per_flank for k in range(pts_per_flank + 1)]
+    pts = []
+    for i in range(-n, n + 1):
+        c = math.pi / 2 + i * pitch
+        flank = [(r, p.az_tooth_half_angle(r)) for r in radii]
+        pts += [(r * math.cos(c - w), r * math.sin(c - w)) for r, w in flank]            # leading flank, root to tip
+        pts += [(r * math.cos(c + w), r * math.sin(c + w)) for r, w in reversed(flank)]  # trailing flank, tip to root
+    pts.sort(key=lambda q: math.atan2(q[1], q[0]))
+    a0 = math.atan2(pts[0][1], pts[0][0]) - pitch / 4
+    a1 = math.atan2(pts[-1][1], pts[-1][0]) + pitch / 4
+    ri = p.az_gear_inner_r
+    end = [(rr * math.cos(a1), rr * math.sin(a1))]
+    inner = [(ri * math.cos(a1 + (a0 - a1) * k / 24), ri * math.sin(a1 + (a0 - a1) * k / 24)) for k in range(25)]
+    return [(rr * math.cos(a0), rr * math.sin(a0))] + pts + end + inner
 
 
 def base_deck(p: Feeder) -> Part:
@@ -213,7 +293,7 @@ def hopper_shelf(p: Feeder) -> Part:
         _holes([((x + 0.0 - cx) / math.cos(s), y) for x, y in _shelf_posts(p)], 5.5)
         with Locations((a_o, 0)):
             Circle(80.0 / 2, mode=Mode.SUBTRACT)
-        _holes([(a_o + x, y) for x, y in _ring(48.0, 4, 45)], 4.4)
+        _holes([(a_o + x, y) for x, y in _ring(SPIGOT_BOLT_R, 4, 45)], 4.4)
         with Locations((0, p.tub_w / 2 + 12), (0, -p.tub_w / 2 - 12)):
             SlotOverall(60, 6, mode=Mode.SUBTRACT)  # a 25 mm strap over the tub each side
     face = sk.sketch
@@ -221,7 +301,7 @@ def hopper_shelf(p: Feeder) -> Part:
     return Part("hopper_shelf", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
                 [Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))], flat=face, thickness=p.plate_t,
                 notes=f"Tub shelf, falls {p.shelf_slope_deg:g} deg toward the net so balls roll to the outlet. "
-                      "Posts bolt up through it (M5, end-tapped), the outlet spigot under the outlet hole.")
+                      "Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole.")
 
 
 # ---------------------------------------------------------------- feed parts (printed)
@@ -292,17 +372,34 @@ def feed_shuttle(p: Feeder) -> Part:
                       f"while it moves {p.feed_stroke:g} mm forward. Drawn retracted (pocket under the column). 6 walls.")
 
 
+def _sleeve_d(p: Feeder) -> tuple[float, float]:
+    """(bore, outside diameter) of the take-up sleeve."""
+    bore = p.hose_od + p.sleeve_clear_mm
+    return bore, bore + 2 * p.sleeve_wall_mm
+
+
 def hopper_spigot(p: Feeder) -> Part:
-    flange = Cylinder(55.0, 5.0).moved(Location((0, 0, -2.5)))
-    tube = Cylinder((p.hose_od + 8.0) / 2, 45.0).moved(Location((0, 0, -27.5)))
-    blk = flange + tube
-    blk = blk - Cylinder(80.0 / 2, 60.0).moved(Location((0, 0, -5.0)))
-    blk = blk - Cylinder((p.hose_od + 0.5) / 2, 40.0).moved(Location((0, 0, -30.0)))
-    for x, y in _ring(48.0, 4, 45):
-        blk = blk - Cylinder(2.0, 14).moved(Location((x, y, -4.0)))
+    """Socket under the shelf's outlet that holds the take-up sleeve upright (2026-11-10; until then a hose socket).
+    A flange on the sloped shelf and a vertical cup the sleeve's top end pushes into, cut flush with the shelf."""
+    s = math.radians(p.shelf_slope_deg)
+    bore, od = _sleeve_d(p)
     ox, oz = p.hopper_out_x, p.hopper_out_z
-    return Part("hopper_spigot", "print", "PETG", 1, blk, [Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))],
-                notes="Hose socket under the shelf's outlet hole: M4 heat-set inserts, flange against the shelf. 6 walls.")
+    shelf = Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))
+    flange = Cylinder(SPIGOT_BOLT_R + 10.0, 5.0).moved(Location((0, 0, -2.5))).moved(shelf)
+    top = oz - p.sleeve_top_mm                         # sleeve's top end, under the flange all round
+    cup_h = 40.0
+    z_hi = oz + (od / 2 + 6.0) * math.tan(s) + 2.0     # reaches the shelf plane all round, then cut flush
+    cup = Cylinder(od / 2 + 6.0, z_hi - (top - cup_h)).moved(Location((ox, 0, (z_hi + top - cup_h) / 2)))
+    blk = flange + cup
+    blk = blk - Box(400.0, 400.0, 200.0).moved(Location((0, 0, 100.0))).moved(shelf)    # nothing above the shelf
+    blk = blk - Cylinder(80.0 / 2, 400.0).moved(Location((ox, 0, oz)))                 # ball passage, as the shelf hole
+    blk = blk - Cylinder((od + 0.5) / 2, cup_h).moved(Location((ox, 0, top - cup_h / 2)))
+    blk = blk - Box(30.0, 10.0, cup_h + 2.0).moved(Location((ox - od / 2 - 5.0, 0, top - cup_h / 2)))  # the sleeve's slot, carried on
+    for x, y in _ring(SPIGOT_BOLT_R, 4, 45):
+        blk = blk - Cylinder(2.0, 14).moved(Location((x, y, -4.0))).moved(shelf)
+    return Part("hopper_spigot", "print", "PETG", 1, blk, [Location((0, 0, 0))],
+                notes=f"Sleeve socket under the shelf's outlet hole: flange on the sloped shelf (M4 heat-set inserts), a vertical "
+                      f"cup {od + 0.5:g} mm across and {cup_h:g} mm deep for the sleeve's top end. Print flange down, 6 walls.")
 
 
 # ---------------------------------------------------------------- printed parts
@@ -319,6 +416,21 @@ def cheek_foot(p: Feeder) -> Part:
             placements.append(Location((x, sy * y_foot, p.turntable_top)))
     return Part("cheek_foot", "print", "PETG", 4, blk, placements,
                 notes="M4 heat-set inserts; bolts the cheek to the turntable plate, 4 walls, 40% infill.")
+
+
+def az_gear_sector(p: Feeder) -> Part:
+    face_mm = p.az_gear_face_mm
+    with BuildSketch() as sk:
+        Polygon(*[(p.head_x + x, y) for x, y in az_gear_profile(p)], align=None)
+    blk = extrude(sk.sketch, face_mm)
+    for x, y in _az_bolts(p):
+        blk = blk - Cylinder(2.0, face_mm).moved(Location((x, y, face_mm / 2)))   # M4 heat-set insert, from the top
+    z0 = p.mast_top_z + p.plate_t + p.az_gear_gap_mm
+    return Part("az_gear_sector", "print", "PETG", 1, blk, [Location((0, 0, z0))],
+                notes=f"Azimuth gear: module {p.az_module:g}, {p.az_gear_teeth} teeth on the full circle "
+                      f"(pitch radius {p.az_gear_r:g} mm), {2 * p.az_sector_half_deg:g} deg cut. Bolts under the turntable "
+                      f"plate (3 x M4 into heat-set inserts); meshes with the stepper's {p.az_pinion_teeth}-tooth pinion. "
+                      f"Print flat, 100% infill, 0.1 mm layers for the flanks; grease the teeth.")
 
 
 def pole_foot(p: Feeder) -> Part:
@@ -433,57 +545,59 @@ def poles(p: Feeder) -> list[Part]:
 
 
 def feed_hose(p: Feeder) -> Part:
-    return Part("feed_hose", "stock", "flexible hose", 1, Cylinder(p.hose_od / 2, p.hose_len),
-                [],  # a hose's pose changes with the head; checked by chord and bow in params, not as a solid
-                spec=f"{p.hose_id:g} mm ID smooth-bore flexible hose ({p.hose_od:g} mm OD), cut {p.hose_len:g} mm",
-                notes=f"Hopper outlet to the column socket. Longest chord {max(c for _, c, _ in p.hose_chords()):.0f} mm; "
+    t = p.sleeve_take_up_design()
+    cut = t["hose_cut_mm"] if t else p.hose_len
+    return Part("feed_hose", "stock", "flexible hose", 1, Cylinder(p.hose_od / 2, cut),
+                [],  # a hose's pose changes with the head; checked by end-direction curves in params, not as a solid
+                spec=f"{p.hose_id:g} mm ID smooth-bore flexible hose ({p.hose_od:g} mm OD), cut {cut:g} mm",
+                notes=f"Take-up sleeve's lower end to the column socket (sleeve_take_up_design). Longest chord {max(c for _, c, _ in p.hose_chords()):.0f} mm; "
                       f"bows to {p.hose_bow_radius():.0f} mm radius at the closest pose; needs {p.hose_min_bend:g}. "
-                      "Hose clips at both sockets (hose clamps, 80-90 mm).")
+                      "Top end bonded into the take-up collar; a hose clamp at the column socket.")
 
 
 def take_up_parts(p: Feeder) -> list[Part]:
-    """The floating-pulley hose take-up sized by `Feeder.take_up_design` (2026-11-05): a 2040 track beside the +y x-brace,
-    a printed pulley (groove at the hose's minimum bend radius) on a printed carriage, and a constant-force spring.
-    Shown mid-stroke. Not modelled: the bracket that ties the track to the hopper frame, the axle and bearings, the
-    hose clips, and the spring's anchor."""
-    t = p.take_up_design()
+    """The sleeve take-up sized by `Feeder.sleeve_take_up_design` (2026-11-10; it replaces the floating pulley, whose
+    180 deg wrap sent balls uphill). A rigid tube hangs from the outlet socket; a printed collar bonded on the hose's top
+    end slides in it, held up by a constant-force spring whose band runs down a slot in the tube's rear wall to a tab on
+    the collar. Balls drop straight down the tube and into the collar's funnel. Shown at the 0 deg pose (collar highest).
+    Not modelled: the spring's band, the adhesive joint."""
+    t = p.sleeve_take_up_design()
     if t is None:
         return []
-    w, h = p.rail_w, p.rail_h
-    r = t["pulley_d_mm"] / 2                       # groove centre-line radius = hose minimum bend radius
-    hr = p.hose_od / 2
-    rf = r + hr + 6.0                              # flange radius
-    gw = p.hose_od + 4.0
-    core = Cylinder(r - hr, gw).moved(Location((0, 0, 0), ROT_Y_AXIS))
-    fl = [Cylinder(rf, 5.0).moved(Location((0, s * (gw / 2 + 2.5), 0), ROT_Y_AXIS)) for s in (-1, 1)]
-    pulley = core + fl[0] + fl[1]
-    pulley = pulley - Cylinder(8.0, gw + 20).moved(Location((0, 0, 0), ROT_Y_AXIS))      # 16 mm axle bore
-    y_track = -(p.shelf_post_y + 20 + 20 + h / 2 + 15.0 + 5.0)                           # clear of the -y x-brace (to y = -265)
-    z0 = p.rail_top + p.plate_t + 40.0
-    L = t["track_mm"]
-    x_track = p.post_rear_x
-    track = Part("take_up_track", "stock", "aluminium extrusion", 1, Box(w, h, L),
-                 [Location((x_track, y_track, z0 + L / 2))],
-                 spec=f"2040 T-slot, cut {L:.0f} mm, M5 tapped both ends",
-                 notes=f"Vertical, outboard of the -y hopper brace. Carries the take-up carriage over a {t['stroke_mm']:.0f} mm stroke "
-                       f"(one pulley diameter and 30 mm each end besides). The tie to the hopper frame is not modelled.")
-    cw = 60.0
-    carriage = Box(cw, h + 30.0, 80.0) - Box(w + 0.5, h + 0.5, 90.0)
-    mid = z0 + L / 2
-    y_pul = y_track - (h / 2 + 15.0 + gw / 2 + 5.0 + 5.0)
-    out = [track,
-           Part("take_up_carriage", "print", "PETG", 1, carriage.moved(Location((0, 0, 0))),
-                [Location((x_track, y_track, mid))],
-                notes="Slides on the track on the T-slot nuts; the pulley axle (16 mm bolt) goes through its side. 6 walls."),
-           Part("take_up_pulley", "print", "PETG", 1, pulley,
-                [Location((x_track, y_pul, mid))],
-                notes=f"{2 * rf:g} mm flanges: bigger than a common print bed, so print in four quadrants and bolt together. "
-                      f"Groove radius {r:g} mm (the hose's minimum bend), hose OD {p.hose_od:g} mm. 16 mm axle on two 6003 bearings."),
-           Part("take_up_spring", "cots", "", 1, Cylinder(25.0, 40.0),
-                [Location((x_track - 40.0, y_track, z0 + L - 20.0))],
-                spec=f"Constant-force spring, {t['spring_n']:g} N (assumed: twice a {t['spring_n'] / 2:g} N hose tension), "
-                     f"at least {t['stroke_mm']:.0f} mm of travel")]
-    return out
+    bore, od = _sleeve_d(p)
+    ox, oz = p.hopper_out_x, p.hopper_out_z
+    top, bottom = oz - p.sleeve_top_mm, t["start_z"]
+    L = top - bottom
+    slot_w = 10.0
+    # the collar's tab (12 mm tall, at its top) runs in a slot from the tube's top end to 10 mm under its lowest position
+    slot_z0 = oz - t["collar_travel"][1] + p.collar_h_mm - 12.0 - 10.0
+    tube = Cylinder(od / 2, L) - Cylinder(bore / 2, L + 2)
+    tube = tube - Box(p.sleeve_wall_mm * 4, slot_w, top - slot_z0 + 1.0).moved(
+        Location((-od / 2, 0, (top + 1.0 + slot_z0) / 2 - (top + bottom) / 2)))
+    sleeve = Part("take_up_sleeve", "stock", "rigid tube", 1, tube, [Location((ox, 0, (top + bottom) / 2))],
+                  spec=f"Rigid round tube, {bore:g} mm bore, about {od:g} mm OD, cut {L:.0f} mm; slot {slot_w:g} mm wide "
+                       f"in the rear wall from the top end down {top - slot_z0:.0f} mm",
+                  notes=f"Hangs from the outlet socket, open at the bottom. The hose's collar slides {t['stroke_mm']:.0f} mm in it "
+                        f"(free hose {t['free_mm'][0]:.0f} to {t['free_mm'][1]:.0f} mm over the elevation and azimuth range). Deburr the bore.")
+    cd = bore - 2.0
+    tab = 12.0
+    collar = Cylinder(cd / 2, p.collar_h_mm) + Box(tab + (od - cd) / 2 + 2.0, slot_w - 2.0, 12.0).moved(
+        Location((-(cd / 2 + (tab + (od - cd) / 2 + 2.0) / 2 - 1.0), 0, p.collar_h_mm / 2 - 6.0)))
+    sock = 25.0
+    collar = collar - Cylinder((p.hose_od + 0.5) / 2, sock).moved(Location((0, 0, -p.collar_h_mm / 2 + sock / 2)))
+    funnel_h = p.collar_h_mm - sock
+    collar = collar - Cone(p.hose_id / 2, (cd - 6.0) / 2, funnel_h + 0.02).moved(
+        Location((0, 0, p.collar_h_mm / 2 - funnel_h / 2 + 0.01)))
+    z_collar = oz - t["collar_travel"][0] + p.collar_h_mm / 2
+    col = Part("take_up_collar", "print", "PETG", 1, collar, [Location((ox, 0, z_collar))],
+               notes=f"Bond the hose's top end {sock:g} mm into the socket. The funnel narrows {cd - 6:g} to {p.hose_id:g} mm so a ball "
+                     f"dropping down the sleeve cannot catch the hose's rim. The tab through the sleeve's slot takes the spring's "
+                     f"band and keeps the collar from turning. Print funnel up, 6 walls.")
+    spring = Part("take_up_spring", "cots", "", 1, Cylinder(25.0, 30.0).moved(Location((0, 0, 0), ROT_Y_AXIS)),
+                  [Location((ox - od / 2 - 45.0, 0, top - 35.0))],
+                  spec=f"Constant-force spring, {t['spring_n']:g} N (assumed: holds the hose's top end against a {t['spring_n']:g} N "
+                       f"hose pull), at least {t['stroke_mm'] + 20:.0f} mm of band, drum on a bracket behind the sleeve")
+    return [sleeve, col, spring]
 
 
 def envelopes(p: Feeder) -> list[Part]:
@@ -506,6 +620,18 @@ def envelopes(p: Feeder) -> list[Part]:
     bearing = Cylinder(p.bearing_d / 2, p.bearing_h).moved(Location((p.head_x, 0, p.mast_top_z + p.plate_t + p.bearing_h / 2)))
     out.append(Part("turntable_bearing", "cots", "", 1, bearing, [Location((0, 0, 0))],
                     spec=f"Lazy-susan bearing, {p.bearing_d:g} mm, {p.bearing_h:g} mm tall, 4 x M5 on a 120 mm circle each ring"))
+    sq = 42.3
+    out.append(Part("az_stepper", "cots", "", 1, Box(sq, sq, p.stepper_body_mm).moved(Location((0, 0, -p.stepper_body_mm / 2))),
+                    [Location((p.head_x, p.az_centre_dist, p.mast_top_z))],
+                    spec=f"NEMA 17 stepper, {p.stepper_hold_nm:g} N m holding (17HS4401 class), 5 mm shaft at least 20 mm "
+                         f"long, flange up under the mast plate"))
+    pin_z0 = p.mast_top_z + p.plate_t + 0.5
+    pin_h = p.az_gear_gap_mm + p.az_gear_face_mm + p.plate_t - 0.5
+    out.append(Part("az_pinion", "cots", "", 1,
+                    Cylinder(p.az_pinion_r - 1.25 * p.az_module, pin_h).moved(Location((0, 0, pin_h / 2))),
+                    [Location((p.head_x, p.az_centre_dist, pin_z0))],
+                    spec=f"Spur pinion, module {p.az_module:g}, {p.az_pinion_teeth} teeth, 20 deg, 5 mm bore, steel, set screw "
+                         f"(drawn at its root circle so the mesh is not a clash)"))
     wheel_b = Cylinder(p.wheel_d / 2, p.wheel_w).moved(Location((0, 0, 0), ROT_Y_AXIS))
     wl = [Location((x, s * p.wheel_y, p.wheel_d / 2)) for x in p.wheel_x for s in (1, -1)]
     out.append(Part("wheel", "cots", "", 4, wheel_b, wl,
@@ -527,7 +653,7 @@ def envelopes(p: Feeder) -> list[Part]:
 def all_parts(p: Feeder) -> list[Part]:
     return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
-            cheek_foot(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
+            cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
             feed_floor(p), feed_roof_column(p), feed_shuttle(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
             *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p)]
 
@@ -550,6 +676,54 @@ def swept_solids(p: Feeder, elev_deg: float) -> list[tuple[str, object]]:
     return out
 
 
+TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "trunnion_cheek", "cheek_foot", "az_gear_sector"}
+HOSE_PARTS = {"feed_hose", "take_up_sleeve", "take_up_collar", "take_up_spring"}  # the hose bends; checked by the take-up model
+COTS_MASS_KG = {"launcher_motor": 0.60, "launcher_wheel": 0.35, "head_standoff": 0.015}  # assumptions: weigh yours
+
+
+def turned_solids(p: Feeder, elev_deg: float, az_deg: float) -> tuple[list, list]:
+    """(moving, fixed) named solids with the head tilted `elev_deg` and the turntable turned `az_deg` about its
+    vertical axis. Hose parts are left out: the hose bends with the head, and the take-up model checks it."""
+    axis = Axis((p.head_x, 0.0, 0.0), (0, 0, 1))
+    moving, fixed = [], []
+    for name, s in swept_solids(p, elev_deg):
+        base = name.split("[")[0]
+        if base in TURNTABLE_PARTS:
+            moving.append((name, s.rotate(axis, az_deg)))
+        elif base not in HOSE_PARTS:
+            fixed.append((name, s))
+    return moving, fixed
+
+
+def turning_inertia(p: Feeder, elev_deg: float = 0.0) -> tuple[float, float]:
+    """(inertia kg m^2 about the turntable axis, mass kg) of everything that turns, from the CAD solids. Made parts
+    use the package's material densities; bought parts are uniform solids of `COTS_MASS_KG` (assumed masses)."""
+    from OCP.BRepGProp import BRepGProp
+    from OCP.GProp import GProp_GProps
+    from OCP.gp import gp_Ax1, gp_Dir, gp_Pnt
+
+    from .package import DENSITY
+    ax = gp_Ax1(gp_Pnt(p.head_x, 0.0, 0.0), gp_Dir(0, 0, 1))
+    mats = {part.name: part.material for part in all_parts(p)}
+    j = m = 0.0
+    for name, s in swept_solids(p, elev_deg):
+        base = name.split("[")[0]
+        if base not in TURNTABLE_PARTS:
+            continue
+        g = GProp_GProps()
+        BRepGProp.VolumeProperties_s(s.wrapped, g)
+        vol, i_unit = g.Mass(), g.MomentOfInertia(ax)      # mm^3, mm^5
+        if base in COTS_MASS_KG:
+            kg = COTS_MASS_KG[base]
+        elif mats.get(base) in DENSITY:
+            kg = DENSITY[mats[base]] * vol / 1e6
+        else:
+            continue
+        m += kg
+        j += kg / vol * i_unit * 1e-6
+    return j, m
+
+
 # ---------------------------------------------------------------- BOM extras and summary
 
 def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
@@ -563,16 +737,20 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M4 heat-set insert, 5.7 mm long", 4 + 4, "cheek feet"),
         ("M4 x 12 socket cap screw (motors)", 8, "launcher motors to the motor plate"),
         ("M3 x 8 screw", 12, "gearmotor faces"),
+        ("M3 x 10 screw", 4, "azimuth stepper to the mast plate (from above)"),
+        ("M4 x 12 socket cap screw (azimuth)", 3, "turntable plate down into the gear sector"),
+        ("M4 heat-set insert, 5.7 mm long (azimuth)", 3, "gear sector"),
         ("608 bearing, 8 x 22 x 7", 2, "idler wheels"),
         ("M8 x 60 bolt + nyloc nut", 2, "idler axles"),
         ("M10 T-nut (levelling foot)", 2, "beam ends"),
         ("M4 x 12 socket cap screw (feed)", 8, "feed floor and roof to the head plates (through the plates, into inserts)"),
-        ("M4 heat-set insert, 5.7 mm long (feed)", 8 + 4, "feed floor, roof and hopper spigot"),
-        ("M4 x 10 socket cap screw (spigot)", 4, "hopper spigot to the shelf"),
+        ("M4 heat-set insert, 5.7 mm long (feed)", 8 + 4, "feed floor, roof and sleeve socket"),
+        ("M4 x 10 socket cap screw (spigot)", 4, "sleeve socket to the shelf"),
         ("M5 x 16 button head (hopper)", 4 + 4, "posts to the deck (from below) and to the shelf"),
         ("M5 T-nut or tapped end (hopper)", 8, "posts, deck and shelf"),
         ("2020 corner bracket with M5 screws and T-nuts", 6, "hopper braces, two per brace"),
-        ("Hose clamp, 80-90 mm", 2, "hose at the spigot and the column socket"),
+        ("Hose clamp, 80-90 mm", 1, "hose at the column socket"),
+        ("Flexible-PVC adhesive or epoxy", 1, "hose's top end into the take-up collar"),
         ("25 mm strap, 1 m", 2, "tub to the shelf"),
     ]
 
@@ -586,7 +764,7 @@ COTS_EXTRA = [
     ("High-torque servo or linear actuator", 1, "elevation (bracket not modelled yet)"),
     ("Linear actuator, 12-24 V, 100 mm stroke, 30 N+", 1, "feed shuttle (bracket not modelled yet; clevis pin in the shuttle's rear)"),
     ("Storage tub, about 440 x 340 x 250 mm", 1, "hopper; see the part notes for the cut"),
-    ("Stepper or geared motor for the turntable", 1, "azimuth (drive not modelled yet)"),
+    ("Stepper driver, 2 A class (TMC2209 or A4988), 24 V", 1, "azimuth stepper"),
     ("TCRT5000 reflective sensor", 2, "wheel tachometers"),
     ("22 mm NC mushroom e-stop + 24 V contactor", 1, "hard power cut"),
     ("Wireless e-stop relay remote, latching", 1, "second cut-off"),
@@ -613,28 +791,45 @@ def hose_end_line(p: Feeder) -> str:
     return (f"hose with end directions: fits {fit}; "
             + ("one cut length fits every pose" if take <= 0 else
                f"no one cut length fits every pose: needs {take:.0f} mm of take-up ({p.take_up_stroke_mm():.0f} mm of "
-               f"travel on a floating-pulley reel; limiting nose-up to +30 deg would need "
-               f"{dict(p.hose_take_up_by_elev_max())[30.0]:.0f} mm; see take_up_design)"))
+               f"travel on a floating pulley, which cannot carry balls: its 180 deg wrap climbs, a ball-carrying hose may wrap "
+               f"{p.pulley_wrap_max_deg():.0f} deg at most; limiting nose-up to +30 deg would need "
+               f"{dict(p.hose_take_up_by_elev_max())[30.0]:.0f} mm; see take_up_line for the sleeve that replaces it)"))
 
 
 def take_up_line(p: Feeder) -> str:
-    t = p.take_up_design()
+    t = p.sleeve_take_up_design()
     if t is None:
-        return "take-up: not sized (some pose has no hose fit)"
-    ps = "; ".join(f"{e:+.0f} deg {a:.0f}-{b:.0f}" for e, a, b in t["poses"])
-    return (f"take-up: floating pulley {t['pulley_d_mm']:g} mm across (twice the {p.hose_min_bend:g} mm bend radius) on a "
-            f"{t['track_mm']:.0f} mm track, {t['stroke_mm']:.0f} mm stroke, hose {t['fixed_mm']:.0f} mm fixed plus twice the travel; "
-            f"travel allowed per pose {ps} mm; spring {t['spring_n']:g} N (assumed); "
-            f"{'every pose reachable' if t['ok'] else 'POSE WINDOW EMPTY'}")
+        return ("take-up: NO sleeve fits (the outlet is too low for a vertical sleeve plus one falling curve at every pose; "
+                "Feeder.lowest_sleeve_outlet finds the height that works)")
+    ps = "; ".join(f"{e:+.0f}/{az:.0f} deg {a:.0f}-{b:.0f}" for e, az, a, b in t["poses"])
+    return (f"take-up: sleeve {t['sleeve_id_mm']:g} mm bore, {t['tube_mm']:.0f} mm long, under the outlet; the hose's collar "
+            f"slides {t['stroke_mm']:.0f} mm in it, so the free hose runs {t['free_mm'][0]:.0f} to {t['free_mm'][1]:.0f} mm "
+            f"from {t['start_z']:.0f} mm up; slide allowed per pose (elevation/azimuth, -azimuth mirrors) {ps} mm; hose cut {t['hose_cut_mm']:g} mm; spring "
+            f"{t['spring_n']:g} N (assumed); balls fall straight down the sleeve, then at least {p.feed_min_slope_deg:g} deg")
 
 
-def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_g: float = 0.0):
+def azimuth_line(p: Feeder, inertia_kgm2: float, load_n: float) -> str:
+    d = p.azimuth_drive(inertia_kgm2, load_n)
+    return (f"azimuth: NEMA 17 through a {p.az_pinion_teeth}:{p.az_gear_teeth} m{p.az_module:g} mesh ({p.az_ratio:g}:1) to a "
+            f"printed sector under the turntable; turning inertia {inertia_kgm2:.4f} kg m^2 from the CAD ({load_n / 9.81:.1f} kg "
+            f"turning); {p.az_slew_deg:g} deg in {p.az_slew_s:g} s needs {d['torque_out_nm']:.2f} N m at the turntable "
+            f"(inertia {d['torque_inertia_nm']:.2f}, bearing {d['torque_bearing_nm']:.2f}, hose {d['torque_hose_nm']:.2f}) and "
+            f"{d['torque_motor_nm']:.3f} N m at {d['motor_rpm']:.0f} rpm at the motor, {d['torque_margin']:.1f}x under the assumed "
+            f"{p.stepper_torque_nm:g} N m pull-out (fastest at {p.az_torque_factor:g}x: {d['fastest_slew_s']:.2f} s); "
+            f"tooth root {d['tooth_stress_mpa']:.1f} MPa (PETG allowed {p.petg_bend_allow_mpa:g}); one full step "
+            f"{d['step_deg']:.3f} deg = {d['step_miss_mm']:.0f} mm sideways at {p.aim_range_m:g} m, backlash "
+            f"{d['backlash_deg']:.3f} deg = {d['backlash_miss_mm']:.0f} mm")
+
+
+def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_g: float = 0.0,
+            turning: tuple[float, float] | None = None):
     ballast = p.ballast_kg(structure_kg(p, mass_g - hopper_g))
     width = 2 * (p.wheel_y + p.wheel_w / 2)
     chords = p.hose_chords()
     checks = [
         f"design rules: {'pass' if not rules else '; '.join(rules)}",
-        f"collisions between parts, and with the head at {p.elev_min:+.0f} to {p.elev_max:+.0f} deg elevation: "
+        f"collisions between parts, with the head at {p.elev_min:+.0f} to {p.elev_max:+.0f} deg elevation, and with it "
+        f"turned +-{p.az_max:g} deg at both elevation ends: "
         f"{'none' if not clash else '; '.join(clash)}",
         f"ground contact (wheels and levelling feet at z=0): {'pass' if ground_ok else contacts}",
         f"launcher: wheel gap {p.wheel_gap:g} mm squeezes a {p.ball_d:g} mm ball by {p.ball_d - p.wheel_gap:.0f} mm; "
@@ -658,8 +853,17 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         f"ballast needed over the made-part mass (hopper posts, shelf and spigot not credited): {ballast:.0f} kg",
         f"made-part mass (estimate, excludes bought-in parts): {mass_g / 1000:.1f} kg",
     ]
+    if turning is not None:
+        checks.insert(-3, azimuth_line(p, turning[0], turning[1] * 9.81))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
-               "hose_bow_radius_mm": round(p.hose_bow_radius()), "hose_take_up_mm": None if p.hose_take_up_mm() is None else round(p.hose_take_up_mm()), "tub_capacity_balls": p.tub_capacity(), "hopper_load_n": round(p.hopper_load_n), "brace_x_n": round(p.brace_force_n("x")), "brace_y_n": round(p.brace_force_n("y")), "retain_pass_n": round(p.retain_pass_n, 1), "made_part_mass_kg": round(mass_g / 1000, 2)}
+               "hose_bow_radius_mm": round(p.hose_bow_radius()), "hose_cut_mm": (p.sleeve_take_up_design() or {}).get("hose_cut_mm"), "hose_take_up_mm": None if p.hose_take_up_mm() is None else round(p.hose_take_up_mm()), "tub_capacity_balls": p.tub_capacity(), "hopper_load_n": round(p.hopper_load_n), "brace_x_n": round(p.brace_force_n("x")), "brace_y_n": round(p.brace_force_n("y")), "retain_pass_n": round(p.retain_pass_n, 1), "made_part_mass_kg": round(mass_g / 1000, 2)}
+    if turning is not None:
+        d = p.azimuth_drive(turning[0], turning[1] * 9.81)
+        derived.update({"az_inertia_kgm2": round(turning[0], 4), "az_turning_kg": round(turning[1], 2),
+                        "az_ratio": p.az_ratio, "az_motor_torque_nm": round(d["torque_motor_nm"], 3),
+                        "az_torque_margin": round(d["torque_margin"], 2), "az_fastest_slew_s": round(d["fastest_slew_s"], 2),
+                        "az_tooth_stress_mpa": round(d["tooth_stress_mpa"], 2), "az_step_miss_mm": round(d["step_miss_mm"]),
+                        "az_hose_torque_nm": round(d["torque_hose_nm"], 3)})
     return checks, derived

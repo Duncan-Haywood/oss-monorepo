@@ -596,3 +596,57 @@ of tonnes), the `qcement` series of R's fpp2 package (Hyndman).
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/USMacroSWM.csv>.
 - **Licence:** AER is GPL-2/3 on CRAN; the figures are public US statistics. Kept as a small test fixture with its source named.
 - **Used by:** `us-cpi-monthly.test.mjs`.
+
+# Example data: Dow Jones Industrial Average daily returns, 1980-01-03 to 2012-12-31
+
+`djia-returns.csv`: 8,609 daily log returns in percent (100 x ln(P_t / P_t-1)) of the DJIA close, from the `DJIA8012` series in R's AER package (first close 1980-01-02 is the base).
+
+- **Retrieved:** 2026-11-09 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/DJIA8012.csv>.
+- **Licence:** AER is GPL-2/3 on CRAN; the figures are public index levels. Kept as a test fixture with its source named.
+- **Used by:** `djia-returns.test.mjs`, README "Dow Jones returns: 1987 and 2008".
+canada-fertility.csv: Canada total fertility rate 1931-1968 (carData::Hartnagel, column tfr via Rdatasets).
+
+## us-tbill-1m-changes.csv
+
+- **What:** month-on-month change of the US 1-month Treasury yield (`r1`, % per year), 1947-01 to 1991-02, 530 changes, computed from the levels.
+- **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/Ecdat/Irates.csv> (Ecdat, monthly 1946-12 to 1991-02).
+- **Licence:** Ecdat is GPL-2/3 on CRAN; public yields. Kept as a test fixture with its source named.
+- **Used by:** `tbill-volatility.test.mjs`, README "Treasury yield volatility: the 1979 to 1982 regime".
+
+## global-temp-annual.csv
+
+- **What:** global mean surface temperature anomaly (degrees C against the 1951-80 base), annual mean of the 12 monthly values, 1880-2024, 145 values (`GCAG` source in the monthly file).
+- **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/datasets/global-temp/main/data/monthly.csv> (datahub.io `global-temp`, republishing NOAA/NASA GCAG).
+- **Licence:** the datahub packaging is ODC-PDDL; the underlying figures are public US government data. Kept as a test fixture with its source named.
+- **Used by:** `global-temp.test.mjs`, README "Global temperature: a documented 1945 step".
+
+## co2-mauna-loa.csv
+
+- **What:** Mauna Loa monthly atmospheric CO2 (ppm, interpolated column), 1958-03 to 2026-09, 823 values.
+- **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/datasets/co2-ppm/main/data/co2-mm-mlo.csv> (datahub.io `co2-ppm`, republishing NOAA GML).
+- **Licence:** ODC-PDDL packaging; underlying figures are public US government data. Kept as a test fixture with its source named.
+- **Used by:** `co2-mauna-loa.test.mjs`, README "Mauna Loa CO2".
+
+## gold.csv
+
+- **What:** daily gold price (US dollars), 1985-01-01 to 1989-03-31, 1108 rows (`day` index, `price`); 34 days are blank.
+- **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/forecast/gold.csv> (R `forecast::gold`; the `time` and `value` columns).
+- **Licence:** Rdatasets republishes the `forecast` package data (GPL-3 package); a price series is a fact, kept as a test fixture with its source named.
+- **Used by:** `gold-price.test.mjs`, README "Gold prices".
+
+## sp500-monthly.csv
+
+- **What:** S&P 500 monthly price index level, Jan 2000 to Mar 2010, 123 rows (`date` like `Jan 1 2000`, `price`). Whether each value is a month's open, close or average is not stated by the source and was not checked.
+- **Retrieved:** 2026-11-10 from <https://raw.githubusercontent.com/vega/vega-datasets/main/data/sp500.csv> (vega-datasets, BSD-3-Clause repository; a price series is a fact, kept as a test fixture with its source named).
+- **Used by:** `sp500-monthly.test.mjs`, `eval/sp500-monthly.mjs`, README "S&P 500 monthly returns".
+
+## Documented dates read from the R documentation (2026-11-11)
+
+Read in full on 2026-11-11: the R documentation pages for `Nile` and `UKDriverDeaths`
+(<https://vincentarelbundock.github.io/Rdatasets/doc/datasets/Nile.html> and
+`.../UKDriverDeaths.html`). They are not the papers. `Nile`: "with apparent changepoint
+near 1898 (Cobb (1978), Table 1, p.249)". `UKDriverDeaths`: "Compulsory wearing of seat
+belts was introduced on 31 Jan 1983." Those are the two dates `eval/consensus-real.mjs`
+scores; the Cobb and Harvey-Durbin papers themselves are still unread.
+

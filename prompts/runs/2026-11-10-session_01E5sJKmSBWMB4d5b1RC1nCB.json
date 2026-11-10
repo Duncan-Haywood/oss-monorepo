@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKmSBWMB4d5b1RC1nCB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T17:18:03Z",
+  "ended": "2026-11-10T17:30:25Z",
+  "wall_minutes": 12.7,
+  "tokens_in": 4338709,
+  "tokens_out": 21619,
+  "cost_usd": 2.061,
+  "tool_calls": 50,
+  "task": "build-data programme, session 68 (drawn by pick_track.py)",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14565",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "partial",
+  "errors": [
+    "All four Socrata hosts (data.cityofchicago.org, data.sf.gov, data.austintexas.gov, data.seattle.gov) answered 403 to CONNECT through the egress proxy at 17:18 UTC, although sessions earlier the same day pulled them; the planned Seattle 2022 transfer run could not happen."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says data hosts often 403 and to probe first; the build-data LOG gives no fallback when every feed is blocked (no cached snapshot of the feeds anywhere a session can reach), so a data-dependent programme step is all-or-nothing per session."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Takes no file argument (only --root), so checking one new post means running it over every post."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/build-data/LOG.md",
+      "why": "Next step (2022 transfer) needed a fresh pull and the feeds were unreachable.",
+      "did": "Kept the pre-registered prediction unrun and shipped a diagnostic from committed result files instead: harmonised-class overlap between cities, which narrows what the H4 transfer results can claim.",
+      "result": "Landed a real finding (overlap without 'other' 0.00 to 0.19) and a paper section, but the planned milestone is still open."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-permit-classes-do-not-overlap-across-cities.md",
+    "research/build-data/LOG.md (session 68)",
+    "research/build-data/paper/paper.md section 4.4a"
+  ],
+  "goal": null,
+  "notes": "Checks: tests/test_class_overlap.py and tests/test_transfer.py 5 passed (python3.13); synthetic smoke run of transfer.run writes class_share_source_train; research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; check_post_frontmatter and check_post_links clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "15a1fe2a-010c-54a4-9f87-5b12a01f3270",
+    "transcripts": 1,
+    "first": "2026-11-10T17:18:03Z",
+    "last": "2026-11-10T17:30:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 81,
+        "output": 21619,
+        "thinking": 4571,
+        "cache_read": 4241115,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97513,
+        "api_equivalent_usd": 2.061,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 81,
+      "output": 21619,
+      "thinking": 4571,
+      "cache_read": 4241115,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97513,
+      "api_equivalent_usd": 2.061,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 44,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.7,
+      "active_minutes": 12.7,
+      "model_minutes": 4.65,
+      "tool_minutes": 8.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an analyst writing the overlap script, tests, paper section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 194.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

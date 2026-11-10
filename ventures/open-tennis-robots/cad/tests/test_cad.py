@@ -181,6 +181,29 @@ class FeederParamsTest(unittest.TestCase):
         self.assertEqual(Feeder(ball_stiff_n_mm=15.0).launch_window()[2], "nip traction")
         self.assertEqual(Feeder(ball_stiff_n_mm=5.0).launch_window()[:2], (0.0, 0.0))
 
+    def test_plate_clearance_is_a_yaw_tolerance(self):
+        p = Feeder()
+        c = p.plate_clearance()
+        self.assertAlmostEqual(c["gap_mm"], 6.5)
+        self.assertAlmostEqual(c["run_mm"], 110 + 33.5 + p.nip_x)
+        self.assertAlmostEqual(math.tan(math.radians(c["yaw_tol_deg"])), c["gap_mm"] / c["run_mm"])
+        # slower ball: longer in the head, so the same sideways speed margin shrinks
+        self.assertLess(p.plate_clearance(18.0)["side_speed_ms"], c["side_speed_ms"])
+        self.assertAlmostEqual(c["side_speed_ms"], c["yaw_tol_deg"] and
+                               25.0 * math.tan(math.radians(c["yaw_tol_deg"])), places=6)
+        # wider plate gap, more yaw allowed
+        self.assertGreater(Feeder(plate_half_y=45.0).plate_clearance()["yaw_tol_deg"], c["yaw_tol_deg"])
+
+    def test_axle_squaring_stack_fits_inside_the_plate_yaw_limit(self):
+        p = Feeder()
+        a = p.axle_squaring()
+        self.assertAlmostEqual(a["limit_deg"], p.plate_clearance()["yaw_tol_deg"])
+        self.assertLessEqual(a["rss_deg"], a["worst_deg"])
+        self.assertAlmostEqual(a["worst_deg"], a["motor_seat_deg"] + a["bore_offset_deg"] + a["plate_parallel_deg"])
+        self.assertGreater(a["margin"], 3.0)  # the shipped tolerances leave room: no reaming needed
+        # a sloppy build eats the margin
+        self.assertLess(Feeder(plate_slot_play_mm=4.0, seat_gap_mm=1.0).axle_squaring()["margin"], a["margin"])
+
     def test_launch_checks_tie_the_head_to_the_flight_model(self):
         p = Feeder()
         self.assertAlmostEqual(p.nip_len, 74.0, delta=0.5)
@@ -209,16 +232,15 @@ class FeederParamsTest(unittest.TestCase):
         self.assertAlmostEqual(p.mouth_world(0.0)[0], p.head_x + p.feed_col_x, places=6)
 
     def test_hose_end_directions_show_the_gap_the_chord_check_hides(self):
-        # Outlet straight down, socket along the tilted column: at the shipped outlet height some pose has no
-        # curve within the bend and fall limits; raised, every pose fits but not with one cut length.
-        self.assertIsNone(Feeder(hopper_out_z=1560.0).hose_take_up_mm())
-        raised = Feeder()
-        self.assertEqual(raised.hopper_out_z, 1700.0)
+        # Outlet straight down, socket along the tilted column: at a low outlet some pose has no curve within the
+        # bend and fall limits; at the 2026-11-04 outlet every pose fits but not with one cut length.
+        self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1560.0).hose_take_up_mm())
+        raised = Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0)
         self.assertTrue(all(x is not None for _, x in raised.hose_pose_ranges()))
         self.assertGreater(raised.hose_take_up_mm(), 200.0)
         # A single floating pulley moves half the hose it pays out.
         self.assertAlmostEqual(raised.take_up_stroke_mm(), raised.hose_take_up_mm() / 2)
-        self.assertIsNone(Feeder(hopper_out_z=1560.0).take_up_stroke_mm())
+        self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1560.0).take_up_stroke_mm())
 
     def test_every_extra_degree_of_nose_up_costs_the_hose_take_up(self):
         r = Feeder().hose_take_up_by_elev_max()
@@ -229,7 +251,7 @@ class FeederParamsTest(unittest.TestCase):
         self.assertTrue(all(x is not None for _, x in Feeder(hose_min_bend=100.0).hose_pose_ranges()[1:4]))
 
     def test_take_up_design_reaches_every_pose_with_the_stroke(self):
-        p = Feeder()
+        p = Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0)   # the pulley's sizing, kept for comparison
         t = p.take_up_design()
         self.assertTrue(t["ok"])
         self.assertAlmostEqual(t["stroke_mm"], p.take_up_stroke_mm(), places=6)
@@ -238,19 +260,88 @@ class FeederParamsTest(unittest.TestCase):
         for e, xlo, xhi in t["poses"]:       # the pulley can reach a position inside every pose's window
             self.assertLessEqual(xlo, t["stroke_mm"] + 1e-9)
             self.assertLessEqual(xlo, xhi)
-        self.assertIsNone(Feeder(hopper_out_z=1560.0).take_up_design())
+        self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1560.0).take_up_design())
+
+    def test_a_pulley_loop_cannot_carry_balls(self):
+        # A hose wrapped round a horizontal axle turns by the wrap angle; from straight down it may turn only until
+        # it reaches the minimum fall, so a ball-carrying hose wraps at most 90 - 30 = 60 deg, not the 180 a floating
+        # pulley needs.
+        p = Feeder()
+        self.assertAlmostEqual(p.pulley_wrap_max_deg(), 60.0)
+        self.assertFalse(p.pulley_take_up_passes_balls())
+        self.assertFalse(Feeder(feed_min_slope_deg=0.0).pulley_take_up_passes_balls())
+
+    def test_sleeve_take_up_fits_every_pose_and_the_old_outlet_does_not(self):
+        p = Feeder()
+        t = p.sleeve_take_up_design()
+        self.assertIsNotNone(t)
+        lo, hi = t["free_mm"]
+        self.assertAlmostEqual(hi - lo, t["stroke_mm"])
+        # the sleeve holds the stroke, the collar, the gap under the shelf and the end margin
+        self.assertGreaterEqual(t["sleeve_mm"] + 1e-9, t["stroke_mm"] + p.sleeve_overlap_mm + p.collar_h_mm + p.sleeve_top_mm)
+        self.assertAlmostEqual(t["start_z"], p.hopper_out_z - t["sleeve_mm"])
+        # every pose has a free length inside the stroke, re-checked from the sleeve's lower end
+        r = p._ranges_from(p.hopper_out_x, t["start_z"])
+        self.assertEqual(len(r), 5 * (p.az_steps + 1))   # every elevation step at every azimuth step
+        for (e, a, (rlo, rhi)), (e2, a2, xlo, xhi) in zip(r, t["poses"]):
+            self.assertEqual((e, a), (e2, a2))
+            self.assertTrue(rlo <= lo + xlo + 1e-6 <= rhi + 1e-6, e)
+            self.assertLessEqual(xlo, t["stroke_mm"] + 1e-9)
+        # the collar stays in the tube: highest under its top end, lowest the overlap above its bottom
+        hi_d, lo_d = t["collar_travel"]
+        self.assertGreaterEqual(hi_d - p.collar_h_mm, p.sleeve_top_mm - 1e-9)
+        self.assertAlmostEqual(lo_d, t["sleeve_mm"] - p.sleeve_overlap_mm)
+        # the outlet the pulley was sized at (x -330, z 1700) has no sleeve that works
+        self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0).sleeve_take_up_design())
+
+    def test_the_take_up_is_sized_with_the_head_turned_in_azimuth(self):
+        # 2026-11-10: the head turns +-30 deg on the turntable while the hopper stays put, so the socket mouth swings
+        # sideways (about 200 mm at +45 deg) and the column axis leans out of the x-z plane. The outlet sized at azimuth 0
+        # (z 2000) has no sleeve once the turned poses count; the shipped 2025 does.
+        old = Feeder(hopper_out_z=2000.0)
+        self.assertIsNotNone(old.sleeve_take_up_design(azimuth=False))
+        self.assertIsNone(old.sleeve_take_up_design())
+        # at +45 deg turned the full 30 deg, the shortest hose that fits is longer than the azimuth-0 slide reaches
+        t0 = old.sleeve_take_up_design(azimuth=False)
+        turned = old._ranges_from(old.hopper_out_x, t0["start_z"])
+        worst = [x for e, a, x in turned if e == old.elev_max and a == old.az_max][0]
+        self.assertGreater(worst[0], t0["free_mm"][1] + 20.0)
+        p = Feeder()
+        self.assertEqual(p.hopper_out_z, 2025.0)
+        t = p.sleeve_take_up_design()
+        self.assertIsNotNone(t)
+        self.assertTrue(any(a == p.az_max for _, a, _, _ in t["poses"]))
+        self.assertGreater(t["stroke_mm"], t0["stroke_mm"])     # turning costs slide
+        # the 3-D curve family reduces to the planar one at azimuth 0
+        from otr_cad.params import _hose_curve_range, _hose_curve_range_3d
+        (mx, my, mz), u = p.mouth_world_3d(30.0, 0.0)
+        self.assertAlmostEqual(my, 0.0)
+        a = _hose_curve_range(p.hopper_out_x, t["start_z"], mx, mz, math.radians(30.0), p.hose_min_bend, p.feed_min_slope_deg)
+        b = _hose_curve_range_3d((p.hopper_out_x, 0.0, t["start_z"]), (mx, 0.0, mz), u, p.hose_min_bend, p.feed_min_slope_deg)
+        self.assertAlmostEqual(a[0], b[0], places=6)
+        self.assertAlmostEqual(a[1], b[1], places=6)
+        # a turned head moves the mouth sideways by the column's offset from the turntable axis
+        (x30, y30, z30), u30 = p.mouth_world_3d(0.0, 30.0)
+        self.assertAlmostEqual(y30, p.feed_col_x * math.sin(math.radians(30.0)), places=6)
+        self.assertAlmostEqual(math.hypot(*u30), 1.0)
 
     def test_take_up_parts_match_the_design(self):
-        from otr_cad.feeder import take_up_parts
+        from otr_cad.feeder import _sleeve_d, take_up_parts
         p = Feeder()
-        t = p.take_up_design()
+        t = p.sleeve_take_up_design()
         parts = {x.name: x for x in take_up_parts(p)}
-        self.assertEqual(set(parts), {"take_up_track", "take_up_carriage", "take_up_pulley", "take_up_spring"})
-        bb = parts["take_up_track"].placed()[0].bounding_box()
-        self.assertAlmostEqual(bb.max.Z - bb.min.Z, t["track_mm"], places=3)
-        pb = parts["take_up_pulley"].placed()[0].bounding_box()
-        self.assertGreater(pb.max.X - pb.min.X, t["pulley_d_mm"] + p.hose_od)   # flanges stand proud of the groove
-        self.assertEqual(take_up_parts(Feeder(hopper_out_z=1560.0)), [])
+        self.assertEqual(set(parts), {"take_up_sleeve", "take_up_collar", "take_up_spring"})
+        sb = parts["take_up_sleeve"].placed()[0].bounding_box()
+        self.assertAlmostEqual(sb.max.Z - sb.min.Z, t["tube_mm"], places=3)
+        self.assertAlmostEqual(sb.min.Z, t["start_z"], places=3)
+        bore, od = _sleeve_d(p)
+        self.assertGreater(bore, p.hose_od)
+        cb = parts["take_up_collar"].placed()[0].bounding_box()
+        self.assertTrue(sb.min.Z < cb.min.Z and cb.max.Z < sb.max.Z)   # the collar is inside the tube
+        self.assertLess((parts["take_up_collar"].placed()[0] & parts["take_up_sleeve"].placed()[0]).volume, 1.0)
+        # a ball dropping down the sleeve meets a funnel, not the hose's rim: the funnel's top is wider than the ball
+        self.assertGreater(bore - 2.0 - 6.0, p.ball_d)
+        self.assertEqual(take_up_parts(Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0)), [])
 
     def test_bow_radius_is_the_circular_arc_bound(self):
         import math
@@ -274,6 +365,43 @@ class FeederParamsTest(unittest.TestCase):
         arm = abs(p.wheel_x[0] - p.wheel_x[1]) / 2 / 1000
         self.assertAlmostEqual(w * 9.81 * arm, p.wind_force_n * h, places=6)
 
+    def test_azimuth_drive_sizing(self):
+        p = Feeder()
+        self.assertEqual(p.az_ratio, 10.0)
+        self.assertAlmostEqual(p.az_centre_dist, 1.5 * (150 + 15) / 2)
+        # the trimmed plate stays inside the pinion's tip circle with the clearance asked for
+        self.assertAlmostEqual(p.az_centre_dist - (p.az_pinion_r + p.az_module) - p.az_trim_r, p.az_clear_mm)
+        self.assertEqual(p.check_azimuth(), [])
+        d = p.azimuth_drive(0.31, 76.0)
+        # triangular profile, by hand: 30 deg in 1 s accelerates at 4 theta / t^2
+        self.assertAlmostEqual(d["alpha_rad_s2"], 4 * math.radians(30) / 1.0)
+        self.assertAlmostEqual(d["torque_inertia_nm"], 0.31 * 4 * math.radians(30))
+        # Lewis bending on the printed sector, by hand
+        f_t = d["torque_out_nm"] / (p.az_gear_r / 1000) * p.az_shock
+        self.assertAlmostEqual(d["tooth_stress_mpa"], f_t / (p.az_gear_face_mm * p.az_module * (0.484 - 2.87 / 150)))
+        # one full step through 10:1 is 0.18 deg
+        self.assertAlmostEqual(d["step_deg"], 0.18)
+        # the fastest slew is where the margin is exactly the factor asked for
+        from dataclasses import replace
+        q = replace(p, az_slew_s=d["fastest_slew_s"])
+        self.assertAlmostEqual(q.azimuth_drive(0.31, 76.0)["torque_margin"], p.az_torque_factor, places=3)
+        # a quarter-second slew of the measured head is beyond the stepper
+        fast = replace(p, az_slew_s=0.25)
+        self.assertTrue(any("azimuth stepper needs" in b for b in fast.check_azimuth(0.31)))
+
+    def test_azimuth_hose_torque_vanishes_straight_ahead(self):
+        # the taut-hose chord lies in the plane through the turntable axis when the head is not turned
+        self.assertAlmostEqual(Feeder(az_max=0.0).az_hose_torque_nm(), 0.0, places=9)
+        self.assertGreater(Feeder().az_hose_torque_nm(), 0.0)
+
+    def test_azimuth_gear_teeth_printable(self):
+        p = Feeder()
+        # m1.5 slots are too narrow to laser in 5 mm aluminium (the reason the sector is printed), wide enough to print
+        self.assertLess(p.az_root_gap_mm(), 0.6 * p.plate_t)
+        self.assertGreater(p.az_root_gap_mm(), p.print_min_gap_mm)
+        # the involute half-angle at the pitch circle is half the (thinned) tooth over the pitch radius
+        self.assertAlmostEqual(p.az_tooth_half_angle(p.az_gear_r) * 2 * p.az_gear_r, math.pi * 1.5 / 2 - p.az_backlash_mm)
+        self.assertTrue(any("slots" in b for b in Feeder(az_module=0.5, az_gear_teeth=450).check_azimuth()))
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class FeederGeometryTest(unittest.TestCase):
@@ -428,6 +556,45 @@ class FeederGeometryTest(unittest.TestCase):
             for s in plate.placed():
                 self.assertLess((s & ball).volume, 1.0, name)
 
+    def test_azimuth_sweep_is_clear_and_can_fail(self):
+        from otr_cad.package import azimuth_sweep
+        self.assertEqual(azimuth_sweep(self.p), [])
+        # the front posts where they were until 2026-11-10: turned 30 deg nose up, the head's plates cut into them
+        self.assertTrue(any("hopper_post_front" in c for c in azimuth_sweep(Feeder(shelf_post_y=225.0))))
+
+    def test_turning_inertia_from_the_cad(self):
+        j0, m0 = self.F.turning_inertia(self.p, 0.0)
+        j45, m45 = self.F.turning_inertia(self.p, 45.0)
+        self.assertAlmostEqual(m0, m45)              # tilting moves mass, it does not add any
+        self.assertGreater(j45, j0)                  # nose up swings the column and plates out behind the axis
+        self.assertLessEqual(j45, self.p.az_inertia_kgm2)
+        # the motors alone, as point masses on their axes: a floor the solid model must exceed
+        r = (self.p.plate_half_y + self.p.plate_t + self.p.motor_len / 2) / 1000
+        self.assertGreater(j0, 2 * self.F.COTS_MASS_KG["launcher_motor"] * r * r)
+
+    def test_azimuth_gear_bolts_and_pinion(self):
+        plate = next(x for x in self.parts if x.name == "turntable_plate")
+        for v in plate.flat.vertices():   # every point of the outline is inside the trim circle
+            self.assertLessEqual(math.hypot(v.X - self.p.head_x, v.Y), self.p.az_trim_r + 1e-6)
+        holes = [(e.arc_center.X, e.arc_center.Y) for e in plate.flat.edges()
+                 if e.geom_type == GeomType.CIRCLE and abs(e.radius - 2.2) < 1e-6]
+        for x, y in self.F._az_bolts(self.p):
+            self.assertTrue(any(math.hypot(x - hx, y - hy) < 0.01 for hx, hy in holes), (x, y))
+        sector = next(x for x in self.parts if x.name == "az_gear_sector").placed()[0]
+        sb = sector.bounding_box()
+        self.assertAlmostEqual(sb.max.Z, self.p.mast_top_z + self.p.plate_t + self.p.bearing_h, places=6)  # under the plate
+        self.assertAlmostEqual(sb.max.Y, self.p.az_gear_r + self.p.az_module, places=1)
+        # tooth count: the sector spans +-(az_max + margin) of pitch angles
+        prof = self.F.az_gear_profile(self.p)
+        tips = [q for q in prof if abs(math.hypot(*q) - (self.p.az_gear_r + self.p.az_module)) < 1e-6]
+        n = int(math.radians(self.p.az_sector_half_deg) // (2 * math.pi / self.p.az_gear_teeth))
+        self.assertEqual(len(tips), 2 * (2 * n + 1))
+        mast = next(x for x in self.parts if x.name == "mast_plate")
+        bores = [(e.arc_center.X, e.arc_center.Y) for e in mast.flat.edges()
+                 if e.geom_type == GeomType.CIRCLE and abs(e.radius - self.F.AZ_BOSS_D / 2) < 1e-6]
+        self.assertEqual(len(bores), 1)
+        self.assertAlmostEqual(bores[0][0], self.p.head_x)
+        self.assertAlmostEqual(bores[0][1], self.p.az_centre_dist)
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class FeederPackageTest(unittest.TestCase):

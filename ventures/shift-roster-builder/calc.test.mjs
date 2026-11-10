@@ -232,10 +232,23 @@ test("exact mode on a deliberately weak anneal finds the improvement and reports
 
 test("exact mode gives up honestly: a tiny node limit reports a bound, not a proof", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
-  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false });
+  // coverLP off: branch-and-price has its own limits (coverLPNodes, coverLPMs) and would find and prove the 15-hour roster here.
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false, coverLP: false });
   assert.equal(r.optimality.status, "bounded");
   assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
   assert.ok(r.optimality.gap >= 0);
+});
+
+test("branch-and-price hands its roster to the cost search: the sample week reaches the proven 15 open hours", () => {
+  // The anneal leaves 19 h open; an integral LP inside branch-and-price finds 15 h (the known least). That roster must reach the
+  // result: an earlier wiring kept its score as the incumbent but dropped the roster, so the week was reported optimal at 19 h.
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false });
+  assert.equal(r.unfilledHours, 15);
+  assert.equal(r.optimality.forcedOpenHours, 15);
+  assert.ok(r.optimality.coverageProven);
+  assert.ok(Math.abs(r.score - r.optimality.bestScore) < 1e-6);
+  assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
 });
 
 test("the exact bound sees that hours, overlaps and rest force shifts open, and never overstates", () => {

@@ -10,6 +10,13 @@ developed master and is never used as one.
 No parsing of any maker format: the file is scanned for JPEG start markers and
 each candidate is walked segment by segment to find where it really ends, then
 the candidate with the most pixels wins. Thumbnails lose to the preview.
+
+Only 8-bit lossy JPEGs count as pictures. CR2 stores the sensor data itself as
+a lossless JPEG (SOF3, 12 to 14 bit, two or four interleaved Bayer components)
+and DNG usually stores it as lossless JPEG tiles or strips. Those are real JPEG
+streams, often with more "pixels" than the preview, and ffmpeg decodes them, so
+counting them would score a Bayer mosaic as the photo (found 2026-11-10 with a
+real ffmpeg ``ljpeg`` stream beside a baseline preview; tests/test_raw_preview.py).
 """
 
 from __future__ import annotations
@@ -22,10 +29,21 @@ RAW_EXTENSIONS = frozenset({".arw", ".cr2", ".cr3", ".dng", ".nef", ".orf", ".ra
 MIN_PREVIEW_PIXELS = 160 * 120
 _SOI = b"\xff\xd8\xff"
 _SOF = frozenset(set(range(0xC0, 0xD0)) - {0xC4, 0xC8, 0xCC})
+# Baseline, extended, progressive (Huffman or arithmetic): the frame types a
+# camera writes for a picture meant to be shown. Lossless (C3, C7, CB, CF) and
+# hierarchical (C5-C7, CD-CF) frames are sensor data or exotic, never previews.
+_PICTURE_SOF = frozenset({0xC0, 0xC1, 0xC2, 0xC9, 0xCA})
+_PICTURE_PRECISION = 8
 
 
 def is_raw_path(path: Path) -> bool:
     return path.suffix.lower() in RAW_EXTENSIONS
+
+
+def is_dng_path(path: Path) -> bool:
+    """True for a .dng file, the one RAW format ``raw_develop`` renders."""
+
+    return path.suffix.lower() == ".dng"
 
 
 def extract_preview(path: Path) -> bytes | None:
@@ -94,6 +112,8 @@ def _walk_jpeg(data: "mmap.mmap | bytes", start: int) -> tuple[int, int] | None:
         if length < 2 or pos + 2 + length > size:
             return None
         if marker in _SOF and length >= 8:
+            if marker not in _PICTURE_SOF or data[pos + 4] != _PICTURE_PRECISION:
+                return None  # lossless or high-precision: sensor data, not a preview
             height, width = struct.unpack(">HH", data[pos + 5 : pos + 9])
             pixels = width * height
         pos += 2 + length

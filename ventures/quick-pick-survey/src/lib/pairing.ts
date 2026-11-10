@@ -34,6 +34,12 @@ export type PairingInput = {
    */
   firstOptionShare?: number;
   /**
+   * How far this person's recent answers fall short of what their own ratings
+   * predict, as a z-score (`answerAgreement`): near 0 when honest, below -2
+   * when random. Below -2 the staged window stops admitting new items.
+   */
+  answerAgreement?: number;
+  /**
    * The same person's ratings for these items under their OTHER perspectives,
    * used only to choose which pair to show. See `selectionRating`.
    */
@@ -231,9 +237,12 @@ export function admissionOrder(items: PairItem[]): PairItem[] {
 export function activeItems(
   items: PairItem[],
   answeredCount: number,
-  timesShown: Map<string, number>
+  timesShown: Map<string, number>,
+  admissionPaused = false
 ): PairItem[] {
-  const size = activeSetSize(answeredCount, items.length);
+  const size = admissionPaused && items.length > NO_STAGING_BELOW
+    ? Math.min(items.length, CORE_SET_SIZE)
+    : activeSetSize(answeredCount, items.length);
   if (size >= items.length) return items;
 
   const ordered = admissionOrder(items);
@@ -242,6 +251,50 @@ export function activeItems(
     if ((timesShown.get(item.id) ?? 0) > 0) active.add(item.id);
   }
   return items.filter((i) => active.has(i.id));
+}
+
+/**
+ * Random answering test. For each decided answer, the Glicko model (ratings and
+ * deviations BEFORE the answer, as a trial row stores them) gives the chance
+ * that the picked item wins. An honest respondent picks the favoured item about
+ * as often as the model says; a random one picks it half the time, below what
+ * the model expects once ratings have separated. The statistic is the z-score
+ * of observed minus expected picks of the favoured item: near 0 when honest,
+ * negative when random. A raw agreement share does not work: the selector pairs
+ * close items on purpose, so an honest respondent agrees with the ratings only
+ * 0.53 to 0.58 of the time, against 0.4 to 0.63 for a random one (measured
+ * 2026-11-09, `admissionPause.simulation.test.ts`).
+ */
+export const AGREEMENT_Z_PAUSE_BELOW = -2;
+export const AGREEMENT_MIN_DECIDED = 40;
+/** Most recent decided answers the route and the simulation score. */
+export const AGREEMENT_WINDOW = 80;
+
+export type DecidedPick = { picked: number; other: number; pickedRd: number; otherRd: number };
+
+export function answerAgreement(picks: ReadonlyArray<DecidedPick>, minDecided = AGREEMENT_MIN_DECIDED): number | undefined {
+  let obs = 0;
+  let exp = 0;
+  let varSum = 0;
+  let counted = 0;
+  for (const { picked, other, pickedRd, otherRd } of picks) {
+    if (picked === other) continue;
+    const phi = Math.sqrt(pickedRd * pickedRd + otherRd * otherRd) / GLICKO_SCALE;
+    const pPicked = 1 / (1 + Math.exp((-glickoG(phi) * (picked - other)) / GLICKO_SCALE));
+    // Score the favoured item: did the person pick it, and how likely was that.
+    const pFav = Math.max(pPicked, 1 - pPicked);
+    const pickedFav = picked > other ? 1 : 0;
+    obs += pickedFav;
+    exp += pFav;
+    varSum += pFav * (1 - pFav);
+    counted++;
+  }
+  if (counted < minDecided || varSum === 0) return undefined;
+  return (obs - exp) / Math.sqrt(varSum);
+}
+
+export function admissionPaused(z: number | undefined): boolean {
+  return z !== undefined && z < AGREEMENT_Z_PAUSE_BELOW;
 }
 
 /**
@@ -282,12 +335,13 @@ export function selectNextPair({
   recentPairKeys,
   answeredCount = 0,
   priorRatings,
+  answerAgreement: agreement,
   rand = Math.random,
 }: PairingInput): [string, string] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
 
   // Deepen a core set before broadening — see activeSetSize above.
-  const pool = activeItems(items, answeredCount, timesShown);
+  const pool = activeItems(items, answeredCount, timesShown, admissionPaused(agreement));
 
   const shownCounts = pool.map((i) => timesShown.get(i.id) ?? 0);
   const avgShown = shownCounts.reduce((a, b) => a + b, 0) / pool.length;
@@ -393,11 +447,11 @@ export function capPool(pool: PairItem[], timesShown: Map<string, number>, cap: 
 }
 
 export function selectNextPairByInformation(
-  { items, timesShown, recentPairKeys, answeredCount = 0, rand = Math.random }: PairingInput,
+  { items, timesShown, recentPairKeys, answeredCount = 0, answerAgreement: agreement, rand = Math.random }: PairingInput,
   { conflictBonus = 1, coverageWeight = 0, poolCap = INFO_POOL_CAP }: InformationOptions = {}
 ): [string, string] {
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
-  const pool = capPool(activeItems(items, answeredCount, timesShown), timesShown, poolCap);
+  const pool = capPool(activeItems(items, answeredCount, timesShown, admissionPaused(agreement)), timesShown, poolCap);
   const avgShown = pool.reduce((sum, i) => sum + (timesShown.get(i.id) ?? 0), 0) / pool.length;
   const lag = (i: PairItem) => Math.max(0, avgShown - (timesShown.get(i.id) ?? 0));
 
@@ -425,12 +479,33 @@ export function selectNextPairByInformation(
 
 /**
  * Staged hybrid: the shipped selector while `answeredCount` is below
- * `switchAt`, the information selector after. The shipped one finishes more
- * items early (the bar the couple screen needs); the information one wins on
- * rank accuracy and on items under rd 150 once there are enough answers.
- * Measured in `infoGainPairing.simulation.test.ts`.
+ * `switchAt` (by default `hybridSwitchAt(items.length)`: 0 up to 120 items,
+ * so short lists use the information selector throughout), the information
+ * selector after. On long lists the shipped one gets a few items under rd 150
+ * sooner when there are fewer than about three answers per item; the
+ * information one wins on rank accuracy and on items under rd 150 once there
+ * are enough answers, and on the couple screen's own bar (8 items under rd
+ * 200) at every length measured. Measured in
+ * `infoGainPairing.simulation.test.ts` and `scripts/couple-bar-sweep.ts`.
  */
 export const HYBRID_SWITCH_ANSWERS = 120;
+
+/**
+ * Lists up to this many items use the information selector from the first
+ * answer. On 8 to 120 synthetic items (scripts/couple-bar-sweep.ts, 30
+ * respondents each, 2026-11-10) it reaches the couple screen's bar (8 items
+ * under rd 200, `couples.ts`) in a median 19 to 35 answers against 26 to 40
+ * for the shipped selector, with a tighter spread (p90 20 to 36 against 31 to
+ * 45), and ranks better at 2, 4 and 8 answers per item. Waiting for 120
+ * answers meant a respondent on a short list never reached it at all. Longer
+ * lists keep the 120-answer switch: they were not measured here.
+ */
+export const INFO_FROM_START_MAX_ITEMS = 120;
+
+/** Where the staged selector hands over, by list length (docs/INFORMATION-GAIN-SELECTOR.md). */
+export function hybridSwitchAt(itemCount: number): number {
+  return itemCount <= INFO_FROM_START_MAX_ITEMS ? 0 : HYBRID_SWITCH_ANSWERS;
+}
 
 /**
  * A person whose first-option share is at or above this has too many answers
@@ -441,6 +516,9 @@ export const HYBRID_SWITCH_ANSWERS = 120;
  */
 export const FIRST_OPTION_FALLBACK_SHARE = 0.7;
 
+/** Decided answers before a first-option share means anything (30 coin flips: sd 0.09). The route and the simulator both wait for it. */
+export const FIRST_OPTION_MIN_DECIDED = 30;
+
 /** True when the first-option share is far from half in either direction (first or second option favoured). */
 function positionBiased(share: number | undefined): boolean {
   return share !== undefined && (share >= FIRST_OPTION_FALLBACK_SHARE || share <= 1 - FIRST_OPTION_FALLBACK_SHARE);
@@ -448,7 +526,7 @@ function positionBiased(share: number | undefined): boolean {
 
 export function selectNextPairHybrid(
   input: PairingInput,
-  { switchAt = HYBRID_SWITCH_ANSWERS, ...options }: InformationOptions & { switchAt?: number } = {}
+  { switchAt = hybridSwitchAt(input.items.length), ...options }: InformationOptions & { switchAt?: number } = {}
 ): [string, string] {
   return (input.answeredCount ?? 0) < switchAt || positionBiased(input.firstOptionShare)
     ? selectNextPair(input)

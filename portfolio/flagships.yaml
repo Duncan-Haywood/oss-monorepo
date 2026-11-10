@@ -10,6 +10,12 @@
 # rewrites it to the following milestone in the same PR. The owner can
 # reorder, add or drop entries; agents may too, with the evidence in the PR.
 #
+# `inputs_only: <what is missing>` marks a flagship whose every listed item
+# needs a real outside input no session holds (a builder's schedule, a real
+# DXF). allocate.py then ranks it after the flagships with buildable work and
+# tells runs to take it only if they hold such an input. Remove the field when
+# a buildable item is added to `next:`.
+#
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
 #
@@ -29,6 +35,9 @@ flagships:
   # tech industrial, energy real estate dev and construction" the overarching
   # directions (prompts/goals.md, "Direction: industrial, energy and construction").
   - venture: wall-framing-takeoff
+    inputs_only: >-
+      a real builder's draw schedule, permitted deck plan, architect's DXF,
+      framer's takeoff, plumber's drain runs or sub's bids
     why: >-
       Wall layout engine (studs on layout, kings, jacks, headers, cripples,
       plate splices over studs) with a per-wall self-check, and a Gilmore-Gomory
@@ -47,12 +56,12 @@ flagships:
       hand arithmetic only); stair stringer and landing post tables, winder radial
       supports, lateral-load connector and anchor sizes; a real architect's DXF; a
       real US wood-framed IFC and a framer's takeoff of the Schultz house to
-      compare with (open: 2nd Floor Int 1 and 3rd Floor Int 9 tees and door-near-
+      compare with (Window Wall French door 39 in sill is in the model's placement, not the engine, ROADMAP 2026-11-09 later; open: 2nd Floor Int 1 and 3rd Floor Int 9 tees and door-near-
       end cases, README); a plumber's real drain runs for `--drilling`; a real
       foundation plan; ceiling steps against a real soffit; trim, drywall and
       siding against real orders and hangs; bid leveling on real bids and a real
       sub's labor rates; gable sheathing nested on real sheets; insulation against
-      a real order. When a slice lands, replace its item here and put its history
+      a real order. Cutting-stock speed is settled for now (exact steepest-edge weights measured, not worth building, ROADMAP 2026-11-09 later). When a slice lands, replace its item here and put its history
       in the README.
   - venture: ai-bookkeeper
     why: >-
@@ -65,24 +74,17 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords measured on one real makerspace's bank
-      export (72.7% suggested, 96% right, tuned on itself) and a real Chase card (78.4%), two Apple Cards (56.9% to 63.8%), a Canadian Capital One card (51.9% to 80.0%) and synthetic
-      sets (README Next): HCB card feed and Actual Budget samples held out; wanted: labelled books; (1) the AI layer in
+      first: (0) built-in keywords on real bank and card exports (HISTORY); labelled books 2026-11-10 (Open Collective, README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; real bank lines (ten Mint exports, six held out, README): classifier no longer overrules a keyword on a city word, first-seen 68.7% right, 15.6% wrong; guess held out on Hack Club 2026-11-10 (wrong 4% to 25%, README); next: gate the guess, one-off local merchants (card MCC, the AI layer); wanted: a firm's own labelled bank books; (1) the AI layer in
       fill-only mode on real bank descriptions, more seeds, a bigger model
-      (synthetic so far; README Next); (2) the bank readers on real exports
-      from Chase, Bank of America, Wells Fargo, Amex, Capital One and
-      others (six US layouts pinned on made-up rows 2026-11-04); (3) a real Stripe PayPal eBay or Amazon settlement export for
-      the payment-processor import (`form1099k`: try a real 1099-K; Adyen:
-      wanted a real settlement file); (4) a real supplier's terms letter
+      (synthetic so far); (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) a real Stripe, PayPal, eBay, Amazon or Adyen settlement export, and a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
       through real OCR (SROIE: totals 76.2%, dates 80.2%, merchants 45.8%;
       wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
-      deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one
-      named filing service's import layout, from its own spec; (8) `salestax
+      deposits, `payroll reconcile`): a real Gusto or ADP report; (7) IRIS
+      1099-NEC export done (HISTORY): open: a real upload, 1099-MISC; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
-      state's own page only for WA, TX, FL, NY, VA, MN, MO, IL, SC, OH and
-      UT monthly (OH quarterly: guides disagree on who files it; OH discount from excerpts); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
+      state's own page for 11 states (README; OH quarterly unsettled); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
       (Schedule AI): percentages matched to the 2024 form by excerpt
       2026-10-30, factors to state forms, federal text unread (irs.gov
       blocked); (9) EITC: built-in 2025 and 2026 schedules (Schedule EIC
@@ -104,9 +106,14 @@ flagships:
       Pipedrive/HubSpot against fake servers only; nineteen agent-written reply
       sets, latest 2026-11-08: false-not-now and wrong-person probe 9/20 before, 15/20 after three narrow changes; false-bounce and false-away probe 9/20 before,
       16/20 after one veto; all sets other than the 117 real bounces, 11 + 12 real
-      mail-client emails and the 1,857-reply label mix are agent-written). Next:
-      (1) real mail (false not-now and wrong-person probe 2026-11-11: 9/20 to 18/20); (2)
-      real human replies and a real rep's call notes to check the reply rules,
+      mail-client emails and the 1,857-reply label mix are agent-written). Real
+      people's mail 2026-11-10 (eval/enron.mjs, Enron corpus, 19,153 replies, README):
+      stops 70% wrong; vetoes tuned on one half, held-out half scored once: wrong
+      stops 30 to 13 per 1,000, right 113 to 108. Next: (1) on the Enron halves, a
+      second reader for the labels, the 124 held-out wrong stops left (third-person
+      "no need", Lotus Notes quote headers) on the tuning half only, and the
+      real "take me off" replies as an opt-out recall set; (2)
+      real replies to outreach and a real rep's call notes to check the reply rules,
       prep rules and follow-up sorter; (3) M2: score a hosted and a local model
       with eval/model.mjs on the fresh sets (needs a key), with a set labelled by
       a person or another model family before any rule change; (4) run the self-
@@ -122,134 +129,128 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and every trial: README and git. Open: (0) smooth low-noise series
-      are over-cut: `--noise-floor k` is uncalibrated (1.25 to 1.75 tried 2026-11-09: Peace Bridge 2009-06 lost above k=1, README; synthetic drift-plus-step sweep 2026-11-09: k=1.5 cuts false cuts 3.6 to 0.3 but loses a step of 2 drift-steps, `--ar1` against k on synthetic drift 2026-11-09: --ar1 cuts false cuts to ~0.4 but finds the step in only 36-42 of 60 where k=1.5 finds 59-60; wanted: both on real drift); the slope-break test dates
-      GDP's 1970s break at 1971Q2 but not significantly; real series tried
-      2026-11-08 (US industrial production growth (`meanvar --dispersion` keeps 1984-02, the Great Moderation: 2 cuts against 7 plain), Boston Marathon, Saudi oil, Australian cement with the 2000 GST (dated only by models that cut 20+ times, absorbed by ar1 and meanvar), Australian air passengers,
-      US female murder rate with bends at 1980 and 1993, and departures, and US electricity: 2007 stall dated but W 7.5 vs bar 9.2, monthly mean model 38 cuts) are in the README; Australian arrivals from Japan 2026-11-08 (1998, SARS 2003, 2008 found by different models, none by all; README); arrivals from the US 2026-11-08 (Olympics 2000Q3 found by mean and trend only; README); US monthly CPI inflation 1947-2004 2026-11-09 (bootstrap dates 1973-08, 1981-10, the 1986 dip; plain model 28 cuts, 14 in 1947-52; README); Australian café turnover 2026-11-09: 2000-09 (the GST) kept by all six models, unlike cement (README); Australian gas 2026-11-08: the 1969 takeoff clears the slope bar narrowly, W 12.23 vs 12.08 (17/20 seeds at 499 reps, 19/20 at 1999, p about 0.045); wanted: a real documented break that clears
-      the bar widely, a real documented step inside a cycle, a cycle check not tied to
-      rho (drift not told from a cycle), a real run of 5+ steps for the block-
-      variance warning, real documented ramps and close steps (`ramps` is
-      synthetic only). (1) range95: a closure series quiet outside the closure
-      (none found). (2) the steep-bump clumpy-count cell is under-covered, 173/217
-      (80%) over ten seeds (replicated 2026-11-08), not retuned. (3) GARCH: a segment-wise prune keeps the real sd break but
-      leaves 48% false alarms at n=200: search cuts jointly. (4) driftWarning
-      fires on real shocks and autocorrelated nulls: wanted a way to tell a shape
-      from a shock without swallowing a short quarterly shape; (4a-4c) three real series (README): freezes kept, an over-cut test. (5) holiday list: helps US births,
-      adds changes on Capital Bikeshare; wanted: a shop's counts, or a yearly
-      term.
+      History and every trial: README and git. Labelled benchmark landed 2026-11-10 (README "A labelled benchmark", `eval/tcpd.mjs`): 31 Turing Change Point Dataset series, TCPDBench metrics ported (published scores reproduced to 2e-16); BOCPD F1 0.706 and consensus every-setting 0.702 vs best published binseg 0.714 and "no change" 0.663, but the page's default level model 0.477; tier hit rates 39/28/25% now printed under `--consensus`.
+      Split-half default search 2026-11-10 (README "A default chosen by split half", eval/tcpd-defaults.mjs): over-cut warning and page control shipped. Held out 2026-11-10 (README "Held out", eval/tcpd-heldout.mjs; the 7 univariate series TCPD does not ship, md5-checked): every-setting consensus F1 0.711 (binseg 0.727, zero 0.639), BOCPD 0.622 (so no BOCPD-led summary), warning beat plain level on 6/6; the page now leads with "Agreed changes". Next, most valuable first: (a) a multivariate panel for the 3 multi-dim TCPD series (apple, bee_waggle_6, occupancy); (b) why the consensus misses measles' marked change (1 cut, F1 0.643 vs amoc 0.947); (c) the analyst report and CLI default text leading with agreed changes too.
+      Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (tax-id check digits for EC and PY wired into vat.mjs 2026-11-09 from ecuador.mjs and paraguay.mjs, SRI and DNIT text unread; UY and VN wired into vat.mjs 2026-11-09 from the existing uruguay.mjs and vietnam.mjs, pinned on Antel's RUT and python-stdnum's MST example, DGI and GDT text unread; AU, NZ, RS, KR, IN, TR, BR, AR, PE, CL, CO, MX in vat.mjs (Mexico's RFC wired 2026-11-08; the normaliser keeps & and Ñ after an MX prefix; RFC rule still pinned to four known RFCs, SAT text unread); Turkey's VKN weights match a public implementation (2026-11-09); Ukraine's EDRPOU (8 digits) wired 2026-11-09, pinned on five well-known published numbers, tax service text unread, ten-digit RNOKPP shape only, GIB text unread; Poland KSeF page from search excerpts, Sejm text
-      unread; UK page read against gov.uk 2026-10-30; South Korea from memory, NTS
-      unread). Open: ZATCA rules on a real sandbox invoice and credit or debit
-      note (both made up), the Saxon route; FatturaPA code lists (TD29, RF20) and
+      History (country tax-id checks wired into vat.mjs, each pinned on published
+      numbers with the authority's text unread; pages read or from excerpts):
+      README and git. Open: ZATCA rules on a real sandbox invoice and credit or
+      debit note, built-in INV-0xx checks beside PINT/ZATCA sets (INV-024/022/005/017/018 dropped there 2026-11-10; the rest still run); VAT differential vs python-stdnum both ways 2026-11-11 and IBAN structure plus BE/ES/ME/NO check digits 2026-11-10 (README), BE/CZ/RO/IT/LV prefix rules closed 2026-11-10 (README), rest closed (FR letter keys; TR differences are deliberate TCKN acceptance); FatturaPA code lists (TD29, RF20) and
       tolerances against the primary spec 1.9 text; Portugal's CIUS-PT add-on
       (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which
-      validator does AT run?); Poland's FA(3) on an issued invoice or KSeF test-
-      environment file and a real correction, advance or settlement file; the
-      rules and a repair on a real ERP or Factur-X export (veraPDF and Acrobat
-      unrun); PINT SG and A-NZ rules on a real PINT file; RO_CIUS on a real ANAF
-      file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP
-      payload; mandate dates read from primary sources where pages cite guides
-      (Israel, Denmark, Czech, Latvia vendor-only; Luxembourg Conseil d'État
-      unread; ato.gov.au 403 from cloud); Nigeria, Thailand, Taiwan, Oman,
-      Pakistan and Jordan pages (excerpts only; Taiwan, Oman dates disagree);
-      Latin American, Spain and Brazil pages from excerpts (open: CFDI, NF-e XSD,
-      NFS-e); refresh the Bulgaria page when its draft passes. A run that lands a
-      slice replaces its item here; keep this under 2,000 characters.
+      validator does AT run?); Poland's FA(3) on a KSeF test-environment file and
+      a real correction, advance or settlement file; the rules and a repair on a
+      real ERP or Factur-X export; PINT SG and A-NZ rules on a real PINT file;
+      RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
+      check on a real IRP payload; mandate dates read from primary sources where
+      pages cite guides (Israel, Denmark, Czech, Latvia; Luxembourg; ato.gov.au
+      403 from cloud); Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages
+      (excerpts; Taiwan, Oman dates disagree); Latin American, Spain and Brazil
+      pages (open: CFDI, NF-e XSD, NFS-e); refresh the Bulgaria page when its
+      draft passes. A run that lands a slice replaces its item here; keep this
+      under 2,000 characters.
+
   - venture: shift-roster-builder
     why: >-
       Simulated-annealing scheduler over a dollar cost (availability, rest,
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*-bench.mjs.
-      State: exact check with a min-cost-flow coverage bound, symmetry cuts, a $0.50
-      tolerance, coverage-first pass, ejection chains, contested-shift and whole-
-      score pricing, reduced-cost fixing, branching on the priced bound and on the
-      open-hours price (coverBranch), and a coverage plateau pass that equals the
-      HiGHS ILP optimum (eval/ilp-check.py) on all 12 weeks at 8x22, 10x28, 12x30.
-      Floors reach the optimum on 10 of 12 weeks; 10x the branching nodes leaves
-      them unchanged, so the open gaps are 12x30 week 1 (72 vs 75) and 10x28 week 4
-      (77 vs 78): only a stronger relaxation closes them (no LP relaxation tried
-      does; eval/relaxation-check.py). Landed 2026-10-27 to 2026-11-06 (pay and premium flags, a 20 s time budget for weeks over 150 shifts, cover chains, carry-over, notice and seniority rules): see the README.
-      Measured: carry-over costs 0 open hours, so a joint multi-week solve is
-      dropped; with coverage proven pay is within 0.7% of the bound.
-      2026-11-07: `--from-sales` builds shift lines from an hourly sales export at a sales-per-labor-hour target (`demand.mjs`, hand-built sales only); page `shifts-from-sales.html` 2026-11-07 (loaded in Chromium, sample and bad-input refusal); `--skip-dates` and `--half-life` leave out event days and weight recent weeks (hand-built). Next: branch-and-price on the Dantzig-Wolfe LP (the coverage search gap, the one unproven 8x22 week); a real POS hourly export for --from-sales and the page; a real published-schedule export for --import-shifts. 
-
+      Landed work and every measurement are in the README and eval/*-bench.mjs. State: exact
+      check with a min-cost-flow coverage bound, symmetry cuts, a $0.50 tolerance,
+      coverage-first pass, ejection chains, whole-score pricing, reduced-cost fixing, branching
+      on the priced bound, a coverage plateau pass, and branch-and-price on the exact
+      Dantzig-Wolfe LP (bnp.mjs, coverLP, 2026-11-10): the proven open-hours floor equals the
+      open hours on all 16 bench weeks, 12x30 week 1 (75, 467 nodes) and 10x28 week 4 (78)
+      included. Measured: carry-over costs 0 open hours (joint multi-week solve dropped); with
+      coverage proven pay is within 0.7% of the bound. Also landed (README): pay and premium
+      flags, time budget, cover chains, notice and seniority rules, `--from-sales` with page
+      `shifts-from-sales.html`, `--skip-dates`, `--half-life` (hand-built sales only). Column
+      generation with a per-person pricing oracle and branching on classes of identical shift
+      copies (columnGenerationOpen, 2026-11-10 later; eval/cg-bench.mjs) is now the default
+      branch-and-price: rolling-gap 10x28 set 0 proven at 48 (= HiGHS) in 3.5 s, 12x30 week 1
+      in 5 nodes. Bigger weeks (eval/cg-scale-bench.mjs, 2026-11-10 later): two simplex cycling
+      bugs fixed (one crashed buildRoster with exact on a 20-person week); CG floor = HiGHS
+      optimum on all 12 weeks of 20-60 people; dive on ties plus a warm-started LP prove every 20,
+      30 and 40 person week (40 in about 40 s); the oracle was never inexact (max 116k nodes).
+      Next: the pay bound by the same column generation (price each person's set by pay and
+      penalties, not only hours, to prove cost on weeks the exact search leaves unproven);
+      60-person weeks (floor = optimum but no roster in 60 s: a faster LP or rounding at the root)
+      and buildRoster taking 3-5 min on 40-person weeks with exact on and no time limit; a real
+      POS hourly export for --from-sales and the page (many stamp and number formats read, made-up
+      exports only); a real published-schedule export for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
-      Real-photo calibration 2026-11-08 (tools/real_photo_calibration.py,
-      eval/README-real-photo-calibration.md; two OpenCV sample photos):
-      sharpness, grain and exposure respond correctly to known blur, noise and
-      brightness; tilt is recovered on photos with straight edges (structure
-      tensor, 61% of readings within 1 degree) but is chance on scenes with no
-      axis lines. Wanted: photos with a real horizon and human labels.
-      `shootflow cull` (2026-10-29) is a standalone folder cull with XMP
-      sidecars, `--thumbs` adds a contact sheet, `--picks FILE` scores it
-      against a photographer's keepers and reports `reject_reasons`; wanted: a
-      real shoot and its picks. Face and closed-eye scores are an opt-in
-      external detector (SHOOTFLOW_FACE_DETECTOR; Haar reference detector, one
-      real portrait, no real blinks). Next: a trained blink model checked
-      against a photographer's picks (wanted: a labelled portrait set). RAW
-      stills are scored from the embedded JPEG preview (synthetic containers
-      only, so try real CR2/CR3/NEF/ARW/DNG); developing RAW into graded
-      masters is still open. History: ventures/photo-editing/README.md.
+      History and every measurement: README and eval/ (ingest, catalog,
+      proxies, measured analysis with tilt, grain, framing and opt-in face
+      scores, cull with XMP and picks scoring, RAW previews, and a stdlib DNG
+      developer matching LibRaw within one 8-bit step on a real Nikon NEF and
+      Canon CR2). Since 2026-11-10 the pipeline's grade stage develops DNG
+      stills into 16-bit TIFF masters and preview-less DNGs are proxied and
+      scored from a half-size develop (real Nikon sensor DNG end to end in
+      75 s, master bit-identical to `shootflow develop`;
+      eval/pipeline-dng-grade-2026-11-10.md). Next, most valuable first:
+      develop speed (pure Python, about 37 s per 12 MP frame, so a 500-frame
+      shoot takes hours: vectorise the demosaic or add an optional numpy
+      path, checked bit-for-bit against the current output); grade only the
+      selected shots; a camera- or phone-written DNG with lossless-JPEG tiles
+      (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink model
+      and a real shoot with a photographer's picks (wanted: a labelled
+      portrait set); photos with a real horizon and human tilt labels.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      Done so far (docs/INFORMATION-GAIN-SELECTOR.md and the READMEs hold
-      the numbers): the survey builder (POST /api/admin/surveys, the /admin
-      form, the /s/[slug] respondent page, pooled ranking with random-
-      effects 95% intervals, rank ranges, CSV, coverage note sized from
-      measured answers per respondent); an information-gain pair selector
-      and a staged hybrid (equals the shipped one at 90 answers, keeps 66 of
-      70 settled items at 300 answers on 220 items), chosen per survey by
-      `pairSelector`; an INFO_POOL_CAP of 400 (3000 items 1983 -> 36 ms;
-      capped equals uncapped on 600 and 1000 items at 600 answers,
-      poolCap.simulation.test.ts); and a live-Postgres ranking integration
-      test (ranking.integration.test.ts, 2026-10-22). Pool-cap accuracy, long budgets, lapse rates, slot bias, option fallbacks and 1000 items through the route were measured 2026-10-22 to 11-04 (docs). The 3000-answer Spearman dip was found and fixed 2026-11-08: the staged selector admitted items alphabetically by id, so ids that follow a meaningful order gave early stages a slice of the range; admission is now by id hash (fixed set 0.62-0.71 -> 0.98 at 3000 answers in process, docs). The live-Postgres noisyRespondents run at 3000 answers confirmed the fix through the routes 2026-11-08 (fixed set 0.979-0.984, docs). Next: more respondents per cell, and the same run with a lapsing answerer (`NOISY_CONDITIONS`) at 3000 answers.
-
+      History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
+      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md (survey builder, pooled
+      random-effects ranking with rank ranges, information-gain and staged
+      selectors, pool cap, lapse and repeat-probe studies; PrefLib real
+      rankings 2026-11-10). Switch point by list length 2026-11-10
+      (INFORMATION-GAIN-SELECTOR.md, scripts/couple-bar-sweep.ts): the couple
+      screen's real bar is 8 items under rd 200, not rd 150; the information
+      selector reaches it 4-8 answers sooner at 8-120 items and ranks better, so
+      "staged" now uses it from the first answer up to 120 items (equals the
+      information row on real rankings, all 25 cells). Next: a careless-answer
+      fallback for the staged selector (35-50% random answers cost up to 0.06
+      rank at 15 and 30 items; the 2026-11-09 "answers look random" signal is the
+      candidate); the switch rule above 120 items on the couple bar; then real
+      pairwise answers from a real survey.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/ (multi-division scheduling on shared venues, travel, rainouts and change notices, standings, play-offs, weekly update, clinch watch, overdue scores, remaining-schedule strength, officials, and a per-venue facility booking request via divisionsBookings / CLI --bookings, 2026-11-04; a coach sign-up form CSV loads into the blackout box on both the multi-division and one-division pages, 2026-11-04; the page also downloads the blank per-team sign-up sheet, 2026-11-04; all unit-tested and browser-clicked on made-up leagues only). travel estimated from venue coordinates, 2026-11-04, hand arithmetic only; season facility cost and a fee per team from typed venue rates, 2026-11-04; the rate reader takes a decimal comma and leaves per-season or per-night quotes unpriced, 2026-11-05). random-league check of the report and edit functions (unavailable dates, withdrawals, calendar, deadline, bookings, cost split), 2026-11-05, synthetic only. Next: a real league's travel times (to check the 1.3 x 40 km/h estimate) and a real league's unavailable-date requests.
+      Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/ (multi-division scheduling on shared venues, travel, rainouts and change notices, standings, play-offs, weekly update, clinch watch, overdue scores, remaining-schedule strength, officials, and a per-venue facility booking request via divisionsBookings / CLI --bookings, 2026-11-04; a coach sign-up form CSV loads into the blackout box on both the multi-division and one-division pages, 2026-11-04; the page also downloads the blank per-team sign-up sheet, 2026-11-04; all unit-tested and browser-clicked on made-up leagues only). travel estimated from venue coordinates, 2026-11-04, hand arithmetic only; season facility cost and a fee per team from typed venue rates, 2026-11-04; the rate reader takes a decimal comma and leaves per-season or per-night quotes unpriced, 2026-11-05). random-league check of the report and edit functions (unavailable dates, withdrawals, calendar, deadline, bookings, cost split), 2026-11-05, synthetic only. Duty rota is on the multi-division page, 2026-11-10; printable team sheets with each team's games and duty nights plus the rota page (divisionsTeamSheetsHtml, page button, CLI --team-sheets), 2026-11-10; next there: a real league's rota and a paper print check. Next: a real league's travel times (to check the 1.3 x 40 km/h estimate) and a real league's unavailable-date requests.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      The feeder CAD v0.1 package is in (manufacturing/feeder/: launcher head,
-      trunnion cheeks, turntable, 2040 base with brackets, mast, 3 m net beam,
-      poles and camera bar; the build tilts the head through -15..+45 deg for
-      collisions and sizes wind ballast). The hopper and feed landed
-      2026-10-21: a tub on a sloped shelf and four posts, a hose, and a
-      printed floor, roof, column and metering shuttle between the head
-      plates (checks for one-ball metering, column and wheel clearance, tub
-      capacity, hose slope and bend radius, shuttle clear when advanced;
-      cad/README.md "Feed"); a printed front retainer (two flexure arms, strain,
-      hold and pull-through forces checked) landed 2026-10-22. Hopper post bracing landed 2026-11-03 (two
-      x diagonals and one y diagonal, buckling-checked; cad/README.md). Hose with end directions landed 2026-11-03 (no valid curve at -15 and +45 deg at the shipped outlet height; raised to 1700 mm each pose fits but one cut length needs ~258 mm of take-up). Outlet raised to 1700 mm with posts re-checked landed 2026-11-04 (take-up 258 mm; 119 mm if the head stops at +30 deg: cad/README.md). Take-up sized 2026-11-04 (take_up_design: 300 mm pulley, 129 mm stroke, 489 mm track, travel window reverses at 0 deg; numbers only, no CAD part). Take-up pulley, carriage, track and spring modelled as parts 2026-11-05 (no tie to the frame yet). Next: the track's frame tie and hose clips, then the
-      actuator brackets (shuttle and elevation) and azimuth drive, then the netting
-      trough that rolls balls to the hopper inlet. Launch window landed 2026-11-08
-      (`Feeder.launch_window`: 17.9 to 26.8 m/s at 3000 rpm topspin, none at 4000);
-      then check the head's plate clearance against the ball path with the flight
-      model's launch speeds.
+      The feeder CAD package (manufacturing/feeder/; history in cad/README.md and git): launcher head,
+      turntable, mast, 2040 base, net frame, hopper, hose with a sliding-sleeve take-up sized over elevation
+      and azimuth, retainer, bracing, launch window, plate clearance, axle squaring. Azimuth drive landed
+      2026-11-10 (`Feeder.azimuth_drive`, cad/README.md "Azimuth drive"): NEMA 17 under the mast plate, m1.5
+      15-tooth pinion, printed 150-tooth PETG sector under a trimmed turntable plate (10:1), sized on the
+      turning inertia measured from the CAD (0.11 kg m^2 level, 0.31 at +45 deg): 30 deg in 1 s at 2.3x
+      pull-out margin, fastest 0.88 s; firmware drives it as a homed step/dir axis (controller.StepperAxis).
+      A new azimuth collision sweep found the turned head cut the hopper's front posts and the mast plate's
+      rear edge: posts moved to y +-245 and the mast plate notched. Next: weigh the head and measure the
+      hose's torque and the stepper's pull-out (needs a person); the home switch's bracket; hang a real hose
+      from a tube; the actuator brackets (shuttle and elevation); the netting trough that rolls balls to the
+      hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

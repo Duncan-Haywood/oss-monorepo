@@ -47,6 +47,11 @@ class Tree(unittest.TestCase):
             (v / "usage.mjs").write_text("try { localStorage.getItem('k'); } catch {}\n")
             self.assertEqual(main(["x", d]), 0)
 
+    def test_identifiers_that_merely_start_with_localstorage_are_not_reads(self):
+        # `localStorageKey` / `myLocalStorage`-style names are not the global.
+        self.assertEqual(unguarded_reads("const k = localStorageKey;\nfoo(localStorageBackup);\n"), [])
+        self.assertEqual(unguarded_reads("const v = localStorage.x;\n"), [1])
+
     def test_default_root_is_the_ventures_dir_and_not_empty(self):
         import check_storage_guard as g
         seen = []

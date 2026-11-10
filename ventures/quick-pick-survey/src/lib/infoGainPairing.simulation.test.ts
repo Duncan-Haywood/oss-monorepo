@@ -9,6 +9,7 @@ import {
   selectNextPair,
   selectNextPairByInformation,
   selectNextPairHybrid,
+  INFO_FROM_START_MAX_ITEMS,
   type InformationOptions,
   type PairItem,
 } from "@/lib/pairing";
@@ -59,9 +60,37 @@ describe("information-gain selector vs the shipped selector", () => {
       console.log(`MEASURE ${items} items ${budget} answers`, JSON.stringify({ shipped, info, conflict, coverage, hybrid, hybrid60, hybrid200 }));
       // Measured 2026-10-20 (docs/INFORMATION-GAIN-SELECTOR.md): rank accuracy is higher at every cell.
       expect(info.rank).toBeGreaterThan(shipped.rank);
-      // Measured 2026-10-21: the hybrid (switch at 120 answers) never does worse than shipped on rank or rd<150.
+      // Measured 2026-10-21: the hybrid never does worse than shipped on rank.
       expect(hybrid.rank).toBeGreaterThanOrEqual(shipped.rank);
-      expect(hybrid.under150).toBeGreaterThanOrEqual(shipped.under150);
+      // On rd<150 it keeps up only where it still switches at 120 answers (over
+      // INFO_FROM_START_MAX_ITEMS items) or once there are enough answers. Since
+      // 2026-11-10 a 41-item list uses the information selector from the first
+      // answer: at 90 answers it has fewer items under rd 150 than shipped (the
+      // stricter bar, not the couple screen's), but reaches the couple screen's
+      // own bar sooner (test below).
+      if (items > INFO_FROM_START_MAX_ITEMS || budget >= 300) expect(hybrid.under150).toBeGreaterThanOrEqual(shipped.under150);
+    }, 120_000);
+  }
+});
+
+/** Answers until `need` items are under rd 200, the couple screen's bar (couples.ts). */
+function answersToCoupleBar(policy: Policy, items: number, seed: number, need = 8): number {
+  let at = Infinity;
+  simulate(policy, items, 8 * items, seed, 0, 0, 0, false, (answered, rds) => {
+    if (at === Infinity && rds.filter((rd) => rd < 200).length >= need) at = answered;
+  });
+  return at;
+}
+
+describe("the couple screen's bar by list length (2026-11-10)", () => {
+  // scripts/couple-bar-sweep.ts prints the full table (8 to 120 items, 30 seeds).
+  for (const items of [11, 41]) {
+    it(`${items} items: the staged default reaches 8 items under rd 200 no later than shipped`, () => {
+      const s = seeds(10).map((x) => answersToCoupleBar(selectNextPair, items, x));
+      const h = seeds(10).map((x) => answersToCoupleBar((i) => selectNextPairHybrid(i), items, x));
+      console.log(`MEASURE couple bar ${items} items`, JSON.stringify({ shipped: median(s), staged: median(h) }));
+      expect(median(h)).toBeLessThan(median(s));
+      expect(Math.max(...h)).toBeLessThanOrEqual(Math.max(...s));
     }, 120_000);
   }
 });

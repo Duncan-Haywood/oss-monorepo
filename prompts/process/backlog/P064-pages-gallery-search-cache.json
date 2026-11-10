@@ -22,6 +22,7 @@
   "pr": null,
   "result": null,
   "history": [
-    "2026-11-09: make-gallery runs its three searches in worker threads, 24.9 s to 13.8 s locally (docs/history/ci-perf-2026-11-09-gallery-search-threads.md); the stamp cache would still save the rest."
+    "2026-11-09: make-gallery runs its three searches in worker threads, 24.9 s to 13.8 s locally (docs/history/ci-perf-2026-11-09-gallery-search-threads.md); the stamp cache would still save the rest.",
+    "2026-11-10: cold search 12.0 s (--check) / 12.5 s (write) locally, gallery-data.mjs unchanged, so the cache safety condition holds on main; row stays open, the workflow edit is owner-gated (docs/history/ci-perf-2026-11-10-gallery-search-reading.md)."
   ]
 }

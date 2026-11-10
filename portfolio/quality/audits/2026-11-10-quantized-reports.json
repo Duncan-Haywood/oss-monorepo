@@ -1,0 +1,246 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/quantized-reports",
+  "stratum": "research",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a quantisation / proper-scoring-rule researcher (information theorist who reviews for a main-track venue such as COLT or EC)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran tests (7 OK) and experiments/run.py (output byte-identical to results.txt). Recomputed independently with my own stdlib script (not importing the package): Brier 1/12N^2 analytic; brute-force log regret for N=16 (0.412702 = 0.41270); closed-form constants via Beta functions (log/uniform 0.36075, Brier/arcsine 0.07458, log/arcsine pi^2/24=0.41123); E4 analytic indifference points give 0.02946; independently rebuilt E4M3 grid (57 raw, 97 symmetrised) and Brier regrets match to 4 digits. All numbers hold. The one blemish is the printed 'pred' column for log/arcsine (0.40973 vs exact 0.41123).",
+    "completeness": "README promises 7 tests, a ~4 s experiment, a figure and the four results R1-R4; all exist and run (tests 0.4 s, run.py 3.7 s, results.txt reproduced exactly, regret.svg present). Limitations (binary only, no multi-class) are stated. Nothing claimed is missing; scope is a small working note.",
+    "verification": "PYTHONPATH=src python3 -m unittest discover -s tests: 7 OK. Six hand-seeded mutations in model.py, all reverted (git diff clean): bracketing candidate dropped, symmetrisation, 1/24 constant, log_div branch, compander exponent were caught; the arcsine prior change survived (no test uses it). 5 of 6 caught; tests compare to analytic values, which is good, but the arcsine path behind E2/R2 is unpinned.",
+    "craft": "Read model.py (118 lines), test_model.py, run.py. Compact, documented, stdlib only, unimodality argument stated in a comment. Defects: dead imports, import * in tests, silent dedup in compander_grid, duplicated prior/Fisher code, midpoint quadrature on a singular integrand in predicted_regret, misleading '#pts' column. No packaging problem (pyproject present).",
+    "claims": "Checked ratios in the paper (2.1x, 21x, 13x, 4x, 16x, 2.4-3x) against results.txt: all correct. But 'matches to 0.3% in all four cases' (README, research/README.md, paper R1) fails for log/arcsine against the shipped prediction (0.65%), R3's 'small extra loss' has no measurement, and 'Stylised' is declared without naming the unsourced inputs. Paper does disclaim deployed-protocol relevance.",
+    "fitness": "A researcher can reproduce and extend the code quickly, which is its strength. As research it is a numerical exercise: R1 is classical high-resolution quantisation theory (Bennett 1948, Panter-Dite 1951, Gersho) with a Bregman weight; no prior work is cited, there is no proof, no real report data, binary outcomes only, and it is not a programme in PROGRAMMES.md. Nearest prior work not engaged, so novelty is unestablished and likely small; R2 (log-score tail sensitivity) and R4 (symmetrised minifloats) are the useful practical findings.",
+    "domain": "A quantisation or elicitation theorist would accept the maths (it reproduces independently) but ask for the Bennett/Panter-Dite and Fisher-information-quantiser citations, a derivation, finite-N error bounds instead of an asymptotic law, and a realistic belief distribution. The practical advice (companded or symmetrised confidence codes) is sound and matches how log-probability codes are used in practice."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Brier mean regret of the uniform midpoint grid x N^2",
+      "method": "analytic: cell width 1/N, E[(q-r)^2]=1/(12N^2)",
+      "command": "python3 experiments/run.py (E1 brier rows)",
+      "expected": "0.08333",
+      "observed": "0.08333 at N=16..1024",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Log-score regret x N^2 of uniform grid, uniform prior, N=16, brute-force min over all 16 grid points",
+      "method": "own 10-line KL script, 20000 midpoints, no shared code (scratchpad chk.py)",
+      "command": "python3 /tmp/claude-0/aud/chk.py",
+      "expected": "0.41270",
+      "observed": "0.412702",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Closed-form optimal-grid constant, log score + arcsine prior: R*N^2 = pi^2/24",
+      "method": "analytic: (pi I)^(1/3)=pi^(-1/3)(q(1-q))^(-1/2), integral pi^(2/3), cubed pi^2",
+      "command": "python3 chk.py vs results.txt E2 log N=1024",
+      "expected": "0.41123 (analytic)",
+      "observed": "0.41240 measured; shipped 'pred' column prints 0.40973",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Closed-form constant, log score + uniform prior: B(2/3,2/3)^3/24",
+      "method": "math.gamma Beta function, own script",
+      "command": "python3 chk.py vs results.txt E1",
+      "expected": "0.36075",
+      "observed": "0.36052 measured (-0.06%); pred column 0.36062",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Closed-form constant, Brier + arcsine prior: ((2/pi)^(1/3) B(5/6,5/6))^3/24",
+      "method": "math.gamma, own script",
+      "command": "python3 chk.py vs results.txt E2 brier N=1024",
+      "expected": "0.07458",
+      "observed": "0.07464 measured",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E4 fraction of q where best report != nearest on N=8 grid",
+      "method": "analytic indifference points q*=ln((1-a)/(1-b))/(ln(b/a)+ln((1-a)/(1-b))); sum |q*-midpoint|",
+      "command": "python3 chk.py (brute force and analytic agree)",
+      "expected": "0.0295",
+      "observed": "0.02946 analytic; results.txt 0.030",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Minifloat grid sizes and e4m3 Brier raw vs symmetrised regret",
+      "method": "independently rebuilt E4M3 (bias 7) value set and symmetrisation; own Brier regret",
+      "command": "python3 chk.py",
+      "expected": "57 raw pts, 97 symmetrised, 1.860e-4 / 4.651e-5",
+      "observed": "57, 97, 1.860e-4 / 4.651e-5",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README/research index: optimal-grid regret 'matches prediction within 0.3% at N=1024 in all four score x prior cases'",
+      "method": "compare columns optimal vs pred in results.txt E1,E2",
+      "command": "python3 experiments/run.py; diff results.txt",
+      "expected": "<=0.3% in all four",
+      "observed": "log/arcsine 0.41240 vs 0.40973 = 0.65% off; others 0.00-0.08%",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Paper R2/R4 ratios: 2.1x and 21x uniform vs optimal; 13x raw vs symmetrised e4m3 log; 4x Brier; e5m6 16x; e5m2 ~16x",
+      "method": "divide columns of results.txt",
+      "command": "arithmetic on results.txt",
+      "expected": "2.1,21,13,4,16,16",
+      "observed": "2.10,21.2,13.3,4.0,15.6,15.9",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "R3 'rounding to nearest is therefore a small extra loss'",
+      "method": "search experiments/ for a rounding-to-nearest loss measurement",
+      "command": "grep -n nearest experiments/run.py",
+      "expected": "a measured loss",
+      "observed": "only the 3% disagreement fraction is measured, no loss figure",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README commands: unittest (7 tests) and run.py (~4 s) reproduce results.txt",
+      "method": "run both",
+      "command": "PYTHONPATH=src python3 -m unittest discover -s tests; python3 experiments/run.py | diff - experiments/results.txt",
+      "expected": "7 OK, identical output",
+      "observed": "7 OK in 0.4 s; run.py 3.7 s; byte-identical results.txt",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "regret.svg figure and figure.py exist and paper limitations list open items",
+      "method": "ls experiments; read whitepaper.md",
+      "command": "ls research/quantized-reports/experiments",
+      "expected": "svg present",
+      "observed": "regret.svg present; multi-class and quantile elicitation stated open",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Paper cites nearest prior work (Bennett/Panter-Dite companding, Gersho high-resolution quantisation theory, Fisher-information-optimal quantisers) for R1",
+      "method": "grep paper for citations",
+      "command": "grep -n 'Bennett\\|Panter\\|Gersho\\|Fisher' paper/whitepaper.md",
+      "expected": "cited",
+      "observed": "none cited; only unspecific 'Frongillo, Waggoner' directions with no title or year",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "Tests pin the arcsine-prior path used by headline E2/R2",
+      "method": "mutate prior_quantiles arcsine",
+      "command": "see mutations",
+      "expected": "a test fails",
+      "observed": "survived",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/quantized_reports/model.py:37",
+      "change": "_best_regret: `if i > 0` -> `if i > 1` (drops lower bracketing candidate)",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "note": "1 failure"
+    },
+    {
+      "where": "src/quantized_reports/model.py:symmetrized",
+      "change": "1 - g -> 1 - g/2 in the mirrored half",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "note": "1 failure"
+    },
+    {
+      "where": "src/quantized_reports/model.py:predicted_regret",
+      "change": "24 -> 12 in the 1/(24N^2) constant",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "note": "1 failure"
+    },
+    {
+      "where": "src/quantized_reports/model.py:log_div",
+      "change": "(1-q) term scaled by 0.9",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "note": "2 failures"
+    },
+    {
+      "where": "src/quantized_reports/model.py:prior_quantiles",
+      "change": "arcsine sin(pi u/2)**2 -> **3",
+      "caught": false,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "note": "all 7 tests pass; no test touches the arcsine prior, yet E2, R2's N^-3/2 and the 21x claim depend on it"
+    },
+    {
+      "where": "src/quantized_reports/model.py:optimal_density",
+      "change": "exponent 1/3 -> 1/2",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "note": "1 failure"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Headline '0.3% in all four cases' is false against the shipped prediction column: log/arcsine measured 0.41240 vs printed 0.40973 is 0.65%. Cause: predicted_regret uses a midpoint rule on an integrable end-point singularity (1/sqrt) and underestimates; the exact constant pi^2/24=0.41123 is 0.28% from the measurement, so the law holds but the displayed comparison and README claim disagree. Copied to research/README.md:60.",
+      "where": "research/quantized-reports/src/quantized_reports/model.py:94",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Novelty and positioning: R1 is Bennett/Panter-Dite high-resolution companding with the Bregman curvature as the weight; no prior quantisation or elicitation work is cited, no derivation or proof is given (only a stated formula), and the 'working note' is far from the PhD-level, venue-ready bar in research/CLAUDE.md. The result is a correct textbook application, not shown to be new.",
+      "where": "research/quantized-reports/paper/whitepaper.md:14",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "No test touches prior_quantiles('arcsine'); a seeded change to the prior survives all 7 tests although E2, R2 (N^-3/2) and the 21x figure depend on it. Test 7 asserts only regret<1 and an inf return, and the E4 test asserts diff>0 rather than 0.0295.",
+      "where": "research/quantized-reports/tests/test_model.py:44",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "R3 asserts nearest-rounding is 'a small extra loss' but no loss is computed, only the 3% disagreement fraction; the strategic-reporter sentence is also unsupported.",
+      "where": "research/quantized-reports/paper/whitepaper.md:24",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Unused imports (ldexp, frexp, struct); tests use `import *`; compander_grid silently dedups points via sorted(set(...)) so a grid can have fewer than N points with no warning; the prior/Fisher definitions are duplicated between predicted_regret and optimal_density; E3 table header '#pts' is the raw minifloat count while 'uniform N' and 'opt N' use the symmetrised count (97 for e4m3), contradicting the 'same #points' caption.",
+      "where": "research/quantized-reports/src/quantized_reports/model.py:8",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Inputs are an assumed uniform or arcsine prior over beliefs with no real forecast data, and the result is labelled 'Stylised' without saying which inputs are unsourced; E3 minifloat comparison assumes uniform beliefs although the motivating protocol is confident agents.",
+      "where": "research/quantized-reports/README.md:11",
+      "category": "research-design",
+      "origin": "design"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Small, clean, reproducible numerical note whose figures I could recompute independently (analytic constants, brute-force regret, exact E4 fraction, rebuilt minifloat grids). It does not meet the bar: claims scores 2 because the headline '0.3% in all four cases' is 0.65% for log/arcsine against the shipped prediction column and R3's 'small extra loss' is unmeasured; and as research it re-derives classical companding theory with no prior work cited and no proof, far below the PhD-level, publishable standard. Five of six seeded bugs were caught; the arcsine-prior path behind E2 and the 21x claim has no test."
+}

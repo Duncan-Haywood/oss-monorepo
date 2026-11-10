@@ -37,7 +37,8 @@ import tempfile
 from pathlib import Path
 
 from shootflow.ffmpeg_media import FfmpegMediaError, FfmpegTools
-from shootflow.raw_preview import extract_preview, is_raw_path
+from shootflow.raw_develop import DevelopError, still_for_review
+from shootflow.raw_preview import is_raw_path
 
 FRAME_WIDTH = 320
 FRAME_HEIGHT = 180
@@ -127,16 +128,17 @@ def analyze_media(tools: FfmpegTools, source: Path, *, media_type: str) -> Frame
 
 
 def _analyze_raw_preview(tools: FfmpegTools, source: Path) -> FrameMetrics:
-    """Score a RAW still from the JPEG preview the camera embedded in it."""
+    """Score a RAW still from its embedded JPEG preview, or a half-size DNG development."""
 
-    preview = extract_preview(source)
-    if preview is None:
-        raise FfmpegMediaError(f"no embedded JPEG preview in {source.name}; develop it first")
     with tempfile.TemporaryDirectory(prefix="shootflow-raw-") as scratch:
-        jpeg = Path(scratch) / "preview.jpg"
-        jpeg.write_bytes(preview)
-        _, aspect = _probe_stream(tools, jpeg)
-        frames = _decode_frames(tools, jpeg, media_type="photo", duration=None)
+        try:
+            still = still_for_review(source, scratch)
+        except DevelopError as exc:
+            raise FfmpegMediaError(f"could not develop {source.name}: {exc}") from exc
+        if still is None:
+            raise FfmpegMediaError(f"no embedded JPEG preview in {source.name}; convert it to DNG to develop it")
+        _, aspect = _probe_stream(tools, still)
+        frames = _decode_frames(tools, still, media_type="photo", duration=None)
     if not frames:
         raise FfmpegMediaError(f"ffmpeg decoded no frames from the preview in {source.name}")
     return metrics_from_frames(frames, source_aspect=aspect)
@@ -434,7 +436,7 @@ def _aspect_from_banner(banner: str) -> float | None:
     size = _VIDEO_SIZE_PATTERN.search(banner)
     if size is None:
         return None
-    width, height = int(size.group(1)), int(size.group(2))
+    width, height = float(size.group(1)), float(size.group(2))
     sample = _SAMPLE_ASPECT_PATTERN.search(banner)
     if sample is not None and int(sample.group(1)) > 0 and int(sample.group(2)) > 0:
         width = width * int(sample.group(1)) / int(sample.group(2))

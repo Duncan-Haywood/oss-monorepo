@@ -120,7 +120,7 @@
     <div class="check"><input id="remember" type="checkbox"><label for="remember">Remember these settings in this browser</label></div>
     <button type="button" class="secondary" id="detect">Find a model on this computer</button>
     <button type="button" id="ask-ai">Suggest accounts for the review queue</button>
-    <p class="note">What is sent, from your browser straight to the provider you chose: the dates, descriptions and amounts of up to 40 lines still in review, your chart of accounts, and up to 40 lines you already filed as examples. A local model keeps it all on your computer. For Ollama on a web page, start it with <code>OLLAMA_ORIGINS=https://duncan-haywood.github.io</code>.</p>
+    <p class="note">What is sent, from your browser straight to the provider you chose: the dates, descriptions and amounts of up to 40 lines still in review, your chart of accounts, and up to 40 lines you already filed as examples. A local model keeps it all on your computer. For Ollama on a web page, start it with <code>OLLAMA_ORIGINS=https://marisstella.app</code>.</p>
   </section>
 
   <section class="card" aria-labelledby="h-assets">
@@ -312,7 +312,8 @@
     <p id="nec-merge" hidden><label>Count <select id="nec-from"></select></label> <label>with <select id="nec-into"></select></label> <button type="button" id="nec-merge-go" class="secondary">Merge</button></p>
     <button type="button" id="nec-csv" class="secondary">Download contractors worksheet (CSV)</button>
     <button type="button" id="nec-filing-csv" class="secondary">Download filing-prep CSV (Form 1099-NEC boxes)</button>
-    <p class="note">The filing-prep file has one row per payee over the line, in the form's own box names. Tax ID and address columns are blank on purpose: this page never stores them, so fill them from the W-9 in your filing service. Services take their own column layouts, so reorder the columns to match theirs.</p>
+    <button type="button" id="nec-iris-csv" class="secondary">Download IRS IRIS 1099-NEC template CSV</button>
+    <p class="note">The filing-prep file has one row per payee over the line, in the form's own box names. The IRIS file uses the 54 columns of the IRS IRIS Taxpayer Portal's 1099-NEC template for tax year 2025 (as copied in open-source IRIS tools; not read on irs.gov), with each name on the business line when it has a business word such as LLC, and split into first and last name otherwise: check both against the W-9, and the file with the free IRIS CSV check (../irs-iris-1099-csv-check/) before upload. Tax ID and address columns are blank on purpose: this page never stores them, so fill them from the W-9 in your filing service. Services take their own column layouts, so reorder the columns to match theirs.</p>
   </section>
 
   <section class="card" aria-labelledby="h-recurring">
@@ -427,7 +428,7 @@
 
   <section class="card" aria-labelledby="h-how">
     <h2 id="h-how">How it decides, and what it leaves out</h2>
-    <p><strong>Four layers, then you.</strong> (1) Your rules. (2) Memory: the account you chose before for the same payee, after store numbers, card numbers and reference codes are stripped ("SQ *BLUE BOTTLE 0412 OAKLAND CA" and "POS DEBIT SQ *BLUE BOTTLE 9981" are one payee). Confidence is how many times you chose it over how often you saw the payee; at three unanimous choices it reaches 0.86 and posts by itself. (3) A naive Bayes classifier trained on everything you filed, for payees it has not seen exactly; it only suggests. (4) Conservative built-in keywords for common merchants; they only suggest. A language model, if you turn one on, is a fifth suggester for the review queue.</p>
+    <p><strong>Four layers, two hints, then you.</strong> (1) Your rules. (2) Memory: the account you chose before for the same payee, after store numbers, card numbers and reference codes are stripped ("SQ *BLUE BOTTLE 0412 OAKLAND CA" and "POS DEBIT SQ *BLUE BOTTLE 9981" are one payee). Confidence is how many times you chose it over how often you saw the payee; at three unanimous choices it reaches 0.86 and posts by itself. (3) A naive Bayes classifier trained on everything you filed, for payees it has not seen exactly; it only suggests. (4) Conservative built-in keywords for common merchants; they only suggest. Then, for review only: the bank's own category label where it names one account, and for a payee nothing knows yet, a guess from what kind of name it is (a person, a business) and the line's size, read against the first line of every payee you filed ("new payee: 9 of the 12 named people you filed at this size went here first"). That guess needs eight similar payees, says nothing when they split, and never posts by itself. A language model, if you turn one on, is a fifth suggester for the review queue.</p>
     <p><strong>Measured, on synthetic data.</strong> A seeded generator writes a year of lines for a made-up studio (payroll, software, Amazon bought for two different accounts, coffee, one-off local merchants, a card paid from checking). Importing a month at a time and filing each month's queue correctly, from the fourth month on 60% of lines posted by themselves (1,300 of 2,164), 1 of those 1,300 to the wrong account, and 84% of the review suggestions were right (542 of 642; 5 seeds, 2,892 lines; the README has the table and the command). The built-in keywords were written by the same person as the generator, so the first month's accuracy flatters them; the learning numbers are the honest part. Real bank files will be messier.</p>
     <p><strong>Not modelled:</strong> accruals (invoices and bills not yet paid), depreciation, inventory, payroll filings (a Form 941 worksheet is offered) and sales tax filings, foreign-currency invoices (foreign bank accounts are covered in the CLI), splitting one line across accounts, and locking a closed period. It is cash-basis bookkeeping from bank lines. Reconciles to the statement only when the file has a running balance column.</p>
   </section>
@@ -463,7 +464,7 @@
   <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
   <script type="module">
     import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
-    import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, markW9, mergePayees } from "./taxforms.mjs";
+    import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, nec1099IrisCsv, markW9, mergePayees } from "./taxforms.mjs";
     import { newBooks, importStatement, importOfxAccounts, importQifAccounts, importCsvAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
     import { decodeBytes } from "./textcodec.mjs";
@@ -1073,6 +1074,7 @@
     });
     $("#nec-csv").addEventListener("click", () => { record("contractors_downloaded"); download(contractors1099Csv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-worksheet.csv", "text/csv"); });
 
+    $("#nec-iris-csv").addEventListener("click", () => { record("contractors_iris_downloaded"); download(nec1099IrisCsv(contractors1099(books, { year: necYear() })).csv, "contractors-1099-nec-iris-template.csv", "text/csv"); });
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
     function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderCompare(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
@@ -1214,7 +1216,7 @@
     $("#detect").addEventListener("click", async () => {
       $("#ai-state").textContent = "Looking for Ollama, LM Studio and llama.cpp on this computer...";
       const found = await detectLocal();
-      if (!found.length) { $("#ai-state").textContent = "No local model answered. Start Ollama with OLLAMA_ORIGINS=https://duncan-haywood.github.io (or turn on CORS in LM Studio's server settings), allow this page to reach your computer if the browser asks, and try again."; return; }
+      if (!found.length) { $("#ai-state").textContent = "No local model answered. Start Ollama with OLLAMA_ORIGINS=https://marisstella.app (or turn on CORS in LM Studio's server settings), allow this page to reach your computer if the browser asks, and try again."; return; }
       $("#provider").value = found[0].provider;
       if (found[0].models[0]) $("#model").value = found[0].models[0];
       rememberAi();

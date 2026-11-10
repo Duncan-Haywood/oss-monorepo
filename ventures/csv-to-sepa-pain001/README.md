@@ -39,3 +39,10 @@ This tool is free and as-is. It is not legal, financial, tax or professional
 advice and does not replace a qualified professional. You are responsible for
 checking its output before relying on it, and your bank remains the final validator. To the maximum extent
 permitted by law, the authors accept no liability for any loss or damage arising from its use.
+
+## SEPA Instant (added 2026-11-09)
+
+Tick "Send as SEPA Instant" (`instant: true` in `convert`) to tag the batch `<LclInstrm><Cd>INST</Cd></LclInstrm>`. Any
+payment above 100,000.00 EUR (the scheme ceiling, `INSTANT_LIMIT_CENTS`) is an error, so no file is written. Pinned in
+`calc.test.mjs`; the sibling pain.001 validator reports no errors on the output. Whether a given bank accepts INST in an
+uploaded file is the bank's rule; check its specification.

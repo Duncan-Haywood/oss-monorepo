@@ -340,7 +340,7 @@ const STYLE = `
   .pf-hero h1 { font-size:clamp(2rem,4.6vw,2.8rem); } .pf-hero .jump a { background:var(--panel); color:var(--ink); border-color:var(--line); }
   .pf-hero .jump a:hover { border-color:var(--accent); }
   .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin:0 0 14px; }
-  .cols { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; }
+  .cols { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap:14px; }
   .cols .card { margin:0; }
   .log { list-style:none; margin:0; padding:0; }
   .log li { padding:9px 0; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }

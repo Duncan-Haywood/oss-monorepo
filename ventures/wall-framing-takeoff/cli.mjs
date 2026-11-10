@@ -140,6 +140,13 @@ for any loss or damage arising from its use.`;
 
 /** Accept "12' 6\\"" strings anywhere a length goes. */
 function normalise(plan) {
+  // a plan file of the wrong shape used to fail with a raw JavaScript message ("Cannot create property 'length' on number")
+  if (!plan || typeof plan !== "object" || Array.isArray(plan)) { if (Array.isArray(plan)) return plan; throw new Error("the plan file must be a JSON object with a \"walls\" list (see --example)"); }
+  if ("walls" in plan && !Array.isArray(plan.walls)) throw new Error("\"walls\" must be a list of wall objects");
+  if ("stock" in plan && !Array.isArray(plan.stock)) throw new Error("\"stock\" must be a list of {length, price} objects");
+  const bad = (name, list) => { const i = (list || []).findIndex((e) => !e || typeof e !== "object" || Array.isArray(e)); if (i >= 0) throw new Error(`${name} ${i + 1} must be an object (for example {"length": 96}), not ${JSON.stringify(list[i])}`); };
+  bad("wall", plan.walls); bad("stock entry", plan.stock);
+  for (const w of plan.walls || []) { if ("openings" in w && !Array.isArray(w.openings)) throw new Error("a wall's \"openings\" must be a list"); bad("opening", w.openings); }
   const L = (v) => (typeof v === "string" ? parseLength(v) : v);
   for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "defaultHeaderHeight"]) if (k in plan) plan[k] = L(plan[k]);
   for (const r of Array.isArray(plan.headerTable) ? plan.headerTable : []) if (r && "upTo" in r) r.upTo = L(r.upTo);
@@ -167,6 +174,41 @@ function ifcJsonOptions(argv) {
 let keyNote = "";
 
 /** Runs the CLI; a text report (not JSON, which must stay parseable) gets a note on misspelt plan keys. */
+// Every flag the CLI reads. A flag outside this list used to be ignored, so a misspelt option
+// quietly printed the plain order. cli-flags.test.mjs checks this list against the flags in this file.
+export const BARE_FLAGS = ["--budget", "--csv", "--deck", "--doors-to-floor", "--dormer", "--double-line", "--drawings", "--drilling", "--drywall", "--eaves", "--electrical", "--example", "--fasteners", "--fireblock", "--fixed-plan", "--floor", "--flooring", "--foundation", "--gang", "--gutters", "--headers", "--help", "--horizontal", "--hvac", "--insulation", "--json", "--level-bids", "--openings", "--orders", "--overhang", "--paint", "--panel-order", "--panel-sheets", "--paver", "--pdf", "--plan-only", "--plumbing", "--proposal", "--pull-lists", "--risk", "--roof", "--schedule", "--schedule-template", "--sensitivity", "--shallow-headers", "--sheathing", "--siding", "--single-line", "--skip-refused", "--stairs", "--stucco", "--trim", "--trim-openings", "--ventilation", "--wall-tile", "--whole-house"];
+export const VALUE_FLAGS = ["--add-board", "--compare", "--door-layer", "--ifc-json", "--orders", "--panel-max", "--rim-lap", "--sheathing-psf", "--stack", "--storey", "--swing", "--units", "--wall-layer", "--window-layer"];
+
+/** @param {string} a @param {string} b @returns {number} */
+function editDistance(a, b) {
+  /** @type {number[]} */
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    /** @type {number[]} */
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+/** @param {string[]} argv @returns {string} an error naming the first flag the CLI does not read, "" when all are known */
+export function unknownFlag(argv) {
+  for (const a of argv) {
+    if (typeof a !== "string" || !a.startsWith("--") || a === "--") continue;
+    const eq = a.indexOf("=");
+    const name = eq < 0 ? a : a.slice(0, eq);
+    if (eq >= 0 && a.length === eq + 1 && VALUE_FLAGS.includes(name) && name !== "--orders") return `${name}= has no value after the equals sign; write ${name}=... (see --help).`;
+    if (eq < 0 ? BARE_FLAGS.includes(name) : VALUE_FLAGS.includes(name)) continue;
+    if (eq >= 0 && BARE_FLAGS.includes(name) && !VALUE_FLAGS.includes(name)) return `${name} takes no value (you wrote ${a}). Try ${name} on its own.`;
+    if (eq < 0 && VALUE_FLAGS.includes(name) && !BARE_FLAGS.includes(name)) return `${name} needs a value, such as ${name}=...; see --help.`;
+    const all = [...BARE_FLAGS, ...VALUE_FLAGS];
+    const near = /** @type {[number, string][]} */ (all.map((f) => [editDistance(name, f), f])).sort((x, y) => x[0] - y[0])[0];
+    return `Unknown option ${name}.${near && near[0] <= 3 ? ` Did you mean ${near[1]}${VALUE_FLAGS.includes(near[1]) && !BARE_FLAGS.includes(near[1]) ? "=..." : ""}?` : ""} --help lists the options.`;
+  }
+  return "";
+}
+
 export function main(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8")) {
   const r = runMain(argv, readInput);
   if (keyNote && typeof r.out === "string" && !/^\s*[\[{]/.test(r.out)) return { ...r, out: keyNote + r.out };
@@ -180,6 +222,15 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   const flags = new Set(argv.filter((a) => a.startsWith("--")));
   const rimLap = Math.max(0, parseLength(argv.find((a) => a.startsWith("--rim-lap="))?.slice(10) ?? "0") || 0);
   if (flags.has("--help") || flags.has("-h")) return { code: 0, out: HELP };
+  const flagErr = unknownFlag(argv);
+  if (flagErr) return { code: 1, out: flagErr };
+  // Two output formats at once used to print whichever branch came first, with no word that the other was dropped.
+  const formats = ["--json", "--csv", "--pdf"].filter((f) => flags.has(f));
+  if (formats.length > 1) return { code: 1, out: `${formats.join(" and ")} each choose the output format; give only one.` };
+  // --drawings prints HTML sheets; beside --json or --csv it used to win and drop the other format with no word.
+  if (flags.has("--drawings") && (flags.has("--json") || flags.has("--csv"))) return { code: 1, out: `--drawings prints the HTML shop drawings; it cannot be combined with ${flags.has("--json") ? "--json" : "--csv"} (use --pdf for the sheets as a file).` };
+  // --pdf is the same sheets as a file; with --drawings it used to win and print the PDF with no word that the HTML was dropped.
+  if (flags.has("--drawings") && flags.has("--pdf")) return { code: 1, out: "--drawings prints HTML and --pdf prints the same sheets as a PDF file; give only one." };
   // A mistyped size must stop the run, not quietly turn the feature off (a "--panel-max=zzz" used to print the plain order).
   for (const [flag, kind] of [["--rim-lap=", "length"], ["--panel-max=", "length"], ["--sheathing-psf=", "number"]]) {
     const raw = argv.find((a) => a.startsWith(flag))?.slice(flag.length);
@@ -195,6 +246,15 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   let plan;
   let dxfNotes = "";
   keyNote = "";
+  if (!/\.(dxf|ifc)$/i.test(args[0])) {
+    // These options only steer the reading of a drawing; on a plan JSON they used to be ignored without a word.
+    const drawingOnly = argv.find((a) => /^--(units|storey|wall-layer|door-layer|window-layer|ifc-json)=/.test(a) || a === "--double-line" || a === "--single-line");
+    if (drawingOnly) return { code: 1, out: `${drawingOnly.split("=")[0]} only applies when the input is a .dxf or .ifc file; ${args[0]} is read as a plan JSON.` };
+  }
+  // These shape the panel output, which only exists with a positive --panel-max; alone they used to print the plain order.
+  const panelOnly = argv.find((a) => a === "--panel-order" || a === "--pull-lists" || a === "--panel-sheets" || a.startsWith("--sheathing-psf="));
+  if (panelOnly && !(parseLength(argv.find((a) => a.startsWith("--panel-max="))?.slice(12) ?? "0") > 0)) return { code: 1, out: `${panelOnly.split("=")[0]} only applies with --panel-max=<length> (such as --panel-max=12ft).` };
+  if (argv.some((a) => a.startsWith("--swing=")) && !flags.has("--sensitivity")) return { code: 1, out: "--swing= only applies with --sensitivity." };
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
       const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
@@ -528,8 +588,8 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (!pr.ok) return { code: 1, out: procurementText(pr).join("\n") };
     return { code: 0, out: flags.has("--json") ? JSON.stringify(pr, null, 2) : flags.has("--csv") ? procurementCsv(pr).trimEnd() : procurementText(pr).join("\n") };
   }
-  if (flags.has("--schedule") && flags.has("--csv")) return { code: 0, out: scheduleCsv(schedule(resolveRates(plan.schedule, r))).trimEnd() };
-  if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(resolveRates(plan.schedule, r)), null, 2) };
+  if (flags.has("--schedule") && flags.has("--csv")) { const sc = schedule(resolveRates(plan.schedule, r)); return { code: sc.ok === false ? 1 : 0, out: scheduleCsv(sc).trimEnd() }; }
+  if (flags.has("--schedule") && flags.has("--json")) { const sc = schedule(resolveRates(plan.schedule, r)); return { code: sc.ok === false ? 1 : 0, out: JSON.stringify(sc, null, 2) }; }
   if (flags.has("--level-bids")) {
     if (!Array.isArray(plan.bids) || !plan.bids.length) return { code: 1, out: 'plan has no "bids" list (each: { bidder, lines: [{ item, qty, unitPrice | amount }] })' };
     const lv = levelBids(budget(r, plan.prices || {}, plan.allowances || {}), plan.bids);
@@ -610,12 +670,13 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (r.dormer) lines.push("", "DORMER", ...dormerText(r.dormer));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
   if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {}, plan.allowances || {})));
-  if (flags.has("--schedule")) lines.push("", "SCHEDULE", ...scheduleText(schedule(resolveRates(plan.schedule, r))));
+  let scheduleRefused = false;
+  if (flags.has("--schedule")) { const sc = schedule(resolveRates(plan.schedule, r)); scheduleRefused = sc.ok === false; lines.push("", "SCHEDULE", ...scheduleText(sc)); }
   if (gangNotes.length) lines.push("", "GANGED OPENINGS", ...gangNotes.map((n) => `  - ${n}`));
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");
-  return { code: 0, out: dxfNotes + lines.join("\n") };
+  return { code: scheduleRefused ? 1 : 0, out: dxfNotes + lines.join("\n") };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

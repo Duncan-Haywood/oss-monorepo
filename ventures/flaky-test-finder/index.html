@@ -148,7 +148,7 @@ python3 check.py run1.xml run2.xml --json      # machine-readable</code></pre>
           <input type="text" placeholder="Run label (optional)" value="${escapeAttr(label)}" data-role="label">
           <button type="button" class="secondary tiny" data-role="remove">Remove</button>
         </div>
-        <textarea spellcheck="false" placeholder='<?xml version="1.0"?><testsuite>...</testsuite>' data-role="xml">${escapeHtml(xml)}</textarea>`;
+        <textarea aria-label="JUnit XML for this run" spellcheck="false" placeholder='<?xml version="1.0"?><testsuite>...</testsuite>' data-role="xml">${escapeHtml(xml)}</textarea>`;
       wrap.querySelector('[data-role="remove"]').addEventListener("click", () => {
         if (els.runs.children.length <= 1) return;
         wrap.remove();

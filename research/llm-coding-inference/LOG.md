@@ -2,6 +2,56 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 7ae: is the guard-only rule's width gain driven by the audit size n or by its share of the corpus n/N? (prediction committed in the script docstring before the 1,000-draw runs; `experiments/h7ae_n_vs_share.py <category> 1000`)
+- Why: 7ad found the gain only at n/N near 0.30, but n = 2,000 in every such cell, so size and share were confounded. Here each draw subsamples a corpus of N items from the GoEmotions test part (fresh per draw; truth = that corpus's prevalence) and runs 7y's pilot-then-audit with the cached Qwen2.5-1.5B scores and the same label-free cut. Cells (n, N): (500, 6683), (500, 3341), (500, 1667), (1000, 3341), (2000, 6683), so n/N 0.075, 0.15 and three cells at 0.30 with n = 500, 1,000 and 2,000. Fear, sadness, admiration; pooled vs `neg_guard=3` alone; 1,000 draws per cell (+/- 1.4 points). About 10 min per category, stdlib plus numpy.
+- **Prediction:** P1 guard-only covers 93% or more in all 15 cells. P2 for sadness and admiration, share drives the gain: at n/N = 0.30 the width ratio at n = 500 is within 0.08 of the ratio at n = 2,000. P3 for fear the guard falls back to pooled at n = 500, so the (500, 1667) ratio stays above 0.95.
+
+### Outcome (`experiments/h7ae_fear.txt`, `h7ae_sadness.txt`, `h7ae_admiration.txt`; one run each)
+- P1 supported: guard-only coverage 93.6 to 96.7% in all 15 cells (lowest sadness (2000, 6683), 93.6%, the same figure 7y found for that cell with different draws). Pooled covers 91.6% in one cell (fear (500, 6683), 77 corpus positives), 93.7 to 95.8% elsewhere.
+- **P2 refuted: size, not share, drives the gain.** Width ratio guard-only / pooled at n/N = 0.30 with n = 500, 1,000, 2,000: sadness 0.942, 0.819, 0.715; admiration 0.863, 0.754, 0.747; fear 0.979, 0.901, 0.822. At fixed n = 500, moving n/N from 0.075 to 0.30 changes the ratio by 0.03 (sadness 0.971 to 0.942), 0.04 (admiration 0.905 to 0.863) and 0.04 (fear 1.015 to 0.979). Sadness's (500, 1667) ratio is 0.227 from its (2000, 6683) one, admiration's 0.116; both over the 0.08 bar.
+- P3 supported: fear (500, 1667) 0.979.
+- Mechanism visible in the files: the share of draws where the guard lets cells through is set by n and hardly by N (n = 500: fear 13 to 14%, sadness 28%, admiration 60 to 64% at every N; n = 1,000: 56, 69, 96%; n = 2,000: 95, 98, 100%). The guard counts pilot positives in the coder-negative cell, an absolute count that grows with the pilot (n/2), not with the sampling fraction. So 7ad's "a third of the corpus" reading was the wrong variable: the rule to plan with is the expected number of pilot positives the coder misses, (n/2) x prevalence x (1 - sensitivity), against the guard of 3.
+- Limits: one corpus, one coder (Qwen2.5-1.5B, zero-shot), three categories, one run each; corpora are subsamples of one 6,683-item set, so the (500, 1667) corpora overlap heavily across draws; n/N stops at 0.30. Library default unchanged.
+- Next: state the planning rule in terms of expected missed pilot positives and check it on the 7ac NaijaSenti cells (constructed rare prevalence); a second model family remains blocked while huggingface.co answers 403 through the proxy (probed today).
+
+## 2026-11-10 · Milestone 7ad: across all 18 guard-only cells of 7y to 7ac, when does dropping the screen pay? (no new draws; prediction in the script docstring before it ran; `experiments/h7ad_pool_cells.py`)
+- Why: the screen question has been answered cell by cell for six entries; this reads every committed result file together (3 corpora, 2 model sizes, prevalence 1% to 33%, n/N 0.03 to 0.30) so the decision rests on one table, `experiments/h7ad_pool_cells.txt`.
+- **Prediction:** guard-only coverage is 93% or more in every cell; every cell with n/N >= 0.25 has a width ratio (guard-only / pooled) <= 1.00; every cell with ratio > 1.02 has n/N <= 0.08.
+
+### Outcome
+- Prediction supported on all three counts. Minimum coverage 93.6% (sadness n = 2000, 500 draws, +/- 1.9). All six cells at n/N near 0.30 have ratio 0.71 to 0.99 (0.71 sadness, 0.74 admiration, 0.83 fear with the 1.5B coder; 0.90 and 0.94 with the 0.5B coder; 0.99 neutral, J 0.19). Only two cells exceed 1.02 (0.5B at n = 500: 1.019 fear, 1.034 sadness), both at n/N = 0.075.
+- Reading: the screen buys nothing in coverage (the guard does that) and costs width when the audit is a sizeable share of the corpus and the coder is informative. Worst case seen for dropping it is 3.4% wider, best case 29% narrower. I chose the thresholds after seeing the cell list (18 cells from a handful of corpus/coder pairs, not independent), so this is a description, not a tested law.
+- Limits: reuses earlier runs (mixed 500 and 1,000 draws), n/N is confounded with n, a constructed rare prevalence for 7ac, no naturally rare category on a second corpus. Library default unchanged. Still open: that category; a second model family.
+
+## 2026-11-10 · Milestone 7ac: does the guard-only rule hold for a rare category on a second corpus (NaijaSenti negative share thinned to 1% and 3%, nb-in-language coder)? (prediction committed in the script docstring before the 1,000-draw runs; `experiments/h7ac_naija_rare.py 1000 <prev>`)
+- Why: 7ab's open item. NaijaSenti negative is 32.7% prevalent, so it never exercised the rare case. I kept every non-negative item of the whole test part and subsampled the negatives by label (seed 7) to 1% or 3% of the corpus (30,172 and 30,794 items). The coder is untouched (corpus J 0.393 and 0.384). The thinning is by design, so this is a constructed prevalence on real text, not a naturally rare category. n = 1,000 and 3,000, pilot n/2, 1,000 draws (+/- 1.4 points).
+- **Prediction:** `neg_guard=3` alone covers 93% or more in all four cells and is no wider than pooled. Refuted if any cell is under 93%.
+
+### Outcome (`experiments/h7ac_naija_rare_0.01.txt`, `h7ac_naija_rare_0.03.txt`; one run each)
+- Coverage, guard-only: 96.2 and 95.0 (1%, n 1,000 and 3,000), 95.7 and 94.3 (3%). Pooled: 94.3, 95.0, 94.5, 95.2. Shipped default: 94.3, 95.6, 94.5, 95.0. Prediction supported.
+- Half-width (points), guard-only vs pooled: 0.622 vs 0.623 (1%, n 1,000; cells in 11% of draws), 0.319 vs 0.340 (6% narrower, n 3,000), 0.987 vs 1.029 (4%), 0.528 vs 0.573 (8%). Shipped default equals pooled at n = 1,000 (the screen never fires) and is 0.341 / 0.535 at n = 3,000, so dropping the screen buys 6.5% at 1% prevalence and 1% at 3% against it.
+- Limits: a thinned corpus, one coder (J about 0.39), one language family, one run each; n = 3,000 is 10% of the corpus. Library default unchanged. Still open: a naturally rare category on a second corpus; a second model family.
+
+## 2026-11-09 · Milestone 7ab: does the guard-only rule hold on a second corpus (NaijaSenti negative share, nb-in-language coder, corpus J 0.39)? (script ran before this entry was written; the prediction below was not committed ahead of the run; `experiments/h7ab_naija_guard_only.py 500`)
+- Why: the open item since 7y was a second corpus. Same corpus and coder as 7h (6,000 tweets, prevalence 32.7%), n = 400 and 1,000, pilot n/2, 500 draws (+/- 1.9 points).
+- **Prediction (stated after seeing the output, so weaker than a pre-registered one):** `neg_guard=3` alone covers 93% or more; width within 2% of pooled, since 7h found the coder buys under 1% here.
+
+### Outcome (`experiments/h7ab_naija_guard_only.txt`; one run)
+- Coverage: pooled 96.6 (n 400), 93.2 (n 1,000); shipped default 95.0, 92.6; guard-only 94.0, 95.8. Half-width (points): pooled 4.067 / 2.441; shipped 4.050 / 2.427; guard-only 4.059 / 2.427, i.e. 0.2 to 0.6% narrower.
+- Prediction partly met: guard-only covers 94.0 and 95.8% (both at or above 93%) and is within 1% of pooled. The shipped default at n = 1,000 is 92.6%, under 93, but pooled is 93.2 in the same draws, so with +/- 1.9 points this is sampling noise on a shared set of draws, not a rule failure; I did not rerun with more draws.
+- Limits: one second corpus at high prevalence (the rare-category risk 7r targeted is not exercised: the coder-negative cell holds many positives), one coder, one run, 500 draws. The guard-only rule is safe here and buys nothing, as 7h found. Library default unchanged. Still open: a rare category on a second corpus; a second model family.
+
+## 2026-11-09 · Milestone 7aa: does 7y's reading hold with a second, weaker LLM (Qwen2.5-0.5B-Instruct, fear J 0.264, sadness J 0.265)? (prediction written after the scores were cached and before the rule comparison ran; `LLM=Qwen2.5-0.5B-Instruct experiments/h7y_drop_screen.py <category> 500 <n>`)
+- Why: the open item since 7y was a second LLM. Scored the same GoEmotions test part (6,683 items) for fear and sadness with Qwen2.5-0.5B-Instruct zero-shot (`llm_code_goemotions.py`, about 7 min per category on 4 CPU cores); same cut rule, seed and draws as 7y. The script now reads the model from `LLM` (default unchanged).
+- **Prediction:** `neg_guard=3` alone covers 93% or more in all four cells (two categories, n = 500 and 2,000). Refuted if any cell is under 93%. A weaker coder should shrink the width gain; I expected under 10% at n = 2,000.
+
+### Outcome (`experiments/h7y_{fear,sadness}_n{500,2000}_0.5B.txt`; 500 draws, +/- 1.9 points; one run each)
+- Coverage, `neg_guard=3` alone: fear 96.6 (n 500), 96.0 (n 2000); sadness 96.2, 95.4. Pooled 93.8 to 95.8; shipped default 94.6 to 97.8. Prediction supported: no cell under 93%.
+- Half-width against pooled for `neg_guard=3` alone: n = 500 fear +1.9% (wider), sadness +3.4% (wider); n = 2,000 fear -9.6%, sadness -6.0%. Shipped default: -0.3 to -2.2% at n = 500 and 0 / -2.2% at n = 2,000, since the screen sends nearly every draw to pooled (cells in 0 to 26%).
+- Against the 1.5B coder (J 0.46 and 0.62) the n = 2,000 gain is smaller (17% and 29%), as expected, but it does not vanish: a coder with J 0.26 still buys 6 to 10% at a third of the corpus. At n = 500 the guard-only rule costs 2 to 3% width with the weak coder, where with 1.5B it was within 3%.
+- Limits: two categories only, one corpus, two sizes of one model family (not a second family), one run each. Library default unchanged. Still open: a second corpus, a different model family.
+- Next: second corpus; the n = 500 width cost suggests keeping the screen off only when n is large relative to the pilot.
+
 ## 2026-11-08 · Paper catch-up: 7a to 7f into Section 6 (no experiment)
 - Added one paragraph to `paper/paper.md` Section 6 (library code, 7c end-to-end match, 7d 2,000-draw 94.1%, 7f reference check); numbers checked against `h7d_admiration_2000.txt` and the 7c to 7f entries. Section 6 now covers 6 to 7z. Open: second LLM or corpus before dropping tau; LaTeX in the venue format.
 

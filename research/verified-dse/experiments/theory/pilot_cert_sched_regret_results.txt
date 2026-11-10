@@ -1,0 +1,24 @@
+cell | n | regret% 2-rung (16,5) | hit | regret% 3-rung (35,16,8) | hit | regret% random 5 | regret% random 8
+tight adder_op16 | 50 | 13.92 | 0.00 | 0.00 | 1.00 | 23.51 | 19.56
+tight adder_ripple16 | 52 | 0.00 | 1.00 | 0.00 | 1.00 | 0.00 | 0.00
+tight mult8 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 5.98 | 4.23
+tight mac4 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 10.73 | 5.75
+tight alu8 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 9.46 | 7.37
+tight popcount16 | 50 | 1.23 | 0.00 | 0.00 | 1.00 | 2.47 | 1.29
+tight barrel16 | 50 | 8.57 | 0.00 | 6.78 | 0.00 | 4.54 | 2.56
+tight crc16 | 50 | 0.00 | 1.00 | 2.32 | 0.72 | 6.53 | 3.30
+tight cmp_sat12 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 11.43 | 7.33
+tight fifo8x4 | 50 | 4.94 | 0.00 | 0.00 | 1.00 | 7.00 | 5.48
+relaxed adder_op16 | 50 | 4.97 | 0.00 | 0.00 | 1.00 | 12.63 | 9.07
+relaxed adder_ripple16 | 52 | 0.00 | 1.00 | 0.00 | 1.00 | 0.00 | 0.00
+relaxed mult8 | 50 | 0.00 | 1.00 | 2.76 | 0.00 | 5.03 | 4.03
+relaxed mac4 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 10.07 | 4.79
+relaxed alu8 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 12.23 | 9.10
+relaxed popcount16 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 6.69 | 5.13
+relaxed barrel16 | 50 | 11.83 | 0.00 | 11.83 | 0.00 | 8.20 | 5.67
+relaxed crc16 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 4.80 | 2.65
+relaxed cmp_sat12 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 12.01 | 7.87
+relaxed fifo8x4 | 50 | 0.00 | 1.00 | 0.00 | 1.00 | 3.85 | 2.47
+cells where 3-rung mean regret <= 2-rung: 18 of 20
+mean regret over cells %: 2-rung 2.27, 3-rung 1.18, random 5 7.86, random 8 5.38
+worst cell mean regret %: 2-rung 13.92, 3-rung 11.83

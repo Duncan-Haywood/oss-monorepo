@@ -95,8 +95,10 @@ migration, builder checkbox) is the next step.
 `pairSelector`, and the admin form has a "Question order" menu. `/api/trials/next`
 uses the survey's value when set and otherwise follows the `PAIR_SELECTOR`
 environment variable, so existing surveys behave as before. `staged` helps
-long lists answered at length (see above); for short lists it equals the
-standard selector for the first 120 answers.
+long lists answered at length (see above). Since 2026-11-10 it uses the
+information selector from the first answer on lists up to 120 items ("A
+switch point that depends on list length", below); before that it equalled
+the standard selector for the first 120 answers whatever the list length.
 
 ## Latency at long lists
 
@@ -664,3 +666,195 @@ Mean at 3000 answers: 0.981 (all 613 rated items 0.979; top-slot share 0.51).
 Before the hash admission the same run gave 0.62 to 0.71 at 3000. The dip is
 gone through the routes, not only in process. Caveats: noiseless answerer, 3
 respondents, one run, one item count (1000).
+
+### A lapsing answerer through the real routes at 3000 answers (2026-11-09)
+
+The other half of the 2026-11-08 "Next": `NOISY_ITEMS=1000 NOISY_ANSWERS=3000
+NOISY_RESPONDENTS=3 NOISY_CONDITIONS=lapse20 NOISY_CHECKPOINTS=500,1000,1500,2000,3000`
+through `noisyRespondents.integration.test.ts` (real routes, local Postgres 16
+from `scripts/test-db.sh start`, 664 s, test passed). A lapse is a random answer
+in place of the true one, 20% of the time. Fixed set = the 113 items rated at 500
+answers. Spearman of the fixed set, per respondent at 500 / 1000 / 1500 / 2000 / 3000:
+
+| respondent | 500 | 1000 | 1500 | 2000 | 3000 |
+|---|---|---|---|---|---|
+| 0 | 0.924 | 0.938 | 0.936 | 0.938 | 0.941 |
+| 1 | 0.936 | 0.948 | 0.950 | 0.952 | 0.946 |
+| 2 | 0.935 | 0.948 | 0.948 | 0.953 | 0.952 |
+
+Mean over all 613 rated items at 3000 answers: 0.938 (top-slot share 0.50).
+There is no dip: the fixed set rises from about 0.93 to about 0.95 and stays
+there, so the hash admission holds for a person who lapses, at about 0.04 below
+the noiseless 0.981, which is what a 20% lapse costs. Caveats: 3 respondents, one
+run, one item count (1000), lapse rate 20% only, a lapse that is uniform random
+(not a tired person whose lapses cluster late in the session).
+
+### Lapses that start late in a session (2026-11-09)
+
+The other open "Next" item: a respondent who answers well, then tires. Condition
+`lapselate` (new in `noisyRespondents.integration.test.ts`): no lapses for the
+first 2000 answers, then a random answer 50% of the time. Run:
+`NOISY_ITEMS=1000 NOISY_ANSWERS=3000 NOISY_RESPONDENTS=3 NOISY_CONDITIONS=lapselate
+NOISY_CHECKPOINTS=500,1000,1500,2000,2500,3000` through the real routes and local
+Postgres 16 (643 s, test passed). Fixed set = the 113 items rated at 500 answers.
+
+| respondent | all items @2000 | all items @2500 | all items @3000 | fixed set @2000 | fixed set @3000 |
+|---|---|---|---|---|---|
+| 0 | 0.979 | 0.920 | 0.886 | 0.984 | 0.984 |
+| 1 | 0.983 | 0.930 | 0.886 | 0.985 | 0.983 |
+| 2 | 0.983 | 0.937 | 0.895 | 0.981 | 0.980 |
+
+Mean over all 613 rated items at 3000 answers: 0.889 (top-slot share 0.50).
+
+Reading: items settled before the fatigue are not damaged (fixed set stays
+0.98). The fall in the all-items score is the 200 items first admitted after
+answer 2000, which only ever see answers that are half random; they sit lower
+than the 0.924-0.953 of a respondent who lapses throughout, because they have no
+clean answers to lean on. The selector does not slow down or stop admitting new
+items when answers turn noisy. Untried: a stop or "answers look random" signal
+(for example a run of answers that disagree with the current ordering) that
+pauses admission. Not measured: a real respondent's fatigue curve.
+
+## An "answers look random" pause: measured, not wired in (2026-11-09)
+
+The untried signal above, built and measured. `answerAgreement` (in
+`src/lib/pairing.ts`) scores the last 80 decided answers on the ratings a trial
+row stores BEFORE each answer: observed picks of the favoured item minus the
+Glicko-expected number, as a z-score. `activeItems` takes an `admissionPaused`
+flag that holds the window at the core set plus items already shown.
+
+Two things failed first. Scoring against the ratings fitted afterwards gave a
+random respondent 0.87 to 0.92 agreement (each answer has just moved its own
+pair). A raw agreement share before the answer does not separate them either:
+the selector pairs close items on purpose, so an honest respondent agrees 0.53
+to 0.58 of the time and a random one 0.4 to 0.63.
+
+The z-score is better but not usable
+(`admissionPause.simulation.test.ts`, 120 items, staged hybrid, 6 seeds, every
+25th answer from 120 to 500):
+
+| respondent | mean z | sd | share of readings below -2 |
+|---|---|---|---|
+| honest | -0.53 | 0.97 | 0.07 |
+| 20% lapses | -0.83 | 1.32 | 0.20 |
+| fully random | -1.16 | 1.21 | 0.22 |
+
+Random answering is caught 22% of the time and an honest respondent is paused
+7% of the time. The mean sits below zero even for honest answers, because
+Glicko ratings are overconfident early. So the route is unchanged: no pause
+ships. The function and flag stay, unwired, so the result can be reproduced.
+What might work: a respondent-level repeat-pair consistency test (re-ask an
+earlier pair and compare), which does not depend on the rating scale.
+
+## A repeat-pair probe for fatigue: measured, not worth building (2026-11-09)
+
+The next idea after the rating-based pause: re-ask a pair the respondent
+already answered and compare. A repeat agrees with the first answer with
+probability q^2 + (1-q)^2, where q is the chance the first option is picked.
+That is 1.0 for a lopsided pair and 0.5 for a coin flip, and the selector
+shows close pairs on purpose.
+
+`src/lib/repeatProbe.simulation.test.ts` takes the pairs the staged hybrid
+really shows (answers 120 to 500, 120 items, 6 seeds, 2280 pairs) and computes
+the expected agreement from the simulator's true strengths. The repeats needed
+are for a one-sided 5% z test with 80% power.
+
+| pairs repeated | honest | 20% lapses | random | repeats to tell honest from 20% lapses | from random |
+|---|---|---|---|---|---|
+| the hybrid's own pairs | 0.614 | 0.573 | 0.500 | 3549 | 465 |
+| uniformly drawn pairs | 0.673 | 0.610 | 0.500 | 1467 | 195 |
+| a lopsided catch pair (win chance 0.97) | 0.942 | 0.783 | 0.500 | 103 | 18 |
+
+Repeating the selector's own pairs cannot work: honest agreement is only 0.61,
+so a respondent would need to answer thousands of repeats. A deliberately
+lopsided catch pair (top against bottom of the current ordering) separates
+random answering in about 18 repeats, and a 20% lapser in about 100. Each
+repeat is a wasted answer for ranking, so a real design would spend about
+5% of answers on them and would only help for long sessions. Not built: it
+adds respondent burden for a rare failure, and the rank-accuracy cost of lapses
+up to 20% was already small (see the lapse sweep above). Not measured: a real
+respondent's fatigue curve. `simulate` now also returns the true strengths.
+
+## A switch point that depends on list length (2026-11-10)
+
+The staged selector ran the shipped selector for the first 120 answers on
+every list. On a 15-item list a respondent rarely answers 120 pairs, so they
+never reached the information selector, which beat the shipped one on real
+people's rankings in all 25 cells (REAL-RANKINGS.md). The 120 had been chosen
+on 41 and 220 items against "items under rd 150", described as the couple
+screen's bar. **The couple screen's bar is not rd 150.** `couples.ts` needs
+`MIN_ITEMS_FOR_CROSS_PERSON` (8) items under `CONFIDENT_RD` (200) in each
+person's ranking before it compares two people. So this run measured that bar.
+
+`scripts/couple-bar-sweep.ts` (synthetic respondent of `infoGainSim.ts`, 30
+seeds per row, no lapse): the answer count at which a respondent first has 8
+items under rd 200 (median / 90th percentile), and mean rank accuracy at 2, 4
+and 8 answers per item. "by length" is the new default.
+
+| items | shipped | information | staged @120 | staged by length (@0) | rank at 2n: shipped / by length | 4n | 8n |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 8 | 26 / 36 | 19 / 20 | 26 / 36 | 19 / 20 | 0.603 / 0.691 | 0.781 / 0.817 | 0.869 / 0.890 |
+| 11 | 29 / 31 | 21 / 21 | 29 / 31 | 21 / 21 | 0.582 / 0.640 | 0.747 / 0.738 | 0.864 / 0.868 |
+| 15 | 34 / 38 | 27 / 27 | 34 / 38 | 27 / 27 | 0.604 / 0.726 | 0.754 / 0.826 | 0.858 / 0.897 |
+| 20 | 40 / 44 | 34 / 34 | 40 / 44 | 34 / 34 | 0.669 / 0.705 | 0.776 / 0.825 | 0.879 / 0.885 |
+| 30 | 39 / 44 | 35 / 35 | 39 / 44 | 35 / 35 | 0.638 / 0.662 | 0.781 / 0.820 | 0.884 / 0.896 |
+| 41 | 39 / 45 | 35 / 35 | 39 / 45 | 35 / 36 | 0.557 / 0.631 | 0.771 / 0.814 | 0.880 / 0.893 |
+| 60 | 38 / 44 | 35 / 36 | 38 / 44 | 35 / 36 | 0.516 / 0.567 | 0.756 / 0.805 | 0.876 / 0.889 |
+| 80 | 40 / 44 | 35 / 36 | 40 / 44 | 35 / 36 | 0.495 / 0.530 | 0.740 / 0.798 | 0.876 / 0.897 |
+| 120 | 40 / 45 | 35 / 36 | 40 / 45 | 35 / 36 | 0.462 / 0.507 | 0.719 / 0.785 | 0.878 / 0.894 |
+
+What it shows:
+
+- **The information selector reaches the couple bar 4 to 8 answers sooner at
+  every length, and more predictably** (p90 within one answer of the median,
+  against 5 to 10 answers later for shipped). It spreads early answers over
+  items it is unsure of, and 8 items under rd 200 needs breadth, not depth.
+- **It ranks better at every length and budget measured but one**, 11 items at
+  4n (0.738 against 0.747, inside seed noise).
+- **Where the shipped selector still wins: items under rd 150 on long lists
+  answered briefly.** `scripts/switch-point-sweep.ts` (20 to 40 seeds) has the
+  shipped selector ahead on rd 150 while answers are below about three per item:
+  41 items at 82 to 90 answers, 3.6 to 4.5 items against 0.5 to 0.9. Above that
+  the information selector is far ahead (41 items at 164 answers: 40.8 against
+  17.1). No screen uses rd 150, so this run does not weigh it.
+- **Switching part way costs both.** The same sweep shows a hand-over in the
+  middle of a session dropping items under rd 150 below either pure selector
+  (60 items, 180 answers: 9.3 at a switch of 120, 18.2 shipped, 40.8
+  information): the information selector starts on items the shipped one left
+  half settled. That is a second reason to pick one selector per list rather
+  than switch.
+
+**Decision.** `hybridSwitchAt(itemCount)` returns 0 for lists up to
+`INFO_FROM_START_MAX_ITEMS` (120) and 120 above, and `selectNextPairHybrid`
+uses it unless a caller passes `switchAt`. The first-option fallback is
+unchanged: after 30 decided answers (`FIRST_OPTION_MIN_DECIDED`, now exported
+and used by both the route and the simulator), a share at or beyond 0.7 still
+gets the shipped selector. Lists over 120 items keep the 120-answer switch
+because they were not measured here.
+
+**Simulator change.** `infoGainSim.ts` passed the first-option share from the
+first answer, while the route waits for 30. With a switch at 120 that never
+mattered; with a switch at 0 a chance share of 0.7 after three answers flipped
+the simulated respondent to the shipped selector and cost 0.02 rank at 41
+items and 300 answers. The simulator now waits for 30 answers, as the route
+does. No earlier table changes: they all switched at 120 or later.
+
+**On real people** (`scripts/real-rankings-eval.ts --seeds 200`, which now
+prints a `staged` row): staged equals the information row in all 25 cells
+(breakfast 15 items, T-shirts 11), so it is at least the shipped selector's
+Spearman against a new crowd in every cell (+0.00 to +0.06) and picks the
+crowd's favourite more often in 21 of 25 (the same in 1, less often in 3).
+
+**Not tested, and the known cost.** Heavy careless answering: with 35% to 50%
+of answers at random, the information selector trailed the shipped one on 15
+and 30 items by up to 0.06 rank (30 seeds; it was ahead on 8, 11 and 20 items
+and at 10% lapse everywhere). The staged selector has no fallback for that,
+only for position bias; the "answers look random" signal measured on
+2026-11-09 is the candidate. Lists over 120 items, real pairwise answers and a
+couple screen opened by two real people are also untested.
+
+Tests: `pairing.test.ts` (the rule, and the 15-item and 200-item pairs; both
+fail with the old fixed switch), `infoGainPairing.simulation.test.ts` (the
+couple bar at 11 and 41 items; the rd 150 assertion now holds only where the
+rule still switches at 120 or at 300 answers).
+

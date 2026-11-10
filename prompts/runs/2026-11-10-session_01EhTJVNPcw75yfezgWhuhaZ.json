@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVNPcw75yfezgWhuhaZ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T21:36:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 8 (quick-pick-survey): staged selector switch point by list length, checked against the couple screen's bar",
+  "projects": [
+    "ventures/quick-pick-survey"
+  ],
+  "pr": 14613,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "api.opencollective.com refused by the session proxy (403 CONNECT)",
+      "effect": "could not re-run the ai-bookkeeper labelled-books eval for its 'new payees' item; took the next flagship with offline-measurable work"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/quick-pick-survey/src/lib/pairing.ts",
+      "issue": "Comments and INFORMATION-GAIN-SELECTOR.md called rd<150 'the couple screen's bar', but couples.ts uses 8 items under CONFIDENT_RD=200; the 120-answer switch was tuned on the wrong bar. Corrected in this PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Router's top Deepen row was ai-bookkeeper, whose next item (new payees on Open Collective labelled books) needs a host the proxy blocks; took flagship 8 instead",
+      "did": "quick-pick-survey switch point by list length",
+      "result": "landed with simulation + real-rankings measurements"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-quick-pick-survey-switch-point-by-list-length.md"
+  ],
+  "goal": "Ship depth on an existing flagship",
+  "notes": "Couple-bar sweep (scripts/couple-bar-sweep.ts, 30 seeds, 8-120 items): information selector reaches 8 items under rd 200 in median 19-35 answers vs 26-40 shipped; staged now uses it from answer 0 up to 120 items. Local checks: typecheck clean; eslint on changed files clean; test:fast 36 files/320 tests pass; new pairing tests red on the old rule (2 failed) and green on the new; integration tests (trials, session) on live Postgres 4 files/20 tests pass; infoGainPairing simulation 8/8 pass; real-rankings eval staged row equals information in 25/25 cells. Known cost: 35-50% random answers cost up to 0.06 rank at 15/30 items (documented, next item).",
+  "corrections": [],
+  "redteam": null
+}

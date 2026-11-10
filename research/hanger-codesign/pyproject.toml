@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hanger-codesign"
+version = "0.1.0"
+description = "Research programme: how much cloth-simulator fidelity a hanger design loop needs"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = ["numpy", "hanger-fit", "hanger-3d", "hanger-kes", "hanger-sweep"]

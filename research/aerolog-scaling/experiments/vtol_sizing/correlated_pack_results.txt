@@ -1,0 +1,7 @@
+Milestone 10r: break-even range (km) when p_batt and e_cell are coupled by a Gaussian copula (N=4000, seed 7)
+rho    median  p10  p90  width   mean p_batt  mean e_cell
+-0.9      40   24   68     44         1905         300
+-0.6      40   22   68     46         1905         300
+-0.3      40   22   68     46         1905         300
++0.0      40   22   68     46         1905         300
++0.3      38   22   68     46         1905         300

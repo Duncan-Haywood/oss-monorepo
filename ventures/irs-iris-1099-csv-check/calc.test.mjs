@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validate, repair, parseCsv, toCsv, sampleFile, sampleBrokenFile, ssnProblem, itinProblem, tinShape, maskTin, necThreshold, closestColumn, findingsCsv, COLUMNS } from "./calc.mjs";
+import { sampleLegacyFile, sampleLegacyBrokenFile, TEMPLATE_NEC, TEMPLATE_MISC, isTemplateHeader, validate, repair, parseCsv, toCsv, sampleFile, sampleBrokenFile, ssnProblem, itinProblem, tinShape, maskTin, necThreshold, closestColumn, findingsCsv, COLUMNS } from "./calc.mjs";
 
 const codes = (r) => r.findings.map((f) => f.code);
 const base = { "Form Type": "1099-NEC", "Tax Year": "2025", "Payer TIN": "123456780", "Payer Name": "Acme", "Payer Address": "1 A St", "Payer City": "Austin", "Payer State": "TX", "Payer ZIP": "78701",
@@ -12,7 +12,8 @@ test("the clean sample has no errors or warnings", () => {
   const r = validate(sampleFile());
   assert.deepEqual(r.findings.filter((f) => f.severity !== "info").map((f) => f.code), []);
   assert.equal(r.summary.records, 3);
-  assert.equal(r.summary.byForm["1099-NEC"], 2);
+  assert.equal(r.summary.byForm["1099-NEC"], 3);
+  assert.equal(r.summary.layout, "iris-template");
 });
 
 test("the broken sample trips the headline faults", () => {

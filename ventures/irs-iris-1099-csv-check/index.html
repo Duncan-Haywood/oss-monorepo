@@ -63,11 +63,11 @@
 
   <section class="card">
     <h2>1. Your IRIS CSV</h2>
-    <p class="note">One row per recipient and form, saved as CSV. A made-up example is one click away; do not rely on it as the real template.</p>
+    <p class="note">One row per recipient and form, saved as CSV. The examples use the IRIS template's 1099-NEC header row (as copied in open-source tools, not read on irs.gov) with made-up payers and recipients; start your own file from the template the IRIS portal gives you.</p>
     <label for="file">Choose a CSV file</label>
     <input type="file" id="file" accept=".csv,.txt,text/csv,text/plain">
     <label for="paste">…or paste the CSV text</label>
-    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Form Type,Tax Year,Corrected,Payer TIN,..."></textarea>
+    <textarea id="paste" spellcheck="false" wrap="off" placeholder="Form Type,Tax Year,Payer TIN Type,Payer Taxpayer ID Number,..."></textarea>
     <div class="grid">
       <div><label for="exp-records">Records you expect (optional)</label><input id="exp-records" inputmode="numeric" placeholder="e.g. 42"></div>
       <div><label for="exp-total">Total reportable you expect (optional)</label><input id="exp-total" inputmode="decimal" placeholder="e.g. 128,450.00"></div>
@@ -97,9 +97,10 @@
 
   <section class="card">
     <h2>The layout, the rules, and what they leave out</h2>
-    <p class="note">All from memory of public IRS IRIS template / Pub 5717-style guidance; unverified. Compare with the current IRS template before relying on any line.</p>
+    <p class="note">The column names follow the IRS IRIS Taxpayer Portal template for tax year 2025, cross-checked in four independent open-source copies of it (not read on irs.gov). Every other rule is from memory of public IRS guidance and unverified. Compare with the template you download from the IRIS portal before relying on any line.</p>
     <ul>
-      <li><strong>Columns:</strong> Form Type, Tax Year, Corrected, Payer TIN, Payer Name, Payer Address, Payer City, Payer State, Payer ZIP, Recipient TIN, Recipient TIN Type, Recipient Name, Recipient Name 2, Recipient Address, Recipient City, Recipient State, Recipient ZIP, Account Number, Second TIN Notice, the NEC Box 1 and MISC box amounts, Box 4 Federal Income Tax Withheld, State Tax Withheld, State ID, State Income. Ten of them are required here. The real template may name or order them differently; the tool reads names regardless of order and capitalisation.</li>
+      <li><strong>Columns:</strong> the IRIS template's own header row: 54 columns (A to BB) for the 1099-NEC, from Form Type, Tax Year, Payer TIN Type and Payer Taxpayer ID Number through Recipient Name Type, the business-or-entity and first/middle/last name columns, Recipient Address Line 1, City/Town, State/Province/Territory and ZIP/Postal Code, Office Code, Form Account Number, 2nd TIN Notice, Box 1 - Nonemployee Compensation to Box 4 - Federal income tax withheld, Combined Federal/State Filing (CF/SF) and two blocks of State columns; 64 (A to BL) for the 1099-MISC, with Box 1 - Rents to Box 15. IRIS checks the header row against its template, so a missing template column is a warning and a missing TIN, address or form column is an error; one form per file. Files in the older, shorter layout this tool used before November 2026 (Payer TIN, Recipient Name, NEC Box 1 Nonemployee Compensation and so on) are still read.</li>
+      <li><strong>Name type:</strong> B with the name in Business or Entity Name Line 1, or I with First and Last Name filled; TIN Type SSN, EIN, ITIN or ATIN on every row; check-box columns Y or N.</li>
       <li><strong>TINs:</strong> nine digits, dashes optional. SSN area 000, 666 and 9xx, group 00 and serial 0000 are flagged; ITINs start with 9 and have middle digits in the ranges ITINs use; EIN prefixes are checked against the list of prefixes the IRS assigns; all-same-digit and well-known sample numbers are errors.</li>
       <li><strong>Money:</strong> digits and an optional decimal point, at most two decimals, positive. Federal withholding cannot exceed the amount paid.</li>
       <li><strong>Thresholds:</strong> 1099-NEC Box 1 from $600 for payments through 2025 and $2,000 from 2026; 1099-MISC rents, other income, medical, crop insurance and attorney proceeds from $600, royalties and substitute payments from $10; any federal withholding. Below-threshold rows are warnings, not errors.</li>

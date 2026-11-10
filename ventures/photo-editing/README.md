@@ -73,10 +73,18 @@ Current limits, stated plainly: RAW stills (`.CR3`, `.CR2`, `.ARW`, `.NEF`,
 `.DNG`, …) are *scored* from the full-size JPEG preview the camera embedded
 (`raw_preview.py`, no RAW developer needed), and since 2026-10-29 their review proxies are
 that preview downscaled to 1024 px (`proxies/<job>/IMG_0001.CR3.jpg`; synthetic containers
-only, no real camera file yet). They are not developed: graded masters still need a
-JPEG/TIFF, so a RAW still stops the pipeline before the grade stage, and a RAW with no embedded
-preview fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
-reader is tested on synthetic containers, not yet on real camera files. The analysis stage now measures each photo and clip
+only, no real camera file yet). Since 2026-11-10 the pipeline develops DNG stills itself
+(see "Develop DNG raw files" below): the grade stage develops the sensor data into a 16-bit
+TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no embedded preview
+gets its proxy and its scores from a half-size development instead of failing. Other RAW
+formats (CR2, CR3, NEF, ARW, ...) are still scored from their preview but stop at the grade
+stage with a message to convert them to DNG (Adobe's free DNG Converter); one with no preview
+fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
+reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
+counts only 8-bit lossy JPEGs as previews: CR2 sensor data is a lossless JPEG (SOF3) and DNG
+sensor tiles usually are too, and before that fix a lossless stream with more pixels than the
+preview won and ffmpeg scored the Bayer mosaic as the photo (reproduced with a real ffmpeg
+`ljpeg` stream beside a baseline preview, `tests/test_raw_preview.py`). The analysis stage now measures each photo and clip
 from decoded frames (sharpness, exposure, contrast, motion, framing) and groups
 near-identical shots by perceptual hash, so a burst or repeated take
 contributes one frame to the reel, the best-scoring one. `framing` finds
@@ -864,3 +872,67 @@ from the running docs site; see `docs-site/README.md` and
 `shootflow cull` reports each keeper's score lead over the best alternate (`margin`); under 0.03 it is a `close_call`, counted in `summary.close_calls`. The 0.03 threshold is unmeasured; checking it against a photographer's real picks is open.
 
 `--picks` now also measures that threshold (2026-11-08): `keeper_misses` counts burst groups where you picked a frame other than the keeper, `misses_flagged_close` how many of those the close-call flag caught, and `margin_to_flag_all_misses` the lead a threshold would need to catch them all (null when a missed keeper had no rival). Tested on made-up frames only; a real shoot and its picks are still wanted.
+
+## Develop DNG raw files (2026-11-10)
+
+`shootflow develop FILE.dng [FILE2.dng ...] --out DIR` renders each DNG's sensor data into a
+16-bit TIFF master (`--format png` for 8-bit PNG, `png16` for 16-bit PNG), never overwriting
+a file, and prints a JSON report per file (size, CFA, white balance, which matrix, levels,
+exposure, share of clipped sensels). `--half` gives a quarter of the pixels with no
+interpolation and runs about three times as fast; `--exposure EV` adds stops to the file's
+`BaselineExposure` (`--no-baseline-exposure` ignores it); `--wb R,G,B` replaces the as-shot
+white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
+(`src/shootflow/raw_develop.py`).
+
+What it reads: DNG (convert CR2, CR3, NEF and ARW with Adobe's free DNG Converter first), raw
+data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
+lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
+RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
+black level (repeat pattern and row/column deltas), white level, active area, default crop,
+`AsShotNeutral`, the camera matrix nearest D65 through sRGB primaries (the method dcraw uses),
+`BaselineExposure` and the orientation tag. It refuses, with the reason, lossy DNG, deflate
+and floating-point DNG, four-colour CFAs and non-DNG files.
+
+What it does not do: interpolate the two camera matrices by colour temperature, use
+`ForwardMatrix`, `CameraCalibration` or DNG profile hue maps, reconstruct blown highlights,
+reduce noise, or use a better demosaic than bilinear. Colours will be close to dcraw and
+LibRaw's plain rendering, not to Lightroom's. Masters are neutral on purpose: the look is the
+grade stage's job, and since 2026-11-10 the pipeline's grade stage calls the developer for
+every DNG still (below).
+
+How it was checked:
+
+- `tests/test_raw_develop.py` (18 tests): DNGs written by the test from a known scene taken
+  through a camera matrix give the scene back within 1% in linear light, for every Bayer
+  phase, half and full size, per-position black levels, a linearization table, active area
+  and default crop, all eight storage variants (16-bit, packed 12 and 14-bit, tiles, lossless
+  JPEG with predictors 1-7, two-component tiles, restart markers, SubIFD), orientation 6,
+  LinearRaw, highlight clipping, the CLI, and refusals.
+- Lossless JPEG decoding is checked against an independent encoder: ffmpeg's `ljpeg` encoder
+  (left, plane and median predictors) decodes sample-exact.
+- Against LibRaw on real camera files (`tools/libraw_differential.py`, needs `rawpy` and
+  `numpy` in a separate venv; results in `eval/raw-develop-libraw-2026-11-10.md`): a real
+  Nikon NEF (NASA ISS photo, 12 MP, RGGB) and a real Canon 5D Mark II CR2 (21 MP, GBRG,
+  per-channel black about 1026, white 15600), both from rawpy's test folder on GitHub. LibRaw
+  reads the sensor data and metadata, the tool writes them into an uncompressed DNG, and our
+  render of that DNG is compared with LibRaw's own render set to the same steps (bilinear,
+  camera white balance, clip, no auto-brightening, sRGB). Every pixel agrees within one 8-bit
+  step at full size and at half size (worst pixel 0.46 to 0.60 of a step, mean 0.08 to 0.12).
+  The first run on the Canon had 10% of pixels over one step, all in the deep shadows: we
+  clamped below-black noise after demosaicing and LibRaw clamps each sensel before; matching
+  LibRaw's order fixed it, and it also removed a few highlight-edge outliers on the Nikon.
+  This checks the levels, white balance, matrix, demosaic and curve on real sensor data. It
+  does not check our reading of a DNG written by a camera or Adobe's converter (the DNGs here
+  are written by our tool), and no camera-written lossless-JPEG DNG was available (raw.pixls.us
+  and rawsamples.ch answer 403 from the build sandbox).
+- In the pipeline (`eval/pipeline-dng-grade-2026-11-10.md`): `run-local-pipeline` on a card
+  holding the Nikon's sensor data as a DNG (no embedded preview) and one clip rendered every
+  deliverable with nothing for review in 75 s. The graded master is 4284x2844 rgb48le and
+  bit-identical to `shootflow develop`'s TIFF of the same file (no LUT), so the grade stage
+  adds no loss; the proxy is 1024 px from a half-size development and the scores are measured
+  (`frame_metrics`), not the sha256 stand-in. `tests/test_ffmpeg_pipeline.py` runs the same
+  path on a synthetic red DNG (the master's centre is the scene's sRGB value within 3 steps)
+  and checks that a CR2 with a preview stops at the grade with the DNG message.
+- Speed, pure Python on the build container: 12 MP Nikon 37 s full size, 12 s half; 21 MP
+  Canon 65 s full size, 23 s half. LibRaw takes well under a second. Fine for an overnight job,
+  slow for interactive use.

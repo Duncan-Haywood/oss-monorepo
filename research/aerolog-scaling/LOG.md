@@ -2,6 +2,89 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 6g: do 6d's taper and 6f's daily demand shape compound? (predictions in `experiments/hub_throughput/cargo_hub_trace_taper.py`'s docstring, fixed before the counts were read)
+- Why: 6d and 6f each changed the spare-pack count alone; a hub that charges to 100% and sees a daily peak gets both. Fixed 6.0 flights/h mean, Chicago ride-hail shape (6f), 6d's CC-CV charge times, 3 seeds, 4 days, stdlib.
+### Outcome (`experiments/hub_throughput/cargo_hub_trace_taper_results.txt`)
+- 20-90% window (43.1 min, limit 11.1/h, mean load 54%): Poisson 9, Wed 9, Sat 9. **P1 held** (at most 16).
+- 30-100% window (72.0 min, limit 6.67/h, mean load 90%): Poisson 20, Wed 28, Sat 28. **P2 refuted:** the trace needs 1.4x Poisson, not 2x, although the daily peak (10.6/h) is above the charger limit. The pack pool absorbs a peak lasting a few hours. **P3 held:** Wed and Sat equal.
+- Reading: with the 90% ceiling the daily shape costs nothing at this rate; with charging to full the extra cost is 8 packs on a base of 20. Note Poisson needs 20 here against 24 in 6d: the horizon (4 days vs 6d's run length), seeds and grid steps differ, so compare within a table only.
+- Limits: coarse spares grid (steps of 4 to 8); two days of ride-hail shape, not delivery demand; the rest as 6d and 6f. Preliminary.
+- Next: a delivery-order trace with second-level timestamps; measured charge curves at 2C.
+## 2026-11-10 · Milestone 6f: do the 6c spare-pack counts survive a real daily demand profile? (predictions in `experiments/hub_throughput/cargo_hub_trace.py`'s docstring, fixed before the counts were read)
+- Why: 6c's "Next": a demand trace instead of fixed batches. No drone-delivery order data is public, so the shape comes from City of Chicago open data, ride-hail trips per 15-minute bin (`chicago_tnp_counts.json`, Wed 2019-10-09 and Sat 2019-10-12, city-wide; dataset m6dm-c72p), scaled to the same mean rate as 6c. Ride-hail is a stand-in for an on-demand service's time-of-day shape, not a delivery trace. Stdlib, 0.2 s.
+### Outcome (`experiments/hub_throughput/cargo_hub_trace_results.txt`)
+- Peak 15-minute rate is 1.76x (Wed) and 1.68x (Sat) the daily mean.
+- Spares for p95 wait <= 300 s, 70% load: Poisson 12; both days 16. 85% load: Poisson 16; Wed 32, Sat 40.
+- **P1 refuted at 70%** (16, not at least 24, 1.33x) and held at 85% (2x, 2.5x on Saturday). **P2 held:** uniform spreading inside a bin vs all at the bin start gave the same count in every case. **P3 refuted at 70%** (no difference) and held at 85% (40 against 32, 25%).
+- Reading: a daily demand peak costs 4 extra packs at 70% load and doubles the pack inventory at 85%; the bursts of 6c (k = 8 needs 48) are the larger effect, the daily shape the smaller but still real one near the charger limit.
+- Limits: ride-hail not delivery demand; two days; 15-minute bins hide the within-bin bursts of 6c; spares grid is coarse (steps of 4 to 8); hub inputs assumed (milestone 10a). Preliminary.
+- Next: a delivery-order trace with second-level timestamps if one is published; charge taper from a cell datasheet when a host answers.
+## 2026-11-10 · Milestone 6e: paper draft catches up with milestones 6 to 6d (no new simulation)
+- Added section 4.15 to `paper/draft.md` (hub: pads, chargers, packs, bursts, CC-CV taper) and seven checks to `paper/check_numbers.py` tying its figures to the hub results files; all checks pass. Nothing new was run.
+- Next: a demand trace for hub arrivals (public delivery-order timestamps); measured charge curves at 2C; sourced engine specific power for the hybrid.
+
+## 2026-11-10 · Milestone 6d: does the constant-voltage taper change the cargo hub's charger limit and spare packs? (predictions in `experiments/hub_throughput/cargo_hub_taper.py`'s docstring, fixed before the run)
+- Why: 6c's "Next": charge taper from a cell datasheet. Source: Molicel INR-21700-P45B specification (Doc INR21700P45B-01 v0.2): rated charge 4.5 A (1C) then 4.2 V until 90 mA, 1.5 h; max continuous charge 9 A. Two datasheet numbers fix a CC-CV curve (tau = 0.1705 h, CC ends at 83% SOC); exponential CV decay and the same tau at other C-rates are assumptions.
+### Outcome (`experiments/hub_throughput/cargo_hub_taper_results.txt`)
+- Check: the fitted curve gives 90.0 min for 0 to 100% at 1C, the datasheet's 1.5 h (by construction, not an independent test).
+- **P1 held:** 20 to 90% at 1C takes 43.1 min against 6b's linear 42 (+2.6%). **P2 held:** 30 to 100% (the same 70% of capacity) takes 72.0 min, 1.71x linear; the 8-charger limit falls from 11.4 to 6.7 flights/h (predicted about 6.8). **P3 held:** at 6.0 flights/h Poisson, p95 wait <= 300 s needs 9 spares (linear and 20-90%) against 24 for 30-100%.
+- Reading: the 90% charge ceiling keeps the hub out of the taper, so 6b and 6c's linear charge time was a fair approximation for a 20-90% window; charging to full costs 1.7x charger time and 2.7x spares at this rate. At 2C the linear model under-states time by 23% (25.9 vs 21.0 min), but that rests on the assumed constant tau.
+- Limits: one cell type, one datasheet version (third-party copy); 23 C, no thermal derating or ageing (the datasheet warns high-rate charging decays cells fast); tau across C-rates unchecked. Preliminary.
+- Next: a demand trace for arrivals; measured charge curves at 2C.
+
+## 2026-11-09 · Milestone 6c: how many spare packs does a cargo-VTOL hub need when orders arrive in bursts? (predictions in `experiments/hub_throughput/cargo_hub_bursts.py`'s docstring, fixed before the run)
+- Why: milestone 6b's "Next". Same hub as 6b (8 pads, 8 chargers, 1C, 42 min charge, 180 s swap and load); batches of k orders arrive together (batch rate Poisson, same mean flights/h), k swept 1 to 16, at 70% and 85% of the 11.4 flights/h charger limit. 5 seeds, stdlib, 40 s.
+### Outcome (`experiments/hub_throughput/cargo_hub_bursts_results.txt`)
+- **P1 held:** Poisson at 70% load with 24 spares has p95 wait 0 s. **P2 held:** k = 8 gives p95 4,964 s at 24 spares (mean 719 s), far above 3x.
+- **P3 held:** spares needed for p95 wait <= 300 s at 70% load: 12 (k=1), 16 (k=2), 24 (k=4), 48 (k=8), over 64 (k=16). At 85% load: 16, 28, 48, over 64. Pack count needed grows roughly with the burst size, because a burst takes k packs at once and chargers refill them at 0.19 packs/min.
+- Reading: 6b's "3 x chargers" spare rule is a Poisson rule; with bursts of 8 orders it is half what the hub needs, and the pack inventory (kWh and tonnes of cells) doubles or worse. Bursts matter more to inventory than grid power, which stays at the charger limit.
+- Limits: batch size is swept, no demand-burst data was sourced; at k=16 the 8 pads alone force 180 s of wait for the second half of a batch; no charge taper; sizing inputs assumed (milestone 10a). Preliminary.
+- Next: a demand trace (public delivery-order timestamps) instead of fixed batches; charge taper from a cell datasheet.
+
+## 2026-11-09 · Milestone 6b: what grid supply and pack inventory does a hub need for the sized cargo VTOL's own pack? (predictions in `experiments/hub_throughput/cargo_hub.py`'s docstring, fixed before the run)
+- Why: milestone 6's "Next": it used a small multicopter's charge time; here the pack comes from `vtol_sizing/run.py` (100 kg payload, 250 Wh/kg cell, kpack 0.7), charged at a swept C-rate over the 20 to 90% window.
+### Outcome (`experiments/hub_throughput/cargo_hub_results.txt`)
+- Pack energy: 2.9, 5.2, 11.6, 23.2 kWh at 25, 50, 100, 150 km (MTOW 198 to 392 kg). **P1 refuted:** 11.6 kWh at 100 km, not 50 to 200; the guess forgot that the 2 minutes of hover and a 20% reserve are small against a 282 kg aircraft.
+- 8 chargers at 1C (42 min per charge): 11.4 flights/h and 0.09 MW grid at 100 km (0.19 MW at 150 km, 0.37 MW at 150 km and 2C). **P2 refuted on grid power:** the largest case is 0.37 MW, under the 0.4 MW bar; spare inventory of 24 packs is 0.28 MWh and 1.6 t of cells at 100 km (3.2 t at 150 km), so the inventory mass half holds only at 150 km.
+- **P3 held:** flights per hour per charger depend on C-rate only (5.7, 11.4, 22.9 per hour at 0.5, 1, 2C); pack size sets charger kW (12 kW at 100 km, 1C) and spare mass.
+- Reading: for a 100 km cargo VTOL the hub is an ordinary 3-phase service (about 100 kW), not a grid project; the binding cost is the 24-pack inventory and the charge-time-limited rate.
+- Limits: C-rate swept, not sourced for this pack; no taper; sizing inputs are assumed (milestone 10a). Preliminary.
+- Next: arrival bursts; charge taper from a cell datasheet.
+
+## 2026-11-09 · Milestone 6 (hub): which resource binds first at a delivery-drone hub? (predictions in `experiments/hub_throughput/run.py`'s docstring, fixed before the run)
+- Why: the track's ground-side question, untouched until now. Discrete-event model of pads, chargers and spare packs, validated against Erlang C; swap time (Matternet, under 60 s) and charge time (DJI Dock 2, 32 min for 20 to 90%) are vendor figures.
+### Outcome (`experiments/hub_throughput/results.txt`)
+- Validation: simulated mean wait within 0.6% of Erlang C at utilisation 0.5, 0.7, 0.85. **P3 held.**
+- 4 pads, 4 chargers: charge-in-place saturates at 9.8 flights/h; swap's pad limit is 80/h (8.2x) but its charger limit is 10.7/h, so measured swap is 1.09x charge-in-place. **P1 as worded (pad limit) held; the practical gain is not 8x.** Swapping moves the bottleneck from the pad to the chargers, it does not remove the energy-to-pack limit.
+- Chargers bound in every swap case run (pads 4 to 8, chargers 4 to 16, load 1 to 5 min). **P2 held** (chargers, not pads, bind unless chargers exceed about 3.7 per pad at 70% pack use).
+- Spare packs: at 90% of the binding limit (8 pads, 8 chargers) mean wait is 790 s with 9 spares, 37 s with 24, 12 s with 32; the pack inventory needs about 3 times the charger count to stop queueing.
+- Limits: Poisson arrivals, linear charge time (real charge curves taper), a single pack per aircraft, vendor figures for two small multicopter systems not a cargo VTOL, no cell thermal limits. Preliminary.
+- Next: size chargers and packs for the cargo VTOL's pack energy from vtol_sizing (kWh not 70% of a small pack), and add arrival bursts.
+## 2026-11-09 · Milestone 10s: paper draft catches up with milestone 10r (no new simulation)
+- Section 4.14 of `paper/draft.md` reports the correlated-pack sweep (median 40 km at every rho but +0.3, where it is 38; band 22 to 68 km); `paper/check_numbers.py` gains 2 results-file checks.
+- Next: source engine specific power and a continuous-discharge curve when a data host answers.
+
+## 2026-11-09 · Milestone 10r: does coupling pack peak power to cell energy density change the break-even? (predictions in `vtol_sizing/correlated_pack.py`'s docstring, fixed before the run)
+- Why: 10n's "Next" and its limit "uniform independent inputs; peak power and cell energy density are anticorrelated". `experiments/vtol_sizing/correlated_pack.py` couples p_batt and e_cell with a Gaussian copula at rank correlation rho = -0.9 to +0.3 (marginals unchanged on 10m's ranges; N = 4,000, seed 7, stdlib, about 1 minute). rho is swept, not measured: the four Molicel cells of 10o are too few to fit it.
+### Outcome (`experiments/vtol_sizing/correlated_pack_results.txt`)
+- Median break-even 40 km at rho = -0.9, -0.6, -0.3 and 0, 38 km at +0.3; p10 to p90 is 24 to 68 km at -0.9 and 22 to 68 km at the others. **P1 held** (moves 2 km, bar 6). **P2 held** (width 44 against 46 km, 4%). **P3 held** (40 against 40 km).
+- Reading: the independence assumption in 10m and 10n does not change the break-even distribution; the energy side of the pack does not bind at these ranges, so the p_batt-e_cell trade-off cannot move the result. The conclusion that pack peak power decides it stands.
+- Limits: Gaussian copula only; rho swept; ranges are 10m's, not sourced; the other model limits of 10j to 10k apply. Preliminary. Section 4.14 and `paper/check_numbers.py` now cover this result (milestone 10s).
+- Next: add 10r to Section 4.14 and `check_numbers.py`; source engine specific power and a continuous-discharge curve when a host answers.
+
+## 2026-11-09 · Milestone 10q: paper draft catches up with milestones 10m to 10p (no new simulation)
+- New Section 4.14 of `paper/draft.md` reports the global and total-effect sensitivity runs and the Molicel-cell and derating sweeps; `paper/check_numbers.py` gains 7 results-file checks (all pass). Data hosts (NTRS, Molicel, Limitless, RCGroups) all returned no answer through the proxy again, so engine specific power and continuous-discharge curves are still unsourced.
+- Next: source engine specific power and a continuous-discharge curve when a host answers; a correlated p_batt-e_cell rerun of 10n.
+
+## 2026-11-09 · Milestone 10p: how far below its maximum rating must a cell's continuous discharge fall before the hybrid's break-even leaves the tens of km? (predictions in `vtol_sizing/derated_cells.py`'s docstring, fixed before the run)
+- Why: 10o's "Next" was the continuous-discharge curve. Every data host (molicel.com, engine makers) returned a proxy 403 this session, so nothing could be read; this is a sweep of the maximum current by a derating d, not a sourced result.
+### Outcome (`experiments/vtol_sizing/derated_cells_results.txt`)
+- Base-case break-even (km) at d = 1 / 0.75 / 0.5 / 0.33 / 0.25: P42A 44 / 58 / 86 / 130 / 170; P45B 42 / 56 / 82 / 124 / 164; P50B 32 / 42 / 64 / 94 / 124; P50S 22 / 28 / 40 / 60 / 78.
+- **P1 held** (reproduces 10o). **P2 held** (monotone for all four). **P3 refuted:** at d = 0.5 the P50S is at 40 km, not above 60, and at d = 0.25 only two of four cells pass 150 km.
+- Reading: break-even roughly doubles for every halving of the continuous rating, and the P50S, the cell with the lowest break-even, stays under 80 km even at a quarter of its maximum. The ordering of cells never changes.
+- Limits: d is swept, not read from a datasheet; the other base-case inputs (engine 1 kW/kg, kpack 0.7) are 10o's assumptions. Preliminary.
+- Next: read the continuous-discharge curve when a host answers; source engine specific power.
+
 ## 2026-11-09 · Milestone 10o: break-even range with pack inputs from manufacturer cell specifications (predictions in `vtol_sizing/sourced_cells.py`'s docstring, fixed before the run)
 - Why: 10n's "Next" (source the ranges that matter). Manufacturer hosts answered this session. `experiments/vtol_sizing/sourced_cells.py` reads Molicel's published energy density, current rating and mass for four 21700 cells (P42A, P45B, P50B, P50S) and feeds each as a paired (e_cell, p_batt), so the anticorrelation 10n ignored is now in the inputs. Pack power = rated max current x 3.6 V / cell mass x kpack 0.7.
 ### Outcome (`experiments/vtol_sizing/sourced_cells_results.txt`)

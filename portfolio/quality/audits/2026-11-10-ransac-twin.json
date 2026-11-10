@@ -1,0 +1,234 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/ransac-twin",
+  "stratum": "research",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent quality audit, see run record",
+  "status": "audited",
+  "professional": "a computer-vision researcher who has shipped robust estimation (RANSAC/USAC) in SLAM or SfM pipelines, plus an applied statistician who would check the beta-binomial algebra",
+  "scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 1,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran unittest (6 pass), pytest (6 pass) and experiments/run.py (output byte-identical to results.txt). Recomputed independently with a fractions-exact script I wrote (scratchpad/indep.py): rising-factorial beta-binomial instead of lgamma, brute-force K search instead of bisection. Twin K=17 and failure 0.00796; failures at K=17 for kappa 50/10/4/2/1 = 0.02349/0.06998/0.14078/0.21721/0.29966; budgets 23/58/458 and binomial limit 19; P(n_in<2) = 0.0017/0.0198/0.0847; sd 0.228 and 0.0857 from the closed-form variance. Every headline sampling number matches to the 4 dp printed. The end-to-end rates (0.9/12.6/1.8%) are simulation outputs reproduced by rerun only, not independently recomputed.",
+    "completeness": "Claimed features all work: exact failure, budget, MC check, end-to-end fit, SVG figure (experiments/figure.py parses results.txt), whitepaper.md (18 lines, short), live page 200, card in projects.json. Paper is a 1-page stub, not a paper; no LOG.md or project.json (card lives in the legacy projects.json). Scope is deliberately one model, s=2, one m.",
+    "verification": "Six tests, all pass. Seeded 5 mutations: n_in<s -> <=, ceil->floor, K -> K+1 in failure were all caught (3/3 in the exact math). Two mutations in ransac_line (max->min consensus; intercept sign flipped) were NOT caught: the function behind headline result (3) has no test at all. Survival 2/5. Tests of the pmf are good (normalised, mean, binomial limit, point-mass equals twin). No test pins results.txt.",
+    "craft": "Read model.py (99 lines), run.py, figure.py head, tests. Clean, stdlib only, docstring states the model. Defects: sample_scene linear CDF scan with `u <= c` and float fallthrough to N; ransac_line returns None when all draws have x1==x2 and run.py silently falls back to (0.0,0.0), which would count as a slope failure with no warning; real_budget returns None at 1e7 conflated with 'does not exist' (the true reason is a P(n_in<s) floor, not computed there); `iid-ish` label for kappa=1e7; pyproject has no test config or requirements. Minor but no correctness bug found.",
+    "claims": "Checked each README number against results.txt: all match. Overclaim 1: the (2) Monte-Carlo 'matches' check shares the pmf with the exact computation, so it validates only the (1-q)^K algebra. Overclaim 2: the whitepaper and README frame the result as a finding about 'twin' design but the analysis is Jensen's inequality on a convex function ((1-q)^K) plus a free parameter kappa chosen by the author; no real inlier-fraction data. Disclosures are honest ('Stylised', 'assumed, not fitted'); whitepaper and README carry the AI-assistance note. Headline (3) numbers are unprotected by tests. Credit-worthy: the README honestly says 1.8% exceeds the 1% target.",
+    "fitness": "Nearest prior work: Fischler & Bolles 1981 (the formula, cited); Hartley & Zisserman MVG sec. 4.7.1 adaptive termination, which recomputes K from the best-so-far inlier count and is what OpenCV, COLMAP and USAC (Raguram et al., TPAMI 2013) actually do; PROSAC (Chum & Matas, CVPR 2005); MLESAC (Torr & Zisserman 2000). The finding that a K sized at the mean inlier fraction under-covers when the fraction varies is a direct consequence of convexity and is known; adaptive RANSAC exists exactly to remove it. None of that is cited and no adaptive-K baseline is run, so the result is not new as framed, and a researcher cannot build on it without redoing the comparison. The reusable pieces are a correct exact-failure function and the beta-binomial scene law, small.",
+    "domain": "A CV practitioner would say: nobody fixes K from a mean w in a pipeline that matters; they stop adaptively, and failure is driven by degenerate or noisy minimal samples, not just all-inlier probability. The model drops that second effect (end-to-end failure at large kappa 0.9% is below the 1.27% sampling failure, so noise and the outcome definition matter), uses an arbitrary slope threshold, and has no real dataset (e.g. a feature-matching benchmark's per-pair inlier ratios) to justify beta-binomial or the kappa range. Math is correct; the question as posed is a straw man."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Twin budget for p=0.99, s=2, 50% inliers",
+      "method": "Fischler & Bolles 1981: K=ln(1-p)/ln(1-w^s), w^s=0.25 (hand: 4.605/0.2877=16.01 -> 17)",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/ca2b8335-3774-58f2-9077-2c6b1b2f3891/scratchpad/indep.py (fractions-exact, integer-kappa rising-factorial beta-binomial, brute-force budget search)",
+      "expected": "17",
+      "observed": "17 (also 17 using hypergeometric q=C(50,2)/C(100,2)=0.2475)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Twin failure at K=17",
+      "method": "exact Fractions: (1-1225/4950)^17",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/ca2b8335-3774-58f2-9077-2c6b1b2f3891/scratchpad/indep.py (fractions-exact, integer-kappa rising-factorial beta-binomial, brute-force budget search)",
+      "expected": "0.00796",
+      "observed": "0.007959 (results.txt 0.0080)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Exact failure at K=17 for kappa=50,10,4,2,1",
+      "method": "independent Fraction-exact beta-binomial via rising factorials (model.py uses lgamma floats)",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/ca2b8335-3774-58f2-9077-2c6b1b2f3891/scratchpad/indep.py (fractions-exact, integer-kappa rising-factorial beta-binomial, brute-force budget search)",
+      "expected": "0.02349, 0.06998, 0.14078, 0.21721, 0.29966",
+      "observed": "identical to 4 dp: 0.0235/0.0700/0.1408/0.2172/0.2997",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Budget for 99% at kappa=50,10,4 (brute-force smallest K) and binomial limit",
+      "method": "same independent script, linear search K=1..3000",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/ca2b8335-3774-58f2-9077-2c6b1b2f3891/scratchpad/indep.py (fractions-exact, integer-kappa rising-factorial beta-binomial, brute-force budget search)",
+      "expected": "23, 58, 458; binomial 19",
+      "observed": "23, 58, 458; binomial 19",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "P(n_in<2) at kappa=4,2,1 (unreachability claim)",
+      "method": "independent exact pmf",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/ca2b8335-3774-58f2-9077-2c6b1b2f3891/scratchpad/indep.py (fractions-exact, integer-kappa rising-factorial beta-binomial, brute-force budget search)",
+      "expected": "0.0017, 0.0198, 0.0847",
+      "observed": "0.0017, 0.0198, 0.0847; so 'no budget' for kappa<=2 is right (>1%)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Scene inlier-fraction sd at kappa=4 and 50 (README says 0.23)",
+      "method": "closed form beta-binomial var: m(1-m)(kappa+N)/(N(kappa+1))",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/ca2b8335-3774-58f2-9077-2c6b1b2f3891/scratchpad/indep.py (fractions-exact, integer-kappa rising-factorial beta-binomial, brute-force budget search)",
+      "expected": "0.228, 0.0857",
+      "observed": "0.2280, 0.0857 (results.txt 0.228, 0.086)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Binomial-only variation (kappa=1e7) failure 1.3%, budget 19",
+      "method": "exact Binomial(100,1/2) pmf with Fractions",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/ca2b8335-3774-58f2-9077-2c6b1b2f3891/scratchpad/indep.py (fractions-exact, integer-kappa rising-factorial beta-binomial, brute-force budget search)",
+      "expected": "0.01267, 19",
+      "observed": "0.012672, 19",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Reproduce results.txt from experiments/run.py",
+      "method": "PYTHONPATH=src python3 experiments/run.py > scratch; diff results.txt",
+      "command": "PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt",
+      "expected": "identical",
+      "observed": "IDENTICAL, 4 s (README says under a minute)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Tests: README claims 6 tests under 1 s",
+      "method": "run unittest and pytest",
+      "command": "PYTHONPATH=src python3 -m unittest discover -s tests -v",
+      "expected": "6 pass",
+      "observed": "6 pass in 0.15 s; pytest 6 passed",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Monte-Carlo agrees with exact (0.1408 vs 0.1397 at kappa=4)",
+      "method": "compare results.txt rows; SE at kappa=1 is 0.0084",
+      "command": "read results.txt",
+      "expected": "within ~2 SE",
+      "observed": "diffs 0.0002, 0.0011, 0.0044, all within SE. But sampler draws n_in from the same pmf, so this validates the (1-q)^K formula only, not the pmf",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Live page https://marisstella.app/research/ransac-twin/ and project card exist",
+      "method": "load page; grep projects.json",
+      "command": "curl -s -o /dev/null -w %{http_code} https://marisstella.app/research/ransac-twin/",
+      "expected": "200",
+      "observed": "200; card present at research/_homepage/projects.json:1260",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "End-to-end numbers (0.9% / 12.6% / 1.8%) are tested by a unit test",
+      "method": "grep tests/ for ransac_line",
+      "command": "seeded mutation on ransac_line (c > bi -> c < bi; intercept sign flipped)",
+      "expected": "a test fails",
+      "observed": "none fails: ransac_line has zero tests; headline claim (3) rests on a rerun diff only",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Prior work named and result positioned as new",
+      "method": "read README, whitepaper.md references",
+      "command": "grep -n 'Hartley\\|PROSAC\\|USAC\\|MLESAC\\|adaptive' research/ransac-twin -r",
+      "expected": "cites adaptive-stopping / USAC / PROSAC",
+      "observed": "only Fischler & Bolles 1981 cited; Hartley & Zisserman adaptive termination (MVG sec. 4.7.1), Chum & Matas PROSAC 2005, Raguram et al. USAC 2013 absent, and no adaptive-K baseline",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "Does the 'twin' straw man match practice: do pipelines fix K from a mean inlier fraction?",
+      "method": "vision practitioner view: OpenCV findHomography/USAC and COLMAP update K from the best-so-far inlier count each iteration",
+      "command": "read model.py/run.py: K fixed per run, no adaptive rule",
+      "expected": "an adaptive baseline",
+      "observed": "no adaptive baseline compared; fixed-K is the only strategy modelled",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/ransac_twin/model.py:14",
+      "change": "if n_in < s -> if n_in <= s",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/ransac_twin/model.py:28",
+      "change": "math.ceil -> math.floor in budget",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/ransac_twin/model.py:45",
+      "change": "(1-q)**K -> (1-q)**(K+1) in failure",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/ransac_twin/model.py:97",
+      "change": "if c > bi -> if c < bi (picks minimum consensus)",
+      "caught": false,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/ransac_twin/model.py:94",
+      "change": "b = y1 - a*x1 -> b = y1 + a*x1",
+      "caught": false,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "No adaptive-termination baseline and prior work (Hartley & Zisserman adaptive K, PROSAC, USAC, MLESAC) not cited; the 'twin under-sizes the budget' result is the known motivation for adaptive RANSAC, so novelty is overstated by omission",
+      "where": "research/ransac-twin/README.md:3",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "ransac_line (source of headline result 3: 0.9%/12.6%/1.8%) has no unit test; two seeded bugs (max->min consensus, intercept sign) leave all 6 tests green",
+      "where": "research/ransac-twin/src/ransac_twin/model.py:84-99",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Monte-Carlo check draws scene n_in from the same pmf it validates, so it cannot detect a wrong beta-binomial; README presents it as 'the exact failure matches a Monte-Carlo sampler'",
+      "where": "research/ransac-twin/experiments/run.py:23-29",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "ransac_line returns None if every draw has x1==x2 and run.py silently maps it to (0.0,0.0), counted as a slope failure with no warning",
+      "where": "research/ransac-twin/experiments/run.py:42",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Scene law (beta-binomial, kappa range) is assumed with no real per-pair inlier-ratio data; owner's 'run the numbers' rule asks for a sourced parameter or a sweep (a kappa sweep is given, which partly meets it)",
+      "where": "research/ransac-twin/README.md:7",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Whitepaper is an 18-line stub without a results table or figure and no LOG.md or project.json; PROGRAMMES.md has no entry, so this is a one-session project not a programme",
+      "where": "research/ransac-twin/paper/whitepaper.md:1",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The arithmetic is right and I could confirm it: a fractions-exact reimplementation by me reproduces the twin budget 17, the exact failures 1.3/2.4/7.0/14.1/21.7/30.0% at K=17, the budgets 19/23/58/458 and the unreachability for kappa<=2 to the printed precision, and run.py reproduces results.txt byte for byte. Three seeded mutations in the exact math were caught. It does not meet the bar because claims and verification fall short and the research question is a known one: ransac_line, behind the end-to-end headline, is untested (2 of 5 mutations survived), and the work cites only the 1981 paper, runs no adaptive-termination baseline (Hartley & Zisserman, PROSAC, USAC) and so presents a consequence of Jensen's inequality, already addressed in practice, as a finding about twins. Correct, honest about being stylised, and small; not something a vision researcher could build on as is."
+}

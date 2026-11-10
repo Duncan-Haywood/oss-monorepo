@@ -1,9 +1,9 @@
 // Dump seeded weeks (same generator as scale-bench.mjs) with the engine's open hours, for eval/ilp-check.py.
-//   node eval/ilp-export.mjs P S [cases=4] > weeks.json
+//   node eval/ilp-export.mjs P S [cases=4] > weeks.json   (SEED=20261101 for the rolling-gap sets)
 import { parseStaff, parseShifts, buildContext, buildRoster } from "../calc.mjs";
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const P = Number(process.argv[2] || 8), S = Number(process.argv[3] || 22), cases = Number(process.argv[4] || 4);
-let seed = 20261022 + P * 100 + S;
+let seed = Number(process.env.SEED || 20261022) + P * 100 + S; // SEED=20261101 gives the rolling-gap-bench.mjs sets
 const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
 const out = [];
 for (let c = 0; c < cases; c++) {
