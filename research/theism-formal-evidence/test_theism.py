@@ -156,12 +156,6 @@ def test_e5_shared_cause_closed_form_matches_enumeration():
     assert shared_cause_bf(5, 3.0, 0.0) == 1.0               # unreliable for sure: no force
 
 
-if __name__ == "__main__":
-    for name, fn in list(globals().items()):
-        if name.startswith("test_"):
-            fn(); print("ok", name)
-
-
 def test_e7_anderson_collapses_under_full_semantics():
     e7 = _load("e7_anderson")
     assert [e7.search(1, d)["models"] for d in (1, 2, 3)] == [1, 2, 3]
@@ -182,3 +176,19 @@ def test_e9_three_world_model_exists():
     spec = importlib.util.spec_from_file_location("e8", f)
     m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
     assert m.search(3, 2, m.algebra([[0, 2, 4], [1, 3], [5]]))[1] > 0
+
+
+def test_e10_theorem_matches_search():
+    """Model count of Anderson's axioms = number of blocks made of whole individuals (E10)."""
+    e10 = _load("e10_theorem")
+    for w, d in [(1, 3), (3, 1), (2, 2)]:
+        r = e10.check(w, d)
+        assert r["agree"] == r["partitions_checked"], r["mismatches"]
+    # full property semantics (singleton blocks) at 2 worlds x 3 individuals: no model, as corollary (d) says
+    assert e10.predicted([[c] for c in range(6)], 2, 3) == 0
+
+
+if __name__ == "__main__":
+    for name, fn in list(globals().items()):
+        if name.startswith("test_"):
+            fn(); print("ok", name)
