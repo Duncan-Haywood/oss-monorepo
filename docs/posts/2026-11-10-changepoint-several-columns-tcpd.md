@@ -1,9 +1,9 @@
 ---
 title: "Several columns at once: what a joint changepoint fit buys, and where it over-cuts"
-seo_title: "Multivariate changepoint detection on the TCPD apple, bee waggle and occupancy series"
+seo_title: "Multivariate changepoint detection on three labelled TCPD series"
 date: 2026-11-10
-tags: [changepoint-detector, time-series, benchmark]
-description: "On TCPD's three multi-dimensional series, merging each column's agreed changes scored mean F1 0.521, above the published bocpd and ecp defaults but below reporting no change; a joint fit over-cut every one."
+tags: [changepoint-detector, time-series, benchmarks]
+description: "On TCPD's three multi-column series, merged per-column agreed changes scored F1 0.521, above published bocpd but below reporting no change."
 ---
 
 changepoint-detector used to take one column. The Turing Change Point Dataset (TCPD)
