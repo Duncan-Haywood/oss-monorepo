@@ -106,6 +106,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Voice That Slides Off the Dial</title>
+      <link>https://example.invalid/hearth-and-horizon/the-voice-that-slides-off-the-dial.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-voice-that-slides-off-the-dial.html</guid>
+      <pubDate>Tue, 10 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish radio club sends a Rosary decade up to a station crew on 145.8 MHz, and the voices go clear, then thin, then vanish into hiss and come back. The assistant shows that a ship moving at 7.7 km/s shifts a 145.8 MHz carrier by about 3.4 kHz either way, a shift which, added to the voices' own width, pushes them toward the edge of the receiver's channel, and that the club only needs to tune to the sky, not to the dial. Setting: Cupola of the ring station Corona Minor (invented), low Earth orbit at 420 km, with a parish radio club at Saint Cuthman's, Steyning, Sussex (invented), Sunday 7 October 2101. Read the full text at https://example.invalid/hearth-and-horizon/the-voice-that-slides-off-the-dial.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish radio club sends a Rosary decade up to a station crew on 145.8 MHz, and the voices go clear, then thin, then vanish into hiss and come back. The assistant shows that a ship moving at 7.7 km/s shifts a 145.8 MHz carrier by about 3.4 kHz either way, a shift which, added to the voices' own width, pushes them toward the edge of the receiver's channel, and that the club only needs to tune to the sky, not to the dial.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Water That Boils at Nought</title>
       <link>https://example.invalid/hearth-and-horizon/the-water-that-boils-at-nought.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-water-that-boils-at-nought.html</guid>
