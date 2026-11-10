@@ -1,7 +1,7 @@
 ---
 title: The Black Grains
 shelf: hearth-and-horizon
-setting: Sankt Antonius, an invented Benedictine abbey in the Sundgau, Alsace, France, 14 to 19 August 2048
+setting: Sankt Antonius, an invented Benedictine abbey in the Sundgau, Alsace, France, 14 to 19 August 2051
 published: 2026-10-31
 summary: A cool wet May has put black ergot bodies in an abbey's own rye, and the baker wants the first loaves of it blessed on the Assumption. The mill assistant weighs what a kitchen sample can and cannot say, a sieve removes only two in five, and the cure costs a tenth of the crop.
 ---
@@ -22,7 +22,7 @@ It had no name in the community's books. The brothers called it *Sieve*, after t
 
 ---
 
-It was Monday 14 August 2048, the eve of the Assumption, and the abbey of Sankt Antonius had cut the last of its rye on the Friday. It was twelve hundred kilograms from a third of a hectare on the south slope, and the cool spring had been kind to everything except the one thing that mattered. May had been wet. Rye flowers open for a few days and the flower stays open; a fungus called *Claviceps purpurea* lands on the open flower, grows into the ovary, and turns it into a hard, purple-black body, longer than a grain, with a pale inside, called a sclerotium. A cool wet flowering gives the fungus more days to find its way in. This was no mystery to Sieve, which had read the weather records for May and had told Brother Odilo in June that it would be wise to look.
+It was Monday 14 August 2051, the eve of the Assumption, and the abbey of Sankt Antonius had cut the last of its rye on the Friday. It was twelve hundred kilograms from a third of a hectare on the south slope, and the cool spring had been kind to everything except the one thing that mattered. May had been wet. Rye flowers open for a few days and the flower stays open; a fungus called *Claviceps purpurea* lands on the open flower, grows into the ovary, and turns it into a hard, purple-black body, longer than a grain, with a pale inside, called a sclerotium. A cool wet flowering gives the fungus more days to find its way in. This was no mystery to Sieve, which had read the weather records for May and had told Brother Odilo in June that it would be wise to look.
 
 Brother Odilo had looked. He had looked at the head of one stalk, standing in the field with the wind on his face, and he had seen no horns, and he had said so. Sieve had said that he had looked at one head, and that it had not seen the field either.
 
@@ -104,7 +104,7 @@ The counts were two horns, three, and two. At about 0.05 grams a horn, that is b
 
 Brother Odilo stood for a long time with his hand on a sack. Then he said, "The loaves."
 
-"The Assumption loaves have gone," said Sieve. "On Tuesday morning, when we had only the sieve's answer, you baked them with the rye of 2047 from the loft, which I had tested in June and which had none. You said it was your own idea. The blessing was on Tuesday. The new rye is for the Saint Michael bread in September."
+"The Assumption loaves have gone," said Sieve. "On Tuesday morning, when we had only the sieve's answer, you baked them with the rye of 2050 from the loft, which I had tested in June and which had none. You said it was your own idea. The blessing was on Tuesday. The new rye is for the Saint Michael bread in September."
 
 He had, it seemed, forgotten; and then remembered; and then laughed, very quietly, as a man laughs in church.
 

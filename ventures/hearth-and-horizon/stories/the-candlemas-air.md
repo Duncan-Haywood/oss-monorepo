@@ -1,12 +1,12 @@
 ---
 title: The Candlemas Air
 shelf: hearth-and-horizon
-setting: Saint Elwin's hall (invented), a village near Alston, Cumbria, Candlemas Sunday, 1 February 2053
+setting: Saint Elwin's hall (invented), a village near Alston, Cumbria, Candlemas Sunday, 2 February 2053
 published: 2026-11-04
 summary: Sixty people keep a two-hour Candlemas vigil in a small cold hall with the doors shut for warmth, and a borrowed carbon dioxide meter climbs past 2,000. The parish assistant works out what sixty sleepers' breath does to 486 cubic metres (about 1,080 litres of CO2 an hour), what an hour of cracked windows costs in heat, and why it will not call the air either safe or dangerous.
 ---
 
-The hall at Saint Elwin's holds sixty people if they like each other, and on the first of February they did. It was nine metres by twelve, four and a half metres to the rafters, with two radiators, a fan heater, and the doors shut tight against a wind off the fell. Bernadette Hall, who ran the Candlemas vigil, had borrowed a small carbon dioxide meter from her nephew's school and stood it on the piano.
+The hall at Saint Elwin's holds sixty people if they like each other, and on the second of February they did. It was nine metres by twelve, four and a half metres to the rafters, with two radiators, a fan heater, and the doors shut tight against a wind off the fell. Bernadette Hall, who ran the Candlemas vigil, had borrowed a small carbon dioxide meter from her nephew's school and stood it on the piano.
 
 At nine it read 3,100. Nobody had noticed the meter. The children had noticed the candles.
 
