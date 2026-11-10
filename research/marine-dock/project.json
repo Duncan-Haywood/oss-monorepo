@@ -1,0 +1,7 @@
+{
+ "theme": "osrobot",
+ "programme": "marine-hull",
+ "title": "Can a small boat dock itself in a current? Capture rate against approach strategy, speed and position noise",
+ "lede": "pursuit and plain line-of-sight capture 0% at any cross current of 0.1 m/s or more, while integral LOS captures 98 to 100% at 1.0 m/s near-dock speed; a slow 0.5 m/s docking speed fails by crab angle (36.9 degrees at 0.3 m/s current against a 30 degree gate), and position noise of 0.5 m leaves about 55% capture",
+ "summary": "Milestone 8 of track 23 (marine-dock), filed under the marine-hull programme. A stdlib simulation of a 200 kg boat docking from 40 m with pursuit, line-of-sight and integral line-of-sight guidance on a noisy position estimate (AR(1) errors, 0 to 1 m), in cross currents of 0 to 0.3 m/s and waves, scored by capture within a 0.5 m, 30 degree gate over 60 seeds per cell. Plain LOS leaves the analytic offset delta*tan(asin(c/U)), wider than the gate; ILOS captures 98 to 100% with perfect position at 1.0 m/s; at 0.5 m/s the required crab angle exceeds the gate (0 to 32%). Under correlated noise ILOS is worse than LOS in still water (75 against 98% at 0.25 m). Boat and wave coefficients, the noise model and the gate are unsourced; the ILOS gain and heading gate were tuned on separate seeds after a failed first run; no funnel, fenders or field data. Preliminary; simulation only."
+}
