@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtH7Y8nAwfKFk16idGT",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T17:06:31Z",
+  "ended": "2026-11-10T17:26:16Z",
+  "wall_minutes": 24.96,
+  "tokens_in": 11821504,
+  "tokens_out": 48952,
+  "cost_usd": 4.5845,
+  "tool_calls": 94,
+  "task": "Deepen flagship 6 (shift-roster-builder): branch-and-price on the Dantzig-Wolfe LP for the open-hours floor",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14564",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First wiring adopted the integral-LP roster before the coverage-first pass, which resets bestOwner but keeps best: the cost search pruned against a phantom 15 h score and reported the annealed 19 h sample-cafe roster as optimal. Caught by the existing 'gives up honestly' test; fixed by adopting the LP roster after that pass, and pinned by a new test.",
+    "Stashed the working tree while a background bench was running against it (no harm: the bench had already failed on a missing /usr/bin/time)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "shift-roster-builder next: named 'the one unproven 8x22 week', but on the ilp-export seed all four 8x22 weeks were already proven at the root; the remaining gaps were 12x30 week 1 and 10x28 week 4 (stated in the same entry's State: sentence)."
+    },
+    {
+      "file": "ventures/shift-roster-builder/page.test.mjs",
+      "issue": "Asserted calc.mjs has no import at all, without saying why; relaxed to sibling ./x.mjs imports only (the test title says 'import only local files')."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/shift-roster-builder/page.test.mjs",
+      "why": "The no-imports assertion blocked splitting the solver into its own module; calc.mjs is already 2,900 lines.",
+      "did": "Allowed local sibling .mjs imports and checked bnp.mjs is import-free and network-free; made the Dockerfile test follow imports transitively.",
+      "result": "Tests pass; Dockerfile copies bnp.mjs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-shift-roster-branch-and-price-closes-the-last-gaps.md",
+    "ventures/shift-roster-builder/README.md (Branch-and-price section)"
+  ],
+  "goal": "Close the open-hours proof gap on the bench weeks",
+  "notes": "bnp-bench (HiGHS optimum as incumbent): 16/16 weeks proven; 12x30 week 1 root LP 72.33 (matches HiGHS relaxation-check), proven 75 in 467 nodes / 8.8 s; 10x28 week 4 proven 78 at root. ilp-export through buildRoster: engine floor == engine open on all 16 weeks (8x22 68 s, 10x28 207 s, 12x30 108 s, under load). rolling-gap-bench 10x28 1 week: set 2 floor 38->40 (=open); set 0 skipped (person with 66,763 sets > maxSets 60,000); with maxSets 3M, LP 47.00, floor 47 vs 48 open after 437 nodes/90 s. Full suite: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (395.0 s, 0 failed) after the fix; before the fix 2 failed (gives-up-honestly, calc.mjs import check).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4f9edb89-6747-5f59-a11c-eec1d3c5af30",
+    "transcripts": 1,
+    "first": "2026-11-10T17:06:31Z",
+    "last": "2026-11-10T17:31:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 168,
+        "output": 48952,
+        "thinking": 13801,
+        "cache_read": 11662292,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159044,
+        "api_equivalent_usd": 4.5845,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 168,
+      "output": 48952,
+      "thinking": 13801,
+      "cache_read": 11662292,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159044,
+      "api_equivalent_usd": 4.5845,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 94,
+    "tools": {
+      "Bash": 85,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.96,
+      "active_minutes": 24.96,
+      "model_minutes": 10.0,
+      "tool_minutes": 14.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "an OR engineer writing and validating a revised-simplex branch-and-price for a set-partitioning master, wiring and benching it: about 3 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 523.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
