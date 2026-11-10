@@ -74,7 +74,13 @@ function method(label, deduction, input, grossIncome, otherDeductible) {
  * @param {number} input.otherWages          W-2 wages that already count against the Social Security wage base.
  * @param {number} input.socialSecurityWageBase
  */
-export function compareDeductions(raw) {
+// Boxes with a default: the page sends '' when the driver clears one, which
+// means "use the default", the same as leaving the key out.
+const OPTIONAL = ['parkingTolls', 'otherDeductible', 'standardRate', 'incomeTaxRatePercent', 'otherWages', 'socialSecurityWageBase'];
+
+export function compareDeductions(given) {
+  const raw = { ...given };
+  for (const key of OPTIONAL) if (typeof raw[key] === 'string' && raw[key].trim() === '') delete raw[key];
   const input = {
     grossIncome: number(raw.grossIncome, 'Gross income'),
     businessMiles: number(raw.businessMiles, 'Business miles'),

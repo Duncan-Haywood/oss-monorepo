@@ -106,9 +106,14 @@ flagships:
       Pipedrive/HubSpot against fake servers only; nineteen agent-written reply
       sets, latest 2026-11-08: false-not-now and wrong-person probe 9/20 before, 15/20 after three narrow changes; false-bounce and false-away probe 9/20 before,
       16/20 after one veto; all sets other than the 117 real bounces, 11 + 12 real
-      mail-client emails and the 1,857-reply label mix are agent-written). Next:
-      (1) real mail (false not-now and wrong-person probe 2026-11-11: 9/20 to 18/20); (2)
-      real human replies and a real rep's call notes to check the reply rules,
+      mail-client emails and the 1,857-reply label mix are agent-written). Real
+      people's mail 2026-11-10 (eval/enron.mjs, Enron corpus, 19,153 replies, README):
+      stops 70% wrong; vetoes tuned on one half, held-out half scored once: wrong
+      stops 30 to 13 per 1,000, right 113 to 108. Next: (1) on the Enron halves, a
+      second reader for the labels, the 124 held-out wrong stops left (third-person
+      "no need", Lotus Notes quote headers) on the tuning half only, and the
+      real "take me off" replies as an opt-out recall set; (2)
+      real replies to outreach and a real rep's call notes to check the reply rules,
       prep rules and follow-up sorter; (3) M2: score a hosted and a local model
       with eval/model.mjs on the fresh sets (needs a key), with a set labelled by
       a person or another model family before any rule change; (4) run the self-
@@ -125,7 +130,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every trial: README and git. Labelled benchmark landed 2026-11-10 (README "A labelled benchmark", `eval/tcpd.mjs`): 31 Turing Change Point Dataset series, TCPDBench metrics ported (published scores reproduced to 2e-16); BOCPD F1 0.706 and consensus every-setting 0.702 vs best published binseg 0.714 and "no change" 0.663, but the page's default level model 0.477; tier hit rates 39/28/25% now printed under `--consensus`.
-      Split-half default search 2026-11-10 (README "A default chosen by split half", eval/tcpd-defaults.mjs): over-cut warning and page control shipped. Held out 2026-11-10 (README "Held out", eval/tcpd-heldout.mjs; the 7 univariate series TCPD does not ship, md5-checked): every-setting consensus F1 0.711 (binseg 0.727, zero 0.639), BOCPD 0.622 (so no BOCPD-led summary), warning beat plain level on 6/6; the page now leads with "Agreed changes". Next, most valuable first: (a) a multivariate panel for the 3 multi-dim TCPD series (apple, bee_waggle_6, occupancy); (b) why the consensus misses measles' marked change (1 cut, F1 0.643 vs amoc 0.947); (c) the analyst report and CLI default text leading with agreed changes too.
+      Split-half default search 2026-11-10 (README "A default chosen by split half", eval/tcpd-defaults.mjs): over-cut warning and page control shipped. Held out 2026-11-10 (README "Held out", eval/tcpd-heldout.mjs; the 7 univariate series TCPD does not ship, md5-checked): every-setting consensus F1 0.711 (binseg 0.727, zero 0.639), BOCPD 0.622 (so no BOCPD-led summary), warning beat plain level on 6/6; the page now leads with "Agreed changes". Next, most valuable first: (a) a multivariate panel for the 3 multi-dim TCPD series (apple, bee_waggle_6, occupancy); (b) answered 2026-11-10 (README "Measles", eval/tcpd-measles.mjs): nothing was missed, 4/5 annotators mark no change and the one agreed cut is the 1961 epidemic peak; --period 52 or --log clear it but neither works as a default (log worse held out at every ratio; calendar season 3 better, 3 worse of 11); (c) done 2026-11-10 for the CLI text (capped at 2,000 points: the panel is ~5x slower) and the report (README "Agreed changes in the CLI and the report"); still open: the same cap or a worker on the page.
       Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -185,34 +190,22 @@ flagships:
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
-      Tilt confidence checked on 60 rotated real-photo readings 2026-11-09:
-      45% within 1 degree below 0.05, 85% above 0.15 (eval/README-real-photo-calibration.md).
-      Real-photo calibration 2026-11-08 (tools/real_photo_calibration.py,
-      eval/README-real-photo-calibration.md; two OpenCV sample photos):
-      sharpness, grain and exposure respond correctly to known blur, noise and
-      brightness; tilt is recovered on photos with straight edges (structure
-      tensor, 61% of readings within 1 degree) but is chance on scenes with no
-      axis lines. Wanted: photos with a real horizon and human labels.
-      `shootflow cull` (2026-10-29) is a standalone folder cull with XMP
-      sidecars, `--thumbs` adds a contact sheet, `--picks FILE` scores it
-      against a photographer's keepers and reports `reject_reasons`; wanted: a
-      real shoot and its picks. Face and closed-eye scores are an opt-in
-      external detector (SHOOTFLOW_FACE_DETECTOR; Haar reference detector, one
-      real portrait, no real blinks). Next: a trained blink model checked
-      against a photographer's picks (wanted: a labelled portrait set). RAW
-      stills are scored from the embedded JPEG preview (synthetic containers
-      only, so try real CR2/CR3/NEF/ARW/DNG; since 2026-11-10 lossless SOF3
-      sensor data and non-8-bit frames are not taken for the preview;
-      raw.pixls.us and rawsamples.ch 403 from cloud and exiftool's samples
-      have their previews stripped; real CR2 and NEF files do clone from
-      rawpy's GitHub test folder). RAW development: `shootflow develop`
-      (2026-11-10, raw_develop.py) renders a DNG to a 16-bit TIFF master and
-      matches LibRaw within one 8-bit step on a real Nikon NEF and a Canon 5D
-      Mark II CR2 (their sensor data rewritten as DNG by
-      tools/libraw_differential.py; README "Develop DNG raw files"). Next: call
-      it from the pipeline's grade stage for DNG stills; try a camera- or
-      phone-written DNG with lossless-JPEG tiles; speed (pure Python, tens of
-      seconds per frame). History: ventures/photo-editing/README.md.
+      History and every measurement: README and eval/ (ingest, catalog,
+      proxies, measured analysis with tilt, grain, framing and opt-in face
+      scores, cull with XMP and picks scoring, RAW previews, and a stdlib DNG
+      developer matching LibRaw within one 8-bit step on a real Nikon NEF and
+      Canon CR2). Since 2026-11-10 the pipeline's grade stage develops DNG
+      stills into 16-bit TIFF masters and preview-less DNGs are proxied and
+      scored from a half-size develop (real Nikon sensor DNG end to end in
+      75 s, master bit-identical to `shootflow develop`;
+      eval/pipeline-dng-grade-2026-11-10.md). Next, most valuable first:
+      develop speed (pure Python, about 37 s per 12 MP frame, so a 500-frame
+      shoot takes hours: vectorise the demosaic or add an optional numpy
+      path, checked bit-for-bit against the current output); grade only the
+      selected shots; a camera- or phone-written DNG with lossless-JPEG tiles
+      (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink model
+      and a real shoot with a photographer's picks (wanted: a labelled
+      portrait set); photos with a real horizon and human tilt labels.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a

@@ -1,7 +1,7 @@
 ---
 title: The Freezer That Keeps a Day
 shelf: hearth-and-horizon
-setting: Saint Ninian's hall (invented), a village near Elgin, Moray, Friday 2 to Sunday 4 January 2053
+setting: Saint Ninian's hall (invented), a village near Elgin, Moray, Friday 3 to Sunday 5 January 2053
 published: 2026-11-03
 summary: A storm cuts the power to a parish food pantry's chest freezer, 200 kilograms of donated meat. The parish assistant will not say the food is safe. It works out how long 200 kg of frozen food takes to warm by 17 degrees (about 1.9 kWh, so roughly 45 hours in a cold hall), reads the freezer thermometer against that line, and splits the stock between a Saturday hand-out and a neighbour's generator.
 ---

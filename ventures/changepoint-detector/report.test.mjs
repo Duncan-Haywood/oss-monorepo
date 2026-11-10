@@ -59,3 +59,14 @@ test("sample report is what the real report code produces, and the marketing pag
   assert.match(p, /No warranty/);
   assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /change-report-for-analysts/);
 });
+
+test("the report leads with the agreed changes when the page passes them, and escapes them", async () => {
+  const { analyze, DEFAULTS } = await import("./engine.mjs");
+  const { consensus, agreedText } = await import("./consensus.mjs");
+  const r = analyze({ csv: DEFAULTS.csv });
+  const h = changeReportHtml(r, { agreed: agreedText(consensus({ csv: DEFAULTS.csv })) });
+  assert.match(h, /<h2>What changed<\/h2>\n<p class="agreed"><strong>Agreed changes:<\/strong> Every one of 6 settings agrees on 1 change: 1899 \(down\)/);
+  assert.match(h, /<p>Level model alone: PELT splits/);
+  assert.match(changeReportHtml(r, { agreed: "<b>x</b>" }), /&lt;b&gt;x&lt;\/b&gt;/);
+  assert.doesNotMatch(changeReportHtml(r), /class="agreed"/);
+});

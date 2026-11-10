@@ -46,7 +46,10 @@ where it departs from the paper.
 - **Browser:** open the live page, paste a CSV, or click the Nile example.
 - **Command line** (Node 18+, no install):
   `node cli.mjs series.csv --column sales --model meanvar` (`--model poisson` for counts), `--json` for
-  machine-readable output, `--example` for the Nile data, `--help` for all options.
+  machine-readable output, `--example` for the Nile data, `--help` for all options. With the level
+  model (the default) the text output leads with the changes all six settings agree on, as the page
+  does (`--no-agreed` to skip it; skipped on its own above 2,000 points, see "Agreed changes in the CLI
+  and the report").
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   or the `call_tool` tool of the repository's MCP server
@@ -1986,9 +1989,50 @@ Every choice above (the default panel, the over-cut warning and its refit, the s
 What held and what did not:
 
 - **The over-cut warning replicates.** It fired on 6 of 7 held-out series; following it beat the plain level model on all 6 (+0.201 F1, 95% bootstrap interval 0.098 to 0.297, sign test p 0.031). It still does not beat reporting no change (-0.142, interval -0.436 to 0.120).
-- **BOCPD did not hold up.** The flagship's item (b) proposed a BOCPD-led page summary because BOCPD was the most stable on the two shipped halves. Held out it falls to 0.622, below "no change": on measles (991 weekly counts) it reports 27 changes where the annotators mark about one. Item (b) is answered no.
+- **BOCPD did not hold up.** The flagship's item (b) proposed a BOCPD-led page summary because BOCPD was the most stable on the two shipped halves. Held out it falls to 0.622, below "no change": on measles (991 weekly counts) it reports 27 changes where four of five annotators mark none (see "Measles" below). Item (b) is answered no.
 - **The every-setting consensus held up.** 0.711 held out against 0.702 in sample, the best cover of any method on these 7 (0.742, binseg 0.731), and 0.704 pooled over 38, second only to binseg (0.716). It cuts conservatively: on measles it keeps 1 change (F1 0.643) where the level model keeps 167 (0.024). Against "no change" it is +0.072 held out (interval -0.097 to 0.263; better on 3, worse on 1), not a significant win on 7 series.
 
 **What shipped.** The page now runs the six-setting panel whenever the level model is chosen and leads the results with an "Agreed changes" line (`agreedText` in `consensus.mjs`): the changes every setting finds, with direction, then the held-out figures it is quoting (F1 0.71 vs 0.30 for the single level model in the table below it, 0.64 for reporting nothing). When no change is agreed, it says so and calls the table's changes candidates. The table and chart are unchanged, so the hundred-odd real-series tests pinned to the level model still hold. `agreed-text.test.mjs` checks the wording and that the quoted figures match `eval/tcpd-heldout.out.txt`. The panel runs in about 0.2 s on the Nile example in headless Chromium.
 
 Limits: 7 held-out series is a very small sample (two are image scanlines); the bootstrap is over series; the mirrored files were checked by md5 against TCPD's published checksums, not rebuilt from source here.
+
+## Agreed changes in the CLI and the report (2026-11-10)
+
+The held-out check above moved the page to lead with the changes every setting agrees on. The CLI's
+text output and the branded change report now do the same, so the three surfaces say one thing first.
+
+- **CLI.** With the level model (the default, or `--model mean`) and text output, `cli.mjs` runs the
+  six-setting panel with the options the panel shares (`--column`, `--label-column`, `--log`,
+  `--period`, `--penalty`, `--min-segment`) and prints the `agreedText` paragraph first, then
+  "Level model alone" and the old output unchanged. `--no-agreed` turns it off; other models and
+  `--json` are unchanged (agents call `--consensus` for the panel's JSON).
+- **Cost, measured here 2026-11-10** (wall clock, one run each, on `data/treering.csv` cut to length):
+  1,000 points 1.6 s with the panel vs 0.6 s without; 2,000 points 5.3 s vs 1.1 s; the full 7,980
+  points 32 s vs 5.7 s; `data/djia-returns.csv` (8,609 rows) 20 s vs 3.1 s. So above 2,000 points
+  (`AGREED_MAX_POINTS`) the CLI prints that the panel was not run and how to run it, instead of
+  making every long run several times slower. The page has no such cap yet: a long series pasted
+  there pays the same cost in the browser (next step below).
+- **Report.** `changeReportHtml(r, { agreed })` puts the same paragraph at the top of "What
+  changed" and labels the summary after it "Level model alone"; the page passes the paragraph it
+  just showed, and `sample-change-report.html` is rebuilt with it (Nile: all 6 settings agree on
+  1899, down). The paragraph is escaped like every other typed string.
+- The paragraph's wording changed from "the single level model in the table below" to "the single
+  level model whose results follow", which is true on all three surfaces.
+
+Tests: `cli.test.mjs` (lead line on the Nile example, `--no-agreed`, another model, a CSV with
+`--column` whose unset options keep their defaults, the length cap) and `report.test.mjs` (lead
+paragraph, escaping, absent when not passed).
+
+Next: the same length cap on the page (or run the panel in a worker), and a check that the
+"agreed" summary on real long series (the TCPD ones above 2,000 points) is worth its cost.
+
+## Measles: the consensus loses F1 by cutting, not by missing (2026-11-10)
+
+The flagship asked why the every-setting consensus "misses measles' marked change" (F1 0.643 against 0.947 for amoc). The annotations answer the premise: four of TCPD's five annotators marked **no change** on the 991 weekly measles counts (England and Wales, 1948 to 1966), and one marked week 141. Reporting nothing scores 0.947, and amoc and binseg score exactly that because their one cut is the last point, which the metric drops. So nothing was missed; the consensus loses F1 by keeping one cut. `node eval/tcpd-measles.mjs tcpd-data` (output in `eval/tcpd-measles.out.txt`) shows where and why.
+
+- **The cut is the fall of the largest epidemic.** It sits at week 693 (April 1961), one week after the series' highest week (41,005 cases). Measles here runs on a two-year epidemic cycle (yearly means alternate between about 3,000 and 12,000 cases), and 1961 is the biggest year. Five settings cut within a week of 693; the sixth (level under a trend, AR(1) widened, 2 cuts in all) cuts at 702, which the default 20-point tolerance (2% of n) counts as the same change. So the one agreed change is a cycle peak, agreed on partly through a wide tolerance.
+- **Two declared options remove it.** With `--period 52` (the yearly season any user of weekly data knows) or `--log` (counts spanning a 78-fold range), no change is agreed and F1 is 0.947, equal to "no change". `--period 104`, the epidemic cycle itself, does worse (17 agreed cuts, F1 0.105): the cycle's amplitude varies too much for a fixed two-year profile.
+- **Neither is a default.** One series cannot choose one, so both were tried on every TCPD series they apply to. `--log` on all-positive series whose max/min ratio is at least R helps on the 31 shipped series (R 30: 0.702 to 0.709) but hurts on the 7 held out at every R tried (R 100, 30, 10, 3: 0.711 to 0.699, 0.705, 0.673, 0.673; bitcoin, ratner_stock and scanline_42049 get worse). Declaring the calendar season the time stamps imply (monthly 12, weekly 52) on the 11 series that have one: better on 3 (construction, seatbelts, measles), worse on 3 (jfk_passengers, lga_passengers, us_population), the same on 5, mean +0.023 F1. That is no evidence either way.
+
+**What changes.** Nothing in the engine; this is a measurement and a negative result. Item (b) is answered: the consensus did not miss a change, and the cures that fix measles do not generalise. For a user, the practical reading is the one the page already gives: declare a season you know (`--period`, page: seasonal period), and on weekly epidemic counts the agreed changes then match the annotators. Limits: one series motivated both cures; 11 dated series and 7 held-out series are small samples; F1 here is TCPD's with margin 5.
+

@@ -38,3 +38,22 @@ def test_fresh_pool_summary():
     assert "tight | adder_ripple16 | 104 | 0.00 | 34.27 | 27.89 | 0.00" in t
     for k in range(1, 6):
         assert f"({k})" in t and t.split(f"({k})")[1].splitlines()[0].endswith("True")
+
+
+def test_price_cost_model():
+    pr = _load("price")
+    t = {"r1": 0.1, "r2": 0.8, "r3": 0.1, "r4": 0.3}
+    skip, m105, pp = pr.costs(t, 100)
+    assert abs(skip - (80 + 0.8 + 2.4)) < 1e-9
+    assert abs(m105 - (10 + 56 + 1.6 + 2.4)) < 1e-9
+    assert abs(pp - 1.2) < 1e-9
+    assert pr.equal_k(skip, pp, 100) == 69 and pr.equal_k(1e9, pp, 100) == 100 and pr.equal_k(0.0, pp, 100) == 1
+    assert pr.sign_p(14, 6) == pr.sign_p(6, 14) and abs(pr.sign_p(14, 6) - 0.1153) < 1e-3
+
+
+def test_price_summary():
+    t = (EXP / "price_results.txt").read_text()
+    assert "mean regret over 20 cells: skip-r1 1.04%, random at its cost 1.26%; 105-style 5.48%, random at its cost 1.43%" in t
+    assert t.split("(3)")[1].splitlines()[0].endswith("False")
+    for k in (1, 2, 4):
+        assert t.split(f"({k})")[1].splitlines()[0].endswith("True")

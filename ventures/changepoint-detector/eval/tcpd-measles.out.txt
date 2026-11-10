@@ -1,0 +1,63 @@
+TCPD measles: 991 weekly counts, 1948.0274 to 1966.9973 (decimal years).
+Annotations: annotator 6: none; annotator 7: none; annotator 8: none; annotator 9: none; annotator 12: 141.
+So 4 of 5 marked no change. Reporting nothing scores F1 0.947; a lone cut at 141 would score 1.000.
+Published scores equal to "zero" (0.947): amoc, binseg, zero.
+
+Consensus, every setting: 1 cut at 693 (1961.3068); F1 0.643, cover 0.661.
+The series' largest week is 692 (1961.2877, 41005 cases); the cut is 1 weeks after it, on the fall of the 1961 epidemic: weeks 690..696 = 35105 40473 41005 31151 23506 20444 22499.
+Yearly mean cases: 1948 7598, 1949 7604, 1950 8826, 1951 11857, 1952 7069, 1953 11064, 1954 2692, 1955 13447, 1956 3082, 1957 12180, 1958 4985, 1959 10374, 1960 2669, 1961 14603, 1962 3552, 1963 11581, 1964 5899, 1965 9694, 1966 6594 (the two-year epidemic cycle; 1961 is the largest year).
+Each setting alone (cuts, and its cut nearest the consensus cut):
+  level                                167 cuts, nearest 693
+  level under a trend, AR(1) widened     2 cuts, nearest 702
+  level under a trend, AR(1) joint      16 cuts, nearest 693
+  level, noise floor 1.5               130 cuts, nearest 693
+  trend                                 85 cuts, nearest 692
+  trend, noise floor 1.5                68 cuts, nearest 692
+
+The same consensus with one declared option (every-setting cuts, F1, cover):
+  none                                              1 cuts  F1 0.643  cover 0.661
+  --period 52 (the yearly season of weekly data)    0 cuts  F1 0.947  cover 0.951
+  --period 104 (the two-year epidemic cycle)       17 cuts  F1 0.105  cover 0.201
+  --log                                             0 cuts  F1 0.947  cover 0.951
+  --log --period 52                                 0 cuts  F1 0.947  cover 0.951
+
+Cure 1 as a default: --log on every all-positive series whose max/min ratio is at least R (38 univariate series; shipped = the 31 the defaults were chosen on, held out = the 7 opened later).
+  R 100, shipped  (mean over all 31: 0.702 -> 0.707): 3 series switched; F1 0.546 -> 0.602 (mean +0.056); better on 1, worse on 0, same on 2.
+  R 100, held out (mean over all 7: 0.711 -> 0.699): 1 series switched; F1 0.570 -> 0.485 (mean -0.085); better on 0, worse on 1, same on 0.
+  R  30, shipped  (mean over all 31: 0.702 -> 0.709): 6 series switched; F1 0.667 -> 0.704 (mean +0.036); better on 2, worse on 1, same on 3.
+  R  30, held out (mean over all 7: 0.711 -> 0.705): 3 series switched; F1 0.633 -> 0.621 (mean -0.013); better on 1, worse on 2, same on 0.
+  R  10, shipped  (mean over all 31: 0.702 -> 0.709): 7 series switched; F1 0.653 -> 0.684 (mean +0.031); better on 2, worse on 1, same on 4.
+  R  10, held out (mean over all 7: 0.711 -> 0.673): 5 series switched; F1 0.739 -> 0.686 (mean -0.053); better on 1, worse on 3, same on 1.
+  R   3, shipped  (mean over all 31: 0.702 -> 0.702): 16 series switched; F1 0.683 -> 0.683 (mean +0.000); better on 2, worse on 3, same on 11.
+  R   3, held out (mean over all 7: 0.711 -> 0.673): 7 series switched; F1 0.711 -> 0.673 (mean -0.038); better on 1, worse on 3, same on 3.
+  Per series where --log changes the every-setting cuts:
+    bank               max/min     1.2  F1 0.063 (30 cuts) -> 0.067 (28)
+    brent_spot         max/min     8.2  F1 0.489 (1 cuts) -> 0.450 (1)
+    businv             max/min     2.5  F1 0.776 (1 cuts) -> 0.588 (0)
+    children_per_woman max/min     3.0  F1 0.580 (2 cuts) -> 0.580 (2)
+    co2_canada         max/min 10400.0  F1 0.361 (0 cuts) -> 0.530 (2)
+    global_co2         max/min     1.4  F1 0.595 (1 cuts) -> 0.754 (2)
+    homeruns           max/min    33.0  F1 0.765 (4 cuts) -> 0.659 (0)
+    lga_passengers     max/min     2.6  F1 0.820 (3 cuts) -> 0.820 (2)
+    nile               max/min     3.0  F1 1.000 (1 cuts) -> 0.824 (0)
+    quality_control_4  max/min     1.9  F1 0.936 (1 cuts) -> 0.958 (2)
+    shanghai_license   max/min    78.8  F1 0.713 (2 cuts) -> 0.868 (1)
+    us_population      max/min     2.1  F1 0.889 (0 cuts) -> 0.471 (2)
+    bitcoin            max/min   797.2  F1 0.570 (12 cuts) -> 0.485 (7)
+    measles            max/min    78.3  F1 0.643 (1 cuts) -> 0.947 (0)
+    ratner_stock       max/min    33.4  F1 0.687 (3 cuts) -> 0.430 (13)
+    scanline_42049     max/min    29.0  F1 0.848 (9 cuts) -> 0.619 (16)
+
+Cure 2 as a default: declare the calendar season the time stamps imply (monthly -> 12, weekly -> 52) on every series that has one:
+    businv             period 12  F1 0.776 (1 cuts) -> 0.776 (1)  annotators marking nothing: 1/5
+    construction       period 12  F1 0.696 (0 cuts) -> 0.889 (1)  annotators marking nothing: 1/5
+    jfk_passengers     period 12  F1 0.723 (0 cuts) -> 0.651 (5)  annotators marking nothing: 1/5
+    lga_passengers     period 12  F1 0.820 (3 cuts) -> 0.721 (3)  annotators marking nothing: 1/5
+    seatbelts          period 12  F1 0.621 (0 cuts) -> 0.824 (1)  annotators marking nothing: 1/5
+    shanghai_license   period 12  F1 0.713 (2 cuts) -> 0.713 (2)  annotators marking nothing: 0/5
+    us_population      period 12  F1 0.889 (0 cuts) -> 0.615 (1)  annotators marking nothing: 3/5
+    usd_isk            period 12  F1 0.785 (1 cuts) -> 0.785 (1)  annotators marking nothing: 0/5
+    iceland_tourism    period 12  F1 0.947 (0 cuts) -> 0.947 (0)  annotators marking nothing: 4/5
+    measles            period 52  F1 0.643 (1 cuts) -> 0.947 (0)  annotators marking nothing: 4/5
+    robocalls          period 12  F1 0.636 (0 cuts) -> 0.636 (0)  annotators marking nothing: 1/5
+  calendar season: 11 series switched; F1 0.750 -> 0.773 (mean +0.023); better on 3, worse on 3, same on 5.

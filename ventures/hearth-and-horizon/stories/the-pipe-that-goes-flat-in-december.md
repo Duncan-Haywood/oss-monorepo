@@ -54,7 +54,7 @@ At a quarter to six the rail thermometer said 12. Hilary went up the ladder agai
 
 * * *
 
-The vigil began at six. At seven the thermometer said 14, and the whole organ had risen with the church, flues and reeds as near as an old ear could tell. In the last verse the trumpet came in over the choir with nothing in it but the tune.
+The vigil began at six. At seven the thermometer said 14. The flues had risen six cents with the church and the trumpet had not, which is less than an old ear, or a young one, can find in a full chord. In the last verse the trumpet came in over the choir with nothing in it but the tune.
 
 Afterwards Hilary wrote on a card for the music desk, *Pitch follows the room: tune the reeds at service temperature, never in a cold church*, and put it where the next organist would see it.
 

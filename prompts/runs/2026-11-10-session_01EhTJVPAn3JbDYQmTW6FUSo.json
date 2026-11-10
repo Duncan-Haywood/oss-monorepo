@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVPAn3JbDYQmTW6FUSo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md text)",
+  "input_sha256": "94d0e623208c3bab9bb7d5ae3ae7e3fa2f9b148b37d163f92f326441c454e425",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T22:17:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 3) sales-agent: reply rules on real mail",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14615",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 35,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route without --task drew the research track for a scheduled run whose stored brief is the ventures prompt; rerouted with --task"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "took flagship 3 (sales-agent) not the top row (ai-bookkeeper): four ai-bookkeeper PRs merged in the 90 minutes before this run, so a sibling was likely on it; sales-agent had no commit in the 8 hours before",
+      "did": "sales-agent item (1) real mail",
+      "result": "landed a real-data measurement and fix"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-sales-agent-reply-rules-on-real-enron-mail.md"
+  ],
+  "goal": "Measure the reply rules on real people's mail and cut wrong stops",
+  "notes": "Data: Enron corpus via the CC0 copy github.com/asimov-datasets/enron.com (cs.cmu.edu, huggingface, zenodo, archive.org all 403 from the cloud proxy; a full shallow git clone of the GitHub copy took ~3 min, per-blob partial-clone fetch was ~70 blobs/min, too slow). 64,655 messages in blobs 0*/1*; RE: replies 9,534 (tuning) / 9,619 (held out). Held-out scored once: stops 420 -> 247; right/wrong/ambiguous 113/291/16 -> 108/124/15. Auto-replies 90/92 -> 91/92. Checks run here: node --test '*.test.mjs' in ventures/sales-agent 264 pass 0 fail; run_venture_tests.py sales-agent ok; check_post_frontmatter and check_post_links clean; venture-preflight run (see PR). Labels by one agent, no second reader.",
+  "corrections": [],
+  "redteam": null
+}

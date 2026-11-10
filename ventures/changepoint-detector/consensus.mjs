@@ -46,7 +46,7 @@ export function agreedText(c) {
   const head = every.length
     ? `Every one of ${c.settings.length} settings agrees on ${every.length} change${every.length === 1 ? '' : 's'}: ${every.slice(0, 12).map((x) => `${x.label}${x.direction === 'up' || x.direction === 'down' ? ` (${x.direction})` : ''}`).join(', ')}${every.length > 12 ? `, and ${every.length - 12} more` : ''}.`
     : `No change is found by all ${c.settings.length} settings${most ? ` (${most} found by half or more)` : ''}, so treat the changes below as candidates.`;
-  return `${head} On ${H.series} labelled real series held out from tuning (Turing Change Point Dataset), keeping only these agreed changes scored F1 ${H.every.toFixed(2)}, against ${H.level.toFixed(2)} for the single level model in the table below and ${H.zero.toFixed(2)} for reporting no change at all.`;
+  return `${head} On ${H.series} labelled real series held out from tuning (Turing Change Point Dataset), keeping only these agreed changes scored F1 ${H.every.toFixed(2)}, against ${H.level.toFixed(2)} for the single level model whose results follow and ${H.zero.toFixed(2)} for reporting no change at all.`;
 }
 
 // base: analyze() input minus model/ar1/noiseFloor/trend (those the panel sets).

@@ -12,7 +12,7 @@ Every second of February for thirty-one years, the children of Quoyness had carr
 
 It lived in a weatherproof box on the harbour office wall, and it was called Skerry because the harbourmaster's grandson had been allowed to name it. It read the anemometer on the pier head and the tide gauge and the camera over the slip, and it had been bought with a Highlands and Islands grant to tell the ferry whether to sail. Because it could read the wind, the village had started asking it other questions. Mrs Flett was the first to ask one that wasn't about a boat.
 
-It was Saturday 2 February 2046, ten in the morning, and the procession was at four. Forty children from the primary school and the Sunday school, aged six to eleven, in white tabards over whatever they were wearing, each carrying a small candle in a paper collar. Father Aidan Rendall, who came out on the ferry from the mainland twice a month and was staying with the Fletts, would bless the candles at the pier end and they would walk back in the dusk.
+It was Friday 2 February 2046, ten in the morning, and the procession was at four. Forty children from the primary school and the Sunday school, aged six to eleven, in white tabards over whatever they were wearing, each carrying a small candle in a paper collar. Father Aidan Rendall, who came out on the ferry from the mainland twice a month and was staying with the Fletts, would bless the candles at the pier end and they would walk back in the dusk.
 
 "I am asking," said Mrs Flett, "because the forecast says three degrees and thirty-two kilometres an hour from the north-west, and a boy at the school said that means the wind chill is minus three, and a mother has rung me to ask if we are going to give her son frostbite."
 

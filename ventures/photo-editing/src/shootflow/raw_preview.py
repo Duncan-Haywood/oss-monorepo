@@ -40,6 +40,12 @@ def is_raw_path(path: Path) -> bool:
     return path.suffix.lower() in RAW_EXTENSIONS
 
 
+def is_dng_path(path: Path) -> bool:
+    """True for a .dng file, the one RAW format ``raw_develop`` renders."""
+
+    return path.suffix.lower() == ".dng"
+
+
 def extract_preview(path: Path) -> bytes | None:
     """Return the largest embedded JPEG in ``path``, or None if there is none."""
 

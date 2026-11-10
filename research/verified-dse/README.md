@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 108 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 109 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -19,6 +19,10 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   5.49% for the hand-chosen three-rung schedule and 8.00% for random routing of 8; the gap is one tie-heavy design
   (a ripple adder whose generic-gate cut discards the optimum, 34 to 40% regret) and one barrel-shifter cell, and
   elsewhere the two are equal: [`experiments/fresh_pool/`](experiments/fresh_pool/results.txt).
+  Priced at equal wall-clock (milestone 109), it costs 0.69 of routing everything and edges random routing of the
+  same cost only slightly (1.04% against 1.26% regret, better in 14 of 20 cells, sign test p = 0.12); the hand-chosen
+  schedule loses to its equal-cost random baseline (5.48% against 1.43%):
+  [`experiments/fresh_pool/price_results.txt`](experiments/fresh_pool/price_results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 
