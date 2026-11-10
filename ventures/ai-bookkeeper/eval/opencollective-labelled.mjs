@@ -199,9 +199,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         // The same layer allowed only the direction view: "the account most new payees went to".
         const p = evaluate(rows, map, v, { amounts, newPayeeOpts: { ...NEW_PAYEE, levels: ["direction"] } });
         console.log(`    prior only  first time seen ${line(p.firstSeen)}`);
-        // The same layer with the record gate off (minRecord 0): what the gate withholds.
-        const u = evaluate(rows, map, v, { amounts, newPayeeOpts: { ...NEW_PAYEE, minRecord: 0 } });
-        console.log(`    gate off    first time seen ${line(u.firstSeen)}`);
+        // The same layer with the optional record gate on (minRecord 0.4): what it would withhold.
+        const u = evaluate(rows, map, v, { amounts, newPayeeOpts: { ...NEW_PAYEE, minRecord: 0.4 } });
+        console.log(`    gate on     first time seen ${line(u.firstSeen)}`);
       }
       if (!skip) console.log(`                by source ${Object.entries(o.bySource).map(([k, x]) => `${k} ${x.n} (${pct(x.right, x.n)} right)`).join(", ")}`);
     }

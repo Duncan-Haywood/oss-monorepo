@@ -41,12 +41,12 @@ test("too few payees or a split view says nothing", () => {
   const np = trainNewPayee(history);
   // Six businesses is under the eight-payee floor; the size-only view is all 6060 but only six too,
   // so it backs off to direction: 10 of 16 to 6020, which is 62% and offered.
-  const g = guessNewPayee(np, { desc: "Omega Hosting LLC", cents: -3000 }, null, { ...NEW_PAYEE, minRecord: 0 });
+  const g = guessNewPayee(np, { desc: "Omega Hosting LLC", cents: -3000 });
   assert.equal(g.level, "direction");
-  // With the record gate on, that direction view is withheld: filed in this order, it guessed
+  // With the optional record gate on (minRecord 0.4), that direction view is withheld: filed in this order, it guessed
   // 6020 for the last eight payees and six of them (the businesses) went to 6060.
   assert.deepEqual(np.record.get("out"), { tries: 8, hits: 2 });
-  assert.equal(guessNewPayee(np, { desc: "Omega Hosting LLC", cents: -3000 }), null);
+  assert.equal(guessNewPayee(np, { desc: "Omega Hosting LLC", cents: -3000 }, null, gate), null);
   const split = trainNewPayee([...people.slice(0, 5).map((p) => file(p, -50000, "6020")), ...people.slice(5).map((p) => file(p, -50000, "6050")), file("Xia Yun", -50000, "6130"), file("Quin Roe", -50000, "6170")]);
   // 5/5/1/1 of twelve: the top share is 42%, offered. 5/5/4 of fourteen is 36%, under the 40% floor: withheld.
   assert.equal(guessNewPayee(split, { desc: "New Person", cents: -50000 }).account, "6020");
@@ -78,16 +78,21 @@ test("the AI layer in fill mode still takes a line that only has a new-payee gue
   assert.notEqual(r.error, "every review line already has a suggestion from the rules, memory or classifier");
 });
 
-test("a view that agrees but has not predicted new payees in these books says nothing", () => {
+const gate = { ...NEW_PAYEE, minRecord: 0.4 };
+test("with the gate on, a view that agrees but has not predicted new payees in these books says nothing", () => {
   // Eight people to 6020, then eight to 6050: the view ends 8/8 (50%, above the share floor),
   // but each of the last eight was guessed 6020 when it arrived, and each went to 6050.
   const names = [...people, "Kai Rye", "Lu Chen", "Mo Diaz", "Ned Holt", "Oz Park", "Pia Vos"];
   const drift = names.map((p, i) => file(p, -120000, i < 8 ? "6020" : "6050"));
   const np = trainNewPayee(drift);
   assert.deepEqual(np.record.get("out|person|l"), { tries: 8, hits: 0 });
-  assert.equal(guessNewPayee(np, { desc: "Quin Roe", cents: -120000 }), null);
-  // The gate off (minRecord 0) gives the share-only guess back.
-  assert.equal(guessNewPayee(np, { desc: "Quin Roe", cents: -120000 }, null, { ...NEW_PAYEE, minRecord: 0 }).account, "6020");
+  assert.equal(guessNewPayee(np, { desc: "Quin Roe", cents: -120000 }, null, gate), null);
+  // By default the gate is off: the guess is offered, its confidence capped by the 0-of-8 record.
+  assert.equal(guessNewPayee(np, { desc: "Quin Roe", cents: -120000 }).account, "6020");
+  const model = { rules: [], memory: buildMemory(drift), classifier: trainClassifier(drift), newPayee: np, codes: null };
+  const s = suggest({ desc: "Quin Roe", cents: -120000 }, model);
+  assert.equal(s.confidence, 0);
+  assert.match(s.reason, /right for 0 of 8 earlier new payees/);
 });
 
 test("a view with a good record offers its guess and says how it did", () => {

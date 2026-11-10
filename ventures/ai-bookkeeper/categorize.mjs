@@ -737,12 +737,13 @@ function plurality(m, allowed = null) {
 }
 
 // `levels` (eval only) limits which views are tried, to measure what shape and size add.
-// The record gate (2026-11-11): once a view has guessed at least `minTries` earlier new
-// payees in these books, it must have been right on at least `minRecord` of them, or it
-// says nothing. Both floors were set equal to the payee and share floors before the first
-// reading, not tuned (README "New payees, gated on their own record"). `minRecord: 0`
-// switches the gate off.
-export const NEW_PAYEE = { minPayees: 8, minShare: 0.4, maxConfidence: 0.5, minTries: 8, minRecord: 0.4, levels: null };
+// The record (2026-11-11): once a view has guessed at least `minTries` earlier new payees
+// in these books, its hit rate caps the guess's confidence and the reason says it ("right
+// for 7 of 12 earlier new payees"). `minRecord` > 0 also withholds a view whose rate is
+// under it. That gate was read at 0.4 (set before the first reading, not tuned) on seven
+// labelled sets and traded about one right suggestion for each wrong one it removed
+// (README "New payees, gated on their own record"), so it is off by default.
+export const NEW_PAYEE = { minPayees: 8, minShare: 0.4, maxConfidence: 0.5, minTries: 8, minRecord: 0, levels: null };
 // -> { account, share, n, of, level, record } or null.
 export function guessNewPayee(np, txn, allowed = null, opts = NEW_PAYEE) {
   if (!np?.tables?.size) return null;

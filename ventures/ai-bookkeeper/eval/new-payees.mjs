@@ -16,7 +16,7 @@
 //
 // --no-new-payee switches the new-payee layer (guessNewPayee) off; --levels limits its
 // views (e.g. "direction" for the plain prior), as in opencollective-labelled.mjs;
-// --min-record 0 switches off the gate on each view's own track record.
+// --min-record 0.4 turns on the optional gate on each view's own track record (off by default).
 //
 // Each set uses the category map of its own keyword eval (hackclub-ledger.mjs,
 // queeriouslabs-bank.mjs, billcat-card.mjs). The Chase label is the bank's own
