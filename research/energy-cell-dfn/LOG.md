@@ -1,5 +1,13 @@
 # energy-cell-dfn research log
 
+## 2026-11-10 · Are SPMe and DFN told apart by measured discharge curves? (plan, written before the run)
+- Question: README "Next steps" asks to compare both models with measured discharge curves. No measured curve exists for the OKane2022 (LG M50) designs here, so this uses the two measured sets PyBaMM ships with a matching parameter set: Ecker et al. 2015 (Kokam 7.5 Ah, `Ecker2015`, 1C and 5C) and Ai et al. 2020 (Enertech 2.28 Ah LCO pouch, `Ai2020`, 0.1C, 0.5C, 1C, 2C). Data from `pybamm.DataLoader` (pybamm-data v1.0.2).
+- Models: SPM, SPMe, DFN, each isothermal and with a lumped thermal model; same parameters per cell, constant-current discharge to the data's cut-off. Metric: voltage RMSE against data over the time both cover, and discharge-time error at cut-off. Mesh doubled once as a convergence check.
+- H1: at each cell's highest rate (Ecker 5C, Ai 2C), DFN's RMSE is lower than SPMe's. Refuted if SPMe is within 5 mV of DFN or better.
+- H2: at the lowest rate (Ai 0.1C, Ecker 1C), the SPMe-DFN difference (RMSE between the two model curves) is below both models' RMSE against data, so the data cannot tell them apart there. Refuted if the model-model RMSE exceeds the smaller model-data RMSE.
+- Also recorded (no hypothesis): DFN's minimum electrolyte concentration in each case, to say how close these measured cases come to the depletion regime where SPMe failed on the energy-cell designs.
+- Script: `experiments/validate_data.py`; outcome logged in the entry above this one.
+
 ## 2026-11-10 · Outcome: salt diffusion decides the collapse; conductivity treatment only changes its size
 - H2 supported: electrolyte diffusivity x2 removes SPMe's negative concentration (minimum 404 and 422 mol/m3) and the collapse; SPMe's cycle-2 charge is 6.24 / 5.73 Ah against DFN's 6.35 / 5.82 (within 2%), where at x1 it was 0.36 / 0.72 against 5.60 / 4.94.
 - H1 not refuted by the logged threshold: `integrated` conductivity lifts SPMe's cycle-2 charge to 3.19 / 2.19 Ah (above the 1 Ah line), but the concentration still goes negative and the gap to DFN stays 43% / 56%. `composite` equals the default; `leading order` is rejected for SPMe in PyBaMM 26.10.1.1.
