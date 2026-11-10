@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 3q: does a Michell + Havelock wave term fix 3b's catamaran miss? (run, then written; no prediction registered)
+- Why: 3b's placeholder wave term fell 35% to 43% short at Fn 0.33 to 0.58 on the Zenodo 18459868 catamaran tank curve. Michell with Havelock two-hull interference (`michell.py`, milestone 2) was the proposed replacement. Data hosts are refused this session, so the repository's own five-point CSV was the only curve available.
+- Method (`experiments/run_catamaran_michell.py`, `results_catamaran_michell.txt`, `tests/test_catamaran_michell.py`): two Wigley demi-hulls, L = 2.812 m from Fn, total wetted area fixed to the 1.709 m2 implied by the tank CT; the unknown beam is swept (L/B 8, 10, 12; draft then solved from the area, 0.08 to 0.12 m) with demi-hull spacing s/L 0.15, 0.25, 0.40 and k in {0, 0.1}: 18 cases.
+- Outcome: the model under-predicts the tank CT in every case at every speed: median -50% (Fn 0.33), -36%, -41%, -31%, -29% (Fn 0.79) at k = 0; -46% to -24% at k = 0.1. Best single case is -22%. No case is within 20% at any speed. Spacing and L/B move it by a few points only.
+- Reading: Michell, even with interference, does not rescue the miss. The tank hull is semi-planing (trim 0 to -2.6 deg, 3b), so most of the residual is dynamic lift, trim and sinkage, which a thin-ship Wigley model lacks; the geometry here is also inferred, not the real body plan. Consequence for the programme's results is unchanged: they sit at Fn about 0.16, well below this data. What it rules out is using the Michell model, or the displacement model generally, for Fn above about 0.3 on semi-planing catamarans.
+- Limits: five points, one hull, geometry inferred from two numbers, Wigley shape is not this hull's shape, bare hull with trim and sinkage the model lacks, water type assumed.
+- Next: a slender displacement-catamaran curve below Fn 0.3 (also the c15 branch of 3p); the Hull Vane paper's body plan if reachable.
+
 ## 2026-11-10 · Paper step: DRAFT.md section 3 item 1 brought up to milestones 3o and 3p (a write-up step, no new experiment)
 - Why: the draft's list of what is still needed stopped at 3n; 3o (Ju 1983 second Wigley point, k -0.06 to +0.01) and 3p (c15 branch coded, m1 typo ruled out) change what remains. No prediction: nothing was run.
 - Outcome: item 1 now carries both, with their second-hand and unopened-paper limits, and names the remaining need (Kajitani 1983 or ITTC Wigley data; a slender-hull curve above L/V^(1/3) 8 for c15; the 1984 CA form).
