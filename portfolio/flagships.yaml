@@ -74,12 +74,12 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords on real bank and card exports (HISTORY); labelled books 2026-11-10 (Open Collective, README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; real bank lines (ten Mint exports, six held out, README): classifier no longer overrules a keyword on a city word, first-seen 68.7% right, 15.6% wrong; guess held out on Hack Club 2026-11-10 (wrong 4% to 25%, README); next: gate the guess, one-off local merchants (card MCC, the AI layer); wanted: a firm's own labelled bank books; (1) the AI layer in
+      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): classifier no longer overrules a keyword on a city word, first-seen 68.7% right, 15.6% wrong; guess held out on Hack Club (wrong 4% to 25%); record gate 2026-11-10 (seven sets): withheld guesses 48% right, so off, record caps confidence; next: one-off local merchants (card MCC, the AI layer); wanted: a firm's own labelled bank books; (1) the AI layer in
       fill-only mode on real bank descriptions, more seeds, a bigger model
       (synthetic so far); (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) a real Stripe, PayPal, eBay, Amazon or Adyen settlement export, and a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
-      through real OCR (SROIE: totals 76.2%, dates 80.2%, merchants 45.8%;
+      through real OCR (SROIE totals 76.2%, dates 80.2%, merchants 45.8%;
       wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) IRIS
       1099-NEC export done (HISTORY): open: a real upload, 1099-MISC; (8) `salestax

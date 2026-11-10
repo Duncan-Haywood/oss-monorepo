@@ -337,3 +337,40 @@ def test_plan_audit_reports_the_ceiling():
     assert plan["design"] == "cells" and 0.4 < plan["ceiling"] < 0.7  # sens .9 spec .95: 0.52 exact
     noise = [rng.randint(0, 1) for _ in y]
     assert S.plan_audit(noise, {i: y[i] for i in pilot}, 400)["ceiling"] > 0.9
+
+
+def test_guard_fire_probability_matches_brute_force_and_poisson_limit():
+    import itertools, math
+    from llmci import audit_design as S
+    # brute force: corpus of 9 items, 4 misses, pilot 5, at least 3 misses in the pilot
+    hits = sum(1 for c in itertools.combinations(range(9), 5) if sum(1 for i in c if i < 4) >= 3)
+    assert abs(S.guard_fire_probability(5, 4, 9) - hits / math.comb(9, 5)) < 1e-12
+    assert S.guard_fire_probability(5, 2, 9) == 0.0 and S.guard_fire_probability(9, 4, 9) == 1.0
+    # large corpus, small sampling fraction: Poisson(m = 5.32) tail is 0.90
+    m = 5.3223
+    pois = 1 - math.exp(-m) * (1 + m + m * m / 2)
+    assert abs(pois - 0.9) < 1e-3
+    assert abs(S.guard_fire_probability(5322, 1000, 1_000_000) - pois) < 2e-3
+
+
+def test_pilot_for_guard_is_the_smallest_pilot_reaching_the_target():
+    from llmci import audit_design as S
+    p = S.pilot_for_guard(0.02, 0.5, 100_000)
+    misses = round(100_000 * 0.02 * 0.5)
+    assert S.guard_fire_probability(p, misses, 100_000) >= 0.9 > S.guard_fire_probability(p - 1, misses, 100_000)
+    assert abs(p - 5.32 / (0.02 * 0.5)) < 15  # the Poisson planning rule
+    assert S.pilot_for_guard(0.0001, 0.9, 1000) is None
+
+
+def test_cells_probability_matches_brute_force_screen():
+    import itertools
+    from llmci import audit_design as S
+    # corpus of 12: 2 hits, 4 misses, 3 false positives, 3 true negatives; every 6-item pilot through the real screen
+    y = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+    f = [1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0]
+    combos = list(itertools.combinations(range(12), 6))
+    hits = sum(1 for c in combos if S.screen([y[i] for i in c], [f[i] for i in c], tau=0.0, guard=0) == "cells")
+    assert abs(S.cells_probability(6, 2, 4, 3, 12) - hits / len(combos)) < 1e-12
+    # never above the guard-only tail, and equal to it when hits are plentiful
+    assert S.cells_probability(6, 2, 4, 3, 12) <= S.guard_fire_probability(6, 4, 12) + 1e-12
+    assert abs(S.cells_probability(400, 2000, 60, 50, 10000) - S.guard_fire_probability(400, 60, 10000)) < 1e-6

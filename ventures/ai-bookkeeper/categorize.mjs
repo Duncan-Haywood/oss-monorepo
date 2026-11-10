@@ -703,8 +703,12 @@ export function payeeShape(desc) {
 const sizeBand = (cents) => { const d = Math.abs(cents ?? 0) / 100; return d < 50 ? "s" : d < 500 ? "m" : d < 5000 ? "l" : "xl"; };
 
 // From history: each payee's first filed line, counted by direction, shape and size.
+// Each view also keeps its own track record (`record`): replayed in filing order, how
+// often its plurality, read before that payee was added, named the account the payee's
+// first line was then filed to. The share says how much a view's payees agree; the
+// record says whether that agreement has predicted the next new payee in these books.
 export function trainNewPayee(history) {
-  const first = new Map(), t = new Map();
+  const first = new Map(), t = new Map(), record = new Map();
   for (const h of history) {
     const k = `${h.key}|${h.dir}`;
     if (!h.key || first.has(k)) continue;
@@ -713,28 +717,46 @@ export function trainNewPayee(history) {
   const add = (key, account) => { const m = t.get(key) ?? new Map(); m.set(account, (m.get(account) ?? 0) + 1); t.set(key, m); };
   for (const h of first.values()) {
     if (!h.account || h.account === "transfer") continue;
-    const shape = h.shape ?? "?", band = sizeBand(h.cents);
-    add(`${h.dir}|${shape}|${band}`, h.account); add(`${h.dir}|${shape}`, h.account); add(`${h.dir}||${band}`, h.account); add(`${h.dir}`, h.account);
+    const keys = viewKeys(h.dir, h.shape ?? "?", sizeBand(h.cents)).map(([key]) => key);
+    for (const key of keys) {
+      const top = plurality(t.get(key));
+      if (top && top.of >= NEW_PAYEE.minPayees) { const r = record.get(key) ?? { tries: 0, hits: 0 }; r.tries++; if (top.account === h.account) r.hits++; record.set(key, r); }
+    }
+    for (const key of keys) add(key, h.account);
   }
-  return { tables: t, payees: first.size };
+  return { tables: t, record, payees: first.size };
+}
+const viewKeys = (d, shape, band) => [[`${d}|${shape}|${band}`, "shape and size"], [`${d}|${shape}`, "shape"], [`${d}||${band}`, "size"], [d, "direction"]];
+function plurality(m, allowed = null) {
+  if (!m) return null;
+  const rows = [...m].filter(([a]) => !allowed || allowed(a));
+  const of = rows.reduce((a, [, n]) => a + n, 0);
+  if (!of) return null;
+  const [account, n] = rows.sort((a, b) => b[1] - a[1])[0];
+  return { account, n, of };
 }
 
 // `levels` (eval only) limits which views are tried, to measure what shape and size add.
-export const NEW_PAYEE = { minPayees: 8, minShare: 0.4, maxConfidence: 0.5, levels: null };
-// -> { account, share, n, of, level } or null.
+// The record (2026-11-10): once a view has guessed at least `minTries` earlier new payees
+// in these books, its hit rate caps the guess's confidence and the reason says it ("right
+// for 7 of 12 earlier new payees"). `minRecord` > 0 also withholds a view whose rate is
+// under it. That gate was read at 0.4 (set before the first reading, not tuned) on seven
+// labelled sets and traded about one right suggestion for each wrong one it removed
+// (README "New payees, gated on their own record"), so it is off by default.
+export const NEW_PAYEE = { minPayees: 8, minShare: 0.4, maxConfidence: 0.5, minTries: 8, minRecord: 0, levels: null };
+// -> { account, share, n, of, level, record } or null.
 export function guessNewPayee(np, txn, allowed = null, opts = NEW_PAYEE) {
   if (!np?.tables?.size) return null;
   const d = dir(txn.cents), shape = payeeShape(txn.desc), band = sizeBand(txn.cents);
-  const views = [[`${d}|${shape}|${band}`, "shape and size"], [`${d}|${shape}`, "shape"], [`${d}||${band}`, "size"], [d, "direction"]];
-  for (const [key, level] of views.filter(([, l]) => !opts.levels || opts.levels.includes(l))) {
-    const m = np.tables.get(key);
-    if (!m) continue;
-    const rows = [...m].filter(([a]) => !allowed || allowed(a));
-    const of = rows.reduce((a, [, n]) => a + n, 0);
-    if (of < opts.minPayees) continue;
-    const [account, n] = rows.sort((a, b) => b[1] - a[1])[0];
+  for (const [key, level] of viewKeys(d, shape, band).filter(([, l]) => !opts.levels || opts.levels.includes(l))) {
+    const top = plurality(np.tables.get(key), allowed);
+    if (!top || top.of < opts.minPayees) continue;
+    const { account, n, of } = top;
     if (n / of < opts.minShare) return null; // the best-supported view is split: say nothing rather than back off to a coarser guess
-    return { account, share: n / of, n, of, level, shape, band };
+    const record = np.record?.get(key) ?? null;
+    const minRecord = opts.minRecord ?? NEW_PAYEE.minRecord, minTries = opts.minTries ?? NEW_PAYEE.minTries;
+    if (record && minRecord > 0 && record.tries >= minTries && record.hits / record.tries < minRecord) return null; // agreed, but has not predicted new payees here
+    return { account, share: n / of, n, of, level, shape, band, record };
   }
   return null;
 }
@@ -854,7 +876,9 @@ export function suggest(txn, model) {
     const g = guessNewPayee(model.newPayee, txn, (a) => model.codes?.has(a) ?? true, opts);
     if (g) {
       const kind = { person: "named people", business: "businesses", other: "payees like this", "?": "payees" }[g.level.includes("shape") ? g.shape : "?"];
-      return { account: g.account, confidence: Math.min(g.share, opts.maxConfidence ?? NEW_PAYEE.maxConfidence), source: "new-payee", reason: `new payee: ${g.n} of the ${g.of} ${kind} you filed${g.level.includes("size") ? " at this size" : ""} went here first`, alternatives: ranked.slice(0, 2) };
+      const rec = g.record?.tries >= (opts.minTries ?? NEW_PAYEE.minTries) ? g.record : null;
+      const confidence = Math.min(g.share, rec ? rec.hits / rec.tries : 1, opts.maxConfidence ?? NEW_PAYEE.maxConfidence);
+      return { account: g.account, confidence, source: "new-payee", reason: `new payee: ${g.n} of the ${g.of} ${kind} you filed${g.level.includes("size") ? " at this size" : ""} went here first${rec ? `; this guess was right for ${rec.hits} of ${rec.tries} earlier new payees` : ""}`, alternatives: ranked.slice(0, 2) };
     }
   }
   return { account: null, confidence: 0, source: "none", reason: key ? `nothing known about "${key}" yet` : "the description is empty", alternatives: ranked.slice(0, 3) };
