@@ -32,8 +32,8 @@
     },
     {
       "severity": "medium",
-      "what": "prompts-ci has been red on main for over 14 hours (failing test_overlong_post_description_is_reported); the fix is under /prompts/, which is CODEOWNERS-gated, so agents cannot land it without the owner.",
-      "where": "prompts/ (prompts-ci.yml), latest red run 42748976359"
+      "what": "prompts-ci was red on main for over 14 hours (test_overlong_post_description_is_reported). Root cause outside prompts/: platform/ci/check_post_frontmatter.py gained an import that crashes when the test copies it alone, and promptctl.validate_posts reads only stdout, so the crash read as 'no problems' (a silent fallback in a gated file). Fixed in the PR on the checker side, with a test.",
+      "where": "platform/ci/check_post_frontmatter.py:21; prompts/promptctl.py:590-603 (validate_posts)"
     },
     {
       "severity": "medium",

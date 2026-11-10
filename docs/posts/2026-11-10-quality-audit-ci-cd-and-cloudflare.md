@@ -41,6 +41,6 @@ The Cloudflare side does what its README says. Each part of the two-Worker split
 3. The email-routing apply is a no-op on a re-run again: the old comparison depended on key order. It also reads a full page of rules.
 4. 39 committed `.wrangler/` dev-state files are removed and ignored. One of them recorded the build machine's city and postal code.
 5. Our Actions minutes estimator flagged every hourly cron as "more often than hourly", because 730 runs a month is more than 720.
-6. Main's two red checks are fixed: an over-long flagship entry and an over-long post title.
+6. Main's red checks are fixed: an over-long flagship entry and a post title, plus a 14-hour red test. The blog-post checker had started importing a helper that a test's standalone copy could not find, and the crash read as "no problems".
 
 Two steps only the owner can take now have a row in the decision queue (`cloudflare-mail-and-ruleset`): apply the ruleset, and apply email routing plus a DMARC record. A later round re-audits; these scores do not move for fixes made in the same audit.

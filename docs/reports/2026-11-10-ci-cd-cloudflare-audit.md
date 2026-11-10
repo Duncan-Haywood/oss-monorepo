@@ -31,3 +31,6 @@ Audit files: `portfolio/quality/audits/2026-11-10-{github-workflows,platform-pag
 7. `platform/ci/ci_starvation.py` says "failure is real" for runs where 0 jobs ran
    (42672967842 and three others).
 8. `portfolio/ledger/test_no_duplicate_yaml_keys.py` fails on `venture-scores.yaml` on main.
+9. Control plane: `prompts/promptctl.py` `validate_posts` reads only the checker's stdout, so a
+   crash (non-zero exit, empty stdout) reads as "no problems". That hid the 2026-11-10 import
+   crash for 14 h; report the stderr as an error instead. The import itself is fixed in PR 14427.
