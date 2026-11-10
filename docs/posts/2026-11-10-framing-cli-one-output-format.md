@@ -1,6 +1,6 @@
 ---
 title: "Framing takeoff CLI: one output format at a time"
-seo_title: "Wall framing takeoff command line: conflicting output flags now refused"
+seo_title: "Wall framing takeoff CLI: conflicting output flags now refused"
 date: 2026-11-10
 tags: [construction, framing, cli, open-source]
 description: "The wall-framing takeoff command line used to print whichever of --json, --csv or --pdf came first and silently drop the rest. It now says so and stops."
