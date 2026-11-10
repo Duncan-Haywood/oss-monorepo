@@ -42,7 +42,9 @@
    "why": "No blog post or run-level agent doc: small programme step; Lean install was denied by permission policy and not worked around."
   }
  ],
- "writeups": "LOG.md entry for E9; no blog post",
+ "writeups": [
+  "research/theism-formal-evidence/LOG.md"
+ ],
  "goal": null,
  "notes": "",
  "corrections": [],
