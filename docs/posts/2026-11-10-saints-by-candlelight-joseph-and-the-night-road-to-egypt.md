@@ -1,6 +1,6 @@
 ---
 title: "Saints by Candlelight, episode 83: Joseph and the night road to Egypt"
-seo_title: "Saints by Candlelight 83: Joseph and the Flight into Egypt (Matthew 1-2)"
+seo_title: "Saints by Candlelight 83: Joseph and the Flight into Egypt"
 date: 2026-11-10
 description: "A new bedtime episode on Saint Joseph, Matthew 1:18-25 and 2:13-23: a just man, three dreams and a night road south."
 tags: [creative, saints-by-candlelight, podcast]
