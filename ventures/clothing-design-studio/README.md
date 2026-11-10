@@ -205,3 +205,7 @@ Measured 2026-11-09, 150 cm cloth: one tee M 85.1 cm (77.5% of the cloth is patt
 ## Rib on the cutting plan: self-fabric or its own knit (2026-11-10)
 
 `cuttingPlan(..., { nested: true, rib: "self" | "separate", ribWidthCm })` (crewneck and hoodie; a select on `fit.html`). `self` nests the drafted hem and cuff bands into the body cloth's lays. `separate` lays the body without bands, then lays the bands alone on a rib knit of its own width (default 150 cm; the bands lie across the width, an XL hoodie hem band is about 118 cm) and reports `ribMetresToBuy` beside the body metres. Measured 2026-11-10, hoodie S6 M12 L10 XL4, 150 cm cloth: 50.07 m plain hem, 51.48 m with self-fabric bands, 46.37 m body plus 6.74 m rib knit separate. Greedy raster nest, typed 0.85 stretch ratio and 6 cm height, no real rib compared; the mill's yield wins. Test: `node --test marker.test.mjs`.
+
+## Zip-front hoodie
+
+`draft("hoodie", size, { zip: true })` (checkbox on `pattern.html`) cuts the front as two halves with a 1.5 cm centre-front allowance (`zipSeamCm`, 0.5 to 4) instead of a fold, reports the centre-front stitch length for buying an open-end zip, and nests in the cutting plan. Typed drafting allowance, not checked against a real hoodie or zip tape.

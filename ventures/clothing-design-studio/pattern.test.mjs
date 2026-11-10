@@ -141,3 +141,20 @@ test("rib bands: lengths are the stated share of the opening, body and sleeve ar
   assert.ok(draft("tee", "M", { rib: true }).error);
   assert.match(checkText(draft("crewneck", "M", { rib: true })), /Rib: hem band/);
 });
+
+test("zip front: two mirrored front halves with a centre-front allowance, hoodie only, off by default", () => {
+  for (const s of ["S", "M", "XL"]) {
+    const plain = draft("hoodie", s), d = draft("hoodie", s, { zip: true });
+    assert.ok(d.ok && d.checks.allSimple);
+    const f0 = plain.pieces.find(p => p.name === "front"), f = d.pieces.find(p => p.name === "front");
+    assert.equal(f0.qty, 1); assert.equal(f0.cutOnFold, true);
+    assert.equal(f.qty, 2); assert.equal(f.cutOnFold, false);
+    // the allowance on the centre-front edge widens the cut piece by 1.5 cm beyond the stitch line
+    assert.ok(Math.abs((f0.bbox.minX - f.bbox.minX) - 1.5) < 0.05 || f.bbox.minX < f0.bbox.minX - 1.4);
+    assert.ok(d.checks.zipOpeningCm > 40);
+    assert.ok(d.notes.some(n => /Zip front/.test(n)));
+    assert.equal(plain.checks.zipOpeningCm, undefined);
+  }
+  assert.ok(draft("tee", "M", { zip: true }).error);
+  assert.ok(draft("hoodie", "M", { zip: true, zipSeamCm: 9 }).error);
+});
