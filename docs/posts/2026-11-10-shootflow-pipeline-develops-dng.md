@@ -3,7 +3,7 @@ title: "ShootFlow's overnight pipeline now develops DNG raw files"
 seo_title: "Batch develop DNG raw files to 16-bit TIFF overnight, open source"
 date: 2026-11-10
 tags: [photography, raw, dng, workflow, open-source]
-description: "Drop DNGs on the card and ShootFlow's unattended pipeline develops each into a 16-bit master, grades it and puts it in the reels and carousels. Checked on a real Nikon sensor file."
+description: "Drop DNGs on the card and ShootFlow's overnight pipeline develops each into a 16-bit master, grades it and uses it in reels. Checked on a real Nikon file."
 ---
 
 Earlier today ShootFlow got a DNG developer (`shootflow develop`), checked pixel by
