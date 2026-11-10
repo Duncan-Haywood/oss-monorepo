@@ -211,3 +211,15 @@ test('the scroll shadow is on the scrolling box, and form controls cap at the vi
   assert.match(REFLOW_CSS, new RegExp(`\\.${TABLE_SCROLL_CLASS}\\[data-pf-scrollable\\]\\{box-shadow:inset -12px 0 8px -8px rgba\\(0,0,0,\\.28\\)\\}`));
   assert.match(REFLOW_CSS, /:where\(input,select,textarea\)\{min-width:0;max-width:100%\}/);
 });
+
+test('site-owned pages get the reflow rules too, not only venture pages', async () => {
+  // Until 2026-11-10 REFLOW_CSS rode only in pf-chrome.css, which venture pages
+  // link. The hub, /research/, /writing/ and /stories/ link pf-site.css
+  // instead, so they had no guard at all: /research/ measured 428px wide in a
+  // 390px window because a featured card quoted a long file path in <code>.
+  const { renderSiteStyle } = await import('./site-nav.mjs');
+  assert.ok(
+    renderSiteStyle().includes(REFLOW_CSS),
+    'pf-site.css must carry REFLOW_CSS, as pf-chrome.css does',
+  );
+});
