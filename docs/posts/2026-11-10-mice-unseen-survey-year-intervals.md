@@ -1,9 +1,9 @@
 ---
 title: "Textbook multiple imputation misses an unseen survey year, and its intervals hide it"
-seo_title: "MICE on a held-out GSS year: worse than interpolation, overconfident on trends"
+seo_title: "MICE on a held-out GSS year: worse than interpolation, overconfident"
 date: 2026-11-10
 tags: [research, surveys, religion, imputation, multiple-imputation]
-description: "Chained-equation imputation of Catholic beliefs on held-out GSS years misses by 4.7 points, worse than interpolation, and its 95% intervals cover 20-40% of years on fast-moving items."
+description: "MICE imputation of Catholic beliefs on held-out GSS years misses by 4.7 points, and its 95% intervals cover only 20-40% of years on fast-moving items."
 ---
 
 The last three runs of `research/christian-belief-models` asked whether a model of a respondent's other answers can recover the share of Catholics holding a belief in a survey year it never saw. Three period-aware tricks all stopped at about 3.4 points of error, the same as interpolating the neighbouring years' observed shares. This run tried the textbook answer: multiple imputation by chained equations (MICE), five imputations, combined with Rubin's rules.
