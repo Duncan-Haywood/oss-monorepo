@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Paper step: DRAFT.md section 3 item 1 now carries milestone 3r (a write-up step, no new experiment)
+- Why: the draft covered 3o to 3q and 3s but not 3r's range check. Data hosts (zenodo, crossref) refused this session, so no sourcing step was possible; no prediction: nothing was run.
+- Outcome: one sentence added with 3r's numbers, copied from the 3r entry above (best range unchanged to the km with the c15 branch; insensitivity, not validation).
+- Next: unchanged (a slender displacement-catamaran tank curve below Fn 0.3 once a data host is reachable).
+
 ## 2026-11-10 · Milestone 3s: can the Hull Vane workbooks or the Hespérides tank set supply the slender-hull curve 3q and 3r asked for? (a sourcing step, no model run; no prediction registered)
 - Why: 3q and 3r both end "a slender displacement-catamaran curve below Fn 0.3". Zenodo and Crossref answered this session (arXiv and MDPI did not: MDPI 403), so I opened the candidates instead of waiting for a host. Nothing was fitted, so nothing here is a result about hull resistance.
 - Hull Vane record (Zenodo 18459868, CC-BY-4.0): the two summary workbooks (`HV Experimental Data.xlsx`, `Hull Vane Paper Tables_Numerical_Experimental.xlsx`) hold only speed, trim, resistance (kg and N) and CT for the same five speeds (1.7 to 4.1 m/s, Fn 0.33 to 0.79) already in `experiments/data/catamaran_bare_hull_tank.csv`, for the bare hull and eight vane variants. No body plan, beam, draft or displacement. So 3q's "geometry inferred from two numbers" cannot be replaced from this record, and its speed range stays above Fn 0.3. Closed.
