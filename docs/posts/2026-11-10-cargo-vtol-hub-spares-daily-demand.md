@@ -1,6 +1,6 @@
 ---
 title: "How many spare batteries does a cargo-drone hub need when demand follows the clock?"
-seo_title: "Cargo VTOL hub battery spares: daily demand profile vs Poisson arrivals"
+seo_title: "Cargo VTOL hub battery spares: daily demand vs Poisson arrivals"
 date: 2026-11-10
 tags: [research, aerolog-scaling, drone-logistics]
 description: "A simulated 8-pad, 8-charger cargo-drone hub needs the same spare packs at 70% load but twice as many at 85% when demand follows a real daily profile."
