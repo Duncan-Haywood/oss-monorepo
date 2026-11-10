@@ -7,7 +7,9 @@ concentrates it in a window of W steps (eta = E/W there, 0 elsewhere), placed ea
 Segments are the commitment grid of milestone 74 (non-overlapping, length s, starts 0, s, 2s, ...). The referee
 replays a segment in fp16 from the worker's checkpoint and flags it when the L2 distance to the worker's next
 checkpoint exceeds rho_s x the replayed mean step norm. rho_s is calibrated here on 40 fresh honest seeds
-(100..139), the maximum over every grid segment, which is the fix milestone 75 named for its 0.2% false flags.
+(100..139) over every grid segment, the fix milestone 75 named for its 0.2% false flags. Two tolerance rules are
+reported: the calibration maximum (the milestone 72/75 rule) and its 99.9th percentile, since the first run showed a
+heavy tail that makes the maximum grow with the sample.
 The verifier samples k segments uniformly without replacement at replay budget B = k s; a job is caught when a
 flagged segment is sampled: P = 1 - C(N - m, k) / C(N, k) for m flagged of N segments, averaged over seeds.
 Harm: paired held-out loss change of the final weights against the same seed's honest run.
@@ -96,31 +98,40 @@ def main():
     with Pool(4) as p:
         cal = p.map(calibrate, CAL_SEEDS)
         res = dict(p.map(run_test, TEST_SEEDS))
-    rho = {s: max(max(c[s]) for c in cal) for s in SS}
+    pooled = {s: np.array(sum((c[s] for c in cal), [])) for s in SS}
+    rules = {"max": {s: float(pooled[s].max()) for s in SS},
+             "q999": {s: float(np.quantile(pooled[s], 0.999)) for s in SS}}
+    tail = {s: sorted(((float(v), CAL_SEEDS[i], j * s) for i, c in enumerate(cal) for j, v in enumerate(c[s])),
+                      reverse=True)[:10] for s in SS}
     r4 = lambda v: [round(x, 4) for x in v]
-    json.dump({"rho": rho, "cal_p99": {s: float(np.quantile(sum((c[s] for c in cal), []), 0.99)) for s in SS},
+    json.dump({"rules": rules, "cal_tail_top10 (ratio, seed, t0)": tail,
+               "cal_quantiles": {s: {q: float(np.quantile(pooled[s], q)) for q in (0.5, 0.9, 0.99, 0.999)} for s in SS},
                "res": {str(k): {c: {"loss": v[c]["loss"], "ratio": {s: r4(v[c]["ratio"][s]) for s in SS}} for c in v}
                        for k, v in res.items()}},
               open(os.path.join(HERE, "results.json"), "w"))
-    L = [f"rho_s calibrated on {len(CAL_SEEDS)} honest seeds x every grid segment (max): "
-         + ", ".join(f"s={s}: {rho[s]:.4f} (n={len(CAL_SEEDS) * T // s})" for s in SS),
-         f"{len(TEST_SEEDS)} test seeds, T = {T}. flag = share of grid segments flagged; in-win = share flagged among "
-         "segments overlapping the window. P(B) = mean chance a job is caught at replay budget B (k = B/s sampled).",
-         "dL = paired held-out loss change vs honest, mean [95% bootstrap CI]."]
-    base = [res[sd]["honest"]["loss"] for sd in TEST_SEEDS]
+    L = [f"Honest calibration: {len(CAL_SEEDS)} seeds x every grid segment. Quantiles of drift / mean step norm:"]
     for s in SS:
-        n = T // s
-        L.append(f"\ns = {s} ({n} segments)")
-        L.append(f"  {'config':<22} {'dL [95% CI]':<29} {'flag':>6} {'in-win':>7} " + " ".join(f"{'P(B=' + str(B) + ')':>9}" for B in BUDGETS))
-        for cfg in CONFIGS:
-            name, a, W, _ = cfg
-            d = np.array([res[sd][name]["loss"] - base[sd] for sd in TEST_SEEDS])
-            lo, hi = bootstrap_ci(d) if name != "honest" else (0.0, 0.0)
-            fl = [np.array(res[sd][name]["ratio"][s]) > rho[s] for sd in TEST_SEEDS]
-            inw = [i for i in range(n) if i * s < a + W and i * s + s > a]
-            pc = {B: np.mean([p_catch(int(f.sum()), n, B // s) for f in fl]) for B in BUDGETS}
-            L.append(f"  {name:<22} {d.mean():+.4f} [{lo:+.4f}, {hi:+.4f}]   {np.mean([f.mean() for f in fl]):6.3f} "
-                     f"{np.mean([f[inw].mean() for f in fl]):7.3f} " + " ".join(f"{pc[B]:9.3f}" for B in BUDGETS))
+        qs = ", ".join(f"q{q}: {np.quantile(pooled[s], q):.4f}" for q in (0.5, 0.9, 0.99, 0.999))
+        L.append(f"  s={s} (n={len(pooled[s])}): {qs}, max: {pooled[s].max():.4f}; top 3 (ratio, seed, t0): "
+                 + "; ".join(f"{v:.3f}, {sd}, {t0}" for v, sd, t0 in tail[s][:3]))
+    L += [f"{len(TEST_SEEDS)} test seeds, T = {T}. flag = share of grid segments flagged; in-win = share flagged among "
+          "segments overlapping the window. P(B) = mean chance a job is caught at replay budget B (k = B/s sampled).",
+          "dL = paired held-out loss change vs honest, mean [95% bootstrap CI]."]
+    base = [res[sd]["honest"]["loss"] for sd in TEST_SEEDS]
+    for rule, rho in rules.items():
+        for s in SS:
+            n = T // s
+            L.append(f"\ntolerance rule = calibration {rule} (rho = {rho[s]:.4f}), s = {s} ({n} segments)")
+            L.append(f"  {'config':<22} {'dL [95% CI]':<29} {'flag':>6} {'in-win':>7} " + " ".join(f"{'P(B=' + str(B) + ')':>9}" for B in BUDGETS))
+            for cfg in CONFIGS:
+                name, a, W, _ = cfg
+                d = np.array([res[sd][name]["loss"] - base[sd] for sd in TEST_SEEDS])
+                lo, hi = bootstrap_ci(d) if name != "honest" else (0.0, 0.0)
+                fl = [np.array(res[sd][name]["ratio"][s]) > rho[s] for sd in TEST_SEEDS]
+                inw = [i for i in range(n) if i * s < a + W and i * s + s > a]
+                pc = {B: np.mean([p_catch(int(f.sum()), n, B // s) for f in fl]) for B in BUDGETS}
+                L.append(f"  {name:<22} {d.mean():+.4f} [{lo:+.4f}, {hi:+.4f}]   {np.mean([f.mean() for f in fl]):6.4f} "
+                         f"{np.mean([f[inw].mean() for f in fl]):7.3f} " + " ".join(f"{pc[B]:9.3f}" for B in BUDGETS))
     open(os.path.join(HERE, "results.txt"), "w").write("\n".join(L) + "\n")
     print("\n".join(L))
 
