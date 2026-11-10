@@ -34,7 +34,12 @@ FLAGSHIPS = ROOT / "portfolio" / "flagships.yaml"
 DIMENSIONS = ("correctness", "completeness", "verification", "craft", "claims", "fitness", "domain")
 GATES = ("correctness", "claims", "verification")
 BAR = 3
-STRATA = ("flagship", "venture", "research", "platform")
+STRATA = ("flagship", "venture", "research", "platform", "topical")
+# Chosen, not drawn: reported apart and kept out of the sampled share. A
+# `topical` audit covers a subject someone asked about (e.g. the CI/CD and
+# Cloudflare setup, 2026-11-10), so letting it into the random strata, or
+# into the 90-day skip, would bias the estimate the sample exists for.
+CHOSEN = ("flagship", "topical")
 SEVERITIES = ("high", "medium", "low")
 STATUSES = ("audited", "unauditable")
 SKIP_DAYS = 90
@@ -82,6 +87,8 @@ def last_audited(audits: list[dict]) -> dict[str, str]:
     last: dict[str, str] = {}
     for a in audits:
         s, d = a.get("subject"), a.get("date", "")
+        if a.get("stratum") == "topical":
+            continue
         if s and d > last.get(s, ""):
             last[s] = d
     return last
@@ -176,7 +183,7 @@ def summarize(audits: list[dict]) -> dict:
         if a.get("status") == "audited":
             r["n"] += 1
             r["meets_bar"] += meets_bar(a["scores"])
-    sampled = [a for a in rows if a["stratum"] != "flagship"]
+    sampled = [a for a in rows if a["stratum"] not in CHOSEN]
     k = sum(meets_bar(a["scores"]) for a in sampled)
     lo, hi = wilson(k, len(sampled))
     out["sampled"] = {"n": len(sampled), "meets_bar": k, "finished": sum(finished(a["scores"]) for a in sampled), "ci": [round(lo, 3), round(hi, 3)]}

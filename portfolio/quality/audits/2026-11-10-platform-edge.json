@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-10",
+  "stratum": "topical",
+  "seed": "topical: owner request 2026-11-10 (CI/CD process and Cloudflare infrastructure)",
+  "auditor": "agent session (Claude) with three parallel auditor agents, see run record",
+  "status": "audited",
+  "subject": "platform/edge",
+  "professional": "a senior Cloudflare edge engineer (Workers, D1, Email Workers) who also guards visitor privacy. First checks: is it live, is every write bounded and authenticated, does the privacy copy match what D1 stores, and do the tests exercise the real SQL.",
+  "scores": {
+    "correctness": 2,
+    "completeness": 2,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Live (GET/OPTIONS only): /healthz 200 'ok', /counts 200, /feedback?after=0 200, /inbox 404 without a token, an OPTIONS preflight with Origin https://evil.example is not echoed (ACAO stays https://marisstella.app). Live invariant recomputed from /counts: each counted page load writes one dev: and one geo: row; page==dev==geo held on all 10 days pulled (2026-11-08: page 48, dev 48, geo 48). Every SQL statement uses ?N binds; a feedback post with tool \"x'); DROP TABLE feedback;--\" answers 400 {\"error\":\"tool\"}. But a local harness running the real worker.mjs over a mock D1 showed POST /hit from Origin https://evil.example writing rows for invented slugs (invented-slug-0..2): counts are forgeable.",
+    "completeness": "Worked end to end: feedback form, page counts, inbox auth, workers.dev redirect (all live, above). Not working: the inbox cannot receive mail (marisstella.app has no MX, DNS-over-HTTPS 2026-11-10) because email routing was never applied; the Cloudflare analytics pull gets only Worker invocations, its zone datasets fail daily with 'does not have permission com.cloudflare.api.account.zone.analytics.read' (origin/usage-data:cloudflare-analytics.json, last_pull 2026-11-09) while the job stays green.",
+    "verification": "`node --test platform/edge/*.test.mjs`: 28 of 28 pass. Five seeded mutants, reverted: skipping the feedback daily cap, flipping the inbox purge and id checks were caught (inbox: 21 pass, 7 fail); the off-by-one in the daily-cap SQL (`WHERE n < ?2` to `n <= ?2`, worker.mjs:82) was NOT caught (28 pass): worker.test.mjs's fakeDb re-implements the cap in JavaScript and ignores the SQL text, so no SQL defect can fail a test. edge-deploy.yml:65 gates the deploy on worker.test.mjs only, not inbox.test.mjs. edge-deploy has 24 successful runs and 1 cancelled (API).",
+    "craft": "Read worker.mjs, inbox.mjs, feedback.mjs, schema.sql, edge-deploy.yml: inputs bounded (6,000-byte feedback, 256 KB mail), honeypot, per-IP limiter and a D1 daily cap on feedback, constant-time token compare, 90-day inbox purge, pinned actions with persist-credentials false, idempotent D1 find-or-create. Defects: up to five sequential awaited D1 writes per hit where DB.batch() fits (worker.mjs:58-67); a zero database_id placeholder that only CI substitutes, so a hand deploy fails; no migrations directory.",
+    "claims": "Backed: the counter's privacy copy (platform/pages/build.mjs:5777-5788) matches worker.mjs (country, device class, no IP or UA stored). False or unbacked: README.md:28 'unknown slugs are not counted' (the harness counted invented slugs); the inbox privacy copy (build.mjs:5790-5795) says mail is 'read only to answer you' without saying agents send it to an AI model provider; wrangler.toml:1 and worker.mjs:3 still call it the Worker 'for the GitHub Pages site'; the README routes table omits /inbox and the email handler.",
+    "fitness": "Owner job 'visitor feedback and counts without GitHub' works end to end today (live endpoints above). Owner job 'an agent-managed inbox at support@, hello@, accounts@' fails today: no MX, so mail bounces, while portfolio/distribution/accounts.json tells sessions to sign up for platform accounts with accounts@marisstella.app.",
+    "domain": "Compared with Workers/D1 practice: bound parameters, quota-aware caps and secrets via wrangler secret are right. Departures a senior edge engineer would block: an unauthenticated, unlimited POST /hit can spend the shared free D1 write quota (100,000 rows/day; one unidentified bot:headless client already sends 12,500 to 13,600 beacons a day, about a quarter of it), which would also stop the feedback form and the inbox for the rest of the UTC day; no migration path for schema changes; the SQL is never run against SQLite in tests."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "POST /hit has no origin check and no rate limit and counts any slug matching SLUG_RE, not only real pages: counts are forgeable, junk slugs reach the public usage-data branch, and a script can exhaust the free D1 write quota shared with the feedback form and the inbox.",
+      "where": "platform/edge/worker.mjs:46-67,154-157; platform/counter/core.mjs:5"
+    },
+    {
+      "severity": "medium",
+      "what": "README claims unknown slugs are not counted; the Worker counts any slug that matches the pattern.",
+      "where": "platform/edge/README.md:28"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests use a fake D1 that re-implements SQL semantics in JavaScript, so a seeded off-by-one in the daily-cap SQL passed all 28 tests.",
+      "where": "platform/edge/worker.test.mjs:8-52; worker.mjs:82"
+    },
+    {
+      "severity": "medium",
+      "what": "Inbox privacy copy does not disclose that agents read mail through an AI model provider; stored raw messages keep Received: headers with sender IPs.",
+      "where": "platform/pages/build.mjs:5790-5795; platform/edge/README.md:176"
+    },
+    {
+      "severity": "medium",
+      "what": "Cloudflare analytics pull fails daily on zone datasets (token lacks zone analytics read) and stays green, so only Worker invocation counts arrive and nobody is told.",
+      "where": "platform/counter/pull-cloudflare.mjs; .github/workflows/site-usage-pull.yml:96-102"
+    },
+    {
+      "severity": "low",
+      "what": "The deploy gate runs only worker.test.mjs; inbox.test.mjs never gates a deploy.",
+      "where": ".github/workflows/edge-deploy.yml:65"
+    },
+    {
+      "severity": "low",
+      "what": "ALLOWED_ORIGIN still allows https://duncan-haywood.github.io, an origin shared by every Pages site of that account and now serving only redirects.",
+      "where": "platform/edge/wrangler.toml:13"
+    },
+    {
+      "severity": "low",
+      "what": "Stale 'GitHub Pages site' framing and incomplete README routes and tables (no /inbox, no inbox table).",
+      "where": "platform/edge/wrangler.toml:1; worker.mjs:3; README.md:24-30,151-153"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The edge Worker is live, careful and privacy-respecting where it was designed to be: every SQL statement is bound, feedback is origin-checked, size-capped, rate-limited and capped per day, the inbox is closed by default and purges at 90 days, and the counter's privacy copy matches what D1 stores (recomputed live). It does not meet the bar: the page-count endpoint accepts forged counts from any origin with no limit, which can also take down feedback and mail for a day; the tests cannot see SQL defects (a seeded one passed); the inbox it serves cannot receive mail because routing was never applied; and the README and privacy copy say things the code does not do. Scores are before any fix."
+}
