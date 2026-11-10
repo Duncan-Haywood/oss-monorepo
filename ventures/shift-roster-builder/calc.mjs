@@ -5,6 +5,8 @@
 // no DOM, no network, no randomness except a fixed-seed generator, so the same
 // input always gives the same roster.
 
+import { branchAndPriceOpen } from "./bnp.mjs";
+
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const ALIASES = {
   mon: 0, monday: 0, tue: 1, tues: 1, tuesday: 1, wed: 2, weds: 2, wednesday: 2,
@@ -1123,7 +1125,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   // Open hours are sums of shift lengths, so when those share a grid (hours, halves, quarters) the floor rounds up to it.
   const incHours = Math.floor(incumbent / BIG + 1e-9);
   let banned = null, bannedCount = 0; // (person, shift) pairs ruled out by reduced-cost fixing
-  let dualBranchStats = null, coverBranchStats = null;
+  let dualBranchStats = null, coverBranchStats = null, coverLPStats = null, lpOwner = null;
   let scoreDual = -Infinity; // whole-score floor from pricing shifts (see priceScoreBound)
   if (incHours > 0 && o.pricingFloor !== false) {
     const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent, cutoff: o.reducedCostFixing === false ? null : incumbent - tolerance - 1e-9 });
@@ -1147,10 +1149,22 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
         const fl = cb.bound / BIG;
         minOpenH = Math.max(minOpenH, unit ? Math.ceil(fl / unit - 1e-6) * unit : Math.max(0, fl - 1e-6));
       }
+      // Branch-and-price (bnp.mjs): the same columns, but the Dantzig-Wolfe LP solved exactly at every node and branching on
+      // person-shift pairs. Subgradient prices stop short of the LP; this closes the integrality gap the priced floor leaves.
+      if (o.coverLP !== false && minOpenH < incHours - 1e-9) {
+        const bp = branchAndPriceOpen(pf.cov.sets, pf.cov.len, { incumbentOpen: incHours, nodeLimit: o.coverLPNodes ?? 2000, ms: o.coverLPMs ?? 10000 });
+        coverLPStats = { ...bp.stats, rootLP: bp.rootLP, floor: bp.floor, proven: bp.proven };
+        minOpenH = Math.max(minOpenH, bp.floor);
+        if (bp.roster) lpOwner = Array.from(bp.roster);
+      }
     }
   }
   const rootBound = Math.max(lowerBound(0, 0), scoreDual);
   let best = incumbent, bestOwner = null, nodes = 0, aborted = false;
+  if (lpOwner) { // an integral LP at some node is a roster with fewer open hours than the incumbent
+    const total = scoreOwner(ctx, lpOwner).total;
+    if (total < best - 1e-9) { best = total; bestOwner = lpOwner; }
+  }
   const t0 = Date.now();
   const rec = (k, unfilledH) => {
     if (aborted) return;
@@ -1202,7 +1216,7 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
     }
   }
   rec(0, 0);
-  return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, coverBranchStats, owner: bestOwner, score: bestOwner ? best : null };
+  return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, coverBranchStats, coverLPStats, owner: bestOwner, score: bestOwner ? best : null };
 }
 
 // Fewest hours that must stay open, by pricing shifts (Lagrangian dual of "each shift is covered by at most one person").
