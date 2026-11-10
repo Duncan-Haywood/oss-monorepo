@@ -248,6 +248,8 @@
       "origin": "audit"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14588"
+  ],
   "verdict": "Translator Project Quote is a small, arithmetically correct weighted-word calculator with a genuinely useful printable client quote. Four scenarios recomputed by an independent implementation match exactly, 89 tests pass, and the disclaimers and Smartcat comparison are honest. It misses the bar on verification and claims (both 2, median 2): 3 of 7 seeded mutations survived because no test varies the fuzzy rate or uses a rush fee, and two pages tell translators a fuzzy match bills at its match percentage, the opposite of CAT discount-grid practice (95-99% matches commonly pay about 30%). A translator or LSP PM quoting from a multi-band Trados/memoQ analysis must collapse the bands by hand, has no per-word rate, no reviser line for ISO 17100 revision, and sees a flat rush fee inflated by the margin, so fitness and domain are 2."
 }

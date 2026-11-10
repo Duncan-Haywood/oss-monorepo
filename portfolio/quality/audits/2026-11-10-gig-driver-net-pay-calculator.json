@@ -312,6 +312,8 @@
       "origin": "tests"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14588"
+  ],
   "verdict": "Gig Driver Net Pay Calculator is a broad, well-tested, honestly disclaimed set of small calculators whose session arithmetic is right: seven independent recomputations (defaults, target solver, the vs-page example, the offer evaluator, the log rollup, SE tax over the wage base and with W-2 wages) match to four decimals, 79 tests pass and 7 of 9 seeded mutations were caught. It does not meet the bar. An enrolled agent would stop at three things: the headline 'kept per hour, after the car' has no depreciation term (about 30% optimistic at the defaults against the IRS 72.5 c rate); the tax page omits the QBI deduction, overstating total tax and quarterly payments by about 9% on its own example; and the $400 SE-tax floor is applied to profit instead of 92.35% of profit. Correctness, claims, fitness and domain are 2; the median is 2."
 }
