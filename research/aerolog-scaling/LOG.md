@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 6g: do 6d's taper and 6f's daily demand shape compound? (predictions in `experiments/hub_throughput/cargo_hub_trace_taper.py`'s docstring, fixed before the counts were read)
+- Why: 6d and 6f each changed the spare-pack count alone; a hub that charges to 100% and sees a daily peak gets both. Fixed 6.0 flights/h mean, Chicago ride-hail shape (6f), 6d's CC-CV charge times, 3 seeds, 4 days, stdlib.
+### Outcome (`experiments/hub_throughput/cargo_hub_trace_taper_results.txt`)
+- 20-90% window (43.1 min, limit 11.1/h, mean load 54%): Poisson 9, Wed 9, Sat 9. **P1 held** (at most 16).
+- 30-100% window (72.0 min, limit 6.67/h, mean load 90%): Poisson 20, Wed 28, Sat 28. **P2 refuted:** the trace needs 1.4x Poisson, not 2x, although the daily peak (10.6/h) is above the charger limit. The pack pool absorbs a peak lasting a few hours. **P3 held:** Wed and Sat equal.
+- Reading: with the 90% ceiling the daily shape costs nothing at this rate; with charging to full the extra cost is 8 packs on a base of 20. Note Poisson needs 20 here against 24 in 6d: the horizon (4 days vs 6d's run length), seeds and grid steps differ, so compare within a table only.
+- Limits: coarse spares grid (steps of 4 to 8); two days of ride-hail shape, not delivery demand; the rest as 6d and 6f. Preliminary.
+- Next: a delivery-order trace with second-level timestamps; measured charge curves at 2C.
 ## 2026-11-10 · Milestone 6f: do the 6c spare-pack counts survive a real daily demand profile? (predictions in `experiments/hub_throughput/cargo_hub_trace.py`'s docstring, fixed before the counts were read)
 - Why: 6c's "Next": a demand trace instead of fixed batches. No drone-delivery order data is public, so the shape comes from City of Chicago open data, ride-hail trips per 15-minute bin (`chicago_tnp_counts.json`, Wed 2019-10-09 and Sat 2019-10-12, city-wide; dataset m6dm-c72p), scaled to the same mean rate as 6c. Ride-hail is a stand-in for an on-demand service's time-of-day shape, not a delivery trace. Stdlib, 0.2 s.
 ### Outcome (`experiments/hub_throughput/cargo_hub_trace_results.txt`)
