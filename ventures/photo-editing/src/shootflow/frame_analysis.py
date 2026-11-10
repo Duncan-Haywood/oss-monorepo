@@ -434,7 +434,7 @@ def _aspect_from_banner(banner: str) -> float | None:
     size = _VIDEO_SIZE_PATTERN.search(banner)
     if size is None:
         return None
-    width, height = int(size.group(1)), int(size.group(2))
+    width, height = float(size.group(1)), float(size.group(2))
     sample = _SAMPLE_ASPECT_PATTERN.search(banner)
     if sample is not None and int(sample.group(1)) > 0 and int(sample.group(2)) > 0:
         width = width * int(sample.group(1)) / int(sample.group(2))
