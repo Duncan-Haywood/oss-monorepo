@@ -3,7 +3,7 @@ title: "113 real people asking to be taken off a list: how many did the reply ru
 seo_title: "Measuring unsubscribe detection on real emails from the Enron corpus"
 date: 2026-11-10
 tags: [sales-agent, email, evaluation, real-data, compliance]
-description: "Sales Agent's reply rules caught 103 of 113 real opt-out requests from the Enron corpus before any change. The ten misses, and the five patterns that fixed them."
+description: "Sales Agent's reply rules caught 103 of 113 real opt-out requests in the Enron corpus. The ten misses, and the five patterns that fixed them."
 ---
 
 An earlier post today measured how often [Sales Agent](../../ventures/sales-agent/)'s
