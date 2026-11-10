@@ -1,6 +1,6 @@
 ---
 title: "Drone pilots, notaries and beekeepers: another gap probe for a free bookkeeping engine"
-seo_title: "Bank transaction categorisation for drone, notary and beekeeping businesses"
+seo_title: "Bank transaction categories for drone, notary and beekeeping firms"
 date: 2026-11-10
 tags: [ai-bookkeeper, bookkeeping, categorisation]
 description: "26 made-up bank descriptors from five small trades: the built-in rules were right on 19, wrong on 2 and silent on 5 before the fix, and 26 of 26 after."
