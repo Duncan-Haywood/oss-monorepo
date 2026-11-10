@@ -14,7 +14,7 @@
 import { checkInvoice, roundHalfUpToCents } from "./checks.mjs";
 import { parseUblInvoice } from "./ubl.mjs";
 
-export const fmt = (n) => (Math.round(n * 100) / 100).toFixed(2);
+export const fmt = (n) => roundHalfUpToCents(n).toFixed(2);
 export const tagRe = (name, flags = "g") => new RegExp(`<((?:[\\w.-]+:)?${name})(\\s[^>]*)?>([\\s\\S]*?)</\\1>`, flags);
 export const num = (s) => (s === undefined || s === null || s.trim() === "" ? null : Number(s.trim()));
 

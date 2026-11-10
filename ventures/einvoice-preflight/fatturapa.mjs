@@ -8,6 +8,7 @@
 // observation, not SdI's acceptance and not tax advice. Findings never repeat a
 // tax number.
 
+import { roundHalfUpToCents } from "./checks.mjs";
 import { parseXmlTree } from "./ubl.mjs";
 import { checkAgainstSchema } from "./fatturapa-xsd.mjs";
 
@@ -54,7 +55,7 @@ function num(value) {
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 }
-const cents = (n) => Math.round(n * 100) / 100;
+const cents = roundHalfUpToCents;
 
 /** Italian partita IVA: 11 digits, Luhn check digit. */
 export function partitaIvaValid(value) {
