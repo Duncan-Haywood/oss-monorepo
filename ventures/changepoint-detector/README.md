@@ -2036,3 +2036,33 @@ The flagship asked why the every-setting consensus "misses measles' marked chang
 
 **What changes.** Nothing in the engine; this is a measurement and a negative result. Item (b) is answered: the consensus did not miss a change, and the cures that fix measles do not generalise. For a user, the practical reading is the one the page already gives: declare a season you know (`--period`, page: seasonal period), and on weekly epidemic counts the agreed changes then match the annotators. Limits: one series motivated both cures; 11 dated series and 7 held-out series are small samples; F1 here is TCPD's with margin 5.
 
+
+## Several columns at once: the three multi-dimensional TCPD series (2026-11-10)
+
+Every TCPD script above left out apple (close and volume, 622 days), bee_waggle_6 (x, y and the sine and cosine of a dancing bee's heading, 609 frames) and occupancy (four room sensors, 509 readings), because the detector took one column. `multivariate.mjs` now takes several columns measured at the same points, two ways:
+
+- **columns: every setting** (`columnConsensus`): the six-setting consensus on each column alone, keeping the changes every setting agrees on, merged across columns (anchored grouping within the consensus tolerance, 2% of n). Each merged change names the columns that found it.
+- **joint** (`multiPelt`): one segmentation for all columns. A segment's cost is the sum of the engine's own per-column costs (`makeCost`, each column scaled by its robust noise sd) and the BIC penalty counts what one change adds: the location plus one level per column (`mean`, (1 + d) log n) or a level and a volatility per column (`meanvar`, (1 + 2d) log n). With one column it is exactly `pelt()` (tested on Nile).
+
+The settings, the primary one ("columns: every setting") and the tolerance were written into `eval/tcpd-multi.mjs` before any of the three series was scored, and nothing was changed after. `node eval/tcpd-multi.mjs tcpd-data` (output in `eval/tcpd-multi.out.txt`), F1 at margin 5 beside the TCPDBench default methods that run on several dimensions:
+
+| setting | apple | bee_waggle_6 | occupancy | mean F1 | mean cover |
+|---|---|---|---|---|---|
+| columns: every setting (primary) | **0.741** | 0.124 | 0.696 | 0.521 | 0.367 |
+| columns: every setting, half the columns | 0.741 | 0.080 | 0.789 | 0.537 | 0.387 |
+| joint level | 0.171 | 0.050 | 0.295 | 0.172 | 0.119 |
+| joint level+volatility | 0.365 | 0.120 | 0.494 | 0.326 | 0.178 |
+| bocpd (published) | 0.513 | 0.121 | **0.807** | 0.480 | 0.335 |
+| bocpdms (published) | 0.382 | 0.388 | 0.461 | 0.410 | **0.554** |
+| ecp (published) | 0.513 | 0.124 | 0.750 | 0.462 | 0.317 |
+| zero, "no change" (published) | 0.594 | **0.929** | 0.341 | **0.621** | 0.517 |
+
+What it says:
+
+- **The primary setting beats every published multi-dimensional default on mean F1** (0.521 against bocpd 0.480, ecp 0.462, bocpdms 0.410) **but not "no change" (0.621).** That one is carried by bee_waggle_6, where four of five annotators mark nothing and every method that reports anything scores near 0.12. On apple it is the best of any method (0.741; it dates 54, 91, 321 and 535 within two points of annotator marks); on occupancy it is behind bocpd (0.696 against 0.807).
+- **The joint fit over-cuts real series**: 95 cuts on apple, 117 on bee_waggle_6, 132 on occupancy, as the univariate level model over-cuts smooth series. A stock price, a dancing bee's position and a room's temperature are not steps in white noise.
+- **Where the joint fit earns its place** (`node eval/multi-sim.mjs`, output in `eval/multi-sim.out.txt`, 100 seeded series per cell, n 200, white noise, one step in every column at t = 100): a step of 0.5 noise sd in each of 4 columns is found by the joint fit in 76% of series (0.23 other cuts each) and by the column-by-column consensus in 0%; at 8 columns, 92% against 1%. With no step, the joint fit reports 0.00 to 0.08 false cuts per series. The consensus needs about 1.5 sd per column. So the two are complementary: the consensus is the safe reading on real, smooth data; the joint fit finds small shared shifts in data that really is level-plus-noise (a residual series, a controlled experiment's sensors).
+
+**What shipped.** `cli.mjs --columns [a,b,...]` (no list: every numeric column) prints the column-by-column agreed changes first, then the joint segmentation with each column's shift in its own noise sds (`--model meanvar` for level and volatility; `--json` for the full result). Missing cells are carried forward so every column keeps its row indexes. `multivariate.test.mjs` pins the one-column identity, the penalty, the parser, a 0.75 sd step shared by four columns that the joint fit finds, the CLI, and the figures above.
+
+Limits: three series is a panel, not a benchmark (one series moves the mean F1 by a third); the half-the-columns variant was listed in advance but is not the primary, so its slightly higher mean is not a finding; the joint cost assumes independent columns (no cross-correlation) and uses the plain level model with no trend, AR(1) or noise floor. Not on the page yet.

@@ -4,6 +4,7 @@
 //   node cli.mjs series.csv                       # last numeric column, change in level
 //   node cli.mjs series.csv --column sales --model meanvar
 //   cat series.csv | node cli.mjs --json          # machine-readable
+//   node cli.mjs sensors.csv --columns temp,co2  # several columns at once
 //   node cli.mjs --example                        # Nile river flow, 1871-1970
 //
 // Zero dependencies, no network. Same engine as the web page.
@@ -52,6 +53,7 @@ Options:
   --noise-floor-local [w]   take it from residuals of centred w-point line fits (default 7)
   --noise-floor-quad [w]    the same with centred w-point quadratic fits
   --consensus [n]           run six settings (level, level under a trend with AR(1), the same with joint AR(1), noise floor, trend, trend with floor) and list each change by how many agree (changes within n points, default 2% of the series, are one); takes --log, --period, --penalty, --min-segment, --column
+  --columns [a,b,...]       several columns measured at the same points: each column's agreed changes, merged, plus one segmentation for all columns (--model mean or meanvar); no list = every numeric column; takes --label-column, --penalty, --min-segment, --consensus n as the tolerance
   --no-agreed               with the level model: skip the six-setting panel that leads the text output with the changes every setting agrees on (skipped anyway above 2000 points)
   --json                    print the full result as JSON
   -h, --help                this help
@@ -78,6 +80,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--json') json = true;
     else if (a === '--example') example = true;
     else if (a === '--no-agreed') agreed = false;
+    else if (a === '--columns') opt.columns = argv[i + 1] && !argv[i + 1].startsWith('-') ? argv[++i].split(',').map((c) => c.trim()).filter(Boolean) : [];
     else if (a === '--drift') opt.drift = true;
     else if (a === '--log') opt.log = true;
     else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
@@ -117,6 +120,12 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     }
   }
   if (typeof opt.holidays === 'string') opt.holidays = opt.holidays.split(',').map((h) => h.trim()).filter(Boolean);
+  if (opt.columns) {
+    const { analyzeMulti, multiText } = await import('./multivariate.mjs');
+    const r = analyzeMulti({ csv: opt.csv, columns: opt.columns, labelColumn: opt.labelColumn, model: opt.model, penalty: opt.penalty, minSegment: opt.minSegment, tolerance: typeof opt.consensus === 'number' ? opt.consensus : null });
+    out((json ? JSON.stringify(r, null, 2) : multiText(r)) + '\n');
+    return 0;
+  }
   if (opt.consensus) {
     const { consensus: cons, consensusText } = await import('./consensus.mjs');
     const { consensus: tol, ...rest } = opt;

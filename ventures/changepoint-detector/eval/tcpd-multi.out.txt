@@ -1,0 +1,53 @@
+TCPD multi-dimensional: apple (622 x 2: Close, Volume); bee_waggle_6 (609 x 4: x, y, sin(theta), cos(theta)); occupancy (509 x 4: V1, V2, V3, V4).
+Settings, primary and tolerance fixed before these series were scored. F1 at margin 5 and segmentation cover, TCPDBench definitions.
+
+F1                                                   apple  bee_waggle_6     occupancy      mean
+columns: every setting (primary)                     0.741         0.124         0.696     0.521
+columns: every setting, half the columns             0.741         0.080         0.789     0.537
+joint level                                          0.171         0.050         0.295     0.172
+joint level+volatility                               0.365         0.120         0.494     0.326
+published bocpd                                      0.513         0.121         0.807     0.480
+published bocpdms                                    0.382         0.388         0.461     0.410
+published rbocpdms                                   0.239         0.179         0.329     0.249
+published ecp                                        0.513         0.124         0.750     0.462
+published kcpa                                       0.029         0.010         0.107     0.048
+published zero                                       0.594         0.929         0.341     0.621
+
+cover                                                apple  bee_waggle_6     occupancy      mean
+columns: every setting (primary)                     0.498         0.089         0.515     0.367
+columns: every setting, half the columns             0.498         0.106         0.558     0.387
+joint level                                          0.160         0.036         0.161     0.119
+joint level+volatility                               0.232         0.057         0.245     0.178
+published bocpd                                      0.365         0.089         0.549     0.335
+published bocpdms                                    0.359         0.860         0.443     0.554
+published rbocpdms                                   0.694         0.226         0.437     0.452
+published ecp                                        0.305         0.116         0.530     0.317
+published kcpa                                       0.007         0.004         0.050     0.020
+published zero                                       0.425         0.891         0.236     0.517
+
+Changes reported (annotators, union):
+  apple: annotators 53 90 197 276 319 403 463 535
+    columns: every setting (primary): 7 54 91 134 219 248 321 535
+    columns: every setting, half the columns: 7 54 91 134 219 248 321 535
+    joint level: 95 5 8 24 26 42 54 56 71 82 89 91 101 105 112 114 131 134 139 141 143 145 153 155 165 170 ...
+    joint level+volatility: 30 27 46 58 71 89 101 118 131 182 198 215 227 243 265 286 296 319 329 344 366 386 415 428 459 469 ...
+    column Close: 3 every-setting changes
+    column Volume: 5 every-setting changes
+  bee_waggle_6: annotators 182 246
+    columns: every setting (primary): 29 26 40 57 87 109 121 139 165 191 209 221 242 269 278 298 340 358 369 380 417 437 458 490 509 516 ...
+    columns: every setting, half the columns: 23 40 57 87 121 139 165 191 209 221 269 278 298 340 369 417 437 490 509 516 528 572 589 602
+    joint level: 117 8 12 17 22 26 29 32 35 41 46 51 55 58 69 74 81 87 92 96 101 105 110 113 118 120 ...
+    joint level+volatility: 46 17 27 37 47 57 76 90 101 112 126 136 163 174 185 195 205 219 229 244 255 269 279 290 300 316 ...
+    column x: 18 every-setting changes
+    column y: 15 every-setting changes
+    column sin(theta): 24 every-setting changes
+    column cos(theta): 23 every-setting changes
+  occupancy: annotators 1 52 53 91 92 142 143 181 234 236 238 264 267 324 341 360 415 416 417 436 451 506
+    columns: every setting (primary): 10 56 92 146 182 288 341 420 451 457 468
+    columns: every setting, half the columns: 6 56 92 146 182 420 451
+    joint level: 132 2 4 6 8 12 17 23 31 37 42 49 53 55 58 60 65 67 69 71 73 75 78 80 82 84 ...
+    joint level+volatility: 38 10 20 31 41 52 62 91 106 119 129 142 153 169 181 198 208 218 234 245 257 267 278 288 302 324 ...
+    column V1: 0 every-setting changes
+    column V2: 4 every-setting changes
+    column V3: 6 every-setting changes
+    column V4: 8 every-setting changes
