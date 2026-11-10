@@ -237,6 +237,59 @@ What it says, with care:
   this repository's, and the newest 10,000 paid expenses were read for the two big hosts
   (all of them for the other three).
 
+### Labelled bank lines from Mint exports (2026-11-10)
+
+Open Collective's records carry memos and payee names, not bank text, and the step after them
+was "new payees": how often a line from a merchant never seen before is right. A public Mint
+export has exactly that: the raw bank descriptor ("Original Description") beside the category
+Mint chose or its owner corrected. `node eval/mint-labelled.mjs --set tune|held|all` reads ten
+such files from public GitHub repositories at pinned commits (fetched at run time, never copied:
+they are personal spending, so only totals are written here) and replays each one month by
+month like the import loop. Only money out in Mint categories that name one chart account is
+scored (restaurants, travel, fuel, utilities, fees, taxes, rent and so on; groceries, shopping
+and transfers are left out). Mint's category column is never shown to the categoriser. Four
+files ("tune", 2,159 scored lines) were read for misses; six ("held", 767 lines from 2012 to
+2023) were not looked at until the change was final.
+
+Lines are replayed with their real amounts through the same model the engine builds, including
+the new-payee guess (next section). "Before" is `main` with that guess already landed.
+
+| held-out files, 767 lines | right before | right after | wrong before | wrong after |
+|---|---|---|---|---|
+| keywords alone, every line | 52.3% | 54.0% | 1.8% | 1.8% |
+| learning loop, every line | 76.5% | 79.1% | 13.2% | 10.7% |
+| learning loop, a payee seen for the first time (403) | 65.5% | 68.7% | 18.6% | 15.6% |
+| same loop with the new-payee guess off, every line | 71.7% | 74.4% | 8.7% | 6.3% |
+| same, a payee seen for the first time | 57.6% | 60.8% | 11.7% | 8.7% |
+
+On the tune files the loop went 93.2% to 94.6% right (first-seen 87.5% to 89.6%). On bank
+text the new-payee guess adds about 8 points right on first-seen payees here and about 7
+points wrong: most bank spending in these books is meals, so the plurality is often right.
+
+Three changes, each found on the tune files:
+
+- **A city name overruled a keyword.** The naive Bayes layer runs before the built-in keywords
+  and spoke at p >= 0.5. On one Brooklyn checking account, a few lines filed to dues taught it
+  that "brooklyn" meant dues, so Shake Shack and a deli the keywords knew as meals went to dues
+  (that file: keywords alone 57.8% right, the learning loop 35.6%). The classifier now needs
+  p >= 0.95 to overrule a keyword that fires; with no keyword it speaks at 0.5 as before. This
+  is most of the held-out gain (measured before the new-payee guess landed, every line at one fixed amount: 72.0% right and
+  8.9% wrong without it, 75.0% and 5.9% with it).
+- **Bank wrapper words became the payee.** "PRE-AUTHORIZATION DEBIT AT DUNKIN" and "Pending
+  DEBIT PURCHASE ... AT GRAFTON ST" keyed every line of a bank to "authorization at" or
+  "pending at", so payee memory pooled every merchant together. `pending`, `authorization`,
+  `at`, `on`, `non`, `pin` are now noise words in the payee key. Memory saved under the old
+  key for such lines is not found again; those keys pooled every merchant, so little is lost.
+- **Keywords.** Restaurant words on bank lines (kitchen, grille, pub, tavern, cantina,
+  trattoria, crepe, barbeque, soup, sandwich, burger,) and Seamless's glued descriptor
+  ("SEAMLSSTHEMILL"); "taxi" no longer matches an Ohio tax site ("OHTAXITES"), and "southwest"
+  no longer sends Moe's Southwest Grill to airfare.
+
+What it says, with care: the labels are agreement with Mint, a commercial merchant database,
+plus each owner's corrections, not a bookkeeper's answer key, and the books are personal. Most
+first-seen misses are one-off local restaurants whose names say nothing ("PEASANT", "BLUE
+PIT"); no keyword can know them, and a merchant category code from the card network or a model
+would. Tests: `mint-labelled.test.mjs` (5, made-up rows).
 ### New payees (2026-11-10)
 
 The labelled books above showed the weak spot: from the payee's name alone, a payee seen
