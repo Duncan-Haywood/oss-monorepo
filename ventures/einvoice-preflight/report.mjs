@@ -117,13 +117,24 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         // instead of the EU base, which the Saxon route does not run: the plain-JS runner
         // does, and also stands in when the Saxon files are not built.
         let official = { status: "unavailable", findings: [] };
+        let own = false;
         if (xml) {
           const plain = await runPlain(xml);
-          const own = plain.status === "ok" && (plain.sets || []).some((s) => /^(pint|zatca)/.test(s));
+          own = plain.status === "ok" && (plain.sets || []).some((s) => /^(pint|zatca)/.test(s));
           official = own ? plain : runSchematron(xml);
           if (!own && official.status !== "ok" && plain.status === "ok") official = plain;
         }
         schematronStatus = official.status;
+        if (own) {
+          // The built-in INV-0xx checks assume EU conventions. Where a PINT or ZATCA set
+          // governs the file, drop the ones its own invoices trip falsely: local account
+          // numbers (not IBANs), non-EU tax ids, and KSA's simplified invoices (no buyer id,
+          // a second TaxTotal that repeats the tax with its breakdown).
+          const sets = official.sets || [];
+          const drop = new Set(["INV-024"]);
+          if (sets.some((x) => /^zatca/.test(x))) ["INV-022", "INV-005", "INV-017", "INV-018"].forEach((r) => drop.add(r));
+          for (let i = errors.length - 1; i >= 0; i--) if (drop.has(errors[i].rule)) errors.splice(i, 1);
+        }
         errors.push(...official.findings);
       }
       reports.push({ file: name, errors, envelope, ...(schematron ? { schematron: schematronStatus } : {}) });

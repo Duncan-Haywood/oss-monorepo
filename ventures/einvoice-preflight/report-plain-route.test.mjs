@@ -27,3 +27,15 @@ test("a ZATCA simplified invoice is checked by the KSA rules", { skip }, async (
   assert.equal(r.schematron, "ok");
   assert.ok(r.errors.some((e) => e.rule === "BR-KSA-98"));
 });
+
+test("built-in EU checks that PINT and ZATCA files trip falsely are dropped", { skip }, async () => {
+  for (const f of ["pint-sg-invoice.xml", "pint-aunz-invoice.xml"]) {
+    const r = await run(`./examples/${f}`);
+    assert.ok(!r.errors.some((e) => e.rule === "INV-024"), f);
+  }
+  const z = await run("./examples/zatca-simplified-invoice.xml");
+  for (const id of ["INV-022", "INV-005", "INV-017", "INV-018", "INV-024"]) assert.ok(!z.errors.some((e) => e.rule === id), id);
+  // an ordinary EU file keeps them
+  const d = await run("./examples/pint-sg-invoice-with-defects.xml");
+  assert.ok(d.errors.some((e) => e.rule === "INV-038"));
+});
