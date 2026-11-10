@@ -166,3 +166,10 @@ def test_e7_anderson_collapses_under_full_semantics():
     e7 = _load("e7_anderson")
     assert [e7.search(1, d)["models"] for d in (1, 2, 3)] == [1, 2, 3]
     assert e7.search(2, 1)["models"] == 0 and e7.search(3, 1)["models"] == 0 and e7.search(2, 2)["models"] == 0
+
+
+def test_e8_restricted_algebras_admit_contingent_multiworld_models():
+    e8 = _load("e8_restricted")
+    rows = {(r["w"], r["d"]): r for r in e8.run()}
+    assert rows[(2, 2)]["algebras_with_model"] == 2
+    assert all(rows[k]["algebras_with_model"] == 0 for k in [(2, 1), (3, 1), (4, 1), (5, 1)])
