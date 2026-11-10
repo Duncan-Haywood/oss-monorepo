@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKnnzBT2HUtVesW9Ytx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T22:22:02Z",
+  "ended": "2026-11-10T22:31:44Z",
+  "wall_minutes": 10.03,
+  "tokens_in": 5768220,
+  "tokens_out": 25676,
+  "cost_usd": 2.5858,
+  "tool_calls": 58,
+  "task": "research/build-data session 73 (programme draw); landed stalled research PR #14202, closed superseded #14439",
+  "projects": [
+    "research/build-data",
+    "research/christian-belief-models",
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14624",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "partial",
+  "errors": [
+    "Socrata hosts (Chicago, Seattle, SF, Austin) refused with 403 to CONNECT at 22:27 UTC, so the planned paired transfer run could not use data"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/tests/test_baselines.py",
+      "issue": "imports xgboost at module level, so a plain `pytest tests/` fails collection where xgboost is absent (pyenv.py with the project's needed packages did not include it); ran with --ignore"
+    },
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "issue": "took over 120 s on a shallow clone (moved to background); its output compared run-record twins, not the research files that made #14439 superseded"
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "two runs drawn into build-data within minutes of each other; the CLAIM CHECK only sees landed commits, not an open PR made a minute earlier, so both did the same per-class audit"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "the programme's next milestone (paired transfer run) needs feed data the proxy refused",
+      "did": "built and tested the paired-bootstrap code, a per-class audit from committed label codes, and a pre-registered prediction for the next data run",
+      "result": "code and audit landed; no new transfer number"
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 3 claim check: the PR was opened within minutes, yet a sibling started at the same time on the same programme and both picked the per-class audit",
+      "did": "consolidated at merge: kept the non-overlapping pieces (paired bootstrap, kappa, predictions), removed the duplicate",
+      "result": "one session-73 entry on main, no duplicate tables"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-permit-transfer-paired-class-comparison.md",
+    "research/build-data/LOG.md (session 73)",
+    "research/build-data/paper/paper.md 4.4b"
+  ],
+  "goal": null,
+  "notes": "Land-before-build: #14202 (christian-belief-models local window) merged main in cleanly, its MAE numbers recomputed from the committed CSV (hgb_w5 3.44, interp 3.43), build.py ok, md links ok; merged as de508fe. #14439 (aerolog paper 6f) closed: #14464 on main already covers 6f and 6g. Session 72 checks: build-data tests 80 passed 2 skipped (test_baselines ignored: no xgboost), build.py ok, check_md_links ok, promptctl validate ok, check_post_frontmatter ok. Held-out v2 kappa 0.790 Chicago, 0.901 Seattle. Collision: a sibling run landed #14623 (session 72, desc_confusion.py, per-class precision/recall) while this PR waited on CI; at the main merge this run dropped its duplicate per-class audit (desc_eval audit, desc_rules_audit.*), renumbered itself session 73, kept the paired bootstrap and kappa, rewrote the post. Tests after merge: test_desc_eval, test_transfer, test_desc_confusion 14 passed; build.py ok; md links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9d01c15c-babf-515c-bf61-a6c291c694f9",
+    "transcripts": 1,
+    "first": "2026-11-10T22:22:02Z",
+    "last": "2026-11-10T22:32:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 105,
+        "output": 25676,
+        "thinking": 4871,
+        "cache_read": 5650386,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117729,
+        "api_equivalent_usd": 2.5858,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 105,
+      "output": 25676,
+      "thinking": 4871,
+      "cache_read": 5650386,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117729,
+      "api_equivalent_usd": 2.5858,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__merge_pull_request": 1,
+      "mcp__github__add_issue_comment": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.03,
+      "active_minutes": 10.03,
+      "model_minutes": 5.75,
+      "tool_minutes": 4.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "paired bootstrap code and tests, per-class audit script, write-ups, landing two stale PRs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 154.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

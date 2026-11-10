@@ -288,7 +288,11 @@ above zero) with the revised rules, whose interval covers 0.755 against 0.644. I
 q0.1 and q0.5 stay about 10 to 11% better than the baseline in every configuration, and q0.9 stays
 within noise of it. So part of the upper-tail transfer gap was a class problem, and a noisy class
 did more harm than none. One test year and one held-out city so far; the three configurations are
-not yet compared with each other by a paired bootstrap.
+not yet compared with each other by a paired bootstrap (the code for one is in place since
+session 73: `transfer.py --classes type cascade2`, with a prediction in `../LOG.md`).
+
+Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
+0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
 
 Rule error does not move that overlap (`../src/desc_confusion.py`, `../results/desc_confusion.md`).
 Correcting Seattle's test mix with the held-out P(label | prediction) leaves it at 0.501, because

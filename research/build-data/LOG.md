@@ -1,5 +1,19 @@
 # build-data log
 
+## Session 73, 2026-11-10: a paired bootstrap between class configurations, and Cohen's kappa for the description rules (feeds unreachable; prediction written)
+
+Why: sessions 71 and 72 left "a paired bootstrap of cascade2 against type-only" (session 71 compared each class configuration with the baseline, never with each other). Every Socrata host answered 403 to CONNECT through this session's egress proxy at 22:27 UTC (as in sessions 68, 70 and 72), so no feed could be pulled and no transfer number is new. Ran in parallel with session 72, whose `desc_confusion.py` already gives per-class precision and recall; this session's duplicate per-class tables were dropped at merge.
+- `src/transfer.py --classes` now takes several configurations (`--classes type cascade2`). They share the test rows (only the class feature differs), so the first is compared with each later one row by row: `paired()` writes `results/paired_transfer_<city>_<target>_<year>[_4city]_<b>_vs_<a>.json` with the mean pinball difference b minus a (days), its 95% week-block interval and the change relative to the own baseline's loss, for the transfer and own-city boosted models. It refuses two runs whose test rows or own-baseline losses differ. Single-configuration runs write exactly what they wrote before. Two tests in `tests/test_transfer.py` (identical runs give a zero difference; on synthetic feeds where the work type sets the lag, knowing it gives a q0.5 interval below zero; different test rows are refused).
+- `python3 src/desc_eval.py kappa` prints Cohen's kappa from the committed (label, v1, v2) codes (`tests/test_desc_eval.py` checks it on textbook cases): held out (2022), v2 0.790 in Chicago and 0.901 in Seattle (v1 0.469 and 0.579); dev (2023), v2 0.895 and 0.925 (v1 0.423 and 0.563).
+Prediction for the first paired run (written before any paired number exists; `python3 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2024 --classes type cascade2`, same pull procedure as session 71):
+- (Q1) Seattle a2i transfer at q0.9: cascade2 minus type is negative with a 95% week-block interval below zero (session 71's unpaired numbers: +27.4% to +15.9% of baseline loss).
+- (Q2) Seattle i2c transfer at q0.5: the cascade2 minus type interval includes zero (unpaired: -10.4% to -11.4%).
+- (Q3) Seattle a2i own-city boosted at q0.1: cascade2 minus type below zero (unpaired: -5.5% to -9.6%).
+- (Q4) The same run for test year 2023 gives Q1 again (a2i q0.9 interval below zero).
+Each part is refuted if its interval condition fails.
+- Limits: no new data; kappa has one labeller and 150 held-out rows per city.
+Next: the paired run above (Q1 to Q4) when the feeds answer, then Chicago and Austin held out and session 72's source-reweighting run; a fresh labelled year (2021) to score any v3 rules, since 2022 has now been read; a second labeller; full-model width bootstrap.
+
 ## Session 72, 2026-11-10: where the description rules err, and why that error cannot move the Seattle overlap (feeds unreachable; offline from committed codes)
 
 Why: session 71 scored the description rules on accuracy only and quoted the Seattle class overlap (0.501, a2i 2024) from the rules' predictions, which are wrong on 1 held-out Seattle row in 20 and 3 Chicago rows in 20. Every Socrata host (Chicago, SF, Austin, Seattle) answered 403 to CONNECT at 22:23 and again at 22:26 UTC, so the next transfer runs (Seattle 2022 and 2023 with the three class configurations) wait; this step uses only committed files.

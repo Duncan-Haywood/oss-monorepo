@@ -94,6 +94,18 @@ def metrics(pairs):
                 recall_non_other=hit / hum if hum else None)
 
 
+def kappa(pairs):
+    """Cohen's kappa between labels and rules (chance agreement from the two marginals; session 73)."""
+    n = len(pairs)
+    po = sum(h == p for h, p in pairs) / n
+    hs, ps = {}, {}
+    for h, p in pairs:
+        hs[h] = hs.get(h, 0) + 1
+        ps[p] = ps.get(p, 0) + 1
+    pe = sum(hs[c] * ps.get(c, 0) for c in hs) / n / n
+    return (po - pe) / (1 - pe) if pe < 1 else None
+
+
 def score(sample_path, labels_path, split):
     S, L = json.load(open(sample_path)), read_labels(labels_path)
     out = {}
@@ -122,6 +134,7 @@ if __name__ == "__main__":
     a1.add_argument("--seed", type=int, default=20261110)
     a1.add_argument("--offset-step", type=int, default=3)
     a1.add_argument("--offset0", type=int, default=0)
+    sp.add_parser("kappa")
     a2 = sp.add_parser("score")
     a2.add_argument("--dev-sample", required=True)
     a2.add_argument("--dev-labels", required=True)
@@ -130,6 +143,12 @@ if __name__ == "__main__":
     a = ap.parse_args()
     if a.cmd == "sample":
         print(sample(a.out, a.year, a.n, a.seed, a.offset_step, a.offset0))
+    elif a.cmd == "kappa":  # session 73: Cohen's kappa from the committed codes, no text needed
+        res = json.load(open(os.path.join(HERE, "..", "results", "desc_rules_eval.json")))
+        for split in ("held_out", "dev"):
+            for c, r in res[split]["cities"].items():
+                k = {v: kappa([(x[0], x[v]) for x in r["rows"]]) for v in (1, 2)}
+                print(split, c, "kappa v1 %.3f v2 %.3f" % (k[1], k[2]))
     else:
         res = dict(note="dev: 2023 sample the v2 rules were written against (v2 score optimistic); "
                         "held_out: 2022 sample labelled before v2 was run on it",
