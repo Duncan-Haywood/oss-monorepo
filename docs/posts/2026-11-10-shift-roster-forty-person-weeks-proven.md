@@ -3,12 +3,12 @@ title: "Shift roster builder: forty-person weeks, proven, and a crash that went 
 seo_title: "Proving a 40-person staff schedule optimal with column generation"
 date: 2026-11-10
 tags: [scheduling, optimisation, column-generation, open-source]
-description: "Taking the shift roster builder's column generation from 10-person bench weeks to 20-60 people found a simplex crash on a 20-person week, then a tight LP that only needed a better search."
+description: "Scaling the shift roster builder's proof to 20-60 people found a simplex crash, then a tight LP that only needed a better search."
 ---
 
 The [shift roster builder](../../ventures/shift-roster-builder/) does more than
-fill a week. It can say how many shift hours **must** stay open, whoever you
-hire into which slot, and it proves that number with branch-and-price: an LP
+fill a week. It can say how many shift hours **must** stay open, however you
+assign people, and it proves that number with branch-and-price: an LP
 over each person's possible shift sets, with new sets priced in as they are
 needed (column generation). Until today it had only been measured on weeks of
 8 to 12 people. Many shops are bigger than that, so this run built weeks of 20,

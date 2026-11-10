@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtJ51NFsdWLXViyQkMp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T19:06:29Z",
+  "ended": "2026-11-10T20:14:36Z",
+  "wall_minutes": 68.43,
+  "tokens_in": 11945827,
+  "tokens_out": 45485,
+  "cost_usd": 4.4992,
+  "tool_calls": 95,
+  "task": "Flagship 6 shift-roster-builder: bigger-week (20-60 people) column generation bench",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14586",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First bigger week tried (20x56 case 1) made buildRoster with exact: true throw 'simplex pivot limit' (pre-existing bug, fixed here).",
+    "ilp-check.py failed once under /usr/local/bin/python3 (no numpy); pyenv.py returned /usr/bin/python3.13, which worked."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Flagship 1 (wall-framing-takeoff, 265 commits in 7 days) lists only items that need real inputs, and flagship 4's top item (a) was already claimed by open draft PR #14582; the allocator does not see open PRs, so two lookups were spent before finding a free item."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py prints the interpreter path but plain python3 is a different interpreter; easy to run the eval with the wrong one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the top 'Deepen' row (wall-framing-takeoff); its next items all need real inputs a cloud run cannot get, and changepoint-detector item (a) was taken by open PR #14582.",
+      "did": "Took flagship 6 (shift-roster-builder) item 'bigger-week bench', which needs no outside data.",
+      "result": "Found and fixed a crash, proved 20-40 person weeks; landed."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No new llms.txt/marketing-page change: the change is solver internals and a bench, no user-facing surface changed.",
+      "did": "README section, flagships next, blog post.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-shift-roster-forty-person-weeks-proven.md",
+    "ventures/shift-roster-builder/README.md (Bigger weeks section)"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (360 s) after the final solver change; node --test bnp.test.mjs 10/10; eval/cg-bench.mjs 8x22, 10x28 (both seeds), 12x30 floors unchanged; HiGHS (eval/ilp-check.py) optimum = CG floor on all 12 new weeks; venture-preflight run in background (result in PR). Changes: solveLP snaps |xB|<1e-9 to 0, degenerate test 1e-9, entering tolerance 1e-11*(1+max|y|), optional warm basis; columnGenerationOpen dive-on-ties and warm start default on, LP failures end the node with its bound. Results: 20/30/40 people 9/9 proven (0.9-41 s) vs 2/9 before; 60 people 0/3 (floor = optimum).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "368bc63d-a41f-5a8e-815e-97ae4b77bdfb",
+    "transcripts": 1,
+    "first": "2026-11-10T19:06:29Z",
+    "last": "2026-11-10T20:14:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 175,
+        "output": 45485,
+        "thinking": 12545,
+        "cache_read": 11791843,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153809,
+        "api_equivalent_usd": 4.4992,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 175,
+      "output": 45485,
+      "thinking": 12545,
+      "cache_read": 11791843,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153809,
+      "api_equivalent_usd": 4.4992,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 85,
+      "ToolSearch": 2,
+      "Write": 2,
+      "TaskStop": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 68.43,
+      "active_minutes": 68.43,
+      "model_minutes": 9.99,
+      "tool_minutes": 58.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior OR engineer: reproduce and fix two simplex cycling bugs, build a scale bench, add dive and warm start, cross-check with HiGHS",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 266.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
