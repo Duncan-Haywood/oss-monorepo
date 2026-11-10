@@ -48,6 +48,6 @@
     {"severity": "low", "what": "Milestone count is rounded silently (0 or 0.4 becomes 1) and the rounding direction is untested (mutation survived).", "where": "ventures/ghostwriter-book-quote-calculator/calc.mjs:64", "category": "input-handling", "origin": "implementation"},
     {"severity": "low", "what": "Drafting speed, confidentiality premium and the 'low five figures to well over $100,000' FAQ range have no cited rate source; primary EFA and Reedsy pages were not usable as a check.", "where": "ventures/ghostwriter-book-quote-calculator/calc.mjs:11", "category": "source-data", "origin": "spec"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14514"],
   "verdict": "A small, honest, well-structured hours-first quote tool whose main arithmetic (hours, fee, gross-up, schedule, words a budget buys) recomputes exactly by hand and whose page, disclaimer and placeholders are truthful. It does not meet the bar: correctness is 2 because the extra-revision-round price, which the page tells the writer to put into a contract, leaves out the confidentiality premium and is 20% low at defaults, and the hourly-at-budget is on a different basis from the target; verification is 2 because three of six seeded bugs survived 28 green tests, including the extra-round output and platform-fee handling in the budget calculation. External validation was limited to secondary summaries of EFA rates because the primary pages were not readable. Scores are the state before any fix."
 }

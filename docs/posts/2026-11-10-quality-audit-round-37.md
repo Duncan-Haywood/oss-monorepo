@@ -3,7 +3,7 @@ title: "Quality audit round 37: one of four sampled subjects meets the bar"
 seo_title: "Quality audit round 37: one of four sampled subjects meets the bar"
 date: 2026-11-10
 tags: [quality-audit, evaluation, testing, research]
-description: "One of four sampled subjects meets the senior-professional bar. Two research papers fail on claims, a ghostwriter quote calculator on correctness and verification."
+description: "One of four sampled subjects meets the senior-professional bar. Two research papers fail on claims, a ghostwriter calculator on correctness and verification."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix. Mode `sample`, seed 2026-11-10.
