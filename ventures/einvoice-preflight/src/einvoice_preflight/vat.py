@@ -351,16 +351,28 @@ def _de(digits: str) -> bool:
     return (11 - product) % 10 == int(digits[8])
 
 
+_FR_ALPHABET = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+
+
 def _fr(body: str) -> bool:
+    """French TVA: digit or letter key, SIREN Luhn (not for Monaco 000...). Rule from python-stdnum 2.2 fr.tva."""
+    if len(body) != 11:
+        return False
     siren = body[2:]
     if not siren.isdigit():
         return False
     key = body[:2]
-    if not key.isdigit():
-        # Letter keys exist; this tool only checksums the numeric-key form.
-        return True
-    expected = (12 + 3 * (int(siren) % 97)) % 97
-    return int(key) == expected
+    if not all(c in _FR_ALPHABET for c in key):
+        return False
+    if siren[:3] != "000" and not _luhn(siren):
+        return False
+    if key.isdigit():
+        return int(key) == (12 + 3 * (int(siren) % 97)) % 97
+    if key[0].isdigit():
+        check = _FR_ALPHABET.index(key[0]) * 24 + _FR_ALPHABET.index(key[1]) - 10
+    else:
+        check = _FR_ALPHABET.index(key[0]) * 34 + _FR_ALPHABET.index(key[1]) - 100
+    return (int(siren) + 1 + check // 11) % 11 == check % 11
 
 
 def _be(body: str) -> bool:

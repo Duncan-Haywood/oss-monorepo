@@ -379,13 +379,29 @@ function deOk(digits) {
   return (11 - product) % 10 === Number(digits[8]);
 }
 
+const FR_ALPHABET = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+
+// French TVA number: two key characters then a nine-digit SIREN. The key is two
+// digits ((SIREN * 100 + 12) mod 97, i.e. 12 + 3 * (SIREN mod 97)) or, for the
+// newer numbers, a letter in either place (alphabet without I and O). A SIREN
+// starting 000 is a Monaco number and has no Luhn digit. Rule from python-stdnum
+// 2.2 `fr.tva` and checked against it (README, "French letter keys"); the French
+// tax text was not read.
 function frOk(body) {
+  if (body.length !== 11) return false;
   const siren = body.slice(2);
   if (!/^\d+$/.test(siren)) return false;
   const key = body.slice(0, 2);
-  if (!/^\d+$/.test(key)) return true;
-  const expected = (12 + 3 * (Number(siren) % 97)) % 97;
-  return Number(key) === expected;
+  if (![...key].every((c) => FR_ALPHABET.includes(c))) return false;
+  if (siren.slice(0, 3) !== "000" && !luhnOk(siren)) return false;
+  if (/^\d+$/.test(key)) {
+    const expected = (12 + 3 * (Number(siren) % 97)) % 97;
+    return Number(key) === expected;
+  }
+  const check = /\d/.test(key[0])
+    ? FR_ALPHABET.indexOf(key[0]) * 24 + FR_ALPHABET.indexOf(key[1]) - 10
+    : FR_ALPHABET.indexOf(key[0]) * 34 + FR_ALPHABET.indexOf(key[1]) - 100;
+  return (Number(siren) + 1 + Math.floor(check / 11)) % 11 === check % 11;
 }
 
 function beOk(body) {
