@@ -36,7 +36,7 @@
   }
  ],
  "deviations": [],
- "writeups": "LOG.md 7ad, paper Section 6 sentence, docs/posts/2026-11-10-when-to-skip-the-coder-screen.md",
+ "writeups": ["docs/posts/2026-11-10-when-to-skip-the-coder-screen.md"],
  "goal": null,
  "notes": "Local run_workflow_locally.py --for-changes exceeded 120s; homepage build and md link check passed.",
  "corrections": [],

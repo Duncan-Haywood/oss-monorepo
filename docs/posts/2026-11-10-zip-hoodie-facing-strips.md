@@ -3,7 +3,7 @@ title: "Zip hoodie pattern: the facing strips behind the zip"
 seo_title: "Zip hoodie facing strip pattern: free pattern generator"
 date: 2026-11-10
 tags: [clothing, pattern-making, hoodie, open-source]
-description: "The free pattern generator in the clothing design studio now drafts the facing strips that sit behind a zip, sized to the zip opening, and nests them with the hoodie."
+description: "The free pattern generator in the clothing studio now drafts the facing strips behind a zip, sized to the zip opening, and nests them with the hoodie."
 ---
 
 A zip-front hoodie needs more than two front halves: each edge wants a facing
