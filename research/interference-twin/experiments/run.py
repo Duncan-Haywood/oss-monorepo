@@ -42,7 +42,7 @@ p(f"mean interference power {mi:.2f} (noise = 1); mean-rise twin range {rm:.2f} 
 pdf = lambda r: marginal_pd(r, geoms, Q)
 r90, r50 = range_at_pd(pdf, 0.9, 1, rc), range_at_pd(pdf, 0.5, 1, rc)
 p(f"real marginal per-frame Pd: Pd(r_mean_rise)={pdf(rm):.3f}; range with Pd>=0.9: {r90:.2f} m; Pd>=0.5: {r50:.2f} m")
-p(f"real per-frame Pd at the clear-air range {rc:.1f} m: {pdf(rc):.3f}; P(no interferer hits a frame) = {(1 - Q) ** K:.3f}")
+p(f"real per-frame Pd just inside the clear-air range {rc:.1f} m: {pdf(rc * (1 - 1e-9)):.3f}, just beyond it: {pdf(rc * (1 + 1e-9)):.3f}; P(no interferer hits a frame) = {(1 - Q) ** K:.3f}")
 p("range_m  clear_twin  mean_rise_twin  real_Pd")
 for r in (40, 60, 80, 100, 120, 150):
     p(f"{r:6d}  {1.0 if r <= rc else 0.0:10.0f}  {1.0 if r <= rm else 0.0:14.0f}  {pdf(r):.3f}")
