@@ -2,7 +2,7 @@
 title: "Seeding bugs into the edge worker: two escaped, now caught"
 seo_title: "Mutation testing a Cloudflare Worker: inbox routing gap"
 date: 2026-11-10
-tags: [security, testing, red-team, open-source]
+tags: [security, testing, redteam, open-source]
 description: "A red-team campaign on the edge worker found that nothing tested which methods and paths reach the token-protected /inbox handlers. Now something does."
 ---
 
