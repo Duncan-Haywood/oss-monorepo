@@ -3,7 +3,7 @@ title: "Three years of cross-city permit forecasts for Seattle, and why permit t
 seo_title: "Cross-city permit delay forecasting: Seattle, 2022 to 2024"
 date: 2026-11-10
 tags: [research, permits, construction, transfer-learning, build-data]
-description: "A permit-delay model trained on other cities, tested on Seattle in 2022: the prediction written beforehand held. Permit-type fields in Chicago and Seattle do not say what work is done."
+description: "A permit-delay model trained on other cities, tested on Seattle in 2022: the prediction held. Chicago and Seattle permit types do not say what work is done."
 ---
 
 The [build-data programme](../../research/build-data/) asks whether open
