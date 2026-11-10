@@ -1,6 +1,6 @@
 ---
 title: "Where we looked for a small-boat resistance curve, and what we found"
-seo_title: "Open towing-tank data for small displacement hulls: what Zenodo has and lacks"
+seo_title: "Open towing-tank data for small hulls: what Zenodo has and lacks"
 date: 2026-11-10
 tags: [research, marine-hull]
 description: "A search of Zenodo for open towing-tank data on slender and catamaran hulls found five-speed summaries and raw time series, but no body plan to check a resistance model against."
