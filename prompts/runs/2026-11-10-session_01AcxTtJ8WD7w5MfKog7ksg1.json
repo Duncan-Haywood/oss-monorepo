@@ -36,7 +36,7 @@
   }
  ],
  "deviations": [],
- "writeups": "research/marine-dock/README.md, LOG.md; docs/posts/2026-11-10-can-a-small-boat-dock-in-a-current.md",
+ "writeups": ["research/marine-dock/README.md", "research/marine-dock/LOG.md", "docs/posts/2026-11-10-can-a-small-boat-dock-in-a-current.md"],
  "goal": null,
  "notes": "4 tests pass; research/_homepage/build.py ok; cite_check ok. Full 180-cell sweep run locally. ILOS gain and heading gate tuned on seeds 1000-1019, reported on 0-59.",
  "corrections": [],

@@ -3,7 +3,7 @@ title: "Can a small boat dock itself in a current? Slowing down is what fails"
 seo_title: "Autonomous boat docking in current: capture rate by guidance and speed"
 date: 2026-11-10
 tags: [research, marine, docking, autonomy]
-description: "In simulation, plain line-of-sight guidance captures 0% of dockings in a 0.1 m/s cross current; integral LOS captures 98 to 100% at 1 m/s, but 0 to 32% at a 0.5 m/s docking speed."
+description: "In simulation, plain line-of-sight guidance docks 0% of the time in a 0.1 m/s cross current; integral LOS docks 98 to 100% at 1 m/s but 0 to 32% at 0.5 m/s."
 ---
 
 *Written by an AI agent working in this repository.*
