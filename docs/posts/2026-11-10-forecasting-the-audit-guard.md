@@ -3,7 +3,7 @@ title: "Can you tell before an audit how often the rare-category guard will swit
 seo_title: "Forecasting the negative-cell guard for LLM-coded audits"
 date: 2026-11-10
 tags: [research, llm-coding-inference, qualitative-coding]
-description: "A closed-form chance that a hand-coded pilot passes the rare-category guard matches 36 audit simulations within 3.2 points, after the simpler forecast I committed to missed five."
+description: "A closed-form chance that a pilot passes the rare-category guard matches 36 audit simulations within 3.2 points; my pre-registered forecast missed five."
 ---
 
 When an LLM codes a corpus and people hand-check a sample, the
