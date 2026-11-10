@@ -52,6 +52,7 @@
       <div class="row"><div><label for="seamCm">Seam allowance cm</label><input id="seamCm" type="number" min="0" max="10" step="0.1" value="1"></div>
       <div><label for="hemCm">Hem allowance cm</label><input id="hemCm" type="number" min="0" max="10" step="0.1" value="2.5"></div></div>
       <label><input id="zip" type="checkbox"> Zip front (hoodie): two front halves with a 1.5 cm centre-front allowance</label>
+      <label><input id="facing" type="checkbox"> Zip facing: two 4 cm strips behind the zip (needs the zip front)</label>
       <label><input id="rib" type="checkbox"> Rib hem and cuffs (crewneck and hoodie): 6 cm bands cut to 85% of the opening</label>
       <label for="capEaseCm">Sleeve cap ease cm (knit: 0 to 2)</label><input id="capEaseCm" type="number" min="0" max="10" step="0.1" value="1">
       <p><button id="dl-dxf" type="button">Download DXF (this size)</button> <button id="dl-all" type="button">Download DXF (all sizes)</button></p>
@@ -87,7 +88,7 @@
     import { recordUsage } from "./usage.mjs";
     const $ = s => document.querySelector(s);
     const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-    const opts = () => ({ fit: $("#fit").value, seamCm: +$("#seamCm").value, hemCm: +$("#hemCm").value, capEaseCm: +$("#capEaseCm").value, rib: $("#rib").checked && ["crewneck", "hoodie"].includes($("#garment").value), zip: $("#zip").checked && $("#garment").value === "hoodie" });
+    const opts = () => ({ fit: $("#fit").value, seamCm: +$("#seamCm").value, hemCm: +$("#hemCm").value, capEaseCm: +$("#capEaseCm").value, rib: $("#rib").checked && ["crewneck", "hoodie"].includes($("#garment").value), zip: $("#zip").checked && $("#garment").value === "hoodie", facing: $("#facing").checked && $("#zip").checked && $("#garment").value === "hoodie" });
     function save(name, text, type) {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(new Blob([text], { type }));
