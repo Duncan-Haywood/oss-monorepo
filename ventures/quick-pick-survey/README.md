@@ -143,6 +143,7 @@ It is typed data guarded by a test, so it cannot drift from what is enforced.
 - [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md) — the gates and the definition of done
 - [docs/CONVERGENCE.md](docs/CONVERGENCE.md) — how many answers a usable result actually costs
 - [docs/POOLING.md](docs/POOLING.md) — the largest available precision win, measured, and why it is not taken
+- [docs/REAL-RANKINGS.md](docs/REAL-RANKINGS.md) — the survey replayed on real people's published rankings: people, not answers, are the limit; the rank ranges are honest but wide
 - [docs/TESTING.md](docs/TESTING.md) — what is covered, what is not, how to add
 - [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) — what a test enforces, what was only read in the markup, and what nobody has checked
 - [docs/decisions/](docs/decisions/) — why an obvious simplification was rejected

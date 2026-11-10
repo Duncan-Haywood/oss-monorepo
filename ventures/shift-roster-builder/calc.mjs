@@ -1302,7 +1302,7 @@ function makeSetPricer(ctx, { maxNodes = 2000000 } = {}) {
       }
     };
     go(0, base, baseVal, baseMin);
-    return { set: bestSet, value: bestVal, exact };
+    return { set: bestSet, value: bestVal, exact, nodes };
   };
   pricer.cls = cls;
   return pricer;

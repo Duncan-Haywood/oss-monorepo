@@ -57,7 +57,24 @@ export function pool(rows: { rating: number; rd: number }[]): { rating: number; 
   return { rating, se: Math.sqrt(1 / sw2), tau: Math.sqrt(tau2) };
 }
 
-export function groupRanking(items: ItemMeta[], rows: RatingRow[]): RankedItem[] {
+/**
+ * How a rank range decides that one option is clearly above another.
+ * "overlap" (the default): their 95% intervals do not overlap. That is a much
+ * stricter test than 95%: two equal-width intervals stop overlapping only when
+ * the gap is 2.77 standard errors of the difference (p about 0.006).
+ * "difference": the gap itself is beyond 1.96 standard errors of the
+ * difference, a plain 95% two-sided test per pair. Measured against both on
+ * real panels in docs/REAL-RANKINGS.md.
+ */
+export type RangeRule = "overlap" | "difference";
+export const RANGE_RULES: readonly RangeRule[] = ["overlap", "difference"];
+
+export function clearlyAbove(a: { rating: number; se: number; low: number; high: number }, b: { rating: number; se: number; low: number; high: number }, rule: RangeRule): boolean {
+  if (rule === "overlap") return a.low > b.high;
+  return a.rating - b.rating > Z95 * Math.sqrt(a.se * a.se + b.se * b.se);
+}
+
+export function groupRanking(items: ItemMeta[], rows: RatingRow[], rule: RangeRule = "overlap"): RankedItem[] {
   const byItem = new Map<string, RatingRow[]>();
   for (const r of rows) {
     // A rating still at the default deviation was never answered about.
@@ -83,8 +100,8 @@ export function groupRanking(items: ItemMeta[], rows: RatingRow[]): RankedItem[]
   });
   est.sort((a, b) => b.rating - a.rating || a.label.localeCompare(b.label));
   return est.map((e, i) => {
-    const above = est.filter((o) => o !== e && o.low > e.high).length;
-    const below = est.filter((o) => o !== e && o.high < e.low).length;
+    const above = est.filter((o) => o !== e && clearlyAbove(o, e, rule)).length;
+    const below = est.filter((o) => o !== e && clearlyAbove(e, o, rule)).length;
     const bestRank = 1 + above;
     const worstRank = est.length - below;
     return { ...e, rank: i + 1, bestRank, worstRank, tied: worstRank > bestRank };

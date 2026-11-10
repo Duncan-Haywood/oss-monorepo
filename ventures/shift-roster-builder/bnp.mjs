@@ -16,11 +16,13 @@ const EPS = 1e-9;
 // Revised simplex for  min c.x  s.t.  A x = 1 (every row), x >= 0, where each column of A is 0/1 and given by its row list.
 // Rows 0..S-1 are shifts (held once, or open), rows S..S+P-1 are people (one set each). Big-M artificials start the basis
 // for any row with no identity column; a basic artificial left positive at the optimum means the node is infeasible.
-function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
+// `warm` (optional) is a basis from an earlier solve of the same rows, as `basis` returns it: a column id, or -1 - r for the
+// artificial of row r. Column ids must mean the same columns (callers only append columns between solves).
+export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null } = {}) {
   const n = cols.length;
   const BIG_M = 1e6;
   // Column ids >= n are artificials: id n + r covers row r.
-  const basis = Int32Array.from(init, (j, r) => (j >= 0 ? j : n + r));
+  const basis = warm ? Int32Array.from(warm, (j) => (j >= 0 ? j : n + (-1 - j))) : Int32Array.from(init, (j, r) => (j >= 0 ? j : n + r));
   const colRows = (j) => (j < n ? cols[j] : [j - n]);
   const colCost = (j) => (j < n ? cost[j] : BIG_M);
   const inBasis = new Uint8Array(n + m);
@@ -50,7 +52,10 @@ function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
   };
   refactor();
   const xB = new Float64Array(m);
-  const computeX = () => { for (let r = 0; r < m; r++) { let v = 0; for (let k = 0; k < m; k++) v += Binv[r * m + k]; xB[r] = v; } };
+  // Basic values within 1e-9 of zero are set to zero. Without this, rounding left values like 1e-11 on degenerate rows, the
+  // ratio test saw a step of 1e-11 as progress, the anti-cycling switch below never stayed on, and a 20-person week (102 rows,
+  // 497 columns) cycled at its optimum past 400,000 pivots (eval/cg-scale-bench.mjs, 2026-11-10). With it: 479 pivots.
+  const computeX = () => { for (let r = 0; r < m; r++) { let v = 0; for (let k = 0; k < m; k++) v += Binv[r * m + k]; xB[r] = Math.abs(v) < 1e-9 ? 0 : v; } };
   computeX();
   const y = new Float64Array(m);
   const d = new Float64Array(m);
@@ -61,7 +66,11 @@ function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
     for (let r = 0; r < m; r++) { const cb = colCost(basis[r]); if (cb !== 0) for (let k = 0; k < m; k++) y[k] += cb * Binv[r * m + k]; }
     // Pricing: Dantzig's rule, Bland's (lowest index) after a run of degenerate pivots so the method cannot cycle.
     const bland = degenerate > 50;
-    let enter = -1, best = -1e-9;
+    // Entering tolerance relative to the duals: while big-M artificials are basic the duals are near 1e6 and a reduced cost of
+    // -1e-9 is rounding, and a 40-person week made 200,000 pivots on such columns without ending (eval/cg-scale-bench.mjs).
+    let ymax = 0;
+    for (let k = 0; k < m; k++) if (Math.abs(y[k]) > ymax) ymax = Math.abs(y[k]);
+    let enter = -1, best = -1e-11 * (1 + ymax);
     for (let j = 0; j < n; j++) {
       if (inBasis[j]) continue;
       let rc = cost[j];
@@ -79,7 +88,7 @@ function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
       }
     }
     if (leave < 0) throw new Error("unbounded LP"); // cannot happen: costs are >= 0
-    degenerate = ratio < 1e-12 ? degenerate + 1 : 0;
+    degenerate = ratio < 1e-9 ? degenerate + 1 : 0;
     // Pivot.
     const dl = d[leave];
     for (let k = 0; k < m; k++) Binv[leave * m + k] /= dl;
@@ -103,7 +112,7 @@ function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
     x[j] = Math.max(0, xB[r]);
     obj += cost[j] * x[j];
   }
-  return { obj, x, infeasible, pivots, y };
+  return { obj, x, infeasible, pivots, y, basis: Int32Array.from(basis, (j) => (j < n ? j : -1 - (j - n))) };
 }
 
 // Build a node's columns from the root sets and its branch decisions, solve its LP, and report the most fractional pair.
@@ -225,7 +234,7 @@ export function branchAndPriceOpen(sets, len, { incumbentOpen = Infinity, nodeLi
 // other copy at no cost, so the bound never rises (measured: 47.00 at every node of the rolling-gap 10x28 set 0 for 100,000
 // nodes, against an optimum of 48). A node whose LP is settled and whose class shares are all 0 or 1 is solved: every set
 // p uses at that node holds the same classes, so handing each holder of a class a different copy is a roster at the LP value.
-export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null } = {}) {
+export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, warm = true } = {}) {
   const S = len.length;
   const C = cls ? Int32Array.from(cls) : Int32Array.from({ length: S }, (_, s) => s);
   const copies = new Map();
@@ -233,7 +242,7 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
   const unit = hourUnit(len);
   const t0 = Date.now();
   const timeUp = () => Date.now() - t0 > ms;
-  const stats = { nodes: 0, pivots: 0, ms: 0, columns: 0, rounds: 0, pricingCalls: 0, inexactPricing: 0, classes: copies.size };
+  const stats = { nodes: 0, pivots: 0, ms: 0, columns: 0, rounds: 0, pricingCalls: 0, inexactPricing: 0, maxPricingNodes: 0, pricingMs: 0, classes: copies.size };
   const pool = [], seen = new Set();
   const addCol = (p, set) => {
     const f = [...set].sort((a, b) => a - b);
@@ -256,7 +265,8 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
       if (v === 1) needCls[p].push(k); else for (const s of copies.get(k)) ban[p].add(s);
     }
     const fits = ({ p, f }) => f.every((s) => !ban[p].has(s)) && needCls[p].every((k) => f.some((s) => C[s] === k));
-    let lb = parentBound, z = Infinity, lp = null, cols = null, owner = null, members = null, settled = false;
+    let lb = parentBound, z = Infinity, lp = null, cols = null, owner = null, members = null, settled = false
+    let prevBasis = null;
     for (let round = 0; round < maxRounds; round++) {
       stats.rounds++;
       cols = []; owner = []; members = [];
@@ -269,7 +279,18 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
         const rows = c.f.slice(); rows.push(S + c.p);
         cols.push(rows); cost.push(0); owner.push(c.p); members.push(c.f);
       }
-      lp = solveLP(S + P, cols, cost, init);
+      try {
+        // Within a node the pool only grows at the end and `fits` does not change, so last round's basis is still a feasible
+        // basis of this round's LP: start from it (warm) rather than from the artificials. A failed warm solve retries cold.
+        try { lp = solveLP(S + P, cols, cost, init, { warm: warm ? prevBasis : null }); }
+        catch (e) { if (!warm || !prevBasis) throw e; lp = solveLP(S + P, cols, cost, init); }
+        prevBasis = lp.basis;
+      } catch (e) {
+        // A solver failure (pivot limit, singular basis) stops this node with the bound it already has, which is still valid;
+        // the search then reports the floor unproven instead of throwing out of buildRoster.
+        stats.lpFailures = (stats.lpFailures || 0) + 1;
+        return { fix, bound: lb, pick: -1, settled: false, solved: false };
+      }
       stats.pivots += lp.pivots;
       // The restricted LP's full objective (big-M artificials included) equals its dual objective, the sum of the duals.
       z = 0;
@@ -280,7 +301,10 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
         stats.pricingCalls++;
         // A needed class is held through its highest-priced copy: copies are interchangeable for p, so that copy is p's best.
         const need = needCls[p].map((k) => copies.get(k).reduce((a, s) => (w[s] > w[a] ? s : a)));
+        const tp = Date.now();
         const r = price(p, w, need, ban[p]);
+        stats.pricingMs += Date.now() - tp;
+        if (r.nodes > stats.maxPricingNodes) stats.maxPricingNodes = r.nodes;
         if (!r.exact) { exact = false; stats.inexactPricing++; }
         if (!r.set) { lagr = Infinity; continue; }
         const rc = -r.value - lp.y[S + p];
@@ -338,7 +362,15 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
   while (open.length) {
     if (stats.nodes >= nodeLimit || timeUp()) { aborted = true; break; }
     let bi = 0;
-    for (let i = 1; i < open.length; i++) if (open[i].bound < open[bi].bound) bi = i;
+    if (dive) {
+      // Best bound on the open-hours grid, deepest first among ties: when the LP is tight, nodes share the bound and this
+      // follows one branch down to a roster instead of widening the tree level by level.
+      const key = (nd) => roundUp(nd.bound, unit);
+      for (let i = 1; i < open.length; i++) {
+        const a = key(open[i]), b = key(open[bi]);
+        if (a < b - 1e-9 || (a < b + 1e-9 && open[i].fix.size > open[bi].fix.size)) bi = i;
+      }
+    } else for (let i = 1; i < open.length; i++) if (open[i].bound < open[bi].bound) bi = i;
     const nd = open[bi];
     open[bi] = open[open.length - 1]; open.pop();
     if (cut(nd.bound)) continue;

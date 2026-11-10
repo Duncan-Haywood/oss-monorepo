@@ -54,7 +54,7 @@ And some of them, instead of sailing, simply walked. They walked out of Ireland,
 
 The most famous of these walkers was a man named Columbanus.
 
-Columbanus came from the west of Ireland, and he was, by every account, a remarkable person. He was brilliant. He was passionate. He was tall, I think we are meant to imagine, and fierce about the things he was fierce about, and he wrote Latin better than most of the educated people of Gaul, which they did not always enjoy. He had spent years at a great monastery in the north of Ireland, in a place called Bangor, and then, when he was in his forties, he felt a call to leave. So he gathered twelve companions, which is a number with a good Gospel ring to it, and set out for the continent.
+Columbanus came from Leinster, in the east of Ireland, and he was, by every account, a remarkable person. He was brilliant. He was passionate. He was tall, I think we are meant to imagine, and fierce about the things he was fierce about, and he wrote Latin better than most of the educated people of Gaul, which they did not always enjoy. He had spent years at a great monastery in the north of Ireland, in a place called Bangor, and then, when he was in his forties, he felt a call to leave. So he gathered twelve companions, which is a number with a good Gospel ring to it, and set out for the continent.
 
 One of the twelve was a young man named Gall.
 

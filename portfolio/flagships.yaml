@@ -76,9 +76,9 @@ flagships:
       Tested on fixtures; next are real inputs. Open items, most valuable
       first: (0) built-in keywords measured on one real makerspace's bank
       export (72.7% suggested, 96% right, tuned on itself) and a real Chase card (78.4%), two Apple Cards (56.9% to 63.8%), a Canadian Capital One card (51.9% to 80.0%) and synthetic
-      sets (README Next): HCB card feed and Actual Budget samples held out; wanted: labelled books; (1) the AI layer in
+      sets (README Next); labelled books 2026-11-10 (Open Collective, README): learning 63-87% right from memos, 43-65% from payee names; next: new payees; wanted: a firm's own labelled bank books; (1) the AI layer in
       fill-only mode on real bank descriptions, more seeds, a bigger model
-      (synthetic so far; README Next); (2) the bank readers on real exports
+      (synthetic so far); (2) the bank readers on real exports
       from Chase, Bank of America, Wells Fargo, Amex, Capital One and
       others (six US layouts pinned on made-up rows 2026-11-04); (3) a real Stripe PayPal eBay or Amazon settlement export for
       the payment-processor import (`form1099k`: try a real 1099-K; Adyen:
@@ -88,11 +88,9 @@ flagships:
       through real OCR (SROIE: totals 76.2%, dates 80.2%, merchants 45.8%;
       wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
       deposits, `payroll reconcile`): a real Gusto or ADP report; (7) IRIS
-      1099-NEC export landed 2026-11-10 (layout from open-source copies): open,
-      a real upload and 1099-MISC; (8) `salestax
+      1099-NEC export done (HISTORY): open: a real upload, 1099-MISC; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
-      state's own page only for WA, TX, FL, NY, VA, MN, MO, IL, SC, OH and
-      UT monthly (OH quarterly and discount: excerpts); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
+      state's own page for 11 states (README; OH quarterly unsettled); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
       (Schedule AI): percentages matched to the 2024 form by excerpt
       2026-10-30, factors to state forms, federal text unread (irs.gov
       blocked); (9) EITC: built-in 2025 and 2026 schedules (Schedule EIC
@@ -178,12 +176,16 @@ flagships:
       generation with a per-person pricing oracle and branching on classes of identical shift
       copies (columnGenerationOpen, 2026-11-10 later; eval/cg-bench.mjs) is now the default
       branch-and-price: rolling-gap 10x28 set 0 proven at 48 (= HiGHS) in 3.5 s, 12x30 week 1
-      in 5 nodes. Next: the pay bound by the same column generation (price each person's set by
-      pay and penalties, not only hours, to prove cost on weeks the exact search leaves
-      unproven); a bigger-week bench (20-60 people, 100-390 shifts) to find where the oracle
-      stops being exact; a real POS hourly export for --from-sales and the page (many stamp and
-      number formats read, made-up exports only); a real published-schedule export for
-      --import-shifts.
+      in 5 nodes. Bigger weeks (eval/cg-scale-bench.mjs, 2026-11-10 later): two simplex cycling
+      bugs fixed (one crashed buildRoster with exact on a 20-person week); CG floor = HiGHS
+      optimum on all 12 weeks of 20-60 people; dive on ties plus a warm-started LP prove every 20,
+      30 and 40 person week (40 in about 40 s); the oracle was never inexact (max 116k nodes).
+      Next: the pay bound by the same column generation (price each person's set by pay and
+      penalties, not only hours, to prove cost on weeks the exact search leaves unproven);
+      60-person weeks (floor = optimum but no roster in 60 s: a faster LP or rounding at the root)
+      and buildRoster taking 3-5 min on 40-person weeks with exact on and no time limit; a real
+      POS hourly export for --from-sales and the page (many stamp and number formats read, made-up
+      exports only); a real published-schedule export for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -208,25 +210,34 @@ flagships:
       only, so try real CR2/CR3/NEF/ARW/DNG; since 2026-11-10 lossless SOF3
       sensor data and non-8-bit frames are not taken for the preview;
       raw.pixls.us and rawsamples.ch 403 from cloud and exiftool's samples
-      have their previews stripped); developing RAW into graded
-      masters is still open. History: ventures/photo-editing/README.md.
+      have their previews stripped; real CR2 and NEF files do clone from
+      rawpy's GitHub test folder). RAW development: `shootflow develop`
+      (2026-11-10, raw_develop.py) renders a DNG to a 16-bit TIFF master and
+      matches LibRaw within one 8-bit step on a real Nikon NEF and a Canon 5D
+      Mark II CR2 (their sensor data rewritten as DNG by
+      tools/libraw_differential.py; README "Develop DNG raw files"). Next: call
+      it from the pipeline's grade stage for DNG stills; try a camera- or
+      phone-written DNG with lossless-JPEG tiles; speed (pure Python, tens of
+      seconds per frame). History: ventures/photo-editing/README.md.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
       Davidson-tie Bradley-Terry conjoint fit, simulation-tested, with a
       deploy-to-your-own-Vercel button.
     next: >-
-      Done so far (docs/INFORMATION-GAIN-SELECTOR.md and the READMEs hold
-      the numbers): the survey builder (POST /api/admin/surveys, the /admin
-      form, the /s/[slug] respondent page, pooled ranking with random-
-      effects 95% intervals, rank ranges, CSV, coverage note sized from
-      measured answers per respondent); an information-gain pair selector
-      and a staged hybrid (equals the shipped one at 90 answers, keeps 66 of
-      70 settled items at 300 answers on 220 items), chosen per survey by
-      `pairSelector`; an INFO_POOL_CAP of 400 (3000 items 1983 -> 36 ms;
-      capped equals uncapped on 600 and 1000 items at 600 answers,
-      poolCap.simulation.test.ts); and a live-Postgres ranking integration
-      test (ranking.integration.test.ts, 2026-10-22). Pool cap, long budgets, lapses, slot bias and 1000 items were measured 2026-10-22 to 11-04 (docs). The 3000-answer Spearman dip was found and fixed 2026-11-08: the staged selector admitted items alphabetically by id, so ids that follow a meaningful order gave early stages a slice of the range; admission is now by id hash (fixed set 0.62-0.71 -> 0.98 at 3000 answers in process, docs). The live-Postgres noisyRespondents run at 3000 answers confirmed the fix through the routes 2026-11-08 (fixed set 0.979-0.984, docs). The same run with a 20% lapsing answerer (`lapse20`) at 3000 answers 2026-11-09 shows no dip (fixed set 0.924-0.953, docs). Lapses starting at answer 2000 (50%) 2026-11-09: settled items keep 0.98 but items first admitted after the onset end near 0.89 over all items (docs). A rating-based "answers look random" pause was built and measured 2026-11-09 and not wired in (catches 22% of random answering, pauses 7% of honest readings, docs). A repeat-pair consistency probe was measured 2026-11-09 and is not worth building on the selector's own pairs (honest agreement 0.61, 20% lapser 0.57: 3549 repeats to tell them apart; only a lopsided catch pair works, about 100 repeats; docs). Next: more respondents per cell, and a real respondent's answers.
+      History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
+      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md (survey builder, pooled
+      random-effects ranking with rank ranges, information-gain and staged
+      selectors, pool cap, lapse and repeat-probe studies, synthetic to
+      2026-11-09). Real people's rankings 2026-11-10 (PrefLib breakfast 42x15,
+      T-shirt 30x11, scored against the people not asked): vs the people asked
+      0.93-0.98, vs a new crowd 0.72-0.77 and 0.85, so people not answers are
+      the limit; overlap ranges hold 96-100% but span ~13 of 15 places at
+      20x20; a 1.96-se difference rule stays off (2-10% wrong); the information
+      selector beats shipped in all 25 cells. Next: a staged switch point that
+      depends on list length (it waits 120 answers, so short lists never reach
+      the better selector), checked against the couple screen's settled-item
+      bar; then real pairwise answers from a real survey.
 
   - venture: league-schedule-generator
     why: >-

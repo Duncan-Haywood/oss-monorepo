@@ -21,33 +21,23 @@ import argparse, json, os, re, sys
 import numpy as np, pandas as pd, lightgbm as lgb
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import harness, boosted  # noqa: E402
+import harness, boosted, classmap  # noqa: E402
 
 TAUS = harness.TAUS
 CITIES = ["chicago", "sf", "austin", "seattle"]
-CLASSES = ["new_construction", "alteration", "electrical", "plumbing", "mechanical",
-           "demolition", "sign", "fire", "other"]
-RULES = [("new_construction", r"new construction|new building|new const|\bnew\b"),
-         ("demolition", r"demol|wreck"),
-         ("electrical", r"electric|wiring"),
-         ("plumbing", r"plumb|water heater|sewer"),
-         ("mechanical", r"mechanic|hvac|furnace|boiler|heating|refriger|ventilat"),
-         ("sign", r"\bsign|awning|banner"),
-         ("fire", r"fire|sprinkler"),
-         ("alteration", r"alter|renov|repair|remodel|addition|additions|reno|ot -|otc|interior|exterior")]
+CLASSES, RULES, harmonise = classmap.CLASSES, classmap.RULES, classmap.harmonise  # moved, session 70
 
 
-def harmonise(s):
-    t = s.lower()
-    for name, pat in RULES:
-        if re.search(pat, t):
-            return name
-    return "other"
-
-
-def frame(path, target):
+def frame(path, target, classes="type"):
+    """classes='type': permit_type only (sessions 10 to 69). 'cascade': permit_type, then
+    work_class, then the loader's description class (session 70; needs a pull with desc_class)."""
     df, neg = boosted.load_frame(path, target)
-    df["cls"] = df["permit_type"].map(harmonise)
+    if classes == "type":
+        df["cls"] = df["permit_type"].map(harmonise)
+    else:
+        if "desc_class" not in df:
+            raise SystemExit(f"{path} has no desc_class column: re-pull with src/permits.py")
+        df["cls"] = [classmap.cascade(t, w, d) for t, w, d in zip(df.permit_type, df.work_class, df.desc_class)]
     return df, neg
 
 
@@ -105,14 +95,16 @@ if __name__ == "__main__":
     ap.add_argument("--test-year", type=int, default=2024)
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--held", nargs="*", default=None)
+    ap.add_argument("--classes", choices=["type", "cascade"], default="type")
     a = ap.parse_args()
     cities = [c for c in CITIES if os.path.exists(os.path.join(a.data_dir, f"{c}.csv"))]
-    frames = {c: frame(os.path.join(a.data_dir, f"{c}.csv"), a.target)[0] for c in cities}
+    frames = {c: frame(os.path.join(a.data_dir, f"{c}.csv"), a.target, a.classes)[0] for c in cities}
     if a.target == "i2c":
         frames = {c: f for c, f in frames.items() if c != "chicago"}  # Chicago has no completion date
     for held in (a.held or list(frames)):
         r = run(frames, held, a.test_year, a.seeds)
-        tag = "_4city" if "seattle" in frames else ""
+        tag = ("_4city" if "seattle" in frames else "") + ("_cascade" if a.classes == "cascade" else "")
+        r["classes"] = a.classes
         out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results",
                            f"transfer_{held}_{a.target}_{a.test_year}{tag}.json")
         json.dump(r, open(out, "w"), indent=1)

@@ -5,15 +5,15 @@ import assert from "node:assert/strict";
 import { parseDated, run } from "./eval/hackclub-memory.mjs";
 
 const ledger = `
-2016/02/01 Zorblax Hosting
+2016/02/01 Zorblax Networks
     Expenses:Operating:Hosting          $10.00
     Assets:Checking
 
-2016/01/01 Zorblax Hosting
+2016/01/01 Zorblax Networks
     Expenses:Operating:Hosting          $10.00
     Assets:Checking
 
-2016/03/01 Zorblax Hosting
+2016/03/01 Zorblax Networks
     Expenses:Operating:Hosting          $10.00
     Assets:Checking
 `;

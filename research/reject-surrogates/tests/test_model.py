@@ -43,6 +43,14 @@ class T(unittest.TestCase):
             u = log_minimiser(eta)
             self.assertLess(abs(-eta / (1 + math.exp(u)) * 0 + (1 - eta) * sigmoid(u) - eta * (1 - sigmoid(u))), 1e-12)
 
+    def test_sgd_scalar_reaches_the_minimisers(self):
+        # The function behind R4 had no test (quality audit 2026-11-10).
+        us = [sgd_scalar("log", 0.35, 0.25, 5000, random.Random(s)) for s in range(100)]
+        self.assertAlmostEqual(sum(us) / len(us), log_minimiser(0.35), delta=0.2)
+        esc = sum(decode_poly(sgd_scalar("poly", 0.35, 0.25, 1000, random.Random(s))) == 0 for s in range(200))
+        self.assertGreaterEqual(esc, 180)   # eta inside (d, 1-d): the Bayes action is escalate
+        rej = sum(decode_poly(sgd_scalar("poly", 0.1, 0.25, 1000, random.Random(s))) == -1 for s in range(200))
+        self.assertGreaterEqual(rej, 190)
 
 if __name__ == "__main__":
     unittest.main()

@@ -80,3 +80,8 @@ test('every .html file is reachable from the sitemap', async () => {
 test('index links one hop to a sibling check', () => {
   assert.match(index, /href="\.\.\/env-example-drift-check\/"/);
 });
+
+test('Hercules is not described as a paid tool (it is Apache-2.0 open source)', () => {
+  assert.doesNotMatch(index + guide, /Paid tools such as CodeScene and Hercules/);
+  assert.match(index, /Hercules \(open source\)/);
+});
