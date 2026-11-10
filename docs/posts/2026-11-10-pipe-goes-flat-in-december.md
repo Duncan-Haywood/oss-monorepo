@@ -1,6 +1,7 @@
 ---
 title: "Why an organ goes flat in December"
 date: 2026-11-10
+tags: [fiction, science-fiction, hearth-and-horizon, acoustics]
 description: A new Hearth & Horizon story on why cold air lowers organ pipes by 30 cents while the reeds stay put, and why tuning in a cold church backfires.
 ---
 
