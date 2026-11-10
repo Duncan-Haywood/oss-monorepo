@@ -1893,7 +1893,11 @@ export function analyze(input = {}) {
     // order 2 (o.noiseFloorOrder === 2) uses second differences, which cancel a steady drift per step; the factor 0.578
     // (= 0.954 / 1.651, the white-noise medians of |d1| and |d2| in sd units) keeps k on the same scale as order 1.
     // order 3 uses third differences (cancel a quadratic drift); 0.3166 = 0.955 / 3.016 keeps k on the same white-noise scale.
-    const fl = o.noiseFloorOrder === 3 && values.length > 4
+    // 'local': residuals of a least-squares line over each centred window of 7 points; white noise gives a median |residual| of
+    // c * sd with c measured by simulation (LOCAL_C), so k stays on the same scale as the other orders.
+    const fl = o.noiseFloorOrder === 'local' && values.length > 7
+      ? noiseFloorK * localFitScale(values)
+      : o.noiseFloorOrder === 3 && values.length > 4
       ? noiseFloorK * 0.3166 * median(values.slice(3).map((v, i) => Math.abs(v - 3 * values[i + 2] + 3 * values[i + 1] - values[i])))
       : o.noiseFloorOrder === 2 && values.length > 3
       ? noiseFloorK * 0.578 * median(values.slice(2).map((v, i) => Math.abs(v - 2 * values[i + 1] + values[i])))
@@ -2319,4 +2323,17 @@ export function garchSigma(x) {
     if (!moved) break;
   }
   return h(best[0], best[1]).map(Math.sqrt);
+}
+
+// Median absolute residual of centred 7-point local line fits, divided by the white-noise value of that median (measured, 1000 draws).
+const LOCAL_C = 0.627;
+export function localFitScale(v, w = 7) {
+  const h = (w - 1) / 2, res = [];
+  for (let t = h; t < v.length - h; t++) {
+    let sy = 0;
+    for (let j = -h; j <= h; j++) { sy += v[t + j]; }
+    const a = sy / w;
+    res.push(Math.abs(v[t] - a));
+  }
+  return median(res) / LOCAL_C * 0.954;
 }
