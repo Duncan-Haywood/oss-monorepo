@@ -1,9 +1,9 @@
 ---
 title: "Reading the work type out of a permit description, and four predictions to test it"
-seo_title: "Building permit work type from description text: a keyword cascade for Chicago and Seattle"
+seo_title: "Permit work type from description text: Chicago and Seattle"
 date: 2026-11-10
 tags: [research, permits, construction, transfer-learning, build-data]
-description: "Chicago and Seattle permit types name a review track, not the work. The build-data loader now keeps a work-type class read from the description, with four predictions written before any data was classified."
+description: "Chicago and Seattle permit types name a review track, not the work. The loader now reads a work type from the description, with four predictions set first."
 ---
 
 The [build-data programme](../../research/build-data/) asks whether open
