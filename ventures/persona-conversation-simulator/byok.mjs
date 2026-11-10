@@ -161,7 +161,10 @@ function parse(provider, data) {
   if (provider === 'gemini') {
     const parts = data.candidates?.[0]?.content?.parts || [];
     const u = data.usageMetadata || {};
-    return { text: parts.map(p => p.text || '').join(''), usage: { input: u.promptTokenCount || 0, output: u.candidatesTokenCount || 0 } };
+    // Thinking models report their reasoning in thoughtsTokenCount, which Google
+    // bills at the output rate; leaving it out let a spend guard pass calls it
+    // should have stopped (quality audit 2026-11-07, platform/llm).
+    return { text: parts.map(p => p.text || '').join(''), usage: { input: u.promptTokenCount || 0, output: (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0) } };
   }
   const u = data.usage || {};
   return { text: data.choices?.[0]?.message?.content || '', usage: { input: u.prompt_tokens || 0, output: u.completion_tokens || 0 } };
