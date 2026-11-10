@@ -28,3 +28,12 @@ test("a plan file of the wrong shape is refused in plain words, not with a JavaS
     assert.doesNotMatch(r.out, /Cannot (create|read|use|assign)|not iterable/, text);
   }
 });
+
+test("--schedule on a plan with no usable schedule exits 1, like --orders and --risk", () => {
+  const plan = '{"walls":[{"length":96}]}';
+  for (const extra of [[], ["--json"], ["--csv"]]) {
+    const f = join(dir, "s.json"); writeFileSync(f, plan);
+    const r = main([f, "--schedule", ...extra]);
+    assert.equal(r.code, 1, extra.join(" ") || "text");
+  }
+});

@@ -575,8 +575,8 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     if (!pr.ok) return { code: 1, out: procurementText(pr).join("\n") };
     return { code: 0, out: flags.has("--json") ? JSON.stringify(pr, null, 2) : flags.has("--csv") ? procurementCsv(pr).trimEnd() : procurementText(pr).join("\n") };
   }
-  if (flags.has("--schedule") && flags.has("--csv")) return { code: 0, out: scheduleCsv(schedule(resolveRates(plan.schedule, r))).trimEnd() };
-  if (flags.has("--schedule") && flags.has("--json")) return { code: 0, out: JSON.stringify(schedule(resolveRates(plan.schedule, r)), null, 2) };
+  if (flags.has("--schedule") && flags.has("--csv")) { const sc = schedule(resolveRates(plan.schedule, r)); return { code: sc.ok === false ? 1 : 0, out: scheduleCsv(sc).trimEnd() }; }
+  if (flags.has("--schedule") && flags.has("--json")) { const sc = schedule(resolveRates(plan.schedule, r)); return { code: sc.ok === false ? 1 : 0, out: JSON.stringify(sc, null, 2) }; }
   if (flags.has("--level-bids")) {
     if (!Array.isArray(plan.bids) || !plan.bids.length) return { code: 1, out: 'plan has no "bids" list (each: { bidder, lines: [{ item, qty, unitPrice | amount }] })' };
     const lv = levelBids(budget(r, plan.prices || {}, plan.allowances || {}), plan.bids);
@@ -657,12 +657,13 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (r.dormer) lines.push("", "DORMER", ...dormerText(r.dormer));
   if (r.roof) lines.push("", "ROOF", ...roofText(r.roof));
   if (flags.has("--budget")) lines.push("", "BUDGET", ...budgetText(budget(r, plan.prices || {}, plan.allowances || {})));
-  if (flags.has("--schedule")) lines.push("", "SCHEDULE", ...scheduleText(schedule(resolveRates(plan.schedule, r))));
+  let scheduleRefused = false;
+  if (flags.has("--schedule")) { const sc = schedule(resolveRates(plan.schedule, r)); scheduleRefused = sc.ok === false; lines.push("", "SCHEDULE", ...scheduleText(sc)); }
   if (gangNotes.length) lines.push("", "GANGED OPENINGS", ...gangNotes.map((n) => `  - ${n}`));
   if (headers && (flags.has("--headers") || headers.notes.length)) lines.push("", "HEADERS", ...headerText(headers));
   if (r.notes.length) lines.push("", "NOTES", ...r.notes.map((n) => `  - ${n}`));
   lines.push("", "Header sizes and jack counts are your inputs and are not checked against a span table or code.");
-  return { code: 0, out: dxfNotes + lines.join("\n") };
+  return { code: scheduleRefused ? 1 : 0, out: dxfNotes + lines.join("\n") };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
