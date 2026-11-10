@@ -46,7 +46,8 @@ export function chartSvg(r) {
 
 /**
  * @param {any} r result of analyze()
- * @param {{ title?: string, author?: string, contact?: string, accent?: string, logo?: string, notes?: string, date?: string }} [o]
+ * @param {{ title?: string, author?: string, contact?: string, accent?: string, logo?: string, notes?: string, date?: string, agreed?: string }} [o]
+ * o.agreed: consensus.mjs agreedText() for the same series; when given, the report leads with it.
  */
 export function changeReportHtml(r, o = {}) {
   const title = esc((o.title || "").trim() || "Change report");
@@ -56,6 +57,7 @@ export function changeReportHtml(r, o = {}) {
   const accent = safeColor(o.accent || "");
   const logo = safeLogo(o.logo || "");
   const notes = (o.notes || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+  const agreed = (o.agreed || "").trim() ? `<p class="agreed"><strong>Agreed changes:</strong> ${esc(String(o.agreed).trim())}</p>` : "";
   const warn = ["rangeWarning", "driftWarning", "cycleWarning", "overcutWarning"].filter((k) => r[k]).map((k) => `<p class="warn"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("");
   const cps = r.pelt.changepoints;
   const changes = cps.length
@@ -68,11 +70,11 @@ export function changeReportHtml(r, o = {}) {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title}</title>
-<style>:root{--a:${accent}}body{font:15px/1.5 system-ui,sans-serif;margin:0 auto;max-width:52rem;padding:1rem;color:#1a1a1a;background:#fff}.bar{display:flex;align-items:center;gap:.75rem;border-bottom:4px solid var(--a);padding-bottom:.5rem;margin-bottom:1rem}.bar .logo{max-height:3.5rem;max-width:8rem}.bar small{display:block;color:#555}h1,h2{color:var(--a)}h1{margin:0;font-size:1.5rem}table{border-collapse:collapse;width:100%;margin-bottom:.75rem}th,td{text-align:left;padding:.3rem .5rem;border-bottom:1px solid #ccc}th{border-bottom:2px solid var(--a)}.n{text-align:right}.warn{background:#fff4e0;border-left:4px solid #c77c00;padding:.4rem .6rem}svg{width:100%;height:auto}.legend{color:#555;font-size:.85rem}.assume{font-size:.85rem;color:#444;border-top:1px solid #ccc;margin-top:1.5rem;padding-top:.5rem}@media print{body{max-width:none}h2{break-after:avoid}table,svg{break-inside:avoid}}</style></head>
+<style>:root{--a:${accent}}body{font:15px/1.5 system-ui,sans-serif;margin:0 auto;max-width:52rem;padding:1rem;color:#1a1a1a;background:#fff}.bar{display:flex;align-items:center;gap:.75rem;border-bottom:4px solid var(--a);padding-bottom:.5rem;margin-bottom:1rem}.bar .logo{max-height:3.5rem;max-width:8rem}.bar small{display:block;color:#555}h1,h2{color:var(--a)}h1{margin:0;font-size:1.5rem}table{border-collapse:collapse;width:100%;margin-bottom:.75rem}th,td{text-align:left;padding:.3rem .5rem;border-bottom:1px solid #ccc}th{border-bottom:2px solid var(--a)}.n{text-align:right}.agreed{border-left:4px solid var(--a);padding:.4rem .6rem;background:#f3f7fa}.warn{background:#fff4e0;border-left:4px solid #c77c00;padding:.4rem .6rem}svg{width:100%;height:auto}.legend{color:#555;font-size:.85rem}.assume{font-size:.85rem;color:#444;border-top:1px solid #ccc;margin-top:1.5rem;padding-top:.5rem}@media print{body{max-width:none}h2{break-after:avoid}table,svg{break-inside:avoid}}</style></head>
 <body>
 <header class="bar">${logo ? `<img class="logo" src="${logo}" alt="">` : ""}<div><h1>${title}</h1><small>${[author, date, contact].filter(Boolean).join(" · ")}</small></div></header>
 <h2>What changed</h2>
-<p>${esc(r.summary)}</p>
+${agreed}<p>${agreed ? "Level model alone: " : ""}${esc(r.summary)}</p>
 ${warn}
 <p class="legend">● series · red line: segment mean (PELT) · blue bars: change probability (Bayesian)</p>
 ${chartSvg(r)}

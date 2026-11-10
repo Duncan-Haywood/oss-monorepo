@@ -52,6 +52,7 @@ Options:
   --noise-floor-local [w]   take it from residuals of centred w-point line fits (default 7)
   --noise-floor-quad [w]    the same with centred w-point quadratic fits
   --consensus [n]           run six settings (level, level under a trend with AR(1), the same with joint AR(1), noise floor, trend, trend with floor) and list each change by how many agree (changes within n points, default 2% of the series, are one); takes --log, --period, --penalty, --min-segment, --column
+  --no-agreed               with the level model: skip the six-setting panel that leads the text output with the changes every setting agrees on (skipped anyway above 2000 points)
   --json                    print the full result as JSON
   -h, --help                this help
 
@@ -60,17 +61,23 @@ ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. ${p.url
 
 Statistical analysis of data you supply, not advice. MIT licence.`;
 
+// Measured 2026-11-10 on the tree-ring series: 1,000 points 1.6 s with the panel vs 0.6 s without,
+// 2,000 points 5.3 s vs 1.1 s, 7,980 points 32 s vs 5.7 s. The text output stays quick on long series.
+export const AGREED_MAX_POINTS = 2000;
+
 export async function main(argv, { stdin = process.stdin, out = (s) => process.stdout.write(s) } = {}) {
   const opt = {};
   let file = null;
   let json = false;
   let example = false;
+  let agreed = true;
   const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
     else if (a === '--json') json = true;
     else if (a === '--example') example = true;
+    else if (a === '--no-agreed') agreed = false;
     else if (a === '--drift') opt.drift = true;
     else if (a === '--log') opt.log = true;
     else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
@@ -119,7 +126,20 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   }
   const r = analyze(opt);
   if (json) { out(JSON.stringify(r, null, 2) + '\n'); return 0; }
-  const lines = [r.summary, ''];
+  const lines = [];
+  // The level model's text leads with the settings panel (consensus.mjs), as the page does: on labelled
+  // series held out from tuning, the changes every setting agrees on scored far above the level model alone.
+  if (agreed && (opt.model == null || opt.model === 'mean') && r.n > AGREED_MAX_POINTS) {
+    lines.push(`Agreed changes: not run on ${r.n} points (above ${AGREED_MAX_POINTS} the six-setting panel takes about six times as long as the level model; add --consensus to run it).`, '');
+  } else if (agreed && (opt.model == null || opt.model === 'mean')) {
+    const { consensus: cons, agreedText } = await import('./consensus.mjs');
+    try {
+      // Only the options the panel shares (as on the page); an unset key must stay absent, not undefined, or it hides the default.
+      const base = Object.fromEntries(['csv', 'column', 'labelColumn', 'log', 'period', 'penalty', 'minSegment'].filter((k) => opt[k] != null).map((k) => [k, opt[k]]));
+      lines.push(`Agreed changes: ${agreedText(cons(base))}`, '', 'Level model alone (the panel\'s first setting, with the options given):');
+    } catch { /* the panel is extra; the analysis below already ran */ }
+  }
+  lines.push(r.summary, '');
   lines.push('Segments (PELT):');
   for (const s of r.pelt.segments) lines.push(`  ${s.from} – ${s.to}  n=${s.n}  mean=${s.mean}  ${s.geometricMean !== undefined ? `geometric mean=${s.geometricMean}  ` : ''}${s.slope !== undefined ? `slope=${s.slope}  ` : ''}sd=${s.sd}`);
   const ch = r.pelt.changepoints.filter((x) => x.range95);
