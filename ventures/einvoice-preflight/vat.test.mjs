@@ -352,7 +352,14 @@ test("Saudi and South African VAT numbers get a shape check", () => {
   assert.deepEqual(rules("AE1001234567890033"), ["INV-022"]);
   assert.deepEqual(rules("AE100123456700003"), []);
   assert.deepEqual(rules("AE10012345"), ["INV-022"]);
-  assert.deepEqual(rules("SG200812345K"), []);
+  // UEN check letters (examples from python-stdnum sg.uen): business, local company, other entity.
+  assert.deepEqual(rules("SG00192200M"), []);
+  assert.deepEqual(rules("SG00192200K"), ["INV-023"]);
+  assert.deepEqual(rules("SG197401143C"), []);
+  assert.deepEqual(rules("SG197401143D"), ["INV-023"]);
+  assert.deepEqual(rules("SGS16FC0121D"), []);
+  assert.deepEqual(rules("SGT01FC6132D"), []);
+  assert.deepEqual(rules("SGT01FC6132E"), ["INV-023"]);
   assert.deepEqual(rules("SGM2000123"), ["INV-022"]);
   assert.deepEqual(rules("SGM200012345"), []);
   assert.deepEqual(rules("PH123456789"), []);
