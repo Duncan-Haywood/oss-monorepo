@@ -1,7 +1,7 @@
 ---
 title: "Our IRIS 1099 checker rejected the IRS's own template"
 date: 2026-11-10
-description: "The free IRIS 1099 CSV check had been written from memory in its own column layout, so a correctly filled IRS template failed it with ten missing-column errors. It now reads the 54-column template, and the AI Bookkeeper exports it."
+description: "Our IRIS 1099 checker was written from memory, so the IRS's own 54-column template failed it. It now reads that template, and the AI Bookkeeper exports it."
 tags: [irs-iris-1099-csv-check, ai-bookkeeper, 1099-nec, iris]
 ---
 
