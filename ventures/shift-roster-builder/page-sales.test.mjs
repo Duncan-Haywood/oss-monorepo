@@ -19,3 +19,11 @@ test("sales page: made-up fortnight gives shifts the roster builder reads", () =
   assert.match(page("sitemap.xml"), /shifts-from-sales\.html/);
   assert.match(page("index.html"), /shifts-from-sales\.html/);
 });
+
+test("sales page: text with no readable sales is shown as an error, not 'Paste sales above.'", () => {
+  const html = page("shifts-from-sales.html");
+  assert.match(html, /!r\.rows && \$\("#csv"\)\.value\.trim\(\)/);
+  const r = demandShifts("hello,world\nfoo,bar", { splh: 60 });
+  assert.equal(r.rows, 0);
+  assert.match(r.notes.join(" "), /No sales column/);
+});
