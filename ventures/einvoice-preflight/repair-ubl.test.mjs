@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { repairUbl } from "./repair-ubl.mjs";
+import { repairUbl, fmt } from "./repair-ubl.mjs";
 
 const ex = (n) => readFileSync(new URL(`./examples/${n}`, import.meta.url), "utf8");
 const rules = (r) => r.map((e) => e.rule).sort();
@@ -60,4 +60,12 @@ test("a document with a header allowance is not touched", () => {
 
 test("DTDs are refused", () => {
   assert.throws(() => repairUbl('<!DOCTYPE x [<!ENTITY a "b">]><Invoice/>'));
+});
+
+test("repair amounts round half up on a half cent that binary floats store just under", () => {
+  assert.equal(fmt(1.005), "1.01");
+  assert.equal(fmt(0.285), "0.29");
+  assert.equal(fmt(10.075), "10.08");
+  assert.equal(fmt(-1.005), "-1.01");
+  assert.equal(fmt(2), "2.00");
 });
