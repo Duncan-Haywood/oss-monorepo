@@ -1,0 +1,18 @@
+hull                    L/V^1/3    L3/V     c15  range old  range new  v new  change
+monohull 3.0 m             5.13     135  -1.694        831        831   1.01   +0.0%
+catamaran demi-hull 3.0 m     6.46     270  -1.694        782        782   0.98   +0.0%
+monohull 4.0 m             6.84     320  -1.694        863        863   1.07   +0.0%
+catamaran demi-hull 4.0 m     8.62     640  -1.432        771        771   0.97   +0.0%
+monohull 5.0 m             8.55     625  -1.461        849        849   1.07   +0.0%
+catamaran demi-hull 5.0 m    10.77    1250  -0.519        725        725   0.91   +0.0%
+-- catamaran / monohull range ratio at equal length, old and new c15 --
+L 3.0 m: old 0.942  new 0.942
+L 4.0 m: old 0.894  new 0.894
+L 5.0 m: old 0.854  new 0.854
+-- where the rule would matter: total-resistance change, new vs old c15, 5 m catamaran demi-hull (0.1 m3) --
+Fn 0.15 v 1.05 m/s: RT old    5.21 N, new    5.21 N (-0.0%)
+Fn 0.20 v 1.40 m/s: RT old    9.67 N, new    9.64 N (-0.4%)
+Fn 0.25 v 1.75 m/s: RT old   15.90 N, new   15.77 N (-0.8%)
+Fn 0.30 v 2.10 m/s: RT old   22.78 N, new   23.20 N (+1.8%)
+Fn 0.35 v 2.45 m/s: RT old   30.71 N, new   31.86 N (+3.7%)
+Fn 0.40 v 2.80 m/s: RT old   45.55 N, new   43.44 N (-4.6%)
