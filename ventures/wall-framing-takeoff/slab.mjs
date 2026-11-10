@@ -45,9 +45,9 @@ export function slabText(r) {
 /** Control-joint rules of thumb (typed; the engineer's or local book's figures win): spacing is 30 times the slab thickness (the usual 24 to 36 range), never over 15 ft, panels no longer than 1.5 times their width, saw cut at least 1/4 of the thickness, cut within 6 to 18 hours of the pour. */
 export const JOINT_RULES = { spacingFactor: 30, maxSpacing: 180, maxAspect: 1.5, cutFraction: 0.25 };
 
-/** Control-joint layout for a rectangular slab on grade: panels that stay inside the spacing limit and the aspect limit, the saw-cut length and the cut depth.
+/** Control-joint layout for a rectangular slab on grade: equal panels that stay inside the spacing limit and the aspect limit (extra cuts are added on the long side when the spacing alone leaves long thin panels), the saw-cut length and the cut depth.
  *  @param {{ length?: number, width?: number, depth?: number, spacingFactor?: number, maxSpacing?: number }} s inches
- *  @returns {{ ok: true, spacing: number, cutsAlongLength: number, cutsAlongWidth: number, panelLength: number, panelWidth: number, panels: number, sawCutFeet: number, cutDepth: number, notes: string[] } | { ok: false, errors: string[] }} */
+ *  @returns {{ ok: true, spacing: number, cutsAlongLength: number, cutsAlongWidth: number, panelLength: number, panelWidth: number, panels: number, aspect: number, sawCutFeet: number, cutDepth: number, notes: string[] } | { ok: false, errors: string[] }} */
 export function controlJoints(s) {
   if (!s || typeof s !== "object" || Array.isArray(s)) return { ok: false, errors: ["Give the slab as an object with length, width and depth in inches."] };
   const factor = s.spacingFactor ?? JOINT_RULES.spacingFactor, cap = s.maxSpacing ?? JOINT_RULES.maxSpacing;
@@ -60,16 +60,24 @@ export function controlJoints(s) {
   if (errors.length) return { ok: false, errors };
   const L = /** @type {number} */ (s.length), W = /** @type {number} */ (s.width), D = /** @type {number} */ (s.depth);
   const spacing = Math.min(factor * D, cap);
-  // Equal panels: the fewest that keep each panel at or under the spacing.
-  const nL = Math.ceil(L / spacing - 1e-9), nW = Math.ceil(W / spacing - 1e-9);
+  // Equal panels: the fewest that keep each panel at or under the spacing,
+  // then one more cut across the long side of the panel at a time until no
+  // panel is longer than maxAspect times its width (a long thin panel cracks
+  // across the middle whatever the spacing).
+  let nL = Math.ceil(L / spacing - 1e-9), nW = Math.ceil(W / spacing - 1e-9);
+  const spacingCuts = nL + nW;
+  while (Math.max(L / nL, W / nW) > JOINT_RULES.maxAspect * Math.min(L / nL, W / nW) + 1e-9) {
+    if (L / nL > W / nW) nL++; else nW++;
+  }
   const panelLength = L / nL, panelWidth = W / nW;
   const cutsAlongLength = nL - 1, cutsAlongWidth = nW - 1;
   const sawCutFeet = (cutsAlongLength * W + cutsAlongWidth * L) / 12;
   const notes = [];
   const aspect = Math.max(panelLength, panelWidth) / Math.min(panelLength, panelWidth);
-  if (aspect > JOINT_RULES.maxAspect) notes.push(`Panels come out ${panelLength.toFixed(0)} x ${panelWidth.toFixed(0)} in, longer than ${JOINT_RULES.maxAspect} times their width: add a joint across the long side or ask the engineer.`);
+  const shapeCuts = nL + nW - spacingCuts;
+  if (shapeCuts > 0) notes.push(`${shapeCuts} extra cut${shapeCuts > 1 ? "s" : ""} beyond the spacing keep${shapeCuts > 1 ? "" : "s"} each panel within ${JOINT_RULES.maxAspect} times its width; a long thin panel tends to crack across its middle.`);
   notes.push("Saw within 6 to 18 hours of the pour, before random cracks start. Joints run through to meet columns, walls and any re-entrant corner.");
-  return { ok: true, spacing, cutsAlongLength, cutsAlongWidth, panelLength, panelWidth, panels: nL * nW, sawCutFeet, cutDepth: D * JOINT_RULES.cutFraction, notes };
+  return { ok: true, spacing, cutsAlongLength, cutsAlongWidth, panelLength, panelWidth, panels: nL * nW, aspect, sawCutFeet, cutDepth: D * JOINT_RULES.cutFraction, notes };
 }
 
 /** Plain-text lines for a `controlJoints` result.
@@ -77,7 +85,7 @@ export function controlJoints(s) {
 export function jointText(r) {
   if (!r.ok) return /** @type {any} */ (r).errors.map((e) => `  - ${e}`);
   const f = (/** @type {number} */ n) => (Math.round(n * 10) / 10).toString();
-  const out = [`Control joints: ${r.panels} panels of ${f(r.panelLength)} x ${f(r.panelWidth)} in (spacing limit ${f(r.spacing)} in)`, `Saw cuts: ${r.cutsAlongLength} across the length, ${r.cutsAlongWidth} across the width, ${f(r.sawCutFeet)} ft in all, ${f(r.cutDepth)} in deep`];
+  const out = [`Control joints: ${r.panels} panels of ${f(r.panelLength)} x ${f(r.panelWidth)} in, ${r.aspect.toFixed(2)} : 1 (spacing limit ${f(r.spacing)} in)`, `Saw cuts: ${r.cutsAlongLength} across the length, ${r.cutsAlongWidth} across the width, ${f(r.sawCutFeet)} ft in all, ${f(r.cutDepth)} in deep`];
   for (const n of r.notes) out.push(`- ${n}`);
   return out;
 }
