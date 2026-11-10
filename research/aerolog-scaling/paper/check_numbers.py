@@ -84,6 +84,8 @@ CHECKS = [
     ("experiments/hub_throughput/cargo_hub_taper_results.txt", "CC-CV 20-90%          43.1 min", "6d: 43.1 min"),
     ("experiments/hub_throughput/cargo_hub_taper_results.txt", "CC-CV 30-100%       24", "6d: 24 spares for 30-100%"),
     ("experiments/hub_throughput/cargo_hub_taper_results.txt", "CC-CV 30-100%         72.0 min   8-charger limit  6.67", "6d: 72.0 min, 6.7 flights/h"),
+    ("experiments/hub_throughput/cargo_hub_trace_results.txt", "= 1.76", "6f: Wednesday peak 1.76x the daily mean"),
+    ("experiments/hub_throughput/cargo_hub_trace_results.txt", "2019-10-12 uniform: 40", "6f: 40 spares on the Saturday trace at 85% load"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]

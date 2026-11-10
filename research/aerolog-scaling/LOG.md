@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 6g: paper draft catches up with milestone 6f (no new simulation)
+- Added the demand-trace result (Chicago ride-hail shape: spares 12 to 16 at 70% load, 16 to 32 or 40 at 85%) to section 4.15 of `paper/draft.md` and two checks to `paper/check_numbers.py` tying it to `cargo_hub_trace_results.txt`; all checks pass. Nothing new was run.
+- Next: a delivery-order trace with second-level timestamps; measured charge curves at 2C; sourced engine specific power for the hybrid.
+
 ## 2026-11-10 · Milestone 6f: do the 6c spare-pack counts survive a real daily demand profile? (predictions in `experiments/hub_throughput/cargo_hub_trace.py`'s docstring, fixed before the counts were read)
 - Why: 6c's "Next": a demand trace instead of fixed batches. No drone-delivery order data is public, so the shape comes from City of Chicago open data, ride-hail trips per 15-minute bin (`chicago_tnp_counts.json`, Wed 2019-10-09 and Sat 2019-10-12, city-wide; dataset m6dm-c72p), scaled to the same mean rate as 6c. Ride-hail is a stand-in for an on-demand service's time-of-day shape, not a delivery trace. Stdlib, 0.2 s.
 ### Outcome (`experiments/hub_throughput/cargo_hub_trace_results.txt`)
