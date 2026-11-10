@@ -1,8 +1,8 @@
 ---
 title: "Can a changepoint detector pick out Hurricane Sandy from 731 days of bike rides?"
-seo_title: "Spike detection on real bikeshare data: Hurricane Sandy ranked first, once"
+seo_title: "Spike detection on bikeshare data: Hurricane Sandy ranked first, once"
 date: 2026-11-10
-description: "A test of the changepoint detector's spike labels on Capital Bikeshare data: Sandy comes out first for registered riders at twice the next event, and is missed for casual riders."
+description: "Testing the changepoint detector's spike labels on Capital Bikeshare data: Sandy ranks first for registered riders, twice the next event; missed for casual."
 tags: [changepoint-detector, time-series, evaluation, open-source]
 ---
 
