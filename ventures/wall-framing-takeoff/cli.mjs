@@ -236,6 +236,12 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   let plan;
   let dxfNotes = "";
   keyNote = "";
+  if (!/\.(dxf|ifc)$/i.test(args[0])) {
+    // These options only steer the reading of a drawing; on a plan JSON they used to be ignored without a word.
+    const drawingOnly = argv.find((a) => /^--(units|storey|wall-layer|door-layer|window-layer|ifc-json)=/.test(a) || a === "--double-line" || a === "--single-line");
+    if (drawingOnly) return { code: 1, out: `${drawingOnly.split("=")[0]} only applies when the input is a .dxf or .ifc file; ${args[0]} is read as a plan JSON.` };
+  }
+  if (argv.some((a) => a.startsWith("--swing=")) && !flags.has("--sensitivity")) return { code: 1, out: "--swing= only applies with --sensitivity." };
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
       const units = argv.find((a) => a.startsWith("--units="))?.slice(8);
