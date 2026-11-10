@@ -55,7 +55,7 @@
     "docs/posts/2026-11-10-raw-preview-lossless-jpeg.md"
   ],
   "goal": null,
-  "notes": "Local checks: tests/test_raw_preview.py 11/11 pass (the 2 new tests fail on the old code). Full suite: 519 tests, 1 failure and 1 error, both from this container (broken system PIL _imaging; root reads chmod-000 files). The ruff findings in the touched files are on lines this PR did not change. RAW sample hosts raw.pixls.us and rawsamples.ch are 403 through the proxy; exiftool t/images samples have stripped previews.",
+  "notes": "Local checks: tests/test_raw_preview.py 11/11 pass (the 2 new tests fail on the old code). Full suite: 519 tests, 1 failure and 1 error, both from this container (broken system PIL _imaging; root reads chmod-000 files). The ruff findings in the touched files are on lines this PR did not change. RAW sample hosts raw.pixls.us and rawsamples.ch are 403 through the proxy; exiftool t/images samples have stripped previews. photo-editing lint (ruff 0.15.8) was already red on main from tools/tilt_confidence_check.py (one-line statements, from the 2026-11-09 calibration PR); rewrote it in plain style, same behaviour, ruff now passes on the venture.",
   "corrections": [],
   "redteam": null,
   "usage": {
