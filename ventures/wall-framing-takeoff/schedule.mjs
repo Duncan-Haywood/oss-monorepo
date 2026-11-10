@@ -143,6 +143,8 @@ export function resolveRates(input, result) {
 const MAX_DAYS = 3650;
 // Dates far from today made the day-by-day calendar walk run for seconds (notBefore 9999-12-31 took 21 s): a guard, not a rule.
 const YEAR_LO = 1990, YEAR_HI = 2100;
+// A date that rolls over (2026-02-30 reads as March 2) is not a real day.
+const realDay = (/** @type {string} */ text, /** @type {Date} */ d) => d.toISOString().slice(0, 10) === text;
 const inRange = (/** @type {Date} */ t) => t.getUTCFullYear() >= YEAR_LO && t.getUTCFullYear() <= YEAR_HI;
 export function schedule(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, errors: ["The schedule must be an object with `activities`."] };
@@ -168,7 +170,7 @@ export function schedule(input) {
   const wl = input?.weatherLoss;
   if (wl != null && !(typeof wl === "number" && wl >= 0 && wl <= 1)) return { ok: false, errors: ["weatherLoss must be a number from 0 to 1 (fraction of exposed working days lost)."] };
   const start = new Date((input.start || "2026-01-05") + "T00:00:00Z");
-  if (isNaN(start.getTime()) || !inRange(start)) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD, ${YEAR_LO} to ${YEAR_HI}).`] };
+  if (isNaN(start.getTime()) || !inRange(start) || !realDay(input.start || "2026-01-05", start)) return { ok: false, errors: [`start "${input.start}" is not a date (YYYY-MM-DD, ${YEAR_LO} to ${YEAR_HI}).`] };
   const offList = [...(input.holidays || []), ...(input.weatherDays || [])];
   const badOff = offList.filter((/** @type {string} */ h) => { const t = new Date(h + "T00:00:00Z"); return isNaN(t.getTime()) || !inRange(t); });
   if (badOff.length) return { ok: false, errors: [`holidays and weatherDays must be YYYY-MM-DD dates; not: ${badOff.join(", ")}.`] };
@@ -180,7 +182,7 @@ export function schedule(input) {
   const withNb = (/** @type {any} */ a) => {
     if (a.notBefore == null) return a;
     const t = new Date(a.notBefore + "T00:00:00Z");
-    if (typeof a.notBefore !== "string" || isNaN(t.getTime()) || !inRange(t)) { nbErrors.push(`${a.id}: notBefore "${a.notBefore}" is not a date (YYYY-MM-DD).`); return a; }
+    if (typeof a.notBefore !== "string" || isNaN(t.getTime()) || !inRange(t) || !realDay(a.notBefore, t)) { nbErrors.push(`${a.id}: notBefore "${a.notBefore}" is not a date (YYYY-MM-DD).`); return a; }
     if (t <= start) return a;
     // first working day on or after t
     const d = new Date(t); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1);
@@ -246,7 +248,7 @@ export function schedule(input) {
   let deadline = null;
   if (input.deadline != null) {
     const t = new Date(input.deadline + "T00:00:00Z");
-    if (typeof input.deadline !== "string" || isNaN(t.getTime())) return { ok: false, errors: [`deadline "${input.deadline}" is not a date (YYYY-MM-DD).`] };
+    if (typeof input.deadline !== "string" || isNaN(t.getTime()) || !realDay(input.deadline, t)) return { ok: false, errors: [`deadline "${input.deadline}" is not a date (YYYY-MM-DD).`] };
     const d = new Date(t); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() - 1);
     const idx = d < start ? -1 : toIndex(d);
     const daysLate = (lv.end - 1) - idx;

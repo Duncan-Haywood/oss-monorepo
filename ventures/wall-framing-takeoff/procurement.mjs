@@ -12,7 +12,7 @@ function weekdayBack(ds) { let d = ds; for (;;) { const w = new Date(d + "T00:00
 /** @param {string} a @param {string} b */
 function daysBetween(a, b) { return Math.round((new Date(b + "T00:00:00Z").getTime() - new Date(a + "T00:00:00Z").getTime()) / 86400000); }
 /** @param {any} v */
-function isDate(v) { return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(new Date(v + "T00:00:00Z").getTime()); }
+function isDate(v) { return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && (() => { const d = new Date(v + "T00:00:00Z"); return !isNaN(d.getTime()) && d.toISOString().slice(0, 10) === v; })(); }
 
 /**
  * @param {any} sched result of schedule() (ok: true)
