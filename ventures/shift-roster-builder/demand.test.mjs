@@ -176,3 +176,14 @@ test("an Excel sep= first line and a bracketed currency unit in the header are r
   const c = hourlySales("Date,Sales [GBP]\n2026-03-05 14:00,100\n");
   assert.equal(c.rows, 1);
 });
+
+test("sales read with a currency code and Excel serial date-times", async () => {
+  const { readAmount, hourlySales } = await import("./demand.mjs");
+  assert.equal(readAmount("USD 40.00"), 40);
+  assert.equal(readAmount("40.00 EUR"), 40);
+  assert.equal(readAmount("(CAD 5.00)"), -5);
+  const r = hourlySales("Date,Net Sales\n46328.5833,100\n46329.375,40");
+  assert.equal(r.rows, 2);
+  assert.equal(r.avg[0][14], 100); // Monday 2 Nov 2026, 14:00 (the fraction .5833 is 13:59:57, rounded to the minute)
+  assert.equal(r.avg[1][9], 40);
+});
