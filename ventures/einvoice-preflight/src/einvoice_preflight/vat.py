@@ -144,11 +144,11 @@ def _classify(country: str, body: str) -> str:
     if country == "SE":
         return "checksum" if body.isdigit() and len(body) in (10, 12) else "bad-format"
     if country == "DK":
-        return "checksum" if body.isdigit() and len(body) == 8 else "bad-format"
+        return "checksum" if body.isdigit() and len(body) == 8 and body[0] != "0" else "bad-format"
     if country == "FI":
         return "checksum" if body.isdigit() and len(body) == 8 else "bad-format"
     if country == "PT":
-        return "checksum" if body.isdigit() and len(body) == 9 else "bad-format"
+        return "checksum" if body.isdigit() and len(body) == 9 and body[0] != "0" else "bad-format"
     if country == "LU":
         return "checksum" if body.isdigit() and len(body) == 8 else "bad-format"
     if country == "IE":
@@ -162,7 +162,11 @@ def _classify(country: str, body: str) -> str:
         return "checksum"
     if country == "XI" and body.isascii() and body.isdigit() and len(body) in (9, 12):
         return "checksum"
-    if body.isalnum() and len(body) in lengths:
+    if country == "CY":
+        shape_ok = len(body) == 9 and body[:8].isascii() and body[:8].isdigit() and body[8].isalpha()
+    else:
+        shape_ok = body.isascii() and body.isdigit()
+    if shape_ok and len(body) in lengths:
         return "format"
     return "bad-format"
 
