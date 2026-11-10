@@ -2014,6 +2014,19 @@ export function analyze(input = {}) {
     const fg = fisherG(stepResiduals(values, p.changepoints));
     if (fg.p < 0.01 && fg.period >= 3) cycleWarning = `The residuals about these ${p.changepoints.length} steps carry a periodic component (peak at about ${round(fg.period, 1)} points, p ${fg.p < 1e-4 ? '< 0.0001' : round(fg.p, 4)}), so some steps may be a cycle read as regime changes, not separate changes: on sunspots (an 11-year cycle) the default found 46 steps and none were real. If the period is known, give it with --period; otherwise read the dates with care.`;
   }
+  // over-cut check (TCPD, eval/tcpd-defaults.mjs, README 2026-11-10): on the 31 Turing Change Point Dataset series the plain
+  // level model scored below reporting no change (F1 0.477 vs 0.663), mostly by cutting smooth or trending series into
+  // hundreds of steps. A noise floor of 2x the local-line residual scale (window 25) raised F1 on 27 of the 28 series where it
+  // differed (+0.21). So when the plain level model cuts 5 or more times and that floor halves the count, say so.
+  let overcut = null;
+  if (model === 'mean' && !noiseFloorK && !o.ar1 && !o.trend && !period && !o.log && p.changepoints.length >= 5 && values.length > 25) {
+    const floorSd = 2 * localFitScale(values, 25, 1);
+    if (floorSd > sigma) {
+      const refit = pelt(values, { model: 'mean', penalty, minSegment, sigma: floorSd });
+      if (refit.changepoints.length * 2 <= p.changepoints.length) overcut = { cuts: p.changepoints.length, refitCuts: refit.changepoints.length, floorSd: round(floorSd), refitAt: refit.changepoints.map((i) => labels[i]) };
+    }
+  }
+  const overcutWarning = overcut ? `${overcut.cuts} steps may be over-cutting a smooth or trending series: with the noise floor set to twice the scatter about a local line (--noise-floor 2 --noise-floor-local 25; page: smooth or trending series) the same search keeps ${overcut.refitCuts}${overcut.refitCuts ? ` (${overcut.refitAt.slice(0, 8).join(', ')}${overcut.refitCuts > 8 ? ', ...' : ''})` : ''}. On 31 labelled real series (Turing Change Point Dataset) that floor matched the annotators better on 27 of 28 that it changed; neither setting reliably beat reporting no change, so check the dates.` : null;
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -2059,6 +2072,7 @@ export function analyze(input = {}) {
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(driftWarning ? { driftWarning } : {}),
     ...(cycleWarning ? { cycleWarning } : {}),
+    ...(overcutWarning ? { overcutWarning, overcut } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
