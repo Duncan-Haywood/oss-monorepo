@@ -26,7 +26,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
@@ -38,11 +38,9 @@
       "result": "0 mismatches vs stdnum"
     }
   ],
-  "writeups": [
-    "docs/posts/2026-11-10-andorra-nrt-faroe-guinea-tax-id-e-invoice.md"
-  ],
+  "writeups": [],
   "goal": null,
-  "notes": "Routed to perf but the scheduled task asked for venture work; took a small einvoice-preflight slice (AD, FO, GN). vat.test.mjs 35/35; 6000 random numbers vs python-stdnum 2.2, 0 mismatches.",
+  "notes": "Wrote AD/FO/GN checks, then found another session had landed AD/GN/LI/SM on main; merged main, dropped my duplicates and post, kept only the Faroe V-number shape. Duplicate work: searched open PRs too late.",
   "corrections": [],
   "redteam": null
 }

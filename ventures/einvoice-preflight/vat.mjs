@@ -288,15 +288,19 @@ function classify(country, body) {
   if (country === "GH") return /^[PCGQV]00[A-Z0-9]{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "SV") return /^[019]\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "DZ") return /^(\d{15}|\d{20})$/.test(body) ? "format" : "bad-format";
+  // Andorra NRT (letter, 6 digits, letter; first letter one of ACDEFGLOPU, F up to 699999, A and L between 700000
+  // and 799999; the control letter is not checked), Guinea NIFp (9 digits, Luhn), Liechtenstein PEID (4 to 12
+  // digits) and San Marino COE (up to 5 digits, shape only). Structures from python-stdnum ad.nrt, gn.nifp,
+  // li.peid, sm.coe; the authorities' texts are unread.
+  if (country === "AD") return adNrtShapeOk(body) ? "format" : "bad-format";
+  // Faroe Islands V-number: 6 digits, shape only (python-stdnum fo.vn; authority text unread).
+  if (country === "FO") return /^\d{6}$/.test(body) ? "format" : "bad-format";
+  if (country === "GN") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "LI") return /^\d{4,12}$/.test(body) ? "format" : "bad-format";
+  if (country === "SM") return /^\d{1,5}$/.test(body) ? "format" : "bad-format";
   // Mozambique NUIT (9 digits, last is a check digit; python-stdnum mz.nuit). Costa Rica: cedula fisica 9 digits,
   // cedula juridica or NITE 10, DIMEX 11 or 12 (shape only; the Hacienda text is unread).
   if (country === "MZ") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
-  // Andorra NRT (letter, 6 digits, letter; first letter one of A C D E F G L O P U, F up to 699999, A and L
-  // 700000 to 799999; the control letter is not checked), Faroe Islands V-number (6 digits, shape only) and
-  // Guinea NIFp (9 digits, Luhn). Structures from python-stdnum ad.nrt, fo.vn, gn.nifp; authority texts unread.
-  if (country === "AD") return adNrtShapeOk(body) ? "format" : "bad-format";
-  if (country === "FO") return /^\d{6}$/.test(body) ? "format" : "bad-format";
-  if (country === "GN") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "CR") return /^\d{9,12}$/.test(body) ? "format" : "bad-format";
   // China unified social credit code (GB 32100-2015): 18 characters, 0-9 and A-Y without I, O, S, V, Z.
   if (country === "CN") return /^[0-9A-HJ-NP-RT-UW-Y]{18}$/.test(body) ? "checksum" : "bad-format";
@@ -676,12 +680,10 @@ function snNineaOk(body) {
   return w.reduce((a, x, i) => a + x * Number(n[i]), 0) % 10 === 0;
 }
 function adNrtShapeOk(body) {
-  if (!/^[A-Z]\d{6}[A-Z]$/.test(body)) return false;
-  const first = body[0];
-  const num = body.slice(1, 7);
-  if (!"ACDEFGLOPU".includes(first)) return false;
-  if (first === "F" && num > "699999") return false;
-  if ((first === "A" || first === "L") && !(num > "699999" && num < "800000")) return false;
+  if (!/^[A-Z]\d{6}[A-Z]$/.test(body) || !"ACDEFGLOPU".includes(body[0])) return false;
+  const n = body.slice(1, 7);
+  if (body[0] === "F" && n > "699999") return false;
+  if ((body[0] === "A" || body[0] === "L") && !(n > "699999" && n < "800000")) return false;
   return true;
 }
 function mzNuitOk(body) {
