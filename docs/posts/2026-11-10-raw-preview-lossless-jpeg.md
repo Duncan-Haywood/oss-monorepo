@@ -3,7 +3,7 @@ title: "The biggest JPEG inside a RAW file is not always the photo"
 seo_title: "Extracting the embedded JPEG preview from CR2 and DNG files"
 date: 2026-11-10
 tags: [photo-editing, shootflow, raw]
-description: "ShootFlow's RAW preview reader picked the largest JPEG in a file. In CR2 and DNG the sensor data is itself a lossless JPEG, so the rule could score a Bayer mosaic as the photo."
+description: "In CR2 and DNG files the sensor data is itself a lossless JPEG, so picking the largest embedded JPEG can score a Bayer mosaic as the photo."
 ---
 
 ShootFlow scores RAW stills (sharpness, exposure, framing) from the JPEG
