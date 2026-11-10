@@ -1,0 +1,83 @@
+{
+  "date": "2026-11-10",
+  "stratum": "topical",
+  "seed": "topical: owner request 2026-11-10 (CI/CD process and Cloudflare infrastructure)",
+  "auditor": "agent session (Claude) with three parallel auditor agents, see run record",
+  "status": "audited",
+  "subject": "platform/pages/cloudflare",
+  "professional": "a senior site-reliability engineer for a static site on Cloudflare Workers (deploys, zone and DNS, mail DNS, transport security). First checks: does a green deploy prove the new build is live, is the zone declared in code, and does the domain have mail and transport hygiene.",
+  "scores": {
+    "correctness": 3,
+    "completeness": 2,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Recomputed live, 2026-11-10 ~04:10Z: https://marisstella.app/version.json names 206aca44, the head of the last successful deploy run 42752774963 (API); the GitHub Pages copy serves the same file. Routing as router.mjs/split.mjs say: /research/ 200 from the shard, /writing 307 to /writing/, an unknown path 404, workers.dev / 200 with 'refresh: 0; url=https://marisstella.app/' and 'x-robots-tag: noindex', workers.dev /research/ 301 to the domain, http:// 301 to https://. `bash platform/pages/verify-live.sh https://marisstella.app/` passed against the live site. Free-plan limits in the README (20,000 files and 25 MiB per Worker, 100,000 requests/day) match Cloudflare's published limits.",
+    "completeness": "Deploy path works end to end (split, shard then site wrangler deploy, verify, IndexNow). Not done: the custom domain is attached in the dashboard, not in wrangler.toml (README says so); no DNS records file or apply step exists anywhere in the repository (grep for _dmarc, v=spf1, dns_records, CAA: none) against the owner's 'everything as code'; email routing is coded but was never applied (no MX; cloudflare-email.yml has never run, API); www.marisstella.app does not resolve; no security headers were sent (fixed in the PR, scored before).",
+    "verification": "`node --test platform/pages/cloudflare/*.test.mjs`: 6 split/router and 3 email-routing tests pass. But verify-live.sh, the deploy's only proof, had no test and checked nothing that differs between the old and the new build, so a deploy that published nothing new would pass (fixed in the PR: it now requires version.json to equal GITHUB_SHA; verify-live.test.mjs; a seeded mutation of the comparison fails it). In email-routing.mjs two mutants survived the original tests: key-order-sensitive comparison and re-disabling already disabled rules (both now tested in the PR).",
+    "craft": "Read router.mjs, split.mjs, shard/worker.mjs, email-routing.mjs, the deploy-cloudflare job of portfolio-pages.yml: small, commented, file limits checked before upload, IndexNow made non-blocking, deploy concurrency group, dry-run-by-default apply. Defects: email-routing compared rules with JSON.stringify (key-order sensitive, so not idempotent against Cloudflare's {field,type,value} shape) and read only the first page of rules; the two Workers deploy non-atomically (shard first, then site); 39 files of wrangler dev state (miniflare SQLite, a cf.json of the runner's city and postal code) were committed under .wrangler/ (removed and ignored in the PR).",
+    "claims": "README checked against behaviour: the two-Worker split, run_worker_first, the 90% warning, the workers.dev redirect, 'the deploy token needs no zone permissions', and 'until then marisstella.app has no MX record' are all true (live checks above). Stale: verify-live.sh pointed at the deleted gitops/ci/README.md (fixed in the PR); portfolio-pages.yml comments cite the deleted hetzner-gitops-ci.yml.",
+    "fitness": "The owner's job 'every merge reaches https://marisstella.app/ on the free plan' works when the build passes: the last successful deploy finished 04:03:45Z and the site served that commit. But in the 100 main runs before the audit, the live site updated in 33 of 60 non-cancelled runs: 23 failures were a blog front-matter lint (a post's seo_title over 70 characters) in the build job, which blocks the whole deploy; 8 were GitHub Pages redirect timeouts after Cloudflare had deployed. Longest gap between real deploys 96 min, median 14 min.",
+    "domain": "Against practice for a Cloudflare-fronted site: no SPF and no DMARC (`_dmarc` NXDOMAIN) on a domain that advertises three mail addresses, so anyone can send as it; no CAA, no DNSSEC; zone, custom domain and HTTPS settings only in the dashboard; no HSTS, nosniff or Referrer-Policy (now in _headers, PR); a content lint able to freeze production deploys instead of gating the PR. The Workers split itself is a sound free-plan design."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "marisstella.app has no MX, no SPF and no DMARC record: support@, hello@ and accounts@ bounce, and anyone can send mail as the domain. Email routing is coded but was never applied (cloudflare-email.yml never ran). Owner action: asks.yaml cloudflare-mail-and-ruleset.",
+      "where": "platform/pages/cloudflare/email-routing.json; Cloudflare zone marisstella.app"
+    },
+    {
+      "severity": "medium",
+      "what": "verify-live.sh checked only that the site answers, never that it serves this run's build, so a deploy that published nothing new read as verified.",
+      "where": "platform/pages/verify-live.sh"
+    },
+    {
+      "severity": "medium",
+      "what": "A blog front-matter lint in the build job blocks the whole deploy on main: 23 of 35 main failures in ~10 h were a just-merged post's seo_title or description length, freezing the live site for up to 96 min.",
+      "where": ".github/workflows/portfolio-pages.yml (build job, 'Check blog post front matter')"
+    },
+    {
+      "severity": "medium",
+      "what": "No DNS, zone setting or custom-domain declaration in the repository; all live only in the Cloudflare dashboard, against the owner's 'everything as code'.",
+      "where": "platform/pages/cloudflare/wrangler.toml:10-14"
+    },
+    {
+      "severity": "medium",
+      "what": "No HSTS, X-Content-Type-Options or Referrer-Policy on any response.",
+      "where": "platform/pages/cloudflare/split.mjs (_headers)"
+    },
+    {
+      "severity": "medium",
+      "what": "email-routing.mjs compared rules key-order-sensitively, so a re-run against Cloudflare's response shape rewrote every correct rule; read only the first page of rules.",
+      "where": "platform/pages/cloudflare/email-routing.mjs:56-60,106"
+    },
+    {
+      "severity": "low",
+      "what": "39 files of wrangler dev state (miniflare SQLite and a cf.json with the runner's city, postal code and ASN) committed in a public repository.",
+      "where": "platform/pages/cloudflare/.wrangler, shard/.wrangler, platform/edge/.wrangler"
+    },
+    {
+      "severity": "low",
+      "what": "The catch-all email rule is not managed, so mail to any other address follows the dashboard.",
+      "where": "platform/pages/cloudflare/email-routing.mjs"
+    },
+    {
+      "severity": "low",
+      "what": "www.marisstella.app does not resolve; /writing redirects with 307 rather than 301; no CAA or DNSSEC.",
+      "where": "Cloudflare zone marisstella.app"
+    },
+    {
+      "severity": "low",
+      "what": "GitHub Pages redirect deploy times out (syncing_files) after Cloudflare deployed, marking 8 runs failed that did update the live site.",
+      "where": ".github/workflows/portfolio-pages.yml (deploy job)"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14427"
+  ],
+  "verdict": "The Cloudflare site setup is a sound free-plan design that does what its README says: the two-Worker split, the shard routing and the workers.dev redirect were each confirmed live, and the site served the last successful deploy's commit. It does not meet the bar on verification and domain: the deploy check could not tell a new build from the old one, the zone has no SPF or DMARC and its mail addresses bounce, the zone and DNS exist only in the dashboard, no security headers were sent, and a blog-title lint froze production deploys 23 times in ten hours. The PR fixes the deploy check, the headers, the email-routing diff and the committed .wrangler state; the mail DNS and ruleset need the owner. Scores are before any fix."
+}

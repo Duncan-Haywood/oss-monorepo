@@ -11,6 +11,40 @@ GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "DDDDDDDDDDDDDDDDDDDDDDD
 
 
 class T(unittest.TestCase):
+    def test_fallback_cut_matches_propose_seo_titles(self):
+        import importlib.util
+        src = Path(__file__).resolve().parent / "check_post_frontmatter.py"
+        text = src.read_text()
+        start = text.index("    def _cut(")
+        body = "\n".join(l[4:] for l in text[start:].split("\n\n")[0].splitlines())
+        ns = {}
+        exec(body, ns)
+        spec = importlib.util.spec_from_file_location("pst", ROOT / "platform" / "pages" / "propose_seo_titles.py")
+        pst = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(pst)
+        for title in ["Short: x", "A head that is long enough to keep: and then a much longer tail that runs on",
+                      "Why does this question run long enough? Because it keeps on going past seventy chars",
+                      "x" * 90, "Q? tail", "A" * 71 + ": tail"]:
+            self.assertEqual(ns["_cut"](title), pst.cut(title), title)
+
+    def test_runs_when_copied_alone_into_another_tree(self):
+        # prompts/test_promptctl.py copies this script by itself onto a fixture
+        # tree; an import that only resolves in the real repository crashed it
+        # there, and promptctl read the crash as "no problems" (2026-11-10).
+        import shutil, subprocess, sys
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "platform" / "ci").mkdir(parents=True)
+            (root / "docs" / "posts").mkdir(parents=True)
+            src = Path(__file__).resolve().parent / "check_post_frontmatter.py"
+            shutil.copy(src, root / "platform" / "ci" / src.name)
+            (root / "docs" / "posts" / "2020-01-01-a.md").write_text(
+                f'---\ntitle: T\ndate: 2020-01-01\ndescription: "{"x" * 161}"\ntags: [a]\n---\n')
+            done = subprocess.run([sys.executable, str(root / "platform" / "ci" / src.name), "--root", str(root)],
+                                  capture_output=True, text=True)
+            self.assertEqual(done.returncode, 1, done.stderr)
+            self.assertIn("description is 161", done.stdout)
+
     def test_tag_key_es_plural(self):
         self.assertEqual(tag_key("taxes"), tag_key("tax"))
         self.assertNotEqual(tag_key("cases"), tag_key("cas"))

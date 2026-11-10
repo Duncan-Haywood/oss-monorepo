@@ -190,7 +190,7 @@ class RealCorpusTest(unittest.TestCase):
     def test_metrics_run_on_the_repository(self):
         audits = q.load_audits()
         out = m.metrics(audits, q.population(), dt.date(2026, 11, 10), q.meets_bar, q.wilson)
-        self.assertEqual(out["subjects"], q.summarize(audits)["sampled"]["n"] + q.summarize(audits)["strata"]["flagship"]["n"])
+        self.assertEqual(out["subjects"], sum(v["n"] for v in q.summarize(audits)["strata"].values()))
         self.assertIn("Coverage of the repository", m.render_md(out))
 
 

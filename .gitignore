@@ -9,6 +9,9 @@
 venv/
 
 node_modules/
+# Wrangler's local dev state (miniflare SQLite, a cf.json of the machine's
+# location): never source, and the repository is public.
+.wrangler/
 __pycache__/
 *.py[cod]
 .pytest_cache/

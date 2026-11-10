@@ -18,24 +18,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform" / "pages"))
-
-
-def _cut(title: str):
-    """propose_seo_titles.cut, imported only when a long title needs it.
-
-    Without platform/pages beside this script the long-title check is skipped (a truthy return
-    means "has a clean cut"); description, tags and the other checks still run. Two callers
-    have no platform/pages: prompts-ci.yml's sparse checkout, and the fixture repo in
-    prompts/test_promptctl.py. Before 2026-11-10 the import sat at module level, so in both the
-    script crashed before checking anything and its stdout was empty, which promptctl read as
-    "no problems". portfolio-validate.yml runs this on the full tree, title check included."""
-    try:
-        from propose_seo_titles import cut
-    except ImportError:
-        return title
-    return cut(title)
-
-
+try:
+    from propose_seo_titles import cut as _cut  # noqa: E402
+except ImportError:
+    # Run without platform/pages beside it: prompts-ci's sparse checkout, or
+    # prompts/test_promptctl.py, which copies this file alone onto a fixture.
+    # Crashing there made promptctl read "no problems" and kept prompts-ci red
+    # on main for 14 h (2026-11-10). This is propose_seo_titles.cut, kept in
+    # step by test_check_post_frontmatter.py.
+    def _cut(title, budget=70, minimum=25):
+        for sep in (": ", "? "):
+            i = title.find(sep)
+            if i >= 0:
+                head = title[:i + (1 if sep == "? " else 0)]
+                if minimum <= len(head) <= budget:
+                    return head
+        return None
 REQUIRED = ("title", "date", "description", "tags")
 
 

@@ -126,9 +126,7 @@ flagships:
       (0) smooth low-noise series are over-cut: `--noise-floor k` is uncalibrated
       (k=1.5 and `--ar1 joint` each win on synthetic drift at different phi;
       wanted: all three on real drift); the slope-break test dates GDP's 1970s
-      break at 1971Q2 but not significantly; real-series trials (T-bill variance,
-      Mauna Loa CO2, global temperature, gold, Sandy bikeshare spikes, DJIA shocks)
-      and their numbers are in the README; wanted: a model that both dates and tests the 1976 acceleration, a real step inside a cycle, a cycle check not
+      break at 1971Q2 but not significantly; real-series trials of 2026-11-09/10 (T-bill variance regime, Mauna Loa CO2 over-cut even with `--trend quad`, global temperature 1946 step and 1976 bend, gold and Sandy bikeshare `--spikes`): README. Wanted: a documented bad print and a count-model spike label; wanted: a model that both dates and tests the 1976 acceleration, a real step inside a cycle, a cycle check not
       tied to rho, a real run of 5+ steps for the block-variance warning, real
       documented ramps and close steps (`ramps` is synthetic only). (1) range95:
       a closure series quiet outside the closure (none found). (2) the steep-
@@ -238,12 +236,22 @@ flagships:
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      Landed through 2026-11-10 (feeder CAD v0.1, hopper and feed, retainer,
-      post bracing, hose, outlet at 1700 mm, take-up parts, launch window, plate
-      clearance, axle squaring, track tie loads): cad/README.md and git.
-      Next: the tie and hose-clip brackets as CAD, then the actuator brackets
-      (shuttle and elevation) and azimuth drive, then the netting trough that
-      rolls balls to the hopper inlet.
+      The feeder CAD v0.1 package is in (manufacturing/feeder/: launcher head,
+      trunnion cheeks, turntable, 2040 base with brackets, mast, 3 m net beam,
+      poles and camera bar; the build tilts the head through -15..+45 deg for
+      collisions and sizes wind ballast). The hopper and feed landed
+      2026-10-21: a tub on a sloped shelf and four posts, a hose, and a
+      printed floor, roof, column and metering shuttle between the head
+      plates (checks for one-ball metering, column and wheel clearance, tub
+      capacity, hose slope and bend radius, shuttle clear when advanced;
+      cad/README.md "Feed"); a printed front retainer (two flexure arms, strain,
+      hold and pull-through forces checked) landed 2026-10-22. Post bracing, hose routing, the 1700 mm outlet and the take-up (sizing, then pulley, carriage, track and spring as parts) landed 2026-11-03 to 11-05 (cad/README.md). Next: the track's frame tie and hose clips, then the
+      actuator brackets (shuttle and elevation) and azimuth drive, then the netting
+      trough that rolls balls to the hopper inlet. Launch window landed 2026-11-08
+      (`Feeder.launch_window`: 17.9 to 26.8 m/s at 3000 rpm topspin, none at 4000);
+      plate clearance landed 2026-11-09 (3.5 deg yaw tolerance, cad/README.md);
+      wheel-axle squaring stack landed 2026-11-09 (`Feeder.axle_squaring`: 0.75 deg worst case, 4.7x inside the 3.5 deg;
+      assumed tolerances, measure the first build). track tie loads landed 2026-11-10 (`Feeder.track_tie`: 104x slot-nut margin, assumed). Tie brackets as CAD landed 2026-11-10 (`take_up_tie`, 2 printed plates). Next: the hose-clip brackets as CAD, then the actuator brackets.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

@@ -18,6 +18,7 @@ hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net
 hopper_spigot,print,1,PETG,"Hose socket under the shelf's outlet hole: M4 heat-set inserts, flange against the shelf. 6 walls."
 feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 750 mm","Hopper outlet to the column socket. Longest chord 705 mm; bows to 239 mm radius at the closest pose; needs 150. Hose clips at both sockets (hose clamps, 80-90 mm)."
 take_up_track,stock,1,"2040 T-slot, cut 489 mm, M5 tapped both ends","Vertical, outboard of the -y hopper brace. Carries the take-up carriage over a 129 mm stroke (one pulley diameter and 30 mm each end besides). The tie to the hopper frame is not modelled."
+take_up_tie,print,2,PETG,"Flat plate on the net-side face of the track and of the rear -y post, two M5 button heads into slot nuts at each end, 40 mm between them. Slot-nut pull-out is assumed, see Feeder.track_tie."
 take_up_carriage,print,1,PETG,Slides on the track on the T-slot nuts; the pulley axle (16 mm bolt) goes through its side. 6 walls.
 take_up_pulley,print,1,PETG,"394 mm flanges: bigger than a common print bed, so print in four quadrants and bolt together. Groove radius 150 mm (the hose's minimum bend), hose OD 82 mm. 16 mm axle on two 6003 bearings."
 take_up_spring,cots,1,"Constant-force spring, 10 N (assumed: twice a 5 N hose tension), at least 129 mm of travel",
