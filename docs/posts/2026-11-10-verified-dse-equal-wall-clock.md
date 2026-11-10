@@ -1,6 +1,6 @@
 ---
 title: "Chip design search: the fair price of a cheap estimate"
-seo_title: "Multi-fidelity chip design search vs random routing at equal wall-clock"
+seo_title: "Multi-fidelity chip design search vs random routing at equal cost"
 date: 2026-11-10
 tags: [research, chip-design, verified-dse, open-source]
 description: "Priced at equal wall-clock on 2,400 real SKY130 flow runs, a multi-fidelity search schedule beats random routing only slightly, and a hand-picked one loses."
