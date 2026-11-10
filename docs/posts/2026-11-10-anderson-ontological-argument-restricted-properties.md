@@ -2,7 +2,7 @@
 title: "Does Anderson's repair of Gödel's ontological argument survive? It depends on which properties exist"
 date: 2026-11-10
 tags: [theism-formal-evidence, modal-logic, ontological-argument]
-description: "An exhaustive finite-model search: Anderson's emendation collapses to one world under full property semantics, but survives in some restricted property algebras."
+description: "Exhaustive finite-model search: Anderson's emendation collapses to one world under full property semantics, but survives in some restricted property algebras."
 ---
 
 Gödel's ontological argument has a known flaw: with every set of
