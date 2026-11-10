@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKmyJG77d92EJwP4urc",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T14:23:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "Data hosts 403; no new experiment possible, so shipped a small paper-draft write-up step instead of a milestone; no blog post (3q-3s already have one)."
+    }
+  ],
+  "writeups": [
+    "research/marine-hull/paper/DRAFT.md",
+    "research/marine-hull/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Draw: marine-hull. Zenodo/Crossref 403 via proxy. Small write-up step only.",
+  "corrections": [],
+  "redteam": null
+}
