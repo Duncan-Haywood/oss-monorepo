@@ -1,4 +1,4 @@
-"""Milestone 6d: how many spares does the 6b/6c hub need when demand follows a real daily profile?
+"""Milestone 6f: how many spares does the 6b/6c hub need when demand follows a real daily profile?
 
 Predictions (written before the first run, before the counts were read):
  (1) Same hub as 6c (8 pads, 8 chargers, 1C 42 min charge, 180 s swap+load, charger limit 11.4 flights/h).

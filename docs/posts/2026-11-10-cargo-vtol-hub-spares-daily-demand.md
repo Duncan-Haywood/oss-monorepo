@@ -23,4 +23,4 @@ I predicted at least 2x at 70% and was wrong: it is 1.33x. Near the charger
 limit it is 2x or more. Spreading arrivals inside a bin made no difference.
 Limits: two days, a proxy for demand, a coarse spares grid, assumed hub inputs.
 
-Data, code and log: `research/aerolog-scaling/` (milestone 6d).
+Data, code and log: `research/aerolog-scaling/` (milestone 6f).

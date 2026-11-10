@@ -2,7 +2,7 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
-## 2026-11-10 · Milestone 6d: do the 6c spare-pack counts survive a real daily demand profile? (predictions in `experiments/hub_throughput/cargo_hub_trace.py`'s docstring, fixed before the counts were read)
+## 2026-11-10 · Milestone 6f: do the 6c spare-pack counts survive a real daily demand profile? (predictions in `experiments/hub_throughput/cargo_hub_trace.py`'s docstring, fixed before the counts were read)
 - Why: 6c's "Next": a demand trace instead of fixed batches. No drone-delivery order data is public, so the shape comes from City of Chicago open data, ride-hail trips per 15-minute bin (`chicago_tnp_counts.json`, Wed 2019-10-09 and Sat 2019-10-12, city-wide; dataset m6dm-c72p), scaled to the same mean rate as 6c. Ride-hail is a stand-in for an on-demand service's time-of-day shape, not a delivery trace. Stdlib, 0.2 s.
 ### Outcome (`experiments/hub_throughput/cargo_hub_trace_results.txt`)
 - Peak 15-minute rate is 1.76x (Wed) and 1.68x (Sat) the daily mean.
@@ -11,6 +11,18 @@ Newest first. Write the hypothesis and the planned analysis before running an ex
 - Reading: a daily demand peak costs 4 extra packs at 70% load and doubles the pack inventory at 85%; the bursts of 6c (k = 8 needs 48) are the larger effect, the daily shape the smaller but still real one near the charger limit.
 - Limits: ride-hail not delivery demand; two days; 15-minute bins hide the within-bin bursts of 6c; spares grid is coarse (steps of 4 to 8); hub inputs assumed (milestone 10a). Preliminary.
 - Next: a delivery-order trace with second-level timestamps if one is published; charge taper from a cell datasheet when a host answers.
+## 2026-11-10 · Milestone 6e: paper draft catches up with milestones 6 to 6d (no new simulation)
+- Added section 4.15 to `paper/draft.md` (hub: pads, chargers, packs, bursts, CC-CV taper) and seven checks to `paper/check_numbers.py` tying its figures to the hub results files; all checks pass. Nothing new was run.
+- Next: a demand trace for hub arrivals (public delivery-order timestamps); measured charge curves at 2C; sourced engine specific power for the hybrid.
+
+## 2026-11-10 · Milestone 6d: does the constant-voltage taper change the cargo hub's charger limit and spare packs? (predictions in `experiments/hub_throughput/cargo_hub_taper.py`'s docstring, fixed before the run)
+- Why: 6c's "Next": charge taper from a cell datasheet. Source: Molicel INR-21700-P45B specification (Doc INR21700P45B-01 v0.2): rated charge 4.5 A (1C) then 4.2 V until 90 mA, 1.5 h; max continuous charge 9 A. Two datasheet numbers fix a CC-CV curve (tau = 0.1705 h, CC ends at 83% SOC); exponential CV decay and the same tau at other C-rates are assumptions.
+### Outcome (`experiments/hub_throughput/cargo_hub_taper_results.txt`)
+- Check: the fitted curve gives 90.0 min for 0 to 100% at 1C, the datasheet's 1.5 h (by construction, not an independent test).
+- **P1 held:** 20 to 90% at 1C takes 43.1 min against 6b's linear 42 (+2.6%). **P2 held:** 30 to 100% (the same 70% of capacity) takes 72.0 min, 1.71x linear; the 8-charger limit falls from 11.4 to 6.7 flights/h (predicted about 6.8). **P3 held:** at 6.0 flights/h Poisson, p95 wait <= 300 s needs 9 spares (linear and 20-90%) against 24 for 30-100%.
+- Reading: the 90% charge ceiling keeps the hub out of the taper, so 6b and 6c's linear charge time was a fair approximation for a 20-90% window; charging to full costs 1.7x charger time and 2.7x spares at this rate. At 2C the linear model under-states time by 23% (25.9 vs 21.0 min), but that rests on the assumed constant tau.
+- Limits: one cell type, one datasheet version (third-party copy); 23 C, no thermal derating or ageing (the datasheet warns high-rate charging decays cells fast); tau across C-rates unchecked. Preliminary.
+- Next: a demand trace for arrivals; measured charge curves at 2C.
 
 ## 2026-11-09 · Milestone 6c: how many spare packs does a cargo-VTOL hub need when orders arrive in bursts? (predictions in `experiments/hub_throughput/cargo_hub_bursts.py`'s docstring, fixed before the run)
 - Why: milestone 6b's "Next". Same hub as 6b (8 pads, 8 chargers, 1C, 42 min charge, 180 s swap and load); batches of k orders arrive together (batch rate Poisson, same mean flights/h), k swept 1 to 16, at 70% and 85% of the 11.4 flights/h charger limit. 5 seeds, stdlib, 40 s.

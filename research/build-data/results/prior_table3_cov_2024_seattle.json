@@ -1,0 +1,142 @@
+[
+ {
+  "test_year": 2024,
+  "n_cal": 5106,
+  "n_test": 5541,
+  "seeds": 2,
+  "table_levels_test": [
+   5523,
+   18,
+   0,
+   0
+  ],
+  "models": {
+   "table3": {
+    "raw_coverage": 0.8393791734343982,
+    "plain": {
+     "qhat": 0.0,
+     "coverage": 0.8393791734343982,
+     "width": 249.90288756542148
+    },
+    "dequantised": {
+     "qhat": -0.40087805515024044,
+     "coverage": 0.7569030860855441,
+     "width": 249.10113145512096
+    },
+    "dequantised_nonempty": {
+     "qhat": -0.40087805515024044,
+     "coverage": 0.8334235697527522,
+     "width": 249.3426277460597
+    }
+   },
+   "baseline": {
+    "raw_coverage": 0.8897310954701317,
+    "plain": {
+     "qhat": 0.0,
+     "coverage": 0.8897310954701317,
+     "width": 257.53481321061184
+    },
+    "dequantised": {
+     "qhat": -0.8303700932891116,
+     "coverage": 0.7922757624977441,
+     "width": 255.8740730240337
+    },
+    "dequantised_nonempty": {
+     "qhat": -0.8303700932891116,
+     "coverage": 0.8870240028875654,
+     "width": 256.7009963546182
+    }
+   },
+   "full": {
+    "raw_coverage": 0.8493051795704747,
+    "plain": {
+     "qhat": 0.0,
+     "coverage": 0.8493051795704747,
+     "width": 233.16111331334614
+    },
+    "dequantised": {
+     "qhat": -0.5466113194256335,
+     "coverage": 0.7704385489983757,
+     "width": 232.0678906744949
+    },
+    "dequantised_nonempty": {
+     "qhat": -0.5466113194256335,
+     "coverage": 0.8447933585995308,
+     "width": 232.32467271103428
+    }
+   }
+  },
+  "city": "seattle",
+  "target": "a2i"
+ },
+ {
+  "test_year": 2024,
+  "n_cal": 4387,
+  "n_test": 4313,
+  "seeds": 2,
+  "table_levels_test": [
+   4282,
+   31,
+   0,
+   0
+  ],
+  "models": {
+   "table3": {
+    "raw_coverage": 0.8404822629260376,
+    "plain": {
+     "qhat": -4.0,
+     "coverage": 0.824715974959425,
+     "width": 643.7037097148157
+    },
+    "dequantised": {
+     "qhat": -4.76434535850413,
+     "coverage": 0.8203106886158127,
+     "width": 642.1750189978073
+    },
+    "dequantised_nonempty": {
+     "qhat": -4.76434535850413,
+     "coverage": 0.8203106886158127,
+     "width": 642.178332940788
+    }
+   },
+   "baseline": {
+    "raw_coverage": 0.8815209830744262,
+    "plain": {
+     "qhat": -18.0,
+     "coverage": 0.8513795501970786,
+     "width": 660.0949455135636
+    },
+    "dequantised": {
+     "qhat": -17.80543582108419,
+     "coverage": 0.8513795501970786,
+     "width": 660.4840738713953
+    },
+    "dequantised_nonempty": {
+     "qhat": -17.80543582108419,
+     "coverage": 0.8513795501970786,
+     "width": 660.4840738713953
+    }
+   },
+   "full": {
+    "raw_coverage": 0.8328309761187108,
+    "plain": {
+     "qhat": -3.2348639120167775,
+     "coverage": 0.8228611175515882,
+     "width": 607.7750088761246
+    },
+    "dequantised": {
+     "qhat": -3.708783839861523,
+     "coverage": 0.8205425457917923,
+     "width": 606.8271690204352
+    },
+    "dequantised_nonempty": {
+     "qhat": -3.708783839861523,
+     "coverage": 0.8205425457917923,
+     "width": 606.8271690204352
+    }
+   }
+  },
+  "city": "seattle",
+  "target": "i2c"
+ }
+]
