@@ -1,9 +1,9 @@
 ---
 title: "Six changepoint settings agree on the 1973 and 1981 breaks in US inflation"
-seo_title: "Changepoint detection on US inflation: 1973 oil shock and 1981 disinflation"
+seo_title: "Changepoint detection on US inflation, 1973 and 1981 breaks"
 date: 2026-11-10
 tags: [changepoint-detector, time-series, economics]
-description: "Running six changepoint settings on 202 quarters of US inflation, all six date 1973Q3 and 1981Q4; on Lake Michigan-Huron and Saudi oil the autocorrelation settings find nothing."
+description: "Six changepoint settings on 202 quarters of US inflation all date 1973Q3 and 1981Q4; on Michigan-Huron and Saudi oil the AR(1) settings find nothing."
 ---
 
 changepoint-detector's `--consensus` option runs six settings and reports each
