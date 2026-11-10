@@ -222,3 +222,22 @@ test("Toast-, Clover- and Square-style header names are read (net price, order t
     assert.ok(r.avg[3][14] > 0 && r.avg[3][15] > 0, csv);
   }
 });
+
+test("compact stamps 20260305 1400 and 20260305T140000Z read as Thursday 14:00", () => {
+  for (const t of ["20260305 1400", "20260305T1400", "20260305T140000Z"]) {
+    const r = hourlySales(`Time,Sales\n${t},50\n`);
+    assert.equal(r.rows, 1, t);
+    assert.ok(r.avg[3][14] === 50, t);
+  }
+});
+
+test("one day-first date settles the order for the whole file; with none, month first and a note", () => {
+  const dm = hourlySales("Time,Sales\n05/03/2026 14:00,10\n25/03/2026 14:00,20\n");
+  assert.ok(dm.avg[3][14] > 0, "5 March 2026 is a Thursday");
+  assert.ok(dm.notes.some((n) => /day first/.test(n)));
+  const md = hourlySales("Time,Sales\n03/25/2026 14:00,10\n05/03/2026 14:00,20\n");
+  assert.ok(md.avg[6][14] > 0, "May 3 2026 is a Sunday");
+  const amb = hourlySales("Time,Sales\n05/03/2026 14:00,10\n");
+  assert.ok(amb.avg[6][14] > 0);
+  assert.ok(amb.notes.some((n) => /could be 5 March or May 3/.test(n)));
+});

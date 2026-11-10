@@ -46,14 +46,16 @@ export function readAmount(raw) {
 }
 
 // -> {day 0..6 (Monday = 0), hour 0..23, key (date or "" for no date)} or null.
-function readStamp(tok, dayTok) {
+function readStamp(tok, dayTok, dayFirst = false) {
   let s = String(tok || "").trim();
   // "noon" and "midnight" are hour 12 PM and 12 AM.
   s = s.replace(/\b(?:12\s*)?noon\b/i, "12 PM").replace(/\b(?:12\s*)?midnight\b/i, "12 AM");
+  // Compact "20260305 1400", "20260305T1400" and "20260305T140000": year, month, day, then the hour.
+  s = s.replace(/^(\d{4})(\d{2})(\d{2})[T\s]+(\d{2}):?(?:\d{2}){0,2}(?=\s|$|Z|[+-]\d)/, "$1-$2-$3 $4:00");
   // "Thursday 2 PM" in one cell (no separate day column): the weekday name leads the hour.
   if (dayTok === undefined) {
     const w = /^([a-z]{3,9})\.?,?\s+(\d{1,2}(?::\d{2})?\s*(?:[ap]m?(?![a-z]))?(?:\s*[-\u2013]\s*\d{1,2}(?::\d{2})?\s*(?:[ap]m?(?![a-z]))?)?)$/i.exec(s);
-    if (w && dayOfName(w[1]) >= 0) return readStamp(w[2], w[1]);
+    if (w && dayOfName(w[1]) >= 0) return readStamp(w[2], w[1], dayFirst);
   }
   // A weekday name ahead of a full date ("Thu, 05 Mar 2026 14:00:00", "Thursday, March 5, 2026 2 PM"): the date says the day.
   s = s.replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+(?=.*\d{4})/i, "");
@@ -72,7 +74,7 @@ function readStamp(tok, dayTok) {
   else if ((m = /^(\d{1,2})([\/.-])(\d{1,2})[\/.-](\d{2}|\d{4})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?\s*([ap]m?(?![a-z]))?/i.exec(s))) {
     y = +m[4] < 100 ? 2000 + +m[4] : +m[4];
     // A dotted date (05.03.2026) is day first, as in continental Europe; slashes and dashes stay month first unless the first number is over 12.
-    if (+m[1] > 12 || m[2] === ".") { d = +m[1]; mo = +m[3]; } else { mo = +m[1]; d = +m[3]; }
+    if (+m[1] > 12 || m[2] === "." || dayFirst) { d = +m[1]; mo = +m[3]; } else { mo = +m[1]; d = +m[3]; }
     hr = +m[5];
     if (m[6]) { if (hr < 1 || hr > 12) return null; hr = (hr % 12) + (m[6][0].toLowerCase() === "p" ? 12 : 0); }
   } else if ((m = MONTHNAME.exec(s) || MONTHNAME_DMY.exec(s))) {
@@ -119,13 +121,24 @@ export function hourlySales(text, o = {}) {
   if (dateCol >= 0 && timeCol >= 0) { ix.stamp = dateCol; ix.clock = timeCol; }
   if (ix.sales < 0) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + ")."); return out; }
   if (ix.stamp < 0) { out.notes.push("No date-time or hour column found."); return out; }
+  // A slash or dash date whose first number is over 12 somewhere in the file (25/03/2026) means the whole file is day first;
+  // one whose second number is over 12 means month first. With neither, 05/03/2026 is ambiguous: month first, and a note says so.
+  let dayFirst = false, monthFirst = false, ambiguous = false;
+  for (const line of lines.slice(1)) {
+    const t = String(splitCsvRow(line, sep)[ix.stamp] || "").trim();
+    const m = /^(?:[a-z]+[.,]?\s+)?(\d{1,2})([\/-])(\d{1,2})\2(\d{2}|\d{4})(?!\d)/i.exec(t);
+    if (!m) continue;
+    if (+m[1] > 12) dayFirst = true; else if (+m[3] > 12) monthFirst = true; else if (+m[1] !== +m[3]) ambiguous = true;
+  }
+  if (monthFirst) dayFirst = false;
+  const ambiguousNote = ambiguous && !dayFirst && !monthFirst;
   const entries = []; // {day, hour, key, amount}
   let undated = 0, skippedDays = new Set();
   lines.slice(1).forEach((line, i) => {
     const c = splitCsvRow(line, sep);
     const amount = readAmount(c[ix.sales]);
     const stampText = ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
-    const st = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined);
+    const st = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
     if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampText || ""}"`); return; }
     if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "") { out.skipped.push(`row ${i + 2}: could not read the sales "${c[ix.sales] || ""}"`); return; }
     if (amount < 0) { out.skipped.push(`row ${i + 2}: negative sales (a refund?) skipped`); return; }
@@ -153,6 +166,8 @@ export function hourlySales(text, o = {}) {
   }
   if (skippedDays.size) out.notes.push(`${skippedDays.size} day${skippedDays.size === 1 ? "" : "s"} left out (--skip-dates): ${[...skippedDays].sort().join(", ")}.`);
   if (halfLife) out.notes.push(`Recent weeks weigh more: a day's weight halves every ${halfLife} week${halfLife === 1 ? "" : "s"} back from the newest date.`);
+  if (dayFirst) out.notes.push("Dates read day first (a date such as 25/03/2026 in the file shows the order).");
+  if (ambiguousNote) out.notes.push("Dates such as 05/03/2026 could be 5 March or May 3 and no date in the file settles it: read month first (US). If yours are day first, change the export to YYYY-MM-DD.");
   if (undated) out.notes.push(`${undated} rows had a weekday name instead of a date: each weekday-hour is taken as already one day's figure.`);
   const weeks = Math.max(...out.observed);
   out.notes.push(`${out.rows} rows read, up to ${weeks} day${weeks === 1 ? "" : "s"} per weekday averaged.`);
