@@ -31,7 +31,20 @@ See `experiments/results.txt` (sections A to C; every design is listed). In shor
   - The 27.6 Wh/kg design (`random1`: 149.6 µm, porosities 0.249 / 0.251, N/P 0.93) repeats the `bayes3` pattern. SPMe's electrolyte concentration goes negative (minimum −25 mol/m³ in cycle 1), the 5 A charge then ends after 0.72 Ah, and cycle 2 discharges 1.0 Ah. DFN charges 5.0 Ah per cycle with a minimum of 1 to 2 mol/m³, never negative. So two of the two low-score designs show the negative-concentration signature.
   - The three zero-score designs cannot be probed this way: SPMe raises the same `SolverError` (infeasible at initial conditions) before it returns any solution, so there is no SPMe concentration to read. DFN carries all three at 5 A, but charges only 1.9 to 5.5 Ah per cycle and its concentration reaches about 0 mol/m³ (rounds to 0 or −0): the two designs with positive porosity 0.20 to 0.21 and negative porosity 0.20 charge 1.9 Ah and 4.5 Ah, the third (negative porosity 0.389) 5.5 Ah. These are close to electrolyte depletion even under DFN, which fits (does not prove) the SPMe failure being the same mechanism.
   - Not done: plating was not compared (variable absent in this PyBaMM version), and no run changes the SPMe electrolyte treatment to see the failure go away, so "electrolyte transport" is still the best-supported explanation, not a tested cause.
-- **What this still does not show.** The pattern fits SPMe's reduced electrolyte treatment breaking down at high rate with thick, poorly connected electrodes, but no run here isolates the electrolyte term (for example by comparing electrolyte concentration profiles), and with no measured cell neither model is shown to be the accurate one.
+- **Electrolyte treatment changed (2026-11-10, `experiments/diagnose6.py`, output `diagnose6.txt` / `diagnose6.json`; hypotheses logged first in `LOG.md`).** Same two low-score designs, 5 A charge, two cycles; Ah of the cycle-2 charge:
+
+  | case | `bayes3` SPMe | `bayes3` DFN | `random1` SPMe | `random1` DFN |
+  |---|---|---|---|---|
+  | as before (D<sub>e</sub> &times;1, composite conductivity) | 0.36 (c<sub>e</sub> min &minus;37) | 5.60 (min 4) | 0.72 (min &minus;25) | 4.94 (min 1) |
+  | SPMe conductivity `integrated` | 3.19 (min &minus;37) | | 2.19 (min &minus;25) | |
+  | electrolyte diffusivity &times;2 | 6.24 (min 404) | 6.35 (min 418) | 5.73 (min 422) | 5.82 (min 383) |
+  | electrolyte diffusivity &times;4 | 6.45 (min 673) | 6.54 (min 675) | 5.93 (min 692) | 6.09 (min 675) |
+
+  - Doubling the electrolyte diffusivity (conductivity unchanged) removes the negative concentration and the collapse in both designs: SPMe's cycle-2 charge rises from 0.36 to 6.24 Ah and from 0.72 to 5.73 Ah, within 2% of DFN's at the same diffusivity (DFN moves by 13% and 18%). So the collapse is set by electrolyte salt transport, and the SPMe&ndash;DFN disagreement in this region is confined to the regime where the electrolyte nearly empties.
+  - Swapping SPMe's conductivity treatment does not remove it. `composite` is identical to the default; `integrated` (the integrated form of Brosa Planella, Sheikh and Widanage 2021, *Electrochimica Acta* 388, 138524, doi:10.1016/j.electacta.2021.138524, taken from PyBaMM's CITATIONS.bib; the DOI lookup was refused by the proxy in this run) raises the cycle-2 charge to 3.19 and 2.19 Ah but the concentration still goes negative and the gap to DFN stays 43% and 56%. `leading order` is not accepted for SPMe in PyBaMM 26.10.1.1. By the threshold logged in advance (cycle-2 charge below 1 Ah under every option), H1 is not refuted, because `integrated` passes 1 Ah: the potential treatment changes how badly SPMe fails, the diffusion limit decides whether it fails.
+  - DFN's reaction distribution (H3) was not measured as planned. The minimum concentration during the cycle-1 charge sits at the first time point, inherited from the discharge and on the positive-electrode side (node 59 of the cell grid), so the negative-electrode |j| max/mean read there (1.16 to 1.69) says nothing about depletion in the negative electrode. Logged as a flawed measurement, not a result.
+  - One parameter set (OKane2022), two designs, two cycles; the diffusivity scaling is a sensitivity probe, not a claim about any real electrolyte.
+- **What this still does not show.** The pattern fits SPMe's reduced electrolyte treatment breaking down at high rate with thick, poorly connected electrodes, and the 2026-11-10 run ties it to salt diffusion (doubling the diffusivity removes it), but with no measured cell neither model is shown to be the accurate one.
 - **Consequence for `energy-cell`.** Its 0-score region (thick electrode, low porosity) was partly an SPMe artefact at the 5 A rate, so a search that treats it as infeasible has pruned designs DFN cycles normally (120 to 140 Wh/kg at cycle 100 here). Re-searching with a charge-rate-aware or DFN score is the natural next step.
 
 ## Direct DFN search (2026-11-01)
@@ -53,7 +66,7 @@ See `experiments/results.txt` (sections A to C; every design is listed). In shor
 - Stack-level mass only (no casing or tabs), as in `energy-cell`.
 
 ## Next steps
-Compare plating once the variable name is found; test the electrolyte explanation by changing SPMe's electrolyte treatment (for example the full-electrolyte-concentration option); more DFN-search seeds and a tuned GP; compare both models with measured discharge curves.
+Compare plating once the variable name is found; measure DFN's negative-electrode reaction distribution during the charge (not at the step start, see diagnose6); find how far the diffusivity can drop before the SPMe winners' ranking changes, since the failing region is set by it; more DFN-search seeds and a tuned GP; compare both models with measured discharge curves.
 
 ## Reproduce
 `python experiments/run.py select|dfn|report`, then `python experiments/figure.py` (needs numpy, scipy, pybamm; `dfn` needs a lot of RAM headroom and takes about 30 minutes). Tests: `pytest research/energy-cell-dfn/tests`.
