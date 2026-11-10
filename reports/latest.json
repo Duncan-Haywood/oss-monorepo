@@ -1,9 +1,9 @@
 {
- "generated_for": "2026-11-09",
- "data_through": "2026-11-09",
+ "generated_for": "2026-11-10",
+ "data_through": "2026-11-10",
  "latest_day": {
-  "day": "2026-11-09",
-  "page_loads": 10
+  "day": "2026-11-10",
+  "page_loads": 2
  },
  "weeks": [
   {
@@ -42,13 +42,13 @@
   {
    "week": "2026-W46",
    "monday": "2026-11-09",
-   "days": 1,
-   "page_loads": 10,
-   "tool_loads": 10,
-   "tools": 6,
-   "top_tool": "employee-cost-calculator",
+   "days": 2,
+   "page_loads": 51,
+   "tool_loads": 50,
+   "tools": 14,
+   "top_tool": "secret-santa-draw",
    "feedback": 0,
-   "crawler_beacons": 12
+   "crawler_beacons": 13075
   }
  ]
 }
