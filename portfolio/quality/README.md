@@ -52,6 +52,13 @@ them that meets the bar is an unbiased estimate for that stratum, and
 `summary` reports it with a Wilson 95% interval. Flagships are reported apart:
 they are chosen, not sampled.
 
+**Topical audits.** When someone asks for a particular area to be audited
+(the owner, 2026-11-10: "quality audit on the cicd process and infra set ups
+for cloudflare"), write the audit files with `"stratum": "topical"`. They use
+the same rubric and evidence bar, appear in the scoreboard as their own row,
+and are kept out of the sampled share and out of the 90-day skip, because
+they were chosen, not drawn. A topical audit is not a substitute for a round.
+
 Do not swap a drawn subject for a more interesting one. If a draw is
 genuinely unauditable (an empty directory), record it with
 `"status": "unauditable"` and the reason: that is a finding about the
