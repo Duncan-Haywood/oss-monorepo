@@ -57,6 +57,12 @@
       "why": "Control-plane wiring (prompts-ci step, promptctl validate hook, SYSTEM.md/CLAUDE.md pointers) kept out of this PR so it is not held for owner approval",
       "did": "Shipped the vocabulary, report front matter and tool in unowned paths; the wiring follows in a separate small PR from the same branch after this merges",
       "result": "This PR merges without review"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "The control-plane PR waits for owner approval per CODEOWNERS, so it cannot be merged in-session",
+      "did": "Opened it and left it for the owner",
+      "result": "pending"
     }
   ],
   "writeups": [
@@ -64,7 +70,7 @@
     "docs/reports/README.md"
   ],
   "goal": "Make the guidance and agent notes queryable by topic and project",
-  "notes": "Local checks: `python3 -m unittest test_doc_index` 9 OK; `doc_index.py check` ok; `check_post_frontmatter.py` exit 0; `check_duplicate_symbols.py` clean after fix. `run_workflow_locally.py --for-changes`: the einvoice-preflight failures (ModuleNotFoundError einvoice_preflight, one node test 'every other country page links to the Hungary page') reproduce with this branch's changes stashed, so they are not from this diff. Backfill: 261 reports, 132 with a subject, 72 with a topic, 164 dated, 97 left undated rather than guessed. Posts: 2,050, 919 distinct tags, 476 used once, 808 posts carry at least one tag that resolves to a topic.",
+  "notes": "Local checks: `python3 -m unittest test_doc_index` 9 OK; `doc_index.py check` ok; `check_post_frontmatter.py` exit 0; `check_duplicate_symbols.py` clean after fix. `run_workflow_locally.py --for-changes`: the einvoice-preflight failures (ModuleNotFoundError einvoice_preflight, one node test 'every other country page links to the Hungary page') reproduce with this branch's changes stashed, so they are not from this diff. Backfill: 261 reports, 132 with a subject, 72 with a topic, 164 dated, 97 left undated rather than guessed. Posts: 2,050, 919 distinct tags, 476 used once, 808 posts carry at least one tag that resolves to a topic. Follow-up control-plane PR (same branch, restarted from main after #12909 merged): `promptctl validate` runs `doc_index.py check`; prompts CI runs test_doc_index and triggers on docs/reports/** and docs/taxonomy.json; SYSTEM.md and CLAUDE.md point at `doc_index.py find`. Two reports reached main without front matter while #12909 was open (2026-11-03-routine-measures, polish-2026-11-03-baseline-audit), so missing front matter is a warning by default and only `--strict` fails on it.",
   "corrections": [],
   "redteam": null
 }

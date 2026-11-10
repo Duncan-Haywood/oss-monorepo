@@ -602,6 +602,18 @@ def validate_posts(root: Path) -> list[str]:
     return [f"docs/posts/{line}" for line in done.stdout.splitlines() if line.strip()]
 
 
+def validate_doc_index(root: Path) -> list[str]:
+    """Dangling `path#Heading` anchors in docs/taxonomy.json and bad agent-report tags
+    (platform/ci/doc_index.py check). A renamed section otherwise leaves the topic
+    pointing at nothing, and nothing would notice."""
+    tool = root.parent / "platform" / "ci" / "doc_index.py"
+    if not (tool.is_file() and (root.parent / "docs" / "taxonomy.json").is_file()):
+        return []
+    done = subprocess.run([sys.executable, str(tool), "--root", str(root.parent), "check"],
+                          capture_output=True, text=True)
+    return [] if done.returncode == 0 else [ln for ln in done.stdout.splitlines() if ln.strip()]
+
+
 def validate(root: Path = ROOT) -> list[str]:
     errors: list[str] = []
     for name in ("routing.json", "goals.md", "experiments.md", "README.md"):
@@ -687,6 +699,7 @@ def validate(root: Path = ROOT) -> list[str]:
             seen[item["id"]] = path.name
     errors.extend(validate_system(root))
     errors.extend(validate_posts(root))
+    errors.extend(validate_doc_index(root))
     return errors
 
 

@@ -80,7 +80,9 @@ class Reports(unittest.TestCase):
             r = root / "docs" / "reports"
             (r / "vtm-milestone-1.md").write_text("# m1\n\nbody\n")
             (r / "2026-10-20-x.md").write_text("---\ntitle: X\ndescription: d\n---\n# X\n")
-            self.assertEqual(len([e for e in di.check(root) if "no front matter" in e]), 2)
+            self.assertEqual(di.check(root), [])  # untagged is a warning by default
+            self.assertEqual(len(di.untagged_reports(root)), 2)
+            self.assertEqual(len([e for e in di.check(root, strict=True) if "no front matter" in e]), 2)
             di.backfill(root, write=True)
             self.assertEqual(di.check(root), [])
             text = (r / "2026-10-20-x.md").read_text()

@@ -36,6 +36,8 @@ which work.
 The guidance is one system in layers (goals, entry, track, area, runbook,
 reference), mapped in [`prompts/SYSTEM.md`](prompts/SYSTEM.md);
 `python3 prompts/promptctl.py map --track <track>` lists what your run reads.
+`python3 platform/ci/doc_index.py find <topic or project>` names the sections,
+reports and posts that cover it (vocabulary: `docs/taxonomy.json`).
 A higher layer wins a conflict; report it as `doc_friction`.
 
 ## Every run ships something useful

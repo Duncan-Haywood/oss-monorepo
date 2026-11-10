@@ -86,6 +86,25 @@ State each fact in one place and link to it everywhere else. When you find
 a fact copied into a second file, delete the copy and leave a link. Copies
 go stale one at a time, and that pattern produced the friction counted above.
 
+## Topics: which section covers what
+
+`system.json` maps files. [`docs/taxonomy.json`](../docs/taxonomy.json) maps
+topics: each topic id (`shallow-clone`, `python-env`, `control-plane`, 47 in
+all) has the words people use for it and the `path#Heading` sections that
+cover it. Agent reports in `docs/reports/` carry front matter (`kind`,
+`subjects`, `topics`, `date`) from the same vocabulary
+([`docs/reports/README.md`](../docs/reports/README.md)). To find what covers
+a topic or a project, highest layer first, then the reports, posts and
+history on it:
+
+```
+python3 platform/ci/doc_index.py find shallow-clone   # or an alias: pytest, gh, codeowners
+```
+
+`promptctl.py validate` fails when a section a topic names is renamed or
+deleted, so moving guidance between layers means updating its anchor in the
+same PR. When you add a section that answers a topic, add its anchor there.
+
 ## Budgets
 
 `system.json` gives the always-read files a line budget. `measure` reports
