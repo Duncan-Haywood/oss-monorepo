@@ -1,5 +1,29 @@
 # build-data log
 
+## Session 72, 2026-11-10: per-class audit of the description rules (kappa 0.79 Chicago, 0.90 Seattle; Chicago "plumbing" right 1 time in 5) and a paired bootstrap between class configurations (feeds unreachable; prediction written)
+
+Why: session 71 left "a paired bootstrap of v2 against type-only transfer" (its configurations were each compared with the baseline, never with each other) and reported only overall accuracy for the rules. Every Socrata host answered 403 to CONNECT through this session's egress proxy at 22:27 UTC (as in sessions 68 and 70), so no feed could be pulled and no transfer number is new.
+- `src/transfer.py --classes` now takes several configurations (`--classes type cascade2`). They share the test rows (only the class feature differs), so the first is compared with each later one row by row: `paired()` writes `results/paired_transfer_<city>_<target>_<year>[_4city]_<b>_vs_<a>.json` with the mean pinball difference b minus a (days), its 95% week-block interval and the change relative to the own baseline's loss, for the transfer and own-city boosted models. It refuses two runs whose test rows or own-baseline losses differ. Single-configuration runs write exactly what they wrote before. Two tests in `tests/test_transfer.py` (identical runs give a zero difference; on synthetic feeds where the work type sets the lag, knowing it gives a q0.5 interval below zero; different test rows are refused).
+- New `python3 src/desc_eval.py audit` recomputes, from the committed (label, v1, v2) codes alone, per-class precision and recall with Wilson intervals, Cohen's kappa and the commonest confusions: `results/desc_rules_audit.md`, `.json`; `tests/test_desc_eval.py` checks kappa on known cases and that the audit reproduces the committed accuracies.
+
+Held-out (2022) audit, v2 rules (v1 in brackets):
+| city | kappa | weakest class (n labelled) | v2 precision [95% Wilson] | v2 recall | commonest v2 errors |
+|---|---|---|---|---|---|
+| Chicago | 0.790 (0.469) | plumbing (2) | 0.20 [0.04, 0.62] (v1 0.12) | 0.50 | electrical read as other 5, alteration read as plumbing 4, alteration read as electrical 3 |
+| Seattle | 0.901 (0.579) | other (7) | 0.56 [0.27, 0.81] | 0.71 | 2 each: other to alteration, alteration to other, new construction to other |
+- The big classes are reliable on held-out rows: Chicago electrical 0.92 precision / 0.91 recall (66 rows), alteration 0.86 / 0.74 (34), fire 1.00 / 0.88 (8); Seattle alteration 0.98 / 0.98 (101), new construction 1.00 / 0.93 (42).
+- Chicago "plumbing" is the one class to distrust: the rules call 5 held-out rows plumbing and 4 are alterations (bathroom and kitchen remodels that list plumbing work). On the dev year it was 4 of 5 right, so this is a held-out failure, not a pattern v2 was fitted to; the next rule revision needs a fresh labelled year to be scored on, since 2022 has now been read.
+- Chicago alteration recall (0.74) is the main loss in the class that matters most for duration; Seattle's classes are clean enough that label noise cannot explain much of any Seattle transfer result.
+
+Prediction for the first paired run (written before any paired number exists; `python3 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2024 --classes type cascade2`, same pull procedure as session 71):
+- (Q1) Seattle a2i transfer at q0.9: cascade2 minus type is negative with a 95% week-block interval below zero (session 71's unpaired numbers: +27.4% to +15.9% of baseline loss).
+- (Q2) Seattle i2c transfer at q0.5: the cascade2 minus type interval includes zero (unpaired: -10.4% to -11.4%).
+- (Q3) Seattle a2i own-city boosted at q0.1: cascade2 minus type below zero (unpaired: -5.5% to -9.6%).
+- (Q4) The same run for test year 2023 gives Q1 again (a2i q0.9 interval below zero).
+Each part is refuted if its interval condition fails.
+- Limits: no new data; the audit has one labeller and 150 held-out rows per city, so small classes (plumbing, fire, Seattle "other") have wide intervals.
+Next: the paired run above (Q1 to Q4) when the feeds answer; then Chicago and Austin held out; a fresh labelled year (2021) to score any v3 rules; a second labeller; full-model width bootstrap.
+
 ## Session 71, 2026-11-10: the description rules measured against hand labels (v1 60% / 78% held out, revised v2 85% / 95%), and the first transfer run with a work-type class
 
 Why: session 70 wrote description keyword rules (`classmap.DESC_RULES`) without classifying a single real description, and noted that its P1 measures coverage, not correctness. The Socrata hosts answered this session (Chicago, SF, Seattle 200 at 21:08 UTC; Austin timed out on the first probe).

@@ -288,7 +288,17 @@ above zero) with the revised rules, whose interval covers 0.755 against 0.644. I
 q0.1 and q0.5 stay about 10 to 11% better than the baseline in every configuration, and q0.9 stays
 within noise of it. So part of the upper-tail transfer gap was a class problem, and a noisy class
 did more harm than none. One test year and one held-out city so far; the three configurations are
-not yet compared with each other by a paired bootstrap.
+not yet compared with each other by a paired bootstrap (the code for one is in place since
+session 72: `transfer.py --classes type cascade2`, with a prediction in `../LOG.md`).
+
+Per class (`../results/desc_rules_audit.md`, recomputed from the committed codes), the revised
+rules reach Cohen's kappa 0.79 in Chicago and 0.90 in Seattle on the held-out year (0.47 and 0.58
+for the original rules). The large classes are reliable (Chicago electrical precision 0.92 and
+recall 0.91 over 66 rows; Seattle alteration 0.98 and 0.98 over 101, new construction 1.00 and
+0.93 over 42). The exception is Chicago "plumbing": 4 of the 5 held-out rows the rules call
+plumbing are remodels a reader labels alteration (precision 0.20, 95% interval 0.04 to 0.62), and
+Chicago alteration recall is 0.74. Seattle's class is clean enough that label noise explains
+little of the Seattle transfer results; Chicago's, as a source city, adds some noise to them.
 
 ### 4.5 Pooled model plus a small local sample (H5 holds; secondary refuted)
 
