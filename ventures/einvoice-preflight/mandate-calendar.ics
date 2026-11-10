@@ -533,6 +533,20 @@ URL:https://example.invalid/einvoice-preflight/panama-dgi-sfep-e-invoice-
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:0cb7ecfe44bff322@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20250802
+DTEND;VALUE=DATE:20250803
+SUMMARY:Malawi: replacing fiscal devices: live from 2 Aug 2025
+DESCRIPTION:Malawi (In force or piloting (date disputed)). replacing fisc
+ al devices: live from 2 Aug 2025. Detail and sources: https://example.in
+ valid/einvoice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not lega
+ l or tax advice.
+URL:https://example.invalid/einvoice-preflight/malawi-mra-eis-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:98005742fb49012e@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20250901
@@ -699,6 +713,50 @@ URL:https://example.invalid/einvoice-preflight/paraguay-dnit-e-invoice-ma
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:64ecb0aa1a2dfdde@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260201
+DTEND;VALUE=DATE:20260202
+SUMMARY:Malawi: mandatory start moved to 1 Feb 2026
+DESCRIPTION:Malawi (In force or piloting (date disputed)). mandatory star
+ t moved to 1 Feb 2026. Detail and sources: https://example.invalid/einvo
+ ice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not legal or tax ad
+ vice.
+URL:https://example.invalid/einvoice-preflight/malawi-mra-eis-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:072174c4f09b30f4@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260201
+DTEND;VALUE=DATE:20260202
+SUMMARY:Malawi: a pilot from 1 Feb 2026 to 30 Apr 2026
+DESCRIPTION:Malawi (In force or piloting (date disputed)). a pilot from 1
+  Feb 2026 to 30 Apr 2026. Detail and sources: https://example.invalid/ei
+ nvoice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not legal or tax
+  advice.
+URL:https://example.invalid/einvoice-preflight/malawi-mra-eis-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9fe97cc3435184fe@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260201
+DTEND;VALUE=DATE:20260202
+SUMMARY:Malawi: and mandatory use reported from 1 May 2026 (one tracker s
+ ays 1 Feb 2026; vendor guides\,...
+DESCRIPTION:Malawi (In force or piloting (date disputed)). and mandatory 
+ use reported from 1 May 2026 (one tracker says 1 Feb 2026; vendor guides
+ \, MRA notices unread). Detail and sources: https://example.invalid/einv
+ oice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not legal or tax a
+ dvice.
+URL:https://example.invalid/einvoice-preflight/malawi-mra-eis-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:55916340b9dd74b1@einvoice-preflight
 DTSTAMP:20260101T000000Z
 DTSTART;VALUE=DATE:20260201
@@ -735,6 +793,36 @@ DESCRIPTION:Singapore (In force\, phasing in). GST InvoiceNow: 1 Apr 2026
  re-invoicenow-e-invoice-mandate.html. Not legal or tax advice.
 URL:https://example.invalid/einvoice-preflight/singapore-invoicenow-e-inv
  oice-mandate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:98ea0cbf456420a3@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260430
+DTEND;VALUE=DATE:20260501
+SUMMARY:Malawi: a pilot from 1 Feb 2026 to 30 Apr 2026
+DESCRIPTION:Malawi (In force or piloting (date disputed)). a pilot from 1
+  Feb 2026 to 30 Apr 2026. Detail and sources: https://example.invalid/ei
+ nvoice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not legal or tax
+  advice.
+URL:https://example.invalid/einvoice-preflight/malawi-mra-eis-e-invoice-m
+ andate.html
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:eaa1beb82ba94449@einvoice-preflight
+DTSTAMP:20260101T000000Z
+DTSTART;VALUE=DATE:20260501
+DTEND;VALUE=DATE:20260502
+SUMMARY:Malawi: and mandatory use reported from 1 May 2026 (one tracker s
+ ays 1 Feb 2026; vendor guides\,...
+DESCRIPTION:Malawi (In force or piloting (date disputed)). and mandatory 
+ use reported from 1 May 2026 (one tracker says 1 Feb 2026; vendor guides
+ \, MRA notices unread). Detail and sources: https://example.invalid/einv
+ oice-preflight/malawi-mra-eis-e-invoice-mandate.html. Not legal or tax a
+ dvice.
+URL:https://example.invalid/einvoice-preflight/malawi-mra-eis-e-invoice-m
+ andate.html
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
