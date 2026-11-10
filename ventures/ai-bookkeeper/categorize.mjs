@@ -34,6 +34,12 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 39 (2026-11-10, eval/probe39.mjs): pool service, personal trainers, wedding DJs, upholsterers, farriers.
+  ["6110", "out", /upholstery shop license/],
+  ["6170", "out", /pool and spa alliance|national strength trainers|american disc jockey|upholsterers international|american farriers/],
+  ["6060", "out", /skimmer pool route|dj music pool|farrier business software/],
+  ["5000", "out", /foam factory/],
+  ["4000", "in", /personal training session payment|wedding dj deposit|sofa recovering deposit/],
   // Gap probe 38 (2026-11-10, eval/probe38.mjs): locksmiths, florists, tattoo artists, massage therapists, phone repair shops.
   ["6110", "out", /massage therapy license/],
   ["6170", "out", /bodywork and massage|repair association/],
