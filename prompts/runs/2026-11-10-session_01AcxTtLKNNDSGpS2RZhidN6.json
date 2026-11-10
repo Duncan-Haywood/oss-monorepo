@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtLKNNDSGpS2RZhidN6",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T02:10:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14408",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Polish lead candidates (ATO, austlii) are 403 through the proxy, so no primary source was reachable; the prompt says probe first but lists no reachable hosts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "did": "Fixed a broken site build instead of a visual/SEO pass",
+      "why": "Main's build threw on a post description over 160 chars, blocking all deploys",
+      "result": "Two front-matter fields shortened; checker exits 0"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-10-post-frontmatter-build-break.md"
+  ],
+  "goal": null,
+  "notes": "No new blog post: the fix was two front-matter strings. Full check.mjs and test suite not run; frontmatter checker and build post loader verified.",
+  "corrections": [],
+  "redteam": null
+}
