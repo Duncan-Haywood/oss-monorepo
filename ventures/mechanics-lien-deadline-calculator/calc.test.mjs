@@ -64,6 +64,15 @@ test("Georgia: 30-day notice from first furnishing, 90 days to lien", () => {
   assert.match(JSON.stringify(r), /Notice to Contractor/);
 });
 
+test("Colorado: lien 4 months after last furnishing, notice of intent 10 days before", () => {
+  const r = run({ state: "CO", firstFurnishing: "2026-03-20", lastFurnishing: "2026-06-30" });
+  assert.equal(iso(r.lien.date), "2026-10-30");
+  assert.equal(iso(r.prelim.date), "2026-10-20");
+  assert.match(JSON.stringify(r), /notice of intent/);
+  const eom = run({ state: "CO", firstFurnishing: "2026-01-01", lastFurnishing: "2026-10-31" });
+  assert.equal(iso(eom.lien.date), "2027-02-28");
+});
+
 test("Washington: 60 days commercial, 10 days residential, 90 days to lien", () => {
   assert.equal(iso(run({ state: "WA" }).prelim.date), "2026-05-09");
   const res = run({ state: "WA", projectType: "residential" });
