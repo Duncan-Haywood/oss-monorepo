@@ -1,6 +1,6 @@
 ---
 title: "A check-digit test for Ukrainian individual taxpayer numbers on e-invoices"
-seo_title: "Ukraine RNOKPP (RNTRC) validator for e-invoices and sole-trader tax IDs"
+seo_title: "Ukraine RNOKPP (RNTRC) validator for e-invoices and tax IDs"
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, ukraine]
 description: "einvoice-preflight now checks the check digit of a 10-digit Ukrainian RNOKPP, not only its length."
