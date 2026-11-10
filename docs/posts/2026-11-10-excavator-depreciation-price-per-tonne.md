@@ -2,7 +2,7 @@
 title: "Excavators lose 6.5% of their value a year; mini excavators cost almost six times more per tonne"
 seo_title: "Excavator depreciation and price per tonne from 363,718 auctions"
 date: 2026-11-10
-description: "On 363,718 US heavy-equipment auction sales, track excavators depreciate 6.5% a year and skid steers 3.8%. Nearly new excavator price scales with weight to the 0.63."
+description: "On 363,718 US equipment auctions, track excavators depreciate 6.5% a year and skid steers 3.8%. Nearly new excavator price scales with weight to the 0.63."
 tags: [heavy-market, heavy-equipment, research, construction]
 ---
 
