@@ -1892,7 +1892,10 @@ export function analyze(input = {}) {
   if (noiseFloorK > 0 && values.length > 2) {
     // order 2 (o.noiseFloorOrder === 2) uses second differences, which cancel a steady drift per step; the factor 0.578
     // (= 0.954 / 1.651, the white-noise medians of |d1| and |d2| in sd units) keeps k on the same scale as order 1.
-    const fl = o.noiseFloorOrder === 2 && values.length > 3
+    // order 3 uses third differences (cancel a quadratic drift); 0.3166 = 0.955 / 3.016 keeps k on the same white-noise scale.
+    const fl = o.noiseFloorOrder === 3 && values.length > 4
+      ? noiseFloorK * 0.3166 * median(values.slice(3).map((v, i) => Math.abs(v - 3 * values[i + 2] + 3 * values[i + 1] - values[i])))
+      : o.noiseFloorOrder === 2 && values.length > 3
       ? noiseFloorK * 0.578 * median(values.slice(2).map((v, i) => Math.abs(v - 2 * values[i + 1] + values[i])))
       : noiseFloorK * median(values.slice(1).map((v, i) => Math.abs(v - values[i])));
     if (fl > sigma) { sigma = fl; noiseFloorHit = true; }
