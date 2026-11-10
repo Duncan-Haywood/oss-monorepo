@@ -258,3 +258,18 @@ test('actions-timeout-check: lead is sourced, dated and matches the classifier d
   const f = scanText('on: push\njobs:\n  a:\n    runs-on: ubuntu-latest\n    timeout-minutes: 360\n    steps:\n      - run: x\n');
   assert.ok(f.some((x) => x.type === 'job-timeout-at-default'), 'classifier no longer treats 360 as the default');
 });
+
+// AU GST lead: the thresholds and 21-day window it states must be the checker's own constants.
+test('au-gst-registration-checker: lead is sourced, dated and matches the thresholds', async () => {
+  const slug = 'au-gst-registration-checker';
+  const html = readFileSync(new URL(`${slug}/index.html`, root), 'utf8');
+  const m = html.match(/<p[^>]*data-answer-lead[^>]*>([\s\S]*?)<\/p>/);
+  assert.ok(m, 'no data-answer-lead paragraph');
+  const text = m[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  assert.match(text, /Source:/);
+  assert.match(text, /as of \d{4}-\d{2}-\d{2}/i);
+  const { THRESHOLD, NONPROFIT_THRESHOLD } = await import(new URL(`${slug}/calc.mjs`, root));
+  const stated = [...text.matchAll(/AUD ([\d,]+)/g)].map((x) => Number(x[1].replace(/,/g, '')));
+  assert.deepEqual(stated, [THRESHOLD, NONPROFIT_THRESHOLD]);
+  assert.match(text, /21 days/);
+});
