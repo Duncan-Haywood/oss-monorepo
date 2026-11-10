@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtJxZwsm1ZxshUd2i28",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T23:06:41Z",
+  "ended": "2026-11-10T23:29:00Z",
+  "wall_minutes": 22.74,
+  "tokens_in": 5289841,
+  "tokens_out": 24553,
+  "cost_usd": 2.2327,
+  "tool_calls": 61,
+  "task": "perf track: profile the changepoint-detector suite (step 3: slowest local suite), fix the top hotspot",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14631",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": false,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Tried /usr/bin/time -v for peak memory; it isn't installed in the container, so process.resourceUsage().maxRSS was used instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are owner-gated, and five pool readings earlier today found no new lever. Step 3 (slowest local suite) was the productive path. The prompt could say to go there first when the backlog is all owner-gated, not only point to a venture slice."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes --list in the shallow cloud clone listed dozens of unrelated workflows (no merge-base), so it gave no useful scope; the per-file post checks and the venture suite were run directly instead."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-robust-changepoints-from-three-minutes-to-two-seconds.md",
+    "docs/history/ci-perf-2026-11-10-laplace-cost-sorted-runs.md"
+  ],
+  "goal": "Faster agent and CI test loops on a daily-touched flagship, with the same answers",
+  "notes": "Metric: changepoint-detector suite, `node --test --test-reporter=tap *.test.mjs` from the venture folder, 4-core cloud container, Node 22.23.4. Before: 7m10s wall, 17m04s user CPU, 1,006 s summed test duration, 424/424 pass. After (sorted-run cost, before the memory sweep was added): 6m38s wall, 11m37s user CPU (-32%), 675 s summed, 424/424 pass. Hotspot: CAC --robust 183.2 s -> 1.9 s (the cpu-prof showed 178 s of self time in the meanvarlaplace cost closures). Equivalence: Object.is on 755,282 + 260,904 cost calls, old vs new closure, 0 mismatches. Product side effect: DJIA --robust (8,609 points), which ran past 9 minutes before, now finishes in 9.0 s at 235 MB maxRSS; the README row and a test were added. After the sweep, djia-returns.test.mjs passes (3/3, 15.8 s); the full suite will run again in CI (ventures-tests).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ebe8e33c-06c5-54c1-ada0-3f857b4f734e",
+    "transcripts": 1,
+    "first": "2026-11-10T23:06:41Z",
+    "last": "2026-11-10T23:29:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 126,
+        "output": 24553,
+        "thinking": 6045,
+        "cache_read": 5202130,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87585,
+        "api_equivalent_usd": 2.2327,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 126,
+      "output": 24553,
+      "thinking": 6045,
+      "cache_read": 5202130,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87585,
+      "api_equivalent_usd": 2.2327,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 52,
+      "Monitor": 2,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.74,
+      "active_minutes": 10.81,
+      "model_minutes": 5.74,
+      "tool_minutes": 5.07,
+      "waiting_on_human_minutes": 11.93,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile a 7-minute suite, write and prove an exact incremental-sort cost, add a test, README row and write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 179.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

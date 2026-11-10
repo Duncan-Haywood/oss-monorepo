@@ -1741,11 +1741,13 @@ Monthly short-term resident departures from Australia, 1976-01 to 2017-06 (498 m
 | plain | 27 | 1987-10-14, 1987-10-28 (brackets the crash) | 2008-09-15 (the Lehman day itself), 2008-12-03 |
 | `--dispersion` | 10 | 1987-10-06 | 2008-09-04 |
 | `--bootstrap` | 11 | 1987-10-14, 1987-10-28 | 2008-09-04 |
+| `--robust` | 12 | 1987-10-06 | 2008-09-15 (Lehman), 2008-12-10 |
 
 - **Found by all three.** The crash is a short high-variance window, so the plain and bootstrap runs cut either side of it (14 and 28 October) and `--dispersion` cuts once, 13 days before it. 2008 is cut within 11 days of Lehman by every run.
 - **Shared cuts.** 1991-12-31, 1997-03-13, 2003-07-28, 2007-07-10, 2011-08-02 and 2011-12-21 are cut by both `--dispersion` and `--bootstrap`. Whether each marks a real variance regime is not checked against a source (2011-08 is the month of the US downgrade, recalled).
 - **Plain over-cuts, as on other returns.** 27 cuts against 10 to 11 once dispersion or the bootstrap is on. Several plain cuts come in pairs 14 days apart (1987-10-14/28, 1989-10-13/27, 1997-10-21/11-04), the pattern of a single spike bracketed on both sides.
-- **Not done.** `--robust` did not finish in 9 minutes on 8,609 points, so it has no row (cause not profiled; `--robust` is the slow path here). No source read for either event date. No comparison to the DAX, SMI and CAC rise at row 1482 (1997) beyond noting 1997-03-13 sits near it.
+- **`--robust` (row added 2026-11-10).** It did not finish in 9 minutes when this section was first written: its Laplace cost sorted each segment afresh for every pair PELT tried. With each start's segment now kept sorted, it takes about 9 s (`docs/history/ci-perf-2026-11-10-laplace-cost-sorted-runs.md`). 12 cuts. It shares 1987-10-06 with `--dispersion`, 1988-01-27 with `--bootstrap` and 2011-08-02 with both, and is the only one besides plain to date Lehman to the day.
+- **Not done.** No source read for either event date. No comparison to the DAX, SMI and CAC rise at row 1482 (1997) beyond noting 1997-03-13 sits near it.
 
 ## A documented fall in 24 points: Crimean War disease deaths (2026-11-08)
 

@@ -1161,16 +1161,48 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
     // No prefix sums for a median, so each segment is sorted on demand (cached by its ends: PELT asks again).
     const floor = Math.max(1e-9, sigma * 1e-3);
     const memo = new Map();
+    const fromSorted = (seg, m) => {
+      const med = m % 2 ? seg[(m - 1) / 2] : (seg[m / 2 - 1] + seg[m / 2]) / 2;
+      let ad = 0;
+      for (let i = 0; i < m; i++) ad += Math.abs(seg[i] - med);
+      return 2 * m * (Math.log(2 * Math.max(floor, ad / m)) + 1);
+    };
+    // PELT asks for each start s with t rising by one, so each start keeps its segment sorted and takes x[t-1] by one
+    // binary-search insert instead of a fresh copy and sort per pair (the robust CAC run went from 183 s to about 2 s,
+    // docs/history/ci-perf-2026-11-10-laplace-cost-sorted-runs.md). Same sorted values, same sum order, same cost.
+    // Any other order of asking falls back to the sort, memoised as before.
+    // A start PELT has pruned is never asked again: every 256 steps, buffers untouched for 256 steps are freed, so
+    // memory follows the starts still in play, not n^2/2 values (8,609 DJIA days would otherwise hold ~300 MB).
+    // Freeing is always safe: a start asked again is rebuilt from x.
+    const runs = new Map();
+    let sweptAt = 0;
     return (s, t) => {
+      if (t > sweptAt + 256) {
+        for (const [k, q] of runs) if (q.t < t - 256) runs.delete(k);
+        sweptAt = t;
+      }
+      let r = runs.get(s);
+      if (r === undefined && t > s) { r = { buf: new Float64Array(n - s), t: s, c: 0 }; runs.set(s, r); }
+      if (r !== undefined && t >= r.t && t > s) {
+        if (t === r.t) return r.c;
+        const buf = r.buf;
+        for (let k = r.t; k < t; k++) {
+          const v = x[k];
+          let lo = 0, hi = k - s;
+          while (lo < hi) { const mid = (lo + hi) >>> 1; if (buf[mid] <= v) lo = mid + 1; else hi = mid; }
+          buf.copyWithin(lo + 1, lo, k - s);
+          buf[lo] = v;
+        }
+        r.t = t;
+        r.c = fromSorted(buf, t - s);
+        return r.c;
+      }
       const key = s * (n + 1) + t;
       const hit = memo.get(key);
       if (hit !== undefined) return hit;
       const m = t - s;
       const seg = Array.from(x.subarray ? x.subarray(s, t) : x.slice(s, t)).sort((a, b) => a - b);
-      const med = m % 2 ? seg[(m - 1) / 2] : (seg[m / 2 - 1] + seg[m / 2]) / 2;
-      let ad = 0;
-      for (let i = 0; i < m; i++) ad += Math.abs(seg[i] - med);
-      const c = 2 * m * (Math.log(2 * Math.max(floor, ad / m)) + 1);
+      const c = fromSorted(seg, m);
       memo.set(key, c);
       return c;
     };
