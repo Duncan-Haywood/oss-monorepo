@@ -133,3 +133,9 @@ test("the guide's worked example matches the pairing engine", () => {
     assert.ok(guide.includes(`<tr><td>${s.rank}</td><td>${s.name.split(" ")[0]}</td><td>${s.score}</td><td>${s.buchholz}</td></tr>`), s.name);
   }
 });
+
+test("FAQ does not promise that nobody gets three of one colour in a row (quality audit 2026-11-10: false in 73 of 150 simulated events)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /nobody gets three in a row/);
+});
