@@ -40,3 +40,28 @@ test('rejects a --hazard or --threshold that cannot work instead of silently ign
   }
   assert.equal((await run(['--hazard', '50', '--threshold', '0.9'], csv)).code, 0);
 });
+
+test('the level model text leads with the changes every setting agrees on, as the page does', async () => {
+  const { s } = await run(['--example']);
+  const lines = s.split('\n');
+  assert.match(lines[0], /^Agreed changes: Every one of 6 settings agrees on 1 change: 1899 \(down\)\. On 7 labelled real series held out/);
+  assert.match(s, /Level model alone[^\n]*\nPELT splits the 100 points/);
+  const plain = (await run(['--example', '--no-agreed'])).s;
+  assert.match(plain, /^PELT splits/);
+  assert.match((await run(['--example', '--model', 'meanvar'])).s, /^PELT splits/, 'other models are not the panel, so no agreed line');
+});
+
+test('a CSV with its own options feeds the panel those options, and an unset option keeps its default', async () => {
+  let seed = 7;
+  const noise = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648) - 0.5;
+  const csv = 'day,v\n' + Array.from({ length: 80 }, (_, i) => `d${i},${(i < 40 ? 2 : 9) + noise()}`).join('\n');
+  const { s } = await run(['--column', 'v'], csv);
+  assert.match(s, /^Agreed changes: Every one of 6 settings agrees on 1 change: d40 \(up\)\./);
+});
+
+test('a series longer than the cap says the panel was not run instead of running it', async () => {
+  const { AGREED_MAX_POINTS } = await import('./cli.mjs');
+  const csv = 'v\n' + Array.from({ length: AGREED_MAX_POINTS + 1 }, (_, i) => (i % 7) + (i > 1000 ? 20 : 0)).join('\n');
+  const { s } = await run([], csv);
+  assert.match(s, new RegExp(`^Agreed changes: not run on ${AGREED_MAX_POINTS + 1} points .*--consensus`));
+});
