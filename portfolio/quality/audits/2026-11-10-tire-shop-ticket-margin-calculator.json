@@ -1,0 +1,267 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/tire-shop-ticket-margin-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a tire shop general manager or the shop's bookkeeper, who prices tickets, sets attach goals and decides whether to match online prices",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran node a.mjs (scratchpad) on the sample shop and recomputed in Python from the formulas, not from calc.mjs: ticket net 213.6025 = 213.6025; monthly net 37,992.55; break-even 42.134 tickets; utilization 0.56851; max tickets 386.98; 10% tire discount costs 69.84 per ticket and needs 48.58% more tickets; alignment +5 points = $987.07. All match. But the parser fails the case this user hits first: a $1,200 tire set parses as price $1, parts $200, 800 minutes, 60% attach with no warning (checks row 6). Capped at 2 for that wrong-number path.",
+    "completeness": "Every feature in README and the page was exercised on the sample: per-line net, per-ticket net, break-even tickets, utilization, max tickets, net per bay hour, attach lift with 100% cap, discount table with fit flags, CSV (two sections), warnings, usage counters with opt-out. No TODOs or stubs. Did not load the page in a browser; checked the served page text and page.test.mjs, which parses the inline script.",
+    "verification": "node --test '*.test.mjs' in the venture: 28 pass, 0 fail. Six hand-seeded mutations: five failed a test (fee sign, lift cap, 60->50 minutes, volume gain minus 1, labor dropped); one survived: removing (1 - fee) from the discount loss (calc.mjs:108) because the discount test uses 0% fee. Tests are hand-calculated values and cover the parser, but no test covers comma-grouped prices.",
+    "craft": "Read calc.mjs (all), index.html script, page.test.mjs, usage.mjs. Pure functions, no dependencies, frozen defaults, option validation with specific messages, HTML escaped via esc(). Defects: lenient Number() coercion (hex, exponent), silent column drop and silent comma shift, no warning for coerced values.",
+    "claims": "Checked: 'nothing uploaded' (no network APIs; test asserts), disclaimer and 'Unverified' wording present, formulas on the page match code, served llms.txt and sitemap point at marisstella.app (build rewrite), 'not modelled' list matches behavior. The README says 'No build step' and 'node --test' runs the suite, true. Limits are stated honestly. robots.txt is not served per venture (root robots only), which is fine.",
+    "fitness": "A shop manager can enter a sample ticket mix and read net per ticket, the best upsell lever and what a discount must win. Blockers: pasting a spreadsheet column with $1,200 values silently corrupts the result; one tire line with no tire count; labor treated as pure variable cost. With the five-line example it works end to end and the plain-language verdict is useful.",
+    "domain": "A tire shop owner or GM (or the shop's bookkeeper) would check the arithmetic first, then how it treats card fees, labor and bay time. Net per ticket = sum of attach x net per sale after parts, fees and labor is the standard attach-weighted contribution method; break-even tickets = overhead / contribution per ticket is correct; the discount break-even is the usual volume-to-hold-contribution formula. Departures, all disclosed: fee on price only (not tax), labor as variable, no FET/tax pass-through, 100% productive time. No numbers asserted as industry benchmarks, which is correct."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Net per average ticket, sample shop",
+      "method": "independent Python recomputation of the sample shop (5 lines, 220 tickets, $28/h, 3% fee, $9,000 overhead, 2 bays x 8 h x 26 d), sum of attach x (price x 0.97 - parts - min/60 x 28)",
+      "command": "cd ventures/tire-shop-ticket-margin-calculator && node /tmp/claude-0/-home-user-oss-monorepo/0893547c-667a-547a-bea4-23d8d7100237/scratchpad/a.mjs",
+      "expected": "213.6025",
+      "observed": "213.6025",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Monthly net after overhead and break-even tickets",
+      "method": "independent Python recomputation of the sample shop (5 lines, 220 tickets, $28/h, 3% fee, $9,000 overhead, 2 bays x 8 h x 26 d): 220 x 213.6025 - 9000; 9000 / 213.6025",
+      "command": "cd ventures/tire-shop-ticket-margin-calculator && node /tmp/claude-0/-home-user-oss-monorepo/0893547c-667a-547a-bea4-23d8d7100237/scratchpad/a.mjs",
+      "expected": "37,992.55 and 42.134",
+      "observed": "37992.55 and 42.1343",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Bay utilization and max tickets",
+      "method": "independent Python recomputation of the sample shop (5 lines, 220 tickets, $28/h, 3% fee, $9,000 overhead, 2 bays x 8 h x 26 d): 220 x 64.5 min / 12,480 min; 12,480 / 64.5",
+      "command": "cd ventures/tire-shop-ticket-margin-calculator && node /tmp/claude-0/-home-user-oss-monorepo/0893547c-667a-547a-bea4-23d8d7100237/scratchpad/a.mjs",
+      "expected": "0.56851 and 386.98",
+      "observed": "0.56851 and 386.977",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "10% discount on the tire set: net lost per ticket and tickets to win back",
+      "method": "independent Python recomputation of the sample shop (5 lines, 220 tickets, $28/h, 3% fee, $9,000 overhead, 2 bays x 8 h x 26 d): 720 x 0.10 x 0.97 = 69.84; 213.6025/(213.6025-69.84) - 1",
+      "command": "cd ventures/tire-shop-ticket-margin-calculator && node /tmp/claude-0/-home-user-oss-monorepo/0893547c-667a-547a-bea4-23d8d7100237/scratchpad/a.mjs",
+      "expected": "69.84 and 48.58%",
+      "observed": "69.84 and 48.580%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Attach lift +5 points on alignment, 220 tickets (alignment net 120 x 0.97 - 8 - 40/60 x 28 = 89.7333)",
+      "method": "independent Python recomputation of the sample shop (5 lines, 220 tickets, $28/h, 3% fee, $9,000 overhead, 2 bays x 8 h x 26 d): 220 x 0.05 x 89.7333",
+      "command": "cd ventures/tire-shop-ticket-margin-calculator && node /tmp/claude-0/-home-user-oss-monorepo/0893547c-667a-547a-bea4-23d8d7100237/scratchpad/a.mjs",
+      "expected": "987.07",
+      "observed": "987.07",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Parsing a tire set priced '$1,200' (a 4-tire install is routinely over $1,000)",
+      "method": "Plain reading of the README format: item, price, parts cost, labor minutes, attach",
+      "command": "node scratchpad a.mjs (parseItems('Tires,$1,200,800,60,100'))",
+      "expected": "price 1200, cost 800, minutes 60, attach 100",
+      "observed": "price 1, cost 200, minutes 800, attach 60, no warning (a quoted \"1,200\" does the same)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Capped attach lift on a line already at 100%",
+      "method": "Own arithmetic: lift capped at 100 points of tickets so extra sales 0",
+      "command": "cd ventures/tire-shop-ticket-margin-calculator && node /tmp/claude-0/-home-user-oss-monorepo/0893547c-667a-547a-bea4-23d8d7100237/scratchpad/a.mjs",
+      "expected": "0 for the tire set and fees",
+      "observed": "0 and 0 (alignment 987.07)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Claimed outputs: net per sale, per ticket, break-even, bay utilization, attach lift, discount break-even, CSV",
+      "method": "README and index.html feature list vs analyze() and reportCsv() output on the sample",
+      "command": "cd ventures/tire-shop-ticket-margin-calculator && node /tmp/claude-0/-home-user-oss-monorepo/0893547c-667a-547a-bea4-23d8d7100237/scratchpad/a.mjs",
+      "expected": "all present",
+      "observed": "all present and populated; CSV has line and store sections",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Warnings: free labor, losing line, over capacity, no-money ticket",
+      "method": "calc.test.mjs and a run of analyze on the sample",
+      "command": "node --test '*.test.mjs'",
+      "expected": "fire when relevant",
+      "observed": "fire (tests 8, and sample at default labor 0)",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite as shipped",
+      "method": "node --test",
+      "command": "cd ventures/tire-shop-ticket-margin-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "28 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Nothing is uploaded' / no network calls",
+      "method": "grep for fetch, XHR, sendBeacon, WebSocket in index.html, calc.mjs, usage.mjs; page.test.mjs asserts it",
+      "command": "grep -nE 'fetch\\(|XMLHttpRequest|sendBeacon|WebSocket' index.html calc.mjs usage.mjs",
+      "expected": "none",
+      "observed": "none found",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served llms.txt, sitemap and canonical point at the live host",
+      "method": "Loaded https://marisstella.app/tire-shop-ticket-margin-calculator/llms.txt and sitemap.xml (build rewrites hosts)",
+      "command": "curl -sS https://marisstella.app/tire-shop-ticket-margin-calculator/llms.txt",
+      "expected": "marisstella.app URLs",
+      "observed": "marisstella.app URLs, sitemap absolute with lastmod",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, 'not modelled' list and 'unverified' statement on the page and README",
+      "method": "grep index.html and README.md; page.test.mjs asserts them",
+      "command": "grep -n 'Not modelled\\|Unverified\\|No warranty' index.html README.md",
+      "expected": "present",
+      "observed": "present (footer, How it is calculated, FAQ)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README: 'attach lift ... capped at 100% of tickets'; page formula text vs code",
+      "method": "index.html 'How it is calculated' vs calc.mjs:99,108,110",
+      "command": "sed -n 95,115p calc.mjs",
+      "expected": "text matches code",
+      "observed": "matches (discount: attach x price x c x (1-fee); volume = old/new - 1)",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "Input handling of numeric fields and ragged rows",
+      "method": "Bad cells, extra columns, hex, exponent, whitespace-separated rows",
+      "command": "node scratchpad a.mjs",
+      "expected": "reject or warn",
+      "observed": "extra columns dropped silently; '0x10' read as 16; 12.5e2 read as 1250; comma-grouped price shifts all fields silently; space-separated rows give a generic error",
+      "result": "partial"
+    },
+    {
+      "dimension": "craft",
+      "what": "Zero-minute lines and zero-labor tickets",
+      "method": "analyze on 'T,100,50,0,100'",
+      "command": "cd ventures/tire-shop-ticket-margin-calculator && node /tmp/claude-0/-home-user-oss-monorepo/0893547c-667a-547a-bea4-23d8d7100237/scratchpad/a.mjs",
+      "expected": "utilization 0, maxTickets/netPerBayHour null, no crash",
+      "observed": "0, null, null",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Treatment of the card fee: applied to price only, not to tax",
+      "method": "Merchant processing: fee is on the charged total including sales tax; tool states tax is not modelled",
+      "command": "n/a",
+      "expected": "documented departure",
+      "observed": "tax excluded and stated on the page",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:63",
+      "change": "price * (1 - fee) -> price * (1 + fee) (card fee added instead of subtracted)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:108",
+      "change": "drop the * (1 - fee) factor from the discount's lost net per ticket",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:99",
+      "change": "remove the Math.min(100, ...) cap on attach lift",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:85",
+      "change": "capacity minutes per hour 60 -> 50",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:110",
+      "change": "volume gain old/new - 1 -> old/new",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:65",
+      "change": "net = gross - labor -> net = gross (labor ignored)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "A thousands separator in the price silently shifts every field: 'Tires,$1,200,800,60,100' (and the quoted form) parses as price $1, parts $200, 800 labor minutes, 60% attach with no warning. A tire set over $1,000 is the main line of this tool's user, and spreadsheets export such values with commas. The wrong parse produces plausible-looking but meaningless margins.",
+      "where": "calc.mjs:27",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Discount-cost test runs only at 0% card fee, so removing the (1 - fee) factor from the discount's lost net (calc.mjs:108) leaves all 28 tests green; with the default 3% fee the tool would overstate the loss and the volume needed.",
+      "where": "calc.mjs:108",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Technician labor is modelled as a fully variable cost per minute and bay utilization assumes 100% productive hours; flat-rate or salaried techs and idle time (stated as not modelled) make net per ticket and break-even look different from the shop's payroll. No input for productive-hour share.",
+      "where": "calc.mjs:64",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Extra columns are dropped, hex ('0x10') and exponent forms are accepted as numbers and a blank attach silently means 100 with no notice; parseItems counts skipped rows but not coerced ones.",
+      "where": "calc.mjs:20",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Tires are lumped as one line ('Tire set of 4 installed') with the labor minutes, so per-tire pricing, mount and balance versus FET/disposal fees as pass-through are not separated; sample line 'Disposal and shop fees' is treated as revenue and margin.",
+      "where": "calc.mjs:132",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Source robots.txt/sitemap.xml/llms.txt carry placeholder or relative URLs; the served files are rewritten and correct. Not a defect in what ships.",
+      "where": "sitemap.xml:3",
+      "category": "source-only",
+      "origin": "audit"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Arithmetic is right: every recomputed ticket, break-even, utilization, discount and lift figure matched an independent calculation, the disclaimers and limits are honest, and the served page is correct. It does not meet the bar because correctness is 2: a tire set priced with a thousands comma (the commonest real input) parses to a different, plausible set of numbers with no warning, and one mutation in the discount cost (the fee factor) survives all 28 tests. Fix: reject or warn on rows with more than five cells or a non-numeric cell, strip thousands separators in quoted values, and add a discount test at 3% fee."
+}
