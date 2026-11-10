@@ -263,7 +263,7 @@ function classify(country, body) {
   // Shape only, tax authority texts unread: Morocco ICE 15 digits; Azerbaijan VOEN 10 digits; Uzbekistan
   // INN 9 digits; Moldova IDNO 13 digits; Georgia 9 digits (company) or 11 (individual); Armenia TIN 8
   // digits; Tanzania TIN 9 digits; Uganda TIN 10 digits; Zambia TPIN 10 digits; Rwanda TIN 9 digits.
-  if (country === "MA") return /^\d{15}$/.test(body) ? "format" : "bad-format";
+  if (country === "MA") return /^\d{15}$/.test(body) ? "checksum" : "bad-format";
   if (country === "AZ") return /^\d{10}$/.test(body) ? "checksum" : "bad-format";
   // Tunisia MF (matricule fiscal): 7 digits and a control letter (never I, O or U), then optionally a
   // VAT code (A, P, B, D, N), a category code (M, P, C, N, E) and a 3-digit branch number that is 000
@@ -277,8 +277,8 @@ function classify(country, body) {
   // North Macedonia EDB 13 digits; Iceland VSK number 5 or 6 digits.
   if (country === "AL") return /^[A-M]\d{8}[A-Z]$/.test(body) ? "format" : "bad-format";
   if (country === "BA") return /^\d{12}$/.test(body) ? "format" : "bad-format";
-  if (country === "ME") return /^\d{8}$/.test(body) ? "format" : "bad-format";
-  if (country === "MK") return /^\d{13}$/.test(body) ? "format" : "bad-format";
+  if (country === "ME") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "MK") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IS") return /^\d{5,6}$/.test(body) ? "format" : "bad-format";
   // China unified social credit code (GB 32100-2015): 18 characters, 0-9 and A-Y without I, O, S, V, Z.
   if (country === "CN") return /^[0-9A-HJ-NP-RT-UW-Y]{18}$/.test(body) ? "checksum" : "bad-format";
@@ -631,6 +631,22 @@ function mdIdnoOk(body) {
   return body.slice(0, 12).split("").reduce((a, c, i) => a + w[i % 3] * Number(c), 0) % 10 === Number(body[12]);
 }
 
+// Morocco ICE (15 digits): ISO 7064 mod 97-10, so the whole number mod 97 is 0 (python-stdnum ma.ice; the last two digits
+// are the control). Montenegro PIB (8 digits): weights 8..2, check = (-sum mod 11) mod 10. North
+// Macedonia EDB (13 digits): weights 7,6,5,4,3,2 twice, check = (-sum mod 11) mod 10. Rules from
+// python-stdnum ma.ice, me.pib, mk.edb; the authorities' own texts are unread.
+function maIceOk(body) {
+  let r = 0;
+  for (const c of body) r = (r * 10 + Number(c)) % 97;
+  return r === 0;
+}
+function negMod11Ok(body, w) {
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return String(((-sum % 11) + 11) % 11 % 10) === body[w.length];
+}
+const mePibOk = (body) => negMod11Ok(body, [8, 7, 6, 5, 4, 3, 2]);
+const mkEdbOk = (body) => negMod11Ok(body, [7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2]);
+
 function tnMfShapeOk(body) {
   const m = /^\d{7}[A-HJ-NP-TV-Z]([ABDNP])([MPCNE])(\d{3})$/.exec(body);
   if (m) return m[3] === "000" || m[2] === "E";
@@ -738,6 +754,9 @@ function checksumOk(country, body) {
   if (country === "DO") return doTaxIdOk(body);
   if (country === "VE") return veRifOk(body);
   if (country === "MD") return mdIdnoOk(body);
+  if (country === "MA") return maIceOk(body);
+  if (country === "ME") return mePibOk(body);
+  if (country === "MK") return mkEdbOk(body);
   if (country === "AZ") return azVoenOk(body);
   if (country === "BY") return byUnpOk(body);
   if (country === "CN") return cnUsccOk(body);
