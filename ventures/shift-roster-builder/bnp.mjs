@@ -16,7 +16,7 @@ const EPS = 1e-9;
 // Revised simplex for  min c.x  s.t.  A x = 1 (every row), x >= 0, where each column of A is 0/1 and given by its row list.
 // Rows 0..S-1 are shifts (held once, or open), rows S..S+P-1 are people (one set each). Big-M artificials start the basis
 // for any row with no identity column; a basic artificial left positive at the optimum means the node is infeasible.
-function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
+export function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
   const n = cols.length;
   const BIG_M = 1e6;
   // Column ids >= n are artificials: id n + r covers row r.
@@ -50,7 +50,10 @@ function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
   };
   refactor();
   const xB = new Float64Array(m);
-  const computeX = () => { for (let r = 0; r < m; r++) { let v = 0; for (let k = 0; k < m; k++) v += Binv[r * m + k]; xB[r] = v; } };
+  // Basic values within 1e-9 of zero are set to zero. Without this, rounding left values like 1e-11 on degenerate rows, the
+  // ratio test saw a step of 1e-11 as progress, the anti-cycling switch below never stayed on, and a 20-person week (102 rows,
+  // 497 columns) cycled at its optimum past 400,000 pivots (eval/cg-scale-bench.mjs, 2026-11-10). With it: 479 pivots.
+  const computeX = () => { for (let r = 0; r < m; r++) { let v = 0; for (let k = 0; k < m; k++) v += Binv[r * m + k]; xB[r] = Math.abs(v) < 1e-9 ? 0 : v; } };
   computeX();
   const y = new Float64Array(m);
   const d = new Float64Array(m);
@@ -79,7 +82,7 @@ function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
       }
     }
     if (leave < 0) throw new Error("unbounded LP"); // cannot happen: costs are >= 0
-    degenerate = ratio < 1e-12 ? degenerate + 1 : 0;
+    degenerate = ratio < 1e-9 ? degenerate + 1 : 0;
     // Pivot.
     const dl = d[leave];
     for (let k = 0; k < m; k++) Binv[leave * m + k] /= dl;
@@ -233,7 +236,7 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
   const unit = hourUnit(len);
   const t0 = Date.now();
   const timeUp = () => Date.now() - t0 > ms;
-  const stats = { nodes: 0, pivots: 0, ms: 0, columns: 0, rounds: 0, pricingCalls: 0, inexactPricing: 0, classes: copies.size };
+  const stats = { nodes: 0, pivots: 0, ms: 0, columns: 0, rounds: 0, pricingCalls: 0, inexactPricing: 0, maxPricingNodes: 0, pricingMs: 0, classes: copies.size };
   const pool = [], seen = new Set();
   const addCol = (p, set) => {
     const f = [...set].sort((a, b) => a - b);
@@ -269,7 +272,14 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
         const rows = c.f.slice(); rows.push(S + c.p);
         cols.push(rows); cost.push(0); owner.push(c.p); members.push(c.f);
       }
-      lp = solveLP(S + P, cols, cost, init);
+      try {
+        lp = solveLP(S + P, cols, cost, init);
+      } catch (e) {
+        // A solver failure (pivot limit, singular basis) stops this node with the bound it already has, which is still valid;
+        // the search then reports the floor unproven instead of throwing out of buildRoster.
+        stats.lpFailures = (stats.lpFailures || 0) + 1;
+        return { fix, bound: lb, pick: -1, settled: false, solved: false };
+      }
       stats.pivots += lp.pivots;
       // The restricted LP's full objective (big-M artificials included) equals its dual objective, the sum of the duals.
       z = 0;
@@ -280,7 +290,10 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
         stats.pricingCalls++;
         // A needed class is held through its highest-priced copy: copies are interchangeable for p, so that copy is p's best.
         const need = needCls[p].map((k) => copies.get(k).reduce((a, s) => (w[s] > w[a] ? s : a)));
+        const tp = Date.now();
         const r = price(p, w, need, ban[p]);
+        stats.pricingMs += Date.now() - tp;
+        if (r.nodes > stats.maxPricingNodes) stats.maxPricingNodes = r.nodes;
         if (!r.exact) { exact = false; stats.inexactPricing++; }
         if (!r.set) { lagr = Infinity; continue; }
         const rc = -r.value - lp.y[S + p];

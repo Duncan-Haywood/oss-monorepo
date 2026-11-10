@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { branchAndPriceOpen, columnGenerationOpen, hourUnit } from "./bnp.mjs";
+import { branchAndPriceOpen, columnGenerationOpen, hourUnit, solveLP } from "./bnp.mjs";
+import { readFileSync } from "node:fs";
 import { parseStaff, parseShifts, openFloorByPricing, openFloorByColumnGeneration, buildRoster } from "./calc.mjs";
 
 // Least open hours by trying every combination of one valid set per person (small weeks only).
@@ -126,4 +127,15 @@ test("column generation: a person who must hold a shift no valid set allows make
   const r = columnGenerationOpen(1, [4, 6], price);
   assert.equal(r.floor, 4);
   assert.equal(r.proven, true);
+});
+
+test("the restricted LP from a 20-person week solves instead of cycling at its optimum", () => {
+  // Captured from eval/cg-scale-bench.mjs 20 56, case 1 (seeded synthetic week): 102 rows, 497 columns. Before basic values near
+  // zero were snapped to zero, rounding noise kept the anti-cycling rule off and this LP passed 400,000 pivots at objective 78,
+  // so buildRoster with exact: true threw "simplex pivot limit".
+  const L = JSON.parse(readFileSync(new URL("./eval/fixtures/cycling-lp-20x56.json", import.meta.url), "utf8"));
+  const r = solveLP(L.m, L.cols, L.cost, Int32Array.from(L.init));
+  assert.ok(r.pivots < 5000, `pivots ${r.pivots}`);
+  assert.ok(Math.abs(r.obj - 78) < 1e-6, `objective ${r.obj}`);
+  assert.equal(r.infeasible, false);
 });
