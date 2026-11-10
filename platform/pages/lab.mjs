@@ -230,7 +230,7 @@ code{font:.86em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--cod
 h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1.05;letter-spacing:-.025em;margin:.5rem 0 .8rem}
 h2{font-size:1.25rem;margin:0 0 .4rem;letter-spacing:-.01em}
 .lede{color:var(--muted);font-size:1.08rem;max-width:68ch;margin:0}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin:28px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:16px;margin:28px 0}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
 .card:hover{transform:translateY(-2px);box-shadow:0 10px 30px var(--glow)}
 .card .art{aspect-ratio:16/7;overflow:hidden;display:block}

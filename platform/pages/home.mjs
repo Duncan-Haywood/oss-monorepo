@@ -257,7 +257,7 @@ export const HOME_SECTIONS_CSS = `
 
     /* How it works: three numbered steps joined by a dashed rule. */
     .steps { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 16px;
-             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); counter-reset: step; position: relative; }
+             grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); counter-reset: step; position: relative; }
     .step { position: relative; padding: 22px 22px 20px; border: 1px solid var(--line); border-radius: 18px;
             background: linear-gradient(180deg, var(--panel), color-mix(in srgb, var(--panel) 92%, var(--hero-2))); }
     .step-ico { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px;
@@ -315,7 +315,7 @@ export const HOME_SECTIONS_CSS = `
     .band.night a { color: var(--accent); }
     .band.night .section-eyebrow { color: #a8c7f0; }
     .rcards { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 14px;
-              grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+              grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); }
     .rcard a { display: flex; flex-direction: column; gap: 8px; height: 100%; padding: 18px 18px 20px; border-radius: 16px;
                border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none;
                transition: transform .25s, border-color .25s, box-shadow .25s; }
@@ -332,7 +332,7 @@ export const HOME_SECTIONS_CSS = `
 
     /* Latest writing. */
     .posts { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 14px;
-             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+             grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
     .posts a { display: flex; flex-direction: column; gap: 8px; height: 100%; padding: 18px 20px; border-radius: 16px;
                border: 1px solid var(--line); background: var(--panel); color: var(--ink); text-decoration: none;
                transition: transform .25s, border-color .25s, box-shadow .25s; }

@@ -5873,7 +5873,7 @@ const CATEGORY_STYLE = `
                    padding-bottom: 7px; border-bottom: 1px solid var(--line); }
     .subgroup-count { font-weight: 600; color: var(--soft); letter-spacing: 0; }
     .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px;
-             grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+             grid-template-columns: repeat(auto-fill, minmax(min(268px, 100%), 1fr)); }
     .card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px;
             padding: 17px 18px; transition: transform .18s, box-shadow .18s, border-color .18s; }
     .card::before { content: ""; position: absolute; left: -1px; top: 14px; bottom: 14px; width: 3px;
@@ -5892,7 +5892,7 @@ const CATEGORY_STYLE = `
                 border: 1px solid var(--line); border-radius: 13px; }
     .siblings h2 { font-size: 1.05rem; margin: 0 0 10px; }
     .siblings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px;
-                   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+                   grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); }
     .siblings a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .94rem; }
     .siblings a:hover, .siblings a:focus-visible { text-decoration: underline; }
     .siblings span { color: var(--soft); font-weight: 500; }
@@ -5922,7 +5922,7 @@ const CATEGORY_STYLE = `
     .start-here h2, .answers h2 { font-size: 1.15rem; margin: 0 0 4px; letter-spacing: -.01em; }
     .start-here .sub, .answers .sub { margin: 0 0 14px; color: var(--muted); font-size: .92rem; }
     .start-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: start;
-                  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+                  grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr)); }
     .start-grid li { counter-increment: start; position: relative; background: var(--panel);
                      border: 1px solid var(--line); border-top: 3px solid var(--pf-cat, var(--accent));
                      border-radius: 13px; padding: 16px 18px 16px 18px; }
@@ -5936,7 +5936,7 @@ const CATEGORY_STYLE = `
     .start-grid .meta { font-size: .8rem; color: var(--soft); }
     .answers { margin: 30px 0 0; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; }
     .answers ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 22px;
-                  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+                  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
     .answers li a { color: var(--accent); text-decoration: none; font-weight: 600; font-size: .93rem; line-height: 1.4; }
     .answers li a:hover, .answers li a:focus-visible { text-decoration: underline; }
     .answers li span { display: block; color: var(--soft); font-size: .8rem; }
@@ -6510,7 +6510,7 @@ ${audiencePages
 const TOOLS_INDEX_STYLE = `
     .band { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted);
             margin: 34px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
-    .cats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .cats { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); }
     .cats { align-items: start; }
     .cat { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 17px 18px;
            transition: transform .18s, box-shadow .18s, border-color .18s; }
@@ -6555,7 +6555,7 @@ const COMPARE_STYLE = `
     .subject h2 { font-size: 1.12rem; letter-spacing: -.02em; margin: 0 0 4px; }
     .subject .note { font-size: .85rem; color: var(--soft); margin: 0 0 12px; }
     .singles { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
-               grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+               grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); }
     .singles li { background: var(--panel); border: 1px solid var(--line);
                   border-radius: 11px; padding: 12px 14px; font-size: .94rem;
                   line-height: 1.45; }
@@ -6975,7 +6975,7 @@ const GUIDES_STYLE = `
     .tool h3 a:hover, .tool h3 a:focus-visible { color: var(--accent); text-decoration: underline; }
     .tool .note { font-size: .85rem; color: var(--soft); margin: 0 0 10px; }
     .answers { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
-               grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+               grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr)); }
     .answers li { background: var(--panel); border: 1px solid var(--line);
                   border-radius: 11px; padding: 12px 14px; font-size: .94rem;
                   line-height: 1.45; }
@@ -8573,7 +8573,7 @@ export function renderHub(
     .band-lede { color: var(--muted); line-height: 1.6; max-width: 70ch; margin: 0; }
     /* The category grid: the browse path for a visitor who cannot name the tool. */
     .cats { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 14px;
-            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+            grid-template-columns: repeat(auto-fill, minmax(min(290px, 100%), 1fr)); }
     .for-list { list-style: none; padding: 0; margin: 22px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
     .for-list a { display: inline-block; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px;
                   background: var(--panel); color: var(--ink); text-decoration: none; font-weight: 600; font-size: .92rem; }
@@ -8593,13 +8593,13 @@ export function renderHub(
     .cat-all { font-weight: 650; font-size: .9rem; text-decoration: none; }
     .cat-all:hover { text-decoration: underline; }
     .featured { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 12px;
-                grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+                grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); }
     .featured li { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
     .featured a { font-weight: 650; color: var(--ink); text-decoration: none; }
     .featured a:hover, .featured a:focus-visible { color: var(--accent); text-decoration: underline; }
     .featured .f-cat { display: block; font-size: .78rem; color: var(--soft); margin-top: 3px; }
     .featured p { margin: 6px 0 0; font-size: .87rem; color: var(--muted); line-height: 1.5; }
-    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 22px; }
+    .pillar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 14px; margin-top: 22px; }
     .pillar { display: flex; flex-direction: column; padding: 22px; border: 1px solid var(--line); border-radius: 16px;
               background: var(--panel); color: var(--ink); text-decoration: none;
               transition: border-color .15s, transform .15s; }
@@ -9846,7 +9846,7 @@ const CHROME_CSS = `
  * own content already, by its border, fill and position. */
 .pf-chrome-foot p{margin:0 0 12px}
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
 .pf-chrome-foot li{margin:0}
 .pf-chrome-foot p.pf-ask{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
 .pf-ci{margin:0 0 14px}
@@ -11462,7 +11462,7 @@ export function renderNotFound(baseUrl) {
     .nf-search button { font: inherit; font-weight: 700; padding: 11px 18px; border-radius: 12px; cursor: pointer;
                         border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
     .nf h2 { font-size: .8rem; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 8px 0 12px; }
-    .ways { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+    .ways { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
     .ways a { display: block; height: 100%; box-sizing: border-box; padding: 14px 16px; border-radius: 12px; text-decoration: none;
               border: 1px solid var(--line); background: var(--panel); color: var(--ink);
               transition: transform .15s ease, border-color .15s ease; }

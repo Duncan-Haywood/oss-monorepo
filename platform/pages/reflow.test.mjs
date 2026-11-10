@@ -223,3 +223,11 @@ test('site-owned pages get the reflow rules too, not only venture pages', async 
     'pf-site.css must carry REFLOW_CSS, as pf-chrome.css does',
   );
 });
+
+test('plain body copy may break a bare hostname, but table cells keep their figures', () => {
+  // /about/ was 341px in a 320px window from "generativelanguage.googleapis.com,"
+  // as plain text in an <li> (2026-11-10).
+  assert.match(REFLOW_CSS, /:where\(p,li,dd,blockquote,figcaption\)\{overflow-wrap:break-word\}/);
+  const rule = REFLOW_CSS.split('\n').find((line) => line.startsWith(':where(p,li'));
+  assert.ok(!/\btd\b|\bth\b/.test(rule), 'table cells scroll inside their wrapper instead of breaking');
+});
