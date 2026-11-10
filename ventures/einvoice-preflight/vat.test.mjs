@@ -634,3 +634,14 @@ test("Andorra NRT and Faroese V-number get a shape test, Guinea NIFp a Luhn test
   assert.deepEqual(rules("GN123456782"), []);
   assert.deepEqual(rules("GN123456789"), ["INV-023"]);
 });
+
+test("Czech 8-digit numbers cannot start 9; 9-digit specials starting 6 have a check digit (2026-11-10)", () => {
+  const find = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  // Examples are python-stdnum's: 25123891 (legal entity) and 640903926 (special case).
+  assert.deepEqual(find("CZ25123891"), []);
+  assert.deepEqual(find("CZ640903926"), []);
+  assert.deepEqual(find("CZ640903927"), ["INV-023"]);
+  assert.deepEqual(find("CZ651714069"), []); // the check digit's raw remainder goes negative in JS
+  // 9 as first digit with a correct check digit: 90000001 has check digit 1 by the legal-entity formula.
+  assert.deepEqual(find("CZ90000001"), ["INV-023"]);
+});
