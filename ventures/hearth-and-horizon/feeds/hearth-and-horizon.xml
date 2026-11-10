@@ -96,6 +96,16 @@
       <itunes:explicit>false</itunes:explicit>
     </item>
     <item>
+      <title>The Week That Is a Day</title>
+      <link>https://example.invalid/hearth-and-horizon/the-week-that-is-a-day.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-week-that-is-a-day.html</guid>
+      <pubDate>Tue, 10 Nov 2026 12:00:00 GMT</pubDate>
+      <description>On Ganymede one sunrise-to-sunrise day lasts 172 hours, almost exactly a week. A parish that set Sunday Mass at first light finds the light slipping four hours later every Sunday, and the dark lasting three and a half days. Mass is kept by the station clock. Setting: Chapel of Our Lady of the Rosary, Anvil Terrace, Ganymede (invented), Sunday 7 October 2210. Read the full text at https://example.invalid/hearth-and-horizon/the-week-that-is-a-day.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>On Ganymede one sunrise-to-sunrise day lasts 172 hours, almost exactly a week. A parish that set Sunday Mass at first light finds the light slipping four hours later every Sunday, and the dark lasting three and a half days. Mass is kept by the station clock.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Wind That Is Not Air</title>
       <link>https://example.invalid/hearth-and-horizon/the-wind-that-is-not-air.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-wind-that-is-not-air.html</guid>
