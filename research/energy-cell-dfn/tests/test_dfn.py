@@ -48,3 +48,28 @@ def test_failure_result_keeps_zero_score_and_names_the_cause():
     r = run.failure("solver_error", "SolverError: x", 3)
     assert r["score"] == 0.0 and r["wh_kg_bol"] == 0.0
     assert r["failure"] == "solver_error" and r["cycles_done"] == 3
+
+
+def _d6():
+    rows = json.loads((HERE / "diagnose6.json").read_text())
+    return {(r["design"], r["model"], r["cond"], r["k"]): r for r in rows}
+
+
+def test_diagnose6_cases_cover_both_models_and_designs():
+    import diagnose6
+    keys = {(c["design"], c["model"], c["cond"], c["k"]) for c in diagnose6.cases()}
+    assert keys == set(_d6())
+    assert {k[1] for k in keys} == {"SPMe", "DFN"} and {k[0] for k in keys} == {"bayes3", "random1"}
+
+
+def test_diagnose6_doubling_diffusivity_removes_spme_collapse():
+    """The recorded run: SPMe's negative concentration and cycle-2 collapse at D_e x1 are gone at x2,
+    where SPMe's cycle-2 charge lands within 3% of DFN's."""
+    d = _d6()
+    for design in ("bayes3", "random1"):
+        base = d[(design, "SPMe", "default", 1.0)]["steps"]
+        assert min(s["ce_min"] for s in base) < 0 and base[-1]["ah"] < 1.0
+        spme2 = d[(design, "SPMe", "default", 2.0)]["steps"]
+        dfn2 = d[(design, "DFN", "default", 2.0)]["steps"]
+        assert min(s["ce_min"] for s in spme2) > 0
+        assert abs(spme2[-1]["ah"] - dfn2[-1]["ah"]) / dfn2[-1]["ah"] < 0.03

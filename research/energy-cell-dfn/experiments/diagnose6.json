@@ -1,0 +1,500 @@
+[
+ {
+  "design": "bayes3",
+  "model": "SPMe",
+  "cond": "default",
+  "k": 1.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.513,
+    "ce_min": 72.4
+   },
+   {
+    "step": "c1 charge",
+    "ah": 4.675,
+    "ce_min": -36.6
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 0.082,
+    "ce_min": -36.6
+   },
+   {
+    "step": "c2 charge",
+    "ah": 0.355,
+    "ce_min": -9.1
+   }
+  ]
+ },
+ {
+  "design": "bayes3",
+  "model": "SPMe",
+  "cond": "composite",
+  "k": 1.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.513,
+    "ce_min": 72.4
+   },
+   {
+    "step": "c1 charge",
+    "ah": 4.675,
+    "ce_min": -36.6
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 0.082,
+    "ce_min": -36.6
+   },
+   {
+    "step": "c2 charge",
+    "ah": 0.355,
+    "ce_min": -9.1
+   }
+  ]
+ },
+ {
+  "design": "bayes3",
+  "model": "SPMe",
+  "cond": "integrated",
+  "k": 1.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.5,
+    "ce_min": 72.4
+   },
+   {
+    "step": "c1 charge",
+    "ah": 5.147,
+    "ce_min": -36.6
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 3.02,
+    "ce_min": -36.6
+   },
+   {
+    "step": "c2 charge",
+    "ah": 3.192,
+    "ce_min": -36.6
+   }
+  ]
+ },
+ {
+  "design": "bayes3",
+  "model": "SPMe",
+  "cond": "leading order",
+  "k": 1.0,
+  "error": "OptionError: electrolyte conductivity 'leading order' not suitable for SPMe"
+ },
+ {
+  "design": "bayes3",
+  "model": "SPMe",
+  "cond": "default",
+  "k": 2.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.572,
+    "ce_min": 488.9
+   },
+   {
+    "step": "c1 charge",
+    "ah": 6.335,
+    "ce_min": 403.5
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 6.237,
+    "ce_min": 403.5
+   },
+   {
+    "step": "c2 charge",
+    "ah": 6.239,
+    "ce_min": 403.5
+   }
+  ]
+ },
+ {
+  "design": "bayes3",
+  "model": "SPMe",
+  "cond": "default",
+  "k": 4.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.587,
+    "ce_min": 742.2
+   },
+   {
+    "step": "c1 charge",
+    "ah": 6.549,
+    "ce_min": 672.5
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 6.449,
+    "ce_min": 672.5
+   },
+   {
+    "step": "c2 charge",
+    "ah": 6.448,
+    "ce_min": 672.5
+   }
+  ]
+ },
+ {
+  "design": "bayes3",
+  "model": "DFN",
+  "cond": "default",
+  "k": 1.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.388,
+    "ce_min": 3.8
+   },
+   {
+    "step": "c1 charge",
+    "ah": 5.579,
+    "ce_min": 3.8,
+    "j_max_over_mean": 1.29,
+    "j_near_collector_over_mean": 0.63,
+    "j_near_separator_over_mean": 1.22,
+    "t_min_s": 0,
+    "ce_min_node": 59,
+    "n_neg_nodes": 20
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 5.579,
+    "ce_min": 41.4
+   },
+   {
+    "step": "c2 charge",
+    "ah": 5.604,
+    "ce_min": 41.4
+   }
+  ]
+ },
+ {
+  "design": "bayes3",
+  "model": "DFN",
+  "cond": "default",
+  "k": 2.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.57,
+    "ce_min": 418.4
+   },
+   {
+    "step": "c1 charge",
+    "ah": 6.426,
+    "ce_min": 418.0,
+    "j_max_over_mean": 1.28,
+    "j_near_collector_over_mean": 1.01,
+    "j_near_separator_over_mean": 0.84,
+    "t_min_s": 4627,
+    "ce_min_node": 0,
+    "n_neg_nodes": 20
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 6.338,
+    "ce_min": 418.0
+   },
+   {
+    "step": "c2 charge",
+    "ah": 6.352,
+    "ce_min": 419.3
+   }
+  ]
+ },
+ {
+  "design": "bayes3",
+  "model": "DFN",
+  "cond": "default",
+  "k": 4.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.588,
+    "ce_min": 714.5
+   },
+   {
+    "step": "c1 charge",
+    "ah": 6.617,
+    "ce_min": 674.6,
+    "j_max_over_mean": 1.24,
+    "j_near_collector_over_mean": 1.02,
+    "j_near_separator_over_mean": 1.24,
+    "t_min_s": 4208,
+    "ce_min_node": 0,
+    "n_neg_nodes": 20
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 6.524,
+    "ce_min": 692.3
+   },
+   {
+    "step": "c2 charge",
+    "ah": 6.539,
+    "ce_min": 674.6
+   }
+  ]
+ },
+ {
+  "design": "random1",
+  "model": "SPMe",
+  "cond": "default",
+  "k": 1.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 7.066,
+    "ce_min": -25.3
+   },
+   {
+    "step": "c1 charge",
+    "ah": 0.716,
+    "ce_min": -25.3
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 0.998,
+    "ce_min": -23.3
+   },
+   {
+    "step": "c2 charge",
+    "ah": 0.716,
+    "ce_min": -23.3
+   }
+  ]
+ },
+ {
+  "design": "random1",
+  "model": "SPMe",
+  "cond": "composite",
+  "k": 1.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 7.066,
+    "ce_min": -25.3
+   },
+   {
+    "step": "c1 charge",
+    "ah": 0.716,
+    "ce_min": -25.3
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 0.998,
+    "ce_min": -23.3
+   },
+   {
+    "step": "c2 charge",
+    "ah": 0.716,
+    "ce_min": -23.3
+   }
+  ]
+ },
+ {
+  "design": "random1",
+  "model": "SPMe",
+  "cond": "integrated",
+  "k": 1.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 6.597,
+    "ce_min": -25.3
+   },
+   {
+    "step": "c1 charge",
+    "ah": 2.377,
+    "ce_min": -25.3
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 2.188,
+    "ce_min": -25.3
+   },
+   {
+    "step": "c2 charge",
+    "ah": 2.192,
+    "ce_min": -25.3
+   }
+  ]
+ },
+ {
+  "design": "random1",
+  "model": "SPMe",
+  "cond": "leading order",
+  "k": 1.0,
+  "error": "OptionError: electrolyte conductivity 'leading order' not suitable for SPMe"
+ },
+ {
+  "design": "random1",
+  "model": "SPMe",
+  "cond": "default",
+  "k": 2.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.593,
+    "ce_min": 421.5
+   },
+   {
+    "step": "c1 charge",
+    "ah": 5.758,
+    "ce_min": 421.5
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 5.697,
+    "ce_min": 421.5
+   },
+   {
+    "step": "c2 charge",
+    "ah": 5.733,
+    "ce_min": 421.5
+   }
+  ]
+ },
+ {
+  "design": "random1",
+  "model": "SPMe",
+  "cond": "default",
+  "k": 4.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.605,
+    "ce_min": 692.0
+   },
+   {
+    "step": "c1 charge",
+    "ah": 6.021,
+    "ce_min": 692.0
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 5.951,
+    "ce_min": 692.0
+   },
+   {
+    "step": "c2 charge",
+    "ah": 5.929,
+    "ce_min": 692.0
+   }
+  ]
+ },
+ {
+  "design": "random1",
+  "model": "DFN",
+  "cond": "default",
+  "k": 1.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.536,
+    "ce_min": 1.3
+   },
+   {
+    "step": "c1 charge",
+    "ah": 4.983,
+    "ce_min": 2.2,
+    "j_max_over_mean": 1.16,
+    "j_near_collector_over_mean": 0.76,
+    "j_near_separator_over_mean": 1.16,
+    "t_min_s": 0,
+    "ce_min_node": 59,
+    "n_neg_nodes": 20
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 4.947,
+    "ce_min": 23.8
+   },
+   {
+    "step": "c2 charge",
+    "ah": 4.944,
+    "ce_min": 23.8
+   }
+  ]
+ },
+ {
+  "design": "random1",
+  "model": "DFN",
+  "cond": "default",
+  "k": 2.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.594,
+    "ce_min": 382.7
+   },
+   {
+    "step": "c1 charge",
+    "ah": 5.876,
+    "ce_min": 412.7,
+    "j_max_over_mean": 1.44,
+    "j_near_collector_over_mean": 0.79,
+    "j_near_separator_over_mean": 1.44,
+    "t_min_s": 0,
+    "ce_min_node": 59,
+    "n_neg_nodes": 20
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 5.814,
+    "ce_min": 401.7
+   },
+   {
+    "step": "c2 charge",
+    "ah": 5.824,
+    "ce_min": 414.8
+   }
+  ]
+ },
+ {
+  "design": "random1",
+  "model": "DFN",
+  "cond": "default",
+  "k": 4.0,
+  "steps": [
+   {
+    "step": "c1 discharge",
+    "ah": 8.606,
+    "ce_min": 675.3
+   },
+   {
+    "step": "c1 charge",
+    "ah": 6.147,
+    "ce_min": 689.3,
+    "j_max_over_mean": 1.69,
+    "j_near_collector_over_mean": 0.7,
+    "j_near_separator_over_mean": 1.69,
+    "t_min_s": 0,
+    "ce_min_node": 59,
+    "n_neg_nodes": 20
+   },
+   {
+    "step": "c2 discharge",
+    "ah": 6.075,
+    "ce_min": 680.4
+   },
+   {
+    "step": "c2 charge",
+    "ah": 6.092,
+    "ce_min": 689.6
+   }
+  ]
+ }
+]
