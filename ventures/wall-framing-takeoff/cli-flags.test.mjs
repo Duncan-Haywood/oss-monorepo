@@ -80,3 +80,11 @@ test("two output formats at once are refused, not resolved by whichever comes fi
     assert.match(r.out, /each choose the output format; give only one/);
   }
 });
+
+test("--drawings beside --json or --csv is refused, not left to print HTML", () => {
+  for (const f of ["--json", "--csv"]) {
+    const r = main(["plan.json", "--drawings", f]);
+    assert.equal(r.code, 1, f);
+    assert.match(r.out, /--drawings prints the HTML shop drawings/);
+  }
+});
