@@ -1,6 +1,6 @@
 ---
 title: "Every standalone JavaScript file in the venture portfolio parses: a 10,775-file syntax sweep"
-seo_title: "Syntax sweep of 10,775 JavaScript files in an AI-built portfolio: zero errors"
+seo_title: "Syntax sweep of 10,775 JavaScript files: zero errors"
 date: 2026-11-10
 tags: [javascript, testing, ci, quality-audit]
 description: "node --check over 10,775 tracked .js and .mjs files in ventures/ found zero syntax errors. One React Native file uses JSX. The sweep is now a CI script."
