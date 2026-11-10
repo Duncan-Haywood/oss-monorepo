@@ -71,7 +71,8 @@ def run(frames, held, test_year, seeds):
     bq = {t: np.array([base.predict(k)[t] for k in te.permit_type]) for t in TAUS}
     res = dict(held_out=held, sources=src, test_year=test_year, n_source_train=len(tr),
                n_own_train=len(otr), n_test=len(te), seeds=seeds, features=list(feats(te).columns),
-               class_share_test={c: float((te.cls == c).mean()) for c in CLASSES})
+               class_share_test={c: float((te.cls == c).mean()) for c in CLASSES},
+               class_share_source_train={c: float((tr.cls == c).mean()) for c in CLASSES})
     P = {"transfer": {t: [] for t in TAUS}, "own_boosted": {t: [] for t in TAUS}}
     for s in range(seeds):
         for name, (a, b) in (("transfer", (tr, ca)), ("own_boosted", (otr, oca))):

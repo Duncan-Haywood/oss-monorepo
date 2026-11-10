@@ -233,6 +233,25 @@ model on the same harmonised features beats the baseline in Austin, so the cost 
 moving between cities, not the thin feature set. i2c transfer has a single source
 city.
 
+### 4.4a The harmonised class barely overlaps between cities (diagnostic, no new model run)
+
+The one categorical feature a transfer model shares across cities is the keyword-harmonised
+class. Its test-year shares, stored in every `../results/transfer_*.json`, show the cities
+fall into almost disjoint classes (`../src/class_overlap.py`, `../results/class_overlap_2024.md`):
+SF is 97 to 98% "alteration", Austin is electrical, plumbing and mechanical plus 21 to 22%
+"other", Chicago is 69% "other" and Seattle 91% "other" with the rest "demolition". The
+overlap coefficient between a held-out city and its row-weighted source mix (source shares
+taken from the same test year, a proxy for the training years) is 0.00 to 0.34, and 0.00 to
+0.19 once the catch-all "other" is dropped (0.00 or 0.01 in five of seven city/target cells;
+i2c Austin and SF share no class at all). So in H4 the class feature cannot carry permit-type
+knowledge from one city to another; the transfer model is in effect a model of log cost,
+description length and calendar, and its "class" for a new city says which source city's
+catch-all the permit resembles. This narrows what 4.4 and 4.8 can claim: they test whether
+those four generic fields transfer, not whether permit types do. A class map retuned on each
+feed's real vocabulary is the test that would separate the two (to do 6); `src/transfer.py`
+now also stores the source training shares so the next run measures overlap on the training
+years directly.
+
 ### 4.5 Pooled model plus a small local sample (H5 holds; secondary refuted)
 
 Five draws of the local rows, source rows capped at 100,000 per city, a2i only.
@@ -315,7 +334,7 @@ Limits: two test years for transfer and one for the rest, 3 seeds (2 for coverag
 
 One test year (2024) for H3, H4, H5 (H1 and the neural comparison also run for 2022 and 2023); three seeds (two for conformal); one fixed
 configuration per library (defaults, untuned); the neural net (4.6) is one untuned architecture; the
-harmonised class map is a keyword rule not validated against hand labels; Chicago
+harmonised class map is a keyword rule not validated against hand labels, and its classes barely overlap between cities (4.4a), so the transfer results test the generic fields only; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
 draws in 4.5 is not reported; i2c is not rerun for H5b; a fourth city (Seattle, 4.8) with partial coverage of the experiments (NYC DOB NOW
 licence unchecked). Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
@@ -335,4 +354,5 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2023 and 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
-6. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
+6. Retune the harmonised class map on each feed's own permit-type vocabulary (4.4a: overlap without "other" is 0.00 to 0.19), validate it on a hand-labelled sample, and rerun H4.
+7. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.

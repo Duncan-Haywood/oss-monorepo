@@ -1,9 +1,26 @@
 # build-data log
 
-## Session 68, 2026-11-10: Seattle H4 transfer on a third test year, 2022 (prediction written before the run)
+## Session 68, 2026-11-10: harmonised classes barely overlap between cities (2022 transfer prediction written, not run: feeds unreachable)
 
 Why: sessions 65 to 67 left "third transfer test year (2022)". With `--test-year 2022` the split is source and own train to year <= 2020, early-stopping year 2021, test 2022 (`src/transfer.py`, unchanged).
 Prediction (written before the run, from the 2023 and 2024 rows): (P1) Seattle i2c transfer beats Seattle's own per-type baseline at q0.1 and q0.5 with 95% week-block CIs below zero; (P2) Seattle a2i transfer is worse than the baseline at q0.9 (CI above zero); (P3) both transfer intervals under-cover (80% coverage below 0.75). No prediction for i2c q0.9, which flipped sign between 2024 and 2023. Refuted part by part if the stated CI or coverage condition fails.
+
+Not run: every Socrata host (data.cityofchicago.org, data.sf.gov, data.austintexas.gov, data.seattle.gov) answered 403 to CONNECT through this session's egress proxy (17:18 UTC), so no feed could be pulled; the prediction above stands, unrun, for the next session with data access.
+Instead, a diagnostic from committed files only: `src/class_overlap.py` reads the `class_share_test` of every `results/transfer_*.json` and measures how much the harmonised class (the one categorical feature transfer shares across cities) overlaps between a held-out city and its row-weighted source mix (source shares from the same test year, a proxy for the training years). `results/class_overlap_2024.md`:
+| target | held out | top class (share) | 'other' | overlap | without 'other' |
+|---|---|---|---|---|---|
+| a2i | austin | electrical (0.31) | 0.22 | 0.22 | 0.00 |
+| a2i | chicago | other (0.69) | 0.69 | 0.34 | 0.19 |
+| a2i | seattle | other (0.91) | 0.91 | 0.32 | 0.01 |
+| a2i | sf | alteration (0.97) | 0.00 | 0.10 | 0.10 |
+| i2c | austin | electrical (0.32) | 0.21 | 0.00 | 0.00 |
+| i2c | seattle | other (0.91) | 0.91 | 0.15 | 0.00 |
+| i2c | sf | alteration (0.98) | 0.00 | 0.00 | 0.00 |
+- The keyword map sends each city into its own classes: overlap without the catch-all is 0.00 or 0.01 in five of seven cells, at most 0.19 (Chicago). i2c Austin and SF share no class at all.
+- So H4 (sessions 10, 64, 65) tested whether log cost, description length and calendar transfer, not permit type. That narrows what the paper can say (new section 4.4a; limitations and to-do updated). It does not change any reported number.
+- `src/transfer.py` now also writes `class_share_source_train`, so the next run measures overlap on the training years directly.
+- Limits: test-year shares stand in for training-year shares; the raw permit-type vocabularies are not in git, so I could not say which strings fall to "other" (that needs a pull).
+Next: run the session 68 prediction when the feeds are reachable; retune the class map on each feed's real vocabulary (start by listing the top permit types per city that map to "other"), then rerun H4; full-model width bootstrap.
 
 ## Session 67, 2026-11-10: Seattle folded into the paper's title and abstract (no new compute)
 
