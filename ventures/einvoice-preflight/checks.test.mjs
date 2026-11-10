@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkInvoice, flagDuplicateInvoiceNumbers } from "./checks.mjs";
+import { checkInvoice, flagDuplicateInvoiceNumbers, roundHalfUpToCents } from "./checks.mjs";
 
 const VALID = {
   invoice_number: "INV-1",
@@ -238,4 +238,10 @@ test("prepayments above the gross give a stated credit balance, not an error", (
   assert.deepEqual(totalsCase({ prepaid: 150, due: -31 }), []);
   assert.deepEqual(totalsCase({ prepaid: 150, due: -20 }), ["INV-028", "INV-029"]);
   assert.deepEqual(totalsCase({ due: -5 }), ["INV-029"]);
+});
+
+test("half-cent VAT is rounded half up, not down by float noise (1.50 at 19% is 0.285 -> 0.29)", () => {
+  assert.equal(roundHalfUpToCents(1.5 * 19 / 100), 0.29);
+  assert.equal(roundHalfUpToCents(14.5 * 7 / 100), 1.02);
+  assert.equal(roundHalfUpToCents(-1.5 * 19 / 100), -0.29);
 });
