@@ -200,7 +200,7 @@ export function unknownFlag(argv) {
     if (eq >= 0 && BARE_FLAGS.includes(name) && !VALUE_FLAGS.includes(name)) return `${name} takes no value (you wrote ${a}). Try ${name} on its own.`;
     if (eq < 0 && VALUE_FLAGS.includes(name) && !BARE_FLAGS.includes(name)) return `${name} needs a value, such as ${name}=...; see --help.`;
     const all = [...BARE_FLAGS, ...VALUE_FLAGS];
-    const near = all.map((f) => [editDistance(name, f), f]).sort((x, y) => x[0] - y[0])[0];
+    const near = all.map((f) => /** @type {[number, string]} */ ([editDistance(name, f), f])).sort((x, y) => x[0] - y[0])[0];
     return `Unknown option ${name}.${near && near[0] <= 3 ? ` Did you mean ${near[1]}${VALUE_FLAGS.includes(near[1]) && !BARE_FLAGS.includes(near[1]) ? "=..." : ""}?` : ""} --help lists the options.`;
   }
   return "";
