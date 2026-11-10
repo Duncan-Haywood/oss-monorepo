@@ -216,3 +216,14 @@ test('every catalogue tool with an engine module is describable without a browse
   assert.deepEqual(failures, []);
   assert.ok(callable / entries.length > 0.95, `only ${callable} of ${entries.length} tools are callable`);
 });
+
+// Quality audit 2026-11-08 (portfolio/quality/audits/2026-11-08-agents.json): a
+// shared reference is not a cycle. Agents read `ranked` after `best`.
+test('toJson writes a shared reference twice and marks only a real cycle', () => {
+  const a = { x: 1 };
+  assert.equal(toJson({ best: a, ranked: [a] }, 0), '{"best":{"x":1},"ranked":[{"x":1}]}');
+  const c = { n: 1 };
+  c.self = c;
+  assert.equal(toJson(c, 0), '{"n":1,"self":"[circular]"}');
+  assert.equal(toJson({ d: new Date(0), list: [() => 1, undefined] }, 0), '{"d":"1970-01-01T00:00:00.000Z","list":[null,null]}');
+});
