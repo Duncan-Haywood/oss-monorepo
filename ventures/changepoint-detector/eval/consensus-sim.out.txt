@@ -1,0 +1,61 @@
+n=120, reps=60, drift 0.2, one step of 4 noise sd at t=60; panel of six settings
+phi 0.2, noise sd 1
+  level: step found 60/60, other cuts 9.23
+  level under a trend, AR(1) widened: step found 57/60, other cuts 1.03
+  level under a trend, AR(1) joint: step found 60/60, other cuts 1.38
+  level, noise floor 1.5: step found 60/60, other cuts 7.00
+  trend: step found 59/60, other cuts 0.77
+  trend, noise floor 1.5: step found 60/60, other cuts 0.05
+  consensus: every setting: step found 56/60, other cuts 0.02
+  consensus: half or more: step found 60/60, other cuts 0.43
+  consensus: any setting: step found 60/60, other cuts 11.52
+phi 0.2, noise sd 0.3
+  level: step found 60/60, other cuts 19.80
+  level under a trend, AR(1) widened: step found 54/60, other cuts 0.78
+  level under a trend, AR(1) joint: step found 59/60, other cuts 1.02
+  level, noise floor 1.5: step found 60/60, other cuts 14.67
+  trend: step found 60/60, other cuts 0.82
+  trend, noise floor 1.5: step found 60/60, other cuts 0.02
+  consensus: every setting: step found 54/60, other cuts 0.00
+  consensus: half or more: step found 60/60, other cuts 1.02
+  consensus: any setting: step found 60/60, other cuts 20.67
+phi 0.5, noise sd 1
+  level: step found 60/60, other cuts 10.38
+  level under a trend, AR(1) widened: step found 39/60, other cuts 0.42
+  level under a trend, AR(1) joint: step found 51/60, other cuts 0.98
+  level, noise floor 1.5: step found 60/60, other cuts 7.83
+  trend: step found 59/60, other cuts 3.62
+  trend, noise floor 1.5: step found 60/60, other cuts 0.70
+  consensus: every setting: step found 36/60, other cuts 0.00
+  consensus: half or more: step found 60/60, other cuts 1.95
+  consensus: any setting: step found 60/60, other cuts 12.92
+phi 0.5, noise sd 0.3
+  level: step found 60/60, other cuts 21.30
+  level under a trend, AR(1) widened: step found 46/60, other cuts 0.27
+  level under a trend, AR(1) joint: step found 55/60, other cuts 0.68
+  level, noise floor 1.5: step found 60/60, other cuts 16.28
+  trend: step found 59/60, other cuts 3.32
+  trend, noise floor 1.5: step found 60/60, other cuts 0.10
+  consensus: every setting: step found 45/60, other cuts 0.00
+  consensus: half or more: step found 60/60, other cuts 2.47
+  consensus: any setting: step found 60/60, other cuts 22.37
+phi 0.8, noise sd 1
+  level: step found 60/60, other cuts 13.13
+  level under a trend, AR(1) widened: step found 27/60, other cuts 0.17
+  level under a trend, AR(1) joint: step found 60/60, other cuts 0.45
+  level, noise floor 1.5: step found 60/60, other cuts 9.98
+  trend: step found 60/60, other cuts 5.93
+  trend, noise floor 1.5: step found 58/60, other cuts 3.15
+  consensus: every setting: step found 25/60, other cuts 0.00
+  consensus: half or more: step found 60/60, other cuts 3.67
+  consensus: any setting: step found 60/60, other cuts 15.98
+phi 0.8, noise sd 0.3
+  level: step found 60/60, other cuts 24.97
+  level under a trend, AR(1) widened: step found 26/60, other cuts 0.27
+  level under a trend, AR(1) joint: step found 60/60, other cuts 0.67
+  level, noise floor 1.5: step found 60/60, other cuts 18.42
+  trend: step found 60/60, other cuts 6.63
+  trend, noise floor 1.5: step found 57/60, other cuts 1.10
+  consensus: every setting: step found 25/60, other cuts 0.00
+  consensus: half or more: step found 60/60, other cuts 5.08
+  consensus: any setting: step found 60/60, other cuts 26.02
