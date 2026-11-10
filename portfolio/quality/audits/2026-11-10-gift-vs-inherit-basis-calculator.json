@@ -261,6 +261,8 @@
       "origin": "spec"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14534"
+  ],
   "verdict": "Arithmetic is right: the default and large-estate cases, the 709 test and the exemption maths reproduce by hand to the cent, the served page and llms.txt are correct after the deploy rewrite, and every advertised feature works. It does not meet the bar because verification is 2: four of six seeded mutations survived, including NIIT and the 709 boundary. A professional would also find giftGain wrong for appreciated property sold below donor basis (latent), a FAQ line that misstates the loss rule, silent defaults for blank inputs and no 1015(d) adjustment. Fine as a first screen with a stated-limits disclaimer, not as a planning tool."
 }
