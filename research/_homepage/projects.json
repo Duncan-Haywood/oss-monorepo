@@ -108,7 +108,7 @@
     {
      "slug": "reject-surrogates",
      "title": "Which surrogate should train a verifier that can escalate?",
-     "summary": "Reject-option surrogates for accept/reject/escalate decisions: the generalised-hinge conditional risk embeds the Bayes action at its kinks, regret transfers linearly with constant exactly 2d (grid-verified), logistic transfer degrades as 2d(1&minus;d)/&delta;, and a negative result shows logistic-plus-thresholds still learns faster in scalar SGD. Stylised."
+     "summary": "Reject-option surrogates for accept/reject/escalate decisions: the generalised-hinge conditional risk embeds the Bayes action at its kinks, regret transfers linearly with constant exactly 2d (grid-verified; this reproduces Theorem 2 of Bartlett &amp; Wegkamp 2008), logistic transfer degrades as 2d(1&minus;d)/&delta;, and a negative result shows logistic-plus-thresholds still learns faster in scalar SGD. Stylised."
     },
     {
      "slug": "decision-scoring",
@@ -944,7 +944,7 @@
     {
      "slug": "intent-twin",
      "title": "How safe is a robot's goal inference when its commit threshold was tuned against a simulated human?",
-     "summary": "A robot commits to one of two goals when the evidence lead reaches <em>h</em> (a sequential test on binary motion cues); against a human of cue accuracy <em>p</em> the wrong-goal probability is exactly 1/(1+<em>r</em><sup><em>h</em></sup>), <em>r</em>=<em>p</em>/(1&minus;<em>p</em>), matched to simulation. A threshold set for error 10<sup>&minus;3</sup> in a twin with <em>p</em><sub>s</sub>=0.9 gives real error 3.9&times; / 33&times; / 165&times; the target at <em>p</em>=0.8 / 0.7 / 0.6, while a too-irrational twin (<em>p</em><sub>s</sub>=0.6) is safe but 2.0&ndash;4.5&times; slower. A heterogeneous population (sd 0.08&ndash;0.10) doubles the error of the mean-human threshold, and humans with <em>p</em>&lt;&frac12; put a floor under any threshold. Calibrating <em>p</em><sub>s</sub> from <em>n</em> real cues misses the target with probability 0.38 / 0.42 / 0.33 / 0.30 / 0.14 at <em>n</em>=10 / 20 / 50 / 200 / 1000; a lower-confidence-bound design cuts that to &le;4% at the cost of time. Stylised: two goals, i.i.d. binary cues, simulated humans."
+     "summary": "A robot commits to one of two goals when the evidence lead reaches <em>h</em> (a sequential test on binary motion cues); against a human of cue accuracy <em>p</em> the wrong-goal probability is exactly 1/(1+<em>r</em><sup><em>h</em></sup>), <em>r</em>=<em>p</em>/(1&minus;<em>p</em>), matched to simulation. A threshold set for error 10<sup>&minus;3</sup> in a twin with <em>p</em><sub>s</sub>=0.9 gives real error 3.9&times; / 33&times; / 165&times; the target at <em>p</em>=0.8 / 0.7 / 0.6, while a too-irrational twin (<em>p</em><sub>s</sub>=0.6) is safe but 2.0&ndash;4.5&times; slower. A heterogeneous population (sd 0.08&ndash;0.10) raises the error of the mean-human threshold 2.2&ndash;2.7&times;, and humans with <em>p</em>&lt;&frac12; put a floor under any threshold. Calibrating <em>p</em><sub>s</sub> from <em>n</em> real cues misses the target with probability 0.38 / 0.42 / 0.33 / 0.30 / 0.14 at <em>n</em>=10 / 20 / 50 / 200 / 1000; a lower-confidence-bound design cuts that to 0.4&ndash;4.0% at the cost of time. Stylised: two goals, i.i.d. binary cues, simulated humans."
     },
     {
      "slug": "sync-twin",

@@ -1,0 +1,265 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/git-bus-factor-check",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent quality audit, see run record",
+  "status": "audited",
+  "professional": "an engineering manager / staff engineer who runs code-ownership and knowledge-risk reviews with repository-mining tools (CodeScene knowledge-loss maps, git-fame/Hercules, the Avelino et al. truck-factor algorithm), and knows git's own identity and path conventions (.mailmap, core.quotePath)",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `python3 busfactor.py --log fixture.txt --format json`: api orphaned share 1.0 silent 454d, web shared share 0.765 weightShare 0.6981, repo BF 1. Recomputed from the README spec with my own hand-entered rows (scratchpad/indep.py, no code from busfactor.py): 0.7650, 0.6981, 0.0690, 454.86 days, Ben repo share 0.596 -> BF 1; all match. Against a source the author did not write: built a real git repo (scratchpad/mkrepo.sh, 11 commits, 6 authors), ran `python3 busfactor.py repo --since=10.years --format json`, and recomputed by hand with 2^(-days/180): lib/core Ann share 0.53695 (tool 0.5369), weightShare 0.69739/0.12922/0.17339 (tool 0.6974/0.1292/0.1734), repo BF 2 (Ann 64.54 + Bob 55.66 >= half of 172.36). The arithmetic is right. But on the same repo three outputs are wrong for the user: (1) docs/, whose three authors (45/35/20%) have all been silent 390 days, is reported `shared` with no backup, not flagged; (2) with the default `now` = newest commit, Cy (last commit 113 real days ago) is reported active/silent 0d and his folder `single-owner`; with `--now $(date +%s)` it becomes ORPHANED, so the live CLI misses an abandoned repo by default; (3) a folder named `ünï/sub` is printed as `\\303\\274n\\303\\257/sub` (git's quotePath escaping not decoded). And a .mailmap test (scratchpad/mm) shows one person under two emails counted as 2 contributors, bus factor 1 share 0.5, although `git log --format=%aE` resolves them. Capped at 2: right sums, wrong flags in common cases.",
+    "completeness": "Each README/page feature exercised: CLI on a real repo (git log run), --log -, --log FILE, --format json, --fail-on-orphaned (exit 2, tested), --depth, --since, --now, --min-commits; browser page logic (classify.mjs analyze on the page example and fixture, identical to CLI per parity test); guide page; served page https://marisstella.app/git-bus-factor-check/ 200, served llms.txt 200 with rewritten host, busfactor.py link 200 (real file). No stubs or TODOs. Edge: JS analyze throws 'Maximum call stack size exceeded' at 200,000 commits (Math.max(...spread), classify.mjs:70).",
+    "verification": "`python3 -m unittest test_busfactor`: 16 OK (0.4 s). `node --test '*.test.mjs'`: 27 pass. Seeded 9 mutations, applied to both engines so the Python/JS parity tests cannot catch them by divergence: PER_FILE_CAP 500->1000 SURVIVED; single-owner 0.8->0.9 SURVIVED; half-life doubled SURVIVED; orphan share 0.5->0.6 SURVIVED; bus-factor threshold 50%->60% SURVIVED; inactive window x3 SURVIVED; cap 500->1000 in Python only SURVIVED (fixture has no file over 500 lines so parity does not see it); single-owner 0.8->0.7 CAUGHT (py 1 fail, js 1 fail); backup picked from lowest share, Python only, CAUGHT by JS parity test. 7 of 9 survive: every headline constant on the page (500, 180, 90, 50%, 80%) can change without a test failing. git status clean after restore.",
+    "craft": "Read busfactor.py (223 lines), classify.mjs (140), all three test files, index.html, usage.mjs head. Small, stdlib only, readable, deterministic tie-break. Two engines kept in step by a JSON parity test (good). Defects: clean_path only strips quotes and leaves octal escapes (busfactor.py:45, classify.mjs:22); `bf == 1 and` is redundant given share >= 0.8 (busfactor.py:132); Math.max(...array) stack overflow on large logs (classify.mjs:70); people['first'] and 'commits' computed and never used.",
+    "claims": "Checked: 'no network calls' (page script has no fetch/XHR, usage.mjs localStorage only; page.test.mjs enforces) pass; cap 500 / half-life 180 / bots and lock files ignored match code pass; disclaimer, no-warranty, no SLA, misuse warning present pass; served llms.txt host correct pass. Fail: index.html:46 'Paid tools such as CodeScene and Hercules' - Hercules (src-d/hercules) is free Apache-2.0 open source, so the paid-vs-free framing is wrong (also VENTURE.yaml:12). Partial: README.md:12 and index.html:94 say orphaned means 'no commit anywhere in the last 90 days', but the window is measured from the newest commit in the log (busfactor.py:85), not today; the README options line discloses it, the page does not. Partial: 'shared - more than one person carries it' (README.md:14) also covers a folder whose every contributor has left.",
+    "fitness": "Walked the job 'find folders whose owner left' on a 6-author synthetic repo: works when the repo is still active and identities are clean. A manager hits in the first hour: people who changed email (git's standard fix .mailmap is ignored because the format uses %an/%ae, not %aN/%aE), a folder whose whole team left reads 'shared', a repository nobody has touched for 4 months shows everyone active, non-ASCII folders print as escapes. Usable as a conversation starter; not yet a CI gate a team would trust (--fail-on-orphaned would miss the abandoned-repo case).",
+    "domain": "Compared with Avelino et al., 'A novel approach for estimating truck factors' (ICPC 2016) and Ferreira et al. 2017 comparison of truck-factor algorithms: those use file-level degree-of-authorship and remove top authors until more than 50% of files are abandoned; this tool uses recency-weighted line churn and counts people to reach 50% of churn, a churn-concentration measure that the page calls a truck factor without saying it departs from the published algorithm. Recency decay and churn caps are reasonable practitioner choices (CodeScene uses similar). Departures a practitioner would flag first: .mailmap ignored, 'inactive' relative to the newest commit, all-departed folders not flagged. Method stated openly and limits disclosed, so 2 not 1."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "fixture web folder owner share, weightShare and api silent days",
+      "method": "hand-entered rows from fixture.txt, formula from README (min(lines,500)*2^(-dt/180d)), my own script",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/git-bus-factor-check/indep.py ; python3 ventures/git-bus-factor-check/busfactor.py --log ventures/git-bus-factor-check/fixture.txt --format json",
+      "expected": "web 0.7650, weightShare 0.6981, api 0.0690, Ana 454 days, repo BF 1",
+      "observed": "0.765, 0.6981, 0.069, 454, 1",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "lib/core owner share in a real git repo (git numstat, not the author's fixture)",
+      "method": "hand: Ann 100*(2^-400/180+2^-399/180+2^-398/180)=64.542, Bob 60*(2^-200/180+2^-199/180)=55.660",
+      "command": "bash /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/git-bus-factor-check/mkrepo.sh; python3 ventures/git-bus-factor-check/busfactor.py repo --since=10.years --format json",
+      "expected": "0.5369",
+      "observed": "0.5369, orphaned, backup None (Bob silent 199d)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "weightShare of the three folders and repo bus factor in the real repo",
+      "method": "hand sums with 2^(-days/180), total 172.36",
+      "command": "python3 ventures/git-bus-factor-check/busfactor.py repo --since=10.years --format json",
+      "expected": "0.6974 / 0.1292 / 0.1734, repo BF 2",
+      "observed": "0.6974 / 0.1292 / 0.1734, repo BF 2",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "folder whose three authors all left 390 days ago",
+      "method": "README intent: flag folders whose knowledge holders are gone",
+      "command": "python3 ventures/git-bus-factor-check/busfactor.py repo --since=10.years --format json",
+      "expected": "flagged (orphaned or equivalent)",
+      "observed": "status shared, busFactor 2, backup None: not flagged",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "person silent 113 real days, default now",
+      "method": "README: 'no commit anywhere in the last 90 days'; compare default with --now $(date +%s)",
+      "command": "python3 ventures/git-bus-factor-check/busfactor.py repo --since=10.years ; ... --now $(date +%s)",
+      "expected": "Cy inactive, his folder orphaned",
+      "observed": "default: ownerDaysSilent 0, single-owner; with --now today: ORPHANED silent 113d",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "one person under two emails with a .mailmap",
+      "method": "git-check-mailmap / gitmailmap(5): %aE resolves both to ann@new.io",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/git-bus-factor-check/mm && git log --format='%ae %aE' | sort | uniq -c; python3 ventures/git-bus-factor-check/busfactor.py . --format json",
+      "expected": "1 contributor, share 1.0",
+      "observed": "2 contributors, ownerShare 0.5",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "non-ASCII folder name",
+      "method": "git core.quotePath escapes non-ASCII as octal in numstat",
+      "command": "python3 ventures/git-bus-factor-check/busfactor.py repo --since=10.years",
+      "expected": "ünï/sub",
+      "observed": "\\303\\274n\\303\\257/sub",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suites",
+      "method": "run",
+      "command": "cd ventures/git-bus-factor-check && python3 -m unittest test_busfactor && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "16 OK, 27 pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Paid tools such as CodeScene and Hercules'",
+      "method": "src-d/hercules licence on GitHub (Apache-2.0, free)",
+      "command": "grep -n Hercules ventures/git-bus-factor-check/index.html",
+      "expected": "Hercules is paid",
+      "observed": "Hercules is free open source",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "no network calls / nothing uploaded",
+      "method": "read page script and usage.mjs; page.test.mjs regex",
+      "command": "node --test page.test.mjs",
+      "expected": "no fetch/XHR/beacon",
+      "observed": "none; usage counts in localStorage only",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served page, llms.txt host, busfactor.py download",
+      "method": "load served URLs",
+      "command": "curl -s -o /dev/null -w %{http_code} https://marisstella.app/git-bus-factor-check/ (and llms.txt, busfactor.py)",
+      "expected": "200, marisstella.app hosts",
+      "observed": "200 x3, llms.txt rewritten to marisstella.app, busfactor.py is the real script",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "browser engine at large log size",
+      "method": "synthetic 200k commits into analyze()",
+      "command": "node -e \"import('./classify.mjs').then(({analyze})=>analyze(Array.from({length:200000},...)))\"",
+      "expected": "a result",
+      "observed": "RangeError Maximum call stack size exceeded at 200,000 (ok at 100,000)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "method versus published truck-factor algorithm",
+      "method": "Avelino et al. ICPC 2016 (DOA, >50% files abandoned); Ferreira et al. 2017",
+      "command": "read busfactor.py split() and analyze()",
+      "expected": "published algorithm or stated departure",
+      "observed": "churn-concentration to 50%; departure not stated on page",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "busfactor.py:25 + classify.mjs:4",
+      "change": "PER_FILE_CAP 500 -> 1000 (both)",
+      "caught": false,
+      "test_cmd": "cp busfactor.py/classify.mjs to scratch; sed the change into both files (unless noted); python3 -m unittest test_busfactor && node --test '*.test.mjs'; restore copies"
+    },
+    {
+      "where": "busfactor.py:132 + classify.mjs:104",
+      "change": "single-owner share >= 0.8 -> >= 0.9 (both)",
+      "caught": false,
+      "test_cmd": "cp busfactor.py/classify.mjs to scratch; sed the change into both files (unless noted); python3 -m unittest test_busfactor && node --test '*.test.mjs'; restore copies"
+    },
+    {
+      "where": "busfactor.py:86 + classify.mjs:71",
+      "change": "half-life doubled (hl * 2) (both)",
+      "caught": false,
+      "test_cmd": "cp busfactor.py/classify.mjs to scratch; sed the change into both files (unless noted); python3 -m unittest test_busfactor && node --test '*.test.mjs'; restore copies"
+    },
+    {
+      "where": "busfactor.py:130 + classify.mjs:103",
+      "change": "orphaned share >= 0.5 -> >= 0.6 (both)",
+      "caught": false,
+      "test_cmd": "cp busfactor.py/classify.mjs to scratch; sed the change into both files (unless noted); python3 -m unittest test_busfactor && node --test '*.test.mjs'; restore copies"
+    },
+    {
+      "where": "busfactor.py:115 + classify.mjs:59",
+      "change": "bus-factor threshold total*0.5 -> total*0.6 (both)",
+      "caught": false,
+      "test_cmd": "cp busfactor.py/classify.mjs to scratch; sed the change into both files (unless noted); python3 -m unittest test_busfactor && node --test '*.test.mjs'; restore copies"
+    },
+    {
+      "where": "busfactor.py:120 + classify.mjs:94",
+      "change": "is_active <= inactive_days -> < inactive_days*3 (both)",
+      "caught": false,
+      "test_cmd": "cp busfactor.py/classify.mjs to scratch; sed the change into both files (unless noted); python3 -m unittest test_busfactor && node --test '*.test.mjs'; restore copies"
+    },
+    {
+      "where": "busfactor.py:25",
+      "change": "PER_FILE_CAP 500 -> 1000, Python only",
+      "caught": false,
+      "test_cmd": "cp busfactor.py/classify.mjs to scratch; sed the change into both files (unless noted); python3 -m unittest test_busfactor && node --test '*.test.mjs'; restore copies"
+    },
+    {
+      "where": "busfactor.py:132 + classify.mjs:104",
+      "change": "single-owner share >= 0.8 -> >= 0.7 (both)",
+      "caught": true,
+      "test_cmd": "cp busfactor.py/classify.mjs to scratch; sed the change into both files (unless noted); python3 -m unittest test_busfactor && node --test '*.test.mjs'; restore copies"
+    },
+    {
+      "where": "busfactor.py:136",
+      "change": "backup chosen from reversed ranking, Python only",
+      "caught": true,
+      "test_cmd": "cp busfactor.py/classify.mjs to scratch; sed the change into both files (unless noted); python3 -m unittest test_busfactor && node --test '*.test.mjs'; restore copies"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "'now' defaults to the newest commit, so in a repository nobody has touched for months every recent author reads as active and nothing is orphaned; README/page define orphaned as 'no commit in the last 90 days'. The live CLI (git log) and --fail-on-orphaned miss the abandoned-repo case.",
+      "where": "ventures/git-bus-factor-check/busfactor.py:85",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "A folder whose every contributor is inactive but none holds 50% is labelled 'shared' with no backup instead of being flagged.",
+      "where": "ventures/git-bus-factor-check/busfactor.py:135",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": ".mailmap is ignored: the log format uses %an/%ae instead of %aN/%aE, so one person under two emails is two contributors and the bus factor and orphaned status are wrong; the page lists this as an unfixable limit although git solves it.",
+      "where": "ventures/git-bus-factor-check/busfactor.py:24",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Every headline constant (500-line cap, 180-day half-life, 90-day window, 50% orphan share, 50% bus-factor threshold, 80% upper bound) can change without any test failing; 7 of 9 seeded mutations survived.",
+      "where": "ventures/git-bus-factor-check/test_busfactor.py:73",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Page says 'Paid tools such as CodeScene and Hercules'; Hercules (src-d/hercules) is free Apache-2.0 open source.",
+      "where": "ventures/git-bus-factor-check/index.html:46",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Non-ASCII paths are shown as git's octal escapes (\\303\\274...) because clean_path only strips the quotes.",
+      "where": "ventures/git-bus-factor-check/busfactor.py:45",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Math.max(...commits.map()) throws RangeError on logs of about 200,000 commits, so the browser page fails on large monorepos.",
+      "where": "ventures/git-bus-factor-check/classify.mjs:70",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Page calls the result a truck factor without saying it departs from the published truck-factor algorithm (Avelino et al. 2016: degree-of-authorship, >50% of files abandoned).",
+      "where": "ventures/git-bus-factor-check/index.html:89",
+      "category": "research-design",
+      "origin": "design"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14597"
+  ],
+  "verdict": "A tidy, honest, zero-dependency tool whose arithmetic is right: six independently recomputed numbers (two on a git repo I built, not the author's fixture) match to 4 dp, all 43 tests pass, the served page, llms.txt and download work, and the privacy and misuse disclaimers are good. It does not meet the bar. Measuring inactivity from the newest commit means an abandoned repository shows nobody gone; a folder whose whole team left reads 'shared'; .mailmap is ignored; and 7 of 9 seeded mutations, including every constant the page advertises, leave the tests green. Small fixes (default now = wall clock for the git path, a 'nobody active' status, %aN/%aE, constant-pinning tests) would plausibly lift correctness, verification and fitness to 3."
+}
