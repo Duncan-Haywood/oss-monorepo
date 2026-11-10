@@ -223,6 +223,8 @@ def _mod11_retry(body: str, retry: list[int]) -> bool:
 
 
 def _ro(body: str) -> bool:
+    if body[0] == "0":
+        return False
     padded = body.rjust(10, "0")
     check = (_w(padded[:9], [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11
     return (0 if check == 10 else check) == int(padded[9])
@@ -265,9 +267,40 @@ def _cz_birth(b: str) -> bool:
     return int(b[:9]) % 11 % 10 == int(b[9])
 
 
+def _real_date(y: int, m: int, d: int) -> bool:
+    import datetime
+    try:
+        datetime.date(y, m, d)
+        return True
+    except ValueError:
+        return False
+
+
+def _cz_birth9(b: str) -> bool:
+    year = 1900 + int(b[:2])
+    if year >= 1980:
+        year -= 100
+    return year <= 1953 and _real_date(year, int(b[2:4]) % 50 % 20, int(b[4:6]))
+
+
+def _lv(b: str) -> bool:
+    if b[0] > "3":
+        return _w(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 == 3
+    if not b.startswith("32") and not _real_date(1800 + int(b[6]) * 100 + int(b[4:6]), int(b[2:4]), int(b[:2])):
+        return False
+    return (1 + _w(b[:10], [10, 5, 8, 4, 2, 1, 6, 3, 7, 9])) % 11 % 10 == int(b[10])
+
+
 def _cz(body: str) -> bool:
     if len(body) == 10:
         return _cz_birth(body)
+    if len(body) == 9:
+        if body[0] != "6":
+            return _cz_birth9(body)
+        check = _w(body[1:8], [8, 7, 6, 5, 4, 3, 2]) % 11
+        return (8 - (10 - check) % 11) % 10 == int(body[8])
+    if body[0] == "9":
+        return False
     check = 11 - _w(body[:7], [8, 7, 6, 5, 4, 3, 2]) % 11
     check = {10: 0, 11: 1}.get(check, check)
     return check == int(body[7])
@@ -285,16 +318,16 @@ _EXTRA = {
     "SI": (_digits(8), _si),
     "SK": (_digits(10), lambda b: b[0] != "0" and b[2] in "234789" and int(b) % 11 == 0),
     "HR": (_digits(11), _hr),
-    "LV": (_digits(11, "456789"), lambda b: _w(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 == 3),
+    "LV": (_digits(11), _lv),
     "LT": (_digits(9), lambda b: b[7] == "1" and _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 1])),
     "BG": (
         lambda b: len(b) in (9, 10) and b.isascii() and b.isdigit(),
         lambda b: _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 10]) if len(b) == 9 else _bg_ten(b),
     ),
-    "RO": (lambda b: b.isascii() and b.isdigit() and 2 <= len(b) <= 10 and b[0] != "0", _ro),
+    "RO": (lambda b: b.isascii() and b.isdigit() and 2 <= len(b) <= 10, _ro),
     "EL": (_digits(9), _el),
     "GR": (_digits(9), _el),
-    "CZ": (lambda b: (len(b) == 8 and b[0] != "9" or len(b) == 10) and b.isascii() and b.isdigit(), _cz),
+    "CZ": (lambda b: len(b) in (8, 9, 10) and b.isascii() and b.isdigit(), _cz),
     "CY": (lambda b: len(b) == 9 and b[:8].isascii() and b[:8].isdigit() and "A" <= b[8] <= "Z", lambda b: _cy(b)),
     "MT": (_digits(8, "123456789"), lambda b: _w(b, [3, 4, 6, 7, 8, 9, 10, 1]) % 37 == 0),
 }
@@ -334,7 +367,7 @@ def _be(body: str) -> bool:
     digits = body[1:] if body.startswith("0") and len(body) == 11 else body
     if len(digits) == 9:
         digits = "0" + digits
-    if len(digits) != 10 or not digits.isdigit():
+    if len(digits) != 10 or not digits.isdigit() or digits[0] not in "01":
         return False
     return (int(digits[:8]) % 97 + int(digits[8:])) % 97 == 0
 
@@ -361,6 +394,9 @@ def _at(body: str) -> bool:
 
 
 def _it(digits: str) -> bool:
+    office = digits[7:10]
+    if int(digits[:7]) == 0 or not ("001" <= office <= "100" or office in ("120", "121", "888", "999")):
+        return False
     total = 0
     for index, char in enumerate(digits[:10]):
         value = int(char)
