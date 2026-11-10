@@ -2,6 +2,11 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Paper step: DRAFT.md section 3 item 1 brought up to milestones 3o and 3p (a write-up step, no new experiment)
+- Why: the draft's list of what is still needed stopped at 3n; 3o (Ju 1983 second Wigley point, k -0.06 to +0.01) and 3p (c15 branch coded, m1 typo ruled out) change what remains. No prediction: nothing was run.
+- Outcome: item 1 now carries both, with their second-hand and unopened-paper limits, and names the remaining need (Kajitani 1983 or ITTC Wigley data; a slender-hull curve above L/V^(1/3) 8 for c15; the 1984 CA form).
+- Limits: a text update; every number is copied from the 3o and 3p entries above.
+
 ## 2026-11-09 · Milestone 3p: the c15 three-way rule is coded, and a typo in a public Holtrop implementation is ruled out (a cross-read of a third implementation, no 1984 paper opened)
 - Why: 3k-3o asked for a second published 1984 worked example; none is reachable (the Archibald repo carries only the 1982 p. 170 case). Its 1984-term functions were read instead (read only, not executed: running third-party code was blocked in this session) against `holtrop.py`.
 - Differences found, term by term: (1) **c15**: Archibald codes the three-way rule (-1.69385 below L^3/V 512; -1.69385 + (L/V^(1/3) - 8)/2.36 up to 1726.91; 0 beyond); `marine_hull` used -1.69385 for every hull, a gap its own comment named. Now coded (`c15_coefficient`). (2) **m1**: Archibald has 0.014047 where `marine_hull` has 0.0140407. Recomputing the 1982 example by hand gives m1 = -2.1274 only with 0.0140407 (0.28783 - 0.28615 - 0.74820 - 1.3809), the printed value, so the other is a typo that their test tolerance (2e-3, plus a T+0.1 shift) hid; ours stays. (3) CA: Archibald uses 0.00675 (L+100)^(-1/3) - 0.00064, a different correlation allowance from ours (the 1982 form, which reproduced the printed CA in 3k); not changed, flagged.

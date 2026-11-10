@@ -27,9 +27,9 @@ const dayOfName = (s) => DAYNAMES.indexOf(String(s).trim().toLowerCase().slice(0
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const MON = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\.?";
-const CLOCK = "(?:,?\\s+(?:at\\s+)?|[T]\\s*)(\\d{1,2})(?::\\d{2})?(?::\\d{2})?\\s*([ap]m?)?";
+const CLOCK = "(?:,?\\s+(?:at\\s+)?|[T]\\s*)(\\d{1,2})(?::\\d{2})?(?::\\d{2})?\\s*([ap]m?(?![a-z]))?";
 const MONTHNAME = new RegExp(`^${MON}\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(\\d{4})${CLOCK}`, "i");
-const MONTHNAME_DMY = new RegExp(`^(\\d{1,2})(?:st|nd|rd|th)?\\s+${MON}\\s+(\\d{4})${CLOCK}`, "i");
+const MONTHNAME_DMY = new RegExp(`^(\\d{1,2})(?:st|nd|rd|th)?[\\s-]+${MON}[\\s-]+(\\d{4})${CLOCK}`, "i");
 
 // Sales cell -> number or NaN. "(12.50)" is -12.50; "1.234,50" and "12,5" use a decimal comma, "1,234" and "1,234.50" a thousands comma.
 export function readAmount(raw) {
@@ -52,22 +52,24 @@ function readStamp(tok, dayTok) {
   s = s.replace(/\b(?:12\s*)?noon\b/i, "12 PM").replace(/\b(?:12\s*)?midnight\b/i, "12 AM");
   // "Thursday 2 PM" in one cell (no separate day column): the weekday name leads the hour.
   if (dayTok === undefined) {
-    const w = /^([a-z]{3,9})\.?,?\s+(\d{1,2}(?::\d{2})?\s*(?:[ap]m?)?(?:\s*[-\u2013]\s*\d{1,2}(?::\d{2})?\s*(?:[ap]m?)?)?)$/i.exec(s);
+    const w = /^([a-z]{3,9})\.?,?\s+(\d{1,2}(?::\d{2})?\s*(?:[ap]m?(?![a-z]))?(?:\s*[-\u2013]\s*\d{1,2}(?::\d{2})?\s*(?:[ap]m?(?![a-z]))?)?)$/i.exec(s);
     if (w && dayOfName(w[1]) >= 0) return readStamp(w[2], w[1]);
   }
+  // A weekday name ahead of a full date ("Thu, 05 Mar 2026 14:00:00", "Thursday, March 5, 2026 2 PM"): the date says the day.
+  s = s.replace(/^(?:mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?,?\s+(?=.*\d{4})/i, "");
   // An Excel serial date-time (46328.5833: days since 1899-12-30, the fraction is the time of day).
   if (/^\d{5}(?:\.\d+)?$/.test(s) && +s >= 25569 && +s < 80000) {
     const ms = Math.round(+s * 1440) * 60000, t0 = new Date(Date.UTC(1899, 11, 30) + ms);
     return { day: (t0.getUTCDay() + 6) % 7, hour: t0.getUTCHours(), key: `${t0.getUTCFullYear()}-${t0.getUTCMonth() + 1}-${t0.getUTCDate()}` };
   }
-  let m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?(?:\.\d+)?\s*([ap]m?)?/i.exec(s);
+  let m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?(?:\.\d+)?\s*([ap]m?(?![a-z]))?/i.exec(s);
   let y, mo, d, hr;
   if (m) {
     y = +m[1]; mo = +m[2]; d = +m[3]; hr = +m[4];
     // "2026-03-05 2:00 PM": a 12-hour clock must be converted, not read as 2 AM (and 12 AM is hour 0).
     if (m[5]) { if (hr < 1 || hr > 12) return null; hr = (hr % 12) + (m[5][0].toLowerCase() === "p" ? 12 : 0); }
   }
-  else if ((m = /^(\d{1,2})([\/.-])(\d{1,2})[\/.-](\d{2}|\d{4})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?\s*([ap]m?)?/i.exec(s))) {
+  else if ((m = /^(\d{1,2})([\/.-])(\d{1,2})[\/.-](\d{2}|\d{4})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?\s*([ap]m?(?![a-z]))?/i.exec(s))) {
     y = +m[4] < 100 ? 2000 + +m[4] : +m[4];
     // A dotted date (05.03.2026) is day first, as in continental Europe; slashes and dashes stay month first unless the first number is over 12.
     if (+m[1] > 12 || m[2] === ".") { d = +m[1]; mo = +m[3]; } else { mo = +m[1]; d = +m[3]; }
@@ -80,7 +82,7 @@ function readStamp(tok, dayTok) {
     if (mon < 0) return null;
     y = +m[3]; mo = mon + 1; d = +(dmy ? m[1] : m[2]); hr = +m[4];
     if (m[5]) { if (hr < 1 || hr > 12) return null; hr = (hr % 12) + (m[5][0].toLowerCase() === "p" ? 12 : 0); }
-  } else if (dayTok !== undefined && (m = /^(\d{1,2})(?::\d{2})?\s*([ap]m?)?(?:\s*[-\u2013to]+\s*\d{1,2}(?::\d{2})?\s*(?:[ap]m?)?)?$/i.exec(s))) {
+  } else if (dayTok !== undefined && (m = /^(\d{1,2})(?::\d{2})?\s*([ap]m?(?![a-z]))?(?:\s*[-\u2013to]+\s*\d{1,2}(?::\d{2})?\s*(?:[ap]m?(?![a-z]))?)?$/i.exec(s))) {
     // An interval such as "14:00-15:00" or "2 PM - 3 PM" is read by its start.
     const di = dayOfName(dayTok);
     if (di < 0) return null;

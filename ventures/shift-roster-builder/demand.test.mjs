@@ -187,3 +187,25 @@ test("sales read with a currency code and Excel serial date-times", async () => 
   assert.equal(r.avg[0][14], 100); // Monday 2 Nov 2026, 14:00 (the fraction .5833 is 13:59:57, rounded to the minute)
   assert.equal(r.avg[1][9], 40);
 });
+
+test("a time zone suffix is not read as AM/PM, and weekday-led and dd-Mon-yyyy stamps read", () => {
+  const at = (stamp) => {
+    const r = hourlySales(`Date,Net Sales\n"${stamp}",100`);
+    return r.rows ? r.avg.flatMap((d, i) => d.map((v, h) => (v ? [i, h] : null))).filter(Boolean)[0] : null;
+  };
+  // PST/PDT start with "P" and AEST with "A": before, 02:00 PST was read as 2 PM.
+  assert.deepEqual(at("2026-03-05 02:00 PST"), [3, 2]);
+  assert.deepEqual(at("2026-03-05 02:00 PDT"), [3, 2]);
+  assert.deepEqual(at("3/5/2026 02:00 AEST"), [3, 2]);
+  assert.deepEqual(at("Mar 5, 2026 2:00 PST"), [3, 2]);
+  // a real PM marker still counts
+  assert.deepEqual(at("2026-03-05 2:00 PM PST"), [3, 14]);
+  assert.deepEqual(at("2026-03-05 2PM"), [3, 14]);
+  // weekday name ahead of a full date, and dd-Mon-yyyy
+  assert.deepEqual(at("Thu, 05 Mar 2026 14:00:00"), [3, 14]);
+  assert.deepEqual(at("Thursday, March 5, 2026 2 PM"), [3, 14]);
+  assert.deepEqual(at("Thu Mar 5 2026 2:00 PM"), [3, 14]);
+  assert.deepEqual(at("05-Mar-2026 14:00"), [3, 14]);
+  // the existing weekday + hour cell still reads
+  assert.deepEqual(at("Thursday 2 PM"), [3, 14]);
+});
