@@ -37,7 +37,7 @@
   ],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-12-einvoice-vat-prefix-rules.md"
+    "docs/posts/2026-11-10-einvoice-vat-prefix-rules.md"
   ],
   "goal": null,
   "notes": "Local checks: node --test vat.test.mjs 43 pass; pytest tests 359 pass; differential reverse/forward rerun. CI not awaited before merge attempt.",

@@ -1,7 +1,7 @@
 ---
 title: "Five more VAT number rules our checker was missing"
 seo_title: "VAT number validation: BE, IT, RO, CZ and LV prefix rules"
-date: 2026-11-12
+date: 2026-11-10
 tags: [einvoice-preflight, testing]
 description: "Random numbers vs python-stdnum found Belgian, Italian, Romanian, Czech and Latvian VAT numbers our checker wrongly passed. Fixed."
 ---
