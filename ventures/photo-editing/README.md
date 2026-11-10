@@ -73,7 +73,9 @@ Current limits, stated plainly: RAW stills (`.CR3`, `.CR2`, `.ARW`, `.NEF`,
 `.DNG`, …) are *scored* from the full-size JPEG preview the camera embedded
 (`raw_preview.py`, no RAW developer needed), and since 2026-10-29 their review proxies are
 that preview downscaled to 1024 px (`proxies/<job>/IMG_0001.CR3.jpg`; synthetic containers
-only, no real camera file yet). They are not developed: graded masters still need a
+only, no real camera file yet). Since 2026-11-10 a DNG can be developed into a 16-bit TIFF
+master by hand with `shootflow develop` (see "Develop DNG raw files" below), but the
+pipeline does not call it yet: graded masters still need a
 JPEG/TIFF, so a RAW still stops the pipeline before the grade stage, and a RAW with no embedded
 preview fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it

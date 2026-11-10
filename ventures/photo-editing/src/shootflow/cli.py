@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import asdict
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -19,6 +20,7 @@ from shootflow.cull import (
     write_sidecars,
 )
 from shootflow.ffmpeg_media import FfmpegMediaError
+from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file
 from shootflow.assembly import (
     AssemblyPlan,
     AssemblyPlanError,
@@ -213,6 +215,8 @@ def main(
             _run_inspect_render_workspace_command(args, stdout=out)
         elif args.command == "cull":
             _run_cull_command(args, stdout=out)
+        elif args.command == "develop":
+            _run_develop_command(args, stdout=out)
         elif args.command == "create-demo-workspace":
             _run_create_demo_workspace_command(args, stdout=out)
         elif args.command == "create-card-dump-demo-workspace":
@@ -251,6 +255,7 @@ def main(
         LocalPipelineError,
         CullError,
         FfmpegMediaError,
+        DevelopError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -709,6 +714,29 @@ def _run_cull_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     stdout.write(json.dumps(out, sort_keys=True) + "\n")
 
 
+def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    wb = None
+    if args.wb:
+        parts = [float(v) for v in args.wb.split(",")]
+        if len(parts) != 3 or min(parts) <= 0:
+            raise DevelopError("--wb takes three positive camera multipliers, e.g. 2.0,1.0,1.5")
+        wb = (parts[0], parts[1], parts[2])
+    settings = DevelopSettings(
+        half=args.half,
+        exposure_ev=args.exposure,
+        white_balance=wb,
+        use_baseline_exposure=not args.no_baseline_exposure,
+    )
+    sources = [Path(p) for p in args.files]
+    out_dir = Path(args.out)
+    results = []
+    for source in sources:
+        destination = out_dir / (source.stem + "." + args.format)
+        report = develop_file(source, destination, settings, png_bits=16 if args.format == "png16" else 8)
+        results.append({"source": str(source), "master": str(destination), **asdict(report)})
+    stdout.write(json.dumps({"developed": results}, sort_keys=True) + "\n")
+
+
 def _run_create_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     demo = create_persisted_cli_demo_workspace(
         args.workspace,
@@ -1153,6 +1181,18 @@ def _build_parser() -> argparse.ArgumentParser:
         "--picks",
         help="Text file of the photos you would keep (one name or path per line); the report scores the cull against it.",
     )
+
+    develop = subparsers.add_parser(
+        "develop",
+        help="Develop DNG raw files into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
+    )
+    develop.add_argument("files", nargs="+", help="DNG files (convert CR2/CR3/NEF/ARW with Adobe DNG Converter).")
+    develop.add_argument("--out", required=True, help="Folder for the masters; existing files are never overwritten.")
+    develop.add_argument("--format", choices=("tif", "png", "png16"), default="tif", help="tif (16-bit, default), png (8-bit) or png16.")
+    develop.add_argument("--half", action="store_true", help="Half size, no interpolation: 4x fewer pixels, much faster.")
+    develop.add_argument("--exposure", type=float, default=0.0, help="Exposure change in stops, added to BaselineExposure.")
+    develop.add_argument("--no-baseline-exposure", action="store_true", help="Ignore the file's BaselineExposure tag.")
+    develop.add_argument("--wb", help="Camera white-balance multipliers R,G,B instead of the as-shot neutral.")
 
     create_demo = subparsers.add_parser(
         "create-demo-workspace",
