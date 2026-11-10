@@ -1,0 +1,261 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/gbp-bulk-location-check",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "auditor": "agent session (Claude), 2026-11-10 round, subagent",
+  "status": "audited",
+  "professional": "a local-SEO specialist who runs Google Business Profile bulk uploads for multi-location clients, with a data-hygiene reviewer second: first checks are that column names and limits match Google's current bulk template and that format fixes (ZIP zeros, phone, hours) never change real data",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran node probes against calc.mjs and recomputed outputs from sources I did not write: the 249-code country set is identical to tzdata's iso3166.tab (diff empty); ZIP leading-zero restore matches USPS 3-digit prefix allocation for MA, CT, NJ, NH, PR (and correctly refuses 3901/NH, a Maine prefix); phone checks agree with NANP and E.164 for 13 inputs; name length boundary 100/101 correct. One wrong result: Guam coordinates (144.75E) get a false 'positive longitude for a US location' warning. 8:00-5:00 is treated as overnight rather than a probable typo. The Google-specific rules cannot be recomputed offline (no outside source), which caps the score at 3.",
+    "completeness": "Claimed features exercised: delimiter/UTF-16/BOM, column checks, store code duplicates and Excel damage, names, phones, URLs, hours, dates, country/state/postal, coordinates, labels, duplicate address, safe fixes, findings CSV, usage opt-out. sampleBrokenFile() yields 19 findings and repair() fixes the delimiter, hours separators and the CT ZIP; sampleFile() yields only an info line. No stubs or TODOs found. README test command works on Node 22.",
+    "verification": "node --test ventures/gbp-bulk-location-check/*.test.mjs: 37 pass, 0 fail. Ten hand-seeded mutations in core logic: 5 caught (name length, lat/long zero, longitude bound, overnight hours, stuffing threshold) and 5 survived (E.164 max digits, NJ range, NH range, MA 055 range, hours closing limit). Boundaries in the data tables and phone limits are not pinned. Verification capped at 2.",
+    "craft": "Read calc.mjs (653 lines), index.html, usage.mjs, all tests. Pure functions, no DOM in the logic, tested separately, honest naming, UTF-16 handling, quoted-field parser with line numbers, grapheme-aware length via spread. Weaknesses: validate() is one very long function, unused locality argument, wide hand-maintained tables without citations, limits scattered as constants. Acceptable to a senior JS reviewer.",
+    "claims": "Page, README and VENTURE.yaml state the tool reads rules 'from memory', has no Google template, lists what is not checked and carries the no-warranty, not-affiliated and local-only statements; the no-network claim is backed by page.test.mjs and my own grep. VENTURE.yaml hypothesis is marked untested. The live URL could not be loaded (HTTP 000 through the proxy, root also 000), so nothing about the served page is claimed beyond source. Source llms.txt/sitemap URL issues are source-only.",
+    "fitness": "A marketing person with a bulk sheet can paste it, see line-numbered findings, and download a conservatively repaired file; the Excel-damage and delimiter fixes are real value. The job ends with an upload to Google, which this tool cannot confirm; the page says to upload two or three rows first. Unverified error-severity rules may send users to fix things Google accepts.",
+    "domain": "A local-SEO/multi-location specialist (agency account manager who uploads GBP bulk sheets daily) would first check that the template columns, hours syntax and limits match Google's current bulk template and category list. The tool was built without access to it and cannot check category names, address validity or policy; its general format hygiene (E.164, ISO, ZIP) is sound, but the Google-specific parts are unverified, so 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "ISO 3166-1 alpha-2 country set (249 codes) used for Country/Region",
+      "method": "tzdata /usr/share/zoneinfo/iso3166.tab (system copy of ISO 3166 list), diffed against COUNTRY_CODES",
+      "command": "diff <(cut -f1 iso3166.tab | sort) <(node -e 'print COUNTRY_CODES sorted')",
+      "expected": "identical 249 codes",
+      "observed": "identical, diff empty",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "US ZIP leading-zero restoration: 2110/MA, 6103/CT, 7101/NJ, 3801/NH, 911/PR, 5011/NY, 3901/NH",
+      "method": "USPS ZIP prefix allocation (3-digit SCF ranges: 010-027 MA, 028-029 RI, 030-038 NH, 039-049 ME, 060-069 CT, 070-089 NJ, 006-009 PR/VI, 005 NY)",
+      "command": "node scratch probe paddedZip()",
+      "expected": "02110, 06103, 07101, 03801, 00911 padded; NH 3901 (Maine range) refused; NY 5011 refused",
+      "observed": "02110, 06103, 07101, 03801, 00911 padded; 3901/NH null; NY 501 and 5011 null",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Phone checks against NANP and E.164 (ITU-T E.164: max 15 digits)",
+      "method": "ITU-T E.164; NANP area code 2-9 rule; checkPhone on +1 617 555 0142, 617-555-0142, 1-617-555-0142, +1 617 555 014, 123456, +442079460958, 2079460958/GB",
+      "command": "node scratch probe checkPhone()",
+      "expected": "valid forms accepted; 10-digit +1 short number and 6-digit US flagged; GB 10 digits flags lost 0",
+      "observed": "as expected for all 13 inputs",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Latitude/longitude rules: swapped, positive US longitude, Guam (US territory, longitude +144.75)",
+      "method": "WGS84 ranges; Guam is at 13.47N 144.75E (public gazetteer)",
+      "command": "validate() on a GU row, country US, 13.47,144.75",
+      "expected": "no finding (the coordinates are right)",
+      "observed": "warning latlong-sign 'Longitude 144.75 is positive for a US location'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Hours parsing: 09:00-24:00, 22:00-00:00, 9am-5pm, split shifts, overlap, 8:00-5:00",
+      "method": "HH:MM 24-hour rule in the README/page; hand arithmetic of minutes",
+      "command": "node scratch probe parseHours(normalizeHours())",
+      "expected": "09:00-24:00 ok (540-1440); 9am-5pm -> hours-12h; 11:00 overlap flagged; 8:00-5:00 is a typo for 8-17",
+      "observed": "all as expected; 8:00-5:00 only a warning 'closes after midnight' (shift 480-1740)",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Business-name boundary: 100 characters ok, 101 error",
+      "method": "Stated limit LIMITS.name=100 (README/page, 'from memory')",
+      "command": "validate() with 100- and 101-char names",
+      "expected": "100 clean, 101 name-length error",
+      "observed": "as expected",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Duplicate address across store codes with street abbreviations ('1 Main Street' vs '1 main st.')",
+      "method": "hand normalisation of the two strings",
+      "command": "validate() two rows",
+      "expected": "one dup-address warning on line 3",
+      "observed": "dup-address on line 3",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Safe-fixes pass: sampleBrokenFile() repair then re-validate",
+      "method": "README/page claim: delimiter conversion, ZIP zero only when state confirms, separator tidy",
+      "command": "repair(sampleBrokenFile()) then validate()",
+      "expected": "semicolon->comma, hours separators, CT ZIP 6103->06103; MA 2110 left unrepaired? (state spelled 'Massachusetts')",
+      "observed": "4 changes listed; ZIP 2110 with state 'Massachusetts' not padded (conservative), post-repair no delimiter/zip-zero/separator findings",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Page features named in README/page: sample buttons, download-fixed, opt-out, local-only counters",
+      "method": "index.html ids and usage.mjs; page.test.mjs asserts them",
+      "command": "grep ids in index.html; node --test ventures/gbp-bulk-location-check/*.test.mjs",
+      "expected": "all present",
+      "observed": "all present; 37 tests pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, independence from Google, 'read from memory', not-checked list on page and README",
+      "method": "index.html lines 60, 108, 130-131; README 'No warranty'",
+      "command": "grep index.html",
+      "expected": "present with limits",
+      "observed": "present",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Nothing leaves your device / no network calls' claim",
+      "method": "page.test.mjs greps index.html and calc.mjs for fetch/XHR/sendBeacon/WebSocket; I grepped independently",
+      "command": "grep -nE 'fetch\\(|XMLHttpRequest|sendBeacon|WebSocket' index.html calc.mjs usage.mjs",
+      "expected": "none",
+      "observed": "none",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "llms.txt page link and live page at https://marisstella.app/gbp-bulk-location-check/",
+      "method": "load the served page",
+      "command": "curl https://marisstella.app/gbp-bulk-location-check/",
+      "expected": "HTTP 200",
+      "observed": "HTTP 000 (proxy blocked; the host also failed on the site root), served page not verified; llms.txt in source links duncan-haywood.github.io, which the deploy rewrites (source-only)",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite run",
+      "method": "node --test",
+      "command": "node --test ventures/gbp-bulk-location-check/*.test.mjs",
+      "expected": "all pass",
+      "observed": "37 pass, 0 fail, about 0.3 s",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:405",
+      "change": "len > LIMITS.name -> len > LIMITS.name + 1",
+      "caught": true,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    },
+    {
+      "where": "calc.mjs:217",
+      "change": "E.164 max digits 15 -> 16",
+      "caught": false,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    },
+    {
+      "where": "calc.mjs:68",
+      "change": "ZERO_ZIP NJ range [70,89] -> [70,88]",
+      "caught": false,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    },
+    {
+      "where": "calc.mjs:68",
+      "change": "ZERO_ZIP NH range [30,38] -> [30,37]",
+      "caught": false,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    },
+    {
+      "where": "calc.mjs:196",
+      "change": "hours closing limit Number(h2) > 24 -> > 25",
+      "caught": false,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    },
+    {
+      "where": "calc.mjs:565",
+      "change": "latlong-zero condition b === 0 -> b === 1",
+      "caught": true,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    },
+    {
+      "where": "calc.mjs:68",
+      "change": "ZERO_ZIP MA second range [55,55] dropped",
+      "caught": false,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    },
+    {
+      "where": "calc.mjs:~330",
+      "change": "longitude bound 180 -> 181",
+      "caught": true,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    },
+    {
+      "where": "calc.mjs:~183",
+      "change": "overnight test b < a && b !== 0 -> b < a",
+      "caught": true,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    },
+    {
+      "where": "calc.mjs:nameFlags",
+      "change": "repeated-word threshold 3 -> 4",
+      "caught": true,
+      "test_cmd": "node --test ventures/gbp-bulk-location-check/*.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The ZIP-restoration table and the phone/hours limits are barely pinned by tests: 5 of 10 seeded changes left all 37 tests green (E.164 max 15->16, NJ range, NH range, MA 055 range, hours 24->25). The leading-zero restore is the product's headline fix and only MA/CT/sample-file cases are asserted.",
+      "where": "ventures/gbp-bulk-location-check/calc.mjs:68; calc.test.mjs",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "latlong-sign warns 'Longitude is positive for a US location' for Guam and the Northern Mariana Islands (country US, state GU/MP), whose longitudes are correctly +144 to +146. A false warning on valid data from a territory whose ZIPs (969xx) the tool otherwise treats as US.",
+      "where": "ventures/gbp-bulk-location-check/calc.mjs:566",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Every column name, limit (100, 80, 750, 64, 10 labels, 9 categories) and format (x for closed, 'Opening date' YYYY-MM-DD, special hours) is 'read from memory' and no Google template or help page was checked; the headline 'errors' (error severity) are therefore unverified rules a user may act on. Disclosed on the page, but severity is not downgraded and VENTURE.yaml hypotheses are untested.",
+      "where": "ventures/gbp-bulk-location-check/calc.mjs:1-4",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "8:00-5:00 (a 12-hour typo) is parsed as an overnight shift to 05:00 next day and only warned, and a 3-line 'Large file' limit of 10,000 rows is also from memory.",
+      "where": "ventures/gbp-bulk-location-check/calc.mjs:199",
+      "category": "scope-gap",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "E.164 minimum of 8 digits flags valid short numbers (for example +683 4002, Niue, 7 digits) as an error.",
+      "where": "ventures/gbp-bulk-location-check/calc.mjs:217",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "nameFlags takes an unused locality parameter, and the ZIP+4 padding branch and ZERO_ZIP VT range include 055xx which is Massachusetts; validate() is one 300-line function.",
+      "where": "ventures/gbp-bulk-location-check/calc.mjs:292",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt, sitemap.xml, robots.txt and the canonical link use github.io or relative URLs in source; the build rewrites these at deploy, so this is not a defect in what ships (served page could not be loaded to confirm).",
+      "where": "ventures/gbp-bulk-location-check/llms.txt:9",
+      "category": "source-only",
+      "origin": "audit"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A tidy, honest, local-only file checker whose generic hygiene checks (ISO country set identical to tzdata, USPS ZIP prefix restoration, NANP/E.164 phones, hours arithmetic) recompute correctly, with one false warning for Guam coordinates. It misses the bar on verification: 5 of 10 seeded mutations (E.164 max, NJ/NH/MA ZIP ranges, hours closing limit) leave all 37 tests green, and the Google-specific rules are admitted to be from memory, so domain is 2. The live page could not be loaded here (HTTP 000)."
+}
