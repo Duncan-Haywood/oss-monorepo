@@ -1,0 +1,75 @@
+TCPD: 31 univariate series that ship in the repository (of 42 annotated).
+Port check: 121 published default runs (binseg, pelt, bocpd, zero) re-scored; largest difference from the published F1 or cover: 2.22e-16.
+
+Mean over the 31 series (F1 margin 5; * = this detector; others: TCPDBench published default scores, a failed run counted as 0):
+  setting                          F1     cover  ran on
+    binseg                        0.714  0.671  30
+  * bocpd (default)               0.706  0.634  31
+    pelt                          0.704  0.672  30
+  * consensus: every setting      0.702  0.633  31
+    amoc                          0.677  0.674  30
+    bocpd                         0.673  0.616  30
+    zero                          0.663  0.568  31
+    segneigh                      0.655  0.653  30
+  * level+volatility              0.652  0.505  31
+  * consensus: half or more       0.652  0.538  31
+    ecp                           0.628  0.546  31
+    cpnp                          0.609  0.538  30
+    prophet                       0.513  0.543  31
+    rfpop                         0.512  0.404  30
+    bocpdms                       0.507  0.626  31
+  * consensus: any setting        0.506  0.340  31
+  * level (default)               0.477  0.374  31
+    rbocpdms                      0.427  0.630  30
+    wbs                           0.425  0.332  30
+    kcpa                          0.129  0.074  31
+
+Per series: F1 (cover) for the level model, the half-or-more consensus and the best published default method.
+  bank                n 581  level 0.011 (0.036) 178 cuts  half+ 0.047 (0.038) 41 cuts  best published zero 1.000  zero 1.000
+  brent_spot          n 500  level 0.506 (0.205) 56 cuts  half+ 0.571 (0.324) 25 cuts  best published cpnp 0.607  zero 0.315
+  businv              n 330  level 0.192 (0.094) 65 cuts  half+ 0.258 (0.159) 26 cuts  best published zero 0.588  zero 0.588
+  centralia           n  15  level 1.000 (0.596) 3 cuts  half+ 0.763 (0.675) 0 cuts  best published rfpop 1.000  zero 0.763
+  children_per_woman  n 301  level 0.216 (0.134) 65 cuts  half+ 0.387 (0.216) 24 cuts  best published bocpd 0.637  zero 0.507
+  co2_canada          n 215  level 0.481 (0.462) 40 cuts  half+ 0.661 (0.575) 17 cuts  best published ecp 0.817  zero 0.361
+  construction        n 319  level 0.175 (0.088) 51 cuts  half+ 0.323 (0.178) 25 cuts  best published binseg 0.709  zero 0.696
+  debt_ireland        n  21  level 0.923 (0.506) 6 cuts  half+ 0.980 (0.790) 3 cuts  best published rfpop 0.824  zero 0.469
+  gdp_argentina       n  59  level 0.533 (0.309) 10 cuts  half+ 0.947 (0.675) 2 cuts  best published bocpd 0.947  zero 0.824
+  gdp_croatia         n  24  level 0.400 (0.392) 7 cuts  half+ 1.000 (0.833) 1 cuts  best published bocpd 1.000  zero 0.824
+  gdp_iran            n  58  level 0.609 (0.262) 15 cuts  half+ 0.800 (0.537) 5 cuts  best published ecp 0.652  zero 0.652
+  gdp_japan           n  58  level 0.200 (0.269) 17 cuts  half+ 0.571 (0.423) 4 cuts  best published ecp 0.889  zero 0.889
+  global_co2          n 104  level 0.303 (0.338) 27 cuts  half+ 0.344 (0.346) 13 cuts  best published amoc 0.929  zero 0.846
+  homeruns            n 118  level 0.615 (0.329) 17 cuts  half+ 0.703 (0.387) 9 cuts  best published amoc 0.812  zero 0.659
+  jfk_passengers      n 468  level 0.159 (0.165) 57 cuts  half+ 0.491 (0.423) 11 cuts  best published amoc 0.776  zero 0.723
+  lga_passengers      n 468  level 0.414 (0.346) 37 cuts  half+ 0.557 (0.585) 10 cuts  best published bocpd 0.630  zero 0.535
+  nile                n 100  level 1.000 (0.888) 1 cuts  half+ 1.000 (0.888) 1 cuts  best published amoc 1.000  zero 0.824
+  ozone               n  54  level 0.375 (0.300) 12 cuts  half+ 0.778 (0.718) 2 cuts  best published pelt 1.000  zero 0.723
+  quality_control_1   n 313  level 0.667 (0.655) 3 cuts  half+ 1.000 (0.996) 1 cuts  best published amoc 1.000  zero 0.667
+  quality_control_2   n 283  level 1.000 (0.927) 1 cuts  half+ 1.000 (0.927) 1 cuts  best published amoc 1.000  zero 0.750
+  quality_control_3   n 366  level 0.222 (0.602) 15 cuts  half+ 1.000 (0.997) 1 cuts  best published amoc 1.000  zero 0.667
+  quality_control_4   n 500  level 0.233 (0.058) 52 cuts  half+ 0.250 (0.092) 34 cuts  best published binseg 0.873  zero 0.780
+  quality_control_5   n 325  level 1.000 (1.000) 0 cuts  half+ 1.000 (1.000) 0 cuts  best published amoc 1.000  zero 1.000
+  rail_lines          n  37  level 0.615 (0.446) 8 cuts  half+ 0.832 (0.789) 3 cuts  best published cpnp 0.966  zero 0.537
+  seatbelts           n 192  level 0.333 (0.309) 24 cuts  half+ 0.591 (0.740) 6 cuts  best published binseg 0.683  zero 0.621
+  shanghai_license    n 205  level 0.263 (0.215) 32 cuts  half+ 0.421 (0.304) 14 cuts  best published amoc 0.868  zero 0.636
+  uk_coal_employ      n 105 (2 filled)  level 0.667 (0.515) 23 cuts  half+ 0.900 (0.633) 10 cuts  best published prophet 0.639  zero 0.513
+  unemployment_nl     n 214  level 0.513 (0.198) 39 cuts  half+ 0.630 (0.320) 18 cuts  best published binseg 0.876  zero 0.566
+  us_population       n 816  level 0.015 (0.005) 406 cuts  half+ 0.050 (0.078) 38 cuts  best published amoc 1.000  zero 0.889
+  usd_isk             n 247  level 0.385 (0.152) 41 cuts  half+ 0.527 (0.264) 21 cuts  best published amoc 0.785  zero 0.489
+  well_log            n 675  level 0.764 (0.786) 21 cuts  half+ 0.818 (0.769) 12 cuts  best published rfpop 0.923  zero 0.237
+
+Consensus tiers against the annotators (a change counts as marked when an annotator put a change point within 5 points):
+  every setting     59 changes; marked by an annotator  23 (39%); by a majority  18 (31%)
+  half or more     319 changes; marked by an annotator  90 (28%); by a majority  43 (13%)
+  fewer than half  206 changes; marked by an annotator  51 (25%); by a majority  18 (9%)
+  Of 59 locations a majority of annotators marked: reached by an every-setting change 17, by a half-or-more change 38, only by a fewer-than-half change 2, by none 2.
+
+Keep a consensus change only when at least k of 6 settings found it (mean F1 / cover):
+  k   half A (16)      half B (15)      all
+  1   0.454 / 0.354   0.561 / 0.326   0.506 / 0.340
+  2   0.476 / 0.388   0.593 / 0.368   0.533 / 0.378
+  3   0.622 / 0.542   0.683 / 0.534   0.652 / 0.538
+  4   0.679 / 0.664   0.736 / 0.610   0.706 / 0.638
+  5   0.703 / 0.688   0.716 / 0.632   0.709 / 0.661
+  6   0.711 / 0.663   0.693 / 0.601   0.702 / 0.633
+  chosen on A -> B: k = 6; held-out F1 0.693, cover 0.601 (zero 0.620, binseg 0.737 on the same half)
+  chosen on B -> A: k = 4; held-out F1 0.679, cover 0.664 (zero 0.703, binseg 0.692 on the same half)
