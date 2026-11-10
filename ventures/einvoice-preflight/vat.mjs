@@ -256,7 +256,8 @@ function classify(country, body) {
   // Singapore: a GST number is M + letter/digit + 7 digits + a character, or the UEN (8 or 9 digits
   // and a letter, or T/S/R + 2 digits + 2 letters + 4 digits + a letter). Philippines: a TIN is 9
   // digits plus a 3-digit branch code. Shape only; IRAS and BIR text unread.
-  if (country === "SG") return /^(M[0-9A-Z]\d{7}[A-Z0-9]|\d{8}[A-Z]|\d{9}[A-Z]|[RST]\d{2}[A-Z]{2}\d{4}[A-Z])$/.test(body) ? "format" : "bad-format";
+  // The UEN forms (8 or 9 digits and a letter, or R/S/T form) also carry a check letter (sgUenOk below).
+  if (country === "SG") return /^(M[0-9A-Z]\d{7}[A-Z0-9])$/.test(body) ? "format" : /^(\d{8}[A-Z]|\d{9}[A-Z]|[RST]\d{2}[A-Z]{2}\d{4}[A-Z])$/.test(body) ? "checksum" : "bad-format";
   // Malaysia: an LHDN income tax number (TIN) is a prefix (C company, IG individual, OG, SG, D, F, PT,
   // TA, TC, TN, TR, TP, J, LE, CS) and 8 to 11 digits. Shape only; LHDN text unread.
   if (country === "MY") return /^(C|IG|OG|SG|D|F|PT|TA|TC|TN|TR|TP|J|LE|CS)\d{8,11}$/.test(body) ? "format" : "bad-format";
@@ -647,6 +648,30 @@ function negMod11Ok(body, w) {
 const mePibOk = (body) => negMod11Ok(body, [8, 7, 6, 5, 4, 3, 2]);
 const mkEdbOk = (body) => negMod11Ok(body, [7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2]);
 
+// Singapore UEN check letter (python-stdnum sg.uen; ACRA text unread): business (8 digits + letter, weights
+// 10,4,9,3,8,2,7,1 mod 11 into "XMKECAWLJDB"), local company (9 digits + letter, weights 10,8,6,4,9,7,5,3,1 into
+// "ZKCMDNERGWH"), other entities (R/S/T + 2 digits + 2 letters + 4 digits + letter; alphabet index sum - 5 mod 11).
+function sgUenOk(body) {
+  const last = body[body.length - 1];
+  if (/^\d{8}[A-Z]$/.test(body)) {
+    const sum = [10, 4, 9, 3, 8, 2, 7, 1].reduce((a, x, i) => a + x * Number(body[i]), 0);
+    return "XMKECAWLJDB"[sum % 11] === last;
+  }
+  if (/^\d{9}[A-Z]$/.test(body)) {
+    const sum = [10, 8, 6, 4, 9, 7, 5, 3, 1].reduce((a, x, i) => a + x * Number(body[i]), 0);
+    return "ZKCMDNERGWH"[sum % 11] === last;
+  }
+  const alpha = "ABCDEFGHJKLMNPQRSTUVWX0123456789";
+  let sum = 0;
+  const w = [4, 3, 5, 3, 10, 2, 2, 5, 7];
+  for (let i = 0; i < 9; i++) {
+    const k = alpha.indexOf(body[i]);
+    if (k < 0) return false;
+    sum += k * w[i];
+  }
+  return alpha[(((sum - 5) % 11) + 11) % 11] === last;
+}
+
 function tnMfShapeOk(body) {
   const m = /^\d{7}[A-HJ-NP-TV-Z]([ABDNP])([MPCNE])(\d{3})$/.exec(body);
   if (m) return m[3] === "000" || m[2] === "E";
@@ -754,6 +779,7 @@ function checksumOk(country, body) {
   if (country === "DO") return doTaxIdOk(body);
   if (country === "VE") return veRifOk(body);
   if (country === "MD") return mdIdnoOk(body);
+  if (country === "SG") return sgUenOk(body);
   if (country === "MA") return maIceOk(body);
   if (country === "ME") return mePibOk(body);
   if (country === "MK") return mkEdbOk(body);
