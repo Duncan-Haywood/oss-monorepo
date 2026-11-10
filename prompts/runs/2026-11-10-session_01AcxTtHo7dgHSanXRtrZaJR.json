@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtHo7dgHSanXRtrZaJR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T20:06:56Z",
+  "ended": "2026-11-10T20:20:45Z",
+  "wall_minutes": 13.94,
+  "tokens_in": 6423269,
+  "tokens_out": 34961,
+  "cost_usd": 2.9721,
+  "tool_calls": 59,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14598",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First full suite run: 3 tests failed (two made-up 'ZORBLAX HOSTING' payees now matched the new hosting rule; a deliberate Sam's Club blank hit the supplies rule). Fixed by renaming the fixtures and adding a big-box guard; re-run 0 failed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: was already near the 2,000-character cap, so adding one finding meant moving the sales-tax state list into HISTORY.md."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/llms.txt",
+      "issue": "Still said no real bank export had been tested, though several real ones are measured in HISTORY.md. Updated."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-bookkeeper-labelled-books-open-collective.md",
+    "ventures/ai-bookkeeper/README.md (Labelled books from five fiscal hosts)"
+  ],
+  "goal": null,
+  "notes": "Open Collective's GraphQL API (api.opencollective.com/graphql/v2) answers from the cloud proxy without a key, at 10 requests a minute, and returns up to 1,000 expenses per request. The data is never copied into the repo. Rules were written from the opensource and foundation hosts; raft, pact_collective and metagov were measured before and after with their misses never inspected first. Local verification: run_venture_tests.py ai-bookkeeper, 0 failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8dc21227-4cc1-5a58-84dc-64de47eba100",
+    "transcripts": 1,
+    "first": "2026-11-10T20:06:56Z",
+    "last": "2026-11-10T20:20:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 111,
+        "output": 34961,
+        "thinking": 9580,
+        "cache_read": 6296511,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126647,
+        "api_equivalent_usd": 2.9721,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 111,
+      "output": 34961,
+      "thinking": 9580,
+      "cache_read": 6296511,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126647,
+      "api_equivalent_usd": 2.9721,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 54,
+      "Edit": 2,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.94,
+      "active_minutes": 13.94,
+      "model_minutes": 7.13,
+      "tool_minutes": 6.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

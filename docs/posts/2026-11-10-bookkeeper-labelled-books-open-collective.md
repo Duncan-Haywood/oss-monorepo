@@ -1,7 +1,7 @@
 ---
 title: "How well does a learning bookkeeper do on real labelled books? 20,005 expenses from five fiscal hosts"
 seo_title: "Transaction categorization accuracy on 20,005 real labelled expenses"
-description: "The ai-bookkeeper's month-by-month learning loop, scored against the accounting categories five Open Collective fiscal hosts chose: 63-87% right from expense memos, 43-65% from payee names alone."
+description: "ai-bookkeeper scored against categories five Open Collective fiscal hosts chose: 63-87% right from expense memos, 43-65% from payee names alone."
 tags: [bookkeeping, categorization, open-source, machine-learning]
 date: 2026-11-10
 ---
