@@ -35,6 +35,8 @@ const MONTHNAME_DMY = new RegExp(`^(\\d{1,2})(?:st|nd|rd|th)?\\s+${MON}\\s+(\\d{
 export function readAmount(raw) {
   let t = String(raw ?? "").trim();
   if (!t) return NaN;
+  // A currency code beside the number ("USD 40.00", "40.00 EUR") is dropped, as a symbol is.
+  t = t.replace(/\b(?:usd|cad|aud|nzd|gbp|eur|chf|mxn)\b/gi, "");
   const neg = /^\(.*\)$/.test(t) || /^-|-$/.test(t.replace(/[$£€\s]/g, ""));
   t = t.replace(/[$£€\s()+-]/g, "");
   if (t.includes(",") && t.includes(".")) t = t.lastIndexOf(",") > t.lastIndexOf(".") ? t.replace(/\./g, "").replace(",", ".") : t.replace(/,/g, "");
@@ -52,6 +54,11 @@ function readStamp(tok, dayTok) {
   if (dayTok === undefined) {
     const w = /^([a-z]{3,9})\.?,?\s+(\d{1,2}(?::\d{2})?\s*(?:[ap]m?)?(?:\s*[-\u2013]\s*\d{1,2}(?::\d{2})?\s*(?:[ap]m?)?)?)$/i.exec(s);
     if (w && dayOfName(w[1]) >= 0) return readStamp(w[2], w[1]);
+  }
+  // An Excel serial date-time (46328.5833: days since 1899-12-30, the fraction is the time of day).
+  if (/^\d{5}(?:\.\d+)?$/.test(s) && +s >= 25569 && +s < 80000) {
+    const ms = Math.round(+s * 1440) * 60000, t0 = new Date(Date.UTC(1899, 11, 30) + ms);
+    return { day: (t0.getUTCDay() + 6) % 7, hour: t0.getUTCHours(), key: `${t0.getUTCFullYear()}-${t0.getUTCMonth() + 1}-${t0.getUTCDate()}` };
   }
   let m = /^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})[T\s]+(\d{1,2})(?::\d{2})?(?::\d{2})?(?:\.\d+)?\s*([ap]m?)?/i.exec(s);
   let y, mo, d, hr;
