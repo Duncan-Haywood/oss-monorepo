@@ -1,8 +1,8 @@
 ---
 title: "Clearing a box on the gig driver tax page showed an error, and the page didn't mention QBI"
-seo_title: "Gig driver standard mileage vs actual expenses calculator: two fixes from a red-team run"
+seo_title: "Gig driver mileage vs actual expenses calculator: red-team fixes"
 date: 2026-11-10
-tags: [gig-driver-net-pay-calculator, redteam, testing, taxes]
+tags: [gig-driver-net-pay-calculator, redteam, testing, tax]
 description: "We seeded 16 faults into the standard-mileage-or-actual-expenses page. Tests caught 10. The six gaps are now covered, and two real defects are fixed."
 ---
 
