@@ -30,6 +30,7 @@ cd research/energy-lcos-sourced
 python -m pytest -q tests            # 9 tests, uses ../energy-lcos/src
 python experiments/run.py            # about 10 s; writes experiments/results.txt
 python experiments/figure.py         # experiments/winshare.svg
+python experiments/run_price.py      # result I: charging price from real day-ahead prices; results_price.txt
 python data/fetch_params.py          # optional: re-download the sources (network, 100 MB)
 ```
 Standard library only.
@@ -44,12 +45,15 @@ Standard library only.
 - **G. Unsourced Li-ion inputs.** Halving cycle life raises 4 h cost from $121 to $164/MWh, and 3% a year fade raises 8 h cost from $133 to $150. Neither changes the 8 h winner (cavern air, $114).
 - **H. Cross-check.** The technology-data Li-ion cost at 2, 4 and 8 h ($671, $1,100, $1,958/kW) lies between ATB's Advanced and Moderate 2030 figures ($581 to $809, $978 to $1,300, $1,772 to $2,283/kW).
 
+- **I. Charging price from real prices** (`experiments/run_price.py`, `results_price.txt`; German day-ahead 2015 to 2019 from `energy-thermal-real`, OPSD, CC BY 4.0). A store of duration D cycles min(365, 2000/D) times a year and charges in the D cheapest hours of each cycle's window (perfect foresight inside the window, a best case). The mean price it pays is EUR 21.3/MWh at 1 h, 23.3 at 4 h, 24.4 at 6 h (the peak), 21.4 at 24 h and 18.6 at 500 h, against an all-hours mean of 35.6, so about $21 to $28/MWh in dollars, below the flat $30 used above. The winner at every duration is the same as with $30 (Li-ion to 4 h, cavern air from 6 h), in each of the five years taken alone as well. 2018 was the dearest year (EUR 25 to 32). The flat $10 to 100 sweep therefore brackets what a perfect-foresight German store paid; it says nothing about 2021 onward, when prices spiked and are not in the committed data.
+
 ## Limitations
 - **Cavern compressed air has one sourced estimate** (Viswanathan 2022's adiabatic design) and no spread, so the shares overstate its robustness; F gives the multiple at which it loses. It is also site-limited: caverns need suitable geology, and the model has no siting limit.
+- **Charging price (I) is a best case:** perfect foresight within each window, German prices 2015 to 2019 only, no grid fees or levies, and no discharge-side revenue.
 - **Not sourced here:** cycle life and annual fade (still the `energy-lcos` values; G sweeps Li-ion's), the 2,000 discharge-hours-a-year budget, the 3 to 10% discount rate and the $10 to 100/MWh charging price (scenario sweeps, not uncertainty bands), and the vanadium flow and hydrogen fixed-O&M beyond the table.
 - **The spread is not a probability distribution.** It is the lowest and highest estimate of each cost found in two sources, drawn uniformly and independently, so shares say how robust the winner is to the range of published figures, not how likely a technology is to win. Costs are not correlated and the ATB (2022 dollars) and technology-data (2025 euros, converted at one rate) are not inflation-aligned.
 - ATB's pumped-storage site classes include "ONR" variants whose meaning I did not look up; I used all classes. ATB does not state the duration of its pumped-storage plant in the extracted rows, so only the class *ratios* are used.
 - Cost estimates, not quotes. Batteries, hydrogen and caverns are hazards; no safety analysis was done.
 
 ## Next steps
-Add a second sourced estimate for cavern air and hydrogen (for example Lazard's LCOS or the DOE Long-Duration Storage Shot cost targets) to give them a spread; source cycle life and fade from the same reports; correlate the draws; feed the charging price from `energy-mix-sourced`.
+~~Charging price from a real series~~ (done, result I; the energy-mix shadow price is still open). Add a second sourced estimate for cavern air and hydrogen (for example Lazard's LCOS or the DOE Long-Duration Storage Shot cost targets) to give them a spread; source cycle life and fade from the same reports; correlate the draws; feed the charging price from `energy-mix-sourced`.
