@@ -75,8 +75,8 @@
     <h2>Prefer a CLI, or want this as a CI gate?</h2>
     <p>Same logic, zero dependencies, one file — and it also flags whether a config carrying a hardcoded-looking secret is tracked by git:</p>
     <pre class="cmd">node cli.mjs check                          # auto-discovers config files under .
-node cli.mjs check --root <dir>              # auto-discovers under <dir>
-node cli.mjs check --file <path> [--file ...] # check specific file(s)
+node cli.mjs check --root &lt;dir&gt;              # auto-discovers under &lt;dir&gt;
+node cli.mjs check --file &lt;path&gt; [--file ...] # check specific file(s)
 node cli.mjs check --json</pre>
     <p class="note">Get <a href="cli.mjs" rel="noopener">cli.mjs</a> — Node 18+, nothing to install. It reads only the config file(s) it finds or is told about, plus a best-effort local <code>git ls-files</code> check on the same file — no network call, ever. Exits 1 if any high/medium finding is present, so it works as a CI gate on the same pull request that adds or edits the config.</p>
   </section>
