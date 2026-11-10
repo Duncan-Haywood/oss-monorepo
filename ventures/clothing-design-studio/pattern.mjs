@@ -25,7 +25,7 @@ const r2 = v => Math.round(v * 100) / 100;
 const KAPPA = 0.5522847498;
 
 export const DRAFTED = Object.freeze(["tee", "longsleeve", "crewneck", "hoodie"]);
-export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { tee: 22, longsleeve: 62, crewneck: 62, hoodie: 63 }, rib: false, zip: false, zipSeamCm: 1.5, hemRibCm: 6, cuffRibCm: 6, hemRibRatio: 0.85, cuffRibRatio: 0.85 });
+export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { tee: 22, longsleeve: 62, crewneck: 62, hoodie: 63 }, rib: false, zip: false, zipSeamCm: 1.5, facing: false, facingWidthCm: 4, hemRibCm: 6, cuffRibCm: 6, hemRibRatio: 0.85, cuffRibRatio: 0.85 });
 
 /* ---------- geometry ---------- */
 
@@ -222,6 +222,13 @@ function ribPiece(name, length, h, qty) {
   };
 }
 
+/** Centre-front facing strip for a zip front: two strips (one per half), each as long as the zip opening and twice the finished width (folded). */
+function facingPiece(length, w) {
+  const H = 2 * w;
+  const segs = [[[0, 0], [length, 0]], [[length, 0], [length, H]], [[length, H], [0, H]], [[0, H], [0, 0]]].map(pts => ({ kind: "ribJoin", pts }));
+  return { name: "zipFacing", qty: 2, cutOnFold: false, segs, notches: [{ at: [0, w], label: "fold" }], grain: [[length * 0.2, w], [length * 0.8, w]] };
+}
+
 /** Length of a polyline's first segment run of the given kind. */
 const segLen = (piece, kind) => piece.segs.filter(s => s.kind === kind).reduce((a, s) => a + len(s.pts), 0);
 
@@ -329,6 +336,10 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     if (garment !== "hoodie") return { ok: false, error: "A zip front is drafted for the hoodie only." };
     if (!(Number.isFinite(o.zipSeamCm) && o.zipSeamCm >= 0.5 && o.zipSeamCm <= 4)) return { ok: false, error: "zipSeamCm must be a number from 0.5 to 4." };
   }
+  if (opt.facing) {
+    if (!opt.zip) return { ok: false, error: "A zip facing needs a zip front (zip: true)." };
+    if (!(Number.isFinite(o.facingWidthCm) && o.facingWidthCm >= 2 && o.facingWidthCm <= 8)) return { ok: false, error: "facingWidthCm must be a number from 2 to 8." };
+  }
   const b = bodyBlock(g);
   if (o.rib) b.L -= o.hemRibCm;
   if (!(b.Q - b.sx > 3 && b.ad > b.sd + 8 && b.L > b.ad + 10)) return { ok: false, error: "This size and fit leave no room for an armhole and a body length." };
@@ -342,7 +353,9 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     const hemOpening = 4 * b.Q, cuffOpening = sleeveHemWidth(sleeve) * 2;
     ribs = [ribPiece("hemRib", hemOpening * o.hemRibRatio, o.hemRibCm, 1), ribPiece("cuffRib", cuffOpening * o.cuffRibRatio, o.cuffRibCm, 2)];
   }
-  const pieces = [front, back, sleeve, hood, pocket, ...ribs].filter(Boolean).map(p => finish(p, o));
+  let facing = null;
+  if (o.zip && o.facing) facing = facingPiece(len(front.segs.find(x => x.kind === "cf").pts), o.facingWidthCm);
+  const pieces = [front, back, sleeve, hood, pocket, ...ribs, facing].filter(Boolean).map(p => finish(p, o));
   const s = sleeve.solved;
   const checks = {
     frontArmholeCm: r2(front.armholeLen), backArmholeCm: r2(back.armholeLen),
@@ -362,6 +375,10 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     checks.zipOpeningCm = r2(len(fd)); // centre-front stitch line, neck to hem (with rib: to the band seam)
     checks.zipFrontPiecesCut = 2; checks.zipSeamAllowanceCm = o.zipSeamCm;
     notes.push(`Zip front: cut two front halves (one mirrored), each with a ${o.zipSeamCm} cm centre-front allowance. Buy an open-end zip of about ${Math.ceil((checks.zipOpeningCm + (o.rib ? o.hemRibCm : 0)) / 5) * 5} cm; the stitch line is ${checks.zipOpeningCm} cm before any hem band or hood-neck turn-back.`);
+  }
+  if (facing) {
+    checks.zipFacingLengthCm = r2(checks.zipOpeningCm); checks.zipFacingWidthCm = o.facingWidthCm; checks.zipFacingPiecesCut = 2;
+    notes.push(`Zip facing: cut two ${checks.zipFacingLengthCm} cm strips, ${o.facingWidthCm} cm finished width (cut ${2 * o.facingWidthCm} cm plus seam allowance, folded in half), one behind each front edge to cover the zip tape. Typed width; the zip tape width and the hood-neck turn-back are not checked.`);
   }
   if (hood) {
     checks.neckSeamCm = r2(segLen(front, "neck") + segLen(back, "neck"));

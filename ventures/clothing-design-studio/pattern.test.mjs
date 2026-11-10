@@ -158,3 +158,24 @@ test("zip front: two mirrored front halves with a centre-front allowance, hoodie
   assert.ok(draft("tee", "M", { zip: true }).error);
   assert.ok(draft("hoodie", "M", { zip: true, zipSeamCm: 9 }).error);
 });
+
+test("zip facing: two strips as long as the zip opening, needs zip, width bounded", () => {
+  const d = draft("hoodie", "M", { zip: true, facing: true }), p = d.pieces.find(x => x.name === "zipFacing");
+  assert.ok(d.ok && d.checks.allSimple && p);
+  assert.equal(p.qty, 2);
+  assert.equal(d.checks.zipFacingLengthCm, d.checks.zipOpeningCm);
+  assert.ok(Math.abs(p.stitchAreaCm2 - d.checks.zipOpeningCm * 8) < 0.5);
+  assert.ok(Math.abs(p.bbox.w - (d.checks.zipOpeningCm + 2)) < 0.05 && Math.abs(p.bbox.h - 10) < 0.05);
+  assert.equal(draft("hoodie", "M", { zip: true }).pieces.some(x => x.name === "zipFacing"), false);
+  assert.ok(draft("hoodie", "M", { facing: true }).error);
+  assert.ok(draft("hoodie", "M", { zip: true, facing: true, facingWidthCm: 12 }).error);
+});
+
+test("zip facing strips nest with the rest of the hoodie with no overlap", async () => {
+  const { nestRatio, verifyNest } = await import("./nest.mjs");
+  const r = nestRatio("hoodie", { M: 1 }, { draftOpts: { zip: true, facing: true } });
+  assert.ok(r.ok, r.error);
+  assert.ok(JSON.stringify(r).includes("zipFacing"));
+  const v = verifyNest(r);
+  assert.ok(v.ok !== false && !v.overlaps, JSON.stringify(v).slice(0, 200));
+});
