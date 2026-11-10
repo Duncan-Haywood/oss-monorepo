@@ -1847,8 +1847,16 @@ Monthly CO2, 1958-03 to 2026-09 (`data/co2-mauna-loa.csv`, 823 values, the inter
 `node eval/sandy-spikes.mjs` (output `eval/sandy-spikes.out.txt`, test `sandy-spikes.test.mjs`, 2 tests). Capital Bikeshare daily counts (`data/bike-sharing-daily.csv`, 731 days), mean model, weekly period, `--spikes`, no tuning. This is the second real series with a documented bad point that the gold section asked for, with the caveat that Sandy is a real closure (recalled, source unread), not a data error.
 
 - **Registered riders:** 16 labels, the largest is 2012-10-29 to 10-30 at -15.7 noise sd, twice the next (-7.8 sd). Ranked by excursion, the event comes first. Labels over 3, 5 and 7 sd: 16, 6, 3, so the 3 sd threshold alone would not separate it; the ranking does.
-- **Casual riders:** 27 labels, none holds Sandy. The plain level model cuts 10-28 for casual riders (see the Sandy section above), so the run does not return to its start and the label rule skips it. The count and log models date it; `--spikes` does not run with them.
+- **Casual riders:** 27 labels, none holds Sandy. The plain level model cuts 10-28 for casual riders (see the Sandy section above), so the run does not return to its start and the label rule skips it. The count and log models date it; `--spikes` does not run with the count model, but does with `--log` (next section).
 - **Reading.** Use the label list sorted by excursion, not the 3 sd line: on a seasonal series most labels are weather and holidays. One event, one city; the 3 sd, 5-point and half-excursion thresholds stay untuned.
+
+## `--spikes` with `--log`: Sandy ranks first for casual riders too (2026-11-10)
+
+`node eval/sandy-spikes-log.mjs` (output `eval/sandy-spikes-log.out.txt`, test `sandy-spikes-log.test.mjs`, 2 tests). The previous section's question, with `log: true` (`--log --spikes`). No engine change: the spike guard only ever refused the Poisson model, so `--spikes` already ran on log values and the earlier note that it "does not run with them" was wrong for the log scale.
+
+- **Registered riders:** 22 labels; Sandy is first at -39.4 noise sd, twice the next (-19.1 sd). Labels over 3, 5, 7 sd: 22, 18, 9.
+- **Casual riders:** 16 labels; Sandy is first at -17.7 sd, nearly twice the next (-9.5 sd), at 0.02 of the normal level. Under the level model it had no label. On the log scale a closure is a fixed fraction of normal ridership, so the level shift the plain model cut is gone and the run returns to its start.
+- **Reading.** For a series whose level moves a lot (casual riders, summer against winter), try `--log --spikes` before concluding there is no spike. Excursions are in log units: `exp(excursion)` is the ratio to the surrounding level. Still the same caveats: one event, one city, recalled not checked against a source, thresholds untuned. The Poisson model still refuses `--spikes`.
 
 ## Lynx: a known period does not remove the cycle (2026-11-09, negative result)
 
