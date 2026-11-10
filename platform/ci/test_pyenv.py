@@ -264,6 +264,35 @@ class T(unittest.TestCase):
         finally:
             os.unlink(f.name)
 
+    def test_install_starts_with_the_interpreter_missing_fewest(self):
+        # 2026-11-10: pip ran on PATH's python3 and 3.12 for 10+ min while 3.13 lacked one module
+        lacks = {"/usr/local/bin/python3": "numpy scipy pytest", "/usr/bin/python3.12": "numpy scipy",
+                 "/usr/bin/python3.13": "scipy"}
+        calls = []
+
+        def run(cmd, **kw):
+            calls.append(cmd)
+            if cmd[1] == "-c" and len(cmd) > 3:
+                r = Result(0)
+                r.stdout = lacks[cmd[0]].encode()
+                return r
+            if cmd[1] == "-c":
+                return Result(0 if not lacks[cmd[0]] else 1)
+            if cmd[1:3] == ["-m", "pip"]:
+                lacks[cmd[0]] = ""
+                return Result(0)
+            raise AssertionError(cmd)
+
+        py = pyenv.install(["numpy", "scipy", "pytest"], list(lacks), run, quiet, None)
+        self.assertEqual(py, "/usr/bin/python3.13")
+        pip = [c for c in calls if c[1:3] == ["-m", "pip"]]
+        self.assertEqual(len(pip), 1)
+        self.assertEqual(pip[0][-1:], ["scipy"])
+
+    def test_missing_probes_a_real_interpreter(self):
+        self.assertEqual(pyenv.missing(sys.executable, ["json", "no_such_module_xyz"]),
+                         ["no_such_module_xyz"])
+
     def test_heartbeat_logs_until_stopped(self):
         logs = []
         stop = pyenv.heartbeat(logs.append, every=0.01)
