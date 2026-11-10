@@ -177,6 +177,7 @@
 
     const $ = (s) => document.querySelector(s);
     let last = null;
+    let lastAgreed = "";
 
     $("#penalty").addEventListener("change", () => { $("#penaltyValue").disabled = $("#penalty").value !== "custom"; });
 
@@ -190,10 +191,12 @@
       $("#summary").textContent = r.summary + (r.bursts && r.bursts.length ? ` Spikes cut back before fitting: ${r.bursts.slice(0, 10).map((b) => `${b.label} (${b.value} kept as ${b.keptAs})`).join(", ")}${r.bursts.length > 10 ? `, and ${r.bursts.length - 10} more` : ""}.` : "");
       // The settings panel (consensus.mjs) for the level model: the summary that held up on held-out labelled series.
       $("#agreed").hidden = true;
+      lastAgreed = "";
       if ($("#model").value === "mean") {
         try {
           const c = consensus({ csv: $("#csv").value, column: $("#column").value.trim() || null, log: $("#log").checked, period: Number($("#period").value) || 0, penalty });
-          $("#agreed").innerHTML = `<strong>Agreed changes:</strong> ${esc(agreedText(c))}`;
+          lastAgreed = agreedText(c);
+          $("#agreed").innerHTML = `<strong>Agreed changes:</strong> ${esc(lastAgreed)}`;
           $("#agreed").hidden = false;
         } catch (e) { /* the panel is extra; the main analysis above already ran */ }
       }
@@ -244,7 +247,7 @@
       });
       $("#report-open").addEventListener("click", () => {
         if (!last) return;
-        const html = changeReportHtml(last, { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date().toISOString().slice(0, 10) });
+        const html = changeReportHtml(last, { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, agreed: lastAgreed, date: new Date().toISOString().slice(0, 10) });
         const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
         record("report_opened");
       });

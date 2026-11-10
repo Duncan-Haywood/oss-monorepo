@@ -1,7 +1,7 @@
 ---
 title: The Kettle That Concentrates
 shelf: hearth-and-horizon
-setting: Saint Wendelin's (invented), Dunmore Grove, a farming parish in western Iowa, Thursday 14 March 2050
+setting: Saint Wendelin's (invented), Dunmore Grove, a farming parish in western Iowa, Thursday 17 March 2050
 published: 2026-10-31
 summary: A young mother has been boiling the parish hall's well water for her seven-week-old's bottles, because that is what everyone says to do. The hall's assistant has just read the county lab's result, 13.2 milligrams a litre of nitrate-nitrogen against a limit of 10, and has to tell her that boiling does not remove nitrate. It raises it, to about 15.2. It also has to own that it gave her the generic "boil it" advice three weeks ago. The baby is fine, the bottled water is cheap, and the baptism goes on with the water from the tap.
 ---

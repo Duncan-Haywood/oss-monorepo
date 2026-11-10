@@ -46,7 +46,10 @@ where it departs from the paper.
 - **Browser:** open the live page, paste a CSV, or click the Nile example.
 - **Command line** (Node 18+, no install):
   `node cli.mjs series.csv --column sales --model meanvar` (`--model poisson` for counts), `--json` for
-  machine-readable output, `--example` for the Nile data, `--help` for all options.
+  machine-readable output, `--example` for the Nile data, `--help` for all options. With the level
+  model (the default) the text output leads with the changes all six settings agree on, as the page
+  does (`--no-agreed` to skip it; skipped on its own above 2,000 points, see "Agreed changes in the CLI
+  and the report").
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   or the `call_tool` tool of the repository's MCP server
@@ -1992,6 +1995,36 @@ What held and what did not:
 **What shipped.** The page now runs the six-setting panel whenever the level model is chosen and leads the results with an "Agreed changes" line (`agreedText` in `consensus.mjs`): the changes every setting finds, with direction, then the held-out figures it is quoting (F1 0.71 vs 0.30 for the single level model in the table below it, 0.64 for reporting nothing). When no change is agreed, it says so and calls the table's changes candidates. The table and chart are unchanged, so the hundred-odd real-series tests pinned to the level model still hold. `agreed-text.test.mjs` checks the wording and that the quoted figures match `eval/tcpd-heldout.out.txt`. The panel runs in about 0.2 s on the Nile example in headless Chromium.
 
 Limits: 7 held-out series is a very small sample (two are image scanlines); the bootstrap is over series; the mirrored files were checked by md5 against TCPD's published checksums, not rebuilt from source here.
+
+## Agreed changes in the CLI and the report (2026-11-10)
+
+The held-out check above moved the page to lead with the changes every setting agrees on. The CLI's
+text output and the branded change report now do the same, so the three surfaces say one thing first.
+
+- **CLI.** With the level model (the default, or `--model mean`) and text output, `cli.mjs` runs the
+  six-setting panel with the options the panel shares (`--column`, `--label-column`, `--log`,
+  `--period`, `--penalty`, `--min-segment`) and prints the `agreedText` paragraph first, then
+  "Level model alone" and the old output unchanged. `--no-agreed` turns it off; other models and
+  `--json` are unchanged (agents call `--consensus` for the panel's JSON).
+- **Cost, measured here 2026-11-10** (wall clock, one run each, on `data/treering.csv` cut to length):
+  1,000 points 1.6 s with the panel vs 0.6 s without; 2,000 points 5.3 s vs 1.1 s; the full 7,980
+  points 32 s vs 5.7 s; `data/djia-returns.csv` (8,609 rows) 20 s vs 3.1 s. So above 2,000 points
+  (`AGREED_MAX_POINTS`) the CLI prints that the panel was not run and how to run it, instead of
+  making every long run several times slower. The page has no such cap yet: a long series pasted
+  there pays the same cost in the browser (next step below).
+- **Report.** `changeReportHtml(r, { agreed })` puts the same paragraph at the top of "What
+  changed" and labels the summary after it "Level model alone"; the page passes the paragraph it
+  just showed, and `sample-change-report.html` is rebuilt with it (Nile: all 6 settings agree on
+  1899, down). The paragraph is escaped like every other typed string.
+- The paragraph's wording changed from "the single level model in the table below" to "the single
+  level model whose results follow", which is true on all three surfaces.
+
+Tests: `cli.test.mjs` (lead line on the Nile example, `--no-agreed`, another model, a CSV with
+`--column` whose unset options keep their defaults, the length cap) and `report.test.mjs` (lead
+paragraph, escaping, absent when not passed).
+
+Next: the same length cap on the page (or run the panel in a worker), and a check that the
+"agreed" summary on real long series (the TCPD ones above 2,000 points) is worth its cost.
 
 ## Measles: the consensus loses F1 by cutting, not by missing (2026-11-10)
 

@@ -32,7 +32,7 @@ Father Tomasz counted on his fingers. "The window is shut from 13:23 to 18:23. S
 
 "Then every other Sunday works," said Father Tomasz, with the relief of a man who has found a pattern.
 
-"Nearly. A fortnight is 14 days, and a full cycle of the clock is 14.77, so the pattern comes round again a little late each time. These are the Sundays from tomorrow." And she read them out, and Father Tomasz wrote them on the board, one line at a time:
+"Nearly. A fortnight is 14 days, and a full cycle of the clock is 14.77, so the pattern comes round again a little late each time. These are the Sundays from tomorrow." And Lamplight read them out, and Father Tomasz wrote them on the board, one line at a time:
 
 *15 June, high water 09:30, closed 07:30 to 12:30. No crossing.*
 *22 June, 15:23. Open.*

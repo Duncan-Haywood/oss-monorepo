@@ -1,7 +1,7 @@
 ---
 title: The Lamp That Outlasts Its Light
 shelf: hearth-and-horizon
-setting: Saint Hubert's chapel, Hubert Station on Ganymede (invented), Saturday 21 March 2112
+setting: Saint Hubert's chapel, Hubert Station on Ganymede (invented), Saturday 19 March 2112
 published: 2026-11-08
 summary: The station chapel keeps its door lamp burning from the fifty-year-old power unit of the first lander, whose plaque says "half-life 88 years". Everyone assumes it has forty years left. The station assistant shows that half-life is the wrong clock: the plutonium has lost a third of its heat, but the thermocouples have aged faster, the unit gives 34 watts of electricity and not 74, and the lamp and its electronics need 20 by about 2134. The part that has hardly faded is the heat, 1,347 watts of it, and the chapel has been letting it go to waste.
 ---
