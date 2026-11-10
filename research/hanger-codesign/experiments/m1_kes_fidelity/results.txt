@@ -1,0 +1,67 @@
+hanger-codesign milestone 1. Size M, EA 150 N/m, B and W from hanger-kes (KES-FB, Table 3).
+err in cm RMS from the worn shape: 2D chain; 3D slab arm (centre column); 3D 3 cm half-depth arm (whole sheet).
+
+fabric description B(gf.cm2/cm) W(mg/cm2)
+A 'single jersey, 100% cotton (tee-like)' 0.0066 12.55
+B 'single jersey, 95% cotton / 5% polyurethane' 0.0162 15.86
+C 'plain woven shirting, 100% cotton' 0.027 12.52
+D 'plain woven suiting/bottom-weight, 100% cotton' 0.1249 24.6
+
+1. stock hangers
+fabric hanger err2d err3d_slab err3d_zh3_all
+A wire 3.148 3.307 4.429
+A plastic 3.105 3.103 4.386
+A wood-shaped 0.384 0.386 1.974
+B wire 3.173 3.346 4.590
+B plastic 3.133 3.129 4.433
+B wood-shaped 0.406 0.409 2.002
+C wire 3.143 3.308 4.405
+C plastic 3.103 3.096 4.362
+C wood-shaped 0.383 0.384 1.969
+D wire 3.201 3.354 4.714
+D plastic 3.201 3.200 4.543
+D wood-shaped 0.474 0.469 2.139
+ranking best->worst per model
+A 2d=wood-shaped>plastic>wire slab=wood-shaped>plastic>wire zh3=wood-shaped>plastic>wire same=True
+B 2d=wood-shaped>plastic>wire slab=wood-shaped>plastic>wire zh3=wood-shaped>plastic>wire same=True
+C 2d=wood-shaped>plastic>wire slab=wood-shaped>plastic>wire zh3=wood-shaped>plastic>wire same=True
+D 2d=wood-shaped>wire>plastic slab=wood-shaped>plastic>wire zh3=wood-shaped>plastic>wire same=False
+
+2. arm width offset from the half shoulder (cm), wood-shaped profile
+fabric offset err2d err3d_slab err3d_zh3_all
+A -1 1.647 1.649 2.596
+A +0 0.790 0.792 2.116
+A +1 0.182 0.182 1.921
+A +2 0.899 0.897 2.047
+A +3 1.668 1.667 2.410
+B -1 1.673 1.676 2.644
+B +0 0.814 0.817 2.145
+B +1 0.180 0.180 1.945
+B +2 0.880 0.878 2.056
+B +3 1.651 1.648 2.408
+C -1 1.647 1.648 2.583
+C +0 0.790 0.791 2.113
+C +1 0.182 0.182 1.918
+C +2 0.899 0.898 2.033
+C +3 1.669 1.668 2.406
+D -1 1.741 1.736 2.781
+D +0 0.880 0.875 2.293
+D +1 0.212 0.213 2.051
+D +2 0.843 0.848 2.128
+D +3 1.613 1.618 2.431
+best offset per fabric: 2d / slab / zh3
+A +1 +1 +1
+B +1 +1 +1
+C +1 +1 +1
+D +1 +1 +1
+
+3. convergence: wood-shaped, 3000 vs 6000 L-BFGS iterations
+A zh=12 0.3857 0.3861 diff=0.0004
+A zh=3 1.9741 2.0846 diff=0.1104
+D zh=12 0.4695 0.4695 diff=0.0001
+D zh=3 2.1393 2.1878 diff=0.0485
+
+P1 same stock ranking in all three models on all fabrics: refuted
+P2 best offset 2D == 3D slab on all fabrics: held
+P3 3 cm arm best offset within 1 cm of 2D on all fabrics: held
+P4 max |err3d_slab - err2d| wood-shaped = 0.004 cm (< 0.10): held
