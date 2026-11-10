@@ -1,6 +1,6 @@
 ---
 title: "Checking the Singapore UEN check letter on InvoiceNow invoices"
-seo_title: "Singapore UEN validator: check letter for business, company and other entities"
+seo_title: "Singapore UEN validator: check letter for InvoiceNow invoices"
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, singapore, invoicenow]
 description: "einvoice-preflight now verifies the check letter at the end of a Singapore UEN, not only its shape."
