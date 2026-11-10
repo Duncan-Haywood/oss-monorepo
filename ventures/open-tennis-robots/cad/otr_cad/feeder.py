@@ -475,7 +475,7 @@ def take_up_parts(p: Feeder) -> list[Part]:
     y_post_out = y_post - h / 2                            # post's outboard face
     gap = y_in - y_post_out                                # span the bracket bridges (the track sits clear of the post)
     bt = 6.0                                               # plate thickness
-    plate = Box(w + 20.0, abs(gap) + 2 * 20.0 + bt, bt)    # lies across the gap, on the net-side face
+    plate = Box(bt, abs(gap) + 2 * 20.0 + bt, w + 20.0)    # lies across the gap, on the net-side face
     plate = plate.moved(Location((0, (y_in + y_post_out) / 2 - y_track, 0)))
     tie = Part("take_up_tie", "print", "PETG", 2, plate,
                [Location((x_track + w / 2 + bt / 2, y_track, zt)) for zt in tie_z],

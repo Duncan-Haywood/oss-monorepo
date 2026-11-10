@@ -252,7 +252,7 @@ flagships:
       (`Feeder.launch_window`: 17.9 to 26.8 m/s at 3000 rpm topspin, none at 4000);
       plate clearance landed 2026-11-09 (3.5 deg yaw tolerance, cad/README.md);
       wheel-axle squaring stack landed 2026-11-09 (`Feeder.axle_squaring`: 0.75 deg worst case, 4.7x inside the 3.5 deg;
-      assumed tolerances, measure the first build). track tie loads landed 2026-11-10 (`Feeder.track_tie`: 104x slot-nut margin, assumed). Next: the tie and hose-clip brackets as CAD, then the actuator brackets.
+      assumed tolerances, measure the first build). track tie loads landed 2026-11-10 (`Feeder.track_tie`: 104x slot-nut margin, assumed). Tie brackets as CAD landed 2026-11-10 (`take_up_tie`, 2 printed plates). Next: the hose-clip brackets as CAD, then the actuator brackets.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
