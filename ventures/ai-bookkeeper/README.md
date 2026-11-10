@@ -52,7 +52,7 @@ spreadsheet, or a bookkeeping subscription with a bank login.
 | `opening.mjs` | Opening balances from a trial balance CSV (`code,amount` in natural sign, or `code,debit,credit`), dated; whatever does not balance goes to 3000 and is reported. For starting mid-stream with a receivable, a loan, equipment and prior earnings already on the books. CLI `opening FILE --date D`; agents `opening: {csv, date}`. |
 | `payroll.mjs` | Pay-run register to books: wages, employer taxes, the 2300 liability, bank-line matching and a Form 941 worksheet. |
 | `ledger.mjs` | The double-entry core, in integer cents: a 37-account small-business chart (or your own), entries that must balance, trial balance, monthly profit and loss, and a balance sheet where unclosed profit shows as current earnings, and an indirect-method cash flow statement (`cashFlow`, in `report`) that must tie to the change in the bank accounts (since 2026-10-26 depreciation is an operating add-back and a disposal shows proceeds in investing; 2026-10-26 `freeCashFlow` = operations less fixed-asset purchases; `monthlyBurn` and `runwayMonths` = cash used by operations and investing per month, and closing cash over it, null when not burning; 2026-10-27 `cashFlowByMonth` gives each month's statement and the last three months' burn and runway, in the CLI `report` and a table on the page; 2026-10-27 `ratios` (in `report`, the CLI and the page): gross and net margin, working capital, current and quick ratio, debt to equity, each null rather than invented when its denominator is zero or negative, with the loan counted as long term). |
-| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
+| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5 and at most its own record on earlier new payees, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
 | `engine.mjs` | Import, transfer pairing, auto-posting, confirming, the journal, close checks and exports. `analyze()` is the one call for agents and the CLI. |
 | `ai.mjs` | The optional fifth layer, through `byok.mjs` (a synced copy of `platform/llm/byok.mjs`): Anthropic, OpenAI, Gemini, any OpenAI-compatible endpoint, or Ollama, LM Studio or llama.cpp on your own computer. |
 
@@ -334,7 +334,7 @@ What it says, with care:
 
 Reproduce: `node eval/opencollective-labelled.mjs --host raft --variants payee,memo --new-payee`
 (the cache file name changed to `-v2` because amounts are now fetched). Tests:
-`new-payee.test.mjs` (5).
+`new-payee.test.mjs` (5 then; 7 since the record, below).
 
 ### New payees, held out: a ledger, a bank export and a card (2026-11-10)
 
@@ -380,6 +380,58 @@ What it says:
   guesses drop 9 points for 3 points of right, but Chase gives up 5 points of right for
   nothing. Whether a reviewer is better served by fewer, surer pills is the same open
   question as above. A default change should be read on Open Collective too.
+
+### New payees, gated on their own record (2026-11-10)
+
+The held-out reading above left one question: Hack Club's new-payee guesses were right on
+35.6% of the lines they took, under the 40% share the layer asks of its evidence. Share
+says how much a view's payees agree; it does not say whether that agreement has predicted
+the next new payee. So `trainNewPayee` now replays the payees' first lines in filing order
+and keeps, for every view, a track record: how often its plurality, read before that payee
+was added, named the account it was then filed to. A gate was set before the first reading
+(not tuned): once a view has at least 8 tries (`minTries`, the payee floor), it must have
+been right on at least 40% of them (`minRecord`, the share floor) or it says nothing.
+
+First-time lines, right / wrong of all, gate off then on:
+
+| set | first-seen lines | gate off | gate on | withheld lines, of them right |
+|---|---|---|---|---|
+| Hack Club ledger | 184 | 53.3% / 25.0% | 52.2% / 20.7% | 10, 2 |
+| makerspace bank exports | 16 | 68.8% / 12.5% | unchanged | 0 |
+| Chase card | 79 | 93.7% / 5.1% | unchanged | 0 |
+| ten Mint exports (all) | 1,236 | 82.8% / 9.7% | 82.5% / 9.5% | about 6, 4 |
+| Open Collective opensource | 1,913 | 57.1% / 32.7% | 55.1% / 31.6% | 59, 38 |
+| foundation | 1,648 | 19.4% / 29.0% | 19.2% / 28.3% | 15, 3 |
+| raft | 298 | 33.2% / 41.3% | 31.5% / 37.0% | 18, 5 |
+| pact_collective | 295 | 41.4% / 37.6% | 33.6% / 28.4% | 50, 23 |
+| metagov | 237 | 65.4% / 29.5% | 64.1% / 28.7% | 5, 3 |
+
+(Open Collective wrong is suggested minus right; withheld lines are derived from the
+printed percentages, so they are within a line. The opensource "gate off" row reads
+57.1%, not the 56.8% of 2026-11-10, because the host's books grew since.)
+
+What it says:
+
+- **The gate is not kept on by default.** Over the seven sets it withheld about 163
+  guesses and 78 of them (48%) were right: it removed about one right suggestion for each
+  wrong one. On Hack Club it does what it was built for (4.3 points of wrong for 1.1 of
+  right), on foundation and raft it helps a little, but on pact_collective it cost 7.8
+  points of right and on opensource the withheld guesses were right 64% of the time. A
+  record of 8 to 20 tries is noisy, and early in a set of books it is mostly noise.
+- **What stays on is the record itself.** Once a view has 8 tries, its hit rate caps the
+  suggestion's confidence (never above the 0.5 ceiling) and the reason says it, "this
+  guess was right for 7 of 12 earlier new payees", so a reviewer can tell a guess that has
+  been working in these books from one that has not. The withheld lines above are the ones
+  whose pill now reads lowest; across the sets they were right 48% of the time, against
+  35.6% (Hack Club) to 81.3% (Chase) for the layer's own suggestions, so the cap orders
+  them only loosely.
+- `--min-record 0.4` (eval/new-payees.mjs) and the "gate on" line of
+  `eval/opencollective-labelled.mjs --new-payee` reproduce the gate; `minRecord` in
+  `NEW_PAYEE` turns it on for a book. Tests: `new-payee.test.mjs` (7).
+
+Next on this item is the card network's merchant category code (MCC) where a file carries
+it, and the AI layer for one-off local merchants, not more thresholds on the same two
+features.
 
 ### Round-trip property test (2026-10-22)
 
