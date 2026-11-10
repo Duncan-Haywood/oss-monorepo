@@ -52,6 +52,7 @@ const PILOTS = {
   'dependent-care-fsa-vs-credit-calculator': async (m) => [m.FSA_LIMIT, m.CAP_ONE, m.CAP_TWO, m.FSA_LIMIT / 2, 5000], // FSA limit, credit caps, separate-return half, and the pre-2026 FSA limit named as context; 26 USC 129 and 21
   'home-office-deduction-calculator': async (m) => [m.SIMPLIFIED_RATE, m.SIMPLIFIED_MAX_SQFT, m.SIMPLIFIED_MAX],
   'sep-ira-contribution-calculator': async (m) => [m.LIMITS_2026.annualAdditions, m.LIMITS_2026.compensationLimit],
+  'social-security-benefits-tax-calculator': async (m) => [m.BASES.single.b1, m.BASES.single.b2, m.BASES.mfj.b1, m.BASES.mfj.b2], // statutory base amounts, IRC 86(b)
   'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
 };
 
