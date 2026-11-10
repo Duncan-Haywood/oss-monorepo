@@ -5,6 +5,7 @@
 //
 //   node eval/opencollective-labelled.mjs --host opensource --pages 10 [--cache DIR] [--misses 30]
 //   node eval/opencollective-labelled.mjs --host foundation --pages 10
+//   node eval/opencollective-labelled.mjs --host raft --variants payee --new-payee   (layer 6 on and off)
 //
 // Fetched at run time from the public GraphQL API (api.opencollective.com/graphql/v2,
 // no key, 10 requests a minute) and cached under --cache (default the OS temp dir); never
@@ -22,7 +23,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { suggest, trainClassifier, buildMemory, historyRecord } from "../categorize.mjs";
+import { suggest, trainClassifier, buildMemory, trainNewPayee, historyRecord, NEW_PAYEE } from "../categorize.mjs";
 
 // Host category name -> chart accounts a careful bookkeeper could pick. Categories with
 // no counterpart in the small-business chart (grants, donations, "Administrative",
@@ -107,13 +108,13 @@ export const MAPS = {
 };
 
 const QUERY = `query($host:String!,$limit:Int!,$offset:Int!){ expenses(host:{slug:$host}, limit:$limit, offset:$offset, status:PAID){
-  totalCount nodes{ description type createdAt accountingCategory{ name } payee{ name } } } }`;
+  totalCount nodes{ description type createdAt amountV2{ valueInCents currency } accountingCategory{ name } payee{ name } } } }`;
 
 export async function fetchPages(host, pages, dir, { limit = 1000, pause = 7000 } = {}) {
   mkdirSync(dir, { recursive: true });
   const out = [];
   for (let p = 0; p < pages; p++) {
-    const file = join(dir, `${host}-${limit}-${p}.json`);
+    const file = join(dir, `${host}-${limit}-${p}-v2.json`);
     if (!existsSync(file)) {
       if (p) await new Promise((r) => setTimeout(r, pause));
       const res = await fetch("https://api.opencollective.com/graphql/v2", {
@@ -134,6 +135,7 @@ export async function fetchPages(host, pages, dir, { limit = 1000, pause = 7000 
 export const toRow = (n) => ({
   date: String(n.createdAt ?? "").slice(0, 10), memo: String(n.description ?? "").trim(),
   payee: String(n.payee?.name ?? "").trim(), cat: n.accountingCategory?.name ?? null, type: n.type,
+  cents: Number.isFinite(n.amountV2?.valueInCents) ? n.amountV2.valueInCents : null,
 });
 
 export const textOf = (r, variant) => variant === "memo" ? r.memo : variant === "payee" ? r.payee : `${r.payee} ${r.memo}`.trim();
@@ -148,22 +150,22 @@ function tally(o, s, want) {
 }
 
 // Scored rows only (category maps to the chart). Month batches, oldest first.
-export function evaluate(rows, map, variant, { learn = true } = {}) {
+export function evaluate(rows, map, variant, { learn = true, amounts = false, skip = null, newPayeeOpts = null } = {}) {
   const scored = rows.filter((r) => r.cat && map[r.cat]).sort((a, b) => a.date.localeCompare(b.date));
   const all = blank(), firstSeen = blank(), repeat = blank(), bySource = {}, byCat = {}, misses = [];
   const hist = [], seen = new Set();
-  let model = { rules: [], codes: null, memory: buildMemory([]), classifier: { n: 0 } };
+  let model = { rules: [], codes: null, memory: buildMemory([]), classifier: { n: 0 }, newPayee: null };
   let month = null, pending = [];
   const flush = () => {
     if (!learn || !pending.length) return;
     hist.push(...pending); pending = [];
-    model = { rules: [], codes: null, memory: buildMemory(hist), classifier: trainClassifier(hist) };
+    model = { rules: [], codes: null, memory: buildMemory(hist), classifier: trainClassifier(hist), newPayee: trainNewPayee(hist) };
   };
   for (const r of scored) {
     if (r.date.slice(0, 7) !== month) { flush(); month = r.date.slice(0, 7); }
     const want = map[r.cat];
-    const txn = { desc: textOf(r, variant), cents: -10000 };
-    const s = suggest(txn, model);
+    const txn = { desc: textOf(r, variant), cents: amounts && r.cents ? -Math.abs(r.cents) : -10000 };
+    const s = suggest(txn, { ...model, ...(skip ? { skip } : {}), ...(newPayeeOpts ? { newPayeeOpts } : {}) });
     tally(all, s, want);
     const k = txn.desc.toLowerCase();
     tally(seen.has(k) ? repeat : firstSeen, s, want);
@@ -186,9 +188,25 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (!map) throw new Error(`no category map for host "${host}" (have: ${Object.keys(MAPS).join(", ")})`);
   const rows = (await fetchPages(host, +arg("--pages", 10), arg("--cache", join(tmpdir(), "oc-labelled")))).map(toRow);
   const variants = (arg("--variants", "memo,payee,both")).split(",");
+  const amounts = !process.argv.includes("--no-amounts");
+  if (process.argv.includes("--new-payee")) {
+    // The new-payee layer on and off, online, each line at its real amount.
+    for (const v of variants) for (const skip of [new Set(["new-payee"]), null]) {
+      const o = evaluate(rows, map, v, { amounts, skip });
+      console.log(`${v.padEnd(5)} new-payee ${skip ? "off" : "on "} all ${line(o.all)}`);
+      console.log(`                first time seen ${line(o.firstSeen)}`);
+      if (!skip) {
+        // The same layer allowed only the direction view: "the account most new payees went to".
+        const p = evaluate(rows, map, v, { amounts, newPayeeOpts: { ...NEW_PAYEE, levels: ["direction"] } });
+        console.log(`    prior only  first time seen ${line(p.firstSeen)}`);
+      }
+      if (!skip) console.log(`                by source ${Object.entries(o.bySource).map(([k, x]) => `${k} ${x.n} (${pct(x.right, x.n)} right)`).join(", ")}`);
+    }
+    process.exit(0);
+  }
   for (const v of variants) {
     for (const learn of [false, true]) {
-      const o = evaluate(rows, map, v, { learn });
+      const o = evaluate(rows, map, v, { learn, amounts });
       if (v === variants[0] && !learn) {
         console.log(`${host}: ${o.rows} paid expenses, ${o.uncategorised} with no category, ${o.unscored} in categories with no chart account; ${o.all.n} scored, ${o.from} to ${o.to} (${o.months} months)`);
         const [top, k] = Object.entries(o.byCat).sort((a, b) => b[1].n - a[1].n)[0];

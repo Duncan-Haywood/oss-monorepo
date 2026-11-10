@@ -52,7 +52,7 @@ spreadsheet, or a bookkeeping subscription with a bank login.
 | `opening.mjs` | Opening balances from a trial balance CSV (`code,amount` in natural sign, or `code,debit,credit`), dated; whatever does not balance goes to 3000 and is reported. For starting mid-stream with a receivable, a loan, equipment and prior earnings already on the books. CLI `opening FILE --date D`; agents `opening: {csv, date}`. |
 | `payroll.mjs` | Pay-run register to books: wages, employer taxes, the 2300 liability, bank-line matching and a Form 941 worksheet. |
 | `ledger.mjs` | The double-entry core, in integer cents: a 37-account small-business chart (or your own), entries that must balance, trial balance, monthly profit and loss, and a balance sheet where unclosed profit shows as current earnings, and an indirect-method cash flow statement (`cashFlow`, in `report`) that must tie to the change in the bank accounts (since 2026-10-26 depreciation is an operating add-back and a disposal shows proceeds in investing; 2026-10-26 `freeCashFlow` = operations less fixed-asset purchases; `monthlyBurn` and `runwayMonths` = cash used by operations and investing per month, and closing cash over it, null when not burning; 2026-10-27 `cashFlowByMonth` gives each month's statement and the last three months' burn and runway, in the CLI `report` and a table on the page; 2026-10-27 `ratios` (in `report`, the CLI and the page): gross and net margin, working capital, current and quick ratio, debt to equity, each null rather than invented when its denominator is zero or negative, with the loan counted as long term). |
-| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords. Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
+| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
 | `engine.mjs` | Import, transfer pairing, auto-posting, confirming, the journal, close checks and exports. `analyze()` is the one call for agents and the CLI. |
 | `ai.mjs` | The optional fifth layer, through `byok.mjs` (a synced copy of `platform/llm/byok.mjs`): Anthropic, OpenAI, Gemini, any OpenAI-compatible endpoint, or Ollama, LM Studio or llama.cpp on your own computer. |
 
@@ -154,13 +154,19 @@ carrying a right suggestion:
 
 | layers | posted alone, right | right in all | wrong suggestions | no suggestion |
 |---|---|---|---|---|
-| all | 62.6% | 88.8% | 100 | 6.4% |
-| without memory | 0% | 85.9% | 77 | 10.4% |
-| without the classifier | 62.6% | 86.8% | 68 | 9.8% |
-| without built-in keywords | 62.6% | 85.8% | 100 | 9.3% |
-| memory only | 62.6% | 81.1% | 68 | 15.6% |
-| classifier only | 0% | 78.2% | 77 | 18.1% |
-| built-in keywords only | 0% | 54.7% | 0 | 45.3% |
+| all | 62.5% | 90.4% | 111 | 4.2% |
+| without memory | 0% | 88.1% | 88 | 7.7% |
+| without the classifier | 62.5% | 89.7% | 82 | 6.3% |
+| without built-in keywords | 62.5% | 86.0% | 121 | 8.1% |
+| without the new-payee guess | 62.5% | 90.3% | 100 | 4.8% |
+| memory only | 62.5% | 81.0% | 68 | 15.6% |
+| classifier only | 0% | 78.1% | 77 | 18.2% |
+| built-in keywords only | 0% | 67.6% | 90 | 28.0% |
+
+Rerun 2026-11-10 (2,071 lines; the earlier table, 2,074 lines, predates later keyword
+work). On this synthetic year the new-payee guess adds 0.1 points and 11 wrong
+suggestions: the generator's payees are businesses the keywords already know. Its real
+test is the labelled books below.
 
 Reading it, same caveat as above (synthetic data, keywords written by the
 generator's author): memory alone gets to 81%, and the other two layers add
@@ -230,6 +236,52 @@ What it says, with care:
 - These are reimbursement and invoice records, not bank lines, the mapping to the chart is
   this repository's, and the newest 10,000 paid expenses were read for the two big hosts
   (all of them for the other three).
+
+### New payees (2026-11-10)
+
+The labelled books above showed the weak spot: from the payee's name alone, a payee seen
+for the first time got a suggestion on 8-33% of lines and was right on 5-21%. Memory and
+the classifier know nothing about a new name, and most names carry no keyword. So a sixth
+layer, `guessNewPayee` in `categorize.mjs`, reads only two things a new line still has:
+what kind of name it is (`payeeShape`: a person, a business by its suffix or trade word, or
+other) and its size (under $50, $500, $5,000, or more). It counts the account of every
+other payee's first filed line in the same view, and offers the plurality when at least 8
+payees are in that view and at least 40% of them agree; otherwise it backs off from shape
+and size to shape, size, then direction, and stops at the first view with 8 payees if that
+view is split. It is a suggestion for review only: confidence at most 0.5, never posted
+alone, and the AI layer in fill mode still takes the line. The thresholds were set before
+the first reading and not tuned.
+
+Online, each line at its real amount, first-time payees only, right of all:
+
+| host | text | before | after | the same layer, direction only | right of suggested, before / after |
+|---|---|---|---|---|---|
+| opensource | payee | 21.2% | 56.8% | 55.2% | 64.5% / 63.3% |
+| foundation | payee | 10.3% | 19.5% | 10.3% (split, says nothing) | 50.0% / 40.2% |
+| raft (held out) | payee | 13.8% | 32.6% | 13.8% (split) | 71.9% / 43.9% |
+| pact_collective (held out) | payee | 4.7% | 41.4% | 41.4% | 58.3% / 52.4% |
+| metagov (held out) | payee | 16.5% | 65.4% | 67.1% | 75.0% / 68.9% |
+| the five, memo text | memo | 61.2-84.0% | 64.3-84.9% | | |
+
+What it says, with care:
+
+- **Most of the gain on three hosts is just "the account most new payees go to".** Where
+  one category dominates (opensource, pact_collective, metagov) the direction-only prior
+  does as well, and on metagov 1.7 points better. Shape and size earn their place where
+  the prior is split: foundation and raft, where the prior alone says nothing and the
+  layer gets 9 and 19 points.
+- **It costs wrong suggestions.** On raft, 42% of first-time lines now carry a wrong
+  guess, against 5% before; the reviewer changes a low-confidence pill instead of picking
+  from blank. Right of suggested falls on every host. Nothing more posts alone: auto-posted
+  share and its error count are identical with the layer on and off.
+- With memo text the keywords and classifier already cover most lines, so the layer adds
+  1-3 points.
+- These are reimbursement and invoice records with the payee's display name, not bank
+  descriptions; "person" is a guess from the name's form, not a lookup.
+
+Reproduce: `node eval/opencollective-labelled.mjs --host raft --variants payee,memo --new-payee`
+(the cache file name changed to `-v2` because amounts are now fetched). Tests:
+`new-payee.test.mjs` (5).
 
 ### Round-trip property test (2026-10-22)
 
