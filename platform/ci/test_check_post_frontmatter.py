@@ -11,6 +11,22 @@ GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "DDDDDDDDDDDDDDDDDDDDDDD
 
 
 class T(unittest.TestCase):
+    def test_fallback_cut_matches_propose_seo_titles(self):
+        import importlib.util
+        src = Path(__file__).resolve().parent / "check_post_frontmatter.py"
+        text = src.read_text()
+        start = text.index("    def _cut(")
+        body = "\n".join(l[4:] for l in text[start:].split("\n\n")[0].splitlines())
+        ns = {}
+        exec(body, ns)
+        spec = importlib.util.spec_from_file_location("pst", ROOT / "platform" / "pages" / "propose_seo_titles.py")
+        pst = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(pst)
+        for title in ["Short: x", "A head that is long enough to keep: and then a much longer tail that runs on",
+                      "Why does this question run long enough? Because it keeps on going past seventy chars",
+                      "x" * 90, "Q? tail", "A" * 71 + ": tail"]:
+            self.assertEqual(ns["_cut"](title), pst.cut(title), title)
+
     def test_runs_when_copied_alone_into_another_tree(self):
         # prompts/test_promptctl.py copies this script by itself onto a fixture
         # tree; an import that only resolves in the real repository crashed it
