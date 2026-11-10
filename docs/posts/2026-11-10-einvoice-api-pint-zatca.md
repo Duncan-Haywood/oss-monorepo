@@ -1,6 +1,6 @@
 ---
 title: "The e-invoice checker API now runs Singapore and Saudi rules"
-seo_title: "E-invoice validator API for Peppol PINT Singapore and ZATCA Saudi invoices"
+seo_title: "E-invoice validator API for Peppol PINT and Saudi ZATCA invoices"
 date: 2026-11-10
 tags: [einvoice-preflight, e-invoicing, peppol, zatca]
 description: "The self-hosted e-invoice preflight API gave Singapore InvoiceNow and Saudi ZATCA files the EU rules. It now runs each file's own published rule set."
