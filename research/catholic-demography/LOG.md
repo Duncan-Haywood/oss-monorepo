@@ -3,6 +3,29 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-10 · Milestone 5b, sixth GSS-only step: the randomised mode arms do not move the raised-Catholic share
+
+Run: `experiments/m5g_randomised/run.py` (output `results.txt`, table `t23`). **Order of events:** the prediction was written
+into the script's docstring before it ran: if the web-minus-in-person gap of 5f were a measurement effect of mode, the
+web-first arm of the 2022 and 2024 randomised design (`modesequence` 1 face-to-face-first, 2 mail-push-to-web-first, as in
+m3b) would show a higher raised-Catholic share; if it reflects who chooses to answer by web, the arm difference would be near
+zero. Design-based intervals (stratified PSU linearisation), not the bootstrap of 5a to 5f.
+
+- **Randomised arms, 2022+2024, F2F-first minus web-first.** All adults: 33.9% vs 33.4%, **+0.5 points [-2.6, +3.6]**
+  (n=2,864 and 3,600). Third-plus-generation non-Hispanic whites (the 5e/5f population): 29.9% vs 28.0%, **+2.0 [-2.0, +5.9]**
+  (n=1,568 and 2,041). Each year alone is the same sign with intervals that include zero.
+- **Completed mode, same years (not randomised).** Third-plus NH white, in person minus web: **-4.7 points [-9.0, -0.5]**;
+  all adults -1.3 [-4.9, +2.3].
+- **My prediction is supported:** assigning the web-first sequence does not raise raised-Catholic (point estimate is the
+  other way), while the gap by completed mode is the 5f gap. So the 2021-24 web/in-person difference looks like who ends up
+  answering by web, not a pure effect of the mode on the answer.
+- **Limits.** The arm difference is imprecise: the 95% interval for the third-plus NH white arm contrast spans about -2 to +6
+  points, so a mode effect of the 5f size (about 5) is not excluded. The arms differ in response patterns and mixing, so
+  this is an intention-to-treat contrast, and 2021 (all web) has no randomised arm. This does not say the 2021-24 rise is
+  real: if web respondents are a different slice, the pooled 2021-24 series still has a composition problem that weights
+  do not fix. H4 stays undecided.
+- **Next.** NCHS births and ACS immigration series (5b proper), the fertility channel H4 needs.
+
 ## 2026-11-09 · Milestone 5b, fifth GSS-only step: the within-cohort rise is a web-interview effect
 
 Run: `experiments/m5f_mode/run.py` (output `results.txt`, tables `t21`, `t22`; same weights and 500-draw PSU bootstrap,
