@@ -30,3 +30,11 @@ def test_regret_when_rungs_are_reversed():
     sc = [{"r1": -v, "r2": -v, "r3": -v, "r4": v} for v in range(1, 31)]
     # keeps the 8 worst routed points (23..30): best survivor 23, pool minimum 1
     assert abs(an.regret(sc, (30, 8, 8), random.Random(0), 5) - 2200.0) < 1e-9
+
+
+def test_fresh_pool_summary():
+    t = (EXP / "results.txt").read_text()
+    assert "mean over 20 cells: skip-r1 1.04%, 105-style 5.49%, random 8 8.00%, skip-r1 at N=50 0.43%" in t
+    assert "tight | adder_ripple16 | 104 | 0.00 | 34.27 | 27.89 | 0.00" in t
+    for k in range(1, 6):
+        assert f"({k})" in t and t.split(f"({k})")[1].splitlines()[0].endswith("True")
