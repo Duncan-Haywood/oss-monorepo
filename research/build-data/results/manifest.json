@@ -5,15 +5,15 @@
   "chicago": {
    "dataset": "ydr8-5enu",
    "host": "data.cityofchicago.org",
-   "rows": 852598,
-   "applied": 852249,
-   "issued": 852598,
+   "rows": 852615,
+   "applied": 852266,
+   "issued": 852615,
    "completed": 0,
-   "cost": 814023,
-   "both_applied_issued": 852249,
+   "cost": 814035,
+   "both_applied_issued": 852266,
    "negative_issue_lag": 81,
    "negative_build_time": 0,
-   "pulled": "2026-11-09"
+   "pulled": "2026-11-10"
   },
   "sf": {
    "dataset": "i98e-djp9",
@@ -26,20 +26,20 @@
    "both_applied_issued": 1233161,
    "negative_issue_lag": 2257,
    "negative_build_time": 736,
-   "pulled": "2026-11-09"
+   "pulled": "2026-11-10"
   },
   "austin": {
    "dataset": "3syk-w9eu",
    "host": "data.austintexas.gov",
-   "rows": 2384446,
-   "applied": 2384417,
-   "issued": 2384446,
+   "rows": 2384452,
+   "applied": 2384423,
+   "issued": 2384452,
    "completed": 2185446,
-   "cost": 1190420,
-   "both_applied_issued": 2384417,
+   "cost": 1190422,
+   "both_applied_issued": 2384423,
    "negative_issue_lag": 863,
    "negative_build_time": 3533,
-   "pulled": "2026-11-09"
+   "pulled": "2026-11-10"
   },
   "seattle": {
    "dataset": "76t5-zqzr",
