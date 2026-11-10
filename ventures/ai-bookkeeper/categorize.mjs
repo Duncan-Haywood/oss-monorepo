@@ -15,7 +15,7 @@
 // normalised payee. Pure functions, no DOM, no network.
 
 const NOISE = new Set(("pos ach debit credit card purchase checkcard visa mastercard mc dda withdrawal deposit payment pmt pymt web ppd ccd id ref trn txn " +
-  "recurring online mobile preauthorized pre auth authorized on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
+  "recurring online mobile preauthorized pre auth authorized authorization authorisation pending non pin at on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
   "al ak az ar ca co ct de fl ga hi ia il in ks ky la ma md me mi mn mo ms mt nc nd ne nh nj nm nv ny oh ok or pa ri sc sd tn tx ut va vt wa wi wv wy").split(" "));
 
 // "SQ *BLUE BOTTLE 0412 OAKLAND CA" -> tokens ["blue","bottle","oakland"], key "blue bottle".
@@ -525,7 +525,10 @@ export const BUILT_IN = [
   ["6080", "out", /wework|regus|coworking|office rent|monthly rent|rent payment|paying the rent|property management|miete\b|loyer\b|alquiler|storage unit|public storage/],
   ["6100", "out", /home depot|lowes|ace hardware|menards|harbor freight|uline|grainger/],
   ["6110", "out", /business licen[cs]e|secretary of|annual report|franchise tax|permit fee/],
-  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta air|united air|american air|southwest|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
+  ["6120", "out", /airline|\btram\b|subway fare|metro transit|transit authority|delta air|united air|american air|southwest(?!\s+grill)|southwes\s{2,}\d|jetblue|marriott|hilton|hyatt|expedia|booking\.com|amtrak|hertz|\bavis\b|enterprise rent|uber\s+\*?\s*trip|uber\s+\*?\s*(?:ride|pool)|lyft|radisson|wyndham|best western|airbnb|priceline|hotwire|car rental|rent a car|\bturo\b|budget rent/],
+  // Real Mint exports (2026-11-10, eval/mint-labelled.mjs, "tune" files only): restaurant words and chains on bank
+  // lines, Seamless's glued descriptor ("SEAMLSSTHEMILL"), and the airline rule no longer fires on "Moe's Southwest Grill".
+  ["6130", "out", /\bseamle?ss|\bkitchen\b(?!\s*(supply|store|aid|cabinet|collection))|\bgrille\b|\bpub\b|\btavern\b|\bcantina\b|\btrattoria\b|\bpizzeria\b|\bcreperie\b|\bcrepes?\b|\bbarb[ae]c?(ue|que)\b|\bsoup\b|\bsandwich|\bqdoba\b|\bsweetgreen\b|\bcava mezze\b|\bbrioche doree\b|\beurest\b|\bmeatball shop\b|\bburgers?\b(?!\s*king)/],
   ["6130", "out", /restaurant|eating out|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|taqueria|sushi|ihop|applebee|jack in the box|\bsonic\b|tim hortons|wingstop|tgi friday|panda express|dunkin|wendy|burger king|\bkfc\b|taco bell|popeyes|domino|chick-fil-a|\bramen\b|dim sum|bakery|\bgrill\b|steakhouse|noodle|\bbbq\b|\bdeli\b|kebab|burrito|wings/],
   ["6140", "out", /verizon|at&t|\batt\*|\batt (?:bill|wireless|internet|mobility|u-verse)|t-mobile|tmobile|comcast|xfinity|spectrum|cox comm|google fi|mint mobile|electric|pg&e|pgande|pg ?and ?e\b|pacific gas|national grid|duke energy|monkeybrains|sonic\.net|google fiber|webpass|starry|frontier comm|centurylink|\blumen\b|astound|con ?ed|water bill|utility|\bwater\b|\bpower\b(?! (manager|supply|module|adapter|bank|strip|cable|board|tool|button|switch|led))|\benergy\b|ebill|edison|dominion|entergy|eversource|cricket|visible|optimum|us mobile|\bting\b|telekom|vodafone|\bo2 (uk|germany)|orange (s\.?a|france)|\bbt group|sky broadband|virgin media|\bee limited|rogers comm|bell canada|telus|optus|telstra|stadtwerke/],
   ["6150", "out", /net pay|payroll(?! tax)|wages/],
@@ -545,7 +548,7 @@ export const BUILT_IN = [
   // From Hack Club's public HCB card feed (eval/hcb-memos.mjs): merchants a student-run nonprofit pays, rules written looking at the first 40 organisations only.
   ["6060", "out", /\bzoom\b|porkbun|name-?cheap|neon\.tech|gmass|help ?scout|descript\b|typeform|streamyard|restream|assemblyai|fillout|\bshopify\b|spotify|domain\.com|tryhackme|sentry|supabase|render\.com|planetscale|mongodb|replit|posthog|\bloom\b|calendly|airtable|webflow|framer|1password|bitwarden|tailscale/],
   ["6000", "out", /\bluma\b|eventbrite|meetup\.com|hootsuite|buffer\.com|printful|sticker ?app/],
-  ["6120", "out", /\bhotel\b|\binn\b|\bmotel\b|\bresort\b|airport|clipper|\bubers?\b|\bcab ride|taxi|greyhound|flixbus|megabus|frontier air|spirit air|alaska air|\bhostel/],
+  ["6120", "out", /\bhotel\b|\binn\b|\bmotel\b|\bresort\b|airport|clipper|\bubers?\b|\bcab ride|\btaxi(?!derm)|taxi\b|greyhound|flixbus|megabus|frontier air|spirit air|alaska air|\bhostel/],
   ["6130", "out", /h-e-b|\bheb\b|kroger|publix|aldi\b|taqueria|tacos|in-n-out|99 ranch|\bhmart\b|food ?4 ?less|wawa|7-eleven|sheetz|boba|vending|doughnut|donut|subway\b|jimmy john|five guys|shake shack|raising cane|whataburger|culver|jersey mike|pho\b|thai\b|catering/],
   ["6180", "out", /federal express|usps|shiprocket|\bgo ?shippo|easypost|pitney bowes/],
   ["6070", "out", /wb mason|pitney bowes|postage|\bstaples\b/],
@@ -767,7 +770,11 @@ export function suggest(txn, model) {
   }
 
   const ranked = off.has("learned") ? [] : classify(model.classifier, txn, (a) => model.codes?.has(a) ?? true);
-  if (ranked.length && ranked[0].p >= 0.5) {
+  // When a built-in keyword names the merchant, the classifier must be near-certain to
+  // overrule it: on real Mint exports (eval/mint-labelled.mjs, 2026-11-10) a shared city
+  // token ("brooklyn") was enough to send a deli and a burger chain to dues at p >= 0.5.
+  const keyword = ranked.length && !off.has("built-in") && BUILT_IN.some(([a, rd, re]) => (rd === "any" || rd === d) && (a === "transfer" || !model.codes || model.codes.has(a)) && re.test(text));
+  if (ranked.length && ranked[0].p >= (keyword ? 0.95 : 0.5)) {
     return { account: ranked[0].account, confidence: Math.min(ranked[0].p, 0.85), source: "learned", reason: `similar to lines you filed here (${Math.round(ranked[0].p * 100)}%)`, alternatives: ranked.slice(1, 3) };
   }
 

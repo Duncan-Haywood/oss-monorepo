@@ -231,6 +231,53 @@ What it says, with care:
   this repository's, and the newest 10,000 paid expenses were read for the two big hosts
   (all of them for the other three).
 
+### Labelled bank lines from Mint exports (2026-11-10)
+
+Open Collective's records carry memos and payee names, not bank text, and the step after them
+was "new payees": how often a line from a merchant never seen before is right. A public Mint
+export has exactly that: the raw bank descriptor ("Original Description") beside the category
+Mint chose or its owner corrected. `node eval/mint-labelled.mjs --set tune|held|all` reads ten
+such files from public GitHub repositories at pinned commits (fetched at run time, never copied:
+they are personal spending, so only totals are written here) and replays each one month by
+month like the import loop. Only money out in Mint categories that name one chart account is
+scored (restaurants, travel, fuel, utilities, fees, taxes, rent and so on; groceries, shopping
+and transfers are left out). Mint's category column is never shown to the categoriser. Four
+files ("tune", 2,159 scored lines) were read for misses; six ("held", 767 lines from 2012 to
+2023) were not looked at until the change was final.
+
+| held-out files, 767 lines | right before | right after | wrong before | wrong after |
+|---|---|---|---|---|
+| keywords alone, every line | 52.3% | 54.0% | 1.8% | 1.8% |
+| learning loop, every line | 71.3% | 75.0% | 9.3% | 5.9% |
+| learning loop, a payee seen for the first time (403) | 56.8% | 60.5% | 12.7% | 9.2% |
+| learning loop, a payee seen before (364) | 87.4% | 90.9% | 5.5% | 2.2% |
+
+On the tune files the loop went 83.1% to 86.1% right, first-seen payees 63.4% to 69.0%.
+
+Three changes, each found on the tune files:
+
+- **A city name overruled a keyword.** The naive Bayes layer runs before the built-in keywords
+  and spoke at p >= 0.5. On one Brooklyn checking account, a few lines filed to dues taught it
+  that "brooklyn" meant dues, so Shake Shack and a deli the keywords knew as meals went to dues
+  (that file: keywords alone 57.8% right, the learning loop 35.6%). The classifier now needs
+  p >= 0.95 to overrule a keyword that fires; with no keyword it speaks at 0.5 as before. This
+  is most of the held-out gain (without it, learning loop 72.0% right, 8.9% wrong).
+- **Bank wrapper words became the payee.** "PRE-AUTHORIZATION DEBIT AT DUNKIN" and "Pending
+  DEBIT PURCHASE ... AT GRAFTON ST" keyed every line of a bank to "authorization at" or
+  "pending at", so payee memory pooled every merchant together. `pending`, `authorization`,
+  `at`, `on`, `non`, `pin` are now noise words in the payee key. Memory saved under the old
+  key for such lines is not found again; those keys pooled every merchant, so little is lost.
+- **Keywords.** Restaurant words on bank lines (kitchen, grille, pub, tavern, cantina,
+  trattoria, crepe, barbeque, soup, sandwich, burger,) and Seamless's glued descriptor
+  ("SEAMLSSTHEMILL"); "taxi" no longer matches an Ohio tax site ("OHTAXITES"), and "southwest"
+  no longer sends Moe's Southwest Grill to airfare.
+
+What it says, with care: the labels are agreement with Mint, a commercial merchant database,
+plus each owner's corrections, not a bookkeeper's answer key, and the books are personal. Most
+first-seen misses are one-off local restaurants whose names say nothing ("PEASANT", "BLUE
+PIT"); no keyword can know them, and a merchant category code from the card network or a model
+would. Tests: `mint-labelled.test.mjs` (5, made-up rows).
+
 ### Round-trip property test (2026-10-22)
 
 `node --test eval/roundtrip-fuzz.test.mjs` renders 40 seeded random statements (5-34 rows) with the quirks real exports have and checks `readStatement` returns exactly the rows rendered: BOM, CRLF, `;` delimiter, quoted commas and quotes, parenthesised negatives, thousands separators, European decimals, split debit/credit columns, and ISO, M/D/Y, D/M/Y and "12 Mar 2026" dates. 40 of 40 pass. Generated, not real bank data; a row that reads "PAYMENT - THANK YOU" is left out on purpose, because the card sign heuristic flips signs for it.
