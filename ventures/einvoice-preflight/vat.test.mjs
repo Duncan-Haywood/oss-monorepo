@@ -702,3 +702,10 @@ function frMonacoCheck() {
   const key = String((12 + 3 * (Number(siren) % 97)) % 97).padStart(2, "0");
   return inspectPartyVat({ id: "S1", name: "A", vat_id: `FR${key}${siren}` }, "supplier").length === 0;
 }
+
+test("TR accepts a 10-digit VKN and an 11-digit TCKN, each with its own check digits", () => {
+  const bad = (n) => inspectPartyVat({ vat_id: `TR${n}` }, "seller").length > 0;
+  assert.equal(bad("12345678"), true);
+  assert.equal(bad("10000000146"), false); // valid T.C. Kimlik number (stdnum tckimlik docs)
+  assert.equal(bad("10000000147"), true);
+});
