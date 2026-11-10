@@ -88,3 +88,9 @@ test("--drawings beside --json or --csv is refused, not left to print HTML", () 
     assert.match(r.out, /--drawings prints the HTML shop drawings/);
   }
 });
+
+test("--drawings beside --pdf is refused, not left to print the PDF alone", () => {
+  const r = main(["plan.json", "--drawings", "--pdf"]);
+  assert.equal(r.code, 1);
+  assert.match(r.out, /give only one/);
+});
