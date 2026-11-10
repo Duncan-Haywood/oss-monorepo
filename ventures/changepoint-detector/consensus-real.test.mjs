@@ -24,3 +24,11 @@ test('second batch: US inflation breaks by every setting (--ar1 keeps its cuts);
   assert.match(out, /documented 1982: 1982 found by 5\/6 \(most\)/);
   assert.match(out, /documented 1999: 1999 found by 4\/6 \(most\)/);
 });
+
+test('third batch: Maria is inside a 6/6 group (span, not label), Argentina 1989Q2 by 6/6, 1991Q2 not listed, coal 1887 by 4/6', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 2017-09-20: 2017-10-07 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1989Q2: 1989Q2 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1991Q2: not in the list/);
+  assert.match(out, /documented 1887: 1887 found by 4\/6 \(most\)/);
+});

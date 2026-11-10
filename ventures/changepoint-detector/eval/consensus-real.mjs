@@ -16,6 +16,10 @@ const SERIES = [
   ['US real 3-month T-bill rate, quarterly; the Volcker rise of 1980-81 and the 1970s negative rates', 'us-real-interest.csv', 1, {}, ['1973Q3', '1980Q4']],
   ['Saudi oil production, 1965-2013; the 1982 collapse after OPEC output cuts', 'saudi-oil.csv', 1, {}, '1982'],
   ['Lakes Michigan-Huron level, 1918-2009; the late-1990s drop (recalled, no paper read)', 'michigan-huron.csv', 1, {}, '1999'],
+  // Added 2026-11-10 (third batch): a count shock, a hyperinflation and a change from before 1900.
+  ['Puerto Rico daily deaths, 2015-2018; Hurricane Maria landfall 2017-09-20', 'puerto-rico-daily-deaths.csv', 1, {}, '2017-09-20'],
+  ['Argentina quarterly log CPI change; the May 1989 hyperinflation peak and the April 1991 Convertibility Law', 'argentina-inflation.csv', 1, {}, ['1989Q2', '1991Q2']],
+  ['British coal-mining disasters per year, 1851-1962; Coal Mines Regulation Act 1887 (recalled, no paper read)', 'coal-mining-disasters.csv', 1, {}, '1887'],
 ];
 for (const [title, file, col, base, truth] of SERIES) {
   const { labels, values } = load(file, col);
@@ -23,7 +27,7 @@ for (const [title, file, col, base, truth] of SERIES) {
   console.log(`\n${title}`);
   console.log(`  n ${values.length}, tolerance ${c.tolerance}, settings ${c.settings.length}; cuts per setting: ${c.settings.map((s) => s.changes).join(', ')}`);
   for (const t of [].concat(truth)) {
-    const hit = c.changes.find((x) => x.label === t || String(x.label).startsWith(t));
+    const hit = c.changes.find((x) => x.label === t || String(x.label).startsWith(t)) ?? c.changes.find((x) => String(x.from) <= t && t <= String(x.to));
     console.log(`  documented ${t}: ${hit ? `${hit.label} found by ${hit.support}/${hit.of} (${hit.tier})` : 'not in the list'}`);
   }
   for (const x of c.changes.filter((y) => y.tier !== 'few')) console.log(`  ${x.label}  ${x.support}/${x.of}  ${x.direction}  ${x.tier}`);

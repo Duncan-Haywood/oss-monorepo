@@ -124,7 +124,7 @@ flagships:
     next: >-
       History and every trial (real series, sweeps, dates): README and git.
       `--consensus` landed 2026-11-10 (six settings, agreement tiers; README);
-      the panel on four real series 2026-11-10 (seat-belt 1983-02 and Nile 1899 by 6/6; Lake Huron 1925 only 4/6 because both `--ar1` settings return 0 cuts; README); second batch 2026-11-10: US inflation 1973Q3 and 1981Q4 by 6/6 with `--ar1` keeping its cuts, real T-bill rate 1980Q4 5/6, Saudi oil 1982 5/6, Michigan-Huron 1999 4/6 (README); wanted next: the panel with a documented-break source actually read, and a labelled set to turn agreement tiers into a detection rate.
+      the panel on four real series 2026-11-10 (seat-belt 1983-02 and Nile 1899 by 6/6; Lake Huron 1925 only 4/6 because both `--ar1` settings return 0 cuts; README); third batch 2026-11-10: Maria inside a 6/6 group, Argentina 1989Q2 6/6 but the 1991 Convertibility Law not listed, coal 1887 4/6, US saving rate over-listed (README); second batch 2026-11-10: US inflation 1973Q3 and 1981Q4 by 6/6 with `--ar1` keeping its cuts, real T-bill rate 1980Q4 5/6, Saudi oil 1982 5/6, Michigan-Huron 1999 4/6 (README); wanted next: the panel with a documented-break source actually read, and a labelled set to turn agreement tiers into a detection rate.
       Open:
       (0) smooth low-noise series are over-cut: `--noise-floor k` is uncalibrated on real drift (`--noise-floor-diff2` k=2 is scale-free on synthetic straight drift, 2026-11-10; untested at high phi and on real series);
       (k=1.5 and `--ar1 joint` each win on synthetic drift at different phi;
