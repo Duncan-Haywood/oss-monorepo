@@ -21,7 +21,7 @@ function isDate(v) { return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(
  */
 export function procurement(sched, orders, today) {
   const errors = [];
-  if (!sched || !sched.ok) return { ok: false, errors: ["The schedule has problems; fix them first (--schedule)."] };
+  if (!sched || !sched.ok) return { ok: false, errors: ["The schedule has problems; fix them first (--schedule).", ...(sched && Array.isArray(sched.errors) ? sched.errors.map((/** @type {any} */ e) => String(e)) : [])] };
   if (!Array.isArray(orders) || !orders.length) return { ok: false, errors: ["Add `orders` to the plan's schedule: [{item, for: activityId, leadDays}]."] };
   if (today != null && !isDate(today)) return { ok: false, errors: [`today "${today}" is not a date (YYYY-MM-DD).`] };
   const byId = new Map(sched.rows.map((/** @type {any} */ r) => [r.id, r]));
