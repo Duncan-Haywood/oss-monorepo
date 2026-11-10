@@ -12,7 +12,7 @@ range_m  exact   mc
 [2] K=4, q=0.1: ranges
 mean interference power 36.91 (noise = 1); mean-rise twin range 63.72 m
 real marginal per-frame Pd: Pd(r_mean_rise)=0.858; range with Pd>=0.9: 58.39 m; Pd>=0.5: 158.11 m
-real per-frame Pd at the clear-air range 158.1 m: 0.000; P(no interferer hits a frame) = 0.656
+real per-frame Pd just inside the clear-air range 158.1 m: 0.656, just beyond it: 0.000; P(no interferer hits a frame) = 0.656
 range_m  clear_twin  mean_rise_twin  real_Pd
     40           1               1  0.978
     60           1               1  0.889

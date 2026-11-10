@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKoC6E762g8QtAv6j5g",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T19:17:33Z",
+  "ended": "2026-11-10T19:34:07Z",
+  "wall_minutes": 16.79,
+  "tokens_in": 10578946,
+  "tokens_out": 109213,
+  "cost_usd": 6.8322,
+  "tool_calls": 136,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14588",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "python3 platform/ci/run_workflow_locally.py --for-changes ran unrelated heavy workflows (open-tennis-robots cad, build123d install) for a diff touching two ventures, two research dirs, audits and a post, and hit a 300 s timeout; CI on the PR was the faster signal."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Round numbering is not tracked by software; the next round number had to be read off the newest post filename."
+    },
+    {
+      "file": "platform/ci/post_similarity.py",
+      "issue": "Takes no file argument (unlike check_post_frontmatter/check_post_links after #14583), so it cannot be pointed at one new post."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says a large defect goes in the ROADMAP; for ratelimit-burst the headline was wrong, so leaving it in the README until a later code PR would keep a false claim live.",
+      "did": "Withdrew the claim in the README (table row marked with the 2L-1 witness, advice and novelty corrected) and added a test pinning the witness; extending analysis.py and regenerating results.txt is left as the project's next step.",
+      "result": "README no longer states a number the code refutes; results.txt still holds the one-per-tick figures, flagged under the table."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-quality-audit-round-40.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample (quality_audit.py mode), seed 2026-11-10 (round 39 used the same seed; the 90-day skip drew four never-audited subjects). Subjects: ventures/gig-driver-net-pay-calculator, ventures/translator-project-quote, research/interference-twin, research/ratelimit-burst; no flagship or platform drawn. Share meeting the bar: 0 of 4 (corpus 28 of 174, Wilson 11%-22%). All four finished. Spot-checks run by the orchestrator, not the auditors: selfEmploymentTax(420) returned 59.34 (Schedule SE says 0); interference README contradicts itself at 158 m; SlidingCounter batched witness admits 19/39/99 at L=10/20/50 (README said 1.40-1.48 L). Fix PRs: #14588 (all four subjects). Tests after fixes: gig 80/80, translator 90/90 (run_venture_tests.py ok for both), interference-twin 12/12 unittest (both previously surviving mutations at model.py:25 and :82 now caught, verified by re-seeding), ratelimit-burst 8/8 pytest. interference run.py re-run: results.txt differs on one line only. New gig test fails on the old tax.mjs. run_workflow_locally --for-changes timed out at 300 s with 21 ok steps and no failures; CI on the PR green at time of record (one job pending).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4e13da33-5f13-550f-9816-636906e63a2b",
+    "transcripts": 5,
+    "first": "2026-11-10T19:17:33Z",
+    "last": "2026-11-10T19:34:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 129,
+        "input": 257,
+        "output": 109213,
+        "thinking": 27159,
+        "cache_read": 10114674,
+        "cache_write_5m": 362707,
+        "cache_write_1h": 101308,
+        "api_equivalent_usd": 6.8322,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 129,
+      "input": 257,
+      "output": 109213,
+      "thinking": 27159,
+      "cache_read": 10114674,
+      "cache_write_5m": 362707,
+      "cache_write_1h": 101308,
+      "api_equivalent_usd": 6.8322,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.956,
+    "tool_calls": 136,
+    "tools": {
+      "Bash": 118,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Read": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.79,
+      "active_minutes": 12.77,
+      "model_minutes": 6.37,
+      "tool_minutes": 6.39,
+      "waiting_on_human_minutes": 4.03,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 17.38
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four independent expert audits (~3 h each incl. recomputation and mutation testing) plus fixes and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 204.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
