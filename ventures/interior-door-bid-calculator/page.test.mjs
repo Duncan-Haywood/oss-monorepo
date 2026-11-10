@@ -289,3 +289,14 @@ test('index links one hop to the patio-door-bid-calculator sibling', () => {
   );
   assert.match(html, /patio door bid calculator/i);
 });
+
+// Quality audit 2026-11-10 (portfolio/quality/audits/2026-11-10-interior-door-bid-calculator.json):
+// the FAQ (visible and FAQPage JSON-LD) called the hang-only preset "genuinely
+// close to $150 installed" while the tool prices it at $339.14 (calc.test.mjs
+// pins that figure). Keep the FAQ on the tool's own number.
+test('the $150 flyer FAQ quotes the tool\'s own hang-only price', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const html = await readFile(new URL('./index.html', import.meta.url), 'utf8');
+  assert.doesNotMatch(html, /close\s+to \$150/);
+  assert.equal(html.match(/prices that single door at \$339\.14/g)?.length, 2);
+});
