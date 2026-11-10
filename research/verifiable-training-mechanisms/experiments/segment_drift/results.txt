@@ -9,6 +9,14 @@ referee=reorder: drift of an s-step replay (L2, all seeds and starts; n per cell
   s=10 early t<300: median drift 0.000e+00, median step norm 1.005e-01, ratio 0.00e+00
   s=10 mid 300-900: median drift 0.000e+00, median step norm 4.148e-02, ratio 0.00e+00
   s=10 late >=900: median drift 0.000e+00, median step norm 5.483e-03, ratio 0.00e+00
+  milestone 73: drift against the stalled step's own norm (a stall's displacement is the norm of the step it replaces)
+  s    max drift/min step norm   p99 drift/min   frac of segments with drift > min step norm   late (t>=900) max ratio
+  1    1.676e-07                 1.485e-07      0.0000                                       0.000e+00
+  2    2.792e-07                 2.002e-07      0.0000                                       0.000e+00
+  5    2.920e-07                 2.456e-07      0.0000                                       0.000e+00
+  10   3.848e-07                 2.666e-07      0.0000                                       0.000e+00
+  20   4.629e-07                 3.427e-07      0.0000                                       1.543e-14
+  40   7.013e-07                 4.810e-07      0.0000                                       9.182e-11
 
 referee=fp16: drift of an s-step replay (L2, all seeds and starts; n per cell = 600)
   s    median      p90         p99         max        median/step-norm  max/step-norm
@@ -22,4 +30,12 @@ referee=fp16: drift of an s-step replay (L2, all seeds and starts; n per cell = 
   s=10 early t<300: median drift 4.322e-04, median step norm 1.005e-01, ratio 4.28e-03
   s=10 mid 300-900: median drift 1.161e-04, median step norm 4.148e-02, ratio 2.75e-03
   s=10 late >=900: median drift 3.370e-05, median step norm 5.483e-03, ratio 6.65e-03
+  milestone 73: drift against the stalled step's own norm (a stall's displacement is the norm of the step it replaces)
+  s    max drift/min step norm   p99 drift/min   frac of segments with drift > min step norm   late (t>=900) max ratio
+  1    5.913e-02                 2.902e-02      0.0000                                       5.913e-02
+  2    2.231e-01                 4.880e-02      0.0000                                       2.231e-01
+  5    2.475e-01                 1.035e-01      0.0000                                       2.475e-01
+  10   4.962e-01                 1.535e-01      0.0000                                       4.962e-01
+  20   4.813e-01                 2.804e-01      0.0000                                       4.813e-01
+  40   2.590e+00                 9.162e-01      0.0100                                       2.590e+00
 
