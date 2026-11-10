@@ -81,6 +81,11 @@ class Venture:
     # milestone; None for every venture not on that list.
     flagship_rank: Optional[int] = None
     flagship_next: Optional[str] = None
+    # flagships.yaml `inputs_only: <what is missing>`: every listed item needs
+    # a real outside input no session holds, so the flagship ranks after the
+    # flagships with buildable work (run-record doc_friction, 2026-11-10: four
+    # runs in two hours sent to the top Deepen row found nothing to build).
+    flagship_inputs_only: Optional[str] = None
 
     @property
     def flagship(self) -> bool:
@@ -288,6 +293,17 @@ def load_flagships(path: Path = FLAGSHIPS_PATH) -> dict[str, tuple[int, str]]:
     return out
 
 
+def load_inputs_only(path: Path = FLAGSHIPS_PATH) -> dict[str, str]:
+    """{venture: what is missing} for flagships marked `inputs_only:`."""
+    if not path.is_file():
+        return {}
+    return {
+        e["venture"]: str(e["inputs_only"]).strip()
+        for e in _load_yaml(path).get("flagships") or []
+        if isinstance(e, dict) and e.get("venture") and e.get("inputs_only")
+    }
+
+
 def load_ventures(
     ventures_dir: Path = VENTURES_DIR,
     ledger_dir: Path = LEDGER_DIR,
@@ -297,6 +313,7 @@ def load_ventures(
     ledger_counts = count_ledger_entries(ledger_dir)
     merit_scores = load_merit_scores(scores_path)
     flagships = load_flagships(flagships_path)
+    inputs_only = load_inputs_only(flagships_path)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -334,6 +351,7 @@ def load_ventures(
                 consolidated_into=data.get("consolidated_into"),
                 flagship_rank=flag_rank,
                 flagship_next=flag_next,
+                flagship_inputs_only=inputs_only.get(name) if flag_rank is not None else None,
             )
         )
     return ventures
@@ -361,7 +379,8 @@ def rank(ventures: list[Venture]) -> list[Venture]:
          more of the work to deepen them rather than add small tools. They
          are exempt from the HOT_COMMITS demotion below, which exists to
          spread effort across shallow ventures, the opposite of what a
-         flagship needs.
+         flagship needs. A flagship marked `inputs_only:` (every listed
+         item needs a real outside input) ranks after the buildable ones.
       4. Not a calculator. Calculators are maintain-only (owner, 2026-10-21,
          `prompts/goals.md` "Direction: depth over calculators"), so they
          sink below every other dispatchable venture and their task says
@@ -392,7 +411,8 @@ def rank(ventures: list[Venture]) -> list[Venture]:
         return (
             0 if v.needs_decision else 1,
             0 if v.dispatchable else 1,
-            v.flagship_rank if v.flagship_rank is not None else 1_000_000,
+            (1 if v.flagship_inputs_only else 0, v.flagship_rank)
+            if v.flagship_rank is not None else (2, 0),
             1 if v.maintain_only else 0,
             1 if v.awaits_visitors else 0,
             0 if not v.measured else 1,
@@ -450,6 +470,12 @@ def next_task(v: Venture) -> str:
         if len(milestone) > FLAGSHIP_NEXT_CHARS:
             # The full history is in flagships.yaml; the queue prints the head.
             milestone = milestone[:FLAGSHIP_NEXT_CHARS].rstrip() + " ... (full `next:` in portfolio/flagships.yaml)"
+        if v.flagship_inputs_only:
+            return (
+                f"Inputs only (flagship {v.flagship_rank + 1}): every listed item needs a real "
+                f"outside input ({v.flagship_inputs_only}). Take it only if you hold one; "
+                "otherwise take a Deepen row above. Full list: portfolio/flagships.yaml."
+            )
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml."

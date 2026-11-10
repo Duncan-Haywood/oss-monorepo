@@ -8,7 +8,10 @@ and code fences are dropped, text is lower-cased, and each post becomes the set
 of its word 5-grams. A pair is reported when the share of the smaller post's
 5-grams found in the other (containment) reaches `--min` (default 0.25).
 
-    python3 platform/ci/post_similarity.py [--root DIR] [--min 0.25] [--fail]
+    python3 platform/ci/post_similarity.py [--root DIR] [--min 0.25] [--fail] [POST.md ...]
+
+Given post files, only pairs that include one of them are reported, so a run
+can check its new post against the rest without reading the whole table.
 
 Exit 0 unless `--fail` is given and a pair is reported.
 """
@@ -39,11 +42,13 @@ def containment(a, b):
     return len(a & b) / small if small else 0.0
 
 
-def similar_pairs(texts, threshold=0.5):
+def similar_pairs(texts, threshold=0.5, only=None):
     sh = {name: shingles(t) for name, t in texts.items()}
     sh = {k: v for k, v in sh.items() if v}
     out = []
     for x, y in combinations(sorted(sh), 2):
+        if only is not None and x not in only and y not in only:
+            continue
         c = containment(sh[x], sh[y])
         if c >= threshold:
             out.append((c, x, y))
@@ -55,10 +60,20 @@ def main(argv=None):
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("--min", type=float, default=0.25)
     ap.add_argument("--fail", action="store_true")
+    ap.add_argument("files", nargs="*", help="only report pairs that include these posts")
     args = ap.parse_args(argv)
     posts = Path(args.root) / "docs" / "posts"
     texts = {p.name: p.read_text(encoding="utf-8") for p in sorted(posts.glob("*.md"))}
-    pairs = similar_pairs(texts, args.min)
+    only = None
+    if args.files:
+        only = set()
+        for f in args.files:
+            path = Path(f)
+            if not path.is_file():
+                ap.error(f"no such post: {f}")
+            texts[path.name] = path.read_text(encoding="utf-8")
+            only.add(path.name)
+    pairs = similar_pairs(texts, args.min, only)
     for c, x, y in pairs:
         print(f"{c:.2f}  {x}  |  {y}")
     print(f"{len(pairs)} pair(s) at or above {args.min} among {len(texts)} posts")
