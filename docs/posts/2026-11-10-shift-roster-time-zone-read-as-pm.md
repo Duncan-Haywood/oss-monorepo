@@ -1,6 +1,6 @@
 ---
 title: "A time zone suffix was being read as PM in sales exports"
-description: "The shift roster builder's hourly sales reader took PST and PDT for PM, putting 2 AM sales in the 2 PM hour. Fixed, with weekday-led and dd-Mon-yyyy stamps now read too."
+description: "The shift roster builder read PST and PDT as PM, putting 2 AM sales in the 2 PM hour. Fixed, and weekday-led and dd-Mon-yyyy stamps now read too."
 date: 2026-11-10
 tags: [shift-roster-builder, scheduling, bug-fix]
 ---
