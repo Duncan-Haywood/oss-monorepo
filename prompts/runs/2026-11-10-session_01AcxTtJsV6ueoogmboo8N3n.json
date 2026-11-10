@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14415",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -170,13 +170,13 @@
         "file": "docs/posts/2026-11-10-andorra-guinea-liechtenstein-san-marino-tax-ids.md",
         "issue": "seo_title 83 chars (limit 70) turned podcast.test.mjs and shorts.test.mjs red on main; merged despite check_post_frontmatter CI step",
         "patched": true,
-        "patched_in": "this PR"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14415"
       },
       {
         "file": "docs/posts/2026-11-10-framing-cli-typo-flags.md",
         "issue": "seo_title 72 and description 172 chars over limits; same red tests",
         "patched": true,
-        "patched_in": "this PR"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14415"
       }
     ]
   }
