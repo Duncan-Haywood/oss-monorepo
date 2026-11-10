@@ -74,9 +74,7 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords measured on one real makerspace's bank
-      export (72.7% suggested, 96% right, tuned on itself) and a real Chase card (78.4%), two Apple Cards (56.9% to 63.8%), a Canadian Capital One card (51.9% to 80.0%) and synthetic
-      sets (README Next); labelled books 2026-11-10 (Open Collective, README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; held out 2026-11-10 (README): Hack Club wrong 5% to 26%; next: a gate, read on Open Collective; wanted: a firm's own labelled bank books; (1) the AI layer in
+      first: (0) built-in keywords on real bank and card exports (HISTORY); labelled books 2026-11-10 (Open Collective, README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; real bank lines (ten Mint exports, six held out, README): classifier no longer overrules a keyword on a city word, first-seen 68.7% right, 15.6% wrong; guess held out on Hack Club 2026-11-10 (wrong 4% to 25%, README); next: gate the guess, one-off local merchants (card MCC, the AI layer); wanted: a firm's own labelled bank books; (1) the AI layer in
       fill-only mode on real bank descriptions, more seeds, a bigger model
       (synthetic so far); (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) a real Stripe, PayPal, eBay, Amazon or Adyen settlement export, and a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
