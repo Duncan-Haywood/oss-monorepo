@@ -168,12 +168,16 @@ flagships:
       generation with a per-person pricing oracle and branching on classes of identical shift
       copies (columnGenerationOpen, 2026-11-10 later; eval/cg-bench.mjs) is now the default
       branch-and-price: rolling-gap 10x28 set 0 proven at 48 (= HiGHS) in 3.5 s, 12x30 week 1
-      in 5 nodes. Next: the pay bound by the same column generation (price each person's set by
-      pay and penalties, not only hours, to prove cost on weeks the exact search leaves
-      unproven); a bigger-week bench (20-60 people, 100-390 shifts) to find where the oracle
-      stops being exact; a real POS hourly export for --from-sales and the page (many stamp and
-      number formats read, made-up exports only); a real published-schedule export for
-      --import-shifts.
+      in 5 nodes. Bigger weeks (eval/cg-scale-bench.mjs, 2026-11-10 later): two simplex cycling
+      bugs fixed (one crashed buildRoster with exact on a 20-person week); CG floor = HiGHS
+      optimum on all 12 weeks of 20-60 people; dive on ties plus a warm-started LP prove every 20,
+      30 and 40 person week (40 in about 40 s); the oracle was never inexact (max 116k nodes).
+      Next: the pay bound by the same column generation (price each person's set by pay and
+      penalties, not only hours, to prove cost on weeks the exact search leaves unproven);
+      60-person weeks (floor = optimum but no roster in 60 s: a faster LP or rounding at the root)
+      and buildRoster taking 3-5 min on 40-person weeks with exact on and no time limit; a real
+      POS hourly export for --from-sales and the page (many stamp and number formats read, made-up
+      exports only); a real published-schedule export for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,

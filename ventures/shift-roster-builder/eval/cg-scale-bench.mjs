@@ -4,6 +4,7 @@
 // ilp-export.mjs (same seed rule), with shift lines scaled to people so supply and demand stay in the same ratio as the
 // 10x28 bench week (about 2.8 lines per person).
 //   node eval/cg-scale-bench.mjs P S [cases=3] [ms=60000] [maxNodes=2000000]
+//   DIVE=0 / WARM=0 turn off the deepest-first tie-break and the warm-started LP (both on by default since 2026-11-10).
 //   WEEKS=w.json also writes the weeks for an independent ILP: python3 eval/ilp-check.py w.json
 // Hard rules only; no incumbent is given, so the floor is proven only by the search itself.
 import { writeFileSync } from "node:fs";
@@ -23,7 +24,7 @@ for (let c = 0; c < cases; c++) {
   if (ps.error) { console.log(c, "shifts file refused:", ps.error); continue; }
   const slots = ps.slots;
   const demand = slots.reduce((a, s) => a + (s.end - s.start) / 60, 0);
-  const r = openFloorByColumnGeneration(staff, slots, { exact: true }, { nodeLimit: 100000, ms, maxNodes });
+  const r = openFloorByColumnGeneration(staff, slots, { exact: true }, { nodeLimit: 100000, ms, maxNodes, dive: process.env.DIVE !== "0", warm: process.env.WARM !== "0" });
   const t = r.stats;
   console.log([c, slots.length, demand, r.rootLP.toFixed(2), r.floor, r.best ?? "-", r.proven, t.nodes, t.columns, t.rounds, t.pricingCalls, t.inexactPricing, t.maxPricingNodes, t.pricingMs, t.ms].join("\t"));
   if (process.env.WEEKS) {
