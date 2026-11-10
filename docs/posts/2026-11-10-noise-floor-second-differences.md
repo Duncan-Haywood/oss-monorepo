@@ -1,9 +1,9 @@
 ---
 title: "A noise floor that ignores drift: second differences in the changepoint detector"
-seo_title: "Changepoint detection on drifting series: a second-difference noise floor"
+seo_title: "Changepoint detection on drifting series: second-difference floor"
 date: 2026-11-10
 tags: [changepoint-detection, time-series, statistics, open-source]
-description: "A first-difference noise floor loses a step smaller than the drift. A second-difference floor keeps it at every noise level in a seeded simulation. Numbers and caveats."
+description: "A first-difference noise floor loses a step smaller than the drift. A second-difference floor keeps it at every noise level in a seeded simulation."
 ---
 
 The changepoint detector over-cuts smooth, drifting series: a population count
