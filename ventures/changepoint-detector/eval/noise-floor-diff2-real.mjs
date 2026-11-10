@@ -16,7 +16,7 @@ const cases = [
   ['us-electricity.csv', 'US electricity (logs), monthly', { model: 'trend', log: true, period: 12 }],
   ['global-temp-annual.csv', 'Global temperature anomaly', { model: 'trend' }],
 ];
-const settings = [['off', {}], ['d1 k=1', { noiseFloor: 1 }], ['d1 k=2', { noiseFloor: 2 }], ['d2 k=2', { noiseFloor: 2, noiseFloorOrder: 2 }], ['d2 k=3', { noiseFloor: 3, noiseFloorOrder: 2 }]];
+const settings = [['off', {}], ['d1 k=1', { noiseFloor: 1 }], ['d1 k=2', { noiseFloor: 2 }], ['d2 k=2', { noiseFloor: 2, noiseFloorOrder: 2 }], ['d2 k=3', { noiseFloor: 3, noiseFloorOrder: 2 }], ['d3 k=2', { noiseFloor: 2, noiseFloorOrder: 3 }], ['d3 k=3', { noiseFloor: 3, noiseFloorOrder: 3 }]];
 for (const [f, name, opt] of cases) {
   const d = load(f);
   const { log, ...o } = opt;

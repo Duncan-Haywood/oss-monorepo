@@ -241,6 +241,9 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
     const drawingOnly = argv.find((a) => /^--(units|storey|wall-layer|door-layer|window-layer|ifc-json)=/.test(a) || a === "--double-line" || a === "--single-line");
     if (drawingOnly) return { code: 1, out: `${drawingOnly.split("=")[0]} only applies when the input is a .dxf or .ifc file; ${args[0]} is read as a plan JSON.` };
   }
+  // These shape the panel output, which only exists with a positive --panel-max; alone they used to print the plain order.
+  const panelOnly = argv.find((a) => a === "--panel-order" || a === "--pull-lists" || a === "--panel-sheets" || a.startsWith("--sheathing-psf="));
+  if (panelOnly && !(parseLength(argv.find((a) => a.startsWith("--panel-max="))?.slice(12) ?? "0") > 0)) return { code: 1, out: `${panelOnly.split("=")[0]} only applies with --panel-max=<length> (such as --panel-max=12ft).` };
   if (argv.some((a) => a.startsWith("--swing=")) && !flags.has("--sensitivity")) return { code: 1, out: "--swing= only applies with --sensitivity." };
   try {
     if (/\.(dxf|ifc)$/i.test(args[0])) {
