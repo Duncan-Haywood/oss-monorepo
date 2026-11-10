@@ -24,6 +24,10 @@ const SERIES = [
   ['Puerto Rico daily deaths, 2015-2018; Hurricane Maria landfall 2017-09-20', 'puerto-rico-daily-deaths.csv', 1, {}, '2017-09-20'],
   ['Argentina quarterly log CPI change; the May 1989 hyperinflation peak and the April 1991 Convertibility Law', 'argentina-inflation.csv', 1, {}, ['1989Q2', '1991Q2']],
   ['British coal-mining disasters per year, 1851-1962; Coal Mines Regulation Act 1887 (recalled, no paper read)', 'coal-mining-disasters.csv', 1, {}, '1887'],
+  // Fifth batch (2026-11-10): a seasonal series with two dated events, a border rule and a short annual series.
+  ['Australian short-term arrivals from the US, quarterly 1981-2012 (log, period 4); Sydney Olympics 2000Q3 and 11 September 2001 (recalled, no source read)', 'au-arrivals-us.csv', 1, { log: true, period: 4 }, ['2000Q3', '2001Q3']],
+  ['Peace Bridge monthly traffic, 2003-2015 (log, period 12); US land-border passport rule (WHTI) of 2009-06-01 (data/SOURCE.md) and the 2008-09 recession', 'peace-bridge.csv', 1, { log: true, period: 12 }, ['2008-11', '2009-06']],
+  ['Australian air passengers, annual 1970-2016 (log); the 2001 Ansett collapse and 11 September (recalled), dated 2002 by three models earlier', 'ausair.csv', 1, { log: true }, '2002'],
 ];
 for (const [title, file, col, base, truth] of SERIES) {
   const { labels, values } = load(file, col);

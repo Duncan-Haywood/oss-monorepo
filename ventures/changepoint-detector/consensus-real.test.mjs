@@ -41,3 +41,11 @@ test('fourth batch: Maria is inside a 6/6 group (span, not label), Argentina 198
   assert.match(out, /documented 1991Q2: not in the list/);
   assert.match(out, /documented 1887: 1887 found by 4\/6 \(most\)/);
 });
+
+test('fifth batch: 9/11 arrivals from the US 3/6, Olympics 2000Q3 not listed, Peace Bridge 2009-06 not listed, 2002 air passengers 3/6', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 2000Q3: not in the list/);
+  assert.match(out, /documented 2001Q3: 2001Q3 found by 3\/6 \(most\)/);
+  assert.match(out, /documented 2009-06: not in the list/);
+  assert.match(out, /documented 2002: 2002 found by 3\/6 \(most\)/);
+});
