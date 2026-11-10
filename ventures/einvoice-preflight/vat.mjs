@@ -233,7 +233,7 @@ function deOkIso7064(first, check) {
 
 function classify(country, body) {
   if (country === "DE") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
-  if (country === "FR") return body.length === 11 && /^\d+$/.test(body.slice(2)) ? "checksum" : "bad-format";
+  if (country === "FR") return body.length === 11 && /^[0-9A-HJ-NP-Z]{2}\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "BE") {
     const digits = body[0] === "0" && body.length === 11 ? body.slice(1) : body;
     return /^\d+$/.test(digits) && (digits.length === 9 || digits.length === 10) ? "checksum" : "bad-format";
@@ -379,13 +379,23 @@ function deOk(digits) {
   return (11 - product) % 10 === Number(digits[8]);
 }
 
+const FR_ALPHABET = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+
+// French TVA: two key characters (digits, or letters other than I and O for
+// the newer keys) then a 9-digit SIREN. The SIREN passes Luhn unless it starts
+// 000 (Monaco). A numeric key is (SIREN*100+12) mod 97; a key with a letter
+// follows the rule python-stdnum 2.2 `fr.tva` uses (rule source only).
 function frOk(body) {
-  const siren = body.slice(2);
-  if (!/^\d+$/.test(siren)) return false;
   const key = body.slice(0, 2);
-  if (!/^\d+$/.test(key)) return true;
-  const expected = (12 + 3 * (Number(siren) % 97)) % 97;
-  return Number(key) === expected;
+  const siren = body.slice(2);
+  if (body.length !== 11 || !/^\d{9}$/.test(siren)) return false;
+  if (![...key].every((c) => FR_ALPHABET.includes(c))) return false;
+  if (!siren.startsWith("000") && !luhnOk(siren)) return false;
+  if (/^\d{2}$/.test(key)) return Number(key) === (12 + 3 * (Number(siren) % 97)) % 97;
+  const a = FR_ALPHABET.indexOf(key[0]);
+  const b = FR_ALPHABET.indexOf(key[1]);
+  const check = /\d/.test(key[0]) ? a * 24 + b - 10 : a * 34 + b - 100;
+  return (Number(siren) + 1 + Math.floor(check / 11)) % 11 === check % 11;
 }
 
 function beOk(body) {

@@ -127,7 +127,7 @@ def _classify(country: str, body: str) -> str:
     if country == "DE":
         return "checksum" if body.isdigit() and len(body) == 9 else "bad-format"
     if country == "FR":
-        return "checksum" if len(body) == 11 and body[2:].isdigit() else "bad-format"
+        return "checksum" if len(body) == 11 and body[2:].isdigit() and all(c in _FR_ALPHABET for c in body[:2]) else "bad-format"
     if country == "BE":
         digits = body[1:] if body[:1] == "0" and len(body) == 11 else body
         return "checksum" if digits.isdigit() and len(digits) in (9, 10) else "bad-format"
@@ -351,16 +351,22 @@ def _de(digits: str) -> bool:
     return (11 - product) % 10 == int(digits[8])
 
 
+_FR_ALPHABET = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+
+
 def _fr(body: str) -> bool:
-    siren = body[2:]
-    if not siren.isdigit():
+    key, siren = body[:2], body[2:]
+    if len(body) != 11 or not (siren.isascii() and siren.isdigit()):
         return False
-    key = body[:2]
-    if not key.isdigit():
-        # Letter keys exist; this tool only checksums the numeric-key form.
-        return True
-    expected = (12 + 3 * (int(siren) % 97)) % 97
-    return int(key) == expected
+    if any(c not in _FR_ALPHABET for c in key):
+        return False
+    if not siren.startswith("000") and not _luhn(siren):
+        return False
+    if key.isdigit():
+        return int(key) == (12 + 3 * (int(siren) % 97)) % 97
+    a, b = _FR_ALPHABET.index(key[0]), _FR_ALPHABET.index(key[1])
+    check = a * 24 + b - 10 if key[0].isdigit() else a * 34 + b - 100
+    return (int(siren) + 1 + check // 11) % 11 == check % 11
 
 
 def _be(body: str) -> bool:

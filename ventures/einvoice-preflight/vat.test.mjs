@@ -685,3 +685,14 @@ test("LV personal codes: old format needs a real date, 32 prefix a check digit",
   assert.equal(vatFlagged("LV32867300679"), false);
   assert.equal(vatFlagged("LV32867300677"), true);
 });
+
+test("FR letter keys follow the stdnum rule, SIREN must pass Luhn, I and O are not key letters", () => {
+  const bad = (n) => inspectPartyVat({ vat_id: `FR${n}` }, "seller").length > 0;
+  assert.equal(bad("0H303265045"), false); // letter key valid for this SIREN (python-stdnum 2.2)
+  assert.equal(bad("2J303265045"), false);
+  assert.equal(bad("0E000123456"), false); // Monaco-style 000 prefix skips Luhn
+  assert.equal(bad("AB303265045"), true); // letter key that does not fit
+  assert.equal(bad("0H303265046"), true); // SIREN fails Luhn
+  assert.equal(bad("I0303265045"), true); // I is not a key letter
+  assert.equal(bad("40303265045"), false); // numeric key unchanged
+});
