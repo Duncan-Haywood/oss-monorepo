@@ -111,8 +111,10 @@ flagships:
       stops 70% wrong; vetoes tuned on one half, held-out half scored once: wrong
       stops 30 to 13 per 1,000, right 113 to 108. Next: (1) on the Enron halves, a
       second reader for the labels, the 124 held-out wrong stops left (third-person
-      "no need", Lotus Notes quote headers) on the tuning half only, and the
-      real "take me off" replies as an opt-out recall set; (2)
+      "no need", Lotus Notes quote headers) on the tuning half only; real
+      opt-out recall set 2026-11-10 (eval/optout-recall.mjs, Enron 2*-f*,
+      README): 103 of 113 caught before, 112 after five patterns, no new wrong
+      stop on either half; open: a second reader for its labels; (2)
       real replies to outreach and a real rep's call notes to check the reply rules,
       prep rules and follow-up sorter; (3) M2: score a hosted and a local model
       with eval/model.mjs on the fresh sets (needs a key), with a set labelled by

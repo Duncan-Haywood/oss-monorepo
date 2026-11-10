@@ -28,6 +28,8 @@ const NOT_A_STOP = [
   "She stepped out of the office for a minute.",
   "Sign it and I will return a fully executed copy to you.",
   "That adds about $800,ooo to this year's earnings.",
+  "Can you get me off the phone with their lawyer by noon?",
+  "Don't send me a message back saying it isn't true.",
 ];
 for (const body of NOT_A_STOP) {
   test(`real-mail phrasing is not a stop: ${body.slice(0, 60)}`, () => {
@@ -49,6 +51,14 @@ const STILL = {
   "Thanks but I will pass for now.": "not_interested",
   "I'll pass on this one, good luck with it.": "not_interested",
   "Thanks but we're all set with our current provider.": "not_interested",
+  // The real opt-out recall set (eval/optout-recall.mjs, 2026-11-10): the phrasings the rules missed, paraphrased.
+  "Please get me off.": "unsubscribe",
+  "Can you get me off whatever distribution list I am on?": "unsubscribe",
+  "Could you get my name taken off the outage e-mail list?": "unsubscribe",
+  "Please delete me from the list.": "unsubscribe",
+  "Please delete my name off the mailing list and add my colleague.": "unsubscribe",
+  "Please do not send me these charts.": "unsubscribe",
+  "Please do not send me any other solicitation.": "unsubscribe",
 };
 for (const [body, want] of Object.entries(STILL)) test(`real ask still stops: ${body}`, () => assert.equal(cat(body), want));
 

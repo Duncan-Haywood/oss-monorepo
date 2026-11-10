@@ -214,3 +214,69 @@ Subject:`), and replies under a "Returned mail" subject. Whether the vetoes cost
 opt-outs in real sales replies is not measured: Enron holds only a few dozen real
 "take me off this list" replies, all still caught, and the agent-written opt-out
 sets did not move.
+
+## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
+
+The Enron check above measured stops that fired wrongly. This one measures the
+other, costlier direction: of the real messages in which a person asks to come
+off a list, how many do the rules file as unsubscribe? A miss means the next
+follow-up goes to someone who asked us to stop.
+
+**Data.** The fourteen-sixteenths of the corpus the first check never read
+(`.bitcache/blobs/2*` to `f*`, same CC0 copy and commit; checkout as above with
+`git checkout HEAD -- .bitcache/blobs`), 451,475 human messages after removing
+duplicates, auto-replies and bounces. Every message, not only `RE:` subjects,
+because people often ask off a distribution list in a new message.
+
+**Candidates, chosen without the rules.** `eval/optout-recall.mjs` casts a net
+written separately from `RULES.unsubscribe` and much wider (`NET`: any sentence
+about lists, removal, receiving or being sent things). It caught 9,221
+messages, nearly all noise ("get me the numbers", "drop me a line", newsletter
+footers). A second, first-person filter (`FIRST_PERSON`, minus `FOOTER`) kept sentences about the writer's own
+removal or mail ("remove/take/get/delete me ... off/from", "off this list",
+"stop/don't send me", "no longer need to receive") and dropped footer
+instructions ("to unsubscribe", "click", "if you no longer wish"): 1,028
+messages, 389 distinct texts.
+
+**Labels.** All 389 texts were read with the engine's answer hidden and
+labelled `optout` (the writer asks to stop getting this mail or to come off a
+list), `not` (asking to remove *someone else*, a meeting list, "I left you off
+the list", spam footers that say "UNSUBSCRIBE ME PLEASE" as link text) or
+`ambiguous` (6: "better leave me off the list" for a dinner, "please do not
+e-mail me at this address after today"). Duplicates share their text's label.
+`eval/enron-labels/optout.json` holds Message-ID, label and the category before
+the change; no text. One agent labelled; no second reader yet.
+
+| Real opt-outs filed unsubscribe | Before | After |
+|---|---|---|
+| **Distinct texts (113), read once before any change** | **103 (91.2%)** | 112 (99.1%) |
+| Messages (298) | 279 (93.6%) | 297 (99.7%) |
+| Labelled `not` filed unsubscribe (719 messages) | 59 | 59 |
+| Enron tuning half, stops fired on 9,559 `RE:` replies | 173 | 174 (the new one is a right stop) |
+| Enron held-out half, stops fired, labelled right / wrong | 108 / 124 | 108 / 124 (unchanged) |
+
+The before column is the untuned measurement. The after column is tuned on the
+same set: the ten missed texts were read and five narrow patterns written from
+them ("please get me off", "get my name taken off the ... list", "delete me /
+my name from", "do not send me these charts / any other solicitation"), so 99%
+is a regression floor, not an accuracy figure. The false-direction check is on
+the earlier halves, which the new patterns were not written from: no new wrong
+stop on either. The one miss left is a typo ("please review my name from the
+list"). The ten misses had gone to `unclear` (6) or `question` (4): none was filed as
+interest, and each reaches a person before a reply is drafted, but none stops
+the sequence, so a follow-up would still have gone out.
+
+What it cannot say: this is internal mail, so these opt-outs come off
+distribution lists and newsletters, not cold outreach; a sales prospect's
+"take me off" may be phrased differently. The recall is over the net's
+phrasings: an opt-out using none of the net's words ("I'm not the right
+audience for these") is outside the set. The 59 `not` messages still filed
+unsubscribe are mostly spam whose footer reads "UNSUBSCRIBE ME PLEASE", "take
+it/this one off the list" about a deal, and "remove them from the list of
+signatories"; left alone, because in a reply to outreach "take it off your
+list" usually means the address.
+
+```
+node eval/optout-recall.mjs <dir of links to blobs/2?..f?> --labels eval/enron-labels/optout.json
+node eval/optout-recall.mjs <dir> --blind     # the candidates, engine answer hidden, for a second reader
+```
