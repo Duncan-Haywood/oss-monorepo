@@ -21,14 +21,18 @@ sys.path.insert(0, str(ROOT / "platform" / "pages"))
 
 
 def _cut(title: str):
-    """propose_seo_titles.cut, imported only when a long title needs it. A copy of this script
-    without platform/pages beside it (prompts/test_promptctl.py runs one in a fixture repo) then
-    still checks descriptions and tags instead of crashing on import; with no cutter a long title
-    counts as having no clean cut, so the check stays strict."""
+    """propose_seo_titles.cut, imported only when a long title needs it.
+
+    Without platform/pages beside this script the long-title check is skipped (a truthy return
+    means "has a clean cut"); description, tags and the other checks still run. Two callers
+    have no platform/pages: prompts-ci.yml's sparse checkout, and the fixture repo in
+    prompts/test_promptctl.py. Before 2026-11-10 the import sat at module level, so in both the
+    script crashed before checking anything and its stdout was empty, which promptctl read as
+    "no problems". portfolio-validate.yml runs this on the full tree, title check included."""
     try:
         from propose_seo_titles import cut
     except ImportError:
-        return None
+        return title
     return cut(title)
 
 
