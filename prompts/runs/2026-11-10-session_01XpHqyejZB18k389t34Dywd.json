@@ -6,7 +6,7 @@
   "input": "want to direct a lot more work to quality audits. more detail in it. and also reflections on what parts of the process seem to make the quality drop off and suggested fixes to the process. ongoing thing full repo quality reviews. detailed metrics on quality and correctness.",
   "input_sha256": "7ae27bde9195e18608bec3bbca231ca15b2e61dde31693a1c9fd96870da37fdf",
   "follow_up_inputs": [],
-  "model": null,
+  "model": "claude-opus-5-5",
   "models_seen": [],
   "started": null,
   "ended": "2026-11-10T04:13:04Z",
@@ -15,9 +15,12 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
+  "task": "quality track: more share, detailed audits, full-repo census, detailed metrics, reflection on process",
+  "projects": [
+    "portfolio/quality",
+    "platform/ci"
+  ],
+  "pr": 14430,
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -25,15 +28,34 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 19,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The harness says push only to the designated branch; CLAUDE.md asks for control-plane edits in their own PR. Resolved by merging the first PR, then restarting the same branch from main for the control-plane PR."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Auditors filed 76 defects (8%) about llms.txt hosts and relative sitemaps that the Pages build rewrites at deploy; the README did not say to check the served page. Added."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Mode was not 'sample': the owner asked for process reflection and tooling, so this run built the modes and wrote reflection 1 instead of auditing subjects.",
+      "did": "metrics, census, queue, mode, detailed schema, reflection",
+      "result": "metrics --md runs over all 183 audits; validate 0 problems"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-where-quality-drops-off.md",
+    "portfolio/quality/reflections/2026-11-10-where-quality-drops-off.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Mode: reflect (first reflection). Seed: none (no subjects drawn). Corpus: 183 audit files, 158 subjects, 901 defects. Sampled share meeting bar: 25 of 147 (12%-24%). Findings: 69 of 130 below-bar subjects one point short on claims or verification; 65% of audits found a surviving seeded mutation; 12 of 183 audits list a fix PR; 37% of defects reappear; 6.6% of 2,423 subjects ever audited; taxonomy rules agree with 60 hand labels 75%. Verified: test_quality_metrics.py 18 OK, test_quality_audit.py OK, quality_audit.py validate 0 problems, check_post_frontmatter ok. CI on PR 14430: validate red on (a) this record before it was filled, (b) portfolio/flagships.yaml next: over 2000 chars for changepoint-detector and open-tennis-robots, pre-existing on main and untouched here. run_workflow_locally --for-changes ran the many workflows platform/ci paths trigger; einvoice-preflight cli-test failed locally only because the package is not pip-installed in this container (CI installs it). Control-plane follow-up (routing quality 0.05->0.20, prompt rewrite with modes, backlog P066-P069) goes in a second PR awaiting owner approval.",
   "corrections": [],
   "redteam": null
 }
