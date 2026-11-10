@@ -41,3 +41,5 @@ hypotheses:
       share of file_checked events followed by fixes_applied (counters exist;
       local only, no reading yet, added 2026-11-10).
     status: untested
+    checked: null
+    evidence: in-repo
