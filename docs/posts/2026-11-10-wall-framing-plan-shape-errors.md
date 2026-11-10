@@ -1,5 +1,6 @@
 ---
-title: "A malformed plan file now gets a sentence, not a JavaScript stack message"
+title: "A malformed plan file now gets a plain sentence as its error"
+description: "The wall-framing takeoff command line now names what is wrong with a plan file of the wrong shape, instead of printing a raw JavaScript error message."
 date: 2026-11-10
 ---
 
