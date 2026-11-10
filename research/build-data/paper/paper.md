@@ -291,13 +291,24 @@ The per-type baseline interval is the narrowest in four of five sets, so the emp
 
 A week-block bootstrap (2000 draws, `../src/width_boot.py`, `../results/width_boot_2024.json`) of the paired width difference, table minus per-type baseline, with the dequantised nonempty interval: Chicago a2i +62.6 days [55.3, 70.6], SF a2i +9.6 [9.0, 10.2], SF i2c +25.2 [23.1, 27.6], Austin a2i +4.6 [0.2, 9.3], Austin i2c -34.5 [-36.9, -32.1]. All five intervals exclude zero and agree in sign with the ship choice of 4.7e; Austin a2i is a near-tie. The bootstrap resamples test weeks only; the calibration quantile is held fixed, and there is one test year.
 
+### 4.8 A fourth city, Seattle (sessions 61 to 65, 2026-11-09 and 2026-11-10)
+
+Seattle's "Building Permits" feed (`76t5-zqzr`, 194,184 rows pulled 2026-11-10) states "Public Domain" in its metadata (`../datasheets/seattle.md`), so it was added after the licence check that section 5 listed as open. Like Chicago it is survivorship-biased (permits that were never issued are largely absent). Everything below is the same code as for the other cities, 2024 test year unless stated; the class map was not retuned. Sessions 61 and 64 wrote no prediction before the run, so those parts are descriptive; sessions 62, 63 and 65 are in `../LOG.md` with the prediction first.
+
+- **H1 holds in Seattle** (`../results/boosted_seattle_*_2024.json`): the boosted model beats the per-type baseline at q0.1, q0.5 and q0.9 in both targets, every 95% week-block interval below zero (a2i q0.5 46.5 to 35.8 days; i2c q0.5 88.3 to 72.5; smallest gain i2c q0.9, 47.1 to 46.0). That makes 19 of 21 city/target/quantile cells, with Chicago a2i q0.1 and q0.9 the only losses in the original three cities.
+- **Coverage and the ship rule** (`../results/prior_table3_cov_2024_seattle.json`, nonempty dequantised CQR, nominal 80%): baseline 0.887 (a2i) and 0.851 (i2c), table 0.833 and 0.820, full model 0.845 and 0.821. The 77 to 83% band holds in three of six cells; the other three over-cover. Seattle is the first city where the ship rule of 4.7e picks the full model rather than the per-type baseline: it is narrowest in both targets (232.3 and 606.8 days, 7 to 9% under the baseline). The week-block bootstrap of 4.7f (`../results/width_boot_2024_seattle.json`) gives the three-key table minus baseline as -7.4 days [-13.3, -1.1] (a2i) and -18.3 [-23.4, -12.9] (i2c), so unlike the other cities the table is narrower than the baseline in both targets. The full-model width was not bootstrapped.
+- **H4 (transfer) is refuted for Seattle i2c in 2024** (`../results/transfer_seattle_{a2i,i2c}_2024_4city.json`; sources Chicago, SF and Austin for a2i, SF and Austin for i2c, since Chicago has no i2c). Relative change of mean pinball loss against Seattle's own per-type baseline: a2i 0.0% (q0.1), +0.7% (q0.5, interval spans 0), +27.4% (q0.9, worse); i2c -8.6%, -10.7%, -5.1%, all intervals below zero. This is the first held-out cell where a model trained on other cities beat the held-out city's own baseline at all three quantiles. The transfer intervals still under-cover (80% coverage 0.644 a2i, 0.720 i2c, against baselines at 0.890 and 0.882).
+- **Second test year, 2023** (session 65, prediction written first; `../results/transfer_seattle_{a2i,i2c}_2023_4city.json`): the a2i row reproduces 2024 (q0.1 -0.1%, q0.5 +0.5% with the interval spanning 0, q0.9 +27.1%, coverage 0.613). The i2c gain holds at q0.1 (-6.7%) and q0.5 (-7.3%) but q0.9 flips to +11.2% (worse; 2024: -5.1%), coverage 0.681. So "transfer beats the city's own baseline at every quantile" was a 2024 result; the part that held in both years is the lower and middle quantiles. The q0.9 flip is unexplained (an untested guess is that Seattle's 2023 upper tail differs from the SF and Austin tails). An own-city model on the same harmonised features beats the baseline at all three quantiles in both years (2023 i2c -8.9, -12.5, -3.4%), so what costs the transfer model its edge is the move between cities rather than the feature set.
+
+Limits: two test years for transfer and one for the rest, 3 seeds (2 for coverage), i2c has two source cities, Seattle's baseline is trained on a smaller history than the other cities', `baselines.py` (XGBoost) and CatBoost were not run for Seattle, and the ship rule is post hoc. H4 as worded in the abstract (13 of 15 cells worse) describes the three original cities and is not changed by Seattle.
+
 ## 5 Limitations
 
 One test year (2024) for H3, H4, H5 (H1 and the neural comparison also run for 2022 and 2023); three seeds (two for conformal); one fixed
 configuration per library (defaults, untuned); the neural net (4.6) is one untuned architecture; the
 harmonised class map is a keyword rule not validated against hand labels; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
-draws in 4.5 is not reported; i2c is not rerun for H5b; no fourth city (NYC DOB NOW
+draws in 4.5 is not reported; i2c is not rerun for H5b; a fourth city (Seattle, 4.8) with partial coverage of the experiments (NYC DOB NOW
 licence unchecked). Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
 
 ## 6 What a practitioner can take
@@ -313,6 +324,6 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 1. Tune the neural net and libraries; per-library tuning (Austin a2i CatBoost gap).
 2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); (H2g now run for every city and target that has one; see 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
-4. A fourth city after a licence check (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
+4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2023 and 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
 6. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
