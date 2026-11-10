@@ -129,3 +129,13 @@ test("examples/draft-invoice.json is complete: no errors, no warnings, clean in 
     assert.deepEqual(checkInvoice(await parseInvoiceSource("x.xml", out.xml)), []);
   }
 });
+
+test("a half-cent VAT line (1.50 at 19%) generates a file the checker accepts", async () => {
+  const d = draft();
+  d.lines = [{ description: "x", quantity: 1, unit_price: 1.5, unit: "pieces", tax_percent: 19 }];
+  for (const format of ["ubl", "cii"]) {
+    const out = generateInvoice(d, { format });
+    assert.equal(out.totals.tax, 0.29);
+    assert.deepEqual(checkInvoice(await parseInvoiceSource("x.xml", out.xml)), []);
+  }
+});
