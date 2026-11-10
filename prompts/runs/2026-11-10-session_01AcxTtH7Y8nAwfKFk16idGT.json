@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 6,
   "outcome": "success",
   "errors": [
     "First wiring adopted the integral-LP roster before the coverage-first pass, which resets bestOwner but keeps best: the cost search pruned against a phantom 15 h score and reported the annealed 19 h sample-cafe roster as optimal. Caught by the existing 'gives up honestly' test; fixed by adopting the LP roster after that pass, and pinned by a new test.",
-    "Stashed the working tree while a background bench was running against it (no harm: the bench had already failed on a missing /usr/bin/time)."
+    "Stashed the working tree while a background bench was running against it (no harm: the bench had already failed on a missing /usr/bin/time).",
+    "CI validate (portfolio/router/validate.py) failed: shift-roster-builder next: 2160 chars over the 2000 cap after appending; rewrote it to 1221 chars. promptctl validate does not run that check locally; portfolio/router/validate.py does."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "ventures/shift-roster-builder/page.test.mjs",
       "issue": "Asserted calc.mjs has no import at all, without saying why; relaxed to sibling ./x.mjs imports only (the test title says 'import only local files')."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to rewrite the flagship's next: but not that portfolio/router/validate.py caps it at 2000 characters; run it locally before pushing."
     }
   ],
   "deviations": [
