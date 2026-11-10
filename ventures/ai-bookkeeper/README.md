@@ -189,6 +189,48 @@ about the script, not a model, and are not a result. On one seed the review
 queue is 157 lines and the deterministic top suggestion is right on 63.7%,
 with 22.3% having none: that is the bar a model has to beat.
 
+### Labelled books from five fiscal hosts (2026-11-10)
+
+`node eval/opencollective-labelled.mjs --host <slug> --pages 10` reads paid expenses from
+Open Collective's public API, each with the accounting category the fiscal host's own
+finance team assigned: real memos and payees, with an answer key the keyword author did not
+write. Records are fetched at run time and never copied here (payees include private
+people, so only aggregates are reported). Each host category is mapped to one or two chart
+accounts in `MAPS`; categories with no counterpart (grants, donations, "Administrative")
+are left unscored. "Online" is the import loop month by month: each line is suggested from
+every earlier month's filed lines, then filed with the host's answer. Text is the memo the
+submitter typed.
+
+| host | scored lines | always the commonest category | keywords alone, before | after | online, before | after | posted alone (wrong) |
+|---|---|---|---|---|---|---|---|
+| opensource (rules written from it) | 8,386 | 47.5% | 21.5% | 38.5% | 87.0% | 87.4% | 46.8% (71, 1.8%) |
+| foundation (rules written from it) | 6,749 | 29.3% | 23.3% | 35.6% | 61.0% | 62.9% | 16.6% (30, 2.7%) |
+| raft (held out) | 1,581 | 18.8% | 16.4% | 26.3% | 71.3% | 73.1% | 27.8% (7, 1.6%) |
+| pact_collective (held out) | 2,063 | 62.8% | 9.3% | 16.4% | 73.3% | 73.9% | 25.5% (9, 1.7%) |
+| metagov (held out) | 1,226 | 57.2% | 13.1% | 23.2% | 74.6% | 74.7% | 14.5% (2, 1.1%) |
+
+"Right of all" throughout. The rules added are the words people type on an expense
+("web hosting", "legal services", "maintenance and development", "printing",
+"supplies", "groceries"), last in `BUILT_IN` so a vendor name wins. On the three held-out
+hosts, measured before and after with no rule written from them, keywords alone went from
+9-16% to 16-26% right.
+
+What it says, with care:
+
+- **Learning does most of the work.** From memos alone the loop is right on 63-87% of
+  lines, against 19-63% for always picking a host's commonest category. On pact_collective
+  that margin is only 11 points: most of its lines are one category.
+- **Bank-style text is much harder.** With the payee's name only (what a bank line
+  carries), online right falls to 43-65%, and a payee seen for the first time is right on
+  9-17%. A memo, receipt or invoice line is worth carrying into the books.
+- **Hosts disagree on conventions.** pact_collective files programme groceries as
+  supplies; the keywords say meals and are wrong 60% of the time they speak there (40.1%
+  right of suggested). Memory learns the host's convention within a few months.
+- **Lines posted without review were wrong 1.1% to 2.7% of the time** at the default 0.85.
+- These are reimbursement and invoice records, not bank lines, the mapping to the chart is
+  this repository's, and the newest 10,000 paid expenses were read for the two big hosts
+  (all of them for the other three).
+
 ### Round-trip property test (2026-10-22)
 
 `node --test eval/roundtrip-fuzz.test.mjs` renders 40 seeded random statements (5-34 rows) with the quirks real exports have and checks `readStatement` returns exactly the rows rendered: BOM, CRLF, `;` delimiter, quoted commas and quotes, parenthesised negatives, thousands separators, European decimals, split debit/credit columns, and ISO, M/D/Y, D/M/Y and "12 Mar 2026" dates. 40 of 40 pass. Generated, not real bank data; a row that reads "PAYMENT - THANK YOU" is left out on purpose, because the card sign heuristic flips signs for it.
