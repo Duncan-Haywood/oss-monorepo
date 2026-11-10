@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Star That Is Not Quite North</title>
+      <link>https://example.invalid/hearth-and-horizon/the-star-that-is-not-quite-north.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-star-that-is-not-quite-north.html</guid>
+      <pubDate>Tue, 10 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish pegs out a new chapel to face east using the Pole Star, and finds that Polaris is not quite at the pole. A single sighting can be 0.77 degrees out, a quarter of a metre at the altar, and two sightings six hours apart put it right. Setting: The building site of Saint Finnian's chapel (invented), near Strangford, County Down, Saturday 14 October 2102. Read the full text at https://example.invalid/hearth-and-horizon/the-star-that-is-not-quite-north.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish pegs out a new chapel to face east using the Pole Star, and finds that Polaris is not quite at the pole. A single sighting can be 0.77 degrees out, a quarter of a metre at the altar, and two sightings six hours apart put it right.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Six Hundred Grams of Flour</title>
       <link>https://example.invalid/hearth-and-horizon/six-hundred-grams-of-flour.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/six-hundred-grams-of-flour.html</guid>
