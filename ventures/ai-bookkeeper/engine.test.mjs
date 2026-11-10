@@ -379,7 +379,7 @@ test("ablation: switching a layer off removes its suggestions, and without memor
   assert.ok(sum(full, "auto") > 0);
   assert.equal(sum(noMem, "auto"), 0);
   assert.equal(sum(noMem.map((r) => ({ n: r.bySource.memory?.n ?? 0 })), "n"), 0);
-  const none = runSeed(1, undefined, { skipLayers: ["memory", "learned", "built-in"] }).slice(3);
+  const none = runSeed(1, undefined, { skipLayers: ["memory", "learned", "built-in", "new-payee"] }).slice(3);
   assert.equal(sum(none, "suggested"), 0);
 });
 

@@ -52,7 +52,7 @@ interval, which stays an estimate from `sample` rounds alone; the
 ## One round
 
 ```
-python3 platform/ci/quality_audit.py sample            # today's subjects, seeded by the date
+python3 platform/ci/quality_audit.py sample            # today's subjects, seed and round number
 python3 platform/ci/quality_audit.py sample --k 6 --seed 2026-11-07
 # ... audit each subject (below), write portfolio/quality/audits/<date>-<subject>.json
 python3 platform/ci/quality_audit.py validate          # schema and score checks
@@ -76,9 +76,12 @@ fixes the draw for a given set of audits). The flagship is never skipped: the
 least recently audited one is drawn, so the same flagship under every seed is
 the rotation working, not a bug. From 2026-11-10 a flagship audited in the last
 7 days is not drawn (`FLAGSHIP_REAUDIT_DAYS`): daily re-audits of unchanged
-flagships were returning identical scores. Two rounds in flight at once
-can draw the same subjects; add a `-b`, `-c` suffix to the seed when an open
-`quality:` PR lists a subject you drew. Because the non-flagship strata are uniform random, the share of
+flagships were returning identical scores. `sample` picks the seed and round
+number itself: the date, or the date with the first `-b`, `-c` ... suffix no
+audit on disk or on `origin/main` has used, and one more than the highest
+`quality-audit-round-N` post (fetch `origin main` first). Two rounds in flight
+at once can still draw the same subjects; pass `--seed <date>-<next letter>`
+when an open `quality:` PR lists a subject you drew. Because the non-flagship strata are uniform random, the share of
 them that meets the bar is an unbiased estimate for that stratum, and
 `summary` reports it with a Wilson 95% interval. Flagships are reported apart:
 they are chosen, not sampled.

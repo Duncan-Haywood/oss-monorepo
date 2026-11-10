@@ -32,7 +32,8 @@
   "tests_added": 5,
   "outcome": "success",
   "errors": [
-    "First draft of the restaurant rule sat at the top of BUILT_IN and broke 5 existing gap-probe tests (commissary kitchen rent, a barbecue association, gelato); moved after the specific rules and dropped gelato, suite green."
+    "First draft of the restaurant rule sat at the top of BUILT_IN and broke 5 existing gap-probe tests (commissary kitchen rent, a barbecue association, gelato); moved after the specific rules and dropped gelato, suite green.",
+    "PR #14605 (another session, same flagship item) merged while this PR was open; merged main, kept both README/HISTORY sections, wired its new-payee layer and real amounts into eval/mint-labelled.mjs and re-measured."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -58,7 +59,7 @@
     "ventures/ai-bookkeeper/README.md (Labelled bank lines from Mint exports)"
   ],
   "goal": "Flagship depth: categoriser accuracy on real bank text",
-  "notes": "Held out (6 files, 767 lines): learning loop 71.3->75.0% right, 9.3->5.9% wrong; first-seen payees 56.8->60.5% right, 12.7->9.2% wrong. Ablation: without the keyword guard on the classifier, 72.0% right / 8.9% wrong, so the guard is most of the gain. Verification: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok (2979 tests incl. 5 new), 1 suites run, 0 failed. Files fetched at run time from raw.githubusercontent.com at pinned commits, never committed; only totals published.",
+  "notes": "Held out (6 files, 767 lines, real amounts, engine's full model incl. PR #14605's new-payee guess that landed mid-run): learning loop 76.5->79.1% right, 13.2->10.7% wrong; first-seen payees 65.5->68.7% right, 18.6->15.6% wrong. New-payee guess off: 71.7->74.4% right, 8.7->6.3% wrong. Verification: python3 platform/ci/run_venture_tests.py ai-bookkeeper on the merged tree (see PR); CI green on the first push. Files fetched at run time from raw.githubusercontent.com at pinned commits, never committed; only totals published.",
   "corrections": [],
   "redteam": null,
   "usage": {

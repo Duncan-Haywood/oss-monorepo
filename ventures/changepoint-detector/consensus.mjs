@@ -33,6 +33,22 @@ export const TCPD_RATES = {
 const pct = (a, b) => `${Math.round((100 * a) / b)}%`;
 export const TCPD_NOTE = `On ${TCPD_RATES.series} real series marked by human annotators (Turing Change Point Dataset), ${pct(TCPD_RATES.all.marked, TCPD_RATES.all.changes)} of every-setting changes, ${pct(TCPD_RATES.most.marked, TCPD_RATES.most.changes)} of half-or-more and ${pct(TCPD_RATES.few.marked, TCPD_RATES.few.changes)} of fewer-than-half changes lay within ${TCPD_RATES.margin} points of a change an annotator marked: agreement raises the hit rate but does not make a change certain, and long smooth series are over-cut.`;
 
+// Held out (eval/tcpd-heldout.mjs, eval/tcpd-heldout.out.txt): the 7 univariate TCPD series that
+// TCPD does not ship, opened only after every setting was fixed on the 31 above. Mean F1 (margin 5).
+export const TCPD_HELDOUT = { series: 7, every: 0.711, level: 0.296, bocpd: 0.622, zero: 0.639, binseg: 0.727, pooledSeries: 38, pooledEvery: 0.704, pooledLevel: 0.444 };
+
+// One paragraph for the page: the changes every setting agrees on, led with what that choice
+// scored on labelled series nobody tuned it on. c is consensus()'s result.
+export function agreedText(c) {
+  const H = TCPD_HELDOUT;
+  const every = c.changes.filter((x) => x.tier === 'all').sort((a, z) => a.index - z.index);
+  const most = c.changes.filter((x) => x.tier === 'most').length;
+  const head = every.length
+    ? `Every one of ${c.settings.length} settings agrees on ${every.length} change${every.length === 1 ? '' : 's'}: ${every.slice(0, 12).map((x) => `${x.label}${x.direction === 'up' || x.direction === 'down' ? ` (${x.direction})` : ''}`).join(', ')}${every.length > 12 ? `, and ${every.length - 12} more` : ''}.`
+    : `No change is found by all ${c.settings.length} settings${most ? ` (${most} found by half or more)` : ''}, so treat the changes below as candidates.`;
+  return `${head} On ${H.series} labelled real series held out from tuning (Turing Change Point Dataset), keeping only these agreed changes scored F1 ${H.every.toFixed(2)}, against ${H.level.toFixed(2)} for the single level model in the table below and ${H.zero.toFixed(2)} for reporting no change at all.`;
+}
+
 // base: analyze() input minus model/ar1/noiseFloor/trend (those the panel sets).
 export function consensus(base = {}, { tolerance = null, panel = PANEL } = {}) {
   const b = { ...base };

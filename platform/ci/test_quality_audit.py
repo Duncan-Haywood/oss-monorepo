@@ -121,6 +121,21 @@ class QualityAuditTest(unittest.TestCase):
         extra = q.remote_audits(local, ref="HEAD")
         assert all(a["_file"] not in {l["_file"] for l in local} for a in extra)
 
+    def test_free_seed_skips_seeds_already_used(self):
+        assert q.free_seed("2026-11-10", []) == "2026-11-10"
+        used = [audit(seed="2026-11-10"), audit(seed="2026-11-10-b"), audit(seed="2026-11-09")]
+        assert q.free_seed("2026-11-10", used) == "2026-11-10-c"
+        assert q.free_seed("2026-11-11", used) == "2026-11-11"
+
+    def test_next_round_reads_post_names(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d)
+            assert q.next_round(p, ref="no-such-ref-xyz") == 1
+            for n in ("2026-11-09-quality-audit-round-9.md", "2026-11-10-quality-audit-round-41.md", "2026-11-10-other.md"):
+                (p / n).write_text("x")
+            assert q.next_round(p, ref="no-such-ref-xyz") == 42
+
     def test_population_reads_the_repository(self):
         pop = q.population()
         assert pop["flagship"] and all(p.startswith("ventures/") for p in pop["flagship"])

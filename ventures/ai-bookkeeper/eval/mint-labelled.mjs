@@ -18,7 +18,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { suggest, trainClassifier, buildMemory, historyRecord, payeeKey } from "../categorize.mjs";
+import { suggest, trainClassifier, buildMemory, trainNewPayee, historyRecord, payeeKey } from "../categorize.mjs";
 
 // [set, repo, commit, path]. "tune": rules may be written looking at these; "held": never.
 export const FILES = [
@@ -66,15 +66,17 @@ export function parseCsv(text) {
   return rows;
 }
 
-// Mint CSV text -> [{ date (ISO), desc, cat, out }].
+// Mint CSV text -> [{ date (ISO), desc, cat, out, cents (money out negative) }].
 export function mintRows(text) {
   const [head, ...body] = parseCsv(text.replace(/^﻿/, "")).filter((r) => r.some((c) => c.trim()));
   const ix = (n) => head.findIndex((h) => h.trim().toLowerCase() === n);
-  const D = ix("date"), O = ix("original description"), S = ix("description"), C = ix("category"), T = ix("transaction type");
+  const D = ix("date"), O = ix("original description"), S = ix("description"), C = ix("category"), T = ix("transaction type"), A = ix("amount");
   return body.map((r) => {
     const m = String(r[D] ?? "").match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
     const y = m ? (m[3].length === 2 ? "20" + m[3] : m[3]) : "";
-    return { date: m ? `${y}-${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}` : String(r[D] ?? ""), desc: String(r[O] || r[S] || "").trim(), cat: String(r[C] ?? "").trim(), out: String(r[T] ?? "").trim().toLowerCase() === "debit" };
+    const out = String(r[T] ?? "").trim().toLowerCase() === "debit";
+    const cents = Math.round(Math.abs(parseFloat(String(r[A] ?? "").replace(/[$,]/g, "")) || 10) * 100) * (out ? -1 : 1);
+    return { date: m ? `${y}-${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}` : String(r[D] ?? ""), desc: String(r[O] || r[S] || "").trim(), cat: String(r[C] ?? "").trim(), out, cents };
   }).filter((r) => r.desc);
 }
 
@@ -97,16 +99,17 @@ function tally(o, s, want) {
 }
 
 // One file = one person's books, replayed month by month like the import loop.
-export function evaluate(rows, { learn = true, map = MINT_MAP } = {}) {
+export function evaluate(rows, { learn = true, map = MINT_MAP, skip = null } = {}) {
   const scored = rows.filter((r) => r.out && map[r.cat]).sort((a, b) => a.date.localeCompare(b.date));
   const all = blank(), first = blank(), repeat = blank(), misses = [], bySource = {};
   const hist = [], seen = new Set();
-  let model = { rules: [], codes: null, memory: buildMemory([]), classifier: { n: 0 } }, month = null, pending = [];
-  const flush = () => { if (!learn || !pending.length) return; hist.push(...pending); pending = []; model = { rules: [], codes: null, memory: buildMemory(hist), classifier: trainClassifier(hist) }; };
+  // The same model the engine builds (engine.mjs modelFor), including the new-payee guess.
+  let model = { rules: [], codes: null, memory: buildMemory([]), classifier: { n: 0 }, newPayee: null }, month = null, pending = [];
+  const flush = () => { if (!learn || !pending.length) return; hist.push(...pending); pending = []; model = { rules: [], codes: null, memory: buildMemory(hist), classifier: trainClassifier(hist), newPayee: trainNewPayee(hist) }; };
   for (const r of scored) {
     if (r.date.slice(0, 7) !== month) { flush(); month = r.date.slice(0, 7); }
-    const want = map[r.cat], txn = { desc: r.desc, cents: -1000 };
-    const s = suggest(txn, model);
+    const want = map[r.cat], txn = { desc: r.desc, cents: r.cents ?? -1000 };
+    const s = suggest(txn, skip ? { ...model, skip } : model);
     tally(all, s, want);
     const k = payeeKey(r.desc);
     tally(seen.has(k) ? repeat : first, s, want);
@@ -128,7 +131,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const tot = { cold: blank(), coldFirst: blank(), online: blank(), first: blank(), repeat: blank() }, misses = [];
   for (const f of FILES.filter((f) => set === "all" || f[0] === set)) {
     const rows = mintRows(await fetchFile(f, dir));
-    const c = evaluate(rows, { learn: false }), o = evaluate(rows);
+    const skip = arg("--skip") ? new Set(arg("--skip").split(",")) : null;
+    const c = evaluate(rows, { learn: false }), o = evaluate(rows, { skip });
     add(tot.cold, c.all); add(tot.coldFirst, c.first); add(tot.online, o.all); add(tot.first, o.first); add(tot.repeat, o.repeat);
     misses.push(...o.misses);
     console.log(`${f[0]} ${f[1].padEnd(36)} rows ${rows.length} scored ${c.scored}  cold ${pct(c.all.right, c.all.n)}  online ${pct(o.all.right, o.all.n)}  first-seen ${pct(o.first.right, o.first.n)} (n=${o.first.n})`);

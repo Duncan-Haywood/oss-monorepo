@@ -45,7 +45,7 @@ test("Mint rows: original description, debit only scored, Category never shown",
     '2/04/2026,Target,"TARGET 00012",30.00,debit,Shopping,Card,,\n';
   const rows = mintRows(csv);
   assert.equal(rows.length, 5);
-  assert.deepEqual(rows[0], { date: "2026-01-05", desc: "SHAKE SHACK 1109 BROOKLYN", cat: "Fast Food", out: true });
+  assert.deepEqual(rows[0], { date: "2026-01-05", desc: "SHAKE SHACK 1109 BROOKLYN", cat: "Fast Food", out: true, cents: -1250 });
   const o = evaluate(rows);
   assert.equal(o.scored, 3);
   assert.equal(o.all.right, 3);

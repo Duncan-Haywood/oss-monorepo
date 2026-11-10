@@ -6,7 +6,7 @@ script does the routine parts so an auditing session spends its time on
 judgment: a reproducible stratified draw, a schema check, and the aggregate
 numbers (share meeting the bar, with Wilson intervals, by stratum and round).
 
-    python3 platform/ci/quality_audit.py sample [--seed 2026-11-07] [--k 2]
+    python3 platform/ci/quality_audit.py sample [--seed 2026-11-07] [--k 2]   # prints the seed and round number to use
     python3 platform/ci/quality_audit.py validate
     python3 platform/ci/quality_audit.py summary [--md]
     python3 platform/ci/quality_audit.py metrics [--md]   # detailed: gates, defect taxonomy, mutations, fixes, coverage
@@ -114,6 +114,38 @@ def remote_audits(local: list[dict], ref: str = "origin/main") -> list[dict]:
         return out
     except Exception:
         return []
+
+
+def free_seed(date: str, audits: list[dict]) -> str:
+    """`date`, or `date-b`, `date-c`, ... : the first seed no audit has used.
+
+    The default seed was the date, so a second round on the same day reused it
+    (rounds 39, 40 and 41 all ran on seed 2026-11-10) and each post had to
+    explain why; picking the suffix by hand was the -b/-c rule in the README."""
+    used = {str(a.get("seed", "")) for a in audits}
+    for suffix in [""] + [f"-{c}" for c in "bcdefghijklmnopqrstuvwxyz"]:
+        if date + suffix not in used:
+            return date + suffix
+    return date + "-" + hashlib.sha256(repr(sorted(used)).encode()).hexdigest()[:6]
+
+
+ROUND_RE = re.compile(r"quality-audit-round-(\d+)\.md$")
+
+
+def next_round(posts: Path = ROOT / "docs" / "posts", ref: str = "origin/main") -> int:
+    """One more than the highest `*-quality-audit-round-N.md` post here or on `ref`.
+
+    Round numbers lived only in post filenames, so runs read them off by hand
+    (doc_friction, 2026-11-10). Fail-soft on git like remote_audits."""
+    import subprocess
+    names = [f.name for f in posts.glob("*quality-audit-round-*.md")] if posts.is_dir() else []
+    try:
+        rel = posts.relative_to(ROOT).as_posix()
+        names += subprocess.run(["git", "ls-tree", "--name-only", ref, rel + "/"], capture_output=True, text=True, timeout=20, cwd=ROOT).stdout.split()
+    except Exception:
+        pass
+    nums = [int(m.group(1)) for n in names if (m := ROUND_RE.search(n))]
+    return max(nums, default=0) + 1
 
 
 def last_audited(audits: list[dict]) -> dict[str, str]:
@@ -323,7 +355,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
     sp = sub.add_parser("sample", help="draw this round's subjects")
-    sp.add_argument("--seed", default=dt.date.today().isoformat())
+    sp.add_argument("--seed", default=None, help="default: today's date, suffixed -b, -c ... past seeds audits already used")
     sp.add_argument("--k", type=int, default=2, help="subjects per venture and research stratum")
     sp.add_argument("--k-platform", type=int, default=1)
     sp.add_argument("--json", action="store_true")
@@ -346,11 +378,14 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "sample":
         local = load_audits()
-        picks = draw(args.seed, args.k, args.k_platform, audits=local + remote_audits(local))
+        every = local + remote_audits(local)
+        seed = args.seed or free_seed(dt.date.today().isoformat(), every)
+        picks = draw(seed, args.k, args.k_platform, audits=every)
+        rnd = next_round()
         if args.json:
-            print(json.dumps({"seed": args.seed, "subjects": picks}, indent=1))
+            print(json.dumps({"seed": seed, "round": rnd, "subjects": picks}, indent=1))
         else:
-            print(f"seed {args.seed}")
+            print(f"seed {seed}   round {rnd} (next post: docs/posts/<date>-quality-audit-round-{rnd}.md)")
             for p in picks:
                 extra = f" (of {p['population']})" if p.get("population") else ""
                 print(f"  {p['stratum']:<9} {p['subject']}{extra}  last audited: {p['last_audited'] or 'never'}")

@@ -683,6 +683,62 @@ export function classify(model, txn, allowed = null) {
   return scores.map(([account, s]) => ({ account, p: Math.exp(s - max) / z })).sort((a, b) => b.p - a.p);
 }
 
+// Layer 6: a payee seen for the first time. Nothing in its name is known, so the
+// only evidence is what kind of name it is and how big the line is, read against
+// the first line of every other payee you filed. A weak prior: it is offered for
+// review (never posted, confidence at most 0.5), the AI layer may still fill over it.
+// Measured on five fiscal hosts' labelled books (eval/opencollective-labelled.mjs,
+// README "New payees").
+const BUSINESS = /\b(inc|llc|l\.l\.c|ltd|limited|corp|corporation|co|company|gmbh|ag|sa|sas|sarl|srl|bv|nv|pty|plc|llp|pllc|pc|kk|oy|ab|as|aps|foundation|association|assn|group|labs?|studios?|services?|solutions|consulting|media|design|software|technologies|technology|tech|systems|partners|agency|collective|club|university|college|school|press|shop|store|market|company|cooperative|coop|network|institute|society|church|bank|hotel|airlines?|restaurant|cafe|coffee|pharmacy|hosting|cloud|insurance|realty|properties|holdings|enterprises|international|global|center|centre)\b|\.(com|io|org|net|co|dev|app|ai)\b|\b(www)\b/i;
+const P2P = /^(zelle|venmo|cash app|cashapp|paypal|wise|revolut|apple cash)\b[\s:*]*(payment |transfer )?(to |from )?/i;
+
+// "Jane Q. Doe" -> "person", "Acme Hosting LLC" -> "business", "SQ *4412 STORE" -> "other".
+export function payeeShape(desc) {
+  const s = String(desc ?? "").trim().replace(P2P, "").replace(/\s+(conf(irmation)?|ref)\s*#?\s*\S+$/i, "").trim();
+  if (!s) return "other";
+  if (BUSINESS.test(s)) return "business";
+  if (/^[\p{L}'’-]+(\s+[\p{L}'’.-]+){1,3}$/u.test(s) && !/\d/.test(s)) return "person";
+  return "other";
+}
+const sizeBand = (cents) => { const d = Math.abs(cents ?? 0) / 100; return d < 50 ? "s" : d < 500 ? "m" : d < 5000 ? "l" : "xl"; };
+
+// From history: each payee's first filed line, counted by direction, shape and size.
+export function trainNewPayee(history) {
+  const first = new Map(), t = new Map();
+  for (const h of history) {
+    const k = `${h.key}|${h.dir}`;
+    if (!h.key || first.has(k)) continue;
+    first.set(k, h);
+  }
+  const add = (key, account) => { const m = t.get(key) ?? new Map(); m.set(account, (m.get(account) ?? 0) + 1); t.set(key, m); };
+  for (const h of first.values()) {
+    if (!h.account || h.account === "transfer") continue;
+    const shape = h.shape ?? "?", band = sizeBand(h.cents);
+    add(`${h.dir}|${shape}|${band}`, h.account); add(`${h.dir}|${shape}`, h.account); add(`${h.dir}||${band}`, h.account); add(`${h.dir}`, h.account);
+  }
+  return { tables: t, payees: first.size };
+}
+
+// `levels` (eval only) limits which views are tried, to measure what shape and size add.
+export const NEW_PAYEE = { minPayees: 8, minShare: 0.4, maxConfidence: 0.5, levels: null };
+// -> { account, share, n, of, level } or null.
+export function guessNewPayee(np, txn, allowed = null, opts = NEW_PAYEE) {
+  if (!np?.tables?.size) return null;
+  const d = dir(txn.cents), shape = payeeShape(txn.desc), band = sizeBand(txn.cents);
+  const views = [[`${d}|${shape}|${band}`, "shape and size"], [`${d}|${shape}`, "shape"], [`${d}||${band}`, "size"], [d, "direction"]];
+  for (const [key, level] of views.filter(([, l]) => !opts.levels || opts.levels.includes(l))) {
+    const m = np.tables.get(key);
+    if (!m) continue;
+    const rows = [...m].filter(([a]) => !allowed || allowed(a));
+    const of = rows.reduce((a, [, n]) => a + n, 0);
+    if (of < opts.minPayees) continue;
+    const [account, n] = rows.sort((a, b) => b[1] - a[1])[0];
+    if (n / of < opts.minShare) return null; // the best-supported view is split: say nothing rather than back off to a coarser guess
+    return { account, share: n / of, n, of, level, shape, band };
+  }
+  return null;
+}
+
 // Memory: per payee key and direction, how often each account was chosen.
 export function buildMemory(history) {
   const m = new Map();
@@ -720,7 +776,7 @@ export function parseRules(text, accounts) {
 
 // -> { account, confidence (0..1), source, reason, alternatives: [{account, p}] }
 // `model` is { rules, memory, classifier, codes:Set }. `model.skip` (a Set of
-// "rule", "memory", "learned", "built-in") switches layers off, for the ablation
+// "rule", "memory", "learned", "built-in", "bank-category", "new-payee") switches layers off, for the ablation
 // in eval/ablation.mjs; it is never set in normal use.
 // Layer 5: the category label the bank or app itself put on the line. Only labels that
 // name one account unambiguously; everything else stays in review. Lower confidence than
@@ -793,9 +849,17 @@ export function suggest(txn, model) {
     const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
   }
+  if (key && !off.has("new-payee") && model.newPayee && !model.memory?.has(`${key}|in`) && !model.memory?.has(`${key}|out`)) {
+    const opts = model.newPayeeOpts ?? NEW_PAYEE;
+    const g = guessNewPayee(model.newPayee, txn, (a) => model.codes?.has(a) ?? true, opts);
+    if (g) {
+      const kind = { person: "named people", business: "businesses", other: "payees like this", "?": "payees" }[g.level.includes("shape") ? g.shape : "?"];
+      return { account: g.account, confidence: Math.min(g.share, opts.maxConfidence ?? NEW_PAYEE.maxConfidence), source: "new-payee", reason: `new payee: ${g.n} of the ${g.of} ${kind} you filed${g.level.includes("size") ? " at this size" : ""} went here first`, alternatives: ranked.slice(0, 2) };
+    }
+  }
   return { account: null, confidence: 0, source: "none", reason: key ? `nothing known about "${key}" yet` : "the description is empty", alternatives: ranked.slice(0, 3) };
 }
 
 export function historyRecord(txn, account) {
-  return { key: payeeKey(txn.desc), tokens: payeeTokens(txn.desc), dir: dir(txn.cents), cents: txn.cents, account };
+  return { key: payeeKey(txn.desc), tokens: payeeTokens(txn.desc), dir: dir(txn.cents), cents: txn.cents, shape: payeeShape(txn.desc), account };
 }
