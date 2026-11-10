@@ -86,6 +86,10 @@ CHECKS = [
     ("experiments/hub_throughput/cargo_hub_taper_results.txt", "CC-CV 30-100%         72.0 min   8-charger limit  6.67", "6d: 72.0 min, 6.7 flights/h"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
+    ("experiments/hub_throughput/cargo_hub_trace_results.txt", "peak 15-min hour-rate / daily-mean rate = 1.76", "6f: peak 1.76x mean"),
+    ("experiments/hub_throughput/cargo_hub_trace_results.txt", "2019-10-12 uniform: 40", "6f: Saturday 40 spares at 85%"),
+    ("experiments/hub_throughput/cargo_hub_trace_taper_results.txt", "2019-10-09 uniform : 28", "6g: Wednesday 28 spares, 30-100%"),
+    ("experiments/hub_throughput/cargo_hub_trace_taper_results.txt", "Poisson            : 20", "6g: Poisson 20 spares, 30-100%"),
 ]
 LOGCHECKS = [  # figures that exist in LOG.md outcomes (the results files print them in tables)
     "1,273 km at engine 1 kW/kg", "145 to 167", "0.40 (cruise-sized), 0.34 (hover-sized, 10e) and 0.18",
