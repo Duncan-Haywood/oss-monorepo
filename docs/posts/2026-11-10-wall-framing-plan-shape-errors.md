@@ -2,6 +2,7 @@
 title: "A malformed plan file now gets a plain sentence as its error"
 description: "The wall-framing takeoff command line now names what is wrong with a plan file of the wrong shape, instead of printing a raw JavaScript error message."
 date: 2026-11-10
+tags: [wall-framing-takeoff, cli, construction]
 ---
 
 The wall-framing takeoff command line reads a plan as JSON. Feed it a plan
