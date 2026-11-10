@@ -138,3 +138,39 @@ def audit_interval(plan, f_all, labels, z=1.959964):
     mid = (p + z * z / (2 * n)) / d
     half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / d
     return value, mid - half, mid + half
+
+
+def guard_fire_probability(pilot, misses, corpus, neg_guard=NEG_GUARD):
+    """Chance that a simple random pilot of `pilot` items, drawn without replacement from a corpus of `corpus` items of
+    which `misses` are human positives the coder labelled 0, holds at least `neg_guard` of them: the hypergeometric
+    upper tail P(X >= neg_guard). This is the chance that the negative-cell guard lets `screen` pick cells when tau and
+    guard are off (LOG.md 7ae: the guard, not the audit's share of the corpus, sets how often cells are used; 7af checks
+    this forecast against every committed cell). With tau > 0 the screen also needs J_hat >= tau, so read it as an
+    upper bound there."""
+    from math import comb
+    if pilot > corpus or misses > corpus:
+        raise ValueError("pilot and misses cannot exceed the corpus")
+    total = comb(corpus, pilot)
+    below = sum(comb(misses, k) * comb(corpus - misses, pilot - k) for k in range(min(neg_guard, pilot + 1)))
+    return 1.0 - below / total
+
+
+def pilot_for_guard(prevalence, sensitivity, corpus, target=0.9, neg_guard=NEG_GUARD):
+    """Smallest pilot size whose `guard_fire_probability` reaches `target`, for a corpus of `corpus` items with this
+    prevalence and coder sensitivity (misses = round(corpus * prevalence * (1 - sensitivity))). The planning rule of
+    LOG.md 7af: the guard fires once the pilot expects about 5.3 missed positives (Poisson P(X >= 3) = 0.9), so the
+    pilot needs about 5.3 / (prevalence * (1 - sensitivity)) items whatever the corpus size. None if even the whole
+    corpus does not reach the target."""
+    misses = round(corpus * prevalence * (1 - sensitivity))
+    if misses < neg_guard:
+        return None
+    lo, hi = 1, corpus
+    if guard_fire_probability(hi, misses, corpus, neg_guard) < target:
+        return None
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if guard_fire_probability(mid, misses, corpus, neg_guard) >= target:
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
