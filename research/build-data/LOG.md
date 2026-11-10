@@ -1,5 +1,9 @@
 # build-data log
 
+## Session 69, 2026-11-10: running session 68's 2022 transfer prediction (in progress)
+
+Claim: feeds answer again (18:08 UTC); pulling the four feeds to run `src/transfer.py --test-year 2022 --held seattle`.
+
 ## Session 68, 2026-11-10: harmonised classes barely overlap between cities (2022 transfer prediction written, not run: feeds unreachable)
 
 Why: sessions 65 to 67 left "third transfer test year (2022)". With `--test-year 2022` the split is source and own train to year <= 2020, early-stopping year 2021, test 2022 (`src/transfer.py`, unchanged).
