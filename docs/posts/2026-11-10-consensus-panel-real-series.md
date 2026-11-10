@@ -1,9 +1,9 @@
 ---
 title: "Six changepoint settings, four real series: where they agree and where one setting hides a break"
-seo_title: "Changepoint detection consensus on the UK seat-belt, Nile and Lake Huron series"
+seo_title: "Changepoint consensus on the UK seat-belt, Nile and Lake Huron"
 date: 2026-11-10
 tags: [changepoint-detector, time-series]
-description: "A panel of six changepoint settings finds the UK seat-belt law and the Nile 1899 drop in all six, but a break in Lake Huron in only four, because the autocorrelation settings find nothing."
+description: "Six changepoint settings find the UK seat-belt law and the Nile 1899 drop every time, but a Lake Huron break in only four, as the AR(1) settings find nothing."
 ---
 
 changepoint-detector's new `--consensus` option runs six settings and reports how
