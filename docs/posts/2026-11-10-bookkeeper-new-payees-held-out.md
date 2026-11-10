@@ -1,7 +1,7 @@
 ---
 title: "Checking the bookkeeper's new-payee guess on data it never saw"
 seo_title: "New-payee categorization, checked on held-out books"
-description: "A guess for first-time payees, built on Open Collective records, adds 12 and 16 points of right answers on a nonprofit ledger and a card export, and on the ledger wrong guesses rise from 5% to 26%."
+description: "A new-payee guess built on Open Collective adds 12 and 16 points of right answers on held-out books, but on one ledger wrong guesses rise from 5% to 26%."
 tags: [ai-bookkeeper, evaluation, bookkeeping, machine-learning]
 date: 2026-11-10
 ---
