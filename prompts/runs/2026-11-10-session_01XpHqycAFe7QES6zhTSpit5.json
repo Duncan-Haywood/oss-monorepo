@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01XpHqycAFe7QES6zhTSpit5",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "doing a quality audit on the historic quality of the dev work in the repo / ongoing project.",
+  "input_sha256": "7df87039cd532e432ca6786664f57b922f18ef49753a69465e55d81a179bbfdf",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T04:34:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "ventures/open-tennis-robots",
+    "ventures/interior-door-bid-calculator",
+    "ventures/wildlife-exclusion-bid-calculator",
+    "research/accel-nsgatune",
+    "research/codesign-agri-pulloff",
+    "platform/agents",
+    "platform/llm"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14428",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Did not say the build rewrites source llms.txt/sitemap/canonical origins, so rounds 1-33 reported that non-defect about 90 times in 73 audit files; added 'Judge what is served'."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 4 records fix PRs but nothing makes a later session act on open high defects; 42 of 49 were still open. Suggest feeding `quality_audit.py history` / the recheck file into flagship slice selection (control-plane path, not edited here)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "User asked about the historic quality of the work, so besides the round I re-checked every earlier high defect on main and added a history subcommand.",
+      "did": "history subcommand, recheck file, cross-round section in the post",
+      "result": "42 of 49 distinct high defects found still open; re-audits not improving (up 4, flat 4, down 7 of 15)."
+    },
+    {
+      "file": "portfolio/quality/audits/2026-11-10-interior-door-bid-calculator.json",
+      "why": "Auditor reported source-file SEO non-defects; I removed them from three audit files after curl of the served pages showed them correct, keeping scores as audited.",
+      "did": "edited defects/evidence before commit",
+      "result": "consistent with the new README rule"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Seed 2026-11-10-c. Subjects: ventures/open-tennis-robots (flagship), ventures/wildlife-exclusion-bid-calculator, ventures/interior-door-bid-calculator, research/accel-nsgatune, research/codesign-agri-pulloff. Share meeting the bar: 0 of 4 sampled (Wilson 0-49%), flagship no; running 25 of 150 (11.6%-23.4%). Fix PR: #14428 (wildlife trap label + test, interior-door FAQ + test, open-tennis MonoClock + test + pyproject URL, accel crossover claim, codesign 10 N claim, platform/agents toJson + test, platform/llm Gemini thinking tokens + test and 16 vendored copies). Spot checks run by the lead: $339.14 door price by hand; trap minutes multiplied at calc.mjs:300 vs label; z=6.16 crossover gap; codesign cost 57.51; served llms/sitemap/canonical via curl. Also fixed main-red breakages inherited by this PR: flagships next: cap (then took main's version on merge), feeder CAD package regenerated (build123d 0.13.0, cad tests 16/16), sales-cadence guide generator emits <main>, wall-framing ts-check types (typecheck 0 diagnostics, suite green).",
+  "corrections": [],
+  "redteam": null
+}
