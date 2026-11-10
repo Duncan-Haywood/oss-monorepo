@@ -1111,6 +1111,31 @@ def develop_file(
     return report
 
 
+def still_for_review(source: Path | str, scratch: Path | str) -> Path | None:
+    """A decodable picture of a RAW still for proxies and analysis.
+
+    The camera's embedded JPEG preview when there is one (fast, and what the
+    camera showed); otherwise, for a DNG, a half-size development of its sensor
+    data written into ``scratch``. ``None`` when neither exists (a non-DNG RAW
+    with no preview). Raises ``DevelopError`` when a preview-less DNG cannot be
+    developed.
+    """
+
+    from shootflow.raw_preview import extract_preview, is_dng_path
+
+    source, scratch = Path(source), Path(scratch)
+    preview = extract_preview(source)
+    if preview is not None:
+        jpeg = scratch / "preview.jpg"
+        jpeg.write_bytes(preview)
+        return jpeg
+    if not is_dng_path(source):
+        return None
+    developed = scratch / "developed-half.tif"
+    develop_file(source, developed, DevelopSettings(half=True))
+    return developed
+
+
 def srgb_to_linear(v: float) -> float:
     """Inverse of the sRGB curve, for tests and callers measuring output."""
 
@@ -1130,6 +1155,7 @@ __all__ = [
     "parse_raw",
     "read_raw",
     "srgb_to_linear",
+    "still_for_review",
     "write_png",
     "write_tiff16",
 ]

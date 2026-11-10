@@ -209,10 +209,15 @@ flagships:
       (2026-11-10, raw_develop.py) renders a DNG to a 16-bit TIFF master and
       matches LibRaw within one 8-bit step on a real Nikon NEF and a Canon 5D
       Mark II CR2 (their sensor data rewritten as DNG by
-      tools/libraw_differential.py; README "Develop DNG raw files"). Next: call
-      it from the pipeline's grade stage for DNG stills; try a camera- or
-      phone-written DNG with lossless-JPEG tiles; speed (pure Python, tens of
-      seconds per frame). History: ventures/photo-editing/README.md.
+      tools/libraw_differential.py; README "Develop DNG raw files"). The
+      pipeline's grade stage develops DNG stills into 16-bit TIFF masters
+      since 2026-11-10 (preview-less DNGs proxied and scored from a half-size
+      develop; real Nikon sensor DNG end to end in 75 s, master bit-identical
+      to `shootflow develop`; eval/pipeline-dng-grade-2026-11-10.md). Next:
+      speed (pure Python, about 37 s per 12 MP frame: vectorise the demosaic
+      or use an optional numpy path, so a 500-frame shoot is not hours); try a
+      camera- or phone-written DNG with lossless-JPEG tiles; grade only the
+      selected shots. History: ventures/photo-editing/README.md.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
