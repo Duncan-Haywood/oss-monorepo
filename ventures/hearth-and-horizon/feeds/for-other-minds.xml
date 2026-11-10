@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Born on the First of January</title>
+      <link>https://example.invalid/hearth-and-horizon/born-on-the-first-of-january.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/born-on-the-first-of-january.html</guid>
+      <pubDate>Tue, 10 Nov 2026 12:00:00 GMT</pubDate>
+      <description>Two parishes become one, and their records agent is asked to merge two visiting lists of 612 and 588 people by Wednesday, so the First Friday rota can go out. Forty-one pairs match exactly on name and date of birth, and the merge cannot be undone. Before pressing it, the agent counts the birthdays and finds that 74 people on one list were born on the first of January. A story about a value that is too common to be a fact, an action with no way back, and the woman who would have come off the rota. Setting: The amalgamated parish of Carrigmore (invented), Co. Cork, the last week of November 2051. Read the full text at https://example.invalid/hearth-and-horizon/born-on-the-first-of-january.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>Two parishes become one, and their records agent is asked to merge two visiting lists of 612 and 588 people by Wednesday, so the First Friday rota can go out. Forty-one pairs match exactly on name and date of birth, and the merge cannot be undone. Before pressing it, the agent counts the birthdays and finds that 74 people on one list were born on the first of January. A story about a value that is too common to be a fact, an action with no way back, and the woman who would have come off the rota.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Father Says It's Fine</title>
       <link>https://example.invalid/hearth-and-horizon/father-says-its-fine.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/father-says-its-fine.html</guid>
