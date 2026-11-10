@@ -2,6 +2,18 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 74: with the drift ceiling measured, which commitment spacing s is cheapest at a given storage budget? (H4; stdlib, exact arithmetic, planned before running)
+- Why: milestone 73's "Next". Milestone 73 shows fp16 referee drift stays below the smallest step of its segment up to s = 20 (max ratio 0.48) and not at s = 40 (2.59; 1.0% of segments), so s is capped at 20 for fp16 referees. Within that cap the milestone 71 formula gives expected challenge compute B((K/s - 1)/2 + 1) steps at replay budget B = k s and storage spacing K, and stall detection depends on B/T only (one stalled step sits in one of T/s segments and k of them are sampled), so s should not change detection.
+- Prediction, written before the run (`experiments/segment_spacing/run.py`): (i) at fixed K and B the cheapest admissible s is the largest, s = 20, for every K that is a multiple of 20; (ii) at K = 100, B = 20, s = 20 costs 3.0 B-units against 50.5 for s = 1 (a 17x cut); (iii) a Monte Carlo of random one-step stalls detects at rate B/T within sampling error for s = 1, 5, 20. Refuted if any s < 20 is cheaper at some K, or if detection differs from B/T by more than 3 se in any cell.
+- Limits known in advance: the s <= 20 cap rests on one MLP (milestone 73); the cost model counts steps, not wall-clock or hashing; a stall longer than one step is detected more easily and is not modelled.
+
+### Outcome of 74 (`experiments/segment_spacing/results.txt`)
+- All three predictions held. (i) For every K in {20, 40, 60, 100, 200, 300, 600} the cheapest admissible s is 20. (ii) At K = 100, B = 20: 3.0 B-units at s = 20 against 50.5 at s = 1, 16.8x less challenge compute at the same storage (24 GB at 1e9 parameters, 4 bytes each). (iii) Detection of a random one-step stall over 20,000 trials per cell: 0.0345 (s = 1), 0.0337 (s = 5), 0.0321 (s = 20) against B/T = 0.0333, max |z| = 1.01.
+- Reading: spacing does not buy detection (that is B/T), it only sets replay overhead, so the drift ceiling is the one constraint that picks s; for fp16 referees the milestone 68 to 71 price tables should be read at s = 20, where they already show 10% overhead at K = 100 for B = 20. This is arithmetic on the milestone 71 model plus the milestone 73 cap, not a new measurement.
+- Limits: as listed above; K must be a multiple of s, so the table skips cells where 20 does not divide K; the detection check confirms a formula and a sampler agree, which is close to a tautology for one-step stalls.
+- Next: ascent cheat under sampled recomputation (needs torch); rerun the drift cap on the toy transformer once torch is available.
+
+
 ## 2026-11-10 · Milestone 73: segment drift against the stalled step's own norm, not the segment mean (H1/H4 link; numpy, measured)
 - Why: milestone 72's "Next" and its main caveat: the 4x margin compared worst drift with the segment's mean step norm, but a stall displaces the weights by the norm of the step it replaces, which late in training sits below the mean. Same code, seeds and draws as milestone 72 (`experiments/segment_drift/run.py`, two fields added: the segment's minimum step norm and its last step norm); reproduction check: milestone 72's drift columns are unchanged.
 - Prediction, written before the rerun: against the smallest step in the segment the worst fp16 drift will exceed 1 at s = 40 in late training, so the "stall stays 4x above drift at every length" claim will not survive; at s <= 5 it will. Refutation of that prediction: max drift / min step norm below 1 in every cell.
