@@ -640,3 +640,13 @@ canada-fertility.csv: Canada total fertility rate 1931-1968 (carData::Hartnagel,
 - **What:** S&P 500 monthly price index level, Jan 2000 to Mar 2010, 123 rows (`date` like `Jan 1 2000`, `price`). Whether each value is a month's open, close or average is not stated by the source and was not checked.
 - **Retrieved:** 2026-11-10 from <https://raw.githubusercontent.com/vega/vega-datasets/main/data/sp500.csv> (vega-datasets, BSD-3-Clause repository; a price series is a fact, kept as a test fixture with its source named).
 - **Used by:** `sp500-monthly.test.mjs`, `eval/sp500-monthly.mjs`, README "S&P 500 monthly returns".
+
+## Documented dates read from the R documentation (2026-11-11)
+
+Read in full on 2026-11-11: the R documentation pages for `Nile` and `UKDriverDeaths`
+(<https://vincentarelbundock.github.io/Rdatasets/doc/datasets/Nile.html> and
+`.../UKDriverDeaths.html`). They are not the papers. `Nile`: "with apparent changepoint
+near 1898 (Cobb (1978), Table 1, p.249)". `UKDriverDeaths`: "Compulsory wearing of seat
+belts was introduced on 31 Jan 1983." Those are the two dates `eval/consensus-real.mjs`
+scores; the Cobb and Harvey-Durbin papers themselves are still unread.
+
