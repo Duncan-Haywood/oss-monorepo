@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 1b: does the 3 cm arm's width choice survive a converged solve? (predictions in `experiments/m1b_converged/run.py`'s docstring, written before the first run)
+- Why: milestone 1's P3 held on 3000-iteration solves whose own error (0.05 to 0.11 cm between 3000 and 6000 iterations) is as large as the width margin (0.08 to 0.13 cm). A decision read off unconverged numbers is not a decision.
+- Plan: wood-shaped profile on the 3 cm half-depth arm, fabrics A to D, offsets -1, 0, +0.5, +1, +1.5, +2, +3 cm; L-BFGS in 3000-iteration chunks, restarted from the last positions, until the whole-sheet error moves under 0.002 cm over a chunk (cap 60,000). The first chunk is milestone 1's solve and reproduces it (1.9212 cm on A at +1, checked before the run).
+- Predictions: Q1 converged best integer offset +1 cm on all fabrics; Q2 converged margin more than twice the last-chunk change on all fabrics; Q3 the 3000-iteration error underestimates the converged one in every case, by at least 0.03 cm on average; Q4 converged best half-cm offset in [+0.5, +1.5].
+- Outcome: pending (run started 2026-11-10).
+
 ## 2026-11-10 · Milestone 1: does the 2D chain's choice of hanger survive in the 3D sheet on four fabrics with measured KES-FB bending rigidity and weight? (predictions in `experiments/m1_kes_fidelity/run.py`'s docstring, written before the first run)
 - Why: every hanger design in track 18 so far comes from the 2D chain or the 3D sheet on assumed fabrics; `hanger-kes` sourced B and W for four fabrics but scored only the 2D chain. Before building a validated top tier (milestone 3), check whether the two cheap tiers even agree with each other on measured fabrics, on the decisions that matter: which stock hanger, which arm width.
 - Plan: size M, EA 150 N/m, fabrics A to D of `hanger-kes`; three stock hangers and the wood-shaped profile at width offsets -1 to +3 cm; 2D chain at 5 mm rows, 3D slab arm (centre column), 3D 3 cm half-depth arm (whole sheet); a 3000-vs-6000-iteration convergence check on the softest and stiffest fabric.
