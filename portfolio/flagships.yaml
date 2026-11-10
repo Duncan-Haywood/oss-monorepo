@@ -252,26 +252,18 @@ flagships:
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      The feeder CAD v0.1 package is in (manufacturing/feeder/: launcher head,
-      trunnion cheeks, turntable, 2040 base with brackets, mast, 3 m net beam,
-      poles and camera bar; the build tilts the head through -15..+45 deg for
-      collisions and sizes wind ballast). The hopper and feed landed
-      2026-10-21: a tub on a sloped shelf and four posts, a hose, and a
-      printed floor, roof, column and metering shuttle between the head
-      plates (checks for one-ball metering, column and wheel clearance, tub
-      capacity, hose slope and bend radius, shuttle clear when advanced;
-      cad/README.md "Feed"); a printed front retainer (two flexure arms, strain,
-      hold and pull-through forces checked) landed 2026-10-22. Post bracing, hose routing and launch,
-      plate-clearance and axle-squaring checks landed 2026-11-03 to 11-09 (cad/README.md). The take-up was
-      replaced 2026-11-10: the floating pulley's 180 deg wrap sent balls uphill (a ball-carrying hose may wrap
-      60 deg at most), so the hose's top end now slides in a rigid sleeve under the outlet
-      (`Feeder.sleeve_take_up_design`, sleeve, collar and socket as CAD). The same day the hose check went 3-D
-      with the head's +-30 deg azimuth (`_hose_curve_range_3d`): z 2000 failed at +45/30 deg, so the outlet is
-      now x -400, z 2025 with a 300 mm tube and 236 mm slide (tub rim about 2.3 m; +30 deg nose-up would allow
-      z 1900). Next: hang a real hose from a tube to
-      check the slide and the Bezier proxy (needs a person); the spring drum's bracket; then the actuator
-      brackets (shuttle and elevation) and azimuth drive, then the netting trough that rolls balls to the
-      hopper inlet; consider a lower, rear-mounted tub with a longer base if 2.3 m is too high to fill.
+      The feeder CAD package (manufacturing/feeder/; history in cad/README.md and git): launcher head,
+      turntable, mast, 2040 base, net frame, hopper, hose with a sliding-sleeve take-up sized over elevation
+      and azimuth, retainer, bracing, launch window, plate clearance, axle squaring. Azimuth drive landed
+      2026-11-10 (`Feeder.azimuth_drive`, cad/README.md "Azimuth drive"): NEMA 17 under the mast plate, m1.5
+      15-tooth pinion, printed 150-tooth PETG sector under a trimmed turntable plate (10:1), sized on the
+      turning inertia measured from the CAD (0.11 kg m^2 level, 0.31 at +45 deg): 30 deg in 1 s at 2.3x
+      pull-out margin, fastest 0.88 s; firmware drives it as a homed step/dir axis (controller.StepperAxis).
+      A new azimuth collision sweep found the turned head cut the hopper's front posts and the mast plate's
+      rear edge: posts moved to y +-245 and the mast plate notched. Next: weigh the head and measure the
+      hose's torque and the stepper's pull-out (needs a person); the home switch's bracket; hang a real hose
+      from a tube; the actuator brackets (shuttle and elevation); the netting trough that rolls balls to the
+      hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

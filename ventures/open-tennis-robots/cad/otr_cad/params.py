@@ -398,7 +398,7 @@ class Feeder:
                                    # 2000 fitted azimuth 0 only: at +45 deg turned 30 deg the shortest hose was 31 mm too long, 2026-11-10)
     post_front_x: float = -380.0
     post_rear_x: float = -640.0
-    shelf_post_y: float = 225.0
+    shelf_post_y: float = 245.0    # 225 until 2026-11-10: turned 30 deg at 15-35 deg nose up, the head's plates cut into the front posts
     # Hopper frame loads and bracing (all assumptions to replace with a measurement).
     tub_mass_kg: float = 1.6          # empty storage tub
     side_load_g: float = 0.25         # sway load at the shelf as a fraction of the full hopper's weight
@@ -410,6 +410,34 @@ class Feeder:
     brace_foot_z: float = 120.0       # lower brace end above the deck
     brace_head_z: float = 120.0       # upper brace end below the shelf underside
     brace_min_factor: float = 3.0     # Euler buckling load over the brace's working load
+    # Azimuth drive (2026-11-10): a NEMA 17 stepper hangs under the mast plate at +y and turns the turntable through a
+    # bought steel pinion meshing with a printed gear sector bolted under the turntable plate's +y edge. The head turns
+    # +-az_max only, so only a sector is made; the rest of the plate is trimmed inside the pinion's reach. Teeth are
+    # printed, not cut in the plate: m1.5 slots are about 1.2 mm wide, too fine to laser in 5 mm aluminium.
+    az_module: float = 1.5            # mm; a 15-tooth m1.5 pinion with a 5 mm bore is a stock part
+    az_pinion_teeth: int = 15
+    az_gear_teeth: int = 150          # full-circle count of the sector's teeth (pitch radius 112.5 mm)
+    az_pressure_deg: float = 20.0
+    az_sector_margin_deg: float = 8.0  # teeth beyond +-az_max at each end, so the pinion never runs off the sector
+    az_clear_mm: float = 3.0          # trimmed plate edge inside the pinion's tip circle
+    az_gear_gap_mm: float = 1.5       # printed sector's underside above the mast plate
+    az_backlash_mm: float = 0.10      # tooth thinning at the pitch circle, printed into the sector (assumption: measure it)
+    print_min_gap_mm: float = 0.8     # narrowest slot a 0.4 mm nozzle prints cleanly (two line widths; assumption)
+    az_slew_deg: float = 30.0         # largest move between two shots: drill.example.json's corners at y +-2.5 m, x 9.5 m are 29.5 deg apart
+    az_slew_s: float = 1.0            # time allowed for it: half of a 2 s feed interval, about a commercial machine's fastest (assumption)
+    az_inertia_kgm2: float = 0.32     # turning inertia; the build measures it from the CAD (0.31 nose up 45 deg, 0.11 level) and fails if this is below it
+    az_bearing_mu: float = 0.02       # lazy-susan bearing, rolling friction at its ball circle (assumption)
+    az_gear_eff: float = 0.90         # spur mesh efficiency, greased (assumption)
+    az_shock: float = 1.5             # service factor on the tooth load (stepper start, a knock on the head)
+    petg_bend_allow_mpa: float = 10.0  # printed PETG tooth-root bending, well under its ~50 MPa flexural strength (assumption)
+    hose_pull_n: float = 5.0          # hose tension at the column socket (the take-up's assumption)
+    stepper_torque_nm: float = 0.30   # pull-out torque at the slew speed (assumption: a 0.45 N m 17HS4401 class at 24 V; read your curve)
+    stepper_hold_nm: float = 0.40     # holding torque when energised (same class)
+    stepper_rotor_kgm2: float = 5.4e-6  # rotor inertia (54 g cm^2, same class)
+    stepper_steps: int = 200
+    stepper_body_mm: float = 48.0     # 42.3 mm square, this long under its flange
+    az_torque_factor: float = 2.0     # pull-out (and holding) torque over the needed torque
+    aim_range_m: float = 24.0         # net to the far baseline: where an azimuth error is read as a sideways miss
 
     # ---- derived -----------------------------------------------------------
     @property
@@ -852,6 +880,185 @@ class Feeder:
         bad += self.check_feed()
         bad += self.check_hopper_frame()
         bad += self.check_launch()
+        bad += self.check_azimuth()
+        return bad
+
+    # ---- azimuth drive (2026-11-10) -------------------------------------------
+    @property
+    def az_gear_r(self) -> float:
+        return self.az_module * self.az_gear_teeth / 2
+
+    @property
+    def az_pinion_r(self) -> float:
+        return self.az_module * self.az_pinion_teeth / 2
+
+    @property
+    def az_centre_dist(self) -> float:
+        """Turntable axis to the stepper shaft, mm. The stepper sits on +y, under the mast plate."""
+        return self.az_gear_r + self.az_pinion_r
+
+    @property
+    def az_ratio(self) -> float:
+        return self.az_gear_teeth / self.az_pinion_teeth
+
+    @property
+    def az_trim_r(self) -> float:
+        """Radius the turntable plate is trimmed to outside the toothed sector: inside the pinion's tip circle."""
+        return self.az_centre_dist - (self.az_pinion_r + self.az_module) - self.az_clear_mm
+
+    @property
+    def az_sector_half_deg(self) -> float:
+        return self.az_max + self.az_sector_margin_deg
+
+    @property
+    def az_gear_inner_r(self) -> float:
+        """Inner edge of the printed sector."""
+        return self.az_gear_r - 1.25 * self.az_module - 18.0
+
+    @property
+    def az_bolt_r(self) -> float:
+        """M4 bolts through the plate into the sector's heat-set inserts."""
+        return (self.az_gear_inner_r + self.az_trim_r) / 2
+
+    def az_tooth_half_angle(self, r: float) -> float:
+        """Half the gear tooth's angular thickness (rad) at radius r: involute flank, thinned by `az_backlash_mm` at
+        the pitch circle."""
+        a = math.radians(self.az_pressure_deg)
+        rp = self.az_gear_r
+        rb = rp * math.cos(a)
+        inv = lambda x: math.tan(x) - x  # noqa: E731
+        ar = math.acos(min(1.0, rb / r))
+        s_p = math.pi * self.az_module / 2 - self.az_backlash_mm
+        return s_p / (2 * rp) + inv(a) - inv(ar)
+
+    def az_root_gap_mm(self) -> float:
+        """Narrowest slot in the printed sector: the tooth space at the root circle (no fillet)."""
+        rr = self.az_gear_r - 1.25 * self.az_module
+        return rr * (2 * math.pi / self.az_gear_teeth - 2 * self.az_tooth_half_angle(rr))
+
+    def az_tip_land_mm(self) -> float:
+        ra = self.az_gear_r + self.az_module
+        return ra * 2 * self.az_tooth_half_angle(ra)
+
+    @property
+    def az_gear_face_mm(self) -> float:
+        """Printed sector thickness: it fills the bearing gap under the turntable plate, less `az_gear_gap_mm`."""
+        return self.bearing_h - self.az_gear_gap_mm
+
+    def az_hose_torque_nm(self) -> float:
+        """Hose pull about the turntable axis, worst pose. A taut hose without bending stiffness pulls its end toward
+        its other end, so the force is `hose_pull_n` along the chord from the socket mouth to the hose's start (the
+        take-up sleeve's lower end, or the outlet if no sleeve fits); its moment about the vertical axis is zero with
+        the head straight ahead and grows as it turns. The hose's own bending and twisting stiffness is not modelled:
+        hang a hose and measure the torque with a spring scale on the head."""
+        t = self.sleeve_take_up_design()
+        sx, sz = self.hopper_out_x, (t["start_z"] if t else self.hopper_out_z)
+        azs = [self.az_max * k / self.az_steps for k in range(self.az_steps + 1)] if self.az_max > 0 else [0.0]
+        worst = 0.0
+        for i in range(5):
+            e = self.elev_min + (self.elev_max - self.elev_min) * i / 4
+            for a in azs:
+                (mx, my, mz), _ = self.mouth_world_3d(e, a)
+                dx, dy, dz = sx - mx, -my, sz - mz
+                n = math.sqrt(dx * dx + dy * dy + dz * dz)
+                rx, ry = mx - self.head_x, my
+                worst = max(worst, abs(rx * dy - ry * dx) / n * self.hose_pull_n / 1000)
+        return worst
+
+    def azimuth_drive(self, inertia_kgm2: float | None = None, load_n: float = 60.0) -> dict:
+        """Size the stepper and the gear sector for a `az_slew_deg` move in `az_slew_s` (triangular speed profile:
+        half the time speeding up, half slowing down). `inertia_kgm2` is the turning inertia about the turntable axis
+        (default `az_inertia_kgm2`; the build measures it from the CAD); `load_n` is the weight on the bearing.
+
+        Torques at the turntable: inertia x peak angular acceleration, the bearing's rolling friction
+        (mu x load x ball-circle radius) and the hose bound. The motor sees them through the ratio and mesh efficiency,
+        plus its own rotor and the pinion speeding up. Tooth bending is Lewis' equation, Y = 0.484 - 2.87/z for 20 deg
+        full-depth teeth, face width = the printed sector's thickness, tangential load x `az_shock`. Aim resolution is one full step
+        at the output; backlash is `az_backlash_mm` over the pitch radius."""
+        j = self.az_inertia_kgm2 if inertia_kgm2 is None else inertia_kgm2
+        th = math.radians(self.az_slew_deg)
+        t = self.az_slew_s
+        alpha = 4 * th / t ** 2
+        omega = 2 * th / t
+        t_inertia = j * alpha
+        t_bearing = self.az_bearing_mu * load_n * self.bearing_d / 2 / 1000
+        t_hose = self.az_hose_torque_nm()
+        t_out = t_inertia + t_bearing + t_hose
+        rp_m = (self.az_pinion_r + self.az_module) / 1000
+        pinion_j = 0.5 * (7850 * math.pi * rp_m ** 2 * 0.012) * rp_m ** 2   # steel disc, 12 mm long (bound)
+        t_motor = t_out / (self.az_ratio * self.az_gear_eff) + (self.stepper_rotor_kgm2 + pinion_j) * alpha * self.az_ratio
+        rpm = omega * self.az_ratio * 60 / (2 * math.pi)
+        f_t = t_out / (self.az_gear_r / 1000) * self.az_shock
+        y = 0.484 - 2.87 / self.az_gear_teeth
+        sigma = f_t / (self.az_gear_face_mm * self.az_module * y)
+        step = self.stepper_steps * self.az_ratio
+        step_deg = 360 / step
+        back_deg = math.degrees(self.az_backlash_mm / self.az_gear_r)
+        hold_static = (t_bearing + t_hose) / (self.az_ratio * self.az_gear_eff)
+        return {
+            "alpha_rad_s2": alpha, "omega_rad_s": omega, "inertia_kgm2": j,
+            "torque_inertia_nm": t_inertia, "torque_bearing_nm": t_bearing, "torque_hose_nm": t_hose,
+            "torque_out_nm": t_out, "torque_motor_nm": t_motor, "motor_rpm": rpm,
+            "torque_margin": self.stepper_torque_nm / t_motor, "hold_margin": self.stepper_hold_nm / max(hold_static, 1e-9),
+            "tooth_force_n": f_t, "tooth_stress_mpa": sigma, "lewis_y": y,
+            "step_deg": step_deg, "step_miss_mm": math.tan(math.radians(step_deg)) * self.aim_range_m * 1000,
+            "backlash_deg": back_deg, "backlash_miss_mm": math.tan(math.radians(back_deg)) * self.aim_range_m * 1000,
+            "root_gap_mm": self.az_root_gap_mm(), "tip_land_mm": self.az_tip_land_mm(),
+            "fastest_slew_s": self.fastest_slew_s(j, load_n),
+        }
+
+    def fastest_slew_s(self, inertia_kgm2: float, load_n: float = 60.0) -> float:
+        """Shortest `az_slew_s` that still keeps `az_torque_factor` on the motor (bisection; the hose and friction terms
+        do not shrink with time, so a slow enough move always passes unless they alone eat the margin)."""
+        from dataclasses import replace
+        lo, hi = 0.02, 10.0
+        if replace(self, az_slew_s=hi)._margin_only(inertia_kgm2, load_n) < self.az_torque_factor:
+            return math.inf
+        for _ in range(50):
+            mid = (lo + hi) / 2
+            m = replace(self, az_slew_s=mid)._margin_only(inertia_kgm2, load_n)
+            lo, hi = (lo, mid) if m >= self.az_torque_factor else (mid, hi)
+        return hi
+
+    def _margin_only(self, j: float, load_n: float) -> float:
+        th = math.radians(self.az_slew_deg)
+        alpha = 4 * th / self.az_slew_s ** 2
+        t_out = j * alpha + self.az_bearing_mu * load_n * self.bearing_d / 2 / 1000 + self.az_hose_torque_nm()
+        rp_m = (self.az_pinion_r + self.az_module) / 1000
+        pinion_j = 0.5 * (7850 * math.pi * rp_m ** 2 * 0.012) * rp_m ** 2
+        t_motor = t_out / (self.az_ratio * self.az_gear_eff) + (self.stepper_rotor_kgm2 + pinion_j) * alpha * self.az_ratio
+        return self.stepper_torque_nm / t_motor
+
+    def check_azimuth(self, inertia_kgm2: float | None = None) -> list[str]:
+        bad = []
+        d = self.azimuth_drive(inertia_kgm2)
+        if d["torque_margin"] < self.az_torque_factor:
+            bad.append(f"azimuth stepper needs {d['torque_motor_nm']:.3f} N m for {self.az_slew_deg:g} deg in "
+                       f"{self.az_slew_s:g} s against {self.stepper_torque_nm:g} N m pull-out ({self.az_torque_factor:g}x wanted)")
+        if d["hold_margin"] < self.az_torque_factor:
+            bad.append("azimuth stepper cannot hold the head against the hose and bearing drag")
+        if d["tooth_stress_mpa"] > self.petg_bend_allow_mpa:
+            bad.append(f"printed azimuth gear teeth bend at {d['tooth_stress_mpa']:.1f} MPa (allowed {self.petg_bend_allow_mpa:g})")
+        if d["root_gap_mm"] < self.print_min_gap_mm:
+            bad.append(f"printed azimuth gear slots are {d['root_gap_mm']:.2f} mm wide, under {self.print_min_gap_mm:g} mm")
+        if d["tip_land_mm"] < self.print_min_gap_mm:
+            bad.append("printed azimuth gear teeth come to a point")
+        if self.az_gear_face_mm < 6.0:
+            bad.append("bearing gap too thin for the printed azimuth gear sector")
+        # The trimmed plate must clear everything bolted to it (cheek feet, bearing bolts) and the bearing itself.
+        foot_r = max(math.hypot(35.0 + 12.0, self.plate_half_y + self.plate_t + self.cheek_gap + self.plate_t + 20.0), 0)
+        if self.az_trim_r < max(foot_r, self.bearing_d / 2) + 5:
+            bad.append("turntable plate trimmed for the pinion cuts into the cheek feet or the bearing")
+        if self.az_sector_half_deg + 90 > 180 - 5 or self.az_gear_inner_r < self.bearing_d / 2 + 5:
+            bad.append("azimuth gear sector does not fit outside the bearing")
+        if self.az_bolt_r + 6 > self.az_trim_r or self.az_bolt_r - 6 < self.az_gear_inner_r:
+            bad.append("azimuth gear sector's bolts miss the turntable plate")
+        # The stepper's square body under the mast plate must sit inside the plate and clear the +y posts.
+        half = 42.3 / 2
+        if self.az_centre_dist + half > self.post_half_y + 40 - 5:
+            bad.append("azimuth stepper overhangs the mast plate")
+        if self.post_dx - 10 < half + 5:
+            bad.append("azimuth stepper hits the mast posts")
         return bad
 
     def check_launch(self) -> list[str]:
