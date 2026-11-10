@@ -176,9 +176,10 @@ test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes mi
   // 35 before 2026-11-03, when "X left the company" was added as a wrong-person phrasing (one item).
   // 37 after 2026-11-04, when "isn't something we'd ever need" became a decline (one item).
   // 38 after 2026-11-11 ("stop following up" is an opt-out, one item).
-  assert.equal(s.right, 38);
-  assert.equal(s.acted, 38);
-  assert.equal(s.actedRight, 38);
+  // 39 after 2026-11-10 ("doesn't fit a business our size" is an objection, one item).
+  assert.equal(s.right, 39);
+  assert.equal(s.acted, 39);
+  assert.equal(s.actedRight, 39);
   assert.equal(s.unsubMissed, 0);
 });
 
@@ -498,4 +499,11 @@ test("fresh set 2026-11-11 (eighteenth, a false not-now and wrong-person probe):
     ["Sam no longer works here. For anything else please email info@acmefreight.example.", "left_company"],
     ["Check back in March when our contract renews.", "not_now"],
   ]) assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("twenty-first set (2026-11-13 file): question, objection and interest probe, 17/20 before patches, 19/20 after; the Dan handover stays a wrong-person read", () => {
+  const s = score(load("fresh-2026-11-13.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 19);
+  assert.equal(s.overreach, 0);
 });
