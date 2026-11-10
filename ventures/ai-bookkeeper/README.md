@@ -283,6 +283,51 @@ Reproduce: `node eval/opencollective-labelled.mjs --host raft --variants payee,m
 (the cache file name changed to `-v2` because amounts are now fetched). Tests:
 `new-payee.test.mjs` (5).
 
+### New payees, held out: a ledger, a bank export and a card (2026-11-10)
+
+The reading above is on Open Collective, the data the layer was designed on. This one is
+on three labelled public sets it never saw, from raw.githubusercontent.com (Open
+Collective's API was refused from this session):
+`node eval/new-payees.mjs --hackclub main.ledger --makerspace DIR --chase cc_transactions.csv [--no-new-payee] [--levels direction] [--min-share 0.5]`
+(fetch commands in the file's header; nothing is copied here). Each set is replayed day
+by day at its real amounts (`hackclub-ledger.mjs` reads amounts since this run). Every
+line is suggested from all earlier filed lines, and lines whose payee key and direction
+are new are scored separately. On Chase the label is Chase's own category, so its
+bank-category layer is off.
+
+First-time lines, right / wrong of all:
+
+| set | first-seen lines | layer off | layer on | direction-only prior | new-payee suggestions right |
+|---|---|---|---|---|---|
+| Hack Club ledger (US nonprofit, clean payee names, 2015-2017) | 184 | 39.1% / 5.4% | 51.1% / 26.1% | 46.2% / 27.7% | 22 of 60 (36.7%) |
+| makerspace bank exports (raw bank text, 2020-2023) | 16 | 68.8% / 12.5% | unchanged | unchanged | never fires (too few payees) |
+| Chase card (one person, Sep-Dec 2023) | 79 | 75.9% / 2.5% | 92.4% / 6.3% | 92.4% / 6.3% | 13 of 16 (81.3%) |
+
+What it says:
+
+- **On a second domain, the layer still adds right answers: 12 points on Hack Club and
+  16 on Chase.** On Chase it is entirely the prior (a personal card is mostly food), as on
+  three of the Open Collective hosts. On Hack Club, shape and size add 5 points over the
+  prior.
+- **The cost is larger here.** On Hack Club, a first-time line now carries a wrong guess
+  26.1% of the time, against 5.4% before, and only 36.7% of the layer's own suggestions
+  are right. That is under the 40% share the layer asks of its evidence. Nothing more
+  posts alone (confidence at most 0.5).
+- **"Person" is mostly not people on bank-style text.** `payeeShape` calls any two to
+  four plain words a person. On Hack Club that is 83 payees, of which about 20 are
+  people (the rest are "Bristol Farms", "Spice Kit", "Holy Grill"). On Chase it is 50
+  payees and none are people ("SUPER WOK", "DD DOORDASH TACOCASA").
+  A variant that required a common given name as the first word (about 400 names; a
+  "words" shape for the rest) was tried and **not kept**: Hack Club went from 51.1% / 26.1%
+  to 52.2% / 27.2%, Chase was unchanged, and it could not be checked on Open Collective,
+  where the people's names are more varied.
+- **A sweep of the 40% share, for information, not tuned here.** On Hack Club, right /
+  wrong is 51.1/26.1 at 0.4, 48.4/16.8 at 0.5, 41.8/13.0 at 0.6 and 40.8/9.2 at 0.7. On
+  Chase it is 92.4/6.3, 87.3/6.3, 83.5/5.1 and 77.2/3.8. At 0.5, Hack Club's wrong
+  guesses drop 9 points for 3 points of right, but Chase gives up 5 points of right for
+  nothing. Whether a reviewer is better served by fewer, surer pills is the same open
+  question as above. A default change should be read on Open Collective too.
+
 ### Round-trip property test (2026-10-22)
 
 `node --test eval/roundtrip-fuzz.test.mjs` renders 40 seeded random statements (5-34 rows) with the quirks real exports have and checks `readStatement` returns exactly the rows rendered: BOM, CRLF, `;` delimiter, quoted commas and quotes, parenthesised negatives, thousands separators, European decimals, split debit/credit columns, and ISO, M/D/Y, D/M/Y and "12 Mar 2026" dates. 40 of 40 pass. Generated, not real bank data; a row that reads "PAYMENT - THANK YOU" is left out on purpose, because the card sign heuristic flips signs for it.
