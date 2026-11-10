@@ -2,7 +2,7 @@
 title: "Two more real series through the change-point panel: a spike is found, a slow fall dates late"
 seo_title: "Change-point detection on real data: Nightingale and Canadian fertility"
 date: 2026-11-10
-tags: [statistics, change-point, time-series, open-source]
+tags: [statistics, changepoint, time-series, open-source]
 description: "The change-point detector's six-setting consensus panel now covers 18 real series. Two more: a documented drop is found a month late, a gradual fall three years late."
 ---
 
