@@ -106,5 +106,33 @@ class QualityAuditTest(unittest.TestCase):
         assert not any(p.split("/")[1].startswith("_") for p in pop["research"])
 
 
+    def test_history_counts_follow_through_and_refound_highs(self):
+        hi = {"severity": "high", "what": "wrong total", "where": "ventures/a/calc.mjs:12"}
+        other = {"severity": "high", "what": "x", "where": "ventures/a/page.html:3"}
+        audits = [
+            audit("ventures/a", date="2026-11-07", defects=[hi], fix_prs=[]),
+            audit("ventures/a", date="2026-11-08", defects=[{**hi, "where": "ventures/a/calc.mjs:40 and README"}],
+                  scores={**FULL, "claims": 2}),
+            audit("ventures/b", date="2026-11-08", defects=[other], fix_prs=["#1"]),
+            audit("ventures/c", date="2026-11-07"),
+            audit("ventures/c", date="2026-11-09"),
+        ]
+        audits[1]["_file"] = "2026-11-08-a.json"
+        h = q.history(audits)
+        assert (h["audits"], h["with_high"], h["with_high_and_fix_prs"], h["with_fix_prs"]) == (5, 3, 1, 1)
+        assert [r["subject"] for r in h["reaudited"]] == ["ventures/a", "ventures/c"]
+        assert h["reaudited"][0]["change"] == -1 and h["reaudited"][0]["bar"] == [True, False]
+        assert h["reaudit_change"] == {"up": 0, "flat": 1, "down": 1}
+        assert h["refound_high"] == [{"subject": "ventures/a", "file": "ventures/a/calc.mjs",
+                                      "first": "2026-11-07-a.json", "again": "2026-11-08-a.json"}]
+        md = q.render_history_md(h)
+        assert "ventures/a/calc.mjs" in md and "of which 1 list a fix PR" in md
+
+    def test_defect_file_ignores_line_numbers_and_prose(self):
+        assert q.defect_file({"where": "ventures/x/calc.mjs:25"}) == "ventures/x/calc.mjs"
+        assert q.defect_file({"where": "index.html:opts() (inline module script)"}) == "index.html"
+        assert q.defect_file({"where": "no file named"}) == ""
+
+
 if __name__ == "__main__":
     unittest.main()

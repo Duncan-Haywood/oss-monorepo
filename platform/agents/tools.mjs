@@ -165,25 +165,38 @@ export function commentFor(src, name) {
   return at > 0 ? take(at - 1, -1) : '';
 }
 
-/** JSON.stringify that keeps Maps, Sets, non-finite numbers and BigInts readable and drops functions. */
+/**
+ * JSON.stringify that keeps Maps, Sets, non-finite numbers and BigInts readable and drops functions.
+ *
+ * Only a real cycle (an object inside itself) becomes "[circular]". A shared
+ * reference, the same object reached twice by different paths, is written out
+ * both times: a WeakSet of every visited object used to turn
+ * `{best: a, ranked: [a]}` into `ranked: ["[circular]"]` (quality audit 2026-11-08).
+ */
 export function toJson(value, space = 2) {
-  const seen = new WeakSet();
-  return JSON.stringify(
-    value,
-    (_k, v) => {
-      if (typeof v === 'bigint') return v.toString();
-      if (typeof v === 'number' && !Number.isFinite(v)) return String(v);
-      if (typeof v === 'function') return undefined;
-      if (v instanceof Map) return Object.fromEntries(v);
-      if (v instanceof Set) return [...v];
-      if (v && typeof v === 'object') {
-        if (seen.has(v)) return '[circular]';
-        seen.add(v);
+  const path = [];
+  const plain = (v) => {
+    if (typeof v === 'bigint') return v.toString();
+    if (typeof v === 'number' && !Number.isFinite(v)) return String(v);
+    if (typeof v === 'function' || typeof v === 'symbol') return undefined;
+    if (!v || typeof v !== 'object') return v;
+    if (typeof v.toJSON === 'function' && !(v instanceof Map) && !(v instanceof Set)) return plain(v.toJSON());
+    if (path.includes(v)) return '[circular]';
+    path.push(v);
+    let out;
+    if (v instanceof Map) out = plain(Object.fromEntries(v));
+    else if (v instanceof Set || Array.isArray(v)) out = [...v].map((x) => { const p = plain(x); return p === undefined ? null : p; });
+    else {
+      out = {};
+      for (const [k, x] of Object.entries(v)) {
+        const p = plain(x);
+        if (p !== undefined) out[k] = p;
       }
-      return v;
-    },
-    space,
-  );
+    }
+    path.pop();
+    return out;
+  };
+  return JSON.stringify(plain(value), null, space);
 }
 
 function summariseValue(v) {

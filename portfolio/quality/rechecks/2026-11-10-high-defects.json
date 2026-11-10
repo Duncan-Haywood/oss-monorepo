@@ -1,0 +1,508 @@
+{
+ "date": "2026-11-10",
+ "question": "Is each high-severity defect recorded in portfolio/quality/audits/ (2026-11-07 to 2026-11-10) still present on main?",
+ "method": "Each underlying defect re-checked once on main at 42bd6dbf (2026-11-09), by re-running the defect's own probe or seeded mutation where possible, otherwise by reading the cited line. Status is before any fix in PR #14428 (round 34), which fixed platform/agents toJson and platform/llm Gemini thinking-token accounting.",
+ "by": "agent session (Claude), quality audit round 34; see the run record",
+ "counts": {
+  "entries": 55,
+  "open": 44,
+  "fixed": 11
+ },
+ "entries": [
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-benford-repo.json",
+   "index": 0,
+   "subject": "research/benford-repo",
+   "where": "research/benford-repo/README.md:7",
+   "what_short": "The headline causal claim 'The cause is repetition, not shape' is unsupported. Deduplicating by file content (31,319 ...",
+   "status": "fixed",
+   "evidence": "README.md:7 now reports content-dedup MAD 0.0217, says repetition does 'not explain the misfit on their own', and that the distinct-value transform 'is not a test of shape'; research/README.md:807 says 'repetition alone does not explain the misfit' (PR #13760)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-build-data.json",
+   "index": 0,
+   "subject": "research/build-data",
+   "where": "research/build-data/src/harness.py:load and src/boosted.py:load_frame; research/build-data/paper/paper.md section 5",
+   "what_short": "i2c (issue to completion) targets are right-censored: only permits already completed at pull time are kept, so recent...",
+   "status": "open",
+   "evidence": "harness.py load() still skips rows with empty 'completed' (`if not (r[a] and r[b]): continue`); grep -i 'censor' in paper/paper.md, README.md, boosted.py: no hits (only Chicago survivorship is disclosed)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-buildbot-carry.json",
+   "index": 0,
+   "subject": "research/buildbot-carry",
+   "where": "research/buildbot-carry/experiments/results.txt:8, README.md headline",
+   "what_short": "Headline G1 one-stud level step 0.50 m is not reproduced: the committed run.py gives 0.45 m (deterministic across rep...",
+   "status": "open",
+   "evidence": "pip-installed mujoco 4.0.0, ran C.max_step for G1 level, mu 0.6: 3.8 kg -> 0.45 m ('reach'), 4.6 kg -> 0.45 m; README.md:7 and results.txt still say 0.50 m at 3.8 kg and 0.64-1.10x"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-buildbot-carry.json",
+   "index": 1,
+   "subject": "research/buildbot-carry",
+   "where": "research/buildbot-carry/src/buildbot_carry/model.py stride_check; tests/test_model.py",
+   "what_short": "Tests do not pin pass/fail thresholds or any headline number: raising the torque pass threshold to 1.5x and doubling ...",
+   "status": "open",
+   "evidence": "mutation stride_check pass rule ratio<=1.0 -> <=1.5: pytest 7 passed (reverted)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-edge.json",
+   "index": 0,
+   "subject": "platform/edge",
+   "where": "platform/edge/worker.test.mjs:8",
+   "what_short": "The cap SQL (daily per-slug cap, feedback cap, inbox cap) is never executed by any test; mutating the cap condition t...",
+   "status": "open",
+   "evidence": "mutation of counts and feedback_daily cap SQL (WHERE n < ?3 -> n < ?3 + 1e9, same for ?2): node --test 28 pass 0 fail (fakeDb still re-implements caps in JS)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-llm.json",
+   "index": 0,
+   "subject": "platform/llm",
+   "where": "platform/llm/byok.mjs:164",
+   "what_short": "Gemini usage ignores usageMetadata.thoughtsTokenCount, which Google bills as output; reproduced output 3 reported for...",
+   "status": "open",
+   "evidence": "node probe: complete({provider:'gemini'}) with usageMetadata {promptTokenCount:7,candidatesTokenCount:3,thoughtsTokenCount:900} -> usage {input:7,output:3}; byok.mjs:164 unchanged"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-mcp-supply-chain-watch.json",
+   "index": 0,
+   "subject": "ventures/mcp-supply-chain-watch",
+   "where": "ventures/mcp-supply-chain-watch/src/mcp_watch.py:55",
+   "what_short": "Instruction signal is only evaluated on the top-level description; a payload added inside an inputSchema property des...",
+   "status": "open",
+   "evidence": "python probe: classify() with '~/.ssh/id_rsa' exfil instruction added only in inputSchema property description -> ('schema-change', 'inputSchema changed') = REVIEW, not ALERT"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-mcp-supply-chain-watch.json",
+   "index": 1,
+   "subject": "ventures/mcp-supply-chain-watch",
+   "where": "ventures/mcp-supply-chain-watch/tests/test_mcp_watch.py",
+   "what_short": "Both seeded mutations (dropping the 'not in old description' guard, and disabling schema-change detection) survive al...",
+   "status": "open",
+   "evidence": "mutation dropping 'and not INSTRUCTION.search(old_text)' guard: pytest 5 passed (reverted); no JS test files at venture root"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-med-spa-treatment-profit-calculator.json",
+   "index": 0,
+   "subject": "ventures/med-spa-treatment-profit-calculator",
+   "where": "ventures/med-spa-treatment-profit-calculator/calc.mjs:19-30",
+   "what_short": "Thousands-formatted price like 1,200 splits on the comma; extra fields are silently dropped and the remaining fields ...",
+   "status": "open",
+   "evidence": "node: parseTreatments('Laser, 1,200, 150, 60, 10') -> rows [{price:1, product:200, minutes:150, volume:60}], bad: [] (no warning)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-medicaid-lookback-penalty-calculator.json",
+   "index": 0,
+   "subject": "ventures/medicaid-lookback-penalty-calculator",
+   "where": "ventures/medicaid-lookback-penalty-calculator/calc.mjs:9",
+   "what_short": "Exemption is decided by a keyword regex on the free-text note, so notes such as 'daughter, not disabled', 'niece, tru...",
+   "status": "open",
+   "evidence": "node: compute() with one 21,000 gift in window and notes 'daughter, not disabled' / 'niece, trust fund' / 'sibling' -> 'Nothing in the window counts'; note 'daughter' -> '$21,000 of transfers count'. EXEMPT_WORDS regex unchanged"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-medical-bill-error-checker.json",
+   "index": 0,
+   "subject": "ventures/medical-bill-error-checker",
+   "where": "ventures/medical-bill-error-checker/calc.mjs:125",
+   "what_short": "Modifier suffixes other than two digits are not stripped from the code, so '82947-XE' (and -XS/-XP/-XU) becomes an un...",
+   "status": "open",
+   "evidence": "node: normalizeBill on CPT '82947-XE' -> code '82947-XE' (cleanCode strips only -\\d{2}); analyze with 80053 gives only an info 'code' finding, no panel rule"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-medical-bill-error-checker.json",
+   "index": 1,
+   "subject": "ventures/medical-bill-error-checker",
+   "where": "ventures/medical-bill-error-checker/calc.mjs:77",
+   "what_short": "No alias for a separate Modifier column, so a legitimate 82947 with modifier 59 billed with 80053 is shown as a HIGH ...",
+   "status": "open",
+   "evidence": "node: CSV with a separate 'Modifier' column = 59 on 82947 billed with 80053 -> record modifier '' and finding ['high','unbundling',40]"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-photo-editing.json",
+   "index": 0,
+   "subject": "ventures/photo-editing",
+   "where": "ventures/photo-editing/site/index.html:40",
+   "what_short": "The public product page tells users the renderers are dry-run placeholders and that ShootFlow does not render video o...",
+   "status": "fixed",
+   "evidence": "grep site/index.html for 'dry-run placeholder'/'does not render': gone; line 40 now says no installed shootflow command, run `PYTHONPATH=src python3 -m shootflow.cli`; that command's --help lists `cull` (fixed by f596041c5 / PR #14329)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-platform-seo.json",
+   "index": 0,
+   "subject": "platform/seo",
+   "where": "platform/seo/probe.py:365",
+   "what_short": "The audit's canonical check compares norm() of both URLs, which drops scheme, www. and query string, so a canonical p...",
+   "status": "open",
+   "evidence": "python: audit_page('https://marisstella.app/x/', 200, {}, html with canonical http://www.marisstella.app/x/?utm=1) -> blockers []"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-platform-seo.json",
+   "index": 1,
+   "subject": "platform/seo",
+   "where": "platform/seo/probe.py:183",
+   "what_short": "A connection, DNS or proxy failure is not caught: http() handles only HTTPError, so `probe.py audit` raises URLError ...",
+   "status": "open",
+   "evidence": "probe.py audit --site https://nonexistent-host.invalid --dry-run -> URLError traceback, exit 1; http() still catches only HTTPError"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-proposal.json",
+   "index": 0,
+   "subject": "platform/proposal",
+   "where": "platform/proposal/proposal.mjs:247 (addDays) and :296 (price cap); platform/proposal/adopt.mjs:947",
+   "what_short": "The canonical file is behind its 121 vendored copies: addDays accepts impossible dates (addDays('2026-02-30', 5) retu...",
+   "status": "fixed",
+   "evidence": "canonical platform/proposal/proposal.mjs now matches the venture copies: addDays('2026-02-30',5) throws 'Issue date must be a real date', price max 1e9 (line 312); fence-bid-calculator/proposal.mjs identical. RESIDUAL: node --test 106 pass / 2 fail, both sync tests because the canonical proposal.test.mjs and terms.test.mjs lack tests the copies have, so --sync would drop those tests (not the fixes)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-quick-pick-survey.json",
+   "index": 0,
+   "subject": "ventures/quick-pick-survey",
+   "where": "ventures/quick-pick-survey/src/lib/groupRanking.ts:39 and :52",
+   "what_short": "Pooled 95% intervals and tau are unpinned by tests: changing Z95 from 1.96 to 1.64 and the DL numerator (q-(k-1)) to ...",
+   "status": "open",
+   "evidence": "seeded mutations vs vitest fast suite (305 tests after prisma generate): Z95 1.96->1.64 -> 305/305 pass; DL tau2 (q-(k-1))->(q-k) -> 305/305 pass"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-robofab-edgeconv.json",
+   "index": 0,
+   "subject": "research/robofab-edgeconv",
+   "where": "research/robofab-edgeconv/experiments/run.py:10",
+   "what_short": "The comparator's best ramp fraction is the grid minimum (0.002) for every part in the speed-limited rows checked; add...",
+   "status": "open",
+   "evidence": "not re-solved (heavy); experiments/run.py:10 FR grid still starts at 0.002 with no 0.0005/0.001, and README.md:8 still claims 'positive in all 12 rows' and that negatives 'were the solver's discretisation'"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-sales-agent.json",
+   "index": 0,
+   "subject": "ventures/sales-agent",
+   "where": "ventures/sales-agent/presend.mjs:41",
+   "what_short": "Postal-address check passes on any bare 5-digit number (probe: body 'we work with 20000 firms' produced no postal-add...",
+   "status": "fixed",
+   "evidence": "node: presend body 'we work with 20000 firms. Reply stop to opt out.' country US -> errors ['postal-address']. RESIDUAL: '..., 20000 firms' (comma before the number) still passes via the ',\\s*\\d{4,5}\\s+Word' EU-postcode branch"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-07-xero-invoice-csv-check.json",
+   "index": 0,
+   "subject": "ventures/xero-invoice-csv-check",
+   "where": "ventures/xero-invoice-csv-check/calc.mjs:436",
+   "what_short": "Safe fixes rewrite Excel serial dates as DD/MM/YYYY regardless of the file's detected or user-chosen order, so in a m...",
+   "status": "fixed",
+   "evidence": "node: repair() on a month-first file (10/25/2026, 12/31/2026) with DueDate serial 46300 -> '10/05/2026' (MM/DD, = 5 Oct); same with sourceOrder 'mdy' (PR #13760)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-agents.json",
+   "index": 0,
+   "subject": "platform/agents",
+   "where": "platform/agents/tools.mjs:169-186",
+   "what_short": "toJson replaces any object reached a second time with the string \"[circular]\", although it is a shared reference, not...",
+   "status": "open",
+   "evidence": "node: toJson({best:a, ranked:[a]},0) -> '{\"best\":{\"x\":1},\"ranked\":[\"[circular]\"]}' (WeakSet of all visited objects unchanged)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-augusta-rule-calculator.json",
+   "index": 0,
+   "subject": "ventures/augusta-rule-calculator",
+   "where": "ventures/augusta-rule-calculator/calc.mjs:44 and index.html:62,111",
+   "what_short": "Sole proprietor / single-member LLC (disregarded entity) is the default entity and is priced with federal, SE and sta...",
+   "status": "open",
+   "evidence": "calc.mjs:37 still prices SE savings for entity 'se'; index.html:62 default option 'Sole proprietor, single-member LLC...' and :113 FAQ still 'Often, yes'"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-auth-mau-pricing-calculator.json",
+   "index": 0,
+   "subject": "ventures/auth-mau-pricing-calculator",
+   "where": "ventures/auth-mau-pricing-calculator/engine.mjs:19",
+   "what_short": "Clerk rate card is stale: live page has 50,000 MRUs free (Pro $25/mo) then $0.02/$0.018/$0.015/$0.012; engine has 10,...",
+   "status": "open",
+   "evidence": "node: providerCost(clerk, 40000) = 625; engine.mjs:19 clerk freeMau 10000, no 10M+ tier (live Clerk pricing not re-fetched this run)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-auth-mau-pricing-calculator.json",
+   "index": 1,
+   "subject": "ventures/auth-mau-pricing-calculator",
+   "where": "ventures/auth-mau-pricing-calculator/engine.mjs:21",
+   "what_short": "AWS Cognito tiers invented: page lists Essentials flat $0.015/MAU above 10k free (Lite $0.0055 from 10k, Plus $0.02);...",
+   "status": "open",
+   "evidence": "node: providerCost(cognito, 950000) = 11550; engine.mjs:21 ladder 0.015/0.012/0.01 unchanged, no Lite/Essentials/Plus choice (live AWS page not re-fetched)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-business-vehicle-depreciation-calculator.json",
+   "index": 0,
+   "subject": "ventures/business-vehicle-depreciation-calculator",
+   "where": "ventures/business-vehicle-depreciation-calculator/engine.mjs:96",
+   "what_short": "Heavy-SUV Section 179 cap is scaled by business-use percent (31,300 x biz) instead of applied as an unprorated $31,30...",
+   "status": "open",
+   "evidence": "engine.mjs:96 still `const cap = Math.min(price, limits.heavySuv179Cap) * biz;` -> 31,300 x 0.9 = 28,170 used while note says 31,300 (read, not executed)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-caa-record-check.json",
+   "index": 0,
+   "subject": "ventures/caa-record-check",
+   "where": "ventures/caa-record-check/lookup.mjs:82-103; lookup.test.mjs:52",
+   "what_short": "CNAME handling departs from RFC 8659 section 3: tool climbs from the CNAME target's ancestors instead of checking onl...",
+   "status": "open",
+   "evidence": "node: resolveCaaSet('blog.example.com') with CNAME -> h.cdn.net and CAA only at example.com -> foundAtName null, 0 records, walked 'h.cdn.net cdn.net net' (parent of original name never checked)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-cache-control-check.json",
+   "index": 0,
+   "subject": "ventures/cache-control-check",
+   "where": "ventures/cache-control-check/analyze.mjs:85",
+   "what_short": "Cache-Control: public, no-store with Set-Cookie is reported as DANGER (exit 1). no-store forbids caches storing the r...",
+   "status": "open",
+   "evidence": "node: buildReport with 'cache-control: public, no-store' + Set-Cookie -> ok false, dangerCount 1, finding public-with-set-cookie; analyze.test.mjs:203 still asserts it"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-chrome-extension-permission-check.json",
+   "index": 0,
+   "subject": "ventures/chrome-extension-permission-check",
+   "where": "ventures/chrome-extension-permission-check/scan.mjs:32",
+   "what_short": "chrome.action.* usage is reported 'detected-undeclared ... will fail at runtime' unless an 'action' permission is dec...",
+   "status": "open",
+   "evidence": "node: chrome.action.setBadgeText with manifest action:{} and permissions [] -> ['action','detected-undeclared'], report ok false"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-chrome-extension-permission-check.json",
+   "index": 1,
+   "subject": "ventures/chrome-extension-permission-check",
+   "where": "ventures/chrome-extension-permission-check/scan.mjs:70; scan.test.mjs:104-109,159-167",
+   "what_short": "chrome.tabs.* usage without a 'tabs' permission is reported as a runtime failure; Chrome's docs say most tabs APIs (c...",
+   "status": "open",
+   "evidence": "same probe: chrome.tabs.create with no 'tabs' permission -> ['tabs','detected-undeclared']"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-freelancer-schedule-c-categorizer.json",
+   "index": 0,
+   "subject": "ventures/freelancer-schedule-c-categorizer",
+   "where": "ventures/freelancer-schedule-c-categorizer/calc.mjs:85",
+   "what_short": "Delivery-app meals such as 'UBER EATS' are matched by the travel rule (uber\\b) before the meals rule, so they are ded...",
+   "status": "open",
+   "evidence": "node: analyze([{desc:'UBER EATS ORDER 123', amount:-40}]) -> key 'travel', source 'built-in', flags []"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-house-truss.json",
+   "index": 0,
+   "subject": "research/house-truss",
+   "where": "research/house-truss/tests/test_truss.py",
+   "what_short": "Five hand-seeded mutations in the NDS check layer (interaction sign, squared term, bending coefficient, FT doubled, C...",
+   "status": "fixed",
+   "evidence": "test_demand_capacity_ratios_are_pinned added; mutations interaction squared->linear, FT 450->900, bending-term sign flipped: each 1 failed / 9 passed (reverted)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-mobile-welding-job-price-calculator.json",
+   "index": 0,
+   "subject": "ventures/mobile-welding-job-price-calculator",
+   "where": "ventures/mobile-welding-job-price-calculator/index.html:opts() (inline module script)",
+   "what_short": "Blank or non-numeric input is silently replaced by the example default: clearing 'Materials you buy' prices the job a...",
+   "status": "open",
+   "evidence": "index.html:102 opts(): `o[k] = Number.isFinite(n) ? n : DEFAULTS[k]`; num('') and num('abc') -> NaN, so blank/garbage fields silently become defaults"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-open-tennis-robots.json",
+   "index": 0,
+   "subject": "ventures/open-tennis-robots",
+   "where": "ventures/open-tennis-robots/tests/test_robots.py:79 ; src/tennisbots/catcher.py:catches",
+   "what_short": "Mutating the catch-width test (net half-width doubled) leaves all 38 Python and 21 JS tests green; no test pins a cat...",
+   "status": "open",
+   "evidence": "PYTHONPATH=src pytest (38 pass): mutation catch half-width net_width/2 -> net_width: 38 passed; Magnus lift x1.3: 38 passed (reverted)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-photo-editing-r2.json",
+   "index": 0,
+   "subject": "ventures/photo-editing",
+   "where": "ventures/photo-editing/site/index.html:34,40,47,51",
+   "what_short": "Public product page still says the renderers are dry-run placeholders and that ShootFlow does not render video or gra...",
+   "status": "fixed",
+   "evidence": "grep site/index.html for 'dry-run placeholder'/'does not render': gone; line 40 now says no installed shootflow command, run `PYTHONPATH=src python3 -m shootflow.cli`; that command's --help lists `cull` (fixed by f596041c5 / PR #14329)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-pwa-installability-check.json",
+   "index": 0,
+   "subject": "ventures/pwa-installability-check",
+   "where": "ventures/pwa-installability-check/analyze.mjs:215-245 (missing-512-icon, missing-start-url) and check.mjs:42-46",
+   "what_short": "Manifest with no start_url and no 512x512 icon exits 0 and prints 'clears the same criteria as Lighthouse installable...",
+   "status": "open",
+   "evidence": "node: buildReport on manifest with no start_url and only a 192px icon -> ok true, dangerCount 0, missing-512-icon:notice, missing-start-url:notice"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-pwa-installability-check.json",
+   "index": 1,
+   "subject": "ventures/pwa-installability-check",
+   "where": "ventures/pwa-installability-check/README.md:7-9; analyze.mjs:1-8; index.html:142",
+   "what_short": "Headline claim that this tool and Lighthouse 'should never disagree' is false per the run above; repeated in README, ...",
+   "status": "open",
+   "evidence": "analyze.mjs:6 still says this tool and Lighthouse 'should never disagree'; README.md:5-7 and index.html description still say 'the same checks' as Lighthouse installable-manifest, contradicted by the probe above"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-quick-pick-survey.json",
+   "index": 0,
+   "subject": "ventures/quick-pick-survey",
+   "where": "ventures/quick-pick-survey/src/lib/groupRanking.ts (Z95 constant; pool() tau2 line)",
+   "what_short": "Pooled 95% intervals and tau are unpinned by tests: Z95 1.96 to 1.64 and the DL numerator (q-(k-1)) to (q-k) both lef...",
+   "status": "open",
+   "evidence": "seeded mutations vs vitest fast suite (305 tests after prisma generate): Z95 1.96->1.64 -> 305/305 pass; DL tau2 (q-(k-1))->(q-k) -> 305/305 pass"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-replay-memory.json",
+   "index": 0,
+   "subject": "research/replay-memory",
+   "where": "research/replay-memory/src/replay_memory/model.py:20-27 (partial), :93-128 (totals), paper/whitepaper.md:Abstract and section 1",
+   "what_short": "The 'exact' 2x2 mean-state closure is not exact for repeated replays of one fixed buffer: it resamples the stored sub...",
+   "status": "open",
+   "evidence": "python: curve(12,4,m=2 every 3rd step) vs model._run simulation, 30k runs: step 6 exact 0.0061 vs sim 0.0069 (z=16), step 8 0.0042 vs 0.0045 (z=7.9)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-replay-memory.json",
+   "index": 1,
+   "subject": "research/replay-memory",
+   "where": "research/replay-memory/paper/whitepaper.md:section 1, abstract; experiments/results.txt:E1 lines",
+   "what_short": "Paper states the largest E1 gap (0.0010, step 6, m=2) is 'within Monte-Carlo error at 6000 runs'; it is about 5 stand...",
+   "status": "open",
+   "evidence": "whitepaper.md:11 still says largest gap 0.0010 'within Monte-Carlo error at 6000 runs' and abstract (line 6) 'matches simulation at every step'; my 30k-run sim gives z=16 at step 6"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-selfrep-materials.json",
+   "index": 0,
+   "subject": "research/selfrep-materials",
+   "where": "research/selfrep-closure/src/selfrep_closure/bom.py:30-45 and research/selfrep-materials/README.md:Limitations",
+   "what_short": "Headline magnitudes (75-82% vitamin share, 1.1 kg printed plastic, 3% recycling cut) rest on invented inputs although...",
+   "status": "open",
+   "evidence": "selfrep-closure bom.py:33 _p() still costs every printed part at flat 25 g; M8 nut/M8 washer lines still qty 100, M3 lines 50; selfrep-materials README:38 says 'stylised' but nothing about box-size fastener lines"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-selfrep-recyclers.json",
+   "index": 0,
+   "subject": "research/selfrep-recyclers",
+   "where": "research/selfrep-materials/src/selfrep_materials/balance.py:105-110 (used by research/selfrep-recyclers/src/selfrep_recyclers/machines.py per_copy_saving)",
+   "what_short": "Furnace payback (94 copies, repeated in README and homepage) credits remelted offcuts as replacing imported aluminium...",
+   "status": "open",
+   "evidence": "balance.py:103-106 still credits remelted offcuts against imported aluminium sheet/bar (`imp[name] = S - remelted`); selfrep-recyclers README.md:24 still 'furnace needs about 94 copies'"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-selfrep-redesign.json",
+   "index": 0,
+   "subject": "research/selfrep-redesign",
+   "where": "research/selfrep-redesign/src/selfrep_redesign/design.py:22",
+   "what_short": "Cost closure is inflated by an accounting artefact: every printed replacement part is costed at 0.5 per unit, so prin...",
+   "status": "open",
+   "evidence": "design.py:27 _printed() still costs every printed substitute at 0.5/unit, incl. 'printed M8 nut' x100 replacing 0.03 purchased nuts"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-08-uitest.json",
+   "index": 0,
+   "subject": "platform/uitest",
+   "where": "platform/uitest/lib/explore.mjs:77",
+   "what_short": "Keyless smoke check passes pages that display NaN, undefined or an error banner after the click it makes (verified wi...",
+   "status": "open",
+   "evidence": "node: explorePage with a fake driver whose post-click text is 'Total: NaN undefined Error: something failed' -> issues [] (filled 1, clicked 1)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-09-hands-free-language-coach.json",
+   "index": 0,
+   "subject": "ventures/hands-free-language-coach",
+   "where": "ventures/hands-free-language-coach/drill.mjs:97-113",
+   "what_short": "Grader passes meaning-inverting near-misses: 'Yo/Lo entiendo' scores 0.91 and passes for 'No entiendo'; 'Je comprends...",
+   "status": "open",
+   "evidence": "node: grade(['Yo entiendo'],'No entiendo') -> 0.91 pass; 'Lo entiendo' 0.91 pass; 'Je comprends pas' vs 'Je ne comprends pas' -> 0.84 pass"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-09-hands-free-language-coach.json",
+   "index": 1,
+   "subject": "ventures/hands-free-language-coach",
+   "where": "ventures/hands-free-language-coach/drill.test.mjs",
+   "what_short": "Tests do not catch core-logic changes: changing PASS from 0.8 to 0.6 and changing the streak rule to tolerate a misse...",
+   "status": "open",
+   "evidence": "mutations PASS 0.8->0.6 and streak gap===1 -> gap<=2: node --test drill.test.mjs 11 pass 0 fail each (reverted)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-09-handyman-minimum-job-calculator.json",
+   "index": 0,
+   "subject": "ventures/handyman-minimum-job-calculator",
+   "where": "ventures/handyman-minimum-job-calculator/calc.mjs:25",
+   "what_short": "A comma inside a quoted or thousands-formatted number (e.g. \"1,200\" materials) is split into extra cells before clean...",
+   "status": "open",
+   "evidence": "node: parseJobs('Deck fix, 4, \"1,200\", \"1,500\"') -> materials 1, price 200, warnings []"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-09-mimic-anycontext-detect.json",
+   "index": 0,
+   "subject": "research/mimic-anycontext-detect",
+   "where": "research/mimic-anycontext-detect/tests/test_anyctx.py; research/mimic-anycontext-detect/anyctx.py:79-81",
+   "what_short": "The tests cannot catch a bug in any reported result: they exercise only fit() and helpers on a trivial toy. Deleting ...",
+   "status": "open",
+   "evidence": "after pip install scikit-learn: pytest 5 passed; mutation `tr = oth + sup` -> `tr = oth`: 5 passed (reverted)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-09-mimic-anycontext-size.json",
+   "index": 0,
+   "subject": "research/mimic-anycontext-size",
+   "where": "research/mimic-anycontext-size/tests/test_sizerun.py; research/mimic-anycontext-size/sizerun.py:46-55",
+   "what_short": "The tests do not touch analyse(), the function that produces every reported number. Two seeded bugs (flipped_plain_me...",
+   "status": "open",
+   "evidence": "mutations flipped_plain_mean 1-per[0] -> per[0], and <0.5 -> >0.5: pytest 4 passed each (reverted)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-09-photo-editing-r3-b.json",
+   "index": 0,
+   "subject": "ventures/photo-editing",
+   "where": "ventures/photo-editing/site/index.html:34,40,47,51",
+   "what_short": "Public page says renderers are dry-run placeholders and ShootFlow does not render video or grade images (false), and ...",
+   "status": "fixed",
+   "evidence": "grep site/index.html for 'dry-run placeholder'/'does not render': gone; line 40 now says no installed shootflow command, run `PYTHONPATH=src python3 -m shootflow.cli`; that command's --help lists `cull` (fixed by f596041c5 / PR #14329)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-09-photo-editing-r3.json",
+   "index": 0,
+   "subject": "ventures/photo-editing",
+   "where": "ventures/photo-editing/site/index.html:34,40,47,51",
+   "what_short": "Public page says the renderers are dry-run placeholders and that ShootFlow does not render video or grade images, con...",
+   "status": "fixed",
+   "evidence": "grep site/index.html for 'dry-run placeholder'/'does not render': gone; line 40 now says no installed shootflow command, run `PYTHONPATH=src python3 -m shootflow.cli`; that command's --help lists `cull` (fixed by f596041c5 / PR #14329)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-09-world-clock-widget-b.json",
+   "index": 0,
+   "subject": "ventures/world-clock-widget",
+   "where": "ventures/world-clock-widget/site/solar.mjs:~230 (solarEvent), daylightMinutes, isDaylight; Swift twin Sources/WorldClockCore/SolarCalculator.swift",
+   "what_short": "Reykjavik shows negative daylight ('-3h -51m') and 'night' while the sun is up for 13 days around the June solstice: ...",
+   "status": "fixed",
+   "evidence": "node probe: Reykjavik daylightMinutes on 2026-06-21 13:00Z = 1269 (21h 09m), isDaylight true; 0 of 366 days in 2026 give daylight<=0 or night at 13:00Z; solar.test.mjs:322 now has a Reykjavik midsummer regression test. Swift twin not re-run"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-09-world-clock-widget.json",
+   "index": 0,
+   "subject": "ventures/world-clock-widget",
+   "where": "ventures/world-clock-widget/site/solar.mjs:259-300 (daylightMinutes, isDaylight)",
+   "what_short": "Reykjavik mid-summer (2026-06-16 for 13 days): sunset lands at 00:03 local, before sunrise; daylightMinutes returns -...",
+   "status": "fixed",
+   "evidence": "node probe: Reykjavik daylightMinutes on 2026-06-21 13:00Z = 1269 (21h 09m), isDaylight true; 0 of 366 days in 2026 give daylight<=0 or night at 13:00Z; solar.test.mjs:322 now has a Reykjavik midsummer regression test. Swift twin not re-run"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-10-garmin-world-traveler-watchface.json",
+   "index": 0,
+   "subject": "ventures/garmin-world-traveler-watchface",
+   "where": "ventures/garmin-world-traveler-watchface/source/CityData.mc:44-92 (:ring assignment), source/WorldTravelerView.mc:130-148; test/citydata.test.mjs 'same-offset cities never share a label ring'",
+   "what_short": "Label collisions: 8 pairs of cities drawn on the same ring land on exactly the same angle for 183-238 days of 2026 on...",
+   "status": "open",
+   "evidence": "CityData.mc: NYC (-5h, :us DST, ring 0) and CCS (-4h, no DST, ring 0) share an angle during US DST; KHI/DEL/DAC all ring 0 (+5/+5:30/+6); test only keys on standard offset+ring (not rendered on a device)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-10-garmin-world-traveler-watchface.json",
+   "index": 1,
+   "subject": "ventures/garmin-world-traveler-watchface",
+   "where": "ventures/garmin-world-traveler-watchface/test/citydata.test.mjs:57-86 vs source/CityData.mc:170-246",
+   "what_short": "The test does not exercise the code that ships: the DST functions are a JS copy inside the test, and seeded mutations...",
+   "status": "open",
+   "evidence": "test still uses a JS port of isDst*; mutation of CityData.mc isDstUs endKey hour 1->2: node --test 3 pass 0 fail (reverted)"
+  },
+  {
+   "audit_file": "portfolio/quality/audits/2026-11-10-quick-pick-survey.json",
+   "index": 0,
+   "subject": "ventures/quick-pick-survey",
+   "where": "ventures/quick-pick-survey/src/lib/glicko2.test.ts:16, src/lib/groupRanking.test.ts, src/lib/conjoint.test.ts",
+   "what_short": "Core statistical code is not pinned by tests: three seeded one-line mutations (Glicko-2 rating update scaled by 0.9, ...",
+   "status": "open",
+   "evidence": "vitest fast suite 305 tests: Glicko-2 newMu x0.9 -> 1 failed (now caught); DL tau2 q-(k-1)->q-k -> 305 pass; Davidson tie e^(d/2)->e^(d/3) in conjoint.ts:73 -> 305 pass"
+  }
+ ]
+}

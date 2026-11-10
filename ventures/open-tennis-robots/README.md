@@ -159,6 +159,30 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
 8. UWB or line-based localisation for the collector on unlit courts.
 9. An illustrated assembly guide and a kit for sellers.
 
+## Known gaps (quality audits)
+
+Open defects from the audits of 2026-11-08 and 2026-11-10
+(`portfolio/quality/audits/2026-11-10-open-tennis-robots.json` has the
+commands that show each one). Four sessions of feeder CAD work landed between
+those audits and fixed none of them, so take one before the next CAD slice:
+
+- **Catch rate is unpinned.** Doubling the net half-width in
+  `src/tennisbots/catcher.py` passes every test and the fixture gate; no test
+  holds the catch table in "What the simulation says about the catch net".
+- **Base target and speed are not limited in firmware.** `SET_BASE` forwards
+  any target (30000 mm passes) and removing the base speed clamp fails no
+  test (`firmware/esp32/controller.py`), although `safety.md` promises command
+  limits in firmware.
+- **E-stop reset.** The Pi can clear an e-stop with `CLEAR_ESTOP`; ISO 13850
+  and IEC 60204-1 expect a deliberate local reset and a monitored contactor.
+- **Feed interlock untested.** The wheel-speed feed interlock lives in
+  `firmware/esp32/main.py`, which no test imports.
+
+Fixed on 2026-11-10: the firmware timed its watchdog, telemetry and feed gate
+from raw `ticks_ms()`, which wraps after about 12.4 days, so a Pi that went
+quiet near the wrap was never caught (`controller.MonoClock`, test
+`test_watchdog_trips_across_the_ticks_wrap`).
+
 ## Safety, warranty, privacy
 
 **No warranty.** This tool is provided free and as-is, without warranty of

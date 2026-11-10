@@ -1,0 +1,78 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/interior-door-bid-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-10-c",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a finish carpenter / door installer who bids residential interior-door replacement jobs (slab hangs, prehung swaps, new openings, pocket conversions) and runs a small crew",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 1,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran a scratchpad script (door.mjs) that imports calc.mjs and applies each JOB_PRESET with the page defaults (wage $42, burden 30%, travel & equipment $45, overhead 15%, margin 20%), then compared with hand arithmetic. (1) Cheap special, 1 hollow slab hang-only, 6 mi: hours 0.8+6*0.035=1.01 travel + 0.75 hang + 0.2 casing + 0.35 site = 2.31; loaded wage 42*1.3=54.60; labour 126.126; material 48 + 6*2.80=64.80; direct 126.126+64.80+45=235.926; x1.15=271.3149; /0.80=339.1436. Tool: hours 2.3100, cost 271.3149, price 339.1436. (2) Typical remodel, 3 hollow prehung swap, paint, haul, 12 mi: hours 1.22+4.2+0.9+1.95+0.45+2.1+0.6+0.35=11.77; labour 642.642; material 525+96+72+54+33.6=780.60; direct 1468.242; cost 1688.4783; price 2110.5979 ($703.53/door). Tool: 11.7700, 1688.4783, 2110.5979, 703.53. (3) Saturday on the cheap special: wage 63, loaded 81.90, hours 2.31+0.8=3.11, labour 254.709, direct 364.509, cost 419.1854, price 523.98; occupied: hang 0.9375 + site 0.4375 -> 2.585 h, price 360.73. Tool compareAccess: 523.9817 / 419.1854 and 360.7277; a $349 proposal shows -$70.19 after hours. (4) Owner-supplied: zeroing the $48 leaf takes direct to 187.926, cost 216.1149, price 270.1436 (tool identical). Loaded the page in headless Chrome (python3 -m http.server + google-chrome --headless --dump-dom): #price $339.14, #breakEven $271.31, accessNote 'adds $21.58 ... adds $184.84', matching the module. Margin is taken on price (cost/(1-m)), not markup, which is right. The arithmetic is correct for every input I tried; what is wrong is upstream of the arithmetic: calculateBid accepts doorCount 2.5 (price $554.49), accepts a solid-core PREHUNG leaf on a hang-only (existing jamb) scope ($798.14), and French-or-barn pair + 'double' size charges both the pair (1.15 h, $720) and a second leaf (0.9 h, $175). Arithmetic score 3; those combination defects are counted under domain and craft.",
+    "completeness": "README / page features checked: scope, leaf and size presets fill rates unless edited (index.html applyKit, works in the browser render); headline price, per-door, effective hourly rate, walk-away (rendered); four-scope and four-leaf comparisons (compareScope/compareDoor run); who-bought-the-leaf three-way (compareOwnerSupply run, note text verified); when-you-can-work three-way (compareAccess run); proposed-price scoring (hangOnly scores verified at $150 and $349); Copy bid summary (formatBidSummary run, output quoted under craft); saved bid and share link (share.mjs, share.test.mjs passes); printable proposal (proposal.mjs, proposal.test.mjs passes; not printed in a browser); usage counter with DNT/GPC opt-out (usage.test.mjs passes). No TODOs or stubs. The comparison tables silently ignore typed rates (compareScope spreads suggested door/size/extra kits over the input, calc.mjs:400-413), so after a user times their own hang at 2.0 h the headline is $437.25 but the comparison's own 'hang-only' row still says $339.14; the code comment admits it but the page does not tell the user. Access and callback multipliers (1.5x overtime, 1.25x occupied pace, 0.45 h plane) are hard-coded with no input (grep of index.html finds no field).",
+    "verification": "Ran: cd ventures/interior-door-bid-calculator && node --test '*.test.mjs' -> tests 137, pass 137, fail 0 (calc.test.mjs alone: 32/32). Seeded mutations, each reverted with git checkout -- calc.mjs: (a) drop hoursCasing from extraWorkHours (calc.mjs:284): 5 failures, but all in compareAccess / article tests, none of the calculateBid tests pins a total; (b) margin -> markup, price = cost*(1+m) (calc.mjs:308): 5 failures; (c) occupied pace not applied to siteHours (calc.mjs:721): 2 failures; (d) hardwareMaterial charged once per job instead of per door, 'includeHardware ? hardwareEach : 0' (calc.mjs:297): 0 failures, 137/137 pass. A realistic bug that under-prices an 8-door job by 7 locksets ($336 before overhead and margin) is not caught. git status after reverts: clean apart from this audit file. Tests are the author's own fixtures; several totals were re-derived by hand above and are right.",
+    "craft": "Read calc.mjs (all 851 lines), index.html module script (lines 353-880), test file headers, proposal.mjs header. Plain dependency-free ES modules with input validation messages. Defects: compareScope/compareDoor and compareOwnerSupply/compareAccess are near-copies (same hang-price parsing, same row/cheapest/delta tail); money() is duplicated in calc.mjs:808 and index.html; share.mjs and proposal.mjs are copied verbatim into every bid calculator (their own comments say so), i.e. copied engines; no check that leaf and scope are compatible (calc.mjs:236-238); doorCount is not required to be an integer (calc.mjs:240); targetMargin 99.99 is accepted and prices the cheap special at $2,713,149. formatBidSummary is documented as 'the customer-facing side' (calc.mjs:816) but prints the preset labels, so the text a carpenter pastes to a customer reads 'Scope: Interior door replacement; Hang only - slab on the existing jamb (the cheap special)' and 'Hollow-core slab - the cheap special', lists door, size and count twice, and ends with 'It is not ... an entry-door, a patio slider, a garage door' (run output).",
+    "claims": "Checked: disclaimer and privacy in README, index.html:344 and every article: backed. 'No network calls' (no fetch in calc.mjs/usage.mjs; page renders from localhost): backed. vs-jobber.html: honest, names no Jobber price, says Jobber does what this does not, states non-affiliation; 'founded 2011, Edmonton' matches my recollection only (not verified online, outbound not attempted). Saturday article figures $339.14/$360.73/$523.98/$419.19/-$70.19: reproduced exactly. NOT backed: (1) index.html:11 FAQPage structured data says the hang-only preset (0.75 h, $48 slab) is 'genuinely close to $150 installed'; the tool's own price for that exact preset at page defaults is $339.14 (break-even $271.31), and vs-a-flat-per-door-price.html says the opposite ('already above a flat $150 quote'). (2) vs-a-flat-per-door-price.html:111-116 and should-i-hang-doors-on-saturday.html:50 present $2,823.66 / $2,258.93 as 'this calculator's own shipped starting examples' for the French-pair pocket conversion; the shipped preset with the page's default $45 travel & equipment gives $2,766.16 / $2,212.93 (my run); the published figure uses $85 from the test fixture (calc.test.mjs:68), which no page states. (3)-(4) The source llms.txt names the retired github.io host and the source sitemap/canonicals are relative, but the build rewrites them (platform/pages/build.mjs rewriteOrigin, renderVentureSitemap): checked by the round's lead with curl, the served https://marisstella.app/interior-door-bid-calculator/llms.txt links marisstella.app, the served sitemap.xml has absolute marisstella.app locs, and the served vs-jobber page has canonical https://marisstella.app/interior-door-bid-calculator/vs-jobber. Not defects; removed from the list (portfolio/quality/README.md, 'Judge what is served'). (5) The access table states 'after-hours is time-and-a-half' as fact; under the FLSA overtime is owed past 40 h in a week, not for Saturday as such, and an owner-operator pays none; the multiplier cannot be changed.",
+    "fitness": "Walked a real job: three bedroom doors, prehung swap, paint, haul, 12 miles. The tool gives $2,110.60 ($703.53/door) with a cost split and a walk-away, and a printable proposal, which a carpenter could send after replacing the rates. Gaps a door installer would hit in the first hour: no jamb width (4-9/16 vs 6-9/16 or extension jambs on plaster) which decides which prehung to order; no slab machining line (hinge mortises, 2-1/8 in bore and latch bore) on a hang-only, which is most of a slab hang; no undercut for flooring or return air; the pocket conversion has no drywall demo/patch/finish, no electrical relocation and no permit, yet is presented as the expensive case; paint is one trip at 0.7 h/door with no return visits for dry time; the comparison tables ignore the rates the user typed; and the copy-to-customer summary calls the customer's job 'the cheap special'. Usable for a prehung-swap ballpark, not for sign-off on the scopes it advertises as its differentiator.",
+    "domain": "Compared with how a finish carpenter bids: the pricing structure (loaded labour with burden, overhead on direct cost, margin on price, walk-away = cost) is standard estimating practice (e.g. the margin-vs-markup distinction taught in NAHB/remodeler estimating material) and is implemented correctly. Departures: the scope and leaf axes conflate 'prehung' (it is both a scope and a leaf), so the tool prices a prehung unit hung on an existing jamb and a $48 slab in a prehung swap without a warning; slab hang at 0.75 h with no machining is low against the common trade rule of 1.5-2 h for an unmachined slab (recollection, uncited); French pair + double double-counts the second leaf; pocket conversion at 3.4 h framing and $240 kit omits drywall and finishing, which are usually most of the cost in an existing wall, and does not flag a header in a bearing wall as structural/permit work; overtime treated as a Saturday premium rather than a weekly-hours rule; casing $32 per door for both sides (about 34 lf, ~$0.94/lf) is at the bottom of primed finger-joint/MDF pricing; leaf invoices ($48/$175/$340/$720) are plausible big-box figures from recollection, uncited."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "FAQ structured data on the landing page says the hang-only hollow-slab preset is 'genuinely close to $150 installed'; the tool's own price for that preset at the page defaults is $339.14 (cost $271.31), and another page of the venture says the opposite",
+      "where": "ventures/interior-door-bid-calculator/index.html:11"
+    },
+    {
+      "severity": "high",
+      "what": "The customer-facing 'Copy bid summary' prints internal preset labels, so the text pasted to a customer calls their job 'the cheap special' (scope and leaf), repeats door/size/count, and ends with 'not ... an entry-door, a patio slider, a garage door'",
+      "where": "ventures/interior-door-bid-calculator/calc.mjs:823"
+    },
+    {
+      "severity": "medium",
+      "what": "Published 'shipped starting example' for the French-pair pocket conversion ($2,823.66 bid, $2,258.93 cost) uses an unstated $85 travel & equipment from the test fixture; the shipped preset at page defaults gives $2,766.16 / $2,212.93",
+      "where": "ventures/interior-door-bid-calculator/vs-a-flat-per-door-price.html:111"
+    },
+    {
+      "severity": "medium",
+      "what": "Leaf and scope are not checked for compatibility: a solid-core or hollow PREHUNG unit can be priced as hang-only on the existing jamb, a $48 slab as a prehung swap, and French pair + double size charges the second leaf twice",
+      "where": "ventures/interior-door-bid-calculator/calc.mjs:236"
+    },
+    {
+      "severity": "medium",
+      "what": "Hardware cost scaling per door is untested: changing hardwareMaterial to a once-per-job charge passes all 137 tests",
+      "where": "ventures/interior-door-bid-calculator/calc.mjs:297"
+    },
+    {
+      "severity": "medium",
+      "what": "Scope and leaf comparison tables override the user's typed rates with starting kits, so the table's row for the current scope disagrees with the headline price once rates are edited, with no note on the page",
+      "where": "ventures/interior-door-bid-calculator/calc.mjs:400"
+    },
+    {
+      "severity": "medium",
+      "what": "Pocket conversion omits drywall demo/patch/finish, electrical relocation and permit/structural header work; slab hang has no hinge-mortise/bore line; no jamb-width or undercut input",
+      "where": "ventures/interior-door-bid-calculator/calc.mjs:159"
+    },
+    {
+      "severity": "low",
+      "what": "Overtime 1.5x, occupied pace 1.25x and callback plane hours are hard-coded with no input; overtime is presented as a Saturday rule rather than the weekly-hours rule, and an owner-operator cannot set it to 1.0",
+      "where": "ventures/interior-door-bid-calculator/calc.mjs:677"
+    },
+    {
+      "severity": "low",
+      "what": "Door count accepts fractions (2.5 doors priced) and target margin up to 99.99% (cheap special priced at $2.7M) without a warning",
+      "where": "ventures/interior-door-bid-calculator/calc.mjs:240"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14428"
+  ],
+  "verdict": "The arithmetic is right: four presets and the Saturday, occupied and owner-supplied variants recomputed by hand match the module to the cent, and the page renders the same $339.14 / $271.31 in headless Chrome. 137 of 137 tests pass and three of four seeded mutations were caught, but charging a lockset once per job instead of per door passed every test. Where the subject falls short is what surrounds the arithmetic. The landing page's FAQ structured data says the hang-only preset is 'genuinely close to $150' when the tool itself prices it at $339.14. One article's 'shipped example' uses an unstated $85 cost. The customer-facing summary calls the customer's job 'the cheap special'. A door installer would also find that prehung units can be priced on an existing jamb, that a French pair plus 'double' is charged for the second leaf twice, and that the pocket conversion, the scope the tool sells as its differentiator, leaves out drywall and permit work. Completeness is 3 (every claimed feature runs), so it is finished, but claims 1 and verification 2 mean it does not meet the bar."
+}

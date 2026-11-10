@@ -466,3 +466,14 @@ test('a realistic raccoon job prices well above a headline removal fee', () => {
   assert.equal(gap.coversBreakEven, false);
   assert.ok(gap.shortfall > 1000);
 });
+
+// Quality audit 2026-11-10 (portfolio/quality/audits/2026-11-10-wildlife-exclusion-bid-calculator.json):
+// the field was labelled "Minutes to place all traps" while the engine and the
+// README's worked example (3 traps x 12 minutes) charge it per trap. Pin the
+// per-trap reading so the label and the arithmetic cannot drift apart again.
+test('trap set minutes are charged per trap', () => {
+  const two = calculateBid(baseInput({ trapsSet: 2, trapSetMinutes: 15 }));
+  const four = calculateBid(baseInput({ trapsSet: 4, trapSetMinutes: 15 }));
+  // two more traps x 15 min = 0.5 h at $60/h for a crew of one
+  assert.equal(Math.round((four.laborCost - two.laborCost) * 100) / 100, 30);
+});

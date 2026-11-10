@@ -9,6 +9,7 @@ numbers (share meeting the bar, with Wilson intervals, by stratum and round).
     python3 platform/ci/quality_audit.py sample [--seed 2026-11-07] [--k 2]
     python3 platform/ci/quality_audit.py validate
     python3 platform/ci/quality_audit.py summary [--md]
+    python3 platform/ci/quality_audit.py history [--md]
 
 Standard library only, so it runs in a bare container. It lives in platform/ci
 (tests: platform/ci/test_quality_audit.py) beside post_merge_review.py; the
@@ -206,6 +207,78 @@ def render_md(s: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+# --- history -----------------------------------------------------------------
+
+PATH_RE = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_./-]*\.[A-Za-z0-9]+")
+
+
+def defect_file(d: dict) -> str:
+    """The first file path a defect's `where` names, without a line number: the key for "same defect again"."""
+    m = PATH_RE.search(d.get("where") or "")
+    return m.group(0) if m else ""
+
+
+def history(audits: list[dict]) -> dict:
+    """Does auditing change anything? Follow-through on high defects, and how re-audited subjects moved.
+
+    `summary` keeps only each subject's latest audit; this reads every file in order.
+    A high defect counts as *re-found* when a later audit of the same subject reports a
+    high defect in the same file: a strong hint it was never fixed (it is a hint, not
+    proof; check the defect itself before saying so).
+    """
+    rows = sorted((a for a in audits if a.get("status") == "audited"), key=lambda x: (x.get("date", ""), x.get("_file", "")))
+    high = [a for a in rows if any(d["severity"] == "high" for d in a.get("defects") or [])]
+    out = {
+        "audits": len(rows),
+        "with_fix_prs": sum(1 for a in rows if a.get("fix_prs")),
+        "with_high": len(high),
+        "with_high_and_fix_prs": sum(1 for a in high if a.get("fix_prs")),
+        "reaudited": [],
+        "refound_high": [],
+    }
+    by: dict[str, list[dict]] = {}
+    for a in rows:
+        by.setdefault(a["subject"], []).append(a)
+    for subject, seq in sorted(by.items()):
+        if len(seq) < 2:
+            continue
+        totals = [sum(a["scores"].values()) for a in seq]
+        out["reaudited"].append({"subject": subject, "audits": len(seq), "totals": totals,
+                                 "bar": [meets_bar(a["scores"]) for a in seq], "change": totals[-1] - totals[0]})
+        seen: dict[str, str] = {}
+        for a in seq:
+            for d in a.get("defects") or []:
+                f = defect_file(d)
+                if d["severity"] != "high" or not f:
+                    continue
+                if f in seen and seen[f] != a["_file"]:
+                    out["refound_high"].append({"subject": subject, "file": f, "first": seen[f], "again": a["_file"]})
+                seen.setdefault(f, a["_file"])
+    moved = [r["change"] for r in out["reaudited"]]
+    out["reaudit_change"] = {"up": sum(c > 0 for c in moved), "flat": sum(c == 0 for c in moved), "down": sum(c < 0 for c in moved)}
+    return out
+
+
+def render_history_md(h: dict) -> str:
+    c = h["reaudit_change"]
+    lines = [
+        f"Audits read: {h['audits']}. Audits listing any fix PR: {h['with_fix_prs']}.",
+        f"Audits with a high-severity defect: {h['with_high']}, of which {h['with_high_and_fix_prs']} list a fix PR.",
+        f"Subjects audited more than once: {len(h['reaudited'])} (score total up {c['up']}, flat {c['flat']}, down {c['down']}, first audit to latest).",
+        "",
+        "| subject | audits | score totals (of 28), in order | meets bar, in order |",
+        "|---|---|---|---|",
+    ]
+    for r in h["reaudited"]:
+        lines.append(f"| `{r['subject']}` | {r['audits']} | {', '.join(map(str, r['totals']))} | {', '.join('yes' if b else 'no' for b in r['bar'])} |")
+    if h["refound_high"]:
+        lines += ["", "High defects reported again, same file, by a later audit of the same subject:", "",
+                  "| subject | file | first reported | reported again |", "|---|---|---|---|"]
+        for r in h["refound_high"]:
+            lines.append(f"| `{r['subject']}` | `{r['file']}` | {r['first']} | {r['again']} |")
+    return "\n".join(lines) + "\n"
+
+
 # --- sampling ----------------------------------------------------------------
 
 def draw(seed: str, k: int = 2, k_platform: int = 1, audits: list[dict] | None = None, pop: dict[str, list[str]] | None = None, today: dt.date | None = None) -> list[dict]:
@@ -244,6 +317,8 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("validate", help="check every audit file")
     sm = sub.add_parser("summary", help="the scoreboard over every audit")
     sm.add_argument("--md", action="store_true")
+    hp = sub.add_parser("history", help="follow-through on defects and how re-audited subjects moved")
+    hp.add_argument("--md", action="store_true")
     args = ap.parse_args(argv)
 
     if args.cmd == "sample":
@@ -267,6 +342,10 @@ def main(argv: list[str] | None = None) -> int:
             print(e, file=sys.stderr)
         print(f"{len(audits)} audit files, {len(errs)} problems")
         return 1 if errs else 0
+    if args.cmd == "history":
+        h = history(audits)
+        print(render_history_md(h) if args.md else json.dumps(h, indent=1))
+        return 0
     s = summarize(audits)
     print(render_md(s) if args.md else json.dumps(s, indent=1))
     return 0

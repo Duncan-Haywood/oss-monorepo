@@ -251,3 +251,10 @@ test('redteam guards: explicit default port is kept; 172.16-19 are private', () 
     assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: `http://${ip}/v1` }), true, ip);
   }
 });
+
+test('gemini: thinking tokens count as output, as Google bills them', async () => {
+  const f = fakeFetch({ candidates: [{ content: { parts: [{ text: 'a' }] } }],
+    usageMetadata: { promptTokenCount: 7, candidatesTokenCount: 3, thoughtsTokenCount: 900 } });
+  const r = await complete({ provider: 'gemini', apiKey: 'k', model: 'g1' }, { prompt: 'P', fetch: f });
+  assert.deepEqual([r.usage.input, r.usage.output], [7, 903]);
+});

@@ -24,6 +24,30 @@ import protocol as P
 WATCHDOG_MS = 300        # stop if the Pi goes quiet for this long
 TELEMETRY_MS = 100
 
+# MicroPython's time.ticks_ms() wraps at 2**30 ms (about 12.4 days) on the
+# ESP32 port, so raw readings must never be subtracted or compared directly.
+TICKS_PERIOD = 1 << 30
+
+
+class MonoClock:
+    """Milliseconds since start that never wrap, built from wrapping ticks_ms() readings.
+
+    Each step is taken modulo TICKS_PERIOD, which is what time.ticks_diff()
+    does for a forward step, so a reading taken after the wrap still counts
+    forward. Python ints do not overflow, so the count itself never wraps.
+    Call read() at least once per TICKS_PERIOD (the main loop runs every few ms).
+    """
+
+    def __init__(self, raw_ms):
+        self.raw = raw_ms
+        self.ms = 0
+
+    def read(self, raw_ms):
+        self.ms += (raw_ms - self.raw) % TICKS_PERIOD
+        self.raw = raw_ms
+        return self.ms
+
+
 ROLE_FEEDER = "feeder"
 ROLE_COLLECTOR = "collector"
 
