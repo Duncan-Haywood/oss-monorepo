@@ -204,6 +204,21 @@ class FeederParamsTest(unittest.TestCase):
         # a sloppy build eats the margin
         self.assertLess(Feeder(plate_slot_play_mm=4.0, seat_gap_mm=1.0).axle_squaring()["margin"], a["margin"])
 
+    def test_track_tie_loads_are_statics_of_the_spring_force(self):
+        p = Feeder()
+        t = p.track_tie()
+        d = p.take_up_design()
+        self.assertAlmostEqual(t["span_mm"], d["track_mm"] - 60.0)
+        self.assertAlmostEqual(t["force_n"], d["spring_n"] * p.hose_snatch)
+        self.assertAlmostEqual(t["couple_n"] * t["span_mm"], t["force_n"] * p.carriage_offset_mm)
+        self.assertAlmostEqual(t["resultant_n"], math.hypot(t["axial_n"], t["couple_n"]))
+        self.assertTrue(t["ok"])
+        # the factor falls as the load grows, and the limit tension is where it reaches the minimum
+        self.assertLess(p.track_tie(20.0)["factor"], t["factor"])
+        self.assertAlmostEqual(p.track_tie(t["limit_tension_n"])["factor"], p.tie_min_factor)
+        self.assertFalse(Feeder(slot_nut_pull_n=5.0).track_tie()["ok"])
+        self.assertIsNone(Feeder(hopper_out_z=1560.0).track_tie())
+
     def test_launch_checks_tie_the_head_to_the_flight_model(self):
         p = Feeder()
         self.assertAlmostEqual(p.nip_len, 74.0, delta=0.5)
