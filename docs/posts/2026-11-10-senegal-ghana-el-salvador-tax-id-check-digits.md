@@ -3,7 +3,7 @@ title: "Check digits for Senegalese, Ghanaian and Salvadoran tax IDs on e-invoic
 seo_title: "Senegal NINEA, Ghana TIN, El Salvador NIT validator for e-invoices"
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, senegal, ghana, el-salvador]
-description: "einvoice-preflight now recognises and check-digit-tests a Senegal NINEA, a Ghana GRA TIN and an El Salvador NIT on a party's tax ID, and shape-checks an Algerian NIF."
+description: "einvoice-preflight now check-digit-tests a Senegal NINEA, a Ghana GRA TIN and an El Salvador NIT on a party's tax ID, and shape-checks an Algerian NIF."
 ---
 
 These four countries were unknown to the party tax-ID check, so a mistyped ID
