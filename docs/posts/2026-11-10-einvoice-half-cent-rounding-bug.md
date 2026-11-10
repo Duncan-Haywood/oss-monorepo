@@ -1,6 +1,6 @@
 ---
 title: "A half-cent bug our e-invoice checker found in itself"
-seo_title: "E-invoice VAT rounding: half-cent bug in an open-source EN 16931 checker"
+seo_title: "E-invoice VAT half-cent rounding bug in an EN 16931 checker"
 date: 2026-11-10
 tags: [e-invoicing, vat, testing, open-source]
 description: "A new generate-then-check fuzz showed the e-invoice preflight checker rejecting valid invoices whose VAT lands exactly on a half cent. Cause, fix and numbers."
