@@ -1,26 +1,26 @@
 Restart check: 3200+3200 evaluations, 8 seeds, held-out 64 episodes, physical model. J = sqrt((pos/0.1 m)^2+(yaw/10.0 deg)^2)
 
 [first]  bound  meanJ  medianJ  worst J  pos m  yaw deg   J per seed
-           0   3.61    3.14    5.50  0.238   25.97   2.90, 2.97, 3.30, 2.90, 5.50, 2.97, 4.88, 3.48
-          35   3.73    2.99    6.12  0.300   20.51   2.41, 2.42, 2.81, 3.18, 5.85, 4.55, 2.51, 6.12
-          80   4.18    3.95    7.59  0.351   20.75   2.43, 2.41, 3.95, 2.44, 3.96, 7.59, 6.54, 4.13
+           0   4.40    3.80    7.82  0.338   26.38   2.92, 3.79, 3.82, 3.11, 7.82, 5.66, 4.80, 3.29
+          35   4.83    4.44    8.42  0.421   21.30   2.41, 4.06, 4.81, 2.81, 7.17, 8.42, 6.56, 2.41
+          80   3.56    3.13    6.49  0.285   20.26   2.85, 4.03, 3.98, 2.42, 6.49, 3.42, 2.43, 2.85
 
-  first bound 35 minus bound 0, J: mean +0.118, better in 4 of 8
-  first bound 35 minus bound 0, pos: mean +0.062, better in 3 of 8
-  first bound 35 minus bound 0, yaw: mean -5.463, better in 8 of 8
-  first bound 80 minus bound 0, J: mean +0.568, better in 4 of 8
-  first bound 80 minus bound 0, pos: mean +0.113, better in 3 of 8
-  first bound 80 minus bound 0, yaw: mean -5.226, better in 8 of 8
+  first bound 35 minus bound 0, J: mean +0.431, better in 4 of 8
+  first bound 35 minus bound 0, pos: mean +0.083, better in 3 of 8
+  first bound 35 minus bound 0, yaw: mean -5.077, better in 8 of 8
+  first bound 80 minus bound 0, J: mean -0.843, better in 6 of 8
+  first bound 80 minus bound 0, pos: mean -0.053, better in 4 of 8
+  first bound 80 minus bound 0, yaw: mean -6.118, better in 8 of 8
 
 [restarted]  bound  meanJ  medianJ  worst J  pos m  yaw deg   J per seed
-           0   3.58    3.56    4.27  0.242   25.82   2.90, 3.64, 3.30, 2.90, 4.09, 4.27, 4.05, 3.48
-          35   2.99    2.59    5.06  0.216   19.82   2.41, 2.42, 2.81, 2.76, 2.40, 2.40, 5.06, 3.66
-          80   4.05    3.99    6.54  0.338   20.61   2.41, 2.41, 4.02, 2.44, 3.96, 6.05, 6.54, 4.60
+           0   4.36    3.54    7.82  0.329   26.31   3.17, 3.79, 2.96, 2.92, 7.82, 5.71, 5.19, 3.29
+          35   3.58    3.46    5.21  0.287   20.30   2.41, 4.06, 3.99, 2.92, 2.71, 4.93, 5.21, 2.41
+          80   3.11    2.86    4.03  0.235   19.90   2.85, 4.03, 4.02, 2.41, 2.87, 3.42, 2.43, 2.85
 
-  restarted bound 35 minus bound 0, J: mean -0.589, better in 6 of 8
-  restarted bound 35 minus bound 0, pos: mean -0.026, better in 5 of 8
-  restarted bound 35 minus bound 0, yaw: mean -5.993, better in 8 of 8
-  restarted bound 80 minus bound 0, J: mean +0.474, better in 4 of 8
-  restarted bound 80 minus bound 0, pos: mean +0.096, better in 2 of 8
-  restarted bound 80 minus bound 0, yaw: mean -5.211, better in 8 of 8
+  restarted bound 35 minus bound 0, J: mean -0.777, better in 4 of 8
+  restarted bound 35 minus bound 0, pos: mean -0.042, better in 4 of 8
+  restarted bound 35 minus bound 0, yaw: mean -6.016, better in 8 of 8
+  restarted bound 80 minus bound 0, J: mean -1.248, better in 6 of 8
+  restarted bound 80 minus bound 0, pos: mean -0.094, better in 3 of 8
+  restarted bound 80 minus bound 0, yaw: mean -6.412, better in 8 of 8
 
