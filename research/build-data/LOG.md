@@ -1,5 +1,19 @@
 # build-data log
 
+## Session 64, 2026-11-10: Seattle in H4 transfer (no prediction written first)
+
+Why: sessions 62 and 63 left "Seattle in H4 transfer". `src/transfer.py` now lists Seattle in `CITIES`, and writes `*_4city.json` so the three-city files stay as they were. Fresh four-feed pull 2026-11-10 (Chicago 852,615, SF 1,298,097, Austin 2,384,452, Seattle 194,184 rows), `python3 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle`, results `results/transfer_seattle_{a2i,i2c}_2024_4city.json`.
+Disclosure: I wrote no prediction before the run, so this is descriptive. The earlier H4 prior (session 10) was that transfer is worse than the own baseline.
+Outcome (2024, relative change of mean pinball loss, transfer minus Seattle's own per-type baseline, 95% week-block bootstrap):
+| target (sources) | q0.1 | q0.5 | q0.9 | 80% coverage (baseline 0.890 / 0.882) |
+|---|---|---|---|---|
+| a2i (Chicago, SF, Austin) | 0.0% (tie) | +0.7% (CI spans 0) | +27.4% (worse) | 0.644 |
+| i2c (SF, Austin) | -8.6% | -10.7% | -5.1% (all CIs below 0) | 0.720 |
+- Seattle a2i matches the Austin a2i pattern from session 10 (a tie at low quantiles because most predictions are zero, worse at q0.9) and its transfer interval under-covers (0.644).
+- Seattle i2c is the first cell in the programme where transfer beats the held-out city's own baseline at all three quantiles; H4 as worded (transfer no better) is refuted there. An own-city model on the same harmonised features does better still (-11.3, -14.4, -3.6%), and the transfer interval still under-covers (0.720), so it is a better point forecast, not a calibrated one.
+- Limits: one test year, 3 seeds, i2c has two source cities, Seattle's baseline is trained on a smaller history (194k rows), the harmonised class map was not retuned.
+Next: bootstrap the full-model width; test whether the Seattle i2c transfer gain survives a second test year (2023).
+
 ## Session 63, 2026-11-10: Seattle week-block bootstrap of the width gap (no prediction written first)
 
 Why: session 62 left the Seattle width gap as a point estimate. Fresh pull 2026-11-10 (194,184 rows, unchanged), `python3 src/width_boot.py DIR --test-year 2024 --only seattle:a2i seattle:i2c` (the script now tags its output file when `--only` is given, so `results/width_boot_2024.json` is not overwritten; Seattle goes to `results/width_boot_2024_seattle.json`).
