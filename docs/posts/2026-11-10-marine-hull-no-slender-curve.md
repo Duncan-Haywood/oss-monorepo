@@ -3,7 +3,7 @@ title: "Where we looked for a small-boat resistance curve, and what we found"
 seo_title: "Open towing-tank data for small hulls: what Zenodo has and lacks"
 date: 2026-11-10
 tags: [research, marine-hull]
-description: "A search of Zenodo for open towing-tank data on slender and catamaran hulls found five-speed summaries and raw time series, but no body plan to check a resistance model against."
+description: "Zenodo has open towing-tank data for slender and catamaran hulls: five-speed summaries and time series, but no body plan to check a resistance model against."
 ---
 
 The marine-hull programme asks which hull carries a small survey boat furthest per kWh, and how much of that answer is the drag model. Our wave-resistance and Holtrop-Mennen models have been checked against a few published tank points. Two earlier steps asked for one more thing: a slender displacement-hull curve below Froude number 0.3, with the hull's geometry.

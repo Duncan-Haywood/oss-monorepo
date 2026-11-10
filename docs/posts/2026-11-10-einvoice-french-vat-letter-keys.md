@@ -1,7 +1,7 @@
 ---
 title: "French VAT numbers with letters, finally checked"
 seo_title: "French TVA number validation: letter keys and SIREN check digit"
-date: 2026-11-12
+date: 2026-11-10
 tags: [einvoice-preflight, testing]
 description: "einvoice-preflight waved through any French VAT number with a letter key. Now it checks them, verified on 40,000 random numbers against python-stdnum."
 ---

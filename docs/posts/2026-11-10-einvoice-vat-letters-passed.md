@@ -1,7 +1,7 @@
 ---
 title: "Our VAT checker let letters through"
 seo_title: "VAT number validator false accepts: letters in digit-only numbers"
-date: 2026-11-11
+date: 2026-11-10
 tags: [einvoice-preflight, testing]
 description: "Running python-stdnum backwards found einvoice-preflight accepting letters in Czech, Estonian, Hungarian and Romanian VAT numbers. Fixed."
 ---
