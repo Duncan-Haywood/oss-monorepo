@@ -106,9 +106,14 @@ flagships:
       Pipedrive/HubSpot against fake servers only; nineteen agent-written reply
       sets, latest 2026-11-08: false-not-now and wrong-person probe 9/20 before, 15/20 after three narrow changes; false-bounce and false-away probe 9/20 before,
       16/20 after one veto; all sets other than the 117 real bounces, 11 + 12 real
-      mail-client emails and the 1,857-reply label mix are agent-written). Next:
-      (1) real mail (false not-now and wrong-person probe 2026-11-11: 9/20 to 18/20); (2)
-      real human replies and a real rep's call notes to check the reply rules,
+      mail-client emails and the 1,857-reply label mix are agent-written). Real
+      people's mail 2026-11-10 (eval/enron.mjs, Enron corpus, 19,153 replies, README):
+      stops 70% wrong; vetoes tuned on one half, held-out half scored once: wrong
+      stops 30 to 13 per 1,000, right 113 to 108. Next: (1) on the Enron halves, a
+      second reader for the labels, the 124 held-out wrong stops left (third-person
+      "no need", Lotus Notes quote headers) on the tuning half only, and the
+      real "take me off" replies as an opt-out recall set; (2)
+      real replies to outreach and a real rep's call notes to check the reply rules,
       prep rules and follow-up sorter; (3) M2: score a hosted and a local model
       with eval/model.mjs on the fresh sets (needs a key), with a set labelled by
       a person or another model family before any rule change; (4) run the self-
