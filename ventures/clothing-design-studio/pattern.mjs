@@ -25,7 +25,7 @@ const r2 = v => Math.round(v * 100) / 100;
 const KAPPA = 0.5522847498;
 
 export const DRAFTED = Object.freeze(["tee", "longsleeve", "crewneck", "hoodie"]);
-export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { tee: 22, longsleeve: 62, crewneck: 62, hoodie: 63 }, rib: false, hemRibCm: 6, cuffRibCm: 6, hemRibRatio: 0.85, cuffRibRatio: 0.85 });
+export const DEFAULTS = Object.freeze({ seamCm: 1, neckSeamCm: 0.6, hemCm: 2.5, capEaseCm: 1.0, sleeveLenCm: { tee: 22, longsleeve: 62, crewneck: 62, hoodie: 63 }, rib: false, zip: false, zipSeamCm: 1.5, hemRibCm: 6, cuffRibCm: 6, hemRibRatio: 0.85, cuffRibRatio: 0.85 });
 
 /* ---------- geometry ---------- */
 
@@ -128,6 +128,7 @@ function armholeCurve(b, side) {
 }
 
 function bodyPiece(b, side, o) {
+  const open = !!(o.zip && side === "front"); // zip front: cut as two halves, centre-front seam instead of a fold
   const fd = side === "front" ? b.frontDrop : b.backDrop;
   const neck = flat([0, fd], [b.hn * KAPPA, fd], [b.hn, KAPPA * fd], [b.hn, 0], 24);
   const shoulder = [[b.hn, 0], [b.sx, b.sd]];
@@ -138,10 +139,10 @@ function bodyPiece(b, side, o) {
     { kind: "armhole", pts: arm },
     { kind: "side", pts: [[b.Q, b.ad], [b.Q, b.L]] },
     { kind: "hem", pts: [[b.Q, b.L], [0, b.L]] },
-    { kind: "fold", pts: [[0, b.L], [0, fd]] },
+    { kind: open ? "cf" : "fold", pts: [[0, b.L], [0, fd]] },
   ];
   return {
-    name: side, qty: 1, cutOnFold: true, segs,
+    name: side, qty: open ? 2 : 1, cutOnFold: !open, segs,
     armholeLen: len(arm),
     notches: [{ at: arm[Math.round(arm.length * 0.45)], label: side === "front" ? "F1" : "B1" }, { at: [b.sx, b.sd], label: "shoulder" }],
     grain: [[b.Q * 0.5, b.ad + 2], [b.Q * 0.5, b.L - 4]],
@@ -272,7 +273,7 @@ function pocketPiece(g) {
 }
 
 function finish(piece, o) {
-  const allow = { neck: o.neckSeamCm, shoulder: o.seamCm, armhole: o.seamCm, side: o.seamCm, hem: o.hemCm, fold: 0, cap: o.seamCm, sleeveSeam: o.seamCm, sleeveHem: o.hemCm, hoodNeck: o.seamCm, hoodFace: o.faceCm ?? o.hemCm, ribJoin: o.seamCm, hoodCrown: o.seamCm, pocketOpening: o.seamCm + 0.5, pocketJoin: o.seamCm };
+  const allow = { neck: o.neckSeamCm, shoulder: o.seamCm, armhole: o.seamCm, side: o.seamCm, hem: o.hemCm, fold: 0, cf: o.zipSeamCm, cap: o.seamCm, sleeveSeam: o.seamCm, sleeveHem: o.hemCm, hoodNeck: o.seamCm, hoodFace: o.faceCm ?? o.hemCm, ribJoin: o.seamCm, hoodCrown: o.seamCm, pocketOpening: o.seamCm + 0.5, pocketJoin: o.seamCm };
   const ring = [], dists = [];
   piece.segs.forEach(s => {
     const pts = s.pts;
@@ -324,6 +325,10 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     for (const k of ["hemRibRatio", "cuffRibRatio"]) if (!(Number.isFinite(o[k]) && o[k] >= 0.6 && o[k] <= 1)) return { ok: false, error: `${k} must be a number from 0.6 to 1.` };
     o.faceCm = o.hemCm; o.hemCm = o.seamCm; // the band takes the hem allowance's place
   }
+  if (opt.zip) {
+    if (garment !== "hoodie") return { ok: false, error: "A zip front is drafted for the hoodie only." };
+    if (!(Number.isFinite(o.zipSeamCm) && o.zipSeamCm >= 0.5 && o.zipSeamCm <= 4)) return { ok: false, error: "zipSeamCm must be a number from 0.5 to 4." };
+  }
   const b = bodyBlock(g);
   if (o.rib) b.L -= o.hemRibCm;
   if (!(b.Q - b.sx > 3 && b.ad > b.sd + 8 && b.L > b.ad + 10)) return { ok: false, error: "This size and fit leave no room for an armhole and a body length." };
@@ -351,13 +356,19 @@ export function draft(garment, size, { fit = "regular", sizeChart = BODY_CHEST_C
     checks.cuffOpeningCm = r2(sleeveHemWidth(sleeve) * 2); checks.cuffRibLengthCm = r2(ribs[1].ribLen);
     checks.bodyLengthCm = r2(b.L); checks.finishedBodyLengthCm = r2(b.L + o.hemRibCm);
   }
+  const notes = [];
+  if (o.zip) {
+    const fd = front.segs.find(x => x.kind === "cf").pts;
+    checks.zipOpeningCm = r2(len(fd)); // centre-front stitch line, neck to hem (with rib: to the band seam)
+    checks.zipFrontPiecesCut = 2; checks.zipSeamAllowanceCm = o.zipSeamCm;
+    notes.push(`Zip front: cut two front halves (one mirrored), each with a ${o.zipSeamCm} cm centre-front allowance. Buy an open-end zip of about ${Math.ceil((checks.zipOpeningCm + (o.rib ? o.hemRibCm : 0)) / 5) * 5} cm; the stitch line is ${checks.zipOpeningCm} cm before any hem band or hood-neck turn-back.`);
+  }
   if (hood) {
     checks.neckSeamCm = r2(segLen(front, "neck") + segLen(back, "neck"));
     checks.hoodNeckEdgeCm = r2(hood.neckEdgeLen);
     checks.hoodHeightCm = r2(hood.hoodHeight); checks.hoodDepthCm = r2(hood.hoodDepth);
     checks.pocketWidthCm = r2(pocket.pocketW); checks.pocketHeightCm = r2(pocket.pocketH);
   }
-  const notes = [];
   if (checks.capHeightRatio < 0.22) notes.push("The sleeve cap is flat (a drop shoulder); the sleeve will hang with little shaping.");
   if (checks.capHeightRatio > 0.4) notes.push("The sleeve cap is tall; check the armhole depth against the sleeve width.");
   return { ok: true, garment, size, fit, block: b, pieces, checks, notes, seam: { seamCm: o.seamCm, neckSeamCm: o.neckSeamCm, hemCm: o.hemCm } };
