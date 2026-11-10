@@ -1,9 +1,9 @@
 ---
 title: "Changepoint consensus on three more real series: two documented dates the panel misses"
-seo_title: "Changepoint detection on real data: when several settings agree and when they miss"
+seo_title: "Changepoint detection on real data: where settings agree"
 date: 2026-11-10
 tags: [changepoint, time-series, statistics, open-source]
-description: "The free changepoint detector's consensus panel, run on Australian tourist arrivals, Peace Bridge traffic and Australian air passengers: one date found by half the settings, two missed."
+description: "The free changepoint detector's consensus panel on three more real series: one documented date found by half the settings, two missed."
 ---
 
 The [changepoint detector](../../ventures/changepoint-detector/) has a
