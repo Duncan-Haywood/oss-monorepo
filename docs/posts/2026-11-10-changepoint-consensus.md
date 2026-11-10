@@ -3,7 +3,7 @@ title: "Six changepoint settings, one list: which changes do they all agree on?"
 seo_title: "Changepoint detection consensus across settings"
 date: 2026-11-10
 tags: [changepoint-detector, time-series, statistics]
-description: "No one changepoint setting is right on every series, so changepoint-detector now runs six and reports how many agree on each change, with the simulation that measures what that buys."
+description: "changepoint-detector now runs six settings and reports how many agree on each change, with the seeded simulation that measures what that buys."
 ---
 
 Changepoint tools make you choose: plain level model, autocorrelation allowance,
