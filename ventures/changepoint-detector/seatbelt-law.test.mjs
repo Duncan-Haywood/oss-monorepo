@@ -24,3 +24,19 @@ test('real driver casualties: seasonal NB counts find the seat-belt law and a ra
 test('real driver casualties: plain Poisson ignores the clumping and cuts the series into dozens of steps', () => {
   assert.ok(run({ model: 'poisson' }).length > 25);
 });
+
+test('real driver casualties: every Gaussian setup holds February 1983; --log dates it there; --ar1 and --bootstrap drop the 1981-82 dip', () => {
+  const at = (cps) => cps.find((x) => ['1983-01', '1983-02'].includes(x.label));
+  for (const opt of [{ model: 'mean' }, { model: 'mean', log: true }, { model: 'mean', ar1: true }, { model: 'mean', bootstrap: true }]) {
+    const c = at(run(opt));
+    assert.ok(c && c.range95.fromIndex <= TRUTH && TRUTH <= c.range95.toIndex, JSON.stringify(opt));
+  }
+  assert.equal(at(run({ model: 'mean', log: true })).label, '1983-02');
+  assert.equal(run({ model: 'mean' }).length, 8);
+  assert.equal(run({ model: 'mean', log: true }).length, 8);
+  assert.equal(run({ model: 'mean', ar1: true }).length, 5);
+  assert.equal(run({ model: 'mean', bootstrap: true }).length, 6);
+  for (const opt of [{ model: 'mean', ar1: true }, { model: 'mean', bootstrap: true }]) {
+    assert.ok(!run(opt).some((x) => x.label === '1981-12' || x.label === '1982-02'), JSON.stringify(opt));
+  }
+});

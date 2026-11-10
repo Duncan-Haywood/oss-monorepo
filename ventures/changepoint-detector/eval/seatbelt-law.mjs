@@ -11,6 +11,9 @@ const mean = (a) => a.reduce((s, v) => s + v, 0) / a.length;
 console.log(`n ${values.length}; mean before 1983-02 ${mean(values.slice(0, TRUTH)).toFixed(0)}, from 1983-02 ${mean(values.slice(TRUTH)).toFixed(0)}`);
 for (const [name, opt] of [
   ['mean, seasonal 12', { model: 'mean', period: 12 }],
+  ['mean, seasonal 12, --log', { model: 'mean', period: 12, log: true }],
+  ['mean, seasonal 12, --ar1', { model: 'mean', period: 12, ar1: true }],
+  ['mean, seasonal 12, --bootstrap', { model: 'mean', period: 12, bootstrap: true }],
   ['poisson, seasonal 12', { model: 'poisson', period: 12 }],
   ['poisson nb, seasonal 12', { model: 'poisson', period: 12, overdispersion: 'nb' }],
   ['poisson nb, seasonal 12, bends', { model: 'poisson', period: 12, overdispersion: 'nb', trend: 'bends' }],
