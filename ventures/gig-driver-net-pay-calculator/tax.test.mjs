@@ -22,6 +22,14 @@ test('no self-employment tax under $400 of profit', () => {
   assert.equal(selfEmploymentTax(-5000).total, 0);
 });
 
+test('the $400 floor applies to 92.35% of profit, as on Schedule SE', () => {
+  // $420 of profit is $387.87 of net earnings from self-employment: none owed.
+  assert.equal(selfEmploymentTax(420).total, 0);
+  assert.equal(selfEmploymentTax(433).total, 0);
+  // $434 of profit is $400.80 of net earnings: SE tax is due on all of it.
+  close(selfEmploymentTax(434).total, 434 * 0.9235 * 0.153);
+});
+
 test('other wages use up the Social Security base, Medicare keeps going', () => {
   const se = selfEmploymentTax(50000, { otherWages: DEFAULTS_2026.socialSecurityWageBase });
   assert.equal(se.socialSecurity, 0);
