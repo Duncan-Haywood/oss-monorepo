@@ -1,5 +1,9 @@
 # Research log: theism-formal-evidence
 
+## 2026-11-10 · M2 (part): a theorem for every finite property algebra (E10). Prediction and proof sketch written before the check
+
+- **Prediction (H15), from a pen-and-paper proof written before any code ran.** In the E7 to E9 semantics (S5, constant domain, positive set rigid, properties a finite Boolean algebra of world-by-individual cells, which is always the set of unions of the blocks of a partition), Anderson's A1, A2, A3', A5' have a model exactly when some block B is a union of whole individuals (every world's cell of each of them, and nothing else); each such block gives exactly one model (positive = "contains B"), so the number of models of an algebra equals its number of such blocks. Corollaries: A5' never binds; G* is the individuals in B, and they have no contingent property; and no property of the form "p holds" with p true at some worlds and not others is in the algebra, so every proposition the algebra can express is non-contingent. Refuted if the exhaustive search of E8/E9 gives a per-algebra model count that differs from the block count for any partition it covers (all partitions up to 5 cells; 6 cells up to 5 blocks), or if a model has an empty G*.
+
 ## 2026-11-10 · M2 (part): E8 at six cells (E9). Prediction was in the script docstring, not the log, before the run
 
 - **Prediction (H14).** Multi-world models of Anderson's axioms still exist at 3 worlds, in algebras where one individual has only rigid properties; refuted if none at 3 worlds x 2 individuals or 2 x 3 (partitions of at most 5 blocks; the 6-block case has 2^32 positive-set choices and is skipped).
