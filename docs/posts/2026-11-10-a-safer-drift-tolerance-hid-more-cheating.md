@@ -3,7 +3,7 @@ title: "A bigger honest sample made the training referee looser, not safer"
 seo_title: "Calibrating fp16 drift tolerance for verifiable training"
 date: 2026-11-10
 tags: [research, verifiable-training, machine-learning, open-source]
-description: "Setting a replay referee's drift tolerance at the largest honest drift triples it once 40 seeds are sampled, and a 5% shrink of every step then goes unseen. A 99.9th-percentile rule catches it in about a third of jobs."
+description: "A drift tolerance set at the largest honest drift grew 2.9x with 40 seeds and let a 5% shrink of every step pass. A 99.9th-percentile rule catches a third."
 ---
 
 The [verifiable-training-mechanisms](../../research/verifiable-training-mechanisms/)
