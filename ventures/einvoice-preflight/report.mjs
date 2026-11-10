@@ -112,7 +112,17 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         // The official rules, beside the built-in ones. JSON drafts have no XML to check.
         // Loaded on demand: schematron.mjs needs node:fs, which a browser page cannot import.
         const { runSchematron } = await import("./schematron.mjs");
-        const official = xml ? runSchematron(xml) : { status: "unavailable", findings: [] };
+        const { runPlain } = await import("./plain-node.mjs");
+        // PINT (Singapore, Australia/New Zealand) and ZATCA files carry their own rule sets
+        // instead of the EU base, which the Saxon route does not run: the plain-JS runner
+        // does, and also stands in when the Saxon files are not built.
+        let official = { status: "unavailable", findings: [] };
+        if (xml) {
+          const plain = await runPlain(xml);
+          const own = plain.status === "ok" && (plain.sets || []).some((s) => /^(pint|zatca)/.test(s));
+          official = own ? plain : runSchematron(xml);
+          if (!own && official.status !== "ok" && plain.status === "ok") official = plain;
+        }
         schematronStatus = official.status;
         errors.push(...official.findings);
       }
