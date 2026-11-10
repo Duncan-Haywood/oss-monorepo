@@ -206,7 +206,10 @@ flagships:
       real portrait, no real blinks). Next: a trained blink model checked
       against a photographer's picks (wanted: a labelled portrait set). RAW
       stills are scored from the embedded JPEG preview (synthetic containers
-      only, so try real CR2/CR3/NEF/ARW/DNG); developing RAW into graded
+      only, so try real CR2/CR3/NEF/ARW/DNG; since 2026-11-10 lossless SOF3
+      sensor data and non-8-bit frames are not taken for the preview;
+      raw.pixls.us and rawsamples.ch 403 from cloud and exiftool's samples
+      have their previews stripped); developing RAW into graded
       masters is still open. History: ventures/photo-editing/README.md.
   - venture: quick-pick-survey
     why: >-
