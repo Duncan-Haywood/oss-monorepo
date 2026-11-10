@@ -1,5 +1,7 @@
 ---
-title: "Five more trades the bookkeeper now files: locksmiths, florists, tattoo artists, massage therapists, phone repair"
+title: "Five more trades the bookkeeper files: locksmiths, florists, tattoo, massage, phone repair"
+description: "The ai-bookkeeper built-in keywords now file 25 descriptors from five more trades, up from 11 right before; tuned on itself, so it shows coverage, not accuracy."
+tags: [bookkeeping, categorization, open-source]
 date: 2026-11-10
 ---
 
