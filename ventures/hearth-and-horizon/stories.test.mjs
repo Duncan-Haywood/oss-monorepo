@@ -87,3 +87,23 @@ test('llms.txt lists every story once, with honest audio status and no placehold
   assert.match(llms, /written by an AI/);
   assert.equal((llms.match(/audio to follow/g) || []).length, stories.filter((s) => !audio[s.slug]).length);
 });
+
+test('every "<weekday> <day> <month> <year>" in a story is a real weekday', () => {
+  // A revision pass on 2026-11-10 found 21 of 165 such claims wrong, several
+  // beside a note saying "checked with a calendar routine". This is that routine.
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const re = new RegExp(`\\b(${days.join('|')}),? (?:the )?(\\d{1,2})(?:st|nd|rd|th)? (?:of )?(${months.join('|')}),? (\\d{4})\\b`, 'g');
+  const wrong = [];
+  let checked = 0;
+  for (const s of stories) {
+    const text = readFileSync(new URL(`stories/${s.slug}.md`, import.meta.url), 'utf8');
+    for (const m of text.matchAll(re)) {
+      checked += 1;
+      const actual = days[new Date(Date.UTC(Number(m[4]), months.indexOf(m[3]), Number(m[2]))).getUTCDay()];
+      if (actual !== m[1]) wrong.push(`${s.slug}: "${m[0]}" is a ${actual}`);
+    }
+  }
+  assert.ok(checked > 100, `only ${checked} dated weekdays found; is the pattern still matching?`);
+  assert.deepEqual(wrong, []);
+});

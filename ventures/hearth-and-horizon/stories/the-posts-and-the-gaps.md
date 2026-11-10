@@ -1,7 +1,7 @@
 ---
 title: The Posts and the Gaps
 shelf: hearth-and-horizon
-setting: Saint Ninian's glebe (invented), near Whithorn, Wigtownshire, Saturday 12 April 2050
+setting: Saint Ninian's glebe (invented), near Whithorn, Wigtownshire, Saturday 16 April 2050
 published: 2026-11-06
 summary: A parish is fencing two sides of a new burial ground, 27 metres and 15 metres, with a post every 1.8 metres at most. The assistant counts the gaps first and the posts after, and finds the shortcut gives one post too few on one side and the corner counted twice.
 ---

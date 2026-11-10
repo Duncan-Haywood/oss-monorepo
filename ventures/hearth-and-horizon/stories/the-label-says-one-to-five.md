@@ -1,7 +1,7 @@
 ---
 title: The Label Says One to Five
 shelf: hearth-and-horizon
-setting: Saint Nectan's field (invented), near Hartland, Devon, Saturday 26 July 2051
+setting: Saint Nectan's field (invented), near Hartland, Devon, Saturday 29 July 2051
 published: 2026-11-05
 summary: Two helpers read "dilute 1 to 5" on a cordial bottle two different ways, with 150 thirsty people and a heatwave coming. The parish assistant works out the difference, the bottles to buy, and what a bucket of ice does to the taste.
 ---

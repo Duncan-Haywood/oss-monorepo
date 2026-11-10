@@ -97,6 +97,19 @@ figure. Real reps' notes, with their shorthand, are still unmeasured.
 
 ## How well it reads replies
 
+**Real people's mail, 2026-11-10 (the first large real check).** On 19,153 real
+business replies from the Enron corpus, read through the same path as the self-host
+server (`node eval/enron.mjs`), the rules fired a stop (unsubscribe, left the company,
+not interested, out of office, bounce) on 4.2% of them, and about 7 in 10 of those
+stops were wrong: confidentiality footers read as opt-outs, "if you have any questions,
+please contact me" read as a referral, "I left you a voicemail" read as leaving the
+company. Narrow vetoes were written on one half and the other half was scored once:
+wrong stops fell from 291 to 124 per 9,619 replies (30 to 13 per 1,000), right stops
+from 113 to 108, precision 27% to 44%. An auto-reply sent from `postmaster@` is no
+longer read as a bounce. Internal mail, not replies to outreach, and labelled by one
+agent: details and labels in [`eval/README.md`](eval/README.md), "Real mail: the Enron
+corpus".
+
 **Real delivery failures (2026-10-24).** The one real-message check so far: the
 117 bounce and auto-reply messages in flufl.bounce's test data (Apache-2.0,
 copied to [`eval/bounce-corpus/`](eval/bounce-corpus/NOTICE); Sendmail, Postfix,

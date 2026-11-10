@@ -67,7 +67,8 @@ test("the fresh set is reported, not tuned: numbers recorded in README stay as m
   assert.equal(s.n, 40);
   // Scored 15/22/11 on 2026-10-21; the 2026-10-24 "cease ..." patterns moved it to 16/23/10 (see eval/README.md); the 2026-10-25 opt-out patterns to 17/24/9.
   // 2026-11-07: the "quick call" and "who do I talk to" patterns moved it to 18 (see eval/README.md).
-  assert.equal(s.right, 18);
+  // 2026-11-10: the real-mail vetoes (eval/enron.mjs) stopped "Funny you should email, we were just complaining" reading as a referral: 19.
+  assert.equal(s.right, 19);
   assert.equal(s.acted, 24);
   assert.equal(s.guessRight, 9);
 });

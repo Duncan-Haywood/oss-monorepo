@@ -20,7 +20,7 @@ That is enough to read large print.
 But Holy Week comes before the paschal full Moon, and a full Moon from the
 Earth is a new Earth from the Moon. Two days before full, the Earth is 4.4%
 lit, and a simple scattering sphere gives under 1% of full brightness: about
-0.09 lux, with the Sun near noon outside. The dark for Tenebrae has to be made
+0.08 lux, with the Sun near noon outside. The dark for Tenebrae has to be made
 with shutters. Fifteen days later, at new Moon, the full Earth lights the
 chapel and the page can be read.
 
