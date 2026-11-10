@@ -47,7 +47,9 @@ def run_seed(seed):
                     out.append({"seed": seed, "t0": t0, "ref": ref, "s": k,
                                 "drift": float(np.linalg.norm(ws[t0 + k] - wr)),
                                 "seg_norm": float(np.linalg.norm(ws[t0 + k] - ws[t0])),
-                                "step_norm": float(np.mean(norms[t0:t0 + k]))})
+                                "step_norm": float(np.mean(norms[t0:t0 + k])),
+                                "min_norm": float(np.min(norms[t0:t0 + k])),
+                                "last_norm": float(norms[t0 + k - 1])})
     return out
 
 
@@ -74,6 +76,13 @@ def main():
             r = [x for x in rows if x["ref"] == ref and x["s"] == 10 and a <= x["t0"] < b]
             d = np.array([x["drift"] for x in r]); sn = np.array([x["step_norm"] for x in r])
             L.append(f"  s=10 {phase}: median drift {np.median(d):.3e}, median step norm {np.median(sn):.3e}, ratio {np.median(d / sn):.2e}")
+        L.append("  milestone 73: drift against the stalled step's own norm (a stall's displacement is the norm of the step it replaces)")
+        L.append("  s    max drift/min step norm   p99 drift/min   frac of segments with drift > min step norm   late (t>=900) max ratio")
+        for s in SS:
+            r = [x for x in rows if x["ref"] == ref and x["s"] == s]
+            q = np.array([x["drift"] / x["min_norm"] for x in r])
+            lt = np.array([x["drift"] / x["min_norm"] for x in r if x["t0"] >= 900])
+            L.append(f"  {s:<4} {q.max():.3e}                 {np.quantile(q, .99):.3e}      {np.mean(q > 1):.4f}                                       {lt.max():.3e}")
         L.append("")
     open(os.path.join(HERE, "results.txt"), "w").write("\n".join(L) + "\n")
     print("\n".join(L))
