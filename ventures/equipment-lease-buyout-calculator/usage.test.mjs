@@ -125,6 +125,29 @@ test('saveScenario rejects negative and non-numeric values', () => {
   assert.equal(saveScenario(store, { ...SCENARIO, replacementCost: 'lots' }), false);
 });
 
+test('saveScenario rejects a blank field instead of storing it as zero', () => {
+  // Number('') is 0, so a cleared field used to save as 0 and report success.
+  // The calculator refuses the same blank, so the restored comparison would
+  // silently differ from the form the reader saved.
+  for (const field of SCENARIO_FIELDS) {
+    for (const blank of ['', '   ', null]) {
+      const store = new FakeStorage();
+      assert.equal(saveScenario(store, { ...SCENARIO, [field]: blank }), false, `${field}=${JSON.stringify(blank)} was saved`);
+      assert.equal(loadScenario(store), null);
+    }
+  }
+});
+
+test('zero is a legitimate saved and restored value for every field', () => {
+  for (const field of SCENARIO_FIELDS) {
+    const store = new FakeStorage();
+    assert.equal(saveScenario(store, { ...SCENARIO, [field]: 0 }), true, `${field}=0 was refused`);
+    assert.deepEqual(loadScenario(store), { ...SCENARIO, [field]: 0 }, `${field}=0 did not restore`);
+    store.setItem('equipment-lease-buyout-calculator:scenario', JSON.stringify({ ...SCENARIO, [field]: '0' }));
+    assert.equal(loadScenario(store), null, `${field} stored as a string was loaded`);
+  }
+});
+
 test('loadScenario rejects a corrupted stored scenario', () => {
   const store = new FakeStorage();
   store.setItem('equipment-lease-buyout-calculator:scenario', '{not-json');
