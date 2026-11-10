@@ -72,3 +72,11 @@ test("panel-only options without a positive --panel-max are refused, not ignored
     assert.equal(main([file, f, "--panel-max=12ft"]).code, 0, f);
   }
 });
+
+test("two output formats at once are refused, not resolved by whichever comes first", () => {
+  for (const pair of [["--json", "--csv"], ["--csv", "--pdf"], ["--json", "--pdf"]]) {
+    const r = main(["plan.json", ...pair]);
+    assert.equal(r.code, 1, pair.join(" "));
+    assert.match(r.out, /each choose the output format; give only one/);
+  }
+});

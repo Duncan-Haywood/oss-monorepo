@@ -179,9 +179,12 @@ let keyNote = "";
 export const BARE_FLAGS = ["--budget", "--csv", "--deck", "--doors-to-floor", "--dormer", "--double-line", "--drawings", "--drilling", "--drywall", "--eaves", "--electrical", "--example", "--fasteners", "--fireblock", "--fixed-plan", "--floor", "--flooring", "--foundation", "--gang", "--gutters", "--headers", "--help", "--horizontal", "--hvac", "--insulation", "--json", "--level-bids", "--openings", "--orders", "--overhang", "--paint", "--panel-order", "--panel-sheets", "--paver", "--pdf", "--plan-only", "--plumbing", "--proposal", "--pull-lists", "--risk", "--roof", "--schedule", "--schedule-template", "--sensitivity", "--shallow-headers", "--sheathing", "--siding", "--single-line", "--skip-refused", "--stairs", "--stucco", "--trim", "--trim-openings", "--ventilation", "--wall-tile", "--whole-house"];
 export const VALUE_FLAGS = ["--add-board", "--compare", "--door-layer", "--ifc-json", "--orders", "--panel-max", "--rim-lap", "--sheathing-psf", "--stack", "--storey", "--swing", "--units", "--wall-layer", "--window-layer"];
 
+/** @param {string} a @param {string} b @returns {number} */
 function editDistance(a, b) {
+  /** @type {number[]} */
   let prev = Array.from({ length: b.length + 1 }, (_, i) => i);
   for (let i = 1; i <= a.length; i++) {
+    /** @type {number[]} */
     const cur = [i];
     for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
     prev = cur;
@@ -200,7 +203,7 @@ export function unknownFlag(argv) {
     if (eq >= 0 && BARE_FLAGS.includes(name) && !VALUE_FLAGS.includes(name)) return `${name} takes no value (you wrote ${a}). Try ${name} on its own.`;
     if (eq < 0 && VALUE_FLAGS.includes(name) && !BARE_FLAGS.includes(name)) return `${name} needs a value, such as ${name}=...; see --help.`;
     const all = [...BARE_FLAGS, ...VALUE_FLAGS];
-    const near = all.map((f) => [editDistance(name, f), f]).sort((x, y) => x[0] - y[0])[0];
+    const near = /** @type {[number, string][]} */ (all.map((f) => [editDistance(name, f), f])).sort((x, y) => x[0] - y[0])[0];
     return `Unknown option ${name}.${near && near[0] <= 3 ? ` Did you mean ${near[1]}${VALUE_FLAGS.includes(near[1]) && !BARE_FLAGS.includes(near[1]) ? "=..." : ""}?` : ""} --help lists the options.`;
   }
   return "";
@@ -221,6 +224,9 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (flags.has("--help") || flags.has("-h")) return { code: 0, out: HELP };
   const flagErr = unknownFlag(argv);
   if (flagErr) return { code: 1, out: flagErr };
+  // Two output formats at once used to print whichever branch came first, with no word that the other was dropped.
+  const formats = ["--json", "--csv", "--pdf"].filter((f) => flags.has(f));
+  if (formats.length > 1) return { code: 1, out: `${formats.join(" and ")} each choose the output format; give only one.` };
   // A mistyped size must stop the run, not quietly turn the feature off (a "--panel-max=zzz" used to print the plain order).
   for (const [flag, kind] of [["--rim-lap=", "length"], ["--panel-max=", "length"], ["--sheathing-psf=", "number"]]) {
     const raw = argv.find((a) => a.startsWith(flag))?.slice(flag.length);
