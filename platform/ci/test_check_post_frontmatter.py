@@ -11,6 +11,24 @@ GOOD = '---\ntitle: "T"\ndate: 2026-10-24\ndescription: "DDDDDDDDDDDDDDDDDDDDDDD
 
 
 class T(unittest.TestCase):
+    def test_runs_when_copied_alone_into_another_tree(self):
+        # prompts/test_promptctl.py copies this script by itself onto a fixture
+        # tree; an import that only resolves in the real repository crashed it
+        # there, and promptctl read the crash as "no problems" (2026-11-10).
+        import shutil, subprocess, sys
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "platform" / "ci").mkdir(parents=True)
+            (root / "docs" / "posts").mkdir(parents=True)
+            src = Path(__file__).resolve().parent / "check_post_frontmatter.py"
+            shutil.copy(src, root / "platform" / "ci" / src.name)
+            (root / "docs" / "posts" / "2020-01-01-a.md").write_text(
+                f'---\ntitle: T\ndate: 2020-01-01\ndescription: "{"x" * 161}"\ntags: [a]\n---\n')
+            done = subprocess.run([sys.executable, str(root / "platform" / "ci" / src.name), "--root", str(root)],
+                                  capture_output=True, text=True)
+            self.assertEqual(done.returncode, 1, done.stderr)
+            self.assertIn("description is 161", done.stdout)
+
     def test_tag_key_es_plural(self):
         self.assertEqual(tag_key("taxes"), tag_key("tax"))
         self.assertNotEqual(tag_key("cases"), tag_key("cas"))

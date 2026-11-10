@@ -18,7 +18,16 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform" / "pages"))
-from propose_seo_titles import cut as _cut  # noqa: E402
+try:
+    from propose_seo_titles import cut as _cut  # noqa: E402
+except ImportError:
+    # Copied on its own (prompts/test_promptctl.py does, to run it on a
+    # fixture tree) there is no platform/pages beside it. Crashing there made
+    # promptctl read "no problems" and kept prompts-ci red on main for 14 h
+    # (2026-11-10). Without the helper, no title counts as cleanly cut, so a
+    # long title with no seo_title is reported: stricter, never silent.
+    def _cut(title):
+        return None
 REQUIRED = ("title", "date", "description", "tags")
 
 
