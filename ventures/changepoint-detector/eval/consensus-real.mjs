@@ -28,6 +28,9 @@ const SERIES = [
   ['Australian short-term arrivals from the US, quarterly 1981-2012 (log, period 4); Sydney Olympics 2000Q3 and 11 September 2001 (recalled, no source read)', 'au-arrivals-us.csv', 1, { log: true, period: 4 }, ['2000Q3', '2001Q3']],
   ['Peace Bridge monthly traffic, 2003-2015 (log, period 12); US land-border passport rule (WHTI) of 2009-06-01 (data/SOURCE.md) and the 2008-09 recession', 'peace-bridge.csv', 1, { log: true, period: 12 }, ['2008-11', '2009-06']],
   ['Australian air passengers, annual 1970-2016 (log); the 2001 Ansett collapse and 11 September (recalled), dated 2002 by three models earlier', 'ausair.csv', 1, { log: true }, '2002'],
+  // Sixth batch (2026-11-10): a 24-point series and a drifting demographic one.
+  ['Crimean War army disease death rate, monthly 1854-04 to 1856-03 (24 points); the Sanitary Commission arrived March 1855 (Nightingale; recalled, no source read)', 'nightingale-disease.csv', 1, {}, '1855-03'],
+  ['Canada total fertility rate, annual 1931-; the postwar baby boom (from 1946) and the fall after 1959 (recalled, no source read)', 'canada-fertility.csv', 1, {}, ['1946', '1960']],
 ];
 for (const [title, file, col, base, truth] of SERIES) {
   const { labels, values } = load(file, col);

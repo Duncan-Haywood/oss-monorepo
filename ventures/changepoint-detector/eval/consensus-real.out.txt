@@ -170,3 +170,18 @@ Australian air passengers, annual 1970-2016 (log); the 2001 Ansett collapse and 
   1995  3/6  up  most
   2002  3/6  up  most
   2010  3/6  up  most
+
+Crimean War army disease death rate, monthly 1854-04 to 1856-03 (24 points); the Sanitary Commission arrived March 1855 (Nightingale; recalled, no source read)
+  n 24, tolerance 2, settings 6; cuts per setting: 4, 0, 3, 4, 2, 2
+  documented 1855-03: 1855-04 found by 5/6 (most)
+  1854-12  5/6  up  most
+  1855-04  5/6  down  most
+  1854-08  3/6  up  most
+
+Canada total fertility rate, annual 1931-; the postwar baby boom (from 1946) and the fall after 1959 (recalled, no source read)
+  n 38, tolerance 2, settings 6; cuts per setting: 7, 0, 1, 7, 3, 3
+  documented 1946: 1946 found by 4/6 (most)
+  documented 1960: not in the list
+  1946  4/6  up  most
+  1963  4/6  down  most
+  1965  3/6  down  most
