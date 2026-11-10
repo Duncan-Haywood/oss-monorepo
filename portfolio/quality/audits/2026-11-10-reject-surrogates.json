@@ -224,6 +224,8 @@
       "origin": "audit"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14597"
+  ],
   "verdict": "A small, clean, correct numerical reproduction of known reject-option surrogate theory. Every headline number reproduces (results.txt byte-identical on rerun) and matches an independent exact recomputation: the 2d transfer constant (1/10..49/50), 0 minimiser mismatches, and the logistic ratio*delta 0.404..0.375 via the KL identity; an independent SGD reimplementation reproduces E4 within noise. But R1 and R2 are Theorems 1 and 2 of Bartlett & Wegkamp (2008) and the whitepaper calls the proof open, R3 is a known consequence of Frongillo & Waggoner (2021), the R4 negative result is confounded by unequal step schedules and is the one untested part (2/6 mutations survive, both in sgd_scalar), and the stated 1/T logistic rate is wrong. Scores 3/3/2/3/2/1/2, median 2: does not meet the bar (verification and claims below 3)."
 }

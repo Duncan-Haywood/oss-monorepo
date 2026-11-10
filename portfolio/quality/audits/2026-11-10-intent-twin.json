@@ -263,6 +263,8 @@
       "origin": "claims"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14597"
+  ],
   "verdict": "Correct and reproducible: every headline number (gambler's-ruin error and time, twin designs, population floor and error, calibration miss probabilities) was recomputed independently by an exact Markov-chain solve, the exact Beta CDF, an independent Beta Monte Carlo and a math.comb enumeration, and all match results.txt to the printed digits; run.py reproduces results.txt byte for byte. It misses the bar on verification: 4 of 8 seeded mutations survive, all in the calibration code behind the README's section-5 claim. As research it is sound but mostly textbook: results 1-3 are Wald's OC/ASN functions off-design, and the HRI literature on inferring human rationality (Fisac et al. 2018 and successors) is neither cited nor used as a baseline. Claims are honest about limits, with small rounding slips. Scores 4/3/2/3/3/2/2, median 3; does not meet the bar (verification 2)."
 }

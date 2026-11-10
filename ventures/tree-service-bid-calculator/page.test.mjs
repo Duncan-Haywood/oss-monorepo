@@ -183,3 +183,15 @@ test('index links one hop to the forestry-mulching-bid-calculator sibling', () =
   );
   assert.match(index, /forestry mulching bid calculator/i);
 });
+
+test('README lists every usage event the page counts, and every localStorage key it writes', () => {
+  const readme = page('README.md');
+  const events = new Set([...index.matchAll(/count\('([a-z_]+)'/g)].map(m => m[1]));
+  for (const m of index.matchAll(/\? '([a-z_]+)' : '([a-z_]+)'/g)) { events.add(m[1]); events.add(m[2]); }
+  assert.ok(events.size >= 8);
+  for (const e of events) assert.match(readme, new RegExp('`' + e + '`'), `README is missing event ${e}`);
+  assert.doesNotMatch(readme, /only thing stored/);
+  for (const key of ['tree-service-bid', 'tree-service-bid-company', 'tree-service-bid-usage']) {
+    assert.match(readme, new RegExp('`' + key + '`'));
+  }
+});

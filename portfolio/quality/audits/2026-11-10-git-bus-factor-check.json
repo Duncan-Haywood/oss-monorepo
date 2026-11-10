@@ -258,6 +258,8 @@
       "origin": "design"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14597"
+  ],
   "verdict": "A tidy, honest, zero-dependency tool whose arithmetic is right: six independently recomputed numbers (two on a git repo I built, not the author's fixture) match to 4 dp, all 43 tests pass, the served page, llms.txt and download work, and the privacy and misuse disclaimers are good. It does not meet the bar. Measuring inactivity from the newest commit means an abandoned repository shows nobody gone; a folder whose whole team left reads 'shared'; .mailmap is ignored; and 7 of 9 seeded mutations, including every constant the page advertises, leave the tests green. Small fixes (default now = wall clock for the git path, a 'nobody active' status, %aN/%aE, constant-pinning tests) would plausibly lift correctness, verification and fitness to 3."
 }

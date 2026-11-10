@@ -26,40 +26,235 @@
     "domain": "Compared against arborist practice and published cost guides. Sound: DBH-squared as a wood-volume stand-in (basal area = 0.005454 x DBH^2 ft^2, so 24 in is 4x 12 in), markup-then-margin algebra, travel and crane charged once per stop, mobilization minimum. Departures: crane access multiplies removal hours by 2.1 and adds a day rate, whereas a crane is used because it cuts climbing and rigging time; stump grinding is billed at the full crew rate plus chipper and truck instead of a grinder operator and grinder rate, and grows with diameter squared while the trade prices stumps per diameter inch; dump fees are per tree rather than per load or ton; near-power work is a +40% premium with no mention that it needs line-clearance-qualified workers (ANSI Z133) or a utility outage; hour constants are uncited."
   },
   "checks": [
-    {"dimension": "correctness", "what": "Default two-tree stop (24in 60ft backyard oak near house, stump, chip&haul; 12in 40ft street pine, chip on site), default rates", "method": "independent Python recompute with standard markup-then-margin algebra", "command": "node scratchpad/tree-service-bid-calculator/run.mjs; python3 scratchpad/tree-service-bid-calculator/indep.py", "expected": "on-site 15.1616 h, job cost 5141.75, price 6855.67, $190.44/in", "observed": "15.1616 h, 5141.75, 6855.67, 190.44", "result": "pass"},
-    {"dimension": "correctness", "what": "6-inch 10-ft tree falls to the mobilization minimum", "method": "hand: (0.25 x 0.55 = 0.1375 h + 0.667 h travel) x 234 + 0.1375 x 45, x1.15 = 223.52, /0.75 = 298.02 < 450", "command": "python3 scratchpad/tree-service-bid-calculator/indep.py", "expected": "margin 298.02, price 450, minimumApplied true", "observed": "298.02, 450, true", "result": "pass"},
-    {"dimension": "correctness", "what": "30in 70ft hardwood crane removal near power, dead, log haul, proposed $5,000", "method": "independent Python recompute", "command": "python3 scratchpad/tree-service-bid-calculator/indep.py", "expected": "41.67 h, job 15027.57, price 20036.76, proposed margin -200.55%", "observed": "41.67 h, 15027.57, 20036.76, -200.55%", "result": "pass"},
-    {"dimension": "correctness", "what": "Default 24in 60ft backyard oak price vs market", "method": "HomeAdvisor tree-removal cost guide: 60-80 ft tree $800-$1,500 (web search 2026-11-10)", "command": "grep -n '6,529.85' vs-a-flat-per-inch-rate.html", "expected": "roughly $1,000-$3,000 with backyard, structure, stump and haul extras", "observed": "$6,529.85", "result": "fail"},
-    {"dimension": "correctness", "what": "Default 24in stump grind cost vs market", "method": "consumer cost guides: stump grinding $2-$5 per diameter inch (web search 2026-11-10)", "command": "node -e \"import('./calc.mjs').then(m=>console.log(m.stumpGrindHours(24)))\" (1.8 h x (234+45) = $502 direct)", "expected": "$48-$120", "observed": "$502 direct cost, about $770 after overhead and margin", "result": "fail"},
-    {"dimension": "correctness", "what": "vs-a-flat-per-inch page: street pine cost, price and per-inch rate", "method": "hand: 0.85 x 0.8 = 0.68 h; (0.68+0.667) x 234 + 0.68 x 45 = 345.72; x1.15 = 397.58; /0.75 = 530.10; /12 = 44.18", "command": "sed 's/<[^>]*>//g' vs-a-flat-per-inch-rate.html | grep 397.58", "expected": "397.58, 530.10, 44.18", "observed": "397.58, 530.10, 44.18", "result": "pass"},
-    {"dimension": "verification", "what": "Full test suite", "method": "run", "command": "node --test '*.test.mjs'", "expected": "all pass", "observed": "142 pass, 0 fail", "result": "pass"},
-    {"dimension": "claims", "what": "README privacy: only a usage tally is stored", "method": "compare with share.mjs saveBid and index.html FAQ", "command": "grep -n 'only thing stored' README.md; grep -n 'saveBid' share.mjs", "expected": "README lists every stored item", "observed": "bid and business block are also stored; README omits them", "result": "fail"},
-    {"dimension": "claims", "what": "README usage events list", "method": "grep count() calls", "command": "grep -n \"count('\" index.html", "expected": "5 events listed match the page", "observed": "page emits 8 (adds link_copied, proposal_printed, company_forgotten)", "result": "fail"},
-    {"dimension": "claims", "what": "llms.txt URLs", "method": "served file", "command": "curl -s https://marisstella.app/tree-service-bid-calculator/llms.txt", "expected": "marisstella.app URLs", "observed": "marisstella.app URLs (source github.io rewritten at deploy)", "result": "pass"},
-    {"dimension": "claims", "what": "Disclaimer and non-affiliation on pages", "method": "read pages", "command": "sed 's/<[^>]*>//g' vs-singleops.html | grep -i 'warranty\\|affiliated'", "expected": "present", "observed": "present", "result": "pass"},
-    {"dimension": "fitness", "what": "Can the owner replace hour factors with their own timed crews", "method": "inspect page inputs", "command": "grep -n -i 'factor\\|multiplier' index.html | grep -i input", "expected": "editable species/access/stump factors", "observed": "none; factors are constants in calc.mjs", "result": "fail"},
-    {"dimension": "completeness", "what": "Live page", "method": "HTTP", "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/tree-service-bid-calculator/", "expected": "200", "observed": "200", "result": "pass"}
+    {
+      "dimension": "correctness",
+      "what": "Default two-tree stop (24in 60ft backyard oak near house, stump, chip&haul; 12in 40ft street pine, chip on site), default rates",
+      "method": "independent Python recompute with standard markup-then-margin algebra",
+      "command": "node scratchpad/tree-service-bid-calculator/run.mjs; python3 scratchpad/tree-service-bid-calculator/indep.py",
+      "expected": "on-site 15.1616 h, job cost 5141.75, price 6855.67, $190.44/in",
+      "observed": "15.1616 h, 5141.75, 6855.67, 190.44",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "6-inch 10-ft tree falls to the mobilization minimum",
+      "method": "hand: (0.25 x 0.55 = 0.1375 h + 0.667 h travel) x 234 + 0.1375 x 45, x1.15 = 223.52, /0.75 = 298.02 < 450",
+      "command": "python3 scratchpad/tree-service-bid-calculator/indep.py",
+      "expected": "margin 298.02, price 450, minimumApplied true",
+      "observed": "298.02, 450, true",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "30in 70ft hardwood crane removal near power, dead, log haul, proposed $5,000",
+      "method": "independent Python recompute",
+      "command": "python3 scratchpad/tree-service-bid-calculator/indep.py",
+      "expected": "41.67 h, job 15027.57, price 20036.76, proposed margin -200.55%",
+      "observed": "41.67 h, 15027.57, 20036.76, -200.55%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Default 24in 60ft backyard oak price vs market",
+      "method": "HomeAdvisor tree-removal cost guide: 60-80 ft tree $800-$1,500 (web search 2026-11-10)",
+      "command": "grep -n '6,529.85' vs-a-flat-per-inch-rate.html",
+      "expected": "roughly $1,000-$3,000 with backyard, structure, stump and haul extras",
+      "observed": "$6,529.85",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Default 24in stump grind cost vs market",
+      "method": "consumer cost guides: stump grinding $2-$5 per diameter inch (web search 2026-11-10)",
+      "command": "node -e \"import('./calc.mjs').then(m=>console.log(m.stumpGrindHours(24)))\" (1.8 h x (234+45) = $502 direct)",
+      "expected": "$48-$120",
+      "observed": "$502 direct cost, about $770 after overhead and margin",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "vs-a-flat-per-inch page: street pine cost, price and per-inch rate",
+      "method": "hand: 0.85 x 0.8 = 0.68 h; (0.68+0.667) x 234 + 0.68 x 45 = 345.72; x1.15 = 397.58; /0.75 = 530.10; /12 = 44.18",
+      "command": "sed 's/<[^>]*>//g' vs-a-flat-per-inch-rate.html | grep 397.58",
+      "expected": "397.58, 530.10, 44.18",
+      "observed": "397.58, 530.10, 44.18",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Full test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "142 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README privacy: only a usage tally is stored",
+      "method": "compare with share.mjs saveBid and index.html FAQ",
+      "command": "grep -n 'only thing stored' README.md; grep -n 'saveBid' share.mjs",
+      "expected": "README lists every stored item",
+      "observed": "bid and business block are also stored; README omits them",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README usage events list",
+      "method": "grep count() calls",
+      "command": "grep -n \"count('\" index.html",
+      "expected": "5 events listed match the page",
+      "observed": "page emits 8 (adds link_copied, proposal_printed, company_forgotten)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "llms.txt URLs",
+      "method": "served file",
+      "command": "curl -s https://marisstella.app/tree-service-bid-calculator/llms.txt",
+      "expected": "marisstella.app URLs",
+      "observed": "marisstella.app URLs (source github.io rewritten at deploy)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer and non-affiliation on pages",
+      "method": "read pages",
+      "command": "sed 's/<[^>]*>//g' vs-singleops.html | grep -i 'warranty\\|affiliated'",
+      "expected": "present",
+      "observed": "present",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Can the owner replace hour factors with their own timed crews",
+      "method": "inspect page inputs",
+      "command": "grep -n -i 'factor\\|multiplier' index.html | grep -i input",
+      "expected": "editable species/access/stump factors",
+      "observed": "none; factors are constants in calc.mjs",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Live page",
+      "method": "HTTP",
+      "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/tree-service-bid-calculator/",
+      "expected": "200",
+      "observed": "200",
+      "result": "pass"
+    }
   ],
   "mutations": [
-    {"where": "ventures/tree-service-bid-calculator/calc.mjs:79", "change": "(diameter/12) ** 2 -> ** 1 in stumpGrindHours", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "ventures/tree-service-bid-calculator/calc.mjs:185", "change": "jobCost / (1 - m) -> jobCost * (1 + m)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "ventures/tree-service-bid-calculator/calc.mjs:181", "change": "onSiteHours * equipmentHourly -> laborHours * equipmentHourly", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "ventures/tree-service-bid-calculator/calc.mjs:44", "change": "deadHazard premium 0.2 -> 0.3", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "ventures/tree-service-bid-calculator/calc.mjs:16", "change": "MIN_HEIGHT_FACTOR 0.55 -> 0.5", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "ventures/tree-service-bid-calculator/calc.mjs:145", "change": "haul share on removalHours instead of baseRemovalHours", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
-    {"where": "ventures/tree-service-bid-calculator/calc.mjs:187", "change": "minimumApplied tolerance 1e-9 -> 1e9", "caught": true, "test_cmd": "node --test '*.test.mjs'"}
+    {
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:79",
+      "change": "(diameter/12) ** 2 -> ** 1 in stumpGrindHours",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:185",
+      "change": "jobCost / (1 - m) -> jobCost * (1 + m)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:181",
+      "change": "onSiteHours * equipmentHourly -> laborHours * equipmentHourly",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:44",
+      "change": "deadHazard premium 0.2 -> 0.3",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:16",
+      "change": "MIN_HEIGHT_FACTOR 0.55 -> 0.5",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:145",
+      "change": "haul share on removalHours instead of baseRemovalHours",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:187",
+      "change": "minimumApplied tolerance 1e-9 -> 1e9",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
   ],
   "defects": [
-    {"severity": "high", "what": "Default hour factors make a typical 24-inch 60-ft backyard oak about $6,530, roughly 4x published market ranges ($800-$1,500 for 60-80 ft trees), and the factors cannot be edited on the page, so a user acting on the default price loses the job or overcharges", "where": "ventures/tree-service-bid-calculator/calc.mjs:141", "category": "source-data", "origin": "spec"},
-    {"severity": "high", "what": "Stump grinding is billed at the whole-crew loaded rate plus chipper/truck hourly and grows with diameter squared: a 24-inch stump costs $502 direct (~$770 priced) vs $2-$5 per diameter inch in the trade, while the code comment claims a two-person crew", "where": "ventures/tree-service-bid-calculator/calc.mjs:144", "category": "domain-rule", "origin": "spec"},
-    {"severity": "medium", "what": "Crane access multiplies removal hours by 2.1 on top of a crane day rate; a crane is hired because it reduces climbing and rigging hours, so crane jobs are double-charged (30-inch crane tree: 41.7 crew-hours, $20k)", "where": "ventures/tree-service-bid-calculator/calc.mjs:31", "category": "domain-rule", "origin": "spec"},
-    {"severity": "medium", "what": "Species, access, hazard, haul and stump-grind factors are hard-coded with no page input, though the page tells the owner to 'time your own crews'", "where": "ventures/tree-service-bid-calculator/calc.mjs:19", "category": "scope-gap", "origin": "spec"},
-    {"severity": "medium", "what": "README privacy section says the only thing stored is the usage tally, but the bid and the contractor's business details are also saved to localStorage", "where": "ventures/tree-service-bid-calculator/README.md:82", "category": "stale-docs", "origin": "maintenance"},
-    {"severity": "low", "what": "README usage events list omits link_copied, proposal_printed and company_forgotten", "where": "ventures/tree-service-bid-calculator/README.md:89", "category": "stale-docs", "origin": "maintenance"},
-    {"severity": "low", "what": "Uncited claim that grind hours are 'in the range a two-person grind crew actually spends'", "where": "ventures/tree-service-bid-calculator/index.html:235", "category": "overclaim", "origin": "claims"},
-    {"severity": "low", "what": "deadHazard premium has no test: changing 0.2 to 0.3 leaves all 142 tests green", "where": "ventures/tree-service-bid-calculator/calc.mjs:44", "category": "untested-core", "origin": "tests"},
-    {"severity": "low", "what": "Dump fee is per tree regardless of size, not per load or ton", "where": "ventures/tree-service-bid-calculator/calc.mjs:147", "category": "scope-gap", "origin": "spec"}
+    {
+      "severity": "high",
+      "what": "Default hour factors make a typical 24-inch 60-ft backyard oak about $6,530, roughly 4x published market ranges ($800-$1,500 for 60-80 ft trees), and the factors cannot be edited on the page, so a user acting on the default price loses the job or overcharges",
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:141",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "high",
+      "what": "Stump grinding is billed at the whole-crew loaded rate plus chipper/truck hourly and grows with diameter squared: a 24-inch stump costs $502 direct (~$770 priced) vs $2-$5 per diameter inch in the trade, while the code comment claims a two-person crew",
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:144",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Crane access multiplies removal hours by 2.1 on top of a crane day rate; a crane is hired because it reduces climbing and rigging hours, so crane jobs are double-charged (30-inch crane tree: 41.7 crew-hours, $20k)",
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:31",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Species, access, hazard, haul and stump-grind factors are hard-coded with no page input, though the page tells the owner to 'time your own crews'",
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:19",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "README privacy section says the only thing stored is the usage tally, but the bid and the contractor's business details are also saved to localStorage",
+      "where": "ventures/tree-service-bid-calculator/README.md:82",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "README usage events list omits link_copied, proposal_printed and company_forgotten",
+      "where": "ventures/tree-service-bid-calculator/README.md:89",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Uncited claim that grind hours are 'in the range a two-person grind crew actually spends'",
+      "where": "ventures/tree-service-bid-calculator/index.html:235",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "deadHazard premium has no test: changing 0.2 to 0.3 leaves all 142 tests green",
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:44",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Dump fee is per tree regardless of size, not per load or ton",
+      "where": "ventures/tree-service-bid-calculator/calc.mjs:147",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
   ],
-  "fix_prs": [],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14597"
+  ],
   "verdict": "The arithmetic is exact: six outputs recomputed independently (three scenarios plus the comparison page's pine) match calc.mjs to the cent, and the suite (142 tests) caught 6 of 7 seeded mutations. The structure (DBH-squared volume, access and hazards, travel and crane once per stop, markup then margin, minimum) is sound. The numbers it shows are not. With its own defaults it prices a 24-inch backyard oak at about four times published market ranges and a stump grind at five to ten times the per-inch trade rate. It bills grinding at the whole-crew rate, double-charges crane jobs, and gives the owner no way to replace the fixed hour factors with their own timings. The README privacy section is also stale. A tree-service owner would use the layout and throw away the price. It does not meet the bar (correctness 2, claims 2)."
 }
