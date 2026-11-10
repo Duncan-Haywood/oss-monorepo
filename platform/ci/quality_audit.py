@@ -93,6 +93,29 @@ def load_audits(directory: Path = AUDITS) -> list[dict]:
     return out
 
 
+def remote_audits(local: list[dict], ref: str = "origin/main") -> list[dict]:
+    """Audits on `ref` this checkout lacks (a round merged after the clone was made).
+
+    Fail-soft: no git, no ref or no network-free answer returns []. Reads the
+    local ref only; it does not fetch, so `git fetch origin main` first for a
+    current answer."""
+    import subprocess
+    rel = AUDITS.relative_to(ROOT).as_posix()
+    try:
+        names = subprocess.run(["git", "ls-tree", "--name-only", ref, rel + "/"], capture_output=True, text=True, timeout=20, cwd=ROOT).stdout.split()
+        have = {a["_file"] for a in local}
+        out = []
+        for n in names:
+            if n.endswith(".json") and Path(n).name not in have:
+                txt = subprocess.run(["git", "show", f"{ref}:{n}"], capture_output=True, text=True, timeout=20, cwd=ROOT).stdout
+                data = json.loads(txt)
+                data["_file"] = Path(n).name
+                out.append(data)
+        return out
+    except Exception:
+        return []
+
+
 def last_audited(audits: list[dict]) -> dict[str, str]:
     last: dict[str, str] = {}
     for a in audits:
@@ -322,7 +345,8 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     if args.cmd == "sample":
-        picks = draw(args.seed, args.k, args.k_platform)
+        local = load_audits()
+        picks = draw(args.seed, args.k, args.k_platform, audits=local + remote_audits(local))
         if args.json:
             print(json.dumps({"seed": args.seed, "subjects": picks}, indent=1))
         else:

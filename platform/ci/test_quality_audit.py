@@ -114,6 +114,13 @@ class QualityAuditTest(unittest.TestCase):
         assert "ventures/b" not in q.last_audited(rows) and "ventures/a" in q.last_audited(rows)
 
 
+    def test_remote_audits_reads_a_ref_and_fails_soft(self):
+        # a ref that does not exist must give [] (no crash), and files already local are not repeated
+        assert q.remote_audits([], ref="no-such-ref-xyz") == []
+        local = q.load_audits()
+        extra = q.remote_audits(local, ref="HEAD")
+        assert all(a["_file"] not in {l["_file"] for l in local} for a in extra)
+
     def test_population_reads_the_repository(self):
         pop = q.population()
         assert pop["flagship"] and all(p.startswith("ventures/") for p in pop["flagship"])
