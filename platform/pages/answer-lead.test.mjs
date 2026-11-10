@@ -53,6 +53,7 @@ const PILOTS = {
   'home-office-deduction-calculator': async (m) => [m.SIMPLIFIED_RATE, m.SIMPLIFIED_MAX_SQFT, m.SIMPLIFIED_MAX],
   'sep-ira-contribution-calculator': async (m) => [m.LIMITS_2026.annualAdditions, m.LIMITS_2026.compensationLimit],
   'social-security-benefits-tax-calculator': async (m) => [m.BASES.single.b1, m.BASES.single.b2, m.BASES.mfj.b1, m.BASES.mfj.b2], // statutory base amounts, IRC 86(b)
+  'medicare-irmaa-cliff-calculator': async (m) => [m.tiers('single')[0].to, m.tiers('mfj')[0].to, m.tiers('single').at(-1).from, m.tiers('mfj').at(-1).from, m.STANDARD_PART_B, m.tiers('single')[1].partBSurcharge, m.tiers('single').at(-1).partBSurcharge], // thresholds, standard Part B, first-tier and top-tier surcharges
   'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
 };
 
