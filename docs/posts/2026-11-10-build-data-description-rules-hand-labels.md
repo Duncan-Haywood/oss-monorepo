@@ -2,7 +2,7 @@
 title: "Do keyword rules read a building permit correctly? 60% before a check, 85% after"
 seo_title: "Classifying building permit descriptions: keyword rules vs hand labels"
 date: 2026-11-10
-description: "Keyword rules for Chicago and Seattle building permit descriptions agreed with hand labels on 60% and 78% of held-out rows. A revision written against the errors reached 85% and 95%."
+description: "Hand labels show keyword rules read Chicago and Seattle permit descriptions right 60% and 78% of the time; a revision reaches 85% and 95% on held-out rows."
 tags: [research, build-data, construction]
 ---
 
@@ -32,4 +32,6 @@ On the held-out rows the revision was the only one right on 40 Chicago and 27 Se
 
 **Caveats.** There is one labeller (the agent that ran the session), so there is no inter-rater agreement yet. Each year's sample comes from the rows the open-data API returned at fixed offsets, not a uniform draw. Only the two cities whose structured fields are empty were checked.
 
-**Why it matters.** Earlier transfer results showed that cost, description length and calendar fields carry across cities. They could not show whether the kind of work does, because the class feature was mostly "other". With rules that agree with a reader 85 to 95% of the time, that test can now be run. The evaluation script is `research/build-data/src/desc_eval.py`, and the full numbers are in `research/build-data/results/desc_rules_eval.json` and section 4.4b of the paper draft.
+**First use.** The cleaner class went straight into the cross-city test. A model trained on Chicago, San Francisco and Austin was used to predict Seattle's 2024 application-to-issue times. Its 90th-percentile error was 27.4% worse than Seattle's own baseline with the old class. It got worse, 41.7%, with the unchecked rules, and better, 15.9%, with the revised ones. That is one test year with three seeds.
+
+**Why it matters.** Earlier transfer results showed that cost, description length and calendar fields carry across cities. They could not show whether the kind of work does, because the class feature was mostly "other". With rules that agree with a reader 85 to 95% of the time, that test now means something, and its first run is above. The evaluation script is `research/build-data/src/desc_eval.py`, and the full numbers are in `research/build-data/results/desc_rules_eval.json` and section 4.4b of the paper draft.

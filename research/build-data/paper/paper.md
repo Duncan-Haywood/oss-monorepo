@@ -280,6 +280,16 @@ Seattle, against 60.0% and 78.0% for the original rules (exact McNemar p 4e-10 a
 labeller and a non-uniform draw within each year limit these numbers; they show the original
 rules were too noisy to test whether a work type transfers, and the revised rules are usable.
 
+With a work type, H4 for Seattle (2024 test, 3 seeds, `../results/transfer_seattle_*_2024_4city_cascade*.json`)
+changes where the class matters. The class overlap between Seattle and its sources' training years,
+without "other", rises from 0.006 to 0.50. For application-to-issue the q0.9 transfer penalty is
++27.4% with the permit-type class, +41.7% with the noisy original rules, and +15.9% (CI still
+above zero) with the revised rules, whose interval covers 0.755 against 0.644. Issue-to-completion
+q0.1 and q0.5 stay about 10 to 11% better than the baseline in every configuration, and q0.9 stays
+within noise of it. So part of the upper-tail transfer gap was a class problem, and a noisy class
+did more harm than none. One test year and one held-out city so far; the three configurations are
+not yet compared with each other by a paired bootstrap.
+
 ### 4.5 Pooled model plus a small local sample (H5 holds; secondary refuted)
 
 Five draws of the local rows, source rows capped at 100,000 per city, a2i only.

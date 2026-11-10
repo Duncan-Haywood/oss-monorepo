@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtJ3mT4zndKVnzou2QP",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T21:06:43Z",
+  "ended": "2026-11-10T21:34:34Z",
+  "wall_minutes": 45.09,
+  "tokens_in": 13737343,
+  "tokens_out": 55542,
+  "cost_usd": 5.3994,
+  "tool_calls": 90,
+  "task": "build-data programme, session 71: validate the description work-type rules and run H4 with a work-type class",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14606",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "A pull started before the loader edit wrote only desc_class; killed and restarted it (about 6 minutes lost).",
+    "The first sampling query with $order and $where timed out after 120 s on Chicago; dropping $order fixed it."
+  ],
+  "integrity_issues": [
+    "The hand labels come from one labeller, the agent itself. It labelled from text without seeing rule output and wrote the protocol down, but there is no inter-rater check; the LOG, paper and post say so."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '1957/40 runs toward the next review' yet did not route to review; the counter looks stale or means something else."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says to background pyenv.py; it silently tried /usr/local python3, then python3.12, for 10+ minutes while python3.13 already had every package. Probing each interpreter first would have saved the wait."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/build-data/LOG.md (session 70 plan)",
+      "why": "Session 70 proposed hand-labelling about 200 descriptions per city to measure accuracy; I also wrote revised rules from the dev-set errors and drew a second, held-out year to score them without bias.",
+      "did": "dev 2023 (200 per city) plus held-out 2022 (150 per city), and a v2 rule set beside the pre-registered v1",
+      "result": "v1 60%/78% vs v2 85%/95% held out; both sets of predictions held"
+    },
+    {
+      "file": "research/build-data/results/transfer_seattle_*_2024_4city.json",
+      "why": "The same-pull type-only rerun changed i2c numbers by up to 1.6 points (feed drift), so I kept session 64's committed files and quoted the rerun in LOG.md only.",
+      "did": "restored committed files",
+      "result": "no historical number silently changed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-build-data-description-rules-hand-labels.md",
+    "research/build-data/LOG.md session 71",
+    "research/build-data/paper/paper.md 4.4b"
+  ],
+  "goal": null,
+  "notes": "Socrata reachable 21:08 UTC (Austin timed out on a 20 s probe but pulled fine). Tests: python3.13 -m pytest research/build-data/tests -> 78 passed, 2 skipped (before final edits; rerun before merge). build.py ok, check_md_links ok. Held-out accuracy v1/v2: Chicago 0.600/0.853, Seattle 0.780/0.953. Seattle 2024 a2i q0.9 transfer: type +27.4%, v1 cascade +41.7%, v2 cascade +15.9%.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3934992c-9273-50fe-83f7-51ac67eab2cc",
+    "transcripts": 1,
+    "first": "2026-11-10T21:06:43Z",
+    "last": "2026-11-10T21:51:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 162,
+        "output": 55542,
+        "thinking": 16798,
+        "cache_read": 13539680,
+        "cache_write_5m": 0,
+        "cache_write_1h": 197501,
+        "api_equivalent_usd": 5.3994,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 162,
+      "output": 55542,
+      "thinking": 16798,
+      "cache_read": 13539680,
+      "cache_write_5m": 0,
+      "cache_write_1h": 197501,
+      "api_equivalent_usd": 5.3994,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 85,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 45.09,
+      "active_minutes": 45.09,
+      "model_minutes": 11.33,
+      "tool_minutes": 33.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "hand-labelling 700 permit descriptions, writing and testing rule revisions, 6 model runs and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 185.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

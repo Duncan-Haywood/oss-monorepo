@@ -1,6 +1,6 @@
 # build-data log
 
-## Session 71, 2026-11-10: the description rules measured against hand labels (v1 60% / 78% held out, revised v2 85% / 95%)
+## Session 71, 2026-11-10: the description rules measured against hand labels (v1 60% / 78% held out, revised v2 85% / 95%), and the first transfer run with a work-type class
 
 Why: session 70 wrote description keyword rules (`classmap.DESC_RULES`) without classifying a single real description, and noted that its P1 measures coverage, not correctness. The Socrata hosts answered this session (Chicago, SF, Seattle 200 at 21:08 UTC; Austin timed out on the first probe).
 - New `src/desc_eval.py` (stdlib). `sample` draws applications whose permit_type and work_class both map to "other" (the rows the description must rescue) from one year in Chicago and Seattle, and keeps the text outside git; `score` scores the rules against hand labels and writes `results/desc_rules_eval.json` with each row's (label, v1, v2) codes so the numbers recompute from git alone. Labels: `results/desc_labels_2023.txt`, `results/desc_labels_2022.txt` (codes only; the protocol is in the script's docstring).
@@ -17,7 +17,25 @@ Why: session 70 wrote description keyword rules (`classmap.DESC_RULES`) without 
 - So session 70's rules were wrong on two rows in five in Chicago; the session 70 predictions P1 to P4 are still scored on them below (they were pre-registered on v1), and the revised rules get their own run.
 - The loader now writes `desc_class_v2` beside `desc_class`; `transfer.py --classes cascade2` uses it, and `other_vocab.py` reports both.
 Prediction for the v2 run (written before any transfer run with either rule set; same test year, seeds and thresholds as session 70's P1 to P4): (P1') the v2 cascade gives a class other than "other" to at least half of the permit-type "other" rows in Chicago and in Seattle; (P2') Seattle a2i overlap with its source mix on the training years, without "other", is at least 0.30; (P3') Seattle a2i transfer is still worse than the own-city baseline at q0.9 (CI above zero); (P4') Seattle i2c transfer at q0.5 moves less than 3 points from the type-only run.
-- Limits: one labeller (the agent); samples are the first rows Socrata returns for the year at the chosen offsets, shuffled, not a uniform draw over the year; only Chicago and Seattle are checked (SF and Austin are mostly classed by their structured fields).
+- Limits (labels): one labeller (the agent); samples are the first rows Socrata returns for the year at the chosen offsets, shuffled, not a uniform draw over the year; only Chicago and Seattle are checked (SF and Austin are mostly classed by their structured fields).
+
+Outcome, fresh four-feed pull 2026-11-10 21:17 to 21:33 UTC (row counts as session 69; `results/manifest.json` unchanged), `python3.13 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2024 --classes {cascade,cascade2,type}`. Relative change of mean pinball loss against Seattle's own per-type baseline, 95% week-block bootstrap of the difference in days (`results/transfer_seattle_{a2i,i2c}_2024_4city_{cascade,cascade2}.json`; test rows 5,541 a2i and 4,313 i2c; 3 seeds). "type" is the same-pull rerun of the session 64 configuration; its a2i numbers reproduce session 64 exactly, its i2c numbers differ by up to 1.6 points (the Seattle feed changed since), so the committed session 64 files are left as they were and the rerun is quoted here only.
+
+| target | classes | q0.1 | q0.5 | q0.9 | 80% coverage (baseline 0.890 / 0.882) | class overlap with sources, without "other" |
+|---|---|---|---|---|---|---|
+| a2i | type (rerun) | +0.0% (CI spans 0) | +0.7% (spans 0) | +27.4% [7.7, 10.6 d] | 0.644 | 0.006 |
+| a2i | cascade (v1) | -0.0% [-0.01, -0.00 d] | +2.2% [0.6, 1.4 d] worse | +41.7% [12.1, 15.9 d] | 0.703 | 0.512 |
+| a2i | cascade2 (v2) | -0.1% [-0.01, -0.00 d] | -0.5% (spans 0) | +15.9% [3.8, 6.8 d] | 0.755 | 0.501 |
+| i2c | type (rerun) | -8.4% [-2.9, -1.8 d] | -10.4% [-11.2, -7.3 d] | -3.5% (spans 0) | 0.723 | 0.002 |
+| i2c | cascade (v1) | -10.1% [-3.3, -2.4 d] | -11.2% [-11.6, -8.0 d] | +1.2% (spans 0) | 0.816 | 0.449 |
+| i2c | cascade2 (v2) | -10.9% [-3.5, -2.6 d] | -11.4% [-11.9, -8.2 d] | +1.2% (spans 0) | 0.797 | 0.448 |
+
+- Session 70 predictions (v1 rules), all four held: P1 the cascade classes 71.8% of Chicago's and 78.2% of Seattle's permit-type "other" rows (`results/other_vocab.md`); P2 Seattle a2i overlap without "other" is 0.512 (from 0.006); P3 a2i q0.9 transfer still worse (+41.7%, CI above zero); P4 i2c q0.5 moves 0.5 points from the committed type-only run (-10.7% to -11.2%; 0.8 from the same-pull rerun).
+- v2 predictions, all four held: P1' 72.4% and 92.4%; P2' 0.501; P3' +15.9%, CI above zero; P4' -11.4% (0.7 points from -10.7%, 1.0 from the rerun).
+- Not predicted: the work type matters for the upper tail. With the noisy v1 class the a2i q0.9 penalty grows (+27.4% to +41.7%) and q0.5 turns significantly worse; with the v2 class it falls to +15.9% and coverage rises from 0.644 to 0.755. So session 70's reading of P3 ("the upper-tail gap is a duration-distribution mismatch, not a class problem") is only partly right: P3 held, but about two fifths of the q0.9 gap (27.4 to 15.9 points) goes with a cleaner class. Same-pull own-city boosted models gain too (a2i q0.1 -5.5% to -9.6%, i2c q0.9 -3.6% to -5.2%).
+- i2c q0.9 does not improve: -3.5% (type) to +1.2% (both cascades), all spanning zero.
+- Limits: one test year, 3 seeds, Seattle only; no interval on the difference between class configurations (each is compared with the baseline, not with each other); the v2 rules were written against 2023 descriptions, the early-stopping year here, never against the 2024 test rows.
+Next: the same three class configurations for Seattle 2022 and 2023 and with Chicago and Austin held out; a paired bootstrap of v2 against type-only transfer; a second labeller for the 2022 sample; full-model width bootstrap.
 
 ## Session 70, 2026-11-10: the loader now keeps a work-type class from the description (feeds unreachable again; rerun prediction written)
 

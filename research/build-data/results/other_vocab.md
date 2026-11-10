@@ -21,6 +21,12 @@ Work class of those 'other' rows (and the class the same keyword map would give 
 | easy permit web | 37,003 | 7.8% | other |
 | conveyance device permit | 14,871 | 3.1% | other |
 
+Cascade class (permit_type, then work_class, then description; session 70 rules): 71.8% of the 322,927 permit-type 'other' rows get a class; 'other' falls to 19.2% of rows.
+
+
+Cascade class (permit_type, then work_class, then description; session 71 rules): 72.4% of the 322,927 permit-type 'other' rows get a class; 'other' falls to 18.8% of rows.
+
+
 ## sf: 0.2% of 375,496 rows in 'other' (2 of 9 raw types)
 
 | raw permit_type | rows | share |
@@ -33,6 +39,12 @@ Work class of those 'other' rows (and the class the same keyword map would give 
 | work_class | rows | share of city | class from work_class |
 |---|---|---|---|
 | (empty) | 725 | 0.2% | other |
+
+Cascade class (permit_type, then work_class, then description; session 70 rules): 90.9% of the 725 permit-type 'other' rows get a class; 'other' falls to 0.0% of rows.
+
+
+Cascade class (permit_type, then work_class, then description; session 71 rules): 91.0% of the 725 permit-type 'other' rows get a class; 'other' falls to 0.0% of rows.
+
 
 ## austin: 25.8% of 761,595 rows in 'other' (2 of 5 raw types)
 
@@ -58,6 +70,12 @@ Work class of those 'other' rows (and the class the same keyword map would give 
 | life safety | 287 | 0.0% | other |
 | demo | 106 | 0.0% | other |
 
+Cascade class (permit_type, then work_class, then description; session 70 rules): 99.6% of the 196,348 permit-type 'other' rows get a class; 'other' falls to 0.1% of rows.
+
+
+Cascade class (permit_type, then work_class, then description; session 71 rules): 99.6% of the 196,348 permit-type 'other' rows get a class; 'other' falls to 0.1% of rows.
+
+
 ## seattle: 90.5% of 84,986 rows in 'other' (3 of 4 raw types)
 
 | raw permit_type | rows | share |
@@ -73,4 +91,10 @@ Work class of those 'other' rows (and the class the same keyword map would give 
 | residential | 55,617 | 65.4% | other |
 | non-residential | 20,398 | 24.0% | other |
 | n/a | 928 | 1.1% | other |
+
+Cascade class (permit_type, then work_class, then description; session 70 rules): 78.2% of the 76,943 permit-type 'other' rows get a class; 'other' falls to 19.7% of rows.
+
+
+Cascade class (permit_type, then work_class, then description; session 71 rules): 92.4% of the 76,943 permit-type 'other' rows get a class; 'other' falls to 6.9% of rows.
+
 
