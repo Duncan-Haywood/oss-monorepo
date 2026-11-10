@@ -2,7 +2,7 @@
 title: "Changepoint detection on seven series nobody tuned on"
 seo_title: "Held-out changepoint benchmark: consensus vs BOCPD on TCPD"
 date: 2026-11-10
-tags: [changepoint-detection, time-series, benchmark, open-source]
+tags: [changepoint-detector, time-series, benchmarks, open-source]
 description: "Seven labelled series held out from tuning show which choices of the free changepoint detector hold up: agreed changes do, BOCPD does not."
 ---
 
