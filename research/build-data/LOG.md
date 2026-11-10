@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 67, 2026-11-10: Seattle folded into the paper's title and abstract (no new compute)
+
+Why: session 66 left "fold Seattle into the abstract". The title now says four-city; the abstract keeps findings (1) to (5) as three-city statements and adds a paragraph for Seattle (H1 19 of 21 cells, table narrower than baseline, mixed transfer in 2023 and 2024), every number copied from section 4.8.
+Next: third transfer test year (2022); full-model width bootstrap; retune the class map.
+
 ## Session 66, 2026-11-10: paper section 4.8 for the fourth city (no new compute)
 
 Why: sessions 61 to 65 added Seattle to the programme but `paper/paper.md` still said "three-city" with no fourth city. Added section 4.8 (H1, coverage and ship rule, width bootstrap, H4 transfer in 2024 and 2023) with every number copied from sessions 61 to 65 and `results/*seattle*`, and updated the limitations and to-do items. The title and abstract still describe the three original cities on purpose; folding Seattle into them is left for the final rewrite.

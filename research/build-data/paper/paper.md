@@ -1,4 +1,4 @@
-# Open permit feeds predict permit duration only where the city's own history is available: a three-city benchmark with a forward-in-time split
+# Open permit feeds predict permit duration only where the city's own history is available: a four-city benchmark with a forward-in-time split
 
 Draft 0 (session 13, 2026-11-01; section 4.1 and the to-do list updated 2026-11-03). AI-assisted work; no affiliation with any city,
 agency or journal. Not legal, engineering or financial advice. Every number below
@@ -28,6 +28,15 @@ match the city's full-history baseline in Chicago and San Francisco a2i, and a
 per-type table built from a few hundred local rows is usually as good. The practical
 reading is that a national model does not replace per-city history, and a new city
 should collect its own few thousand permits first.
+
+A fourth city, Seattle (194,184 rows, public domain), was added afterwards with the same
+code (4.8). Findings (2) to (5) above describe the three original cities. In Seattle the
+boosted model also beats the baseline at all three quantiles in both targets (19 of 21
+cells overall), and the three-key table is narrower than the baseline (a2i -7.4 days,
+i2c -18.3, intervals exclude zero). Transfer to Seattle is mixed: a2i is worse at q0.9
+(+27% in 2023 and 2024), but i2c transfer beats Seattle's own baseline at q0.1 and q0.5 in
+both years (-6.7 to -10.7%) and at q0.9 only in 2024 (-5.1%; +11.2% in 2023). Transfer
+intervals under-cover (0.61 to 0.72 against 0.80 nominal).
 
 ## 1 Introduction and related work
 
