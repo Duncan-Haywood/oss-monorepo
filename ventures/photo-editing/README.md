@@ -882,7 +882,9 @@ exposure, share of clipped sensels). `--half` gives a quarter of the pixels with
 interpolation and runs about three times as fast; `--exposure EV` adds stops to the file's
 `BaselineExposure` (`--no-baseline-exposure` ignores it); `--wb R,G,B` replaces the as-shot
 white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
-(`src/shootflow/raw_develop.py`).
+(`src/shootflow/raw_develop.py`); when numpy is installed it renders about 20 times faster on
+the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
+`--engine python|numpy` to choose, default `auto`).
 
 What it reads: DNG (convert CR2, CR3, NEF and ARW with Adobe's free DNG Converter first), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
@@ -936,3 +938,17 @@ How it was checked:
 - Speed, pure Python on the build container: 12 MP Nikon 37 s full size, 12 s half; 21 MP
   Canon 65 s full size, 23 s half. LibRaw takes well under a second. Fine for an overnight job,
   slow for interactive use.
+- Speed with numpy (2026-11-10, `eval/develop-numpy-engine-2026-11-10.md`): the optional
+  engine repeats every floating-point step of the pure path in the same order on doubles
+  (numpy's add and multiply do not fuse into FMA), so the output is byte-identical, not just
+  close. Rendering after the file is read, same container, same session: Nikon 31.0 s to 1.5 s
+  full size (20.7x) and 8.8 s to 0.56 s half; Canon 54.2 s to 2.6 s full (20.8x) and 15.6 s to
+  1.1 s half; all four outputs byte-identical (`tools/develop_engine_check.py`). Against LibRaw
+  the numbers are unchanged (mean 0.088/0.102/0.101 of a step on the Nikon). The overnight
+  pipeline on the Nikon card (above) went from 74.5 s to 7.5 s. `tests/test_raw_develop_engines.py`
+  compares the two engines byte for byte on every Bayer phase, odd and 2x2 sizes, per-position
+  black, row and column black deltas, linearization, active area and crop, all eight
+  orientations, exposure, white balance, clipping and LinearRaw (skipped without numpy, so CI,
+  which has no numpy, still runs the pure path). Still pure Python either way: reading the
+  file (0.7 s for the Nikon's uncompressed DNG, 2.2 s for the Canon's) and the lossless-JPEG
+  decoder, whose speed on a camera-written 12 MP DNG is not measured.

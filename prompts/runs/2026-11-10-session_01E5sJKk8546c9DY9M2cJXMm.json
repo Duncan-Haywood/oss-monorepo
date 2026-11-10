@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKk8546c9DY9M2cJXMm",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T23:18:26Z",
+  "ended": "2026-11-10T23:44:47Z",
+  "wall_minutes": 26.63,
+  "tokens_in": 6372770,
+  "tokens_out": 36168,
+  "cost_usd": 2.95,
+  "tool_calls": 63,
+  "task": "Explore: photo-editing flagship item 'develop speed: optional numpy path checked bit-for-bit'",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14635",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first engine test used TIFF type 11 (FLOAT) for BlackLevelDeltaH/V; the test helper has no type 11 and the DNG spec says SRATIONAL",
+      "fix": "type 10"
+    },
+    {
+      "what": "real_dng_pipeline.py compare failed against a half-size LibRaw PNG I had kept",
+      "fix": "regenerated full-size --keep output"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "says PY=$(python3 platform/ci/pyenv.py pytest numpy) finds an interpreter; it installed pytest into /usr/bin/python3.13, which already had numpy, while bare python3 (3.11) has neither. Worked, but which interpreter you get is only visible from its last line."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a venture diff ran past the 600 s tool timeout; had to move to background (cloud-session.md does warn about long commands)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "free choice; took a flagship 'next' item (photo-editing develop speed) rather than a new idea, because it was concrete, measurable on real files and unclaimed by open PRs",
+      "did": "optional numpy engine, byte-identical",
+      "result": "20x faster develop, pipeline 74.5 s to 7.5 s, merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-dng-developer-twenty-times-faster-same-bytes.md",
+    "ventures/photo-editing/eval/develop-numpy-engine-2026-11-10.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: optional numpy engine for ShootFlow's DNG developer, same float ops in same order so output is byte-identical. Real rawpy files (Nikon 12 MP, Canon 21 MP): 31.0->1.5 s and 54.2->2.6 s full size, all 4 cases identical; LibRaw diff unchanged; pipeline 74.5->7.5 s. Checks: photo-editing suite on py3.11 without numpy (549 tests; 1 failure test_workspace_health unreadable input, pre-existing as root, + PIL import error from broken system PIL, both on base too) and py3.13 with numpy (only the root failure); ruff and mypy clean. CI has no numpy, so equivalence tests skip there. No agent doc in docs/reports: the eval file and README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0d4ebe27-4349-5165-b5c6-91683ef77bd5",
+    "transcripts": 1,
+    "first": "2026-11-10T23:18:26Z",
+    "last": "2026-11-10T23:45:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 115,
+        "output": 36168,
+        "thinking": 7697,
+        "cache_read": 6250654,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122001,
+        "api_equivalent_usd": 2.95,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 115,
+      "output": 36168,
+      "thinking": 7697,
+      "cache_read": 6250654,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122001,
+      "api_equivalent_usd": 2.95,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 55,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.63,
+      "active_minutes": 26.63,
+      "model_minutes": 6.76,
+      "tool_minutes": 19.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a senior engineer writing and verifying a byte-exact vectorised port of a 400-line image pipeline with tests and real-file benchmarks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 271.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

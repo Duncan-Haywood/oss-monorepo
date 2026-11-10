@@ -38,6 +38,9 @@ Scope, stated plainly:
   look, no curve: that is the grade's job.
 
 Pure Python, so speed is the trade: see ``README.md`` for measured times.
+With numpy installed, ``develop`` hands the per-pixel work to
+``raw_develop_np`` (about 20 times faster, byte-identical output);
+``DevelopSettings(engine="python")`` keeps this module's own loops.
 """
 
 from __future__ import annotations
@@ -659,6 +662,9 @@ class DevelopSettings:
     exposure_ev: float = 0.0
     white_balance: tuple[float, float, float] | None = None  # camera multipliers; None = as shot
     use_baseline_exposure: bool = True
+    # "auto": the numpy engine when numpy is importable, else pure Python;
+    # "python" or "numpy" to choose. Both give the same bytes (raw_develop_np).
+    engine: str = "auto"
 
 
 @dataclass
@@ -673,6 +679,7 @@ class DevelopReport:
     exposure_ev: float
     clipped_fraction: float
     notes: list[str] = field(default_factory=list)
+    engine: str = "python"
 
 
 def _cfa_pattern(ifd: Ifd) -> tuple[int, int, int, int]:
@@ -868,9 +875,20 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             else:
                 out.append(curve[int(v * (lut_size - 1) + 0.5)])
 
+    cfa_name = "LinearRaw" if pat is None else "".join("RGB"[c] for c in pat)
+    np_engine = _numpy_engine(settings.engine) if (w >= 2 and h >= 2) else None
+    if settings.engine == "numpy" and np_engine is None:
+        raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
+    if np_engine is not None:
+        return _develop_numpy(
+            np_engine, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name,
+            vals=vals, rw=rw, top=top, left=left, w=w, h=h, spp=spp, lin=lin, black_=black, span=span,
+            dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
+            half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
+        )
+
     out = array("H")
     if linear_raw:
-        cfa_name = "LinearRaw"
         for y in range(h):
             row = norm_row(y)
             for x in range(w):
@@ -878,7 +896,6 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         ow, oh = w, h
     else:
         assert pat is not None
-        cfa_name = "".join("RGB"[c] for c in pat)
         # Pattern phase is relative to the active area (DNG spec, ActiveArea).
         mults = (wbr, wbg, wbb)
         if settings.half:
@@ -934,6 +951,59 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         notes=notes,
     )
     return report_w, report_h, out, report
+
+
+def _numpy_engine(engine: str):
+    if engine not in ("auto", "python", "numpy"):
+        raise DevelopError(f"unknown engine {engine!r} (auto, python or numpy)")
+    if engine == "python":
+        return None
+    try:
+        from shootflow import raw_develop_np
+    except ImportError:
+        return None
+    return raw_develop_np
+
+
+def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name, **kw):
+    """``develop``'s rendering half on the numpy engine; same bytes as the pure path."""
+
+    black_ = kw.pop("black_")
+    pixels, ow, oh, clipped = eng.render(black=black_, **kw)
+    linear_raw, w, h, spp = kw["linear_raw"], kw["w"], kw["h"], kw["spp"]
+    report_w, report_h = ow, oh
+    origin = ifd.get(TAG_CROP_ORIGIN)
+    size = ifd.get(TAG_CROP_SIZE)
+    if origin and size and len(origin) == 2 and len(size) == 2:
+        f = 0.5 if (settings.half and not linear_raw) else 1.0
+        cx, cy = int(round(float(origin[0]) * f)), int(round(float(origin[1]) * f))
+        cw, ch = int(round(float(size[0]) * f)), int(round(float(size[1]) * f))
+        if 0 <= cx and 0 <= cy and cw > 0 and ch > 0 and cx + cw <= ow and cy + ch <= oh:
+            if (cx, cy, cw, ch) != (0, 0, ow, oh):
+                pixels = eng.crop(pixels, cx, cy, cw, ch)
+                report_w, report_h = cw, ch
+        else:
+            notes.append("DefaultCrop lies outside the image and was ignored")
+    orientation = ifd0.one(TAG_ORIENTATION, 1)
+    if orientation in range(2, 9):
+        pixels = eng.orient(pixels, orientation)
+        if orientation in (5, 6, 7, 8):
+            report_w, report_h = report_h, report_w
+    total = max(1, w * h * spp)
+    report = DevelopReport(
+        width=report_w,
+        height=report_h,
+        cfa=cfa_name,
+        white_balance=tuple(round(v, 4) for v in wb),  # type: ignore[arg-type]
+        matrix=matrix_name,
+        black_level=round(black[0][0][0], 3),
+        white_level=white[0],
+        exposure_ev=round(ev, 3),
+        clipped_fraction=round(clipped / total, 6),
+        notes=notes,
+        engine="numpy",
+    )
+    return report_w, report_h, eng.to_array(pixels), report
 
 
 def _bilinear(norm_row, w, h, pat, mults, encode, out) -> None:

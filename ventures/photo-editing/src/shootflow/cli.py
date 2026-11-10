@@ -726,6 +726,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         exposure_ev=args.exposure,
         white_balance=wb,
         use_baseline_exposure=not args.no_baseline_exposure,
+        engine=args.engine,
     )
     sources = [Path(p) for p in args.files]
     out_dir = Path(args.out)
@@ -1193,6 +1194,12 @@ def _build_parser() -> argparse.ArgumentParser:
     develop.add_argument("--exposure", type=float, default=0.0, help="Exposure change in stops, added to BaselineExposure.")
     develop.add_argument("--no-baseline-exposure", action="store_true", help="Ignore the file's BaselineExposure tag.")
     develop.add_argument("--wb", help="Camera white-balance multipliers R,G,B instead of the as-shot neutral.")
+    develop.add_argument(
+        "--engine",
+        choices=("auto", "python", "numpy"),
+        default="auto",
+        help="auto (numpy when installed, else pure Python; same bytes either way), python or numpy.",
+    )
 
     create_demo = subparsers.add_parser(
         "create-demo-workspace",

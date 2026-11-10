@@ -199,9 +199,10 @@ flagships:
       scored from a half-size develop (real Nikon sensor DNG end to end in
       75 s, master bit-identical to `shootflow develop`;
       eval/pipeline-dng-grade-2026-11-10.md). Next, most valuable first:
-      develop speed (pure Python, about 37 s per 12 MP frame, so a 500-frame
-      shoot takes hours: vectorise the demosaic or add an optional numpy
-      path, checked bit-for-bit against the current output); grade only the
+      develop speed, rest of it (optional numpy engine landed 2026-11-10,
+      byte-identical, 31 s to 1.5 s on the 12 MP Nikon, pipeline 74.5 s to
+      7.5 s, README "Speed with numpy"; still pure: the file reader and the
+      lossless-JPEG decoder, unmeasured on a camera-written DNG); grade only the
       selected shots; a camera- or phone-written DNG with lossless-JPEG tiles
       (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink model
       and a real shoot with a photographer's picks (wanted: a labelled
