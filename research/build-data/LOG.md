@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 66, 2026-11-10: paper section 4.8 for the fourth city (no new compute)
+
+Why: sessions 61 to 65 added Seattle to the programme but `paper/paper.md` still said "three-city" with no fourth city. Added section 4.8 (H1, coverage and ship rule, width bootstrap, H4 transfer in 2024 and 2023) with every number copied from sessions 61 to 65 and `results/*seattle*`, and updated the limitations and to-do items. The title and abstract still describe the three original cities on purpose; folding Seattle into them is left for the final rewrite.
+Next: third transfer test year (2022, needs the source train cut to year <= 2020); full-model width bootstrap; retune the class map; fold Seattle into the abstract.
+
 ## Session 65, 2026-11-10: Seattle H4 transfer on a second test year, 2023 (prediction written before the run)
 
 Why: session 64 left "does the Seattle i2c transfer gain survive a second test year (2023)". Fresh four-feed pull 2026-11-10 (same row counts as session 64). `python3.13 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2023`.
