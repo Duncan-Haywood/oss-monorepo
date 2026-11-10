@@ -1,6 +1,6 @@
 ---
 title: "Shift scheduler now reads currency codes and Excel date serials in POS sales exports"
-seo_title: "Import POS sales exports with USD/EUR codes and Excel dates into a staff schedule"
+seo_title: "Import POS sales exports with currency codes and Excel dates"
 date: 2026-11-10
 tags: [shift-roster-builder, scheduling, pos]
 description: "shift-roster-builder's --from-sales reads cells like 'USD 40.00' and Excel serial date-times such as 46328.5833."
