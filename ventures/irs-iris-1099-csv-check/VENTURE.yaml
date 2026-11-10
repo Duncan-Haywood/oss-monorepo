@@ -41,7 +41,8 @@ owner: duncan
 # names order-independently); the 1099-NEC threshold ($600 through 2025, $2,000 for payments
 # in 2026); the 1099-MISC per-box amounts ($600 most boxes, $10 royalties and substitute
 # payments); the 40-character name and address limits and the name-line character set; the
-# EIN prefix list; the SSN, ITIN and EIN number-range rules; whether IRIS accepts ZIP+4 with a
+# EIN prefix list; (the column names were replaced 2026-11-10 by the IRIS template's TY2025
+# header row, cross-checked in four open-source copies of it, still not read on irs.gov;) the SSN, ITIN and EIN number-range rules; whether IRIS accepts ZIP+4 with a
 # dash; accepted values for the Corrected and TIN Type columns; and the FIRE retirement dates.
 # The first report of a file that passes here and is rejected by IRIS, or the reverse, is the
 # priority fix.

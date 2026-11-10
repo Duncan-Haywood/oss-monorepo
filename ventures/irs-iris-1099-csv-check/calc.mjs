@@ -1,7 +1,8 @@
 // IRS IRIS 1099-NEC / 1099-MISC bulk-upload CSV checker. Pure functions, no DOM, no network.
-// UNVERIFIED: every column name, limit and threshold below is from memory of public IRS IRIS
-// template / Pub 5717-style guidance. No IRS template or IRIS account was available when this
-// was built. Treat each rule as a prompt to look at the row, not as the IRS's rule.
+// The IRIS template's column names (TEMPLATE_NEC, TEMPLATE_MISC, 2026-11-10) are cross-checked in
+// four open-source copies of the template; see the note above TEMPLATE_NEC. UNVERIFIED: every
+// limit, threshold and accepted value below is from memory of public IRS guidance, and the older
+// COLUMNS layout is this tool's own. Treat each rule as a prompt to look at the row.
 
 export const COLUMNS = [
   "Form Type", "Tax Year", "Corrected", "Payer TIN", "Payer Name", "Payer Address", "Payer City", "Payer State", "Payer ZIP",
@@ -16,11 +17,12 @@ export const REQUIRED = [
   "Form Type", "Tax Year", "Payer TIN", "Payer Name", "Recipient TIN", "Recipient Name",
   "Recipient Address", "Recipient City", "Recipient State", "Recipient ZIP",
 ];
-const NEC_BOXES = ["NEC Box 1 Nonemployee Compensation"];
+const NEC_BOXES = ["NEC Box 1 Nonemployee Compensation", "NEC Box 3 Excess Golden Parachute Payments"];
 const MISC_BOXES = [
   "MISC Box 1 Rents", "MISC Box 2 Royalties", "MISC Box 3 Other Income", "MISC Box 5 Fishing Boat Proceeds",
   "MISC Box 6 Medical and Health Care Payments", "MISC Box 8 Substitute Payments", "MISC Box 9 Crop Insurance Proceeds",
-  "MISC Box 10 Gross Proceeds to an Attorney",
+  "MISC Box 10 Gross Proceeds to an Attorney", "MISC Box 11 Fish Purchased for Resale", "MISC Box 12 Section 409A Deferrals",
+  "MISC Box 14 Excess Golden Parachute Payments", "MISC Box 15 Nonqualified Deferred Compensation",
 ];
 const WITHHELD = "Box 4 Federal Income Tax Withheld";
 export const MONEY = [...NEC_BOXES, ...MISC_BOXES, WITHHELD, "State Tax Withheld", "State Income"];
@@ -28,10 +30,81 @@ export const MONEY = [...NEC_BOXES, ...MISC_BOXES, WITHHELD, "State Tax Withheld
 const MISC_MIN = {
   "MISC Box 1 Rents": 600, "MISC Box 2 Royalties": 10, "MISC Box 3 Other Income": 600, "MISC Box 5 Fishing Boat Proceeds": 0.01,
   "MISC Box 6 Medical and Health Care Payments": 600, "MISC Box 8 Substitute Payments": 10, "MISC Box 9 Crop Insurance Proceeds": 600,
-  "MISC Box 10 Gross Proceeds to an Attorney": 600,
+  "MISC Box 10 Gross Proceeds to an Attorney": 600, "MISC Box 11 Fish Purchased for Resale": 600,
+  "MISC Box 12 Section 409A Deferrals": 0.01, "MISC Box 14 Excess Golden Parachute Payments": 0.01, "MISC Box 15 Nonqualified Deferred Compensation": 0.01,
 };
-const NORM = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, "");
-const CANON = new Map(COLUMNS.map((c) => [NORM(c), c]));
+const NORM = (s) => String(s).toLowerCase().replace(/\(surname\)/g, "").replace(/[^a-z0-9]/g, "");
+
+// The IRS IRIS Taxpayer Portal CSV template layout, tax year 2025: columns A-BB for the 1099-NEC
+// and A-BL for the 1099-MISC. NOT read on irs.gov (blocked from where this was written, 2026-11-10).
+// The header text below is the same in four independent open-source projects that write or check
+// these files and say they follow the IRS's template or its "template formatting guidelines":
+// ubukhari/iris-1099 (src/iris.ts), christcr2012/appliance-desk (iris_csv_nec_header.csv,
+// iris_csv_misc_header.csv), techmore/rupert (iris_csv.rb) and Tyler-LeDuc/leducsystems
+// (iris-1099-nec-csv-template). Spellings they disagree on are all accepted: "Last Name" with or
+// without "(Surname)", a trailing "*" on required columns, and the 1099-MISC "FATCA Filing
+// Requirements" and "Box 14" columns (each appears in one source, not the other).
+const T_HEAD = [
+  "Form Type", "Tax Year", "Payer TIN Type", "Payer Taxpayer ID Number", "Payer Name Type",
+  "Payer Business or Entity Name Line 1", "Payer Business or Entity Name Line 2", "Payer First Name", "Payer Middle Name",
+  "Payer Last Name (Surname)", "Payer Suffix", "Payer Country", "Payer Address Line 1", "Payer Address Line 2", "Payer City/Town",
+  "Payer State/Province/Territory", "Payer ZIP/Postal Code", "Payer Phone Type", "Payer Phone",
+  "Recipient TIN Type", "Recipient Taxpayer ID Number", "Recipient Name Type", "Recipient Business or Entity Name Line 1",
+  "Recipient Business or Entity Name Line 2", "Recipient First Name", "Recipient Middle Name", "Recipient Last Name (Surname)",
+  "Recipient Suffix", "Recipient Country", "Recipient Address Line 1", "Recipient Address Line 2", "Recipient City/Town",
+  "Recipient State/Province/Territory", "Recipient ZIP/Postal Code", "Office Code", "Form Account Number",
+];
+const T_STATES = [1, 2].flatMap((n) => [`State ${n}`, `State ${n} - State Tax Withheld`, `State ${n} - State/Payer state number`, `State ${n} - State income`, `State ${n} - Local income tax withheld`, `State ${n} - Special Data Entries`]);
+const T_NEC_BOX2 = "Box 2 - Payer made direct sales totaling $5,000 or more of consumer products to a recipient for resale";
+const T_MISC_BOX7 = "Box 7 - Direct sales of $5,000 or more of consumer products to a recipient for resale";
+const T_MISC_BOX7_ALT = "Box 7 - Payer made direct sales totaling $5,000 or more of consumer products to a recipient for resale";
+export const TEMPLATE_NEC = [...T_HEAD, "2nd TIN Notice", "Box 1 - Nonemployee Compensation", T_NEC_BOX2,
+  "Box 3 - Excess golden parachute payments", "Box 4 - Federal income tax withheld", "Combined Federal/State Filing (CF/SF)", ...T_STATES];
+export const TEMPLATE_MISC = [...T_HEAD, "FATCA Filing Requirements", "2nd TIN Notice", "Box 1 - Rents", "Box 2 - Royalties", "Box 3 - Other income",
+  "Box 4 - Federal income tax withheld", "Box 5 - Fishing boat proceeds", "Box 6 - Medical and health care payments", T_MISC_BOX7,
+  "Box 8 - Substitute payments in lieu of dividends or interest", "Box 9 - Crop insurance proceeds", "Box 10 - Gross proceeds paid to an attorney",
+  "Box 11 - Fish purchased for resale", "Box 12 - Section 409A deferrals", "Box 15 - Nonqualified deferred compensation",
+  "Combined Federal/State Filing (CF/SF)", ...T_STATES];
+const T_OPTIONAL = new Set(["FATCA Filing Requirements", "Box 14 - Excess golden parachute payments"].map((c) => NORM(c)));
+// Template column -> the name this file's checks use. Columns not listed keep their own name.
+const T_ALIAS = {
+  "Payer Taxpayer ID Number": "Payer TIN", "Payer Address Line 1": "Payer Address", "Payer City/Town": "Payer City",
+  "Payer State/Province/Territory": "Payer State", "Payer ZIP/Postal Code": "Payer ZIP",
+  "Recipient Taxpayer ID Number": "Recipient TIN", "Recipient Business or Entity Name Line 2": "Recipient Name 2",
+  "Recipient Address Line 1": "Recipient Address", "Recipient City/Town": "Recipient City",
+  "Recipient State/Province/Territory": "Recipient State", "Recipient ZIP/Postal Code": "Recipient ZIP",
+  "Form Account Number": "Account Number", "2nd TIN Notice": "Second TIN Notice", "Box 4 - Federal income tax withheld": "Box 4 Federal Income Tax Withheld",
+  "Box 1 - Nonemployee Compensation": "NEC Box 1 Nonemployee Compensation", "Box 3 - Excess golden parachute payments": "NEC Box 3 Excess Golden Parachute Payments",
+  "Box 1 - Rents": "MISC Box 1 Rents", "Box 2 - Royalties": "MISC Box 2 Royalties", "Box 3 - Other income": "MISC Box 3 Other Income",
+  "Box 5 - Fishing boat proceeds": "MISC Box 5 Fishing Boat Proceeds", "Box 6 - Medical and health care payments": "MISC Box 6 Medical and Health Care Payments",
+  "Box 8 - Substitute payments in lieu of dividends or interest": "MISC Box 8 Substitute Payments", "Box 9 - Crop insurance proceeds": "MISC Box 9 Crop Insurance Proceeds",
+  "Box 10 - Gross proceeds paid to an attorney": "MISC Box 10 Gross Proceeds to an Attorney", "Box 11 - Fish purchased for resale": "MISC Box 11 Fish Purchased for Resale",
+  "Box 12 - Section 409A deferrals": "MISC Box 12 Section 409A Deferrals", "Box 14 - Excess golden parachute payments": "MISC Box 14 Excess Golden Parachute Payments",
+  "Box 15 - Nonqualified deferred compensation": "MISC Box 15 Nonqualified Deferred Compensation",
+  "State 1 - State Tax Withheld": "State Tax Withheld", "State 1 - State/Payer state number": "State ID", "State 1 - State income": "State Income",
+};
+// Columns only the template has; two or more of them in a header mean the file is in the template layout.
+const T_ONLY = new Set([...TEMPLATE_NEC, ...TEMPLATE_MISC, T_MISC_BOX7_ALT, "Box 14 - Excess golden parachute payments"].filter((c) => !COLUMNS.some((l) => NORM(l) === NORM(c))).map(NORM));
+// Display name for a check's internal column name, in template files.
+const T_LABEL = Object.fromEntries(Object.entries(T_ALIAS).map(([t, l]) => [l, t]));
+T_LABEL["Recipient Name"] = "Recipient name (Business or Entity Name Line 1, or First and Last Name)";
+T_LABEL["Payer Name"] = "Payer name (Business or Entity Name Line 1, or First and Last Name)";
+T_LABEL["NEC Box 1"] = "Box 1 - Nonemployee Compensation";
+const LCANON = new Map(COLUMNS.map((c) => [NORM(c), c]));
+const TCANON = new Map([...TEMPLATE_NEC, ...TEMPLATE_MISC, T_MISC_BOX7_ALT, "Box 14 - Excess golden parachute payments"].map((c) => [NORM(c), c]).reverse());
+// The spelling a header should have, in the layout the file is in.
+const canonFor = (h, tmpl) => (tmpl ? TCANON.get(NORM(h)) ?? LCANON.get(NORM(h)) : LCANON.get(NORM(h)) ?? TCANON.get(NORM(h)));
+const CANON = { get: (n) => LCANON.get(n) ?? TCANON.get(n) };
+const internal = (canon) => T_ALIAS[canon] ?? canon;
+// "Payer Last Name" for "Payer Last Name (Surname)" and a trailing "*" are spelled as the template allows.
+const spelledOk = (h, canon) => { const b = h.replace(/\*+$/, "").trim(); return b === canon || b === canon.replace(/ \(Surname\)$/, ""); };
+export const isTemplateHeader = (cells) => cells.filter((h) => T_ONLY.has(NORM(h))).length >= 2;
+// Rewrites a finding's column names into the template's, longest first so "Recipient TIN Type" survives.
+function relabel(text) {
+  let out = text;
+  for (const l of Object.keys(T_LABEL).sort((a, b) => b.length - a.length)) out = out.replace(new RegExp(`(?<![A-Za-z])${l.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![A-Za-z]| Type| 2)`, "g"), T_LABEL[l]);
+  return out;
+}
 
 export const STATES = new Set(("AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY " +
   "AS GU MP PR VI AA AE AP").split(" "));
@@ -89,10 +162,10 @@ function distance(a, b) {
   }
   return prev[n];
 }
-export function closestColumn(name) {
+export function closestColumn(name, tmpl = false) {
   const n = NORM(name);
   let best = null, bestD = 99;
-  for (const c of COLUMNS) {
+  for (const c of tmpl ? [...TEMPLATE_NEC, ...TEMPLATE_MISC] : COLUMNS) {
     const d = distance(n, NORM(c));
     if (d < bestD) { bestD = d; best = c; }
   }
@@ -173,24 +246,50 @@ export function validate(input, opts = {}) {
   const rows = parsed.rows;
   const header = rows[0].cells.map((h) => h.trim());
   summary.columns = header.length;
+  const tmpl = isTemplateHeader(header);
+  summary.layout = tmpl ? "iris-template" : "legacy";
   const idx = {};
   header.forEach((h, i) => {
-    const canon = CANON.get(NORM(h));
+    const canon = canonFor(h, tmpl);
     if (canon) {
-      if (idx[canon] !== undefined) add("error", "dup-header", 1, `Column "${canon}" appears twice`, `Columns ${idx[canon] + 1} and ${i + 1} are both "${canon}". Delete one.`);
-      else idx[canon] = i;
-      if (h !== canon) add("warning", "header-case", 1, `Column "${h}" is not spelled like the template`, `Use "${canon}" exactly. The safe fixes can rename it.`);
+      const key = tmpl ? internal(canon) : canon;
+      if (idx[key] !== undefined) add("error", "dup-header", 1, `Column "${canon}" appears twice`, `Columns ${idx[key] + 1} and ${i + 1} are both "${canon}". Delete one.`);
+      else idx[key] = i;
+      if (!(tmpl ? spelledOk(h, canon) : h === canon)) add("warning", "header-case", 1, `Column "${h}" is not spelled like the template`, `Use "${canon}" exactly. The safe fixes can rename it.`);
     } else if (h === "") add("warning", "blank-header", 1, `Column ${i + 1} has no name`, "An unnamed column is usually a stray trailing delimiter.");
     else {
-      const near = closestColumn(h);
+      const near = closestColumn(h, tmpl);
       add("warning", "unknown-header", 1, `Unknown column "${h}"`, near ? `Did you mean "${near}"? Unrecognised columns may be ignored or rejected.` : "Unrecognised columns may be ignored or rejected.");
     }
   });
-  const missing = REQUIRED.filter((c) => idx[c] === undefined);
-  for (const c of missing) add("error", "missing-column", 1, `Required column "${c}" is missing`, "The layout this tool expects has this column in every file. Compare your header with the list on this page.");
+  if (tmpl) {
+    // IRIS "validates the CSV column header descriptions" (as quoted in ubukhari/iris-1099), so a
+    // template column that is missing is likely a rejected file even when the row data are fine.
+    const have = new Set(header.map(NORM));
+    const isMisc = have.has(NORM("Box 1 - Rents")), isNecT = have.has(NORM("Box 1 - Nonemployee Compensation"));
+    const want = isMisc && !isNecT ? TEMPLATE_MISC : TEMPLATE_NEC;
+    const core = new Set(["Form Type", "Tax Year", "Payer Taxpayer ID Number", "Recipient TIN Type", "Recipient Taxpayer ID Number", "Recipient Address Line 1", "Recipient City/Town", "Recipient State/Province/Territory", "Recipient ZIP/Postal Code"]);
+    const gone = want.filter((c) => !have.has(NORM(c)) && !T_OPTIONAL.has(NORM(c)) && !(c === T_MISC_BOX7 && have.has(NORM(T_MISC_BOX7_ALT))));
+    for (const c of gone.filter((c) => core.has(c))) add("error", "missing-column", 1, `Required column "${c}" is missing`, "The IRIS template has this column and every record needs a value in it.");
+    const rest = gone.filter((c) => !core.has(c));
+    if (rest.length) add("warning", "template-columns", 1, `${rest.length} column${rest.length === 1 ? "" : "s"} of the IRIS ${want === TEMPLATE_MISC ? "1099-MISC" : "1099-NEC"} template ${rest.length === 1 ? "is" : "are"} missing`, `Missing: ${rest.join("; ")}. IRIS checks the header row against its template, so keep every template column even when it is empty. (Column list cross-checked in open-source copies of the template, not on irs.gov.)`);
+    const order = header.map((h) => want.findIndex((c) => NORM(c) === NORM(h))).filter((i) => i >= 0);
+    if (order.some((v, k) => k > 0 && v < order[k - 1])) add("warning", "template-order", 1, "Columns are not in the template's order", "The tool reads columns by name, but the IRIS upload may expect the template's own order. Paste your data into a fresh copy of the template downloaded from the IRIS portal.");
+    if (isMisc && isNecT) add("error", "template-mixed", 1, "The header has both 1099-NEC and 1099-MISC box columns", "IRIS takes one template per form. Split the rows into a 1099-NEC file and a 1099-MISC file.");
+  } else {
+    const missing = REQUIRED.filter((c) => idx[c] === undefined);
+    for (const c of missing) add("error", "missing-column", 1, `Required column "${c}" is missing`, "The layout this tool expects has this column in every file. Compare your header with the list on this page.");
+  }
   if (idx["Form Type"] === undefined) return { findings, summary };
 
-  const g = (r, name) => (idx[name] === undefined ? "" : (r.cells[idx[name]] ?? ""));
+  const raw = (r, name) => (idx[name] === undefined ? "" : (r.cells[idx[name]] ?? ""));
+  // A template row splits a name into a business line or first/middle/last; the checks read one name.
+  const fullName = (r, who) => {
+    const biz = raw(r, `${who} Business or Entity Name Line 1`).trim();
+    const person = ["First Name", "Middle Name", "Last Name (Surname)", "Suffix"].map((p) => raw(r, `${who} ${p}`).trim()).filter(Boolean).join(" ");
+    return raw(r, `${who} Name Type`).trim().toUpperCase() === "I" ? person || biz : biz || person;
+  };
+  const g = (r, name) => (tmpl && (name === "Recipient Name" || name === "Payer Name") ? fullName(r, name.split(" ")[0]) : raw(r, name));
   const years = new Map(), payerTins = new Map(), seenRow = new Map(), seenKey = new Map(), tinNames = new Map();
   const totals = {};
   let blankLines = 0;
@@ -274,6 +373,38 @@ export function validate(input, opts = {}) {
       if (kind === "EIN" && looksSsn) add("warning", "tin-type-mismatch", line, "TIN is written like an SSN but typed EIN", "");
     }
 
+    if (tmpl) {
+      // Template-only columns. Accepted values are those the open-source writers above use
+      // (name type B or I, TIN types SSN/EIN/ITIN/ATIN, Y/N flags); unverified on irs.gov.
+      const ptt = raw(r, "Payer TIN Type").trim().toUpperCase();
+      if (idx["Payer TIN Type"] !== undefined && !ptt) add("error", "payer-tin-type", line, "Payer TIN Type is blank", "Use EIN, or SSN for a sole proprietor filing under their own number.");
+      else if (ptt && !["EIN", "SSN", "ITIN", "ATIN"].includes(ptt)) add("warning", "payer-tin-type", line, `Payer TIN Type "${raw(r, "Payer TIN Type").trim()}" is not EIN, SSN, ITIN or ATIN`, "");
+      if (idx["Recipient TIN Type"] !== undefined && !tt) add("error", "tin-type", line, "Recipient TIN Type is blank", "The template asks for the type of every TIN: SSN, EIN, ITIN or ATIN, as on the W-9.");
+      for (const who of ["Payer", "Recipient"]) {
+        const col = `${who} Name Type`;
+        if (idx[col] === undefined) continue;
+        const nt = raw(r, col).trim().toUpperCase();
+        const biz = raw(r, `${who} Business or Entity Name Line 1`).trim();
+        const first = raw(r, `${who} First Name`).trim(), last = raw(r, `${who} Last Name (Surname)`).trim();
+        if (!nt) add("error", "name-type", line, `${col} is blank`, "Use B when the name is in Business or Entity Name Line 1, or I when it is in First and Last Name.");
+        else if (nt === "B" && !biz) add("error", "name-type", line, `${col} is B but ${who} Business or Entity Name Line 1 is blank`, first || last ? "The name is in the first/last columns, so the type is I." : "");
+        else if (nt === "I" && (!first || !last)) add("error", "name-type", line, `${col} is I but the ${!first ? "first" : "last"} name is blank`, biz ? "The name is in Business or Entity Name Line 1, so the type is B." : "An individual's name needs both first and last name.");
+        else if (nt !== "B" && nt !== "I") add("warning", "name-type", line, `${col} "${raw(r, col).trim()}" is not B or I`, "B for a business or entity name, I for an individual's first and last name.");
+      }
+      const flags = isNec ? ["Second TIN Notice", T_NEC_BOX2, "Combined Federal/State Filing (CF/SF)"] : ["Second TIN Notice", "FATCA Filing Requirements", T_MISC_BOX7, T_MISC_BOX7_ALT, "Combined Federal/State Filing (CF/SF)"];
+      for (const col of flags) {
+        const v = raw(r, col).trim();
+        if (v && !/^(y|n|yes|no|x|true|false)$/i.test(v)) add("warning", "flag-value", line, `${T_LABEL[col] ?? col} "${v}" is not a yes or no`, "These columns are check boxes: Y or N (or blank).");
+      }
+      if (!isNec && raw(r, "Box 1 - Nonemployee Compensation").trim()) add("error", "wrong-form-box", line, "A 1099-MISC row in a 1099-NEC template", "Each form has its own IRIS template.");
+      for (const n of [1, 2]) {
+        const sc = raw(r, `State ${n}`).trim();
+        if (sc && !STATES.has(sc.toUpperCase())) add("error", "state", line, `State ${n} "${sc}" is not a two-letter USPS code`, "");
+      }
+      const amt2 = raw(r, "State 2 - State Tax Withheld").trim() || raw(r, "State 2 - State income").trim();
+      if (amt2 && !raw(r, "State 2").trim()) add("warning", "state-id", line, "State 2 amounts with no State 2 code", "Name the second state, or move the amounts to State 1.");
+    }
+
     // Name and address
     const name = g(r, "Recipient Name").trim();
     if (!name) add("error", "recipient-name", line, "Recipient Name is blank", "Every record needs a name that matches the recipient's W-9 and TIN.");
@@ -286,12 +417,16 @@ export function validate(input, opts = {}) {
     if (!addr) add("error", "address", line, "Recipient Address is blank", "A street address is required.");
     else if (addr.length > ADDRESS_MAX) add("warning", "address-length", line, `Recipient Address is ${addr.length} characters`, `Street lines are limited to about ${ADDRESS_MAX}.`);
     if (!g(r, "Recipient City").trim()) add("error", "city", line, "Recipient City is blank", "");
-    const st = g(r, "Recipient State").trim();
-    if (!st) add("error", "state", line, "Recipient State is blank", "");
+    const country = raw(r, "Recipient Country").trim().toUpperCase();
+    const foreign = tmpl && country !== "" && !["US", "USA", "UNITED STATES"].includes(country);
+    const st = foreign ? "" : g(r, "Recipient State").trim();
+    if (foreign) { /* a foreign address: state and ZIP rules below are for US addresses */ }
+    else if (!st) add("error", "state", line, "Recipient State is blank", "");
     else if (!STATES.has(st.toUpperCase())) add("error", "state", line, `Recipient State "${st}" is not a two-letter USPS code`, "Spell-out and Canadian provinces are not accepted for US addresses.");
     else if (st !== st.toUpperCase()) add("info", "state-case", line, `State "${st}" is not upper case`, "The safe fixes can change it.");
-    const zip = g(r, "Recipient ZIP").trim();
-    if (!zip) add("error", "zip", line, "Recipient ZIP is blank", "");
+    const zip = foreign ? "" : g(r, "Recipient ZIP").trim();
+    if (foreign) { /* see above */ }
+    else if (!zip) add("error", "zip", line, "Recipient ZIP is blank", "");
     else if (/^\d{4}$/.test(zip)) {
       if (ZERO_ZIP_STATES.has(st.toUpperCase())) add("warning", "zip-zero", line, `ZIP ${zip} has 4 digits in ${st.toUpperCase()}`, `A leading zero was probably dropped; it would be 0${zip}. The safe fixes pad it.`);
       else add("error", "zip", line, `ZIP ${zip} has 4 digits`, "ZIP codes have 5 digits.");
@@ -366,6 +501,9 @@ export function validate(input, opts = {}) {
     const want = Number(String(opts.expectedTotal).replace(/[$,\s]/g, ""));
     if (Number.isFinite(want) && Math.abs(sum - want) > 0.005) add("error", "total-mismatch", 0, `Reportable total is ${fmt(sum)}, you expected ${fmt(want)}`, `Difference ${fmt(sum - want)}.`);
   }
+  if (tmpl && summary.records > 100) add("warning", "record-limit", 0, `${summary.records} records in one file`, "The IRIS FAQ, as quoted by open-source IRIS tools, allowed 100 records per Taxpayer Portal upload, with 250 announced from tax year 2025. Split the file if the portal refuses it.");
+  if (tmpl && Object.keys(summary.byForm).length > 1) add("error", "template-mixed", 0, "The file mixes 1099-NEC and 1099-MISC rows", "IRIS takes one template per form. Split the rows into two files.");
+  if (tmpl) for (const f of findings) { f.title = relabel(f.title); f.detail = relabel(f.detail); }
   const order = { error: 0, warning: 1, info: 2 };
   findings.sort((a, b) => order[a.severity] - order[b.severity] || a.line - b.line);
   return { findings, summary };
@@ -384,12 +522,15 @@ export function repair(input) {
   const head = rows[0].cells.map((h) => h.trim());
   if (!head.some((h) => NORM(h) === NORM("Form Type"))) return { text: "", changes, error: 'There is no "Form Type" column; nothing can be repaired.' };
   if (delim !== ",") changes.push(`Converted the ${delim === ";" ? "semicolon" : "tab"} delimiter to commas.`);
+  const tmpl = isTemplateHeader(head);
   const idx = {};
   head.forEach((h, i) => {
-    const canon = CANON.get(NORM(h));
-    if (canon && idx[canon] === undefined) { idx[canon] = i; if (h !== canon) { changes.push(`Line 1: renamed header "${h}" to "${canon}".`); rows[0].cells[i] = canon; } }
+    const canon = canonFor(h, tmpl);
+    const key = canon && (tmpl ? internal(canon) : canon);
+    if (canon && idx[key] === undefined) { idx[key] = i; if (!(tmpl ? spelledOk(h, canon) : h === canon)) { changes.push(`Line 1: renamed header "${h}" to "${canon}".`); rows[0].cells[i] = canon; } else if (rows[0].cells[i] !== h) { changes.push(`Line 1: trimmed spaces around header "${h}".`); rows[0].cells[i] = h; } }
     else if (rows[0].cells[i] !== h) { changes.push(`Line 1: trimmed spaces around header "${h}".`); rows[0].cells[i] = h; }
   });
+  const label = (col) => rows[0].cells[idx[col]];
   for (let ri = 1; ri < rows.length; ri++) {
     const r = rows[ri], line = r.line;
     if (r.cells.length !== head.length) continue;
@@ -398,11 +539,11 @@ export function repair(input) {
       const old = r.cells[idx[col]];
       if (old === next) return;
       r.cells[idx[col]] = next;
-      changes.push(`Line ${line}: ${col} ${JSON.stringify(old)} -> ${JSON.stringify(next)} (${why}).`);
+      changes.push(`Line ${line}: ${label(col)} ${JSON.stringify(old)} -> ${JSON.stringify(next)} (${why}).`);
     };
     const val = (col) => (idx[col] === undefined ? "" : r.cells[idx[col]]);
     // Trim: only leading/trailing spaces; names are trimmed but never otherwise touched.
-    for (const col of COLUMNS) { const v = val(col); if (v !== v.trim() && v.trim() !== "") set(col, v.trim(), "stray spaces trimmed"); }
+    for (const col of Object.keys(idx)) { const v = val(col); if (v !== v.trim() && v.trim() !== "") set(col, v.trim(), "stray spaces trimmed"); }
     const ft = val("Form Type").trim();
     if (ft && ft !== ft.toUpperCase() && ["1099-NEC", "1099-MISC"].includes(ft.toUpperCase())) set("Form Type", ft.toUpperCase(), "upper case");
     for (const col of ["Payer TIN", "Recipient TIN"]) {
@@ -412,7 +553,7 @@ export function repair(input) {
         if (d.length === 9) set(col, d, "dashes and spaces removed");
       }
     }
-    for (const col of ["Payer State", "Recipient State"]) {
+    for (const col of ["Payer State", "Recipient State", "State 1", "State 2"]) {
       const v = val(col).trim();
       if (v && v !== v.toUpperCase() && STATES.has(v.toUpperCase())) set(col, v.toUpperCase(), "upper case");
     }
@@ -436,9 +577,36 @@ export function findingsCsv(result) {
   return toCsv([["severity", "line", "code", "title", "detail"], ...result.findings.map((f) => [f.severity, String(f.line || ""), f.code, f.title, f.detail])]);
 }
 
+const trow = (o) => TEMPLATE_NEC.map((c) => o[c] ?? "");
+const tpayer = { "Form Type": "1099-NEC", "Tax Year": "2025", "Payer TIN Type": "EIN", "Payer Taxpayer ID Number": "123456780", "Payer Name Type": "B",
+  "Payer Business or Entity Name Line 1": "Northwind Sample Co", "Payer Country": "US", "Payer Address Line 1": "100 Example Way", "Payer City/Town": "Austin",
+  "Payer State/Province/Territory": "TX", "Payer ZIP/Postal Code": "78701", "Recipient Country": "US", "2nd TIN Notice": "N", [T_NEC_BOX2]: "N" };
+// A 1099-NEC file in the IRIS template layout (TEMPLATE_NEC). Made-up payer and recipients.
+export function sampleFile() {
+  const nec = (o) => trow({ ...tpayer, ...o });
+  return toCsv([
+    TEMPLATE_NEC,
+    nec({ "Recipient TIN Type": "SSN", "Recipient Taxpayer ID Number": "412345678", "Recipient Name Type": "I", "Recipient First Name": "Jordan", "Recipient Last Name (Surname)": "Sample", "Recipient Address Line 1": "12 Maple St", "Recipient City/Town": "Dallas", "Recipient State/Province/Territory": "TX", "Recipient ZIP/Postal Code": "75201", "Box 1 - Nonemployee Compensation": "4200.00" }),
+    nec({ "Recipient TIN Type": "EIN", "Recipient Taxpayer ID Number": "456789012", "Recipient Name Type": "B", "Recipient Business or Entity Name Line 1": "Blue Door Design LLC", "Recipient Address Line 1": "9 Harbor Rd", "Recipient City/Town": "Portland", "Recipient State/Province/Territory": "ME", "Recipient ZIP/Postal Code": "04101", "Box 1 - Nonemployee Compensation": "2250.50", "Box 4 - Federal income tax withheld": "540.12" }),
+    nec({ "Recipient TIN Type": "EIN", "Recipient Taxpayer ID Number": "551234567", "Recipient Name Type": "B", "Recipient Business or Entity Name Line 1": "Oak Row Consulting", "Recipient Address Line 1": "400 Main St", "Recipient City/Town": "Houston", "Recipient State/Province/Territory": "TX", "Recipient ZIP/Postal Code": "77002", "Box 1 - Nonemployee Compensation": "9600.00" }),
+  ]);
+}
+export function sampleBrokenFile() {
+  const nec = (o) => trow({ ...tpayer, "Recipient TIN Type": "SSN", "Recipient Name Type": "I", ...o });
+  return toCsv([
+    TEMPLATE_NEC,
+    nec({ "Recipient Taxpayer ID Number": "412-34-5678", "Recipient First Name": "Jordan", "Recipient Last Name (Surname)": "Sample", "Recipient Address Line 1": "12 Maple St", "Recipient City/Town": "Dallas", "Recipient State/Province/Territory": "tx", "Recipient ZIP/Postal Code": "75201", "Box 1 - Nonemployee Compensation": "$4,200.00" }),
+    nec({ "Recipient Taxpayer ID Number": "666-12-3456", "Recipient First Name": "Riley", "Recipient Last Name (Surname)": "Placeholder", "Recipient Address Line 1": "5 Elm St", "Recipient City/Town": "Plano", "Recipient State/Province/Territory": "TX", "Recipient ZIP/Postal Code": "75024", "Box 1 - Nonemployee Compensation": "350.00" }),
+    nec({ "Recipient Taxpayer ID Number": "111111111", "Recipient Name Type": "B", "Recipient Business or Entity Name Line 1": "Sam #7 Landscaping", "Recipient Address Line 1": "7 Pine St", "Recipient City/Town": "Portland", "Recipient State/Province/Territory": "ME", "Recipient ZIP/Postal Code": "4101", "Box 1 - Nonemployee Compensation": "1,800.5" }),
+    nec({ "Recipient Taxpayer ID Number": "412345678", "Recipient First Name": "Jordan", "Recipient Last Name (Surname)": "Sample", "Recipient Address Line 1": "12 Maple St", "Recipient City/Town": "Dallas", "Recipient State/Province/Territory": "TX", "Recipient ZIP/Postal Code": "75201", "Box 1 - Nonemployee Compensation": "900.00" }),
+    nec({ "Recipient Taxpayer ID Number": "98765", "Recipient Name Type": "B", "Recipient Address Line 1": "1 Oak St", "Recipient City/Town": "Waco", "Recipient State/Province/Territory": "Texas", "Recipient ZIP/Postal Code": "76701", "Box 1 - Nonemployee Compensation": "12O0.00" }),
+  ]);
+}
+
+// The layout this tool used before 2026-11-10, written from memory; still read, as a fallback.
 const row = (o) => COLUMNS.map((c) => o[c] ?? "");
 const payer = { "Tax Year": "2025", "Payer TIN": "123456780", "Payer Name": "Northwind Sample Co", "Payer Address": "100 Example Way", "Payer City": "Austin", "Payer State": "TX", "Payer ZIP": "78701" };
-export function sampleFile() {
+export function sampleLegacyFile() {
   const nec = (o) => row({ "Form Type": "1099-NEC", ...payer, "Recipient TIN Type": "SSN", ...o });
   return toCsv([
     COLUMNS,
@@ -447,7 +615,7 @@ export function sampleFile() {
     row({ "Form Type": "1099-MISC", ...payer, "Recipient TIN Type": "EIN", "Recipient TIN": "551234567", "Recipient Name": "Oak Row Properties", "Recipient Address": "400 Main St", "Recipient City": "Houston", "Recipient State": "TX", "Recipient ZIP": "77002", "MISC Box 1 Rents": "9600.00" }),
   ]);
 }
-export function sampleBrokenFile() {
+export function sampleLegacyBrokenFile() {
   const nec = (o) => row({ "Form Type": "1099-NEC", ...payer, "Recipient TIN Type": "SSN", ...o });
   return toCsv([
     COLUMNS,

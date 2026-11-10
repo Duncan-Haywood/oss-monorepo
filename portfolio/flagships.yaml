@@ -87,11 +87,12 @@ flagships:
       schedule against the loan register (`loan check`); (5) receipts
       through real OCR (SROIE: totals 76.2%, dates 80.2%, merchants 45.8%;
       wanted: phone photos, real paper); (6) payroll (941, Schedule B, 940,
-      deposits, `payroll reconcile`): a real Gusto or ADP report; (7) one
-      named filing service's import layout, from its own spec; (8) `salestax
+      deposits, `payroll reconcile`): a real Gusto or ADP report; (7) IRIS
+      1099-NEC export landed 2026-11-10 (layout from open-source copies): open,
+      a real upload and 1099-MISC; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
       state's own page only for WA, TX, FL, NY, VA, MN, MO, IL, SC, OH and
-      UT monthly (OH quarterly: guides disagree on who files it; OH discount from excerpts); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
+      UT monthly (OH quarterly and discount: excerpts); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
       (Schedule AI): percentages matched to the 2024 form by excerpt
       2026-10-30, factors to state forms, federal text unread (irs.gov
       blocked); (9) EITC: built-in 2025 and 2026 schedules (Schedule EIC
