@@ -19,6 +19,8 @@ with a fake hardware object), so it touches hardware only through `hw`.
     battery_mv() -> int
 """
 
+import math
+
 import protocol as P
 
 WATCHDOG_MS = 300        # stop if the Pi goes quiet for this long
@@ -37,6 +39,90 @@ MAX_BASE_MM_S = 3000
 
 def _clamp(v, lo, hi):
     return lo if v < lo else hi if v > hi else v
+
+
+class StepperAxis:
+    """Open-loop step/dir axis with trapezoidal moves and a home switch (the feeder's azimuth stepper, 2026-11-10).
+
+    Board-independent: `update(dt_ms, home_closed)` returns the signed number of step pulses to send now, and the
+    board layer pulses them. Positions are in degrees at the output (the turntable); `steps_per_deg` folds in the
+    motor's steps, microstepping and the gear ratio. Until the home switch has been found the axis is unhomed: it
+    creeps toward negative angles at `home_deg_s`, and targets are remembered but not driven. A stop from above
+    `safe_stop_deg_s` may lose steps, so it clears the home and the axis homes again. Homing that travels further
+    than the whole range plus 10 deg without finding the switch faults and stops (a broken switch must not drive the
+    head into its end stop forever).
+    """
+
+    def __init__(self, steps_per_deg, vmax_deg_s, accel_deg_s2, home_deg, lo_deg, hi_deg,
+                 home_deg_s=5.0, safe_stop_deg_s=10.0):
+        self.k = steps_per_deg
+        self.vmax, self.accel = vmax_deg_s, accel_deg_s2
+        self.home_deg, self.lo, self.hi = home_deg, lo_deg, hi_deg
+        self.home_v, self.safe_v = home_deg_s, safe_stop_deg_s
+        self.homed = False
+        self.fault = False
+        self.pos = 0.0            # degrees, valid once homed
+        self.v = 0.0              # degrees per second, signed
+        self.goal = 0.0
+        self._sent = 0            # steps sent, in the same frame as round(pos x steps_per_deg)
+        self._searched = 0.0
+
+    @property
+    def steps(self):
+        return round(self.pos * self.k)
+
+    def target(self, deg):
+        self.goal = _clamp(deg, self.lo, self.hi)
+
+    def stop(self):
+        if abs(self.v) > self.safe_v:
+            self.homed = False
+            self._searched = 0.0
+        self.v = 0.0
+        if self.homed:
+            self.goal = self.pos
+
+    def _emit(self):
+        n = round(self.pos * self.k) - self._sent
+        self._sent += n
+        return n
+
+    def update(self, dt_ms, home_closed):
+        dt = dt_ms / 1000.0
+        if self.fault or dt <= 0:
+            return 0
+        if not self.homed:
+            if home_closed:
+                self.homed, self.pos, self.v = True, self.home_deg, 0.0
+                self._sent = round(self.pos * self.k)
+                return 0
+            self._searched += self.home_v * dt
+            if self._searched > (self.hi - self.lo) + 10.0:
+                self.fault, self.v = True, 0.0
+                return 0
+            self.v = -self.home_v
+            self.pos -= self.home_v * dt
+            return self._emit()
+        d = self.goal - self.pos
+        if abs(d) < 0.5 / self.k and abs(self.v) < self.accel * dt:
+            self.v = 0.0
+            return 0
+        toward = 1.0 if d > 0 else -1.0
+        # The fastest speed from which the axis can still stop at the goal, capped at vmax; the speed moves toward
+        # it by at most accel x dt per tick (a trapezoid, or a triangle on a short move).
+        # (discrete form: from speed n x a x dt, braking a x dt per tick covers a x dt^2 x n (n + 1) / 2, so the axis
+        # lands at about one tick's worth of speed instead of snapping to rest from a fast approach)
+        adt = self.accel * dt
+        want = toward * min(self.vmax, adt * (math.sqrt(0.25 + 2 * abs(d) / (adt * dt)) - 0.5))
+        dv = _clamp(want - self.v, -self.accel * dt, self.accel * dt)
+        v = self.v + dv
+        v = _clamp(v, -self.vmax, self.vmax)
+        step = v * dt
+        if (d > 0 and step > d) or (d < 0 and step < d):
+            step, v = d, 0.0                                 # land on the goal
+        self.v = v
+        self.pos += step
+        return self._emit()
 
 
 class Controller:

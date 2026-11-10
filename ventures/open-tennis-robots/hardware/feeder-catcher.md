@@ -67,7 +67,9 @@ alternative; wheels are simpler and need no setup.
 e-skateboards) each driving a 150 mm wheel directly. Stack them vertically
 so the speed difference becomes topspin or backspin; tilt the whole head
 for elevation (linear actuator or high-torque servo on a pivot) and rotate
-it on a small turntable for azimuth. A reflective IR sensor on each hub
+it on a small turntable for azimuth (as drawn in `cad/`, 2026-11-10: a NEMA
+17 stepper turns a printed gear sector under the turntable through a 15-tooth
+pinion, 10:1, homed on a switch; `cad/README.md`, "Azimuth drive"). A reflective IR sensor on each hub
 counts revolutions. Put a guard over both wheels: they hold a lot of energy
 at 7,000 rpm.
 

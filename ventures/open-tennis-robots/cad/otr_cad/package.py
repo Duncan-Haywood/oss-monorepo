@@ -124,6 +124,26 @@ def elevation_sweep(p: Feeder, steps: int = 4) -> list[str]:
     return out
 
 
+def azimuth_sweep(p: Feeder) -> list[str]:
+    """Clashes between what turns and what stays put, with the turntable at both ends of its range and the head at
+    both ends of its elevation range (the elevation sweep covers azimuth 0)."""
+    out = []
+    for e in (p.elev_min, p.elev_max):
+        for az in (-p.az_max, p.az_max):
+            moving, fixed = F.turned_solids(p, e, az)
+            fb = [(n, s, s.bounding_box()) for n, s in fixed]
+            for na, a in moving:
+                ba = a.bounding_box()
+                for nb, b, bb in fb:
+                    if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                            or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                        continue
+                    v = (a & b).volume
+                    if v > 1.0:
+                        out.append(f"at {e:+.0f} deg turned {az:+.0f} deg: {na} x {nb}: {v:.0f} mm^3")
+    return out
+
+
 def ground_contacts(parts: list[C.Part], want=("wheel", "ball_caster", "drum_disc")) -> dict[str, float]:
     """Lowest z of each part that should touch the ground."""
     out = {}
@@ -191,8 +211,15 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
     rules = p.check()
     parts = M.all_parts(p)
     clash = collisions(parts)
+    turning = None
     if feeder:
         clash += elevation_sweep(p)
+        clash += azimuth_sweep(p)
+        turning = max((F.turning_inertia(p, e) for e in (p.elev_min, 0.0, p.elev_max)), key=lambda t: t[0])
+        if turning[0] > p.az_inertia_kgm2:
+            rules = rules + [f"turning inertia from the CAD is {turning[0]:.4f} kg m^2, above the "
+                             f"{p.az_inertia_kgm2:g} the azimuth check assumed: raise az_inertia_kgm2"]
+        rules = rules + [r for r in p.check_azimuth(turning[0]) if r not in rules]
     contacts = ground_contacts(parts, ('wheel', 'levelling_foot') if feeder else ('wheel', 'ball_caster', 'drum_disc'))
     ground_ok = all(abs(z) < 0.05 for z in contacts.values())
 
@@ -252,7 +279,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         _drawings(assembly, out / "drawings")
 
     if feeder:
-        checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g)
+        checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g, turning)
     else:
         length, width = p.overall
         checks = [
@@ -316,7 +343,7 @@ ORDER
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
 
 NOT IN THIS PACKAGE YET: netting and trough, hopper agitator, shuttle actuator
-bracket, elevation actuator and bracket, azimuth drive, post bracing, cabling. See hardware/feeder-catcher.md.
+bracket, elevation actuator and bracket, cabling. See hardware/feeder-catcher.md.
 
 CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 {checks}

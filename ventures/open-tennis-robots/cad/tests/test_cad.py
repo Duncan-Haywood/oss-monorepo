@@ -365,6 +365,43 @@ class FeederParamsTest(unittest.TestCase):
         arm = abs(p.wheel_x[0] - p.wheel_x[1]) / 2 / 1000
         self.assertAlmostEqual(w * 9.81 * arm, p.wind_force_n * h, places=6)
 
+    def test_azimuth_drive_sizing(self):
+        p = Feeder()
+        self.assertEqual(p.az_ratio, 10.0)
+        self.assertAlmostEqual(p.az_centre_dist, 1.5 * (150 + 15) / 2)
+        # the trimmed plate stays inside the pinion's tip circle with the clearance asked for
+        self.assertAlmostEqual(p.az_centre_dist - (p.az_pinion_r + p.az_module) - p.az_trim_r, p.az_clear_mm)
+        self.assertEqual(p.check_azimuth(), [])
+        d = p.azimuth_drive(0.31, 76.0)
+        # triangular profile, by hand: 30 deg in 1 s accelerates at 4 theta / t^2
+        self.assertAlmostEqual(d["alpha_rad_s2"], 4 * math.radians(30) / 1.0)
+        self.assertAlmostEqual(d["torque_inertia_nm"], 0.31 * 4 * math.radians(30))
+        # Lewis bending on the printed sector, by hand
+        f_t = d["torque_out_nm"] / (p.az_gear_r / 1000) * p.az_shock
+        self.assertAlmostEqual(d["tooth_stress_mpa"], f_t / (p.az_gear_face_mm * p.az_module * (0.484 - 2.87 / 150)))
+        # one full step through 10:1 is 0.18 deg
+        self.assertAlmostEqual(d["step_deg"], 0.18)
+        # the fastest slew is where the margin is exactly the factor asked for
+        from dataclasses import replace
+        q = replace(p, az_slew_s=d["fastest_slew_s"])
+        self.assertAlmostEqual(q.azimuth_drive(0.31, 76.0)["torque_margin"], p.az_torque_factor, places=3)
+        # a quarter-second slew of the measured head is beyond the stepper
+        fast = replace(p, az_slew_s=0.25)
+        self.assertTrue(any("azimuth stepper needs" in b for b in fast.check_azimuth(0.31)))
+
+    def test_azimuth_hose_torque_vanishes_straight_ahead(self):
+        # the taut-hose chord lies in the plane through the turntable axis when the head is not turned
+        self.assertAlmostEqual(Feeder(az_max=0.0).az_hose_torque_nm(), 0.0, places=9)
+        self.assertGreater(Feeder().az_hose_torque_nm(), 0.0)
+
+    def test_azimuth_gear_teeth_printable(self):
+        p = Feeder()
+        # m1.5 slots are too narrow to laser in 5 mm aluminium (the reason the sector is printed), wide enough to print
+        self.assertLess(p.az_root_gap_mm(), 0.6 * p.plate_t)
+        self.assertGreater(p.az_root_gap_mm(), p.print_min_gap_mm)
+        # the involute half-angle at the pitch circle is half the (thinned) tooth over the pitch radius
+        self.assertAlmostEqual(p.az_tooth_half_angle(p.az_gear_r) * 2 * p.az_gear_r, math.pi * 1.5 / 2 - p.az_backlash_mm)
+        self.assertTrue(any("slots" in b for b in Feeder(az_module=0.5, az_gear_teeth=450).check_azimuth()))
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class FeederGeometryTest(unittest.TestCase):
@@ -519,6 +556,45 @@ class FeederGeometryTest(unittest.TestCase):
             for s in plate.placed():
                 self.assertLess((s & ball).volume, 1.0, name)
 
+    def test_azimuth_sweep_is_clear_and_can_fail(self):
+        from otr_cad.package import azimuth_sweep
+        self.assertEqual(azimuth_sweep(self.p), [])
+        # the front posts where they were until 2026-11-10: turned 30 deg nose up, the head's plates cut into them
+        self.assertTrue(any("hopper_post_front" in c for c in azimuth_sweep(Feeder(shelf_post_y=225.0))))
+
+    def test_turning_inertia_from_the_cad(self):
+        j0, m0 = self.F.turning_inertia(self.p, 0.0)
+        j45, m45 = self.F.turning_inertia(self.p, 45.0)
+        self.assertAlmostEqual(m0, m45)              # tilting moves mass, it does not add any
+        self.assertGreater(j45, j0)                  # nose up swings the column and plates out behind the axis
+        self.assertLessEqual(j45, self.p.az_inertia_kgm2)
+        # the motors alone, as point masses on their axes: a floor the solid model must exceed
+        r = (self.p.plate_half_y + self.p.plate_t + self.p.motor_len / 2) / 1000
+        self.assertGreater(j0, 2 * self.F.COTS_MASS_KG["launcher_motor"] * r * r)
+
+    def test_azimuth_gear_bolts_and_pinion(self):
+        plate = next(x for x in self.parts if x.name == "turntable_plate")
+        for v in plate.flat.vertices():   # every point of the outline is inside the trim circle
+            self.assertLessEqual(math.hypot(v.X - self.p.head_x, v.Y), self.p.az_trim_r + 1e-6)
+        holes = [(e.arc_center.X, e.arc_center.Y) for e in plate.flat.edges()
+                 if e.geom_type == GeomType.CIRCLE and abs(e.radius - 2.2) < 1e-6]
+        for x, y in self.F._az_bolts(self.p):
+            self.assertTrue(any(math.hypot(x - hx, y - hy) < 0.01 for hx, hy in holes), (x, y))
+        sector = next(x for x in self.parts if x.name == "az_gear_sector").placed()[0]
+        sb = sector.bounding_box()
+        self.assertAlmostEqual(sb.max.Z, self.p.mast_top_z + self.p.plate_t + self.p.bearing_h, places=6)  # under the plate
+        self.assertAlmostEqual(sb.max.Y, self.p.az_gear_r + self.p.az_module, places=1)
+        # tooth count: the sector spans +-(az_max + margin) of pitch angles
+        prof = self.F.az_gear_profile(self.p)
+        tips = [q for q in prof if abs(math.hypot(*q) - (self.p.az_gear_r + self.p.az_module)) < 1e-6]
+        n = int(math.radians(self.p.az_sector_half_deg) // (2 * math.pi / self.p.az_gear_teeth))
+        self.assertEqual(len(tips), 2 * (2 * n + 1))
+        mast = next(x for x in self.parts if x.name == "mast_plate")
+        bores = [(e.arc_center.X, e.arc_center.Y) for e in mast.flat.edges()
+                 if e.geom_type == GeomType.CIRCLE and abs(e.radius - self.F.AZ_BOSS_D / 2) < 1e-6]
+        self.assertEqual(len(bores), 1)
+        self.assertAlmostEqual(bores[0][0], self.p.head_x)
+        self.assertAlmostEqual(bores[0][1], self.p.az_centre_dist)
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class FeederPackageTest(unittest.TestCase):
