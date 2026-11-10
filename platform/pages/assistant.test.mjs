@@ -239,7 +239,8 @@ test('the floating mic steps aside on downward scroll, pads the page on phones, 
 
 test("the floating mic's icon ignores a page's own svg and path styles", () => {
   // changepoint-detector and shift-roster-builder style a bare svg{background:#fff}
-  // for their charts; without this reset the mic drew white on white.
-  assert.match(ASSISTANT_LAUNCHER_JS, /\.pf-ask-voice svg\{[^}]*width:20px;height:20px;background:none\}/);
+  // for their charts (65 pages, 2026-11-10); wall-framing-takeoff adds a 1px
+  // border. Without this reset the mic drew white on white.
+  assert.match(ASSISTANT_LAUNCHER_JS, /\.pf-ask-voice svg\{[^}]*width:20px;height:20px;background:none;border:0\}/);
   assert.match(ASSISTANT_LAUNCHER_JS, /\.pf-ask-voice path\{fill:currentColor\}/);
 });

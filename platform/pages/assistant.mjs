@@ -58,7 +58,7 @@ export function renderAssistantFiles({ searchVariants, searchScore }) {
  *
  * The calculator button appears only where the page has a real form (two or
  * more number inputs, by type or by inputmode in <main>, or the body where there is no <main>) and is not framed in someone else's page.
- * Its icon is reset by name (size, background, fill): pages that style a bare
+ * Its icon is reset by name (size, background, border, fill): pages that style a bare
  * `svg` for their charts (changepoint-detector's `svg{background:#fff}`) had
  * painted the mic out, leaving a white square on the button.
  */
@@ -95,7 +95,7 @@ export const ASSISTANT_LAUNCHER_JS = `
         // has under it, so it needs an opaque fill with a known contrast
         // (white on #1f4e8c is 8.3:1). pf-chrome.css stays colour-free.
         var s=document.createElement('style');
-        s.textContent='.pf-ask-voice{position:fixed;right:16px;bottom:16px;z-index:2147482000;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin:0;border:0;border-radius:999px;background:#1f4e8c;color:#fff;font:600 14px/1 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;transition:transform .2s,opacity .2s}.pf-ask-voice svg{flex:none;width:20px;height:20px;background:none}.pf-ask-voice path{fill:currentColor}.pf-ask-voice:focus-visible{outline:3px solid #f59f00;outline-offset:2px}@media (max-width:560px){.pf-ask-voice span{display:none}.pf-ask-voice{padding:12px}body{padding-bottom:72px}}@media print{.pf-ask-voice{display:none}}.pf-ask-voice.pf-away{transform:translateY(80px);opacity:0;pointer-events:none}.pf-ask-voice.pf-away:focus-visible{transform:none;opacity:1;pointer-events:auto}@media (prefers-reduced-motion:reduce){.pf-ask-voice{transition:none}}';
+        s.textContent='.pf-ask-voice{position:fixed;right:16px;bottom:16px;z-index:2147482000;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin:0;border:0;border-radius:999px;background:#1f4e8c;color:#fff;font:600 14px/1 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;transition:transform .2s,opacity .2s}.pf-ask-voice svg{flex:none;width:20px;height:20px;background:none;border:0}.pf-ask-voice path{fill:currentColor}.pf-ask-voice:focus-visible{outline:3px solid #f59f00;outline-offset:2px}@media (max-width:560px){.pf-ask-voice span{display:none}.pf-ask-voice{padding:12px}body{padding-bottom:72px}}@media print{.pf-ask-voice{display:none}}.pf-ask-voice.pf-away{transform:translateY(80px);opacity:0;pointer-events:none}.pf-ask-voice.pf-away:focus-visible{transform:none;opacity:1;pointer-events:auto}@media (prefers-reduced-motion:reduce){.pf-ask-voice{transition:none}}';
         document.head.appendChild(s);document.body.appendChild(b);
         // Step aside while reading downwards so it never sits on the text; any upward scroll brings it back.
         var y=window.scrollY;window.addEventListener('scroll',function(){var n=window.scrollY;if(Math.abs(n-y)>8){b.classList.toggle('pf-away',n>y&&n>200);y=n;}},{passive:true});
