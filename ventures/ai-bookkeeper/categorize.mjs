@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 38 (2026-11-10, eval/probe38.mjs): locksmiths, florists, tattoo artists, massage therapists, phone repair shops.
+  ["6110", "out", /massage therapy license/],
+  ["6170", "out", /bodywork and massage|repair association/],
+  ["6060", "out", /locksmith dispatch|floral pos|repairdesk/],
+  ["6100", "out", /ifixit pro/],
+  ["5000", "out", /hillman key|mobilesentrix/],
+  ["4000", "in", /wedding flowers deposit|tattoo session deposit|massage session payment|screen replacement payment/],
   // Gap probe 37 (2026-11-10, eval/probe37.mjs): doulas, estheticians, snow plowers, taxidermists, vehicle-wrap installers.
   ["6110", "out", /state wildlife taxidermy permit/],
   ["6170", "out", /dona international|cappa certification|associated skin care|snow and ice management assoc|national taxidermists assoc|wrap installers guild/],
@@ -44,7 +51,7 @@ export const BUILT_IN = [
   // Gap probe 36 (2026-11-10, eval/probe36.mjs): house cleaners, window washers, HVAC installers, mobile welders, bike repair shops.
   ["6170", "out", /residential cleaning services|pressure washing resource|bicycle retailers assoc/],
   ["6060", "out", /lightspeed retail/],
-  ["6100", "out", /molly maid franchise|sorbo window/],
+  ["6100", "out", /molly maid franchise supplies|sorbo window/],
   ["5000", "out", /\bqbp wholesale/],
   ["4000", "in", /house cleaning payment|window cleaning deposit|hvac install deposit|welding repair payment/],
   // Gap probe 35 (2026-11-10, eval/probe35.mjs): drone photographers, notary signing agents, dog groomers, piano tuners, beekeepers.
