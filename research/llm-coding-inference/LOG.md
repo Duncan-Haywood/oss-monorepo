@@ -2,6 +2,15 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 7ac: does the guard-only rule hold for a rare category on a second corpus (NaijaSenti negative share thinned to 1% and 3%, nb-in-language coder)? (prediction committed in the script docstring before the 1,000-draw runs; `experiments/h7ac_naija_rare.py 1000 <prev>`)
+- Why: 7ab's open item. NaijaSenti negative is 32.7% prevalent, so it never exercised the rare case. I kept every non-negative item of the whole test part and subsampled the negatives by label (seed 7) to 1% or 3% of the corpus (30,172 and 30,794 items). The coder is untouched (corpus J 0.393 and 0.384). The thinning is by design, so this is a constructed prevalence on real text, not a naturally rare category. n = 1,000 and 3,000, pilot n/2, 1,000 draws (+/- 1.4 points).
+- **Prediction:** `neg_guard=3` alone covers 93% or more in all four cells and is no wider than pooled. Refuted if any cell is under 93%.
+
+### Outcome (`experiments/h7ac_naija_rare_0.01.txt`, `h7ac_naija_rare_0.03.txt`; one run each)
+- Coverage, guard-only: 96.2 and 95.0 (1%, n 1,000 and 3,000), 95.7 and 94.3 (3%). Pooled: 94.3, 95.0, 94.5, 95.2. Shipped default: 94.3, 95.6, 94.5, 95.0. Prediction supported.
+- Half-width (points), guard-only vs pooled: 0.622 vs 0.623 (1%, n 1,000; cells in 11% of draws), 0.319 vs 0.340 (6% narrower, n 3,000), 0.987 vs 1.029 (4%), 0.528 vs 0.573 (8%). Shipped default equals pooled at n = 1,000 (the screen never fires) and is 0.341 / 0.535 at n = 3,000, so dropping the screen buys 6.5% at 1% prevalence and 1% at 3% against it.
+- Limits: a thinned corpus, one coder (J about 0.39), one language family, one run each; n = 3,000 is 10% of the corpus. Library default unchanged. Still open: a naturally rare category on a second corpus; a second model family.
+
 ## 2026-11-09 · Milestone 7ab: does the guard-only rule hold on a second corpus (NaijaSenti negative share, nb-in-language coder, corpus J 0.39)? (script ran before this entry was written; the prediction below was not committed ahead of the run; `experiments/h7ab_naija_guard_only.py 500`)
 - Why: the open item since 7y was a second corpus. Same corpus and coder as 7h (6,000 tweets, prevalence 32.7%), n = 400 and 1,000, pilot n/2, 500 draws (+/- 1.9 points).
 - **Prediction (stated after seeing the output, so weaker than a pre-registered one):** `neg_guard=3` alone covers 93% or more; width within 2% of pooled, since 7h found the coder buys under 1% here.
