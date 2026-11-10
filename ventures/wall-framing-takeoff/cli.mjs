@@ -221,6 +221,9 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   if (flags.has("--help") || flags.has("-h")) return { code: 0, out: HELP };
   const flagErr = unknownFlag(argv);
   if (flagErr) return { code: 1, out: flagErr };
+  // Two output formats at once used to print whichever branch came first, with no word that the other was dropped.
+  const formats = ["--json", "--csv", "--pdf"].filter((f) => flags.has(f));
+  if (formats.length > 1) return { code: 1, out: `${formats.join(" and ")} each choose the output format; give only one.` };
   // A mistyped size must stop the run, not quietly turn the feature off (a "--panel-max=zzz" used to print the plain order).
   for (const [flag, kind] of [["--rim-lap=", "length"], ["--panel-max=", "length"], ["--sheathing-psf=", "number"]]) {
     const raw = argv.find((a) => a.startsWith(flag))?.slice(flag.length);
