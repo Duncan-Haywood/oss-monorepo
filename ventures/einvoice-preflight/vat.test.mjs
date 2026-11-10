@@ -560,3 +560,14 @@ test("China unified social credit code gets a check-character test", () => {
   assert.deepEqual(rules("CN9135010OM000100Y43"), ["INV-022"]);
   assert.deepEqual(rules("CN12345"), ["INV-022"]);
 });
+
+test("Ukrainian RNOKPP (10 digits) gets a check-digit test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("UA1759013776"), []);
+  assert.deepEqual(rules("UA2530414071"), []);
+  assert.deepEqual(rules("UA1759013770"), ["INV-023"]);
+  // negative weighted sum (first digit 9, rest zero): -9 mod 11 = 2, as Python computes it
+  assert.deepEqual(rules("UA9000000002"), []);
+  assert.deepEqual(rules("UA9000000000"), ["INV-023"]);
+  assert.deepEqual(rules("UA175901377"), ["INV-022"]);
+});

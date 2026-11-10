@@ -296,7 +296,7 @@ function classify(country, body) {
   if (country === "VE") return /^[VEJPG]\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "TW") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "TH") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
-  if (country === "UA") return /^\d{8}$/.test(body) ? "checksum" : /^\d{10}$/.test(body) ? "format" : "bad-format";
+  if (country === "UA") return /^\d{8}$/.test(body) || /^\d{10}$/.test(body) ? "checksum" : "bad-format";
   // Russia INN (10 digits company, 12 individual), Canada BN / GST-HST (9 digits, optional RT0001-style
   // program account) and Dominican Republic RNC (9 digits). Tax authority texts unread.
   if (country === "RU") return /^(\d{10}|\d{12})$/.test(body) ? "checksum" : "bad-format";
@@ -580,6 +580,15 @@ function uaEdrpouOk(body) {
   return r === d[7];
 }
 
+// Ukrainian RNOKPP (RNTRC), the 10-digit number of an individual or sole trader: weights
+// -1,5,7,9,4,6,10,5,7 on the first nine digits, check = (sum mod 11) mod 10. Rule as in
+// python-stdnum ua.rntrc (its docs pin 1759013776 and 2530414071); the tax service's own text is unread.
+function uaRnokppOk(body) {
+  const w = [-1, 5, 7, 9, 4, 6, 10, 5, 7];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return String((((sum % 11) + 11) % 11) % 10) === body[9];
+}
+
 // Guatemalan NIT (SAT taxpayer number): digits then one check character, 0-9 or K.
 // The base digits are weighted from n+1 down to 2 (rightmost base digit by 2); with
 // s the sum the check is (11 - s mod 11) mod 11, written K for 10. The rule is the
@@ -724,7 +733,7 @@ function checksumOk(country, body) {
   if (country === "PY") return checkParaguayRuc(body).ok;
   if (country === "IL") return checkIsraeliId(body).ok;
   if (country === "KZ") return kzBinOk(body);
-  if (country === "UA") return uaEdrpouOk(body);
+  if (country === "UA") return body.length === 10 ? uaRnokppOk(body) : uaEdrpouOk(body);
   if (country === "GT") return gtNitOk(body);
   if (country === "DO") return doTaxIdOk(body);
   if (country === "VE") return veRifOk(body);
