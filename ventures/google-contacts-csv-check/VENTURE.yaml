@@ -31,3 +31,13 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, rules stated as read from memory, no warranty,
 # independent-of-Google clause, trademark used nominatively.
+
+hypotheses:
+  - claim: >-
+      People whose Google Contacts import "came in blank" or "skipped the
+      email column" will search those literal symptoms and run their file
+      through a free local checker; the heading-spelling finding (E-mail 1 -
+      Value vs Email 1 - Value) is the fault they act on, measured as the
+      share of file_checked events followed by fixes_applied (counters exist;
+      local only, no reading yet, added 2026-11-10).
+    status: untested
