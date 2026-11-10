@@ -1,8 +1,8 @@
 ---
 title: "Why fixing the permit classifier can't make Seattle look more like its source cities"
-seo_title: "Cross-city permit transfer: class overlap is limited by the source mix, not classifier error"
+seo_title: "Permit class overlap across cities is limited by the source mix"
 date: 2026-11-10
-description: "Correcting Seattle's permit classes for keyword-rule error leaves the class overlap with Chicago, SF and Austin at 0.50. The limit is that the source cities' rows are 45% trade permits."
+description: "Correcting Seattle permit classes for keyword-rule error leaves the overlap with its source cities at 0.50: 45% of source rows are trade permits."
 tags: [research, build-data, construction]
 ---
 
