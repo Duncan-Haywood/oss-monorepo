@@ -40,7 +40,7 @@ any coder tried. Agreement is the wrong axis: on this corpus a constant code
 agrees 0.673, so the real coders at 0.66 to 0.69 have Youden J of only 0.01 to
 0.21, and a synthetic coder with each one's sensitivity and specificity and
 independent errors reproduces its width ratio to within 0.006 (0.98 to 0.996 at
-n = 400). A 20% gain needs J of about 0.5.
+n = 400). A 20% gain needs J of about 0.5. We also ship the audit rule as library code (coder-cell strata with a guard of three pilot positives in the coder-negative cell); across two corpora, two model sizes and a held-out category it covered 93.6 to 96.6% in every cell, with a width gain of 6 to 29% at a third of the corpus and a cost of up to 3.4% at n = 500 (Section 6).
 
 ## 1 Introduction
 
