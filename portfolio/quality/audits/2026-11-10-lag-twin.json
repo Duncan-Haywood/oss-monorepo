@@ -1,0 +1,236 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/lag-twin",
+  "stratum": "research",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent audit, see run record",
+  "status": "audited",
+  "professional": "a control-systems engineer (robotics/servo loop design) who would check the Routh limit and lag-limited bandwidth against a textbook, plus a reviewer for a controls venue who would ask what is new",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran the 8 unit tests (8 passed, 1.1 s) and experiments/run.py in full: output is identical to the committed experiments/results.txt (diff of non-blank lines empty). Recomputed with numpy.roots (a source the author did not write; the author uses a hand-rolled Durand-Kerner): stability flips at tau* = kd/kp for (zeta,wn) = (0.7,1), (0.3,10), (2,3) (max Re -2.4e-4 at 0.999 tau*, +2.4e-4 at 1.001 tau*); boundary |Im| = 1.0, 10.0, 3.0 = wn; growth slope at zeta=0.3,0.7,1,2 is 0.367647, 0.168919, 0.099999994, 0.029412, equal to wn^2/(2(1+4 zeta^2)); real decay rate at tau=0.05, zeta=0.7 is 4.8428, 3.4908, 1.9537, 0.9612 at wn=8,14,20,24, as in the paper; decay 0.7552 and 0.7881 at eps=0.1 and 0.3; overshoot recomputed by matrix-exponential (eigendecomposition) step response: 4.72, 7.06, 15.21, 29.93, 38.96, 47.17 percent at eps 0.1..1.2, matching the paper. Random search with numpy at 20000 draws reaches 6.6662 < 1/(3 tau) = 6.6667. One analytic statement is wrong (see defects: bound equality is not only the triple pole), but every number reproduces. Not 4: the optimum for zeta=0.7 is really 4.90 at wn=7.14, and the headline 'best wn about 8, rate 4.8' is a coarse grid point.",
+    "completeness": "README and whitepaper claim six results plus a figure; each was checked and reproduces end to end from `PYTHONPATH=src python3 experiments/run.py` (about 1 min): 168-case Routh vs roots (0 disagreements), hunting frequency, growth slope vs RK4 fitted rate, step-test error, bandwidth sweep, 1/(3 tau) cap, design rule. experiments/figure.py and overshoot.svg exist. No stubs or TODOs. Next steps are listed as future work, not claimed.",
+    "verification": "Command: PYTHONPATH=src python3 -m pytest -q tests -> 8 passed. Seeded 4 mutations in src/lag_twin/model.py (and an equivalent 5th, not counted): real_stable '>' to '>=' survived (tests probe 0.999/1.001 tau*, never the boundary); dropping the d term of the RK4 actuator update was caught by test_sim_grows_beyond_limit_and_decays_below; coarsening the step size tau/20 to tau/2 survived (no test checks step() accuracy at small tau, and experiments/run.py has no assertions); tau_star scaled by 1.1 was caught by 3 tests; growth slope 4 zeta^2 to 2 zeta^2 was caught. 3 of 5 caught (2 of 4 non-equivalent seeded survive). Experiments are a script printing numbers, with no test comparing results.txt to a regenerated run.",
+    "craft": "Read src/lag_twin/model.py (89 lines), tests/test_model.py, experiments/run.py. Clean, documented, stdlib only, scale invariance exploited. Defects: poles() uses a fixed initial guess and 500 Durand-Kerner iterations with no convergence failure signal (a triple pole yields 5e-5 root splitting, visible in results.txt); run.py imports the model rather than copying it, good; step() silently picks dt = min(1e-3, tau/20); figure.py is a 106-line stand-alone plot (not the shared linefig helper that research/CLAUDE.md asks for). The long run (about a minute) is not under test.",
+    "claims": "Checked claims: 168 of 168 Routh agreement (backed by results.txt); growth slope and simulated rate (backed, 0.011201 vs 0.011200 is a 1e-6 rounding edge on the stated 'at most 1e-6'); 'no gains decay faster than 1/(3 tau), with equality iff a triple pole' (whitepaper result 5) is false: equality holds for any pole set whose three real parts equal -1/(3 tau), e.g. a real pole at -1/3 plus a complex pair at -1/3 +/- j*2.18 (tau=1) which is exactly the zeta=2 optimum; numpy max over wn at zeta=1, 1.5, 2, 3 reaches 0.33329-0.33333, and the paper's own 'zeta>=1 gave 0.3331-0.3333' row contradicts 'iff'. 'Best wn about 8' (README) vs 4.90 at 7.14. The reference list includes Khalil 2002 and Zhao et al. 2020 which are not used by any result. A stylised disclosure is present and honest. No disclaimer problems; no claim of novelty, but also none of prior work beyond one textbook.",
+    "fitness": "Nearest prior work: the PD plus first-order-lag Routh condition kd > tau*kp is a textbook exercise (Astrom and Murray 2008, ch. 5-6 / Franklin, Powell and Emami-Naeini); the pole-sum bound 1/(3 tau) follows from Vieta's formula for a cubic; time-scaling and sim-to-real fidelity are covered by the unmodelled-dynamics and gain-margin literature. The result is sound but not new, and the paper has no real actuator data, no identification of tau, and no named venue. A researcher could reuse it as a worked example or teaching note, but not as a base for a paper: next steps (lag plus delay, saturation) are where something new would be, and sibling projects (latency-twin, slew-twin) cover only the adjacent pieces.",
+    "domain": "A controls engineer would accept the Routh criterion and the lag-limit statement, and would note that real designs read this as a gain margin or phase margin (Bode: PD on a double integrator with a lag has phase crossover where wn*tau relation gives kd/kp limit). Departures: no margin or sensitivity-peak metric, which is the practitioner's way to quantify 'near the limit'; no sampling or delay (lag alone is the least common cause of hunting); no integral action or saturation; step overshoot and RMS error are the only twin-validation metrics shown; 'the real decay rate peaks at 0.26-0.46 of the limit' is a result for the chosen cost (dominant pole) and not a recommended tuning rule. Plant is the same family as the twin so model-form error is untested, as the limitations section admits."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "stability boundary tau* = kd/kp at zeta=0.7, wn=1, 0.3/10, 2/3",
+      "method": "numpy.roots of tau s^3 + s^2 + kd s + kp (author used own Durand-Kerner)",
+      "command": "python3 recompute (numpy.roots at 0.999 and 1.001 tau*)",
+      "expected": "Re flips sign at tau*",
+      "observed": "-2.4e-4 / +2.4e-4, -2.2e-3 / +2.2e-3, -3.5e-4 / +3.5e-4",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "hunting frequency at the limit equals wn (zeta,wn) = (0.7,1),(0.3,10),(2,3)",
+      "method": "numpy.roots imaginary part at tau*",
+      "command": "python3 recompute",
+      "expected": "1, 10, 3",
+      "observed": "1.0, 9.999999999999995, 3.0",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "growth slope d Re s/d tau at zeta=0.3, 0.7, 1, 2",
+      "method": "numpy.roots finite difference vs formula wn^2/(2(1+4 zeta^2))",
+      "command": "python3 recompute",
+      "expected": "0.367647, 0.168919, 0.100000, 0.029412",
+      "observed": "0.367647, 0.168919, 0.0999999, 0.029412",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "real decay rate at tau=0.05, zeta=0.7, wn=8, 14, 20, 24",
+      "method": "numpy.roots",
+      "command": "python3 recompute",
+      "expected": "4.8428, 3.4908, 1.9537, 0.9612",
+      "observed": "4.84282, 3.49077, 1.95366, 0.96115",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "step overshoot at eps=0.1, 0.3, 0.5, 0.8, 1.0, 1.2 (zeta=0.7, wn=1)",
+      "method": "closed-form eigendecomposition of the 3x3 state matrix, no RK4",
+      "command": "python3 recompute (numpy.linalg.eig, 60 s grid)",
+      "expected": "4.72, 7.06, 15.21, 29.93, 38.96, 47.17 percent",
+      "observed": "4.72, 7.06, 15.21, 29.93, 38.96, 47.17 percent",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "whitepaper result 5: equality in the 1/(3 tau) bound iff a triple pole",
+      "method": "Vieta's formula and numpy max over wn at zeta=1,1.5,2,3, tau=1",
+      "command": "python3 recompute (grid over wn)",
+      "expected": "bound reached only at zeta=sqrt(3)/2",
+      "observed": "0.33329, 0.33333, 0.33332, 0.33332 reached at zeta=1,1.5,2,3; analytic non-triple solution zeta=2: beta^2=4.77, wn=1.275",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "best real decay rate at tau=0.05, zeta=0.7 and where it occurs",
+      "method": "numpy.roots over a 0.01 wn grid",
+      "command": "python3 recompute",
+      "expected": "README: best wn about 8, rate 4.8",
+      "observed": "4.90 at wn=7.14 (eps=0.357); 4.84 at wn=8",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "no gain pair beats 1/(3 tau) at tau=0.05 (random search)",
+      "method": "numpy.roots, 20000 log-uniform draws, own RNG seed",
+      "command": "python3 recompute",
+      "expected": "<= 6.66667",
+      "observed": "6.66621",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "experiments/run.py regenerates results.txt exactly",
+      "method": "diff of fresh run against committed file",
+      "command": "PYTHONPATH=src python3 experiments/run.py > out; diff",
+      "expected": "identical",
+      "observed": "identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README 168 of 168 Routh agreement",
+      "method": "results.txt section 2",
+      "command": "PYTHONPATH=src python3 experiments/run.py",
+      "expected": "0 of 168 disagree",
+      "observed": "0 of 168",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite passes",
+      "method": "pytest",
+      "command": "PYTHONPATH=src python3 -m pytest -q tests",
+      "expected": "8 passed",
+      "observed": "8 passed in 1.1s",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "whitepaper: best eps for zeta=0.3..2 are 0.27, 0.375, 0.357, 0.526, 0.921, 1.276",
+      "method": "results.txt table and numpy grid (0.9195 and 1.2754 at zeta 1.5, 2)",
+      "command": "python3 recompute",
+      "expected": "same to grid step",
+      "observed": "0.273, 0.375, 0.357, 0.526, 0.921, 1.276 (numpy 0.9195, 1.2754)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "reference list is used by the paper (Khalil 2002, Zhao 2020)",
+      "method": "read paper/whitepaper.md for citations in text",
+      "command": "grep -n 'Khalil\\|Zhao' paper/whitepaper.md",
+      "expected": "cited where used",
+      "observed": "listed only in References, not cited in any result",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "novelty versus textbook",
+      "method": "compare with Astrom and Murray 2008 PD-with-lag Routh exercise and Vieta bound",
+      "command": "read paper/whitepaper.md results 1, 5",
+      "expected": "new result or new data",
+      "observed": "textbook condition and Vieta bound; no real data",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/lag_twin/model.py:21",
+      "change": "kd > tau * kp -> kd >= tau * kp",
+      "caught": false,
+      "test_cmd": "PYTHONPATH=src python3 -m pytest -q tests"
+    },
+    {
+      "where": "src/lag_twin/model.py:77",
+      "change": "drop d[2] from the RK4 actuator state update",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m pytest -q tests"
+    },
+    {
+      "where": "src/lag_twin/model.py:60",
+      "change": "dt = min(1e-3, tau / 20) -> tau / 2",
+      "caught": false,
+      "test_cmd": "PYTHONPATH=src python3 -m pytest -q tests"
+    },
+    {
+      "where": "src/lag_twin/model.py:17",
+      "change": "tau_star = kd / kp -> 1.1 * kd / kp",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m pytest -q tests"
+    },
+    {
+      "where": "src/lag_twin/model.py:54",
+      "change": "growth slope 1 + 4 zeta^2 -> 1 + 2 zeta^2",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m pytest -q tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Whitepaper result 5 says equality in the 1/(3 tau) speed limit holds iff a triple pole. False: it holds whenever all three poles have real part -1/(3 tau), including a real pole plus a complex pair, which is the zeta>=1 optimum the same paragraph reports (0.3331-0.3333). The cap itself is right.",
+      "where": "research/lag-twin/paper/whitepaper.md:16",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Result is textbook (Routh condition for PD plus first-order lag, pole-sum bound) with no real actuator data and no named venue or prior-work comparison beyond one book; novelty not claimed but a reader cannot tell what is new.",
+      "where": "research/lag-twin/paper/whitepaper.md:1",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "step() accuracy and the experiments script are untested: shrinking the RK4 step 10x leaves all tests green, and nothing compares run.py output to results.txt.",
+      "where": "research/lag-twin/tests/test_model.py:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "README and paper quote 'best wn about 8, rate 4.8' for tau=0.05, zeta=0.7 from a coarse sweep; true optimum is 4.90 at wn=7.14.",
+      "where": "research/lag-twin/README.md:3",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "References list Khalil (2002) and Zhao et al. (2020) that no result uses; real-decay grid search and Durand-Kerner give no convergence signal for near-triple poles.",
+      "where": "research/lag-twin/paper/whitepaper.md:28",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "No gain/phase margin or sensitivity metric, the practitioner's measure of distance from the limit; no delay or sampling alongside lag.",
+      "where": "research/lag-twin/paper/whitepaper.md:24",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [
+    "this round: whitepaper result 5 corrected and test added (PR number in run record)"
+  ],
+  "verdict": "A small, clean and numerically correct study: every headline number reproduces, an independent numpy/eigendecomposition recomputation agrees to the printed digits, and results.txt regenerates byte-for-byte. It does not meet the bar because the claims gate fails (the paper asserts equality in the 1/(3 tau) bound only for a triple pole, which its own zeta>=1 data contradicts) and the verification gate fails (2 of 4 non-equivalent seeded bugs survive, including a 10x coarser RK4 step). As research it is a worked textbook example with no real data and no new theorem, so fitness is 2: a researcher could cite it as teaching material, not build a paper on it."
+}

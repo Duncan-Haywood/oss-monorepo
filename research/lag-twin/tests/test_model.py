@@ -54,6 +54,12 @@ class T(unittest.TestCase):
         kp, kd = 1 / (27 * tau * tau), 1 / (3 * tau)
         self.assertAlmostEqual(decay_rate(kp, kd, tau), 1 / (3 * tau), places=4)
 
+    def test_speed_limit_equality_is_not_only_the_triple_pole(self):
+        # Poles -1/3 and -1/3 +- jb (tau = 1) also reach the 1/(3 tau) cap.
+        b = 1.0
+        kd, kp = 1 / 3 + b * b, 1 / 27 + b * b / 3
+        self.assertAlmostEqual(decay_rate(kp, kd, 1.0), 1 / 3, places=6)
+
 
 if __name__ == "__main__":
     unittest.main()
