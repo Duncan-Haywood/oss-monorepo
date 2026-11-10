@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { branchAndPriceOpen, hourUnit } from "./bnp.mjs";
-import { parseStaff, parseShifts, openFloorByPricing, buildRoster } from "./calc.mjs";
+import { branchAndPriceOpen, columnGenerationOpen, hourUnit } from "./bnp.mjs";
+import { parseStaff, parseShifts, openFloorByPricing, openFloorByColumnGeneration, buildRoster } from "./calc.mjs";
 
 // Least open hours by trying every combination of one valid set per person (small weeks only).
 function bruteOpen(sets, len) {
@@ -76,4 +76,54 @@ test("buildRoster reports the branch-and-price proof in the optimality object", 
   const { staff, slots } = seededWeek(777, 4, 12);
   const r = buildRoster(staff, slots, { exact: true, iterations: 500, restarts: 1 });
   assert.ok(r.optimality.forcedOpenHours <= r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0) + 1e-9);
+});
+
+test("column generation gives the enumerated LP, floor and least open hours on 60 small random weeks", () => {
+  for (let c = 0; c < 60; c++) {
+    const { staff, slots } = seededWeek(9001 + c * 37, 3 + (c % 4), 7 + (c % 9));
+    const pf = openFloorByPricing(staff, slots, {});
+    const truth = bruteOpen(pf.cov.sets, pf.cov.len);
+    const e = branchAndPriceOpen(pf.cov.sets, pf.cov.len);
+    const r = openFloorByColumnGeneration(staff, slots, {});
+    assert.equal(r.proven, true, `case ${c}`);
+    assert.ok(Math.abs(r.rootLP - e.rootLP) < 1e-6, `case ${c}: root LP ${r.rootLP} vs enumerated ${e.rootLP}`);
+    assert.ok(Math.abs(r.floor - truth) < 1e-6, `case ${c}: floor ${r.floor} vs brute force ${truth}`);
+    assert.ok(Math.abs(r.best - truth) < 1e-6, `case ${c}: roster ${r.best} vs brute force ${truth}`);
+    // Each person's shifts in the roster are one of their valid sets (the oracle never returns a set breaking a hard rule).
+    for (let p = 0; p < staff.length; p++) {
+      const mine = [...r.roster.keys()].filter((s) => r.roster[s] === p);
+      assert.ok(pf.cov.sets[p].some((f) => f.length === mine.length && f.every((s) => mine.includes(s))), `case ${c}: person ${p}`);
+    }
+  }
+});
+
+test("column generation's floor stays a valid bound when the node limit or the pricing oracle stops early", () => {
+  for (let c = 0; c < 15; c++) {
+    const { staff, slots } = seededWeek(4242 + c * 11, 4, 10);
+    const pf = openFloorByPricing(staff, slots, {});
+    const truth = bruteOpen(pf.cov.sets, pf.cov.len);
+    for (const cfg of [{ nodeLimit: 1 }, { maxNodes: 3 }, { maxRounds: 2 }]) {
+      const r = openFloorByColumnGeneration(staff, slots, {}, { incumbentOpen: truth, ...cfg });
+      assert.ok(r.floor <= truth + 1e-6, `case ${c} ${JSON.stringify(cfg)}: floor ${r.floor} above ${truth}`);
+      if (r.proven) assert.ok(Math.abs(r.floor - truth) < 1e-6);
+    }
+  }
+});
+
+test("column generation: a person who must hold a shift no valid set allows makes the node infeasible", () => {
+  // One person, shifts 0 and 1 overlap; the oracle refuses any set with both.
+  const valid = (f) => !(f.includes(0) && f.includes(1));
+  const price = (p, w, need, ban) => {
+    let best = null, bv = -Infinity;
+    for (const f of [[], [0], [1]]) {
+      if (!valid([...f, ...need]) || f.some((s) => ban.has(s))) continue;
+      const set = [...new Set([...f, ...need])];
+      const v = set.reduce((a, s) => a + w[s], 0);
+      if (v > bv) { bv = v; best = set; }
+    }
+    return { set: best, value: bv, exact: true };
+  };
+  const r = columnGenerationOpen(1, [4, 6], price);
+  assert.equal(r.floor, 4);
+  assert.equal(r.proven, true);
 });

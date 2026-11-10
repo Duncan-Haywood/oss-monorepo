@@ -103,7 +103,7 @@ function solveLP(m, cols, cost, init, { maxPivots = 20000 } = {}) {
     x[j] = Math.max(0, xB[r]);
     obj += cost[j] * x[j];
   }
-  return { obj, x, infeasible, pivots };
+  return { obj, x, infeasible, pivots, y };
 }
 
 // Build a node's columns from the root sets and its branch decisions, solve its LP, and report the most fractional pair.
@@ -206,4 +206,153 @@ export function branchAndPriceOpen(sets, len, { incumbentOpen = Infinity, nodeLi
   const floor = Math.min(best, roundUp(low, unit));
   stats.ms = Date.now() - t0;
   return { floor, rootLP, best: best === Infinity ? null : best, roster: bestRoster, proven: !aborted || floor >= best - 1e-9, openNodes: open.length, stats };
+}
+
+// Branch-and-price by true column generation: the same Dantzig-Wolfe LP as branchAndPriceOpen, but the columns are not
+// enumerated up front. `price(p, w, need, ban)` is a per-person pricing oracle: the valid shift set for person p that holds every
+// shift in `need` (an array), none in `ban` (a Set), and has the largest sum of w[s]; it returns { set, value, exact }, with
+// set null when no valid set holds all of `need`. Weeks where one person has more valid sets than can be listed (the 60,000 cap
+// in calc.mjs) get the LP this way.
+//
+// Each node solves the restricted LP over the columns found so far, asks the oracle for each person's best set at the LP's
+// shift prices, adds any set with negative reduced cost, and repeats. Before the LP is settled, the Lagrangian (Lasdon) bound
+// (sum of duals) + sum_p min(0, best reduced cost of p) is still a valid floor, because each person holds exactly one set; so a
+// node can be cut early, and a node the time limit stops keeps a valid bound. When the oracle cannot finish (`exact: false`)
+// the node keeps its parent's bound, which is valid because a child's LP can only be higher.
+//
+// Identical shifts (`cls[s]`, the same class for copies of one shift line: same day, times and who may take them) are branched
+// on as one: "p holds a copy of class k" or "p holds none". Branching on single copies leaves the LP free to move p to the
+// other copy at no cost, so the bound never rises (measured: 47.00 at every node of the rolling-gap 10x28 set 0 for 100,000
+// nodes, against an optimum of 48). A node whose LP is settled and whose class shares are all 0 or 1 is solved: every set
+// p uses at that node holds the same classes, so handing each holder of a class a different copy is a roster at the LP value.
+export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null } = {}) {
+  const S = len.length;
+  const C = cls ? Int32Array.from(cls) : Int32Array.from({ length: S }, (_, s) => s);
+  const copies = new Map();
+  for (let s = 0; s < S; s++) { if (!copies.has(C[s])) copies.set(C[s], []); copies.get(C[s]).push(s); }
+  const unit = hourUnit(len);
+  const t0 = Date.now();
+  const timeUp = () => Date.now() - t0 > ms;
+  const stats = { nodes: 0, pivots: 0, ms: 0, columns: 0, rounds: 0, pricingCalls: 0, inexactPricing: 0, classes: copies.size };
+  const pool = [], seen = new Set();
+  const addCol = (p, set) => {
+    const f = [...set].sort((a, b) => a - b);
+    const key = p + ":" + f.join(",");
+    if (seen.has(key)) return false;
+    seen.add(key); pool.push({ p, f }); stats.columns++;
+    return true;
+  };
+  for (let p = 0; p < P; p++) addCol(p, []);
+  let best = incumbentOpen, bestRoster = null;
+  const cut = (b) => roundUp(b, unit) >= best - 1e-9;
+
+  // fix: Map key p*S+k -> 1 (p holds a copy of class k) or 0 (p holds no copy of class k).
+  const evalNode = (fix, parentBound) => {
+    stats.nodes++;
+    const needCls = Array.from({ length: P }, () => []);
+    const ban = Array.from({ length: P }, () => new Set());
+    for (const [key, v] of fix) {
+      const p = Math.floor(key / S), k = key % S;
+      if (v === 1) needCls[p].push(k); else for (const s of copies.get(k)) ban[p].add(s);
+    }
+    const fits = ({ p, f }) => f.every((s) => !ban[p].has(s)) && needCls[p].every((k) => f.some((s) => C[s] === k));
+    let lb = parentBound, z = Infinity, lp = null, cols = null, owner = null, members = null, settled = false;
+    for (let round = 0; round < maxRounds; round++) {
+      stats.rounds++;
+      cols = []; owner = []; members = [];
+      const cost = [];
+      const init = new Int32Array(S + P).fill(-1);
+      for (let s = 0; s < S; s++) { init[s] = cols.length; cols.push([s]); cost.push(len[s]); owner.push(-1); members.push([s]); }
+      for (const c of pool) {
+        if (!fits(c)) continue;
+        if (c.f.length === 0) init[S + c.p] = cols.length;
+        const rows = c.f.slice(); rows.push(S + c.p);
+        cols.push(rows); cost.push(0); owner.push(c.p); members.push(c.f);
+      }
+      lp = solveLP(S + P, cols, cost, init);
+      stats.pivots += lp.pivots;
+      // The restricted LP's full objective (big-M artificials included) equals its dual objective, the sum of the duals.
+      z = 0;
+      for (let r = 0; r < S + P; r++) z += lp.y[r];
+      const w = Float64Array.from({ length: S }, (_, s) => lp.y[s]);
+      let added = 0, lagr = z, exact = true;
+      for (let p = 0; p < P; p++) {
+        stats.pricingCalls++;
+        // A needed class is held through its highest-priced copy: copies are interchangeable for p, so that copy is p's best.
+        const need = needCls[p].map((k) => copies.get(k).reduce((a, s) => (w[s] > w[a] ? s : a)));
+        const r = price(p, w, need, ban[p]);
+        if (!r.exact) { exact = false; stats.inexactPricing++; }
+        if (!r.set) { lagr = Infinity; continue; }
+        const rc = -r.value - lp.y[S + p];
+        if (rc < -1e-9) { if (addCol(p, r.set)) added++; lagr += rc; }
+      }
+      if (lagr === Infinity) return { bound: Infinity }; // someone has no valid set under this node's fixes
+      if (exact) lb = Math.max(lb, lagr);
+      if (!added) { if (exact) { lb = Math.max(lb, lp.infeasible ? Infinity : z); settled = true; } break; }
+      if (cut(lb) || timeUp()) break;
+    }
+    if (lb === Infinity) return { bound: Infinity };
+    // Class shares: how much of class k person p holds in the LP. Branch on the most fractional pair, weighted by hours.
+    const share = new Map();
+    for (let j = 0; j < cols.length; j++) {
+      const v = lp.x[j];
+      if (v <= EPS || owner[j] < 0) continue;
+      for (const s of members[j]) { const key = owner[j] * S + C[s]; share.set(key, (share.get(key) || 0) + v); }
+    }
+    let pick = -1, score = -1;
+    for (const [key, v] of share) {
+      if (v > 1e-7 && v < 1 - 1e-7) { const sc = Math.min(v, 1 - v) * len[key % S]; if (sc > score) { score = sc; pick = key; } }
+    }
+    let solved = false;
+    if (pick < 0 && settled && !lp.infeasible) {
+      // Every class share is 0 or 1: build the roster from each person's heaviest column, giving holders distinct copies.
+      const roster = new Int32Array(S).fill(-1);
+      const free = new Map([...copies].map(([k, ss]) => [k, ss.slice()]));
+      let ok = true;
+      for (let p = 0; p < P && ok; p++) {
+        let bj = -1;
+        for (let j = 0; j < cols.length; j++) if (owner[j] === p && lp.x[j] > EPS && (bj < 0 || lp.x[j] > lp.x[bj])) bj = j;
+        if (bj < 0) continue;
+        for (const s of members[bj]) {
+          const k = C[s], list = free.get(k);
+          const at = list.includes(s) ? list.indexOf(s) : 0; // keep p's own copy when it is still free
+          if (!list.length) { ok = false; break; }
+          roster[list[at]] = p; list.splice(at, 1);
+        }
+      }
+      if (ok) {
+        let openH = 0;
+        for (let s = 0; s < S; s++) if (roster[s] < 0) openH += len[s];
+        if (openH < best - 1e-9) { best = openH; bestRoster = roster; }
+        solved = openH <= lb + 1e-7;
+      }
+    }
+    return { fix, bound: lb, pick, settled, solved };
+  };
+
+  const root = evalNode(new Map(), 0);
+  const rootLP = root.bound;
+  const open = [];
+  if (root.bound !== Infinity && !cut(root.bound) && !root.solved) open.push(root);
+  let aborted = false;
+  while (open.length) {
+    if (stats.nodes >= nodeLimit || timeUp()) { aborted = true; break; }
+    let bi = 0;
+    for (let i = 1; i < open.length; i++) if (open[i].bound < open[bi].bound) bi = i;
+    const nd = open[bi];
+    open[bi] = open[open.length - 1]; open.pop();
+    if (cut(nd.bound)) continue;
+    if (nd.pick < 0) { open.push(nd); aborted = true; break; } // unsettled with nothing fractional: no branch to take
+    for (const v of [1, 0]) {
+      const fix = new Map(nd.fix); fix.set(nd.pick, v);
+      const c = evalNode(fix, nd.bound);
+      if (c.bound === Infinity || cut(c.bound) || c.solved) continue;
+      open.push(c);
+    }
+  }
+  let low = best;
+  for (const nd of open) if (nd.bound < low) low = nd.bound;
+  const floor = Math.min(best, roundUp(low, unit));
+  stats.ms = Date.now() - t0;
+  return { floor, rootLP, rootSettled: root.settled, best: best === Infinity ? null : best, roster: bestRoster, proven: (!aborted && open.length === 0) || floor >= best - 1e-9, openNodes: open.length, stats };
 }
