@@ -1,0 +1,285 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/trade-show-roi-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a trade-show or field-marketing manager who owns an exhibit budget and reports cost per lead and ROI to a sales VP",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran node --test '*.test.mjs': 29 pass, 0 fail. Recomputed all 10 fixture shows (cost, cost per lead, cost per qualified lead, deals, gross profit, ROI, break-even leads) in an independent Python script: identical to the cent; best set under $40k found by exhaustive search over 1,024 subsets matches (Regional + FabTech, net $28,160). Own node fuzz (300 random years, budget and quarter cap, different generator) 0 mismatches. Guide worked example re-derived by hand. Fails: out-of-range options silently defaulted. The formulas are the standard (gain - cost) / cost ROI, cost / leads, cost / (leads x rate); I cite no CEIR benchmark because I could not verify one.",
+    "completeness": "README CLI usage, stdin, budget, quarter cap, JSON, every-show and cheapest-first comparison, weak-lead re-check, break-even lead count: all ran. Gaps: closeBy date appears only in JSON; no stubs or TODOs found; sitemap and both pages exist and link each other (page.test.mjs).",
+    "verification": "29 tests pass, including a 300-year brute-force comparison and hand-arithmetic checks. 8 hand-seeded mutations: 5 core-math or solver mutations all caught (3 to 8 tests failing), 3 survived, all in advisory output (sales-cycle window, budget-unused threshold, closeBy). Core numbers are well guarded; findings text and dates are not.",
+    "craft": "Read engine.mjs (312 lines), cli.mjs, index.html script, tests. Pure functions, no deps, exact solver with cap, clear errors with line numbers. Deductions: readOptions silently falls back to defaults on bad values (a silent fallback), a dead sales-cycle condition, a computed-but-unshown field, 'late' recomputes a max inside a filter. Page and CLI share the engine, no copied logic.",
+    "claims": "Served page and llms.txt on https://marisstella.app/trade-show-roi-calculator/ load (200) and carry marisstella.app URLs; sitemap served with absolute URLs. Disclaimer, no-warranty, not-a-forecast on both pages and README; privacy claim true for engine and CLI; brute-force claim backed by a test. One unsourced and self-contradicted line ('fee often under half').",
+    "fitness": "Walked an exhibitor's job: paste 10 shows, set funnel, get rank, buy/skip reasons, break-even and a budgeted plan: works end to end in one command, with a plain-language reason for each skipped show. The user must fold drayage, labour and lead-retrieval costs into swag and must notice silent default substitution.",
+    "domain": "A trade-show marketing manager or event ROI analyst would accept the cost-per-lead / cost-per-qualified-lead / ROI / break-even leads framing, and appreciate the weak-lead re-check and budget optimisation. They would ask for itemised exhibit costs (space, build, shipping, I&D labour, lead retrieval), pipeline versus closed revenue, and the sales-cycle timing that the tool tries to flag. Awareness and existing-customer meetings are disclosed as out of scope. No external benchmark (CEIR, Exhibitor Magazine) cited or verified."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Cost, cost/lead, cost/qualified lead for 10 fixture shows (FabTech: 14000+4200+3*4*450+3000)",
+      "method": "independent Python re-implementation of the stated formulas, plus hand arithmetic for FabTech",
+      "command": "python3 <scratchpad>/recalc.py (independent csv+itertools re-implementation) vs node cli.mjs plan fixtures/shows.csv --lead-qual 30 --close 20 --deal-value 12000 --margin 60 --budget 40000",
+      "expected": "FabTech cost 26,600.00; 241.82/lead; 806.06/qualified; Local Chamber Mixer 550.00/lead",
+      "observed": "identical for all 10 shows to the cent (FabTech 26,600.00 / 241.82 / 806.06)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "ROI and gross profit, Automation Showcase (80 leads x 30% x 20% x 12000 x 60%)",
+      "method": "hand calc: 4.8 deals x 12000 x 0.6 = 34,560; net 18,460; ROI 18460/16100",
+      "command": "node cli.mjs plan fixtures/shows.csv ... (as above)",
+      "expected": "gross profit 34,560.00; ROI 114.66% (115%)",
+      "observed": "gross profit $34,560.00, ROI 115%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Break-even leads/close rate/deals for National Industrial Show (cost 34,400)",
+      "method": "hand calc: per lead 12000*.6*.3*.2=432 -> 34400/432=79.63 leads (ceil 80); deals 34400/7200=4.78; close 34400/(130*.3*7200)=12.25%",
+      "command": "node cli.mjs plan fixtures/shows.csv ... (as above)",
+      "expected": "80 leads / 12.3% close / 4.78 deals",
+      "observed": "80 leads / 12.3% close / 4.78 deals",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Best show set under $40,000 budget, 10 shows (exact optimum)",
+      "method": "independent exhaustive search over all 1,024 subsets in Python",
+      "command": "python3 recalc.py (BF best) vs CLI Buy section",
+      "expected": "Regional Manufacturing Expo + FabTech Midwest, net 28,160, spend 38,800",
+      "observed": "same two shows, $28,160.00 net, spend $38,800.00",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Solver vs exhaustive search with budget and quarter cap, 300 random 3-10 show years (different generator from the shipped test)",
+      "method": "independent brute force in node (scratchpad fuzz.mjs), LCG seed 7",
+      "command": "node <scratchpad>/fuzz.mjs",
+      "expected": "0 mismatches",
+      "observed": "fuzz done mismatches 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Guide's worked example (Alpha Expo): total 13,400; 223.33/lead; 744.44/qualified; ROI 61%; break-even 37.2 -> 38 leads; 2.23 deals",
+      "method": "hand arithmetic on the page's own numbers",
+      "command": "node --test engine.test.mjs (hand-arithmetic test) plus hand calc 13400/360=37.22, 13400/6000=2.233",
+      "expected": "all figures as printed on the guide",
+      "observed": "all agree; fee share 8000/13400=59.7% matches 'only 60%'",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Out-of-range options: --close 150, --margin 120, --ltv 0 (should be refused or flagged)",
+      "method": "expected behaviour of a tool for a professional: reject or warn on a rate above 100%",
+      "command": "node cli.mjs plan a.csv --close 150 --json | grep close (and engine plan options)",
+      "expected": "error or warning",
+      "observed": "options echo close 20, margin 60, ltv 1: silently replaced by defaults, exit 0, no message",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Cost field typed with thousands separator: booth fee \"1,200\" (quoted)",
+      "method": "spreadsheet exports commonly quote thousands-separated numbers",
+      "command": "printf 'A,2027-03-10,\"1,200\",0,0,0,0,0,50\\n' | node cli.mjs plan -",
+      "expected": "parse 1200 or a clear 'quoted fields unsupported' message",
+      "observed": "exit 2 with 'line 1: booth fee must be a number' and 'travel and lodging must be a number' (refused, misleading cause; documented 'avoid commas in names')",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README: CLI plan with file or stdin, --budget, --max-per-quarter, --json",
+      "method": "ran the commands",
+      "command": "node cli.mjs plan fixtures/shows.csv ... --json; cat shows.csv | node cli.mjs plan - --budget 40000 --max-per-quarter 2",
+      "expected": "works",
+      "observed": "both run, exit 0, JSON parses",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README: 'scores going to every show and buying the cheapest first, re-checks the plan with leads cut'",
+      "method": "CLI output",
+      "command": "node cli.mjs plan fixtures/shows.csv ...",
+      "expected": "every show 75,376 (over budget), cheapest first 4,866, plan at 70% leads 8,072",
+      "observed": "present; every-show net 75,376 equals sum of the per-show nets I recomputed",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "VENTURE.yaml/CLI help: 'close-by date' from the sales cycle",
+      "method": "CLI table output and page",
+      "command": "node cli.mjs plan fixtures/shows.csv --cycle 6; grep closeBy index.html",
+      "expected": "a close-by date visible to the user",
+      "observed": "closeBy exists only in --json output; neither the CLI table nor index.html shows it",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "llms.txt page URLs",
+      "method": "fetched served https://marisstella.app/trade-show-roi-calculator/llms.txt (source copy has duplicate-haywood.github.io, rewritten at deploy)",
+      "command": "curl -s https://marisstella.app/trade-show-roi-calculator/llms.txt",
+      "expected": "marisstella.app URLs",
+      "observed": "marisstella.app URLs (source-only difference, not a defect)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Guide: 'The fee is often under half of it' (total cost)",
+      "method": "compared with its own worked example and fixture",
+      "command": "python3 recalc.py (fee share column)",
+      "expected": "fee < 50% of cost in typical cases",
+      "observed": "guide's own example 59.7%; fixture fee share 47%-58%, 9 of 10 at or above 52%; no source given for 'often under half'",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README/page: 'No network call', 'never uploads'",
+      "method": "grep index.html and engine/cli for fetch/XHR/beacon",
+      "command": "grep -n 'fetch\\|XMLHttp\\|sendBeacon' index.html engine.mjs cli.mjs usage.mjs",
+      "expected": "none in engine/cli",
+      "observed": "no network call in engine.mjs or cli.mjs; index.html imports local usage.mjs counter with opt-out button (page says counting exists)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README: 'tests check it against trying every subset'",
+      "method": "read engine.test.mjs, ran suite",
+      "command": "node --test '*.test.mjs'",
+      "expected": "a brute-force test",
+      "observed": "test 'branch-and-bound equals brute force on 300 random years' exists; 29/29 pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, no-warranty, not-a-forecast on both pages and README",
+      "method": "page.test.mjs plus read of both HTML files",
+      "command": "node --test page.test.mjs",
+      "expected": "present",
+      "observed": "present on index.html and the guide footer; README 'What it is not'",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Sales-cycle finding ('deals close after the year ends')",
+      "method": "behaviour vs its message, cycles 6, 12, 24 months on a Jan and a Dec show",
+      "command": "node -e plan(...,{cycleMonths:c}).findings",
+      "expected": "fires when a spring-show deal lands after year end (guide: 6-month cycle, spring show -> autumn)",
+      "observed": "fires only at 24 months; rule compares to latest chosen show + 365 days, so it is never true for cycles up to 12 months",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "engine.mjs:117",
+      "change": "staffCount * staffDays * staffDayCost -> staffCount * staffDayCost (drop staff days)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:126",
+      "change": "drop o.ltv from gross profit",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:188",
+      "change": "qn < o.maxPerQuarter -> qn <= o.maxPerQuarter",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:140",
+      "change": "break-even perLead omits close rate",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:185",
+      "change": "branch-and-bound prune tolerance 1e-9 -> 1e9 (prunes everything)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:292",
+      "change": "sales-cycle year window +365 -> +36500 days",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:296",
+      "change": "budget-unused threshold 0.5 -> 0.05 of budget",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "engine.mjs:234",
+      "change": "closeBy = day + cycle -> closeBy = day (ignore sales cycle)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Rates outside range are silently replaced by defaults in readOptions (close 150 -> 20, margin 120 -> 60, ltv 0 -> 1, bad budget -> 0); the CLI only checks >= 0 and the page's max= attributes are hints, so a typo changes the answer with no message and exit 0",
+      "where": "engine.mjs:98-113",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Sales-cycle finding is logically dead for cycles up to 12 months: lateness is measured against the latest chosen show date + 365, so c.day + cycle > max.day + 365 cannot hold; the guide advertises exactly the 6-month case. Mutating the window constant leaves all 29 tests green",
+      "where": "engine.mjs:292",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "No test covers the findings (sales-cycle, budget-unused) or closeBy: 3 of 8 seeded mutations survived, all in these advisory outputs",
+      "where": "engine.test.mjs",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Cost model has four fields; drayage/shipping, booth build and installation and dismantle labour, lead retrieval, pre-show marketing and utilities have no home except being folded into 'swag and collateral', and the input notes do not say so",
+      "where": "engine.mjs:117",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Guide says the booth fee is 'often under half' of total cost with no source; its own example (59.7%) and the fixture (47-58%) contradict it",
+      "where": "is-a-trade-show-booth-worth-it.html:54",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "closeBy (sales-cycle close date) is computed but shown nowhere except --json; CLI help and cycle input imply it is visible",
+      "where": "engine.mjs:234",
+      "category": "scope-gap",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Quoted thousands-separated amounts (\"1,200\") split on the comma and produce two misleading field errors; README only warns about commas in names",
+      "where": "engine.mjs:74",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The arithmetic is right and the optimiser is exact: every number I recomputed independently (10 shows, budget optimum, 300 fuzzed years) matched, and the served page, llms.txt and disclaimers check out, so it meets the bar. It is held back by silent substitution of defaults for out-of-range rates (a typo changes the answer with exit 0), a sales-cycle warning that cannot fire for a normal 6-month cycle although the guide advertises it, three advisory outputs no test pins (3 of 8 seeded mutations survived), and a four-field cost model that omits the exhibit costs a field marketer budgets for. No high-severity defect."
+}

@@ -8,6 +8,8 @@ test("dual basis: gain uses donor basis, loss uses fair value at gift, middle is
   assert.equal(giftGain(500000, 90000, 450000), 410000);
   assert.equal(giftGain(400000, 500000, 450000), -50000);
   assert.equal(giftGain(480000, 500000, 450000), 0);
+  // donor basis below fair value: a loss is measured from the donor basis (Reg. 1.1015-1(a)(2))
+  assert.equal(giftGain(50000, 90000, 450000), -40000);
 });
 
 test("a gift carries the donor's basis; inheritance resets it to fair value", () => {

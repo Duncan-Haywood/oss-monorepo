@@ -1,0 +1,264 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/radar-detection-twin",
+  "stratum": "research",
+  "seed": "2026-11-10",
+  "auditor": "agent session (Claude), 2026-11-10 round, subagent",
+  "status": "audited",
+  "professional": "a radar systems engineer (detection/CFAR specialist) who sizes sensors with Swerling target models, who would first check the CFAR loss against Richards/Skolnik, the K-clutter CFAR literature, and whether the texture correlation assumption matches the sea or ground clutter in question",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran own script (scratchpad recompute.py, scipy/numpy, no import of the author's code) for: CA twin SNR 20.674 dB (matches 20.67; known-threshold Swerling-I 19.37 dB gives a 1.31 dB CFAR loss, textbook range), OS k=12 twin SNR 21.295 dB (21.30), real CA Pfa at nu=2 30.14x (30.1x) by my own nested quadrature, real OS k=12 35.1x by 20M-trial Monte Carlo (34.9x), real CA Pd 0.839 (0.839), repair 3.70 dB (3.70). One headline fails: the nu=2 SNR shortfall is 6.18 dB (own quad; 40M-trial MC Pd 0.90006 at my SNR) against the published 6.28/6.3, a 0.10 dB error from a grid clamp in TextureGrid.gfun; nu=5 and 20 are fine. 7 of 8 recomputed outputs pass; the one error is small and conclusions are unchanged.",
+    "completeness": "Every claimed result is in results.txt, which the README command reproduces byte-for-byte (62 s). Exact laws, OS inflation table, repair cost, shortfall, ranking and shared-texture result all exist and run end to end. Figure present. Missing: LOG.md (optional), no K-distribution closed-form check which the paper itself lists as a limit.",
+    "verification": "PYTHONPATH=src python3 -m unittest discover -s tests: 8 tests pass in 10.5 s. Six seeded mutations: the four logic changes (OS product range, OS beta exponent, simulator rank, CA law exponent/denominator) each failed 1-4 tests; shrinking slo caught; truncating the texture tail (yhi 6->2) survived. Tests cross-check closed forms against Monte Carlo, which is the right design, but tolerances are loose (4-8%), no test pins a results.txt number, and the one real numerical error (grid clamp, 0.1 dB) is untested.",
+    "craft": "Read model.py (154 lines), tests, run.py. Small, readable, stdlib only, docstrings explain the maths, numerically careful (log-space order-statistic integral, midpoint rule). Defects: silent bracket returns in the bisections, a clamp in gfun that biases high-SNR Pd, a per-trial Python simulator. No dead code or copied engine beyond the stated repeat of radar-clutter-twin's quadrature (intentional, stated).",
+    "claims": "Checked 5 claims. Pass: '~1% vs 400k simulation', stylised disclosure and limitations, rankings and shared-texture rows. Fail: '6.3 dB shortfall' (true about 6.2 dB, in README, paper and projects.json); 'exact law ... new here' is not hedged against the K-clutter CFAR literature, none of which is cited. The README also claims a reproduction time slightly above measured. Because one headline number and the novelty claim are not fully backed, claims is 2.",
+    "fitness": "A researcher can build on it: the code is clean, the laws verified by simulation, and the limitations are listed. But the qualitative result (CFAR is not robust to iid spiky clutter; OS and CA both lose; the threshold repair costs several dB) is known and the quantitative laws are textbook transforms; there is no real data, no sourced nu, and the realistic partial-correlation case is absent. Nearest prior work: Watts 1985, Armstrong & Griffiths 1991, Raghavan 1991, Gandhi & Kassam 1988, Conte et al. on CFAR in K clutter. Sound, not new enough for the PhD+ main-track bar in research/CLAUDE.md.",
+    "domain": "Compared with radar-detection practice (Richards, Skolnik, Swerling-I with a CFAR loss; Albersheim/Neyman-Pearson reference points): the baseline numbers agree (CFAR loss 1.31 dB at N=16). Departures a radar engineer would flag: iid texture per cell is the pessimistic extreme (fully shared gives exact CFAR, paper item 6); the target is assumed to share the test cell's texture; no interferers or clutter edges, the case OS-CFAR exists for; single pulse, no pulse integration; nu chosen not sourced. A signed-off method for sizing a sensor would need the correlated-texture middle case."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "CA-CFAR twin: threshold multiplier alpha and SNR for Pd=0.9, Pfa=1e-4, N=16 (the '20.7 dB twin promise')",
+      "method": "closed form Pd=(1+alpha/(N(1+s)))^-N solved with scipy brentq; cross-check against the Neyman-Pearson known-threshold Swerling-I SNR ln(Pfa)/ln(Pd)-1 = 19.37 dB plus a CFAR loss (Richards, Fundamentals of Radar Signal Processing, CA-CFAR loss for N=16 about 1.2-1.4 dB)",
+      "command": "python3 recompute.py (own scipy/numpy script, scratchpad)",
+      "expected": "20.67 dB (paper 20.67 dB, README 20.7)",
+      "observed": "20.674 dB; known-threshold 19.366 dB, so CFAR loss 1.31 dB, in the textbook range",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "OS-CFAR (k=12 of 16) twin: SNR for Pd=0.9 at Pfa 1e-4",
+      "method": "own scipy.integrate.quad of E[exp(-alpha Z_(k))] with the exponential order-statistic density (David, Order Statistics), not the author's product formula",
+      "command": "python3 recompute.py (own scipy/numpy script, scratchpad)",
+      "expected": "21.30 dB (results.txt 21.30)",
+      "observed": "21.295 dB; alpha 11.080",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Real CA-CFAR Pfa at the twin threshold, design 1e-4, nu=2 (headline '30x')",
+      "method": "own nested scipy quad over gamma pdfs (scipy.stats.gamma), derived from the compound model, not the author's TextureGrid",
+      "command": "python3 recompute.py (own scipy/numpy script, scratchpad)",
+      "expected": "3.01e-3 (30.1x)",
+      "observed": "3.0136e-3 (30.14x)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Real OS k=12 Pfa at the twin threshold, nu=2, design 1e-4 (headline '35x')",
+      "method": "independent numpy Monte Carlo, 20M trials, seed 12345",
+      "command": "python3 recompute.py (own scipy/numpy script, scratchpad)",
+      "expected": "3.49e-3 (34.9x)",
+      "observed": "3.512e-3 (35.1x), within MC error (about 0.5%)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Real CA Pd at the twin's own threshold and promised 20.7 dB SNR, nu=2 (headline 0.84)",
+      "method": "own quad and 10M-trial numpy Monte Carlo",
+      "command": "python3 recompute.py (own scipy/numpy script, scratchpad)",
+      "expected": "0.839",
+      "observed": "quad 0.8388; MC 0.8390",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Repaired-threshold multiplier for real CA, nu=2, design 1e-4 (3.7 dB)",
+      "method": "own quad plus brentq",
+      "command": "python3 recompute.py (own scipy/numpy script, scratchpad)",
+      "expected": "2.34x (3.70 dB)",
+      "observed": "2.3419x (3.696 dB)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Headline SNR shortfall for Pd=0.9, Pfa 1e-4, CA, nu=2: paper '27.0 dB real, 6.3 dB above the promise'",
+      "method": "own quad plus brentq, then 40M-trial numpy Monte Carlo at my repaired alpha and SNR",
+      "command": "python3 recompute.py (own scipy/numpy script, scratchpad); python3 mc2.py",
+      "expected": "real SNR 26.96 dB, shortfall 6.28 dB (results.txt)",
+      "observed": "own quad 26.856 dB, shortfall 6.18 dB; MC Pd at 26.856 dB = 0.90006 +- 0.00005 (confirms mine); author's code at that point returns Pd 0.8981; with a finer TextureGrid (slo=-12) author code gives 26.857",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Same shortfall at nu=5 and nu=20 (2.8 and 0.8 dB)",
+      "method": "author's code with a finer grid vs default grid",
+      "command": "python3 fine.py (scratchpad)",
+      "expected": "2.84 / 0.82",
+      "observed": "fine grid 2.834 / 0.823",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite as shipped",
+      "method": "run the project's own command",
+      "command": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "expected": "8 tests pass (README: ~15 s)",
+      "observed": "8 tests OK in 10.5 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Reproduction command regenerates results.txt",
+      "method": "README command, output diffed against the committed file",
+      "command": "PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt",
+      "expected": "identical, about 70 s",
+      "observed": "byte-identical, 62 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README/paper 'matches 400k-trial simulation to ~1%'",
+      "method": "results.txt section 2 rows",
+      "command": "read experiments/results.txt",
+      "expected": "differences about 1% or less",
+      "observed": "Pfa 0.0361/0.0364 (0.8%), 0.0193/0.0195 (1%), Pd 0.5149/0.5159 (0.2%); max 1.3% on 0.0299/0.0303",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Whitepaper item 3 and README/homepage summary say shortfall 6.3 dB at nu=2",
+      "method": "compare with my recomputation (check 7)",
+      "command": "grep -n '6.3' paper/whitepaper.md README.md",
+      "expected": "6.2 dB",
+      "observed": "6.3 dB stated; it is a 0.10 dB quadrature artefact (gfun clamps below s=e^-6)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README: 'an exact one-dimensional Pfa/Pd law for OS-CFAR in textured clutter' and whitepaper 'Real, OS (new here)'",
+      "method": "literature recall: Watts 1985 IEE Proc F 132(2); Armstrong & Griffiths 1991 IEE Proc F 138(2); Raghavan 1991 IEEE TAES 27(5) on CFAR in K clutter; Gandhi & Kassam 1988 IEEE TAES 24(4); Weber & Haykin 1985 for OS-CFAR with transformed marginals",
+      "command": "grep -n 'Watts\\|Armstrong\\|Gandhi\\|Raghavan' paper/whitepaper.md",
+      "expected": "K-clutter CFAR literature cited or novelty hedged",
+      "observed": "none cited; the references are Finn-Johnson, Rohling, Ward only; the Beta-transform of an arbitrary marginal is standard order-statistics theory",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclosure: 'Stylised ... no real radar data' and limitations section",
+      "method": "read README.md and paper limitations",
+      "command": "read paper/whitepaper.md",
+      "expected": "stated",
+      "observed": "stated, including iid texture, constant-SNR target, no interferers",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Item 5 'no ranking reversal' and item 6 'spatial correlation cancels the problem'",
+      "method": "results.txt sections 5 and 2",
+      "command": "read experiments/results.txt",
+      "expected": "CA best at every nu; shared MC about 0.0101-0.0103",
+      "observed": "as stated",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Project card files: LOG.md, project.json, registry entry, figure",
+      "method": "ls",
+      "command": "ls research/radar-detection-twin; grep slug research/_homepage/projects.json",
+      "expected": "registered in projects.json and README, figure present",
+      "observed": "registered, pfa_inflation.svg present; no LOG.md or project.json (optional)",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/radar-detection-twin/src/radar_detection_twin/model.py:24",
+      "change": "OS twin product range(k) -> range(k - 1)",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/radar-detection-twin/src/radar_detection_twin/model.py:103",
+      "change": "OS real law exponent (k - 1) -> (k - 2) on log F",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/radar-detection-twin/src/radar_detection_twin/model.py:152",
+      "change": "simulator OS rank sorted(ref)[k - 1] -> [k - 2]",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/radar-detection-twin/src/radar_detection_twin/model.py:86",
+      "change": "CA real law: product exponent N -> N-1 and alpha/(N t) -> alpha/((N+1) t)",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/radar-detection-twin/src/radar_detection_twin/model.py:44",
+      "change": "texture quadrature upper limit yhi 6.0 -> 2.0 (truncates the gamma texture tail)",
+      "caught": false,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/radar-detection-twin/src/radar_detection_twin/model.py:44",
+      "change": "g-table lower bound slo -6.0 -> -2.0 (widens the clamp that causes the 0.1 dB headline error)",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Headline SNR shortfall at nu=2 is 0.10 dB too high (6.28 stated as 6.3; true 6.18, 26.86 dB not 26.96). TextureGrid.gfun clamps to g[0] for s below e^-6, but at 27 dB SNR the arguments alpha/(N(1+s)tau) fall below that, and Pd^16 amplifies the error to 0.2% in Pd. Own quadrature and a 40M-trial Monte Carlo agree with each other and with a finer grid, not with results.txt. Does not change any conclusion; the propagated figures are in README, paper, projects.json and results.txt.",
+      "where": "research/radar-detection-twin/src/radar_detection_twin/model.py:63-65",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "No test pins grid accuracy at the operating point of the headline (nu=2, Pfa 1e-4, Pd 0.9 at 27 dB). The tests only compare Pfa at 1e-2 or Pd at SNR 6 to 200k-trial Monte Carlo with 4-8% tolerances (about 6-11 sigma), so a quadrature error of 0.2% in Pd, or an OS-law error of a few percent, passes; truncating the texture tail (yhi 6->2) also survives. No test asserts any number in results.txt.",
+      "where": "research/radar-detection-twin/tests/test_model.py:14-40",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Prior work is not cited and novelty is overstated: CA/OS/CMLD-CFAR in K-distributed clutter with iid texture, including false-alarm inflation and detection loss, is a standard topic (Watts 1985; Armstrong & Griffiths 1991; Raghavan 1991; Gandhi & Kassam 1988; Conte, Longo, Lops and Gini, Farina, Greco on CFAR in compound-Gaussian clutter). Only Finn-Johnson, Rohling and Ward are cited. 'New' OS law is the textbook Beta transform of the marginal cdf. No comparison to published K-clutter CFAR loss curves was made, which would have been the independent check of the quadrature.",
+      "where": "research/radar-detection-twin/paper/whitepaper.md:20",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "The central inflation result depends on iid texture per reference cell, which the paper's own item 6 shows disappears under fully shared texture; real sea clutter texture is correlated over a range of cells and pulses. The intermediate (partial correlation) case, the one a radar engineer would want, is not modelled, and the ranking result is by construction because interferers and outliers are excluded. The paper discloses both but frames the 6.3 dB as 'what a twin should promise'.",
+      "where": "research/radar-detection-twin/paper/whitepaper.md:30-34",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "'Stylised' label with no sourced parameters: nu values 1.5, 2, 5, 20 and N=16 are chosen, not taken from measured sea-clutter shape-parameter ranges (e.g. Ward, Tough, Watts 2006 give nu from below 1 to above 20 by grazing angle and resolution) or a datasheet; the brief asks that a headline parameter be sourced.",
+      "where": "research/radar-detection-twin/README.md:14",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "alpha_for_pfa and snr_for_pd bisect on fixed brackets (hi=1e6, 1e9) and silently return the bracket end when the target is unreachable instead of raising; simulate() runs trial loops in pure Python (about 10 s of the 10.5 s test time).",
+      "where": "research/radar-detection-twin/src/radar_detection_twin/model.py:118-141",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "No LOG.md and no project.json, so the project card lives in the shared projects.json; the README test-runtime and experiment-runtime figures (15 s, 70 s) are a little high (10.5 s, 62 s measured).",
+      "where": "research/radar-detection-twin/README.md:9-10",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Sound, cleanly built and fully reproducible (tests pass, results.txt regenerates byte-identically, seven of eight independent recomputations agree to MC precision, including the 30x and 35x inflation figures and the 20.67 dB promise). One headline number, the nu=2 SNR shortfall, is 0.10 dB too high (6.28 vs 6.18) from a quadrature clamp that no test pins. The project does not meet the bar because the novelty of the 'new' OS-CFAR law is not placed against the K-clutter CFAR literature, which it does not cite, and the iid-texture assumption that drives the result is the pessimistic extreme with the realistic partially correlated case missing. It is finished, a decent replication-grade study, below the PhD+ research bar."
+}
