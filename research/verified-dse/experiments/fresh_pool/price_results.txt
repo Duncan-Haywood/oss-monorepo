@@ -1,0 +1,34 @@
+# Milestone 109: wall-clock price of milestone 108's schedules, and random routing at equal wall-clock (fresh pool, no flow run)
+
+clock | design | n | cost skip-r1 s | cost 105-style s | cost all-routed s | k(skip) | k(105) | regret skip-r1 % | regret 105 % | random k(skip) % | random k(105) %
+tight | adder_op16 | 103 | 65.1 | 59.4 | 105.0 | 63 | 58 | 1.56 | 0.02 | 0.12 | 0.18
+tight | adder_ripple16 | 104 | 63.2 | 57.7 | 96.2 | 68 | 62 | 0.00 | 34.27 | 5.25 | 6.01
+tight | mult8 | 103 | 79.1 | 77.8 | 226.6 | 35 | 35 | 0.00 | 0.00 | 1.60 | 1.75
+tight | mac4 | 103 | 66.8 | 61.2 | 126.1 | 54 | 49 | 0.00 | 0.00 | 2.32 | 2.38
+tight | alu8 | 103 | 68.1 | 64.1 | 97.1 | 72 | 67 | 2.20 | 2.20 | 0.56 | 0.94
+tight | popcount16 | 104 | 64.9 | 59.6 | 91.6 | 73 | 67 | 0.00 | 0.88 | 0.68 | 0.67
+tight | barrel16 | 103 | 71.5 | 67.4 | 111.3 | 66 | 62 | 0.00 | 12.73 | 1.52 | 2.08
+tight | crc16 | 103 | 62.6 | 57.0 | 87.4 | 73 | 67 | 2.22 | 2.02 | 0.00 | 0.00
+tight | cmp_sat12 | 103 | 67.2 | 64.4 | 105.7 | 65 | 62 | 0.00 | 0.00 | 0.50 | 0.46
+tight | fifo8x4 | 103 | 79.1 | 87.4 | 211.3 | 38 | 42 | 3.35 | 1.61 | 1.10 | 0.89
+relaxed | adder_op16 | 103 | 64.0 | 58.4 | 90.7 | 72 | 66 | 0.00 | 0.00 | 0.24 | 0.34
+relaxed | adder_ripple16 | 104 | 60.8 | 55.5 | 79.6 | 79 | 72 | 0.00 | 39.56 | 3.64 | 3.87
+relaxed | mult8 | 103 | 71.7 | 70.4 | 124.9 | 59 | 58 | 0.00 | 0.00 | 0.48 | 0.41
+relaxed | mac4 | 103 | 65.3 | 59.4 | 88.9 | 75 | 68 | 0.00 | 0.00 | 0.66 | 1.15
+relaxed | alu8 | 103 | 65.9 | 62.0 | 92.9 | 73 | 68 | 0.00 | 0.00 | 0.04 | 0.05
+relaxed | popcount16 | 104 | 65.0 | 59.4 | 85.8 | 78 | 71 | 0.00 | 1.90 | 1.17 | 1.75
+relaxed | barrel16 | 103 | 68.1 | 64.3 | 100.2 | 69 | 66 | 0.00 | 2.65 | 0.76 | 0.89
+relaxed | crc16 | 103 | 61.8 | 56.4 | 79.7 | 79 | 72 | 6.24 | 5.80 | 0.31 | 0.37
+relaxed | cmp_sat12 | 103 | 65.8 | 62.8 | 89.9 | 75 | 71 | 0.00 | 0.00 | 1.09 | 1.49
+relaxed | fifo8x4 | 103 | 76.8 | 85.9 | 196.3 | 40 | 45 | 5.19 | 5.94 | 3.23 | 2.93
+
+cells where skip-r1 costs more than 105-style: 18 of 20; median cost ratio skip-r1 / 105-style 1.08
+median share of the all-routed cost: skip-r1 0.69, 105-style 0.64; cells where either costs under half: 4 of 20
+mean regret over 20 cells: skip-r1 1.04%, random at its cost 1.26%; 105-style 5.48%, random at its cost 1.43%
+skip-r1 vs equal-cost random: better in 14, worse in 6, tied in 0 (sign test p = 0.115)
+105-style vs equal-cost random: better in 9, worse in 11, tied in 0 (sign test p = 0.824)
+
+(1) skip-r1 dearer in at least 15 of 20: True
+(2) under half of all-routed in at most 5 of 20: True
+(3) equal-cost random beats skip-r1 in mean regret: False
+(4) equal-cost random beats 105-style in mean regret: True
