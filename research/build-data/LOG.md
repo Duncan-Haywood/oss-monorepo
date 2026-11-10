@@ -1,5 +1,18 @@
 # build-data log
 
+## Session 63, 2026-11-10: Seattle week-block bootstrap of the width gap (no prediction written first)
+
+Why: session 62 left the Seattle width gap as a point estimate. Fresh pull 2026-11-10 (194,184 rows, unchanged), `python3 src/width_boot.py DIR --test-year 2024 --only seattle:a2i seattle:i2c` (the script now tags its output file when `--only` is given, so `results/width_boot_2024.json` is not overwritten; Seattle goes to `results/width_boot_2024_seattle.json`).
+Disclosure: I did not write a prediction before the run; this is a descriptive interval, not a hypothesis test.
+Outcome (dequantised nonempty CQR, mean 80% width in days; difference = table minus baseline, 95% week-block bootstrap, 2000 draws):
+| set | baseline cov / width | table cov / width | diff [95% CI] |
+|---|---|---|---|
+| Seattle a2i | 0.887 / 256.7 | 0.833 / 249.3 | -7.4 [-13.3, -1.1] |
+| Seattle i2c | 0.851 / 660.5 | 0.820 / 642.2 | -18.3 [-23.4, -12.9] |
+- Unlike the other three cities (baseline narrower in four of five sets), the three-key table is narrower than the per-type baseline in both Seattle targets, both intervals exclude zero; the a2i gap (3% of width) is small. Point values reproduce session 62's coverages and widths to the logged digits.
+- Limits: one test year, the bootstrap does not redraw the calibration quantile, width of the full model (the narrowest in session 62) not bootstrapped, post hoc.
+Next: Seattle in H4 transfer; bootstrap the full-model width.
+
 ## Session 62, 2026-11-10: Seattle nonempty CQR and per-type table (prediction written before the run)
 
 Why: session 61 left the nonempty-CQR arm and the table models unrun for Seattle. Fresh pull 2026-11-10 (194,184 rows, same as session 61). `python3 src/prior_table3_cov.py DIR --test-year 2024 --seeds 2 --cities seattle` (new `--cities` flag; writes `results/prior_table3_cov_2024_seattle.json` so the five-set file is not overwritten).

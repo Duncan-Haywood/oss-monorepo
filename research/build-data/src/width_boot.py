@@ -69,4 +69,5 @@ if __name__ == "__main__":
             df, _ = boosted.load_frame(p, tg)
             r = run(df, a.test_year); r.update(city=city, target=tg, test_year=a.test_year); res.append(r)
             print(city, tg, json.dumps({k: r[k] for k in ("baseline", "table3", "width_diff_table_minus_baseline")}), flush=True)
-    json.dump(res, open(os.path.join(here, f"width_boot_{a.test_year}.json"), "w"), indent=1)
+    tag = "_" + "_".join(sorted({x.split(":")[0] for x in a.only})) if a.only else ""
+    json.dump(res, open(os.path.join(here, f"width_boot_{a.test_year}{tag}.json"), "w"), indent=1)
