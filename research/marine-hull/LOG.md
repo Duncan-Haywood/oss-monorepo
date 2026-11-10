@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 3t: does the programme's submerged viscous law (ITTC-57 x (1+k) x S) match measured SUBOFF tow-tank resistance? (predictions in `experiments/run_suboff_check.py`'s docstring, fixed before the run)
+- Why: 3s found no slender-catamaran curve, but Zenodo answered, and record 22692726 (CC-BY-4.0, F. Hermet, Simvia) carries the digitised DTMB tow-tank resistance of the DARPA SUBOFF (Liu & Huang 1998, Table 14), a submerged body with tripwires, so a measured test of the AUV cases' viscous law with no wave term. The record's CFD is not used.
+- Outcome (`experiments/results_suboff_check.txt`): AFF-8 (S 6.3367 m2 from the record, L 4.356 m, nu 1.0e-6): implied (1+k_eff) 1.217, 1.294, 1.299, 1.307, 1.297, 1.296 over 3.05 to 9.15 m/s. **P1 borderline:** 1.30 sits at the bottom of the predicted 1.3 to 1.7 (the 3 m/s point is 1.22). **P2 refuted as stated:** spread 7.0%, but all of it is the slowest point; above 5 m/s the spread is 1.0%. **P3 held:** the bare hull carries 85.3 to 85.7% of AFF-8 resistance. Speed exponent of R: measured 1.896, ITTC-57 law 1.838 over the range.
+- Reading: above 5 m/s the line plus one constant factor reproduces the measured speed scaling to about 1%; the 3 m/s shortfall (Re 1.3e7) is the one place it departs. Appendages (sail, fins) add about 17% to bare-hull resistance, so the bare-hull (1+k) is at least 1.11 times S8/S_bare, consistent with the programme's lowest AUV form factor (k = 0.1) and not with 0.3 unless the bare area is much smaller than 6.3 m2. I did not get the bare-hull wetted area (DTIC blocked), so this is a bound, not a fit.
+- Limits: a 4.4 m, 0.5 m-diameter military hull at Re 1e7 to 4e7, against REMUS-class Re of about 3e5 to 5e5 (L 1.85 m at 1.5 m/s), where the line and laminar runs matter more; nu assumed (spread of 3% in k_eff over 0.95 to 1.15e-6); digitised table.
+- Next: bare-hull wetted area and a low-Re (below 1e6) body-of-revolution drag set, to test the REMUS-scale Reynolds range directly.
+
 ## 2026-11-10 · Paper step: DRAFT.md section 3 item 1 now carries milestone 3r (a write-up step, no new experiment)
 - Why: the draft covered 3o to 3q and 3s but not 3r's range check. Data hosts (zenodo, crossref) refused this session, so no sourcing step was possible; no prediction: nothing was run.
 - Outcome: one sentence added with 3r's numbers, copied from the 3r entry above (best range unchanged to the km with the c15 branch; insensitivity, not validation).
