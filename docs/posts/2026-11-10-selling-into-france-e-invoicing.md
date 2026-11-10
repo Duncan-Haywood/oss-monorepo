@@ -1,6 +1,8 @@
 ---
 title: "Selling into France after 1 September 2026: what a foreign seller should know"
 date: 2026-11-10
+description: "What a seller established outside France should know about the French e-invoicing reform that began on 1 September 2026, from secondary sources."
+tags: [e-invoicing, france, tax]
 ---
 
 France's e-invoicing reform started on 1 September 2026. Every French business can now receive e-invoices through a certified platform (a *plateforme agréée*, the former PDP). Large and mid-size French companies issue them too; smaller ones follow on 1 September 2027.

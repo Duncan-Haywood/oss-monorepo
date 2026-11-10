@@ -1,0 +1,108 @@
+[
+ {
+  "algebras": 200,
+  "algebras_with_model": 8,
+  "algebras_with_nontrivial_model": 8,
+  "d": 2,
+  "examples": [
+   [
+    [
+     0,
+     2,
+     4
+    ],
+    [
+     1,
+     3
+    ],
+    [
+     5
+    ]
+   ],
+   [
+    [
+     0,
+     2
+    ],
+    [
+     1,
+     3,
+     5
+    ],
+    [
+     4
+    ]
+   ],
+   [
+    [
+     0,
+     2,
+     4
+    ],
+    [
+     1,
+     5
+    ],
+    [
+     3
+    ]
+   ]
+  ],
+  "skipped_rigid": 2,
+  "skipped_six_blocks": 1,
+  "w": 3
+ },
+ {
+  "algebras": 197,
+  "algebras_with_model": 39,
+  "algebras_with_nontrivial_model": 39,
+  "d": 3,
+  "examples": [
+   [
+    [
+     0,
+     1,
+     3,
+     4
+    ],
+    [
+     2
+    ],
+    [
+     5
+    ]
+   ],
+   [
+    [
+     0,
+     1,
+     3
+    ],
+    [
+     2,
+     5
+    ],
+    [
+     4
+    ]
+   ],
+   [
+    [
+     0,
+     1,
+     4
+    ],
+    [
+     2,
+     5
+    ],
+    [
+     3
+    ]
+   ]
+  ],
+  "skipped_rigid": 5,
+  "skipped_six_blocks": 1,
+  "w": 2
+ }
+]
