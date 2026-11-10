@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 37 (2026-11-10, eval/probe37.mjs): doulas, estheticians, snow plowers, taxidermists, vehicle-wrap installers.
+  ["6110", "out", /state wildlife taxidermy permit/],
+  ["6170", "out", /dona international|cappa certification|associated skin care|snow and ice management assoc|national taxidermists assoc|wrap installers guild/],
+  ["6100", "out", /pump station and nursery|western plow parts|mckenzie taxidermy|sally beauty pro/],
+  ["6060", "out", /doula software|plowsite|flexisign|vagaro/],
+  ["5000", "out", /rock salt bulk|animal eyes and forms|avery dennison graphics|3m commercial graphics/],
+  ["4000", "in", /birth doula services|facial treatment payment|snow plowing contract payment|deer mount deposit|vehicle wrap deposit/],
   // Gap probe 36 (2026-11-10, eval/probe36.mjs): house cleaners, window washers, HVAC installers, mobile welders, bike repair shops.
   ["6170", "out", /residential cleaning services|pressure washing resource|bicycle retailers assoc/],
   ["6060", "out", /lightspeed retail/],
