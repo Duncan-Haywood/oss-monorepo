@@ -61,6 +61,7 @@ test("a short cutting table forces more lays; an impossible one is refused", () 
   const tight = cuttingPlan("tee", { M: 120 }, { maxMarkerCm: 300, maxPlies: 5 });
   assert.ok(tight.ok && tight.groups[0].lays > roomy.groups[0].lays);
   assert.ok(tight.groups[0].markerLengthCm <= 300);
+  assert.equal(cuttingPlan("crewneck", { XL: 2 }, { nested: true, rib: "separate", ribWidthCm: 80 }).ok, false);
   assert.equal(cuttingPlan("tee", { M: 500 }, { maxMarkerCm: 100, maxPlies: 1 }).ok, false);
 });
 
@@ -123,4 +124,18 @@ test("nested cutting plan lays the real outlines, uses less cloth than rectangle
   const h = cuttingPlan("hoodie", { M: 4 }, { nested: true });
   assert.ok(h.ok && h.nested);
   assert.ok(h.metresToBuy < cuttingPlan("hoodie", { M: 4 }).metresToBuy);
+});
+
+test("rib bands: laid in the body cloth, or on their own rib knit with its own metres", () => {
+  const self = cuttingPlan("crewneck", { M: 4 }, { nested: true, rib: "self" });
+  const plain = cuttingPlan("crewneck", { M: 4 }, { nested: true });
+  const sep = cuttingPlan("crewneck", { M: 4 }, { nested: true, rib: "separate", ribWidthCm: 150 });
+  assert.ok(self.ok && plain.ok && sep.ok);
+  assert.ok(sep.ribMetresToBuy > 0 && sep.rib.widthCm === 150);
+  assert.equal(self.ribMetresToBuy, undefined);
+  assert.ok(self.metresToBuy >= sep.metresToBuy, "bands in the body cloth cost at least as much body cloth");
+  assert.ok(/own rib knit|laid apart/.test(sep.notes.join(" ")));
+  assert.equal(cuttingPlan("tee", { M: 4 }, { nested: true, rib: "self" }).ok, false);
+  assert.equal(cuttingPlan("crewneck", { M: 4 }, { rib: "self" }).ok, false);
+  assert.equal(cuttingPlan("crewneck", { M: 4 }, { nested: true, rib: "x" }).ok, false);
 });
