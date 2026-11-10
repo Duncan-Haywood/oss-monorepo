@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run `node --test` for many ventures in parallel and print one line each.
+"""Run each venture's test suites in parallel and print one line per venture.
 
 This is the venture test step of CI, not a stand-in for it:
 `ventures-tests.yml` calls exactly this, so a pass here is the same pass the
@@ -16,6 +16,13 @@ what the 418 per-venture `<slug>-ci.yml` workflows this replaced ran: Node's
 default discovery (`**/*.test.mjs`, `test/**`, ..., never `node_modules`). A
 venture that keeps a workflow of its own gets its `*.test.mjs` files only
 (see own_workflow_slugs).
+
+A venture with no workflow of its own also gets its stdlib Python tests
+(`test_*.py`, `*_test.py`) run as `python3 -m unittest discover` from each
+directory that holds them: before 2026-11-10 those suites ran nowhere
+(stranded-branch-finder's 37, actions-continue-on-error-check's 8). A venture
+with its own workflow runs its Python there; when you name one that has no
+`*.test.mjs`, this prints which workflow does, instead of "0 suites run".
 An empty or all-zero `--since` (a new branch, a dispatch) means every venture.
 
 Exit 0 when every suite passes (ventures with no tests are skipped), else 1.
@@ -47,16 +54,36 @@ def git(*args):
                           text=True, check=True).stdout
 
 
-def has_tests(slug):
+SKIP_DIRS = {"node_modules", ".venv", "venv", "__pycache__", ".git"}
+
+
+def _files(slug, pattern):
     venture = VENTURES / slug
-    return venture.is_dir() and any(
-        "node_modules" not in p.parts for p in venture.rglob("*.test.mjs"))
+    if not venture.is_dir():
+        return []
+    return [p for p in venture.rglob(pattern)
+            if not SKIP_DIRS.intersection(p.relative_to(venture).parts)]
+
+
+def node_tests(slug):
+    return _files(slug, "*.test.mjs")
+
+
+def python_test_dirs(slug):
+    """Directories holding Python test files, for ventures CI runs nowhere else."""
+    if slug in own_workflow_slugs():
+        return []
+    files = _files(slug, "test_*.py") + _files(slug, "*_test.py")
+    return sorted({p.parent for p in files})
+
+
+def has_tests(slug):
+    return bool(node_tests(slug) or python_test_dirs(slug))
 
 
 def suite_weight(slug):
     """Bytes of test code: a cheap stand-in for how long the suite runs."""
-    return sum(p.stat().st_size for p in (VENTURES / slug).rglob("*.test.mjs")
-               if "node_modules" not in p.parts)
+    return sum(p.stat().st_size for p in node_tests(slug))
 
 
 def slugs_in(paths):
@@ -75,7 +102,6 @@ def changed_slugs(base_ref="origin/main"):
     return slugs_in(paths)
 
 
-@functools.lru_cache(maxsize=None)
 def own_workflow_slugs():
     """Ventures some other workflow names by path, so it runs their other suites.
 
@@ -86,11 +112,18 @@ def own_workflow_slugs():
     and TypeScript tests) runs those there, so here it gets the `*.test.mjs`
     files only, as `ventures-tests.yml` always gave it.
     """
-    slugs = set()
-    for wf in WORKFLOWS.glob("*.y*ml"):
+    return frozenset(workflows_naming())
+
+
+@functools.lru_cache(maxsize=None)
+def workflows_naming():
+    """{slug: [workflow file names that name ventures/<slug>/]}."""
+    named = {}
+    for wf in sorted(WORKFLOWS.glob("*.y*ml")):
         if wf.name != "ventures-tests.yml":
-            slugs.update(re.findall(r"ventures/([\w.-]+)/", wf.read_text()))
-    return frozenset(slugs)
+            for slug in set(re.findall(r"ventures/([\w.-]+)/", wf.read_text())):
+                named.setdefault(slug, []).append(wf.name)
+    return named
 
 
 def command(slug):
@@ -98,24 +131,60 @@ def command(slug):
         return ["node", "--test"]
     venture = VENTURES / slug
     return ["node", "--test", *sorted(
-        str(p.relative_to(venture)) for p in venture.rglob("*.test.mjs")
-        if "node_modules" not in p.parts)]
+        str(p.relative_to(venture)) for p in node_tests(slug))]
+
+
+def commands(slug):
+    """[(argv, cwd)] for every suite this runner owns for the venture."""
+    cmds = [(command(slug), VENTURES / slug)] if node_tests(slug) else []
+    # -t keeps the directory on sys.path, so `import check` next to
+    # test_check.py works as it does when run by hand.
+    cmds += [([sys.executable, "-m", "unittest", "discover", "-s", ".", "-t", ".",
+               "-p", pattern], d)
+             for d in python_test_dirs(slug) for pattern in ("test_*.py", "*_test.py")
+             if any(d.glob(pattern))]
+    return cmds
+
+
+def run_one(argv, cwd, timeout):
+    # Its own process group, so a timeout also stops the per-file children
+    # `node --test` spawns rather than leaving them running.
+    p = subprocess.Popen(argv, cwd=cwd, stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT, text=True, start_new_session=True)
+    try:
+        out, _ = p.communicate(timeout=timeout)
+        return p.returncode == 0, out
+    except subprocess.TimeoutExpired:
+        os.killpg(p.pid, signal.SIGKILL)
+        out, _ = p.communicate()
+        return False, f"{out}\ntimed out after {SUITE_TIMEOUT}s"
 
 
 def run(slug):
     start = time.monotonic()
-    # Its own process group, so a timeout also stops the per-file children
-    # `node --test` spawns rather than leaving them running.
-    p = subprocess.Popen(command(slug), cwd=VENTURES / slug, stdout=subprocess.PIPE,
-                         stderr=subprocess.STDOUT, text=True, start_new_session=True)
-    try:
-        out, _ = p.communicate(timeout=SUITE_TIMEOUT)
-        ok = p.returncode == 0
-    except subprocess.TimeoutExpired:
-        os.killpg(p.pid, signal.SIGKILL)
-        out, _ = p.communicate()
-        ok, out = False, f"{out}\ntimed out after {SUITE_TIMEOUT}s"
-    return slug, ok, out, time.monotonic() - start
+    cmds = commands(slug)
+    ok, outs = True, []
+    for argv, cwd in cmds:
+        left = max(1, SUITE_TIMEOUT - (time.monotonic() - start))
+        one_ok, out = run_one(argv, cwd, left)
+        ok = ok and one_ok
+        if len(cmds) > 1:
+            name = "node --test" if argv[0] == "node" else "python3 -m unittest"
+            out = f"$ {name} (in {Path(cwd).relative_to(VENTURES / slug)})\n{out}"
+        outs.append(out)
+    return slug, ok, "\n".join(outs), time.monotonic() - start
+
+
+def skip_note(slug):
+    """Why a venture someone named has no suite here, and where it runs."""
+    if not (VENTURES / slug).is_dir():
+        return f"skip {slug}: no such venture"
+    where = workflows_naming().get(slug)
+    if where:
+        return (f"skip {slug}: no *.test.mjs; its tests run in "
+                + ", ".join(f".github/workflows/{w}" for w in where)
+                + " (python3 platform/ci/run_workflow_locally.py <that file>)")
+    return f"skip {slug}: no tests found"
 
 
 def failures(out, context=30):
@@ -151,6 +220,10 @@ def main(argv):
         slugs = sorted(d.name for d in VENTURES.iterdir() if d.is_dir())
     # Longest suites first: with a fixed worker pool, starting the biggest
     # suite last leaves one worker running it alone after the others finish.
+    if args.slugs or args.changed or args.since:
+        for slug in slugs:
+            if not has_tests(slug):
+                print(skip_note(slug), flush=True)
     slugs = sorted((s for s in slugs if has_tests(s)), key=lambda s: (-suite_weight(s), s))
 
     failed = []
@@ -163,7 +236,7 @@ def main(argv):
                 failed.append(slug)
                 if ON_ACTIONS:
                     print(f"::group::{slug} output\n{out}\n::endgroup::")
-                    print(f"::error title=node --test failed::ventures/{slug}")
+                    print(f"::error title=venture tests failed::ventures/{slug}")
                 else:
                     print(failures(out))
     print(f"{len(slugs)} suites run, {len(failed)} failed"

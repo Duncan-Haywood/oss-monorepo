@@ -59,6 +59,49 @@ class FakeVentures(unittest.TestCase):
         self.assertFalse(rvt.has_tests("gone"))
 
 
+    def test_python_tests_run_where_no_workflow_of_its_own_does(self):
+        # stranded-branch-finder's 37 unittest cases ran in no CI before.
+        self.venture("py", {
+            "tool.py": "X = 1\n",
+            "test_tool.py": "import unittest, tool\n"
+                            "class T(unittest.TestCase):\n"
+                            "    def test_x(self): self.assertEqual(tool.X, 1)\n",
+        })
+        with mock.patch.object(rvt, "workflows_naming", return_value={}):
+            self.assertTrue(rvt.has_tests("py"))
+            slug, ok, out, _ = rvt.run("py")
+        self.assertTrue(ok, out)
+
+    def test_a_failing_python_test_fails_and_both_suites_run(self):
+        self.venture("mix", {
+            "a.test.mjs": "import test from 'node:test'; test('t', () => {});",
+            "tests/test_bad.py": "import unittest\n"
+                                 "class T(unittest.TestCase):\n"
+                                 "    def test_x(self): self.fail('boom')\n",
+        })
+        with mock.patch.object(rvt, "workflows_naming", return_value={}):
+            _, ok, out, _ = rvt.run("mix")
+        self.assertFalse(ok)
+        self.assertIn("boom", out)
+        self.assertIn("node --test", out)
+
+    def test_python_tests_are_left_to_a_venture_s_own_workflow(self):
+        self.venture("own", {"test_x.py": "raise SystemExit(1)\n"})
+        with mock.patch.object(rvt, "workflows_naming", return_value={"own": ["own-ci.yml"]}):
+            self.assertFalse(rvt.has_tests("own"))
+            note = rvt.skip_note("own")
+        self.assertIn(".github/workflows/own-ci.yml", note)
+
+    def test_a_named_venture_without_a_suite_says_why(self):
+        self.venture("own", {"test_x.py": ""})
+        with mock.patch.object(rvt, "workflows_naming", return_value={"own": ["own-ci.yml"]}), \
+                mock.patch("sys.stdout") as out:
+            self.assertEqual(rvt.main(["own", "gone"]), 0)
+        printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
+        self.assertIn("skip own: no *.test.mjs; its tests run in .github/workflows/own-ci.yml", printed)
+        self.assertIn("skip gone: no such venture", printed)
+
+
 class Report(unittest.TestCase):
     def test_the_failing_test_is_shown_even_far_from_the_end(self):
         out = "\n".join(["not ok 3 - the broken one", "  error: boom"] + [f"ok {i}" for i in range(500)] + ["# fail 1"])
