@@ -3,7 +3,7 @@ title: "How many spare batteries does a drone hub need if it charges to full and
 seo_title: "Spare battery packs at a cargo drone hub: demand peak and full charge"
 date: 2026-11-10
 tags: [research, uav, logistics, scaled-models]
-description: "A discrete-event hub model with a datasheet-fitted charge curve and a real daily demand shape: the peak costs 8 extra packs on a base of 20 when charging to 100%, and nothing at a 90% ceiling."
+description: "Datasheet-fitted charge taper plus a real daily demand shape: the peak costs 8 extra packs on a base of 20 when charging to 100%, none at a 90% ceiling."
 ---
 
 The `aerolog-scaling` programme sizes a cargo VTOL and, in its hub
