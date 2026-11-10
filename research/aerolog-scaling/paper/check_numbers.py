@@ -77,6 +77,13 @@ CHECKS = [
     ("experiments/vtol_sizing/correlated_pack_results.txt", "-0.9      40   24   68     44", "10r: rho -0.9 row"),
     ("experiments/vtol_sizing/correlated_pack_results.txt", "+0.3      38   22   68     46", "10r: rho +0.3 row"),
     ("experiments/vtol_sizing/global_sensitivity_results_n20000.txt", "sum of first-order indices 0.823", "10m: first-order sum 0.82"),
+    ("experiments/hub_throughput/results.txt", "error +0.6%", "6: simulated wait within 0.6% of Erlang C"),
+    ("experiments/hub_throughput/results.txt", "4        4      8 |                   9.8 |           80.0 |               10.7", "6: 9.8, 80 and 10.7 flights/h"),
+    ("experiments/hub_throughput/cargo_hub_results.txt", "100   1.0 |       42.0 |      11.4 |         12 |    0.09 |       0.28 |         1.60", "6b: 11.4 flights/h, 0.09 MW, 1.6 t at 100 km"),
+    ("experiments/hub_throughput/cargo_hub_bursts_results.txt", "719 / 4964", "6c: p95 4,964 s at k = 8 and 24 spares"),
+    ("experiments/hub_throughput/cargo_hub_taper_results.txt", "CC-CV 20-90%          43.1 min", "6d: 43.1 min"),
+    ("experiments/hub_throughput/cargo_hub_taper_results.txt", "CC-CV 30-100%       24", "6d: 24 spares for 30-100%"),
+    ("experiments/hub_throughput/cargo_hub_taper_results.txt", "CC-CV 30-100%         72.0 min   8-charger limit  6.67", "6d: 72.0 min, 6.7 flights/h"),
     ("experiments/rodrigues_energy/results_days.txt", "1.539", "day-cluster exponent"),
     ("experiments/rodrigues_energy/results_days.txt", "1.529", "date fixed effect exponent"),
 ]

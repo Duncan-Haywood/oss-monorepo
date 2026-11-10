@@ -2,6 +2,10 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 6e: paper draft catches up with milestones 6 to 6d (no new simulation)
+- Added section 4.15 to `paper/draft.md` (hub: pads, chargers, packs, bursts, CC-CV taper) and seven checks to `paper/check_numbers.py` tying its figures to the hub results files; all checks pass. Nothing new was run.
+- Next: a demand trace for hub arrivals (public delivery-order timestamps); measured charge curves at 2C; sourced engine specific power for the hybrid.
+
 ## 2026-11-10 · Milestone 6d: does the constant-voltage taper change the cargo hub's charger limit and spare packs? (predictions in `experiments/hub_throughput/cargo_hub_taper.py`'s docstring, fixed before the run)
 - Why: 6c's "Next": charge taper from a cell datasheet. Source: Molicel INR-21700-P45B specification (Doc INR21700P45B-01 v0.2): rated charge 4.5 A (1C) then 4.2 V until 90 mA, 1.5 h; max continuous charge 9 A. Two datasheet numbers fix a CC-CV curve (tau = 0.1705 h, CC ends at 83% SOC); exponential CV decay and the same tau at other C-rates are assumptions.
 ### Outcome (`experiments/hub_throughput/cargo_hub_taper_results.txt`)
