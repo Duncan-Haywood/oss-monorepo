@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { branchAndPriceOpen, columnGenerationOpen, hourUnit } from "./bnp.mjs";
+import { branchAndPriceOpen, columnGenerationOpen, hourUnit, solveLP } from "./bnp.mjs";
+import { readFileSync } from "node:fs";
 import { parseStaff, parseShifts, openFloorByPricing, openFloorByColumnGeneration, buildRoster } from "./calc.mjs";
 
 // Least open hours by trying every combination of one valid set per person (small weeks only).
@@ -126,4 +127,30 @@ test("column generation: a person who must hold a shift no valid set allows make
   const r = columnGenerationOpen(1, [4, 6], price);
   assert.equal(r.floor, 4);
   assert.equal(r.proven, true);
+});
+
+test("restricted LPs from 20- and 40-person weeks solve instead of cycling", () => {
+  // Captured from eval/cg-scale-bench.mjs (seeded synthetic weeks). 20x56 case 1, 102 rows and 497 columns: rounding noise kept
+  // the anti-cycling rule off and it passed 400,000 pivots at objective 78, so buildRoster with exact: true threw "simplex pivot
+  // limit". 40x112 case 2, 202 rows and 944 columns: with big-M artificials basic, reduced costs of rounding size kept entering
+  // and it made 200,000 pivots at objective 3,000,324. Fixed by snapping near-zero basic values and a dual-relative tolerance.
+  for (const [file, obj] of [["cycling-lp-20x56.json", 78], ["cycling-lp-40x112.json", 281]]) {
+    const L = JSON.parse(readFileSync(new URL(`./eval/fixtures/${file}`, import.meta.url), "utf8"));
+    const r = solveLP(L.m, L.cols, L.cost, Int32Array.from(L.init));
+    assert.ok(r.pivots < 5000, `${file}: pivots ${r.pivots}`);
+    assert.ok(Math.abs(r.obj - obj) < 1e-6, `${file}: objective ${r.obj}`);
+    assert.equal(r.infeasible, false);
+  }
+});
+
+test("a warm basis from the last solve gives the same LP optimum", () => {
+  const L = JSON.parse(readFileSync(new URL("./eval/fixtures/cycling-lp-20x56.json", import.meta.url), "utf8"));
+  const half = Math.floor(L.cols.length / 2);
+  // Solve on the first half of the columns (the empty-set column of every person is among them), then warm-start the full LP.
+  const keep = L.cols.slice(0, half), cost = L.cost.slice(0, half), init = Int32Array.from(L.init, (j) => (j < half ? j : -1));
+  const a = solveLP(L.m, keep, cost, init);
+  const cold = solveLP(L.m, L.cols, L.cost, Int32Array.from(L.init));
+  const warm = solveLP(L.m, L.cols, L.cost, Int32Array.from(L.init), { warm: a.basis });
+  assert.ok(Math.abs(warm.obj - cold.obj) < 1e-6, `warm ${warm.obj} cold ${cold.obj}`);
+  assert.ok(warm.pivots < cold.pivots, `warm ${warm.pivots} pivots, cold ${cold.pivots}`);
 });
