@@ -645,3 +645,9 @@ test("Czech 8-digit numbers cannot start 9; 9-digit specials starting 6 have a c
   // 9 as first digit with a correct check digit: 90000001 has check digit 1 by the legal-entity formula.
   assert.deepEqual(find("CZ90000001"), ["INV-023"]);
 });
+
+test("BG other-form, MT and GB branch/post-2010 numbers python-stdnum accepts are not flagged (2026-11-10)", () => {
+  const ok = ["BG2871577350", "BG4990639480", "GB443489680", "GB391366393", "GB426560749110", "MT43376757", "MT16206152"];
+  for (const v of ok) assert.deepEqual(inspectPartyVat({ vat_id: v }, "seller"), [], v);
+  assert.notEqual(inspectPartyVat({ vat_id: "MT43376758" }, "seller").length, 0);
+});
