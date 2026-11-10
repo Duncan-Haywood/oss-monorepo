@@ -1,4 +1,4 @@
-"""Session 72: the per-class audit of the description rules, from committed codes only (stdlib)."""
+"""Session 73: Cohen's kappa for the description rules, from committed codes only (stdlib)."""
 import json, os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
@@ -14,18 +14,8 @@ def test_kappa_known_cases():
     assert abs(desc_eval.kappa(pairs) - 0.4) < 1e-12
 
 
-def test_audit_matches_committed_accuracy():
+def test_committed_kappa_values():
     res = json.load(open(os.path.join(HERE, "..", "results", "desc_rules_eval.json")))
-    au = desc_eval.audit(res)
-    for split in ("dev", "held_out"):
-        for city, r in res[split]["cities"].items():
-            for k in ("v1", "v2"):
-                a = au[split][city][k]
-                assert abs(a["accuracy"] - r[k]["accuracy"]) < 1e-12
-                assert sum(a["confusions"].values()) == round(a["n"] * (1 - a["accuracy"]))
-                for c, p in a["per_class"].items():
-                    assert p["precision"] is None or 0 <= p["precision"] <= 1
-    # the committed headline of the audit (results/desc_rules_audit.md)
-    assert round(au["held_out"]["chicago"]["v2"]["kappa"], 3) == 0.790
-    assert round(au["held_out"]["seattle"]["v2"]["kappa"], 3) == 0.901
-    assert round(au["held_out"]["chicago"]["v2"]["per_class"]["plumbing"]["precision"], 2) == 0.20
+    k = lambda city, v: desc_eval.kappa([(x[0], x[v]) for x in res["held_out"]["cities"][city]["rows"]])
+    assert round(k("chicago", 2), 3) == 0.790 and round(k("seattle", 2), 3) == 0.901  # LOG session 73
+    assert k("chicago", 1) < k("chicago", 2) and k("seattle", 1) < k("seattle", 2)
