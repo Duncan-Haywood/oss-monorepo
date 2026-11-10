@@ -1,6 +1,6 @@
 ---
 title: "Does the small-audit rule for LLM-coded data hold for a rare category on a second corpus?"
-seo_title: "Audit size for LLM-coded qualitative data: rare category check on NaijaSenti"
+seo_title: "Audit size for LLM-coded data: rare category on NaijaSenti"
 date: 2026-11-10
 tags: [research, llm-coding-inference, qualitative-coding]
 description: "A negative-cell guard keeps confidence intervals valid for rare categories in LLM-coded text; a second corpus at 1% and 3% prevalence agrees."
