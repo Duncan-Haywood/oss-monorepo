@@ -1,0 +1,26 @@
+{
+  "id": "P068",
+  "title": "Name the professional, the standard and three worked examples before writing a venture's rules",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Domain and fitness average 2.22 of 4 (38 and 41 of 158 at the bar). High domain defects are rules a practitioner checks first: Section 179 heavy-SUV cap prorated (Pub 946 does not), a disregarded entity paying its owner rent, RFC 8659 CNAME handling, invented Cognito tiers. The build guidance asks for neither a named professional nor a cited standard.",
+  "evidence": [
+    "domain mean 2.22, fitness mean 2.22 (python3 platform/ci/quality_audit.py metrics --md, 2026-11-10)",
+    "high defects in domain-rule and source-data: 8"
+  ],
+  "change": "Before code, a 'Spec sources' README section: who would sign it off, the publication or standard the rules come from, and three worked examples copied from it, which become the pinned tests of P066. For research outside a programme, name the nearest prior work before the first experiment.",
+  "touches": [
+    "PRODUCT_PLAYBOOK.md",
+    "ventures/CLAUDE.md",
+    "research/CLAUDE.md"
+  ],
+  "metric": "mean domain score in new audits",
+  "baseline": "2.22",
+  "opened": "2026-11-10",
+  "source": "portfolio/quality/reflections/2026-11-10-where-quality-drops-off.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}
