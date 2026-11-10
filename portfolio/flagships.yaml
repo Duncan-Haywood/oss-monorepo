@@ -198,8 +198,15 @@ flagships:
       only, so try real CR2/CR3/NEF/ARW/DNG; since 2026-11-10 lossless SOF3
       sensor data and non-8-bit frames are not taken for the preview;
       raw.pixls.us and rawsamples.ch 403 from cloud and exiftool's samples
-      have their previews stripped); developing RAW into graded
-      masters is still open. History: ventures/photo-editing/README.md.
+      have their previews stripped; real CR2 and NEF files do clone from
+      rawpy's GitHub test folder). RAW development: `shootflow develop`
+      (2026-11-10, raw_develop.py) renders a DNG to a 16-bit TIFF master and
+      matches LibRaw within one 8-bit step on a real Nikon NEF and a Canon 5D
+      Mark II CR2 (their sensor data rewritten as DNG by
+      tools/libraw_differential.py; README "Develop DNG raw files"). Next: call
+      it from the pipeline's grade stage for DNG stills; try a camera- or
+      phone-written DNG with lossless-JPEG tiles; speed (pure Python, tens of
+      seconds per frame). History: ventures/photo-editing/README.md.
   - venture: quick-pick-survey
     why: >-
       Next.js + Postgres app with Glicko-2 ranking, adaptive pairing and a
