@@ -16,8 +16,8 @@ runs lost minutes finding the right interpreter by hand. This script checks
 every python3 it can find, so the answer does not depend on the image.
 
 Order: an interpreter that already imports everything wins. Otherwise each
-candidate tries `<it> -m pip install` (pip then always targets that
-interpreter). If none works, a private venv (`$PYENV_VENV`, default
+candidate, fewest missing modules first, tries `<it> -m pip install` of what
+it lacks (pip then always targets that interpreter). If none works, a private venv (`$PYENV_VENV`, default
 ~/.cache/pyenv-venv) gets the pip install, and last `apt-get install
 python3-<module>` is tried; the first interpreter that imports everything is
 printed. Progress goes to stderr; stdout is only the path. Exit 1 when nothing works, with what
@@ -200,12 +200,44 @@ def find(modules, cands, run=subprocess.run, log=lambda m: print(m, file=sys.std
         stop.set()
 
 
+MISSING_PROBE = """import importlib, sys
+bad = []
+for m in sys.argv[1:]:
+    try:
+        importlib.import_module(m)
+    except Exception:
+        bad.append(m)
+print(" ".join(bad))"""
+
+
+def missing(py, modules, run=subprocess.run):
+    """The modules `py` cannot import, in one subprocess (all of them on error)."""
+    try:
+        done = run([py, "-c", MISSING_PROBE, *modules], capture_output=True, timeout=120)
+    except (OSError, subprocess.TimeoutExpired):
+        return list(modules)
+    out = getattr(done, "stdout", None)
+    if done.returncode != 0 or out is None:
+        return [] if done.returncode == 0 else list(modules)
+    bad = set(out.decode(errors="replace").split())
+    return [m for m in modules if m in bad]
+
+
+def nearest_first(modules, cands, run=subprocess.run):
+    """Candidates paired with what each lacks, fewest missing first (ties keep
+    PATH order). Doc friction 2026-11-10: pip ran into /usr/local/bin/python3,
+    then python3.12, for 10+ minutes while python3.13 lacked one package."""
+    gaps = [(py, missing(py, modules, run)) for py in cands]
+    return sorted(gaps, key=lambda g: len(g[1]))
+
+
 def install(modules, cands, run, log, venv_dir):
     log(f"pyenv: none of {cands} imports {', '.join(modules)}; installing "
         "(can take over 120 s, torch-class wheels 15 min or more: if your shell tool times out, rerun with run_in_background "
         "and read the path from its output)")
-    for py in cands:
-        if pip_install(py, modules, run, log) and imports(py, modules, run):
+    for py, lacks in nearest_first(modules, cands, run):
+        log(f"pyenv: trying {py} -m pip install {' '.join(lacks) or '(nothing missing?)'}")
+        if pip_install(py, lacks or modules, run, log) and imports(py, modules, run):
             log(f"pyenv: installed with {py} -m pip")
             return py
     if venv_dir and cands:
