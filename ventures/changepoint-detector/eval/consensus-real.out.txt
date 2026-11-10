@@ -140,3 +140,33 @@ British coal-mining disasters per year, 1851-1962; Coal Mines Regulation Act 188
   n 112, tolerance 2, settings 6; cuts per setting: 1, 1, 1, 1, 2, 0
   documented 1887: 1887 found by 4/6 (most)
   1887  4/6  down  most
+
+Australian short-term arrivals from the US, quarterly 1981-2012 (log, period 4); Sydney Olympics 2000Q3 and 11 September 2001 (recalled, no source read)
+  n 127, tolerance 3, settings 6; cuts per setting: 14, 6, 6, 7, 5, 4
+  documented 2000Q3: not in the list
+  documented 2001Q3: 2001Q3 found by 3/6 (most)
+  1986Q4  6/6  up  all
+  1989Q1  6/6  mixed  all
+  1985Q4  5/6  up  most
+  1983Q2  4/6  up  most
+  1996Q3  4/6  up  most
+  1998Q1  4/6  up  most
+  2001Q3  3/6  down  most
+
+Peace Bridge monthly traffic, 2003-2015 (log, period 12); US land-border passport rule (WHTI) of 2009-06-01 (data/SOURCE.md) and the 2008-09 recession
+  n 156, tolerance 3, settings 6; cuts per setting: 8, 4, 4, 5, 6, 2
+  documented 2008-11: 2008-11 found by 6/6 (all)
+  documented 2009-06: not in the list
+  2008-11  6/6  down  all
+  2011-11  4/6  up  most
+  2005-06  3/6  up  most
+  2010-03  3/6  up  most
+
+Australian air passengers, annual 1970-2016 (log); the 2001 Ansett collapse and 11 September (recalled), dated 2002 by three models earlier
+  n 47, tolerance 2, settings 6; cuts per setting: 15, 0, 2, 8, 6, 2
+  documented 2002: 2002 found by 3/6 (most)
+  1991  5/6  mixed  most
+  1974  4/6  up  most
+  1995  3/6  up  most
+  2002  3/6  up  most
+  2010  3/6  up  most
