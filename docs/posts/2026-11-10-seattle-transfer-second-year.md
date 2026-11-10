@@ -1,9 +1,9 @@
 ---
 title: "Does a permit model trained on other cities beat Seattle's own history? Half of it did, in one year"
-seo_title: "Building permit duration forecast transfer between cities, Seattle test"
+seo_title: "Permit duration forecast transfer between cities, Seattle test"
 date: 2026-11-10
 tags: [build-data, building-permits, transfer, forecasting]
-description: "Seattle's issue-to-completion lag was the first held-out cell where a model trained on other cities beat the city's own baseline at all three quantiles. A second test year kept only the lower and middle quantiles."
+description: "Seattle's issue-to-completion lag was the first cell where a model trained on other cities beat the city's own baseline; a second year kept only the lower quantiles."
 ---
 
 The [build-data programme](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/research/build-data)

@@ -38,7 +38,10 @@
       "result": "homepage build and md link check ok"
     }
   ],
-  "writeups": "docs/posts/2026-11-10-seattle-transfer-second-year.md; research/build-data/LOG.md session 66",
+  "writeups": [
+    "docs/posts/2026-11-10-seattle-transfer-second-year.md",
+    "research/build-data/LOG.md"
+  ],
   "goal": null,
   "notes": "Security queue empty, no ideas or requests. Drew build-data programme. Local checks: research/_homepage/build.py ok, check_md_links ok. CI not awaited before merge attempt.",
   "corrections": [],
