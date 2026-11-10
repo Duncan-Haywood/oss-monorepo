@@ -283,7 +283,8 @@ class FeederParamsTest(unittest.TestCase):
         p = Feeder()
         t = p.take_up_design()
         parts = {x.name: x for x in take_up_parts(p)}
-        self.assertEqual(set(parts), {"take_up_track", "take_up_carriage", "take_up_pulley", "take_up_spring"})
+        self.assertEqual(set(parts), {"take_up_track", "take_up_tie", "take_up_carriage", "take_up_pulley", "take_up_spring"})
+        self.assertEqual(parts["take_up_tie"].qty, 2)
         bb = parts["take_up_track"].placed()[0].bounding_box()
         self.assertAlmostEqual(bb.max.Z - bb.min.Z, t["track_mm"], places=3)
         pb = parts["take_up_pulley"].placed()[0].bounding_box()
