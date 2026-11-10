@@ -1,6 +1,6 @@
 ---
 title: "Tax-ID checks for Andorra, the Faroe Islands and Guinea on an invoice"
-seo_title: "Andorra NRT, Faroe Islands V-number and Guinea NIFp validator for e-invoices"
+seo_title: "Andorra NRT, Faroe V-number, Guinea NIFp validator for e-invoices"
 date: 2026-11-10
 tags: [einvoice-preflight, tax-id, andorra, faroe-islands, guinea]
 description: "einvoice-preflight now tests an Andorran NRT, a Faroese V-number and a Guinean NIFp on an invoice party."
