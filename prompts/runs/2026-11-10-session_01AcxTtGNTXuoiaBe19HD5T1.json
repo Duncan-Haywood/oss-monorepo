@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtGNTXuoiaBe19HD5T1",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T01:11:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14399",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items are CODEOWNERS-gated; the track has no landable lever left, only a reading."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Shipped a reading, not a fix: no landable perf lever found",
+      "did": "history note with pool and page-weight numbers",
+      "result": "no speed-up landed"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-10-pool-and-page-weight-reading.md"
+  ],
+  "goal": null,
+  "notes": "Metric: pool 157.4 job-min/300 runs, checkout 48%; local Pages build 2m17s wall. No before/after; no change made.",
+  "corrections": [],
+  "redteam": null
+}
