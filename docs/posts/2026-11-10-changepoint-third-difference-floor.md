@@ -1,6 +1,6 @@
 ---
 title: "A third-difference noise floor does not stop over-cutting on real drift"
-seo_title: "Changepoint detection noise floor: third differences tested on real series"
+seo_title: "Changepoint noise floor: third differences tested on real data"
 date: 2026-11-10
 tags: [statistics, changepoint, negative-result, open-source]
 description: "We tested a third-difference noise floor in the open-source changepoint detector on six real drifting series. It over-cuts as much as second differences did."
