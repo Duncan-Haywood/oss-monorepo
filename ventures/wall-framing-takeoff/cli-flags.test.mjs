@@ -40,3 +40,19 @@ test("every documented example flag in the help is known", () => {
   const known = new Set([...BARE_FLAGS, ...VALUE_FLAGS]);
   assert.deepEqual(named.filter((f) => !known.has(f)), []);
 });
+
+test("drawing-only options on a plan JSON, and --swing without --sensitivity, are refused", async () => {
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const { samplePlan } = await import("./engine.mjs");
+  const f = join(mkdtempSync(join(tmpdir(), "wft-do-")), "p.json");
+  writeFileSync(f, JSON.stringify(samplePlan()));
+  for (const flag of ["--units=mm", "--storey=1", "--wall-layer=W", "--single-line"]) {
+    const r = main([f, flag]);
+    assert.equal(r.code, 1, flag);
+    assert.match(r.out, /only applies when the input is a \.dxf or \.ifc/, flag);
+  }
+  assert.match(main([f, "--swing=10"]).out, /only applies with --sensitivity/);
+  assert.equal(main([f, "--sensitivity", "--swing=10"]).code, 0);
+});
