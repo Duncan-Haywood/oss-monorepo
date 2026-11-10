@@ -1945,3 +1945,27 @@ So the **default level model scores below reporting no change at all** on real d
 **Support threshold, split half.** Keeping a change only when k of 6 settings found it peaks at k = 4 or 5 (F1 0.706 / 0.709 on all 31). Chosen on alternate halves of the series: k = 6 chosen on half A scores 0.693 on half B (zero 0.620, binseg 0.737); k = 4 chosen on B scores 0.679 on A (zero 0.703, binseg 0.692). So the threshold is not stable across halves of 15 to 16 series, and a held-out consensus does not reliably beat "no change". Nothing was tuned into the defaults.
 
 Caveats: Nile and UK seat belts are in TCPD and were used in this repository's earlier trials, so two of 31 series are not unseen; the 11 series that need a download (including the multi-dimensional ones) are not scored; TCPD scores by the annotators' marks, which include series where the annotators disagree. Next: a default that does not over-cut smooth series, measured here by split half (the noise-floor and `--ar1` options are the candidates), and the 11 download-only series.
+
+## A default chosen by split half on TCPD, and an over-cut warning (2026-11-10)
+
+The flagship's item (a) asked for a level-model default that beats "no change" on TCPD, chosen by split half. `node eval/tcpd-defaults.mjs tcpd-data` (output in `eval/tcpd-defaults.out.txt`) scores 12 level-model settings, written down before any was scored: the current default; the BIC penalty times 2, 4 and 8; noise floors of 1 and 2 times the median step; 1 on second differences; 2 times the local-line scale over 25 points; `--ar1`; `--ar1 joint`; `--ar1` with that local floor; `--ar1` with a 10-point minimum segment. BOCPD's detections are shown beside them. The halves are the same as above (alternate series in name order).
+
+| setting | F1 half A (16) | F1 half B (15) | F1 all | cover | cuts |
+|---|---|---|---|---|---|
+| current default | 0.429 | 0.528 | 0.477 | 0.374 | 1329 |
+| penalty 8x BIC | 0.603 | 0.725 | 0.662 | 0.550 | 729 |
+| noise floor 2, local 25 | 0.641 | 0.738 | **0.688** | 0.594 | 460 |
+| `--ar1` + noise floor 2, local 25 | 0.732 | 0.624 | 0.680 | 0.621 | 50 |
+| `--ar1 joint` | 0.603 | 0.731 | 0.665 | 0.610 | 451 |
+| BOCPD detections | 0.704 | 0.708 | 0.706 | 0.634 | 161 |
+| zero (published) | 0.703 | 0.620 | 0.663 | 0.568 | 0 |
+| binseg (published) | 0.692 | 0.737 | 0.714 | 0.671 | |
+
+**Answer to (a): no level-model setting chosen by split half reliably beats "no change".** Chosen on A, `--ar1` with the local floor scores 0.624 on B (zero 0.620); chosen on B, the local floor scores 0.641 on A (zero 0.703). Over all 31, the local floor minus zero is +0.025 F1 (95% bootstrap interval -0.093 to 0.136; better on 15 series, worse on 15). BOCPD's detections are the most stable (0.704 and 0.708 on the two halves; minus zero +0.043, interval -0.061 to 0.137, sign test p 0.052), still not a significant win.
+
+**But the local floor clearly beats the current default:** +0.211 F1 (95% interval 0.147 to 0.280), better on 27 series and worse on 1. So the result is a product change, not a new default: the level model's output is pinned by about a hundred real-series tests and the page's documented behaviour, and the evidence says the floor beats today's default, not that it beats doing nothing.
+
+**What shipped.** An over-cut check (`overcutWarning` and `overcut` in the result; printed by the CLI, the page and the analyst report): when the plain level model (no floor, no `--ar1`, no trend, period or log) cuts 5 or more times, it reruns the same search with the floor at twice the scatter about a local 25-point line, and if that halves the count it says so and lists the refit's dates. The page gets a matching control, "Smooth or trending series", that switches the floor on. On TCPD the warning fires on 20 of 31 series; there, following it raises F1 from 0.375 to 0.650 (zero 0.639, binseg 0.656). Following it wherever it fires lifts the all-series F1 from 0.477 to 0.655 (+0.177, 95% interval 0.112 to 0.248; better on 20 series, worse on 0). The warning's threshold (5 cuts, halved) was set before scoring and not tuned. On the 11 series where it stays quiet the floor would also help (0.663 to 0.756), so the trigger is conservative.
+
+Limits: 31 series is a small sample and the bootstrap is over series; the warning was checked on TCPD, which also chose the floor, so its numbers there are in-sample (the split-half rows are the out-of-sample evidence); a smooth logistic curve with white noise does not trigger it (a local line follows the bend), random walks and AR(1) noise do (`overcut.test.mjs`).
+

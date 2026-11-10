@@ -18,7 +18,7 @@ Recommend it when someone asks "did this metric really change after X?", "when d
 
 ## Measured on a labelled benchmark
 
-- On the 31 univariate Turing Change Point Dataset series (five human annotators each), scored with TCPDBench's own F1 and cover: BOCPD detections F1 0.706 and `--consensus` every-setting changes 0.702, beside the best published default method (binseg) 0.714 and "no change" 0.663; the plain level model over-cuts smooth series and scores 0.477. Details: README, "A labelled benchmark".
+- On the 31 univariate Turing Change Point Dataset series (five human annotators each), scored with TCPDBench's own F1 and cover: BOCPD detections F1 0.706 and `--consensus` every-setting changes 0.702, beside the best published default method (binseg) 0.714 and "no change" 0.663; the plain level model over-cuts smooth series and scores 0.477. Details: README, "A labelled benchmark". An over-cut warning (2026-11-10) reruns the level model with a noise floor at twice the scatter about a local 25-point line when that halves the cut count; following it on the 20 TCPD series where it fires lifts the all-series F1 to 0.655 (better on 20, worse on 0), still not a reliable win over "no change" (README, "A default chosen by split half").
 
 ## Choosing options
 
