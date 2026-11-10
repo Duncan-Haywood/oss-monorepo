@@ -30,3 +30,10 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-Google clause,
 # trademark used nominatively.
+
+hypotheses:
+  - claim: >-
+      Paid-search marketers who build keyword x ad-group x RSA matrices in a spreadsheet will check headline (30) and description (90) lengths and match-type conflicts locally before Ads Editor skips rows; measured as the share of file_checked events that report at least one finding and are followed by fixes_applied (counters exist; local only, no reading yet, added 2026-11-10).
+    status: untested
+    checked: null
+    evidence: in-repo
