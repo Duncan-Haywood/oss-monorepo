@@ -1129,7 +1129,22 @@ def _deepen_shallow_history() -> None:
         pass
 
 
+_GIT_MEMO: dict = {}
+
+
+def _memo(key, fn):
+    """Per-process memo for git lookups: one `measure` asks about the same files hundreds of times
+    (2026-11-10: 1062 git processes, 31 of 47 s)."""
+    if key not in _GIT_MEMO:
+        _GIT_MEMO[key] = fn()
+    return _GIT_MEMO[key]
+
+
 def _shallow_boundary() -> set[str]:
+    return _memo("shallow", _shallow_boundary_uncached)
+
+
+def _shallow_boundary_uncached() -> set[str]:
     """Commits a shallow clone cuts history at; git shows every file as changed there."""
     try:
         out = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=ROOT.parent,
@@ -1139,16 +1154,50 @@ def _shallow_boundary() -> set[str]:
         return set()
 
 
+def _last_change_index() -> dict[str, tuple[str, str]]:
+    """path -> (sha, committer date) of the newest commit touching it, from ONE `git log` pass
+    (1.6 s on a shallow clone) instead of one `git log -1 -- path` per file (50 ms each, 25 s for
+    the ~490 files `measure` asks about). {} on any failure: callers fall back to the per-file call."""
+    idx: dict[str, tuple[str, str]] = {}
+    try:
+        out = subprocess.run(["git", "log", "--format=@%H %cI", "--name-only"], cwd=ROOT.parent,
+                             capture_output=True, text=True, timeout=120).stdout
+    except (OSError, subprocess.SubprocessError):
+        return {}
+    cur: tuple[str, str] | None = None
+    edge = _shallow_boundary()
+    for line in out.splitlines():
+        if line.startswith("@"):
+            sha, _, when = line[1:].partition(" ")
+            # A shallow root "adds" every file; leave those to the per-file call, which dates them.
+            cur = None if sha in edge else (sha, when)
+        elif line and cur:
+            idx.setdefault(line, cur)
+    return idx
+
+
 def _changed_note(path: str) -> tuple[str, str]:
+    def lookup() -> tuple[str, str]:
+        hit = _memo("index", _last_change_index).get(path)
+        if hit is None:
+            return _changed_note_uncached(path)
+        return _changed_note_uncached(path, hit)
+    return _memo(("changed", path), lookup)
+
+
+def _changed_note_uncached(path: str, hit: tuple[str, str] | None = None) -> tuple[str, str]:
     """(' (file last changed D)', D): so a reader can tell a stale complaint from a live one.
     When the last change git can see is the shallow boundary, the real date is unknown: say so and
     return '' so no report is tagged stale against it (2026-10-20: every file read "changed 10-20")."""
-    try:
-        out = subprocess.run(["git", "log", "-1", "--format=%H %cI", "--", path], cwd=ROOT.parent,
-                             capture_output=True, text=True, timeout=20).stdout.strip()
-    except (OSError, subprocess.SubprocessError):
-        return "", ""
-    sha, _, when = out.partition(" ")
+    if hit is not None:
+        sha, when = hit
+    else:
+        try:
+            out = subprocess.run(["git", "log", "-1", "--format=%H %cI", "--", path], cwd=ROOT.parent,
+                                 capture_output=True, text=True, timeout=20).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            return "", ""
+        sha, _, when = out.partition(" ")
     if not when:
         return "", ""
     if sha in _shallow_boundary():
@@ -1168,8 +1217,9 @@ def _named_files_changed(report: str) -> str:
     for token in dict.fromkeys(_PATH_RE.findall(report)):
         path = token
         if "/" not in token:
-            hits = subprocess.run(["git", "ls-files", f"*{token}"], cwd=ROOT.parent,
-                                  capture_output=True, text=True, timeout=20).stdout.split()
+            hits = _memo(("ls", token), lambda t=token: subprocess.run(
+                ["git", "ls-files", f"*{t}"], cwd=ROOT.parent,
+                capture_output=True, text=True, timeout=20).stdout.split())
             hits = [h for h in hits if h.rsplit("/", 1)[-1] == token]
             if len(hits) != 1:
                 continue
