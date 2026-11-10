@@ -37,9 +37,9 @@ test('SSTB fully below threshold behaves like a non-SSTB: unreduced 20%', () => 
 });
 
 test('non-SSTB inside the phase-in range: proportional blend between unlimited and wage-limited', () => {
-  // single 2025: threshold 191950, range 50000. excess 25000 => ratio 0.5.
+  // single 2025: threshold 197300, range 50000. excess 25000 => ratio 0.5.
   const r = computeQbiDeduction({
-    taxYear: 2025, filingStatus: 'single', taxableIncome: 216950, qbi: 200000, w2Wages: 20000, ubia: 0,
+    taxYear: 2025, filingStatus: 'single', taxableIncome: 222300, qbi: 200000, w2Wages: 20000, ubia: 0,
   });
   // tentative 40000; wage limit max(10000, 5000) = 10000; overage 30000 * 0.5 = 15000
   assert.equal(r.deduction, 25000);
@@ -47,7 +47,7 @@ test('non-SSTB inside the phase-in range: proportional blend between unlimited a
 
 test('SSTB inside the phase-in range: QBI, wages, and UBIA all scaled by the applicable percentage first', () => {
   const r = computeBusinessComponent({
-    taxYear: 2025, filingStatus: 'single', taxableIncome: 216950, qbi: 200000, isSstb: true, w2Wages: 20000, ubia: 0,
+    taxYear: 2025, filingStatus: 'single', taxableIncome: 222300, qbi: 200000, isSstb: true, w2Wages: 20000, ubia: 0,
   });
   // applicable percentage 50%: adjQbi 100000, adjWages 10000; wage limit 5000; 20% of adjQbi = 20000
   assert.equal(r.component, 5000);
@@ -105,8 +105,8 @@ test('2025 has no minimum-deduction floor', () => {
 test('2026 widened phase-in range and threshold are read from the table, not hardcoded 2025 figures', () => {
   assert.deepEqual(thresholdFor(2026, 'single'), { threshold: 201750, range: 75000 });
   assert.deepEqual(thresholdFor(2026, 'joint'), { threshold: 403500, range: 150000 });
-  assert.deepEqual(thresholdFor(2025, 'single'), { threshold: 191950, range: 50000 });
-  assert.deepEqual(thresholdFor(2025, 'joint'), { threshold: 383900, range: 100000 });
+  assert.deepEqual(thresholdFor(2025, 'single'), { threshold: 197300, range: 50000 });
+  assert.deepEqual(thresholdFor(2025, 'joint'), { threshold: 394600, range: 100000 });
 });
 
 test('married filing separately uses the single/HoH threshold and range', () => {

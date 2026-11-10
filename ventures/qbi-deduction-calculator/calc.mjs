@@ -22,10 +22,10 @@
 // "reduction ratio" method IRS's own Form 8995-A Schedule A worksheet uses.
 //
 // Thresholds, indexed for inflation, and the OBBBA (2026) changes:
-//   - 2025 (pre-OBBBA widening): threshold $191,950 single/HoH/MFS,
-//     $383,900 joint; phase-in range $50,000 single/HoH/MFS, $100,000
+//   - 2025 (Rev. Proc. 2024-40; pre-OBBBA range): threshold $197,300 single/HoH/MFS,
+//     $394,600 joint; phase-in range $50,000 single/HoH/MFS, $100,000
 //     joint.
-//   - 2026 on (OBBBA made the deduction permanent and widened the range):
+//   - 2026 on (Rev. Proc. 2025-32; OBBBA made the deduction permanent and widened the range):
 //     threshold $201,750 single/HoH/MFS, $403,500 joint; phase-in range
 //     $75,000 single/HoH/MFS, $150,000 joint. OBBBA also adds a minimum
 //     deduction of $400 whenever total QBI from an active qualified trade
@@ -38,7 +38,7 @@
 // equals the single figure in both years modeled) -- see README.
 
 export const THRESHOLDS = {
-  2025: { single: 191950, joint: 383900, rangeSingle: 50000, rangeJoint: 100000 },
+  2025: { single: 197300, joint: 394600, rangeSingle: 50000, rangeJoint: 100000 },
   2026: {
     single: 201750, joint: 403500, rangeSingle: 75000, rangeJoint: 150000,
     minDeduction: 400, minDeductionFloor: 1000,

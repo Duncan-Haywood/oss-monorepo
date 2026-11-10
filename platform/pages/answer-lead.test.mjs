@@ -55,6 +55,9 @@ const PILOTS = {
   'social-security-benefits-tax-calculator': async (m) => [m.BASES.single.b1, m.BASES.single.b2, m.BASES.mfj.b1, m.BASES.mfj.b2], // statutory base amounts, IRC 86(b)
   'medicare-irmaa-cliff-calculator': async (m) => [m.tiers('single')[0].to, m.tiers('mfj')[0].to, m.tiers('single').at(-1).from, m.tiers('mfj').at(-1).from, m.STANDARD_PART_B, m.tiers('single')[1].partBSurcharge, m.tiers('single').at(-1).partBSurcharge], // thresholds, standard Part B, first-tier and top-tier surcharges
   'estate-tax-exemption-calculator': async (m) => [m.BASIC_EXCLUSION_2026, m.ANNUAL_GIFT_EXCLUSION_2026],
+  'social-security-earnings-test-calculator': async (m) => [m.LIMITS_2026.low, m.LIMITS_2026.high, 1, 2, 3], // 2026 exempt amounts; 1, 2, 3: the $1-for-$2 and $1-for-$3 withholding rates
+  'rmd-calculator': async (m) => [500000, Math.round(m.rmdFor(500000, 75))], // worked example: $500,000 at age 75 over the Table III factor
+  'qbi-deduction-calculator': async (m) => [m.THRESHOLDS[2026].single, m.THRESHOLDS[2026].joint, m.THRESHOLDS[2026].rangeSingle, m.THRESHOLDS[2026].rangeJoint, m.THRESHOLDS[2026].minDeduction, m.THRESHOLDS[2026].minDeductionFloor],
 };
 
 // slugs whose engine is not calc.mjs
