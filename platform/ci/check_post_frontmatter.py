@@ -18,7 +18,20 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform" / "pages"))
-from propose_seo_titles import cut as _cut  # noqa: E402
+
+
+def _cut(title: str):
+    """propose_seo_titles.cut, imported only when a long title needs it. A copy of this script
+    without platform/pages beside it (prompts/test_promptctl.py runs one in a fixture repo) then
+    still checks descriptions and tags instead of crashing on import; with no cutter a long title
+    counts as having no clean cut, so the check stays strict."""
+    try:
+        from propose_seo_titles import cut
+    except ImportError:
+        return None
+    return cut(title)
+
+
 REQUIRED = ("title", "date", "description", "tags")
 
 
