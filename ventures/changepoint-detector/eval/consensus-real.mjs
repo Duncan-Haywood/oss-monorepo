@@ -9,7 +9,7 @@ const load = (f, col) => {
 const SERIES = [
   ['UK drivers killed or seriously injured (log, period 12); seat-belt law 1983-01-31', 'uk-driver-deaths.csv', 1, { log: true, period: 12 }, '1983-02'],
   ['Lake Huron level, 1875-1972; a level drop near 1920 (recalled, no paper read)', 'lake-huron.csv', 1, {}, '1925'],
-  ['Nile annual flow, 1871-1970; published 1898 change (Cobb 1978)', 'nile.csv', 1, {}, '1899'],
+  ['Nile annual flow, 1871-1970; change near 1898 (R documentation, citing Cobb 1978 Table 1)', 'nile.csv', 1, {}, '1899'],
   ['Global temperature, annual; the 1946 step the earlier trials dated', 'global-temp-annual.csv', 1, {}, '1946'],
   // Added 2026-11-10 (second batch): series where `--ar1` keeps its cuts, or the break is documented outside this repo.
   ['US CPI inflation, quarterly annualised; 1973Q3 (Arab oil embargo, Oct 1973) and 1981Q4 (Volcker disinflation, 1979-82)', 'us-inflation.csv', 1, {}, ['1973Q3', '1981Q4']],

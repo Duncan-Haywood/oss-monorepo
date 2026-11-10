@@ -18,7 +18,7 @@ Lake Huron level, 1875-1972; a level drop near 1920 (recalled, no paper read)
   1956  3/6  down  most
   1963  3/6  down  most
 
-Nile annual flow, 1871-1970; published 1898 change (Cobb 1978)
+Nile annual flow, 1871-1970; change near 1898 (R documentation, citing Cobb 1978 Table 1)
   n 100, tolerance 2, settings 6; cuts per setting: 1, 2, 2, 1, 1, 1
   documented 1899: 1899 found by 6/6 (all)
   1899  6/6  down  all
