@@ -290,6 +290,15 @@ within noise of it. So part of the upper-tail transfer gap was a class problem, 
 did more harm than none. One test year and one held-out city so far; the three configurations are
 not yet compared with each other by a paired bootstrap.
 
+Rule error does not move that overlap (`../src/desc_confusion.py`, `../results/desc_confusion.md`).
+Correcting Seattle's test mix with the held-out P(label | prediction) leaves it at 0.501, because
+the overlap is source-limited: Seattle's alteration, new-construction and demolition shares all
+exceed the sources', so each term takes the source share. Shifting the source mix by Chicago's
+held-out error (Chicago is at most 21% of the a2i pool) gives 0.508 (bootstrap 0.500 to 0.518). What
+caps the overlap is the trades: electrical, plumbing and mechanical are 45% of the sources' training
+rows and 0.3% of Seattle's test rows. Per class, the revised rules' weakest large class is Chicago
+alteration (recall 0.74, 95% Wilson 0.57 to 0.85); Seattle new-construction recall is 0.93 (0.81 to 0.98).
+
 ### 4.5 Pooled model plus a small local sample (H5 holds; secondary refuted)
 
 Five draws of the local rows, source rows capped at 100,000 per city, a2i only.
