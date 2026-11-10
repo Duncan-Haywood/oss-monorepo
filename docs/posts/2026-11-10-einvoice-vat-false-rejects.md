@@ -1,6 +1,6 @@
 ---
 title: "Four ways our VAT check rejected valid numbers"
-seo_title: "einvoice-preflight: VAT number false rejects fixed for Bulgaria, Malta and the UK"
+seo_title: "VAT number false rejects fixed: Bulgaria, Malta, UK"
 date: 2026-11-10
 tags: [einvoice-preflight, testing]
 description: "A differential test against python-stdnum found valid Bulgarian, Maltese and UK VAT numbers that einvoice-preflight wrongly flagged. Fixed."
