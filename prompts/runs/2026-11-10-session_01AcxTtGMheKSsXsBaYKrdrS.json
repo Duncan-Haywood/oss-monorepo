@@ -30,8 +30,13 @@
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
-  "deviations": [],
-  "writeups": "none: one-line frontmatter fix to an existing post; no new post or doc",
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "no new blog post: one-line frontmatter fix to an existing post"
+    }
+  ],
+  "writeups": [],
   "goal": null,
   "notes": "Process track, no agent-owned backlog item open. main_health found check_post_frontmatter + promptctl validate red from the rib-knit post missing description/tags; fixed. Both pass locally.",
   "corrections": [],
