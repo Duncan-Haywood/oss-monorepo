@@ -5,7 +5,7 @@
 // no DOM, no network, no randomness except a fixed-seed generator, so the same
 // input always gives the same roster.
 
-import { branchAndPriceOpen } from "./bnp.mjs";
+import { branchAndPriceOpen, columnGenerationOpen } from "./bnp.mjs";
 
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const ALIASES = {
@@ -1127,6 +1127,14 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   let banned = null, bannedCount = 0; // (person, shift) pairs ruled out by reduced-cost fixing
   let dualBranchStats = null, coverBranchStats = null, coverLPStats = null, lpOwner = null;
   let scoreDual = -Infinity; // whole-score floor from pricing shifts (see priceScoreBound)
+  // Branch-and-price by column generation (bnp.mjs columnGenerationOpen, pricing oracle makeSetPricer) on the least open hours.
+  const runColumnGeneration = () => {
+    const pricer = makeSetPricer(ctx);
+    const cg = columnGenerationOpen(P, len, pricer, { cls: pricer.cls, incumbentOpen: incHours, nodeLimit: o.coverLPNodes ?? 2000, ms: o.coverLPMs ?? 10000 });
+    coverLPStats = { ...cg.stats, rootLP: cg.rootLP, floor: cg.floor, proven: cg.proven, columnGeneration: true };
+    minOpenH = Math.max(minOpenH, cg.floor);
+    if (cg.roster) lpOwner = Array.from(cg.roster);
+  };
   if (incHours > 0 && o.pricingFloor !== false) {
     const pf = priceOpenFloor(ctx, { incumbentOpen: incHours, incumbentScore: o.scoreDual === false ? null : incumbent, cutoff: o.reducedCostFixing === false ? null : incumbent - tolerance - 1e-9 });
     if (pf) {
@@ -1149,14 +1157,21 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
         const fl = cb.bound / BIG;
         minOpenH = Math.max(minOpenH, unit ? Math.ceil(fl / unit - 1e-6) * unit : Math.max(0, fl - 1e-6));
       }
-      // Branch-and-price (bnp.mjs): the same columns, but the Dantzig-Wolfe LP solved exactly at every node and branching on
-      // person-shift pairs. Subgradient prices stop short of the LP; this closes the integrality gap the priced floor leaves.
+      // Branch-and-price (bnp.mjs): the Dantzig-Wolfe LP solved exactly at every node, branching on who holds which shift.
+      // Subgradient prices stop short of the LP; this closes the integrality gap the priced floor leaves. Column generation is
+      // the default (faster on all 16 bench weeks, eval/cg-bench.mjs); `coverCG: false` uses the enumerated columns instead.
       if (o.coverLP !== false && minOpenH < incHours - 1e-9) {
-        const bp = branchAndPriceOpen(pf.cov.sets, pf.cov.len, { incumbentOpen: incHours, nodeLimit: o.coverLPNodes ?? 2000, ms: o.coverLPMs ?? 10000 });
-        coverLPStats = { ...bp.stats, rootLP: bp.rootLP, floor: bp.floor, proven: bp.proven };
-        minOpenH = Math.max(minOpenH, bp.floor);
-        if (bp.roster) lpOwner = Array.from(bp.roster);
+        if (o.coverCG === false) {
+          const bp = branchAndPriceOpen(pf.cov.sets, pf.cov.len, { incumbentOpen: incHours, nodeLimit: o.coverLPNodes ?? 2000, ms: o.coverLPMs ?? 10000 });
+          coverLPStats = { ...bp.stats, rootLP: bp.rootLP, floor: bp.floor, proven: bp.proven };
+          minOpenH = Math.max(minOpenH, bp.floor);
+          if (bp.roster) lpOwner = Array.from(bp.roster);
+        } else runColumnGeneration();
       }
+    } else if (o.coverLP !== false && o.coverCG !== false && minOpenH < incHours - 1e-9) {
+      // A person has more valid sets than priceOpenFloor lists (60,000), so there are no enumerated columns and no priced floor;
+      // column generation prices each person's best set on demand, so these big weeks get the LP floor too.
+      runColumnGeneration();
     }
   }
   const rootBound = Math.max(lowerBound(0, 0), scoreDual);
@@ -1236,6 +1251,82 @@ export function branchedScoreBound(staff, slots, options = {}, { incumbentScore,
   const pf = priceOpenFloor(ctx, { incumbentOpen: 0, incumbentScore, cutoff: incumbentScore });
   if (!pf?.dual) return null;
   return { root: pf.scoreBound, ...branchDual(ctx, pf.dual, pf.scoreBound, incumbentScore, cutoff, { maxNodes, ms }) };
+}
+// Pricing oracle for columnGenerationOpen (bnp.mjs): person p's valid shift set with the largest sum of w[s], holding every shift
+// in `need` and none in `ban`. Depth-first over the shifts worth something (w > 0), best value per hour first, cut by a
+// fractional-knapsack bound on the person's weekly hours. Every hard rule is downward closed (dropping a shift never breaks
+// one), so a branch whose list fails validList can be dropped with everything under it. `maxNodes` caps one call; a capped
+// call returns the best set it found with exact: false.
+function makeSetPricer(ctx, { maxNodes = 2000000 } = {}) {
+  const { P, S, elig, slots, staff } = ctx;
+  const mins = slots.map((s) => s.end - s.start);
+  const items = Array.from({ length: P }, (_, p) => [...Array(S).keys()].filter((i) => elig[p][i] && validList(ctx, p, [i])));
+  const cls = shiftClasses(ctx);
+  const pricer = (p, w, need, ban) => {
+    const base = need.length ? need.slice().sort((a, b) => slots[a].start - slots[b].start || a - b) : [];
+    if (base.length && !validList(ctx, p, base)) return { set: null, value: -Infinity, exact: true };
+    // Copies of one shift overlap, so a person holds at most one: keep only the best-priced allowed copy of each class.
+    const needCls = new Set(need.map((i) => cls[i]));
+    const top = new Map();
+    for (const i of items[p]) {
+      if (w[i] <= 1e-9 || ban.has(i) || needCls.has(cls[i])) continue;
+      const t = top.get(cls[i]);
+      if (t === undefined || w[i] > w[t]) top.set(cls[i], i);
+    }
+    const cand = [...top.values()].sort((a, b) => w[b] / mins[b] - w[a] / mins[a] || a - b);
+    let baseVal = 0, baseMin = 0;
+    for (const i of base) { baseVal += w[i]; baseMin += mins[i]; }
+    const capMin = staff[p].maxHours * 60;
+    let bestVal = baseVal, bestSet = base, nodes = 0, exact = true;
+    const bound = (x, room) => {
+      let v = 0;
+      for (; x < cand.length && room > 0; x++) {
+        const i = cand[x];
+        if (mins[i] <= room) { v += w[i]; room -= mins[i]; } else { v += (w[i] * room) / mins[i]; room = 0; }
+      }
+      return v;
+    };
+    const go = (x, list, val, used) => {
+      if (!exact) return;
+      if (++nodes > maxNodes) { exact = false; return; }
+      if (val > bestVal + 1e-12) { bestVal = val; bestSet = list; }
+      if (val + bound(x, capMin - used) <= bestVal + 1e-9) return;
+      for (let k = x; k < cand.length; k++) {
+        const i = cand[k];
+        if (used + mins[i] > capMin + 1e-9) continue;
+        const nl = insertSorted(ctx, list, i);
+        if (!validList(ctx, p, nl)) continue;
+        go(k + 1, nl, val + w[i], used + mins[i]);
+        if (!exact) return;
+        if (val + bound(k + 1, capMin - used) <= bestVal + 1e-9) return;
+      }
+    };
+    go(0, base, baseVal, baseMin);
+    return { set: bestSet, value: bestVal, exact };
+  };
+  pricer.cls = cls;
+  return pricer;
+}
+// Shift classes for column generation: copies of one shift line (same day and times, and the same people may take them) share
+// the smallest index among them. They are interchangeable for every hard rule, so branch-and-price branches on the class.
+function shiftClasses(ctx) {
+  const { P, S, slots, elig } = ctx;
+  const first = new Map();
+  return Array.from({ length: S }, (_, i) => {
+    const s = slots[i];
+    let key = `${s.day}|${s.start}|${s.end}|`;
+    for (let p = 0; p < P; p++) key += elig[p][i] ? "1" : "0";
+    if (!first.has(key)) first.set(key, i);
+    return first.get(key);
+  });
+}
+// Least open hours by branch-and-price with column generation: no enumeration of every valid set, so it also runs on weeks where
+// a person has too many sets for priceOpenFloor (which returns null there). Test and bench hook; exactSearch calls it the same way.
+export function openFloorByColumnGeneration(staff, slots, options = {}, cfg = {}) {
+  const ctx = buildContext(staff, slots, options);
+  const len = slots.map((s) => (s.end - s.start) / 60);
+  const pricer = makeSetPricer(ctx, cfg);
+  return columnGenerationOpen(ctx.P, len, pricer, { cls: pricer.cls, ...cfg });
 }
 function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null, incumbentScore = null, scoreRounds = 300, cutoff = null } = {}) {
   const { P, S, elig, slots } = ctx;

@@ -179,10 +179,14 @@ flagships:
       included. Measured: carry-over costs 0 open hours (joint multi-week solve dropped); with
       coverage proven pay is within 0.7% of the bound. Also landed (README): pay and premium
       flags, time budget, cover chains, notice and seniority rules, `--from-sales` with page
-      `shifts-from-sales.html`, `--skip-dates`, `--half-life` (hand-built sales only). Next:
-      true column generation (a per-person pricing subproblem instead of enumerating every set)
-      for weeks over 60,000 sets per person (rolling-gap 10x28 set 0: 47 vs 48 h unproven); then
-      the pay bound; a real POS hourly export for --from-sales and the page (many stamp and
+      `shifts-from-sales.html`, `--skip-dates`, `--half-life` (hand-built sales only). Column
+      generation with a per-person pricing oracle and branching on classes of identical shift
+      copies (columnGenerationOpen, 2026-11-10 later; eval/cg-bench.mjs) is now the default
+      branch-and-price: rolling-gap 10x28 set 0 proven at 48 (= HiGHS) in 3.5 s, 12x30 week 1
+      in 5 nodes. Next: the pay bound by the same column generation (price each person's set by
+      pay and penalties, not only hours, to prove cost on weeks the exact search leaves
+      unproven); a bigger-week bench (20-60 people, 100-390 shifts) to find where the oracle
+      stops being exact; a real POS hourly export for --from-sales and the page (many stamp and
       number formats read, made-up exports only); a real published-schedule export for
       --import-shifts.
   - venture: photo-editing
