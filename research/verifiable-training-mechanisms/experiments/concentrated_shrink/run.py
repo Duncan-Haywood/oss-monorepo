@@ -1,4 +1,4 @@
-"""Milestone 76: does concentrating a shrink budget into a window beat secret segment sampling? (H1/H4 link)
+"""Data for milestone 77 (run as a duplicate of milestone 76 at E = 30, before 76 landed): does concentrating a shrink budget into a window beat secret segment sampling? (H1/H4 link)
 
 The worker withholds E = 30 step-equivalents of training (sum over steps of eta_t, the fraction of the honest step it
 drops; E = 0.02 x T is milestone 75's largest hidden uniform shrink). It spreads E uniformly (W = T, eta = 0.02) or packs

@@ -1893,10 +1893,11 @@ export function analyze(input = {}) {
     // order 2 (o.noiseFloorOrder === 2) uses second differences, which cancel a steady drift per step; the factor 0.578
     // (= 0.954 / 1.651, the white-noise medians of |d1| and |d2| in sd units) keeps k on the same scale as order 1.
     // order 3 uses third differences (cancel a quadratic drift); 0.3166 = 0.955 / 3.016 keeps k on the same white-noise scale.
-    // 'local': residuals of a least-squares line over each centred window of 7 points; white noise gives a median |residual| of
-    // c * sd with c measured by simulation (LOCAL_C), so k stays on the same scale as the other orders.
-    const fl = o.noiseFloorOrder === 'local' && values.length > 7
-      ? noiseFloorK * localFitScale(values)
+    // 'local': residuals of a least-squares line (or quadratic, noiseFloorDegree 2) over each centred window of
+    // noiseFloorWindow points (default 7), rescaled to the white-noise first-difference scale (localFitScale).
+    const localW = Math.floor(Number(o.noiseFloorWindow) || 7) | 1, localDeg = o.noiseFloorDegree === 2 ? 2 : 1;
+    const fl = o.noiseFloorOrder === 'local' && values.length > localW
+      ? noiseFloorK * localFitScale(values, localW, localDeg)
       : o.noiseFloorOrder === 3 && values.length > 4
       ? noiseFloorK * 0.3166 * median(values.slice(3).map((v, i) => Math.abs(v - 3 * values[i + 2] + 3 * values[i + 1] - values[i])))
       : o.noiseFloorOrder === 2 && values.length > 3
@@ -2325,15 +2326,26 @@ export function garchSigma(x) {
   return h(best[0], best[1]).map(Math.sqrt);
 }
 
-// Median absolute residual of centred 7-point local line fits, divided by the white-noise value of that median (measured, 1000 draws).
-const LOCAL_C = 0.627;
-export function localFitScale(v, w = 7) {
-  const h = (w - 1) / 2, res = [];
-  for (let t = h; t < v.length - h; t++) {
-    let sy = 0;
-    for (let j = -h; j <= h; j++) { sy += v[t + j]; }
-    const a = sy / w;
-    res.push(Math.abs(v[t] - a));
+// Median absolute residual of centred local polynomial fits (window w, odd; degree 1 = line, 2 = quadratic), divided by the
+// white-noise value of that median so the result is on the first-difference scale (0.954 sd on white noise).
+// The fitted value at the centre of a least-squares fit is a fixed linear filter (Savitzky-Golay): for a line it is the
+// window mean; for a quadratic, c_j = (3(3m^2+3m-1) - 15 j^2) / ((2m-1)(2m+1)(2m+3)) with m = (w-1)/2. The residual is a
+// projection, so its variance on white noise is (1 - c_0) sd^2 and, for Gaussian noise, its median |.| is 0.6745 times that sd
+// exactly (the 7-point line gives 0.6245; the 0.627 used before 2026-11-10 was a simulation of the same number).
+export function localFitScale(v, w = 7, degree = 1) {
+  w = Math.floor(Number(w) || 7); if (w % 2 === 0) w += 1;
+  const m = (w - 1) / 2;
+  if (degree !== 1 && degree !== 2) throw new Error('The local-fit noise floor takes degree 1 (line) or 2 (quadratic).');
+  if (degree === 1 ? w < 3 : w < 5) throw new Error(`The local-fit noise floor needs a window of at least ${degree === 1 ? 3 : 5} points for degree ${degree}.`);
+  const c = [];
+  for (let j = -m; j <= m; j++) c.push(degree === 1 ? 1 / w : (3 * (3 * m * m + 3 * m - 1) - 15 * j * j) / ((2 * m - 1) * (2 * m + 1) * (2 * m + 3)));
+  const c0 = c[m];
+  const res = [];
+  for (let t = m; t < v.length - m; t++) {
+    let f = 0;
+    for (let j = -m; j <= m; j++) f += c[j + m] * v[t + j];
+    res.push(Math.abs(v[t] - f));
   }
-  return median(res) / LOCAL_C * 0.954;
+  if (!res.length) return 0;
+  return median(res) / (0.67449 * Math.sqrt(1 - c0)) * 0.954;
 }
