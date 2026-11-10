@@ -45,6 +45,10 @@ the origin `journey.mjs` asserts against), and `pages_state.py`'s
    Sanity check: the same regex flags 9,582 HTML/XML files of a marisstella.app-based build.
 5. The `BASE_URL=` usage examples in `journey.mjs`, `sweep.mjs`, `contrast.mjs`,
    `sideways.mjs`, `roundtrip.mjs` and `platform/pages/README.md` name the live origin.
+6. Making marisstella.app post links root-relative put them in front of
+   `check.mjs`'s dead-link check, which found one: the e-invoicing start-here
+   post linked `einvoice-preflight/e-invoicing-mandates-by-country` without its
+   `.html` (the file is `e-invoicing-mandates-by-country.html`). Fixed in the post.
 
 **Not touched.** `platform/ci/build_pages_site.py` keeps its own github.io
 `DEFAULT_BASE_URL`. It is the older Python builder behind `.github/workflows/pages.yml`

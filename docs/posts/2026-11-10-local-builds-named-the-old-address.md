@@ -1,9 +1,9 @@
 ---
 title: "Every local build of the site still named the address it moved away from"
-seo_title: "Canonical tags pointed at a redirect: fixing a static site's default origin"
+seo_title: "Canonical tags pointed at a redirect: fixing a site's default origin"
 date: 2026-11-10
 tags: [seo, github-pages, polish]
-description: "The site moved to marisstella.app on 2026-10-30, but the build's default origin stayed github.io, so local builds and the nightly browser checks used a URL that only redirects."
+description: "The site moved to marisstella.app, but the build default stayed github.io, so local builds and nightly checks used an address that only redirects."
 ---
 
 The catalogue moved from GitHub Pages to Cloudflare at https://marisstella.app/
