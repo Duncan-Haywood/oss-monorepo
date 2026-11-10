@@ -626,6 +626,20 @@ export const BUILT_IN = [
   ["6160", "out", /united dairy farmers|\bcountrymark\b|\bsheetz\b|buc-?ee|\bcircle k\b|\bthorntons\b|kwik (trip|star)|love'?s travel|flying j|pilot travel|\bparkmobile\b|\bpaybyphone\b|\bspothero\b|^raceway \d|^tom thumb #/],
   ["6060", "out", /disney ?(\+|plus)|\bhulu\b|paramount ?\+|\bpeacock\b/],
   ["6120", "out", /disney resorts|\bhyatt\b|holiday inn|best western|hampton inn|courtyard by|la quinta/],
+  // Labelled books (eval/opencollective-labelled.mjs, 2026-11-10): the words people type on an expense or invoice
+  // ("web hosting", "legal services", "printing", "supplies"), written from two fiscal hosts' misses and checked on three
+  // hosts no rule was written from. Last in the list, so a vendor name above always wins. "Gas", "maintenance" and a
+  // bare "development" fit two accounts and stay unsuggested.
+  ["6170", "out", /\bprofessional development\b|\bconference (registration|ticket|fee)s?\b/],
+  ["6020", "out", /\bmaintenance (and|&) development\b|\bdevelopment (expense|work|services?|and support)\b|\b(software|web|website|app|plugin|frontend|backend) development\b|\bconsult(ing|ancy)( services| fees?)?\b|\bcontractor (fees?|services|payment)\b|\bfreelance (work|services)\b/],
+  ["6050", "out", /\blegal (services|fees?|counsel|advice)\b|\battorney'?s? fees?\b|\b(accounting|bookkeeping|audit) (services|fees?)\b|\btax preparation\b/],
+  ["6060", "out", /\b(web |server |cloud |vps )?hosting\b|\bdomain (name )?(renewal|registration)\b|\b(monthly|annual|yearly) subscription\b|\bsubscription (fee|renewal|payment)\b|\binfomaniak\b|\bdiscourse\b|\bcontabo\b|\bovh\b|\bscaleway\b|\bnebius\b|\bmacstadium\b|read ?the ?docs|digital ?ocean|\bhetzner\b|\birccloud\b|\bnamecheap\b|\bporkbun\b|\bgandi\b/],
+  ["6070", "out", /\boffice supplies\b|\bprinting\b|\bprint(ed)? materials\b|\bphotocop(y|ies|ying)\b/],
+  // A big-box store stays blank even when the line says "supplies": the same receipt is often stock, meals and the owner's own shopping.
+  ["6100", "out", /^(?!.*\b(sams? club|sam's club|costco|walmart|target|amazon|bj'?s wholesale)\b).*\b(supplies|materials)\b/],
+  ["6130", "out", /\bgrocer(y|ies)\b|\bcatering\b|\bsnacks\b|\b(team|working|business) (lunch|dinner|meal)\b|\bcomida\b|^food$/],
+  ["6120", "out", /\brideshare\b|\bairfare\b|\bflights?\b|\btrain tickets?\b|\btravel (expenses?|costs?|reimbursement)\b|\blodging\b|\bhotel\b/],
+  ["6180", "out", /\bpostage\b|\bshipping (costs?|fees?|labels?)\b/],
 ];
 
 // Layer 3: multinomial naive Bayes with Laplace smoothing over payee tokens,
