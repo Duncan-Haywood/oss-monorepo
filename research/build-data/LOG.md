@@ -1,5 +1,10 @@
 # build-data log
 
+## Session 68, 2026-11-10: Seattle H4 transfer on a third test year, 2022 (prediction written before the run)
+
+Why: sessions 65 to 67 left "third transfer test year (2022)". With `--test-year 2022` the split is source and own train to year <= 2020, early-stopping year 2021, test 2022 (`src/transfer.py`, unchanged).
+Prediction (written before the run, from the 2023 and 2024 rows): (P1) Seattle i2c transfer beats Seattle's own per-type baseline at q0.1 and q0.5 with 95% week-block CIs below zero; (P2) Seattle a2i transfer is worse than the baseline at q0.9 (CI above zero); (P3) both transfer intervals under-cover (80% coverage below 0.75). No prediction for i2c q0.9, which flipped sign between 2024 and 2023. Refuted part by part if the stated CI or coverage condition fails.
+
 ## Session 67, 2026-11-10: Seattle folded into the paper's title and abstract (no new compute)
 
 Why: session 66 left "fold Seattle into the abstract". The title now says four-city; the abstract keeps findings (1) to (5) as three-city statements and adds a paragraph for Seattle (H1 19 of 21 cells, table narrower than baseline, mixed transfer in 2023 and 2024), every number copied from section 4.8.
