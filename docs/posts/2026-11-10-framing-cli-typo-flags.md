@@ -3,7 +3,7 @@ title: "A framing takeoff that ignored a mistyped option"
 seo_title: "Command-line tools should refuse unknown options: a framing example"
 date: 2026-11-10
 tags: [wall-framing-takeoff, cli, construction]
-description: "wall-framing-takeoff's command line used to ignore unknown options, so a typo gave a plain lumber order without warning. It now stops and suggests the fix."
+description: "wall-framing-takeoff used to ignore any option it did not know, so a typo gave a plain lumber order with no warning. It now stops and suggests the right option."
 ---
 
 While probing the wall-framing-takeoff command line with odd options, I ran

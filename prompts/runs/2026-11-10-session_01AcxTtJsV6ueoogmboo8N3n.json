@@ -1,0 +1,183 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtJsV6ueoogmboo8N3n",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T03:06:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14415",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Skipped the 2 open step-0 entries (both control-plane workflow edits needing owner approval); no blog post added, run fixes two post front-matter defects."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/pages/published-base-url.mjs",
+        "test": "node --test platform/pages/published-base-url.test.mjs  (in .)",
+        "seed": 316278586,
+        "commit": "578952de",
+        "sites": 16,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 80,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "after": "const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-10])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "line_text": "  const bare = /^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)+$/;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 117,
+            "col": 17,
+            "operator": "true-to-false",
+            "before": "branchSeen = true;",
+            "after": "branchSeen = false;",
+            "line_text": "    branchSeen = true;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 125,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const cname = contents.split('\\n', 1)[0].replace(/\\s/g, '');",
+            "after": "const cname = contents.split('\\n', 2)[0].replace(/\\s/g, '');",
+            "line_text": "    const cname = contents.split('\\n', 1)[0].replace(/\\s/g, '');",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "split with limit 1 or 2 returns the same element [0]; unobservable."
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 125,
+            "col": 42,
+            "operator": "const-plus-one",
+            "before": "const cname = contents.split('\\n', 1)[0].replace(/\\s/g, '');",
+            "after": "const cname = contents.split('\\n', 1)[1].replace(/\\s/g, '');",
+            "line_text": "    const cname = contents.split('\\n', 1)[0].replace(/\\s/g, '');",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 126,
+            "col": 26,
+            "operator": "eq-flip",
+            "before": "return { cname: cname === '' ? null : cname, branchSeen };",
+            "after": "return { cname: cname !== '' ? null : cname, branchSeen };",
+            "line_text": "    return { cname: cname === '' ? null : cname, branchSeen };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 144,
+            "col": 12,
+            "operator": "neq-flip",
+            "before": "if (cname !== null) {",
+            "after": "if (cname === null) {",
+            "line_text": "  if (cname !== null) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 166,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {",
+            "after": "if (process.argv[2] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {",
+            "line_text": "if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/pages/published-base-url.mjs",
+            "line": 166,
+            "col": 54,
+            "operator": "eq-flip",
+            "before": "if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {",
+            "after": "if (process.argv[1] && fileURLToPath(import.meta.url) !== path.resolve(process.argv[1])) {",
+            "line_text": "if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "docs/posts/2026-11-10-andorra-guinea-liechtenstein-san-marino-tax-ids.md",
+        "issue": "seo_title 83 chars (limit 70) turned podcast.test.mjs and shorts.test.mjs red on main; merged despite check_post_frontmatter CI step",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14415"
+      },
+      {
+        "file": "docs/posts/2026-11-10-framing-cli-typo-flags.md",
+        "issue": "seo_title 72 and description 172 chars over limits; same red tests",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14415"
+      }
+    ]
+  }
+}
