@@ -1,9 +1,9 @@
 ---
 title: "Checking ML training by replay: why the segment spacing should be 20"
-seo_title: "Verifiable ML training: choosing the checkpoint segment length for replay audits"
+seo_title: "Verifiable ML training: segment length for replay audits"
 date: 2026-11-10
 tags: [research, verifiable-training, mechanism-design]
-description: "A replay audit of outsourced ML training catches a stalled step with probability set by the replay budget alone; segment length only changes cost, and measured fp16 drift caps it at 20 steps."
+description: "Replay audits of outsourced ML training catch a stalled step at a rate set by the replay budget alone; measured fp16 drift caps segment length at 20 steps."
 ---
 
 In the [verifiable training mechanisms](../../research/verifiable-training-mechanisms/)
