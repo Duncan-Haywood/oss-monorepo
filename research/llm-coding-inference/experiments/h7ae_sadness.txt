@@ -1,0 +1,17 @@
+GoEmotions sadness, LLM Qwen2.5-1.5B-Instruct, test part 6683, prevalence 0.0230, coder J 0.623, 1000 draws per cell
+n | N | n/N | rule | share of draws using cells % | coverage % | half-width pts | mean corpus positives
+500 | 6683 | 0.075 | pooled | 0 | 95.3 | 1.203 | 154.0
+500 | 6683 | 0.075 | neg_guard=3 alone | 28 | 96.2 | 1.168 | 154.0
+500 | 6683 | 0.075 | width ratio guard-only/pooled | 0.971
+500 | 3341 | 0.150 | pooled | 0 | 95.8 | 1.156 | 77.2
+500 | 3341 | 0.150 | neg_guard=3 alone | 28 | 96.2 | 1.124 | 77.2
+500 | 3341 | 0.150 | width ratio guard-only/pooled | 0.972
+500 | 1667 | 0.300 | pooled | 0 | 94.1 | 1.036 | 38.5
+500 | 1667 | 0.300 | neg_guard=3 alone | 28 | 94.0 | 0.976 | 38.5
+500 | 1667 | 0.300 | width ratio guard-only/pooled | 0.942
+1000 | 3341 | 0.299 | pooled | 0 | 94.4 | 0.727 | 76.8
+1000 | 3341 | 0.299 | neg_guard=3 alone | 69 | 96.1 | 0.596 | 76.8
+1000 | 3341 | 0.299 | width ratio guard-only/pooled | 0.819
+2000 | 6683 | 0.299 | pooled | 0 | 95.1 | 0.516 | 154.0
+2000 | 6683 | 0.299 | neg_guard=3 alone | 98 | 93.6 | 0.369 | 154.0
+2000 | 6683 | 0.299 | width ratio guard-only/pooled | 0.715
