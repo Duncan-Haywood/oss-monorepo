@@ -1,9 +1,9 @@
 ---
 title: "Does a model trained on other cities forecast Seattle permit delays? A second test year says only partly"
-seo_title: "Cross-city building permit delay forecasting: Seattle transfer, 2023 vs 2024"
+seo_title: "Cross-city permit delay forecasting: Seattle transfer, 2023 vs 2024"
 date: 2026-11-10
 tags: [research, permits, construction, transfer-learning, build-data]
-description: "A LightGBM permit-delay model trained on Chicago, San Francisco and Austin, tested on Seattle in two years. The 2024 gain at every quantile did not repeat in 2023."
+description: "A permit-delay model trained on Chicago, SF and Austin, tested on Seattle in two years. The 2024 gain at every quantile did not repeat in 2023."
 ---
 
 The [build-data programme](../../research/build-data/) asks whether open
