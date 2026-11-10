@@ -47,6 +47,7 @@ Options:
   --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
   --threshold <p>           report Bayesian changes at or above p (default: ${DEFAULTS.threshold})
   --example                 run on the bundled Nile river flow series
+  --consensus [n]           run six settings (level, level under a trend with AR(1), the same with joint AR(1), noise floor, trend, trend with floor) and list each change by how many agree (changes within n points, default 2% of the series, are one); takes --log, --period, --penalty, --min-segment, --column
   --json                    print the full result as JSON
   -h, --help                this help
 
@@ -80,6 +81,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--slope-breaks') opt.slopeBreaks = argv[i + 1] && /^[1-3]$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--joint-knots') opt.jointKnots = true;
     else if (a === '--trend') opt.trend = argv[i + 1] === 'bend' || argv[i + 1] === 'bends' || argv[i + 1] === 'quad' ? argv[++i] : true;
+    else if (a === '--consensus') opt.consensus = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
     else if (a === '--noise-floor-diff2') opt.noiseFloorOrder = 2;
     else if (a === '--noise-floor') opt.noiseFloor = argv[i + 1] && !argv[i + 1].startsWith('-') ? Number(argv[++i]) : true;
@@ -101,6 +103,13 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     }
   }
   if (typeof opt.holidays === 'string') opt.holidays = opt.holidays.split(',').map((h) => h.trim()).filter(Boolean);
+  if (opt.consensus) {
+    const { consensus: cons, consensusText } = await import('./consensus.mjs');
+    const { consensus: tol, ...rest } = opt;
+    const c = cons(rest, { tolerance: tol === true ? null : tol });
+    out((json ? JSON.stringify(c, null, 2) : consensusText(c)) + '\n');
+    return 0;
+  }
   const r = analyze(opt);
   if (json) { out(JSON.stringify(r, null, 2) + '\n'); return 0; }
   const lines = [r.summary, ''];

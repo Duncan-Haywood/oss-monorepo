@@ -122,7 +122,10 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and every trial (real series, sweeps, dates): README and git. Open:
+      History and every trial (real series, sweeps, dates): README and git.
+      `--consensus` landed 2026-11-10 (six settings, agreement tiers; README);
+      wanted next: the panel on a real drifting series with a documented break.
+      Open:
       (0) smooth low-noise series are over-cut: `--noise-floor k` is uncalibrated on real drift (`--noise-floor-diff2` k=2 is scale-free on synthetic straight drift, 2026-11-10; untested at high phi and on real series);
       (k=1.5 and `--ar1 joint` each win on synthetic drift at different phi;
       wanted: all three on real drift); the slope-break test dates GDP's 1970s
