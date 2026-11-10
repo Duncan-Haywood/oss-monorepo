@@ -407,6 +407,10 @@ const RULES = {
     P("\\b(drivers|reps|staff|team|people|users|crew)\\b.{0,30}\\bwon'?t (adopt|use|switch)\\b"), P("\\b(reps|staff|team|people|users|crew|drivers)\\b.{0,15}\\b(hate|dislike|resent)\\b.{0,30}\\b(click|extra|another|app|tool|step)"), P("\\bwe tried (that|this|something (like|similar))\\b.*\\b(fail|didn'?t work|flopped)"), 
     // Added 2026-11-07: a deliverability worry ("spam our prospects", "hurt our domain reputation") is an objection, not a reply to read.
     // Added 2026-11-08: "sends spam under our name", "we got burned by that before".
+    // Added 2026-11-10 (eval/fresh-2026-11-13.jsonl, a question/objection/interest probe): "tried something similar ... a mess, sceptical",
+    // "doesn't fit a business our size".
+    P("\\b(we|i) tried (that|this|something (like|similar))\\b.{0,60}\\b(mess|messy|sceptical|skeptical|waste|useless|poor)\\b"), P("\\b(sceptical|skeptical)\\b"),
+    P("\\b(don'?t|doesn'?t|do not|does not) (think (this|it) )?fits? (a |our )?(business|company|team|firm)\\b"),
     P("\\bspam\\b.{0,30}\\bunder (our|my) name\\b"), P("\\b(we|i)('ve| have)? (got|been|were|was) burned\\b"),
     P("\\b(spam|annoy|irritate) (our|my|the) (prospects|customers|clients|leads)\\b"), P("\\b(hurt|damage|harm|ruin) (our|my|the) (domain|sender|email|brand) (reputation|score)\\b")],
   meeting: [
