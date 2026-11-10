@@ -1171,8 +1171,16 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
     // binary-search insert instead of a fresh copy and sort per pair (the robust CAC run went from 183 s to about 2 s,
     // docs/history/ci-perf-2026-11-10-laplace-cost-sorted-runs.md). Same sorted values, same sum order, same cost.
     // Any other order of asking falls back to the sort, memoised as before.
+    // A start PELT has pruned is never asked again: every 256 steps, buffers untouched for 256 steps are freed, so
+    // memory follows the starts still in play, not n^2/2 values (8,609 DJIA days would otherwise hold ~300 MB).
+    // Freeing is always safe: a start asked again is rebuilt from x.
     const runs = new Map();
+    let sweptAt = 0;
     return (s, t) => {
+      if (t > sweptAt + 256) {
+        for (const [k, q] of runs) if (q.t < t - 256) runs.delete(k);
+        sweptAt = t;
+      }
       let r = runs.get(s);
       if (r === undefined && t > s) { r = { buf: new Float64Array(n - s), t: s, c: 0 }; runs.set(s, r); }
       if (r !== undefined && t >= r.t && t > s) {
