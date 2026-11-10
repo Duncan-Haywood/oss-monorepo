@@ -280,6 +280,13 @@ function classify(country, body) {
   if (country === "ME") return /^\d{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "MK") return /^\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "IS") return /^\d{5,6}$/.test(body) ? "format" : "bad-format";
+  // Senegal NINEA (7 or 9 digits, then an optional 3-character COFI), Ghana GRA TIN (11 characters, prefix
+  // P00, C00, G00, Q00 or V00), El Salvador NIT (14 digits) and Algeria NIF (15 or 20 digits, shape only).
+  // Structures from python-stdnum sn.ninea, gh.tin, sv.nit, dz.nif; the authority texts are unread.
+  if (country === "SN") return /^(\d{7}|\d{9})([012][ABCDEFGHJKLMNPQRSTUVWZ]\d)?$/.test(body) ? "checksum" : "bad-format";
+  if (country === "GH") return /^[PCGQV]00[A-Z0-9]{8}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "SV") return /^[019]\d{13}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "DZ") return /^(\d{15}|\d{20})$/.test(body) ? "format" : "bad-format";
   // China unified social credit code (GB 32100-2015): 18 characters, 0-9 and A-Y without I, O, S, V, Z.
   if (country === "CN") return /^[0-9A-HJ-NP-RT-UW-Y]{18}$/.test(body) ? "checksum" : "bad-format";
   if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
@@ -647,6 +654,32 @@ function negMod11Ok(body, w) {
 const mePibOk = (body) => negMod11Ok(body, [8, 7, 6, 5, 4, 3, 2]);
 const mkEdbOk = (body) => negMod11Ok(body, [7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2]);
 
+// Senegal NINEA: the 7 or 9 digits, zero-padded to 9, weighted 1,2 repeating; the sum is a multiple of 10 (the COFI
+// suffix is shape only). Ghana TIN: check character = sum of i times character i for i = 1..9, mod 11, 10 = X.
+// El Salvador NIT: old numbers (sequence <= 100) weights 14..2, check = (sum mod 11) mod 10; newer ones weights
+// 2,7,6,5,4,3 repeating, check = (-sum mod 11) mod 10. Rules from python-stdnum; the authorities' texts are unread.
+function snNineaOk(body) {
+  const digits = body.length > 9 ? body.slice(0, -3) : body;
+  const w = [1, 2, 1, 2, 1, 2, 1, 2, 1];
+  const n = digits.padStart(9, "0");
+  return w.reduce((a, x, i) => a + x * Number(n[i]), 0) % 10 === 0;
+}
+function ghTinOk(body) {
+  let sum = 0;
+  for (let i = 1; i <= 9; i++) {
+    if (!/\d/.test(body[i])) return false;
+    sum += i * Number(body[i]);
+  }
+  const check = sum % 11;
+  return body[10] === (check === 10 ? "X" : String(check));
+}
+function svNitOk(body) {
+  const old = body.slice(10, 13) <= "100";
+  const w = old ? [14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2] : [2, 7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return String(old ? (sum % 11) % 10 : (((-sum % 11) + 11) % 11) % 10) === body[13];
+}
+
 function tnMfShapeOk(body) {
   const m = /^\d{7}[A-HJ-NP-TV-Z]([ABDNP])([MPCNE])(\d{3})$/.exec(body);
   if (m) return m[3] === "000" || m[2] === "E";
@@ -755,6 +788,9 @@ function checksumOk(country, body) {
   if (country === "VE") return veRifOk(body);
   if (country === "MD") return mdIdnoOk(body);
   if (country === "MA") return maIceOk(body);
+  if (country === "SN") return snNineaOk(body);
+  if (country === "GH") return ghTinOk(body);
+  if (country === "SV") return svNitOk(body);
   if (country === "ME") return mePibOk(body);
   if (country === "MK") return mkEdbOk(body);
   if (country === "AZ") return azVoenOk(body);
