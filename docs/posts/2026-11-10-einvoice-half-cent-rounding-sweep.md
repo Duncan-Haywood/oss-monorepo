@@ -2,7 +2,7 @@
 title: "Half a cent: the same rounding bug in four more e-invoice files"
 seo_title: "E-invoice VAT half-cent rounding bug: FA3, FatturaPA, UBL repair"
 date: 2026-11-10
-tags: [e-invoice, vat, rounding, open-source]
+tags: [einvoice, vat, rounding, open-source]
 description: "Binary floats store 1.005 just under a half cent, so Math.round(x*100)/100 gives 1.00. A sweep of the e-invoice checker found it in four more places and fixed them."
 ---
 
