@@ -1,0 +1,253 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/translator-project-quote",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a freelance translator or small-LSP project manager who quotes jobs from a Trados/memoQ analysis report (repetitions, 101%/context, 100%, 95-99, 85-94, 75-84, 50-74, no match) against a per-word rate and a discount grid, with an ISO 17100 reviser step priced separately",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran node --test '*.test.mjs' in ventures/translator-project-quote: 89 pass, 0 fail. Wrote an independent Python re-implementation from the README 'Model' bullets (scratchpad/translator/ind.py) and compared four unlike scenarios with calc.mjs via node (scratchpad/translator/run.mjs): the README/guide default (2,400 weighted, 435 direct, 580 recommended), a 10,000-word Trados-style analysis collapsed to one fuzzy rate (5,650 weighted, 678 at $0.12/word), a rush job, and a 150-word job where the minimum binds (50). All match exactly. The vs-flat-rate page arithmetic (337.50, 225, 242.50 gap, 300) also recomputes. The arithmetic is right as documented; the rush fee being grossed up by the margin (533.33 instead of the 480 a 50% rush surcharge on a 320 price gives) is a departure from practice, scored under domain.",
+    "completeness": "Every feature the README and index.html list works: weighted words, hours, labour, QA/DTP/rush add-ons, floor vs minimum, target-margin price, recommended quote (larger of floor and margin price), copy summary, shareable link, local draft, currency label, printable client quote with scope lines that drop zero-priced items, usage off-switch. page.test.mjs, share.test.mjs and proposal.test.mjs pass. No stubs or dead links found in the four HTML pages. Gaps are scope, not unfinished claims.",
+    "verification": "89 tests pass. Seeded 7 mutations in calc.mjs, each reverted (git status clean for the subject dir afterwards). Caught: floor ignoring direct cost, QA hours not priced, recommended = floor, fuzzy-rate cap removed. Survived: fuzzy weight inverted to (100 - fuzzy_rate)/100 (every test uses fuzzy_rate 50, where the inversion is identical), rush fee dropped from add-ons (every test uses rush_fee 0), and target_margin >= 100 loosened to > 100 (margin 100 then divides by zero to Infinity). 4 of 7 caught; the two most domain-specific inputs (fuzzy weight, rush) are untested.",
+    "craft": "Read calc.mjs (75 lines), calc.test.mjs, index.html script, usage.mjs, share.mjs headers. One validation path, pure calculate(), comments explain the recommended-price fix. Defects: in the browser a blank field becomes Number('') = 0 and passes validation, so a cleared fuzzy-rate box silently prices fuzzy words free (probe: weighted words 1,800 instead of 2,400); money() prints no thousands separator ('USD 5650.00'); a 1e12-word job is accepted without a warning. The proposal block is generated from platform/proposal and well guarded. Minor.",
+    "claims": "README and every page carry the no-warranty and no-SLA text, privacy statement, and the 'arithmetic, not a recommended rate' limit. vs-smartcat.html describes Smartcat as a cloud CAT tool with TM, terminology, MT and a freelance marketplace, which matches third-party descriptions (Wikipedia, reviews found by web search; smartcat.com itself was blocked by the proxy), avoids pricing, and carries a non-affiliation line; it omits Smartcat's current AI-first positioning but makes no false claim. Fails: vs-a-flat-per-word-rate.html:29 says 'a fuzzy match bills at its match percentage' and how-to-quote-a-translation-project.html:35 says to treat the match percentage as 'the fraction of a full word's effort'; the tool itself uses a separate pay rate, and common grids pay a 95-99% match about 30% and an 85-94% match about 50% (ProZ forum grids), so following the copy inflates weighted words (about 9,418 vs 6,375 on a sample 10,000-word analysis). README:79 lists three usage counters but index.html also records proposal_printed and company_forgotten; README says the proposal module serves '102 bid calculators' while platform/proposal/trades.json has 92 entries and 93 venture pages carry the block. llms.txt links the old github.io host and sitemap.xml uses example.invalid; the build rewrites these at deploy (the served page could not be loaded: proxy 403), so recorded as source-only.",
+    "fitness": "Walked the job: a CAT analysis for a 10,000-word file has 6 to 8 bands. The tool takes one 'fuzzy-match words' count and one rate, so the translator must compute the weighted total by hand first (I had to: 2,650 weighted fuzzy words / 7,000 = 37.857%, which the HTML step=1 field marks invalid). There is no per-word rate input (translators and agencies quote per word; here it is derived as hourly/words-per-hour), no repetitions or 100%/context-match lines, no separate reviser rate for ISO 17100 revision, and rush is a flat amount rather than a % surcharge. For a single direct-client job with one fuzzy band it works and the printed quote is genuinely useful.",
+    "domain": "Compared against CAT-tool discount-grid practice (Trados/memoQ bands; ProZ forum grids: reps 0-10%, 100% 10-15%, 95-99 30%, 85-94 50%, 75-84 60-70%, 50-74 90-100%), rush practice (a 25-50% surcharge on the fee) and ISO 17100 (translate + revise by a second linguist). Departures: a single fuzzy band; the page copy equates match percentage with effort, the opposite of how grids work; the rush fee is treated as a cost and grossed up by the target margin, so a typed fee of 160 becomes 213 on the client price; QA/review is priced at the translator's own hourly rate with no reviser line or per-word revision rate; defaults (45/h, 400 words/h = $0.1125/word, $250 minimum) are uncited, and $250 is high for a freelance minimum fee. The weighted-word, hourly-productivity method itself is sound and well explained."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Default job (1,800 new, 1,200 fuzzy at 50%, 400 w/h, $45/h, 2 QA h, $75 DTP, $250 min, 25% margin)",
+      "method": "Independent Python re-implementation written from the README Model bullets, not from calc.mjs",
+      "command": "python3 scratchpad/translator/ind.py vs node scratchpad/translator/run.mjs",
+      "expected": "weighted 2400, hours 6, direct 435, target 580, floor 435, recommended 580",
+      "observed": "2400 / 6 / 435 / 580 / 435 / 580",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "10,000-word Trados-style analysis (CM 1000@10%, 100% 2000@25%, 95-99 1500@30%, 85-94 1500@60%, 75-84 1000@70%, 3000 no match) collapsed to one fuzzy rate, $0.12/word",
+      "method": "Discount-grid arithmetic by hand from a common freelance grid (ProZ forum grids), independent Python",
+      "command": "python3 scratchpad/translator/ind.py vs node scratchpad/translator/run.mjs",
+      "expected": "weighted 5650, price 678.00",
+      "observed": "5650 / 678 (only after collapsing bands to 37.857% by hand)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Small job where the minimum fee binds (150 words, $45/h, $50 minimum, 25% margin)",
+      "method": "Independent Python re-implementation",
+      "command": "python3 scratchpad/translator/ind.py vs node scratchpad/translator/run.mjs",
+      "expected": "direct 16.875, target 22.50, recommended 50",
+      "observed": "16.875 / 22.5 / 50",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Rush job: 2,000 new words at $0.12/word, 25% margin, 50% rush surcharge",
+      "method": "Industry rush practice: a percentage surcharge on the job fee, added to the client price as a fee",
+      "command": "node scratchpad/translator/run.mjs (rush_fee 160, target_margin 25)",
+      "expected": "320 base + 160 rush = 480.00",
+      "observed": "533.33 (the rush fee is grossed up by the margin as if it were a cost)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-a-flat-per-word-rate.html:29 'a fuzzy match bills at its match percentage' and guide line 35 'treat it as the fraction of a full word's effort'",
+      "method": "ProZ forum discount grids (95-99% at about 30%, 85-94% at about 50%) and the tool's own separate pay-rate input",
+      "command": "grep -n 'bills at its match percentage\\|fraction of a full' *.html",
+      "expected": "copy says the weight is the pay rate from your grid, well below the match %",
+      "observed": "copy equates match % with weight; on a sample 10,000-word analysis this gives 9,418 weighted words vs 6,375 on the grid",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-flat-rate page figures (337.50 flat, 242.50 gap, 225 = direct cost, 300 recommended)",
+      "method": "hand arithmetic: 3000 x 0.1125, 580 - 337.5, 2000 x 0.1125, 225 / 0.75",
+      "command": "python3 -c 'print(3000*.1125, 580-337.5, 2000*.1125, 225/.75)'",
+      "expected": "337.5 / 242.5 / 225 / 300",
+      "observed": "matches the page",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-smartcat.html description of Smartcat (cloud CAT, TM, terminology, MT, marketplace, account required, non-affiliation)",
+      "method": "third-party descriptions via web search (Wikipedia 'Smartcat', TheNextWeb 2015, freelancer reviews); smartcat.com blocked by proxy",
+      "command": "WebSearch 'Smartcat translation platform marketplace freelance linguists translation memory CAT tool'",
+      "expected": "no false or unbacked claim about Smartcat",
+      "observed": "consistent; pricing deliberately omitted; non-affiliation stated",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README usage counters and '102 bid calculators' line",
+      "method": "grep index.html count() calls; count platform/proposal/trades.json entries",
+      "command": "grep -n \"count('\" index.html; python3 -c 'len(json.load(open(\"platform/proposal/trades.json\")))'",
+      "expected": "3 counters as listed; 102 adopters",
+      "observed": "5 events (adds proposal_printed, company_forgotten); 92 trades.json entries, 93 pages with the block",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, no-SLA and privacy text on README and all four pages",
+      "method": "read README.md and each HTML page",
+      "command": "grep -c 'No warranty' *.html README.md",
+      "expected": "present on every surface",
+      "observed": "present on index, guide, vs-flat, vs-smartcat and README",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite as shipped",
+      "method": "node --test",
+      "command": "cd ventures/translator-project-quote && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "89 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Seeded mutations in calc.mjs",
+      "method": "sed edit, run tests, git checkout",
+      "command": "node --test '*.test.mjs'",
+      "expected": "each mutation fails a test",
+      "observed": "4 of 7 caught; fuzzy-weight inversion, dropped rush fee and margin=100 survived",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "Blank and malformed input as the browser passes it (Number(''), Number('1,200'))",
+      "method": "node probe of loadQuote/calculate with the values index.html fieldValues() produces",
+      "command": "node scratchpad/translator/run.mjs",
+      "expected": "blank fuzzy rate rejected or flagged",
+      "observed": "blank fuzzy_rate becomes 0 and prices 1,200 fuzzy words free (weighted 1800); '1,200' is rejected with a message",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Enter a real multi-band CAT analysis",
+      "method": "walk the form with the 10,000-word analysis above",
+      "command": "read index.html inputs (lines 114-126)",
+      "expected": "one line per analysis band, or a grid",
+      "observed": "one fuzzy count and one rate; bands must be collapsed by hand; no repetitions, context match, per-word rate or reviser rate",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Printable client quote drops zero-priced scope lines and hides translator costs",
+      "method": "proposal.test.mjs and page.test.mjs; read SCOPE_TEMPLATES and print CSS",
+      "command": "node --test '*.test.mjs'",
+      "expected": "rush line absent at rush 0; no hourly rate or margin on print",
+      "observed": "as claimed (tests pass; 'when' guards on numeric fields; print hides main)",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:46",
+      "change": "q.fuzzy_rate / 100 -> (100 - q.fuzzy_rate) / 100",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:49",
+      "change": "q.dtp_cost + q.rush_fee -> q.dtp_cost",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:39",
+      "change": "target_margin >= 100 -> target_margin > 100",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:54",
+      "change": "Math.max(q.minimum_price, directCost) -> q.minimum_price",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:49",
+      "change": "q.qa_hours * q.hourly_rate -> q.qa_hours",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:64",
+      "change": "Math.max(minimumPrice, targetPrice) -> minimumPrice",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:36",
+      "change": "fuzzy_rate > 100 -> fuzzy_rate > 1000",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Marketing copy tells translators a fuzzy match bills at its match percentage / the match % is the share of effort; discount grids pay a 95-99% match about 30% and 85-94% about 50%, so a user following it overquotes (9,418 vs 6,375 weighted words on a sample 10,000-word analysis). The tool itself takes a separate pay rate, so the copy also misdescribes the tool.",
+      "where": "ventures/translator-project-quote/vs-a-flat-per-word-rate.html:29",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Only one fuzzy band: a Trados/memoQ analysis (repetitions, 101%/context, 100%, 95-99, 85-94, 75-84, 50-74, no match) must be collapsed to one weighted rate by hand; no per-word rate input and no separate ISO 17100 reviser rate",
+      "where": "ventures/translator-project-quote/calc.mjs:46",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Rush or weekend fee is treated as a direct cost and grossed up by the target margin (a typed 160 fee adds 213.33 to the client price); rush is normally a % surcharge added as a fee",
+      "where": "ventures/translator-project-quote/calc.mjs:49",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Fuzzy weight and rush fee are untested: every test uses fuzzy_rate 50 and rush_fee 0, so inverting the fuzzy weight or dropping the rush fee leaves all 89 tests green; margin=100 boundary also untested",
+      "where": "ventures/translator-project-quote/calc.test.mjs:9",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "A cleared field reaches loadQuote as Number('') = 0 and passes, so a blank fuzzy-rate box silently prices fuzzy words free",
+      "where": "ventures/translator-project-quote/index.html:245",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "README lists three usage counters but the page also records proposal_printed and company_forgotten; '102 bid calculators' does not match platform/proposal/trades.json (92); Development section runs only calc.test.mjs of six test files",
+      "where": "ventures/translator-project-quote/README.md:79",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links the old github.io host and sitemap.xml uses example.invalid in source; the Pages build rewrites hosts at deploy (served page not loadable here, proxy 403)",
+      "where": "ventures/translator-project-quote/llms.txt:9",
+      "category": "source-only",
+      "origin": "audit"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Translator Project Quote is a small, arithmetically correct weighted-word calculator with a genuinely useful printable client quote. Four scenarios recomputed by an independent implementation match exactly, 89 tests pass, and the disclaimers and Smartcat comparison are honest. It misses the bar on verification and claims (both 2, median 2): 3 of 7 seeded mutations survived because no test varies the fuzzy rate or uses a rush fee, and two pages tell translators a fuzzy match bills at its match percentage, the opposite of CAT discount-grid practice (95-99% matches commonly pay about 30%). A translator or LSP PM quoting from a multi-band Trados/memoQ analysis must collapse the bands by hand, has no per-word rate, no reviser line for ISO 17100 revision, and sees a flat rush fee inflated by the margin, so fitness and domain are 2."
+}

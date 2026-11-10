@@ -1,0 +1,317 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/gig-driver-net-pay-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "an enrolled agent who prepares Schedule C and Schedule SE returns for rideshare and delivery drivers, checking first the SE-tax computation, the QBI deduction, the vehicle-cost method and whether 'net pay' includes depreciation",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran node scratchpad/gig/run.mjs against the shipped calc.mjs, tax.mjs, offer.mjs and log.mjs, and an independent Python re-implementation (scratchpad/gig/ind.py) written from the README steps and from Schedule SE / Form 1040 rules. Session arithmetic agrees to 4 decimals on the page's default (vehicle cost 30.6429, net 24.8929/h), the target solver (190.6429, 2.1183/mi), the vs-earnings-screen example (28.975, 29.3885/h, 22.0413/h), the offer evaluator and the log rollup (total over total, 9.5294/h). SE tax over the wage base ($250k profit -> 29,573.38) and with W-2 wages (5,617.07) match Schedule SE. Two tax outputs a driver acts on are wrong against IRS rules: (1) the $400 SE-tax floor is tested on profit (tax.mjs:37), but Schedule SE line 4c tests net earnings (profit x 92.35%), so a $420 profit is charged $59.34 when $0 is owed (wrong for profits $400-$433.13); (2) income tax omits the section 199A QBI deduction (tax.mjs:49), so the page's own example total tax of $5,379 (standard) / $7,517 (actual) would be about $4,904 / $6,854 with 20% QBI at the 12% rate the page uses, a 9% overstatement of the quarterly figure. irs.gov and ssa.gov returned 403 through the proxy (curl CONNECT 403); rates cited from knowledge: 2026 standard mileage 72.5 c (IRS, Dec 2025 announcement), 2026 SS wage base $184,500 (SSA COLA release Oct 2025), which match DEFAULTS_2026.",
+    "completeness": "Every README feature exists and computes: session net per hour/mile, prorated fixed cost, tax reserve (floored at zero on a loss), wage comparison, target solver, tax.html method comparison with quarterly figure, offer.html accept/decline with minimum payout, session log with weekly and weekday rollups and CSV export, copy summary and share link (share.test.mjs, log.test.mjs pass). page.test.mjs checks the inputs and worked figures are wired. The browser UI was not loaded here (marisstella.app returned 403 through the proxy), so the DOM paths are checked by the shipped page tests and by reading index.html:224-460 only. No stubs or TODOs found.",
+    "verification": "Ran node --test '*.test.mjs' in the subject dir: 79 tests, 79 pass, 0 fail. Seeded 9 mutations, each reverted (git status --short for the dir empty afterwards): wage-base cap dropped, half-SE deduction dropped, business-share of insurance/depreciation dropped, loss floor on reserve dropped, target gross-up inverted, fixed cost not prorated, offer return miles dropped were all caught (7). Survived: the SE $400 floor changed from profit to net earnings (79 pass, so no test pins the boundary between $400 and $433), and wage comparison >= changed to > (no equality test). Tests use hand-computed expectations, not snapshots.",
+    "craft": "Read calc.mjs (158 lines), tax.mjs (118), offer.mjs (97), log.mjs (117), share.mjs, the nine test files and index.html's script. Pure, documented functions with no DOM dependency. Defects: three copies of a number() validator that disagree on blanks: tax.mjs and offer.mjs reject '' but calc.mjs:15 does not, so a cleared gross-pay field silently becomes $0 and the page shows a loss rather than an error (probe: calculateSession({grossPay:''}).grossPay === 0); '1,200' is rejected with a clear message. tax.mjs computes an unused 'extras' field. Minor.",
+    "claims": "Disclaimer, no-advice and privacy text present on index.html, tax.html, the article and both vs-* pages; page.test.mjs and tax.test.mjs assert them and the worked examples ($30.64, $24.89, $190.64, $5,379, $7,517, $22.04 all reproduce). Unbacked or wrong: the hero label 'kept per hour, after the car' (index.html:122) and og:description 'what you actually kept after the car' while the cost model has no depreciation term, so at the defaults the page says $24.89/h where the IRS 72.5 c all-in rate gives $19.13/h; tax.html:83 'Profit under $400 owes none' (the test is 92.35% of profit); README.md:150 'No standard mileage rate is built in, and none is asserted as current' and index.html:189 'hardcoding a specific year's rate here would go stale' are contradicted by tax.html/tax.mjs:16 defaulting to 72.5 c for 2026; vs-gridwise.html:32-39 states Gridwise pricing facts (Plus tier, 14-day auto-billing trial) with no source or as-of date in any file. llms.txt links the github.io host, which the build rewrites at deploy, so not counted.",
+    "fitness": "Walked the driver's job: type last night's gross, miles, hours, MPG and gas price and read net per hour. It takes a minute and the arithmetic is right, but the number omits depreciation, the largest per-mile cost of a gig car, unless the driver knows to fold it into 'maintenance/mile'; at the defaults that overstates net by about $5.77/h (30%). The tip to use the standard rate (put it in maintenance and set gas to 0, index.html:95) leaves the $150 insurance in place, double counting it. For tax planning the quarterly figure overstates by ~9% for a QBI-eligible driver and does not apply the safe harbor (it links to a separate tool). A driver gets a useful but optimistic per-session number and a conservative tax estimate.",
+    "domain": "Compared against IRS Pub 463 (car expenses, standard vs actual), Schedule SE (2025/2026 instructions: 92.35%, $400 net-earnings floor, SS base less W-2 wages, Medicare uncapped, half-SE deduction on Schedule 1 line 15), section 199A / Form 8995 (20% QBI deduction) and the 2026 SSA wage base. Matches: 15.3% on 92.35%, wage-base reduction by W-2 wages, half-SE adjustment, business-use share of insurance and depreciation under actual expenses, parking and tolls under both methods, first-year method-switch warning, additional 0.9% Medicare disclosed as not modelled. Departs: $400 floor applied to profit not net earnings; QBI deduction absent and not disclosed among 'not modelled' items; session cost has no depreciation or ownership-cost term, which an EA or a driver-pay researcher (who uses the IRS rate or AAA cost-of-ownership as the yardstick) would flag first."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Default session: vehicle cost and net per hour ($30.64, $24.89 claimed on index.html FAQ)",
+      "method": "Independent Python re-implementation from README 'How it works' steps 1-4",
+      "command": "python3 scratchpad/gig/ind.py (independent re-implementation from the README text and IRS rules) vs node scratchpad/gig/run.mjs (shipped modules)",
+      "expected": "30.6429 / 24.8929",
+      "observed": "30.6429 / 24.8929",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Target solver at 25% reserve, $20/h goal (claimed $190.64, $2.12/mi)",
+      "method": "Independent Python re-implementation (gross-up through reserve)",
+      "command": "python3 scratchpad/gig/ind.py (independent re-implementation from the README text and IRS rules) vs node scratchpad/gig/run.mjs (shipped modules)",
+      "expected": "190.6429 / 2.1183",
+      "observed": "190.6429 / 2.1183",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "vs-the-apps-earnings-screen example ($220, 95 mi, 6.5 h, 28 mpg, $3.40, $0.08, $145/1400, 25%)",
+      "method": "Independent Python re-implementation",
+      "command": "python3 scratchpad/gig/ind.py (independent re-implementation from the README text and IRS rules) vs node scratchpad/gig/run.mjs (shipped modules)",
+      "expected": "cost 28.975, net 29.3885/h, kept 22.0413/h",
+      "observed": "28.9750 / 29.3885 / 22.0413",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "tax.html worked example total tax, standard vs actual ($5,379 / $7,517 claimed)",
+      "method": "Schedule SE (92.35%, 15.3%, $184,500 base) plus marginal rate on profit less half SE, re-implemented in Python",
+      "command": "python3 scratchpad/gig/ind.py (independent re-implementation from the README text and IRS rules) vs node scratchpad/gig/run.mjs (shipped modules)",
+      "expected": "5378.70 / 7517.27",
+      "observed": "5378.70 / 7517.27",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Same example with the section 199A QBI deduction a Schedule C driver under the threshold takes",
+      "method": "IRC 199A / Form 8995: taxable income reduced by 20% of QBI (profit less half SE); irs.gov fetch 403, cited from knowledge",
+      "command": "python3 scratchpad/gig/ind.py (independent re-implementation from the README text and IRS rules) vs node scratchpad/gig/run.mjs (shipped modules)",
+      "expected": "about 4904.17 / 6854.07",
+      "observed": "5378.70 / 7517.27 (QBI not modelled, not disclosed)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "SE tax at $420 profit (net earnings 387.87)",
+      "method": "Schedule SE line 4a-4c: if 92.35% of profit is under $400, no SE tax; irs.gov fetch 403, cited from the form instructions from knowledge",
+      "command": "node scratchpad/gig/run.mjs: selfEmploymentTax(420)",
+      "expected": "0.00",
+      "observed": "59.34",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "SE tax over the wage base ($250,000 profit) and with $150,000 W-2 wages ($50,000 profit)",
+      "method": "Schedule SE Part I with 2026 SS wage base $184,500 (SSA, cited from knowledge; ssa.gov 403)",
+      "command": "python3 scratchpad/gig/ind.py (independent re-implementation from the README text and IRS rules) vs node scratchpad/gig/run.mjs (shipped modules)",
+      "expected": "29573.38 / 5617.07",
+      "observed": "29573.38 / 5617.07",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "2026 constants: standard mileage 72.5 c and SS wage base $184,500",
+      "method": "IRS 2026 standard mileage announcement and SSA 2026 COLA fact sheet, from knowledge; curl to irs.gov and ssa.gov returned CONNECT 403",
+      "command": "curl https://www.irs.gov/tax-professionals/standard-mileage-rates ; curl https://www.ssa.gov/oact/cola/cbb.html",
+      "expected": "0.725 / 184500",
+      "observed": "tax.mjs:16-17 0.725 / 184500",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Offer evaluator: $9.50, 10 mi, 30 min, floors $15/h and $0.50/mi",
+      "method": "Hand recomputation in Python",
+      "command": "python3 -c (hand formula) vs node scratchpad/gig/run.mjs",
+      "expected": "cost 1.9464, net 7.5536, 15.1071/h, min payout 9.4464, accept",
+      "observed": "1.9464 / 7.5536 / 15.1071 / 9.4464 / accept",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Default net per hour vs an all-in per-mile cost at the IRS 72.5 c rate (depreciation included)",
+      "method": "IRS 2026 standard mileage rate as the yardstick for full cost of operating a car",
+      "command": "python3 scratchpad/gig/ind.py (independent re-implementation from the README text and IRS rules) vs node scratchpad/gig/run.mjs (shipped modules)",
+      "expected": "about 19.13/h if depreciation and ownership cost are counted",
+      "observed": "24.89/h labelled 'kept per hour, after the car'",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Shipped test suite",
+      "method": "node --test",
+      "command": "cd ventures/gig-driver-net-pay-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "79 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Mutation survival",
+      "method": "9 seeded edits, each reverted",
+      "command": "node --test '*.test.mjs'",
+      "expected": "each caught",
+      "observed": "7 of 9 caught; SE floor basis and >= wage boundary survived",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, no-advice, privacy text on all five pages",
+      "method": "grep plus page.test.mjs / tax.test.mjs assertions",
+      "command": "grep -n 'No warranty' *.html",
+      "expected": "present",
+      "observed": "present on index, tax, offer, article, both vs-* pages",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'kept per hour, after the car' with no depreciation term",
+      "method": "read calc.mjs:71-83 against the label",
+      "command": "grep -n 'kept per hour' index.html",
+      "expected": "full car cost or a stated limit next to the figure",
+      "observed": "no depreciation input; label unqualified",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README 'No standard mileage rate is built in' and index FAQ 'hardcoding would go stale'",
+      "method": "compare with tax.mjs:16 and tax.html",
+      "command": "grep -n 'No standard mileage rate is built in' README.md; grep -n standardRate tax.mjs",
+      "expected": "consistent",
+      "observed": "tax.mjs defaults 0.725 for 2026; README and FAQ say none is built in",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "tax.html FAQ 'Profit under $400 owes none'",
+      "method": "Schedule SE line 4c",
+      "command": "grep -n 'Profit under' tax.html",
+      "expected": "net earnings (92.35% of profit) under $400",
+      "observed": "states profit",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Gridwise facts (Plus tier, 14-day auto-billing trial)",
+      "method": "look for a cited source or as-of date in any file",
+      "command": "grep -n -i 'as of\\|checked\\|source' vs-gridwise.html",
+      "expected": "source and date",
+      "observed": "none",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "Blank gross-pay field",
+      "method": "node probe",
+      "command": "node scratchpad/gig/run.mjs: calculateSession({...defaults, grossPay:''})",
+      "expected": "'Gross pay must be a number'",
+      "observed": "grossPay 0, silent loss",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README features present and computing (session, reserve, wage, target, tax, offer, log, CSV, share)",
+      "method": "tests plus node probes of each module",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all work",
+      "observed": "all modules compute; browser UI not loaded (proxy 403)",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "tax.mjs:40",
+      "change": "Math.min(base, room) * SS_RATE -> base * SS_RATE",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "tax.mjs:49",
+      "change": "netProfit - se.halfDeduction -> netProfit",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "tax.mjs:37",
+      "change": "netProfit < SE_MINIMUM -> netProfit * SE_FACTOR < SE_MINIMUM",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "tax.mjs:102",
+      "change": "sharedCost * businessShare -> sharedCost",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:91",
+      "change": "Math.max(0, netProfit) * rate -> netProfit * rate",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:122",
+      "change": "totalTarget / (1 - r) -> totalTarget * (1 + r)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:80",
+      "change": "fixedCostPerMile * milesDriven -> monthlyFixed",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "offer.mjs:61",
+      "change": "drop milesBack from offer miles",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:109",
+      "change": "netPerHour >= wage -> netPerHour > wage",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Session cost has no depreciation or ownership term, yet the hero says 'kept per hour, after the car'; at the defaults net is $24.89/h where the IRS 72.5 c all-in rate gives $19.13/h, so a driver deciding whether to keep driving sees a ~30% optimistic figure",
+      "where": "ventures/gig-driver-net-pay-calculator/calc.mjs:72",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Income tax ignores the section 199A QBI deduction and does not list it among things not modelled; the tax page's total tax and quarterly payment overstate by about 9% at its own example ($5,379 vs ~$4,904)",
+      "where": "ventures/gig-driver-net-pay-calculator/tax.mjs:49",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "$400 SE-tax floor tested on profit instead of net earnings (92.35% of profit); profits $400-$433.13 are charged SE tax that is not owed (e.g. $59.34 at $420), and tax.html repeats 'Profit under $400 owes none'; no test pins the boundary (mutation survived)",
+      "where": "ventures/gig-driver-net-pay-calculator/tax.mjs:37",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Standard-rate tip says put the rate in maintenance and set gas to 0 but leaves insurance in the monthly fixed cost, double counting it (the standard rate already covers insurance)",
+      "where": "ventures/gig-driver-net-pay-calculator/index.html:95",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "README 'No standard mileage rate is built in, and none is asserted as current' and the index FAQ 'hardcoding would go stale' contradict tax.mjs/tax.html, which default to 72.5 c for 2026",
+      "where": "ventures/gig-driver-net-pay-calculator/README.md:150",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Competitor facts about Gridwise (Plus tier, 14-day auto-billing trial) carry no source or as-of date",
+      "where": "ventures/gig-driver-net-pay-calculator/vs-gridwise.html:39",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "calc.mjs number() accepts '' as 0 (tax.mjs and offer.mjs reject it), so a cleared gross-pay field silently shows a loss; three divergent copies of the validator",
+      "where": "ventures/gig-driver-net-pay-calculator/calc.mjs:15",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Seeded change to the wage-comparison boundary (>= to >) survives; no equality test",
+      "where": "ventures/gig-driver-net-pay-calculator/calc.mjs:109",
+      "category": "untested-core",
+      "origin": "tests"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Gig Driver Net Pay Calculator is a broad, well-tested, honestly disclaimed set of small calculators whose session arithmetic is right: seven independent recomputations (defaults, target solver, the vs-page example, the offer evaluator, the log rollup, SE tax over the wage base and with W-2 wages) match to four decimals, 79 tests pass and 7 of 9 seeded mutations were caught. It does not meet the bar. An enrolled agent would stop at three things: the headline 'kept per hour, after the car' has no depreciation term (about 30% optimistic at the defaults against the IRS 72.5 c rate); the tax page omits the QBI deduction, overstating total tax and quarterly payments by about 9% on its own example; and the $400 SE-tax floor is applied to profit instead of 92.35% of profit. Correctness, claims, fitness and domain are 2; the median is 2."
+}
