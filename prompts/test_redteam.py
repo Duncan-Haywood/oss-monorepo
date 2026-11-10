@@ -142,6 +142,22 @@ class CampaignTest(unittest.TestCase):
         self.assertEqual(redteam.tally([rec])["catch_rate_after_fix"], 1.0)
         self.assertEqual(self.target.read_text(), CALC)
 
+    def test_rerun_on_a_red_suite_proves_nothing(self):
+        # A suite that fails without the mutant (the blue team's new test is
+        # still red, or something unrelated broke) used to mark every escaped
+        # mutant caught_after_fix: true. It must say it could not tell.
+        camp = redteam.campaign(self.target, 10, seed=1, repo=self.repo)
+        record = self.repo / "run.json"
+        record.write_text(json.dumps({"redteam": None}))
+        redteam.add_to_record(record, camp)
+        with (self.venture / "calc.test.mjs").open("a") as fh:
+            fh.write('test("unrelated and red", () => assert.equal(1, 2));\n')
+        rec = redteam.rerun(record, repo=self.repo)
+        escaped = [m for m in rec["redteam"]["campaigns"][0]["mutants"] if not m["caught"]]
+        self.assertEqual([m["caught_after_fix"] for m in escaped], [None, None])
+        self.assertTrue(all("suite is red without the mutant" in m["note"] for m in escaped))
+        self.assertEqual(self.target.read_text(), CALC)
+
     def test_red_baseline_and_dirty_file_are_refused(self):
         self.target.write_text(CALC + "\n")
         with self.assertRaisesRegex(SystemExit, "uncommitted"):
