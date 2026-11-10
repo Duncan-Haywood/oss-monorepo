@@ -1,6 +1,6 @@
 # Does the strawberry gripper co-design of `codesign-agri` survive the measured range of stem pull-off force?
 
-Follow-up to `codesign-agri` and to `codesign-agri-sweep` (track 14, `codesign`; agriculture). The sweep's next step was to source the invented constants; for the stem pull-off force there are two published measurements, and one of them is four times the value `codesign-agri` assumed. Produced with AI assistance (Claude). **Simulated; the pull-off median and the grip-force limit are sourced, the bruise threshold, friction, ripeness law, prices and every other constant are inherited assumptions.**
+Follow-up to `codesign-agri` and to `codesign-agri-sweep` (track 14, `codesign`; agriculture). The sweep's next step was to source the invented constants; for the stem pull-off force there are two published measurements, and one of them is four times the value `codesign-agri` assumed. Produced with AI assistance (Claude). **Simulated; the pull-off median is sourced. The 10 N grip limit is sourced for the stem (peduncle), not the fruit: the model applies it to the grip on the fruit body, which the source does not support (see Limitations). The bruise threshold, friction, ripeness law, prices and every other constant are inherited assumptions.**
 
 **Live page:** https://marisstella.app/research/codesign-agri-pulloff/
 
@@ -39,6 +39,7 @@ OMP_NUM_THREADS=1 PYTHONPATH=src "$PY" experiments/run.py   # about 10 min on 4 
 Set `OMP_NUM_THREADS=1`: without it the multiprocess Bayesian runs oversubscribe the cores and one attempt did not finish in 30 minutes.
 
 ## Limitations
+- **The 10 N bound is a stem limit used as a fruit limit.** Rajendran et al. (2022) derive 10 N from peduncle compression peaks of 22.5 to 26.8 N with a safety factor of 2; it bounds the squeeze on the stem. Here it caps the total grip force on the fruit body (`pulloff.py` `GRIP_LIMIT`). The paper's only 10 N fruit-body figure (via Dimeas et al.) is for the bend-then-pull method, not the pull-only 13.94 N cells it is paired with. Treat the 8 N and 10 N rows as two assumed bounds, not one assumed and one sourced (quality audit round 34, `portfolio/quality/audits/2026-11-10-codesign-agri-pulloff.json`).
 - Only two measured pull-off values exist in what I could find, both from one second-hand report; the intermediate medians 6 and 10 N are interpolation, not data. Cultivar, ripeness and picking motion are not modelled.
 - Everything else in the fruit and gripper model is the parent's assumed round numbers (bruise band, friction, clutter law, prices, 60 USD cap).
 - The reference optimum is the best of five 400-evaluation runs, not a proven global optimum. Medians over 20 seeds at 40 evaluations; differences of a few hundredths between methods are within seed spread in places.
