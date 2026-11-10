@@ -467,11 +467,25 @@ def take_up_parts(p: Feeder) -> list[Part]:
                  spec=f"2040 T-slot, cut {L:.0f} mm, M5 tapped both ends",
                  notes=f"Vertical, outboard of the -y hopper brace. Carries the take-up carriage over a {t['stroke_mm']:.0f} mm stroke "
                        f"(one pulley diameter and 30 mm each end besides). The tie to the hopper frame is not modelled.")
+    # Tie brackets (2026-11-10): two printed L-plates, 30 mm in from each track end (`Feeder.track_tie`), each bolted by
+    # two M5 slot nuts to the track's inboard face and by two to the +y... outer face of the rear post on that side.
+    tie_z = [z0 + p.tie_margin_mm, z0 + L - p.tie_margin_mm]
+    y_post = -p.shelf_post_y                               # centre of the -y rear hopper post
+    y_in = y_track + h / 2                                 # track's inboard face (toward the post)
+    y_post_out = y_post - h / 2                            # post's outboard face
+    gap = y_in - y_post_out                                # span the bracket bridges (the track sits clear of the post)
+    bt = 6.0                                               # plate thickness
+    plate = Box(w + 20.0, abs(gap) + 2 * 20.0 + bt, bt)    # lies across the gap, on the net-side face
+    plate = plate.moved(Location((0, (y_in + y_post_out) / 2 - y_track, 0)))
+    tie = Part("take_up_tie", "print", "PETG", 2, plate,
+               [Location((x_track + w / 2 + bt / 2, y_track, zt)) for zt in tie_z],
+               notes="Flat plate on the net-side face of the track and of the rear -y post, two M5 button heads into slot nuts at each "
+                     f"end, {abs(gap):.0f} mm between them. Slot-nut pull-out is assumed, see Feeder.track_tie.")
     cw = 60.0
     carriage = Box(cw, h + 30.0, 80.0) - Box(w + 0.5, h + 0.5, 90.0)
     mid = z0 + L / 2
     y_pul = y_track - (h / 2 + 15.0 + gw / 2 + 5.0 + 5.0)
-    out = [track,
+    out = [track, tie,
            Part("take_up_carriage", "print", "PETG", 1, carriage.moved(Location((0, 0, 0))),
                 [Location((x_track, y_track, mid))],
                 notes="Slides on the track on the T-slot nuts; the pulley axle (16 mm bolt) goes through its side. 6 walls."),
