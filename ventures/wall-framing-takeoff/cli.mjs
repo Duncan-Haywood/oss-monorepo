@@ -140,6 +140,13 @@ for any loss or damage arising from its use.`;
 
 /** Accept "12' 6\\"" strings anywhere a length goes. */
 function normalise(plan) {
+  // a plan file of the wrong shape used to fail with a raw JavaScript message ("Cannot create property 'length' on number")
+  if (!plan || typeof plan !== "object" || Array.isArray(plan)) { if (Array.isArray(plan)) return plan; throw new Error("the plan file must be a JSON object with a \"walls\" list (see --example)"); }
+  if ("walls" in plan && !Array.isArray(plan.walls)) throw new Error("\"walls\" must be a list of wall objects");
+  if ("stock" in plan && !Array.isArray(plan.stock)) throw new Error("\"stock\" must be a list of {length, price} objects");
+  const bad = (name, list) => { const i = (list || []).findIndex((e) => !e || typeof e !== "object" || Array.isArray(e)); if (i >= 0) throw new Error(`${name} ${i + 1} must be an object (for example {"length": 96}), not ${JSON.stringify(list[i])}`); };
+  bad("wall", plan.walls); bad("stock entry", plan.stock);
+  for (const w of plan.walls || []) { if ("openings" in w && !Array.isArray(w.openings)) throw new Error("a wall's \"openings\" must be a list"); bad("opening", w.openings); }
   const L = (v) => (typeof v === "string" ? parseLength(v) : v);
   for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "defaultHeaderHeight"]) if (k in plan) plan[k] = L(plan[k]);
   for (const r of Array.isArray(plan.headerTable) ? plan.headerTable : []) if (r && "upTo" in r) r.upTo = L(r.upTo);
