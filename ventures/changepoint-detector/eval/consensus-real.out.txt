@@ -28,3 +28,46 @@ Global temperature, annual; the 1946 step the earlier trials dated
   documented 1946: 1946 found by 3/6 (most)
   1946  3/6  down  most
   2023  3/6  up  most
+
+US CPI inflation, quarterly annualised; 1973Q3 (Arab oil embargo, Oct 1973) and 1981Q4 (Volcker disinflation, 1979-82)
+  n 202, tolerance 4, settings 6; cuts per setting: 12, 8, 8, 7, 7, 5
+  documented 1973Q3: 1973Q3 found by 6/6 (all)
+  documented 1981Q4: 1981Q4 found by 6/6 (all)
+  1973Q3  6/6  up  all
+  1975Q1  6/6  down  all
+  1981Q4  6/6  down  all
+  2008Q3  6/6  mixed  all
+  1978Q2  4/6  up  most
+  2009Q1  4/6  up  most
+  1980Q2  3/6  down  most
+
+US real 3-month T-bill rate, quarterly; the Volcker rise of 1980-81 and the 1970s negative rates
+  n 202, tolerance 4, settings 6; cuts per setting: 9, 10, 10, 8, 7, 4
+  documented 1973Q3: 1973Q3 found by 5/6 (most)
+  documented 1980Q4: 1980Q4 found by 5/6 (most)
+  2005Q4  6/6  up  all
+  2008Q3  6/6  mixed  all
+  1973Q3  5/6  down  most
+  1980Q4  5/6  up  most
+  1986Q2  5/6  down  most
+  2002Q1  4/6  down  most
+  2009Q1  4/6  down  most
+  1975Q1  3/6  up  most
+  1994Q4  3/6  up  most
+
+Saudi oil production, 1965-2013; the 1982 collapse after OPEC output cuts
+  n 49, tolerance 2, settings 6; cuts per setting: 8, 0, 1, 6, 4, 3
+  documented 1982: 1982 found by 5/6 (most)
+  1982  5/6  down  most
+  1991  4/6  up  most
+  1972  3/6  up  most
+  1986  3/6  up  most
+
+Lakes Michigan-Huron level, 1918-2009; the late-1990s drop (recalled, no paper read)
+  n 92, tolerance 2, settings 6; cuts per setting: 12, 0, 0, 9, 8, 7
+  documented 1999: 1999 found by 4/6 (most)
+  1928  4/6  up  most
+  1931  4/6  down  most
+  1952  4/6  up  most
+  1988  4/6  down  most
+  1999  4/6  down  most
