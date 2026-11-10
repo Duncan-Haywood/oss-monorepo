@@ -1,5 +1,20 @@
 # build-data log
 
+## Session 62, 2026-11-10: Seattle nonempty CQR and per-type table (prediction written before the run)
+
+Why: session 61 left the nonempty-CQR arm and the table models unrun for Seattle. Fresh pull 2026-11-10 (194,184 rows, same as session 61). `python3 src/prior_table3_cov.py DIR --test-year 2024 --seeds 2 --cities seattle` (new `--cities` flag; writes `results/prior_table3_cov_2024_seattle.json` so the five-set file is not overwritten).
+Prediction (before the run): `dequantised_nonempty` coverage of the per-type baseline and the table lies within 77 to 83% in both Seattle targets, and the ship rule of session 59 picks the per-type baseline for both (as in four of the five earlier sets). Refuted if a cell is outside 77 to 83% or the table is narrower in either target.
+
+Outcome (2024, nonempty dequantised interval, coverage / mean 80% width in days; `results/prior_table3_cov_2024_seattle.json`):
+| target | baseline | table | full |
+|---|---|---|---|
+| a2i | 0.887 / 256.7 | 0.833 / 249.3 | 0.845 / 232.3 |
+| i2c | 0.851 / 660.5 | 0.820 / 642.2 | 0.821 / 606.8 |
+- Prediction refuted on both parts. Coverage: three of six cells are outside 77 to 83% (baseline 0.887 and 0.851, table a2i 0.833, full a2i 0.845), all over-coverage, the safe direction. Ship rule (`src/ship_decision.py`, unchanged): the full model is narrowest in both targets (232.3 and 606.8 days, 7 to 9% under the baseline), so Seattle is the first city where the full model ships, not the per-type baseline.
+- The `dequantised` arm reproduces session 61's 0.770 for full a2i (table 0.757, baseline 0.792) and the nonempty arm repairs it to 0.845, same mechanism as session 58.
+- Limits: one test year, 2 seeds, no width bootstrap for Seattle (the 7 to 9% gap is a point estimate), ship rule post hoc.
+Next: week-block bootstrap of the Seattle width gap (`src/width_boot.py`), then Seattle in H4 transfer.
+
 ## Session 61, 2026-11-09: fourth city, Seattle (licence checked; H1 and H2 rerun, no prediction written first)
 
 Why: "a fourth city after a licence check" had been open since session 60. Seattle `76t5-zqzr` metadata says Public Domain (`datasheets/seattle.md`). Pulled 2026-11-09 (194,184 rows). `python3 src/boosted.py DIR --city seattle --target T --test-year 2024 --seeds 3`, then `src/conformal_run.py`; results `results/boosted_seattle_*_2024.json`, `results/conformal_dq_seattle_*_2024.json`.

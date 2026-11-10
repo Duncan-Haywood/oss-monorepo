@@ -69,10 +69,13 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir"); ap.add_argument("--test-year", type=int, required=True)
     ap.add_argument("--seeds", type=int, default=2)
+    ap.add_argument("--cities", nargs="*", help="subset of FILES; the output file then gets a city suffix")
     a = ap.parse_args()
     here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
     out = []
     for city, targets in FILES.items():
+        if a.cities and city not in a.cities:
+            continue
         for tg in targets:
             p = os.path.join(a.data_dir, f"{city}.csv")
             if not os.path.exists(p):
@@ -82,4 +85,4 @@ if __name__ == "__main__":
             print(city, tg, {m: dict(cov_deq=round(v["dequantised"]["coverage"], 3), w_deq=round(v["dequantised"]["width"], 1),
                                      cov_plain=round(v["plain"]["coverage"], 3), w_plain=round(v["plain"]["width"], 1))
                              for m, v in r["models"].items()}, flush=True)
-    json.dump(out, open(os.path.join(here, f"prior_table3_cov_{a.test_year}.json"), "w"), indent=1)
+    json.dump(out, open(os.path.join(here, f"prior_table3_cov_{a.test_year}" + ("_" + "_".join(a.cities) if a.cities else "") + ".json"), "w"), indent=1)
