@@ -194,5 +194,39 @@ class AuditCommitPicksFirstMergedPr(unittest.TestCase):
         self.assertEqual(seen, ["/repos/o/r/pulls/1/reviews"])
 
 
+class PagingAndCli(unittest.TestCase):
+    def test_gh_pages_stops_at_limit(self):
+        from unittest import mock
+
+        calls = []
+
+        def full_page(path):
+            calls.append(path)
+            return [1] * 100
+
+        with mock.patch.object(guard, "gh_get", side_effect=full_page):
+            items = guard.gh_pages("/x", limit=3)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(items), 300)
+
+    def test_gh_pages_default_limit_is_30(self):
+        from unittest import mock
+
+        calls = []
+
+        def full_page(path):
+            calls.append(path)
+            return [1] * 100
+
+        with mock.patch.object(guard, "gh_get", side_effect=full_page):
+            guard.gh_pages("/x")
+        self.assertEqual(len(calls), 30)
+
+    def test_a_mode_flag_is_required(self):
+        with self.assertRaises(SystemExit) as cm:
+            guard.main([])
+        self.assertEqual(cm.exception.code, 2)
+
+
 if __name__ == "__main__":
     unittest.main()
