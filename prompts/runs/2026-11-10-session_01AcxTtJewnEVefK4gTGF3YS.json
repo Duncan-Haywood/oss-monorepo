@@ -32,7 +32,7 @@
   "doc_friction": [],
   "deviations": [],
   "writeups": [
-    "docs/posts/2026-11-11-changepoint-documented-dates-read.md"
+    "docs/posts/2026-11-10-changepoint-documented-dates-read.md"
   ],
   "goal": null,
   "notes": "Small slice: two documented dates read from R docs (not the papers); consensus-real tests 7/7. No CI run locally beyond that.",

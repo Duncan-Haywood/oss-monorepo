@@ -1,7 +1,7 @@
 ---
 title: "Checking our changepoint detector against the dates it claims to find"
-seo_title: "Changepoint detection on the Nile and UK seat-belt data: documented dates"
-date: 2026-11-11
+seo_title: "Changepoint detection on Nile and UK seat-belt data: documented dates"
+date: 2026-11-10
 tags: [changepoint-detector, testing]
 description: "Two textbook changepoint series have documented break dates. We read the source text instead of trusting memory, and the detector's panel agrees on both."
 ---
