@@ -101,7 +101,9 @@ const EXTRA_CHECKS = {
   SK: { applies: (b) => /^\d{10}$/.test(b), ok: (b) => b[0] !== "0" && "234789".includes(b[2]) && Number(b) % 11 === 0 },
   HR: { applies: (b) => /^\d{11}$/.test(b), ok: (b) => deOkIso7064(b.slice(0, 10), Number(b[10])) },
   // Legal entities only (first digit 4-9); natural persons use a birth date.
-  LV: { applies: (b) => /^[4-9]\d{10}$/.test(b), ok: (b) => weighted(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 === 3 },
+  // First digit above 3: legal entity. 32...: personal code without a birth date. Otherwise a natural person
+  // with ddmmyy and a century digit (python-stdnum lv.pvn; the personal-code check digit is unconfirmed there).
+  LV: { applies: (b) => /^\d{11}$/.test(b), ok: lvOk },
   LT: {
     applies: (b) => /^\d{9}$|^\d{12}$/.test(b),
     ok: (b) => {
@@ -120,8 +122,9 @@ const EXTRA_CHECKS = {
     ok: (b) => (b.length === 9 ? mod11Retry(b, MOD11_RETRY.BG) : bgTenDigitOk(b)),
   },
   RO: {
-    applies: (b) => /^[1-9]\d{1,9}$/.test(b),
+    applies: (b) => /^\d{2,10}$/.test(b),
     ok: (b) => {
+      if (b[0] === "0") return false;
       const padded = b.padStart(10, "0");
       let check = (weighted(padded.slice(0, 9), [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11;
       if (check === 10) check = 0;
@@ -139,9 +142,10 @@ const EXTRA_CHECKS = {
   // 8-digit legal entities (not starting 9), 9-digit specials starting 6, and 10-digit birth numbers
   // (born 1954 on); another 9-digit birth number (before 1954) has no check digit and stays shape-only.
   CZ: {
-    applies: (b) => /^\d{8}$|^6\d{8}$|^\d{10}$/.test(b),
+    applies: (b) => /^\d{8,10}$/.test(b),
     ok: (b) => {
       if (b.length === 10) return czBirthNumberOk(b);
+      if (b.length === 9 && b[0] !== "6") return czBirth9Ok(b);
       // Special 9-digit numbers starting 6 (individuals without a birth number): the first digit
       // is skipped. The rule is python-stdnum's; the Czech tax authority's text was not read.
       if (b.length === 9) {
@@ -177,6 +181,12 @@ const EXTRA_CHECKS = {
 };
 EXTRA_CHECKS.GR = EXTRA_CHECKS.EL;
 
+function lvOk(b) {
+  if (b[0] > "3") return weighted(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 === 3;
+  if (!b.startsWith("32") && !realDate(1800 + Number(b[6]) * 100 + Number(b.slice(4, 6)), Number(b.slice(2, 4)), Number(b.slice(0, 2)))) return false;
+  return (1 + weighted(b.slice(0, 10), [10, 5, 8, 4, 2, 1, 6, 3, 7, 9])) % 11 % 10 === Number(b[10]);
+}
+
 function bgTenDigitOk(b) {
   const last = Number(b[9]);
   let egn = weighted(b.slice(0, 9), [2, 4, 8, 5, 10, 9, 7, 3, 6]) % 11;
@@ -189,6 +199,20 @@ function bgTenDigitOk(b) {
 
 // Czech and Slovak birth number (rodne cislo), 10 digits: first nine mod 11 (10 counts as 0),
 // month 01-12 (+20 when the serial runs out, +50 women, +70 both), day 01-31.
+// 9-digit birth number (before 1954, no check digit): year 54-79 is invalid, 80-99 is 18xx/19xx read as 1980-1999
+// minus a century, and the date must exist (python-stdnum cz.rc). Month +50 for women, +20 on serial overflow.
+function realDate(y, m, d) {
+  const t = new Date(Date.UTC(2000, m - 1, d));
+  t.setUTCFullYear(y);
+  return m >= 1 && m <= 12 && t.getUTCFullYear() === y && t.getUTCMonth() === m - 1 && t.getUTCDate() === d;
+}
+function czBirth9Ok(b) {
+  let year = 1900 + Number(b.slice(0, 2));
+  if (year >= 1980) year -= 100;
+  if (year > 1953) return false;
+  return realDate(year, (Number(b.slice(2, 4)) % 50) % 20, Number(b.slice(4, 6)));
+}
+
 function czBirthNumberOk(b) {
   const month = Number(b.slice(2, 4));
   const day = Number(b.slice(4, 6));
@@ -368,6 +392,7 @@ function beOk(body) {
   let digits = body.startsWith("0") && body.length === 11 ? body.slice(1) : body;
   if (digits.length === 9) digits = `0${digits}`;
   if (digits.length !== 10 || !/^\d+$/.test(digits)) return false;
+  if (!"01".includes(digits[0])) return false;
   return (Number(digits.slice(0, 8)) % 97 + Number(digits.slice(8))) % 97 === 0;
 }
 
@@ -400,6 +425,9 @@ function atOk(body) {
 }
 
 function itOk(digits) {
+  // Office code (digits 8-10): 001-100, 120, 121, 888, 999; first seven digits not all zero (python-stdnum).
+  const office = digits.slice(7, 10);
+  if (/^0+$/.test(digits.slice(0, 7)) || !((office >= "001" && office <= "100") || ["120", "121", "888", "999"].includes(office))) return false;
   let total = 0;
   for (let index = 0; index < 10; index += 1) {
     let value = Number(digits[index]);

@@ -146,8 +146,8 @@ test("Cyprus check letter (2026-11-08)", () => {
   assert.deepEqual(dig.map((item) => item.rule), ["INV-023"]);
 });
 
-test("variants without a checksum here stay shape-only", () => {
-  for (const number of ["CZ715319274", "LV01011012345"]) {
+test("variants without a checksum here stay shape-only or pass their own rule", () => {
+  for (const number of ["CZ530101123", "LV32867300679"]) {
     const kind = inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier").map((item) => item.rule);
     assert.ok(!kind.includes("INV-023"), number);
   }
@@ -164,7 +164,7 @@ test("Bulgarian 10-digit and Czech birth-number check digits (2026-11-09)", () =
   assert.deepEqual(find("CZ7103192746"), ["INV-023"]);
   assert.deepEqual(find("CZ7113192745"), ["INV-023"]); // month 13
   assert.deepEqual(find("CZ7103322745"), ["INV-023"]); // day 32
-  assert.ok(!find("CZ715319274").includes("INV-023")); // 9 digits: no check digit before 1954
+  assert.ok(!find("CZ530101123").includes("INV-023")); // 9 digits: no check digit before 1954
 });
 
 test("Norway and Switzerland check digits", () => {
@@ -658,4 +658,30 @@ test("letters in digit-only VAT numbers and a leading zero in DK or PT are bad-f
   }
   assert.deepEqual(inspectPartyVat({ vat_id: "CY10259033P" }, "seller"), []);
   assert.deepEqual(inspectPartyVat({ vat_id: "CZ699001257" }, "seller").map((f) => f.rule).filter((r) => r === "INV-022"), []);
+});
+
+// python-stdnum differential, 2026-11-11 (eval/vat-differential-reverse.py): prefix rules.
+const vatFlagged = (v) => inspectPartyVat({ vat_id: v }, "seller").length > 0;
+test("BE 10-digit numbers must start 0 or 1", () => {
+  assert.equal(vatFlagged("BE6185580330"), true);
+});
+test("IT office code must be 001-100, 120, 121, 888 or 999", () => {
+  assert.equal(vatFlagged("IT00743110157"), false);
+  assert.equal(vatFlagged("IT00743111015"), true);
+});
+test("RO numbers with a leading zero are flagged", () => {
+  assert.equal(vatFlagged("RO053937617"), true);
+  assert.equal(vatFlagged("RO18547290"), false);
+});
+test("CZ 9-digit birth numbers need a real date before 1954", () => {
+  assert.equal(vatFlagged("CZ530101123"), false);
+  assert.equal(vatFlagged("CZ541301123"), true);
+  assert.equal(vatFlagged("CZ640903926"), false);
+});
+test("LV personal codes: old format needs a real date, 32 prefix a check digit", () => {
+  assert.equal(vatFlagged("LV40003521600"), false);
+  assert.equal(vatFlagged("LV16117519997"), false);
+  assert.equal(vatFlagged("LV16137519997"), true);
+  assert.equal(vatFlagged("LV32867300679"), false);
+  assert.equal(vatFlagged("LV32867300677"), true);
 });
