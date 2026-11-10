@@ -128,6 +128,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     if (r.rangeWarning) lines.push(`  (${r.rangeWarning})`);
     if (r.driftWarning) lines.push(`  (${r.driftWarning})`);
     if (r.cycleWarning) lines.push(`  (${r.cycleWarning})`);
+    if (r.overcutWarning) lines.push(`  (${r.overcutWarning})`);
     for (const x of ch) lines.push(`  ${x.label}: ${x.range95.from === x.range95.to ? 'that point only' : `${x.range95.from} – ${x.range95.to}`}`);
   }
   if (r.ramps) {
