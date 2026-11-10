@@ -2,6 +2,13 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 6q (H6 scale-up): keep 1/12 (omega 11) at H = 64, four seeds (planned before running)
+
+- Why: 6p's "Next". The cells at omega 3, 7, 15 cannot separate a hinge (knee near omega 7) from a steep power law. Keep 1/12 sits between 7 and 15 and splits them.
+- Setup: `scale.py run keep12`, size 2, H = 64, keep 1/12, seeds 0 to 3, paired with the uncompressed H = 64 seeds 0 to 3 already in `scale.jsonl`.
+- Predictions written before the run, from 6p's fits: hinge (w0 = 7, slope 0.0055 per omega) gives a paired excess of +0.022 at omega 11; the power form with exponent 8 gives a much smaller value (about +0.004). **H6q-i** (prior 55%): the measured excess is closer to the hinge's +0.022 than to the power form's. **H6q-ii** (prior 85%): the excess is above the omega-7 value (-0.0016) by more than 2 se. Refuted if either fails.
+- Not tested: keep 1/32, other H, other widths.
+
 ## 2026-11-08 · Milestone 6p (H6 scale-up): which form in omega fits the three H = 64 keep levels? Analysis only, no new training (planned before running)
 
 - Why: 6o's "Next" asked for a threshold refit. The training run for keep 1/12 or 1/32 costs about 70 minutes of 4-core CPU, so this step first asks what the data already in `scale.jsonl` can and cannot say. Reads the per-seed paired differences at size 2, H = 64: omega 3 (6 seeds), 7 (4 seeds), 15 (6 seeds).
