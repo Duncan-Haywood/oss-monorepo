@@ -49,3 +49,11 @@ test('fifth batch: 9/11 arrivals from the US 3/6, Olympics 2000Q3 not listed, Pe
   assert.match(out, /documented 2009-06: not in the list/);
   assert.match(out, /documented 2002: 2002 found by 3\/6 \(most\)/);
 });
+
+test('sixth batch: Nightingale 1855 sanitary commission found at 1855-04 by 5/6; Canada fertility 1946 by 4/6, 1960 not listed (1963 is)', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 1855-03: 1855-04 found by 5\/6 \(most\)/);
+  assert.match(out, /documented 1946: 1946 found by 4\/6 \(most\)/);
+  assert.match(out, /documented 1960: not in the list/);
+  assert.match(out, /1963  4\/6  down  most/);
+});
