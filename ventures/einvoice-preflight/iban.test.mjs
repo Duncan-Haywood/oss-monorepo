@@ -112,3 +112,7 @@ test("national check digits: BE, ES, ME, NO", () => {
     assert.deepEqual(inspectPaymentIban(invoice(recheck(cc, bban))).map((f) => f.rule), ["INV-025"], cc);
   }
 });
+
+test("inspectPaymentIban returns no findings for a missing or non-object invoice", () => {
+  for (const bad of [null, undefined, 5, "x"]) assert.deepEqual(inspectPaymentIban(bad), []);
+});
