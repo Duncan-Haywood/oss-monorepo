@@ -423,6 +423,13 @@ test('an unclassifiable runner is reported and left out of the totals', () => {
   assert.ok(findingIds(result).includes('runner-unknown'));
 });
 
+test('an hourly schedule is not "more often than hourly"; every 30 minutes is', () => {
+  const at = (cron) =>
+    findingIds(estimate([readWorkflowSource(`on:\n  schedule:\n    - cron: "${cron}"\njobs:\n  a:\n    runs-on: ubuntu-latest\n`, 'c.yml')]));
+  assert.equal(at('41 * * * *').includes('cron-very-frequent'), false);
+  assert.equal(at('*/30 * * * *').includes('cron-very-frequent'), true);
+});
+
 test('findings come back most severe first', () => {
   const workflow = readWorkflowSource(
     'on:\n  push:\n  pull_request:\njobs:\n  a:\n    runs-on: macos-latest\n',
