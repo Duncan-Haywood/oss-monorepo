@@ -85,3 +85,68 @@ test('the page worked example matches the calculation', () => {
     assert.ok(html.includes(text), `page should state ${text}`);
   }
 });
+
+// Red-team guards, 2026-11-10: each test below failed against a seeded mutant
+// that the suite above let through.
+test('rejects null and non-numeric text, not just blanks', () => {
+  assert.throws(() => compareDeductions({ ...base, grossIncome: null }), /Gross income must be a number/);
+  assert.throws(() => compareDeductions({ ...base, grossIncome: 'abc' }), /Gross income must be a number/);
+  assert.throws(() => compareDeductions({ ...base, mpg: undefined }), /Miles per gallon must be a number/);
+});
+
+test('under the $400 floor every part of self-employment tax is zero', () => {
+  assert.deepEqual(selfEmploymentTax(100), { base: 0, socialSecurity: 0, medicare: 0, total: 0, halfDeduction: 0 });
+});
+
+test('keep is net profit minus total tax for both methods', () => {
+  const r = compareDeductions(base);
+  for (const m of [r.standard, r.actual]) close(m.keep, m.netProfit - m.totalTax);
+  assert.ok(r.standard.keep < r.standard.netProfit);
+});
+
+test('break-even per mile is the actual car cost divided by business miles', () => {
+  const r = compareDeductions({ ...base, totalMiles: 30000 });
+  close(r.breakEvenPerMile, r.actualCar / 25000);
+  assert.equal(compareDeductions({ ...base, businessMiles: 0, totalMiles: 0 }).breakEvenPerMile, null);
+});
+
+test('other wages default to none: a profit at the wage base pays full Social Security', () => {
+  // Gross chosen so standard-method net earnings sit just under the 2026 base,
+  // where even $1 of assumed W-2 wages would shave the Social Security part.
+  const raw = { ...base, grossIncome: 220000, incomeTaxRatePercent: 0 };
+  delete raw.otherWages;
+  const r = compareDeductions(raw);
+  close(r.standard.se.socialSecurity, Math.min(r.standard.se.base, DEFAULTS_2026.socialSecurityWageBase) * 0.124);
+});
+
+// Real defect, 2026-11-10: the page passes '' for a box the driver clears, and
+// the optional boxes (parking, other costs, W-2 wages, rate, wage base) threw
+// "must be a number" instead of falling back to their defaults.
+test('a cleared optional box falls back to its default instead of erroring', () => {
+  const filled = compareDeductions(base);
+  const cleared = compareDeductions({ ...base, parkingTolls: '', otherWages: '', standardRate: '', socialSecurityWageBase: '' });
+  close(cleared.standard.totalTax, filled.standard.totalTax);
+  close(compareDeductions({ ...base, otherDeductible: '' }).standard.netProfit, filled.standard.netProfit + 600);
+  close(compareDeductions({ ...base, incomeTaxRatePercent: '' }).standard.incomeTax, 0);
+  // Required boxes still refuse a blank.
+  assert.throws(() => compareDeductions({ ...base, businessMiles: '' }), /Business miles/);
+});
+
+test('the page says which income-tax deductions it leaves out, QBI included', () => {
+  assert.match(html, /qualified business income/i);
+});
+
+test('clearing any box on the page gives a named error or finite figures, never NaN', () => {
+  const ids = JSON.parse(html.match(/const IDS = (\[[^\]]*\])/)[1]);
+  assert.ok(ids.length >= 14);
+  const finite = (value, path) => {
+    if (value && typeof value === 'object') for (const [k, v] of Object.entries(value)) finite(v, `${path}.${k}`);
+    else if (typeof value === 'number') assert.ok(Number.isFinite(value), `${path} is ${value}`);
+  };
+  for (const id of ids) {
+    let r;
+    try { r = compareDeductions({ ...base, totalMiles: 30000, [id]: '' }); }
+    catch (e) { assert.match(e.message, /must|less than/, `${id}: ${e.message}`); continue; }
+    finite({ ...r, breakEvenPerMile: r.breakEvenPerMile ?? 0 }, id);
+  }
+});

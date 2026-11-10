@@ -1,0 +1,392 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKkFgh3ftaSFRMdWQNV",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T22:22:22Z",
+  "ended": "2026-11-10T22:23:48Z",
+  "wall_minutes": 4.46,
+  "tokens_in": 2584620,
+  "tokens_out": 14630,
+  "cost_usd": 1.3148,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14622",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "'redteam.py targets' prints only 20 by default; finding a named file needs --limit 5000, and --probe 20 with a grep printed nothing (the target was not in the default sample)."
+    },
+    {
+      "file": "ventures/gig-driver-net-pay-calculator/llms.txt",
+      "issue": "Page links still point at the retired duncan-haywood.github.io host (they redirect); left as is, since it is unclear whether the file is generated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 3 open defects are control-plane fixes that already have PRs waiting on the owner (#14612, #14009, #12917/#13116), so this run fixed none of them and left them open.",
+      "did": "went straight to seeding",
+      "result": "nothing duplicated"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-redteam-gig-driver-tax-cleared-box.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: tax.test.mjs clears every box in the page IDS list and expects a named error or finite figures, never NaN. Suite was green without mutants before rerun (checked with node --test), so the rerun flaw in the open list does not affect these caught_after_fix values. Venture tests: 1 suite, 0 failed.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+        "test": "node --test ventures/gig-driver-net-pay-calculator/**/*.test.mjs  (in .)",
+        "seed": 165309376,
+        "commit": "b4531de5",
+        "sites": 76,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 27,
+            "col": 37,
+            "operator": "or-to-and",
+            "before": "if (value === '' || value === null || value === undefined || !Number.isFinite(result)) {",
+            "after": "if (value === '' || value === null && value === undefined || !Number.isFinite(result)) {",
+            "line_text": "  if (value === '' || value === null || value === undefined || !Number.isFinite(result)) {",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "null slipped through as 0; test: grossIncome null rejected"
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 31,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "if (!allowZero && result === 0) throw new Error(`${name} must be greater than zero`);",
+            "after": "if (!allowZero && result === 1) throw new Error(`${name} must be greater than zero`);",
+            "line_text": "  if (!allowZero && result === 0) throw new Error(`${name} must be greater than zero`);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 90,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "otherWages: number(raw.otherWages ?? 0, 'Other wages'),",
+            "after": "otherWages: number(raw.otherWages ?? 1, 'Other wages'),",
+            "line_text": "    otherWages: number(raw.otherWages ?? 0, 'Other wages'),",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "otherWages default 1 shaves /bin/bash.12 SS tax at the wage base; test: profit at the base with no otherWages"
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 94,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "const totalMiles = raw.totalMiles === '' || raw.totalMiles == null ? input.businessMiles : number(raw.totalMiles, 'Total miles');",
+            "after": "const totalMiles = raw.totalMiles === '' && raw.totalMiles == null ? input.businessMiles : number(raw.totalMiles, 'Total miles');",
+            "line_text": "  const totalMiles = raw.totalMiles === '' || raw.totalMiles == null ? input.businessMiles : number(raw.totalMiles, 'Total miles');",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 96,
+            "col": 67,
+            "operator": "div-to-times",
+            "before": "const businessShare = totalMiles === 0 ? 0 : input.businessMiles / totalMiles;",
+            "after": "const businessShare = totalMiles === 0 ? 0 : input.businessMiles * totalMiles;",
+            "line_text": "  const businessShare = totalMiles === 0 ? 0 : input.businessMiles / totalMiles;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 98,
+            "col": 60,
+            "operator": "div-to-times",
+            "before": "const runningCost = input.businessMiles * (input.gasPrice / input.mpg + input.maintenancePerMile);",
+            "after": "const runningCost = input.businessMiles * (input.gasPrice * input.mpg + input.maintenancePerMile);",
+            "line_text": "  const runningCost = input.businessMiles * (input.gasPrice / input.mpg + input.maintenancePerMile);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 99,
+            "col": 43,
+            "operator": "plus-to-minus",
+            "before": "const sharedCost = input.insuranceAnnual + input.depreciationAnnual;",
+            "after": "const sharedCost = input.insuranceAnnual - input.depreciationAnnual;",
+            "line_text": "  const sharedCost = input.insuranceAnnual + input.depreciationAnnual;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 116,
+            "col": 67,
+            "operator": "div-to-times",
+            "before": "breakEvenPerMile: input.businessMiles === 0 ? null : actualCar / input.businessMiles,",
+            "after": "breakEvenPerMile: input.businessMiles === 0 ? null : actualCar * input.businessMiles,",
+            "line_text": "    breakEvenPerMile: input.businessMiles === 0 ? null : actualCar / input.businessMiles,",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "breakEvenPerMile value never asserted; test added"
+          }
+        ]
+      },
+      {
+        "target": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+        "test": "node --test ventures/gig-driver-net-pay-calculator/**/*.test.mjs  (in .)",
+        "seed": 337496177,
+        "commit": "b4531de5",
+        "sites": 76,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 25,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "function number(value, name, { min = 0, allowZero = true } = {}) {",
+            "after": "function number(value, name, { min = 1, allowZero = true } = {}) {",
+            "line_text": "function number(value, name, { min = 0, allowZero = true } = {}) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 27,
+            "col": 60,
+            "operator": "or-to-and",
+            "before": "if (value === '' || value === null || value === undefined || !Number.isFinite(result)) {",
+            "after": "if (value === '' || value === null || value === undefined && !Number.isFinite(result)) {",
+            "line_text": "  if (value === '' || value === null || value === undefined || !Number.isFinite(result)) {",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "non-numeric text became NaN silently; test: 'abc' rejected"
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 30,
+            "col": 13,
+            "operator": "lt-to-le",
+            "before": "if (result < min) throw new Error(`${name} must be at least ${min}`);",
+            "after": "if (result <= min) throw new Error(`${name} must be at least ${min}`);",
+            "line_text": "  if (result < min) throw new Error(`${name} must be at least ${min}`);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 37,
+            "col": 16,
+            "operator": "times-to-div",
+            "before": "if (netProfit * SE_FACTOR < SE_MINIMUM) return { base: 0, socialSecurity: 0, medicare: 0, total: 0, halfDeduction: 0 };",
+            "after": "if (netProfit / SE_FACTOR < SE_MINIMUM) return { base: 0, socialSecurity: 0, medicare: 0, total: 0, halfDeduction: 0 };",
+            "line_text": "  if (netProfit * SE_FACTOR < SE_MINIMUM) return { base: 0, socialSecurity: 0, medicare: 0, total: 0, halfDeduction: 0 };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 37,
+            "col": 89,
+            "operator": "const-plus-one",
+            "before": "if (netProfit * SE_FACTOR < SE_MINIMUM) return { base: 0, socialSecurity: 0, medicare: 0, total: 0, halfDeduction: 0 };",
+            "after": "if (netProfit * SE_FACTOR < SE_MINIMUM) return { base: 0, socialSecurity: 0, medicare: 1, total: 0, halfDeduction: 0 };",
+            "line_text": "  if (netProfit * SE_FACTOR < SE_MINIMUM) return { base: 0, socialSecurity: 0, medicare: 0, total: 0, halfDeduction: 0 };",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "floor return object never compared field by field; deepEqual test added"
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 53,
+            "col": 24,
+            "operator": "div-to-times",
+            "before": "quarterly: totalTax / 4,",
+            "after": "quarterly: totalTax * 4,",
+            "line_text": "    quarterly: totalTax / 4,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 54,
+            "col": 20,
+            "operator": "minus-to-plus",
+            "before": "keep: netProfit - totalTax,",
+            "after": "keep: netProfit + totalTax,",
+            "line_text": "    keep: netProfit - totalTax,",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "keep never asserted; test added"
+          },
+          {
+            "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+            "line": 96,
+            "col": 35,
+            "operator": "eq-flip",
+            "before": "const businessShare = totalMiles === 0 ? 0 : input.businessMiles / totalMiles;",
+            "after": "const businessShare = totalMiles !== 0 ? 0 : input.businessMiles / totalMiles;",
+            "line_text": "  const businessShare = totalMiles === 0 ? 0 : input.businessMiles / totalMiles;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/gig-driver-net-pay-calculator/tax.mjs",
+        "issue": "Clearing an optional box on tax.html (parking and tolls, phone/supplies, W-2 wages, mileage rate, wage base, income-tax rate) sends '' and the page showed 'must be a number' instead of using the default; the ?? defaults only covered a missing key. Fixed: blanks in optional keys are treated as missing.",
+        "patched": true
+      },
+      {
+        "file": "ventures/gig-driver-net-pay-calculator/tax.html",
+        "issue": "The not-modelled list omitted the 20% QBI deduction, so the income-tax figure (marginal rate on full profit) overstates tax for eligible drivers without saying so. Fixed: disclosed on the page, with a page test.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cb97d0d8-0310-5805-b9b2-56abe68a25a4",
+    "transcripts": 1,
+    "first": "2026-11-10T22:22:22Z",
+    "last": "2026-11-10T22:26:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 68,
+        "output": 14630,
+        "thinking": 4024,
+        "cache_read": 2519806,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64746,
+        "api_equivalent_usd": 1.3148,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 68,
+      "output": 14630,
+      "thinking": 4024,
+      "cache_read": 2519806,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64746,
+      "api_equivalent_usd": 1.3148,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.46,
+      "active_minutes": 4.46,
+      "model_minutes": 2.84,
+      "tool_minutes": 1.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation triage, 7 tests, two fixes and a post for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 228.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
