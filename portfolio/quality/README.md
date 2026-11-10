@@ -20,6 +20,35 @@ every score (so a reader can check it).
 Posts go in `docs/posts/` tagged `quality-audit`; the blog files them under
 the topic "Quality audits" (`platform/pages/writing.mjs`, `TOPICS`).
 
+## Four modes
+
+The owner, 2026-11-10: "direct a lot more work to quality audits. more detail
+in it. and also reflections on what parts of the process seem to make the
+quality drop off and suggested fixes to the process. ongoing thing full repo
+quality reviews. detailed metrics on quality and correctness."
+
+A quality session runs one of four modes. `python3
+platform/ci/quality_audit.py mode` picks it: `reflect` whenever no reflection
+has been written for seven days, otherwise a draw seeded by the date (sample
+35%, census 30%, fix 25%, reflect 10%; `fix` doubles while high-severity
+defects are open). Software decides the routine; the session's time goes to
+the audit.
+
+| mode | what it does | command |
+|---|---|---|
+| `sample` | the stratified random round below: the unbiased share meeting the bar | `sample` |
+| `census` | the full-repository sweep: never-audited subjects first, so every venture, research project and platform directory gets a first audit | `census --n 6` |
+| `fix` | work the open-defect queue: fix, add the test that would have caught it, record the PR in the audit's `fix_prs`, then re-audit the subject in a new file | `queue --severity high` |
+| `reflect` | read the corpus and the process, write `reflections/<date>-<slug>.md`: where quality drops, why, and process fixes with the metric each should move | `metrics --md` |
+
+Census audits use stratum `venture`, `research` or `platform` like sampled
+ones, and the full rubric, and set `"drawn_by": "census"` (a fix-mode
+re-audit sets `"fix"`). They are not uniform draws, so `summary` shows them in
+the per-stratum rows but leaves them out of the sampled share and its
+interval, which stays an estimate from `sample` rounds alone; the
+`metrics` coverage table tracks the sweep (159 of 2,423 subjects audited by
+2026-11-10).
+
 ## One round
 
 ```
@@ -35,7 +64,7 @@ python3 platform/ci/quality_audit.py summary --md      # the same as Markdown, f
 
 | stratum | population | how many | why |
 |---|---|---|---|
-| `flagship` | `portfolio/flagships.yaml` | 1, the least recently audited | the work the owner most wants deep; every flagship gets audited in rotation |
+| `flagship` | `portfolio/flagships.yaml` | 1, the least recently audited, if not audited in the last 7 days | the work the owner most wants deep; every flagship gets audited in rotation |
 | `venture` | every `ventures/<name>/` | 2 by default, uniform | the typical product, not the best one |
 | `research` | every `research/<name>/` not starting `_` | 2 by default, uniform | the typical research project |
 | `platform` | every `platform/<name>/` | 1, uniform | the shared tooling everything else stands on |
@@ -44,8 +73,10 @@ A venture, research or platform subject audited in the last 90 days is skipped,
 so rounds spread over the population and re-running the same seed after
 audits have landed draws different subjects (that is expected; the seed only
 fixes the draw for a given set of audits). The flagship is never skipped: the
-least recently audited one is drawn every time, so the same flagship under
-every seed is the rotation working, not a bug. Two rounds in flight at once
+least recently audited one is drawn, so the same flagship under every seed is
+the rotation working, not a bug. From 2026-11-10 a flagship audited in the last
+7 days is not drawn (`FLAGSHIP_REAUDIT_DAYS`): daily re-audits of unchanged
+flagships were returning identical scores. Two rounds in flight at once
 can draw the same subjects; add a `-b`, `-c` suffix to the seed when an open
 `quality:` PR lists a subject you drew. Because the non-flagship strata are uniform random, the share of
 them that meets the bar is an unbiased estimate for that stratum, and
@@ -113,6 +144,17 @@ easy failure is grading the README instead of the thing. So:
   score *before* the fix, and `fix_prs` lists the fixes. Re-auditing after a
   fix is a new audit file, so the trend is honest.
 
+- **Check what ships, not only the source.** The Pages build rewrites hosts
+  in `llms.txt`, sitemaps and canonical links at deploy
+  (`platform/ci/build_pages_site.py`, `rewrite_base_urls`). Before you file a
+  defect about a URL in those files, load the served page at
+  `https://marisstella.app/<slug>/`. On 2026-11-10 about 8% of all recorded
+  defects were of this kind and none were on the served page (category
+  `source-only` below).
+- **Don't re-audit what nobody changed.** A re-audit is worth its cost after a
+  fix or a substantial change. Before re-auditing a subject, check `git log`
+  for commits under it since the last audit; with none, take the next subject.
+
 ## The audit file
 
 One file per subject per round, `audits/<YYYY-MM-DD>-<subject>.json`, so
@@ -141,7 +183,96 @@ parallel sessions never conflict:
 (a gap a professional would hit), or `low`. `validate` checks the shape;
 `summary` aggregates every file.
 
+### Detailed fields (required from 2026-11-11)
+
+Prose evidence cannot be counted. From 2026-11-11 `validate` also requires,
+for an audited subject:
+
+```json
+  "checks": [
+    {"dimension": "correctness", "what": "Section 179 cap for an $80k SUV at 90% business use",
+     "method": "IRS Pub 946 (2025), ch. 2, heavy-SUV limit", "command": "node cli.mjs --cost 80000 --biz 0.9",
+     "expected": "39,440", "observed": "36,936", "result": "fail"}
+  ],
+  "mutations": [
+    {"where": "calc.mjs:212", "change": "cap * biz -> cap", "caught": false, "test_cmd": "node --test '*.test.mjs'"}
+  ],
+  "defects": [{"severity": "high", "what": "...", "where": "calc.mjs:212",
+               "category": "domain-rule", "origin": "spec"}]
+```
+
+- `checks`: one row per thing checked, at least 8, of which at least 3 are
+  `correctness` checks recomputed against a source the author did not write.
+  `result` is `pass`, `fail` or `partial`. These rows give the pass rate of
+  recomputed outputs and of checked claims per subject, not only a score.
+- `mutations`: at least 2 hand-seeded bugs in core logic, each with whether a
+  test failed. Their survival rate is the verification metric.
+- Every defect carries `where` (path:line), `category` and `origin` from the
+  taxonomy below.
+
+### Defect taxonomy
+
+Each category names the process stage that should have stopped the defect.
+`metrics` classifies older defects with keyword rules
+(`platform/ci/quality_metrics.py`, `CATEGORIES`); on 60 hand-labelled
+defects (`taxonomy-labels.json`) the rules agree about 75% of the time, so the
+older counts are approximate. An auditor's own `category` always wins.
+
+| category | origin (stage) | example |
+|---|---|---|
+| `untested-core` | tests | a seeded change to a threshold leaves every test green |
+| `tests-check-a-copy` | tests | the test exercises a re-implementation, not the shipped code |
+| `not-built-or-run` | build | the Swift or Monkey C was never compiled |
+| `input-handling` | implementation | `1,200` splits on the comma; a blank field silently becomes the example value |
+| `logic-error` | implementation | the fee applied to gross instead of collected rent |
+| `code-craft` | implementation | dead code, copied engines, 3,000-line modules |
+| `domain-rule` | spec | a rule departs from the standard (IRS publication, RFC, vendor docs) |
+| `source-data` | spec | an invented or stale rate card, uncited constants |
+| `scope-gap` | spec | a case the professional needs is not modelled |
+| `research-design` | design | no baseline, a confound, prior work not cited, novelty overstated |
+| `overclaim` | claims | the README or page says more than a file backs |
+| `stale-docs` | maintenance | test counts, runtimes or tables that drifted after later work |
+| `repo-hygiene` | build | undeclared dependencies, a shell `or true` hiding a failure |
+| `source-only` | audit | about a source file the build fixes at deploy; not a defect in what ships |
+| `other` | audit | none of the above |
+
+## Metrics
+
+`python3 platform/ci/quality_audit.py metrics --md` prints, from the latest
+audit of each subject unless noted:
+
+- **why subjects miss the bar**: how many fail each gate, which gate alone
+  binds, and how many would clear the bar with +1 on one dimension;
+- **score histograms** per dimension;
+- **defects** by category, severity and origin stage, with the classifier's
+  agreement with the hand labels;
+- **seeded mutations**: in how many audits at least one survived, with a Wilson
+  interval (from `mutations` when present, otherwise parsed from the text);
+- **fixes and persistence**: audits with a fix PR, open high-severity defects,
+  and the share of defects that reappear in the next audit of the subject;
+- **re-audit agreement**: identical and within-one scores, and bar verdicts,
+  between consecutive audits of a subject with no fix between (an upper bound
+  on blind agreement, since a later auditor can read the earlier file);
+- **audit detail**: evidence length, dimensions that quote a command, and how
+  many audits carry structured `checks` and `mutations`;
+- **coverage** of the whole repository and the days a first full pass would
+  take at the current pace;
+- the **weekly trend**.
+
+`queue` lists open defects worst first (source-only left out); `census`
+draws the sweep; `coverage` prints the coverage table as JSON.
+
+## Reflections
+
+`reflections/<date>-<slug>.md`, at least weekly (`mode` forces one after
+seven days). A reflection reads the metrics and asks where in the process
+quality drops off: at which stage the defects originate, which gate binds,
+what the fixes did. Each proposed process fix names the metric it should move
+and its value now, so the next reflection can say whether it worked. Fixes to
+files under `.github/CODEOWNERS` (prompts, CI) go in their own small PR.
+
 ## Results so far
 
-The scoreboard is generated: `python3 platform/ci/quality_audit.py summary`.
+The scoreboard is generated: `python3 platform/ci/quality_audit.py summary`;
+the detail is `metrics --md`; the reflections are in `reflections/`.
 Each round's post is listed under "Quality audits" on the blog.

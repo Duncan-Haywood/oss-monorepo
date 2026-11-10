@@ -78,6 +78,10 @@ class QualityAuditTest(unittest.TestCase):
         picks = q.draw("x", audits=done, pop=POP, today=dt.date(2026, 11, 7))
         assert picks[0]["subject"] == "ventures/b"
         assert sorted(p["subject"] for p in picks if p["stratum"] == "research") == ["research/r8", "research/r9"]
+        # a flagship audited within the week is not drawn again
+        recent = [audit(subject=f, stratum="flagship", date="2026-11-05") for f in POP["flagship"]]
+        assert all(p["stratum"] != "flagship" for p in q.draw("x", audits=recent, pop=POP, today=dt.date(2026, 11, 7)))
+        assert q.draw("x", audits=recent, pop=POP, today=dt.date(2026, 11, 13))[0]["stratum"] == "flagship"
         # after the skip window they are eligible again
         later = q.draw("x", audits=done, pop=POP, today=dt.date(2027, 3, 1))
         assert len([p for p in later if p["stratum"] == "research"]) == 2
