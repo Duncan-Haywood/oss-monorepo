@@ -23,7 +23,7 @@
 //   node platform/pages/sideways.mjs
 //
 //   WIDTH=320 node platform/pages/sideways.mjs   # the WCAG reflow width
-//   SAMPLE=300 node platform/pages/sideways.mjs  # 300 pages spread over the site
+//   SAMPLE=300 node platform/pages/sideways.mjs  # section indexes + pages spread over the site
 //
 //   # or against production once the owner flip lands:
 //   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/sideways.mjs
@@ -45,6 +45,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { onlySlugs, keepPagePath, describeFilter, requireNonEmpty } from './only-slugs.mjs';
+import { samplePages } from './sideways-sample.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -100,13 +101,16 @@ const only = onlySlugs();
 let pages = publishedPages(DIST)
   .filter((rel) => !rel.startsWith('404'))
   .filter((rel) => keepPagePath(rel, only));
-// SAMPLE=N probes N pages spread evenly over the site (a few minutes instead
-// of the whole catalogue). Found two real overflows in 374 pages on 2026-11-07.
+// SAMPLE=N probes N pages (a few minutes instead of the whole catalogue):
+// every site-owned section index first (the hub, /research/, /writing/ ...),
+// then the rest spread evenly. Found two real overflows in 374 pages on
+// 2026-11-07; the pinned indexes are why (sideways-sample.mjs).
 const SAMPLE = Number(process.env.SAMPLE || 0);
-if (SAMPLE > 0 && pages.length > SAMPLE) {
-  const step = pages.length / SAMPLE;
-  pages = Array.from({ length: SAMPLE }, (_, i) => pages[Math.floor(i * step)]);
-}
+const linksSiteCss = (rel) => {
+  try { return fs.readFileSync(path.join(DIST, rel), 'utf8').includes('pf-site.css'); }
+  catch { return false; }
+};
+pages = samplePages(pages, SAMPLE, linksSiteCss);
 if (only) console.log(describeFilter(only));
 requireNonEmpty(pages, only, 'built pages');
 
