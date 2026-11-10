@@ -1,9 +1,9 @@
 ---
 title: "Turning the tennis feeder's head: a stepper, a printed gear and two collisions nobody had looked for"
-seo_title: "Sizing a stepper turntable drive from CAD inertia, and why the gear teeth are printed"
+seo_title: "Sizing a stepper turntable drive from CAD inertia"
 date: 2026-11-10
 tags: [open-tennis-robots, cad, build123d, mechanism-design, stepper-motor]
-description: "The ball feeder's head turns 30 degrees either way. Sizing its drive from the CAD's own inertia, and sweeping the turned head for collisions, found two clashes in the shipped design."
+description: "Sizing the ball feeder's turntable drive from the CAD's own inertia, then sweeping the turned head, found two clashes in the shipped design."
 ---
 
 The ball feeder in [Open Tennis Robots](/ventures/open-tennis-robots/) aims
