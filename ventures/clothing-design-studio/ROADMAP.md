@@ -117,3 +117,4 @@ many-session project. Each milestone below lands as a working slice.
 
 - 2026-11-09: rib hem and cuff bands (`rib: true` in `pattern.mjs`, checkbox on `pattern.html`); see README. Typed ratio 0.85 and 6 cm height, no real rib compared. Next: nest the bands, a zip front.
 - 2026-11-10: rib bands nested in the cutting plan, self-fabric or on a separate rib knit with its own metres (`rib` in `cuttingPlan`); see README. Next: a zip front, a real hoodie and a real rib order to compare.
+- 2026-11-10: zip-front hoodie (`zip: true` in `pattern.mjs`, checkbox on `pattern.html`): the front is cut as two halves (one mirrored) with a 1.5 cm centre-front allowance in place of the fold, a zip length check and note, and it nests (3 garments, two sizes: 24 pieces, no overlap, 1.37 m per hoodie against 1.39 m for the fold front at 150 cm width). Typed allowance, no real zip or hoodie compared. Next: a placket/facing, a real hoodie and zip to compare.

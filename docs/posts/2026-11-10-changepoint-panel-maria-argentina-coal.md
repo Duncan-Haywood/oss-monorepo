@@ -8,7 +8,7 @@ description: "Six change-point settings run on Hurricane Maria deaths, Argentina
 
 The free [change-point detector](../../ventures/changepoint-detector/README.md)
 has a `--consensus` mode: it runs six settings and reports how many agree on
-each change. This batch ran it on three more real series with a documented
+each change. The fourth batch ran it on three more real series with a documented
 event. Output: `ventures/changepoint-detector/eval/consensus-real.out.txt`.
 
 | Series | Documented event | Result |
