@@ -18,6 +18,14 @@ test("a bare flag given a value, or a value flag given none, is refused", () => 
   assert.equal(unknownFlag(["plan.json", "-h", "--"]), "");
 });
 
+test("a value flag with nothing after the equals sign is refused, except --orders", () => {
+  for (const f of ["--storey", "--ifc-json", "--compare", "--door-layer", "--swing", "--units", "--wall-layer", "--window-layer", "--add-board"]) {
+    assert.match(unknownFlag([f + "="]), /has no value after the equals sign/, f);
+  }
+  assert.equal(unknownFlag(["--orders="]), "");
+  assert.equal(unknownFlag(["--storey=1st Floor"]), "");
+});
+
 test("the known-flag lists match the flags cli.mjs reads", () => {
   const src = readFileSync(new URL("./cli.mjs", import.meta.url), "utf8").split("\n").filter((l) => !l.startsWith("export const")).join("\n");
   const used = new Set([...src.matchAll(/--[a-z][a-z0-9-]*/g)].map((m) => m[0]));

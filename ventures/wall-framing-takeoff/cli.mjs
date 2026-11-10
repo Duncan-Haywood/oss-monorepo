@@ -188,6 +188,7 @@ export function unknownFlag(argv) {
     if (typeof a !== "string" || !a.startsWith("--") || a === "--") continue;
     const eq = a.indexOf("=");
     const name = eq < 0 ? a : a.slice(0, eq);
+    if (eq >= 0 && a.length === eq + 1 && VALUE_FLAGS.includes(name) && name !== "--orders") return `${name}= has no value after the equals sign; write ${name}=... (see --help).`;
     if (eq < 0 ? BARE_FLAGS.includes(name) : VALUE_FLAGS.includes(name)) continue;
     if (eq >= 0 && BARE_FLAGS.includes(name) && !VALUE_FLAGS.includes(name)) return `${name} takes no value (you wrote ${a}). Try ${name} on its own.`;
     if (eq < 0 && VALUE_FLAGS.includes(name) && !BARE_FLAGS.includes(name)) return `${name} needs a value, such as ${name}=...; see --help.`;
