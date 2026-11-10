@@ -313,6 +313,12 @@ class Feeder:
     bore_pos_tol_mm: float = 0.15  # laser bore position error, each plate
     plate_slot_play_mm: float = 0.4  # plates' x-offset from tab-and-slot clearance
     spacer_len_tol_mm: float = 0.3  # spacer length difference front to rear
+    # Take-up track tie (assumptions: M5 slot nuts in 2040 T-slot, a printed carriage; measure the first build).
+    tie_margin_mm: float = 30.0       # tie bracket centre from each track end
+    carriage_offset_mm: float = 55.0  # pulley load line from the track's centreline (carriage and pulley hub)
+    hose_snatch: float = 3.0          # dynamic factor on the hose pull when the head moves or a ball bumps the hose
+    slot_nut_pull_n: float = 400.0    # one M5 slot nut in aluminium T-slot, pull-out (assumption: pull-test yours)
+    tie_min_factor: float = 3.0       # slot-nut capacity over the working load
     hose_id: float = 72.0
     hose_od: float = 82.0
     hose_min_bend: float = 150.0  # smallest bend radius the hose tolerates
@@ -640,6 +646,28 @@ class Feeder:
         d = 2 * self.hose_min_bend
         return {"fixed_mm": fixed, "stroke_mm": stroke, "pulley_d_mm": d, "track_mm": stroke + d + 2 * margin_mm,
                 "spring_n": 2 * tension_n, "poses": poses, "ok": ok}
+
+    def track_tie(self, tension_n: float = 5.0) -> dict | None:
+        """Loads on the take-up track's two tie brackets to the hopper frame (2026-11-10). The hose pulls the
+        pulley with `2 * tension_n` along the track (what the spring balances), times `hose_snatch` for a jerk. That
+        force acts `carriage_offset_mm` off the track's centreline, so each tie also takes half of it axially and
+        a couple (force x offset / tie span) across the slot. Ties sit `tie_margin_mm` in from each track end.
+        Returns the span, working force on the worse tie, its slot-nut capacity factor and `ok` (>= `tie_min_factor`);
+        None if the take-up is not needed. Statics of a rigid track; every figure is an assumption."""
+        t = self.take_up_design(tension_n)
+        if t is None or t["track_mm"] <= 0 or t["stroke_mm"] <= 0:
+            return None
+        span = t["track_mm"] - 2 * self.tie_margin_mm
+        f = t["spring_n"] * self.hose_snatch
+        axial = f / 2
+        couple = f * self.carriage_offset_mm / span
+        resultant = math.hypot(axial, couple)
+        pull, shear = couple, axial  # the couple pulls the slot nut out; the axial half loads it in shear
+        factor = self.slot_nut_pull_n / pull if pull > 0 else math.inf
+        # hose tension at which the slot nut's capacity factor falls to tie_min_factor (the load scales with it)
+        limit_t = tension_n * factor / self.tie_min_factor if math.isfinite(factor) else math.inf
+        return {"limit_tension_n": limit_t, "span_mm": span, "force_n": f, "axial_n": axial, "couple_n": couple, "pull_n": pull,
+                "shear_n": shear, "resultant_n": resultant, "factor": factor, "ok": factor >= self.tie_min_factor}
 
     def hose_take_up_by_elev_max(self, maxes=(15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0)):
         """(top elevation, take-up mm or None) with the hose fitted over elev_min..that top elevation instead of the
