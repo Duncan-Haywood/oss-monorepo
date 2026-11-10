@@ -1,9 +1,9 @@
 ---
 title: "A 25-point line fit is the noise floor that finally stops over-cutting a smooth series"
-seo_title: "Changepoint detection on smooth drifting series: a wide local-fit noise floor"
+seo_title: "A wide local-fit noise floor for changepoints on smooth series"
 date: 2026-11-10
 tags: [changepoint-detector, time-series, statistics]
-description: "Widening the local-fit noise floor from 7 to 25 points brings Australian residents from 4 cuts to 1 and keeps a known step on synthetic drift at every autocorrelation tried; quadratic fits make it worse."
+description: "A 25-point line-fit noise floor cuts Australian residents from 4 changes to 1 and keeps a known step on synthetic drift; quadratic fits do worse."
 ---
 
 changepoint-detector over-cuts smooth, low-noise series: a growing population
