@@ -685,3 +685,20 @@ test("LV personal codes: old format needs a real date, 32 prefix a check digit",
   assert.equal(vatFlagged("LV32867300679"), false);
   assert.equal(vatFlagged("LV32867300677"), true);
 });
+
+test("French TVA letter keys, the I/O ban and the SIREN Luhn digit", () => {
+  // Vectors from python-stdnum 2.2 `fr.tva` (docstring and generated); 4Z123456782 is its example.
+  assert.deepEqual(inspectPartyVat({ id: "S1", name: "A", vat_id: "FR4Z123456782" }, "supplier"), []);
+  const bad = ["FRZ4123456782", "FRIO334175221", "FR4Z123456783", "FR40303265046"];
+  for (const number of bad) {
+    assert.ok(inspectPartyVat({ id: "S1", name: "A", vat_id: number }, "supplier").length, number);
+  }
+  // Monaco numbers (SIREN 000...) carry no Luhn digit.
+  assert.equal(frMonacoCheck(), true);
+});
+function frMonacoCheck() {
+  // key from (12 + 3 * (siren mod 97)) mod 97 for siren 000123456
+  const siren = "000123456";
+  const key = String((12 + 3 * (Number(siren) % 97)) % 97).padStart(2, "0");
+  return inspectPartyVat({ id: "S1", name: "A", vat_id: `FR${key}${siren}` }, "supplier").length === 0;
+}
