@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 6d: do the 6c spare-pack counts survive a real daily demand profile? (predictions in `experiments/hub_throughput/cargo_hub_trace.py`'s docstring, fixed before the counts were read)
+- Why: 6c's "Next": a demand trace instead of fixed batches. No drone-delivery order data is public, so the shape comes from City of Chicago open data, ride-hail trips per 15-minute bin (`chicago_tnp_counts.json`, Wed 2019-10-09 and Sat 2019-10-12, city-wide; dataset m6dm-c72p), scaled to the same mean rate as 6c. Ride-hail is a stand-in for an on-demand service's time-of-day shape, not a delivery trace. Stdlib, 0.2 s.
+### Outcome (`experiments/hub_throughput/cargo_hub_trace_results.txt`)
+- Peak 15-minute rate is 1.76x (Wed) and 1.68x (Sat) the daily mean.
+- Spares for p95 wait <= 300 s, 70% load: Poisson 12; both days 16. 85% load: Poisson 16; Wed 32, Sat 40.
+- **P1 refuted at 70%** (16, not at least 24, 1.33x) and held at 85% (2x, 2.5x on Saturday). **P2 held:** uniform spreading inside a bin vs all at the bin start gave the same count in every case. **P3 refuted at 70%** (no difference) and held at 85% (40 against 32, 25%).
+- Reading: a daily demand peak costs 4 extra packs at 70% load and doubles the pack inventory at 85%; the bursts of 6c (k = 8 needs 48) are the larger effect, the daily shape the smaller but still real one near the charger limit.
+- Limits: ride-hail not delivery demand; two days; 15-minute bins hide the within-bin bursts of 6c; spares grid is coarse (steps of 4 to 8); hub inputs assumed (milestone 10a). Preliminary.
+- Next: a delivery-order trace with second-level timestamps if one is published; charge taper from a cell datasheet when a host answers.
+
 ## 2026-11-09 · Milestone 6c: how many spare packs does a cargo-VTOL hub need when orders arrive in bursts? (predictions in `experiments/hub_throughput/cargo_hub_bursts.py`'s docstring, fixed before the run)
 - Why: milestone 6b's "Next". Same hub as 6b (8 pads, 8 chargers, 1C, 42 min charge, 180 s swap and load); batches of k orders arrive together (batch rate Poisson, same mean flights/h), k swept 1 to 16, at 70% and 85% of the 11.4 flights/h charger limit. 5 seeds, stdlib, 40 s.
 ### Outcome (`experiments/hub_throughput/cargo_hub_bursts_results.txt`)
