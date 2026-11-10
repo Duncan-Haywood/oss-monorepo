@@ -614,7 +614,7 @@ h1{font-size:clamp(1.6rem,4vw,2.3rem);margin:.2rem 0 .4rem;letter-spacing:-.01em
 h2{font-size:1.2rem;margin:0 0 .3rem}
 .lede{color:var(--muted);max-width:75ch;margin:0}
 .crumbs{font-size:14px;color:var(--muted)}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:24px 0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:12px;margin:24px 0}
 .tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
 .tile-label{font-size:13px;color:var(--muted)}
 .tile-value{font-size:1.9rem;font-weight:650;margin:.1rem 0}
