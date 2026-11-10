@@ -197,7 +197,7 @@ def rollout_pos(sz, gains, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plan
     tmax = np.stack([sz["tau_max"], sz["tau_max"], sz["tau_yaw"]], axis=1)[:, None, :] * pl["tau"][None, :, None]
     lag = (sz["lag"][:, None] * pl["lag"][None, :])[:, :, None]
     kg = (0.5 * RHO * sz["area"] * sz["lever"])[:, None]
-    kf = (0.5 * RHO * sz["area"] * CD_A)[:, None]
+    kf = (0.5 * RHO * sz["area"] * CD_A)[:, None, None]
     mass = sz["mass"][:, None] * pl["mass"][None, :]                          # (N,E)
     lat = (lateral_per_torque(sz["alpha"], sz["L"]) if couple else np.zeros_like(sz["alpha"]))[:, None]   # (N,1)
     v = gust_mean + gust_std * u0.T[None, :, :] + np.zeros((N, 1, 1))
