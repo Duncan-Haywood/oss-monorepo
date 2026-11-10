@@ -1,0 +1,263 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/tip-fica-credit-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a CPA or enrolled agent who prepares Form 8846 and the general business credit for restaurants and salons (payroll tax specialist)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran creditFor/analyze through a scratch script and recomputed by hand from the section 45B rule (7.65% of tips above (5.15-wage) x hours; SS part capped by the wage base, 2026 $184,500). Maria 1489.455, Jake 1099.764, Priya 688.50, Sam 13,700.40, a wage-base straddle 13,467.82 and an over-base-wages case 145 all match; defaults total 16,978.119. Two departures: annual aggregation where the Form 8846 instructions (as I recall, not loaded offline) test per period, and a silent wrong tip figure when a roster line has a thousands comma (24,000 read as 24). Capped at 3 because of the latter and because no IRS worksheet was available to run.",
+    "completeness": "Everything the README lists works end to end: per-employee credit, no-credit top-up, wage-base cap, after-tax value, prior-year look-back, skipped-line report, example reset, usage opt-out. Checked by running analyze and reading index.html's run(). Extra columns on a line are ignored silently. Product stage is declared prototype in VENTURE.yaml and the hypothesis is untested.",
+    "verification": "node --test '*.test.mjs' in the venture: 20 pass, 0 fail (about 7 calc tests, 7 page tests, 6 usage tests). Seeded 7 mutations in calc.mjs; 4 survived: the notCreditable term in the wage-base room (calc.mjs:64), the priorYears floor, the wage-base cap on employerFicaOnTips and the negative-tips rejection. The straddle case is the one a CPA would check first and no test pins it (Sam has top-up 0, so notCreditable is 0).",
+    "craft": "Read calc.mjs (95 lines), index.html script, usage.mjs, all tests. Small pure module, no dependencies, esc() on output, skipped lines reported. Defects: opts() in index.html:81 silently replaces a blank or unparseable field with the example default; splitting on commas breaks formatted numbers; hours 0 and tips with no hours accepted; the baseline wage 'fixed by the statute' is still an editable input.",
+    "claims": "Disclaimer, no-warranty, privacy and no-network claims are backed by index.html and asserted by page.test.mjs. The $5.15 and 2007 claim, the 7.65% split and the post-2024 beauty-service extension agree with the statute as I know it. Limits are stated in README (eligibility, reporting, general business credit limit, wage-base by year not modelled). The live page could not be loaded (egress proxy refused marisstella.app), so served-page claims are unchecked; llms.txt and canonical URLs are source-only and not filed.",
+    "fitness": "Walked an owner with a four-person roster: paste lines, press the button, get a per-person table and a total. It works, but a preparer needs per-month or per-pay-period tips and hours, a payroll CSV import (listed as not built in VENTURE.yaml), and a wage base per prior year; the look-back multiplies one year by N, which the page says is rough. A blank field quietly becomes a default, which an owner would not notice.",
+    "domain": "Compared with IRC 45B and the Form 8846 instructions as recalled: rate split, $5.15 fixed baseline, SS cap and the wage deduction offset (credit reduces the deductible FICA, so after-tax = credit x (1 - rate)) are right. Departures: no per-period test, the notCreditable-before-wage-base ordering is a stated conservative reading, and the tool does not ask for the 2025 and earlier wage bases for the look-back. A senior preparer would use it as a sizing estimate and redo the figure on the real worksheet, which is what the page says."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Maria: $2.13/h, 1500 h, $24,000 tips",
+      "method": "Hand arithmetic from IRC 45B / Form 8846 rule: (5.15-2.13)x1500=4,530 top-up; (24,000-4,530)x7.65%",
+      "command": "node a.mjs",
+      "expected": "1,489.455",
+      "observed": "1489.455",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Jake: $2.13/h, 1200 h, $18,000 tips",
+      "method": "Same rule by hand: 3.02x1200=3,624; 14,376x7.65%",
+      "command": "node a.mjs",
+      "expected": "1,099.764",
+      "observed": "1099.764",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Sam straddling the 2026 SS wage base ($184,500, SSA announcement): $5.15/h, 2000 h, $200,000 tips",
+      "method": "Hand: room=184,500-10,300=174,200 x 6.2% = 10,800.40 + 200,000 x 1.45% = 2,900",
+      "command": "node a.mjs",
+      "expected": "13,700.40",
+      "observed": "13700.4",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Straddle with top-up: $2.13/h, 2000 h, $190,000 tips",
+      "method": "Hand: topUp 6,040, creditable 183,960, room 184,500-4,260-6,040=174,200; 10,800.40+2,667.42",
+      "command": "node a.mjs",
+      "expected": "13,467.82",
+      "observed": "13467.82",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Cash wages already above the wage base: $95/h, 2000 h, $10,000 tips",
+      "method": "FICA: SS tax stops at the wage base, only Medicare 1.45% remains = 145",
+      "command": "node a.mjs",
+      "expected": "145",
+      "observed": "145",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Annual netting vs the per-period test in the Form 8846 instructions (recalled from the instructions, not loaded offline): an employee with 6 months under the top-up and 6 above",
+      "method": "Form 8846 instructions as recalled: tips needed to reach $5.15 are tested per pay period/month, not netted over the year; hand example shows annual netting can only raise the credit",
+      "command": "code read, calc.mjs:61-62",
+      "expected": "per-period floor at zero",
+      "observed": "annual aggregate only, no period input",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Default roster totals",
+      "method": "Sum of hand credits 1489.455+1099.764+688.5+13700.4",
+      "command": "node a.mjs (analyze DEFAULTS)",
+      "expected": "16,978.119",
+      "observed": "16978.119",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Thousands comma in a roster line: 'Maria, 2.13, 1500, 24,000'",
+      "method": "Page label says no thousands commas; a user pasting payroll figures would expect 24,000",
+      "command": "node a.mjs (parseEmployees)",
+      "expected": "skipped line or tips 24000",
+      "observed": "accepted with tips = 24, no warning",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Look-back for unclaimed years and after-tax value",
+      "method": "README claims; ran analyze with taxRate 25, priorYears 2",
+      "command": "node a.mjs",
+      "expected": "afterTax 12,733.59; prior 33,956.24",
+      "observed": "12733.589 / 33956.238",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Unparseable lines reported in 'skipped', not dropped",
+      "method": "README/page claim; tried 'Cy, 2.13, 1000, 5000 tips'",
+      "command": "node a.mjs",
+      "expected": "in skipped",
+      "observed": "in skipped",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Extra fifth column on a line",
+      "method": "Page implies four fields; tried 'Bob, 2.13, 1000, 5000, extra'",
+      "command": "node a.mjs",
+      "expected": "skipped or flagged",
+      "observed": "accepted silently, extra ignored",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite run",
+      "method": "node --test",
+      "command": "cd ventures/tip-fica-credit-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "20 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, privacy, sponsor link, no network calls, placeholders note",
+      "method": "page.test.mjs asserts, and grep of index.html lines 20,70,74",
+      "command": "grep index.html",
+      "expected": "present",
+      "observed": "present",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Live URL https://marisstella.app/tip-fica-credit-calculator/ serves the page",
+      "method": "curl through the session proxy",
+      "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/tip-fica-credit-calculator/",
+      "expected": "200",
+      "observed": "blocked by egress proxy (connect_rejected), not checked",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "'$5.15 is the federal minimum wage of 1 January 2007 and does not change' and beauty-service extension for tips after 2024",
+      "method": "FLSA minimum wage 5.15 to 2007-07-24; Form 8846/IRC 45B as amended 2025 (recalled, not loaded)",
+      "command": "read index.html FAQ + calc.mjs header",
+      "expected": "consistent",
+      "observed": "consistent",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Blank wage-base, tax-rate or prior-years field",
+      "method": "Walk through: owner clears a field; opts() in index.html:81 swaps NaN for the example default",
+      "command": "code read index.html:81 + num('')",
+      "expected": "error or empty result",
+      "observed": "silently uses 184500 / 25 / 2",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:64",
+      "change": "room = cap - cashWages - notCreditable -> cap - cashWages (drops tips-used-as-wages from wage base room)",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:65",
+      "change": "ssTips = Math.min(creditable, room) -> creditable (wage base cap removed)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:78",
+      "change": "afterTax = credit*(1-tax) -> credit*tax",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:77",
+      "change": "years floor -> ceil",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:66",
+      "change": "Medicare on creditable -> on all tips",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:67",
+      "change": "employerFicaOnTips drops the wage-base cap on the SS part",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:50",
+      "change": "drop the tips < 0 rejection",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "A thousands comma in a roster line shifts the fields: 'Maria, 2.13, 1500, 24,000' is accepted with tips = $24 and no warning, understating the credit about 99.9%. The page label warns but the parser does not enforce it, and payroll exports commonly contain such commas.",
+      "where": "calc.mjs:46",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "A blank or unreadable rate, wage base, tax rate or prior-years field silently becomes the example value (184500, 25, 2) instead of an error, so a user who clears a box gets a confident number on an assumption they did not choose.",
+      "where": "index.html:81",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "The wage-base straddle logic (tips used as wages reduce the room under the Social Security base, and the cap on employer FICA shown beside the credit) is untested: removing either leaves all 20 tests green.",
+      "where": "calc.mjs:64",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Credit is computed on annual totals; the Form 8846 instructions as I recall them test tips against the $5.15 shortfall per pay period or month, so an employee with uneven seasonal tips gets an annual figure at or above the per-period one. Not stated in README limits.",
+      "where": "calc.mjs:61",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Extra fields on a roster line, zero hours and an unrealistic edited baseline wage are accepted without comment.",
+      "where": "calc.mjs:47",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "The years floor and the negative-tips rejection survive mutation: no test pins fractional prior years or negative tips.",
+      "where": "calc.mjs:77",
+      "category": "untested-core",
+      "origin": "tests"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "The arithmetic is right: six hand recomputations from the section 45B rule match to the cent, and the page carries the disclaimer, privacy and limits it claims. It does not meet the bar because verification scores 2: 4 of 7 seeded mutations survived, including the wage-base room term that decides the credit for high earners. Fitness is held to 2 by input handling that a real payroll paste would hit first: a thousands comma silently turns $24,000 of tips into $24, and blank fields silently take example values. A one-line parse fix, a straddle test and a per-period caveat would likely move it to the bar. Served page not loaded (proxy)."
+}
