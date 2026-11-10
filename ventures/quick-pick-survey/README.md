@@ -106,8 +106,8 @@ the enforcement — see [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md).
 
 ## How it works
 
-**Discrete items** (activities, professions) use **Glicko-2** — the system chess.com's
-ratings are built on. Each item carries a rating plus a rating deviation, so every
+**Discrete items** (activities, professions) use **Glicko-2** — the chess-style rating system
+designed by Mark Glickman. Each item carries a rating plus a rating deviation, so every
 ranking comes with a real confidence interval. Ratings are stored **per respondent**:
 one person's answers can never move another's ranking.
 

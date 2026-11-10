@@ -13,12 +13,13 @@ import {
  * else in the app is downstream of these numbers being right.
  */
 describe("Glicko-2 against Glickman's worked example", () => {
-  it("reproduces the published rating and RD", () => {
+  it("sequential application stays in a sane range (not the published value)", () => {
     const player = { rating: 1500, rd: 200, volatility: 0.06 };
     // The paper's example is one player against three opponents in a single
     // rating period. We apply them sequentially, which is the standard
-    // live-application simplification, so the result should land close to
-    // the published 1464.06 / 151.52 rather than exactly on it.
+    // live-application simplification, so the result is only bounded here, not
+    // equal to the published 1464.06 / 151.52 (the pinned test below checks
+    // the arithmetic on a single game).
     let state = player;
     state = updateGlicko(state, { rating: 1400, rd: 30, volatility: 0.06 }, 1);
     state = updateGlicko(state, { rating: 1550, rd: 100, volatility: 0.06 }, 0);
@@ -28,6 +29,20 @@ describe("Glicko-2 against Glickman's worked example", () => {
     expect(state.rating).toBeLessThan(1500);
     // Uncertainty must fall after three informative games.
     expect(state.rd).toBeLessThan(player.rd);
+  });
+});
+
+describe("Glicko-2 single game, pinned", () => {
+  it("matches an independent Glickman-formula implementation (tau 0.5)", () => {
+    // 1500/200/0.06 beats 1400/30/0.06: values computed with a separate
+    // Python implementation of Glickman's 2013 paper steps 1-8.
+    const next = updateGlicko(
+      { rating: 1500, rd: 200, volatility: 0.06 },
+      { rating: 1400, rd: 30, volatility: 0.06 },
+      1,
+    );
+    expect(next.rating).toBeCloseTo(1563.564, 2);
+    expect(next.rd).toBeCloseTo(175.4027, 2);
   });
 });
 

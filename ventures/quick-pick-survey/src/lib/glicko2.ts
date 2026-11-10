@@ -1,6 +1,6 @@
 /**
  * Glicko-2 rating system (Glickman, "Example of the Glicko-2 system", 2012),
- * the algorithm chess.com's rating engine is built on. Ratings are updated
+ * a chess-style rating system designed by Mark Glickman. Ratings are updated
  * one comparison ("game") at a time rather than in batched rating periods,
  * which is the standard simplification for live, low-volume applications
  * like this one — mathematically it's just a rating period containing a
