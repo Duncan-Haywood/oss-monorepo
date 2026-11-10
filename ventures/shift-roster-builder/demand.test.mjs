@@ -209,3 +209,16 @@ test("a time zone suffix is not read as AM/PM, and weekday-led and dd-Mon-yyyy s
   // the existing weekday + hour cell still reads
   assert.deepEqual(at("Thursday 2 PM"), [3, 14]);
 });
+
+test("Toast-, Clover- and Square-style header names are read (net price, order total, order date, transaction time)", async () => {
+  const { hourlySales } = await import("./demand.mjs");
+  for (const csv of [
+    "Opened,Net Price\n3/5/2026 2:03 PM,12.50\n3/5/2026 3:03 PM,9",
+    "Order Date,Order Total\n05-Mar-2026 02:03 PM,12\n05-Mar-2026 03:03 PM,9",
+    "Transaction Time,Transaction Amount\n2026-03-05 14:03:22,12\n2026-03-05 15:03:22,9",
+  ]) {
+    const r = hourlySales(csv);
+    assert.equal(r.rows, 2, csv);
+    assert.ok(r.avg[3][14] > 0 && r.avg[3][15] > 0, csv);
+  }
+});
