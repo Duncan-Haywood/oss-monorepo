@@ -116,3 +116,4 @@ many-session project. Each milestone below lands as a working slice.
 - 2026-11-09: hoodie drafted (hood neck edge solved to the neck seam, kangaroo pocket), nests; see README. Next: rib bands, zip front, a real hoodie to compare.
 
 - 2026-11-09: rib hem and cuff bands (`rib: true` in `pattern.mjs`, checkbox on `pattern.html`); see README. Typed ratio 0.85 and 6 cm height, no real rib compared. Next: nest the bands, a zip front.
+- 2026-11-10: rib bands nested in the cutting plan, self-fabric or on a separate rib knit with its own metres (`rib` in `cuttingPlan`); see README. Next: a zip front, a real hoodie and a real rib order to compare.

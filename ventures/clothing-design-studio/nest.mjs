@@ -212,7 +212,9 @@ export function nest(shapes, { widthCm = 150, edgeCm = 1.5, gridCm = 0.5, tries 
 }
 
 /** A marker for a ratio of sizes of one drafted garment: ratio {S:1, M:2, L:1}. Adds the metres per garment. */
-export function nestRatio(garment, ratio, { fit = "regular", widthCm = 150, endLossCm = 6, ...opt } = {}) {
+export function nestRatio(garment, ratio, { fit = "regular", widthCm = 150, endLossCm = 6, only = null, ...opt } = {}) {
+  // only: "body" keeps every piece except the rib bands, "rib" keeps just the bands (rib is usually a separate knit with its own width)
+  const keep = p => only === "rib" ? /Rib$/.test(p.name) : only === "body" ? !/Rib$/.test(p.name) : true;
   const shapes = [];
   let garments = 0;
   for (const [size, n] of Object.entries(ratio)) {
@@ -220,7 +222,7 @@ export function nestRatio(garment, ratio, { fit = "regular", widthCm = 150, endL
     if (!n) continue;
     const d = draft(garment, size, { fit, ...(opt.draftOpts || {}) });
     if (!d.ok) return d;
-    for (let i = 0; i < n; i++) shapes.push(...cutShapes(d.pieces, size));
+    for (let i = 0; i < n; i++) shapes.push(...cutShapes(d.pieces.filter(keep), size));
     garments += n;
   }
   if (!garments) return { ok: false, error: "Ratio has no garments." };
