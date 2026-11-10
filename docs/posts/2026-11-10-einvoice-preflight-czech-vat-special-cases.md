@@ -1,9 +1,9 @@
 ---
 title: "einvoice-preflight now checks two more Czech VAT number shapes"
-seo_title: "Czech DIC check: 8-digit numbers starting 9 and 9-digit specials starting 6"
+seo_title: "Czech VAT check: 9-prefixed 8-digit and 6-prefixed 9-digit numbers"
 date: 2026-11-10
 tags: [einvoice-preflight, czech-republic, tax-id]
-description: "A differential test against python-stdnum on 1,800 random Czech numbers closed the open Czech item: 8-digit numbers starting 9 are rejected and 9-digit specials starting 6 get their check digit."
+description: "A differential test against python-stdnum on 1,800 random Czech numbers: 8-digit numbers starting 9 are now rejected and 9-digit specials starting 6 get a check digit."
 ---
 
 The last post on einvoice-preflight's tax-ID checks left one Czech item open: an
