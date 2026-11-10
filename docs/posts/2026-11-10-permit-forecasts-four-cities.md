@@ -1,6 +1,6 @@
 ---
 title: "Permit duration forecasts across four cities: what transfers to Seattle and what doesn't"
-seo_title: "Building permit duration forecast: does a model trained on other cities transfer?"
+seo_title: "Permit duration forecasts: does a model trained on other cities transfer?"
 date: 2026-11-10
 tags: [research, construction, permits, forecasting, open-data]
 description: "A boosted quantile model beats per-city baselines in Seattle too, but a model trained on other cities only partly transfers, and its intervals under-cover."
