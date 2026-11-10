@@ -17,9 +17,9 @@ import { DAYS } from "./calc.mjs";
 
 const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const SYN = {
-  stamp: ["datetime", "date time", "timestamp", "time", "hour", "date", "sale time", "order time", "created at", "opened", "check opened", "start", "interval", "period"],
+  stamp: ["datetime", "date time", "timestamp", "time", "hour", "date", "sale time", "order time", "created at", "opened", "check opened", "start", "interval", "period", "order date", "sale date", "transaction time", "transaction date", "paid at", "closed", "check closed", "payment time"],
   day: ["day", "weekday", "day of week", "dow"],
-  sales: ["sales", "net sales", "gross sales", "amount", "total", "revenue", "net revenue", "net amount", "sales amount", "total sales", "net sale", "gross"],
+  sales: ["sales", "net sales", "gross sales", "amount", "total", "revenue", "net revenue", "net amount", "sales amount", "total sales", "net sale", "gross", "net price", "order total", "check total", "net total", "gross total", "payment amount", "transaction amount", "subtotal", "sub total"],
 };
 const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
