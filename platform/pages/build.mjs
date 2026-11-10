@@ -175,9 +175,21 @@ export const REPO_ROOT = path.resolve(HERE, '..', '..');
 
 // The Pages path used before the repository was renamed; it now answers 404.
 export const LEGACY_BASE_URL = 'https://duncan-haywood.github.io/monorepo-projects/';
-// Owner-overridable at build time; this default is where GitHub serves a
-// project Pages site for this repository.
-export const DEFAULT_BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
+// The project Pages address the site was served from until the move to
+// Cloudflare (owner, 2026-10-29). It now serves redirect pages to
+// DEFAULT_BASE_URL (redirect-stubs.mjs), so a page that still names it is a
+// retired origin, rewritten the same way LEGACY_BASE_URL is.
+export const GITHUB_PAGES_BASE_URL = 'https://duncan-haywood.github.io/oss-monorepo/';
+// Where the catalogue is served (owner, 2026-10-30: the custom domain on the
+// Cloudflare Worker; CLAUDE.md, "Hosting"). Overridable at build time with
+// --base= or PAGES_BASE_URL. Until 2026-11-10 this default still named the
+// github.io address, so every local build and every caller that took the
+// default (published-base-url.mjs, so the nightly browser checks) wrote or
+// verified canonical tags and sitemap entries for an origin that only redirects.
+export const DEFAULT_BASE_URL = 'https://marisstella.app/';
+// Every origin a committed page may name that the build should replace with
+// the base URL it is actually built for.
+export const RETIRED_BASE_URLS = [LEGACY_BASE_URL, GITHUB_PAGES_BASE_URL];
 
 // IndexNow (api.indexnow.org) proves ownership of a set of URLs with a key
 // file hosted at a location the submitter names in each request -- it does
@@ -5536,7 +5548,8 @@ function rewriteOrigin(contents, baseUrl) {
   // follow the base URL it is actually built with.
   // The retired /monorepo-projects/ path is a second default: venture pages and
   // posts written before the move still name it, and it now answers 404.
-  const current = rewritten.split(LEGACY_BASE_URL).join(baseUrl);
+  // GITHUB_PAGES_BASE_URL joined it on 2026-11-10, when the default moved.
+  const current = RETIRED_BASE_URLS.reduce((text, origin) => text.split(origin).join(baseUrl), rewritten);
   if (baseUrl === DEFAULT_BASE_URL) return current;
   return current.split(DEFAULT_BASE_URL).join(baseUrl);
 }
@@ -12052,7 +12065,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
   // Page slugs under writing/: each post, and `podcast`.
-  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [LEGACY_BASE_URL, DEFAULT_BASE_URL] });
+  const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [...RETIRED_BASE_URLS, DEFAULT_BASE_URL] });
 
   // The fiction the creative track writes, one page linking into its ventures (see `stories.mjs`).
   await buildStories(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}` });

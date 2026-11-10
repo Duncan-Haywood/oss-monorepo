@@ -50,6 +50,10 @@ import { buildSite, DEFAULT_BASE_URL } from './build.mjs';
 // one no other test in this directory exercises.
 const APEX = 'https://catalogue.test/';
 const DEFAULT_HOST = new URL(DEFAULT_BASE_URL).host;
+const HOST_RE = DEFAULT_HOST.replace(/[.]/g, '\\.');
+const DEFAULT_ORIGIN_LINK = new RegExp(
+  `(?:\\b(?:href|src|content|action)=["']|<loc>|"(?:url|item|@id|sameAs|contentUrl|image)"\\s*:\\s*")(?:https?:)?//${HOST_RE}`,
+);
 
 // The two origins a venture's own markup can carry before the build rewrites
 // them: `PLACEHOLDER_ORIGIN` (`https://example.invalid/`), which pages were
@@ -140,13 +144,17 @@ test('a custom-domain build leaves no reference to the default origin', async ()
     // reading one as utf8 would produce noise rather than a finding.
     if (!/\.(html|xml|txt|json|mjs|js|css|webmanifest)$/.test(file)) continue;
     const body = await fs.readFile(file, 'utf8');
-    if (body.includes(DEFAULT_HOST)) offenders.push(path.relative(outDir, file));
+    // A link, canonical, <loc> or JSON-LD URL, not any mention: since
+    // 2026-11-10 the default origin is the site's own domain, which posts and
+    // the plain-text search index name in prose ("marisstella.app answered 200
+    // ..."). Prose is not a link or a canonical signal.
+    if (DEFAULT_ORIGIN_LINK.test(body)) offenders.push(path.relative(outDir, file));
   }
 
   assert.deepEqual(
     offenders,
     [],
-    `these files still name the default origin (${DEFAULT_HOST}) after a build ` +
+    `these files still link the default origin (//${DEFAULT_HOST}) after a build ` +
       `under ${APEX}. A canonical tag or <loc> naming the old origin is a ` +
       'duplicate-content signal, not a visible breakage — which is why it needs ' +
       'a test rather than a page load to catch.',

@@ -134,6 +134,8 @@ test('links to the published catalogue become root-relative on the site', async 
   const { relinkSite } = await import('./writing.mjs');
   const html = '<a href="https://duncan-haywood.github.io/oss-monorepo/changepoint-detector/">x</a> <a href="https://example.com/">y</a>';
   assert.equal(relinkSite(html, '../../'), '<a href="../../changepoint-detector/">x</a> <a href="https://example.com/">y</a>');
+  // Posts written since the move to Cloudflare link the live origin instead.
+  assert.equal(relinkSite('<a href="https://marisstella.app/writing/">w</a>', '../../'), '<a href="../../writing/">w</a>');
 });
 
 test('topics: front matter wins, else the first rule the tags match; a bad topic or a reserved slug fails', async () => {
