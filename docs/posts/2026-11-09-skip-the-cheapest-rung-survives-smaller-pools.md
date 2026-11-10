@@ -1,6 +1,6 @@
 ---
 title: "Does skipping the cheapest rung survive a smaller candidate pool?"
-seo_title: "Multi-fidelity chip design search: skipping the cheapest rung"
+seo_title: "Chip design search: does skipping the cheap rung survive small pools?"
 date: 2026-11-09
 tags: [research, verified-dse, multi-fidelity]
 description: "Subsampling cached SKY130 place-and-route pools to 20, 30 and 40 points: scoring all at rung two and routing 8 stays slightly ahead of a wider schedule."
