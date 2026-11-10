@@ -293,6 +293,8 @@ function classify(country, body) {
   // digits) and San Marino COE (up to 5 digits, shape only). Structures from python-stdnum ad.nrt, gn.nifp,
   // li.peid, sm.coe; the authorities' texts are unread.
   if (country === "AD") return adNrtShapeOk(body) ? "format" : "bad-format";
+  // Faroe Islands V-number: 6 digits, shape only (python-stdnum fo.vn; authority text unread).
+  if (country === "FO") return /^\d{6}$/.test(body) ? "format" : "bad-format";
   if (country === "GN") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
   if (country === "LI") return /^\d{4,12}$/.test(body) ? "format" : "bad-format";
   if (country === "SM") return /^\d{1,5}$/.test(body) ? "format" : "bad-format";

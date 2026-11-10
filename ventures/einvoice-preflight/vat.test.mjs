@@ -620,3 +620,17 @@ test("Mozambique NUIT gets a check-digit test, Costa Rica ids a shape test", () 
   assert.deepEqual(rules("CR12345"), ["INV-022"]);
   assert.deepEqual(rules("CR31O1999999"), ["INV-022"]);
 });
+
+test("Andorra NRT and Faroese V-number get a shape test, Guinea NIFp a Luhn test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("ADF123456Z"), []);
+  assert.deepEqual(rules("ADA700001B"), []);
+  assert.deepEqual(rules("ADF700000Z"), ["INV-022"]);
+  assert.deepEqual(rules("ADA100000B"), ["INV-022"]);
+  assert.deepEqual(rules("ADB123456Z"), ["INV-022"]);
+  assert.deepEqual(rules("FO123456"), []);
+  assert.deepEqual(rules("FO12345"), ["INV-022"]);
+  assert.deepEqual(rules("GN12345"), ["INV-022"]);
+  assert.deepEqual(rules("GN123456782"), []);
+  assert.deepEqual(rules("GN123456789"), ["INV-023"]);
+});
