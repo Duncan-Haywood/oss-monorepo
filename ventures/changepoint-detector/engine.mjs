@@ -1890,7 +1890,11 @@ export function analyze(input = {}) {
   const noiseFloorK = o.noiseFloor === true ? 1 : Number(o.noiseFloor) || 0;
   let noiseFloorHit = false;
   if (noiseFloorK > 0 && values.length > 2) {
-    const fl = noiseFloorK * median(values.slice(1).map((v, i) => Math.abs(v - values[i])));
+    // order 2 (o.noiseFloorOrder === 2) uses second differences, which cancel a steady drift per step; the factor 0.578
+    // (= 0.954 / 1.651, the white-noise medians of |d1| and |d2| in sd units) keeps k on the same scale as order 1.
+    const fl = o.noiseFloorOrder === 2 && values.length > 3
+      ? noiseFloorK * 0.578 * median(values.slice(2).map((v, i) => Math.abs(v - 2 * values[i + 1] + values[i])))
+      : noiseFloorK * median(values.slice(1).map((v, i) => Math.abs(v - values[i])));
     if (fl > sigma) { sigma = fl; noiseFloorHit = true; }
   }
   let rho = null;
