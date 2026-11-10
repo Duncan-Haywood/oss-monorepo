@@ -126,7 +126,7 @@ flagships:
       `--consensus` landed 2026-11-10 (six settings, agreement tiers; README);
       wanted next: the panel on a real drifting series with a documented break.
       Open:
-      (0) smooth low-noise series are over-cut: `--noise-floor k` is uncalibrated
+      (0) smooth low-noise series are over-cut: `--noise-floor k` is uncalibrated on real drift (`--noise-floor-diff2` k=2 is scale-free on synthetic straight drift, 2026-11-10; untested at high phi and on real series);
       (k=1.5 and `--ar1 joint` each win on synthetic drift at different phi;
       wanted: all three on real drift); the slope-break test dates GDP's 1970s
       break at 1971Q2 but not significantly; real-series trials of 2026-11-09/10 (T-bill variance regime, Mauna Loa CO2 over-cut even with `--trend quad`, global temperature 1946 step and 1976 bend, gold and Sandy bikeshare `--spikes`): README. Wanted: a documented bad print and a count-model spike label; wanted: a model that both dates and tests the 1976 acceleration, a real step inside a cycle, a cycle check not
