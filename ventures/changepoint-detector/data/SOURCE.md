@@ -634,3 +634,9 @@ canada-fertility.csv: Canada total fertility rate 1931-1968 (carData::Hartnagel,
 - **Retrieved:** 2026-11-09 from <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/forecast/gold.csv> (R `forecast::gold`; the `time` and `value` columns).
 - **Licence:** Rdatasets republishes the `forecast` package data (GPL-3 package); a price series is a fact, kept as a test fixture with its source named.
 - **Used by:** `gold-price.test.mjs`, README "Gold prices".
+
+## sp500-monthly.csv
+
+- **What:** S&P 500 monthly price index level, Jan 2000 to Mar 2010, 123 rows (`date` like `Jan 1 2000`, `price`). Whether each value is a month's open, close or average is not stated by the source and was not checked.
+- **Retrieved:** 2026-11-10 from <https://raw.githubusercontent.com/vega/vega-datasets/main/data/sp500.csv> (vega-datasets, BSD-3-Clause repository; a price series is a fact, kept as a test fixture with its source named).
+- **Used by:** `sp500-monthly.test.mjs`, `eval/sp500-monthly.mjs`, README "S&P 500 monthly returns".
