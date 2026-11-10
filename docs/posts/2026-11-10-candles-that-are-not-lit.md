@@ -1,6 +1,6 @@
 ---
 title: "Forty candles on a space station: the oxygen, carbon dioxide and heat of a Candlemas procession"
-seo_title: "How much air does a candle use? Forty candles in a 60 m3 space station chapel"
+seo_title: "How much air does a candle use? Forty in a space station chapel"
 date: 2026-11-10
 tags: [fiction, hearth-and-horizon, science-fiction, physics, chemistry]
 description: "A story sums a candle's air: 20.7 g oxygen and 77 W each, so forty in a 60 m3 chapel add about 2,300 ppm CO2."
