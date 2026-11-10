@@ -125,7 +125,7 @@ flagships:
       History and every trial (real series, sweeps, dates): README and git.
       `--consensus` and its panels on 18 real series (list in the README) landed 2026-11-10; the Nile and UK-drivers dates read from the R documentation 2026-11-11 (papers and the other sixteen series' dates still recalled); wanted next: a panel series whose paper is read, and a labelled set to turn agreement tiers into a detection rate.
       Open:
-      (0) smooth low-noise series are over-cut: `--noise-floor k` is uncalibrated on real drift (the diff2, diff3 and 7-point local-fit floors tried 2026-11-10 still over-cut GDP or Australian residents, README; wanted: a wider or quadratic local window, untested at high phi);
+      (0) smooth low-noise series are over-cut: `--noise-floor k` is uncalibrated on real drift (`--noise-floor-local 25` k=2, 2026-11-10: austres 1 cut, synthetic step 55-60/60 at phi 0.2-0.8, but loses Peace Bridge 2009-06; README; wanted: a real drifting series with a documented break to set k vs `--ar1 joint`);
       (k=1.5 and `--ar1 joint` each win on synthetic drift at different phi;
       wanted: all three on real drift); the slope-break test dates GDP's 1970s
       break at 1971Q2 but not significantly; real-series trials of 2026-11-09/10 (T-bill variance regime, Mauna Loa CO2 over-cut even with `--trend quad`, global temperature 1946 step and 1976 bend, gold and Sandy bikeshare `--spikes`): README. Wanted: a documented bad print and a count-model spike label; wanted: a model that both dates and tests the 1976 acceleration, a real step inside a cycle, a cycle check not

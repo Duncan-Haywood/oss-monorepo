@@ -47,6 +47,10 @@ Options:
   --hazard <n>              Bayesian expected points between changes (default: ${DEFAULTS.hazardLambda})
   --threshold <p>           report Bayesian changes at or above p (default: ${DEFAULTS.threshold})
   --example                 run on the bundled Nile river flow series
+  --noise-floor [k]         the noise scale is at least k (default 1) times the median absolute step between neighbours, so a smooth low-noise drift is not cut at every bend (off by default)
+  --noise-floor-diff2/-diff3  take that floor from second or third differences instead
+  --noise-floor-local [w]   take it from residuals of centred w-point line fits (default 7)
+  --noise-floor-quad [w]    the same with centred w-point quadratic fits
   --consensus [n]           run six settings (level, level under a trend with AR(1), the same with joint AR(1), noise floor, trend, trend with floor) and list each change by how many agree (changes within n points, default 2% of the series, are one); takes --log, --period, --penalty, --min-segment, --column
   --json                    print the full result as JSON
   -h, --help                this help
@@ -85,7 +89,8 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
     else if (a === '--noise-floor-diff2') opt.noiseFloorOrder = 2;
     else if (a === '--noise-floor-diff3') opt.noiseFloorOrder = 3;
-    else if (a === '--noise-floor-local') opt.noiseFloorOrder = 'local';
+    else if (a === '--noise-floor-local') { opt.noiseFloorOrder = 'local'; if (argv[i + 1] && /^\d+$/.test(argv[i + 1])) opt.noiseFloorWindow = Number(argv[++i]); }
+    else if (a === '--noise-floor-quad') { opt.noiseFloorOrder = 'local'; opt.noiseFloorDegree = 2; if (argv[i + 1] && /^\d+$/.test(argv[i + 1])) opt.noiseFloorWindow = Number(argv[++i]); }
     else if (a === '--noise-floor') opt.noiseFloor = argv[i + 1] && !argv[i + 1].startsWith('-') ? Number(argv[++i]) : true;
     else if (flags[a]) {
       if (i + 1 >= argv.length) throw new Error(`${a} needs a value`);

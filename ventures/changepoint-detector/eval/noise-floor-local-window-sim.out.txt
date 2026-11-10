@@ -1,0 +1,73 @@
+n=120, reps=60, one step of 4 noise sd at t=60, drift 0.2 per step, model trend (ar1 joint arm: --model mean --trend --ar1 joint)
+phi 0.2, noise sd 1 (step 4)
+  off: step found 60/60, other cuts 0.57
+  d1 k=1.5: step found 60/60, other cuts 0.03
+  d1 k=2: step found 60/60, other cuts 0.00
+  line w=7 k=3: step found 36/60, other cuts 0.00
+  line w=25 k=2: step found 60/60, other cuts 0.00
+  quad w=25 k=3: step found 21/60, other cuts 0.00
+  ar1 joint: step found 60/60, other cuts 1.17
+phi 0.2, noise sd 0.3 (step 1.2)
+  off: step found 59/60, other cuts 0.82
+  d1 k=1.5: step found 60/60, other cuts 0.00
+  d1 k=2: step found 59/60, other cuts 0.00
+  line w=7 k=3: step found 35/60, other cuts 0.00
+  line w=25 k=2: step found 58/60, other cuts 0.00
+  quad w=25 k=3: step found 20/60, other cuts 0.00
+  ar1 joint: step found 59/60, other cuts 1.00
+phi 0.2, noise sd 0.1 (step 0.4)
+  off: step found 59/60, other cuts 0.48
+  d1 k=1.5: step found 26/60, other cuts 0.00
+  d1 k=2: step found 0/60, other cuts 0.00
+  line w=7 k=3: step found 38/60, other cuts 0.00
+  line w=25 k=2: step found 59/60, other cuts 0.00
+  quad w=25 k=3: step found 27/60, other cuts 0.00
+  ar1 joint: step found 59/60, other cuts 0.75
+phi 0.5, noise sd 1 (step 4)
+  off: step found 59/60, other cuts 3.40
+  d1 k=1.5: step found 60/60, other cuts 0.55
+  d1 k=2: step found 60/60, other cuts 0.03
+  line w=7 k=3: step found 47/60, other cuts 0.00
+  line w=25 k=2: step found 56/60, other cuts 0.00
+  quad w=25 k=3: step found 31/60, other cuts 0.00
+  ar1 joint: step found 55/60, other cuts 0.82
+phi 0.5, noise sd 0.3 (step 1.2)
+  off: step found 59/60, other cuts 3.43
+  d1 k=1.5: step found 60/60, other cuts 0.08
+  d1 k=2: step found 60/60, other cuts 0.00
+  line w=7 k=3: step found 49/60, other cuts 0.00
+  line w=25 k=2: step found 56/60, other cuts 0.00
+  quad w=25 k=3: step found 36/60, other cuts 0.00
+  ar1 joint: step found 56/60, other cuts 0.73
+phi 0.5, noise sd 0.1 (step 0.4)
+  off: step found 59/60, other cuts 3.60
+  d1 k=1.5: step found 22/60, other cuts 0.00
+  d1 k=2: step found 0/60, other cuts 0.00
+  line w=7 k=3: step found 48/60, other cuts 0.00
+  line w=25 k=2: step found 58/60, other cuts 0.00
+  quad w=25 k=3: step found 35/60, other cuts 0.00
+  ar1 joint: step found 59/60, other cuts 1.02
+phi 0.8, noise sd 1 (step 4)
+  off: step found 60/60, other cuts 6.97
+  d1 k=1.5: step found 60/60, other cuts 3.15
+  d1 k=2: step found 60/60, other cuts 1.78
+  line w=7 k=3: step found 58/60, other cuts 0.23
+  line w=25 k=2: step found 59/60, other cuts 0.12
+  quad w=25 k=3: step found 56/60, other cuts 0.02
+  ar1 joint: step found 60/60, other cuts 0.68
+phi 0.8, noise sd 0.3 (step 1.2)
+  off: step found 60/60, other cuts 6.32
+  d1 k=1.5: step found 58/60, other cuts 1.13
+  d1 k=2: step found 56/60, other cuts 0.35
+  line w=7 k=3: step found 55/60, other cuts 0.22
+  line w=25 k=2: step found 55/60, other cuts 0.08
+  quad w=25 k=3: step found 54/60, other cuts 0.08
+  ar1 joint: step found 60/60, other cuts 0.68
+phi 0.8, noise sd 0.1 (step 0.4)
+  off: step found 60/60, other cuts 6.35
+  d1 k=1.5: step found 31/60, other cuts 0.00
+  d1 k=2: step found 3/60, other cuts 0.00
+  line w=7 k=3: step found 59/60, other cuts 0.20
+  line w=25 k=2: step found 58/60, other cuts 0.05
+  quad w=25 k=3: step found 56/60, other cuts 0.02
+  ar1 joint: step found 60/60, other cuts 0.60
