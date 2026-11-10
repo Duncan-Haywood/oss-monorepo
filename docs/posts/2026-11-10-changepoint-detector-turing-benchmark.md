@@ -1,9 +1,9 @@
 ---
-title: "Our changepoint detector on a labelled benchmark: two settings near the top, and a default that loses to 'no change'"
-seo_title: "Changepoint detection benchmark: scoring a free detector on the Turing Change Point Dataset"
+title: "Changepoint detector on a labelled benchmark: two settings near the top, a default that loses to 'no change'"
+seo_title: "Changepoint detection scored on the Turing Change Point Dataset"
 date: 2026-11-10
-tags: [changepoint-detector, time-series, benchmark]
-description: "On 31 real series marked by human annotators, BOCPD and the consensus panel come within 0.012 F1 of the best published method. The plain level model scores below reporting no change at all."
+tags: [changepoint-detector, time-series, benchmarks]
+description: "On 31 annotated real series, BOCPD and the consensus panel come within 0.012 F1 of the best published method; the plain level model loses to no change."
 ---
 
 Until now the changepoint detector's real-series trials had one gap. Every
