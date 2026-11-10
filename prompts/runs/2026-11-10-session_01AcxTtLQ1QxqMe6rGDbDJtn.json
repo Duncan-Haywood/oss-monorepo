@@ -45,6 +45,12 @@
       "why": "CI validate was red on main: changepoint-detector next: was 2207 chars, over the 2000 cap. That is outside research/, but merging on red is worse",
       "did": "shortened the noise-floor and real-series-trial clauses, which the README already holds, to fit the cap; no open item dropped",
       "result": "portfolio/router/validate.py passes locally"
+    },
+    {
+      "file": "docs/posts/2026-11-10-bookkeeper-probe-38.md, -39.md",
+      "why": "pages build was red on main: both posts render the same <title> (cut at the colon)",
+      "did": "gave each its own seo_title",
+      "result": "see notes for the local pages build/check result"
     }
   ],
   "writeups": [

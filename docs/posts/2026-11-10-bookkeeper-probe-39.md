@@ -1,5 +1,6 @@
 ---
 title: "Five more trades the bookkeeper files: pool service, trainers, DJs, upholstery, farriers"
+seo_title: "Bookkeeper categories for pool service, trainers and DJs"
 description: "The ai-bookkeeper built-in keywords now file 21 more descriptors from five trades, up from 12 right before; tuned on itself, so it shows coverage, not accuracy."
 tags: [bookkeeping, categorization, open-source]
 date: 2026-11-10
