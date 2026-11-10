@@ -288,6 +288,10 @@ function classify(country, body) {
   if (country === "GH") return /^[PCGQV]00[A-Z0-9]{8}$/.test(body) ? "checksum" : "bad-format";
   if (country === "SV") return /^[019]\d{13}$/.test(body) ? "checksum" : "bad-format";
   if (country === "DZ") return /^(\d{15}|\d{20})$/.test(body) ? "format" : "bad-format";
+  // Mozambique NUIT (9 digits, last is a check digit; python-stdnum mz.nuit). Costa Rica: cedula fisica 9 digits,
+  // cedula juridica or NITE 10, DIMEX 11 or 12 (shape only; the Hacienda text is unread).
+  if (country === "MZ") return /^\d{9}$/.test(body) ? "checksum" : "bad-format";
+  if (country === "CR") return /^\d{9,12}$/.test(body) ? "format" : "bad-format";
   // China unified social credit code (GB 32100-2015): 18 characters, 0-9 and A-Y without I, O, S, V, Z.
   if (country === "CN") return /^[0-9A-HJ-NP-RT-UW-Y]{18}$/.test(body) ? "checksum" : "bad-format";
   if (country === "UZ") return /^\d{9}$/.test(body) ? "format" : "bad-format";
@@ -665,6 +669,11 @@ function snNineaOk(body) {
   const n = digits.padStart(9, "0");
   return w.reduce((a, x, i) => a + x * Number(n[i]), 0) % 10 === 0;
 }
+function mzNuitOk(body) {
+  const w = [8, 9, 4, 5, 6, 7, 8, 9];
+  const sum = w.reduce((a, x, i) => a + x * Number(body[i]), 0);
+  return "01234567891"[sum % 11] === body[8];
+}
 function ghTinOk(body) {
   let sum = 0;
   for (let i = 1; i <= 9; i++) {
@@ -817,6 +826,7 @@ function checksumOk(country, body) {
   if (country === "SN") return snNineaOk(body);
   if (country === "GH") return ghTinOk(body);
   if (country === "SV") return svNitOk(body);
+  if (country === "MZ") return mzNuitOk(body);
   if (country === "ME") return mePibOk(body);
   if (country === "MK") return mkEdbOk(body);
   if (country === "AZ") return azVoenOk(body);

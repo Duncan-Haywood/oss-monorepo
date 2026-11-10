@@ -596,3 +596,15 @@ test("Ukrainian RNOKPP (10 digits) gets a check-digit test", () => {
   assert.deepEqual(rules("UA9000000000"), ["INV-023"]);
   assert.deepEqual(rules("UA175901377"), ["INV-022"]);
 });
+
+test("Mozambique NUIT gets a check-digit test, Costa Rica ids a shape test", () => {
+  const rules = (v) => inspectPartyVat({ id: "S1", name: "A", vat_id: v }, "supplier").map((item) => item.rule);
+  assert.deepEqual(rules("MZ400339910"), []);
+  assert.deepEqual(rules("MZ400005834"), []);
+  assert.deepEqual(rules("MZ400339911"), ["INV-023"]);
+  assert.deepEqual(rules("MZ12345"), ["INV-022"]);
+  assert.deepEqual(rules("CR3101999999"), []);
+  assert.deepEqual(rules("CR310199999"), []);
+  assert.deepEqual(rules("CR12345"), ["INV-022"]);
+  assert.deepEqual(rules("CR31O1999999"), ["INV-022"]);
+});
