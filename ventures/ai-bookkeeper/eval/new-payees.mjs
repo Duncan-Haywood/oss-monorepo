@@ -12,10 +12,11 @@
 //                curl -O https://raw.githubusercontent.com/blakeb211/billcat-local-llm/HEAD/data/cc_transactions.csv
 //
 //   node eval/new-payees.mjs --hackclub main.ledger --makerspace DIR --chase cc_transactions.csv
-//        [--no-new-payee] [--levels direction] [--min-share 0.4] [--misses 20]
+//        [--no-new-payee] [--levels direction] [--min-share 0.4] [--min-record 0.4] [--misses 20]
 //
 // --no-new-payee switches the new-payee layer (guessNewPayee) off; --levels limits its
-// views (e.g. "direction" for the plain prior), as in opencollective-labelled.mjs.
+// views (e.g. "direction" for the plain prior), as in opencollective-labelled.mjs;
+// --min-record 0 switches off the gate on each view's own track record.
 //
 // Each set uses the category map of its own keyword eval (hackclub-ledger.mjs,
 // queeriouslabs-bank.mjs, billcat-card.mjs). The Chase label is the bank's own
@@ -97,7 +98,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   for (const [name, rows, skip0] of sets) {
     const skip = new Set([...(skip0 ?? []), ...(process.argv.includes("--no-new-payee") ? ["new-payee"] : [])]);
     const levels = arg("--levels") ? arg("--levels").split(",") : null;
-    const o = replay(rows, { skip, newPayeeOpts: { ...NEW_PAYEE, levels, ...(arg("--min-share") ? { minShare: +arg("--min-share") } : {}) } });
+    const o = replay(rows, { skip, newPayeeOpts: { ...NEW_PAYEE, levels, ...(arg("--min-share") ? { minShare: +arg("--min-share") } : {}), ...(arg("--min-record") ? { minRecord: +arg("--min-record") } : {}) } });
     console.log(`${name}: ${rows.length} scored lines`);
     console.log(`  all         ${fmt(o.all)}`);
     console.log(`  first seen  ${fmt(o.first)}`);
