@@ -29,6 +29,7 @@ python3 platform/ci/quality_audit.py sample --k 6 --seed 2026-11-07
 python3 platform/ci/quality_audit.py validate          # schema and score checks
 python3 platform/ci/quality_audit.py summary           # the scoreboard, all rounds
 python3 platform/ci/quality_audit.py summary --md      # the same as Markdown, for the post
+python3 platform/ci/quality_audit.py history --md      # did audits change anything? fix follow-through, re-audit trends
 ```
 
 `sample` draws, without replacement and reproducibly from the seed:
@@ -98,6 +99,20 @@ easy failure is grading the README instead of the thing. So:
 
 - **Run it.** Every score above 1 needs a command you ran or a page you
   loaded, quoted in `evidence`. Reading code alone caps `correctness` at 2.
+- **Judge what is served, not only the source file.** The site build
+  (`platform/pages/build.mjs`, `rewriteOrigin` and `renderVentureSitemap`)
+  rewrites the placeholder and old github.io origins in every `.html`,
+  `.txt`, `.xml` and `.json` it publishes, regenerates each product's
+  `sitemap.xml` with absolute URLs, and does not publish a product's own
+  `robots.txt`. So a source `llms.txt` naming `duncan-haywood.github.io`, a
+  relative `sitemap.xml` or `robots.txt` line, or `rel="canonical"
+  href="./index.html"` is *not* a defect a user or crawler sees. Fetch the
+  served file (`curl -s https://marisstella.app/<slug>/llms.txt`, likewise
+  `sitemap.xml` and the page's canonical) before you report one. Rounds 1 to
+  33 reported this non-defect about 90 times (round 34's post,
+  `docs/posts/2026-11-10-quality-audit-round-34.md`). Text outside the build,
+  such as npm or PyPI metadata and READMEs, is not rewritten, so a stale host
+  there is still real.
 - **Recompute, don't re-read.** A test that the author wrote checks what the
   author believed. Check at least one output against a source the author did
   not write.
