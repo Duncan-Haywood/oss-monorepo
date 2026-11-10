@@ -40,6 +40,9 @@ def _bezier_stats(pts: tuple, n: int = 24) -> tuple[float, float, float]:
     return length, kmax, smin
 
 
+COLLAR_SOCKET_MM = 25.0  # depth of the hose socket in the sleeve take-up's printed collar
+
+
 @functools.lru_cache(maxsize=4096)
 def _hose_curve_range(ox: float, oz: float, mx: float, mz: float, tilt_rad: float,
                       r_min: float, slope_min: float, step: float = 25.0) -> tuple[float, float] | None:
@@ -313,12 +316,13 @@ class Feeder:
     bore_pos_tol_mm: float = 0.15  # laser bore position error, each plate
     plate_slot_play_mm: float = 0.4  # plates' x-offset from tab-and-slot clearance
     spacer_len_tol_mm: float = 0.3  # spacer length difference front to rear
-    # Take-up track tie (assumptions: M5 slot nuts in 2040 T-slot, a printed carriage; measure the first build).
-    tie_margin_mm: float = 30.0       # tie bracket centre from each track end
-    carriage_offset_mm: float = 55.0  # pulley load line from the track's centreline (carriage and pulley hub)
-    hose_snatch: float = 3.0          # dynamic factor on the hose pull when the head moves or a ball bumps the hose
-    slot_nut_pull_n: float = 400.0    # one M5 slot nut in aluminium T-slot, pull-out (assumption: pull-test yours)
-    tie_min_factor: float = 3.0       # slot-nut capacity over the working load
+    # Sleeve take-up (2026-11-10): the hose's top end slides up and down inside a rigid vertical sleeve under the
+    # outlet, so the ball path stays a vertical drop plus one falling curve (assumptions: measure the first build).
+    sleeve_overlap_mm: float = 20.0   # the collar never comes nearer than this to the sleeve's lower end
+    sleeve_clear_mm: float = 14.0     # sleeve bore over the hose OD: room for the printed collar's socket wall
+    sleeve_wall_mm: float = 3.0       # rigid tube wall (assumption: a drain or ducting tube; measure yours)
+    sleeve_top_mm: float = 20.0       # outlet to the sleeve's top end (the printed socket under the sloped shelf)
+    collar_h_mm: float = 40.0         # printed collar bonded on the hose's top end, slides in the sleeve
     hose_id: float = 72.0
     hose_od: float = 82.0
     hose_min_bend: float = 150.0  # smallest bend radius the hose tolerates
@@ -332,8 +336,9 @@ class Feeder:
     packing: float = 0.55         # fraction of the tub's inside volume that balls fill, with a sloped floor
     want_balls: int = 120
     shelf_slope_deg: float = 12.0  # falls toward the net, to the outlet
-    hopper_out_x: float = -330.0
-    hopper_out_z: float = 1700.0   # underside of the shelf at the outlet (1560 left no hose curve at -15 or +45 deg, 2026-11-03)
+    hopper_out_x: float = -400.0   # -330 until 2026-11-10; -400 is as far back as the front posts allow (30 mm in from the shelf's front edge)
+    hopper_out_z: float = 2000.0   # underside of the shelf at the outlet: the lowest at which the sleeve take-up fits every pose
+                                   # (1560 left no hose curve at -15 or +45 deg, 2026-11-03; 1700 needed a pulley loop, 2026-11-10)
     post_front_x: float = -380.0
     post_rear_x: float = -640.0
     shelf_post_y: float = 225.0
@@ -625,7 +630,8 @@ class Feeder:
         return None if t is None else max(t, 0.0) / ratio
 
     def take_up_design(self, tension_n: float = 5.0, margin_mm: float = 30.0) -> dict | None:
-        """A floating-pulley take-up sized from the pose ranges (2026-11-04). The hose runs fixed length `fixed_mm` plus
+        """A floating-pulley take-up sized from the pose ranges (2026-11-04). Rejected 2026-11-10: the 180 deg wrap turns
+        the ball path uphill (`pulley_take_up_passes_balls`); kept to compare with `sleeve_take_up_design`. The hose runs fixed length `fixed_mm` plus
         twice the pulley's travel x (ratio 2). Fixed length is the shortest longest-fit, so x never goes below 0; each
         pose needs x in [(lo - fixed)/2, (hi - fixed)/2]. Pulley diameter is twice the hose's minimum bend radius; the
         track is the stroke plus one pulley diameter plus a margin at each end. The spring pulls the pulley with twice the
@@ -647,27 +653,73 @@ class Feeder:
         return {"fixed_mm": fixed, "stroke_mm": stroke, "pulley_d_mm": d, "track_mm": stroke + d + 2 * margin_mm,
                 "spring_n": 2 * tension_n, "poses": poses, "ok": ok}
 
-    def track_tie(self, tension_n: float = 5.0) -> dict | None:
-        """Loads on the take-up track's two tie brackets to the hopper frame (2026-11-10). The hose pulls the
-        pulley with `2 * tension_n` along the track (what the spring balances), times `hose_snatch` for a jerk. That
-        force acts `carriage_offset_mm` off the track's centreline, so each tie also takes half of it axially and
-        a couple (force x offset / tie span) across the slot. Ties sit `tie_margin_mm` in from each track end.
-        Returns the span, working force on the worse tie, its slot-nut capacity factor and `ok` (>= `tie_min_factor`);
-        None if the take-up is not needed. Statics of a rigid track; every figure is an assumption."""
-        t = self.take_up_design(tension_n)
-        if t is None or t["track_mm"] <= 0 or t["stroke_mm"] <= 0:
-            return None
-        span = t["track_mm"] - 2 * self.tie_margin_mm
-        f = t["spring_n"] * self.hose_snatch
-        axial = f / 2
-        couple = f * self.carriage_offset_mm / span
-        resultant = math.hypot(axial, couple)
-        pull, shear = couple, axial  # the couple pulls the slot nut out; the axial half loads it in shear
-        factor = self.slot_nut_pull_n / pull if pull > 0 else math.inf
-        # hose tension at which the slot nut's capacity factor falls to tie_min_factor (the load scales with it)
-        limit_t = tension_n * factor / self.tie_min_factor if math.isfinite(factor) else math.inf
-        return {"limit_tension_n": limit_t, "span_mm": span, "force_n": f, "axial_n": axial, "couple_n": couple, "pull_n": pull,
-                "shear_n": shear, "resultant_n": resultant, "factor": factor, "ok": factor >= self.tie_min_factor}
+    def pulley_wrap_max_deg(self) -> float:
+        """Largest angle a ball-carrying hose may wrap round a pulley (2026-11-10). On a horizontal axle the hose's
+        direction turns by the wrap angle; starting from straight down it must stay at least `feed_min_slope_deg`
+        below horizontal, so the wrap can be at most 90 - that. A floating pulley stores hose only with a 180 deg wrap,
+        which turns the hose back upward on one leg: balls that roll by gravity cannot climb it."""
+        return 90.0 - self.feed_min_slope_deg
+
+    def pulley_take_up_passes_balls(self) -> bool:
+        """False whenever a floating-pulley take-up is needed: its 180 deg wrap exceeds `pulley_wrap_max_deg`."""
+        return 180.0 <= self.pulley_wrap_max_deg()
+
+    def _ranges_from(self, ox: float, oz: float, steps: int = 4):
+        out = []
+        for i in range(steps + 1):
+            e = self.elev_min + (self.elev_max - self.elev_min) * i / steps
+            mx, mz = self.mouth_world(e)
+            out.append((e, _hose_curve_range(ox, oz, mx, mz, math.radians(e), self.hose_min_bend, self.feed_min_slope_deg)))
+        return out
+
+    def sleeve_take_up_design(self, tension_n: float = 5.0, step_mm: float = 25.0, max_mm: float = 600.0) -> dict | None:
+        """A take-up that keeps the ball path falling (2026-11-10). A rigid vertical sleeve hangs `sleeve_mm` under the
+        hopper outlet; the hose's top end slides inside it, held up by a constant-force spring, so the free hose starts at
+        the sleeve's lower end and its free length changes by the slide. Balls drop straight down the sleeve into the hose,
+        then follow the one falling curve that `_hose_curve_range` checks. `sleeve_mm` (outlet to the sleeve's lower
+        end) must hold the stroke (longest shortest-fit minus shortest longest-fit, from the lower start), the collar,
+        the gap under the shelf and `sleeve_overlap_mm`. Searches sleeve lengths
+        upward in `step_mm`; None if no length up to `max_mm` works (a longer sleeve lowers the start, which can only
+        be done while every pose still has a curve). The spring pulls `tension_n` on one hose leg (assumption)."""
+        ox, oz = self.hopper_out_x, self.hopper_out_z
+        ls = self.sleeve_overlap_mm
+        seen_fit = False
+        while ls <= max_mm + 1e-9:
+            r = self._ranges_from(ox, oz - ls)
+            if any(x is None for _, x in r):
+                if seen_fit:
+                    return None    # dropping further only loses poses
+                ls += step_mm
+                continue
+            seen_fit = True
+            fixed = min(hi for _, (lo, hi) in r)
+            stroke = max(0.0, max(lo for _, (lo, hi) in r) - fixed)
+            if stroke + self.sleeve_overlap_mm + self.collar_h_mm + self.sleeve_top_mm <= ls + 1e-9:
+                poses = [(e, max(0.0, lo - fixed), hi - fixed) for e, (lo, hi) in r]
+                return {"sleeve_mm": ls, "start_z": oz - ls, "stroke_mm": stroke, "free_mm": (fixed, fixed + stroke),
+                        "hose_cut_mm": math.ceil((fixed + stroke + self.sleeve_overlap_mm + COLLAR_SOCKET_MM) / 10) * 10,
+                        "tube_mm": ls - self.sleeve_top_mm, "collar_travel": (ls - self.sleeve_overlap_mm - stroke, ls - self.sleeve_overlap_mm),
+                        "sleeve_id_mm": self.hose_od + self.sleeve_clear_mm, "spring_n": tension_n, "poses": poses}
+            ls += step_mm
+        return None
+
+    def lowest_sleeve_outlet(self, xs=(-600.0, -550.0, -500.0, -450.0, -400.0, -350.0),
+                             z_lo: float = 1650.0, z_hi: float = 2100.0, z_step: float = 25.0) -> list[tuple]:
+        """For each outlet x, the lowest outlet height (to `z_step`) at which `sleeve_take_up_design` works, with its
+        design: (x, z or None, design or None). Slow (a few seconds per x): for the README, not the build."""
+        from dataclasses import replace
+        out = []
+        for x in xs:
+            hit = (x, None, None)
+            z = z_lo
+            while z <= z_hi + 1e-9:
+                d = replace(self, hopper_out_x=float(x), hopper_out_z=float(z)).sleeve_take_up_design()
+                if d is not None:
+                    hit = (x, z, d)
+                    break
+                z += z_step
+            out.append(hit)
+        return out
 
     def hose_take_up_by_elev_max(self, maxes=(15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0)):
         """(top elevation, take-up mm or None) with the hose fitted over elev_min..that top elevation instead of the

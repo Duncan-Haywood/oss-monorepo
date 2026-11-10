@@ -204,21 +204,6 @@ class FeederParamsTest(unittest.TestCase):
         # a sloppy build eats the margin
         self.assertLess(Feeder(plate_slot_play_mm=4.0, seat_gap_mm=1.0).axle_squaring()["margin"], a["margin"])
 
-    def test_track_tie_loads_are_statics_of_the_spring_force(self):
-        p = Feeder()
-        t = p.track_tie()
-        d = p.take_up_design()
-        self.assertAlmostEqual(t["span_mm"], d["track_mm"] - 60.0)
-        self.assertAlmostEqual(t["force_n"], d["spring_n"] * p.hose_snatch)
-        self.assertAlmostEqual(t["couple_n"] * t["span_mm"], t["force_n"] * p.carriage_offset_mm)
-        self.assertAlmostEqual(t["resultant_n"], math.hypot(t["axial_n"], t["couple_n"]))
-        self.assertTrue(t["ok"])
-        # the factor falls as the load grows, and the limit tension is where it reaches the minimum
-        self.assertLess(p.track_tie(20.0)["factor"], t["factor"])
-        self.assertAlmostEqual(p.track_tie(t["limit_tension_n"])["factor"], p.tie_min_factor)
-        self.assertFalse(Feeder(slot_nut_pull_n=5.0).track_tie()["ok"])
-        self.assertIsNone(Feeder(hopper_out_z=1560.0).track_tie())
-
     def test_launch_checks_tie_the_head_to_the_flight_model(self):
         p = Feeder()
         self.assertAlmostEqual(p.nip_len, 74.0, delta=0.5)
@@ -247,16 +232,15 @@ class FeederParamsTest(unittest.TestCase):
         self.assertAlmostEqual(p.mouth_world(0.0)[0], p.head_x + p.feed_col_x, places=6)
 
     def test_hose_end_directions_show_the_gap_the_chord_check_hides(self):
-        # Outlet straight down, socket along the tilted column: at the shipped outlet height some pose has no
-        # curve within the bend and fall limits; raised, every pose fits but not with one cut length.
-        self.assertIsNone(Feeder(hopper_out_z=1560.0).hose_take_up_mm())
-        raised = Feeder()
-        self.assertEqual(raised.hopper_out_z, 1700.0)
+        # Outlet straight down, socket along the tilted column: at a low outlet some pose has no curve within the
+        # bend and fall limits; at the 2026-11-04 outlet every pose fits but not with one cut length.
+        self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1560.0).hose_take_up_mm())
+        raised = Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0)
         self.assertTrue(all(x is not None for _, x in raised.hose_pose_ranges()))
         self.assertGreater(raised.hose_take_up_mm(), 200.0)
         # A single floating pulley moves half the hose it pays out.
         self.assertAlmostEqual(raised.take_up_stroke_mm(), raised.hose_take_up_mm() / 2)
-        self.assertIsNone(Feeder(hopper_out_z=1560.0).take_up_stroke_mm())
+        self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1560.0).take_up_stroke_mm())
 
     def test_every_extra_degree_of_nose_up_costs_the_hose_take_up(self):
         r = Feeder().hose_take_up_by_elev_max()
@@ -267,7 +251,7 @@ class FeederParamsTest(unittest.TestCase):
         self.assertTrue(all(x is not None for _, x in Feeder(hose_min_bend=100.0).hose_pose_ranges()[1:4]))
 
     def test_take_up_design_reaches_every_pose_with_the_stroke(self):
-        p = Feeder()
+        p = Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0)   # the pulley's sizing, kept for comparison
         t = p.take_up_design()
         self.assertTrue(t["ok"])
         self.assertAlmostEqual(t["stroke_mm"], p.take_up_stroke_mm(), places=6)
@@ -276,20 +260,56 @@ class FeederParamsTest(unittest.TestCase):
         for e, xlo, xhi in t["poses"]:       # the pulley can reach a position inside every pose's window
             self.assertLessEqual(xlo, t["stroke_mm"] + 1e-9)
             self.assertLessEqual(xlo, xhi)
-        self.assertIsNone(Feeder(hopper_out_z=1560.0).take_up_design())
+        self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1560.0).take_up_design())
+
+    def test_a_pulley_loop_cannot_carry_balls(self):
+        # A hose wrapped round a horizontal axle turns by the wrap angle; from straight down it may turn only until
+        # it reaches the minimum fall, so a ball-carrying hose wraps at most 90 - 30 = 60 deg, not the 180 a floating
+        # pulley needs.
+        p = Feeder()
+        self.assertAlmostEqual(p.pulley_wrap_max_deg(), 60.0)
+        self.assertFalse(p.pulley_take_up_passes_balls())
+        self.assertFalse(Feeder(feed_min_slope_deg=0.0).pulley_take_up_passes_balls())
+
+    def test_sleeve_take_up_fits_every_pose_and_the_old_outlet_does_not(self):
+        p = Feeder()
+        t = p.sleeve_take_up_design()
+        self.assertIsNotNone(t)
+        lo, hi = t["free_mm"]
+        self.assertAlmostEqual(hi - lo, t["stroke_mm"])
+        # the sleeve holds the stroke, the collar, the gap under the shelf and the end margin
+        self.assertGreaterEqual(t["sleeve_mm"] + 1e-9, t["stroke_mm"] + p.sleeve_overlap_mm + p.collar_h_mm + p.sleeve_top_mm)
+        self.assertAlmostEqual(t["start_z"], p.hopper_out_z - t["sleeve_mm"])
+        # every pose has a free length inside the stroke, re-checked from the sleeve's lower end
+        r = p._ranges_from(p.hopper_out_x, t["start_z"])
+        for (e, (rlo, rhi)), (e2, xlo, xhi) in zip(r, t["poses"]):
+            self.assertEqual(e, e2)
+            self.assertTrue(rlo <= lo + xlo + 1e-6 <= rhi + 1e-6, e)
+            self.assertLessEqual(xlo, t["stroke_mm"] + 1e-9)
+        # the collar stays in the tube: highest under its top end, lowest the overlap above its bottom
+        hi_d, lo_d = t["collar_travel"]
+        self.assertGreaterEqual(hi_d - p.collar_h_mm, p.sleeve_top_mm - 1e-9)
+        self.assertAlmostEqual(lo_d, t["sleeve_mm"] - p.sleeve_overlap_mm)
+        # the outlet the pulley was sized at (x -330, z 1700) has no sleeve that works
+        self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0).sleeve_take_up_design())
 
     def test_take_up_parts_match_the_design(self):
-        from otr_cad.feeder import take_up_parts
+        from otr_cad.feeder import _sleeve_d, take_up_parts
         p = Feeder()
-        t = p.take_up_design()
+        t = p.sleeve_take_up_design()
         parts = {x.name: x for x in take_up_parts(p)}
-        self.assertEqual(set(parts), {"take_up_track", "take_up_tie", "take_up_carriage", "take_up_pulley", "take_up_spring"})
-        self.assertEqual(parts["take_up_tie"].qty, 2)
-        bb = parts["take_up_track"].placed()[0].bounding_box()
-        self.assertAlmostEqual(bb.max.Z - bb.min.Z, t["track_mm"], places=3)
-        pb = parts["take_up_pulley"].placed()[0].bounding_box()
-        self.assertGreater(pb.max.X - pb.min.X, t["pulley_d_mm"] + p.hose_od)   # flanges stand proud of the groove
-        self.assertEqual(take_up_parts(Feeder(hopper_out_z=1560.0)), [])
+        self.assertEqual(set(parts), {"take_up_sleeve", "take_up_collar", "take_up_spring"})
+        sb = parts["take_up_sleeve"].placed()[0].bounding_box()
+        self.assertAlmostEqual(sb.max.Z - sb.min.Z, t["tube_mm"], places=3)
+        self.assertAlmostEqual(sb.min.Z, t["start_z"], places=3)
+        bore, od = _sleeve_d(p)
+        self.assertGreater(bore, p.hose_od)
+        cb = parts["take_up_collar"].placed()[0].bounding_box()
+        self.assertTrue(sb.min.Z < cb.min.Z and cb.max.Z < sb.max.Z)   # the collar is inside the tube
+        self.assertLess((parts["take_up_collar"].placed()[0] & parts["take_up_sleeve"].placed()[0]).volume, 1.0)
+        # a ball dropping down the sleeve meets a funnel, not the hose's rim: the funnel's top is wider than the ball
+        self.assertGreater(bore - 2.0 - 6.0, p.ball_d)
+        self.assertEqual(take_up_parts(Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0)), [])
 
     def test_bow_radius_is_the_circular_arc_bound(self):
         import math

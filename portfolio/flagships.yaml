@@ -247,13 +247,15 @@ flagships:
       plates (checks for one-ball metering, column and wheel clearance, tub
       capacity, hose slope and bend radius, shuttle clear when advanced;
       cad/README.md "Feed"); a printed front retainer (two flexure arms, strain,
-      hold and pull-through forces checked) landed 2026-10-22. Post bracing, hose routing, the 1700 mm outlet and the take-up (sizing, then pulley, carriage, track and spring as parts) landed 2026-11-03 to 11-05 (cad/README.md). Next: the track's frame tie and hose clips, then the
-      actuator brackets (shuttle and elevation) and azimuth drive, then the netting
-      trough that rolls balls to the hopper inlet. Launch window landed 2026-11-08
-      (`Feeder.launch_window`: 17.9 to 26.8 m/s at 3000 rpm topspin, none at 4000);
-      plate clearance landed 2026-11-09 (3.5 deg yaw tolerance, cad/README.md);
-      wheel-axle squaring stack landed 2026-11-09 (`Feeder.axle_squaring`: 0.75 deg worst case, 4.7x inside the 3.5 deg;
-      assumed tolerances, measure the first build). track tie loads landed 2026-11-10 (`Feeder.track_tie`: 104x slot-nut margin, assumed). Tie brackets as CAD landed 2026-11-10 (`take_up_tie`, 2 printed plates). Next: the hose-clip brackets as CAD, then the actuator brackets.
+      hold and pull-through forces checked) landed 2026-10-22. Post bracing, hose routing and launch,
+      plate-clearance and axle-squaring checks landed 2026-11-03 to 11-09 (cad/README.md). The take-up was
+      replaced 2026-11-10: the floating pulley's 180 deg wrap sent balls uphill (a ball-carrying hose may wrap
+      60 deg at most), so the hose's top end now slides in a 275 mm rigid sleeve under the outlet
+      (`Feeder.sleeve_take_up_design`, sleeve, collar and socket as CAD), which moved the outlet to x -400,
+      z 2000 (tub rim about 2.3 m; +30 deg nose-up would allow z 1875). Next: hang a real hose from a tube to
+      check the slide and the Bezier proxy (needs a person); the spring drum's bracket; then the actuator
+      brackets (shuttle and elevation) and azimuth drive, then the netting trough that rolls balls to the
+      hopper inlet; consider a lower, rear-mounted tub with a longer base if 2.3 m is too high to fill.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

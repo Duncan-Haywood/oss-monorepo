@@ -23,6 +23,7 @@ from build123d import (
     Box,
     BuildSketch,
     Circle,
+    Cone,
     Cylinder,
     Location,
     Locations,
@@ -36,6 +37,7 @@ from .collector import ROT_XZ, ROT_Y_AXIS, Part, _holes
 from .params import Feeder
 
 BATTERY_X = -450.0  # battery centre on the deck
+SPIGOT_BOLT_R = 64.0  # M4 ring of the sleeve socket under the shelf (48 until 2026-11-10; the sleeve's wall now sits there)
 
 
 # ---------------------------------------------------------------- helpers
@@ -213,7 +215,7 @@ def hopper_shelf(p: Feeder) -> Part:
         _holes([((x + 0.0 - cx) / math.cos(s), y) for x, y in _shelf_posts(p)], 5.5)
         with Locations((a_o, 0)):
             Circle(80.0 / 2, mode=Mode.SUBTRACT)
-        _holes([(a_o + x, y) for x, y in _ring(48.0, 4, 45)], 4.4)
+        _holes([(a_o + x, y) for x, y in _ring(SPIGOT_BOLT_R, 4, 45)], 4.4)
         with Locations((0, p.tub_w / 2 + 12), (0, -p.tub_w / 2 - 12)):
             SlotOverall(60, 6, mode=Mode.SUBTRACT)  # a 25 mm strap over the tub each side
     face = sk.sketch
@@ -221,7 +223,7 @@ def hopper_shelf(p: Feeder) -> Part:
     return Part("hopper_shelf", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
                 [Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))], flat=face, thickness=p.plate_t,
                 notes=f"Tub shelf, falls {p.shelf_slope_deg:g} deg toward the net so balls roll to the outlet. "
-                      "Posts bolt up through it (M5, end-tapped), the outlet spigot under the outlet hole.")
+                      "Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole.")
 
 
 # ---------------------------------------------------------------- feed parts (printed)
@@ -292,17 +294,34 @@ def feed_shuttle(p: Feeder) -> Part:
                       f"while it moves {p.feed_stroke:g} mm forward. Drawn retracted (pocket under the column). 6 walls.")
 
 
+def _sleeve_d(p: Feeder) -> tuple[float, float]:
+    """(bore, outside diameter) of the take-up sleeve."""
+    bore = p.hose_od + p.sleeve_clear_mm
+    return bore, bore + 2 * p.sleeve_wall_mm
+
+
 def hopper_spigot(p: Feeder) -> Part:
-    flange = Cylinder(55.0, 5.0).moved(Location((0, 0, -2.5)))
-    tube = Cylinder((p.hose_od + 8.0) / 2, 45.0).moved(Location((0, 0, -27.5)))
-    blk = flange + tube
-    blk = blk - Cylinder(80.0 / 2, 60.0).moved(Location((0, 0, -5.0)))
-    blk = blk - Cylinder((p.hose_od + 0.5) / 2, 40.0).moved(Location((0, 0, -30.0)))
-    for x, y in _ring(48.0, 4, 45):
-        blk = blk - Cylinder(2.0, 14).moved(Location((x, y, -4.0)))
+    """Socket under the shelf's outlet that holds the take-up sleeve upright (2026-11-10; until then a hose socket).
+    A flange on the sloped shelf and a vertical cup the sleeve's top end pushes into, cut flush with the shelf."""
+    s = math.radians(p.shelf_slope_deg)
+    bore, od = _sleeve_d(p)
     ox, oz = p.hopper_out_x, p.hopper_out_z
-    return Part("hopper_spigot", "print", "PETG", 1, blk, [Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))],
-                notes="Hose socket under the shelf's outlet hole: M4 heat-set inserts, flange against the shelf. 6 walls.")
+    shelf = Location((ox, 0, oz), (0, p.shelf_slope_deg, 0))
+    flange = Cylinder(SPIGOT_BOLT_R + 10.0, 5.0).moved(Location((0, 0, -2.5))).moved(shelf)
+    top = oz - p.sleeve_top_mm                         # sleeve's top end, under the flange all round
+    cup_h = 40.0
+    z_hi = oz + (od / 2 + 6.0) * math.tan(s) + 2.0     # reaches the shelf plane all round, then cut flush
+    cup = Cylinder(od / 2 + 6.0, z_hi - (top - cup_h)).moved(Location((ox, 0, (z_hi + top - cup_h) / 2)))
+    blk = flange + cup
+    blk = blk - Box(400.0, 400.0, 200.0).moved(Location((0, 0, 100.0))).moved(shelf)    # nothing above the shelf
+    blk = blk - Cylinder(80.0 / 2, 400.0).moved(Location((ox, 0, oz)))                 # ball passage, as the shelf hole
+    blk = blk - Cylinder((od + 0.5) / 2, cup_h).moved(Location((ox, 0, top - cup_h / 2)))
+    blk = blk - Box(30.0, 10.0, cup_h + 2.0).moved(Location((ox - od / 2 - 5.0, 0, top - cup_h / 2)))  # the sleeve's slot, carried on
+    for x, y in _ring(SPIGOT_BOLT_R, 4, 45):
+        blk = blk - Cylinder(2.0, 14).moved(Location((x, y, -4.0))).moved(shelf)
+    return Part("hopper_spigot", "print", "PETG", 1, blk, [Location((0, 0, 0))],
+                notes=f"Sleeve socket under the shelf's outlet hole: flange on the sloped shelf (M4 heat-set inserts), a vertical "
+                      f"cup {od + 0.5:g} mm across and {cup_h:g} mm deep for the sleeve's top end. Print flange down, 6 walls.")
 
 
 # ---------------------------------------------------------------- printed parts
@@ -433,71 +452,59 @@ def poles(p: Feeder) -> list[Part]:
 
 
 def feed_hose(p: Feeder) -> Part:
-    return Part("feed_hose", "stock", "flexible hose", 1, Cylinder(p.hose_od / 2, p.hose_len),
-                [],  # a hose's pose changes with the head; checked by chord and bow in params, not as a solid
-                spec=f"{p.hose_id:g} mm ID smooth-bore flexible hose ({p.hose_od:g} mm OD), cut {p.hose_len:g} mm",
-                notes=f"Hopper outlet to the column socket. Longest chord {max(c for _, c, _ in p.hose_chords()):.0f} mm; "
+    t = p.sleeve_take_up_design()
+    cut = t["hose_cut_mm"] if t else p.hose_len
+    return Part("feed_hose", "stock", "flexible hose", 1, Cylinder(p.hose_od / 2, cut),
+                [],  # a hose's pose changes with the head; checked by end-direction curves in params, not as a solid
+                spec=f"{p.hose_id:g} mm ID smooth-bore flexible hose ({p.hose_od:g} mm OD), cut {cut:g} mm",
+                notes=f"Take-up sleeve's lower end to the column socket (sleeve_take_up_design). Longest chord {max(c for _, c, _ in p.hose_chords()):.0f} mm; "
                       f"bows to {p.hose_bow_radius():.0f} mm radius at the closest pose; needs {p.hose_min_bend:g}. "
-                      "Hose clips at both sockets (hose clamps, 80-90 mm).")
+                      "Top end bonded into the take-up collar; a hose clamp at the column socket.")
 
 
 def take_up_parts(p: Feeder) -> list[Part]:
-    """The floating-pulley hose take-up sized by `Feeder.take_up_design` (2026-11-05): a 2040 track beside the +y x-brace,
-    a printed pulley (groove at the hose's minimum bend radius) on a printed carriage, and a constant-force spring.
-    Shown mid-stroke. Not modelled: the bracket that ties the track to the hopper frame, the axle and bearings, the
-    hose clips, and the spring's anchor."""
-    t = p.take_up_design()
+    """The sleeve take-up sized by `Feeder.sleeve_take_up_design` (2026-11-10; it replaces the floating pulley, whose
+    180 deg wrap sent balls uphill). A rigid tube hangs from the outlet socket; a printed collar bonded on the hose's top
+    end slides in it, held up by a constant-force spring whose band runs down a slot in the tube's rear wall to a tab on
+    the collar. Balls drop straight down the tube and into the collar's funnel. Shown at the 0 deg pose (collar highest).
+    Not modelled: the spring's band, the adhesive joint."""
+    t = p.sleeve_take_up_design()
     if t is None:
         return []
-    w, h = p.rail_w, p.rail_h
-    r = t["pulley_d_mm"] / 2                       # groove centre-line radius = hose minimum bend radius
-    hr = p.hose_od / 2
-    rf = r + hr + 6.0                              # flange radius
-    gw = p.hose_od + 4.0
-    core = Cylinder(r - hr, gw).moved(Location((0, 0, 0), ROT_Y_AXIS))
-    fl = [Cylinder(rf, 5.0).moved(Location((0, s * (gw / 2 + 2.5), 0), ROT_Y_AXIS)) for s in (-1, 1)]
-    pulley = core + fl[0] + fl[1]
-    pulley = pulley - Cylinder(8.0, gw + 20).moved(Location((0, 0, 0), ROT_Y_AXIS))      # 16 mm axle bore
-    y_track = -(p.shelf_post_y + 20 + 20 + h / 2 + 15.0 + 5.0)                           # clear of the -y x-brace (to y = -265)
-    z0 = p.rail_top + p.plate_t + 40.0
-    L = t["track_mm"]
-    x_track = p.post_rear_x
-    track = Part("take_up_track", "stock", "aluminium extrusion", 1, Box(w, h, L),
-                 [Location((x_track, y_track, z0 + L / 2))],
-                 spec=f"2040 T-slot, cut {L:.0f} mm, M5 tapped both ends",
-                 notes=f"Vertical, outboard of the -y hopper brace. Carries the take-up carriage over a {t['stroke_mm']:.0f} mm stroke "
-                       f"(one pulley diameter and 30 mm each end besides). The tie to the hopper frame is not modelled.")
-    # Tie brackets (2026-11-10): two printed L-plates, 30 mm in from each track end (`Feeder.track_tie`), each bolted by
-    # two M5 slot nuts to the track's inboard face and by two to the +y... outer face of the rear post on that side.
-    tie_z = [z0 + p.tie_margin_mm, z0 + L - p.tie_margin_mm]
-    y_post = -p.shelf_post_y                               # centre of the -y rear hopper post
-    y_in = y_track + h / 2                                 # track's inboard face (toward the post)
-    y_post_out = y_post - h / 2                            # post's outboard face
-    gap = y_in - y_post_out                                # span the bracket bridges (the track sits clear of the post)
-    bt = 6.0                                               # plate thickness
-    plate = Box(bt, abs(gap) + 2 * 20.0 + bt, w + 20.0)    # lies across the gap, on the net-side face
-    plate = plate.moved(Location((0, (y_in + y_post_out) / 2 - y_track, 0)))
-    tie = Part("take_up_tie", "print", "PETG", 2, plate,
-               [Location((x_track + w / 2 + bt / 2, y_track, zt)) for zt in tie_z],
-               notes="Flat plate on the net-side face of the track and of the rear -y post, two M5 button heads into slot nuts at each "
-                     f"end, {abs(gap):.0f} mm between them. Slot-nut pull-out is assumed, see Feeder.track_tie.")
-    cw = 60.0
-    carriage = Box(cw, h + 30.0, 80.0) - Box(w + 0.5, h + 0.5, 90.0)
-    mid = z0 + L / 2
-    y_pul = y_track - (h / 2 + 15.0 + gw / 2 + 5.0 + 5.0)
-    out = [track, tie,
-           Part("take_up_carriage", "print", "PETG", 1, carriage.moved(Location((0, 0, 0))),
-                [Location((x_track, y_track, mid))],
-                notes="Slides on the track on the T-slot nuts; the pulley axle (16 mm bolt) goes through its side. 6 walls."),
-           Part("take_up_pulley", "print", "PETG", 1, pulley,
-                [Location((x_track, y_pul, mid))],
-                notes=f"{2 * rf:g} mm flanges: bigger than a common print bed, so print in four quadrants and bolt together. "
-                      f"Groove radius {r:g} mm (the hose's minimum bend), hose OD {p.hose_od:g} mm. 16 mm axle on two 6003 bearings."),
-           Part("take_up_spring", "cots", "", 1, Cylinder(25.0, 40.0),
-                [Location((x_track - 40.0, y_track, z0 + L - 20.0))],
-                spec=f"Constant-force spring, {t['spring_n']:g} N (assumed: twice a {t['spring_n'] / 2:g} N hose tension), "
-                     f"at least {t['stroke_mm']:.0f} mm of travel")]
-    return out
+    bore, od = _sleeve_d(p)
+    ox, oz = p.hopper_out_x, p.hopper_out_z
+    top, bottom = oz - p.sleeve_top_mm, t["start_z"]
+    L = top - bottom
+    slot_w = 10.0
+    # the collar's tab (12 mm tall, at its top) runs in a slot from the tube's top end to 10 mm under its lowest position
+    slot_z0 = oz - t["collar_travel"][1] + p.collar_h_mm - 12.0 - 10.0
+    tube = Cylinder(od / 2, L) - Cylinder(bore / 2, L + 2)
+    tube = tube - Box(p.sleeve_wall_mm * 4, slot_w, top - slot_z0 + 1.0).moved(
+        Location((-od / 2, 0, (top + 1.0 + slot_z0) / 2 - (top + bottom) / 2)))
+    sleeve = Part("take_up_sleeve", "stock", "rigid tube", 1, tube, [Location((ox, 0, (top + bottom) / 2))],
+                  spec=f"Rigid round tube, {bore:g} mm bore, about {od:g} mm OD, cut {L:.0f} mm; slot {slot_w:g} mm wide "
+                       f"in the rear wall from the top end down {top - slot_z0:.0f} mm",
+                  notes=f"Hangs from the outlet socket, open at the bottom. The hose's collar slides {t['stroke_mm']:.0f} mm in it "
+                        f"(free hose {t['free_mm'][0]:.0f} to {t['free_mm'][1]:.0f} mm over the elevation range). Deburr the bore.")
+    cd = bore - 2.0
+    tab = 12.0
+    collar = Cylinder(cd / 2, p.collar_h_mm) + Box(tab + (od - cd) / 2 + 2.0, slot_w - 2.0, 12.0).moved(
+        Location((-(cd / 2 + (tab + (od - cd) / 2 + 2.0) / 2 - 1.0), 0, p.collar_h_mm / 2 - 6.0)))
+    sock = 25.0
+    collar = collar - Cylinder((p.hose_od + 0.5) / 2, sock).moved(Location((0, 0, -p.collar_h_mm / 2 + sock / 2)))
+    funnel_h = p.collar_h_mm - sock
+    collar = collar - Cone(p.hose_id / 2, (cd - 6.0) / 2, funnel_h + 0.02).moved(
+        Location((0, 0, p.collar_h_mm / 2 - funnel_h / 2 + 0.01)))
+    z_collar = oz - t["collar_travel"][0] + p.collar_h_mm / 2
+    col = Part("take_up_collar", "print", "PETG", 1, collar, [Location((ox, 0, z_collar))],
+               notes=f"Bond the hose's top end {sock:g} mm into the socket. The funnel narrows {cd - 6:g} to {p.hose_id:g} mm so a ball "
+                     f"dropping down the sleeve cannot catch the hose's rim. The tab through the sleeve's slot takes the spring's "
+                     f"band and keeps the collar from turning. Print funnel up, 6 walls.")
+    spring = Part("take_up_spring", "cots", "", 1, Cylinder(25.0, 30.0).moved(Location((0, 0, 0), ROT_Y_AXIS)),
+                  [Location((ox - od / 2 - 45.0, 0, top - 35.0))],
+                  spec=f"Constant-force spring, {t['spring_n']:g} N (assumed: holds the hose's top end against a {t['spring_n']:g} N "
+                       f"hose pull), at least {t['stroke_mm'] + 20:.0f} mm of band, drum on a bracket behind the sleeve")
+    return [sleeve, col, spring]
 
 
 def envelopes(p: Feeder) -> list[Part]:
@@ -581,12 +588,13 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M8 x 60 bolt + nyloc nut", 2, "idler axles"),
         ("M10 T-nut (levelling foot)", 2, "beam ends"),
         ("M4 x 12 socket cap screw (feed)", 8, "feed floor and roof to the head plates (through the plates, into inserts)"),
-        ("M4 heat-set insert, 5.7 mm long (feed)", 8 + 4, "feed floor, roof and hopper spigot"),
-        ("M4 x 10 socket cap screw (spigot)", 4, "hopper spigot to the shelf"),
+        ("M4 heat-set insert, 5.7 mm long (feed)", 8 + 4, "feed floor, roof and sleeve socket"),
+        ("M4 x 10 socket cap screw (spigot)", 4, "sleeve socket to the shelf"),
         ("M5 x 16 button head (hopper)", 4 + 4, "posts to the deck (from below) and to the shelf"),
         ("M5 T-nut or tapped end (hopper)", 8, "posts, deck and shelf"),
         ("2020 corner bracket with M5 screws and T-nuts", 6, "hopper braces, two per brace"),
-        ("Hose clamp, 80-90 mm", 2, "hose at the spigot and the column socket"),
+        ("Hose clamp, 80-90 mm", 1, "hose at the column socket"),
+        ("Flexible-PVC adhesive or epoxy", 1, "hose's top end into the take-up collar"),
         ("25 mm strap, 1 m", 2, "tub to the shelf"),
     ]
 
@@ -627,19 +635,21 @@ def hose_end_line(p: Feeder) -> str:
     return (f"hose with end directions: fits {fit}; "
             + ("one cut length fits every pose" if take <= 0 else
                f"no one cut length fits every pose: needs {take:.0f} mm of take-up ({p.take_up_stroke_mm():.0f} mm of "
-               f"travel on a floating-pulley reel; limiting nose-up to +30 deg would need "
-               f"{dict(p.hose_take_up_by_elev_max())[30.0]:.0f} mm; see take_up_design)"))
+               f"travel on a floating pulley, which cannot carry balls: its 180 deg wrap climbs, a ball-carrying hose may wrap "
+               f"{p.pulley_wrap_max_deg():.0f} deg at most; limiting nose-up to +30 deg would need "
+               f"{dict(p.hose_take_up_by_elev_max())[30.0]:.0f} mm; see take_up_line for the sleeve that replaces it)"))
 
 
 def take_up_line(p: Feeder) -> str:
-    t = p.take_up_design()
+    t = p.sleeve_take_up_design()
     if t is None:
-        return "take-up: not sized (some pose has no hose fit)"
+        return ("take-up: NO sleeve fits (the outlet is too low for a vertical sleeve plus one falling curve at every pose; "
+                "Feeder.lowest_sleeve_outlet finds the height that works)")
     ps = "; ".join(f"{e:+.0f} deg {a:.0f}-{b:.0f}" for e, a, b in t["poses"])
-    return (f"take-up: floating pulley {t['pulley_d_mm']:g} mm across (twice the {p.hose_min_bend:g} mm bend radius) on a "
-            f"{t['track_mm']:.0f} mm track, {t['stroke_mm']:.0f} mm stroke, hose {t['fixed_mm']:.0f} mm fixed plus twice the travel; "
-            f"travel allowed per pose {ps} mm; spring {t['spring_n']:g} N (assumed); "
-            f"{'every pose reachable' if t['ok'] else 'POSE WINDOW EMPTY'}")
+    return (f"take-up: sleeve {t['sleeve_id_mm']:g} mm bore, {t['tube_mm']:.0f} mm long, under the outlet; the hose's collar "
+            f"slides {t['stroke_mm']:.0f} mm in it, so the free hose runs {t['free_mm'][0]:.0f} to {t['free_mm'][1]:.0f} mm "
+            f"from {t['start_z']:.0f} mm up; slide allowed per pose {ps} mm; hose cut {t['hose_cut_mm']:g} mm; spring "
+            f"{t['spring_n']:g} N (assumed); balls fall straight down the sleeve, then at least {p.feed_min_slope_deg:g} deg")
 
 
 def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_g: float = 0.0):
@@ -675,5 +685,5 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
-               "hose_bow_radius_mm": round(p.hose_bow_radius()), "hose_take_up_mm": None if p.hose_take_up_mm() is None else round(p.hose_take_up_mm()), "tub_capacity_balls": p.tub_capacity(), "hopper_load_n": round(p.hopper_load_n), "brace_x_n": round(p.brace_force_n("x")), "brace_y_n": round(p.brace_force_n("y")), "retain_pass_n": round(p.retain_pass_n, 1), "made_part_mass_kg": round(mass_g / 1000, 2)}
+               "hose_bow_radius_mm": round(p.hose_bow_radius()), "hose_cut_mm": (p.sleeve_take_up_design() or {}).get("hose_cut_mm"), "hose_take_up_mm": None if p.hose_take_up_mm() is None else round(p.hose_take_up_mm()), "tub_capacity_balls": p.tub_capacity(), "hopper_load_n": round(p.hopper_load_n), "brace_x_n": round(p.brace_force_n("x")), "brace_y_n": round(p.brace_force_n("y")), "retain_pass_n": round(p.retain_pass_n, 1), "made_part_mass_kg": round(mass_g / 1000, 2)}
     return checks, derived
