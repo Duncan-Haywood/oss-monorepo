@@ -1,9 +1,9 @@
 ---
 title: "A cheap chip-design check that fails on ties: 2,400 fresh SKY130 runs"
-seo_title: "Multi-fidelity chip design search on fresh SKY130 data: why ties in a cheap score break successive halving"
+seo_title: "Chip design search on fresh SKY130 data: ties break halving"
 date: 2026-11-10
 tags: [research, chip-design, verified-dse, open-source, sky130]
-description: "We reran 120 new ABC pass sequences through Yosys and OpenROAD on ten designs to test a search schedule we had picked on old data. It held, and the reason is one design with tied cheap scores."
+description: "2,400 fresh Yosys and OpenROAD runs test a chip search schedule picked on old data. It held, and the reason is one design whose cheap scores tie."
 ---
 
 Earlier today we wrote that [skipping the cheapest estimate](2026-11-10-verified-dse-skip-the-cheap-rung.md)
