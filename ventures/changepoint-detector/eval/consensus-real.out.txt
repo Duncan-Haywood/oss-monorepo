@@ -111,3 +111,32 @@ US personal saving rate, monthly 1967-2015; the 2008 financial-crisis jump (reca
   1998-01  3/6  mixed  most
   2005-11  3/6  up  most
   2009-07  3/6  mixed  most
+
+Puerto Rico daily deaths, 2015-2018; Hurricane Maria landfall 2017-09-20
+  n 1201, tolerance 24, settings 6; cuts per setting: 11, 11, 11, 8, 9, 6
+  documented 2017-09-20: 2017-10-07 found by 6/6 (all)
+  2016-02-28  6/6  down  all
+  2016-12-22  6/6  up  all
+  2017-02-03  6/6  down  all
+  2017-10-07  6/6  mixed  all
+  2018-03-17  5/6  down  most
+  2015-03-04  4/6  down  most
+  2015-12-16  4/6  up  most
+  2016-11-04  4/6  up  most
+  2015-01-07  3/6  down  most
+  2017-01-04  3/6  down  most
+
+Argentina quarterly log CPI change; the May 1989 hyperinflation peak and the April 1991 Convertibility Law
+  n 79, tolerance 2, settings 6; cuts per setting: 10, 3, 3, 7, 7, 5
+  documented 1989Q2: 1989Q2 found by 6/6 (all)
+  documented 1991Q2: not in the list
+  1985Q3  6/6  mixed  all
+  1989Q2  6/6  up  all
+  1976Q3  4/6  down  most
+  1982Q3  4/6  up  most
+  1975Q3  3/6  up  most
+
+British coal-mining disasters per year, 1851-1962; Coal Mines Regulation Act 1887 (recalled, no paper read)
+  n 112, tolerance 2, settings 6; cuts per setting: 1, 1, 1, 1, 2, 0
+  documented 1887: 1887 found by 4/6 (most)
+  1887  4/6  down  most

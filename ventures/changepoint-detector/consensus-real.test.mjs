@@ -33,3 +33,11 @@ test('third batch: airmiles 1946 by 4/6; UK gas 1970 by only 1/6 (negative); sav
   assert.match(out, /1999-04  6\/6  down  all/);
   assert.match(out, /2005-01  6\/6  down  all/);
 });
+
+test('fourth batch: Maria is inside a 6/6 group (span, not label), Argentina 1989Q2 by 6/6, 1991Q2 not listed, coal 1887 by 4/6', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 2017-09-20: 2017-10-07 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1989Q2: 1989Q2 found by 6\/6 \(all\)/);
+  assert.match(out, /documented 1991Q2: not in the list/);
+  assert.match(out, /documented 1887: 1887 found by 4\/6 \(most\)/);
+});
