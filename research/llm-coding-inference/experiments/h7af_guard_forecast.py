@@ -18,6 +18,11 @@ Prediction (written before this script first ran):
   P3  across all 36 cells, Spearman rho(ratio, q) <= -0.5, and |rho(ratio, q)| > |rho(ratio, n/N)|.
   Refuted: P1 if any cell misses; P2 if any q < 0.25 cell is outside [0.97, 1.04]; P3 if either inequality fails.
 
+Post-hoc (added after the first run refuted P1; not part of the prediction): the screen with tau 0 still needs
+J_hat >= 0, which fails whenever the pilot holds misses but no coder-positive human positive (sens_hat = 0). q2 is the
+share of 200,000 pilots, drawn as multivariate hypergeometric counts (TP, FN, FP, TN) of the population, with FN >= 3
+and J_hat >= 0, i.e. exactly the screen's condition. Reported with the same tolerance, and the rank correlations with n.
+
     python3 experiments/h7af_guard_forecast.py      # writes h7af_guard_forecast.txt; downloads NaijaSenti and GoEmotions on first use
 """
 import random
@@ -130,9 +135,22 @@ def spearman(a, b):
 def main():
     out = ["study | cell | n | N | n/N | pilot | misses in population | expected misses in pilot | forecast q % | "
            "observed % | |diff| | tolerance | width ratio guard-only/pooled"]
-    qs, ratios, shares, p1, p2 = [], [], [], [], []
+    import numpy as np
+    gen = np.random.default_rng(20261110)
+    qs, ratios, shares, p1, p2, q2s, p1b, ns, post, gap = [], [], [], [], [], [], [], [], [], []
     for study, label, h, f, pop, pilot, n, N, reps, obs, ratio in cells():
         misses = sum(1 for a, b in zip(h, f) if a and not b)
+        tp = sum(1 for a, b in zip(h, f) if a and b); fp = sum(1 for a, b in zip(h, f) if b and not a)
+        c = gen.multivariate_hypergeometric([tp, misses, fp, pop - tp - misses - fp], pilot, size=200_000).astype(float)
+        pos, neg = c[:, 0] + c[:, 1], c[:, 2] + c[:, 3]
+        with np.errstate(invalid="ignore", divide="ignore"):
+            j = np.where((pos > 0) & (neg > 0), c[:, 0] / pos + c[:, 3] / neg - 1, 0.0)
+        q2 = float(np.mean((c[:, 1] >= A.NEG_GUARD) & (j >= 0)))
+        tol2 = max(5.0, 300 * (q2 * (1 - q2) / reps) ** 0.5)
+        q3 = A.cells_probability(pilot, tp, misses, fp, pop)
+        p1b.append(abs(100 * q2 - obs) <= tol2); q2s.append(q2); ns.append(n); gap.append(abs(q3 - q2))
+        post.append(f"{study} | {label} | {n} | {N} | q {100*A.guard_fire_probability(pilot, misses, pop):.1f} | q2 {100*q2:.1f} | "
+                    f"exact {100*q3:.1f} | observed {obs:.0f} | |diff| {abs(100*q2-obs):.1f} | tol {tol2:.1f}")
         q = A.guard_fire_probability(pilot, misses, pop)
         tol = max(5.0, 300 * (q * (1 - q) / reps) ** 0.5)
         diff = abs(100 * q - obs)
@@ -148,6 +166,12 @@ def main():
             f"P2 cells with q < 0.25 inside [0.97, 1.04]: {sum(p2)}/{len(p2)} -> {'supported' if all(p2) else 'refuted'}",
             f"P3 Spearman rho(ratio, q) = {rq:.3f}, rho(ratio, n/N) = {rs:.3f} -> "
             f"{'supported' if rq <= -0.5 and abs(rq) > abs(rs) else 'refuted'}",
+            "",
+            "Post-hoc (not pre-registered): q2 = P(FN >= 3 and J_hat >= 0), the screen's exact condition, by 200,000 simulated pilots; exact = audit_design.cells_probability",
+            *post,
+            f"q2 within tolerance: {sum(p1b)}/{len(p1b)} cells; largest |exact (audit_design.cells_probability) - simulated| "
+            f"{100*max(gap):.2f} points",
+            f"Spearman rho(ratio, q2) = {spearman(ratios, q2s):.3f}, rho(ratio, n) = {spearman(ratios, ns):.3f}",
             "Planning rule (Poisson limit): the guard fires in 90% of pilots once the pilot expects 5.32 missed positives, "
             "i.e. pilot >= 5.32 / (prevalence x (1 - sensitivity)); `audit_design.pilot_for_guard` gives the exact size."]
     print("\n".join(out))

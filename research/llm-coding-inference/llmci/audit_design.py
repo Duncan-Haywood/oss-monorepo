@@ -174,3 +174,37 @@ def pilot_for_guard(prevalence, sensitivity, corpus, target=0.9, neg_guard=NEG_G
         else:
             lo = mid + 1
     return lo
+
+
+def cells_probability(pilot, hits, misses, false_pos, corpus, neg_guard=NEG_GUARD):
+    """Exact chance that `screen(..., tau=0, guard=0, neg_guard)` answers 'cells' for a simple random pilot of `pilot`
+    items from a corpus with `hits` coder-positive and `misses` coder-negative human positives and `false_pos`
+    coder-positive human negatives: P(FN >= neg_guard and J_hat >= 0) over the multivariate hypergeometric pilot counts.
+    J_hat >= 0 fails when the pilot's misses come with no hit (sens_hat = 0), which is why `guard_fire_probability`
+    overstates the share at small pilots with a weak coder (LOG.md 7af: 33.9% forecast against 18% observed for a
+    J 0.26 coder; this function gives 19.3%, and matches all 36 committed cells within 3.2 points). Terms under 1e-15
+    are dropped."""
+    from math import lgamma, exp
+
+    def lc(n, k):
+        return lgamma(n + 1) - lgamma(k + 1) - lgamma(n - k + 1)
+    neg_pop = corpus - hits - misses
+    if min(hits, misses, false_pos) < 0 or false_pos > neg_pop or pilot > corpus:
+        raise ValueError("counts must be non-negative and fit in the corpus")
+    total, tn_pop, p = lc(corpus, pilot), neg_pop - false_pos, 0.0
+    for a in range(neg_guard, min(misses, pilot) + 1):
+        for b in range(0, min(hits, pilot - a) + 1):
+            m = pilot - a - b
+            if m > neg_pop:
+                continue
+            lab = lc(misses, a) + lc(hits, b) + lc(neg_pop, m) - total
+            if lab < -35:
+                continue
+            # c = false positives among the m pilot negatives, hypergeometric; J_hat >= 0 iff c * (a + b) <= b * m
+            cmax = min(false_pos, m, (b * m) // (a + b))
+            cmin = max(0, m - tn_pop)
+            if cmax < cmin:
+                continue
+            base = lc(neg_pop, m)
+            p += exp(lab) * sum(exp(lc(false_pos, c) + lc(tn_pop, m - c) - base) for c in range(cmin, cmax + 1))
+    return min(1.0, p)

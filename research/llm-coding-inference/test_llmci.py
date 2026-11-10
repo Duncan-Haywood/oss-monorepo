@@ -360,3 +360,17 @@ def test_pilot_for_guard_is_the_smallest_pilot_reaching_the_target():
     assert S.guard_fire_probability(p, misses, 100_000) >= 0.9 > S.guard_fire_probability(p - 1, misses, 100_000)
     assert abs(p - 5.32 / (0.02 * 0.5)) < 15  # the Poisson planning rule
     assert S.pilot_for_guard(0.0001, 0.9, 1000) is None
+
+
+def test_cells_probability_matches_brute_force_screen():
+    import itertools
+    from llmci import audit_design as S
+    # corpus of 12: 2 hits, 4 misses, 3 false positives, 3 true negatives; every 6-item pilot through the real screen
+    y = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+    f = [1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0]
+    combos = list(itertools.combinations(range(12), 6))
+    hits = sum(1 for c in combos if S.screen([y[i] for i in c], [f[i] for i in c], tau=0.0, guard=0) == "cells")
+    assert abs(S.cells_probability(6, 2, 4, 3, 12) - hits / len(combos)) < 1e-12
+    # never above the guard-only tail, and equal to it when hits are plentiful
+    assert S.cells_probability(6, 2, 4, 3, 12) <= S.guard_fire_probability(6, 4, 12) + 1e-12
+    assert abs(S.cells_probability(400, 2000, 60, 50, 10000) - S.guard_fire_probability(400, 60, 10000)) < 1e-6
