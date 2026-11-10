@@ -110,6 +110,16 @@ longer read as a bounce. Internal mail, not replies to outreach, and labelled by
 agent: details and labels in [`eval/README.md`](eval/README.md), "Real mail: the Enron
 corpus".
 
+**Real opt-outs, 2026-11-10.** The other direction: of 113 distinct real
+"take me off this list" messages found in the rest of the Enron corpus (451,475
+messages, candidates chosen by a net written apart from the rules and read with
+the engine's answer hidden), the rules filed 103 as unsubscribe (91%) before
+any change. The ten misses ("please get me off", "delete me from the list",
+"do not send me these charts") went to a person as unclear or a question, but
+none stopped the sequence. Five narrow patterns now catch all but a typo, with
+no new wrong stop on either earlier Enron half. Internal distribution-list mail,
+one agent's labels: [`eval/README.md`](eval/README.md), "Real opt-outs".
+
 **Real delivery failures (2026-10-24).** The one real-message check so far: the
 117 bounce and auto-reply messages in flufl.bounce's test data (Apache-2.0,
 copied to [`eval/bounce-corpus/`](eval/bounce-corpus/NOTICE); Sendmail, Postfix,

@@ -334,6 +334,12 @@ const RULES = {
     P("配信を?停止"), P("配信解除"), P("退订"), P("取消订阅"), P("不要再(给我)?发"), P("请勿再(给我)?发"),
     P("\\b(refrain|desist) from (emailing|contacting|writing|messaging|reaching out)"), P("\\bstop (reaching out|contacting|emailing|writing|messaging)\\b"), P("\\btake me off\\b"),
     P("keine (werbung|weiteren (nachrichten|e-?mails|mails)|mails mehr)"), P("aus dem verteiler"), P("streichen sie mich"),
+    // Added 2026-11-10 from the first real opt-out recall set (eval/optout-recall.mjs, Enron 2*-f*; 103 of 113 caught before):
+    // "Please get me off.", "get me off whatever distribution list", "get my name taken off", "delete me from the list",
+    // "delete my name off the mailing list", "Please do not send me these charts", "do not send me any other solicitation".
+    P("\\bget (me|us) off\\b(?! (the |this |my |that )?(phone|hook|plane|bus|train|call|line|ground|couch))"), P("\\bget (my|our) (name|names|address|email|e-?mail address) (taken )?off\\b"),
+    P("\\bdel(e|ea)te (me|us|myself) (from|off)\\b"), P("\\bdel(e|ea)te (my|our) (name|names|address|email|e-?mail address) (from|off)\\b"),
+    P("\\b(do not|don'?t|dont) send (me|us) (these|this|those|any (other|more|further)|more|anything)\\b"),
   ],
   bounce: [
     P("\\bdelivery (status notification|has failed|failure)\\b"), P("\\bundeliverable\\b"), P("\\bmail delivery (subsystem|failed|system)\\b"), P("\\baddress (not found|couldn'?t be found|rejected)\\b"),
