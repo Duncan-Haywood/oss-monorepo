@@ -1396,6 +1396,64 @@ ${pages}
 }
 
 /**
+ * Printable team sheets: one page per team (its fixtures in date order: date, time, court, venue, home or away, opponent,
+ * official when assigned) with that team's duties on the nights it has one, folded into the fixture row; then a duty
+ * rota page (night by night, unfilled slots marked). `duties` is the result of assignDivisionDuties (optional).
+ * Teams that share a name in two divisions get one sheet each. Every typed string is escaped. Pure; no network.
+ */
+export function divisionsTeamSheetsHtml(schedule, { title = "Team sheets", contact = "", duties = null } = {}) {
+  const t = htmlEsc(String(title || "").trim() || "Team sheets");
+  const who = htmlEsc(String(contact || "").trim());
+  const withOfficial = schedule.nights.some((n) => n.matches.some((m) => m.official !== undefined));
+  const dutyOf = new Map(); // "division/team|day" -> [duty names]
+  for (const r of duties?.rows || []) {
+    const k = `${key2(r.division, r.team)}|${r.day}`;
+    if (!dutyOf.has(k)) dutyOf.set(k, []);
+    dutyOf.get(k).push(r.duty);
+  }
+  const teams = [];
+  const seen = new Set();
+  for (const d of schedule.divisions) for (const name of d.teams) {
+    const k = key2(d.name, name);
+    if (!seen.has(k)) { seen.add(k); teams.push({ division: d.name, team: name }); }
+  }
+  const withDuties = Boolean(duties);
+  const sheets = teams.map(({ division, team }) => {
+    const k = key2(division, team);
+    const rows = [];
+    let games = 0, jobs = 0;
+    for (const night of schedule.nights) for (const m of night.matches) {
+      if (m.division !== division || (m.homeName !== team && m.awayName !== team)) continue;
+      const home = m.homeName === team;
+      const dk = `${k}|${night.day}`, job = dutyOf.get(dk) || [];
+      dutyOf.delete(dk); // a team with two games that night carries the duty on its first row only
+      games++; jobs += job.length;
+      rows.push(`<tr><td>${htmlEsc(dayLabel(night.day))}</td><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.venue && m.venue !== m.court ? m.venue : "")}</td><td>${home ? "Home" : "Away"}</td><td class="n">${htmlEsc(home ? m.awayName : m.homeName)}</td>${withOfficial ? `<td>${htmlEsc(m.official ?? "")}</td>` : ""}${withDuties ? `<td class="d">${htmlEsc(job.join(", "))}</td>` : ""}</tr>`);
+    }
+    const summary = `${games} game${games === 1 ? "" : "s"}${withDuties ? `, ${jobs} dut${jobs === 1 ? "y" : "ies"}` : ""}`;
+    return `<section class="sheet"><h2>${htmlEsc(team)} <span>${htmlEsc(division)}</span></h2><p>${summary}</p><table><thead><tr><th>Date</th><th>Time</th><th>Court</th><th>Venue</th><th></th><th>Opponent</th>${withOfficial ? "<th>Official</th>" : ""}${withDuties ? "<th>Your duty</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table>${who ? `<p class="contact">Questions: ${who}</p>` : ""}</section>`;
+  }).join("\n");
+  let rota = "";
+  if (withDuties) {
+    const byDay = new Map();
+    for (const r of duties.rows) { if (!byDay.has(r.day)) byDay.set(r.day, []); byDay.get(r.day).push(`<li>${htmlEsc(r.duty)}: ${htmlEsc(r.team)} <span>(${htmlEsc(r.division)})</span></li>`); }
+    for (const u of duties.unfilled || []) { if (!byDay.has(u.day)) byDay.set(u.day, []); byDay.get(u.day).push(`<li class="gap">${htmlEsc(u.duty)}: no team free, find a volunteer</li>`); }
+    const days = [...byDay.keys()].sort((a, b) => a - b);
+    rota = `<section class="sheet"><h2>Duty rota</h2>${days.map((d) => `<h3>${htmlEsc(dayLabel(d))}</h3><ul>${byDay.get(d).join("")}</ul>`).join("")}</section>`;
+  }
+  return `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${t}</title>
+<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.4rem .5rem;text-align:left}td.n{font-weight:600}td.d{font-weight:600}h2 span,li span{font-weight:400;color:#555}.gap{color:#a00}.sheet{page-break-after:always;margin-bottom:2rem}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}h2 span,li span{color:#aaa}}@media print{body{background:#fff;color:#000}}</style></head>
+<body><h1>${t}</h1>
+${sheets}
+${rota}
+<footer>Made with the free league schedule generator. Check dates and venues with your organiser. <strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied.</footer>
+</body></html>
+`;
+}
+
+/**
  * An iCalendar file for the whole multi-division schedule, one division (`division`), or one team
  * (`team`, with `division` to tell apart teams that share a name). Times are floating local times;
  * `stamp` (YYYYMMDDTHHMMSSZ) is injectable for reproducible output; `minutes` is the game length.
@@ -1757,6 +1815,18 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
     const oe = validateDivisionOfficials(s, po.officials);
     if (oe.length) { console.error(oe.join("\n")); process.exit(1); }
     for (const u of a.unfilled) console.error(`No official: ${dayIso(u.day)} ${u.time || ""} ${u.division} ${u.home} v ${u.away} (${u.reason})`);
+  }
+  if (process.argv.includes("--team-sheets")) {
+    let dr = null;
+    if (raw.duties) {
+      const pd = parseDivisionDuties(raw.duties);
+      if (pd.errors.length) { console.error(pd.errors.join("\n")); process.exit(1); }
+      dr = assignDivisionDuties(s, pd.duties);
+      const de = validateDivisionDuties(s, pd.duties, dr);
+      if (de.length) { console.error(de.join("\n")); process.exit(1); }
+    }
+    process.stdout.write(divisionsTeamSheetsHtml(s, { title: raw.title || "Team sheets", contact: raw.contact || "", duties: dr }));
+    process.exit(0);
   }
   if (process.argv.includes("--duties")) {
     const pd = parseDivisionDuties(raw.duties);
