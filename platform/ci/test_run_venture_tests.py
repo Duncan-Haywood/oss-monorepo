@@ -19,12 +19,17 @@ class FakeVentures(unittest.TestCase):
         patcher.start()
         self.addCleanup(patcher.stop)
         self.addCleanup(self.tmp.cleanup)
-        wf = mock.patch.object(rvt, "WORKFLOWS", self.root / ".wf")
+        self.wf = self.root / ".wf"
+        self.wf.mkdir()
+        wf = mock.patch.object(rvt, "WORKFLOWS", self.wf)
         wf.start()
         self.addCleanup(wf.stop)
-        (self.root / ".wf").mkdir()
-        rvt.uncovered_python.cache_clear()
-        self.addCleanup(rvt.uncovered_python.cache_clear)
+        rvt.python_run_elsewhere.cache_clear()
+        self.addCleanup(rvt.python_run_elsewhere.cache_clear)
+
+    OWN_CI = ("jobs:\n  t:\n    defaults:\n      run:\n        working-directory: ventures/own\n"
+              "    steps:\n      - run: pip install pytest\n      - run: python3 -m pytest -q\n")
+    PY_PASS = "import unittest\nclass T(unittest.TestCase):\n    def test_x(self): self.assertTrue(True)\n"
 
     def venture(self, slug, files):
         for name, body in files.items():
@@ -57,56 +62,74 @@ class FakeVentures(unittest.TestCase):
         self.assertIn("timed out", out)
         self.assertLess(secs, 30)
 
-    PY_PASS = "import unittest\nclass T(unittest.TestCase):\n    def test_x(self): self.assertTrue(True)\n"
-    PY_FAIL = "import unittest\nclass T(unittest.TestCase):\n    def test_x(self): self.fail('no')\n"
-
-    def test_python_tests_no_workflow_runs_are_run_here(self):
-        # 2026-11-10: six ventures' Python tests had never run in CI.
-        self.venture("py", {"test_a.py": self.PY_PASS, "sub/test_b.py": self.PY_FAIL})
-        self.assertTrue(rvt.uncovered_python("py"))
-        self.assertEqual([c[0].name for c in rvt.commands("py")], ["py", "sub"])
-        slug, ok, out, _ = rvt.run("py")
-        self.assertFalse(ok)
-        self.assertIn("no", out)
-
-    def test_node_and_uncovered_python_both_run(self):
-        self.venture("mix", {"x.test.mjs": "import test from 'node:test'; test('t', () => {});",
-                             "test_a.py": self.PY_PASS})
-        self.assertEqual(len(rvt.commands("mix")), 2)
-        self.assertTrue(rvt.run("mix")[1])
-
-    def test_pytest_style_files_are_skipped_not_failed(self):
-        self.venture("pyt", {"test_a.py": "def test_x():\n    assert False\n"})
-        self.assertTrue(rvt.run("pyt")[1])
-
-    def test_python_a_workflow_runs_gets_a_note_not_a_rerun(self):
-        self.venture("own", {"tests/test_a.py": self.PY_FAIL})
-        (self.root / ".wf" / "own-ci.yml").write_text(
-            "jobs:\n  t:\n    steps:\n      - run: pip install pytest\n"
-            "      - run: python3 -m pytest tests/\n")
-        self.assertFalse(rvt.uncovered_python("own"))
-        self.assertEqual(rvt.commands("own"), [])
-        self.assertIn("own-ci.yml: `python3 -m pytest tests/`", rvt.python_test_note("own"))
-
-    def test_a_shared_workflow_counts_only_steps_run_in_the_venture(self):
-        self.venture("shared", {"test_a.py": self.PY_PASS})
-        (self.root / ".wf" / "other.yml").write_text(
-            "on:\n  push:\n    paths:\n      - 'ventures/shared/**'\n"
-            "jobs:\n  t:\n    steps:\n      - working-directory: research/x\n"
-            "        run: python3 -m unittest discover\n")
-        self.assertTrue(rvt.uncovered_python("shared"))
-        (self.root / ".wf" / "other.yml").write_text(
-            "jobs:\n  t:\n    steps:\n      - working-directory: ventures/shared\n"
-            "        run: python3 -m unittest discover\n")
-        rvt.uncovered_python.cache_clear()
-        self.assertFalse(rvt.uncovered_python("shared"))
-
     def test_ventures_without_tests_are_skipped(self):
         self.venture("d", {"index.html": "<p>"})
         self.venture("e", {"node_modules/dep/q.test.mjs": "throw 1"})
         self.assertFalse(rvt.has_tests("d"))
         self.assertFalse(rvt.has_tests("e"))
         self.assertFalse(rvt.has_tests("gone"))
+
+
+    def test_python_tests_run_where_no_workflow_of_its_own_does(self):
+        # stranded-branch-finder's 37 unittest cases ran in no CI before.
+        self.venture("py", {
+            "tool.py": "X = 1\n",
+            "test_tool.py": "import unittest, tool\n"
+                            "class T(unittest.TestCase):\n"
+                            "    def test_x(self): self.assertEqual(tool.X, 1)\n",
+        })
+        with mock.patch.object(rvt, "workflows_naming", return_value={}):
+            self.assertTrue(rvt.has_tests("py"))
+            slug, ok, out, _ = rvt.run("py")
+        self.assertTrue(ok, out)
+
+    def test_a_failing_python_test_fails_and_both_suites_run(self):
+        self.venture("mix", {
+            "a.test.mjs": "import test from 'node:test'; test('t', () => {});",
+            "tests/test_bad.py": "import unittest\n"
+                                 "class T(unittest.TestCase):\n"
+                                 "    def test_x(self): self.fail('boom')\n",
+        })
+        with mock.patch.object(rvt, "workflows_naming", return_value={}):
+            _, ok, out, _ = rvt.run("mix")
+        self.assertFalse(ok)
+        self.assertIn("boom", out)
+        self.assertIn("node --test", out)
+
+    def test_python_tests_are_left_to_a_venture_s_own_workflow(self):
+        self.venture("own", {"test_x.py": "raise SystemExit(1)\n"})
+        (self.wf / "own-ci.yml").write_text(self.OWN_CI)
+        self.assertFalse(rvt.has_tests("own"))
+        self.assertIn(".github/workflows/own-ci.yml: `python3 -m pytest -q`", rvt.skip_note("own"))
+
+    def test_a_workflow_that_only_names_the_path_does_not_cover_python(self):
+        # 2026-11-10: four ventures were named by a workflow (a trigger filter,
+        # a node step) that never ran their Python tests.
+        self.venture("shared", {"test_a.py": self.PY_PASS})
+        (self.wf / "other.yml").write_text(
+            "on:\n  push:\n    paths:\n      - 'ventures/shared/**'\n"
+            "jobs:\n  t:\n    steps:\n      - working-directory: research/x\n"
+            "        run: python3 -m unittest discover\n")
+        self.assertTrue(rvt.has_tests("shared"))
+        self.assertTrue(rvt.run("shared")[1])
+        (self.wf / "other.yml").write_text(
+            "jobs:\n  t:\n    steps:\n      - working-directory: ventures/shared\n"
+            "        run: python3 -m unittest discover\n")
+        rvt.python_run_elsewhere.cache_clear()
+        self.assertFalse(rvt.has_tests("shared"))
+
+    def test_pytest_style_files_unittest_cannot_see_are_not_a_failure(self):
+        self.venture("pyt", {"test_a.py": "def test_x():\n    assert False\n"})
+        self.assertTrue(rvt.run("pyt")[1])
+
+    def test_a_named_venture_without_a_suite_says_why(self):
+        self.venture("own", {"test_x.py": ""})
+        (self.wf / "own-ci.yml").write_text(self.OWN_CI)
+        with mock.patch("sys.stdout") as out:
+            self.assertEqual(rvt.main(["own", "gone"]), 0)
+        printed = "".join(c.args[0] for c in out.write.call_args_list if c.args)
+        self.assertIn("skip own: no *.test.mjs; its Python tests run in .github/workflows/own-ci.yml", printed)
+        self.assertIn("skip gone: no such venture", printed)
 
 
 class Report(unittest.TestCase):
@@ -128,7 +151,6 @@ class Selection(unittest.TestCase):
         # A push that creates a branch reports `before` as forty zeros.
         with mock.patch.object(rvt, "since_slugs") as since, \
                 mock.patch.object(rvt, "has_tests", return_value=False), \
-                mock.patch.object(rvt, "uncovered_python", return_value=False), \
                 mock.patch("sys.stdout"):
             rvt.main(["--since", "0" * 40])
             rvt.main(["--since", ""])
