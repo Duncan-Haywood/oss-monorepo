@@ -1,5 +1,19 @@
 # build-data log
 
+## Session 70, 2026-11-10: the loader now keeps a work-type class from the description (feeds unreachable again; rerun prediction written)
+
+Why: session 69 found Chicago's and Seattle's structured fields do not name the kind of work, so a retuned class map needs the description, which the loader kept only as a length. Every Socrata host answered 403 to CONNECT through this session's egress proxy at 20:10 UTC (as in session 68), so this session builds and tests the code path and writes the prediction; it reports no new number.
+- New `src/classmap.py` (stdlib): the session 10 map `RULES` moved here unchanged (every committed result reproduces; `transfer.py` and `other_vocab.py` import it), plus `DESC_RULES` for free text and `cascade(permit_type, work_class, desc_class)`, the first non-"other" class in that order. The description rules put whole-job phrases first (demolish/wreck; erect, "construct new", "new single family ..."), structural alteration words next, single trades after, generic repair words last, because a description lists trades inside bigger jobs and "new" alone ("install new water heater") is not new construction. They were written from documented field meanings and common permit phrasing, before any real description was classified with them; 16 description phrases in `tests/test_classmap.py` pin the intended behaviour, not its accuracy.
+- `src/permits.py` writes a `desc_class` column at pull time and still stores no description text (it can name people and addresses; only the class is needed).
+- `src/transfer.py --classes cascade` builds the class from the cascade and writes `*_cascade.json`; the default `type` is the old behaviour. `src/other_vocab.py` now also reports, per city, the share of permit-type "other" rows the cascade rescues and to which classes.
+Prediction for the first run with data (2024 test year, `--classes cascade`, 3 seeds; written before any description was classified):
+- (P1) The cascade gives a class other than "other" to at least half of the permit-type "other" rows in Chicago and in Seattle (`other_vocab.md`). Refuted below 50% in either city.
+- (P2) Seattle's a2i overlap with its source mix on the training years, without "other", rises from 0.006 (session 69, 2022) to at least 0.30. Refuted below 0.30.
+- (P3) Seattle a2i transfer is still worse than Seattle's own per-type baseline at q0.9 (95% week-block CI above zero): the upper-tail gap is a duration-distribution mismatch, not a class problem. Refuted if the CI includes or is below zero.
+- (P4) Seattle i2c transfer at q0.5 changes by less than 3 points of relative pinball loss from the type-only run (-10.7% in 2024): the generic fields carry what transfer gains. Refuted if it moves 3 points or more either way.
+- Limits: the description rules are unvalidated; P1 measures coverage, not correctness. A hand-labelled sample needs the text, which the loader deliberately drops, so validation needs a one-off local sample kept outside git.
+Next: pull with the new loader, run `other_vocab.py` and `transfer.py --classes cascade` against P1 to P4; hand-label about 200 descriptions per city (kept outside git) to measure the description rules' accuracy; full-model width bootstrap.
+
 ## Session 69, 2026-11-10: Seattle transfer in a third test year, 2022 (session 68's prediction run: it held), and why the class map cannot be retuned on permit type
 
 Why: session 68 wrote a prediction for the 2022 transfer test but could not pull the feeds. They answered again at 18:08 UTC; fresh four-feed pull 2026-11-10 (Chicago 852,615, SF 1,298,152, Austin 2,384,746, Seattle 194,184 rows; `results/manifest.json`). `python3.12 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2022` (source and own train to year <= 2020, early stopping on 2021, test 2022; code unchanged).

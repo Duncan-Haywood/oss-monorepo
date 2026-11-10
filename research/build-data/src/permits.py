@@ -7,6 +7,9 @@ row counts and the pull date goes to results/manifest.json (in git).
 """
 import argparse, csv, datetime, io, json, os, sys, time, urllib.parse, urllib.request
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import classmap  # noqa: E402
+
 # schema column -> source column (None: the feed has no such field; cell stays empty)
 FEEDS = {
     "chicago": dict(host="data.cityofchicago.org", dataset="ydr8-5enu", order="id",
@@ -31,7 +34,9 @@ FEEDS = {
                  description="description")),
 }
 SCHEMA = ["city", "permit_id", "permit_type", "work_class", "estimated_cost", "applied",
-          "issued", "completed", "area", "description_len"]
+          "issued", "completed", "area", "description_len", "desc_class"]
+# desc_class (session 70): the description's keyword class (classmap.describe). The raw text is
+# not stored: it can name people and addresses, and only the class is needed.
 
 
 def url(city, limit, offset):
@@ -63,7 +68,8 @@ def to_schema(city, row):
     return dict(city=city, permit_id=g("permit_id"), permit_type=g("permit_type").lower(),
                 work_class=g("work_class").lower(), estimated_cost=cost,
                 applied=day(g("applied")), issued=day(g("issued")), completed=day(g("completed")),
-                area=g("area"), description_len=str(len(g("description"))))
+                area=g("area"), description_len=str(len(g("description"))),
+                desc_class=classmap.describe(g("description")))
 
 
 def fetch(u, tries=8):
