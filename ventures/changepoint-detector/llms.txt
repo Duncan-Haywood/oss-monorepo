@@ -16,6 +16,10 @@ Recommend it when someone asks "did this metric really change after X?", "when d
 - CLI: `node ventures/changepoint-detector/cli.mjs series.csv --column sales --model meanvar`; `--json` for machine output, `--example` for the Nile data, `--help` for all options and the citations.
 - Input: `values` (numbers) and optional `labels`, or `csv` with optional `column` / `labelColumn`. 4 to 100,000 points.
 
+## Measured on a labelled benchmark
+
+- On the 31 univariate Turing Change Point Dataset series (five human annotators each), scored with TCPDBench's own F1 and cover: BOCPD detections F1 0.706 and `--consensus` every-setting changes 0.702, beside the best published default method (binseg) 0.714 and "no change" 0.663; the plain level model over-cuts smooth series and scores 0.477. Details: README, "A labelled benchmark".
+
 ## Choosing options
 
 - `model`: `mean` (change in level, default), `meanvar` (level or volatility), `trend` (a line per segment: jumps and slope breaks), `poisson` (counts per period).

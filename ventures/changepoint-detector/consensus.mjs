@@ -19,6 +19,20 @@ export const PANEL = [
   { name: 'trend, noise floor 1.5', opts: { model: 'trend', noiseFloor: 1.5 } },
 ];
 
+// Measured on the Turing Change Point Dataset (eval/tcpd.mjs, eval/tcpd.out.txt): 31 real
+// series marked by five annotators each, the default panel and tolerance, no per-series options.
+// The share of each tier's changes that lay within 5 points of an annotator's mark. Low on every
+// tier because the panel over-cuts long smooth series; the order (all > most > few) is the finding.
+export const TCPD_RATES = {
+  series: 31,
+  margin: 5,
+  all: { changes: 59, marked: 23, majority: 18 },
+  most: { changes: 319, marked: 90, majority: 43 },
+  few: { changes: 206, marked: 51, majority: 18 },
+};
+const pct = (a, b) => `${Math.round((100 * a) / b)}%`;
+export const TCPD_NOTE = `On ${TCPD_RATES.series} real series marked by human annotators (Turing Change Point Dataset), ${pct(TCPD_RATES.all.marked, TCPD_RATES.all.changes)} of every-setting changes, ${pct(TCPD_RATES.most.marked, TCPD_RATES.most.changes)} of half-or-more and ${pct(TCPD_RATES.few.marked, TCPD_RATES.few.changes)} of fewer-than-half changes lay within ${TCPD_RATES.margin} points of a change an annotator marked: agreement raises the hit rate but does not make a change certain, and long smooth series are over-cut.`;
+
 // base: analyze() input minus model/ar1/noiseFloor/trend (those the panel sets).
 export function consensus(base = {}, { tolerance = null, panel = PANEL } = {}) {
   const b = { ...base };
@@ -69,6 +83,7 @@ export function consensus(base = {}, { tolerance = null, panel = PANEL } = {}) {
     skipped: runs.filter((r) => r.error).map((r) => ({ name: r.name, error: r.error })),
     changes,
     note: 'Agreement among settings that share one likelihood family, not a probability: a change every setting finds is the one to trust, a change one setting finds is a candidate. No setting is told which series it is.',
+    measured: TCPD_NOTE,
   };
 }
 
@@ -84,5 +99,6 @@ export function consensusText(c) {
     for (const x of rows) L.push(`  ${x.label}${x.from !== x.to ? ` (${x.from} – ${x.to})` : ''}  ${x.support}/${x.of}  ${x.direction}`);
   }
   L.push('', `(${c.note})`);
+  if (c.measured) L.push(`(${c.measured})`);
   return L.join('\n');
 }
