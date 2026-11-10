@@ -76,7 +76,11 @@ that preview downscaled to 1024 px (`proxies/<job>/IMG_0001.CR3.jpg`; synthetic 
 only, no real camera file yet). They are not developed: graded masters still need a
 JPEG/TIFF, so a RAW still stops the pipeline before the grade stage, and a RAW with no embedded
 preview fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
-reader is tested on synthetic containers, not yet on real camera files. The analysis stage now measures each photo and clip
+reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
+counts only 8-bit lossy JPEGs as previews: CR2 sensor data is a lossless JPEG (SOF3) and DNG
+sensor tiles usually are too, and before that fix a lossless stream with more pixels than the
+preview won and ffmpeg scored the Bayer mosaic as the photo (reproduced with a real ffmpeg
+`ljpeg` stream beside a baseline preview, `tests/test_raw_preview.py`). The analysis stage now measures each photo and clip
 from decoded frames (sharpness, exposure, contrast, motion, framing) and groups
 near-identical shots by perceptual hash, so a burst or repeated take
 contributes one frame to the reel, the best-scoring one. `framing` finds
