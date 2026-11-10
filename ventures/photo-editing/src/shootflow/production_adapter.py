@@ -26,7 +26,8 @@ from shootflow.ffmpeg_media import (
 from shootflow.faces import FaceReport, detect_faces
 from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.production import ProductionJob, ProductionPlan
-from shootflow.raw_preview import extract_preview, is_raw_path
+from shootflow.raw_develop import DevelopError, develop_file, still_for_review
+from shootflow.raw_preview import is_dng_path, is_raw_path
 from shootflow.production_status import (
     ProductionJobStatus,
     ProductionStatusError,
@@ -1148,12 +1149,17 @@ def _materialize_ffmpeg_proxy_production_outputs(
         tools = find_ffmpeg_tools()
         with tempfile.TemporaryDirectory(prefix="shootflow-raw-") as scratch:
             if is_raw_path(source_path):
-                # No RAW developer: the proxy is the camera's own embedded JPEG, downscaled.
-                preview = extract_preview(source_path)
-                if preview is None:
-                    raise FfmpegMediaError(f"no embedded JPEG preview in {source_path.name}; develop it first")
-                source_path = Path(scratch) / "preview.jpg"
-                source_path.write_bytes(preview)
+                # The camera's own embedded JPEG, downscaled; a DNG with none is
+                # developed at half size from its sensor data instead.
+                try:
+                    still = still_for_review(source_path, scratch)
+                except DevelopError as exc:
+                    raise FfmpegMediaError(f"could not develop {source_path.name}: {exc}") from exc
+                if still is None:
+                    raise FfmpegMediaError(
+                        f"no embedded JPEG preview in {source_path.name}; convert it to DNG to develop it"
+                    )
+                source_path = still
             for output in action.outputs:
                 _validate_ffmpeg_output(root, output)
                 encode_new_output(
@@ -1173,13 +1179,27 @@ def _materialize_ffmpeg_grade_production_outputs(
     *,
     trusted_plan: ProductionPlan | None = None,
 ) -> tuple[str, ...]:
-    """Encode a graded master, applying the shoot LUT when one is present."""
+    """Encode a graded master, applying the shoot LUT when one is present.
+
+    A DNG still is first developed from its sensor data into a 16-bit TIFF in
+    a scratch directory (``raw_develop.develop_file``: linearization, black and
+    white levels, as-shot white balance, camera matrix, BaselineExposure,
+    orientation), and that TIFF is graded into ``graded/<job>/<name>.dng.tif``.
+    Other RAW formats stop here with a message naming the DNG route.
+    """
 
     _validate_grade_action_shape(action, expected_adapter=_FFMPEG_GRADE_PRODUCTION_ADAPTER)
     if trusted_plan is None:
         raise ProductionAdapterError("ffmpeg grade production adapter requires a trusted plan")
     root = _workspace_root(workspace_root)
-    source_path = _ffmpeg_source_path(root, action.inputs[0], label="grade production source input")
+    source_path = _ffmpeg_source_path(
+        root, action.inputs[0], label="grade production source input", allow_raw=True
+    )
+    if is_raw_path(source_path) and not is_dng_path(source_path):
+        raise ProductionAdapterError(
+            f"{source_path.name}: only DNG raw files are developed for grading; convert "
+            f"{source_path.suffix.upper().lstrip('.')} to DNG (Adobe's free DNG Converter) and ingest the DNG"
+        )
     _verify_grade_dependency_outputs(root, action=action, trusted_plan=trusted_plan)
     materialized: list[str] = []
     try:
@@ -1188,19 +1208,27 @@ def _materialize_ffmpeg_grade_production_outputs(
             require_workspace_file(root, SHOOT_LOOK_LUT_PATH, label="shoot look LUT")
             lut_path = SHOOT_LOOK_LUT_PATH
         tools = find_ffmpeg_tools()
-        for output in action.outputs:
-            _validate_ffmpeg_output(root, output)
-            encode_new_output(
-                root,
-                output,
-                build_command=lambda temp_path: grade_command(
-                    tools,
-                    source_path,
-                    temp_path,
-                    lut_path=lut_path,
-                ),
-            )
-            materialized.append(output)
+        with tempfile.TemporaryDirectory(prefix="shootflow-develop-") as scratch:
+            if is_dng_path(source_path):
+                developed = Path(scratch) / "developed.tif"
+                try:
+                    develop_file(source_path, developed)
+                except (DevelopError, OSError, ValueError) as exc:
+                    raise ProductionAdapterError(f"could not develop {source_path.name}: {exc}") from exc
+                source_path = developed
+            for output in action.outputs:
+                _validate_ffmpeg_output(root, output)
+                encode_new_output(
+                    root,
+                    output,
+                    build_command=lambda temp_path: grade_command(
+                        tools,
+                        source_path,
+                        temp_path,
+                        lut_path=lut_path,
+                    ),
+                )
+                materialized.append(output)
     except FfmpegMediaError as exc:
         raise ProductionAdapterError(str(exc)) from exc
     return tuple(materialized)
@@ -1365,6 +1393,8 @@ def _validate_grade_action_shape(
         raise ProductionAdapterError("Grade production adapter requires exactly one graded output")
     output_path = Path(action.outputs[0])
     expected_name = Path(action.inputs[0]).name
+    if action.output_kind == "graded_photo" and is_dng_path(Path(expected_name)):
+        expected_name += ".tif"
     if (
         len(output_path.parts) != 3
         or output_path.parts[0] != "graded"

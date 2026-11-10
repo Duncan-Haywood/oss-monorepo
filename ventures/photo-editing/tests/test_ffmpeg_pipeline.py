@@ -226,6 +226,58 @@ class LocalPipelineTests(unittest.TestCase):
             messages = [job["error_message"] for job in status["job_statuses"] if job["state"] == "retryable"]
             self.assertTrue(any("no embedded JPEG preview" in message for message in messages))
 
+    def test_dng_still_is_developed_into_a_16_bit_graded_master(self) -> None:
+        # A DNG with no embedded preview: proxy and analysis develop it at half
+        # size, the grade stage develops it at full size into a 16-bit TIFF.
+        from test_raw_develop import camera_response, make_dng
+
+        width, height, black, white = 96, 64, 256, 4095
+        cam = camera_response((0.40, 0.10, 0.08))  # a red scene, linear sRGB
+        cfa = (0, 1, 1, 2)
+        sensor = [
+            int(round(black + cam[cfa[(y % 2) * 2 + (x % 2)]] * (white - black)))
+            for y in range(height)
+            for x in range(width)
+        ]
+        dng = make_dng(sensor, width, height, black=black, white=white)
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = _ingested_shoot(Path(tmp), extra_files={"IMG_0003.DNG": dng})
+            workspace = manifest.parent
+
+            result = run_local_pipeline(manifest, max_concurrency=3, clock=_ticking_clock())
+
+            self.assertTrue(result.rendered, result)
+            self.assertEqual(result.needs_review_ids, ())
+            master_path = next((workspace / "graded").glob("*/IMG_0003.DNG.tif"))
+            master = _probe(master_path)
+            self.assertEqual((master["width"], master["height"]), (width, height))
+            self.assertEqual(master["pix_fmt"], "rgb48le")
+            # The scene back, sRGB-encoded: linear 0.40/0.10/0.08 is 170/89/80.
+            expected = [round(255 * _srgb_encode(v)) for v in (0.40, 0.10, 0.08)]
+            for got, want in zip(_center_rgb(master_path), expected, strict=True):
+                self.assertLessEqual(abs(got - want), 3, (_center_rgb(master_path), expected))
+            proxy = _probe(next((workspace / "proxies").glob("*/IMG_0003.DNG.jpg")))
+            self.assertEqual((proxy["width"], proxy["height"]), (width // 2, height // 2))
+            analyses = [json.loads(path.read_text()) for path in sorted((workspace / "analysis").glob("0*.json"))]
+            dng_analysis = next(a for a in analyses if a["source_asset_path"].endswith("IMG_0003.DNG"))
+            self.assertEqual(dng_analysis["analysis_method"], "frame_metrics")
+            self.assertEqual(_hidden_temp_files(workspace), [])
+
+    def test_non_dng_raw_with_a_preview_stops_at_grade_naming_the_dng_route(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            preview = Path(tmp) / "preview.jpg"
+            _make_photo(preview, color="green")
+            fake_cr2 = b"II*\x00\x08\x00\x00\x00" + b"\x00" * 64 + preview.read_bytes() + b"\x00" * 16
+            manifest = _ingested_shoot(Path(tmp) / "shoot", extra_files={"IMG_0003.CR2": fake_cr2})
+
+            result = run_local_pipeline(manifest, clock=_ticking_clock())
+
+            self.assertFalse(result.rendered)
+            self.assertTrue(any(job_id.startswith("grade_asset_") for job_id in result.needs_review_ids), result)
+            status = json.loads((manifest.parent / "production_status.json").read_text())
+            messages = [job["error_message"] for job in status["job_statuses"] if job.get("error_message")]
+            self.assertTrue(any("convert CR2 to DNG" in message for message in messages), messages)
+
     def test_cli_exit_code_reports_review_needed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             manifest = _ingested_shoot(Path(tmp), extra_files={"IMG_0003.CR3": b"raw"})
@@ -266,6 +318,10 @@ def _ingested_shoot(base: Path, *, extra_files: dict[str, bytes] | None = None) 
 
 def _make_photo(path: Path, *, color: str) -> None:
     _run("-f", "lavfi", "-i", f"color=c={color}:size=240x160", "-frames:v", "1", str(path))
+
+
+def _srgb_encode(v: float) -> float:
+    return 12.92 * v if v <= 0.0031308 else 1.055 * v ** (1 / 2.4) - 0.055
 
 
 def _write_invert_lut(path: Path) -> None:

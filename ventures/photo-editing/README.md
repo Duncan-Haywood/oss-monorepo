@@ -73,11 +73,13 @@ Current limits, stated plainly: RAW stills (`.CR3`, `.CR2`, `.ARW`, `.NEF`,
 `.DNG`, …) are *scored* from the full-size JPEG preview the camera embedded
 (`raw_preview.py`, no RAW developer needed), and since 2026-10-29 their review proxies are
 that preview downscaled to 1024 px (`proxies/<job>/IMG_0001.CR3.jpg`; synthetic containers
-only, no real camera file yet). Since 2026-11-10 a DNG can be developed into a 16-bit TIFF
-master by hand with `shootflow develop` (see "Develop DNG raw files" below), but the
-pipeline does not call it yet: graded masters still need a
-JPEG/TIFF, so a RAW still stops the pipeline before the grade stage, and a RAW with no embedded
-preview fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
+only, no real camera file yet). Since 2026-11-10 the pipeline develops DNG stills itself
+(see "Develop DNG raw files" below): the grade stage develops the sensor data into a 16-bit
+TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no embedded preview
+gets its proxy and its scores from a half-size development instead of failing. Other RAW
+formats (CR2, CR3, NEF, ARW, ...) are still scored from their preview but stop at the grade
+stage with a message to convert them to DNG (Adobe's free DNG Converter); one with no preview
+fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
 counts only 8-bit lossy JPEGs as previews: CR2 sensor data is a lossless JPEG (SOF3) and DNG
 sensor tiles usually are too, and before that fix a lossless stream with more pixels than the
@@ -895,8 +897,8 @@ What it does not do: interpolate the two camera matrices by colour temperature, 
 `ForwardMatrix`, `CameraCalibration` or DNG profile hue maps, reconstruct blown highlights,
 reduce noise, or use a better demosaic than bilinear. Colours will be close to dcraw and
 LibRaw's plain rendering, not to Lightroom's. Masters are neutral on purpose: the look is the
-grade stage's job. The nightly pipeline does not call `develop` yet (a DNG still stops before
-the grade); that is the next slice.
+grade stage's job, and since 2026-11-10 the pipeline's grade stage calls the developer for
+every DNG still (below).
 
 How it was checked:
 
@@ -923,6 +925,14 @@ How it was checked:
   does not check our reading of a DNG written by a camera or Adobe's converter (the DNGs here
   are written by our tool), and no camera-written lossless-JPEG DNG was available (raw.pixls.us
   and rawsamples.ch answer 403 from the build sandbox).
+- In the pipeline (`eval/pipeline-dng-grade-2026-11-10.md`): `run-local-pipeline` on a card
+  holding the Nikon's sensor data as a DNG (no embedded preview) and one clip rendered every
+  deliverable with nothing for review in 75 s. The graded master is 4284x2844 rgb48le and
+  bit-identical to `shootflow develop`'s TIFF of the same file (no LUT), so the grade stage
+  adds no loss; the proxy is 1024 px from a half-size development and the scores are measured
+  (`frame_metrics`), not the sha256 stand-in. `tests/test_ffmpeg_pipeline.py` runs the same
+  path on a synthetic red DNG (the master's centre is the scene's sRGB value within 3 steps)
+  and checks that a CR2 with a preview stops at the grade with the DNG message.
 - Speed, pure Python on the build container: 12 MP Nikon 37 s full size, 12 s half; 21 MP
   Canon 65 s full size, 23 s half. LibRaw takes well under a second. Fine for an overnight job,
   slow for interactive use.

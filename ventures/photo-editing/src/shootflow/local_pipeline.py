@@ -15,12 +15,15 @@ Stage order and adapters:
    ``look-production-local``: analysis scores each photo and clip from decoded
    frames (sharpness, exposure, contrast, motion) and hashes it so near
    duplicates share a scene (``frame_analysis.py``); RAW stills are read from their embedded JPEG
-   preview (``raw_preview.py``); undecodable files or RAW with no preview
+   preview (``raw_preview.py``), or a DNG with none from a half-size
+   development; undecodable files or non-DNG RAW with no preview
    fall back to the old sha256 stand-in. There is no face or taste model yet,
    so ``story_score`` is a blend of the measured scores. The scene and look
    stages are still deterministic stand-ins.
 3. ``ffmpeg-grade-production-local``: full-resolution graded masters, with
-   ``color/shoot_look.cube`` applied when present.
+   ``color/shoot_look.cube`` applied when present. A DNG still is developed
+   from its sensor data first (``raw_develop.py``) and graded into a 16-bit
+   TIFF; other RAW formats stop here for conversion to DNG.
 4. ``story-production-local``: storyline selection over the graded masters.
 5. ``ffmpeg-local`` render: the reel MP4 and the 4:5 carousel/photo-set JPEGs.
 """
