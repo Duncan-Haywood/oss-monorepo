@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtJX4Gq96iKpB4Y85Nz",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T09:08:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14479",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Every landable lever is owner-gated or already worked; no guidance for a run with no landable perf item beyond taking a venture slice."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Ship-something default: nine prior passes left only owner-gated levers, so I shipped a reading note instead of inventing a change.",
+      "did": "Wrote docs/history reading note",
+      "result": "no code or speedup landed"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-10-pool-reading-two-hour-window.md"
+  ],
+  "goal": null,
+  "notes": "Metric: pool checkout share 29% (138.2 of 482.5 job-min), ci_profile.py --runs 600, 06:58Z-09:00Z. No before/after: no change made.",
+  "corrections": [],
+  "redteam": null
+}
