@@ -1,3 +1,10 @@
+---
+kind: analysis
+subjects: [ci]
+topics: [ci, hosting]
+date: 2026-11-10
+tagged: auto
+---
 # CI/CD and Cloudflare audit, 2026-11-10: what the next run should pick up
 
 Audit files: `portfolio/quality/audits/2026-11-10-{github-workflows,platform-pages-cloudflare,platform-edge}.json`
