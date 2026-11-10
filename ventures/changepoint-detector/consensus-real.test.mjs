@@ -24,3 +24,12 @@ test('second batch: US inflation breaks by every setting (--ar1 keeps its cuts);
   assert.match(out, /documented 1982: 1982 found by 5\/6 \(most\)/);
   assert.match(out, /documented 1999: 1999 found by 4\/6 \(most\)/);
 });
+
+test('third batch: airmiles 1946 by 4/6; UK gas 1970 by only 1/6 (negative); saving rate 2008-07 by 6/6 but two undocumented changes also by 6/6', () => {
+  const out = readFileSync(new URL('./eval/consensus-real.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /documented 1946: 1946 found by 4\/6 \(most\)/);
+  assert.match(out, /documented 1970: 1970Q2 found by 1\/6 \(few\)/);
+  assert.match(out, /documented 2008: 2008-07 found by 6\/6 \(all\)/);
+  assert.match(out, /1999-04  6\/6  down  all/);
+  assert.match(out, /2005-01  6\/6  down  all/);
+});

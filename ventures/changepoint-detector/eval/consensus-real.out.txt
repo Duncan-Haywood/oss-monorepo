@@ -71,3 +71,43 @@ Lakes Michigan-Huron level, 1918-2009; the late-1990s drop (recalled, no paper r
   1952  4/6  up  most
   1988  4/6  down  most
   1999  4/6  down  most
+
+US airline passenger miles, 1937-1960 (log, 24 years); first peacetime year 1946
+  n 24, tolerance 2, settings 6; cuts per setting: 7, 0, 0, 5, 1, 1
+  documented 1946: 1946 found by 4/6 (most)
+  1946  4/6  up  most
+
+UK gas consumption, quarterly 1960-1986 (log, period 4); North Sea gas era from about 1970 (recalled, no paper read)
+  n 108, tolerance 2, settings 6; cuts per setting: 5, 0, 0, 3, 1, 0
+  documented 1970: 1970Q2 found by 1/6 (few)
+
+US personal saving rate, monthly 1967-2015; the 2008 financial-crisis jump (recalled, no paper read)
+  n 574, tolerance 11, settings 6; cuts per setting: 56, 7, 11, 42, 39, 28
+  documented 2008: 2008-07 found by 6/6 (all)
+  1999-04  6/6  down  all
+  2005-01  6/6  down  all
+  2008-07  6/6  mixed  all
+  1975-06  5/6  mixed  most
+  1985-08  5/6  mixed  most
+  1987-05  5/6  mixed  most
+  1993-12  5/6  mixed  most
+  2001-10  5/6  mixed  most
+  2012-09  5/6  up  most
+  2013-01  5/6  down  most
+  1969-06  4/6  mixed  most
+  1970-04  4/6  up  most
+  1972-03  4/6  down  most
+  1974-03  4/6  mixed  most
+  1976-12  4/6  down  most
+  1980-04  4/6  mixed  most
+  1981-07  4/6  up  most
+  1983-04  4/6  down  most
+  1984-11  4/6  mixed  most
+  1986-09  4/6  mixed  most
+  1991-10  4/6  up  most
+  1992-12  4/6  mixed  most
+  1972-10  3/6  up  most
+  1977-08  3/6  up  most
+  1998-01  3/6  mixed  most
+  2005-11  3/6  up  most
+  2009-07  3/6  mixed  most
