@@ -2,7 +2,7 @@
 title: "A bookkeeper meets a new payee: most of the help is a prior, and it costs wrong guesses"
 seo_title: "Guessing accounts for new payees"
 date: 2026-11-10
-description: "On five fiscal hosts' labelled books, a guess from the kind of name and the line's size took first-time payees from 5-21% right to 20-65%. Much of that is just the commonest account."
+description: "A guess from the kind of name and the line size took first-time payees from 5-21% right to 20-65% on five hosts. Much of it is just the commonest account."
 tags: [ai-bookkeeper, evaluation, bookkeeping, machine-learning]
 ---
 

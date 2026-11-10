@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtKGzTUnKwwdRAKszo8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T21:06:34Z",
+  "ended": "2026-11-10T21:17:12Z",
+  "wall_minutes": 10.96,
+  "tokens_in": 5413884,
+  "tokens_out": 31303,
+  "cost_usd": 2.5851,
+  "tool_calls": 57,
+  "task": "Deepen flagship 2 (ai-bookkeeper), item (0) next: new payees",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14605",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: is folded across lines, so an exact-string replace on a phrase silently misses; had to match with whitespace-tolerant regex. The 2,000-char cap was already exceeded (~2,050) before this run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says `node --test '*.test.mjs'` can outlast 120 s; the ai-bookkeeper suite did need run_in_background here (several minutes), contrary to the parenthetical that it did not."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-ai-bookkeeper-new-payees.md",
+    "ventures/ai-bookkeeper/README.md (New payees)"
+  ],
+  "goal": null,
+  "notes": "Open Collective GraphQL reachable from the cloud session (200). Five hosts refetched with amounts (cache -v2, scratchpad only, never committed). Thresholds (8 payees, 40% share, 0.5 cap) fixed before the first reading, not tuned. Ablation rerun on synthetic: +0.1 pt right-in-all, +11 wrong suggestions. engine.test ablation test updated to also skip new-payee. Full ai-bookkeeper suite run locally before merge. Full suite (all *.test.mjs plus eval/*.test.mjs) exit 0 locally, after the change.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "63641d5a-83a4-59f7-bb03-a94da7c5ab7f",
+    "transcripts": 1,
+    "first": "2026-11-10T21:06:34Z",
+    "last": "2026-11-10T21:17:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 107,
+        "output": 31303,
+        "thinking": 6999,
+        "cache_read": 5301487,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112290,
+        "api_equivalent_usd": 2.5851,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 107,
+      "output": 31303,
+      "thinking": 6999,
+      "cache_read": 5301487,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112290,
+      "api_equivalent_usd": 2.5851,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 52,
+      "Write": 2,
+      "Monitor": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.96,
+      "active_minutes": 10.96,
+      "model_minutes": 7.09,
+      "tool_minutes": 3.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
