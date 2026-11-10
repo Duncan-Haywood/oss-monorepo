@@ -19,7 +19,7 @@
   "projects": [
     "ventures/einvoice-preflight"
   ],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14404",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -38,7 +38,12 @@
     }
   ],
   "deviations": [
-    "Ignored the research route because the stored scheduled prompt asked for revenue ventures."
+    {
+      "file": "prompt.md",
+      "why": "Ignored the research route because the stored scheduled prompt asked for revenue ventures.",
+      "did": "Followed the ventures track",
+      "result": "null"
+    }
   ],
   "writeups": [
     "docs/posts/2026-11-10-singapore-uen-check-letter.md"

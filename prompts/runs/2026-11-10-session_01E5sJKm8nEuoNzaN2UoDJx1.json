@@ -38,7 +38,10 @@
       "result": "8 flags now refuse; tests pass"
     }
   ],
-  "writeups": "docs/posts/2026-11-10-empty-flag-values.md; ROADMAP.md line",
+  "writeups": [
+    "docs/posts/2026-11-10-empty-flag-values.md",
+    "ROADMAP.md"
+  ],
   "goal": null,
   "notes": "Local checks: cli*.test.mjs 65 pass. CI not awaited.",
   "corrections": [],
