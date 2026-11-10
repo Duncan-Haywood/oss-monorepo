@@ -1,6 +1,6 @@
 ---
 title: "Six changepoint settings agree on 2008 and miss UK gas's 1970"
-seo_title: "Changepoint detection on real data: when six settings agree and when they do not"
+seo_title: "Changepoint detection on real data: when six settings agree"
 date: 2026-11-10
 tags: [changepoint-detection, time-series, evaluation, open-source]
 description: "A six-setting changepoint panel on three more real series: it finds 1946 airline miles and 2008 saving-rate jump, but misses UK gas's gradual 1970 shift."
