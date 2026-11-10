@@ -24,7 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import harness, boosted  # noqa: E402
 
 TAUS = harness.TAUS
-CITIES = ["chicago", "sf", "austin"]
+CITIES = ["chicago", "sf", "austin", "seattle"]
 CLASSES = ["new_construction", "alteration", "electrical", "plumbing", "mechanical",
            "demolition", "sign", "fire", "other"]
 RULES = [("new_construction", r"new construction|new building|new const|\bnew\b"),
@@ -111,7 +111,8 @@ if __name__ == "__main__":
         frames = {c: f for c, f in frames.items() if c != "chicago"}  # Chicago has no completion date
     for held in (a.held or list(frames)):
         r = run(frames, held, a.test_year, a.seeds)
+        tag = "_4city" if "seattle" in frames else ""
         out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results",
-                           f"transfer_{held}_{a.target}_{a.test_year}.json")
+                           f"transfer_{held}_{a.target}_{a.test_year}{tag}.json")
         json.dump(r, open(out, "w"), indent=1)
         print(held, a.target, json.dumps(r["h4"], indent=None)[:600])

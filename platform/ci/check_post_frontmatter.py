@@ -18,7 +18,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "platform" / "pages"))
-from propose_seo_titles import cut as _cut  # noqa: E402
+try:
+    from propose_seo_titles import cut as _cut  # noqa: E402
+except ImportError:
+    # Run without platform/pages beside it: prompts-ci's sparse checkout, or
+    # prompts/test_promptctl.py, which copies this file alone onto a fixture.
+    # Crashing there made promptctl read "no problems" and kept prompts-ci red
+    # on main for 14 h (2026-11-10). This is propose_seo_titles.cut, kept in
+    # step by test_check_post_frontmatter.py.
+    def _cut(title, budget=70, minimum=25):
+        for sep in (": ", "? "):
+            i = title.find(sep)
+            if i >= 0:
+                head = title[:i + (1 if sep == "? " else 0)]
+                if minimum <= len(head) <= budget:
+                    return head
+        return None
 REQUIRED = ("title", "date", "description", "tags")
 
 

@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import router, { SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST, inShard } from './router.mjs';
-import { split, workersDevHeaders } from './split.mjs';
+import { split, workersDevHeaders, securityHeaders, SECURITY_HEADERS } from './split.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -70,7 +70,22 @@ test('split writes a _headers rule that sends only the workers.dev host to the d
   await fs.writeFile(path.join(site, '404.html'), '');
   await split(site, path.join(root, 'shard'));
   const h = await fs.readFile(path.join(site, '_headers'), 'utf8');
-  assert.equal(h, workersDevHeaders());
+  assert.equal(h, workersDevHeaders() + securityHeaders());
   assert.match(h, new RegExp(`^https://${WORKERS_DEV_HOST.replace(/\./g, '\\.')}/\\*\n  Refresh: 0; url=${SITE_ORIGIN}/:splat\n`));
   for (const line of h.split('\n')) assert.ok(line.length <= 2000);
+});
+
+test('both Workers send the baseline security headers on every path, and nothing that blocks embedding', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'split-sec-'));
+  const site = path.join(root, 'site');
+  await fs.mkdir(site);
+  await fs.writeFile(path.join(site, '404.html'), '');
+  await split(site, path.join(root, 'shard'));
+  for (const f of [path.join(site, '_headers'), path.join(root, 'shard', '_headers')]) {
+    const h = await fs.readFile(f, 'utf8');
+    assert.match(h, /^\/\*\n  Strict-Transport-Security: max-age=\d+\n/m, f);
+    assert.match(h, /^  X-Content-Type-Options: nosniff$/m, f);
+    assert.doesNotMatch(h, /X-Frame-Options|frame-ancestors|includeSubDomains|preload/i, f);
+  }
+  assert.ok(Number(SECURITY_HEADERS['Strict-Transport-Security'].match(/max-age=(\d+)/)[1]) >= 15552000);
 });

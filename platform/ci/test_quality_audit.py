@@ -99,6 +99,16 @@ class QualityAuditTest(unittest.TestCase):
         md = q.render_md(s)
         assert "1 of 2" in md and "| `ventures/c` | flagship |" in md
 
+    def test_topical_audits_are_reported_apart_and_do_not_skip_the_draw(self):
+        rows = [
+            audit(subject="ventures/a"),
+            audit(subject="ventures/b", stratum="topical", scores={**FULL, "claims": 1}),
+        ]
+        s = q.summarize(rows)
+        assert s["sampled"]["n"] == 1 and s["sampled"]["meets_bar"] == 1
+        assert s["strata"]["topical"] == {"n": 1, "meets_bar": 0, "finished": 1, "ci": [0.0, 0.793]}
+        assert "ventures/b" not in q.last_audited(rows) and "ventures/a" in q.last_audited(rows)
+
 
     def test_population_reads_the_repository(self):
         pop = q.population()
