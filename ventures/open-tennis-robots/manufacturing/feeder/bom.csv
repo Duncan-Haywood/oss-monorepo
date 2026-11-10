@@ -14,23 +14,21 @@ camera_clamp,print,2,PETG,Clips the top pole and holds the 2020 stereo bar; add 
 feed_floor,print,1,PETG,Floor of the ball path between the head plates; the shuttle slides on it. M4 heat-set inserts take screws through both head plates.
 feed_roof_column,print,1,PETG,"Roof over the shuttle, a column 70 mm bore up past the head plates, and a hose socket (82.5 mm) on top. Print upright, 6 walls."
 feed_shuttle,print,1,PETG,Pocket for one ball (70 mm hole); the front is narrowed to 58 mm between two 1.6 mm flexure arms that hold the ball at negative elevation and let the wheels pull it out; the solid rear shuts the column while it moves 95 mm forward. Drawn retracted (pocket under the column). 6 walls.
-hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the outlet spigot under the outlet hole."
-hopper_spigot,print,1,PETG,"Hose socket under the shelf's outlet hole: M4 heat-set inserts, flange against the shelf. 6 walls."
-feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 750 mm","Hopper outlet to the column socket. Longest chord 705 mm; bows to 239 mm radius at the closest pose; needs 150. Hose clips at both sockets (hose clamps, 80-90 mm)."
-take_up_track,stock,1,"2040 T-slot, cut 489 mm, M5 tapped both ends","Vertical, outboard of the -y hopper brace. Carries the take-up carriage over a 129 mm stroke (one pulley diameter and 30 mm each end besides). The tie to the hopper frame is not modelled."
-take_up_tie,print,2,PETG,"Flat plate on the net-side face of the track and of the rear -y post, two M5 button heads into slot nuts at each end, 40 mm between them. Slot-nut pull-out is assumed, see Feeder.track_tie."
-take_up_carriage,print,1,PETG,Slides on the track on the T-slot nuts; the pulley axle (16 mm bolt) goes through its side. 6 walls.
-take_up_pulley,print,1,PETG,"394 mm flanges: bigger than a common print bed, so print in four quadrants and bolt together. Groove radius 150 mm (the hose's minimum bend), hose OD 82 mm. 16 mm axle on two 6003 bearings."
-take_up_spring,cots,1,"Constant-force spring, 10 N (assumed: twice a 5 N hose tension), at least 129 mm of travel",
+hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole."
+hopper_spigot,print,1,PETG,"Sleeve socket under the shelf's outlet hole: flange on the sloped shelf (M4 heat-set inserts), a vertical cup 102.5 mm across and 40 mm deep for the sleeve's top end. Print flange down, 6 walls."
+feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 780 mm",Take-up sleeve's lower end to the column socket (sleeve_take_up_design). Longest chord 989 mm; bows to 413 mm radius at the closest pose; needs 150. Top end bonded into the take-up collar; a hose clamp at the column socket.
+take_up_sleeve,stock,1,"Rigid round tube, 96 mm bore, about 102 mm OD, cut 275 mm; slot 10 mm wide in the rear wall from the top end down 237 mm","Hangs from the outlet socket, open at the bottom. The hose's collar slides 205 mm in it (free hose 521 to 726 mm over the elevation range). Deburr the bore."
+take_up_collar,print,1,PETG,"Bond the hose's top end 25 mm into the socket. The funnel narrows 88 to 72 mm so a ball dropping down the sleeve cannot catch the hose's rim. The tab through the sleeve's slot takes the spring's band and keeps the collar from turning. Print funnel up, 6 walls."
+take_up_spring,cots,1,"Constant-force spring, 5 N (assumed: holds the hose's top end against a 5 N hose pull), at least 225 mm of band, drum on a bracket behind the sleeve",
 net_beam,stock,1,"2040 T-slot, cut 3000 mm",Front member of the base and the foot of the net. Cut square.
 rear_rail,stock,1,"2040 T-slot, cut 900 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
 side_rail,stock,2,"2040 T-slot, cut 660 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
 mast_rail,stock,2,"2040 T-slot, cut 860 mm","Cut square, deburr, M5 tap each end where a post or rail meets it."
 mast_post,stock,4,"2040 T-slot, cut 445 mm, M5 tapped both ends",Four posts carry the mast plate.
-hopper_post_rear,stock,2,"2040 T-slot, cut 1564 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
-hopper_post_front,stock,2,"2040 T-slot, cut 1509 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
-hopper_brace_x,stock,2,"2020 T-slot, cut 1295 mm, ends mitred to 12 deg","Outside each side pair of posts, rear foot to front head; a 2020 corner bracket or a gusset at each end (M5), tightened before the tub is filled."
-hopper_brace_y,stock,1,"2020 T-slot, cut 1398 mm, ends mitred to 19 deg","Behind the rear posts, left foot to right head, out of the head's swing (the head's rear reaches x = -560 mm at +45 deg). The shelf, bolted to all four posts, holds the front posts' heads to the rear pair in plan, so one brace braces the frame along the net."
+hopper_post_rear,stock,2,"2040 T-slot, cut 1849 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
+hopper_post_front,stock,2,"2040 T-slot, cut 1794 mm, M5 tapped both ends","Stands on the deck (20 mm along the net's x); carries the hopper shelf. Its top is level, touching the shelf at the net-side edge: shim the other edge. Braced by the hopper_brace parts."
+hopper_brace_x,stock,2,"2020 T-slot, cut 1575 mm, ends mitred to 10 deg","Outside each side pair of posts, rear foot to front head; a 2020 corner bracket or a gusset at each end (M5), tightened before the tub is filled."
+hopper_brace_y,stock,1,"2020 T-slot, cut 1671 mm, ends mitred to 16 deg","Behind the rear posts, left foot to right head, out of the head's swing (the head's rear reaches x = -560 mm at +45 deg). The shelf, bolted to all four posts, holds the front posts' heads to the rear pair in plan, so one brace braces the frame along the net."
 camera_bar,stock,1,"2020 T-slot, cut 800 mm",Stereo cameras mount on this; widen it for more depth accuracy.
 net_pole_vertical,stock,2,"25 mm OD x 1.5 mm aluminium tube (or fibreglass), cut 2437 mm",Two 1.2 m sections joined by a sleeve if it must fit a car.
 net_pole_top,stock,1,"25 mm OD x 1.5 mm aluminium tube, cut 3020 mm",Two sections joined by a sleeve at the middle.
@@ -56,12 +54,13 @@ M3 x 8 screw,cots,12,M3 x 8 screw,gearmotor faces
 M8 x 60 bolt + nyloc nut,cots,2,M8 x 60 bolt + nyloc nut,idler axles
 M10 T-nut (levelling foot),cots,2,M10 T-nut (levelling foot),beam ends
 M4 x 12 socket cap screw (feed),cots,8,M4 x 12 socket cap screw (feed),"feed floor and roof to the head plates (through the plates, into inserts)"
-"M4 heat-set insert, 5.7 mm long (feed)",cots,12,"M4 heat-set insert, 5.7 mm long (feed)","feed floor, roof and hopper spigot"
-M4 x 10 socket cap screw (spigot),cots,4,M4 x 10 socket cap screw (spigot),hopper spigot to the shelf
+"M4 heat-set insert, 5.7 mm long (feed)",cots,12,"M4 heat-set insert, 5.7 mm long (feed)","feed floor, roof and sleeve socket"
+M4 x 10 socket cap screw (spigot),cots,4,M4 x 10 socket cap screw (spigot),sleeve socket to the shelf
 M5 x 16 button head (hopper),cots,8,M5 x 16 button head (hopper),posts to the deck (from below) and to the shelf
 M5 T-nut or tapped end (hopper),cots,8,M5 T-nut or tapped end (hopper),"posts, deck and shelf"
 2020 corner bracket with M5 screws and T-nuts,cots,6,2020 corner bracket with M5 screws and T-nuts,"hopper braces, two per brace"
-"Hose clamp, 80-90 mm",cots,2,"Hose clamp, 80-90 mm",hose at the spigot and the column socket
+"Hose clamp, 80-90 mm",cots,1,"Hose clamp, 80-90 mm",hose at the column socket
+Flexible-PVC adhesive or epoxy,cots,1,Flexible-PVC adhesive or epoxy,hose's top end into the take-up collar
 "25 mm strap, 1 m",cots,2,"25 mm strap, 1 m",tub to the shelf
 Raspberry Pi 5 (4 GB),cots,1,Raspberry Pi 5 (4 GB),vision + planning
 Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable,stereo bar
