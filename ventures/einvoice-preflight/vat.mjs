@@ -136,12 +136,20 @@ const EXTRA_CHECKS = {
       return (total % 11) % 10 === Number(b[8]);
     },
   },
-  // 8-digit legal entities, and 10-digit birth numbers (individuals, born 1954 on); a 9-digit
-  // birth number (before 1954) carries no check digit and stays shape-only.
+  // 8-digit legal entities (not starting 9), 9-digit specials starting 6, and 10-digit birth numbers
+  // (born 1954 on); another 9-digit birth number (before 1954) has no check digit and stays shape-only.
   CZ: {
-    applies: (b) => /^[0-8]\d{7}$|^\d{10}$/.test(b),
+    applies: (b) => /^\d{8}$|^6\d{8}$|^\d{10}$/.test(b),
     ok: (b) => {
       if (b.length === 10) return czBirthNumberOk(b);
+      // Special 9-digit numbers starting 6 (individuals without a birth number): the first digit
+      // is skipped. The rule is python-stdnum's; the Czech tax authority's text was not read.
+      if (b.length === 9) {
+        const check = weighted(b.slice(1, 8), [8, 7, 6, 5, 4, 3, 2]) % 11;
+        return (((8 - ((10 - check) % 11)) % 10) + 10) % 10 === Number(b[8]);
+      }
+      // Legal-entity numbers never start 9.
+      if (b[0] === "9") return false;
       let check = 11 - (weighted(b.slice(0, 7), [8, 7, 6, 5, 4, 3, 2]) % 11);
       if (check === 10) check = 0;
       if (check === 11) check = 1;
