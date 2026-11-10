@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [changepoint-detector]
+tagged: auto
+---
 # changepoint-detector: Mauna Loa CO2 trial (2026-11-09)
 
 Added `data/co2-mauna-loa.csv`, `eval/co2-mauna-loa.mjs` (+ `.out.txt`) and

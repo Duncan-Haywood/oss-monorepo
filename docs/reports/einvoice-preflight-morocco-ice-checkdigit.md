@@ -1,5 +1,5 @@
 ---
-kind: finding
+kind: note
 subjects: [einvoice-preflight]
 tagged: auto
 ---
