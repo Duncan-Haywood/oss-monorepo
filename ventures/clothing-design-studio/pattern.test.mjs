@@ -158,3 +158,18 @@ test("zip front: two mirrored front halves with a centre-front allowance, hoodie
   assert.ok(draft("tee", "M", { zip: true }).error);
   assert.ok(draft("hoodie", "M", { zip: true, zipSeamCm: 9 }).error);
 });
+
+test("zip facing: two strips as long as the centre-front stitch line, only with a zip", () => {
+  for (const s of ["XS", "M", "XXL"]) {
+    const d = draft("hoodie", s, { zip: true, zipFacing: true });
+    assert.ok(d.ok, d.error);
+    const f = d.pieces.find(p => p.name === "zipFacing");
+    assert.equal(f.qty, 2);
+    assert.ok(f.simple);
+    assert.equal(d.checks.zipFacingLengthCm, d.checks.zipOpeningCm);
+    assert.ok(d.notes.some(n => /Zip facing/.test(n)));
+    assert.ok(!draft("hoodie", s, { zip: true }).pieces.some(p => p.name === "zipFacing"));
+  }
+  assert.ok(draft("hoodie", "M", { zipFacing: true }).error);
+  assert.ok(draft("hoodie", "M", { zip: true, zipFacing: true, facingCm: 12 }).error);
+});

@@ -209,3 +209,7 @@ Measured 2026-11-09, 150 cm cloth: one tee M 85.1 cm (77.5% of the cloth is patt
 ## Zip-front hoodie
 
 `draft("hoodie", size, { zip: true })` (checkbox on `pattern.html`) cuts the front as two halves with a 1.5 cm centre-front allowance (`zipSeamCm`, 0.5 to 4) instead of a fold, reports the centre-front stitch length for buying an open-end zip, and nests in the cutting plan. Typed drafting allowance, not checked against a real hoodie or zip tape.
+
+## Zip facing (2026-11-10)
+
+`draft("hoodie", size, { zip: true, zipFacing: true, facingCm: 4 })` (checkbox on `pattern.html`) adds a facing strip, cut two, as long as the centre-front stitch line (`zipFacingLengthCm` equals `zipOpeningCm`) and `facingCm` wide (2 to 8), with the seam allowance on all four edges, a mid notch and a grain line. A note says to fuse interfacing and stitch one behind each zip edge. It needs the zip front and is off by default. It nests: one hoodie M at 150 cm cloth is 149.0 cm of marker without the facing and 158.8 cm with it (greedy raster nest, no overlap by `verifyNest`). Checked by `pattern.test.mjs` (XS, M, XXL: two simple pieces, length equals the zip opening, refused without `zip` or at 12 cm) and a headless-Chromium load of `pattern.html` with hoodie, zip and facing ticked (note shown, no console errors). The 4 cm width is a typed drafting habit, not compared with a real hoodie, interfacing or zip tape. Next: a real zip-front hoodie measured against these pieces; a hood-neck turn-back at the zip top.
