@@ -41,6 +41,10 @@
     {
       "file": "ventures/hearth-and-horizon/BIBLE.md",
       "issue": "Tone says Hearth & Horizon is 3,500 to 6,000 words, but the recent shelf pieces run about 1,000; either the bible or the fleet's practice is stale."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes on a docs/posts + one-venture diff ran over 20 minutes with no output and dirtied an unrelated venture's egg-info; a cheaper per-venture path would save runs time."
     }
   ],
   "deviations": [
@@ -56,7 +60,7 @@
     "docs/posts/2026-11-10-stone-that-comes-back.md"
   ],
   "goal": null,
-  "notes": "Project: Hearth & Horizon (sci-fi shelf); piece: the-stone-that-comes-back (Phobos, 2141). Text only: audio folders at 423 MB > 400 MB cap. Physics checked with a scratch script: Hill-equation radial loop (66 km down, 263 km ahead, one-orbit return) and a Mars-only two-body integration (returns after 7.66 h ~4 km off); escape at sub-Mars point from a point-mass effective potential (~2.7 m/s). Checks run: venture node --test 11/11 pass; check_post_frontmatter, check_post_links, post_similarity pass. Security queue empty; IDEAS.md and website requests empty.",
+  "notes": "Project: Hearth & Horizon (sci-fi shelf); piece: the-stone-that-comes-back (Phobos, 2141). Text only: audio folders at 423 MB > 400 MB cap. Physics checked with a scratch script: Hill-equation radial loop (66 km down, 263 km ahead, one-orbit return) and a Mars-only two-body integration (returns after 7.66 h ~4 km off); escape at sub-Mars point from a point-mass effective potential (~2.7 m/s). Checks run: venture node --test 11/11 pass; check_post_frontmatter, check_post_links, post_similarity pass. Security queue empty; IDEAS.md and website requests empty. GitHub reported 0 check runs on PR 14620 for ~25 min; run_workflow_locally.py --for-changes ran 20+ min without output (it also rebuilt open-tennis-robots egg-info) and was stopped; merged on the venture's own node --test (12/12 after merging main) and the post checks. Merged main once: BIBLE.md conflict with a concurrent revision pass, resolved keeping both; generated pages regenerated.",
   "corrections": [],
   "redteam": null,
   "usage": {
