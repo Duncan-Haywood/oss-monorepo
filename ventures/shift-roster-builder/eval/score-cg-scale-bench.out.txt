@@ -12,3 +12,11 @@ case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  col
 
 30 people, 84 shift lines, 120000 ms per week
 case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	121	18111226.13	18111209.40	18111209.40	18111226.13	16.73	false	57	1055	0	121111
+1	122	14411639.12	14211649.45	14211649.45	14211649.45	0.00	true	83	1027	0	24399
+
+40 people, 112 shift lines, 120000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	149	17013255.07	16913221.40	16913221.40	17013255.07	100033.67	false	75	1377	0	120346
+1	148	14613474.64	14613268.36	14613268.36	14613474.64	206.28	false	47	1419	0	121577
+
