@@ -67,12 +67,12 @@ measured error cost. Nothing in the product calls it.
 everywhere.** In all 25 cells (both files, consistent answering) the
 information-gain selector's Spearman against the new crowd was at least the
 shipped selector's, mean +0.02 (breakfast top pick +6 points); a uniform random
-pair was 0.01 worse than shipped. The "staged" survey setting still runs the
-shipped selector for the first 120 answers (HYBRID_SWITCH_ANSWERS), so on
-lists this short a respondent never reaches the better selector. The 120 was
-chosen on 41 to 220 made-up items for the couple screen's settled-item bar
-(INFORMATION-GAIN-SELECTOR.md). Next: a switch point that depends on list
-length, checked against that bar.
+pair was 0.01 worse than shipped. The "staged" survey setting ran the
+shipped selector for the first 120 answers, so on lists this short a
+respondent never reached the better selector. Since 2026-11-10 it uses the
+information selector from the first answer on lists up to 120 items, and the
+eval prints a `staged` row that equals the information row in all 25 cells
+(INFORMATION-GAIN-SELECTOR.md, "A switch point that depends on list length").
 
 ## Summary tables (shipped selector, no lapse)
 

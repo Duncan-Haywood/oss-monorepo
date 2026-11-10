@@ -70,7 +70,7 @@ async function main() {
   const ri = process.argv.indexOf("--rule");
   const rule = (ri < 0 ? "overlap" : process.argv[ri + 1]) as RangeRule;
   if (!RANGE_RULES.includes(rule)) throw new Error(`--rule must be one of ${RANGE_RULES.join(", ")}`);
-  const selectors: Selector[] = ["shipped", "information", "random"];
+  const selectors: Selector[] = ["shipped", "information", "staged", "random"];
   console.log(`seeds ${seeds}, lapse ${lapse}, rule ${rule}`);
   for (const d of DATASETS) {
     const panel = parseSoc(await load(d.path, d.sha256));

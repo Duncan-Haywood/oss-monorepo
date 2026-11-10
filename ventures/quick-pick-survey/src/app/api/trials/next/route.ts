@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { pairKey, selectNextPair, selectNextPairHybrid, surveyConfidence } from "@/lib/pairing";
+import { FIRST_OPTION_MIN_DECIDED, pairKey, selectNextPair, selectNextPairHybrid, surveyConfidence } from "@/lib/pairing";
 import { loadRatedItems } from "@/lib/participantRatings";
 
 const RECENT_TRIALS_TO_AVOID = 10;
-/** Decided answers before a first-option share means anything (30 coin flips: sd 0.09). */
-const FIRST_OPTION_MIN_DECIDED = 30;
 
 /**
  * How long a shown-but-unanswered question stays the *same* question.
@@ -107,8 +105,9 @@ export async function POST(req: NextRequest) {
 
     const recentPairKeys = new Set(recentTrials.map((t) => pairKey(t.itemAId, t.itemBId)));
 
-    // "staged": shipped selector for the first 120 answers, then the
-    // information score (docs/INFORMATION-GAIN-SELECTOR.md). The survey's own
+    // "staged": the information score from the first answer on lists up to
+    // 120 items, after 120 answers on longer ones (hybridSwitchAt,
+    // docs/INFORMATION-GAIN-SELECTOR.md). The survey's own
     // setting wins; unset follows PAIR_SELECTOR. Off by default.
     const selector = participant.survey.pairSelector ?? process.env.PAIR_SELECTOR;
     const choosePair = selector === "staged" ? selectNextPairHybrid : selectNextPair;

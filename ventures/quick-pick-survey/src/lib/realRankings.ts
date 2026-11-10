@@ -17,7 +17,7 @@
 import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "@/lib/glicko2";
 import { clearlyAbove, groupRanking, type RangeRule, type RankedItem, type RatingRow } from "@/lib/groupRanking";
 import { spearman } from "@/lib/infoGainSim";
-import { pairKey, selectNextPair, selectNextPairByInformation, type PairItem, type PairingInput } from "@/lib/pairing";
+import { pairKey, selectNextPair, selectNextPairByInformation, selectNextPairHybrid, type PairItem, type PairingInput } from "@/lib/pairing";
 
 export type Panel = { names: string[]; orders: number[][] };
 
@@ -83,7 +83,8 @@ export function mulberry32(seed: number): () => number {
   };
 }
 
-export type Selector = "shipped" | "information" | "random";
+/** "staged" is the survey setting of that name, with its default switch point. */
+export type Selector = "shipped" | "information" | "staged" | "random";
 
 function randomPair({ items, rand = Math.random }: PairingInput): [string, string] {
   const i = Math.floor(rand() * items.length);
@@ -95,6 +96,7 @@ function randomPair({ items, rand = Math.random }: PairingInput): [string, strin
 const SELECTORS: Record<Selector, (input: PairingInput) => [string, string]> = {
   shipped: selectNextPair,
   information: (input) => selectNextPairByInformation(input),
+  staged: (input) => selectNextPairHybrid(input),
   random: randomPair,
 };
 
