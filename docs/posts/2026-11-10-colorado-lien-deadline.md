@@ -1,8 +1,8 @@
 ---
 title: Colorado joins the mechanics lien deadline calculator
 date: 2026-11-10
-tags: [construction, mechanics-lien, colorado, calculator, open-source]
-description: "The free mechanics lien deadline calculator now covers Colorado: a lien statement is due four months after last furnishing, and a notice of intent ten days before it."
+tags: [construction, mechanics-lien, colorado, calculators, open-source]
+description: "The free mechanics lien deadline calculator now covers Colorado: lien statement due four months after last furnishing, notice of intent ten days before."
 ---
 
 The free [mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/) now covers Colorado: a lien statement is due four months after your last furnishing, and a notice of intent to lien must be served at least ten days before it. Colorado has no early preliminary notice on private work, so the tool shows the last day for the notice of intent instead.
