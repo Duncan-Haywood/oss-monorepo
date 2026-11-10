@@ -1,0 +1,268 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/gift-vs-inherit-basis-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "an estate-planning CPA or attorney who advises on gift versus bequest basis",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran node against calc.mjs and recomputed by hand from IRC 1014/1015, 121, 2001/2010, 2503(b), Treas. Reg. 1.1015-1(a)(2) and 2026 figures (15,000,000 exemption, 19,000 exclusion; recalled from the statutes and Rev. Proc., not fetched). Default gift tax 119,788.25, sell-now 20,900, large-estate inherit and gift estate tax (9,433,496.58 and 6,792,400), taxable gift and 709 boundary all match to the cent. One departure: giftGain(50000,90000,450000) returns -400,000, expected -40,000 (latent, losses are not used downstream). Gift-tax basis adjustment missing.",
+    "completeness": "Every claimed feature works end to end: three-path table, 709 flag, five-horizon sensitivity, CSV (4 rows), editable exemption and exclusion, disclaimer, not-decided list. Page inputs are filled by JS; blank fields fall back to defaults silently. No TODOs or dead links in the venture; related-tool links point at sibling ventures.",
+    "verification": "node --test '*.test.mjs' gives 23 pass, 0 fail. Six seeded mutations, four survived (709 boundary, NIIT, sell-now estate base, priorGifts in inheritance); two were caught (loss branch, annual exclusion). All files restored with git checkout, git status clean. Tests assert values the author computed; none covers the rule branch that is wrong.",
+    "craft": "Read calc.mjs (129 lines), calc.test.mjs, page.test.mjs, usage.mjs, index.html script. Small pure functions, escaped HTML, no network, usage.mjs handles blocked storage. Defects: giftGain branch order, silent default on blank input (index.html:95), isHome as a 0/1 number field, no rate range validation.",
+    "claims": "Loaded https://marisstella.app/gift-vs-inherit-basis-calculator/: llms.txt, sitemap and canonical carry marisstella.app, so the source-side github.io and ./ URLs are not defects. Disclaimer, privacy, sponsor link and usage events match code (page.test.mjs). README and page list what is not modelled. Overclaim: FAQ says the loss on a gifted loss property 'is not usable'. README and page omit the IRC 1015(d) adjustment.",
+    "fitness": "A homeowner or adult child can enter value, basis, years and see a dollar figure per path and a 709 flag, which is the job. Gaps: user must know their own federal rate and NIIT, blank fields are replaced silently, the sell-now column is not horizon-matched, and TOD deed or revocable trust (the page's own recommended alternatives) are not priced.",
+    "domain": "Professional: an estate-planning attorney or CPA doing basis planning. They would accept carryover vs step-up, dual-basis intent, and unified-credit arithmetic as a first screen. They would check first the loss-property rule (departure above), 1015(d), 121 loss on the donee side, the 1014(e) one-year rule, and that the comparison omits growth on sold cash. Flat 40% above exemption is correct for estates over the 15M exemption."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Default case: value 450,000, basis 90,000, 4% for 12 years; future value, gift gain tax at 19%",
+      "method": "Hand arithmetic from IRC 1015(a) carryover basis: 450000*1.04^12=720,464.50; (720,464.50-90,000)*0.19",
+      "command": "analyze({}).result.gift.gainTax",
+      "expected": "119,788.25",
+      "observed": "119,788.25",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Sell-now tax with section 121 exclusion (single, 250,000)",
+      "method": "IRC 121(b)(1) and Pub 523: (450,000-90,000-250,000)*19%",
+      "command": "analyze({}).result.sellNow.gainTax",
+      "expected": "20,900",
+      "observed": "20,900",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Estate tax, 30M other estate, 2M asset growing 6% for 25y: inherit path",
+      "method": "IRC 2001(c)/2010 at 40% above 15,000,000 (2026 basic exclusion): 0.4*(30,000,000+2,000,000*1.06^25-15,000,000)",
+      "command": "analyze({otherEstate:30000000,years:25,growth:6,value:2000000,basis:200000}).result.inherit.estateTax",
+      "expected": "9,433,496.58",
+      "observed": "9,433,496.58",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Estate tax, same case, gift path: only the gift net of 2026 annual exclusion 19,000 comes back as an adjusted taxable gift",
+      "method": "IRC 2001(b), 2503(b), Rev. Proc. 2025-32 ($19,000 for 2026): 0.4*(30,000,000+1,981,000-15,000,000)",
+      "command": "same call, .gift.estateTax",
+      "expected": "6,792,400",
+      "observed": "6,792,400",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Dual-basis rule, loss property: donor basis 500,000, FMV at gift 450,000, sale at 400,000 / 480,000",
+      "method": "Treas. Reg. 1.1015-1(a)(2) and IRC 1015(a): loss uses FMV at gift, in between no gain or loss",
+      "command": "giftGain(400000,500000,450000), giftGain(480000,500000,450000)",
+      "expected": "-50,000 and 0",
+      "observed": "-50,000 and 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Dual-basis rule, appreciated property sold BELOW donor basis: donor basis 90,000, FMV at gift 450,000, sale 50,000",
+      "method": "Treas. Reg. 1.1015-1(a)(2): if basis is not above FMV, donor basis is used for loss too, loss = 50,000-90,000",
+      "command": "giftGain(50000,90000,450000)",
+      "expected": "-40,000",
+      "observed": "-400,000",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Taxable gift for a 50% share of a 1,000,000 asset to one donee",
+      "method": "IRC 2503(b): 500,000 less 19,000 exclusion",
+      "command": "analyze({value:1e6,basis:1e6,share:50,years:0,growth:0,otherEstate:0}).result.taxableGift",
+      "expected": "481,000",
+      "observed": "481,000",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Form 709 trigger, 38,000 gift to 2 donees (exclusion 19,000 each)",
+      "method": "Form 709 instructions, who must file: per-donee test, 38,000 is not over 38,000",
+      "command": "scenario({...DEFAULTS,donees:2,value:38000,years:0,growth:0}).needs709",
+      "expected": "false",
+      "observed": "false",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Basis increase for gift tax paid on net appreciation",
+      "method": "IRC 1015(d)(6)",
+      "command": "read calc.mjs gift branch",
+      "expected": "modelled or listed as not modelled",
+      "observed": "neither; not in README or page 'Not decided'",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Claimed feature: three paths, Form 709 flag, years-to-death sensitivity, CSV export",
+      "method": "README Model section and page JSON-LD featureList",
+      "command": "node scratchpad/chk.mjs; read index.html run() and toCsv",
+      "expected": "all present",
+      "observed": "all present and wired; csv has 4 rows",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Page loads and runs with JS disabled / blank fields",
+      "method": "README says type the value and see result",
+      "command": "read index.html:95 opts()",
+      "expected": "blank field uses what the user left",
+      "observed": "a blank field silently becomes the example default (value 450000 etc.)",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Own test suite",
+      "method": "README: node --test",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "23 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served llms.txt, sitemap, canonical rewritten to marisstella.app at deploy",
+      "method": "README caveat in quality programme; platform/ci/build_pages_site.py rewrite_base_urls",
+      "command": "curl https://marisstella.app/gift-vs-inherit-basis-calculator/llms.txt",
+      "expected": "marisstella.app URLs",
+      "observed": "marisstella.app URLs (source ./ and github.io are placeholders only)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, no-warranty, privacy and sponsor link present on page",
+      "method": "PRODUCT_PLAYBOOK disclaimer text; page.test.mjs",
+      "command": "read index.html footer",
+      "expected": "present",
+      "observed": "present",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Page FAQ: 'Either way the paper loss is not usable' for gifted loss property",
+      "method": "IRC 1015(a): a recipient who sells below FMV-at-gift does have a loss",
+      "command": "read index.html:71",
+      "expected": "a loss between sale price and FMV at gift is allowed",
+      "observed": "claim is false for the gift case; the tool also drops the loss (gainTax uses max(0,gain))",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README Run section says 'node --test'",
+      "method": "Node 22 behaviour",
+      "command": "node --test (in venture dir)",
+      "expected": "runs 23 tests",
+      "observed": "runs 23 tests",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Sell-now column compared on the same date as the others",
+      "method": "Planning practice: compare outcomes at one horizon",
+      "command": "read scenario() lines 76-80",
+      "expected": "cash grown or horizon matched",
+      "observed": "owner sells today, cash gets no growth and is taxed at death horizon not modelled; stated only as a code comment",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:68",
+      "change": "needs709 v > exclusionUsed -> v >= exclusionUsed",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:42",
+      "change": "loss branch: price - valueAtGift -> price - basis",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:36",
+      "change": "drop niitRate from totalRate",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:79",
+      "change": "sell-now estate base: v - nowTax -> v",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:67",
+      "change": "taxableGift: drop annual exclusion (v - exclusionUsed -> v)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:73",
+      "change": "inherit estate base: drop priorGifts",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "giftGain applies the fair-value loss rule to every sale below fair value at gift, even when donor basis is below fair value; sale of 90,000-basis, 450,000-FMV property at 50,000 returns -400,000, not -40,000. Latent today because gainTax ignores losses and the UI does not show gift.gain, but it is exported and wrong; tests only cover basis above FMV.",
+      "where": "calc.mjs:42",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Survivors: NIIT rate, sell-now estate base, priorGifts in inheritance, and the 709 boundary have no test; a change to any leaves 23 tests green.",
+      "where": "calc.test.mjs:1",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "A blank or cleared input silently becomes the example default (e.g. blank basis becomes 90,000) and the result is shown with no warning.",
+      "where": "index.html:95",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "FAQ says a loss on gifted loss property is not usable; IRC 1015(a) lets the recipient claim the loss measured from fair value at gift. The tool also never credits such a loss.",
+      "where": "index.html:71",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Gift-tax basis adjustment (IRC 1015(d)) is neither modelled nor listed under not modelled.",
+      "where": "README.md:15",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Sell-now path has no growth on the cash and is compared with paths at the death horizon, so 'Lowest tax' mixes horizons; rates (15/20, NIIT) are typed by the user with no bracket help; growth below -100 is not rejected.",
+      "where": "calc.mjs:76",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14534"
+  ],
+  "verdict": "Arithmetic is right: the default and large-estate cases, the 709 test and the exemption maths reproduce by hand to the cent, the served page and llms.txt are correct after the deploy rewrite, and every advertised feature works. It does not meet the bar because verification is 2: four of six seeded mutations survived, including NIIT and the 709 boundary. A professional would also find giftGain wrong for appreciated property sold below donor basis (latent), a FAQ line that misstates the loss rule, silent defaults for blank inputs and no 1015(d) adjustment. Fine as a first screen with a stated-limits disclaimer, not as a planning tool."
+}
