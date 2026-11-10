@@ -145,7 +145,8 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
 2. **Feeder CAD**: launcher head, lateral base, mast and catch-net frame are
    in `manufacturing/feeder/` (v0.1), with the hopper, hose and feed shuttle.
    Still to model: the actuator brackets (shuttle and elevation), azimuth
-   drive, netting trough, post bracing.
+   drive, netting trough. The hose and its sliding-sleeve take-up are
+   checked over the head's whole tilt and turn range (2026-11-10).
 3. Bench-test the feeder head: calibrate wheel efficiencies
    (`launcher.calibrate`) with a radar gun, then validate the flight model
    against real landing spots.

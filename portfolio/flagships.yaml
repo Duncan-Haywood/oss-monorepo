@@ -243,9 +243,11 @@ flagships:
       hold and pull-through forces checked) landed 2026-10-22. Post bracing, hose routing and launch,
       plate-clearance and axle-squaring checks landed 2026-11-03 to 11-09 (cad/README.md). The take-up was
       replaced 2026-11-10: the floating pulley's 180 deg wrap sent balls uphill (a ball-carrying hose may wrap
-      60 deg at most), so the hose's top end now slides in a 275 mm rigid sleeve under the outlet
-      (`Feeder.sleeve_take_up_design`, sleeve, collar and socket as CAD), which moved the outlet to x -400,
-      z 2000 (tub rim about 2.3 m; +30 deg nose-up would allow z 1875). Next: hang a real hose from a tube to
+      60 deg at most), so the hose's top end now slides in a rigid sleeve under the outlet
+      (`Feeder.sleeve_take_up_design`, sleeve, collar and socket as CAD). The same day the hose check went 3-D
+      with the head's +-30 deg azimuth (`_hose_curve_range_3d`): z 2000 failed at +45/30 deg, so the outlet is
+      now x -400, z 2025 with a 300 mm tube and 236 mm slide (tub rim about 2.3 m; +30 deg nose-up would allow
+      z 1900). Next: hang a real hose from a tube to
       check the slide and the Bezier proxy (needs a person); the spring drum's bracket; then the actuator
       brackets (shuttle and elevation) and azimuth drive, then the netting trough that rolls balls to the
       hopper inlet; consider a lower, rear-mounted tub with a longer base if 2.3 m is too high to fill.

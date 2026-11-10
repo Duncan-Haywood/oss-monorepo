@@ -63,6 +63,60 @@ def _hose_curve_range(ox: float, oz: float, mx: float, mz: float, tilt_rad: floa
     return None if lo is None else (lo, hi)
 
 
+@functools.lru_cache(maxsize=4096)
+def _hose_curve_range_3d(o: tuple, m: tuple, u: tuple, r_min: float, slope_min: float,
+                         step: float = 25.0, n: int = 24) -> tuple[float, float] | None:
+    """3-D form of `_hose_curve_range` (2026-11-10): the hose leaves outlet point `o` straight down and enters socket
+    mouth `m` along the unit column axis `u` (pointing out of the socket, up the column), which need not lie in the
+    x-z plane once the head turns in azimuth. Same Bezier family, bend limit and fall limit; the fall is measured
+    from the horizontal plane (tangent's z against its horizontal length). Shortest and longest fitting hose, or None."""
+    kcap = 1 / r_min
+    tan_min = math.tan(math.radians(slope_min))
+    ts = [k / n for k in range(n + 1)]
+    lo = hi = None
+    cnt = int(900 / step)
+    for i in range(1, cnt + 1):
+        l0 = i * step
+        p0 = o
+        p1 = (o[0], o[1], o[2] - l0)
+        for j in range(1, cnt + 1):
+            l1 = j * step
+            p2 = (m[0] + l1 * u[0], m[1] + l1 * u[1], m[2] + l1 * u[2])
+            p3 = m
+            d01 = [p1[c] - p0[c] for c in range(3)]
+            d12 = [p2[c] - p1[c] for c in range(3)]
+            d23 = [p3[c] - p2[c] for c in range(3)]
+            s0 = [p2[c] - 2 * p1[c] + p0[c] for c in range(3)]
+            s1 = [p3[c] - 2 * p2[c] + p1[c] for c in range(3)]
+            ok = True
+            for t in ts:
+                w = 1 - t
+                a = [3 * w * w * d01[c] + 6 * w * t * d12[c] + 3 * t * t * d23[c] for c in range(3)]
+                h = math.hypot(a[0], a[1])
+                if abs(a[2]) < tan_min * h - 1e-12:      # flatter than the fall limit
+                    ok = False
+                    break
+                b = [6 * w * s0[c] + 6 * t * s1[c] for c in range(3)]
+                cx = a[1] * b[2] - a[2] * b[1]
+                cy = a[2] * b[0] - a[0] * b[2]
+                cz = a[0] * b[1] - a[1] * b[0]
+                sp = math.sqrt(a[0] ** 2 + a[1] ** 2 + a[2] ** 2)
+                if sp > 1e-9 and math.sqrt(cx * cx + cy * cy + cz * cz) > kcap * sp ** 3:
+                    ok = False
+                    break
+            if not ok:
+                continue
+            length, prev = 0.0, p0
+            for t in ts[1:]:
+                w = 1 - t
+                q = tuple(w ** 3 * p0[c] + 3 * w * w * t * p1[c] + 3 * w * t * t * p2[c] + t ** 3 * p3[c] for c in range(3))
+                length += math.dist(prev, q)
+                prev = q
+            lo = length if lo is None else min(lo, length)
+            hi = length if hi is None else max(hi, length)
+    return None if lo is None else (lo, hi)
+
+
 @dataclass(frozen=True)
 class Collector:
     # Tennis ball (ITF 65.4-68.6 mm).
@@ -266,6 +320,8 @@ class Feeder:
     launch_z: float = 1000.0      # ball path height
     elev_min: float = -15.0
     elev_max: float = 45.0
+    az_max: float = 30.0          # head turns this far either side of straight ahead (hardware/feeder-catcher.md)
+    az_steps: int = 2             # azimuth poses checked from 0 to az_max (the hopper sits on y = 0, so -az mirrors +az)
 
     # Cheeks that hold the head's pivot bolt.
     cheek_x_half: float = 60.0
@@ -337,8 +393,9 @@ class Feeder:
     want_balls: int = 120
     shelf_slope_deg: float = 12.0  # falls toward the net, to the outlet
     hopper_out_x: float = -400.0   # -330 until 2026-11-10; -400 is as far back as the front posts allow (30 mm in from the shelf's front edge)
-    hopper_out_z: float = 2000.0   # underside of the shelf at the outlet: the lowest at which the sleeve take-up fits every pose
-                                   # (1560 left no hose curve at -15 or +45 deg, 2026-11-03; 1700 needed a pulley loop, 2026-11-10)
+    hopper_out_z: float = 2025.0   # underside of the shelf at the outlet: the lowest at which the sleeve take-up fits every pose
+                                   # (1560 left no hose curve at -15 or +45 deg, 2026-11-03; 1700 needed a pulley loop, 2026-11-10;
+                                   # 2000 fitted azimuth 0 only: at +45 deg turned 30 deg the shortest hose was 31 mm too long, 2026-11-10)
     post_front_x: float = -380.0
     post_rear_x: float = -640.0
     shelf_post_y: float = 225.0
@@ -664,15 +721,38 @@ class Feeder:
         """False whenever a floating-pulley take-up is needed: its 180 deg wrap exceeds `pulley_wrap_max_deg`."""
         return 180.0 <= self.pulley_wrap_max_deg()
 
-    def _ranges_from(self, ox: float, oz: float, steps: int = 4):
+    def mouth_world_3d(self, elev_deg: float, az_deg: float) -> tuple[tuple, tuple]:
+        """Socket mouth (x, y, z) and the column's unit axis (up the column, out of the socket) with the head tilted
+        `elev_deg` nose up and turned `az_deg` on the turntable, whose axis is the vertical through (head_x, 0)."""
+        mx, mz = self.mouth_world(elev_deg)
+        t, a = math.radians(elev_deg), math.radians(az_deg)
+        r = mx - self.head_x
+        pos = (self.head_x + r * math.cos(a), r * math.sin(a), mz)
+        axis = (-math.sin(t) * math.cos(a), -math.sin(t) * math.sin(a), math.cos(t))
+        return pos, axis
+
+    def _ranges_from(self, ox: float, oz: float, steps: int = 4, az: bool = True):
+        """(elevation, azimuth, hose range or None) for each pose, from a start point straight above (ox, 0, oz).
+        Azimuth 0 uses the planar `_hose_curve_range`; turned poses use `_hose_curve_range_3d` (added 2026-11-10:
+        before that the take-up was sized at azimuth 0 only). `az=False` gives the azimuth-0 poses alone."""
+        azs = [0.0] if not az or self.az_max <= 0 else [self.az_max * k / self.az_steps for k in range(self.az_steps + 1)]
         out = []
         for i in range(steps + 1):
             e = self.elev_min + (self.elev_max - self.elev_min) * i / steps
-            mx, mz = self.mouth_world(e)
-            out.append((e, _hose_curve_range(ox, oz, mx, mz, math.radians(e), self.hose_min_bend, self.feed_min_slope_deg)))
+            for a in azs:
+                if a == 0.0:
+                    mx, mz = self.mouth_world(e)
+                    rng = _hose_curve_range(ox, oz, mx, mz, math.radians(e), self.hose_min_bend, self.feed_min_slope_deg)
+                else:
+                    m, u = self.mouth_world_3d(e, a)
+                    m = tuple(round(v, 9) for v in m)
+                    u = tuple(round(v, 12) for v in u)
+                    rng = _hose_curve_range_3d((ox, 0.0, oz), m, u, self.hose_min_bend, self.feed_min_slope_deg)
+                out.append((e, a, rng))
         return out
 
-    def sleeve_take_up_design(self, tension_n: float = 5.0, step_mm: float = 25.0, max_mm: float = 600.0) -> dict | None:
+    def sleeve_take_up_design(self, tension_n: float = 5.0, step_mm: float = 25.0, max_mm: float = 600.0,
+                              azimuth: bool = True) -> dict | None:
         """A take-up that keeps the ball path falling (2026-11-10). A rigid vertical sleeve hangs `sleeve_mm` under the
         hopper outlet; the hose's top end slides inside it, held up by a constant-force spring, so the free hose starts at
         the sleeve's lower end and its free length changes by the slide. Balls drop straight down the sleeve into the hose,
@@ -680,22 +760,24 @@ class Feeder:
         end) must hold the stroke (longest shortest-fit minus shortest longest-fit, from the lower start), the collar,
         the gap under the shelf and `sleeve_overlap_mm`. Searches sleeve lengths
         upward in `step_mm`; None if no length up to `max_mm` works (a longer sleeve lowers the start, which can only
-        be done while every pose still has a curve). The spring pulls `tension_n` on one hose leg (assumption)."""
+        be done while every pose still has a curve). The spring pulls `tension_n` on one hose leg (assumption).
+        Poses are (elevation, azimuth, slide low, slide high); since 2026-11-10 they include the head turned to
+        `az_max` (`azimuth=False` sizes at azimuth 0 alone, as before)."""
         ox, oz = self.hopper_out_x, self.hopper_out_z
         ls = self.sleeve_overlap_mm
         seen_fit = False
         while ls <= max_mm + 1e-9:
-            r = self._ranges_from(ox, oz - ls)
-            if any(x is None for _, x in r):
+            r = self._ranges_from(ox, oz - ls, az=azimuth)
+            if any(x is None for _, _, x in r):
                 if seen_fit:
                     return None    # dropping further only loses poses
                 ls += step_mm
                 continue
             seen_fit = True
-            fixed = min(hi for _, (lo, hi) in r)
-            stroke = max(0.0, max(lo for _, (lo, hi) in r) - fixed)
+            fixed = min(hi for _, _, (lo, hi) in r)
+            stroke = max(0.0, max(lo for _, _, (lo, hi) in r) - fixed)
             if stroke + self.sleeve_overlap_mm + self.collar_h_mm + self.sleeve_top_mm <= ls + 1e-9:
-                poses = [(e, max(0.0, lo - fixed), hi - fixed) for e, (lo, hi) in r]
+                poses = [(e, a, max(0.0, lo - fixed), hi - fixed) for e, a, (lo, hi) in r]
                 return {"sleeve_mm": ls, "start_z": oz - ls, "stroke_mm": stroke, "free_mm": (fixed, fixed + stroke),
                         "hose_cut_mm": math.ceil((fixed + stroke + self.sleeve_overlap_mm + COLLAR_SOCKET_MM) / 10) * 10,
                         "tube_mm": ls - self.sleeve_top_mm, "collar_travel": (ls - self.sleeve_overlap_mm - stroke, ls - self.sleeve_overlap_mm),

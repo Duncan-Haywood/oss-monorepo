@@ -282,8 +282,9 @@ class FeederParamsTest(unittest.TestCase):
         self.assertAlmostEqual(t["start_z"], p.hopper_out_z - t["sleeve_mm"])
         # every pose has a free length inside the stroke, re-checked from the sleeve's lower end
         r = p._ranges_from(p.hopper_out_x, t["start_z"])
-        for (e, (rlo, rhi)), (e2, xlo, xhi) in zip(r, t["poses"]):
-            self.assertEqual(e, e2)
+        self.assertEqual(len(r), 5 * (p.az_steps + 1))   # every elevation step at every azimuth step
+        for (e, a, (rlo, rhi)), (e2, a2, xlo, xhi) in zip(r, t["poses"]):
+            self.assertEqual((e, a), (e2, a2))
             self.assertTrue(rlo <= lo + xlo + 1e-6 <= rhi + 1e-6, e)
             self.assertLessEqual(xlo, t["stroke_mm"] + 1e-9)
         # the collar stays in the tube: highest under its top end, lowest the overlap above its bottom
@@ -292,6 +293,37 @@ class FeederParamsTest(unittest.TestCase):
         self.assertAlmostEqual(lo_d, t["sleeve_mm"] - p.sleeve_overlap_mm)
         # the outlet the pulley was sized at (x -330, z 1700) has no sleeve that works
         self.assertIsNone(Feeder(hopper_out_x=-330.0, hopper_out_z=1700.0).sleeve_take_up_design())
+
+    def test_the_take_up_is_sized_with_the_head_turned_in_azimuth(self):
+        # 2026-11-10: the head turns +-30 deg on the turntable while the hopper stays put, so the socket mouth swings
+        # sideways (about 200 mm at +45 deg) and the column axis leans out of the x-z plane. The outlet sized at azimuth 0
+        # (z 2000) has no sleeve once the turned poses count; the shipped 2025 does.
+        old = Feeder(hopper_out_z=2000.0)
+        self.assertIsNotNone(old.sleeve_take_up_design(azimuth=False))
+        self.assertIsNone(old.sleeve_take_up_design())
+        # at +45 deg turned the full 30 deg, the shortest hose that fits is longer than the azimuth-0 slide reaches
+        t0 = old.sleeve_take_up_design(azimuth=False)
+        turned = old._ranges_from(old.hopper_out_x, t0["start_z"])
+        worst = [x for e, a, x in turned if e == old.elev_max and a == old.az_max][0]
+        self.assertGreater(worst[0], t0["free_mm"][1] + 20.0)
+        p = Feeder()
+        self.assertEqual(p.hopper_out_z, 2025.0)
+        t = p.sleeve_take_up_design()
+        self.assertIsNotNone(t)
+        self.assertTrue(any(a == p.az_max for _, a, _, _ in t["poses"]))
+        self.assertGreater(t["stroke_mm"], t0["stroke_mm"])     # turning costs slide
+        # the 3-D curve family reduces to the planar one at azimuth 0
+        from otr_cad.params import _hose_curve_range, _hose_curve_range_3d
+        (mx, my, mz), u = p.mouth_world_3d(30.0, 0.0)
+        self.assertAlmostEqual(my, 0.0)
+        a = _hose_curve_range(p.hopper_out_x, t["start_z"], mx, mz, math.radians(30.0), p.hose_min_bend, p.feed_min_slope_deg)
+        b = _hose_curve_range_3d((p.hopper_out_x, 0.0, t["start_z"]), (mx, 0.0, mz), u, p.hose_min_bend, p.feed_min_slope_deg)
+        self.assertAlmostEqual(a[0], b[0], places=6)
+        self.assertAlmostEqual(a[1], b[1], places=6)
+        # a turned head moves the mouth sideways by the column's offset from the turntable axis
+        (x30, y30, z30), u30 = p.mouth_world_3d(0.0, 30.0)
+        self.assertAlmostEqual(y30, p.feed_col_x * math.sin(math.radians(30.0)), places=6)
+        self.assertAlmostEqual(math.hypot(*u30), 1.0)
 
     def test_take_up_parts_match_the_design(self):
         from otr_cad.feeder import _sleeve_d, take_up_parts
