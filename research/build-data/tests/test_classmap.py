@@ -44,3 +44,39 @@ def test_cascade_order():
     assert C.cascade("building", "", "bogus") == "other"
     for args in [("x",), ("x", "y", "sign"), ("demolition permit", "", "")]:
         assert C.cascade(*args) in C.CLASSES
+
+
+def test_v1_rules_unchanged_by_v2():
+    # session 70's pre-registered rules stay the default, so its predictions are scored on them
+    assert C.describe("SOLAR PANEL PERMIT.  ERECT A PHOTOVOLTAIC ARRAY ON THE ROOF") == "new_construction"
+    assert C.describe("Construct south two-family dwelling  per plan.") == "other"
+
+
+def test_v2_fixes_the_dev_set_error_patterns():
+    d = lambda s: C.describe(s, 2)
+    assert d("SOLAR PANEL PERMIT.  ERECT A PHOTOVOLTAIC ARRAY ON THE ROOF") == "electrical"
+    assert d("ERECT SIX (6) FOOT HIGH WOOD FENCE. 100 LINEAR FEET") == "alteration"
+    assert d("ERECT TWO (2) SCAFFOLDS") == "other"
+    assert d("ERECT 20'X 24' FRAME GARAGE (MAX 15' HEIGHT PER ZONING)") == "new_construction"
+    assert d("Construct south two-family dwelling  per plan.") == "new_construction"
+    assert d("Construct apartment building  occupy per plan") == "new_construction"
+    assert d("Construct alterations to existing single family residence to convert into two family dwelling") == "alteration"
+    assert d("**FIRE ALARM PERMIT**TENANT BUILD-OUT ON THE 7TH FLOOR") == "fire"
+    assert d("CHANGE OF PLUMBING CONTRACTORS PERMIT #1 TO X PLUMBING INC.") == "other"
+    assert d("INSTALL 200 AMP SERVICE") == "electrical"
+    assert d("REPAIR SERVICE") == "electrical"
+    assert d("Engineered voluntary seismic retrofit for SFR  subject to field inspection") == "alteration"
+    assert d("REPLACE (1) ROOF TOP UNIT.") == "mechanical"
+    assert d("TUCKPOINTING - NO STRUCTURAL WORK - 800 SQFT") == "alteration"
+    assert d("INSTALLATION OF ONE(1) 2500LB CAPACITY PASSENGER ELEVATOR") == "other"
+
+
+def test_v2_keeps_the_session_70_intent():
+    d = lambda s: C.describe(s, 2)
+    assert d("ERECT A 2 STORY SINGLE FAMILY RESIDENCE WITH ELECTRICAL AND PLUMBING") == "new_construction"
+    assert d("Construct new single family residence per plan") == "new_construction"
+    assert d("WRECK AND REMOVE 1 STORY FRAME GARAGE") == "demolition"
+    assert d("install new water heater") == "plumbing"
+    assert d("replace furnace with new heat pump") == "mechanical"
+    assert d("install illuminated wall sign") == "sign"
+    assert d("") == "other" and d("design review") == "other"

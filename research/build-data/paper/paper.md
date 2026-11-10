@@ -262,6 +262,34 @@ review track and Seattle's is residential or non-residential. So a map retuned o
 cannot give Chicago or Seattle a work type: that needs the description text, which the loader
 keeps only as a length.
 
+### 4.4b Do the description rules agree with a reader? (session 71, hand labels)
+
+The cascade in to do 6 needs a work type from the description, so its keyword rules were scored
+against hand labels (`../src/desc_eval.py`, `../results/desc_rules_eval.json`). Samples hold
+applications whose permit type and work class both fall to "other" in Chicago and Seattle, the
+rows the description must rescue. One labeller (the agent running the session) labelled from the
+text alone, by a written protocol, without the rules' output. On a 2023 development sample
+(200 rows per city) the pre-registered rules (session 70) agreed with the labels on 56.0% of
+Chicago rows and 77.0% of Seattle rows. The errors had clear patterns: "erect" sent solar arrays
+and fences to new construction, electrical service and panel work had no rule, and Seattle's
+"construct west two-family dwelling" lacks the word "new". Revised rules written against those
+errors were then scored on a 2022 held-out sample (150 rows per city, labelled before either rule
+set ran on it): 85.3% (95% Wilson interval 78.8 to 90.1) in Chicago and 95.3% (90.7 to 97.7) in
+Seattle, against 60.0% and 78.0% for the original rules (exact McNemar p 4e-10 and 2e-7; 2 and
+1 rows where only the original was right, 40 and 27 where only the revision was). A single
+labeller and a non-uniform draw within each year limit these numbers; they show the original
+rules were too noisy to test whether a work type transfers, and the revised rules are usable.
+
+With a work type, H4 for Seattle (2024 test, 3 seeds, `../results/transfer_seattle_*_2024_4city_cascade*.json`)
+changes where the class matters. The class overlap between Seattle and its sources' training years,
+without "other", rises from 0.006 to 0.50. For application-to-issue the q0.9 transfer penalty is
++27.4% with the permit-type class, +41.7% with the noisy original rules, and +15.9% (CI still
+above zero) with the revised rules, whose interval covers 0.755 against 0.644. Issue-to-completion
+q0.1 and q0.5 stay about 10 to 11% better than the baseline in every configuration, and q0.9 stays
+within noise of it. So part of the upper-tail transfer gap was a class problem, and a noisy class
+did more harm than none. One test year and one held-out city so far; the three configurations are
+not yet compared with each other by a paired bootstrap.
+
 ### 4.5 Pooled model plus a small local sample (H5 holds; secondary refuted)
 
 Five draws of the local rows, source rows capped at 100,000 per city, a2i only.
@@ -345,7 +373,7 @@ Limits: three test years for transfer and one for the rest, 3 seeds (2 for cover
 
 One test year (2024) for H3, H4, H5 in the original three cities (H1 and the neural comparison also run for 2022 and 2023; Seattle transfer for 2022 to 2024); three seeds (two for conformal); one fixed
 configuration per library (defaults, untuned); the neural net (4.6) is one untuned architecture; the
-harmonised class map is a keyword rule not validated against hand labels, and its classes barely overlap between cities (4.4a), so the transfer results test the generic fields only; Chicago
+structured class map is a keyword rule not validated against hand labels (the description rules are, 4.4b: 85% and 95% held-out agreement with one labeller), and its classes barely overlap between cities (4.4a), so the transfer results test the generic fields only; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
 draws in 4.5 is not reported; i2c is not rerun for H5b; a fourth city (Seattle, 4.8) with partial coverage of the experiments (NYC DOB NOW
 licence unchecked). Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
@@ -365,5 +393,5 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
 4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2022 to 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
-6. Build a work-type class from the description text for Chicago and Seattle (4.4a: their structured fields do not name the work; overlap without "other" is 0.00 to 0.19) and from `work_class` for Austin, validate it on a hand-labelled sample, and rerun H4. Code in place (session 70: `src/classmap.py` cascade, the loader's `desc_class`, `transfer.py --classes cascade`, with a prediction in `../LOG.md`); not yet run on data or validated.
+6. Build a work-type class from the description text for Chicago and Seattle (4.4a: their structured fields do not name the work; overlap without "other" is 0.00 to 0.19) and from `work_class` for Austin, validate it on a hand-labelled sample, and rerun H4. Code in place (session 70: `src/classmap.py` cascade, the loader's `desc_class`, `transfer.py --classes cascade`, with a prediction in `../LOG.md`). Validated in session 71 (4.4b): the session 70 rules agree with hand labels on 60% (Chicago) and 78% (Seattle) of held-out rows, the revised rules (`desc_class_v2`, `--classes cascade2`) on 85% and 95%.
 7. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
