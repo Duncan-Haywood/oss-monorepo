@@ -1,6 +1,6 @@
 ---
 title: "The measles change our detector 'missed' was never there"
-seo_title: "Changepoint detection on weekly measles counts: the answer is no change"
+seo_title: "Changepoint detection on weekly measles: the answer is no change"
 date: 2026-11-10
 tags: [changepoint-detector, time-series, benchmarks]
 description: "Four of five TCPD annotators mark no change on weekly measles. Our consensus cut at the 1961 peak; the two fixes do not work as defaults."
