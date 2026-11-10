@@ -2,7 +2,7 @@
 title: "A panel of six change detectors on three more real series: one hit, one miss"
 seo_title: "Change-point detection on real data: hurricane deaths, hyperinflation"
 date: 2026-11-10
-tags: [changepoint-detection, time-series, evaluation, open-source]
+tags: [changepoint-detector, time-series, evaluation, open-source]
 description: "Six change-point settings run on Hurricane Maria deaths, Argentina inflation and coal disasters. A spike is found by all six; a stabilisation is missed."
 ---
 
