@@ -1,5 +1,5 @@
 ---
-title: "The two blog-post checkers now take a file, the way runs kept calling them"
+title: "Blog-post checkers now take a file, the way runs called them"
 date: 2026-11-10
 tags: [process, ci, tooling]
 description: "check_post_frontmatter.py and check_post_links.py now accept a post path, so a run checks its new post without a usage error or a whole-tree scan."
