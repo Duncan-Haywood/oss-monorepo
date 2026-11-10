@@ -1,9 +1,9 @@
 ---
 title: "Should a bookkeeping guess that has been wrong stop guessing? Seven labelled sets say: not yet"
-seo_title: "Transaction categorization for new payees: a track-record gate, measured"
+seo_title: "New-payee transaction categorization: a track-record gate, measured"
 description: "ai-bookkeeper tried withholding new-payee guesses with a poor record. Across seven labelled sets it removed about one right answer per wrong one."
 tags: [bookkeeping, categorization, open-source, machine-learning, negative-result]
-date: 2026-11-11
+date: 2026-11-10
 ---
 
 The ai-bookkeeper has a weak guess for a payee it has never seen. It sorts the name into a kind (a person, a business, something else) and the line into a size band. Then it offers the account that most earlier payees of that kind and size were first filed to. It needs eight such payees, it stays silent when they split, its confidence never goes above 0.5, and it never files a line by itself. A person reviews every guess.

@@ -381,7 +381,7 @@ What it says:
   nothing. Whether a reviewer is better served by fewer, surer pills is the same open
   question as above. A default change should be read on Open Collective too.
 
-### New payees, gated on their own record (2026-11-11)
+### New payees, gated on their own record (2026-11-10)
 
 The held-out reading above left one question: Hack Club's new-payee guesses were right on
 35.6% of the lines they took, under the 40% share the layer asks of its evidence. Share

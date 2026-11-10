@@ -737,7 +737,7 @@ function plurality(m, allowed = null) {
 }
 
 // `levels` (eval only) limits which views are tried, to measure what shape and size add.
-// The record (2026-11-11): once a view has guessed at least `minTries` earlier new payees
+// The record (2026-11-10): once a view has guessed at least `minTries` earlier new payees
 // in these books, its hit rate caps the guess's confidence and the reason says it ("right
 // for 7 of 12 earlier new payees"). `minRecord` > 0 also withholds a view whose rate is
 // under it. That gate was read at 0.4 (set before the first reading, not tuned) on seven
