@@ -84,6 +84,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--consensus') opt.consensus = argv[i + 1] && /^\d+$/.test(argv[i + 1]) ? Number(argv[++i]) : true;
     else if (a === '--ar1') opt.ar1 = argv[i + 1] === 'joint' ? (i++, 'joint') : true;
     else if (a === '--noise-floor-diff2') opt.noiseFloorOrder = 2;
+    else if (a === '--noise-floor-diff3') opt.noiseFloorOrder = 3;
     else if (a === '--noise-floor') opt.noiseFloor = argv[i + 1] && !argv[i + 1].startsWith('-') ? Number(argv[++i]) : true;
     else if (flags[a]) {
       if (i + 1 >= argv.length) throw new Error(`${a} needs a value`);
