@@ -3,7 +3,7 @@ title: "Quality audit round 36: none of four sampled subjects meets the bar, and
 seo_title: "Quality audit round 36: none of four sampled subjects meets the bar"
 date: 2026-11-10
 tags: [quality-audit, evaluation, testing, research]
-description: "None of four sampled subjects meets the senior-professional bar. All fail on verification: seeded bugs survive the tests. One page promised what simulation breaks."
+description: "None of four sampled subjects meets the senior-professional bar. All fail on verification: seeded bugs survive the tests. One page promised too much."
 ---
 
 Method and rubric: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). Evidence per subject: [`portfolio/quality/audits/`](../../portfolio/quality/audits/). Scores are before any fix. Mode `sample`, seed 2026-11-10 (the draw after the earlier rounds of the day landed).
