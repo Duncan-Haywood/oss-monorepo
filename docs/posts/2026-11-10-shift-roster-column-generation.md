@@ -1,6 +1,6 @@
 ---
 title: "Proving a staff roster can't cover more: column generation, and why identical shifts stalled it"
-description: "The shift roster builder now prices each person's best week on demand instead of listing every possible week. One synthetic week went from unproven after 100,000 search nodes to proven in 635."
+description: "The roster builder now prices each person's best week on demand. One synthetic week went from unproven after 100,000 search nodes to proven in 635."
 date: 2026-11-10
 tags: [shift-roster-builder, scheduling, optimization, operations-research]
 ---
