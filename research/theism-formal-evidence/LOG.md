@@ -1,5 +1,11 @@
 # Research log: theism-formal-evidence
 
+## 2026-11-10 · M2 (part): E8 at six cells (E9). Prediction was in the script docstring, not the log, before the run
+
+- **Prediction (H14).** Multi-world models of Anderson's axioms still exist at 3 worlds, in algebras where one individual has only rigid properties; refuted if none at 3 worlds x 2 individuals or 2 x 3 (partitions of at most 5 blocks; the 6-block case has 2^32 positive-set choices and is skipped).
+- **Outcome (`experiments/e9_restricted_larger/results.md`).** H14 held. 3 worlds x 2 individuals: 8 of 200 contingent algebras give a model; 2 x 3: 39 of 197. The first multi-world models at 3 worlds, so the E8 result is not a two-world accident. In all three listed 3x2 examples one individual's cells form a single block (rigid) and the other is split. Still a search, not a proof; the full-powerset 6-cell case is not covered.
+- **Lean.** Tried again to install the Lean toolchain (elan script downloads, running it was refused by the session's permission policy). Lean files remain uncompiled; needs a CI job or a session allowed to run the installer.
+
 ## 2026-11-07 · M1: catalogue, checker, ledger (predictions written before each run; outcomes below)
 
 - **Predictions (E1).** Every catalogue argument valid in its intended logic (H1); the modal ontological argument valid in B and S5 but not in T or S4, its reverse valid in T (H2); the Catholic and Orthodox positions each a maximal consistent subset of the eight-claim church set, differing in two claims per dispute (H3).

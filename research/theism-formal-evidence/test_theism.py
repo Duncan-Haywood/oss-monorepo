@@ -173,3 +173,12 @@ def test_e8_restricted_algebras_admit_contingent_multiworld_models():
     rows = {(r["w"], r["d"]): r for r in e8.run()}
     assert rows[(2, 2)]["algebras_with_model"] == 2
     assert all(rows[k]["algebras_with_model"] == 0 for k in [(2, 1), (3, 1), (4, 1), (5, 1)])
+
+
+def test_e9_three_world_model_exists():
+    """Anderson's axioms have a 3-world model over a restricted algebra (E9 example)."""
+    import importlib.util
+    f = Path(__file__).resolve().parent / "experiments" / "e8_restricted" / "run.py"
+    spec = importlib.util.spec_from_file_location("e8", f)
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    assert m.search(3, 2, m.algebra([[0, 2, 4], [1, 3], [5]]))[1] > 0
