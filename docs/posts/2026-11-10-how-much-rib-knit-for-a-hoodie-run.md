@@ -1,6 +1,8 @@
 ---
 title: How much rib knit does a hoodie run need?
 date: 2026-11-10
+tags: [clothing-design, cutting-plan, rib-knit, apparel, calculators]
+description: "A 32-hoodie run needs 46.37 m of body cloth plus 6.74 m of rib knit; self-fabric bands add about 1.4 m. Greedy-nest estimates, not a mill quote."
 ---
 
 Hoodie hem and cuff bands are usually cut from a separate rib knit, not the body fleece, and most costing sheets ignore that. The clothing design studio's cutting plan now lays the drafted bands on their own cloth width and reports the rib metres next to the body metres.
