@@ -1,0 +1,268 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/intent-twin",
+  "stratum": "research",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent quality audit, see run record",
+  "status": "audited",
+  "professional": "a sequential-analysis statistician (Wald SPRT, OC/ASN functions) plus an HRI researcher who has built goal inference with human-rationality models (Boltzmann/inverse planning, confidence-aware prediction)",
+  "scores": {
+    "correctness": 4,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `PYTHONPATH=src python3 -m unittest discover -s tests -v` (6 pass, 1.7 s) and `PYTHONPATH=src python3 experiments/run.py` (0.8 s; diff against experiments/results.txt: identical). Wrote /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/indep.py, which does not import the package: the wrong-goal probability and E[T] are obtained by solving the absorbing Markov chain exactly with Fractions (not the 1/(1+r^h) formula): p=0.7,h=4 -> 0.032635 / 9.3473; p=0.7,h=6 0.0061582 / 14.8153; p=0.6,h=8 0.0375532 / 36.9957; p=0.9,h=3 0.0013699 / 3.7397; p=0.8,h=4 0.0038911; p=0.6,h=4 0.164948; p=0.6,h=18 twin err 6.76e-4, E[T] 89.88. All match results.txt. Design thresholds by closed form ceil(ln((1-a)/a)/ln r): 4/5/9/18 at a=1e-3, 6 at a=0.01, 3/4 at a=0.05: match. P(p<1/2) via the exact Beta-binomial identity: Beta(21,9) 0.01206, Beta(14,6) 0.03178: match the h=4000 proxy 0.0121/0.0318. Population error by independent random.betavariate MC (400k): 0.0703/0.0883/0.0214 vs 0.0703/0.0881/0.0214. Section 5 calibration by math.comb enumeration: every P(miss) and mean error for n=10..1000, z=0 and 1.645 matches to 4 dp (e.g. n=20 z=0 0.4164; n=50 z=1.645 0.0402). alpha^theta by hand: 1e-3^(ln4/ln9)=1e-3^0.6309=0.0128 matches 1.28e-02. No wrong number found.",
+    "completeness": "Every claimed piece runs: closed forms, simulation check (independent random walk, not sharing the formula), twin-design tables, population tables, calibration tables, figure experiments/real_error.svg (figure.py parses results.txt), whitepaper (29 lines, a short note rather than a paper), README run commands work as written, live page https://marisstella.app/research/intent-twin/ returned 200 with the same abstract and '6 tests', research/README.md:212 index line present. No stubs or TODOs. Short scope by design (two goals, binary cues).",
+    "verification": "6 tests, all pass. Seeded 8 mutations via `copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests`: exp_time (1-2e)->(1-e) caught; LCB sign -= -> += caught (error); Beta pdf exponent (a-1)->a caught; err overflow guard 700->7 caught. Survived: design_h `>`->`>=`; Laplace (k+1)/(n+2) -> (k+0.5)/(n+1) (changes mean error n=10 0.01725->0.02155 in results); miss criterion e>alpha -> e>2alpha (changes headline P(miss) n=10 0.3828->0.1493); p_hat<=1/2 fallback hcap -> 1 (changes n=10 P(miss) 0.38->0.53, LCB row 0.028->0.65). 4/8 survive, all four in the section-5 calibration code behind a headline README claim; test_demo_design only checks pbad>0 and an ordering. No test pins results.txt.",
+    "craft": "Read src/intent_twin/model.py (123 lines), tests/test_model.py, experiments/run.py, figure.py head. Clean stdlib code, docstrings state the model, err() guards overflow. Defects: design_h is an O(h) linear search with no cap, so design_h(0.5000001, 0.01) loops 11,487,800 times (measured) although the closed form ceil(ln((1-a)/a)/ln r) exists; p_s<=1/2 returns sentinel 10**6 instead of None/inf; phat_design computes the full uncapped design_h before min(...,hcap); run.py:44 dead `ps, w = None, None`; run.py:45 labels beta_pop_err(h=4000) as P(p<.5) instead of computing the Beta CDF (agrees to 4 dp, but it is a proxy); `from intent_twin import *` in tests and experiments; pyproject has no test config.",
+    "claims": "Checked README and whitepaper numbers against results.txt: 0.0326 vs 0.0331, 3.9x/33x/165x, h=4/18, error <=2.4e-7, 2.0-4.5x slower, 0.033->0.070-0.088, P(miss) 0.38/0.42/0.33/0.30/0.14, '6 tests', '~3 s' (1.7 s) all backed. Limits stated plainly (stylised, assumed Beta, no human data, loose alpha^theta law). Slips: 'doubles the error' is 2.2-2.7x (README:3, page); 'cuts that to <= 4%' but n=50 gives 0.0402 (README:3, page); alpha^theta '2-3x off' is 1.7-3.3x on the quoted row (whitepaper:13, README:15). Novelty framing ('the contribution is the exact real-human consequences', whitepaper:19) does not say these are Wald's OC and ASN functions evaluated off-design. README and whitepaper carry no AI-assistance note; the served page does.",
+    "fitness": "Nearest prior work: Wald (1945, 1947 Sequential Analysis) operating-characteristic L(p) and average-sample-number functions of the binomial SPRT, which for the symmetric walk are exactly results 1-3 (cited as 'the method', not as the result); gambler's ruin (Feller, cited). HRI: Fisac et al. RSS 2018 'Probabilistically safe robot planning with confidence-based human predictions' infers the human's rationality online jointly with prediction, which is this paper's 'next step'; Milli & Dragan UAI 2019 and Bobu et al. HRI 2020 on human-model misspecification; Reddy, Dragan & Levine NeurIPS 2018. None of the HRI misspecification work is cited and no baseline (e.g. Bayesian/LCB online estimation of p, a mixture-over-p likelihood) is compared. Sections 4-5 (population floor P(p<1/2), plug-in vs LCB calibration miss probabilities) are a modest, correct extension a researcher could reuse; results 1-3 are textbook. Not new as framed, sound as mathematics.",
+    "domain": "A sequential-analysis statistician would accept the algebra (verified exactly) and say results 1-3 are the OC/ASN curves; robust SPRT design for an unknown nuisance parameter is usually done by designing at the least-favourable p (which section 3 rediscovers) or with a mixture/GLR test, neither named. An HRI practitioner would note that goal inference in practice uses Boltzmann-rational trajectory likelihoods with a rationality coefficient beta that is inferred, not binary i.i.d. cues with known accuracy, and that 'the twin' here is a single scalar p_s; the paper states these limits but does not connect to the beta-inference literature. The calibration analysis (exact over Binomial(n,p)) is a good, honest touch."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Wrong-goal probability and E[T], p=0.7, h=4",
+      "method": "exact absorbing Markov chain solve (Fraction Gaussian elimination), independent of the closed form",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/indep.py (exact Fraction Gaussian elimination of the absorbing Markov chain on -h..h, not the closed form; closed-form ceil design; exact Beta CDF via binomial sum; random.betavariate Monte Carlo; math.comb enumeration)",
+      "expected": "0.032635 / 9.3473 (Markov solve)",
+      "observed": "0.03263 / 9.347 (results.txt sec 0)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Real error at h=4 for p=0.8 and p=0.6 (3.9x and 165x claim)",
+      "method": "exact Markov chain solve",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/indep.py (exact Fraction Gaussian elimination of the absorbing Markov chain on -h..h, not the closed form; closed-form ceil design; exact Beta CDF via binomial sum; random.betavariate Monte Carlo; math.comb enumeration)",
+      "expected": "0.0038911, 0.164948",
+      "observed": "3.89e-03, 1.65e-01 (164.95x)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Too-irrational twin p_s=0.6 at alpha=1e-3: h and twin E[T]",
+      "method": "closed-form ceil(ln(999)/ln 1.5)=18; Markov solve for E[T]",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/indep.py (exact Fraction Gaussian elimination of the absorbing Markov chain on -h..h, not the closed form; closed-form ceil design; exact Beta CDF via binomial sum; random.betavariate Monte Carlo; math.comb enumeration)",
+      "expected": "h=18, twin err 6.76e-4, E[T] 89.88",
+      "observed": "h = 18, E[T] 89.9",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Population floor P(p<1/2) for Beta(21,9) and Beta(14,6)",
+      "method": "exact identity P(Beta(a,b)<1/2)=P(Bin(a+b-1,1/2)>=a)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/indep.py (exact Fraction Gaussian elimination of the absorbing Markov chain on -h..h, not the closed form; closed-form ceil design; exact Beta CDF via binomial sum; random.betavariate Monte Carlo; math.comb enumeration)",
+      "expected": "0.01206, 0.03178",
+      "observed": "0.0121, 0.0318",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Population error of the mean-twin threshold h=4 for Beta(21,9) and Beta(14,6)",
+      "method": "Monte Carlo with random.betavariate, 400,000 draws (author uses a midpoint grid)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/indep.py (exact Fraction Gaussian elimination of the absorbing Markov chain on -h..h, not the closed form; closed-form ceil design; exact Beta CDF via binomial sum; random.betavariate Monte Carlo; math.comb enumeration)",
+      "expected": "0.0703, 0.0883 (MC, se ~3e-4)",
+      "observed": "0.0703, 0.0881",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Calibration miss probability, plug-in and LCB, n=10..1000",
+      "method": "independent math.comb enumeration over Binomial(n,0.7) with closed-form threshold, cap 200",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/indep.py (exact Fraction Gaussian elimination of the absorbing Markov chain on -h..h, not the closed form; closed-form ceil design; exact Beta CDF via binomial sum; random.betavariate Monte Carlo; math.comb enumeration)",
+      "expected": "z=0: 0.3828/0.4164/0.3279/0.2972/0.1422; z=1.645: 0.0282/0.0355/0.0402/0.0169/0.0036",
+      "observed": "identical to 4 dp in results.txt sec 5",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "alpha^theta law value, p_s=0.9, p=0.8",
+      "method": "hand: 1e-3^(ln4/ln9)=1e-3^0.6309",
+      "command": "by hand",
+      "expected": "0.0128",
+      "observed": "1.28e-02",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite and reproduction",
+      "method": "run as documented",
+      "command": "PYTHONPATH=src python3 -m unittest discover -s tests -v; PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt",
+      "expected": "pass; identical",
+      "observed": "6 OK in 1.7 s; identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Section-5 calibration logic protected by tests",
+      "method": "seeded mutations in phat_design / demo_design_stats",
+      "command": "copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests",
+      "expected": "tests fail",
+      "observed": "3 of 3 calibration mutations survive (Laplace estimator, miss criterion, p<=1/2 fallback)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'doubles the error of the mean-human threshold (0.033 -> 0.070-0.088)'",
+      "method": "ratio from results.txt sec 4",
+      "command": "0.0703/0.0326, 0.0881/0.0326",
+      "expected": "~2x",
+      "observed": "2.16x and 2.70x",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "'a lower-confidence-bound design cuts that to <= 4%'",
+      "method": "results.txt sec 5 z=1.645 column",
+      "command": "grep 1.645 experiments/results.txt",
+      "expected": "all <= 0.04",
+      "observed": "n=50 gives 0.0402",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "alpha^theta law '2-3x off'",
+      "method": "ratios from results.txt sec 1, p_s=0.9 row",
+      "command": "1.28e-2/3.89e-3, 6.97e-2/3.26e-2, 0.280/0.165",
+      "expected": "2-3x",
+      "observed": "3.3x, 2.1x, 1.7x",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "'6 tests, ~3 s' and live page",
+      "method": "run tests; curl the page",
+      "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/intent-twin/",
+      "expected": "6 tests; 200",
+      "observed": "6 tests 1.7 s; 200, abstract matches README, AI-assistance note on page",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Novelty against Wald OC/ASN and HRI rationality-misspecification work",
+      "method": "literature: Wald 1947; Fisac et al. RSS 2018; Milli & Dragan UAI 2019; Bobu et al. HRI 2020",
+      "command": "grep -n 'Fisac\\|Milli\\|Bobu\\|operating characteristic' paper/whitepaper.md README.md",
+      "expected": "cited and positioned",
+      "observed": "none found",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "design_h near p=1/2",
+      "method": "timed call",
+      "command": "PYTHONPATH=src python3 -c 'from intent_twin import *; print(design_h(0.5000001,0.01))'",
+      "expected": "closed-form answer instantly",
+      "observed": "11487800 after a linear loop of 11.5M iterations",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/intent_twin/model.py:33",
+      "change": "h*(1-2*err)/(2p-1) -> h*(1-err)/(2p-1)",
+      "caught": true,
+      "test_cmd": "copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/intent_twin/model.py:41",
+      "change": "while err(p_s,h) > alpha -> >= alpha",
+      "caught": false,
+      "test_cmd": "copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/intent_twin/model.py:103",
+      "change": "Laplace (k+1)/(n+2) -> (k+0.5)/(n+1)",
+      "caught": false,
+      "test_cmd": "copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/intent_twin/model.py:104",
+      "change": "p -= z*sqrt(...) -> p += z*sqrt(...)",
+      "caught": true,
+      "test_cmd": "copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/intent_twin/model.py:71",
+      "change": "(a-1)*log(p) -> a*log(p) in Beta pdf",
+      "caught": true,
+      "test_cmd": "copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/intent_twin/model.py:120",
+      "change": "pbad += pr*(e > alpha) -> (e > 2*alpha)",
+      "caught": false,
+      "test_cmd": "copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/intent_twin/model.py:22",
+      "change": "overflow guard x > 700 -> x > 7",
+      "caught": true,
+      "test_cmd": "copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/intent_twin/model.py:105",
+      "change": "p_hat <= 1/2 fallback hcap -> 1",
+      "caught": false,
+      "test_cmd": "copy src/intent_twin to /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut, apply one edit, cd research/intent-twin && PYTHONPATH=/tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/intent-twin/mut python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Results 1-3 are Wald's operating-characteristic and ASN functions of the symmetric binomial SPRT evaluated off the design parameter; the whitepaper presents 'the exact real-human consequences of tuning it in a twin' as the contribution without naming OC/ASN, and cites none of the HRI human-rationality misspecification work (Fisac et al. RSS 2018, which infers rationality online and is this paper's own 'next step'; Milli & Dragan UAI 2019; Bobu et al. HRI 2020), nor compares to an online or mixture-over-p baseline",
+      "where": "research/intent-twin/paper/whitepaper.md:19",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "The section-5 calibration code behind a headline README claim (miss probability 0.38/0.42/0.33/0.30/0.14) is effectively untested: changing the Laplace estimator, the miss criterion (e>alpha -> e>2alpha) or the p_hat<=1/2 fallback leaves all 6 tests green; test_demo_design asserts only pbad>0 and an ordering, and no test pins results.txt",
+      "where": "research/intent-twin/tests/test_model.py:41",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Rounding slips in headline claims: 'doubles the error' is 2.2-2.7x; 'cuts that to <= 4%' but n=50 gives 4.02%",
+      "where": "research/intent-twin/README.md:3",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "alpha^theta law stated as '2-3x off'; the quoted p_s=0.9 row is 1.7-3.3x off (and 12x at p_s=0.7, p=0.95)",
+      "where": "research/intent-twin/paper/whitepaper.md:13",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "design_h is an uncapped linear search (11.5M iterations at p_s=0.5000001) with a 10**6 sentinel for p_s<=1/2, although the closed form ceil(ln((1-a)/a)/ln r) exists; phat_design computes it in full before capping",
+      "where": "research/intent-twin/src/intent_twin/model.py:36",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Dead assignment `ps, w = None, None`, and the column labelled P(p<.5) is a proxy beta_pop_err(h=4000) rather than the Beta CDF",
+      "where": "research/intent-twin/experiments/run.py:44",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "README and whitepaper carry no AI-assistance note (the served page does)",
+      "where": "research/intent-twin/README.md:15",
+      "category": "overclaim",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Correct and reproducible: every headline number (gambler's-ruin error and time, twin designs, population floor and error, calibration miss probabilities) was recomputed independently by an exact Markov-chain solve, the exact Beta CDF, an independent Beta Monte Carlo and a math.comb enumeration, and all match results.txt to the printed digits; run.py reproduces results.txt byte for byte. It misses the bar on verification: 4 of 8 seeded mutations survive, all in the calibration code behind the README's section-5 claim. As research it is sound but mostly textbook: results 1-3 are Wald's OC/ASN functions off-design, and the HRI literature on inferring human rationality (Fisac et al. 2018 and successors) is neither cited nor used as a baseline. Claims are honest about limits, with small rounding slips. Scores 4/3/2/3/3/2/2, median 3; does not meet the bar (verification 2)."
+}

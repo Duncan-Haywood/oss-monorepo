@@ -1,0 +1,229 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/reject-surrogates",
+  "stratum": "research",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent quality audit, see run record",
+  "status": "audited",
+  "professional": "a statistical learning theorist who works on surrogate losses and classification with a reject option (the Bartlett-Wegkamp / Yuan-Wegkamp / Frongillo-Waggoner literature), who would first check the 2d transfer constant against Bartlett & Wegkamp (2008) Theorem 2 and whether the paper engages that prior work",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 1,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran `cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests -v` (6 tests OK, 0.65 s) and `PYTHONPATH=src python3 experiments/run.py` (20.6 s; output byte-identical to the committed results.txt by diff). Independent recomputation with `python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/reject-surrogates/indep.py (exact Fractions, own piecewise-linear risk, no import of the subject)`: exact sup of regret ratio over the analytic region boundaries u=+-1/2 gives 1/10, 1/5, 1/2, 4/5, 49/50 for d=0.05,0.1,0.25,0.4,0.49 (matches E2 and the published constant 2d of Bartlett & Wegkamp 2008, JMLR 9:1823, Theorem 2 at delta=1/2, read from the downloaded PDF); E1 0 mismatches from the kink values eta/d, 1, (1-eta)/d; E3 via the identity logistic regret = KL(eta||p): ratio*delta 0.404/0.385/0.378/0.376/0.375, identical to results.txt. `python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/reject-surrogates/sgd.py (own SGD reimplementation, 1000 seeds, rng seed 7/3)` reproduces E4 within Monte-Carlo noise (delta=0.03: poly 0.0145 vs 0.0143 at T=100, 0.0073 vs 0.0073 at T=1000; logistic 0.0007/0.0000 vs 0.0005/0.0001). Held at 3 not 4 because the Results text states a wrong rate: logistic SGD with 1/t steps converges at T^-2eta(1-eta) (MSE 0.138, 0.050, 0.0195 at T=1e2,1e3,1e4, exponent ~0.42), not 1/T.",
+    "completeness": "Claimed items checked: 6 tests (README says 6: true), run.py ~30 s (measured 20.6 s), E1-E5 all produced and match README/whitepaper, `PYTHONPATH=src python3 experiments/figure.py` regenerates logistic.svg byte-identical (cmp), live page https://marisstella.app/research/reject-surrogates/ returns 200 and shows the same summary and figure. Whitepaper is a 45-line working note, not a paper; no LOG.md; research/_audit/audit.json lists the slug as outcome not-run. Asymmetric costs, the full proof and multi-class are listed as not done.",
+    "verification": "`cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests`: 6 pass. Seeded 6 mutations in src/reject_surrogates/model.py, each reverted with git checkout: a=(1-d)/d -> (1-d)/(2d) caught (3 failures); decode cutoff 0.5 -> 0.4 caught (2); decode_prob reject threshold d -> 0.9d caught (1); bayes_risk drops d caught (1); logistic SGD update sign flipped NOT caught; polyhedral SGD step 1/sqrt(t) -> 1/t NOT caught. sgd_scalar, the function behind the negative result R4, has no test; no test pins results.txt. Survival 2/6.",
+    "craft": "Read model.py (130 lines), tests/test_model.py, experiments/run.py, experiments/figure.py header. Clean, stdlib only, module docstring states the model and Bayes rule. Defects: `import random` unused in model.py:13; `from .model import *` without __all__ re-exports math/random; test_model.py:44 contains a dead `* 0` term that makes the assertion read as something it is not; transfer_constant_poly reaches 2d only because the grid j/100 lands exactly on u=-0.5 (a grid not containing the boundary would report less than 2d); pyproject has no test configuration. No correctness bug in the shipped functions.",
+    "claims": "Each number in README.md:12 and the whitepaper checked against results.txt and the independent scripts: all match. Unbacked or wrong: (1) whitepaper.md:25 says 'I have not written a full proof for all u' and :45 lists 'the 2d constant's proof for all u' as open, but it is Theorem 2 of Bartlett & Wegkamp (2008) (L_{d,1/2}(f)-L* <= 2d(L_phi(f)-L_phi*)), and R1 is their Theorem 1; the README presents both as grid-verified findings and cites authors by surname only, no reference list. (2) whitepaper.md:34 'converges to the logit of eta at rate 1/T' is false for this step schedule (measured exponent ~0.42). (3) R3's sqrt transfer for smooth losses is a known general result (Frongillo & Waggoner 2021; Yuan & Wegkamp 2010 for logistic with reject) and is not attributed. 'Stylised' and 'no claims about any deployed protocol' disclosures are present and honest; the negative result is reported candidly.",
+    "fitness": "Nearest prior work: Bartlett & Wegkamp, JMLR 2008 (the generalised hinge, its minimiser at {-1,0,1}, and the 2d excess-risk bound at delta=1/2 - i.e. R1 and R2 exactly); Yuan & Wegkamp, JMLR 2010 (convex surrogates incl. logistic with reject option, calibration and transfer); Ramaswamy, Tewari & Agarwal 2018 (multiclass abstain); Finocchiaro, Frongillo & Waggoner, NeurIPS 2019 (embedding framework, abstain loss as worked example) and Frongillo & Waggoner, NeurIPS 2021 (polyhedral linear vs smooth sqrt regret). R1-R3 are therefore known results reproduced numerically; R4 (scalar SGD, logistic wins) is new only as a toy and is confounded by unequal step schedules (`{SGD}`: polyhedral with 1/t steps 0.0032 or Polyak-averaged 0.0027 at T=1000 vs 0.0073 as shipped; logistic still wins). A researcher can use the code as a correct check of BW2008, not as a result to build a paper on.",
+    "domain": "Compared against Bartlett & Wegkamp (2008) and standard SGD practice. Loss, a=(1-d)/d, the reject region [-1/2,1/2] inclusive and the 2d constant match the paper exactly. Departures: the comparison in R4 gives the two learners different step schedules (1/sqrt(t) vs 1/t) and no iterate averaging, which a practitioner would equalise before drawing a conclusion; the stated convergence rate ignores the curvature condition for 1/t Robbins-Monro steps (needs lr0*eta(1-eta) > 1/2 for 1/T); the state of knowledge is misstated (proof 'open'); asymmetric costs not modelled."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "sup regret ratio (polyhedral) for d=0.05,0.1,0.25,0.4,0.49 (E2)",
+      "method": "Bartlett & Wegkamp 2008 JMLR Thm 2 (delta=1/2: constant 2d) and exact Fractions sup over region boundaries",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/reject-surrogates/indep.py (exact Fractions, own piecewise-linear risk, no import of the subject)",
+      "expected": "0.1, 0.2, 0.5, 0.8, 0.98 (=2d)",
+      "observed": "1/10, 1/5, 1/2, 4/5, 49/50; results.txt 0.1000..0.9800",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E1 minimiser of conditional polyhedral risk decodes to Bayes action, d=0.2, 999 eta",
+      "method": "BW2008 Thm 1; kink values eta/d, 1, (1-eta)/d computed exactly",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/reject-surrogates/indep.py (exact Fractions, own piecewise-linear risk, no import of the subject)",
+      "expected": "0 mismatches",
+      "observed": "0 mismatches",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E3 logistic ratio*delta at d=0.25, delta=0.1..0.001",
+      "method": "identity: logistic conditional regret = KL(eta||sigmoid(u)), u -> logit(d)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/reject-surrogates/indep.py (exact Fractions, own piecewise-linear risk, no import of the subject)",
+      "expected": "0.404, 0.385, 0.378, 0.376, 0.375 (limit 2d(1-d)=0.375)",
+      "observed": "0.404, 0.385, 0.378, 0.376, 0.375",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E4 SGD decoded regret, delta=0.03, d=0.25",
+      "method": "own SGD reimplementation, different RNG seed, 1000 seeds",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/reject-surrogates/sgd.py (own SGD reimplementation, 1000 seeds, rng seed 7/3)",
+      "expected": "poly 0.0143/0.0073, logistic 0.0005/0.0001 at T=100/1000 (results.txt)",
+      "observed": "poly 0.0145/0.0073, logistic 0.0007/0.0000",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "whitepaper.md:34 logistic SGD converges to logit(eta) at rate 1/T",
+      "method": "MSE of iterate vs T; Robbins-Monro theory (1/t steps, curvature lambda=eta(1-eta)=0.20 < 1/2 gives T^-2lambda)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/reject-surrogates/sgd.py (own SGD reimplementation, 1000 seeds, rng seed 7/3)",
+      "expected": "T*MSE constant if rate 1/T",
+      "observed": "MSE 0.138, 0.050, 0.0195; T*MSE 13.8, 50.1, 194.6 (exponent ~0.42)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "whitepaper.md:25/45 proof of 2d constant for all u is open",
+      "method": "Bartlett & Wegkamp 2008, Theorem 2, text extracted from jmlr.org PDF",
+      "command": "curl -sS -o bw.pdf https://jmlr.org/papers/volume9/bartlett08a/bartlett08a.pdf; pdftotext bw.pdf; grep -n 'Theorem 2' bw.txt",
+      "expected": "open problem",
+      "observed": "published theorem: L_{d,1/2}(f)-L* <= 2d(L_phi(f)-L_phi*)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README '6 tests' and run time ~30 s",
+      "method": "run",
+      "command": "cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests -v; time PYTHONPATH=src python3 experiments/run.py",
+      "expected": "6 tests, ~30 s",
+      "observed": "6 tests OK, 20.6 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "results.txt reproduces from code",
+      "method": "rerun and diff",
+      "command": "PYTHONPATH=src python3 experiments/run.py; diff results.orig.txt experiments/results.txt",
+      "expected": "identical",
+      "observed": "identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "figure regenerates from results.txt",
+      "method": "rerun and cmp",
+      "command": "PYTHONPATH=src python3 experiments/figure.py; cmp svg.orig experiments/logistic.svg",
+      "expected": "identical",
+      "observed": "identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "live research page",
+      "method": "HTTP fetch",
+      "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/reject-surrogates/",
+      "expected": "200 with summary matching README",
+      "observed": "200, summary and figure match",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "R4 negative result robust to step schedule",
+      "method": "polyhedral with 1/t steps and with Polyak averaging",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/86326e6d-d889-5689-a986-2303606e7d3b/scratchpad/reject-surrogates/sgd.py (own SGD reimplementation, 1000 seeds, rng seed 7/3)",
+      "expected": "poly regret unchanged if the result is about the loss, not the schedule",
+      "observed": "T=1000: 0.0073 shipped vs 0.0032 (1/t) and 0.0027 (averaged); logistic 0.0000 still better",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "sgd_scalar covered by a test",
+      "method": "mutations M4, M5",
+      "command": "cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests",
+      "expected": "a failing test",
+      "observed": "both mutations survive",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/reject-surrogates/src/reject_surrogates/model.py:17",
+      "change": "(1.0 - d) / d -> (1.0 - d) / (2 * d)",
+      "caught": true,
+      "test_cmd": "cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/reject-surrogates/src/reject_surrogates/model.py:60",
+      "change": "decode cutoffs +-0.5 -> +-0.4",
+      "caught": true,
+      "test_cmd": "cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/reject-surrogates/src/reject_surrogates/model.py:64",
+      "change": "p <= d -> p <= 0.9 * d",
+      "caught": true,
+      "test_cmd": "cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/reject-surrogates/src/reject_surrogates/model.py:56",
+      "change": "min(eta, 1-eta, d) -> min(eta, 1-eta)",
+      "caught": true,
+      "test_cmd": "cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/reject-surrogates/src/reject_surrogates/model.py:129",
+      "change": "u -= lr0 / t * g -> u += lr0 / t * g (logistic SGD ascends)",
+      "caught": false,
+      "test_cmd": "cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/reject-surrogates/src/reject_surrogates/model.py:126",
+      "change": "lr0 / math.sqrt(t) -> lr0 / t (polyhedral step schedule)",
+      "caught": false,
+      "test_cmd": "cd research/reject-surrogates && PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "R1 and R2 are Theorems 1 and 2 of Bartlett & Wegkamp (2008), yet the README presents the 2d constant as a grid-verified finding and the whitepaper says the proof for all u is not written and lists it as open; no reference list, prior work (BW2008, Yuan & Wegkamp 2010, Frongillo & Waggoner 2021) cited by surname only, so novelty is overstated by omission",
+      "where": "research/reject-surrogates/paper/whitepaper.md:45",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Whitepaper claims logistic SGD with lr0/t steps converges to logit(eta) at rate 1/T; with curvature eta(1-eta)~0.2 < 1/2 the rate is T^-2eta(1-eta) (measured MSE 0.138/0.050/0.0195 at T=1e2/1e3/1e4)",
+      "where": "research/reject-surrogates/paper/whitepaper.md:34",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "R4 negative result confounded: polyhedral uses 1/sqrt(t) steps and no averaging, logistic 1/t; equalising the schedule or averaging cuts poly regret 2-3x (0.0073 -> 0.0032/0.0027 at T=1000), direction holds but magnitude is schedule-driven",
+      "where": "research/reject-surrogates/experiments/run.py:43",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "sgd_scalar, the function behind R4, has no test: flipping the logistic update sign or changing the polyhedral step schedule leaves all 6 tests green",
+      "where": "research/reject-surrogates/src/reject_surrogates/model.py:117",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "test_logistic_minimiser_is_logit contains a dead '* 0' term, so the assertion reads as a stationarity check of a different expression than it tests",
+      "where": "research/reject-surrogates/tests/test_model.py:44",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Unused 'import random' in model.py, re-exported (with math) by 'from .model import *' without __all__",
+      "where": "research/reject-surrogates/src/reject_surrogates/model.py:13",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "transfer_constant_poly reaches exactly 2d only because the u grid j/100 contains the boundary u=-0.5; the 'exactly 2d (grid-verified)' claim depends on the grid choice rather than being an analytic sup",
+      "where": "research/reject-surrogates/src/reject_surrogates/model.py:103",
+      "category": "other",
+      "origin": "audit"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, clean, correct numerical reproduction of known reject-option surrogate theory. Every headline number reproduces (results.txt byte-identical on rerun) and matches an independent exact recomputation: the 2d transfer constant (1/10..49/50), 0 minimiser mismatches, and the logistic ratio*delta 0.404..0.375 via the KL identity; an independent SGD reimplementation reproduces E4 within noise. But R1 and R2 are Theorems 1 and 2 of Bartlett & Wegkamp (2008) and the whitepaper calls the proof open, R3 is a known consequence of Frongillo & Waggoner (2021), the R4 negative result is confounded by unequal step schedules and is the one untested part (2/6 mutations survive, both in sgd_scalar), and the stated 1/T logistic rate is wrong. Scores 3/3/2/3/2/1/2, median 2: does not meet the bar (verification and claims below 3)."
+}
