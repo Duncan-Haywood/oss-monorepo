@@ -2,6 +2,14 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-10 · Milestone 3r: does 3p's c15 slender-hull branch move the 3 to 5 m range verdict? (run, then written; no prediction registered)
+- Why: 3p coded the c15 rule; hulls with L^3/V above 512 now take a different value. The programme's 4 m catamaran demi-hulls (0.1 m3) and 5 m monohull sit above 512, so the question is whether any earlier Holtrop-based range or ranking moves. Data hosts are unreachable this session (zenodo, arxiv, crossref time out), so this is an offline model check, not a validation.
+- Method (`experiments/run_holtrop_c15_range.py`, `results_holtrop_c15_range.txt`): Wigley-proportioned hulls, L/B 10, 0.2 m3 monohull or 2 x 0.1 m3 catamaran (demi-hull resistance doubled, no interference), 200 kg, 10 kWh, 30 W hotel, eta 0.55 x 0.85, best range over 0.3 to 3 m/s; old c15 (-1.69385 everywhere) against the 3p rule.
+- Outcome: best range is identical to the km in all six cases (monohull 831 / 863 / 849 km at 3 / 4 / 5 m; catamaran 782 / 771 / 725 km). Catamaran/monohull range ratio at equal length 0.94 / 0.89 / 0.85, unchanged by c15. The best-range speed is 0.91 to 1.07 m/s (Fn about 0.13 to 0.17), where the c15 term sits inside exp(-0.1/Fn^2) and is negligible. Where it would act, on a 5 m demi-hull total resistance changes -0.4% (Fn 0.20), +1.8% (0.30), +3.7% (0.35), -4.6% (0.40): a few percent, in sign-changing directions, only above the programme's operating speed.
+- Reading: the range and ranking results do not depend on the c15 branch. Because both the sign and size of the shift are tied to a rule read from a third implementation (3p), nothing here validates the branch; it only shows the programme is insensitive to it.
+- Limits: Wigley proportions assumed for all hulls, no interference, no tank data for slender hulls, c15 unverified against the 1984 paper.
+- Next: unchanged from 3q (a slender displacement-catamaran tank curve below Fn 0.3 once a data host is reachable).
+
 ## 2026-11-10 · Milestone 3q: does a Michell + Havelock wave term fix 3b's catamaran miss? (run, then written; no prediction registered)
 - Why: 3b's placeholder wave term fell 35% to 43% short at Fn 0.33 to 0.58 on the Zenodo 18459868 catamaran tank curve. Michell with Havelock two-hull interference (`michell.py`, milestone 2) was the proposed replacement. Data hosts are refused this session, so the repository's own five-point CSV was the only curve available.
 - Method (`experiments/run_catamaran_michell.py`, `results_catamaran_michell.txt`, `tests/test_catamaran_michell.py`): two Wigley demi-hulls, L = 2.812 m from Fn, total wetted area fixed to the 1.709 m2 implied by the tank CT; the unknown beam is swept (L/B 8, 10, 12; draft then solved from the area, 0.08 to 0.12 m) with demi-hull spacing s/L 0.15, 0.25, 0.40 and k in {0, 0.1}: 18 cases.
