@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14453",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-10-pos-export-headers.md",
+    "ventures/shift-roster-builder/README.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Small slice on flagship 6 (shift-roster-builder): more POS header synonyms; demand.test.mjs 22/22 pass. Flagship next: not rewritten (unchanged milestones).",
   "corrections": [],
   "redteam": null
 }
