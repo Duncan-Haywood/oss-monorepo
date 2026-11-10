@@ -94,6 +94,70 @@ def metrics(pairs):
                 recall_non_other=hit / hum if hum else None)
 
 
+def kappa(pairs):
+    """Cohen's kappa between labels and rules (chance agreement from the two marginals)."""
+    n = len(pairs)
+    po = sum(h == p for h, p in pairs) / n
+    hs, ps = {}, {}
+    for h, p in pairs:
+        hs[h] = hs.get(h, 0) + 1
+        ps[p] = ps.get(p, 0) + 1
+    pe = sum(hs[c] * ps.get(c, 0) for c in hs) / n / n
+    return (po - pe) / (1 - pe) if pe < 1 else None
+
+
+def audit(res):
+    """Per-class precision and recall, Cohen's kappa and the commonest confusions, recomputed from the
+    committed (label, v1, v2) codes alone (session 72; no description text needed)."""
+    out = {}
+    for split in ("dev", "held_out"):
+        for city, r in res[split]["cities"].items():
+            for k in (1, 2):
+                pairs = [(CODES[x[0]], CODES[x[k]]) for x in r["rows"]]
+                per = {}
+                for c in CODES.values():
+                    tp = sum(h == p == c for h, p in pairs)
+                    npred, nlab = sum(p == c for _, p in pairs), sum(h == c for h, _ in pairs)
+                    if npred or nlab:
+                        per[c] = dict(n_label=nlab, n_pred=npred,
+                                      precision=tp / npred if npred else None, precision_ci95=wilson(tp, npred),
+                                      recall=tp / nlab if nlab else None, recall_ci95=wilson(tp, nlab))
+                conf = {}
+                for h, p in pairs:
+                    if h != p:
+                        conf[f"{h}->{p}"] = conf.get(f"{h}->{p}", 0) + 1
+                out.setdefault(split, {}).setdefault(city, {})[f"v{k}"] = dict(
+                    n=len(pairs), accuracy=sum(h == p for h, p in pairs) / len(pairs), kappa=kappa(pairs),
+                    per_class=per, confusions=dict(sorted(conf.items(), key=lambda kv: -kv[1])))
+    return out
+
+
+def audit_md(a):
+    L = ["# Description rules: per-class audit (session 72)", "",
+         "Recomputed by `python3 src/desc_eval.py audit` from the (label, v1, v2) codes in",
+         "`desc_rules_eval.json`; one labeller (the agent). Precision and recall with 95% Wilson intervals;",
+         "classes with fewer than 5 labelled or predicted rows are left out of the table.", ""]
+    for split in ("held_out", "dev"):
+        for city, vv in a[split].items():
+            L += [f"## {split} {city}", "", "| rules | accuracy | kappa | top confusions (label->rules) |",
+                  "|---|---|---|---|"]
+            for k, r in vv.items():
+                top = ", ".join(f"{c} {n}" for c, n in list(r["confusions"].items())[:4])
+                L.append(f"| {k} | {r['accuracy']:.3f} | {r['kappa']:.3f} | {top} |")
+            L += ["", "| class | n label | v2 precision [95%] | v2 recall [95%] | v1 precision | v1 recall |",
+                  "|---|---|---|---|---|---|"]
+            f = lambda x: "-" if x is None else f"{x:.2f}"
+            fi = lambda x, ci: "-" if x is None else f"{x:.2f} [{ci[0]:.2f}, {ci[1]:.2f}]"
+            for c, p2 in vv["v2"]["per_class"].items():
+                p1 = vv["v1"]["per_class"].get(c, {})
+                if max(p2["n_label"], p2["n_pred"]) < 5:
+                    continue
+                L.append(f"| {c} | {p2['n_label']} | {fi(p2['precision'], p2['precision_ci95'])} | "
+                         f"{fi(p2['recall'], p2['recall_ci95'])} | {f(p1.get('precision'))} | {f(p1.get('recall'))} |")
+            L.append("")
+    return "\n".join(L)
+
+
 def score(sample_path, labels_path, split):
     S, L = json.load(open(sample_path)), read_labels(labels_path)
     out = {}
@@ -122,6 +186,7 @@ if __name__ == "__main__":
     a1.add_argument("--seed", type=int, default=20261110)
     a1.add_argument("--offset-step", type=int, default=3)
     a1.add_argument("--offset0", type=int, default=0)
+    sp.add_parser("audit")
     a2 = sp.add_parser("score")
     a2.add_argument("--dev-sample", required=True)
     a2.add_argument("--dev-labels", required=True)
@@ -130,6 +195,13 @@ if __name__ == "__main__":
     a = ap.parse_args()
     if a.cmd == "sample":
         print(sample(a.out, a.year, a.n, a.seed, a.offset_step, a.offset0))
+    elif a.cmd == "audit":
+        rd = os.path.join(HERE, "..", "results")
+        au = audit(json.load(open(os.path.join(rd, "desc_rules_eval.json"))))
+        json.dump(au, open(os.path.join(rd, "desc_rules_audit.json"), "w"), indent=1)
+        md = audit_md(au)
+        open(os.path.join(rd, "desc_rules_audit.md"), "w").write(md + "\n")
+        print(md)
     else:
         res = dict(note="dev: 2023 sample the v2 rules were written against (v2 score optimistic); "
                         "held_out: 2022 sample labelled before v2 was run on it",
