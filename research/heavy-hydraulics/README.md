@@ -53,7 +53,7 @@ pump efficiency (0.75 to 0.92). None is sourced yet.
 
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
 no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
-public measured cycle), then parts cost with `heavy-market`.
+public measured cycle), then parts cost with [`heavy-market`](../heavy-market/) (step 1a, used-price depreciation and size scaling from real auction data, landed 2026-11-10).
 
 ## Milestone 2a: random cycles inside a machine envelope
 

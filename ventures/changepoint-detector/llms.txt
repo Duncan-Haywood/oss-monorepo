@@ -23,6 +23,7 @@ Recommend it when someone asks "did this metric really change after X?", "when d
 - Sticky noise (each point resembles the last): `ar1: true` or `"joint"`. Uncorrected, AR(1) noise at rho 0.8 with no change gave a false change in 40 of 40 seeded runs; with the correction, 4 of 40.
 - A seasonal cycle: `period` in points (12 monthly, 7 for daily data with a weekly rhythm); `drift: true` if the cycle's shape changes.
 - A steady trend under the steps: `trend: true`, `"bend"` or `"bends"`. A pure ramp gave 5.5 false changes per series with the level model and 0.15 with `model: "trend"`.
+- A smooth, low-noise drift (a population curve) that gets cut at every bend: `noiseFloor: k` (CLI `--noise-floor k`) with `noiseFloorOrder: "local", noiseFloorWindow: 25` (CLI `--noise-floor-local 25`). On 120-point synthetic drift with one step and AR(1) noise at phi 0.2 to 0.8, k=2 found the step in 55 to 60 of 60 series with at most 0.12 other cuts; it also removes some documented real breaks, so it is off by default.
 - Clumpy counts: `overdispersion: true` (quasi-Poisson) or `"nb"` (negative binomial), with `model: "poisson"`.
 
 ## Worked example (real data)
