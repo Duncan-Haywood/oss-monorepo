@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVNDzVFcCSYkfWm6ePK",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T20:02:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005: automatic shoulder finding (on-device pose model) for the clothing-design-studio photo try-on; fix intake FORM_HEAD for research 'direction:' headers",
+  "projects": [
+    "ventures/clothing-design-studio",
+    "portfolio/requests"
+  ],
+  "pr": 14592,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Supplier catalogue hosts (printful, printify, ssactivewear, bellacanvas) refused by the proxy, so the published-catalogue directory slice was not possible; picked the pose-model slice instead."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/requests/intake.test.mjs",
+      "issue": "Red on main before this run: build.mjs added a direction: suffix to the form header without updating intake.mjs FORM_HEAD; fixed here."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-try-on-finds-your-shoulders.md"
+  ],
+  "goal": "Ship a deep slice on the open website request R-0005 (AI/AR try-on asked for in both interviews).",
+  "notes": "Verification: run_venture_tests.py clothing-design-studio ok; pose.test.mjs 6 pass; portfolio/requests tests 23 pass; headless Chromium with the real MediaPipe model (files fetched from npm and Google storage, served locally via route) on MediaPipe's pose.jpg: 0 external requests before click, 4 after, dots on shoulders, outline drawn, no page errors; span/drop ratio 0.511 recorded in README. check_third_party_requests exit 0; venture-preflight run in background (see PR).",
+  "corrections": [],
+  "redteam": null
+}
