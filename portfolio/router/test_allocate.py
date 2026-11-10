@@ -18,6 +18,7 @@ from allocate import (
     decisions_by_merit,
     is_calculator,
     load_flagships,
+    load_inputs_only,
     load_merit_scores,
     load_ventures as _load_ventures,
     next_task,
@@ -701,6 +702,25 @@ class FlagshipTests(unittest.TestCase):
         queue = work_queue([v] + others)
         self.assertTrue(queue[0]["flagship"])
         self.assertTrue(queue[0]["task"].startswith("Deepen"))
+
+    def test_inputs_only_flagship_ranks_after_buildable_flagships_not_after_others(self):
+        stuck = self.flag("stuck", 0)
+        stuck.flagship_inputs_only = "a real builder's draw schedule"
+        buildable = self.flag("buildable", 1)
+        small = make("tiny-csv-check", merit=0.9)
+        ordered = [v.name for v in rank([small, stuck, buildable])]
+        self.assertEqual(ordered, ["buildable", "stuck", "tiny-csv-check"])
+        task = next_task(stuck)
+        self.assertTrue(task.startswith("Inputs only (flagship 1)"), task)
+        self.assertIn("draw schedule", task)
+        self.assertTrue(next_task(buildable).startswith("Deepen (flagship 2)"))
+
+    def test_load_inputs_only_reads_marked_flagships(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            self.assertEqual(load_inputs_only(p), {})
+            p.write_text("flagships:\n  - venture: a\n    inputs_only: a real DXF\n  - venture: b\n")
+            self.assertEqual(load_inputs_only(p), {"a": "a real DXF"})
 
     def test_load_flagships_reads_order_and_tolerates_missing_file(self):
         with tempfile.TemporaryDirectory() as d:

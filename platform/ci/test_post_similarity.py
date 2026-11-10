@@ -52,3 +52,19 @@ def test_threshold_is_inclusive():
     assert c == 0.5
     assert len(ps.similar_pairs({"a.md": a, "b.md": b}, 0.5)) == 1
     assert ps.similar_pairs({"a.md": a, "b.md": b}, 0.51) == []
+
+
+def test_file_arguments_limit_pairs_to_those_posts(tmp_path, capsys):
+    d = tmp_path / "docs" / "posts"
+    d.mkdir(parents=True)
+    (d / "a.md").write_text(A)
+    (d / "b.md").write_text(B)
+    (d / "c.md").write_text(C)
+    (d / "c2.md").write_text(C)
+    assert ps.main(["--root", str(tmp_path), "--fail", str(d / "a.md")]) == 1
+    out = capsys.readouterr().out
+    assert "a.md  |  b.md" in out and "c2.md" not in out
+    assert ps.main(["--root", str(tmp_path), "--fail", str(d / "c.md")]) == 1
+    new = tmp_path / "new.md"
+    new.write_text("---\ntitle: n\n---\n" + " ".join(f"q{i}" for i in range(40)))
+    assert ps.main(["--root", str(tmp_path), "--fail", str(new)]) == 0

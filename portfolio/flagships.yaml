@@ -10,6 +10,12 @@
 # rewrites it to the following milestone in the same PR. The owner can
 # reorder, add or drop entries; agents may too, with the evidence in the PR.
 #
+# `inputs_only: <what is missing>` marks a flagship whose every listed item
+# needs a real outside input no session holds (a builder's schedule, a real
+# DXF). allocate.py then ranks it after the flagships with buildable work and
+# tells runs to take it only if they hold such an input. Remove the field when
+# a buildable item is added to `next:`.
+#
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
 #
@@ -29,6 +35,9 @@ flagships:
   # tech industrial, energy real estate dev and construction" the overarching
   # directions (prompts/goals.md, "Direction: industrial, energy and construction").
   - venture: wall-framing-takeoff
+    inputs_only: >-
+      a real builder's draw schedule, permitted deck plan, architect's DXF,
+      framer's takeoff, plumber's drain runs or sub's bids
     why: >-
       Wall layout engine (studs on layout, kings, jacks, headers, cripples,
       plate splices over studs) with a per-wall self-check, and a Gilmore-Gomory

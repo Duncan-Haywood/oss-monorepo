@@ -6,6 +6,8 @@ Decides which venture gets the next unit of agent effort.
 [`../flagships.yaml`](../flagships.yaml) rank ahead of all other startable
 work, in that file's order, with a "Deepen (flagship N)" task naming their
 next milestone. Edit that file to change what most venture runs work on.
+A flagship marked `inputs_only:` (every listed item needs a real outside
+input) ranks after the buildable flagships, with an "Inputs only" task.
 
 **2026-08-24 direction:** the router ranks work, but the fleet's default is
 product shipping, not router maintenance. Prefer dispatchable `in-repo`
