@@ -709,11 +709,13 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
     def test_changed_note_ignores_the_shallow_boundary(self):
         from unittest import mock
         run = mock.Mock(return_value=mock.Mock(stdout="abc123 2026-10-20T04:30:00+00:00\n"))
+        promptctl._GIT_MEMO.clear()
         with mock.patch.object(promptctl.subprocess, "run", run), \
                 mock.patch.object(promptctl, "_shallow_boundary", return_value={"abc123"}):
             note, changed = promptctl._changed_note("CLAUDE.md")
         self.assertEqual(changed, "")
         self.assertIn("shallow-clone edge", note)
+        promptctl._GIT_MEMO.clear()
         with mock.patch.object(promptctl.subprocess, "run", run), \
                 mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):
             self.assertEqual(promptctl._changed_note("CLAUDE.md")[1], "2026-10-20T04:30:00+00:00")
@@ -734,3 +736,14 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
         import promptctl
         real = promptctl.measure(promptctl.ROOT)
         self.assertIn("doc_friction", real)
+
+
+class LastChangeIndexTest(unittest.TestCase):
+    def test_batch_index_matches_per_file_log(self):
+        promptctl._GIT_MEMO.clear()
+        idx = promptctl._last_change_index()
+        for path in ("CLAUDE.md", "prompt.md"):
+            if path in idx:
+                one = promptctl.subprocess.run(["git", "log", "-1", "--format=%H %cI", "--", path],
+                                               cwd=promptctl.ROOT.parent, capture_output=True, text=True).stdout.split()
+                self.assertEqual(list(idx[path]), one)
