@@ -103,3 +103,12 @@ test("defaults produce a plausible book fee", () => {
 test("an absurd milestone count is capped", () => {
   assert.equal(schedule({ ...DEFAULTS, milestones: 1e12 }, 10000).length, 61);
 });
+
+test("an extra revision round is priced like the quote's other hours: confidentiality and rush premiums, platform gross-up", () => {
+  const o = { ...DEFAULTS, confidentialityPremium: 0.25, rushPremium: 0.2, platformFee: 0.1 };
+  const a = analyze(o);
+  const expected = o.revisionShare * hours(o).draft * o.targetHourly * 1.25 * 1.2 / 0.9;
+  close(a.extraRound, expected);
+  const none = analyze({ ...o, confidentialityPremium: 0 });
+  close(a.extraRound / none.extraRound, 1.25);
+});

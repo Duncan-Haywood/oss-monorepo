@@ -1,0 +1,241 @@
+{
+  "date": "2026-11-10",
+  "subject": "ventures/tow-truck-rate-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "an independent tow-company owner or dispatcher who prices jobs and keeps a posted rate sheet, with a small-fleet bookkeeper checking the cost allocation",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran node --test '*.test.mjs' in ventures/tow-truck-rate-calculator: 24 pass, 0 fail. Wrote an independent Python implementation of the README formulas (scratchpad/ind.py) and compared four unlike scenarios (default, heavy winch job, deadhead-dominated loss, storage-only) to rateOutcome output via node: cost, revenue, profit and target price agree to 4 decimals in all four. The default per-mile cost (0.75) sits next to the IRS 76 c/mile all-in car rate (irs.gov, fetched 2026-11-10); it is variable-only and editable, but light for a wrecker. Arithmetic is right; the remaining doubt is the defaults, scored under domain.",
+    "completeness": "Every claimed feature works: true cost with deadhead, margin, break-even, target price, ranked levers, break-even per-mile rate, three surcharges, storage, validation. All 22 README inputs have a labelled field (page.test.mjs passes). The README states what is not covered (tolls, gate/impound fees, motor-club payouts, taxes, rate caps). No stubs or dead links found in the source. Admin, search and cleanup fees that Florida 713.78(20) expects on a rate sheet are not modelled, a disclosed scope limit.",
+    "verification": "Ran node --test '*.test.mjs': 24 pass. Seeded 7 mutations in calc.mjs, each reverted (git diff clean afterwards): included-miles ignored, markup instead of margin, deadhead dropped, margin cap 95->100, insurance dropped, winch fee dropped were each caught; the finding threshold margin < target changed to margin <= target-0.05 survived because tests use 30% and 80% targets far from the boundary. 6 of 7 caught; hand-computed expected values (not snapshots) in the tests.",
+    "craft": "Read calc.mjs (124 lines), calc.test.mjs, page.test.mjs, usage.mjs. Pure functions, one validate() path, no copied engine, formulas documented in the header, round2 only on lever gains. Defects: all-zero job returns 'Margin n/a meets your target' as info; fractional storage days accepted silently; no upper bound on miles (1e9 miles gives a 2 billion dollar cost without warning). Minor.",
+    "claims": "README and index.html carry the no-warranty disclaimer, the 'many states regulate tow rates, check yours' caveat, privacy statement and a Not modelled list; page.test.mjs asserts these and the $81.00 worked example. No performance, usage or savings claim is made; VENTURE.yaml marks the hypothesis untested. llms.txt links the old github.io host, which the Pages build rewrites, so not counted as a defect.",
+    "fitness": "A solo operator can type their own costs and get a margin and a floor price in a few minutes, which is the stated job. A dispatcher quoting real calls would also need a minimum charge, a portal-to-portal (garage-to-garage) mileage option, gate/admin/after-hours-hour-of-day rules and a comparison to the local posted cap; none is modelled, so the output is a cost floor, not a quotable rate sheet.",
+    "domain": "Method is fully-allocated hourly plus per-mile costing with deadhead included, a standard approach and well explained. Departures a tow owner or bookkeeper would raise: fixed costs spread only over billable hours the user guesses (150 default) with no utilisation or idle-time input; no depreciation or driver burden (payroll tax, workers comp, usually 20 to 40% on top of wage) in the defaults; wear default $0.25/mile is light for a heavy wrecker; the storage cost model has no lot overhead; and no rate-cap check (Florida 713.78 says charges may not exceed county or municipal maximum rates). All disclosed in the page, but the defaults are uncited."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Default job: true cost, revenue, profit, target price",
+      "method": "Independent Python re-implementation written from the README formulas, not from calc.mjs",
+      "command": "python3 scratchpad/ind.py (independent re-implementation of the README formulas) vs node scratchpad/run.mjs",
+      "expected": "81.00 / 185.00 / 104.00 / 115.7143",
+      "observed": "81 / 185 / 104 / 115.7143",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Heavy job (winch 40 min, after-hours+weather, 6 mpg, $0.55 wear, 35 mi loaded, 18 deadhead)",
+      "method": "Independent Python re-implementation",
+      "command": "python3 scratchpad/ind.py (independent re-implementation of the README formulas) vs node scratchpad/run.mjs",
+      "expected": "cost 258.8298, revenue 350, profit 91.1702, target 369.7568",
+      "observed": "258.8298 / 350 / 91.1702 / 369.7568",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Deadhead-dominated job (60 deadhead, 8 loaded, 10 included miles, 20% target)",
+      "method": "Independent Python re-implementation",
+      "command": "python3 scratchpad/ind.py (independent re-implementation of the README formulas) vs node scratchpad/run.mjs",
+      "expected": "cost 122.9333, revenue 100, profit -22.9333, target 153.6667",
+      "observed": "122.9333 / 100 / -22.9333 / 153.6667",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Storage-only job (5 days, $60 fee, $12 cost, 15 deadhead, no hook-up)",
+      "method": "Independent Python re-implementation",
+      "command": "python3 scratchpad/ind.py (independent re-implementation of the README formulas) vs node scratchpad/run.mjs",
+      "expected": "cost 110.25, revenue 300, profit 189.75",
+      "observed": "110.25 / 300 / 189.75 / 157.5",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Default per-mile cost 0.75 vs the IRS all-in business mileage rate (76 c/mile from 2026-07-01)",
+      "method": "IRS standard mileage rates page, fetched 2026-11-10 (irs.gov/tax-professionals/standard-mileage-rates)",
+      "command": "curl https://www.irs.gov/tax-professionals/standard-mileage-rates",
+      "expected": "a wrecker's variable per-mile cost at or above a car's all-in 76 c",
+      "observed": "0.75 (variable only, 8 mpg at $4, $0.25 wear): plausible for a car, light for a wrecker; user-editable",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Every README input has a labelled field in index.html",
+      "method": "page.test.mjs ids list + grep",
+      "command": "node --test '*.test.mjs'",
+      "expected": "22 ids present",
+      "observed": "all present (page.test.mjs passes)",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "README levers (hook-up +$10, rate +$0.50, 25% deadhead, 10 min, storage +$5) ranked",
+      "method": "node run of rateOutcome({}) and storage case",
+      "command": "node --test '*.test.mjs'",
+      "expected": "hookup 10, rate 7.5, scene 6.5, deadhead 5.13; storage 10 when 2 days",
+      "observed": "matches",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Florida s.713.78(20) rate sheet items (hook-up, mileage, daily storage, admin, cleanup) vs modelled charges",
+      "method": "Florida Statutes 713.78 (flsenate.gov, fetched 2026-11-10)",
+      "command": "curl https://www.flsenate.gov/Laws/Statutes/2024/713.78",
+      "expected": "hook-up, mileage, storage modelled; admin/search/cleanup/gate fees not",
+      "observed": "hook-up, mileage, storage, three surcharges only; README discloses admin/gate/lot fees are not modelled",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite as shipped",
+      "method": "node --test",
+      "command": "cd ventures/tow-truck-rate-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "24 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Mutation: target-margin check boundary",
+      "method": "seeded sed edit, reverted",
+      "command": "node --test '*.test.mjs'",
+      "expected": "a test fails",
+      "observed": "24 pass: survived",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Page and README carry no-warranty disclaimer, local-rate-cap caveat, privacy line",
+      "method": "grep index.html and page.test.mjs",
+      "command": "grep -n 'No warranty\\|rotation-list\\|Check your local rules' index.html",
+      "expected": "present",
+      "observed": "present (index.html lines 188-209)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README: 'Entirely client-side; nothing is uploaded'",
+      "method": "read index.html script; no fetch calls in calc.mjs/index.html input path",
+      "command": "grep -n 'fetch(' index.html usage.mjs",
+      "expected": "no upload of inputs",
+      "observed": "no input upload found; usage.mjs counts feature use in localStorage",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "VENTURE.yaml hypothesis status untested, no usage/traffic claim",
+      "method": "read VENTURE.yaml",
+      "command": "cat VENTURE.yaml",
+      "expected": "no unbacked claim",
+      "observed": "status untested, honest",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "Blank, negative and non-numeric input handling",
+      "method": "node probes of rateOutcome",
+      "command": "node scratchpad/run.mjs",
+      "expected": "invalid message, no NaN",
+      "observed": "invalid messages returned; blank uses defaults (disclosed)",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "All-zero job (no revenue, no cost) finding text",
+      "method": "node probe rateOutcome({deadheadMiles:0,loadedMiles:0,hookup:0,onSceneMinutes:0})",
+      "command": "node scratchpad/run.mjs",
+      "expected": "a no-data message",
+      "observed": "'Margin n/a meets your 30% target' (info)",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:69",
+      "change": "Math.max(0, loaded - included) -> loaded",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:85",
+      "change": "cost / (1 - target) -> cost * (1 + target)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:63",
+      "change": "driveMiles = deadhead + loaded -> loaded",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:111",
+      "change": "margin < target -> margin <= target - 0.05",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:49",
+      "change": "targetMarginPct >= 95 -> >= 100",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:54",
+      "change": "(payment + insurance) / hours -> payment / hours",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:71",
+      "change": "surcharges drop winchFee",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "No minimum charge, garage-to-garage mileage, admin/gate/cleanup fee lines or a cap check, so the output is a cost floor and cannot become a posted rate sheet (Florida 713.78(20) lists these items)",
+      "where": "calc.mjs:63",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Default wear and driver cost are uncited and light for a heavy wrecker (no payroll burden, $0.25/mile); users who leave defaults understate cost",
+      "where": "calc.mjs:21",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Seeded change to the under-target finding threshold leaves all 24 tests green; no test near the margin == target boundary",
+      "where": "calc.mjs:111",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "All-zero job reports 'Margin n/a meets your target' instead of asking for data; absurd mileage (1e9) accepted without a warning",
+      "where": "calc.mjs:113",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Tow Truck Rate Calculator is a small, correct and honestly scoped cost-plus pricing calculator. Four independent scenarios match a separately written implementation to four decimals, 24 tests pass, and 6 of 7 seeded mutations were caught (the survivor is the margin-vs-target threshold). Claims are backed and the disclaimer and rate-cap caveat are present. It meets the bar on correctness, claims and verification (all 3) with a median of 3, but only as a cost floor: fitness and domain are 2 because it has no minimum charge, garage-to-garage mileage, ancillary fee lines or cap comparison, and its defaults (wear, payroll burden) are uncited and light for a wrecker."
+}
