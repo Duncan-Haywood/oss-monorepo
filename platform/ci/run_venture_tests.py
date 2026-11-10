@@ -20,8 +20,11 @@ venture that keeps a workflow of its own gets its `*.test.mjs` files only
 A venture with no workflow of its own also gets its stdlib Python tests
 (`test_*.py`, `*_test.py`) run as `python3 -m unittest discover` from each
 directory that holds them: before 2026-11-10 those suites ran nowhere
-(stranded-branch-finder's 37, actions-continue-on-error-check's 8). A venture
-with its own workflow runs its Python there; when you name one that has no
+(stranded-branch-finder's 37, actions-continue-on-error-check's 8, then
+workflow-audit's 16, actions-runtime-deprecation-check's 9 and
+local-site-studio's 7, whose workflows named the path but ran no Python
+test step; see test_commands). A venture whose workflow runs its Python
+tests runs them there; when you name one that has no
 `*.test.mjs`, this prints which workflow does, instead of "0 suites run".
 An empty or all-zero `--since` (a new branch, a dispatch) means every venture.
 
@@ -69,9 +72,42 @@ def node_tests(slug):
     return _files(slug, "*.test.mjs")
 
 
+TEST_RUN = re.compile(r"^\s*-?\s*run:\s*(.*\b(?:pytest|unittest)\b.*)$")
+
+
+def test_commands(slug, wf):
+    """The pytest/unittest steps of workflow `wf` that run inside the venture.
+
+    All of them for the venture's own `<slug>*.yml`; in a shared workflow only
+    a step whose `working-directory` (just above it) is the venture. Naming
+    the path is not enough: on 2026-11-10 four ventures (workflow-audit,
+    actions-runtime-deprecation-check, local-site-studio, shed-designer) were
+    named by a workflow, in a trigger filter or a node step, that never ran
+    their Python tests.
+    """
+    lines = wf.read_text().splitlines()
+    own = wf.name.startswith((f"{slug}-", f"{slug}."))
+    cmds = []
+    for i, line in enumerate(lines):
+        m = TEST_RUN.match(line)
+        if not m or re.match(r"(pip|uv|python3? -m pip)\b", m.group(1)):
+            continue
+        near = " ".join(lines[max(0, i - 3):i + 2])
+        if own or re.search(rf"working-directory:\s*['\"]?ventures/{re.escape(slug)}\b", near):
+            cmds.append(m.group(1).strip())
+    return cmds
+
+
+@functools.lru_cache(maxsize=None)
+def python_run_elsewhere(slug):
+    """[(workflow name, command)] for steps that run the venture's Python tests."""
+    return [(wf.name, cmds[0]) for wf in sorted(WORKFLOWS.glob("*.y*ml"))
+            if wf.name != "ventures-tests.yml" and (cmds := test_commands(slug, wf))]
+
+
 def python_test_dirs(slug):
     """Directories holding Python test files, for ventures CI runs nowhere else."""
-    if slug in own_workflow_slugs():
+    if python_run_elsewhere(slug):
         return []
     files = _files(slug, "test_*.py") + _files(slug, "*_test.py")
     return sorted({p.parent for p in files})
@@ -153,7 +189,9 @@ def run_one(argv, cwd, timeout):
                          stderr=subprocess.STDOUT, text=True, start_new_session=True)
     try:
         out, _ = p.communicate(timeout=timeout)
-        return p.returncode == 0, out
+        # unittest exits 5 when it finds no tests: a pytest-style file of bare
+        # functions (shed-designer's). Nothing ran, so nothing failed.
+        return p.returncode == 0 or (p.returncode == 5 and "unittest" in argv), out
     except subprocess.TimeoutExpired:
         os.killpg(p.pid, signal.SIGKILL)
         out, _ = p.communicate()
@@ -179,6 +217,10 @@ def skip_note(slug):
     """Why a venture someone named has no suite here, and where it runs."""
     if not (VENTURES / slug).is_dir():
         return f"skip {slug}: no such venture"
+    run_by = python_run_elsewhere(slug)
+    if run_by and not node_tests(slug):
+        return (f"skip {slug}: no *.test.mjs; its Python tests run in "
+                + "; ".join(f".github/workflows/{w}: `{c}`" for w, c in run_by))
     where = workflows_naming().get(slug)
     if where:
         return (f"skip {slug}: no *.test.mjs; its tests run in "
