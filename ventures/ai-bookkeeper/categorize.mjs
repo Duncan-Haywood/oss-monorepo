@@ -34,6 +34,13 @@ const amountBucket = (cents) => `amt:${Math.min(12, Math.floor(Math.log2(Math.ab
 // keyword that fits two accounts is left out, so the line goes to review rather
 // than being guessed. `dir` limits a rule to money in or money out.
 export const BUILT_IN = [
+  // Gap probe 35 (2026-11-10, eval/probe35.mjs): drone photographers, notary signing agents, dog groomers, piano tuners, beekeepers.
+  ["6110", "out", /part 107 registration|state apiary|notary commission/],
+  ["6170", "out", /unmanned vehicle systems|notary association|dog groomers association|piano technicians guild|beekeeping federation/],
+  ["6060", "out", /dronedeploy|airmap|\bmoego\b|tunelab|snapdocs/],
+  ["6100", "out", /\bdji store|petedge|andis clipper|schaff piano|mann lake|dadant|notary essentials/],
+  ["5000", "out", /package bees|\bnuc purchase/],
+  ["4000", "in", /snapdocs signing|grooming deposit|piano tuning payment|honey jar wholesale/],
   // Gap probe 34 (2026-11-10, eval/probe34.mjs): court-record researchers, wedding officiants, home stagers, car detailers, stone fabricators.
   ["6110", "out", /county clerk.*(records|copy)|american marriage ministries|universal life church (ordination|license|licence)/],
   ["6170", "out", /legal searchers|staging professionals|marble institute|stone fabricators/],
