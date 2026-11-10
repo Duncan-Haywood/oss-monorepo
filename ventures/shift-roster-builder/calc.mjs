@@ -1161,10 +1161,6 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
   }
   const rootBound = Math.max(lowerBound(0, 0), scoreDual);
   let best = incumbent, bestOwner = null, nodes = 0, aborted = false;
-  if (lpOwner) { // an integral LP at some node is a roster with fewer open hours than the incumbent
-    const total = scoreOwner(ctx, lpOwner).total;
-    if (total < best - 1e-9) { best = total; bestOwner = lpOwner; }
-  }
   const t0 = Date.now();
   const rec = (k, unfilledH) => {
     if (aborted) return;
@@ -1214,6 +1210,13 @@ function exactSearch(ctx, incumbent, { nodeLimit = 400000, timeLimitMs = 8000, t
       const total = scoreOwner(ctx, coverOwner).total;
       if (total < best - 1e-9) { best = total; bestOwner = coverOwner; }
     }
+  }
+  // An integral LP at some branch-and-price node is a roster with fewer open hours than the incumbent. Adopted here, after the
+  // coverage pass (which resets best and bestOwner together), so the cost search below starts from it and never prunes against a
+  // score whose roster was dropped.
+  if (lpOwner) {
+    const total = scoreOwner(ctx, lpOwner).total;
+    if (total < best - 1e-9) { best = total; bestOwner = lpOwner; }
   }
   rec(0, 0);
   return { proven: !aborted, banned: bannedCount, nodes: nodes + coverNodes, coverNodes, coverOpen: minOpenH, rootBound, coverBranchStats, coverLPStats, owner: bestOwner, score: bestOwner ? best : null };
