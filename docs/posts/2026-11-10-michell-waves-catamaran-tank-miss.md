@@ -1,6 +1,6 @@
 ---
 title: "A thin-ship wave model misses a catamaran tank curve by 22% to 50%"
-seo_title: "Michell wave resistance vs catamaran tank test: where displacement models stop working"
+seo_title: "Michell wave model vs a catamaran tank test: where it fails"
 date: 2026-11-10
 tags: [research, marine, hull-resistance, catamaran, negative-result]
 description: "Michell wave resistance with Havelock interference under-predicts a semi-planing catamaran's tank resistance in all 18 cases. What it rules out."
