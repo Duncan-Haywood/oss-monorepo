@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
@@ -35,6 +35,10 @@
     {
       "what": "parseSoc's missing-name check used .some() over a sparse array and passed a file with a hole",
       "fixed": "the new test caught it; every slot is now indexed"
+    },
+    {
+      "what": "Appended to the quick-pick-survey flagship next: and pushed it over the 2000-character cap; CI validate (portfolio/router/validate.py) went red",
+      "fixed": "rewrote next: to a short state-plus-next item, with history pointing to the docs"
     }
   ],
   "integrity_issues": [],
@@ -46,6 +50,14 @@
     {
       "file": "CLAUDE.md",
       "issue": "run_workflow_locally.py --for-changes ran over the 120 s foreground timeout; worth listing it with the other long commands that need run_in_background."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes reported the sweep clean but did not run the workflow whose portfolio/router/validate.py step caught the flagships.yaml next: length cap on GitHub; a touched portfolio/flagships.yaml should select it."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to 'rewrite that venture's next:', but not that validate.py caps it at 2000 characters; the quick-pick entry was already at ~2000, so any append fails."
     }
   ],
   "deviations": [
