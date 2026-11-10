@@ -105,7 +105,7 @@ export function analyze(raw) {
     const hoursBudget = labourBudget / rate;
     budgetWords = Math.max(0, Math.floor((hoursBudget - fixed) / perWordHours));
   }
-  const extraRound = o.revisionShare * h.draft * o.targetHourly * (1 + o.rushPremium) / (1 - o.platformFee);
+  const extraRound = o.revisionShare * h.draft * o.targetHourly * (1 + o.confidentialityPremium) * (1 + o.rushPremium) / (1 - o.platformFee);
   const grid = [0.5, 0.75, 1, 1.25, 1.5].map((m) => {
     const w = { ...o, wordCount: Math.round(o.wordCount * m) };
     const hh = hours(w);
