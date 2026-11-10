@@ -3,7 +3,7 @@ title: "How much training can a worker hide inside floating-point drift?"
 seo_title: "Hiding skipped training steps inside fp16 drift tolerance"
 date: 2026-11-10
 tags: [research, verifiable-training, machine-learning, open-source]
-description: "A worker that shrinks every training step by 2% to 5% passes a drift-tolerant referee and costs under 0.003 of loss. Bigger shrinks are caught in nearly every segment."
+description: "A worker that shrinks every training step by 2% to 5% passes a drift-tolerant referee at under 0.003 loss. Shrinks of 10% or more are caught almost every time."
 ---
 
 The [verifiable-training-mechanisms](../../research/verifiable-training-mechanisms/)
