@@ -1,5 +1,24 @@
 # build-data log
 
+## Session 71, 2026-11-10: the description rules measured against hand labels (v1 60% / 78% held out, revised v2 85% / 95%)
+
+Why: session 70 wrote description keyword rules (`classmap.DESC_RULES`) without classifying a single real description, and noted that its P1 measures coverage, not correctness. The Socrata hosts answered this session (Chicago, SF, Seattle 200 at 21:08 UTC; Austin timed out on the first probe).
+- New `src/desc_eval.py` (stdlib). `sample` draws applications whose permit_type and work_class both map to "other" (the rows the description must rescue) from one year in Chicago and Seattle, and keeps the text outside git; `score` scores the rules against hand labels and writes `results/desc_rules_eval.json` with each row's (label, v1, v2) codes so the numbers recompute from git alone. Labels: `results/desc_labels_2023.txt`, `results/desc_labels_2022.txt` (codes only; the protocol is in the script's docstring).
+- Labeller: the agent running this session, from the text alone, without the rules' output; one labeller, so no inter-rater agreement. A mixed job takes its principal job; administrative rows, elevators, scaffolds, telecom equipment and plain "monthly maintenance" are "other".
+- Dev sample (2023, 200 per city): v1 agrees with the labels on 56.0% of Chicago rows and 77.0% of Seattle rows. Main errors: "erect" sends solar arrays, fences and scaffolds to new construction (15 Chicago rows were solar alone); fire-alarm permits that mention a tenant build-out go to alteration; electrical service, panel, fixture and camera work has no rule (22 Chicago electrical rows fall to "other"); Seattle's "Construct west two-family dwelling" has no "new" (25 of 52 new-construction rows fall to "other"); seismic retrofits have no rule; contractor-change rows are classed by the trade they name.
+- `classmap.DESC_RULES_V2` answers each of those patterns (listed in the code). On the dev sample it scores 92.5% and 96.5%, which is optimistic by construction.
+- Held-out sample (2022, 150 per city, a different seed and offsets), labelled after v2 was written and before either rule set was run on it:
+
+| city | n | v1 accuracy | v2 accuracy (95% Wilson) | rows only v1 right / only v2 right | exact McNemar p |
+|---|---|---|---|---|---|
+| Chicago | 150 | 60.0% | 85.3% [78.8, 90.1] | 2 / 40 | 4.1e-10 |
+| Seattle | 150 | 78.0% | 95.3% [90.7, 97.7] | 1 / 27 | 2.2e-07 |
+
+- So session 70's rules were wrong on two rows in five in Chicago; the session 70 predictions P1 to P4 are still scored on them below (they were pre-registered on v1), and the revised rules get their own run.
+- The loader now writes `desc_class_v2` beside `desc_class`; `transfer.py --classes cascade2` uses it, and `other_vocab.py` reports both.
+Prediction for the v2 run (written before any transfer run with either rule set; same test year, seeds and thresholds as session 70's P1 to P4): (P1') the v2 cascade gives a class other than "other" to at least half of the permit-type "other" rows in Chicago and in Seattle; (P2') Seattle a2i overlap with its source mix on the training years, without "other", is at least 0.30; (P3') Seattle a2i transfer is still worse than the own-city baseline at q0.9 (CI above zero); (P4') Seattle i2c transfer at q0.5 moves less than 3 points from the type-only run.
+- Limits: one labeller (the agent); samples are the first rows Socrata returns for the year at the chosen offsets, shuffled, not a uniform draw over the year; only Chicago and Seattle are checked (SF and Austin are mostly classed by their structured fields).
+
 ## Session 70, 2026-11-10: the loader now keeps a work-type class from the description (feeds unreachable again; rerun prediction written)
 
 Why: session 69 found Chicago's and Seattle's structured fields do not name the kind of work, so a retuned class map needs the description, which the loader kept only as a length. Every Socrata host answered 403 to CONNECT through this session's egress proxy at 20:10 UTC (as in session 68), so this session builds and tests the code path and writes the prediction; it reports no new number.

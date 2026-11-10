@@ -34,9 +34,10 @@ FEEDS = {
                  description="description")),
 }
 SCHEMA = ["city", "permit_id", "permit_type", "work_class", "estimated_cost", "applied",
-          "issued", "completed", "area", "description_len", "desc_class"]
+          "issued", "completed", "area", "description_len", "desc_class", "desc_class_v2"]
 # desc_class (session 70): the description's keyword class (classmap.describe). The raw text is
-# not stored: it can name people and addresses, and only the class is needed.
+# not stored: it can name people and addresses, and only the class is needed. desc_class_v2
+# (session 71): the same text under classmap.DESC_RULES_V2, the rules revised against hand labels.
 
 
 def url(city, limit, offset):
@@ -69,7 +70,8 @@ def to_schema(city, row):
                 work_class=g("work_class").lower(), estimated_cost=cost,
                 applied=day(g("applied")), issued=day(g("issued")), completed=day(g("completed")),
                 area=g("area"), description_len=str(len(g("description"))),
-                desc_class=classmap.describe(g("description")))
+                desc_class=classmap.describe(g("description")),
+                desc_class_v2=classmap.describe(g("description"), 2))
 
 
 def fetch(u, tries=8):

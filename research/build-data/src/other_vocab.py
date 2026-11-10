@@ -37,21 +37,21 @@ def count(path, min_year):
     return types, wc_other
 
 
-def cascade_share(path, min_year):
+def cascade_share(path, min_year, col="desc_class"):
     """Session 70: class shares under classmap.cascade (permit_type, then work_class, then the
     loader's desc_class), and how many permit_type-'other' rows the description rescues.
     None for a pull made before the loader kept desc_class."""
     by, rescued, other, n = collections.Counter(), collections.Counter(), 0, 0
     with open(path, newline="") as fh:
         rd = csv.DictReader(fh)
-        if "desc_class" not in (rd.fieldnames or []):
+        if col not in (rd.fieldnames or []):
             return None
         for r in rd:
             a = r.get("applied") or ""
             if not a or int(a[:4]) < min_year:
                 continue
             n += 1
-            c = classmap.cascade(r.get("permit_type") or "", r.get("work_class") or "", r.get("desc_class") or "")
+            c = classmap.cascade(r.get("permit_type") or "", r.get("work_class") or "", r.get(col) or "")
             by[c] += 1
             if harmonise(r.get("permit_type") or "") == "other":
                 other += 1
@@ -91,11 +91,12 @@ def markdown(res, min_year):
                 "| work_class | rows | share of city | class from work_class |", "|---|---|---|---|"]
         out += [f"| {d['work_class'] or '(empty)'} | {d['rows']:,} | {d['share']:.1%} | {d['cls']} |"
                 for d in s["other_work_class"]]
-        cs = s.get("cascade")
-        if cs:
-            out += ["", f"Cascade class (permit_type, then work_class, then description): "
-                    f"{cs['type_other_rescued_share']:.1%} of the {cs['type_other_rows']:,} permit-type 'other' rows "
-                    f"get a class; 'other' falls to {cs['class_share'].get('other', 0):.1%} of rows.", ""]
+        for key, name in (("cascade", "session 70 rules"), ("cascade2", "session 71 rules")):
+            cs = s.get(key)
+            if cs:
+                out += ["", f"Cascade class (permit_type, then work_class, then description; {name}): "
+                        f"{cs['type_other_rescued_share']:.1%} of the {cs['type_other_rows']:,} permit-type 'other' rows "
+                        f"get a class; 'other' falls to {cs['class_share'].get('other', 0):.1%} of rows.", ""]
         out.append("")
     return "\n".join(out)
 
@@ -113,6 +114,7 @@ if __name__ == "__main__":
             types, wc = count(p, a.min_year)
             res[c] = summarise(types, a.top, wc)
             res[c]["cascade"] = cascade_share(p, a.min_year)
+            res[c]["cascade2"] = cascade_share(p, a.min_year, "desc_class_v2")
     rd = os.path.join(HERE, "..", "results")
     json.dump(dict(min_year=a.min_year, cities=res), open(os.path.join(rd, "other_vocab.json"), "w"), indent=1)
     open(os.path.join(rd, "other_vocab.md"), "w").write(markdown(res, a.min_year) + "\n")

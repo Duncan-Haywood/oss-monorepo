@@ -30,14 +30,16 @@ CLASSES, RULES, harmonise = classmap.CLASSES, classmap.RULES, classmap.harmonise
 
 def frame(path, target, classes="type"):
     """classes='type': permit_type only (sessions 10 to 69). 'cascade': permit_type, then
-    work_class, then the loader's description class (session 70; needs a pull with desc_class)."""
+    work_class, then the loader's description class (session 70; needs a pull with desc_class).
+    'cascade2': the same with the session 71 description rules (column desc_class_v2)."""
     df, neg = boosted.load_frame(path, target)
     if classes == "type":
         df["cls"] = df["permit_type"].map(harmonise)
     else:
-        if "desc_class" not in df:
-            raise SystemExit(f"{path} has no desc_class column: re-pull with src/permits.py")
-        df["cls"] = [classmap.cascade(t, w, d) for t, w, d in zip(df.permit_type, df.work_class, df.desc_class)]
+        col = "desc_class_v2" if classes == "cascade2" else "desc_class"
+        if col not in df:
+            raise SystemExit(f"{path} has no {col} column: re-pull with src/permits.py")
+        df["cls"] = [classmap.cascade(t, w, d) for t, w, d in zip(df.permit_type, df.work_class, df[col])]
     return df, neg
 
 
@@ -95,7 +97,7 @@ if __name__ == "__main__":
     ap.add_argument("--test-year", type=int, default=2024)
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--held", nargs="*", default=None)
-    ap.add_argument("--classes", choices=["type", "cascade"], default="type")
+    ap.add_argument("--classes", choices=["type", "cascade", "cascade2"], default="type")
     a = ap.parse_args()
     cities = [c for c in CITIES if os.path.exists(os.path.join(a.data_dir, f"{c}.csv"))]
     frames = {c: frame(os.path.join(a.data_dir, f"{c}.csv"), a.target, a.classes)[0] for c in cities}
@@ -103,7 +105,7 @@ if __name__ == "__main__":
         frames = {c: f for c, f in frames.items() if c != "chicago"}  # Chicago has no completion date
     for held in (a.held or list(frames)):
         r = run(frames, held, a.test_year, a.seeds)
-        tag = ("_4city" if "seattle" in frames else "") + ("_cascade" if a.classes == "cascade" else "")
+        tag = ("_4city" if "seattle" in frames else "") + ("" if a.classes == "type" else "_" + a.classes)
         r["classes"] = a.classes
         out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results",
                            f"transfer_{held}_{a.target}_{a.test_year}{tag}.json")
