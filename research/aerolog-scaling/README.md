@@ -140,6 +140,8 @@ only as a topic; no affiliation is implied. Written with AI assistance (Claude C
 
 ## Next
 
+**Milestone 6h** (`experiments/hub_throughput/analytic_spares.py`): a closed-form spare-pack rule (the M^X/D/c recursion for packs at the chargers, plus a Poisson count for packs in transit) gives the same smallest pack count as the hub simulator for at most 5% of orders waiting: 12, 16, 25 at 70% load and 17, 26, 45 at 85%, for single orders and batches of 2 and 4. It is optimistic within about 2 packs of the mean count, because waiting feeds back on itself. Batches of 8 at 8 pads add a pad-wait floor of about 5% that no spares remove.
+
 **Milestone 8e** (`experiments/uiuc_naca64a010`): against the measured NACA 64A010 (UIUC Vol. 1) NeuralFoil's section lift slope is 1.27 and 1.23 times measured at Re 101,000 and 204,000 (3 deg window), the same 20 to 30% excess as for NACA 0009, 2414 and 2415, and 0.24 to 0.58 of measured below Re 6e4 (unusable there). One section, two runs in the band; not the tail's NACA 0015 (not in the hosted volumes).
 
 **Milestone 9d** (`experiments/adjustable_tail`): a tail whose area is adjustable by about 0.85 to 1.3 times nominal recovers the three longitudinal modes within 5% for 76 of the 78 mode-matched designs at every tail-slope scale 0.75 to 1.0 (fixed tails recover none, 8e). Gust metrics with the adjustable tail are open.

@@ -23,7 +23,9 @@ Predictions (written before the first run):
      k = 1, 2, 4, 8 at both loads.
  (3) The analytic share is never below the simulated share by more than 0.01 (it should err high, from
      the ignored feedback).
-The rule needs no simulation: one 400-state iteration per (load, k), milliseconds, stdlib only.
+The rule needs no simulation: one 600-state fixed-point iteration per (load, k), about 0.5 s in pure Python
+(stated as "milliseconds" before the run; timed after), stdlib only. The recursion is the one Crommelin (1932,
+"Delay probability formulae when the holding times are constant", P.O. Elect. Eng. J. 25) used for M/D/c.
 Inputs as 6c (vendor swap and charge figures, see run.py); batch size k swept, not measured. Preliminary.
 
 Added after the first run (the predictions above are unchanged): the k = 8 simulated share stopped
