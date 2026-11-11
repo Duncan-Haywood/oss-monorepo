@@ -39,7 +39,7 @@ export function driftResult({ csv, column = null, labelColumn = null, penalty = 
     omegaFromLags: r.ml ? r.ml.start.omega : r.omega,
     tails: r.tails,
     changes: r.changes.map((c) => ({ ...c, label: labels[c.index] })),
-    level: r.level, labels,
+    level: r.level, labels, values,
     method: DRIFT_PAPER,
   };
 }

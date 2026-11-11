@@ -1,0 +1,9 @@
+# node eval/round-refill.mjs <N> <seconds> <seed> circle 6 [bye] (2026-11-11). Final line per run; opp omitted (stored ones are in carryover.mjs TIMETABLES).
+{"N": 12, "seed": 11, "seconds": 420, "start": 768, "value": 152, "floor": 120, "max": 2, "bye": 5, "valueWithBye": 127, "floorWithBye": 99, "moves": 92063, "restarts": 22}
+{"N": 12, "seed": 12, "seconds": 420, "start": 768, "value": 136, "floor": 120, "max": 2, "bye": 0, "valueWithBye": 121, "floorWithBye": 99, "moves": 106390, "restarts": 24}
+{"N": 12, "seed": 13, "seconds": 420, "start": 768, "value": 136, "floor": 120, "max": 2, "bye": 1, "valueWithBye": 121, "floorWithBye": 99, "moves": 95812, "restarts": 20}
+{"N": 12, "seed": 14, "seconds": 420, "start": 768, "value": 136, "floor": 120, "max": 2, "bye": 5, "valueWithBye": 117, "floorWithBye": 99, "moves": 103153, "restarts": 24}
+{"N": 12, "teams": 11, "seed": 21, "seconds": 300, "start": 747, "value": 115, "floor": 99, "max": 2, "bye": 11, "valueWithBye": 115, "floorWithBye": 99, "moves": 77782, "restarts": 49}
+{"N": 12, "teams": 11, "seed": 22, "seconds": 300, "start": 747, "value": 115, "floor": 99, "max": 2, "bye": 11, "valueWithBye": 115, "floorWithBye": 99, "moves": 77045, "restarts": 50}
+{"N": 10, "teams": 10, "seed": 1, "seconds": 300, "start": 374, "value": 94, "floor": 80, "max": 2, "bye": 7, "valueWithBye": 69, "floorWithBye": 63, "moves": 112442, "restarts": 73}
+{"N": 14, "teams": 14, "seed": 1, "seconds": 300, "start": 1378, "value": 220, "floor": 168, "max": 3, "bye": 6, "valueWithBye": 185, "floorWithBye": 143, "moves": 51913, "restarts": 32}

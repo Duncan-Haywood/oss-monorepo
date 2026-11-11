@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, STARTERS_WEIGHTED, circleOpp, assignVenues } from "./carryover.mjs";
+import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, STARTERS_WEIGHTED, circleOpp, assignVenues, TIMETABLES, storedTimetable } from "./carryover.mjs";
+
+// pinned values of the stored timetables (carryover.mjs TIMETABLES)
+const STORED_VALUES = { "12/even": 136, "10/odd": 69 };
 
 const seqs = (opp, n) => Array.from({ length: n }, (_, t) => opp.map((o) => o[t]).filter((u) => u < n));
 const decode = ([step, ...flat]) => ({ step, pairs: Array.from({ length: flat.length / 2 }, (_, i) => [flat[2 * i], flat[2 * i + 1]]) });
@@ -66,7 +69,7 @@ test("with a starter built in, the search never scores worse than the circle sta
     const now = lowCarryOverRounds(n, { effort: 0.2, breakWeight });
     const old = lowCarryOverRounds(n, { effort: 0.2, breakWeight, field: false });
     assert.ok(now.coe + breakWeight * now.breaks <= old.coe + breakWeight * old.breaks, `${n} teams, weight ${breakWeight}`);
-    assert.ok(["starter", "circle", "weighted starter"].includes(now.start));
+    assert.ok(["starter", "timetable", "circle", "weighted starter"].includes(now.start));
   }
   for (const n of [12, 20]) {
     const now = lowCarryOverDoubleRounds(n, { effort: 0.2 });
@@ -126,6 +129,29 @@ test("climbed starters (eval/starter-climb.mjs) where they beat the annealed one
   for (const [N, even, odd] of [[24, 570, 565], [26, 716, 665], [30, 948, 891], [34, 1274, 1269], [36, 1422, 1419], [38, 1648, 1575], [40, 1816, 1813]]) {
     assert.equal(best(N, N), even, `${N} teams`);
     assert.equal(best(N, N - 1), odd, `${N - 1} teams`);
+  }
+});
+
+test("stored timetables (eval/round-refill.mjs) are round robins and beat the starters they replace", () => {
+  for (const [key, entry] of Object.entries(TIMETABLES)) {
+    const N = Number(key);
+    assert.ok(starterApplies(N));
+    for (const kind of Object.keys(entry)) {
+      const n = kind === "even" ? N : N - 1;
+      const opp = storedTimetable(N, n);
+      checkTimetable(opp, N);
+      const stored = carryOverFromOpponents(seqs(opp, n)).value;
+      assert.equal(stored, STORED_VALUES[`${N}/${kind}`], `${N} ${kind}`);
+      if (STARTERS[N]) {
+        const { step, pairs } = decode(STARTERS[N][kind]);
+        let best = Infinity;
+        for (let start = 0; start < N - 1; start++) best = Math.min(best, carryOverFromOpponents(seqs(starterOpp(N, pairs, { step, start }), n)).value);
+        assert.ok(stored < best, `${N} ${kind}: stored ${stored} vs starter ${best}`);
+      }
+      // the search starts from it and keeps it or better
+      const r = lowCarryOverRounds(n, { effort: 0.2 });
+      assert.ok(r.coe <= stored, `${n} teams: ${r.coe} > ${stored}`);
+    }
   }
 });
 

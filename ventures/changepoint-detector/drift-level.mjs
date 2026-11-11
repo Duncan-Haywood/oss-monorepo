@@ -253,8 +253,11 @@ export function driftLevel(values, opts = {}) {
   const tails = driftTailCheck(values);
   if (!r.changepoints.length && r.sigma == null) return { ...r, tails, changes: [], level: [] };
   const level = driftLevelPath(values, r.changepoints, r);
+  // With slope, the path carries the steady growth back in, so one step's growth is taken off the
+  // jump (before 2026-11-11 the jump on Australian residents included the 51.3-a-quarter growth).
+  const g = r.slope || 0;
   const changes = r.changepoints.map((i) => ({
-    index: i, before: level[i - 1], after: level[i], jump: level[i] - level[i - 1], jumpSd: (level[i] - level[i - 1]) / r.sigma,
+    index: i, before: level[i - 1], after: level[i], jump: level[i] - level[i - 1] - g, jumpSd: (level[i] - level[i - 1] - g) / r.sigma,
   }));
   return { ...r, tails, changes, level };
 }

@@ -55,3 +55,11 @@ weight 10: lower 4, higher 0, same 2
 
 weight 10: lower 2, higher 0, same 4
 
+
+# rerun after merging PR #14847 (the stored 12-team timetable is now a start too): node eval/starter-breaks-search.mjs 10 12 14 18
+| 12 | single | 180 / 14, 320 (timetable) | 170 / 14, 310 (weighted starter) | -10 |
+| 12 | home and away | 618 / 42, 1,038 (timetable) | 602 / 40, 1,002 (weighted starter) | -36 |
+| 14 | single | 252 / 18, 432 (starter) | 252 / 18, 432 (starter) | same |
+| 14 | home and away | 854 / 52, 1,374 (starter) | 870 / 50, 1,370 (weighted starter) | -4 |
+| 18 | single | 456 / 30, 756 (starter) | 348 / 40, 748 (weighted starter) | -8 |
+| 18 | home and away | 1,556 / 76, 2,316 (starter) | 1,316 / 98, 2,296 (weighted starter) | -20 |

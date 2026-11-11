@@ -1,0 +1,17 @@
+pair,item,group,n,p_first,p_later,net,net_lo,net_hi,gross,gross_lo,gross_hi,stay,kappa
+wave 1 to 2,raised Catholic,all,4633,0.3325,0.3319,-0.0006,-0.0065,0.0053,0.0297,0.0237,0.0357,0.9545,0.9331
+wave 1 to 2,raised Catholic,later wave in person,3699,0.3164,0.3154,-0.0011,-0.0073,0.0051,0.0263,0.0200,0.0326,0.9568,0.9391
+wave 1 to 2,raised Catholic,later wave by phone,930,0.3889,0.3901,0.0012,-0.0139,0.0162,0.0420,0.0272,0.0568,0.9475,0.9117
+wave 1 to 2,raised Catholic,Catholic now at wave 1,1074,0.9189,0.9009,-0.0180,-0.0298,-0.0062,0.0335,0.0218,0.0452,0.9720,0.7959
+wave 1 to 2,raised Catholic,not Catholic now at wave 1,3546,0.1311,0.1360,0.0049,-0.0017,0.0114,0.0280,0.0213,0.0346,0.9119,0.8792
+wave 1 to 2,Catholic now,all,4636,0.2554,0.2450,-0.0104,-0.0188,-0.0020,0.0510,0.0426,0.0595,0.8798,0.8640
+wave 1 to 2,Catholic now,later wave in person,3704,0.2412,0.2315,-0.0097,-0.0193,-0.0001,0.0484,0.0390,0.0577,0.8796,0.8660
+wave 1 to 2,Catholic now,later wave by phone,927,0.3075,0.2946,-0.0129,-0.0308,0.0050,0.0609,0.0429,0.0789,0.8800,0.8554
+wave 1 to 3,raised Catholic,all,3843,0.3296,0.3219,-0.0077,-0.0144,-0.0011,0.0323,0.0250,0.0396,0.9393,0.9265
+wave 1 to 3,raised Catholic,later wave in person,3095,0.3151,0.3067,-0.0084,-0.0160,-0.0007,0.0327,0.0242,0.0412,0.9348,0.9237
+wave 1 to 3,raised Catholic,later wave by phone,743,0.3852,0.3798,-0.0054,-0.0188,0.0080,0.0295,0.0161,0.0429,0.9547,0.9375
+wave 1 to 3,raised Catholic,Catholic now at wave 1,878,0.9166,0.8945,-0.0221,-0.0386,-0.0056,0.0424,0.0242,0.0606,0.9648,0.7525
+wave 1 to 3,raised Catholic,not Catholic now at wave 1,2955,0.1294,0.1257,-0.0037,-0.0106,0.0032,0.0281,0.0209,0.0354,0.8770,0.8736
+wave 1 to 3,Catholic now,all,3843,0.2539,0.2352,-0.0187,-0.0272,-0.0102,0.0497,0.0415,0.0579,0.8652,0.8655
+wave 1 to 3,Catholic now,later wave in person,3098,0.2415,0.2230,-0.0185,-0.0279,-0.0091,0.0499,0.0407,0.0591,0.8583,0.8600
+wave 1 to 3,Catholic now,later wave by phone,740,0.3012,0.2816,-0.0196,-0.0378,-0.0015,0.0478,0.0281,0.0676,0.8880,0.8842
