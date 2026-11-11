@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJ32oFLmrkQHEVu8mU",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T14:05:51Z",
+  "ended": "2026-11-11T14:31:03Z",
+  "wall_minutes": 25.5,
+  "tokens_in": 5784821,
+  "tokens_out": 32887,
+  "cost_usd": 2.6224,
+  "tool_calls": 63,
+  "task": "cell-fidelity milestone 2a: model x cycle-count fidelity grid (drawn by pick_track.py)",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14800",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/experiments/trust/run.py",
+      "issue": "Named run.py like every experiment; importing it from a sibling experiment with `import run` collides with the importer's own module name, so milestone 2a loads it by importlib spec under a distinct name."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "Returns after ~100 s with 'still running? call again' even under a longer outer timeout; I misread progress as 10-minute intervals and first wrote a 75-minute sweep time into the README (the 147-run sweep took ~17 min). Corrected before merge."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/PROPOSAL.md",
+      "why": "Milestone 2 in the proposal is the dense Sobol benchmark; the milestone 1 outcome changed the plan to put cycle count on the fidelity axis first, so this run tested that axis on the 49 logged designs (milestone 2a) before paying for the dense benchmark.",
+      "did": "Ran the grid on the existing 49 designs with pre-registered H4-H6.",
+      "result": "H4 and H6 supported, H5 equal cost; the dense benchmark now knows to cache per-cycle DFN."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-stop-the-battery-model-early.md",
+    "research/cell-fidelity/LOG.md",
+    "research/cell-fidelity/README.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research (draw), pick_track drew cell-fidelity. Results: Spearman(DFN@10, DFN@100)=0.977 vs SPMe@100 0.834 (paired bootstrap diff 0.138, 95% 0.057-0.271); median wall DFN to cycle 10 4.0 s vs SPMe 100-cycle 4.1 s; top-5 regret 0 vs 2.1 Wh/kg. Re-runs reproduce committed SPMe (max diff 0) and DFN design 0 (116.256) scores. Local checks: pytest research/cell-fidelity/tests 11 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check all ok; programme_check ok; post frontmatter/links/similarity ok.",
+  "corrections": [
+    "README reproduce line first said the sweep takes ~75 min; measured ~17 min from file timestamps; fixed before merge."
+  ],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ff2f9467-747c-540d-9ce7-ff2684b3912a",
+    "transcripts": 1,
+    "first": "2026-11-11T14:05:51Z",
+    "last": "2026-11-11T14:31:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 109,
+        "output": 32887,
+        "thinking": 6050,
+        "cache_read": 5681212,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103500,
+        "api_equivalent_usd": 2.6224,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 109,
+      "output": 32887,
+      "thinking": 6050,
+      "cache_read": 5681212,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103500,
+      "api_equivalent_usd": 2.6224,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 57,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.5,
+      "active_minutes": 25.5,
+      "model_minutes": 7.27,
+      "tool_minutes": 18.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a battery-modelling researcher designing, running and writing up a 147-run PyBaMM fidelity grid with pre-registered tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 381.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
