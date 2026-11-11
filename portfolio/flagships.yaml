@@ -169,17 +169,18 @@ flagships:
       chains, reduced-cost fixing, priced-bound branching, and branch-and-price by column
       generation (bnp.mjs, per-person pricing oracle, branching on classes of identical shift
       copies): the open-hours floor equals the HiGHS optimum on every bench week and every
-      20-60 person scale week, proven for 20, 30 and 40 people (40 in about 40 s). Pay bound by
+      20-60 person scale week, proven for 20 to 60 people (60 in 18-27 s). Pay bound by
       the same column generation, 2026-11-10 later (scoreBoundByColumnGeneration,
       makeScorePricer; eval/score-cg-bench.mjs): buildRoster proves 12 of 12 pay-gap weeks to
       within $0.50 (exact search alone 3 of 12, $5,906 unproven) in 4-198 ms each; 20x56 3 of 3
       in 2-6 s; 30x84 1 of 2 and 40x112 0 of 2 in 120 s (eval/score-cg-scale-bench.mjs). Also
       landed (README): pay and premium flags, time budget, cover chains, notice and seniority
       rules, `--from-sales` with page `shifts-from-sales.html`, `--skip-dates`, `--half-life`.
-      Next: the unproven 30- and 40-person score weeks (a stronger pricing bound, cuts or a
-      faster LP); 60-person weeks (floor = optimum but no roster in 60 s: a faster LP or rounding
-      at the root) and buildRoster taking 3-5 min on 40-person weeks with exact on and no time
-      limit; a real POS hourly export for --from-sales and the page (made-up exports only); a
+      Root dive 2026-11-11 (README "A root dive"): pin whole LP columns, re-price; 60-person
+      weeks proven at the HiGHS optimum in 18-27 s (0 of 3 before), 30/40-person pay weeks 4 of
+      4 to within $0.50 (1 of 4). Next: 80-120 person weeks and the pay proof at 60 people
+      (untried); buildRoster end to end on 40-person weeks with exact on (3-5 min before the
+      dive, not re-timed: its other passes, not the proof); backtracking when both dives miss; a real POS hourly export for --from-sales and the page (made-up exports only); a
       real published-schedule export for --import-shifts.
   - venture: photo-editing
     why: >-
