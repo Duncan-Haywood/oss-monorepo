@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-11 · Line outages: do penalty factors survive a topology change?
+- Question (next step 2): factors taken at the pre-outage AC optimum, applied to the DC OPF of the network after a single line trip (the DC model knows the new topology; only the factors are stale). case118 at its own load (k=1.0), the 20 most-loaded lines whose trip keeps every bus supplied, plus 20 others drawn at random (seed 0).
+- Prediction (written before running): stale factors beat plain DC on at least 80 % of outages; their gap to the post-outage oracle grows with the tripped line's pre-outage flow; on at least one outage the stale factors do worse than plain DC.
+
 ## 2026-11-11 · PGLib-OPF: published ratings that bind
 - Question: with the benchmark's own ratings (no synthetic caps), how bad is the DC OPF on congested cases? 12 PGLib-OPF v23.07 cases, TYP and API sets.
 - Solver check first: AC within 0.004 % of PGLib's published IPOPT objectives on 23 of 24 (case179 API no convergence). The published DC values only match with PowerModels' DCP convention (b = x/(r²+x²), no taps); MATPOWER's 1/(x tap) differs by up to 2.8 % and is infeasible on case240 TYP. Not expected before running.
