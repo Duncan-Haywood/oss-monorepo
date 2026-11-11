@@ -177,8 +177,9 @@ flagships:
       28-60% less; the 60-person pay week is still $1.22 open, bound = root LP after 172 nodes. Next: close the
       100-person gaps (tree, not pricing, now); cuts or branching that move the score LP on the 60-person pay
       week (a faster oracle will not close it); buildRoster end to end on
-      40-person weeks with exact on (3-5 min, not re-timed); a real POS hourly export for --from-sales and the
-      page (made-up exports only); a real published-schedule export for --import-shifts.
+      40-person weeks with exact on (3-5 min, not re-timed); more real POS exports for --from-sales
+      (one so far, a Korean bakery, 2026-11-11, README "First real POS export": 3 faults fixed, --backtest added,
+      half-life 4 best there), next a US/EU POS layout and a short-vs-over cost weight; a real published-schedule export for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
