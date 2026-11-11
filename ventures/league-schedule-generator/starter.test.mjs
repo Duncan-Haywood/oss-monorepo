@@ -69,7 +69,7 @@ test("with a starter built in, the search never scores worse than the circle sta
     const now = lowCarryOverRounds(n, { effort: 0.2, breakWeight });
     const old = lowCarryOverRounds(n, { effort: 0.2, breakWeight, field: false });
     assert.ok(now.coe + breakWeight * now.breaks <= old.coe + breakWeight * old.breaks, `${n} teams, weight ${breakWeight}`);
-    assert.ok(now.start === "starter" || now.start === "circle");
+    assert.ok(["starter", "timetable", "circle"].includes(now.start));
   }
   for (const n of [12, 20]) {
     const now = lowCarryOverDoubleRounds(n, { effort: 0.2 });

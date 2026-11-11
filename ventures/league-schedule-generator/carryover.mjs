@@ -215,8 +215,8 @@ export function starterApplies(N) {
 // at 12 teams none goes below 156 (floor 120). eval/round-refill.mjs searches every round robin
 // instead: it takes 2 to 5 rounds out and refills their games with the least-carry-over split, by
 // depth-first search. Its best timetables are stored here whole, as opp[r][t] (team t meets
-// opp[r][t] in round r; team N - 1 is the bye in "odd"). The search start keeps whichever of the
-// starter and the stored timetable scores lower.
+// opp[r][t] in round r; team N - 1 is the bye in "odd"). The search runs from it as a third start,
+// beside the circle method and the starter, and keeps the best result (constructionStarts).
 
 /** N -> { even?, odd? }, each a list of rounds, each round the opponent of every team. */
 export const TIMETABLES = {
@@ -293,14 +293,23 @@ export function starterOpp(N, pairs, { step = 1, start = 0 } = {}) {
  * with the least carry-over and, among those, the fewest breaks after the greedy venue pass.
  * Null when no starter is built in for N.
  */
-function bestStarterOpp(N, n, cyclic) {
-  const stored = storedTimetable(N, n);
-  const fromStarter = bestStarterOnly(N, n, cyclic);
-  if (!stored) return fromStarter;
-  if (!fromStarter) return stored;
-  const cs = coeOf(stored, n, cyclic), cf = coeOf(fromStarter, n, cyclic);
-  if (cs !== cf) return cs < cf ? stored : fromStarter;
-  return greedyBreaks(stored, n) < greedyBreaks(fromStarter, n) ? stored : fromStarter;
+function bestStarterOpp(N, n, cyclic, which = "starter") {
+  if (which === "timetable") return storedTimetable(N, n);
+  return bestStarterOnly(N, n, cyclic);
+}
+
+/**
+ * The construction starts built in for N teams (n real), in the order they are tried: "starter"
+ * (STARTERS) and "timetable" (TIMETABLES). A stored timetable is a third start, not a replacement:
+ * its lower carry-over can leave a break-weighted season search worse off than the starter
+ * (12 teams, seed 2, weight 10: 596 / 46 against 618 / 40), so every start runs and the best is kept.
+ */
+function constructionStarts(N, n) {
+  const kind = n === N ? "even" : "odd";
+  const out = [];
+  if (STARTERS[N]?.[kind]) out.push("starter");
+  if (TIMETABLES[N]?.[kind]) out.push("timetable");
+  return out;
 }
 
 function bestStarterOnly(N, n, cyclic) {
@@ -400,10 +409,13 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
     // A starter start is far better at some sizes (20 teams: the floor, 360, against 448) and
     // worse after annealing at others (11, 13 and 30 teams), so both run in full and the better on
     // the search's own score is kept; a tie keeps the circle start, so no size gets worse.
-    const base = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field: false });
-    const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: true });
     const score = (r) => r.coe + breakWeight * r.breaks;
-    return score(st) < score(base) ? { ...st, start: "starter" } : { ...base, start: "circle" };
+    let best = { ...lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field: false }), start: "circle" };
+    for (const which of constructionStarts(N, n)) {
+      const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: which });
+      if (score(st) < score(best)) best = { ...st, start: which };
+    }
+    return best;
   }
   const rand = mulberry32(seed);
   let opp = circleOpp(N);
@@ -415,7 +427,7 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
   else if (fromStarter) {
     // other even sizes: the searched starter (see starterOpp); the caller compares the result
     // with the circle start's
-    opp = bestStarterOpp(N, n, cyclic);
+    opp = bestStarterOpp(N, n, cyclic, fromStarter === "timetable" ? "timetable" : "starter");
     useField = true;
   }
   const R = N - 1;
@@ -892,10 +904,13 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
   if (field && !fromStarter && maxBreaks == null && !fieldApplies(N) && starterApplies(N)) {
     // as in lowCarryOverRounds: the season searched from a circle-start leg and from a
     // starter-start leg, the better kept (a tie keeps the circle start)
-    const base = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field: false });
-    const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: true });
     const score = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
-    return score(st) < score(base) ? { ...st, start: "starter" } : { ...base, start: "circle" };
+    let best = { ...lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field: false }), start: "circle" };
+    for (const which of constructionStarts(N, n)) {
+      const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: which });
+      if (score(st) < score(best)) best = { ...st, start: which };
+    }
+    return best;
   }
   const R = N - 1;
   const rand = mulberry32((seed * 2654435761) >>> 0);
@@ -905,7 +920,7 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
   const single = capped
     ? lowCarryOverCappedRounds(n, { seed, effort, maxBreaks: legBreaks ?? Math.floor(maxBreaks / 3) })
     : fromStarter
-      ? lowCarryOverRounds(n, { seed, effort, breakWeight, field, fromStarter: true })
+      ? lowCarryOverRounds(n, { seed, effort, breakWeight, field, fromStarter })
       : lowCarryOverRounds(n, { seed, effort, breakWeight, field });
   const leg1 = oppFromRounds(single.rounds, N, n);
   // host[t * N + u] = t when t hosts u in leg one (the single search's home/away)

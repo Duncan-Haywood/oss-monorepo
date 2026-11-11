@@ -764,8 +764,12 @@ the annealing search from both starts. `eval/round-refill.mjs` searches all roun
   swapped). The shuffled restart above came later and was used for the other sizes below. The search does not show whether 136 is the
   least possible.
 - **Stored timetables** (`TIMETABLES`, `storedTimetable` in `carryover.mjs`). The best result is
-  stored whole as opp[r][t]. `bestStarterOpp` keeps whichever of the starter and the stored
-  timetable scores lower (then the fewer greedy breaks), and the search runs from it as before.
+  stored whole as opp[r][t]. It is a third start (`start: "timetable"`), beside the circle method
+  and the starter, and the search keeps the best of the three on its own score. It does not
+  replace the starter. At first it did, and the 12-team season at seed 2, weight 10 got worse:
+  596 / 46 from the new leg, against 618 / 40 from the starter. A leg with less carry-over can
+  leave the season's break pass a worse pattern. At 12 teams and 9 teams a search now runs from three
+  starts instead of two, so it takes about half as long again.
   Through the search (`node eval/field-start.mjs 12`, seed 1, effort 1; carry-over / breaks):
 
   | 12 teams | Before | Now | Floor |
