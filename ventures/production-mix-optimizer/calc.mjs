@@ -30,7 +30,7 @@ const num = (v, d = 0) => {
   return Number.isFinite(n) ? n : NaN;
 };
 const cellsOf = (line) =>
-  (line.includes("\t") ? line.split("\t") : line.split(",")).map((c) => c.trim().replace(/^"|"$/g, ""));
+  splitCells(line);
 const looksHeader = (c, from) => c.length > from && c.slice(from, from + 1).every((x) => x !== "" && Number.isNaN(Number(x.replace(/[$,]/g, ""))));
 
 // Resources: "name, available per week, max overtime (optional), overtime cost per unit (optional)".
@@ -461,4 +461,28 @@ export function sampleProducts() {
     "Baguette, 3.50, 0.80, 0, 400, 1, 0.07, 0.03, 0.07",
     "Cookie box (10 per batch), 12.00, 3.20, 0, 100, 10, 0.15, 0.08, 0.25",
   ].join("\n");
+}
+
+// One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
+// "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps
+// its commas (a spreadsheet's CSV export writes "$1,200") and "" inside it is a literal quote; a
+// quote later in a cell (17" rims) is text. Before 2026-11-11 a quoted "1,200" split in two and
+// shifted every later field (portfolio/quality, defect class input-handling).
+export function splitCells(line) {
+  const unq = (c) => { c = c.trim(); return /^".*"$/s.test(c) ? c.slice(1, -1).replace(/""/g, '"') : c; };
+  if (line.includes("\t")) return line.split("\t").map(unq);
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch !== '"') cur += ch;
+      else if (line[i + 1] === '"') { cur += '"'; i++; }
+      else q = false;
+    } else if (ch === '"' && cur.trim() === "") { cur = ""; q = true; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
 }
