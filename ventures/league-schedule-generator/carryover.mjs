@@ -204,6 +204,14 @@ export const STARTERS = {
   40: { even: [1, 1, 8, 2, 24, 3, 18, 4, 27, 5, 13, 6, 19, 7, 16, 9, 28, 10, 20, 11, 22, 12, 15, 14, 35, 17, 29, 21, 25, 23, 37, 26, 32, 30, 31, 33, 38, 34, 36], odd: [1, 1, 23, 2, 32, 3, 7, 4, 17, 5, 37, 6, 26, 8, 29, 9, 14, 10, 18, 11, 12, 13, 19, 15, 30, 16, 28, 20, 31, 21, 35, 22, 38, 24, 34, 25, 27, 33, 36] },
 };
 
+/**
+ * Starters picked on carry-over + 10 x breaks of the full venue search instead of carry-over alone
+ * (eval/starter-breaks.mjs), where that pick scores lower; same shape as STARTERS. With a break
+ * weight, bestStarterOpp considers both entries (README "Starters picked with their breaks").
+ */
+export const STARTERS_WEIGHTED = {
+};
+
 /** True when a searched starter is built in for N teams (N even, a bye team included). */
 export function starterApplies(N) {
   return STARTERS[N] !== undefined;
@@ -243,11 +251,25 @@ export function starterOpp(N, pairs, { step = 1, start = 0 } = {}) {
 /**
  * The built-in starter for N teams (n real; n = N - 1 means team N - 1 is the bye), at the start
  * with the least carry-over and, among those, the fewest breaks after the greedy venue pass.
+ * Every start gives the same timetable up to renaming the teams (start t's round r is start 0's
+ * round r + t with team u renamed u - t), so the loop over starts only settles the greedy venue
+ * pass's ties. With a break weight w > 0 and a STARTERS_WEIGHTED entry, both entries are tried and
+ * the lower carry-over + w x greedy breaks is kept (ties keep STARTERS).
  * Null when no starter is built in for N.
  */
-function bestStarterOpp(N, n, cyclic) {
-  const entry = STARTERS[N]?.[n === N ? "even" : "odd"];
+function bestStarterOpp(N, n, cyclic, breakWeight = 0, weighted = true) {
+  const key = n === N ? "even" : "odd";
+  const entry = STARTERS[N]?.[key];
   if (!entry) return null;
+  const alt = breakWeight > 0 && weighted ? STARTERS_WEIGHTED[N]?.[key] : null;
+  const a = startOf(N, n, cyclic, entry);
+  if (!alt) return a;
+  const b = startOf(N, n, cyclic, alt);
+  const score = (o) => coeOf(o, n, cyclic) + breakWeight * greedyBreaks(o, n);
+  return score(b) < score(a) ? b : a;
+}
+
+function startOf(N, n, cyclic, entry) {
   const [step, ...flat] = entry;
   const pairs = [];
   for (let i = 0; i < flat.length; i += 2) pairs.push([flat[i], flat[i + 1]]);
@@ -335,7 +357,7 @@ function cycleOf(opp, r, s, t) {
  * circle method and the starter timetable (starterOpp) and keeps the better (`start` says which).
  * Returns { rounds, coe, circleCoe, lowerBound, breaks, iterations }.
  */
-export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false } = {}) {
+export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   if (field && !fromStarter && !fieldApplies(N) && starterApplies(N)) {
@@ -343,7 +365,7 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
     // worse after annealing at others (11, 13 and 30 teams), so both run in full and the better on
     // the search's own score is kept; a tie keeps the circle start, so no size gets worse.
     const base = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field: false });
-    const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: true });
+    const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: true, weightedStarter });
     const score = (r) => r.coe + breakWeight * r.breaks;
     return score(st) < score(base) ? { ...st, start: "starter" } : { ...base, start: "circle" };
   }
@@ -357,7 +379,7 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
   else if (fromStarter) {
     // other even sizes: the searched starter (see starterOpp); the caller compares the result
     // with the circle start's
-    opp = bestStarterOpp(N, n, cyclic);
+    opp = bestStarterOpp(N, n, cyclic, breakWeight, weightedStarter);
     useField = true;
   }
   const R = N - 1;
@@ -828,14 +850,14 @@ function hostBreaks(opp, n, R, host) {
  * at `legBreaks` (default a third of the season cap) and leg two moves on carry-over alone without
  * the season going over `maxBreaks` (or over the fewest its starts allow, if that is more).
  */
-export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false } = {}) {
+export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false, weightedStarter = true } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   if (field && !fromStarter && maxBreaks == null && !fieldApplies(N) && starterApplies(N)) {
     // as in lowCarryOverRounds: the season searched from a circle-start leg and from a
     // starter-start leg, the better kept (a tie keeps the circle start)
     const base = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field: false });
-    const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: true });
+    const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: true, weightedStarter });
     const score = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
     return score(st) < score(base) ? { ...st, start: "starter" } : { ...base, start: "circle" };
   }
@@ -847,7 +869,7 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
   const single = capped
     ? lowCarryOverCappedRounds(n, { seed, effort, maxBreaks: legBreaks ?? Math.floor(maxBreaks / 3) })
     : fromStarter
-      ? lowCarryOverRounds(n, { seed, effort, breakWeight, field, fromStarter: true })
+      ? lowCarryOverRounds(n, { seed, effort, breakWeight, field, fromStarter: true, weightedStarter })
       : lowCarryOverRounds(n, { seed, effort, breakWeight, field });
   const leg1 = oppFromRounds(single.rounds, N, n);
   // host[t * N + u] = t when t hosts u in leg one (the single search's home/away)
