@@ -1,9 +1,9 @@
 ---
 title: "\"I'm out Friday\" is not an away notice: a fourth round on real mail"
-seo_title: "Cutting false stops in an email reply classifier, scored on unread mail"
+seo_title: "Cutting false stops in a reply classifier, scored on unread mail"
 date: 2026-11-11
 tags: [sales-agent, evaluation]
-description: "A fourth round of reply-rule fixes for the sales agent, tuned on four halves of the Enron corpus and scored once on a fifth that nobody had read: wrong stops fell from 7.2 to 5.0 per 1,000 replies, at a cost of one right stop."
+description: "Fourth round of sales-agent reply fixes, scored once on an unread Enron half: wrong stops 7.2 to 5.0 per 1,000 replies, one right stop lost."
 ---
 
 [Sales Agent](https://marisstella.app/sales-agent/) reads the replies your cold outreach gets back. When a reply says stop (unsubscribe, not interested, out of office, left the company, bounced), the lead gets suppressed, paused or marked gone. A stop that fires by mistake loses a lead without anyone noticing. So for the last few runs we've tested the rules on real people's writing: the Enron email corpus, which is public and CC0, split into halves by file hash.
