@@ -1,66 +1,56 @@
 ---
-title: "Outliers or a wild random walk? A robust changepoint cost that failed, and why"
-seo_title: "Robust changepoint costs on heavy-tailed series: when biweight helps"
+title: "Walk or noise? A heavy-tail check for changepoints on a drifting level"
+seo_title: "Heavy-tail check for changepoint detection on random-walk series"
 date: 2026-11-11
-tags: [changepoint-detector, statistics, time-series, changepoint, robust-statistics, negative-result]
-description: "A biweight cost was pre-registered to fix false changes on heavy-tailed series. It lost on the benchmark, and the reason shows where heavy tails can live."
+tags: [changepoint-detector, statistics, time-series, changepoint, robust-statistics]
+description: "The drift model now says whether a series' heavy tails are outliers around a level or the steps of a random walk, which decides whether its jumps mean anything."
 ---
 
-The [changepoint detector](../../ventures/changepoint-detector/) has a model for
-series whose level wanders between real jumps (`--model drift`). On the Turing
-Change Point Dataset (TCPD) it still marks a lot of changes on a few series: 63 on
-`bank`, where every annotator marks none, and 52 on bitcoin. The usual fix for heavy
-tails is a robust cost, which caps how much a single wild point can cost so it can't
-pay for a change. So we wrote one down before running it: a biweight cost (Fearnhead
-and Rigaill's outlier loss, put inside the model's Kalman filter), clipped at 3
-standard deviations. It would become the default if it beat the current cost on both
-the 31 shipped TCPD series and the 7 held out.
+Earlier today, [a pre-registered test](2026-11-11-heavy-tails-live-in-the-walk.md)
+found that a robust, bounded cost makes the
+[changepoint detector](../../ventures/changepoint-detector/)'s drift model worse on
+the series it was meant to fix. On the benchmark's `bank` series false changes went from
+63 to 111, and on bitcoin from 52 to 98. The reason given there was that their heavy
+tails live in the random walk's own steps, not in noise around a level. That post ended
+with a suggestion: the tool should say so. Now it does.
 
-## It lost
+## The check
 
-| | F1, 31 shipped | F1, 7 held out | cuts on bank | cuts on bitcoin |
-|---|---|---|---|---|
-| Gaussian cost (default) | 0.694 | 0.527 | 63 | 52 |
-| biweight, c = 3 (pre-registered) | 0.677 | 0.441 | 111 | 96 |
-| Huber, c = 1.345 | 0.699 | 0.512 | 87 | 71 |
+Every `--model drift` result (text and JSON) now carries a heavy-tail check. It looks
+at two things:
 
-On the two series it was meant for, the biweight nearly doubled the false changes.
+1. Are the day-to-day changes heavy-tailed? The test is kurtosis above 6. A normal
+   distribution has 3.
+2. Is there any noise around the level? The model's lag fit splits the variance into
+   noise and wander. On `bank` and bitcoin the noise part is at the fit's floor, so the
+   series reads as a pure random walk.
 
-## Why: the tails were in the walk, not the noise
+Heavy tails with no noise gives **walk**. In a random walk, a jump in level is just one
+big step. The check says the reported jumps may only be the walk's largest steps, that
+a robust cost won't help, and that `--model meanvar` on the differences is the better
+question: did how much it moves change? Heavy tails with real noise gives **noise**: lone
+outliers may be read as jumps, so check those against the raw data.
 
-The model splits a series into noise around a level and the level's own random-walk
-steps. On `bank` and bitcoin the noise around the level is at the fit's floor: both
-read as pure random walks. Their heavy tails (the day-to-day changes have kurtosis
-19 and 42, against 3 for a normal distribution) come from the walk's own steps.
+## Does it tell the two apart?
 
-In a random walk, a jump in level is just one big step. No cost on the observations
-can tell "a change" from "a large step that a heavy-tailed walk takes now and then".
-The biweight made it worse in a specific way: rejecting a point costs a fixed amount,
-so the best fit became a flat level with many rejected points and many cuts. The
-estimated wander dropped to zero.
+On synthetic series where the truth is known (400 points, 60 series a cell, Student t
+tails with 3 degrees of freedom):
 
-Where the heavy tails really are outliers around a level, the robust cost works.
-TCPD's `well_log`, the textbook outlier series, went from 21 cuts to 15 and F1 from
-0.764 to 0.874. A synthetic check, where the truth is known, gives the same split
-(400 points, 60 series a cell, Student t tails with 3 degrees of freedom):
+| series | false jumps, default cost | false jumps, bounded cost | check says |
+|---|---|---|---|
+| heavy-tailed noise, flat level | 3.00 | 0.07 | noise 30, nothing 30 |
+| heavy-tailed random walk | 17.40 | 18.18 | walk 42, noise 12 |
+| Gaussian random walk | 2.33 | 2.30 | nothing 60 |
 
-| | false cuts, Gaussian cost | false cuts, biweight |
-|---|---|---|
-| heavy-tailed noise around a flat level | 3.00 | 0.05 |
-| heavy-tailed random walk, no noise | 17.40 | 18.08 |
+So the bounded cost is the right fix for one kind of heavy tail and no fix for the
+other, and the check gets the walk case right about 7 times in 10. On the benchmark it
+says "walk" for 12 of 38 series, including bank, bitcoin and measles. On those, reporting
+no change at all scores better than the drift model (F1 0.595 against 0.552). Those
+benchmark figures are in-sample, because the kurtosis bar was set after looking at
+them.
 
-## What shipped
-
-- `--drift-loss huber|biweight`, off by default because the pre-registered rule failed.
-- A heavy-tail check in every `--model drift` result. It says **walk** when the
-  series reads as a random walk with heavy-tailed steps (the jumps may just be its
-  largest steps; try `--model meanvar` on the differences to look for changes in how
-  much it moves) or **noise** when the tails are outliers around a level (try
-  `--drift-loss biweight`). The kurtosis bar of 6 was set after looking at TCPD, so
-  the TCPD figures for the check are in-sample. Using biweight only where the check
-  says "noise" would score 0.701 and 0.527. That is worth testing on fresh labelled
-  data, and it is not evidence for a default yet.
-
-Every number here is in the venture README ("Heavy tails on a drifting level") and in
-the scripts under `eval/` that produced it. Statistical analysis of data you supply,
-not advice.
+The bounded cost is still not a command-line option. It failed its pre-registered
+rule, and using it only where the check says "noise" is a rule to test on fresh
+labelled data, not a default to ship from the same benchmark. The figures are in the
+venture README ("The heavy-tail check") and in `eval/drift-tails-sim.mjs` and
+`eval/tcpd-drift-tails.mjs`. Statistical analysis of data you supply, not advice.

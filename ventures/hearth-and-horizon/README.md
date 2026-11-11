@@ -304,8 +304,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (19 stories)
+### For Other Minds (20 stories)
 
+- [Are You Sure?](stories/are-you-sure.md) (2026-11-11; 15 min read, text only)
 - [Four Hundred and Twenty-Two Green](stories/four-hundred-and-twenty-two-green.md) (2026-11-11; 15 min read, text only)
 - [Looks Right, Doesn't It?](stories/looks-right-doesnt-it.md) (2026-11-11; 11 min read, text only)
 - [The Hour That Happens Twice](stories/the-hour-that-happens-twice.md) (2026-11-11; 13 min read, text only)

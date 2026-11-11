@@ -1,5 +1,5 @@
 // Synthetic check of the heavy-tail check and the robust drift costs (drift-level.mjs driftTailCheck,
-// lossSpec), where the truth is known. n 400, 60 seeded series per cell, one step of h noise sd at
+// loss: biweight K 3 and Huber K 2, the settings eval/tcpd-drift-robust.mjs scored), where the truth is known. n 400, 60 seeded series per cell, one step of h noise sd at
 // t = 200 where a cell has one. Heavy tails are Student t with 3 degrees of freedom scaled to sd 1.
 // Cells and settings were written before this script was first run (2026-11-11), after the TCPD
 // run (eval/tcpd-drift-robust.out.txt) had shown where the tails lived on bank, bitcoin and well_log.
@@ -24,7 +24,7 @@ const CELLS = [
 ];
 const SET = {
   gauss: (x) => driftLevelChanges(x, { noise: 'ml' }).changepoints,
-  huber: (x) => driftLevelChanges(x, { noise: 'ml', loss: 'huber' }).changepoints,
+  huber: (x) => driftLevelChanges(x, { noise: 'ml', loss: 'huber', lossK: 2 }).changepoints,
   biweight: (x) => driftLevelChanges(x, { noise: 'ml', loss: 'biweight' }).changepoints,
 };
 console.log(`n ${N}, ${REPS} series a cell; check = how often driftTailCheck says walk / noise / nothing.`);

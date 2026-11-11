@@ -127,7 +127,7 @@ flagships:
     next: >-
       TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. Panel and main analysis run in Web Workers on the page (README "Main analysis off the main thread", 2026-11-11).
       Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (c) all panels on threads (README "Agreed changes on worker threads", "Several columns on worker threads"); TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere.
-      Open: (0) drift model (`--model drift`, README "Jumps on a drifting level", "A step-robust omega", "Heavy tails on a drifting level"): ML wander default, F1 0.694/0.527; biweight default pre-registered 2026-11-11 and lost (bank, bitcoin are heavy-tailed walks; it helps heavy-tailed noise, well_log), shipped as opt-in `--drift-loss` plus a heavy-tail check; next: a heavy-tailed walk model (Student-t steps), a cost chosen by the check on fresh data, why ML absorbs seat belts, its AR(1) term; (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
+      Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); `--model drift` 2026-11-11 (random-walk level, README "Jumps on a drifting level"); step-robust omega (README "A step-robust omega": now the drift default, F1 0.694/0.527; panel step held for fresh labelled data); biweight rejected and a walk/noise heavy-tail check 2026-11-11 (README "Heavy tails on a drifting level", "The heavy-tail check"); next: heavy-tailed level increments (t-walk), biweight where the check says noise on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -242,24 +242,19 @@ flagships:
     next: >-
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
-      CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons).
-      Worker pool landed 2026-11-11 (README "Eight searches on a pool of workers"): the page runs
-      eight tries over one Web Worker per core (same season on any core count). Capped breaks 2026-11-11
-      (README "Carry-over under a cap on breaks"): lowCarryOverCappedRounds, 8 + 2 capped tries, a
-      "fewest" choice; 18 teams 2,154-2,674 at the minimum 48 (Bundesliga 3,474+ at 48), 20 teams
-      4,734-5,080 at 54. Odd leagues 2026-11-11 later (README "Odd leagues: zero-break home/away"): odd circle 0 breaks (was 46 at 19). Field start 2026-11-11 later (README "Perfect
-      carry-over at 4, 8, 16 and 32 teams"): Russell's GF(2^k) timetable, every count 0 or 1, at
-      power-of-two sizes (bye included); 16 teams 316 to 224 (floor), 16-team season 1,048 to 912
-      (floor). Starter start 2026-11-11 latest (README "Starter
-      timetables for 6 to 40 teams"): built-in sampled starters (starterOpp, STARTERS,
-      eval/starter-search.mjs), search runs from both starts and keeps the better; 20 teams 448 to 360
-      (floor, every count 0 or 1), 18 teams 412 to 318, 22 teams 654 to 516; the season search keeps
-      the plain mirror when better (20-team season 1,750/118 to 1,460/116, the floor). Next, most
-      valuable first: a better starter search past 22 teams (hill-climb on the starter; a 10,000-sample
-      scratch run found 22 teams 478, 24 teams 570 vs the table's 516/654), then other constructions
-      (Latin-square based, from the literature) for 12 teams (152 vs 120); a bound for the
-      minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter timetable; a real
-      league's travel times and unavailable dates; a print check.
+      CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
+      capped breaks, zero-break odd leagues, finite-field start at 4/8/16/32 teams, sampled starters
+      and the plain-mirror season candidate, all 2026-11-11). Climbed starters 2026-11-11 latest
+      (README "Climbed starters", eval/starter-anneal.mjs): annealed multi-start over starters at
+      step 1 (any step is a relabelling); 22 teams 516 to 440 and 21 teams 475 to 399 (floor, every
+      count 0 or 1), 22-team season 1,862 to 1,782 (floor); 24 to 40 teams 4 to 13% lower, still 16
+      to 28% above the floor. Next, most valuable first: with a break weight, 24 and 30 teams got
+      slightly worse (README), so pick the start or keep a second starter by carry-over + weight x
+      breaks; a faster exact starter score (O(p) from difference counts; draft PR #14821 has one) and
+      longer climbs at 24 to 40 (an earlier scratch run reported 24 teams 570 against the climb's
+      612); other constructions (Latin-square based, from the literature) for 12 teams (152 vs 120);
+      a bound for the minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter
+      timetable; a real league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

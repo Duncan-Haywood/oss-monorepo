@@ -17,7 +17,7 @@
   "tokens_out": 39617,
   "cost_usd": 2.9335,
   "tool_calls": 45,
-  "task": "Deepen flagship 4 (changepoint-detector): heavy-tail check before choosing the drift model (bank, bitcoin)",
+  "task": "Deepen flagship 4 (changepoint-detector): heavy-tail check for the drift model (bank, bitcoin)",
   "projects": [
     "changepoint-detector"
   ],
@@ -29,7 +29,7 @@
   "merged": null,
   "ci_failures_before_green": 1,
   "review_findings": null,
-  "tests_added": 8,
+  "tests_added": 6,
   "outcome": "success",
   "errors": [
     {
@@ -50,6 +50,10 @@
     {
       "file": "portfolio/router/allocate.py",
       "issue": "Top two Deepen rows (ai-bookkeeper with a 1h-old open PR; sales-agent whose five next items all need a key, a second model family, or real accounts/mail) were not actionable here; reading full next: for four flagships to find a tractable item cost several calls."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Two sessions drew the same flagship item within minutes; the open-PR search at start cannot see work not yet pushed. A claim (an early draft PR naming the item) would have caught it; I opened my draft only after the full study."
     }
   ],
   "deviations": [
@@ -70,14 +74,20 @@
       "why": "Skipped venture-preflight.mjs: the change touches the CLI, library, evals and docs only; no page, sitemap or site-wide surface changed.",
       "did": "ran the full venture suite and promptctl validate instead",
       "result": "suite green"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate-PR search at start (list_pull_requests) showed no changepoint PR; PR #14826 opened and merged during this run with the same pre-registered study.",
+      "did": "consolidated instead of closing: kept main's study, dropped the duplicate and the CLI flag that main's rule excluded, kept the heavy-tail check as the follow-up main named",
+      "result": "one study on main, check added on top"
     }
   ],
   "writeups": [
     "docs/posts/2026-11-11-heavy-tails-random-walk-changepoints.md",
-    "ventures/changepoint-detector/README.md#heavy-tails-on-a-drifting-level"
+    "ventures/changepoint-detector/README.md (The heavy-tail check: walk or noise)"
   ],
   "goal": "Deepen a flagship with a measured algorithmic slice",
-  "notes": "Pre-registration committed (first commit) before the TCPD run. Biweight default lost (0.677/0.441 vs 0.694/0.527). Diagnosis: bank/bitcoin are pure random walks with heavy-tailed steps (noise share at the lag fit's 2% floor on 21 of 38 TCPD series). Synthetic: biweight false cuts 3.00->0.05 on t3 noise, no help on t3 walks. Local checks: node --test drift-tails.test.mjs drift-level.test.mjs pass 17/17; full suite via platform/ci/run_venture_tests.py changepoint-detector passed: 'ok changepoint-detector (515.6s), 1 suites run, 0 failed'.",
+  "notes": "Ran a pre-registered biweight/Huber TCPD study (committed before the run) that lost; meanwhile a parallel session (PR #14826) landed the same study and verdict ~50 min earlier. At merge time this branch was consolidated onto main: main's loss implementation, eval/tcpd-drift-robust.* and README section kept; this run's duplicate study and its --drift-loss CLI flag dropped (main's pre-registered rule said no CLI flag ships). What this PR adds: driftTailCheck (walk/noise) in every --model drift text and JSON, the step their README named as next; eval/drift-tails-sim.mjs (synthetic walk vs noise, rerun on main's loss code); eval/tcpd-drift-tails.mjs (in-sample, labelled so); README 'The heavy-tail check'; llms.txt; flagships next:; post. Local checks: full changepoint-detector suite passed before consolidation (515.6 s); after it, drift-tails/drift-robust/drift-level tests 21/21 and the full suite again (see below); promptctl validate and portfolio/router/validate.py ok.",
   "corrections": [],
   "redteam": null,
   "usage": {

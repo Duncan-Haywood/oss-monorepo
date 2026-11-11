@@ -1,11 +1,11 @@
-// Heavy tails on a drifting level (README "Heavy tails on a drifting level"): the robust costs
-// (drift-level.mjs lossSpec, `--drift-loss`) and the heavy-tail check (driftTailCheck).
+// Heavy tails on a drifting level (README "Heavy tails on a drifting level"): the heavy-tail check
+// (drift-level.mjs driftTailCheck) in `--model drift`'s text and JSON. The losses: drift-robust.test.mjs.
 // TCPD: eval/tcpd-drift-robust.mjs (pre-registered), eval/tcpd-drift-tails.mjs (post hoc);
 // synthetic: eval/drift-tails-sim.mjs.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { driftLevel, driftLevelChanges, driftSegmentCost, driftTailCheck, lossSpec } from './drift-level.mjs';
+import { driftLevel, driftLevelChanges, driftTailCheck } from './drift-level.mjs';
 import { DRIFT_TAILS, driftResult, driftText } from './drift-cli.mjs';
 import { parseSeries } from './engine.mjs';
 import { main } from './cli.mjs';
@@ -18,13 +18,6 @@ const outlierSeries = (s = 7) => { seed = s; return Array.from({ length: 300 }, 
 const walk = (s, step) => { seed = s; let m = 0; return Array.from({ length: 400 }, (_, t) => (m += t ? step() : 0)); };
 const read = (f) => readFileSync(new URL(f, import.meta.url), 'utf8');
 
-test('lossSpec: defaults and refusals', () => {
-  assert.deepEqual(lossSpec(), { kind: 'gauss', c: null });
-  assert.deepEqual(lossSpec('huber'), { kind: 'huber', c: 1.345 });
-  assert.deepEqual(lossSpec('biweight', 2.5), { kind: 'biweight', c: 2.5 });
-  assert.throws(() => lossSpec('cauchy'), /unknown drift loss/);
-});
-
 test('on heavy-tailed noise the biweight cost finds the step and not the outliers', () => {
   let gaussOther = 0, bwOther = 0, bwFound = 0;
   for (let s = 1; s <= 10; s++) {
@@ -36,21 +29,6 @@ test('on heavy-tailed noise the biweight cost finds the step and not the outlier
   }
   assert.equal(bwFound, 10);
   assert.ok(bwOther <= 2 && gaussOther >= 10, `other cuts: gauss ${gaussOther}, biweight ${bwOther}`);
-});
-
-test('the robust partitions are exact: their cost is the sum of the robust segment costs, and no single move lowers it', () => {
-  const x = outlierSeries(3).slice(100, 200);
-  for (const loss of ['huber', 'biweight']) {
-    const r = driftLevelChanges(x, { loss, sigma: 1, omega: 0.05 });
-    const cost = (cps) => { let c = -r.penalty; const b = [0, ...cps, x.length]; for (let i = 0; i + 1 < b.length; i++) c += r.penalty + driftSegmentCost(x.slice(b[i], b[i + 1]), { sigma: 1, omega: 0.05, loss }); return c; };
-    const base = cost(r.changepoints);
-    assert.ok(Math.abs(base - r.cost) < 1e-6, `${loss}: ${base} vs ${r.cost}`);
-    for (let t = 2; t < x.length - 2; t++) {
-      const alt = r.changepoints.includes(t) ? r.changepoints.filter((c) => c !== t) : [...r.changepoints, t].sort((a, b) => a - b);
-      if (alt.some((c, i) => i && c - alt[i - 1] < 2)) continue;
-      assert.ok(cost(alt) >= base - 1e-9, `${loss}: moving ${t} lowers the cost`);
-    }
-  }
 });
 
 test('Gaussian loss is unchanged by the rewrite: the reported levels match the classical filter', () => {
@@ -77,10 +55,7 @@ test('the text says what the check found and points to the right remedy', () => 
   const csv = (x) => 't,v\n' + x.map((v, t) => `${t},${v}`).join('\n');
   const noise = driftText(driftResult({ csv: csv(outlierSeries(5)) }));
   assert.match(noise, /noise around the level is heavy-tailed/);
-  assert.match(noise, /Try --drift-loss biweight/);
-  const bw = driftText(driftResult({ csv: csv(outlierSeries(5)), loss: 'biweight' }));
-  assert.match(bw, /Cost: biweight/);
-  assert.doesNotMatch(bw, /Try --drift-loss/);
+  assert.match(noise, /not offered here yet/);
   const w = driftText(driftResult({ csv: csv(walk(4, t3)) }));
   assert.match(w, /random walk with heavy-tailed steps/);
   assert.match(w, /--model meanvar on its differences/);
@@ -90,10 +65,10 @@ test('the text says what the check found and points to the right remedy', () => 
 test('the quoted figures match the eval outputs', () => {
   const rob = read('./eval/tcpd-drift-robust.out.txt'), sim = read('./eval/drift-tails-sim.out.txt');
   const T = DRIFT_TAILS;
-  assert.match(rob, new RegExp(`biweight 3 \\(primary\\)\\s+${T.tcpd.biweightShipped}`));
-  assert.match(rob, new RegExp(`biweight 3 \\(primary\\)\\s+${T.tcpd.biweightHeldout}`));
-  assert.match(rob, new RegExp(`bank\\s+Gaussian \\(shipped\\) ${T.tcpd.bankGauss}, .*biweight 3 \\(primary\\) ${T.tcpd.bankBiweight}`));
-  assert.match(rob, new RegExp(`well_log .*gauss\\s+${T.tcpd.wellGauss} .*bw3\\s+${T.tcpd.wellBiweight} `));
+  assert.match(rob, new RegExp(`biweight K 3 \\(primary\\)\\s+${T.tcpd.biweightShipped}`));
+  assert.match(rob, new RegExp(`biweight K 3 \\(primary\\)\\s+${T.tcpd.biweightHeldout}`));
+  assert.match(rob, new RegExp(`bank .*gauss\\s+${T.tcpd.bankGauss} .*biw\\s+${T.tcpd.bankBiweight} `));
+  assert.match(rob, new RegExp(`well_log .*gauss\\s+${T.tcpd.wellGauss} .*biw\\s+${T.tcpd.wellBiweight} `));
   const cell = (name) => sim.split('\n\n').find((b) => b.startsWith(name));
   assert.match(cell('t3 noise, flat level, no step'), new RegExp(`gauss\\s+found\\s+-\\s+other ${T.sim.t3NoiseGauss.toFixed(2)}`));
   assert.match(cell('t3 noise, flat level, no step'), new RegExp(`biweight\\s+found\\s+-\\s+other ${T.sim.t3NoiseBiweight.toFixed(2)}`));
@@ -101,12 +76,11 @@ test('the quoted figures match the eval outputs', () => {
   assert.match(cell('t3 random walk, no noise'), new RegExp(`biweight\\s+found\\s+-\\s+other ${T.sim.t3WalkBiweight.toFixed(2)}`));
 });
 
-test('CLI: --drift-loss is parsed and refused when unknown', async () => {
+test('CLI: --model drift --json carries the check', async () => {
   let out = '';
   const csv = 't,v\n' + outlierSeries(5).map((v, t) => `${t},${v}`).join('\n');
-  await main(['--model', 'drift', '--drift-loss', 'biweight', '--json'], { stdin: csv, out: (s) => { out += s; } });
+  await main(['--model', 'drift', '--json'], { stdin: csv, out: (s) => { out += s; } });
   const j = JSON.parse(out);
-  assert.equal(j.loss, 'biweight');
   assert.equal(j.tails.kind, 'noise');
-  await assert.rejects(main(['--model', 'drift', '--drift-loss', 'nope'], { stdin: csv, out: () => {} }), /--drift-loss takes/);
+  assert.ok(j.tails.stepKurtosis > 6);
 });

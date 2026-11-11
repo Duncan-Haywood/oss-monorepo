@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLTrbaThLvwshfhbjt",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T16:07:08Z",
+  "ended": "2026-11-11T16:12:54Z",
+  "wall_minutes": 5.99,
+  "tokens_in": 2493500,
+  "tokens_out": 25975,
+  "cost_usd": 1.713,
+  "tool_calls": 30,
+  "task": "Creative track: new For Other Minds story",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14824",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Push hook rejected the post's seo_title (83 chars > 70); shortened and pushed again.",
+    "First draft had three arithmetic slips (15:30 departure 08:45 vs 08:50, a '4 h 50' gap that is 4 h 15, a return time); caught in the adversarial re-read before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest' via git log does not work in a shallow clone (all three paths show the same latest commit); counting stories per shelf from front matter was the usable signal."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio is at 423 MB, over the 400 MB cap",
+      "did": "Landed text, pages and feeds without audio",
+      "result": "Story served text-only; tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-are-you-sure-a-story-about-giving-in.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, shelf for-other-minds (19 stories vs 284 hearth-and-horizon). Piece: are-you-sure (about 3,600 words, text only). Chose sycophancy as a theme no story on the shelf covered. Checks: node --test in ventures/hearth-and-horizon 14/14 pass; check_post_frontmatter passes; weekdays checked with python datetime. No agent doc: the BIBLE Done entry and new proposal carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "18de647f-8d62-5570-9840-1e2a5352b2f4",
+    "transcripts": 1,
+    "first": "2026-11-11T16:07:08Z",
+    "last": "2026-11-11T16:13:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 52,
+        "output": 25975,
+        "thinking": 11009,
+        "cache_read": 2404399,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89049,
+        "api_equivalent_usd": 1.713,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 52,
+      "output": 25975,
+      "thinking": 11009,
+      "cache_read": 2404399,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89049,
+      "api_equivalent_usd": 1.713,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 25,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.99,
+      "active_minutes": 5.99,
+      "model_minutes": 5.3,
+      "tool_minutes": 0.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a professional writer drafting and fact-checking a 3,600-word short story",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 350.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

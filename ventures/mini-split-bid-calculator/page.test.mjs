@@ -29,6 +29,12 @@ test('index links one hop to the furnace-bid-calculator sibling', () => {
   assert.match(page, /furnace bid calculator/i);
 });
 
+// Sizing sibling: before pricing heads, an installer needs each room's load.
+test('index links one hop to the hvac-load-calc sibling', () => {
+  assert.match(page, /href="\.\.\/hvac-load-calc\/"/, 'index must link ../hvac-load-calc/ so crawlers reach the load calculator in one hop');
+  assert.match(page, /room-by-room HVAC load calculator/i);
+});
+
 test('FAQ page answers the search query and links back to the calculator', () => {
   assert.match(faq, /How much to charge to install a mini split/);
   assert.match(faq, /FAQPage/);

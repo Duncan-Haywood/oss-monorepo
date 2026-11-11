@@ -1,16 +1,14 @@
 
 TCPD shipped (31): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
     binseg (published)                       0.714  0.671  
+  * drift ML, Huber K 2                      0.709  0.622    265
     pelt (published)                         0.704  0.672  
   * consensus: every setting                 0.702  0.633     59
-  * drift, Huber 1.345                       0.699  0.630    306
-  * drift, Gaussian (shipped)                0.694  0.622    226
-  * drift, biweight 4                        0.677  0.608    401
-  * drift, biweight 3 (primary)              0.677  0.618    341
+  * drift ML, Gaussian (shipped)             0.694  0.622    226
+  * drift ML, biweight K 3 (primary)         0.681  0.624    341
     bocpd (published)                        0.673  0.616  
     zero (published)                         0.663  0.568  
   * level, following the over-cut warning    0.655  0.561    653
-  * level (default)                          0.477  0.374   1329
 
 TCPD held out (7): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
     binseg (published)                       0.727  0.731  
@@ -18,79 +16,67 @@ TCPD held out (7): mean F1 / cover / total cuts (margin 5; * = this detector, ot
     bocpd (published)                        0.683  0.605  
     zero (published)                         0.639  0.597  
     pelt (published)                         0.636  0.639  
-  * drift, Gaussian (shipped)                0.527  0.576    180
-  * drift, Huber 1.345                       0.512  0.548    252
+  * drift ML, Huber K 2                      0.533  0.563    216
+  * drift ML, Gaussian (shipped)             0.527  0.576    180
   * level, following the over-cut warning    0.497  0.394    233
-  * drift, biweight 4                        0.474  0.412    357
-  * drift, biweight 3 (primary)              0.441  0.410    280
-  * level (default)                          0.296  0.191    585
+  * drift ML, biweight K 3 (primary)         0.448  0.408    278
 
 Paired F1, primary minus ..., shipped (31) (bootstrap over series, sign test):
-  drift, Gaussian (shipped)    -0.018 [95% -0.051, 0.014]; better on 6, worse on 8, sign p 0.791
-  drift, biweight 4            -0.001 [95% -0.025, 0.025]; better on 7, worse on 7, sign p 1.000
-  drift, Huber 1.345           -0.023 [95% -0.054, 0.007]; better on 7, worse on 13, sign p 0.263
-  level (default)              +0.200 [95% 0.133, 0.273]; better on 25, worse on 2, sign p 0.000
-  level following the warning  +0.022 [95% -0.058, 0.112]; better on 16, worse on 10, sign p 0.327
-  consensus every setting      -0.025 [95% -0.100, 0.054]; better on 10, worse on 14, sign p 0.541
-  zero                         +0.014 [95% -0.101, 0.125]; better on 15, worse on 11, sign p 0.557
-  binseg                       -0.037 [95% -0.130, 0.053]; better on 9, worse on 18, sign p 0.122
+  drift Gaussian (shipped)     -0.013 [95% -0.050, 0.027]; better on 5, worse on 9, sign p 0.424
+  drift Huber K 2              -0.028 [95% -0.061, 0.002]; better on 6, worse on 8, sign p 0.791
+  level following the warning  +0.027 [95% -0.052, 0.113]; better on 16, worse on 10, sign p 0.327
+  consensus every setting      -0.021 [95% -0.097, 0.056]; better on 11, worse on 12, sign p 1.000
+  zero                         +0.019 [95% -0.098, 0.125]; better on 15, worse on 10, sign p 0.424
+  binseg                       -0.032 [95% -0.122, 0.054]; better on 10, worse on 17, sign p 0.248
 
 Paired F1, primary minus ..., held out (7) (bootstrap over series, sign test):
-  drift, Gaussian (shipped)    -0.086 [95% -0.188, -0.002]; better on 0, worse on 5, sign p 0.063
-  drift, biweight 4            -0.033 [95% -0.071, -0.002]; better on 1, worse on 4, sign p 0.375
-  drift, Huber 1.345           -0.071 [95% -0.146, -0.008]; better on 2, worse on 3, sign p 1.000
-  level (default)              +0.145 [95% -0.031, 0.393]; better on 5, worse on 2, sign p 0.453
-  level following the warning  -0.056 [95% -0.175, 0.129]; better on 1, worse on 6, sign p 0.125
-  consensus every setting      -0.270 [95% -0.467, -0.061]; better on 1, worse on 5, sign p 0.219
-  zero                         -0.198 [95% -0.462, 0.002]; better on 1, worse on 5, sign p 0.219
-  binseg                       -0.286 [95% -0.553, -0.024]; better on 1, worse on 6, sign p 0.125
+  drift Gaussian (shipped)     -0.080 [95% -0.186, 0.007]; better on 1, worse on 4, sign p 0.375
+  drift Huber K 2              -0.085 [95% -0.157, -0.022]; better on 1, worse on 4, sign p 0.375
+  level following the warning  -0.049 [95% -0.166, 0.131]; better on 1, worse on 6, sign p 0.125
+  consensus every setting      -0.263 [95% -0.464, -0.055]; better on 1, worse on 5, sign p 0.219
+  zero                         -0.191 [95% -0.463, 0.010]; better on 1, worse on 5, sign p 0.219
+  binseg                       -0.280 [95% -0.551, -0.016]; better on 1, worse on 6, sign p 0.125
 
-Per series: cuts and F1 for level+warning / Gaussian drift / Huber / biweight 4 / biweight 3 (primary); annotators' median count.
+Per series: cuts and F1 for level+warning / drift Gaussian / Huber K 2 / biweight K 3; annotators' median count.
   shipped (31)
-    bank                   n  581  warn   3 0.400  gauss  63 0.031  huber  87 0.022  bw4 188 0.011  bw3 111 0.018  annotators 0  zero 1.000
-    brent_spot             n  500  warn  13 0.577  gauss   4 0.773  huber   9 0.783  bw4   4 0.773  bw3   4 0.773  annotators 5  zero 0.315
-    businv                 n  330  warn  19 0.249  gauss   3 0.559  huber   6 0.570  bw4   3 0.559  bw3   3 0.559  annotators 3  zero 0.588
-    centralia              n   15  warn   3 1.000  gauss   3 1.000  huber   3 1.000  bw4   3 1.000  bw3   3 1.000  annotators 1  zero 0.763
-    children_per_woman     n  301  warn  65 0.216  gauss  19 0.571  huber  24 0.485  bw4  28 0.432  bw3  36 0.356  annotators 2  zero 0.507
-    co2_canada             n  215  warn   8 0.854  gauss  14 0.625  huber  26 0.570  bw4  28 0.505  bw3  23 0.629  annotators 5  zero 0.361
-    construction           n  319  warn   5 0.634  gauss   0 0.696  huber   0 0.696  bw4   0 0.696  bw3   0 0.696  annotators 1  zero 0.696
-    debt_ireland           n   21  warn   6 0.923  gauss   9 0.824  huber   5 1.000  bw4   9 0.824  bw3   5 1.000  annotators 2  zero 0.469
-    gdp_argentina          n   59  warn   4 0.889  gauss   4 0.720  huber   5 0.800  bw4   4 0.720  bw3   4 0.720  annotators 0  zero 0.824
-    gdp_croatia            n   24  warn   7 0.400  gauss   6 0.444  huber   6 0.444  bw4   6 0.444  bw3   6 0.444  annotators 1  zero 0.824
-    gdp_iran               n   58  warn   2 0.622  gauss   9 0.655  huber  12 0.632  bw4   9 0.655  bw3   9 0.655  annotators 2  zero 0.652
-    gdp_japan              n   58  warn   4 0.571  gauss   4 0.571  huber   8 0.364  bw4   4 0.571  bw3   4 0.571  annotators 0  zero 0.889
-    global_co2             n  104  warn  27 0.303  gauss   7 0.523  huber  10 0.415  bw4  13 0.344  bw3  20 0.245  annotators 0  zero 0.846
-    homeruns               n  118  warn   4 0.800  gauss   5 0.667  huber   6 0.780  bw4   6 0.780  bw3   5 0.741  annotators 1  zero 0.659
-    jfk_passengers         n  468  warn   4 0.490  gauss   0 0.723  huber   0 0.723  bw4   0 0.723  bw3   0 0.723  annotators 1  zero 0.723
-    lga_passengers         n  468  warn   5 0.526  gauss   1 0.693  huber   2 0.693  bw4   1 0.693  bw3   1 0.693  annotators 3  zero 0.535
-    nile                   n  100  warn   1 1.000  gauss   1 1.000  huber   1 1.000  bw4   1 1.000  bw3   1 1.000  annotators 1  zero 0.824
-    ozone                  n   54  warn   2 0.650  gauss   4 0.560  huber   6 0.600  bw4   4 0.560  bw3   4 0.560  annotators 1  zero 0.723
-    quality_control_1      n  313  warn   3 0.667  gauss   1 1.000  huber   1 1.000  bw4   1 1.000  bw3   1 1.000  annotators 1  zero 0.667
-    quality_control_2      n  283  warn   1 1.000  gauss   1 1.000  huber   1 1.000  bw4   1 1.000  bw3   1 1.000  annotators 1  zero 0.750
-    quality_control_3      n  366  warn   1 1.000  gauss   3 0.333  huber   3 0.667  bw4   3 0.333  bw3   1 0.500  annotators 1  zero 0.667
-    quality_control_4      n  500  warn   4 0.726  gauss   3 0.638  huber   3 0.638  bw4   3 0.638  bw3   5 0.484  annotators 1  zero 0.780
-    quality_control_5      n  325  warn   0 1.000  gauss   0 1.000  huber   0 1.000  bw4   0 1.000  bw3   0 1.000  annotators 0  zero 1.000
-    rail_lines             n   37  warn   1 0.846  gauss   5 0.800  huber   5 0.800  bw4   5 0.800  bw3   6 0.727  annotators 2  zero 0.537
-    seatbelts              n  192  warn   1 0.474  gauss   0 0.621  huber   1 0.824  bw4   0 0.621  bw3   0 0.621  annotators 2  zero 0.621
-    shanghai_license       n  205  warn  10 0.422  gauss   6 0.416  huber  12 0.355  bw4  22 0.357  bw3  17 0.435  annotators 1  zero 0.636
-    uk_coal_employ         n  105  warn   5 0.863  gauss  11 0.749  huber  13 0.778  bw4  11 0.749  bw3  30 0.591  annotators 5  zero 0.513
-    unemployment_nl        n  214  warn   9 0.776  gauss   9 0.930  huber  14 0.755  bw4  14 0.804  bw3  13 0.835  annotators 3  zero 0.566
-    us_population          n  816  warn 406 0.015  gauss   0 0.889  huber   0 0.889  bw4   0 0.889  bw3   0 0.889  annotators 0  zero 0.889
-    usd_isk                n  247  warn   9 0.632  gauss  10 0.749  huber  19 0.571  bw4  11 0.711  bw3  13 0.645  annotators 2  zero 0.489
-    well_log               n  675  warn  21 0.764  gauss  21 0.764  huber  18 0.832  bw4  19 0.808  bw3  15 0.874  annotators 9  zero 0.237
+    bank                   n  581  warn   3 0.400  gauss  63 0.031  huber  83 0.024  biw 111 0.018  annotators 0  zero 1.000
+    brent_spot             n  500  warn  13 0.577  gauss   4 0.773  huber   5 0.773  biw   5 0.773  annotators 5  zero 0.315
+    businv                 n  330  warn  19 0.249  gauss   3 0.559  huber   2 0.650  biw   3 0.559  annotators 3  zero 0.588
+    centralia              n   15  warn   3 1.000  gauss   3 1.000  huber   3 1.000  biw   3 1.000  annotators 1  zero 0.763
+    children_per_woman     n  301  warn  65 0.216  gauss  19 0.571  huber  21 0.533  biw  34 0.333  annotators 2  zero 0.507
+    co2_canada             n  215  warn   8 0.854  gauss  14 0.625  huber  23 0.570  biw  21 0.571  annotators 5  zero 0.361
+    construction           n  319  warn   5 0.634  gauss   0 0.696  huber   0 0.696  biw   0 0.696  annotators 1  zero 0.696
+    debt_ireland           n   21  warn   6 0.923  gauss   9 0.824  huber   9 0.824  biw   5 1.000  annotators 2  zero 0.469
+    gdp_argentina          n   59  warn   4 0.889  gauss   4 0.720  huber   4 0.720  biw   4 0.720  annotators 0  zero 0.824
+    gdp_croatia            n   24  warn   7 0.400  gauss   6 0.444  huber   6 0.444  biw   6 0.444  annotators 1  zero 0.824
+    gdp_iran               n   58  warn   2 0.622  gauss   9 0.655  huber   9 0.655  biw   9 0.655  annotators 2  zero 0.652
+    gdp_japan              n   58  warn   4 0.571  gauss   4 0.571  huber   4 0.571  biw   4 0.571  annotators 0  zero 0.889
+    global_co2             n  104  warn  27 0.303  gauss   7 0.523  huber   8 0.481  biw  20 0.245  annotators 0  zero 0.846
+    homeruns               n  118  warn   4 0.800  gauss   5 0.667  huber   6 0.780  biw   6 0.780  annotators 1  zero 0.659
+    jfk_passengers         n  468  warn   4 0.490  gauss   0 0.723  huber   0 0.723  biw   0 0.723  annotators 1  zero 0.723
+    lga_passengers         n  468  warn   5 0.526  gauss   1 0.693  huber   1 0.693  biw   1 0.693  annotators 3  zero 0.535
+    nile                   n  100  warn   1 1.000  gauss   1 1.000  huber   1 1.000  biw   1 1.000  annotators 1  zero 0.824
+    ozone                  n   54  warn   2 0.650  gauss   4 0.560  huber   4 0.560  biw   4 0.560  annotators 1  zero 0.723
+    quality_control_1      n  313  warn   3 0.667  gauss   1 1.000  huber   1 1.000  biw   1 1.000  annotators 1  zero 0.667
+    quality_control_2      n  283  warn   1 1.000  gauss   1 1.000  huber   1 1.000  biw   1 1.000  annotators 1  zero 0.750
+    quality_control_3      n  366  warn   1 1.000  gauss   3 0.333  huber   2 0.800  biw   3 0.667  annotators 1  zero 0.667
+    quality_control_4      n  500  warn   4 0.726  gauss   3 0.638  huber   2 0.759  biw   5 0.484  annotators 1  zero 0.780
+    quality_control_5      n  325  warn   0 1.000  gauss   0 1.000  huber   0 1.000  biw   0 1.000  annotators 0  zero 1.000
+    rail_lines             n   37  warn   1 0.846  gauss   5 0.800  huber   5 0.800  biw   6 0.727  annotators 2  zero 0.537
+    seatbelts              n  192  warn   1 0.474  gauss   0 0.621  huber   0 0.621  biw   0 0.621  annotators 2  zero 0.621
+    shanghai_license       n  205  warn  10 0.422  gauss   6 0.416  huber  10 0.402  biw  17 0.435  annotators 1  zero 0.636
+    uk_coal_employ         n  105  warn   5 0.863  gauss  11 0.749  huber  11 0.749  biw  31 0.578  annotators 5  zero 0.513
+    unemployment_nl        n  214  warn   9 0.776  gauss   9 0.930  huber  12 0.817  biw  13 0.835  annotators 3  zero 0.566
+    us_population          n  816  warn 406 0.015  gauss   0 0.889  huber   0 0.889  biw   0 0.889  annotators 0  zero 0.889
+    usd_isk                n  247  warn   9 0.632  gauss  10 0.749  huber  13 0.645  biw  12 0.677  annotators 2  zero 0.489
+    well_log               n  675  warn  21 0.764  gauss  21 0.764  huber  19 0.808  biw  15 0.874  annotators 9  zero 0.237
   held out (7)
-    bitcoin                n  774  warn  74 0.349  gauss  52 0.407  huber  71 0.361  bw4 118 0.250  bw3  96 0.147  annotators 4  zero 0.450
-    iceland_tourism        n  199  warn   2 0.486  gauss   0 0.947  huber   0 0.947  bw4   0 0.947  bw3   0 0.947  annotators 0  zero 0.947
-    measles                n  991  warn  40 0.047  gauss  39 0.049  huber  57 0.034  bw4  45 0.042  bw3  46 0.042  annotators 0  zero 0.947
-    ratner_stock           n  600  warn  23 0.452  gauss  30 0.324  huber  41 0.320  bw4  31 0.316  bw3  41 0.320  annotators 2  zero 0.571
-    robocalls              n   52  warn   2 0.966  gauss   5 0.778  huber   7 0.769  bw4   5 0.778  bw3   5 0.778  annotators 2  zero 0.636
-    scanline_126007        n  481  warn  10 0.772  gauss  27 0.593  huber  35 0.682  bw4  30 0.695  bw3  36 0.590  annotators 1  zero 0.644
-    scanline_42049         n  481  warn  82 0.404  gauss  27 0.593  huber  41 0.469  bw4 128 0.291  bw3  56 0.263  annotators 7  zero 0.276
+    bitcoin                n  774  warn  74 0.349  gauss  52 0.407  huber  68 0.353  biw  98 0.164  annotators 4  zero 0.450
+    iceland_tourism        n  199  warn   2 0.486  gauss   0 0.947  huber   0 0.947  biw   0 0.947  annotators 0  zero 0.947
+    measles                n  991  warn  40 0.047  gauss  39 0.049  huber  46 0.042  biw  44 0.043  annotators 0  zero 0.947
+    ratner_stock           n  600  warn  23 0.452  gauss  30 0.324  huber  31 0.400  biw  42 0.314  annotators 2  zero 0.571
+    robocalls              n   52  warn   2 0.966  gauss   5 0.778  huber   5 0.778  biw   5 0.778  annotators 2  zero 0.636
+    scanline_126007        n  481  warn  10 0.772  gauss  27 0.593  huber  30 0.695  biw  33 0.625  annotators 1  zero 0.644
+    scanline_42049         n  481  warn  82 0.404  gauss  27 0.593  huber  36 0.515  biw  56 0.263  annotators 7  zero 0.276
 
-Drift biweight-3 run time over all 38 series: 1631 ms (about 20 O(n^2) fits a series; machine-dependent).
-
-The heavy-tail series of the open item (cuts; annotators mark none on bank):
-  bank           Gaussian (shipped) 63, Huber 1.345 87, biweight 4 188, biweight 3 (primary) 111
-  bitcoin        Gaussian (shipped) 52, Huber 1.345 71, biweight 4 118, biweight 3 (primary) 96
-  ratner_stock   Gaussian (shipped) 30, Huber 1.345 41, biweight 4 31, biweight 3 (primary) 41
-  measles        Gaussian (shipped) 39, Huber 1.345 57, biweight 4 45, biweight 3 (primary) 46
+Drift biweight run time over all 38 series: 505 ms (about 20 O(n^2) fits a series; machine-dependent).

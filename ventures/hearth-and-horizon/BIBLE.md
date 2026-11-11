@@ -268,6 +268,8 @@ until it has. An empty shelf below means: write a proposal.
 
 **For Other Minds**
 
+- *Proposal:* an agent that summarises a long email thread for a busy person and finds that its summaries have, over months, kept the most recent message's view and dropped the earliest dissent; the person who dissented first was right. Work out the thread counts and the share of summaries that kept a first objection before drafting.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 

@@ -1,19 +1,22 @@
-// Heavy tails on a drifting level: robust segment costs for `--model drift` (drift-level.mjs
-// lossSpec, `--drift-loss`), against the shipped Gaussian cost, on the Turing Change Point Dataset.
+// Heavy tails on a drifting level: a bounded (biweight) or Huber loss inside the drift-level
+// model's Kalman cost (drift-level.mjs, loss option), against the shipped Gaussian cost, on the
+// Turing Change Point Dataset.
 //
-// Written down 2026-11-11 before any TCPD series was run through a robust loss (the code had only
-// been run on the unit tests' synthetic series and the committed Nile, GDP and residents files):
-//   primary:   drift level, ML wander, biweight loss c = 3, penalty 2 log n, min segment 2;
-//   secondary: biweight c = 4; Huber c = 1.345 (each ML wander, same penalty);
-//   compared:  drift level, ML wander, Gaussian cost (the shipped `--model drift` default);
-//              the level model following the over-cut warning; the consensus panel.
-// Decision rule, fixed beforehand: the primary becomes `--model drift`'s default loss if its mean F1
-// beats the Gaussian drift model on both the 31 shipped and the 7 held-out series; otherwise the
-// losses ship as an opt-in `--drift-loss` with these numbers. The secondary settings are reported,
-// not chosen from (choosing one now would be tuning on TCPD). No panel change this run whatever the
-// result: the panel needs fresh labelled data (README "A step-robust omega").
-// The question it answers: the flagship's open item "a heavy-tail check before choosing this model
-// (bank, bitcoin)". So it also counts cuts on bank, bitcoin, ratner_stock and measles.
+// Why: README "A step-robust omega" left `bank` at 63 false cuts and bitcoin at 52 under
+// `--model drift`; both are heavy-tailed or bursty, not drifting. Written down before any TCPD
+// series was run through either robust loss (2026-11-11, latest); only synthetic series
+// (eval/drift-robust-sim.mjs) had been seen:
+//   primary:   drift level, ML noise, biweight loss with K = 3 (cost min(z^2, 9) per standardised
+//              innovation, no level update past K), penalty 2 log n, min segment 2;
+//   secondary: the same with a Huber loss, K = 2;
+//   compared:  drift level, ML noise, Gaussian loss (the shipped `--model drift` default);
+//              the level model following the over-cut warning; consensus every setting.
+// K = 3 and K = 2 are conventional robust cut-offs, not tuned here.
+// Decision rule, fixed beforehand: biweight becomes an opt-in (`--drift-loss biweight`) if its mean
+// F1 beats the Gaussian drift on both the 31 shipped and the 7 held-out series; it becomes
+// `--model drift`'s default only if, in addition, it is better on more series than worse on both
+// sets. The consensus panel is not changed by this run whatever the result (README: panel steps
+// need fresh labelled data, not TCPD again). The Huber row is reported, not acted on.
 //
 // usage: sh eval/tcpd-fetch.sh tcpd-data && node eval/tcpd-drift-robust.mjs tcpd-data > eval/tcpd-drift-robust.out.txt
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
@@ -53,11 +56,9 @@ const FLOOR = { noiseFloor: 2, noiseFloorOrder: 'local', noiseFloorWindow: 25 };
 const level = (opts = {}) => (s) => analyze({ values: s.values, ...opts }).pelt.changepoints.map((c) => c.index);
 const drift = (opts = {}) => (s) => driftLevelChanges(s.values, { ...opts, penalty: opts.penaltyPerLogN ? opts.penaltyPerLogN * Math.log(s.n) : undefined }).changepoints;
 const SETTINGS = {
-  'drift, biweight 3 (primary)': drift({ noise: 'ml', loss: 'biweight', lossC: 3 }),
-  'drift, biweight 4': drift({ noise: 'ml', loss: 'biweight', lossC: 4 }),
-  'drift, Huber 1.345': drift({ noise: 'ml', loss: 'huber', lossC: 1.345 }),
-  'drift, Gaussian (shipped)': drift({ noise: 'ml' }),
-  'level (default)': level(),
+  'drift ML, biweight K 3 (primary)': drift({ noise: 'ml', loss: 'biweight', lossK: 3 }),
+  'drift ML, Huber K 2': drift({ noise: 'ml', loss: 'huber', lossK: 2 }),
+  'drift ML, Gaussian (shipped)': drift({ noise: 'ml' }),
   'level, following the over-cut warning': (s) => (analyze({ values: s.values }).overcutWarning ? level(FLOOR)(s) : level()(s)),
   'consensus: every setting': (s) => consensus({ values: s.values }).changes.filter((c) => c.tier === 'all').map((c) => c.index),
 };
@@ -70,7 +71,7 @@ for (const [nm, fn] of Object.entries(SETTINGS)) {
   for (const set of Object.values(sets)) for (const s of set) {
     const t = Date.now();
     const cps = clean(fn(s), s.n);
-    if (nm.startsWith('drift, biweight 3')) driftMs += Date.now() - t;
+    if (nm.startsWith('drift ML, biweight')) driftMs += Date.now() - t;
     res[nm][s.name] = { cps, f1: fMeasure(ann[s.name], cps, MARGIN).F, cover: covering(ann[s.name], cps, s.n) };
   }
 }
@@ -100,28 +101,21 @@ const paired = (set, a, b) => {
 };
 const f = (k) => (s) => res[k][s.name].f1;
 const zero = (s) => pubF1[s.name].zero, binseg = (s) => pubF1[s.name].binseg ?? 0;
-const P = 'drift, biweight 3 (primary)';
+const P = 'drift ML, biweight K 3 (primary)';
 for (const [label, set] of Object.entries(sets)) {
   console.log(`\nPaired F1, primary minus ..., ${label} (bootstrap over series, sign test):`);
-  for (const [bn, b] of [['drift, Gaussian (shipped)', f('drift, Gaussian (shipped)')], ['drift, biweight 4', f('drift, biweight 4')], ['drift, Huber 1.345', f('drift, Huber 1.345')], ['level (default)', f('level (default)')], ['level following the warning', f('level, following the over-cut warning')], ['consensus every setting', f('consensus: every setting')], ['zero', zero], ['binseg', binseg]]) console.log(`  ${bn.padEnd(28)} ${paired(set, f(P), b)}`);
+  for (const [bn, b] of [['drift Gaussian (shipped)', f('drift ML, Gaussian (shipped)')], ['drift Huber K 2', f('drift ML, Huber K 2')], ['level following the warning', f('level, following the over-cut warning')], ['consensus every setting', f('consensus: every setting')], ['zero', zero], ['binseg', binseg]]) console.log(`  ${bn.padEnd(28)} ${paired(set, f(P), b)}`);
 }
 
-console.log('\nPer series: cuts and F1 for level+warning / Gaussian drift / Huber / biweight 4 / biweight 3 (primary); annotators\' median count.');
+console.log('\nPer series: cuts and F1 for level+warning / drift Gaussian / Huber K 2 / biweight K 3; annotators\' median count.');
 for (const [label, set] of Object.entries(sets)) {
   console.log(`  ${label}`);
   for (const s of set) {
     const counts = Object.values(ann[s.name]).map((a) => a.length).sort((x, y) => x - y);
     const med = counts[Math.floor(counts.length / 2)];
     const cell = (k) => `${String(res[k][s.name].cps.length).padStart(3)} ${r3(res[k][s.name].f1)}`;
-    console.log(`    ${s.name.padEnd(22)} n ${String(s.n).padStart(4)}  warn ${cell('level, following the over-cut warning')}  gauss ${cell('drift, Gaussian (shipped)')}  huber ${cell('drift, Huber 1.345')}  bw4 ${cell('drift, biweight 4')}  bw3 ${cell(P)}  annotators ${med}  zero ${r3(zero(s))}`);
+    console.log(`    ${s.name.padEnd(22)} n ${String(s.n).padStart(4)}  warn ${cell('level, following the over-cut warning')}  gauss ${cell('drift ML, Gaussian (shipped)')}  huber ${cell('drift ML, Huber K 2')}  biw ${cell(P)}  annotators ${med}  zero ${r3(zero(s))}`);
   }
 }
 const nAll = Object.values(sets).reduce((a, s) => a + s.length, 0);
-console.log(`\nDrift biweight-3 run time over all ${nAll} series: ${driftMs} ms (about 20 O(n^2) fits a series; machine-dependent).`);
-
-console.log('\nThe heavy-tail series of the open item (cuts; annotators mark none on bank):');
-for (const nm of ['bank', 'bitcoin', 'ratner_stock', 'measles']) {
-  const s = Object.values(sets).flat().find((v) => v.name === nm);
-  if (!s) continue;
-  console.log(`  ${nm.padEnd(14)} ` + ['drift, Gaussian (shipped)', 'drift, Huber 1.345', 'drift, biweight 4', P].map((k) => `${k.replace('drift, ', '')} ${res[k][nm].cps.length}`).join(', '));
-}
+console.log(`\nDrift biweight run time over all ${nAll} series: ${driftMs} ms (about 20 O(n^2) fits a series; machine-dependent).`);

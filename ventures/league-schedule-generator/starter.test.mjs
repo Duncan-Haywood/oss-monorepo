@@ -75,3 +75,25 @@ test("with a starter built in, the search never scores worse than the circle sta
     assert.equal(now.repeats, 0);
   }
 });
+
+test("22 teams (and 21 with a bye): the climbed starter reaches the floor too, every count 0 or 1", () => {
+  for (const [kind, n] of [["even", 22], ["odd", 21]]) {
+    const { step, pairs } = decode(STARTERS[22][kind]);
+    let best = Infinity;
+    for (let start = 0; start < 21; start++) {
+      const flat = carryOverFromOpponents(seqs(starterOpp(22, pairs, { step, start }), n));
+      assert.equal(flat.max, 1);
+      best = Math.min(best, flat.value);
+      if (start === 0) {
+        const cyc = carryOverFromOpponents(seqs(starterOpp(22, pairs, { step, start }), n), { cyclic: true });
+        assert.equal(cyc.value, cyc.lowerBound, "Russell's cyclic bound");
+      }
+    }
+    assert.equal(best, n === 22 ? 440 : 399);
+  }
+  for (const n of [22, 21]) {
+    const r = lowCarryOverRounds(n, { effort: 0.2 });
+    assert.equal(r.coe, r.lowerBound);
+    assert.equal(r.start, "starter");
+  }
+});
