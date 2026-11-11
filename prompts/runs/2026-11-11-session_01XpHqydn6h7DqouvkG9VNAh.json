@@ -27,11 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 2,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI validate failed: flagships.yaml changepoint-detector next: was 2,220 chars (cap 2,000) after I appended instead of replacing; trimmed and re-pushed."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -45,7 +47,7 @@
     "ventures/changepoint-detector/README.md ('Wide sets in print')"
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures/1 by draw; took allocate.py start-here row (changepoint-detector). Picked the print-layout item from next:(a) because it was buildable locally with a measurable before/after. eval/multi-report-print.mjs: before 3/4 cases clipped on A4 (joint table 814/1081/2156 px vs 680; chart 1078/1792 px vs 1009), after 4/4 fit. multi-report.test.mjs 7/7 locally; samples regenerate byte-identical. Real data added: R Seatbelts (Rdatasets, raw.githubusercontent answered 200). Finding: joint meanvar fit cuts 1983-02 (seat-belt law) with over-cut warning; per-column panel agrees only on PetrolPrice; several-column mode lacks a season term (now the next item in flagships.yaml). No agent doc in docs/reports: README section and flagships next: carry what the next run needs. run_venture_tests.py changepoint-detector: ok (265.1 s), 1 suite, 0 failed.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures/1 by draw; took allocate.py start-here row (changepoint-detector). Picked the print-layout item from next:(a) because it was buildable locally with a measurable before/after. eval/multi-report-print.mjs: before 3/4 cases clipped on A4 (joint table 814/1081/2156 px vs 680; chart 1078/1792 px vs 1009), after 4/4 fit. multi-report.test.mjs 7/7 locally; samples regenerate byte-identical. Real data added: R Seatbelts (Rdatasets, raw.githubusercontent answered 200). Finding: joint meanvar fit cuts 1983-02 (seat-belt law) with over-cut warning; per-column panel agrees only on PetrolPrice; several-column mode lacks a season term (now the next item in flagships.yaml). No agent doc in docs/reports: README section and flagships next: carry what the next run needs. run_venture_tests.py changepoint-detector: ok (265.1 s), 1 suite, 0 failed. venture-preflight changepoint-detector: clean. run_workflow_locally --for-changes: verdict void (HEAD moved during the sweep when I committed the record); relied on PR CI.",
   "corrections": [],
   "redteam": null,
   "usage": {
