@@ -15,6 +15,11 @@
  * lapse estimate"): at survey lengths one person's answers barely move this
  * posterior, in-sample or prequential, and not at all under the staged
  * selector, whose pairs the ratings call even. Kept as the measurement.
+ *
+ * Anchor pairs (scripts/anchor-lapse-sweep.ts) give it a signal under the
+ * staged selector; pooledLapsePrior and posteriorMean below fit a survey's
+ * lapse distribution from everyone's answers ("Anchor pairs and a pooled
+ * survey prior" in the same doc). Also measured, not shipped.
  */
 import { GLICKO_SCALE, type GlickoState } from "@/lib/glicko2";
 
@@ -98,4 +103,49 @@ export function estimateLapse(
     return LAPSE_GRID[best];
   }
   return post.reduce((s, w, k) => s + w * LAPSE_GRID[k], 0);
+}
+
+/**
+ * Posterior mean of e from a grid log-likelihood and a grid log-prior (both
+ * over LAPSE_GRID, any additive constant).
+ */
+export function posteriorMean(logLik: readonly number[], logPrior: readonly number[]): number {
+  if (logLik.length !== LAPSE_GRID.length || logPrior.length !== LAPSE_GRID.length) throw new RangeError("grid length mismatch");
+  const lw = logLik.map((x, k) => x + logPrior[k]);
+  const top = Math.max(...lw);
+  const w = lw.map((x) => (Number.isFinite(x) ? Math.exp(x - top) : 0));
+  const total = w.reduce((s, x) => s + x, 0);
+  return w.reduce((s, x, k) => s + x * LAPSE_GRID[k], 0) / total;
+}
+
+/**
+ * A survey's lapse distribution over LAPSE_GRID, fitted from every
+ * respondent's grid log-likelihood by EM on the grid weights (the
+ * nonparametric maximum-likelihood mixing distribution). Each respondent's
+ * estimate is then their own likelihood times this prior (posteriorMean with
+ * its log): shrunk toward how the survey's people actually behave, not
+ * toward a fixed guess. A small floor keeps every grid value possible.
+ */
+export function pooledLapsePrior(logLiks: readonly (readonly number[])[], iterations = 300, floor = 1e-4): number[] {
+  const K = LAPSE_GRID.length;
+  let w = new Array<number>(K).fill(1 / K);
+  if (logLiks.length === 0) return w;
+  const lik = logLiks.map((ll) => {
+    if (ll.length !== K) throw new RangeError("grid length mismatch");
+    const top = Math.max(...ll);
+    return ll.map((x) => Math.exp(x - top));
+  });
+  for (let it = 0; it < iterations; it++) {
+    const next = new Array<number>(K).fill(0);
+    for (const l of lik) {
+      let z = 0;
+      for (let k = 0; k < K; k++) z += w[k] * l[k];
+      if (z === 0) continue;
+      for (let k = 0; k < K; k++) next[k] += (w[k] * l[k]) / z;
+    }
+    const floored = next.map((x) => x / lik.length + floor);
+    const t = floored.reduce((s, x) => s + x, 0);
+    w = floored.map((x) => x / t);
+  }
+  return w;
 }
