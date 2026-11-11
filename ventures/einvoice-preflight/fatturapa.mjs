@@ -10,7 +10,7 @@
 
 import { roundHalfUpToCents } from "./checks.mjs";
 import { parseXmlTree } from "./ubl.mjs";
-import { checkAgainstSchema } from "./fatturapa-xsd.mjs";
+import { calendarDate, checkAgainstSchema } from "./fatturapa-xsd.mjs";
 
 const DOC_TYPES = new Set([
   "TD01", "TD02", "TD03", "TD04", "TD05", "TD06", "TD07", "TD08", "TD09",
@@ -166,7 +166,7 @@ function checkBody(body, index, out, skipped, sellerCountry) {
     out.push(finding("IT-009", "Divisa is missing or is not a three-letter currency code.", "Use an ISO 4217 code such as EUR.", `${p}/DatiGenerali/DatiGeneraliDocumento/Divisa`));
   }
   const date = txt(general, "Data");
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date))) {
+  if (!calendarDate(date)) {
     out.push(finding("IT-009", "Data is missing or is not a YYYY-MM-DD date.", "Write the invoice date as YYYY-MM-DD.", `${p}/DatiGenerali/DatiGeneraliDocumento/Data`));
   }
   if (!/\d/.test(txt(general, "Numero"))) {
@@ -256,6 +256,15 @@ function checkBody(body, index, out, skipped, sellerCountry) {
     sumBase += base;
     sumTax += tax;
   });
+  if (summaryReadable) {
+    const covered = new Set(summaries.map((s) => `${num(txt(s, "AliquotaIVA")).toFixed(2)}|${txt(s, "Natura")}`));
+    for (const key of groups.keys()) {
+      if (covered.has(key)) continue;
+      const [rate, nature] = key.split("|");
+      out.push(finding("IT-024", `Lines at AliquotaIVA ${rate}${nature ? ` with Natura ${nature}` : ""} have no DatiRiepilogo; the FatturaPA rules want one summary for every rate and Natura on the lines.`,
+        "Add one DatiRiepilogo for every AliquotaIVA and Natura used on the lines.", `${p}/DatiBeniServizi`));
+    }
+  }
   if (roundingNote) skipped.push("IT-015 (summary base vs lines) and IT-016 (document total): the file has a cassa, bollo, ritenuta, rounding or document-level discount");
 
   const total = num(txt(general, "ImportoTotaleDocumento"));

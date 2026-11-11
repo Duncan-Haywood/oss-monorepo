@@ -1,0 +1,398 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKMuPfibvF3oUgQrqx",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T21:06:56Z",
+  "ended": "2026-11-11T21:07:39Z",
+  "wall_minutes": 7.89,
+  "tokens_in": 3699778,
+  "tokens_out": 20015,
+  "cost_usd": 1.7886,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14889",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A Bash heredoc appending JS tests with template literals was refused by the rm-safety parser (no rm in it); used the Edit tool instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix open defects first, but all 5 open entries are control-plane edits with PRs already waiting on the owner; the open list doesn't show that, so each run re-checks the same five. redteam.py open could print the PR number already holding each fix."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Suggests `git log --since=3.days --name-only origin/main` to pick a target, but the shallow clone returns nothing; used the random draw."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (leave an automated guard) not done: the two defects were a units mix-up and a regulatory-scope error, and no lint catches either class without many false positives. Instead I swept siblings by hand (the only other TiB venture, s3-storage-class-savings, is consistent).",
+      "did": "manual sibling sweep",
+      "result": "no further copies found"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-redteam-bigquery-tib-and-adult-phthalates.md"
+  ],
+  "goal": null,
+  "notes": "Two campaigns, 8 mutants each, random draw. Catch rate 10/16 -> 16/16. Two real defects patched: BigQuery GB/TiB unit (7.4% overstatement), and EU/UK REACH entry 51 phthalates missing for adult apparel (checked against legislation.gov.uk's copy of 2018/2005 via search). Local verification: run_venture_tests.py for both slugs ok; post checks ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/clothing-design-studio/testing.mjs",
+        "test": "node --test ventures/clothing-design-studio/**/*.test.mjs  (in .)",
+        "seed": 995698115,
+        "commit": "7c1dabcc",
+        "sites": 16,
+        "baseline_seconds": 6.6,
+        "mutants": [
+          {
+            "file": "ventures/clothing-design-studio/testing.mjs",
+            "line": 97,
+            "col": 13,
+            "operator": "or-to-and",
+            "before": "if (!input || typeof input !== \"object\") throw new Error(\"Give the product, the markets and the features.\");",
+            "after": "if (!input && typeof input !== \"object\") throw new Error(\"Give the product, the markets and the features.\");",
+            "line_text": "  if (!input || typeof input !== \"object\") throw new Error(\"Give the product, the markets and the features.\");",
+            "caught": true,
+            "seconds": 6.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/clothing-design-studio/testing.mjs",
+            "line": 97,
+            "col": 29,
+            "operator": "neq-flip",
+            "before": "if (!input || typeof input !== \"object\") throw new Error(\"Give the product, the markets and the features.\");",
+            "after": "if (!input || typeof input === \"object\") throw new Error(\"Give the product, the markets and the features.\");",
+            "line_text": "  if (!input || typeof input !== \"object\") throw new Error(\"Give the product, the markets and the features.\");",
+            "caught": true,
+            "seconds": 6.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/clothing-design-studio/testing.mjs",
+            "line": 111,
+            "col": 15,
+            "operator": "and-to-or",
+            "before": "if (r.when && !features.includes(r.when)) continue;",
+            "after": "if (r.when || !features.includes(r.when)) continue;",
+            "line_text": "    if (r.when && !features.includes(r.when)) continue;",
+            "caught": true,
+            "seconds": 7.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/clothing-design-studio/testing.mjs",
+            "line": 116,
+            "col": 53,
+            "operator": "plus-to-minus",
+            "before": "trigger: r.when ? WHEN_TEXT[r.when] : \"every \" + (input.product === \"sunglasses\" ? \"pair\" : \"garment\") + \" of this kind\",",
+            "after": "trigger: r.when ? WHEN_TEXT[r.when] : \"every \" - (input.product === \"sunglasses\" ? \"pair\" : \"garment\") + \" of this kind\",",
+            "line_text": "      trigger: r.when ? WHEN_TEXT[r.when] : \"every \" + (input.product === \"sunglasses\" ? \"pair\" : \"garment\") + \" of this kind\",",
+            "caught": false,
+            "seconds": 7.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Trigger text (\"every garment/pair of this kind\") was never asserted; added a test on the trigger strings in testing.test.mjs."
+          },
+          {
+            "file": "ventures/clothing-design-studio/testing.mjs",
+            "line": 116,
+            "col": 109,
+            "operator": "plus-to-minus",
+            "before": "trigger: r.when ? WHEN_TEXT[r.when] : \"every \" + (input.product === \"sunglasses\" ? \"pair\" : \"garment\") + \" of this kind\",",
+            "after": "trigger: r.when ? WHEN_TEXT[r.when] : \"every \" + (input.product === \"sunglasses\" ? \"pair\" : \"garment\") - \" of this kind\",",
+            "line_text": "      trigger: r.when ? WHEN_TEXT[r.when] : \"every \" + (input.product === \"sunglasses\" ? \"pair\" : \"garment\") + \" of this kind\",",
+            "caught": false,
+            "seconds": 7.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Trigger text (\"every garment/pair of this kind\") was never asserted; added a test on the trigger strings in testing.test.mjs."
+          },
+          {
+            "file": "ventures/clothing-design-studio/testing.mjs",
+            "line": 119,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "const rank = { required: 0, check: 1 };",
+            "after": "const rank = { required: 1, check: 1 };",
+            "line_text": "  const rank = { required: 0, check: 1 };",
+            "caught": true,
+            "seconds": 6.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/clothing-design-studio/testing.mjs",
+            "line": 120,
+            "col": 52,
+            "operator": "or-to-and",
+            "before": "rows.sort((a, b) => rank[a.level] - rank[b.level] || a.title.localeCompare(b.title));",
+            "after": "rows.sort((a, b) => rank[a.level] - rank[b.level] && a.title.localeCompare(b.title));",
+            "line_text": "  rows.sort((a, b) => rank[a.level] - rank[b.level] || a.title.localeCompare(b.title));",
+            "caught": true,
+            "seconds": 6.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/clothing-design-studio/testing.mjs",
+            "line": 127,
+            "col": 37,
+            "operator": "and-to-or",
+            "before": "if (features.includes(\"plastisol\") && KIDS.includes(input.product)) notes.push(\"Raised or puff prints are the usual reason a children's design fails a phthalate test; ask the printer for the ink's report before the first print.\");",
+            "after": "if (features.includes(\"plastisol\") || KIDS.includes(input.product)) notes.push(\"Raised or puff prints are the usual reason a children's design fails a phthalate test; ask the printer for the ink's report before the first print.\");",
+            "line_text": "  if (features.includes(\"plastisol\") && KIDS.includes(input.product)) notes.push(\"Raised or puff prints are the usual reason a children's design fails a phthalate test; ask the printer for the ink's report before the first print.\");",
+            "caught": false,
+            "seconds": 6.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Plastisol note on a non-child product was never tested; the new adult-plastisol test asserts the children-only note is absent."
+          }
+        ]
+      },
+      {
+        "target": "ventures/bigquery-query-cost-advisor/engine.mjs",
+        "test": "node --test ventures/bigquery-query-cost-advisor/**/*.test.mjs  (in .)",
+        "seed": 687278602,
+        "commit": "7c1dabcc",
+        "sites": 94,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/bigquery-query-cost-advisor/engine.mjs",
+            "line": 26,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "let skipped = 0;",
+            "after": "let skipped = 1;",
+            "line_text": "  let skipped = 0;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bigquery-query-cost-advisor/engine.mjs",
+            "line": 27,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const col = { name: 0, runs: 1, gb: 2, slots: 3 };",
+            "after": "const col = { name: 0, runs: 1, gb: 2, slots: 4 };",
+            "line_text": "  const col = { name: 0, runs: 1, gb: 2, slots: 3 };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bigquery-query-cost-advisor/engine.mjs",
+            "line": 37,
+            "col": 47,
+            "operator": "ge-to-gt",
+            "before": "for (const k of Object.keys(m)) if (m[k] >= 0) col[k] = m[k];",
+            "after": "for (const k of Object.keys(m)) if (m[k] > 0) col[k] = m[k];",
+            "line_text": "      for (const k of Object.keys(m)) if (m[k] >= 0) col[k] = m[k];",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A header that puts a column at index 0 other than the name (runs first) was never tested; added a reordered-header test."
+          },
+          {
+            "file": "ventures/bigquery-query-cost-advisor/engine.mjs",
+            "line": 44,
+            "col": 26,
+            "operator": "eq-flip",
+            "before": "const slots = slotRaw === \"\" ? null : toNum(slotRaw);",
+            "after": "const slots = slotRaw !== \"\" ? null : toNum(slotRaw);",
+            "line_text": "    const slots = slotRaw === \"\" ? null : toNum(slotRaw);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bigquery-query-cost-advisor/engine.mjs",
+            "line": 52,
+            "col": 102,
+            "operator": "times-to-div",
+            "before": "export const onDemandGross = (row, prices = DEFAULT_PRICES) => (row.runs * row.gbPerRun / GB_PER_TIB) * prices.perTib;",
+            "after": "export const onDemandGross = (row, prices = DEFAULT_PRICES) => (row.runs * row.gbPerRun / GB_PER_TIB) / prices.perTib;",
+            "line_text": "export const onDemandGross = (row, prices = DEFAULT_PRICES) => (row.runs * row.gbPerRun / GB_PER_TIB) * prices.perTib;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bigquery-query-cost-advisor/engine.mjs",
+            "line": 68,
+            "col": 53,
+            "operator": "times-to-div",
+            "before": "const totalTib = rows.reduce((a, r) => a + (r.runs * r.gbPerRun) / GB_PER_TIB, 0);",
+            "after": "const totalTib = rows.reduce((a, r) => a + (r.runs / r.gbPerRun) / GB_PER_TIB, 0);",
+            "line_text": "  const totalTib = rows.reduce((a, r) => a + (r.runs * r.gbPerRun) / GB_PER_TIB, 0);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bigquery-query-cost-advisor/engine.mjs",
+            "line": 98,
+            "col": 281,
+            "operator": "times-to-div",
+            "before": "return { count: rows.length, skipped: parsed.skipped ?? 0, groups: groups.map((g) => ({ name: g.row.name, runs: g.row.runs, gbPerRun: g.row.gbPerRun, perRunUsd: g.perRunUsd, onDemand: g.gross, editions: g.editions, share: g.share })), totals: { ...totals, saving, annual: saving * 12 }, prices, options: o, findings };",
+            "after": "return { count: rows.length, skipped: parsed.skipped ?? 0, groups: groups.map((g) => ({ name: g.row.name, runs: g.row.runs, gbPerRun: g.row.gbPerRun, perRunUsd: g.perRunUsd, onDemand: g.gross, editions: g.editions, share: g.share })), totals: { ...totals, saving, annual: saving / 12 }, prices, options: o, findings };",
+            "line_text": "  return { count: rows.length, skipped: parsed.skipped ?? 0, groups: groups.map((g) => ({ name: g.row.name, runs: g.row.runs, gbPerRun: g.row.gbPerRun, perRunUsd: g.perRunUsd, onDemand: g.gross, editions: g.editions, share: g.share })), totals: { ...totals, saving, annual: saving * 12 }, prices, options: o, findings };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "totals.annual (saving x 12, printed in the summary) was never asserted; added a test on annual and the summary text."
+          },
+          {
+            "file": "ventures/bigquery-query-cost-advisor/engine.mjs",
+            "line": 106,
+            "col": 264,
+            "operator": "const-plus-one",
+            "before": "return { status: errors ? \"error\" : warns ? \"warn\" : \"ok\", errors, warns, text: `${report.count} query group(s) scanning ${t.tib.toFixed(2)} TiB/month. On-demand $${t.onDemand.toFixed(2)}/month${t.editions !== null ? `; Editions slot-hours $${t.editions.toFixed(2)}/month` : \"\"}${t.saving > 0.005 ? `; Editions could save up to about $${t.saving.toFixed(2)}/month, $${t.annual.toFixed(0)}/year (its cost here is a floor)` : \"\"}.` };",
+            "after": "return { status: errors ? \"error\" : warns ? \"warn\" : \"ok\", errors, warns, text: `${report.count} query group(s) scanning ${t.tib.toFixed(2)} TiB/month. On-demand $${t.onDemand.toFixed(2)}/month${t.editions !== null ? `; Editions slot-hours $${t.editions.toFixed(3)}/month` : \"\"}${t.saving > 0.005 ? `; Editions could save up to about $${t.saving.toFixed(2)}/month, $${t.annual.toFixed(0)}/year (its cost here is a floor)` : \"\"}.` };",
+            "line_text": "  return { status: errors ? \"error\" : warns ? \"warn\" : \"ok\", errors, warns, text: `${report.count} query group(s) scanning ${t.tib.toFixed(2)} TiB/month. On-demand $${t.onDemand.toFixed(2)}/month${t.editions !== null ? `; Editions slot-hours $${t.editions.toFixed(2)}/month` : \"\"}${t.saving > 0.005 ? `; Editions could save up to about $${t.saving.toFixed(2)}/month, $${t.annual.toFixed(0)}/year (its cost here is a floor)` : \"\"}.` };",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Summary text formatting was only checked for status; the new test asserts the TiB, on-demand and annual figures in the text."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/clothing-design-studio/testing.mjs",
+        "issue": "EU/UK phthalate row (REACH Annex XVII entry 51) was limited to children's products, but Regulation (EU) 2018/2005 extended entry 51 to plasticised material in articles generally from 7 July 2020 (retained in GB law), so an adult tee with plastisol prints for the EU or UK got no phthalate test. Reproduced: testPlan({product:'adult-apparel',markets:['eu','uk'],features:['plastisol']}) had no eu-phthalate row. Fixed: row applies to all apparel, names the four phthalates and the amending regulation; test added.",
+        "patched": true
+      },
+      {
+        "file": "ventures/bigquery-query-cost-advisor/engine.mjs",
+        "issue": "GB_PER_TIB was 1024 (GiB per TiB) while the page, README and FAQ tell users to enter GB as AVG(total_bytes_billed)/1e9 and the guardrail multiplies GB by 1e9; BigQuery bills per TiB (2^40 bytes), so every on-demand cost, TiB total, share and per-run price was 7.4% too high (2^40/1e9/1024 = 1.0737). Reproduced: analyze(parseQueries('a,1000,1000')).totals.tib was 976.56, not 909.49. Fixed: GB_PER_TIB = 2**40/1e9, tests moved off the 1024 assumption, and the marketing page's '180 GB costs about $1.10 a run' corrected to $1.02.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e22f06a7-95b8-5155-9f20-1333011927c2",
+    "transcripts": 1,
+    "first": "2026-11-11T21:06:56Z",
+    "last": "2026-11-11T21:14:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 86,
+        "output": 20015,
+        "thinking": 4911,
+        "cache_read": 3616617,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83075,
+        "api_equivalent_usd": 1.7886,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 86,
+      "output": 20015,
+      "thinking": 4911,
+      "cache_read": 3616617,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83075,
+      "api_equivalent_usd": 1.7886,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 2,
+      "Edit": 2,
+      "WebSearch": 1,
+      "Read": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.89,
+      "active_minutes": 7.89,
+      "model_minutes": 4.07,
+      "tool_minutes": 3.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "two mutation campaigns triaged, two defects researched and fixed with tests, one post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 223.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

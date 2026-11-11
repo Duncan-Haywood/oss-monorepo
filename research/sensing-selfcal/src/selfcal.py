@@ -266,7 +266,7 @@ def _fun_jac_fixed(p, obs, nk, fixed_pose, ref, want_jac, z0=1.0):
     return J[:, keep]
 
 
-def selfcal_fixed_analytic(obs, size, f0, nk=1, ref=0, max_nfev=2000):
+def selfcal_fixed_analytic(obs, size, f0, nk=1, ref=0, max_nfev=2000, keep_resid=False):
     """Gauge-fixed target-free BA (same model as selfcal). status 1-4 = converged, 0 = cap."""
     nv, npt = obs.shape[:2]
     X, poses = init_fronto(obs, size, f0, ref)
@@ -283,6 +283,8 @@ def selfcal_fixed_analytic(obs, size, f0, nk=1, ref=0, max_nfev=2000):
     out = _summarise(sol, ni, nk, ref)
     out.update(robust_sf(np.asarray(sol.jac), sol.fun, nv, npt))
     out["planarity"] = planarity(np.insert(sol.x[ni + 6 * (nv - 1):], 2, X[0, 2]).reshape(npt, 3))
+    if keep_resid:
+        out["resid"] = sol.fun.reshape(nv, npt, 2)
     return out
 
 
@@ -358,3 +360,45 @@ def _summarise(sol, ni, nk, ref):
                corr_f_cx=float(corr[0, 1]), corr_f_cy=float(corr[0, 2]), corr_f_k1=float(corr[0, 3]),
                cond_full=float(np.linalg.cond(H)))
     return out
+
+
+# ---------------------------------------------------------------------------
+# Milestone 5: a bend-aware target reference and residual structure.
+
+def zhang_ro(corners, size, k2=True, fixed_point=None, pattern=PATTERN):
+    """Zhang calibration with a released object (Strobl and Hirzinger 2011, OpenCV's
+    calibrateCameraRO): the board's corners are refined in 3-D along with the camera;
+    corner 0 and corner `fixed_point` (default: last of the first row) keep their
+    nominal positions to fix the scale. Same camera model and return keys as zhang(),
+    plus the refined board `obj` (N, 3)."""
+    fixed_point = pattern[0] - 1 if fixed_point is None else fixed_point
+    obj = [board_points(pattern).astype(np.float32)] * len(corners)
+    img = [c.astype(np.float32).reshape(-1, 1, 2) for c in corners]
+    flags = cv2.CALIB_FIX_ASPECT_RATIO | cv2.CALIB_ZERO_TANGENT_DIST | cv2.CALIB_FIX_K3
+    if not k2:
+        flags |= cv2.CALIB_FIX_K2
+    K0 = np.array([[size[0], 0, size[0] / 2], [0, size[0], size[1] / 2], [0, 0, 1.0]])
+    res = cv2.calibrateCameraROExtended(obj, img, size, fixed_point, K0, np.zeros(5), flags=flags)
+    rms, K, d, rv, tv, newobj, sdi = res[:7]
+    sdi = sdi.ravel()
+    newobj = np.asarray(newobj, float).reshape(-1, 3)
+    return dict(f=K[0, 0], cx=K[0, 2], cy=K[1, 2], k1=d.ravel()[0], k2=d.ravel()[1],
+                sf=max(sdi[0], sdi[1]), scx=sdi[2], scy=sdi[3], sk1=sdi[4], sk2=sdi[5], rms=rms,
+                rvecs=[r.ravel() for r in rv], tvecs=[t.ravel() for t in tv], obj=newobj)
+
+
+def neighbour_corr(resid, pattern=PATTERN):
+    """Correlation of the residuals of grid-adjacent corners in the same image.
+    resid: (views, points, 2), points in OpenCV's row-major corner order. Pools the
+    u and v components over all views; returns horizontal, vertical and both."""
+    R = resid.reshape(resid.shape[0], pattern[1], pattern[0], 2)
+
+    def corr(a, b):
+        a = a.ravel() - a.mean(); b = b.ravel() - b.mean()
+        return float(a @ b / np.sqrt((a @ a) * (b @ b)))
+    h = (R[:, :, :-1], R[:, :, 1:])
+    v = (R[:, :-1], R[:, 1:])
+    both = corr(np.r_[h[0].ravel(), v[0].ravel()], np.r_[h[1].ravel(), v[1].ravel()])
+    return dict(horizontal=corr(*h), vertical=corr(*v), both=both,
+                horizontal_lag2=corr(R[:, :, :-2], R[:, :, 2:]), vertical_lag2=corr(R[:, :-2], R[:, 2:]),
+                vertical_u=corr(R[:, :-1, :, 0], R[:, 1:, :, 0]), vertical_v=corr(R[:, :-1, :, 1], R[:, 1:, :, 1]))

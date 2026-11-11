@@ -14,6 +14,10 @@ Pass a number to map a draw you already have: pick_track.py 0.11
 With no number the first draw is saved in .git (keyed by branch, 12 h) and
 reused, so a re-run in the same session gives the same programme; --new redraws.
 
+A programme whose research/<slug>/HOSTS file lists a URL its next steps need is
+probed (HEAD, 6 s); when one does not answer through this session's proxy, the
+draw moves on, so the run does not spend its start rediscovering a 403.
+
 A track with SATURATED or more projects is redrawn automatically among the
 tracks below that size, so a run does not spend its start on a finished chain.
 
@@ -30,7 +34,9 @@ import json
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 PREFIX = ["selfrep", "ambient", "chip", "robofab", "simdesign", "garment",
@@ -71,6 +77,44 @@ def is_focus(slug):
 def is_blocked(slug):
     """True when research/<slug>/BLOCKED exists: every open item needs data or a step outside a session."""
     return (RESEARCH / slug / "BLOCKED").is_file()
+
+
+def needed_hosts(slug):
+    """URLs in research/<slug>/HOSTS (one per line, `#` comments): hosts its next steps cannot run without."""
+    f = RESEARCH / slug / "HOSTS"
+    if not f.is_file():
+        return []
+    return [l.split("#", 1)[0].strip() for l in f.read_text().splitlines() if l.split("#", 1)[0].strip()]
+
+
+@functools.lru_cache(maxsize=None)
+def host_answers(url, timeout=6, tries=3):
+    """True when `url` answers at all (any HTTP status counts); False when the
+    connection or the proxy's CONNECT fails `tries` times (the egress proxy's 403
+    shows up here). Retried because data.seattle.gov timed out on 2 of 5 single
+    HEADs on 2026-11-11 while answering in under 2 s otherwise."""
+    for _ in range(tries):
+        try:
+            urllib.request.urlopen(urllib.request.Request(url, method="HEAD"), timeout=timeout).close()
+            return True
+        except urllib.error.HTTPError:
+            return True
+        except Exception:
+            pass
+    return False
+
+
+def unreachable_hosts(slug, answers=host_answers):
+    """The HOSTS entries of `slug` that do not answer from this session ([] when it lists none).
+
+    Friction 2026-11-11: build-data's log records 403s on its Socrata feeds in 21 entries
+    (sessions 68, 70, 72, 73 among them); a run drawn there spent its start rediscovering it."""
+    hosts = needed_hosts(slug)
+    if not hosts:
+        return []
+    with ThreadPoolExecutor(max_workers=len(hosts)) as ex:
+        ok = list(ex.map(answers, hosts))
+    return [h for h, a in zip(hosts, ok) if not a]
 
 
 def projects(prefix, limit=5):
@@ -228,12 +272,15 @@ def next_steps(name, width=400):
     return text if len(text) <= width else text[:width].rstrip() + "..."
 
 
-def draw_programme(r, progs, claimed=open_prs_for, focus_share=FOCUS_SHARE):
+def draw_programme(r, progs, claimed=open_prs_for, focus_share=FOCUS_SHARE, unreachable=unreachable_hosts):
     """(slug, has_proposal, skipped): the drawn programme, redrawn among those no open PR names.
 
     Runs drew a programme two draft PRs already held and picked another by hand (friction
     2026-10-25). `skipped` lists '#N title' lines of the claimed draws; if every programme is
-    claimed the first draw stands. With probability `focus_share` the FOCUS programmes go first."""
+    claimed the first draw stands. With probability `focus_share` the FOCUS programmes go first.
+    A programme whose research/<slug>/HOSTS lists a host that does not answer from this session
+    is passed over too (its skipped line says which); if nothing else is left, the first
+    unclaimed one of those stands."""
     rng = random.Random(r + 1)
     order = rng.sample(progs, len(progs))
     # A programme with a research/<slug>/BLOCKED file (its reason, one line) waits on outside
@@ -241,12 +288,19 @@ def draw_programme(r, progs, claimed=open_prs_for, focus_share=FOCUS_SHARE):
     order = [p for p in order if not is_blocked(p[0])] or order
     if rng.random() < focus_share:
         order = [p for p in order if is_focus(p[0])] + [p for p in order if not is_focus(p[0])]
-    skipped = []
+    skipped, offline = [], []
     for slug, has in order:
         prs = claimed(slug)
-        if not prs:
+        if prs:
+            skipped += [f"{slug}: {x}" for x in prs]
+            continue
+        down = unreachable(slug)
+        if not down:
             return slug, has, skipped
-        skipped += [f"{slug}: {x}" for x in prs]
+        offline.append((slug, has))
+        skipped.append(f"{slug}: needs {', '.join(down)} (research/{slug}/HOSTS), which did not answer from this session")
+    if offline:
+        return offline[0][0], offline[0][1], skipped
     return order[0][0], order[0][1], skipped
 
 
@@ -290,7 +344,8 @@ if __name__ == "__main__":
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
         slug, has, skipped = draw_programme(r, progs)
         for line in skipped:
-            print(f"redrawn past a claimed programme (open PR): {line}")
+            why = "its data host does not answer" if line.endswith("did not answer from this session") else "open PR"
+            print(f"redrawn past a programme ({why}): {line}")
         print(f"draw {r:.3f} -> programme {slug} (research/PROGRAMMES.md)")
         landed = recent_landed(slug)
         if landed:

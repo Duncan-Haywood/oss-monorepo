@@ -1,0 +1,278 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLSdgPqhHbMKnnbPq4",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T21:06:28Z",
+  "ended": "2026-11-11T21:07:12Z",
+  "wall_minutes": 8.59,
+  "tokens_in": 4536174,
+  "tokens_out": 24963,
+  "cost_usd": 2.1416,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14890",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_venture_tests.py --changed crashes with CalledProcessError on a shallow clone (no merge-base with origin/main); passing slugs explicitly worked. The traceback is unfriendly; it could fall back to the working-tree diff."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 4b says to turn a fixed defect into a lint under platform/ci, but no workflow runs platform/ci tests generically (test_no_dead_pages_base.py, cited as the model, is not run by any workflow either), so every new lint needs a control-plane PR to take effect."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 5 open defects are control-plane or need a study; 4 already have open owner-approval PRs, so I did not open duplicates.",
+      "did": "Moved to seeding and recorded the PR numbers in the PR body.",
+      "result": "No duplicate control-plane PRs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-thirteen-validators-that-took-february-30.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/ci/check_calendar_dates.py (15 hits on main before, 0 after). Not yet wired into CI (control plane). Local verification: 9 venture suites green via run_venture_tests.py; platform/pages/launched.test.mjs 23/23; test_check_calendar_dates 4/4.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/fatturapa.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 280871262,
+        "commit": "7c1dabcc",
+        "sites": 215,
+        "baseline_seconds": 4.5,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/fatturapa.mjs",
+            "line": 68,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "if (d > 9) d -= 9;",
+            "after": "if (d > 9) d -= 10;",
+            "line_text": "      if (d > 9) d -= 9;",
+            "caught": true,
+            "seconds": 4.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/fatturapa.mjs",
+            "line": 72,
+            "col": 18,
+            "operator": "eq-flip",
+            "before": "return sum % 10 === 0;",
+            "after": "return sum % 10 !== 0;",
+            "line_text": "  return sum % 10 === 0;",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/fatturapa.mjs",
+            "line": 75,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "const CF_ODD = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11, 3, 6, 8, 12, 14, 16, 10, 22, 25, 24, 23];",
+            "after": "const CF_ODD = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 12, 3, 6, 8, 12, 14, 16, 10, 22, 25, 24, 23];",
+            "line_text": "const CF_ODD = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11, 3, 6, 8, 12, 14, 16, 10, 22, 25, 24, 23];",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a codice fiscale with an O in an odd position; added RSOPLA80A01H501S (check letter worked by hand from the published odd table) and its wrong-letter twin in fatturapa.test.mjs."
+          },
+          {
+            "file": "ventures/einvoice-preflight/fatturapa.mjs",
+            "line": 75,
+            "col": 78,
+            "operator": "const-plus-one",
+            "before": "const CF_ODD = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11, 3, 6, 8, 12, 14, 16, 10, 22, 25, 24, 23];",
+            "after": "const CF_ODD = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11, 3, 6, 8, 13, 14, 16, 10, 22, 25, 24, 23];",
+            "line_text": "const CF_ODD = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21, 2, 4, 18, 20, 11, 3, 6, 8, 12, 14, 16, 10, 22, 25, 24, 23];",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/fatturapa.mjs",
+            "line": 83,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let i = 0; i < 15; i++) {",
+            "after": "for (let i = 0; i <= 15; i++) {",
+            "line_text": "  for (let i = 0; i < 15; i++) {",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/fatturapa.mjs",
+            "line": 85,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "const v = /\\d/.test(ch) ? Number(ch) : ch.charCodeAt(0) - 65;",
+            "after": "const v = /\\d/.test(ch) ? Number(ch) : ch.charCodeAt(0) - 66;",
+            "line_text": "    const v = /\\d/.test(ch) ? Number(ch) : ch.charCodeAt(0) - 65;",
+            "caught": true,
+            "seconds": 4.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/fatturapa.mjs",
+            "line": 224,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "let sumTax = 0;",
+            "after": "let sumTax = 1;",
+            "line_text": "  let sumTax = 0;",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/fatturapa.mjs",
+            "line": 240,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "if (Math.abs(base * rate / 100 - tax) > TOLERANCE + 1e-9) {",
+            "after": "if (Math.abs(base * rate / 101 - tax) > TOLERANCE + 1e-9) {",
+            "line_text": "    if (Math.abs(base * rate / 100 - tax) > TOLERANCE + 1e-9) {",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/fatturapa.mjs",
+        "issue": "IT-009 and the XSD date facet (IT-021, fatturapa-xsd.mjs) accepted impossible days such as 2026-02-30: V8's Date.parse rolls them over to March instead of returning NaN. Fixed with calendarDate() round trip; test in fatturapa.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14890"
+      },
+      {
+        "file": "ventures/einvoice-preflight/fatturapa.mjs",
+        "issue": "Lines at an AliquotaIVA/Natura with no DatiRiepilogo were never flagged (only the reverse, a summary with no line, was), so an invoice missing a VAT summary for its 0% line passed clean when ImportoTotaleDocumento was absent. New rule IT-024 with a test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14890"
+      },
+      {
+        "file": "ventures/*, platform/pages/launched.mjs",
+        "issue": "Same Date.parse rollover in 12 sibling YYYY-MM-DD validators (fa3-xsd x2, ai-bookkeeper opening, eu-battery/eu-green-claims/eu-packaging checkers, uk-wfh calculator, wall-framing orderby + schedule crewOff, proposal-maker sign, rental-ledger isDate, platform/pages launched). Each now round-trips; rental-ledger has a test; the class guard is platform/ci/check_calendar_dates.py (15 hits on main before, 0 after).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14890"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d2202712-b555-552a-992b-8836cc43c1e7",
+    "transcripts": 1,
+    "first": "2026-11-11T21:06:28Z",
+    "last": "2026-11-11T21:15:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 96,
+        "output": 24963,
+        "thinking": 6101,
+        "cache_read": 4441876,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94202,
+        "api_equivalent_usd": 2.1416,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 96,
+      "output": 24963,
+      "thinking": 6101,
+      "cache_read": 4441876,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94202,
+      "api_equivalent_usd": 2.1416,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.59,
+      "active_minutes": 8.59,
+      "model_minutes": 5.13,
+      "tool_minutes": 3.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "mutation campaign, triage, 3 defects across 13 files, lint + tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 233.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

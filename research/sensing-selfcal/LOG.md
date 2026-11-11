@@ -1,5 +1,23 @@
 # sensing-selfcal research log
 
+## 2026-11-11 · Milestone 5 result: the bent board moves c<sub>y</sub> by 5–9 px; adding k2 does not make σ honest
+
+- **Released-object Zhang is target-free BA.** `calibrateCameraROExtended` and our target-free solver return the same f, c<sub>y</sub>, σ, board shape (height correlation 1.000) and residuals to 1e-6 px on both cameras and both lens models. With the corners free, the only extra information the board gives is its metric scale, which carries none about the intrinsics. So H11's test (gap < 2σ) **held trivially** (gap 4e-6σ), and the evidence for the bend is the flat-vs-released comparison: the only difference between the two Zhang fits is the flat, evenly spaced board, and it moves c<sub>y</sub> by −8.7 px (left) and −5.3 px (right) and f by +0.79 / +1.28 px (k1 model).
+- **H12 held, more strongly than predicted.** With k1 + k2, nested self-consistency rms z is 3.01 (95% 2.05–4.04; left 3.85, right 2.04), against 2.28 with k1 alone. Fragile: two left-camera subsets of 4–5 views (z −28, −23) carry it, where σ<sub>sub</sub> barely exceeds σ<sub>all</sub>; without the top five |z| it is 2.00 (k1: 1.94), median |z| 1.31 (k1: 1.40). Either way k2 is not the cause. All 560 solves converged (at most 180 evaluations); k2 = 0.143 ± 0.018 (left) and 0.091 ± 0.007 (right), clearly non-zero.
+- **H13 held.** Adjacent-corner residual correlation with k1 + k2: 0.31 (left) and 0.24 (right); flat-board Zhang 0.36 / 0.32. The structure is one-directional: along the board's columns 0.44–0.56 (0.76 at two corners apart), along its rows −0.02 to 0.02. A lens term would act radially, not along one board axis; the cause (print, detector, the board's mounting) is not established.
+- **Unscored.** Against the released-object reference, rms z is 1.66 (k1) and 1.79 (k2): adding k2 shrinks σ<sub>f</sub> by a median 5% and leaves the median error unchanged (0.24%).
+- **Correction to milestone 1.** The reported reprojection "0.42 vs 0.26 px" compared OpenCV's per-point rms (√(u² + v²)) with our per-coordinate rms. On one definition, per coordinate: flat Zhang 0.30 / 0.34 px, target-free 0.26 / 0.29 px, 13–15% lower, not about 40%. Fixed in the README and card.
+
+## 2026-11-11 · Milestone 5 planned: does the bent board explain the principal-point gap, and does an unmodelled k2 explain the 2× σ?
+
+Written before any milestone-5 experiment was run. Proposal milestone 5 (unmodelled lens terms on real data), taken before 3b and 4 because it needs no new data and milestones 1 and 3 left two named suspects untested: the bent board (for the c<sub>y</sub> gap) and the k1-only lens (for the overconfidence).
+
+- **Bend-aware reference.** Zhang with a released object (`cv2.calibrateCameraROExtended`, Strobl and Hirzinger 2011): the board's 3-D corners are refined with the camera, two corners fixed (OpenCV's `iFixedPoint` = 8, the last corner of the first row). Same model (f, c<sub>x</sub>, c<sub>y</sub>, k1; k2 as ablation), all 13 views.
+- **H11 (the bend explains c<sub>y</sub>).** With the released-object reference, |c<sub>y,RO</sub> − c<sub>y,target-free</sub>| < 2σ on both cameras (σ: both solvers' σ in quadrature), against 5.3σ and 2.9σ with the flat board. Refuted if ≥ 2σ on either camera.
+- **H12 (k2 is not the cause of the 2×).** Target-free BA with k1 and k2 on milestone 2's 560 subsets (same views and reference views). The nested self-consistency rms z of milestone 3 (H8; against the k1+k2 all-view solution) stays > 1.5. Refuted if ≤ 1.5, which would make the unmodelled k2 the main cause.
+- **H13 (structured residuals survive k2).** On the all-view fits, the correlation of the residual vectors of horizontally and vertically adjacent corners in the same image is ≥ 0.1 with k1 and k2 (correlated detector error, not lens model). Refuted if it falls below 0.1 with k2.
+- **Also reported, not scored:** rms z of the k1+k2 subsets against the released-object Zhang f, and the f shift from adding k2 in each solver.
+
 ## 2026-11-11 · Milestone 3 result: the overconfidence is real; the jackknife σ is honest but a worse gate
 
 - **Re-solves identical.** All 560 subsets converged with the same f as milestone 2; 3,473 of 3,480 leave-one-view-out solves converged on tolerance. Median 2.7 s per subset with its jackknife.

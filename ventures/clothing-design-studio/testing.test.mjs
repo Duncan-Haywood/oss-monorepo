@@ -56,3 +56,24 @@ test("bad input throws a plain message", () => {
   assert.throws(() => testPlan({ product: "sunglasses", markets: ["us"], features: ["glitter"] }), /feature must be one of/);
   assert.throws(() => testPlan(null), /Give the product/);
 });
+
+test("an adult tee with plastisol prints for the EU and UK gets the REACH entry 51 phthalate test (articles in general since 2020)", () => {
+  const p = testPlan({ product: "adult-apparel", markets: ["eu", "uk"], features: ["plastisol"] });
+  const row = p.rows.find(r => r.id === "eu-phthalate");
+  assert.ok(row, "adult plasticised prints are restricted in the EU and GB, not only children's");
+  assert.deepEqual(row.markets, ["eu", "uk"]);
+  assert.match(row.rule, /2018\/2005/);
+  assert.match(row.ask, /DIBP/);
+  // the US federal phthalate rule is children's products only
+  assert.ok(!ids(testPlan({ product: "adult-apparel", markets: ["us"], features: ["plastisol"] })).includes("us-phthalate"));
+  // the children's ink note stays children's only
+  assert.ok(!p.notes.some(n => /children's design fails a phthalate test/.test(n)));
+});
+
+test("each row says why it is there: the feature, or every garment / every pair", () => {
+  const tee = testPlan({ product: "adult-apparel", markets: ["us"], features: ["finish"] });
+  assert.equal(tee.rows.find(r => r.id === "us-flam").trigger, "every garment of this kind");
+  assert.equal(tee.rows.find(r => r.id === "us-pfas").trigger, "your design has a water-, oil- or stain-repellent finish");
+  const shades = testPlan({ product: "sunglasses", markets: ["us"], features: [] });
+  assert.equal(shades.rows.find(r => r.id === "us-fda-impact").trigger, "every pair of this kind");
+});
