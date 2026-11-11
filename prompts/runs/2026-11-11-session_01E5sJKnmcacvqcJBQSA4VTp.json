@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnmcacvqcJBQSA4VTp",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T16:18:11Z",
+  "ended": "2026-11-11T16:56:52Z",
+  "wall_minutes": 39.01,
+  "tokens_in": 4929010,
+  "tokens_out": 49164,
+  "cost_usd": 2.9208,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14831",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A python replace script asserted on a misquoted sentence ('with the hours' vs 'and the hours'); fixed and rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a new piece' cannot be read from git log in a shallow clone (3 commits shown); counting the published: front matter by shelf did the job."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes runs portfolio-pages' 'Test the site builder' into its 300 s workflow budget, so the build and hub-link checks report FAIL for a text-only story change; reported as not run in the PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-the-slow-dial.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (headline shelf). Piece: the-slow-dial (G\u00f6rlitz, 2702), text only because the audio folders are at 423 MB, over the 400 MB cap. Picked the 300-1,000 year band, which had two of 284 stories. Numbers worked in a scratch script (gap model 32.9 s x T^2, Meeus low-precision equation of time for 2051 and 2702, dial geometry, weekdays). BIBLE.md got a 2702 timeline row and two new proposals (The Rising Shore, Ninety-Nine Years). Local checks: node --test 14/14 in the venture; check_post_frontmatter exit 0; check_post_links 0 broken; run_workflow_locally --for-changes passed ventures-tests, doc-refs, page-integrity, link-contrast, control-plane-guard and conflict-markers; portfolio-pages and pages.yml ran out of the local 300 s budget (not run). No agent doc: the next run needs nothing beyond the BIBLE row and DONE entry.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dd8b1a1f-2ab3-5c8e-87fe-6661ff57a327",
+    "transcripts": 1,
+    "first": "2026-11-11T16:18:11Z",
+    "last": "2026-11-11T16:57:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 49164,
+        "thinking": 24160,
+        "cache_read": 4806955,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121970,
+        "api_equivalent_usd": 2.9208,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 49164,
+      "thinking": 24160,
+      "cache_read": 4806955,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121970,
+      "api_equivalent_usd": 2.9208,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 41,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 39.01,
+      "active_minutes": 39.01,
+      "model_minutes": 9.45,
+      "tool_minutes": 29.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a professional short-story writer drafting a 5,700-word hard-SF story with worked astronomy and a checked note, about 10 hours",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 342.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
