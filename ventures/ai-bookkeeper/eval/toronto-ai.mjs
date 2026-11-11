@@ -13,7 +13,7 @@
 //   curl -o pcard-expenses.csv https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/ebc3f9c2-2f80-4405-bf4f-5fb309581485/resource/24b9c441-e6e6-4f81-aea0-315f613c1e6e/download/pcard-expenses.csv
 //   (cut the rows you want, e.g. July 2025 to June 2026, into one CSV with the same header)
 //   LLM_PROVIDER=llamacpp node eval/toronto-ai.mjs --file y2526.csv [--division "TORONTO WATER"]
-//        [--sample 160] [--batch 20] [--from 2025-08] [--no-mcc] [--out answers.json]
+//        [--sample 160] [--first 140] [--batch 20] [--from 2025-08] [--no-mcc] [--out answers.json]
 //
 // --stub 0.8 swaps in a scripted model (right on 80% of lines) to test the harness;
 // its numbers say nothing about any model. Requests go out at temperature 0.
@@ -116,7 +116,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const arg = (k, d = null) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const rows = loadToronto(readFileSync(arg("--file"), "utf8"), { division: arg("--division") });
   const { queue, filed } = fillQueue(rows, { from: arg("--from", "") });
-  const sample = evenSample(queue, +arg("--sample", 160));
+  // --first N sends only the first N of the sample (same lines and batches as a longer run).
+  const sample = evenSample(queue, +arg("--sample", 160)).slice(0, +arg("--first", Infinity));
   const mcc = !process.argv.includes("--no-mcc");
   const stub = arg("--stub") === null ? null : +arg("--stub");
   const config = stub !== null ? { provider: "anthropic", apiKey: "stub" } : configFromEnv(process.env);
