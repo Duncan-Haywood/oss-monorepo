@@ -2,7 +2,7 @@
 title: "On Pluto, Charon hides the Sun every noon for a year and a half, then not for 124 years"
 seo_title: "Charon eclipses from Pluto: the noon eclipse season, worked out"
 date: 2026-11-11
-tags: [fiction, hearth-and-horizon, science-fiction, pluto, charon, eclipses]
+tags: [fiction, hearth-and-horizon, science-fiction, pluto, charon, eclipse]
 description: "A new story at the point of Pluto under Charon: about 103 noon eclipses in 1.8 years, then a 124-year gap, and a last one that is not total."
 ---
 
