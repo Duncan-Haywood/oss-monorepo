@@ -219,11 +219,16 @@ flagships:
       screen's real bar is 8 items under rd 200, not rd 150; the information
       selector reaches it 4-8 answers sooner at 8-120 items and ranks better, so
       "staged" now uses it from the first answer up to 120 items (equals the
-      information row on real rankings, all 25 cells). Next: a careless-answer
-      fallback for the staged selector (35-50% random answers cost up to 0.06
-      rank at 15 and 30 items; the 2026-11-09 "answers look random" signal is the
-      candidate); the switch rule above 120 items on the couple bar; then real
-      pairwise answers from a real survey.
+      information row on real rankings, all 25 cells). Careless-answer fallback
+      measured 2026-11-11, not shipped (INFORMATION-GAIN-SELECTOR.md,
+      scripts/careless-fallback-sweep.ts; 75 cells, 60 fresh seeds): staged
+      beats shipped by 0.014 mean, trails >0.02 in both seed sets only at 50%
+      random answers on 11 and 30 items; the agreement z-score trips for
+      15-40% of honest respondents, fallback -0.002. Next: a Glicko update with
+      a lapse term (win chance e/2 + (1-e)p) so careless answers stop
+      shrinking rd, measured on the synthetic sweep and the PrefLib rankings
+      before it touches stored ratings; the switch rule above 120 items on the
+      couple bar; then real pairwise answers from a real survey.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
