@@ -154,6 +154,7 @@ import {
   HERO_BACKDROP_HTML,
   HOME_MOTION_CSS,
   HOME_MOTION_SCRIPT,
+  longestWord,
   copyShowcase,
   loadShowcase,
   renderMarquee,
@@ -8732,7 +8733,7 @@ ${HERO_BACKDROP_HTML}
       <h1>Free tools to <span class="grad">price the job, check the fees</span> and run your business.</h1>
 ${
   audienceWords.length
-    ? `      <p class="ticker">Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</p>\n`
+    ? `      <p class="ticker" data-longest="${escapeHtml(longestWord(audienceWords))}"><span>Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</span></p>\n`
     : ''
 }
       <p class="lede">

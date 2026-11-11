@@ -8,6 +8,18 @@
 //   ... --pages=research/,writing/        # just these paths
 //   ... --min-a11y=95                     # exit 1 if any page scores lower
 //   ... --throttling=devtools             # real throttling, not Lantern's simulation
+//   ... --runs=3                          # each page 3 times, median of every number
+//
+// Leave TMPDIR at its default: pointed at the long scratchpad path, Chrome
+// fails to start (chrome-launcher's checkReady times out). The JSON reports
+// stay in the /tmp/lh-* folder printed on stderr at the end.
+//
+// Read TBT next to FCP, and read both throttling modes before acting
+// (2026-11-11, docs/reports/polish-2026-11-11-wft-perf-hypotheses.md): on
+// wall-framing-takeoff the simulated run says FCP 3.3 s and TBT under 100 ms,
+// the devtools run says FCP 1.5 s and TBT 600 to 1,000 ms. The table had no
+// TBT column, so three runs chased the FCP number, and every fix aimed at it
+// moved nothing.
 //
 // Why: no polish run had recorded a Lighthouse number before 2026-11-11. The
 // first run found /research/ at accessibility 88 (theme-tag text at 3.1:1,
@@ -44,6 +56,33 @@ const MIN_A11Y = args['min-a11y'] ? Number(args['min-a11y']) : null;
 // 'simulate' (Lighthouse's default, Lantern) or 'devtools' (real throttling in
 // the browser, so Chrome's own request priorities decide what loads first).
 const THROTTLING = args.throttling || 'simulate';
+const RUNS = Math.max(1, Number(args.runs || 1));
+
+/** One Lighthouse JSON report as a table row. */
+export function summarize(rep, page) {
+  const s = (k) => Math.round((rep.categories[k]?.score ?? 0) * 100);
+  const n = (k) => Math.round(rep.audits[k]?.numericValue ?? NaN);
+  const fails = Object.values(rep.categories.accessibility.auditRefs)
+    .filter((a) => a.weight > 0 && rep.audits[a.id].score !== null && rep.audits[a.id].score < 1).map((a) => a.id);
+  return { page, perf: s('performance'), a11y: s('accessibility'), bp: s('best-practices'), seo: s('seo'),
+    fcp: n('first-contentful-paint'), lcp: n('largest-contentful-paint'), tbt: n('total-blocking-time'),
+    cls: (rep.audits['cumulative-layout-shift']?.numericValue ?? NaN).toFixed(3), fails };
+}
+
+const median = (xs) => { const v = [...xs].sort((a, b) => a - b); const m = v.length >> 1; return v.length % 2 ? v[m] : Math.round((v[m - 1] + v[m]) / 2); };
+
+/** Several runs of one page as one row: the median of every number, the
+ *  union of failing audits, and the spread of TBT (the noisiest number). */
+export function mergeRuns(rows) {
+  const ok = rows.filter((r) => !r.error);
+  if (!ok.length) return rows[0];
+  const out = { page: ok[0].page, fails: [...new Set(ok.flatMap((r) => r.fails))] };
+  for (const k of ['perf', 'a11y', 'bp', 'seo', 'fcp', 'lcp', 'tbt']) out[k] = median(ok.map((r) => r[k]));
+  out.cls = [...ok.map((r) => r.cls)].sort((a, b) => Number(a) - Number(b))[(ok.length - 1) >> 1];
+  if (ok.length > 1) out.tbtRange = `${Math.min(...ok.map((r) => r.tbt))}-${Math.max(...ok.map((r) => r.tbt))}`;
+  out.runs = ok.length;
+  return out;
+}
 
 export function defaultPages(dist = DIST) {
   const pages = ['', 'research/', 'writing/', 'stories/'];
@@ -86,8 +125,9 @@ async function main() {
   const pages = args.pages ? args.pages.split(',').map((p) => (p === '/' ? '' : p)) : defaultPages();
   const out = fs.mkdtempSync(path.join(process.env.TMPDIR || '/tmp', 'lh-'));
   const rows = [];
-  for (const p of pages) {
-    const json = path.join(out, `${rows.length}.json`);
+  let k = 0;
+  for (const p of pages) for (let run = 0; run < RUNS; run++) {
+    const json = path.join(out, `${k++}.json`);
     // Not spawnSync: it would block the event loop this file's server answers on.
     const r = await new Promise((resolve) => {
       {
@@ -101,19 +141,17 @@ async function main() {
       }
     });
     if (r.code !== 0 || !fs.existsSync(json)) { rows.push({ page: `/${p}`, error: r.err.split('\n').slice(-3).join(' ') }); continue; }
-    const rep = JSON.parse(fs.readFileSync(json, 'utf8'));
-    const s = (k) => Math.round((rep.categories[k]?.score ?? 0) * 100);
-    const fails = Object.values(rep.categories.accessibility.auditRefs)
-      .filter((a) => a.weight > 0 && rep.audits[a.id].score !== null && rep.audits[a.id].score < 1).map((a) => a.id);
-    rows.push({ page: `/${p}`, perf: s('performance'), a11y: s('accessibility'), bp: s('best-practices'), seo: s('seo'),
-      lcp: Math.round(rep.audits['largest-contentful-paint'].numericValue), cls: rep.audits['cumulative-layout-shift'].numericValue.toFixed(3), fails });
+    rows.push(summarize(JSON.parse(fs.readFileSync(json, 'utf8')), `/${p}`));
   }
   server.close();
-  console.log(`| page (${FORM}${THROTTLING === 'simulate' ? '' : `, ${THROTTLING}`}) | perf | a11y | best practices | SEO | LCP ms | CLS | failing a11y audits |`);
-  console.log('|---|---|---|---|---|---|---|---|');
-  for (const r of rows) console.log(r.error ? `| ${r.page} | error: ${r.error} |` : `| ${r.page} | ${r.perf} | ${r.a11y} | ${r.bp} | ${r.seo} | ${r.lcp} | ${r.cls} | ${r.fails.join(', ') || '-'} |`);
-  const low = rows.filter((r) => r.error || (MIN_A11Y !== null && r.a11y < MIN_A11Y));
-  if (low.length) { console.error(`\n${low.length} page(s) errored or scored below accessibility ${MIN_A11Y}`); process.exit(1); }
+  const merged = [...new Set(pages)].map((p) => mergeRuns(rows.filter((r) => r.page === `/${p}`)));
+  const label = `${FORM}${THROTTLING === 'simulate' ? '' : `, ${THROTTLING}`}${RUNS > 1 ? `, median of ${RUNS}` : ''}`;
+  console.log(`| page (${label}) | perf | a11y | best practices | SEO | FCP ms | LCP ms | TBT ms | CLS | failing a11y audits |`);
+  console.log('|---|---|---|---|---|---|---|---|---|---|');
+  for (const r of merged) console.log(r.error ? `| ${r.page} | error: ${r.error} |` : `| ${r.page} | ${r.perf} | ${r.a11y} | ${r.bp} | ${r.seo} | ${r.fcp} | ${r.lcp} | ${r.tbt}${r.tbtRange ? ` (${r.tbtRange})` : ''} | ${r.cls} | ${r.fails.join(', ') || '-'} |`);
+  console.error(`\nreports: ${out}`);
+  const low = merged.filter((r) => r.error || (MIN_A11Y !== null && r.a11y < MIN_A11Y));
+  if (low.length) { console.error(`\n${low.length} page(s) errored${MIN_A11Y !== null ? ` or scored below accessibility ${MIN_A11Y}` : ''}`); process.exit(1); }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) await main();
