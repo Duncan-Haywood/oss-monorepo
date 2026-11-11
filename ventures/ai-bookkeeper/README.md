@@ -1294,6 +1294,63 @@ a stray comma, and four receipts with no total word where the largest amount (th
 cash handed over) was taken. Score it: `node eval/cord-receipts.mjs
 eval/cord/test.jsonl [--misses]`; `cord-receipts.test.mjs` pins the table.
 
+### Totals checked against the receipt's own arithmetic (SROIE through tesseract)
+
+2026-11-11, flagship item (5). On SROIE's 626 receipt scans read by tesseract
+5.3.4 (`--psm 6`, no preprocessing), the reader got the total right on 76.2%,
+against 97.4% from the dataset's hand-made word boxes. Most of the gap is one
+misread digit in the total line: `9.60` for `9.00`, `34.00` for `31.00`, `64.50`
+for `54.50`. A receipt states its total more than once, though: cash handed over
+less change, the before-tax subtotal plus the GST/SST line (and any rounding),
+the items added up, and often a second total line. Two changes in `receipts.mjs`:
+
+- **One reading** (`parseReceipt`): when the printed total matches none of those
+  checks, and one value that is the printed total with exactly one digit changed
+  is confirmed by **two different kinds** of check, that value is taken, with a
+  note asking the person to check the total. One check alone is not enough: on
+  the clean box text, letting any single check overrule the total broke 15
+  receipts that were right (a discount the items miss, a misprinted change), and
+  through OCR single checks broke as many as they fixed, because the cash and
+  change lines get misread too. A few cents either way is the 5-sen rounding, not
+  a misread digit, and is left alone.
+- **Two readings** (`parseReceiptPasses`, CLI `receipts photo.jpg --two-pass`,
+  `ocr.mjs` `receiptPassesFromFile`): the photo is read again with tesseract's
+  `--psm 4` (one column of text of varying sizes). Where the readings disagree on
+  the total, the one confirmed by more kinds of check (cash less change, subtotal
+  plus tax, the items) is taken; a tie keeps the first. "Another total line" is
+  not counted here: in the second reading the first reading's own total line,
+  misread differently, shows up as one, and counting it picked the wrong reading
+  as often as the right one. The check kinds were chosen on the even-numbered
+  receipts (6 changed, 6 right) and then scored on the odd ones (3 changed, 3
+  right, 0 wrong). A date only the second reading found is not taken (18 filled,
+  9 right, 9 wrong); the receipt asks instead.
+
+| SROIE, 626 scans, 625 with a total | Total right | Wrong | Off by 5 cents or less |
+|---|---|---|---|
+| word boxes (no OCR), before and after | 609 (97.4%) | 16 | 6 |
+| tesseract `--psm 6`, before | 476 (76.2%) | 141 | 22 |
+| tesseract `--psm 6`, arithmetic check | 478 (76.5%) | 139 | 22 |
+| tesseract default (`--psm 3`), what the CLI ran before | 422 (67.5%) | 186 | 20 |
+| tesseract `--psm 4` alone | 425 (68.0%) | 188 | 23 |
+| `--psm 6` then `--psm 4`, two readings | **487 (77.9%)** | 130 | 23 |
+
+The CLI used to call tesseract with no mode, so it ran tesseract's own default
+(`--psm 3`, page layout analysis), 8.7 points worse on totals than `--psm 6`, the
+mode every SROIE number above was taken with. The CLI's default command is now
+`tesseract {file} stdout --psm 6` (`RECEIPT_OCR_CMD` still overrides it), so a
+photo read by the CLI goes from 67.5% to 76.5% on its own, 77.9% with
+`--two-pass`. The page's tesseract.js reads one block by default already.
+
+The box-text scores (merchant 531, date 601, total 609) are unchanged. Either
+reading had the right total on 509 receipts, so a perfect chooser would reach
+81.4%; the rest are OCR-bound (the digit is wrong in both readings, or the
+total line is lost). Reproduce: clone zzzDavid/ICDAR-2019-SROIE (MIT), run
+`eval/sroie-ocr-variants.sh <clone>/data <out> base`, OCR the images again with
+`--psm 4` into `<out>/psm4`, then `node eval/sroie-receipts.mjs <clone>/data --ocr
+<out>/base,<out>/psm4`. Tests: `receipt-crosscheck.test.mjs` (11, receipt text
+made up). Still flat scans, not phone photos; the in-browser OCR on the page
+reads once.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200

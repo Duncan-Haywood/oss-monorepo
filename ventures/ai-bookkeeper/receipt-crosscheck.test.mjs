@@ -56,12 +56,12 @@ test("two readings with no arithmetic to decide keep the first", () => {
   assert.ok(!r.notes.some((n) => /readings disagree/.test(n)));
 });
 
-test("a field the first reading missed is taken from the second", () => {
+test("a merchant the first reading missed is taken from the second; a date is not", () => {
   const r = parseReceiptPasses(["Total 12.00", "KEDAI MAJU\nDate: 13/01/2019\nTotal 12.00"]);
   assert.equal(r.merchant, "KEDAI MAJU");
-  assert.equal(r.date, "2019-01-13");
-  assert.ok(!r.notes.includes("no date found"));
-  assert.equal(r.ok, true);
+  assert.ok(!r.notes.includes("no merchant found"));
+  assert.equal(r.date, null);
+  assert.equal(r.ok, false);
 });
 
 test("one reading, or empty ones, behave as parseReceipt", () => {
@@ -69,4 +69,35 @@ test("one reading, or empty ones, behave as parseReceipt", () => {
   assert.deepEqual(parseReceiptPasses([t]), parseReceipt(t));
   assert.deepEqual(parseReceiptPasses([t, ""]), parseReceipt(t));
   assert.equal(parseReceiptPasses([]).cents, null);
+});
+
+test("a photo is read with --psm 6, then --psm 4 the second time; text files once", async () => {
+  const { receiptPassesFromFile } = await import("./ocr.mjs");
+  const calls = [];
+  const run = (cmd, args) => { calls.push([cmd, ...args].join(" ")); return { status: 0, stdout: args.includes("4") ? "KEDAI MAJU\nTotal 31.00" : "KEDAI MAJU\nTotal 34.00" }; };
+  const t = receiptPassesFromFile("slip.jpg", { run, env: {} });
+  assert.equal(t.length, 2);
+  assert.deepEqual(calls, ["tesseract slip.jpg stdout --psm 6", "tesseract slip.jpg stdout --psm 4"]);
+  // a custom engine, or tesseract already on --psm 4, is read once
+  assert.equal(receiptPassesFromFile("slip.jpg", { run, env: { RECEIPT_OCR_CMD: "myocr {file}" } }).length, 1);
+  assert.equal(receiptPassesFromFile("slip.jpg", { run, env: { RECEIPT_OCR_CMD: "tesseract {file} stdout --psm 4" } }).length, 1);
+  // a tesseract command with no mode gets --psm 4 added for the second reading
+  calls.length = 0;
+  assert.equal(receiptPassesFromFile("slip.jpg", { run, env: { RECEIPT_OCR_CMD: "tesseract {file} stdout" } }).length, 2);
+  assert.deepEqual(calls, ["tesseract slip.jpg stdout", "tesseract slip.jpg stdout --psm 4"]);
+  // a second pass that fails leaves the first
+  let n = 0;
+  const flaky = () => (n++ ? { status: 1, stdout: "" } : { status: 0, stdout: "KEDAI MAJU\nTotal 34.00" });
+  assert.equal(receiptPassesFromFile("slip.jpg", { run: flaky, env: {} }).length, 1);
+});
+
+test("addReceipts takes two readings of one photo as one receipt", async () => {
+  const { addReceipts } = await import("./receipts.mjs");
+  const a = "KEDAI MAJU\nDate: 13/01/2019\nTotal Amount: 34.00\nCash Received 101.00\nChange : 70.00";
+  const b = a.replace("34.00", "31.00");
+  const books = { receipts: [], transactions: [], accounts: [], rules: [] };
+  const r = addReceipts(books, [a, b]);
+  assert.equal(r.added.length, 1);
+  assert.equal(r.added[0].cents, 3100);
+  assert.equal(addReceipts(books, [a]).added[0].cents, 3400);
 });

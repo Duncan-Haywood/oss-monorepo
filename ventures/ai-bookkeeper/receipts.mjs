@@ -375,17 +375,19 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
 // One receipt read by OCR more than once (two page-segmentation modes, or two
 // engines): the first reading is the default; a field the readings disagree on
 // takes the reading the receipt's own arithmetic confirms. A total confirmed by
-// more kinds of check (cash less change, subtotal plus tax, the items, another
-// total line), counted over every reading's text, beats one confirmed by fewer;
-// a tie keeps the first reading. Merchant and date follow the first reading
-// unless it found none.
+// more kinds of check (cash less change, subtotal plus tax, the items), counted over every reading's text, beats one confirmed by fewer;
+// a tie keeps the first reading. Merchant and date follow the first reading;
+// a merchant it missed is taken from another.
 export function parseReceiptPasses(texts, opts = {}) {
   const ps = texts.filter((t) => String(t ?? "").trim()).map((t) => parseReceipt(t, opts));
   if (!ps.length) return parseReceipt("", opts);
   const best = ps[0];
   if (ps.length === 1) return best;
   const all = ps.flatMap((p) => p.checks);
-  const support = (c) => new Set(all.filter(([v]) => v === c).map(([, w]) => w.replace(" plus tax", ""))).size;
+  // "another total line" is left out here: in a second reading the first reading's
+  // own total line, misread differently, shows up as one (on SROIE, counting it
+  // picked the wrong reading as often as the right one)
+  const support = (c) => new Set(all.filter(([v, w]) => v === c && w !== "another total line").map(([, w]) => w.replace(" plus tax", ""))).size;
   let pick = best;
   for (const p of ps.slice(1)) if (p.cents !== null && p.cents !== pick.cents && (pick.cents === null || support(p.cents) > support(pick.cents))) pick = p;
   const out = { ...best };
@@ -394,7 +396,8 @@ export function parseReceiptPasses(texts, opts = {}) {
     out.notes = [...best.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings disagree on the total (${ps.map((p) => p.cents === null ? "none" : (p.cents / 100).toFixed(2)).join(" vs ")}); took ${(pick.cents / 100).toFixed(2)}, which the receipt's arithmetic confirms`];
   }
   if (!out.merchant && (out.merchant = ps.find((p) => p.merchant)?.merchant ?? null)) out.notes = out.notes.filter((n) => n !== "no merchant found");
-  if (!out.date && (out.date = ps.find((p) => p.date)?.date ?? null)) out.notes = out.notes.filter((n) => n !== "no date found");
+  // a date only the second reading found is not taken: on SROIE that filled 18
+  // receipts, 9 right and 9 wrong, so the receipt asks instead
   out.ok = !!(out.date && out.merchant && out.cents);
   return out;
 }
@@ -403,12 +406,14 @@ const sameReceipt = (a, b) => a.date === b.date && a.cents === b.cents && (a.mer
 
 // Parse and keep every readable receipt; returns the new books, the ones kept
 // and the blocks that could not be read (each with why).
+// `text` may also be an array: one receipt photo read more than once by OCR
+// (ocr.mjs receiptPassesFromFile), settled by parseReceiptPasses.
 export function addReceipts(books, text) {
   const kept = [...(books.receipts ?? [])];
   let n = kept.reduce((m, r) => Math.max(m, +String(r.id).slice(1) || 0), 0);
   const added = [], skipped = [], duplicates = [];
-  for (const block of splitReceipts(text)) {
-    const p = parseReceipt(block);
+  const parsed = Array.isArray(text) ? (text.length > 1 ? [parseReceiptPasses(text)] : splitReceipts(text[0] ?? "").map((b) => parseReceipt(b))) : splitReceipts(text).map((b) => parseReceipt(b));
+  for (const p of parsed) {
     if (!p.ok) { skipped.push({ text: p.text.split("\n")[0], notes: p.notes }); continue; }
     const dup = kept.find((r) => sameReceipt(r, p));
     if (dup) { duplicates.push({ id: dup.id, merchant: p.merchant, date: p.date, cents: p.cents }); continue; }
