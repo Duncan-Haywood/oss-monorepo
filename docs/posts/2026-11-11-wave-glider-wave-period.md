@@ -3,7 +3,7 @@ title: "Does long-period swell slow a Wave Glider? Not once you account for the 
 seo_title: "Wave Glider speed vs wave period at a fixed vehicle state"
 date: 2026-11-11
 tags: [research, marine-hull]
-description: "Pooled over a 2015 mission, longer wave periods looked slower. Held at a fixed vehicle state, the period effect is -0.025 in the exponent and indistinguishable from zero."
+description: "Pooled over a 2015 mission, longer wave periods looked slower. At a fixed vehicle state the period exponent is -0.025, indistinguishable from zero."
 ---
 
 The last few posts followed one fielded Wave Glider, the "Honey Badger" that sailed from Hawaii in 2015, against wave records from the nearest NOAA buoy. The first pass found that at the same wave height, hours with a longer dominant period were slower. That mattered for planning, because the Pacific buoys that came out best in our km/day comparison are exactly the ones with long swell: a median dominant period of 12.9 s in January, against 5.6 to 7.7 s on the Atlantic and Gulf coasts. If long swell slows the vehicle, the Pacific's lead was overstated.
