@@ -12,8 +12,13 @@
 //
 //   curl -o pcard-expenses.csv https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/ebc3f9c2-2f80-4405-bf4f-5fb309581485/resource/24b9c441-e6e6-4f81-aea0-315f613c1e6e/download/pcard-expenses.csv
 //   (cut the rows you want, e.g. July 2025 to June 2026, into one CSV with the same header)
+//   (the 2026-11-11 readings: header plus every row whose Transaction Date is 2025-07-01
+//   to 2026-06-30, 85,415 rows, 68,638 mapped; a fill queue of 307 from 2025-08 confirms it)
+//   A 14B model in a 16 GB machine: llama-cpp-python's server with --n_ctx 8192 --use_mmap false
+//   (about 11 GB; with the file memory-mapped and 16k context it was killed for memory).
 //   LLM_PROVIDER=llamacpp node eval/toronto-ai.mjs --file y2526.csv [--division "TORONTO WATER"]
 //        [--sample 160] [--first 140] [--batch 20] [--from 2025-08] [--no-mcc] [--out answers.json]
+//        [--resume]   (--out is rewritten after every batch; --resume keeps its answered batches)
 //
 // A 20-line batch on a 7B model on 4 CPU cores takes 4-8 minutes, past Node fetch's
 // 300 s headers timeout; preload a dispatcher without it (npm i undici@6 anywhere):
@@ -25,7 +30,7 @@
 //
 // --stub 0.8 swaps in a scripted model (right on 80% of lines) to test the harness;
 // its numbers say nothing about any model. Requests go out at temperature 0.
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { parseCsv } from "../bank.mjs";
 import { loadToronto } from "./toronto-pcard.mjs";
 import { suggest, trainClassifier, buildMemory, buildMccMemory, trainNewPayee, historyRecord } from "../categorize.mjs";
@@ -82,9 +87,14 @@ function stubFetch(batch, accuracy, codes) {
   };
 }
 
-export async function runAi(sample, filed, { config, batch = 20, mcc = true, stub = null, name, log = () => {} } = {}) {
-  const out = [];
-  for (let off = 0; off < sample.length; off += batch) {
+// done: results of an earlier, interrupted run of the same sample and batch size;
+// whole batches already answered are kept and not sent again. onBatch(out) runs
+// after every batch, so a caller can checkpoint (a 14B model takes ~10 min a batch).
+export async function runAi(sample, filed, { config, batch = 20, mcc = true, stub = null, name, log = () => {}, done = [], onBatch = () => {} } = {}) {
+  const keep = Math.floor(resumable(done, sample).length / batch) * batch;
+  const out = done.slice(0, keep);
+  if (keep) log(`resuming: ${keep} lines (${keep / batch} batches) already answered`);
+  for (let off = keep; off < sample.length; off += batch) {
     const these = sample.slice(off, off + batch);
     const books = batchBooks(these, filed, { mcc, name });
     const t0 = Date.now();
@@ -101,8 +111,17 @@ export async function runAi(sample, filed, { config, batch = 20, mcc = true, stu
       out.push({ date: q.date, desc: q.desc, mcc: q.mcc, want: q.want, det: q.det, detSource: q.detSource, ai, name: raw?.name ?? null, nameAgrees: ai && raw?.name ? sameAccountName(raw.name, names.get(ai)) : null, reason: s?.source === "ai" ? s.reason : r.error ?? null });
     });
     log(`batch ${off / batch + 1}: ${r.source}${r.error ? ` (${r.error})` : ""}, ${((Date.now() - t0) / 1000).toFixed(0)} s`);
+    onBatch(out);
   }
   return out;
+}
+
+// The leading run of earlier results that match the sample line for line and got an
+// answer from the model (a failed call is sent again, not kept as an abstention).
+export function resumable(done, sample) {
+  let n = 0;
+  while (n < done.length && n < sample.length && done[n].date === sample[n].date && done[n].desc === sample[n].desc && !(done[n].reason && !done[n].reason.startsWith("AI (") && !done[n].ai)) n++;
+  return done.slice(0, n);
 }
 
 // nameCheck: drop an answer whose name disagrees with its code, as aiSuggest does by default.
@@ -137,8 +156,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (!config) { console.error("No model configured: set LLM_PROVIDER (llamacpp, ollama, ...) or a key, or pass --stub 0.8."); process.exit(2); }
   const pct = (a, b) => (b ? `${((100 * a) / b).toFixed(1)}%` : "-");
   console.log(`${rows.length} mapped lines ${rows[0]?.date} to ${rows.at(-1)?.date}${arg("--division") ? ` (${arg("--division")})` : ""}; fill queue ${queue.length} (${pct(queue.length, rows.length)}), ${queue.filter((q) => q.det).length} with a new-payee guess; sending ${sample.length}, merchant category ${mcc ? "on" : "off"}; ${stub !== null ? `STUB at ${stub}` : `model ${config.model ?? config.provider}`}`);
-  const results = await runAi(sample, filed, { config, batch: +arg("--batch", 20), mcc, stub, name: "City of Toronto divisions' purchasing cards (municipal government)", log: (s) => console.error(s) });
-  if (arg("--out")) writeFileSync(arg("--out"), JSON.stringify(results, null, 1));
+  // --resume: keep the batches an interrupted run already wrote to --out.
+  const done = process.argv.includes("--resume") && arg("--out") && existsSync(arg("--out")) ? JSON.parse(readFileSync(arg("--out"), "utf8")) : [];
+  const save = (r) => { if (arg("--out")) writeFileSync(arg("--out"), JSON.stringify(r, null, 1)); };
+  const results = await runAi(sample, filed, { config, batch: +arg("--batch", 20), mcc, stub, name: "City of Toronto divisions' purchasing cards (municipal government)", log: (s) => console.error(s), done, onBatch: save });
+  save(results);
   const fallback = results.filter((x) => x.reason && !x.reason.startsWith("AI (") && !x.ai).length;
   if (fallback) console.log(`  (${fallback} lines got no answer because their call failed; counted as abstained)`);
   console.log(`  rules alone (new-payee guess or nothing): right ${pct(score(results).detRight, results.length)}, wrong ${pct(score(results).detWrong, results.length)}, none ${pct(score(results).detNone, results.length)}`);

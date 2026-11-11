@@ -10,7 +10,7 @@
 //
 //   git clone --depth 1 https://github.com/beauhomme/toronto_pcard
 //   node eval/toronto-pcard.mjs --file "toronto_pcard/infiles/PCard Expenses_2017_11_Final.xlsx"
-//        [--skip mcc|mcc-memory] [--field code|name|both] [--misses 20]
+//        [--skip mcc|mcc-memory] [--field code|name|both] [--plurality] [--misses 20]
 //
 // The run of 2026-11-11 read commit 66321c9 of that repository (4,823 card lines
 // dated 2017-10-17 to 2017-11-30, of which the map below names a chart account for
@@ -29,6 +29,7 @@ import { readFileSync } from "node:fs";
 import { parseCsv } from "../bank.mjs";
 import { xlsxToCsv, looksLikeXlsx } from "../xlsx.mjs";
 import { replay, fmt } from "./scotgov-card.mjs";
+import { MCC_MEMORY } from "../categorize.mjs";
 import { mccAccount, normaliseMccName } from "../mcc.mjs";
 
 // City G/L account (4 digits) -> chart accounts a careful bookkeeper could accept.
@@ -90,6 +91,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const csv = looksLikeXlsx(bytes) ? await xlsxToCsv(new Uint8Array(bytes)) : bytes.toString("utf8");
   const field = arg("--field", "both");
   const rows = loadToronto(csv, { field, division: arg("--division") });
+  // --plurality: the split-category guess (off by default; README "Split categories").
+  if (process.argv.includes("--plurality")) MCC_MEMORY.plurality = true;
   const skip = new Set((arg("--skip") ?? "").split(",").filter(Boolean));
   const o = replay(rows, { skip });
   const pct = (a, b) => (b ? (100 * a / b).toFixed(1) + "%" : "-");

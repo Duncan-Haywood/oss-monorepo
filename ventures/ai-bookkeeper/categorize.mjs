@@ -804,7 +804,7 @@ export function parseRules(text, accounts) {
 
 // -> { account, confidence (0..1), source, reason, alternatives: [{account, p}] }
 // `model` is { rules, memory, classifier, codes:Set }. `model.skip` (a Set of
-// "rule", "memory", "learned", "built-in", "bank-category", "new-payee") switches layers off, for the ablation
+// "rule", "memory", "learned", "built-in", "bank-category", "new-payee", "mcc", "mcc-memory", "mcc-plurality") switches layers off, for the ablation
 // in eval/ablation.mjs; it is never set in normal use.
 // Layer 5: the category label the bank or app itself put on the line. Only labels that
 // name one account unambiguously; everything else stays in review. Lower confidence than
@@ -850,6 +850,17 @@ function mccSuggest(txn, model, ranked, off, d) {
   }
   const m = mccAccount(txn.mcc);
   return m && ok(m.account) ? { account: m.account, confidence: 0.55, source: "mcc", reason: `the card network's merchant category${m.code ? ` ${m.code}` : ""} (${m.label})`, alternatives: ranked.slice(0, 2) } : null;
+}
+
+function mccPlurality(txn, model, ranked, off, d) {
+  if (!txn.mcc || off.has("mcc") || off.has("mcc-memory") || d !== "out") return null;
+  const ok = (a) => model.codes?.has(a) ?? true;
+  const seen = model.mccMemory?.get(mccKey(txn.mcc));
+  const total = seen ? [...seen.values()].reduce((a, v) => a + v, 0) : 0;
+  if (total < MCC_MEMORY.minLines) return null;
+  const [account, n] = [...seen].filter(([a]) => ok(a)).sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1))[0] ?? [];
+  if (!account || n / total >= MCC_MEMORY.minShare) return null;
+  return { account, confidence: Math.min(n / (total + 0.5), MCC_MEMORY.pluralityConfidence), source: "mcc", reason: `the commonest account for the card network's category "${String(txn.mcc).slice(0, 40)}" here: ${n} of ${total} earlier lines, no majority`, alternatives: ranked.slice(0, 2) };
 }
 
 export function suggest(txn, model) {
@@ -898,6 +909,13 @@ export function suggest(txn, model) {
     const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
   }
+  // A split category: enough earlier lines but no majority, so mccSuggest said nothing.
+  // Its commonest account beat the new-payee guess on the 140 Toronto lines the AI layer
+  // is measured on, but not more widely (README "Split categories", 2026-11-11: sixteen
+  // Toronto divisions +22 right, +46 wrong), so it is OFF (MCC_MEMORY.plurality) and kept
+  // for measurement. When on it comes just before the new-payee layer, at low confidence.
+  const split = !MCC_MEMORY.plurality || off.has("mcc-plurality") ? null : mccPlurality(txn, model, ranked, off, d);
+  if (split) return split;
   if (key && !off.has("new-payee") && model.newPayee && !model.memory?.has(`${key}|in`) && !model.memory?.has(`${key}|out`)) {
     const opts = model.newPayeeOpts ?? NEW_PAYEE;
     const g = guessNewPayee(model.newPayee, txn, (a) => model.codes?.has(a) ?? true, opts);
@@ -919,7 +937,9 @@ export function historyRecord(txn, account) {
 // minLines and minShare were set before the first reading (eval/scotgov-card.mjs) and not tuned:
 // three earlier lines, a majority. `before` (ahead of the classifier and keywords) was chosen on
 // the 2016-2019 lines only, then read once on 2020-2026.
-export const MCC_MEMORY = { minLines: 3, minShare: 0.5, maxConfidence: 0.6, before: true };
+// plurality switches on the split-category guess (mccPlurality; off, measured 2026-11-11),
+// capped at pluralityConfidence, below every other layer's.
+export const MCC_MEMORY = { minLines: 3, minShare: 0.5, maxConfidence: 0.6, plurality: false, pluralityConfidence: 0.4, before: true };
 export function buildMccMemory(history) {
   const m = new Map();
   for (const h of history) {
