@@ -1,8 +1,25 @@
 # build-data log
 
-## Session 74, 2026-11-11: the paired cascade2-versus-type run (session 73's Q1 to Q4), in progress
+## Session 74, 2026-11-11: the paired cascade2-versus-type bootstrap (session 73's Q1 to Q3 run; two held, one refuted narrowly; Q4 not run)
 
-Why: session 73 wrote Q1 to Q4 for the paired bootstrap between class configurations; the Socrata hosts answered this session (Chicago 200 at the first probe), so the pull and the run are under way. Results follow in this entry before merge.
+Why: session 71 compared each class configuration with Seattle's own baseline, never with each other; session 73 wrote the paired code and four predictions. The Socrata hosts answered this session (Chicago 200 at 01:06 UTC). Four-feed pull 01:07 to 01:22 UTC; every row count equals the 2026-11-10 pull (`results/manifest.json`, only the dates move), so the feeds had not changed since session 71.
+- Run: `python3.13 src/transfer.py DIR --target {a2i,i2c} --seeds 3 --held seattle --test-year 2024 --classes type cascade2` (`OMP_NUM_THREADS=2`, the two targets in parallel). Output: `results/paired_transfer_seattle_{a2i,i2c}_2024_4city_cascade2_vs_type.json`. Both single-configuration outputs reproduce: the cascade2 files are byte-identical to session 71's, and the type rerun gives session 71's same-pull numbers (a2i +0.0/+0.7/+27.4%, i2c -8.4/-10.4/-3.5%), so the committed session 64 type files stay as they are. The paired means equal the differences of the unpaired relative losses (a2i q0.9: 15.9 - 27.4 = -11.5 points; i2c q0.9: 1.2 - (-3.5) = +4.7), a check on the code.
+- cascade2 minus type, mean pinball loss in days (negative = cascade2 better), 95% week-block interval, and the difference as a share of Seattle's own per-type baseline loss (5,541 a2i and 4,313 i2c test rows, 3 seeds):
+
+| target | model | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|
+| a2i | transfer | -0.006 [-0.009, -0.003] (-0.1%) | -0.54 [-0.80, -0.31] (-1.2%) | -3.88 [-4.92, -2.84] (-11.5%) |
+| a2i | own-city boosted | -0.43 [-0.57, -0.29] (-4.1%) | -0.72 [-1.13, -0.29] (-1.5%) | -0.92 [-1.33, -0.48] (-2.7%) |
+| i2c | transfer | -0.70 [-0.93, -0.49] (-2.5%) | -0.85 [-1.58, -0.09] (-1.0%) | +2.19 [0.90, 3.51] (+4.7%) |
+| i2c | own-city boosted | -0.92 [-1.35, -0.52] (-3.3%) | -2.06 [-2.74, -1.37] (-2.3%) | -0.73 [-0.94, -0.54] (-1.6%) |
+
+- Q1 held: a2i transfer q0.9 interval below zero (-3.9 days, 11.5 points of baseline loss). The cleaner class removes about two fifths of the upper-tail transfer penalty, now with an interval on the difference itself.
+- Q2 refuted, narrowly: the i2c transfer q0.5 interval [-1.58, -0.09] excludes zero. The effect is small (1.0% of baseline loss), and session 71's unpaired comparison (-10.4% to -11.4%) could not see it.
+- Q3 held: a2i own-city boosted q0.1 below zero (-0.43 days).
+- Q4 (the same run for test year 2023) not run. A worker restart at 02:23 UTC killed both runs about 40 minutes into their cascade2 halves, and after the restart the machine ran at about half speed (the type half took 90 minutes instead of 40). The 2023 pair would have cost about three more hours, so it waits for the next session with the feeds.
+- Not predicted: cascade2 makes i2c transfer worse at q0.9 (+2.2 days, +4.7%, interval above zero). In session 71 both configurations spanned zero against the baseline (-3.5% and +1.2%), so this was invisible there. The work type helps the transfer model at the median and below, and in the upper tail of permit issue time, but costs it in the upper tail of build time. A reading, not tested: the sources (SF and Austin only for i2c) give new construction a long completion tail that Seattle's new-construction permits do not share, so naming the class imports the sources' tail. The own-city model gains in all six cells, so the class carries signal inside Seattle.
+- Limits: one test year, one held-out city, 3 seeds. The interval covers week-to-week sampling of test rows, not seed variance or labeller error in the rules. The relative column divides by the type run's own-baseline loss (the baseline does not use the class).
+Next: Q4 (2023) and the same pair for 2022; Chicago and Austin held out; test the i2c q0.9 reading by comparing source and Seattle completion-time quantiles within new construction; session 72's source-reweighting run; a second labeller.
 
 ## Session 73, 2026-11-10: a paired bootstrap between class configurations, and Cohen's kappa for the description rules (feeds unreachable; prediction written)
 
