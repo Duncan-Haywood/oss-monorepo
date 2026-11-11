@@ -742,6 +742,25 @@ first version took any `name:` line as a header and still split 7 messages whose
 Not tried: Apple Mail's `.mbox` export (a folder holding an `mbox` file) and
 `Content-Length`-delimited mboxcl2 files, none found public.
 
+## Sent mail read as the done list (2026-11-11)
+
+`eval/sent-enron.mjs` runs every Enron message filed in a folder whose `X-Folder` names "sent" through
+`createCollector` with the message's own From address as `own`, and writes the recipients (To and Cc) and UTC day the
+collector records; `eval/sent-enron-reference.py` reads the same files with Python's `email` package
+(`getaddresses`, `parsedate_to_datetime`); `--compare` counts agreement. Same fetch as "Real mail: the Enron corpus",
+`0*` half (32,211 files).
+
+| run | messages | same recipients | same day | not recorded |
+|---|---|---|---|---|
+| first (address pattern excluded `'`) | 7,836 | 7,745 | 7,836 | 0 |
+| apostrophe kept inside an address, trimmed in front | 7,836 | 7,801 | 7,836 | 0 |
+
+The 56 fixed were real addresses such as `o'neal.winfree@enron.com`, `denis.o'connell@enron.com`, read as
+`neal.winfree@`/`connell@`: a sent step to such a person would not have matched and would have been queued again.
+The 35 left are corpus damage (`'fricke@enron.com`, `vallo".'"elaina@enron.com`, `moore'.'charlie@enron.com`) that
+neither reader can get right. What this does not test: whether subject matching against a cadence plan finds the
+touches a real rep sent; Enron has no cadence plans.
+
 ## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
 
 The Enron check above measured stops that fired wrongly. This one measures the

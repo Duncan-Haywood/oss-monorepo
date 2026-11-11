@@ -63,3 +63,41 @@ test("the page opens the several-column report when several columns are selected
   assert.match(page, /import \{ multiReportHtml \} from "\.\/multi-report\.mjs"/);
   assert.match(page, /multi \? multiReportHtml\(lastMulti\.p, lastMulti\.r, brand\)/);
 });
+
+// Real wide data (data/uk-road-casualties.csv: Rdatasets Seatbelts, Harvey 1989, monthly 1969-1984, seven
+// series). Over COLUMNS_PER_GROUP columns, the report splits the chart and the joint table into print-sized
+// groups (eval/multi-report-print.mjs measures that each fits an A4 page; before, the joint table ran to
+// 814 px against 680 printable and scrolled sideways, which a printer cannot do).
+import { columnGroups, COLUMNS_PER_GROUP } from "./multi-report.mjs";
+
+test("columnGroups: one group up to the limit, then balanced groups that cover every column once", () => {
+  assert.deepEqual(columnGroups(3, "meanvar"), [[0, 3]]);
+  assert.deepEqual(columnGroups(COLUMNS_PER_GROUP.mean, "mean"), [[0, 6]]);
+  assert.deepEqual(columnGroups(7, "mean"), [[0, 4], [4, 7]]);
+  assert.deepEqual(columnGroups(7, "meanvar"), [[0, 4], [4, 7]]);
+  assert.deepEqual(columnGroups(20, "meanvar"), [[0, 4], [4, 8], [8, 12], [12, 16], [16, 20]]);
+  for (const d of [1, 2, 5, 9, 13, 31]) for (const m of ["mean", "meanvar"]) {
+    const g = columnGroups(d, m);
+    assert.equal(g[0][0], 0); assert.equal(g.at(-1)[1], d);
+    for (let k = 1; k < g.length; k++) assert.equal(g[k][0], g[k - 1][1]);
+    assert.ok(g.every(([a, b]) => b - a >= 1 && b - a <= COLUMNS_PER_GROUP[m]));
+  }
+});
+
+test("seven real columns: two charts and two joint tables, each column in exactly one, same changes on every chart", () => {
+  const q = parseColumns(readFileSync(new URL("./data/uk-road-casualties.csv", import.meta.url), "utf8"));
+  assert.equal(q.cols.length, 7); assert.equal(q.labels.length, 192);
+  const rr = analyzeMulti({ ...q, model: "meanvar" });
+  const h = multiReportHtml(q, rr);
+  assert.equal((h.match(/<svg /g) || []).length, 2);
+  assert.match(h, /<strong>Columns 1 to 4 of 7:<\/strong> DriversKilled, drivers, front, rear/);
+  assert.match(h, /<strong>Columns 5 to 7 of 7:<\/strong> kms, PetrolPrice, VanKilled/);
+  for (const [a, b] of [[0, 4], [4, 7]]) assert.ok(h.includes(multiChartSvg({ ...q, cols: q.cols.slice(a, b), names: q.names.slice(a, b) }, rr)));
+  for (const c of q.names) assert.equal((h.match(new RegExp(`<th class="n">${c} shift`, "g")) || []).length, 1, c);
+  assert.ok(!h.includes(multiChartSvg(q, rr)), "the one tall chart is gone");
+  // What the data says: the joint level-and-volatility fit has a change at the seat-belt law (February 1983)...
+  assert.ok(rr.joint.some((j) => j.label === "1983-02"), rr.joint.map((j) => j.label).join(" "));
+  // ...but no column-by-column change is agreed there: only the petrol price's three steps are (no season term
+  // in the several-column mode, and the monthly casualty counts are strongly seasonal).
+  assert.deepEqual(rr.agreed.map((a) => `${a.label} ${a.columns.join(",")}`), ["1974-04 PetrolPrice", "1977-08 PetrolPrice", "1979-06 PetrolPrice"]);
+});

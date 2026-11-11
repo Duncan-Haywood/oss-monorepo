@@ -3,6 +3,49 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-11 · Milestone 5b, ninth GSS-only step: reweighting on demographics removes about 40% of the web selection, and none of it among Catholics
+
+Run: `experiments/m5j_reweight/run.py` (output `results.txt`, tables `t29`, `t30`; 300-draw stratified PSU bootstrap, seed 1,
+raking redone in every draw). New module `cathdem/rake.py` (raking by iterative proportional fitting, unit-tested against
+post-stratification). **Order of events:** the script, with predictions P1-P3 in its docstring, was committed (7dae199b)
+before its first run. The first run crashed before printing any result: one respondent missing on both age and number of
+children made the S2 margins infeasible. A missing code under 2% of the rows is now folded into the modal code. The second
+run crashed inside the bootstrap of the last table (Catholics only), on one infeasible draw. Point estimates must still rake
+exactly; bootstrap draws now keep the closest raking and report the leftover margin gap. No estimate was seen before either fix.
+
+Question. m5f, m5g and m5i found that 2021-24 web respondents are a different slice of people. The textbook fix is to
+reweight that slice on observed covariates. Does it work? The 2016-20 panel answers this where the truth is known. Everyone's
+first interview was in person, so the first-wave attendance gap between people who later chose web and those who later
+chose phone is pure selection. Web completers were raked to the phone completers' first-wave margins on three nested sets:
+S1 age, sex, ethnicity, degree; S2 S1 plus region, marital status, children, nativity, size of place, household size, work
+status; S3 S2 plus political views and party.
+
+- **P1 partly refuted.** The first-wave selection gap is -11.08 points [-15.82, -6.29]. S1 removes **42.6% [22.9, 86.9]**,
+  more than the third predicted. S2 removes 40.6% [15.5, 86.4] and S3 37.1% [12.9, 70.3]: the extra covariates add nothing.
+  The refutation line (S2 removing 75% or more) is not reached. After S2, **-6.58 points [-11.89, -1.05]** of selection
+  remains in people with the same age, sex, ethnicity, education, region, family, nativity, place and work.
+- **Applied to the 2020 wave, reweighting overstates the mode effect.** The cross-sectional 2020 web-minus-phone gap is -12.64,
+  and -8.27 [-12.73, -3.51] after S2 raking. The within-person estimate from m5i is -1.56 [-6.58, +2.38]. So an analyst who
+  reweighted the 2020 cross-section on demographics would still attribute about 7 points of selection to the web.
+- **P2 supported.** In 2022 and 2024 (web vs in person, within year), Catholics' weekly attendance gap is -10.05
+  [-15.51, -5.13] raw and **-9.55 [-15.27, -4.11]** after S2. Among Catholics, demographic reweighting removes nothing
+  (-4% to +5%). For all adults it removes 14-17% (S1, S2) and 36% with political attitudes (S3: -5.11 [-7.34, -2.75]).
+- **No-religion gap.** Web respondents are **+10.3 points** more often "no religion" [8.1, 12.8]. Demographics remove 3% of
+  this gap; S3 removes 18%. The Catholic-now gap is -1.0 [-3.5, +1.3], small and inside its interval at every set.
+- **P3 not refuted, weak.** The raised-Catholic gap stays positive (+2.11 raw, +1.43 [-0.64, +3.72] after S2), but here
+  (all adults) its interval includes zero at every set. The clear version is m5f's third-plus NH white population.
+- **Cost.** Raking raises the Kish design effect by a factor of 1.2-1.9. For S3 among Catholics, 105 of 300 bootstrap draws
+  could not be raked exactly (a draw was off by up to 14 points on some margin), so that one interval is not reliable.
+- **Implication (fixed in advance).** Demographic reweighting cannot correct the 2021-24 web respondents. It removes at
+  most about 40% of the selection where the selection is known, and essentially none of it for Catholic attendance. The
+  paper will use in-person 2022-24 estimates (m3: Catholic weekly attendance 2022-24 in person minus 2016-18, -2.2 points
+  [-8.9, +4.5]) as the primary post-2020 series and will show the all-mode series as an upper bound on the fall.
+- **Limits.** The panel test is web vs phone, not web vs in person. Its covariates are first-wave values, and two to four
+  years pass before mode is chosen. Attrition weights (`wtssnr_2`) are taken as given. A covariate set that included a
+  religiosity proxy measured before the mode choice would do better, but no 2021-24 cross-section has one.
+- **Next.** H5 (score Skirbekk et al. 2010) or milestone 2, when those hosts are reachable. A 2022-24 in-person-only rerun of
+  the m5h accounting, so H4's last period does not rest on the web slice.
+
 ## 2026-11-11 · Milestone 5b, eighth GSS-only step: the same people asked twice. Upbringing reports are stable; the web attendance gap is who chooses web
 
 Run: `experiments/m5i_panel/run.py` (output `results.txt`, tables `t27`, `t28`). **Order of events:** the script, with the

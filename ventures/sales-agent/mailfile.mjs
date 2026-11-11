@@ -93,7 +93,7 @@ export class MboxSplitter {
  */
 export function createCollector({ own = [], repliesOnly = true, maxBytes = MAX_BYTES } = {}) {
   const mine = new Set(own.map((a) => addressOf(a) || String(a).trim().toLowerCase()).filter(Boolean));
-  const seen = new Set(), kept = [], senders = new Map();
+  const seen = new Set(), kept = [], senders = new Map(), sent = [];
   const stats = { messages: 0, kept: 0, own: 0, notReply: 0, duplicates: 0, noText: 0, truncated: 0 };
   let order = 0;
   return {
@@ -107,7 +107,17 @@ export function createCollector({ own = [], repliesOnly = true, maxBytes = MAX_B
       const id = hd.messageId.toLowerCase();
       if (id && seen.has(id)) { stats.duplicates++; return; }
       if (id) seen.add(id);
-      if ((from && mine.has(from)) || /(^|,)\s*"?sent"?\s*(,|$)/i.test(top["x-gmail-labels"] || "")) { stats.own++; return; }
+      if ((from && mine.has(from)) || /(^|,)\s*"?sent"?\s*(,|$)/i.test(top["x-gmail-labels"] || "")) {
+        stats.own++;
+        // Your own mail is not a reply, but it is a record of the touches you already made: the daily run reads it as
+        // the done list (daily.mjs, input.sent), so a step you sent by hand is not queued again.
+        // An apostrophe is legal in a local part (o'neal.winfree@...: 64 of 7,836 Enron sent messages), so it is kept
+        // inside an address and trimmed only where it quotes one ('a@b').
+        const to = [...new Set((`${top.to || ""},${top.cc || ""}`.match(/[^\s<>",;:()]+@[^\s<>"',;:()]+/g) || []).map((a) => a.replace(/^'+/, "").toLowerCase()))];
+        const t = Date.parse(hd.date);
+        if (to.length && Number.isFinite(t)) sent.push({ date: new Date(t).toISOString().slice(0, 10), to, subject: hd.subject });
+        return;
+      }
       const machine = !!m.dsn || MACHINE_FROM.test(from) || /^auto-(replied|generated|notified)/i.test(hd.autoSubmitted) || !!hd.xAutoreply || /^auto[_-]?reply\b/i.test(hd.precedence);
       const reply = !!(hd.inReplyTo || top.references) || REPLY_SUBJECT.test(hd.subject);
       if (repliesOnly && !reply && !machine) { stats.notReply++; return; }
@@ -116,11 +126,12 @@ export function createCollector({ own = [], repliesOnly = true, maxBytes = MAX_B
       kept.push({ t: Number.isFinite(t) ? t : Infinity, order: order++, block: replyBlocks(m).map(asServerReads).join("\n---\n"), from, subject: hd.subject });
       stats.kept++;
     },
-    /** { replies: blocks joined by "---" lines, oldest first; stats; topSender: the most frequent From address and its count }. */
+    /** { replies: blocks joined by "---" lines, oldest first; stats; topSender: the most frequent From address and its count;
+     *  sent: your own messages as { date, to: [addresses], subject }, oldest first, for runDaily({ sent }) }. */
     finish() {
       kept.sort((a, b) => a.t - b.t || a.order - b.order);
       const top = [...senders].sort((a, b) => b[1] - a[1])[0];
-      return { replies: kept.map((k) => k.block).join("\n---\n"), stats: { ...stats }, topSender: top ? { address: top[0], count: top[1] } : null, items: kept.map(({ from, subject }) => ({ from, subject })) };
+      return { replies: kept.map((k) => k.block).join("\n---\n"), stats: { ...stats }, topSender: top ? { address: top[0], count: top[1] } : null, items: kept.map(({ from, subject }) => ({ from, subject })), sent: sent.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)) };
     },
   };
 }
@@ -141,7 +152,7 @@ export function readMailTexts(files, opts = {}) {
 /** Plain-English line for the page and CLI. */
 export function describe(r) {
   const s = r.stats, bits = [];
-  if (s.own) bits.push(`${s.own} of your own`);
+  if (s.own) bits.push(`${s.own} of your own${r.sent?.length ? ` (${r.sent.length} kept as touches already made)` : ""}`);
   if (s.notReply) bits.push(`${s.notReply} not ${s.notReply === 1 ? "a reply" : "replies"}`);
   if (s.duplicates) bits.push(`${s.duplicates} duplicate${s.duplicates === 1 ? "" : "s"}`);
   if (s.noText) bits.push(`${s.noText} with no text`);
