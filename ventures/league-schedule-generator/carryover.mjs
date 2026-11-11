@@ -90,6 +90,87 @@ export function circleOpp(N) {
   return rounds;
 }
 
+// ------------------------------------------------------------ field construction
+//
+// When N (the even count, a phantom included) is a power of two, a perfectly balanced round robin
+// exists (Russell 1980): label the teams with the elements of the finite field GF(N) (bit strings,
+// addition is XOR) and let team x meet x + a^r in round r, where a generates the field's
+// multiplicative group. Each round pairs x with x + a^r and back (addition is its own inverse, and
+// a^r is never 0), and each pair {x, y} meets in the one round where a^r = x + y. Team t plays
+// t + a^r and then t + a^(r+1), and those two always differ by a^r (1 + a), which fixes r, so every
+// ordered pair (i, j) is a carry-over step for exactly one team: every c[i][j] is 1, the least
+// value there is (n(n - 1) cyclic, n(n - 2) not). Dropping one team as the bye keeps the counts at
+// 0 or 1 too, so 7, 15 and 31 teams also reach the floor (checked in carryover.test.mjs).
+//
+// The annealing search falls well short at these sizes (16 teams: 316 against the floor 224; 32
+// teams: 1,538 against 960), so lowCarryOverRounds starts from this timetable when it applies.
+
+// GF(2^k) reduction polynomials (primitive, so x itself generates the group), k = 1 .. 7
+const FIELD_POLY = { 2: 0b11, 4: 0b111, 8: 0b1011, 16: 0b10011, 32: 0b100101, 64: 0b1000011, 128: 0b10001001 };
+
+/** True when the field construction applies to N teams (a power of two from 4 to 128). */
+export function fieldApplies(N) {
+  return N >= 4 && FIELD_POLY[N] !== undefined;
+}
+
+function fieldMul(x, y, N) {
+  const p = FIELD_POLY[N];
+  let r = 0;
+  while (y) {
+    if (y & 1) r ^= x;
+    y >>= 1; x <<= 1;
+    if (x & N) x ^= p;
+  }
+  return r;
+}
+
+/** The generators of GF(N)'s multiplicative group (elements of order N - 1). */
+export function fieldGenerators(N) {
+  if (!fieldApplies(N)) throw new Error(`The field construction needs a power of two from 4 to 128 teams, not ${N}.`);
+  const gens = [];
+  for (let g = 2; g < N; g++) {
+    let x = g, order = 1;
+    while (x !== 1) { x = fieldMul(x, g, N); order++; }
+    if (order === N - 1) gens.push(g);
+  }
+  return gens;
+}
+
+/**
+ * The field round robin on N teams (a power of two) as opp[r][t]: team t meets t XOR g^(r + start)
+ * in round r. Every generator g and every start gives a perfectly balanced timetable; they differ
+ * in how few home/away breaks they allow.
+ */
+export function fieldOpp(N, { generator = 2, start = 0 } = {}) {
+  if (!fieldApplies(N)) throw new Error(`The field construction needs a power of two from 4 to 128 teams, not ${N}.`);
+  let a = 1;
+  for (let i = 0; i < start; i++) a = fieldMul(a, generator, N);
+  const rounds = [];
+  for (let r = 0; r < N - 1; r++) {
+    const o = new Int16Array(N);
+    for (let x = 0; x < N; x++) o[x] = x ^ a;
+    rounds.push(o);
+    a = fieldMul(a, generator, N);
+  }
+  return rounds;
+}
+
+/**
+ * Of every generator and start, the field timetable the greedy venue pass gives the fewest breaks
+ * (all have the same, least carry-over); ties go to the first found, so the result is fixed.
+ */
+function bestFieldOpp(N, n) {
+  let best = null, bestB = Infinity;
+  for (const generator of fieldGenerators(N)) {
+    for (let start = 0; start < N - 1; start++) {
+      const o = fieldOpp(N, { generator, start });
+      const b = greedyBreaks(o, n);
+      if (b < bestB) { bestB = b; best = o; }
+    }
+  }
+  return best;
+}
+
 /** COE over real teams only (a phantom's "games" are byes and are skipped). */
 function coeOf(opp, n, cyclic) {
   const R = opp.length;
@@ -157,16 +238,22 @@ function cycleOf(opp, r, s, t) {
  * low carry-over value, then home/away set for few breaks. Simulated annealing from the circle
  * method over round swaps and partial round swaps, seeded, so the same seed gives the same rounds.
  * `effort` scales the iterations (1 is about a quarter of a second for 20 teams in Node).
+ * `field` (default true): when the league size, a bye team included, is a power of two (4, 8, 16,
+ * 32, ...), start from the perfectly balanced field timetable (fieldOpp) instead of the circle method.
  * Returns { rounds, coe, circleCoe, lowerBound, breaks, iterations }.
  */
-export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0 } = {}) {
+export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   const rand = mulberry32(seed);
   let opp = circleOpp(N);
   const circleCoe = coeOf(opp, n, cyclic);
+  // a power of two (a phantom included): start from the perfectly balanced field timetable, which
+  // is already at the floor, so the carry-over pass stops at once (see fieldOpp)
+  const useField = field && fieldApplies(N);
+  if (useField) opp = bestFieldOpp(N, n);
   const R = N - 1;
-  let cur = circleCoe;
+  let cur = coeOf(opp, n, cyclic);
   let best = cur, bestOpp = opp.map((o) => o.slice());
   const lb = carryOverFromOpponents(opponentsFromOpp(opp, n), { cyclic }).lowerBound;
   // each step costs about N * N, so the budget is in steps of work, not a fixed count
@@ -180,7 +267,15 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
     // venue pass; the full venue search runs once on the result
     const mixed = (o) => coeOf(o, n, cyclic) + breakWeight * greedyBreaks(o, n);
     const start = bestOpp.map((o) => o.slice());
+    const floorOpp = start.map((o) => o.slice());
     ({ bestOpp } = anneal(start, mixed, { iterations: Math.round(iterations / 2), T0: T0 / 2, rand, stopAt: -Infinity }));
+    if (useField) {
+      // The greedy stand-in can trade the field timetable's floor for breaks the full venue search
+      // then does not deliver (16 teams: 224 / 24 breaks became 256 / 24), so score both exactly.
+      const traded = finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed);
+      const kept = finish(floorOpp, n, cyclic, circleCoe, lb, iterations, seed);
+      return kept.coe + breakWeight * kept.breaks <= traded.coe + breakWeight * traded.breaks ? kept : traded;
+    }
   }
   return finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed);
 }
@@ -625,7 +720,7 @@ function hostBreaks(opp, n, R, host) {
  * at `legBreaks` (default a third of the season cap) and leg two moves on carry-over alone without
  * the season going over `maxBreaks` (or over the fewest its starts allow, if that is more).
  */
-export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null } = {}) {
+export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   const R = N - 1;
@@ -635,7 +730,7 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
   const capped = maxBreaks != null;
   const single = capped
     ? lowCarryOverCappedRounds(n, { seed, effort, maxBreaks: legBreaks ?? Math.floor(maxBreaks / 3) })
-    : lowCarryOverRounds(n, { seed, effort, breakWeight });
+    : lowCarryOverRounds(n, { seed, effort, breakWeight, field });
   const leg1 = oppFromRounds(single.rounds, N, n);
   // host[t * N + u] = t when t hosts u in leg one (the single search's home/away)
   const host = new Int16Array(N * N).fill(-1);

@@ -14,7 +14,7 @@ approve:
 |---|---|---|
 | Unsubscribe / stop | Stops every touch; adds the address to a suppression file with the date and their sentence as the record | Nothing. No reply is drafted |
 | Bounce | Stops email to the address | Find the right address in your own records (it never guesses one) |
-| Out of office | Pauses until the business day after their return date (one week if none; reads "in 2 wks", "fortnight", "mid-December", "1.12.2026", "next Tues", and German, French, Spanish, Portuguese, Italian and Dutch month names such as "12. November" or "20 de noviembre" (added 2026-11-02, agent-written cases only), `dates-more.test.mjs`) | A task if the auto-reply names another contact |
+| Out of office | Pauses until the business day after their return date (one week if none; reads "in 2 wks", "fortnight", "mid-December", "1.12.2026", "next Tues", and German, French, Spanish, Portuguese, Italian and Dutch month names such as "12. November" or "20 de noviembre" (added 2026-11-02, agent-written cases only), `dates-more.test.mjs`) | A task if the auto-reply names another contact. If a person wrote it (not an auto-responder), a task to read their reply too (the away policy, 2026-11-11) |
 | Left / wrong person | Stops the cadence for that contact | A task to add the person they named, if you choose |
 | Not interested | Stops the cadence; not suggested again for 180 days; a lost deal row | Nothing |
 | Not now | Pauses until the date they gave (90 days if none) | A short acknowledgement draft |
@@ -162,6 +162,16 @@ from earlier halves, and most of what is left is the writer's own absence inside
 reply, a policy choice rather than a phrasing fault. So rule rounds on Enron have stopped
 paying; the reader's brief is now a file (`eval/enron-labels/READER.md`) for a person or
 another model family to label from. Details: [`eval/README.md`](eval/README.md), "Seventh round".
+
+**The away policy, 2026-11-11.** Every away stop on the eighth half was typed by a
+person, so the product now tells the two apart. An auto-responder's notice (header,
+"Automatic reply:" subject, template wording) still pauses the lead silently. A person who
+writes back and says they are away is paused until the date they give *and* put in your
+tasks to read. On the eighth half's 9,428 real replies, wrong silent stops fell from 37
+to 17 (3.9 to 1.8 per 1,000), and the 33 away replies people wrote now reach a person.
+All 365 real auto-replies in the corpus stay silent. That is a policy chosen with the
+labels in view, not a blind score; what it costs (2 extra tasks per 1,000 replies) is in
+[`eval/README.md`](eval/README.md), "The away policy".
 
 **Real opt-outs, 2026-11-10.** The other direction: of 113 distinct real
 "take me off this list" messages found in the rest of the Enron corpus (451,475

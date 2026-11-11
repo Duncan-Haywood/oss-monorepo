@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVL8yopGRdDYLTKyT68",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating products; merge when done)",
+  "input_sha256": "b7500b9239b18fba3bb072b60c0896a225258bf24a341fa06febf9b04a0f933c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T14:05:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "infra-dcopf next step 2: line-outage stress test of stale loss penalty factors (case118, 80 trips)",
+  "projects": [
+    "infra-dcopf"
+  ],
+  "pr": 14798,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "routine prompt asks for revenue-generating product work while promptctl route drew the research track; followed the router per prompt.md"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-dc-opf-loss-factors-after-a-line-trip.md"
+  ],
+  "goal": "advance an open infra research line with a pre-registered real-solver result",
+  "notes": "pick_track drew track 21 (infra); took infra-dcopf's logged next step (outage stress test). Prediction written to LOG.md and pushed before the run. Results: stale factors beat plain DC on 80/80 single-line trips; worst keeps 88% of oracle gain; third prediction refuted. Local checks: infra-dcopf pytest 14 passed 1 skipped; research/_homepage/build.py ok; research_live_links ok; check_md_links ok.",
+  "corrections": [],
+  "redteam": null
+}
