@@ -134,3 +134,16 @@ def test_logit_recovers_coefficients_and_ignores_outside_domain():
     assert np.all(np.abs(b - [-0.5, 0.8]) < 4 * se)
     stat, df, p = survey.wald(b, cov, [1])
     assert df == 1 and p < 1e-6
+
+
+def test_equal_fertility_share_inverts_raised_share():
+    from cathdem import accounting
+    p = np.array([0.05, 0.2, 0.3, 0.6])
+    for rho in (0.8, 1.0, 1.15, 1.5):
+        R = accounting.raised_share(p, rho)
+        assert np.allclose(accounting.equal_fertility_share(R, rho), p)
+    # Hand case: p=0.25, rho=1.2 -> R = 0.3 / (0.3 + 0.75) = 2/7
+    assert math.isclose(float(accounting.raised_share(0.25, 1.2)), 2 / 7)
+    # Equal fertility leaves the share unchanged; higher Catholic fertility raises it.
+    assert np.allclose(accounting.raised_share(p, 1.0), p)
+    assert np.all(accounting.raised_share(p, 1.2) > p)

@@ -3,6 +3,55 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-11 · Milestone 5b, seventh GSS-only step: immigration, not fertility, held the Catholic share up in 1990-2018 (H4 supported)
+
+Run: `experiments/m5h_fertility/run.py` (output `results.txt`, tables `t24` to `t26`; 500-draw stratified PSU bootstrap over the
+whole file, seed 1, so the uncertainty in the fertility ratio is carried through). **Order of events:** the script, with the
+method and the prediction in its docstring, was committed (b0cadee) before its first run; the first run crashed on a pandas
+NA comparison before printing any result past the fertility ratio table, and was fixed without changing the method. The model
+check (`t26`), the upper-bound specification and the move of the inversion formula into `cathdem/accounting.py` (unit-tested) were added after a 3-draw
+trial; point estimates are identical.
+
+Method. Counterfactual reweighting. *Fertility:* US-born adults raised Catholic are reweighted to the share they would be
+if Catholic and other mothers had had equal completed fertility, R' = R / (R + rho (1 - R)), with rho the Catholic /
+non-Catholic ratio of children ever born among GSS women aged 45+ in a 10-year window centred 28 years before the adult's
+birth year. *Immigration:* the Catholic share among US-born adults only (and among third-plus generation only). Contribution
+= actual minus counterfactual, for levels and for changes.
+
+- **rho by mothers' cohort (`t24`).** 1.10 to 1.13 for women born about 1925-1960 (all ethnicities pooled), dipping to
+  0.97 around 1915 and 0.94 around 1970. Pooled over ethnicity the Catholic excess does not vanish for post-1945 mothers,
+  unlike the non-Hispanic white gap in m1, because Hispanic Catholic mothers are in the pool.
+- **Levels.** The fertility channel adds 1.17 points [0.76, 1.55] to the adult Catholic share in 1990-99, 0.81 [0.57, 1.02]
+  in 2010-18 and 0.66 [0.44, 0.87] in 2021-24. First-generation immigrants add 2.30 [1.94, 2.71], 3.37 [2.91, 3.83] and
+  1.98 [1.43, 2.50]; first and second generation together 4.7, 5.6 and 4.0.
+- **H4 test, 1990-99 to 2010-18** (share 26.4% to 25.0%, -1.39 [-2.67, -0.14]): immigration (1st gen) **+1.07 [+0.52, +1.68]**,
+  fertility **-0.37 [-0.69, -0.02]**; immigration minus fertility **+1.44 [+0.74, +2.10]**. **H4 is supported**, and the
+  prediction holds: fertility contributed about 1 point to the level in both periods and its contribution fell, so it
+  pulled the change down slightly; immigration pushed it up. The sign and size survive every sensitivity (g 24 or 32,
+  fertility of women and men, mothers' religion as raised rather than current, US-born mothers only: difference +1.34 to
+  +1.52).
+- **2010-18 to 2021-24** (-2.76 [-4.08, -1.38]): immigration -1.38 [-2.05, -0.77], fertility -0.15. The fall in the
+  foreign-born Catholic share (m5b) is the larger channel here, with the 2021-24 mode caveat of m5f and m5g.
+- **Model check (`t26`), only partly passed.** The mothers' Catholic share the model implies for each 5-year cohort of
+  US-born adults is above the share of women in the mothers' cohort who are Catholic now for every cohort born 1925-69, by
+  2.4 to 4.2 points (largest for 1945-49 and 1955-59), and lies between the "Catholic now" and "raised Catholic" shares of
+  the mothers' cohort for 1970-99. So for mid-century cohorts more children were raised Catholic than mothers' religion
+  and measured fertility explain. That residual could be fertility the ratio misses (survivors, religion at interview), or
+  Catholic upbringing in mixed marriages; if it were all fertility, the fertility channel's level would be up to about 4
+  points larger.
+- **Upper bound (added after the model check, point estimate).** Crediting that whole residual to fertility (the
+  counterfactual raised share set to the Catholic share of women in the mothers' cohort) raises the fertility channel's
+  level to 2.2 points in 1990-99, 2000-09 and 2010-18 and 2.5 in 2021-24, but flat, so its contribution to the 1990-99 to
+  2010-18 change is **+0.01**, against immigration's +1.07. H4 survives the bound.
+- **Limits.** The immigration counterfactual is a composition contrast (it drops immigrants; it does not model what the
+  native population would have done without them). The fertility channel takes mothers' fertility from GSS respondents
+  who survived to be interviewed, measures their religion at interview rather than at childbearing, and assumes children
+  take the mother's religion; mixed marriages and fathers are not modelled. Mothers born before about 1890 (9.4% of
+  US-born weight in 1990-99, under 0.5% from 2010) take the earliest covered window's ratio. No NCHS or ACS series is used:
+  this answers H4 from the GSS alone; the outside series remain the check.
+- **Next.** H5 (score the Skirbekk et al. 2010 projection against 2020s GSS and Pew) or milestone 2 (reproduce a Hout 2016
+  table, Pew benchmark).
+
 ## 2026-11-10 · Milestone 5b, sixth GSS-only step: the randomised mode arms do not move the raised-Catholic share
 
 Run: `experiments/m5g_randomised/run.py` (output `results.txt`, table `t23`). **Order of events:** the prediction was written
