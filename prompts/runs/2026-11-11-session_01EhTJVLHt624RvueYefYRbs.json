@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVLHt624RvueYefYRbs",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (prompts/ventures/prompt-1.md brief)",
+  "input_sha256": "20b6aad4c7749bfe57783787f0f3f9a9b8479b84f65050c730d7f1e9113b4831",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T23:02:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "sales-agent flagship 3, buildable (6): self-host server reads the IMAP Sent folder as runDaily's sent input",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": 14918,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first venture-suite run failed dockerfile.test.mjs: agent.mjs now imports daily.mjs and mailfile.mjs, which the Dockerfile did not copy",
+      "fix": "added both to the Dockerfile COPY line; rerun 505/505"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-sales-agent-reads-your-sent-folder.md"
+  ],
+  "goal": "Deepen the top Deepen flagship with no open PR (allocate.py row 2) with a keyless item",
+  "notes": "Local checks: node --test self-host/sent-folder.test.mjs 7/7; python3 platform/ci/run_venture_tests.py sales-agent: ok (rerun after Dockerfile fix); node platform/pages/venture-preflight.mjs sales-agent: preflight clean; post frontmatter/links/similarity checks clean (description shortened to 160). Found and fixed: Node 22 en-GB short month 'Sept' made the first-poll IMAP SEARCH SINCE date invalid every September. Fake IMAP only; no real mailbox read. Next buildable item rewritten in flagships.yaml: Done buttons for call/LinkedIn rows.",
+  "corrections": [],
+  "redteam": null
+}
