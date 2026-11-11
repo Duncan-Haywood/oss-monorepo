@@ -1,6 +1,6 @@
 ---
 title: "On a measured wheel loader, the open-centre penalty is the pump, not the spool"
-seo_title: "Open-centre vs load-sensing on a measured loader: the spool barely matters"
+seo_title: "Open-centre vs load-sensing on a measured loader: the spool floor"
 date: 2026-11-11
 tags: [research, heavy-equipment, hydraulics, load-sensing, open-centre, wheel-loader]
 description: "Adding the least spool drop a Danfoss PVG 32 can have moves open-centre from 1.40 to 1.42 times the measured load-sensing pump energy on a real 6 t loader."
