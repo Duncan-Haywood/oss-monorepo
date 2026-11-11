@@ -3,6 +3,47 @@
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
 
+## 2026-11-11 · Milestone 5b, eighth GSS-only step: the same people asked twice. Upbringing reports are stable; the web attendance gap is who chooses web
+
+Run: `experiments/m5i_panel/run.py` (output `results.txt`, tables `t27`, `t28`). **Order of events:** the script, with the
+predictions in its docstring, was committed (76640d50) before its first run; the first run completed without changes.
+**Data source:** gss.norc.org returned 403 through this session's proxy, so this run reads the GSS files from the gssr R
+package (Healy, GitHub, pinned commit, checksums in `data/SHA256SUMS.gssr`, `data/download_gssr.sh`); `recode.load` now
+falls back to it. Check: `experiments/m1_subgroups/run.py` from the gssr cumulative file reproduces every estimate and n in
+all eight m1 tables built from NORC's R3a .dta; one standard error differs in the fourth decimal (0.0540 vs 0.0541).
+Weights `wtpannr12`/`wtpannr123` (2006-10) and `wtssnr_2` (2016-20); the 2008 panel file has no design codes in gssr, so
+its people are treated as their own PSUs (intervals for the pooled panels are slightly too narrow).
+
+- **A1 supported (two years).** Of 4,633 people asked their religion at 16 in 2006/08/10 and again two years later, 95.4%
+  of first-wave "raised Catholic" say so again; gross disagreement 3.0% [2.4, 3.6]; kappa 0.933; net change **-0.06 points
+  [-0.65, +0.53]**. Over four years (n 3,843) the net change is **-0.77 [-1.44, -0.11]**, under the 1-point line the
+  prediction set, so not refuted as worded, but not zero: the drift is downward.
+- **Where the drift is.** People who are Catholic at wave 1 report a Catholic upbringing less often later: 91.7% to 89.4%
+  over four years (-2.21 [-3.86, -0.56]); people not Catholic at wave 1 show no drift (-0.37 [-1.06, +0.32]). So answers
+  about upbringing drift toward *not* raised Catholic, the wrong sign to produce the within-cohort rise of the
+  raised-Catholic share in 5e. Recall noise is ruled out as its explanation, leaving the web-mode selection of 5f/5g.
+- **A2 supported.** Current Catholic is less stable than raised Catholic: gross disagreement 5.1% [4.3, 5.9] over two
+  years, net -1.04 [-1.88, -0.20]; over four years net -1.87 [-2.72, -1.02] (about 0.5 points of the adult share a year
+  leaving, in people who stay in the panel).
+- **Phone vs in person (within person, 2006-10).** Gross disagreement on raised Catholic +1.57 points [-0.02, +3.16] by
+  phone at wave 2, not at wave 3 (-0.32); net differences are near zero (+0.22, +0.30). No sign that an interviewer mode
+  moves the answer.
+- **B1 not refuted, and the main finding is elsewhere.** 2016-20 panel, first wave in person, 2020 by web (n 1,110) or
+  phone (n 449). Web completers already reported **11.1 points less weekly attendance [-17.9, -4.2] at the first wave,
+  when they too were interviewed in person**. Their within-person change to 2020 differs from phone completers' by only
+  **-1.56 points [-8.50, +5.38]** (Catholics +1.38 [-11.3, +14.0], n 239/95). So nearly all of a cross-sectional web
+  gap of the m3 size (-9 to -11 points) is who chooses web, not what web does to the answer; a mode effect of up to
+  about 8 points is not excluded.
+- **Limits.** The 2020 contrast is web vs phone, not web vs face to face; mode was chosen, so time-varying differences
+  between the two groups remain; 2020-21 fieldwork fell in the pandemic. The gssr panel20 file has `relig` and `relig16`
+  empty for 2020, so part A cannot be repeated across the web switch. Panel attrition: the weights adjust for it, they
+  do not remove it.
+- **Implication for the programme.** Both measurement routes now point the same way: the 2021-24 web respondents are a
+  different slice of people (5f, 5g, this step), and their answers are about as reliable as in-person ones. For the
+  paper, 2021-24 estimates need a nonresponse-composition adjustment, not a measurement correction.
+- **Next.** H5 (score Skirbekk et al. 2010) or milestone 2 (Hout 2016 table, Pew benchmark), when the paper and Pew hosts
+  are reachable; a composition reweighting of 2021-24 web respondents to the in-person profile.
+
 ## 2026-11-11 · Milestone 5b, seventh GSS-only step: immigration, not fertility, held the Catholic share up in 1990-2018 (H4 supported)
 
 Run: `experiments/m5h_fertility/run.py` (output `results.txt`, tables `t24` to `t26`; 500-draw stratified PSU bootstrap over the
