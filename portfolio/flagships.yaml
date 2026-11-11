@@ -16,6 +16,11 @@
 # tells runs to take it only if they hold such an input. Remove the field when
 # a buildable item is added to `next:`.
 #
+# `buildable: <items a cloud session can do now>` (optional) leads the row's
+# task as "BUILDABLE HERE", so a run need not read every full `next:` to find
+# a tractable item (seven runs on 2026-11-11 did). Name only items checked to
+# need no key, account or person; drop or rewrite it when they land.
+#
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
 #
@@ -92,6 +97,15 @@ flagships:
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
+    buildable: >-
+      (1) the second reader as another model family, keyless: a local GGUF model
+      (e.g. Qwen2.5, Llama 3.x or Mistral Instruct, Q4_K_M, from Hugging Face)
+      served by llama.cpp (`llama-cpp-python` server, CPU), labelling from
+      eval/enron-labels/READER.md; (3) the local half of M2: `LLM_PROVIDER=llamacpp
+      node eval/model.mjs eval/fresh-*.jsonl` (byok.mjs has a keyless llamacpp
+      provider). ai-bookkeeper README "A bigger local model" has the CPU setup that
+      worked in a cloud session; huggingface.co answered 200 through the proxy on
+      2026-11-11.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
