@@ -34,7 +34,8 @@
   "errors": [
     "eval/columns-workers-browser.mjs first compared innerHTML without stripping the browser-inserted <tbody>; all checks read FAIL until normalised",
     "eval/cli-columns-threads.mjs first passed the file after --columns, which reads it as the column list; led to the CLI fix",
-    "full venture suite (472/474) caught two static page tests pinning the old index.html text (import list, startMain multi regex); updated, then 32/32 and 36/36 on the reached files"
+    "full venture suite (472/474) caught two static page tests pinning the old index.html text (import list, startMain multi regex); updated, then 32/32 and 36/36 on the reached files",
+    "CI validate: flagships.yaml changepoint-detector next: was 2234 chars (cap 2000); the done (c) item was shortened. portfolio/router/validate.py was not in the local checks run; it should have been"
   ],
   "integrity_issues": [],
   "doc_friction": [
