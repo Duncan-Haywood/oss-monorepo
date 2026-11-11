@@ -519,7 +519,30 @@ function paidMinutes(o, s) {
   const len = s.end - s.start;
   return o.mealAfter > 0 && len > o.mealAfter * 60 ? Math.max(0, len - Math.max(0, o.mealMin)) : len;
 }
+// Hours per day in a reused array, days visited in first-seen order (the order the Map below iterates in, so both sum the same
+// numbers in the same order and give the same result bit for bit). The pricing oracle prices millions of lists on a 40-person
+// week, and the Map per call was a fifth of its time (2026-11-11 profile). Days outside 0-30 take the Map.
+const PAY_DAY = new Float64Array(31), PAY_ORDER = new Int32Array(31);
 function payParts(ctx, list) {
+  const { o, slots } = ctx;
+  let mask = 0, nd = 0;
+  for (const i of list) {
+    const d = slots[i].day;
+    if (!(d >= 0 && d <= 30 && Number.isInteger(d))) return payPartsMap(ctx, list);
+    if (!(mask & (1 << d))) { mask |= 1 << d; PAY_ORDER[nd++] = d; PAY_DAY[d] = 0; }
+    PAY_DAY[d] += paidMinutes(o, slots[i]) / 60;
+  }
+  let straight = 0, ot = 0, dt = 0;
+  for (let k = 0; k < nd; k++) {
+    let rest = PAY_DAY[PAY_ORDER[k]];
+    if (o.dailyDtAfter > 0 && rest > o.dailyDtAfter) { dt += rest - o.dailyDtAfter; rest = o.dailyDtAfter; }
+    if (o.dailyOtAfter > 0 && rest > o.dailyOtAfter) { ot += rest - o.dailyOtAfter; rest = o.dailyOtAfter; }
+    straight += rest;
+  }
+  const weekly = Math.max(0, straight - o.otAfter);
+  return { straight: straight - weekly, ot: ot + weekly, dt };
+}
+function payPartsMap(ctx, list) {
   const { o, slots } = ctx;
   const byDay = new Map();
   for (const i of list) byDay.set(slots[i].day, (byDay.get(slots[i].day) || 0) + paidMinutes(o, slots[i]) / 60);
@@ -1488,11 +1511,13 @@ export function makeScorePricer(ctx, { maxNodes = 2000000, chainBound = true } =
       return lag < v ? lag : v;
     };
     // Upper bound on the value of any valid set that adds shifts from cand[x..] to `list`.
-    const upper = (x, list, wv, used) => {
-      let reach = 0;
-      for (let k = x; k < cand.length; k++) reach += mins[cand[k]];
-      const room = Math.max(0, Math.min(capMin - used, reach));
-      return wv - fixedLB(p, list) + knap(x, capMin - used, list) - minQuad(p, used / 60, (used + room) / 60);
+    // reachMin[x]: minutes of cand[x..], so the bound reads it instead of summing on every node.
+    const reachMin = new Float64Array(cand.length + 1);
+    for (let k = cand.length - 1; k >= 0; k--) reachMin[k] = reachMin[k + 1] + mins[cand[k]];
+    // `fixed` is fixedLB(p, list), worked out once per node: the node's own check and every sibling cut use the same list.
+    const upper = (x, list, wv, used, fixed) => {
+      const room = Math.max(0, Math.min(capMin - used, reachMin[x]));
+      return wv - fixed + knap(x, capMin - used, list) - minQuad(p, used / 60, (used + room) / 60);
     };
     const go = (x, list, wv, used) => {
       if (!exact) return;
@@ -1501,7 +1526,8 @@ export function makeScorePricer(ctx, { maxNodes = 2000000, chainBound = true } =
         const c = personScore(ctx, p, list);
         if (wv - c > bestVal + 1e-9) { bestVal = wv - c; bestSet = list; bestCost = c; }
       }
-      if (upper(x, list, wv, used) <= bestVal + 1e-9) return;
+      const fixed = fixedLB(p, list);
+      if (upper(x, list, wv, used, fixed) <= bestVal + 1e-9) return;
       for (let k = x; k < cand.length; k++) {
         const i = cand[k];
         if (used + mins[i] > capMin + 1e-9) continue;
@@ -1509,6 +1535,10 @@ export function makeScorePricer(ctx, { maxNodes = 2000000, chainBound = true } =
         if (!validList(ctx, p, nl)) continue;
         go(k + 1, nl, wv + w[i], used + mins[i]);
         if (!exact) return;
+        // Sibling cut, as in makeSetPricer: every later sibling, and everything under it, adds shifts from cand[k + 1..] to
+        // this list, which upper(k + 1, ...) bounds; once that is at or below the best found nothing later in this loop can
+        // beat it (a set replaces the best only when strictly above it), so the search returns the same best set, sooner.
+        if (upper(k + 1, list, wv, used, fixed) <= bestVal + 1e-9) return;
       }
     };
     const baseMin = base.reduce((a, i) => a + mins[i], 0);
