@@ -271,7 +271,14 @@ flagships:
       actuator"): angle to length through the CAD geometry (a linear servo map aimed up to 1.46 deg high), rc/pot/timed
       modes, stall and lost-pot faults, feed gate waits for the aim (FLAG_AIM_SETTLING). Same run: a 240 mm actuator's
       retract limit put the head at +48.8 deg, into the turntable plate (clear only to +46.36); drawn now 246 mm
-      (window 244.9-247.7, checked). Next: Pi side waits on FLAG_AIM_SETTLING; weigh the head and measure the hose's torque, the
+      (window 244.9-247.7, checked). Pi drill player landed 2026-11-11 (`tennisbots play`, src/tennisbots/play.py,
+      firmware/esp32/README.md "Wheel tachometers"): waits for a fresh settled aim and wheels within 2% for 300 ms,
+      feeds, holds 700 ms; tested against main.py itself on a simulated board (simboard.py). That sim found the
+      1-pulse/rev tach counted per 10 ms tick read only 0/6,000/12,000 rpm, so the gate never opened: now timed
+      pulse to pulse. Sim (assumed wheel plant): the wheel band sets landing scatter (4% up to 0.6 m, 2% 0.3 m),
+      timed mode re-homes once a round. Next: tune or replace the wheel loop (integral-only, underdamped on the
+      assumed plant; 1-4.6 s per speed change), with a real ESC/motor step response (needs a person); a phone
+      drill page driving `play` over the Pi's local web server; weigh the head and measure the hose's torque, the
       stepper's pull-out and the actuator's real lengths (needs a person); the home switch's bracket; hang a
       real hose from a tube; the shuttle actuator's bracket; the netting trough that rolls balls to the
       hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.

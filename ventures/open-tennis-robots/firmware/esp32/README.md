@@ -35,6 +35,53 @@ port.write(P.encode(P.HEARTBEAT))   # at least every 300 ms, or the watchdog sto
 frames = P.Decoder().feed(port.read(256))
 ```
 
+For drills, `tennisbots play drill.json --port /dev/ttyAMA0` does all of this
+(`src/tennisbots/play.py`, 2026-11-11). For each shot it sends `SET_WHEELS` and
+`SET_AIM`, waits until telemetry has shown the aim settled (`FLAG_AIM_SETTLING`
+and `FLAG_AZ_UNHOMED` clear) and both wheels within 2% for 300 ms, sends `FEED 1`,
+then holds the aim until telemetry has stayed ready for 700 ms so the ball has
+certainly gone before the next aim goes out. It ignores the first frame after a
+new aim unless that frame already shows `SETTLING` (a frame built before the board
+read the command can still be in flight), refuses shots outside -15..45 deg,
+-30..30 deg or 7,000 rpm instead of letting the firmware clamp them, and stops the
+wheels and the drill on e-stop, watchdog, elevation fault, an empty hopper, 500 ms
+without telemetry or 20 s without a ready aim.
+
+`tennisbots play drill.json --sim pot` (or `rc`, `timed`) runs the same player
+against this firmware on a simulated board (`src/tennisbots/simboard.py`): `main.py`
+and `controller.py` run unchanged on stub `machine` and `time` modules wired to a
+plant model of the stepper, the actuator, the wheels and their once-per-turn tach
+pulses, and every opening of the gate servo is logged with the aim the head really
+had. It needs a source checkout. The plant's wheel numbers (full throttle 9,000 rpm,
+0.3 s time constant) and the actuator speeds are assumptions, not measurements.
+
+## Wheel tachometers: timed pulse to pulse (2026-11-11)
+
+The first run of the simulated board found the feeder could never feed. `Tach`
+counted pulses (one per turn) in each 10 ms update and multiplied by 6,000, so it
+could only read 0, 6,000 or 12,000 rpm: at a 3,000 rpm target the reading flipped
+between 0 and 6,000, the gate's "within 5%" check never passed, and the ball stayed
+in the hopper. `Tach` now times the period between pulses in microseconds
+(`time.ticks_us()` in the interrupt); in simulation it reads the wheel within 0.5%
+(`tests/test_drill.py`). No pulse for 0.2 s reads as stopped.
+
+What the simulated drills show (`drill.example.json`, 4 shots played 3 times, plant
+assumptions above):
+
+- the first ball waits for azimuth homing, 32 deg at 5 deg/s: 7.7 s;
+- after that a shot takes 3.8 s on average in `rc` and `pot` mode, mostly the wheels
+  changing speed (1.0 s between the two 22 m/s corner shots, which share wheel speeds;
+  2.1 s for a 900 rpm change, 4.3-4.6 s for 1,300-3,400 rpm);
+- `timed` mode averages 5.6 s: the move from the last shot back to the first pushes
+  the error budget past 3 mm, so it re-homes once a round (12.3 s);
+- with the Pi's band at 4% the balls landed up to 0.5-0.6 m from their targets,
+  at 2% up to 0.2-0.3 m, at 1% 0.14-0.21 m, costing 0.6 s a shot per halving.
+  The wheel band, not the aim, sets the scatter (the aim is within 0.25 deg); 2% is
+  the default (`--rpm-tol`);
+- without the 300 ms steady window a ball once left 381 ms after `FEED` with the top
+  wheel 5.2% slow: the tach reports the last turn, so it lags a wheel still swinging
+  toward its speed.
+
 ## Elevation actuator (2026-11-11)
 
 The head tilts on a linear actuator (`cad/README.md`, "Elevation drive"), not a

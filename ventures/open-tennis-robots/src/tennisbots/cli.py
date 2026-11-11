@@ -1,4 +1,4 @@
-"""Command line: `tennisbots aim | drill | catch-study | collect`."""
+"""Command line: `tennisbots aim | drill | play | catch-study | collect | listing`."""
 
 from __future__ import annotations
 
@@ -63,6 +63,34 @@ def cmd_drill(a: argparse.Namespace) -> int:
             out.append({"shot": i, "error": str(exc)})
     print(json.dumps({"shots": out}, indent=2))
     return 1 if failed else 0
+
+
+def cmd_play(a: argparse.Namespace) -> int:
+    """Run a drill file on the feeder: over a serial port, or against the simulated board (`--sim`)."""
+    from . import play
+    with open(a.file) as fh:
+        spec = json.load(fh)
+    shots = play.plan(spec)
+    kw = {"rpm_tol": a.rpm_tol}
+    if a.sim:
+        from .simboard import SimBoard
+        p, board = play.run_sim(shots * a.repeat, SimBoard(a.sim), **kw)
+        releases = board.releases
+    elif a.port:
+        p, releases = play.run_serial(shots * a.repeat, a.port, a.baud, **kw), None
+    else:
+        raise ValueError("give --port (the feeder's serial device) or --sim rc|pot|timed")
+    out = {"state": p.state, "abort": p.abort, "shots": []}
+    for i, entry in enumerate(p.log):
+        row = {"shot": i, "aim_wait_ms": None if entry.ready_ms is None else entry.ready_ms - entry.sent_ms,
+               "fed_ms": entry.fed_ms, "done_ms": entry.done_ms, "error": entry.error}
+        if releases is not None:
+            rel = [r for r in releases if entry.fed_ms is not None and entry.fed_ms <= r["t_ms"] <= (entry.done_ms or 1e12)]
+            row["released"] = [{"t_ms": r["t_ms"], "elevation_deg": round(r["elev_deg"], 2),
+                                "azimuth_deg": round(r["az_deg"], 2), "rpm": [round(x) for x in r["rpm"]]} for r in rel]
+        out["shots"].append(row)
+    print(json.dumps(out, indent=2))
+    return 0 if p.state == "finished" and not any(e.error for e in p.log) else 1
 
 
 def cmd_catch_study(a: argparse.Namespace) -> int:
@@ -167,6 +195,16 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("drill", help="check and compile a JSON drill file into machine settings")
     s.add_argument("file")
     s.set_defaults(func=cmd_drill)
+
+    s = sub.add_parser("play", help="run a drill file on the feeder over serial (or on the simulated board)")
+    s.add_argument("file")
+    where = s.add_mutually_exclusive_group()
+    where.add_argument("--port", help="the feeder ESP32's serial device, e.g. /dev/ttyUSB0 (needs pyserial)")
+    where.add_argument("--sim", choices=["rc", "pot", "timed"], help="the firmware on a simulated board instead")
+    s.add_argument("--baud", type=int, default=115200)
+    s.add_argument("--repeat", type=int, default=1, help="play the shot list this many times")
+    s.add_argument("--rpm-tol", type=float, default=0.02, help="wheel speed band before a ball is fed (fraction)")
+    s.set_defaults(func=cmd_play)
 
     s = sub.add_parser("catch-study", help="simulate how many returns a moving catch net would catch")
     s.add_argument("--n", type=int, default=200)

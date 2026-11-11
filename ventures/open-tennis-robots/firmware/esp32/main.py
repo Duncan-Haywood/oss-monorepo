@@ -78,21 +78,37 @@ class Servo:
 
 
 class Tach:
-    """One pulse per revolution from a reflective IR sensor on the wheel hub."""
+    """One pulse per revolution from a reflective IR sensor on the wheel hub, timed pulse to pulse.
+
+    Speed comes from the period between pulses (2026-11-11). It used to be the pulses counted in one 10 ms
+    update times 6,000, which can only read 0, 6,000 or 12,000 rpm: at a 3,000 rpm target the reading flipped
+    between 0 and 6,000 and the feed gate's 5% check never passed (tests/test_drill.py, the sim board). A
+    pulse period of 8.6 ms at 7,000 rpm read in microseconds is good to about 0.01%. No pulse for
+    `TIMEOUT_US` reads as stopped (below 300 rpm).
+    """
+
+    TIMEOUT_US = 200000
 
     def __init__(self, pin):
         self.pulses = 0
-        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING)
+        self.period_us = 0
+        self._last_us = None
         self.rpm = 0
-        self._last = 0
+        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING)
 
     def _p(self, _):
+        t = time.ticks_us()
+        if self._last_us is not None:
+            self.period_us = time.ticks_diff(t, self._last_us)
+        self._last_us = t
         self.pulses += 1
 
     def update(self, dt):
-        n = self.pulses - self._last
-        self._last = self.pulses
-        self.rpm = int(n * 60000 / dt) if dt else 0
+        last, period = self._last_us, self.period_us
+        if last is None or period <= 0 or time.ticks_diff(time.ticks_us(), last) > self.TIMEOUT_US:
+            self.rpm = 0
+        else:
+            self.rpm = 60000000 // period
 
 
 class StepDir:

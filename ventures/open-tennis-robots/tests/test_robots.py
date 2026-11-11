@@ -495,7 +495,7 @@ class FirmwareTest(unittest.TestCase):
                 return 2_300_000
 
         machine = types.SimpleNamespace(Pin=Pin, PWM=PWM, ADC=ADC, UART=object)
-        fake_time = types.SimpleNamespace(sleep_us=lambda us: None, sleep_ms=lambda ms: None, ticks_ms=lambda: 0,
+        fake_time = types.SimpleNamespace(sleep_us=lambda us: None, sleep_ms=lambda ms: None, ticks_ms=lambda: 0, ticks_us=lambda: 0,
                                           ticks_diff=lambda a, b: a - b)
         path = os.path.join(os.path.dirname(__file__), "..", "firmware", "esp32")
         with open(os.path.join(path, "main.py")) as f:

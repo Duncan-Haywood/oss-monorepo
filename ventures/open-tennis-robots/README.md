@@ -88,6 +88,10 @@ tennisbots aim --x 9 --y -2 --speed 22 --topspin 1200
 # Compile a drill into machine settings (fails loudly on any unreachable ball):
 tennisbots drill drill.example.json
 
+# Play it on the feeder (pip install "tennisbots[serial]"), or on the simulated board from a source checkout:
+tennisbots play drill.example.json --port /dev/ttyAMA0
+tennisbots play drill.example.json --sim pot
+
 # Size the catch net: simulate returns with camera noise and latency:
 tennisbots catch-study --net-width 2 --net-width 3 --base-speed 0 --base-speed 2.5
 
