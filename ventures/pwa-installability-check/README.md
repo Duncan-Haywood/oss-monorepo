@@ -2,9 +2,11 @@
 
 A free tool for web developers: fetches a page you choose, its linked **Web
 App Manifest**, and every icon that manifest lists, then classifies the
-result against **Chrome's documented installability criteria** — the same
-checks behind Lighthouse's `installable-manifest` audit, with no Chrome or
-Puppeteer required:
+result against **Chrome's published install criteria**
+([web.dev/articles/install-criteria](https://web.dev/articles/install-criteria)),
+with no Chrome or Puppeteer required. Lighthouse 12 removed its PWA category,
+so there is no current Lighthouse audit to compare against; this tool is not a
+Lighthouse run:
 
 **Live tool:** https://marisstella.app/pwa-installability-check/
 
@@ -19,10 +21,11 @@ Puppeteer required:
   192x192 or larger (or `sizes: "any"`), fetched and confirmed to respond as
   an image.
 
-Plus three lower-severity notices that never block installability on their
-own: no icon at least 512x512 (used for a richer install/splash UI when
-present), no explicit `start_url` (defaults to the manifest's own document
-URL), and no `theme_color`/`background_color` (cosmetic only).
+Plus three lower-severity notices: no icon at least 512x512 and no explicit
+`start_url` (both are on Chrome's published list, but Chrome's installer has
+tolerated their absence, so they are notices and a passing report names them
+rather than calling the page fully compliant), and no
+`theme_color`/`background_color` (cosmetic only).
 
 After using this, you get a plain-English list of exactly which criterion
 failed and why — instead of installing Chrome DevTools, running Lighthouse,
