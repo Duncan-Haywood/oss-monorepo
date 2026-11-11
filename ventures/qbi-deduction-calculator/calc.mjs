@@ -30,8 +30,17 @@
 //     $75,000 single/HoH/MFS, $150,000 joint. OBBBA also adds a minimum
 //     deduction of $400 whenever total QBI from an active qualified trade
 //     or business is at least $1,000, even if the formula above would
-//     otherwise produce less -- modeled here as a floor applied to the
-//     combined QBI amount, before the taxable-income-based cap in (b).
+//     otherwise produce less. 199A(i)(1) floors "the deduction allowed under
+//     subsection (a)", so the floor applies after the cap in (b). Only QBI
+//     that counts toward the deduction counts toward the $1,000: none of an
+//     SSTB's above the phase-in range, and only the applicable percentage of
+//     it inside the range (199A(d)(3)).
+//
+// Inside the phase-in range an SSTB's QBI, W-2 wages and UBIA are first
+// scaled by the applicable percentage, and the scaled figures then go
+// through the same phase-in of the wage/UBIA limit as any other business
+// (Treas. Reg. 1.199A-1(d)(2), whose rules apply in order: (i) the SSTB
+// exclusion, then (iv)(B) the phase-in reduction).
 //
 // Married filing separately uses the same threshold and range as single in
 // this module (IRS sets the MFS threshold at half the joint figure, which
@@ -104,7 +113,7 @@ export function computeBusinessComponent({
         detail: `This business's qualified business income is negative (${money(qbiAmount)}). It produces no deduction for this business this year and instead reduces the QBI this same business reports next year.`,
       });
     }
-    return { component: 0, findings };
+    return { component: 0, countedQbi: 0, findings };
   }
 
   const ti = nonNeg(taxableIncome);
@@ -118,9 +127,13 @@ export function computeBusinessComponent({
   const tentative = 0.2 * qbiAmount;
 
   if (fullyBelow) {
-    return { component: tentative, findings };
+    return { component: tentative, countedQbi: qbiAmount, findings };
   }
 
+  // Figures that go into the wage/UBIA phase-in: an SSTB's are scaled first.
+  let qbiIn = qbiAmount;
+  let wagesIn = wages;
+  let ubiaIn = ubiaAmount;
   if (isSstb) {
     if (fullyAbove) {
       findings.push({
@@ -128,34 +141,32 @@ export function computeBusinessComponent({
         title: 'Specified service business, fully phased out',
         detail: `At a taxable income of ${money(ti)}, above the ${money(threshold + range)} end of the phase-in range for this filing status, a specified service trade or business (SSTB) gets $0 of QBI deduction from this business.`,
       });
-      return { component: 0, findings };
+      return { component: 0, countedQbi: 0, findings };
     }
     const applicablePct = 1 - ratio;
-    const adjQbi = qbiAmount * applicablePct;
-    const adjWages = wages * applicablePct;
-    const adjUbia = ubiaAmount * applicablePct;
-    const wageLimit = Math.max(0.5 * adjWages, 0.25 * adjWages + 0.025 * adjUbia);
-    const component = Math.min(0.2 * adjQbi, wageLimit);
+    qbiIn = qbiAmount * applicablePct;
+    wagesIn = wages * applicablePct;
+    ubiaIn = ubiaAmount * applicablePct;
     findings.push({
       severity: 'medium',
       title: 'Specified service business, partly phased out',
-      detail: `At a taxable income of ${money(ti)}, ${Math.round(ratio * 100)}% through the phase-in range for this filing status, only ${Math.round(applicablePct * 100)}% of this SSTB's QBI, W-2 wages, and UBIA count before the wage/UBIA limit is applied.`,
+      detail: `At a taxable income of ${money(ti)}, ${Math.round(ratio * 100)}% through the phase-in range for this filing status, only ${Math.round(applicablePct * 100)}% of this SSTB's QBI, W-2 wages, and UBIA count, and the wage/UBIA limit then phases in on those reduced figures.`,
     });
-    return { component, findings };
   }
 
-  const wageLimit = Math.max(0.5 * wages, 0.25 * wages + 0.025 * ubiaAmount);
-  if (wageLimit >= tentative) {
-    return { component: tentative, findings };
+  const tentativeIn = 0.2 * qbiIn;
+  const wageLimit = Math.max(0.5 * wagesIn, 0.25 * wagesIn + 0.025 * ubiaIn);
+  if (wageLimit >= tentativeIn) {
+    return { component: tentativeIn, countedQbi: qbiIn, findings };
   }
-  const overage = tentative - wageLimit;
-  const component = fullyAbove ? wageLimit : tentative - overage * ratio;
+  const overage = tentativeIn - wageLimit;
+  const component = fullyAbove ? wageLimit : tentativeIn - overage * ratio;
   findings.push({
     severity: 'medium',
     title: fullyAbove ? 'Limited by W-2 wages / UBIA of qualified property' : 'Partly limited by W-2 wages / UBIA of qualified property',
-    detail: `The greater of 50% of W-2 wages or 25% of W-2 wages plus 2.5% of UBIA is ${money(wageLimit)}, below the unlimited 20% of QBI (${money(tentative)}). ${fullyAbove ? 'Above the phase-in range, the limit applies in full.' : `At ${Math.round(ratio * 100)}% through the phase-in range, the reduction is applied proportionally.`}`,
+    detail: `The greater of 50% of W-2 wages or 25% of W-2 wages plus 2.5% of UBIA is ${money(wageLimit)}, below the unlimited 20% of QBI (${money(tentativeIn)}). ${fullyAbove ? 'Above the phase-in range, the limit applies in full.' : `At ${Math.round(ratio * 100)}% through the phase-in range, the reduction is applied proportionally.`}`,
   });
-  return { component, findings };
+  return { component, countedQbi: qbiIn, findings };
 }
 
 /**
@@ -176,31 +187,18 @@ export function computeQbiDeduction({
   reitPtpIncome = 0,
   marginalRatePercent = 0,
 } = {}) {
-  const { component, findings } = computeBusinessComponent({
+  const { component, countedQbi, findings } = computeBusinessComponent({
     taxYear, filingStatus, taxableIncome, qbi, isSstb, w2Wages, ubia,
   });
 
   const reitPtpComponent = 0.2 * nonNeg(reitPtpIncome);
-  let combined = component + reitPtpComponent;
-
-  const table = THRESHOLDS[taxYear];
-  const qbiAmount = num(qbi);
-  let appliedMinimum = false;
-  if (table?.minDeduction && qbiAmount >= table.minDeductionFloor && combined < table.minDeduction) {
-    appliedMinimum = true;
-    combined = table.minDeduction;
-    findings.push({
-      severity: 'info',
-      title: 'Minimum deduction applies',
-      detail: `Starting tax year 2026 (OBBBA), a filer with at least ${money(table.minDeductionFloor)} of QBI from an active qualified trade or business can claim at least a ${money(table.minDeduction)} QBI deduction, even though the formula above alone would produce less.`,
-    });
-  }
+  const combined = component + reitPtpComponent;
 
   const ti = nonNeg(taxableIncome);
   const ncg = nonNeg(netCapitalGain);
   const overallLimit = 0.2 * Math.max(0, ti - ncg);
   const limitedByOverallCap = combined > overallLimit;
-  const deduction = Math.max(0, Math.min(combined, overallLimit));
+  let deduction = Math.max(0, Math.min(combined, overallLimit));
 
   if (limitedByOverallCap) {
     findings.push({
@@ -210,11 +208,27 @@ export function computeQbiDeduction({
     });
   }
 
+  // 199A(i): the floor applies to the deduction itself, after the cap above.
+  const table = THRESHOLDS[taxYear];
+  let appliedMinimum = false;
+  if (table?.minDeduction && countedQbi >= table.minDeductionFloor && deduction < table.minDeduction) {
+    appliedMinimum = true;
+    deduction = table.minDeduction;
+    findings.push({
+      severity: 'info',
+      title: 'Minimum deduction applies',
+      detail: `Starting tax year 2026 (OBBBA), a filer with at least ${money(table.minDeductionFloor)} of QBI from an active qualified trade or business (one they materially participate in) can claim at least a ${money(table.minDeduction)} QBI deduction, even though the formula and the taxable-income cap alone would produce less.`,
+    });
+  }
+
   if (deduction > 0 && findings.length === 0) {
+    const { threshold } = thresholdFor(taxYear, filingStatus);
     findings.push({
       severity: 'info',
       title: 'Full 20% applies, no limitation reached',
-      detail: `Below the taxable-income threshold for this filing status, and under the overall cap: the deduction is the unreduced 20% of QBI.`,
+      detail: ti <= threshold
+        ? `Below the taxable-income threshold for this filing status, and under the overall cap: the deduction is the unreduced 20% of QBI.`
+        : `Taxable income is above the ${money(threshold)} threshold, but the W-2 wage / UBIA limit is at least 20% of QBI and the overall cap does not bind: the deduction is the unreduced 20% of QBI.`,
     });
   }
 
