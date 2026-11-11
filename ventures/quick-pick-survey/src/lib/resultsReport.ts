@@ -6,7 +6,7 @@
 // any person, and the report says so on its face.
 import type { Coverage, RankedItem } from "./groupRanking";
 
-/** Branding the owner types, plus `agreement`: the route's respondent-agreement note (groupRanking.ts agreementSummary), never a query parameter. */
+/** Branding the owner types, plus `agreement`: the route's data-quality notes (slot clickers left out, respondent agreement; groupRanking.ts), never a query parameter. */
 export type Brand = { name?: string; logo?: string; colour?: string; note?: string; agreement?: string };
 
 const esc = (s: unknown) =>

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, type ParticipantRatingRow } from "./groupRanking";
+import { FIRST_OPTION_FALLBACK_SHARE, FIRST_OPTION_MIN_DECIDED } from "./pairing";
+import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, SLOT_CLICK_MIN_DECIDED, SLOT_CLICK_SHARE, slotClickerAdvice, slotClickers, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, type ParticipantRatingRow } from "./groupRanking";
 
 // Small seeded PRNG so the coverage check is reproducible.
 function mulberry(seed: number) {
@@ -208,5 +209,26 @@ describe("agreementSummary", () => {
     const split = agreementSummary([0.9, 0.8, -0.2, 0.1, 0.6, 0.75, 0.05].map(a));
     expect(split.low).toBe(3);
     expect(split.advice).toMatch(/split into groups/);
+  });
+});
+
+describe("slotClickers", () => {
+  it("uses the selector's own first-option rule (pairing.ts), so the two cannot drift", () => {
+    expect(SLOT_CLICK_MIN_DECIDED).toBe(FIRST_OPTION_MIN_DECIDED);
+    expect(SLOT_CLICK_SHARE).toBe(FIRST_OPTION_FALLBACK_SHARE);
+  });
+  it("flags a one-sided slot share from 30 decided answers, either side, and nobody near half", () => {
+    const out = slotClickers([
+      { participantId: "top", first: 28, second: 2 },
+      { participantId: "bottom", first: 9, second: 21 },
+      { participantId: "edge", first: 21, second: 9 }, // exactly 0.7
+      { participantId: "honest", first: 17, second: 13 },
+      { participantId: "short", first: 29, second: 0 }, // under 30 decided
+    ]);
+    expect([...out].sort()).toEqual(["bottom", "edge", "top"]);
+  });
+  it("advice names the count and is empty when nobody was left out", () => {
+    expect(slotClickerAdvice(0, 12)).toBe("");
+    expect(slotClickerAdvice(2, 12)).toMatch(/^2 of 12 respondents .* at least 70% .* left out of this ranking\.$/);
   });
 });

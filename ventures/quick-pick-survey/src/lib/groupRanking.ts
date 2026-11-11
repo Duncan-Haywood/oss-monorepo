@@ -288,3 +288,37 @@ export function agreementSummary(agreements: RespondentAgreement[]): AgreementSu
     "The ranking counts every respondent equally.";
   return { checked: scored.length, low, advice };
 }
+
+/** A respondent's decided answers by slot: `first` picked the option shown first (result "A"), `second` the other. */
+export type SlotCounts = { participantId: string; first: number; second: number };
+
+/**
+ * Respondents whose answers follow the screen, not the options: from
+ * SLOT_CLICK_MIN_DECIDED decided answers, a first-slot share at or beyond
+ * SLOT_CLICK_SHARE either way (the rule the selector already uses).
+ * Slots are shuffled per pair, so their picks say nothing about the options;
+ * the ranking leaves them out. In the careless-pattern sweep this caught every
+ * slot clicker, flagged 0.3-0.7% of honest respondents (60 answers each; by chance 4.3% at 30, 0.01% at 100), never flagged a group
+ * with a different taste, and recovered what the clickers cost the pool (up to
+ * +0.078 Spearman on 8-person panels; docs/INFORMATION-GAIN-SELECTOR.md).
+ */
+// pairing.ts's FIRST_OPTION_MIN_DECIDED and FIRST_OPTION_FALLBACK_SHARE, copied so this module keeps no imports
+// (scripts/build-sample-report.mjs runs it under Node's type stripping); groupRanking.test.ts fails if they drift.
+export const SLOT_CLICK_MIN_DECIDED = 30;
+export const SLOT_CLICK_SHARE = 0.7;
+
+export function slotClickers(counts: SlotCounts[]): Set<string> {
+  const out = new Set<string>();
+  for (const c of counts) {
+    const decided = c.first + c.second;
+    const share = decided > 0 ? c.first / decided : 0.5;
+    if (decided >= SLOT_CLICK_MIN_DECIDED && (share >= SLOT_CLICK_SHARE || share <= 1 - SLOT_CLICK_SHARE)) out.add(c.participantId);
+  }
+  return out;
+}
+
+/** One plain sentence for the owner when slot clickers were left out, or "". */
+export function slotClickerAdvice(left: number, participants: number): string {
+  if (left === 0) return "";
+  return `${left} of ${participants} respondents picked the same position on screen (top or bottom) at least ${Math.round(SLOT_CLICK_SHARE * 100)}% of the time over ${SLOT_CLICK_MIN_DECIDED} or more answers. Positions are shuffled, so those picks say nothing about the options, and they are left out of this ranking.`;
+}

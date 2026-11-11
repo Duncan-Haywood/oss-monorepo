@@ -165,7 +165,9 @@ Signed in as admin, `POST /api/admin/surveys` with `{"title": "...", "items": "o
 `GET /api/admin/surveys/<slug>/ranking` returns the pooled ranking; add `?format=csv` to download it.
 Each item carries a 95% interval from a random-effects pool of the respondents' Glicko-2 ratings
 (so disagreement widens it) and a best/worst rank range: items whose intervals overlap share a range
-rather than being ordered by noise. The response also carries `agreement`: each respondent's
+rather than being ordered by noise. Respondents who clicked one screen position regardless
+of the options (first-slot share at or beyond 70% either way over 30+ answers; slots are shuffled
+per pair) are left out of the pool, and `leftOut` says how many. The response also carries `agreement`: each respondent's
 ratings are rank-correlated with everyone else's pool (leave one out), and when 5 or more could
 be scored and any fall under 0.2, a note says how many (shown in the builder and the report).
 It is a data-quality note, never a weight: careless clicking by something other than the

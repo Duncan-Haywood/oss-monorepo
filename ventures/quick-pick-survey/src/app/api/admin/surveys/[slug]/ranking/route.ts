@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { agreementSummary, coverage, groupRanking, rankingCsv, respondentAgreement } from "@/lib/groupRanking";
+import { agreementSummary, coverage, groupRanking, rankingCsv, respondentAgreement, slotClickerAdvice, slotClickers } from "@/lib/groupRanking";
 import { CHECKOUT_URL, VALIDATE_URL } from "@/lib/checkout";
 import { reportGate } from "@/lib/reportAccess";
 import { resultsReportHtml } from "@/lib/resultsReport";
@@ -29,9 +29,25 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       select: { participantId: true, itemId: true, rating: true, rd: true },
       take: 200000,
     });
-    const ranked = groupRanking(survey.items, ratings);
-    // A data-quality note only: the ranking above counts everyone equally (groupRanking.ts, agreementSummary).
-    const agreement = agreementSummary(respondentAgreement(ratings));
+    // Respondents who clicked one screen position regardless of the options are left out (groupRanking.ts slotClickers).
+    const slots = await prisma.trial.groupBy({
+      by: ["participantId", "result"],
+      where: { result: { in: ["A", "B"] }, participant: { survey: { slug } } },
+      _count: { _all: true },
+    });
+    const bySlot = new Map<string, { participantId: string; first: number; second: number }>();
+    for (const r of slots) {
+      const c = bySlot.get(r.participantId) ?? { participantId: r.participantId, first: 0, second: 0 };
+      if (r.result === "A") c.first += r._count._all;
+      else c.second += r._count._all;
+      bySlot.set(r.participantId, c);
+    }
+    const clickers = slotClickers([...bySlot.values()]);
+    const kept = clickers.size ? ratings.filter((r) => !clickers.has(r.participantId)) : ratings;
+    const ranked = groupRanking(survey.items, kept);
+    const leftOut = { slotClickers: clickers.size, advice: slotClickerAdvice(clickers.size, survey._count.participants) };
+    // A data-quality note only: the ranking above counts everyone else equally (groupRanking.ts, agreementSummary).
+    const agreement = agreementSummary(respondentAgreement(kept));
     const answered = await prisma.trial.groupBy({
       by: ["participantId"],
       where: { result: { not: null }, participant: { survey: { slug } } },
@@ -54,12 +70,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
       const q = req.nextUrl.searchParams;
       const html = resultsReportHtml(survey.title, ranked, coverage(ranked, survey._count.participants, medianAnswers), survey._count.participants, {
-        agreement: agreement.advice || undefined,
+        agreement: [leftOut.advice, agreement.advice].filter(Boolean).join(" ") || undefined,
         name: q.get("name") ?? undefined, logo: q.get("logo") ?? undefined, colour: q.get("colour") ?? undefined, note: q.get("note") ?? undefined,
       });
       return new NextResponse(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
     }
-    return NextResponse.json({ title: survey.title, participants: survey._count.participants, ranking: ranked, coverage: coverage(ranked, survey._count.participants, medianAnswers), agreement });
+    return NextResponse.json({ title: survey.title, participants: survey._count.participants, ranking: ranked, coverage: coverage(ranked, survey._count.participants, medianAnswers), agreement, leftOut });
   } catch (err) {
     console.error("admin/surveys ranking failed", err);
     return NextResponse.json({ error: "Could not compute the ranking" }, { status: 500 });
