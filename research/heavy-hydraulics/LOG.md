@@ -2,6 +2,14 @@
 
 Newest first.
 
+## 2026-11-11 · Milestone 5n: the first measured pressure-and-fuel trace, a 6 t load-sensing wheel loader (Zenodo 10639199); predictions registered before the first run
+- Why: BLOCKED since 2026-11-03 for want of a measured pressure/fuel trace. A Zenodo search ("wheel loader bucket filling") found Linjama, Huova, Tammisto, Tervonen and Ahola, "6-ton wheel loader short Y-cycle data for 440 seconds loading of gravel", Zenodo doi:10.5281/zenodo.10639199 (CC BY 4.0, 2024): 2 ms samples of lift, tilt and stabilizer cylinder positions and chamber pressures, work-pump outlet pressure, engine speed and ECU fuel rate on a 63 cc variable work pump and an 83 kW diesel, measured 2017-08-02 at Tampere University. Not an excavator, but the first real machine in this programme with pump pressure, actuator pressures and fuel on one clock.
+- **Predictions (written before any statistic was computed):**
+  - P1: during boom or bucket motion (P-port flow above 5 L/min), the median of pump pressure minus the highest moving-actuator inlet pressure lies in 14 to 30 bar, the margin range swept since 2d. Prior 60%. Refuted if outside.
+  - P2: the model's load-sensing rung, `Q x (p_max + dp_ls)` with the median measured margin, reproduces the measured work-pump hydraulic energy of the record within 15%. Prior 50%. (Weak test: both sides share the same flow, so only the constant-margin assumption is tested.)
+  - P3: on this measured cycle a fixed 63 cc open-centre pump uses 1.5 to 3.0 times the load-sensing pump hydraulic energy (milestone 1's median, 47%, is a ratio of 2.1). Prior 55%.
+  - P4: through a Willans line fitted to the record's own fuel rate against engine power, open-centre working hydraulics would raise the machine's fuel by 10 to 30% over the measured fuel. Prior 50%.
+
 ## 2026-11-03 · Milestone 5m: where the CWA electric-excavator profile comes from (a reading step, no experiment)
 - Read the draft CWA (CEN-CENELEC workshop on BATSS, draft CWA XXXXX, section 6, https://www.cencenelec.eu/media/CEN-CENELEC/News/Workshops/2026/20260625_BATTS/draft_cwa_xxxxx_-e.pdf; text extracted with pdftotext). 5l's open question is answered, and it corrects how 5l and the load factor 0.346 were framed.
 - Zenodo 18862594 is the **theoretical** reference profile, not a measurement: digging and grading power computed for a **75 t, 410 kW diesel** excavator (after Fecke's PhD thesis, Tranplhyn project) and scaled linearly to a 100 kW motor (section 6.1, 6.4; the 133 kW peak is the grading case). The CWA's own Table 2: theoretical digging 93 kW peak / 35 kW mean, grading 133 / 56. Two **real** BATSS electric excavators: 13 t class 81 kW peak / 40 kW mean, and 20 t class 92 / 49 kW (1 min sampling).
