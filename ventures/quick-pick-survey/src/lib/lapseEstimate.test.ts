@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_GLICKO_STATE, type GlickoState } from "@/lib/glicko2";
-import { estimateLapse, LAPSE_GRID, lapsePosterior, pickProbability, type LapseAnswer } from "@/lib/lapseEstimate";
+import { estimateLapse, LAPSE_GRID, lapsePosterior, pickProbability, pooledLapsePrior, posteriorMean, type LapseAnswer } from "@/lib/lapseEstimate";
 
 const st = (rating: number, rd = 50): GlickoState => ({ ...DEFAULT_GLICKO_STATE, rating, rd });
 
@@ -59,5 +59,55 @@ describe("lapsePosterior and estimateLapse", () => {
   it("has a grid from 0 to 0.9", () => {
     expect(LAPSE_GRID[0]).toBe(0);
     expect(LAPSE_GRID[LAPSE_GRID.length - 1]).toBeCloseTo(0.9, 12);
+  });
+});
+
+/** Grid log-likelihood of n anchor answers with win chance p, `wrong` of them against it. */
+const anchorLL = (n: number, wrong: number, p = 0.95) =>
+  LAPSE_GRID.map((e) => {
+    const q = e / 2 + (1 - e) * p;
+    return (n - wrong) * Math.log(q) + wrong * Math.log(1 - q);
+  });
+const flat = LAPSE_GRID.map(() => 0);
+
+describe("posteriorMean", () => {
+  it("is the grid mean under a flat likelihood and prior", () => {
+    expect(posteriorMean(flat, flat)).toBeCloseTo(0.45, 12);
+  });
+  it("rises with anchor answers against the person's own clear preference", () => {
+    expect(posteriorMean(anchorLL(10, 0), flat)).toBeLessThan(posteriorMean(anchorLL(10, 3), flat));
+  });
+  it("rejects a likelihood off the grid", () => {
+    expect(() => posteriorMean([0, 0], flat)).toThrow(RangeError);
+  });
+});
+
+describe("pooledLapsePrior", () => {
+  it("is uniform with no respondents and sums to one", () => {
+    const w = pooledLapsePrior([]);
+    expect(w.reduce((s, x) => s + x, 0)).toBeCloseTo(1, 12);
+    expect(w[0]).toBeCloseTo(w[w.length - 1], 12);
+  });
+  it("puts its mass near zero for a survey of honest respondents", () => {
+    const w = pooledLapsePrior(Array.from({ length: 40 }, () => anchorLL(10, 0)));
+    const m = w.reduce((s, x, k) => s + x * LAPSE_GRID[k], 0);
+    expect(m).toBeLessThan(0.08);
+  });
+  it("shrinks a person with one slip toward an honest survey, less toward a careless one", () => {
+    const honest = pooledLapsePrior(Array.from({ length: 40 }, () => anchorLL(10, 0)));
+    const careless = pooledLapsePrior(Array.from({ length: 40 }, () => anchorLL(10, 4)));
+    const one = anchorLL(10, 1);
+    const inHonest = posteriorMean(one, honest.map(Math.log));
+    const inCareless = posteriorMean(one, careless.map(Math.log));
+    expect(inHonest).toBeLessThan(posteriorMean(one, flat));
+    expect(inCareless).toBeGreaterThan(inHonest);
+  });
+  it("finds the two groups of a mixed survey", () => {
+    const lls = [...Array.from({ length: 30 }, () => anchorLL(40, 2)), ...Array.from({ length: 10 }, () => anchorLL(40, 11))];
+    const w = pooledLapsePrior(lls);
+    // Mass at or below 0.2 is about 3/4, matching the honest share.
+    const low = w.reduce((s, x, k) => s + (LAPSE_GRID[k] <= 0.2 ? x : 0), 0);
+    expect(low).toBeGreaterThan(0.65);
+    expect(low).toBeLessThan(0.85);
   });
 });
