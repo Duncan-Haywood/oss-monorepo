@@ -228,10 +228,42 @@ seven opponents arriving straight from the same side; the least possible is 48).
 
   The professional schedules already avoid the circle pattern; the tool lands among them on both
   counts, without their derby, policing and broadcast constraints. Not yet: a real rec league's
-  strength data (does carry-over move results at that level?), a double round robin optimised as a
-  whole rather than mirrored (mirroring doubles every count: worst 6 for 18 and 20 teams), and the
+  strength data (does carry-over move results at that level?), and the
   search's gap to the floor (12 teams: 156 non-cyclic against a floor of 120; whether that is the
   optimum is unknown).
+
+## A double round robin searched as a whole (2026-11-11)
+
+Mirroring the first half of a home-and-away season repeats every carry-over step, so every count
+doubles. `lowCarryOverDoubleRounds(n, { seed, effort, breakWeight })` in `carryover.mjs` searches the
+second half as a round robin of its own, and `buildSchedule` uses it whenever "Spread who you meet
+next" and a double round robin are both ticked.
+
+- Leg one is the single search's result (rounds and home/away). Leg two starts as leg one played
+  backwards with leg one's last round moved to the end: backwards turns every step i -> j into
+  j -> i, so counts spread instead of doubling, and each team's home/away pattern is leg one's
+  reversed and flipped. With `breakWeight` only leg two moves and its venues follow from leg one,
+  so the breaks in the cost are exact; with 0 both legs move on carry-over alone.
+- Kept: each pair meets once per leg (phased, as the date placement plays leg by leg), the return
+  game at the other ground (every team n - 1 home, n - 1 away), no team meets the same side twice
+  running across the halfway point and no team sits out twice running (penalty 1000 each, 0 in
+  every test). `assignVenuesDouble` then improves home/away with one choice per pair.
+- `carryOverFromOpponents` now counts the diagonal in its floor only when a schedule has a
+  back-to-back repeat (`repeats`): a double round robin can, a single one cannot. None of the 20
+  real seasons does, so their floors are unchanged.
+- Measured (`eval/carryover-real.txt`, last columns, seed 1):
+
+  | Teams | Mirrored, w=10 | Whole season, w=10 | Whole season, carry-over only | Floor |
+  |---|---|---|---|---|
+  | 18 | 1,926 / 74 breaks | 1,498 / 88 | 1,334 / 142 | 1,170 |
+  | 20 | 2,136 / 114 | 1,678 / 124 | 1,596 / 184 | 1,460 |
+
+  The 20-team result is below all 14 professional 20-team seasons (2,278 to 2,564) and inside
+  their break range (70 to 146); the 18-team one is below the Bundesliga (3,474+) and Ligue 1
+  (1,840, 1,948), with more breaks than the Bundesliga's minimum 48. 8 teams, carry-over only,
+  reaches the 200 floor (test). About 2 to 2.5 s for 18 to 20 teams in Node.
+- Open: breaks still rise 10 to 19% over mirroring; a search that moves leg one too under exact
+  breaks, or a break-minimal leg-two order (the "French" and "English" schemes) as extra starts.
 
 ## Several divisions on shared courts (`divisions.mjs`)
 

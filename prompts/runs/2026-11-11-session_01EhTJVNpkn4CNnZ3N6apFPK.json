@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVNpkn4CNnZ3N6apFPK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-1.md)",
+  "input_sha256": "81e5291c5a6f5ce849df079cc13c27fdbb43204449c00ae7b9c6f7742db70807",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T06:06:30Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 9 (league-schedule-generator): double round robin optimised as a whole instead of mirrored",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 14709,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-dont-mirror-your-home-and-away-season.md"
+  ],
+  "goal": null,
+  "notes": "No website requests open; flagships 1-2 had open PRs or needed outside inputs, took flagship 9's top item. lowCarryOverDoubleRounds: 20 teams 1,678/124 breaks vs 2,136/114 mirrored, 18 teams 1,498/88 vs 1,926/74 (eval/carryover-real.txt). First attempts (scrambled leg two, greedy break estimate) raised breaks to 170-180 for 20 teams; fixing leg one and scoring exact breaks on leg two fixed it. Found and fixed a lower-bound bug: a double round robin can repeat an opponent at the leg boundary, so the floor must count the diagonal then. Checks: carryover.test.mjs 10/10, devlog tests 11/11, venture suite and preflight run locally (see PR).",
+  "corrections": [],
+  "redteam": null
+}

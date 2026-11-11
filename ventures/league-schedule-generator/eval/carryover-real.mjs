@@ -9,11 +9,13 @@
 // "Planned" orders each team's games by matchday (the published fixture list); "played" orders
 // them by match date (postponed games move). COE is Russell's carry-over value, non-cyclic (a
 // season does not wrap): sum over (i, j) of c[i][j]^2, c[i][j] = how many teams play i and then j.
+// Columns after the last bar: the double round robin searched as a whole (carry-over only, then
+// with breakWeight 10 as the page uses) and the floor for that many games with no repeats.
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { carryOverFromOpponents, lowCarryOverRounds } from "../carryover.mjs";
+import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds } from "../carryover.mjs";
 import { roundRobin } from "../calc.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -73,7 +75,13 @@ export function run({ seed = 1, effort = 1 } = {}) {
       const balD = mirror(bal.rounds);
       const lowC = carryOverFromOpponents(doubleOpponents(n, lowD));
       const balC = carryOverFromOpponents(doubleOpponents(n, balD));
+      // the whole season searched (second leg its own round robin), as buildSchedule now does
+      const whole = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight: 10 });
+      const wholeC = carryOverFromOpponents(doubleOpponents(n, whole.rounds));
+      const wholeOnly = lowCarryOverDoubleRounds(n, { seed, effort });
       cache.set(n, {
+        whole: wholeC.value, wholeMax: wholeC.max, wholeBreaks: breaksOf(n, whole.rounds),
+        wholeOnly: wholeOnly.coe, wholeOnlyBreaks: breaksOf(n, wholeOnly.rounds), doubleLowerBound: whole.lowerBound,
         circle: carryOverFromOpponents(doubleOpponents(n, circ)).value,
         circleHalf: carryOverFromOpponents(doubleOpponents(n, roundRobin(n))).value,
         circleBreaks: breaksOf(n, circ),
@@ -99,8 +107,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const rows = run();
   if (process.argv.includes("--json")) { console.log(JSON.stringify(rows, null, 1)); process.exit(0); }
   const pad = (s, w) => String(s).padStart(w);
-  console.log(`${"season".padEnd(14)}${pad("teams", 6)}${pad("planned", 9)}${pad("played", 8)}${pad("1st half", 9)}${pad("max c", 6)}${pad("breaks", 7)} | ${pad("circle", 7)}${pad("half", 6)}${pad("brk", 5)} | ${pad("search", 7)}${pad("half", 6)}${pad("brk", 5)}${pad("half LB", 8)} | ${pad("w=10", 6)}${pad("brk", 5)}`);
+  console.log(`${"season".padEnd(14)}${pad("teams", 6)}${pad("planned", 9)}${pad("played", 8)}${pad("1st half", 9)}${pad("max c", 6)}${pad("breaks", 7)} | ${pad("circle", 7)}${pad("half", 6)}${pad("brk", 5)} | ${pad("search", 7)}${pad("half", 6)}${pad("brk", 5)}${pad("half LB", 8)} | ${pad("w=10", 6)}${pad("brk", 5)} | ${pad("whole", 6)}${pad("brk", 5)}${pad("w=10", 6)}${pad("brk", 5)}${pad("LB", 6)}`);
   for (const r of rows) {
-    console.log(`${r.key.padEnd(14)}${pad(r.teams, 6)}${pad(r.plannedCoe, 9)}${pad(r.playedCoe, 8)}${pad(r.plannedHalfCoe, 9)}${pad(r.plannedMax, 6)}${pad(r.plannedBreaks, 7)} | ${pad(r.circle, 7)}${pad(r.circleHalf, 6)}${pad(r.circleBreaks, 5)} | ${pad(r.low, 7)}${pad(r.lowHalf, 6)}${pad(r.lowBreaks, 5)}${pad(r.halfLowerBound, 8)} | ${pad(r.balanced, 6)}${pad(r.balancedBreaks, 5)}`);
+    console.log(`${r.key.padEnd(14)}${pad(r.teams, 6)}${pad(r.plannedCoe, 9)}${pad(r.playedCoe, 8)}${pad(r.plannedHalfCoe, 9)}${pad(r.plannedMax, 6)}${pad(r.plannedBreaks, 7)} | ${pad(r.circle, 7)}${pad(r.circleHalf, 6)}${pad(r.circleBreaks, 5)} | ${pad(r.low, 7)}${pad(r.lowHalf, 6)}${pad(r.lowBreaks, 5)}${pad(r.halfLowerBound, 8)} | ${pad(r.balanced, 6)}${pad(r.balancedBreaks, 5)} | ${pad(r.wholeOnly, 6)}${pad(r.wholeOnlyBreaks, 5)}${pad(r.whole, 6)}${pad(r.wholeBreaks, 5)}${pad(r.doubleLowerBound, 6)}`);
   }
 }
