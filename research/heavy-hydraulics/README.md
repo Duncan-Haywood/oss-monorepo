@@ -9,7 +9,7 @@ holds in every case, but only because each rung removes a loss term; the cycle a
 not sourced, so this is a first-order calculation, not a measurement of any machine.
 See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
-**Latest (5o, 2026-11-11): load-sensing vs open-centre on a measured machine, with the motion threshold measured.** On a public 440 s trace of a 6 t load-sensing wheel loader loading gravel (Linjama et al., Zenodo [10.5281/zenodo.10639199](https://doi.org/10.5281/zenodo.10639199), CC BY 4.0), the measured load-sensing margin is a median **24.9 bar** and the model's load-sensing rung reproduces measured pump energy to **2.3%** (5n). A fixed-pump open-centre circuit on the same motion needs at least **1.37 times** the load-sensing pump energy whatever its bypass closing law, and **1.54 times** (per-cycle 1.46 to 1.63) with a 10 bar spool drop, adding **14.7%** to fuel, now that the small-flow threshold 5n chose is measured from the data (0.80 L/min lift, 1.76 L/min tilt). See "Milestone 5o" below. **5p (same day):** the 6 bar open-centre spool drop used in the force-model cycles since 2d sits just above the least drop any Danfoss PVG 32 section could have at those flows (4.8 to 5.3 bar), so the earlier ranking stands (load-sensing ahead at a 14 bar margin; break-even 26.5 to 27.2 bar instead of 28.0); see "Milestone 5p". **5q (same day):** sized once per function, as real valves are, the floor drops to 2.3 bar and the break-even to **23.0 bar**; with no open-centre drop at all it is **20.6 bar**, so a 14 bar load-sensing margin beats any open-centre valve here, while 25 bar margins (thesis model; the measured loader's 24.9) sit where the real partial-lever drop decides; see "Milestone 5q".
+**Latest (5o, 2026-11-11): load-sensing vs open-centre on a measured machine, with the motion threshold measured.** On a public 440 s trace of a 6 t load-sensing wheel loader loading gravel (Linjama et al., Zenodo [10.5281/zenodo.10639199](https://doi.org/10.5281/zenodo.10639199), CC BY 4.0), the measured load-sensing margin is a median **24.9 bar** and the model's load-sensing rung reproduces measured pump energy to **2.3%** (5n). A fixed-pump open-centre circuit on the same motion needs at least **1.37 times** the load-sensing pump energy whatever its bypass closing law, and **1.54 times** (per-cycle 1.46 to 1.63) with a 10 bar spool drop, adding **14.7%** to fuel, now that the small-flow threshold 5n chose is measured from the data (0.80 L/min lift, 1.76 L/min tilt). See "Milestone 5o" below. **5p (same day):** the 6 bar open-centre spool drop used in the force-model cycles since 2d sits just above the least drop any Danfoss PVG 32 section could have at those flows (4.8 to 5.3 bar), so the earlier ranking stands (load-sensing ahead at a 14 bar margin; break-even 26.5 to 27.2 bar instead of 28.0); see "Milestone 5p". **5q (same day):** sized once per function, as real valves are, the floor drops to 2.3 bar and the break-even to **23.0 bar**; with no open-centre drop at all it is **20.6 bar**, so a 14 bar load-sensing margin beats any open-centre valve here, while 25 bar margins (thesis model; the measured loader's 24.9) sit where the real partial-lever drop decides; see "Milestone 5q". **5r (same day):** on the measured loader the PVG 32 floor moves open-centre only from 1.40 to **1.42 times** load-sensing pump energy (11.3% more fuel), so there the penalty is structural, not the spool; the bracket is 1.42 to 1.54 (11 to 15% fuel); see "Milestone 5p".
 
 **Live page:** https://marisstella.app/research/heavy-hydraulics/
 
@@ -33,6 +33,7 @@ PYTHONPATH=src python3 experiments/regen_bound.py > experiments/regen_bound_resu
 python3 experiments/regen_peaky.py > experiments/regen_peaky_results.txt  # milestone 5e, under 1 s
 python3 experiments/spool_floor_synthetic.py                 # milestone 5p, 14 s
 python3 experiments/spool_function_sizing.py                 # milestone 5q, 32 s
+python3 experiments/spool_floor.py <Short_Y_cycle_data.mat>  # milestone 5r, 3 s (numpy, scipy; Zenodo 10639199)
 python3 experiments/regen_measured.py <dir of the CC BY PATU 655 crane data, doi 10.17632/rn5j42rpyr.1>  # milestone 5g, needs numpy
 ```
 
@@ -89,8 +90,14 @@ its demand. Predictions S1 to S3 were registered in [`LOG.md`](LOG.md) before th
 
 Reading: the measured 6 bar was close to the physical floor, so 2n's ranking stands: load-sensing wins at the
 Rexroth 14 bar margin in every row; at a 25 bar margin it depends on how tightly open-centre spools are sized.
-The measured-loader version (`experiments/spool_floor.py`, predictions R1 to R5) is written but not yet run:
-Zenodo refused this session's proxy. Reproduce: `python3 experiments/spool_floor_synthetic.py` (stdlib, 14 s).
+**On the measured loader (5r).** `experiments/spool_floor.py` ran once Zenodo was reachable again; all five
+registered predictions (R1 to R5) held. With the full-travel floor, open-centre needs **1.424 times** the
+measured load-sensing pump hydraulic energy (11.3% more fuel), against 1.40 with no spool drop (5o), per cycle
+1.35 to 1.51 (95% bootstrap), minimum 1.22. R4 (sizing makes little difference) held only because every rule
+picks spool E, the largest PVG 32 spool: the lift section passes more than its 100 L/min rating in 11.2% of
+moving samples, 30.2% of its moving hydraulic energy, so there the floor is extrapolated. Source:
+[`experiments/spool_floor_results.txt`](experiments/spool_floor_results.txt).
+Reproduce: `python3 experiments/spool_floor_synthetic.py` (stdlib, 14 s); `python3 experiments/spool_floor.py <Short_Y_cycle_data.mat>` (numpy, scipy, 3 s).
 
 ## Milestone 5o: what counts as motion, measured, and an open-centre floor
 

@@ -2,9 +2,20 @@
 
 Newest first.
 
-## 2026-11-11 · Milestone 5r: run 5p's registered R1 to R5 on the measured loader (Zenodo reachable again)
-- Why: 5p wrote `experiments/spool_floor.py` and registered R1 to R5 before any run, but zenodo.org refused the proxy that session. It answered at the start of this one, so the measured half of 5p runs now with the predictions unchanged.
-- In progress.
+## 2026-11-11 · Milestone 5r: 5p's registered R1 to R5 on the measured loader (Zenodo reachable again)
+- Why: 5p wrote `experiments/spool_floor.py` and registered R1 to R5 before any run, but zenodo.org refused the proxy that session. It answered at the start of this one (HTTP 200 at about 13:05 UTC; the 96 MB `Short_Y_cycle_data.mat` downloaded in under a minute), so the measured half of 5p ran with the predictions unchanged. Data check: `experiments/measured_motion.py` on this download reproduces `measured_motion_results.txt` byte for byte.
+- Code changes before the first run: none to the computation. After it, two edits that leave every number unchanged: the weighted-drop mean now subtracts only moving samples (the old line computed `-inf - -inf` on still samples and then masked them, a NumPy warning), and each sizing rule now prints how much of each section's moving flow exceeds its spool's rated flow.
+
+### Outcome of 5r (`experiments/spool_floor.py`, `experiments/spool_floor_results.txt`, 2.4 s)
+- **R1 holds.** Orifice floor, p99.9 sizing, p_neutral 5 bar: open-centre needs **1.424 times** the measured load-sensing pump hydraulic energy (shaft 1.346, **11.3% more fuel**); 1.455 at p_neutral 10 bar. 5o's zero-drop floor was 1.40, so the PVG 32 full-travel drop adds 0.024.
+- **R2 holds.** Hydraulic-energy-weighted extra drop while moving 2.59 bar (orifice), 2.11 (power law).
+- **R3 holds.** Power law minus orifice: 0.005 in the ratio.
+- **R4 holds, but vacuously.** Every sizing rule picks spool E, the largest PVG 32 spool (100 L/min): lift needs 121.6 to 133.2 L/min and tilt 81.6 to 132.8 L/min, so the span is 0.000 because there is nothing to choose. I did not foresee this when registering R4; I had not checked the trace's flows against the spool range.
+- **R5 holds.** Per cycle (18), mean 1.419 (95% bootstrap 1.350 to 1.506), minimum 1.224.
+- Not predicted: on the lift section, flow exceeds spool E's 100 L/min rating in **11.2% of moving samples carrying 30.2% of its moving hydraulic energy** (tilt 0.1%). There the floor extrapolates the orifice law past the rated point, so it describes a hypothetical larger spool of the same shape, not a PVG 32 that exists. A 6 t loader's lift circuit at 130 L/min is outside the PVG 32 range; the real machine's valve is not named in the record.
+- Reading: on a real machine's measured motion and pressures, the full-travel spool floor barely moves the open-centre penalty (1.40 to 1.42, p_neutral 5 bar). Almost all of it is structural: a fixed pump delivering its whole flow at the highest moving load pressure. So the open-centre counterfactual on this trace is bracketed at **1.42 to 1.54** times load-sensing pump energy (floor to 5o's 10 bar spool drop), **11 to 15% more fuel**, and the spool question that decided 5q's synthetic break-even does not decide this one. The bracket rests on the floor being a floor; the over-rating extrapolation makes the upper end of the floor drop (and so 1.424) less certain, not the lower bound 1.40.
+- Limits: unchanged from 5o and 5p (one wheel-loader record, counterfactual open-centre on the same motion with a 63 cc fixed pump, Willans slope from the ECU's power estimate, band-middle reading of the manual curves); PVG 32 is a stand-in valve family, too small for the lift flow.
+- Next: a valve family rated above 130 L/min (e.g. the Danfoss PVG 100 or a monoblock loader valve) to give the lift section a sourced floor; the partial-travel drop from the PVG 32 spool-travel curves for the synthetic excavator cycles (5q's open question).
 
 ## 2026-11-11 · Milestone 5q: size each open-centre section per function, not per phase (predictions registered before the first run)
 - Why: 5p's largest unpredicted lever was spool sizing. Its "3g sizing" picks a spool per actuator-phase from that phase's demand, which no machine does: a valve section is chosen once per function (boom, arm, bucket, swing) for the largest flow that function is ever asked to pass, so light phases run on an oversized spool whose full-travel floor is near zero. This step sizes per function and asks where the break-even margin goes, and how small an open-centre drop must be before the 25 bar thesis margin loses.
