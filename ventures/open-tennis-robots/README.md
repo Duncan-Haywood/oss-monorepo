@@ -47,8 +47,10 @@ hopper tub on a sloped shelf and four posts, a hose to the head, and a printed
 shuttle that meters one ball at a time to the wheels. The azimuth drive is modelled
 (a NEMA 17 and a printed gear sector, sized from the CAD's own turning
 inertia), and the head is checked for collisions turned as well as tilted.
-Not yet modelled: netting and trough, hopper agitator, and the shuttle and
-elevation actuators' brackets ([`cad/README.md`](cad/README.md)).
+The elevation drive is modelled too (2026-11-11): a 150 mm-stroke linear
+actuator outboard of the guard-side cheek, sized on the head's gravity moment
+measured from the CAD. Not yet modelled: netting and trough, hopper agitator,
+and the shuttle actuator's bracket ([`cad/README.md`](cad/README.md)).
 
 > **Status:** the collector is design v0.2 with a complete package; the
 > feeder is a v0.1 design. The physics, planners, tracker and firmware
@@ -146,8 +148,8 @@ PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures aft
    drive stack.
 2. **Feeder CAD**: launcher head, lateral base, mast and catch-net frame are
    in `manufacturing/feeder/` (v0.1), with the hopper, hose and feed shuttle.
-   Still to model: the actuator brackets (shuttle and elevation), netting
-   trough. The azimuth drive landed 2026-11-10. The hose and its sliding-sleeve take-up are
+   Still to model: the shuttle actuator's bracket, netting
+   trough. The azimuth drive landed 2026-11-10, the elevation drive 2026-11-11. The hose and its sliding-sleeve take-up are
    checked over the head's whole tilt and turn range (2026-11-10).
 3. Bench-test the feeder head: calibrate wheel efficiencies
    (`launcher.calibrate`) with a radar gun, then validate the flight model

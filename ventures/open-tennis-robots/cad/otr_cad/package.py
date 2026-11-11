@@ -211,7 +211,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
     rules = p.check()
     parts = M.all_parts(p)
     clash = collisions(parts)
-    turning = None
+    turning = gravity = None
     if feeder:
         clash += elevation_sweep(p)
         clash += azimuth_sweep(p)
@@ -220,6 +220,8 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
             rules = rules + [f"turning inertia from the CAD is {turning[0]:.4f} kg m^2, above the "
                              f"{p.az_inertia_kgm2:g} the azimuth check assumed: raise az_inertia_kgm2"]
         rules = rules + [r for r in p.check_azimuth(turning[0]) if r not in rules]
+        gravity = F.gravity_table(p)
+        rules = rules + p.check_elevation(gravity)
     contacts = ground_contacts(parts, ('wheel', 'levelling_foot') if feeder else ('wheel', 'ball_caster', 'drum_disc'))
     ground_ok = all(abs(z) < 0.05 for z in contacts.values())
 
@@ -279,7 +281,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         _drawings(assembly, out / "drawings")
 
     if feeder:
-        checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g, turning)
+        checks, derived = F.summary(p, mass_g, rules, clash, contacts, ground_ok, hopper_g, turning, gravity)
     else:
         length, width = p.overall
         checks = [
@@ -343,7 +345,9 @@ ORDER
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
 
 NOT IN THIS PACKAGE YET: netting and trough, hopper agitator, shuttle actuator
-bracket, elevation actuator and bracket, cabling. See hardware/feeder-catcher.md.
+bracket, cabling. See hardware/feeder-catcher.md. The elevation actuator is
+bought to the window in the elevation check below (any make whose retracted and
+extended lengths span it).
 
 CHECKS RUN WHEN THIS PACKAGE WAS BUILT
 {checks}

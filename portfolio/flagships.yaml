@@ -276,9 +276,13 @@ flagships:
       turning inertia measured from the CAD (0.11 kg m^2 level, 0.31 at +45 deg): 30 deg in 1 s at 2.3x
       pull-out margin, fastest 0.88 s; firmware drives it as a homed step/dir axis (controller.StepperAxis).
       A new azimuth collision sweep found the turned head cut the hopper's front posts and the mast plate's
-      rear edge: posts moved to y +-245 and the mast plate notched. Next: weigh the head and measure the
-      hose's torque and the stepper's pull-out (needs a person); the home switch's bracket; hang a real hose
-      from a tube; the actuator brackets (shuttle and elevation); the netting trough that rolls balls to the
+      rear edge: posts moved to y +-245 and the mast plate notched. Elevation drive landed 2026-11-11
+      (`Feeder.elevation_drive`, cad/README.md "Elevation drive"): head gravity measured from the CAD pulls
+      the nose up 0.63-11.75 N m, so a 150 mm-stroke actuator outboard of the guard-side cheek pushes one way,
+      18-100 N, window 245/374 mm hole to hole. Next: firmware for the elevation actuator (feedback pot or
+      timed from a stop; set_aim today assumes a servo); weigh the head and measure the hose's torque, the
+      stepper's pull-out and the actuator's real lengths (needs a person); the home switch's bracket; hang a
+      real hose from a tube; the shuttle actuator's bracket; the netting trough that rolls balls to the
       hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
