@@ -104,3 +104,9 @@ testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a m
   assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
   assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
 });
+
+test("break-even loss never exceeds 100% when supplies and fees outrun the price", () => {
+  const r = analyze(svc("A,100,60,98,10"), { cardFeePct: 3 });
+  assert.ok(r.week.contribution < 0);
+  for (const x of r.raises) near(x.breakEvenLoss, 1);
+});

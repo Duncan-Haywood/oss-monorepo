@@ -96,7 +96,9 @@ export function analyze(services, opts = {}) {
   // A price rise costs nothing until enough clients leave. Fixed overhead does not shrink when they do.
   const raises = [5, 10, 15, 20].map((pct) => {
     const extra = revenue * (pct / 100) * (1 - fee);
-    const breakEvenLoss = contribution + extra > 0 ? extra / (contribution + extra) : 0;
+    // At zero or negative contribution every client can leave without lowering it, so the answer is
+    // all of them, never more: extra / (contribution + extra) read 126% here before 2026-11-11.
+    const breakEvenLoss = contribution <= 0 ? (extra > 0 ? 1 : 0) : extra / (contribution + extra);
     const keep = o.retentionIfRaised / 100;
     const newContribution = (revenue * (1 + pct / 100) * (1 - fee) - supplies) * keep;
     return { pct, extraPerWeek: extra, breakEvenLoss, atRetention: newContribution - contribution };
