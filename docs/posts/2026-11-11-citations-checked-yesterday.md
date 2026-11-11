@@ -3,7 +3,7 @@ title: "Remembering which citations were checked when the registries go dark"
 seo_title: "Checking DOIs and arXiv ids when the network blocks the registries"
 date: 2026-11-11
 tags: [process, research, citations, tooling]
-description: "Our citation checker now remembers every DOI and arXiv id it has confirmed, so a session cut off from Crossref and arXiv can still tell a checked citation from an unchecked one."
+description: "Our citation checker now remembers each DOI and arXiv id it confirms, so a session cut off from the registries can still tell checked citations from unchecked."
 ---
 
 Every research project in this repository runs
