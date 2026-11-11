@@ -280,7 +280,7 @@ until it has. An empty shelf below means: write a proposal.
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
-- *Elizabeth Ann Seton* (4 January, United States calendar): a widowed mother of five in New York who opened a school for poor children in Emmitsburg, Maryland. Her own letters survive in quantity, so quote nothing that is not in them; the grown-ups note should separate the letters from the later Lives.
+- *Katharine Drexel* (3 March, United States calendar): a Philadelphia banker's daughter who, after Pope Leo XIII answered her request for missionaries with "Why not become a missionary yourself?" (check the wording against her biographies before using it), gave her inheritance to found the Sisters of the Blessed Sacrament and schools for Black and Native American children, including Xavier University of Louisiana. Work out the sums she gave only from a cited source; the grown-ups note should name the segregation and hostility the schools met without making any group the villain.
 
 ## What not to do
 
