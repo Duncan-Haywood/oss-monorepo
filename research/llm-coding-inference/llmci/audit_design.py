@@ -176,14 +176,16 @@ def pilot_for_guard(prevalence, sensitivity, corpus, target=0.9, neg_guard=NEG_G
     return lo
 
 
-def cells_probability(pilot, hits, misses, false_pos, corpus, neg_guard=NEG_GUARD):
+def cells_probability(pilot, hits, misses, false_pos, corpus, neg_guard=NEG_GUARD, tau=0.0):
     """Exact chance that `screen(..., tau=0, guard=0, neg_guard)` answers 'cells' for a simple random pilot of `pilot`
     items from a corpus with `hits` coder-positive and `misses` coder-negative human positives and `false_pos`
     coder-positive human negatives: P(FN >= neg_guard and J_hat >= 0) over the multivariate hypergeometric pilot counts.
     J_hat >= 0 fails when the pilot's misses come with no hit (sens_hat = 0), which is why `guard_fire_probability`
     overstates the share at small pilots with a weak coder (LOG.md 7af: 33.9% forecast against 18% observed for a
     J 0.26 coder; this function gives 19.3%, and matches all 36 committed cells within 3.2 points). Terms under 1e-15
-    are dropped."""
+    are dropped. tau > 0 (LOG.md 7ah) gives P(FN >= neg_guard and J_hat >= tau), the share for
+    `screen(..., tau=tau, guard=0, neg_guard)`; the J_hat test uses the same floating-point arithmetic as
+    `informedness`, so ties at the boundary fall the same way."""
     from math import lgamma, exp
 
     def lc(n, k):
@@ -200,8 +202,23 @@ def cells_probability(pilot, hits, misses, false_pos, corpus, neg_guard=NEG_GUAR
             lab = lc(misses, a) + lc(hits, b) + lc(neg_pop, m) - total
             if lab < -35:
                 continue
-            # c = false positives among the m pilot negatives, hypergeometric; J_hat >= 0 iff c * (a + b) <= b * m
-            cmax = min(false_pos, m, (b * m) // (a + b))
+            # c = false positives among the m pilot negatives, hypergeometric; J_hat = b/(a+b) - c/m (as informedness,
+            # 0.0 with no pilot positive or no pilot negative), so J_hat >= tau holds for c up to a largest value
+            if a + b == 0 or m == 0:
+                if tau > 0:
+                    continue
+                cmax = min(false_pos, m)
+            elif tau == 0:
+                cmax = min(false_pos, m, (b * m) // (a + b))
+            else:
+                def ok(c):
+                    return b / (a + b) + (m - c) / m - 1 >= tau
+                c0 = int((b / (a + b) - tau) * m)
+                while c0 + 1 <= m and ok(c0 + 1):
+                    c0 += 1
+                while c0 >= 0 and not ok(c0):
+                    c0 -= 1
+                cmax = min(false_pos, c0)
             cmin = max(0, m - tn_pop)
             if cmax < cmin:
                 continue
