@@ -15,6 +15,8 @@ only 4%. Milestone 5 adds a hydrofoil rung: in 2,916 swept cases a foilborne 200
 
 **What forecasts a Wave Glider's speed (milestone 6q)?** Its own recent speed does. On the same held-out August to October hours, the median speed of the previous 24 h predicts speed a day ahead with **0.048 m/s** mean absolute error, against 0.135 for a constant. Adding sea state, even with the observed wave height used as a perfect forecast, does not improve it (error ratio 0.99, 95% interval 0.86 to 1.16). Within a month speed scales as about **Hs^0.2**, so doubling the wave height adds roughly 16%. A time-since-launch trend fitted on May to July is useless when extrapolated. See [`experiments/results_waveglider_drift.txt`](experiments/results_waveglider_drift.txt).
 
+**Wave Glider km/day: site or vehicle (milestone 6r)?** Mostly the vehicle. With the measured Hs^0.22 response, a Wave Glider at the programme's 2024 NDBC buoys plans to **30 to 61 km/day**. Picking the best buoy over the worst is worth 20% in January and 34% in July; the 2015 mission's own speed state (best month over worst) is worth 64%, and 82% of the variance in log km/day is between vehicle states. See [`experiments/results_waveglider_site.txt`](experiments/results_waveglider_site.txt).
+
 ![Fielded Wave Glider speed against buoy wave height, early and late in the 2015 mission, with the foil model](experiments/waveglider_speed.svg)
 
 **Live page:** https://marisstella.app/research/marine-hull/
@@ -32,6 +34,7 @@ python3 experiments/fetch_waveglider.py   # milestone 6p data (NOAA ERDDAP + NDB
 PYTHONPATH=src python3 experiments/run_waveglider.py > experiments/results_waveglider.txt   # milestone 6p (Wave Glider vs foil model), 47 s
 PYTHONPATH=src python3 experiments/figure_waveglider.py   # experiments/waveglider_speed.svg
 python3 experiments/run_waveglider_drift.py > experiments/results_waveglider_drift.txt   # milestone 6q (forecast skill: recent speed vs sea state vs trend), under 1 s
+python3 experiments/run_waveglider_site.py > experiments/results_waveglider_site.txt   # milestone 6r (km/day at the 2024 buoys: site vs vehicle state), under 1 s
 PYTHONPATH=src python3 experiments/run_suboff_bare.py > experiments/results_suboff_bare.txt   # milestone 3u (SUBOFF bare-hull form factor), under 1 s
 PYTHONPATH=src python3 experiments/run_solar.py > experiments/results_solar.txt   # milestone 5c, 5 s
 PYTHONPATH=src python3 experiments/run_solar_mass.py > experiments/results_solar_mass.txt   # milestone 5d, 10 s
@@ -175,3 +178,5 @@ Milestone 6o (capability drone): re-running the buoy winds with 6n's capability 
 Milestone 6p (wave-powered rung): a fielded Wave Glider's speed rises only 5% (18% after removing a month-scale drift) from 1.5 m to 2.5 m seas, against 90% in a quasi-steady foil model, which loses to a constant on held-out months; a 30% speed loss over the mission matches the whole sea-state effect. Next: a second Wave Glider deployment (SECOORA ERDDAP) and a model with sub lag, tether slack and a drift term. `experiments/run_waveglider.py`, `LOG.md`.
 
 Milestone 6q (Wave Glider forecasting): a 24 h trailing median speed cuts the held-out day-ahead error to 0.35 of the constant's (0.048 against 0.135 m/s). An oracle sea-state term adds nothing measurable (0.99 of M1), the within-month exponent is Hs^0.22, and a time-since-launch trend fails when extrapolated. `experiments/run_waveglider_drift.py`, `LOG.md`.
+
+Milestone 6r (Wave Glider planning): at the 2024 buoys the site moves km/day by 20 to 34% within a month, the vehicle state by 64%; fleet medians 52 / 49 km/day (Jan / Jul) at the best state and 32 / 30 at the worst. `experiments/run_waveglider_site.py`, `LOG.md`.
