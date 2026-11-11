@@ -1,9 +1,9 @@
 ---
 title: "SPMe or DFN? What two measured battery discharge curves can and cannot tell you"
-seo_title: "SPMe vs DFN battery model accuracy against measured discharge data (PyBaMM)"
+seo_title: "SPMe vs DFN battery models against measured discharge data"
 date: 2026-11-11
 tags: [research, batteries, pybamm, simulation, open-source]
-description: "We ran PyBaMM's SPM, SPMe and DFN lithium-ion models against published measured discharge curves of two cells. At low rate the data cannot tell SPMe from DFN; at 2C on one cell DFN fits to 18 mV and SPMe to 53 mV."
+description: "PyBaMM SPMe and DFN against measured discharge curves of two cells: the data cannot separate them at low rate; at 2C on one cell DFN fits to 18 mV, SPMe 53."
 ---
 
 Our [energy-cell-dfn](../../research/energy-cell-dfn/) study found that the fast
