@@ -178,8 +178,8 @@ Suggestions never post alone unless memory or a rule made them. Which
 of the two extra layers adds the most cannot be read off this table: each
 "without" row removes a layer the others partly cover.
 
-**Measured since:** a local Qwen2.5 7B on synthetic lines (README "The AI layer") and on
-140 real City of Toronto card lines ("A year of Toronto card lines and the AI layer");
+**Measured since:** a local Qwen2.5 7B on synthetic lines (README "The AI layer") and,
+with a 14B as well, on 140 real City of Toronto card lines ("A year of Toronto card lines and the AI layer");
 real bank and card exports in the sections below. A hosted model (Claude, GPT, Gemini)
 has not been measured: no key in the build environment.
 
@@ -628,6 +628,67 @@ What it says:
   A hosted model is the obvious next reading. A 20-line batch took 3.5 to 8 minutes on 4
   cores; Node's fetch gives up at 300 s, so long local runs need `node --import` of an
   undici `Agent` with `headersTimeout: 0` (command in the file).
+
+**A bigger local model on the same 140 (2026-11-11, later).** Qwen2.5 14B Instruct
+(Q4_K_M GGUF, bartowski's build on Hugging Face; llama-cpp-python 0.3.16 server, CPU
+only, 4 cores, `--n_ctx 8192 --use_mmap false`, temperature 0), the current prompt
+(merchant category, account name asked for), the same 140 lines in the same seven
+batches. Right / wrong / no answer of 140:
+
+| | right | wrong | no answer |
+|---|---|---|---|
+| rules alone | 43 | 55 | 42 |
+| 7B, best prompt (above) | 35 | 104 | 1 |
+| **14B, same prompt** | **24** | 84 | 32 |
+| 14B over the guess (old fill mode) | 33 | 95 | 12 |
+| **14B, guess kept, model on the 42 blank lines only (default)** | **48 (34.3%)** | 80 | 12 |
+
+- **The bigger model is not better at this.** It was right on fewer lines than the 7B
+  (24 against 35). Over the new-payee guess it rescued 16 and broke 26.
+- **The kind of error changed.** Every one of its 140 account names matched its code, so
+  the name check dropped nothing, where the 7B lost its place in the chart 7 times. Its
+  wrong answers were mostly sensible readings of the merchant that differ from how this
+  buyer files. Software stores went to Software (6060) when the city filed them under
+  supplies (6100) or dues and training (6170), and a hosting company went to "ask my
+  accountant". It also answered 9999 (uncategorized) on 32 lines, which is an honest
+  abstention and costs nothing.
+- **Under the default fill mode the two models tie on right answers** (48 of 140, 5 of the
+  42 blank lines). The 14B makes 10 fewer wrong suggestions (80 against 90) because it
+  abstains instead of guessing. So the default stays as it is. Nothing in `ai.mjs` changed.
+- **It is slow.** 509 to 602 s per 20-line batch, 65 minutes for the 140 (prompt about 3,300
+  tokens at 16 tokens/s, then about 650 output tokens at 1.7/s). It needs about 11 GB of RAM:
+  the first try, at `--n_ctx 16384` with the file memory-mapped, was killed for memory.
+  `--resume` (below) keeps finished batches when a run dies.
+- What would help is knowing this buyer's habits, not a bigger model. A hosted model is
+  still unmeasured (no key in the build environment).
+
+`eval/toronto-ai.mjs` now rewrites `--out` after every batch, and `--resume` keeps the
+batches it already holds (a failed call is sent again). Tests: `toronto-ai.test.mjs`.
+
+**Split categories: the books' habit for the category, measured and left off.** On the
+same 140 lines the merchant category has a long history in these books (a median of 50
+earlier lines) but no majority account, so the category memory (three lines, a majority)
+says nothing and the line falls through to the new-payee guess. The commonest account
+for the category anyway was right on 52 of the 140, against 43 for the rules and 24 to 35
+for either model. Put ahead of the new-payee guess it gave 59. That reading is on the lines
+that suggested the idea, so before turning anything on I built it as a layer
+(`mccPlurality` in `categorize.mjs`: just before the new-payee layer, confidence capped at
+0.4, never posts) and read it on data it was not found on. First-seen lines, right / wrong /
+blank:
+
+| books | off | on |
+|---|---|---|
+| Toronto, whole city year (4,934) | 74.8% / 24.0% / 1.2% | 75.1% / 24.2% / 0.7% |
+| Toronto, sixteen divisions as their own books (7,057) | 5,116 / 1,552 / 389 | 5,138 / 1,598 / 321 |
+| Scottish Government 2020-2026, held out (1,923) | 66.0% / 30.9% / 3.1% | 66.8% / 31.9% / 1.4% |
+
+On the divisions it added 22 right and 46 wrong. Economic Development & Culture alone
+added 17 right and 40 wrong. On the whole city and in Scotland it turned blanks into
+guesses that were right about as often as wrong. Right of suggested fell slightly
+everywhere. The 140-line gain came from where the 140 come from: lines the rules had
+already given up on. So the layer is **off** (`MCC_MEMORY.plurality: false`) and kept for
+measurement. `--plurality` on `eval/toronto-pcard.mjs` (with `--division`) and on
+`eval/scotgov-card.mjs` reproduces the table. Test: `mcc.test.mjs`, "split category".
 
 ### Round-trip property test (2026-10-22)
 
