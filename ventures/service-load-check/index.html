@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Service Load Check: Add an EV Charger or Heat Pump Without a Panel Upgrade?</title>
+  <meta name="description" content="Free NEC 220.83 and 220.87 load check for an existing home: list your appliances or paste a year of Green Button interval data, and see whether your 100 A or 200 A service can take an EV charger, heat pump or induction range. Nothing uploaded.">
+  <meta property="og:title" content="Service load check: is a panel upgrade really needed?">
+  <meta property="og:description" content="NEC 220.83 calculation and 220.87 measured-demand check from your utility's interval data. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23234e8c'/%3E%3Cpath d='M18 4L8 18h7l-2 10 11-15h-7z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Service Load Check", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks whether an existing home's electrical service can carry new load such as an EV charger, heat pump or induction range, by the NEC 220.83 optional calculation and by NEC 220.87 measured maximum demand from Green Button interval data. Runs in your browser.", "featureList": "NEC 220.83 (A) and (B) calculation, Green Button CSV and XML reader, 15-minute maximum demand, 220.87 check, data coverage and solar warnings, largest EV charger that fits, printable worksheet"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I need a panel upgrade to add an EV charger?", "acceptedAnswer": {"@type": "Answer", "text": "Not always. If either the 220.83 total or the 220.87 total with the charger fits under the service rating, the code permits the charger on the existing service, subject to your inspector. Where neither fits, a lower charger setting, a load management device (NEC 625.42 and 220.70 in the 2023 edition) that holds the charger back when the house is busy, or a shared-circuit switch is often cheaper than a service upgrade. The result shows the largest charger setting that fits each way."}}, {"@type": "Question", "name": "What is NEC 220.87?", "acceptedAnswer": {"@type": "Answer", "text": "It lets the existing load be the actual maximum demand, the highest 15-minute average kW over a year, times 125%. Smart-meter interval data from the utility is the usual source. Hourly data understates the 15-minute peak and is not enough on its own."}}, {"@type": "Question", "name": "What if I have solar?", "acceptedAnswer": {"@type": "Answer", "text": "A meter behind solar panels records the net of what the house uses and what the panels make, which hides demand while the sun is up. Use a consumption export if your system's monitor offers one, or the 220.83 calculation. The 2023 NEC does not let the 30-day recording option be used where solar or peak shaving is present."}}, {"@type": "Question", "name": "Where do I get my interval data?", "acceptedAnswer": {"@type": "Answer", "text": "Most US utilities with smart meters have a Green Button Download My Data button in the online account. Choose the longest range, ideally 12 or 13 months, and 15-minute readings if offered. This tool reads the CSV or the XML."}}]}</script>
+  <style>
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
+    #loads td input[type=text] { width: 100%; min-width: 4.5em; box-sizing: border-box; }
+    #loads td select { max-width: 13em; }
+    .ok { color: #1d6b3a; font-weight: 600; }
+    .no { color: #a3261b; font-weight: 600; }
+    @media print { header .note, #inputs, footer, .noprint { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SERVICE LOAD CHECK · NEC 220.83 AND 220.87 · RUNS IN YOUR BROWSER</p>
+    <h1>Can my existing electrical service take an EV charger, heat pump or induction range?</h1>
+    <p>A panel or service upgrade often costs thousands of dollars and waits on the utility. The National Electrical Code gives two ways to show the existing service is big enough: <strong>220.83</strong>, a calculation from what is installed, and <strong>220.87</strong>, the highest 15-minute demand your meter actually recorded in a year, plus 25%. This tool does both, from your appliance list and from the interval data your utility lets you download, and tells you how much new load fits.</p>
+    <p class="note">Arithmetic on what you enter. Not engineering, legal or electrical advice, and not a permit document. Your inspector (the authority having jurisdiction) and a licensed electrician decide; local amendments vary. The example is a synthetic placeholder, not a real home.</p>
+  </header>
+  <main>
+    <div id="inputs">
+    <section class="card" aria-labelledby="h-svc">
+      <h2 id="h-svc">The service</h2>
+      <div class="grid">
+        <div><label for="serviceAmps">Service rating (amps, the main breaker)</label><input id="serviceAmps" type="text" inputmode="decimal" value=""></div>
+        <div><label for="volts">Service voltage</label><select id="volts"><option value="240">120/240 V single phase</option><option value="208">208Y/120 V (apartment, 3-wire)</option></select></div>
+        <div><label for="sqft">Floor area (sq ft)</label><input id="sqft" type="text" inputmode="decimal" value=""></div>
+        <div><label for="smallApplianceCircuits">20 A small-appliance circuits (kitchen, dining)</label><input id="smallApplianceCircuits" type="text" inputmode="decimal" value=""></div>
+        <div><label for="laundryCircuits">Laundry circuits</label><input id="laundryCircuits" type="text" inputmode="decimal" value=""></div>
+      </div>
+    </section>
+    <section class="card" aria-labelledby="h-loads">
+      <h2 id="h-loads">Appliances: what is there and what is being added</h2>
+      <p>Use the nameplate: watts or VA, or amps and volts. For an air conditioner or heat pump the nameplate's minimum circuit ampacity (MCA) times the voltage is the usual figure. Tick <em>New</em> for what you want to add. A load-managed EV charger counts at the limit its energy management system is set to.</p>
+      <div class="scroll"><table id="loads"><thead><tr><th>Appliance</th><th>Kind</th><th>VA or watts</th><th>or amps</th><th>at volts</th><th>New</th><th></th></tr></thead><tbody></tbody></table></div>
+      <p><button type="button" class="secondary" id="addRow">Add an appliance</button></p>
+    </section>
+    <section class="card" aria-labelledby="h-data">
+      <h2 id="h-data">Your meter data (for 220.87, optional)</h2>
+      <p>In your utility account look for <em>Green Button</em> or <em>Download my data</em>. Pick electric usage, 15-minute readings if offered, and the last 12 months or more. Paste the file or choose it; CSV and Green Button XML both work.</p>
+      <label for="data">Paste interval data</label>
+      <textarea id="data" rows="6" spellcheck="false"></textarea>
+      <p><label for="file">Or choose the file (read in your browser, never uploaded)</label> <input id="file" type="file" accept=".csv,.txt,.xml,text/csv,text/xml"></p>
+      <div class="grid">
+        <div><label for="unit">Readings are</label><select id="unit"><option value="">detect from the header</option><option value="kwh">kWh per interval</option><option value="kw">average kW per interval</option></select></div>
+        <div><label for="solar">Solar panels or a battery on this service?</label><select id="solar"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      </div>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Check the service</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+    </section>
+    </div>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+      <p class="noprint"><button type="button" class="secondary" id="print">Print the worksheet</button></p>
+    </section>
+    <section class="card">
+      <h2>How the two methods work</h2>
+      <h3>220.83: calculated from what is installed</h3>
+      <p>General lighting and receptacles at 3 VA per square foot, 1,500 VA for each 20 A small-appliance and laundry circuit, and the nameplate of every appliance that is fastened in place or on its own circuit (range, oven, cooktop, dryer, water heater, dishwasher, EV charger, well pump). The first 8,000 VA counts at 100% and the rest at 40%. That is 220.83(A), used when no air conditioning or electric space heat is being added; existing air conditioning sits in the list like any appliance. When air conditioning, a heat pump or electric heat <em>is</em> being added, 220.83(B) applies: the larger of the total cooling or the total heating load counts at 100%, and everything else at 8,000 VA plus 40%.</p>
+      <h3>220.87: measured from your meter</h3>
+      <p>The existing load may instead be the actual maximum demand: the highest average kilowatts held over a 15-minute interval in a year of data. That times 125%, plus the new load at its nameplate, must not exceed the service rating. A smart meter's 15-minute readings give it directly. With 5-minute data the tool adds readings into clock-aligned 15-minute blocks. With hourly data it shows the hourly peak as a screen only: an hour's average is lower than the busiest quarter-hour inside it. Less than a year is allowed only as a recording of at least 30 days on the highest-loaded leg, with the larger of heating or cooling added if that season is missing.</p>
+      <h3>Which one to use</h3>
+      <p>Either. The code permits both; a home that fails one may pass the other. Homes with gas heat and modest use often show far more room by 220.87 than by 220.83, because 220.83 assumes the range, dryer, water heater and air conditioner can all run near the same time. All-electric homes with resistance heat can come out the other way. Some inspectors ask for the utility's data printout with the permit.</p>
+    </section>
+    <section class="card">
+      <h2>Questions people ask</h2>
+      <h3>Do I need a panel upgrade to add an EV charger?</h3>
+      <p>Not always. If either the 220.83 total or the 220.87 total with the charger fits under the service rating, the code permits the charger on the existing service, subject to your inspector. Where neither fits, a lower charger setting, a load management device (NEC 625.42 and 220.70 in the 2023 edition) that holds the charger back when the house is busy, or a shared-circuit switch is often cheaper than a service upgrade. The result shows the largest charger setting that fits each way.</p>
+      <h3>What is NEC 220.87?</h3>
+      <p>It lets the existing load be the actual maximum demand, the highest 15-minute average kW over a year, times 125%. Smart-meter interval data from the utility is the usual source. Hourly data understates the 15-minute peak and is not enough on its own.</p>
+      <h3>What if I have solar?</h3>
+      <p>A meter behind solar panels records the net of what the house uses and what the panels make, which hides demand while the sun is up. Use a consumption export if your system's monitor offers one, or the 220.83 calculation. The 2023 NEC does not let the 30-day recording option be used where solar or peak shaving is present.</p>
+      <h3>Where do I get my interval data?</h3>
+      <p>Most US utilities with smart meters have a Green Button <em>Download My Data</em> button in the online account. Choose the longest range, ideally 12 or 13 months, and 15-minute readings if offered. This tool reads the CSV or the XML.</p>
+      <p>A longer guide for homeowners and electricians: <a href="./ev-charger-without-panel-upgrade.html">adding an EV charger without a panel upgrade</a>.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your inspector accepts either method, which code edition and local amendments apply, the condition of the panel, service conductors and grounding, available breaker spaces, conductor and breaker sizing for the new circuit, whether the utility's transformer and service drop are adequate, and whether a given appliance's nameplate figures are right. A licensed electrician checks those on site.</p>
+    </section>
+    <section class="card">
+      <p>Related tools: the <a href="../electrical-panel-upgrade-bid-calculator/">electrical panel upgrade bid calculator</a>, the <a href="../ev-charger-bid-calculator/">EV charger bid calculator</a>, the <a href="../heat-pump-vs-furnace-calculator/">heat pump vs furnace calculator</a> and the <a href="../demand-charge-interval-analyzer/">demand charge interval analyzer</a>.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, engineering, or financial advice. Results are arithmetic on figures you type or paste; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>, <code>data_read</code>, <code>worksheet_printed</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { KINDS, DEFAULT_HOUSE, EXAMPLE_HOUSE, EXAMPLE_LOADS, calc22083, calc22087, roomForOther, num } from "./calc.mjs";
+    import { parseUsage, measuredDemand, exampleCsv, fmtTime } from "./interval.mjs";
+    import { largestCharger } from "./report.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const HOUSE = Object.keys(DEFAULT_HOUSE);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const va = (x) => Math.round(x).toLocaleString("en-US") + " VA";
+    const A = (x) => x.toFixed(1) + " A";
+    const table = (head, rows) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (i > 0 ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (i > 0 ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    let rowId = 0;
+    function addRow(l = {}) {
+      const i = rowId++;
+      const tr = document.createElement("tr");
+      const kinds = Object.entries(KINDS).map(([k, v]) => '<option value="' + k + '"' + (l.kind === k ? " selected" : "") + ">" + esc(v) + "</option>").join("");
+      tr.innerHTML =
+        '<td><label class="sr" for="ln' + i + '">Appliance name</label><input type="text" id="ln' + i + '" value="' + esc(l.name || "") + '"></td>' +
+        '<td><label class="sr" for="lk' + i + '">Kind</label><select id="lk' + i + '">' + kinds + "</select></td>" +
+        '<td><label class="sr" for="lv' + i + '">VA or watts</label><input type="text" inputmode="decimal" id="lv' + i + '" value="' + esc(l.va || "") + '"></td>' +
+        '<td><label class="sr" for="la' + i + '">Amps</label><input type="text" inputmode="decimal" id="la' + i + '" value="' + esc(l.amps || "") + '"></td>' +
+        '<td><label class="sr" for="lo' + i + '">Volts</label><input type="text" inputmode="decimal" id="lo' + i + '" value="' + esc(l.volts || "") + '"></td>' +
+        '<td><label class="sr" for="lw' + i + '">New load</label><input type="checkbox" id="lw' + i + '"' + (l.isNew ? " checked" : "") + "></td>" +
+        '<td><button type="button" class="secondary" aria-label="Remove this appliance">Remove</button></td>';
+      tr.dataset.i = i;
+      tr.querySelector("button").addEventListener("click", () => tr.remove());
+      $("loads").querySelector("tbody").appendChild(tr);
+    }
+    function readLoads() {
+      return [...$("loads").querySelectorAll("tbody tr")].map((tr) => {
+        const i = tr.dataset.i;
+        return { name: $("ln" + i).value, kind: $("lk" + i).value, va: $("lv" + i).value, amps: $("la" + i).value, volts: $("lo" + i).value, isNew: $("lw" + i).checked };
+      }).filter((l) => l.name.trim() || l.va.trim() || l.amps.trim());
+    }
+    function setLoads(list) {
+      $("loads").querySelector("tbody").innerHTML = "";
+      for (const l of list) addRow(l);
+      for (let k = list.length; k < 6; k++) addRow();
+    }
+    const fill = (o) => { for (const k of HOUSE) $(k).value = o[k]; };
+    const readHouse = () => { const o = {}; for (const k of HOUSE) o[k] = $(k).value; return o; };
+    function run() {
+      const house = readHouse();
+      const amps = num(house.serviceAmps), volts = num(house.volts);
+      let h = "";
+      if (!(amps > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check</span> Enter the service rating in amps (on the main breaker).</div>'; $("out").hidden = false; return; }
+      const loads = readLoads();
+      const r = calc22083(house, loads);
+      const newVa = loads.filter((l) => l.isNew).reduce((s, l) => { const x = num(l.va) >= 0 ? num(l.va) : num(l.amps) * num(l.volts); return s + (x > 0 ? x : 0); }, 0);
+      h += '<div class="finding"><h4>NEC 220.83 calculation</h4>';
+      if (!r.ok) h += r.errors.map((e) => '<p><span class="pill">Check</span> ' + esc(e) + "</p>").join("");
+      else {
+        const a = r.totalVa / volts, fits = a <= amps;
+        h += "<p>Method 220.83(" + r.method + "): " + (r.method === "B" ? "new air conditioning or electric heat is being added, so the larger of cooling (" + va(r.cooling) + ") and heating (" + va(r.heating) + ") counts at 100%." : "no new air conditioning or electric heat, so everything takes the 8,000 VA plus 40% rule.") + "</p>";
+        const rows = [["General lighting and receptacles (" + esc(house.sqft) + " sq ft at 3 VA)", va(r.lighting)], ["Small-appliance and laundry circuits at 1,500 VA", va(r.circuits)]];
+        for (const l of r.loads) if (r.method === "A" || l.kind === "other") rows.push([esc(l.name) + (l.isNew ? " (new)" : ""), va(l.va)]);
+        rows.push(["<strong>Other loads, total</strong>", va(r.other)]);
+        rows.push(["First 8,000 VA at 100%, remainder at 40%", va(r.otherDemand)]);
+        if (r.method === "B") rows.push(["Larger of cooling or heating at 100% (" + r.hvacChoice + ")", va(r.hvac)]);
+        rows.push(["<strong>Calculated load</strong>", "<strong>" + va(r.totalVa) + " = " + A(a) + "</strong>"]);
+        h += table(["Line", "VA"], rows);
+        h += '<p class="' + (fits ? "ok" : "no") + '">' + A(a) + " of a " + amps + " A service: " + (fits ? "fits, with " + A(amps - a) + " to spare." : "over by " + A(a - amps) + ".") + "</p>";
+        const r0 = calc22083(house, loads.filter((l) => !l.isNew));
+        const room0 = roomForOther(r0, amps, volts);
+        const ch = largestCharger(room0, volts);
+        h += "<p>Before the new loads, " + va(room0) + " of appliance nameplate (not heating or cooling) fits by this method" + (ch ? ": enough for an EV charger set to " + ch + " A (on a " + Math.ceil(ch * 1.25 / 5) * 5 + " A circuit)." : ".") + "</p>";
+      }
+      h += "</div>";
+      const text = $("data").value;
+      if (text.trim()) {
+        const parsed = parseUsage(text, { unit: $("unit").value || undefined });
+        const m = measuredDemand(parsed, { solar: $("solar").value === "yes" });
+        h += '<div class="finding"><h4>NEC 220.87 measured demand</h4>';
+        for (const n of parsed.notes) h += '<p class="note">' + esc(n) + "</p>";
+        for (const w of m.warnings) h += '<p><span class="pill">Check</span> ' + esc(w) + "</p>";
+        if (m.ok) {
+          const c = calc22087(m.peakKw, newVa, amps, volts);
+          const label = { year: "a year of 15-minute data", "30-day": "less than a year (30-day rule)", short: "too short for 220.87", estimate: "not 15-minute data, a screen only" }[m.basis];
+          h += "<p>" + m.readings.toLocaleString("en-US") + " readings at " + m.intervalMin + " minutes, " + fmtTime(m.from).slice(0, 10) + " to " + fmtTime(m.to).slice(0, 10) + " (" + m.spanDays.toFixed(0) + " days, " + label + "). Highest " + (m.fifteen ? "15-minute" : m.intervalMin + "-minute") + " demand: <strong>" + m.peakKw.toFixed(2) + " kW</strong> at " + fmtTime(m.peakAt) + ".</p>";
+          h += table(["Line", "VA"], [["Maximum demand x 125%", va(c.existingVa)], ["New load at nameplate", va(newVa)], ["<strong>Total</strong>", "<strong>" + va(c.totalVa) + " = " + A(c.totalA) + "</strong>"]]);
+          h += '<p class="' + (c.fits ? "ok" : "no") + '">' + A(c.totalA) + " of a " + amps + " A service: " + (c.fits ? "fits, with " + A(amps - c.totalA) + " to spare." : "over by " + A(c.totalA - amps) + ".") + "</p>";
+          const roomBefore = Math.max(0, c.capVa - c.existingVa);
+          const ch = largestCharger(roomBefore, volts);
+          h += "<p>Before any new load, " + va(roomBefore) + " (" + A(roomBefore / volts) + ") is free by this method" + (ch ? ": enough for an EV charger set to " + ch + " A." : ".") + "</p>";
+          h += table(["Five highest 15-minute blocks", "kW"], m.top.map((x) => [fmtTime(x.t), x.kw.toFixed(2)]));
+          h += table(["Month", "Peak kW", "When", "kWh"], m.monthly.map((x) => [x.month, x.peak.toFixed(2), fmtTime(x.at), Math.round(x.kwh).toLocaleString("en-US")]));
+          record("data_read");
+        }
+        h += "</div>";
+      }
+      h += '<p class="note">Power factor is taken as 1 (kW read as kVA), close for most homes. New loads count at nameplate, the conservative reading. This is a screen for a conversation with your electrician and inspector, not a stamped calculation.</p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("check_run");
+    }
+    fill(DEFAULT_HOUSE);
+    setLoads([]);
+    $("addRow").addEventListener("click", () => addRow());
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { fill(EXAMPLE_HOUSE); setLoads(EXAMPLE_LOADS); $("data").value = exampleCsv(); $("solar").value = "no"; record("example_loaded"); run(); });
+    $("file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("data").value = await f.text(); });
+    $("print").addEventListener("click", () => { record("worksheet_printed"); window.print(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>
