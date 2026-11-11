@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { driftLevel, driftLevelChanges, driftNoise, driftSegmentCost, medianSlope } from './drift-level.mjs';
+import { driftLevel, driftLevelChanges, driftNoise, driftNoiseML, driftSegmentCost, medianSlope } from './drift-level.mjs';
 import { analyze, parseSeries } from './engine.mjs';
 import { main } from './cli.mjs';
 import { DRIFT_TCPD } from './drift-cli.mjs';
@@ -63,29 +63,67 @@ test('real smooth series: US real GDP 57 plain cuts to 2; with --drift-slope Aus
   assert.ok(medianSlope(au.values) > 40);
 });
 
-test('the cost of absorbing: Nile\'s 1899 drop is read as wander (a known miss, README)', () => {
+test('the cost of absorbing: lag-difference wander reads Nile\'s 1899 drop as wander; wander by likelihood dates it', () => {
   const nile = read('nile.csv');
   assert.deepEqual(driftLevelChanges(nile.values).changepoints, []);
+  const r = driftLevelChanges(nile.values, { noise: 'ml' });
+  assert.deepEqual(r.changepoints.map((i) => nile.labels[i]), ['1899']);
+  assert.equal(r.noise, 'ml');
+  assert.ok(r.omega < 5 && r.ml.start.omega > 40, `omega ${r.omega}, from lags ${r.ml.start.omega}`);
+});
+
+test('the segment cost is the local level likelihood: no-change ML on the Nile is Durbin and Koopman\'s 15,099 and 1,469', () => {
+  // -2 log L in the input's units = cost in sigma units + (n - 1) log sigma^2 (first point diffuse).
+  // Durbin and Koopman, Time Series Analysis by State Space Methods (2nd ed., 2012), section 2.10.
+  const x = read('nile.csv').values, n = x.length;
+  const m2ll = (s2, w2) => driftSegmentCost(x, { sigma: Math.sqrt(s2), omega: Math.sqrt(w2) }) + (n - 1) * Math.log(s2);
+  let best = { v: Infinity };
+  for (let s2 = 13000; s2 <= 17000; s2 += 50) for (let w2 = 800; w2 <= 2400; w2 += 25) { const v = m2ll(s2, w2); if (v < best.v) best = { v, s2, w2 }; }
+  assert.ok(Math.abs(best.s2 - 15099) <= 100 && Math.abs(best.w2 - 1469) <= 50, JSON.stringify(best));
+});
+
+test('wander by likelihood: q = 0 on a flat series with a step, a walk keeps a real omega, and the profile is the best of its grid', () => {
+  const step = driftNoiseML(series(200, 0, 3, 100));
+  assert.deepEqual(step.changepoints, [100]);
+  assert.ok(step.omega < 0.1, `omega ${step.omega}`);
+  const walk = driftNoiseML(series(400, 0.5, 0, 0, 3));
+  assert.ok(walk.omega > 0.25 && walk.omega < 1, `omega ${walk.omega}`);
+  assert.ok(walk.changepoints.length <= 1, `cuts ${walk.changepoints}`);
+  const grid = [0, ...Array.from({ length: 17 }, (_, i) => 10 ** (-4 + i / 2))];
+  const coarse = driftNoiseML(series(400, 0.5, 0, 0, 3), { grid });
+  assert.ok(walk.objective <= coarse.objective + 1e-9);
+  assert.equal(walk.atGridEdge, false);
 });
 
 test('CLI --model drift prints the jumps and the TCPD figures it quotes match the eval output', async () => {
   let s = '';
-  await main(['--model', 'drift', new URL('./data/us-real-gdp.csv', import.meta.url).pathname], { out: (t) => (s += t) });
+  await main(['--model', 'drift', '--drift-noise', 'lags', new URL('./data/us-real-gdp.csv', import.meta.url).pathname], { out: (t) => (s += t) });
   assert.match(s, /2 jumps too big for the drift/);
   assert.match(s, /1978Q2: level/);
+  assert.match(s, /both from lag differences/);
   assert.match(s, /not advice/);
-  const out = readFileSync(new URL('./eval/tcpd-drift.out.txt', import.meta.url), 'utf8');
-  const [shipped, held] = out.split('TCPD held out');
-  const row = (txt, name) => Number(txt.split('\n').find((l) => l.includes(name)).trim().split(/\s+/).at(-3));
-  assert.equal(row(shipped, 'drift level, 2 log n (primary)'), DRIFT_TCPD.shipped.drift);
-  assert.equal(row(shipped, 'level (default)'), DRIFT_TCPD.shipped.level);
-  assert.equal(row(shipped, 'following the over-cut warning'), DRIFT_TCPD.shipped.warn);
-  assert.equal(row(held, 'drift level, 2 log n (primary)'), DRIFT_TCPD.heldout.drift);
-  assert.equal(row(held, 'level (default)'), DRIFT_TCPD.heldout.level);
-  assert.equal(row(held, 'following the over-cut warning'), DRIFT_TCPD.heldout.warn);
+  let d = '';
+  await main(['--model', 'drift', new URL('./data/nile.csv', import.meta.url).pathname], { out: (t) => (d += t) });
+  assert.match(d, /1 jump too big for the drift/);
+  assert.match(d, /1899: level/);
+  assert.match(d, /chosen together with the changes/);
+  await assert.rejects(main(['--model', 'drift', '--drift-noise', 'x', 'nile.csv'], { out: () => {} }), /ml or lags/);
+  for (const [file, key, name] of [['tcpd-drift-ml.out.txt', 'ml', 'drift level, ML noise (primary)'], ['tcpd-drift-ml.out.txt', 'lags', 'drift level, lag noise (shipped)'], ['tcpd-drift.out.txt', 'lags', 'drift level, 2 log n (primary)'], ['tcpd-drift.out.txt', 'level', 'level (default)'], ['tcpd-drift.out.txt', 'warn', 'following the over-cut warning']]) {
+    const out = readFileSync(new URL(`./eval/${file}`, import.meta.url), 'utf8');
+    const [shipped, held] = out.split('TCPD held out');
+    const row = (txt) => Number(txt.split('\n').find((l) => l.includes(name)).trim().split(/\s+/).at(-3));
+    assert.equal(row(shipped), DRIFT_TCPD.shipped[key], `${file} ${name} shipped`);
+    assert.equal(row(held), DRIFT_TCPD.heldout[key], `${file} ${name} held out`);
+  }
   let j = '';
-  await main(['--model', 'drift', '--drift-slope', '--json', new URL('./data/austres.csv', import.meta.url).pathname], { out: (t) => (j += t) });
+  await main(['--model', 'drift', '--drift-slope', '--drift-noise', 'lags', '--json', new URL('./data/austres.csv', import.meta.url).pathname], { out: (t) => (j += t) });
   const r = JSON.parse(j);
   assert.equal(r.changes.length, 0);
   assert.ok(r.slope > 40);
+  // The default (wander by likelihood) is worse here: 4 cuts, 1988 to 1990, on a series with no
+  // documented break (README "A step-robust omega", where it loses).
+  j = '';
+  await main(['--model', 'drift', '--drift-slope', '--json', new URL('./data/austres.csv', import.meta.url).pathname], { out: (t) => (j += t) });
+  assert.equal(JSON.parse(j).changes.length, 4);
+  assert.equal(JSON.parse(j).noise, 'ml');
 });

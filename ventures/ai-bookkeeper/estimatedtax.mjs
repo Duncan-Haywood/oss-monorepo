@@ -53,6 +53,26 @@ export const EITC_2026 = {
   marriedAdd: D(7270),
   investmentLimit: D(12200),
 };
+// One cell of the IRS's Earned Income Credit Table for an amount in cents (earned income or AGI), in whole-dollar
+// cents. Rule fitted to, and checked against, all 10,992 cells of the 2025 table in the Form 1040 instructions
+// (fixtures/eic-table-2025.json, eic-table.test.mjs): $50 bands (the first is $1 to $50) and the credit at the band's
+// midpoint, rounded to the dollar; the band holding the earned-income amount gets the maximum credit (itself
+// rounded), the phase-out applies only to bands that start at or above the phase-out start, and the last band ends
+// where the credit runs out (start + max / phaseOutRate, to the dollar), with nothing at or above that amount.
+export function eicTableCredit(sched, children, filing, amount) {
+  const row = sched?.rows?.[Math.min(3, Math.max(0, Math.floor(Number(children) || 0)))];
+  const x = Number(amount) / 100;
+  if (!row || !(x >= 1)) return 0;
+  const start = (row.phaseOutStart + (filing === "mfj" ? row.marriedAdd ?? sched.marriedAdd ?? 0 : 0)) / 100;
+  const earnedAmount = row.earnedAmount / 100;
+  const max = Math.round(row.rate * earnedAmount);
+  const limit = row.phaseOutRate > 0 ? Math.round(start + max / row.phaseOutRate) : Infinity;
+  if (x >= limit) return 0;
+  const lo = Math.max(1, Math.floor(x / 50) * 50), hi = Math.min(Math.floor(x / 50) * 50 + 50, limit), mid = (lo + hi) / 2;
+  const phaseIn = hi > earnedAmount ? max : row.rate * mid;
+  const credit = Math.min(phaseIn, max - (lo >= start ? row.phaseOutRate * (mid - start) : 0));
+  return Math.max(0, Math.round(credit)) * 100;
+}
 // Taxable income above which the QBI deduction is limited by wages/property or
 // phased out for service businesses; this module does not model that, so it warns.
 // Additional Medicare Tax (Form 8959): 0.9% of wages plus self-employment earnings above
@@ -133,7 +153,7 @@ export function estimatedTax(books, o = {}) {
   const nonNeg = (v) => Math.max(0, num(v)); // withholding and payments already sent cannot be negative
   const wages = nonNeg(o.wages), other = num(o.otherIncome), withholding = nonNeg(o.withholding), paid = nonNeg(o.paid);
   const priorTax = Number.isFinite(o.priorYearTax) ? Math.max(0, o.priorYearTax) : null; // blank or non-numeric means not given
-  const se = selfEmployment(profit, { year, wages, wageBase: o.wageBase });
+  const se = o.se ?? selfEmployment(profit, { year, wages, wageBase: o.wageBase }); // o.se: { tax, deduction, netEarnings, warnings } figured elsewhere (Schedule AI Part II, annualized.mjs)
   const table = o.brackets ? { std: o.standardDeduction ?? 0, b: o.brackets } : BRACKETS[year]?.[filing];
   if (!table) throw new Error(`No ${filing} brackets on file for ${year}; pass brackets (and standardDeduction).`);
   if (!o.brackets) warnings.push(year === 2026 ? `The 2026 brackets and standard deductions match the IRS text of Rev. Proc. 2025-32 (checked 2026-10-23); confirm they are still current or pass brackets.` : year === 2025 ? `The 2025 brackets match the IRS text of Rev. Proc. 2024-40 and the standard deductions the Form 1040 instructions as amended by the 2025 law (checked 2026-10-23); confirm they are still current or pass brackets.` : `The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);
@@ -235,23 +255,29 @@ export function estimatedTax(books, o = {}) {
     childCredit = nonref; refundableCredit = Math.max(0, refundable);
     warnings.push("Child credits assume each child is under 17 with a Social Security number valid for work, and that you can claim them; the 2026 amounts ($2,200, $1,700 refundable, $500 other, phase-out over $200,000 or $400,000 joint) come from secondary sources, so check them against Schedule 8812 or pass childCredit, childCreditRefundable and childCreditThreshold in cents.");
   }
-  // Earned income credit (Schedule EIC). No built-in figures: the IRS tables are not readable from here, so the
-  // schedule comes from `eitc` (cents, built by taxTableOptions from the tax-table file) and nothing is guessed.
-  // credit = min(rate x earned, rate x earnedAmount), less phaseOutRate on the larger of earned income and AGI
-  // above the phase-out start (the joint start is higher by `marriedAdd`); no credit above the investment limit.
+  // Earned income credit (Schedule EIC). The schedule is `eitc` (cents, from the tax-table file) or the built-in
+  // 2025/2026 one. Statute (26 U.S.C. 32(a)): the credit is rate x earned income up to the earned-income amount, but
+  // no more than the maximum credit less phaseOutRate on the larger of AGI and earned income above the phase-out
+  // start (the joint start is higher by `marriedAdd`); none above the investment limit. With `eitcTable` it follows
+  // Worksheet A instead: look earned income up in the EIC Table and, when AGI differs and reaches the start, take
+  // the smaller of that and AGI's lookup (eicTableCredit; checked on every cell of the 2025 table).
   let eitcCredit = 0;
   const builtinEitc = !o.eitc && (year === 2025 || year === 2026) && o.eitcChildren !== undefined;
   const sched = o.eitc ?? (builtinEitc ? (year === 2026 ? EITC_2026 : EITC_2025) : undefined);
   if (sched) {
-    const row = sched.rows?.[Math.min(3, Math.max(0, Math.floor(num(o.eitcChildren ?? o.children))))];
+    const kids = Math.min(3, Math.max(0, Math.floor(num(o.eitcChildren ?? o.children))));
+    const row = sched.rows?.[kids];
     const earnedEic = Math.max(0, profit - se.deduction) + wages;
     if (row && o.filing !== "mfs" && (sched.investmentLimit == null || nii <= sched.investmentLimit)) {
-      // Schedule EIC's lookup table works on $50 bands and computes the credit at each band's midpoint (`eitcTable`).
-      const band = (c) => (o.eitcTable && c > 0 ? (Math.floor(c / 5000) * 5000) + 2500 : c);
-      const earnedBand = band(earnedEic), agiBand = band(agi);
       const start = row.phaseOutStart + (filing === "mfj" ? row.marriedAdd ?? sched.marriedAdd ?? 0 : 0);
-      const base = Math.min(Math.round(row.rate * earnedBand), Math.round(row.rate * row.earnedAmount));
-      eitcCredit = Math.max(0, base - Math.round(row.phaseOutRate * Math.max(0, Math.max(earnedBand, agiBand) - start)));
+      if (o.eitcTable) {
+        eitcCredit = eicTableCredit(sched, kids, filing, earnedEic);
+        if (eitcCredit > 0 && agi !== earnedEic && agi >= start) eitcCredit = Math.min(eitcCredit, eicTableCredit(sched, kids, filing, agi));
+      } else {
+        const max = Math.round(row.rate * row.earnedAmount);
+        const phaseIn = Math.round(row.rate * Math.min(earnedEic, row.earnedAmount));
+        eitcCredit = Math.max(0, Math.min(phaseIn, max - Math.round(row.phaseOutRate * Math.max(0, Math.max(earnedEic, agi) - start))));
+      }
     }
     if (builtinEitc) warnings.push(`Earned income credit uses the built-in ${year} schedule (${year === 2026 ? "Rev. Proc. 2025-32 section 3.06" : "maximum credits, income limits and investment-income limit read from irs.gov's EITC tables page"}, read 2026-10-28); it assumes the qualifying-child, age, residency and Social Security number tests are met (Schedule EIC) and the credit is refundable.`);
     else warnings.push("Earned income credit uses the schedule you passed, not a built-in table; it assumes the qualifying-child, age, residency and Social Security number tests are met (Schedule EIC) and the credit is refundable.");

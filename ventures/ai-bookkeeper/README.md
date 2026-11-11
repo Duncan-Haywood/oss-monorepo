@@ -826,6 +826,31 @@ the prior-year route is often smaller. Tested against hand arithmetic
 deductions (all three filing statuses) matched the IRS text of Rev. Proc. 2025-32 itself on 2026-10-23 (tables 1-3, standard deductions, the section 199A thresholds), the 2025 ones are typed from memory and unchecked (every result warns; pass `brackets`). Above the section 199A threshold (2026-10-28) the QBI deduction is limited to 50% of the business's own W-2 wages (`--business-wages $`; none for a sole proprietor with no staff), phased in over the range, and `--service` (a specified service trade) loses it over the same range, as `scorp` does; the $400 minimum still applies. The 2026 range (75,000 single / 150,000 joint) is unchecked against the statute (`qbiRange`), and the property leg is not modelled. `--itemized $` (2026-10-28) takes your Schedule A total (after the SALT cap and medical floor, which are yours to apply) and uses it when larger than the standard deduction; `--investment $` (the part of `--other` that is interest, dividends, gains or passive rent) adds the 3.8% net investment income tax (Form 8960) over the statutory $200,000 / $250,000 joint AGI line (tested by hand arithmetic, `estimatedtax.test.mjs`). Leaves out state tax, most credits (the child credits are in),
 the 0.9% Additional Medicare Tax's withholding side. Not tax advice. On the page since 2026-10-23 ("Optional: federal tax estimate and quarterly payments"), same function as the CLI.
 
+### Earned income credit, checked against the printed 2025 EIC Table (2026-11-11)
+
+`--eitc-children N` adds the refundable earned income credit (built-in 2025 and 2026 schedules,
+or `eitc` in a `--tax-table` file); `--eitc-table` (on by default in the page) works it the way the
+return does. The 2025 EIC Table in the Form 1040 instructions (pages 49-60 of
+`https://www.irs.gov/pub/irs-pdf/i1040gi.pdf`, read 2026-11-11) is in
+`fixtures/eic-table-2025.json`: 1,374 rows of $50 bands, eight columns, the eight footnoted end
+cells. `eicTableCredit` in `estimatedtax.mjs` reproduces all 10,992 cells: the credit at each
+band's midpoint, rounded to the dollar, except that the band holding the earned-income amount
+prints the (rounded) maximum, the phase-out starts only with the first band wholly above the
+phase-out start, and the last band is cut where the credit runs out. `eic-table.test.mjs` checks
+the bottom, middle and top of every band in cents (over 60,000 lookups). With the table on,
+the estimate follows Worksheet A: earned income's lookup, or the smaller of it and AGI's lookup
+when AGI differs and reaches the phase-out start.
+
+Reading the worksheet found a bug in the old formula: it took the phase-out off the phase-in
+credit, so someone with low earnings and other income (unemployment pay, a pension) above the
+phase-out start got too little. Single with one child, $5,000 of wages and $25,000 of other
+income: about $637 before, $1,709 now, which is the table's figure (26 U.S.C. 32(a)(2) subtracts
+the phase-out from the maximum credit, not from the phase-in amount). Without `--eitc-table`
+the exact figures are within $1 of the table on every band except the two straddle bands per
+column, where the table rounds up to the maximum (up to $2.25). Still assumed: the
+qualifying-child, age, residency and SSN tests. The 2026 table is not printed yet; the same rule
+on Rev. Proc. 2025-32's figures is what it is expected to show. Not tax advice.
+
 ## Schedule C worksheet (US sole proprietors)
 
 `scheduleC(books, { from, to, mealsPct, map })` in `taxforms.mjs` (also the page's
@@ -1477,6 +1502,7 @@ one per customer, part-payments, the `--min` cut); on the page (2026-10-22): und
 - Sales tax return property test, 2026-10-27 (`salestaxreturn-property.test.mjs`, 2 tests, made-up ledgers only): 150 seeded ledgers of invoices and credit notes with up to three jurisdictions, at monthly, quarterly and annual frequency; total tax equals the signed tax lines typed in, payable is tax less discount, and period totals match their rows. Every state's due-day rule gives a due date after the period that lands on a business day once moved. It passed first time; a flipped credit-note sign made it fail. It checks no state's real dates (state tax sites refused the session's proxy).
 - Hawaii semiannual sales tax (GET) return, 2026-10-28 (`salestaxreturn.test.mjs`, 1 test): the worksheet already gave calendar halves (Jan-Jun, Jul-Dec) due the 20th after, i.e. Jul 20 and Jan 20; the code comment calling this "not modelled" was stale and is fixed. Source is one 2026 third-party guide (trykintsugi.com) plus a 2009 bill that moved the date from month end to the 20th; HRS 237-30 and tax.hawaii.gov were not read, so check your own notice.
 - Annualized income check, 2026-10-30 (no code logic changed): the Schedule AI percentages (22.5, 45, 67.5, 90%) were matched to a search excerpt of the 2024 federal Form 2210, and the factors (4, 2.4, 1.5, 1) to Alabama and Iowa Schedule AI forms and a tax guide; the federal factors line and the second set of periods remain unread (irs.gov blocked). The worksheet's warning now says so.
+- Form 2210 read and the penalty added, 2026-11-11 (`annualized.mjs`, `penalty2210.mjs`, `annualized.test.mjs` +5 tests, `penalty2210.test.mjs` 7 tests). irs.gov answered from the session, so the 2025 Form 2210 and its instructions were read with pdftotext (the form's own text, not an excerpt). Schedule AI checked line by line: line 2 factors 4, 2.4, 1.5, 1 and line 20 percentages 22.5 to 90% as coded; the "second set of periods" (2/28, 4/30, 7/31, 11/30) is for estates and trusts only, so not modelling it is right for a sole proprietor. One real difference: Part II (self-employment tax) has its own lines, and line 28 is zero when the *period's* net earnings are under $400, where the old shortcut taxed the annualized figure (a $300 first quarter, annualized to $1,108 of earnings, was charged about $170 of SE tax). Part II now runs line by line (line 29 reproduces the printed $44,025 / $73,375 / $117,400 / $176,100 from the 2025 wage base; lines 32 and 34 the printed 0.496 ... 0.029). New: the underpayment penalty itself (Part III Section A lines 10 to 18 and the instructions' penalty worksheet), for the regular and the annualized installments, at the IRS quarterly underpayment rates read from irs.gov/payments/quarterly-interest-rates (2025 all 7%; 2026 Q1 7%, Q2 6%, Q3 7%, Q4 7%; 2027 Q1 not out, last rate used with a warning). The tests reproduce the instructions' Examples 1, 3 and 4 and Table 2's day counts. Example (4,000 earned by February, 100,000 by November 2025, single, 20,000 paid January 15): regular-method penalty 602.92, Schedule AI 37.28, both checked by hand. The CLI and page show both and say when box C lowers it; the page takes dated estimates. Not modelled: box D (actual withholding dates), the January 31 file-and-pay rule, waivers.
 
 ### Time/Timestamp date headers and HELD rows (2026-11-04)
 

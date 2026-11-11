@@ -165,3 +165,14 @@ test('index links one hop to the epoxy-garage-floor-bid-calculator sibling', () 
     'index must link ../epoxy-garage-floor-bid-calculator/ so crawlers reach the epoxy garage floor calculator in one hop',
   );
 });
+
+// The step after the pour: estimating in-place strength from the logger
+// record before stripping forms. Without this link the maturity tool has no
+// sibling pointing at it (platform/pages/siblings.mjs --check).
+test('index links one hop to the concrete-maturity sibling', () => {
+  assert.match(
+    html,
+    /href="\.\.\/concrete-maturity\/"/,
+    'index must link ../concrete-maturity/ so crawlers reach the maturity calculator in one hop',
+  );
+});

@@ -31,6 +31,7 @@ from one `gh api` search; `--no-claims` skips it.
 Usage:
     python3 portfolio/router/allocate.py           # table
     python3 portfolio/router/allocate.py --json     # JSON work queue
+    python3 portfolio/router/allocate.py --venture ai-bookkeeper   # one row in full
 """
 from __future__ import annotations
 
@@ -472,7 +473,7 @@ def next_task(v: Venture) -> str:
         milestone = v.flagship_next or "the venture's own roadmap"
         if len(milestone) > FLAGSHIP_NEXT_CHARS:
             # The full history is in flagships.yaml; the queue prints the head.
-            milestone = milestone[:FLAGSHIP_NEXT_CHARS].rstrip() + " ... (full `next:` in portfolio/flagships.yaml)"
+            milestone = milestone[:FLAGSHIP_NEXT_CHARS].rstrip() + f" ... (full `next:`: allocate.py --venture {v.name})"
         if v.flagship_inputs_only:
             return (
                 f"Inputs only (flagship {v.flagship_rank + 1}): every listed item needs a real "
@@ -728,6 +729,62 @@ def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None)
         note += "[older open PRs: " + ", ".join(f"#{n}" for n, _, _ in stale[:3]) + ("..." if len(stale) > 3 else "") + "] "
     return note
 
+
+def last_landed(name: str) -> Optional[str]:
+    """ISO commit date of the newest commit on main touching ventures/<name>, or None."""
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cI", "origin/main", "--", f"ventures/{name}"],
+            capture_output=True, text=True, timeout=15, cwd=REPO_ROOT,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return out or None
+
+
+def venture_report(name: str, ventures: list[Venture],
+                   claims: Optional[dict[str, list]] = None,
+                   landed: Optional[str] = None,
+                   now: Optional[datetime] = None) -> Optional[str]:
+    """One venture's row in full: rank, task with the untruncated flagship
+    `next:`, open PRs with their ages and when work last landed.
+
+    The table cuts each flagship's `next:` at FLAGSHIP_NEXT_CHARS, so runs
+    grepped flagships.yaml for the rest, and `grep 'slug: <name>'` misses
+    because the key is `venture:` (run-record doc_friction on this file,
+    2026-11-11). None when `name` is not a venture."""
+    now = now or datetime.now(timezone.utc)
+    ranked = rank(ventures)
+    pos = next((i for i, v in enumerate(ranked) if v.name == name), None)
+    if pos is None:
+        return None
+    v = ranked[pos]
+    lines = [f"{v.name}: queue row {pos + 1} of {len(ranked)}, stage {v.stage}, "
+             f"{v.recent_commits} commits in 7 days"]
+    if v.flagship:
+        lines.append(f"Flagship {v.flagship_rank + 1} (portfolio/flagships.yaml)"
+                     + (f", inputs only: {v.flagship_inputs_only}" if v.flagship_inputs_only else ""))
+        lines.append("next:")
+        lines.append(v.flagship_next or "(none written)")
+    else:
+        lines.append("task: " + next_task(v))
+    if landed:
+        try:
+            age_h = (now - datetime.fromisoformat(landed)).total_seconds() / 3600
+            lines.append(f"last landed on main: {landed} ({age_h:.1f}h ago)")
+        except ValueError:
+            lines.append(f"last landed on main: {landed}")
+    else:
+        lines.append("last landed on main: not in the fetched history")
+    if claims is None:
+        lines.append("open PRs: not read (search PR titles yourself)")
+    else:
+        hits = sorted(claims.get(v.name, []), key=lambda h: h[2], reverse=True)
+        lines.append(f"open PRs naming it: {len(hits)}")
+        for num, title, created in hits:
+            lines.append(f"  #{num} opened {created}: {title}")
+    return "\n".join(lines)
+
 def print_table(ventures: list[Venture], queue: list[dict],
                 recent: Optional[dict[str, int]] = None,
                 claims: Optional[dict[str, list]] = None) -> None:
@@ -836,6 +893,8 @@ def main(argv: Optional[list[str]] = None) -> int:
                         help="skip the shallow-clone fetch; 7-day commit counts may be partial")
     parser.add_argument("--no-claims", action="store_true",
                         help="skip the open-PR lookup (one `gh api` search) that marks rows already being worked")
+    parser.add_argument("--venture", metavar="SLUG",
+                        help="print one venture's row in full (untruncated flagship `next:`, open PRs, last landing)")
     args = parser.parse_args(argv)
 
     ventures = load_ventures()
@@ -850,6 +909,20 @@ def main(argv: Optional[list[str]] = None) -> int:
     recent = recent_commits(deepen=not args.no_deepen)
     for v in ventures:
         v.recent_commits = recent.get(v.name, 0)
+    if args.venture:
+        claims_one = None
+        if not args.no_claims:
+            prs = open_pr_titles()
+            if prs is not None:
+                claims_one = claims_by_venture([args.venture], prs)
+        report = venture_report(args.venture, ventures, claims=claims_one,
+                                landed=last_landed(args.venture))
+        if report is None:
+            print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
+            return 1
+        print(report)
+        return 0
+
     queue = work_queue(ventures)
 
     claims: Optional[dict[str, list]] = None
