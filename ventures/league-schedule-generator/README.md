@@ -536,7 +536,8 @@ carry-over count 0 or 1.
   kept: the greedy stand-in had traded 16 teams' 224 / 24 breaks for 256 / 24.
 - **A mirrored field leg is already perfect.** Mirroring a leg normally doubles every count, but the
   field leg's counts are all 1 over the n(n - 2) non-cyclic steps, and the halfway step (last opponent
-  of leg one, then first of leg two) is exactly each team's missing cyclic step: every cell becomes 2,
+  of leg one, then first of leg two) is exactly each team's missing cyclic step: every cell becomes 2
+  except n that stay 1, which is
   the floor (16 teams: 912). So at power-of-two sizes the whole-season search can only match the mirror
   on carry-over; `carryover.test.mjs` asks for "strictly below mirrored" only when the mirror is above
   the floor.
