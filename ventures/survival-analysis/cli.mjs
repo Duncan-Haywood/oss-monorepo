@@ -16,6 +16,8 @@ Options:
   --group NAME           compare groups: one curve each, a log-rank test, and group terms in Cox
   --reference V          reference group for hazard ratios (default: first group seen)
   --covariates A,B       extra Cox terms; text columns are dummy-coded against their first value
+  --strata A,B           stratify: each value (combination) gets its own baseline hazard in Cox,
+                         and the test of equal curves compares groups within strata
   --test logrank         logrank | wilcoxon (Gehan-Breslow) | tarone-ware
   --ties efron           efron | breslow, for tied event times in the Cox model
   --confidence 0.95      level for the bands and intervals
@@ -35,7 +37,7 @@ ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi 
 Statistical output from your data, not medical, legal or financial advice. No warranty. MIT licence.
 Web version: https://marisstella.app/survival-analysis/`;
 
-const FLAGS = { "--time": "time", "--event": "event", "--event-value": "eventValue", "--group": "group", "--reference": "reference", "--covariates": "covariates", "--test": "test", "--ties": "ties", "--confidence": "confidence", "--tau": "tau" };
+const FLAGS = { "--time": "time", "--event": "event", "--event-value": "eventValue", "--group": "group", "--reference": "reference", "--covariates": "covariates", "--strata": "strata", "--test": "test", "--ties": "ties", "--confidence": "confidence", "--tau": "tau" };
 
 export function parseArgs(argv) {
   const o = { json: false, help: false, curve: false, file: null };
@@ -66,7 +68,7 @@ export function formatText(r, { curve = false } = {}) {
   if (r.logrank) out.push("", `${r.logrank.name}: chi-square ${r.logrank.chiSquare.toFixed(3)} on ${r.logrank.df} df, p = ${formatP(r.logrank.p)}` + `  (observed/expected: ${r.groups.map((g, i) => `${g.name} ${r.logrank.observed[i]}/${r.logrank.expected[i].toFixed(2)}`).join(", ")})`);
   if (r.cox) {
     const c = r.cox;
-    out.push("", `Cox proportional hazards (${c.ties} ties), ${c.n} rows, ${c.events} events, ${c.iterations} Newton steps`);
+    out.push("", `Cox proportional hazards (${c.ties} ties${r.strata ? `, stratified by ${r.strata.columns.join("+")}: ${r.strata.levels.length} strata` : ""}), ${c.n} rows, ${c.events} events, ${c.iterations} Newton steps`);
     out.push(`term                                   coef      se   hazard ratio (${cl} CI)        p      PH p`);
     for (const t of c.terms) out.push(`${t.name.slice(0, 36).padEnd(36)} ${t.coef.toFixed(4).padStart(7)} ${t.se.toFixed(4).padStart(7)}   ${num(t.hr).padStart(6)} (${num(t.hrLo)} to ${num(t.hrHi)})`.padEnd(88) + `${formatP(t.p).padStart(8)}  ${t.ph ? formatP(t.ph.p) : "n/a"}`);
     out.push(`likelihood ratio ${c.lr.chiSquare.toFixed(3)} (p ${formatP(c.lr.p)}), Wald ${c.wald.chiSquare.toFixed(3)} (p ${formatP(c.wald.p)}), score ${c.score.chiSquare.toFixed(3)} (p ${formatP(c.score.p)}) on ${c.lr.df} df; concordance ${c.concordance.toFixed(3)}`);
@@ -89,7 +91,7 @@ export function run(argv, stdinText) {
   try { csv = o.file && o.file !== "-" ? readFileSync(o.file, "utf8") : stdinText; } catch (e) { return { code: 2, out: `Error: cannot read ${o.file}: ${e.message}` }; }
   if (!csv || !csv.trim()) return { code: 2, out: `Error: no CSV given (pass a file or pipe one in).\n\n${HELP}` };
   const input = { csv };
-  for (const k of ["time", "event", "eventValue", "group", "reference", "covariates", "test", "ties"]) if (o[k] !== undefined) input[k] = o[k];
+  for (const k of ["time", "event", "eventValue", "group", "reference", "covariates", "strata", "test", "ties"]) if (o[k] !== undefined) input[k] = o[k];
   for (const k of ["confidence", "tau"]) if (o[k] !== undefined) input[k] = Number(o[k]);
   const r = analyze(input);
   if (o.json) return { code: r.error ? 1 : 0, out: JSON.stringify(r, (k, v) => (v === Infinity ? "Infinity" : v), 2) };

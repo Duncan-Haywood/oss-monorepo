@@ -217,3 +217,99 @@ test("PAPERS are complete enough to cite", () => {
   assert.ok(PAPERS.length >= 6);
   for (const p of PAPERS) for (const k of ["authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k], `${p.title} ${k}`);
 });
+
+// ---------- strata ----------
+
+for (const [name, c] of Object.entries(REF.cases)) {
+  if (!c.stratified) continue;
+  const S = c.stratified;
+  const csv = csvFor(name);
+  const covs = c.covariates.filter((x) => !S.strata.includes(x));
+
+  test(`${name}: stratified by ${S.strata.join("+")}, the tests and Cox model match statsmodels and lifelines`, () => {
+    const r = analyze({ csv, time: c.time, event: c.event, group: c.group, covariates: covs, strata: S.strata });
+    assert.equal(r.error, undefined, r.error);
+    assert.ok(r.logrank.stratified);
+    assert.match(r.logrank.name, /^Stratified /);
+    close(r.logrank.chiSquare, S.survdiff_logrank.chi_square, 1e-10, "stratified log-rank chi-square");
+    close(r.logrank.p, S.survdiff_logrank.p, 1e-8, "stratified log-rank p");
+    for (const t of ["wilcoxon", "tarone-ware"]) {
+      const w = analyze({ csv, time: c.time, event: c.event, group: c.group, strata: S.strata, test: t }).logrank;
+      close(w.chiSquare, S[`survdiff_${t}`].chi_square, 1e-9, `stratified ${t} chi-square`);
+    }
+    const L = S.cox_efron_lifelines;
+    assert.deepEqual(r.cox.terms.map((t) => t.name), L.names);
+    assert.equal(r.cox.strata, r.strata.levels.length);
+    r.cox.terms.forEach((t, a) => {
+      close(t.coef, S.cox_efron_statsmodels.coef[a], 1e-8, `${t.name} coef vs statsmodels`);
+      close(t.se, S.cox_efron_statsmodels.se[a], 1e-7, `${t.name} se vs statsmodels`);
+      close(t.coef, L.coef[a], 1e-4, `${t.name} coef vs lifelines`);
+      close(t.se, L.se[a], 1e-4, `${t.name} se vs lifelines`);
+      close(t.ph.chiSquare, L.ph_km_chi_square[a], 1e-3, `${t.name} PH test vs lifelines`);
+    });
+    close(r.cox.logLik, S.cox_efron_statsmodels.log_lik, 1e-10, "stratified log-likelihood");
+    close(r.cox.logLik, L.log_lik, 1e-6, "stratified log-likelihood vs lifelines");
+    close(r.cox.concordance, L.concordance, 1e-6, "within-strata concordance vs lifelines");
+    const b = analyze({ csv, time: c.time, event: c.event, group: c.group, covariates: covs, strata: S.strata, ties: "breslow" }).cox;
+    b.terms.forEach((t, a) => close(t.coef, S.cox_breslow_statsmodels.coef[a], 1e-8, `${t.name} Breslow coef`));
+    close(b.logLik, S.cox_breslow_statsmodels.log_lik, 1e-10, "Breslow stratified log-likelihood");
+  });
+}
+
+test("leukemia stratified by sex: pinned values for the example", () => {
+  const r = analyze({ csv: read("./data/leukemia.csv"), group: "treatment", covariates: "logWBC", strata: "sex" });
+  close(r.cox.terms[0].coef, 0.998, 1e-3, "treatment 0.998");
+  close(r.cox.terms[1].coef, 1.454, 1e-3, "logWBC 1.454");
+  close(r.cox.terms[0].hr, 2.713, 1e-3, "hazard ratio 2.71");
+  assert.deepEqual(r.strata.levels.map((l) => [l.name, l.n, l.events]), [["sex=1", 20, 14], ["sex=0", 22, 16]]);
+  assert.match(r.summary, /stratified by sex \(2 strata, each with its own baseline hazard\)/);
+  assert.match(r.summary, /Concordance within strata/);
+});
+
+test("strata: one stratum is the unstratified fit; a stratum shifting the baseline is absorbed", () => {
+  const csv = read("./eval/cases/ties3.csv");
+  const base = analyze({ csv, group: "arm", covariates: "x1,x2" });
+  const one = analyze({ csv: csv.replace(/^.*$/m, (h) => h + ",k").replace(/\n(?=.)/g, "\n").split("\n").map((l, i) => (i === 0 || !l ? l : l + ",same")).join("\n"), group: "arm", covariates: "x1,x2", strata: "k" });
+  close(one.cox.logLik, base.cox.logLik, 1e-12, "single stratum log-likelihood");
+  close(one.logrank.chiSquare, base.logrank.chiSquare, 1e-12, "single stratum log-rank");
+  assert.match(one.warnings.join(" "), /single value, so stratifying changes nothing/);
+  // Stacking the data twice as two strata (the second with times x7) doubles the score and
+  // information, so coefficients stay put and the log-rank chi-square doubles.
+  const lines = csv.trim().split("\n");
+  const stacked = [lines[0] + ",copy", ...lines.slice(1).map((l) => l + ",A"), ...lines.slice(1).map((l) => { const f = l.split(","); f[0] = String(Number(f[0]) * 7); return f.join(",") + ",B"; })].join("\n");
+  const two = analyze({ csv: stacked, group: "arm", covariates: "x1,x2", strata: "copy" });
+  two.cox.terms.forEach((t, a) => close(t.coef, base.cox.terms[a].coef, 1e-8, `stacked ${t.name}`));
+  close(two.cox.logLik, 2 * base.cox.logLik, 1e-10, "stacked log-likelihood");
+  close(two.logrank.chiSquare, 2 * base.logrank.chiSquare, 1e-10, "stacked log-rank");
+});
+
+test("stratified concordance compares pairs only within a stratum (brute force)", () => {
+  let seed = 3;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const n = 40, time = [], ev = [], eta = [], s = [];
+  for (let i = 0; i < n; i++) { time.push(Math.ceil(rnd() * 10)); ev.push(rnd() < 0.6 ? 1 : 0); eta.push(Math.round(rnd() * 4)); s.push(i % 3); }
+  let conc = 0, pairs = 0;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
+    if (s[i] !== s[j] || !ev[i]) continue;
+    if (!(time[i] < time[j] || (time[i] === time[j] && !ev[j]))) continue;
+    pairs++; conc += eta[i] > eta[j] ? 1 : eta[i] === eta[j] ? 0.5 : 0;
+  }
+  const c = concordance(time, ev, eta, s);
+  assert.equal(c.pairs, pairs);
+  close(c.c, conc / pairs, 1e-15, "within-strata C");
+});
+
+test("strata input errors and warnings are readable", () => {
+  const csv = read("./data/leukemia.csv");
+  assert.match(analyze({ csv, group: "treatment", strata: "nope" }).error, /Strata column "nope" is not in the header/);
+  assert.match(analyze({ csv, group: "treatment", strata: "treatment" }).error, /group column; stratifying by it/);
+  assert.match(analyze({ csv, group: "treatment", strata: "weeks" }).error, /time or event column/);
+  const nested = "time,event,site,x\n1,1,a,1\n2,0,a,1\n3,1,a,1\n2,1,b,0\n4,1,b,0\n5,0,b,0";
+  assert.match(analyze({ csv: nested, covariates: "x", strata: "site" }).error, /x never varies within a stratum/);
+  // A strata column given as a covariate as well is used only as a stratum.
+  const r = analyze({ csv, group: "treatment", covariates: "logWBC,sex", strata: "sex" });
+  assert.deepEqual(r.columns.covariates, ["logWBC"]);
+  assert.equal(r.cox.terms.length, 2);
+  const lots = "time,event,id\n" + Array.from({ length: 60 }, (_, i) => `${i + 1},1,${i}`).join("\n");
+  assert.match(analyze({ csv: lots, strata: "id" }).error, /column id makes 60 strata/);
+});
