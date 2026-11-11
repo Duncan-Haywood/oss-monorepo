@@ -1909,3 +1909,28 @@ test("buildRoster proves the sample week by whole-score column generation where 
   assert.ok(on.score <= off.score + 1e-6);
   assert.ok(on.optimality.lowerBound <= on.score + 1e-6);
 });
+
+test("validList (bit-mask days) agrees with the original Set-and-sort check on 90,000 random lists", async () => {
+  const { _validListPair: m } = await import("./calc.mjs");
+  const { parseStaff: ps0, parseShifts: sh0 } = await import("./calc.mjs");
+  let seed = 1;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  let n = 0, yes = 0;
+  for (let c = 0; c < 300; c++) {
+    const st = Array.from({ length: 5 }, (_, p) => `P${p},15,${12 + rnd(30)},0${rnd(2) ? " ,daily: " + (4 + rnd(8)) : ""}`).join("\n");
+    const sh = Array.from({ length: 20 }, () => { const a = rnd(18); return `${days[rnd(7)]},${a},${a + 2 + rnd(8)},1`; }).join("\n");
+    const staff = ps0(st).staff, parsed = sh0(sh);
+    if (parsed.error || !staff.length) continue;
+    const ctx = m.buildContext(staff, parsed.slots, { maxDailyHours: rnd(3) ? 0 : 6 + rnd(4), maxConsecDays: 2 + rnd(5), minRestHours: rnd(12) });
+    for (let k = 0; k < 300; k++) {
+      const p = rnd(staff.length);
+      const list = [...new Set(Array.from({ length: 1 + rnd(6) }, () => rnd(parsed.slots.length)))];
+      if (rnd(2)) list.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b);
+      const fast = m.validList(ctx, p, list);
+      assert.equal(fast, m.validListSlow(ctx, p, list), `case ${c}, list ${list}`);
+      n++; if (fast) yes++;
+    }
+  }
+  assert.ok(n > 50000 && yes > n / 5 && yes < n * 0.8, `n ${n}, valid ${yes}`);
+});
