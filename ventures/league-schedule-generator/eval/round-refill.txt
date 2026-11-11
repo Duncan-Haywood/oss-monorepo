@@ -7,3 +7,8 @@
 {"N": 12, "teams": 11, "seed": 22, "seconds": 300, "start": 747, "value": 115, "floor": 99, "max": 2, "bye": 11, "valueWithBye": 115, "floorWithBye": 99, "moves": 77045, "restarts": 50}
 {"N": 10, "teams": 10, "seed": 1, "seconds": 300, "start": 374, "value": 94, "floor": 80, "max": 2, "bye": 7, "valueWithBye": 69, "floorWithBye": 63, "moves": 112442, "restarts": 73}
 {"N": 14, "teams": 14, "seed": 1, "seconds": 300, "start": 1378, "value": 220, "floor": 168, "max": 3, "bye": 6, "valueWithBye": 185, "floorWithBye": 143, "moves": 51913, "restarts": 32}
+# 2026-11-11, later: from the climbed starters (node eval/round-refill.mjs <N> 360 <seed> starter 6 [bye])
+{"N":14,"teams":14,"seed":1,"seconds":360,"start":212,"value":212,"floor":168,"max":2,"bye":4,"valueWithBye":189,"floorWithBye":143,"moves":66960,"restarts":44}
+{"N":14,"teams":13,"seed":2,"seconds":360,"start":187,"value":179,"floor":143,"max":2,"bye":13,"valueWithBye":179,"floorWithBye":143,"moves":63993,"restarts":41}
+{"N":18,"teams":18,"seed":1,"seconds":360,"start":318,"value":318,"floor":288,"max":2,"bye":2,"valueWithBye":293,"floorWithBye":255,"moves":44541,"restarts":29}
+{"N":18,"teams":17,"seed":2,"seconds":360,"start":313,"value":313,"floor":255,"max":2,"bye":2,"valueWithBye":293,"floorWithBye":255,"moves":44557,"restarts":29}

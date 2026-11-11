@@ -15,7 +15,11 @@ pole_elbow,print,2,PETG,"Joins a vertical pole to the top pole; sockets 40 mm de
 camera_clamp,print,2,PETG,Clips the top pole and holds the 2020 stereo bar; add an M4 clamp screw each. 6 walls.
 feed_floor,print,1,PETG,Floor of the ball path between the head plates; the shuttle slides on it. M4 heat-set inserts take screws through both head plates.
 feed_roof_column,print,1,PETG,"Roof over the shuttle, a column 70 mm bore up past the head plates, and a hose socket (82.5 mm) on top. Print upright, 6 walls."
-feed_shuttle,print,1,PETG,Pocket for one ball (70 mm hole); the front is narrowed to 58 mm between two 1.6 mm flexure arms that hold the ball at negative elevation and let the wheels pull it out; the solid rear shuts the column while it moves 95 mm forward. Drawn retracted (pocket under the column). 6 walls.
+feed_shuttle,print,1,PETG,Pocket for one ball (70 mm hole); the front is narrowed to 58 mm between two 1.6 mm flexure arms that hold the ball at negative elevation and let the wheels pull it out; the solid rear shuts the column while it moves 95 mm forward. Drawn retracted (pocket under the column). M4 heat-set insert in the +y side 20 mm ahead of the rear end takes the drive pin. 6 walls.
+shuttle_rod,print,1,PETG,"Shuttle pin to crank pin, 120 mm between 5.4 mm holes; M4 shoulder bolts (5 mm shoulder) through both. Print flat, 100% infill."
+shuttle_crank,print,1,PETG,"Crank, 47.5 mm throw (95 mm stroke over 180 deg of servo turn); screw it to the servo's round aluminium horn (M3 through the centre hole and two of the horn's own holes, drilled to suit). Print flat, 100% infill."
+shuttle_servo_bracket,print,1,PETG,"Holds the shuttle servo by its tabs outboard of the motor plate; three legs take M4 screws through the plate into heat-set inserts, and two more inserts take the servo's tab screws. Print cradle face down."
+shuttle_servo,cots,1,"Standard-size digital servo, 18 kg cm class (1.75 N m stall), 0.16 s per 60 deg, 180 deg between the gate pulses, metal gears, round aluminium horn (drawn 40.5 x 20 x 40.5 mm, tabs 54 mm)",
 hopper_shelf,laser,1,aluminium 5052 5 mm,"Tub shelf, falls 12 deg toward the net so balls roll to the outlet. Posts bolt up through it (M5, end-tapped), the sleeve socket under the outlet hole."
 hopper_spigot,print,1,PETG,"Sleeve socket under the shelf's outlet hole: flange on the sloped shelf (M4 heat-set inserts), a vertical cup 102.5 mm across and 40 mm deep for the sleeve's top end. Print flange down, 6 walls."
 feed_hose,stock,1,"72 mm ID smooth-bore flexible hose (82 mm OD), cut 810 mm",Take-up sleeve's lower end to the column socket (sleeve_take_up_design). Longest chord 1014 mm; bows to 426 mm radius at the closest pose; needs 150. Top end bonded into the take-up collar; a hose clamp at the column socket.
@@ -70,6 +74,9 @@ M4 x 10 socket cap screw (spigot),cots,4,M4 x 10 socket cap screw (spigot),sleev
 M5 x 16 button head (hopper),cots,8,M5 x 16 button head (hopper),posts to the deck (from below) and to the shelf
 M5 T-nut or tapped end (hopper),cots,8,M5 T-nut or tapped end (hopper),"posts, deck and shelf"
 2020 corner bracket with M5 screws and T-nuts,cots,6,2020 corner bracket with M5 screws and T-nuts,"hopper braces, two per brace"
+M4 x 30 shoulder bolt (5 mm shoulder) + nyloc,cots,2,M4 x 30 shoulder bolt (5 mm shoulder) + nyloc,shuttle drive: shuttle pin (into its insert) and crank pin
+M4 x 30 socket cap screw (servo),cots,5,M4 x 30 socket cap screw (servo),motor plate into the servo bracket's legs; servo tabs into the bracket
+"M4 heat-set insert, 5.7 mm long (servo)",cots,6,"M4 heat-set insert, 5.7 mm long (servo)","servo bracket legs and tabs, shuttle side"
 "Hose clamp, 80-90 mm",cots,1,"Hose clamp, 80-90 mm",hose at the column socket
 Flexible-PVC adhesive or epoxy,cots,1,Flexible-PVC adhesive or epoxy,hose's top end into the take-up collar
 "25 mm strap, 1 m",cots,2,"25 mm strap, 1 m",tub to the shelf
@@ -78,7 +85,7 @@ Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable
 ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmware/esp32, feeder role"
 "50 A+ BLDC ESC, servo-pulse input",cots,2,"50 A+ BLDC ESC, servo-pulse input",launcher wheels
 "Dual DC motor driver, 10 A/ch",cots,1,"Dual DC motor driver, 10 A/ch",base drive
-"Linear actuator, 12-24 V, 100 mm stroke, 30 N+",cots,1,"Linear actuator, 12-24 V, 100 mm stroke, 30 N+",feed shuttle (bracket not modelled yet; clevis pin in the shuttle's rear)
+5-6 V 5 A buck converter (servo supply),cots,1,5-6 V 5 A buck converter (servo supply),shuttle servo: its stall current is a few amps
 "Storage tub, about 440 x 340 x 250 mm",cots,1,"Storage tub, about 440 x 340 x 250 mm",hopper; see the part notes for the cut
 "Stepper driver, 2 A class (TMC2209 or A4988), 24 V",cots,1,"Stepper driver, 2 A class (TMC2209 or A4988), 24 V",azimuth stepper
 TCRT5000 reflective sensor,cots,2,TCRT5000 reflective sensor,wheel tachometers

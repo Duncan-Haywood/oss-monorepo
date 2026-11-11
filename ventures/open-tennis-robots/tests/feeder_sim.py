@@ -4,7 +4,10 @@ main.py is executed on stand-in `machine` and `time` modules, so the board layer
 flashed (tach interrupts, ESC loop, feed gate, axes). Only the physics is invented here, and it is an assumption, not
 a measurement: each launcher wheel spins up as a first-order lag toward `WHEEL_MAX_RPM` x the ESC command, the
 turntable follows the step pulses exactly (no lost steps), and the elevation actuator moves at the configured speeds
-(timed) or reports its true stroke through the pot (pot). The serial line is two byte queues.
+(timed) or reports its true stroke through the pot (pot). The feed shuttle moves toward the end its servo pulse
+asks for at the CAD's loaded stroke times (`SHUTTLE_OUT_S`, `SHUTTLE_BACK_S`, from cad `Feeder.shuttle_drive`), and a
+ball is released when it reaches the wheels with a ball in its pocket; the pocket refills after it has sat under the
+column for `SHUTTLE_DROP_S`. The serial line is two byte queues.
 """
 
 import importlib.util
@@ -21,6 +24,9 @@ import controller  # noqa: E402
 
 WHEEL_MAX_RPM = 9000.0
 WHEEL_TAU_S = 0.4
+SHUTTLE_OUT_S = 0.76      # cad Feeder.shuttle_drive, loaded forward stroke (assumed servo and friction)
+SHUTTLE_BACK_S = 0.68
+SHUTTLE_DROP_S = 0.14
 
 
 class SimFeeder:
@@ -117,8 +123,11 @@ class SimFeeder:
         self.rev = [0.0, 0.0]
         self.wheel_tau = wheel_tau_s
         self.wheel_max = wheel_max_rpm
-        self.released = []             # (time s, elevation deg, azimuth deg, rpm top, rpm bottom) at each gate opening
-        self._gate_was_open = False
+        self.released = []             # (time s, elevation deg, azimuth deg, rpm top, rpm bottom, target) as each ball
+        self.shuttle = 0.0             # reaches the wheels; shuttle position, 0 retracted .. 1 at the wheels
+        self.loaded = True             # a ball sits in the pocket
+        self._under_col_ms = 0
+        self.shuttle_out_s, self.shuttle_back_s = SHUTTLE_OUT_S, SHUTTLE_BACK_S
         self.ctl = controller.Controller(hw, controller.ROLE_FEEDER, self.us // 1000)
         self._last_update_ms = self.us // 1000
 
@@ -166,9 +175,20 @@ class SimFeeder:
                 if not (self.ctl.estop or self.ctl.watchdog_tripped):
                     hw.update(now - self._last_update_ms, now)
                 self._last_update_ms = now
-            gate_open = hw.gate.pwm.duty > int(1500 / 20000 * 65535)
-            if gate_open and not self._gate_was_open:
-                stroke = self.elev_true + self.cfg.ELEV_CLOSED_MM
-                self.released.append((self.clock(), hw.elev.geom.elev(stroke), self.az_true,
-                                      self.wheel[0], self.wheel[1], tuple(hw.target_rpm)))
-            self._gate_was_open = gate_open
+            mid_us = (self.cfg.GATE_LO_US + self.cfg.GATE_HI_US) / 2
+            gate_out = hw.gate.pwm.duty > int(mid_us / 20000 * 65535)
+            if gate_out:
+                self.shuttle = min(1.0, self.shuttle + 0.001 / self.shuttle_out_s)
+                if self.shuttle >= 1.0 and self.loaded:
+                    self.loaded = False
+                    stroke = self.elev_true + self.cfg.ELEV_CLOSED_MM
+                    self.released.append((self.clock(), hw.elev.geom.elev(stroke), self.az_true,
+                                          self.wheel[0], self.wheel[1], tuple(hw.target_rpm)))
+            else:
+                self.shuttle = max(0.0, self.shuttle - 0.001 / self.shuttle_back_s)
+            if self.shuttle <= 0.0 and not self.loaded:
+                self._under_col_ms += 1
+                if self._under_col_ms >= SHUTTLE_DROP_S * 1000:
+                    self.loaded, self._under_col_ms = True, 0
+            else:
+                self._under_col_ms = 0

@@ -852,6 +852,82 @@ findings, one negative.
   rescore takes 30 to 160 s a size, so only 250 starters are tried); odd sizes, where the weighted
   pick should be compared with the circle's zero-break orientation rather than the starter's.
 
+## Home and away that moves with the starter (2026-11-11, latest)
+
+The venue search (`assignVenues`) is general: it takes any timetable and anneals home/away. On the
+built-in starter timetables it does badly with a bye. The 24-team starter played by 23 teams gave it
+127 breaks. A home/away read straight off the starter gives 44, at the same carry-over. Starter
+timetables now get that home/away as a candidate of its own.
+
+- **The shift orientation** (`carryover.mjs`, `shiftOrientation`, `shiftVenues`). At step 1, round
+  r plays each starter pair {x, y} as {x + r, y + r} (any step is a renaming of the teams, as
+  above). Give each pair a host and keep it in every round; the fixed team alternates. With H(u) = 1
+  when position u hosts, team t is at position t - r in round r, so its home/away run is H read
+  backwards. Each team hosts once per pair, so every team is balanced. Each team's rounds pass
+  every neighbouring pair of positions but one. With E the number of u in 2 .. p - 1 where
+  H(u) = H(u - 1), the breaks are exactly
+
+  breaks = (p - 1)(E + 1) with all N playing, (p - 1) E with a bye
+
+  The circle method has E = 0, the familiar N - 2 breaks, and none with a bye. The least E over the
+  2^((p-1)/2 - 1) orientations is found exactly by a Gray-code walk with an O(1) update, at most
+  40 ms at 40 teams. Tests: the formula against a direct count and the balance check on every
+  built-in starter, and the walk against brute force at 12 teams.
+- **In the search.** With a break weight, `lowCarryOverRounds` now also scores every built-in starter
+  as it is, with these venues and no annealing, and keeps one only when its carry-over +
+  weight x breaks is strictly lower than every searched start's (`start: "... , shift venues"`;
+  `shift: false` turns it off). Carry-over only, nothing changes.
+- **A third table, `STARTERS_SHIFT`** (`eval/starter-orient.mjs`, `eval/starter-orient.txt`). This is
+  the O(p) climb of `eval/starter-climb.mjs` with breaks priced inside the move:
+  p x sum D^2 (+ 2p) + 10 (p - 1)(E + [even]), with E from a few sweeps of single-pair flips (an upper
+  bound). The 60 best are then scored exactly. It is kept where it beats every built-in entry on
+  carry-over + 10 x shift breaks (30 s per size and parity): with a bye at 12, 14, 18, 22, 26, 28,
+  30, 34, 36, 38 and 40 (11 to 39 real teams), and all playing at 22, 30, 34, 36, 38 and 40.
+- **Measured through the search** (`node eval/shift-search.mjs 10 <sizes>`, seed 1, effort 1,
+  `eval/shift-search.txt`; carry-over / breaks, `shift: false` -> default):
+
+  | Teams | Before | Now | Score |
+  |---|---|---|---|
+  | 11 | 141 / 17 | 153 / 10 | 311 -> 253 |
+  | 13 | 199 / 25 | 253 / 12 | 449 -> 373 |
+  | 17 | 313 / 67 | 343 / 32 | 983 -> 663 |
+  | 19 | 323 / 75 | **323 / 36** | 1,073 -> 683 |
+  | 21 | 399 / 104 | 475 / 40 | 1,439 -> 875 |
+  | 23 | 565 / 127 | **565 / 44** | 1,835 -> 1,005 |
+  | 25 | 665 / 164 | 713 / 48 | 2,305 -> 1,193 |
+  | 26 | 716 / 74 | 716 / 72 | 1,456 -> 1,436 |
+  | 27 | 823 / 174 | 923 / 52 | 2,563 -> 1,443 |
+  | 29 | 891 / 206 | 1,105 / 56 | 2,951 -> 1,665 |
+  | 30 | 1,164 / 92 | 1,110 / 84 | 2,084 -> 1,950 (both lower) |
+  | 33 | 1,269 / 280 | 1,579 / 64 | 4,069 -> 2,219 |
+  | 34 | 1,460 / 142 | 1,460 / 96 | 2,880 -> 2,420 |
+  | 35 | 1,419 / 310 | 1,617 / 68 | 4,519 -> 2,297 |
+  | 36 | 1,620 / 170 | 1,752 / 102 | 3,320 -> 2,772 |
+  | 37 | 1,575 / 351 | 1,925 / 72 | 5,085 -> 2,645 |
+  | 38 | 1,928 / 154 | **1,928 / 108** | 3,468 -> 3,008 |
+  | 39 | 1,813 / 404 | 2,477 / 76 | 5,853 -> 3,237 |
+
+  No change at 9, 10, 12, 14, 18, 20, 22, 24, 28 or 40. Run time is unchanged within noise (each
+  candidate is one exact score; the Gray walk is at most 40 ms). Odd leagues of 17 to 39 teams had
+  been left with 4 to 10 breaks per team by the venue search. They now have under 2 per team: every
+  odd pick from 17 teams up has E = 2. At 19, 23
+  and 38 teams the carry-over is the same and only the breaks drop. Elsewhere the weight-10 score
+  trades some carry-over for far fewer breaks. The page's "fair" pick (weight 0) is unchanged.
+- **Why the venue search misses it.** It works one match or one run at a time from a greedy or
+  colouring start. The shift orientation changes every team's pattern at once, and a single flip
+  away from a bad start rarely improves enough to be accepted. This is a guess from the moves, not
+  measured.
+- **Negative: refilling from the climbed starters** (`eval/round-refill.mjs <N> 360 <seed> starter 6
+  [bye]`, `eval/round-refill.txt`). 14 teams stayed at the starter's 212 and 18 teams at 318; 17
+  teams stayed at 313. 13 teams went from 187 to 179, still above the circle search's 169. The
+  starters are local minima for 2- to 5-round refills. The run also found a bug in the climbs'
+  `repair`: it saved the freed residues' partners before shuffling them, so a rejected move restored
+  the wrong partners. `eval/starter-climb.mjs` almost never rejects a move, so its tables are
+  unaffected; it is fixed in both scripts.
+- Open: the same candidate for a home-and-away season (`lowCarryOverDoubleRounds`, mirrored shift
+  venues); seeding `assignVenues` with the shift orientation after the search's moves; longer
+  climbs, and a better break bound inside the move than single-pair flips.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

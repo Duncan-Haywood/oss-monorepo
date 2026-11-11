@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, STARTERS_WEIGHTED, circleOpp, assignVenues, TIMETABLES, storedTimetable } from "./carryover.mjs";
+import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, STARTERS_WEIGHTED, STARTERS_SHIFT, circleOpp, assignVenues, venueCost, TIMETABLES, storedTimetable, starterPartner, shiftOrientation, shiftVenues } from "./carryover.mjs";
 
 // pinned values of the stored timetables (carryover.mjs TIMETABLES)
 const STORED_VALUES = { "12/even": 136, "10/odd": 69 };
@@ -69,7 +69,7 @@ test("with a starter built in, the search never scores worse than the circle sta
     const now = lowCarryOverRounds(n, { effort: 0.2, breakWeight });
     const old = lowCarryOverRounds(n, { effort: 0.2, breakWeight, field: false });
     assert.ok(now.coe + breakWeight * now.breaks <= old.coe + breakWeight * old.breaks, `${n} teams, weight ${breakWeight}`);
-    assert.ok(["starter", "timetable", "circle", "weighted starter"].includes(now.start));
+    assert.ok(["starter", "timetable", "circle", "weighted starter", "shift starter"].includes(now.start.replace(/, shift venues$/, "")));
   }
   for (const n of [12, 20]) {
     const now = lowCarryOverDoubleRounds(n, { effort: 0.2 });
@@ -201,4 +201,84 @@ test("with a break weight, the weighted-starter run is kept only when strictly b
   }
   // carry-over only: the weighted table is not used
   assert.notEqual(lowCarryOverRounds(12, { effort: 0.2 }).start, "weighted starter");
+});
+
+// --- shift venues (carryover.mjs shiftOrientation, shiftVenues; eval/starter-orient.mjs) ---
+
+function breaksOf(venues, opp, n) {
+  let b = 0;
+  for (let t = 0; t < n; t++) {
+    let last = null;
+    for (let r = 0; r < opp.length; r++) {
+      if (opp[r][t] >= n) { last = null; continue; }
+      const v = venues[r][t] ? 1 : 0;
+      if (last === v) b++;
+      last = v;
+    }
+  }
+  return b;
+}
+const pairsOfF = (f, p) => { const out = []; for (let x = 1; x < p; x++) if (x < f[x]) out.push([x, f[x]]); return out; };
+
+test("shift venues: breaks are (p - 1)(E + 1), or (p - 1) E with a bye, and every team is balanced", () => {
+  for (const table of [STARTERS, STARTERS_WEIGHTED, STARTERS_SHIFT]) for (const [key, entry] of Object.entries(table)) {
+    const N = Number(key), p = N - 1;
+    for (const kind of Object.keys(entry)) {
+      const n = kind === "even" ? N : N - 1;
+      const f = starterPartner(N, entry[kind]);
+      const opp = starterOpp(N, pairsOfF(f, p), { step: 1 });
+      checkTimetable(opp, N);
+      // the step-1 timetable is the stored one renamed: same carry-over
+      const { step, pairs } = decode(entry[kind]);
+      assert.equal(carryOverFromOpponents(seqs(opp, n)).value, carryOverFromOpponents(seqs(starterOpp(N, pairs, { step }), n)).value, `${N} ${kind}`);
+      const { E, H } = shiftOrientation(f, p);
+      const venues = shiftVenues(N, f, H);
+      for (let r = 0; r < p; r++) for (let t = 0; t < N; t++) assert.notEqual(venues[r][t], venues[r][opp[r][t]], "one host per match");
+      const b = breaksOf(venues, opp, n);
+      assert.equal(b, (p - 1) * (E + (n === N ? 1 : 0)), `${N} ${kind}`);
+      assert.equal(venueCost(venues, opp, n), b, `${N} ${kind}: balanced`);
+    }
+  }
+});
+
+test("shift venues: the circle starter has E = 0 (N - 2 breaks, none with a bye); E is the least over every orientation", () => {
+  for (const N of [8, 12, 20]) {
+    const p = N - 1, f = new Int16Array(p);
+    for (let i = 1; i < p; i++) f[i] = p - i;
+    assert.equal(shiftOrientation(f, p).E, 0);
+  }
+  // brute force at 12 teams: every orientation of every built-in 12-team starter
+  for (const table of [STARTERS, STARTERS_WEIGHTED]) for (const kind of ["even", "odd"]) {
+    const entry = table[12]?.[kind];
+    if (!entry) continue;
+    const p = 11, f = starterPartner(12, entry), xs = pairsOfF(f, p).map(([x]) => x);
+    let least = Infinity;
+    for (let bits = 0; bits < 1 << xs.length; bits++) {
+      const H = new Uint8Array(p);
+      xs.forEach((x, i) => { H[x] = (bits >> i) & 1; H[f[x]] = 1 - H[x]; });
+      let E = 0;
+      for (let u = 2; u < p; u++) if (H[u] === H[u - 1]) E++;
+      least = Math.min(least, E);
+    }
+    assert.equal(shiftOrientation(f, p).E, least);
+  }
+});
+
+test("with a break weight, shift venues are kept only when strictly better, and halve odd leagues' breaks", () => {
+  for (const n of [11, 13, 17, 23]) {
+    const on = lowCarryOverRounds(n, { effort: 0.2, breakWeight: 10 });
+    const off = lowCarryOverRounds(n, { effort: 0.2, breakWeight: 10, shift: false });
+    assert.ok(on.coe + 10 * on.breaks <= off.coe + 10 * off.breaks, `${n} teams`);
+    if (on.start.endsWith("shift venues")) assert.ok(on.coe + 10 * on.breaks < off.coe + 10 * off.breaks);
+    const met = new Set();
+    for (const rd of on.rounds) for (const [h, a] of rd.matches) met.add(Math.min(h, a) * 100 + Math.max(h, a));
+    assert.equal(met.size, (n * (n - 1)) / 2);
+  }
+  // 23 teams: the 24-team starter as it is, 565 carry-over and 44 breaks (the venue search: 127)
+  const r = lowCarryOverRounds(23, { effort: 0.2, breakWeight: 10 });
+  assert.equal(r.start, "starter, shift venues");
+  assert.equal(r.coe, 565);
+  assert.equal(r.breaks, 44);
+  // carry-over only: unchanged
+  assert.ok(!lowCarryOverRounds(23, { effort: 0.2 }).start.endsWith("shift venues"));
 });

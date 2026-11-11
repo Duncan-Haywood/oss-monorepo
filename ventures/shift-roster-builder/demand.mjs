@@ -479,7 +479,38 @@ function cheapestStretch(profile, staffed, h, e, minShift, cost) {
 const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 
 // Everything at once. Returns { shiftsText, days: [{day, needed, scheduled, shifts}], needed, scheduled, extra, sales, notes, skipped }.
+// --half-life auto: pick the weighting from the shop's own past weeks. Runs the backtest (shifts cut and scored as the
+// CLI scores them, at the same short cost) for every earlier week equal and half-lives 8, 4 and 2, and keeps the one
+// with the least (r x) short + over a week; a tie keeps the plain average. Needs AUTO_MIN_WEEKS tested weeks, else
+// plain. Measured 2026-11-11 (eval/halflife-default.mjs, README "Picking the half-life from your own weeks"): chosen
+// this way week by week on two real bakeries it was never clearly worse than the plain average in 12 settings and
+// 7.4% better on average, where a fixed half-life 2 was clearly worse in 2 and half-lives 4 and 8 helped less.
+export const AUTO_MIN_WEEKS = 4;
+export function pickHalfLife(text, o = {}) {
+  const rc = o.shortCost === undefined ? null : Number(o.shortCost);
+  const ids = ["hl8", "hl4", "hl2"];
+  const pre = rc === null ? "" : "q-";
+  let b;
+  try { b = backtestSales(text, { ...o, halfLife: undefined, shifts: true, methods: rc === null ? ids : ["all", ...ids].map((x) => pre + x) }); }
+  catch { return { halfLife: undefined, note: "Half-life auto: the file could not be backtested, so every earlier week weighs the same." }; }
+  if (b.weeks < AUTO_MIN_WEEKS) return { halfLife: undefined, weeks: b.weeks, note: `Half-life auto: ${b.weeks} full week${b.weeks === 1 ? "" : "s"} to test on, fewer than ${AUTO_MIN_WEEKS}, so every earlier week weighs the same.` };
+  const cands = b.methods.filter((m) => m.id === pre + "all" || ids.some((x) => m.id === pre + x));
+  const base = cands.find((m) => m.id === pre + "all");
+  const best = cands.reduce((a, m) => (m.miss < a.miss - 1e-9 ? m : a), base);
+  const hl = best.halfLife;
+  const what = hl ? `half-life ${hl} weeks` : "every earlier week weighed the same";
+  const gain = base.miss - best.miss;
+  return { halfLife: hl, weeks: b.weeks, note: `Half-life auto: ${what}, the weighting with the least short + over on your last ${b.weeks} weeks${hl ? ` (${gain.toFixed(1)} person-hours a week fewer than equal weights)` : ""}. --half-life none turns it off; a number fixes it.` };
+}
+
 export function demandShifts(text, o = {}) {
+  if (o.halfLife === "auto") {
+    const p = pickHalfLife(text, o);
+    const r = demandShifts(text, { ...o, halfLife: p.halfLife });
+    r.notes.push(p.note); r.halfLife = p.halfLife;
+    return r;
+  }
+  if (o.halfLife === "none" || o.halfLife === 0) o = { ...o, halfLife: undefined };
   const s = hourlySales(text, { ...o, priceCut: o.costCut !== false });
   if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped };
   const prof = headcount(s.avg, s.observed, { ...o, seen: s.seen, heads: s.heads });
@@ -571,7 +602,9 @@ export function backtestSales(text, o = {}) {
   // over; the plain average stays first as the baseline everything is compared with.
   const rc = o.shortCost === undefined ? null : Number(o.shortCost);
   if (rc !== null) shortCostShare(rc);
-  const methods0 = rc === null ? BACKTEST_METHODS : [BACKTEST_METHODS[0], ...BACKTEST_METHODS.map((m) => ({ ...m, id: "q-" + m.id, label: `${m.id === "all" ? "every earlier week" : m.label}, short cost ${rc}`, shortCost: rc }))];
+  const methodsAll = rc === null ? BACKTEST_METHODS : [BACKTEST_METHODS[0], ...BACKTEST_METHODS.map((m) => ({ ...m, id: "q-" + m.id, label: `${m.id === "all" ? "every earlier week" : m.label}, short cost ${rc}`, shortCost: rc }))];
+  // o.methods: ids to run (the baseline "all" always runs first), so pickHalfLife skips the windows it never picks.
+  const methods0 = o.methods ? methodsAll.filter((m, i) => i === 0 || o.methods.includes(m.id)) : methodsAll;
   const results = methods0.map((m) => ({ ...m, short: [], over: [], scheduled: [], shortHours: [] }));
   for (const w of tested) {
     const start = monday0 + w * 7 * DAY_MS;
