@@ -57,7 +57,7 @@
     <p class="note">BANK STATEMENT PDF TO CSV · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Convert a bank or card statement PDF to CSV, and see whether it adds up</h1>
     <p>Choose a <strong>text-based statement PDF</strong> (or paste the text). Every dated line is read into a row, then the result is <strong>proved against the statement</strong>: opening balance plus the transactions must equal the closing balance, and each row is checked against the running balance the bank printed. If it is off, you are told <strong>by how much and where</strong>, instead of finding out when the books do not reconcile. Download CSV for <strong>Xero</strong>, <strong>QuickBooks Online</strong> or a spreadsheet.</p>
-    <p class="note">The PDF is read in this browser tab and never leaves your device: no upload, no account. No OCR, so scanned paper statements cannot be read. Independent of every bank and accounting vendor. The reader was tested on generated statements and on the synthetic examples below, not on a library of real bank PDFs, so every bank's layout is a guess until someone checks it: use the balance check, and report a statement it misreads.</p>
+    <p class="note">The PDF is read in this browser tab and never leaves your device: no upload, no account. No OCR, so scanned paper statements cannot be read. Independent of every bank and accounting vendor. The reader is tested on generated statements and on an independent, public benchmark of statement PDFs (five synthetic statements from five countries in English, Dutch, French and Chinese, all five read to the right row count and proved by their balances), plus two statement PDFs from other open-source parsers. None is a real customer's statement, so a bank's layout is still a guess until someone checks it: use the balance check, and report a statement it misreads.</p>
   </header>
 <main>
 
@@ -69,7 +69,7 @@
     <label for="paste">…or paste the statement text</label>
     <textarea id="paste" spellcheck="false" wrap="off" placeholder="Beginning balance   $4,210.55&#10;01/02   ACH CREDIT STRIPE PAYOUT   1,420.00   5,630.55&#10;..."></textarea>
     <div class="grid">
-      <div><label for="kind">Account type</label><select id="kind"><option value="bank">Bank account (money in is positive)</option><option value="card">Credit card (charges are positive on the statement)</option></select></div>
+      <div><label for="kind">Account type</label><select id="kind"><option value="auto">Detect from the statement</option><option value="bank">Bank account (money in is positive)</option><option value="card">Credit card (charges are positive on the statement)</option></select></div>
       <div><label for="date-order">Dates like 03/04/2026 are</label><select id="date-order"><option value="auto">Detect (warn if unclear)</option><option value="mdy">Month/day (US)</option><option value="dmy">Day/month (UK, EU)</option></select></div>
       <div><label for="year">Year for dates printed without one</label><input id="year" inputmode="numeric" placeholder="from the statement period" maxlength="4"></div>
     </div>
@@ -95,6 +95,7 @@
     <div class="grid">
       <div><label for="layout">CSV layout</label><select id="layout"><option value="generic">Date, Description, Amount, Balance</option><option value="split">Date, Description, Debit, Credit, Balance</option><option value="xero">Xero statement import</option><option value="qbo3">QuickBooks Online, 3 columns</option><option value="qbo4">QuickBooks Online, 4 columns</option></select></div>
       <div><label for="out-date">Dates in the CSV</label><select id="out-date"><option value="auto">Layout default</option><option value="iso">YYYY-MM-DD</option><option value="dmy">DD/MM/YYYY</option><option value="mdy">MM/DD/YYYY</option></select></div>
+      <div id="account-pick" hidden><label for="account">Account</label><select id="account"></select></div>
       <div><label for="decimal">Decimal mark</label><select id="decimal"><option value=".">Point (1234.56)</option><option value=",">Comma (1234,56)</option></select></div>
     </div>
     <p><button type="button" id="dl-csv">Download CSV</button> <button type="button" class="secondary" id="dl-findings">Download findings as CSV</button></p>
@@ -105,11 +106,14 @@
     <h2>The model, and what it leaves out</h2>
     <ul>
       <li><strong>Reading the PDF:</strong> the text layer is read directly (FlateDecode streams, compressed object streams, ToUnicode character maps) and grouped into lines by position. Nothing is rendered and nothing is recognised from pictures.</li>
-      <li><strong>Rows:</strong> a transaction starts with a date (or a transaction date and a posting date), has a description, and ends with one to three amounts. A line below with no date and no amount is added to the description above it.</li>
+      <li><strong>Rows:</strong> a transaction starts with a date (or a transaction date and a posting date), has a description, and ends with one to three amounts. A line below with no date and no amount is added to the description above it if it starts under the description; a line with no date but an amount under the table's columns is its own row on the date above (many banks print the date once a day). Text printed in the same place on every page, such as a footer or watermark, is never added.</li>
+      <li><strong>Languages and formats:</strong> month names in English, French, Dutch, German, Spanish, Italian and Portuguese; headings and balance labels such as Solde d'ouverture, Beginsaldo, Saldo anterior or Alter Kontostand; amounts like 1,234.56, 1.234,56 and 1 234,56 $, and 1935.3 on statements that print one decimal.</li>
+      <li><strong>Several accounts in one PDF:</strong> a line naming an account, followed by a running balance that restarts, begins a new account. Each account is checked on its own: its running balance must be unbroken and its rows must match its printed deposit and withdrawal totals. Pick one account for a Xero or QuickBooks file, or download all with an Account column.</li>
+      <li><strong>Bank or card:</strong> detected from phrases only card statements print (minimum payment due, payment due date, credit limit), or chosen by you.</li>
       <li><strong>Money in or out:</strong> from the running balance when the statement prints one (the sign that makes the balance add up wins), otherwise from the Debit/Credit or Withdrawals/Deposits column the amount sits under, otherwise from a minus sign, brackets or CR/DR. An amount with none of these is shown as money in and called a guess.</li>
       <li><strong>Balance check:</strong> opening + all rows = closing, in whole cents with no floating point. A gap is reported with its amount, a missing-row, wrong-side or flipped-sign hint, and the line where the running balance first breaks.</li>
       <li><strong>Also checked:</strong> the statement's own "total deposits" and "total withdrawals" lines, dates that are not real days, a missing year, and identical rows.</li>
-      <li><strong>Not checked:</strong> that the file matches your bank's online record or your books, scanned or image-only statements, password-protected PDFs, statements whose text has no character map, several accounts or currencies in one PDF, and bank-specific layouts nobody has tried. The import layouts for Xero and QuickBooks are written from memory of their public import help and were not tested against a live import.</li>
+      <li><strong>Not checked:</strong> that the file matches your bank's online record or your books, scanned or image-only statements, password-protected PDFs, statements whose text has no character map, currency conversion between accounts in one PDF, a description printed on the line above its amount, and bank-specific layouts nobody has tried. The import layouts for Xero and QuickBooks are written from memory of their public import help and were not tested against a live import.</li>
     </ul>
   </section>
 
@@ -170,13 +174,16 @@
     function show(r) {
       last = r;
       const errs = r.findings.filter((x) => x.severity === "error").length, warns = r.findings.filter((x) => x.severity === "warning").length;
-      const proof = r.reconcile.ok === true ? "balances agree" : r.reconcile.ok === false ? "balances do NOT agree" : "balances not found, unproven";
+      const proof = r.reconcile.ok === true ? (r.reconcile.method === "sections" ? `${r.reconcile.sections.length} accounts, each adds up` : "balances agree") : r.reconcile.ok === false ? "balances do NOT agree" : "balances not found, unproven";
       $("#report-stats").innerHTML = `<strong>${r.transactions.length} transaction${r.transactions.length === 1 ? "" : "s"}</strong> · ${proof} · ${errs} error${errs === 1 ? "" : "s"}, ${warns} warning${warns === 1 ? "" : "s"}`;
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity === "error" ? "high" : f.severity === "warning" ? "medium" : "info"}">${f.severity}</span>${f.line ? `Line ${f.line}: ` : ""}${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
       const b = r.reconcile;
       const cell = (label, v, cls = "") => `<tr><th scope="row">${label}</th><td class="n ${cls}">${v === null || v === undefined ? "not found" : money(v)}</td></tr>`;
       $("#balance").innerHTML = cell("Opening balance", b.opening) + cell("Sum of the transactions", r.transactions.length ? b.sum : null) + cell("Opening + transactions", b.expected) + cell("Closing balance on the statement", b.closing) + (b.diff === null || b.diff === undefined ? "" : cell("Difference", b.diff, b.diff ? "short" : ""));
       $("#rows").innerHTML = r.transactions.map((t) => `<tr><td>${t.line}</td><td>${esc(t.dateText)}</td><td>${esc(t.description)}</td><td class="n ${t.source === "guess" ? "short" : ""}">${money(t.amount)}</td><td class="n">${t.balance === null ? "—" : money(t.balance)}</td><td>${t.source}</td></tr>`).join("") || `<tr><td colspan="6">No transactions.</td></tr>`;
+      const secs = r.reconcile.method === "sections" ? r.reconcile.sections : null;
+      $("#account-pick").hidden = !secs;
+      $("#account").innerHTML = secs ? `<option value="">All accounts (Account column)</option>` + secs.map((x) => `<option value="${x.account}">${esc(x.title || `Account ${x.account + 1}`)} (${x.rows} rows)</option>`).join("") : "";
       report.hidden = false;
       status.textContent = errs ? `Found ${errs} error(s); read the first one.` : `${r.transactions.length} transactions read.`;
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
@@ -209,7 +216,9 @@
       if (!last) return;
       record("csv_downloaded");
       const d = $("#out-date").value;
-      download("statement.csv", toCsv(last, { layout: $("#layout").value, dateFormat: d === "auto" ? undefined : d, decimal: $("#decimal").value }), "text/csv");
+      const acct = $("#account-pick").hidden ? null : $("#account").value;
+      if (acct === "" && ["xero", "qbo3", "qbo4"].includes($("#layout").value)) { status.textContent = "Xero and QuickBooks import one account at a time: pick the account first."; return; }
+      download("statement.csv", toCsv(last, { layout: $("#layout").value, dateFormat: d === "auto" ? undefined : d, decimal: $("#decimal").value, account: acct }), "text/csv");
     });
     $("#dl-findings").addEventListener("click", () => { if (last) download("statement-findings.csv", findingsCsv(last), "text/csv"); });
     $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });

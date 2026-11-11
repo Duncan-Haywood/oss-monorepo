@@ -72,13 +72,22 @@ const GLYPHS = {
   asciitilde: '~', endash: '–', emdash: '—', bullet: '•', Euro: '€', sterling: '£', yen: '¥', cent: '¢', quoteright: '’',
   quoteleft: '‘', quotedblleft: '“', quotedblright: '”', nbspace: ' ', nonbreakingspace: ' ',
 };
+// Accented letters by glyph name: "eacute" -> "é", "Udieresis" -> "Ü".
+const ACCENTS = { acute: '\u0301', grave: '\u0300', circumflex: '\u0302', dieresis: '\u0308', tilde: '\u0303', cedilla: '\u0327', ring: '\u030a', caron: '\u030c' };
 function glyphToChar(name) {
   if (name in GLYPHS) return GLYPHS[name];
   if (/^[A-Za-z]$/.test(name)) return name;
   let m = /^uni([0-9A-Fa-f]{4})$/.exec(name);
   if (m) return String.fromCharCode(parseInt(m[1], 16));
+  if ((m = /^([A-Za-z])(acute|grave|circumflex|dieresis|tilde|cedilla|ring|caron)$/.exec(name))) return (m[1] + ACCENTS[m[2]]).normalize('NFC');
+  if (name === 'germandbls') return 'ß';
   return null;
 }
+
+// WinAnsiEncoding (Windows-1252) differs from Latin-1 only in 0x80-0x9F, which
+// holds the euro sign, curly quotes and dashes that statements print. It is
+// also the right guess for a simple font that names no encoding.
+const WIN_ANSI_HIGH = '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008dŽ\u008f\u0090‘’“”•–—˜™š›œ\u009džŸ';
 
 // --- Fonts --------------------------------------------------------------
 
@@ -101,6 +110,7 @@ async function loadFont(fontRef, objects, binaryStr, inflate) {
     if (composite) font.unreadable = true;
     else {
       const enc = resolve(dict.get('Encoding'), objects);
+      if (isName(enc, 'MacRomanEncoding') || (isDict(enc) && isName(enc.get('BaseEncoding'), 'MacRomanEncoding'))) font.macRoman = true;
       if (isDict(enc)) {
         const diffs = resolve(enc.get('Differences'), objects);
         if (Array.isArray(diffs)) {
@@ -134,7 +144,7 @@ function decodeString(str, font) {
   for (let i = 0; i < str.length; i++) {
     const code = str.charCodeAt(i) & 0xff;
     const d = font.differences ? font.differences.get(code) : undefined;
-    out += d !== undefined ? d : String.fromCharCode(code);
+    out += d !== undefined ? d : code >= 0x80 && code <= 0x9f && !font.macRoman ? WIN_ANSI_HIGH[code - 0x80] : String.fromCharCode(code);
   }
   return out;
 }
@@ -261,13 +271,32 @@ export function groupLines(runs, page = 1) {
     if (last && Math.abs(last.key - it.key) <= tol) last.items.push(it);
     else lines.push({ key: it.key, items: [it], page });
   }
-  return lines.map((l) => {
+  const est = (it) => it.x + it.size * 0.5 * it.text.trimEnd().length;
+  const out = [];
+  for (const l of lines) {
     l.items.sort((a, b) => a.x - b.x);
-    return {
-      page: l.page,
-      items: l.items.map((it) => ({ text: it.text.replace(/ /g, ' '), x: it.x, xEnd: it.x + it.size * 0.5 * it.text.length })),
-    };
-  });
+    // Two pieces of text that cover the same stretch of the line cannot be one
+    // line of text: a footer or watermark printed over a row a point or two
+    // higher or lower. Split such a group by exact height.
+    const overlap = l.items.some((a, i) => l.items.slice(i + 1).some((b) => a.text.trim() && b.text.trim() && b.x < est(a) - a.size * 0.5 && a.x < est(b) - b.size * 0.5));
+    const groups = [];
+    if (overlap) {
+      for (const it of [...l.items].sort((a, b) => a.key - b.key)) {
+        const g = groups[groups.length - 1];
+        if (g && Math.abs(g.key - it.key) <= 0.5) g.items.push(it);
+        else groups.push({ key: it.key, items: [it] });
+      }
+      groups.forEach((g) => g.items.sort((a, b) => a.x - b.x));
+    } else groups.push(l);
+    for (const g of groups) {
+      out.push({
+        page: l.page,
+        key: g.key,
+        items: g.items.map((it) => ({ text: it.text.replace(/ /g, ' '), x: it.x, xEnd: it.x + it.size * 0.5 * it.text.length })),
+      });
+    }
+  }
+  return out;
 }
 
 // --- Pages --------------------------------------------------------------
