@@ -34,6 +34,19 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Did immigration or fertility hold the US Catholic share up? (milestone 5b, 2026-11-11)
+
+Immigration. Between 1990-99 and 2010-18 the GSS Catholic share of adults slipped from 26.4% to 25.0%. Counterfactual
+reweighting (`experiments/m5h_fertility/`) gives first-generation immigrants **+1.07 points [+0.52, +1.68]** of that change and
+the higher fertility of Catholic mothers **-0.37 [-0.69, -0.02]**: fertility added about 1 point to the level in both
+decades (1.17 in the 1990s, 0.81 in 2010-18; Catholic mothers born 1925-60 had about 1.1 times the children of other
+mothers), but that boost was shrinking, while immigrants added 2.3 then 3.4 points. Hypothesis H4 is supported and the
+result survives every sensitivity tried. From 2010-18 to 2021-24 the immigrant contribution fell (-1.38), the larger
+channel in the recent drop. Limits: survivors' fertility, religion at interview, children assumed to take the mother's
+religion. The model under-explains the share raised Catholic by 2-4 points for cohorts born 1925-69; crediting all of
+that to fertility lifts the fertility level to about 2.2 points, but flat across decades, so its share of the 1990-2018
+change stays about zero (details in `LOG.md`).
+
 ## Retention models (milestone 4, 2026-11-04)
 
 Among Catholic-raised adults aged 30+ (GSS 2000-2024, n = 7,155), design-based logistic models
@@ -70,6 +83,7 @@ python3 experiments/m1_subgroups/run.py      # needs pandas and numpy; about 60 
 python3 experiments/m1_subgroups/figure.py   # stdlib only
 python3 experiments/m3_mode/run.py           # mode effect on 2021-24 attendance; about 30 s
 python3 experiments/m3b_randomised/run.py     # randomised mode arms, 2022 and 2024; about 60 s
+python3 experiments/m5h_fertility/run.py      # fertility vs immigration channel (H4); about 10 min with the bootstrap
 PY=$(python3 platform/ci/pyenv.py pytest numpy pandas)   # bare python3 lacks all three; scipy is not needed
 "$PY" -m pytest -q research/catholic-demography/test_cathdem.py   # from the repo root; no download needed
 ```
