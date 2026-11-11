@@ -407,7 +407,7 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
   // problem is infeasible or cannot beat the best roster) it returns to the step before and pins that step's next fractional
   // candidate instead, up to `backtrack` such retries in all (a retry is one extra pinned LP). A roster found above the root
   // bound does not end the search: it only tightens the cut, so later branches must beat it. Still a heuristic: rosters only,
-  // never a floor.
+  // never a floor. Retries stop once half of `ms` is spent, so a long dive leaves the tree its share of the time.
   const runDive = (maxSteps, width, backtrack = 0) => {
     let retries = backtrack;
     const goal = () => cut(root.bound); // a roster meets the root bound
@@ -445,7 +445,7 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
       if (!first) return;
       go(first, depth + 1);
       // Retry this step with the next candidates, one pin each, while retries last and no roster meets the root bound.
-      for (let i = 1; i < fits.length && retries > 0 && !goal() && !timeUp(); i++) {
+      for (let i = 1; i < fits.length && retries > 0 && !goal() && Date.now() - t0 < ms / 2; i++) {
         if (roundUp(r.bound, unit) >= best - tolerance - 1e-9) return; // a roster found below now beats this whole subtree
         const alt = pick(i, 1);
         if (!alt) continue;
