@@ -51,7 +51,7 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module script imports only local files and parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./checkout.mjs", "./consensus.mjs", "./engine.mjs", "./licence.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./engine.mjs", "./licence.mjs", "./multi-view.mjs", "./report.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));

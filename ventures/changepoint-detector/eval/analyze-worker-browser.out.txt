@@ -1,0 +1,18 @@
+6000 seeded points, browser cores 4; analyze() in Node: 1919 ms
+click returned after 1 ms; results shown 2229 ms after it
+a 50 ms timer fired 44 times while it ran, worst 21 ms late
+ok   worker summary matches Node
+ok   page answers while the analysis runs (click < 200 ms, timer lag < 200 ms)
+ok   a newer run replaces a busy one; the stale result never shows
+ok   several-columns example runs in the worker: "3 columns, 1751 points. Changes every setting agrees on, column by col..."
+ok   without workers the page runs it on the main thread and gets the same summary
+
+data/treering.csv, browser cores 4; analyze() in Node: 3991 ms
+click returned after 1 ms; results shown 4705 ms after it
+a 50 ms timer fired 93 times while it ran, worst 29 ms late
+ok   worker summary matches Node
+ok   page answers while the analysis runs (click < 200 ms, timer lag < 200 ms)
+ok   a newer run replaces a busy one; the stale result never shows
+ok   several-columns example runs in the worker: "3 columns, 1751 points. Changes every setting agrees on, column by col..."
+ok   without workers the page runs it on the main thread and gets the same summary
+
