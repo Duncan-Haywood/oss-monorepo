@@ -4,7 +4,15 @@
 // uncompensated amount divided by the state's "penalty divisor" (average monthly private-pay nursing-home cost). The
 // divisor, the window, partial-month handling and the exemptions are state-specific, so every one is an input.
 
-export const EXEMPT_WORDS = /\b(exempt|spouse|wife|husband|disabled|blind|caregiver|care\s*giver|sibling|trust)\b/i;
+// A transfer leaves the total only when its note carries the explicit word "exempt" (and not "not exempt" or
+// "non-exempt"). Words such as "spouse" or "disabled" are never enough on their own: "daughter, not disabled" or
+// "niece, trust fund" would otherwise vanish from the total and understate the penalty (quality audit
+// portfolio/quality/audits/2026-11-07-medicaid-lookback-penalty-calculator.json, defect 0). Notes that name an
+// exempt category without the marker are counted and flagged instead.
+export const EXEMPT_MARK = /\bexempt\b/i;
+export const NOT_EXEMPT = /\b(not|non|isn'?t)[\s-]+exempt\b/i;
+export const EXEMPT_HINTS = /\b(spouse|wife|husband|disabled|blind|caregiver|care\s*giver|sibling|trust)\b/i;
+export const isExempt = (note) => EXEMPT_MARK.test(note) && !NOT_EXEMPT.test(note);
 
 export const SAMPLE = {
   applicationDate: "2026-10-01",
@@ -64,7 +72,7 @@ export function parseGifts(text) {
     if (!date) return errors.push(`Gift line ${i + 1}: the date "${parts[0]}" is not YYYY-MM-DD or M/D/YYYY.`);
     if (!Number.isFinite(amount) || amount <= 0) return errors.push(`Gift line ${i + 1}: the amount "${parts[1] ?? ""}" is not a positive number.`);
     const note = parts.slice(2).join(", ");
-    gifts.push({ line: i + 1, date, amount, note, exempt: EXEMPT_WORDS.test(note) });
+    gifts.push({ line: i + 1, date, amount, note, exempt: isExempt(note), hint: !isExempt(note) && EXEMPT_HINTS.test(note) });
   });
   return { gifts, errors };
 }
@@ -133,6 +141,8 @@ export function compute(raw) {
   if (s.total > 0) findings.push({ severity: "high", title: `${dollars(s.total)} of transfers count, which is a penalty of about ${s.whole} month(s)${s.days ? ` and ${s.days} day(s)` : ""} without Medicaid nursing-home coverage from ${iso(s.penaltyStart)}.` });
   else findings.push({ severity: "info", title: "Nothing in the window counts, on these figures. That depends on every transfer being listed and every exemption being provable." });
   if (s.rows.some((r) => r.exempt && r.inWindow)) findings.push({ severity: "medium", title: "Some transfers are marked exempt (spouse, disabled child, caregiver child and similar). The state decides whether each one qualifies; keep the paperwork that proves it." });
+  const hinted = s.rows.filter((r) => r.counts && r.hint);
+  if (hinted.length) findings.push({ severity: "medium", title: `Gift line(s) ${hinted.map((r) => r.line).join(", ")} mention a spouse, disabled or blind child, caregiver, sibling or trust but are counted. Only a note with the word exempt is left out; add it only if the transfer really meets the state's exemption.` });
   const near = s.rows.filter((r) => !r.inWindow && r.date < s.start && addMonths(r.date, input.lookbackMonths + 6) >= input.applicationDate);
   if (near.length) findings.push({ severity: "medium", title: `${near.length} transfer(s) fall just outside the window (within six months of the edge). A different application date or a longer state window would bring them in.` });
   if (input.returned > 0 && s.gross > 0) findings.push({ severity: "info", title: `Returning ${dollars(Math.min(input.returned, s.gross))} reduces the penalty by about ${(Math.min(input.returned, s.gross) / input.divisor).toFixed(1)} month(s). States differ on whether a partial return is accepted.` });
