@@ -1350,9 +1350,10 @@ What each pattern does to the shipped pool, and what each scheme recovers
 | random, 50% | 20 | 0.886 | -0.01 | 0.1% | +0.053 to +0.075 | 0 | +0.045 to +0.067 | -0.004 to +0.002 |
 | salience, 25% | 20 | 0.902 | **+0.27** | 0.6% | +0.053 to +0.067 | 0 | +0.044 to +0.050 | +0.015 to +0.024 |
 | salience, 40% | 20 | 0.773 | **+0.51** | **4.0%** | +0.167 to +0.197 | 0 | +0.064 to +0.091 | +0.033 to +0.047 |
+| salience, 40% | 60 | 0.775 | **+0.50** | **8.9%** | +0.197 to +0.204 | 0 | +0.070 to +0.083 | +0.054 to +0.061 |
 | salience, 50% | 20 | 0.627 | **+0.68** | **9.4%** | +0.294 to +0.363 | 0 | **-0.051 to -0.038** | -0.049 to -0.034 |
-| dissent, 25% | 20 | 0.958 | -0.01 | 0.0% | -0.048 to -0.047 | 0 | **-0.022 to -0.021** | -0.022 to -0.018 |
-| dissent, 40% | 20 | 0.952 | -0.01 | 0.0% | -0.150 to -0.147 | 0 | **-0.027 to -0.022** | -0.033 to -0.028 |
+| dissent, 25% | 20 | 0.957 | -0.02 | 0.0% | -0.053 to -0.047 | 0 | **-0.022 to -0.018** | -0.022 to -0.018 |
+| dissent, 40% | 20 | 0.948 | -0.02 | 0.0% | -0.171 to -0.147 | 0 | **-0.027 to -0.022** | -0.041 to -0.028 |
 
 How well the leave-one-out agreement tells careless from honest (AUC, honest
 over careless; share under 0.2): random and first 0.97-1.00 (honest 0-2.2% under,
@@ -1368,6 +1369,9 @@ What it shows:
   the panel, 0.51 at 40%) and make it *confidently* wrong: up to 4.0% and 9.4%
   of the pairs the rank ranges call clear are the wrong way round, where every
   other pattern, and every random-lapse cell before, stayed under 1.5%.
+  A bigger panel makes it worse, not better: at 60 respondents with 40%
+  picking by salience, 8.9% of clear pairs are the wrong way round (1.9% at a
+  quarter), because more people narrow the ranges around the same bias.
 - **A favourite item does nothing.** Each person's favourite is different, so
   across a panel they cancel; the pool's order is unchanged (oracle-drop never
   helps, -0.031 to +0.004).
@@ -1382,10 +1386,17 @@ What it shows:
 - **Agreement weighting helps against careless minorities but taxes real
   minorities.** `loo-w` recovered about 60-90% of oracle-drop for random and
   first, and for salience at 10-25% (about 45% at 40%), and cost honest-only panels nothing (-0.004 to +0.002).
-  But it took 0.01 to 0.03 from a genuine 25-40% camp (beyond 2 SE in 16 of 22
-  dissent cells) and backfired at 50% salience (-0.03 to -0.11), where the
+  But it took 0.01 to 0.03 from a genuine 25-40% camp (beyond 2 SE in 36 of 48
+  dissent cells, up in none) and backfired at 50% salience (-0.03 to -0.11), where the
   careless are the majority view. Agreement cannot tell a careless block from
   a camp: both score about the same.
+- **Half-time carelessness (q = 0.5) is quieter and mostly invisible.** People
+  who flip a coin on half their answers cost nothing (oracle-drop -0.010 to
+  +0.012), as the lapse sections found. People who pick by salience on half
+  their answers still pull the pool toward it (+0.12 at a quarter of the
+  panel, +0.27 to +0.29 at half), but only 5-13% of them fall under 0.2
+  agreement, so the note will rarely fire for them; `loo-w` would recover a
+  third to a half of oracle-drop (+0.005 to +0.034).
 - **The median pool is no defence**: slightly worse than shipped on honest
   panels (-0.003 to -0.016) and against slot clickers (-0.07), a little better
   against salience (+0.015 to +0.047).

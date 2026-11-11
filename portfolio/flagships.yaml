@@ -241,23 +241,28 @@ flagships:
       not shipped (INFORMATION-GAIN-SELECTOR.md): careless-answer fallback;
       Glicko lapse term (glicko2.ts `lapse`; a fixed e is a discount, not a
       detector); per-respondent lapse estimate (lapseEstimate.ts; no signal
-      under staged). Anchor pairs and a pooled survey prior 2026-11-11
-      (scripts/anchor-lapse-sweep.ts, pooledLapsePrior; section "Anchor pairs
-      and a pooled survey prior"): under staged, one easy pair in five lifts
-      honest-vs-lapser AUC from 0.56-0.72 to 0.87-0.99 (rank accuracy flat at
-      15 items, -0.01 to -0.03 at 30); shipped needs none (0.83-0.97 already);
-      pooling does not improve separation. Anchor weights in the pooled
-      ranking 2026-11-11 (scripts/anchor-weight-sweep.ts, section "Anchor
-      weights in the pooled ranking"; shared-truth surveys, 40 cells): no
-      weight, not even the true e, moves the groupRanking pool beyond noise
-      (-0.014 to +0.009 Spearman); dropping flagged people costs up to 0.055
-      on 8-person panels; random answering only compresses a person's
-      ratings, so the pool needs no protection. Flag at 0.5 with 20+ anchors:
-      2% or fewer honest flagged, 55-60% of lapsers caught; not built. Next:
-      non-random carelessness (position bias, one-item clicking) on the
-      shared-truth pool, which biases rather than adds noise; staged's 0.90
-      coverage for honest respondents (close pairs shrink rd too fast); the
-      switch rule above 120 items; then real pairwise answers.
+      under staged); anchor pairs and anchor weights (whole-session random
+      answering only compresses ratings; no weight moves the pool). Careless
+      patterns that are not random 2026-11-11 (scripts/careless-pattern-sweep.ts,
+      section "Careless patterns that are not random"; random, first-slot,
+      favourite, shared-salience and a different-taste control, 236 cells):
+      a favourite cancels out; a shared wrong reason biases the pool and makes
+      it confidently wrong (4.0% wrong-way clear pairs at 40% of 20 people,
+      8.9% at 60); slot clickers are now LEFT OUT of the pooled ranking by the
+      selector's own 0.7 first-slot rule (matches oracle-drop, 0.3-0.7% honest
+      flagged, never touches a different-taste camp; `leftOut` in the route,
+      builder and report); leave-one-out agreement ships as a NOTE, not a
+      weight (weights recover 45-90% of oracle-drop against careless
+      minorities but cost a real 25-40% camp 0.01-0.03, 36 of 48 cells). Also
+      found: simulate's positionBias is not slot-shuffled as the route is
+      (information selector 0.351 vs 0.611 at bias 0.5), so the 2026-10-28
+      table overstates it. Next: half-time salience (q = 0.5 still leaks +0.12
+      to +0.29 and only 5-13% fall under 0.2 agreement), a signal from outside
+      the answers (answer times, msToAnswer is stored) to tell a careless
+      block from a camp; re-measure the 2026-10-28 position-bias table with the
+      shuffle; staged's 0.90 coverage for honest respondents (close pairs
+      shrink rd too fast); the switch rule above 120 items; then real pairwise
+      answers.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
