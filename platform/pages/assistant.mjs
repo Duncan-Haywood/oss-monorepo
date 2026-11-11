@@ -52,6 +52,39 @@ export function renderAssistantFiles({ searchVariants, searchScore }) {
 }
 
 /**
+ * The floating voice button's rules, written into pf-chrome.css (build.mjs,
+ * `renderChromeStyle`), which every page that can get the button links: 1,119
+ * pages on 2026-11-11, and no page loads pf-site.js with a form but without it.
+ *
+ * They used to be a <style> element the launcher appended to <head> after
+ * DOMContentLoaded. A new stylesheet invalidates style for the whole document,
+ * so every calculator paid a second full style recalculation after its first
+ * paint: Lighthouse put 35 ms of forced reflow on that line on
+ * wall-framing-takeoff (4,204 elements, docs/reports/polish-2026-11-11-scroll-sweep.md).
+ * Now the stylesheet is parsed with the rest of the chrome and adding the button
+ * restyles only the button.
+ *
+ * Its own colours, not the host's: it floats over whatever the page has under
+ * it, so it needs an opaque fill with a known contrast (white on #1f4e8c is
+ * 8.3:1). The icon is reset by name (size, background, border, fill): pages
+ * that style a bare svg for their charts (changepoint-detector's
+ * svg{background:#fff}) had painted the mic out. The phone padding hangs on a
+ * body class the launcher sets with the button, so a page without the button
+ * keeps its own bottom padding.
+ */
+export const ASSISTANT_VOICE_CSS = `
+.pf-ask-voice{position:fixed;right:16px;bottom:16px;z-index:2147482000;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin:0;border:0;border-radius:999px;background:#1f4e8c;color:#fff;font:600 14px/1 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;transition:transform .2s,opacity .2s}
+.pf-ask-voice svg{flex:none;width:20px;height:20px;background:none;border:0}
+.pf-ask-voice path{fill:currentColor}
+.pf-ask-voice:focus-visible{outline:3px solid #f59f00;outline-offset:2px}
+@media (max-width:560px){.pf-ask-voice span{display:none}.pf-ask-voice{padding:12px}body.pf-ask-pad{padding-bottom:72px}}
+@media print{.pf-ask-voice{display:none}}
+.pf-ask-voice.pf-away{transform:translateY(80px);opacity:0;pointer-events:none}
+.pf-ask-voice.pf-away:focus-visible{transform:none;opacity:1;pointer-events:auto}
+@media (prefers-reduced-motion:reduce){.pf-ask-voice{transition:none}}
+`;
+
+/**
  * The launcher, appended to pf-site.js. Classic script, no globals, and it
  * listens on the window in the capture phase so it never displaces a page's
  * own document-level click handler.
@@ -85,18 +118,13 @@ export const ASSISTANT_LAUNCHER_JS = `
     addEventListener('pointerover',warm,true);
     var ready=function(){
       var main=document.querySelector('main')||document.body;
-      if(window.top===window&&main&&main.querySelectorAll('input[type=number],input[inputmode=decimal],input[inputmode=numeric]').length>1&&!document.querySelector('.pf-ask-voice')){
+      if(window.top===window&&main&&main.querySelectorAll('input[type=number],input[inputmode=decimal],input[inputmode=numeric]').length>1&&!document.querySelector('.pf-ask-voice')&&document.querySelector('link[href$="pf-chrome.css"]')){
         var b=document.createElement('button');
         b.type='button';b.className='pf-ask-voice';
         b.setAttribute('aria-label','Speak or type: fill this calculator by voice or chat');
         b.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12z"/></svg><span>Speak or type</span>';
         b.addEventListener('click',function(){go({opener:b});});
-        // Its own colours, not the host's: it floats over whatever the page
-        // has under it, so it needs an opaque fill with a known contrast
-        // (white on #1f4e8c is 8.3:1). pf-chrome.css stays colour-free.
-        var s=document.createElement('style');
-        s.textContent='.pf-ask-voice{position:fixed;right:16px;bottom:16px;z-index:2147482000;display:inline-flex;align-items:center;gap:6px;padding:10px 14px;margin:0;border:0;border-radius:999px;background:#1f4e8c;color:#fff;font:600 14px/1 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;transition:transform .2s,opacity .2s}.pf-ask-voice svg{flex:none;width:20px;height:20px;background:none;border:0}.pf-ask-voice path{fill:currentColor}.pf-ask-voice:focus-visible{outline:3px solid #f59f00;outline-offset:2px}@media (max-width:560px){.pf-ask-voice span{display:none}.pf-ask-voice{padding:12px}body{padding-bottom:72px}}@media print{.pf-ask-voice{display:none}}.pf-ask-voice.pf-away{transform:translateY(80px);opacity:0;pointer-events:none}.pf-ask-voice.pf-away:focus-visible{transform:none;opacity:1;pointer-events:auto}@media (prefers-reduced-motion:reduce){.pf-ask-voice{transition:none}}';
-        document.head.appendChild(s);document.body.appendChild(b);
+        document.body.classList.add('pf-ask-pad');document.body.appendChild(b);
         // Step aside while reading downwards so it never sits on the text; any upward scroll brings it back.
         var y=window.scrollY;window.addEventListener('scroll',function(){var n=window.scrollY;if(Math.abs(n-y)>8){b.classList.toggle('pf-away',n>y&&n>200);y=n;}},{passive:true});
       }
