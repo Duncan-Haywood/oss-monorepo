@@ -1140,7 +1140,8 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
         // Rules act; a guess only suggests. The prospect is paused, the guess and (for a reply category) a draft are
         // shown, and nothing else changes until the user picks the category.
         set("status", "paused", "Paused the cadence until you read it");
-        const g = guessFn ? guessFn(reply) : null;
+        // A guess outside the category list (a stray training label) is no guess: before 2026-11-11 it threw and the whole run failed.
+        const g0 = guessFn ? guessFn(reply) : null, g = g0 && Object.hasOwn(CATEGORIES, g0.category) ? g0 : null;
         if (g && g.category !== "unclear") {
           t.guess = g;
           if (CATEGORIES[g.category]?.outbound) draft = draftReply({ ...t, category: g.category, subtype: g.category === "objection" ? "need" : null, dateText: null, evidence: reply.body.split(/\n/)[0].slice(0, 160) }, p, reply, offer);

@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { triage, findDate, parseReplies, stripQuoted, parseCsv, toCsv, runInbox, checkDraft, draftReply, addBusinessDays, csv, SAMPLE_REPLIES, SAMPLE_PROSPECTS, SAMPLE_OFFER, CATEGORIES } from "./engine.mjs";
 import { score, baselineModel } from "./eval/run.mjs";
-import { train, guess, TRAINING_FILE } from "./learn.mjs";
+import { train, guess, TRAINING_FILE, trainingLabel } from "./learn.mjs";
 import { MODEL } from "./model.mjs";
 import { crossValidate } from "./eval/guess-cv.mjs";
 
@@ -108,7 +108,7 @@ test("second fresh set (2026-10-24, written by another session, scored once): nu
 test("word model: rebuilt from the training files exactly, and it guesses", () => {
   const files = readdirSync(new URL("./eval/", import.meta.url)).filter((f) => TRAINING_FILE.test(f)).sort();
   assert.ok(files.length >= 25 && files.includes("replies.jsonl") && files.includes("fresh-2026-10-21.jsonl"));
-  assert.deepEqual(train(files.flatMap(load)), MODEL);
+  assert.deepEqual(train(files.flatMap(load).map(trainingLabel).filter(Boolean)), MODEL);
   assert.equal(guess({ subject: "Re: hi", body: "please remove me" }).category, "unsubscribe");
   assert.equal(guess({ subject: "", body: "x" }, null), null);
 });

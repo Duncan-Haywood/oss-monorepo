@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVLW7JXEFNMz9qMY46K",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "4e2352a9fa2c31eb11584516c1d676ea6013fdf7b16d5bd1d9485d73e31d4c81",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T19:55:52Z",
+  "ended": "2026-11-11T20:15:35Z",
+  "wall_minutes": 20.24,
+  "tokens_in": 19545535,
+  "tokens_out": 98476,
+  "cost_usd": 7.755,
+  "tool_calls": 122,
+  "task": "Deepen bank-statement-pdf-to-csv: measure on third-party statement PDFs and fix what fails",
+  "projects": [
+    "bank-statement-pdf-to-csv"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14875",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "huggingface.co, registry.ollama.ai and modelscope refused (403) by this session's proxy, so the sales-agent flagship's local-model items (allocate.py 'Start here') could not run; the llama-cpp-python source build was stopped.",
+    "abetlen.github.io wheel index refused (403).",
+    "Public statement PDFs on specialdistrict.org and sportngin hosts refused (403); only GitHub hosts were reachable."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "sales-agent buildable: note says huggingface.co answered 200 on 2026-11-11; in this session it was refused with 403. Proxy reachability varies per session, so the note should say 'probe first'."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes gives Portfolio Pages a 300 s budget that the site-builder test step alone exceeds, so it always reports that workflow as failed by timeout; running the step directly took about 10 minutes and passed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "The 'Start here' row (sales-agent) needed a blocked host. The other Deepen flagships each had commits from parallel sessions within the last hour, so instead of colliding I deepened a non-flagship venture with a clear paid market (per-page statement converters).",
+      "did": "Measured bank-statement-pdf-to-csv on an independent benchmark and two held-out PDFs; fixed general layout faults.",
+      "result": "Benchmark 1 to 5 of 5 proved; held-out 80 to 100 of 100 and 15 to 56 of 62 rows correct."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-a-statement-reader-meets-statements-it-did-not-write.md",
+    "ventures/bank-statement-pdf-to-csv/eval/README.md"
+  ],
+  "goal": "Make the free statement converter work on statements it was not written against",
+  "notes": "Local checks: node --test ventures/bank-statement-pdf-to-csv/ gives 49 pass, 0 fail. eval/bench.mjs on the 5 published benchmark PDFs: 5 of 5 reconciled with true row counts (main this morning: 1 of 5). Held-out transtractor and ICICI-format PDFs first failed with both old and new code; after adding date-carried rows and one-decimal amounts they score 56/62 and 100/100 on date and signed amount (old: 15/62, 80/100). Page driven in Playwright Chromium: card auto-detected, two accounts shown and proved, a mixed-account Xero export is blocked, the picked account downloads, no console errors. venture-preflight: first run failed on the post's 180-character description (limit 160); after shortening it, 'preflight clean for bank-statement-pdf-to-csv'. CI: the first push's Portfolio Pages build and test jobs went red on the same post description (reproduced by preflight, fixed in the second commit). The second push's 14 workflow runs stayed queued with no jobs for 30+ minutes (ci_starvation.py: 'no jobs found', i.e. starved), so verification is local: platform/pages node --test '*.test.mjs' 'cloudflare/*.test.mjs' gives 1549 pass, 0 fail; venture-preflight clean; promptctl validate ok; run_workflow_locally --for-changes passed every non-Pages workflow, with the Pages steps hitting its 300 s per-workflow budget (inconclusive, covered by the two runs above).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b02b80ca-3aaa-5e22-a716-549aaf0866f0",
+    "transcripts": 1,
+    "first": "2026-11-11T19:55:52Z",
+    "last": "2026-11-11T20:16:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 118,
+        "input": 225,
+        "output": 98476,
+        "thinking": 29786,
+        "cache_read": 19304861,
+        "cache_write_5m": 0,
+        "cache_write_1h": 240449,
+        "api_equivalent_usd": 7.755,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 118,
+      "input": 225,
+      "output": 98476,
+      "thinking": 29786,
+      "cache_read": 19304861,
+      "cache_write_5m": 0,
+      "cache_write_1h": 240449,
+      "api_equivalent_usd": 7.755,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 122,
+    "tools": {
+      "Bash": 112,
+      "Write": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "Read": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.24,
+      "active_minutes": 20.24,
+      "model_minutes": 15.95,
+      "tool_minutes": 4.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a senior engineer: find a benchmark, diagnose 7 PDF layouts, 10 parser changes with tests, eval write-up and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 206.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -230,6 +230,40 @@ class TestSuperseded(RepoFixture):
 
         self.assertTrue(evaluate("feature", "main", fetch=False).superseded)
 
+    def test_the_whole_tree_search_is_one_batch_with_exact_answers(self):
+        """base_contains runs one grep for every needle (a grep per needle took
+        over ten minutes on this repository) and still answers per needle:
+        regex metacharacters are literal, a needle inside a longer line counts,
+        and an absent needle stays absent."""
+        write(self.repo, "lib/a.mjs", "const x = (a + b) * [c]; // note\n")
+        write(self.repo, "lib/b.mjs", "  if (total.$ > 10) { return 'big'; }\n")
+        commit(self.repo, "base files")
+        needles = [
+            "const x = (a + b) * [c];",          # metacharacters, inside a longer line
+            "if (total.$ > 10) { return 'big'; }",  # whole line, leading spaces stripped
+            "export function nowhere() {}",       # absent
+            "(a + b) * [c]",                      # a fragment of the first
+        ]
+        calls = []
+        real_run = subprocess.run
+
+        def counting_run(cmd, *a, **k):
+            if cmd[0] == "grep" or cmd[:2] == ["git", "grep"]:
+                calls.append(cmd)
+            return real_run(cmd, *a, **k)
+
+        supersede_check.subprocess.run = counting_run
+        self.addCleanup(setattr, supersede_check.subprocess, "run", real_run)
+        real_which = supersede_check.shutil.which
+        self.addCleanup(setattr, supersede_check.shutil, "which", real_which)
+        # Both routes: git archive into GNU grep, and the git grep fallback.
+        for which in (real_which, lambda name: None):
+            calls.clear()
+            supersede_check.shutil.which = which
+            found = supersede_check.base_contains("main", needles)
+            self.assertEqual(found, set(needles) - {"export function nowhere() {}"})
+            self.assertEqual(len(calls), 1)
+
     def test_whitespace_and_punctuation_churn_is_not_treated_as_work(self):
         git(self.repo, "checkout", "-q", "-b", "feature")
         write(
@@ -560,6 +594,21 @@ class TestRenameSuspected(RepoFixture):
         verdict = evaluate("feature", "main", fetch=False)
         self.assertFalse(verdict.superseded)
         self.assertFalse(verdict.rename_suspected)
+
+    def test_run_records_are_exempt_and_get_no_twin_search(self):
+        """A run record twins every other run record (same keys, other numbers);
+        PR 14702's check spent most of four minutes pairing them."""
+        record = '{{\n  "session": "https://claude.ai/code/session_{s}",\n  "tool_minutes": {m},\n  "outcome": "merged"\n}}\n'
+        write(self.repo, "prompts/runs/2026-11-10-session_A.json", record.format(s="A", m="10.8"))
+        commit(self.repo, "a run record")
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(self.repo, "prompts/runs/2026-11-11-session_B.json", record.format(s="B", m="10.86"))
+        commit(self.repo, "another run record")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.superseded)
+        self.assertFalse(verdict.rename_suspected)
+        self.assertEqual([f.near for f in verdict.files], [[]])
 
 
 class TestStaleDraft(RepoFixture):

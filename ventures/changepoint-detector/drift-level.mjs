@@ -40,7 +40,14 @@ export function driftNoise(x, { maxLag = 10 } = {}) {
     for (let t = 0; t + k < n; t++) d.push(x[t + k] - x[t]);
     const md = median(d);
     const s = MAD * median(d.map((z) => Math.abs(z - md)));
-    v.push({ k, v: s * s });
+    // A sticky or zero-inflated series (a sensor that reads 0 at night, a count with many quiet
+    // days) can have more than half its lag-k differences equal, so the MAD is 0. Before 2026-11-11
+    // that left sigma at the 1e-6 numerical floor in the data's own units, and every move became a
+    // change (TCPD occupancy's V3, 329 of 508 differences zero). Fall back to the plain variance
+    // of the differences, as engine.mjs robustSd does for the level model.
+    let vk = s * s;
+    if (!(vk > 0)) { const m = d.reduce((a, z) => a + z, 0) / d.length; vk = d.reduce((a, z) => a + (z - m) ** 2, 0) / d.length; }
+    v.push({ k, v: vk });
   }
   // Least squares v_k = a + b k with a = 2 sigma^2 >= 0, b = omega^2 >= 0.
   let a, b;
@@ -71,7 +78,7 @@ export function medianSlope(x) {
 
 // Kalman gains and innovation variances for the j-th point of a segment (j = 1, 2, ...), in units
 // of sigma^2 (q = omega^2 / sigma^2). The first point (j = 0) only sets the level.
-function gains(n, q) {
+export function gains(n, q) {
   const K = new Float64Array(n), F = new Float64Array(n), logF = new Float64Array(n);
   let P = 1; // posterior variance of the level after the segment's first point, in sigma^2 units
   for (let j = 1; j < n; j++) {

@@ -67,6 +67,8 @@ Options:
   --from-sales <csv>  build the shift lines from an hourly sales export (date-time and sales columns) at --splh <$> sales per labor hour (required):
                       the average of each weekday-hour sets the heads needed (at least --min-staff, default 1), cut into shifts of --min-shift to
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
+                      --count tickets plans from distinct ticket/order/receipt numbers per hour instead (--splh is then tickets per labor
+                      hour; --count rows counts each row); a file with a ticket column and no sales column is counted by ticket.
                       the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
                       --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date);
                       the default, auto, backtests equal weights and half-lives 8, 4 and 2 on your file and keeps the best (equal
@@ -131,6 +133,7 @@ export function parseArgs(argv) {
     else if (a === "--skip-dates") { o.demand = { ...o.demand, skipDates: String(argv[++i] || "").split(/[,\s]+/).filter(Boolean) }; if (!o.demand.skipDates.length) throw new Error("--skip-dates needs dates like 2026-11-26,2026-12-25"); }
     else if (a === "--backtest") o.backtest = true;
     else if (a === "--keep-rare") o.demand = { ...o.demand, keepRare: true };
+    else if (a === "--count") { const v = argv[++i]; if (!["sales", "tickets", "rows"].includes(v)) throw new Error("--count needs sales, tickets or rows"); o.demand = { ...o.demand, count: v }; }
     else if (a === "--plain-cut") o.demand = { ...o.demand, costCut: false };
     else if (a === "--join") o.demand = { ...o.demand, join: true };
     else if (a === "--warmup") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--warmup needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, warmup: v }; }
@@ -522,7 +525,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.shiftsText) process.exit(1);
       const extra = r.extra >= 0 ? `${r.extra} extra from the shortest-shift rule` : `${-r.extra} fewer: short runs left unstaffed at your short cost`;
-      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week sales ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
+      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week ${r.count && r.count !== "sales" ? r.count : "sales"} ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
     }
     if (o.importStaff) {
