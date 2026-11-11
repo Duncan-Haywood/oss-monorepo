@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "First AUTO_OPENING draft swallowed 'Thanks for the email and invitation. I am out...' (a person); the new test caught it and the regex was tightened before commit.",
-    "A Python string patch failed on regex escaping; redone with the Edit tool."
+    "A Python string patch failed on regex escaping; redone with the Edit tool.",
+    "Pages build red on merge with main, from another PR (#14794); fixed forward here."
   ],
   "integrity_issues": [
     "The away policy was chosen after round 7 had already reported the 7* labels, so its Enron effect on labelled stops is mechanical, not a blind score; written that way in eval/README, the product README and the post, with the costs measured instead (0/365 auto-replies to a person, 2.0 extra tasks per 1,000).",
@@ -62,7 +63,7 @@
     "ventures/sales-agent/eval/README.md \"The away policy\""
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS and website requests empty; routed ventures/1 by draw. Top flagship ai-bookkeeper had a 0h-old open PR from another session, so took flagship 3 sales-agent. Enron 0*-7* checked out from the CC0 mirror (clone works through the proxy). node --test (all *.test.mjs + self-host): 476 pass, 0 fail. Post frontmatter, links, similarity: pass. Venture preflight (node platform/pages/venture-preflight.mjs sales-agent): clean, exit 0.",
+  "notes": "Security queue empty; IDEAS and website requests empty; routed ventures/1 by draw. Top flagship ai-bookkeeper had a 0h-old open PR from another session, so took flagship 3 sales-agent. Enron 0*-7* checked out from the CC0 mirror (clone works through the proxy). node --test (all *.test.mjs + self-host): 476 pass, 0 fail. Post frontmatter, links, similarity: pass. Venture preflight (node platform/pages/venture-preflight.mjs sales-agent): clean, exit 0. CI's pages build failed on the merge with main: PR #14794 (systemd-unit-hardening-check) added .service/.conf fixtures check.mjs could not type, so main's build was red too. Fixed forward in this PR (SERVED_EXTENSIONS, same precedent as .eml/.ifc); check.test.mjs 97 pass; preflight re-run on the merged tree clean.",
   "corrections": [],
   "redteam": null,
   "usage": {
