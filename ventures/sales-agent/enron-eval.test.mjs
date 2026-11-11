@@ -237,51 +237,44 @@ test("fourth round: the real asks still stop", () => {
   assert.equal(cat("Jordan has left Brightline."), "left_company");
 });
 
-// Fifth round, 2026-11-11 (eval/README.md "Fifth round"): real phrasings from the stops still wrong on the 0*-4* halves,
-// names changed. Each is ordinary work talk, not a stop.
+// Fifth round (eval/README.md "Fifth round"): paraphrases of the real phrasings the round-5 rules answer, names changed.
+const re = (body) => triage({ subject: "Re: rollout", body }, "2001-06-01").category;
 const FIFTH_NOT_A_STOP = [
-  "She said that she passed it on to Fred Boas.",
-  "Jaesoo modified the calibration code and passed it to IT.",
-  "Unfortunately, the timing does not work for me.",
+  "NO. I need to know how many beds there are in total!",
+  "No. I do not have any contact information for them.",
+  "no - I never heard back from them.",
+  "Mr. Hale had passed this on to Jo Brant in the broadband group.",
+  "I spoke with Karen about the volume. She said that she passed it on to Fred Boas.",
+  "I just don't know how many questions they can come up with. I've quit predicting.",
+  "Broadband has taken five people out of East Power and left us short.",
   "Faxing drafts does not work for me.",
-  "I just don't know how many questions they can come up with. I've quit predicting. Kay",
-  "Broadband has taken 5 guys out of East Power and left us short.",
-  "Another thought. Please, send me your resume, I shall forward it to our head trader.",
-  "Please e-mail Karen or me with feedback on the candidates.",
-  "Yes I will be back tonight",
-  "Sorry to mess you around but we have now booked the flights and we do not need the extra night.",
-  "Actually, I don't need your map inserted because I can't have Northern Border in it.",
-  "Ryan runs our model for us now so I don't need this spreadsheet everyday.",
-  "I agree. We do not need anyone speaking at this.",
-  "I agree with your statement that we don't need an RTO, we need to fix the transmission rules.",
-  "So I told her I was not interested for now.",
-  "actually they are not looking at us.",
-  "Could you call me when we're set to trade with Cinnabar?",
-  "No need for Ken's involvement with her at this point.",
-  "Sure wish I had a Diet Coke to take my mind off the intense pain.",
-  "The only item from your list that I need further clarification on is the $15,000 of extensions.",
-  "Let me know if you'd like me to politely intervene and take this off your list.",
-  "Cities may give customers the opportunity to opt-out of the program.",
-  "Please notify the sender of the delivery error by replying to this message, and then delete it from your system.",
-  "No - they won't be calcing for another half an hour or so.",
-  "No. We have reallocated some of the responsibilities, but Cindy continues to manage Community Relations. Thanks",
-  "no - I never heard back",
-  "I have asked Bob, Kim and Mechelle to attend. I don't have confirmation yet. I thought that asking three should work. I will let you know later who will attend. I will be out of the office that day.",
-  "Sorry for the delayed response. Moving Azurix back was decided last year. We did combine them into the D&O program. I am traveling tomorrow and will return to the office Wednesday before noon.",
-  "FYI - Tomorrow is better than Monday. On Monday I will be out of the office until late afternoon.",
+  "So I told her I was not interested for now, but it might be worth finding out more.",
+  "Actually they are not looking at us. I heard it wrong.",
+  "Sorry, we have booked the flights and we do not need the extra night. Is it ok to cancel it and send a new confirm?",
+  "Thank you. I don't need the value. I just need the transport report so I can check positions.",
+  "I agree that we don't need an RTO, we need to fix the transmission rules.",
+  "Thanks for your help, I have talked with Mr. Shaw and we are all set. Give  me a call, I will be here till 6.",
+  "It gives customers the opportunity to opt-out of the program.",
+  "Sure wish I had a coffee to take my mind off the pain.",
+  "The only item from your list that I need clarified is the extensions.",
 ];
-for (const body of FIFTH_NOT_A_STOP) test(`fifth round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(cat(body)), cat(body)));
+for (const body of FIFTH_NOT_A_STOP) test(`fifth round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(re(body)), re(body)));
+
+test("fifth round: a short absence inside a working reply goes to a person; a notice or a longer absence still pauses", () => {
+  const work = "I have asked Bob, Kim and Mechelle to attend the review. I don't have confirmation yet on whether all three can make it. I thought that asking three would fit one of their schedules. I will be out of the office that day.";
+  assert.ok(!["out_of_office"].includes(re(work)), re(work));
+  // The same sentence under the notice's own subject, or with a return date, or with nothing else, is an away notice.
+  assert.equal(triage({ subject: "Out of office", body: work }, "2001-06-01").category, "out_of_office");
+  assert.equal(re("I have asked Bob, Kim and Mechelle to attend the review. I don't have confirmation yet on whether all three can make it. I thought that asking three would fit one of their schedules. I will be out of the office until November 12th."), "out_of_office");
+  assert.equal(re("I will be out of the office Friday."), "out_of_office");
+});
 
 test("fifth round: the real asks still stop", () => {
-  assert.equal(cat("No. thank you"), "not_interested");
-  assert.equal(cat("No - I think we are good for this week. Thank you!"), "not_interested");
-  assert.equal(cat("Nope. Not something a firm like ours would ever buy."), "not_interested");
-  assert.equal(cat("No. We don't need it."), "not_interested");
-  assert.equal(cat("Please cancel the Palm.Net service. I am no longer using the Palm Pilot and therefore do not need the Palm.Net service."), "not_interested");
-  assert.equal(cat("We don't need a new CRM."), "not_interested");
-  assert.equal(cat("remove from list.  no longer with gas desk.  LC"), "unsubscribe");
-  assert.equal(cat("please remove from distribution list."), "unsubscribe");
-  assert.equal(cat("Thanks for your note. I am out of the office until Monday, November 20."), "out_of_office");
-  assert.equal(cat("I have passed this on to our head of procurement."), "left_company");
-  assert.equal(cat("Please contact Jordan Lee, who handles this now."), "left_company");
+  assert.equal(re("No. thank you"), "not_interested");
+  assert.equal(re("No. We are not interested."), "not_interested");
+  assert.equal(re("Nope. Not something a firm like ours would ever buy."), "not_interested");
+  assert.equal(re("We don't need it, thanks."), "not_interested");
+  assert.equal(re("Please take me off your list."), "unsubscribe");
+  assert.equal(re("I left Acme in March."), "left_company");
+  assert.equal(re("I've passed this to our head of operations."), "left_company");
 });

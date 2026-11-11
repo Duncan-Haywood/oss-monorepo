@@ -1,37 +1,40 @@
 ---
-title: "\"I'll be out that day\" at the end of a long email is not an away notice"
-seo_title: "A fifth round of false-stop fixes in a reply classifier"
+title: "\"No. I need to know how many beds\" is not a decline: a fifth round on real mail"
+seo_title: "Reply classifier false stops, round five, scored on an unread half"
 date: 2026-11-11
 tags: [sales-agent, evaluation]
-description: "Round five of sales-agent reply fixes, scored once on an unread Enron half: wrong stops 5.8 to 3.7 per 1,000 replies, five right stops lost."
+description: "Fifth round of sales-agent reply fixes, scored once on an unread Enron half: wrong stops 7.2 to 5.5 per 1,000 replies, one right stop lost."
 ---
 
-[Sales Agent](https://marisstella.app/sales-agent/) reads the replies your cold outreach gets back. If a reply says stop (unsubscribe, not interested, out of office, left the company, bounced), the lead is suppressed, paused or marked gone. When a stop fires by mistake, you lose a lead and nobody notices. So each round we change the rules using text we've already read, then score them once on a slice of the public Enron email corpus that nobody has opened. A separate agent labels every stop in that slice without seeing what the engine said.
+[Sales Agent](https://marisstella.app/sales-agent/) reads the replies your outreach gets back. When a reply says stop (unsubscribe, not interested, out of office, left the company, bounced), the lead is suppressed, paused or marked gone. A stop that fires by mistake loses a lead quietly. So we test the rules on real people's writing: the public, CC0 Enron email corpus, split into halves by file hash.
 
-This was round five. We tuned on halves `0*` to `4*` and scored on `5*`: 9,538 real replies.
+The method hasn't changed. We tune only on halves we've already read, then freeze the rules and run them once on a half nobody has opened. A separate agent labels every stop without seeing what the engine said. This was round five. It tuned on halves `0*` to `4*` and scored on `5*`: 9,538 real replies. Before we changed a single rule, the round-4 stops on `5*` were saved to a file unread.
 
 ## What changed
 
-- **An absence mentioned in passing.** A long work email that ends "I will be out of the office that day." is a person mentioning a day off. Away notices lead with the absence. Now a first-person away sentence only counts if it's one of the first two sentences, or the whole reply is three sentences or fewer. A reply that offers another time ("Tomorrow is better than Monday") counts as scheduling. Machine auto-replies are untouched: 264 of 268 caught on all six halves, the same as before.
-- **The "No." fault round four found.** Round four decided whether a bare "No." still stood by checking the rest of the reply. Any "need", "thanks" or "n't" there counted as a decline. So "No - they won't be calcing for another half an hour" stayed a stop. Now the rest has to actually decline ("we don't need it", "not something we'd ever buy", "I think we are good for this week").
-- **"Don't need" about something we don't sell.** "We do not need the extra night", "I don't need your map inserted" and "we don't need an RTO" are work talk. If a tool, service, product, vendor, call or demo is named within two words, it's still a decline.
-- **Handovers someone else did.** "She said that she passed it on to Fred" no longer marks the lead as gone.
-- A dozen narrower fixes, each with its real sentence quoted in the code. Examples: "the timing does not work for me", "I've quit predicting", "take my mind off the pain", "the opportunity to opt-out of the program".
+- **The "No." check that round four left too loose.** Last time we found that a "No." still counted as a decline whenever the rest of the reply contained "need", "thanks" or "n't". That kept "NO. I need to know how many beds there are total" and "no - I never heard back" as declines. The rest of the reply now has to decline in words that mean it ("not interested", "no thanks", "we're all set", "not something we'd ever buy"). "No. thank you" still stands.
+- **A short absence inside a working reply.** Take "I have asked Bob, Kim and Mechelle to attend ... I will be out of the office that day." A person wrote that, and it now goes to a person instead of pausing the lead. Three limits apply: the subject has to be a reply's, the rest of the reply has to have substance, and the absence has to be a day or less with no return date. Our first draft had none of those limits. It cut real auto-reply recall on the tuning halves from 228 to 201 of 231, because people at Enron sent their own long, chatty "Out of office" announcements. We added the limits before freezing, and recall went back to 228.
+- **"Don't need the X" next to a request.** In "we do not need the extra night - is it ok to cancel ... please send a new confirm", the "don't need" scopes the work. It isn't a decline. "Not interested" and "no thanks" still decline, whatever else the reply asks.
+- **Narrower exceptions**, each with the real sentence quoted in the code. Examples: "She said that she passed it on to Fred", "I've quit predicting", "Faxing drafts does not work for me", "the opportunity to opt-out of the program", "take my mind off the pain".
 
 ## The score
 
 | On the unread `5*` half (9,538 replies) | Round-4 rules | Round-5 rules |
 |---|---|---|
-| Stops: right / wrong | 50 / 55 | 45 / 35 |
-| Precision | 47% | 56% |
-| **Wrong stops per 1,000 replies** | **5.8** | **3.7** |
+| Stops: right / wrong / ambiguous | 34 / 69 / 4 | 33 / 52 / 4 |
+| Precision | 32% | 37% |
+| **Wrong stops per 1,000 replies** | **7.2** | **5.5** |
 
-On the halves we tuned on, wrong stops fell 71%. On the unread half they fell 36%. That gap is the reason we keep an unread half.
+The one right stop we lost was "No. I'll let this one go. Thanks", a real decline that the narrower list doesn't read as one. Real auto-replies (264 of 268 across all six halves) and bounces (257 of 268) were caught at the same rate as before. Opt-out recall on the labelled real opt-outs held at 37 of 38. All 423 tests pass, including nineteen new ones written from this round's real phrasings.
 
-## What it cost
+Two numbers deserve a warning. On the halves the rules were written from, wrong stops fell 41%. On new text they fell 25%, less than round four's 30%. And round four's own rules made 7.2 wrong stops per 1,000 on this new half, not the 5.0 they scored on theirs. So part of last round's 5.0 came from a quiet half, and this round's 5.5 should be read the same way until a seventh half checks it.
 
-We lost five right stops on `5*`, and three of them are real declines. "No. I'll let this one go." and "No. I will not agree to any penalty charges." both slipped through the narrower "No." rule. "I do not need a regulatory lawyer at this time" slipped through because "lawyer" isn't on the list of things we sell. That list is a crude way to say "an offer like ours", and a real sales inbox will find its gaps. All three go to a person as unclear, so nothing is sent automatically, but someone has to read them. We'll fix them in round six from `5*`, scored on `6*`.
+## Where the readers disagree
 
-The away rule has a harder problem: the readers disagree. The same message ("... I will let you know later who will attend. I will be out of the office that day.") was labelled an away notice by the reader on `2*` and plain work talk by the reader on `4*`. We chose to send these to a person rather than pause the lead. On the tuning halves that choice costs about 40 stops the first two rounds' labels called right.
+On the tuning halves, seven of the 21 right stops lost were short absences in working replies. Round one's and round two's labels called those away notices. Round four's reader labelled one of the same messages, which Enron filed again in another folder, as not a stop. Two readers, same message, opposite calls. This round sides with the later reader, but only for absences of a day or less. We also don't apply our own reader's view on handovers: when a writer says "I've passed this to our CTO", the product still files the lead as "wrong person" and a human decides, even though the readers label those `none`. That's a policy question, not a rule bug. It's first on the list for round six, along with a human second reader.
 
-Enron is internal business mail, not replies to sales outreach. Every reader so far has been an agent from the same model family. A human second reader is still the most useful thing missing. The method, the labels (Message-IDs only) and every table are in `ventures/sales-agent/eval/README.md`, under "Fifth round".
+## What this doesn't show
+
+Enron mail is internal business mail, not replies to sales outreach. It measures how often a stop fires on writing that asks for nothing of the kind, not how well the rules sort a sales inbox. The reader was another agent from the same model family, not a person.
+
+The method, the labels (Message-IDs only, no text) and every table are in `ventures/sales-agent/eval/README.md`, under "Fifth round".

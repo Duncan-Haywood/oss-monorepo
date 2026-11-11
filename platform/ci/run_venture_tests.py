@@ -44,6 +44,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+import inherited_keys
+
 ROOT = Path(__file__).resolve().parents[2]
 VENTURES = ROOT / "ventures"
 WORKFLOWS = ROOT / ".github" / "workflows"
@@ -291,6 +293,7 @@ def main(argv):
         for slug in slugs:
             if not has_tests(slug):
                 print(skip_note(slug), flush=True)
+    lint_slugs = [s for s in slugs if (VENTURES / s).is_dir()]
     slugs = sorted((s for s in slugs if has_tests(s)), key=lambda s: (-suite_weight(s), s))
 
     failed = []
@@ -308,7 +311,17 @@ def main(argv):
                     print(failures(out))
     print(f"{len(slugs)} suites run, {len(failed)} failed"
           + (f": {' '.join(sorted(failed))}" if failed else ""))
-    return 1 if failed else 0
+    # A choice looked up in a plain object map by the user's text: "constructor"
+    # finds Object.prototype (inherited_keys.py). Only lookups newer than the
+    # baseline fail, so a venture PR is held to it from the day it lands.
+    lint = inherited_keys.new_hits(lint_slugs, VENTURES)
+    if lint:
+        print(inherited_keys.report(lint))
+        print(f"{len(lint)} new unguarded object-map lookup(s): see platform/ci/inherited_keys.py")
+        if ON_ACTIONS:
+            for rel, line, lookup in lint:
+                print(f"::error file={rel},line={line},title=inherited key::{lookup} needs Object.hasOwn")
+    return 1 if failed or lint else 0
 
 
 if __name__ == "__main__":

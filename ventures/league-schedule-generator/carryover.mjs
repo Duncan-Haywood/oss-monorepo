@@ -555,6 +555,8 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
  */
 export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
   if (!Number.isInteger(tries) || tries < 1) throw new Error("tries must be a whole number of at least 1.");
+  // a NaN pick scores every try NaN, nothing beats Infinity and the result has no rounds at all
+  if (typeof pick !== "number" || !Number.isFinite(pick) || pick < 0) throw new Error("pick must be a number of 0 or more (CARRY_OVER_PICK).");
   const cands = [];
   let best = null, bestScore = Infinity, chosen = -1;
   for (let i = 0; i < tries; i++) {

@@ -23,6 +23,9 @@
 //   - a store whose global read throws, or whose writes throw, never makes
 //     record(), readUsage() or setUsageOptOut() throw.
 //
+// The same checks, reading the stored counter directly, run on the 36 copies
+// of the usageAllowed()/recordEvent()/toggleUsage() design (checkEventModule).
+//
 //   node platform/ci/usage_contract.mjs [ventures-dir]      exit 1 on a breach
 
 import { readdirSync, readFileSync, existsSync } from "node:fs";
@@ -157,6 +160,94 @@ export async function checkModule(mod) {
   return problems;
 }
 
+// The second design (36 copies, 2026-11-11): usageAllowed(), recordEvent(name)
+// and toggleUsage(enabled), with no reader, so the contract reads the stored
+// counter itself. Same red-team origin: its `||`-to-`&&` mutants in the shape
+// check escaped in two ventures' suites on the same day.
+export async function checkEventModule(mod) {
+  const problems = [];
+  const fail = (msg) => problems.push(msg);
+  const { recordEvent, toggleUsage, usageAllowed } = mod;
+  const parse = (storage, key) => {
+    try {
+      return JSON.parse(storage.store.get(key));
+    } catch {
+      return undefined;
+    }
+  };
+
+  // 1. counts land in one JSON object under one key.
+  let storage = reset();
+  recordEvent("contract_a");
+  recordEvent("contract_a");
+  recordEvent("contract_b");
+  const key = [...storage.store.keys()].find((k) => {
+    const v = parse(storage, k);
+    return isPlainObject(v) && v.contract_a === 2 && v.contract_b === 1;
+  });
+  if (!key) {
+    fail("recordEvent x3 wrote no JSON object counter {contract_a:2, contract_b:1} to localStorage");
+    return problems;
+  }
+
+  // 2. valid JSON that is not a plain object: recordEvent recovers.
+  for (const raw of NOT_OBJECTS) {
+    storage = reset();
+    storage.setItem(key, raw);
+    try {
+      recordEvent("contract_a");
+    } catch (err) {
+      fail(`stored ${raw}: recordEvent threw ${err && err.message}`);
+      continue;
+    }
+    const after = parse(storage, key);
+    if (!isPlainObject(after) || after.contract_a !== 1) {
+      fail(`stored ${raw}: recordEvent left ${storage.store.get(key)}, want {"contract_a":1}`);
+    }
+  }
+
+  // 3. browser privacy signals.
+  for (const [label, nav] of [["doNotTrack=\"1\"", { doNotTrack: "1" }], ["globalPrivacyControl", { globalPrivacyControl: true }]]) {
+    storage = reset();
+    setNavigator(nav);
+    if (usageAllowed()) fail(`${label}: usageAllowed() is true`);
+    recordEvent("contract_a");
+    setNavigator({});
+    if (storage.store.has(key)) fail(`${label}: recordEvent still counted (${storage.store.get(key)})`);
+  }
+
+  // 4. explicit opt-out, and opting back in.
+  storage = reset();
+  toggleUsage(false);
+  if (usageAllowed()) fail("after toggleUsage(false), usageAllowed() is true");
+  recordEvent("contract_a");
+  if (storage.store.has(key)) fail(`after toggleUsage(false), recordEvent still counted (${storage.store.get(key)})`);
+  toggleUsage(true);
+  recordEvent("contract_a");
+  if (parse(storage, key)?.contract_a !== 1) fail("after toggleUsage(true), recordEvent did not count again");
+
+  // 5. blocked or full storage never throws.
+  const calls = [
+    ["recordEvent", () => recordEvent("contract_a")],
+    ["usageAllowed", () => usageAllowed()],
+    ["toggleUsage(false)", () => toggleUsage(false)],
+    ["toggleUsage(true)", () => toggleUsage(true)],
+  ];
+  for (const [label, arrange] of [["blocked site data", blockStorage], ["writes that throw", () => reset(fakeStorage({ throwOnSet: true }))]]) {
+    for (const [name, call] of calls) {
+      reset();
+      arrange();
+      try {
+        call();
+      } catch (err) {
+        fail(`${label}: ${name} threw ${err && err.message}`);
+      }
+    }
+  }
+  reset();
+  return problems;
+}
+
 export function usageFiles(root) {
   return readdirSync(root, { withFileTypes: true })
     .filter((d) => d.isDirectory())
@@ -166,9 +257,12 @@ export function usageFiles(root) {
     .sort();
 }
 
-// A copy that does not export record() and readUsage() is another design
-// (recordEvent/toggleUsage, recordUsage(storage, ...)) and is out of scope.
+// A copy that exports neither record()/readUsage() nor
+// usageAllowed()/recordEvent()/toggleUsage() is another design
+// (recordUsage(storage, ...), isOptedOut/getUsageSummary) and is out of scope.
 const isCounterShape = (mod) => typeof mod.record === "function" && typeof mod.readUsage === "function";
+const isEventShape = (mod) =>
+  ["usageAllowed", "recordEvent", "toggleUsage"].every((name) => typeof mod[name] === "function");
 
 export async function checkTree(root) {
   const problems = [];
@@ -182,14 +276,15 @@ export async function checkTree(root) {
       problems.push(`${file}: failed to import: ${err && err.message}`);
       continue;
     }
-    if (!isCounterShape(mod)) {
+    const check = isCounterShape(mod) ? checkModule : isEventShape(mod) ? checkEventModule : null;
+    if (!check) {
       skipped += 1;
       continue;
     }
     checked += 1;
     let found;
     try {
-      found = await checkModule(mod);
+      found = await check(mod);
     } catch (err) {
       found = [`threw ${err && err.message}`];
     }

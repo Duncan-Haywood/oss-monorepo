@@ -135,14 +135,15 @@ read while tuning, labelled blind by a separate agent: wrong stops 69 to 48 (7.2
 per 1,000), right stops 65 to 64, opt-out recall unchanged. Details:
 [`eval/README.md`](eval/README.md), "Fourth round".
 
-**Fifth round, 2026-11-11, on a sixth unread half.** An absence mentioned in passing deep in
-an answer ("... I will let you know who will attend. I will be out of the office that day."),
-"don't need" about something we don't sell ("we do not need the extra night"), a "No." whose
-rest only says "thanks" or "won't", and handovers done by someone else ("she passed it on to
-Fred") no longer stop a lead. Scored once on 9,538 replies never read while tuning, labelled
-blind by a separate agent: wrong stops 55 to 35 (5.8 to 3.7 per 1,000), right stops 50 to 45,
-opt-out recall and auto-reply recall unchanged. Details: [`eval/README.md`](eval/README.md),
-"Fifth round".
+**Fifth round, 2026-11-11, on a sixth unread half.** A bare "No." stands only when the rest
+of the reply declines in words that mean it ("NO. I need to know how many beds" and "no - I
+never heard back" now reach a person); a short absence inside a working reply ("I have asked
+Bob, Kim and Mechelle to attend ... I will be out of the office that day") goes to a person
+instead of pausing the lead; "don't need the X" beside a request of the reader is scoping,
+not a decline; third-person handovers ("She said that she passed it on to Fred") are not a
+departed contact. Scored once on 9,538 replies never read while tuning, labelled blind by a
+separate agent: wrong stops 69 to 52 (7.2 to 5.5 per 1,000), right stops 34 to 33, opt-out
+recall unchanged. Details: [`eval/README.md`](eval/README.md), "Fifth round".
 
 **Real opt-outs, 2026-11-10.** The other direction: of 113 distinct real
 "take me off this list" messages found in the rest of the Enron corpus (451,475

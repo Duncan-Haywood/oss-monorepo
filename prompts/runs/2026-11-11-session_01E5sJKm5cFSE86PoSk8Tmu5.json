@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKm5cFSE86PoSk8Tmu5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T08:29:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research track draw: track 16 (energy), no energy programme open; opened programme research/cell-fidelity with a proposal and ran milestone 1",
+  "projects": [
+    "cell-fidelity",
+    "energy-cell-dfn"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14737",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "cite_check.py: doi.org and arxiv.org refused by the proxy (403); WebFetch could not resolve api.crossref.org or export.arxiv.org. Checked citations against PyBaMM's bundled CITATIONS.bib instead and marked the rest unchecked in PROPOSAL.md"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "A new energy programme whose slug does not start with 'energy-' is not a focus programme unless added to FOCUS_PROGRAMMES by hand; nothing in PROGRAMMES.md says so (added cell-fidelity here)."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "cite_check fallback when doi.org is blocked is not documented; PyBaMM's CITATIONS.bib (and other installed packages' bibs) is a useful offline source for battery citations."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py pybamm took about 2 minutes, then pytest was missing from that interpreter; asking pyenv for 'pybamm numpy pytest' up front would save a step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/LOG.md",
+      "why": "After H3 (2-cycle cost) was refuted, ran an unplanned 100-cycle timing and an AUC over solved designs only, to see where the cost is",
+      "did": "added cost100 and the solved-only AUC, labelled 'extra, not in the plan' in results.txt and the LOG",
+      "result": "showed the cost is in cycle count (DFN 27.9 s at 100 cycles vs 1.3 s at 2), which revised milestone 2"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-battery-model-trust-flag-and-cycle-cost.md",
+    "research/cell-fidelity/README.md",
+    "research/cell-fidelity/PROPOSAL.md",
+    "research/cell-fidelity/LOG.md"
+  ],
+  "goal": "research at PhD+ level aimed at deep tech (energy)",
+  "notes": "Security queue empty; IDEAS.md and website requests empty. Route: research/0 -> track 16. Milestone 1: SPMe 2-cycle min electrolyte concentration flags 7 untrusted of 49 energy-cell-dfn designs, AUC 0.997 (H1 supported), Spearman -0.833 (H2 supported), 2-cycle SPMe/DFN cost 0.88 (H3 refuted). Local checks: programme_check ok, build.py ok, research_live_links, check_md_links ok, pytest research/cell-fidelity/tests + research/_shared 57 passed (python3.13). run_workflow_locally --for-changes output in the PR's last commit notes if it finished.",
+  "corrections": [],
+  "redteam": null
+}
