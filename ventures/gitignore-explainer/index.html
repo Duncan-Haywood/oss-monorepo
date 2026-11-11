@@ -22,7 +22,8 @@
     .note, footer { font-size: .86rem; color: #50506a; }
     .card { background: #fff; border: 1px solid #dcdce8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #26254f10; margin: 18px 0; }
     label { display: block; font-weight: 600; margin: 12px 0 4px; }
-    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #77779a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    select { max-width: 340px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #77779a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
     textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 12em; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
     @media (max-width: 720px) { body { padding: 16px; } }
@@ -64,6 +65,9 @@
   <section class="card">
     <h2>1. Your ignore files</h2>
     <p class="note">Paste your root <code>.gitignore</code>. For more files, start each with a line <code>==&gt; path/to/.gitignore &lt;==</code> (what <code>head</code> prints for several files, so <code>head -n 1000 $(git ls-files '*.gitignore')</code> gives you the whole lot). <code>==&gt; .git/info/exclude &lt;==</code> works too.</p>
+    <label for="gitMode">Your git version</label>
+    <select id="gitMode"><option value="modern">2.52 or later (git --version)</option><option value="legacy">2.51 or earlier</option></select>
+    <p class="note">One corner changed in git 2.52: a <code>**</code> glued to literal text, as in <code>/a**/b</code>, crossed folders before and acts like <code>*</code> now. Everything else matches the same in both.</p>
     <label for="sources">Ignore files</label>
     <textarea id="sources" spellcheck="false" placeholder="build/&#10;!build/keep.txt&#10;*.log"></textarea>
   </section>
@@ -179,7 +183,7 @@ node ventures/gitignore-explainer/cli/check.mjs --strict   # exit 1 on a high fi
     }
 
     function run() {
-      const input = { sources: $("#sources").value, paths: $("#paths").value, tracked: $("#tracked").value };
+      const input = { sources: $("#sources").value, paths: $("#paths").value, tracked: $("#tracked").value, git: $("#gitMode").value };
       if (!input.sources.trim()) { status.textContent = "Paste at least one .gitignore."; return; }
       if (!input.paths.trim() && !input.tracked.trim()) { status.textContent = "Add at least one path to check."; return; }
       const t0 = performance.now();
@@ -200,7 +204,7 @@ node ventures/gitignore-explainer/cli/check.mjs --strict   # exit 1 on a high fi
     }
 
     function showWhy() {
-      const res = why({ sources: $("#sources").value, path: $("#whyPath").value });
+      const res = why({ sources: $("#sources").value, path: $("#whyPath").value, git: $("#gitMode").value });
       $("#whySteps").innerHTML = res.steps.map((s) => `<li><code>${esc(s.path)}</code>: ${s.ignored ? '<span class="yes">ignored</span>' : "not ignored"}${s.rule ? ` by ${ruleCell(s.rule)}` : " (no rule matches)"}${s.note ? `<br><span class="note">${esc(s.note)}</span>` : ""}</li>`).join("") || "<li>Type a path.</li>";
       record("why_shown");
     }

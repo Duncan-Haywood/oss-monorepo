@@ -8,10 +8,12 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
-import { analyze, compile, resolver, wildmatch } from "./gitignore.mjs";
+import { analyze, compile, resolver, wildmatch, gitModeFor } from "./gitignore.mjs";
 
-let hasGit = true;
-try { execFileSync("git", ["--version"], { stdio: "ignore" }); } catch { hasGit = false; }
+// git 2.52 changed one corner of matching (see compile); compare against the
+// behaviour of whichever git is installed
+let hasGit = true, GIT = "modern", gitVersion = "";
+try { gitVersion = execFileSync("git", ["--version"], { encoding: "utf8" }).trim(); GIT = gitModeFor(gitVersion); } catch { hasGit = false; }
 
 function rng(seed) {
   let s = seed >>> 0;
@@ -119,7 +121,7 @@ test("matches git check-ignore on random repositories", { skip: !hasGit && "git 
     const repo = makeRepo(r);
     const git = gitAnswers(repo);
     const bundle = Object.entries(repo.sources).map(([p, text]) => `==> ${p} <==\n${text}`).join("\n");
-    const explain = resolver(compile(bundle));
+    const explain = resolver(compile(bundle, { git: GIT }));
     for (const [path, isDir] of [...repo.files.map((f) => [f, false]), ...repo.dirs.map((d) => [d, true])]) {
       const x = explain(path, isDir);
       const mine = x.rule ? `${x.rule.source}:${x.rule.line}` : null;
@@ -127,7 +129,7 @@ test("matches git check-ignore on random repositories", { skip: !hasGit && "git 
       compared++;
     }
   }
-  t.diagnostic(`${trials} random repositories, ${compared} paths, all agree with git`);
+  t.diagnostic(`${gitVersion} (${GIT} mode): ${trials} random repositories, ${compared} paths, all agree`);
   assert.ok(compared > trials * 4);
 });
 
@@ -138,7 +140,7 @@ test("every suggested fix does in git what the report says it does", { skip: !ha
   for (let i = 0; i < trials; i++) {
     const repo = makeRepo(r);
     const bundle = Object.entries(repo.sources).map(([p, text]) => `==> ${p} <==\n${text}`).join("\n");
-    const res = analyze({ sources: bundle, paths: repo.files.join("\n"), tracked: "" });
+    const res = analyze({ sources: bundle, paths: repo.files.join("\n"), tracked: "", git: GIT });
     if (!res.fix) continue;
     fixes++;
     if (!res.fix.unfixed.length) complete++;

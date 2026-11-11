@@ -62,9 +62,26 @@ test("a .gitignore inside an ignored directory is never read", () => {
   assert.equal(r.rule.text, "vendor/");
 });
 
-test("the git prefix quirk: `a**/x` lets ** cross directories", () => {
-  assert.equal(decide("/a**/*.c", "a.c/ab/b.c/b.c").ignored, true);
-  assert.equal(decide("/x**/y", "xa/b/y").ignored, true);
+test("git before 2.52 lets `a**/x` cross directories; 2.52 and later do not", () => {
+  const legacy = (src, path) => resolver(compile(src, { git: "legacy" }))(path, false).ignored;
+  assert.equal(legacy("/a**/*.c", "a.c/ab/b.c/b.c"), true);
+  assert.equal(legacy("/x**/y", "xa/b/y"), true);
+  assert.equal(decide("/a**/*.c", "a.c/ab/b.c/b.c").ignored, false);
+  assert.equal(decide("/x**/y", "xa/b/y").ignored, false);
+  assert.equal(decide("/x**/y", "xab/y").ignored, true, "glued ** still acts like *");
+  // patterns without ** after literal text are the same in both
+  for (const [src, path] of [["/a/**/b", "a/x/y/b"], ["src/*.js", "src/a.js"], ["/ab*", "abc"]]) {
+    assert.equal(legacy(src, path), decide(src, path).ignored, src);
+  }
+});
+
+test("gitModeFor reads git --version", async () => {
+  const { gitModeFor } = await import("./gitignore.mjs");
+  assert.equal(gitModeFor("git version 2.43.0"), "legacy");
+  assert.equal(gitModeFor("git version 2.51.2"), "legacy");
+  assert.equal(gitModeFor("git version 2.52.0"), "modern");
+  assert.equal(gitModeFor("git version 2.56.0.windows.1"), "modern");
+  assert.equal(gitModeFor("nonsense"), "modern");
 });
 
 test("the default example finds both blocked negations and a verified fix", () => {

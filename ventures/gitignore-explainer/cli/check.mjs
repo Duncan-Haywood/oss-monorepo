@@ -14,7 +14,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { analyze, why } from "../gitignore.mjs";
+import { analyze, why, gitModeFor, GIT_MODES } from "../gitignore.mjs";
 
 const args = process.argv.slice(2);
 const flag = (name) => args.includes(name);
@@ -39,13 +39,14 @@ export function collect(cwd = process.cwd(), max = 50000) {
   for (const p of ignoreFiles) parts.push(`==> ${p} <==\n${readFileSync(join(root, p), "utf8")}`);
   const exclude = join(git(["rev-parse", "--git-dir"], root).trim().replace(/^(?!\/)/, root + "/"), "info", "exclude");
   if (existsSync(exclude)) parts.push(`==> .git/info/exclude <==\n${readFileSync(exclude, "utf8")}`);
-  return { root, sources: parts.join("\n"), tracked: tracked.join("\n"), paths: others.join("\n"), truncated };
+  const mode = gitModeFor(execFileSync("git", ["--version"], { encoding: "utf8" }));
+  return { root, sources: parts.join("\n"), tracked: tracked.join("\n"), paths: others.join("\n"), truncated, git: mode };
 }
 
 function text(report) {
   const out = [];
   const t = report.totals;
-  out.push(`${t.rules} rules in ${report.files.length} file(s); ${t.paths} paths, ${t.ignored} ignored, ${t.tracked} tracked.`);
+  out.push(`${t.rules} rules in ${report.files.length} file(s); ${t.paths} paths, ${t.ignored} ignored, ${t.tracked} tracked. Matching as git ${GIT_MODES[report.git]}.`);
   if (!report.findings.length) out.push("No findings.");
   for (const f of report.findings) {
     out.push("", `[${f.severity}] ${f.source}:${f.line}  ${f.title.replace(/`/g, "")}`);
@@ -75,9 +76,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   }
   if (input.truncated) console.error(`Note: read only the first ${value("--max", 50000)} untracked paths (--max to change).`);
   if (flag("--bundle")) {
-    console.log(JSON.stringify({ sources: input.sources, tracked: input.tracked, paths: input.paths }, null, 2));
+    console.log(JSON.stringify({ sources: input.sources, tracked: input.tracked, paths: input.paths, git: input.git }, null, 2));
   } else if (flag("--why")) {
-    const res = why({ sources: input.sources, path: value("--why", "") });
+    const res = why({ sources: input.sources, path: value("--why", ""), git: input.git });
     for (const s of res.steps) {
       console.log(`${s.path}: ${s.ignored ? "ignored" : "not ignored"}${s.rule ? ` by ${s.rule.source}:${s.rule.line} ${s.rule.text}` : " (no rule matches)"}${s.note ? `\n  ${s.note}` : ""}`);
     }

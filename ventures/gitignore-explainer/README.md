@@ -38,22 +38,28 @@ A reimplementation of git's ignore semantics, written from git's documentation a
   stripped, `!` negation, trailing `/` for folders only, a `/` anywhere but the end anchors the pattern to the
   file's own folder.
 - Matching: a port of the semantics of git's `wildmatch` (`*`, `?`, `[...]` with ranges, `!`/`^` and
-  `[:class:]`, escapes, and `**` only when it fills a whole segment), including git's literal-prefix step:
-  git compares the part before the first wildcard as plain text and wildmatches the rest as a pattern of its
-  own, so in `/a**/x` the `**` crosses folders. The differential test found that one.
+  `[:class:]`, escapes, and `**` only when it fills a whole segment), including git's literal-prefix step.
+  Git compares the part of an anchored pattern before the first wildcard as plain text and wildmatches the
+  rest. Up to git 2.51 the rest was matched as a pattern of its own, so in `/a**/x` the `**` started it and
+  crossed folders; git 2.52.0 keeps one prefix character, so the `**` stays glued to `a` and acts like `*`.
+  The engine does either (`git: "modern"`, the default, or `"legacy"`); the page has a switch and the CLI reads
+  `git --version`. The differential test found the old behaviour on git 2.43, and CI's git 2.56 disagreed
+  with it, which is how the change came to light; the first release carrying it was found by checking `dir.c`
+  at each release tag.
 - Precedence: last matching line wins within a file; the deepest `.gitignore` with any match wins over those
   above it; `.git/info/exclude` comes last. A folder is checked before anything inside it, and once a folder is
   ignored, nothing below it is considered and no `.gitignore` below it is read.
 
 ### How it was checked
 
-`gitignore.diff.test.mjs` builds random repositories (random trees up to four levels deep, random rules from
+`gitignore.diff.test.mjs` picks the mode from the installed `git --version`, builds random repositories (random trees up to four levels deep, random rules from
 segments such as `*`, `**`, `[!a]`, `[[:alpha:]]`, `\*`, unclosed `[`, with nested `.gitignore` files and
 `.git/info/exclude`), runs `git check-ignore --no-index -v -n` on every file and folder, and requires the
 same deciding file and line for each. A second test applies every suggested fix in git and checks that git
 agrees with what the report claimed: which paths come back, which stay ignored, which others change.
 
-Measured with git 2.43.0 on 2026-11-11:
+Measured on 2026-11-11 with git 2.43.0 (legacy mode) in the development container; CI runs the same tests
+on git 2.56.0 (modern mode) on every change to this folder:
 
 | Run | Result |
 | --- | --- |

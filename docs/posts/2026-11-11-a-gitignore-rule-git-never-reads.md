@@ -1,9 +1,9 @@
 ---
-title: "The .gitignore line git never reads, and a wildcard quirk 4,000 random repos turned up"
-seo_title: "Why a .gitignore negation does nothing, and a ** quirk in git"
+title: "The .gitignore line git never reads, and a ** rule that changed in git 2.52"
+seo_title: "Why a .gitignore negation does nothing, and a ** change in git 2.52"
 date: 2026-11-11
 tags: [gitignore-explainer, developer-tools, testing, git]
-description: "A free tool that names the rule deciding every path, as git does. Testing it against git on random repos found a step that changes what ** means."
+description: "A free tool that names the rule deciding every path, as git does. Testing it against two gits found that ** after text changed meaning in 2.52."
 ---
 
 Most people meet this one sooner or later:
@@ -23,9 +23,11 @@ A tool that explains git's answer is only useful if it agrees with git, so the e
 
 The first 18 random repositories agreed. The 19th did not. The rule was `/a**/*.c` and the path `a.c/ab/b.c/b.c`. By the documented rules, a `**` glued to other characters acts like a single `*` and stops at a slash, so the rule should not match. Git said it did.
 
-The reason is a speed shortcut in git. Before wildcard matching, git compares the literal part of an anchored pattern, everything before the first `*`, `?`, `[` or `\`, as plain text. It then matches only the rest, and it treats that rest as a pattern of its own. So `/a**/*.c` becomes "starts with `a`" plus `**/*.c`. That `**` now sits at the start of a pattern, which counts as a whole segment, so it crosses folders. A rule like `/x**/y` matches `xa/b/y` for the same reason. Nobody should write rules like that, but the engine now copies the step, and the guide does not promise otherwise.
+The reason is a speed shortcut in git. Before wildcard matching, git compares the literal part of an anchored pattern, everything before the first `*`, `?`, `[` or `\`, as plain text. It then matches only the rest, and it treated that rest as a pattern of its own. So `/a**/*.c` became "starts with `a`" plus `**/*.c`. That `**` then sat at the start of a pattern, which counts as a whole segment, so it crossed folders.
 
-With that in place, against git 2.43.0:
+Then the pull request went to CI, which runs git 2.56, and the test failed the other way: newer git did *not* match. Checking git's `dir.c` at each release tag showed why. Git 2.52.0 changed the shortcut to keep one character of the prefix when it hands over, "which lets it distinguish the start of a directory component correctly". On 2.52 and later, `a**` acts like `a*` again, as the documentation says. So the same `.gitignore` gives a different answer on Ubuntu 24.04's git 2.43 than on a current release. It only matters for a `**` glued to literal text, which nobody should write, but a tool that explains git's answer has to give the right one. The engine now has both behaviours. The page asks which git you run, the CLI reads `git --version`, and the differential test picks the mode from the git it finds.
+
+With that in place, in this container (git 2.43.0, old behaviour):
 
 - 4,000 random repositories, 63,578 paths and folders: every one agrees with git.
 - This repository's own 73 ignore files (391 rules) over its 55,196 tracked files and 8,443 folders: 0 disagreements. Only 16 of those 63,639 paths match any rule at all, which is what you'd expect of tracked files. So this run says little about the hard cases; the random runs carry those.
@@ -37,6 +39,6 @@ Run on this repository, the report has no blocked negations and no lint errors. 
 
 ## Limits
 
-The tool reimplements git's rules; it does not run git. Matching is case-sensitive, as on Linux. It does not read your global excludes file, though you can paste it in as `.git/info/exclude`, which gets the same lowest precedence. Rules that "match nothing in your list" are evidence about your list, not proof a rule is dead. Check anything that matters with `git check-ignore -v`.
+The tool reimplements git's rules; it does not run git. CI repeats the random-repository test on git 2.56 for the new behaviour on every change. Matching is case-sensitive, as on Linux. It does not read your global excludes file, though you can paste it in as `.git/info/exclude`, which gets the same lowest precedence. Rules that "match nothing in your list" are evidence about your list, not proof a rule is dead. Check anything that matters with `git check-ignore -v`.
 
 Next, if people use it: a GitHub Action wrapper around `--strict`, so a pull request that adds a negation git will never read fails before merge.

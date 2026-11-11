@@ -229,15 +229,30 @@ function classifySource(path) {
   return { kind: "dir", base: slash === -1 ? "" : path.slice(0, slash) };
 }
 
-export function compile(sourcesText) {
+// Git 2.52.0 changed how an anchored pattern's literal prefix is handed to
+// wildmatch (dir.c, match_pathname): older git cut the whole prefix off, so
+// in `/a**/x` the `**` started a fresh pattern and crossed folders; 2.52 and
+// later keep one character of it, so `**` glued to `a` acts like `*`. The
+// two agree on every pattern without `**` right after literal text.
+export const GIT_MODES = { modern: "2.52 or later", legacy: "2.51 or earlier" };
+
+export function gitModeFor(versionText) {
+  const m = String(versionText ?? "").match(/(\d+)\.(\d+)/);
+  if (!m) return "modern";
+  const [maj, min] = [Number(m[1]), Number(m[2])];
+  return maj < 2 || (maj === 2 && min < 52) ? "legacy" : "modern";
+}
+
+export function compile(sourcesText, { git = "modern" } = {}) {
+  const legacy = git === "legacy";
   const files = splitSources(sourcesText).map((f, fileIndex) => {
     const { kind, base } = classifySource(f.path);
     const rules = [];
     f.lines.forEach((raw, i) => {
       const r = parseRule(raw);
-      if (r) rules.push({ ...r, source: f.path, line: i + 1, raw, base, kind, id: `${f.path}:${i + 1}`, fileIndex });
+      if (r) rules.push({ ...r, legacy, source: f.path, line: i + 1, raw, base, kind, id: `${f.path}:${i + 1}`, fileIndex });
     });
-    return { path: f.path, kind, base, lines: f.lines, rules };
+    return { path: f.path, kind, base, lines: f.lines, rules, git: legacy ? "legacy" : "modern" };
   });
   return files;
 }
@@ -258,15 +273,15 @@ function ruleMatches(rule, path, isDir) {
     name = path.slice(rule.base.length + 1);
   }
   // git compares the literal prefix (up to the first `*?[\\`) as plain text
-  // and wildmatches only the rest, as a pattern of its own. That changes
-  // meaning: in `a**/x` the `**` then starts the pattern and crosses
-  // directories, where wildmatch on the whole would treat it as `*`.
+  // and wildmatches the rest. Before 2.52 the rest was a pattern of its own,
+  // so in `a**/x` the `**` started it and crossed directories; since 2.52 one
+  // prefix character is kept, which restores the plain wildmatch meaning.
   const prefix = rule.prefix;
   if (prefix) {
     if (prefix > name.length || name.slice(0, prefix) !== rule.pattern.slice(0, prefix)) return false;
-    const restP = rule.pattern.slice(prefix), restN = name.slice(prefix);
-    if (!restP) return !restN;
-    return wildmatch(restP, restN, { pathname: true });
+    if (prefix === rule.pattern.length) return prefix === name.length;
+    const cut = rule.legacy ? prefix : prefix - 1;
+    return wildmatch(rule.pattern.slice(cut), name.slice(cut), { pathname: true });
   }
   return wildmatch(rule.pattern, name, { pathname: true });
 }
@@ -461,7 +476,7 @@ function applyPatches(files, patches) {
     if (!p) return f;
     return { ...f, lines: [...f.lines, "", "# re-include paths inside ignored directories (git never looks inside one)", ...p.lines] };
   });
-  return compile(patched.map((f) => `==> ${f.path} <==\n${f.lines.join("\n")}`).join("\n"));
+  return compile(patched.map((f) => `==> ${f.path} <==\n${f.lines.join("\n")}`).join("\n"), { git: files[0]?.git });
 }
 
 function assemble(dirs, negs) {
@@ -543,7 +558,7 @@ function proposeFix(files, entries, blocked, before) {
 }
 
 export function analyze(input = {}) {
-  const files = compile(input.sources ?? DEFAULTS.sources);
+  const files = compile(input.sources ?? DEFAULTS.sources, { git: input.git === "legacy" ? "legacy" : "modern" });
   const untracked = parsePaths(input.paths ?? DEFAULTS.paths);
   const tracked = parsePaths(input.tracked ?? DEFAULTS.tracked);
   const trackedSet = new Set(tracked.map((e) => e.path));
@@ -676,6 +691,7 @@ export function analyze(input = {}) {
   findings.sort((a, b) => order[a.severity] - order[b.severity]);
 
   return {
+    git: input.git === "legacy" ? "legacy" : "modern",
     files: files.map((f) => ({ path: f.path, kind: f.kind, base: f.base, rules: f.rules.length })),
     rules: rules.map((r) => ({ id: r.id, source: r.source, line: r.line, text: r.text, negated: r.negated, dirOnly: r.dirOnly, anchored: r.anchored, ...stats.get(r.id), effect: effect.get(r.id) })),
     paths: rows,
@@ -698,7 +714,7 @@ function plural(n, word) {
 
 // Why is one path ignored (or not)? The step-by-step reasoning git applies.
 export function why(input = {}) {
-  const files = compile(input.sources ?? DEFAULTS.sources);
+  const files = compile(input.sources ?? DEFAULTS.sources, { git: input.git === "legacy" ? "legacy" : "modern" });
   const raw = String(input.path ?? "").trim();
   const isDir = raw.endsWith("/");
   const path = normalisePath(raw).replace(/\/+$/, "");
