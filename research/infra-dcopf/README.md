@@ -168,9 +168,24 @@ Next step 2 asked for a ramp stress test. Factors taken from the AC optimum L ho
 - The ramps worth worrying about are the afternoon-peak ones: the 12 h hours at 16:00 to 17:00 show plain DC at 1.6 to 1.8 %, stale 0.55 to 0.60 %, oracle 0.34 to 0.36 %. Most overnight hours sit near 0.72 for plain DC regardless of lag, so the mean across lags is driven by which hours the ramp selection picks, not by the lag alone: read within a row, not down the columns.
 - Limits: 10 hours per lag, one case (case118), one load shape applied uniformly to every bus (so factors age less than with uneven regional ramps), no outage (a topology change would age them faster; not tested), one solver.
 
+## Line outages: factors from before the trip (added 2026-11-11, `experiments/run_outage.py`, `results_outage.txt`, `results_outage_k1.1.txt`)
+Next step 2 asked for an outage stress test. Penalty factors and loss share are taken at the AC optimum of the intact network (what an operator holds just before a trip) and applied to the DC OPF of the network with one line out; the DC model knows the new topology, only the factors are stale. 40 outages per load level on case118: the 20 most-loaded lines whose trip leaves every bus supplied (7 of 173 trips island a bus and were skipped) and 20 others drawn at random (seed 0). All 80 post-outage AC OPFs converged. Mean excess AC cost over the post-outage AC optimum:
+
+| load | outage set | plain DC | stale (pre-trip) factors | oracle (post-trip) factors | stale beats plain |
+|---|---|---|---|---|---|
+| 1.0 | 20 most-loaded | 1.671 % | 0.409 % | 0.367 % | 20 / 20 |
+| 1.0 | 20 random | 1.491 % | 0.368 % | 0.365 % | 20 / 20 |
+| 1.1 | 20 most-loaded | 1.874 % | 0.378 % | 0.338 % | 20 / 20 |
+| 1.1 | 20 random | 1.692 % | 0.341 % | 0.338 % | 20 / 20 |
+
+- Prediction (logged before running): stale factors beat plain DC on at least 80 % of outages (held: 80 of 80); their gap to the oracle grows with the tripped line's flow (held: Spearman 0.69 at load 1.0, 0.59 at 1.1, n = 40 each); on at least one outage they do worse than plain DC (refuted: never).
+- The worst case is the heaviest line, 25-29 (196 MW before the trip): stale 0.582 % against oracle 0.378 % and plain 2.131 %, so the stale factors still keep 88 % of the oracle's gain (90 % at load 1.1). A random trip costs them almost nothing (worst 0.015 point at load 1.0).
+- The trip matters more to plain DC than to the factors: tripping 37-64 lifts plain DC's excess from about 1.48 % to 2.73 %, while the stale factors rise only to 0.546 %. The largest change in any generator's factor across a trip (up to 0.086) tracks the stale-oracle gap (Spearman 0.74 at load 1.0), so it is a cheap flag for when to refresh the factors.
+- Limits: one network (case118, whose ratings do not bind at the intact optimum; post-trip line loadings were not reported, and a trip that congests the network is where stale factors are most at risk, to be tested on the PGLib API cases), single-line trips only, one solver, one dispatch per outage, the oracle uses the post-trip AC optimum (a bound, not a scheme).
+
 ## Next steps
 1. Published binding ratings done on 23 PGLib-OPF cases (section above): the DC dispatch is AC-infeasible on all 11 API cases, and derating or iterated AC correction does not repair it. Next: an AC-informed linearisation taken at a nearby AC point (hot-start PTDFs with loss factors and reactive offsets) on the API set; check whether it stays feasible where `corrected_dc` does not; an exact loss/congestion decomposition of the API LMPs from the AC duals.
-2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp stress test done (above). Next: an outage stress test (a line trip invalidates the factors at once), a DC-based estimate of the point, or a distributed slack.
+2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp and single-line outage stress tests done (above): stale factors beat plain DC on all 80 trips. Next: outages on a case whose ratings bind (PGLib API), a refresh rule driven by the factor change, a DC-based estimate of the point, or a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
 ## Reproduce
@@ -188,6 +203,7 @@ PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs p
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
 PYTHONPATH=src python experiments/run_hourly_profile.py  # about 25 min; writes results_hourly_profile.txt
 PYTHONPATH=src:experiments python experiments/run_stale_factors.py  # about 4 min; writes results_stale_factors.txt
+PYTHONPATH=src python experiments/run_outage.py 1.0   # about 9 min; writes results_outage.txt (1.1 writes results_outage_k1.1.txt)
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
 PYTHONPATH=src python experiments/run_voltage.py  # voltage setpoint study, about 1 min; writes results_voltage.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
