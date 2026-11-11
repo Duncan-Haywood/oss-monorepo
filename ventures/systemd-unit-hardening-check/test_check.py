@@ -84,6 +84,26 @@ class Merging(unittest.TestCase):
             self.assertNotIn(k, kinds)
         self.assertFalse(check.has_risk(f))
 
+    def test_dynamic_user_with_user_root_still_runs_as_root(self):
+        # systemd.exec(5), DynamicUser=: a statically allocated user of the configured
+        # name is used and no dynamic user is allocated, and root always exists.
+        for who in ("root", "0"):
+            f = check.scan_text(f"[Service]\nDynamicUser=yes\nUser={who}\nExecStart=/usr/bin/a\n")
+            self.assertEqual(types_at(f, check.RUNS_AS_ROOT), [3], who)
+        f = check.scan_text("[Service]\nDynamicUser=yes\nUser=app\nExecStart=/usr/bin/a\n")
+        self.assertEqual(types_at(f, check.RUNS_AS_ROOT), [])
+
+    def test_boolean_secret_flags_are_not_literal_secrets(self):
+        for v in ("no", "yes", "TRUE", "off", "0"):
+            f = check.scan_text(f"[Service]\nUser=a\nEnvironment=PASSWORD_AUTH={v}\n")
+            self.assertEqual(types_at(f, check.LITERAL_SECRET), [], v)
+
+    def test_unterminated_quote_ending_in_backslash(self):
+        # A doubled trailing backslash survives continuation-joining as one backslash
+        # inside an open quote; the scan must still flag the secret, not crash.
+        f = check.scan_text('[Service]\nUser=a\nEnvironment="DB_PASSWORD=x\\\\')
+        self.assertEqual(types_at(f, check.LITERAL_SECRET), [3])
+
     def test_hardened_unit_is_clean(self):
         t = ("[Service]\nUser=app\nExecStart=/home/app/bin/a\nNoNewPrivileges=true\nProtectSystem=strict\n"
              "ProtectHome=read-only\nPrivateTmp=yes\nPrivateDevices=yes\nProtectKernelTunables=yes\n"

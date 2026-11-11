@@ -23,7 +23,7 @@ they deploy.
 | `svc-pipe-to-shell` | high | `curl` or `wget` piped into a shell in an `Exec*=` line |
 | `svc-dangerous-capability` | high | CAP_SYS_ADMIN, CAP_SYS_MODULE, CAP_SYS_PTRACE, CAP_SYS_RAWIO, CAP_DAC_OVERRIDE, CAP_DAC_READ_SEARCH, CAP_BPF or CAP_SETUID in `AmbientCapabilities=` or a (non-`~`) `CapabilityBoundingSet=` |
 | `svc-read-write-root` | high | `ReadWritePaths=/` |
-| `svc-runs-as-root` | medium | no `User=` and no `DynamicUser=yes`, or `User=root`/`0` |
+| `svc-runs-as-root` | medium | no `User=` and no `DynamicUser=yes`, or `User=root`/`0` (even with `DynamicUser=yes`: a static user of that name wins) |
 | `svc-no-new-privileges` | medium | `NoNewPrivileges=` not on |
 | `svc-protect-system-missing` | medium | `ProtectSystem=` unset or off |
 | `svc-protect-home-missing` | medium | `ProtectHome=` unset or off |

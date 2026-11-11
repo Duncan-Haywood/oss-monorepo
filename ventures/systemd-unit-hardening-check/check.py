@@ -25,7 +25,7 @@ list setting):
                                       CAP_BPF or CAP_SETUID granted in AmbientCapabilities=
                                       or kept in CapabilityBoundingSet=
   high    svc-read-write-root         ReadWritePaths=/ (undoes ProtectSystem=)
-  medium  svc-runs-as-root            no User= and no DynamicUser=yes, or User=root
+  medium  svc-runs-as-root            no User= and no DynamicUser=yes, or User=root (DynamicUser= too)
   medium  svc-no-new-privileges       NoNewPrivileges= not on (DynamicUser=yes implies it)
   medium  svc-protect-system-missing  no ProtectSystem= (or =no)
   medium  svc-protect-home-missing    no ProtectHome= (or =no)
@@ -286,7 +286,9 @@ def evaluate(unit, entries, anchor, has_main, user_units=False):
 
     user = _last(svc, "User")
     dynamic = _is_true(_last(svc, "DynamicUser"))
-    as_root = not user_units and not dynamic and (user is None or user["value"] in ("root", "0"))
+    # A static user of the configured name wins over DynamicUser=yes (systemd.exec(5)),
+    # and root always exists, so User=root runs as root either way.
+    as_root = not user_units and (user["value"] in ("root", "0") if user is not None else not dynamic)
 
     for key in EXEC_KEYS:
         for e in _effective(svc, key):

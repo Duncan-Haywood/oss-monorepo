@@ -64,6 +64,21 @@ test("DynamicUser=yes implies the documented settings", () => {
   assert.equal(hasRisk(f), false);
 });
 
+test("DynamicUser=yes with User=root still runs as root (a static user wins)", () => {
+  for (const who of ["root", "0"]) {
+    const f = scanText(`[Service]\nDynamicUser=yes\nUser=${who}\nExecStart=/usr/bin/a\n`);
+    assert.deepEqual(lines(f, RUNS_AS_ROOT), [3], who);
+  }
+  assert.deepEqual(lines(scanText("[Service]\nDynamicUser=yes\nUser=app\n"), RUNS_AS_ROOT), []);
+});
+
+test("boolean values of secret-named variables are not literal secrets", () => {
+  for (const v of ["no", "yes", "TRUE", "off", "0"]) {
+    const f = scanText(`[Service]\nUser=a\nEnvironment=PASSWORD_AUTH=${v}\n`);
+    assert.deepEqual(lines(f, LITERAL_SECRET), [], v);
+  }
+});
+
 test("ReadWritePaths=/ and a kept CAP_SYS_PTRACE are high", () => {
   const f = scanText("[Service]\nReadWritePaths=-/var/lib/a /\nCapabilityBoundingSet=CAP_SYS_PTRACE\n");
   assert.deepEqual(lines(f, READ_WRITE_ROOT), [2]);
@@ -98,4 +113,17 @@ test("parity: check.py and classify.mjs agree on the fixtures, drop-ins included
   const units = [...new Set(js.map((x) => x.unit))];
   for (const u of units) assert.equal(dropInFor(u, js), py.drop_ins[u] ?? "");
   assert.ok(js.length > 10);
+});
+
+// Edge cases a stranger might paste (quotes, continuations, resets, prefixes, CRLF,
+// DynamicUser= with User=root). check.py and classify.mjs must give the same
+// findings for every one, so a rule fixed in one twin cannot drift from the other.
+test("parity: check.py and classify.mjs agree on the edge-case corpus", () => {
+  const cases = JSON.parse(readFileSync(path.join(here, "parity-cases.test.json"), "utf8"));
+  const key = (f) => f.map((x) => `${x.line}:${x.type}:${x.severity}`).sort();
+  const py = JSON.parse(execFileSync("python3", ["-c",
+    "import json,sys,check\nprint(json.dumps([[f'{f[\"line\"]}:{f[\"type\"]}:{f[\"severity\"]}' for f in check.scan_text(t, 'app.service')] for t in json.load(sys.stdin)]))"],
+    { cwd: here, encoding: "utf8", input: JSON.stringify(cases) }));
+  assert.equal(py.length, cases.length);
+  cases.forEach((t, i) => assert.deepEqual(key(scanText(t, "app.service")), [...py[i]].sort(), JSON.stringify(t)));
 });
