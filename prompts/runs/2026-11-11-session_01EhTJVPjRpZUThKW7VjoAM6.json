@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVPjRpZUThKW7VjoAM6",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T10:01:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": 14754,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs by title keyword before opening (none); sibling session's #14753 with the same two fixes merged while this PR waited on CI that never started. Searching just before merge, not only before opening, would have caught it."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2100/40 runs toward the next review' again; review counter/claim still looks stuck (owner-gated path)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "left the run record's model field null: the session's harness forbids model identifiers in pushed artifacts",
+      "did": "model: null",
+      "result": "promptctl validate accepted it"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no new blog post: the sibling PR #14753 already posted on the same two fixes (docs/posts/2026-11-11-error-messages-that-name-the-fix.md); a second post would repeat it",
+      "did": "dropped my post",
+      "result": "no duplicate post"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode (backlog: owner rows only). main_health.py 55/55 pass on main. Built the same two friction fixes (tag-variant message, run_workflow_locally dry run) that sibling PR #14753 merged first; at merge time took main's versions and kept only the remaining delta: --for-changes --list prints each workflow's run-step count and a total (on a platform/ci diff, portfolio-validate.yml held 107 of 136 steps), so a run can see which workflow is the long one. Test added. Verified: test_run_workflow_locally + test_check_post_frontmatter 154/154 OK, prompts unittest 136 OK, promptctl validate ok, conflict-markers-ci 2/2 run steps. No check runs started on the PR. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null
+}

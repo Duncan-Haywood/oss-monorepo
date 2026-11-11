@@ -1350,8 +1350,16 @@ def _run_selected(args, selected, held, absent=()) -> int:
         print(f"  [held  ] {name} / {job_id}: {why}; run it by name with "
               "--force if you have read it")
     if args.list:
-        for name, _, allowed in selected:
-            print(f"  [run   ] {name} ({', '.join(sorted(allowed))})")
+        # Step counts say which workflow is the long one (on a platform/ci
+        # diff, portfolio-validate.yml holds 107 of 136 steps), so a run can
+        # pick the few to run by name.
+        total = 0
+        for name, workflow, allowed in selected:
+            n = len(collect(workflow, only=allowed)[0])
+            total += n
+            print(f"  [run   ] {name} ({', '.join(sorted(allowed))}; {n} step(s))")
+        if selected:
+            print(f"  {total} run: step(s) in {len(selected)} workflow(s).")
         return 0
 
     before = checkout_fingerprint()

@@ -1092,6 +1092,18 @@ class Tree(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("nothing was verified", out.getvalue().lower())
 
+    def test_list_names_each_workflows_step_count(self):
+        wf = {"jobs": {"a": {"steps": [{"run": "true"}, {"run": "true"},
+                                      {"uses": "actions/checkout@v4"}]},
+                       "b": {"steps": [{"run": "true"}]}}}
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner._run_selected(argparse.Namespace(list=True, timeout=1),
+                                        [("x.yml", wf, {"a"})], [])
+        self.assertEqual(code, 0)
+        self.assertIn("x.yml (a; 2 step(s))", out.getvalue())
+        self.assertIn("2 run: step(s) in 1 workflow(s).", out.getvalue())
+
     def test_a_step_is_named_before_it_runs_not_after(self):
         # A sweep of this tree takes ~13 minutes. If the label is printed
         # only once `execute()` returns, a session that pipes the output --
