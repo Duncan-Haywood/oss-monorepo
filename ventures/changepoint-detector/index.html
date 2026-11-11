@@ -64,6 +64,8 @@
       <div><label for="shape">What to analyse</label>
         <select id="shape"><option value="one">One column</option><option value="multi">Several columns measured at the same points</option></select></div>
       <div><label for="columns">Columns (several-columns mode; names or numbers, comma-separated; blank = every numeric column)</label><input id="columns" type="text" placeholder="e.g. temp, co2" disabled></div>
+      <div><label for="jointNoise">One segmentation for all columns: noise per column (several-columns mode, level model)</label>
+        <select id="jointNoise" disabled><option value="auto">Floor only the columns that over-cut (default)</option><option value="off">Plain: each column's step-to-step scatter</option><option value="floor2">Floor every column at 2x its local-line scatter</option><option value="ar1floor">Autocorrelation and a floor on every column (fewest cuts)</option></select></div>
       <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
       <div><label for="model">Look for a change in</label>
         <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
@@ -204,7 +206,7 @@
     $("#penalty").addEventListener("change", () => { $("#penaltyValue").disabled = $("#penalty").value !== "custom"; });
 
     let lastMulti = null;
-    $("#shape").addEventListener("change", () => { $("#columns").disabled = $("#shape").value !== "multi"; $("#column").disabled = $("#shape").value === "multi"; });
+    $("#shape").addEventListener("change", () => { $("#columns").disabled = $("#shape").value !== "multi"; $("#jointNoise").disabled = $("#shape").value !== "multi"; $("#column").disabled = $("#shape").value === "multi"; });
 
     function runMulti() {
       $("#error").textContent = "";
@@ -219,7 +221,8 @@
         try {
           const p = parseColumns($("#csv").value, list.length ? list : null, null);
           if (p.cols.length < 2) throw new Error("Several-columns mode needs two or more numeric columns; for one column pick \u201cOne column\u201d.");
-          const r = analyzeMulti({ ...p, model, penalty });
+          const jn = $("#jointNoise").value;
+          const r = analyzeMulti({ ...p, model, penalty, floor: jn === "off" ? "off" : jn === "auto" ? "auto" : 2, ar1: jn === "ar1floor" });
           lastMulti = { p, r };
           $("#multi-summary").textContent = multiSummary(r);
           $("#multi-warnings").innerHTML = r.overcutWarning ? `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r.overcutWarning)}</p>` : "";

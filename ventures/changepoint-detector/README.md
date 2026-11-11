@@ -2089,3 +2089,40 @@ Only the level and level-and-volatility models take several columns; the page sa
 
 Limits: the warning is a count, not a test; it says to prefer the column-by-column list, it does not fix the joint fit. The joint fit itself is unchanged (independent columns, plain level cost); a noise floor or trend per column inside the joint cost is the next step. Not yet in the branded report.
 
+## A joint fit that survives smooth columns: a noise floor per column (2026-11-11)
+
+The joint fit took each column's noise from its step-to-step scatter, so a smooth column (a stock price, a bee's position, a room's temperature) looked almost noiseless and every bend cleared the penalty: 95 to 132 cuts on the three TCPD series. `multivariate.mjs` now sets each column's noise separately (`columnSigmas`; `multiPelt(cols, { floor, ar1 })`):
+
+- **`floor: 'auto'`** (the new default for the level model on the page, the CLI and `analyzeMulti`): a column gets the univariate floor, twice the scatter about a local 25-point line, only if its own level fit over-cuts (5 or more cuts that the floor at least halves). That is the univariate over-cut test from `analyze()`, copied, not tuned. A white-noise column keeps its plain sd.
+- **`floor: k`**: every column floored at k times the local-line scatter. **`ar1: true`**: each column's sd raised to its AR(1) long-run sd (the plain `--ar1` correction, per column). **`floor: 'off'`**: the old fit.
+
+The six settings, the primary (`auto`) and a decision rule were written into `eval/tcpd-multi-floor.mjs` before any was scored: the default becomes `auto` if it beats the plain joint fit's mean F1 on the three series **and** keeps every white-noise hit rate in `eval/multi-floor-sim.mjs` within 5 points of the plain fit's. `node eval/tcpd-multi-floor.mjs tcpd-data` (output `eval/tcpd-multi-floor.out.txt`), F1 at margin 5:
+
+| joint level fit | apple | bee_waggle_6 | occupancy | mean F1 | mean cover | cuts |
+|---|---|---|---|---|---|---|
+| plain (before) | 0.171 | 0.050 | 0.295 | 0.172 | 0.119 | 95/117/132 |
+| **floor auto (primary, now default)** | 0.378 | 0.140 | 0.342 | **0.286** | 0.233 | 20/39/89 |
+| floor 2, every column | 0.378 | 0.140 | 0.498 | 0.338 | 0.249 | 20/39/51 |
+| floor 1, every column | 0.242 | 0.086 | 0.414 | 0.247 | 0.186 | 57/66/79 |
+| ar1 per column | 0.339 | 0.061 | 0.845 | 0.415 | 0.359 | 23/94/10 |
+| ar1 + floor 2 | 0.709 | 0.194 | 0.789 | 0.564 | 0.485 | 4/27/6 |
+| columns: every setting (unchanged reference) | 0.741 | 0.124 | 0.696 | 0.521 | 0.367 | 7/29/10 |
+| zero, "no change" (published) | 0.594 | 0.929 | 0.341 | 0.621 | | 0 |
+
+`node eval/multi-floor-sim.mjs` (output `eval/multi-floor-sim.out.txt`, same seeds as `eval/multi-sim.mjs`, 100 series per cell):
+
+- **White noise, one shared step:** `auto` matches the plain fit's hit rate in all 20 cells (1 to 8 columns, steps 0 to 1.5 sd) and its false cuts in 19 (one cell 0.26 to 0.23). A floor on every column costs the power the joint fit exists for: at 0.5 sd over 4 columns, 76% found plain and with `auto`, 3% with floor 2.
+- **Random walks, one 3-sd shared step:** false cuts per series drop from 18-37 to 4-9 with `auto` (hits 92-100% to 51-78%); `ar1` cuts them to about 1-2 but finds the step in only 17-25%.
+- **AR(1) rho 0.9, one 3-sd shared step:** false cuts 18-33 to 2-5 with `auto`; `ar1` 0.2-0.6, hits 18-51%.
+
+What it says:
+
+- **The rule is met, so `auto` is the default.** Mean F1 0.172 to 0.286, cuts down by a third to four fifths, and no cost on white noise. Over-cut columns: both apple columns, all four bee columns, two of four occupancy sensors (the output lists the sd each got).
+- **`auto` is still below the column-by-column reading (0.521) and "no change" (0.621).** The page keeps leading with the agreed changes, and the over-cut warning still fires on occupancy (89 cuts in 509 points).
+- **AR(1) plus floor 2 on every column scored best here (0.564), above the consensus.** It was listed in advance but is not the primary, so that is a lead, not a finding: three series is a panel, and in simulation it gives up most of the power on smooth columns. It ships as a page and CLI option ("Autocorrelation and a floor on every column (fewest cuts)", `--joint-floor 2 --joint-ar1`), to be tested on fresh multi-column data before it is anything more.
+- **A real pair checked after the rule was applied:** German unemployment, unadjusted and adjusted, quarterly 1962-1991 (`data/german-unemployment.csv`). Plain joint fit: 22 changes and the over-cut warning. With `auto` (both columns floored): 1974Q4 (+3.4 points, the first oil shock's recession), 1982Q1 (+4.3, the early-1980s recession) and 1989Q2 (-1.8), no warning. With AR(1) as well: one change, 1981Q3. Pinned in `multi-view.test.mjs`.
+
+**What shipped.** `columnSigmas` and the `floor`/`ar1` options of `multiPelt`; `analyzeMulti` defaults to `floor: 'auto'` for the level model and reports `floor`, `ar1` and `flooredColumns`; the text output and the page summary name the floored columns; CLI `--joint-floor auto|off|k` and `--joint-ar1`; a page select, "One segmentation for all columns: noise per column". `eval/tcpd-multi.mjs` and `eval/multi-sim.mjs` call `multiPelt` with no floor, so their figures above are unchanged. Tests: `multivariate.test.mjs` (auto floors a random walk and leaves white noise alone, the shared step survives, the pre-registered figures and the white-noise equality from the output files) and `multi-view.test.mjs` (German unemployment both ways).
+
+Limits: three labelled series; columns still independent (no cross-correlation); no trend term per column (a floor is a blunt answer to a trend); the level-and-volatility joint fit is unchanged.
+
