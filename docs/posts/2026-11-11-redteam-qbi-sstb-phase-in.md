@@ -1,9 +1,9 @@
 ---
 title: "A consultant shown $400 instead of $5,000: the SSTB phase-in our QBI calculator skipped"
-seo_title: "QBI deduction for a specified service business inside the phase-in range: the step most calculators skip"
+seo_title: "SSTB QBI deduction in the phase-in range: the step that gets skipped"
 date: 2026-11-11
 tags: [tax, qbi, section-199a, mutation-testing]
-description: "Inside the phase-in range a specified service business's QBI is scaled first and then the wage limit phases in. Our calculator did only the first step, and applied the $400 minimum in the wrong place."
+description: "In the phase-in range an SSTB's QBI is scaled, then the wage limit phases in. Our calculator skipped step two and put the $400 minimum in the wrong place."
 ---
 
 Today's red-team run seeded twelve faults into `calc.mjs` of the
