@@ -159,7 +159,20 @@ def since_slugs(base):
 
 def changed_slugs(base_ref="origin/main"):
     """Committed, staged, unstaged and untracked changes since the merge base."""
-    base = git("merge-base", base_ref, "HEAD").strip()
+    found = subprocess.run(["git", "merge-base", base_ref, "HEAD"], cwd=ROOT,
+                           capture_output=True, text=True)
+    if found.returncode != 0 or not found.stdout.strip():
+        # A shallow cloud clone often shares no commit with origin/main; this
+        # used to die on a CalledProcessError traceback (run record
+        # 2026-11-11). Say what to do instead.
+        raise SystemExit(
+            f"run_venture_tests: no merge base between {base_ref} and HEAD "
+            "(shallow clone, or the ref is missing/stale).\n"
+            "  Refresh it: git fetch --depth=40 origin main\n"
+            "  Still none: git fetch --deepen=500 origin main, until "
+            f"`git merge-base {base_ref} HEAD` answers.\n"
+            "  Or name the ventures: run_venture_tests.py <slug> [<slug> ...]")
+    base = found.stdout.strip()
     paths = git("diff", "--name-only", base, "--", "ventures").splitlines()
     paths += git("ls-files", "--others", "--exclude-standard", "--", "ventures").splitlines()
     return with_dependents(slugs_in(paths))

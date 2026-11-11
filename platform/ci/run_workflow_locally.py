@@ -1075,17 +1075,29 @@ def run_steps(steps, timeout, budget: int | None = None) -> None:
         # load-bearing; see the note above `STATUS_MARK`.
         print(f"  {step.label} ... ", end="", flush=True)
         left = int(deadline - time.monotonic()) if deadline else None
+        # A step the sweep's budget stopped is UNRUN, not FAILED: it never
+        # reached a verdict. Reported as FAILED (0.0s), every step after
+        # portfolio-pages' 300+ s site-builder suite read as a real defect
+        # until the reader found the TIMEOUT reason (three doc-friction
+        # reports, 2026-11-11). It still keeps the sweep from reading green.
         if left is not None and left <= 0 and step.status != "skipped":
-            step.status = "failed"
+            step.status = "unrun"
+            step.missing_kind = "budget"
             step.reason = f"TIMEOUT: workflow budget of {budget}s spent before this step"
             step.seconds = 0.0
         else:
             step_timeout = min(timeout, left) if left is not None else timeout
             execute(step, step_timeout)
             if step.reason.startswith("timed out after") and step_timeout < timeout:
+                step.status = "unrun"
+                step.missing_kind = "budget"
                 step.reason = f"TIMEOUT: workflow budget of {budget}s spent in this step"
         print(f"[{STATUS_MARK[step.status]:6}] ({step.seconds:.1f}s)",
               flush=True)
+
+
+# report()'s exit when the sweep budget, not a check, stopped the workflow.
+BUDGET_SPENT = 3
 
 
 def report(name, steps, uses_skipped, forced) -> int:
@@ -1126,6 +1138,13 @@ def report(name, steps, uses_skipped, forced) -> int:
         # fetch and a merge, not an install). Point at it rather than
         # inventing a generic instruction that would be wrong for the next
         # check to join this class.
+        if any(s.missing_kind == "budget" for s in unrun):
+            print("        The sweep's per-workflow budget ran out, so these "
+                  "steps reached no verdict.")
+            print(f"        Re-run by name, which has no budget: python3 "
+                  f"platform/ci/run_workflow_locally.py {name}")
+            print("        (or pass --workflow-timeout 0; run it in the "
+                  "background, it can pass 10 min).")
         if any(s.missing_kind == "self-reported" for s in unrun):
             print("        A step above reported itself unable to run. Its own "
                   "output says what it needs;")
@@ -1162,6 +1181,10 @@ def report(name, steps, uses_skipped, forced) -> int:
 
     if failed:
         return 1
+    if any(s.missing_kind == "budget" for s in unrun):
+        print("  Not a verdict: the budget stopped this workflow before its "
+              "steps finished.")
+        return BUDGET_SPENT
     if not total:
         print("  Nothing was executed, so nothing was verified.")
         return 1
@@ -1364,20 +1387,30 @@ def _run_selected(args, selected, held, absent=()) -> int:
 
     before = checkout_fingerprint()
 
-    failures = []
+    failures, out_of_budget = [], []
     for name, workflow, allowed in selected:
         steps, uses_skipped = collect(workflow, only=allowed)
         print(f"\nRunning {name} locally "
               f"({len(steps)} run: step(s), {len(uses_skipped)} uses: step(s) skipped)",
               flush=True)
         run_steps(steps, args.timeout, getattr(args, "workflow_timeout", 0))
-        if report(name, steps, uses_skipped, False) != 0:
+        code = report(name, steps, uses_skipped, False)
+        if code == BUDGET_SPENT:
+            out_of_budget.append(name)
+        elif code != 0:
             failures.append(name)
 
     drift = checkout_drift(before, checkout_fingerprint())
 
-    print(f"\n{len(selected) - len(failures)}/{len(selected)} selected "
-          f"workflow(s) passed.")
+    finished = len(selected) - len(out_of_budget)
+    print(f"\n{finished - len(failures)}/{finished} selected "
+          f"workflow(s) passed"
+          + (f"; {len(out_of_budget)} ran out of budget with no verdict"
+             if out_of_budget else "") + ".")
+    if out_of_budget:
+        print("  Re-run each by name (no budget), in the background: "
+              + "; ".join(f"python3 platform/ci/run_workflow_locally.py {n}"
+                          for n in out_of_budget))
     if held:
         print("  Not a clean sweep: " + ", ".join(
             f"{name}/{job_id}" for name, job_id, _ in held)
@@ -1401,7 +1434,7 @@ def _run_selected(args, selected, held, absent=()) -> int:
               "not a reading of anything. Re-run on a checkout nothing else "
               "is writing to, and do not report either result.")
         return 1
-    return 1 if failures else 0
+    return 1 if failures or out_of_budget else 0
 
 
 def main(argv=None) -> int:

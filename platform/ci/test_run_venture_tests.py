@@ -181,6 +181,13 @@ class Selection(unittest.TestCase):
             self.assertEqual(rvt.with_dependents(["other"], root=root), ["other"])
             self.assertEqual(rvt.with_dependents([], root=root), [])
 
+    def test_no_merge_base_says_how_to_fix_it_instead_of_a_traceback(self):
+        # A shallow cloud clone shares no commit with origin/main (run record
+        # 2026-11-11: CalledProcessError).
+        with self.assertRaises(SystemExit) as cm:
+            rvt.changed_slugs("refs/no/such-ref")
+        self.assertIn("git fetch --depth=40 origin main", str(cm.exception))
+
     def test_an_all_zero_base_means_every_venture(self):
         # A push that creates a branch reports `before` as forty zeros.
         with mock.patch.object(rvt, "since_slugs") as since, \
