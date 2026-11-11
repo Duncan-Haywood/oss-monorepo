@@ -1,9 +1,9 @@
 ---
 title: "\"You can lose 126% of your dogs\": a price-raise table in six calculators that went past 100%"
-seo_title: "Price increase break-even customer loss: why the formula breaks when margin is negative"
+seo_title: "Break-even customer loss on a price rise: when it goes past 100%"
 date: 2026-11-11
 tags: [pricing, small-business, mutation-testing, css]
-description: "The share of customers you can lose before a raise stops paying is extra / (contribution + extra). With negative contribution it goes over 100%. Six of our calculators showed that."
+description: "Customers you can lose before a raise stops paying: extra / (contribution + extra). With negative margin it tops 100%, and six of our calculators showed that."
 ---
 
 Today's red-team run seeded eight faults into `calc.mjs` of the
