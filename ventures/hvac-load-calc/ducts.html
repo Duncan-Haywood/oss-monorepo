@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230e7490'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Duct Size Calculator by Friction Rate, Free</title>
+  <meta name="description" content="Free duct size calculator: room airflow, run lengths and the blower's static pressure in; each round run, trunk (with a rectangular equivalent) and return, its velocity, friction and the damper it needs, out. Darcy-Weisbach and Colebrook, shown in full, in your browser.">
+  <meta property="og:title" content="Duct Size Calculator by Friction Rate">
+  <meta property="og:description" content="Size every supply run, trunk and return from the static pressure the blower really has left. Open physics, every step shown, nothing uploaded.">
+  <link rel="canonical" href="./ducts.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Duct Size Calculator by Friction Rate","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Design friction rate from blower external static pressure, component losses and total effective length; round duct size for each supply run, trunk and return by friction and velocity limits; Darcy-Weisbach with the Colebrook friction factor; altitude-corrected air density; rectangular trunk equivalent by Huebscher; balancing damper pressure per run; room airflow from the room-by-room load calculator; CLI"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2228; background: #e9eef0; --accent: #0e7490; --accent2: #155e75; --ink2: #52606b; --line: #c4ced3; --panel: #fbfcfc; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 800px; margin-bottom: 22px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.04; margin: 0 0 12px; letter-spacing: -.035em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    h3 { font-size: 1rem; margin: 16px 0 4px; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    label { display: grid; gap: 4px; font-size: .82rem; font-weight: 650; min-width: 0; }
+    .layout > div { min-width: 0; }
+    input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #a9b6bd; border-radius: 7px; padding: 7px; font: inherit; background: #fff; }
+    input[type=checkbox] { width: auto; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .78rem; min-height: 100px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6bd; background: #eef3f5; padding: 8px 12px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dde7eb; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent2); }
+    .small { padding: 4px 8px; font-size: .8rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .run { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.2fr auto; gap: 6px; align-items: end; margin-bottom: 6px; }
+    .check { display: flex; gap: 6px; align-items: center; font-weight: 600; }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
+    .tile .big { font-size: 1.6rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; color: var(--accent2); }
+    .note { font-size: .84rem; background: #ecfeff; border-left: 3px solid var(--accent); padding: 7px 10px; margin: 10px 0 0; border-radius: 4px; }
+    .err { color: #b42318; font-size: .86rem; white-space: pre-line; }
+    table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 5px 6px; border-bottom: 1px solid #dde4e7; }
+    th:first-child, td:first-child { text-align: left; }
+    .tablewrap { overflow-x: auto; }
+    code { font-size: .85em; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a, section a { color: var(--accent2); }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .run { grid-template-columns: 1fr 1fr; } .tiles { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR BUILDERS, HVAC CONTRACTORS AND CAREFUL HOMEOWNERS</p>
+    <h1>What size should each duct be?</h1>
+    <p>Give each room's airflow and how long its run is, and the static pressure the blower has. The page works out the friction rate the ducts can afford, then the smallest round size for every supply run, trunk and return that stays under it and under a velocity limit, and how much each short run's damper must throttle. The physics is shown below. It is free and runs in your browser.</p>
+    <p>Room airflow comes from the <a href="./">room-by-room load calculator</a>: export the house there and load it here. <a href="./how-it-works.html">How the load is worked out</a>.</p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. The blower and what is in the way</h2>
+        <p class="hint">The blower's rated external static pressure at your design airflow is on the air handler's fan table. The losses below are example values: use your coil's, filter's and register maker's figures at your airflow.</p>
+        <div class="fields">
+          <label>Blower external static (in. w.c.) <input id="blowerStaticInWC" type="number" step="0.05"></label>
+          <label>Coil (in. w.c.) <input id="coilInWC" type="number" step="0.01"></label>
+          <label>Filter (in. w.c.) <input id="filterInWC" type="number" step="0.01"></label>
+          <label>Supply register (in. w.c.) <input id="supplyRegisterInWC" type="number" step="0.01"></label>
+          <label>Return grille (in. w.c.) <input id="returnGrilleInWC" type="number" step="0.01"></label>
+          <label>Other: damper, heater (in. w.c.) <input id="otherInWC" type="number" step="0.01"></label>
+          <label>Duct material <select id="material"><option value="metal">Sheet metal (0.0003 ft)</option><option value="flex">Flex, pulled tight (0.003 ft, rough)</option></select></label>
+          <label>Elevation (ft) <input id="elevationFt" type="number" step="100"></label>
+          <label>Return total effective length (ft) <input id="returnEffectiveLengthFt" type="number" step="5"></label>
+          <label>Branch velocity limit (ft/min) <input id="branchMaxFpm" type="number" step="50"></label>
+          <label>Trunk velocity limit (ft/min) <input id="trunkMaxFpm" type="number" step="50"></label>
+          <label>Return velocity limit (ft/min) <input id="returnMaxFpm" type="number" step="50"></label>
+          <label>Rectangular trunk height (in) <input id="rectHeightIn" type="number" step="1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Supply runs</h2>
+        <p class="hint">Total effective length is the run's straight feet from the air handler to the register, trunk included, plus the equivalent length of every elbow, boot and takeoff on the way. The page has no fitting table: use your fitting maker's equivalent lengths. Rooms with the same trunk name share a trunk.</p>
+        <div id="runs"></div>
+        <div class="actions">
+          <button type="button" id="addRun">Add a run</button>
+          <button type="button" id="loadExample">Load the example house</button>
+          <button type="button" id="clearRuns">Clear runs</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Bring rooms from the load calculator</h2>
+        <p class="hint">Paste the house JSON the <a href="./">load calculator</a> exports. Each room's design airflow fills a run; lengths stay as typed (or come from the file's <code>ducts</code> block). The second button puts this design in the box as a <code>ducts</code> block, which <code>node cli.mjs house.json --ducts</code> reads.</p>
+        <textarea id="jsonText" spellcheck="false" aria-label="House or duct design as JSON"></textarea>
+        <div class="actions">
+          <button type="button" id="importHouse">Fill runs from the house in the box</button>
+          <button type="button" id="exportDucts">Copy this design to the box</button>
+        </div>
+        <p class="err" id="jsonError" aria-live="polite"></p>
+      </section>
+    </div>
+
+    <div>
+      <section>
+        <h2>Result</h2>
+        <div class="actions" style="margin-top:0;margin-bottom:12px">
+          <button type="button" class="primary" id="calculate">Size the ducts</button>
+        </div>
+        <p class="err" id="errors" aria-live="polite"></p>
+        <div class="tiles">
+          <div class="tile"><div class="muted">For the ducts</div><div class="big" id="available">-</div><div class="muted">in. w.c. after the coil, filter, register and grille</div></div>
+          <div class="tile"><div class="muted">Longest path</div><div class="big" id="tel">-</div><div class="muted">ft, longest supply plus longest return</div></div>
+          <div class="tile"><div class="muted">Design friction rate</div><div class="big" id="frictionRate">-</div><div class="muted">in. w.c. per 100 ft</div></div>
+        </div>
+        <div id="warnings"></div>
+      </section>
+
+      <section>
+        <h2>Runs</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Run</th><th>cfm</th><th>TEL ft</th><th>Round</th><th>ft/min</th><th>in/100 ft</th><th>Set by</th><th>Damper in. w.c.</th></tr></thead>
+            <tbody id="runTable"></tbody>
+          </table>
+        </div>
+        <p class="muted">"Set by" says whether the friction rate or the velocity limit chose the size (the next size down breaks it). The damper column is the static pressure a run's balancing damper must take up because its path is shorter than the longest: short runs near the air handler need the most throttling.</p>
+      </section>
+
+      <section>
+        <h2>Trunks</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Trunk</th><th>cfm</th><th>Round</th><th>Rectangular</th><th>ft/min</th><th>in/100 ft</th></tr></thead>
+            <tbody id="trunkTable"></tbody>
+          </table>
+        </div>
+        <p class="muted">A trunk carries the sum of the rooms you gave it, at the start, before any takeoff. The rectangular size is the narrowest width, at the height you set, whose circular equivalent (Huebscher) is at least the round size.</p>
+      </section>
+    </div>
+  </main>
+
+  <section style="max-width:800px">
+    <h2>How the sizes are worked out</h2>
+    <p><strong>The friction rate.</strong> The blower can push its airflow against a rated external static pressure. The coil, filter, supply register and return grille take their share at that airflow; what is left is all the ducts may use. Spread over the longest supply path plus the longest return path (in total effective length, straight feet plus fittings), it gives the design friction rate: <code>FR = (ESP &minus; component losses) &times; 100 / (TEL supply + TEL return)</code>, in inches of water per 100 ft. Sizing every run to that rate means the longest run still gets its air, and every shorter run has pressure to spare.</p>
+    <p><strong>The loss in a duct.</strong> For each candidate round size, the velocity is airflow over area, and the loss per 100 ft is Darcy-Weisbach: <code>Δp = f &times; (100 / D) &times; &rho; V&sup2; / 2g<sub>c</sub></code>, converted at 5.2023 lbf/ft&sup2; per inch of water. The friction factor <code>f</code> solves the Colebrook equation, <code>1/&radic;f = &minus;2 log<sub>10</sub>(ε/3.7D + 2.51/(Re &radic;f))</code>, with Reynolds number <code>Re = &rho;VD/&mu;</code>. Air density is 0.075 lb/ft&sup3; at sea level, corrected for elevation with the same standard atmosphere the load uses; viscosity is 1.217&times;10<sup>&minus;5</sup> lb/ft&middot;s. Roughness <code>ε</code> is 0.0003 ft for sheet metal, the value usually given for galvanized duct. For flex the page takes 0.003 ft, a rough assumption for flex pulled tight: sagging or compressed flex loses far more, so the maker's friction chart wins.</p>
+    <p><strong>The size.</strong> Each run takes the smallest size from 4 to 24 in. whose loss is at or under the friction rate and whose velocity is under the limit you set (900 ft/min for branches and trunks and 700 for returns are common choices for quiet residential systems, not code limits). Its own loss is its friction times its effective length; the damper column is what the blower has left minus that loss and the longest return's.</p>
+    <p><strong>A check on the units.</strong> The tests compare the engine with a widely quoted power-law fit for galvanized duct, <code>Δp = 0.109136 q<sup>1.9</sup> / D<sup>5.02</sup></code>: at 0.0003 ft the engine comes out 3 to 9% lower over 50 to 2,000 cfm, and at 0.0005 ft within 5% of it.</p>
+    <h3>What it does not do</h3>
+    <p>It is not ACCA Manual D and uses none of ACCA's tables or fitting equivalent lengths. It does not size a reducing trunk section by section (each trunk is sized for the air it carries at the start), check register throw or noise, add duct heat gain or leakage, or check that the blower's fan curve meets the airflow at the resulting pressure. Flex duct installed with sag or bends can lose several times the figure here.</p>
+  </section>
+
+  <footer>
+    <p><strong>No warranty. This is an estimate, not engineering advice and not an ACCA Manual J or Manual D design.</strong> Fitting equivalent lengths and component losses are yours to supply. Many permits require duct design from approved software or a qualified designer; build ducts on their design.</p>
+    <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc">Source, CLI and README</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work</a>. <a href="./">Room-by-room load calculator</a>. <a href="../">More free tools</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { sizeDucts, designFromLoad, DUCT_DEFAULTS, EXAMPLE_DUCTS } from './duct.mjs';
+    import { calculate, EXAMPLE } from './load.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    const NUMS = ['blowerStaticInWC', 'coilInWC', 'filterInWC', 'supplyRegisterInWC', 'returnGrilleInWC', 'otherInWC', 'elevationFt', 'returnEffectiveLengthFt', 'branchMaxFpm', 'trunkMaxFpm', 'returnMaxFpm', 'rectHeightIn'];
+    const n0 = x => Math.round(x).toLocaleString('en-US');
+
+    function make(tag, text, attrs = {}) {
+      const e = document.createElement(tag);
+      if (text != null) e.textContent = text;
+      for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+      return e;
+    }
+    function field(labelText, value, cls, type = 'number') {
+      const l = make('label', labelText);
+      const i = make('input', null, { type, class: cls });
+      if (type === 'number') i.step = 'any';
+      i.value = value ?? '';
+      l.append(i);
+      return l;
+    }
+    function addRun(r = {}) {
+      const row = make('div', null, { class: 'run' });
+      row.append(field('Room', r.room, 'r-room', 'text'), field('cfm', r.cfm != null ? Math.round(r.cfm) : '', 'r-cfm'), field('TEL (ft)', r.effectiveLengthFt, 'r-len'), field('Trunk', r.trunk, 'r-trunk', 'text'));
+      const del = make('button', 'Remove', { type: 'button', class: 'small' });
+      del.addEventListener('click', () => row.remove());
+      row.append(del);
+      el('runs').append(row);
+    }
+    function readRuns() {
+      return [...el('runs').querySelectorAll('.run')].map((row, i) => ({
+        room: row.querySelector('.r-room').value.trim() || `Run ${i + 1}`,
+        cfm: Number(row.querySelector('.r-cfm').value === '' ? NaN : row.querySelector('.r-cfm').value),
+        effectiveLengthFt: Number(row.querySelector('.r-len').value === '' ? NaN : row.querySelector('.r-len').value),
+        trunk: row.querySelector('.r-trunk').value.trim(),
+      }));
+    }
+    function readDesign() {
+      const d = { material: el('material').value };
+      for (const k of NUMS) d[k] = Number(el(k).value === '' ? NaN : el(k).value);
+      const runs = readRuns();
+      d.runs = runs.map(({ trunk, ...r }) => r);
+      const groups = new Map();
+      for (const r of runs) { const t = r.trunk || 'Supply trunk'; if (!groups.has(t)) groups.set(t, []); groups.get(t).push(r.room); }
+      d.trunks = [...groups].map(([name, rooms]) => ({ name, rooms }));
+      return d;
+    }
+    function setSettings(d) {
+      const s = { ...DUCT_DEFAULTS, ...d };
+      for (const k of NUMS) el(k).value = s[k] ?? '';
+      el('material').value = s.material === 'flex' ? 'flex' : 'metal';
+    }
+    function setRuns(runs, trunks) {
+      el('runs').textContent = '';
+      const trunkOf = room => (trunks || []).find(t => t.rooms.includes(room))?.name ?? '';
+      for (const r of runs) addRun({ ...r, trunk: trunkOf(r.room) });
+    }
+    function fromHouse(house) {
+      const load = calculate(house);
+      if (load.errors.length) throw new Error(load.errors.join('\n'));
+      const typed = new Map(readRuns().map(r => [r.room, r.effectiveLengthFt]));
+      const d = designFromLoad(load, house);
+      setSettings({ ...d, returnEffectiveLengthFt: d.returnEffectiveLengthFt ?? (Number(el('returnEffectiveLengthFt').value) || undefined) });
+      const typedTrunks = readDesign().trunks.filter(t => t.name !== 'Supply trunk');
+      setRuns(d.runs.map(r => ({ ...r, effectiveLengthFt: Number.isFinite(r.effectiveLengthFt) ? r.effectiveLengthFt : typed.get(r.room) })), d.trunks ?? typedTrunks);
+    }
+    function cell(tr, text) { tr.append(make('td', text)); }
+    function run() {
+      const s = sizeDucts(readDesign());
+      for (const id of ['runTable', 'trunkTable', 'warnings']) el(id).textContent = '';
+      if (s.errors.length) {
+        el('errors').textContent = s.errors.join('\n');
+        for (const id of ['available', 'tel', 'frictionRate']) el(id).textContent = '-';
+        return;
+      }
+      el('errors').textContent = '';
+      el('available').textContent = s.pressure.availableInWC.toFixed(2);
+      el('tel').textContent = n0(s.pressure.totalEffectiveLengthFt);
+      el('frictionRate').textContent = s.pressure.frictionRate.toFixed(3);
+      const row = (r, prefix) => {
+        const tr = make('tr');
+        cell(tr, prefix + (r.room ?? r.name)); cell(tr, n0(r.cfm)); cell(tr, n0(r.effectiveLengthFt));
+        cell(tr, r.diameterIn ? `${r.diameterIn} in.` : 'too big'); cell(tr, r.fpm ? n0(r.fpm) : '-');
+        cell(tr, r.inWCPer100 != null ? r.inWCPer100.toFixed(3) : '-'); cell(tr, r.limit ?? (r.diameterIn ? 'smallest size' : '-'));
+        cell(tr, r.damperInWC != null ? r.damperInWC.toFixed(3) : '-');
+        el('runTable').append(tr);
+      };
+      for (const r of s.supply) row(r, '');
+      for (const r of s.returns) row(r, 'Return: ');
+      for (const t of [...s.trunks, ...(s.returnTrunk ? [s.returnTrunk] : [])]) {
+        const tr = make('tr');
+        cell(tr, t.name); cell(tr, n0(t.cfm)); cell(tr, t.diameterIn ? `${t.diameterIn} in.` : 'over 40 in.');
+        cell(tr, t.rectangle ? `${t.rectangle.widthIn} × ${t.rectangle.heightIn} in.` : '-');
+        cell(tr, t.fpm ? n0(t.fpm) : '-'); cell(tr, t.inWCPer100 != null ? t.inWCPer100.toFixed(3) : '-');
+        el('trunkTable').append(tr);
+      }
+      for (const w of s.warnings) el('warnings').append(make('p', w, { class: 'note' }));
+      recordUsage(globalThis.localStorage, el('optOut').checked, 'ducts_sized');
+    }
+
+    el('addRun').addEventListener('click', () => addRun());
+    el('clearRuns').addEventListener('click', () => { el('runs').textContent = ''; });
+    el('loadExample').addEventListener('click', () => { setRuns([]); fromHouse({ ...EXAMPLE, ducts: EXAMPLE_DUCTS }); run(); });
+    el('calculate').addEventListener('click', run);
+    el('importHouse').addEventListener('click', () => {
+      try { fromHouse(JSON.parse(el('jsonText').value)); el('jsonError').textContent = ''; run(); }
+      catch (e) { el('jsonError').textContent = `Could not use that house: ${e.message}`; }
+    });
+    el('exportDucts').addEventListener('click', () => {
+      const d = readDesign();
+      const { runs, ...rest } = d;
+      const lengths = Object.fromEntries(runs.map(r => [r.room, r.effectiveLengthFt]));
+      el('jsonText').value = JSON.stringify({ ducts: { ...rest, lengths } }, null, 2);
+    });
+    el('optOut').checked = readOptOut();
+    el('optOut').addEventListener('change', () => writeOptOut(globalThis.localStorage, el('optOut').checked));
+
+    setSettings({});
+    fromHouse({ ...EXAMPLE, ducts: EXAMPLE_DUCTS });
+    run();
+  </script>
+</body>
+</html>

@@ -62,3 +62,16 @@ test('the worked example on the explainer matches the engine', () => {
 test('index links one hop to the mini-split-bid-calculator sibling', () => {
   assert.match(markup, /href="\.\.\/mini-split-bid-calculator\/"/);
 });
+
+test('duct page: every looked-up element exists, results written as text, linked from the load page', () => {
+  const html = read('ducts.html');
+  const own = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
+  const js = /<script type="module">([\s\S]*)<\/script>/.exec(html)[1];
+  for (const [, id] of js.matchAll(/el\('([^']+)'\)/g)) assert.ok(own.has(id), `missing #${id}`);
+  for (const k of /const NUMS = \[([^\]]+)\]/.exec(js)[1].match(/'([^']+)'/g).map(s => s.slice(1, -1))) assert.ok(own.has(k), `missing #${k}`);
+  assert.doesNotMatch(js, /innerHTML|insertAdjacentHTML|outerHTML/);
+  assert.match(html, /not an ACCA Manual J or Manual D/);
+  assert.match(html, /Do not keep anonymous local usage counts/);
+  assert.match(js, /recordUsage\(.*'ducts_sized'\)/);
+  assert.match(markup, /href="\.\/ducts\.html"/);
+});

@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-// Command line: node cli.mjs house.json   |   node cli.mjs --example [--json]
+// Command line: node cli.mjs house.json   |   node cli.mjs --example [--json] [--ducts]
 import { readFileSync } from 'node:fs';
 import { calculate, EXAMPLE } from './load.mjs';
+import { sizeDucts, designFromLoad, ductReport, EXAMPLE_DUCTS } from './duct.mjs';
 
 export function parseArgs(argv) {
-  const o = { file: null, example: false, json: false };
+  const o = { file: null, example: false, json: false, ducts: false };
   for (const a of argv) {
     if (a === '--example') o.example = true;
     else if (a === '--json') o.json = true;
+    else if (a === '--ducts') o.ducts = true;
     else if (a === '--help' || a === '-h') o.help = true;
     else o.file = a;
   }
@@ -15,14 +17,18 @@ export function parseArgs(argv) {
 }
 
 export function run(opts, read = p => readFileSync(p, 'utf8')) {
-  if (opts.help || (!opts.file && !opts.example)) return { error: 'Usage: node cli.mjs house.json [--json]   or   node cli.mjs --example' };
-  let input = EXAMPLE;
+  if (opts.help || (!opts.file && !opts.example)) return { error: 'Usage: node cli.mjs house.json [--json] [--ducts]   or   node cli.mjs --example [--ducts]\n--ducts sizes supply runs, trunks and returns from the house file\'s "ducts" block (README, "Duct sizing").' };
+  let input = opts.example ? { ...EXAMPLE, ducts: EXAMPLE_DUCTS } : null;
   if (!opts.example) {
     try { input = JSON.parse(read(opts.file)); } catch (e) { return { error: `Could not read ${opts.file} as JSON: ${e.message}` }; }
   }
   const result = calculate(input);
   if (result.errors.length) return { error: result.errors.join('\n') };
-  return { result };
+  if (!opts.ducts) return { result };
+  if (!input.ducts) return { error: 'The house file has no "ducts" block: add effective lengths and the return length (README, "Duct sizing"), or drop --ducts.' };
+  const ducts = sizeDucts(designFromLoad(result, input));
+  if (ducts.errors.length) return { error: ducts.errors.join('\n') };
+  return { result, ducts };
 }
 
 const n = x => Math.round(x).toLocaleString('en-US');
@@ -48,5 +54,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const opts = parseArgs(process.argv.slice(2));
   const out = run(opts);
   if (out.error) { console.error(out.error); process.exit(1); }
-  console.log(opts.json ? JSON.stringify(out.result, null, 2) : report(out));
+  if (opts.json) console.log(JSON.stringify(out.ducts ? { load: out.result, ducts: out.ducts } : out.result, null, 2));
+  else console.log(out.ducts ? `${report(out)}\n\n${ductReport(out.ducts)}` : report(out));
 }
