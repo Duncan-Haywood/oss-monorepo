@@ -1,9 +1,9 @@
 ---
 title: "One ton per 500 square feet is too big: a free room-by-room load calculator"
-seo_title: "Free room-by-room HVAC load calculator: heat pump size from sun and insulation"
+seo_title: "Free room-by-room HVAC load calculator: size a heat pump"
 date: 2026-11-11
 tags: [construction, hvac, heat-pump, load-calculation, building-science, open-source]
-description: "A new open-source tool works out a house's heating and cooling load room by room from walls, windows, attic, slab and air leakage, with a 24-hour design day from sun geometry."
+description: "A new open-source tool works out a house's heating and cooling load room by room, with a 24-hour design day from sun position."
 ---
 
 [Room-by-room HVAC load calculator](../../ventures/hvac-load-calc/) is a new

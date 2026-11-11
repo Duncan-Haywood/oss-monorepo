@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVQBeQdJ3bqGTfLH6fg",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market revenue-generating products)",
+  "input_sha256": "aeccb18a6b77435d935f85ad75a4bf533673f413ab1acbe95c3995abcc2eacbf",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T16:04:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: new venture hvac-load-calc (room-by-room heating/cooling load calculator)",
+  "projects": [
+    "hvac-load-calc"
+  ],
+  "pr": 14822,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The clone's origin/main was stale (log showed #13698 while main was at #14817); run_workflow_locally.py refused until a fresh fetch. The startup note could say to fetch origin main first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-one-ton-per-500-square-feet-is-too-big.md"
+  ],
+  "goal": null,
+  "notes": "Idea: an open first-principles room-by-room residential HVAC load calculator (not ACCA Manual J), filling a gap in the construction set. Engine load.mjs: parallel-path U, slab F-factor, ACH50/N leakage, ventilation recovery, ducts %, altitude; 24-h July design day with sun geometry, ASHRAE 1985 clear sky, SHGC with angle modifier, sol-air walls with lag/decrement, attic rise, dew-point latent. Example 1,800 ft2 ranch: heating 26,901 Btu/h, cooling 26,301 Btu/h (2.19 t) vs 3.6 t rule of thumb. Verified: venture node --test 19/19; Playwright page run (no console errors, no overflow at 390px); clauses.mjs pass; router validate pass; optout-persistence 20/20 after count bump 1305->1306. Next: overhang shading, basements, comparison with a full report on a real house.",
+  "corrections": [],
+  "redteam": null
+}
