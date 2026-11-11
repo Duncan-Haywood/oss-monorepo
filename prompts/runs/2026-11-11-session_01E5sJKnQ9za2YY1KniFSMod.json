@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI validate failed on the merge with main: main's changepoint-detector next: was 2220 characters (cap 2000) after PR #14922; trimmed the sticky-series sentence to its numbers with a README pointer, validate.py passes."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -52,7 +54,7 @@
     "ventures/shift-roster-builder/README.md (A 4-week window in half-life auto)"
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures by draw; allocate.py start-here row 5. eval/window-auto.mjs ran in 62 s on the three SHA-checked bakery files. node --test halflife-auto.test.mjs: 8/8 pass; full venture suite via run_venture_tests.py (see PR). No separate docs/reports agent doc: README and flagships next: carry the handoff.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures by draw; allocate.py start-here row 5. eval/window-auto.mjs ran in 62 s on the three SHA-checked bakery files. node --test halflife-auto.test.mjs: 8/8 pass; full venture suite via run_venture_tests.py (see PR). No separate docs/reports agent doc: README and flagships next: carry the handoff. Local suite: run_venture_tests.py shift-roster-builder ok (178.7 s).",
   "corrections": [],
   "redteam": null,
   "usage": {
