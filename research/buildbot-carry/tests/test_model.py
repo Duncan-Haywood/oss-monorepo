@@ -176,3 +176,19 @@ def test_unloaded_g1_step_is_capped_by_friction_at_mu_0_3(g1):
     assert L == pytest.approx(0.35)
     assert why == "friction"
     assert (L / 2) / st.com_height <= 0.3 < ((L + 0.05) / 2) / st.com_height
+
+
+def test_committed_headline_matches_the_code(g1):
+    """The G1 one-stud level step in results.json (and the README headline) is what max_step gives
+    now. Quality audit 2026-11-07: the committed 0.50 m was 0.45 m on a re-run and no test noticed.
+    The step sits at the edge of the pose solver's convergence, so a different MuJoCo/NumPy build
+    can move it a grid point; the message names the build that wrote the table."""
+    import json
+    from pathlib import Path
+    res = json.loads((Path(__file__).resolve().parents[1] / "experiments" / "results.json").read_text())
+    r, d0 = g1
+    for kg in (0.0, 3.8):
+        want = res["envelope"]["g1"][f"{kg}|0.0"]["L"]
+        got, _, _ = C.max_step(r, d0, (0.3, 0.6), kg)
+        assert got == want, (f"G1 {kg} kg level step is {got} m here (mujoco {mujoco.__version__}), "
+                             f"{want} m in results.json ({res.get('versions')}): re-run experiments/run.py")
