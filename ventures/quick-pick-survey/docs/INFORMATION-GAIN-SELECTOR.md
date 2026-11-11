@@ -1299,3 +1299,142 @@ the left option, always the same item, or answers that track something other
 than the question) would bias the pool rather than add noise to it, and is
 not covered here: `positionBias` in `infoGainSim.ts` is the place to measure
 that next.
+
+## Careless patterns that are not random (2026-11-11)
+
+The section above closed with a gap: a careless pattern that is not random
+could bias the pool rather than add noise to it. Measured here
+(`scripts/careless-pattern-sweep.ts`, `simulate`'s new `chooser` hook,
+unit-tested in `infoGainSim.test.ts`; raw rows
+`docs/careless-pattern-2026-11-11.jsonl`).
+
+**Setup.** Shared-truth surveys as above (common truth uniform on [-1, 1],
+personal deviation N(0, 0.25)), plus an independent *salience* per item, a
+trait unrelated to the question (a familiar name, a short label). A share of
+the panel (10%, 25%, 40%, 50%) answers with one pattern on every answer (q = 1;
+q = 0.5 spot checks below):
+
+- **random**: a coin flip on every answer (a whole session of noise, where the
+  sections above had people lapsing on part of theirs);
+- **first**: always the option in the first slot, with slots shuffled per
+  pair as `/api/trials/next` does;
+- **favourite**: one item of their own, picked whenever it is shown;
+- **salience**: picks by the shared salience as consistently as honest people
+  pick by taste, so every careless person leans the same wrong way;
+- **dissent** (not careless, a control): a camp with a second taste of its
+  own, answering honestly. Scored against the whole panel's average taste, so
+  a scheme that quiets the camp is penalised.
+
+Everyone runs the staged selector behind the route's slot shuffle; 15 and 30
+items, 4 answers per item, panels of 8 and 20 (60 for spot checks), 40
+surveys per cell, two seed sets. Pool schemes, each a paired Spearman
+difference from shipped (the DerSimonian-Laird pool, equal weights):
+`first-flag` (leave out people whose first-slot share is at or beyond 0.7
+either way over 30+ answers, the selector's own rule), `loo-w` (weight each
+person by max(0, rho)^2, rho the rank agreement of their ratings with the pool
+of everyone else), `loo-drop` (leave out rho < 0.2), `median` (per-item median
+rating), `oracle-drop` (leave out the careless, the ceiling).
+
+What each pattern does to the shipped pool, and what each scheme recovers
+(ranges over items and seeds):
+
+| pattern, share | panel | shipped rho | pool vs salience | wrong-way clear pairs | oracle-drop | first-flag | loo-w | median |
+|---|---|---|---|---|---|---|---|---|
+| none (honest only) | 8 / 20 / 60 | 0.927-0.987 | -0.07 to +0.03 | 0.0-0.2% | 0 | -0.001 to +0.000 | -0.004 to +0.002 | -0.016 to -0.003 |
+| favourite, 50% | 8 | 0.923 | -0.03 | 0.1% | -0.031 to -0.016 | 0 | -0.002 to +0.003 | -0.007 to +0.006 |
+| first, 25% | 8 | 0.911 | -0.02 | 0.1% | +0.011 to +0.020 | +0.010 to +0.019 | +0.005 to +0.010 | -0.027 to -0.014 |
+| first, 50% | 8 | 0.841 | -0.03 | 0.6% | +0.046 to +0.078 | +0.046 to +0.078 | +0.037 to +0.053 | -0.067 to -0.042 |
+| first, 50% | 20 | 0.924 | -0.01 | 0.1% | +0.025 to +0.026 | +0.025 to +0.026 | +0.017 to +0.023 | -0.045 to -0.033 |
+| random, 25% | 8 | 0.893 | -0.01 | 0.3% | +0.026 to +0.041 | 0 | +0.021 to +0.030 | -0.005 to +0.005 |
+| random, 50% | 8 | 0.783 | -0.01 | 1.4% | +0.101 to +0.133 | 0 | +0.080 to +0.100 | +0.007 to +0.010 |
+| random, 50% | 20 | 0.886 | -0.01 | 0.1% | +0.053 to +0.075 | 0 | +0.045 to +0.067 | -0.004 to +0.002 |
+| salience, 25% | 20 | 0.902 | **+0.27** | 0.6% | +0.053 to +0.067 | 0 | +0.044 to +0.050 | +0.015 to +0.024 |
+| salience, 40% | 20 | 0.773 | **+0.51** | **4.0%** | +0.167 to +0.197 | 0 | +0.064 to +0.091 | +0.033 to +0.047 |
+| salience, 40% | 60 | 0.775 | **+0.50** | **8.9%** | +0.197 to +0.204 | 0 | +0.070 to +0.083 | +0.054 to +0.061 |
+| salience, 50% | 20 | 0.627 | **+0.68** | **9.4%** | +0.294 to +0.363 | 0 | **-0.051 to -0.038** | -0.049 to -0.034 |
+| dissent, 25% | 20 | 0.957 | -0.02 | 0.0% | -0.053 to -0.047 | 0 | **-0.022 to -0.018** | -0.022 to -0.018 |
+| dissent, 40% | 20 | 0.948 | -0.02 | 0.0% | -0.171 to -0.147 | 0 | **-0.027 to -0.022** | -0.041 to -0.028 |
+
+How well the leave-one-out agreement tells careless from honest (AUC, honest
+over careless; share under 0.2): random and first 0.97-1.00 (honest 0-2.2% under,
+careless about 80%); salience 0.97-1.00 at 10-25%, 0.82-0.84 at 40%, 0.39-0.41
+at 50% (the careless become the consensus); favourite 0.60-0.72 (it hardly
+moves a person's order); dissent 0.98-1.00 at 10-25%, the same as careless.
+
+What it shows:
+
+- **A shared wrong reason is the pattern that harms.** People picking by
+  something other than the question, all the same way, pull the pool toward
+  it (its correlation with salience rises from about 0 to 0.27 at a quarter of
+  the panel, 0.51 at 40%) and make it *confidently* wrong: up to 4.0% and 9.4%
+  of the pairs the rank ranges call clear are the wrong way round, where every
+  other pattern, and every random-lapse cell before, stayed under 1.5%.
+  A bigger panel makes it worse, not better: at 60 respondents with 40%
+  picking by salience, 8.9% of clear pairs are the wrong way round (1.9% at a
+  quarter), because more people narrow the ranges around the same bias.
+- **A favourite item does nothing.** Each person's favourite is different, so
+  across a panel they cancel; the pool's order is unchanged (oracle-drop never
+  helps, -0.031 to +0.004).
+- **Whole-session coin flippers and slot clickers cost the pool**, unlike the
+  partial lapses measured above: up to +0.13 (random) and +0.08 (first) is
+  available on 8-person panels with half the panel careless.
+- **Slot clickers are caught exactly by the selector's own first-option rule.**
+  `first-flag` matched oracle-drop in every first-pattern cell, flagged every
+  slot clicker, flagged 0.3-0.7% of honest respondents (60 answers each), and
+  never moved an honest-only or dissent panel (-0.001 to +0.000). It cannot see
+  any other pattern, and needs nothing new from respondents.
+- **Agreement weighting helps against careless minorities but taxes real
+  minorities.** `loo-w` recovered about 60-90% of oracle-drop for random and
+  first, and for salience at 10-25% (about 45% at 40%), and cost honest-only panels nothing (-0.004 to +0.002).
+  But it took 0.01 to 0.03 from a genuine 25-40% camp (beyond 2 SE in 36 of 48
+  dissent cells, up in none) and backfired at 50% salience (-0.03 to -0.11), where the
+  careless are the majority view. Agreement cannot tell a careless block from
+  a camp: both score about the same.
+- **Half-time carelessness (q = 0.5) is quieter and mostly invisible.** People
+  who flip a coin on half their answers cost nothing (oracle-drop -0.010 to
+  +0.012), as the lapse sections found. People who pick by salience on half
+  their answers still pull the pool toward it (+0.12 at a quarter of the
+  panel, +0.27 to +0.29 at half), but only 5-13% of them fall under 0.2
+  agreement, so the note will rarely fire for them; `loo-w` would recover a
+  third to a half of oracle-drop (+0.005 to +0.034).
+- **The median pool is no defence**: slightly worse than shipped on honest
+  panels (-0.003 to -0.016) and against slot clickers (-0.07), a little better
+  against salience (+0.015 to +0.047).
+
+**Decision.** Shipped two things, in `groupRanking.ts` and the ranking route:
+
+1. **Slot clickers are left out of the pooled ranking** (`slotClickers`): a
+   respondent whose first-slot share over 30+ decided answers is at or beyond
+   0.7 either way. The route counts each person's decided A/B answers, pools
+   the rest, and says so (`leftOut` in the JSON, a note in the builder and the
+   report). It is the one scheme that never cost a panel anything here. In the
+   real routes an honest person reaches 0.7 by chance (binomial) 4.3% of the
+   time at 30 answers, 1.7% at 40, 0.3% at 60 and 0.01% at 100 (the
+   integration test seeds `Math.random` for this reason); the sweep says leaving one honest
+   person out costs the pool nothing measurable.
+2. **A respondent-agreement note, not a weight** (`respondentAgreement`,
+   `agreementSummary`): when 5+ respondents can be scored and any fall under
+   0.2, the owner is told how many, that this is what careless clicking looks
+   like, that a genuine different taste looks the same, and (at 30%+) that the
+   panel may be split into groups. The ranking keeps counting them equally.
+
+Not shipped: agreement weights or drops, and the median pool.
+
+Caveats: synthetic respondents; one salience trait at the same strength as
+taste; careless people who keep the pattern for the whole session; panels of 8
+to 60 and lists of 15 to 30. A careless block that is the majority is not
+detectable from the answers at all: only something outside them (timing,
+attention checks) could say which view is the careless one.
+
+**A simulator correction found on the way.** `simulate(..., positionBias)`
+gives the bias to the policy's first id, and the selectors do not shuffle,
+where the route does. Unshuffled, a first-option bias lands on the item the
+selector chose first and costs far more than it does live: at 30 items, 300
+answers and bias 0.5, mean rank accuracy over 30 seeds is 0.351 unshuffled
+against 0.611 shuffled for the information selector, 0.588 against 0.686
+for the staged selector and 0.619 against 0.699 for the shipped one. The
+2026-10-28 table above (and the 0.421 in `pairing.ts`) used the unshuffled
+form, so it overstates the harm; the fallback still pays with the shuffle
+(staged 0.686 against information-only 0.611), so `FIRST_OPTION_FALLBACK_SHARE`
+stays. The new sweep wraps the policy in the route's shuffle; the old tests
+are left as they are, with a caution in `infoGainSim.ts`.

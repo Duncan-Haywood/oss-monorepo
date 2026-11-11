@@ -519,7 +519,7 @@ export const FIRST_OPTION_FALLBACK_SHARE = 0.7;
 /** Decided answers before a first-option share means anything (30 coin flips: sd 0.09). The route and the simulator both wait for it. */
 export const FIRST_OPTION_MIN_DECIDED = 30;
 
-/** True when the first-option share is far from half in either direction (first or second option favoured). */
+/** True when the first-option share is far from half in either direction (first or second option favoured). The pooled ranking's slotClickers (groupRanking.ts) applies the same rule. */
 function positionBiased(share: number | undefined): boolean {
   return share !== undefined && (share >= FIRST_OPTION_FALLBACK_SHARE || share <= 1 - FIRST_OPTION_FALLBACK_SHARE);
 }

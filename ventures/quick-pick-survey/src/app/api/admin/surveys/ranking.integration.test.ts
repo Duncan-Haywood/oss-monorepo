@@ -13,7 +13,7 @@
  * Needs a database: `scripts/test-db.sh start`, then `npm run test:integration`.
  */
 
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/headers", () => import("@/test/integration/cookieMock"));
 
@@ -42,21 +42,34 @@ describe("admin survey ranking", () => {
     await prisma.$connect();
   });
 
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   beforeEach(async () => {
+    // The routes shuffle slots with Math.random; seed it so an honest respondent's
+    // slot share (1.7% of 40-answer runs reach 0.7 by chance) cannot flake the slot-clicker checks.
+    let seed = 20261111;
+    vi.spyOn(Math, "random").mockImplementation(() => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    });
     await resetData();
     clearCookies();
     const items = await prisma.item.findMany({ where: { survey: { slug: SURVEY } }, orderBy: { sortOrder: "asc" }, select: { id: true } });
     order = new Map(items.map((it, i) => [it.id, i]));
   });
 
-  async function runRespondents(n: number, answers: number) {
+  async function runRespondents(n: number, answers: number, pick?: () => "A" | "B") {
     for (let k = 0; k < n; k++) {
       const p = await createParticipant(SURVEY);
       for (let i = 0; i < answers; i++) {
         const res = await nextQuestion(jsonRequest("http://localhost/api/trials/next", { participantId: p.id }));
         const q = await res.json();
         const a = order.get(q.itemA.id)!, b = order.get(q.itemB.id)!;
-        await answer(jsonRequest("http://localhost/api/trials/answer", { trialId: q.trialId, result: a < b ? "A" : "B" }));
+        await answer(jsonRequest("http://localhost/api/trials/answer", { trialId: q.trialId, result: pick ? pick() : a < b ? "A" : "B" }));
       }
     }
   }
@@ -96,6 +109,24 @@ describe("admin survey ranking", () => {
     expect(rho).toBeGreaterThan(0.8);
     // Every participant answered ANSWERS_EACH pairs, and the route reads that from answered trials.
     expect(body.coverage.options).toBe(n);
+    expect(body.leftOut).toEqual({ slotClickers: 0, advice: "" });
+    expect(body.agreement.advice).toBe("");
+  });
+
+  it("leaves out respondents who always click the top option, and says so", async () => {
+    await runRespondents(4, ANSWERS_EACH);
+    await runRespondents(2, ANSWERS_EACH, () => "A");
+    setCookie(ADMIN_COOKIE_NAME, createSessionToken());
+    const body = await (await get(SURVEY)).json();
+    expect(body.participants).toBe(6);
+    expect(body.leftOut.slotClickers).toBe(2);
+    expect(body.leftOut.advice).toMatch(/^2 of 6 respondents .* left out of this ranking\.$/);
+    const ranked: { itemId: string; respondents: number }[] = body.ranking;
+    // Only the four honest respondents are pooled.
+    expect(Math.max(...ranked.map((r) => r.respondents))).toBeLessThanOrEqual(4);
+    const n = ranked.length;
+    const d2 = ranked.reduce((t, r, i) => t + (i - order.get(r.itemId)!) ** 2, 0);
+    expect(1 - (6 * d2) / (n * (n * n - 1))).toBeGreaterThan(0.8);
   });
 
   it("downloads the same ranking as CSV, one row per option", async () => {
