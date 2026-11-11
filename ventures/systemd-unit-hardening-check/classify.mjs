@@ -173,7 +173,9 @@ function evaluate(unit, entries, anchor, hasMain, userUnits) {
 
   const user = last(svc, "User");
   const dynamic = isTrue(last(svc, "DynamicUser"));
-  const asRoot = !userUnits && !dynamic && (user === null || user.value === "root" || user.value === "0");
+  // A static user of the configured name wins over DynamicUser=yes (systemd.exec(5)),
+  // and root always exists, so User=root runs as root either way.
+  const asRoot = !userUnits && (user !== null ? user.value === "root" || user.value === "0" : !dynamic);
 
   for (const key of EXEC_KEYS) {
     for (const e of effective(svc, key)) {

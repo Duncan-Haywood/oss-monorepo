@@ -1,0 +1,424 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKmnajrUqsmS1CHhhk",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T15:06:37Z",
+  "ended": "2026-11-11T15:07:45Z",
+  "wall_minutes": 19.62,
+  "tokens_in": 5293174,
+  "tokens_out": 25489,
+  "cost_usd": 2.4086,
+  "tool_calls": 51,
+  "task": "redteam: systemd-unit-hardening-check (check.py and classify.mjs)",
+  "projects": [
+    "systemd-unit-hardening-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14813",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First commit's post description was 183 characters (limit 160); caught locally by run_workflow_locally.py before CI, fixed in a follow-up commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 3 says rerun sets caught_after_fix on every escaped mutant, but it skips mutants triaged equivalent (caught_after_fix stays null), so checking an equivalence claim against the new tests means re-applying the mutant by hand. One line saying so would save the confusion."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 5 entries, all already covered by open control-plane PRs awaiting the owner; redteam.py open does not show that, so each run re-checks the PR list. Linking the PR in the entry (patched_in: pending #N) would make the list read as handled."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b prefers a CI-level guard; the defect class here (two twins drifting) is venture-local, so the guard is a parity corpus in the venture's own suite, which ventures-tests.yml already runs on every PR.",
+      "did": "Added parity-cases.test.json + a parity test in classify.test.mjs instead of a platform/ci lint.",
+      "result": "Fails when the fix is reverted in one twin only; runs in CI with no workflow change."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-redteam-dynamicuser-user-root.md"
+  ],
+  "goal": "Measure how many seeded faults the systemd-unit-hardening-check suites catch, hunt real defects, patch and guard them.",
+  "notes": "Target chosen because it is a security checker that landed on main this week (#14794) with a Python CLI and a JS browser twin. Campaigns: check.py 8 mutants (5 caught), classify.mjs 10 (8 caught). Hunt: differential run of 57 hostile unit files through both twins (all agreed) then read against systemd.exec(5): DynamicUser=yes + User=root was not flagged as root. Guard added: parity-cases.test.json edge-case corpus run through both twins in classify.test.mjs; verified it fails when the fix is reverted in the JS twin only. Verification: python3 -m unittest test_check (19 OK), node --test classify/page/usage (25 pass), run_venture_tests.py systemd-unit-hardening-check ok, run_workflow_locally.py --for-changes: portfolio-validate 100/100, ventures-tests 5/5 and the rest green; it caught the new post's description at 183 chars (limit 160: hub tests and check_post_frontmatter.py), fixed in a second commit; the remaining local failures were the skipped site build (no _site/dist) and the 300 s budget. PR CI on the fixed head: all 20 check runs success or skipped.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/systemd-unit-hardening-check/check.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check  (in ventures/systemd-unit-hardening-check)",
+        "seed": 762153213,
+        "commit": "e480b365",
+        "sites": 138,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 154,
+            "col": 18,
+            "operator": "plus-to-minus",
+            "before": "start = i + 1",
+            "after": "start = i - 1",
+            "line_text": "        start = i + 1",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 176,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "key, value = logical.split(\"=\", 1)",
+            "after": "key, value = logical.split(\"=\", 2)",
+            "line_text": "        key, value = logical.split(\"=\", 1)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 215,
+            "col": 32,
+            "operator": "plus-to-minus",
+            "before": "if ch == \"\\\\\" and k + 1 < len(value):",
+            "after": "if ch == \"\\\\\" and k - 1 < len(value):",
+            "line_text": "            if ch == \"\\\\\" and k + 1 < len(value):",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A doubled trailing backslash at EOF leaves one backslash inside an open quote; the mutant reads value[k+1] past the end and crashes the whole scan (IndexError). test_unterminated_quote_ending_in_backslash."
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 272,
+            "col": 46,
+            "operator": "eq-flip",
+            "before": "svc = [e for e in entries if e[\"section\"] == \"Service\"]",
+            "after": "svc = [e for e in entries if e[\"section\"] != \"Service\"]",
+            "line_text": "    svc = [e for e in entries if e[\"section\"] == \"Service\"]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 280,
+            "col": 78,
+            "operator": "or-to-and",
+            "before": "if val == \"\" or val.startswith(\"%d\") or \"/run/credentials\" in val or val.lower() in TRUE | FALSE:",
+            "after": "if val == \"\" or val.startswith(\"%d\") or \"/run/credentials\" in val and val.lower() in TRUE | FALSE:",
+            "line_text": "            if val == \"\" or val.startswith(\"%d\") or \"/run/credentials\" in val or val.lower() in TRUE | FALSE:",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Nothing tested that Environment=PASSWORD_AUTH=no is not a literal secret; the mutant flags every boolean flag with a secret-ish name. test_boolean_secret_flags_are_not_literal_secrets (and the JS twin's test)."
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 289,
+            "col": 45,
+            "operator": "and-to-or",
+            "before": "as_root = not user_units and not dynamic and (user is None or user[\"value\"] in (\"root\", \"0\"))",
+            "after": "as_root = not user_units and not dynamic or (user is None or user[\"value\"] in (\"root\", \"0\"))",
+            "line_text": "    as_root = not user_units and not dynamic and (user is None or user[\"value\"] in (\"root\", \"0\"))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 478,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "name = norm.rsplit(\"/\", 1)[-1]",
+            "after": "name = norm.rsplit(\"/\", 2)[-1]",
+            "line_text": "    name = norm.rsplit(\"/\", 1)[-1]",
+            "caught": false,
+            "seconds": 0.0,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "rsplit('/', 2)[-1] is still the text after the last '/', so unit_key returns the same basename for every path."
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/check.py",
+            "line": 506,
+            "col": 30,
+            "operator": "true-to-false",
+            "before": "has_service = True",
+            "after": "has_service = False",
+            "line_text": "                has_service = True",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/systemd-unit-hardening-check/classify.mjs",
+        "test": "node --test ventures/systemd-unit-hardening-check/**/*.test.mjs  (in .)",
+        "seed": 668414095,
+        "commit": "e480b365",
+        "sites": 163,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 70,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "const start = i + 1;",
+            "after": "const start = i + 2;",
+            "line_text": "    const start = i + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 91,
+            "col": 105,
+            "operator": "plus-to-minus",
+            "before": "entries.push({ file, line: start, section, key: logical.slice(0, eq).trim(), value: logical.slice(eq + 1).trim() });",
+            "after": "entries.push({ file, line: start, section, key: logical.slice(0, eq).trim(), value: logical.slice(eq - 1).trim() });",
+            "line_text": "    entries.push({ file, line: start, section, key: logical.slice(0, eq).trim(), value: logical.slice(eq + 1).trim() });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 108,
+            "col": 36,
+            "operator": "minus-to-plus",
+            "before": "if (!eff.length || eff[eff.length - 1].value === \"\") return null;",
+            "after": "if (!eff.length || eff[eff.length + 1].value === \"\") return null;",
+            "line_text": "  if (!eff.length || eff[eff.length - 1].value === \"\") return null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 108,
+            "col": 47,
+            "operator": "eq-flip",
+            "before": "if (!eff.length || eff[eff.length - 1].value === \"\") return null;",
+            "after": "if (!eff.length || eff[eff.length - 1].value !== \"\") return null;",
+            "line_text": "  if (!eff.length || eff[eff.length - 1].value === \"\") return null;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 122,
+            "col": 31,
+            "operator": "lt-to-le",
+            "before": "if (ch === \"\\\\\" && k + 1 < value.length) { buf += value[k + 1]; k += 2; continue; }",
+            "after": "if (ch === \"\\\\\" && k + 1 <= value.length) { buf += value[k + 1]; k += 2; continue; }",
+            "line_text": "      if (ch === \"\\\\\" && k + 1 < value.length) { buf += value[k + 1]; k += 2; continue; }",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "The JS twin appends 'undefined' instead of nothing for a trailing backslash in an open quote, but the parsed value only feeds the empty / %d / /run/credentials / boolean predicates, and the finding text names the variable, never its value, so no output changes; envAssignments is not exported. Re-applied by hand after the new tests: all 9 classify.test.mjs tests (including the edge-case parity corpus, which has this input) still pass, consistent with equivalence."
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 308,
+            "col": 36,
+            "operator": "plus-to-minus",
+            "before": "\"Add \" + missing.map((k) => k + \"=yes\").join(\" \") + \".\",",
+            "after": "\"Add \" + missing.map((k) => k - \"=yes\").join(\" \") + \".\",",
+            "line_text": "      \"Add \" + missing.map((k) => k + \"=yes\").join(\" \") + \".\",",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 372,
+            "col": 26,
+            "operator": "plus-to-minus",
+            "before": "const start = m.index + m[0].indexOf(m[1]);",
+            "after": "const start = m.index - m[0].indexOf(m[1]);",
+            "line_text": "    const start = m.index + m[0].indexOf(m[1]);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 379,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);",
+            "after": "const cmp = (a, b) => (a < b ? -1 : a > b ? 2 : 0);",
+            "line_text": "const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "cmp returns 2 instead of 1 for a > b; Array.prototype.sort only uses the sign, so the drop-in order is identical."
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 381,
+            "col": 45,
+            "operator": "false-to-true",
+            "before": "export function scanFiles(files, userUnits = false) {",
+            "after": "export function scanFiles(files, userUnits = true) {",
+            "line_text": "export function scanFiles(files, userUnits = false) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/systemd-unit-hardening-check/classify.mjs",
+            "line": 408,
+            "col": 41,
+            "operator": "minus-to-plus",
+            "before": "|| SEVERITY_RANK.indexOf(a.severity) - SEVERITY_RANK.indexOf(b.severity) || cmp(a.type, b.type));",
+            "after": "|| SEVERITY_RANK.indexOf(a.severity) + SEVERITY_RANK.indexOf(b.severity) || cmp(a.type, b.type));",
+            "line_text": "    || SEVERITY_RANK.indexOf(a.severity) - SEVERITY_RANK.indexOf(b.severity) || cmp(a.type, b.type));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/systemd-unit-hardening-check/check.py",
+        "issue": "DynamicUser=yes with User=root (or User=0) got no svc-runs-as-root finding in check.py or classify.mjs, though systemd.exec(5) says a static user of the configured name is used instead of a dynamic one (root always exists) and the README's own rule table says User=root is flagged. Fixed in both twins with failing tests first; an edge-case parity corpus (57 hostile units) now keeps the Python CLI and the browser classifier in lockstep.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "be48e1c2-1b83-5624-91cb-ed807afb97c8",
+    "transcripts": 1,
+    "first": "2026-11-11T15:06:37Z",
+    "last": "2026-11-11T15:26:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 105,
+        "output": 25489,
+        "thinking": 5662,
+        "cache_read": 5185403,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107666,
+        "api_equivalent_usd": 2.4086,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 105,
+      "output": 25489,
+      "thinking": 5662,
+      "cache_read": 5185403,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107666,
+      "api_equivalent_usd": 2.4086,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.62,
+      "active_minutes": 11.74,
+      "model_minutes": 5.62,
+      "tool_minutes": 6.12,
+      "waiting_on_human_minutes": 7.87,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: two mutation campaigns, a differential corpus against systemd.exec(5), fix in two codebases, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 166.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
