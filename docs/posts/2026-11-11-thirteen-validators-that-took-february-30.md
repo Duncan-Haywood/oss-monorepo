@@ -2,8 +2,8 @@
 title: "Thirteen date checks that said yes to 30 February"
 seo_title: "Date.parse accepts 2026-02-30: validating YYYY-MM-DD in JavaScript"
 date: 2026-11-11
-tags: [einvoice-preflight, fatturapa, dates, javascript, mutation-testing, red-team]
-description: "In V8, Date.parse('2026-02-30') is a real timestamp, 2 March. Thirteen validators across our tools used it to reject bad dates. A lint now fails CI on the pattern."
+tags: [einvoice-preflight, fatturapa, dates, javascript, mutation-testing, redteam]
+description: "In V8, Date.parse('2026-02-30') is a real timestamp, 2 March. Thirteen of our validators trusted it to reject bad dates. A lint now flags the pattern."
 ---
 
 Today's red-team run seeded eight faults into `fatturapa.mjs`, the
