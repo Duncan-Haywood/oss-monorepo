@@ -56,6 +56,7 @@ const H_OUT = 3.0; // outside surface conductance, Btu/h·ft²·°F (about 17 W/
 const R = { filmIn: 0.68, filmOut: 0.17, drywall: 0.45, sheathing: 0.62, siding: 0.62, woodPerIn: 1.25, filmCeiling: 0.61, filmFloor: 0.92, subfloor: 0.94 };
 
 const deg = Math.PI / 180;
+const own = (map, key) => (Object.hasOwn(map, key) ? map[key] : undefined);
 
 export function wallU({ wallCavityR, studDepthIn, framingFraction, wallContinuousR }) {
   const skin = R.filmIn + R.drywall + R.sheathing + R.siding + R.filmOut + wallContinuousR;
@@ -152,9 +153,9 @@ export function validate(input) {
   num(envelope.ductCoolPct, 'Duct cooling gain %', errs, { min: 0, max: 60 });
   num(envelope.supplyDeltaT, 'Supply air temperature difference', errs, { min: 10, max: 35 });
   if (envelope.atticRiseF != null) num(envelope.atticRiseF, 'Attic rise', errs, { min: 0, max: 80 });
-  if (!ABSORPTANCE[envelope.wallColor]) errs.push('Wall colour must be light, medium or dark');
-  if (!ABSORPTANCE[envelope.roofColor]) errs.push('Roof colour must be light, medium or dark');
-  if (!WALL_RESPONSE[envelope.wallMass]) errs.push('Wall type must be frame or masonry');
+  if (!own(ABSORPTANCE, envelope.wallColor)) errs.push('Wall colour must be light, medium or dark');
+  if (!own(ABSORPTANCE, envelope.roofColor)) errs.push('Roof colour must be light, medium or dark');
+  if (!own(WALL_RESPONSE, envelope.wallMass)) errs.push('Wall type must be frame or masonry');
   if (!Array.isArray(rooms) || rooms.length === 0) errs.push('Add at least one room');
   else rooms.forEach((r, i) => {
     const n = r.name ? `Room "${r.name}"` : `Room ${i + 1}`;
@@ -166,7 +167,7 @@ export function validate(input) {
     num(r.applianceBtuh ?? 0, `${n} appliance gain`, errs, { min: 0, max: 50000 });
     (r.walls || []).forEach((w, j) => {
       const wn = `${n} wall ${j + 1}`;
-      if (!(w.facing in FACINGS)) errs.push(`${wn} facing must be one of ${Object.keys(FACINGS).join(', ')}`);
+      if (!Object.hasOwn(FACINGS, w.facing)) errs.push(`${wn} facing must be one of ${Object.keys(FACINGS).join(', ')}`);
       num(w.lengthFt, `${wn} length`, errs, { min: 0, max: 500 });
       num(w.windowFt2 ?? 0, `${wn} window area`, errs, { min: 0, max: 5000 });
       num(w.doorFt2 ?? 0, `${wn} door area`, errs, { min: 0, max: 500 });
@@ -187,9 +188,9 @@ export function calculate(input) {
   const sensibleAir = 1.08 * rho; // Btu/h per cfm·°F
   const latentAir = 0.68 * rho;   // Btu/h per cfm·grain/lb
   const Uwall = wallU(env), Uceil = ceilingU(env), Ufloor = floorU(env);
-  const alphaWall = ABSORPTANCE[env.wallColor];
-  const atticRise = env.atticRiseF ?? ATTIC_RISE[env.roofColor];
-  const response = WALL_RESPONSE[env.wallMass];
+  const alphaWall = own(ABSORPTANCE, env.wallColor);
+  const atticRise = env.atticRiseF ?? own(ATTIC_RISE, env.roofColor);
+  const response = own(WALL_RESPONSE, env.wallMass);
   const dTheat = site.indoorHeatF - site.heatingOutdoorF;
 
   // Design day, hours 1..24 (solar time; the sun is at its highest at 12).
@@ -235,7 +236,7 @@ export function calculate(input) {
       heat.walls += Uwall * net * dTheat;
       heat.windows += env.windowU * win * dTheat;
       heat.doors += env.doorU * door * dTheat;
-      const fs = facingSolar[w.facing];
+      const fs = own(facingSolar, w.facing);
       hours.forEach((_, k) => {
         cool[k].walls += Uwall * net * (fs.driving[k] - site.indoorCoolF);
         cool[k].windows += env.windowU * win * (outdoor[k] - site.indoorCoolF);

@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 19,
   "outcome": "success",
@@ -35,6 +35,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "The clone's origin/main was stale (log showed #13698 while main was at #14817); run_workflow_locally.py refused until a fresh fetch. The startup note could say to fetch origin main first."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "The definition of done does not list the guards a new venture trips in CI (siblings orphan budget, SUBCATEGORY_RULES, faq-visible, secondary-schema, inherited_keys, optout switch count); a new-venture checklist command would save a CI round."
     }
   ],
   "deviations": [],
@@ -42,7 +46,7 @@
     "docs/posts/2026-11-11-one-ton-per-500-square-feet-is-too-big.md"
   ],
   "goal": null,
-  "notes": "Idea: an open first-principles room-by-room residential HVAC load calculator (not ACCA Manual J), filling a gap in the construction set. Engine load.mjs: parallel-path U, slab F-factor, ACH50/N leakage, ventilation recovery, ducts %, altitude; 24-h July design day with sun geometry, ASHRAE 1985 clear sky, SHGC with angle modifier, sol-air walls with lag/decrement, attic rise, dew-point latent. Example 1,800 ft2 ranch: heating 26,901 Btu/h, cooling 26,301 Btu/h (2.19 t) vs 3.6 t rule of thumb. Verified: venture node --test 19/19; Playwright page run (no console errors, no overflow at 390px); clauses.mjs pass; router validate pass; optout-persistence 20/20 after count bump 1305->1306. Next: overhang shading, basements, comparison with a full report on a real house.",
+  "notes": "Idea: an open first-principles room-by-room residential HVAC load calculator (not ACCA Manual J), filling a gap in the construction set. Engine load.mjs: parallel-path U, slab F-factor, ACH50/N leakage, ventilation recovery, ducts %, altitude; 24-h July design day with sun geometry, ASHRAE 1985 clear sky, SHGC with angle modifier, sol-air walls with lag/decrement, attic rise, dew-point latent. Example 1,800 ft2 ranch: heating 26,901 Btu/h, cooling 26,301 Btu/h (2.19 t) vs 3.6 t rule of thumb. Verified: venture node --test 19/19; Playwright page run (no console errors, no overflow at 390px); clauses.mjs pass; router validate pass; optout-persistence 20/20 after count bump 1305->1306. Next: overhang shading, basements, comparison with a full report on a real house. First CI round failed on 4 repo guards a new venture trips (inherited_keys Object.hasOwn, sibling orphan budget, trades sub-group rule, visible FAQ + secondary-page JSON-LD); fixed with an Object.hasOwn guard, a mini-split-bid-calculator <-> hvac-load-calc sibling pair with tests, an MEP subgroup entry, and visible FAQ sections. Local: platform/pages suite 3 fails before the fixes; build.test 310/310, faq-visible + secondary-schema 5/5, siblings --check 0 orphans after. run_workflow_locally.py --for-changes timed out at 600 s with no output.",
   "corrections": [],
   "redteam": null
 }

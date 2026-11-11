@@ -182,9 +182,22 @@
     </div>
   </main>
 
+  <section style="max-width:800px">
+    <h2>Questions</h2>
+        <h3>Is this a Manual J?</h3>
+        <p>No. ACCA Manual J is a proprietary procedure with its own tables, and many permits ask for a report from approved software. This tool uses an open first-principles method (sun geometry, U-values, air leakage, psychrometrics) with every formula shown. Use it to sanity-check a quote or a design before paying for a full report, not in place of one.</p>
+        <h3>Why is the answer smaller than 1 ton per 500 square feet?</h3>
+        <p>Because rules of thumb date from leaky, poorly insulated houses. A house with R-13 walls, an R-38 attic and low-e windows often needs one ton per 700 to 1,000 square feet. Oversized equipment short-cycles, removes less humidity and costs more.</p>
+        <h3>Why is the whole-house load less than the sum of the rooms?</h3>
+        <p>Rooms peak at different times: east rooms in the morning, west rooms late in the afternoon. The equipment sees the hour when the sum is largest, which is smaller than adding every room's own worst hour. Ducts and room airflow are sized from each room's own peak.</p>
+        <h3>Is my data uploaded?</h3>
+        <p>No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a calculation ran and the day.</p>
+  </section>
+
   <footer>
     <p><strong>No warranty. This is an estimate, not engineering advice and not an ACCA Manual J report.</strong> It uses an open first-principles method with simplifications described on <a href="./how-it-works.html">how it works</a>. Many permits require a load calculation from approved software; buy equipment on a full calculation by a qualified designer.</p>
     <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
+    <p>Pricing a ductless install once you know the load? The <a href="../mini-split-bid-calculator/">mini-split bid calculator</a> prices heads, line sets and labour &mdash; nothing uploaded.</p>
     <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc">Source, CLI and README</a>. If it saved you a bad quote, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
   </footer>
 

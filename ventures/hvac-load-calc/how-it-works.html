@@ -6,6 +6,7 @@
   <title>How a Room-by-Room HVAC Load Is Worked Out | Formulas and a Worked Example</title>
   <meta name="description" content="The open method behind the free room-by-room load calculator: U-values by the parallel-path method, sun position and clear-sky irradiance, sol-air temperature, attic temperature, air leakage from ACH50, latent load from the dew point, and why the house peak is less than the sum of the rooms.">
   <link rel="canonical" href="./how-it-works.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator run a whole summer day instead of one hour?","acceptedAnswer":{"@type":"Answer","text":"Because walls, windows and the attic peak at different times. A west window peaks late in the afternoon, an east one in the morning, and a wall's heat arrives a couple of hours after the sun hits it. Running 24 hours finds the hour when the whole house needs the most cooling."}},{"@type":"Question","name":"Where do the design temperatures come from?","acceptedAnswer":{"@type":"Answer","text":"You enter them. Use the 99% heating and 1% cooling design values for your county, which your local code office, an energy-code compliance tool or a weather-data source lists. Do not use record extremes; sizing for them oversizes the equipment."}},{"@type":"Question","name":"Can I use this for a permit?","acceptedAnswer":{"@type":"Answer","text":"Usually not. Many building departments require a load calculation from approved software. This page shows the method so you can check whether a quote or report is in the right range."}}]}</script>
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2228; background: #e9eef0; }
     body { max-width: 760px; margin: 0 auto; padding: 32px 16px; line-height: 1.55; }
@@ -78,6 +79,14 @@
     <li>Design temperatures: you enter them; the tool has no weather database.</li>
   </ul>
   <p>For a permit, or before buying equipment, have a full load calculation done with approved software. Use this one to know whether the number on a quote is in the right range, and to ask why if it is not.</p>
+
+  <h2>Questions</h2>
+  <h3>Why does the calculator run a whole summer day instead of one hour?</h3>
+  <p>Because walls, windows and the attic peak at different times. A west window peaks late in the afternoon, an east one in the morning, and a wall's heat arrives a couple of hours after the sun hits it. Running 24 hours finds the hour when the whole house needs the most cooling.</p>
+  <h3>Where do the design temperatures come from?</h3>
+  <p>You enter them. Use the 99% heating and 1% cooling design values for your county, which your local code office, an energy-code compliance tool or a weather-data source lists. Do not use record extremes; sizing for them oversizes the equipment.</p>
+  <h3>Can I use this for a permit?</h3>
+  <p>Usually not. Many building departments require a load calculation from approved software. This page shows the method so you can check whether a quote or report is in the right range.</p>
 
   <footer>
     <p><strong>No warranty. An estimate, not engineering advice and not an ACCA Manual J report.</strong> Nothing you enter leaves your browser. MIT licensed: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc">source and CLI</a>.</p>

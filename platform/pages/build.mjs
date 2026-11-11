@@ -4757,7 +4757,8 @@ const SUBCATEGORY_RULES = {
       // closer to a panel or EV-charger job than to anything in the other groups.
       // `service-load-check` (2026-11-11): the NEC service load check electricians run before an EV charger or heat pump job.
       // `pv-string-sizer` (2026-11-11): PV string sizing (cold Voc, hot Vmp, strings per MPPT) for solar installers.
-      test: (slug) => /^(service-load-check|pv-string-sizer|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      // `hvac-load-calc` (2026-11-11): room-by-room heating and cooling loads, the sizing step before a heat pump, mini-split or furnace bid.
+      test: (slug) => /^(hvac-load-calc|service-load-check|pv-string-sizer|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
