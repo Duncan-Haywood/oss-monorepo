@@ -1,9 +1,9 @@
 ---
 title: "Four ways a logger file could lie to a concrete strength estimate"
-seo_title: "Concrete maturity calculator: parsing bugs a red-team run found and fixed"
+seo_title: "Concrete maturity calculator: four parsing bugs found and fixed"
 date: 2026-11-11
-tags: [red-team, testing, concrete, maturity-method, astm-c1074, csv]
-description: "A red-team run on the new concrete maturity calculator found four inputs a person could reasonably type that gave a wrong number without any error, and fixed all four."
+tags: [redteam, testing, concrete, maturity-method, astm-c1074, csv]
+description: "A red-team run on the new concrete maturity calculator found four ordinary inputs that gave a wrong number with no error, and fixed all four."
 ---
 
 The [concrete maturity calculator](../../ventures/concrete-maturity/) went
