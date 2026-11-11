@@ -1476,6 +1476,7 @@ al. (1993), the revised NIOSH lifting equation, for the human side of a shared l
 8. `buildbot-cost` (done 2026-10-21): what it is worth. Crew hours replaced or shortened, times wages, against the
    robot's purchase, upkeep and supervision per hour, fed through `house-cost` and
    `house-schedule`. What share of a new home's price does a credible robot crew remove?
+*Programme (opened 2026-11-11):* [`buildbot-sheathing`](buildbot-sheathing/PROPOSAL.md) takes milestones 4 to 8 forward as one question, robotic sheathing to code tolerance; new fastening, placement and cost steps go there rather than into new slugs.
 9. Owner steps: buy or rent a robot (a G1 is the cheapest humanoid in the Menagerie set) and
    test the published skills on a mock-up wall, with a priced bill of materials.
 
