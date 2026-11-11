@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Pre-existing local-only failures in test_workspace_health (root) and test_real_photo_calibration (broken system PIL); same on origin/main."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -56,7 +58,7 @@
     "ventures/photo-editing/eval/ljpeg-numpy-predict-2026-11-11.md"
   ],
   "goal": null,
-  "notes": "Verification: tests/test_ljpeg_fast.py + test_raw_develop + test_raw_develop_engines pass on Python 3.13.18 with numpy 2.5.3 (36 tests, 770 subtests) and on 3.11 without numpy (numpy class skipped). Seeded faults in predict_rows fail 39-48 cases each; byte-swapped output fails the parse_raw test. tools/cr2_ljpeg_check.py on RAW_CANON_5DMARK2_PREPROD.CR2: libraw_mismatched_sensels 0, reference_identical true. Interleaved timings in the eval note. Full photo-editing unittest discover run in the session (see PR).",
+  "notes": "Verification: tests/test_ljpeg_fast.py + test_raw_develop + test_raw_develop_engines pass on Python 3.13.18 with numpy 2.5.3 (36 tests, 770 subtests) and on 3.11 without numpy (numpy class skipped). Seeded faults in predict_rows fail 39-48 cases each; byte-swapped output fails the parse_raw test. tools/cr2_ljpeg_check.py on RAW_CANON_5DMARK2_PREPROD.CR2: libraw_mismatched_sensels 0, reference_identical true. Interleaved timings in the eval note. Full photo-editing unittest discover (562 tests): 3.13 1 failure, 3.11 1 failure + 1 error, all in files this PR does not touch and reproduced on origin/main in a worktree: test_workspace_health unreadable-input test (container runs as root, so chmod 000 stays readable) and test_real_photo_calibration (system PIL lacks _imaging). PR CI is the authoritative run.",
   "corrections": [],
   "redteam": null,
   "usage": {
