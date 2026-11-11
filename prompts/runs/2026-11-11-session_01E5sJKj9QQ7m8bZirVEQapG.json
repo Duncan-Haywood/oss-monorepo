@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKj9QQ7m8bZirVEQapG",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T22:43:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new research-algorithm tool, survival analysis (Kaplan-Meier, log-rank, Cox PH)",
+  "projects": [
+    "survival-analysis"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14913",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 44,
+  "outcome": "success",
+  "errors": [
+    "Swapped median-CI bounds in the first engine draft (lo/hi band keys reversed); caught by the lifelines comparison before commit.",
+    "First test draft asserted that the Breslow score test equals the log-rank test with tied times; it is exact only without ties. Replaced with an untied identity test.",
+    "First CI run went red on four registration steps a new venture needs, none in the venture's own tests: launched.json date (launched.mjs --write), sibling back-links (siblings budget 0, so the three research-tool pages now link survival-analysis), and the opt-out switch count in platform/privacy/optout-persistence.test.mjs (1306 -> 1307). All fixed in the second commit."
+  ],
+  "integrity_issues": [
+    "Draft post and VENTURE.yaml claimed web calculators 'draw a curve and stop' without any survey; removed before commit. Draft PAPERS had an archive.org URL for Greenwood (1926) that was guessed; replaced with a scholar search link. DOIs could not be resolved from the session (doi.org blocked), as the README says."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes skips the portfolio-pages 'Build the site' step (it has ${{ }} expressions), then reports the two _site checks after it as FAIL; a reader has to work out that these are artefacts and build the site by hand."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes on a new venture outlasts the 600 s foreground limit; the line saying to use run_in_background covers venture tests but not this command."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "The 'definition of done' table for a new research tool leaves out three repo-wide registrations that CI enforces: launched.mjs --write, back-links from sibling pages (siblings.mjs orphan budget 0), and bumping SWITCHES_IN_THE_CATALOGUE in platform/privacy/optout-persistence.test.mjs. Each cost one red CI round."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-kaplan-meier-and-cox-in-the-browser.md"
+  ],
+  "goal": null,
+  "notes": "Idea: fourth 'research algorithms as tools' venture, survival-analysis (named as a next paper in portfolio/research-tools/README.md). The engine is written from the papers. eval/reference.py fits lifelines 0.30.3 and statsmodels 0.15.0 on the Freireich 1963 example plus three seeded tie-heavy cases. Results: Cox coefficients match statsmodels to 1e-8 (Efron and Breslow), KM to 1e-12, tests to 1e-9. lifelines differs from both at about 1e-5 because of its looser Newton stop. On the example, adding sex and logWBC flags sex in the PH check at p = 0.052. 44 node tests pass. A Playwright smoke test at 1100 and 375 px showed no console errors and no overflow. Local CI (run_workflow_locally --for-changes): 109 steps passed before the 590 s cut; the two _site failures came from the skipped build step. Real CI caught the three registrations noted in errors; after fixing them, siblings.test.mjs (20/20), launched.test.mjs, the opt-out count test and the three sibling page tests pass locally. Next: a stratified Cox model, then late entry. No agent doc was written: the venture README and research-tools README carry what the next run needs.",
+  "corrections": [],
+  "redteam": null
+}

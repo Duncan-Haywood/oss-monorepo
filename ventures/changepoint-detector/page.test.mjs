@@ -103,6 +103,7 @@ test("footer links the sibling research-algorithm tools", () => {
   const html = page("index.html");
   assert.match(html, /href="\.\.\/conformal-prediction-intervals\/"/);
   assert.match(html, /href="\.\.\/matrix-profile-explorer\/"/);
+  assert.match(html, /href="\.\.\/survival-analysis\/"/);
 });
 
 test("the trend box offers one bend and several, and passes the choice to the engine", () => {

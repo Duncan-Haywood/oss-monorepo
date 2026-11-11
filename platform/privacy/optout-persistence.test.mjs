@@ -1727,7 +1727,8 @@ const RELATIVE_SELF = relative(
 // +1: `allergen-label-maker` graduated.
 // +1: `service-load-check` graduated.
 // +1: `pv-string-sizer` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1306;
+// +1: `survival-analysis` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1307;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
