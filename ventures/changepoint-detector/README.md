@@ -2845,3 +2845,29 @@ about four times the no-repeat rate on the table above; the threshold comes from
 not from TCPD) the CLI text, the JSON and the page's "Read with care" notes say so, quote the table
 and tell the reader to treat jumps at the ends of flat runs as suspect. On TCPD it fires on `bank`,
 children per woman, ratner_stock and scanline 42049, and on no other series.
+
+### The same power loss on real shocks: frozen orange juice (2026-11-11, not pre-registered)
+
+The power cell above is synthetic. `eval/frozen-juice-sticky.mjs` (`.out.txt`) asks whether real shocks
+go missing too, on Florida frozen orange-juice prices (612 months, `data/frozen-juice.csv`; 253 of 611
+steps, **41%**, repeat the previous month exactly, so the sticky warning fires). Truth, as in "Shocks with a
+measured cause" above: the eight months with 19 or more Orlando freezing degree days, found if a change
+lies within 2 months. Run once, after both options had been declined. It informs the next try and is
+not a decision rule.
+
+| setting | cuts | freezes found | cuts near a freeze |
+|---|---|---|---|
+| shipped `--model drift` | 67 | **8 of 8** | 11 |
+| drop, global scale | 15 | 6 of 8 (misses 1970, 1985) | 6 |
+| drop, scale per segment | 15 | 4 of 8 | 5 |
+| missing, global scale | 18 | 5 of 8 | 7 |
+| missing, scale per segment | 15 | 5 of 8 | 5 |
+
+Handling the repeats removes about three quarters of the cuts and raises the share near a freeze (11
+of 67 is 16%; 6 of 15 is 40%), but it loses two to four documented shocks, which is the synthetic
+power loss on real data. The freezes it keeps are the largest (1963, 1977, 1984 and 1990 in every
+row). A second session reached the same option independently on 2026-11-11 with a rule that had no
+step-in-a-sticky-walk cell. Its rule passed (TCPD 0.764 / 0.585 with the penalty on the kept length,
+matching the 0.764 / 0.590 above), and it was not merged once this section's verdict was on `main`.
+A benchmark guard alone would have shipped an option that misses real shocks. Test:
+`frozen-juice-sticky.test.mjs`.
