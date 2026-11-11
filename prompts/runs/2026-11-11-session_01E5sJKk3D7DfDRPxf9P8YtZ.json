@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKk3D7DfDRPxf9P8YtZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T03:18:20Z",
+  "ended": "2026-11-11T03:36:19Z",
+  "wall_minutes": 18.24,
+  "tokens_in": 8114413,
+  "tokens_out": 56151,
+  "cost_usd": 4.2348,
+  "tool_calls": 74,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14680",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Python replace with a doubled-escaped pattern missed once (assertion caught it, nothing written)",
+    "new Notes-header test first called triage directly, but stripping happens in parseReplies; fixed by testing stripQuoted"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Top Deepen row (ai-bookkeeper) and rows 3-5 already had open PRs from overlapping sessions; the table does not show open PRs, so a run has to search before it can pick (took sales-agent, row 2)."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: is a folded block wrapped at odd widths, so a substring replace on the file misses; had to unwrap, edit and rewrap."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took flagship row 2 (sales-agent), not row 1 (ai-bookkeeper), because ai-bookkeeper, changepoint, einvoice and shift-roster all had open PRs from parallel sessions",
+      "did": "deepened sales-agent item (1)",
+      "result": "landed a measured slice without colliding"
+    },
+    {
+      "file": "portfolio/flagships.yaml (sales-agent next)",
+      "why": "The item said to tune on the tuning half only, but the held-out half had already been read in full, so it could not score a second round",
+      "did": "tuned on both read halves and added a third half (2*), unread until scoring, labelled blind by a separate agent",
+      "result": "honest fresh score: wrong stops 171 to 88 per 9,584"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-sales-agent-third-half.md",
+    "ventures/sales-agent/eval/README.md (Second round)"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test in ventures/sales-agent 346 pass; run_venture_tests.py sales-agent ok. Enron 2* half: before 76 right/171 wrong/11 ambiguous; after 79/88/5. Tuning halves wrong 185 to 45. Labeller: general-purpose subagent, same model family.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8191dc0a-9944-5b8b-85af-609384a4260a",
+    "transcripts": 2,
+    "first": "2026-11-11T03:18:20Z",
+    "last": "2026-11-11T03:36:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 137,
+        "output": 56151,
+        "thinking": 24067,
+        "cache_read": 7893336,
+        "cache_write_5m": 78313,
+        "cache_write_1h": 142627,
+        "api_equivalent_usd": 4.2348,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 137,
+      "output": 56151,
+      "thinking": 24067,
+      "cache_read": 7893336,
+      "cache_write_5m": 78313,
+      "cache_write_1h": 142627,
+      "api_equivalent_usd": 4.2348,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 67,
+      "ToolSearch": 1,
+      "Edit": 1,
+      "Agent": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "SubagentHandback": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.24,
+      "active_minutes": 18.24,
+      "model_minutes": 9.95,
+      "tool_minutes": 8.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 1.62
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an NLP engineer re-tuning rules and running a blind labelled evaluation on ~10k emails",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 236.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

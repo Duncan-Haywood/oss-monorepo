@@ -3,7 +3,7 @@ title: "We fixed 140 wrong stops on mail we'd read. On mail we hadn't, it was 83
 seo_title: "Testing email reply rules on a fresh held-out half of the Enron corpus"
 date: 2026-11-11
 tags: [sales-agent, evaluation]
-description: "A second round of fixes to the sales agent's reply rules, scored once on 9,584 real Enron replies nobody had read: wrong stops 17.8 to 9.2 per 1,000, right stops 76 to 79."
+description: "Second-round fixes to the sales agent's reply rules, scored once on 9,584 unread Enron replies: wrong stops 17.8 to 9.2 per 1,000."
 ---
 
 [Sales Agent](https://marisstella.app/sales-agent/) reads the replies your outreach gets back. The costly mistake is a wrong *stop*: it files a reply as an unsubscribe, a "not interested", an away notice or "left the company" when the person said nothing of the kind. Then a live lead gets suppressed or paused.
