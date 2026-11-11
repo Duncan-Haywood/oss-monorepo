@@ -14,6 +14,8 @@ Step 1, for each case and each DC convention:
   LMPs: Pearson r and mean absolute error against the AC LMPs.
 Step 2, derating: DC-MP with every rating scaled by a in (1, 0.98, 0.95, 0.9, 0.85, 0.8); the largest a
 whose dispatch has no AC overload (> 100.0 %) and its AC cost premium over the AC optimum.
+Step 3, iterated AC-corrected DC (`corrected_dc`): loss feedback plus a per-branch rating cut on the
+branches the AC check overloads, repeated until the dispatch is clean or the DC becomes infeasible.
 Writes experiments/results_pglib.txt and experiments/results_pglib.json."""
 import copy
 import json
@@ -90,7 +92,8 @@ def ac_check(ppc, dc_res, ac_res):
     sl = live & np.isin(g[:, GEN_BUS], ref_bus)
     slack_out = float(np.maximum(g[sl, PG] - g[sl, PMAX], 0).sum() + np.maximum(g[sl, PMIN] - g[sl, PG], 0).sum())
     cost = float(totcost(p["gencost"][live], g[live, PG]).sum())
-    return {"n_over": int((load > 1.0 + 1e-6).sum()), "max_load": float(load.max()), "vviol": vviol,
+    losses = float(g[live, PG].sum() - r["bus"][:, 2].sum())
+    return {"losses": losses, "s": smax(r),"n_over": int((load > 1.0 + 1e-6).sum()), "max_load": float(load.max()), "vviol": vviol,
             "qviol": qviol, "slack_out_mw": slack_out, "cost": cost}
 
 
@@ -132,8 +135,40 @@ def run_case(name, kind, base):
         chk = ac_check(ppc, dc, ac)
         der.append({"alpha": a, "ok": True, "dc_cost": float(dc["f"]), "check": chk})
     out["derate"] = der
+    out["corrected"] = corrected_dc(ppc, ac)
     out["secs"] = time.time() - t0
     return out
+
+
+def corrected_dc(ppc, ac, iters=12):
+    """Iterated AC-corrected DC (DC-MP): after each DC solve run its dispatch through an AC power flow,
+    (i) add the measured losses to the DC loads in proportion to each bus's demand and
+    (ii) shrink the DC rating of each branch the AC flow overloads by rating / AC flow (only those branches).
+    Stops when the AC check shows no overload and the slack is within its P limits, or after iters."""
+    from pypower.idx_bus import PD
+    work = copy.deepcopy(ppc)
+    pd0 = ppc["bus"][:, PD].copy()
+    rate0 = ppc["branch"][:, RATE_A].copy()
+    hist = []
+    for it in range(iters):
+        dc = rundcopf(work, DCOPT)
+        if not dc["success"]:
+            hist.append({"it": it, "dc_ok": False})
+            break
+        chk = ac_check(ppc, dc, ac)
+        if chk is None:
+            hist.append({"it": it, "dc_ok": True, "pf_ok": False})
+            break
+        hist.append({"it": it, "dc_ok": True, "pf_ok": True, **chk})
+        if chk["n_over"] == 0 and chk["slack_out_mw"] < 1e-3:
+            break
+        loss = chk["losses"]
+        work["bus"][:, PD] = pd0 * (1.0 + loss / pd0.sum())
+        ratio = np.ones_like(rate0)
+        on = rate0 > 0
+        ratio[on] = np.minimum(1.0, rate0[on] / np.maximum(chk["s"][on], 1e-9))
+        work["branch"][:, RATE_A] *= np.where(ratio < 1.0, 0.995 * ratio, 1.0)
+    return hist
 
 
 def pct(x, y):
@@ -144,7 +179,8 @@ def main():
     base = baseline()
     rows = [run_case(c, k, base) for c in CASES for k in KINDS]
     here = Path(__file__).resolve().parent
-    (here / "results_pglib.json").write_text(json.dumps(rows, indent=1, default=float))
+    strip = lambda o: {k: strip(v) for k, v in o.items() if k != "s"} if isinstance(o, dict) else [strip(v) for v in o] if isinstance(o, list) else o
+    (here / "results_pglib.json").write_text(json.dumps(strip(rows), indent=1, default=float))
     L = []
     P = L.append
     P("PGLib-OPF v23.07: DC vs AC OPF with the published ratings. Costs $/h. Gaps are % of the AC optimum.")
@@ -193,6 +229,29 @@ def main():
                 first = (d["alpha"], pct(c["cost"], r["ac"]))
         tail = f"a={first[0]} (+{first[1]:.2f} %)" if first else "none in grid"
         P(f"{r['case']:22s} {r['kind']:4s} " + " ".join(f"{s:>20s}" for s in cells) + "  " + tail)
+    P("")
+    P("Iterated AC-corrected DC (DC-MP + loss feedback + per-branch rating correction), last iterate:")
+    P(f"{'case':22s} {'kind':4s} {'iters':>5s} {'status':>14s} {'nOver':>5s} {'maxLd%':>7s} {'slackMW':>8s} {'Vviol':>5s} {'Qviol':>5s} {'ACcost%':>8s}")
+    for r in rows:
+        if not r["ac_ok"]:
+            continue
+        h = r["corrected"]
+        good = [x for x in h if x.get("pf_ok")]
+        last = h[-1]
+        if last.get("pf_ok") and last["n_over"] == 0 and last["slack_out_mw"] < 1e-3:
+            status = "clean"
+        elif not last.get("dc_ok", True):
+            status = "DC infeasible"
+        elif last.get("dc_ok") and not last.get("pf_ok"):
+            status = "PF failed"
+        else:
+            status = "not clean"
+        if not good:
+            P(f"{r['case']:22s} {r['kind']:4s} {len(h):5d} {status:>14s}")
+            continue
+        c = good[-1]
+        P(f"{r['case']:22s} {r['kind']:4s} {len(h):5d} {status:>14s} {c['n_over']:5d} {100 * c['max_load']:7.1f} {c['slack_out_mw']:8.1f} "
+          f"{c['vviol']:5d} {c['qviol']:5d} {pct(c['cost'], r['ac']):8.2f}")
     text = "\n".join(L) + "\n"
     (here / "results_pglib.txt").write_text(text)
     print(text)
