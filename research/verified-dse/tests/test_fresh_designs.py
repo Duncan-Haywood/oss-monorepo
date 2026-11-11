@@ -43,3 +43,12 @@ def test_analysis_reproduces_results(tmp_path):
     out = tmp_path / "r.txt"
     _load("analyse").main(out)
     assert out.read_text() == (EXP / "results.txt").read_text()
+
+
+def test_summary():
+    t = (EXP / "results.txt").read_text()
+    assert "mean regret SW: 0.91%, worst 10.48%; vs random better 9, worse 1" in t
+    assert "mean regret random: 2.64%" in t
+    assert "cells with routed/r2 > 3: 10 of 16" in t
+    for k, want in zip(range(1, 7), (True, True, False, True, True, False)):
+        assert t.split(f"({k})")[1].splitlines()[0].endswith(str(want))
