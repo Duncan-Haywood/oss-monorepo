@@ -34,6 +34,16 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Are the answers reliable? The same people asked twice (milestone 5b, 2026-11-11)
+
+In the GSS panels of 2006-10, 95.4% of people who said they were raised Catholic said so again two years later (kappa
+0.93, net change -0.06 points [-0.65, +0.53]); over four years reports drift slightly *away* from a Catholic upbringing
+(-0.77 [-1.44, -0.11]), all of it among current Catholics. So recall error cannot explain the rise of the raised-Catholic
+share in the 2021-24 web interviews. In the 2016-20 panel, people who later answered by web already reported 11 points
+less weekly attendance [-17.9, -4.2] than people who later answered by phone when both were interviewed in person; their
+change to 2020 differs by only -1.6 points [-8.5, +5.4]. The web attendance gap is mostly who chooses web, not the mode.
+Code `experiments/m5i_panel/run.py`, tables `t27`, `t28`, details in `LOG.md`.
+
 ## Did immigration or fertility hold the US Catholic share up? (milestone 5b, 2026-11-11)
 
 Immigration. Between 1990-99 and 2010-18 the GSS Catholic share of adults slipped from 26.4% to 25.0%. Counterfactual
@@ -79,11 +89,13 @@ pools men and women. Related-work notes are from abstracts, not a full re-read.
 
 ```sh
 sh data/download.sh                          # GSS 1972-2024 R3a from NORC, about 600 MB, checksummed
+sh data/download_gssr.sh                     # fallback when gss.norc.org is unreachable: gssr's .rda copies + panels (needs pyreadr)
 python3 experiments/m1_subgroups/run.py      # needs pandas and numpy; about 60 s
 python3 experiments/m1_subgroups/figure.py   # stdlib only
 python3 experiments/m3_mode/run.py           # mode effect on 2021-24 attendance; about 30 s
 python3 experiments/m3b_randomised/run.py     # randomised mode arms, 2022 and 2024; about 60 s
 python3 experiments/m5h_fertility/run.py      # fertility vs immigration channel (H4); about 10 min with the bootstrap
+python3 experiments/m5i_panel/run.py          # panels: test-retest of upbringing, web vs phone attendance; about 1 min
 PY=$(python3 platform/ci/pyenv.py pytest numpy pandas)   # bare python3 lacks all three; scipy is not needed
 "$PY" -m pytest -q research/catholic-demography/test_cathdem.py   # from the repo root; no download needed
 ```
