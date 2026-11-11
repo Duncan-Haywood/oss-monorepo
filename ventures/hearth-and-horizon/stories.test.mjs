@@ -116,3 +116,14 @@ test('the README lists every story, once, from the generated block', () => {
   }
   assert.throws(() => spliceReadme('# no markers', stories), /markers/);
 });
+
+test('BIBLE.md holds no Done entries (run node bible_done.mjs)', async () => {
+  const { split, appendDone } = await import('./bible_done.mjs');
+  const { moved } = split(readFileSync(new URL('BIBLE.md', import.meta.url), 'utf8'));
+  assert.deepEqual(moved.map((m) => m.lines[0].slice(0, 60)), []);
+  const sample = '# B\n\n## Next up\n\nIntro.\n\n**Shelf A**\n\n- *(Done: X.)* a\n  b\n- *Open:* c\n  d\n\n**Shelf B**\n\n- *(Done: Y.)* e\n\n## After\n';
+  const out = split(sample);
+  assert.equal(out.bible, '# B\n\n## Next up\n\nIntro.\n\n**Shelf A**\n\n- *Open:* c\n  d\n\n**Shelf B**\n\n## After\n');
+  const done = appendDone(appendDone('', out.moved), [{ shelf: 'Shelf A', lines: ['- *(Done: Z.)* f'] }]);
+  assert.match(done, /## Shelf A\n\n- \*\(Done: X\.\)\* a\n  b\n- \*\(Done: Z\.\)\* f\n\n## Shelf B\n\n- \*\(Done: Y\.\)\* e\n$/);
+});
