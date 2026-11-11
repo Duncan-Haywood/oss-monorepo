@@ -16,7 +16,10 @@ Open `index.html` directly, or serve this directory with `python3 -m http.server
 - **Total contract value**, decomposed into service revenue, the early-start fee, travel, any top-up to your service minimum, and any extra-artist fee.
 - **The wedding-day balance due**, separate from the trial fee already collected and any credit applied to it.
 - **Whether the artists booked can finish the group in time**, and if not, exactly how many additional artists the schedule needs, what billing them costs the client, and what paying them out costs the artist.
+- **Whether any one look is longer than the prep window.** Pooled minutes can fit while the bride's own look alone outlasts the window; one artist does each look, so no number of extra artists finishes it, and the page says so instead of reporting the booking as on time.
 - **Two informational flags**: a group below your usual headcount minimum, and a booking that needed a top-up to reach your dollar minimum.
+
+Headcounts, artists booked and the two yes/no fields must be whole numbers; prices, miles and clock times may be fractional.
 
 ## Sharing a booking
 

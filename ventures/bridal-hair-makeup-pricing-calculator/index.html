@@ -81,6 +81,7 @@
 <dt>Per person</dt><dd id="perPersonOut"></dd>
 </dl>
 <p id="capacityWarning" class="warn" hidden></p>
+<p id="lookWarning" class="warn" hidden></p>
 <p id="headcountWarning" class="warn" hidden></p>
 <p id="minimumWarning" class="warn" hidden></p>
 <p id="fitsVerdict" class="good" hidden></p>
@@ -150,6 +151,14 @@ function update(count = false) {
     } else {
       el('capacityWarning').hidden = true;
     }
+    // Pooled minutes can fit while one person's look alone outlasts the
+    // window; no extra artist fixes that, so it gets its own banner.
+    if (r.lookLongerThanWindow) {
+      el('lookWarning').hidden = false;
+      el('lookWarning').textContent = `One look takes ${r.longestLookMinutes} minutes, longer than the ${el('prepWindowMinutes').value}-minute prep window. A single artist does each look, so adding artists cannot finish it on time: start earlier, or shorten that service.`;
+    } else {
+      el('lookWarning').hidden = true;
+    }
     if (r.belowHeadcountMinimum) {
       el('headcountWarning').hidden = false;
       el('headcountWarning').textContent = `This group (${r.totalHeadcount}) is below your usual headcount minimum (${el('serviceMinimumHeadcount').value}) — informational only; it does not change the price.`;
@@ -162,8 +171,9 @@ function update(count = false) {
     } else {
       el('minimumWarning').hidden = true;
     }
-    el('fitsVerdict').hidden = !(r.additionalArtistsNeeded === 0 && !r.belowRevenueMinimum);
-    if (r.additionalArtistsNeeded === 0 && !r.belowRevenueMinimum) {
+    const fits = r.additionalArtistsNeeded === 0 && !r.lookLongerThanWindow && !r.belowRevenueMinimum;
+    el('fitsVerdict').hidden = !fits;
+    if (fits) {
       el('fitsVerdict').textContent = `The artists booked can finish this group on time, and the booking clears your service minimum.`;
     }
 
@@ -171,7 +181,7 @@ function update(count = false) {
     if (count && r.additionalArtistsNeeded > 0 && !assistantCounted) { recordEvent('assistant-needed'); assistantCounted = true; }
   } catch (e) {
     el('errors').textContent = e.message; el('errors').hidden = false; el('totalHero').hidden = true;
-    for (const id of ['capacityWarning', 'headcountWarning', 'minimumWarning', 'fitsVerdict']) el(id).hidden = true;
+    for (const id of ['capacityWarning', 'lookWarning', 'headcountWarning', 'minimumWarning', 'fitsVerdict']) el(id).hidden = true;
     for (const id of OUT_IDS) el(id).textContent = '';
   }
 }

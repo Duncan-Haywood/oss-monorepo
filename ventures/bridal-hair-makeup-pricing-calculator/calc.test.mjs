@@ -191,3 +191,56 @@ test('a travel surcharge adds to the subtotal and makeup-only guests add their t
   close(r.totalServiceMinutes - base.totalServiceMinutes,
     DEFAULTS.minutesPerMakeupOnly + DEFAULTS.bufferMinutesPerPerson);
 });
+
+// Red-team guards (2026-11-11): the default booking has no kids, so a sign
+// flip on the kids' headcount or the kids' buffer went unnoticed.
+test('kids count toward the headcount and each adds their own minutes plus a buffer', () => {
+  const base = calculateQuote(DEFAULTS);
+  const r = calculateQuote({ ...DEFAULTS, kidsCount: 2 });
+  assert.equal(r.totalHeadcount - base.totalHeadcount, 2);
+  close(r.serviceRevenue - base.serviceRevenue, 2 * DEFAULTS.kidsPrice);
+  close(r.totalServiceMinutes - base.totalServiceMinutes,
+    2 * (DEFAULTS.minutesPerKid + DEFAULTS.bufferMinutesPerPerson));
+});
+
+// Real defect (red team 2026-11-11): capacity pooled every artist's minutes,
+// so a bride whose look takes 90 minutes "fit" an 85-minute window with two
+// artists booked. One person's look cannot be split between two artists.
+test('a single look longer than the prep window is flagged even when pooled minutes fit', () => {
+  const r = calculateQuote({ ...DEFAULTS, fullServiceCount: 0, prepWindowMinutes: 85, artistsBooked: 2 });
+  close(r.capacityMinutes, 170);
+  assert.equal(r.additionalArtistsNeeded, 0);
+  // bride: 60 full service + 30 extra; the between-people buffer is not part of the look
+  close(r.longestLookMinutes, 90);
+  assert.equal(r.lookLongerThanWindow, true);
+});
+
+test('the longest look counts only services someone is booked for', () => {
+  // Nobody takes hair only, so a long hair-only time cannot trip the flag.
+  const r = calculateQuote({ ...DEFAULTS, minutesPerHairOnly: 500 });
+  assert.equal(r.lookLongerThanWindow, false);
+  close(r.longestLookMinutes, 90);
+  const booked = calculateQuote({ ...DEFAULTS, minutesPerHairOnly: 500, hairOnlyCount: 1 });
+  close(booked.longestLookMinutes, 500);
+  assert.equal(booked.lookLongerThanWindow, true);
+  const empty = calculateQuote({ ...DEFAULTS, brideCount: 0, fullServiceCount: 0 });
+  close(empty.longestLookMinutes, 0);
+  assert.equal(empty.lookLongerThanWindow, false);
+});
+
+test('a look exactly as long as the window still fits', () => {
+  const r = calculateQuote({ ...DEFAULTS, fullServiceCount: 0, prepWindowMinutes: 90 });
+  assert.equal(r.lookLongerThanWindow, false);
+});
+
+// Real defect (red team 2026-11-11): 2.5 bridesmaids and 1.5 artists priced
+// without complaint, and a trial flag of 0.5 charged the full trial.
+test('headcounts, artists and the yes/no flags must be whole numbers', () => {
+  for (const key of ['brideCount', 'fullServiceCount', 'hairOnlyCount', 'makeupOnlyCount',
+    'kidsCount', 'serviceMinimumHeadcount', 'artistsBooked', 'trialRequested', 'creditTrialToBooking']) {
+    const value = key === 'artistsBooked' ? 1.5 : 0.5;
+    assert.throws(() => calculateQuote({ ...DEFAULTS, [key]: value }), /whole number/, `${key} accepted ${value}`);
+  }
+  // Prices, miles and clock times stay fractional.
+  assert.doesNotThrow(() => calculateQuote({ ...DEFAULTS, startHour: 6.5, milesRoundTrip: 12.5, kidsPrice: 55.5 }));
+});
