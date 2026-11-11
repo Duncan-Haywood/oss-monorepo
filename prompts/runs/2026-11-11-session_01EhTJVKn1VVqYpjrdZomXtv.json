@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVKn1VVqYpjrdZomXtv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T08:02:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 7 (photo-editing): grade only the storyline's picks at full resolution",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": 14732,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_venture_tests.py photo-editing skips Python ventures (no *.test.mjs) and points at photo-editing-ci.yml; the root guidance reads as if it covers every venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/requests/README.md",
+      "why": "All five website requests are 'building' and tied to flagships with fresh work or open PRs (ai-bookkeeper #14730 opened 0h ago), so took the flagship 7 item 'grade only the selected shots', which needs no outside data.",
+      "did": "photo-editing grade scope",
+      "result": "landed with tests and a benchmark"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-grade-only-the-clips-that-make-the-reel.md",
+    "ventures/photo-editing/eval/grade-scope-2026-11-11.md"
+  ],
+  "goal": "Cut overnight grade time by not making full-resolution masters of clips no deliverable uses",
+  "notes": "Local verification: PYTHONPATH=src python3 -m unittest discover -s tests in ventures/photo-editing: 553 run, 551 pass. The 2 non-passes reproduce in this container regardless of the change: test_real_photo_calibration (system Pillow lacks _imaging) and test_workspace_health unreadable-file test (container runs as root, so chmod 000 is still readable). Benchmark eval/grade_scope_bench.py: 12 synthetic 1080p clips plus 3 JPEGs; grade stage 164.4 s (all) vs 87.8 s (selected), pipeline 214.0 vs 129.5 s, 6 of 12 clips review-graded, both rendered. Confirmed both non-passes also fail on origin/main in this container. run_workflow_locally --for-changes: photo-editing ruff reports 104 findings with local ruff 0.16.9, the same count on origin/main (CI pins 0.15.8); none in changed lines; mypy step ok. portfolio-pages 'Test the site builder' hit the local 300 s limit; left to CI.",
+  "corrections": [],
+  "redteam": null
+}
