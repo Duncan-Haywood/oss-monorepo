@@ -246,17 +246,19 @@ flagships:
       CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
       capped breaks, zero-break odd leagues, field start at 4/8/16/32 teams; sampled, annealed and
       O(p)-climbed starters, 20 and 22 teams at the floor, 24-40 8-21% above it; refilled rounds,
-      12 teams 136 against 120, stored in TIMETABLES; all 2026-11-11). Break-weighted starters
-      2026-11-11 latest (README "Starters picked with their breaks", eval/starter-breaks.mjs): a
-      starter's start is a relabelling (never changes carry-over), so STARTERS_WEIGHTED, picked on
-      carry-over + 10 x breaks, is another start at break weights, kept only when strictly better:
-      26 teams 716/102 to 716/74, season 2,618/230 to 2,714/164; 12-18, 28, 30, 34 lower too. Next,
-      most valuable first: run 36-40 through the search and a climb that scores breaks inside the
-      move (odd sizes vs the circle's zero-break orientation); a lower bound or a timetable below 136
-      at 12, the refill from climbed starters at 14-18 teams and on a season's second leg; close
-      24-40 (tabu, longer runs, the literature's starters and terraces); a bound for the
-      minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter timetable; a real
-      league's travel times and unavailable dates; a print check.
+      12 teams 136 against 120; break-weighted starters; all 2026-11-11). Shift venues 2026-11-11
+      latest (README "Home and away that moves with the starter", eval/starter-orient.mjs,
+      eval/shift-search.txt): a starter's home/away read off the starter has exactly
+      (p-1)(E+1) breaks, or (p-1)E with a bye, least E by a Gray-code walk; scored as a candidate at
+      break weights, plus STARTERS_SHIFT from a climb with breaks in the move: odd leagues 17-39
+      from 4-10 breaks per team to under 2 (23 teams 565/127 to 565/44), 18 of 28 sizes lower at
+      weight 10, none higher. Refill from climbed starters at 13-18 teams: no gain (negative).
+      Next, most valuable first: the same shift candidate for a home-and-away season
+      (lowCarryOverDoubleRounds, mirrored shift venues; odd seasons 25 teams 2,889/262 today);
+      seed assignVenues with the shift orientation after the search's moves; a lower bound or a
+      timetable below 136 at 12; close 24-40 (tabu, longer runs, the literature's starters and
+      terraces); a 20-team leg at 22-30 breaks from a starter timetable; a real league's travel
+      times and unavailable dates; a print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
