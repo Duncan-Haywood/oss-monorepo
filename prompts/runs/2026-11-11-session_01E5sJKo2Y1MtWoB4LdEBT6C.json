@@ -19,16 +19,7 @@
   "tool_calls": 82,
   "task": "Deepen flagship sales-agent: next item (1), a third round of real-mail stop fixes tuned on Enron 0*-2*, scored once on unread 3*",
   "projects": [
-    "sales-agent",
-    "sales-cadence-builder",
-    "ai-bookkeeper",
-    "babysitting-business-kit",
-    "clothing-design-studio",
-    "interview-content-studio",
-    "meeting-action-items",
-    "persona-conversation-simulator",
-    "review-reply-desk",
-    "sales-call-notes-desk"
+    "sales-agent"
   ],
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14694",
   "repo": "Duncan-Haywood/oss-monorepo",
@@ -58,7 +49,7 @@
     },
     {
       "file": "platform/llm/README.md",
-      "issue": "Ten ventures keep a copy of byok.mjs pinned by a 'synced copy' test, but nothing says to re-copy after editing the shared file; #14676 left ten venture suites red on main. A sync script or a note would prevent it."
+      "issue": "Ten ventures keep a copy of byok.mjs pinned by a 'synced copy' test, but nothing says to re-copy after editing the shared file; #14676 left ten venture suites red on main. A sync script or a note would prevent it. (#14692 since added a guard.)"
     },
     {
       "file": "CLAUDE.md",
@@ -82,7 +73,7 @@
       "file": "CLAUDE.md",
       "why": "Fixed two unrelated red suites found on the way (byok copies in ten ventures; sales-cadence-builder guide generator missing <main>) in the same PR rather than a separate one; small, verified, and not control-plane.",
       "did": "synced copies, patched make-guide.mjs",
-      "result": "all ten suites green locally"
+      "result": "PR #14692 landed the same byok sync (plus a guard) and the same guide fix while this PR waited on CI; merged main, took its make-guide.mjs, so this PR carries no net change there. Duplicate effort of ~10 min."
     }
   ],
   "writeups": [
