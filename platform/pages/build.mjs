@@ -11759,9 +11759,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // and one `invoice-payment-terms-calculator` page). `check.mjs` reported no
   // dead links throughout, because by then the link was absolute and it does not
   // follow those.
-  for (const surface of discovered) {
-    await copyTree(surface.sourceDir, path.join(outDir, surface.slug), base);
-  }
+  //
+  // The copies run 16 at a time. Each surface writes only under its own
+  // `outDir/<slug>` (slugs are directory names, so no two trees overlap) and
+  // nothing here reads another surface's output, so the finished tree is the
+  // same in any order; one at a time, the pass spent most of its 4 to 6 s
+  // waiting on single file reads (perf, 2026-11-11:
+  // `docs/history/pages-build-perf-2026-11-11-parallel-copy.md`). Pass 2 below
+  // stays serial on purpose: `repairLinks` tests whether a link target exists,
+  // and pass 2 writes files (sitemap.xml, llms.txt) another surface may link to.
+  await mapLimit(discovered, 16, (surface) => copyTree(surface.sourceDir, path.join(outDir, surface.slug), base));
 
   // A handful of ventures (currently: ai-engineering-academy, tender-radar,
   // quote-margin-check, shopify-permission-drift, mcp-supply-chain-watch,
