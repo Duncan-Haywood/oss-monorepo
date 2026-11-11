@@ -298,6 +298,16 @@ class Execute(unittest.TestCase):
         step = self.run_one("echo diagnostic; exit 1")
         self.assertIn("diagnostic", step.tail)
 
+    def test_a_step_can_write_github_output_and_friends(self):
+        """portfolio-pages.yml's first step is `echo day=... >> "$GITHUB_OUTPUT"`;
+        unset, that is an ambiguous redirect and a FAILED row on every run."""
+        saved = {k: os.environ.pop(k) for k in ("GITHUB_OUTPUT", "GITHUB_ENV",
+                 "GITHUB_STEP_SUMMARY", "RUNNER_TEMP") if k in os.environ}
+        self.addCleanup(os.environ.update, saved)
+        step = self.run_one('echo day=1 >> "$GITHUB_OUTPUT" && echo X=1 >> "$GITHUB_ENV" '
+                            '&& echo ok >> "$GITHUB_STEP_SUMMARY" && test -d "$RUNNER_TEMP"')
+        self.assertEqual(step.status, "ok", step.tail)
+
     def test_a_resolved_variable_reaches_the_step_as_empty(self):
         step = runner.Step("j", "n", 'test -z "${BASE_URL-unset}"', ".")
         step.env = {"BASE_URL": ""}
