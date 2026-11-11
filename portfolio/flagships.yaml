@@ -228,8 +228,12 @@ flagships:
       is outcome-blind, so a fixed e is a discount, not a detector; +0.002 to
       +0.014 rank, 15-115% more answers to the couple bar; with the true e it
       is calibrated (coverage 0.90-0.99) and lifts staged above shipped at 50%
-      lapse. Next: a per-respondent lapse estimate (grid posterior over e from
-      the person's own answers) against the e = true ceiling; staged's 0.90
+      lapse. Per-respondent lapse estimate measured 2026-11-11, not shipped
+      (lapseEstimate.ts, INFORMATION-GAIN-SELECTOR.md): a grid posterior from
+      one person's answers reads 0.02-0.05 whatever the true e, staged gives no
+      signal, and even true win chances leave sd 0.07-0.11 at 240 answers.
+      Next: a pooled per-survey lapse rate or easy anchor pairs as the e
+      signal; staged's 0.90
       coverage for honest respondents (close pairs shrink rd too fast); the
       switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator
