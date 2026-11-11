@@ -454,5 +454,63 @@ test("CLI: --short-cost reaches the plan and the backtest report", async () => {
   assert.equal(b.status, 0, b.stderr);
   assert.match(b.stdout, /3xshort\+over/);
   assert.match(b.stdout, /every earlier week, short cost 3/);
+  assert.match(b.stdout, /Scored on the shifts cut from each plan \(4 to 8 hours\)/);
   assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--short-cost", "0"], { encoding: "utf8" }).status, 2);
+});
+
+// The cost-aware shift cut (2026-11-11): with --short-cost, a run shorter than the shortest shift is stretched only when
+// that is cheaper in expectation than leaving it unstaffed, and to the cheapest window that holds it.
+import { shiftCost } from "./demand.mjs";
+const tailOf = (spec) => Array.from({ length: 24 }, (_, h) => spec[h] || [1, 0]); // tail[h][c]: share needing c or more
+
+test("cost cut: a rare 1-hour peak above minimum staff is left unstaffed, a likely one is stretched", () => {
+  const p = new Array(24).fill(0); for (let h = 9; h < 17; h++) p[h] = 1; p[12] = 2;
+  // 12:00 needs a 2nd person on 30% of past dates; the other hours never need a 2nd
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h === 12 ? [1, 1, 0.3, 0] : h >= 9 && h < 17 ? [1, 1, 0, 0] : [1, 0]])));
+  const plain = cutShifts(p, 4, 8);
+  assert.equal(plain.filter(([a, b]) => b - a === 4).length, 1); // the old cut stretches 12:00 to a 4-hour shift
+  const r1 = cutShifts(p, 4, 8, { tail, r: 1, minStaff: 1 });
+  assert.deepEqual([...r1], [[9, 17]]);
+  assert.deepEqual(r1.dropped, [[12, 13, 2]]);
+  // at r = 20 the one hour saves 0.7 - 20 x 0.3 = -5.3 against 3 spare stretch hours (+3): stretched
+  const r20 = cutShifts(p, 4, 8, { tail, r: 20, minStaff: 1 });
+  assert.equal(r20.length, 2);
+  assert.deepEqual(r20.dropped, []);
+});
+
+test("cost cut: the stretch goes to the side where the extra person is more often needed", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 20; h++) p[h] = 1; p[14] = 2;
+  const spec = {}; for (let h = 8; h < 20; h++) spec[h] = [1, 1, h === 14 ? 0.9 : h < 14 ? 0.4 : 0, 0];
+  const sh = cutShifts(p, 4, 8, { tail: tailOf(spec), r: 3, minStaff: 1 });
+  // backward [11, 15) covers 11-13, each needing a 2nd person 40% of the time; forward [14, 18) covers hours that never do
+  assert.ok(sh.some(([a, b]) => a === 11 && b === 15), JSON.stringify(sh));
+  assert.equal(shiftCost({ tail: tailOf(spec), r: 3, minStaff: 1 }, p, 13, 2).toFixed(2), (0.6 - 1.2).toFixed(2));
+});
+
+test("cost cut: minimum staff is never dropped, and with no tail the old cut is unchanged", () => {
+  const p = new Array(24).fill(0); p[12] = 1;
+  const tail = tailOf({ 12: [1, 0.05, 0] });
+  assert.deepEqual([...cutShifts(p, 4, 8, { tail, r: 1, minStaff: 1 })], [[12, 16]]);
+  assert.deepEqual(cutShifts(p, 4, 8, { tail, r: 1, minStaff: 0 }).dropped, [[12, 13, 1]]);
+  assert.deepEqual(cutShifts(p, 4, 8, { tail: new Array(24).fill(null), r: 1, minStaff: 0 }).length, 1);
+});
+
+test("backtest with shifts scores the cut: the shortest-shift stretch shows up as over", () => {
+  const rows = ["datetime,sales"];
+  // 10 weeks: every day 9:00-17:00 at 1 head, and a 2nd head needed at 12:00 on every Monday
+  for (let w = 0; w < 10; w++) for (let k = 0; k < 7; k++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w + k)).toISOString().slice(0, 10);
+    for (let h = 9; h < 17; h++) rows.push(`${day} ${h}:00,${k === 0 && h === 12 ? 200 : 100}`);
+  }
+  const text = rows.join("\n");
+  const prof = bSales(text, { splh: 100, shortCost: 1 }).methods.find((m) => m.id === "q-all");
+  const cut = bSales(text, { splh: 100, shortCost: 1, shifts: true, costCut: false }).methods.find((m) => m.id === "q-all");
+  assert.equal(prof.over, 0);
+  assert.equal(cut.over, 3); // the Monday 12:00 run stretched to 4 hours: 3 spare person-hours a week
+  assert.equal(cut.short, 0);
+  // at r = 1 the cost cut leaves it: the hour is needed every Monday (-1), but the stretch adds 3 spare hours (+3)
+  const cc = bSales(text, { splh: 100, shortCost: 1, shifts: true }).methods.find((m) => m.id === "q-all");
+  assert.equal(cc.short, 1);
+  assert.equal(cc.over, 0);
+  assert.ok(cc.miss < cut.miss);
 });

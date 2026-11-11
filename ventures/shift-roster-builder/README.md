@@ -229,6 +229,16 @@ Readings on both real files (`eval/short-cost.mjs`, output `eval/short-cost.out.
 
 What it does not settle: r itself is the user's judgment (a lost sale's margin against an hour's pay), and the backtest takes it as given. Weeks are not independent, so the intervals are a little narrow. Two bakeries, one layout each. The page's backtest also returned a fault from before today: the method results dropped `halfLife`, so the "put N in the half-life box" hint never showed; fixed, with a test.
 
+**The short-cost weight carried through the shift cut (2026-11-11).** Every backtest above scored the *headcount profile*, the heads wanted per hour, not the shifts cut from it. A run shorter than `--min-shift` (one extra person for the 12:00 hour) was always stretched to the shortest shift, and those stretch hours never showed in "over". Scoring the shifts themselves (`backtestSales` option `shifts`, now what the CLI `--backtest` and the page's "Test on my past weeks" button use) shows they were large: on the Korean bakery at 30,000 won, r = 3 and a 4-hour shortest shift, the fractile plan costs 47.4 a week as a profile and 59.3 once cut (over 20.1 to 42.7 person-hours a week).
+
+So with `--short-cost` the cut now prices each short run (`demand.mjs` `cutShifts` with a cost, `shiftCost`). Adding a person at an hour where c - 1 are already staffed changes r x short + over by (1 - q) - r q in expectation, where q is the weighted share of past dates that needed c or more heads at that hour (minimum staff counts as needed in open hours, as in the backtest). For each run above minimum staff that is shorter than the shortest shift, the cut sums that over every window of `--min-shift` hours holding the run, takes the cheapest (preferring windows inside open hours on ties), and staffs it only if the sum is below zero; otherwise the run is left unstaffed and listed in a note ("Left unstaffed: ..."). Without `--short-cost`, and for undated weekday-average rows, the cut is unchanged.
+
+Readings on both real files (`eval/cost-cut.mjs`, output `eval/cost-cut.out.txt`; same downloads and SHA-256 as above; fractile rule with every earlier week equal, minimum staff 1, longest shift 8; paired 95% intervals over 38 and 87 tested weeks). The cost-aware cut beat the plain cut in every one of the 36 settings (3 splh x 3 r x shortest shift 4 or 6, both files), every interval below zero:
+
+COSTCUT_BULLETS
+
+What it does not do: each short run is priced on its own, so two short runs an hour apart (Wed 11:00 and 13:00 for a third person on the Korean file) are never joined into one 4-hour shift that covers both, and a short run is never folded into a neighbouring shift by lengthening it. Both are the next step. One weighting (every earlier week equal) was measured; the half-life rows run the same cut. Two bakeries, one layout each.
+
 **Date order (2026-11-10).** `--from-sales` read `05/03/2026` as May 3 without a word. A slash or dash date over 12 in the first or second place now settles the order for the whole file; when none does, it reads month first and prints a note. Compact stamps (`20260305 1400`, `20260305T140000Z`) read too. Tests in `demand.test.mjs` (24 pass). Made-up rows only.
 ## Trade pages (2026-10-30)
 
