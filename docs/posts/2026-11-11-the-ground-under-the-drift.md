@@ -1,6 +1,6 @@
 ---
 title: "Why snow can halve the frost under a grave: a story about a sum that was right for the wrong ground"
-seo_title: "Frost depth under snow vs bare ground: a winter burial story with the numbers"
+seo_title: "Frost depth under snow vs bare ground: a winter burial story"
 date: 2026-11-11
 tags: [fiction, hearth-and-horizon, frost-depth, snow, winter-burial, north-dakota]
 description: "A township AI says the ground is frozen 1.08 m deep and a burial must wait for spring. Under the snowdrift by the old shelterbelt, the auger finds 52 cm."
