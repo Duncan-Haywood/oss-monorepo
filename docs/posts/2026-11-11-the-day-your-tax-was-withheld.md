@@ -2,7 +2,7 @@
 title: "Box D: when the IRS counts your withholding, and why it can move the penalty"
 seo_title: "Form 2210 box D: withholding on actual dates vs the even spread"
 date: 2026-11-11
-tags: [ai-bookkeeper, taxes, estimated-tax, form-2210, self-employed]
+tags: [ai-bookkeeper, tax, estimated-tax, form-2210, self-employed]
 description: "The same $12,000 of withholding gives an underpayment penalty of $52, $285 or $687, depending only on when it was withheld and whether you check box D. The open-source bookkeeper now works it out both ways."
 ---
 
