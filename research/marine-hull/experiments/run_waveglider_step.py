@@ -33,6 +33,12 @@ Predictions:
 Also reported (descriptive): the full BIC table, b in {0, 0.3} instead of 0.218, the series from launch (2015-05-20),
 and the 150 km buoy cut.
 
+Added after the first run (post hoc, disclosed): the 300 km rule leaves no qualifying day from 2015-06-13 to
+2015-08-18 (the vehicle was over 300 km from every buoy in July), so S's tau sits at the gap's edge and any tau inside
+the gap fits equally well; P2 and P5 are scored as written but cannot locate the break. A second block therefore
+refits the models on every hour at any buoy distance, raw (b = 0) and with b = 0.248 (6q's all-distance exponent),
+with the same bootstrap and the same mode-change check at its tau. Nothing in the pre-registered block was changed.
+
 Run: python3 experiments/run_waveglider_step.py > experiments/results_waveglider_step.txt   (a few seconds)"""
 import csv
 import math
@@ -235,6 +241,10 @@ def main():
     ok5 = abs(na / nb - 1) > 0.25 or abs(sa - sb) > 0.2
     print(f"P5 samples/hour change {na / nb - 1:+.1%}, straightness change {sa - sb:+.3f}: "
           f"{'held' if ok5 else 'refuted'} (> 25% or > 0.2)")
+    gaps = [(b[0] - a[0], a[0], b[0]) for a, b in zip(series, series[1:])]
+    g, ga, gb = max(gaps)
+    print(f"  largest gap in the daily series: {g - 1} days without a qualifying day, {day(ga)} to {day(gb)}; "
+          f"S's tau is {'at its edge, so not located' if ga < tau <= gb else 'not at its edge'}")
     print("\nDescriptive:")
     best = min(fits, key=lambda m: fits[m][0])
     print(f"  lowest BIC: {best}; Delta BIC to it: " +
@@ -249,6 +259,73 @@ def main():
         print(f"  {label} ({len(s)} days): BIC_R - BIC_S = {f['R'][0] - f['S'][0]:.2f}, "
               f"BIC_R - BIC_H = {f['R'][0] - f['H'][0]:.2f}; S tau {day(f['S'][3], st0)}, "
               f"ratio {math.exp(f['S'][1][1]):.3f}")
+    print("\nPost hoc (added after seeing the gap; not pre-registered): all buoy distances")
+    for b in (0.0, 0.248):
+        sp = daily(rows, b=b, max_km=1e9)
+        fp = table(sp, f"  b = {b}, any distance, from 2015-06-01")
+        _, bsp, _, taup = fp["S"]
+        (tl, th), (rl, rh) = bootstrap(sp)
+        postp = [q for q in sp if q[0] >= taup]
+        prep = [q for q in sp if q[0] < taup]
+        lo, hi = post_slope_boot(postp)
+        print(f"    S: step at {day(taup)}, ratio {math.exp(bsp[1]):.3f}; bootstrap 95% tau {day(tl)} to {day(th)}, "
+              f"ratio {rl:.3f} to {rh:.3f}; BIC_R - BIC_S {fp['R'][0] - fp['S'][0]:.2f}, "
+              f"BIC_H - BIC_S {fp['H'][0] - fp['S'][0]:.2f}, BIC_SR - BIC_S {fp['SR'][0] - fp['S'][0]:.2f}")
+        print(f"    slope before {slope(prep) * 100:+.3f} %/day ({len(prep)} days), after {slope(postp) * 100:+.3f} %/day "
+              f"({len(postp)} days; 95% {lo * 100:+.3f} to {hi * 100:+.3f})")
+        tt = day(taup)
+        wb = [d for d in sorted(nd) if 0 < (tt - d).days <= 7]
+        wa = [d for d in sorted(nd) if 0 <= (d - tt).days < 7]
+        print(f"    7 days either side of {tt}: samples/hour {st.median(x for d in wb for x in nd[d]):.1f} -> "
+              f"{st.median(x for d in wa for x in nd[d]):.1f}; straightness "
+              f"{st.median(sd[d] for d in wb if d in sd):.3f} -> {st.median(sd[d] for d in wa if d in sd):.3f}")
+    from datetime import timedelta
+    hrs = sorted((r["t"], r["u"]) for r in rows if r["u"] >= 0.1)
+    idx = {t: u for t, u in hrs}
+    for w, need in ((24, 18), (168, 120)):
+        print(f"  hourly scan, any distance, raw speed >= 0.1 m/s: median over the next {w} h over the median over the "
+              f"previous {w} h (both windows >= {need} hours), every hour of the mission")
+        scan = []
+        for t, _ in hrs:
+            a = [idx[t - timedelta(hours=k)] for k in range(1, w + 1) if t - timedelta(hours=k) in idx]
+            c = [idx[t + timedelta(hours=k)] for k in range(0, w) if t + timedelta(hours=k) in idx]
+            if len(a) >= need and len(c) >= need:
+                scan.append((st.median(c) / st.median(a), t))
+        scan.sort()
+        lr = sorted(math.log(x) for x, _ in scan)
+        q = lambda f: math.exp(lr[int(f * (len(lr) - 1))])
+        print(f"    {len(scan)} hours scanned; ratio 1st / 50th / 99th percentile {q(0.01):.3f} / {q(0.5):.3f} / "
+              f"{q(0.99):.3f}")
+        seen = []
+        for x, t in scan:
+            if all(abs((t - u).total_seconds()) > 3 * 86400 for u in seen):
+                seen.append(t)
+                print(f"    drop {len(seen)}: from {t:%Y-%m-%dT%H} UTC, ratio {x:.3f}")
+            if len(seen) == 3:
+                break
+    print("  over-ground check (GPS fixes, not the water-speed sensor): median hourly over-ground speed, 7 days before "
+          "and after each week-scale drop; a sensor artefact would leave it unchanged")
+    pos = {r["t"]: (r["lat"], r["lon"]) for r in rows}
+    og = {t: km(pos[t - timedelta(hours=1)], pos[t]) / 3.6 for t in pos if t - timedelta(hours=1) in pos}
+    for ev in (datetime(2015, 6, 12, 19), datetime(2015, 8, 7, 15)):
+        bw = [og[t] for t in og if 0 < (ev - t).total_seconds() <= 7 * 86400]
+        aw = [og[t] for t in og if 0 <= (t - ev).total_seconds() < 7 * 86400]
+        tb = [idx[t] for t in idx if 0 < (ev - t).total_seconds() <= 7 * 86400]
+        ta = [idx[t] for t in idx if 0 <= (t - ev).total_seconds() < 7 * 86400]
+        print(f"    {ev:%Y-%m-%dT%H}: over-ground {st.median(bw):.3f} -> {st.median(aw):.3f} m/s "
+              f"(ratio {st.median(aw) / st.median(bw):.3f}); through-water {st.median(tb):.3f} -> {st.median(ta):.3f} "
+              f"(ratio {st.median(ta) / st.median(tb):.3f})")
+    print("  telemetry samples per hour, monthly median: " + ", ".join(
+        f"{m:%b} {st.median(r['n'] for r in rows if r['t'].month == m.month):.1f}"
+        for m in sorted({datetime(2015, r['t'].month, 1) for r in rows})))
+    print("  daily raw median speed and straightness, any distance (date, m/s, net/through-water):")
+    rawd = {}
+    for r in rows:
+        if r["u"] >= 0.1:
+            rawd.setdefault(r["t"].date(), []).append(r["u"])
+    for d in sorted(rawd):
+        if len(rawd[d]) >= 6:
+            print(f"    {d}  {st.median(rawd[d]):.3f}  {sd.get(d, float('nan')):.3f}")
     print("  daily series (date, median residual, speed at Hs = 1.78 m in m/s):")
     for t, e in series:
         print(f"    {day(t)}  {e:+.4f}  {math.exp(e) * 1.78 ** B:.3f}")
