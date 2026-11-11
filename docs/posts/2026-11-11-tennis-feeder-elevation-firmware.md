@@ -1,9 +1,9 @@
 ---
 title: "A straight line in degrees is a curve in millimetres: firmware for the tennis feeder's elevation actuator"
-seo_title: "DIY tennis ball machine firmware: driving a linear actuator for elevation"
+seo_title: "DIY tennis ball machine firmware: a linear actuator for elevation"
 date: 2026-11-11
 tags: [open-tennis-robots, firmware, hardware]
-description: "The open tennis feeder tilts its head with a linear actuator. Mapping the angle evenly onto the stroke would have aimed up to 1.46 deg high and landed a 20 m/s drive a metre deep."
+description: "Spreading the tennis feeder's elevation angle evenly over its actuator's stroke aims up to 1.46 deg high: a 20 m/s drive lands a metre deep."
 ---
 
 Earlier today the open tennis-ball feeder got an elevation drive in its CAD:
