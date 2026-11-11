@@ -104,10 +104,14 @@ export function parseIssueValue(value) {
   if (trimmed === ';' || trimmed === '') {
     return { disallowAll: true, issuerDomain: null, parameters: {} };
   }
-  const parts = trimmed.split(';').map((p) => p.trim()).filter((p) => p !== '');
+  // The issuer is whatever precedes the first ';' and may be empty
+  // ("; accounturi=..." forbids every CA, RFC 8659 4.2), so read it before
+  // dropping empty parts.
+  const parts = trimmed.split(';').map((p) => p.trim());
   const issuerDomain = (parts.shift() ?? '').toLowerCase();
+  const rest = parts.filter((p) => p !== '');
   const parameters = {};
-  for (const part of parts) {
+  for (const part of rest) {
     const eq = part.indexOf('=');
     if (eq === -1) {
       parameters[part.toLowerCase()] = true; // a bare parameter name, malformed but preserved

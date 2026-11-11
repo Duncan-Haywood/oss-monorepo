@@ -109,3 +109,9 @@ test('buildReport counts errors, findings, blocked, and clean results, and sets 
   assert.equal(report.errors.length, 1);
   assert.equal(report.ok, false);
 });
+
+test('issue "; accounturi=..." (no issuer, with parameters) disallows every CA (red team 2026-11-11)', () => {
+  const a = analyzeCaaSet([rec('0 issue "; accounturi=https://example.test/acct/1"')]);
+  assert.equal(a.nonWildcardDisallowAll, true);
+  for (const v of a.caVerdicts) assert.equal(v.nonWildcard.authorized, false, v.domain);
+});
