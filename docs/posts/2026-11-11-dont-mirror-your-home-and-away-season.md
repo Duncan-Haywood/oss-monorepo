@@ -1,9 +1,9 @@
 ---
 title: "Don't mirror your home-and-away season"
-seo_title: "Double round robin schedule: why mirroring the first half doubles carry-over"
+seo_title: "Double round robin schedules: why mirroring doubles carry-over"
 date: 2026-11-11
 tags: [league-schedule-generator, scheduling, algorithms, open-data]
-description: "Playing the first half again with venues swapped doubles every carry-over count. Searching the second half on its own takes a 20-team season from 2,136 to 1,678."
+description: "Replaying the first half with venues swapped doubles every carry-over count. Searching the second half on its own takes 20 teams from 2,136 to 1,678."
 ---
 
 Earlier today the [league schedule generator](https://marisstella.app/league-schedule-generator/)
