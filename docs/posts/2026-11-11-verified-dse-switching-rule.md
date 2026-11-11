@@ -3,7 +3,7 @@ title: "Chip design search: time one run, then decide whether to trust the cheap
 seo_title: "A cost-ratio rule for multi-fidelity chip design search"
 date: 2026-11-11
 tags: [research, chip-design, verified-dse, open-source]
-description: "On 26 held-out chip designs, a rule fixed before any routing (use the cheap-estimate ladder only when routing costs over 3x a mapped score) halves the regret of either fixed policy."
+description: "On 26 held-out chip designs, using the cheap-estimate ladder only when routing costs over 3x a mapped score halves the regret of either fixed policy."
 ---
 
 The [verified-dse](../../research/verified-dse/) programme asks when a cheap
