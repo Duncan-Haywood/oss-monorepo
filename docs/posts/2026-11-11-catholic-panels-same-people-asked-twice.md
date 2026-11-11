@@ -2,7 +2,7 @@
 title: "Ask the same people twice: is 'raised Catholic' a reliable answer, and do web surveys lower church attendance?"
 seo_title: "GSS panel test-retest: raised Catholic reports and web-mode attendance"
 date: 2026-11-11
-tags: [research, catholic-demography, GSS, survey methods]
+tags: [research, catholic-demography, GSS, survey-methods]
 description: "95.4% of GSS panel respondents raised Catholic say so again two years later (kappa 0.93). People who later answered by web reported 11 points less weekly attendance even in person."
 ---
 
