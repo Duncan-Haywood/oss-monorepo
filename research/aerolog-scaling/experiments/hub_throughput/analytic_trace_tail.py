@@ -33,9 +33,16 @@ Predictions (written before the first run):
      Poisson) needs no more packs than time-varying Poisson orders, and at most 3 fewer.
 Inputs as 6c/6f: vendor swap and charge figures (run.py), Chicago open-data trip counts as the shape of an
 on-demand service's day (not delivery orders), batch size swept, not measured. Preliminary.
+
+Added after the first run (the predictions above are unchanged): 100 seeds proved far too few for batches (the
+k = 4 counts moved by up to 6 packs on fresh seeds), so the simulator now pools 2,000 seeds for k = 1 and 4,000 for
+k = 4, prints the standard error across seeds, and uses heaps for its earliest-free choices (identical waits).
+The first run's numbers are kept in LOG.md (6k, process note).
 """
+import heapq
 import math
 import os
+import statistics
 import random
 import sys
 import time
@@ -54,7 +61,7 @@ BIN = 900.0
 DAYS = 4                    # as 6f
 NMAX = 500
 W_TARGET = 300.0
-SEEDS = 100
+SEEDS = {1: 2000, 4: 4000}  # by batch size; raised from 100 after the first run (see LOG, 6k)
 
 
 def poisson_pmf(mu, nmax=NMAX):
@@ -201,30 +208,36 @@ def nhpp_batches(rate, k, rng):
 def sim_p95(args):
     gen, counts, mean_h, k, S, seeds = args
     rate = trace_rate(counts, mean_h) if counts is not None else None
-    waits = []
+    waits, per_seed = [], []
     for sd in range(seeds):
         rng = random.Random(10007 * sd + 17)
         if gen == "poisson":
             ts = nhpp_batches(rate, k, rng)
         else:
             ts = h6f.arrivals(counts, mean_h, "uniform", rng, DAYS)
-        waits += sim_waits(ts, S)
+        w = sim_waits(ts, S)
+        per_seed.append(sum(1 for v in w if v > W_TARGET) / len(w))
+        waits += w
     waits.sort()
     n = len(waits)
-    return S, waits[int(0.95 * n)], sum(1 for v in waits if v > W_TARGET) / n
+    se = statistics.stdev(per_seed) / math.sqrt(seeds)  # standard error of P(W > 300 s) across seeds
+    return S, waits[int(0.95 * n)], sum(1 for v in waits if v > W_TARGET) / n, se
 
 
 def sim_waits(ts, spares):
     """6f's run(), returning the warm-up-trimmed waits instead of (mean, p95) so seeds can be pooled."""
+    # Same choices as run(): earliest-free pad, earliest-ready pack, earliest-free charger; kept in heaps
+    # (equal values are interchangeable, so the waits are identical; test_hub_throughput checks it).
     pad = [0.0] * PADS; chg = [0.0] * CH; pack = [0.0] * spares
     waits = []
+    pop, push = heapq.heappop, heapq.heappush
     for t in ts:
-        i = min(range(PADS), key=pad.__getitem__)
-        j = min(range(spares), key=pack.__getitem__)
-        start = max(t, pad[i], pack[j]); end = start + T_PAD
-        c = min(range(CH), key=chg.__getitem__)
-        chg[c] = max(end, chg[c]) + D
-        pack[j] = chg[c]; pad[i] = end
+        p_free = pop(pad)
+        k_ready = pop(pack)
+        start = max(t, p_free, k_ready); end = start + T_PAD
+        c_free = pop(chg)
+        done = max(end, c_free) + D
+        push(chg, done); push(pack, done); push(pad, end)
         waits.append(start - t)
     return waits[len(waits) // 5:]
 
@@ -234,14 +247,17 @@ def trace_rate(counts, mean_h):
     return Rate([c * scale * 4 for c in counts] * DAYS)  # per-hour rate in each 15-min bin
 
 
-def sim_smallest(pool, gen, counts, mean_h, k, guess, seeds=SEEDS):
+def sim_smallest(pool, gen, counts, mean_h, k, guess, seeds=None):
     """Smallest S with pooled p95 <= 300 s, scanning a 1-pack window around the rule's answer."""
-    lo, hi = max(guess - 8, 1), guess + 6
-    res = dict((S, (p95, f)) for S, p95, f in pool.map(sim_p95, [(gen, counts, mean_h, k, S, seeds) for S in range(lo, hi + 1)]))
+    seeds = seeds or SEEDS[k]
+    lo, hi = max(guess - 5, 1), guess + 5
+    res = dict((S, (p95, f, se)) for S, p95, f, se in pool.map(sim_p95, [(gen, counts, mean_h, k, S, seeds) for S in range(lo, hi + 1)]))
     ok = [S for S in sorted(res) if res[S][0] <= W_TARGET]
     first = ok[0] if ok else None
     if first == lo and lo > 1:
         return sim_smallest(pool, gen, counts, mean_h, k, lo - 6, seeds)
+    if first is None:  # window too low: move it up
+        return sim_smallest(pool, gen, counts, mean_h, k, hi + 8, seeds)
     return first, res
 
 
@@ -259,7 +275,7 @@ def main():
           "against 6f's simulator under the Chicago daily profile")
     print(f"hub: {PADS} pads, {CH} chargers, charge {D:.0f} s, swap+load {T_PAD:.0f} s, limit {lim:.2f} flights/h; "
           f"order-time grid {G:.0f} s; {DAYS} days, first 20% of orders trimmed; target p95 wait <= {W_TARGET:.0f} s; "
-          f"simulator {SEEDS} seeds pooled")
+          f"simulator seeds pooled: {SEEDS[1]} (k=1), {SEEDS[4]} (k=4); se = standard error across seeds")
 
     # (1) constant-rate consistency with 6i / 6j
     print("\n== P1. Constant rate: this rule (4 days from empty, trimmed) against 6i's share and 6j's tail")
@@ -281,7 +297,7 @@ def main():
             print(f"  {load:.0%}  | {k} | {S_st:2d} | {t0_:11.4f} | {s6i:.4f} | {t3_:13.4f} | {j6[S_st][300.0]:.4f} | {d:.4f}")
     print(f"  P1 worst |diff|: {worst1:.4f}")
 
-    rows = []
+    rows, diffs = [], []
     with Pool(4) as pool:
         for load in (0.7, 0.85):
             mean_h = load * lim
@@ -304,9 +320,10 @@ def main():
                     rows.append((load, k, day, S_a, S_s, S_6f, s_mean, n_over, peak))
                     print(f"\n== load {load:.0%} ({mean_h:.2f}/h mean), k={k}, day {day}: peak bin {peak:.2f}/h, "
                           f"{n_over} of {len(bins_h)} bins at or above the {lim:.2f}/h limit (PSA undefined there)")
-                    print("  S  | rule P(W>300) | sim P(W>300) | diff    | sim p95 (s)")
+                    print("  S  | rule P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s)")
                     for S in sorted(res):
-                        print(f"  {S:3d} | {tl[S]:13.4f} | {res[S][1]:12.4f} | {tl[S] - res[S][1]:+.4f} | {res[S][0]:8.0f}")
+                        print(f"  {S:3d} | {tl[S]:13.4f} | {res[S][1]:12.4f} | {res[S][2]:.4f} | {tl[S] - res[S][1]:+.4f} | {res[S][0]:8.0f}")
+                        diffs.append((k, tl[S] - res[S][1], res[S][2]))
                     print(f"  smallest S with p95 <= 300 s: rule {S_a}, simulator (Poisson orders) {S_s}"
                           + (f", simulator (6f generator) {S_6f}" if k == 1 else "")
                           + f"; stationary at the mean rate (6j) {s_mean}")
@@ -318,7 +335,7 @@ def main():
         nq = nq_path(rate, k)
         S_fig = [r for r in rows if r[0] == load and r[1] == k and r[2] == "2019-10-09"][0][3]
         print(f"\n== Time of day. Wed profile, 85% mean load, k=1, S={S_fig}: hourly order rate and P(wait > 300 s) "
-              "for orders in that hour on day 4 (rule), hourly simulator share on days 2 to 4 pooled")
+              "for orders in that hour on day 4, rule and simulator (2000 seeds)")
         sim_hour = sim_by_hour(counts, mean_h, S_fig)
         print("  hour | rate (/h) | rule P(W>300) | sim P(W>300)")
         for h in range(24):
@@ -342,6 +359,10 @@ def main():
         extra = f", 6f generator {s6f}" if k == 1 else ""
         print(f"  load {load:.0%} k={k} {day}: rule {sa}, simulated {ss} (diff {d}){extra}; mean-rate stationary {sm}; "
               f"PSA bins over limit {n_over} (peak {peak:.2f}/h)")
+    for kk in (1, 4):
+        d = [x for x in diffs if x[0] == kk]
+        print(f"  k={kk}: mean rule - sim P(W>300) over the scanned rows {sum(x[1] for x in d) / len(d):+.4f}, "
+              f"largest |diff| / se {max(abs(x[1]) / x[2] for x in d):.1f}")
     print(f"  runtime {time.time() - t0:.0f} s")
 
 
@@ -359,14 +380,14 @@ def _hour_job(args):
         c = min(range(CH), key=chg.__getitem__)
         chg[c] = max(end, chg[c]) + D
         pack[j] = chg[c]; pad[i] = end
-        if t >= 86400:
+        if t >= 3 * 86400:  # day 4, as the rule column
             h = int((t % 86400) // 3600)
             tot[h] += 1
             hit[h] += (start - t) > W_TARGET
     return hit, tot
 
 
-def sim_by_hour(counts, mean_h, S, seeds=400):
+def sim_by_hour(counts, mean_h, S, seeds=2000):
     with Pool(4) as pool:
         out = pool.map(_hour_job, [(counts, mean_h, S, sd) for sd in range(seeds)])
     hit = [sum(o[0][h] for o in out) for h in range(24)]
