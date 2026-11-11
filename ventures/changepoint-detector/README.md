@@ -2661,3 +2661,46 @@ so it belongs where most people meet the tool: the page.
 - **Not done.** The model is not in the agreed-changes panel (that needs fresh labelled data, as
   "A step-robust omega" decided) and has no Bayesian view; the several-columns mode does not take it
   (the branded report does since 2026-11-11).
+
+## The drift model on several columns: measured, not offered; and a fix for sticky series (2026-11-11, last)
+
+Flagship item (b): the drift model (`--model drift`, random-walk level between jumps) with one
+segmentation shared by every column. `multi-drift.mjs` (`multiDriftChanges`, `multiDrift`): each
+column keeps its own sigma and omega (sized by that column's own `ml` fit), a change restarts every
+column's level, and a segment's cost is the sum of the columns' Kalman filter costs. Penalty
+(1 + d) log n, which is the one-column default 2 log n at d = 1; with one column the changes and the
+cost are exactly `driftLevelChanges` (pinned in `multi-drift.test.mjs`). O(d n^2): 2 s for all
+three TCPD multi-column series, including the per-column `ml` fits.
+
+**Pre-registered** (settings and rule in the headers of `eval/tcpd-multi-drift.mjs` and
+`eval/multi-drift-sim.mjs`, written before either was run): offer `--columns --model drift` if the
+primary beats the joint level default (floor auto, mean F1 0.286) on TCPD's three multi-column
+series *and* the simulation shows (i) fewer false changes on wandering columns at every d and
+(ii) white-noise power within 10 points of the joint level fit at every d and step of 1 sd or more.
+
+- **TCPD, as first run** (`eval/tcpd-multi-drift-before-fix.out.txt`): mean F1 **0.245**, below 0.286.
+  Fails.
+- **Simulation** (`eval/multi-drift-sim.out.txt`, n 200, 60 series a cell): on wandering columns
+  (omega 0.3) with no step the joint drift fit reports 0.12 to 0.25 false changes where the joint
+  level fit reports 3.0 to 4.8, so (i) holds, by a factor of 12 to 40. (ii) fails: a 1 sd step on
+  white noise is found 43% / 63% / 85% of the time at d = 1 / 2 / 4, against 90% / 90% / 97%. At
+  2 sd and above both find it 97 to 100%.
+- **Verdict: not offered.** The drift model is the one to use when columns wander; the price is
+  power on small steps in plain noise, and the panel on TCPD did not favour it. The CLI's
+  `--columns` still takes `mean` and `meanvar` only; `multi-drift.mjs` stays as a library and
+  measured baseline.
+
+**A defect the run turned up, fixed for the one-column model too.** On occupancy, column V3 is 0 on
+329 of its 508 differences (a sensor that sits still), so the median absolute difference at every
+lag is 0 and `driftNoise` left sigma at its 1e-6 numerical floor, in the data's own units: every move
+became a change. It now falls back to the plain variance of the differences, as `robustSd` in
+`engine.mjs` already did for the level model. On V3 alone, `--model drift`: 86 cuts to 23, F1
+0.418 to 0.724. None of the 38 one-column TCPD drift results moves (`eval/tcpd-drift*.out.txt`
+regenerate byte-identical apart from timings), and the other three occupancy columns are unchanged.
+With the fix (post hoc, so not a test of the rule) the joint primary scores 0.334 on the three
+series (`eval/tcpd-multi-drift.out.txt`): occupancy 0.359 to 0.625. The 2x-penalty secondary scores
+0.767, but 0.929 of that is bee_waggle_6 with no cut at all, the score "no change" gets; a lead for
+fresh multi-column labelled data, not a finding.
+
+Where it still fails: apple's volume has volatility bursts, and the drift model reads them as
+jumps (30 cuts, 20 of them in 250-317), the same failure as `bank` and bitcoin in one column.

@@ -704,6 +704,19 @@ folded, an earlier half already fired on), 31 of `7*`'s 56 silent stops are repe
 Any further rule round should score on de-duplicated text only, and a 25-stop half is too small to measure a rule change against
 the ~1 per 1,000 reader effect. The useful next data is a second reader on these and real replies to outreach.
 
+## Mail files read as the server reads a mailbox (2026-11-11)
+
+`eval/mailfile-enron.mjs <dir>` writes every Enron message under `<dir>` into one mbox (mboxrd escaping), reads it back
+through `mailfile.mjs` (the page's and CLI's `--mail` path) and compares each reply item (from, subject, body, header
+signals) with the self-host server's own read of the same message (`replyBlocks`, then `parseReplies(block)[0]`).
+
+On the `0*` folders (32,211 messages, 90.0 MB): 32,210 identical, 32,211 in the same category; the one difference is a
+newsletter whose body ends in a `---` line, which the file path drops so it does not read as a separator. Two messages
+over 200 KB are cut there, as the IMAP poller cuts them. With the page's default (replies only): 9,588 kept, 22,623 left
+out as not replies. Before the reader moved to `mime.mjs`, a one-off script compared the old `Buffer` reader with the new
+one on all 32,211 files read both as latin1 and as UTF-8: 0 differences. Running all 9,588 replies through `runInbox`
+is what found the `wrong_person` crash (README, "Two bugs found on the way").
+
 ## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
 
 The Enron check above measured stops that fired wrongly. This one measures the

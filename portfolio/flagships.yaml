@@ -104,8 +104,11 @@ flagships:
       eval/enron-labels/READER.md; (3) the local half of M2: `LLM_PROVIDER=llamacpp
       node eval/model.mjs eval/fresh-*.jsonl` (byok.mjs has a keyless llamacpp
       provider). ai-bookkeeper README "A bigger local model" has the CPU setup that
-      worked in a cloud session; huggingface.co answered 200 through the proxy on
-      2026-11-11.
+      worked in a cloud session; huggingface.co answered 200 through the proxy earlier
+      on 2026-11-11 but 403 (CONNECT refused) in a later session that day, as did
+      registry.ollama.ai, modelscope.cn and hf-mirror.com: probe first. Without a
+      model host: (6) the mail-file path on a real Takeout or Thunderbird mbox if one
+      is public (format corners), or the daily run reading the same --mail input.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
@@ -120,7 +123,11 @@ flagships:
       2026-11-11 (eval/README "The away policy"): an auto-responder's notice pauses silently,
       a person's away reply pauses and goes to a person (subtype person_away); fresh 7* wrong
       silent stops 3.9 to 1.8 per 1,000, 0 of 365 real auto-replies sent to a person, 2.0
-      extra tasks per 1,000 replies. eval/enron.mjs --seen drops text earlier halves fired on:
+      extra tasks per 1,000 replies. Mail files 2026-11-11 (README "Open your exported mail"):
+      the page and `cli.mjs --mail` read .eml/.mbox with the server's MIME reader (mime.mjs),
+      32,210 of 32,211 Enron messages read as the server reads them; found and fixed a
+      runInbox crash on a stray `wrong_person` model class and the server stopping only the
+      first address of a multi-recipient bounce. eval/enron.mjs --seen drops text earlier halves fired on:
       7* keeps 25 of 56 stops, precision 40% (vs 64% with repeats). Next: (1) a second reader
       from READER.md, a person or another model family, on 7*'s 25 de-duplicated stops and the
       not-interested, left-company and unsubscribe stops still wrong (7, 6 and 4 on 7*);
@@ -139,8 +146,8 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. `--model drift` on the page and agent tool 2026-11-11 (README "Jumps on a wandering level, on the page").
-      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (b) the drift model in several-columns mode (branded report done 2026-11-11, README); TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere.
+      TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. `--model drift` on the page and agent tool (README).
+      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (b) joint drift measured 2026-11-11, not offered (README "The drift model on several columns"); next: a volatility-robust drift cost (apple volume), its 2x penalty on fresh multi-column labelled data; TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere.
       Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); `--model drift` 2026-11-11 (random-walk level, README "Jumps on a drifting level"); step-robust omega (README "A step-robust omega": now the drift default, F1 0.694/0.527; panel step held for fresh labelled data); biweight rejected and a walk/noise heavy-tail check 2026-11-11 (README "Heavy tails on a drifting level", "The heavy-tail check"); next: heavy-tailed level increments (t-walk), biweight where the check says noise on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -181,12 +188,15 @@ flagships:
       POS export", "Second real POS export", "Short-vs-over cost weight"): two real bakery exports, backtest,
       lunch-closure breaks; --half-life auto default 2026-11-11 (README "Picking the half-life from your own weeks": chosen from
       past weeks, never clearly worse than plain in 12 settings, -7.4% mean; fixed 2 worse on the Korean file); --short-cost r 2026-11-11 staffs the r/(1+r) fractile and
-      beats the average at r = 3 on both files. Next: close the 100-person gaps (tree, not pricing, now);
+      beats the average at r = 3 on both files; --count tickets 2026-11-11 (README "Staffing to customers, not
+      money"): plans from tickets per hour, reads a third real file with no prices (Bread Basket, half-life 4
+      best at 5 tickets/h); on the French file it moves hours from mornings to late afternoon, on the Korean
+      nothing. Next: close the 100-person gaps (tree, not pricing, now);
       cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
       40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
       can score a staffed closure; whether auto should also choose the short cost's window or a 1-week half-life
-      (a third real file would test it); forecasting from tickets (queue
-      length), not just sales, since the cut is no longer where the gap is (joining short runs and folding
+      (the Bread Basket file is a third to test it on); a labour standard (minutes per ticket vs per euro)
+      to say which driver is right, or a blend of the two; the cut is no longer where the gap is (joining short runs and folding
       them into neighbouring shifts, opt-in --join 2026-11-11, README "Joining short runs": optimal in
       sample, but on held-out weeks clearly cheaper in 1 of 72 comparisons, dearer in 16, noise in 55, so
       the default stays the per-run priced cut); a real published-schedule export for --import-shifts;

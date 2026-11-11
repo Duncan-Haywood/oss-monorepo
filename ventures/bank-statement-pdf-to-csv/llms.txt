@@ -2,11 +2,13 @@
 
 > Free bank and credit card statement PDF to CSV converter that proves the result: opening balance plus the transactions must equal the closing balance. CSV for Xero, QuickBooks Online or Excel. Runs in your browser; the PDF is never uploaded.
 
+Reads statements in English, French, Dutch, German, Spanish, Italian and Portuguese, several accounts in one PDF (each proved by its own running balance and totals), and detects card versus bank statements. Measured on an independent public benchmark of statement PDFs: 5 of 5 read to the right row count and proved (method and numbers: eval/README.md in the source). Not yet tested on a real customer's statement.
+
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/bank-statement-pdf-to-csv/)
+- [The tool](https://marisstella.app/bank-statement-pdf-to-csv/)
 
 ## Source
 

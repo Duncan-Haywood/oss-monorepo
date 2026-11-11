@@ -13,7 +13,7 @@ import http from "node:http";
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { timingSafeEqual } from "node:crypto";
-import { Imap, parseMessage, toReplyBlock } from "./imap.mjs";
+import { Imap, parseMessage, replyBlocks } from "./imap.mjs";
 import { parseReplies, csv, iso, toCsv } from "../engine.mjs";
 import { runInboxWithModel } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
@@ -104,7 +104,9 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
       for (const uid of uids) {
         const m = parseMessage(await c.fetchRaw(uid));
         const own = (m.headers.from.match(/[\w.+'-]+@[\w.-]+/) || [""])[0].toLowerCase() === String(env.IMAP_USER).toLowerCase();
-        if (!own && m.text) blocks.push({ id: m.headers.messageId || `${env.IMAP_BOX || "INBOX"}:${uid}`, block: toReplyBlock(m) });
+        const id = m.headers.messageId || `${env.IMAP_BOX || "INBOX"}:${uid}`;
+        // replyBlocks: one block per failed recipient of a bounce, so each address is stopped, not only the first.
+        if (!own && (m.text || m.dsn)) replyBlocks(m).forEach((block, i) => blocks.push({ id: i ? `${id}#${i}` : id, block }));
         state.lastUid = Math.max(state.lastUid, uid);
       }
       const n = await ingest(blocks);
