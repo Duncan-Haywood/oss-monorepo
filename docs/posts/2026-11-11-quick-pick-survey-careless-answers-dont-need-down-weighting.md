@@ -1,6 +1,6 @@
 ---
 title: "We caught the careless respondents, then found the ranking didn't need us to"
-seo_title: "Should you down-weight careless respondents in a pairwise survey ranking?"
+seo_title: "Down-weighting careless respondents in a pairwise survey ranking"
 date: 2026-11-11
 tags: [quick-pick-survey, pairwise-comparison, survey-quality, simulation, meta-analysis]
 description: "Down-weighting or dropping respondents who answer at random did not improve a pooled pairwise ranking in 40 simulated settings. Dropping them made it worse."
