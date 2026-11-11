@@ -391,9 +391,10 @@ weights never reach the low-break end of the trade, where the Bundesliga sits (4
   home-and-away season, n - 2 and n + 2 a leg). A fourth choice, "the fewest back-to-back home or
   away games possible, then the most even carry-over" (`fewest`, pick 1000, in share links), keeps
   the capped minimum. The old "fewest" choice is now labelled "fewer" (same value, same links).
-  Odd leagues: a bye ends a run, and the capped search can not move a bye without unbalancing a team,
-  so their two extra tries are weighted ones at 160 and 320. `buildSchedule` takes
-  `carryOverCapped` beside `carryOverTries`. Tests: `capped-breaks.test.mjs` (9).
+  Odd leagues: until 2026-11-11 later their two extra tries were weighted ones at 160 and 320; now
+  they run the capped search too (next section). `buildSchedule` takes
+  `carryOverCapped` beside `carryOverTries`. Tests: `capped-breaks.test.mjs` (9; the odd-league one
+  rewritten 2026-11-11 later).
 - **Measured** (`node eval/capped-breaks.mjs`, `eval/capped-breaks.txt`; seeds 1 to 3, recounted from
   the rounds):
 
@@ -420,7 +421,98 @@ weights never reach the low-break end of the trade, where the Bundesliga sits (4
   18 teams and 23 s at 20 (eight took 16.8 and 25.2 s on the earlier, less loaded run); a 12-team
   season in Chromium ran all ten with no page errors and the same kept season on 1 and 4 cores.
 - Open: a 20-team leg one at low breaks (a start other than the circle method, or a search over
-  home/away patterns first), and odd leagues under a cap.
+  home/away patterns first), and odd leagues under a cap (done for odd
+  leagues: next section).
+
+## Odd leagues: zero-break home/away, and capped tries (2026-11-11, later)
+
+An odd league gives every team one bye a leg, and a bye ends a run of home or away games, so an odd
+round robin can have **no breaks at all**: the circle method with the right home/away does. The venue
+search (`assignVenues`, which sets home/away on every carry-over timetable) never found it: it flipped
+one match at a time from a greedy start, and left 3 breaks at 7 teams, 46 at 19 and 54 at 21. With a
+start that far off, the capped search began an odd league at dozens of breaks and could not move,
+which is why odd leagues' capped tries were weighted stand-ins.
+
+- **Colouring start** (`carryover.mjs`, `byeStretches`, `colourStart`). Split each team's games at its
+  bye into stretches; make one node per stretch and one edge per match. A two-colouring of that graph
+  is a home/away with no breaks (a stretch of colour c is at home in round r when c XOR r is odd, so
+  it alternates, and every match has one team of each colour). Breadth-first search finds it when it
+  exists; on the circle method it does at every odd size tested (5 to 21), and it is balanced (each
+  team (n - 1)/2 home games). Where the graph has an odd cycle, the clashing matches take a seeded coin.
+- **Run moves.** Beside single-match flips, the annealing now flips a whole alternating stretch of
+  one team (or the part before or after a round), which moves a team's phase in one step instead of
+  through a wall of temporary breaks, and it keeps the best home/away it saw rather than where it
+  ended. Restarts alternate the greedy start and the colouring start (odd leagues), and the result is
+  never worse than the old search on the same seed (it runs as a fallback when the new one has any
+  breaks; tested).
+- **Measured** (`node eval/odd-capped.mjs`, `eval/odd-capped.txt`, first table; breaks + 50 per game of
+  imbalance on fixed timetables, seed 1, old -> new):
+
+  | Teams | Circle method | Low carry-over timetable | Same, break weight 10 |
+  |---|---|---|---|
+  | 7 | 3 -> 0 | 7 -> 4 | 2 -> 2 |
+  | 11 | 10 -> 0 | 24 -> 16 | 17 -> 17 |
+  | 15 | 19 -> 0 | 49 -> 43 | 49 -> 46 |
+  | 19 | 46 -> 0 | 85 -> 84 | 81 -> 81 |
+  | 21 | 54 -> 0 | 109 -> 109 | 107 -> 96 |
+  | 18, 20 (even) | 16, 18 (the minimum, unchanged) | 46 -> 44, 62 -> 58 | 32 -> 30, 52 -> 48 |
+
+  Every carry-over schedule on the page goes through this pass, so even leagues gain 2 to 4 breaks on
+  some timetables too. The page's plain (circle-method) schedules never used it and are unchanged.
+  Rerun on the real-fixture comparison (`eval/carryover-real.txt`, seed 1; the tables in the two
+  sections above keep the figures measured then): 18 teams mirrored 1,926 / 74 -> 1,926 / 70 breaks,
+  whole season 1,498 / 88 -> 1,486 / 84, carry-over only 104 -> 98 breaks a season; 20 teams mirrored
+  2,136 / 114 -> 2,136 / 108, carry-over only 134 -> 126, and whole season 1,678 / 124 -> 1,750 / 118
+  (leg two is searched against leg one's home/away, so a different leg one moves its carry-over too;
+  still below all 14 professional 20-team seasons' 2,278). The carry-over guide page quotes the new
+  figures (its test reads them from the code).
+- **Capped tries for odd leagues.** `cappedTryBreaks` now gives an odd league a base of n - 3 breaks a
+  leg (at 0 the capped search can not leave the circle method's high carry-over), and `carryOverTry`
+  runs the capped search for odd leagues. At small sizes a heavy break weight sometimes lands on
+  fewer breaks still (9 teams: 2 or 3 against 5 or 6), so an odd league's capped try also runs the old
+  stand-in (160, then 320) and keeps whichever has fewer breaks, then less carry-over.
+- **Measured, one leg** (same file, second table, seeds 1 to 3, carry-over/breaks):
+
+  | Teams | Old stand-ins (160 and 320) | Capped, n - 3 | Capped, n + 1 |
+  |---|---|---|---|
+  | 9 | 93/2, 93/3, 105/11 | 115/6, 81/6, 81/5 | 75/9, 77/10, 79/10 |
+  | 11 | 175 to 193 / 16 to 21 | 229 to 297 / 8 | 183 to 193 / 12 |
+  | 15 | 307 to 315 / 35 to 40 | 303, 625, 319 / 12 | 289 to 309 / 16 |
+  | 19 | 701 to 1,365 / 63 to 73 | 1,355 to 1,537 / 16 | 1,147 to 1,205 / 20 |
+  | 21 | 659 to 703 / 86 to 103 | 763 to 835 / 18 | 703 to 743 / 22 |
+
+  Read plainly: at 15 teams the capped tries match the old carry-over at a third of the breaks; at 21
+  teams they cost 5 to 15% more carry-over for a fifth of the breaks; at 19 teams (twenty with the bye,
+  the size where even leagues are weak too) they reach 16 to 20 breaks, which nothing reached before,
+  at about 1.6 times the carry-over. The weighted tries still cover the low carry-over end, so the
+  page's "balanced" and "most even" choices are as before and "fewer"/"fewest" now have a low-break
+  try to keep.
+- **Measured, home-and-away season** (same file, third table; caps 3(n - 3) and 3(n + 1)):
+
+  | Teams | Old stand-ins (160 and 320) | Capped, 3(n - 3) | Capped, 3(n + 1) |
+  |---|---|---|---|
+  | 9 | 343 to 395 / 10 to 20 | 289 to 325 / 17 to 18 | 279 to 281 / 27 to 29 |
+  | 11 | 537 to 679 / 39 to 46 | 713 to 1,117 / 23 to 24 | 525 to 543 / 35 to 36 |
+  | 15 | 1,077 to 1,153 / 55 to 72 | 1,147, 1,951, 1,155 / 36 | 983 to 1,027 / 47 to 48 |
+  | 19 | 2,213 to 3,957 / 137 to 157 | 4,355 to 4,769 / 47 to 49 | 3,779 to 4,187 / 60 |
+  | 21 | 2,147 to 2,299 / 147 to 170 | 2,675 to 2,997 / 54 | 2,541 to 2,659 / 66 |
+
+  At 11 and 15 teams the second capped try beats both stand-ins on both counts on most seeds
+  (3 of 6 each, last column of the file); at 19 and 21 teams the capped tries cut a season's breaks
+  by two thirds (150 or so to 47 to 66) for 20 to 90% more carry-over, a point on the trade the page
+  had no try near before. At 9 teams the stand-in still wins on breaks for two seeds of three
+  (10 against 18) and is what the try keeps (sixth column).
+- **Tried, not landed: the 20-team leg one with the pattern fixed first.** Fix the minimum-break
+  home/away pattern (18 breaks), then anneal the timetable freely with a rising penalty per match
+  whose two teams the pattern puts at the same ground (plus moves that trade two teams' whole
+  patterns, or two rounds with their pattern columns). Seeds 1 to 3 settled at 1,420, 1,408 and
+  1,408 against the capped search's 1,424, 1,414 and 1,408 at the same 18 breaks: two different
+  searches agree, which suggests 1,400 or so is close to what the minimum-break pattern allows, not a
+  search failure. With a looser cap (22 to 30) and a move that shifts one team's ground between two
+  rounds it was no better than the capped search (858 to 1,174 against 874 to 1,298) and often never
+  got back to a feasible timetable. A simple relaxation (each carry-over step only needs its two
+  opponents at the other ground) gives no bound above the generic floor (360), so the question stays
+  open; a tighter bound would need the per-team order of opponents.
 
 ## Several divisions on shared courts (`divisions.mjs`)
 

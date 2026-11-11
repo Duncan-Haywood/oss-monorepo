@@ -9,19 +9,29 @@
 // SAML connections, SMS MFA, B2B organizations, custom domains), contracts and
 // each vendor's own MAU definition, none of which this file reproduces.
 
-export const PRICES_AS_OF = "approximate public list prices as best known in 2025 -- vendors change packaging often; verify each at its own pricing page";
+export const PRICES_AS_OF = "public list prices read from each vendor's pricing page on 2026-11-08 (Clerk and Cognito corrected 2026-11-11) -- vendors change packaging often; verify each at its own pricing page";
 
 // Editable. For a provider: no charge at or below `freeMau`; above it the paid
 // plan applies: `base` USD a month, covering the first `includedMau` users,
 // then each further user is priced by `tiers` (`upTo` is the cumulative MAU
-// ceiling of the tier, Infinity for the last).
+// ceiling of the tier, Infinity for the last). `checked` is the date the
+// numbers were last compared with the vendor's page, and `note` what the row
+// does not model.
 export const DEFAULT_PROVIDERS = {
-  clerk: { label: "Clerk", url: "https://clerk.com/pricing", freeMau: 10000, base: 25, includedMau: 10000, tiers: [{ upTo: 100000, rate: 0.02 }, { upTo: 1000000, rate: 0.018 }, { upTo: Infinity, rate: 0.015 }] },
-  auth0: { label: "Auth0 (B2C)", url: "https://auth0.com/pricing", freeMau: 25000, base: 35, includedMau: 500, tiers: [{ upTo: 10000, rate: 0.07 }, { upTo: 50000, rate: 0.05 }, { upTo: Infinity, rate: 0.035 }] },
-  cognito: { label: "AWS Cognito", url: "https://aws.amazon.com/cognito/pricing/", freeMau: 10000, base: 0, includedMau: 10000, tiers: [{ upTo: 100000, rate: 0.015 }, { upTo: 1000000, rate: 0.012 }, { upTo: Infinity, rate: 0.01 }] },
-  firebase: { label: "Firebase / Identity Platform", url: "https://cloud.google.com/identity-platform/pricing", freeMau: 50000, base: 0, includedMau: 50000, tiers: [{ upTo: 100000, rate: 0.0055 }, { upTo: 1000000, rate: 0.0046 }, { upTo: 10000000, rate: 0.0032 }, { upTo: Infinity, rate: 0.0025 }] },
-  supabase: { label: "Supabase Auth", url: "https://supabase.com/pricing", freeMau: 50000, base: 25, includedMau: 100000, tiers: [{ upTo: Infinity, rate: 0.00325 }] },
-  workos: { label: "WorkOS AuthKit", url: "https://workos.com/pricing", freeMau: 1000000, base: 0, includedMau: 1000000, tiers: [{ upTo: Infinity, rate: 0.0025 }] },
+  // Clerk bills monthly retained users (MRU: users who come back after their
+  // first day), not every sign-in. Since 2026-02-05: 50,000 MRUs free per app,
+  // Pro $25/mo covers those 50,000, then 50,001-100k $0.02, to 1M $0.018, to
+  // 10M $0.015, above $0.012 (clerk.com/pricing, read 2026-11-08).
+  clerk: { label: "Clerk", url: "https://clerk.com/pricing", checked: "2026-11-08", note: "counts monthly retained users (MRU), not MAU", freeMau: 50000, base: 25, includedMau: 50000, tiers: [{ upTo: 100000, rate: 0.02 }, { upTo: 1000000, rate: 0.018 }, { upTo: 10000000, rate: 0.015 }, { upTo: Infinity, rate: 0.012 }] },
+  auth0: { label: "Auth0 (B2C)", url: "https://auth0.com/pricing", checked: "2026-11-08", note: "paid plans are sold in MAU bands; this ladder approximates them", freeMau: 25000, base: 35, includedMau: 500, tiers: [{ upTo: 10000, rate: 0.07 }, { upTo: 50000, rate: 0.05 }, { upTo: Infinity, rate: 0.035 }] },
+  // Cognito user pools are priced per feature tier. Essentials, the default
+  // for new pools, is a flat $0.015/MAU above 10,000 free a month; Lite
+  // ($0.0055 from 10,000) and Plus ($0.02, no free tier) are not modelled
+  // (aws.amazon.com/cognito/pricing, read 2026-11-08).
+  cognito: { label: "AWS Cognito (Essentials)", url: "https://aws.amazon.com/cognito/pricing/", checked: "2026-11-08", note: "Essentials tier; Lite and Plus differ", freeMau: 10000, base: 0, includedMau: 10000, tiers: [{ upTo: Infinity, rate: 0.015 }] },
+  firebase: { label: "Firebase / Identity Platform", url: "https://cloud.google.com/identity-platform/pricing", checked: "2026-11-08", freeMau: 50000, base: 0, includedMau: 50000, tiers: [{ upTo: 100000, rate: 0.0055 }, { upTo: 1000000, rate: 0.0046 }, { upTo: 10000000, rate: 0.0032 }, { upTo: Infinity, rate: 0.0025 }] },
+  supabase: { label: "Supabase Auth", url: "https://supabase.com/pricing", checked: "2026-11-08", freeMau: 50000, base: 25, includedMau: 100000, tiers: [{ upTo: Infinity, rate: 0.00325 }] },
+  workos: { label: "WorkOS AuthKit", url: "https://workos.com/pricing", checked: "2026-11-08", freeMau: 1000000, base: 0, includedMau: 1000000, tiers: [{ upTo: Infinity, rate: 0.0025 }] },
 };
 
 const round2 = (n) => Math.round(n * 100) / 100;
@@ -101,11 +111,19 @@ export function summarize(rows, { budget = null, provider = null } = {}) {
   const overBudget = budget != null && pick.monthly > budget;
   let text = provider
     ? `${pick.label} is about ${fmt(pick.monthly)} per month (${fmt(pick.annual)} per year) at this user count.`
-    : `Cheapest at this user count: ${pick.label}, about ${fmt(pick.monthly)} per month (${fmt(pick.annual)} per year).`;
+    : tiedText(rows) ?? `Cheapest at this user count: ${pick.label}, about ${fmt(pick.monthly)} per month (${fmt(pick.annual)} per year).`;
   const worst = rows[rows.length - 1];
   if (worst.monthly > pick.monthly) text += ` The most expensive here, ${worst.label}, is ${fmt(worst.monthly)}.`;
   if (overBudget) text += ` Over your ${fmt(budget)} monthly budget by ${fmt(pick.monthly - budget)}.`;
   return { status: overBudget ? "error" : "ok", errors: overBudget ? 1 : 0, overBudget, text };
+}
+
+// When several providers share the lowest price, name them all instead of
+// letting the alphabetical tie-break crown one.
+function tiedText(rows) {
+  const tied = rows.filter((r) => r.monthly === rows[0].monthly);
+  if (tied.length < 2) return null;
+  return `Cheapest at this user count, tied at about ${fmt(rows[0].monthly)} per month: ${tied.map((r) => r.label).join(", ")}.`;
 }
 
 export function fmt(n) {

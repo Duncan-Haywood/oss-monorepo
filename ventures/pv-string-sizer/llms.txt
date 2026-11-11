@@ -1,0 +1,18 @@
+# PV String Sizer: how many modules per string?
+
+> Free solar PV string sizing calculator. From a module datasheet (Voc, Vmp, Isc, temperature coefficients, NOCT), an inverter datasheet (maximum DC voltage, MPPT range, input currents) and two site temperatures, it gives the longest string by cold-weather Voc, the shortest by hot-weather Vmp against the MPPT minimum, strings per MPPT by 1.25 x Isc, conductor ampacity at 1.56 x Isc, and every layout that fits a module count. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are arithmetic on the numbers typed in, not engineering, electrical or code-compliance advice; the code edition, the AHJ, the equipment listings and the inverter maker's tool decide what is allowed. Not modelled: uneven string lengths per MPPT, optimisers and microinverters, bifacial gain, start-up voltage, ageing, voltage drop, conductor corrections.
+
+## Pages
+
+- [The tool](https://marisstella.app/pv-string-sizer/)
+- [How many solar panels per string? A worked example](https://marisstella.app/pv-string-sizer/how-many-solar-panels-per-string.html)
+
+## For agents
+
+- Engine: `calc.mjs`, `analyze(input)`; `DEFAULTS` is the page's example (an invented module and inverter). Callable through `node platform/agents/tools.mjs call pv-string-sizer analyze --input '{"tMin":-25}'` or the repository's MCP server (`call_tool`).
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pv-string-sizer): MIT licensed.

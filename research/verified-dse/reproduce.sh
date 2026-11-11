@@ -38,3 +38,4 @@ $PY experiments/fresh_pool/analyse.py; $PY experiments/fresh_pool/price.py   # m
 $PY experiments/heldout_designs/replay.py   # milestone 110 (no flow; under a second)
 $PY experiments/switch_guard/rule.py   # milestone 111 (no flow; under 10 s)
 $PY experiments/fresh_dear/analyse.py   # milestone 112 (no flow; under 2 s; experiments/fresh_dear/run.py re-runs the 1,440-point flow, about 50 min on 4 cores)
+$PY experiments/fresh_designs/analyse.py   # milestone 113 (no flow; under 3 s; experiments/fresh_designs/run.py re-runs the 1,920-point flow, about 2 h on 4 cores)

@@ -29,7 +29,7 @@ import { scorpFromBooks } from "./scorp.mjs";
 import { retirementLimits } from "./retirement.mjs";
 import { addProject, tagProject as tagProjectLines, projectReport, projectCsv, projectMoney } from "./projects.mjs";
 import { addRentalAccounts, addProperty, tagProperty, scheduleE, scheduleECsv } from "./rental.mjs";
-import { bNoticeDates, seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, nec1099IrisCsv, markW9, mergePayees } from "./taxforms.mjs";
+import { bNoticeDates, seSetAside, selfEmployment, scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, nec1099IrisCsv, rents1099, misc1099IrisCsv, markW9, mergePayees } from "./taxforms.mjs";
 import { setOpeningBalances, clearOpeningBalances } from "./opening.mjs";
 import { importChart, importTrialBalance } from "./migrate.mjs";
 import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
@@ -80,6 +80,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   contractors [--year Y] [--threshold DOLLARS] [--csv|--filing|--iris [--payer payer.json]|--json]  contract labor paid by payee against the 1099-NEC line, with W-9 status; --iris writes the IRS IRIS 1099-NEC template layout
   taxpack YEAR [--out DIR]  one folder for your preparer: trial balance, P&L, balance sheet, journal, Schedule C, SE, 1099, payroll, sales tax, depreciation, mileage, checks, INDEX.txt
   b-notice NOTICE_DATE [--received DATE] [--second [--first-notice DATE] [--b-notice-sent DATE]]  dates for a CP2100 notice: mail the B notice, start 24% backup withholding
+  rents [--year Y] [--threshold DOLLARS] [--iris [--payer payer.json]|--json]  rent paid by bank per landlord against the 1099-MISC box 1 line; --iris writes the IRS IRIS 1099-MISC template layout
   merge-payee FROM INTO [--off]  count two spellings of one payee as one on the contractors worksheet
   w9 PAYEE [--off]       record that a W-9 is on file for a payee (a flag; no tax IDs are stored)
   trip add MILES --date D --purpose TEXT [--from A --to B] | trip list [--year Y] | trip remove ID   the business mileage log (goes to Schedule C line 9 with --year)
@@ -866,6 +867,23 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   for (const p of r.payees) console.log(`  ${p.name.slice(0, 34).padEnd(34)} ${fmt(p.cents).padStart(12)}  ${p.over ? "REPORT" : "under "}  ${p.w9 ? "W-9 on file" : "no W-9"}${p.cardCents ? `  (+${fmt(p.cardCents)} by card)` : ""}`);
   for (const w of r.warnings) console.log(`  ! ${w}`);
   console.log("  A worksheet, not a filing. Whether someone is a contractor, and any exemption, is for you or your preparer to decide.");
+} else if (cmd === "rents") {
+  const yr = flag("--year"), th = flag("--threshold");
+  const r = rents1099(books, { year: yr ? +yr : undefined, threshold: th !== null ? Math.round(+th * 100) : undefined });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  if (has("--iris")) {
+    const pf = flag("--payer");
+    let payer = {};
+    try { payer = pf ? JSON.parse(readFileSync(pf, "utf8")) : {}; } catch (e) { console.error(`--payer: ${e.message}`); process.exit(2); }
+    const out = misc1099IrisCsv(r, payer);
+    process.stdout.write(out.csv);
+    for (const n of out.notes) console.error(`! ${n}`);
+    process.exit(0);
+  }
+  console.log(`RENT PAID ${r.year}, 1099-MISC box 1 line ${fmt(r.threshold)}`);
+  for (const p of r.payees) console.log(`  ${p.name.slice(0, 34).padEnd(34)} ${fmt(p.cents).padStart(12)}  ${p.over ? "REPORT" : "under "}  ${p.w9 ? "W-9 on file" : "no W-9"}${p.cardCents ? `  (+${fmt(p.cardCents)} by card)` : ""}`);
+  for (const w of r.warnings) console.log(`  ! ${w}`);
+  console.log("  A worksheet, not a filing. Whether a payment is rent, and any exemption, is for you or your preparer to decide.");
 } else if (cmd === "taxpack") {
   const out = flag("--out");
   if (!/^\d{4}$/.test(rest[0] ?? "")) { console.error("taxpack needs a four-digit year"); process.exit(2); }

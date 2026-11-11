@@ -39,11 +39,12 @@ class Lookup(unittest.TestCase):
             raise urllib.error.HTTPError(url, code, "x", {}, None)
         old, cite_check._get = cite_check._get, fake
         try:
-            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
-                f.write("arXiv:1706.03762")
-            out = io.StringIO()
-            with contextlib.redirect_stdout(out):
-                rc = cite_check.main([f.name])
+            with tempfile.TemporaryDirectory() as d:  # fresh dir: no cite_check.json from another test
+                path = Path(d) / "README.md"
+                path.write_text("arXiv:1706.03762")
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    rc = cite_check.main([str(path)])
             return rc, out.getvalue()
         finally:
             cite_check._get = old
@@ -63,6 +64,66 @@ class Lookup(unittest.TestCase):
         rc, out = self.run_with(404)
         self.assertEqual(rc, 1)
         self.assertIn("FAIL", out)
+
+
+class Cache(unittest.TestCase):
+    """A live lookup is remembered beside the README; a later blocked session prints ok*, not SKIP."""
+    FEED = "<feed><entry><title>Attention Is All You Need</title><published>2017-06-12</published></entry></feed>"
+
+    def run_in(self, d, response, *flags):
+        import contextlib, io, urllib.error
+        def fake(url):
+            if isinstance(response, int):
+                raise urllib.error.HTTPError(url, response, "x", {}, None)
+            return response
+        old, cite_check._get = cite_check._get, fake
+        try:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                rc = cite_check.main([str(Path(d) / "README.md"), *flags])
+            return rc, out.getvalue()
+        finally:
+            cite_check._get = old
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = Path(self.tmp.name)
+        (self.dir / "README.md").write_text("arXiv:1706.03762")
+        self.cache = self.dir / cite_check.CACHE_NAME
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_ok_lookup_is_recorded_then_used_when_blocked(self):
+        import json
+        rc, _ = self.run_in(self.dir, self.FEED)
+        self.assertEqual(rc, 0)
+        entry = json.loads(self.cache.read_text())["arxiv:1706.03762"]
+        self.assertEqual(entry["title"], "Attention Is All You Need (2017)")
+        rc, out = self.run_in(self.dir, 403)
+        self.assertEqual(rc, 0)
+        self.assertIn("ok*  arxiv:1706.03762  Attention Is All You Need (2017)", out)
+        self.assertIn(entry["checked"], out)
+        self.assertNotIn("SKIP", out)
+
+    def test_unchanged_lookup_does_not_rewrite(self):
+        self.run_in(self.dir, self.FEED)
+        self.cache.write_text(self.cache.read_text().replace('"checked": "', '"checked": "x'))
+        self.run_in(self.dir, self.FEED)
+        self.assertIn('"checked": "x', self.cache.read_text())  # date kept: no churn in diffs
+
+    def test_404_drops_the_entry(self):
+        import json
+        self.run_in(self.dir, self.FEED)
+        rc, _ = self.run_in(self.dir, 404)
+        self.assertEqual(rc, 1)
+        self.assertEqual(json.loads(self.cache.read_text()), {})
+
+    def test_no_write_and_offline_leave_no_file(self):
+        self.run_in(self.dir, self.FEED, "--no-write")
+        self.run_in(self.dir, self.FEED, "--offline")
+        self.assertFalse(self.cache.exists())
 
 
 class DataCiteFallback(unittest.TestCase):
