@@ -25,6 +25,12 @@ topics: [research-integrity]
 | `superseded_by` | no | the report that replaces this one, when `status: superseded` |
 | `tagged` | no | `auto` when `doc_index.py backfill` inferred the tags; delete it once a person or agent has checked them |
 
+Before you push a report, run `python3 platform/ci/doc_index.py check`.
+`doc_index.py backfill --write` drafts missing front matter and swaps an alias
+topic (`aeo`, `pytest`) for its id; check the tags it writes. Until a PR
+workflow runs the check, nothing else will: it was red on main on 2026-11-06,
+-08 and -11.
+
 ## Finding things
 
 ```

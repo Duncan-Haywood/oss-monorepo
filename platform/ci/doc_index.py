@@ -13,7 +13,7 @@ reports carry front matter (`kind`, `subjects`, `topics`, `date`) from it.
     python3 platform/ci/doc_index.py find shed-designer --json
     python3 platform/ci/doc_index.py topics                  # the vocabulary, with how often each is used
     python3 platform/ci/doc_index.py check                   # exit 1 on a dangling anchor or bad report tags
-    python3 platform/ci/doc_index.py backfill [--write]      # add inferred front matter to reports lacking it
+    python3 platform/ci/doc_index.py backfill [--write]      # add inferred front matter to reports lacking it; swap alias topics for ids
 
 A term resolves through topic ids and aliases, spelling-insensitively (case,
 hyphens and a trailing plural s are ignored), and through project directory
@@ -118,7 +118,7 @@ def parse_frontmatter(text: str) -> tuple[dict | None, str]:
 
 def render_frontmatter(meta: dict) -> str:
     lines = ["---"]
-    for k in REPORT_FIELDS:
+    for k in [*REPORT_FIELDS, *(k for k in meta if k not in REPORT_FIELDS)]:
         if k not in meta or meta[k] in (None, "", []):
             continue
         v = meta[k]
@@ -222,7 +222,7 @@ def _stem_parts(name: str) -> tuple[str | None, str]:
         m = re.search(r"-(\d{4}-\d{2}-\d{2})$", stem)  # shed-designer-price-gaps-2026-10-30
         if m:
             date, stem = m.group(1), stem[:m.start()]
-    return date, stem
+    return date, re.sub(r"^polish-", "", stem)  # 2026-11-06-polish-permit-preflight-faq
 
 
 def infer_report(name: str, text: str, slugs: dict[str, str], tax: dict) -> dict:
@@ -235,7 +235,7 @@ def infer_report(name: str, text: str, slugs: dict[str, str], tax: dict) -> dict
         date = m.group(1) if m else None
     title = meta.get("title") or next((ln[2:].strip() for ln in body.splitlines() if ln.startswith("# ")), "")
 
-    if name.startswith("polish-"):
+    if re.match(r"(\d{4}-\d{2}-\d{2}-)?polish-", name):
         kind = "polish"
     elif re.search(r"(^|-)lane\d", stem):
         kind = "lane"
@@ -272,7 +272,7 @@ def infer_report(name: str, text: str, slugs: dict[str, str], tax: dict) -> dict
         if any(tag_key(n) in grams for n in names):
             topics.append(t["id"])
 
-    out = {k: v for k, v in meta.items() if k in REPORT_FIELDS}
+    out = dict(meta)  # fields this tool does not know are kept, not dropped
     out.setdefault("kind", kind)
     if date:
         out.setdefault("date", date)
@@ -282,13 +282,29 @@ def infer_report(name: str, text: str, slugs: dict[str, str], tax: dict) -> dict
     return out
 
 
+def canonical_topics(topics: list[str], tax: dict) -> list[str]:
+    """Each topic as its id: an alias ('aeo', 'Pytests') becomes the id it names; unknown tags stay."""
+    index, out = topic_index(tax), []
+    for t in topics:
+        c = index.get(tag_key(t), t)
+        if c not in out:
+            out.append(c)
+    return out
+
+
 def backfill(root: Path = ROOT, write: bool = False) -> list[tuple[str, dict]]:
-    """Reports without kind/subjects/topics, and the front matter inferred for them."""
+    """Reports without kind, or tagged with a topic alias, and the front matter to write for them."""
     tax, slugs, done = load_taxonomy(root), project_slugs(root), []
     for p in report_files(root):
         text = p.read_text(errors="replace")
         meta, body = parse_frontmatter(text)
         if meta and "kind" in meta:
+            topics = as_list(meta.get("topics"))
+            if topics and canonical_topics(topics, tax) != topics:
+                new = {**meta, "topics": canonical_topics(topics, tax)}
+                done.append((p.name, new))
+                if write:
+                    p.write_text(render_frontmatter(new) + body)
             continue
         new = infer_report(p.name, text, slugs, tax)
         done.append((p.name, new))
@@ -310,7 +326,8 @@ def report_problems(root: Path, p: Path, tax: dict, slugs: dict[str, str]) -> li
     for t in as_list(meta.get("topics")):
         if t not in ids:
             hint = topic_index(tax).get(tag_key(t))
-            out.append(f"{rel}: topic {t!r} is not in {TAXONOMY}" + (f" (did you mean {hint!r}?)" if hint else ""))
+            out.append(f"{rel}: topic {t!r} is not in {TAXONOMY}" + (
+                f" (did you mean {hint!r}? `doc_index.py backfill --write` swaps an alias for its id)" if hint else ""))
     for s in as_list(meta.get("subjects")):
         if s not in slugs:
             out.append(f"{rel}: subject {s!r} is not a directory under {', '.join(PROJECT_DIRS)}")
@@ -477,7 +494,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--json", action="store_true")
     sub.add_parser("topics", help="the topic vocabulary, with report and post counts")
     sub.add_parser("check", help="exit 1 on a dangling anchor, an alias collision or a bad report tag")
-    p = sub.add_parser("backfill", help="infer front matter for reports that lack it")
+    p = sub.add_parser("backfill", help="infer front matter for reports that lack it, and swap alias topics for their ids")
     p.add_argument("--write", action="store_true")
     a = ap.parse_args(argv)
     root = a.root.resolve()
@@ -501,7 +518,7 @@ def main(argv: list[str] | None = None) -> int:
         done = backfill(root, a.write)
         for name, meta in done:
             print(f"{name}: kind={meta['kind']} date={meta.get('date', '-')} "
-                  f"subjects={meta['subjects']} topics={meta['topics']}")
+                  f"subjects={meta.get('subjects', [])} topics={meta.get('topics', [])}")
         print(f"{'wrote' if a.write else 'would write'} front matter on {len(done)} report(s)", file=sys.stderr)
         return 0
     return 2
