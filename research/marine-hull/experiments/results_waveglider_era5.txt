@@ -1,0 +1,32 @@
+Milestone 6w: ERA5 reanalysis waves at the Wave Glider's position in place of the on-board oracle
+3657 hours with ERA5; 3281 analysis hours (6u S2 with T_avg and ERA5)
+
+A1  calibration and reliability of the reanalysis against the on-board MOSE
+  median Hs_e/Hs_ob 0.960, Tm_e/T_avg 1.285, Tp_e/T_avg 1.438, q_e/q_ob 0.746
+  within-month corr: log q 0.866 (lambda 0.924); log Hs 0.887; log T 0.587
+  P1 (0.5 <= corr log q <= 0.85): refuted
+  P5 (0.85 <= Hs_e/Hs_ob <= 1.15 and Tm_e/T_avg > 1.1): held
+
+A2  exponent of speed on heave velocity, same hours
+  a_ob 0.534; a_e (mwp) 0.533 (95% 0.447 to 0.618); a_ob - a_e +0.001 (95% -0.051 to +0.060); a_e with pp1d 0.329
+  lambda x a_ob 0.494 (errors-in-variables expectation for a_e)
+  P2 (a_e < a_ob, 0.25 <= a_e <= 0.50): refuted
+
+A3  forecast: persistence, + oracle on-board q, + ERA5 q (exponents fitted before 2015-08-01)
+  training 1419 hours: a_ob 0.587, a_e 0.585
+   h     n   MAE M1  Mob    Me     | Mob/M1 (95%)            Me/M1 (95%)             share of oracle gain
+    6  1798  0.0270 0.0273 0.0271 | 1.011 (0.901 to 1.145)  1.004 (0.894 to 1.133)  +nan
+   24  1806  0.0391 0.0344 0.0374 | 0.880 (0.744 to 1.043)  0.955 (0.812 to 1.135)  +0.38
+   72  1805  0.0574 0.0443 0.0485 | 0.772 (0.655 to 0.918)  0.845 (0.700 to 1.014)  +0.68
+  P3 (Me/M1 <= 0.90 at 24 h, 95% upper < 1): refuted
+  P4 (Me recovers 40% to 90% of the oracle's 24 h gain): refuted
+  P6 (Me/M1 <= 0.85 at 72 h): held
+
+A4  model-only monthly plan (6v rule; descriptive), km/day
+  month  hours  observed  on-board plan  ERA5 plan
+      6    705      49.8           50.2       50.4
+      7    714      54.6           55.0       55.2
+      8    697      42.1           40.1       40.3
+      9    662      41.6           41.8       41.8
+     10    495      35.8           35.2       35.5
+     11      8      31.2           30.8       31.3

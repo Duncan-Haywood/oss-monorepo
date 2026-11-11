@@ -68,6 +68,11 @@ def hours(rows):
     return [r for r in o.s2(rows) if ok(r)]
 
 
+def fit_q(rows, q):
+    """Exponent a of log u ~ month + a q(r)."""
+    return o.fit(rows, [q])[0]
+
+
 def wcorr(rows, f, g):
     x, y = o.within(rows, f), o.within(rows, g)
     cxy = sum(a * b for a, b in zip(x, y))

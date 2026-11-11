@@ -25,6 +25,8 @@ only 4%. Milestone 5 adds a hydrofoil rung: in 2,916 swept cases a foilborne 200
 
 **Wave Glider km/day with the on-board law (milestone 6v).** Re-planning 6r's 2024 NDBC buoy-months with U = s (Hs/T)^0.53 and each buoy's own average period (APD): a Wave Glider plans to **55 km/day (January) and 45 km/day (July)** fleet median at the 2015 vehicle's best month, 33 and 27 at its worst. In **January site matters less** than 6r said (best buoy over worst 1.12, from 1.20): the Pacific's 2.3 to 2.6 m seas come with 8 to 9 s periods, so their heave velocity is no higher than the Gulf's. In **July site matters more** (1.73, from 1.34), now above the vehicle-state ratio (1.68), but the slowest buoys (Gulf of Mexico, Nantucket; Hs about 0.4 m) spend 88 to 95% of their hours below anything the vehicle sailed in, so those rows are extrapolations. Between-state share of the variance falls from 82% to 66%. Matching the MOSE sensor to buoys within 150 km (k_H 1.09, k_T 0.99) moves the medians by +5%. See [`experiments/results_waveglider_site_period.txt`](experiments/results_waveglider_site_period.txt).
 
+**Can a wave model replace the Wave Glider's own wave sensor (milestone 6w)?** For planning, yes; for a day-ahead forecast, barely. ERA5 reanalysis waves (0.5 degree grid, via Open-Meteo) at the vehicle's hourly position correlate 0.87 with the on-board MOSE heave velocity Hs/T within a month (a buoy 100 to 300 km away: 0.20). They give the **same speed exponent, 0.533 (95% 0.45 to 0.62) against 0.534**, and the same monthly km/day to within 0.4 km/day. So a Wave Glider's km/day can be planned from ERA5 anywhere, using the mean period (mwp; the peak period gives 0.33). As a forecast term it adds about 4% skill a day ahead (not significant) and 15% at three days, against 12% and 23% for an oracle on-board sea state with the same law. See [`experiments/results_waveglider_era5.txt`](experiments/results_waveglider_era5.txt).
+
 ![Fielded Wave Glider speed against buoy wave height, early and late in the 2015 mission, with the foil model](experiments/waveglider_speed.svg)
 
 **Live page:** https://marisstella.app/research/marine-hull/
@@ -49,6 +51,8 @@ python3 experiments/fetch_waveglider_onboard.py   # milestone 6u data (on-board 
 PYTHONPATH=experiments python3 experiments/run_waveglider_onboard.py > experiments/results_waveglider_onboard.txt   # milestone 6u, pre-registered, 80 s
 PYTHONPATH=experiments python3 experiments/run_waveglider_onboard_posthoc.py > experiments/results_waveglider_onboard_posthoc.txt   # milestone 6u post hoc, 30 s
 python3 experiments/run_waveglider_site_period.py > experiments/results_waveglider_site_period.txt   # milestone 6v (6r's plan with (Hs/T)^0.53 and buoy APD), under 1 s
+python3 experiments/fetch_era5_waveglider.py   # milestone 6w data: ERA5 waves at the vehicle's position (Open-Meteo), about a minute
+python3 experiments/run_waveglider_era5.py > experiments/results_waveglider_era5.txt   # milestone 6w (ERA5 in place of the on-board oracle), about 60 s
 PYTHONPATH=src python3 experiments/run_suboff_bare.py > experiments/results_suboff_bare.txt   # milestone 3u (SUBOFF bare-hull form factor), under 1 s
 PYTHONPATH=src python3 experiments/run_solar.py > experiments/results_solar.txt   # milestone 5c, 5 s
 PYTHONPATH=src python3 experiments/run_solar_mass.py > experiments/results_solar_mass.txt   # milestone 5d, 10 s
@@ -202,3 +206,5 @@ Milestone 6t (Wave Glider step or ramp): the mission's speed loss is mostly an h
 Milestone 6u (Wave Glider on-board sea state): with the vehicle's own MOSE waves in place of a buoy (within-month correlation 0.20), the height exponent at a fixed state is 0.35 (0.30 to 0.42; buoy 0.22) and the average-period exponent -0.71 (-0.80 to -0.61), so speed goes roughly as (Hs/T)^0.53; headwind has no effect. Post hoc, an oracle Hs-and-period term cuts the 24 h persistence error to 0.77 (0.67 to 0.87), reversing 6q. The 7 August step is about 70% vehicle; the June drop is mostly sea state. `experiments/run_waveglider_onboard.py`, `LOG.md`.
 
 Milestone 6v (Wave Glider plan, on-board law): fleet medians 55.4 / 45.2 km/day (Jan / Jul) at the best state, 33.0 / 27.0 at the worst; site ratio 1.12 (Jan) and 1.73 (Jul) against a state ratio of 1.68; the slow July sites are 88 to 95% extrapolation in Hs/T. `experiments/run_waveglider_site_period.py`, `LOG.md`.
+
+Milestone 6w (Wave Glider, ERA5 in place of on-board waves): within-month corr of log Hs/T 0.866; exponent 0.533 (0.447 to 0.618) against 0.534 on board; forecast MAE ratio to persistence 0.955 (24 h) and 0.845 (72 h), 38% and 68% of the oracle's gain; monthly plan within 0.4 km/day of the on-board plan. `experiments/run_waveglider_era5.py`, `LOG.md`.
