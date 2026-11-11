@@ -534,6 +534,12 @@ carry-over count 0 or 1.
   carry-over pass already sits at the floor it stops at once. With a break weight the second pass still
   runs, but the result is now scored exactly against the untraded field timetable and the better one
   kept: the greedy stand-in had traded 16 teams' 224 / 24 breaks for 256 / 24.
+- **A mirrored field leg is already perfect.** Mirroring a leg normally doubles every count, but the
+  field leg's counts are all 1 over the n(n - 2) non-cyclic steps, and the halfway step (last opponent
+  of leg one, then first of leg two) is exactly each team's missing cyclic step: every cell becomes 2,
+  the floor (16 teams: 912). So at power-of-two sizes the whole-season search can only match the mirror
+  on carry-over; `carryover.test.mjs` asks for "strictly below mirrored" only when the mirror is above
+  the floor.
 - `field: false` restores the old circle start (for comparisons). Other sizes are unchanged.
 - **Measured** (`node eval/field-start.mjs`, `eval/field-start.txt`; seed 1, effort 1; carry-over / breaks):
 

@@ -218,7 +218,10 @@ test("double round robin searched as a whole: valid legs, return games reversed,
     assert.equal(c.value, r.coe);
     assert.equal(c.repeats, 0);
     assert.ok(r.coe >= r.lowerBound);
-    assert.ok(n >= 12 ? r.coe < r.mirroredCoe : r.coe <= r.mirroredCoe, `${n}: ${r.coe} vs mirrored ${r.mirroredCoe}`);
+    // at a power of two (16) leg one is the field timetable, and its mirror is already at the floor
+    // (the halfway step supplies each team's missing cyclic step), so it can only be matched
+    const strict = n >= 12 && r.mirroredCoe > r.lowerBound;
+    assert.ok(strict ? r.coe < r.mirroredCoe : r.coe <= r.mirroredCoe, `${n}: ${r.coe} vs mirrored ${r.mirroredCoe}`);
     assert.deepEqual(lowCarryOverDoubleRounds(n, { seed: 2, effort: 0.3, breakWeight: bw }).rounds, r.rounds, "seeded");
   }
   // 8 teams, carry-over only: reaches the floor for a double round robin with no repeats

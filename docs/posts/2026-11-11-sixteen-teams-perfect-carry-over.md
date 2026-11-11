@@ -54,6 +54,13 @@ On the page itself, which runs ten searches and keeps a balance of
 carry-over and breaks, a 16-team home-and-away season went from 1,220
 carry-over with 54 breaks to **996 with 48**. It is better on both counts.
 
+There is a nice side effect for home-and-away seasons. Mirroring the first
+half usually doubles every count, which is why the tool searches the second
+half separately. With the field timetable, though, each team's last opponent
+of the first half followed by its first opponent of the second half is
+exactly the one "A, then B" step that half was missing. The plain mirror is
+already perfect (912 at 16 teams), and the venues just swap.
+
 One thing broke along the way. The search's second pass trades carry-over
 for fewer breaks using a quick greedy estimate of the breaks. From a
 perfect start, that estimate sometimes gave away carry-over for breaks the
