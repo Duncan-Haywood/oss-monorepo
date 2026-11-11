@@ -121,3 +121,81 @@ describe("ratingToLogit", () => {
     expect(ratingToLogit(1400)).toBeLessThan(ratingToLogit(1500));
   });
 });
+
+describe("updateGlicko with a lapse term", () => {
+  const player = { rating: 1560, rd: 180, volatility: 0.06 };
+  const opponent = { rating: 1480, rd: 120, volatility: 0.06 };
+  const SCALE = 173.7178;
+
+  it("lapse 0 is the published update, to the last bit", () => {
+    for (const s of [0, 0.5, 1] as const) {
+      expect(updateGlicko(player, opponent, s, 0)).toEqual(updateGlicko(player, opponent, s));
+    }
+  });
+
+  it("tends to the published update as the lapse share goes to 0", () => {
+    const plain = updateGlicko(player, opponent, 1);
+    const tiny = updateGlicko(player, opponent, 1, 1e-9);
+    expect(tiny.rating).toBeCloseTo(plain.rating, 4);
+    expect(tiny.rd).toBeCloseTo(plain.rd, 4);
+  });
+
+  it("uses the information and score of the lapse likelihood (checked by finite differences)", () => {
+    // One game, volatility pinned by a huge rd so phi* ~ phi: compare the
+    // closed-form step against a numeric derivative of
+    // log L(mu) = s log q + (1 - s) log(1 - q), q = e/2 + (1 - e) sigmoid(g (mu - muOpp)).
+    const e = 0.2;
+    const mu = (player.rating - 1500) / SCALE;
+    const muOpp = (opponent.rating - 1500) / SCALE;
+    const phiOpp = opponent.rd / SCALE;
+    const g = 1 / Math.sqrt(1 + (3 * phiOpp * phiOpp) / (Math.PI * Math.PI));
+    const q = (m: number) => e / 2 + (1 - e) / (1 + Math.exp(-g * (m - muOpp)));
+    const logL = (m: number) => Math.log(q(m)); // a win
+    const h = 1e-5;
+    const score = (logL(mu + h) - logL(mu - h)) / (2 * h);
+    const p = 1 / (1 + Math.exp(-g * (mu - muOpp)));
+    const dq = (1 - e) * g * p * (1 - p);
+    const info = (dq * dq) / (q(mu) * (1 - q(mu)));
+    const phi = player.rd / SCALE;
+    const next = updateGlicko(player, opponent, 1, e);
+    const newPhi = next.rd / SCALE;
+    // The rating step is newPhi^2 * score; newPhi^2 = 1 / (1 / phi*^2 + info).
+    expect((next.rating - player.rating) / SCALE).toBeCloseTo(newPhi * newPhi * score, 5);
+    const sigma = next.volatility;
+    const phiStar2 = phi * phi + sigma * sigma;
+    expect(1 / (newPhi * newPhi)).toBeCloseTo(1 / phiStar2 + info, 5);
+  });
+
+  it("moves the rating less and shrinks rd less than the published update", () => {
+    const plain = updateGlicko(player, opponent, 1);
+    for (const e of [0.05, 0.2, 0.5]) {
+      const lapsed = updateGlicko(player, opponent, 1, e);
+      expect(lapsed.rating - player.rating).toBeLessThan(plain.rating - player.rating);
+      expect(lapsed.rating).toBeGreaterThan(player.rating);
+      expect(lapsed.rd).toBeGreaterThan(plain.rd);
+      expect(lapsed.rd).toBeLessThan(player.rd);
+    }
+  });
+
+  it("damps an upset more than the published update does", () => {
+    const strong = { rating: 1900, rd: 60, volatility: 0.06 };
+    const weak = { rating: 1200, rd: 60, volatility: 0.06 };
+    const plain = updateGlicko(weak, strong, 1);
+    const lapsed = updateGlicko(weak, strong, 1, 0.2);
+    expect(lapsed.rating - weak.rating).toBeLessThan((plain.rating - weak.rating) / 2);
+  });
+
+  it("is symmetric and leaves equal items unmoved on a tie", () => {
+    const first = applyComparison(DEFAULT_GLICKO_STATE, DEFAULT_GLICKO_STATE, "A", 0.2);
+    const second = applyComparison(DEFAULT_GLICKO_STATE, DEFAULT_GLICKO_STATE, "B", 0.2);
+    expect(first.a.rating).toBeCloseTo(second.b.rating, 6);
+    const tie = applyComparison(DEFAULT_GLICKO_STATE, DEFAULT_GLICKO_STATE, "EQUAL", 0.2);
+    expect(tie.a.rating).toBeCloseTo(DEFAULT_GLICKO_STATE.rating, 6);
+  });
+
+  it("rejects a lapse share outside [0, 1)", () => {
+    for (const bad of [-0.1, 1, 2, Number.NaN]) {
+      expect(() => updateGlicko(player, opponent, 1, bad)).toThrow(RangeError);
+    }
+  });
+});
