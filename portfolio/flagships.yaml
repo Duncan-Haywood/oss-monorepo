@@ -240,13 +240,22 @@ flagships:
       Swiss formats, with a self-hosted league page.
     next: >-
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
-      (multi-division scheduling on shared venues, travel, rainouts, standings, play-offs, officials,
-      bookings, coach sign-up CSVs, facility cost, duty rota and printable team sheets; even carry-over
-      by Russell's value with a whole-season double round robin, scored on 20 real top-flight seasons).
-      Landed 2026-11-11 (each with its README section): a Web Worker pool for the eight tries; capped
-      breaks (18 teams 2,154-2,674 at the minimum 48 breaks); zero-break odd leagues; Russell's GF(2^k)
-      perfect carry-over at 4, 8, 16, 32 teams (16-team season 1,048 to 912, the floor). Pattern-first
-      20-team leg one tried, not landed (no better than capped). Next, most valuable first: constructions for
+      (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
+      CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons).
+      Worker pool landed 2026-11-11 (README "Eight searches on a pool of workers"): the page runs
+      eight tries split over one Web Worker per core (carryOverTry, splitCarryOverTries,
+      combineCarryOverTries; same season on any core count, tested); 8 x effort 1 vs 4: 18 teams
+      score 2,307 to 2,247 (breaks 73.3 to 68.7), 20 teams 2,907 to 2,880. Capped breaks 2026-11-11
+      (README "Carry-over under a cap on breaks"): lowCarryOverCappedRounds, 8 + 2 capped tries, a
+      "fewest" choice; 18 teams 2,154-2,674 at the minimum 48 (Bundesliga 3,474+ at 48), 20 teams
+      4,734-5,080 at 54. Odd leagues 2026-11-11 later (README "Odd leagues: zero-break home/away"):
+      assignVenues two-colours stretches between byes (odd circle 0 breaks, balanced; was 46 at 19),
+      run moves, never worse than the old pass; odd capped tries run the capped search (15 teams ~300
+      at 12-16 breaks vs 35-40). Pattern-first 20-team leg tried, not landed (README).
+      Field start 2026-11-11 later (README "Perfect
+      carry-over at 4, 8, 16 and 32 teams"): Russell's GF(2^k) timetable, every count 0 or 1, at
+      power-of-two sizes (bye included); 16 teams 316 to 224 (floor), 16-team season 1,048 to 912
+      (floor), page's balanced pick 1,220/54 to 996/48. Next, most valuable first: constructions for
       other common sizes (12, 10, 14, 20: from the literature, e.g. starters or Latin-square based
       ones, checked against the search); a bound for the
       minimum-break pattern (per-team opponent order), or a 20-team leg at 22-30 breaks from a
