@@ -281,8 +281,48 @@ def selfcal_fixed_analytic(obs, size, f0, nk=1, ref=0, max_nfev=2000):
                         jac=lambda p: _fun_jac_fixed(p, *args, True).toarray(), method="lm",
                         max_nfev=max_nfev, xtol=1e-12, ftol=1e-12, gtol=1e-10)
     out = _summarise(sol, ni, nk, ref)
+    out.update(robust_sf(np.asarray(sol.jac), sol.fun, nv, npt))
     out["planarity"] = planarity(np.insert(sol.x[ni + 6 * (nv - 1):], 2, X[0, 2]).reshape(npt, 3))
     return out
+
+
+def robust_sf(J, r, nv, npt):
+    """Sandwich (Huber-White) standard deviations of f, the first parameter.
+
+    var f = sum over clusters g of ((J_g b) . r_g)^2, b = (J^T J)^-1 e_f, times the
+    small-sample factor G / (G - 1). Residuals are ordered view-major, then corner,
+    then (u, v), as in _fun_jac_fixed. Clusters: views ("view"), corners ("point"),
+    and each pixel coordinate on its own ("hc0", no small-sample factor)."""
+    sc = np.linalg.norm(J, axis=0)
+    sc[sc == 0] = 1.0
+    Js = J / sc
+    e = np.zeros(J.shape[1]); e[0] = 1.0
+    b = np.linalg.lstsq(Js.T @ Js, e / sc, rcond=None)[0] / sc   # (J^T J)^-1 e_f
+    u = (J @ b) * r                                               # influence of each residual on f
+    uv = u.reshape(nv, npt, 2)
+    per_view = uv.sum(axis=(1, 2))
+    per_point = uv.sum(axis=(0, 2))
+    return dict(sf_cr_view=float(np.sqrt(nv / (nv - 1) * per_view @ per_view)) if nv > 1 else float("nan"),
+                sf_cr_point=float(np.sqrt(npt / (npt - 1) * per_point @ per_point)),
+                sf_hc0=float(np.sqrt(u @ u)))
+
+
+def jackknife_sf(obs, size, f0, nk=1, max_nfev=2000):
+    """Leave-one-view-out jackknife of f: re-solve without each view in turn (cold start,
+    reference view 0 of the remaining set). Returns sigma, the k leave-one-out f values
+    and how many of those solves converged."""
+    k = obs.shape[0]
+    fs, conv = [], 0
+    for v in range(k):
+        s = selfcal_fixed_best(np.delete(obs, v, axis=0), size, f0, nk, refs=(0,), max_nfev=max_nfev)
+        if s is None or not np.isfinite(s["f"]):
+            fs.append(float("nan")); continue
+        fs.append(s["f"]); conv += s["status"] > 0
+    a = np.array(fs)
+    ok = np.isfinite(a)
+    m = ok.sum()
+    sd = float(np.sqrt((m - 1) / m * np.sum((a[ok] - a[ok].mean()) ** 2))) if m > 1 else float("nan")
+    return dict(sf_jack=sd, f_loo=fs, loo_converged=int(conv), loo_n=int(k))
 
 
 def selfcal_fixed_best(obs, size, f0, nk=1, refs=(0,), max_nfev=2000):
