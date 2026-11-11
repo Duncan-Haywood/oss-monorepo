@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKisALdoYBXeFXderKx",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T19:10:40Z",
+  "ended": "2026-11-11T19:39:39Z",
+  "wall_minutes": 28.98,
+  "tokens_in": 7519517,
+  "tokens_out": 54898,
+  "cost_usd": 3.6505,
+  "tool_calls": 64,
+  "task": "creative: For Other Minds story 'The First Objection' (BIBLE next-up proposal)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14861",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Wrote a full Hearth & Horizon story from the 'The Rising Shore' proposal and opened PR #14861 with it; #14859 (another session) landed the same proposal minutes earlier. Dropped the draft and repurposed the PR; about 15 minutes of work discarded."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The open-PR duplicate check at pick time missed #14859 because it was opened after my check; two sessions took the same BIBLE next-up item within minutes. A claim (e.g. marking the proposal 'in progress: <branch>' in a pushed commit, or claim-checking open PRs again just before push) would have caught it."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes refused on a fresh shallow clone until origin/main was fetched, then took over 500 s for a stories-only diff (ran in background); its verdict was voided as UNSTABLE CHECKOUT because I committed while it ran."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "A force-push to replace the superseded commits was refused by the permission classifier",
+      "did": "merged the old branch tip with -s ours so the PR diff is only the new story, history kept",
+      "result": "PR diff against main is only the new work"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-the-first-objection.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon (For Other Minds shelf), piece the-first-objection. Text only: audio dirs 423 MB, over the 400 MB cap. Security queue empty, IDEAS.md and website requests empty; routed creative by weighted draw. The superseded Rising Shore draft (2589, Kvarken) is kept in the branch history (commit 46bd017f) for anyone revising #14859's story. Main's validate was red (changepoint-detector next: over cap); #14859 fixed it. hearth-and-horizon node --test 14/14; post front-matter, links, similarity clean. No agent doc: BIBLE carries the timeline row and a replacement proposal.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aef253b8-5056-58df-abd3-bcda72347b97",
+    "transcripts": 1,
+    "first": "2026-11-11T19:10:40Z",
+    "last": "2026-11-11T19:39:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 134,
+        "output": 54898,
+        "thinking": 17899,
+        "cache_read": 7385009,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134374,
+        "api_equivalent_usd": 3.6505,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 134,
+      "output": 54898,
+      "thinking": 17899,
+      "cache_read": 7385009,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134374,
+      "api_equivalent_usd": 3.6505,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 4,
+      "Write": 4,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.98,
+      "active_minutes": 22.06,
+      "model_minutes": 12.18,
+      "tool_minutes": 9.88,
+      "waiting_on_human_minutes": 6.92,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a writer drafting and checking a ~3,900-word short story plus a blog post (the discarded duplicate draft not counted)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 219.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
