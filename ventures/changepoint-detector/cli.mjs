@@ -23,7 +23,7 @@ Usage:
 Options:
   --column <name|index>     value column (default: last numeric column)
   --label-column <name|i>   label/date column (default: first column)
-  --model mean|meanvar|trend|poisson|drift  change in level, in level and volatility, in level or slope of a trending series, in the rate of counts, or (drift) jumps on a level that wanders as a random walk between them, so a smooth or drifting series is not read as a staircase (default: mean; drift takes --penalty <number> and --min-segment only)
+  --model mean|meanvar|trend|poisson|drift  change in level, in level and volatility, in level or slope of a trending series, in the rate of counts, or (drift) jumps on a level that wanders as a random walk between them, so a smooth or drifting series is not read as a staircase (default: mean; drift takes --penalty <number>, --min-segment, --drift-slope and --drift-noise only)
   --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
   --dispersion              with --model meanvar: scale the penalty by the dispersion of the squared residuals (fewer false alarms on heavy tails or clustered volatility)
   --robust                  with --model meanvar: Laplace noise instead of Gaussian, so heavy tails are not read as volatility changes
@@ -58,6 +58,7 @@ Options:
   --columns [a,b,...]       several columns measured at the same points: each column's agreed changes, merged, plus one segmentation for all columns (--model mean or meanvar); no list = every numeric column; takes --label-column, --penalty, --min-segment, --consensus n as the tolerance
   --joint-floor auto|off|k  with --columns and the level model: each column's noise for the one segmentation. auto (default) floors only a column whose own level fit over-cuts; k floors every column at k x the local-line scatter; off is the plain fit
   --drift-slope             with --model drift: take out the series' median step first, so a steady growth (population, prices) is not paid for as wander
+  --drift-noise ml|lags     with --model drift: how the wander is sized. ml (default) chooses it together with the changes, so one big step is not absorbed as wander; lags is the earlier estimate from lag differences alone
   --joint-ar1               with --columns and the level model: each column's sd raised to its AR(1) long-run sd
   --no-agreed               with the level model: skip the six-setting panel that leads the text output with the changes every setting agrees on (runs on worker threads; skipped anyway above 10000 points)
   --json                    print the full result as JSON
@@ -89,6 +90,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--joint-floor') { const v = argv[++i]; if (v !== 'auto' && v !== 'off' && !(Number(v) > 0)) throw new Error('--joint-floor takes auto, off or a positive number.'); opt.jointFloor = v === 'auto' || v === 'off' ? v : Number(v); }
     else if (a === '--joint-ar1') opt.jointAr1 = true;
     else if (a === '--drift-slope') opt.driftSlope = true;
+    else if (a === '--drift-noise') { const v = argv[++i]; if (v !== 'ml' && v !== 'lags') throw new Error('--drift-noise takes ml or lags.'); opt.driftNoise = v; }
     else if (a === '--drift') opt.drift = true;
     else if (a === '--log') opt.log = true;
     else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
@@ -130,7 +132,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   if (typeof opt.holidays === 'string') opt.holidays = opt.holidays.split(',').map((h) => h.trim()).filter(Boolean);
   if (opt.model === 'drift') {
     const { driftText, driftResult } = await import('./drift-cli.mjs');
-    const r = driftResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, penalty: opt.penalty, minSegment: opt.minSegment, slope: opt.driftSlope });
+    const r = driftResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, penalty: opt.penalty, minSegment: opt.minSegment, slope: opt.driftSlope, noise: opt.driftNoise });
     out((json ? JSON.stringify(r, null, 2) : driftText(r)) + '\n');
     return 0;
   }

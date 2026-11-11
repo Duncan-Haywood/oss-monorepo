@@ -15,10 +15,12 @@ const SET = {
   'level (default)': (x) => analyze({ values: x }).pelt.changepoints.map((c) => c.index),
   'level, floor 2 local 25': (x) => analyze({ values: x, ...FLOOR }).pelt.changepoints.map((c) => c.index),
   'drift level': (x) => driftLevelChanges(x).changepoints,
+  // Added 2026-11-11 later (README "A step-robust omega"); the data and the other columns are unchanged.
+  'drift level, ML wander': (x) => driftLevelChanges(x, { noise: 'ml' }).changepoints,
 };
 const N = 200, AT = 100, REPS = 60;
 console.log(`n ${N}, noise sd 1, one step at t = ${AT}; ${REPS} series per cell. found = a change within 5 points; other = mean count of the rest.`);
-console.log('  omega  step  ' + Object.keys(SET).map((k) => k.padEnd(26)).join(''));
+console.log('  omega  step  ' + Object.keys(SET).map((k) => k.padEnd(25)).join(''));
 for (const omega of [0, 0.1, 0.3]) for (const h of [0, 3, 5]) {
   const acc = Object.fromEntries(Object.keys(SET).map((k) => [k, { found: 0, other: 0 }]));
   for (let r = 0; r < REPS; r++) {
@@ -31,5 +33,5 @@ for (const omega of [0, 0.1, 0.3]) for (const h of [0, 3, 5]) {
       acc[k].other += cps.length - (hit ? 1 : 0);
     }
   }
-  console.log(`  ${omega.toFixed(1).padStart(5)}  ${String(h).padStart(4)}  ` + Object.keys(SET).map((k) => `${h ? `${String(acc[k].found).padStart(2)}/${REPS}` : '  -  '} other ${(acc[k].other / REPS).toFixed(2)}`.padEnd(26)).join(''));
+  console.log(`  ${omega.toFixed(1).padStart(5)}  ${String(h).padStart(4)}  ` + Object.keys(SET).map((k) => `${h ? `${String(acc[k].found).padStart(2)}/${REPS}` : '  -  '} other ${(acc[k].other / REPS).toFixed(2)}`.padEnd(25)).join(''));
 }
