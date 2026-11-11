@@ -13,12 +13,15 @@ many sessions toward a paper. A directory created after that date passes if it
 - explains why it stands alone (`"programme": "none"` with a non-empty `why_standalone`).
 
 Directories on main before the programme bar landed (2026-10-24) are listed in legacy_projects.txt and exempt.
-Exit 1 lists each failing directory and what it lacks.
+It also runs src_layout.py: a src-layout project whose tests a plain `pytest` cannot import
+(`src_layout.py --fix` repairs it). Exit 1 lists each failing directory and what it lacks.
 """
 import json
 import re
 import sys
 from pathlib import Path
+
+import src_layout
 
 RESEARCH = Path(__file__).resolve().parents[1]
 SECTIONS = ["Question", "Why it matters", "Related work", "Gap", "Hypotheses",
@@ -80,6 +83,9 @@ def main(root=RESEARCH):
     bad = {}
     for d in sorted(p for p in root.iterdir() if p.is_dir() and p.name[0] not in "_."):
         found = problems(d, legacy, root)
+        if src_layout.needs_fix(d):
+            found = found + ["tests import a src/ package that plain pytest cannot find;"
+                             " run python3 research/_shared/src_layout.py --fix"]
         if found:
             bad[d.name] = found
     for name, found in bad.items():
