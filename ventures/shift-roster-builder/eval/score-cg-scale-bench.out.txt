@@ -35,3 +35,8 @@ case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  col
 case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
 0	245	30021218.22	30021152.70	30021152.70	30021161.23	8.53	false	32	2754	0	301107
 1	238	30821320.70	30821320.70	30821320.70	30821320.70	0.00	true	1	1144	0	17475
+
+# 2026-11-11 later: week 0 again with dive backtracking (retries of the next fractional pin, budget P, at most half of ms).
+60 people, 168 shift lines, 300000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	245	30021218.22	30021152.70	30021152.70	30021155.38	2.68	false	55	3078	0	307908
