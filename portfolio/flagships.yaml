@@ -148,7 +148,7 @@ flagships:
       (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which
       validator does AT run?); Poland's FA(3) on a KSeF test-environment file and
       a real correction, advance or settlement file; the rules and a repair on a
-      real ERP or Factur-X export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1) added and run on OpenPeppol's 40 examples 2026-11-11 (README, eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file, PINT JP/MY/AE/OM; NLCIUS/RO/PT/ZATCA good-case lists scored 2026-11-11 (README, `--good`: ZATCA 8 to 18 of 19, CIUS-PT hang on attachments fixed, official warnings no longer fail a file, RO non-VAT buyer CUI); open from it: UBL-SR-53 on RO empty TaxScheme (EN rule-version gap), INV-026 on national clearing codes in BT-86, ZATCA rate-change prepayment row;
+      real ERP or Factur-X export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1) added and run on OpenPeppol's 40 examples 2026-11-11 (README, eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file, PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README `--good`; 4 fixes); open: UBL-SR-53 on RO empty TaxScheme, INV-026 on clearing codes in BT-86, ZATCA rate-change row;
       RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
       check on a real IRP payload; mandate dates read from primary sources where
       pages cite guides (Israel, Denmark, Czech, Latvia; Luxembourg; ato.gov.au

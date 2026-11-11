@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
   "errors": [
     "First corpus run had no official rules at all: plain-node.mjs needs `npm i --no-save slimdom fontoxpath`, and without it runPlain silently reports 'unavailable', so the PINT/ZATCA drops never fired and the numbers looked far worse than they were.",
-    "Seven corpus runs started in parallel; the CIUS-PT one hung at 4.4 GB, which is how the DT-CIUS-PT-111.1 regex blow-up was found."
+    "Seven corpus runs started in parallel; the CIUS-PT one hung at 4.4 GB, which is how the DT-CIUS-PT-111.1 regex blow-up was found.",
+    "CI validate failed: my flagships.yaml next: addition pushed einvoice-preflight's field to 2067 chars (cap 2000); shortened. portfolio/router/validate.py was not in run_workflow_locally's --for-changes output I read."
   ],
   "integrity_issues": [],
   "doc_friction": [
