@@ -1,9 +1,9 @@
 ---
 title: "Staff to the customers, not the money: ticket counts on three real bakeries"
-seo_title: "Schedule staff by transactions per hour, not sales: tested on real POS data"
+seo_title: "Schedule staff by transactions per hour, not sales: real POS data"
 date: 2026-11-11
 tags: [scheduling, forecasting, labor, small-business, open-source]
-description: "A free shift planner can now staff to tickets per hour instead of sales per hour. On a French bakery that moves hours from the morning to the late afternoon; on a Korean one it changes nothing."
+description: "Staffing to tickets per hour instead of sales on three real bakeries: hours move from morning to late afternoon in one, nothing changes in another."
 ---
 
 Every plan the free [shift roster builder](../../ventures/shift-roster-builder/)
