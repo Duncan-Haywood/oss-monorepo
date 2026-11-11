@@ -676,7 +676,23 @@ starters per size. `eval/starter-anneal.mjs` climbs instead, and the table in `c
   16, 20 and 32. As with 20 I have not compared this with published constructions; the test checks
   the counts directly (`starter.test.mjs`).
 - The annealing search in `lowCarryOverRounds` runs from this start (and the circle start, keeping the
-  better), so the gains carry into what the page builds; see "Through the search" below.
+  better), so the gains carry into what the page builds. **Through the search** (`node
+  eval/field-start.mjs 21 22 23 24 26 30`, seed 1, effort 1, `eval/starter-anneal-search.txt`;
+  carry-over / breaks, sampled starter -> climbed starter):
+
+  | Teams | Single, carry-over only | Season, carry-over only | Season, weight 10 |
+  |---|---|---|---|
+  | 22 | 516/68 -> 440/66 (floor) | 1,862/154 -> 1,782/148 (floor) | 1,920/150 -> 1,782/144 (floor) |
+  | 24 | 654/76 -> 612/84 | 2,482/248 -> 2,312/194 | 2,488/172 -> 2,488/178 |
+  | 26 | 762/98 -> 716/102 | 2,780/310 -> 2,618/230 | 3,098/208 -> 2,618/230 |
+  | 30 | 1,042/132 (circle) -> 1,002/140 | 3,684/424, unchanged (circle) | 3,726/278 -> 3,838/300 |
+
+  With carry-over only, every size moved down or held. With a break weight, two got worse: 24-team
+  season +6 breaks at the same carry-over, and 30 teams (single 1,110/126 -> 1,154/122, score 2,370 to
+  2,374; season score 6,506 -> 6,838). The climbed starters were chosen on carry-over alone, and
+  `bestStarterOpp` picks the start by carry-over first, so a lower-carry-over start can leave the
+  break pass a worse pattern. Open: pick the start (or keep a second starter) by carry-over + weight x
+  breaks when a weight is set.
 - Open: 24 to 40 teams are still 16 to 28% above the floor; longer runs keep finding small gains, so the
   table is a measurement of 60 s, not a limit. The previous section's 10,000-sample scratch run
   reported 24 teams 570, below the climb's 612 with all 24 playing (570 is close to the climb's 565
