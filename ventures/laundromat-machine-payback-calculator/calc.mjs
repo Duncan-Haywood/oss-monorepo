@@ -75,7 +75,9 @@ export function analyze(machines, opts = {}) {
   // A price rise changes revenue and fees on every cycle that stays; utilities fall with the cycles that leave.
   const raises = [3, 5, 10, 15].map((pct) => {
     const c1 = revenue * (1 + pct / 100) * (1 - fee) - utilCost;
-    const breakEvenLoss = c1 > contribution && c1 > 0 ? (c1 - contribution) / c1 : 0;
+    // At zero or negative contribution every cycle can leave without lowering it: 100%, never more
+    // ((c1 - contribution) / c1 read over 100% there before 2026-11-11).
+    const breakEvenLoss = c1 <= contribution ? 0 : contribution <= 0 ? 1 : (c1 - contribution) / c1;
     const keep = o.retentionIfRaised / 100;
     return { pct, extraPerMonth: c1 - contribution, breakEvenLoss, atRetention: c1 * keep - contribution };
   });

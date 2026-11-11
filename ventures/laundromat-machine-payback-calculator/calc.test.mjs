@@ -83,3 +83,9 @@ testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a m
   assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
   assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
 });
+
+test("price raise break-even never exceeds 100% when utilities and fees outrun the price", () => {
+  // 6000 * 0.97 - 5880 = -60 a month: every cycle can leave without lowering contribution.
+  const r = analyze(rows("W,10,5,4,4.9,5000"), { cardFeePct: 3 });
+  for (const x of r.raises) near(x.breakEvenLoss, 1);
+});

@@ -91,3 +91,18 @@ testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a m
   assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
   assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
 });
+
+test("break-even loss never exceeds 100% when supplies and fees outrun the price", () => {
+  // 100 * 0.97 - 98 = -1 a dog: every dog can leave without lowering contribution, so 100%, not 126%.
+  const r = analyze(svc("A,100,60,98,10"), {});
+  assert.ok(r.week.contribution < 0);
+  for (const x of r.raises) near(x.breakEvenLoss, 1);
+  const none = analyze(svc("A,100,60,0,0"), {});
+  for (const x of none.raises) near(x.breakEvenLoss, 0);
+});
+
+test("price-rise change at retention takes card fees off the raised price", () => {
+  // 3% fee, 10 dogs at $100, $0 supplies: raised revenue 1100 * 0.97, kept at 90%, vs 1000 * 0.97.
+  const r = analyze(svc("A,100,60,0,10"), { cardFeePct: 3, retentionIfRaised: 90 });
+  near(r.raises.find((x) => x.pct === 10).atRetention, 1100 * 0.97 * 0.9 - 1000 * 0.97);
+});

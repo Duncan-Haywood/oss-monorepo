@@ -212,3 +212,11 @@ test('on a phone the breadcrumb stays on one line and cuts the current title', a
   const m = /@media \(max-width:600px\)\{[^}]*\.pfs-crumbs\{[^}]*white-space:nowrap[\s\S]*?text-overflow:ellipsis/.exec(SITE_HEADER_CSS);
   assert.ok(m, 'phone rule keeps .pfs-crumbs nowrap and ellipsises [aria-current]');
 });
+
+test('the chrome CSS gives no length a bare number (the browser would drop the rule)', async () => {
+  // Red team 2026-11-11: `margin:0 auto` -> `margin:1 auto` and `margin:0` -> `margin:1` passed every
+  // test here; both are invalid CSS a browser silently ignores. css-lint.mjs has the full check.
+  const { unitlessLengths } = await import('./css-lint.mjs');
+  assert.deepEqual(unitlessLengths(SITE_HEADER_CSS), []);
+  assert.deepEqual(unitlessLengths(VENTURE_CHROME_CSS), []);
+});
