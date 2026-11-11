@@ -105,22 +105,36 @@ export function gains(n, q) {
 // 2 lossK |z| - lossK^2 and moves the level by the clipped innovation (Masreliez-style robust filter).
 // The filter's variances are left as they are, so the O(n^2) structure is unchanged
 // (README "Heavy tails on a drifting level").
-export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags', loss = 'gauss', lossK = 3 } = {}) {
+// scale: 'global' (the default) keeps one noise sd for the whole series. 'segment' gives every
+// segment its own scale s (both its noise sd and its wander sd are multiplied by s; q is shared), so
+// a burst of volatility is one stretch with a larger scale instead of a run of jumps (TCPD's bank,
+// bitcoin, apple's volume: README "Volatility on a drifting level"). Each segment's s^2 is profiled
+// out: with j innovations and S = sum v^2 / F in global-sigma units, s^2 = max(S / j, SCALE_FLOOR)
+// and the cost is j log s^2 + sum log F + S / s^2. The diffuse first point carries no scale, so
+// the values are standardised by the global sigma first and the floor (s at least a tenth of it) is
+// a numerical guard against a near-constant stretch, not tuned on any scored series. The default
+// penalty becomes 3 log n (a level and a scale per change, as engine.mjs gives 'meanvar'). Gaussian
+// loss only. Same O(n^2): the running S per open start replaces the running cost.
+export const SCALE_FLOOR = 0.01;
+export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags', loss = 'gauss', lossK = 3, scale = 'global' } = {}) {
+  if (scale !== 'global' && scale !== 'segment') throw new Error(`scale must be global or segment, not ${scale}`);
+  if (scale === 'segment' && loss !== 'gauss') throw new Error('scale segment takes the Gaussian loss only');
   const raw = Array.from(values, Number);
   const g = slope ? medianSlope(raw) : 0;
   const x = g ? raw.map((v, t) => v - g * t) : raw;
   const n = x.length;
   if (n < 2 * minSegment) return { changepoints: [], sigma: sigma ?? null, omega: omega ?? null, penalty: null };
   if (noise === 'ml' && (sigma == null || omega == null)) {
-    const ml = driftNoiseML(x, { penalty, minSegment, loss, lossK });
-    return { ...driftLevelChanges(x, { sigma: ml.sigma, omega: ml.omega, penalty, minSegment, loss, lossK }), slope: g, noise: 'ml', ml };
+    const ml = driftNoiseML(x, { penalty, minSegment, loss, lossK, scale });
+    return { ...driftLevelChanges(x, { sigma: ml.sigma, omega: ml.omega, penalty, minSegment, loss, lossK, scale }), slope: g, noise: 'ml', ml };
   }
   const est = sigma == null || omega == null ? driftNoise(x) : null;
   const s = sigma ?? est.sigma, w = omega ?? est.omega;
-  const beta = penalty ?? 2 * Math.log(n);
+  const beta = penalty ?? (scale === 'segment' ? 3 : 2) * Math.log(n);
   const q = (w * w) / (s * s);
   const y = x.map((v) => v / s);
   const { K, logF, F } = gains(n, q);
+  if (scale === 'segment') return { ...segmentScalePartition(y, K, F, logF, beta, minSegment), sigma: s, omega: w, penalty: beta, slope: g, noise: est ? 'lags' : 'given', loss, lossK: null, scale };
   const lossKind = lossCode(loss), K2 = lossK * lossK;
   // For every open segment start st: its filtered level a[st] and its cost so far c[st].
   const a = new Float64Array(n), c = new Float64Array(n);
@@ -156,7 +170,59 @@ export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 
   const cps = [];
   for (let t = n; t > 0; t = last[t]) if (last[t] > 0) cps.push(last[t]);
   cps.reverse();
-  return { changepoints: cps, sigma: s, omega: w, penalty: beta, cost: best[n], slope: g, noise: est ? 'lags' : 'given', loss, lossK: lossKind ? lossK : null };
+  return { changepoints: cps, sigma: s, omega: w, penalty: beta, cost: best[n], slope: g, noise: est ? 'lags' : 'given', loss, lossK: lossKind ? lossK : null, scale };
+}
+
+// The profiled cost of j innovations whose sum of squared standardised innovations is S and whose
+// log F sum is LF (see driftLevelChanges, scale 'segment').
+export function scaleCost(j, S, LF) {
+  if (j === 0) return 0;
+  const s2 = Math.max(S / j, SCALE_FLOOR);
+  return j * Math.log(s2) + LF + S / s2;
+}
+
+function segmentScalePartition(y, K, F, logF, beta, minSegment) {
+  const n = y.length;
+  const cumLF = new Float64Array(n);
+  for (let j = 1; j < n; j++) cumLF[j] = cumLF[j - 1] + logF[j];
+  const a = new Float64Array(n), S = new Float64Array(n);
+  const best = new Float64Array(n + 1), last = new Int32Array(n + 1);
+  best[0] = -beta;
+  for (let t = 0; t < n; t++) {
+    for (let st = 0; st < t; st++) {
+      const j = t - st, v = y[t] - a[st];
+      S[st] += (v * v) / F[j];
+      a[st] += K[j] * v;
+    }
+    a[t] = y[t]; S[t] = 0;
+    let bv = Infinity, bs = 0;
+    for (let st = 0; st + minSegment - 1 <= t; st++) {
+      if (st > 0 && st < minSegment) continue;
+      const v = best[st] + beta + scaleCost(t - st, S[st], cumLF[t - st]);
+      if (v < bv) { bv = v; bs = st; }
+    }
+    best[t + 1] = bv; last[t + 1] = bs;
+  }
+  const cps = [];
+  for (let t = n; t > 0; t = last[t]) if (last[t] > 0) cps.push(last[t]);
+  cps.reverse();
+  return { changepoints: cps, cost: best[n] };
+}
+
+// Each segment's own scale (scale 'segment'), as a multiple of the global sigma: s = sqrt(max(S / j,
+// floor)) from that segment's Kalman innovations. One entry per segment, in order.
+export function segmentScales(values, changepoints, { sigma, omega, slope = 0 }) {
+  const x = Array.from(values, (v, t) => (Number(v) - slope * t) / sigma), n = x.length;
+  const bounds = [0, ...changepoints, n];
+  const { K, F } = gains(n, (omega * omega) / (sigma * sigma));
+  const out = [];
+  for (let b = 0; b + 1 < bounds.length; b++) {
+    let a = x[bounds[b]], S = 0;
+    const m = bounds[b + 1] - bounds[b];
+    for (let j = 1; j < m; j++) { const v = x[bounds[b] + j] - a; S += (v * v) / F[j]; a += K[j] * v; }
+    out.push(m > 1 ? Math.sqrt(Math.max(S / (m - 1), SCALE_FLOOR)) : 1);
+  }
+  return out;
 }
 
 function lossCode(loss) {
@@ -179,16 +245,16 @@ function lossCode(loss) {
 // per change, which makes a change worth -log sigma^2 (a bonus that depends on the data's units);
 // charging that point log sigma^2 instead makes the likelihood unbounded as sigma goes to 0 with
 // many short segments. Holding sigma at a robust estimate avoids both.
-export function driftNoiseML(values, { penalty, minSegment = 2, grid = null, sigma = null, loss = 'gauss', lossK = 3 } = {}) {
+export function driftNoiseML(values, { penalty, minSegment = 2, grid = null, sigma = null, loss = 'gauss', lossK = 3, scale = 'global' } = {}) {
   const x = Array.from(values, Number), n = x.length;
-  const beta = penalty ?? 2 * Math.log(n);
+  const beta = penalty ?? (scale === 'segment' ? 3 : 2) * Math.log(n);
   const start = driftNoise(x);
   const s = sigma ?? start.sigma;
   const memo = new Map();
   const evalQ = (q) => {
     const key = q.toPrecision(12);
     if (!memo.has(key)) {
-      const r = driftLevelChanges(x, { sigma: s, omega: s * Math.sqrt(q), penalty: beta, minSegment, loss, lossK });
+      const r = driftLevelChanges(x, { sigma: s, omega: s * Math.sqrt(q), penalty: beta, minSegment, loss, lossK, scale });
       memo.set(key, { q, sigma: s, omega: r.omega, objective: r.cost, changepoints: r.changepoints });
     }
     return memo.get(key);
@@ -263,10 +329,12 @@ export function driftLevel(values, opts = {}) {
   // With slope, the path carries the steady growth back in, so one step's growth is taken off the
   // jump (before 2026-11-11 the jump on Australian residents included the 51.3-a-quarter growth).
   const g = r.slope || 0;
-  const changes = r.changepoints.map((i) => ({
+  const scales = r.scale === 'segment' ? segmentScales(values, r.changepoints, r) : null;
+  const changes = r.changepoints.map((i, k) => ({
     index: i, before: level[i - 1], after: level[i], jump: level[i] - level[i - 1] - g, jumpSd: (level[i] - level[i - 1] - g) / r.sigma,
+    ...(scales ? { scaleBefore: scales[k], scaleAfter: scales[k + 1], scaleRatio: scales[k + 1] / scales[k] } : {}),
   }));
-  return { ...r, tails, changes, level };
+  return { ...r, tails, changes, level, ...(scales ? { scales } : {}) };
 }
 
 // The heavy-tail check (README "Heavy tails on a drifting level"). It says where a series' heavy
