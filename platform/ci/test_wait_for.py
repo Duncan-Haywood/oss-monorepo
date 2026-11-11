@@ -21,6 +21,25 @@ class WaitFor(unittest.TestCase):
             ok, _ = wait(p, timeout=3, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s))
             self.assertFalse(ok)
 
+    def test_marker_as_first_word(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("build\nEXIT 0\n")
+            ok, lines = wait(p, marker="EXIT", timeout=1)
+            self.assertTrue(ok)
+            self.assertEqual(lines[-1], "EXIT 0")
+            open(p, "w").write("DONE: 3 checks\n")
+            self.assertTrue(wait(p, timeout=1)[0])
+
+    def test_marker_prefix_of_a_word_does_not_count(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("EXITING soon\nDONEish\n")
+            t = [0.0]
+            nap = lambda s: t.__setitem__(0, t[0] + s)
+            self.assertFalse(wait(p, marker="EXIT", timeout=3, clock=lambda: t[0], nap=nap)[0])
+            self.assertFalse(wait(p, timeout=3, clock=lambda: t[0], nap=nap)[0])
+
     def test_missing_file_times_out(self):
         t = [0.0]
         ok, _ = wait("/nonexistent/x.log", timeout=5, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s))

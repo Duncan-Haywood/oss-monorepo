@@ -15,6 +15,9 @@ A job with a known pid: `--pid 12345` returns once that process has exited. Do n
 use `--until "pgrep -f name"`: the shell running it matches its own command line, so it
 returns at once (friction 2026-11-06); use `--pid`, or bracket the first letter, `'[n]ame'`.
 
+`echo EXIT $?` works as a marker line too: `--marker EXIT` matches `EXIT 0`, and
+the printed tail shows the job's exit code.
+
 Exit 0 and the log's last lines once the marker line appears; exit 1 on timeout
 (the job may still run: call again). The default stays under the 120 s tool limit.
 For a job of many minutes, start wait_for itself with `run_in_background --timeout 3600`;
@@ -25,13 +28,22 @@ Do not pipe it (`| tail`) or chain `&& echo DONE`: a pipe hides the exit 1 and t
 import argparse, os, subprocess, sys, time
 
 
+def is_marker(line, marker):
+    """The marker alone, or as the line's first word: `--marker EXIT` matches
+    `EXIT 0` (an `echo EXIT $?` line), `DONE` matches `DONE in 42 s`. A marker
+    inside a line (`not DONE yet`) does not count (friction 2026-11-11: `--marker
+    EXIT` waited its full 540 s timeout on a log that ended `EXIT 0`)."""
+    s = line.strip()
+    return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:")
+
+
 def wait(path, marker="DONE", timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep):
     end = clock() + timeout
     while True:
         if os.path.exists(path):
             with open(path, errors="replace") as f:
                 lines = f.read().splitlines()
-            if any(l.strip() == marker for l in lines):
+            if any(is_marker(l, marker) for l in lines):
                 return True, lines
         if clock() >= end:
             return False, []
