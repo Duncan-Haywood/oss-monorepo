@@ -147,3 +147,41 @@ def test_heap_simulator_matches_6f_run():
         w = sorted(tail6k.sim_waits(ts, 14))
         mean, p95 = tail6k.h6f.run(ts, 14)
         assert abs(sum(w) / len(w) - mean) < 1e-9 and w[int(0.95 * len(w))] == p95
+
+
+_pl = pathlib.Path(__file__).resolve().parents[1] / "experiments" / "hub_throughput" / "demand_variability.py"
+_sl = importlib.util.spec_from_file_location("hub_demand_var", _pl)
+var6l = importlib.util.module_from_spec(_sl)
+_sl.loader.exec_module(var6l)
+
+
+def test_decompose_recovers_a_planted_day_multiplier():
+    # 20 weekdays with an identical shape; one day doubled. The weekday factor absorbs part of it (that weekday's
+    # mean of total/level is (2 + 1 + 1 + 1) / 4), so the doubled day gets 2 / 1.25 and the other weekdays exactly 1.
+    import datetime
+    base = [10 + (b % 7) for b in range(96)]
+    days = {}
+    d0 = datetime.date(2014, 4, 7)  # a Monday
+    for i in range(28):
+        d = d0 + datetime.timedelta(days=i)
+        if d.weekday() < 5:
+            days[d.isoformat()] = [2 * v if i == 9 else v for v in base]
+    wd, M, r, shape, st = var6l.decompose(days)
+    hot = (d0 + datetime.timedelta(days=9)).isoformat()
+    wk = datetime.date.fromisoformat(hot).weekday()
+    assert abs(M[hot] - 2.0 / 1.25) < 1e-9
+    assert all(abs(M[d] - 1.0) < 1e-9 for d in wd if datetime.date.fromisoformat(d).weekday() != wk)
+    assert all(abs(x - 1.0) < 1e-9 for d in wd for x in r[d])
+    assert abs(sum(shape) / 96 - 1.0) < 1e-9
+
+
+def test_two_day_rule_counts_day_two_orders_at_the_set_load():
+    shape = [1.0] * 96
+    lam = var6l.lam_scale(shape, {"a": [1.0] * 96}, 0.7)
+    n, tl = var6l.day2_tails((shape, lam, [1.0] * 96))
+    assert abs(n - 0.7 * var6l.LIM * 24) < 1e-6
+    # a constant-rate mean day reproduces 6i's stationary wait share at S = 11 (within 6k's tolerance)
+    t0 = var6l.k6.order_tails(var6l.k6.Rate([lam] * 192), 1, var6l.k6.nq_path(var6l.k6.Rate([lam] * 192), 1),
+                              0.0, [11], trim=0.5)[11]
+    assert abs(t0 - ana.wait_share(ana.outstanding_pmf(lam, 1), 11, 1)) < 0.003
+    assert tl[300] < tl[1]
