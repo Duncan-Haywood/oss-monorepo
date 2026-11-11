@@ -72,7 +72,10 @@ Options:
                       A weekday that traded on under 1 in 4 of its dates is treated as closed, and an edge hour with sales on under 1 in
                       20 days does not stretch the day (--keep-rare turns both off). --backtest tests the forecast on your own file
                       instead: each full week after the first --warmup weeks (default 4) is planned from the weeks before it and compared
-                      hour by hour with what its sales needed, for the plain average, --half-life 2/4/8, last 4 weeks and last week
+                      hour by hour with what its sales needed, for the plain average, --half-life 2/4/8, last 4 weeks and last week.
+                      --short-cost <r>: a short person-hour costs r spare ones (a queue or lost sale vs idle pay); each hour is then
+                      staffed for the r/(1+r) share of its past dates (r 1 = median, 3 = 75th percentile) instead of the average,
+                      and --backtest scores r x short + over and tries every weighting with that rule
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
@@ -121,6 +124,7 @@ export function parseArgs(argv) {
     else if (a === "--backtest") o.backtest = true;
     else if (a === "--keep-rare") o.demand = { ...o.demand, keepRare: true };
     else if (a === "--warmup") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--warmup needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, warmup: v }; }
+    else if (a === "--short-cost") { const v = Number(argv[++i]); if (!(v > 0) || !Number.isFinite(v)) throw new Error("--short-cost needs a positive number (a short person-hour costs that many spare ones; 1 = equal)"); o.demand = { ...o.demand, shortCost: v }; }
     else if (a === "--half-life") { const v = Number(argv[++i]); if (!(v > 0)) throw new Error("--half-life needs a positive number of weeks"); o.demand = { ...o.demand, halfLife: v }; }
     else if (a === "--min-staff" || a === "--min-shift" || a === "--max-shift" || a === "--open" || a === "--close") {
       const v = Number(argv[++i]);
@@ -552,15 +556,18 @@ function swapReport(staff, slots, r, opts) {
 export function backtestReport(b) {
   if (!b.weeks) return b.notes.join("\n") + "\n";
   const f = (x) => x.toFixed(1);
-  const lines = [b.notes[b.notes.length - 1], "", "Method                                  Short   Over  Scheduled  Short+over  vs default (95% CI)"];
+  const r = b.shortCost == null ? null : b.shortCost;
+  const col = r === null ? "Short+over" : `${r}xshort+over`.padStart(10).slice(-12);
+  const lines = [b.notes[b.notes.length - 1], "", `Method                                  Short   Over  Scheduled  ${col.padStart(10)}  vs default (95% CI)`];
   for (const m of b.methods) {
     const vs = m.id === "all" ? "" : `${m.vsDefault >= 0 ? "+" : ""}${f(m.vsDefault)} (${f(m.ci[0])} to ${f(m.ci[1])})`;
-    lines.push(`${m.label.padEnd(38)}${f(m.short).padStart(7)}${f(m.over).padStart(7)}${f(m.scheduled).padStart(11)}${f(m.miss).padStart(12)}  ${vs}`);
+    lines.push(`${m.label.padEnd(38)}${f(m.short).padStart(7)}${f(m.over).padStart(7)}${f(m.scheduled).padStart(11)}${f(m.miss).padStart(Math.max(12, col.length + 2))}  ${vs}`);
   }
   const best = b.methods.find((m) => m.id === b.best);
   lines.push("", "Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.");
+  if (r !== null) lines.push(`Scored as ${r} x short + over (--short-cost ${r}). Rows with "short cost" staff each hour for ${Math.round(r / (1 + r) * 100)}% of its past dates instead of the average.`);
   lines.push(b.clear
-    ? `Best on your file: ${best.label} (${f(-best.vsDefault)} fewer person-hours off per week than the default, interval below zero).`
+    ? `Best on your file: ${best.label} (${f(-best.vsDefault)} ${r === null ? "fewer person-hours off" : "less weighted cost"} per week than the default, interval below zero).`
     : "No method is clearly better than the plain average on your file (every interval reaches zero or above): keep the default.");
   lines.push("A test on your past weeks, not a promise about the next one. Planning aid, not legal advice.");
   for (const n of b.notes.slice(0, -1)) lines.push(n);

@@ -20,6 +20,7 @@
     footer { margin-top: 22px; }
     .err { background: #f8d9d6; color: #6b1a12; border-radius: 10px; padding: 8px 12px; }
     pre { background: #f4f6f8; border: 1px solid #d9dfe6; border-radius: 8px; padding: 10px; overflow: auto; font-size: 13px; }
+    .scroll { overflow-x: auto; }
     table { border-collapse: collapse; width: 100%; font-size: .9rem; }
     td, th { border-bottom: 1px solid #ece7f2; padding: 4px 6px; text-align: right; }
     th:first-child, td:first-child { text-align: left; }
@@ -45,6 +46,9 @@
     <input id="skip" placeholder="2026-11-26, 2026-12-25">
     <label for="half">Weigh recent weeks more: half-life in weeks (optional)</label>
     <input id="half" inputmode="decimal">
+    <label for="shortcost">A short hour costs this many times a spare one (optional; 1 = the same, 3 = being short is three times worse)</label>
+    <input id="shortcost" inputmode="decimal" placeholder="blank: staff for the average hour">
+    <p class="note">Planned from the average, an hour is short about half the time. With a number here each hour is staffed for that share of its past days instead: 1 staffs for the median day, 3 for 3 days in 4 (75%), 0.5 for 1 in 3.</p>
   </section>
   <section class="card">
     <h2 style="font-size:1.05rem;margin:0 0 6px">Shifts to schedule</h2>
@@ -57,7 +61,7 @@
   </section>
   <section class="card">
     <h2 style="font-size:1.05rem;margin:0 0 6px">Test it on your past weeks</h2>
-    <p class="note">Each full week after the first four is planned from the weeks before it only, then compared hour by hour with what that week's sales needed. Tried for the plain average, three half-lives, the last four weeks and last week alone. Needs dated rows and at least five full weeks.</p>
+    <p class="note">Each full week after the first four is planned from the weeks before it only, then compared hour by hour with what that week's sales needed. Tried for the plain average, three half-lives, the last four weeks and last week alone; with a short-cost number, each of those staffed for that share of past days too, scored as that many times the short hours plus the spare ones. Needs dated rows and at least five full weeks.</p>
     <button type="button" id="backtest">Test on my past weeks</button>
     <div id="btout" aria-live="polite"></div>
   </section>
@@ -88,7 +92,7 @@
       try {
         r = demandShifts($("#csv").value, {
           splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"),
-          skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), halfLife: num("#half"),
+          skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), halfLife: num("#half"), shortCost: num("#shortcost"),
         });
         problem.hidden = true;
       } catch (e) { problem.hidden = false; problem.textContent = e.message; $("#out").textContent = ""; $("#summary").textContent = ""; $("#table").innerHTML = ""; return; }
@@ -115,16 +119,19 @@
     $("#backtest").addEventListener("click", () => {
       const out = $("#btout");
       let b;
-      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean) }); }
+      const rc = num("#shortcost");
+      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc }); }
       catch (e) { out.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
       if (!b.weeks) { out.innerHTML = `<p class="err">${b.notes.map(esc).join(" ")}</p>`; return; }
       record("sales_backtest_run");
       const f = (x) => x.toFixed(1);
-      for (const m of b.methods) m.label = m.label.replace(/^--half-life (\d+)$/, "half-life $1 weeks");
+      for (const m of b.methods) m.label = m.label.replace(/--half-life (\d+)/, "half-life $1 weeks");
       const best = b.methods.find((m) => m.id === b.best);
-      out.innerHTML = `<p class="note">${esc(b.notes.at(-1))}</p><table><tr><th>Method</th><th>Short</th><th>Over</th><th>Scheduled</th><th>vs default (95% CI)</th></tr>${b.methods.map((m) => `<tr${m.id === b.best ? ' style="font-weight:600"' : ""}><td>${esc(m.label)}</td><td>${f(m.short)}</td><td>${f(m.over)}</td><td>${f(m.scheduled)}</td><td>${m.id === "all" ? "" : `${m.vsDefault >= 0 ? "+" : ""}${f(m.vsDefault)} (${f(m.ci[0])} to ${f(m.ci[1])})`}</td></tr>`).join("")}</table>`
+      const hint = (m) => { const t = [m.halfLife ? `put ${m.halfLife} in the half-life box above` : "", m.shortCost ? `keep ${m.shortCost} in the short-cost box` : ""].filter(Boolean); return t.length ? ` (${t.join("; ")})` : ""; };
+      out.innerHTML = `<p class="note">${esc(b.notes.at(-1))}</p><div class="scroll"><table><tr><th>Method</th><th>Short</th><th>Over</th><th>Scheduled</th>${b.shortCost != null ? `<th>${b.shortCost} &times; short + over</th>` : ""}<th>vs default (95% CI)</th></tr>${b.methods.map((m) => `<tr${m.id === b.best ? ' style="font-weight:600"' : ""}><td>${esc(m.label)}</td><td>${f(m.short)}</td><td>${f(m.over)}</td><td>${f(m.scheduled)}</td>${b.shortCost != null ? `<td>${f(m.miss)}</td>` : ""}<td>${m.id === "all" ? "" : `${m.vsDefault >= 0 ? "+" : ""}${f(m.vsDefault)} (${f(m.ci[0])} to ${f(m.ci[1])})`}</td></tr>`).join("")}</table></div>`
         + `<p class="note">Labor hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that. `
-        + (b.clear ? `Best on your sales: <strong>${esc(best.label)}</strong>${best.halfLife ? ` (put ${best.halfLife} in the half-life box above)` : ""}.` : "No method is clearly better than the plain average on your sales: leave the half-life box empty.")
+        + (b.shortCost != null ? `Scored with a short hour costing ${b.shortCost} spare ones; the rows marked "short cost" staff each hour for that share of its past days. ` : "")
+        + (b.clear ? `Best on your sales: <strong>${esc(best.label)}</strong>${hint(best)}.` : `No method is clearly better than the plain average on your sales: leave the half-life${b.shortCost != null ? " and short-cost boxes" : " box"} empty.`)
         + ` A test on your past weeks, not a promise about the next one.</p>`;
     });
     run();

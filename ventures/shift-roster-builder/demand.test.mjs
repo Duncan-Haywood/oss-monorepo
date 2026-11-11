@@ -371,3 +371,88 @@ test("a file too large to spread into Math.max still reads (the French bakery ha
   assert.equal(r.rows, 200000);
   assert.ok(backtestSales(rows.join("\n"), { splh: 50 }).weeks > 0);
 });
+
+// --short-cost (2026-11-11): the newsvendor fractile instead of the average.
+import { shortCostShare, averageSales, demandShifts as dShifts, backtestSales as bSales } from "./demand.mjs";
+
+const fourMondays = (amounts) => amounts.map((a, i) => `2026-10-${String(5 + 7 * i).padStart(2, "0")} 10:00,${a}`);
+
+test("shortCostShare is r / (1 + r) and refuses non-positive weights", () => {
+  assert.equal(shortCostShare(1), 0.5);
+  assert.equal(shortCostShare(3), 0.75);
+  assert.ok(Math.abs(shortCostShare(1 / 3) - 0.25) < 1e-12);
+  for (const bad of [0, -1, "x", Infinity]) assert.throws(() => shortCostShare(bad), /short cost/);
+});
+
+test("short cost staffs each hour for the r/(1+r) share of its past dates, not the average", () => {
+  // Need per Monday at 10:00 with splh 100: 0 (a Monday with sales only at 11), 0, 3, 5 heads. Average 2.
+  const rows = ["datetime,sales", ...fourMondays([0, 0, 300, 500]), "2026-10-05 11:00,50", "2026-10-12 11:00,50"].filter((l) => !/,0$/.test(l));
+  const text = rows.join("\n");
+  const plain = dShifts(text, { splh: 100, minStaff: 0, minShift: 1 });
+  assert.equal(plain.days[0].shifts.filter(([a]) => a === 10).length, 2); // ceil(800/4/100)
+  const at = (r) => dShifts(text, { splh: 100, minStaff: 0, minShift: 1, shortCost: r }).days[0].shifts.filter(([a]) => a === 10).length;
+  assert.equal(at(1), 0);   // median of 0,0,3,5: the 2nd value (cum share 0.5)
+  assert.equal(at(1.01), 3);
+  assert.equal(at(3), 3);   // 75%: 3rd value
+  assert.equal(at(4), 5);   // 80%: 4th value
+  assert.match(dShifts(text, { splh: 100, shortCost: 3 }).notes.join(" "), /75% of its past dates/);
+  assert.throws(() => dShifts(text, { splh: 100, shortCost: 0 }), /short cost/);
+});
+
+test("short cost: minimum staff, breaks and closed weekdays still apply; half-life weights the dates", () => {
+  const a = averageSales([
+    { key: "2026-10-05", day: 0, hour: 10, amount: 500 }, { key: "2026-10-12", day: 0, hour: 10, amount: 100 },
+  ], { splh: 100, shortCost: 1, halfLife: 1 });
+  // weights 0.5 (older) and 1: the newer date alone reaches half the weight, so the median is its 1 head
+  assert.equal(a.heads[0][10], 1);
+  const b = averageSales([
+    { key: "2026-10-05", day: 0, hour: 10, amount: 500 }, { key: "2026-10-12", day: 0, hour: 10, amount: 100 },
+  ], { splh: 100, shortCost: 1 });
+  assert.equal(b.heads[0][10], 1); // equal weights: cum 0.5 at the smaller
+  const p = headcount(a.avg, a.observed, { splh: 100, minStaff: 2, heads: a.heads });
+  assert.equal(p[0][10], 2);
+  assert.equal(p[1][10], 0);
+});
+
+test("backtest with short cost scores r x short + over and adds a fractile row per weighting", () => {
+  const rows = ["datetime,sales"];
+  // 10 weeks of Mondays alternating quiet (1 head) and busy (4 heads) at 10:00
+  for (let w = 0; w < 10; w++) {
+    const d = new Date(Date.UTC(2026, 0, 5 + 7 * w));
+    for (let k = 0; k < 7; k++) {
+      const day = new Date(d.getTime() + k * 86400000).toISOString().slice(0, 10);
+      rows.push(`${day} 10:00,${k === 0 && w % 2 ? 400 : 100}`);
+    }
+  }
+  const b = bSales(rows.join("\n"), { splh: 100, shortCost: 3 });
+  assert.equal(b.shortCost, 3);
+  assert.equal(b.methods[0].id, "all");
+  assert.deepEqual(b.methods.slice(1).map((m) => m.id), ["q-all", "q-hl8", "q-hl4", "q-hl2", "q-last4", "q-last1"]);
+  const base = b.methods[0], q = b.methods[1];
+  assert.ok(Math.abs(base.miss - (3 * base.short + base.over)) < 1e-9);
+  assert.ok(q.miss < base.miss, `fractile ${q.miss} should beat the average ${base.miss} at r 3`);
+  assert.equal(bSales(rows.join("\n"), { splh: 100 }).methods.length, 6);
+  // the page's "put N in the half-life box" hint reads these back
+  assert.equal(b.methods.find((m) => m.id === "q-hl4").halfLife, 4);
+  assert.equal(b.methods.find((m) => m.id === "q-hl4").shortCost, 3);
+  assert.equal(b.methods[0].shortCost, undefined);
+});
+
+test("CLI: --short-cost reaches the plan and the backtest report", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  const dir = mkdtempSync(tmpdir() + "/sc-");
+  const rows = ["datetime,sales"];
+  for (let i = 0; i < 70; i++) { const day = new Date(Date.UTC(2026, 0, 5 + i)).toISOString().slice(0, 10); rows.push(`${day} 10:00,${i % 3 ? 100 : 350}`); }
+  writeFileSync(dir + "/s.csv", rows.join("\n"));
+  const p = spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--short-cost", "3"], { encoding: "utf8" });
+  assert.equal(p.status, 0, p.stderr);
+  assert.match(p.stderr, /Short-vs-over weight 3/);
+  const b = spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--short-cost", "3", "--backtest"], { encoding: "utf8" });
+  assert.equal(b.status, 0, b.stderr);
+  assert.match(b.stdout, /3xshort\+over/);
+  assert.match(b.stdout, /every earlier week, short cost 3/);
+  assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--short-cost", "0"], { encoding: "utf8" }).status, 2);
+});

@@ -175,9 +175,13 @@ flagships:
       40-person weeks with exact on (3-5 min, not re-timed); --from-sales on two real POS exports
       (Korean bakery orders, README "First real POS export", half-life 4 best; French bakery item lines
       2026-11-11, README "Second real POS export": qty x price, lunch-closure breaks, refund note, 232k rows,
-      backtest 67 s to 3 s, half-life 2 best at 5 of 6 settings); next a US POS item export (Square or Toast),
-      a short-vs-over cost weight, a backtest that can score a staffed closure, and whether to default to a
-      half-life; a real published-schedule export for --import-shifts.
+      backtest 67 s to 3 s, half-life 2 best at 5 of 6 settings); --short-cost r 2026-11-11 (README
+      "Short-vs-over cost weight": newsvendor r/(1+r) fractile per weekday-hour, backtest scores r x short +
+      over; beats the average at r = 3 on both bakeries, best share = r/(1+r) within one grid step); next a US
+      POS item export (Square or Toast), a backtest that can score a staffed closure, whether to default to a
+      half-life, forecasting from tickets (queue length) not just sales, and the fractile carried through the
+      shift cut (today the cut can add over-hours the backtest never sees); a real published-schedule export
+      for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
