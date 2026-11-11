@@ -3,7 +3,7 @@ title: "Joining short shifts looked cheaper, and was not"
 seo_title: "Combining short staffing peaks into one shift: a backtest"
 date: 2026-11-11
 tags: [scheduling, forecasting, labor, small-business, open-source, negative-result]
-description: "Letting two short staffing peaks share one shift lowered the planned cost on paper. On 72 held-out comparisons at two real bakeries it was dearer 16 times and cheaper once."
+description: "Letting short staffing peaks share one shift cut the planned cost on paper. On 72 held-out comparisons at two bakeries it was dearer 16 times, cheaper once."
 ---
 
 The free shift roster builder turns a till export into shifts. When the
