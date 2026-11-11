@@ -5,7 +5,7 @@ drop at which it passes q fully open, so here the open-centre pump pressure whil
 max_i (p_i + dp_floor_i(q_i)) (`heavy_hydraulics.spool_floor`), each section on the smallest PVG 32
 spool covering a design flow taken from the trace (p99.9 of its positive P-port flow; swept). Motion,
 pump, shaft model and Willans slope as 5o. Predictions R1 to R5 are in LOG.md (5p), registered before
-any run; NOT YET RUN (Zenodo refused the proxy on 2026-11-11, see LOG).
+any run; first run in 5r (2026-11-11, LOG.md), after Zenodo refused the proxy during 5p.
 
 Data: Linjama et al., Zenodo doi:10.5281/zenodo.10639199, CC BY 4.0 (see measured_loader.py).
 Needs numpy and scipy. Usage: python spool_floor.py <path to Short_Y_cycle_data.mat>
@@ -56,7 +56,7 @@ def oc_floor(r, masks, rows, law, p_neutral, leak=2.5, sl=slice(None)):
     dt = r["dt"]
     hp = q_oc * p_oc
     hyd = float(hp.sum() * dt / 0.6)
-    extra = float(((pl - pin) * hp)[mv].sum() / max(hp[mv].sum(), 1e-12))
+    extra = float(((pl[mv] - pin[mv]) * hp[mv]).sum() / max(hp[mv].sum(), 1e-12))
     alpha = np.maximum(1.0, q_oc / np.maximum(q_fix + leak, 1e-9))
     shaft = float((pump_torque(alpha, p_oc, w) * w).sum() * dt)
     return hyd, shaft, extra
@@ -79,6 +79,12 @@ def compute(r, floors, vec, bootstrap):
             qd = float(np.percentile(q[q > 0], pct))
             rows.append(size_spool(qd, TABLE, up))
             p(f"  sizing {lab}: {nm} design flow {qd:.1f} L/min -> spool {rows[-1]['spool']} (rated {rows[-1]['rated']:g})")
+        for (q, pr), m, row, nm in zip(r["secs"], masks, rows, NAMES):
+            on = m & (q > 0) & ~np.isnan(pr)
+            over = on & (q > row["rated"])
+            hp = q * np.nan_to_num(pr)
+            p(f"    {nm} above spool {row['spool']} rated {row['rated']:g} L/min: {over.sum()/on.sum()*100:.1f}% of moving "
+              f"samples, {hp[over].sum()/hp[on].sum()*100:.1f}% of moving hydraulic energy (floor extrapolated past rating)")
         for law in ("orifice", "power"):
             for pn in (5.0, 10.0):
                 h, s, ex = oc_floor(r, masks, rows, law, pn)
