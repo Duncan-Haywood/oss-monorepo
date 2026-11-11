@@ -178,8 +178,11 @@ flagships:
       400-copy cap) did not settle the root LP in 180 s (1.4M oracle nodes a call). Chain bound in the set
       oracle 2026-11-11 later (README "A chain bound", chain-bound.test.mjs; rest rule as a Lagrangian
       weighted-interval bound): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
-      359; week 1 347 over 344; largest call under 89k nodes. Next: close the 100-person gaps (tree, not
-      pricing, now); the chain bound in makeScorePricer; close the 60-person pay week; buildRoster end to end on
+      359; week 1 347 over 344; largest call under 89k nodes. Pay oracle 2026-11-11 latest (README "The chain
+      bound in the pay oracle"): chain bound, sibling cut, array payParts; same search, 40-person pay pricing
+      28-60% less; the 60-person pay week is still $1.22 open, bound = root LP after 172 nodes. Next: close the
+      100-person gaps (tree, not pricing, now); cuts or branching that move the score LP on the 60-person pay
+      week (a faster oracle will not close it); buildRoster end to end on
       40-person weeks with exact on (3-5 min, not re-timed); a real POS hourly export for --from-sales and the
       page (made-up exports only); a real published-schedule export for --import-shifts.
   - venture: photo-editing
