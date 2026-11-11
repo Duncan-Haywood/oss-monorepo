@@ -208,30 +208,19 @@ flagships:
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md (survey builder, pooled
       random-effects ranking with rank ranges, information-gain and staged
       selectors, pool cap, lapse and repeat-probe studies; PrefLib real
-      rankings 2026-11-10). Switch point by list length 2026-11-10
-      (INFORMATION-GAIN-SELECTOR.md, scripts/couple-bar-sweep.ts): the couple
-      screen's real bar is 8 items under rd 200, not rd 150; the information
-      selector reaches it 4-8 answers sooner at 8-120 items and ranks better, so
-      "staged" now uses it from the first answer up to 120 items (equals the
-      information row on real rankings, all 25 cells). Careless-answer fallback
-      measured 2026-11-11, not shipped (scripts/careless-fallback-sweep.ts).
-      Glicko lapse term 2026-11-11, off by default (glicko2.ts `lapse`,
-      scripts/lapse-update-sweep.ts, INFORMATION-GAIN-SELECTOR.md): rd shrink
-      is outcome-blind, so a fixed e is a discount, not a detector; +0.002 to
-      +0.014 rank, 15-115% more answers to the couple bar; with the true e it
-      is calibrated (coverage 0.90-0.99) and lifts staged above shipped at 50%
-      lapse. Per-respondent lapse estimate measured 2026-11-11, not shipped
-      (lapseEstimate.ts, INFORMATION-GAIN-SELECTOR.md): a grid posterior from
-      one person's answers reads 0.02-0.05 whatever the true e, staged gives no
-      signal, and even true win chances leave sd 0.07-0.11 at 240 answers.
-      Anchor pairs and a pooled survey prior measured 2026-11-11, not shipped
-      (scripts/anchor-lapse-sweep.ts, pooledLapsePrior, INFORMATION-GAIN-SELECTOR.md
-      "Anchor pairs and a pooled survey prior"): under staged, one easy pair in
-      five lifts honest-vs-lapser AUC from 0.56-0.72 to 0.87-0.99 (rank
-      accuracy flat at 15 items, -0.01 to -0.03 at 30); shipped needs none
-      (0.83-0.97 already); pooling does not improve separation. Next: anchor
-      estimate as a per-person weight in pooling.ts, scored on the pooled
-      ranking with a mixed population, and the false-flag rate; staged's 0.90
+      rankings 2026-11-10). Staged uses the information selector up to 120
+      items (couple bar 8 items under rd 200, 2026-11-10). Measured 2026-11-11,
+      not shipped (INFORMATION-GAIN-SELECTOR.md): careless-answer fallback;
+      Glicko lapse term (glicko2.ts `lapse`; a fixed e is a discount, not a
+      detector); per-respondent lapse estimate (lapseEstimate.ts; no signal
+      under staged). Anchor pairs and a pooled survey prior 2026-11-11
+      (scripts/anchor-lapse-sweep.ts, pooledLapsePrior; section "Anchor pairs
+      and a pooled survey prior"): under staged, one easy pair in five lifts
+      honest-vs-lapser AUC from 0.56-0.72 to 0.87-0.99 (rank accuracy flat at
+      15 items, -0.01 to -0.03 at 30); shipped needs none (0.83-0.97 already);
+      pooling does not improve separation. Next: the anchor estimate as a
+      per-person weight in pooling.ts, scored on the pooled ranking with a
+      mixed population, and the false-flag rate at a threshold; staged's 0.90
       coverage for honest respondents (close pairs shrink rd too fast); the
       switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator
