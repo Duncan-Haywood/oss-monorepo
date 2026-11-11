@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Early Pay Discount Picker","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Choose which supplier invoices to pay early to capture 2/10 net 30 style discounts when cash is limited: the exact best set after your cost of cash, compared with highest-rate-first and other rules, the value of extra cash, and sensitivity to your cost of cash. Runs in your browser.","featureList":"Exact invoice selection under a cash limit, annualised discount rate, net benefit after cost of cash, comparison with rules of thumb, value of extra cash, cost-of-cash sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is a 2/10 net 30 discount worth taking?","acceptedAnswer":{"@type":"Answer","text":"Almost always, if you have the cash: 2 percent for paying 20 days early is about a 37 percent annual return, far above what cash earns in a bank and above most credit lines. The harder question is which discounts to take when you cannot take them all."}},{"@type":"Question","name":"How do I choose which invoices to pay early?","acceptedAnswer":{"@type":"Answer","text":"Each invoice has a benefit: the discount you keep less the interest on the cash that leaves your account earlier. You want the set with the biggest total benefit that fits in the cash you can spare. Ranking by annual rate is a good rule but can strand cash or skip a better combination. This tool tries every combination of up to 14 invoices."}},{"@type":"Question","name":"What is my cost of cash?","acceptedAnswer":{"@type":"Answer","text":"The rate you pay to borrow, such as a line of credit, or the rate you would earn on the money otherwise. If you would have to draw on a line to pay early, use the line's rate."}},{"@type":"Question","name":"What does the tool say about extra cash?","acceptedAnswer":{"@type":"Answer","text":"It re-solves with 25, 50 and 100 percent more cash and reports how much more net benefit each would add, so you can compare that with what bridging the cash would cost."}},{"@type":"Question","name":"Is this accounting or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type, with simple interest and one cash limit for every payment. Check each supplier's actual terms and your own cash-flow timing."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #0f766e; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #0a514c; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #0a514c; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f766e; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #0a514c; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -229,15 +267,15 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       if (a.plan.length) {
-        h += `<div class="finding"><h4>Pay these early</h4><p>${a.plan.map((p) => esc(p.name)).join(", ")}.</p><p>That uses ${money(a.used)} of your ${money(a.shared.cash)}, keeps ${money(a.discountKept)} of discounts, and nets ${money(a.benefit)} after your ${pct(a.shared.costOfCash)} cost of cash. ${money(a.cashLeft)} is left over.</p></div>`;
+        h += `<div class="finding"><h3>Pay these early</h3><p>${a.plan.map((p) => esc(p.name)).join(", ")}.</p><p>That uses ${money(a.used)} of your ${money(a.shared.cash)}, keeps ${money(a.discountKept)} of discounts, and nets ${money(a.benefit)} after your ${pct(a.shared.costOfCash)} cost of cash. ${money(a.cashLeft)} is left over.</p></div>`;
       } else {
-        h += `<div class="finding"><h4>Pay none of them early</h4><p>At a ${pct(a.shared.costOfCash)} cost of cash, none of these discounts is worth the extra days of cash, or none fits the limit.</p></div>`;
+        h += `<div class="finding"><h3>Pay none of them early</h3><p>At a ${pct(a.shared.costOfCash)} cost of cash, none of these discounts is worth the extra days of cash, or none fits the limit.</p></div>`;
       }
-      h += `<div class="finding"><h4>Against the usual rules</h4>${table(["Rule", "Net benefit", "Invoices paid", "Extra over this rule"], a.rules.map((r) => [esc(r.label), money(r.benefit), r.count, r.extra > 0.5 ? "+" + money(r.extra) : "same"]))}<p>${a.ruleLoss > 0.5 ? "The exact answer nets " + money(a.ruleLoss) + " more than the best of these rules." : "Here the best rule of thumb finds an equally good set."}</p></div>`;
-      if (a.skipped.length) h += `<div class="finding"><h4>Left to the due date</h4>${table(["Invoice", "Annual rate", "Why"], a.skipped.map((s) => [esc(s.name), pct(s.apr), esc(s.reason)]))}</div>`;
-      h += `<div class="finding"><h4>What more cash would buy</h4><p>${a.extraLevels.map((e) => "With " + money(e.add) + " more you would net " + money(e.gain) + " more (" + e.count + " invoices).").join(" ")} Compare that with what the extra cash costs you.</p></div>`;
-      h += `<div class="finding"><h4>How fragile is this?</h4><p>${a.rateChecks.map((c) => "If your cost of cash were " + pct(c.rate) + " the best set " + (c.same ? "is the same" : "changes") + " (nets " + money(c.benefit) + ").").join(" ")}</p></div>`;
-      h += `<div class="finding"><h4>The plan</h4>${table(["Invoice", "Pay by day", "Pay now", "Discount kept", "Days early", "Annual rate", "Net benefit"], a.plan.map((p) => [esc(p.name), p.discountDays, money(p.outlay), money(p.discount), p.early, pct(p.apr), money(p.benefit)]))}</div>`;
+      h += `<div class="finding"><h3>Against the usual rules</h3>${table(["Rule", "Net benefit", "Invoices paid", "Extra over this rule"], a.rules.map((r) => [esc(r.label), money(r.benefit), r.count, r.extra > 0.5 ? "+" + money(r.extra) : "same"]))}<p>${a.ruleLoss > 0.5 ? "The exact answer nets " + money(a.ruleLoss) + " more than the best of these rules." : "Here the best rule of thumb finds an equally good set."}</p></div>`;
+      if (a.skipped.length) h += `<div class="finding"><h3>Left to the due date</h3>${table(["Invoice", "Annual rate", "Why"], a.skipped.map((s) => [esc(s.name), pct(s.apr), esc(s.reason)]))}</div>`;
+      h += `<div class="finding"><h3>What more cash would buy</h3><p>${a.extraLevels.map((e) => "With " + money(e.add) + " more you would net " + money(e.gain) + " more (" + e.count + " invoices).").join(" ")} Compare that with what the extra cash costs you.</p></div>`;
+      h += `<div class="finding"><h3>How fragile is this?</h3><p>${a.rateChecks.map((c) => "If your cost of cash were " + pct(c.rate) + " the best set " + (c.same ? "is the same" : "changes") + " (nets " + money(c.benefit) + ").").join(" ")}</p></div>`;
+      h += `<div class="finding"><h3>The plan</h3>${table(["Invoice", "Pay by day", "Pay now", "Discount kept", "Days early", "Annual rate", "Net benefit"], a.plan.map((p) => [esc(p.name), p.discountDays, money(p.outlay), money(p.discount), p.early, pct(p.apr), money(p.benefit)]))}</div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

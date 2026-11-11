@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Farm Crop Mix Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find the acres of each crop that earn the most gross margin, given land, labor hours, operating capital and per-crop limits. Runs in your browser.","featureList":"Optimal crop acreage, current-vs-best comparison, shadow prices for land, labor and capital, break-even margin for left-out crops, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I decide how many acres of each crop to plant?","acceptedAnswer":{"@type":"Answer","text":"Rank crops by gross margin per acre, then plant the best one until a limit stops you: the acres you have, the labor hours at planting and harvest, the operating capital you can borrow, or a rotation ceiling. When a limit binds, the answer changes, because a crop that earns less per acre can earn more per scarce hour. The tool solves this exactly as a linear program."}},{"@type":"Question","name":"What is a shadow price?","acceptedAnswer":{"@type":"Answer","text":"It is what one more unit of a limit is worth: one more acre, one more labor hour, or one more dollar of operating capital. If labor shows $150 an hour, hiring help for less than that raises profit; if an acre shows $170, a lease at less than that rent is worth taking."}},{"@type":"Question","name":"Why does a crop with a positive margin get zero acres?","acceptedAnswer":{"@type":"Answer","text":"Because acres, hours or dollars are better spent elsewhere. The tool shows the margin per acre that crop would need, everything else unchanged, before it earns a place in the plan."}},{"@type":"Question","name":"Does it handle crop rotation?","acceptedAnswer":{"@type":"Answer","text":"Only through the minimum and maximum acres you set per crop. If soybeans should not exceed 500 acres, enter 500. Agronomic rotation, soil, drainage and field size are yours to judge."}},{"@type":"Question","name":"Is this agronomic, financial or insurance advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on yields, prices and costs you type. Yield and price risk, crop insurance, government programs, taxes and lender terms vary; check them with a qualified advisor."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #166534; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #12542b; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #12542b; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #166534; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #166534; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #12542b; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -170,13 +208,13 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const vs = a.hasCurrent ? ` Your plan earns ${money(a.current.net)}, so the best plan is ${a.gain > 0.5 ? money(a.gain) + " better" : "no better"}.` : "";
-      h += `<div class="finding"><h4>Best plan: ${money(a.best.net)} margin over variable and land cost</h4><p>${ac(a.best.acres)} of ${ac(a.shared.totalAcres)} acres planted, ${ac(a.best.labor)} labor hours, ${money(a.best.capital)} of operating capital.${vs}</p></div>`;
-      h += `<div class="finding"><h4>Acres by crop</h4>${table(["Crop", "Margin / acre", "Your plan", "Best plan", "Change", "Note"], a.rows.map((r) => [esc(r.name), money(r.margin), ac(r.current), ac(r.optimal), (r.change > 0 ? "+" : "") + ac(r.change), r.atCeiling ? "at your limit" : r.needs ? "needs " + money(r.needs) + " / acre to earn a place" : ""]))}</div>`;
+      h += `<div class="finding"><h3>Best plan: ${money(a.best.net)} margin over variable and land cost</h3><p>${ac(a.best.acres)} of ${ac(a.shared.totalAcres)} acres planted, ${ac(a.best.labor)} labor hours, ${money(a.best.capital)} of operating capital.${vs}</p></div>`;
+      h += `<div class="finding"><h3>Acres by crop</h3>${table(["Crop", "Margin / acre", "Your plan", "Best plan", "Change", "Note"], a.rows.map((r) => [esc(r.name), money(r.margin), ac(r.current), ac(r.optimal), (r.change > 0 ? "+" : "") + ac(r.change), r.atCeiling ? "at your limit" : r.needs ? "needs " + money(r.needs) + " / acre to earn a place" : ""]))}</div>`;
       const parts = [];
       if (a.shadow.acre > 1e-6) parts.push(`one more acre is worth ${money(a.shadow.acre)}`);
       if (a.shadow.labor > 1e-6) parts.push(`one more labor hour is worth ${money(a.shadow.labor)}`);
       if (a.shadow.capital > 1e-6) parts.push(`one more dollar of capital returns ${money2(a.shadow.capital)}`);
-      h += `<div class="finding"><h4>What the limits cost you</h4><p>${parts.length ? "At the margin, " + parts.join("; ") + ". Compare these with the rent, wage or interest you would pay." : "None of your limits binds: the crop ceilings stop the plan first."}</p></div>`;
+      h += `<div class="finding"><h3>What the limits cost you</h3><p>${parts.length ? "At the margin, " + parts.join("; ") + ". Compare these with the rent, wage or interest you would pay." : "None of your limits binds: the crop ceilings stop the plan first."}</p></div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

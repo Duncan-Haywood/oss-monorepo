@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Nanny Tax Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Household employer tax calculator: the true yearly and hourly cost of a nanny, Social Security and Medicare both sides, FUTA, state unemployment, take-home pay and a net-to-gross converter. Runs in your browser.", "featureList": "True cost per hour, Schedule H amount, net-to-gross converter, hours sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I have to pay nanny taxes?", "acceptedAnswer": {"@type": "Answer", "text": "If you pay a household employee (nanny, housekeeper, home health aide) cash wages at or above the yearly IRS threshold, you owe Social Security and Medicare tax on those wages, and you may owe federal unemployment (FUTA) tax once wages reach $1,000 in a calendar quarter. A nanny you hire directly is usually your employee, not an independent contractor, even if you pay them in cash or they ask for it."}}, {"@type": "Question", "name": "How much does it really cost to employ a nanny?", "acceptedAnswer": {"@type": "Answer", "text": "Wages plus the employer half of Social Security and Medicare (7.65%), FUTA (as little as $42 a year with the state credit), state unemployment tax and workers' compensation where required. This tool adds them up for your hours and shows the true cost per hour. If you also pay the nanny's half of FICA the cost rises by another 7.65%."}}, {"@type": "Question", "name": "What is a nanny's take-home pay if I agree to a net hourly rate?", "acceptedAnswer": {"@type": "Answer", "text": "Families often agree to a take-home number. Switch the rate to 'take-home' and the tool grosses it up: at $25 an hour net with only FICA withheld the gross is about $27.07, and the extra 7.65% employer share and other taxes sit on top of that."}}, {"@type": "Question", "name": "How do I file household employment taxes?", "acceptedAnswer": {"@type": "Answer", "text": "Report them on Schedule H with your Form 1040, withhold the employee's share from pay, and give the nanny a Form W-2 by January 31. You can avoid a separate quarterly deposit by raising your own W-4 withholding or estimated tax payments. Payroll services do the same work for a fee; this tool only does the arithmetic."}}, {"@type": "Question", "name": "Does the nanny tax apply if I pay under the threshold?", "acceptedAnswer": {"@type": "Answer", "text": "Below the yearly household-employee threshold no Social Security or Medicare tax is due, but FUTA can still apply if you pay $1,000 or more in any quarter. Check the current-year thresholds in IRS Publication 926 and type them in; they change every year."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type, and state rules (unemployment tax, paid leave, disability, minimum wage, overtime) vary. Confirm the figures with the IRS and your state, or a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #166534; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #12542b; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #12542b; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #166534; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #166534; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #12542b; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -104,10 +142,10 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result;
-      h += `<div class="finding"><h4>Employing this nanny costs you ${money(r.employerCost)} a year</h4><p>That is ${money2(r.loadedHourly)} for every hour worked, ${pct(a.overheadPct)} above the ${money(r.wages)} of wages. Gross rate ${money2(a.grossHourly)} an hour; ${money(a.weeklyGross)} gross a week.</p></div>`;
-      h += `<div class="finding"><h4>The nanny takes home ${money(r.takeHome)} a year (${money2(r.takeHomeHourly)} an hour)</h4><p>${r.employeeShare ? (a.opts.employerPaysEmployeeShare === 1 ? "You pay their " + money(r.employeeShare) + " Social Security and Medicare share on top, so it is not taken from their pay." : money(r.employeeShare) + " of Social Security and Medicare is withheld from their pay.") : "No Social Security or Medicare is due on this pay."}</p></div>`;
-      h += `<div class="finding"><h4>Where the cost above wages goes</h4>${table(["Item", "Per year"], [["Employer Social Security and Medicare", money(r.employerShare)], ["Nanny's share you pay on top", money(a.opts.employerPaysEmployeeShare === 1 ? r.employeeShare : 0)], ["Federal unemployment (FUTA)", money(r.futa)], ["State unemployment", money(r.stateUi)], ["Workers' compensation", money(r.workersComp)]])}<p>Amount that lands on Schedule H for Social Security, Medicare and FUTA: ${money(a.scheduleHLine)} (${money(a.quarterlyEmployerShare)} a quarter of the FICA part if you prefer to set money aside by quarter).</p><p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
-      h += `<div class="finding"><h4>What the hours do to the cost</h4>${table(["Hours a week", "Wages", "Total cost", "Cost per hour"], a.hoursGrid.map((g) => [g.hours, money(g.wages), money(g.employerCost), money2(g.loadedHourly)]))}</div>`;
+      h += `<div class="finding"><h3>Employing this nanny costs you ${money(r.employerCost)} a year</h3><p>That is ${money2(r.loadedHourly)} for every hour worked, ${pct(a.overheadPct)} above the ${money(r.wages)} of wages. Gross rate ${money2(a.grossHourly)} an hour; ${money(a.weeklyGross)} gross a week.</p></div>`;
+      h += `<div class="finding"><h3>The nanny takes home ${money(r.takeHome)} a year (${money2(r.takeHomeHourly)} an hour)</h3><p>${r.employeeShare ? (a.opts.employerPaysEmployeeShare === 1 ? "You pay their " + money(r.employeeShare) + " Social Security and Medicare share on top, so it is not taken from their pay." : money(r.employeeShare) + " of Social Security and Medicare is withheld from their pay.") : "No Social Security or Medicare is due on this pay."}</p></div>`;
+      h += `<div class="finding"><h3>Where the cost above wages goes</h3>${table(["Item", "Per year"], [["Employer Social Security and Medicare", money(r.employerShare)], ["Nanny's share you pay on top", money(a.opts.employerPaysEmployeeShare === 1 ? r.employeeShare : 0)], ["Federal unemployment (FUTA)", money(r.futa)], ["State unemployment", money(r.stateUi)], ["Workers' compensation", money(r.workersComp)]])}<p>Amount that lands on Schedule H for Social Security, Medicare and FUTA: ${money(a.scheduleHLine)} (${money(a.quarterlyEmployerShare)} a quarter of the FICA part if you prefer to set money aside by quarter).</p><p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>What the hours do to the cost</h3>${table(["Hours a week", "Wages", "Total cost", "Cost per hour"], a.hoursGrid.map((g) => [g.hours, money(g.wages), money(g.employerCost), money2(g.loadedHourly)]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

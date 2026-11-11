@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"EV Charging Site ROI Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Payback, NPV and IRR for an EV charging site, with demand charges, utilization ramp-up, break-even utilization and price, and a sensitivity grid. Runs in your browser.","featureList":"Payback, NPV and IRR, break-even utilization and price, demand-charge sensitivity, utilization-by-price grid, Level 2 and DC fast presets, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much does an EV charging station make?","acceptedAnswer":{"@type":"Answer","text":"It depends almost entirely on utilization: how many sessions each port serves per day. Revenue is kWh sold times price; against it sit energy, demand charges, card fees, network fees and maintenance. A busy DC fast site can earn a healthy margin per kWh, while the same site at two sessions a day usually loses money to fixed costs. Enter your own figures to see where yours falls and what utilization breaks even."}},{"@type":"Question","name":"What are demand charges and why do they matter for EV charging?","acceptedAnswer":{"@type":"Answer","text":"Many commercial tariffs bill a monthly fee per kW on the highest short-interval power draw, whatever the energy used. Four 150 kW chargers can set a peak of several hundred kW in one quarter hour and be billed for it all month. At low utilization this fixed bill dominates; the tool shows demand charges as a share of revenue and how NPV changes if the rate were lower or higher."}},{"@type":"Question","name":"What is a good payback period for a charging station?","acceptedAnswer":{"@type":"Answer","text":"There is no universal answer. Hosts that count the chargers as an amenity may accept a longer payback than an operator selling energy for profit. The tool reports simple payback, net present value at your discount rate and internal rate of return, so you can compare with your own hurdle."}},{"@type":"Question","name":"Level 2 or DC fast charging?","acceptedAnswer":{"@type":"Answer","text":"Level 2 costs far less per port and has little or no demand charge, so it can pay back at low utilization where cars park for hours. DC fast charging costs far more but sells more energy per port per hour, and depends on high utilization and on demand-charge tariffs. Use the two presets as a starting point and replace every figure with your own quotes."}},{"@type":"Question","name":"Are the incentives included?","acceptedAnswer":{"@type":"Answer","text":"Only the grant and rebate dollars you type in. Federal, state and utility programs change, have deadlines and conditions, and some have ended. Check current rules before counting on one; the tool does not know them."}},{"@type":"Question","name":"Is this financial or engineering advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. It does not model taxes, depreciation, financing, utility tariff details, grid capacity or site engineering. Get quotes from installers and your utility and speak to a qualified advisor before committing capital."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #0f766e; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #0a514c; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #0a514c; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f766e; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #0a514c; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -125,16 +163,16 @@
       last = a;
       const i = a.inputs;
       const verdict = a.npv >= 0 ? "pays back and clears your discount rate" : "does not clear your discount rate";
-      h += `<div class="finding"><h4>${money(a.npv)} net present value over ${i.years} years: this site ${verdict}</h4><p>Upfront cost after incentives ${money(a.capex)}. IRR ${a.irr === null ? "not defined (cash flows never turn positive)" : pct(a.irr)}. Simple payback ${a.payback === null ? "not within " + i.years + " years" : a.payback.toFixed(1) + " years"}.</p></div>`;
+      h += `<div class="finding"><h3>${money(a.npv)} net present value over ${i.years} years: this site ${verdict}</h3><p>Upfront cost after incentives ${money(a.capex)}. IRR ${a.irr === null ? "not defined (cash flows never turn positive)" : pct(a.irr)}. Simple payback ${a.payback === null ? "not within " + i.years + " years" : a.payback.toFixed(1) + " years"}.</p></div>`;
       const be = [];
       be.push(a.sessionsBreakEven === null ? "No utilization breaks even at this price and cost: each session loses money or fixed costs cannot be covered." : `Break-even utilization is about ${a.sessionsBreakEven.toFixed(1)} sessions per port per day once mature (you entered ${i.sessionsPerPortPerDay}).`);
       be.push(a.priceBreakEven === null ? "No price up to $5 per kWh breaks even at this utilization." : `At your utilization the break-even price is ${money2(a.priceBreakEven)} per kWh (you entered ${money2(i.price)}).`);
-      h += `<div class="finding"><h4>What it takes to break even</h4><p>${be.join(" ")}</p></div>`;
+      h += `<div class="finding"><h3>What it takes to break even</h3><p>${be.join(" ")}</p></div>`;
       const m = a.margins;
-      h += `<div class="finding"><h4>A mature year, per kWh</h4><p>Revenue ${money2(m.revenuePerKwh)}, all costs ${money2(m.costPerKwh)}, net ${money2(m.netPerKwh)} per kWh. Billed peak ${Math.round(m.peakKw)} kW; demand charges are ${pct(m.demandShare)} of revenue. Costs that do not shrink when the site is quiet (demand, network, maintenance, fixed) total ${money(m.demandFloor)} a year, which ${a.mature.revenue > m.demandFloor ? "revenue covers at maturity." : "mature revenue does not cover."}</p></div>`;
-      h += `<div class="finding"><h4>NPV by utilization and price</h4>${table(["Sessions / port / day \\ price", ...a.priceGrid.map(money2)], a.sessionGrid.map((s, r) => [s.toFixed(1), ...a.grid[r].map(money)]))}</div>`;
-      h += `<div class="finding"><h4>If the demand charge were different</h4>${table(["Rate ($ / kW-month)", "NPV"], a.demandRows.map((d) => [money2(d.rate), money(d.npv)]))}</div>`;
-      h += `<div class="finding"><h4>Cash flow by year</h4>${table(["Year", "Sessions", "Revenue", "Energy", "Demand", "Other costs", "Net cash"], a.rows.map((r) => [r.y, Math.round(r.sessions).toLocaleString("en-US"), money(r.revenue), money(r.energy), money(r.demandCost), money(r.costs - r.energy - r.demandCost), money(r.net)]))}</div>`;
+      h += `<div class="finding"><h3>A mature year, per kWh</h3><p>Revenue ${money2(m.revenuePerKwh)}, all costs ${money2(m.costPerKwh)}, net ${money2(m.netPerKwh)} per kWh. Billed peak ${Math.round(m.peakKw)} kW; demand charges are ${pct(m.demandShare)} of revenue. Costs that do not shrink when the site is quiet (demand, network, maintenance, fixed) total ${money(m.demandFloor)} a year, which ${a.mature.revenue > m.demandFloor ? "revenue covers at maturity." : "mature revenue does not cover."}</p></div>`;
+      h += `<div class="finding"><h3>NPV by utilization and price</h3>${table(["Sessions / port / day \\ price", ...a.priceGrid.map(money2)], a.sessionGrid.map((s, r) => [s.toFixed(1), ...a.grid[r].map(money)]))}</div>`;
+      h += `<div class="finding"><h3>If the demand charge were different</h3>${table(["Rate ($ / kW-month)", "NPV"], a.demandRows.map((d) => [money2(d.rate), money(d.npv)]))}</div>`;
+      h += `<div class="finding"><h3>Cash flow by year</h3>${table(["Year", "Sessions", "Revenue", "Energy", "Demand", "Other costs", "Net cash"], a.rows.map((r) => [r.y, Math.round(r.sessions).toLocaleString("en-US"), money(r.revenue), money(r.energy), money(r.demandCost), money(r.costs - r.energy - r.demandCost), money(r.net)]))}</div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

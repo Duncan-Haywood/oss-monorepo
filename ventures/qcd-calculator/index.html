@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "QCD Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Qualified charitable distribution versus cash gift calculator: AGI, taxable Social Security, senior deduction, federal and state tax and the real cost of the gift. Runs in your browser.", "featureList": "QCD vs cash gift, taxable Social Security effect, RMD coverage, gift-size sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a qualified charitable distribution (QCD)?", "acceptedAnswer": {"@type": "Answer", "text": "A direct transfer from your IRA to a qualifying public charity, available once you are 70 1/2 or older. The amount is not included in your income, counts toward your required minimum distribution, and you do not need to itemize. The check must go from the IRA custodian to the charity; money you withdraw first and then give does not qualify."}}, {"@type": "Question", "name": "Is a QCD better than donating cash and taking the deduction?", "acceptedAnswer": {"@type": "Answer", "text": "Usually, and more so if you take the standard deduction. A QCD lowers AGI, which also lowers how much of your Social Security is taxed and can shrink the Medicare IRMAA surcharge, while a cash gift only helps if it is itemized or fits the small non-itemizer deduction. The calculator runs both with your numbers so you can see the gap."}}, {"@type": "Question", "name": "How much can I give as a QCD?", "acceptedAnswer": {"@type": "Answer", "text": "Up to an annual limit per person, indexed for inflation ($111,000 for 2026 in this tool, and editable). A married couple can each give up to their own limit from their own IRAs. Only the part that comes out of an IRA counts; 401(k) money must be rolled to an IRA first."}}, {"@type": "Question", "name": "Does a QCD count toward my RMD?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. A QCD made in the year counts toward that year's required minimum distribution, up to the RMD amount, and the first dollars out of the IRA each year are treated as the RMD. A QCD larger than the RMD is allowed but only the RMD-sized part satisfies it."}}, {"@type": "Question", "name": "Can a QCD go to a donor-advised fund?", "acceptedAnswer": {"@type": "Answer", "text": "No. QCDs cannot go to donor-advised funds, private non-operating foundations or supporting organizations. They must go to a public charity eligible to receive deductible gifts, and you cannot receive anything of value in return."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type, using ordinary-income brackets and the tax-year figures shown in the code. Check the IRS Publication 590-B and your return with a qualified professional before you give."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #166534; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #12542b; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #12542b; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #166534; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #166534; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #12542b; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -99,9 +137,9 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const o = a.opts;
-      if (a.advantage > 0.5) h += `<div class="finding"><h4>A QCD saves ${money(a.advantage)} of tax versus giving cash</h4><p>Sending ${money(a.qcd.qcd)} straight from the IRA lowers AGI by ${money(a.agiDrop)}. After tax, the gift costs you ${money(a.costQcd)} as a QCD and ${money(a.costCash)} as a cash gift.${a.overCap > 0 ? " " + money(a.overCap) + " of the gift is over what can go out as a QCD and is treated as cash here." : ""}</p></div>`;
-      else h += `<div class="finding"><h4>No tax difference on these figures</h4><p>With no gift, or no IRA distribution to send, the two routes are the same.</p></div>`;
-      h += `<div class="finding"><h4>Side by side</h4>${table(["", "No gift", "Cash gift", "QCD"], [
+      if (a.advantage > 0.5) h += `<div class="finding"><h3>A QCD saves ${money(a.advantage)} of tax versus giving cash</h3><p>Sending ${money(a.qcd.qcd)} straight from the IRA lowers AGI by ${money(a.agiDrop)}. After tax, the gift costs you ${money(a.costQcd)} as a QCD and ${money(a.costCash)} as a cash gift.${a.overCap > 0 ? " " + money(a.overCap) + " of the gift is over what can go out as a QCD and is treated as cash here." : ""}</p></div>`;
+      else h += `<div class="finding"><h3>No tax difference on these figures</h3><p>With no gift, or no IRA distribution to send, the two routes are the same.</p></div>`;
+      h += `<div class="finding"><h3>Side by side</h3>${table(["", "No gift", "Cash gift", "QCD"], [
         ["AGI", money(a.none.agi), money(a.cash.agi), money(a.qcd.agi)],
         ["Taxable Social Security", money(a.none.ssTaxable), money(a.cash.ssTaxable), money(a.qcd.ssTaxable)],
         ["Deduction used", money(a.none.deduction), money(a.cash.deduction) + (a.cash.itemizes ? " (itemized)" : " (standard)"), money(a.qcd.deduction)],
@@ -109,8 +147,8 @@
         ["Federal tax", money(a.none.tax), money(a.cash.tax), money(a.qcd.tax)],
         ["State tax (flat rate on AGI)", money(a.none.state), money(a.cash.state), money(a.qcd.state)],
       ])}<p>Your RMD of ${money(o.rmd)} has ${money(a.rmdLeft)} left to take after the QCD. For Medicare IRMAA, compare the AGI above with the brackets for the year two years from now.</p></div>`;
-      h += `<div class="finding"><h4>If the gift were a different size</h4>${table(["Gift", "Total tax, cash", "Total tax, QCD", "QCD saves"], a.grid.map((g) => [money(g.gift), money(g.cashTotal), money(g.qcdTotal), money(g.advantage)]))}</div>`;
-      h += `<div class="finding"><h4>Lines to check against your return</h4>${table(["Line", "Amount"], a.form.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>If the gift were a different size</h3>${table(["Gift", "Total tax, cash", "Total tax, QCD", "QCD saves"], a.grid.map((g) => [money(g.gift), money(g.cashTotal), money(g.qcdTotal), money(g.advantage)]))}</div>`;
+      h += `<div class="finding"><h3>Lines to check against your return</h3>${table(["Line", "Amount"], a.form.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

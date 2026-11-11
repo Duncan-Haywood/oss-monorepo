@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Sign Shop Job Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Price banner, sign and vinyl jobs from material with waste, print and finishing time, design, install and overhead, to your target margin. Runs in your browser.","featureList":"Job price for a target margin, break-even price, price per square foot, market-rate comparison, quantity and margin tables, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you price a banner or sign job?","acceptedAnswer":{"@type":"Answer","text":"Add material including waste, print and finishing time at your labour rate, design time, install and travel, and shop overhead for the hours the job occupies. Then divide by one minus your card fee and your target margin. Pricing per square foot alone hides the fixed design and setup time that small jobs carry."}},{"@type":"Question","name":"Why is the price per square foot higher on small jobs?","acceptedAnswer":{"@type":"Answer","text":"Design, proofing and setup take the same time for one banner as for fifty. The quantity table shows the price per piece and per square foot falling as that fixed time is spread, so you can see where a volume discount still pays."}},{"@type":"Question","name":"What margin should a sign shop target?","acceptedAnswer":{"@type":"Answer","text":"It depends on your overhead and how much of your time is billable. The tool shows the price at margins from 20% to 60% and the dollars left per shop hour, which is the number that tells you whether the work pays you."}},{"@type":"Question","name":"Should I match the market price per square foot?","acceptedAnswer":{"@type":"Answer","text":"Only if it covers your cost. The tool prices the same job at your market rate and shows the profit or loss, so you can decide whether to match it, add install and design as separate lines, or pass."}},{"@type":"Question","name":"Is this pricing or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Check material prices, taxes and contract terms with your suppliers and a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -117,11 +155,11 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result, c = r.cost, p = r.atPrice, m = r.atMarket, o = a.opts;
-      h += `<div class="finding"><h4>Quote ${money2(r.price)} (${money2(p.perSqft)} per sq ft)</h4><p>${o.qty} piece${o.qty === 1 ? "" : "s"} of ${o.widthIn} x ${o.heightIn} in, ${c.area.toFixed(1)} sq ft. That leaves ${money2(p.profit)} profit, ${pct(p.margin)} of the price, and ${money2(p.perShopHour)} per shop hour after material and install. Your break-even is ${money2(r.breakEven)}.</p></div>`;
-      h += `<div class="finding"><h4>Where the cost goes</h4>${table(["Item", "Cost"], [["Material (with waste)", money2(c.material)], ["Shop labour", money2(c.labor)], ["Overhead", money2(c.overhead)], ["Install and travel", money2(c.install)], ["Total cost", money2(c.cost)]])}<p>The job takes ${c.shopHours.toFixed(1)} shop hours: ${c.printHours.toFixed(1)} printing, ${c.finishHours.toFixed(1)} finishing, ${c.designHours.toFixed(1)} design.</p></div>`;
-      h += `<div class="finding"><h4>If you match the market price</h4><p>At ${money2(o.marketPerSqft)} per sq ft the job brings ${money2(r.marketPrice)} and ${m.profit >= 0 ? "earns" : "loses"} ${money2(Math.abs(m.profit))} (${pct(m.margin)}).</p></div>`;
-      h += `<div class="finding"><h4>If the quantity changes</h4>${table(["Pieces", "Total", "Each", "Per sq ft"], a.quantity.map((x) => [x.qty, money2(x.total), money2(x.each), money2(x.perSqft)]))}</div>`;
-      h += `<div class="finding"><h4>If you target a different margin</h4>${table(["Margin", "Price", "Per sq ft", "Profit"], a.margin.map((x) => [x.marginPct + "%", money2(x.price), money2(x.perSqft), money2(x.profit)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>Quote ${money2(r.price)} (${money2(p.perSqft)} per sq ft)</h3><p>${o.qty} piece${o.qty === 1 ? "" : "s"} of ${o.widthIn} x ${o.heightIn} in, ${c.area.toFixed(1)} sq ft. That leaves ${money2(p.profit)} profit, ${pct(p.margin)} of the price, and ${money2(p.perShopHour)} per shop hour after material and install. Your break-even is ${money2(r.breakEven)}.</p></div>`;
+      h += `<div class="finding"><h3>Where the cost goes</h3>${table(["Item", "Cost"], [["Material (with waste)", money2(c.material)], ["Shop labour", money2(c.labor)], ["Overhead", money2(c.overhead)], ["Install and travel", money2(c.install)], ["Total cost", money2(c.cost)]])}<p>The job takes ${c.shopHours.toFixed(1)} shop hours: ${c.printHours.toFixed(1)} printing, ${c.finishHours.toFixed(1)} finishing, ${c.designHours.toFixed(1)} design.</p></div>`;
+      h += `<div class="finding"><h3>If you match the market price</h3><p>At ${money2(o.marketPerSqft)} per sq ft the job brings ${money2(r.marketPrice)} and ${m.profit >= 0 ? "earns" : "loses"} ${money2(Math.abs(m.profit))} (${pct(m.margin)}).</p></div>`;
+      h += `<div class="finding"><h3>If the quantity changes</h3>${table(["Pieces", "Total", "Each", "Per sq ft"], a.quantity.map((x) => [x.qty, money2(x.total), money2(x.each), money2(x.perSqft)]))}</div>`;
+      h += `<div class="finding"><h3>If you target a different margin</h3>${table(["Margin", "Price", "Per sq ft", "Profit"], a.margin.map((x) => [x.marginPct + "%", money2(x.price), money2(x.perSqft), money2(x.profit)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const csvBtn = $("csv");

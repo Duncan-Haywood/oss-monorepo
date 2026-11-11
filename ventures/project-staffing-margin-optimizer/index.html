@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Project Staffing Margin Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find which people should work on which client projects to earn the most margin, with the value of one more hour per person. Runs in your browser.","featureList":"Exact margin-maximising staffing plan, skill matching, minimum margin filter, value of an extra hour per person, work to turn away, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I decide which consultant or freelancer works on which client project?","acceptedAnswer":{"@type":"Answer","text":"List each person with their loaded cost per hour, the hours they have free and their skills, and each project with its bill rate, hours to staff and the skill it needs. The tool finds the split of hours that earns the most total margin. It is exact, not a rule of thumb: no other split of the same hours earns more."}},{"@type":"Question","name":"Why not just give each project to the cheapest qualified person?","acceptedAnswer":{"@type":"Answer","text":"Because people are shared. The cheapest person is often the only one who can do two different projects, and every hour they spend on the lower-paying one is an hour not spent on the higher-paying one. The tool weighs all of the projects against all of the people at once."}},{"@type":"Question","name":"What does the value of one more hour mean?","acceptedAnswer":{"@type":"Answer","text":"For each person it is the extra margin a further hour of their time would earn right now. A high figure on someone who is fully booked is the clearest sign you are turning away money, and a case for overtime, a contractor or a hire. Zero means they already have spare hours."}},{"@type":"Question","name":"Is this business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the rates and hours you type. Holidays, learning curves, client preferences, continuity on a project and how people feel about their work are yours to weigh, which is why you can read the plan and change the inputs."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 <style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
 </head>
 <body>
@@ -142,11 +180,11 @@
       for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
-      h += '<div class="finding"><h4>Best margin: ' + money(a.margin) + " on " + money(a.revenue) + " billed (" + Math.round(a.marginPct * 100) + "%)</h4><p>" + hoursFmt(a.hoursStaffed) + " staffed, " + hoursFmt(a.hoursOpen) + " of project hours left unstaffed and " + hoursFmt(a.idleHours) + " of people's time unused. No other split of these hours earns more under the rules you set.</p></div>";
-      h += '<div class="finding"><h4>Who does what</h4>' + table(["Person", "Project", "Hours", "Bill / cost per hour", "Margin"], a.assignments.map((r) => [esc(r.person), esc(r.project), hoursFmt(r.hours), money(r.rate) + " / " + money(r.cost), money(r.margin)])) + "</div>";
-      h += '<div class="finding"><h4>Your people: who is the bottleneck</h4><p class="note">The last column is the extra margin one more hour of that person would earn. A big figure on someone fully booked is money you are turning away.</p>' + table(["Person", "Booked", "Idle", "Value of one more hour"], a.perPerson.map((p) => [esc(p.name), Math.round(p.utilisation * 100) + "%", hoursFmt(p.idle), money(p.extraHourValue)])) + "</div>";
+      h += '<div class="finding"><h3>Best margin: ' + money(a.margin) + " on " + money(a.revenue) + " billed (" + Math.round(a.marginPct * 100) + "%)</h3><p>" + hoursFmt(a.hoursStaffed) + " staffed, " + hoursFmt(a.hoursOpen) + " of project hours left unstaffed and " + hoursFmt(a.idleHours) + " of people's time unused. No other split of these hours earns more under the rules you set.</p></div>";
+      h += '<div class="finding"><h3>Who does what</h3>' + table(["Person", "Project", "Hours", "Bill / cost per hour", "Margin"], a.assignments.map((r) => [esc(r.person), esc(r.project), hoursFmt(r.hours), money(r.rate) + " / " + money(r.cost), money(r.margin)])) + "</div>";
+      h += '<div class="finding"><h3>Your people: who is the bottleneck</h3><p class="note">The last column is the extra margin one more hour of that person would earn. A big figure on someone fully booked is money you are turning away.</p>' + table(["Person", "Booked", "Idle", "Value of one more hour"], a.perPerson.map((p) => [esc(p.name), Math.round(p.utilisation * 100) + "%", hoursFmt(p.idle), money(p.extraHourValue)])) + "</div>";
       const open = a.perProject.filter((p) => p.unfilled > 1e-9);
-      h += open.length ? '<div class="finding"><h4>Work left unstaffed</h4>' + table(["Project", "Hours open", "Why"], open.map((p) => [esc(p.name), hoursFmt(p.unfilled), esc(p.why)])) + "</div>" : '<div class="finding"><h4>Every project is fully staffed</h4></div>';
+      h += open.length ? '<div class="finding"><h3>Work left unstaffed</h3>' + table(["Project", "Hours open", "Why"], open.map((p) => [esc(p.name), hoursFmt(p.unfilled), esc(p.why)])) + "</div>" : '<div class="finding"><h3>Every project is fully staffed</h3></div>';
       h += '<p><button type="button" class="secondary" id="csv">Download plan (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

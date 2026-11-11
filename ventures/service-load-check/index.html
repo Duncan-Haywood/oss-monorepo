@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Service Load Check", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks whether an existing home's electrical service can carry new load such as an EV charger, heat pump or induction range, by the NEC 220.83 optional calculation and by NEC 220.87 measured maximum demand from Green Button interval data. Runs in your browser.", "featureList": "NEC 220.83 (A) and (B) calculation, Green Button CSV and XML reader, 15-minute maximum demand, 220.87 check, data coverage and solar warnings, largest EV charger that fits, printable worksheet"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Do I need a panel upgrade to add an EV charger?", "acceptedAnswer": {"@type": "Answer", "text": "Not always. If either the 220.83 total or the 220.87 total with the charger fits under the service rating, the code permits the charger on the existing service, subject to your inspector. Where neither fits, a lower charger setting, a load management device (NEC 625.42 and 220.70 in the 2023 edition) that holds the charger back when the house is busy, or a shared-circuit switch is often cheaper than a service upgrade. The result shows the largest charger setting that fits each way."}}, {"@type": "Question", "name": "What is NEC 220.87?", "acceptedAnswer": {"@type": "Answer", "text": "It lets the existing load be the actual maximum demand, the highest 15-minute average kW over a year, times 125%. Smart-meter interval data from the utility is the usual source. Hourly data understates the 15-minute peak and is not enough on its own."}}, {"@type": "Question", "name": "What if I have solar?", "acceptedAnswer": {"@type": "Answer", "text": "A meter behind solar panels records the net of what the house uses and what the panels make, which hides demand while the sun is up. Use a consumption export if your system's monitor offers one, or the 220.83 calculation. The 2023 NEC does not let the 30-day recording option be used where solar or peak shaving is present."}}, {"@type": "Question", "name": "Where do I get my interval data?", "acceptedAnswer": {"@type": "Answer", "text": "Most US utilities with smart meters have a Green Button Download My Data button in the online account. Choose the longest range, ideally 12 or 13 months, and 15-minute readings if offered. This tool reads the CSV or the XML."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #234e8c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #214984; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #214984; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #234e8c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #234e8c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #214984; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
@@ -152,7 +190,7 @@
       const loads = readLoads();
       const r = calc22083(house, loads);
       const newVa = loads.filter((l) => l.isNew).reduce((s, l) => { const x = num(l.va) >= 0 ? num(l.va) : num(l.amps) * num(l.volts); return s + (x > 0 ? x : 0); }, 0);
-      h += '<div class="finding"><h4>NEC 220.83 calculation</h4>';
+      h += '<div class="finding"><h3>NEC 220.83 calculation</h3>';
       if (!r.ok) h += r.errors.map((e) => '<p><span class="pill">Check</span> ' + esc(e) + "</p>").join("");
       else {
         const a = r.totalVa / volts, fits = a <= amps;
@@ -175,7 +213,7 @@
       if (text.trim()) {
         const parsed = parseUsage(text, { unit: $("unit").value || undefined });
         const m = measuredDemand(parsed, { solar: $("solar").value === "yes" });
-        h += '<div class="finding"><h4>NEC 220.87 measured demand</h4>';
+        h += '<div class="finding"><h3>NEC 220.87 measured demand</h3>';
         for (const n of parsed.notes) h += '<p class="note">' + esc(n) + "</p>";
         for (const w of m.warnings) h += '<p><span class="pill">Check</span> ' + esc(w) + "</p>";
         if (m.ok) {

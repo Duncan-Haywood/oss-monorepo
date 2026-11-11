@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Hearing Aid Dispensing Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Margin per hearing aid sale type for a hearing clinic or audiology practice after device cost, trial-period returns, follow-up visits, commission, plan and card fees and clinician time, with profit per clinician-hour, price for a target margin and break-even sales per month. Runs in your browser.","featureList":"Margin per sale type, profit per clinician-hour, price for target margin, private pay vs plan comparison, break-even sales, cost sensitivity including over-the-counter price pressure, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good margin on hearing aids?","acceptedAnswer":{"@type":"Answer","text":"Hearing aids carry a high gross markup, but the gross number hides the cost of the service wrapped around the device: the fitting, the follow-up visits included in the price, trial-period returns and commission. This tool subtracts the device and accessories, a return allowance, card and plan fees, commission and the clinician's fitting and follow-up time, then shows what each kind of sale really earns so you can see where the margin is made."}},{"@type":"Question","name":"How do trial-period returns affect profit?","acceptedAnswer":{"@type":"Answer","text":"Most states require a trial window after a hearing aid sale. A return refunds the patient, but the clinic still lost the fitting time and some device value to restocking or refurbishing. Enter the share of fittings that come back, the share of device cost you lose on each, and the minutes wasted. The tool spreads that expected cost over every kept sale, and the scenario table shows what five more points of returns would cost in a month."}},{"@type":"Question","name":"Does bundled pricing earn more than unbundled pricing?","acceptedAnswer":{"@type":"Answer","text":"Bundled pricing includes follow-up care in one price, so every extra visit comes out of the same margin. Enter the number of included visits and the minutes each takes to see how much clinician time a bundle really consumes, and compare profit per clinician-hour across your tiers. Unbundled models can be tested by lowering the included visits and pricing them separately."}},{"@type":"Question","name":"How is over-the-counter competition modelled?","acceptedAnswer":{"@type":"Answer","text":"Over-the-counter hearing aids put pressure on the entry price of private-pay sales. The scenario table cuts every private-pay price by 15 percent while leaving insurer and benefit payments alone, and shows the monthly profit change on your own mix. It is a stress test on your numbers, not a forecast."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1f4e79; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1d4972; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1d4972; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1f4e79; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f4e79; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1d4972; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .menu input { width: 100%; min-width: 4.5em; box-sizing: border-box; }
@@ -148,11 +186,11 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const t = a.totals;
-      h += '<div class="finding"><h4>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h4><p>" + Math.round(t.sales) + " sales a month bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after devices, returns, fees, commission and clinician time, against " + money(a.v.fixedMonth) + " of fixed costs. " + (a.breakEvenSales == null ? "Contribution per sale is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenSales + " sales a month.") + "</p></div>";
-      h += '<div class="finding"><h4>Each sale type</h4>' + table(["Sale type", "Collected", "Devices", "Return allowance", "Fees and commission", "Clinician time", "Earns", "Margin", "Per clinician-hour", "Patient price for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.collected), money2(r.goods), money2(r.returnCost), money2(r.card + r.planFee + r.commission), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perClinicianHour), r.targetPrice == null ? "—" : money2(r.targetPrice.patient)])) + '<p class="note">Per clinician-hour is what the sale earns before labor per hour of fitting and follow-up time, if the clinician did only that kind of sale. Patient price for target assumes the plan payment stays fixed.</p></div>';
-      h += '<div class="finding"><h4>Best and worst use of a clinician hour</h4><p>' + esc(a.bestPerHour.name) + " earns the most per clinician-hour (" + money(a.bestPerHour.perClinicianHour) + "); " + esc(a.worstPerHour.name) + " earns the least per clinician-hour (" + money(a.worstPerHour.perClinicianHour) + ").</p></div>";
-      if (a.planAvg != null && a.cashAvg != null) h += '<div class="finding"><h4>Plan sales vs private-pay sales</h4><p>Plan-funded sales are ' + Math.round(a.planShare * 100) + "% of your volume. An average plan sale earns " + money2(a.planAvg) + " and an average private-pay sale earns " + money2(a.cashAvg) + ", a gap of " + money2(a.cashAvg - a.planAvg) + " a sale.</p></div>";
-      h += '<div class="finding"><h4>If costs move (monthly profit)</h4>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
+      h += '<div class="finding"><h3>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h3><p>" + Math.round(t.sales) + " sales a month bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after devices, returns, fees, commission and clinician time, against " + money(a.v.fixedMonth) + " of fixed costs. " + (a.breakEvenSales == null ? "Contribution per sale is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenSales + " sales a month.") + "</p></div>";
+      h += '<div class="finding"><h3>Each sale type</h3>' + table(["Sale type", "Collected", "Devices", "Return allowance", "Fees and commission", "Clinician time", "Earns", "Margin", "Per clinician-hour", "Patient price for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.collected), money2(r.goods), money2(r.returnCost), money2(r.card + r.planFee + r.commission), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perClinicianHour), r.targetPrice == null ? "—" : money2(r.targetPrice.patient)])) + '<p class="note">Per clinician-hour is what the sale earns before labor per hour of fitting and follow-up time, if the clinician did only that kind of sale. Patient price for target assumes the plan payment stays fixed.</p></div>';
+      h += '<div class="finding"><h3>Best and worst use of a clinician hour</h3><p>' + esc(a.bestPerHour.name) + " earns the most per clinician-hour (" + money(a.bestPerHour.perClinicianHour) + "); " + esc(a.worstPerHour.name) + " earns the least per clinician-hour (" + money(a.worstPerHour.perClinicianHour) + ").</p></div>";
+      if (a.planAvg != null && a.cashAvg != null) h += '<div class="finding"><h3>Plan sales vs private-pay sales</h3><p>Plan-funded sales are ' + Math.round(a.planShare * 100) + "% of your volume. An average plan sale earns " + money2(a.planAvg) + " and an average private-pay sale earns " + money2(a.cashAvg) + ", a gap of " + money2(a.cashAvg - a.planAvg) + " a sale.</p></div>";
+      h += '<div class="finding"><h3>If costs move (monthly profit)</h3>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download sale table (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

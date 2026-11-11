@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Dental Patient Financing Fee Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare third-party patient financing, an in-house payment plan and pay-in-full for a dental or orthodontic treatment fee: what the practice keeps in today's money, break-even case acceptance and break-even merchant fee. Runs in your browser.","featureList":"Three-way comparison, break-even acceptance, break-even merchant fee, default-rate sweep, merchant-fee ladder, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is third-party patient financing worth the merchant fee?","acceptedAnswer":{"@type":"Answer","text":"Compare what you keep per accepted case after the fee with what an in-house plan or cash-only keeps, then weight each by how many presented cases patients accept under that option. Financing costs more per case but often raises acceptance. This tool shows the acceptance rate financing must reach to match each alternative, so you can judge whether your own numbers clear it."}},{"@type":"Question","name":"What does an in-house payment plan really cost a practice?","acceptedAnswer":{"@type":"Answer","text":"Beyond waiting for the money, there are card fees on every instalment, the admin time to run each account, and patients who stop paying. The tool charges each of these, values instalments at today's money using what waiting costs you, and shows the unpaid balance when some share of patients default."}},{"@type":"Question","name":"How should I read the break-even acceptance numbers?","acceptedAnswer":{"@type":"Answer","text":"Each one is the acceptance rate an option needs to earn the same expected contribution per presented case as the comparison option. If you believe financing lifts acceptance above that figure, it pays for its fee; if not, it does not. The acceptance rates you type are your assumptions, not benchmarks."}},{"@type":"Question","name":"At what merchant fee does financing stop beating my own plan?","acceptedAnswer":{"@type":"Answer","text":"The result shows the merchant fee at which financing and the in-house plan earn the same per accepted case, holding your other inputs fixed. Above it, each accepted case is worth more on your own plan; financing then has to win on acceptance to be worth it."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1f6f5c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #175144; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #175144; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1f6f5c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6f5c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #175144; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
@@ -113,12 +151,12 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const [fin, plan, cash] = a.options, be = a.breakEven;
-      h += '<div class="finding"><h4>On your assumptions, ' + esc(a.best.name.toLowerCase()) + " earns the most: " + money(a.best.perYear) + " a year</h4><p>Across " + a.cases.toLocaleString("en-US") + " cases presented, weighted by how many each option gets accepted. Cost of delivering one case: " + money(a.care) + ".</p></div>";
-      h += '<div class="finding"><h4>What each option earns</h4>' + table(["Option", "Kept per accepted case", "Accepted", "Per case presented", "Per year"], a.options.map((o) => [esc(o.name), money(o.contribution), pct(o.acceptance), money(o.perPresented), money(o.perYear)])) + "<p>Kept = money received valued in today's money, less card, merchant and admin costs and unpaid balances, less the cost of care.</p></div>";
-      h += '<div class="finding"><h4>What financing has to do to pay for itself</h4><p>' + (be.finVsPlan == null ? "Financing loses money per case on these inputs." : "To match your in-house plan, financing must get " + pct1(be.finVsPlan) + " of presented cases accepted (you entered " + pct(fin.acceptance) + "). To match pay-in-full only, " + pct1(be.finVsCash) + " (you entered " + pct(fin.acceptance) + ").") + " Your plan must reach " + (be.planVsCash == null ? "more than 100%" : pct1(be.planVsCash)) + " accepted to match pay-in-full only (you entered " + pct(plan.acceptance) + ").</p><p>Financing and your plan earn the same per accepted case at a merchant fee of " + pct1(a.merchantBreakEven) + "; you entered " + pct1(fin.fees / (fin.received + fin.fees) * 100) + ".</p></div>";
-      h += '<div class="finding"><h4>Where the fee case goes</h4>' + table(["Option", "Fees paid", "Not collected or discounted", "Admin cost"], a.options.map((o) => [esc(o.name), money(o.fees), money(Math.max(0, o.lost)), money(o.admin)])) + "<p>Per accepted case, before waiting is valued.</p></div>";
-      h += '<div class="finding"><h4>If more patients stop paying your plan</h4>' + table(["Patients who stop", "Kept per accepted case", "Per case presented", "Left unpaid"], a.sweep.map((s) => [s.stop + "%", money(s.contribution), money(s.perPresented), money(Math.max(0, s.lost))])) + "</div>";
-      h += '<div class="finding"><h4>If the merchant fee were different</h4>' + table(["Merchant fee", "Kept per accepted case", "Per case presented"], a.feeLadder.map((l) => [l.fee + "%", money(l.contribution), money(l.perPresented)])) + "</div>";
+      h += '<div class="finding"><h3>On your assumptions, ' + esc(a.best.name.toLowerCase()) + " earns the most: " + money(a.best.perYear) + " a year</h3><p>Across " + a.cases.toLocaleString("en-US") + " cases presented, weighted by how many each option gets accepted. Cost of delivering one case: " + money(a.care) + ".</p></div>";
+      h += '<div class="finding"><h3>What each option earns</h3>' + table(["Option", "Kept per accepted case", "Accepted", "Per case presented", "Per year"], a.options.map((o) => [esc(o.name), money(o.contribution), pct(o.acceptance), money(o.perPresented), money(o.perYear)])) + "<p>Kept = money received valued in today's money, less card, merchant and admin costs and unpaid balances, less the cost of care.</p></div>";
+      h += '<div class="finding"><h3>What financing has to do to pay for itself</h3><p>' + (be.finVsPlan == null ? "Financing loses money per case on these inputs." : "To match your in-house plan, financing must get " + pct1(be.finVsPlan) + " of presented cases accepted (you entered " + pct(fin.acceptance) + "). To match pay-in-full only, " + pct1(be.finVsCash) + " (you entered " + pct(fin.acceptance) + ").") + " Your plan must reach " + (be.planVsCash == null ? "more than 100%" : pct1(be.planVsCash)) + " accepted to match pay-in-full only (you entered " + pct(plan.acceptance) + ").</p><p>Financing and your plan earn the same per accepted case at a merchant fee of " + pct1(a.merchantBreakEven) + "; you entered " + pct1(fin.fees / (fin.received + fin.fees) * 100) + ".</p></div>";
+      h += '<div class="finding"><h3>Where the fee case goes</h3>' + table(["Option", "Fees paid", "Not collected or discounted", "Admin cost"], a.options.map((o) => [esc(o.name), money(o.fees), money(Math.max(0, o.lost)), money(o.admin)])) + "<p>Per accepted case, before waiting is valued.</p></div>";
+      h += '<div class="finding"><h3>If more patients stop paying your plan</h3>' + table(["Patients who stop", "Kept per accepted case", "Per case presented", "Left unpaid"], a.sweep.map((s) => [s.stop + "%", money(s.contribution), money(s.perPresented), money(Math.max(0, s.lost))])) + "</div>";
+      h += '<div class="finding"><h3>If the merchant fee were different</h3>' + table(["Merchant fee", "Kept per accepted case", "Per case presented"], a.feeLadder.map((l) => [l.fee + "%", money(l.contribution), money(l.perPresented)])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download table (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

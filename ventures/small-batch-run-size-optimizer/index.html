@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Small-Batch Run Size Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find the production run size that minimises yearly setup and stock-holding cost for each product a small maker produces in batches. Runs in your browser.", "featureList": "Economic production quantity, pack-size rounding, shelf-life cap, limited machine hours with a price per changeover hour, savings against your current run size, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How big should each production run be?", "acceptedAnswer": {"@type": "Answer", "text": "Add up two costs that pull in opposite directions: every changeover costs setup money, and every unit sitting in stock costs holding money. Bigger runs mean fewer changeovers but more stock. The run size where the two meet is the economic production quantity. The tool finds it for each product, then respects your pack size, smallest and largest run and shelf life."}}, {"@type": "Question", "name": "What if my product expires?", "acceptedAnswer": {"@type": "Answer", "text": "Set the shelf life in days. The tool will not suggest a run larger than you can sell before the oldest unit expires, using your average daily sales. If your smallest run is already bigger than that, it says so instead of hiding it."}}, {"@type": "Question", "name": "What if my hours are limited?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the machine or bench hours you have in a year. If the plan needs more hours than that, the tool puts a price on each changeover hour and gives bigger runs to the products where changeovers waste the most time, until the plan fits. It then shows what an extra hour is worth."}}, {"@type": "Question", "name": "Why does it show a range around the best run size?", "acceptedAnswer": {"@type": "Answer", "text": "The cost curve is flat near the bottom. Often a run 20 percent bigger or smaller costs under 1 percent more, so you can pick the nearest convenient number. The range shown is every run size within 5 percent of the best."}}, {"@type": "Question", "name": "Is this accounting or business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. It assumes steady demand through the year and instant, certain sales of what you make. Seasonality, minimum purchase quantities from suppliers and quantity discounts are yours to check."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #b45309; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #753606; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #753606; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #b45309; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #b45309; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #753606; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -200,9 +238,9 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const vs = a.hasCurrent ? ` Against your current run sizes that saves ${a.gain > 0.5 ? money(a.gain) + " a year" : "nothing meaningful"} (${money(a.totalCurrent)} today).` : "";
-      h += `<div class="finding"><h4>Best plan: ${money(a.totalBest)} a year in setup and holding cost</h4><p>${vs.trim() || "Enter your current run sizes to see the saving."}</p></div>`;
-      h += `<div class="finding"><h4>Run size by product</h4>${table(["Product", "Best run", "Runs a year", "Days between runs", "Setup $/yr", "Holding $/yr", "Total $/yr", "Within 5% of best", "Your run"], a.rows.map((r) => [esc(r.name) + (r.binding ? " <small>(limited by " + r.binding + ")</small>" : ""), n0(r.best.q), n1(r.best.batches), n0(r.best.cycleDays), money(r.best.setupCost), money(r.best.holdCost), money(r.best.total), n0(r.flat.from) + " to " + n0(r.flat.to), r.current ? n0(r.current.q) + " (" + money(r.current.total) + ")" : ""]))}</div>`;
-      if (a.limited) h += `<div class="finding"><h4>Your hours</h4><p>The plan uses ${n0(a.hoursUsed)} of ${n0(a.shared.hoursAvailable)} hours.${a.shadow > 0 && a.feasible ? " Hours are the constraint: an extra hour of changeover time is worth about " + money2(a.shadow) + " a year in cost avoided, so bigger runs were given to the products with the most changeover hours." : " Hours are not holding the plan back."}</p></div>`;
+      h += `<div class="finding"><h3>Best plan: ${money(a.totalBest)} a year in setup and holding cost</h3><p>${vs.trim() || "Enter your current run sizes to see the saving."}</p></div>`;
+      h += `<div class="finding"><h3>Run size by product</h3>${table(["Product", "Best run", "Runs a year", "Days between runs", "Setup $/yr", "Holding $/yr", "Total $/yr", "Within 5% of best", "Your run"], a.rows.map((r) => [esc(r.name) + (r.binding ? " <small>(limited by " + r.binding + ")</small>" : ""), n0(r.best.q), n1(r.best.batches), n0(r.best.cycleDays), money(r.best.setupCost), money(r.best.holdCost), money(r.best.total), n0(r.flat.from) + " to " + n0(r.flat.to), r.current ? n0(r.current.q) + " (" + money(r.current.total) + ")" : ""]))}</div>`;
+      if (a.limited) h += `<div class="finding"><h3>Your hours</h3><p>The plan uses ${n0(a.hoursUsed)} of ${n0(a.shared.hoursAvailable)} hours.${a.shadow > 0 && a.feasible ? " Hours are the constraint: an extra hour of changeover time is worth about " + money2(a.shadow) + " a year in cost avoided, so bigger runs were given to the products with the most changeover hours." : " Hours are not holding the plan back."}</p></div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;
