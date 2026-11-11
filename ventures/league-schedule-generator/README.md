@@ -575,7 +575,7 @@ carry-over count 0 or 1.
 - Open: other sizes have no such construction in this code. Known constructions exist for some other
   sizes in the literature (not read here); 12 teams (156 against 120) and 20 teams remain search-only.
 
-## Starter timetables for 6 to 40 teams, and 20 teams at the floor (2026-11-11, latest)
+## Starter timetables for 6 to 40 teams, and 20 teams at the floor (2026-11-11)
 
 The field start covers only power-of-two sizes. Most other even sizes (a bye team included) now get a
 second start, a **starter** timetable, and the search keeps whichever start does better.
@@ -637,6 +637,52 @@ second start, a **starter** timetable, and the search keeps whichever start does
   found 22 teams 478 and 24 teams 570 against the table's 516 and 654), so a longer or smarter
   starter search (hill-climbing on the starter, or the literature's constructions) should lower 22 to
   40; 12 teams is still 152 against 120.
+
+## Climbed starters: 22 teams at the floor, 24 to 40 teams 4 to 13% lower (2026-11-11, latest)
+
+The starter table above came from random sampling, which past 22 teams saw only a few hundred
+starters per size. `eval/starter-anneal.mjs` climbs instead, and the table in `carryover.mjs`
+(`STARTERS`) now holds its results wherever they are lower.
+
+- **Two reductions.** The step is a relabelling: starter S with step k is, round for round, the
+  timetable of starter k^-1 S with step 1 with every team t renamed k^-1 t, so the climb runs at step
+  1 only (new entries have step 1). And the cyclic carry-over matrix does not depend on the start; a
+  start only picks which round-to-round transition the season drops, so each starter is scored once
+  and every start is an O(N) correction.
+- **The move.** Remove 3 to 10 random pairs and re-pair the freed residues with the freed differences
+  by randomised backtracking (a large-neighbourhood move that keeps it a starter), accepted by
+  simulated annealing on the least non-cyclic carry-over over every start. Single climbs stall fast
+  (most moves are big steps up), so it restarts every second from a fresh random starter, the first
+  two from the table's entries, and keeps the best. 60 s per size and parity, one process per core.
+- **Measured** (`eval/starter-anneal.txt`; non-cyclic carry-over at the best start, old table ->
+  climbed, floor):
+
+  | Teams | All N play | Floor | With a bye (N - 1 teams) | Floor |
+  |---|---|---|---|---|
+  | 22 | 516 -> **440** (every count 0 or 1) | 440 | 475 -> **399** (every count 0 or 1) | 399 |
+  | 24 | 654 -> 612 | 528 | 609 -> 565 | 483 |
+  | 26 | 762 -> 716 | 624 | 757 -> 667 | 575 |
+  | 28 | 878 -> 828 | 728 | 875 -> 823 | 675 |
+  | 30 | 1,110 -> 1,002 | 840 | 1,053 -> 943 | 783 |
+  | 34 | 1,460 -> 1,274 | 1,088 | 1,455 -> 1,271 | 1,023 |
+  | 36 | 1,620 -> 1,488 | 1,224 | 1,551 -> 1,483 | 1,155 |
+  | 38 | 1,928 -> 1,718 | 1,368 | 1,855 -> 1,645 | 1,295 |
+  | 40 | 2,112 -> 1,890 | 1,520 | 2,035 -> 1,885 | 1,443 |
+
+  10 to 20 teams did not move in 60 s each (sampling had already seen tens of thousands of starters
+  there; 20 was already at the floor). 12 teams stays 156 against 120, so the starter family itself
+  may not reach lower there.
+- **22 teams, and 21, now reach the floor**, cyclic too (462 = 22 x 21, Russell's bound), joining 4, 8,
+  16, 20 and 32. As with 20 I have not compared this with published constructions; the test checks
+  the counts directly (`starter.test.mjs`).
+- The annealing search in `lowCarryOverRounds` runs from this start (and the circle start, keeping the
+  better), so the gains carry into what the page builds; see "Through the search" below.
+- Open: 24 to 40 teams are still 16 to 28% above the floor; longer runs keep finding small gains, so the
+  table is a measurement of 60 s, not a limit. The previous section's 10,000-sample scratch run
+  reported 24 teams 570, below the climb's 612 with all 24 playing (570 is close to the climb's 565
+  with a bye, so it may have been that entry; that run was not kept), so at 24 the climb may not yet
+  beat long sampling. A faster exact score (O(p) per starter from the
+  difference counts) would let the climb try far more moves.
 
 ## Several divisions on shared courts (`divisions.mjs`)
 
