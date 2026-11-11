@@ -1,6 +1,6 @@
 ---
 title: "Four searches beat one, but only if each one runs to the end"
-seo_title: "Round robin schedule with fewer back-to-back home games: best of four searches"
+seo_title: "Round robin schedule with fewer back-to-back home games"
 date: 2026-11-11
 tags: [league-schedule-generator, scheduling, optimisation]
 description: "The league schedule generator now runs four searches in the background and lets organisers trade even carry-over for fewer back-to-back home games."
