@@ -416,7 +416,7 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
   const net = r2(income - expenses - mileage);
   const seBase = Math.max(0, net) * 0.9235;
   const wageBase = SS_WAGE_BASE[year] || SS_WAGE_BASE[2027];
-  const seTax = net >= 400 ? r2(Math.min(seBase, wageBase) * 0.124 + seBase * 0.029) : 0;
+  const seTax = seBase >= 400 ? r2(Math.min(seBase, wageBase) * 0.124 + seBase * 0.029) : 0;
   const incomeTaxable = Math.max(0, net - seTax / 2);
   const incomeTax = r2((incomeTaxable * num(p.taxRate)) / 100);
   const stateTax = r2((incomeTaxable * num(p.stateTaxRate)) / 100);
@@ -430,7 +430,7 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
     return { quarter: i + 1, through, due: d, income: r2(inc), suggested: r2(inc * (setAsidePct / 100)), past: d < today };
   });
   const flags = [];
-  if (net >= 400) flags.push(`Net profit is $${net}. At $400 or more you owe self-employment tax and file Schedule C and Schedule SE with your Form 1040, even if you owe no income tax.`);
+  if (seBase >= 400) flags.push(`Net profit is $${net}. When 92.35% of it is $400 or more you owe self-employment tax and file Schedule C and Schedule SE with your Form 1040, even if you owe no income tax.`);
   else flags.push(`Net profit is under $400 so far: no self-employment tax yet. If you have no other income you may not need to file; check the Form 1040 instructions.`);
   // A year with no figure on file uses the latest one (it rises with inflation,
   // so the warning stays on rather than vanishing), and says which year it is.

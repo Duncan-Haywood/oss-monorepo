@@ -38,6 +38,9 @@ export const MEDICARE_RATE = 0.0145;
  */
 export const SE_NET_EARNINGS_FACTOR = 0.9235;
 
+/** Net earnings from self-employment under this owe no SE tax (Schedule SE). */
+export const SE_TAX_FLOOR = 400;
+
 /**
  * Social Security stops at an annual wage base; Medicare does not.
  *
@@ -90,8 +93,10 @@ export function selfEmploymentTax(annualNetEarnings, { wageBase = DEFAULT_SOCIAL
   const net = nonNegative(annualNetEarnings);
   const cap = nonNegative(wageBase);
   const taxableBase = net * SE_NET_EARNINGS_FACTOR;
-  const socialSecurity = Math.min(taxableBase, cap) * SOCIAL_SECURITY_RATE * 2;
-  const medicare = taxableBase * MEDICARE_RATE * 2;
+  // Schedule SE: net earnings under $400 owe no self-employment tax at all.
+  const owes = taxableBase >= SE_TAX_FLOOR;
+  const socialSecurity = owes ? Math.min(taxableBase, cap) * SOCIAL_SECURITY_RATE * 2 : 0;
+  const medicare = owes ? taxableBase * MEDICARE_RATE * 2 : 0;
   const total = socialSecurity + medicare;
   return { netEarnings: net, taxableBase, socialSecurity, medicare, total, deductibleHalf: total / 2 };
 }
