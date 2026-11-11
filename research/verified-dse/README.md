@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 111 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 112 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -35,6 +35,13 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   and its worst cell is 13% instead of 50%. Testing the mapped rung on a small routed pilot (tau-b on 3 to 6 points) does
   not help; routing a few random points inside the ladder's budget hedges as well. On the small designs it costs 0.17
   points against always running the ladder, within noise: [`experiments/switch_guard/`](experiments/switch_guard/results.txt).
+- **The rule's ladder branch holds on fresh data where routing is dear (milestone 112, flow run).** 120 new pass sequences on
+  six designs where a routed point costs 3.6 to 19.5 times a mapped score (12 cells, about 103 points each, newer tools):
+  "score everything at the mapped rung, route the best 8" has 1.05% mean regret against 3.16% for random routing of the
+  same wall-clock (better in 9 cells, worse in 3; design bootstrap interval of the difference -3.95 to -0.06 points). The
+  six-point random hedge milestone 111 preferred by 0.07 points in-sample is worse than random routing here (3.55%), so it
+  is dropped from the rule; relaxed-clock 24-bit multipliers and a crossbar remain the failures:
+  [`experiments/fresh_dear/`](experiments/fresh_dear/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 
