@@ -1,9 +1,9 @@
 ---
 title: "The backtest could not see a locked door"
-seo_title: "Backtesting a staff schedule against closed hours: scoring a lunch closure"
+seo_title: "Backtesting a staff schedule: scoring a staffed lunch closure"
 date: 2026-11-11
 tags: [scheduling, forecasting, labor, small-business, open-source]
-description: "A staffing backtest that counts minimum staff as needed wherever the plan puts someone can never call a staffed closure wasteful. Fixing that reversed one verdict and turned up a planning bug."
+description: "A staffing backtest that counted minimum staff wherever the plan put someone could not see a staffed closure. Fixing it reversed a verdict and found a bug."
 ---
 
 The free shift roster builder can plan shifts from a till export and then
