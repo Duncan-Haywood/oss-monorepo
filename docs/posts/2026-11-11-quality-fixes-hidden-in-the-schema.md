@@ -3,7 +3,7 @@ title: "Quality fixes: a poisoned parameter the watcher missed, and a CAA walk u
 seo_title: "MCP tool poisoning in inputSchema, and RFC 8659 CNAME order: two fixes"
 date: 2026-11-11
 tags: [quality-audit, security, testing, mcp, dns]
-description: "Two security tools gave a clean answer when there was a problem: an MCP drift checker blind to inputSchema text, and a CAA checker that climbed a CNAME target's tree."
+description: "Two security checkers gave clean answers wrongly: an MCP drift checker blind to inputSchema text, and a CAA checker climbing a CNAME target's tree."
 ---
 
 Method: [`portfolio/quality/README.md`](../../portfolio/quality/README.md). This session ran in
