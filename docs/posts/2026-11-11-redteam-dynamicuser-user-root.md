@@ -3,7 +3,7 @@ title: "DynamicUser=yes, User=root: the service our checker said was not root"
 seo_title: "systemd DynamicUser= with User=root still runs as root"
 date: 2026-11-11
 tags: [systemd-unit-hardening-check, systemd, security, mutation-testing]
-description: "systemd uses an existing static user over a dynamic one, and root always exists. Our unit-file checker missed it; here is the fix and the parity test that keeps its two copies honest."
+description: "systemd prefers an existing static user over a dynamic one, and root always exists. Our unit-file checker missed it; the fix and a twin-parity test."
 ---
 
 Today's red-team run aimed at the [systemd unit hardening check](../../ventures/systemd-unit-hardening-check/),
