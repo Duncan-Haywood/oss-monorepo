@@ -203,5 +203,26 @@ def main():
     print(f"P7 free pair within 5% of the ratio law: {'held' if ok7 else 'refuted'}")
 
 
+def edge_check(rows, g, s):
+    """Post hoc (added after reading P1 to P7): does the law hold at the low end of the mission's Hs/T range, where
+    the July Gulf and Nantucket plans sit? Median of observed u / (s_m g) by Hs/T bin; 1.0 means the law is unbiased."""
+    out = []
+    edges = (0.0, 0.12, 0.15, 0.184, 0.25, 0.32, 0.40, 0.475, 9.0)
+    for a0, b0 in zip(edges, edges[1:]):
+        v = [r["u"] / (s[r["month"]] * g(r["hs"], r["t"])) for r in rows
+             if a0 <= r["hs"] / r["t"] < b0 and r["month"] in s]
+        out.append((a0, b0, len(v), st.median(v) if v else None))
+    return out
+
+
+def post_hoc(rows):
+    print("\nPost hoc (written after reading P1 to P7; exploratory): law residual by mission Hs/T bin, "
+          "median u / (s_m (Hs/T)^a)")
+    s = states(rows, ratio_g)
+    for a0, b0, n, m in edge_check(rows, ratio_g, s):
+        print(f"  Hs/T {a0:.3f} to {b0:.3f}: {n:5d} hours" + (f", median ratio {m:.3f}" if m is not None else ""))
+
+
 if __name__ == "__main__":
     main()
+    post_hoc(s2_rows())
