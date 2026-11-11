@@ -30,13 +30,20 @@ export const CATEGORIES = Object.freeze({
 // ---------- dates (UTC days, YYYY-MM-DD) ----------
 
 export const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+// A date a reply can name, or null: "in 99999999 days" is past what Date can hold (iso would throw and stop the whole inbox run),
+// and a year past 9999 is not YYYY-MM-DD.
+const LAST_DAY = Date.UTC(9999, 11, 31);
+const safeIso = (ms) => (Number.isFinite(ms) && ms >= 0 && ms <= LAST_DAY ? iso(ms) : null);
+// A calendar date, or null when the month has no such day: Date.UTC rolls "2026-02-30" into March 2.
+const calDate = (y, m, d) => { const t = Date.UTC(y, m, d), x = new Date(t); return x.getUTCFullYear() === y && x.getUTCMonth() === m && x.getUTCDate() === d ? safeIso(t) : null; };
+const daysIn = (y, m) => new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
 export const toDay = (s) => { const t = Date.parse(String(s).slice(0, 10) + "T00:00:00Z"); return Number.isFinite(t) ? t : NaN; };
 export function addBusinessDays(day, n) {
   let t = toDay(day), left = n;
   while (left > 0) { t += DAY; const w = new Date(t).getUTCDay(); if (w !== 0 && w !== 6) left--; }
   return iso(t);
 }
-const addDays = (day, n) => iso(toDay(day) + n * DAY);
+const addDays = (day, n) => safeIso(toDay(day) + n * DAY);
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const MONTH_RE = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -86,9 +93,9 @@ export function findDate(text, today) {
 function findDateLower(text, today) {
   const s = String(text).toLowerCase();
   let m;
-  if ((m = s.match(/\b(20\d\d)-(\d\d)-(\d\d)\b/))) return { date: `${m[1]}-${m[2]}-${m[3]}`, text: m[0] };
-  if ((m = s.match(/\b(20\d\d)[\/.](\d{1,2})[\/.](\d{1,2})\b/)) && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31) return { date: iso(Date.UTC(+m[1], +m[2] - 1, +m[3])), text: m[0] };
-  if ((m = s.match(/\b(\d{1,2})\.(\d{1,2})\.(20\d\d|\d\d)\b/)) && +m[1] >= 1 && +m[1] <= 31 && +m[2] >= 1 && +m[2] <= 12) return { date: iso(Date.UTC(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[2] - 1, +m[1])), text: m[0] }; // day.month.year, the European way
+  if ((m = s.match(/\b(20\d\d)-(\d\d)-(\d\d)\b/))) return { date: calDate(+m[1], +m[2] - 1, +m[3]), text: m[0] }; // "2026-13-45" is not a date
+  if ((m = s.match(/\b(20\d\d)[\/.](\d{1,2})[\/.](\d{1,2})\b/)) && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31) return { date: calDate(+m[1], +m[2] - 1, +m[3]), text: m[0] };
+  if ((m = s.match(/\b(\d{1,2})\.(\d{1,2})\.(20\d\d|\d\d)\b/)) && +m[1] >= 1 && +m[1] <= 31 && +m[2] >= 1 && +m[2] <= 12) return { date: calDate(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[2] - 1, +m[1]), text: m[0] }; // day.month.year, the European way
   if ((m = s.match(new RegExp(`\\b(${ORDINAL_WORDS.join("|")})\\s+of\\s+${MONTH_RE}\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[2].slice(0, 3)), ORDINAL_WORDS.indexOf(m[1]) + 1), text: m[0] };
   if ((m = s.match(/\bday after tomorrow\b/))) return { date: addDays(today, 2), text: m[0] };
   if ((m = s.match(/\btomorrow\b/))) return { date: addDays(today, 1), text: m[0] };
@@ -103,19 +110,20 @@ function findDateLower(text, today) {
     const mo = +m[1] - 1, d = +m[2]; // US order; a day over 12 in the first place means day/month
     const [mm, dd] = mo > 11 ? [d - 1, mo + 1] : [mo, d];
     if (mm >= 0 && mm < 12 && dd >= 1 && dd <= 31) {
-      if (m[3]) { const y = m[3].length === 2 ? 2000 + +m[3] : +m[3]; return { date: iso(Date.UTC(y, mm, dd)), text: m[0] }; }
+      if (m[3]) { const y = m[3].length === 2 ? 2000 + +m[3] : +m[3]; return { date: calDate(y, mm, dd), text: m[0] }; }
       return { date: nextMonthDay(today, mm, dd), text: m[0] };
     }
   }
   if ((m = s.match(/\b(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b/))) {
+    // The next month that has this day: "the 31st" on 10 November is 31 December, not 1 December; "the 0th" or "the 99th" is no date.
     const t = new Date(toDay(today)), d = +m[1];
-    let cand = Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), d);
-    if (cand < toDay(today)) cand = Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, d);
-    return { date: iso(cand), text: m[0] };
+    let date = null;
+    for (let k = 0; k < 3 && !date && d >= 1 && d <= 31; k++) { const c = calDate(t.getUTCFullYear() + Math.floor((t.getUTCMonth() + k) / 12), (t.getUTCMonth() + k) % 12, d); if (c && toDay(c) >= toDay(today)) date = c; }
+    return { date, text: m[0] };
   }
   if ((m = s.match(/\b(?:in|for)\s+(\d+|a|an|one|two|three|four|five|six|a couple of|couple of|a few|few)\s+(day|week|wk|month|mo)s?\b/))) {
     const n = /^\d+$/.test(m[1]) ? +m[1] : NUM_WORDS[m[1].replace(/^a\s+|\s+of$/g, "").trim()] || 2;
-    const date = m[2] === "day" ? addDays(today, n) : (m[2] === "week" || m[2] === "wk") ? addDays(today, 7 * n) : (() => { const t = new Date(toDay(today)); return iso(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + n, t.getUTCDate())); })();
+    const date = m[2] === "day" ? addDays(today, n) : (m[2] === "week" || m[2] === "wk") ? addDays(today, 7 * n) : (() => { const t = new Date(toDay(today)), y = t.getUTCFullYear() + Math.floor((t.getUTCMonth() + n) / 12), mo = (t.getUTCMonth() + n) % 12; return Number.isFinite(y) && y <= 9999 ? safeIso(Date.UTC(y, mo, Math.min(t.getUTCDate(), daysIn(y, mo)))) : null; })(); // "in a month" from 31 January is 28 February, not 3 March
     return { date, text: m[0] };
   }
   if ((m = s.match(/\b(?:in|for)\s+(?:a|one|two)\s+fortnight\b|\ba fortnight\b/))) return { date: addDays(today, /two/.test(m[0]) ? 28 : 14), text: m[0] };
