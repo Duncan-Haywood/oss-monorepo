@@ -220,6 +220,21 @@ export function starterApplies(N) {
 
 /** N -> { even?, odd? }, each a list of rounds, each round the opponent of every team. */
 export const TIMETABLES = {
+  12: {
+    even: [ // non-cyclic carry-over 136 (floor 120), eval/round-refill.mjs seed 12
+      [8, 7, 3, 2, 11, 9, 10, 1, 0, 5, 6, 4],
+      [4, 9, 5, 8, 0, 2, 7, 6, 3, 1, 11, 10],
+      [9, 4, 7, 6, 1, 11, 3, 2, 10, 0, 8, 5],
+      [3, 6, 4, 0, 2, 7, 1, 5, 11, 10, 9, 8],
+      [7, 8, 11, 9, 6, 10, 4, 0, 1, 3, 5, 2],
+      [6, 3, 9, 1, 10, 8, 0, 11, 5, 2, 4, 7],
+      [5, 11, 10, 7, 9, 0, 8, 3, 6, 4, 2, 1],
+      [10, 2, 1, 5, 7, 3, 11, 4, 9, 8, 0, 6],
+      [2, 10, 0, 11, 8, 6, 5, 9, 4, 7, 1, 3],
+      [1, 0, 6, 10, 5, 4, 2, 8, 7, 11, 3, 9],
+      [11, 5, 8, 4, 3, 1, 9, 10, 2, 6, 7, 0],
+    ],
+  },
   // TIMETABLES-DATA
 };
 

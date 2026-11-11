@@ -229,8 +229,8 @@ seven opponents arriving straight from the same side; the least possible is 48).
   The professional schedules already avoid the circle pattern; the tool lands among them on both
   counts, without their derby, policing and broadcast constraints. Not yet: a real rec league's
   strength data (does carry-over move results at that level?), and the
-  search's gap to the floor (12 teams: 156 non-cyclic against a floor of 120; whether that is the
-  optimum is unknown).
+  search's gap to the floor (12 teams: 136 non-cyclic since the refill search below, against a
+  floor of 120; whether that is the optimum is unknown).
 
 ## A double round robin searched as a whole (2026-11-11)
 
@@ -742,6 +742,44 @@ in parallel, PR #14821) scores a starter in one pass over p numbers instead, so 
   here: 665/164 and 828/114 single; seasons 2,631/351 and 3,146/270.
 - Open: 24 to 40 teams are still 8 to 21% above the floor. At 24 the best cyclic sum D^2 found is 24
   against 22; whether a 24-team starter can reach the floor is not known to me.
+
+## Refilled rounds: 12 teams from 152 to 136 (2026-11-11, latest)
+
+At 12 teams every earlier method stopped at 152 to 156 against a floor of 120: sampled starters,
+the annealed and O(p) climbs (starters are a small family, every round a shift of the first), and
+the annealing search from both starts. `eval/round-refill.mjs` searches all round robins instead.
+
+- **The move.** Take 2 to 5 rounds out (half the time next to each other, half anywhere). Their games
+  form a w-regular graph. Refill the w slots with every split of that graph into w perfect matchings,
+  in any order, by depth-first search, and keep the split with the least total carry-over (ties at
+  random, so the search walks plateaus). The DFS places one game at a time and adds the carry-over
+  cells it creates at once (team a meeting b in round r makes prev(a) -> b and b -> next(a)). A cell
+  that already holds c costs 2c above the floor, so any branch past the incumbent is cut. With a
+  small probability a move takes a random refill within a few units of slack instead (a kick). After
+  1,500 moves with no change it restarts from the start timetable with its rounds shuffled. Each
+  result is re-scored with `carryOverFromOpponents` and checked to be a round robin.
+- **Measured** (12 teams, all playing, non-cyclic; 420 s per seed from the circle method, 4 seeds):
+  136, 136, 136 and 152. Every count is 0, 1 or 2: 8 pairs repeat once, against 16 at 152. The
+  seeds that reached 136 got there by 100,000 moves. The search does not show whether 136 is the
+  least possible.
+- **Stored timetables** (`TIMETABLES`, `storedTimetable` in `carryover.mjs`). The best result is
+  stored whole as opp[r][t]. `bestStarterOpp` keeps whichever of the starter and the stored
+  timetable scores lower (then the fewer greedy breaks), and the search runs from it as before.
+  Through the search (`node eval/field-start.mjs 12`, seed 1, effort 1; carry-over / breaks):
+
+  | 12 teams | Before | Now | Floor |
+  |---|---|---|---|
+  | Single, carry-over only | 152 / 18 | **136 / 20** | 120 |
+  | Single, break weight 10 | 152 / 18 (score 332) | 180 / 14 (score 320) | 120 |
+  | Season, carry-over only | 538 / 62 | **530** / 68 | 492 |
+  | Season, break weight 10 | 598 / 46 (score 1,058) | 618 / 42 (score 1,038) | 492 |
+
+  Each setting's own score went down. With a break weight, the search now trades some of the new
+  carry-over for 4 fewer breaks.
+- Tests (`starter.test.mjs`): every stored timetable is a round robin. Its value is pinned and is
+  below the starter it replaces at every start. `lowCarryOverRounds` from it returns no more than
+  the stored value.
+<!-- REFILL-MORE -->
 
 ## Several divisions on shared courts (`divisions.mjs`)
 
