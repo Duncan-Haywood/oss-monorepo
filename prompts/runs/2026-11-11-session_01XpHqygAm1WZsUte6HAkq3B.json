@@ -24,7 +24,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 8,
@@ -52,7 +52,7 @@
     "ventures/shift-roster-builder/README.md (Staffing to customers, not money)"
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS.md and website requests empty; route drew ventures/1; allocate.py row 5 (shift-roster-builder). New: readSales o.count tickets|rows, auto ticket counting when there is no sales column, CLI --count, page 'Staff to' select, backtest note names the unit. eval/tickets-vs-sales.mjs on the Korean, French and Bread Basket files (SHA-256 pinned, not committed; the Bread Basket licence page was not read). Results: Korean ties; French, each plan wins on its own measure by 1-5 person-hours a week, and hours move from mornings to late afternoon; Bread Basket, half-life 4 is best at 5 tickets/h. Verification: node --test count-tickets/demand/page-sales/halflife-auto: 64 pass; run_venture_tests and venture-preflight results below; headless Chromium at 1280 and 390 px on the real Bread Basket file: no console errors, scrollWidth equals the viewport.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; route drew ventures/1; allocate.py row 5 (shift-roster-builder). New: readSales o.count tickets|rows, auto ticket counting when there is no sales column, CLI --count, page 'Staff to' select, backtest note names the unit. eval/tickets-vs-sales.mjs on the Korean, French and Bread Basket files (SHA-256 pinned, not committed; the Bread Basket licence page was not read). Results: Korean ties; French, each plan wins on its own measure by 1-5 person-hours a week, and hours move from mornings to late afternoon; Bread Basket, half-life 4 is best at 5 tickets/h. Verification: node --test count-tickets/demand/page-sales/halflife-auto: 64 pass; run_venture_tests.py shift-roster-builder: ok (158.9 s); venture-preflight: 'preflight clean for shift-roster-builder' (the first preflight failed on the new post's 193-character description, fixed to under 160); no GitHub check runs had started on the PR head when merged; headless Chromium at 1280 and 390 px on the real Bread Basket file: no console errors, scrollWidth equals the viewport.",
   "corrections": [],
   "redteam": null
 }
