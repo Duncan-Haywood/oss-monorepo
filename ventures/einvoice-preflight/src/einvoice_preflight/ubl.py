@@ -5,6 +5,8 @@ from decimal import Decimal
 from xml.etree import ElementTree
 from typing import Any
 
+from .numbers import parse_decimal
+
 
 def _children(element: ElementTree.Element, name: str) -> list[ElementTree.Element]:
     return [child for child in element.iter() if child.tag.rsplit("}", 1)[-1] == name]
@@ -19,7 +21,11 @@ def _text(element: ElementTree.Element, name: str, required: bool = True) -> str
 
 
 def _number(value: str) -> int | float:
-    number = Decimal(value)
+    # A ValueError, not decimal.InvalidOperation (an ArithmeticError), so the CLI
+    # reports one unreadable file instead of crashing the whole batch.
+    number = parse_decimal(value)
+    if number is None:
+        raise ValueError(f"UBL amount is not a number: {value[:40]!r}")
     return int(number) if number == number.to_integral_value() else float(number)
 
 

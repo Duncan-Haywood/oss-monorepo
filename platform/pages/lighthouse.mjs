@@ -7,6 +7,7 @@
 //   LIGHTHOUSE="$SCRATCH/lh/node_modules/.bin/lighthouse" node platform/pages/lighthouse.mjs
 //   ... --pages=research/,writing/        # just these paths
 //   ... --min-a11y=95                     # exit 1 if any page scores lower
+//   ... --throttling=devtools             # real throttling, not Lantern's simulation
 //
 // Why: no polish run had recorded a Lighthouse number before 2026-11-11. The
 // first run found /research/ at accessibility 88 (theme-tag text at 3.1:1,
@@ -40,6 +41,9 @@ const CHROME = process.env.CHROME_PATH || '/opt/pw-browsers/chromium';
 const PORT = Number(process.env.PORT || 8791);
 const FORM = args.form || 'mobile';
 const MIN_A11Y = args['min-a11y'] ? Number(args['min-a11y']) : null;
+// 'simulate' (Lighthouse's default, Lantern) or 'devtools' (real throttling in
+// the browser, so Chrome's own request priorities decide what loads first).
+const THROTTLING = args.throttling || 'simulate';
 
 export function defaultPages(dist = DIST) {
   const pages = ['', 'research/', 'writing/', 'stories/'];
@@ -88,6 +92,7 @@ async function main() {
     const r = await new Promise((resolve) => {
       {
         const child = spawn(LH, [`http://127.0.0.1:${PORT}/${p}`, ...(FORM === 'desktop' ? ['--preset=desktop'] : []),
+          ...(THROTTLING === 'simulate' ? [] : [`--throttling-method=${THROTTLING}`]),
           `--chrome-flags=--headless=new --no-sandbox --proxy-server=direct:// --proxy-bypass-list=*`,
           '--quiet', '--output=json', `--output-path=${json}`],
         { env: { ...process.env, CHROME_PATH: CHROME, NO_PROXY: '*' }, stdio: ['ignore', 'ignore', 'pipe'] });
@@ -104,7 +109,7 @@ async function main() {
       lcp: Math.round(rep.audits['largest-contentful-paint'].numericValue), cls: rep.audits['cumulative-layout-shift'].numericValue.toFixed(3), fails });
   }
   server.close();
-  console.log(`| page (${FORM}) | perf | a11y | best practices | SEO | LCP ms | CLS | failing a11y audits |`);
+  console.log(`| page (${FORM}${THROTTLING === 'simulate' ? '' : `, ${THROTTLING}`}) | perf | a11y | best practices | SEO | LCP ms | CLS | failing a11y audits |`);
   console.log('|---|---|---|---|---|---|---|---|');
   for (const r of rows) console.log(r.error ? `| ${r.page} | error: ${r.error} |` : `| ${r.page} | ${r.perf} | ${r.a11y} | ${r.bp} | ${r.seo} | ${r.lcp} | ${r.cls} | ${r.fails.join(', ') || '-'} |`);
   const low = rows.filter((r) => r.error || (MIN_A11Y !== null && r.a11y < MIN_A11Y));

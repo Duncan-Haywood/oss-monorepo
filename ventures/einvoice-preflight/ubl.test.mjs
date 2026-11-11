@@ -113,3 +113,22 @@ test("UBL transposed IBAN becomes INV-025 without echoing the account", () => {
   assert.ok(errors.some((error) => error.rule === "INV-025"));
   assert.ok(errors.every((error) => !error.message.includes("32013001")));
 });
+
+// Red-team run 2026-11-11: two reader mutants survived the suite.
+test("the supplier is read from AccountingSupplierParty even when the customer comes first", async () => {
+  const { readFileSync } = await import("node:fs");
+  const source = readFileSync(new URL("./examples/ubl-invoice.xml", import.meta.url), "utf8");
+  const supplier = source.match(/\s*<cac:AccountingSupplierParty>[\s\S]*?<\/cac:AccountingSupplierParty>/)[0];
+  const swapped = source.replace(supplier, "").replace("</cac:AccountingCustomerParty>", `</cac:AccountingCustomerParty>${supplier}`);
+  const invoice = parseUblInvoice(swapped);
+  assert.equal(invoice.supplier.name, "Supplier GmbH");
+  assert.equal(invoice.customer.name, "Customer AG");
+});
+
+test("a header allowance with an amount but no reason or percent is still read", async () => {
+  const { readFileSync } = await import("node:fs");
+  const source = readFileSync(new URL("./examples/ubl-invoice.xml", import.meta.url), "utf8")
+    .replace("<cac:TaxTotal>", '<cac:AllowanceCharge><cbc:ChargeIndicator>false</cbc:ChargeIndicator><cbc:Amount currencyID="EUR">10.00</cbc:Amount></cac:AllowanceCharge>\n  <cac:TaxTotal>');
+  const invoice = parseUblInvoice(source);
+  assert.deepEqual(invoice.adjustments?.map((r) => [r.kind, r.amount]), [["allowance", 10]]);
+});

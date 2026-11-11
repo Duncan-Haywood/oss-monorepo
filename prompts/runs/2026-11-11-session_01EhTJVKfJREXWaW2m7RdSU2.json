@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVKfJREXWaW2m7RdSU2",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T05:03:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/marine-hull milestone 6q: Wave Glider speed forecast skill (recent speed vs sea state vs time trend)",
+  "projects": [
+    "marine-hull"
+  ],
+  "pr": 14696,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The scheduled prompt asks for revenue-generating venture work, but promptctl route drew the research track. I followed the router as prompt.md says."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/marine-hull/tests",
+      "why": "No interpreter in the container had pytest; src/ was unchanged, so I left the project tests to research CI instead of installing pytest.",
+      "did": "ran the stdlib experiment, build.py, link, front-matter and programme checks locally",
+      "result": "local checks ok; tests left to CI"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-wave-glider-forecast-from-its-own-speed.md"
+  ],
+  "goal": "advance the marine-hull programme (pick_track draw)",
+  "notes": "Pre-registered 5 predictions in the script docstring (commit 1, pushed before the run). P1, P3, P4 and P5 held; P2 was refuted (an oracle sea-state term adds no skill over 24 h persistence: 0.991, 95% CI 0.86 to 1.16). Local checks: research/_homepage/build.py ok; check_md_links ok; research_live_links 0 updates; programme_check ok; check_post_frontmatter exit 0; check_post_links 0 broken; post_similarity 0 pairs.",
+  "corrections": [],
+  "redteam": null
+}

@@ -33,7 +33,7 @@ and changes no conclusion. With 30 of 42 or 20 of 30 drawn, only 12 or 10
 people are left to score against, so that reference is itself noisy and the
 "wrong" column there is an upper bound.
 
-Run it: `npx tsx scripts/real-rankings-eval.ts --seeds 200 [--lapse 0.1] [--rule overlap|difference]`
+Run it: `npx tsx scripts/real-rankings-eval.ts --seeds 200 [--lapse 0.1] [--rule overlap|difference] [--update-lapse 0.1] [--selectors shipped,staged]` (`--update-lapse` is the Glicko lapse term, measured in INFORMATION-GAIN-SELECTOR.md, "A Glicko update with a lapse term")
 (about 30 s per run).
 
 ## What it shows

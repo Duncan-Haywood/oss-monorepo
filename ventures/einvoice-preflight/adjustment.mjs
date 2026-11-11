@@ -4,6 +4,7 @@
 
 import { looksLikePlaceholder } from "./reference.mjs";
 import { isNegativeInvoice } from "./linenet.mjs";
+import { parseDecimal } from "./numbers.mjs";
 
 const MAX_REASON = 100;
 
@@ -13,13 +14,8 @@ function roundHalfUpToCents(value) {
   return (sign * Math.round(Number((Math.abs(value) * 100).toPrecision(12)))) / 100;
 }
 
-function parseNumber(value) {
-  if (value === undefined || value === null || value === "") return null;
-  const text = typeof value === "string" ? value.trim() : String(value);
-  if (text === "" || !Number.isFinite(Number(text))) return null;
-  const result = Number(text);
-  return Number.isFinite(result) ? result : null;
-}
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
 
 function money(value) {
   const parsed = parseNumber(value);

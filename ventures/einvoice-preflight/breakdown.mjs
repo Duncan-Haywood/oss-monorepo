@@ -1,4 +1,5 @@
 import { taxGroups, taxKey, taxPercentOf } from "./linenet.mjs";
+import { parseDecimal } from "./numbers.mjs";
 
 // Offline mixed-rate tax-breakdown observations.
 // Arithmetic / document-shape only — not a tax-law determination.
@@ -7,13 +8,8 @@ function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
 }
 
-function parseNumber(value) {
-  if (value === undefined || value === null || value === "") return null;
-  const text = typeof value === "string" ? value.trim() : String(value);
-  if (text === "" || !Number.isFinite(Number(text))) return null;
-  const result = Number(text);
-  return Number.isFinite(result) ? result : null;
-}
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
 
 function roundHalfUpToCents(value) {
   if (!Number.isFinite(value)) return null;

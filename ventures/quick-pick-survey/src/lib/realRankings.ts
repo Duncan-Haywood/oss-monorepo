@@ -106,7 +106,7 @@ const SELECTORS: Record<Selector, (input: PairingInput) => [string, string]> = {
  * ten-pair repeat window, a fresh Glicko-2 state per person). Returns their
  * rows as the survey stores them.
  */
-export function answerAsRespondent(order: number[], budget: number, selector: Selector, rand: () => number, lapse = 0): RatingRow[] {
+export function answerAsRespondent(order: number[], budget: number, selector: Selector, rand: () => number, lapse = 0, updateLapse = 0): RatingRow[] {
   const n = order.length;
   const position = new Array<number>(n);
   order.forEach((alt, pos) => (position[alt] = pos));
@@ -120,7 +120,7 @@ export function answerAsRespondent(order: number[], budget: number, selector: Se
     const a = Number(aId.slice(4));
     const b = Number(bId.slice(4));
     const firstWins = lapse > 0 && rand() < lapse ? rand() < 0.5 : position[a] < position[b];
-    const next = applyComparison(state.get(aId)!, state.get(bId)!, firstWins ? "A" : "B");
+    const next = applyComparison(state.get(aId)!, state.get(bId)!, firstWins ? "A" : "B", updateLapse);
     state.set(aId, next.a);
     state.set(bId, next.b);
     timesShown.set(aId, (timesShown.get(aId) ?? 0) + 1);
@@ -149,7 +149,7 @@ export type PanelScore = {
 };
 
 /** Samples `respondents` people without replacement, has each answer `budget` pairs, pools, scores. */
-export function scorePanel(panel: Panel, respondents: number, budget: number, selector: Selector, seed: number, lapse = 0, rule: RangeRule = "overlap"): PanelScore {
+export function scorePanel(panel: Panel, respondents: number, budget: number, selector: Selector, seed: number, lapse = 0, rule: RangeRule = "overlap", updateLapse = 0): PanelScore {
   const rand = mulberry32(seed);
   const n = panel.names.length;
   if (!(respondents >= 1 && respondents < panel.orders.length)) throw new Error("Need at least one respondent and someone left over to score against");
@@ -160,7 +160,7 @@ export function scorePanel(panel: Panel, respondents: number, budget: number, se
   // flatter large samples of a small panel.
   const others = shuffled.slice(respondents);
   const rows: RatingRow[] = [];
-  for (const order of pick) rows.push(...answerAsRespondent(order, budget, selector, rand, lapse));
+  for (const order of pick) rows.push(...answerAsRespondent(order, budget, selector, rand, lapse, updateLapse));
   const ranked = groupRanking(
     panel.names.map((label, i) => ({ id: `alt-${i}`, label })),
     rows,
@@ -203,10 +203,10 @@ export function scorePanel(panel: Panel, respondents: number, budget: number, se
 export type CellSummary = { vsPanel: number; vsSample: number; top1: number; rangeHolds: number; rangeWidth: number; ordered: number; orderedWrong: number };
 
 /** Means of `scorePanel` over `seeds` draws (seed 1..seeds). */
-export function summarise(panel: Panel, respondents: number, budget: number, selector: Selector, seeds: number, lapse = 0, rule: RangeRule = "overlap"): CellSummary {
+export function summarise(panel: Panel, respondents: number, budget: number, selector: Selector, seeds: number, lapse = 0, rule: RangeRule = "overlap", updateLapse = 0): CellSummary {
   const acc = { vsPanel: 0, vsSample: 0, top1: 0, rangeHolds: 0, rangeWidth: 0, ordered: 0, orderedWrong: 0 };
   for (let s = 1; s <= seeds; s++) {
-    const r = scorePanel(panel, respondents, budget, selector, s * 7919 + respondents * 31 + budget, lapse, rule);
+    const r = scorePanel(panel, respondents, budget, selector, s * 7919 + respondents * 31 + budget, lapse, rule, updateLapse);
     acc.vsPanel += r.vsPanel;
     acc.vsSample += r.vsSample;
     acc.top1 += r.top1 ? 1 : 0;

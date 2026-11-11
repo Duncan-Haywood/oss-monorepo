@@ -72,8 +72,16 @@ function nonNeg(v) {
   return Math.max(0, num(v));
 }
 
+// The year whose table applies: the year asked for when it is modelled, else
+// the latest modelled year. Every lookup goes through this one fallback so
+// the thresholds and the 2026+ minimum deduction never come from different
+// years (red-team run 2026-11-11: 2027 got 2026 thresholds but no $400 floor).
+export function modelledYear(taxYear) {
+  return THRESHOLDS[taxYear] ? Number(taxYear) : TAX_YEARS[TAX_YEARS.length - 1];
+}
+
 export function thresholdFor(taxYear, filingStatus) {
-  const table = THRESHOLDS[taxYear] || THRESHOLDS[TAX_YEARS[TAX_YEARS.length - 1]];
+  const table = THRESHOLDS[modelledYear(taxYear)];
   const isJoint = filingStatus === 'joint';
   return {
     threshold: isJoint ? table.joint : table.single,
@@ -209,7 +217,8 @@ export function computeQbiDeduction({
   }
 
   // 199A(i): the floor applies to the deduction itself, after the cap above.
-  const table = THRESHOLDS[taxYear];
+  const yearUsed = modelledYear(taxYear);
+  const table = THRESHOLDS[yearUsed];
   let appliedMinimum = false;
   if (table?.minDeduction && countedQbi >= table.minDeductionFloor && deduction < table.minDeduction) {
     appliedMinimum = true;
@@ -229,6 +238,15 @@ export function computeQbiDeduction({
       detail: ti <= threshold
         ? `Below the taxable-income threshold for this filing status, and under the overall cap: the deduction is the unreduced 20% of QBI.`
         : `Taxable income is above the ${money(threshold)} threshold, but the W-2 wage / UBIA limit is at least 20% of QBI and the overall cap does not bind: the deduction is the unreduced 20% of QBI.`,
+    });
+  }
+
+  // Added last so it never suppresses the "full 20%" note above.
+  if (yearUsed !== Number(taxYear)) {
+    findings.push({
+      severity: 'info',
+      title: 'Tax year not modelled, latest figures used',
+      detail: `Tax year ${taxYear} is not in this calculator's tables, so the ${yearUsed} thresholds, phase-in range and minimum deduction were used. Check the IRS's figures for ${taxYear}: they are indexed for inflation each year.`,
     });
   }
 

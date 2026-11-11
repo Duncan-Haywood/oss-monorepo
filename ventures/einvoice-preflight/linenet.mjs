@@ -3,13 +3,10 @@
 // + line charges - line allowances, rounded to cents; VAT is worked out per
 // rate on the summed taxable amount, not per line. Mirrors
 // src/einvoice_preflight/linenet.py.
+import { parseDecimal } from "./numbers.mjs";
 
-function parseNumber(value) {
-  if (value === undefined || value === null || value === "") return null;
-  const text = typeof value === "string" ? value.trim() : String(value);
-  if (text === "" || !Number.isFinite(Number(text))) return null;
-  return Number(text);
-}
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
 
 export function roundCents(value) {
   if (!Number.isFinite(value)) return null;
