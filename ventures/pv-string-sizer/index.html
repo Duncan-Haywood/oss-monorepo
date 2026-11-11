@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b8860b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EV%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PV String Sizer — Modules per String, Cold Voc, Hot Vmp, Strings per MPPT</title>
+  <meta name="description" content="Free solar string sizing calculator for installers and designers. Enter the module and inverter datasheet values and two site temperatures to get the longest string by cold-weather Voc, the shortest by hot-weather Vmp, strings per MPPT by current, and every layout that fits your module count. Runs in your browser.">
+  <meta property="og:title" content="PV String Sizer — free, private, in your browser">
+  <meta property="og:description" content="How many modules per string? Cold-weather Voc, hot-weather Vmp against the MPPT window, and strings per MPPT, from your datasheets.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "PV String Sizer", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Sizes solar PV strings from a module datasheet, an inverter datasheet and two site temperatures: the longest string by cold-weather Voc, the shortest by hot-weather Vmp against the MPPT minimum, strings per MPPT by current, and every layout that fits a module count. Runs in your browser.", "featureList": "modules per string, cold Voc, hot Vmp, MPPT window, strings per MPPT, 125 percent Isc, conductor ampacity, layouts, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many solar panels can I put in one string?", "acceptedAnswer": {"@type": "Answer", "text": "As many as keep the string's open-circuit voltage at the coldest expected temperature below the lowest of the inverter's maximum DC input, the module's maximum system voltage and the voltage limit that applies to your installation. Voltage rises as cells get colder, so the count comes from the record low, not from the datasheet's 25 C value."}}, {"@type": "Question", "name": "What is the minimum number of panels per string?", "acceptedAnswer": {"@type": "Answer", "text": "Enough that the string's maximum-power voltage on the hottest afternoon stays above the inverter's MPPT minimum. Hot cells lose voltage, so a string that looks fine at 25 C can drop out of the MPPT window in summer."}}, {"@type": "Question", "name": "Which temperatures should I use?", "acceptedAnswer": {"@type": "Answer", "text": "For the cold case, the extreme annual minimum dry-bulb temperature for the site (installers commonly use the ASHRAE extreme minimum). For the hot case, a high design air temperature such as the 2 percent dry-bulb value; the tool adds the cell's rise above the air from the module's NOCT, or a rise you enter."}}, {"@type": "Question", "name": "Why is the short-circuit current multiplied by 1.25?", "acceptedAnswer": {"@type": "Answer", "text": "NEC 690.8(A)(1) sets the maximum PV circuit current at 125 percent of the module short-circuit current, to cover irradiance above the test condition. Conductors are then sized at 125 percent of that again (690.8(B)), 156 percent of Isc, before temperature and conduit-fill corrections."}}, {"@type": "Question", "name": "What happens if the string Vmp goes above the MPPT maximum in the cold?", "acceptedAnswer": {"@type": "Answer", "text": "It is not a safety limit: the inverter cannot hold the maximum power point and loses some energy on cold, bright mornings. The tool flags the lengths where that happens and keeps them in the list when they are under the hard voltage limit."}}, {"@type": "Question", "name": "My datasheet gives the temperature coefficient in mV per degree. Can I use it?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose mV per C next to the coefficient. Enter it as a per-module value with its minus sign, for example -133 mV per C."}}, {"@type": "Question", "name": "Does this replace the code, the inverter maker's string tool or a plan review?", "acceptedAnswer": {"@type": "Answer", "text": "No. It does the arithmetic on the numbers you type in. Your code edition, the authority having jurisdiction, the equipment listings and the inverter maker's own sizing tool decide what is allowed. Check each result against them."}}, {"@type": "Question", "name": "Is anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f6f4ee; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #6b4e00; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #4a3600; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #4a3600; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #5a5446; }
+    .card { background: #fff; border: 1px solid #e2dccb; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #4a360010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #8a7f63; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #6b4e00; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #efe8d6; color: #4a3600; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #efe9da; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #5a5446; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .finding { border-bottom: 1px solid #efe9da; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #ebe7dc; color: #4a3600; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #f8f4e8; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #4a3600; }
+    footer { margin-top: 28px; border-top: 1px solid #e2dccb; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .best td { background: #eef3e1; font-weight: 600; }
+    td.warn { background: #fdf0d5; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">PV STRING SIZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How many modules can go in one string?</h1>
+    <p>Type in the module and inverter datasheet values and two site temperatures. You get the <strong>longest string</strong> the cold-weather open-circuit voltage allows, the <strong>shortest string</strong> that keeps the hot-afternoon Vmp inside the MPPT window, <strong>how many strings each MPPT input takes</strong>, and every layout that fits your module count.</p>
+    <p class="note">Nothing you type leaves this browser tab. Arithmetic on your numbers, not engineering advice: your code edition, the AHJ and the equipment listings decide what is allowed.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Site temperatures</h2>
+    <div class="grid">
+      <div><label for="tempUnit">Temperature unit</label><select id="tempUnit"><option value="C">Celsius</option><option value="F">Fahrenheit</option></select></div>
+      <div><label for="tMin">Coldest expected temperature (extreme annual minimum)</label><input type="text" id="tMin" inputmode="decimal" placeholder="-20" autocomplete="off"></div>
+      <div><label for="tHigh">Hot-day design air temperature</label><input type="text" id="tHigh" inputmode="decimal" placeholder="35" autocomplete="off"></div>
+      <div><label for="noct">Module NOCT, degrees C (datasheet)</label><input type="text" id="noct" inputmode="decimal" placeholder="45" autocomplete="off"></div>
+      <div><label for="cellRise">Or: cell temperature above the air, degrees C (overrides NOCT)</label><input type="text" id="cellRise" inputmode="decimal" placeholder="" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The module (datasheet, STC)</h2>
+    <div class="grid">
+      <div><label for="vocStc">Open-circuit voltage Voc, volts</label><input type="text" id="vocStc" inputmode="decimal" placeholder="49.5" autocomplete="off"></div>
+      <div><label for="vmpStc">Maximum-power voltage Vmp, volts</label><input type="text" id="vmpStc" inputmode="decimal" placeholder="41.4" autocomplete="off"></div>
+      <div><label for="iscStc">Short-circuit current Isc, amps</label><input type="text" id="iscStc" inputmode="decimal" placeholder="10.3" autocomplete="off"></div>
+      <div><label for="impStc">Maximum-power current Imp, amps</label><input type="text" id="impStc" inputmode="decimal" placeholder="9.66" autocomplete="off"></div>
+      <div><label for="pmaxStc">Rated power, watts</label><input type="text" id="pmaxStc" inputmode="decimal" placeholder="400" autocomplete="off"></div>
+      <div><label for="betaVoc">Temperature coefficient of Voc (negative)</label><input type="text" id="betaVoc" inputmode="decimal" placeholder="-0.27" autocomplete="off"></div>
+      <div><label for="betaVocUnit">Voc coefficient unit</label><select id="betaVocUnit"><option value="%">% per degree C</option><option value="mV">mV per degree C, per module</option></select></div>
+      <div><label for="betaVmp">Temperature coefficient of Vmp or Pmax (negative)</label><input type="text" id="betaVmp" inputmode="decimal" placeholder="-0.35" autocomplete="off"></div>
+      <div><label for="betaVmpUnit">Vmp coefficient unit</label><select id="betaVmpUnit"><option value="%">% per degree C</option><option value="mV">mV per degree C, per module</option></select></div>
+      <div><label for="moduleMaxV">Module maximum system voltage, volts</label><input type="text" id="moduleMaxV" inputmode="decimal" placeholder="1000" autocomplete="off"></div>
+      <div><label for="seriesFuse">Module maximum series fuse rating, amps</label><input type="text" id="seriesFuse" inputmode="decimal" placeholder="20" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>The inverter (datasheet)</h2>
+    <div class="grid">
+      <div><label for="invMaxV">Maximum DC input voltage, volts</label><input type="text" id="invMaxV" inputmode="decimal" placeholder="600" autocomplete="off"></div>
+      <div><label for="codeMaxV">System voltage limit that applies to you, volts (blank if none)</label><input type="text" id="codeMaxV" inputmode="decimal" placeholder="600" autocomplete="off"></div>
+      <div><label for="mpptMin">MPPT voltage range: minimum, volts</label><input type="text" id="mpptMin" inputmode="decimal" placeholder="100" autocomplete="off"></div>
+      <div><label for="mpptMax">MPPT voltage range: maximum, volts</label><input type="text" id="mpptMax" inputmode="decimal" placeholder="550" autocomplete="off"></div>
+      <div><label for="mpptCount">Number of MPPT inputs</label><input type="text" id="mpptCount" inputmode="decimal" placeholder="2" autocomplete="off"></div>
+      <div><label for="mpptMaxI">Maximum usable input current per MPPT, amps</label><input type="text" id="mpptMaxI" inputmode="decimal" placeholder="20" autocomplete="off"></div>
+      <div><label for="mpptMaxIsc">Maximum short-circuit current per MPPT, amps</label><input type="text" id="mpptMaxIsc" inputmode="decimal" placeholder="26" autocomplete="off"></div>
+      <div><label for="invAcW">Rated AC output, watts</label><input type="text" id="invAcW" inputmode="decimal" placeholder="7600" autocomplete="off"></div>
+      <div><label for="modules">Modules on the job (optional, for layouts)</label><input type="text" id="modules" inputmode="decimal" placeholder="24" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Size the strings</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Fill in the datasheet values and temperatures, then click Size the strings.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3>Every valid string length</h3>
+    <div class="scroll"><table id="length-table"><thead><tr><th class="n">Modules</th><th class="n">Voc, coldest</th><th class="n">Margin to limit</th><th class="n">Vmp, hot day</th><th class="n">Above MPPT min</th><th class="n">Vmp, coldest</th><th class="n">STC kW</th></tr></thead><tbody></tbody></table></div>
+    <div id="layouts-wrap">
+    <h3>Layouts for your module count</h3>
+    <div class="scroll"><table id="layout-table"><thead><tr><th class="n">String length</th><th class="n">Strings</th><th>Per MPPT</th><th class="n">Modules used</th><th class="n">Left over</th><th class="n">DC kW</th><th class="n">DC/AC</th><th>Notes</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>Module voltage at a cell temperature T is the STC voltage times (1 + coefficient x (T - 25)), or plus the coefficient in mV per degree times (T - 25). The cold case uses the coldest air temperature as the cell temperature (cells at dawn sit at air temperature, and the open-circuit voltage is highest then). The hot case uses the hot-day air temperature plus the cell's rise above the air: (NOCT - 20) x 1000/800 at full sun, or the rise you enter. This is the temperature-coefficient method that NEC 690.7 allows when the module maker gives a coefficient.</p>
+    <p>Longest string = the lowest of the inverter maximum, the module maximum system voltage and the limit you enter, divided by the cold Voc, rounded down. Shortest string = the MPPT minimum divided by the hot Vmp, rounded up. Strings per MPPT = the input's short-circuit limit divided by 1.25 x Isc, rounded down (NEC 690.8(A)(1)); conductor ampacity is 1.25 x 1.25 x Isc (690.8(B)). Layouts split whole strings of one length as evenly as possible over the MPPT inputs.</p>
+    <p><strong>Not modelled:</strong> uneven string lengths on different MPPTs, module-level power electronics (optimisers and microinverters change the rules), bifacial gain, inverter start-up voltage, ageing of Vmp, voltage drop, conductor temperature and conduit-fill corrections, and rapid-shutdown requirements. <strong>Unverified:</strong> checked by hand calculation and unit tests only, not against a manufacturer's string-sizing tool. Use your own datasheets, site temperatures and code edition.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How many solar panels can I put in one string?</h3>
+    <p>As many as keep the string's open-circuit voltage at the coldest expected temperature below the lowest of the inverter's maximum DC input, the module's maximum system voltage and the voltage limit that applies to your installation. Voltage rises as cells get colder, so the count comes from the record low, not from the datasheet's 25 C value.</p>
+    <h3>What is the minimum number of panels per string?</h3>
+    <p>Enough that the string's maximum-power voltage on the hottest afternoon stays above the inverter's MPPT minimum. Hot cells lose voltage, so a string that looks fine at 25 C can drop out of the MPPT window in summer.</p>
+    <h3>Which temperatures should I use?</h3>
+    <p>For the cold case, the extreme annual minimum dry-bulb temperature for the site (installers commonly use the ASHRAE extreme minimum). For the hot case, a high design air temperature such as the 2 percent dry-bulb value; the tool adds the cell's rise above the air from the module's NOCT, or a rise you enter.</p>
+    <h3>Why is the short-circuit current multiplied by 1.25?</h3>
+    <p>NEC 690.8(A)(1) sets the maximum PV circuit current at 125 percent of the module short-circuit current, to cover irradiance above the test condition. Conductors are then sized at 125 percent of that again (690.8(B)), 156 percent of Isc, before temperature and conduit-fill corrections.</p>
+    <h3>What happens if the string Vmp goes above the MPPT maximum in the cold?</h3>
+    <p>It is not a safety limit: the inverter cannot hold the maximum power point and loses some energy on cold, bright mornings. The tool flags the lengths where that happens and keeps them in the list when they are under the hard voltage limit.</p>
+    <h3>My datasheet gives the temperature coefficient in mV per degree. Can I use it?</h3>
+    <p>Yes. Choose mV per C next to the coefficient. Enter it as a per-module value with its minus sign, for example -133 mV per C.</p>
+    <h3>Does this replace the code, the inverter maker's string tool or a plan review?</h3>
+    <p>No. It does the arithmetic on the numbers you type in. Your code edition, the authority having jurisdiction, the equipment listings and the inverter maker's own sizing tool decide what is allowed. Check each result against them.</p>
+    <h3>Is anything I enter uploaded?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, electrical, legal or code-compliance advice, and it does not replace a qualified professional, the inverter maker's own sizing tool or a plan review. Results are arithmetic on the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any module or inverter manufacturer, installer, utility or code body, and no product is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>strings_sized</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Pricing the job? The <a href="../solar-pv-bid-calculator/">solar PV bid calculator</a> prices an install. Homeowner weighing a quote? The <a href="../solar-payback-calculator/">solar payback calculator</a>. A story about this exact problem: <a href="../hearth-and-horizon/the-morning-it-was-too-cold.html">The Morning It Was Too Cold</a>. Guide: <a href="how-many-solar-panels-per-string.html">how many solar panels per string</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["tempUnit", "tMin", "tHigh", "noct", "cellRise", "vocStc", "vmpStc", "iscStc", "impStc", "pmaxStc", "betaVoc", "betaVocUnit", "betaVmp", "betaVmpUnit", "moduleMaxV", "seriesFuse", "invMaxV", "codeMaxV", "mpptMin", "mpptMax", "mpptCount", "mpptMaxI", "mpptMaxIsc", "invAcW", "modules"];
+    const SELECTS = { tempUnit: "C", betaVocUnit: "%", betaVmpUnit: "%" };
+    const v = (n, d = 1) => (n === null || n === undefined ? "" : Number(n).toFixed(d));
+    let last = null;
+
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? SELECTS[k] ?? ""; }); }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const tiles = [[a.lengths.length ? `${a.minLen} to ${a.maxLen}` : "None", "modules per string"], [`${v(a.perModule.vocCold, 2)} V`, `Voc per module at ${v(a.temps.tMinC)} C`], [`${v(a.perModule.vmpHot, 2)} V`, `Vmp per module, ${v(a.temps.tCellHot)} C cell`], [a.current.perMppt === null ? "n/a" : String(a.current.perMppt), "strings per MPPT input"]];
+      $("#big").innerHTML = tiles.map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#length-table tbody").innerHTML = a.lengths.map((l) => `<tr><td class="n">${l.modules}</td><td class="n">${v(l.vocCold)} V</td><td class="n">${v(l.voltageMarginPct)}%</td><td class="n">${v(l.vmpHot)} V</td><td class="n">${v(l.mpptMarginPct)}%</td><td class="n${l.coldTracking === false ? " warn" : ""}">${v(l.vmpCold)} V</td><td class="n">${v(l.stcKw, 2)}</td></tr>`).join("");
+      $("#layouts-wrap").hidden = !a.layouts.length;
+      $("#layout-table tbody").innerHTML = a.layouts.map((l, i) => {
+        const notes = [l.coldTracking === false ? "above MPPT max when cold" : "", l.currentClipped ? "clips current at peak" : ""].filter(Boolean).join("; ");
+        return `<tr class="${i === 0 && l.unused === 0 ? "best" : ""}"><td class="n">${l.stringLength}</td><td class="n">${l.strings}</td><td>${esc(l.perMppt.join(" + "))}</td><td class="n">${l.modulesUsed}</td><td class="n">${l.unused}</td><td class="n">${v(l.dcKw, 2)}</td><td class="n">${v(l.dcAcRatio, 2)}</td><td>${esc(notes)}</td></tr>`;
+      }).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
+    }
+
+    $("#analyze").addEventListener("click", () => { if (run()) record("strings_sized"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Example data: an invented module, inverter and site, not a real product."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = "Fill in the datasheet values and temperatures, then click Size the strings."; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "pv-string-sizing.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
