@@ -939,6 +939,13 @@ How it was checked:
   LinearRaw, highlight clipping, the CLI, and refusals.
 - Lossless JPEG decoding is checked against an independent encoder: ffmpeg's `ljpeg` encoder
   (left, plane and median predictors) decodes sample-exact.
+- Lossless JPEG written by a camera, against LibRaw (2026-11-11, `tools/cr2_ljpeg_check.py`,
+  `eval/ljpeg-decoder-2026-11-11.md`): a Canon CR2 stores its sensor data as one lossless JPEG
+  the camera encoded itself, so the decoder DNG tiles go through can be pointed at it. On the
+  real Canon 5D Mark II CR2 (23 MB stream, 1448x3804 frame, four components, two Huffman
+  tables, predictor 1) every one of 22,032,768 sensels, with Canon's slices put back side by
+  side, equals LibRaw's `raw_image`. This is the first camera-written lossless JPEG the decoder
+  has read; it does not yet cover a camera- or Adobe-written DNG's tiles.
 - Against LibRaw on real camera files (`tools/libraw_differential.py`, needs `rawpy` and
   `numpy` in a separate venv; results in `eval/raw-develop-libraw-2026-11-10.md`): a real
   Nikon NEF (NASA ISS photo, 12 MP, RGGB) and a real Canon 5D Mark II CR2 (21 MP, GBRG,
@@ -978,4 +985,19 @@ How it was checked:
   orientations, exposure, white balance, clipping and LinearRaw (skipped without numpy, so CI,
   which has no numpy, still runs the pure path). Still pure Python either way: reading the
   file (0.7 s for the Nikon's uncompressed DNG, 2.2 s for the Canon's) and the lossless-JPEG
-  decoder, whose speed on a camera-written 12 MP DNG is not measured.
+  decoder (next item).
+- Lossless-JPEG decoder speed (2026-11-11, `eval/ljpeg-decoder-2026-11-11.md`): the decoder
+  now runs in two passes. The first reads every Huffman difference from de-stuffed 32-bit
+  words through a 12-bit table that decodes a code and its extra bits in one look-up; the
+  second turns differences into samples, for predictors 1 and 2 as one running sum per
+  component (`itertools.accumulate`) instead of a Python step per sample. On the Canon's
+  camera-written 22-megasample stream: 16.8 s to 7.3-7.5 s (2.2x), output identical to the old
+  one-pass decoder (kept as `_decode_scan_reference`) and to LibRaw. On a DNG-shaped 256x256
+  tile (two components, synthetic smooth data): 52 ms to 19 ms (2.75x), which puts a 12 MP
+  lossless DNG at about 3.5 s of decoding instead of 9.5. The rest is the Huffman loop itself,
+  about 0.2 microseconds a sample, the floor for a pure-Python bit reader on this container
+  (a 16-bit table was no faster). `tests/test_ljpeg_fast.py` (345 cases) encodes random
+  images with code tables that reach every branch: codes that fit the table, codes whose
+  extra bits do not, codes longer than it, size 16, byte stuffing, all seven predictors, one
+  to four components, restart intervals on and off row boundaries, point transform; both
+  decoders must return the encoded samples exactly.

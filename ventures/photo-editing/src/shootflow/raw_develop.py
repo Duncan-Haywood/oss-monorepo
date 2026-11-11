@@ -45,10 +45,14 @@ With numpy installed, ``develop`` hands the per-pixel work to
 
 from __future__ import annotations
 
+import re
 import struct
+import sys
 import zlib
 from array import array
 from dataclasses import dataclass, field
+from itertools import accumulate
+from operator import add
 from pathlib import Path
 
 # --------------------------------------------------------------------------
@@ -445,6 +449,268 @@ def _decode_scan_blocks(data, pos, width, height, tables, predictor, precision, 
 
 
 def _decode_scan(data, pos, width, height, tables, predictor, precision, pt, restart):
+    """Decode a non-subsampled lossless scan in two passes.
+
+    First every Huffman-coded difference is read (``_scan_diffs``), then the
+    predictor turns differences into samples (``_predict_scan``). Splitting
+    the two lets each pass run at C speed where it can: the bit reader works
+    on de-stuffed 32-bit words through a 12-bit table that decodes the code
+    and its extra bits in one look-up, and predictors 1 and 2 become a running
+    sum or an element-wise add per row. The output is the same sample for
+    sample as ``_decode_scan_reference`` (the original one-pass decoder, kept
+    for the tests and for unusual layouts).
+    """
+
+    if not 1 <= predictor <= 7:
+        raise DevelopError(f"lossless JPEG predictor {predictor} is not 1-7")
+    nf = len(tables)
+    diffs = _scan_diffs(data, pos, width * height, tables, restart)
+    initial = 1 << (precision - pt - 1)
+    if predictor in (1, 2) and (not restart or restart % width == 0):
+        out = _predict_rows(diffs, width, height, nf, predictor, initial, restart)
+    else:
+        out = _predict_scan(diffs, width, height, nf, predictor, initial, restart)
+    if pt:
+        out = [v << pt for v in out]
+    return out
+
+
+_LUT_BITS = 12
+_LUT_OFFSET = 1 << 17
+_LUT_CACHE: dict[tuple, list[int]] = {}
+
+
+def _combined_lookup(table: dict[tuple[int, int], int]) -> list[int]:
+    """A ``_LUT_BITS``-bit table over the next bits of the stream.
+
+    An entry ``e > 0`` is a whole difference: ``e & 31`` bits (code plus extra
+    bits) and the value ``(e >> 5) - _LUT_OFFSET``. ``e < 0`` is a code whose
+    extra bits do not fit: ``-e - 1`` packs the code length (low 5 bits) and
+    the size category. ``0`` is a code longer than the table.
+    """
+
+    key = tuple(sorted(table.items()))
+    cached = _LUT_CACHE.get(key)
+    if cached is not None:
+        return cached
+    lb = _LUT_BITS
+    lut = [0] * (1 << lb)
+    for (length, code), s in table.items():
+        if length > lb:
+            continue
+        free = lb - length
+        start = code << free
+        if s == 16 or length + s > lb:
+            entry = -(((s << 5) | length) + 1)
+            lut[start : start + (1 << free)] = [entry] * (1 << free)
+            continue
+        if s == 0:
+            lut[start : start + (1 << free)] = [(_LUT_OFFSET << 5) | length] * (1 << free)
+            continue
+        rest = free - s
+        half = 1 << (s - 1)
+        span = (1 << s) - 1
+        for v in range(1 << s):
+            diff = v if v >= half else v - span
+            entry = ((diff + _LUT_OFFSET) << 5) | (length + s)
+            at = start + (v << rest)
+            lut[at : at + (1 << rest)] = [entry] * (1 << rest)
+    if len(_LUT_CACHE) > 256:
+        _LUT_CACHE.clear()
+    _LUT_CACHE[key] = lut
+    return lut
+
+
+_MARKER = re.compile(rb"\xff[\x01-\xff]")
+_RESTART_MARKER = re.compile(rb"\xff[\xd0-\xd7]")
+
+
+def _segment_words(data: bytes, pos: int) -> tuple[list[int], int]:
+    """The entropy-coded bytes from ``pos`` to the next marker, as 32-bit words.
+
+    Stuffed ``FF 00`` pairs become ``FF``; past the marker the stream reads as
+    zeros, as ``_Bits`` does. Returns the words and where the marker starts.
+    """
+
+    m = _MARKER.search(data, pos)
+    stop = m.start() if m else len(data)
+    seg = data[pos:stop].replace(b"\xff\x00", b"\xff")
+    seg += b"\0" * (-len(seg) % 4)
+    words = array("I")
+    if words.itemsize != 4:  # pragma: no cover - every CPython platform has a 4-byte 'I'
+        words = array("L")
+    words.frombytes(seg)
+    if sys.byteorder == "little":
+        words.byteswap()
+    return words.tolist(), stop
+
+
+def _scan_diffs(data, pos, mcus_total, tables, restart) -> list[int]:
+    luts = [(_combined_lookup(t), t) for t in tables]
+    out: list[int] = []
+    if not restart:
+        words, _ = _segment_words(data, pos)
+        _huffman_run(words, mcus_total, luts, out)
+        return out
+    done = 0
+    while done < mcus_total:
+        if done:
+            m = _RESTART_MARKER.search(data, pos)
+            pos = m.end() if m else len(data)
+        words, pos = _segment_words(data, pos)
+        n = min(restart, mcus_total - done)
+        _huffman_run(words, n, luts, out)
+        done += n
+    return out
+
+
+def _huffman_run(words: list[int], mcus: int, luts, out: list[int]) -> None:
+    """Append ``mcus`` MCUs of differences (one per component) to ``out``."""
+
+    app = out.append
+    nwords = len(words)
+    lb = _LUT_BITS
+    lbm = (1 << lb) - 1
+    off = _LUT_OFFSET
+    acc = 0
+    nbits = 0
+    wi = 0
+    for _ in range(mcus):
+        for lut, table in luts:
+            if nbits < 32:
+                acc = ((acc & ((1 << nbits) - 1)) << 32) | (words[wi] if wi < nwords else 0)
+                wi += 1
+                nbits += 32
+            e = lut[(acc >> (nbits - lb)) & lbm]
+            if e > 0:
+                nbits -= e & 31
+                app((e >> 5) - off)
+                continue
+            if e < 0:
+                e = -e - 1
+                nbits -= e & 31
+                s = e >> 5
+            else:
+                code = 0
+                s = -1
+                for length in range(1, 17):
+                    code = (code << 1) | ((acc >> (nbits - length)) & 1)
+                    got = table.get((length, code))
+                    if got is not None:
+                        s = got
+                        break
+                if s < 0:
+                    raise DevelopError("invalid Huffman code in lossless JPEG data")
+                nbits -= length
+            if s == 0:
+                app(0)
+            elif s == 16:
+                app(32768)
+            else:
+                nbits -= s
+                v = (acc >> nbits) & ((1 << s) - 1)
+                if v < (1 << (s - 1)):
+                    v -= (1 << s) - 1
+                app(v)
+
+
+def _predict_rows(diffs, width, height, nf, predictor, initial, restart) -> list[int]:
+    """Predictors 1 (left) and 2 (above), restart intervals on row boundaries.
+
+    Predictor 1 runs as one running sum per component over the whole image:
+    the first difference of each row is rewritten so the sum restarts from
+    the sample above (or from ``initial`` on a fresh row) instead of carrying
+    on from the previous row's last sample. Sums are taken modulo 2**16 at the
+    end, which is the same as masking every step because the predictor only
+    adds.
+    """
+
+    mask = 0xFFFF
+    row_len = width * nf
+    out = [0] * (row_len * height)
+    fresh_rows = [y == 0 or bool(restart and (y * width) % restart == 0) for y in range(height)]
+    if predictor == 1:
+        for c in range(nf):
+            comp = diffs[c::nf]
+            col0 = 0
+            total = 0  # running sum so far = previous row's last sample
+            for y in range(height):
+                at = y * width
+                first = comp[at]
+                col0 = (initial if fresh_rows[y] else col0) + first
+                comp[at] = col0 - total
+                total = col0 + sum(comp[at + 1 : at + width]) if width > 1 else col0
+            out[c::nf] = list(accumulate(comp))
+    else:
+        prev: list[int] = []
+        for y in range(height):
+            base = y * row_len
+            row = diffs[base : base + row_len]
+            if fresh_rows[y]:
+                for c in range(nf):
+                    seq = row[c::nf]
+                    seq[0] += initial
+                    row[c::nf] = list(accumulate(seq))
+            else:
+                row = list(map(add, prev, row))
+            out[base : base + row_len] = row
+            prev = row
+    if out and (min(out) < 0 or max(out) > mask):
+        out = [v & mask for v in out]
+    return out
+
+
+def _predict_scan(diffs, width, height, nf, predictor, initial, restart) -> list[int]:
+    """Any predictor, any restart interval: one sample at a time."""
+
+    mask = 0xFFFF
+    out = [0] * (width * height * nf)
+    row_len = width * nf
+    mcu = 0
+    k = 0
+    first_line = 0
+    for y in range(height):
+        base = y * row_len
+        for x in range(width):
+            fresh = mcu == 0
+            if restart and mcu and mcu % restart == 0:
+                fresh = True
+                first_line = y
+            mcu += 1
+            at = base + x * nf
+            for c in range(nf):
+                diff = diffs[k]
+                k += 1
+                if fresh:
+                    pred = initial
+                elif y == first_line:
+                    pred = out[at - nf + c] if x > 0 else out[at - row_len + c]
+                elif x == 0:
+                    pred = out[at - row_len + c]
+                else:
+                    ra = out[at - nf + c]
+                    rb = out[at - row_len + c]
+                    if predictor == 1:
+                        pred = ra
+                    elif predictor == 2:
+                        pred = rb
+                    else:
+                        rc = out[at - row_len - nf + c]
+                        if predictor == 3:
+                            pred = rc
+                        elif predictor == 4:
+                            pred = ra + rb - rc
+                        elif predictor == 5:
+                            pred = ra + ((rb - rc) >> 1)
+                        elif predictor == 6:
+                            pred = rb + ((ra - rc) >> 1)
+                        else:
+                            pred = (ra + rb) >> 1
+                out[at + c] = (pred + diff) & mask
+    return out
+
+
+def _decode_scan_reference(data, pos, width, height, tables, predictor, precision, pt, restart):
     if not 1 <= predictor <= 7:
         raise DevelopError(f"lossless JPEG predictor {predictor} is not 1-7")
     nf = len(tables)

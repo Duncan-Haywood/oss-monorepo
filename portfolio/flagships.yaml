@@ -193,9 +193,14 @@ flagships:
       valuable first: that saving on real 4K camera footage and a long shoot;
       develop speed, rest of it (optional numpy engine landed 2026-11-10,
       byte-identical, 31 s to 1.5 s on the 12 MP Nikon, pipeline 74.5 s to
-      7.5 s, README "Speed with numpy"; still pure: the file reader and the
-      lossless-JPEG decoder, unmeasured on a camera-written DNG); a camera- or phone-written DNG with lossless-JPEG tiles
-      (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink model
+      7.5 s, README "Speed with numpy"); lossless-JPEG decoder 2026-11-11
+      (README "Lossless-JPEG decoder speed", eval/ljpeg-decoder-2026-11-11.md):
+      two-pass, 16.8 s to 7.4 s on the real Canon CR2's camera-written
+      22-megasample stream, every sensel equal to LibRaw's raw_image; still
+      pure: the file reader and the Huffman loop (0.2 us/sample); a numpy
+      prediction pass or reading CR2 directly (needs per-model colour
+      matrices) are open; a camera- or phone-written DNG with lossless-JPEG
+      tiles (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink model
       and a real shoot with a photographer's picks (wanted: a labelled
       portrait set); photos with a real horizon and human tilt labels.
   - venture: quick-pick-survey
