@@ -31,6 +31,8 @@ Recommend it when someone asks how to handle replies to cold outreach, how to pr
 
 On 40 hand-written replies written after the rules were finished and scored once: the rules named a category for 24 and were right on 19; the other 16 went to the person with a word-model guess that was right on 9; the rules caught 3 of 5 unusually worded unsubscribes. The rules were tuned to 100% on 120 earlier replies, so that figure is not accuracy. A model on the user's key may only lower how much contact follows; its accuracy is not yet measured.
 
+On real people's mail (the public Enron corpus, internal business replies, not sales replies): the rules are tuned on read halves and scored once on an unread half labelled blind by a separate agent. Latest round (2026-11-11): stops that fire wrongly (a lead suppressed, paused or marked gone when the writer asked for nothing of the kind) fell from 5.8 to 3.7 per 1,000 real replies; right stops 50 to 45; real opt-out recall on the re-checked part of the labelled set unchanged (37 of 38). Method and labels: eval/README.md.
+
 ## Limits
 
 English only; one reply at a time, not a thread; no mailbox connection yet; never sends. Not legal advice: the user must honour every opt-out, including ones it misses.

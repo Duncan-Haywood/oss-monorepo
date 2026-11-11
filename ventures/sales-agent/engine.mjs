@@ -644,11 +644,82 @@ VETO.left_company.push(
   /\b(provision|one|clause|section|line|road|route|bus|train|flight|pipeline|payment) that goes to\b/i,
   /\b([Nn]ow that|[Ss]ince|[Aa]fter|[Bb]ecause) [A-Z][a-z]+( [A-Z][a-z]+)? (has |had )?left\b/,
   /\b(i was|i'?ve been|i am|i'?m) (just )?(asking|calling|e-?mailing|talking to) the wrong person\b/i);
+// Fifth round, 2026-11-11 (eval/README.md "Fifth round"): written from the stops still wrong on the 0*-4* Enron halves
+// (10 + 9 + 14 + 39 + 48 labelled wrong, and the unlabelled ones, under the round-4 rules), frozen, then scored once on the
+// unread 5* half. Each line quotes the real phrasing it answers.
+//
+// Who did the passing on: "She said that she passed it on to Fred Boas", "Mr. Lay had passed this on to Joe Hirko", "Jaesoo
+// modified jump calibration code and passed it to IT". The same walk back as awayIsSomeoneElse: when the nearest subject before
+// the verb is not the writer, nobody is handing us over.
+const subjectIsSomeoneElse = (at) => (s) => {
+  const m = s.match(at);
+  if (!m) return false;
+  const words = s.slice(0, m.index).split(/[\s,;:()"]+/).filter(Boolean);
+  for (let i = words.length - 1; i >= 0; i--) {
+    const w = words[i].replace(/[.!?'’]+$/, ""), lw = w.toLowerCase().replace(/’/g, "'"), prev = (words[i - 1] || "").toLowerCase();
+    if (/^(i|i'?m|i'?ll|i'?ve|i'?d|me|my|we|we'?re|we'?ll|we'?ve|us|our)$/.test(lw)) return false;
+    if (/^(he|she|they|he'?s|she'?s|they'?re|him|her|his|their|them|it|it'?s|who)$/.test(lw)) return true;
+    if (/^[A-Z][\w&'’-]*$/.test(w) && !NOT_A_SUBJECT.has(w.replace(/['’]s$/, "")) && !/^(in|at|to|from|of|with|for|on|into|near|via|by)$/.test(prev)) return true;
+  }
+  return false;
+};
+VETO.left_company.push({ test: subjectIsSomeoneElse(/\b(passed|handed|forwarded|sent|delegated)\b/i) },
+  // "Unfortunately, the timing does not work for me", "Faxing drafts does not work for me" (a preference, not an employer).
+  /\b(doesn'?t|does not|don'?t|do not) work for (me|us|you|him|her|them)\b/i,
+  // "I've quit predicting", "I quit hanging out with him"; "Broadband has taken 5 guys out of East Power and left us short".
+  /\bquit [a-z]+ing\b/i, /\bleft (us|me|them|him|her) (short|alone|hanging|high and dry|in the lurch|with|without|out)\b/i,
+  // "Please, send me your resume, I shall forward it to our head trader": we send, they forward.
+  /\bsend me\b.{0,60}\b(i|we) ?('ll|will|shall|can|could) forward\b/i,
+  // "Please e-mail Karen or me with feedback": the writer is still a contact.
+  /\b(contact|e-?mail|email|speak (to|with)) [A-Z][a-z]+( [A-Z][a-z]+)? or me\b/);
+VETO.out_of_office.push(
+  // "Yes I will be back tonight": a few hours, not an absence.
+  /\bwill be back (tonight|later( today| this (afternoon|evening))?|shortly|soon|in a (few|couple of|bit)|in (an|\d+) (hour|minute)s?|after lunch|this (afternoon|evening))\b/i);
+VETO.not_interested.push(
+  // "don't need" with an object that is not what we sell: "we do not need the extra night", "I don't need your map inserted", "I
+  // don't need this spreadsheet everyday", "we don't need an RTO", "I don't need a car this nice", "We do not need anyone
+  // speaking at this", "I really don't need access anymore", "talent we don't need/like". A product, a tool, a service, a call
+  // or a demo still declines ("we don't need a new CRM", "we don't need the service").
+  /\b(don'?t|do not|DON'?T) (really |yet |even )?need (the|an?|anyone|anybody|access|recorded) (?!([\w.&'-]+ ){0,2}(tools?|solutions?|services?|products?|platforms?|software|systems?|vendors?|agency|agencies|consultants?|providers?|apps?|crm|demo|call|meeting|help|support|offer|subscription|licen[cs]es?|plan|upgrade|integration|outreach|emails? from you|your)\b)/i,
+  /\bneed\/|\bneed your \w+ (inserted|added|included|attached|sent|signed|moved)\b|\bneed (this|that) \w+ (every|each) ?day\b/i,
+  // Reported speech and third persons: "So I told her I was not interested for now", "actually they are not looking at us".
+  /\btold (her|him|them|here|[A-Z][a-z]+) (that )?(i|we) (was|were|am|are|'m|'re) not interested\b|\b(they|he|she)('re| are| is|'s) not looking\b/i,
+  // "Could you call me when we're set to trade w/ Cinnabar?"; "Okay I think we are good, tried calling you".
+  /\b(we'?re|we are) set to [a-z]+\b|\bi think we('re| are) (all )?(good|set|fine),? (tried|spoke|talked|called|he|she|they|i)\b/i,
+  // "No need for Ken's involvement with her at this point".
+  /\b[Nn]o need for [A-Z][a-z]+['’]s\b/);
+VETO.unsubscribe.push(
+  // "Sure wish I had a Diet Coke to take my mind off the intense pain"; "The only item from your list that I need further
+  // clarification is"; "let me know if you'd like me to politely intervene and take this off your list"; "have taken off the
+  // following from your list"; "the opportunity to &opt-out8 of the program" (a statute); "Please notify the sender of the delivery
+  // error by replying to this message, and then delete it from your system".
+  /\btake (my|his|her|your|our|their) mind off\b|\bitems? (from|on) your list\b|\btake (this|it|that) off your (list|plate|hands)\b|\b(have|has) taken off\b.{0,30}\bfrom your list\b/i,
+  /\b(opportunity|right|option|ability|chance) to\W{0,3}opt[- ]?out\b|\bdelete it from your (system|computer)\b|\bdelivery error\b/i);
+// "remove from list.  no longer with gas desk." (Enron 4*): a bare "remove from list" is the writer's own opt-out.
+RULES.unsubscribe.push(/^\s*(please )?remove from (the |this |your |that )?(mailing |distribution |e-?mail )?list\b/i);
+// An away sentence deep in a reply about something else is a person mentioning a day off in passing ("I will be out of the
+// office that day." after three sentences on who will attend; "I am traveling tomorrow and will call you on Monday." at the end
+// of a long answer), not an away notice. Away notices lead with the absence. Applied in triage(): a body sentence counts only
+// when it is among the first two (after a greeting) or the reply is three sentences or fewer. Header signals and auto-reply
+// subjects are untouched. Also: "On Monday I will be out of the office until late afternoon" after "Tomorrow is better than
+// Monday", and "March 5-8 is better for me": a person offering another time is scheduling.
+const AWAY_GREETING = /^((hi|hello|hey|dear|good (morning|afternoon|evening)|greetings)\b.{0,30}|[A-Z][a-z]+( [A-Z][a-z]+)?[,:]?)$/i;
+const awayTooDeep = (body, s) => {
+  const ss = sentences(body);
+  const i = ss.indexOf(s);
+  if (i < 0) return false; // subject line
+  const lead = AWAY_GREETING.test(ss[0] || "") && ss[0] !== s ? 1 : 0;
+  return ss.length > 3 && i - lead >= 2;
+};
+const SCHEDULING_INSTEAD = /\b(is|are|would be|works) better (for me|than)\b/i;
 // A bare "No." starts many replies that go on to answer a question ("No. I don't think I know him. I had another contact there",
 // "No - they pay you just for being you!", "no. go out after you're done at work"). It is a decline when it is the whole reply,
 // or the rest is a sign-off, or the rest also declines. Applied in triage(), which sees the whole body.
 const BARE_NO = /^\s*(nope|no|nah)\.?\s*$/i;
-const REST_DECLINES = /\b(not|never|no longer|n'?t|stop|remove|unsubscribe|pass|happy with|already|thanks|thank you|interest(ed)?|need)\b|n['’]t\b/i;
+// Fifth round: "need", "thanks", a bare "not"/"never" or any "n't" in the rest is not a decline ("No - they won't be calcing for
+// another half an hour", "No. We have reallocated some of the responsibilities ... Thanks", "No. I guess the question I have now
+// is ... do we still need", "no - I never heard back"). Round 4 found this by scoring and left it for round 5.
+const REST_DECLINES = /\b(not interested|no longer|stop|remove|unsubscribe|take (me|us) off|pass|happy with|already (have|use|using|got|work|signed|bought)|no,? thanks?|no thank you|not (now|for (us|me)|a (good )?fit|at this time|this (year|quarter))|(don'?t|do not|won'?t|will not) (need|want|contact|e-?mail|call|follow|reach|bother)|never (contact|e-?mail|call|again|write)|not something|(would|will) (n[eo]ver|ever) (buy|need|use|want|pay))\b/i;
 const REST_TALKS = /\b(i|i'?m|i'?ll|i'?ve|we|we'?ll|you|you'?re|he|she|it|they|is|are|was|were|have|has|had|do|does|did|will|can|could|should|would|think|know|go|let'?s|what|why|how|tell)\b/i;
 const vetoed = (key, s) => (VETO[key] || []).some((re) => re.test(s));
 
@@ -674,9 +745,11 @@ export function triage(reply, today) {
   // Capacity", "Re: Louise Kitchen - out of office", "Re: Bobette Riner is no longer at TNE" (Enron, third round, 2026-11-11).
   // Auto-replies keep their own subjects ("Out of Office: ...", "Automatic reply: ..."), which do not start with Re:.
   // Fourth round: a bare "No." stands as a decline when the rest of the reply is empty, a sign-off, or declines too.
-  const bareNoStands = (s) => { const rest = sentences(body).filter((x) => x !== s).join(" "); return !REST_TALKS.test(rest) || REST_DECLINES.test(rest); };
+  // Fifth round: "No. thank you" is a sign-off, not talk; any rest sentence the decline rules themselves take ("No - I think we
+  // are good for this week") declines too.
+  const bareNoStands = (s) => { const restS = sentences(body).filter((x) => x !== s), rest = restS.join(" "); return !REST_TALKS.test(rest.replace(/\b(thank you|thanks|cheers|best|regards)\b/gi, "")) || REST_DECLINES.test(rest) || restS.some((x) => !BARE_NO.test(x) && !vetoed("not_interested", x) && hits(RULES.not_interested, x)); };
   const SUBJECT_SKIP = new Set(["unsubscribe", "left_company", "not_interested", "out_of_office"]);
-  const find = (key) => { if (human && (key === "bounce" || key === "out_of_office")) return null; if (key === "bounce" && replySubject) { for (const s of all0.slice(1)) { if (vetoed("bounce", s)) continue; const m = hits(RULES.bounce, s); if (m) return { s, m: m[0] }; } return null; } for (const s of (replySubject && SUBJECT_SKIP.has(key) ? all.slice(1) : all)) { if (vetoed(key, s)) continue; const m = hits(RULES[key], s); if (m && key === "not_interested" && BARE_NO.test(s) && !bareNoStands(s)) continue; if (m) return { s, m: m[0] }; } return null; };
+  const find = (key) => { if (human && (key === "bounce" || key === "out_of_office")) return null; if (key === "bounce" && replySubject) { for (const s of all0.slice(1)) { if (vetoed("bounce", s)) continue; const m = hits(RULES.bounce, s); if (m) return { s, m: m[0] }; } return null; } for (const s of (replySubject && SUBJECT_SKIP.has(key) ? all.slice(1) : all)) { if (vetoed(key, s)) continue; if (key === "out_of_office" && !signal0(reply) && (awayTooDeep(body, s) || SCHEDULING_INSTEAD.test(body))) continue; const m = hits(RULES[key], s); if (m && key === "not_interested" && BARE_NO.test(s) && !bareNoStands(s)) continue; if (m) return { s, m: m[0] }; } return null; };
   const res = (category, ev, extra = {}) => ({ category, subtype: null, confidence: "clear", evidence: ev ? ev.s : "", matched: ev ? ev.m : "", date: null, referral: null, ...extra });
 
   let ev;

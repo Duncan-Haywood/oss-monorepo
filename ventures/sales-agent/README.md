@@ -135,6 +135,15 @@ read while tuning, labelled blind by a separate agent: wrong stops 69 to 48 (7.2
 per 1,000), right stops 65 to 64, opt-out recall unchanged. Details:
 [`eval/README.md`](eval/README.md), "Fourth round".
 
+**Fifth round, 2026-11-11, on a sixth unread half.** An absence mentioned in passing deep in
+an answer ("... I will let you know who will attend. I will be out of the office that day."),
+"don't need" about something we don't sell ("we do not need the extra night"), a "No." whose
+rest only says "thanks" or "won't", and handovers done by someone else ("she passed it on to
+Fred") no longer stop a lead. Scored once on 9,538 replies never read while tuning, labelled
+blind by a separate agent: wrong stops 55 to 35 (5.8 to 3.7 per 1,000), right stops 50 to 45,
+opt-out recall and auto-reply recall unchanged. Details: [`eval/README.md`](eval/README.md),
+"Fifth round".
+
 **Real opt-outs, 2026-11-10.** The other direction: of 113 distinct real
 "take me off this list" messages found in the rest of the Enron corpus (451,475
 messages, candidates chosen by a net written apart from the rules and read with
