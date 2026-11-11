@@ -10,6 +10,13 @@ from pathlib import Path
 P = Path(__file__).resolve().parent
 EXP = P.parent / "experiments"
 CHECKS = [
+    ("within 0.075 bar", "breakeven_closed_form_results.txt", "largest gap 0.075"),
+    ("27.97 against 28.0", "breakeven_closed_form_results.txt", "constant 6 bar (2n): 27.97 (28.0)"),
+    ("23.00 against 23.0", "breakeven_closed_form_results.txt", "envelope, orifice: 23.00 (23.0)"),
+    ("median 1.235 bar", "breakeven_closed_form_results.txt", "median per-cycle slope 1.235"),
+    ("0.916 per bar", "breakeven_closed_form_results.txt", "dm*/dp_n 0.916"),
+    ("10.7 to 34.1 bar", "breakeven_closed_form_results.txt", "5-95% 10.7 to 34.1"),
+    ("idle bleed 39%", "breakeven_closed_form_results.txt", "idle share of m*: median 0.393"),
     ("1.40 to 1.424 times", "spool_floor_results.txt", "orifice p_neutral  5.0: OC/LS hydraulic 1.424"),
     ("(11.3% more fuel)", "spool_floor_results.txt", "extra fuel 11.3%"),
     ("in 11.2% of moving samples", "spool_floor_results.txt", "11.2% of moving samples"),
