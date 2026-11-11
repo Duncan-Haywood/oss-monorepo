@@ -46,6 +46,6 @@
       "where": "research/mimic-anycontext-size/sizerun.py:38,44; figure.py:6-8"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14807"],
   "verdict": "Honest, small and correct: every number I recomputed from the cached scores with an independent AUROC (all 8 plain-prompt family values for both models, the four candidate means, 27 of 32 and 32 of 32 cells below chance, the flipped means, the prompt spreads) matches results.json and the README to many digits, the limits are stated, and the missing 3B arm is disclosed. It does not meet the bar because verification is a 1: four toy tests never call analyse(), and two seeded bugs in it survived. It is also unfinished against its own plan (the 3B model is listed but not run), carries no uncertainty on the 0.5B to 1.5B difference although the shipped scores would allow a paired bootstrap, and does not engage with the zero-shot detector or calibration literature, so a researcher can use it as a pilot data point, not as evidence about scale. Cheapest fix: one test that runs analyse() on the committed score caches and asserts the headline values (0.2775, 0.3292, 27/32), plus a paired bootstrap line in the README."
 }

@@ -18,7 +18,7 @@ import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
 
 SEED, N, MODEL = 20261106, 1000, "Qwen2.5-1.5B-Instruct"
-RULES = (("pooled", 2.0, 0, 0), ("old default (neg_guard 0)", A.TAU, A.GUARD, 0), ("shipped default (neg_guard 3)", A.TAU, A.GUARD, A.NEG_GUARD), ("neg_guard=3 alone", 0.0, 0, A.NEG_GUARD))
+RULES = (("pooled", 2.0, 0, 0), ("old default (neg_guard 0)", A.TAU_6AM, A.GUARD_6AM, 0), ("shipped default (neg_guard 3)", A.TAU_6AM, A.GUARD_6AM, A.NEG_GUARD), ("neg_guard=3 alone", 0.0, 0, A.NEG_GUARD))
 
 
 def main():

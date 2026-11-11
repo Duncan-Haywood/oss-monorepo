@@ -24,7 +24,7 @@ The question for each (model, cycles) pair: how well does it rank the 128 design
 | **DFN, 10 cycles** | **0.962** | **3.6 s** |
 | DFN, 30 cycles | 0.980 | 8.7 s |
 
-All three pre-registered hypotheses held. Ten cycles of DFN rank the designs 0.32 better than a full SPMe run (paired bootstrap 95% interval +0.18 to +0.48), at 0.98 of its cost. Screening with 10-cycle DFN and verifying the top 10 at 100 cycles finds the best design of the 128. Screening with SPMe misses it at any shortlist up to 20: SPMe scores that design 121 Wh/kg against DFN's 162 and ranks it 41st.
+All three pre-registered hypotheses held. A parallel run (milestone 2a) asked the same question on the 49 hand-spread designs of the earlier study, without either run seeing the other, and got the same answer: 0.977 for 10-cycle DFN against 0.834 for SPMe. This sample is fresh and unbiased, so the result is not an artefact of how those 49 were picked. Ten cycles of DFN rank the designs 0.32 better than a full SPMe run (paired bootstrap 95% interval +0.18 to +0.48), at 0.98 of its cost. Screening with 10-cycle DFN and verifying the top 10 at 100 cycles finds the best design of the 128. Screening with SPMe misses it at any shortlist up to 20: SPMe scores that design 121 Wh/kg against DFN's 162 and ranks it 41st.
 
 ![Rank agreement against cost for each model and cycle count](../../research/cell-fidelity/experiments/cycles/cycles.svg)
 

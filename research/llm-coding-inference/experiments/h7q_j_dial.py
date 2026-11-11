@@ -26,7 +26,7 @@ REPS = int(ARGS[1]) if len(ARGS) > 1 else 500
 SIG = float(ARGS[2]) if len(ARGS) > 2 else 0.0
 SEED = 20261104
 N, CORPUS, PREV = 1000, 6000, 0.02
-RULES = (("pooled", 2.0, 0), ("cells g0", 0.0, 0), ("cells g5", 0.0, 5), ("cells g10", 0.0, 10), ("library", A.TAU, A.GUARD), ("tau.3 g5", A.TAU, 5))
+RULES = (("pooled", 2.0, 0), ("cells g0", 0.0, 0), ("cells g5", 0.0, 5), ("cells g10", 0.0, 10), ("library", A.TAU_6AM, A.GUARD_6AM), ("tau.3 g5", A.TAU_6AM, 5))
 
 
 def main():

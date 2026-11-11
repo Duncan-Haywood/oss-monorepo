@@ -41,6 +41,10 @@
     {
       "file": "prompts/ideas.py / CLAUDE.md",
       "issue": "`gh api -X GET search/issues` returned nothing parseable from this session (empty output), so the open-PR duplicate check went through mcp list_pull_requests instead."
+    },
+    {
+      "file": "prompts/research/prompt-0.md (Landing work, step 3)",
+      "issue": "A sibling session drew the same programme minutes apart and landed milestone 2a (#14800, the same question on the 49 stratified designs) while my benchmark ran; neither open PR existed when I checked. The pre-merge CLAIM CHECK re-run caught it, and the merge took about 10 minutes. pick_track.py could lower the odds by not handing the same programme to two runs in the same hour."
     }
   ],
   "deviations": [
@@ -49,6 +53,12 @@
       "why": "Milestone 2 asked for 'a few hundred' Sobol designs; I ran 128 so the 384 runs (about 45 min on 4 cores) fit one session alongside the cost table",
       "did": "128 designs x 3 models x 100 cycles, cached per cycle and resumable so later runs can extend it",
       "result": "all three pre-registered hypotheses decided with bootstrap intervals; README names the sample size as a limit"
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "A sibling landed an overlapping milestone (2a) during my run",
+      "did": "Merged main in and recast my run as the out-of-sample replication on 128 fresh Sobol designs (the dense benchmark 2a's own plan change asked for), keeping both entries in LOG/README",
+      "result": "The two runs agree (DFN@10 beats SPMe@100: 0.977 vs 0.834 on 49, 0.962 vs 0.641 on 128). The SPM-beats-SPMe finding and the cached 384-run benchmark are new"
     }
   ],
   "writeups": [
@@ -56,7 +66,7 @@
     "research/cell-fidelity/LOG.md (plan and outcome entries)"
   ],
   "goal": "PhD+ research programme, deep-tech (battery cell design)",
-  "notes": "Plan logged and pushed (commit before any run) then: prefix check exact (0 difference) and baseline reproduces energy-cell-dfn exactly; cost table on idle machine; 384-run benchmark (DFN 128/128, SPMe 121/128, SPM 128/128). H1 +0.32 Spearman (DFN@10 0.962 vs SPMe@100 0.641), H2 ratio 0.98, H3 regret 0%. Unplanned: SPM beats SPMe (0.984 vs 0.769 on SPMe-solved designs); 15/128 untrusted, r_min AUC 0.994 out of sample. Local checks: pytest research/cell-fidelity/tests 12 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok. No new citations, so cite_check not rerun.",
+  "notes": "Plan logged and pushed (commit before any run) then: prefix check exact (0 difference) and baseline reproduces energy-cell-dfn exactly; cost table on idle machine; 384-run benchmark (DFN 128/128, SPMe 121/128, SPM 128/128). H1 +0.32 Spearman (DFN@10 0.962 vs SPMe@100 0.641), H2 ratio 0.98, H3 regret 0%. Unplanned: SPM beats SPMe (0.984 vs 0.769 on SPMe-solved designs); 15/128 untrusted, r_min AUC 0.994 out of sample. Local checks: pytest research/cell-fidelity/tests 12 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok. No new citations, so cite_check not rerun. After merging main (sibling #14800): 17 tests pass, build ok, links ok, validate ok.",
   "corrections": [],
   "redteam": null,
   "usage": {

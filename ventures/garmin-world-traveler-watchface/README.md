@@ -30,8 +30,9 @@ simulator screenshots.)*
   A primary city per zone draws on an outer ring in the accent color; a
   second well-known city at zones with more than one famous option (e.g.
   Paris alongside Lagos, Athens alongside Johannesburg, Tokyo alongside Seoul)
-  draws on an inner ring in a muted tone, so same-offset pairs never
-  overlap.
+  draws on an inner ring in a muted tone, so cities that share a
+  *standard* offset do not overlap. Once daylight saving shifts one city
+  onto another's hour, they can (see [Known gaps](#known-gaps)).
 - Big digital local time + date in the center, respecting the device's
   12/24-hour preference, framed by a thin sub-dial ring.
 - A small accent "now" marker sitting directly on the hour ring at your
@@ -72,15 +73,27 @@ worldtimer bezel; if you want to swap a specific pick, edit
 
 Two cities sharing an offset are drawn on different label-ring tiers
 (`:ring => 0` outer/primary, `:ring => 1` inner/secondary) so they don't
-overlap even when neither is mid-DST and they land on the exact same
-angle — see "The ring mechanic" below.
+overlap when neither is mid-DST and they would land on the exact same
+angle — see "The ring mechanic" below. The split is by standard offset
+only, so DST can still put two same-ring labels on one angle; see
+[Known gaps](#known-gaps).
 
 ## Tests
 
 `node --test ventures/garmin-world-traveler-watchface/test/citydata.test.mjs`
-parses the city table out of `source/CityData.mc`, ports its DST rules to JS,
-and compares the effective offset of all 42 cities with Node's IANA data at
-every hour of 2025-2027. It caught two wrong cities (Cairo, which resumed DST
+runs the shipped `source/CityData.mc` itself: `test/monkeyc.mjs` translates
+that file to JS with a small, strict set of rewrites (it refuses division,
+floats and any Toybox call it does not emulate, rather than guess) and
+emulates the few `Toybox.Time`/`Gregorian` calls it makes. The test then
+compares the effective offset of all 42 cities with Node's IANA data
+(`Intl`) at every hour of 2025-2027 and every minute around each DST
+transition, and checks the label-collision numbers in
+[Known gaps](#known-gaps). Seeded one-line mutations of the real rule code
+(the US November end key, the Australian start week) fail it. The view
+(`WorldTravelerView.mc`) is not run by anything here, and nothing compiles
+the Monkey C: there is no Connect IQ SDK in this repo.
+
+An earlier version of the test compared a JS port of the rules. It caught two wrong cities (Cairo, which resumed DST
 in 2023, and Santiago, whose Southern-hemisphere rule the face does not
 model); they were replaced by Johannesburg and Caracas.
 
@@ -116,7 +129,8 @@ real-world rate) while still being exactly correct through individual DST
 transitions, which a single rotating disc cannot represent. Cities are
 drawn on one of two radii per `CityData.ringAt()` (outer/accent for
 primary, inner/muted for secondary) purely for legibility and to keep a
-same-offset pair from landing on top of each other.
+same-standard-offset pair from landing on top of each other (DST-shifted
+pairs still can; see [Known gaps](#known-gaps)).
 
 **The now-marker.** Local time is read on the *same* 0-24 scale as the
 ring (`angleFor24Hour(hour + minute/60)`) to place a small accent dot
@@ -148,6 +162,27 @@ legibility at that density; if it's still too tight on a given device,
 the fix is nudging `outerRadius`/`innerRadius` apart a touch in
 `drawCityRing()`, or dropping a secondary city from a crowded zone in
 `CityData.CITIES`, not adding more visual elements.
+
+## Known gaps
+
+**Label collisions under DST.** The two label rings separate cities that
+share a *standard* offset. They do not account for daylight saving: when
+one city moves an hour and lands on another same-ring city's hour, both
+three-letter labels print at the same angle and radius. Computed from
+`source/CityData.mc` by the test (days of 2026 on which the pair
+coincides at some whole UTC hour; not yet seen on a screen):
+
+- Same angle, same ring: NYC/CCS (239), DEN/MEX (239), AZO/REY (211), PAR/JNB (211), ATH/IST (211), PPG/AKL (191), SYD/HIR (184), MEL/NOU (184), CHI/TOR (1), LAX/DEN (1), ANC/LAX (1)
+- 30 minutes apart, same ring (7.5 degrees, which overlaps at `FONT_XTINY`): KHI/DEL (365), DEL/DAC (365)
+
+The one-day entries are the hour on a US transition day when one city has
+switched and the other has not yet. Two rings cannot fix this by
+reassigning cities: in the southern summer SYD, MEL, HIR and NOU are all
+at UTC+11, and in the northern summer NYC, TOR and CCS share UTC-4, so a
+fix needs per-draw stacking (a third radius or an angle nudge for labels
+that coincide). That is a `WorldTravelerView.mc` change that needs a
+compile and a simulator render to check legibility, so it waits for a
+session with the Connect IQ SDK.
 
 ## Customizing the theme
 

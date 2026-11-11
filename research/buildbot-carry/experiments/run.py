@@ -1,8 +1,13 @@
 """Step-length envelopes of a stock G1 / H1 carrying lumber, and the carry rate they allow.
 
-Prints results.txt and writes results.json. Deterministic (no random draws). A few minutes on one CPU.
+Prints results.txt and writes results.json. No random draws, so a re-run on the same MuJoCo and
+NumPy build gives the same numbers; another build can move a step that sits at the edge of the
+pose solver's convergence by one 5 cm grid point (the G1 one-stud step was 0.50 m on the build that
+first produced this table and is 0.45 m on MuJoCo 4.0.0; quality audit 2026-11-07). The versions
+used are written into results.json. About 8 minutes on one CPU.
 """
 import json
+import platform
 import sys
 from pathlib import Path
 
@@ -28,7 +33,11 @@ LAB_PIECES = [1, 4]                # studs a labourer takes per trip: one, or a 
 def main():
     for n in fetch.ROBOTS:
         fetch.model_path(n)
-    out = {"hand": HAND, "stud_kg": STUD_KG, "gap": C.GAP, "envelope": {}, "gap_sweep": {}, "rates": {}}
+    import mujoco
+    import numpy
+    out = {"versions": {"mujoco": mujoco.__version__, "numpy": numpy.__version__, "python": platform.python_version(),
+                        "menagerie": fetch.COMMIT},
+           "hand": HAND, "stud_kg": STUD_KG, "gap": C.GAP, "envelope": {}, "gap_sweep": {}, "rates": {}}
     robots = {n: P.load(n) for n in fetch.ROBOTS}
     d0 = {n: P.standing(r) for n, r in robots.items()}
 
