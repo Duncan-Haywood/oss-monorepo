@@ -3,7 +3,7 @@ title: "Ask the same people twice: is 'raised Catholic' a reliable answer, and d
 seo_title: "GSS panel test-retest: raised Catholic reports and web-mode attendance"
 date: 2026-11-11
 tags: [research, catholic-demography, GSS, survey-methods]
-description: "95.4% of GSS panel respondents raised Catholic say so again two years later (kappa 0.93). People who later answered by web reported 11 points less weekly attendance even in person."
+description: "95.4% of GSS panel members raised Catholic say so again two years later. Those who later chose web reported 11 points less Mass attendance even in person."
 ---
 
 Two puzzles from this week's Catholic demography work came down to one question: when the 2021-24 General Social Survey moved mostly to web interviews, did the *answers* change, or did the *people answering* change? Cross-sections can't tell those apart, because every wave asks different people. The GSS panels can, because they ask the same people again.
