@@ -1,0 +1,44 @@
+cell-fidelity milestone 2a: model x cycle-count rungs against committed 100-cycle DFN
+designs: 49; DFN best of the 49: 163.0 Wh/kg; PyBaMM per run in one process, set-up included
+
+A. rungs (median wall s to the end of that cycle over the designs; failures excluded from timing)
+rung                   spearman  med s zeros   k=1 regret   k=3 regret   k=5 regret  k=10 regret
+SPM@2                     0.780    0.4     0         42.4          4.4          3.5          2.5
+SPM@10                    0.865    0.4     0         42.4         11.3          0.0          0.0
+SPM@30                    0.865    0.5     0         42.4          4.4          0.0          0.0
+SPM@100                   0.863    0.9     0         42.4         11.3          0.0          0.0
+SPMe@2                    0.827    0.8     3          3.5          3.5          2.5          2.5
+SPMe@10                   0.883    1.1     3          0.0          0.0          0.0          0.0
+SPMe@30                   0.854    1.7     3          2.1          2.1          0.0          0.0
+SPMe@100                  0.834    3.7     3          2.1          2.1          2.1          0.0
+DFN@2                     0.915    1.4     0          3.5          3.5          2.5          2.5
+DFN@10                    0.977    4.0     0          2.5          0.0          0.0          0.0
+DFN@30                    0.990   10.2     0          0.0          0.0          0.0          0.0
+SPMe@100 committed        0.834            3          2.1          2.1          2.1          0.0
+DFN 2->10 extrap@100      0.013    4.0     0         42.4          0.0          0.0          0.0
+
+reproduction: SPMe@100 re-run against committed spme_now, max |diff| 0 Wh/kg, median 0
+reproduction: DFN@100 re-run on design 0 116.256 against committed 116.256 Wh/kg (30.2 s; cycle 10 at 4.3 s, cycle 30 at 9.8 s)
+
+B. hypotheses
+H4 Spearman(DFN@10, DFN@100) = 0.977; supported if >= 0.90, refuted if < 0.834
+   paired bootstrap over designs (2000) of Spearman(DFN@10) - Spearman(SPMe@100): median 0.138, 95% 0.057 to 0.271
+H5 median DFN wall s to cycle 10 = 4.0 against median SPMe 100-cycle run 4.1 (ratio 0.98); supported if <= 1, refuted if > 1.5
+   (extra) cycle-end to cycle-end: DFN to cycle 10 4.0 against SPMe to cycle 100 3.7 (ratio 1.07); DFN to cycle 30 10.2
+H6 top-5 regret: DFN@10 0.0 against SPMe@100 2.1 Wh/kg (committed SPMe@100 2.1); supported if not larger
+
+C. the milestone-1 untrusted designs: rank (of 49) under DFN@100, DFN@10, SPMe@100
+  i  DFN100   DFN10 rk100 rkD10 rkS100
+ 35   151.7   256.0    17    10     36
+ 43   141.7   214.0    26    29     44
+ 44   129.9   190.5    34    37     45
+ 45   145.5   241.9    22    22     46
+ 46   127.9   181.1    35    42     47
+ 47   139.4   206.4    28    32     48
+ 48   120.5   163.6    39    47     49
+mean |rank error| on these: DFN@10 4.6, SPMe@100 16.3
+
+D. failed runs: 3
+  design 46 SPMe: SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is
+  design 47 SPMe: SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is
+  design 48 SPMe: SolverError: All steps in the cycle ('Discharge at 5.0 A until 2.5 V', 'Charge at 5.0 A until 4.2 V') are infeasible due to exceeded bounds at initial conditions. skip_ok is
