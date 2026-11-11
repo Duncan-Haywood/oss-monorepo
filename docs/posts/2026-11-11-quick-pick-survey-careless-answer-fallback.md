@@ -1,9 +1,9 @@
 ---
 title: "We built a careless-answer fallback for our survey and left it off"
-seo_title: "Detecting careless answers in pairwise surveys: a fallback that didn't help"
+seo_title: "Detecting careless answers in pairwise surveys: a fallback that failed"
 date: 2026-11-11
 tags: [quick-pick-survey, ranking, simulation, pairwise-comparison, negative-result]
-description: "A switch to a safer question picker when answers look random tripped for a third of honest respondents and moved rank accuracy by -0.002. The cost it was meant to fix was mostly seed noise."
+description: "A fallback to a safer question picker when answers look random tripped for a third of honest respondents and moved rank accuracy by -0.002."
 ---
 
 [Quick Pick Survey](../../ventures/quick-pick-survey/) ranks a list by asking
