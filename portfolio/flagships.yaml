@@ -200,10 +200,13 @@ flagships:
       7.5 s, README "Speed with numpy"); lossless-JPEG decoder 2026-11-11
       (README "Lossless-JPEG decoder speed", eval/ljpeg-decoder-2026-11-11.md):
       two-pass, 16.8 s to 7.4 s on the real Canon CR2's camera-written
-      22-megasample stream, every sensel equal to LibRaw's raw_image; still
-      pure: the file reader and the Huffman loop (0.2 us/sample); a numpy
-      prediction pass or reading CR2 directly (needs per-model colour
-      matrices) are open; a camera- or phone-written DNG with lossless-JPEG
+      22-megasample stream, every sensel equal to LibRaw's raw_image; numpy
+      prediction pass 2026-11-11 (README "Prediction pass on numpy",
+      eval/ljpeg-numpy-predict-2026-11-11.md): after the Huffman pass 3.8-4.1 s
+      to 1.1-1.5 s on the CR2, same samples, LibRaw-equal; the Huffman loop
+      (0.2 us/sample, now ~85% of decoding) stays pure (native code is the
+      next step down); reading CR2 directly (needs per-model colour matrices)
+      is open; a camera- or phone-written DNG with lossless-JPEG
       tiles (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink model
       and a real shoot with a photographer's picks (wanted: a labelled
       portrait set); photos with a real horizon and human tilt labels.

@@ -203,3 +203,58 @@ def to_array(pixels) -> array:
     out = array("H")
     out.frombytes(np.ascontiguousarray(pixels, dtype=np.uint16).tobytes())
     return out
+
+
+def predict_rows(diffs, width, height, nf, predictor, initial, restart) -> array:
+    """``raw_develop._predict_rows`` vectorised: the same samples, exactly.
+
+    Lossless-JPEG predictors 1 (left) and 2 (above) with restart intervals on
+    row boundaries. Differences are summed in 64-bit integers and reduced
+    modulo 2**16 once at the end, which equals masking every step because both
+    predictors only add (no sum of a 16-bit stream's differences over one
+    image comes near 2**63).
+
+    * Predictor 1: each row is a running sum along x that starts from its
+      first column; the first column is a running sum down y of each row's
+      first difference, restarted (from ``initial``) on every fresh row.
+    * Predictor 2: a fresh row is ``initial`` plus a running sum along x; every
+      other row adds its differences to the row above, so each column is a
+      running sum down y, restarted on every fresh row.
+
+    Returns an ``array('H')`` (row-major, components interleaved), which
+    ``parse_raw`` copies into the raw image without a per-sample step;
+    ``decode_lossless_jpeg`` turns it into a list for its other callers.
+    """
+
+    # Differences fit 32 bits (|d| <= 32768); reading them as int32 is the
+    # cheaper conversion from a list, and the sums run in int64.
+    d = np.fromiter(diffs, dtype=np.int32, count=width * height * nf).astype(np.int64)
+    d = d.reshape(height, width, nf)
+    fresh = np.zeros(height, dtype=bool)
+    fresh[0] = True
+    if restart:
+        ys = np.arange(height)
+        fresh |= (ys * width) % restart == 0
+    if predictor == 1:
+        col = d[:, 0, :].copy()
+        col[fresh] += initial
+        d[:, 0, :] = _segmented_cumsum(col, fresh)
+        np.cumsum(d, axis=1, out=d)
+    else:
+        first = d[fresh]
+        first[:, 0, :] += initial
+        d[fresh] = np.cumsum(first, axis=1)
+        d = _segmented_cumsum(d, fresh)
+    return array("H", (d & 0xFFFF).astype(np.uint16).tobytes())
+
+
+def _segmented_cumsum(a, starts):
+    """Running sum down axis 0 that restarts at every row where ``starts`` is set."""
+
+    total = np.cumsum(a, axis=0)
+    seg = np.cumsum(starts) - 1
+    begin = np.flatnonzero(starts)
+    before = np.zeros((len(begin),) + a.shape[1:], dtype=a.dtype)
+    before[1:] = total[begin[1:] - 1]
+    total -= before[seg]
+    return total
