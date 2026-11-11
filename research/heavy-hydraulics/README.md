@@ -9,7 +9,7 @@ holds in every case, but only because each rung removes a loss term; the cycle a
 not sourced, so this is a first-order calculation, not a measurement of any machine.
 See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
-**Latest (2n, 2026-10-30):** the open-centre neutral drop read from Danfoss's PVG 32 bypass curve is about 10.9 bar at 45 L/min, which puts the load-sensing break-even margin at 28.0 bar: load-sensing uses less shaft energy than open-centre for both sourced margins (14 and 25 bar) at the measured load factor (`experiments/pvg_neutral.py`; one figure reading, standby flow still assumed).
+**Latest (5n, 2026-11-11): first measured machine.** On a public 440 s trace of a 6 t load-sensing wheel loader loading gravel (Linjama et al., Zenodo [10.5281/zenodo.10639199](https://doi.org/10.5281/zenodo.10639199), CC BY 4.0), the measured load-sensing margin is a median **24.9 bar**, the model's load-sensing rung reproduces the measured pump energy to **2.3%**, and an open-centre pump on the same motion would use **1.24 to 1.79 times** the energy and **6 to 22% more fuel** (central 1.46 and 12.3%). The open-centre figure depends most on how the bypass behaves at small flows. See "Milestone 5n" below.
 
 **Live page:** https://marisstella.app/research/heavy-hydraulics/
 
@@ -54,6 +54,34 @@ pump efficiency (0.75 to 0.92). None is sourced yet.
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
 no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
 public measured cycle), then parts cost with [`heavy-market`](../heavy-market/) (step 1a, used-price depreciation and size scaling from real auction data, landed 2026-11-10).
+
+## Milestone 5n: a measured load-sensing wheel loader (pressures, flows and fuel)
+
+**Question.** Does the circuit model hold up on a real machine? `experiments/measured_loader.py` reads
+Linjama, Huova, Tammisto, Tervonen and Ahola, "6-ton wheel loader short Y-cycle data for 440 seconds
+loading of gravel" (Zenodo, 2024, doi:10.5281/zenodo.10639199, CC BY 4.0; Tampere University, measured
+2017). It has 2 ms samples of lift and tilt cylinder pressures and positions, work-pump outlet pressure,
+engine speed and ECU fuel rate on a 63 cc variable pump and an 83 kW diesel. Predictions were registered in
+[`LOG.md`](LOG.md) before the first run.
+
+| quantity (18 Y-cycles, mean 21.2 s) | value | 95% bootstrap over cycles |
+|---|---|---|
+| measured LS margin, median during motion | 24.9 bar | (p25 17.6, p75 29.6) |
+| standby pressure with no flow | 30.8 bar | |
+| actuator useful / measured pump hydraulic energy | 0.733 | 0.720 to 0.745 |
+| LS model (constant margin) / measured | 1.023 | 1.013 to 1.034 |
+| ideal metered / measured | 0.765 | |
+| open-centre / LS, hydraulic (central; sweep 1.24 to 1.79) | 1.46 | 1.39 to 1.53 |
+| open-centre / LS, pump shaft | 1.38 | 1.32 to 1.43 |
+| open-centre extra fuel, share of measured (sweep 6.2 to 21.7%) | 12.3% | 10.7 to 13.6% |
+
+P1 (margin in 14 to 30 bar) and P2 (model within 15%) hold. P3 (open-centre 1.5 to 3 times) and P4 (10 to
+30% more fuel) are refuted over the sweep. The first run had a bug: it counted every small filtered flow as
+motion and gave 2.29 and +35.5%. The fix brought in a threshold `q_min` below which the open-centre bypass is
+taken as open, and that threshold (0.5 to 5 L/min) moves the answer more than either valve drop. The
+counterfactual open-centre machine runs the same pump and the same motion; the valve drops are swept, not
+sourced; it is a wheel loader, not an excavator. Reproduce: download `Short_Y_cycle_data.mat` from the Zenodo
+record, then `python3 experiments/measured_loader.py <path>` (needs numpy and scipy, about 30 s).
 
 ## Milestone 2a: random cycles inside a machine envelope
 
