@@ -120,7 +120,7 @@ You can do that too. When you want something very much, and you do not know what
 
 And think about the people you love. Your mum, or your dad, or your grandma, or your brother or sister, or your friend. Time spent with them is a gift. Tomorrow, you might find a moment to sit with one of them, and talk, and be glad they are there.
 
-Listen. Is it raining tonight? If it is, you can think of Scholastica, and her brother, and the long, happy night they talked until the morning.
+Listen. Is it raining tonight? If it is, you can think of Scholastica, and her brother, and the long and happy night they talked until the morning.
 
 Goodnight.
 
