@@ -547,7 +547,7 @@
       if (carryWorker) carryWorker.terminate();
       status.textContent = `Searching for an even carry-over: ${CARRY_TRIES} searches, ${n >= 16 ? "about 10 seconds" : "a few seconds"}...`;
       try {
-        const w = carryWorker = new Worker(new URL("./carryover-worker.mjs", import.meta.url), { type: "module" });
+        const w = carryWorker = new Worker("./carryover-worker.mjs", { type: "module" });
         w.onmessage = (e) => {
           const d = e.data;
           if (d.type === "try") status.textContent = `Searching for an even carry-over: search ${d.i + 1} of ${d.tries} done (carry-over ${d.candidate.coe}, ${d.candidate.breaks} back-to-back home or away)...`;

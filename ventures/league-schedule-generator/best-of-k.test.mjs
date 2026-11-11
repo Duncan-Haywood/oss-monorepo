@@ -97,7 +97,7 @@ test("an unknown trade falls back to balanced, and the share link keeps the choi
 
 test("the page runs the search in a worker, with a main-thread fallback and a trade picker", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(html, /new Worker\(new URL\("\.\/carryover-worker\.mjs", import\.meta\.url\), \{ type: "module" \}\)/);
+  assert.match(html, /new Worker\("\.\/carryover-worker\.mjs", \{ type: "module" \}\)/);
   assert.match(html, /id="carryOverPick"/);
   for (const v of ["balanced", "fair", "breaks"]) assert.match(html, new RegExp(`<option value="${v}"`));
   assert.match(html, /bestCarryOverRounds\(n,/, "fallback when workers are unavailable");
