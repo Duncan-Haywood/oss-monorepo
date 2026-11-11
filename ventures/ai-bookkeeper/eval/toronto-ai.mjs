@@ -22,7 +22,7 @@ import { parseCsv } from "../bank.mjs";
 import { loadToronto } from "./toronto-pcard.mjs";
 import { suggest, trainClassifier, buildMemory, buildMccMemory, trainNewPayee, historyRecord } from "../categorize.mjs";
 import { newBooks } from "../engine.mjs";
-import { aiSuggest } from "../ai.mjs";
+import { aiSuggest, sameAccountName } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
 
 // Replay the deterministic layers; return the fill queue and the filed history.
@@ -81,20 +81,26 @@ export async function runAi(sample, filed, { config, batch = 20, mcc = true, stu
     const books = batchBooks(these, filed, { mcc, name });
     const t0 = Date.now();
     const f = stub !== null ? stubFetch(these, stub, books.accounts.map((a) => a.code)) : coldFetch();
-    const r = await aiSuggest(config, books, { max: batch, mode: "fill", fetch: f, maxTokens: 2500 });
+    // The name check is applied in score(), from the raw answers, so one run scores both ways.
+    const r = await aiSuggest(config, books, { max: batch, mode: "fill", fetch: f, maxTokens: 2500, nameCheck: false });
+    const names = new Map(books.accounts.map((a) => [a.code, a.name]));
     these.forEach((q, i) => {
       const s = r.books.transactions.find((x) => x.id === `q${i}`).suggestion;
-      out.push({ date: q.date, desc: q.desc, mcc: q.mcc, want: q.want, det: q.det, detSource: q.detSource, ai: s?.source === "ai" ? s.account : null, reason: s?.source === "ai" ? s.reason : r.error ?? null });
+      const raw = (r.raw ?? []).find((a) => a?.id === `q${i}`);
+      const ai = s?.source === "ai" ? s.account : null;
+      out.push({ date: q.date, desc: q.desc, mcc: q.mcc, want: q.want, det: q.det, detSource: q.detSource, ai, name: raw?.name ?? null, nameAgrees: ai && raw?.name ? sameAccountName(raw.name, names.get(ai)) : null, reason: s?.source === "ai" ? s.reason : r.error ?? null });
     });
     log(`batch ${off / batch + 1}: ${r.source}${r.error ? ` (${r.error})` : ""}, ${((Date.now() - t0) / 1000).toFixed(0)} s`);
   }
   return out;
 }
 
-export function score(results) {
+// nameCheck: drop an answer whose name disagrees with its code, as aiSuggest does by default.
+export function score(results, { nameCheck = false } = {}) {
   const t = { n: results.length, aiRight: 0, aiWrong: 0, aiAbstain: 0, detRight: 0, detWrong: 0, detNone: 0, rescued: 0, broke: 0, combinedRight: 0, combinedWrong: 0 };
   for (const x of results) {
-    const ai = x.ai && x.ai !== "9999" ? x.ai : null; // the uncategorized account is the model saying it cannot tell
+    // The uncategorized account is the model saying it cannot tell.
+    const ai = x.ai && x.ai !== "9999" && !(nameCheck && x.nameAgrees === false) ? x.ai : null;
     if (!ai) t.aiAbstain++; else if (x.want.includes(ai)) t.aiRight++; else t.aiWrong++;
     if (!x.det) t.detNone++; else if (x.want.includes(x.det)) t.detRight++; else t.detWrong++;
     const detOk = !!x.det && x.want.includes(x.det), aiOk = !!ai && x.want.includes(ai);
@@ -119,8 +125,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log(`${rows.length} mapped lines ${rows[0]?.date} to ${rows.at(-1)?.date}${arg("--division") ? ` (${arg("--division")})` : ""}; fill queue ${queue.length} (${pct(queue.length, rows.length)}), ${queue.filter((q) => q.det).length} with a new-payee guess; sending ${sample.length}, merchant category ${mcc ? "on" : "off"}; ${stub !== null ? `STUB at ${stub}` : `model ${config.model ?? config.provider}`}`);
   const results = await runAi(sample, filed, { config, batch: +arg("--batch", 20), mcc, stub, name: "City of Toronto divisions' purchasing cards (municipal government)", log: (s) => console.error(s) });
   if (arg("--out")) writeFileSync(arg("--out"), JSON.stringify(results, null, 1));
-  const t = score(results);
-  console.log(`  rules alone (new-payee guess or nothing): right ${pct(t.detRight, t.n)}, wrong ${pct(t.detWrong, t.n)}, none ${pct(t.detNone, t.n)}`);
-  console.log(`  model:   right ${pct(t.aiRight, t.n)}, wrong ${pct(t.aiWrong, t.n)}, abstained ${pct(t.aiAbstain, t.n)} (right of answered ${pct(t.aiRight, t.aiRight + t.aiWrong)})`);
-  console.log(`  model first, else the guess: right ${pct(t.combinedRight, t.n)}, wrong ${pct(t.combinedWrong, t.n)}; rescued ${t.rescued}, broke ${t.broke}`);
+  const fallback = results.filter((x) => x.reason && !x.reason.startsWith("AI (") && !x.ai).length;
+  if (fallback) console.log(`  (${fallback} lines got no answer because their call failed; counted as abstained)`);
+  console.log(`  rules alone (new-payee guess or nothing): right ${pct(score(results).detRight, results.length)}, wrong ${pct(score(results).detWrong, results.length)}, none ${pct(score(results).detNone, results.length)}`);
+  for (const nameCheck of [false, true]) {
+    const t = score(results, { nameCheck });
+    console.log(` name check ${nameCheck ? "on " : "off"}: model right ${pct(t.aiRight, t.n)}, wrong ${pct(t.aiWrong, t.n)}, abstained ${pct(t.aiAbstain, t.n)} (right of answered ${pct(t.aiRight, t.aiRight + t.aiWrong)}); model first, else the guess: right ${pct(t.combinedRight, t.n)}, wrong ${pct(t.combinedWrong, t.n)}; rescued ${t.rescued}, broke ${t.broke}`);
+  }
 }

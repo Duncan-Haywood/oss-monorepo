@@ -124,3 +124,18 @@ test("a card line's merchant category goes to the model; a line without one send
   assert.equal(rows.find((r) => r.id === withCode.id).merchant_category, "5251");
   assert.equal("merchant_category" in rows.find((r) => r.id === without.id), false);
 });
+
+test("an answer whose name disagrees with its code is dropped; one with no name is kept", async () => {
+  const b = books();
+  const [a, m] = b.transactions;
+  const text = JSON.stringify({ lines: [
+    { id: a.id, account: "6150", name: "Utilities and phone", confidence: 0.8, reason: "electricity" },
+    { id: m.id, account: "6070", confidence: 0.6, reason: "no name given" },
+  ] });
+  const r = await aiSuggest({ provider: "anthropic", apiKey: "k" }, b, { fetch: reply(text) });
+  assert.equal(r.mismatched, 1);
+  assert.equal(r.books.transactions.find((x) => x.id === a.id).suggestion?.source === "ai", false);
+  assert.equal(r.books.transactions.find((x) => x.id === m.id).suggestion.account, "6070");
+  const off = await aiSuggest({ provider: "anthropic", apiKey: "k" }, b, { fetch: reply(text), nameCheck: false });
+  assert.equal(off.books.transactions.find((x) => x.id === a.id).suggestion.account, "6150");
+});

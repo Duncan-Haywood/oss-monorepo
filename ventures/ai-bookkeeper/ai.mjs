@@ -20,7 +20,7 @@ export const SYSTEM = [
   "Follow the examples of how this business filed past lines when the payee matches.",
   "A card line may carry the card network's merchant category (a 4-digit code and its name): it says what kind of business the merchant is, which helps when the merchant's name does not.",
   "If you cannot tell, use the uncategorized account and say why in the reason. Never invent an account.",
-  'Answer with JSON only, no prose and no code fence: {"lines":[{"id":"...","account":"<code>","confidence":0.0,"reason":"<under 15 words>"}]}',
+  'Answer with JSON only, no prose and no code fence: {"lines":[{"id":"...","account":"<code>","name":"<that account\'s name as the chart writes it>","confidence":0.0,"reason":"<under 15 words>"}]}',
 ].join("\n");
 
 export function aiPrompt(books, lines, { examples = 40 } = {}) {
@@ -77,7 +77,16 @@ export function parseReply(text) {
 // never overwritten. mode "replace": every review line goes and the model's
 // answer takes over the suggestion. A 3B local model measured worse than the
 // rules in "replace" (eval/ai-eval.mjs, README Next), so "fill" is the default.
-export async function aiSuggest(config, books, { max = 40, offset = 0, fetch, maxTokens = 3000, mode = "fill" } = {}) {
+// nameCheck: an answer whose "name" is not the chart's name for its "account" code
+// is dropped (counted in `mismatched`), since a code and a name that disagree mean
+// the model lost its place in the chart. An answer with no name is kept.
+export const sameAccountName = (a, b) => {
+  const n = (x) => String(x ?? "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const x = n(a), y = n(b);
+  return !!x && !!y && (x === y || x.includes(y) || y.includes(x));
+};
+
+export async function aiSuggest(config, books, { max = 40, offset = 0, fetch, maxTokens = 3000, mode = "fill", nameCheck = true } = {}) {
   // A new-payee guess is only a prior from other payees, so the model may fill over it.
   const hasOwn = (t) => t.suggestion?.account && t.suggestion.source !== "ai" && t.suggestion.source !== "new-payee";
   const queue = books.transactions.filter((t) => t.status === "review" && (mode === "replace" || !hasOwn(t))).slice(offset, offset + max);
@@ -86,20 +95,21 @@ export async function aiSuggest(config, books, { max = 40, offset = 0, fetch, ma
   const r = await withFallback(config, unchanged, async (c) => {
     const out = await complete(c, { system: SYSTEM, prompt: aiPrompt(books, queue), maxTokens, fetch });
     const answers = parseReply(out.text);
-    const codes = new Set(books.accounts.map((a) => a.code));
+    const names = new Map(books.accounts.map((a) => [a.code, a.name]));
     const ids = new Set(queue.map((t) => t.id));
     const next = JSON.parse(JSON.stringify(books));
-    let suggested = 0, dropped = 0;
+    let suggested = 0, dropped = 0, mismatched = 0;
     for (const a of answers) {
       const code = String(a?.account ?? "").trim().split(/\s/)[0];
-      if (!ids.has(a?.id) || !codes.has(code)) { dropped++; continue; }
+      if (!ids.has(a?.id) || !names.has(code)) { dropped++; continue; }
+      if (nameCheck && a.name && !sameAccountName(a.name, names.get(code))) { dropped++; mismatched++; continue; }
       const t = next.transactions.find((x) => x.id === a.id);
       const confidence = Math.max(0, Math.min(1, Number(a.confidence) || 0));
       t.suggestion = { account: code, confidence, source: "ai", reason: `AI (${out.model}): ${String(a.reason ?? "").slice(0, 160)}`, alternatives: t.suggestion?.account && t.suggestion.account !== code ? [{ account: t.suggestion.account, p: t.suggestion.confidence }] : [] };
       suggested++;
     }
     if (!suggested) throw new Error("the model's answer named no account in your chart");
-    return { books: next, suggested, dropped };
+    return { books: next, suggested, dropped, mismatched, raw: answers };
   });
   return { ...r.value, source: r.source, error: r.error };
 }
