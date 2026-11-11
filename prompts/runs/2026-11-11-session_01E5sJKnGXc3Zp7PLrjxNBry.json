@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First push failed CI validate/build: post seo_title 73>70 chars, description 167>160, tag 'red-team' vs house 'redteam'. Fixed in the second push."
+    "First push failed CI validate/build: post seo_title 73>70 chars, description 167>160, tag 'red-team' vs house 'redteam'. Fixed in the second push.",
+    "CI 'test' (platform/pages suite) red on this PR: faq-visible.test.mjs found concrete-maturity/index.html's FAQPage JSON-LD with no visible copy (shipped that way in #14766; main's Pages runs after it were cancelled or passed on a path filter). Fixed here: visible Questions section generated from the JSON-LD strings. Local platform/pages suite: 1526 pass, 1 fail before the fix; faq-visible 4/4 after."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "run_workflow_locally.py --for-changes needs `git fetch --depth=40 origin main` first in a fresh clone (it says so), and the full run exceeds the 10-min foreground limit: start it with run_in_background from the outset."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes gives each workflow a 300 s budget, so portfolio-pages' site-builder step (~5 min here) always reads TIMEOUT and every later step FAIL; the summary looks red for reasons unrelated to the diff. Running `node --test` in platform/pages directly found the real failure."
     }
   ],
   "deviations": [],
@@ -48,7 +53,7 @@
     "docs/posts/2026-11-11-concrete-maturity-red-team.md"
   ],
   "goal": null,
-  "notes": "Target ventures/concrete-maturity/maturity.mjs (new on main 2026-11-10). 3 campaigns x 8 mutants: 12/24 caught. 9 gaps guarded, 3 equivalent (checked by an 80-set comparison script for the two optimiser mutants). Catch rate 0.571 -> 1.0 of non-equivalent. 4 real defects found and patched with failing tests first (thousands comma in calibration, rolled-over timestamps, 'Average' as time column, elapsed_min read as hours). Guard added (4b-style): a test pinning every number maturity-method-explained.html quotes for the worked example, so a page/code drift fails CI. Local: node --test in ventures/concrete-maturity 32/32 pass; defect tests fail (4) against the pre-fix maturity.mjs. Class not generalised: other ventures' CSV header regexes may share the \\b/underscore and substring issue; headerHasWord is local to this venture.",
+  "notes": "Target ventures/concrete-maturity/maturity.mjs (new on main 2026-11-10). 3 campaigns x 8 mutants: 12/24 caught. 9 gaps guarded, 3 equivalent (checked by an 80-set comparison script for the two optimiser mutants). Catch rate 0.571 -> 1.0 of non-equivalent. 4 real defects found and patched with failing tests first (thousands comma in calibration, rolled-over timestamps, 'Average' as time column, elapsed_min read as hours). Guard added (4b-style): a test pinning every number maturity-method-explained.html quotes for the worked example, so a page/code drift fails CI. Local: node --test in ventures/concrete-maturity 32/32 pass; defect tests fail (4) against the pre-fix maturity.mjs. Class not generalised: other ventures' CSV header regexes may share the \\b/underscore and substring issue; headerHasWord is local to this venture. Also fixed a pre-existing faq-visible failure on concrete-maturity/index.html (see errors).",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -432,7 +437,7 @@
       },
       {
         "file": "ventures/concrete-maturity/maturity.mjs",
-        "issue": "With no timestamp column, the time-column regex matched 'age' inside 'Average'/'Stage' (and 'min' inside 'Minimum'), so 'Average (\u00b0C),Elapsed (h)' read the temperatures as hours and the hours as degrees. Fixed: headerHasWord requires a non-letter on each side.",
+        "issue": "With no timestamp column, the time-column regex matched 'age' inside 'Average'/'Stage' (and 'min' inside 'Minimum'), so 'Average (°C),Elapsed (h)' read the temperatures as hours and the hours as degrees. Fixed: headerHasWord requires a non-letter on each side.",
         "patched": true
       },
       {
