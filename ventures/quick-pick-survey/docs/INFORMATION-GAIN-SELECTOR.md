@@ -1054,3 +1054,79 @@ rd that no lapse term fixes.
 Caveats: synthetic respondent with uniform lapses; lists of 30 items or fewer;
 the real rankings are complete orders answered without noise unless `--lapse`
 adds it; no real pairwise answers.
+
+
+## A per-respondent lapse estimate: measured, not shipped (2026-11-11)
+
+The section above named the next step: estimate e for each respondent from
+their own answers, and measure it against the e = true ceiling. Built and
+measured the same day; the answer is that a respondent's answers do not carry
+enough about e at survey lengths, and the adaptive selectors make it worse.
+
+**The estimator** (`src/lib/lapseEstimate.ts`, unit tests in
+`lapseEstimate.test.ts`). A grid posterior over e in 0, 0.025, ..., 0.9 with a
+Beta(1, b) prior (b = 19, mean 0.05): each answer adds
+log(e/2 + (1 - e) p), where p is the chance the picked item wins. Three ways
+to get p, all in `scripts/lapse-update-sweep.ts` (`--assumed est...`):
+in-sample (current ratings with rd folded in through Glicko's g, suffix
+`-in`), prequential (the ratings just before the answer was applied, rd
+folded in; the default `est`), and prequential on point ratings (`-point`,
+rd ignored). `simulate` takes the estimate as `updateLapse` (a function now,
+as well as a number) and re-reads it before every answer. An `-oracle`
+suffix scores each answer with the respondent's true win chance instead: the
+most any estimator of this kind could know.
+
+**Final estimate of e, mean and 10th-90th percentile over 20 respondents**
+(`--estimates`; 8 and 30 items, 2 and 8 answers per item; uniform prior
+`est-b1` unless noted, so the data, not the prior, has to move it):
+
+| setup | true e 0 | 0.1 | 0.2 | 0.35 | 0.5 |
+|---|---|---|---|---|---|
+| staged, prequential, 30 items x 8 | 0.45 (0.36-0.58) | 0.44 | 0.48 | 0.45 | 0.46 (0.36-0.59) |
+| shipped, point ratings, 30 x 8, prior b=19 | 0.15 (0.09-0.22) | 0.21 | 0.26 | 0.34 | 0.40 (0.35-0.45) |
+| shipped, oracle, 30 x 8 | 0.06 (0.03-0.12) | 0.14 | 0.20 | 0.40 | 0.54 (0.33-0.67) |
+| shipped, oracle, 8 x 2 | 0.35 (0.20-0.53) | 0.33 | 0.37 | 0.40 | 0.45 (0.26-0.70) |
+| staged, oracle, 8 x 8 | 0.20 (0.13-0.35) | 0.21 | 0.27 | 0.36 | 0.51 (0.36-0.68) |
+
+The in-sample and default prequential estimates (prior b = 19) sit at 0.023
+to 0.055 whatever the true e, on both selectors: the ratings absorb the
+coin flips, and early answers with large rd have p near 1/2, which says
+nothing about e. Point ratings help the shipped selector only, and with a
+bias: an honest respondent reads 0.15. The staged selector gives no signal at
+all, because it asks pairs the current ratings call even (p near 1/2 under
+the model, so a lapse looks like an honest answer).
+
+**The information bound** (`--information`): the Fisher information about e
+in one answer, from the true win chance of each pair asked, at true e = 0.1,
+is 0.70 to 0.81 for shipped, 0.37 to 0.65 for staged and 0.75 to 0.90 for a
+uniform random pair. The smallest possible sd of any estimate of e is then
+0.27 to 0.33 after 16 answers (8 items, 2 each), 0.11 to 0.15 after 120 (15
+x 8), and 0.074 to 0.106 after 240 (30 x 8). Telling an honest respondent
+from a 20% lapser needs an sd near 0.07, so about 240 answers even with the
+true win chances, and these are not known: the ratings estimating them are
+built from the same few answers.
+
+**Rank accuracy and coverage with the best practical estimate** (shipped,
+`est-point`, 15 and 30 items, 4 and 8 answers per item, true e 0 to 0.5, 30
+respondents per cell, `docs/lapse-estimate-accuracy-2026-11-11.jsonl`): mean
+rank accuracy 0.716 at e = 0, 0.718 with the estimate, 0.725 at e = true;
+the estimate is better by more than 0.02 in 4 cells of 20 and worse in 3.
+Mean 95% coverage 0.915, 0.942 and 0.972: it closes half the coverage gap,
+which a fixed e = 0.1 also does (previous section), and it charges honest
+respondents the same slower rd as a fixed e because it reads them at 0.15.
+
+**Decision.** Not shipped; the routes keep e = 0. The module and the sweep
+modes stay as the measurement. A per-respondent e is not identifiable from
+one person's answers at survey lengths, and least of all under the staged
+selector the survey uses. What could carry the signal instead: pairs the
+respondent should find easy (a known anchor, or a repeat of a confidently
+ordered pair: one answer on a pair with true p = 0.95 carries about 2.4 units
+of information about e at e = 0.1, 1.7 at e = 0.2, against 0.4 to 0.8 for an
+adaptive question, though p itself must then be known), pooled lapse rates
+across respondents of one survey (a population e, then shrink each person
+toward it), or answer timing. Each is a separate measurement.
+
+Caveats: synthetic respondent with uniform lapses, Bradley-Terry truth with
+slope 2 on a uniform spread (a wider spread of true preferences gives more
+easy pairs and more information about e); lists of 30 items or fewer; 20 to
+30 respondents per cell; no real pairwise answers.
