@@ -419,13 +419,16 @@ export async function mapLimit(items, limit, fn) {
   return out;
 }
 
-async function listHtml(dir, out = []) {
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+// Every `.html` under `dir`, depth-first in `readdir` order. Sibling
+// directories are read concurrently; `Promise.all` keeps the serial order.
+async function listHtml(dir) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const parts = await Promise.all(entries.map((entry) => {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) await listHtml(full, out);
-    else if (entry.name.endsWith('.html')) out.push(full);
-  }
-  return out;
+    if (entry.isDirectory()) return listHtml(full);
+    return entry.name.endsWith('.html') ? [full] : [];
+  }));
+  return parts.flat();
 }
 
 /**
