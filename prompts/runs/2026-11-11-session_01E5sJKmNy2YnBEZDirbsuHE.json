@@ -71,7 +71,7 @@
       "file": "portfolio/flagships.yaml",
       "why": "main was red in portfolio-validate (changepoint-detector next: 2,084 > 2,000 chars from #14671), blocking every PR",
       "did": "trimmed two landed/answered items from the line in this PR",
-      "result": "validate.py and test_allocate pass locally"
+      "result": "main landed the same trim in parallel; took main's version at merge (wasted effort, no harm)"
     }
   ],
   "writeups": [
