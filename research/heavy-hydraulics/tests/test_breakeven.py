@@ -126,3 +126,36 @@ def test_trace_breakeven_slopes_are_exact():
     s2 = [(qf, tuple((q, p, o, d + 1.0) for q, p, o, d in secs)) for qf, secs in s]
     r2 = trace_breakeven(s2, 0.002, 5.0, 2.0)
     assert r2["m"] - r0["m"] == pytest.approx(r0["dm_ddrop"], rel=1e-9)
+
+
+from heavy_hydraulics.breakeven import decompose  # noqa: E402
+
+
+def test_decompose_terms_sum_to_breakeven():
+    """5u: m* = beta [(r-1) p_q + r (p_Q - p_q) + r d_bar] + I / B, exactly."""
+    rng = random.Random(5)
+    for _ in range(200):
+        c = rand_cycle(rng)
+        r = decompose(c, Q, oc_drop=rng.uniform(0, 10), p_neutral=rng.uniform(0, 15),
+                      t_idle=rng.uniform(0, 30), q_idle=rng.uniform(0, 8), p_idle=rng.uniform(0, 25),
+                      q_standby=rng.uniform(0, 4))
+        assert r["main"] + r["cov"] + r["drop"] + r["idle"] == pytest.approx(r["m"], rel=1e-12)
+        assert r["r"] * r["beta"] == pytest.approx(r["dm_ddrop"], rel=1e-12)
+        assert r["r"] >= 1.0
+
+
+def test_decompose_single_phase_is_the_two_number_rule():
+    """One actuator, no idle: no covariance, beta 1, so m* = (Q/q - 1) p + (Q/q) d."""
+    c = (Phase("a", 3.0, (Actuator(120.0, 15.0),)),)
+    r = decompose(c, Q, oc_drop=4.0)
+    assert r["cov"] == pytest.approx(0.0, abs=1e-12)
+    assert r["m"] == pytest.approx((Q / 15 - 1) * 120 + Q / 15 * 4)
+    assert r["rule2"] == pytest.approx(r["m"])
+
+
+def test_trace_decomposition_sums_to_breakeven():
+    rng = random.Random(11)
+    for _ in range(20):
+        r = trace_breakeven(_trace(rng), 0.002, rng.uniform(0, 12), rng.uniform(0, 4))
+        assert r["main"] + r["cov"] + r["drop"] + r["idle"] == pytest.approx(r["m"], rel=1e-9)
+        assert r["r"] * r["beta"] == pytest.approx(r["dm_ddrop"], rel=1e-9)
