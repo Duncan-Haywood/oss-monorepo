@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2314532d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>systemd Service Hardening Explained — Each Setting, What It Blocks, What It Breaks</title>
+  <meta name="description" content="A field guide to hardening a systemd .service: User= and DynamicUser=, NoNewPrivileges=, ProtectSystem=strict, ProtectHome=, PrivateTmp=, PrivateDevices=, kernel protection, SystemCallFilter=, secrets in Environment=, and what each one can break.">
+  <meta property="og:title" content="systemd service hardening: each setting, what it blocks, what it breaks">
+  <meta property="og:description" content="Who should harden a unit, the order to do it in, and the trade-off of each setting the systemd Unit Hardening Check reads.">
+  <link rel="canonical" href="./systemd-service-hardening-explained.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"systemd service hardening: each setting, what it blocks, what it breaks","about":"systemd unit sandboxing","author":{"@type":"Organization","name":"oss-monorepo contributors"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 860px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4.2vw, 2.4rem); line-height: 1.1; color: #17324a; }
+    h2 { font-size: 1.2rem; margin-top: 30px; color: #17324a; }
+    p, li { line-height: 1.6; }
+    code { overflow-wrap: anywhere; }
+    pre { background: #fff; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .86rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; background: #fff; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+<header>
+  <p class="note"><a href="./">systemd Unit Hardening Check</a> · guide</p>
+  <h1>systemd service hardening: each setting, what it blocks, what it breaks</h1>
+</header>
+<main>
+  <p><strong>Who this is for:</strong> anyone who has written a <code>.service</code> file to run their own program on a Linux server: a self-hosted app, an API, a worker, a bot, a game server. The typical unit is five lines long, with an <code>ExecStart=</code> and a <code>Restart=always</code>. It runs as root with full access to the filesystem, every device and every system call. If the program has a bug an attacker can reach, they reach the whole machine.</p>
+  <p>systemd can wall a service off with a few lines in a drop-in, and it costs nothing at run time. The catch is that each setting can break a service that needs what it takes away, so the work is adding settings one at a time and watching the journal.</p>
+
+  <h2>The order to do it in</h2>
+  <ol>
+    <li><strong>Get secrets out of <code>Environment=</code>.</strong> The systemd.exec manual says environment variables are not suitable for secrets: a unit's environment is visible to unprivileged users over D-Bus (<code>systemctl show</code>) and is inherited by every child process. Use <code>LoadCredential=name:/etc/app/name</code> and read <code>$CREDENTIALS_DIRECTORY/name</code>, or an <code>EnvironmentFile=</code> owned by root with mode 0600.</li>
+    <li><strong>Stop running as root.</strong> <code>DynamicUser=yes</code> is the shortest route: systemd creates a user for the life of the service and, per the manual, also turns on <code>NoNewPrivileges=</code> and <code>RestrictSUIDSGID=</code>, implies <code>ProtectSystem=strict</code> and <code>ProtectHome=read-only</code>, and gives the service a private <code>/tmp</code>. Add <code>StateDirectory=app</code> for data it keeps. If files must belong to a fixed user, create one and set <code>User=</code>.</li>
+    <li><strong>Take the binary out of writable places.</strong> A unit that runs <code>/tmp/x</code>, or a root unit that runs something under <code>/home</code>, runs whatever is at that path when it starts. Install it under <code>/usr/local/bin</code> or <code>/opt</code>, owned by root.</li>
+    <li><strong>Add the sandbox</strong> with <code>sudo systemctl edit app.service</code>, which writes <code>/etc/systemd/system/app.service.d/override.conf</code>. The checker prints a starter one with only the lines you are missing.</li>
+    <li><strong>Restart and read the journal</strong> (<code>journalctl -u app.service -e</code>). Remove the line that broke it, or loosen it (a writable path, a device, a system call group).</li>
+  </ol>
+
+  <h2>Each setting the checker reads</h2>
+  <div class="tableWrap">
+  <table>
+    <thead><tr><th>Setting</th><th>What it blocks</th><th>What it can break</th></tr></thead>
+    <tbody>
+      <tr><td><code>NoNewPrivileges=yes</code></td><td>A setuid program (sudo, su, pkexec) raising the service's privileges.</td><td>Services that really call sudo or a setuid helper. Rarely anything else.</td></tr>
+      <tr><td><code>ProtectSystem=strict</code></td><td>Writes anywhere except <code>/dev</code>, <code>/proc</code>, <code>/sys</code> and the paths you list. <code>yes</code> and <code>full</code> only cover <code>/usr</code>, <code>/boot</code> and (<code>full</code>) <code>/etc</code>.</td><td>Anything that writes outside its listed paths. Add <code>ReadWritePaths=</code>, <code>StateDirectory=</code>, <code>CacheDirectory=</code> or <code>LogsDirectory=</code>.</td></tr>
+      <tr><td><code>ReadWritePaths=/</code></td><td>Nothing: it re-opens the whole filesystem and cancels the line above. The checker flags it as high.</td><td>—</td></tr>
+      <tr><td><code>ProtectHome=yes</code></td><td>Reading <code>/home</code>, <code>/root</code> and <code>/run/user</code>: SSH keys, shell history, browser profiles.</td><td>Services that live in or read a home directory. Use <code>read-only</code>, or move the files.</td></tr>
+      <tr><td><code>PrivateTmp=yes</code></td><td>Sharing <code>/tmp</code> with every other process, the usual place for symlink and planted-file attacks.</td><td>Services that hand files to other programs through <code>/tmp</code>.</td></tr>
+      <tr><td><code>PrivateDevices=yes</code></td><td>Seeing raw disks, memory and input devices in <code>/dev</code>.</td><td>GPU, serial, USB or audio access. Use <code>DeviceAllow=</code> for just that device instead.</td></tr>
+      <tr><td><code>ProtectKernelTunables=</code>, <code>ProtectKernelModules=</code>, <code>ProtectKernelLogs=</code>, <code>ProtectControlGroups=</code></td><td>Changing <code>/proc/sys</code>, loading modules, reading the kernel log, rewriting cgroups.</td><td>System tools that tune the kernel or manage containers.</td></tr>
+      <tr><td><code>SystemCallFilter=@system-service</code> with <code>SystemCallArchitectures=native</code></td><td>System calls a normal service never makes (mount, kexec, reboot, module loading, raw I/O).</td><td>Unusual programs. Add <code>SystemCallErrorNumber=EPERM</code> so a blocked call fails instead of killing the service while you test.</td></tr>
+      <tr><td><code>RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6</code></td><td>Raw packet, netlink and Bluetooth sockets.</td><td>Network tools, VPNs and anything reading interface state over netlink (add <code>AF_NETLINK</code>).</td></tr>
+      <tr><td><code>AmbientCapabilities=</code>, <code>CapabilityBoundingSet=</code></td><td>The checker flags CAP_SYS_ADMIN, CAP_SYS_MODULE, CAP_SYS_PTRACE, CAP_SYS_RAWIO, CAP_DAC_OVERRIDE, CAP_DAC_READ_SEARCH, CAP_BPF and CAP_SETUID: each is a short step from full root.</td><td>Keep only what the program needs; a web server on port 443 needs only CAP_NET_BIND_SERVICE.</td></tr>
+      <tr><td><code>+</code> or <code>!</code> before an <code>Exec*=</code> command</td><td>Nothing: the prefix runs that command with full privileges outside the sandbox.</td><td>Keep it to a short fixed helper, never the main process.</td></tr>
+      <tr><td><code>UMask=</code></td><td>The checker flags a mask that leaves new files writable by other users (0000, 0002 and similar).</td><td>Use 0027, or 0077 for private data.</td></tr>
+      <tr><td><code>ExecStart=/usr/bin/docker run …</code></td><td>Little: dockerd starts the container outside the unit, so <code>User=</code> and the sandbox settings confine only the client (podman and nerdctl are treated the same way). The checker says so and skips the missing-sandbox findings.</td><td>Harden the container itself with the runtime's options (its user, read-only root filesystem, dropped capabilities).</td></tr>
+      <tr><td><code>curl … | sh</code> in an <code>Exec*=</code> line</td><td>Nothing: every start runs whatever that URL serves.</td><td>Download once, check a hash or signature, install, and run the installed file.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>A worked example</h2>
+  <p>A typical self-written unit, and the drop-in the checker writes for it:</p>
+<pre><code>[Service]
+ExecStart=/usr/local/bin/ledger-api --port 8080
+Restart=always</code></pre>
+<pre><code># Starter hardening for ledger-api.service. Install with: sudo systemctl edit ledger-api.service
+# Then: sudo systemctl restart ledger-api.service &amp;&amp; journalctl -u ledger-api.service -e
+# Loosen any line that breaks the service; each is independent.
+[Service]
+#DynamicUser=yes                                 # run as a throwaway user; check it can still reach its files first
+NoNewPrivileges=yes                              # setuid binaries cannot raise privileges
+ProtectSystem=strict                             # the whole filesystem read-only; add ReadWritePaths= for what it writes
+ProtectHome=yes                                  # home directories hidden
+PrivateTmp=yes                                   # a private /tmp
+PrivateDevices=yes                               # no hardware devices; remove if it needs a GPU or serial port
+ProtectKernelTunables=yes                        # /proc/sys and /sys read-only
+ProtectKernelModules=yes                         # no module loading
+ProtectKernelLogs=yes                            # no kernel log access
+ProtectControlGroups=yes                         # cgroup tree read-only
+SystemCallArchitectures=native                   # no foreign-ABI system calls
+SystemCallFilter=@system-service                 # the usual service system calls only
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 # only Unix and IP sockets</code></pre>
+  <p>The user line is commented out on purpose: whether the service can run as a throwaway user depends on which files it needs, which only you know.</p>
+
+  <h2>When to use something else</h2>
+  <ul>
+    <li>On the machine itself, <code>systemd-analyze security app.service</code> scores the loaded unit, including vendor drop-ins this tool cannot see. Use both: this one in the repository before deploy, that one on the host.</li>
+    <li>For containers, the same questions are answered by the <a href="../docker-compose-security-check/">Docker Compose Security Check</a> and the <a href="../k8s-pod-security-check/">Kubernetes Pod Security Check</a>.</li>
+    <li>For a service that protects valuable data, have a qualified person review it. A clean scan is never proof a service is safe.</li>
+  </ul>
+  <p><a href="./">Open the checker</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/systemd-unit-hardening-check">source (MIT)</a></p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not a security audit and do not replace a qualified security professional. Hardening settings can stop a service from working: test each change. <strong>You are responsible for reviewing and verifying anything you apply.</strong></p>
+  <p><strong>Best-effort hosting, no SLA.</strong> This page may move or go offline without notice.</p>
+  <p>Free and open source. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+</body>
+</html>

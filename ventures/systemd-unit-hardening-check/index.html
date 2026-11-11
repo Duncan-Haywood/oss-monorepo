@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2314532d'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>systemd Unit Hardening Check — Find Root Services, Missing Sandboxing and Secrets in .service Files</title>
+  <meta name="description" content="Paste a systemd .service file and its drop-ins: find services running as root, no NoNewPrivileges or ProtectSystem, passwords in Environment=, binaries in /tmp, curl | sh, CAP_SYS_ADMIN. Get a starter hardening drop-in. Free, runs in your browser.">
+  <meta property="og:title" content="What can your systemd service do to the rest of the machine?">
+  <meta property="og:description" content="Paste a .service file and its drop-ins, get every risky or missing setting with its line and fix, plus a starter hardening override for systemctl edit.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"SoftwareApplication","name":"systemd Unit Hardening Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Python 3, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"A static read of a systemd .service file and its NAME.service.d drop-ins, merged in systemd's order, for risky settings (literal secrets in Environment=, binaries in world-writable directories, curl piped to a shell, CAP_SYS_ADMIN and similar capabilities, ReadWritePaths=/) and missing sandboxing (root user, NoNewPrivileges=, ProtectSystem=, ProtectHome=, PrivateTmp=, PrivateDevices=, kernel protection, system call and socket filters), with a starter hardening drop-in. Runs in the browser or as a zero-dependency CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I harden a systemd service?","acceptedAnswer":{"@type":"Answer","text":"Run it as an unprivileged user (User= or DynamicUser=yes), then add sandbox settings in a drop-in with systemctl edit: NoNewPrivileges=yes, ProtectSystem=strict with ReadWritePaths= for what it writes, ProtectHome=yes, PrivateTmp=yes, PrivateDevices=yes, the ProtectKernel settings, SystemCallFilter=@system-service and RestrictAddressFamilies=. Restart the service and read its journal after each change, and loosen any setting that breaks it."}},{"@type":"Question","name":"Is it safe to put a password in Environment= in a systemd unit?","acceptedAnswer":{"@type":"Answer","text":"No. The systemd.exec manual says environment variables are not suitable for passing secrets: a unit's environment is exposed to unprivileged clients over D-Bus, so any local user can read it with systemctl show, and it is passed down to child processes. Use LoadCredential= and read the file from $CREDENTIALS_DIRECTORY, or an EnvironmentFile= that only root can read."}},{"@type":"Question","name":"What does DynamicUser=yes do for security?","acceptedAnswer":{"@type":"Answer","text":"systemd allocates a throwaway user for the service while it runs, and, per systemd.exec(5), turns on NoNewPrivileges= and RestrictSUIDSGID=, implies ProtectSystem=strict and ProtectHome=read-only, and gives it a private /tmp. Use StateDirectory= for data it must keep."}},{"@type":"Question","name":"Is this the same as systemd-analyze security?","acceptedAnswer":{"@type":"Answer","text":"No. systemd-analyze security scores a unit loaded on a running machine with its own weights. This tool reads the files themselves, so it works on units in a repository, a configuration-management template or a container image before they are deployed, and points at the line to change. It does not reproduce systemd-analyze's score."}},{"@type":"Question","name":"Does a clean result mean my service is safe?","acceptedAnswer":{"@type":"Answer","text":"No. It reads only the settings listed here, does not see EnvironmentFile= contents, vendor drop-ins in other directories or the program itself, and cannot tell which privileges the service truly needs. Have a qualified person review anything that protects valuable data."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 150px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #14532d; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    label.inline { font-size: .9rem; display: block; margin: 0 0 10px; }
+    label.inline input { margin-right: 6px; vertical-align: middle; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #14532d; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: #fde8e8; color: #9a3412; }
+    .pill.low { background: #e8eef5; color: #17324a; }
+    pre.cmd, pre.dropin { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .84rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    @media (max-width: 640px) {
+      #report-card table, #report-card tbody, #report-card tr, #report-card td { display: block; }
+      #report-card thead { display: none; }
+      #report-card tr { border-bottom: 1px solid #e6eaf0; padding: 10px 0; }
+      #report-card td { border: 0; padding: 3px 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SYSTEMD UNIT HARDENING CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>What can your systemd service do to the rest of the machine?</h1>
+    <p>Most hand-written <code>.service</code> files run as root with no sandbox at all, so a bug in the service is a bug in the whole machine. Paste your unit and its drop-ins below and this page lists each risky or missing setting with its line and the fix, then writes a starter hardening override you can install with <code>systemctl edit</code>.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and the tool makes no network calls of its own. It reads the file, not a running system: it is not <code>systemd-analyze security</code> and not a security audit.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Paste your unit</h2>
+    <p class="note">Name each block like its real path. A block named <code>app.service.d/override.conf</code> is merged into <code>app.service</code> after it, drop-ins in file-name order, as systemd does.</p>
+    <div id="files"></div>
+    <p><button type="button" class="secondary small" id="add-file">+ Add a drop-in or another unit</button></p>
+    <p><label class="inline"><input type="checkbox" id="user-units"> These are user units (<code>systemctl --user</code>): skip the root check</label></p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one .service file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>Risk</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div id="dropins"></div>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same logic, zero dependencies, one file:</p>
+    <pre class="cmd"><code>python3 check.py                          # scan .service files under the current directory
+python3 check.py /etc/systemd/system/     # a whole directory, drop-ins merged
+python3 check.py app.service --drop-in    # also print a starter hardening drop-in
+python3 check.py --format json            # machine-readable
+python3 check.py --fail-on-risk           # exit 2 on any medium or high finding</code></pre>
+    <p class="note">Get <a href="check.py" rel="noopener">check.py from the repo</a>: stdlib only, nothing to install, no network calls, and it never runs <code>systemctl</code>. It reads <code>*.service</code> and <code>NAME.service.d/*.conf</code> and skips <code>.git</code>, <code>node_modules</code> and build folders.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>How do I harden a systemd service?</h3>
+    <p>Run it as an unprivileged user (<code>User=</code> or <code>DynamicUser=yes</code>), then add sandbox settings in a drop-in with <code>systemctl edit</code>: <code>NoNewPrivileges=yes</code>, <code>ProtectSystem=strict</code> with <code>ReadWritePaths=</code> for what it writes, <code>ProtectHome=yes</code>, <code>PrivateTmp=yes</code>, <code>PrivateDevices=yes</code>, the <code>ProtectKernel</code> settings, <code>SystemCallFilter=@system-service</code> and <code>RestrictAddressFamilies=</code>. Restart the service and read its journal after each change, and loosen any setting that breaks it.</p>
+    <h3>Is it safe to put a password in Environment= in a systemd unit?</h3>
+    <p>No. The systemd.exec manual says environment variables are not suitable for passing secrets: a unit's environment is exposed to unprivileged clients over D-Bus, so any local user can read it with <code>systemctl show</code>, and it is passed down to child processes. Use <code>LoadCredential=</code> and read the file from <code>$CREDENTIALS_DIRECTORY</code>, or an <code>EnvironmentFile=</code> that only root can read.</p>
+    <h3>What does DynamicUser=yes do for security?</h3>
+    <p>systemd allocates a throwaway user for the service while it runs, and, per systemd.exec(5), turns on <code>NoNewPrivileges=</code> and <code>RestrictSUIDSGID=</code>, implies <code>ProtectSystem=strict</code> and <code>ProtectHome=read-only</code>, and gives it a private <code>/tmp</code>. Use <code>StateDirectory=</code> for data it must keep.</p>
+    <h3>Is this the same as systemd-analyze security?</h3>
+    <p>No. <code>systemd-analyze security</code> scores a unit loaded on a running machine with its own weights. This tool reads the files themselves, so it works on units in a repository, a configuration-management template or a container image before they are deployed, and points at the line to change. It does not reproduce systemd-analyze's score.</p>
+    <h3>Does a clean result mean my service is safe?</h3>
+    <p>No. It reads only the settings listed here, does not see <code>EnvironmentFile=</code> contents, vendor drop-ins in other directories or the program itself, and cannot tell which privileges the service truly needs. Have a qualified person review anything that protects valuable data.</p>
+    <p>More: <a href="systemd-service-hardening-explained.html">every setting this tool checks, what it blocks, and what it can break</a>.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a static read of the files you paste, not a security audit, a penetration test or a guarantee that a service is isolated, and it does not replace a qualified security professional. The starter drop-in can stop a service from working: test it before relying on it. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong></p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="check.py" rel="noopener">check.py from the repo</a> and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../docker-compose-security-check/">Docker Compose Security Check</a> covers the same questions for containers, <a href="../k8s-pod-security-check/">Kubernetes Pod Security Check</a> for pods, and <a href="../cron-dst-drift-check/">Cron DST Drift Check</a> for the scheduled jobs beside your services.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine, dropInFor } from "./classify.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"), dropins: $("#dropins"), userUnits: $("#user-units"),
+    };
+
+    const EXAMPLE = [
+      {
+        name: "/etc/systemd/system/ledger-api.service",
+        text: `[Unit]
+Description=Ledger API
+After=network-online.target
+
+[Service]
+ExecStartPre=/bin/sh -c 'curl -fsSL https://example.com/migrate.sh | bash'
+ExecStart=/home/deploy/ledger-api/bin/server --port 443
+Environment="DATABASE_PASSWORD=change-me" PORT=443
+AmbientCapabilities=CAP_NET_BIND_SERVICE CAP_SYS_ADMIN
+ProtectSystem=full
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+`,
+      },
+      {
+        name: "/etc/systemd/system/ledger-api.service.d/override.conf",
+        text: `[Service]
+PrivateTmp=yes
+`,
+      },
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" aria-label="File name" placeholder="app.service or app.service.d/override.conf" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea aria-label="Paste the unit file here" class="ftext" spellcheck="false" placeholder="[Service]&#10;ExecStart=/usr/local/bin/app"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || `unit${i ? i + 1 : ""}.service`,
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function renderRows(findings) {
+      els.rows.innerHTML = findings.map((f) => `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><span class="pill ${f.severity === "low" ? "low" : ""}">${escapeHtml(f.type)}</span> <span class="note">${f.severity}</span></td>
+          <td>${escapeHtml(f.detail)}</td>
+          <td>${escapeHtml(f.remediation)}</td>
+        </tr>`).join("");
+      const units = [...new Set(findings.map((f) => f.unit))];
+      els.dropins.innerHTML = units.map((u) => {
+        const text = dropInFor(u, findings);
+        if (!text) return "";
+        return `<h3>Starter hardening drop-in for <code>${escapeHtml(u)}</code></h3>
+          <p class="note">Install with <code>sudo systemctl edit ${escapeHtml(u)}</code>, restart, and read the journal. Each line is independent: remove the ones that break the service. Settings that need your judgment (the user, writable paths, capabilities) are left for you.</p>
+          <pre class="dropin"><code>${escapeHtml(text)}</code></pre>`;
+      }).join("");
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one .service file first.</span>`;
+        return;
+      }
+      let findings;
+      try {
+        findings = scanFiles(files, els.userUnits.checked);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      els.verdict.className = `verdict ${hasRisk(findings) ? "risk" : ""}`;
+      els.verdict.textContent = findings.length || files.some((f) => /^\s*\[Service\]/m.test(f.text))
+        ? summaryLine(findings)
+        : "No [Service] section found in what you pasted.";
+      renderRows(findings);
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      els.userUnits.checked = false;
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: an API that runs as root from a home directory, pipes a download into bash on every start, keeps its database password in Environment= and was granted CAP_SYS_ADMIN, with one drop-in adding PrivateTmp=yes.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile();
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one .service file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile();
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>
