@@ -75,3 +75,21 @@ test("with a starter built in, the search never scores worse than the circle sta
     assert.equal(now.repeats, 0);
   }
 });
+
+test("the O(p) cyclic score (eval/starter-climb.mjs) equals the full carry-over count", async () => {
+  const { cyclicScore } = await import("./eval/starter-climb.mjs");
+  for (const [key, entry] of Object.entries(STARTERS)) {
+    const N = Number(key), p = N - 1;
+    for (const kind of ["even", "odd"]) {
+      const { step, pairs } = decode(entry[kind]);
+      // step k with S is step 1 with S / k up to relabelling; score the relabelled starter
+      let inv = 1;
+      while ((inv * step) % p !== 1) inv++;
+      const f = new Int16Array(p);
+      for (const [x, y] of pairs) { const a = (x * inv) % p, b = (y * inv) % p; f[a] = b; f[b] = a; }
+      const n = kind === "even" ? N : N - 1;
+      const counted = carryOverFromOpponents(seqs(starterOpp(N, pairs, { step }), n), { cyclic: true }).value;
+      assert.equal(p * cyclicScore(f, p, kind === "odd") + (kind === "odd" ? 0 : 2 * p), counted, `${N} ${kind}`);
+    }
+  }
+});
