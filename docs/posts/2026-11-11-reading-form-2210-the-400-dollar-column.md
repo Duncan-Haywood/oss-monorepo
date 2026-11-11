@@ -2,7 +2,7 @@
 title: "Reading Form 2210 at last: one $400 rule, and the penalty both ways"
 seo_title: "Form 2210 Schedule AI and the underpayment penalty, checked"
 date: 2026-11-11
-description: "The ai-bookkeeper's annualized-income worksheet, checked against the 2025 Form 2210's own text: one fix to self-employment tax, and the penalty now figured both ways."
+description: "The annualized-income worksheet checked against the 2025 Form 2210 text: one self-employment tax fix, and the penalty now figured both ways."
 tags: [ai-bookkeeper, tax, estimated-tax, self-employed]
 ---
 
