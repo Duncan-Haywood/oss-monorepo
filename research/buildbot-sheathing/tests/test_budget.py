@@ -35,7 +35,7 @@ def test_translation_and_rotation_match_closed_forms():
 
 
 def test_edge_policy_with_perfect_sensing_only_needs_a_nonempty_window():
-    # shift the sheet by 6 mm (past the 3.14 mm half-window): nominal aiming fails every time,
+    # shift the sheet by 1.5 half-windows (4.7 mm): nominal aiming fails every time,
     # aiming from the measured edge passes while the shifted window is still non-empty
     hw = B.joint_half(B.GAP)
     shift = 1.5 * hw
