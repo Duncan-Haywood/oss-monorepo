@@ -1,9 +1,9 @@
 ---
 title: "We ran the rule authors' own good invoices through our e-invoice checker"
-seo_title: "Testing an e-invoice validator on NLCIUS, CIUS-RO, CIUS-PT and ZATCA examples"
+seo_title: "E-invoice validator tested on NLCIUS, CIUS-RO, CIUS-PT and ZATCA files"
 date: 2026-11-11
 tags: [einvoice-preflight, testing]
-description: "The rule authors' own good-case files for the Dutch, Romanian, Portuguese and Saudi rules found a hang, a severity bug and two false rejections in our checker. All fixed."
+description: "The rule authors' own good invoices for Dutch, Romanian, Portuguese and Saudi rules found a hang, a severity bug and two false rejections. All fixed."
 ---
 
 The national e-invoicing rule sets ship with example files. phive-rules, the open-source validator, keeps them in its test folders. Each module's `CTestFiles.java` names the files that must pass. That list is a free test: a file the rule authors call good should not fail our checker either. Our corpus script now reads the list (`eval/phive-corpus.mjs --good`) and scores only those files.
