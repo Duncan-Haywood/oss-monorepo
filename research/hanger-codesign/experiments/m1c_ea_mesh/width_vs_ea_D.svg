@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Shape error against arm width offset for the converged 3D sheet at EA 40, 150 and 800 N/m and the 2D chain, fabric D">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Fabric D, 3 cm arm: the unmeasured stretch stiffness moves the best width from +2.5 to +1 cm</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="252.8" y2="252.8" stroke="#ddd"/><text x="58" y="256.8" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<line x1="64" x2="624" y1="181.6" y2="181.6" stroke="#ddd"/><text x="58" y="185.6" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="110.4" y2="110.4" stroke="#ddd"/><text x="58" y="114.4" text-anchor="end" font-family="sans-serif" font-size="11">3</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="157.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.5</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="530.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2.5</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">arm half width minus half shoulder (cm)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">shape error (cm RMS)</text>
+<polyline points="64.0,71.2 157.3,91.6 250.7,109.4 344.0,123.2 437.3,132.9 530.7,137.4 624.0,136.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<circle cx="157.3" cy="91.6" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="109.4" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="123.2" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="132.9" r="3" fill="#c0392b"/>
+<circle cx="530.7" cy="137.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="136.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">3D 3 cm arm, EA 40 N/m</text>
+<polyline points="64.0,142.8 157.3,157.4 250.7,167.5 344.0,172.5 437.3,172.1 530.7,166.8 624.0,157.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="142.8" r="3" fill="#1f6fb2"/>
+<circle cx="157.3" cy="157.4" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="167.5" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="172.5" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="172.1" r="3" fill="#1f6fb2"/>
+<circle cx="530.7" cy="166.8" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="157.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">3D 3 cm arm, EA 150 N/m</text>
+<polyline points="64.0,168.5 157.3,176.8 250.7,186.3 344.0,178.8 437.3,172.6 530.7,162.7 624.0,150.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="168.5" r="3" fill="#2e8b57"/>
+<circle cx="157.3" cy="176.8" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="186.3" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="178.8" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="172.6" r="3" fill="#2e8b57"/>
+<circle cx="530.7" cy="162.7" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="150.0" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">3D 3 cm arm, EA 800 N/m</text>
+<polyline points="64.0,261.4 157.3,290.3 250.7,308.9 344.0,291.2 437.3,264.0 530.7,236.3 624.0,209.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="261.4" r="3" fill="#8e44ad"/>
+<circle cx="157.3" cy="290.3" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="308.9" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="291.2" r="3" fill="#8e44ad"/>
+<circle cx="437.3" cy="264.0" r="3" fill="#8e44ad"/>
+<circle cx="530.7" cy="236.3" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="209.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">2D chain, EA 150 N/m</text>
+</svg>

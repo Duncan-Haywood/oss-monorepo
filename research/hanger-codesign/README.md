@@ -17,12 +17,44 @@ coefficient cannot calibrate bending rigidity: it orders the four fabrics by ben
 a 16-fold change in B does on the softest fabric), and as stretch stiffness rises towards an
 inextensible cloth every fabric's drape coefficient climbs to about 0.77 and the fabrics stop
 being told apart, and the mesh moves it by up to 0.05 (0.12 with stiffer springs): the square
-spring grid locks.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
+spring grid locks. Milestone 1c reruns the 3 cm arm across stretch stiffness and mesh: the mesh
+does not move the width choice, but the unmeasured stretch stiffness does, from +2.0 to +2.5 cm at
+EA 40 N/m to +0.5 to +1.0 cm at 800 N/m, while the 2D chain stays near +1.0 cm, so the 3D-against-2D
+disagreement changes sign with a fabric property no table here supplies, and a shallow-arm hanger
+cannot be designed from bending rigidity and weight alone.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
 `research/PROJECTS.md`). Simulation only; nothing here is a measurement of real garments.
 
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 1c: the tier disagreement across stretch stiffness and mesh
+
+`experiments/m1c_ea_mesh/run.py`. Milestone 1b's converged solve and stopping rule, reused
+unchanged, on the 3 cm arm for fabrics A (softest) and D (stiffest), offsets 0 to +3 cm in half-cm
+steps, at five configurations: EA 40, 150 and 800 N/m on the base mesh (5 mm rows, 9 columns
+across the depth), and at EA 150 a coarser row spacing (7.5 mm) and a finer depth mesh (13
+columns). The 2D chain runs at the same EA and row spacing. All 70 cases met the stopping rule
+(6,000 to 33,000 iterations). Predictions were committed before the run.
+
+![Shape error against arm width on fabric D at three stretch stiffnesses, and the 2D chain](experiments/m1c_ea_mesh/width_vs_ea_D.svg)
+
+| | prediction | outcome |
+|---|---|---|
+| R1 | base configuration still picks +1.5 cm (reproduces 1b) | held, every base number identical to 1b |
+| R2 | EA 40 to 800 moves the 3D best by at most 0.5 cm | **refuted**: +2.0 / +2.5 cm (A / D) at EA 40, +1.5 at 150, +0.5 / +1.0 at 800 |
+| R3 | each mesh change moves the 3D best by at most 0.5 cm | held: +1.5 on both fabrics for both meshes |
+| R4 | 3D best never narrower than the 2D best, strictly wider in 8 of 10 | **refuted**: 3D minus 2D is +1.0 at EA 40, +0.5 at 150, −0.5 / 0.0 at 800 |
+| R5 | error at the best moves over 0.05 cm across EA | held: 0.22 cm (A), 0.69 cm (D) |
+
+What it means. The 0.5 cm disagreement of milestone 1b is not a mesh artefact at EA 150, but it is
+not a fixed property of the tiers either: its sign follows the stretch stiffness, which the
+KES-FB2 table behind these fabrics does not give. On a shallow arm, a softer cloth stretches under
+its own weight as its front and back panels fall away, and a wider arm makes up for it; the 2D
+chain barely sees this (it picks +1.0 cm everywhere except fabric D at EA 40, +1.5). So on the 3D
+tier bending rigidity and weight do not pick a shallow-arm hanger, which is early evidence against
+H2 there, and a measured EA (KES-FB1 tensile) is needed before milestone 4. The base choice is
+also thin: +1.5 beats +1.0 by 0.004 to 0.006 cm, against a last-chunk change of up to 0.0013 cm.
 
 ## Milestone 2a: a simulated Cusick drape test, and why it cannot calibrate this sheet
 
@@ -149,7 +181,7 @@ enough to separate the width choices with margin. Testing H1 needs the validated
 
 ## Limitations
 
-EA assumed and fixed (and milestone 2a shows the 3D sheet's drape depends on it strongly, through
+EA assumed (milestone 1c shows it moves the shallow-arm width choice by 1.5 cm across 40 to 800 N/m, and milestone 2a shows the 3D sheet's drape depends on it strongly, through
 membrane locking); the simulated Cusick test has no measured drape to compare with yet; one garment size and one 20 cm strip, not a shirt; one hanger profile for
 the width sweep; no friction; the four fabrics are unfinished and come from a trade-site PDF;
 no validated solver yet; no real garment.
@@ -159,8 +191,9 @@ no validated solver yet; no real garment.
 1. Milestone 3: build an open validated solver (ARCSim or C-IPC) as the top tier and run the
    same Cusick test on it; it passes only if DC is flat in stretch stiffness and mesh (the test
    this sheet fails).
-2. Recheck milestone 1b's 0.5 cm tier disagreement on the 3 cm arm at EA 40 to 3200 N/m and a
-   finer grid, since this sheet locks.
+2. Source EA for the KES fabrics (KES-FB1 tensile, or a published woven tensile table): milestone
+   1c shows the shallow-arm width follows EA (+2.5 cm at 40 N/m to +1.0 at 800 on fabric D), and
+   recheck the mesh at high EA, where locking should be worst.
 3. Source a table of drape coefficient with B and W for the same fabrics (the Autex paper
    doi:10.2478/aut-2019-0034 with 63 woven fabrics is the first to read) once a session can
    reach it, and source EA for the KES fabrics (KES-FB1 tensile).
@@ -169,9 +202,11 @@ no validated solver yet; no real garment.
 
 ```bash
 cd research/hanger-codesign
-python3 -m unittest discover -s tests              # 11 tests, a few seconds; needs numpy
+python3 -m unittest discover -s tests              # 14 tests, under a minute; needs numpy
 python3 experiments/m1_kes_fidelity/run.py         # about 4 min on 4 cores
 python3 experiments/m1_kes_fidelity/figure.py      # the SVG above, stdlib only
+python3 experiments/m1c_ea_mesh/run.py           # milestone 1c, 70 cases, about 30 min on 4 cores
+python3 experiments/m1c_ea_mesh/figure.py        # stdlib only
 python3 experiments/m2_cusick/run.py               # milestone 2a, 140 cases, about 25 min on 4 cores
 python3 experiments/m2_cusick/posthoc_ea.py        # post hoc EA sweep, about 6 min
 python3 experiments/m2_cusick/figure.py            # stdlib only
