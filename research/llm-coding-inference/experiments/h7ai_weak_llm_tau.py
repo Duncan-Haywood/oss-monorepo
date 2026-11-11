@@ -56,7 +56,7 @@ import h7ah_tau as H  # noqa: E402
 
 TAUS = (0.0, 0.1, 0.2, 0.3)
 RULES = ([("pooled", 2.0, 0, 0)] + [(f"tau={t}", t, 0, A.NEG_GUARD) for t in TAUS]
-         + [("shipped", A.TAU, A.GUARD, A.NEG_GUARD)])
+         + [("shipped", A.TAU_6AM, A.GUARD_6AM, A.NEG_GUARD)])
 CELLS = [("Qwen2.5-0.5B-Instruct", ("fear", "sadness")),
          ("Qwen2.5-1.5B-Instruct", ("fear", "sadness", "admiration"))]
 OUT = HERE / "h7ai_weak_llm_tau_draws.txt"

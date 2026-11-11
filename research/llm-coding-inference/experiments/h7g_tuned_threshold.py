@@ -35,7 +35,7 @@ def best_threshold(s, y):
 def one(f, human, n, truth, rr, tau):
     pilot = rr.sample(range(len(f)), round(A.PILOT_SHARE * n))
     labels = {i: human[i] for i in pilot}
-    plan = A.plan_audit(f, labels, n, tau=tau)
+    plan = A.plan_audit(f, labels, n, tau=tau, guard=A.GUARD_6AM, neg_guard=0)  # the 7g screen (before 7r and 7ai)
     for cell, t in zip(plan["cells"], plan["to_label"]):
         for i in rr.sample([i for i in cell if i not in labels], t):
             labels[i] = human[i]
@@ -59,7 +59,7 @@ def main():
         f = [int(sc[m][i] > t) for i in aud]
         jc = A.informedness(human, f)
         for n in (400, 1000):
-            for name, tau in (("screen", A.TAU), ("pooled", 2.0)):
+            for name, tau in (("screen", A.TAU_6AM), ("pooled", 2.0)):
                 rr = random.Random(SEED + n)
                 r = [one(f, human, n, truth, rr, tau) for _ in range(REPS)]
                 line = (f"{m} | {t:g} ({j:.3f}) | {jc:.3f} | {sum(f) / len(f):.3f} | {n} | {name} | {100 * sum(x[1] for x in r) / REPS:.1f} | "

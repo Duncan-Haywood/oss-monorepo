@@ -20,7 +20,7 @@ import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
 
 SEED, N, CORPUS = 20261105, 1000, 6000
-RULES = (("pooled", 2.0, 0, 0), ("lib default", A.TAU, A.GUARD, 0), ("lib neg_guard=3", 0.0, 0, A.NEG_GUARD), ("lib default+neg3", A.TAU, A.GUARD, A.NEG_GUARD))
+RULES = (("pooled", 2.0, 0, 0), ("lib default", A.TAU_6AM, A.GUARD_6AM, 0), ("lib neg_guard=3", 0.0, 0, A.NEG_GUARD), ("lib default+neg3", A.TAU_6AM, A.GUARD_6AM, A.NEG_GUARD))
 
 
 def load():
