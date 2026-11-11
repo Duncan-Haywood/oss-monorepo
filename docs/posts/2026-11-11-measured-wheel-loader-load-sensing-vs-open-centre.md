@@ -1,9 +1,9 @@
 ---
 title: "Load-sensing vs open-centre hydraulics on a real wheel loader: the model holds, the savings shrink"
-seo_title: "Load-sensing vs open-centre hydraulic energy and fuel, measured wheel loader data"
+seo_title: "Load-sensing vs open-centre hydraulics: measured wheel loader data"
 date: 2026-11-11
 tags: [research, heavy-equipment, hydraulics, load-sensing, wheel-loader, open-data]
-description: "On a public 440 s trace of a 6 t load-sensing wheel loader, the measured margin is 24.9 bar, a simple model matches pump energy to 2.3%, and open-centre would add about 6 to 22% fuel."
+description: "A public 6 t wheel loader trace: measured load-sensing margin 24.9 bar, model within 2.3% of pump energy, open-centre would add 6 to 22% fuel."
 ---
 
 How much fuel does a load-sensing hydraulic system save over a plain open-centre
