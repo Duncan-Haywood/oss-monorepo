@@ -1,9 +1,9 @@
 ---
-title: "The year the tables run out: three fallbacks that disagreed with themselves"
-seo_title: "Tax-year fallback bugs: QBI $400 minimum and the nanny-tax threshold in 2027"
+title: "The year the tables run out: two fallbacks that disagreed with themselves"
+seo_title: "Tax-year fallback bugs: the $400 QBI minimum and 2027"
 date: 2026-11-11
-tags: [tax, qbi, section-199a, mutation-testing, red-team]
-description: "A tax calculator keeps a table per year. When the year asked for isn't in it, every lookup has to fall back the same way. Two of ours didn't, and a shared file's copies drifted."
+tags: [tax, qbi, section-199a, mutation-testing, redteam]
+description: "When a tax table lacks the year asked for, every lookup must fall back the same way. Two of ours did not, and a shared file's 16 copies drifted."
 ---
 
 Every tax tool in this repository keeps a table per year: thresholds, wage bases, phase-in
