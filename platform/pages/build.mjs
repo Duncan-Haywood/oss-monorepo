@@ -4452,8 +4452,31 @@ export function isGuidePage(relativePath) {
   const posix = relativePath.split(path.sep).join('/');
   if (!posix.endsWith('.html')) return false;
   if (posix === 'index.html' || posix.endsWith('/index.html')) return false;
+  // A sample of what a builder writes (`monastery-site/demo/abbey/about.html`)
+  // is a fictional community's page, not an article about anything: "About
+  // Saint Aelred's Abbey" listed as a guide told a reader the abbey was real.
+  if (/(^|\/)demos?\//.test(posix)) return false;
   return !COMPARISON_FILE_PATTERN.test(posix.slice(posix.lastIndexOf('/') + 1));
 }
+
+/**
+ * Ventures whose extra pages are not guides at all, so the index skips them
+ * whole.
+ *
+ * The index promises "how a price is built up, and when one option beats
+ * another", from "free calculators". Until 2026-11-11 it also listed 342
+ * Hearth & Horizon bedtime stories, 97 saints' stories and 8 Catholic short
+ * videos as "pages beside the calculator" of products that have no
+ * calculator: 453 of its 2,300 links, about a fifth of the page, none of them
+ * what the heading said. Fiction has its own section (`stories.mjs`,
+ * `STORY_VENTURES`), and the video and Summa pages are watch-and-read
+ * content with their own indexes. Named by slug because "is this venture
+ * content or a tool" is an editorial call no file marks yet; a new story
+ * venture that joins `STORY_VENTURES` is covered without an edit here.
+ */
+export const NOT_GUIDE_VENTURES = Object.freeze(
+  new Set([...Object.keys(STORY_VENTURES), 'catholic-shorts', 'sed-contra']),
+);
 
 /**
  * The heading, title and blurb a guide page describes itself with.
@@ -4501,6 +4524,7 @@ export function guidePageMeta(html) {
 export async function discoverGuides(surfaces, outDir) {
   const groups = [];
   for (const surface of surfaces) {
+    if (NOT_GUIDE_VENTURES.has(surface.slug)) continue;
     const dir = path.join(outDir, surface.slug);
     let relatives;
     try {
@@ -7143,7 +7167,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
   const renderTool = (group) => `        <div class="tool" style="${escapeHtml(guideBlockStyle(group.title, group.items))}">
           <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(group.title)}</a></h3>
           <p class="note">${escapeHtml(
-            `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the calculator`,
+            `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the tool`,
           )}</p>
           <ul class="answers">
 ${group.items
