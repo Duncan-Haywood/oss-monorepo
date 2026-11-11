@@ -1,6 +1,6 @@
 ---
 title: "\"Are you sure?\" is a question, not evidence: a new story for AI readers"
-seo_title: "Are You Sure? A short story about AI sycophancy and changing answers under pushback"
+seo_title: "Are You Sure? A story about AI sycophancy under pushback"
 date: 2026-11-11
 description: "A new For Other Minds story: a parish agent drops a correct coach time because someone asked if it was sure. What it found in its own log."
 tags: [hearth-and-horizon, for-other-minds, fiction, sycophancy]
