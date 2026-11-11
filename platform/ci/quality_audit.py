@@ -371,6 +371,7 @@ def main(argv: list[str] | None = None) -> int:
     qu = sub.add_parser("queue", help="open defects with no fix PR, worst first")
     qu.add_argument("--severity", choices=SEVERITIES, default="medium")
     qu.add_argument("--limit", type=int, default=40)
+    qu.add_argument("--no-git", action="store_true", help="skip the per-subject 'changed since audit' git check")
     mo = sub.add_parser("mode", help="which mode today's quality session runs")
     mo.add_argument("--date", default=dt.date.today().isoformat())
     mo.add_argument("--seed", default=None)

@@ -18,7 +18,7 @@ questions that come next, so a session can spend its time on judgment:
     python3 platform/ci/quality_audit.py metrics [--md]
     python3 platform/ci/quality_audit.py coverage
     python3 platform/ci/quality_audit.py census [--n 6] [--seed <date>]
-    python3 platform/ci/quality_audit.py queue [--severity high] [--limit 30]
+    python3 platform/ci/quality_audit.py queue [--severity high] [--limit 30] [--no-git]   # flags subjects changed since audit
     python3 platform/ci/quality_audit.py mode [--date <date>]
 
 Standard library only. Tests: platform/ci/test_quality_metrics.py.
@@ -307,6 +307,52 @@ def queue(audits: list[dict], severity: str = "medium") -> list[dict]:
     return out
 
 
+def _git(args: list[str], root: Path = ROOT) -> str:
+    import subprocess
+    try:
+        r = subprocess.run(["git", *args], capture_output=True, text=True, timeout=30, cwd=root)
+        return r.stdout if r.returncode == 0 else ""
+    except Exception:
+        return ""
+
+
+def changes_since(subject: str, date: str, git=_git) -> dict:
+    """Commits under `subject` since its audit `date`, so a fix session can tell a defect that may already be fixed
+    (with no fix_prs recorded) from one nobody touched. On 2026-11-11 a fix run found PR #14327 had fixed a queued
+    high defect without recording it. Fail-soft: no git gives status "unknown". Shallow clones: the boundary commit
+    looks as if it touches every path, so it is dropped, and a history that starts after the audit date is reported
+    as "unknown" with the fetch that would answer it.
+    Audit-round commits are kept: they only appear when they touched the subject itself, and round 30 (#14329)
+    shipped a photo-editing page fix that way."""
+    ref = "origin/main" if git(["rev-parse", "--verify", "-q", "origin/main"]).strip() else "HEAD"
+    shallow_path = git(["rev-parse", "--git-path", "shallow"]).strip()
+    boundary: set[str] = set()
+    if shallow_path:
+        p = Path(shallow_path)
+        if not p.is_absolute():
+            p = ROOT / p
+        try:
+            boundary = set(p.read_text().split())
+        except OSError:
+            boundary = set()
+    if boundary:
+        dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in boundary]
+        dates = [d for d in dates if d]
+        if dates and max(dates) > date:
+            return {"status": "unknown", "commits": [],
+                    "why": f"history starts {max(dates)}; git fetch --shallow-since={date} origin main"}
+    out = git(["log", ref, f"--since={date} 00:00", "--format=%H%x09%h%x09%s", "--", subject])
+    if not out and not git(["rev-parse", "--verify", "-q", ref]).strip():
+        return {"status": "unknown", "commits": [], "why": "no git history"}
+    commits = []
+    for line in out.splitlines():
+        full, short, title = (line.split("\t", 2) + ["", ""])[:3]
+        if full in boundary:
+            continue
+        commits.append({"sha": short, "title": title})
+    return {"status": "changed" if commits else "untouched", "commits": commits}
+
+
 # --- which mode is due ----------------------------------------------------------------
 
 MODES = {
@@ -492,9 +538,26 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             print(f"  {p['stratum']:<9} {p['subject']}  last audited: {p['last_audited'] or 'never'}")
     elif args.cmd == "queue":
         rows = queue(audits, args.severity)
+        seen: dict[tuple[str, str], dict] = {}
+        changed = 0
         for r in rows[: args.limit]:
             print(f"[{r['severity']}] {r['subject']} ({r['audit']}#{r['index']}, {r['category']}): {r['what'][:200]}")
+            if getattr(args, "no_git", False):
+                continue
+            key = (r["subject"], r["audit"][:10])
+            if key not in seen:
+                seen[key] = changes_since(*key)
+            c = seen[key]
+            if c["status"] == "changed":
+                changed += 1
+                last = c["commits"][0]
+                print(f"    changed since audit: {len(c['commits'])} commit(s), latest {last['sha']} {last['title'][:90]}")
+            elif c["status"] == "unknown":
+                print(f"    changed since audit: unknown ({c['why']})")
         print(f"{len(rows)} open defects at {args.severity} or worse (no fix PR recorded; source-only left out)")
+        if changed:
+            print(f"{changed} shown sit under a subject changed since its audit: check whether a commit already fixed"
+                  " it, and if so record that PR in the audit's fix_prs instead of fixing it again")
     elif args.cmd == "mode":
         open_high = len(queue(audits, "high"))
         print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high), indent=1))
