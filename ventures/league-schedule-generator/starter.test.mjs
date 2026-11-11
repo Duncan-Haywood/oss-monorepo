@@ -97,3 +97,34 @@ test("22 teams (and 21 with a bye): the climbed starter reaches the floor too, e
     assert.equal(r.start, "starter");
   }
 });
+
+test("the O(p) cyclic score (eval/starter-climb.mjs) equals the full carry-over count", async () => {
+  const { cyclicScore } = await import("./eval/starter-climb.mjs");
+  for (const [key, entry] of Object.entries(STARTERS)) {
+    const N = Number(key), p = N - 1;
+    for (const kind of ["even", "odd"]) {
+      const { step, pairs } = decode(entry[kind]);
+      // step k with S is step 1 with S / k up to relabelling; score the relabelled starter
+      let inv = 1;
+      while ((inv * step) % p !== 1) inv++;
+      const f = new Int16Array(p);
+      for (const [x, y] of pairs) { const a = (x * inv) % p, b = (y * inv) % p; f[a] = b; f[b] = a; }
+      const n = kind === "even" ? N : N - 1;
+      const counted = carryOverFromOpponents(seqs(starterOpp(N, pairs, { step }), n), { cyclic: true }).value;
+      assert.equal(p * cyclicScore(f, p, kind === "odd") + (kind === "odd" ? 0 : 2 * p), counted, `${N} ${kind}`);
+    }
+  }
+});
+
+test("climbed starters (eval/starter-climb.mjs) where they beat the annealed ones: 24, 30, 36, 38, 40 teams", () => {
+  const best = (N, n) => {
+    const { step, pairs } = decode(STARTERS[N][n === N ? "even" : "odd"]);
+    let v = Infinity;
+    for (let start = 0; start < N - 1; start++) v = Math.min(v, carryOverFromOpponents(seqs(starterOpp(N, pairs, { step, start }), n)).value);
+    return v;
+  };
+  for (const [N, even, odd] of [[24, 570, 565], [26, 716, 665], [30, 948, 891], [34, 1274, 1269], [36, 1422, 1419], [38, 1648, 1575], [40, 1816, 1813]]) {
+    assert.equal(best(N, N), even, `${N} teams`);
+    assert.equal(best(N, N - 1), odd, `${N - 1} teams`);
+  }
+});

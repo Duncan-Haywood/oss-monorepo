@@ -242,11 +242,12 @@ flagships:
       (README "Climbed starters", eval/starter-anneal.mjs): annealed multi-start over starters at
       step 1 (any step is a relabelling); 22 teams 516 to 440 and 21 teams 475 to 399 (floor, every
       count 0 or 1), 22-team season 1,862 to 1,782 (floor); 24 to 40 teams 4 to 13% lower, still 16
-      to 28% above the floor. Next, most valuable first: with a break weight, 24 and 30 teams got
-      slightly worse (README), so pick the start or keep a second starter by carry-over + weight x
-      breaks; a faster exact starter score (O(p) from difference counts; draft PR #14821 has one) and
-      longer climbs at 24 to 40 (an earlier scratch run reported 24 teams 570 against the climb's
-      612); other constructions (Latin-square based, from the literature) for 12 teams (152 vs 120);
+      to 28% above the floor. O(p) starter score 2026-11-11 latest (README "An O(p) starter score",
+      eval/starter-climb.mjs): cyclic carry-over from one difference sequence, 2-10M moves in 40 s;
+      24 teams 612 to 570, 30 1,002 to 948, 40 1,890 to 1,816 (8-21% above the floor); clears the
+      24- and 30-team break-weight regressions. Next, most valuable first: pick the start by
+      carry-over + weight x breaks when a weight is set; close 24-40 (tabu, longer runs, the
+      literature's starters and terraces); other constructions (Latin-square based, from the literature) for 12 teams (152 vs 120);
       a bound for the minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter
       timetable; a real league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
