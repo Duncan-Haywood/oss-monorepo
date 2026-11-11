@@ -459,6 +459,31 @@ class Feeder:
     elev_end_mm: float = 3.0          # kept off each end stop
     elev_force_factor: float = 2.0    # rated push over the largest push needed
 
+    # Shuttle drive (2026-11-11): a hobby servo outboard of the motor plate turns a crank; a rod from the crank pin
+    # runs to a pin in the shuttle's side through a slot in the motor plate. An in-line slider-crank with the crank
+    # in front: a 180 deg turn of the servo is the whole stroke, and both ends of the stroke are the crank's dead
+    # centres, where the shuttle's position does not depend on the servo's angle and loads on the shuttle cannot
+    # turn the servo. It replaces the BOM's 100 mm linear actuator, which at 20-30 mm/s needs 3 to 5 s a stroke.
+    shuttle_pin_back: float = 20.0    # shuttle pin, ahead of the shuttle's rear end
+    shuttle_rod_mm: float = 120.0     # rod, pin centre to pin centre
+    shuttle_rod_t: float = 5.0        # rod and crank thickness (printed)
+    shuttle_pin_d: float = 5.0        # M4 shoulder bolts: 5 mm shoulder
+    servo_l: float = 40.5             # standard-size servo body (assumed dimensions: measure yours)
+    servo_w: float = 20.0
+    servo_h: float = 40.5             # body below its top face
+    servo_flange_l: float = 54.0      # mounting tabs tip to tip
+    servo_flange_below: float = 12.0  # tabs' outer face below the top face
+    servo_shaft_from_end: float = 10.0
+    servo_spline_mm: float = 5.0      # top face to the crank's inner face (spline and round horn)
+    servo_range_deg: float = 180.0    # turn between the gate pulses (GATE_LO_US/GATE_HI_US in firmware/esp32/config.py)
+    servo_stall_nm: float = 1.75      # 18 kg cm class (DS3218 class at 5 V, as commonly listed; an assumption: read yours)
+    servo_s_per_60: float = 0.16      # no-load speed, same class (assumption)
+    servo_torque_factor: float = 1.5  # stall torque over the largest torque needed
+    feed_mu_slide: float = 0.35       # printed PETG shuttle on PETG and aluminium (assumption: measure it)
+    feed_mu_ball: float = 0.6         # felt ball on the shuttle's top (assumption)
+    feed_dwell_s: float = 0.10        # shuttle held forward while the wheels take the ball (assumption)
+    feed_interval_min_s: float = 2.0  # shortest drill interval to support (about a commercial machine's fastest, as az_slew_s)
+
     # ---- derived -----------------------------------------------------------
     @property
     def rail_top(self) -> float:
@@ -1156,6 +1181,127 @@ class Feeder:
             "deg_per_s_max": max(r["deg_per_mm"] for r in rows) * self.elev_act_speed_mm_s,
             "monotonic": all(b > a for a, b in zip(lens, lens[1:])) or all(b < a for a, b in zip(lens, lens[1:])),
         }
+
+
+    # ---- shuttle drive (2026-11-11) -------------------------------------------
+    @property
+    def shuttle_zc(self) -> float:
+        """Head-frame z of the shuttle's mid-height: the line its pin and rod work on."""
+        return self.shuttle_z0 + self.shuttle_h / 2
+
+    @property
+    def shuttle_pin_x(self) -> float:
+        """Head-frame x of the shuttle pin with the shuttle retracted (pocket under the column)."""
+        return self.shuttle_rear + self.shuttle_pin_back
+
+    @property
+    def crank_r(self) -> float:
+        return self.feed_stroke / 2
+
+    @property
+    def crank_x(self) -> float:
+        """Head-frame x of the servo shaft: the crank points back at the retracted dead centre."""
+        return self.shuttle_pin_x + self.shuttle_rod_mm + self.crank_r
+
+    @property
+    def drive_y0(self) -> float:
+        """Outer face of the motor plate (+y), where the drive's layers start."""
+        return self.plate_half_y + self.plate_t
+
+    @property
+    def servo_top_y(self) -> float:
+        return self.drive_y0 + 1.0 + 2 * self.shuttle_rod_t + 1.0 + self.servo_spline_mm
+
+    def shuttle_kinematics(self, theta_deg: float) -> tuple[float, float, float]:
+        """(slider pin x, crank pin x, crank pin z) in the head frame at crank angle `theta_deg` (0 = retracted dead
+        centre, 180 = forward)."""
+        t = math.radians(theta_deg)
+        r, L = self.crank_r, self.shuttle_rod_mm
+        cx, cz = self.crank_x - r * math.cos(t), self.shuttle_zc + r * math.sin(t)
+        return cx - math.sqrt(L * L - (r * math.sin(t)) ** 2), cx, cz
+
+    def shuttle_drive(self, shuttle_kg: float, steps: int = 180) -> dict:
+        """Size the servo slider-crank that moves the shuttle (2026-11-11).
+
+        Load on the shuttle, each way: the column of balls standing on its top (sleeve, hose and column full,
+        single file, plus a tub's depth over the outlet; all their weight on the bottom ball, conservative) at
+        `feed_mu_ball`, the shuttle and one ball sliding at `feed_mu_slide`, and their weight along the path uphill
+        (forward at the top tilt, back at the bottom tilt). The pin sits off the shuttle's centre line, so the push
+        cocks it between the head plates: a drawer of guide length l pushed at offset e needs
+        1 / (1 - 2 mu e / l) more force and jams when e >= l / (2 mu). The rod's angle presses the shuttle on its
+        floor or roof, adding mu tan(phi). Torque at the crank from virtual work, T = F dx/dtheta, and the stroke time
+        from a linear torque-speed line (no-load speed at zero torque, stopped at stall). Every friction, mass and
+        servo figure is an assumption to replace with a measurement."""
+        t = self.sleeve_take_up_design() or {}
+        stack_mm = (t.get("tube_mm", 0.0) + t.get("hose_cut_mm", self.hose_len)
+                    + (self.col_top + self.socket_h - (self.shuttle_z0 + self.shuttle_h)) + self.tub_h)
+        balls = stack_mm / self.ball_d
+        gN = 9.81
+        ball_n = self.ball_g / 1000 * gN
+        column_n = balls * ball_n
+        e = self.drive_y0 + 1.0 + self.shuttle_rod_t / 2
+        guide = self.feed_col_x + 60.0 - self.shuttle_rear
+        mu = self.feed_mu_slide
+        cock = 2 * mu * e / guide
+        friction = self.feed_mu_ball * column_n + mu * (shuttle_kg * gN + ball_n)
+        up_fwd = (shuttle_kg * gN + ball_n) * math.sin(math.radians(max(0.0, self.elev_max)))
+        up_back = shuttle_kg * gN * math.sin(math.radians(max(0.0, -self.elev_min)))
+        w0 = math.radians(60.0) / self.servo_s_per_60
+        r, L = self.crank_r / 1000, self.shuttle_rod_mm / 1000
+        out = {}
+        for way, load in (("fwd", friction + up_fwd), ("back", friction + up_back)):
+            peak_t = peak_f = 0.0
+            time = 0.0
+            dth = math.radians(self.servo_range_deg) / steps
+            for i in range(steps):
+                th = (i + 0.5) * dth
+                s = r * math.sin(th)
+                root = math.sqrt(L * L - s * s)
+                phi = math.asin(s / L)
+                denom = 1 - cock - mu * math.tan(phi)
+                f = load / denom if denom > 0 else math.inf
+                dxdth = r * math.sin(th) + r * r * math.sin(th) * math.cos(th) / root
+                torque = f * abs(dxdth)
+                peak_t, peak_f = max(peak_t, torque), max(peak_f, f)
+                frac = torque / self.servo_stall_nm
+                time += dth / (w0 * (1 - frac)) if frac < 1 else math.inf
+            out[way] = {"load_n": load, "peak_force_n": peak_f, "peak_torque_nm": peak_t, "stroke_s": time}
+        drop_mm = self.shuttle_h
+        drop_s = math.sqrt(2 * drop_mm / 1000 / (gN * math.cos(math.radians(max(abs(self.elev_min), abs(self.elev_max))))))
+        peak = max(out["fwd"]["peak_torque_nm"], out["back"]["peak_torque_nm"])
+        cycle = out["fwd"]["stroke_s"] + self.feed_dwell_s + out["back"]["stroke_s"] + drop_s
+        x_ret = self.shuttle_kinematics(0)[0]
+        x_fwd = self.shuttle_kinematics(180)[0]
+        return {"stack_balls": balls, "column_n": column_n, "offset_mm": e, "guide_mm": guide,
+                "jam_offset_mm": guide / (2 * mu), "cock_factor": 1 / (1 - cock),
+                "rod_angle_max_deg": math.degrees(math.asin(self.crank_r / self.shuttle_rod_mm)),
+                "stroke_mm": x_fwd - x_ret, "fwd": out["fwd"], "back": out["back"], "peak_torque_nm": peak,
+                "torque_margin": self.servo_stall_nm / peak if peak > 0 else math.inf,
+                "no_load_stroke_s": math.radians(self.servo_range_deg) / w0, "drop_s": drop_s, "cycle_s": cycle,
+                "balls_per_min": 60 / cycle,
+                "actuator_cycle_s": 2 * self.feed_stroke / self.elev_act_speed_mm_s + self.feed_dwell_s + drop_s}
+
+    def check_shuttle_drive(self, shuttle_kg: float) -> list[str]:
+        bad = []
+        d = self.shuttle_drive(shuttle_kg)
+        if abs(d["stroke_mm"] - self.feed_stroke) > 0.01:
+            bad.append(f"shuttle crank gives {d['stroke_mm']:.1f} mm of stroke, not {self.feed_stroke:g}")
+        if d["offset_mm"] >= d["jam_offset_mm"] / 2:
+            bad.append(f"shuttle pin is {d['offset_mm']:.0f} mm off the shuttle's centre line; it jams at "
+                       f"{d['jam_offset_mm']:.0f} mm (2x wanted)")
+        if d["torque_margin"] < self.servo_torque_factor:
+            bad.append(f"shuttle servo needs {d['peak_torque_nm']:.2f} N m against {self.servo_stall_nm:g} N m stall "
+                       f"({self.servo_torque_factor:g}x wanted)")
+        if d["cycle_s"] > self.feed_interval_min_s:
+            bad.append(f"shuttle cycle {d['cycle_s']:.2f} s is longer than the {self.feed_interval_min_s:g} s drill interval")
+        if self.shuttle_pin_x - self.shuttle_pin_d < self.shuttle_rear + 4 or \
+                self.shuttle_pin_x + self.shuttle_pin_d > self.feed_col_x - self.hole_d / 2:
+            bad.append("shuttle pin is not in the shuttle's solid rear")
+        if self.shuttle_pin_x - self.shuttle_pin_d < self.head_x0 + 6:
+            bad.append("shuttle slot runs off the motor plate's rear edge")
+        if self.crank_x + self.servo_flange_l > self.head_x1:
+            bad.append("shuttle servo is off the front of the motor plate")
+        return bad
 
     def check_elevation(self, gravity_nm: dict[float, float]) -> list[str]:
         bad = []

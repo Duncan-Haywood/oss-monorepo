@@ -120,7 +120,10 @@ class FeederHw:
     def __init__(self):
         self.esc_top, self.esc_bottom = Servo(25), Servo(26)
         self.tach_top, self.tach_bottom = Tach(34), Tach(35)
-        self.gate = Servo(13)
+        # Feed shuttle: a servo crank (cad/README.md, "Shuttle drive"); a stroke takes most of a second each way.
+        self.gate = Servo(13, getattr(config, "GATE_LO_US", 500), getattr(config, "GATE_HI_US", 2500))
+        self.gate_out_ms = getattr(config, "GATE_OUT_MS", 850)
+        self.gate_back_ms = getattr(config, "GATE_BACK_MS", 850)
         # Elevation: a linear actuator on the guard-side cheek (cad/README.md, "Elevation drive"); GPIO 27 carries
         # its servo pulse (rc) or the H-bridge PWM (pot, timed) with DIR on 23; the pot wiper is on 39 (ADC1).
         mode = getattr(config, "ELEV_MODE", controller.ELEV_RC)
@@ -149,7 +152,9 @@ class FeederHw:
         self.base_vmax = 0
         self.feeding = 0
         self.fed = 0                  # balls released since power-up; telemetry tells the Pi when its ball has gone
-        self.gate_open_until = 0
+        self.gate_open_until = 0      # forward stroke ends (the ball is at the wheels)
+        self.gate_ready_at = 0        # back stroke ends and the next ball has dropped into the pocket
+        self.gate_out = False
         self.arm()
 
     def arm(self):
@@ -167,6 +172,9 @@ class FeederHw:
         self.base_vmax = 0
         self.feeding = 0
         self.gate.frac(0)
+        if self.gate_out:                 # cut mid-stroke: the shuttle goes back with its ball, none counted
+            self.gate_out = False
+            self.gate_ready_at = time.ticks_ms() + self.gate_back_ms
         self.azim.stop()
         self.elev.stop()
         if self.elev.mode == controller.ELEV_RC:
@@ -252,14 +260,21 @@ class FeederHw:
         self.base.set(duty if abs(err) > 5 else 0)
         # Feed one ball at a time, only with both wheels held within 3% of target for 150 ms
         # and the head at its aim (never launch while it is still moving).
+        # The shuttle takes GATE_OUT_MS to carry the ball to the wheels, so a ball counts as fed (and the Pi may
+        # re-aim) only when the forward stroke is over; until then the head must not move (2026-11-11: the count
+        # used to rise as the gate opened, which let the Pi re-aim while the ball was still on its way).
         ok = steady and self.aim_settled()
-        if self.feeding and ok and now >= self.gate_open_until + 400:
+        if self.gate_out:
+            if now >= self.gate_open_until:
+                self.gate.frac(0)
+                self.gate_out = False
+                self.fed += 1
+                self.gate_ready_at = now + self.gate_back_ms
+        elif self.feeding and ok and now >= self.gate_ready_at:
             self.gate.frac(1)
-            self.gate_open_until = now + 150
+            self.gate_out = True
+            self.gate_open_until = now + self.gate_out_ms
             self.feeding -= 1
-            self.fed += 1
-        elif now >= self.gate_open_until:
-            self.gate.frac(0)
 
 
 class CollectorHw:

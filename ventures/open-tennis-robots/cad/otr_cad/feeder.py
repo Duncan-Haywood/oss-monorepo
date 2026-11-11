@@ -17,8 +17,13 @@ Elevation (2026-11-11): a linear actuator outboard of the -y cheek, anchored on
 a tab of that cheek, pushes a pin on the guard plate; it is posed for each
 elevation in the sweeps (`elev_actuator_shapes`).
 
-Not modelled yet: the netting and its trough, the hopper agitator, the shuttle
-actuator and its bracket, and the cable runs. They are listed in `hardware/feeder-catcher.md`.
+Shuttle drive (2026-11-11): a servo on a printed bracket outboard of the motor
+plate turns a crank; a rod joins it to a pin in the shuttle's side through a
+slot in the plate (`shuttle_drive_parts`, posed along the stroke by
+`feed_stroke_solids`).
+
+Not modelled yet: the netting and its trough, the hopper agitator, and the
+cable runs. They are listed in `hardware/feeder-catcher.md`.
 """
 
 from __future__ import annotations
@@ -47,6 +52,8 @@ from .params import Feeder
 BATTERY_X = -450.0  # battery centre on the deck
 AZ_BOSS_D = 23.0       # NEMA 17 pilot boss is 22 mm across
 AZ_MOTOR_PITCH = 31.0  # NEMA 17 M3 square
+SERVO_LEGS = [(-130.0, -55.0), (-10.0, -55.0), (-10.0, 60.0)]  # head-frame (x, z) of the servo bracket's legs: clear of
+#   the crank's disc, the rod's sweep and the launcher motors (2026-11-11)
 SPIGOT_BOLT_R = 64.0  # M4 ring of the sleeve socket under the shelf (48 until 2026-11-10; the sleeve's wall now sits there)
 
 
@@ -70,6 +77,11 @@ def _head_plate_sketch(p: Feeder, *, motors: bool):
                 _holes([(sx * p.motor_pitch / 2, z + sz * p.motor_pitch / 2) for sx in (-1, 1) for sz in (-1, 1)], 4.4)
         _holes(_standoffs(p), 5.5)
         _holes([(0, p.pivot_z_rel)], 8.4)
+        if motors:
+            x0, x1 = p.shuttle_kinematics(0)[0], p.shuttle_kinematics(180)[0]
+            with Locations(((x0 + x1) / 2, p.shuttle_zc)):
+                SlotOverall(x1 - x0 + p.shuttle_pin_d + 0.6, p.shuttle_pin_d + 0.6, mode=Mode.SUBTRACT)  # shuttle pin
+            _holes(SERVO_LEGS, 4.4)               # M4 into the servo bracket's legs
         if not motors:
             _holes([(p.elev_pin_x, p.elev_pin_z)], 6.4)  # elevation actuator's pin (M6), guard side
         _holes(_feed_screws(p), 4.4)             # M4 into the feed floor and roof
@@ -397,11 +409,96 @@ def feed_shuttle(p: Feeder) -> Part:
     for sy in (-1, 1):
         blk = blk - Box(x_front - x_root + 1, p.retain_relief, p.shuttle_h + 2).moved(
             Location(((x_root + x_front + 1) / 2, sy * y_rel, zc)))
-    blk = blk - Cylinder(2.0, 20).moved(Location((x_rear + 8.0, 0, zc), (0, 90, 0)))  # M4 for the actuator clevis
+    # Heat-set insert for the drive pin (an M4 shoulder bolt through the motor plate's slot), in the +y side.
+    blk = blk - Cylinder(2.8, 10.0).moved(Location((p.shuttle_pin_x, w / 2 - 5.0, zc), ROT_Y_AXIS))
     return Part("feed_shuttle", "print", "PETG", 1, blk, [_head_loc(p)],
                 notes=f"Pocket for one ball ({p.hole_d:g} mm hole); the front is narrowed to {p.retain_gap:.0f} mm between two "
                       f"{p.retain_t:g} mm flexure arms that hold the ball at negative elevation and let the wheels pull it out; the solid rear shuts the column "
-                      f"while it moves {p.feed_stroke:g} mm forward. Drawn retracted (pocket under the column). 6 walls.")
+                      f"while it moves {p.feed_stroke:g} mm forward. Drawn retracted (pocket under the column). M4 heat-set insert in the +y side "
+                      f"{p.shuttle_pin_back:g} mm ahead of the rear end takes the drive pin. 6 walls.")
+
+
+SHUTTLE_DRIVE = ("feed_shuttle", "shuttle_rod", "shuttle_crank")
+ROD_W = 12.0      # rod and crank width
+LEG_R = 7.0
+
+
+def _bar(length: float, t: float, w: float, hole_d: float, hole0_d: float):
+    """Printed link along +x in its own frame from (0,0,0) to (length,0,0), `t` thick in y, round ends, end holes."""
+    bar = Box(length, t, w).moved(Location((length / 2, 0, 0)))
+    for x, d in ((0.0, hole0_d), (length, hole_d)):
+        bar = bar + Cylinder(w / 2, t).moved(Location((x, 0, 0), ROT_Y_AXIS))
+        bar = bar - Cylinder(d / 2, t + 2).moved(Location((x, 0, 0), ROT_Y_AXIS))
+    return bar
+
+
+def _rod_y(p: Feeder) -> float:
+    return p.drive_y0 + 1.0 + p.shuttle_rod_t / 2
+
+
+def _crank_y(p: Feeder) -> float:
+    return p.drive_y0 + 2.0 + 1.5 * p.shuttle_rod_t
+
+
+def shuttle_drive_locs(p: Feeder, theta_deg: float) -> dict[str, Location]:
+    """Head-frame placements (as world Locations at elevation 0) of the shuttle, rod and crank at crank angle
+    `theta_deg` (0 = retracted, 180 = forward)."""
+    xs, cx, cz = p.shuttle_kinematics(theta_deg)
+    zc = p.shuttle_zc
+    rod_a = math.degrees(math.atan2(cz - zc, cx - xs))
+    crank_a = math.degrees(math.atan2(cz - zc, cx - p.crank_x))
+    return {"feed_shuttle": _head_loc(p, xs - p.shuttle_kinematics(0)[0], 0, 0),
+            "shuttle_rod": Location((p.head_x + xs, _rod_y(p), p.launch_z + zc), (0, -rod_a, 0)),
+            "shuttle_crank": Location((p.head_x + p.crank_x, _crank_y(p), p.launch_z + zc), (0, -crank_a, 0))}
+
+
+def shuttle_drive_parts(p: Feeder) -> list[Part]:
+    """The shuttle's drive (2026-11-11, `Feeder.shuttle_drive`): a servo on a printed bracket outboard of the motor
+    plate turns a crank; a rod joins the crank pin to a pin in the shuttle's side through a slot in the plate."""
+    locs = shuttle_drive_locs(p, 0.0)
+    pin = p.shuttle_pin_d + 0.4
+    rod = Part("shuttle_rod", "print", "PETG", 1, _bar(p.shuttle_rod_mm, p.shuttle_rod_t, ROD_W, pin, pin),
+               [locs["shuttle_rod"]],
+               notes=f"Shuttle pin to crank pin, {p.shuttle_rod_mm:g} mm between {pin:g} mm holes; M4 shoulder bolts "
+                     "(5 mm shoulder) through both. Print flat, 100% infill.")
+    crank = Part("shuttle_crank", "print", "PETG", 1, _bar(p.crank_r, p.shuttle_rod_t, 16.0, pin, 3.2),
+                 [locs["shuttle_crank"]],
+                 notes=f"Crank, {p.crank_r:g} mm throw ({p.feed_stroke:g} mm stroke over {p.servo_range_deg:g} deg of "
+                       "servo turn); screw it to the servo's round aluminium horn (M3 through the centre hole and two of the "
+                       "horn's own holes, drilled to suit). Print flat, 100% infill.")
+    y0 = p.drive_y0
+    y_flange = p.servo_top_y + p.servo_flange_below
+    cr_t = 8.0
+    xs0 = p.crank_x - p.servo_shaft_from_end
+    body_cx = xs0 + p.servo_l / 2
+    zc = p.shuttle_zc
+    xa, xb = min(x for x, _ in SERVO_LEGS) - LEG_R, max(x for x, _ in SERVO_LEGS) + LEG_R
+    za, zb = min(z for _, z in SERVO_LEGS) - LEG_R, max(z for _, z in SERVO_LEGS) + LEG_R
+    cradle = Box(xb - xa, cr_t, zb - za).moved(Location(((xa + xb) / 2, y_flange - cr_t / 2, (za + zb) / 2)))
+    cradle = cradle - Box(p.servo_l + 1.0, cr_t + 2, p.servo_w + 1.0).moved(Location((body_cx, y_flange - cr_t / 2, zc)))
+    for sx in (-1, 1):  # M4 through the servo's tabs into inserts
+        cradle = cradle - Cylinder(2.8, cr_t + 2).moved(
+            Location((body_cx + sx * (p.servo_flange_l / 2 - 3.5), y_flange - cr_t / 2, zc), ROT_Y_AXIS))
+    leg_h = y_flange - cr_t - y0
+    for x, z in SERVO_LEGS:
+        leg = Cylinder(LEG_R, leg_h + 0.5).moved(Location((x, y0 + leg_h / 2 + 0.25, z), ROT_Y_AXIS))
+        cradle = cradle + leg
+        cradle = cradle - Cylinder(2.8, 10.0).moved(Location((x, y0 + 5.0, z), ROT_Y_AXIS))
+    # keep out of the crank's disc and the rod's sweep, which lie in front of the cradle plane
+    bracket = Part("shuttle_servo_bracket", "print", "PETG", 1, cradle, [_head_loc(p)],
+                   notes="Holds the shuttle servo by its tabs outboard of the motor plate; three legs take M4 screws "
+                         "through the plate into heat-set inserts, and two more inserts take the servo's tab screws. "
+                         "Print cradle face down.")
+    yt = p.servo_top_y
+    body = Box(p.servo_l, p.servo_h, p.servo_w).moved(Location((body_cx, yt + p.servo_h / 2, zc)))
+    body = body + Box(p.servo_flange_l, 2.5, p.servo_w).moved(Location((body_cx, y_flange + 1.25, zc)))
+    hub_y0 = _crank_y(p) + p.shuttle_rod_t / 2 + 0.5
+    body = body + Cylinder(10.0, yt - hub_y0).moved(Location((p.crank_x, (yt + hub_y0) / 2, zc), ROT_Y_AXIS))
+    servo = Part("shuttle_servo", "cots", "", 1, body, [_head_loc(p)],
+                 spec=f"Standard-size digital servo, {p.servo_stall_nm * 100 / 9.81:.0f} kg cm class ({p.servo_stall_nm:g} N m stall), "
+                      f"{p.servo_s_per_60:g} s per 60 deg, {p.servo_range_deg:g} deg between the gate pulses, metal gears, "
+                      f"round aluminium horn (drawn {p.servo_l:g} x {p.servo_w:g} x {p.servo_h:g} mm, tabs {p.servo_flange_l:g} mm)")
+    return [rod, crank, bracket, servo]
 
 
 def _sleeve_d(p: Feeder) -> tuple[float, float]:
@@ -686,7 +783,7 @@ def all_parts(p: Feeder) -> list[Part]:
     return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), trunnion_cheek_elev(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
             cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
-            feed_floor(p), feed_roof_column(p), feed_shuttle(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
+            feed_floor(p), feed_roof_column(p), feed_shuttle(p), *shuttle_drive_parts(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
             *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p)]
 
 
@@ -745,7 +842,8 @@ def elev_actuator_parts(p: Feeder) -> list[Part]:
 # ---------------------------------------------------------------- elevation sweep
 
 HEAD_PARTS = {"head_motor_plate", "head_guard_plate", "launcher_wheel", "launcher_motor", "head_standoff",
-              "feed_floor", "feed_roof_column", "feed_shuttle", "elev_pin"}
+              "feed_floor", "feed_roof_column", "feed_shuttle", "elev_pin",
+              "shuttle_rod", "shuttle_crank", "shuttle_servo_bracket", "shuttle_servo"}
 
 
 def swept_solids(p: Feeder, elev_deg: float) -> list[tuple[str, object]]:
@@ -763,11 +861,25 @@ def swept_solids(p: Feeder, elev_deg: float) -> list[tuple[str, object]]:
     return out
 
 
+def feed_stroke_solids(p: Feeder, elev_deg: float, theta_deg: float) -> tuple[list, list]:
+    """(moving, other) named solids with the head at `elev_deg` and the shuttle's crank at `theta_deg`: the shuttle,
+    rod and crank posed along the stroke, everything else as in `swept_solids`."""
+    axis = Axis((p.head_x, 0.0, p.pivot_z), (0, 1, 0))
+    locs = shuttle_drive_locs(p, theta_deg)
+    moving, other = [], []
+    for part in all_parts(p):
+        if part.name in SHUTTLE_DRIVE:
+            moving.append((f"{part.name}[0]", part.shape.moved(locs[part.name]).rotate(axis, -elev_deg)))
+    names = {f"{n}[0]" for n in SHUTTLE_DRIVE}
+    other = [(n, s) for n, s in swept_solids(p, elev_deg) if n not in names]
+    return moving, other
+
+
 TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "trunnion_cheek", "trunnion_cheek_elev", "cheek_foot", "az_gear_sector",
                                  "elev_anchor_bolt", *ELEV_ACT_PARTS}
 HOSE_PARTS = {"feed_hose", "take_up_sleeve", "take_up_collar", "take_up_spring"}  # the hose bends; checked by the take-up model
 COTS_MASS_KG = {"launcher_motor": 0.60, "launcher_wheel": 0.35, "head_standoff": 0.015,
-                "elev_actuator": 0.60}  # assumptions: weigh yours
+                "elev_actuator": 0.60, "shuttle_servo": 0.06}  # assumptions: weigh yours
 
 
 def turned_solids(p: Feeder, elev_deg: float, az_deg: float) -> tuple[list, list]:
@@ -873,6 +985,9 @@ def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
         ("M5 x 16 button head (hopper)", 4 + 4, "posts to the deck (from below) and to the shelf"),
         ("M5 T-nut or tapped end (hopper)", 8, "posts, deck and shelf"),
         ("2020 corner bracket with M5 screws and T-nuts", 6, "hopper braces, two per brace"),
+        ("M4 x 30 shoulder bolt (5 mm shoulder) + nyloc", 2, "shuttle drive: shuttle pin (into its insert) and crank pin"),
+        ("M4 x 30 socket cap screw (servo)", 3 + 2, "motor plate into the servo bracket's legs; servo tabs into the bracket"),
+        ("M4 heat-set insert, 5.7 mm long (servo)", 3 + 2 + 1, "servo bracket legs and tabs, shuttle side"),
         ("Hose clamp, 80-90 mm", 1, "hose at the column socket"),
         ("Flexible-PVC adhesive or epoxy", 1, "hose's top end into the take-up collar"),
         ("25 mm strap, 1 m", 2, "tub to the shelf"),
@@ -885,7 +1000,7 @@ COTS_EXTRA = [
     ("ESP32 dev board (ESP32-WROOM-32)", 1, "firmware/esp32, feeder role"),
     ("50 A+ BLDC ESC, servo-pulse input", 2, "launcher wheels"),
     ("Dual DC motor driver, 10 A/ch", 1, "base drive"),
-    ("Linear actuator, 12-24 V, 100 mm stroke, 30 N+", 1, "feed shuttle (bracket not modelled yet; clevis pin in the shuttle's rear)"),
+    ("5-6 V 5 A buck converter (servo supply)", 1, "shuttle servo: its stall current is a few amps"),
     ("Storage tub, about 440 x 340 x 250 mm", 1, "hopper; see the part notes for the cut"),
     ("Stepper driver, 2 A class (TMC2209 or A4988), 24 V", 1, "azimuth stepper"),
     ("TCRT5000 reflective sensor", 2, "wheel tachometers"),
@@ -896,6 +1011,28 @@ COTS_EXTRA = [
     ("Knotless netting, 25-35 mm mesh", 1, "about 3.5 x 3 m"),
     ("Ballast (sand bags or water cells), see manifest", 1, "tip-over margin"),
 ]
+
+
+def shuttle_kg(p: Feeder) -> float:
+    """Mass of the printed shuttle at the package's PETG density."""
+    from .package import DENSITY
+    return DENSITY["PETG"] * feed_shuttle(p).shape.volume / 1e6
+
+
+def shuttle_line(p: Feeder) -> str:
+    d = p.shuttle_drive(shuttle_kg(p))
+    f, b = d["fwd"], d["back"]
+    return (f"shuttle drive: servo crank ({p.crank_r:g} mm throw, {p.shuttle_rod_mm:g} mm rod, rod at most "
+            f"{d['rod_angle_max_deg']:.0f} deg off the path) outboard of the motor plate; the stroke's ends are the crank's dead "
+            f"centres. Load {f['load_n']:.1f} N forward and {b['load_n']:.1f} N back (a {d['stack_balls']:.0f}-ball column standing "
+            f"on the shuttle, {d['column_n']:.1f} N, at mu {p.feed_mu_ball:g}; the shuttle at mu {p.feed_mu_slide:g}; uphill "
+            f"weight); the pin is {d['offset_mm']:.1f} mm off the shuttle's centre line on a {d['guide_mm']:.0f} mm guide "
+            f"(jams at {d['jam_offset_mm']:.0f} mm; cocking costs x{d['cock_factor']:.2f}); peak "
+            f"{max(f['peak_force_n'], b['peak_force_n']):.1f} N at the pin, {d['peak_torque_nm']:.2f} N m at the servo, "
+            f"{d['torque_margin']:.1f}x under the assumed {p.servo_stall_nm:g} N m stall; stroke {f['stroke_s']:.2f} s out and "
+            f"{b['stroke_s']:.2f} s back ({d['no_load_stroke_s']:.2f} s unloaded), cycle {d['cycle_s']:.2f} s with the "
+            f"{p.feed_dwell_s:g} s dwell and {d['drop_s']:.2f} s for the next ball to drop: {d['balls_per_min']:.0f} balls a "
+            f"minute at most (a {p.elev_act_speed_mm_s:g} mm/s linear actuator would take {d['actuator_cycle_s']:.1f} s)")
 
 
 def structure_kg(p: Feeder, mass_g: float) -> float:
@@ -994,6 +1131,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
         checks.insert(-3, azimuth_line(p, turning[0], turning[1] * 9.81))
     if gravity is not None:
         checks.insert(-3, elevation_line(p, gravity))
+        checks.insert(-3, shuttle_line(p))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
@@ -1014,4 +1152,8 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                         "elev_closed_min_mm": round(e["closed_min_mm"], 1),
                         "elev_extended_min_mm": round(e["extended_min_mm"], 1),
                         "elev_full_sweep_s": round(e["full_sweep_s"], 2)})
+        sd = p.shuttle_drive(shuttle_kg(p))
+        derived.update({"shuttle_torque_nm": round(sd["peak_torque_nm"], 3), "shuttle_torque_margin": round(sd["torque_margin"], 2),
+                        "shuttle_stroke_s": [round(sd["fwd"]["stroke_s"], 3), round(sd["back"]["stroke_s"], 3)],
+                        "shuttle_cycle_s": round(sd["cycle_s"], 3), "shuttle_jam_offset_mm": round(sd["jam_offset_mm"], 1)})
     return checks, derived

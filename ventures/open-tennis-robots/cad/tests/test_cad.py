@@ -174,6 +174,43 @@ class FeederParamsTest(unittest.TestCase):
         self.assertTrue(any("cheek" in r for r in replace(p, elev_act_y=-60.0).check_elevation(grav)))
         self.assertTrue(any("feed column" in r for r in replace(p, elev_pin_x=-150.0).check_elevation(grav)))
 
+    def test_shuttle_drive_sizing(self):
+        p = Feeder()
+        # the crank's dead centres are the two ends of the stroke, and the pin passes the shuttle's own stroke
+        self.assertAlmostEqual(p.shuttle_kinematics(0)[0], p.shuttle_pin_x)
+        self.assertAlmostEqual(p.shuttle_kinematics(180)[0] - p.shuttle_kinematics(0)[0], p.feed_stroke)
+        xs = [p.shuttle_kinematics(t)[0] for t in range(0, 181, 5)]
+        self.assertEqual(xs, sorted(xs))                       # monotonic: no back-and-forth inside the stroke
+        d = p.shuttle_drive(0.45)
+        self.assertEqual(p.check_shuttle_drive(0.45), [])
+        self.assertGreater(d["torque_margin"], p.servo_torque_factor)
+        self.assertLess(d["offset_mm"], d["jam_offset_mm"] / 2)
+        self.assertLess(d["cycle_s"], p.feed_interval_min_s)
+        self.assertGreater(d["fwd"]["stroke_s"], d["no_load_stroke_s"])  # load slows the servo
+        # a linear actuator of the elevation class could not feed a ball every drill interval
+        self.assertGreater(d["actuator_cycle_s"], 3 * p.feed_interval_min_s)
+        # torque at the dead centres is zero; the peak is near mid-stroke and equals F * crank throw within the rod term
+        f = d["fwd"]["peak_force_n"]
+        self.assertGreater(d["fwd"]["peak_torque_nm"], 0.9 * f * p.crank_r / 1000)
+        self.assertLess(d["fwd"]["peak_torque_nm"], 1.15 * f * p.crank_r / 1000)
+
+    def test_shuttle_drive_rules_catch_bad_changes(self):
+        self.assertTrue(any("stall" in r for r in Feeder(servo_stall_nm=0.9).check_shuttle_drive(0.45)))
+        self.assertTrue(any("drill interval" in r for r in Feeder(servo_s_per_60=0.3).check_shuttle_drive(0.45)))
+        self.assertTrue(any("jams" in r for r in Feeder(feed_mu_slide=1.2).check_shuttle_drive(0.45)))
+        self.assertTrue(any("solid rear" in r for r in Feeder(shuttle_pin_back=90.0).check_shuttle_drive(0.45)))
+
+    def test_firmware_gate_times_cover_the_loaded_strokes(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("fw_config", HERE.parent.parent / "firmware" / "esp32" / "config.py")
+        cfg = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cfg)
+        p = Feeder()
+        d = p.shuttle_drive(0.45)
+        self.assertGreaterEqual(cfg.GATE_OUT_MS / 1000, d["fwd"]["stroke_s"] + p.feed_dwell_s)
+        self.assertGreaterEqual(cfg.GATE_BACK_MS / 1000, d["back"]["stroke_s"] + d["drop_s"])
+        self.assertLessEqual((cfg.GATE_OUT_MS + cfg.GATE_BACK_MS) / 1000, p.feed_interval_min_s)
+
     def test_elevation_hose_moment_is_bounded_by_the_pull(self):
         p = Feeder()
         for e in (-15.0, 0.0, 45.0):
@@ -592,6 +629,32 @@ class FeederGeometryTest(unittest.TestCase):
         others = [(f"{x.name}[{i}]", s) for x in self.parts if x.name in self.F.HEAD_PARTS and x.name != "feed_shuttle"
                   for i, s in enumerate(x.placed())]
         self.assertEqual(clashes([("shuttle advanced", advanced)] + others), [])
+
+    def test_shuttle_drive_is_clear_along_the_stroke_and_can_fail(self):
+        from otr_cad.package import feed_stroke_sweep
+        self.assertEqual(feed_stroke_sweep(self.p, thetas=(90.0, 180.0)), [])
+        # a longer rod puts the crank forward, where it swings into the bracket's upper front leg
+        bad = feed_stroke_sweep(Feeder(shuttle_rod_mm=170.0), thetas=(90.0,))
+        self.assertTrue(any("shuttle_crank" in c and "shuttle_servo_bracket" in c for c in bad), bad)
+
+    def test_shuttle_pin_runs_in_the_motor_plate_slot(self):
+        from build123d import Cylinder, Location
+        from otr_cad.collector import ROT_Y_AXIS
+        p = self.p
+        plate = next(x for x in self.parts if x.name == "head_motor_plate").placed()[0]
+        shuttle = next(x for x in self.parts if x.name == "feed_shuttle")
+        y_in = p.plate_half_y - p.feed_clear - 0.2
+        for th in (0.0, 60.0, 120.0, 180.0):
+            xs = p.shuttle_kinematics(th)[0]
+            pin = Cylinder(p.shuttle_pin_d / 2, p.drive_y0 + 6.0 - (y_in - 8.0)).moved(
+                Location((p.head_x + xs, (p.drive_y0 + 6.0 + y_in - 8.0) / 2, p.launch_z + p.shuttle_zc), ROT_Y_AXIS))
+            self.assertLess((pin & plate).volume, 0.5, th)            # through the slot, not the plate
+            moved = shuttle.shape.moved(self.F.shuttle_drive_locs(p, th)["feed_shuttle"])
+            self.assertLess((pin & moved).volume, 0.5, th)            # into the shuttle's insert hole
+        # and the slot is where the plate was solid before: a pin 20 mm behind the slot hits metal
+        pin = Cylinder(p.shuttle_pin_d / 2, 6.0).moved(
+            Location((p.head_x + p.shuttle_pin_x - 20.0, p.plate_half_y + p.plate_t / 2, p.launch_z + p.shuttle_zc), ROT_Y_AXIS))
+        self.assertGreater((pin & plate).volume, 50.0)
 
     def test_hopper_posts_stand_on_the_deck_and_meet_the_shelf(self):
         p = self.p

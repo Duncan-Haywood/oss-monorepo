@@ -121,6 +121,23 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
             host.plan_drill({"shots": [{"x": 9.5, "y": 0, "speed": 20}, {"x": 9.5, "y": 0, "speed": 80}]})
 
 
+class ShuttleTimesTest(unittest.TestCase):
+    def test_simulated_shuttle_moves_at_the_cad_stroke_times(self):
+        import feeder_sim
+        with open(os.path.join(HERE, "..", "manufacturing", "feeder", "manifest.json")) as f:
+            derived = json.load(f)["derived"]
+        out_s, back_s = derived["shuttle_stroke_s"]
+        self.assertAlmostEqual(feeder_sim.SHUTTLE_OUT_S, out_s, delta=0.01)
+        self.assertAlmostEqual(feeder_sim.SHUTTLE_BACK_S, back_s, delta=0.01)
+
+    def test_a_shuttle_slower_than_the_gate_time_releases_nothing(self):
+        sim = SimFeeder()
+        sim.shuttle_out_s = 1.2              # slower than GATE_OUT_MS: the gate closes before the ball reaches the wheels
+        res, _ = run(sim, drill()[:1])
+        self.assertEqual(sim.released, [])   # it turns back short of the wheels with its ball still in the pocket
+        self.assertTrue(sim.loaded)
+
+
 class PeriodTachTest(unittest.TestCase):
     def test_reads_the_speed_the_old_counter_could_not(self):
         tach = controller.PeriodTach()
