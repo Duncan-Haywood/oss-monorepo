@@ -176,9 +176,11 @@ flagships:
       (README "Same search, two to three times faster": sparse simplex rows, binary insertSorted, bit-mask
       validList, same search path bit for bit): 60-person weeks 9-12 s (were 15-23); 80-person weeks, which
       did not settle the root LP in 120 s before, proven 3 of 3 (HiGHS 1 of 3 in 300 s); 100x280 (the
-      400-copy cap) does not settle the root LP in 180 s, pricing (1.4M oracle nodes a call) is the wall.
-      Next: a faster pricing oracle for 100-person weeks (dominance or labels over days, dual stabilisation,
-      heuristic pricing first and exact last); close the 60-person pay week; buildRoster end to end on
+      400-copy cap) did not settle the root LP in 180 s (1.4M oracle nodes a call). Chain bound in the set
+      oracle 2026-11-11 later (README "A chain bound", chain-bound.test.mjs; rest rule as a Lagrangian
+      weighted-interval bound): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
+      359; week 1 347 over 344; largest call under 89k nodes. Next: close the 100-person gaps (tree, not
+      pricing, now); the chain bound in makeScorePricer; close the 60-person pay week; buildRoster end to end on
       40-person weeks with exact on (3-5 min, not re-timed); a real POS hourly export for --from-sales and the
       page (made-up exports only); a real published-schedule export for --import-shifts.
   - venture: photo-editing

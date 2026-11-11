@@ -1309,8 +1309,8 @@ export function branchedScoreBound(staff, slots, options = {}, { incumbentScore,
 // fractional-knapsack bound on the person's weekly hours. Every hard rule is downward closed (dropping a shift never breaks
 // one), so a branch whose list fails validList can be dropped with everything under it. `maxNodes` caps one call; a capped
 // call returns the best set it found with exact: false.
-function makeSetPricer(ctx, { maxNodes = 2000000 } = {}) {
-  const { P, S, elig, slots, staff } = ctx;
+export function makeSetPricer(ctx, { maxNodes = 2000000, chainBound = true } = {}) {
+  const { P, S, elig, slots, staff, restMin } = ctx;
   const mins = slots.map((s) => s.end - s.start);
   const items = Array.from({ length: P }, (_, p) => [...Array(S).keys()].filter((i) => elig[p][i] && validList(ctx, p, [i])));
   const cls = shiftClasses(ctx);
@@ -1330,19 +1330,45 @@ function makeSetPricer(ctx, { maxNodes = 2000000 } = {}) {
     for (const i of base) { baseVal += w[i]; baseMin += mins[i]; }
     const capMin = staff[p].maxHours * 60;
     let bestVal = baseVal, bestSet = base, nodes = 0, exact = true;
-    const bound = (x, room) => {
-      let v = 0;
-      for (; x < cand.length && room > 0; x++) {
-        const i = cand[x];
-        if (mins[i] <= room) { v += w[i]; room -= mins[i]; } else { v += (w[i] * room) / mins[i]; room = 0; }
+    // Chain bound (2026-11-11). Every pair of shifts in a valid set is at least restMin apart (validList), so a set is a chain
+    // of intervals [start, end + restMin) that do not overlap. The fractional knapsack below ignores that, and on 80-person
+    // weeks (cap 12-36 h, 4-9 h shifts, a 10 h rest rule) it let the search wander 578k nodes in one call. The Lagrangian of the
+    // hours cap at the knapsack's own critical price lam gives a second bound that keeps the chain rule:
+    //   lam * room + (best chain of the shifts still allowed, each worth max(0, w - lam * minutes)),
+    // a weighted interval scheduling solved in O(n) over the candidates sorted by end. For any lam >= 0 it is an upper bound on
+    // what a valid set can add, and at lam it is never above the knapsack's LP value, so the search takes the smaller of the two.
+    // "Still allowed" means later in density order than x and clear of every shift already in the list by restMin.
+    const n = cand.length;
+    const st = cand.map((i) => slots[i].start), en = cand.map((i) => slots[i].end);
+    const byEnd = [...Array(n).keys()].sort((a, b) => en[a] - en[b] || a - b);
+    const endR = byEnd.map((a) => en[a] + restMin);
+    // pred[q]: how many of byEnd end (plus rest) at or before byEnd[q] starts; they form a prefix since endR is sorted.
+    const pred = byEnd.map((a) => { let lo = 0, hi = n; while (lo < hi) { const m = (lo + hi) >> 1; if (endR[m] <= st[a]) lo = m + 1; else hi = m; } return lo; });
+    const dp = new Float64Array(n + 1), v = new Float64Array(n);
+    const clear = (a, list) => {
+      for (const j of list) { const s = slots[j]; if (!(st[a] >= s.end + restMin || s.start >= en[a] + restMin)) return false; }
+      return true;
+    };
+    const chain = (x, list, lam) => {
+      for (let a = 0; a < n; a++) { const r = a >= x && clear(a, list) ? w[cand[a]] - lam * mins[cand[a]] : 0; v[a] = r > 0 ? r : 0; }
+      for (let q = 0; q < n; q++) { const take = v[byEnd[q]] + dp[pred[q]]; dp[q + 1] = take > dp[q] ? take : dp[q]; }
+      return dp[n];
+    };
+    const bound = (x, room, list) => {
+      let val = 0, lam = 0, r = room;
+      for (let k = x; k < n && r > 0; k++) {
+        const i = cand[k];
+        if (mins[i] <= r) { val += w[i]; r -= mins[i]; } else { val += (w[i] * r) / mins[i]; lam = w[i] / mins[i]; r = 0; }
       }
-      return v;
+      if (!chainBound || room <= 0) return val;
+      const lag = lam * room + chain(x, list, lam);
+      return lag < val ? lag : val;
     };
     const go = (x, list, val, used) => {
       if (!exact) return;
       if (++nodes > maxNodes) { exact = false; return; }
       if (val > bestVal + 1e-12) { bestVal = val; bestSet = list; }
-      if (val + bound(x, capMin - used) <= bestVal + 1e-9) return;
+      if (val + bound(x, capMin - used, list) <= bestVal + 1e-9) return;
       for (let k = x; k < cand.length; k++) {
         const i = cand[k];
         if (used + mins[i] > capMin + 1e-9) continue;
@@ -1350,7 +1376,7 @@ function makeSetPricer(ctx, { maxNodes = 2000000 } = {}) {
         if (!validList(ctx, p, nl)) continue;
         go(k + 1, nl, val + w[i], used + mins[i]);
         if (!exact) return;
-        if (val + bound(k + 1, capMin - used) <= bestVal + 1e-9) return;
+        if (val + bound(k + 1, capMin - used, list) <= bestVal + 1e-9) return;
       }
     };
     go(0, base, baseVal, baseMin);

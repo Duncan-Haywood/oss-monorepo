@@ -111,3 +111,55 @@ case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pri
 0	304	1974	257.00	257	257	true	82	3700	185	7625	0	577737	27817	99490	81	yes
 1	314	2105	331.00	331	331	true	75	2440	147	6487	0	473140	44783	101646	74	yes
 2	326	2064	281.00	281	281	true	9	2465	65	3338	0	627196	56070	79194	8	yes
+
+# 2026-11-11 later: chain bound in the pricing oracle (on by default; CHAIN=0 is the control). 4-core machine, up to three benches at once.
+# 80x224 before (chain bound off, old code; case 2 not run before the kill):
+0	304	1974	161.00	161	-	false	1	1680	20	1600	0	577737	108379	121256	0	no
+1	314	2105	331.00	331	-	false	3	1915	29	2280	0	473140	88887	120692	2	no
+# 80x224 with the chain bound:
+80 people, 224 shift lines, oracle cap 2000000 nodes per call, 120000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	304	1974	257.00	257	262	false	24	3047	83	4976	0	26952	17633	121694	23	yes
+1	314	2105	331.00	331	335	false	32	2255	86	4620	0	11778	17258	121384	31	yes
+2	326	2064	281.00	281	281	true	9	2465	65	3338	0	57116	43677	95814	8	yes
+# 60x168 with the chain bound:
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	5288	2867	15709	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	6251	3031	11625	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	3674	4281	22084	8	yes
+# 60x168 CHAIN=0, same session:
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	106869	11799	24765	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	38793	14523	21573	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	116407	15653	30733	8	yes
+# 120x336: refused by parseShifts (over 400 shift copies), so not a size the tool takes.
+# 80x224 after merging main (dive backtracking + chain bound together):
+80 people, 224 shift lines, oracle cap 2000000 nodes per call, 120000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	304	1974	257.00	257	262	false	27	3047	86	5159	0	26952	16345	120421	26	yes
+1	314	2105	331.00	331	335	false	32	2255	86	4620	0	11778	18713	120555	31	yes
+2	326	2064	281.00	281	281	true	9	2465	65	3338	0	57116	47156	99337	8	yes
+
+# After merging the exact speed-ups (#14665) with the chain bound: both on. Same 4-core machine, two benches at a time.
+80 people, 224 shift lines, oracle cap 2000000 nodes per call, 120000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	304	1974	257.00	257	257	true	82	3700	185	7625	0	26952	5979	85724	81	yes
+1	314	2105	331.00	331	331	true	75	2440	147	6487	0	11778	6767	75802	74	yes
+2	326	2064	281.00	281	281	true	9	2465	65	3338	0	57116	13312	42344	8	yes
+100 people, 280 shift lines, oracle cap 2000000 nodes per call, 180000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	400	2607	358.00	358	359	false	14	4713	96	5850	0	88591	32406	180208	13	yes
+1	400	2642	344.00	344	347	false	18	4489	88	6202	0	47086	12058	184073	17	yes
+# 60x168, chain bound on and CHAIN=0, run side by side on the merged code:
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	5288	1106	8448	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	6251	848	4977	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	3674	1237	10461	8	yes
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	106869	1949	9141	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	38793	2169	6248	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	116407	2236	11249	8	yes
