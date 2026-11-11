@@ -826,6 +826,31 @@ the prior-year route is often smaller. Tested against hand arithmetic
 deductions (all three filing statuses) matched the IRS text of Rev. Proc. 2025-32 itself on 2026-10-23 (tables 1-3, standard deductions, the section 199A thresholds), the 2025 ones are typed from memory and unchecked (every result warns; pass `brackets`). Above the section 199A threshold (2026-10-28) the QBI deduction is limited to 50% of the business's own W-2 wages (`--business-wages $`; none for a sole proprietor with no staff), phased in over the range, and `--service` (a specified service trade) loses it over the same range, as `scorp` does; the $400 minimum still applies. The 2026 range (75,000 single / 150,000 joint) is unchecked against the statute (`qbiRange`), and the property leg is not modelled. `--itemized $` (2026-10-28) takes your Schedule A total (after the SALT cap and medical floor, which are yours to apply) and uses it when larger than the standard deduction; `--investment $` (the part of `--other` that is interest, dividends, gains or passive rent) adds the 3.8% net investment income tax (Form 8960) over the statutory $200,000 / $250,000 joint AGI line (tested by hand arithmetic, `estimatedtax.test.mjs`). Leaves out state tax, most credits (the child credits are in),
 the 0.9% Additional Medicare Tax's withholding side. Not tax advice. On the page since 2026-10-23 ("Optional: federal tax estimate and quarterly payments"), same function as the CLI.
 
+### Earned income credit, checked against the printed 2025 EIC Table (2026-11-11)
+
+`--eitc-children N` adds the refundable earned income credit (built-in 2025 and 2026 schedules,
+or `eitc` in a `--tax-table` file); `--eitc-table` (on by default in the page) works it the way the
+return does. The 2025 EIC Table in the Form 1040 instructions (pages 49-60 of
+`https://www.irs.gov/pub/irs-pdf/i1040gi.pdf`, read 2026-11-11) is in
+`fixtures/eic-table-2025.json`: 1,374 rows of $50 bands, eight columns, the eight footnoted end
+cells. `eicTableCredit` in `estimatedtax.mjs` reproduces all 10,992 cells: the credit at each
+band's midpoint, rounded to the dollar, except that the band holding the earned-income amount
+prints the (rounded) maximum, the phase-out starts only with the first band wholly above the
+phase-out start, and the last band is cut where the credit runs out. `eic-table.test.mjs` checks
+the bottom, middle and top of every band in cents (over 60,000 lookups). With the table on,
+the estimate follows Worksheet A: earned income's lookup, or the smaller of it and AGI's lookup
+when AGI differs and reaches the phase-out start.
+
+Reading the worksheet found a bug in the old formula: it took the phase-out off the phase-in
+credit, so someone with low earnings and other income (unemployment pay, a pension) above the
+phase-out start got too little. Single with one child, $5,000 of wages and $25,000 of other
+income: about $637 before, $1,709 now, which is the table's figure (26 U.S.C. 32(a)(2) subtracts
+the phase-out from the maximum credit, not from the phase-in amount). Without `--eitc-table`
+the exact figures are within $1 of the table on every band except the two straddle bands per
+column, where the table rounds up to the maximum (up to $2.25). Still assumed: the
+qualifying-child, age, residency and SSN tests. The 2026 table is not printed yet; the same rule
+on Rev. Proc. 2025-32's figures is what it is expected to show. Not tax advice.
+
 ## Schedule C worksheet (US sole proprietors)
 
 `scheduleC(books, { from, to, mealsPct, map })` in `taxforms.mjs` (also the page's

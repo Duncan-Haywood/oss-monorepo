@@ -84,10 +84,9 @@ flagships:
       return` (page card; no-sales-tax states warn): due dates read from the
       state's own page for 11 states (README; OH quarterly unsettled); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
       (Schedule AI): percentages matched to the 2024 form by excerpt
-      2026-10-30, factors to state forms, federal text unread (irs.gov
-      blocked); (9) EITC: built-in 2025 and 2026 schedules (Schedule EIC
-      rows unchecked); 2027 `estimate` takes `--tax-table file.json` until
-      the IRS publishes the figures. A run that lands a slice replaces its
+      2026-10-30, federal text unread (irs.gov answers since 2026-11-11);
+      (9) EITC: 2025 EIC Table matched on all 10,992 cells (HISTORY); open:
+      the 2026 table once printed. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
