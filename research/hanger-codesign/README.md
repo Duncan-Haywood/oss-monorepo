@@ -21,12 +21,72 @@ spring grid locks. Milestone 1c reruns the 3 cm arm across stretch stiffness and
 does not move the width choice, but the unmeasured stretch stiffness does, from +2.0 to +2.5 cm at
 EA 40 N/m to +0.5 to +1.0 cm at 800 N/m, while the 2D chain stays near +1.0 cm, so the 3D-against-2D
 disagreement changes sign with a fabric property no table here supplies, and a shallow-arm hanger
-cannot be designed from bending rigidity and weight alone.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
+cannot be designed from bending rigidity and weight alone. Milestone 2b refines the drape test's
+grid to 2.5 mm: the stiff suiting converges (to about 0.01) but the soft jersey does not at EA 800
+N/m and up (0.70 to 0.37 at EA 3200, still falling), and swapping springs shows most of the
+leftover "stretch" dependence is the shear spring that the model ties to EA (on the suiting, shear
+alone +0.046, stretch alone +0.027). Shear rigidity is measured: the same KES table gives G = 26
+to 89 N/m per radian, so the next tier comparison can take it from data.** Produced with AI assistance (Claude). Research track 18 (`hanger`,
 `research/PROJECTS.md`). Simulation only; nothing here is a measurement of real garments.
 
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 2b: refining the drape test's grid, and the shear spring hidden in EA
+
+`experiments/m2b_locking/run.py`. Milestone 2a's simulated Cusick test and stopping rule, unchanged,
+on fabrics A (soft jersey, bending length 0.81 cm) and D (suiting, 1.72 cm) at EA 150, 800 and 3200
+N/m on grids of 7.5, 5, 3.75 and 2.5 mm (11,513 nodes), seed 0, plus seed 1 at EA 3200 on 3.75 mm:
+26 cases, all met the rule. Predictions were committed before the run. The question: is 2a's climb
+of DC with EA membrane locking, which a finer grid should remove, or something else?
+
+![Simulated Cusick drape coefficient against grid spacing for fabrics A and D at three stretch stiffnesses](experiments/m2b_locking/dc_vs_mesh.svg)
+
+| DC | 7.5 mm | 5 mm | 3.75 mm | 2.5 mm |
+|---|---|---|---|---|
+| A, EA 150 | 0.247 | 0.203 | 0.162 | 0.155 |
+| A, EA 800 | 0.465 | 0.351 | 0.301 | 0.226 |
+| A, EA 3200 | 0.701 | 0.567 | 0.491 | 0.367 |
+| D, EA 150 | 0.396 | 0.434 | 0.480 | 0.492 |
+| D, EA 800 | 0.497 | 0.546 | 0.570 | 0.571 |
+| D, EA 3200 | 0.657 | 0.636 | 0.625 | 0.632 |
+
+(3.75 mm at EA 3200 is the mean of two seeds; they differ by 0.015 on A and 0.006 on D.)
+
+| | prediction | outcome |
+|---|---|---|
+| L1 | at EA 3200, DC falls monotonically with refinement, by at least 0.05, both fabrics | **refuted**: A falls 0.33 and has not levelled off; D moves 0.03 and turns up at the last step |
+| L2 | DC(3200) − DC(800) at 2.5 mm under half its 5 mm value | **refuted**: it shrinks by a third (A 0.216 to 0.141, D 0.091 to 0.061) |
+| L3 | the mesh moves DC more at EA 3200 than at 150, both fabrics | **refuted** on D, where DC *rises* with refinement at low EA |
+| L4 | soft-membrane compression over 1% at EA 150, under 0.3% at 3200 | **refuted**: under 0.15% everywhere; the overhang folds, it does not compress |
+| L5 | at 2.5 mm, EA 800 and 3200 still differ by more than 0.03 somewhere | held: 0.14 (A), 0.06 (D) |
+
+**Post hoc: the shear spring hidden in EA** (`posthoc_shear.py`, not predicted). The sheet's
+diagonal springs are 0.1 of EA, so every EA sweep in this programme also swept the shear stiffness.
+Swapping them separates the two:
+
+| DC | EA 800, shear 80 N/m | EA 3200, shear 80 | EA 800, shear 320 | EA 3200, shear 320 |
+|---|---|---|---|---|
+| D, 2.5 mm | 0.571 | 0.598 | 0.617 | 0.632 |
+| D, 3.75 mm | 0.570 | 0.578 | 0.614 | 0.622 |
+| A, 3.75 mm | 0.301 | 0.314 | 0.440 | 0.484 |
+
+On fabric D, shear alone moves DC two to five times as much as stretch alone, and on A ten times as
+much. The shear stiffness is also measurable: the paper that gave `hanger-kes` its B and W
+(Ramaiah et al., Table 3) lists KES-FB1 shear rigidity G of 0.47, 0.48, 0.52 and 1.58 gf/cm/deg
+for A to D, or 26, 27, 29 and 89 N/m per radian. In the spring sheet the in-plane shear stiffness
+is exactly the diagonal spring constant (`experiments/m2b_locking/kes_shear.py` derives it, and a
+test confirms it on a sheared specimen to 3%). So the programme's base runs (EA 150, shear 15 N/m)
+were softer in shear than any of the four fabrics, and EA 800 (80 N/m) sits near the suiting's
+measured 89.
+
+What it means. On the 2.5 mm grid the suiting's drape is converged and the soft jersey's is not
+(except at EA 150), so a Cusick test on a light knit needs a finer grid or a different element.
+Where the grid is converged, most of what milestones 2a and 1c read as stretch dependence comes
+from the shear spring tied to EA, and shear rigidity is in the same KES table as B and W, so it can
+be set from data and does not need a sweep. Milestone 1c's shallow-arm width shift uses a sheet
+with the same coupling. Whether it is a shear effect is the next test, not a result yet.
 
 ## Milestone 1c: the tier disagreement across stretch stiffness and mesh
 
@@ -181,7 +241,7 @@ enough to separate the width choices with margin. Testing H1 needs the validated
 
 ## Limitations
 
-EA assumed (milestone 1c shows it moves the shallow-arm width choice by 1.5 cm across 40 to 800 N/m, and milestone 2a shows the 3D sheet's drape depends on it strongly, through
+EA assumed and, until milestone 2b, shear tied to it at 0.1 EA (2b finds the shear spring, now sourced from KES G, carries most of the "EA" effect on drape; milestone 1c shows it moves the shallow-arm width choice by 1.5 cm across 40 to 800 N/m, and milestone 2a shows the 3D sheet's drape depends on it strongly, through
 membrane locking); the simulated Cusick test has no measured drape to compare with yet; one garment size and one 20 cm strip, not a shirt; one hanger profile for
 the width sweep; no friction; the four fabrics are unfinished and come from a trade-site PDF;
 no validated solver yet; no real garment.
@@ -191,10 +251,14 @@ no validated solver yet; no real garment.
 1. Milestone 3: build an open validated solver (ARCSim or C-IPC) as the top tier and run the
    same Cusick test on it; it passes only if DC is flat in stretch stiffness and mesh (the test
    this sheet fails).
-2. Source EA for the KES fabrics (KES-FB1 tensile, or a published woven tensile table): milestone
+2. Rerun milestone 1c's shallow-arm width choice with the shear spring set from the measured KES
+   G (26 to 89 N/m) and EA swept on its own (milestone 2b: shear, not stretch, carries most of
+   the drape's "EA" dependence); for the soft jersey, a 1.5 to 2 mm grid or a nonconforming
+   element, since 2.5 mm is not converged above EA 150.
+3. Source EA for the KES fabrics (KES-FB1 tensile, or a published woven tensile table): milestone
    1c shows the shallow-arm width follows EA (+2.5 cm at 40 N/m to +1.0 at 800 on fabric D), and
    recheck the mesh at high EA, where locking should be worst.
-3. Source a table of drape coefficient with B and W for the same fabrics (the Autex paper
+4. Source a table of drape coefficient with B and W for the same fabrics (the Autex paper
    doi:10.2478/aut-2019-0034 with 63 woven fabrics is the first to read) once a session can
    reach it, and source EA for the KES fabrics (KES-FB1 tensile).
 
@@ -202,7 +266,7 @@ no validated solver yet; no real garment.
 
 ```bash
 cd research/hanger-codesign
-python3 -m unittest discover -s tests              # 14 tests, under a minute; needs numpy
+python3 -m unittest discover -s tests              # 20 tests, under a minute; needs numpy
 python3 experiments/m1_kes_fidelity/run.py         # about 4 min on 4 cores
 python3 experiments/m1_kes_fidelity/figure.py      # the SVG above, stdlib only
 python3 experiments/m1c_ea_mesh/run.py           # milestone 1c, 70 cases, about 15 min on 4 cores
@@ -210,4 +274,7 @@ python3 experiments/m1c_ea_mesh/figure.py        # stdlib only
 python3 experiments/m2_cusick/run.py               # milestone 2a, 140 cases, about 25 min on 4 cores
 python3 experiments/m2_cusick/posthoc_ea.py        # post hoc EA sweep, about 6 min
 python3 experiments/m2_cusick/figure.py            # stdlib only
+python3 experiments/m2b_locking/run.py             # milestone 2b, 26 cases, about 20 min on 4 cores
+python3 experiments/m2b_locking/posthoc_shear.py   # post hoc shear/stretch swap, about 10 min
+python3 experiments/m2b_locking/figure.py          # stdlib only
 ```
