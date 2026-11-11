@@ -3,7 +3,7 @@ title: "Eight searches instead of four, and the wait got shorter"
 seo_title: "Faster round robin schedule search on multi-core phones"
 date: 2026-11-11
 tags: [league-schedule-generator, scheduling, optimisation, web-workers]
-description: "The league schedule generator now spreads its carry-over search over every core of the organiser's device, so it can run eight searches instead of four and still finish sooner."
+description: "The league schedule generator now spreads its carry-over search over every core, so it runs eight searches instead of four and still finishes sooner."
 ---
 
 This morning the
