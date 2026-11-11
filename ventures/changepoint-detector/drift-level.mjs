@@ -425,7 +425,8 @@ export function driftLevelPath(values, changepoints, { sigma, omega, slope = 0 }
 export function driftLevel(values, opts = {}) {
   const r = driftLevelChanges(values, opts);
   const tails = driftTailCheck(values);
-  if (!r.changepoints.length && r.sigma == null) return { ...r, tails, changes: [], level: [] };
+  const sticky = stickyCheck(values);
+  if (!r.changepoints.length && r.sigma == null) return { ...r, tails, sticky, changes: [], level: [] };
   const level = driftLevelPath(values, r.changepoints, r);
   // With slope, the path carries the steady growth back in, so one step's growth is taken off the
   // jump (before 2026-11-11 the jump on Australian residents included the 51.3-a-quarter growth).
@@ -435,7 +436,26 @@ export function driftLevel(values, opts = {}) {
     index: i, before: level[i - 1], after: level[i], jump: level[i] - level[i - 1] - g, jumpSd: (level[i] - level[i - 1] - g) / r.sigma,
     ...(scales ? { scaleBefore: scales[k], scaleAfter: scales[k + 1], scaleRatio: scales[k + 1] / scales[k] } : {}),
   }));
-  return { ...r, tails, changes, level, ...(scales ? { scales } : {}) };
+  return { ...r, tails, sticky, changes, level, ...(scales ? { scales } : {}) };
+}
+
+// The sticky-series check (README "Sticky series: exact repeats"). Share of steps that repeat the
+// previous value exactly. A stale quote or a sensor that sits still makes flat runs, which the drift
+// model reads as stretches of almost no noise, and it cuts at their ends: on a synthetic walk with no
+// change (eval/drift-sticky-share.out.txt) the shipped model reports 2.05 false changes a series with
+// no repeats, 4.75 at 15%, 8.38 at 20% and 37.95 at 40%. The warning fires at 20%, where false
+// changes are about four times the no-repeat rate; it was placed on that synthetic table, not on
+// TCPD. Two fixes that model the repeats (drop them; treat them as missing) were pre-registered and
+// failed their power rule (eval/drift-repeats-sim.out.txt, eval/drift-missing-sim.out.txt), so the
+// check only warns.
+export const STICKY_SHARE = 0.2;
+export function stickyCheck(values) {
+  const x = Array.from(values, Number), n = x.length;
+  if (n < 20) return { sticky: false, repeatShare: null, repeats: null };
+  let k = 0;
+  for (let t = 1; t < n; t++) if (x[t] === x[t - 1]) k++;
+  const repeatShare = k / (n - 1);
+  return { sticky: repeatShare >= STICKY_SHARE, repeatShare, repeats: k };
 }
 
 // The heavy-tail check (README "Heavy tails on a drifting level"). It says where a series' heavy

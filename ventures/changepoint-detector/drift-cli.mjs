@@ -38,6 +38,7 @@ export function driftResult({ csv, column = null, labelColumn = null, penalty = 
     sigma: r.sigma, omega: r.omega, penalty: r.penalty, slope: r.slope, noise: r.noise,
     omegaFromLags: r.ml ? r.ml.start.omega : r.omega,
     tails: r.tails,
+    sticky: r.sticky,
     changes: r.changes.map((c) => ({ ...c, label: labels[c.index] })),
     level: r.level, labels, values,
     method: DRIFT_PAPER,
@@ -58,7 +59,7 @@ export function driftText(r) {
     L.push(`${r.changes.length} jump${r.changes.length === 1 ? '' : 's'} too big for the drift:`);
     for (const c of r.changes) L.push(`  ${c.label}: level ${fmt(c.before)} -> ${fmt(c.after)} (${c.jump >= 0 ? '+' : ''}${fmt(c.jump)}, ${c.jumpSd >= 0 ? '+' : ''}${c.jumpSd.toFixed(1)} noise sd)`);
   }
-  L.push(...tailLines(r));
+  L.push(...tailLines(r), ...stickyLines(r));
   const t = DRIFT_TCPD;
   L.push('');
   const k = r.noise === 'ml' ? 'ml' : 'lags';
@@ -76,4 +77,17 @@ export function tailLines(r) {
   const T = DRIFT_TAILS, k = c.stepKurtosis.toFixed(1);
   if (c.kind === 'walk') return [`Heavy-tail check: this reads as a random walk with heavy-tailed steps (kurtosis of the steps ${k}; no noise around the level beyond the fit's floor). In a random walk a jump is one big step, so these jumps may be the walk's largest steps, not changes. A robust cost does not help here (synthetic heavy-tailed walks: ${T.sim.t3WalkGauss} false jumps a series with the default cost, ${T.sim.t3WalkBiweight} with biweight; TCPD's bank: ${T.tcpd.bankGauss} and ${T.tcpd.bankBiweight}, where annotators mark none). For changes in how much it moves, try --model meanvar on its differences.`];
   return [`Heavy-tail check: the noise around the level is heavy-tailed (kurtosis of the steps ${k}), so lone outliers may be read as jumps. A bounded (biweight) cost removes most of those in synthetic tests (heavy-tailed noise: ${T.sim.t3NoiseGauss.toFixed(2)} false jumps a series with this cost, ${T.sim.t3NoiseBiweight} with biweight) and on TCPD's well log (${T.tcpd.wellGauss} cuts to ${T.tcpd.wellBiweight}), but it failed its pre-registered benchmark rule (F1 ${T.tcpd.biweightShipped} and ${T.tcpd.biweightHeldout}), so it is not offered here yet; check isolated jumps against the raw data.`];
+}
+
+// Figures quoted by the sticky-series line, from eval/drift-sticky-share.out.txt (synthetic; a test
+// checks they match).
+export const DRIFT_STICKY = { none: 2.05, at20: 8.38, at40: 37.95 };
+
+// The sticky-series check's line (drift-level.mjs stickyCheck). Empty unless at least 20% of the
+// steps repeat the previous value exactly.
+export function stickyLines(r) {
+  const c = r.sticky;
+  if (!c || !c.sticky) return [];
+  const S = DRIFT_STICKY;
+  return [`Sticky-series check: ${(100 * c.repeatShare).toFixed(0)}% of the steps (${c.repeats}) repeat the previous value exactly, as a quote that is not updated or a sensor that sits still does. The model reads each flat run as a stretch with almost no noise and tends to cut at its ends: on simulated random walks with no change at all it reports ${S.none} false jumps a series with no repeats, ${S.at20} with 20% and ${S.at40} with 40%. Treat jumps at the start or end of a flat run as suspect, and check them against the raw data.`];
 }
