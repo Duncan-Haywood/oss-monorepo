@@ -18,6 +18,14 @@ two cameras, solved independently, reconstruct the same bend (correlation 0.90).
 random view subsets the reported σ<sub>f</sub> is about **2× too small** (rms z 1.94, 95%
 1.75–2.12, against an ideal 1), and Zhang's own σ is no better (2.16).
 
+**Milestone 2 headline** (same views, 560 solves, all converged): the **view geometry predicts
+the error** (Spearman ρ −0.46 and −0.58 between the spread of board orientations and the focal
+error), and the reported σ tracks it too (ρ +0.39 / +0.45), but **σ stays about 2× too small**,
+2.4× on near-critical subsets where the boards are close to parallel. There, **Zhang's own σ
+is far worse** (rms z 5.8) and its focal length is further off than the target-free one. A
+first accept gate (σ<sub>f</sub>/f ≤ 0.5%) rejected 92% of bad updates but accepted only 84%
+of good ones, short of the 90/90 target.
+
 ![rms z-score of the focal length and median focal error against the number of views, target-free BA vs Zhang](experiments/m1_real/selfcal_vs_zhang.png)
 
 ## Why
@@ -92,6 +100,55 @@ printed targets).
 - H3 (target-free σ ≥ 2× Zhang's at 13 views): **refuted**, 1.12×. The ratio does fall with
   views (2.9× at 3).
 
+## Milestone 2: view geometry, near-critical subsets and a first accept gate
+
+Pre-registered in `LOG.md` before any run; results in `experiments/m2_spread/summary.json`.
+
+**Solver.** `selfcal_fixed_analytic` in `src/selfcal.py`: view `ref`'s pose and corner 0's
+depth are held fixed (the 7 similarity directions; a zero translation at the reference camera
+leaves the scale free, so the depth pin is needed), the Jacobian is analytic (tested against
+finite differences), and Levenberg–Marquardt replaces milestone 1's trust-region/LSMR solver.
+All 560 solves converged on tolerance, in at most 177 evaluations (21–23 on all 13 views).
+All-view f moved by 0.0004 px.
+
+**Geometry.** Each view's board normal in the camera frame comes from the all-view Zhang
+poses; a subset's *spread* is the largest angle between two of its normals (0° = all boards
+parallel, where f is unidentifiable; Sturm and Maybank 1999). All 13 views span 65°. Besides
+milestone 1's 400 random subsets (same seeds), the 20 smallest-spread subsets of each size 3–6
+per camera (160 *near-critical* subsets, spread 7–36°).
+
+![focal error against view spread, and against the reported σ, random and near-critical subsets](experiments/m2_spread/spread_vs_error.png)
+
+| | random, 4 views | random, 8 views | near-critical, 4 views | near-critical, 6 views |
+|---|---|---|---|---|
+| median spread | 51° | 61° | 20° | 33° |
+| median \|Δf\|, target-free | 0.54% | 0.30% | 1.09% | 0.82% |
+| median \|Δf\|, Zhang | 0.37% | 0.20% | 1.50% | 1.08% |
+| rms z, target-free | 2.21 | 1.56 | 2.08 | 2.45 |
+| rms z, Zhang | 2.32 | 2.14 | 6.24 | 6.23 |
+
+**Hypotheses:**
+- H2 rerun (does milestone 1's rms z survive convergence?): **held**, 1.945 (95% 1.75–2.12)
+  against 1.944; median f change 0.002 px.
+- H6 (spread predicts error, ρ ≤ −0.3 on each camera): **held**, −0.46 and −0.58.
+- H7 (σ stays honest on near-critical subsets, rms z ≤ 2): **refuted**, 2.41 (95% 2.09–2.81),
+  20% beyond 3σ. Zhang's σ on the same subsets: rms z 5.83.
+- H4, first test (gate σ<sub>f</sub>/f ≤ 0.5%: reject ≥ 90% of updates > 2% off, accept
+  ≥ 90% of those ≤ 1% off): **refuted**, rejects 92% (56/61), accepts 84% (340/407). The five
+  bad updates it let through were 2.0–2.9% off with σ/f just under the gate.
+
+**Unplanned checks** (reported as such): with σ doubled the gate rejects every bad update but
+accepts only 37% of good ones. An inflation factor κ fitted on one camera's random subsets does
+not transfer cleanly: κ 2.21 from the left camera makes the right camera's rms z 0.74; κ 1.63
+from the right leaves the left at 1.35 with 85% 2σ coverage. The median error/σ ratio is
+1.0–1.8 in every σ bin, so the overconfidence is in the tails more than in the typical subset.
+
+**What it means for a robot.** The solver's σ is informative (it ranks subsets by error about
+as well as the geometry does) but not calibrated, and a fixed σ threshold cannot hit 90/90 on
+this data. Near-parallel views are where a target calibration is most misleading about its own
+error, which is an argument for self-calibrating BA plus an honest gate rather than for the
+board.
+
 ## Reproduce
 
 ```
@@ -99,6 +156,8 @@ pip install numpy scipy opencv-python-headless matplotlib pytest
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
+python3 experiments/m2_spread/run.py      # ~10 min on 4 cores; results.json
+python3 experiments/m2_spread/analyse.py  # summary.json, spread_vs_error.png
 python3 -m pytest tests
 ```
 
@@ -111,23 +170,25 @@ python3 -m pytest tests
 - Zhang's all-view fit is a reference, not a lens ground truth, and its own flat-board
   assumption is wrong at the 1% level found above. The subset z-scores overlap the reference
   views (at 12 of 13 views almost entirely), which deflates z at large sizes.
-- The solver stopped on its 1,000-evaluation cap in every solve, not on a tolerance: the
-  similarity gauge slows the trust-region method. Starts from 0.7× and 1.3× and from
-  different reference views agree on f to 0.001 px for all views; for subsets, convergence
-  was not checked separately.
+- Milestone 1's solver stopped on its 1,000-evaluation cap in every solve. Milestone 2's
+  gauge-fixed LM solver converges on all of them and reproduces milestone 1's numbers (rms z
+  1.945 against 1.944), so the milestone 1 results stand.
+- View spread uses the all-view Zhang poses, i.e. the board's geometry; a robot would read it
+  from its own pose estimates. Near-critical here means near-parallel board planes only: the
+  set has no rotation-only motion.
 - `cite_check.py` could not reach the DOI registries; citations are unchecked (see
   `PROPOSAL.md`).
 
 ## Next steps
 
-Milestone 2: the identifiability map on these views (condition number and z against view
-spread; near-critical subsets), then a gauge-fixed solver with an analytic Jacobian so every
-solve converges on tolerance, and an inflation factor for σ fitted on one camera and tested
-on the other.
+Milestone 3: natural features (SIFT) on an openly licensed multi-view set with a target
+calibration of the same camera (H5). For the gate: replace the fixed σ threshold with a test
+that uses the information the geometry adds (spread, condition number) and heavy-tailed
+residuals (a robust loss or a Student-t scale), fitted on one camera and scored on the other.
 
 ## References
 
-Zhang (2000), *IEEE TPAMI* 22(11); Triggs et al. (2000), bundle adjustment: a modern
+Zhang (2000), *IEEE TPAMI* 22(11); Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
 synthesis; Strobl and Hirzinger (2011), ICCV workshops; Nobre, Kasper and Heckman (2017),
 ICRA; the full list with notes is in [`PROPOSAL.md`](PROPOSAL.md). Earlier synthetic work in
 this repository: [`sensing-bafocal`](../sensing-bafocal/README.md),

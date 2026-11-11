@@ -1,5 +1,15 @@
 # sensing-selfcal research log
 
+## 2026-11-11 · Milestone 2 result: geometry predicts the error, σ stays 2× small, and Zhang's σ is far worse near the critical set
+
+- **Solver fixed.** The cap was not only the gauge: holding view `ref`'s pose fixed left the scale free (the initialisation puts that camera at the world origin, so its translation is zero), and scipy's `trf`/`lsmr` crawled even once the scale was pinned too (corner 0's depth). Levenberg–Marquardt on a dense analytic Jacobian (checked against finite differences, max error 1e-6 relative) converges in 21–23 evaluations on all 13 views and in at most 177 on any subset: **560 of 560 solves converged on tolerance**. All-view f moved by 0.0004 px (534.8239 / 538.4302).
+- **H2 rerun held.** Same 360 subsets of 4–12 views: rms z 1.945 (95% 1.75–2.12) against milestone 1's 1.944; median f change 0.002 px, largest 0.66 px. The cap was not the cause of the 2× overconfidence.
+- **H6 held.** Spearman ρ between view spread and |Δf|/f: −0.46 (left, n 240) and −0.58 (right, n 240), p < 1e-13. The reported σ also tracks the error (ρ +0.39 / +0.45).
+- **H7 refuted.** On the 160 near-critical subsets (spread 7–36°) rms z is 2.41 (95% 2.09–2.81); 20% have |z| > 3. Unplanned but striking: Zhang's σ on the same subsets is far less honest, rms z 5.83, and its median error is larger than the target-free one at 4–6 views (1.50 / 1.15 / 1.08% against 1.09 / 0.99 / 0.82%).
+- **H4 first test refuted.** The 0.5% precision gate rejected 92% (56 of 61) of bad updates (> 2% off) but accepted only 84% (340 of 407) of good ones (≤ 1%). The five bad accepts were 2.0–2.9% off with σ/f 0.45–0.48%, just under the gate. Doubling σ (unplanned) rejects every bad update but accepts only 37% of good ones.
+- **Unplanned: σ inflation does not transfer cleanly between cameras.** κ = rms z fitted on left (2.21) gives right-camera rms z 0.74 (over-cautious); κ from right (1.63) gives left rms z 1.35 and 2σ coverage 85% (random) and 82% (near-critical). Median error / σ by σ bin is 1.0–1.8, so the overconfidence sits in the tails more than in the typical subset.
+- **No rotation-only subsets.** The milestone plan named rotation-only motions; this data set has a moving board and no such views, so near-critical here means near-parallel board planes only.
+
 ## 2026-11-11 · Milestone 2 planned: does the view geometry predict the error, and can σ gate an update?
 
 Written before any milestone-2 experiment was run.
