@@ -9874,8 +9874,6 @@ body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0
 .pf-chrome-top .pfs-bar{padding:12px 0}
 .pf-chrome-top .pfs-crumbs{padding:0 0 10px}
 .pf-chrome-top .pfs-mark{background:${MARK_BG}}
-.pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
-[data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
 /* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
  * in the same column, so they line up with the venture's content rather than
  * their own 18px inset. */
