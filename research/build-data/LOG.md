@@ -1,5 +1,9 @@
 # build-data log
 
+## Session 74, 2026-11-11: the paired cascade2-versus-type run (session 73's Q1 to Q4), in progress
+
+Why: session 73 wrote Q1 to Q4 for the paired bootstrap between class configurations; the Socrata hosts answered this session (Chicago 200 at the first probe), so the pull and the run are under way. Results follow in this entry before merge.
+
 ## Session 73, 2026-11-10: a paired bootstrap between class configurations, and Cohen's kappa for the description rules (feeds unreachable; prediction written)
 
 Why: sessions 71 and 72 left "a paired bootstrap of cascade2 against type-only" (session 71 compared each class configuration with the baseline, never with each other). Every Socrata host answered 403 to CONNECT through this session's egress proxy at 22:27 UTC (as in sessions 68, 70 and 72), so no feed could be pulled and no transfer number is new. Ran in parallel with session 72, whose `desc_confusion.py` already gives per-class precision and recall; this session's duplicate per-class tables were dropped at merge.
