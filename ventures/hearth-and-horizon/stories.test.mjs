@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { buildAll, loadAudio, loadStories, speechFor } from './generate.mjs';
-import { SHELVES, markdownToHtml, markdownToSpeech, parseStory, renderFeed } from './stories.mjs';
+import { SHELVES, markdownToHtml, markdownToSpeech, parseStory, renderFeed, spliceReadme } from './stories.mjs';
 
 const stories = loadStories();
 
@@ -106,4 +106,13 @@ test('every "<weekday> <day> <month> <year>" in a story is a real weekday', () =
   }
   assert.ok(checked > 100, `only ${checked} dated weekdays found; is the pattern still matching?`);
   assert.deepEqual(wrong, []);
+});
+
+test('the README lists every story, once, from the generated block', () => {
+  const readme = buildAll()['README.md'];
+  for (const s of stories) {
+    const hits = readme.split(`](stories/${s.slug}.md)`).length - 1;
+    assert.equal(hits, 1, `${s.slug} listed ${hits} times`);
+  }
+  assert.throws(() => spliceReadme('# no markers', stories), /markers/);
 });
