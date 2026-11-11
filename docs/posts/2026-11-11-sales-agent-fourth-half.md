@@ -1,6 +1,6 @@
 ---
 title: "The third round of fixes cut 52% of wrong stops on mail we'd read, and 23% on mail we hadn't"
-seo_title: "Email reply triage: a third round of rule fixes scored on an unread Enron half"
+seo_title: "Email reply triage: third-round rule fixes on an unread Enron half"
 date: 2026-11-11
 tags: [sales-agent, evaluation]
 description: "Third-round fixes to the sales agent's reply rules, scored once on 9,656 unread Enron replies: wrong stops 10.9 to 8.4 per 1,000, right stops 47 to 46."
