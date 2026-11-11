@@ -1,5 +1,11 @@
 # Research log
 
+## 2026-11-11 · PGLib-OPF: published ratings that bind
+- Question: with the benchmark's own ratings (no synthetic caps), how bad is the DC OPF on congested cases? 12 PGLib-OPF v23.07 cases, TYP and API sets.
+- Solver check first: AC within 0.004 % of PGLib's published IPOPT objectives on 23 of 24 (case179 API no convergence). The published DC values only match with PowerModels' DCP convention (b = x/(r²+x²), no taps); MATPOWER's 1/(x tap) differs by up to 2.8 % and is infeasible on case240 TYP. Not expected before running.
+- Expectation (held informally, not written down before the run): most API dispatches would overload and a 5 to 10 % derate would fix them. The first held (11 of 11); the second did not: derating clears 1 of 11 before the DC becomes infeasible, and an iterated loss + per-branch correction also clears 1 of 11 (8 TYP cases clean).
+- Next: an AC-informed linearisation at a nearby AC point on the API set; dual-based LMP decomposition.
+
 ## 2026-11-08 · Stale penalty factors at the steepest real ramps
 - Prediction (before running): factors age gracefully for a few hours and lose most of their gain by 12 hours. Half refuted: gap to oracle grows from 0.01 point (1 to 3 h) to 0.16 point (12 h), but stale factors beat plain DC in all 50 hours and cut its excess 58 % at 12 h (0.584 vs 1.406 %).
 - 10 hours per lag, one case, uniform load shape, no outage. Next: line-trip stress test.

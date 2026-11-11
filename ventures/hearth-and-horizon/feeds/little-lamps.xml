@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>Albert and the Ostriches</title>
+      <link>https://example.invalid/hearth-and-horizon/albert-and-the-ostriches.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/albert-and-the-ostriches.html</guid>
+      <pubDate>Wed, 11 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A bedtime story about Saint Albert the Great, the friar who loved to look closely at God's world. The old books said ostriches eat iron, so Albert went and looked, and wrote down what he saw. Years later he looked just as closely at a big, quiet student the others called an ox. Told from Albert's own book on animals and the early Life of Thomas Aquinas, with a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. Albert is remembered on the 15th of November. Setting: Germany and France, about eight hundred years ago. Read the full text at https://example.invalid/hearth-and-horizon/albert-and-the-ostriches.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A bedtime story about Saint Albert the Great, the friar who loved to look closely at God's world. The old books said ostriches eat iron, so Albert went and looked, and wrote down what he saw. Years later he looked just as closely at a big, quiet student the others called an ox. Told from Albert's own book on animals and the early Life of Thomas Aquinas, with a note for grown-ups on what is history and what is our own addition. For ages 3 to 8, about eight minutes read aloud. Albert is remembered on the 15th of November.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Scholastica and the Storm at Supper</title>
       <link>https://example.invalid/hearth-and-horizon/scholastica-and-the-storm-at-supper.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/scholastica-and-the-storm-at-supper.html</guid>

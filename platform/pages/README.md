@@ -2000,6 +2000,20 @@ added this file. Venture pages score best-practices 96 here only because
 third-party hosts do not resolve in a cloud session; performance moves a few
 points between runs. Not in CI (needs Lighthouse and a browser).
 
+Two things that cost the second run time (2026-11-11):
+
+- **Keep `TMPDIR` short.** With `TMPDIR` set to the long cloud scratchpad path,
+  every page failed with a `chrome-launcher` `checkReady` error. A short
+  directory (`mkdir -p /tmp/claude-0/t; TMPDIR=/tmp/claude-0/t ...`) works.
+- **Check a performance finding with `--throttling=devtools` before acting on
+  it.** The default (Lantern) is a simulation: it counts every request that
+  finished before the observed paint into its LCP estimate, whatever its
+  priority. It scored the tool pages' `modulepreload` links as costing about
+  1.9 s of first paint (performance 83 → 96 without them), while real
+  throttling showed first paint at about 1.45 s either way and the tool ready
+  about 0.3 s *sooner* with them. They stayed. Layout shift (CLS) is measured,
+  not simulated, so trust it in either mode.
+
 ## Reflow, and the two things that widen a page
 
 `reflow.mjs` is the build half of what `sideways.mjs` measures. Its header

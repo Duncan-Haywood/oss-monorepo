@@ -106,10 +106,15 @@ function party(node) {
   const mapped = { id: partyIdentifier(partyNode), name };
   for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
     // A national tax number travels in the same element with TaxScheme/ID "FC"
-    // (or similar); only a VAT scheme -- or an unlabelled one -- is a VAT ID.
+    // (or similar); only a VAT scheme -- or an unlabelled one whose number starts
+    // with a country prefix -- is a VAT ID. CIUS-RO puts a buyer that is not VAT
+    // registered (a ministry, a school) in an unlabelled scheme with its bare
+    // fiscal code (CUI, "8609468"); EN 16931's BR-CO-9 reads only TaxScheme/ID
+    // "VAT", so that is not a VAT number either (ANAF's own examples, 2026-11-11).
     const schemeId = nestedText(scheme, "TaxScheme", "ID").toUpperCase();
     if (schemeId && schemeId !== "VAT") continue;
     const vatId = textOf(scheme, "CompanyID", false);
+    if (!schemeId && vatId && !/^[A-Za-z]{2}/.test(vatId.trim())) continue;
     if (vatId) {
       mapped.vat_id = vatId;
       break;
