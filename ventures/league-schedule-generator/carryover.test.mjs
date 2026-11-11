@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost } from "./carryover.mjs";
+import { carryOverFromOpponents, carryOver, lowCarryOverRounds, lowCarryOverDouble, circleOpp, assignVenues, venueCost } from "./carryover.mjs";
 import { roundRobin, buildSchedule, validateSchedule, countBreaks, readSpec, encodeFields, decodeFields } from "./calc.mjs";
 
 const teams = (n) => Array.from({ length: n }, (_, i) => `T${i + 1}`);
@@ -154,7 +154,65 @@ test("the carry-over guide's numbers come from the code and the real fixture dat
   for (const r of [r18, r20]) {
     assert.ok(html.includes(`<td>${fmt(r.circle)}</td><td>${r.circleBreaks}</td>`), `circle ${r.teams}`);
     assert.ok(html.includes(`<td>${fmt(r.balanced)}</td><td>${r.balancedBreaks}</td>`), `tool ${r.teams}`);
+    assert.ok(html.includes(`<td>${fmt(r.whole)}</td><td>${r.wholeBreaks}</td>`), `whole ${r.teams}`);
+    assert.ok(r.whole < r.balanced && r.whole < Math.min(...rows.filter((x) => x.teams === r.teams).map((x) => x.plannedCoe)));
   }
+  assert.ok(html.includes(`scores ${fmt(r20.whole)} with ${r20.wholeBreaks} breaks`));
   assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /how-to-balance-carry-over-in-a-round-robin\.html/);
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\/how-to-balance-carry-over-in-a-round-robin\.html"/);
+});
+
+function checkDouble(rounds, n) {
+  const N = n % 2 ? n + 1 : n, R = N - 1;
+  assert.equal(rounds.length, 2 * R);
+  for (const half of [rounds.slice(0, R), rounds.slice(R)]) checkRoundRobin(half, n);
+  const ground = new Map();
+  for (const r of rounds) for (const [h, a] of r.matches) {
+    const k = `${h}>${a}`;
+    assert.ok(!ground.has(k), `${k} at the same ground twice`);
+    ground.set(k, 1);
+  }
+  assert.equal(ground.size, n * (n - 1), "each pair once at each ground");
+  const last = Array(n).fill(-1);
+  for (const r of rounds) {
+    const now = Array(n).fill(-1);
+    for (const [h, a] of r.matches) { now[h] = a; now[a] = h; }
+    for (let t = 0; t < n; t++) assert.ok(now[t] < 0 || now[t] !== last[t], "same opponent in consecutive games");
+    for (let t = 0; t < n; t++) if (now[t] >= 0) last[t] = now[t];
+  }
+  assert.deepEqual(rounds.map((r) => r.leg), [...Array(R).fill(0), ...Array(R).fill(1)]);
+}
+
+test("double round robin searched as a whole: valid, phased, never worse than mirroring, seeded", () => {
+  for (const n of [4, 5, 6, 7, 9, 12]) {
+    const d = lowCarryOverDouble(n, { seed: 3 });
+    checkDouble(d.rounds, n);
+    const c = carryOver({ teams: teams(n), rounds: d.rounds });
+    assert.equal(c.value, d.coe);
+    assert.ok(d.coe <= d.mirroredCoe, `${n}: ${d.coe} vs mirrored ${d.mirroredCoe}`);
+    assert.ok(d.coe >= d.lowerBound);
+    assert.equal(d.backToBack, 0);
+    const home = Array(n).fill(0);
+    for (const r of d.rounds) for (const [h] of r.matches) home[h]++;
+    assert.ok(home.every((h) => h === n - 1), "home and away equal");
+  }
+  assert.deepEqual(lowCarryOverDouble(10, { seed: 5 }).rounds, lowCarryOverDouble(10, { seed: 5 }).rounds);
+});
+
+test("whole-season search beats mirroring the searched half by a margin at 18 teams", () => {
+  const d = lowCarryOverDouble(18, { seed: 1, breakWeight: 10 });
+  checkDouble(d.rounds, 18);
+  const half = lowCarryOverRounds(18, { seed: 1, breakWeight: 10 }).rounds;
+  const mirrored = [...half, ...half.map((r) => ({ ...r, matches: r.matches.map(([h, a]) => [a, h]) }))];
+  const m = carryOver({ teams: teams(18), rounds: mirrored }).value;
+  assert.ok(d.coe < 0.85 * m, `${d.coe} vs ${m}`);
+});
+
+test("buildSchedule double with carryOver uses the whole-season search", () => {
+  const f = { teams: teams(10).join("\n"), start: "2026-01-05", weekdays: ["Mon"], double: true, carryOver: true };
+  const s = buildSchedule(readSpec(f).spec);
+  assert.deepEqual(validateSchedule(s).errors, []);
+  const d = lowCarryOverDouble(10, { seed: 1, breakWeight: 10 });
+  assert.equal(s.stats.carryOver.value, d.coe);
+  assert.ok(s.stats.carryOver.value <= d.mirroredCoe);
 });

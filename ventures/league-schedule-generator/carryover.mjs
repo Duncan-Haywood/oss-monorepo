@@ -358,3 +358,192 @@ function assignVenuesOnce(opp, n, seed) {
   }
   return venues;
 }
+
+// ------------------------------------------------------------ double round robin as a whole
+
+/**
+ * A double round robin searched as a whole for low carry-over, instead of mirroring one half.
+ * Mirroring repeats each team's opponent order, so every carry-over count doubles (worst 6 for 18
+ * and 20 teams). Here the season keeps the usual "phased" shape (each half is a complete round
+ * robin, and each pair meets once at each ground, home in one half, away in the other), but the
+ * second half's rounds are searched jointly with the first, with the same moves (round swaps,
+ * partial team swaps, partial round swaps) applied inside one half at a time. The cost is the
+ * non-cyclic carry-over value over all 2(N-1) rounds, plus a heavy penalty for a team meeting the
+ * same opponent in two consecutive games (possible only across the halfway line, a bye between
+ * included), plus `breakWeight`
+ * times an estimate of home/away breaks. Venues are then set by annealing over pairs: flipping a
+ * pair flips both its games, so home/away stays one each.
+ * Returns { rounds (leg 0 then leg 1), coe, mirroredCoe, lowerBound, breaks, backToBack, iterations }.
+ */
+export function lowCarryOverDouble(n, { seed = 1, effort = 1, breakWeight = 0 } = {}) {
+  if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
+  const N = n % 2 === 0 ? n : n + 1;
+  const R = N - 1;
+  const rand = mulberry32((seed * 2654435761) >>> 0);
+  const single = (s) => {
+    const o = circleOpp(N);
+    if (N <= 2) return o;
+    const it = N <= 6 ? 20000 : Math.max(2000, Math.round((effort * 4e7) / (N * N)));
+    const halfLb = carryOverFromOpponents(opponentsFromOpp(o, n)).lowerBound;
+    return anneal(o, (x) => coeOf(x, n, false), { iterations: it, T0: Math.max(4, coeOf(o, n, false) / (N * 4)), rand: mulberry32(s), stopAt: halfLb }).bestOpp;
+  };
+  const first = single(seed);
+  const mirroredCoe = coeOf([...first, ...first], n, false);
+  // Two starts, the better kept: the mirrored season itself (so the result is never worse than
+  // mirroring on this cost) and an independent low-carry-over second half; each is then annealed
+  // as a whole.
+  const cost = (o) => coeOf(o, n, false) + 1000 * backToBackOf(o, n) + (breakWeight > 0 ? breakWeight * doubleGreedyBreaks(o, n) : 0);
+  const starts = [[...first, ...first], [...first, ...single(seed + 7777)]].map((st) => st.map((o) => o.slice()));
+  const lb = carryOverFromOpponents(opponentsFromOpp(starts[0], n)).lowerBound;
+  const iterations = Math.round(effort * Math.min(60000, Math.max(3000, 2e7 / (N * N))));
+  let opp = starts[0], bestCost = cost(opp);
+  if (N > 2) {
+    for (const st of starts) {
+      const T0 = Math.max(4, coeOf(st, n, false) / (N * 8));
+      const res = annealHalves(st, R, cost, { iterations, T0, rand, stopAt: breakWeight > 0 ? -Infinity : lb });
+      if (res.best < bestCost) { bestCost = res.best; opp = res.bestOpp; }
+    }
+  }
+  const venues = assignVenuesDouble(opp, n, seed);
+  const rounds = opp.map((o, r) => {
+    const matches = [];
+    let bye = null;
+    for (let t = 0; t < o.length; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      if (t >= n) { bye = u; continue; }
+      matches.push(venues[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: r < R ? 0 : 1, matches, bye };
+  });
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(venues, opp, t, n);
+  return { rounds, coe: coeOf(opp, n, false), mirroredCoe, lowerBound: lb, breaks, backToBack: backToBackOf(opp, n), iterations };
+}
+
+/** Times a team meets the same opponent in two consecutive games (a bye in between still counts). */
+function backToBackOf(opp, n) {
+  let c = 0;
+  for (let t = 0; t < n; t++) {
+    let prev = -1;
+    for (let r = 0; r < opp.length; r++) { const o = opp[r][t]; if (o >= n) continue; if (o === prev) c++; prev = o; }
+  }
+  return c;
+}
+
+/** The same moves as `anneal`, each made inside one half (rounds [0, R) or [R, 2R)). */
+function annealHalves(opp, R, costOf, { iterations, T0, rand, stopAt = -Infinity }) {
+  const N = opp[0].length;
+  let cur = costOf(opp);
+  let best = cur, bestOpp = opp.map((o) => o.slice());
+  for (let it = 0; it < iterations && best > stopAt; it++) {
+    const T = T0 * (1 - it / iterations) + 0.05;
+    const off = rand() < 0.5 ? 0 : R;
+    const sub = opp.slice(off, off + R); // shared rows: in-place edits reach opp
+    const r = Math.floor(rand() * R);
+    let s = Math.floor(rand() * (R - 1)); if (s >= r) s++;
+    const mv = rand();
+    const accept = (v) => v <= cur || rand() < Math.exp((cur - v) / T);
+    if (mv < 0.4) {
+      const a = Math.floor(rand() * N);
+      let b = Math.floor(rand() * (N - 1)); if (b >= a) b++;
+      const S = teamSwapRounds(sub, a, b, r);
+      if (S.length >= R) continue;
+      swapTeamsIn(sub, S, a, b);
+      const v = costOf(opp);
+      if (accept(v)) cur = v; else swapTeamsIn(sub, S, a, b);
+    } else if (mv < 0.6) {
+      const sw = () => { [opp[off + r], opp[off + s]] = [opp[off + s], opp[off + r]]; };
+      sw();
+      const v = costOf(opp);
+      if (accept(v)) cur = v; else sw();
+    } else {
+      const t = Math.floor(rand() * N);
+      const cyc = cycleOf(sub, r, s, t);
+      if (cyc.length === N) continue;
+      const sw = () => { for (const x of cyc) { const y = sub[r][x]; sub[r][x] = sub[s][x]; sub[s][x] = y; } };
+      sw();
+      const v = costOf(opp);
+      if (accept(v)) cur = v; else sw();
+    }
+    if (cur < best) { best = cur; bestOpp = opp.map((o) => o.slice()); }
+  }
+  return { best, bestOpp };
+}
+
+/** Round index, per team and opponent, of their meeting in the other half: link[r][t]. */
+function meetingLinks(opp) {
+  const R2 = opp.length, R = R2 / 2, N = opp[0].length;
+  const where = Array.from({ length: 2 }, () => new Int16Array(N * N).fill(-1));
+  for (let r = 0; r < R2; r++) for (let t = 0; t < N; t++) where[r < R ? 0 : 1][t * N + opp[r][t]] = r;
+  return opp.map((o, r) => Int16Array.from(o, (u, t) => where[r < R ? 1 : 0][t * N + u]));
+}
+
+/** Greedy phase pass on the first half; the second half is forced opposite. Breaks counted over the season. */
+function doubleGreedyBreaks(opp, n) {
+  const R2 = opp.length, R = R2 / 2, N = opp[0].length;
+  const home = opp.map(() => new Uint8Array(N));
+  const phase = new Int8Array(N).fill(-1);
+  for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
+    const u = opp[r][t];
+    if (t > u) continue;
+    if (u >= n || t >= n) { phase[t] = -1; phase[u] = -1; continue; }
+    const keepT = phase[t] < 0 ? 0 : (phase[t] === 1 ? 1 : -1);
+    const keepU = phase[u] < 0 ? 0 : (phase[u] === 0 ? 1 : -1);
+    const tPhase = keepT + keepU >= 0 ? 1 : 0;
+    phase[t] = tPhase; phase[u] = 1 - tPhase;
+    const h = (tPhase ^ (r & 1)) === 1;
+    home[r][t] = h ? 1 : 0; home[r][u] = h ? 0 : 1;
+  }
+  const at = new Int16Array(N * N).fill(-1);
+  for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) at[t * N + opp[r][t]] = home[r][t];
+  for (let r = R; r < R2; r++) for (let t = 0; t < N; t++) home[r][t] = at[t * N + opp[r][t]] ? 0 : 1;
+  let b = 0;
+  for (let t = 0; t < n; t++) b += teamBreaks(home, opp, t, n);
+  return b;
+}
+
+/**
+ * Home/away for a phased double round robin: each pair's two games are at opposite grounds. Starts
+ * from the greedy first-half pass (second half forced opposite), then anneals over pair flips with
+ * restarts; cost is total breaks (home and away counts are equal by construction).
+ */
+export function assignVenuesDouble(opp, n, seed = 1, restarts = 6) {
+  const R2 = opp.length, R = R2 / 2, N = opp[0].length;
+  const link = meetingLinks(opp);
+  let best = null, bestCost = Infinity;
+  for (let k = 0; k < restarts; k++) {
+    const rand = mulberry32(((seed * 7919 + k * 104729) ^ 0x51ed270b) >>> 0);
+    const v = opp.map(() => new Uint8Array(N));
+    // start: alternate by round parity with a seeded per-team phase, first half; second half opposite
+    const ph = Uint8Array.from({ length: N }, () => (rand() < 0.5 ? 1 : 0));
+    for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
+      const u = opp[r][t];
+      if (t > u) continue;
+      const h = ((ph[t] ^ (r & 1)) === 1) ? 1 : (((ph[u] ^ (r & 1)) === 1) ? 0 : (rand() < 0.5 ? 1 : 0));
+      v[r][t] = h; v[r][u] = 1 - h;
+      const r2 = link[r][t];
+      v[r2][t] = 1 - h; v[r2][u] = h;
+    }
+    const tb = (t) => (t < n ? teamBreaks(v, opp, t, n) : 0);
+    let cost = 0;
+    for (let t = 0; t < n; t++) cost += tb(t);
+    const iters = Math.max(8000, 80 * R2 * N);
+    for (let it = 0; it < iters; it++) {
+      const T = 1.5 * (1 - it / iters) + 0.02;
+      const r = Math.floor(rand() * R);
+      const t = Math.floor(rand() * N);
+      const u = opp[r][t];
+      if (t >= n || u >= n) continue;
+      const r2 = link[r][t];
+      const before = tb(t) + tb(u);
+      const flip = () => { v[r][t] ^= 1; v[r][u] ^= 1; v[r2][t] ^= 1; v[r2][u] ^= 1; };
+      flip();
+      const d = tb(t) + tb(u) - before;
+      if (d <= 0 || rand() < Math.exp(-d / T)) cost += d; else flip();
+    }
+    if (cost < bestCost) { bestCost = cost; best = v.map((x) => x.slice()); }
+  }
+  return best;
+}

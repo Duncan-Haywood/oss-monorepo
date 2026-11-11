@@ -6,7 +6,7 @@
 // assignment by seeded simulated annealing -> outputs (tables, CSV, .ics, text) and an
 // independent validator that re-checks the finished schedule from its output alone.
 
-import { lowCarryOverRounds, carryOver } from "./carryover.mjs";
+import { lowCarryOverRounds, lowCarryOverDouble, carryOver } from "./carryover.mjs";
 
 export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -649,11 +649,13 @@ export function buildSchedule(spec) {
 
   let plan = roundRobin(n, { double: Boolean(spec.double) });
   // Optional: rounds searched for an even carry-over (who you meet right after whom), with some
-  // weight on home/away breaks, in place of the circle method; a double round robin mirrors them.
+  // weight on home/away breaks, in place of the circle method. A double round robin is searched as
+  // a whole (each half still a full round robin, each pair once at each ground), not mirrored:
+  // mirroring repeats every team's opponent order and so doubles every carry-over count.
   if (spec.carryOver && n >= 4) {
-    const low = lowCarryOverRounds(n, { seed: spec.seed ?? 1, breakWeight: 10 });
-    plan = low.rounds;
-    if (spec.double) plan = [...plan, ...plan.map((r) => ({ leg: 1, matches: r.matches.map(([h, a]) => [a, h]), bye: r.bye }))];
+    plan = spec.double
+      ? lowCarryOverDouble(n, { seed: spec.seed ?? 1, breakWeight: 10 }).rounds
+      : lowCarryOverRounds(n, { seed: spec.seed ?? 1, breakWeight: 10 }).rounds;
   }
   // A shorter season: the first k rounds of the circle method. Every team still meets k different
   // opponents (k games, minus a bye in an odd league), and the home/away alternation is unchanged.

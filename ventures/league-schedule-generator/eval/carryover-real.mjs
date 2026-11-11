@@ -13,7 +13,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { carryOverFromOpponents, lowCarryOverRounds } from "../carryover.mjs";
+import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDouble } from "../carryover.mjs";
 import { roundRobin } from "../calc.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -71,6 +71,10 @@ export function run({ seed = 1, effort = 1 } = {}) {
       const lowD = mirror(low.rounds);
       const bal = lowCarryOverRounds(n, { seed, effort, breakWeight: 10 }); // what buildSchedule uses
       const balD = mirror(bal.rounds);
+      const whole = lowCarryOverDouble(n, { seed, effort, breakWeight: 10 }); // what buildSchedule uses for a double
+      const wholeC = carryOverFromOpponents(doubleOpponents(n, whole.rounds));
+      const wholeLow = lowCarryOverDouble(n, { seed, effort });
+      const wholeLowC = carryOverFromOpponents(doubleOpponents(n, wholeLow.rounds));
       const lowC = carryOverFromOpponents(doubleOpponents(n, lowD));
       const balC = carryOverFromOpponents(doubleOpponents(n, balD));
       cache.set(n, {
@@ -82,6 +86,9 @@ export function run({ seed = 1, effort = 1 } = {}) {
         lowHalf: low.coe,
         lowBreaks: breaksOf(n, lowD),
         halfLowerBound: low.lowerBound,
+        whole: wholeC.value, wholeMax: wholeC.max, wholeBreaks: breaksOf(n, whole.rounds),
+        wholeLow: wholeLowC.value, wholeLowMax: wholeLowC.max, wholeLowBreaks: breaksOf(n, wholeLow.rounds),
+        doubleLowerBound: wholeC.lowerBound,
       });
     }
     const ref = cache.get(n);
@@ -99,8 +106,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const rows = run();
   if (process.argv.includes("--json")) { console.log(JSON.stringify(rows, null, 1)); process.exit(0); }
   const pad = (s, w) => String(s).padStart(w);
-  console.log(`${"season".padEnd(14)}${pad("teams", 6)}${pad("planned", 9)}${pad("played", 8)}${pad("1st half", 9)}${pad("max c", 6)}${pad("breaks", 7)} | ${pad("circle", 7)}${pad("half", 6)}${pad("brk", 5)} | ${pad("search", 7)}${pad("half", 6)}${pad("brk", 5)}${pad("half LB", 8)} | ${pad("w=10", 6)}${pad("brk", 5)}`);
+  console.log(`${"season".padEnd(14)}${pad("teams", 6)}${pad("planned", 9)}${pad("played", 8)}${pad("1st half", 9)}${pad("max c", 6)}${pad("breaks", 7)} | ${pad("circle", 7)}${pad("half", 6)}${pad("brk", 5)} | ${pad("search", 7)}${pad("half", 6)}${pad("brk", 5)}${pad("half LB", 8)} | ${pad("w=10", 6)}${pad("brk", 5)} | ${pad("whole", 6)}${pad("max", 4)}${pad("brk", 5)}${pad("w=0", 6)}${pad("brk", 5)}${pad("LB", 6)}`);
   for (const r of rows) {
-    console.log(`${r.key.padEnd(14)}${pad(r.teams, 6)}${pad(r.plannedCoe, 9)}${pad(r.playedCoe, 8)}${pad(r.plannedHalfCoe, 9)}${pad(r.plannedMax, 6)}${pad(r.plannedBreaks, 7)} | ${pad(r.circle, 7)}${pad(r.circleHalf, 6)}${pad(r.circleBreaks, 5)} | ${pad(r.low, 7)}${pad(r.lowHalf, 6)}${pad(r.lowBreaks, 5)}${pad(r.halfLowerBound, 8)} | ${pad(r.balanced, 6)}${pad(r.balancedBreaks, 5)}`);
+    console.log(`${r.key.padEnd(14)}${pad(r.teams, 6)}${pad(r.plannedCoe, 9)}${pad(r.playedCoe, 8)}${pad(r.plannedHalfCoe, 9)}${pad(r.plannedMax, 6)}${pad(r.plannedBreaks, 7)} | ${pad(r.circle, 7)}${pad(r.circleHalf, 6)}${pad(r.circleBreaks, 5)} | ${pad(r.low, 7)}${pad(r.lowHalf, 6)}${pad(r.lowBreaks, 5)}${pad(r.halfLowerBound, 8)} | ${pad(r.balanced, 6)}${pad(r.balancedBreaks, 5)} | ${pad(r.whole, 6)}${pad(r.wholeMax, 4)}${pad(r.wholeBreaks, 5)}${pad(r.wholeLow, 6)}${pad(r.wholeLowBreaks, 5)}${pad(r.doubleLowerBound, 6)}`);
   }
 }

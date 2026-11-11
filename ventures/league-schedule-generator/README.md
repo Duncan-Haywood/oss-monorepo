@@ -228,10 +228,48 @@ seven opponents arriving straight from the same side; the least possible is 48).
 
   The professional schedules already avoid the circle pattern; the tool lands among them on both
   counts, without their derby, policing and broadcast constraints. Not yet: a real rec league's
-  strength data (does carry-over move results at that level?), a double round robin optimised as a
-  whole rather than mirrored (mirroring doubles every count: worst 6 for 18 and 20 teams), and the
-  search's gap to the floor (12 teams: 156 non-cyclic against a floor of 120; whether that is the
-  optimum is unknown).
+  strength data (does carry-over move results at that level?) and the search's gap to the floor
+  (12 teams: 156 non-cyclic against a floor of 120; whether that is the optimum is unknown).
+
+### A double round robin searched as one season (2026-11-11, later)
+
+Mirroring the first half repeats every team's opponent order, so every carry-over count doubles.
+`lowCarryOverDouble(n, { seed, effort, breakWeight })` searches the whole season instead. It keeps
+the shape leagues use ("phased": each half is a full round robin; each pair meets once at each
+ground, so every team has exactly n - 1 home games) and forbids meeting the same opponent in two
+consecutive games (across the halfway line, a bye between included). Two starts, the better kept:
+the mirrored season itself (so the result never scores worse than mirroring on the search's cost)
+and an independent low-carry-over second half; each is annealed with the single-round-robin moves
+applied inside one half at a time. `breakWeight` adds a cheap break estimate (greedy first half,
+second half forced opposite); venues are then set by annealing over pair flips (both games flip, so
+home and away stay one each). `buildSchedule` uses it, with `breakWeight: 10`, whenever "Spread who
+you meet next" and a double round robin are both ticked.
+
+| Double round robin | Teams | Carry-over | Worst count | Breaks |
+|---|---|---|---|---|
+| Bundesliga (4 seasons) | 18 | 3,474 to 4,342 | 12 to 17 | 48 |
+| Ligue 1 2023-24, 2024-25 | 18 | 1,840, 1,948 | 9, 11 | 74, 96 |
+| this tool, searched half mirrored, breakWeight 10 | 18 | 1,926 | 6 | 74 |
+| this tool, whole season, breakWeight 10 | 18 | 1,502 | 6 | 106 |
+| this tool, whole season, carry-over only | 18 | 1,364 | | 140 |
+| floor (entries as even as possible) | 18 | 1,170 | | |
+| EPL, La Liga, Serie A, Ligue 1 (14 seasons) | 20 | 2,278 to 2,564 | 7 to 10 | 70 to 146 |
+| this tool, searched half mirrored, breakWeight 10 | 20 | 2,136 | 6 | 114 |
+| this tool, whole season, breakWeight 10 | 20 | 1,658 | 5 | 134 |
+| this tool, whole season, carry-over only | 20 | 1,582 | | 178 |
+| floor | 20 | 1,460 | | |
+
+(`node eval/carryover-real.mjs`, output in `eval/carryover-real.txt`, columns "whole" to "LB".)
+The whole-season search is 22% below the tool's own mirrored season at both sizes and below every
+professional schedule in the data, and its 20-team break count sits inside the 20-team leagues'
+range; at 18 teams it has more breaks than either league. The trade is a choice for the organiser:
+leaving the box unticked keeps the circle method's fewest breaks. Checked: validity, phasing, one
+game at each ground per pair, no repeat opponent in consecutive games, equal home and away, never
+above the mirrored value and the floor respected for 4 to 12 teams (odd included); seeded; under
+85% of the mirrored searched half at 18 teams; `buildSchedule` reports the same value
+(`carryover.test.mjs`). It costs about 2 to 4 s in Node for 12 to 20 teams, about twice the
+mirrored search. Not yet: the worst count is not in the cost (5 to 6 remain), the break estimate is
+greedy, and the gap to the floor (1,502 vs 1,170 at 18 teams) may be the search, not the problem.
 
 ## Several divisions on shared courts (`divisions.mjs`)
 

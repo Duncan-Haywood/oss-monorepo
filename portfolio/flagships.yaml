@@ -246,10 +246,15 @@ flagships:
       team and round swaps, then a break-weighted pass), K6 optimum and 8-team bound reached by test; on
       20 real top-flight seasons (openfootball) the tool's mirrored double round robin scores 2,136 / 114
       breaks (20 teams) against 2,278-2,564 / 70-146 for EPL, La Liga, Serie A, Ligue 1, and 1,926 / 74
-      (18 teams) against the Bundesliga's 3,474-4,342 / 48. Next, most valuable first: a double round
-      robin optimised as a whole instead of mirrored (mirroring doubles every carry-over count), the
-      search's gap to the floor (12 teams 156 vs 120), a real league's travel times (to check the 1.3 x 40
-      km/h estimate), a real league's unavailable-date requests and duty rota, and a paper print check.
+      (18 teams) against the Bundesliga's 3,474-4,342 / 48. Whole-season double round robin landed
+      2026-11-11 (lowCarryOverDouble, README "A double round robin searched as one season"; phased, each
+      pair once at each ground, no repeat opponent in consecutive games): 1,658 / 134 at 20 teams and
+      1,502 / 106 at 18, 22% under mirroring and under every pro season in the data; buildSchedule uses
+      it for a double. Next, most valuable first: worst count in the cost (5-6 remain) and an exact venue
+      step for the break estimate, the gap to the floor (18 teams 1,502 vs 1,170; 12-team single 156 vs
+      120), moving the search into a Web Worker (2-4 s on the main thread at 12-20 teams), a real
+      league's travel times (to check the 1.3 x 40 km/h estimate), a real league's unavailable-date
+      requests and duty rota, and a paper print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
