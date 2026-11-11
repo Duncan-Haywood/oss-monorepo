@@ -43,8 +43,17 @@ sys.path.insert(0, str(EXP.parent / "src"))
 sys.path.insert(0, str(EXP / "fresh_pool"))
 sys.path.insert(0, str(EXP / "heldout_designs"))
 from verified_dse import flow, stats  # noqa: E402
-from price import costs, equal_k, sign_p, stage_times  # noqa: E402
-import replay  # noqa: E402
+def _sibling(path, name):
+    """Load a sibling experiment module by file path, so another experiment's module of the same name on sys.path cannot shadow it."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+_p = _sibling(EXP / "fresh_pool" / "price.py", "verified_dse_fresh_price")
+replay = _sibling(EXP / "heldout_designs" / "replay.py", "verified_dse_heldout_replay")
+costs, equal_k, sign_p, stage_times = _p.costs, _p.equal_k, _p.sign_p, _p.stage_times
 
 DRAWS = 200
 THETAS = (1.5, 2, 2.5, 3, 4, 5, 6, 8)

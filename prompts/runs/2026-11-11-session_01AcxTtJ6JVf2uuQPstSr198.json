@@ -31,7 +31,12 @@
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "verified-dse suite red on main when run whole (module-name shadowing of analyse.py)",
+      "fixed": true
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -59,7 +64,7 @@
     "research/verified-dse/PAPER.md (switching-rule paragraph)"
   ],
   "goal": null,
-  "notes": "Predictions committed (c.f. first commit) before the first run of rule.py; post-hoc lines added afterwards and labelled. Local checks: pytest tests/test_switch_guard.py tests/test_heldout_designs.py 7 passed; research/_homepage/build.py ok; check_md_links ok; programme_check ok; research_live_links --write regenerated research/README.md. No new citations, so cite_check has nothing new to look up.",
+  "notes": "Predictions committed (c.f. first commit) before the first run of rule.py; post-hoc lines added afterwards and labelled. Local checks: pytest tests/test_switch_guard.py tests/test_heldout_designs.py 7 passed; research/_homepage/build.py ok; check_md_links ok; programme_check ok; research_live_links --write regenerated research/README.md. No new citations, so cite_check has nothing new to look up. Found and fixed a pre-existing failure on main: running the whole verified-dse suite (pytest tests) failed 3 tests because fresh_pool/price.py and heldout_designs/replay.py did a bare 'from analyse import', which picked up experiments/proof_success/analyse.py once another test had put it on sys.path; they (and rule.py) now load sibling modules by file path. Full suite: 59 passed; all committed results reproduce byte for byte.",
   "corrections": [],
   "redteam": null,
   "usage": {
