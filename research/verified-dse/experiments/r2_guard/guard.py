@@ -183,6 +183,25 @@ def main(dst):
             f"(4) false alarms at most 4 (ladder cells with skip-r1 <= random): {fa <= 4} ({fa} of {len(ladder_ok)})",
             f"(5) fresh pool SWX within 0.1 points of SW: {abs(mean(pool, X) - mean(pool, sw)) <= 0.1}",
             f"(6) all 48 test cells, SWX better than SW in more cells than worse: {w > l} ({w} better, {l} worse)"]
+    # Post hoc, added after the first run (not a test, chooses nothing): every guard in the grid on the dear-pool test cells, and
+    # how the two statistics moved between the held-out and fresh tables for the designs both contain.
+    out += ["", "## Post hoc (added after the first run; descriptive, not a test)", "",
+            "Every guard in the grid on the 28 dear-pool test cells (mean SWX regret %, flagged ladder cells, misses caught of "
+            "mult24/mult18 relaxed, false alarms):"]
+    for h in GUARDS:
+        caught = sum(c["clock"] == "relaxed" and c["design"] in ("mult24", "mult18") and c["ratio"] > THETA and flags(c, h)
+                     for c in dear)
+        out.append(f"  {gname(h)}: {mean(dear, lambda c: swx(c, h)):.2f}, flagged {sum(c['ratio'] > THETA and flags(c, h) for c in dear)}, "
+                   f"caught {caught}, false alarms {sum(flags(c, h) for c in ladder_ok)}")
+    best = min(GUARDS, key=lambda h: (mean(dear, lambda c: swx(c, h)), GUARDS.index(h)))
+    out.append(f"best guard in hindsight on the dear-pool cells: {gname(best)} at {mean(dear, lambda c: swx(c, best)):.2f}% "
+               f"against SW {mean(dear, sw):.2f}%")
+    out += ["", "Same design and clock in a held-out table and in milestone 112's fresh pool (slack, dcv):"]
+    for c in dear:
+        for h in held:
+            if h["design"] == c["design"] and h["clock"] == c["clock"]:
+                out.append(f"  {c['design']} {c['clock']}: held-out {h['slack']:+.3f}, {h['dcv']:.3f}; fresh {c['slack']:+.3f}, "
+                           f"{c['dcv']:.3f}; skip-r1 {h['skip']:.2f} -> {c['skip']:.2f}%")
     Path(dst).write_text("\n".join(out) + "\n")
     print("\n".join(out))
 
