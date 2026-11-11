@@ -1,5 +1,16 @@
 # cell-fidelity research log
 
+## 2026-11-11 · Milestone 2: is the cycle count a better fidelity axis than the model? (plan, written before the run)
+- Question: milestone 1 found the cost is in the cycle count (100-cycle DFN 27.9 s, 2-cycle DFN 1.3 s), not in the model. Does a short DFN run rank designs by their 100-cycle DFN score as well as a full 100-cycle SPMe run does, at lower cost? The answer decides which axis the multi-fidelity search of milestone 4 spends its budget on.
+- Data: a new paired benchmark, 128 designs from a scrambled Sobol sequence over the `energy-cell` bounds (`scipy.stats.qmc.Sobol`, d = 4, seed 0, `random_base2(7)`), not chosen by any search, so it is not the stratified sample of milestone 1. Each design runs once per model (SPM, SPMe, DFN) for 100 cycles of the `energy-cell` protocol (OKane2022, 5 A discharge to 2.5 V, 5 A charge to 4.2 V, SEI and plating on), one fresh process per run. Each run stores the discharge energy of every cycle, so the score at cycle n (Wh/kg of cycle n, `energy_cell.cell.evaluate`'s rule: 0 when the run stops before cycle n) comes from the same run for n = 2, 10, 30, 100. Prefix validity (an n-cycle run equals the first n cycles of a 100-cycle run) is checked on the baseline before use. The baseline's 100-cycle SPMe and DFN scores must reproduce `energy-cell-dfn`'s 109.14 and 116.26 Wh/kg within 0.5%.
+- Cost: wall time of an n-cycle run on the baseline for each model and n, fresh process, median of 3, on an otherwise idle machine (the benchmark runs three at a time, so its own timings are not used for cost).
+- Target: DFN at cycle 100 (DFN@100). Designs DFN fails on (score 0) stay in, as ties at the bottom.
+- H1: Spearman(DFN@10, DFN@100) is at least Spearman(SPMe@100, DFN@100). Refuted if it is lower by more than 0.05.
+- H2 (cost): a 10-cycle DFN run costs no more than a 100-cycle SPMe run on the baseline. Refuted if it costs more than 1.5 times as much.
+- H3 (screen then verify): screening all 128 with DFN@10 and DFN-verifying the top 10 at 100 cycles finds a design within 1% of the DFN@100 best of the 128; refuted if the regret exceeds 2%. The same for SPMe@100 as the screen is reported beside it.
+- Also reported (no hypothesis): the full grid (SPM, SPMe, DFN) x (2, 10, 30, 100 cycles) of Spearman and top-10 overlap against DFN@100 with bootstrap intervals, and each cell's cost, so the cheapest cell that ranks as well as SPMe@100 can be read off.
+- Script: `experiments/cycles/run.py`; outcome logged above this entry.
+
 ## 2026-11-11 · Outcome: the flag works (AUC 0.997), but cycle count, not model reduction, is where the cost is
 - H1 supported: SPMe's 2-cycle minimum electrolyte concentration (`r_min`) separates the 7 untrusted designs from the 42 trusted with ROC AUC 0.997 (bootstrap 95% 0.980 to 1.000). The 3 solver failures count as `r_min = 0` by the plan; over the 46 designs SPMe solved, AUC is 0.994 (4 untrusted). A flag at `r_min <= 0.10` catches all 7 with 1 false flag (design 30, gap 0.17); at `r_min <= 0` it catches 6 with none.
 - H2 supported: Spearman(`r_min`, relative gap) = -0.833 over 49.
