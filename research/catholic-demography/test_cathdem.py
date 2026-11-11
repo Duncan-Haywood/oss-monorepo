@@ -159,3 +159,32 @@ def test_panel_agreement_counts_and_kappa():
     assert math.isclose(r['gross'], 2 / 8) and math.isclose(r['stay'], 2 / 3)
     pe = (3 / 8) ** 2 + (5 / 8) ** 2
     assert math.isclose(r['kappa'], (6 / 8 - pe) / (1 - pe))
+
+
+def test_rake_hits_margins_and_keeps_total():
+    from cathdem import rake
+    rng = np.random.default_rng(3)
+    n = 2000
+    a = rng.integers(0, 3, n)
+    b = rng.integers(0, 2, n)
+    w = rng.uniform(0.5, 2.0, n)
+    ta = {0: 0.5, 1: 0.3, 2: 0.2}
+    tb = {0: 0.7, 1: 0.3}
+    r, gap, it = rake.rake(w, [a, b], [ta, tb])
+    assert gap < 1e-8 and math.isclose(r.sum(), w.sum())
+    for c, t in ((a, ta), (b, tb)):
+        m = rake.margins(c, r)
+        assert all(math.isclose(m[k], v, abs_tol=1e-8) for k, v in t.items())
+
+
+def test_rake_one_covariate_is_poststratification():
+    # With one covariate, raking is post-stratification: within-cell weights scale by target/actual share,
+    # so a cell mean outcome reweighted to the target gives the target-weighted mean of cell means.
+    from cathdem import rake
+    c = np.array([0] * 80 + [1] * 20)
+    y = np.array([1.0] * 40 + [0.0] * 40 + [1.0] * 2 + [0.0] * 18)  # cell means 0.5 and 0.1
+    r, gap, _ = rake.rake(np.ones(100), [c], [{0: 0.25, 1: 0.75}])
+    assert math.isclose((r * y).sum() / r.sum(), 0.25 * 0.5 + 0.75 * 0.1)
+    # The selection the covariate carries is removed exactly: target-group mean is matched when outcome depends
+    # only on the covariate.
+    assert rake.kish_deff(np.ones(10)) == 1.0 and rake.kish_deff(r) > 1.0
