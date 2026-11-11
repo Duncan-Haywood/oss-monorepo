@@ -162,6 +162,12 @@ test("the carry-over guide's numbers come from the code and the real fixture dat
   for (const r of low.rounds) for (const [h] of r.matches) home[h]++;
   for (const h of home) assert.ok(h === 3 || h === 4);
   assert.ok(html.includes("a carry-over value of 48"));
+  // the field construction paragraph: 16 teams, single and home-and-away, at the floor
+  const f16 = lowCarryOverRounds(16, { effort: 0.2 });
+  assert.equal(f16.coe, f16.lowerBound);
+  assert.ok(html.includes(`a value of ${f16.coe}`));
+  const c16 = lowCarryOverRounds(16, { field: false });
+  assert.ok(html.includes(`stopped at ${c16.coe}`));
   // real fixture table
   const { run } = await import("./eval/carryover-real.mjs");
   const rows = run();
@@ -212,7 +218,10 @@ test("double round robin searched as a whole: valid legs, return games reversed,
     assert.equal(c.value, r.coe);
     assert.equal(c.repeats, 0);
     assert.ok(r.coe >= r.lowerBound);
-    assert.ok(n >= 12 ? r.coe < r.mirroredCoe : r.coe <= r.mirroredCoe, `${n}: ${r.coe} vs mirrored ${r.mirroredCoe}`);
+    // at a power of two (16) leg one is the field timetable, and its mirror is already at the floor
+    // (the halfway step supplies each team's missing cyclic step), so it can only be matched
+    const strict = n >= 12 && r.mirroredCoe > r.lowerBound;
+    assert.ok(strict ? r.coe < r.mirroredCoe : r.coe <= r.mirroredCoe, `${n}: ${r.coe} vs mirrored ${r.mirroredCoe}`);
     assert.deepEqual(lowCarryOverDoubleRounds(n, { seed: 2, effort: 0.3, breakWeight: bw }).rounds, r.rounds, "seeded");
   }
   // 8 teams, carry-over only: reaches the floor for a double round robin with no repeats
