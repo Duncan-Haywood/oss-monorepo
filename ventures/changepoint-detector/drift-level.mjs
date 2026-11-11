@@ -116,7 +116,38 @@ export function gains(n, q) {
 // penalty becomes 3 log n (a level and a scale per change, as engine.mjs gives 'meanvar'). Gaussian
 // loss only. Same O(n^2): the running S per open start replaces the running cost.
 export const SCALE_FLOOR = 0.01;
-export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags', loss = 'gauss', lossK = 3, scale = 'global' } = {}) {
+// repeats: 'keep' (the default) or 'drop'. 'drop' fits the model to the series with every exact
+// repeat of the previous value taken out (x_t === x_{t-1}), then maps the changes back to the
+// original positions. A sticky series (a quote that is not updated, a sensor that sits still: 246 of
+// TCPD bank's 580 steps are exactly zero) carries no new information in a repeat, but the Gaussian
+// cost reads each flat run as a stretch of near-zero noise, which a scale per segment buys with a
+// cut at either end (README "Volatility on a drifting level": bank 63 to 170 cuts). The wander over
+// the dropped points is not added back (the filter steps once per kept point), so this is an
+// approximation for a series that is sticky, not a general missing-data filter. Continuous data has
+// no exact repeats and is untouched. A change maps to the position of the first kept point of its
+// segment. README "Sticky series: exact repeats dropped" (pre-registered, 2026-11-11).
+export function dropRepeats(values) {
+  const x = Array.from(values, Number), keep = [];
+  for (let t = 0; t < x.length; t++) if (t === 0 || x[t] !== x[t - 1]) keep.push(t);
+  return { values: keep.map((t) => x[t]), index: keep };
+}
+// repeats: 'missing' keeps the time axis: a repeat is a missing observation, so the level's wander
+// accrues across it (the filter's predicted variance grows by q for every step, kept or not) while
+// only kept points are charged and only a kept point can start a segment. This is the standard
+// Kalman treatment of a gap (Durbin and Koopman, "Time Series Analysis by State Space Methods",
+// section 4.10) and removes 'drop's approximation: in a sticky walk the step after k repeats has
+// k + 1 steps of wander in it, which 'drop' charged as one, so a real jump there looked like
+// wander (README "Sticky series"). sigma and omega start from the lag fit on the kept points, as
+// with 'drop'; minSegment counts kept points; the penalty uses the original length.
+export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags', loss = 'gauss', lossK = 3, scale = 'global', repeats = 'keep' } = {}) {
+  if (repeats !== 'keep' && repeats !== 'drop' && repeats !== 'missing') throw new Error(`repeats must be keep, drop or missing, not ${repeats}`);
+  if (repeats === 'missing') return gapDrift(values, { sigma, omega, penalty, minSegment, slope, noise, loss, scale });
+  if (repeats === 'drop') {
+    if (slope) throw new Error('repeats drop does not take slope (the median step would be per kept point, not per period)');
+    const d = dropRepeats(values);
+    const r = driftLevelChanges(d.values, { sigma, omega, penalty: penalty ?? (scale === 'segment' ? 3 : 2) * Math.log(Array.from(values).length), minSegment, slope, noise, loss, lossK, scale });
+    return { ...r, changepoints: r.changepoints.map((c) => d.index[c]), repeats, repeatsDropped: Array.from(values).length - d.values.length, kept: d };
+  }
   if (scale !== 'global' && scale !== 'segment') throw new Error(`scale must be global or segment, not ${scale}`);
   if (scale === 'segment' && loss !== 'gauss') throw new Error('scale segment takes the Gaussian loss only');
   const raw = Array.from(values, Number);
@@ -171,6 +202,76 @@ export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 
   for (let t = n; t > 0; t = last[t]) if (last[t] > 0) cps.push(last[t]);
   cps.reverse();
   return { changepoints: cps, sigma: s, omega: w, penalty: beta, cost: best[n], slope: g, noise: est ? 'lags' : 'given', loss, lossK: lossKind ? lossK : null, scale };
+}
+
+function gapDrift(values, { sigma, omega, penalty, minSegment, slope, noise, loss, scale }) {
+  if (slope) throw new Error('repeats missing does not take slope');
+  if (loss !== 'gauss') throw new Error('repeats missing takes the Gaussian loss only');
+  const N = Array.from(values).length;
+  const d = dropRepeats(values);
+  const beta = penalty ?? (scale === 'segment' ? 3 : 2) * Math.log(N);
+  const gap = d.index.map((t, k) => (k ? t - d.index[k - 1] : 0));
+  const n = d.values.length;
+  if (n < 2 * minSegment) return { changepoints: [], sigma: sigma ?? null, omega: omega ?? null, penalty: null, repeats: 'missing' };
+  if (noise === 'ml' && (sigma == null || omega == null)) {
+    const s0 = sigma ?? driftNoise(d.values).sigma;
+    const memo = new Map();
+    const evalQ = (q) => {
+      const key = q.toPrecision(12);
+      if (!memo.has(key)) memo.set(key, { q, ...gapPartition(d.values.map((v) => v / s0), gap, q, beta, minSegment, scale) });
+      return memo.get(key);
+    };
+    const qs = [0, ...Array.from({ length: 17 }, (_, i) => 10 ** (-4 + i / 2))];
+    let best = null, bi = 0;
+    qs.forEach((q, i) => { const r = evalQ(q); if (!best || r.cost < best.cost) { best = r; bi = i; } });
+    if (best.q > 0) {
+      let lo = Math.log10(bi > 1 ? qs[bi - 1] : 1e-5), hi = Math.log10(bi + 1 < qs.length ? qs[bi + 1] : qs[bi]);
+      const gr = (Math.sqrt(5) - 1) / 2;
+      let c = hi - gr * (hi - lo), e = lo + gr * (hi - lo);
+      for (let it = 0; it < 10; it++) {
+        if (evalQ(10 ** c).cost < evalQ(10 ** e).cost) { hi = e; e = c; c = hi - gr * (hi - lo); }
+        else { lo = c; c = e; e = lo + gr * (hi - lo); }
+      }
+      for (const q of [10 ** c, 10 ** e]) { const r = evalQ(q); if (r.cost < best.cost) best = r; }
+    }
+    return { changepoints: best.changepoints.map((c) => d.index[c]), sigma: s0, omega: s0 * Math.sqrt(best.q), penalty: beta, cost: best.cost, slope: 0, noise: 'ml', loss, scale, repeats: 'missing', repeatsDropped: N - n, kept: d };
+  }
+  const est = sigma == null || omega == null ? driftNoise(d.values) : null;
+  const s = sigma ?? est.sigma, w = omega ?? est.omega;
+  const r = gapPartition(d.values.map((v) => v / s), gap, (w * w) / (s * s), beta, minSegment, scale);
+  return { changepoints: r.changepoints.map((c) => d.index[c]), sigma: s, omega: w, penalty: beta, cost: r.cost, slope: 0, noise: est ? 'lags' : 'given', loss, scale, repeats: 'missing', repeatsDropped: N - n, kept: d };
+}
+
+// Exact partition of the kept points y (sigma units) where gap[k] steps of wander separate y[k-1]
+// and y[k]. Each open segment start carries its own filter state, since the variances now depend on
+// the gaps since the start; still O(n^2). With every gap 1 it is driftLevelChanges' partition exactly.
+export function gapPartition(y, gap, q, beta, minSegment = 2, scale = 'global') {
+  const n = y.length;
+  const a = new Float64Array(n), P = new Float64Array(n), S = new Float64Array(n), LF = new Float64Array(n);
+  const best = new Float64Array(n + 1), last = new Int32Array(n + 1);
+  best[0] = -beta;
+  const seg = scale === 'segment';
+  for (let t = 0; t < n; t++) {
+    const g = gap[t] * q;
+    for (let st = 0; st < t; st++) {
+      const Pp = P[st] + g, F = Pp + 1, K = Pp / F, v = y[t] - a[st];
+      S[st] += (v * v) / F; LF[st] += Math.log(F);
+      a[st] += K * v; P[st] = Pp * (1 - K);
+    }
+    a[t] = y[t]; P[t] = 1; S[t] = 0; LF[t] = 0;
+    let bv = Infinity, bs = 0;
+    for (let st = 0; st + minSegment - 1 <= t; st++) {
+      if (st > 0 && st < minSegment) continue;
+      const c = seg ? scaleCost(t - st, S[st], LF[st]) : LF[st] + S[st];
+      const v = best[st] + beta + c;
+      if (v < bv) { bv = v; bs = st; }
+    }
+    best[t + 1] = bv; last[t + 1] = bs;
+  }
+  const cps = [];
+  for (let t = n; t > 0; t = last[t]) if (last[t] > 0) cps.push(last[t]);
+  cps.reverse();
+  return { changepoints: cps, cost: best[n] };
 }
 
 // The profiled cost of j innovations whose sum of squared standardised innovations is S and whose
@@ -324,17 +425,37 @@ export function driftLevelPath(values, changepoints, { sigma, omega, slope = 0 }
 export function driftLevel(values, opts = {}) {
   const r = driftLevelChanges(values, opts);
   const tails = driftTailCheck(values);
-  if (!r.changepoints.length && r.sigma == null) return { ...r, tails, changes: [], level: [] };
+  const sticky = stickyCheck(values);
+  if (!r.changepoints.length && r.sigma == null) return { ...r, tails, sticky, changes: [], level: [] };
   const level = driftLevelPath(values, r.changepoints, r);
   // With slope, the path carries the steady growth back in, so one step's growth is taken off the
   // jump (before 2026-11-11 the jump on Australian residents included the 51.3-a-quarter growth).
   const g = r.slope || 0;
-  const scales = r.scale === 'segment' ? segmentScales(values, r.changepoints, r) : null;
+  const scales = r.scale === 'segment' ? (r.kept ? segmentScales(r.kept.values, r.changepoints.map((c) => r.kept.index.indexOf(c)), r) : segmentScales(values, r.changepoints, r)) : null;
   const changes = r.changepoints.map((i, k) => ({
     index: i, before: level[i - 1], after: level[i], jump: level[i] - level[i - 1] - g, jumpSd: (level[i] - level[i - 1] - g) / r.sigma,
     ...(scales ? { scaleBefore: scales[k], scaleAfter: scales[k + 1], scaleRatio: scales[k + 1] / scales[k] } : {}),
   }));
-  return { ...r, tails, changes, level, ...(scales ? { scales } : {}) };
+  return { ...r, tails, sticky, changes, level, ...(scales ? { scales } : {}) };
+}
+
+// The sticky-series check (README "Sticky series: exact repeats"). Share of steps that repeat the
+// previous value exactly. A stale quote or a sensor that sits still makes flat runs, which the drift
+// model reads as stretches of almost no noise, and it cuts at their ends: on a synthetic walk with no
+// change (eval/drift-sticky-share.out.txt) the shipped model reports 2.05 false changes a series with
+// no repeats, 4.75 at 15%, 8.38 at 20% and 37.95 at 40%. The warning fires at 20%, where false
+// changes are about four times the no-repeat rate; it was placed on that synthetic table, not on
+// TCPD. Two fixes that model the repeats (drop them; treat them as missing) were pre-registered and
+// failed their power rule (eval/drift-repeats-sim.out.txt, eval/drift-missing-sim.out.txt), so the
+// check only warns.
+export const STICKY_SHARE = 0.2;
+export function stickyCheck(values) {
+  const x = Array.from(values, Number), n = x.length;
+  if (n < 20) return { sticky: false, repeatShare: null, repeats: null };
+  let k = 0;
+  for (let t = 1; t < n; t++) if (x[t] === x[t - 1]) k++;
+  const repeatShare = k / (n - 1);
+  return { sticky: repeatShare >= STICKY_SHARE, repeatShare, repeats: k };
 }
 
 // The heavy-tail check (README "Heavy tails on a drifting level"). It says where a series' heavy

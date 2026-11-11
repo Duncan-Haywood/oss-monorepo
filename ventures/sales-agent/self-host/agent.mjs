@@ -7,13 +7,17 @@
 //
 // Env: IMAP_HOST IMAP_USER IMAP_PASS [IMAP_PORT=993] [IMAP_SECURE=true] [IMAP_BOX=INBOX] [TLS_CA_FILE=ca.pem] ADMIN_TOKEN (required)
 //      [SMTP_HOST SMTP_PORT=587 SMTP_SECURE=false SMTP_USER SMTP_PASS SEND_FROM SEND_MAX_PER_DAY=20] [DATA_DIR=./data] [PORT=8787] [HOST=127.0.0.1] [POLL_MINUTES=10] [SINCE_DAYS=7] [OFFER_JSON=path]
+//      [SENT_BOX=auto|off|<mailbox name>] [SENT_SINCE_DAYS=60]: also read the Sent folder's headers (Date, To, Cc, Subject only) as the daily queue's done list
 //      [PIPEDRIVE_API_TOKEN] [HUBSPOT_TOKEN]: write each read reply back as a note on the existing contact (and set the CRM opt-out on an unsubscribe)
 //      plus LLM_PROVIDER/LLM_MODEL/LLM_API_KEY (or ANTHROPIC_API_KEY ...) for the optional model, same limits.
 import http from "node:http";
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { timingSafeEqual } from "node:crypto";
-import { Imap, parseMessage, replyBlocks } from "./imap.mjs";
+import { Imap, parseMessage, replyBlocks, findSentBox } from "./imap.mjs";
+import { headerMap, splitHead } from "../mime.mjs";
+import { sentRecord } from "../mailfile.mjs";
+import { runDaily, csvQueue, csvLeftOut } from "../daily.mjs";
 import { parseReplies, csv, iso, toCsv } from "../engine.mjs";
 import { runInboxWithModel } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
@@ -25,6 +29,8 @@ import { runFollowUp } from "../followup.mjs";
 import { crmFromEnv } from "./crm.mjs";
 import { buildInvite } from "../invite.mjs";
 
+// IMAP SEARCH date: 07-Nov-2026 (RFC 3501 date: 1*2DIGIT "-" month "-" 4DIGIT, English month names).
+const imapDate = (ms) => new Date(ms).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).replace(/ /g, "-").replace("Sept", "Sep");
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
@@ -37,6 +43,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
   mkdirSync(dir, { recursive: true });
   const stateFile = join(dir, "state.json"), auditFile = join(dir, "audit.jsonl");
   const state = existsSync(stateFile) ? JSON.parse(readFileSync(stateFile, "utf8")) : { lastUid: 0, seen: [], items: [], prospects: [], suppression: [], lastPoll: null, lastError: null };
+  state.sent ||= []; state.sentBox ||= null; state.tasks ||= ""; // added 2026-11-11: older state files lack them
   const crm = crmFromEnv(env, { fetchImpl: fetchImpl || fetch }); // M8a write-back, off unless PIPEDRIVE_API_TOKEN or HUBSPOT_TOKEN is set
   const offer = env.OFFER_JSON && existsSync(env.OFFER_JSON) ? JSON.parse(readFileSync(env.OFFER_JSON, "utf8")) : {};
   const audit = (event, data = {}) => appendFileSync(auditFile, JSON.stringify({ at: new Date(now()).toISOString(), event, ...data }) + "\n");
@@ -91,6 +98,46 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
   function prep(email, notes) { const i = callInput(email, notes); if (!i) return { error: "send { email, notes? }" }; const d = runPrep(i); audit("prep", { email: i.email, stop: d.stop || undefined, known: d.known.length }); return d; }
   function followUp(email, notes) { const i = callInput(email, notes); if (!i) return { error: "send { email, notes }" }; const d = runFollowUp(i); audit("followup_drafted", { email: i.email, approval: d.approval }); return d; }
 
+  /** Your own sent mail, headers only, into state.sent ({ date, to, subject }), the daily queue's done list. Same
+   * connection as the inbox poll; EXAMINE and BODY.PEEK, so nothing is marked or moved. A changed UIDVALIDITY or
+   * mailbox name starts the read again, as the old UIDs no longer name the same messages. */
+  async function readSent(c) {
+    const want = String(env.SENT_BOX || "auto").trim();
+    if (/^(off|false|0|no)$/i.test(want)) return null;
+    const name = /^auto$/i.test(want) ? findSentBox(await c.list()) : want;
+    if (!name) { state.sentError = "no Sent folder found (set SENT_BOX to its name)"; return 0; }
+    const { uidValidity } = await c.examine(name);
+    const keep = state.sentBox && state.sentBox.name === name && state.sentBox.uidValidity === uidValidity;
+    if (!keep) { state.sent = []; state.sentBox = { name, uidValidity, lastUid: 0 }; }
+    const days = Number(env.SENT_SINCE_DAYS || 60);
+    const crit = state.sentBox.lastUid ? `UID ${state.sentBox.lastUid + 1}:*` : `SINCE ${imapDate(now() - days * 864e5)}`;
+    const uids = (await c.search(crit)).filter((u) => u > state.sentBox.lastUid).sort((a, b) => a - b).slice(0, 2000);
+    let n = 0;
+    for (const uid of uids) {
+      const raw = await c.fetchHeaders(uid);
+      const r = sentRecord(headerMap(splitHead(raw)[0]), parseMessage(raw).headers.subject);
+      if (r) { state.sent.push({ ...r, uid }); n++; }
+      state.sentBox.lastUid = Math.max(state.sentBox.lastUid, uid);
+    }
+    // Keep the window the daily run needs: a step is matched on subject at any date, so keep a long tail, capped.
+    const cutoff = iso(now() - Math.max(days, 365) * 864e5);
+    state.sent = state.sent.filter((m) => m.date >= cutoff).slice(-20000);
+    state.sentError = null;
+    return n;
+  }
+
+  /** "What do I do today?" from the cadence task list (Sales Cadence Builder CSV), this agent's prospects and
+   * suppression list, and the sent mail it has read, plus what it sent itself. Sends nothing. tasks is kept, so a
+   * later call (or the page) can rebuild today's queue after the next poll without pasting it again. */
+  function daily({ tasks, done, today, maxOverdueDays } = {}) {
+    if (tasks != null) { state.tasks = String(tasks).slice(0, 2e6); save(); }
+    if (!state.tasks.trim()) return { error: "send { tasks: <cadence task list CSV> } once; it is kept for later runs" };
+    const own = state.items.filter((x) => x.sentAt && x.draft).map((x) => ({ date: x.sentAt.slice(0, 10), to: [String(x.from).toLowerCase()], subject: x.draft.subject || (x.outbound || /^re:/i.test(x.subject) ? x.subject : "Re: " + x.subject) }));
+    const d = runDaily({ tasks: state.tasks, prospects: state.prospects, suppression: state.suppression.map((s) => s.email).join("\n"), done: done || "", sent: [...state.sent, ...own], today: today || iso(now()), ...(Number.isFinite(Number(maxOverdueDays)) && maxOverdueDays !== "" && maxOverdueDays != null ? { maxOverdueDays: Number(maxOverdueDays) } : {}) });
+    audit("daily", { due: d.summary.due, alreadySent: d.summary.alreadySent, held: d.summary.held, dropped: d.summary.dropped, sentRead: d.summary.sentRead, sentBox: state.sentBox?.name || null });
+    return { ...d, sentBox: state.sentBox?.name || null, sentError: state.sentError || null, queueCsv: csvQueue(d), leftOutCsv: csvLeftOut(d) };
+  }
+
   async function poll() {
     const oauth = oauthWanted(env);
     const need = (oauth ? ["IMAP_HOST", "IMAP_USER"] : ["IMAP_HOST", "IMAP_USER", "IMAP_PASS"]).filter((k) => !env[k]);
@@ -98,7 +145,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     const c = new Imap({ host: env.IMAP_HOST, port: Number(env.IMAP_PORT || 993), secure: env.IMAP_SECURE !== "false", ca });
     try {
       await c.connect(); if (oauth) await c.loginXoauth2(env.IMAP_USER, await getToken()); else await c.login(env.IMAP_USER, env.IMAP_PASS); await c.examine(env.IMAP_BOX || "INBOX");
-      const since = state.lastUid ? `UID ${state.lastUid + 1}:*` : `SINCE ${new Date(now() - Number(env.SINCE_DAYS || 7) * 864e5).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).replace(/ /g, "-")}`;
+      const since = state.lastUid ? `UID ${state.lastUid + 1}:*` : `SINCE ${imapDate(now() - Number(env.SINCE_DAYS || 7) * 864e5)}`;
       const uids = (await c.search(since)).filter((u) => u > state.lastUid).sort((a, b) => a - b).slice(0, 200);
       const blocks = [];
       for (const uid of uids) {
@@ -110,8 +157,10 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
         state.lastUid = Math.max(state.lastUid, uid);
       }
       const n = await ingest(blocks);
+      let sentNew = null;
+      try { sentNew = await readSent(c); } catch (e) { state.sentError = String(e.message || e).replace(env.IMAP_PASS || "\0", "***"); }
       state.lastPoll = new Date(now()).toISOString(); state.lastError = null; save();
-      audit("poll", { uids: uids.length, ingested: n });
+      audit("poll", { uids: uids.length, ingested: n, ...(sentNew != null ? { sentRead: sentNew, sentBox: state.sentBox?.name } : {}), ...(state.sentError ? { sentError: state.sentError } : {}) });
       return n;
     } catch (e) { state.lastError = String(e.message || e).replace(env.IMAP_PASS || "\0", "***"); save(); audit("poll_error", { error: state.lastError }); return 0; }
     finally { await c.logout(); }
@@ -198,6 +247,16 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     if (req.method === "GET" && url.pathname === "/api/prospects.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.prospects, ["email", "first_name", "company", "status", "stage", "paused_until", "last_reply"])); }
     if (req.method === "GET" && url.pathname === "/api/suppression.csv") { res.writeHead(200, { "content-type": "text/csv" }); return res.end(toCsv(state.suppression, ["email", "reason", "date", "evidence"])); }
     if (req.method === "GET" && url.pathname === "/api/audit") { res.writeHead(200, { "content-type": "application/x-ndjson" }); return res.end(existsSync(auditFile) ? readFileSync(auditFile) : ""); }
+    if (url.pathname === "/api/daily" && (req.method === "GET" || req.method === "POST")) {
+      let b = {};
+      if (req.method === "POST") { let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 2e6) return json(res, 413, { error: "too large" }); } try { b = JSON.parse(raw || "{}"); } catch { return json(res, 400, { error: "bad json" }); } }
+      else b = { done: url.searchParams.get("done") || "", today: url.searchParams.get("today") || undefined };
+      const r = daily(b);
+      if (r.error) return json(res, 422, r);
+      const fmt = url.searchParams.get("format");
+      if (fmt === "queue.csv" || fmt === "left-out.csv") { res.writeHead(200, { "content-type": "text/csv", "content-disposition": `attachment; filename="${r.today}-${fmt}"`, "cache-control": "no-store" }); return res.end(fmt === "queue.csv" ? r.queueCsv : r.leftOutCsv); }
+      return json(res, 200, r);
+    }
     if (req.method === "POST" && url.pathname === "/api/poll") return json(res, 200, { ingested: await poll() });
     if (req.method === "POST" && url.pathname === "/api/decide") {
       let raw = ""; for await (const ch of req) { raw += ch; if (raw.length > 100000) return json(res, 413, { error: "too large" }); }
@@ -238,7 +297,7 @@ export function createAgent(env = process.env, { now = () => Date.now(), fetchIm
     }
     json(res, 404, { error: "not found" });
   });
-  return { server, state, poll, ingest, queueResearch, prep, followUp, decide, send, moveDeal, invite, audit };
+  return { server, state, poll, ingest, daily, readSent, queueResearch, prep, followUp, decide, send, moveDeal, invite, audit };
 }
 
 function page(state, token, canSend, canMove) {
@@ -259,6 +318,10 @@ ${it.decision === "pending" ? `<button data-d="approved">Approve</button> <butto
 <style>body{font:16px/1.5 system-ui;max-width:760px;margin:0 auto;padding:16px;color:#1b1f23;background:#fff}@media(prefers-color-scheme:dark){body{background:#14171a;color:#e6e8ea}blockquote{background:#1d2226}}article{border:1px solid #8884;border-radius:8px;padding:12px 16px;margin:16px 0}blockquote{margin:8px 0;padding:8px 12px;background:#f3f4f6;border-radius:6px}textarea{width:100%;box-sizing:border-box}.tag{font-size:12px;border:1px solid #8886;border-radius:10px;padding:1px 8px}.re{opacity:.7;margin:0}button{padding:6px 14px;margin-right:6px}small{opacity:.7;font-weight:400}</style>
 <h1>Approval queue</h1><p>Last poll: ${esc(state.lastPoll || "never")}${state.lastError ? ` <b>Error: ${esc(state.lastError)}</b>` : ""}. <button id="poll">Poll now</button> <a href="/api/audit?token=${t}">Audit log</a> · <a href="/api/prospects.csv?token=${t}">Prospects CSV</a> · <a href="/api/suppression.csv?token=${t}">Suppression CSV</a></p>
 <p>${canSend ? "Approving a draft does not send it. Press Send on an approved draft to send it from your mailbox, once, with an unsubscribe header." : "Sending is off (no SMTP_HOST). Approving marks a draft approved in the audit log and gives you a link to send it yourself."}</p>${rows}
+<section id="today"><h2>Today's queue</h2><p>Paste the task list from Sales Cadence Builder once (it is kept). The queue drops anyone who stopped, bounced or is suppressed, and any email step already in your Sent folder${state.sentBox ? ` (<b>${esc(state.sentBox.name)}</b>, ${state.sent.length} messages read)` : ""}${state.sentError ? ` <b>Sent folder: ${esc(state.sentError)}</b>` : ""}. Nothing is sent.</p>
+<textarea id="dq-tasks" rows="4" placeholder="${state.tasks ? "Task list kept; paste a new one to replace it" : "date,channel,step,prospect,company,email,subject,body"}"></textarea>
+<p><button id="dq-run">Build today's queue</button> <a href="/api/daily?format=queue.csv&amp;token=${t}">queue.csv</a> · <a href="/api/daily?format=left-out.csv&amp;token=${t}">left-out.csv</a></p>
+<p id="dq-status" role="status"></p><pre id="dq-out" hidden style="white-space:pre-wrap"></pre></section>
 <section id="calldesk"><h2>Call desk</h2><p>Before a call, prepare a brief from what this agent already holds on the person (their replies, the prospects table, the suppression list). After it, paste or dictate your notes and draft a follow-up. Nothing is sent.</p>
 <p><input id="cd-email" type="email" placeholder="their email" size="32"> <button id="cd-prep">Prepare the call</button></p>
 <textarea id="cd-notes" rows="6" placeholder="Call notes, one point per line"></textarea>
@@ -266,6 +329,7 @@ ${it.decision === "pending" ? `<button data-d="approved">Approve</button> <butto
 <p id="cd-status" role="status"></p><pre id="cd-out" hidden style="white-space:pre-wrap"></pre>
 <p id="cd-voice" hidden style="font-size:14px;opacity:.8">Voice is optional and uses your browser's own speech tools; in Chrome and Edge dictation sends audio to the browser maker's speech service. Say "next point" for a new line. This page records and stores nothing.</p></section>
 <script>const T=${JSON.stringify(token)};const H={authorization:"Bearer "+T,"content-type":"application/json"};
+document.getElementById("dq-run").onclick=async()=>{const v=document.getElementById("dq-tasks").value;const r=await fetch("/api/daily",{method:"POST",headers:H,body:JSON.stringify(v.trim()?{tasks:v}:{})});const j=await r.json();const o=document.getElementById("dq-out");if(!r.ok){document.getElementById("dq-status").textContent=j.error;return}o.textContent=j.brief;o.hidden=false;document.getElementById("dq-status").textContent=j.summary.due+" due, "+j.summary.alreadySent+" already sent. Nothing was sent."};
 document.getElementById("poll").onclick=async()=>{await fetch("/api/poll",{method:"POST",headers:H});location.reload()};
 document.querySelectorAll("article button[data-move]").forEach(b=>b.onclick=async()=>{b.disabled=true;const a=b.closest("article");const r=await fetch("/api/crm-stage",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id})});const j=await r.json();if(!r.ok){alert(j.error);b.disabled=false}else{alert(j.results.map(x=>x.crm+": "+(x.moved?"moved":x.error||x.reason)).join("\\n"));location.reload()}});
 document.querySelectorAll("article button[data-send]").forEach(b=>b.onclick=async()=>{b.disabled=true;const a=b.closest("article");const r=await fetch("/api/send",{method:"POST",headers:H,body:JSON.stringify({id:a.dataset.id})});if(!r.ok){alert((await r.json()).error);b.disabled=false}else location.reload()});
