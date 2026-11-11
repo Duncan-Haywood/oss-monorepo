@@ -751,6 +751,13 @@ const RATES_CSS = `
    white card (background, border, radius, shadow). Without these resets the
    bar rendered as an empty white slab jammed against the venture's heading. */
 section.pf-rates{background:none;border:0;border-radius:0;box-shadow:none;min-height:0}
+/* Ships hidden and the script reveals it on 'load', after first paint, which
+   pushed the venture's heading down by the bar's height (75px with its margin,
+   CLS 0.069 on chimney-sweep-bid-calculator, measured 2026-11-11). With
+   scripting on, the space is held invisibly from the first paint; the markup
+   carries the first-visit status line, so the held box is the shown box's
+   height. Same rule and reasons as the saved-bids bar in jobs.mjs. */
+@media screen and (scripting:enabled){.pf-rates[hidden][data-pf-rates-root]{display:block !important;visibility:hidden}}
 .pf-rates-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
 .pf-rates-status{opacity:.82}
 .pf-rates button{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
@@ -804,9 +811,18 @@ function fieldSentence(fields) {
  * storage plus scripting; with scripting off there is nothing behind the
  * control, and a button that does nothing is worse than no button.
  */
+/**
+ * What the status line says to a visitor with no saved rates, which the script
+ * writes on start. It is also in the built markup, so the bar's space can be
+ * held from first paint at the height it will have when shown (see the
+ * scripting rule in RATES_CSS). The script still sets it; the two must match.
+ */
+export const RATES_FIRST_VISIT_STATUS = 'Save your rates once \u2014 every calculator here uses them.';
+const RATES_FIRST_VISIT_STATUS_HTML = RATES_FIRST_VISIT_STATUS.replace('\u2014', '&mdash;');
+
 const RATES_MARKUP = (fields, note) => `<section class="pf-rates" hidden data-pf-rates-root>
   <p class="pf-rates-line">
-    <span class="pf-rates-status" id="pf-rates-status" role="status"></span>
+    <span class="pf-rates-status" id="pf-rates-status" role="status">${RATES_FIRST_VISIT_STATUS_HTML}</span>
     <button type="button" id="pf-rates-toggle" aria-expanded="false" aria-controls="pf-rates-panel">Your shop rates</button>
   </p>
   <div class="pf-rates-panel" id="pf-rates-panel" hidden>
@@ -1025,7 +1041,7 @@ const RATES_SCRIPT = () => `
     var button = function(name){ return root.querySelector('[data-pf-rates="' + name + '"]'); };
 
     if (!rates) {
-      status.textContent = 'Save your rates once \\u2014 every calculator here uses them.';
+      status.textContent = ${JSON.stringify(RATES_FIRST_VISIT_STATUS).replace('\u2014', '\\u2014')};
       list.hidden = true;
       list.innerHTML = '';
       button('save').textContent = 'Save the rates on this bid';

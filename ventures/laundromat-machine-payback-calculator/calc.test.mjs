@@ -71,3 +71,21 @@ test("sample parses, report CSV quotes, money formats", () => {
   assert.equal(money(-1234.5), "-$1,235");
   assert.equal(money2(1234.5), "$1,234.50");
 });
+
+// Quality fix 2026-11-11: a quoted "$1,200" (what a spreadsheet CSV export writes) used to split
+// at the comma and shift every later field. See docs/posts/2026-11-11-quality-fix-thousands-commas.md.
+import { splitCells as splitCellsForTest } from "./calc.mjs";
+import { test as testSplit } from "node:test";
+import assertSplit from "node:assert/strict";
+testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a mid-cell quote as text", () => {
+  assertSplit.deepEqual(splitCellsForTest('Item,"$1,200",800'), ["Item", "$1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest("Item\t1,200\t800"), ["Item", "1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
+  assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
+});
+
+test("price raise break-even never exceeds 100% when utilities and fees outrun the price", () => {
+  // 6000 * 0.97 - 5880 = -60 a month: every cycle can leave without lowering contribution.
+  const r = analyze(rows("W,10,5,4,4.9,5000"), { cardFeePct: 3 });
+  for (const x of r.raises) near(x.breakEvenLoss, 1);
+});

@@ -1,0 +1,389 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJJavcVs8C7aDmS9ct",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T03:07:03Z",
+  "ended": "2026-11-11T03:09:21Z",
+  "wall_minutes": 18.18,
+  "tokens_in": 5091553,
+  "tokens_out": 30688,
+  "cost_usd": 2.3562,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14677",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes ran past a 500 s foreground timeout (20 workflows reached); reran it in the background.",
+    "First restaurant guard test passed on the old code: price 10 / cost 11 made denom exactly 0, which the old code already mapped to null. Changed it to price 20 / cost 21 (old code: 200%), which fails without the fix."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --under ventures/changepoint-detector --probe 20` probed 40 files at >20 s each before printing anything usable (about 5 min). Every changepoint suite is slow, so the probe should cache per suite and stop after the first >20 s for the same suite (it seems to re-probe)."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "Campaigns on CSS-heavy JS (site-nav.mjs) produce almost only const-plus-one mutants on CSS numbers, 6 of 8 equivalent. A CSS-aware operator (0 -> 1 on lengths, px removal) would test more."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's list held 3 entries that each already have an open control-plane PR waiting on the owner (#12928, #12926, #14612); `redteam.py open` could print the open PR so each run doesn't search for it again."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-redteam-lose-126-percent-of-your-dogs.md"
+  ],
+  "goal": null,
+  "notes": "Targets: dog-grooming calc.mjs (5/8 caught; changed in #14663) and platform/pages/site-nav.mjs (0/8; 6 equivalent CSS tweaks). Catch rate 5/9 non-equivalent before, 9/9 after (rerun; the L95 line was rewritten by the fix and re-applied by hand). Real defect: break-even customer loss over 100% at negative contribution, fixed in 6 ventures (dog-grooming, dj-gig, massage-therapist, wedding-photographer, laundromat-machine-payback, restaurant-pos-menu-mix-analyzer), each with a test that fails on the old code (checked with git stash). Guard added (4b): platform/pages/css-lint.mjs + css-lint.test.mjs, which flags unitless non-zero lengths in the shared chrome and in every html/css/style attribute under ventures, research, platform, docs and portfolio (~3,750 files, 0.7 s). First run: 0 hits, so it starts green. portfolio-pages.yml runs platform/pages/*.test.mjs. Local checks: node --test of all 6 venture suites green; site-nav.test.mjs 17/17; css-lint.test.mjs 5/5; promptctl validate and unittest prompts green once the record was filled in.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/dog-grooming-profit-calculator/calc.mjs",
+        "test": "node --test ventures/dog-grooming-profit-calculator/**/*.test.mjs  (in .)",
+        "seed": 497506690,
+        "commit": "5ae7a1e6",
+        "sites": 178,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/dog-grooming-profit-calculator/calc.mjs",
+            "line": 17,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "const num = (v, d = 0) => {",
+            "after": "const num = (v, d = 1) => {",
+            "line_text": "const num = (v, d = 0) => {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Every caller of num() passes its own default (NaN, 0, 1, DEFAULTS[k]), so the default parameter is never read."
+          },
+          {
+            "file": "ventures/dog-grooming-profit-calculator/calc.mjs",
+            "line": 18,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (v === \"\" || v === null || v === undefined) return d;",
+            "after": "if (v !== \"\" || v === null || v === undefined) return d;",
+            "line_text": "  if (v === \"\" || v === null || v === undefined) return d;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-grooming-profit-calculator/calc.mjs",
+            "line": 55,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const fee = o.cardFeePct / 100;",
+            "after": "const fee = o.cardFeePct / 101;",
+            "line_text": "  const fee = o.cardFeePct / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-grooming-profit-calculator/calc.mjs",
+            "line": 95,
+            "col": 86,
+            "operator": "const-plus-one",
+            "before": "const breakEvenLoss = contribution + extra > 0 ? extra / (contribution + extra) : 0;",
+            "after": "const breakEvenLoss = contribution + extra > 0 ? extra / (contribution + extra) : 1;",
+            "line_text": "    const breakEvenLoss = contribution + extra > 0 ? extra / (contribution + extra) : 0;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Escaped because no test had zero or negative contribution. Hunting it found the real defect below (break-even loss over 100%); the line was rewritten, and the zero-dog case of the new test pins the fallback 0 (mutating it to 1 on the new line fails the test, checked by hand). [rerun: line changed; triage by hand] rerun reported the line changed (it was rewritten by the fix), so it was re-applied by hand to the new line: (extra > 0 ? 1 : 0) -> (extra > 0 ? 1 : 1) and -> (extra > 0 ? 0 : 0) each fail calc.test.mjs (# fail 1)."
+          },
+          {
+            "file": "ventures/dog-grooming-profit-calculator/calc.mjs",
+            "line": 97,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const newContribution = (revenue * (1 + pct / 100) * (1 - fee) - supplies) * keep;",
+            "after": "const newContribution = (revenue * (2 + pct / 100) * (1 - fee) - supplies) * keep;",
+            "line_text": "    const newContribution = (revenue * (1 + pct / 100) * (1 - fee) - supplies) * keep;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-grooming-profit-calculator/calc.mjs",
+            "line": 97,
+            "col": 55,
+            "operator": "times-to-div",
+            "before": "const newContribution = (revenue * (1 + pct / 100) * (1 - fee) - supplies) * keep;",
+            "after": "const newContribution = (revenue * (1 + pct / 100) / (1 - fee) - supplies) * keep;",
+            "line_text": "    const newContribution = (revenue * (1 + pct / 100) * (1 - fee) - supplies) * keep;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The only raise test used a 0% card fee, where * and / (1 - fee) agree. New test at 3% fee."
+          },
+          {
+            "file": "ventures/dog-grooming-profit-calculator/calc.mjs",
+            "line": 134,
+            "col": 59,
+            "operator": "plus-to-minus",
+            "before": "return out.map((row) => row.map(q).join(\",\")).join(\"\\n\") + \"\\n\";",
+            "after": "return out.map((row) => row.map(q).join(\",\")).join(\"\\n\") - \"\\n\";",
+            "line_text": "  return out.map((row) => row.map(q).join(\",\")).join(\"\\n\") + \"\\n\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-grooming-profit-calculator/calc.mjs",
+            "line": 155,
+            "col": 22,
+            "operator": "plus-to-minus",
+            "before": "else if (line[i + 1] === '\"') { cur += '\"'; i++; }",
+            "after": "else if (line[i - 1] === '\"') { cur += '\"'; i++; }",
+            "line_text": "      else if (line[i + 1] === '\"') { cur += '\"'; i++; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/pages/site-nav.mjs",
+        "test": "node --test platform/pages/site-nav.test.mjs  (in .)",
+        "seed": 278117308,
+        "commit": "5ae7a1e6",
+        "sites": 261,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/pages/site-nav.mjs",
+            "line": 221,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "font-family:system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:15px;font-weight:400;line-height:1.4;",
+            "after": "font-family:system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:15px;font-weight:401;line-height:1.4;",
+            "line_text": "  font-family:system-ui,-apple-system,\"Segoe UI\",sans-serif;font-size:15px;font-weight:400;line-height:1.4;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "font-weight 401 vs 400 on a system-ui stack picks the same face; no visible change."
+          },
+          {
+            "file": "platform/pages/site-nav.mjs",
+            "line": 241,
+            "col": 121,
+            "operator": "const-plus-one",
+            "before": ".pfs-search button{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;margin:0;",
+            "after": ".pfs-search button{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;margin:1;",
+            "line_text": ".pfs-search button{position:absolute;left:3px;top:50%;transform:translateY(-50%);width:28px;height:28px;padding:0;margin:0;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "margin:1 is invalid CSS and the browser drops it, so the search button loses its margin reset. Guarded by the new unitless-length check (site-nav.test.mjs, css-lint.mjs)."
+          },
+          {
+            "file": "platform/pages/site-nav.mjs",
+            "line": 272,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "[data-pfs-head] .pfs-brand{flex:1 1 auto}",
+            "after": "[data-pfs-head] .pfs-brand{flex:2 1 auto}",
+            "line_text": "  [data-pfs-head] .pfs-brand{flex:1 1 auto}",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Under 720px the brand is the only flex item that grows on its row (the nav wraps to its own row at flex-basis 100%, the search link is inline-flex with no grow), so flex-grow 2 and 1 lay out the same."
+          },
+          {
+            "file": "platform/pages/site-nav.mjs",
+            "line": 281,
+            "col": 108,
+            "operator": "const-plus-one",
+            "before": ".pfs-nav{animation:pfs-fade-out linear both;animation-timeline:scroll(self inline);animation-range:calc(100% - 40px) 100%}",
+            "after": ".pfs-nav{animation:pfs-fade-out linear both;animation-timeline:scroll(self inline);animation-range:calc(101% - 40px) 100%}",
+            "line_text": "    .pfs-nav{animation:pfs-fade-out linear both;animation-timeline:scroll(self inline);animation-range:calc(100% - 40px) 100%}",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Starts the nav's scroll-linked fade 1% of the scroll range later; not visible."
+          },
+          {
+            "file": "platform/pages/site-nav.mjs",
+            "line": 338,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "box-shadow:0 1px 0 rgba(15,23,42,.03);border-radius:0;font-size:15px;line-height:1.4;font-weight:400}",
+            "after": "box-shadow:0 1px 0 rgba(16,23,42,.03);border-radius:0;font-size:15px;line-height:1.4;font-weight:400}",
+            "line_text": "  box-shadow:0 1px 0 rgba(15,23,42,.03);border-radius:0;font-size:15px;line-height:1.4;font-weight:400}",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "rgba(16,...) vs rgba(15,...) at 3% alpha on a 1px shadow: no visible difference."
+          },
+          {
+            "file": "platform/pages/site-nav.mjs",
+            "line": 357,
+            "col": 78,
+            "operator": "const-plus-one",
+            "before": "aside.pf-chrome.pf-chrome-foot>details.pf-embed-offer{max-width:1080px;margin:0 auto;padding:0 16px}",
+            "after": "aside.pf-chrome.pf-chrome-foot>details.pf-embed-offer{max-width:1080px;margin:1 auto;padding:0 16px}",
+            "line_text": "aside.pf-chrome.pf-chrome-foot>details.pf-embed-offer{max-width:1080px;margin:0 auto;padding:0 16px}",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "margin:1 auto is invalid CSS and is dropped, so the embed offer loses its centering. Guarded by the new unitless-length check."
+          },
+          {
+            "file": "platform/pages/site-nav.mjs",
+            "line": 457,
+            "col": 86,
+            "operator": "const-plus-one",
+            "before": "footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:4px 24px;",
+            "after": "footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,101%),1fr));gap:4px 24px;",
+            "line_text": "footer .pfs-foot{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:4px 24px;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "min(200px,101%) differs from min(200px,100%) only when the footer is under ~198px wide; the narrowest phone leaves 288px."
+          },
+          {
+            "file": "platform/pages/site-nav.mjs",
+            "line": 501,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "-webkit-mask-image:radial-gradient(ellipse 70% 90% at 50% 0%,#000 30%,transparent 80%);",
+            "after": "-webkit-mask-image:radial-gradient(ellipse 70% 90% at 50% 0%,#000 30%,transparent 81%);",
+            "line_text": "  -webkit-mask-image:radial-gradient(ellipse 70% 90% at 50% 0%,#000 30%,transparent 80%);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Moves the end of a decorative mask gradient from 80% to 81%; not visible."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/dog-grooming-profit-calculator/calc.mjs",
+        "issue": "The price-raise table's 'Dogs you can lose first' read over 100% (126.0% for a $100 service with $98 supplies at a 3% card fee) whenever weekly contribution was negative: extra / (contribution + extra) exceeds 1 when contribution < 0. Same formula in dj-gig, massage-therapist and wedding-photographer profit calculators; the laundromat payback calculator's (c1 - contribution) / c1 and the restaurant menu-mix analyzer's 1 - cm / denom had the same flaw. Fixed in all six: 100% when contribution <= 0 (every client can leave without lowering it), null for a money-losing Plowhorse in the menu-mix analyzer; one failing-first test each.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14677"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8b5a07fa-1c30-5f9d-b99f-d345293e8307",
+    "transcripts": 1,
+    "first": "2026-11-11T03:07:03Z",
+    "last": "2026-11-11T03:25:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 112,
+        "output": 30688,
+        "thinking": 7362,
+        "cache_read": 4998653,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92788,
+        "api_equivalent_usd": 2.3562,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 112,
+      "output": 30688,
+      "thinking": 7362,
+      "cache_read": 4998653,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92788,
+      "api_equivalent_usd": 2.3562,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 58,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.18,
+      "active_minutes": 18.18,
+      "model_minutes": 6.08,
+      "tool_minutes": 12.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: mutation triage, six-product bug fix with tests, CSS lint + post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 212.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1977,6 +1977,43 @@ not yet in `browser_checks.py` (control-plane CI, its own PR).
 node platform/pages/ask-voice-icon.mjs
 ```
 
+### Lighthouse on the pages a visitor sees first
+
+`lighthouse.mjs` runs Lighthouse (mobile by default) on the hub, /research/,
+/writing/, /stories/, one post and every flagship in
+`portfolio/flagships.yaml`, against the built dist, and prints one Markdown
+table row per page with the failing accessibility audits named. It serves the
+dist itself, rewriting the local build's absolute origin (`DEFAULT_BASE_URL`)
+to its own port and gzipping text as Cloudflare does. Lighthouse is not a repo
+dependency: install it once into your scratchpad.
+
+```
+npm i --prefix "$SCRATCH/lh" lighthouse@12.8.2
+LIGHTHOUSE="$SCRATCH/lh/node_modules/.bin/lighthouse" node platform/pages/lighthouse.mjs
+... --pages=research/,writing/ --min-a11y=95 --form=desktop
+```
+
+First run, 2026-11-11: /research/ accessibility 88 and /writing/ 92 (theme-tag
+and chip-count contrast, an `h3` with no `h2` above it, links told apart by
+colour alone, 9 px pager targets), all 100 after PRs #14667 and the one that
+added this file. Venture pages score best-practices 96 here only because
+third-party hosts do not resolve in a cloud session; performance moves a few
+points between runs. Not in CI (needs Lighthouse and a browser).
+
+Two things that cost the second run time (2026-11-11):
+
+- **Keep `TMPDIR` short.** With `TMPDIR` set to the long cloud scratchpad path,
+  every page failed with a `chrome-launcher` `checkReady` error. A short
+  directory (`mkdir -p /tmp/claude-0/t; TMPDIR=/tmp/claude-0/t ...`) works.
+- **Check a performance finding with `--throttling=devtools` before acting on
+  it.** The default (Lantern) is a simulation: it counts every request that
+  finished before the observed paint into its LCP estimate, whatever its
+  priority. It scored the tool pages' `modulepreload` links as costing about
+  1.9 s of first paint (performance 83 → 96 without them), while real
+  throttling showed first paint at about 1.45 s either way and the tool ready
+  about 0.3 s *sooner* with them. They stayed. Layout shift (CLS) is measured,
+  not simulated, so trust it in either mode.
+
 ## Reflow, and the two things that widen a page
 
 `reflow.mjs` is the build half of what `sideways.mjs` measures. Its header

@@ -82,8 +82,10 @@ const DEFAULT_RULES = [
   ["rent", /wework|regus|coworking|office rent|storage unit|public storage|equipment rental|lease pmt|craftsman coworking/],
   ["utilities", /verizon|at&t|att\*|t-mobile|comcast|xfinity|spectrum|internet|cox comm|frontier comm|mint mobile|google fi|phone bill|electric bill|utility/],
   ["taxes_licenses", /business licen[cs]e|permit|secretary of state|annual report|registered business|city of .*license|professional licen[cs]e|state license/],
-  ["travel", /airline|delta air|united air|american air|southwest|jetblue|airbnb|hotel|marriott|hilton|hyatt|expedia|booking\.com|amtrak|greyhound|uber\b|lyft|taxi|parking|toll|rental car|hertz|enterprise rent|avis/],
-  ["meals", /restaurant|cafe|coffee|starbucks|doordash|uber eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|grill|kitchen\b|taqueria|sushi|bar & |tavern/],
+  // Delivery apps first: their descriptors often carry "uber.com", which the travel rule would take.
+  ["meals", /uber\s*\*?\s*eats|doordash|grubhub|postmates/],
+  ["travel", /airline|delta air|united air|american air|southwest|jetblue|airbnb|hotel|marriott|hilton|hyatt|expedia|booking\.com|amtrak|greyhound|uber\b(?!\s*\*?\s*eats)|lyft|taxi|parking|toll|rental car|hertz|enterprise rent|avis/],
+  ["meals", /restaurant|cafe|coffee|starbucks|doordash|uber\s*\*?\s*eats|grubhub|chipotle|panera|mcdonald|pizza|bistro|diner|grill|kitchen\b|taqueria|sushi|bar & |tavern/],
   ["car_truck", /shell oil|chevron|exxon|mobil|bp\b|gas station|fuel|jiffy lube|car wash|oil change|tire|autozone|o'?reilly|napa auto|dmv|vehicle registration/],
   ["repairs", /repair|service call|fix\b|maintenance|handyman|appliance/],
   ["equipment", /apple store|apple\.com\/us|best buy|b&h photo|adorama|dell\b|lenovo|newegg|micro center|macbook|laptop|camera|lens\b|dji|vehicle purchase|equipment purchase|machinery|furniture|standing desk|ikea/],

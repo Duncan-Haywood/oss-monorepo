@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { triage } from "./engine.mjs";
+import { triage, stripQuoted } from "./engine.mjs";
 import { readAsServer, looksAuto, looksBounce } from "./eval/enron.mjs";
 
 // Phrasings found on real mail (eval/enron.mjs on the Enron corpus, 2026-11-10; eval/README.md "Real mail: the Enron
@@ -30,6 +30,39 @@ const NOT_A_STOP = [
   "That adds about $800,ooo to this year's earnings.",
   "Can you get me off the phone with their lawyer by noon?",
   "Don't send me a message back saying it isn't true.",
+  // Second round, 2026-11-11 (eval/README.md "Second round"), written from the two earlier halves only.
+  "I left a copy of the broker quotes on your desk.",
+  "I left at noon to catch my flight.",
+  "Sorry I left your name off the note.",
+  "Please email the signed version of both documents.",
+  "Please email your street address to me.",
+  "If you could handle this please.",
+  "He has left town by now.",
+  "Please consider the following retired judges.",
+  "If you're not the right person, could you please pass it on.",
+  "I tried to send this to your home email, but it was undeliverable.",
+  "This came back to me as undeliverable so I'll try again.",
+  "Please notify us immediately by reply e-mail and then delete this message from your system.",
+  "Then she needs to stop sending these out like they are.",
+  "Please do not email this to the lawyers.",
+  "At least this is one thing to cross off your list.",
+  "Voluntary opt out of the rate freeze.",
+  "According to legal, we don't need to confirm any of these deals.",
+  "No need to retract the invite at this point.",
+  "No need for thanks.",
+  "Not for us to contact the regulator about it.",
+  "Thanks, I'll pass the good news on to the trader.",
+  "I think we are good to go.",
+  "The results were good.",
+  "If you got them from the desk, then we're set.",
+  "The assistant told me that you will be back on Friday.",
+  "I will be back in touch within the next day or so.",
+  "Now that I'm back in the office, I'm having folks check this.",
+  "I have been out of the office with no access to e-mail, so sorry for the slow reply.",
+  "I'm out of excuses now.",
+  "While I'm out, please keep an eye on the deal.",
+  "She wants us to hire everyone who is out on leave.",
+  "I was unexpectedly out of the office yesterday and did not get to review it.",
 ];
 for (const body of NOT_A_STOP) {
   test(`real-mail phrasing is not a stop: ${body.slice(0, 60)}`, () => {
@@ -59,7 +92,30 @@ const STILL = {
   "Please delete my name off the mailing list and add my colleague.": "unsubscribe",
   "Please do not send me these charts.": "unsubscribe",
   "Please do not send me any other solicitation.": "unsubscribe",
+  // Second round (2026-11-11): the narrowed rules still read these.
+  "I left Acme in March, so please try Dana.": "left_company",
+  "I have left the company.": "left_company",
+  "Jordan has left Brightline.": "left_company",
+  "I've recently retired.": "left_company",
+  "Please contact Dana Lee, she runs purchasing now.": "left_company",
+  "I'm out of town next week.": "out_of_office",
+  "I am out for the next several weeks.": "out_of_office",
+  "I'm currently out on a family emergency.": "out_of_office",
+  "No need to follow up, thanks.": "not_interested",
+  "We don't need to talk, we're covered.": "not_interested",
+  "No thanks, we're good.": "not_interested",
 };
+
+// Lotus Notes quote headers (no "wrote:", no ">") are history, not the reply; so is a "Forwarded by" block.
+test("a Lotus Notes quote header ends the reply", () => {
+  const body = "Thanks, will look today.\n\n\nPat Doe@ECT\n09/26/2000 11:19 AM\nTo: Sam Roe/HOU/ECT@ECT\ncc:\nSubject: Re: contract\n\nPlease take me off this list.";
+  assert.equal(stripQuoted(body), "Thanks, will look today.");
+  assert.notEqual(cat(stripQuoted(body)), "unsubscribe");
+  const fwd = "See below.\n---------------------- Forwarded by Sam Roe/HOU/ECT on 04/09/2001 04:48 PM ---------------------------\nI am out of the office until Monday.";
+  assert.equal(stripQuoted(fwd), "See below.");
+  const outlook = "ok\n\n\"Doe, Pat\" <pat@example.test> on 11/03/2000 03:18:19 PM\nTo: <sam@example.test>\ncc:\nSubject: RE:\n\nNot interested.";
+  assert.equal(stripQuoted(outlook), "ok");
+});
 for (const [body, want] of Object.entries(STILL)) test(`real ask still stops: ${body}`, () => assert.equal(cat(body), want));
 
 test("an auto-reply sent from postmaster@ is an away notice, not a bounce (real: maternity leave, referrals)", () => {

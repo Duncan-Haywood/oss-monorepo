@@ -456,3 +456,27 @@ test('rounding is symmetric about zero', () => {
   assert.equal(money(-0.005), '-$0.01');
   assert.equal(money(-1.235), '-$1.24');
 });
+
+test('issue date must be a real calendar date, with or without a validity period', () => {
+  const base = { companyName: 'A Co', clientName: 'B', price: 1000 };
+  // Before: 'garbage' was printed as the issue date when validDays was 0, and
+  // 2026-02-30 silently became a 7 March expiry.
+  for (const issuedOn of ['garbage', '2026-02-30', '2026-13-01', '2026-00-10', '2026-04-31', '2027-02-29', '0000-01-01']) {
+    assert.throws(() => buildProposal({ ...base, issuedOn }), /Issue date/, issuedOn);
+    assert.throws(() => buildProposal({ ...base, issuedOn, validDays: 30 }), /Issue date/, issuedOn);
+  }
+  assert.equal(buildProposal({ ...base, issuedOn: '2028-02-29' }).issuedOn, '2028-02-29');
+  assert.throws(() => addDays('2026-02-30', 5), /real date/);
+});
+
+test('an expiry date past year 9999 is refused, not printed as +010009-12', () => {
+  const base = { companyName: 'A Co', clientName: 'B', price: 1000 };
+  assert.throws(() => buildProposal({ ...base, issuedOn: '9999-12-31', validDays: 3650 }), /Issue date|Valid days/);
+  assert.throws(() => addDays('9999-12-31', 1), /real date/);
+});
+
+test('a price too large to split into deposit and balance is refused', () => {
+  // Before: 1e308 gave an Infinity deposit, a -Infinity balance and "$∞" on the page.
+  assert.throws(() => buildProposal({ companyName: 'A Co', clientName: 'B', price: 1e308, depositPercent: 30 }), /Price must be at most/);
+  assert.equal(buildProposal({ companyName: 'A Co', clientName: 'B', price: 1e9 }).pricing.price, 1e9);
+});

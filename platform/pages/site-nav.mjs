@@ -129,14 +129,17 @@ const esc = (value) =>
  * @param {object} o
  * @param {string} o.toRoot   relative path from the page to the site root ('', '../', …)
  * @param {string} [o.current] SITE_NAV id of the section this page belongs to, or 'home'
- * @param {true|'link'|false} [o.search] the compact search form, a link to the
- *   hub's search, or nothing (default: the form, except on the hub itself)
+ * @param {true|'link'|'narrow'|false} [o.search] the compact search form (a
+ *   pill link below 1080px), the pill link at every width, the pill link below
+ *   1080px only, or nothing. Default: the form; on the hub, 'narrow', because
+ *   the hub's own search box is in view on a wide screen but sits about 700px
+ *   down on a phone, below the fold.
  * @param {Array<{href?: string, label: string}>} [o.crumbs] breadcrumb trail after "Home"
  * @param {string} [o.extraClass] extra classes (the venture chrome adds its marker)
  */
 export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [], extraClass = '' } = {}) {
   const root = toRoot || './';
-  const mode = search ?? (current === 'home' ? false : true);
+  const mode = search ?? (current === 'home' ? 'narrow' : true);
   const items = SITE_NAV.map(
     (item) =>
       `<a data-pfs-nav="${item.id}" href="${esc(`${toRoot}${item.href}`)}"${
@@ -149,7 +152,7 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
   const searchHtml =
     mode === true
       ? `<form class="pfs-search" action="${esc(root)}" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit"><span class="pfs-vh">Search</span></button></form>${link}`
-      : mode === 'link'
+      : mode === 'link' || mode === 'narrow'
         ? link
         : '';
   const crumbHtml = crumbs.length
@@ -239,9 +242,14 @@ export const SITE_HEADER_CSS = `
   border:0;border-radius:999px;background:none;color:var(--pfs-muted,inherit);cursor:pointer}
 .pfs-search button::before{content:"";position:absolute;inset:6px;background:currentColor;
   -webkit-mask:var(--pfs-glass) center/contain no-repeat;mask:var(--pfs-glass) center/contain no-repeat}
-.pfs-search{--pfs-glass:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E")}
-[data-pfs-head] .pfs-searchlink{display:none;font-weight:600}
-[data-pfs-head] .pfs-searchlink.pfs-always{display:inline-block}
+[data-pfs-head]{--pfs-glass:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E")}
+/* One Search control on every page family: a pill with the same glass as the form. It was a pill on tool pages, bare text on site pages and missing on the hub (2026-11-11). */
+[data-pfs-head] .pfs-searchlink{display:none;align-items:center;gap:6px;padding:5px 13px 5px 11px;font-weight:600;line-height:1.25;
+  white-space:nowrap;border:1px solid var(--pfs-line,rgba(128,128,128,.5));border-radius:999px;transition:border-color .15s ease}
+[data-pfs-head] .pfs-searchlink::before{content:"";width:15px;height:15px;flex:none;background:currentColor;
+  -webkit-mask:var(--pfs-glass) center/contain no-repeat;mask:var(--pfs-glass) center/contain no-repeat}
+[data-pfs-head] .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
+[data-pfs-head] .pfs-searchlink.pfs-always{display:inline-flex}
 .pfs-vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .pfs-crumbs{display:block;max-width:1120px;margin:0 auto;padding:0 16px 9px;font-size:13px;color:var(--pfs-muted,inherit);
   overflow-wrap:anywhere}
@@ -255,7 +263,7 @@ export const SITE_HEADER_CSS = `
 }
 @media (max-width:1080px){
   .pfs-search{display:none}
-  [data-pfs-head] .pfs-searchlink{display:inline-block}
+  [data-pfs-head] .pfs-searchlink{display:inline-flex}
 }
 @property --pfs-fade{syntax:'<length>';inherits:false;initial-value:28px}
 @keyframes pfs-fade-out{to{--pfs-fade:0px}}
@@ -263,7 +271,7 @@ export const SITE_HEADER_CSS = `
   .pfs-bar{gap:6px 14px;padding:9px 16px}
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
   .pfs-search{display:none}
-  [data-pfs-head] .pfs-searchlink{display:inline-block}
+  [data-pfs-head] .pfs-searchlink{display:inline-flex}
   .pfs-nav{order:3;flex-basis:100%;gap:2px 18px;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
     scrollbar-width:none;margin-right:-16px;padding-right:28px;
     --pfs-fade:28px;
@@ -334,8 +342,9 @@ nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-nav a{color:var(--pfs-muted);fon
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-nav a[aria-current="page"]{color:var(--pfs-ink);border-bottom-color:var(--pfs-accent)}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-crumbs{color:var(--pfs-muted)}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-crumbs a{text-decoration:underline;text-underline-offset:2px}
-nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink.pfs-always{padding:5px 12px;border:1px solid var(--pfs-line);
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink{padding:5px 13px 5px 11px;border:1px solid var(--pfs-line);
   border-radius:999px;font-weight:600;color:var(--pfs-ink)}
+nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-searchlink:hover{border-color:currentColor}
 nav.pf-chrome.pf-chrome-top[data-pfs-head] .pfs-mark{background:var(--pfs-mark);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
 aside.pf-chrome.pf-chrome-foot{display:block;position:static;float:none;max-width:none;box-sizing:border-box;
   color:var(--pfs-ink);background:var(--pfs-foot-bg);border:0;border-top:1px solid var(--pfs-line);border-radius:0;
@@ -428,7 +437,9 @@ const SITE_TOKENS_CSS = `
  * fill runs edge to edge and down past the page's bottom padding through a
  * spread shadow clipped to the band's sides and below: unlike a 100vw
  * pseudo-element, a shadow adds no scrollable overflow. Lightest
- * text-on-field pair: `--soft` #a9b5c6 on #0b1626 is 8.7:1.
+ * text-on-field pair: `--soft` #a9b5c6 on #0b1626 is 8.7:1. `code` gets the
+ * band's own fill: a page's light `code` background (lab.mjs's #efede6) under
+ * the band's #a8c7f0 link colour measured 1.48:1 on /lab/ (2026-11-11).
  */
 const SITE_FOOTER_CSS = `
 footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-top:64px;padding:40px 0 34px;border-top:0;
@@ -439,6 +450,7 @@ footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-
   box-shadow:0 0 0 100vmax #0b1626;clip-path:inset(0 -100vmax -100vmax)}
 footer:has(.pfs-foot)>:not(.pfs-foot){max-width:84ch}
 footer:has(.pfs-foot) h2,footer:has(.pfs-foot) strong{color:#eef2f8}
+footer:has(.pfs-foot) code{background:rgba(148,170,210,.16);color:inherit}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
 .pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
 .pfs-support{margin:18px 0 0;font-size:14px;line-height:1.6}

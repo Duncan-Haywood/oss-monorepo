@@ -1260,5 +1260,57 @@ class CheckoutStability(unittest.TestCase):
                          "an unchanged tree, so it would cry wolf on every run")
 
 
+class ChangedPaths(unittest.TestCase):
+    """The diff starts where the branch left its base, not at the base's tip."""
+
+    def setUp(self):
+        import subprocess
+        import tempfile
+        self.repo = tempfile.mkdtemp(prefix="changed-paths-")
+        self.sh = lambda *a: subprocess.run(
+            ["git", *a], cwd=self.repo, check=True, capture_output=True, text=True)
+        self.sh("init", "-q", "-b", "main")
+        self.sh("config", "user.email", "t@example.invalid")
+        self.sh("config", "user.name", "t")
+        self.commit("base.txt")
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.repo, ignore_errors=True)
+
+    def commit(self, name):
+        with open(os.path.join(self.repo, name), "w") as fh:
+            fh.write(name)
+        self.sh("add", name)
+        self.sh("commit", "-q", "-m", name)
+
+    def test_commits_landed_on_the_base_after_the_branch_left_are_not_changes(self):
+        self.sh("checkout", "-q", "-b", "work")
+        self.commit("mine.txt")
+        self.sh("checkout", "-q", "main")
+        self.commit("someone-else.txt")
+        self.sh("checkout", "-q", "work")
+        self.assertEqual(runner.changed_paths("main", repo=self.repo), ["mine.txt"])
+
+    def test_uncommitted_work_is_counted(self):
+        self.sh("checkout", "-q", "-b", "work")
+        with open(os.path.join(self.repo, "base.txt"), "w") as fh:
+            fh.write("edited")
+        self.assertEqual(runner.changed_paths("main", repo=self.repo), ["base.txt"])
+
+    def test_no_shared_commit_stops_instead_of_diffing_everything(self):
+        self.sh("checkout", "-q", "--orphan", "other")
+        self.commit("unrelated.txt")
+        with self.assertRaises(SystemExit) as caught:
+            runner.changed_paths("main", repo=self.repo)
+        self.assertIn("share no commit", str(caught.exception))
+        self.assertIn("git fetch", str(caught.exception))
+
+    def test_a_missing_base_says_to_fetch_it(self):
+        with self.assertRaises(SystemExit) as caught:
+            runner.changed_paths("origin/nope", repo=self.repo)
+        self.assertIn("no ref", str(caught.exception))
+
+
 if __name__ == "__main__":
     unittest.main()

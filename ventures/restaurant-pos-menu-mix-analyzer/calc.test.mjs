@@ -247,3 +247,15 @@ test("no network: the calculation module makes no requests", () => {
   } finally { globalThis.fetch = saved; }
   assert.equal(called, 0);
 });
+
+test("a Plowhorse that loses money per plate has no break-even loss, not one over 100%", () => {
+  const a = analyze([
+    item("Horse", 100, 100 * 20, { cost: 21 }),  // cm -1, popular, below avg; 1 - cm / denom read 200%
+    item("Star", 100, 100 * 30, { cost: 6 }),
+    item("Rare", 2, 2 * 12, { cost: 6 }),
+    item("Rare2", 2, 2 * 12, { cost: 6 }),
+  ], { priceIncreasePct: 10, volumeLossPct: 5, periodWeeks: 4 });
+  const p = a.priceMove.items.find((x) => x.name === "Horse");
+  assert.ok(p);
+  assert.equal(p.breakEvenLossPct, null);
+});

@@ -48,7 +48,10 @@ export function expectedLineNet(line, applyBase = true) {
   if (quantity === null || price === null) return null;
   let base = applyBase ? parseNumber(line.price_base_quantity) : 1;
   if (base === null || base <= 0) base = 1;
-  return roundCents((quantity * price) / base + signedAdjustment(line.adjustments));
+  // Line allowances and charges are summed with their sign: a credit line may carry
+  // a negative charge (OpenPeppol's PINT A-NZ negative invoice, line 2:
+  // -4 x 400/2 - 200 charge + 100 allowance = -900.00).
+  return roundCents((quantity * price) / base + signedAdjustment(line.adjustments, true));
 }
 
 // The line net a file should carry. The price base quantity (BT-149) is

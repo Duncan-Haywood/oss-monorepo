@@ -74,7 +74,7 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; guess held out on Hack Club (wrong 4% to 25%); record gate (seven sets): off, record caps confidence; card MCC 2026-11-11 (README): first-seen merchants 41% to 66% right, held out; next: one-off local merchants via the AI layer; wanted: a firm's own labelled bank books; (1) the AI layer in
+      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; guess held out on Hack Club (wrong 4% to 25%); record gate (seven sets): off, record caps confidence; card MCC 2026-11-11 (README, Scotland and Toronto): first-seen right 41% to 66% and 62% to 73%; next: one-off local merchants via the AI layer; wanted: a firm's own labelled bank books; (1) the AI layer in
       fill-only mode on real bank descriptions, more seeds, a bigger model
       (synthetic so far); (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) a real Stripe, PayPal, eBay, Amazon or Adyen settlement export, and a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
@@ -100,28 +100,32 @@ flagships:
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
       real replies reliably, keeping consent records, and earning each step of autonomy with measurements.
     next: >-
-      History and every measurement: README, eval/README and git (inbox agent,
-      daily run, self-host server with TLS and XOAUTH2, research agent, call prep,
-      follow-ups, meeting slots and .ics invites, CRM write-back to
-      Pipedrive/HubSpot against fake servers only; nineteen agent-written reply
-      sets, latest 2026-11-08: false-not-now and wrong-person probe 9/20 before, 15/20 after three narrow changes; false-bounce and false-away probe 9/20 before,
-      16/20 after one veto; all sets other than the 117 real bounces, 11 + 12 real
-      mail-client emails and the 1,857-reply label mix are agent-written). Real
-      people's mail 2026-11-10 (eval/enron.mjs, Enron corpus, 19,153 replies, README):
-      stops 70% wrong; vetoes tuned on one half, held-out half scored once: wrong
-      stops 30 to 13 per 1,000, right 113 to 108. Next: (1) on the Enron halves, a
-      second reader for the labels, the 124 held-out wrong stops left (third-person
-      "no need", Lotus Notes quote headers) on the tuning half only; real
-      opt-out recall set 2026-11-10 (eval/optout-recall.mjs, Enron 2*-f*,
-      README): 103 of 113 caught before, 112 after five patterns, no new wrong
-      stop on either half; open: a second reader for its labels; (2)
-      real replies to outreach and a real rep's call notes to check the reply rules,
-      prep rules and follow-up sorter; (3) M2: score a hosted and a local model
-      with eval/model.mjs on the fresh sets (needs a key), with a set labelled by
-      a person or another model family before any rule change; (4) run the self-
-      host server, OAuth and CRM write-back against a real mailbox, Google or
-      Microsoft app and HubSpot or Pipedrive account (all fakes so far); (5) a
-      real HubSpot or Pipedrive export for the research agent (none found public).
+      History and every measurement: README, eval/README and git (inbox agent, daily
+      run, self-host server with TLS and XOAUTH2, research agent, call prep,
+      follow-ups, meeting slots and .ics invites, CRM write-back to Pipedrive/HubSpot
+      against fake servers only; nineteen agent-written reply sets, latest 2026-11-08:
+      false-not-now and wrong-person probe 9/20 before, 15/20 after three narrow
+      changes; false-bounce and false-away probe 9/20 before, 16/20 after one veto;
+      all sets other than the 117 real bounces, 11 + 12 real mail-client emails and
+      the 1,857-reply label mix are agent-written). Real people's mail 2026-11-10
+      (eval/enron.mjs, Enron corpus, 19,153 replies, README): stops 70% wrong; vetoes
+      tuned on one half, held-out half scored once: wrong stops 30 to 13 per 1,000,
+      right 113 to 108. Second round 2026-11-11 (eval/README "Second round"): Notes
+      quote headers cut, "I left"/"please contact"/"I'm out" narrowed; third half 2*
+      unread while tuning, labelled blind by a separate agent: wrong stops 171 to 88
+      (17.8 to 9.2 per 1,000), right 76 to 79. Next: (1) the 88 left on 2* ("don't
+      need" in work talk, colleagues' absences) tuned on 0*-2*, scored on a fourth
+      half (3*); a human second reader; "Mine too" above a quoted opt-out; real
+      opt-out recall set 2026-11-10 (eval/optout-recall.mjs, Enron 2*-f*, README): 103
+      of 113 caught before, 112 after five patterns, no new wrong stop on either half;
+      open: a second reader for its labels; (2) real replies to outreach and a real
+      rep's call notes to check the reply rules, prep rules and follow-up sorter; (3)
+      M2: score a hosted and a local model with eval/model.mjs on the fresh sets
+      (needs a key), with a set labelled by a person or another model family before
+      any rule change; (4) run the self- host server, OAuth and CRM write-back against
+      a real mailbox, Google or Microsoft app and HubSpot or Pipedrive account (all
+      fakes so far); (5) a real HubSpot or Pipedrive export for the research agent
+      (none found public).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
@@ -131,8 +135,8 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and every trial: README and git. Labelled benchmark landed 2026-11-10 (README "A labelled benchmark", `eval/tcpd.mjs`): 31 Turing Change Point Dataset series, TCPDBench metrics ported (published scores reproduced to 2e-16); BOCPD F1 0.706 and consensus every-setting 0.702 vs best published binseg 0.714 and "no change" 0.663, but the page's default level model 0.477; tier hit rates 39/28/25% now printed under `--consensus`.
-      Split-half default search 2026-11-10 (README "A default chosen by split half", eval/tcpd-defaults.mjs): over-cut warning and page control shipped. Held out 2026-11-10 (README "Held out", eval/tcpd-heldout.mjs; the 7 univariate series TCPD does not ship, md5-checked): every-setting consensus F1 0.711 (binseg 0.727, zero 0.639), BOCPD 0.622 (so no BOCPD-led summary), warning beat plain level on 6/6; the page now leads with "Agreed changes". Several columns (README "Several columns at once"/"on the page"): CLI --columns 2026-11-10, F1 0.521 on 3 multi-dim series (bocpd 0.480, zero 0.621); page 2026-11-11 with charts, CSV, franc/pound/yen example, joint over-cut warning (1 cut per 50 points). Next, most valuable first: (a) a joint fit that survives smooth columns (noise floor or trend per column), and several columns in the branded report; (b) Measles answered; (c) agreed changes: the same 2,000-point cap or a worker on the page.
+      TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. Panel and main analysis run in Web Workers on the page (README "Main analysis off the main thread", 2026-11-11).
+      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (c) the CLI panel on worker_threads to lift its 2,000-point cap, then whether the agreed summary earns its cost on the long TCPD series.
       Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -148,7 +152,7 @@ flagships:
       (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which
       validator does AT run?); Poland's FA(3) on a KSeF test-environment file and
       a real correction, advance or settlement file; the rules and a repair on a
-      real ERP or Factur-X export; PINT SG and A-NZ rules on a real PINT file;
+      real ERP or Factur-X export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1) added and run on OpenPeppol's 40 examples 2026-11-11 (README, eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file, PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README `--good`; 4 fixes); open: UBL-SR-53 on RO empty TaxScheme, INV-026 on clearing codes in BT-86, ZATCA rate-change row;
       RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
       check on a real IRP payload; mandate dates read from primary sources where
       pages cite guides (Israel, Denmark, Czech, Latvia; Luxembourg; ato.gov.au
@@ -164,23 +168,21 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*-bench.mjs. State: exact
-      check with a min-cost-flow coverage bound, symmetry cuts, coverage-first pass, ejection
-      chains, reduced-cost fixing, priced-bound branching, and branch-and-price by column
-      generation (bnp.mjs, per-person pricing oracle, branching on classes of identical shift
-      copies): the open-hours floor equals the HiGHS optimum on every bench week and every
-      20-60 person scale week, proven for 20, 30 and 40 people (40 in about 40 s). Pay bound by
-      the same column generation, 2026-11-10 later (scoreBoundByColumnGeneration,
-      makeScorePricer; eval/score-cg-bench.mjs): buildRoster proves 12 of 12 pay-gap weeks to
-      within $0.50 (exact search alone 3 of 12, $5,906 unproven) in 4-198 ms each; 20x56 3 of 3
-      in 2-6 s; 30x84 1 of 2 and 40x112 0 of 2 in 120 s (eval/score-cg-scale-bench.mjs). Also
-      landed (README): pay and premium flags, time budget, cover chains, notice and seniority
-      rules, `--from-sales` with page `shifts-from-sales.html`, `--skip-dates`, `--half-life`.
-      Next: the unproven 30- and 40-person score weeks (a stronger pricing bound, cuts or a
-      faster LP); 60-person weeks (floor = optimum but no roster in 60 s: a faster LP or rounding
-      at the root) and buildRoster taking 3-5 min on 40-person weeks with exact on and no time
-      limit; a real POS hourly export for --from-sales and the page (made-up exports only); a
-      real published-schedule export for --import-shifts.
+      Landed work and every measurement are in the README and eval/*-bench.mjs. State: branch-and-price by
+      column generation (bnp.mjs) with a root dive (now backtracking, `diveBacktrack`) proves the least open
+      hours at the HiGHS optimum on every bench and 20-60 person week; the pay bound
+      (scoreBoundByColumnGeneration) proves 12 of 12 pay-gap weeks and 4 of 4 30/40-person weeks to within
+      $0.50; 60-person pay 1 of 2 proven, the other $2.68 open in 300 s. Exact speed-ups 2026-11-11 later
+      (README "Same search, two to three times faster": sparse simplex rows, binary insertSorted, bit-mask
+      validList, same search path bit for bit): 60-person weeks 9-12 s (were 15-23); 80-person weeks, which
+      did not settle the root LP in 120 s before, proven 3 of 3 (HiGHS 1 of 3 in 300 s); 100x280 (the
+      400-copy cap) did not settle the root LP in 180 s (1.4M oracle nodes a call). Chain bound in the set
+      oracle 2026-11-11 later (README "A chain bound", chain-bound.test.mjs; rest rule as a Lagrangian
+      weighted-interval bound): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
+      359; week 1 347 over 344; largest call under 89k nodes. Next: close the 100-person gaps (tree, not
+      pricing, now); the chain bound in makeScorePricer; close the 60-person pay week; buildRoster end to end on
+      40-person weeks with exact on (3-5 min, not re-timed); a real POS hourly export for --from-sales and the
+      page (made-up exports only); a real published-schedule export for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -218,11 +220,16 @@ flagships:
       screen's real bar is 8 items under rd 200, not rd 150; the information
       selector reaches it 4-8 answers sooner at 8-120 items and ranks better, so
       "staged" now uses it from the first answer up to 120 items (equals the
-      information row on real rankings, all 25 cells). Next: a careless-answer
-      fallback for the staged selector (35-50% random answers cost up to 0.06
-      rank at 15 and 30 items; the 2026-11-09 "answers look random" signal is the
-      candidate); the switch rule above 120 items on the couple bar; then real
-      pairwise answers from a real survey.
+      information row on real rankings, all 25 cells). Careless-answer fallback
+      measured 2026-11-11, not shipped (INFORMATION-GAIN-SELECTOR.md,
+      scripts/careless-fallback-sweep.ts; 75 cells, 60 fresh seeds): staged
+      beats shipped by 0.014 mean, trails >0.02 in both seed sets only at 50%
+      random answers on 11 and 30 items; the agreement z-score trips for
+      15-40% of honest respondents, fallback -0.002. Next: a Glicko update with
+      a lapse term (win chance e/2 + (1-e)p) so careless answers stop
+      shrinking rd, measured on the synthetic sweep and the PrefLib rankings
+      before it touches stored ratings; the switch rule above 120 items on the
+      couple bar; then real pairwise answers from a real survey.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

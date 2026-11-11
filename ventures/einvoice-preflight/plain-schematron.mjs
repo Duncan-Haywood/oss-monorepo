@@ -40,12 +40,60 @@ function topLevelEquality(test) {
   return index < 0 ? null : [test.slice(0, index), test.slice(index + 1)];
 }
 
-const slackTest = (test) => {
+// Split a test on a top-level boolean operator (`or`, `and`), outside brackets and
+// strings. Null when the operator is absent or the test has a top-level if/then,
+// quantifier or FLWOR, whose parts are not independent.
+export function splitTop(test, word) {
+  let depth = 0;
+  let quote = "";
+  const parts = [];
+  let start = 0;
+  for (let i = 0; i < test.length; i++) {
+    const c = test[i];
+    if (quote) { if (c === quote) quote = ""; continue; }
+    if (c === "'" || c === '"') { quote = c; continue; }
+    if ("([".includes(c)) depth++;
+    else if (")]".includes(c)) depth--;
+    else if (depth === 0 && /\s/.test(test[i - 1] ?? " ")) {
+      const rest = test.slice(i);
+      if (/^(then|else|return|satisfies)\s/.test(rest) || /^(if|some|every|for|let)[\s(]/.test(rest)) return null;
+      if (rest.startsWith(`${word} `) || rest.startsWith(`${word}(`)) { parts.push(test.slice(start, i)); start = i + word.length; }
+    }
+  }
+  if (!parts.length) return null;
+  parts.push(test.slice(start));
+  return parts.map((p) => p.trim());
+}
+
+// The same "within 1e-7" for an equality that is one disjunct or conjunct of the
+// test (`not(cbc:BaseAmount) or PriceAmount = BaseAmount - Amount`, PINT
+// aligned-ibrp-004). Loosening one part of an `or` or an `and` can only make the
+// whole test truer, so this too can only clear a finding.
+export const slackTest = (test) => {
   const sides = topLevelEquality(test);
-  return sides && `abs((${sides[0]}) - (${sides[1]})) lt 0.0000001`;
+  if (sides) return `abs((${sides[0]}) - (${sides[1]})) lt 0.0000001`;
+  for (const word of ["or", "and"]) {
+    const parts = splitTop(test, word);
+    if (!parts) continue;
+    const loose = parts.map((p) => slackTest(p));
+    if (loose.every((l) => !l)) return null;
+    return loose.map((l, i) => `(${l || parts[i]})`).join(` ${word} `);
+  }
+  return null;
 };
 
 const safely = (fn) => { try { return fn(); } catch { return false; } };
+
+// fontoxpath compiles an XSD regex to an automaton and expands a bounded repeat into
+// one state per count, so CIUS-PT's attachment rule DT-CIUS-PT-111.1,
+// matches(.,'^(.{1,6826666})$'), never finishes on a file with an attachment (4.4 GB
+// after 15 minutes on AMA's own examples, 2026-11-11). A whole-string length test with
+// a large bound is rewritten to the same test without the regex: "." matches any
+// character but a newline or carriage return, and ^...$ anchor the whole string.
+const LONG_REPEAT = /matches\(\s*\.\s*,\s*'\^\(?\.\{(\d+),(\d+)\}\)?\$'\s*\)/g;
+export const rewriteLongRepeat = (test) => test.replace(LONG_REPEAT, (whole, min, max) => (
+  Number(max) < 1000 ? whole : `(string-length(.) ge ${Number(min)} and string-length(.) le ${Number(max)} and not(matches(., '[\\n\\r]')))`
+));
 
 function locate(node) {
   const parts = [];
@@ -68,8 +116,10 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
     const resolver = (prefix) => rules.ns[prefix] ?? null;
     const xpath = { namespaceResolver: resolver };
     const xquery = { namespaceResolver: resolver, language: evaluateXPath.XQUERY_3_1_LANGUAGE };
-    const holds = (test, node, xq) =>
-      xq ? evaluateXPathToBoolean(`${rules.prolog}${test}`, node, null, null, xquery) : evaluateXPathToBoolean(test, node, null, null, xpath);
+    const holds = (raw, node, xq) => {
+      const test = rewriteLongRepeat(raw);
+      return xq ? evaluateXPathToBoolean(`${rules.prolog}${test}`, node, null, null, xquery) : evaluateXPathToBoolean(test, node, null, null, xpath);
+    };
     const out = [];
     out.skipped = [];
     for (const pattern of rules.patterns) {

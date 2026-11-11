@@ -25,7 +25,6 @@
 // costs a developer's trust -- so the map only covers permissions with an
 // unambiguous, stable `chrome.<namespace>.` (or documented web API) surface.
 export const PERMISSION_SIGNATURES = [
-  { id: 'action', label: 'Toolbar action', patterns: [/\bchrome\.action\./] },
   { id: 'alarms', label: 'Alarms', patterns: [/\bchrome\.alarms\./] },
   { id: 'audio', label: 'Audio (ChromeOS)', patterns: [/\bchrome\.audio\./] },
   { id: 'bookmarks', label: 'Bookmarks', patterns: [/\bchrome\.bookmarks\./] },
@@ -66,7 +65,11 @@ export const PERMISSION_SIGNATURES = [
   { id: 'system.memory', label: 'System: memory', patterns: [/\bchrome\.system\.memory\./] },
   { id: 'system.storage', label: 'System: storage', patterns: [/\bchrome\.system\.storage\./] },
   { id: 'tabCapture', label: 'Tab capture', patterns: [/\bchrome\.tabCapture\./] },
-  { id: 'tabs', label: 'Tabs', patterns: [/\bchrome\.tabs\./] },
+  // Most chrome.tabs methods (create, update, reload, remove, query,
+  // sendMessage) need no permission; "tabs" only exposes url, pendingUrl,
+  // title and favIconUrl on Tab objects (Chrome docs, chrome.tabs,
+  // "Permissions"). So use without the permission is a note, not a failure.
+  { id: 'tabs', label: 'Tabs', patterns: [/\bchrome\.tabs\./], usableWithout: 'Most chrome.tabs methods work with no permission. Declare "tabs" (or activeTab / host permissions) only if the code reads a tab\'s url, pendingUrl, title or favIconUrl.' },
   { id: 'topSites', label: 'Top sites', patterns: [/\bchrome\.topSites\./] },
   { id: 'tts', label: 'Text-to-speech', patterns: [/\bchrome\.tts\./] },
   { id: 'ttsEngine', label: 'Text-to-speech engine', patterns: [/\bchrome\.ttsEngine\./] },
@@ -82,7 +85,8 @@ export const PERMISSION_SIGNATURES = [
 // nothing in source that could confirm or deny it.
 export const UNCHECKABLE_PERMISSIONS = new Map([
   ['activeTab', 'Grants temporary access to the current tab after a user gesture. It changes what chrome.tabs/chrome.scripting may do rather than opening an API of its own, so no code signature marks its use.'],
-  ['background', "Lets the extension's service worker be woken for background events. No distinct chrome.* call marks its use."],
+  ['background', 'Makes Chrome start at login and keep running after the last window closes, so the extension can keep working (Chrome permissions list). No chrome.* call marks its use.'],
+  ['action', 'Not a permission: a toolbar button is declared with the manifest key "action", and chrome.action needs no permission. Chrome warns about an unknown permission here; remove it from permissions[].'],
   ['unlimitedStorage', 'Raises the chrome.storage quota only; does not change how chrome.storage is called.'],
   ['declarativeNetRequestFeedback', 'Companion to declarativeNetRequest (enables chrome.declarativeNetRequest.onRuleMatchedDebug); shares that namespace, so it is not checked separately.'],
   ['declarativeNetRequestWithHostAccess', 'Companion to declarativeNetRequest for host-matched redirect/modify actions; shares that namespace, so it is not checked separately.'],
@@ -188,9 +192,10 @@ export function buildReport(detected, manifest) {
     if (!declared && found.count === 0) status = 'not-relevant';
     else if (declared && found.count > 0) status = 'declared-and-detected';
     else if (declared && found.count === 0) status = 'declared-unused';
+    else if (perm.usableWithout) status = 'detected-no-permission-needed';
     else status = 'detected-undeclared';
 
-    return { id: perm.id, label: perm.label, detectedCount: found.count, examples: found.examples, declared, optionalOnly, status };
+    return { id: perm.id, label: perm.label, note: perm.usableWithout ?? null, detectedCount: found.count, examples: found.examples, declared, optionalOnly, status };
   }).filter((p) => p.status !== 'not-relevant');
 
   const uncheckable = manifestFound

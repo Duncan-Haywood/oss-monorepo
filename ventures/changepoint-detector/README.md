@@ -2025,7 +2025,7 @@ Tests: `cli.test.mjs` (lead line on the Nile example, `--no-agreed`, another mod
 `--column` whose unset options keep their defaults, the length cap) and `report.test.mjs` (lead
 paragraph, escaping, absent when not passed).
 
-Next: the same length cap on the page (or run the panel in a worker), and a check that the
+Next: the same length cap on the page (or run the panel in a worker: done 2026-11-11, "Agreed changes off the main thread"), and a check that the
 "agreed" summary on real long series (the TCPD ones above 2,000 points) is worth its cost.
 
 ## Measles: the consensus loses F1 by cutting, not by missing (2026-11-10)
@@ -2087,5 +2087,160 @@ Only the level and level-and-volatility models take several columns; the page sa
 
 **Joint over-cut warning** (`jointOvercut`, `JOINT_OVERCUT_EVERY` in `multivariate.mjs`; page and CLI text). The joint fit is called over-cut when it has more than one change per 50 points (and more than 3). The bar was set from measurements already in the repository, before any new series was scored: on white noise with one shared step (`eval/multi-sim.out.txt`, every cell) the joint fit averaged at most 1.5 cuts per 200 points; on the three labelled TCPD multi-column series (`eval/tcpd-multi.out.txt`) the level fit made one cut per 4 to 7 points and the level-and-volatility fit one per 13 to 21, so the warning fires on all six of those fits. Checked afterwards: German unemployment, unadjusted and adjusted (120 quarters, two smooth series), 22 joint cuts, warned; the currency example, 9 cuts on 1,751 points, not warned; 20 seeded white-noise sets of 4 columns with a 1 sd shared step, one joint cut each and none warned (`multi-view.test.mjs`).
 
-Limits: the warning is a count, not a test; it says to prefer the column-by-column list, it does not fix the joint fit. The joint fit itself is unchanged (independent columns, plain level cost); a noise floor or trend per column inside the joint cost is the next step. Not yet in the branded report.
+Limits: the warning is a count, not a test; it says to prefer the column-by-column list, it does not fix the joint fit. The joint fit itself is unchanged (independent columns, plain level cost); a noise floor or trend per column inside the joint cost is the next step. In the branded report since 2026-11-11 (section "Several columns in the branded report").
 
+## A joint fit that survives smooth columns: a noise floor per column (2026-11-11)
+
+The joint fit took each column's noise from its step-to-step scatter, so a smooth column (a stock price, a bee's position, a room's temperature) looked almost noiseless and every bend cleared the penalty: 95 to 132 cuts on the three TCPD series. `multivariate.mjs` now sets each column's noise separately (`columnSigmas`; `multiPelt(cols, { floor, ar1 })`):
+
+- **`floor: 'auto'`** (the new default for the level model on the page, the CLI and `analyzeMulti`): a column gets the univariate floor, twice the scatter about a local 25-point line, only if its own level fit over-cuts (5 or more cuts that the floor at least halves). That is the univariate over-cut test from `analyze()`, copied, not tuned. A white-noise column keeps its plain sd.
+- **`floor: k`**: every column floored at k times the local-line scatter. **`ar1: true`**: each column's sd raised to its AR(1) long-run sd (the plain `--ar1` correction, per column). **`floor: 'off'`**: the old fit.
+
+The six settings, the primary (`auto`) and a decision rule were written into `eval/tcpd-multi-floor.mjs` before any was scored: the default becomes `auto` if it beats the plain joint fit's mean F1 on the three series **and** keeps every white-noise hit rate in `eval/multi-floor-sim.mjs` within 5 points of the plain fit's. `node eval/tcpd-multi-floor.mjs tcpd-data` (output `eval/tcpd-multi-floor.out.txt`), F1 at margin 5:
+
+| joint level fit | apple | bee_waggle_6 | occupancy | mean F1 | mean cover | cuts |
+|---|---|---|---|---|---|---|
+| plain (before) | 0.171 | 0.050 | 0.295 | 0.172 | 0.119 | 95/117/132 |
+| **floor auto (primary, now default)** | 0.378 | 0.140 | 0.342 | **0.286** | 0.233 | 20/39/89 |
+| floor 2, every column | 0.378 | 0.140 | 0.498 | 0.338 | 0.249 | 20/39/51 |
+| floor 1, every column | 0.242 | 0.086 | 0.414 | 0.247 | 0.186 | 57/66/79 |
+| ar1 per column | 0.339 | 0.061 | 0.845 | 0.415 | 0.359 | 23/94/10 |
+| ar1 + floor 2 | 0.709 | 0.194 | 0.789 | 0.564 | 0.485 | 4/27/6 |
+| columns: every setting (unchanged reference) | 0.741 | 0.124 | 0.696 | 0.521 | 0.367 | 7/29/10 |
+| zero, "no change" (published) | 0.594 | 0.929 | 0.341 | 0.621 | | 0 |
+
+`node eval/multi-floor-sim.mjs` (output `eval/multi-floor-sim.out.txt`, same seeds as `eval/multi-sim.mjs`, 100 series per cell):
+
+- **White noise, one shared step:** `auto` matches the plain fit's hit rate in all 20 cells (1 to 8 columns, steps 0 to 1.5 sd) and its false cuts in 19 (one cell 0.26 to 0.23). A floor on every column costs the power the joint fit exists for: at 0.5 sd over 4 columns, 76% found plain and with `auto`, 3% with floor 2.
+- **Random walks, one 3-sd shared step:** false cuts per series drop from 18-37 to 4-9 with `auto` (hits 92-100% to 51-78%); `ar1` cuts them to about 1-2 but finds the step in only 17-25%.
+- **AR(1) rho 0.9, one 3-sd shared step:** false cuts 18-33 to 2-5 with `auto`; `ar1` 0.2-0.6, hits 18-51%.
+
+What it says:
+
+- **The rule is met, so `auto` is the default.** Mean F1 0.172 to 0.286, cuts down by a third to four fifths, and no cost on white noise. Over-cut columns: both apple columns, all four bee columns, two of four occupancy sensors (the output lists the sd each got).
+- **`auto` is still below the column-by-column reading (0.521) and "no change" (0.621).** The page keeps leading with the agreed changes, and the over-cut warning still fires on occupancy (89 cuts in 509 points).
+- **AR(1) plus floor 2 on every column scored best here (0.564), above the consensus.** It was listed in advance but is not the primary, so that is a lead, not a finding: three series is a panel, and in simulation it gives up most of the power on smooth columns. It ships as a page and CLI option ("Autocorrelation and a floor on every column (fewest cuts)", `--joint-floor 2 --joint-ar1`), to be tested on fresh multi-column data before it is anything more.
+- **A real pair checked after the rule was applied:** German unemployment, unadjusted and adjusted, quarterly 1962-1991 (`data/german-unemployment.csv`). Plain joint fit: 22 changes and the over-cut warning. With `auto` (both columns floored): 1974Q4 (+3.4 points, the first oil shock's recession), 1982Q1 (+4.3, the early-1980s recession) and 1989Q2 (-1.8), no warning. With AR(1) as well: one change, 1981Q3. Pinned in `multi-view.test.mjs`.
+
+**What shipped.** `columnSigmas` and the `floor`/`ar1` options of `multiPelt`; `analyzeMulti` defaults to `floor: 'auto'` for the level model and reports `floor`, `ar1` and `flooredColumns`; the text output and the page summary name the floored columns; CLI `--joint-floor auto|off|k` and `--joint-ar1`; a page select, "One segmentation for all columns: noise per column". `eval/tcpd-multi.mjs` and `eval/multi-sim.mjs` call `multiPelt` with no floor, so their figures above are unchanged. Tests: `multivariate.test.mjs` (auto floors a random walk and leaves white noise alone, the shared step survives, the pre-registered figures and the white-noise equality from the output files) and `multi-view.test.mjs` (German unemployment both ways).
+
+Limits: three labelled series; columns still independent (no cross-correlation); no trend term per column (a floor is a blunt answer to a trend); the level-and-volatility joint fit is unchanged.
+
+
+## Agreed changes off the main thread (2026-11-11)
+
+The page ran the six-setting "Agreed changes" panel on the main thread, straight after the main
+analysis and with no length cap (the CLI skips it above 2,000 points). The panel costs about four
+times the main analysis, so a long series froze the tab: on the 7,980-point tree-ring series
+(`data/treering.csv`) nothing could be clicked or scrolled for about half a minute.
+
+- **What changed.** `consensus()` is now `runSetting` (one setting) plus `mergeConsensus` (the
+  grouping and tiers), with the same result, pinned in `agreed-worker.test.mjs` for any finishing
+  order. `consensus-worker.mjs` runs one setting. The page shows the main results first, then
+  starts up to `navigator.hardwareConcurrency` module workers (at most six), hands out the slowest
+  settings first (the two AR(1) settings, then level, noise floor, the trend pair: measured 7.0,
+  6.9, 5.6, 4.8, 1.4 and 1.0 s on tree-ring in Node), shows "k of 6 settings done", and merges
+  when all are back. Analyzing again stops an unfinished panel. Without workers (an old browser, a
+  `file:` page) it runs on the main thread as before, but only up to 2,000 points; above that it
+  says it was not run and points to `--consensus`. A worker error falls back the same way. Usage
+  counter `agreed_run` counts finished panels, locally like the others.
+- **Measured** (`node eval/agreed-worker-browser.mjs [points | file.csv]`, headless Chromium,
+  4 cores, output `eval/agreed-worker-browser.out.txt`): the page's panel text is identical to
+  `consensus()` in Node on every input. Wall clock from the click:
+
+  | series | main results shown | panel done | `consensus()` alone, one thread | a 50 ms timer during the panel |
+  |---|---|---|---|---|
+  | 1,500 seeded points, three steps | 0.3 s | 1.2 s | 1.4 s | 2 ms late |
+  | 6,000 seeded points | 3.3 s | 8.2 s | 12.2 s | 33 ms late |
+  | tree-ring, 7,980 points | 6.5 s | 16.0 s | 27.2 s | 80 ms late |
+
+  Before, the tab was blocked for the main analysis plus the one-thread panel (tree-ring: about
+  34 s); now it is blocked only for the main analysis, and the panel finishes in about a third of
+  its one-thread time after it. The 80 ms on tree-ring is the main thread sharing four cores with
+  four workers; clicks and scrolling still answer.
+- **Not done.** The main analysis itself is still on the main thread (6.5 s on tree-ring); the
+  "level" setting repeats the main analysis when the page's options are the defaults and could
+  reuse it; the CLI panel could use `worker_threads` the same way to lift its 2,000-point cap.
+  Whether the agreed summary is worth its cost on long real series (the TCPD ones above 2,000
+  points) is still open.
+
+## Several columns in the branded report (2026-11-11)
+
+The branded change report (the planned paid extra, dark until `checkout.mjs` has a link) now covers
+the several-column view too. With **What to analyse** set to several columns, **Open the report**
+builds `multiReportHtml` (`multi-report.mjs`) from the last run, without rerunning it, on the same
+letterhead as the one-column report (`reportShell` in `report.mjs`, shared, so the colour and logo
+rules and the escaping are the same code; the one-column report's output is byte-identical, pinned
+by its sample test). In order:
+
+- the agreed changes, column by column and merged, as the lead (the reading that held up on the
+  labelled multi-column TCPD series), then the column count, point count and joint change count;
+- the over-cut warning when the joint fit trips it;
+- the page's small-multiples chart (`multiChartSvg`, the same function);
+- the merged agreed-changes table, with the merge tolerance stated;
+- **each column on its own**: how many agreed changes it has and their dates (new: the page shows
+  these only as marks on the chart);
+- the one-segmentation table with each column's shift in its own noise sds and, under level and
+  volatility, the sd ratio; the model, penalty and noise floor are stated above it;
+- the analyst's notes, and assumptions written for several columns: the six settings, the
+  independence assumption of the joint fit, that a change seen in several columns is not evidence
+  that one caused another, and that a change does not show its cause.
+
+**Sample** (`sample-multi-change-report.html`, built by `node build-sample-report.mjs` from the
+bundled FX returns, an invented firm; linked from `change-report-for-analysts.html`, `noindex`).
+Its agreed changes are the franc on 2015-01-20 and the pound on 2016-06-24, as in the section above;
+the notes name the Swiss National Bank's 2015-01-15 floor removal and the 2016-06-23 referendum.
+
+**Checked.** `multi-report.test.mjs`: the report's sections, the chart equal to the page's,
+escaping of column names, labels and typed text, the colour and logo restrictions, the empty case,
+the sample equal to what the code builds now, and the page wiring. `eval/multi-report-browser.mjs`
+(headless Chromium, output `eval/multi-report-browser.out.txt`): loads the FX example on the page,
+shows the report card as an unlocked key would, opens the report, and compares it with
+`multiReportHtml` run in Node on the same input: equal, 74,364 characters, no page errors.
+
+**Not done.** The CLI has no report output for one column or several (the report is the paid
+extra; an open-source CLI flag would be honest but is the owner's pricing call). A wide joint table
+(many columns) scrolls sideways on screen and may be clipped in print; a column-per-page layout for
+more than about six columns is open.
+
+## Main analysis off the main thread (2026-11-11)
+
+The section above moved the six-setting panel into Web Workers but left the main analysis on the
+page's main thread, so a long series still froze the tab until its results showed. That was the
+flagship's item (c), "next: main analysis in a worker".
+
+- **What changed.** `analyze-job.mjs` turns one page request into plain data (`{ kind: 'one',
+  opts }` for `analyze`, `{ kind: 'multi', csv, columns, opts }` for `parseColumns` plus
+  `analyzeMulti`) and returns `{ result }` or `{ error }`, never throwing. `analyze-worker.mjs`
+  runs it in a module worker. The page keeps one such worker; clicking Analyze again while it is
+  busy terminates it and starts a new one, so a stale result can never overwrite a newer one.
+  Without workers (an old browser, a `file:` page) or if the worker fails to load, the same call
+  runs on the main thread after a 30 ms pause that lets the "Working" note paint. Both modes (one
+  column and several columns) go through it. Results are identical: `analyze-worker.test.mjs`
+  checks the job against a direct call after a structured clone, for eight model setups and the
+  several-columns example.
+- **The page's own result now stands in for the panel's "level" setting** when nothing in its
+  options moves a cut (`levelRunFromMain` in `consensus.mjs`: plain level model; the Bayesian
+  hazard and threshold and the trend knot margin may differ, every other box must be off). The
+  panel then runs five analyses instead of six. `agreed-worker.test.mjs` checks that the stand-in
+  equals `runSetting(base, PANEL[0])` and that the merged panel equals `consensus()` on seven
+  option sets, and that nine option sets that could move a cut (AR(1), trend, bursts, drift,
+  meanvar, the local floor, holidays, the growth-rate test, a minimum segment) get no stand-in.
+- **Measured** (headless Chromium, 4 cores, one run each, same container; before = this
+  directory at the parent commit, `eval/agreed-worker-browser.mjs`; after =
+  `eval/analyze-worker-browser.mjs`, output `eval/analyze-worker-browser.out.txt`, and
+  `eval/agreed-worker-browser.out.txt`):
+
+  | series | tab blocked before | after: click returns / worst 50 ms timer lag | results shown | panel done before → after |
+  |---|---|---|---|---|
+  | 6,000 seeded points | 2.2 s | 1 ms / 21 ms | 2.2 s | 5.6 s → 5.0 s |
+  | tree-ring, 7,980 points | 4.7 s | 1 ms / 29 ms | 4.7 s | 11.9 s → 11.0 s |
+
+  The results arrive no sooner (the worker does the same work), but the page answers clicks and
+  scrolling throughout, and a new click cancels the old run instead of queueing behind it. The
+  panel's 7 to 11% saving is one run each and within run-to-run noise on a shared container, so
+  read it as "one fewer analysis", not a measured speed-up. The panel text matched `consensus()`
+  in Node on all three inputs; the stale-run, no-worker and several-columns checks passed on both.
+- **Not done.** The CLI's panel still runs in one thread with its 2,000-point cap
+  (`worker_threads` would lift it); whether the agreed summary earns its cost on the long TCPD
+  series is still open.

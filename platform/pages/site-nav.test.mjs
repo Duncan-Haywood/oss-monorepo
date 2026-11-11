@@ -43,14 +43,28 @@ test('the header carries every nav item, in order, relative to the page', () => 
   assert.match(html, /class="pfs-brand" href="\.\.\/\.\.\/" data-pf-to="hub"/);
 });
 
-test('the search entry is a form on site pages, a link inside a venture, and absent on the hub', () => {
+test('the search entry is a form on site pages, a link inside a venture, and a phone-only link on the hub', () => {
   assert.match(renderSiteHeader({ toRoot: '../' }), /<form class="pfs-search" action="\.\.\/" method="get" role="search">/);
   const venture = renderSiteHeader({ toRoot: '../', search: 'link' });
   // A venture script that reads its first form or every input must still find its own.
   assert.doesNotMatch(venture, /<form|<input|<ul|<li/);
   assert.match(venture, /href="\.\.\/#search"/);
+  assert.match(venture, /class="pfs-searchlink pfs-always"/);
+  // The hub's own search box sits below the fold on a phone, so the header
+  // offers the same pill there, and only there (no form, not always shown).
   const hub = renderSiteHeader({ toRoot: '', current: 'home' });
-  assert.doesNotMatch(hub, /pfs-search|pfs-searchlink/);
+  assert.doesNotMatch(hub, /<form|pfs-always/);
+  assert.match(hub, /<a class="pfs-searchlink" href="\.\/#search">Search<\/a>/);
+  assert.doesNotMatch(renderSiteHeader({ current: 'home', search: false }), /pfs-searchlink/);
+});
+
+test('every page family draws the Search link as the same pill with the glass icon', () => {
+  // Site pages showed bare text, tool pages a pill, the hub nothing (2026-11-11).
+  assert.match(SITE_HEADER_CSS, /\[data-pfs-head\] \.pfs-searchlink\{[^}]*border-radius:999px/);
+  assert.match(SITE_HEADER_CSS, /\[data-pfs-head\] \.pfs-searchlink::before\{[^}]*mask:var\(--pfs-glass\)/);
+  // The glass is defined on the header, not on the form the venture header leaves out.
+  assert.match(SITE_HEADER_CSS, /\[data-pfs-head\]\{--pfs-glass:url\(/);
+  assert.doesNotMatch(SITE_HEADER_CSS, /pfs-searchlink\{display:inline-block\}/);
 });
 
 test('a breadcrumb names the page last, unlinked', () => {
@@ -197,4 +211,12 @@ test('on a phone the breadcrumb stays on one line and cuts the current title', a
   const { SITE_HEADER_CSS } = await import('./site-nav.mjs');
   const m = /@media \(max-width:600px\)\{[^}]*\.pfs-crumbs\{[^}]*white-space:nowrap[\s\S]*?text-overflow:ellipsis/.exec(SITE_HEADER_CSS);
   assert.ok(m, 'phone rule keeps .pfs-crumbs nowrap and ellipsises [aria-current]');
+});
+
+test('the chrome CSS gives no length a bare number (the browser would drop the rule)', async () => {
+  // Red team 2026-11-11: `margin:0 auto` -> `margin:1 auto` and `margin:0` -> `margin:1` passed every
+  // test here; both are invalid CSS a browser silently ignores. css-lint.mjs has the full check.
+  const { unitlessLengths } = await import('./css-lint.mjs');
+  assert.deepEqual(unitlessLengths(SITE_HEADER_CSS), []);
+  assert.deepEqual(unitlessLengths(VENTURE_CHROME_CSS), []);
 });

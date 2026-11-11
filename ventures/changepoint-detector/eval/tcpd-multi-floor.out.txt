@@ -1,0 +1,42 @@
+TCPD multi-dimensional series, joint fit with per-column noise floor / AR(1). Settings, primary and decision rule fixed before scoring.
+F1 at margin 5 and segmentation cover (TCPDBench definitions); cuts = changes reported.
+
+setting                                         apple F1 bee_waggle_6 F1    occupancy F1   mean F1  mean cover            cuts
+joint level (before)                               0.171           0.050           0.295     0.172       0.119      95/117/132
+joint level, floor auto (primary)                  0.378           0.140           0.342     0.286       0.233        20/39/89
+joint level, floor 2 every column                  0.378           0.140           0.498     0.338       0.249        20/39/51
+joint level, floor 1 every column                  0.242           0.086           0.414     0.247       0.186        57/66/79
+joint level, ar1                                   0.339           0.061           0.845     0.415       0.359        23/94/10
+joint level, ar1 + floor 2                         0.709           0.194           0.789     0.564       0.485          4/27/6
+columns: every setting (for reference)             0.741           0.124           0.696     0.521       0.367         7/29/10
+published bocpd                                    0.513           0.121           0.807     0.480
+published ecp                                      0.513           0.124           0.750     0.462
+published zero                                     0.594           0.929           0.341     0.621
+
+Which columns the auto floor raised (plain sd -> floored sd):
+  apple: Close 0.0457 -> 0.189; Volume 2.92e+7 -> 8.74e+7
+  bee_waggle_6: x 2.91 -> 11.4; y 2.52 -> 10.1; sin(theta) 0.0984 -> 0.520; cos(theta) 0.0948 -> 0.620
+  occupancy: V1 0.0577 -> 0.308; V2 0.121 -> 0.921; V3 kept; V4 kept
+
+Changes reported (annotators, union):
+  apple: annotators 53 90 197 276 319 403 463 535
+    joint level (before): 95 5 8 24 26 42 54 56 71 82 89 91 101 105 112 114 131 134 139 141 143 145 153 155 165 170 ...
+    joint level, floor auto (primary): 20 54 56 101 131 200 215 227 243 249 266 286 311 319 321 359 387 415 462 546 605
+    joint level, floor 2 every column: 20 54 56 101 131 200 215 227 243 249 266 286 311 319 321 359 387 415 462 546 605
+    joint level, floor 1 every column: 57 5 54 56 72 89 91 101 112 114 131 134 139 145 153 155 170 177 198 201 215 223 229 233 235 238 ...
+    joint level, ar1: 23 54 56 89 91 112 114 131 134 153 155 173 176 215 238 240 319 321 365 367 530 532 535 537
+    joint level, ar1 + floor 2: 4 54 56 319 321
+  bee_waggle_6: annotators 182 246
+    joint level (before): 117 8 12 17 22 26 29 32 35 41 46 51 55 58 69 74 81 87 92 96 101 105 110 113 118 120 ...
+    joint level, floor auto (primary): 39 10 22 32 41 55 77 92 105 120 132 163 175 187 200 213 219 244 257 270 281 292 316 335 347 359 ...
+    joint level, floor 2 every column: 39 10 22 32 41 55 77 92 105 120 132 163 175 187 200 213 219 244 257 270 281 292 316 335 347 359 ...
+    joint level, floor 1 every column: 66 10 20 29 35 41 49 57 74 86 92 101 106 113 120 127 136 157 163 173 181 188 195 201 207 214 ...
+    joint level, ar1: 94 8 12 17 22 28 35 41 46 51 57 76 87 92 96 101 106 111 116 120 125 128 136 157 163 171 ...
+    joint level, ar1 + floor 2: 27 20 35 51 89 106 127 163 182 199 218 249 269 282 294 336 355 369 395 417 437 452 488 508 523 556 ...
+  occupancy: annotators 1 52 53 91 92 142 143 181 234 236 238 264 267 324 341 360 415 416 417 436 451 506
+    joint level (before): 132 2 4 6 8 12 17 23 31 37 42 49 53 55 58 60 65 67 69 71 73 75 78 80 82 84 ...
+    joint level, floor auto (primary): 89 2 4 6 8 12 18 26 52 54 56 58 60 65 67 69 71 73 75 78 80 82 88 90 92 94 ...
+    joint level, floor 2 every column: 51 5 12 31 53 55 58 65 71 74 78 88 92 94 96 105 120 144 148 162 168 180 183 187 240 245 ...
+    joint level, floor 1 every column: 79 3 7 12 23 41 53 55 58 60 65 71 73 75 78 80 87 89 92 94 96 99 106 120 143 145 ...
+    joint level, ar1: 10 55 92 144 182 239 273 419 439 453 461
+    joint level, ar1 + floor 2: 6 52 91 142 181 416 451

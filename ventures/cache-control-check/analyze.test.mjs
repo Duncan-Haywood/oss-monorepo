@@ -200,12 +200,24 @@ test('a clean, well-cached static response produces no findings', () => {
 test('dangerCount and noticeCount are tallied separately, and a danger finding fails ok', () => {
   const report = buildReport('https://example.com/', {
     ok: true, status: 200, protocol: 'https:', path: '/dashboard',
-    headers: { 'cache-control': 'public, no-store, max-age=60' },
+    headers: { 'cache-control': 'public, max-age=60', expires: 'Thu, 01 Jan 2099 00:00:00 GMT' },
     setCookie: ['session=abc; Path=/'],
   });
   assert.equal(report.dangerCount, 1);
   assert.equal(report.noticeCount, 1);
   assert.equal(report.ok, false);
+});
+
+test('public with no-store and Set-Cookie is not a cookie leak: no cache may store it (RFC 9111 s5.2.2.5)', () => {
+  const report = buildReport('https://example.com/', {
+    ok: true, status: 200, protocol: 'https:', path: '/dashboard',
+    headers: { 'cache-control': 'public, no-store, max-age=60' },
+    setCookie: ['session=abc; Path=/'],
+  });
+  assert.equal(report.dangerCount, 0);
+  assert.ok(!report.findings.some((f) => f.id === 'public-with-set-cookie'));
+  assert.equal(report.noticeCount, 1);
+  assert.equal(report.ok, true);
 });
 
 test('buildReport echoes back the caching headers it read, normalised to null when absent', () => {

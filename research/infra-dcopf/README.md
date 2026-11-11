@@ -8,9 +8,22 @@ Track 21 (`infra`), grid first. Grid dispatch is routinely planned and priced wi
 - **IEEE 118-bus, no branch binding:** the DC OPF reports a cost **1.9 to 2.9 % below** the AC optimum (it cannot see 55 to 150 MW of losses). Running its dispatch through an AC power flow (the slack pays the losses) costs **0.7 to 1.7 % more than the AC optimum** (up to 1.9 % with limits scaled by 0.5) with no voltage or loading violation, so the DC dispatch is feasible but wrongly ordered; the excess grows with load (0.73 % at 0.6 of the case's load, 1.48 % at 1.0, 1.68 % at 1.1).
 - **IEEE 39-bus:** the DC cost is 1.0 to 1.5 % below the AC optimum, and the DC dispatch is nearly free in cost terms (within 0.06 %) but **breaks voltage limits**: 15 buses out of band at 0.6 of load, 5 at 0.8, 1 at the case's load (highest 1.079 pu).
 - **IEEE 30-bus:** the DC cost is 1.3 to 2.3 % below; at the case's load the DC dispatch overloads one branch to 111 % and is 0.31 % *cheaper* than the AC optimum, which is the signature of a violated constraint, not a better plan.
+- **PGLib-OPF with published binding ratings (2026-11-11):** on 11 congested (API) benchmark cases the DC OPF's dispatch overloads branches in **every** case when run through an AC power flow (worst 103 to 180 % of rating), finds a median 56 % of the binding lines, and its LMPs correlate with the AC ones at a median r = 0.66; uniform derating or iterated AC correction repairs only 1 of 11. Also: MATPOWER's and PowerModels' DC OPFs differ by up to 2.8 % on these cases ([section below](#with-published-ratings-that-bind-23-pglib-opf-cases-added-2026-11-11-experimentsrun_pglibpy-results_pglibtxt)).
 - **Reading:** the DC model's price error is a loss term of 1 to 3 % here, and the danger of its dispatch is not cost but reactive and voltage limits it never modelled, on the smaller cases. Neither is a large number, and none says DC is wrong for planning.
 
 ![IEEE 118-bus: DC OPF cost error and AC cost of the DC dispatch](experiments/gap_vs_load.svg)
+
+## With published ratings that bind: 23 PGLib-OPF cases (added 2026-11-11, `experiments/run_pglib.py`, `results_pglib.txt`)
+Next step 1 asked for cases whose *published* ratings bind, in place of the synthetic caps above. PGLib-OPF v23.07 (Babaeinejadsarookolaee et al. 2019) ships each case twice: typical operating conditions (TYP) and "active power increase" (API), with load pushed up until thermal limits bind. Twelve cases from 14 to 300 buses, both sets, solved with PYPOWER (AC: PIPS; DC: its LP), on the library's own costs, ratings and ±30° angle limits.
+
+- **Validation first.** Our AC optimum matches PGLib's published PowerModels.jl/IPOPT objective within **0.004 %** on 23 of 24 cases (case179_goc API did not converge here; it is excluded below). The published DC objectives did **not** match MATPOWER's DC OPF at first: 4,664 against 4,798 $/h on case14 API (2.8 %), 234,169 against 231,290 on case118 API. Emulating PowerModels' DCP model (series susceptance x/(r²+x²) instead of 1/x, off-nominal taps ignored) reproduces all 24 published DC values within 0.003 %. So **"the DC OPF" is two models**: on typical cases they differ by a median 0.001 % (max 0.42 %), on congested ones by a median 0.04 % and up to **2.8 %**, and on case240_pserc TYP the MATPOWER form is *infeasible* while the PowerModels form solves. Studies that quote a DC-vs-AC gap should say which B matrix they used. The tables below use MATPOWER's (DC-MP); `results_pglib.txt` has both, and the conclusions are the same.
+- **Cost.** The DC optimum is below the AC optimum by a median 4.2 % on TYP cases (0.3 to 8.6 %) and **6.5 % on API cases (1.4 to 22 %)**: larger than the 1 to 3 % loss term found above, because these cases' quadratic costs and binding limits magnify the losses and the reactive flows the DC model omits.
+- **Feasibility.** Each DC dispatch went through an AC power flow on the true network, with generator voltages held at the AC optimum's schedule and the slack paying the losses. On **every one of the 11 API cases** the dispatch overloads branches, 1 to 10 of them, worst loadings 103 to 180 % of rating (figure). On TYP cases it overloads branches in 4 of the 9 that could be checked (worst 108 to 129 %); case179 and case300 TYP had no AC power-flow solution. The slack also runs past its P limit in 6 of 11 API cases (49 to 1,700 MW), so the API dispatches' "AC cost below the optimum" is a violated constraint, not a saving.
+- **Congestion pattern and prices.** Of the branches binding at the AC optimum, the DC OPF binds a median **56 % on API cases** (20 to 100 %) against 100 % on TYP cases. Across buses, DC LMPs correlate with AC LMPs at a median r = 0.66 on API (0.09 on case300 API) against 0.96 on TYP, with a median absolute error of 30 % of the mean AC price (8 % on TYP). Under real congestion the DC model picks the wrong binding lines, and its nodal prices follow.
+- **Two cheap fixes, both mostly fail on API cases.** (a) Derating every rating uniformly by a = 0.98 to 0.8 clears the overloads on only 1 of 11 API cases (case57, at a = 0.85, +2.7 % cost); on the rest the DC OPF becomes infeasible before the overloads go. On TYP it works at a = 0.9 to 0.98 (+0.4 to +1.7 %). (b) An iterated AC-corrected DC (feed the measured losses back into the loads and cut the DC rating of each overloaded branch by rating/AC flow, `corrected_dc`) gives a clean dispatch on 8 TYP cases (cost 0 to 4.7 % above the AC optimum, 0.7 % on case118) but on only **1 of 11 API cases**; on 9 the DC becomes infeasible within one or two corrections. Two variants tried in a scratch diagnosis (a reactive-flow rating sqrt(rate²−Q²); a damped square-root cut) gave the same picture: the API cases leave no headroom for a linear model whose flows are off by the reactive and loss terms.
+- **Reading.** On a stressed network, the operating point congestion pricing exists for, the plain DC OPF is not a mild approximation. Its dispatch is AC-infeasible on all 11 congested benchmarks, it finds about half the binding lines, and the usual fixes (a security margin, loss and flow feedback) run out of feasible region. On typical loadings those fixes are enough. Limits: one AC solver (PIPS), checked against IPOPT's objective only, not its point; voltages held at the AC optimum's schedule, which favours the DC dispatch; no N-1, no unit commitment; benchmark cases, not a measured system.
+
+![PGLib-OPF: worst branch loading when the DC dispatch is run through AC power flow, TYP vs API](experiments/pglib_overload.svg)
 
 ## Does feeding the losses back fix it? (loss-adjusted DC, `experiments/results_lossadj.txt`)
 `loss_adjusted_dc` solves the DC OPF, runs its dispatch through an AC power flow, spreads the measured losses over all loads in proportion to their power, and re-solves, until the losses move by under 0.05 MW (2 to 4 passes). Everything else is as above. Losses are placed uniformly, not where they occur, which is the simplest scheme; nodal loss factors are the next step.
@@ -86,6 +99,7 @@ Next step 2 asked for a usable scheme: `previous_interval_penalty_dc` takes fact
 - **Tightened limits.** A second sweep scales every line's `max_i_ka` and transformer `sn_mva` by 0.7 and 0.5 to force congestion. Many of those runs have no solution (below).
 
 ## Checks (`tests/`, 8)
+- `tests/test_pglib.py` (5): the PGLib reader, the parsed BASELINE.md table, the AC OPF against PGLib's published case118 TYP and API objectives (within 0.01 %), and the PowerModels DC convention reproducing the published case14 API DC cost while MATPOWER's B matrix does not.
 A two-bus network with a closed-form answer (DC cost 10x50 + 0.01x50^2 = 525; the AC slack supplies load plus line loss); `gen_cost` equals pandapower's cost on case39; the 118-bus DC dispatch is feasible and costs no less than the AC optimum; the DC cost error lies in 1 to 5 %; case39's DC dispatch breaks voltage limits at light load; the loss-adjusted model's cost on case118 is under half of plain DC's error and the losses it feeds back exceed 50 MW; on the two-bus case its fed-back loss equals the AC loss of its dispatch.
 
 ## Limitations
@@ -155,7 +169,7 @@ Next step 2 asked for a ramp stress test. Factors taken from the AC optimum L ho
 - Limits: 10 hours per lag, one case (case118), one load shape applied uniformly to every bus (so factors age less than with uneven regional ramps), no outage (a topology change would age them faster; not tested), one solver.
 
 ## Next steps
-1. Solver validated and loss/congestion split done with synthetic caps (section above). Next: a case whose published ratings bind (e.g. a PGLib-OPF congested case) and an exact decomposition from the AC duals instead of differencing.
+1. Published binding ratings done on 23 PGLib-OPF cases (section above): the DC dispatch is AC-infeasible on all 11 API cases, and derating or iterated AC correction does not repair it. Next: an AC-informed linearisation taken at a nearby AC point (hot-start PTDFs with loss factors and reactive offsets) on the API set; check whether it stays feasible where `corrected_dc` does not; an exact loss/congestion decomposition of the API LMPs from the AC duals.
 2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp stress test done (above). Next: an outage stress test (a line trip invalidates the factors at once), a DC-based estimate of the point, or a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
@@ -163,11 +177,13 @@ Next step 2 asked for a ramp stress test. Factors taken from the AC optimum L ho
 ```bash
 pip install pytest numpy pandapower
 cd research/infra-dcopf
-python -m pytest -q tests                     # 11 tests, about 20 s
+python -m pytest -q tests                     # 19 tests, about 35 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_penalty_acopt.py  # about 3 min; writes results_penalty_acopt.txt
 PYTHONPATH=src python experiments/run_prev_interval.py  # about 2 min; writes results_prev_interval.txt
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
+python experiments/run_pglib.py               # PGLib TYP+API, about 3 min; needs pypower; writes results_pglib.txt/.json
+python experiments/figure_pglib.py            # experiments/pglib_overload.svg
 PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs pypower; writes results_case300_pypower.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
 PYTHONPATH=src python experiments/run_hourly_profile.py  # about 25 min; writes results_hourly_profile.txt
@@ -178,10 +194,13 @@ python experiments/figure.py                  # experiments/gap_vs_load.svg
 ```
 
 ## References
-(DOIs from memory; the DOI resolver was unreachable through the proxy, so they were not looked up in this run.)
+(DOIs from memory; the DOI resolver was unreachable through the proxy, so they were not looked up in this run. 2026-11-11: the PowerModels.jl DOI and bibliographic data were checked against the BibTeX in its README; the PGLib arXiv id was checked against the PGLib-OPF README, which links it as the library's report and asks users to cite it, but arxiv.org was unreachable, so its author list and title are from memory.)
 - Thurner, L. et al. (2018), pandapower, *IEEE Trans. Power Systems* 33(6), doi:10.1109/TPWRS.2018.2829021.
 - Zimmerman, R. D., Murillo-Sanchez, C. E., Thomas, R. J. (2011), MATPOWER, *IEEE Trans. Power Systems* 26(1), doi:10.1109/TPWRS.2010.2051168.
 - Stott, B., Jardim, J., Alsac, O. (2009), DC power flow revisited, *IEEE Trans. Power Systems* 24(3), doi:10.1109/TPWRS.2009.2021235.
 
+- Babaeinejadsarookolaee, S. et al. (2019), The Power Grid Library for Benchmarking AC Optimal Power Flow Algorithms, arXiv:1908.02788 (PGLib-OPF; cases v23.07 in `data/pglib/`, CC BY 4.0).
+- Coffrin, C., Bent, R., Sundar, K., Ng, Y., Lubin, M. (2018), PowerModels.jl: An Open-Source Framework for Exploring Power Flow Formulations, *Power Systems Computation Conference (PSCC)*, doi:10.23919/PSCC.2018.8442948.
+
 ## Outside dependencies
-pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships.
+pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships, PYPOWER, and PGLib-OPF v23.07 case files (CC BY 4.0, `data/pglib/`).

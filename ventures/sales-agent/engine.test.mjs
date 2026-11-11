@@ -1,10 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { triage, findDate, parseReplies, stripQuoted, parseCsv, toCsv, runInbox, checkDraft, draftReply, addBusinessDays, csv, SAMPLE_REPLIES, SAMPLE_PROSPECTS, SAMPLE_OFFER, CATEGORIES } from "./engine.mjs";
-import { score } from "./eval/run.mjs";
-import { train, guess } from "./learn.mjs";
+import { score, baselineModel } from "./eval/run.mjs";
+import { train, guess, TRAINING_FILE } from "./learn.mjs";
 import { MODEL } from "./model.mjs";
+import { crossValidate } from "./eval/guess-cv.mjs";
 
 const T = "2026-10-21"; // a Wednesday
 const load = (f) => readFileSync(new URL(`./eval/${f}`, import.meta.url), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
@@ -61,7 +62,7 @@ test("the tuned eval sets score perfectly (a regression floor, not an accuracy c
 });
 
 test("the fresh set is reported, not tuned: numbers recorded in README stay as measured", () => {
-  const s = score(load("fresh-2026-10-21.jsonl"));
+  const s = score(load("fresh-2026-10-21.jsonl"), { model: baselineModel() });
   // README "How well it reads replies" quotes these. If a rule change moves them, re-measure on a NEW fresh set and
   // update the README; do not tune on this file.
   assert.equal(s.n, 40);
@@ -91,7 +92,7 @@ test("opt-outs in French, German, Spanish and Italian and \"cease and desist\" s
 });
 
 test("second fresh set (2026-10-24, written by another session, scored once): numbers stay as measured", () => {
-  const s = score(load("fresh-2026-10-24.jsonl"));
+  const s = score(load("fresh-2026-10-24.jsonl"), { model: baselineModel() });
   assert.equal(s.n, 41);
   // 27 when scored once; 28 after 2026-11-02, when "I left X" counted as a wrong-person reply (one item, no regression).
   // Row 9 (a full mailbox, first labelled bounce) was relabelled out_of_office on 2026-11-05 when full mailboxes became soft bounces; the count stays 28.
@@ -105,8 +106,9 @@ test("second fresh set (2026-10-24, written by another session, scored once): nu
 });
 
 test("word model: rebuilt from the training files exactly, and it guesses", () => {
-  const rows = ["replies.jsonl", "heldout.jsonl"].flatMap(load);
-  assert.deepEqual(train(rows), MODEL);
+  const files = readdirSync(new URL("./eval/", import.meta.url)).filter((f) => TRAINING_FILE.test(f)).sort();
+  assert.ok(files.length >= 25 && files.includes("replies.jsonl") && files.includes("fresh-2026-10-21.jsonl"));
+  assert.deepEqual(train(files.flatMap(load)), MODEL);
   assert.equal(guess({ subject: "Re: hi", body: "please remove me" }).category, "unsubscribe");
   assert.equal(guess({ subject: "", body: "x" }, null), null);
 });
@@ -507,4 +509,11 @@ test("twenty-first set (2026-11-13 file): question, objection and interest probe
   assert.equal(s.n, 20);
   assert.equal(s.right, 19);
   assert.equal(s.overreach, 0);
+});
+
+test("word model, leave-one-set-out (eval/guess-cv.mjs): the wider model beats the first one on unseen sets", () => {
+  const { totals } = crossValidate();
+  // 2026-11-11: 28/57 right, overreach 2, no unsubscribe drafted; the 120-reply model 19/57, overreach 7, 1 unsubscribe drafted.
+  assert.deepEqual([totals.cvFresh.right, totals.cvFresh.handoffs, totals.cvFresh.overreach, totals.cvFresh.unsubAsOutbound], [28, 57, 2, 0]);
+  assert.deepEqual([totals.shippedFresh.right, totals.shippedFresh.overreach, totals.shippedFresh.unsubAsOutbound], [19, 7, 1]);
 });

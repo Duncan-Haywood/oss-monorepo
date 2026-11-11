@@ -56,6 +56,6 @@
       "where": "ventures/world-clock-widget/site/solar.mjs:336-342"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14327"],
   "verdict": "The web tool is a competent, honest, mostly correct product: all 160 UTC offsets and DST transitions match Python zoneinfo, and 320 sunrise/sunset instants agree with an independent NOAA implementation to within 1.3 minutes. It does not meet the bar because correctness and verification fall short: Reykjavik shows negative daylight length and 'night' at midday for about two weeks each summer (the Swift original handles it, the JS port does not), and the tests would not notice a 2 to 4 minute sunrise error (two of three seeded mutations survived; the tolerance is 20 minutes against a one-minute claim). Swift was not installed, so the Swift core, app and widget were read but not run; their correctness and the CI swift job are unverified by this audit, and the app and widget have never reached a user. Finished: yes for the web line, no for iOS."
 }

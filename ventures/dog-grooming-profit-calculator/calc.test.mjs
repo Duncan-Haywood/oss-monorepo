@@ -79,3 +79,30 @@ test("sample runs, CSV is well formed, formatters", () => {
   assert.equal(money(-1234.4), "-$1,234");
   assert.equal(money2(5), "$5.00");
 });
+
+// Quality fix 2026-11-11: a quoted "$1,200" (what a spreadsheet CSV export writes) used to split
+// at the comma and shift every later field. See docs/posts/2026-11-11-quality-fix-thousands-commas.md.
+import { splitCells as splitCellsForTest } from "./calc.mjs";
+import { test as testSplit } from "node:test";
+import assertSplit from "node:assert/strict";
+testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a mid-cell quote as text", () => {
+  assertSplit.deepEqual(splitCellsForTest('Item,"$1,200",800'), ["Item", "$1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest("Item\t1,200\t800"), ["Item", "1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
+  assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
+});
+
+test("break-even loss never exceeds 100% when supplies and fees outrun the price", () => {
+  // 100 * 0.97 - 98 = -1 a dog: every dog can leave without lowering contribution, so 100%, not 126%.
+  const r = analyze(svc("A,100,60,98,10"), {});
+  assert.ok(r.week.contribution < 0);
+  for (const x of r.raises) near(x.breakEvenLoss, 1);
+  const none = analyze(svc("A,100,60,0,0"), {});
+  for (const x of none.raises) near(x.breakEvenLoss, 0);
+});
+
+test("price-rise change at retention takes card fees off the raised price", () => {
+  // 3% fee, 10 dogs at $100, $0 supplies: raised revenue 1100 * 0.97, kept at 90%, vs 1000 * 0.97.
+  const r = analyze(svc("A,100,60,0,10"), { cardFeePct: 3, retentionIfRaised: 90 });
+  near(r.raises.find((x) => x.pct === 10).atRetention, 1100 * 0.97 * 0.9 - 1000 * 0.97);
+});

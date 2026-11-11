@@ -4,8 +4,8 @@ description: >-
   scans JavaScript/TypeScript source for chrome.* API usage and cross-checks
   it against a manifest.json's declared permissions, optional_permissions,
   and host_permissions -- naming the exact declared-but-unused permission
-  behind a Chrome Web Store "Purple Potassium" rejection (Google's own
-  documentation names this the single most common review rejection reason),
+  behind a Chrome Web Store "Purple Potassium" rejection (Google's
+  troubleshooting page lists it as the excessive-permissions violation),
   the reverse case of an API call whose permission was never declared (a
   runtime failure), and any broad all-sites host_permissions pattern.
 stage: prototype

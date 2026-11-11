@@ -154,3 +154,81 @@ test("a warm basis from the last solve gives the same LP optimum", () => {
   assert.ok(Math.abs(warm.obj - cold.obj) < 1e-6, `warm ${warm.obj} cold ${cold.obj}`);
   assert.ok(warm.pivots < cold.pivots, `warm ${warm.pivots} pivots, cold ${cold.pivots}`);
 });
+
+test("root dive: any width gives a valid roster, never below brute force, and the same proven floor as no dive", () => {
+  for (let c = 0; c < 40; c++) {
+    const { staff, slots } = seededWeek(777 + c * 53, 3 + (c % 4), 8 + (c % 7));
+    const pf = openFloorByPricing(staff, slots, {});
+    const truth = bruteOpen(pf.cov.sets, pf.cov.len);
+    const off = openFloorByColumnGeneration(staff, slots, {}, { rootDive: false });
+    assert.ok(Math.abs(off.floor - truth) < 1e-6, `case ${c}: no-dive floor ${off.floor} vs ${truth}`);
+    for (const cfg of [{}, { diveWidth: 1 }, { diveWidth: 3 }, { diveWidth: 2, nodeLimit: 1 }]) {
+      const r = openFloorByColumnGeneration(staff, slots, {}, cfg);
+      assert.ok(r.floor <= truth + 1e-6, `case ${c} ${JSON.stringify(cfg)}: floor ${r.floor} above ${truth}`);
+      if (r.proven) assert.ok(Math.abs(r.floor - truth) < 1e-6, `case ${c} ${JSON.stringify(cfg)}`);
+      if (!r.roster) continue;
+      assert.ok(r.best >= truth - 1e-6, `case ${c} ${JSON.stringify(cfg)}: roster ${r.best} below ${truth}`);
+      let openH = 0;
+      for (let s = 0; s < slots.length; s++) if (r.roster[s] < 0) openH += pf.cov.len[s];
+      assert.ok(Math.abs(openH - r.best) < 1e-6, `case ${c}: roster leaves ${openH} open, reported ${r.best}`);
+      for (let p = 0; p < staff.length; p++) {
+        const mine = [...r.roster.keys()].filter((s) => r.roster[s] === p);
+        assert.ok(pf.cov.sets[p].some((f) => f.length === mine.length && f.every((s) => mine.includes(s))), `case ${c} ${JSON.stringify(cfg)}: person ${p}`);
+      }
+    }
+  }
+});
+
+test("solveLP matches the dense reference solver bit for bit (pivots, basis, x, y)", async () => {
+  // The sparse row operations and row-by-row basic values (2026-11-11) skip only work that cannot change a number, so the
+  // solver must take the very same pivots as before; a different path would change which roster the search reaches.
+  const { solveLPDense } = await import("./eval/solve-lp-dense.mjs");
+  for (const file of ["cycling-lp-20x56.json", "cycling-lp-40x112.json"]) {
+    const L = JSON.parse(readFileSync(new URL(`./eval/fixtures/${file}`, import.meta.url), "utf8"));
+    const half = Math.floor(L.cols.length / 2);
+    const keep = L.cols.slice(0, half), cost = L.cost.slice(0, half), init = Int32Array.from(L.init, (j) => (j < half ? j : -1));
+    const runs = [
+      [L.m, L.cols, L.cost, Int32Array.from(L.init), {}],
+      [L.m, keep, cost, init, {}],
+    ];
+    const a = solveLP(L.m, keep, cost, Int32Array.from(init));
+    runs.push([L.m, L.cols, L.cost, Int32Array.from(L.init), { warm: a.basis }]);
+    for (const [m, cols, c, ini, opt] of runs) {
+      const r = solveLP(m, cols, c, Int32Array.from(ini), opt), d = solveLPDense(m, cols, c, Int32Array.from(ini), opt);
+      assert.equal(r.pivots, d.pivots, `${file}: pivots`);
+      assert.deepEqual([...r.basis], [...d.basis], `${file}: basis`);
+      assert.deepEqual([...r.x], [...d.x], `${file}: x`);
+      assert.deepEqual([...r.y], [...d.y], `${file}: y`);
+      assert.equal(r.obj, d.obj);
+    }
+  }
+});
+
+test("dive backtracking: dive-only rosters are valid, never below brute force, and never worse than the dive without retries", () => {
+  let retried = 0;
+  for (let c = 0; c < 60; c++) {
+    const { staff, slots } = seededWeek(4242 + c * 31, 3 + (c % 4), 8 + (c % 7));
+    const pf = openFloorByPricing(staff, slots, {});
+    const truth = bruteOpen(pf.cov.sets, pf.cov.len);
+    // nodeLimit 1: the tree never runs, so the roster comes from the dives alone.
+    const plain = openFloorByColumnGeneration(staff, slots, {}, { nodeLimit: 1, diveBacktrack: 0 });
+    for (const bt of [1, 3, 50]) {
+      const r = openFloorByColumnGeneration(staff, slots, {}, { nodeLimit: 1, diveBacktrack: bt });
+      const tag = `case ${c} backtrack ${bt}`;
+      retried += r.stats.diveRetries || 0;
+      assert.ok(r.floor <= truth + 1e-6, `${tag}: floor ${r.floor} above ${truth}`);
+      assert.equal(r.floor, plain.floor, `${tag}: retries changed the floor`);
+      if (plain.best != null) assert.ok(r.best != null && r.best <= plain.best + 1e-9, `${tag}: ${r.best} worse than ${plain.best}`);
+      if (!r.roster) continue;
+      assert.ok(r.best >= truth - 1e-6, `${tag}: roster ${r.best} below ${truth}`);
+      let openH = 0;
+      for (let s = 0; s < slots.length; s++) if (r.roster[s] < 0) openH += pf.cov.len[s];
+      assert.ok(Math.abs(openH - r.best) < 1e-6, `${tag}: roster leaves ${openH} open, reported ${r.best}`);
+      for (let p = 0; p < staff.length; p++) {
+        const mine = [...r.roster.keys()].filter((s) => r.roster[s] === p);
+        assert.ok(pf.cov.sets[p].some((f) => f.length === mine.length && f.every((s) => mine.includes(s))), `${tag}: person ${p}`);
+      }
+    }
+  }
+  assert.ok(retried > 0, "no case exercised a retry");
+});

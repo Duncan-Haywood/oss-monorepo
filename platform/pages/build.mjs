@@ -9867,20 +9867,25 @@ const CHROME_CSS = `
  *
  * The mark is the one literal colour here, and it is not text: it is the
  * site's logo (pf-site.css draws the same compass-star mark), so it reads as one
- * site on every venture palette instead of a blot of the host's ink. */
-body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
+ * site on every venture palette instead of a blot of the host's ink.
+ *
+ * "First child" also allows one leading <noscript>. The JavaScript-needed
+ * notice (addNoscriptNotice, 2026-11-09) is inserted right after <body>, so on
+ * the 1,900-odd tool pages that carry it the band stopped being :first-child and
+ * all three rules here stopped matching. The band sat 24px down until pf-site.js
+ * pulled it up after first paint: a layout shift of 0.027 on every one of those
+ * pages, measured with Lighthouse on wall-framing-takeoff on 2026-11-11. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]){padding-top:0;margin-top:0}
 .pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
   box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
 .pf-chrome-top .pfs-bar{padding:12px 0}
 .pf-chrome-top .pfs-crumbs{padding:0 0 10px}
 .pf-chrome-top .pfs-mark{background:${MARK_BG}}
-.pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
-[data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
 /* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
  * in the same column, so they line up with the venture's content rather than
  * their own 18px inset. */
-body:has(> .pf-chrome-top[data-pfs-head]:first-child) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
-body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status:empty{display:none}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > .pf-jobs .pf-jobs-status:empty{display:none}
 
 /* Site chrome is not part of anything a visitor prints.
  *
@@ -11759,9 +11764,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // and one `invoice-payment-terms-calculator` page). `check.mjs` reported no
   // dead links throughout, because by then the link was absolute and it does not
   // follow those.
-  for (const surface of discovered) {
-    await copyTree(surface.sourceDir, path.join(outDir, surface.slug), base);
-  }
+  //
+  // The copies run 16 at a time. Each surface writes only under its own
+  // `outDir/<slug>` (slugs are directory names, so no two trees overlap) and
+  // nothing here reads another surface's output, so the finished tree is the
+  // same in any order; one at a time, the pass spent most of its 4 to 6 s
+  // waiting on single file reads (perf, 2026-11-11:
+  // `docs/history/pages-build-perf-2026-11-11-parallel-copy.md`). Pass 2 below
+  // stays serial on purpose: `repairLinks` tests whether a link target exists,
+  // and pass 2 writes files (sitemap.xml, llms.txt) another surface may link to.
+  await mapLimit(discovered, 16, (surface) => copyTree(surface.sourceDir, path.join(outDir, surface.slug), base));
 
   // A handful of ventures (currently: ai-engineering-academy, tender-radar,
   // quote-margin-check, shopify-permission-drift, mcp-supply-chain-watch,

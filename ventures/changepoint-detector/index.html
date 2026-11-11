@@ -64,6 +64,8 @@
       <div><label for="shape">What to analyse</label>
         <select id="shape"><option value="one">One column</option><option value="multi">Several columns measured at the same points</option></select></div>
       <div><label for="columns">Columns (several-columns mode; names or numbers, comma-separated; blank = every numeric column)</label><input id="columns" type="text" placeholder="e.g. temp, co2" disabled></div>
+      <div><label for="jointNoise">One segmentation for all columns: noise per column (several-columns mode, level model)</label>
+        <select id="jointNoise" disabled><option value="auto">Floor only the columns that over-cut (default)</option><option value="off">Plain: each column's step-to-step scatter</option><option value="floor2">Floor every column at 2x its local-line scatter</option><option value="ar1floor">Autocorrelation and a floor on every column (fewest cuts)</option></select></div>
       <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
       <div><label for="model">Look for a change in</label>
         <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
@@ -89,7 +91,7 @@
     <button type="button" id="run">Find changepoints</button>
     <button type="button" class="secondary" id="example">Load example: Nile river flow 1871–1970</button>
     <button type="button" class="secondary" id="example-fx">Load example: franc, pound and yen, 2012–2018 (several columns)</button>
-    <p class="note" id="working" role="status" hidden>Working: several columns run the six-setting check on each column, which takes a few seconds on long series.</p>
+    <p class="note" id="working" role="status" hidden>Working in the background: a long series takes a few seconds (several columns run the six-setting check on each column). The page stays usable, and a new run replaces this one.</p>
   </section>
 
   <section class="card" aria-labelledby="res-h" id="results" hidden>
@@ -124,7 +126,7 @@
 
   <section class="card" id="report-card" aria-labelledby="report-h" hidden>
     <h2 id="report-h">Branded change report</h2>
-    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions, as one page to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions (with several columns: each column's chart and agreed changes and the one segmentation for all of them), as one page to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
     <p id="report-buy-row" hidden><a id="report-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
     <p><label>Licence key <input id="report-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="report-check">Check key</button> <span id="report-state" role="status"></span></p>
     <div id="report-fields" hidden>
@@ -180,7 +182,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> An independent implementation from the published papers; not affiliated with or endorsed by the papers' authors or their institutions.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -188,14 +190,15 @@
   </footer>
 
   <script type="module">
-    import { analyze, DEFAULTS } from "./engine.mjs";
-    import { consensus, agreedText } from "./consensus.mjs";
+    import { DEFAULTS } from "./engine.mjs";
+    import { PANEL, runSetting, mergeConsensus, agreedText, levelRunFromMain } from "./consensus.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { chartSvg, changeReportHtml, esc, fmt } from "./report.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
-    import { parseColumns, analyzeMulti } from "./multivariate.mjs";
+    import { analyzeJob } from "./analyze-job.mjs";
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
+    import { multiReportHtml } from "./multi-report.mjs";
 
     const $ = (s) => document.querySelector(s);
     let last = null;
@@ -204,56 +207,146 @@
     $("#penalty").addEventListener("change", () => { $("#penaltyValue").disabled = $("#penalty").value !== "custom"; });
 
     let lastMulti = null;
-    $("#shape").addEventListener("change", () => { $("#columns").disabled = $("#shape").value !== "multi"; $("#column").disabled = $("#shape").value === "multi"; });
+    $("#shape").addEventListener("change", () => { $("#columns").disabled = $("#shape").value !== "multi"; $("#jointNoise").disabled = $("#shape").value !== "multi"; $("#column").disabled = $("#shape").value === "multi"; });
+
+    // The main analysis runs in a Web Worker (analyze-worker.mjs), so a long series does not
+    // freeze the page: 4.7 to 6.5 s on the 7,980-point tree-ring series in one thread. One worker is
+    // kept; a newer run terminates a busy one. Without workers the same call (analyzeJob) runs
+    // here, after a pause that lets the "Working" note paint.
+    let mainJob = null;
+    let mainWorker = null;
+    function stopMain() {
+      if (mainJob && mainWorker) { mainWorker.terminate(); mainWorker = null; }
+      mainJob = null;
+      $("#working").hidden = true;
+    }
+    function startMain(job, done) {
+      stopMain();
+      const me = { id: Math.random() };
+      mainJob = me;
+      $("#working").hidden = false;
+      const finish = (out) => { if (mainJob !== me) return; mainJob = null; $("#working").hidden = true; done(out); };
+      const here = () => setTimeout(() => { if (mainJob === me) finish(analyzeJob(job)); }, 30);
+      try {
+        if (typeof Worker === "undefined") throw new Error("no workers");
+        if (!mainWorker) mainWorker = new Worker("./analyze-worker.mjs", { type: "module" });
+      } catch (e) { mainWorker = null; return here(); }
+      mainWorker.onmessage = (e) => { if (e.data.id === me.id) finish(e.data); };
+      mainWorker.onerror = (e) => {
+        e.preventDefault();
+        if (mainJob !== me) return;
+        if (mainWorker) mainWorker.terminate();
+        mainWorker = null;
+        here();
+      };
+      mainWorker.postMessage({ id: me.id, job });
+    }
 
     function runMulti() {
       $("#error").textContent = "";
       $("#results").hidden = true;
       const model = $("#model").value;
-      if (model !== "mean" && model !== "meanvar") { $("#multi-results").hidden = true; $("#error").textContent = "Several columns take the level model or the level-and-volatility model."; return; }
+      if (model !== "mean" && model !== "meanvar") { stopMain(); $("#multi-results").hidden = true; $("#error").textContent = "Several columns take the level model or the level-and-volatility model."; return; }
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
       const list = $("#columns").value.split(",").map((c) => c.trim()).filter(Boolean).map((c) => (/^\d+$/.test(c) ? Number(c) - 1 : c));
-      $("#working").hidden = false;
-      // Let the "Working" note paint before the main thread is busy.
-      setTimeout(() => {
-        try {
-          const p = parseColumns($("#csv").value, list.length ? list : null, null);
-          if (p.cols.length < 2) throw new Error("Several-columns mode needs two or more numeric columns; for one column pick \u201cOne column\u201d.");
-          const r = analyzeMulti({ ...p, model, penalty });
-          lastMulti = { p, r };
-          $("#multi-summary").textContent = multiSummary(r);
-          $("#multi-warnings").innerHTML = r.overcutWarning ? `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r.overcutWarning)}</p>` : "";
-          $("#multi-chart").innerHTML = multiChartSvg(p, r);
-          $("#multi-agreed").innerHTML = agreedTableHtml(r);
-          $("#multi-joint").innerHTML = jointTableHtml(r, p);
-          $("#multi-results").hidden = false;
-          record("multi_run");
-        } catch (e) { $("#multi-results").hidden = true; $("#error").textContent = e.message; }
-        $("#working").hidden = true;
-      }, 30);
+      const jn = $("#jointNoise").value;
+      startMain({ kind: "multi", csv: $("#csv").value, columns: list, opts: { model, penalty, floor: jn === "off" ? "off" : jn === "auto" ? "auto" : 2, ar1: jn === "ar1floor" } }, (out) => {
+        if (out.error) { $("#multi-results").hidden = true; $("#error").textContent = out.error; return; }
+        const { p, r } = out.result;
+        lastMulti = { p, r };
+        $("#multi-summary").textContent = multiSummary(r);
+        $("#multi-warnings").innerHTML = r.overcutWarning ? `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r.overcutWarning)}</p>` : "";
+        $("#multi-chart").innerHTML = multiChartSvg(p, r);
+        $("#multi-agreed").innerHTML = agreedTableHtml(r);
+        $("#multi-joint").innerHTML = jointTableHtml(r, p);
+        $("#multi-results").hidden = false;
+        record("multi_run");
+      });
+    }
+
+    // The agreed-changes panel runs six full analyses, about five times the main one
+    // (32 s on 7,980 points in one thread). It runs in Web Workers, one setting each, up
+    // to the number of cores, so the results above show at once and the page stays usable;
+    // a newer run stops an older panel. Without workers it runs here, on up to 2,000 points.
+    const AGREED_SYNC_MAX = 2000;
+    let agreedJob = null;
+    function stopAgreed() {
+      if (agreedJob) { agreedJob.workers.forEach((w) => w.terminate()); agreedJob = null; }
+    }
+    function showAgreed(text) {
+      $("#agreed").innerHTML = `<strong>Agreed changes:</strong> ${esc(text)}`;
+      $("#agreed").hidden = false;
+    }
+    function finishAgreed(runs) {
+      try { lastAgreed = agreedText(mergeConsensus(runs)); showAgreed(lastAgreed); }
+      catch (e) { $("#agreed").hidden = true; /* the panel is extra; the main analysis already ran */ }
+    }
+    // pre: the main result standing in for the "level" setting (levelRunFromMain), or null.
+    function runAgreed(base, n, pre) {
+      const total = PANEL.length;
+      const runHere = () => PANEL.map((p, i) => (i === 0 && pre ? pre : runSetting(base, p)));
+      let workers = [];
+      try {
+        if (typeof Worker === "undefined") throw new Error("no workers");
+        const k = Math.max(1, Math.min(total - (pre ? 1 : 0), navigator.hardwareConcurrency || 2));
+        for (let i = 0; i < k; i++) workers.push(new Worker("./consensus-worker.mjs", { type: "module" }));
+      } catch (e) {
+        workers.forEach((w) => w.terminate());
+        if (n > AGREED_SYNC_MAX) { showAgreed(`not run on ${n} points in this browser (it has no background workers); the six-setting panel takes about five times the main analysis. The command line runs it with --consensus.`); return; }
+        finishAgreed(runHere());
+        return;
+      }
+      const job = { id: Math.random(), workers, runs: new Array(total), done: 0, next: 0, t0: performance.now() };
+      if (pre) { job.runs[0] = pre; job.done = 1; }
+      agreedJob = job;
+      showAgreed(`working in the background: ${job.done} of ${total} settings done${n > AGREED_SYNC_MAX ? ` (a long series: ${n} points)` : ""}.`);
+      // Slowest settings first (measured on 7,980 tree-ring points: the two AR(1) settings ~7 s,
+      // level ~5.5 s, noise floor ~4.8 s, the trend pair ~1 s each), so four cores finish together.
+      const order = [2, 1, 0, 3, 4, 5].filter((i) => i < total && !(i === 0 && pre));
+      const feed = (w) => { if (job.next < order.length) w.postMessage({ id: job.id, base, setting: order[job.next++] }); };
+      for (const w of workers) {
+        w.onmessage = (e) => {
+          if (agreedJob !== job || e.data.id !== job.id) return;
+          job.runs[e.data.setting] = e.data.run;
+          job.done++;
+          if (job.done === total) { stopAgreed(); finishAgreed(job.runs); record("agreed_run"); return; }
+          showAgreed(`working in the background: ${job.done} of ${total} settings done.`);
+          feed(w);
+        };
+        w.onerror = (e) => {
+          e.preventDefault();
+          if (agreedJob !== job) return;
+          stopAgreed();
+          if (n <= AGREED_SYNC_MAX) finishAgreed(runHere());
+          else $("#agreed").hidden = true;
+        };
+        feed(w);
+      }
     }
 
     function run() {
-      if ($("#shape").value === "multi") return runMulti();
+      if ($("#shape").value === "multi") { stopAgreed(); return runMulti(); }
       $("#multi-results").hidden = true;
       $("#error").textContent = "";
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
-      try {
-        last = analyze({ csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, robust: $("#model").value === "meanvar" && $("#robust").checked, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" ? "nb" : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, log: $("#log").checked, slopeBreaks: $("#slopeBreaks").checked, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, ...($("#noiseFloor").value === "local25" && $("#model").value === "mean" ? { noiseFloor: 2, noiseFloorOrder: "local", noiseFloorWindow: 25 } : {}), hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) });
-      } catch (e) { $("#results").hidden = true; $("#error").textContent = e.message; return; }
-      const r = last;
+      const opts = { csv: $("#csv").value, column: $("#column").value.trim() || null, model: $("#model").value, robust: $("#model").value === "meanvar" && $("#robust").checked, period: Number($("#period").value) || 0, drift: $("#drift").checked, overdispersion: $("#overdispersion").value === "nb" ? "nb" : $("#overdispersion").value === "1", jointKnots: $("#jointKnots").checked, bursts: $("#bursts").checked, log: $("#log").checked, slopeBreaks: $("#slopeBreaks").checked, holidays: $("#holidays").value.split(",").map((h) => h.trim()).filter(Boolean), knotMargin: Number($("#knotMargin").value), trend: $("#trend").value === "1" ? true : $("#trend").value || false, ar1: $("#ar1").value === "joint" ? "joint" : $("#ar1").value === "1", penalty, ...($("#noiseFloor").value === "local25" && $("#model").value === "mean" ? { noiseFloor: 2, noiseFloorOrder: "local", noiseFloorWindow: 25 } : {}), hazardLambda: Number($("#hazard").value), threshold: Number($("#threshold").value) };
+      const agreedBase = { csv: $("#csv").value, column: $("#column").value.trim() || null, log: $("#log").checked, period: Number($("#period").value) || 0, penalty };
+      const wantAgreed = $("#model").value === "mean";
+      stopAgreed();
+      startMain({ kind: "one", opts }, (out) => {
+        if (out.error) { $("#results").hidden = true; $("#error").textContent = out.error; return; }
+        show(out.result, wantAgreed ? agreedBase : null, opts);
+      });
+    }
+
+    function show(r, agreedBase, opts) {
+      last = r;
       $("#summary").textContent = r.summary + (r.bursts && r.bursts.length ? ` Spikes cut back before fitting: ${r.bursts.slice(0, 10).map((b) => `${b.label} (${b.value} kept as ${b.keptAs})`).join(", ")}${r.bursts.length > 10 ? `, and ${r.bursts.length - 10} more` : ""}.` : "");
       // The settings panel (consensus.mjs) for the level model: the summary that held up on held-out labelled series.
       $("#agreed").hidden = true;
       lastAgreed = "";
-      if ($("#model").value === "mean") {
-        try {
-          const c = consensus({ csv: $("#csv").value, column: $("#column").value.trim() || null, log: $("#log").checked, period: Number($("#period").value) || 0, penalty });
-          lastAgreed = agreedText(c);
-          $("#agreed").innerHTML = `<strong>Agreed changes:</strong> ${esc(lastAgreed)}`;
-          $("#agreed").hidden = false;
-        } catch (e) { /* the panel is extra; the main analysis above already ran */ }
-      }
+      stopAgreed();
+      if (agreedBase) runAgreed(agreedBase, r.n, levelRunFromMain(opts, r));
       $("#warnings").innerHTML = ["rangeWarning", "driftWarning", "cycleWarning", "overcutWarning"].filter((k) => r[k]).map((k) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("");
       $("#slopeResult").innerHTML = r.slopeBreaks
         ? `<p class="note" role="note"><strong>Growth-rate test (bar ${esc(r.slopeBreaks.critical)}):</strong> ${r.slopeBreaks.breaks.length ? r.slopeBreaks.breaks.map((b) => `${esc(b.label)}: ${esc(b.slopeBefore)} → ${esc(b.slopeAfter)} per step (Wald ${esc(b.wald)})`).join("; ") : "no change of growth rate clears the bar."} ${esc(r.slopeBreaks.note)}</p>`
@@ -314,8 +407,11 @@
         if (v.valid) record("report_unlocked");
       });
       $("#report-open").addEventListener("click", () => {
-        if (!last) return;
-        const html = changeReportHtml(last, { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, agreed: lastAgreed, date: new Date().toISOString().slice(0, 10) });
+        const brand = { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date().toISOString().slice(0, 10) };
+        // Several columns: the several-column report on the last run (multi-report.mjs); otherwise the one-column report.
+        const multi = $("#shape").value === "multi";
+        if (multi ? !lastMulti : !last) return;
+        const html = multi ? multiReportHtml(lastMulti.p, lastMulti.r, brand) : changeReportHtml(last, { ...brand, agreed: lastAgreed });
         const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
         record("report_opened");
       });

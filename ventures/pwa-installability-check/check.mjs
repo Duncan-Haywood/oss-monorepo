@@ -19,7 +19,7 @@
 import { runProbe } from './probe.mjs';
 import { buildReport } from './analyze.mjs';
 
-function formatText(report) {
+export function formatText(report) {
   const lines = [];
   lines.push(`Target: ${report.target}`);
   if (report.manifestUrl) lines.push(`Manifest: ${report.manifestUrl} (${report.iconCount} icon(s) listed)`);
@@ -39,8 +39,11 @@ function formatText(report) {
 
   lines.push(
     report.ok
-      ? 'This page clears the checks this tool runs -- the same criteria Lighthouse\'s ' +
-        '"installable-manifest" audit checks. See README.md for what it does not check.'
+      ? (report.findings.some((f) => f.id === 'missing-512-icon' || f.id === 'missing-start-url')
+          ? 'No hard install blocker found, but Chrome\'s published criteria also list the item(s) ' +
+            'flagged as notices above (a 512x512 icon, start_url). See README.md for what this does not check.'
+          : 'This page clears every check this tool runs, including Chrome\'s published install ' +
+            'criteria. See README.md for what it does not check.')
       : 'This is evidence from the checks above, not a full Lighthouse audit -- ' +
         'see README.md for what this tool does and does not check.',
   );

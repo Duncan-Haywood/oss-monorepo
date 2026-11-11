@@ -432,12 +432,16 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
   const flags = [];
   if (net >= 400) flags.push(`Net profit is $${net}. At $400 or more you owe self-employment tax and file Schedule C and Schedule SE with your Form 1040, even if you owe no income tax.`);
   else flags.push(`Net profit is under $400 so far: no self-employment tax yet. If you have no other income you may not need to file; check the Form 1040 instructions.`);
-  const threshold = HOUSEHOLD_THRESHOLD[year];
+  // A year with no figure on file uses the latest one (it rises with inflation,
+  // so the warning stays on rather than vanishing), and says which year it is.
+  const thresholdYear = HOUSEHOLD_THRESHOLD[year] ? year : Math.max(...Object.keys(HOUSEHOLD_THRESHOLD).map(Number));
+  const threshold = HOUSEHOLD_THRESHOLD[thresholdYear];
+  const thresholdNote = thresholdYear === year ? "" : ` (the ${thresholdYear} threshold; the ${year} one is not on file yet)`;
   for (const [fid, amt] of Object.entries(byFamily)) {
     if (fid === "gift certificates") continue; // bought by anyone, not one family's pay
     if (threshold && amt >= threshold) {
       const f = desk.families.find((x) => x.id === fid);
-      flags.push(`${f ? f.name : "One family"} paid you $${amt} this year (at or over $${threshold}). If that family controls how and when you work in their home, the IRS can treat you as their household employee (Publication 926), and they would owe the nanny tax and give you a W-2. Babysitters who run their own business for many families are usually self-employed. Talk it through with the family.`);
+      flags.push(`${f ? f.name : "One family"} paid you $${amt} this year (at or over $${threshold}${thresholdNote}). If that family controls how and when you work in their home, the IRS can treat you as their household employee (Publication 926), and they would owe the nanny tax and give you a W-2. Babysitters who run their own business for many families are usually self-employed. Talk it through with the family.`);
     }
   }
   const appTotal = Object.entries(byMethod).filter(([m]) => /venmo|paypal|cash ?app|square|stripe/i.test(m));

@@ -236,7 +236,7 @@ const STYLE = `
   h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
   .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
   .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
-  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:2px 8px; margin:0 4px 4px 0; color:var(--muted); }
   article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
   article h4 { font-size:1rem; margin:1.4em 0 .3em; }
   article p, article li { overflow-wrap:break-word; }
@@ -259,7 +259,7 @@ const STYLE = `
   .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
   .posts h2 a::after { content:""; position:absolute; inset:0; border-radius:14px; }
   .posts h2 a:hover, .posts h2 a:focus-visible { color:var(--accent); }
-  .pager { margin:1.4rem 0; color:var(--muted); font-size:.95rem; } .pager .nums { display:flex; flex-wrap:wrap; gap:4px 10px; } .pager [aria-current] { font-weight:700; color:var(--text, inherit); }
+  .pager { margin:1.4rem 0; color:var(--muted); font-size:.95rem; } .pager .nums { display:flex; flex-wrap:wrap; gap:4px 6px; } .pager .nums > * { min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; } .pager [aria-current] { font-weight:700; color:var(--text, inherit); }
   .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
   .posts .meta { display:flex; flex-wrap:wrap; gap:6px; margin:.7em 0 0; }
   .posts .date, .posts .mins { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px;
@@ -279,8 +279,8 @@ const STYLE = `
   .finder select { font:inherit; padding:4px 6px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); max-width:100%; }
   .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0; }
   .chips button { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
-  .chips button[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:#fff; }
-  .chips button span { opacity:.75; margin-left:4px; }
+  .chips button[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:var(--bg); }
+  .chips button span { margin-left:4px; font-variant-numeric:tabular-nums; }
   .finder #clear { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
   .posts h3 { font-size:1.12rem; margin:0 0 .3em; line-height:1.3; } .posts h3 a { color:inherit; text-decoration:none; } .posts h3 a:hover { color:var(--accent); }
   section[id^="topic-"] { scroll-margin-top:16px; }

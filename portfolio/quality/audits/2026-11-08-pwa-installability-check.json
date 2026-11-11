@@ -28,6 +28,6 @@
     {"severity": "low", "what": "[::1] and *.localhost not treated as secure; non-numeric --timeout silently becomes the default; import.meta.url main guard fragile on paths with spaces.", "where": "ventures/pwa-installability-check/probe.mjs:secure, check.mjs:parseArgs and main guard"},
     {"severity": "low", "what": "No test compares classification against any external reference (Chrome/Lighthouse output); fixtures encode the author's reading of the criteria.", "where": "ventures/pwa-installability-check/analyze.test.mjs"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14648"],
   "verdict": "A tidy, well-tested, honestly scoped prototype whose core claim is wrong in a way users would act on. The code runs, 73 tests pass and two seeded mutations were caught, and the checks it does implement (name, display, HTTPS, reachable 192 icon, dead icons) behave correctly in a live run against a local server. But it declares a manifest installable, exit 0 and 'same criteria as Lighthouse', when start_url and a 512x512 icon are missing, both of which Chrome's published criteria require, and it ignores icon purpose. Because the benchmark sources were recalled rather than fetched, the correctness score is capped and the finding should be re-confirmed against web.dev before the fix. Does not meet the bar (claims 1, correctness 2); finished in the sense that everything it lists works (completeness 3)."
   }

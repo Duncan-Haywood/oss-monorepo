@@ -1,0 +1,20 @@
+# 2026-11-11, 4-core machine shared with other benches. node eval/dive-backtrack-bench.mjs 10 28 200; SEED=11 ... 14 40 120
+13 rootLP 58.67 no-retry 62 optimum 60 full 2633ms | B=10 61 10r full 3517ms proven | B=30 61 30r full 2346ms proven | B=100 61 100r full 2882ms proven
+44 rootLP 70.00 no-retry 75 optimum 70 full 64ms | B=10 74 10r full 58ms proven | B=30 74 30r full 113ms proven | B=100 70 76r full 56ms proven
+46 rootLP 59.00 no-retry 60 optimum 60 full 831ms | B=10 60 10r full 700ms proven | B=30 60 30r full 1570ms proven | B=100 60 100r full 739ms proven
+74 rootLP 88.00 no-retry 89 optimum 88 full 36ms | B=10 89 10r full 47ms proven | B=30 89 30r full 61ms proven | B=100 88 69r full 70ms proven
+79 rootLP 89.17 no-retry 92 optimum 90 full 27ms | B=10 92 10r full 31ms proven | B=30 91 30r full 42ms proven | B=100 91 100r full 74ms proven
+132 rootLP 58.00 no-retry 61 optimum 58 full 125ms | B=10 58 1r full 55ms proven | B=30 58 1r full 48ms proven | B=100 58 1r full 48ms proven
+153 rootLP 43.56 no-retry 46 optimum 45 full 42ms | B=10 46 10r full 62ms proven | B=30 46 30r full 76ms proven | B=100 46 100r full 141ms proven
+171 rootLP 21.33 no-retry 24 optimum 24 full 3482ms | B=10 24 10r full 2285ms proven | B=30 24 30r full 4558ms proven | B=100 24 100r full 5840ms proven
+P=10 S=28 seed 7: 8 of 200 weeks missed by the dives without retries
+  budget 10: dive alone reaches the optimum on 3 of 8; full proof total 6755 ms (no retries 7240 ms)
+  budget 30: dive alone reaches the optimum on 3 of 8; full proof total 8814 ms (no retries 7240 ms)
+  budget 100: dive alone reaches the optimum on 5 of 8; full proof total 9850 ms (no retries 7240 ms)
+53 rootLP 48.00 no-retry 49 optimum 48 full 206ms | B=10 48 2r full 152ms proven | B=30 48 2r full 113ms proven | B=100 48 2r full 129ms proven
+70 rootLP 57.50 no-retry 59 optimum 58 full 447ms | B=10 59 10r full 612ms proven | B=30 59 30r full 482ms proven | B=100 59 100r full 547ms proven
+98 rootLP 108.50 no-retry 110 optimum 109 full 92ms | B=10 110 10r full 99ms proven | B=30 110 17r full 112ms proven | B=100 110 17r full 110ms proven
+P=14 S=40 seed 11: 3 of 120 weeks missed by the dives without retries
+  budget 10: dive alone reaches the optimum on 1 of 3; full proof total 863 ms (no retries 745 ms)
+  budget 30: dive alone reaches the optimum on 1 of 3; full proof total 707 ms (no retries 745 ms)
+  budget 100: dive alone reaches the optimum on 1 of 3; full proof total 786 ms (no retries 745 ms)

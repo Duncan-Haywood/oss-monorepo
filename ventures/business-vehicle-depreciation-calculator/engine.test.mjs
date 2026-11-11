@@ -63,3 +63,12 @@ test("editable limits override defaults", () => {
   lim.passengerCaps.year1WithBonus = 10000;
   assert.equal(by(compute(base, lim), "bonus").year1, 10000);
 });
+
+test("heavy SUV 179 cap is not prorated by business use (IRS Pub 946, ch. 2)", () => {
+  // $80,000 SUV at 90%: basis 72,000; 179 limited to 31,300; MACRS 20% on the remaining 40,700 = 8,140.
+  const r = compute({ ...base, price: 80000, businessPct: 90, vehicleClass: "heavy_suv" });
+  assert.equal(Math.round(by(r, "s179").year1), 39440);
+  // When the business basis is under the cap, all of it can be expensed.
+  const small = compute({ ...base, price: 40000, businessPct: 60, vehicleClass: "heavy_suv" });
+  assert.equal(Math.round(by(small, "s179").year1), 24000);
+});
