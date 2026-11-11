@@ -178,3 +178,85 @@ test('the made-up example runs end to end and exports CSV', () => {
   assert.match(csv.split('\n')[0], /^sensor,hour,temp_c,maturity_c_h,estimated_strength_psi$/);
   assert.ok(csv.split('\n').length > 400);
 });
+
+// ---- red-team 2026-11-11: real defects (each failed before its fix) and guards for escaped mutants
+
+test('calibration text: a thousands separator in the strength is not read as two numbers', () => {
+  const { rows, errors } = parseCalibrationText('1, 1,180\n7 3,420\n28\t4,650\n14;4,060\n7,3420\n');
+  assert.deepEqual(errors, []);
+  assert.deepEqual(rows.map(r => [r.ageDays, r.strength]), [[1, 1180], [7, 3420], [28, 4650], [14, 4060], [7, 3420]]);
+});
+
+test('timestamps: impossible dates and times are rejected, not rolled into the next day or month', () => {
+  for (const bad of ['2/30/2026 08:00', '11/2/2026 25:00', '11/2/2026 13:00 PM', '11/2/2026 10:75', '2026-02-30 08:00', '2026-11-02 24:30', '31-Apr-2026 08:00']) {
+    assert.ok(Number.isNaN(parseTimestamp(bad)), bad);
+  }
+  assert.equal(parseTimestamp('2/29/2028 23:59:59'), Date.UTC(2028, 1, 29, 23, 59, 59)); // leap day
+  assert.equal(parseTimestamp('1/5/2026 9:00 AM'), Date.UTC(2026, 0, 5, 9)); // single-digit month
+  assert.equal(parseTimestamp('11/1/2026 08:00'), Date.UTC(2026, 10, 1, 8)); // the first of the month
+});
+
+test('logger CSV: a temperature header containing "age" (Average, Stage) is not taken as the time column', () => {
+  const r = parseLoggerCsv('Average (°C),Elapsed (h)\n20,0\n21,1\n22,2\n');
+  assert.equal(r.sensors.length, 1);
+  assert.equal(r.sensors[0].name, 'Average');
+  assert.deepEqual(r.sensors[0].hours, [0, 1, 2]);
+  assert.deepEqual(r.sensors[0].tempC, [20, 21, 22]);
+  const s = parseLoggerCsv('Stage 1 probe (C),Hours\n15,0\n16,1\n').sensors[0];
+  assert.deepEqual(s.tempC, [15, 16]);
+});
+
+test('logger CSV: elapsed units are read from underscored and plain headers', () => {
+  assert.deepEqual(parseLoggerCsv('elapsed_min,probe_c\n0,20\n60,20\n120,20\n').sensors[0].hours, [0, 1, 2]);
+  assert.deepEqual(parseLoggerCsv('time_s,probe_c\n0,20\n3600,20\n').sensors[0].hours, [0, 1]);
+  assert.deepEqual(parseLoggerCsv('Age (days),T (C)\n0,20\n1,20\n2,20\n').sensors[0].hours, [0, 24, 48]);
+  assert.deepEqual(parseLoggerCsv('age_days,T (C)\n0,20\n0.5,20\n').sensors[0].hours, [0, 12]);
+  assert.deepEqual(parseLoggerCsv('Elapsed hours,Minimum temp (C)\n0,5\n2,6\n').sensors[0].hours, [0, 2]);
+});
+
+test('logger CSV: two headerless readings are a usable record', () => {
+  const r = parseLoggerCsv('0,20\n1,22\n');
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.sensors[0].hours, [0, 1]);
+});
+
+test('equivalent age: the default reference temperature is 20 deg C', () => {
+  close(maturityRate(20, { method: 'equivalent-age' }), 1, 1e-12);
+  close(labMaturity(1, { method: 'equivalent-age', labCuringC: 20 }), 24, 1e-9);
+});
+
+test('curve fits: as many specimens as parameters rules a curve out; a flat set has R2 1', () => {
+  const two = fitStrength([{ index: 500, strength: 1000 }, { index: 2000, strength: 3000 }], 'auto');
+  assert.equal(two.chosen, null);
+  assert.equal(two.fits.find(f => f.name === 'logarithmic').ok, false);
+  // A flat set never rises, so no curve is used, but an exponential can creep up and show its R2.
+  const flat = fitStrength([500, 1000, 2000, 4000].map(index => ({ index, strength: 3000 })), 'auto');
+  assert.equal(flat.fits.find(f => f.name === 'logarithmic').r2, 1);
+});
+
+test('the numbers the explainer page quotes for the made-up example come from the code', () => {
+  // maturity-method-explained.html, "A worked example": keep the page and the engine in step.
+  const fit = fitStrength(calibrationPoints(parseCalibrationText(EXAMPLE_CALIBRATION).rows), 'auto');
+  const by = Object.fromEntries(fit.fits.map(f => [f.name, f]));
+  assert.equal(fit.chosen.name, 'exponential');
+  assert.deepEqual(['logarithmic', 'hyperbolic', 'exponential'].map(n => by[n].r2.toFixed(3)), ['0.992', '0.998', '0.999']);
+  assert.deepEqual(['exponential', 'hyperbolic', 'logarithmic'].map(n => by[n].aicc.toFixed(1)), ['82.4', '87.7', '99.6']);
+  // AICc = n ln(SSE/n) + 2k + 2k(k+1)/(n-k-1), checked by hand for one fit.
+  const e = by.exponential;
+  close(e.aicc, 10 * Math.log((e.rmse ** 2 * 10) / 10) + 6 + 24 / 6, 1e-9);
+  close(indexForStrength(fit.chosen, 3000), 2560, 10);
+  const r = estimate(parseLoggerCsv(exampleCsv()).sensors, fit.chosen, { target: 3000, range: fit.range });
+  const [mid, edge] = r.sensors;
+  close(mid.maturityNow, 1900, 10); close(mid.strengthNow, 2650, 10);
+  close(edge.maturityNow, 1270, 10); close(edge.strengthNow, 2170, 10);
+  close(edge.minC, 3.7, 0.05);
+  close(mid.projected.hoursMore / 24, 2.7, 0.05); close(edge.projected.hoursMore / 24, 7.2, 0.05);
+  close(mid.projected.assumedC, 10, 0.5); close(edge.projected.assumedC, 7.5, 0.1);
+  close(3000 - edge.strengthNow, 830, 10); // "about 830 psi short at the edge"
+});
+
+test('logger CSV: a temperature column named with a bare T is not the time column', () => {
+  const s = parseLoggerCsv('Probe T (C),Hours\n15,0\n16,1\n').sensors[0];
+  assert.deepEqual(s.hours, [0, 1]);
+  assert.deepEqual(s.tempC, [15, 16]);
+});
