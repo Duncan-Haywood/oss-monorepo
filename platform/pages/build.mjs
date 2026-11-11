@@ -4802,15 +4802,21 @@ async function exists(target) {
   }
 }
 
-/** Every file under `dir`, recursively. */
+/**
+ * Every file under `dir`, recursively, in depth-first `readdir` order.
+ * Sibling directories are read concurrently (one awaited `readdir` at a time
+ * left three of libuv's four I/O threads idle); `Promise.all` keeps each
+ * subtree in its entry's place, so the list is the same as the serial walk's
+ * (docs/history/pages-build-perf-2026-11-11-concurrent-walks.md).
+ */
 export async function listFiles(dir) {
-  const out = [];
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const parts = await Promise.all(entries.map((entry) => {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) out.push(...(await listFiles(full)));
-    else if (entry.isFile()) out.push(full);
-  }
-  return out;
+    if (entry.isDirectory()) return listFiles(full);
+    return entry.isFile() ? [full] : [];
+  }));
+  return parts.flat();
 }
 
 /**
@@ -5499,18 +5505,14 @@ export function listProse(items) {
  */
 export async function publishedPages(dir, prefix = '') {
   const entries = await fs.readdir(dir, { withFileTypes: true });
-  const pages = [];
-
-  for (const entry of entries) {
+  // Subdirectories are read concurrently, as in `listFiles`; the result is
+  // sorted, so the order they finish in cannot show.
+  const parts = await Promise.all(entries.map((entry) => {
     const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) {
-      pages.push(...(await publishedPages(path.join(dir, entry.name), relative)));
-    } else if (entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html') {
-      pages.push(relative);
-    }
-  }
-
-  return pages.sort();
+    if (entry.isDirectory()) return publishedPages(path.join(dir, entry.name), relative);
+    return entry.isFile() && entry.name.endsWith('.html') && entry.name !== '404.html' ? [relative] : [];
+  }));
+  return parts.flat().sort();
 }
 
 // ---------------------------------------------------------------------------
