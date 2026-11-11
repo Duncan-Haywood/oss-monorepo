@@ -91,6 +91,40 @@ class Cli(unittest.TestCase):
         self.assertIn("1 files scanned", out)
 
 
+class Evasions(unittest.TestCase):
+    """Red team 2026-11-11: copy that renders as a claim but slipped past."""
+
+    def test_attribution_elsewhere_on_a_minified_line_does_not_excuse_a_claim(self):
+        page = ("<p>Trusted by 5,000 businesses</p>" + "<p>Plain words here.</p>" * 10
+                + "<footer>Enter amounts, for example 12.50</footer>")
+        self.assertTrue(check_social_proof.check(page))
+
+    def test_attribution_next_to_the_claim_still_counts(self):
+        self.assertEqual(check_social_proof.check(
+            "<p>Rival X says it is trusted by 10,000 teams.</p>"), [])
+
+    def test_entities_and_inline_tags_do_not_hide_a_claim(self):
+        for line in ("<p>Trusted&nbsp;by teams everywhere</p>",
+                     "<p>Trusted\u00a0by teams</p>",
+                     "<p>Join&#160;5,000 users</p>",
+                     "<p>As&nbsp;seen in Forbes</p>",
+                     "<p>Award&#8209;winning</p>",
+                     "<p>Trusted <b>by</b> 4,000 shops</p>",
+                     "<p><strong>Trusted</strong> by 4,000 shops</p>"):
+            with self.subTest(line=line):
+                self.assertTrue(check_social_proof.check(line))
+
+    def test_abbreviated_counts(self):
+        for line in ("<p>Join 10k+ freelancers</p>", "<p>Join 1.2M users</p>",
+                     "<p>50K happy customers</p>"):
+            with self.subTest(line=line):
+                self.assertTrue(check_social_proof.check(line))
+
+    def test_code_span_attribution_survives_normalising(self):
+        self.assertEqual(check_social_proof.check(
+            "<li>Flags <code>trusted by 5,000</code> in copy</li>"), [])
+
+
 class PrefilterIsSuperset(unittest.TestCase):
     """The speed-up must never skip a line CLAIM would flag."""
 
