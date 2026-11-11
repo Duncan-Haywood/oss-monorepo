@@ -197,7 +197,8 @@
           await say("Great.", "en-US");
         } else if (tries === 0) {
           tries++;
-          await say(result.verdict === "close" ? "Close. Once more." : "Let's try that again.", "en-US");
+          await say(result.negationMismatch ? "Careful, that changes the meaning. Listen for the negative and try once more."
+            : result.verdict === "close" ? "Close. Once more." : "Let's try that again.", "en-US");
           continue;
         } else {
           await say("We'll come back to that one.", "en-US");
