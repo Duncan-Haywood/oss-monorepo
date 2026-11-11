@@ -21,7 +21,8 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const current = JSON.parse(storage.getItem(KEY) || "{}");
+    let current = JSON.parse(storage.getItem(KEY) || "{}");
+    if (!current || typeof current !== "object" || Array.isArray(current)) current = {};
     current[event] = (current[event] || 0) + 1;
     current.last_day = today;
     storage.setItem(KEY, JSON.stringify(current));

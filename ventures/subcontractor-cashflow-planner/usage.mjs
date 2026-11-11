@@ -13,7 +13,8 @@ export function recordUsage(event, enabled = true, storage = globalThis.localSto
   if (readOptOut(storage)) return;
   if (!enabled || !EVENTS.has(event) || honorsPrivacy() || !storage) return;
   try {
-    const usage = JSON.parse(storage.getItem(KEY) || '{}');
+    let usage = JSON.parse(storage.getItem(KEY) || '{}');
+    if (!usage || typeof usage !== 'object' || Array.isArray(usage)) usage = {};
     usage[event] = (usage[event] || 0) + 1;
     storage.setItem(KEY, JSON.stringify(usage));
   } catch {

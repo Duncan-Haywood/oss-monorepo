@@ -11,7 +11,8 @@ function honorsBrowserSignal() {
 export function recordUsage(storage = globalThis.localStorage, optedOut = false, eventName = "brand_order_calculated") {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   const today = new Date().toISOString().slice(0, 10);
-  const current = JSON.parse(storage.getItem("faire-wholesale-usage") || "{}");
+  let current = JSON.parse(storage.getItem("faire-wholesale-usage") || "{}");
+  if (!current || typeof current !== "object" || Array.isArray(current)) current = {};
   current[eventName] = (current[eventName] || 0) + 1;
   current.last_day = today;
   storage.setItem("faire-wholesale-usage", JSON.stringify(current));

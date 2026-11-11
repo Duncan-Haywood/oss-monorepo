@@ -19,7 +19,8 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
   // and disabled site data both throw here, and a usage count is not worth a
   // dead page — this is best-effort by design.
   try {
-    const current = JSON.parse(storage.getItem('security-camera-bid-usage') || '{}');
+    let current = JSON.parse(storage.getItem('security-camera-bid-usage') || '{}');
+    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
     current[event] = (current[event] || 0) + 1;
     current.last_day = today;
     storage.setItem('security-camera-bid-usage', JSON.stringify(current));
