@@ -47,6 +47,8 @@ const out = await page.evaluate(async () => {
   const $ = (q) => document.querySelector(q);
   const t = performance.now();
   $('#run').click();
+  // The main analysis runs in its own worker too (analyze-worker.mjs); the panel starts when it ends.
+  while (!$('#working').hidden) await new Promise((r) => setTimeout(r, 20));
   const mainMs = performance.now() - t;
   const first = $('#agreed').textContent;
   // While the panel works, a timer should still fire on time.

@@ -68,6 +68,22 @@ export function runSetting(base, p) {
   }
 }
 
+// The page's own analysis often is the panel's "level" setting: same series, plain level
+// model, nothing that changes the cuts. Then its result stands in for that setting and the
+// panel runs five analyses, not six. opts is the main analyze() input, r its result; returns
+// null unless every option that can move a cut is off (hazardLambda and threshold only steer
+// the Bayesian column, knotMargin only a trend fit). Pinned in agreed-worker.test.mjs.
+const LEVEL_SAME_KEYS = new Set(['csv', 'column', 'log', 'period', 'penalty', 'model', 'hazardLambda', 'threshold', 'knotMargin']);
+export function levelRunFromMain(opts, r) {
+  if (!opts || !r || opts.model !== 'mean') return null;
+  for (const [k, v] of Object.entries(opts)) {
+    if (LEVEL_SAME_KEYS.has(k)) continue;
+    if (v === false || v === null || v === undefined || v === 0 || v === '' || (Array.isArray(v) && !v.length)) continue;
+    return null;
+  }
+  return { name: PANEL[0].name, opts: PANEL[0].opts, labels: r.labels, cuts: r.pelt.changepoints.map((c) => ({ index: c.index, shift: c.shift })) };
+}
+
 export function consensus(base = {}, { tolerance = null, panel = PANEL } = {}) {
   return mergeConsensus(panel.map((p) => runSetting(base, p)), { tolerance });
 }

@@ -2202,3 +2202,45 @@ shows the report card as an unlocked key would, opens the report, and compares i
 extra; an open-source CLI flag would be honest but is the owner's pricing call). A wide joint table
 (many columns) scrolls sideways on screen and may be clipped in print; a column-per-page layout for
 more than about six columns is open.
+
+## Main analysis off the main thread (2026-11-11)
+
+The section above moved the six-setting panel into Web Workers but left the main analysis on the
+page's main thread, so a long series still froze the tab until its results showed. That was the
+flagship's item (c), "next: main analysis in a worker".
+
+- **What changed.** `analyze-job.mjs` turns one page request into plain data (`{ kind: 'one',
+  opts }` for `analyze`, `{ kind: 'multi', csv, columns, opts }` for `parseColumns` plus
+  `analyzeMulti`) and returns `{ result }` or `{ error }`, never throwing. `analyze-worker.mjs`
+  runs it in a module worker. The page keeps one such worker; clicking Analyze again while it is
+  busy terminates it and starts a new one, so a stale result can never overwrite a newer one.
+  Without workers (an old browser, a `file:` page) or if the worker fails to load, the same call
+  runs on the main thread after a 30 ms pause that lets the "Working" note paint. Both modes (one
+  column and several columns) go through it. Results are identical: `analyze-worker.test.mjs`
+  checks the job against a direct call after a structured clone, for eight model setups and the
+  several-columns example.
+- **The page's own result now stands in for the panel's "level" setting** when nothing in its
+  options moves a cut (`levelRunFromMain` in `consensus.mjs`: plain level model; the Bayesian
+  hazard and threshold and the trend knot margin may differ, every other box must be off). The
+  panel then runs five analyses instead of six. `agreed-worker.test.mjs` checks that the stand-in
+  equals `runSetting(base, PANEL[0])` and that the merged panel equals `consensus()` on seven
+  option sets, and that nine option sets that could move a cut (AR(1), trend, bursts, drift,
+  meanvar, the local floor, holidays, the growth-rate test, a minimum segment) get no stand-in.
+- **Measured** (headless Chromium, 4 cores, one run each, same container; before = this
+  directory at the parent commit, `eval/agreed-worker-browser.mjs`; after =
+  `eval/analyze-worker-browser.mjs`, output `eval/analyze-worker-browser.out.txt`, and
+  `eval/agreed-worker-browser.out.txt`):
+
+  | series | tab blocked before | after: click returns / worst 50 ms timer lag | results shown | panel done before → after |
+  |---|---|---|---|---|
+  | 6,000 seeded points | 2.2 s | 1 ms / 21 ms | 2.2 s | 5.6 s → 5.0 s |
+  | tree-ring, 7,980 points | 4.7 s | 1 ms / 29 ms | 4.7 s | 11.9 s → 11.0 s |
+
+  The results arrive no sooner (the worker does the same work), but the page answers clicks and
+  scrolling throughout, and a new click cancels the old run instead of queueing behind it. The
+  panel's 7 to 11% saving is one run each and within run-to-run noise on a shared container, so
+  read it as "one fewer analysis", not a measured speed-up. The panel text matched `consensus()`
+  in Node on all three inputs; the stale-run, no-worker and several-columns checks passed on both.
+- **Not done.** The CLI's panel still runs in one thread with its 2,000-point cap
+  (`worker_threads` would lift it); whether the agreed summary earns its cost on the long TCPD
+  series is still open.
