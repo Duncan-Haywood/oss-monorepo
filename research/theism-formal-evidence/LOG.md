@@ -1,5 +1,10 @@
 # Research log: theism-formal-evidence
 
+## 2026-11-11 · M2 (part): Anderson's system with varying domains (E12). Prediction written here before the search ran
+
+- **Setting.** As E11 (S5, positive set rigid, properties the unions of the blocks of a partition of the world x individual cells, Anderson's own A2), but each world w has its own non-empty domain, the set Ex of cells (w, y) with y existing at w. Quantifiers are actualist: "f entails g" is box forall y (f(y) -> g(y)) over existing y, so f entails g iff f &cap; Ex &sube; g. A1, essence and NE use that entailment; "x has f necessarily" stays possibilist (every world's cell of x, as Anderson's G\* reads). The argument's conclusion is actualist: at every world some God-like individual exists.
+- **Prediction (H17), proof sketched on paper before any code.** (a) Models of A1, A2w, A3' (no A5') are P = {f : H &sube; f} for non-empty unions of blocks H that satisfy E11's condition and in which every block of H meets Ex. (b) A5' (NE positive) binds, unlike in E10 and E11: it adds that H &cap; Ex meets every world (and that NE is in the algebra). (c) In every model of all four axioms the conclusion holds at every world; dropping A5' leaves models where it fails at some world. (d) Under full property semantics there is exactly one model per individual that exists at every world, and none when no individual does. Refuted if the exhaustive search over every domain assignment and every partition up to 5 cells (and 6-cell partitions with up to 5 blocks) gives a model count different from (a) or (b) anywhere, or a model of all four axioms where the conclusion fails.
+
 ## 2026-11-11 · M2 (part): Lean compiled; E10 proved in Lean; a correction, and Anderson's own A2 (E11). Prediction written here before the E11 search ran
 
 - **Lean compiled for the first time.** The v4.15.0 release tarball downloads through the proxy (only the elan installer script had been refused before); `lean/build.sh` fetches it and builds. Modal.lean and Arguments.lean, written in M1 and never compiled, built unchanged.
