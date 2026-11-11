@@ -2,8 +2,8 @@
 title: "One line that said \"Note:\" cut a customer's reply in half"
 seo_title: "Reading mbox files: why a 'From' line plus 'Note:' split an email"
 date: 2026-11-11
-tags: [sales-agent, email, mbox, testing, mutation-testing, red-team]
-description: "A red-team pass on the sales agent's mail-file reader found that an unescaped 'From ...' paragraph followed by a 'Note:' line split a reply and dropped half of it. Seven of eight seeded bugs also got past the tests."
+tags: [sales-agent, email, mbox, testing, mutation-testing, redteam]
+description: "A red-team pass found that an unescaped 'From ...' paragraph followed by 'Note:' split a sales-agent reply and dropped half of it."
 ---
 
 The [sales agent](../../ventures/sales-agent/) can read your exported mail (a
