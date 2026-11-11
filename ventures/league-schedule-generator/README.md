@@ -326,8 +326,46 @@ It also returns every try and the frontier (tries no other beats on both counts)
   14 professional 20-team seasons' 2,278, and dominates 4 of them instead of 2 or 3. At 18 teams
   "balanced" and "fewest" agree on two seeds of three (70 to 72 breaks); "most even" is the old
   single search. Search figures, three seeds, made-up team names; no organiser has used it yet.
-- Open: the frontier is thin (four points); a worker pool could run the tries in parallel on
-  multi-core phones and laptops (about 3 s instead of 12 at 20 teams) and so afford eight.
+- Open: the frontier is thin (four points). Superseded the same day by eight tries on a worker
+  pool (next section).
+
+## Eight searches on a pool of workers (2026-11-11)
+
+The four tries above ran one after another in one worker. They do not depend on each other, so the
+page now runs **eight** on a pool of Web Workers, one per core (`navigator.hardwareConcurrency`, at
+most eight).
+
+- **Code** (`carryover.mjs`). `carryOverTry(n, i, { double, seed })` runs try i alone (its seed and
+  break weight are the ones `bestCarryOverRounds` gives it); `splitCarryOverTries(k, workers)` deals
+  the try numbers round robin (8 tries on 3 threads: 0,3,6 / 1,4,7 / 2,5); `combineCarryOverTries(results,
+  pick)` sorts by try number, refuses a missing one and keeps the lowest score with ties to the lower
+  number, exactly as the serial loop. `bestCarryOverRounds` is now that loop over `carryOverTry`.
+  `carryover-worker.mjs` takes `{ n, double, seed, indices }` and posts each whole try back; the old
+  whole-search message still works for cached pages.
+- **Same season on any device.** The number of tries is fixed at eight, not taken from the core
+  count, so a share link builds the same fixtures on a one-core phone and an eight-core laptop; the
+  cores only change the wait. Tested (`best-of-k.test.mjs`): pools of 1, 3 and 8 workers reporting in
+  reverse order return the serial result for single and double seasons at picks 0, 10 and 40, and a
+  JSON round trip (the worker message) changes nothing.
+- **Measured** (`node eval/best-of-k.mjs`, `eval/best-of-k.txt`, new row "8 x effort 1"; seeds 1 to
+  3, pick 10; one thread):
+
+  | Teams | Tries | Carry-over | Breaks | Score | Seasons dominated | One-thread time |
+  |---|---|---|---|---|---|---|
+  | 18 | 4 | 1,573 | 73.3 | 2,307 | 1.7 of 6 | 9.1 s |
+  | 18 | 8 | 1,560 | 68.7 | 2,247 | 1.7 | 16.8 s |
+  | 20 | 4 | 1,761 | 114.7 | 2,907 | 3.0 of 14 | 10.9 s |
+  | 20 | 8 | 1,720 | 116.0 | 2,880 | 3.0 | 25.2 s |
+
+  Eight tries lower the score at both sizes. At 18 teams both carry-over and breaks fall; at 20
+  teams one seed of three changes (1,820/112 to 1,698/116), the other two keep try 0. Modest, and on
+  one core it doubles the wait; on four cores each thread runs two tries.
+- **In Chromium** (`node eval/browser-carryover-pool.mjs`, a four-core container, 20-team double
+  round robin, the page told it has 1, 2, 4 and 8 cores; `eval/browser-carryover-pool.txt`): eight
+  tries in 20.2 s on one thread, 10.0 s on two, 6.1 s on four (8 cores: 6.3 s, the container has four),
+  against 11.9 s for the old four tries on one thread; worst wait for a frame 17 ms at every size; the
+  same kept season (1,678/124 on seed 1) at every core count. Machines with fewer than two cores wait
+  longer than before (20 s, not 12) for the extra four tries.
 
 ## Several divisions on shared courts (`divisions.mjs`)
 
