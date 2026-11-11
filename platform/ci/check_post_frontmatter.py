@@ -92,16 +92,38 @@ def tag_key(tag):
     return k[:-1] if k.endswith("s") and len(k) > 3 else k
 
 
-def tag_variants(texts):
-    """Groups of tag spellings that mean one thing ({name: post text}); each splits the blog's tag filter."""
-    spellings = {}
-    for text in texts.values():
+def tag_uses(texts):
+    """{tag_key: {spelling: [post names]}} over every post ({name: post text})."""
+    uses = {}
+    for name, text in texts.items():
         m = re.search(r"^tags:\s*\[(.*?)\]", text, re.M)
         for t in (m.group(1).split(",") if m else []):
             t = t.strip().strip("\"'")
             if t:
-                spellings.setdefault(tag_key(t), set()).add(t)
-    return [sorted(v) for v in spellings.values() if len(v) > 1]
+                uses.setdefault(tag_key(t), {}).setdefault(t, []).append(name)
+    return uses
+
+
+def tag_variants(texts):
+    """Groups of tag spellings that mean one thing ({name: post text}); each splits the blog's tag filter."""
+    return [sorted(v) for v in tag_uses(texts).values() if len(v) > 1]
+
+
+def tag_fix(spellings, limit=5):
+    """One line saying which posts to edit, or None on a tie (no spelling is the house one).
+
+    Runs reported (2026-11-11) that "tag spelled 2 ways: benchmark, benchmarks"
+    did not say which file to change; with 40 posts on one spelling and 1 on
+    the other, the answer is the one post.
+    """
+    counts = sorted(((len(posts), s) for s, posts in spellings.items()), reverse=True)
+    if len(counts) < 2 or counts[0][0] == counts[1][0]:
+        return None
+    keep = counts[0][1]
+    edit = sorted(p for s, posts in spellings.items() if s != keep for p in posts)
+    more = f" and {len(edit) - limit} more" if len(edit) > limit else ""
+    return (f"  `{keep}` is on {counts[0][0]} posts; change the other spelling in: "
+            f"{', '.join(edit[:limit])}{more}")
 
 
 def duplicate_descriptions(texts):
@@ -141,10 +163,14 @@ def main(argv=None):
     for name in named:
         m = re.search(r"^tags:\s*\[(.*?)\]", texts[name], re.M)
         own_tags |= {t.strip().strip("\"'") for t in (m.group(1).split(",") if m else [])}
-    for group in tag_variants(texts):
-        if named and not own_tags & set(group):
+    for spellings in tag_uses(texts).values():
+        group = sorted(spellings)
+        if len(group) < 2 or (named and not own_tags & set(group)):
             continue
         print(f"tag spelled {len(group)} ways: {', '.join(group)}; pick one")
+        fix = tag_fix(spellings)
+        if fix:
+            print(fix)
         bad += 1
     for group in duplicate_descriptions(texts):
         if named and not named & set(group):

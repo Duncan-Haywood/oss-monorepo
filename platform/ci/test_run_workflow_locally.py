@@ -1322,5 +1322,19 @@ class ChangedPaths(unittest.TestCase):
         self.assertIn("no ref", str(caught.exception))
 
 
+class BudgetHintTest(unittest.TestCase):
+    """--for-changes warns before a selection can outrun a 600 s tool call."""
+
+    def test_large_selection_warns(self):
+        hint = runner.budget_hint(13, 300, listing=False)
+        self.assertIn("65 min", hint)
+        self.assertIn("background", hint)
+
+    def test_small_selection_or_listing_is_quiet(self):
+        self.assertIsNone(runner.budget_hint(2, 300, listing=False))
+        self.assertIsNone(runner.budget_hint(13, 300, listing=True))
+        self.assertIsNone(runner.budget_hint(13, 0, listing=False))
+
+
 if __name__ == "__main__":
     unittest.main()
