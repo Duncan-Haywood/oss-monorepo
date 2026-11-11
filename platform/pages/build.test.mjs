@@ -114,6 +114,9 @@ import {
   discoverGuides,
   groupGuidesByCategory,
   renderGuidesPage,
+  guideBlockHeights,
+  guideBlockStyle,
+  GUIDE_COLUMNS,
   sponsorsNote,
   SPONSORS_URL,
   SPONSOR_CLICK_EVENT,
@@ -5404,6 +5407,43 @@ test('renderGuidesPage links every guide, disclaims, and counts itself honestly'
   assert.ok(!/href="https?:\/\/fonts\./.test(html));
   // The index says only what the pages it links already say.
   assert.ok(html.includes('adds no'), 'the index must say it adds nothing of its own');
+});
+
+test('guides page sizes each off-screen tool block from its own text, never short', () => {
+  const card = (label, description = '') => ({ slug: 'ebay-fee-calculator', file: `${label.length}.html`, label, title: label, description });
+  // One line of everything at the narrowest width: h3 20 + 3, note 16 + 10,
+  // one card 26 + 21.81 + 5 + 20.42, then the 1.2% and 4 px margin.
+  const one = guideBlockHeights('Fees', [card('A question', 'Short.')]);
+  assert.equal(one.length, GUIDE_COLUMNS.length);
+  assert.equal(one[0], Math.ceil((20 + 3 + 16 + 10 + 26 + 21.81 + 5 + 20.42) * 1.012 + 4));
+  // A longer description takes more lines, so more height, and more at a
+  // narrow width than a wide one.
+  const long = guideBlockHeights('Fees', [card('A question', 'x'.repeat(130))]);
+  assert.ok(long[0] > one[0]);
+  assert.ok(long[0] > long[long.length - 1]);
+  // Two columns: a row is as tall as its tallest card, plus one 10 px gap per
+  // extra row, so four cards in two columns are two rows, not four.
+  const four = [card('a'), card('b', 'x'.repeat(130)), card('c'), card('d')];
+  const at = GUIDE_COLUMNS.findIndex((c) => c.columns === 2);
+  const h = guideBlockHeights('Fees', four)[at];
+  const tall = 26 + 21.81 + 5 + 4 * 20.42;
+  assert.equal(h, Math.ceil((20 + 3 + 16 + 10 + tall + (26 + 21.81) + 10) * 1.012 + 4));
+  assert.equal(guideBlockStyle('Fees', [card('A question', 'Short.')]).split(';').length, GUIDE_COLUMNS.length);
+
+  const groups = [{
+    slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator', description: 'Fees.',
+    category: categoryFor('ebay-fee-calculator'),
+    items: ['a', 'b', 'c', 'd'].map((f) => ({ ...card(`${f} question`, 'Short.'), file: `${f}.html` })),
+  }];
+  const html = renderGuidesPage({ groups, surfaces: [{ slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator' }], categoryGroups: [], baseUrl: 'https://example.test/' });
+  assert.ok(html.includes(`<div class="tool" style="${guideBlockStyle(groups[0].title, groups[0].items)}">`));
+  // One media rule per width step, each reading its own property.
+  for (const [i, c] of GUIDE_COLUMNS.entries()) {
+    if (i) assert.ok(html.includes(`@media (min-width: ${c.minWidth}px) { .tool { contain-intrinsic-size: auto var(--h${i + 1}, 400px); } }`));
+  }
+  // Skipped rendering, never hidden content: every card is still in the HTML.
+  assert.match(html, /\.tool \{ content-visibility: auto;/);
+  for (const f of ['a', 'b', 'c', 'd']) assert.ok(html.includes(`href="../ebay-fee-calculator/${f}.html"`));
 });
 
 test('renderGuidesPage names an external-call exception by its prose name, not its raw tagline', () => {
