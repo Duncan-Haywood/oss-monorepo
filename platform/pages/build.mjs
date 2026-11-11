@@ -10052,18 +10052,66 @@ const SCROLL_A11Y_SCRIPT = `
   // for directly.
   var candidates=[];
   var tables=0;
+  var SCROLLS=/^(auto|scroll|overlay)$/;
+  // The elements worth asking getComputedStyle about: those some rule or a
+  // style attribute could give overflow-x:auto|scroll. Asking all of them was
+  // the expensive part. Measured 2026-11-11 on wall-framing-takeoff (4,204
+  // elements) at 4x CPU throttling: the first sweep took ~100 ms of the
+  // page's DOMContentLoaded task and a second identical sweep ~15 ms, because
+  // Chrome builds a computed-style object for each element the first time it is
+  // asked. The rule scan reads a few hundred rules instead. It is a superset
+  // (a rule inside a media query that does not match still counts) and every
+  // element it finds is checked with getComputedStyle, so it never adds a tab
+  // stop the old sweep would not have. The one thing it leaves out is the
+  // browser's own stylesheet, which gives only <textarea> overflow:auto, and a
+  // textarea takes focus already. null means the rules could not all be read:
+  // sweep everything, as before.
+  var selectors=function(){
+    if(!document.styleSheets||!document.body||!document.body.querySelectorAll)return null;
+    var out=[],ok=true;
+    var walk=function(rules){
+      for(var i=0;i<rules.length;i++){
+        var r=rules[i];
+        // @import: its sheet's rules, or null when that sheet is cross-origin.
+        if(r.styleSheet){walk(r.styleSheet.cssRules);continue;}
+        var st=r.style;
+        if(st&&r.selectorText&&(SCROLLS.test(st.overflowX)||SCROLLS.test(st.getPropertyValue('overflow-inline'))))out.push(r.selectorText);
+        if(r.cssRules)walk(r.cssRules);
+      }
+    };
+    var sheets=[].slice.call(document.styleSheets).concat(document.adoptedStyleSheets||[]);
+    for(var s=0;s<sheets.length&&ok;s++){
+      try{walk(sheets[s].cssRules);}catch(e){
+        // A cross-origin sheet hides its rules. Google Fonts' is the only one
+        // the site links, and it holds nothing but @font-face; any other one
+        // could hold an overflow rule we cannot see.
+        if(!/^https:\\/\\/fonts\\.googleapis\\.com\\//.test(sheets[s].href||''))ok=false;
+      }
+    }
+    return ok?out:null;
+  };
+  var wrap=function(){
+    ${WRAP_TABLES_JS}
+    tables=document.getElementsByTagName('table').length;
+  };
   var collect=function(){
     // Before the sweep, not after: a table a calculator just wrote into its
     // result panel has no scrolling box around it yet, so collecting first
     // would find nothing to give a tab stop to. See reflow.mjs.
-    ${WRAP_TABLES_JS}
+    wrap();
     candidates=[];
-    var all=document.body?document.body.getElementsByTagName('*'):[];
+    var sel=selectors(),all=null;
+    if(sel){
+      sel.push('[style*="overflow"]');
+      // One bad selector (a pseudo-element, say) throws for the whole list,
+      // and then the full sweep below is the answer.
+      try{all=document.body.querySelectorAll(sel.join(','));}catch(e){all=null;}
+    }
+    if(!all)all=document.body?document.body.getElementsByTagName('*'):[];
     for(var i=0;i<all.length;i++){
       var o=getComputedStyle(all[i]).overflowX;
       if(o==='auto'||o==='scroll')candidates.push(all[i]);
     }
-    tables=document.getElementsByTagName('table').length;
   };
   var measure=function(){
     for(var i=0;i<candidates.length;i++){
@@ -10081,16 +10129,33 @@ const SCROLL_A11Y_SCRIPT = `
       }
     }
   };
-  var full=function(){try{collect();measure();}catch(e){}};
+  // The sweep and the width check run just after the next paint, not inside
+  // the event that asked for them. Reading scrollWidth in the middle of a
+  // DOMContentLoaded or input handler, after a calculator has just rewritten
+  // its result panel, makes the browser lay the page out there and then; after
+  // the paint the layout is already done and the read is free. Measured
+  // 2026-11-11 (docs/reports/polish-2026-11-11-scroll-sweep.md). A tab stop
+  // that arrives one frame later costs a keyboard user nothing. Wrapping a new
+  // table is not deferred: a wide table left unwrapped for a frame would push
+  // the page sideways.
+  // 0: nothing queued, 1: a width check, 2: a sweep and a width check.
+  var queued=0;
+  var later=function(level){
+    if(queued){if(level>queued)queued=level;return;}
+    queued=level;
+    var run=function(){var q=queued;queued=0;try{if(q>1)collect();measure();}catch(e){}};
+    var next=function(){setTimeout(run,0);};
+    if(typeof requestAnimationFrame==='function')requestAnimationFrame(next);else next();
+  };
+  var full=function(){try{wrap();}catch(e){}later(2);};
   // A recalculation that replaced the result panel can have added or removed a
   // table, and a table that arrived after the last sweep is not a candidate yet
   // — so the cheap path re-sweeps exactly when the table count moved, and stays
   // cheap on every other keystroke.
   var quick=function(){
-    try{
-      if(document.getElementsByTagName('table').length!==tables){collect();}
-      measure();
-    }catch(e){}
+    var moved=false;
+    try{if(document.getElementsByTagName('table').length!==tables){wrap();moved=true;}}catch(e){}
+    later(moved?2:1);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',full);
   else full();
