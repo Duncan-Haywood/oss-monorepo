@@ -723,7 +723,8 @@ VETO.not_interested.push(
   // "I don't need this spreadsheet everyday", "We do not need anyone speaking at this", "I really don't need access anymore",
   // "talent we don't need/like". A tool, service, product, vendor, call or demo within two words still declines ("we don't need
   // a new CRM", "do not need the Palm.Net service").
-  /\b(don'?t|do not|DON'?T) (really |yet |even )?need (the|an?|anyone|anybody|access|recorded) (?!([\w.&'-]+ ){0,2}(tools?|solutions?|services?|products?|platforms?|software|systems?|vendors?|agency|agencies|consultants?|providers?|apps?|crm|demo|call|meeting|help|support|offer|subscription|licen[cs]es?|plan|upgrade|integration|outreach|emails? from you|your)\b)/i,
+  // "I do not need a regulatory lawyer at this time" (5*, a real decline): a time limit keeps it a decline.
+  /\b(don'?t|do not|DON'?T) (really |yet |even )?need (?!.*\b(at this time|at the moment|right now|for now)\b)(the|an?|anyone|anybody|access|recorded) (?!([\w.&'-]+ ){0,2}(tools?|solutions?|services?|products?|platforms?|software|systems?|vendors?|agency|agencies|consultants?|providers?|apps?|crm|demo|call|meeting|help|support|offer|subscription|licen[cs]es?|plan|upgrade|integration|outreach|emails? from you|your)\b)/i,
   /\bneed\/|\bneed your \w+ (inserted|added|included|attached|sent|signed|moved)\b|\bneed (this|that) \w+ (every|each) ?day\b/i,
   // "Could you call me when we're set to trade w/ Cinnabar?"; "Okay I think we are good, tried calling you"; "No need for Ken's
   // involvement with her at this point".
@@ -748,6 +749,9 @@ const awayTooDeep = (body, s) => {
   const lead = AWAY_GREETING.test(ss[0] || "") && ss[0] !== s ? 1 : 0;
   return ss.length > 3 && i - lead >= 2;
 };
+// "No. I'll let this one go. Thanks", "No. I will not agree to any penalty charges" (5*, real declines the round-5 REST_DECLINES
+// did not read as one).
+const REST_DECLINES_6 = /\b(let (this|it|that) (one )?go|(will not|won'?t|do not|don'?t) agree to)\b/i;
 const SCHEDULING_INSTEAD = /\b(is|are|would be|works) better (for me|than)\b/i;
 const vetoed = (key, s) => (VETO[key] || []).some((re) => re.test(s));
 
@@ -773,7 +777,7 @@ export function triage(reply, today) {
   // Capacity", "Re: Louise Kitchen - out of office", "Re: Bobette Riner is no longer at TNE" (Enron, third round, 2026-11-11).
   // Auto-replies keep their own subjects ("Out of Office: ...", "Automatic reply: ..."), which do not start with Re:.
   // Fourth round: a bare "No." stands as a decline when the rest of the reply is empty, a sign-off, or declines too.
-  const bareNoStands = (s) => { const rest = sentences(body).filter((x) => x !== s).join(" "); return !REST_TALKS.test(rest.replace(/\b(thanks|thank you|thx|cheers|regards)\b/gi, "")) || REST_DECLINES.test(rest); };
+  const bareNoStands = (s) => { const rest = sentences(body).filter((x) => x !== s).join(" "); return !REST_TALKS.test(rest.replace(/\b(thanks|thank you|thx|cheers|regards)\b/gi, "")) || REST_DECLINES.test(rest) || REST_DECLINES_6.test(rest); };
   // Fifth round: an absence inside a working reply is a person writing, not an away notice (see absenceInWorkTalk).
   // Only under a reply subject: a subject that is itself the notice ("Out of Office: ...", "Automatic reply: ...", "Out of office --
   // Dec. 4 and 5") keeps the away reading however long the body runs.
