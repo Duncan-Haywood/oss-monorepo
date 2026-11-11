@@ -278,3 +278,32 @@ test("fifth round: the real asks still stop", () => {
   assert.equal(re("I left Acme in March."), "left_company");
   assert.equal(re("I've passed this to our head of operations."), "left_company");
 });
+
+// Sixth round, 2026-11-11 (eval/README.md "Sixth round"): what the parallel round-5 version had and the landed one lacked, plus
+// three real declines both lost on 5*. Real phrasings, names changed.
+const SIXTH_NOT_A_STOP = [
+  "Mr. Lay had passed this on to Joe Hirko in Broadband Services.",
+  "Another thought. Please, send me your resume, I shall forward it to our head trader.",
+  "Please e-mail Karen or me with feedback on the candidates.",
+  "Yes I will be back tonight",
+  "Ryan runs our model for us now so I don't need this spreadsheet everyday.",
+  "I agree. We do not need anyone speaking at this.",
+  "Could you call me when we're set to trade with Cinnabar?",
+  "No need for Ken's involvement with her at this point.",
+  "Let me know if you'd like me to politely intervene and take this off your list.",
+  "Please notify the sender of the delivery error by replying to this message, and then delete it from your system.",
+  "Sorry for the delayed response. Moving Azurix back was decided last year. We did combine them into the D&O program. I am traveling tomorrow and will return to the office Wednesday before noon.",
+  "FYI - Tomorrow is better than Monday. On Monday I will be out of the office until late afternoon.",
+];
+for (const body of SIXTH_NOT_A_STOP) test(`sixth round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(re(body)), re(body)));
+
+test("sixth round: the real asks still stop", () => {
+  assert.equal(re("No.  I'll let this one go.    Thanks,  Grigsby"), "not_interested");
+  assert.equal(re("No.  I will not agree to any penalty charges on nomination errors.  Please call me if you have any questions."), "not_interested");
+  assert.equal(re("Thanks for the resume.  I do not need a regulatory lawyer at this time.    Mark"), "not_interested");
+  // Not yet: "Please cancel the Palm.Net service ... do not need the Palm.Net service" reads as a request beside a soft no (round
+  // 5's ASKS_READER), so it reaches a person as unclear. Round 7's list (eval/README.md "Sixth round").
+  assert.equal(re("remove from list.  no longer with gas desk.  LC"), "unsubscribe");
+  assert.equal(re("Thanks for your note. I am out of the office until Monday, November 20."), "out_of_office");
+  assert.equal(re("I have passed this on to our head of procurement."), "left_company");
+});
