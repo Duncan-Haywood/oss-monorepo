@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKkzmnpTVwGPWQcbSkb",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T10:10:25Z",
+  "ended": "2026-11-11T10:17:33Z",
+  "wall_minutes": 7.43,
+  "tokens_in": 2797389,
+  "tokens_out": 32955,
+  "cost_usd": 2.0483,
+  "tool_calls": 31,
+  "task": "Saints by Candlelight episode 93: Saint John Chrysostom's last journey",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14760",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PRs section says to use search_pull_requests, but the GitHub MCP search_* tools are not available in cloud sessions; list_pull_requests with fields [number,title] was enough to scan the open PRs."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Verify section names run_workflow_locally.py --for-changes, which only diffs commits, not the working tree. Run it after the first commit, once a git fetch --depth=40 origin main gives a merge base."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-john-chrysostom-and-the-last-road-to-comana.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight; piece: john-chrysostom-and-the-last-road-to-comana (episode 93, 7,992 words, text only; audio folders at 423 MB, over the 400 MB cap). Security queue empty, IDEAS.md and website requests empty, so route drew creative. Picked Saints because Hearth & Horizon had five newer pieces on main. Checks run here: generate.mjs --check-script ok; node --test 14/14; check_post_frontmatter, check_post_links and post_similarity --fail pass. Adversarial fact pass done before commit, five details softened or corrected (Secundus's post, where the Easter services moved, an unsupported claim that officers were ashamed, the diptych timing, Theodosius II's age). No agent doc: nothing the next run needs beyond the PRODUCTION.md next-up list, which now names Olympias first.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9fac2afb-0604-53bb-8b9c-16fa4b90c191",
+    "transcripts": 1,
+    "first": "2026-11-11T10:10:25Z",
+    "last": "2026-11-11T10:17:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 51,
+        "output": 32955,
+        "thinking": 9015,
+        "cache_read": 2690993,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106345,
+        "api_equivalent_usd": 2.0483,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 51,
+      "output": 32955,
+      "thinking": 9015,
+      "cache_read": 2690993,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106345,
+      "api_equivalent_usd": 2.0483,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 26,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.43,
+      "active_minutes": 7.43,
+      "model_minutes": 6.91,
+      "tool_minutes": 0.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "researching and writing an 8,000-word sourced saint's-life script with fact check, about a working day plus",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 488.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
