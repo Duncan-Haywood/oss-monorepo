@@ -328,10 +328,11 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (37 stories)
+### Little Lamps (38 stories)
 
 - [Albert and the Ostriches](stories/albert-and-the-ostriches.md) (2026-11-11; 7 min read, text only)
 - [Columbanus and the Squirrel in His Robe](stories/columbanus-and-the-squirrel-in-his-robe.md) (2026-11-11; 9 min read, text only)
+- [Philippine and the Woman Who Prays Always](stories/philippine-and-the-woman-who-prays-always.md) (2026-11-11; 8 min read, text only)
 - [Scholastica and the Storm at Supper](stories/scholastica-and-the-storm-at-supper.md) (2026-11-11; 8 min read, text only)
 - [Francis Xavier and the Little Bell](stories/francis-xavier-and-the-little-bell.md) (2026-11-10; 7 min read, text only)
 - [Hugh and the Swan of Stow](stories/hugh-and-the-swan-of-stow.md) (2026-11-10; 8 min read, text only)
