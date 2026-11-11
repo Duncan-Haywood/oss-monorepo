@@ -60,6 +60,16 @@ test('gemini: generateContent with the key in a header, not the URL', async () =
   assert.equal(f.calls[0].body.systemInstruction.parts[0].text, 'S');
 });
 
+test('gemini: thinking tokens count as output and thought parts are not the answer', async () => {
+  // Quality audit 2026-11-07-llm.json: 900 thinking tokens were reported as output 3.
+  const f = fakeFetch({ candidates: [{ content: { parts: [{ text: 'plan...', thought: true }, { text: 'answer' }] } }],
+    usageMetadata: { promptTokenCount: 10, toolUsePromptTokenCount: 4, candidatesTokenCount: 3, thoughtsTokenCount: 900, totalTokenCount: 917 } });
+  const r = await complete({ provider: 'gemini', apiKey: 'k', model: 'g1' }, { prompt: 'P', fetch: f });
+  assert.equal(r.text, 'answer');
+  assert.deepEqual([r.usage.input, r.usage.output], [14, 903]);
+  assert.equal(r.usage.input + r.usage.output, 917, 'matches totalTokenCount');
+});
+
 test('gemini: a reply without usageMetadata reports zero tokens', async () => {
   const f = fakeFetch({ candidates: [{ content: { parts: [{ text: 'a' }] } }] });
   const r = await complete({ provider: 'gemini', apiKey: 'k', model: 'g1' }, { prompt: 'P', fetch: f });
