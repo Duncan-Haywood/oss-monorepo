@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Public-Domain Paintings for Clothing: Find One and Check It Prints Sharp</title>
+  <meta name="description" content="Search the Art Institute of Chicago and The Met open-access collections for public-domain paintings, then check each image's pixels per inch at your print width and method (DTG, screen, puff, embroidery) before it goes on a shirt. Free, in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Public-domain paintings for clothing, checked for print">
+  <meta property="og:description" content="Find an open-access painting and see whether it prints sharp at your size. Free, in your browser.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Painting finder and print resolution check (Clothing Design Studio)","applicationCategory":"DesignApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What resolution do I need to print a painting on a t-shirt?","acceptedAnswer":{"@type":"Answer","text":"Printers usually ask for about 300 pixels per inch at the printed size for direct-to-garment, DTF and sublimation, and accept about 150 for prints seen at arm's length. A 25 cm (9.8 inch) wide chest print therefore wants an image about 2950 pixels wide, and at least about 1480. Your printer's own file spec wins."}},{"@type":"Question","name":"Can I use a museum's public-domain image on clothing I sell?","acceptedAnswer":{"@type":"Answer","text":"The Art Institute of Chicago and The Met release images of works they consider public domain for any use, including commercial use, under their open-access policies. This page only shows works the museum itself flags as public domain, but it does not check rights: read each image's terms on the museum's page before you print."}}]}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    .inline label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 12px; }
+    input, select, button { font: inherit; }
+    input[type=text], input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; align-items: end; }
+    @media (max-width: 700px) { .row { grid-template-columns: 1fr; } }
+    button { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+    button.ghost { background: #fff; color: var(--accent); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+    .card { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .86rem; display: flex; flex-direction: column; gap: 6px; }
+    .card img { width: 100%; height: 200px; object-fit: contain; background: #eee7dc; border-radius: 6px; }
+    .muted { color: var(--muted); }
+    .ok { color: #166534; font-weight: 650; } .warn { color: #9a3412; font-weight: 650; } .bad { color: #b91c1c; font-weight: 700; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="launch.html">Launch path</a></p>
+  <h1>Find a public-domain painting, and check it prints sharp</h1>
+  <p>Old paintings of saints, angels and classical scenes make strong garment prints, and several museums release photographs of public-domain works for any use. Search two of those collections here, then check each image's pixels per inch at the width and method you plan to print. A painting that looks fine on screen can be far too small for a 25 cm chest print.</p>
+  <p class="notes">The search goes from your browser straight to the museum's public API; we see nothing. Only works the museum flags as public domain are shown, but this page does not check rights: read the terms on the museum's page. The pixel figures (300 per inch sharp, about 150 the floor for inkjet methods) are common print-shop guidance, not a standard; your printer's file spec wins.</p>
+
+  <section aria-labelledby="h-print">
+    <h2 id="h-print">How you will print it</h2>
+    <div class="row">
+      <div><label for="method">Decoration method</label>
+        <select id="method">
+          <option value="dtg" selected>Direct to garment (DTG)</option><option value="dtf">Direct to film (DTF)</option><option value="sublimation">Sublimation</option>
+          <option value="screen">Screen print (separated or halftone)</option><option value="high-density">High-density raised ink</option><option value="puff">Puff print</option>
+          <option value="embroidery">Embroidery</option><option value="3d-puff-embroidery">3D puff embroidery</option>
+        </select></div>
+      <div><label for="width">Printed width (cm)</label><input id="width" type="number" min="2" max="150" step="0.5" value="25"></div>
+      <div><label for="lpi">Halftone ruling (lpi, screen only)</label><input id="lpi" type="number" min="20" max="85" step="1" value="55"></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-search">
+    <h2 id="h-search">Search open-access collections</h2>
+    <form id="search-form" class="row">
+      <div><label for="q">Subject, title or painter</label><input id="q" type="text" maxlength="120" placeholder="madonna, annunciation, saint michael, angel..." value="madonna and child"></div>
+      <div class="inline"><label><input type="checkbox" id="src-aic" checked> Art Institute of Chicago</label><label><input type="checkbox" id="src-met" checked> The Met</label></div>
+      <div class="inline"><label><input type="checkbox" id="paintings" checked> Paintings only</label> <button type="submit" id="go">Search</button></div>
+    </form>
+    <p id="status" class="muted" aria-live="polite"></p>
+    <div id="results" class="grid"></div>
+  </section>
+
+  <section aria-labelledby="h-own">
+    <h2 id="h-own">Or check a file you already have</h2>
+    <label for="own">Image file (stays in your browser)</label>
+    <input id="own" type="file" accept="image/png,image/jpeg,image/webp,image/tiff">
+    <div id="own-out" aria-live="polite"></div>
+  </section>
+
+  <section>
+    <h2>How the check works</h2>
+    <p>Pixels per inch = image width in pixels ÷ (printed width in cm ÷ 2.54). A 2953-pixel-wide image printed 25 cm wide gives 300 ppi. The verdict compares that with the method's typical figure: inkjet methods (DTG, DTF, sublimation) want 300 and accept about 150; raised inks want sharper edges (floor 200) because the relief exaggerates them; embroidery is redrawn as stitches by a digitiser, so 150 is plenty. For a halftone screen the image should give at least 1.5 times the ruling. The Art Institute reports the pixel size of its original; for The Met, the size is measured when you open the image.</p>
+    <p>"Use in the studio" puts a preview copy on your garment in the <a href="./">design studio</a> and remembers the original's size, so the studio can warn when you make the print bigger than the file allows. Send your printer the full-size file from the museum's own page.</p>
+  </section>
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>What resolution do I need to print a painting on a t-shirt?</h3>
+    <p>Printers usually ask for about 300 pixels per inch at the printed size for direct-to-garment, DTF and sublimation, and accept about 150 for prints seen at arm&#x27;s length. A 25 cm (9.8 inch) wide chest print therefore wants an image about 2950 pixels wide, and at least about 1480. Your printer&#x27;s own file spec wins.</p>
+    <h3>Can I use a museum&#x27;s public-domain image on clothing I sell?</h3>
+    <p>The Art Institute of Chicago and The Met release images of works they consider public domain for any use, including commercial use, under their open-access policies. This page only shows works the museum itself flags as public domain, but it does not check rights: read each image&#x27;s terms on the museum&#x27;s page before you print.</p>
+  </section>
+  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>1. Design the thing</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="./">Design studio: voice, typing or drag</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Capsule wardrobe planner</a> · <a href="fit.html">Size finder and size run</a></div>
+    <div>Before: <a href="camera.html">Try it on from a photo</a> · Next: <a href="pattern.html">Pattern pieces, graded, SVG and DXF</a></div>
+  </nav>
+  <!-- /journey -->
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal or professional advice: the public-domain flag is the museum's, and you are responsible for checking an image's rights and your printer's file requirements before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Searches go from your browser to the museums' public APIs (api.artic.edu and collectionapi.metmuseum.org), which see your search words and address like any website. Your own files are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+  <script type="module">
+    import { printResolution, resolutionSummary, searchMuseums, creditLine, saveHandoff } from "./artwork.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    let records = [];
+    const measured = new Map(); // key -> { w, h, dataUrl|null }
+    const opts = () => ({ method: $("#method").value, printWidthCm: +$("#width").value, lpi: +$("#lpi").value || undefined });
+    const cls = v => ({ sharp: "ok", acceptable: "warn", "too-low": "bad" })[v];
+
+    function verdictHtml(w, h, label) {
+      try {
+        const r = printResolution({ widthPx: w, heightPx: h, ...opts() });
+        return `<p class="${cls(r.verdict)}">${esc(resolutionSummary(r, label))}</p><ul class="muted">${r.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
+      } catch (e) { return `<p class="bad">${esc(e.message)}</p>`; }
+    }
+
+    function originalSharpCm(w, m) {
+      try { return printResolution({ widthPx: w, heightPx: Math.round(w * m.h / m.w), ...opts() }).maxSharpCm; } catch { return "?"; }
+    }
+
+    function render() {
+      $("#results").innerHTML = records.map((r, i) => {
+        const key = r.source + r.id, m = measured.get(key);
+        const size = m ? { w: m.w, h: m.h, what: "loaded image" } : r.originalPx ? { w: r.originalPx.w, h: r.originalPx.h, what: "museum's original" } : null;
+        return `<article class="card" data-i="${i}">
+          <img src="${esc(r.thumb)}" alt="${esc(r.alt || r.title)}" loading="lazy" referrerpolicy="no-referrer">
+          <strong>${esc(r.title)}</strong>
+          <span class="muted">${esc([r.artist, r.date].filter(Boolean).join(", "))} · ${esc(r.museum)}</span>
+          ${size ? `<span class="muted">${size.w} x ${size.h} px (${size.what})</span>${verdictHtml(size.w, size.h, "This image")}` : `<span class="muted">Pixel size not reported: open it to measure.</span>`}
+          ${m?.originalW && m.originalW > m.w ? `<span class="muted">The museum's original is ${m.originalW} px wide (sharp up to ${originalSharpCm(m.originalW, m)} cm): download it from the museum page for the printer.</span>` : ""}
+          <div><button type="button" class="ghost open" data-i="${i}">Open and measure</button>
+          ${m?.dataUrl ? `<button type="button" class="use" data-i="${i}">Use in the studio</button>` : ""}</div>
+          ${m && !m.dataUrl ? `<span class="muted">The museum's server does not let this page copy the image; save it from the museum page and upload it in the studio.</span>` : ""}
+          <span><a href="${esc(r.page)}" target="_blank" rel="noopener">Museum page and terms</a> · <button type="button" class="ghost credit" data-i="${i}">Copy credit line</button></span>
+        </article>`;
+      }).join("");
+    }
+
+    function loadImage(src, cors) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        if (cors) img.crossOrigin = "anonymous";
+        img.referrerPolicy = "no-referrer";
+        img.onload = () => resolve(img); img.onerror = () => reject(new Error("load failed"));
+        img.src = src;
+      });
+    }
+    function toDataUrl(img, max = 1400) {
+      const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      return c.toDataURL("image/jpeg", 0.88); // throws if the image is cross-origin without CORS
+    }
+
+    async function openRecord(r) {
+      const key = r.source + r.id;
+      $("#status").textContent = `Opening "${r.title}"...`;
+      let img = null, dataUrl = null;
+      for (const src of [r.image, r.imageFallback].filter(Boolean)) {
+        try { img = await loadImage(src, true); dataUrl = toDataUrl(img); break; }
+        catch { try { img = await loadImage(src, false); break; } catch { img = null; } }
+      }
+      if (!img) { $("#status").textContent = `Could not open the image for "${r.title}". Try the museum page.`; return; }
+      measured.set(key, { w: img.naturalWidth, h: img.naturalHeight, dataUrl, originalW: r.originalPx?.w });
+      $("#status").textContent = `Measured "${r.title}": ${img.naturalWidth} x ${img.naturalHeight} px.`;
+      recordUsage("artwork_open");
+      render();
+    }
+
+    $("#results").addEventListener("click", async e => {
+      const b = e.target.closest("button"); if (!b) return;
+      const r = records[+b.dataset.i]; if (!r) return;
+      if (b.classList.contains("open")) openRecord(r);
+      else if (b.classList.contains("credit")) {
+        const text = creditLine(r);
+        try { await navigator.clipboard.writeText(text); $("#status").textContent = `Copied: ${text}`; } catch { $("#status").textContent = text; }
+        recordUsage("artwork_credit");
+      } else if (b.classList.contains("use")) {
+        const m = measured.get(r.source + r.id);
+        const w = r.originalPx?.w || m.w, h = r.originalPx?.h || m.h;
+        try {
+          saveHandoff(localStorage, { src: m.dataUrl, label: r.title, credit: creditLine(r), widthPx: w, heightPx: h });
+          recordUsage("artwork_use");
+          location.href = "./";
+        } catch (err) { $("#status").textContent = `Could not hand the image over (${err.message}). Save it from the museum page and upload it in the studio.`; }
+      }
+    });
+
+    $("#search-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const sources = [["aic", "#src-aic"], ["met", "#src-met"]].filter(([, s]) => $(s).checked).map(([k]) => k);
+      if (!sources.length) { $("#status").textContent = "Tick at least one collection."; return; }
+      $("#status").textContent = "Searching...";
+      $("#go").disabled = true;
+      try {
+        const res = await searchMuseums($("#q").value, { sources, paintingsOnly: $("#paintings").checked });
+        records = res.records; measured.clear();
+        $("#status").textContent = `${records.length} public-domain works with images.${res.errors.length ? " Not reached: " + res.errors.join("; ") + "." : ""}${!records.length ? " Try a broader word, or untick Paintings only." : ""}`;
+        render();
+        recordUsage("artwork_search");
+      } catch (err) { $("#status").textContent = err.message; }
+      finally { $("#go").disabled = false; }
+    });
+
+    for (const id of ["#method", "#width", "#lpi"]) $(id).addEventListener("input", () => { render(); ownRender(); });
+
+    let own = null;
+    function ownRender() { if (own) $("#own-out").innerHTML = `<p class="muted">${esc(own.name)}: ${own.w} x ${own.h} px</p>${verdictHtml(own.w, own.h, "Your file")}`; }
+    $("#own").addEventListener("change", e => {
+      const f = e.target.files[0]; if (!f) return;
+      const img = new Image();
+      img.onload = () => { own = { name: f.name, w: img.naturalWidth, h: img.naturalHeight }; URL.revokeObjectURL(img.src); ownRender(); recordUsage("artwork_own_check"); };
+      img.onerror = () => { $("#own-out").innerHTML = `<p class="bad">This browser cannot read that file. TIFF often needs converting to PNG first.</p>`; };
+      img.src = URL.createObjectURL(f);
+    });
+    recordUsage("artwork_page_open");
+  </script>
+</body>
+</html>

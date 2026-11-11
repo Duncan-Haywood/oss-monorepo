@@ -85,3 +85,12 @@ test("untrusted design files keep only known fields", () => {
   assert.equal(d.placements[0].kind, "text");
   assert.notEqual(d.placements[0].ink, "red");
 });
+
+test("an uploaded image keeps its original pixel size for the print check, through a saved design", () => {
+  let d = applyOp(newDesign(), { op: "add", kind: "image", src: "data:image/png;base64,AA", aspect: 1.25, srcPx: { w: 3000.4, h: 3750 } });
+  assert.deepEqual(d.placements[0].srcPx, { w: 3000, h: 3750 });
+  const back = sanitizeDesign(JSON.parse(JSON.stringify(d)));
+  assert.deepEqual(back.placements[0].srcPx, { w: 3000, h: 3750 });
+  d = applyOp(newDesign(), { op: "add", kind: "image", src: "data:image/png;base64,AA", srcPx: { w: -1, h: "x" } });
+  assert.equal(d.placements[0].srcPx, undefined);
+});

@@ -131,3 +131,107 @@ export async function detectPose(image, sources = POSE_SOURCES) {
   try { det = await detectorPromise; } catch (e) { detectorPromise = null; throw e; }
   return det.detect(image).landmarks || [];
 }
+
+/**
+ * Live tracking on the camera stream (2026-11-11). The model runs on video
+ * frames (`runningMode: "VIDEO"`, `detectForVideo`), a few times a second,
+ * and the two shoulder points are smoothed so the outline does not shake.
+ *
+ * Smoothing is the One Euro filter (Casiez, Roussel and Vogel, CHI 2012): a
+ * low-pass filter whose cut-off rises with speed, so a still shopper gets a
+ * steady outline and a moving one is followed without much lag. Each of the
+ * four coordinates is filtered on its own. `minCutoff` (Hz) sets the jitter
+ * left when still, `beta` how fast the cut-off opens with speed, in px/s.
+ * Defaults (0.3 Hz, 0.005) were picked on synthetic frames at 15 fps with 4 px
+ * of detector jitter (`posetrack.test.mjs`, README "Live tracking"): jitter
+ * cut to about a third, lag about 16 px when stepping sideways at 300 px/s.
+ * Not tuned on a recorded clip of a real person.
+ *
+ * When the model loses the shoulders the last points are held for `holdMs`,
+ * then dropped, so a passing arm does not make the outline jump away.
+ */
+const alpha = (cutoff, dt) => { const tau = 1 / (2 * Math.PI * cutoff); return 1 / (1 + tau / dt); };
+
+export class OneEuro {
+  constructor({ minCutoff = 0.3, beta = 0.005, dCutoff = 1 } = {}) {
+    if (!(minCutoff > 0) || !(beta >= 0) || !(dCutoff > 0)) throw new RangeError("One Euro filter: minCutoff and dCutoff must be above 0, beta 0 or more.");
+    Object.assign(this, { minCutoff, beta, dCutoff });
+    this.reset();
+  }
+  reset() { this.x = null; this.dx = 0; this.t = null; }
+  /** @param {number} value  @param {number} tMs  timestamp in milliseconds */
+  filter(value, tMs) {
+    if (!Number.isFinite(value) || !Number.isFinite(tMs)) return this.x;
+    if (this.x == null || this.t == null || tMs <= this.t) {
+      // First sample, or a clock that did not move forward: take the value as is.
+      if (this.x == null || this.t == null) { this.x = value; this.t = tMs; }
+      return this.x;
+    }
+    const dt = (tMs - this.t) / 1000;
+    const dxRaw = (value - this.x) / dt;
+    this.dx += alpha(this.dCutoff, dt) * (dxRaw - this.dx);
+    const cutoff = this.minCutoff + this.beta * Math.abs(this.dx);
+    this.x += alpha(cutoff, dt) * (value - this.x);
+    this.t = tMs;
+    return this.x;
+  }
+}
+
+export class ShoulderTracker {
+  /**
+   * @param {{minCutoff?:number,beta?:number,dCutoff?:number,holdMs?:number,jumpPx?:number}} [opts]
+   *   jumpPx: a jump wider than this between two detections (another person
+   *   stepped in, or the model swapped people) restarts the filter instead of
+   *   gliding across the frame.
+   */
+  constructor(opts = {}) {
+    this.holdMs = opts.holdMs ?? 600;
+    this.jumpPx = opts.jumpPx ?? 120;
+    this.f = ["lx", "ly", "rx", "ry"].map(() => new OneEuro(opts));
+    this.last = null; this.lastSeen = null; this.frames = 0; this.lost = 0;
+  }
+  reset() { this.f.forEach(f => f.reset()); this.last = null; this.lastSeen = null; }
+  /**
+   * @param {ReturnType<typeof shouldersFromPose>} found  this frame's result
+   * @param {number} tMs
+   * @returns {{state:"tracking"|"holding"|"lost", left?:{x,y}, right?:{x,y}, notes?:string[]}}
+   */
+  update(found, tMs) {
+    this.frames++;
+    if (found && found.ok) {
+      const raw = [found.left.x, found.left.y, found.right.x, found.right.y];
+      if (this.last) {
+        const jump = Math.max(Math.hypot(raw[0] - this.last.left.x, raw[1] - this.last.left.y), Math.hypot(raw[2] - this.last.right.x, raw[3] - this.last.right.y));
+        if (jump > this.jumpPx) this.f.forEach(f => f.reset());
+      }
+      const [lx, ly, rx, ry] = raw.map((v, i) => this.f[i].filter(v, tMs));
+      this.last = { left: { x: r1(lx), y: r1(ly) }, right: { x: r1(rx), y: r1(ry) } };
+      this.lastSeen = tMs;
+      return { state: "tracking", ...this.last, notes: found.notes };
+    }
+    this.lost++;
+    if (this.last && tMs - this.lastSeen <= this.holdMs) return { state: "holding", ...this.last, notes: [] };
+    this.reset();
+    return { state: "lost", error: found && found.error };
+  }
+}
+
+let videoPromise = null;
+/**
+ * Browser only. A second landmarker in VIDEO mode for the live stream; same
+ * files as `detectPose`, loaded once. `tMs` must rise from call to call.
+ */
+export async function detectPoseVideo(video, tMs, sources = POSE_SOURCES) {
+  videoPromise ??= (async () => {
+    const mp = await import(/* @vite-ignore */ sources.bundle);
+    const files = await mp.FilesetResolver.forVisionTasks(sources.wasm);
+    return mp.PoseLandmarker.createFromOptions(files, {
+      baseOptions: { modelAssetPath: sources.model, delegate: "CPU" },
+      runningMode: "VIDEO",
+      numPoses: 2,
+    });
+  })();
+  let det;
+  try { det = await videoPromise; } catch (e) { videoPromise = null; throw e; }
+  return det.detectForVideo(video, tMs).landmarks || [];
+}
