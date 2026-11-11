@@ -1,5 +1,15 @@
 # build-data log
 
+## Session 75, 2026-11-11: where the cascade2 i2c q0.9 penalty sits, and test year 2023 for the paired run (predictions; outcome below when the runs finish)
+
+Why: session 74 found that cascade2 makes Seattle i2c transfer worse at q0.9 (+2.19 days [0.90, 3.51]) and read it, untested, as the sources (SF, Austin) giving new construction a completion tail Seattle's new-construction permits do not share; and Q4 (test year 2023) was not run. The Socrata hosts answered at 23:08 UTC; fresh four-feed pull started then.
+- New: `transfer.paired()` writes `by_class`, each cascade2 class's row count, mean b-minus-a difference and contribution to the overall difference (contributions add up to it; tested). New `src/tail_check.py`: per cascade2 class, q0.5 and q0.9 of the target among the sources' training rows and the held-out test year's rows, with a bootstrap interval on the q0.9 ratio (3 tests).
+Predictions (written before any of these runs):
+- (R1) Within new construction, the sources' i2c q0.9 (SF and Austin, years <= 2022) exceeds Seattle's 2024 new-construction q0.9: ratio's 95% interval above 1. Refuted otherwise.
+- (R2) In the 2024 i2c paired rerun, Seattle's new-construction rows carry more than half of the transfer q0.9 penalty (contribution > 1.10 of the 2.19 days) and their own mean difference is positive. Refuted otherwise.
+- (R3) The rerun reproduces session 74's aggregate paired numbers exactly (same pull counts, fixed seeds).
+- (Q4, session 73) Test year 2023: a2i transfer q0.9 cascade2 minus type has a 95% interval below zero.
+
 ## Session 74, 2026-11-11: the paired cascade2-versus-type bootstrap (session 73's Q1 to Q3 run; two held, one refuted narrowly; Q4 not run)
 
 Why: session 71 compared each class configuration with Seattle's own baseline, never with each other; session 73 wrote the paired code and four predictions. The Socrata hosts answered this session (Chicago 200 at 01:06 UTC). Four-feed pull 01:07 to 01:22 UTC; every row count equals the 2026-11-10 pull (`results/manifest.json`, only the dates move), so the feeds had not changed since session 71.
