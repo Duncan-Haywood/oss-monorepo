@@ -59,6 +59,12 @@
       "why": "took milestone 5 before 3b and 4: it needed no new data (3b's data hosts are often proxy-blocked) and answered two open suspects from milestones 1 and 3",
       "did": "pre-registered H11-H13 in LOG.md, ran on the existing 26 photos",
       "result": "three hypotheses scored; one (H11) turned out degenerate because the released-object fit equals target-free BA, reported as such"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "main went red (portfolio-validate: VENTURE schema and test_allocate) after #14883 and #14879 pushed shift-roster-builder and quick-pick-survey `next:` over the 2000-character cap; every PR that triggers portfolio-validate would fail",
+      "did": "trimmed detail that the text itself says lives in the venture READMEs, kept every open next item",
+      "result": "validate.py and test_allocate pass locally"
     }
   ],
   "writeups": [
@@ -66,7 +72,7 @@
     "research/sensing-selfcal/LOG.md (milestone 5 plan and result)"
   ],
   "goal": null,
-  "notes": "Checks run locally: pytest research/sensing-selfcal/tests 12 passed; research/_homepage/build.py ok; research_live_links.py --write; check_md_links ok; check_post_frontmatter ok; programme_check ok; cite_check found 0 DOIs in README (citations remain unchecked as in PROPOSAL). Experiment: 4 all-view fits x 2 lens models x 2 cameras plus 560 k1+k2 subset solves, all converged, ~4 min on 4 cores.",
+  "notes": "Checks run locally: pytest research/sensing-selfcal/tests 12 passed; research/_homepage/build.py ok; research_live_links.py --write; check_md_links ok; check_post_frontmatter ok; programme_check ok; cite_check found 0 DOIs in README (citations remain unchecked as in PROPOSAL). Experiment: 4 all-view fits x 2 lens models x 2 cameras plus 560 k1+k2 subset solves, all converged, ~4 min on 4 cores. run_workflow_locally --for-changes: portfolio-pages site-builder steps hit the local 300 s budget (not a failure of the diff); portfolio-validate failed on main's flagships.yaml caps, fixed in this PR.",
   "corrections": [],
   "redteam": null,
   "usage": {
