@@ -8,12 +8,37 @@ chain and 3D sheet agree on every hanger decision (the wood-shaped hanger, with 
 than the half shoulder), but on a deep arm they agree to 0.004 cm because they are the same
 model, so the agreement says nothing about fidelity; and on a 3 cm deep arm the solver's own
 convergence error (0.05 to 0.11 cm) is as large as the margin that decides the arm width (0.08
-to 0.13 cm).** Produced with AI assistance (Claude). Research track 18 (`hanger`,
+to 0.13 cm). Milestone 1b solves those cases to convergence. The 3 cm arm's best width then moves
+to +1.5 cm on all four fabrics, while the 2D chain stays at +1.0 cm: the tiers disagree by 0.5 cm,
+and the iteration cap had hidden it by flattering narrow arms (bias +0.22 cm at -1 cm, -0.07 cm at
++3 cm).** Produced with AI assistance (Claude). Research track 18 (`hanger`,
 `research/PROJECTS.md`). Simulation only; nothing here is a measurement of real garments.
 
 **Live page:** https://marisstella.app/research/hanger-codesign/
 
 ![Shape error against arm width offset on fabric D for three model tiers](experiments/m1_kes_fidelity/err_vs_offset_D.svg)
+
+## Milestone 1b: the 3 cm arm, solved to convergence
+
+`experiments/m1b_converged/run.py`. Same models and fabrics as milestone 1; wood-shaped profile on
+the 3 cm half-depth arm, offsets -1 to +3 cm with +0.5 and +1.5 added; L-BFGS in 3000-iteration
+chunks until the whole-sheet error moves under 0.002 cm over a chunk (12,000 to 24,000 iterations;
+all 28 cases met it). The first chunk reproduces milestone 1. Predictions were written before the run.
+
+![Shape error against arm width on fabric D: 3000-iteration and converged 3D solves, and the 2D chain](experiments/m1b_converged/converged_vs_capped_D.svg)
+
+| | prediction | outcome |
+|---|---|---|
+| Q1 | converged best integer offset still +1 cm | **refuted** on fabric D (+2 cm, by 0.066 cm); A to C keep +1 by only 0.020 to 0.033 cm |
+| Q2 | margin more than twice the solver residual | held (8 to 25 times) |
+| Q3 | 3000 iterations underestimate every case | **refuted**: the bias depends on width, +0.22 cm at -1 cm, +0.13 at +1, -0.07 at +3 |
+| Q4 | converged half-cm best in [+0.5, +1.5] | held: +1.5 cm on all four fabrics |
+
+Post hoc, the 2D chain on the same grid picks +1.0 cm on every fabric (`posthoc_2d.txt`), sharply.
+So the converged shallow arm and the 2D chain disagree by half a centimetre of arm width. The
+3000-iteration solves agreed with the 2D chain only because stopping early favours narrow arms. A
+tier comparison is only as good as its stopping rule, so the programme now judges convergence
+against the decision margin, not against a fixed iteration count.
 
 ## The programme
 
