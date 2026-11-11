@@ -17,7 +17,7 @@
 //
 // Missing cells are carried forward from the last value in that column so every column keeps
 // the same indexes; a column whose first cell is missing is an error.
-import { makeCost, penaltyValue, robustSd, splitLine, numCell } from './engine.mjs';
+import { makeCost, penaltyValue, robustSd, splitLine, numCell, pelt, localFitScale, ar1Rho, longRunSd } from './engine.mjs';
 import { consensus } from './consensus.mjs';
 
 function check(cols) {
@@ -38,19 +38,56 @@ export function multiPenalty(penalty, n, model, d) {
 }
 
 /**
+ * Each column's noise sd for the joint cost (2026-11-11, eval/tcpd-multi-floor.mjs). floor:
+ *   0 / undefined  the robust sd of first differences (the original joint fit);
+ *   k > 0          at least k times the scatter about a local least-squares line over 25 points, on every column
+ *                  (the univariate setting that beat the level default on 27 of 28 TCPD series it changed);
+ *   'auto'         that floor (k = 2) only on a column whose own level fit over-cuts: 5 or more cuts that the floor
+ *                  at least halves, the univariate over-cut test in engine.mjs analyze(). A white-noise column keeps
+ *                  its plain sd, so the joint fit keeps its power where it earns its place.
+ * ar1: true inflates each column's sd to its long-run sd for that column's own AR(1) rho (the plain --ar1 correction).
+ * Returns [{ sigma, base, floored, rho }].
+ */
+export function columnSigmas(cols, { floor = 0, ar1 = false, penalty = 'bic', minSegment = 2 } = {}) {
+  return cols.map((c) => {
+    const base = robustSd(c);
+    let sigma = base, floored = false;
+    if (floor === 'auto') {
+      if (c.length > 25) {
+        const fl = 2 * localFitScale(c, 25, 1);
+        if (fl > base) {
+          const plain = pelt(c, { model: 'mean', penalty, minSegment, sigma: base }).changepoints.length;
+          if (plain >= 5 && pelt(c, { model: 'mean', penalty, minSegment, sigma: fl }).changepoints.length * 2 <= plain) { sigma = fl; floored = true; }
+        }
+      }
+    } else if (Number(floor) > 0 && c.length > 25) {
+      const fl = Number(floor) * localFitScale(c, 25, 1);
+      if (fl > sigma) { sigma = fl; floored = true; }
+    }
+    const rho = ar1 ? ar1Rho(c) : 0;
+    if (ar1) sigma = longRunSd(sigma, rho);
+    return { sigma, base, floored, rho };
+  });
+}
+
+/**
  * PELT over several aligned columns with a summed cost. cols: array of equal-length number arrays.
  * Returns { changepoints (segment-start indexes), penalty, sigmas, cost }.
  */
-export function multiPelt(cols, { model = 'mean', penalty = 'bic', minSegment } = {}) {
+export function multiPelt(cols, { model = 'mean', penalty = 'bic', minSegment, floor = 0, ar1 = false } = {}) {
   const n = check(cols);
   if (model !== 'mean' && model !== 'meanvar') throw new Error('The joint fit takes model "mean" or "meanvar".');
+  if ((floor || ar1) && model !== 'mean') throw new Error('The joint noise floor and AR(1) correction are for the level model ("mean") only.');
+  if (floor && floor !== 'auto' && !(Number(floor) > 0)) throw new Error('The joint noise floor is a positive number or "auto".');
   const d = cols.length;
   const minSeg = Math.max(1, Math.floor(Number(minSegment) || (model === 'meanvar' ? 10 : 2)));
-  const sigmas = cols.map((c) => robustSd(c));
+  const cs = floor || ar1 ? columnSigmas(cols, { floor, ar1, penalty, minSegment: minSeg }) : null;
+  const sigmas = cs ? cs.map((c) => c.sigma) : cols.map((c) => robustSd(c));
+  const floored = cs ? cs.map((c) => c.floored) : cols.map(() => false);
   const costs = cols.map((c, i) => makeCost(c, model, sigmas[i]));
   const cost = (s, t) => { let v = 0; for (const f of costs) v += f(s, t); return v; };
   const beta = multiPenalty(penalty, n, model, d);
-  if (n < 2 * minSeg) return { changepoints: [], penalty: beta, sigmas, cost: cost(0, n) };
+  if (n < 2 * minSeg) return { changepoints: [], penalty: beta, sigmas, floored, cost: cost(0, n) };
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
   F[0] = -beta;
@@ -72,7 +109,7 @@ export function multiPelt(cols, { model = 'mean', penalty = 'bic', minSegment } 
   const cps = [];
   for (let t = n; last[t] > 0; t = last[t]) cps.push(last[t]);
   cps.reverse();
-  return { changepoints: cps, penalty: beta, sigmas, cost: F[n] };
+  return { changepoints: cps, penalty: beta, sigmas, floored, cost: F[n] };
 }
 
 /**
@@ -171,7 +208,12 @@ export function analyzeMulti(input = {}) {
   names = names || cols.map((_, i) => `column ${i + 1}`);
   labels = labels || Array.from({ length: n }, (_, i) => String(i + 1));
   const model = input.model === 'meanvar' ? 'meanvar' : 'mean';
-  const j = multiPelt(cols, { model, penalty: input.penalty ?? 'bic', minSegment: input.minSegment });
+  // The level model's joint fit floors over-cut columns by default ('auto'; eval/tcpd-multi-floor.mjs and
+  // eval/multi-floor-sim.mjs: F1 0.172 -> 0.286 on the three TCPD series, every white-noise hit rate unchanged).
+  // floor: 'auto' | 0 (off) | k; ar1: true. The level-and-volatility model takes neither.
+  const floor = model === 'mean' ? (input.floor === undefined || input.floor === null || input.floor === '' ? 'auto' : input.floor === 'off' || input.floor === false ? 0 : input.floor) : 0;
+  const ar1 = model === 'mean' && !!input.ar1;
+  const j = multiPelt(cols, { model, penalty: input.penalty ?? 'bic', minSegment: input.minSegment, floor, ar1 });
   const segs = [0, ...j.changepoints, n];
   // For each joint change: the shift in each column, in that column's noise sds, so a reader sees which columns moved.
   const meanOf = (c, s, t) => { let a = 0; for (let i = s; i < t; i++) a += c[i]; return a / (t - s); };
@@ -183,7 +225,19 @@ export function analyzeMulti(input = {}) {
   const overcutWarning = jointOvercut(joint.length, n)
     ? `The one segmentation for all columns has ${joint.length} changes in ${n} points (more than one per ${JOINT_OVERCUT_EVERY}): it is probably cutting smooth, trending or autocorrelated columns into steps, as it did on all three labelled multi-column TCPD series (level: 95 to 132 cuts on 509 to 622 points). Read the column-by-column list instead.`
     : null;
-  return { n, columns: names, filled, model, penalty: j.penalty, joint, agreed: cc.changes, perColumn: cc.perColumn, tolerance: cc.tolerance, ...(overcutWarning ? { overcutWarning } : {}) };
+  const flooredColumns = names.filter((_, i) => j.floored[i]);
+  return { n, columns: names, filled, model, penalty: j.penalty, floor, ar1, flooredColumns, joint, agreed: cc.changes, perColumn: cc.perColumn, tolerance: cc.tolerance, ...(overcutWarning ? { overcutWarning } : {}) };
+}
+
+/** How each column's noise was set for the joint fit, as a clause (empty for the plain fit). */
+export function jointNoiseNote(r) {
+  if (r.model !== 'mean' || (!r.floor && !r.ar1)) return '';
+  const fl = r.flooredColumns || [];
+  const parts = [];
+  if (r.floor === 'auto') parts.push(fl.length ? `noise floor on the over-cut column${fl.length === 1 ? '' : 's'} ${fl.join(', ')}` : 'no column needed a noise floor');
+  else if (r.floor) parts.push(`noise floor ${r.floor}x the local-line scatter${fl.length ? ` (raised ${fl.join(', ')})` : ''}`);
+  if (r.ar1) parts.push('AR(1) long-run sd per column');
+  return `; ${parts.join(', ')}`;
 }
 
 export function multiText(r) {
@@ -191,13 +245,13 @@ export function multiText(r) {
   L.push(`Changes every setting agrees on, column by column (changes within ${r.tolerance} points are one):`);
   if (!r.agreed.length) L.push('  none');
   for (const c of r.agreed) L.push(`  ${c.label}  ${c.support}/${c.of} columns: ${c.columns.join(', ')}`);
-  L.push('', `One segmentation for all columns (${r.model === 'meanvar' ? 'level and volatility' : 'level'}, penalty ${r.penalty.toFixed(1)} per change):`);
+  L.push('', `One segmentation for all columns (${r.model === 'meanvar' ? 'level and volatility' : 'level'}, penalty ${r.penalty.toFixed(1)} per change${jointNoiseNote(r)}):`);
   if (!r.joint.length) L.push('  none');
   for (const c of r.joint) {
     const moved = c.shifts.filter((s) => Math.abs(s.sds) >= 1).sort((a, z) => Math.abs(z.sds) - Math.abs(a.sds));
     L.push(`  ${c.label}  ${moved.length ? moved.map((s) => `${s.column} ${s.shift >= 0 ? '+' : ''}${+s.shift.toPrecision(3)} (${s.sds.toFixed(1)} sd)`).join(', ') : 'every column moved under 1 noise sd'}`);
   }
   if (r.overcutWarning) L.push('', `Read with care: ${r.overcutWarning}`);
-  L.push('', '(The joint fit over-cuts a smooth or trending column as the level model does on one column; the column-by-column list inherits the consensus default measured on held-out labelled series. Estimates, not advice.)');
+  L.push('', `(${r.model === 'mean' && r.floor ? 'The joint fit floors the noise of columns that look smooth or trending, but still assumes independent columns' : 'The joint fit over-cuts a smooth or trending column as the level model does on one column'}; the column-by-column list inherits the consensus default measured on held-out labelled series. Estimates, not advice.)`);
   return L.join('\n');
 }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { multiPelt, multiPenalty, columnConsensus, parseColumns, analyzeMulti, multiText } from './multivariate.mjs';
+import { multiPelt, multiPenalty, columnConsensus, parseColumns, analyzeMulti, multiText, columnSigmas } from './multivariate.mjs';
 import { pelt, penaltyValue } from './engine.mjs';
 import { main } from './cli.mjs';
 
@@ -72,4 +72,36 @@ test('the TCPD multi-dimensional reading on file', () => {
   assert.match(t, /published zero\s+0\.594\s+0\.929\s+0\.341\s+0\.621/);
   const sim = readFileSync(new URL('./eval/multi-sim.out.txt', import.meta.url), 'utf8');
   assert.match(sim, /^4\s+0\.5\s+76% \/ 0\.23\s+0% \/ 0\.00$/m);
+});
+
+test('columnSigmas: auto floors a random-walk column, keeps a white-noise one; the joint floor keeps the shared step', () => {
+  let a = 7;
+  const u = () => { a = (a * 16807) % 2147483647; return a / 2147483647; };
+  const g = () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u());
+  let x = 0;
+  const walk = Array.from({ length: 200 }, () => (x += g()));
+  const white = Array.from({ length: 200 }, () => g());
+  const cs = columnSigmas([walk, white], { floor: 'auto' });
+  assert.equal(cs[0].floored, true);
+  assert.equal(cs[1].floored, false);
+  assert.equal(cs[1].sigma, cs[1].base);
+  assert.ok(multiPelt([walk, white], { floor: 'auto' }).changepoints.length < multiPelt([walk, white]).changepoints.length);
+  // white noise with a shared 1 sd step in four columns: auto changes nothing
+  const cols = Array.from({ length: 4 }, () => Array.from({ length: 200 }, (_, i) => g() + (i >= 100 ? 1 : 0)));
+  assert.deepEqual(multiPelt(cols, { floor: 'auto' }).changepoints, multiPelt(cols).changepoints);
+  assert.ok(columnSigmas(cols, { ar1: true }).every((c) => c.sigma >= c.base));
+  assert.throws(() => multiPelt(cols, { model: 'meanvar', floor: 2 }), /level model/);
+  assert.throws(() => multiPelt(cols, { floor: -1 }), /positive number/);
+});
+
+test('pre-registered joint-floor figures (eval/tcpd-multi-floor.out.txt, eval/multi-floor-sim.out.txt)', () => {
+  const t = readFileSync(new URL('./eval/tcpd-multi-floor.out.txt', import.meta.url), 'utf8');
+  assert.match(t, /joint level \(before\)\s+0\.171\s+0\.050\s+0\.295\s+0\.172/);
+  assert.match(t, /joint level, floor auto \(primary\)\s+0\.378\s+0\.140\s+0\.342\s+0\.286\s+0\.233\s+20\/39\/89/);
+  assert.match(t, /joint level, ar1 \+ floor 2\s+0\.709\s+0\.194\s+0\.789\s+0\.564/);
+  const s = readFileSync(new URL('./eval/multi-floor-sim.out.txt', import.meta.url), 'utf8');
+  // every white-noise row: auto's cell equals plain's
+  const white = s.split('(2a)')[0].split('\n').filter((l) => /^\d\s+[\d.]+\s/.test(l));
+  assert.equal(white.length, 20);
+  for (const l of white) { const c = l.slice(17).match(/.{16}/g); assert.equal(c[1].trim().split(' / ')[0], c[0].trim().split(' / ')[0], l); }
 });
