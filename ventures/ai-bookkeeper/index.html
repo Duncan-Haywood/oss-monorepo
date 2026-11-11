@@ -313,7 +313,8 @@
     <button type="button" id="nec-csv" class="secondary">Download contractors worksheet (CSV)</button>
     <button type="button" id="nec-filing-csv" class="secondary">Download filing-prep CSV (Form 1099-NEC boxes)</button>
     <button type="button" id="nec-iris-csv" class="secondary">Download IRS IRIS 1099-NEC template CSV</button>
-    <p class="note">The filing-prep file has one row per payee over the line, in the form's own box names. The IRIS file uses the 54 columns of the IRS IRIS Taxpayer Portal's 1099-NEC template for tax year 2025 (as copied in open-source IRIS tools; not read on irs.gov), with each name on the business line when it has a business word such as LLC, and split into first and last name otherwise: check both against the W-9, and the file with the free IRIS CSV check (../irs-iris-1099-csv-check/) before upload. Tax ID and address columns are blank on purpose: this page never stores them, so fill them from the W-9 in your filing service. Services take their own column layouts, so reorder the columns to match theirs.</p>
+    <button type="button" id="misc-iris-csv" class="secondary">Download IRS IRIS 1099-MISC rents CSV</button>
+    <p class="note">The filing-prep file has one row per payee over the line, in the form's own box names. The IRIS files use the IRS IRIS Taxpayer Portal's tax year 2025 templates, column for column as the IRS's own template formatting guidelines list them: 54 columns for the 1099-NEC, and 64 for the 1099-MISC, whose box 1 holds the rent (account 6080) paid by bank to each landlord over the same line. Names, addresses and cities are cut down to the characters and lengths the guidelines allow. Each name goes on the business line when it has a business word such as LLC, and is split into first and last name otherwise: check both against the W-9. Leave out rent paid through a property manager or to a corporation, which needs no 1099-MISC. Check the file with the free IRIS CSV check (../irs-iris-1099-csv-check/) before upload. Tax ID and address columns are blank on purpose: this page never stores them, so fill them from the W-9 in your filing service. Services take their own column layouts, so reorder the columns to match theirs.</p>
   </section>
 
   <section class="card" aria-labelledby="h-recurring">
@@ -464,7 +465,7 @@
   <script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));</script>
   <script type="module">
     import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
-    import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, nec1099IrisCsv, markW9, mergePayees } from "./taxforms.mjs";
+    import { scheduleC, scheduleCCsv, contractors1099, contractors1099Csv, nec1099FilingCsv, nec1099IrisCsv, rents1099, misc1099IrisCsv, markW9, mergePayees } from "./taxforms.mjs";
     import { newBooks, importStatement, importOfxAccounts, importQifAccounts, importCsvAccounts, categorize, suggestRules, addRules, addDocuments, writeOff, aging, addAsset, disposeAsset, register, addPrepaid, prepaidRegister, addInventoryMove, setInventoryMethod, inventoryRegister, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, exportLines, status, analyze, fmt, DEFAULT_ACCOUNTS, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
     import { parseCents } from "./bank.mjs";
     import { decodeBytes } from "./textcodec.mjs";
@@ -1080,6 +1081,7 @@
     $("#nec-csv").addEventListener("click", () => { record("contractors_downloaded"); download(contractors1099Csv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-worksheet.csv", "text/csv"); });
 
     $("#nec-iris-csv").addEventListener("click", () => { record("contractors_iris_downloaded"); download(nec1099IrisCsv(contractors1099(books, { year: necYear() })).csv, "contractors-1099-nec-iris-template.csv", "text/csv"); });
+    $("#misc-iris-csv").addEventListener("click", () => { record("rents_iris_downloaded"); download(misc1099IrisCsv(rents1099(books, { year: necYear() })).csv, "rents-1099-misc-iris-template.csv", "text/csv"); });
     $("#nec-filing-csv").addEventListener("click", () => { record("contractors_filing_downloaded"); download(nec1099FilingCsv(contractors1099(books, { year: necYear() })), "contractors-1099-nec-filing-prep.csv", "text/csv"); });
 
     function render() { fillSetup(); renderScheduleC(); renderDeduct(); renderNec(); renderStatus(); renderQueue(); renderReports(); renderRuleSuggestions(); renderAging(); renderRecurring(); renderBudget(); renderCompare(); renderReconcile(); renderYearEnd(); renderReceipts(); renderVat(); renderAssets(); renderPrepaid(); renderInventory(); renderLoans(); renderTaxDepr(); renderSalesTax(); renderOpening(); persist(); }
