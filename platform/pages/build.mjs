@@ -7022,6 +7022,25 @@ ${categoryLinks}
 `;
 }
 
+/**
+ * Viewport widths where the guides grid (`.answers`, `minmax(min(320px,
+ * 100%), 1fr)` inside the page wrap) goes to two and then three columns,
+ * measured in Chromium on 2026-11-11, plus a few steps between, and the
+ * characters per line a title, card link and card description fit at the
+ * narrowest width of each step. The counts are the
+ * largest that never under-counted a line across all 1,626 cards (so they
+ * over-count most of them): see `guideBlockHeights`.
+ */
+export const GUIDE_COLUMNS = [
+  { columns: 1, minWidth: 0, title: 30, label: 29, desc: 30 },
+  { columns: 1, minWidth: 360, title: 37, label: 32, desc: 38 },
+  { columns: 1, minWidth: 412, title: 42, label: 42, desc: 43 },
+  { columns: 1, minWidth: 480, title: 52, label: 50, desc: 56 },
+  { columns: 2, minWidth: 688, title: 78, label: 32, desc: 38 },
+  { columns: 2, minWidth: 840, title: 102, label: 46, desc: 51 },
+  { columns: 3, minWidth: 1018, title: 120, label: 32, desc: 38 },
+];
+
 const GUIDES_STYLE = `
     .tool { margin-top: 34px; }
     .tool h3 { font-size: 1.05rem; letter-spacing: -.02em; margin: 0 0 3px; }
@@ -7036,7 +7055,54 @@ const GUIDES_STYLE = `
     .answers a { color: var(--accent); text-decoration: none; font-weight: 600; }
     .answers a:hover, .answers a:focus-visible { text-decoration: underline; }
     .answers p { margin: 5px 0 0; color: var(--muted); font-size: .88rem; line-height: 1.45; }
-`;
+    /* The page holds every guide in the catalogue (1,626 cards in 609 tool
+       blocks on 2026-11-11, 265,000 px tall on a 412 px phone), and laying
+       all of it out on load cost about 920 ms of style and layout at 4x CPU
+       (longtask.mjs; Lighthouse devtools TBT 883 ms). Off-screen tool blocks
+       now skip rendering until they near the viewport. The content stays in
+       the DOM, so find-in-page, links and crawlers still see all of it.
+
+       Each block's placeholder height (--h1/--h2/--h3, one per grid width)
+       comes from \`guideBlockHeights\`, an upper bound worked out from its
+       own text. It has to be an upper bound: a skipped block keeps its
+       placeholder height while its cards still lay out at full size, so a
+       short estimate makes those cards overlap the next block for anything
+       that measures them off screen (Lighthouse's target-size audit failed
+       16 cards with a row-count estimate). \`auto\` swaps in the real height
+       once a block has been seen. docs/reports/polish-2026-11-11-guides-render-cost.md */
+    .tool { content-visibility: auto; contain-intrinsic-size: auto var(--h1, 400px); }
+${GUIDE_COLUMNS.slice(1)
+  .map((c, i) => `    @media (min-width: ${c.minWidth}px) { .tool { contain-intrinsic-size: auto var(--h${i + 2}, 400px); } }\n`)
+  .join('')}`;
+
+
+/**
+ * An upper bound on a guides-page tool block's rendered height, in px, at
+ * each column count, for the off-screen placeholder `GUIDES_STYLE` gives it:
+ * the h3 (20 px a line, 3 px under), the count note (16 px, 10 under), then
+ * each grid row as tall as its tallest card (26 px of padding and border,
+ * 21.8 px a link line, 5 + 20.4 px a description line) with 10 px gaps.
+ */
+export function guideBlockHeights(title, items) {
+  const lines = (text, perLine) => Math.max(1, Math.ceil(String(text || '').length / perLine));
+  return GUIDE_COLUMNS.map(({ columns, title: t, label, desc }) => {
+    const cards = items.map((item) => {
+      const d = item.description ? truncate(item.description, 130) : '';
+      return 26 + lines(item.label, label) * 21.81 + (d ? 5 + lines(d, desc) * 20.42 : 0);
+    });
+    let rows = 0;
+    for (let i = 0; i < cards.length; i += columns) rows += Math.max(...cards.slice(i, i + columns));
+    const gaps = Math.max(0, Math.ceil(cards.length / columns) - 1) * 10;
+    // + 4: Chromium's sub-pixel line boxes came out up to 1.1% over the
+    // whole-pixel sum on the tallest blocks.
+    return Math.ceil((lines(title, t) * 20 + 3 + 16 + 10 + rows + gaps) * 1.012 + 4);
+  });
+}
+
+/** The inline custom properties a guides-page tool block carries. */
+export function guideBlockStyle(title, items) {
+  return guideBlockHeights(title, items).map((h, i) => `--h${i + 1}:${h}px`).join(';');
+}
 
 /**
  * Every guide page in the catalogue, on one URL, grouped by trade and then by
@@ -7071,7 +7137,7 @@ export function renderGuidesPage({ groups, surfaces, categoryGroups = [], baseUr
 
   const entryHref = (item) => `${toRoot}${item.slug}/${item.file}`;
 
-  const renderTool = (group) => `        <div class="tool">
+  const renderTool = (group) => `        <div class="tool" style="${escapeHtml(guideBlockStyle(group.title, group.items))}">
           <h3><a href="${escapeHtml(`${toRoot}${group.slug}/`)}" data-tool="${escapeHtml(group.slug)}" data-pf-to="${escapeHtml(group.slug)}">${escapeHtml(group.title)}</a></h3>
           <p class="note">${escapeHtml(
             `${group.items.length} page${group.items.length === 1 ? '' : 's'} beside the calculator`,
