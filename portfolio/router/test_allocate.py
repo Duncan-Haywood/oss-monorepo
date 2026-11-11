@@ -10,6 +10,8 @@ import unittest
 from pathlib import Path
 
 from allocate import (
+    claim_note,
+    claims_by_venture,
     deepen_to_window,
     recent_commits,
     Venture,
@@ -739,3 +741,37 @@ class FlagshipTests(unittest.TestCase):
             # flagships.yaml says "keep this under 2,000 characters": history
             # belongs in the venture's README, not in the routed task text.
             self.assertLessEqual(len(milestone), 2000, f"flagship {name}: `next:` is over 2,000 characters")
+
+
+class OpenPrClaimTest(unittest.TestCase):
+    """Rows an open PR already works say so (doc_friction 2026-11-10/11)."""
+
+    PRS = [
+        (14678, "ai-bookkeeper: AI layer on real card lines + post", "2026-11-11T05:00:00Z"),
+        (11151, "ai-bookkeeper: CLI refuses non-numeric flags", "2026-10-28T00:00:00Z"),
+        (14701, "league-schedule-generator: even carry-over + post", "2026-11-11T06:30:00Z"),
+        (14000, "process: allocate.py notes", "2026-11-11T06:00:00Z"),
+    ]
+
+    def test_matches_whole_slug_only(self):
+        claims = claims_by_venture(["ai-bookkeeper", "bookkeeper", "league-schedule-generator", "sales-agent"], self.PRS)
+        self.assertEqual([h[0] for h in claims["ai-bookkeeper"]], [14678, 11151])
+        self.assertEqual([h[0] for h in claims["league-schedule-generator"]], [14701])
+        self.assertNotIn("bookkeeper", claims)  # a slug inside a longer slug is not a match
+        self.assertNotIn("sales-agent", claims)
+
+    def test_fresh_claim_leads_and_stale_ones_are_numbers_only(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 11, 7, 0, tzinfo=timezone.utc)
+        note = claim_note(self.PRS[:2], now=now)
+        self.assertTrue(note.startswith("OPEN PR #14678 (2h old): ai-bookkeeper: AI layer"), note)
+        self.assertIn("[older open PRs: #11151]", note)
+        self.assertNotIn("CLI refuses", note)
+        stale_only = claim_note(self.PRS[1:2], now=now)
+        self.assertFalse(stale_only.startswith("OPEN PR"), stale_only)
+
+    def test_long_titles_are_cut(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 11, 7, 0, tzinfo=timezone.utc)
+        note = claim_note([(1, "x" * 300, "2026-11-11T06:00:00Z")], now=now)
+        self.assertLess(len(note), 160)
