@@ -51,6 +51,42 @@ def breakeven_margin(phases, pump_flow, oc_pressures=None, oc_drop=0.0, p_neutra
             "dm_ddrop": pump_flow * T / B, "dm_dpn": pump_flow * t_idle / B}
 
 
+def decompose(phases, pump_flow, oc_pressures=None, oc_drop=0.0, p_neutral=0.0, t_idle=0.0,
+              q_idle=0.0, p_idle=0.0, q_standby=0.0):
+    """Milestone 5u: m* as a volume ratio times a load pressure, exactly.
+
+    With V = sum q T (load-sensing volume while moving), r = Q T_move / V (fixed-pump volume over it),
+    p_Q = sum p_max T / T_move (pump-flow-weighted highest load pressure; time-weighted, since Q is
+    fixed), p_q = sum q p_max T / V (demand-weighted) and d_bar = sum (p_oc - p_max) T / T_move:
+
+        S = V (r p_Q - p_q),  D = V r d_bar,  so
+        m* = beta [(r - 1) p_q + r (p_Q - p_q) + r d_bar] + I / B,   beta = V / B.
+
+    Returns breakeven_margin's dict plus r, p_Q, p_q, d_bar, beta, the terms in bar of m*
+    (main = beta (r - 1) p_q, cov = beta r (p_Q - p_q), drop = beta r d_bar, idle = I / B) and the
+    two-number rule rule2 = (r - 1) p_q + r d_bar (moving only, no beta, no idle)."""
+    phases = tuple(phases)
+    out = breakeven_margin(phases, pump_flow, oc_pressures, oc_drop, p_neutral, t_idle, q_idle, p_idle,
+                           q_standby)
+    V = T = pt = pq = dd = 0.0
+    for k, ph in enumerate(phases):
+        q = sum(a.flow for a in ph.actuators)
+        p_max = max(a.pressure for a in ph.actuators)
+        p_oc = oc_pressures[k] if oc_pressures is not None else p_max + oc_drop
+        V += q * ph.seconds
+        T += ph.seconds
+        pt += p_max * ph.seconds
+        pq += q * p_max * ph.seconds
+        dd += (p_oc - p_max) * ph.seconds
+    if V <= 0:
+        raise ValueError("no load-sensing volume while moving")
+    r, p_Q, p_q, d_bar, beta = pump_flow * T / V, pt / T, pq / V, dd / T, V / out["B"]
+    out.update(r=r, p_Q=p_Q, p_q=p_q, d_bar=d_bar, beta=beta, main=beta * (r - 1) * p_q,
+               cov=beta * r * (p_Q - p_q), drop=beta * r * d_bar, idle=out["I"] / out["B"],
+               rule2=(r - 1) * p_q + r * d_bar)
+    return out
+
+
 def median_breakeven(margins):
     """Margin at which the median LS/OC over cycles is 1: the median of the per-cycle m*."""
     return median(margins)
@@ -78,7 +114,7 @@ def trace_breakeven(samples, dt, p_neutral, q_standby=0.0):
     D (open-centre spool drop), I (open-centre neutral bleed), B (LS J per bar of margin),
     and the slopes dm_ddrop (constant extra spool drop) and dm_dpn (neutral pressure)."""
     k = dt / 0.6
-    A = Bm = n_still = S_oc = D = I = q_mv = q_still = 0.0
+    A = Bm = n_still = S_oc = D = I = q_mv = q_still = A_on = V_on = 0.0
     for q_fix, secs in samples:
         known = [(q, p) for q, p, _, _ in secs if q > 0 and p is not None]
         if known:
@@ -94,6 +130,8 @@ def trace_breakeven(samples, dt, p_neutral, q_standby=0.0):
             S_oc += q_oc * p_in * k
             D += q_oc * (p_oc - p_in) * k
             q_mv += q_oc * k
+            V_on += sum(q for q, _, _, _ in secs if q > 0) * k
+            A_on += sum(q for q, _, _, _ in secs if q > 0) * max(p for _, p in known) * k
         else:
             I += q_fix * p_neutral * k
             q_still += q_fix * k
@@ -101,5 +139,12 @@ def trace_breakeven(samples, dt, p_neutral, q_standby=0.0):
     if B <= 0:
         raise ValueError("load-sensing delivers no volume, so the margin has no effect")
     S = S_oc - A
-    return {"m": (S + D + I) / B, "A": A, "S": S, "D": D, "I": I, "B": B, "OC": S_oc + D + I,
-            "dm_ddrop": q_mv / B, "dm_dpn": q_still / B}
+    out = {"m": (S + D + I) / B, "A": A, "S": S, "D": D, "I": I, "B": B, "OC": S_oc + D + I,
+           "dm_ddrop": q_mv / B, "dm_dpn": q_still / B}
+    if V_on > 0:
+        # 5u: S = V_on (r p_Q - p_q) - A_off, so m* = beta [(r-1) p_q + r (p_Q - p_q) + r d_bar] + (I - A_off) / B
+        r, p_Q, p_q, d_bar, beta = q_mv / V_on, S_oc / q_mv, A_on / V_on, D / q_mv, V_on / B
+        out.update(r=r, p_Q=p_Q, p_q=p_q, d_bar=d_bar, beta=beta, A_off=A - A_on,
+                   main=beta * (r - 1) * p_q, cov=beta * r * (p_Q - p_q), drop=beta * r * d_bar,
+                   idle=(I - (A - A_on)) / B, rule2=(r - 1) * p_q + r * d_bar)
+    return out

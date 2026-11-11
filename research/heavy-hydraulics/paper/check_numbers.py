@@ -116,6 +116,18 @@ CHECKS = [
     ("1.46 to 1.63", "measured_motion_results.txt", "1.459 to 1.631"),
     ("adds 14.7% to measured fuel", "measured_motion_results.txt", "extra fuel 14.7%"),
     ("piston position alone gives 1.51", "measured_motion_results.txt", "d_min 1.0 mm: moving 265.0 s; OC/LS hydraulic 1.512"),
+    ("r has median 1.433", "breakeven_volume_ratio_results.txt", "r, pump volume / LS volume while moving: median 1.433"),
+    ("p_q median 33 bar", "breakeven_volume_ratio_results.txt", "demand-weighted load pressure, bar: median 33.007"),
+    ("surplus term is 12.2 bar", "breakeven_volume_ratio_results.txt", "beta (r-1) p_q: median 12.201"),
+    ("idle term 8.1 bar", "breakeven_volume_ratio_results.txt", "I / B: median 8.141"),
+    ("median 11.1%", "breakeven_volume_ratio_results.txt", "|covariance| / (S / B): median 0.111"),
+    ("factor 0.690", "breakeven_volume_ratio_results.txt", "median R2 / median m* 0.690"),
+    ("median 6.4%", "breakeven_volume_ratio_results.txt", "per-cycle |R1 - m*| / m* median 0.064"),
+    ("(Spearman 0.765)", "breakeven_volume_ratio_results.txt", "Spearman(r, m*) 0.765"),
+    ("hardly does (0.118)", "breakeven_volume_ratio_results.txt", "Spearman(p_q, m*) 0.118"),
+    ("87.0 bar under the PVG 32", "measured_breakeven_results.txt", "m*  87.0"),
+    ("59.0 to 143.0 bar", "measured_breakeven_results.txt", "min  59.0  max 143.0"),
+    ("with r = 1.78", "measured_breakeven_results.txt", "(ratio 1.78)"),
 ]
 
 
