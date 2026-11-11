@@ -110,12 +110,13 @@ flagships:
       the 1,857-reply label mix are agent-written). Real people's mail 2026-11-10
       (eval/enron.mjs, Enron corpus, 19,153 replies, README): stops 70% wrong; vetoes
       tuned on one half, held-out half scored once: wrong stops 30 to 13 per 1,000,
-      right 113 to 108. Second round 2026-11-11 (eval/README "Second round"): Notes
-      quote headers cut, "I left"/"please contact"/"I'm out" narrowed; third half 2*
-      unread while tuning, labelled blind by a separate agent: wrong stops 171 to 88
-      (17.8 to 9.2 per 1,000), right 76 to 79. Next: (1) the 88 left on 2* ("don't
-      need" in work talk, colleagues' absences) tuned on 0*-2*, scored on a fourth
-      half (3*); a human second reader; "Mine too" above a quoted opt-out; real
+      right 113 to 108. Rounds 2 and 3, 2026-11-11 (eval/README "Second round",
+      "Third round"): each tuned on read halves, scored once on an unread half
+      labelled blind by a separate agent; round 3 (Re: subjects not read, others'
+      absences, forwarding) on 3*: wrong stops 10.9 to 8.4 per 1,000, right 47 to
+      46. Next: (1) the 81 left on 3* (first-person short absences, "don't need the
+      X" in work talk) tuned on 0*-3*, scored on 4*; a human second reader; "Mine
+      too" above a quoted opt-out; real
       opt-out recall set 2026-11-10 (eval/optout-recall.mjs, Enron 2*-f*, README): 103
       of 113 caught before, 112 after five patterns, no new wrong stop on either half;
       open: a second reader for its labels; (2) real replies to outreach and a real
