@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVP36g85xvZHA33A4DU",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (ventures and research)",
+  "input_sha256": "72afcc236c8c858bc1c931749deb7d70c1201ed0a87891e5bed3968fed3d6849",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T21:05:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "programme-step",
+  "projects": [
+    "aerolog-scaling"
+  ],
+  "pr": 14886,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Reports 'next free: aerolog-sizing' although sizing landed inside aerolog-scaling as milestones 10a-10s; it only looks for slugs, not milestones landed inside a programme."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The scheduled prompt asked for revenue-generating venture work; promptctl routed this run to the research track (weighted draw), and the routing layer was followed.",
+      "did": "Advanced research track 22 (aerolog) instead of a venture.",
+      "result": "one programme step landed"
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "why": "pick_track pointed at the hub-throughput chain (6a-6l), which had become micro-variants of one result; the track's own rule says to ask the harder question instead.",
+      "did": "Took the untouched airspace milestone (track 22 item 7) as milestone 11a inside aerolog-scaling.",
+      "result": "new closed-form result with real-data check"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-aerolog-hub-airspace-conflicts.md"
+  ],
+  "goal": "Track 22 airspace milestone (11a): conflict rate of one delivery hub's own traffic, closed form vs exact simulator on real NYC destinations",
+  "notes": "Verification: aerolog-scaling tests 39 passed (4 new in tests/test_hub_airspace.py); research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post frontmatter/links/similarity ok. Results: experiments/hub_airspace/results.txt (43 s). Predictions P2-P5 held; P1 held in the base case (within 1.1%) but missed by the letter on the grid (1 of 90 comparisons at 12.1%, the lowest-count cell; others within 4.3%).",
+  "corrections": [],
+  "redteam": null
+}
