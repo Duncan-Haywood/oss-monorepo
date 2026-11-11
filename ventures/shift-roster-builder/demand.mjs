@@ -147,7 +147,7 @@ export function readSales(text, o = {}) {
     const st = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
     if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampText || ""}"`); return; }
     if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "" || (ix.qty !== undefined && String(c[ix.qty] || "").trim() === "")) { out.skipped.push(`row ${i + 2}: could not read the sales "${ix.qty !== undefined ? `${c[ix.qty] || ""} x ${c[ix.price] || ""}` : c[ix.sales] || ""}"`); return; }
-    // A refund or void line is counted, not listed: the French bakery file has 1,295 of them, one "skipped" line each before.
+    // A refund or void line is counted, not listed: the French bakery file has 1,294 of them, one "skipped" line each before.
     if (amount < 0) { out.refunds.n++; out.refunds.amount += amount; return; }
     if (st.key && skip.has(isoKey(st.key))) { out.skippedDays.add(st.key); return; }
     out.entries.push({ ...st, amount });
@@ -361,7 +361,16 @@ export function backtestSales(text, o = {}) {
   if (!Number.isInteger(warmup) || warmup < 1) throw new Error("warm-up must be a whole number of weeks, 1 or more");
   const r = readSales(text, o);
   const notes = [...r.notes];
-  const dated = r.entries.filter((e) => e.key);
+  // One entry per date and hour (sales summed) gives the same averages as one per row: averageSales weighs by date and
+  // counts dates, not rows. The French bakery's 232,711 item lines become 5,566, and its backtest drops from 67 s a
+  // setting to about 3 s (the page runs it on the main thread).
+  const agg = new Map();
+  for (const e of r.entries) {
+    if (!e.key) continue;
+    const k = `${e.key}|${e.hour}`, x = agg.get(k);
+    if (x) x.amount += e.amount; else agg.set(k, { ...e });
+  }
+  const dated = [...agg.values()];
   if (!dated.length) return { weeks: 0, methods: [], notes: notes.concat("A backtest needs dated rows (a date and hour per sale), not weekday averages.") };
   const ms = dated.map((e) => keyMs(e.key));
   let lo = Infinity, hi = -Infinity;

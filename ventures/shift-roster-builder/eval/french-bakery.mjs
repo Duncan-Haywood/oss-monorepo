@@ -1,6 +1,6 @@
 // Real POS export, second shop: a French bakery's item lines (Kaggle "French bakery daily sales", Matthieu Gimbert;
 // 234,005 lines, 2021-01-02 to 2022-09-30, columns ",date,time,ticket_number,article,Quantity,unit_price" with prices
-// written "0,90 €"). It has no sales column, a lunch closure, 1,295 refund lines and is large enough to overflow a
+// written "0,90 €"). It has no sales column, a lunch closure, 1,294 refund lines and is large enough to overflow a
 // spread Math.max; all four were faults in --from-sales before 2026-11-11. The file is not committed (its licence page
 // could not be read from the session); this script downloads the public GitHub mirror it was measured on, checks its
 // SHA-256, and runs --from-sales and the backtest. Output: eval/french-bakery.out.txt.

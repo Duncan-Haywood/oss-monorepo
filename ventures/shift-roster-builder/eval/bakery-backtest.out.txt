@@ -5,7 +5,7 @@ Wed/Fri/Sat/Sun, 11:00, 15:00, 2
 233 empty rows ignored.
 Tuesdays: sales on 1 of 42 in the file, so treated as closed (--keep-rare keeps it).
 2420 rows read, up to 42 days per weekday averaged.
-Rare edge hours left out of the trading day (sales on under 1 in 20 days): Wed 22:00 (1 of 39 days), Sun 23:00 (1 of 42 days). --open/--close or --keep-rare sets the hours yourself.
+Hours left out of the trading day: rare edge hours (sales on under 1 in 20 days) and breaks (hours inside the day with sales on under 1 in 5 days between busier hours, such as a lunch closure): Wed 22:00 (1 of 39 days), Sun 23:00 (1 of 42 days). --open/--close or --keep-rare sets the hours yourself.
 66 person-hours needed, 82 scheduled; skipped rows: 1
 
 == same with --keep-rare (the behaviour before 2026-11-11): 81 needed, 101 scheduled
