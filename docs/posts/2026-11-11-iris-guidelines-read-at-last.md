@@ -1,7 +1,7 @@
 ---
 title: "We finally read the IRS's IRIS guidelines: three faults in our 1099 file, and a rent form"
 date: 2026-11-11
-description: "The IRS publishes formatting guidelines for its IRIS 1099 upload templates. Reading them found three faults in the AI Bookkeeper's 1099-NEC file, and it now writes the 1099-MISC for rent too."
+description: "Reading the IRS's IRIS template guidelines found three faults in our 1099-NEC file. The AI Bookkeeper now also writes the 1099-MISC for rent."
 tags: [ai-bookkeeper, irs-iris-1099-csv-check, 1099-nec, 1099-misc, iris]
 ---
 
