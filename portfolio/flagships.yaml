@@ -244,23 +244,19 @@ flagships:
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
       CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
-      capped breaks, zero-break odd leagues, finite-field start at 4/8/16/32 teams, sampled starters
-      and the plain-mirror season candidate, all 2026-11-11). Climbed starters 2026-11-11 latest
-      (README "Climbed starters", eval/starter-anneal.mjs): annealed multi-start over starters at
-      step 1 (any step is a relabelling); 22 teams 516 to 440 and 21 teams 475 to 399 (floor, every
-      count 0 or 1), 22-team season 1,862 to 1,782 (floor); 24 to 40 teams 4 to 13% lower, still 16
-      to 28% above the floor. O(p) starter score 2026-11-11 latest (README "An O(p) starter score",
-      eval/starter-climb.mjs): cyclic carry-over from one difference sequence, 2-10M moves in 40 s;
-      24 teams 612 to 570, 30 1,002 to 948, 40 1,890 to 1,816 (8-21% above the floor); clears the
-      24- and 30-team break-weight regressions. Next, most valuable first: pick the start by
-      carry-over + weight x breaks when a weight is set; close 24-40 (tabu, longer runs, the
-      literature's starters and terraces); refilled rounds 2026-11-11 latest (README "Refilled
-      rounds", eval/round-refill.mjs: take 2-5 rounds out, refill by DFS): 12 teams 152 to 136
-      (floor 120), 9 teams 71 to 69, stored whole in TIMETABLES; next there: a lower bound or a
-      timetable below 136 at 12, the refill from climbed starters at 14-18 teams and on a season's
-      second leg;
-      a bound for the minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter
-      timetable; a real league's travel times and unavailable dates; a print check.
+      capped breaks, zero-break odd leagues, field start at 4/8/16/32 teams; sampled, annealed and
+      O(p)-climbed starters, 20 and 22 teams at the floor, 24-40 8-21% above it; refilled rounds,
+      12 teams 136 against 120, stored in TIMETABLES; all 2026-11-11). Break-weighted starters
+      2026-11-11 latest (README "Starters picked with their breaks", eval/starter-breaks.mjs): a
+      starter's start is a relabelling (never changes carry-over), so STARTERS_WEIGHTED, picked on
+      carry-over + 10 x breaks, is another start at break weights, kept only when strictly better:
+      26 teams 716/102 to 716/74, season 2,618/230 to 2,714/164; 12-18, 28, 30, 34 lower too. Next,
+      most valuable first: run 36-40 through the search and a climb that scores breaks inside the
+      move (odd sizes vs the circle's zero-break orientation); a lower bound or a timetable below 136
+      at 12, the refill from climbed starters at 14-18 teams and on a season's second leg; close
+      24-40 (tabu, longer runs, the literature's starters and terraces); a bound for the
+      minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter timetable; a real
+      league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

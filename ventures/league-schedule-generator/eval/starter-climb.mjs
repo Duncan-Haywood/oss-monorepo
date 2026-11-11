@@ -112,7 +112,7 @@ function repair(f, p, k, rand, visit, cap = 2000) {
   freed.forEach((x, i) => { f[x] = saved[i]; });
 }
 
-function climb(N, odd, ms, seed) {
+export function climb(N, odd, ms, seed, slack = 2, poolSize = 400) {
   const p = N - 1;
   const rand = mulberry32(seed);
   const pool = new Map(); // key -> { score, f }
@@ -137,10 +137,10 @@ function climb(N, odd, ms, seed) {
         if (bestNextScore < score) stall = 0; else stall++;
         f = bestNext; score = bestNextScore;
       } else stall++;
-      if (score <= best + 2) {
+      if (score <= best + slack) {
         const key = Array.from(f).join(",");
         if (!pool.has(key)) pool.set(key, { score, f: Int16Array.from(f) });
-        if (pool.size > 400) {
+        if (pool.size > poolSize) {
           const worst = [...pool.entries()].sort((a, b) => b[1].score - a[1].score)[0][0];
           pool.delete(worst);
         }
@@ -152,7 +152,7 @@ function climb(N, odd, ms, seed) {
   return { best, pool: [...pool.values()].sort((a, b) => a.score - b.score), restarts, moves, ms: Date.now() - t0 };
 }
 
-const toPairs = (f, p) => { const out = []; for (let x = 1; x < p; x++) if (x < f[x]) out.push([x, f[x]]); return out; };
+export const toPairs = (f, p) => { const out = []; for (let x = 1; x < p; x++) if (x < f[x]) out.push([x, f[x]]); return out; };
 
 function exactBest(N, n, pairs) {
   let best = { value: Infinity };
