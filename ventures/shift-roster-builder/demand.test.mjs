@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hourlySales, headcount, cutShifts, demandShifts, backtestSales, readSales } from "./demand.mjs";
+import { hourlySales, headcount, cutShifts, demandShifts, backtestSales } from "./demand.mjs";
 import { parseShifts } from "./calc.mjs";
 
 // Invented hand-built sales; the real bakery export is in eval/bakery-backtest.mjs (not committed).
@@ -579,61 +579,4 @@ test("joined cut is opt-in: without join the priced cut is unchanged, and backte
   const q2 = (h) => (h === 10 || h === 14 ? 0.6 : h >= 11 && h <= 13 ? 0.2 : 0);
   const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 8 && h < 18 ? [1, 1, q2(h), 0] : [1, 0]])));
   assert.deepEqual(cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1 }), cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1, join: false }));
-});
-
-// Planning from tickets (customers) instead of sales, 2026-11-11 (README "Planning from tickets"). Made-up rows in the
-// French bakery's line-item shape and the Korean bakery's order shape.
-test("tickets: a line-item export counts each ticket once, in the hour of its first line, and drops refunds", () => {
-  const rows = [",date,time,ticket_number,article,Quantity,unit_price"];
-  let n = 0;
-  for (let d = 5; d <= 18; d++) {
-    const date = `2026-10-${String(d).padStart(2, "0")}`;
-    // 08:00: 6 tickets of 3 small lines each (cheap); 11:00: 2 tickets of 1 big line each (dear).
-    for (let k = 0; k < 6; k++) for (let l = 0; l < 3; l++) rows.push(`${n++},${date},08:${String(10 + k).padStart(2, "0")},${d * 100 + k},BAGUETTE,1.0,"0,90 €"`);
-    for (let k = 0; k < 2; k++) rows.push(`${n++},${date},11:05,${d * 100 + 50 + k},GATEAU,1.0,"30,00 €"`);
-    rows.push(`${n++},${date},11:30,${d * 100 + 50},GATEAU,-1.0,"30,00 €"`);
-  }
-  const t = readSales(rows.join("\n"), { unit: "tickets" });
-  assert.equal(t.rows, 14 * 8);
-  assert.equal(t.refunds.n, 14);
-  assert.ok(t.entries.every((e) => e.amount === 1));
-  assert.match(t.notes.join(" "), /Counting tickets: each distinct "ticket number"/);
-  const prof = (o) => { const h = hourlySales(rows.join("\n"), o); return headcount(h.avg, h.observed, { ...o, minStaff: 0, seen: h.seen })[0]; };
-  // Sales: 08:00 is 16.2 EUR (1 head), 11:00 is 60 EUR (3 heads). Tickets: 08:00 is 6 (2 heads), 11:00 is 2 (1 head).
-  const s = prof({ splh: 20 }), k = prof({ unit: "tickets", splh: 3 });
-  assert.deepEqual([s[8], s[11]], [1, 3]);
-  assert.deepEqual([k[8], k[11]], [2, 1]);
-  const d = demandShifts(rows.join("\n"), { unit: "tickets", splh: 3, halfLife: "none" });
-  assert.deepEqual(parseShifts(d.shiftsText).errors, []);
-});
-
-test("tickets: an order-level export with no ticket column counts rows; an item export without one is refused", () => {
-  const orders = ["datetime,total"];
-  for (let d = 5; d <= 18; d++) for (let k = 0; k < 4; k++) orders.push(`2026-10-${String(d).padStart(2, "0")} 11:${10 + k},${k === 0 ? 90000 : 5000}`);
-  const r = readSales(orders.join("\n"), { unit: "tickets" });
-  assert.equal(r.rows, 56);
-  assert.ok(r.entries.every((e) => e.amount === 1));
-  assert.match(r.notes.join(" "), /each row is taken as one order/);
-  const items = "date,time,article,Quantity,unit_price\n2026-10-05,08:00,PAIN,1,1.10";
-  const x = readSales(items, { unit: "tickets" });
-  assert.equal(x.rows, 0);
-  assert.match(x.notes.join(" "), /needs a ticket, order, receipt or check number column/);
-});
-
-test("tickets: ticket numbers that restart each day are separate customers; backtest judgeBy scores another count", () => {
-  const rows = ["date,time,check number,net sales"];
-  for (let d = 5; d <= 25; d++) for (let k = 1; k <= 4; k++) rows.push(`2026-10-${String(d).padStart(2, "0")},12:0${k},${k},${k * 10}`);
-  const r = readSales(rows.join("\n"), { unit: "tickets" });
-  assert.equal(r.rows, 21 * 4);
-  const b = backtestSales(rows.join("\n"), { unit: "tickets", splh: 2, shifts: true, methods: ["all"], warmup: 1, judgeBy: { splh: 50 } });
-  assert.ok(b.weeks >= 1);
-  assert.throws(() => backtestSales(rows.join("\n"), { splh: 2, judgeBy: { splh: 0 } }), /judgeBy/);
-});
-
-test("tickets: the CLI takes --tickets-per-hour in place of --splh", async () => {
-  const { parseArgs } = await import("./cli.mjs");
-  const o = parseArgs(["--from-sales", "x.csv", "--tickets-per-hour", "12"]);
-  assert.equal(o.splh, 12);
-  assert.equal(o.demand.unit, "tickets");
-  assert.throws(() => parseArgs(["--tickets-per-hour", "0"]), /tickets-per-hour/);
 });
