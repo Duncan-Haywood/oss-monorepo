@@ -74,6 +74,9 @@ export const SOCIAL_SECURITY_WAGE_BASE_2026 = 184_500;
  */
 export const SE_NET_EARNINGS_FACTOR = 0.9235;
 
+/** Net earnings from self-employment under this owe no SE tax (Schedule SE). */
+export const SE_TAX_FLOOR = 400;
+
 /** The sole-proprietor-equivalent rate for a plan stating a 25% employer rate. */
 export const EMPLOYER_CONTRIBUTION_RATE = 0.2;
 
@@ -112,8 +115,10 @@ export function selfEmploymentTaxOutcome(netProfit, { wageBase = SOCIAL_SECURITY
   const profit = Math.max(0, num(netProfit));
   const cap = Math.max(0, num(wageBase));
   const taxableBase = profit * SE_NET_EARNINGS_FACTOR;
-  const socialSecurity = Math.min(taxableBase, cap) * 0.124;
-  const medicare = taxableBase * 0.029;
+  // Schedule SE: net earnings under $400 owe no self-employment tax at all.
+  const owes = taxableBase >= SE_TAX_FLOOR;
+  const socialSecurity = owes ? Math.min(taxableBase, cap) * 0.124 : 0;
+  const medicare = owes ? taxableBase * 0.029 : 0;
   const total = socialSecurity + medicare;
   return { profit, taxableBase, socialSecurity, medicare, total, deductibleHalf: total / 2 };
 }
