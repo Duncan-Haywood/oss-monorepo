@@ -1,0 +1,277 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKjbn9Yb2aCDWF9XCw2",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T22:18:19Z",
+  "ended": "2026-11-11T22:19:01Z",
+  "wall_minutes": 12.71,
+  "tokens_in": 2991616,
+  "tokens_out": 18030,
+  "cost_usd": 1.5356,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14912",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pkill hint says bracket the first letter, but the hook also blocks when the pattern text appears elsewhere in the same command line (e.g. a server started in the same call); start and kill in separate calls."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a one-venture diff passed the 120 s foreground limit (killed at ~500 s); CLAUDE.md could say to start it with run_in_background."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 5 open defects are control-plane workflow/prompt fixes that already have open PRs waiting on owner approval; reopening them would duplicate.",
+      "did": "Recorded the PR numbers and left the entries as they are.",
+      "result": "No duplicates opened."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b automation guard: the two defects are about this calculator's scheduling model and its integer fields; a repo-wide integer-count lint would be wrong for many calculators, which legitimately take fractions.",
+      "did": "Fixed and guarded in the venture suite only.",
+      "result": "No new platform lint."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-two-artists-cannot-share-one-bride.md"
+  ],
+  "goal": null,
+  "notes": "Target drawn at random. Venture suite: 92/92 pass (node --test *.test.mjs). Page checked in Playwright: a shared link with an 85-minute window and a 90-minute bride shows lookWarning, fitsVerdict stays hidden, fractional count shows 'must be a whole number', no pageerrors. Left alone: 1,291 venture llms.txt files point at the duncan-haywood.github.io host, which serves redirects and is what test_no_dead_pages_base.py recommends.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+        "test": "node --test ventures/bridal-hair-makeup-pricing-calculator/**/*.test.mjs  (in .)",
+        "seed": 51998997,
+        "commit": "bcf6070b",
+        "sites": 117,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 40,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "fullServiceCount: 4,",
+            "after": "fullServiceCount: 5,",
+            "line_text": "  fullServiceCount: 4,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 43,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "makeupOnlyPrice: 95,",
+            "after": "makeupOnlyPrice: 96,",
+            "line_text": "  makeupOnlyPrice: 95,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 50,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "startHour: 6,",
+            "after": "startHour: 7,",
+            "line_text": "  startHour: 6,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 61,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "minutesPerKid: 20,",
+            "after": "minutesPerKid: 21,",
+            "line_text": "  minutesPerKid: 20,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 139,
+            "col": 89,
+            "operator": "plus-to-minus",
+            "before": "const totalHeadcount = brideCount + fullServiceCount + hairOnlyCount + makeupOnlyCount + kidsCount;",
+            "after": "const totalHeadcount = brideCount + fullServiceCount + hairOnlyCount + makeupOnlyCount - kidsCount;",
+            "line_text": "  const totalHeadcount = brideCount + fullServiceCount + hairOnlyCount + makeupOnlyCount + kidsCount;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default booking has kidsCount 0; new test \"kids count toward the headcount...\" in calc.test.mjs sets kidsCount 2"
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 155,
+            "col": 50,
+            "operator": "gt-to-ge",
+            "before": "const belowRevenueMinimum = minimumShortfallFee > 0;",
+            "after": "const belowRevenueMinimum = minimumShortfallFee >= 0;",
+            "line_text": "  const belowRevenueMinimum = minimumShortfallFee > 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 160,
+            "col": 66,
+            "operator": "plus-to-minus",
+            "before": "const totalServiceMinutes = brideCount * (minutesPerFullService + brideExtraMinutes + bufferMinutesPerPerson)",
+            "after": "const totalServiceMinutes = brideCount * (minutesPerFullService - brideExtraMinutes + bufferMinutesPerPerson)",
+            "line_text": "  const totalServiceMinutes = brideCount * (minutesPerFullService + brideExtraMinutes + bufferMinutesPerPerson)",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+            "line": 164,
+            "col": 33,
+            "operator": "plus-to-minus",
+            "before": "+ kidsCount * (minutesPerKid + bufferMinutesPerPerson);",
+            "after": "+ kidsCount * (minutesPerKid - bufferMinutesPerPerson);",
+            "line_text": "    + kidsCount * (minutesPerKid + bufferMinutesPerPerson);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default booking has kidsCount 0; new test \"kids count toward the headcount...\" in calc.test.mjs sets kidsCount 2"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+        "issue": "Capacity pooled every artist's minutes, so a look longer than the prep window (bride 90 min, window 85, 2 artists) was reported as finishing on time with no extra artist; one person's look cannot be split between artists. Added longestLookMinutes/lookLongerThanWindow, a page banner, and kept the on-time verdict hidden.",
+        "patched": true
+      },
+      {
+        "file": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+        "issue": "Headcounts, artists booked and the 0/1 trial flags accepted fractions: 2.5 bridesmaids priced as 2.5 people, 1.5 artists added 120 pooled minutes, trialRequested 0.5 charged the full trial. Now rejected with 'must be a whole number'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d2fd08d9-291f-5e11-8b9c-882798ce8471",
+    "transcripts": 1,
+    "first": "2026-11-11T22:18:19Z",
+    "last": "2026-11-11T22:31:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 73,
+        "output": 18030,
+        "thinking": 2372,
+        "cache_read": 2917645,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73898,
+        "api_equivalent_usd": 1.5356,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 73,
+      "output": 18030,
+      "thinking": 2372,
+      "cache_read": 2917645,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73898,
+      "api_equivalent_usd": 1.5356,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 37,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.71,
+      "active_minutes": 12.71,
+      "model_minutes": 3.63,
+      "tool_minutes": 9.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading calc, two fixes with tests, page check, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 195.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
