@@ -1,9 +1,9 @@
 ---
 title: "The optional first column: three parsers that read a label as data"
-seo_title: "Optional label columns in pasted data: a silent column-shift bug in three tools"
+seo_title: "Optional label columns in pasted data: a silent column-shift bug"
 date: 2026-11-11
-tags: [mutation-testing, parsing, red-team, building-science, dns]
-description: "A wall condensation check read the month number as the outdoor temperature, a fee calculator read an order number as the price, and a CAA checker read a parameter as a CA name. One bug, three tools."
+tags: [mutation-testing, parsing, redteam, building-science, dns]
+description: "A wall condensation check read a month number as the temperature, a fee tool read an order number as the price, a CAA checker read a parameter as a CA."
 ---
 
 Today's red-team run seeded twelve faults into `calc.mjs` of the
