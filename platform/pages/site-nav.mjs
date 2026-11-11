@@ -437,7 +437,9 @@ const SITE_TOKENS_CSS = `
  * fill runs edge to edge and down past the page's bottom padding through a
  * spread shadow clipped to the band's sides and below: unlike a 100vw
  * pseudo-element, a shadow adds no scrollable overflow. Lightest
- * text-on-field pair: `--soft` #a9b5c6 on #0b1626 is 8.7:1.
+ * text-on-field pair: `--soft` #a9b5c6 on #0b1626 is 8.7:1. `code` gets the
+ * band's own fill: a page's light `code` background (lab.mjs's #efede6) under
+ * the band's #a8c7f0 link colour measured 1.48:1 on /lab/ (2026-11-11).
  */
 const SITE_FOOTER_CSS = `
 footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-top:64px;padding:40px 0 34px;border-top:0;
@@ -448,6 +450,7 @@ footer:has(.pfs-foot){position:relative;max-width:none;color-scheme:dark;margin-
   box-shadow:0 0 0 100vmax #0b1626;clip-path:inset(0 -100vmax -100vmax)}
 footer:has(.pfs-foot)>:not(.pfs-foot){max-width:84ch}
 footer:has(.pfs-foot) h2,footer:has(.pfs-foot) strong{color:#eef2f8}
+footer:has(.pfs-foot) code{background:rgba(148,170,210,.16);color:inherit}
 .pfs-foot{margin:18px 0 0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.9}
 .pfs-foot a,.pfs-support a{color:var(--pfs-accent)}
 .pfs-support{margin:18px 0 0;font-size:14px;line-height:1.6}

@@ -279,8 +279,8 @@ const STYLE = `
   .finder select { font:inherit; padding:4px 6px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); max-width:100%; }
   .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0; }
   .chips button { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
-  .chips button[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:#fff; }
-  .chips button span { opacity:.75; margin-left:4px; }
+  .chips button[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:var(--bg); }
+  .chips button span { margin-left:4px; font-variant-numeric:tabular-nums; }
   .finder #clear { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
   .posts h3 { font-size:1.12rem; margin:0 0 .3em; line-height:1.3; } .posts h3 a { color:inherit; text-decoration:none; } .posts h3 a:hover { color:var(--accent); }
   section[id^="topic-"] { scroll-margin-top:16px; }
