@@ -46,7 +46,7 @@
       "file": "prompts/research/prompt-0.md",
       "why": "work stays inside research/, but CI validate was red from an unrelated flagships.yaml overflow on main",
       "did": "trimmed portfolio/flagships.yaml league-schedule-generator next: in the same PR",
-      "result": "validate green"
+      "result": "validate green on the PR; a concurrent run fixed the same overflow on main, so the merge took main's version and my trim dropped out (wasted ~5 min)"
     }
   ],
   "writeups": [
@@ -55,7 +55,7 @@
     "research/verified-dse/PAPER.md (milestones 113, 114)"
   ],
   "goal": null,
-  "notes": "Routed research/0, drew programme verified-dse. Milestone 114 (no flow run): a guard from mapped-rung slack and delay spread, chosen on 52 held-out cells (34 thresholds, LOFO), predictions committed in cb9ce032 before first run, tested on 48 fresh cells. Negative: chosen guard AB(0.15,0.3) missed both relaxed multipliers on test and raised dear-pool regret 0.97% -> 1.16% (bootstrap +0.00 to +0.57); predictions 1,4,5 held, 2,3,6 refuted. Post hoc: slack stable across tables (<=0.10), spread drifts with sequence pool (11-35%). Local checks: pytest tests/test_r2_guard.py + test_fresh_designs.py 8 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post frontmatter/links/similarity ok. Also fixed a red portfolio/router/validate.py inherited from main (#14799 left league-schedule-generator next: at 2154 chars, cap 2000): trimmed history to a pointer. Local run_workflow_locally.py --for-changes was voided (HEAD moved during sweep); verification is PR CI: validate, homepage, test, check, coverage, control-plane green.",
+  "notes": "Routed research/0, drew programme verified-dse. Milestone 114 (no flow run): a guard from mapped-rung slack and delay spread, chosen on 52 held-out cells (34 thresholds, LOFO), predictions committed in cb9ce032 before first run, tested on 48 fresh cells. Negative: chosen guard AB(0.15,0.3) missed both relaxed multipliers on test and raised dear-pool regret 0.97% -> 1.16% (bootstrap +0.00 to +0.57); predictions 1,4,5 held, 2,3,6 refuted. Post hoc: slack stable across tables (<=0.10), spread drifts with sequence pool (11-35%). Local checks: pytest tests/test_r2_guard.py + test_fresh_designs.py 8 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post frontmatter/links/similarity ok. Also fixed a red portfolio/router/validate.py inherited from main (#14799 left league-schedule-generator next: at 2154 chars, cap 2000): trimmed history to a pointer (superseded by main's concurrent fix at merge). Local run_workflow_locally.py --for-changes was voided (HEAD moved during sweep); verification is PR CI: validate, homepage, test, check, coverage, control-plane green.",
   "corrections": [],
   "redteam": null,
   "usage": {
