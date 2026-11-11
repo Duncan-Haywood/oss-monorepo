@@ -20,7 +20,8 @@ The 2020 web-minus-phone gap is also raked, to compare with the within-person es
 Part B, the 2022 and 2024 cross-sections, in person (mode 1) vs web (mode 4), within year. Web respondents are raked to
 the in-person respondents' margins (S1-S3, each year separately), and the web-minus-in-person gaps are recomputed for
 weekly attendance (all adults, and Catholics raked within Catholics), the Catholic share, the raised-Catholic share
-and the no-religion share. Missing covariate values are a category of their own.
+and the no-religion share. Missing covariate values are a category of their own (folded into the modal code when under
+2% of the rows; added after the first run crashed on infeasible singleton cells, see fold_rare_missing).
 
 Uncertainty: 300-draw stratified PSU bootstrap (seed 1); raking is redone in every draw, so its variance is carried.
 
@@ -87,39 +88,62 @@ def covariates(v):
     }, index=v.index)
 
 
+def fold_rare_missing(cov, rows, share=0.02):
+    """Missing (-1) folded into the covariate's modal code where under `share` of the analysis rows.
+
+    Added after the first run crashed: single respondents missing on two covariates at once made the S2 margins
+    infeasible (a one-person cell cannot match two different target shares), so raking stalled at a 0.12-point gap."""
+    cov = cov.copy()
+    for c in cov.columns:
+        x = cov[c].to_numpy()
+        miss = (x == -1) & rows
+        if 0 < miss.sum() < share * rows.sum():
+            vals, cnt = np.unique(x[rows & (x != -1)], return_counts=True)
+            x = x.copy(); x[x == -1] = vals[cnt.argmax()]
+            cov[c] = x
+    return cov
+
+
 def raked_gap(y, w, src, tgt, cov, cols):
     """Weighted mean of y in src minus in tgt, after raking src's weights to tgt's margins on cols."""
     ws = w[src].copy()
     if cols:
         targets = [rake.margins(cov[c].to_numpy()[tgt], w[tgt]) for c in cols]
         ws, gap, _ = rake.rake(ws, [cov[c].to_numpy()[src] for c in cols], targets)
-        if gap > 1e-6:
-            raise RuntimeError(f'raking did not converge (max margin gap {gap:.2e})')
+    else:
+        gap = 0.0
     ys, yt = y[src], y[tgt]
     ms, mt = ~np.isnan(ys) & (ws > 0), ~np.isnan(yt) & (w[tgt] > 0)
     a = (ws[ms] * ys[ms]).sum() / ws[ms].sum()
     b = (w[tgt][mt] * yt[mt]).sum() / w[tgt][mt].sum()
-    return a - b, rake.kish_deff(ws[ms]) / max(rake.kish_deff(w[src][ms]), 1e-12)
+    return a - b, rake.kish_deff(ws[ms]) / max(rake.kish_deff(w[src][ms]), 1e-12), gap
 
 
 def gaps(pieces, w, cols):
     """Sum over pieces (years) of each piece's raked gap, weighted by the piece's target weight total."""
-    tot, num, deffs = 0.0, 0.0, []
+    tot, num, deffs, mg = 0.0, 0.0, [], 0.0
     for y, src, tgt, cov in pieces:
-        g, dd = raked_gap(y, w, src, tgt, cov, cols)
+        g, dd, m = raked_gap(y, w, src, tgt, cov, cols)
         wt = w[tgt].sum()
-        num += wt * g; tot += wt; deffs.append(dd)
-    return num / tot, float(np.mean(deffs))
+        num += wt * g; tot += wt; deffs.append(dd); mg = max(mg, m)
+    return num / tot, float(np.mean(deffs)), mg
 
 
 def table(name, pieces_fn, w, s, p, rng, out, rows, extra):
     """Point estimate and bootstrap interval of the gap for each covariate set."""
     pt = {k: gaps(pieces_fn(), w, cols) for k, cols in SETS}
+    for k, v in pt.items():
+        if v[2] > 1e-6:  # point estimates must rake exactly
+            raise RuntimeError(f'{name} {k}: raking did not converge (max margin gap {v[2]:.2e})')
     draws = {k: [] for k, _ in SETS}
+    # In a bootstrap draw a sparse cell can make the margins infeasible; raking then stops at the closest it gets.
+    # Added after the second run crashed on one such draw; the leftover gap is reported, not hidden.
+    worst = {k: [] for k, _ in SETS}
     for _ in range(B):
         wb = w * boot_idx(s, p, rng)
         for k, cols in SETS:
-            draws[k].append(gaps(pieces_fn(), wb, cols)[0])
+            g = gaps(pieces_fn(), wb, cols)
+            draws[k].append(g[0]); worst[k].append(g[2])
     raw = np.array(draws['raw'])
     for k, _ in SETS:
         d = np.array(draws[k])
@@ -128,10 +152,13 @@ def table(name, pieces_fn, w, s, p, rng, out, rows, extra):
         rem = 1 - d / raw
         rlo, rhi = np.percentile(rem, [2.5, 97.5])
         rows.append(dict(extra, quantity=name, set=k, gap=pt[k][0], lo=lo, hi=hi, removed=removed,
-                         removed_lo=rlo, removed_hi=rhi, deff_ratio=pt[k][1]))
+                         removed_lo=rlo, removed_hi=rhi, deff_ratio=pt[k][1],
+                         draws_not_converged=int((np.array(worst[k]) > 1e-4).sum()), worst_margin_gap=max(worst[k])))
         out.append(f"  {name:<44} {k:<3}  gap {100 * pt[k][0]:+6.2f} [{100 * lo:+6.2f}, {100 * hi:+6.2f}]"
                    + (f"  removed {100 * removed:5.1f}% [{100 * rlo:5.1f}, {100 * rhi:5.1f}]  deff x{pt[k][1]:.2f}"
-                      if k != 'raw' else ''))
+                      if k != 'raw' else '')
+                   + (f"  [{(np.array(worst[k]) > 1e-4).sum()} of {B} draws off by up to {100 * max(worst[k]):.2f} pt]"
+                      if max(worst[k]) > 1e-4 else ''))
 
 
 def part_a(out, rng):
@@ -153,6 +180,7 @@ def part_a(out, rng):
     both = ~np.isnan(wk1) & ~np.isnan(wk2) & (m1 == 1) & (w > 0)
     web, phone = both & (m2 == 4), both & (m2 == 2)
     rel1 = pd.to_numeric(v1['relig'], errors='coerce').to_numpy()
+    cov = fold_rare_missing(cov, web | phone)
     out.append(f'Part A. 2016-20 panel, first wave in person; 2020 web n={web.sum()}, phone n={phone.sum()} '
                f'(Catholic at first wave: {(web & (rel1 == 2)).sum()}/{(phone & (rel1 == 2)).sum()})')
     out.append('  web minus phone, percentage points; covariates from the first wave; 95% bootstrap intervals')
@@ -176,6 +204,7 @@ def part_b(out, rng):
     outcomes = {'weekly attendance': d['weekly'].to_numpy(float), 'Catholic now': ind(rel == 2, rel),
                 'raised Catholic': ind(rel16 == 2, rel16), 'no religion': ind(rel == 4, rel)}
     cath = rel == 2
+    cov = fold_rare_missing(cov, np.ones(len(d), bool))
     out.append('')
     out.append(f'Part B. 2022 and 2024 cross-sections, web minus in person, within year then pooled '
                f'(web n={(md == 4).sum()}, in person n={(md == 1).sum()}; Catholics {(cath & (md == 4)).sum()}/'
@@ -185,7 +214,8 @@ def part_b(out, rng):
         pieces = lambda y=y: [(y, (yr == t) & (md == 4), (yr == t) & (md == 1), cov) for t in (2022, 2024)]
         table(f'{name}, all adults', pieces, w, s, p, rng, out, rows, dict(part='B', group='all adults'))
     y = outcomes['weekly attendance']
-    pieces = lambda: [(y, (yr == t) & (md == 4) & cath, (yr == t) & (md == 1) & cath, cov) for t in (2022, 2024)]
+    cov_c = fold_rare_missing(cov, cath)
+    pieces = lambda: [(y, (yr == t) & (md == 4) & cath, (yr == t) & (md == 1) & cath, cov_c) for t in (2022, 2024)]
     table('weekly attendance, Catholics (raked within)', pieces, w, s, p, rng, out, rows, dict(part='B', group='Catholics'))
     pd.DataFrame(rows).to_csv(HERE / 't30_cross_section_reweight.csv', index=False, float_format='%.4f')
     return rows

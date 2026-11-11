@@ -34,6 +34,17 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Can reweighting on demographics fix the 2021-24 web respondents? (milestone 5b, 2026-11-11)
+
+Mostly not. In the 2016-20 panel, everyone's first interview was in person, so the 11.1-point attendance gap between
+people who later chose web and those who later chose phone is pure selection. Raking the web group to the phone group on
+age, sex, ethnicity and degree removes 43% of that gap [23, 87]. Adding region, marital status, children, nativity, size of
+place, household size, work status and politics removes no more: -6.6 points [-11.9, -1.1] remain. In the 2022 and 2024
+cross-sections, Catholics who answered by web report 10.1 points less weekly Mass attendance than in-person Catholics, and
+9.6 [4.1, 15.3] less after reweighting. Demographics remove none of that gap. Web respondents are also 10 points more often
+"no religion", and reweighting barely moves that. The programme therefore uses in-person 2022-24 estimates as its post-2020
+attendance series. Code `experiments/m5j_reweight/run.py` (raking in `cathdem/rake.py`), tables `t29`, `t30`, details in `LOG.md`.
+
 ## Are the answers reliable? The same people asked twice (milestone 5b, 2026-11-11)
 
 In the GSS panels of 2006-10, 95.4% of people who said they were raised Catholic said so again two years later (kappa
@@ -96,6 +107,7 @@ python3 experiments/m3_mode/run.py           # mode effect on 2021-24 attendance
 python3 experiments/m3b_randomised/run.py     # randomised mode arms, 2022 and 2024; about 60 s
 python3 experiments/m5h_fertility/run.py      # fertility vs immigration channel (H4); about 10 min with the bootstrap
 python3 experiments/m5i_panel/run.py          # panels: test-retest of upbringing, web vs phone attendance; about 1 min
+python3 experiments/m5j_reweight/run.py       # demographic raking of web respondents, panel check + 2022-24; about 6 min
 PY=$(python3 platform/ci/pyenv.py pytest numpy pandas)   # bare python3 lacks all three; scipy is not needed
 "$PY" -m pytest -q research/catholic-demography/test_cathdem.py   # from the repo root; no download needed
 ```
