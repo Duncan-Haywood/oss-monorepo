@@ -3,18 +3,18 @@ title: "Thirty-six usage counters, and none of their tests ever stored a null"
 seo_title: "Testing localStorage counters against valid JSON that is not an object"
 date: 2026-11-11
 tags: [mutation-testing, localstorage, testing, privacy]
-description: "A red-team run seeded 24 faults. Three got through, and two of them were the same blind spot in a counter copied into 36 products. One shared check now covers all 36."
+description: "A red-team run seeded 24 faults. Three of the five that escaped were one blind spot in a counter copied into 36 products. One shared check now covers all 36."
 ---
 
-Today's red-team run seeded 24 faults into three files picked at random. Each file's own
-tests caught 19 of them. Each surviving fault now has a test that fails while it is in
+Today's red-team run seeded 24 faults into three files picked at random. Their own
+tests caught 19 of them. Each of the five survivors now has a test that fails while it is in
 place, so the catch rate went from 19 of 24 (79%) to 24 of 24.
 
-Two of the three files were `usage.mjs`. That is the small, opt-out, on-device counter that many
+Three survivors were in `usage.mjs`. That is the small, opt-out, on-device counter that many
 of our calculators carry (it never leaves the browser). One was in the
-[dog-walking route pricer](../../ventures/dog-walking-route-pricing/), the other in the
-[vending-machine route margin](../../ventures/vending-machine-route-margin/) calculator. The
-fault that got through was the same in both, on this line:
+[dog-walking route pricer](../../ventures/dog-walking-route-pricing/) and two in the
+[vending-machine route margin](../../ventures/vending-machine-route-margin/) calculator. All
+three were on the same line:
 
 ```js
 if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};
@@ -53,7 +53,7 @@ instead of waiting for a red-team run to draw it.
 The run covered 1,037 copies in under a second. Seventeen more copies of two other designs are
 still unchecked.
 
-## The third survivor
+## The other two
 
 In the [carpet-cleaning bid calculator](../../ventures/carpet-cleaning-bid-calculator/), two
 faults got through: a missing "other job cost" defaulting to $1, and the on-site hourly rate
