@@ -65,7 +65,7 @@ export function calc22083(house, loads) {
   const clean = [];
   for (const [i, l] of (loads || []).entries()) {
     const va = loadVa(l);
-    const kind = KINDS[l.kind] ? l.kind : "other";
+    const kind = Object.hasOwn(KINDS, l.kind) ? l.kind : "other";
     if (!Number.isFinite(va)) {
       if (String(l.name || "").trim() || l.va || l.amps) errors.push(`Load ${i + 1}${l.name ? ` (${l.name})` : ""}: enter VA, or amps and volts.`);
       continue;

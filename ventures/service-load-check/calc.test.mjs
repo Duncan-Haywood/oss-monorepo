@@ -78,3 +78,8 @@ test("largest charger setting that fits", () => {
   assert.equal(largestCharger(3000, 240), 0);
   assert.equal(largestCharger(7000, 208), 32);
 });
+
+test("a kind that is not one of ours, even a prototype name, is read as an appliance", () => {
+  const r = calc22083(house, [{ name: "x", kind: "constructor", va: "1000" }]);
+  assert.equal(r.loads[0].kind, "other");
+});
