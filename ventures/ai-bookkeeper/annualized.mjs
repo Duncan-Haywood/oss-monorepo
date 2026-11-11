@@ -25,9 +25,39 @@
 // figured both ways with penalty2210.mjs (Part III and the instructions' penalty worksheet) from
 // the payments given, so the result shows whether checking box C lowers it. Dollar amounts are
 // cents. A worksheet, not a filing.
+//
+// The 2026 form, read 2026-11-11 (pdftotext of the early-release draft irs.gov/pub/irs-dft/
+// f2210--dft.pdf, "Form 2210 (2026) Created 4/16/26", diffed line by line against the 2025
+// form): Schedule AI is unchanged apart from the years, the line 29 limits ($46,125, $76,875,
+// $123,000 and $184,500, the 2026 wage base of $184,500 prorated, as SS_WAGE_BASE has it) and a
+// new line 9b, "Additional deductions (see instructions)", added to line 10 beside the QBI
+// deduction (now 9a). Part III's dates are 4/15/26, 6/15/26, 9/15/26 and 1/15/27; Part I line 3
+// is renamed "Refundable credits and other adjustments". The draft instructions posted beside it
+// (i2210--dft.pdf, dated Feb 17, 2026) are still the 2025 text, so what line 9b takes is not
+// printed yet; the 2025 instructions ("Line 14") let the Schedule 1-A deductions (tips, overtime,
+// car-loan interest, the senior deduction) adjust taxable income there, and 9b is presumably the
+// same. The senior deduction is taken here (estimatedTax, `over65`); tips, overtime and car-loan
+// interest are not, and the result says so.
+//
+// Box D (withholding on the dates it was actually withheld): pass `withheld` [{ date, cents }] and
+// the penalty is figured with and without it; box D wins when tax was withheld early in the year,
+// the even quarter-a-date default when it was withheld late (a December W-4 change).
 import { scheduleC, estimatedDueDates, SS_WAGE_BASE } from "./taxforms.mjs";
 import { estimatedTax } from "./estimatedtax.mjs";
-import { form2210Penalty } from "./penalty2210.mjs";
+import { form2210Penalty, checkWithheld } from "./penalty2210.mjs";
+
+// The Form 2210 each year's worksheet was checked against, with the printed line 29 limits (cents).
+export const FORM_2210 = {
+  2025: { status: "final", created: "10/21/25", source: "irs.gov/pub/irs-pdf/f2210.pdf", line29: [4402500, 7337500, 11740000, 17610000], line9b: false },
+  2026: { status: "draft", created: "4/16/26", source: "irs.gov/pub/irs-dft/f2210--dft.pdf", line29: [4612500, 7687500, 12300000, 18450000], line9b: true },
+};
+
+function formNote(year) {
+  const f = FORM_2210[year];
+  if (!f) return `Worksheet. Lines follow the 2025 Form 2210 Schedule AI and its instructions as printed (read 2026-11-11); no ${year} Form 2210 has been read, so ${year}'s form may differ. Form 2210 and the IRS instructions decide.`;
+  if (f.status === "final") return `Worksheet. Lines follow the ${year} Form 2210 Schedule AI and its instructions as printed (read 2026-11-11). Form 2210 and the IRS instructions decide.`;
+  return `Worksheet. Lines follow the ${year} Form 2210 early-release draft (created ${f.created}, read 2026-11-11), whose Schedule AI matches the 2025 form apart from the line 29 limits and a new line 9b; the ${year} instructions are not out yet, so check the final form. Form 2210 and the IRS instructions decide.`;
+}
 
 export const PERIODS = [
   { end: "03-31", months: 3, factor: 4, pct: 0.225, seSs: 0.496, seMed: 0.116, label: "Jan 1 to Mar 31" },
@@ -55,10 +85,18 @@ export function annualizedSelfEmployment(periodProfit, i, { year, periodWages = 
 // opts are estimatedTax's (year, filing, wages, otherIncome, withholding, priorYearTax, priorAgi,
 // brackets, ...) plus payments: [{ date: "YYYY-MM-DD", cents }] already sent as estimates (an
 // overpayment applied from last year is a payment dated April 15), and rates (penalty2210.mjs).
+const best0 = (p) => Math.min(p.regular, p.annualized);
+
 export function annualizedInstallments(books, opts = {}) {
   const year = opts.year ?? new Date().getFullYear();
-  const { payments = [], paid, asOf, rates, ...rest } = opts;
+  const { payments = [], paid, asOf, rates, withheld: withheldIn, ...rest } = opts;
   const warnings = [];
+  const withheld = withheldIn == null ? null : checkWithheld(year, withheldIn);
+  if (withheld) {
+    const dated = withheld.reduce((s, w) => s + Math.max(0, w.cents), 0);
+    if (Number.isFinite(rest.withholding) && rest.withholding !== dated) warnings.push(`The dated withholding adds up to ${dated / 100}, not the ${rest.withholding / 100} given as withholding; the dated total is used.`);
+    rest.withholding = dated;
+  }
   const dates = estimatedDueDates(year);
   const whole = estimatedTax(books, { ...rest, year, monthsElapsed: 12 });
   const withholding = Number.isFinite(rest.withholding) ? Math.max(0, rest.withholding) : 0;
@@ -80,32 +118,55 @@ export function annualizedInstallments(books, opts = {}) {
     prevUnused = regularPlusCarry - installment;
     prevInstallments += installment;
     cumInstallment = prevInstallments;
-    const credits = payments.filter((x) => x.date <= dates[i]).reduce((s, x) => s + Math.max(0, x.cents || 0), 0) + Math.round((withholding * (i + 1)) / 4);
+    const paidBy = payments.filter((x) => x.date <= dates[i]).reduce((s, x) => s + Math.max(0, x.cents || 0), 0);
+    const evenCredits = paidBy + Math.round((withholding * (i + 1)) / 4);
+    const datedCredits = withheld ? paidBy + withheld.filter((w) => w.date <= dates[i]).reduce((s, w) => s + Math.max(0, w.cents), 0) : evenCredits;
     rows.push({
       period: p.label, due: dates[i], profitToDate: ytd, annualizedProfit: annualProfit, selfEmployment: partII, annualizedTax: tax,
       annualizedRequired, installment, cumulativeRequired: cumInstallment,
-      regularCumulative: regularQuarter * (i + 1), creditsByDue: credits, shortfall: Math.max(0, cumInstallment - credits),
-      regularShortfall: Math.max(0, regularQuarter * (i + 1) - credits),
+      regularCumulative: regularQuarter * (i + 1), creditsByDue: evenCredits, creditsByDueBoxD: datedCredits,
     });
   });
   const lump = rows[0].profitToDate <= 0 && rows[2].profitToDate > 0;
   if (!required) warnings.push("No payment is required for the year (tax after safe harbour is zero), so nothing is due on any date.");
-  warnings.push(`Worksheet. Lines follow the 2025 Form 2210 Schedule AI and its instructions as printed (read 2026-11-11)${year !== 2025 ? `; ${year}'s form may differ` : ""}. Form 2210 and the IRS instructions decide.`);
+  warnings.push(formNote(year));
+  if (year >= 2025 && year <= 2028) warnings.push(`Schedule 1-A deductions for qualified tips, overtime and car-loan interest are not taken (${year >= 2026 ? "Schedule AI line 9b" : "the instructions' line 14 adjustment"}), so if you claim them the annualized tax here is too high; the senior deduction is taken when you give people 65 or older.`);
   if (!payments.length && !(Number.isFinite(paid) && paid > 0)) warnings.push("No payments given, so every shortfall counts only withholding; pass the estimates you have already sent as payments [{ date, cents }].");
   if (Number.isFinite(paid) && paid > 0 && !payments.length) warnings.push("`paid` has no dates, so it is ignored here; pass payments with dates.");
   if (lump) warnings.push("Profit arrives after the first period; the annualized method is likely to lower the early installments.");
 
   // Part III both ways. No penalty when the tax after withholding is under $1,000 (Form 2210 Part I, line 7).
   const exempt = whole.totalTax - withholding < 100000;
-  const regular = form2210Penalty(year, [0, 1, 2, 3].map(() => regularQuarter), { payments, withholding, rates });
-  const annual = form2210Penalty(year, rows.map((r) => r.installment), { payments, withholding, rates });
+  const regularRequired = [0, 1, 2, 3].map(() => regularQuarter), aiRequired = rows.map((r) => r.installment);
+  const regular = form2210Penalty(year, regularRequired, { payments, withholding, rates });
+  const annual = form2210Penalty(year, aiRequired, { payments, withholding, rates });
   const penalty = {
     exempt, regular: exempt ? 0 : regular.penalty, annualized: exempt ? 0 : annual.penalty,
     regularWorksheet: regular, annualizedWorksheet: annual,
   };
   penalty.useScheduleAI = !exempt && penalty.annualized < penalty.regular;
+  // Box D: the same two methods with withholding on its actual dates; check it only when it lowers the lower one.
+  if (withheld) {
+    const regD = form2210Penalty(year, regularRequired, { payments, withheld, rates });
+    const aiD = form2210Penalty(year, aiRequired, { payments, withheld, rates });
+    penalty.boxD = { regular: exempt ? 0 : regD.penalty, annualized: exempt ? 0 : aiD.penalty, regularWorksheet: regD, annualizedWorksheet: aiD };
+    const best = (p) => Math.min(p.regular, p.annualized);
+    penalty.useBoxD = !exempt && best(penalty.boxD) < best(penalty);
+  } else penalty.useBoxD = false;
+  const pick = penalty.useBoxD ? penalty.boxD : penalty;
+  penalty.best = { scheduleAI: !exempt && pick.annualized < pick.regular, boxD: penalty.useBoxD, cents: exempt ? 0 : Math.min(pick.regular, pick.annualized) };
+  rows.forEach((r) => {
+    const credits = penalty.useBoxD ? r.creditsByDueBoxD : r.creditsByDue;
+    r.creditsCounted = credits;
+    r.shortfall = Math.max(0, r.cumulativeRequired - credits);
+    r.regularShortfall = Math.max(0, r.regularCumulative - credits);
+  });
   if (exempt) warnings.push("Tax after withholding is under $1,000, so there is no underpayment penalty (Form 2210, line 7).");
   else if (penalty.useScheduleAI) warnings.push(`Checking box C (Schedule AI) lowers the penalty from ${penalty.regular / 100} to ${penalty.annualized / 100}; if you use it for one date you must use it for all four.`);
+  if (withheld && !exempt) {
+    if (penalty.useBoxD) warnings.push(`Checking box D (withholding on the dates it was actually withheld) lowers the penalty from ${best0(penalty) / 100} to ${penalty.best.cents / 100}${penalty.best.scheduleAI ? ", with box C as well" : ""}; you must then file Form 2210 with your return and be able to show the dates.`);
+    else warnings.push(`Box D (withholding on its actual dates) gives ${Math.min(penalty.boxD.regular, penalty.boxD.annualized) / 100}, no lower than the default quarter-a-date spread (${best0(penalty) / 100}), so leave it unchecked.`);
+  }
   for (const w of regular.warnings) if (!warnings.includes(w)) warnings.push(w);
   if (!exempt && (penalty.regular || penalty.annualized)) warnings.push("The penalty assumes the payments listed are all there are and that the rest is paid by April 15 of next year; a payment with an early return (by January 31) or withholding on the dates actually withheld (box D) can lower it.");
   return {

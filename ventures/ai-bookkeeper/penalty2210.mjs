@@ -14,8 +14,12 @@
 // quarter of 2025, 2026 Q1 7%, Q2 6%, Q3 7%, Q4 7%. A rate for a quarter not on file is taken as
 // the last one on file, and the result says so; pass `rates` to replace it.
 //
-// Not modelled: box D (withholding on the dates actually withheld; here it is one quarter on each
-// date, the form's default), the January 31 return-and-pay rule for column (d), waivers, fiscal
+// Box D (added 2026-11-11): by default withholding counts as one quarter on each date (the
+// instructions, "Line 11": "one-fourth of these amounts on each payment due date unless you can
+// show otherwise"); pass `withheld` [{ date, cents }] to treat it as paid on the dates actually
+// withheld, which is what checking box D does. Either way withholding never goes on the
+// worksheet's line 1b ("Do not enter any withheld federal income tax ... on line 1b").
+// Not modelled: the January 31 return-and-pay rule for column (d), waivers, fiscal
 // years, farmers and fishers, Form 1040-NR's two-column variant. Day counts use the printed dates
 // (4/15, 6/15, 9/15, 1/15) as the worksheet does; a payment made by the date moved for a weekend
 // or holiday (IRC 7503, `estimatedDueDates`) counts as on time. Amounts are cents.
@@ -85,12 +89,25 @@ export function sectionA(required, credits) {
 // Line 11 of each column: estimated payments made by that column's due date and after the
 // previous one's, plus a quarter of the year's withholding on each date. Payments are
 // [{ date: "YYYY-MM-DD", cents }]; an overpayment from last year's return is a payment dated
-// April 15 (instructions, Table 1).
-export function creditsByColumn(year, payments = [], withholding = 0) {
+// April 15 (instructions, Table 1). With `withheld` (box D, an array of the same shape) each
+// withholding counts in the column whose window holds its date, like a payment.
+const inColumn = (due, j) => (p) => p.date <= due[j] && (j === 0 || p.date > due[j - 1]);
+const total = (xs) => xs.reduce((s, p) => s + Math.max(0, p.cents || 0), 0);
+export function creditsByColumn(year, payments = [], withholding = 0, withheld = null) {
   const due = estimatedDueDates(year);
   const wh = Math.max(0, withholding || 0);
   const quarter = (j) => Math.round((wh * (j + 1)) / 4) - Math.round((wh * j) / 4);
-  return due.map((d, j) => payments.filter((p) => p.date <= d && (j === 0 || p.date > due[j - 1])).reduce((s, p) => s + Math.max(0, p.cents || 0), 0) + quarter(j));
+  return due.map((d, j) => total(payments.filter(inColumn(due, j))) + (withheld ? total(withheld.filter(inColumn(due, j))) : quarter(j)));
+}
+
+// Box D input check: each withholding needs an ISO date inside the tax year and a finite amount.
+export function checkWithheld(year, withheld) {
+  if (!Array.isArray(withheld)) throw new Error("withheld takes [{ date: \"YYYY-MM-DD\", cents }].");
+  for (const w of withheld) {
+    if (!/^\d{4}-\d\d-\d\d$/.test(w?.date ?? "") || !Number.isFinite(w.cents)) throw new Error(`Each withholding needs a date (YYYY-MM-DD) and an amount; got ${JSON.stringify(w)}.`);
+    if (!w.date.startsWith(`${year}-`)) throw new Error(`Withholding dated ${w.date} is outside ${year}; only tax withheld during the year counts (box D).`);
+  }
+  return withheld;
 }
 
 // Section B, the penalty worksheet. underpayments[4] are Section A line 17. Payments made after a
@@ -138,9 +155,11 @@ export function penaltyWorksheet(year, underpayments, payments = [], opts = {}) 
 }
 
 // The whole of Part III for one set of required installments (25% each, or Schedule AI line 27).
-export function form2210Penalty(year, required, { payments = [], withholding = 0, rates } = {}) {
-  const credits = creditsByColumn(year, payments, withholding);
+// `withheld` [{ date, cents }] figures it with box D checked (withholding on its actual dates).
+export function form2210Penalty(year, required, { payments = [], withholding = 0, withheld = null, rates } = {}) {
+  if (withheld) checkWithheld(year, withheld);
+  const credits = creditsByColumn(year, payments, withholding, withheld);
   const a = sectionA(required, credits);
   const b = penaltyWorksheet(year, a.map((c) => c.l17), payments, { rates });
-  return { required, credits, sectionA: a, worksheet: b.columns, penalty: b.penalty, rates: b.rates, warnings: b.warnings };
+  return { required, credits, boxD: !!withheld, sectionA: a, worksheet: b.columns, penalty: b.penalty, rates: b.rates, warnings: b.warnings };
 }

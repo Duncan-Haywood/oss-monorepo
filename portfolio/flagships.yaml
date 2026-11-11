@@ -83,8 +83,8 @@ flagships:
       NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template; (8) `salestax
       return` (page card; no-sales-tax states warn): due dates read from the
       state's own page for 11 states (README; OH quarterly unsettled); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
-      (Schedule AI): read from the 2025 form 2026-11-11, Part II line by line,
-      penalty both ways at IRS rates (README); open: box D, the 2026 form;
+      (Schedule AI): penalty both ways, box D, 2026 draft read (README); open:
+      line 9b once the 2026 instructions print;
       (9) EITC: 2025 EIC Table matched on all 10,992 cells (HISTORY); open:
       the 2026 table once printed. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.

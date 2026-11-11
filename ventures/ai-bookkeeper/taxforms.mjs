@@ -431,7 +431,8 @@ export function misc1099IrisCsv(r, payer = {}) {
 // Medicare tax (Form 8959), farm income, church income and more than one business.
 // Wage bases: 2024 168,600 and 2025 176,100 match the IRS Schedule SE instructions for
 // those years (read 2026-10-26); 2026 184,500 and 2027 192,300 match the SSA Contribution and Benefit Base
-// page and 2027 automatic-adjustment listing (ssa.gov/oact/cola/cbb.html, found by search 2026-11-05; SSA pages are unreachable by fetch here); pass `wageBase`
+// page and 2027 automatic-adjustment listing (ssa.gov/oact/cola/cbb.html, found by search 2026-11-05; SSA pages are unreachable by fetch here); 2026 also matches
+// the IRS-printed Schedule AI line 29 of the 2026 draft Form 2210 ($184,500, irs-dft/f2210--dft.pdf, read 2026-11-11); pass `wageBase`
 // in cents to override. A worksheet, not a filing.
 export const SS_WAGE_BASE = { 2024: 16860000, 2025: 17610000, 2026: 18450000, 2027: 19230000 };
 export function selfEmployment(profitCents, { year = new Date().getFullYear(), wageBase, wages = 0 } = {}) {
