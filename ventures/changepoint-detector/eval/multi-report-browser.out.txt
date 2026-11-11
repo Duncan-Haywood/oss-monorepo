@@ -1,0 +1,3 @@
+ok  opened report equals multiReportHtml in Node (74364 vs 74364 chars)
+ok  report has the per-column table and the franc and pound changes
+ok  no page errors
