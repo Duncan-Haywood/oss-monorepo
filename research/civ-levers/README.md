@@ -167,8 +167,36 @@ logged before the run (`LOG.md`); `python3 experiments/cascades/run.py` reproduc
 - Against our own guess, hubs beat random seeds at T = 2 once rewiring makes degrees uneven.
 
 This agrees in direction with Centola and Macy (2007); it is not a reproduction of their
-figures, and Centola et al. (2018)'s 25% tipping point (a naming game) is not checked.
+figures; Centola et al. (2018)'s 25% tipping point is checked in the next section.
 T, k and the graph family are chosen, not measured; the finding is about simulated people.
+
+## Follow-up: how big must a committed minority be to flip a convention? (`experiments/convention/`, `src/civ_levers/convention.py`)
+
+Centola et al. (2018) found that a convention held by groups of 20 people flipped only once a
+committed minority reached about 25% of the group. Is 25% a constant, and does it matter where
+the committed people sit? In a memory-M naming game (each person says the name most frequent
+among the last M they heard; committed people always say the new one), **the critical mass is
+set by memory: 11% at M = 3, 24% at M = 11, 26% at M = 13, 32% at M = 31 and 42% at M = 201
+(mean field), so 25% corresponds to people weighing about the last 11 to 13 names they heard.**
+Simulated groups of 20 track the mean field within 0.03 for M from 3 to 15, but a 50-round
+horizon instead of 200 adds about one person (0.30 at M = 11 to 15). **Placement reverses the
+complex-contagion advice above: on a ring lattice (n 1000, k 8, M 12) a clustered patch of
+committed people never flips the rest, even at half the population, while randomly placed ones
+do from 10%**, under half the mean-field figure; rewiring narrows the gap (random 0.175 against
+patch 0.225 at p = 1) but the patch never wins. A contagion's adopters stay, so a patch
+reinforces its own edge; under a majority rule the edge still hears the old name from the other
+side and never sees more than half its contacts committed.
+`python3 experiments/convention/run.py` reproduces `results.txt` in about 30 s.
+
+![Critical committed fraction against memory length: mean field and simulated groups of 20](experiments/convention/critical_mass.svg)
+
+- Check: the Xie et al. (2011) binary agreement game's mean-field critical fraction, re-derived
+  from its interaction cases and integrated here, is 0.0979, the published value; simulated on
+  1,000 people it holds the old word at 8% committed and flips at 10%.
+- Limits: people hear one random neighbour per round rather than playing in pairs as in the
+  experiment; M is not measured for anyone and is swept; the paper's own model settings could
+  not be read from this session, so this checks the model class, not their figure; one lattice
+  size and one M on networks, 10 graphs per cell, no intervals there.
 
 ## Follow-up: Axelrod's culture model with a broadcast (`experiments/culture/`, `src/civ_levers/culture.py`)
 
@@ -274,6 +302,12 @@ Needs Python 3.9+ with numpy (and pytest); the app has no dependencies.
 - Shibanai, Y., Yasuno, S. and Ishiguro, I. (2001). Effects of global information feedback on diversity: extensions to Axelrod's adaptive culture model. *Journal of Conflict Resolution* 45(1):80–96.
 - Bail, C. A. et al. (2018). Exposure to opposing views on social media can increase political
   polarization. *PNAS* 115(37):9216–9221.
+- Centola, D., Becker, J., Brackbill, D. and Baronchelli, A. (2018). Experimental evidence for
+  tipping points in social convention. *Science* 360(6393), 1116–1119. doi:10.1126/science.aas8827
+- Xie, J., Sreenivasan, S., Korniss, G., Zhang, W., Lim, C. and Szymanski, B. K. (2011). Social
+  consensus through the influence of committed minorities. *Physical Review E* 84, 011130.
+  arXiv:1102.3931 (doi:10.1103/PhysRevE.84.011130). Both 2018 and 2011 entries were checked by web
+  search on 2026-11-11; `cite_check.py` could not reach doi.org or arXiv from that session.
 - Centola, D. and Macy, M. (2007). Complex contagions and the weakness of long ties.
   *American Journal of Sociology* 113(3):702–734.
 - Deffuant, G., Neau, D., Amblard, F. and Weisbuch, G. (2000). Mixing beliefs among interacting
