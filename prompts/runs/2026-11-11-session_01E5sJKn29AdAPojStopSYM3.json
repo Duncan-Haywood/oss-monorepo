@@ -1,0 +1,123 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKn29AdAPojStopSYM3",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T21:09:47Z",
+  "ended": "2026-11-11T21:16:45Z",
+  "wall_minutes": 7.1,
+  "tokens_in": 1989667,
+  "tokens_out": 32708,
+  "cost_usd": 1.7625,
+  "tool_calls": 24,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14891",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Craft checklist item 8 (re-run every number) caught real errors in my own first draft: a step count that did not match the riser years, core lengths implying 1.3 cm/yr against a 1 cm/yr model, and a next-step estimate that ignored the ten-year transition. The checklist worked; no change needed, noted so the next run keeps doing it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-the-sinking-polder.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (science fiction shelf). Piece: the-sinking-polder (BIBLE Next up proposal 'The Sinking Polder'). Text only: audio dirs total 423 MB, over the 400 MB cap. Security queue empty, IDEAS.md and website requests empty. node --test in ventures/hearth-and-horizon: 14/14 pass. Added a replacement proposal, 'The Bell Tax'.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "164567c3-3c5e-5209-b6df-6254da007b8d",
+    "transcripts": 1,
+    "first": "2026-11-11T21:09:47Z",
+    "last": "2026-11-11T21:16:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 23,
+        "input": 48,
+        "output": 32708,
+        "thinking": 14184,
+        "cache_read": 1898568,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91051,
+        "api_equivalent_usd": 1.7625,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 23,
+      "input": 48,
+      "output": 32708,
+      "thinking": 14184,
+      "cache_read": 1898568,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91051,
+      "api_equivalent_usd": 1.7625,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.954,
+    "tool_calls": 24,
+    "tools": {
+      "Bash": 20,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.1,
+      "active_minutes": 7.1,
+      "model_minutes": 6.68,
+      "tool_minutes": 0.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a researched 5,000-word short story with worked numbers, plus a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 680.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
