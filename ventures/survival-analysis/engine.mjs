@@ -1,7 +1,8 @@
 // Survival analysis on your own CSV: Kaplan-Meier curves with Greenwood
 // confidence bands, median and restricted mean survival, the log-rank test and
 // its weighted variants, and Cox proportional hazards regression with Efron or
-// Breslow ties, a proportional-hazards check and Harrell's concordance.
+// Breslow ties, a proportional-hazards check and Harrell's concordance, all
+// optionally stratified (a baseline hazard and risk sets per stratum).
 // Pure functions, no DOM, no network, no randomness. Implemented from the
 // papers' mathematics; no third-party code was ported. Cross-checked against
 // lifelines 0.30.3 and statsmodels 0.15.0 (eval/reference.py, eval/reference.json).
@@ -306,43 +307,55 @@ export const TESTS = {
 
 /**
  * k-sample test of equal survival. `group` holds a group index 0..k-1 per row.
+ * With `strata` (a stratum index per row), observed-minus-expected and its
+ * variance are computed within each stratum and summed: the stratified test.
  * Returns observed and expected events per group, chi-square, df and p.
  */
-export function logRank(time, event, group, k, { test = DEFAULTS.test } = {}) {
+export function logRank(time, event, group, k, { test = DEFAULTS.test, strata = null } = {}) {
   const spec = TESTS[test];
   if (!spec) throw new Error(`unknown test ${test}`);
-  const idx = time.map((_, i) => i).sort((a, b) => time[a] - time[b]);
-  const nRisk = Array(k).fill(0);
-  for (const g of group) nRisk[g]++;
   const O = Array(k).fill(0), E = Array(k).fill(0);
   const U = Array(k).fill(0);
   const V = Array.from({ length: k }, () => Array(k).fill(0));
-  for (let p = 0; p < idx.length;) {
-    const t = time[idx[p]];
-    const d = Array(k).fill(0), leave = Array(k).fill(0);
-    while (p < idx.length && time[idx[p]] === t) { const i = idx[p]; leave[group[i]]++; if (event[i]) d[group[i]]++; p++; }
-    const D = d.reduce((a, b) => a + b, 0);
-    const N = nRisk.reduce((a, b) => a + b, 0);
-    if (D > 0) {
-      const w = spec.weight(N);
-      for (let j = 0; j < k; j++) {
-        const e = (D * nRisk[j]) / N;
-        O[j] += d[j];
-        E[j] += e;
-        U[j] += w * (d[j] - e);
+  for (const rows of strataRows(time, strata)) {
+    const idx = rows.sort((a, b) => time[a] - time[b]);
+    const nRisk = Array(k).fill(0);
+    for (const i of idx) nRisk[group[i]]++;
+    for (let p = 0; p < idx.length;) {
+      const t = time[idx[p]];
+      const d = Array(k).fill(0), leave = Array(k).fill(0);
+      while (p < idx.length && time[idx[p]] === t) { const i = idx[p]; leave[group[i]]++; if (event[i]) d[group[i]]++; p++; }
+      const D = d.reduce((a, b) => a + b, 0);
+      const N = nRisk.reduce((a, b) => a + b, 0);
+      if (D > 0) {
+        const w = spec.weight(N);
+        for (let j = 0; j < k; j++) {
+          const e = (D * nRisk[j]) / N;
+          O[j] += d[j];
+          E[j] += e;
+          U[j] += w * (d[j] - e);
+        }
+        if (N > 1) {
+          const f = (w * w * D * (N - D)) / (N - 1);
+          for (let j = 0; j < k; j++) for (let l = 0; l < k; l++) V[j][l] += f * (nRisk[j] / N) * ((j === l ? 1 : 0) - nRisk[l] / N);
+        }
       }
-      if (N > 1) {
-        const f = (w * w * D * (N - D)) / (N - 1);
-        for (let j = 0; j < k; j++) for (let l = 0; l < k; l++) V[j][l] += f * (nRisk[j] / N) * ((j === l ? 1 : 0) - nRisk[l] / N);
-      }
+      for (let j = 0; j < k; j++) nRisk[j] -= leave[j];
     }
-    for (let j = 0; j < k; j++) nRisk[j] -= leave[j];
   }
   const m = k - 1;
   const Vs = V.slice(0, m).map((r) => r.slice(0, m));
   const inv = m > 0 ? invert(Vs) : null;
   const chiSquare = inv ? dot(U.slice(0, m), matVec(inv, U.slice(0, m))) : NaN;
-  return { test, name: spec.name, observed: O, expected: E, chiSquare, df: m, p: Number.isFinite(chiSquare) ? chiSquareP(chiSquare, m) : NaN };
+  return { test, name: spec.name, stratified: !!strata, observed: O, expected: E, chiSquare, df: m, p: Number.isFinite(chiSquare) ? chiSquareP(chiSquare, m) : NaN };
+}
+
+/** Row indices split by stratum (one list of all rows when `strata` is null). */
+function strataRows(time, strata) {
+  if (!strata) return [time.map((_, i) => i)];
+  const by = new Map();
+  strata.forEach((s, i) => { if (!by.has(s)) by.set(s, []); by.get(s).push(i); });
+  return [...by.values()];
 }
 
 // ---------- Cox proportional hazards ----------
@@ -351,61 +364,77 @@ export function logRank(time, event, group, k, { test = DEFAULTS.test } = {}) {
  * One pass over the data, from the latest time to the earliest, at
  * coefficients beta. Returns the partial log-likelihood, score vector,
  * information matrix and (optionally) Schoenfeld residuals per event.
- * `order` is the row order sorted by time ascending.
+ * `orders` holds one row order per stratum, each sorted by time ascending;
+ * risk sets never cross strata, and the strata's sums are added.
  */
-function coxPass(X, time, event, order, beta, ties, wantResiduals = false) {
-  const n = order.length, p = beta.length;
+function coxPass(X, time, event, orders, beta, ties, wantResiduals = false) {
+  const p = beta.length;
   const eta = X.map((x) => dot(x, beta));
   const shift = Math.max(...eta);
   const r = eta.map((e) => Math.exp(e - shift));
   let ll = 0;
   const U = Array(p).fill(0);
   const I = Array.from({ length: p }, () => Array(p).fill(0));
-  let S0 = 0;
-  const S1 = Array(p).fill(0), S2 = Array.from({ length: p }, () => Array(p).fill(0));
   const resid = [];
-  for (let k = n - 1; k >= 0;) {
-    const t = time[order[k]];
-    let D0 = 0;
-    const D1 = Array(p).fill(0), D2 = Array.from({ length: p }, () => Array(p).fill(0));
-    const evs = [];
-    while (k >= 0 && time[order[k]] === t) {
-      const i = order[k], x = X[i], ri = r[i];
-      S0 += ri;
-      for (let a = 0; a < p; a++) { S1[a] += ri * x[a]; for (let b = 0; b <= a; b++) S2[a][b] += ri * x[a] * x[b]; }
-      if (event[i]) {
-        evs.push(i);
-        D0 += ri;
-        for (let a = 0; a < p; a++) { D1[a] += ri * x[a]; for (let b = 0; b <= a; b++) D2[a][b] += ri * x[a] * x[b]; }
+  for (const order of orders) {
+    const n = order.length;
+    let S0 = 0;
+    const S1 = Array(p).fill(0), S2 = Array.from({ length: p }, () => Array(p).fill(0));
+    for (let k = n - 1; k >= 0;) {
+      const t = time[order[k]];
+      let D0 = 0;
+      const D1 = Array(p).fill(0), D2 = Array.from({ length: p }, () => Array(p).fill(0));
+      const evs = [];
+      while (k >= 0 && time[order[k]] === t) {
+        const i = order[k], x = X[i], ri = r[i];
+        S0 += ri;
+        for (let a = 0; a < p; a++) { S1[a] += ri * x[a]; for (let b = 0; b <= a; b++) S2[a][b] += ri * x[a] * x[b]; }
+        if (event[i]) {
+          evs.push(i);
+          D0 += ri;
+          for (let a = 0; a < p; a++) { D1[a] += ri * x[a]; for (let b = 0; b <= a; b++) D2[a][b] += ri * x[a] * x[b]; }
+        }
+        k--;
       }
-      k--;
-    }
-    const d = evs.length;
-    if (!d) continue;
-    const mean = Array(p).fill(0);
-    for (const i of evs) { ll += eta[i] - shift; for (let a = 0; a < p; a++) U[a] += X[i][a]; }
-    for (let l = 0; l < d; l++) {
-      const f = ties === "efron" ? l / d : 0;
-      const s0 = S0 - f * D0;
-      ll -= Math.log(s0);
-      for (let a = 0; a < p; a++) {
-        const ma = (S1[a] - f * D1[a]) / s0;
-        U[a] -= ma;
-        mean[a] += ma / d;
-        for (let b = 0; b <= a; b++) {
-          const mb = (S1[b] - f * D1[b]) / s0;
-          I[a][b] += (S2[a][b] - f * D2[a][b]) / s0 - ma * mb;
+      const d = evs.length;
+      if (!d) continue;
+      const mean = Array(p).fill(0);
+      for (const i of evs) { ll += eta[i] - shift; for (let a = 0; a < p; a++) U[a] += X[i][a]; }
+      for (let l = 0; l < d; l++) {
+        const f = ties === "efron" ? l / d : 0;
+        const s0 = S0 - f * D0;
+        ll -= Math.log(s0);
+        for (let a = 0; a < p; a++) {
+          const ma = (S1[a] - f * D1[a]) / s0;
+          U[a] -= ma;
+          mean[a] += ma / d;
+          for (let b = 0; b <= a; b++) {
+            const mb = (S1[b] - f * D1[b]) / s0;
+            I[a][b] += (S2[a][b] - f * D2[a][b]) / s0 - ma * mb;
+          }
         }
       }
+      if (wantResiduals) for (const i of evs) resid.push({ row: i, time: t, r: X[i].map((x, a) => x - mean[a]) });
     }
-    if (wantResiduals) for (const i of evs) resid.push({ row: i, time: t, r: X[i].map((x, a) => x - mean[a]) });
   }
   for (let a = 0; a < p; a++) for (let b = a + 1; b < p; b++) I[a][b] = I[b][a];
   return { ll, U, I, resid };
 }
 
-/** Harrell's C for risk score eta (higher = earlier event expected). O(n log n). */
-export function concordance(time, event, eta) {
+/**
+ * Harrell's C for risk score eta (higher = earlier event expected). O(n log n).
+ * With `strata`, only pairs within the same stratum are compared (the counts
+ * are summed over strata), as for a stratified Cox model.
+ */
+export function concordance(time, event, eta, strata = null) {
+  if (strata) {
+    let conc = 0, tied = 0, pairs = 0;
+    for (const rows of strataRows(time, strata)) {
+      const c = concordance(rows.map((i) => time[i]), rows.map((i) => event[i]), rows.map((i) => eta[i]));
+      conc += c.concordant; tied += c.tiedRisk; pairs += c.pairs;
+    }
+    return { c: pairs ? (conc + 0.5 * tied) / pairs : NaN, pairs, concordant: conc, tiedRisk: tied };
+  }
   const n = time.length;
   const sorted = [...new Set(eta)].sort((a, b) => a - b);
   const rank = new Map(sorted.map((v, i) => [v, i + 1]));
@@ -437,13 +466,13 @@ export function concordance(time, event, eta) {
  * Returns coefficients with standard errors, hazard ratios and intervals, the
  * three global tests, concordance and the per-term proportional-hazards test.
  */
-export function coxFit(time, event, X, names, { ties = DEFAULTS.ties, confidence = DEFAULTS.confidence, maxIterations = DEFAULTS.maxIterations } = {}) {
+export function coxFit(time, event, X, names, { ties = DEFAULTS.ties, confidence = DEFAULTS.confidence, maxIterations = DEFAULTS.maxIterations, strata = null } = {}) {
   const n = X.length, p = names.length;
   const z = normalQuantile(1 - (1 - confidence) / 2);
   const means = names.map((_, a) => X.reduce((s, x) => s + x[a], 0) / n);
   const sds = names.map((_, a) => Math.sqrt(X.reduce((s, x) => s + (x[a] - means[a]) ** 2, 0) / Math.max(1, n - 1)));
   const Xc = X.map((x) => x.map((v, a) => v - means[a]));
-  const order = time.map((_, i) => i).sort((a, b) => time[a] - time[b]);
+  const order = strataRows(time, strata).map((rows) => rows.sort((a, b) => time[a] - time[b]));
   let beta = Array(p).fill(0);
   let cur = coxPass(Xc, time, event, order, beta, ties);
   const ll0 = cur.ll;
@@ -491,7 +520,7 @@ export function coxFit(time, event, X, names, { ties = DEFAULTS.ties, confidence
     }
   }
   const eta = Xc.map((x) => dot(x, beta));
-  const conc = concordance(time, event, eta);
+  const conc = concordance(time, event, eta, strata);
   const terms = names.map((name, a) => {
     const zz = beta[a] / se[a];
     return {
@@ -503,7 +532,7 @@ export function coxFit(time, event, X, names, { ties = DEFAULTS.ties, confidence
   const lr = 2 * (cur.ll - ll0);
   const wald = V ? dot(beta, matVec(cur.I, beta)) : NaN;
   return {
-    ties, n, events: event.reduce((a, b) => a + b, 0), iterations, converged,
+    ties, n, events: event.reduce((a, b) => a + b, 0), strata: strata ? new Set(strata).size : 1, iterations, converged,
     terms, logLik: cur.ll, logLik0: ll0,
     lr: { chiSquare: lr, df: p, p: chiSquareP(Math.max(0, lr), p) },
     wald: { chiSquare: wald, df: p, p: Number.isFinite(wald) ? chiSquareP(Math.max(0, wald), p) : NaN },
@@ -532,8 +561,10 @@ function asList(v) {
 
 /**
  * Run the whole analysis on a CSV.
- * input: { csv, time, event, eventValue?, group?, covariates?, reference?,
- *          confidence?, ties?, test?, tau? }
+ * input: { csv, time, event, eventValue?, group?, covariates?, strata?,
+ *          reference?, confidence?, ties?, test?, tau? }
+ * strata: one or more columns whose combinations each get their own baseline
+ * hazard in Cox and their own risk sets in the test of equal curves.
  */
 export function analyze(input = {}) {
   const confidence = input.confidence === undefined ? DEFAULTS.confidence : Number(input.confidence);
@@ -559,12 +590,18 @@ export function analyze(input = {}) {
   const groupCol = input.group === undefined || input.group === null || String(input.group).trim() === "" ? null : String(input.group).trim();
   if (groupCol && !columns.includes(groupCol)) return { error: `Group column "${groupCol}" is not in the header (${columns.join(", ")}).` };
   if (groupCol && (groupCol === timeCol || groupCol === eventCol)) return { error: "The group column must differ from the time and event columns." };
-  const covs = asList(input.covariates).filter((c) => c !== groupCol);
+  const strataCols = asList(input.strata);
+  for (const c of strataCols) {
+    if (!columns.includes(c)) return { error: `Strata column "${c}" is not in the header (${columns.join(", ")}).` };
+    if (c === timeCol || c === eventCol) return { error: `"${c}" is the time or event column and cannot also be a stratum.` };
+    if (c === groupCol) return { error: `"${c}" is the group column; stratifying by it would leave nothing to compare. Stratify by a different column.` };
+  }
+  const covs = asList(input.covariates).filter((c) => c !== groupCol && !strataCols.includes(c));
   for (const c of covs) {
     if (!columns.includes(c)) return { error: `Covariate "${c}" is not in the header (${columns.join(", ")}).` };
     if (c === timeCol || c === eventCol) return { error: `"${c}" is the time or event column and cannot also be a covariate.` };
   }
-  const used = [timeCol, eventCol, ...(groupCol ? [groupCol] : []), ...covs].map((c) => columns.indexOf(c));
+  const used = [timeCol, eventCol, ...(groupCol ? [groupCol] : []), ...covs, ...strataCols].map((c) => columns.indexOf(c));
   const keep = rows.filter((r) => used.every((j) => !isMissing(r[j])));
   const dropped = rows.length - keep.length;
   if (keep.length < 2) return { error: "Fewer than two rows have every chosen column filled in." };
@@ -595,6 +632,28 @@ export function analyze(input = {}) {
     const li = new Map(levels.map((l, i) => [l, i]));
     gIdx = keep.map((r) => li.get(r[gj]));
   }
+  // Strata: each distinct combination of the strata columns, in order of first appearance.
+  let strata = null, strataInfo = null;
+  if (strataCols.length) {
+    const sj = strataCols.map((c) => columns.indexOf(c));
+    const label = (r) => sj.map((j, a) => `${strataCols[a]}=${r[j]}`).join(", ");
+    const names = [...new Set(keep.map(label))];
+    if (names.length > 50) return { error: `The strata column${strataCols.length > 1 ? "s" : ""} ${strataCols.join(", ")} make${strataCols.length > 1 ? "" : "s"} ${names.length} strata. Use at most 50, or add the column as a covariate instead.` };
+    const si = new Map(names.map((l, i) => [l, i]));
+    strata = keep.map((r) => si.get(label(r)));
+    const levelsInfo = names.map((name, k) => {
+      const rowsK = strata.map((s, i) => (s === k ? i : -1)).filter((i) => i >= 0);
+      return { name, n: rowsK.length, events: rowsK.reduce((a, i) => a + event[i], 0), groups: new Set(rowsK.map((i) => gIdx[i])).size };
+    });
+    strataInfo = { columns: strataCols, levels: levelsInfo };
+    if (names.length < 2) { warnings.push(`The strata column${strataCols.length > 1 ? "s" : ""} ${strataCols.join(", ")} ${strataCols.length > 1 ? "have" : "has"} a single value, so stratifying changes nothing.`); }
+    const idle = levelsInfo.filter((l) => !l.events).map((l) => l.name);
+    if (idle.length) warnings.push(`Stratum ${idle.join("; ")} has no events, so it adds nothing to the Cox model or the test.`);
+    if (levels.length >= 2) {
+      const one = levelsInfo.filter((l) => l.groups < 2).map((l) => l.name);
+      if (one.length) warnings.push(`Stratum ${one.join("; ")} holds a single ${groupCol} group, so it carries no information about the group comparison.`);
+    }
+  }
   const groups = levels.map((name, g) => {
     const tg = [], eg = [];
     gIdx.forEach((x, i) => { if (x === g) { tg.push(time[i]); eg.push(event[i]); } });
@@ -614,7 +673,8 @@ export function analyze(input = {}) {
 
   let testResult = null;
   if (levels.length >= 2) {
-    testResult = logRank(time, event, gIdx, levels.length, { test });
+    testResult = logRank(time, event, gIdx, levels.length, { test, strata });
+    if (strata) testResult.name = `Stratified ${testResult.name.charAt(0).toLowerCase()}${testResult.name.slice(1)}`;
     if (levels.length > 2) testResult.note = "The test asks whether any group differs; it does not say which.";
   }
 
@@ -637,7 +697,9 @@ export function analyze(input = {}) {
       const X = keep.map((_, i) => cols.map((f) => f(i)));
       const constant = names.filter((_, a) => X.every((x) => x[a] === X[0][a]));
       if (constant.length) return { error: `Cox term ${constant.join(", ")} has the same value on every row; drop it.` };
-      cox = coxFit(time, event, X, names, { ties, confidence });
+      const constantInStrata = strata ? names.filter((_, a) => strataRows(time, strata).every((rows) => rows.every((i) => X[i][a] === X[rows[0]][a]))) : [];
+      if (constantInStrata.length) return { error: `Cox term ${constantInStrata.join(", ")} never varies within a stratum, so a stratified model cannot estimate it (the strata absorb it). Drop it or stratify by something else.` };
+      cox = coxFit(time, event, X, names, { ties, confidence, strata });
       warnings.push(...cox.warnings);
       if (nEvents < 10 * names.length) warnings.push(`${nEvents} events for ${names.length} Cox term${names.length === 1 ? "" : "s"}: fewer than the usual 10 per term, so estimates may be unstable.`);
       const bad = cox.terms.filter((t) => t.ph && t.ph.p < 0.05).map((t) => t.name);
@@ -645,17 +707,18 @@ export function analyze(input = {}) {
     }
   }
 
-  const summary = summarize({ groups, testResult, cox, confidence, timeCol, tau, groupCol });
+  const summary = summarize({ groups, testResult, cox, confidence, timeCol, tau, groupCol, strataInfo });
   return {
     summary, warnings,
     rows: { total: rows.length, used: keep.length, dropped, events: nEvents },
-    columns: { time: timeCol, event: eventCol, group: groupCol, covariates: covs },
+    columns: { time: timeCol, event: eventCol, group: groupCol, covariates: covs, strata: strataCols },
+    strata: strataInfo,
     confidence, ties, test, tau,
     groups, logrank: testResult, cox,
   };
 }
 
-function summarize({ groups, testResult, cox, confidence, timeCol, tau, groupCol }) {
+function summarize({ groups, testResult, cox, confidence, timeCol, tau, groupCol, strataInfo }) {
   const cl = `${Math.round(confidence * 100)}%`;
   const parts = [];
   const med = (g) => (g.median === Infinity ? `fewer than half had the event by the last time observed (${fmt(g.maxTime)})` : `half had the event by ${fmt(g.median)} (${cl} CI ${fmt(g.medianLo)} to ${fmt(g.medianHi)})`);
@@ -670,7 +733,8 @@ function summarize({ groups, testResult, cox, confidence, timeCol, tau, groupCol
   }
   if (cox) {
     const t = cox.terms.map((x) => `${x.name}: hazard ratio ${fmt(x.hr)} (${cl} CI ${fmt(x.hrLo)} to ${fmt(x.hrHi)}, p = ${formatP(x.p)})`);
-    parts.push(`Cox model (${cox.ties} ties): ${t.join("; ")}. Concordance ${fmt(cox.concordance)}.`);
+    const by = strataInfo ? `, stratified by ${strataInfo.columns.join(" and ")} (${strataInfo.levels.length} strata, each with its own baseline hazard)` : "";
+    parts.push(`Cox model (${cox.ties} ties${by}): ${t.join("; ")}. Concordance${strataInfo ? " within strata" : ""} ${fmt(cox.concordance)}.`);
   }
   return parts.join(" ");
 }
