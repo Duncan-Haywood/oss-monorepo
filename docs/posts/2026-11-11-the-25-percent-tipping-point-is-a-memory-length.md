@@ -3,7 +3,7 @@ title: "The 25% tipping point is a statement about memory, and clustering the co
 seo_title: "25% tipping point for social conventions: what sets it"
 date: 2026-11-11
 tags: [research, simulation, social-science]
-description: "In a memory-based naming game the committed minority needed to flip a convention runs from 11% to 42% as memory grows; 25% means people weigh their last 11 to 13 encounters."
+description: "In a memory-based naming game the committed minority that flips a convention runs from 11% to 42% with memory; 25% means weighing the last 11 to 13 encounters."
 ---
 
 Centola et al. (2018, *Science*) ran groups of 20 people who settled on a naming convention, then added confederates pushing a new name. The convention flipped only once the confederates reached about a quarter of the group, and the "25% rule" has been quoted widely since. We asked two questions of the model class behind it: is 25% a constant, and does it matter where the committed people sit?
