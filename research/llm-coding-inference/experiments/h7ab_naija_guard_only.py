@@ -14,7 +14,7 @@ from llmci import audit_design as A  # noqa: E402
 
 REPS = int(ARGS[0]) if ARGS else 500
 SEED = 20261109
-RULES = (("pooled", 2.0, 0, 0), ("shipped default", A.TAU, A.GUARD, A.NEG_GUARD), ("neg_guard=3 alone", 0.0, 0, A.NEG_GUARD))
+RULES = (("pooled", 2.0, 0, 0), ("shipped default", A.TAU_6AM, A.GUARD_6AM, A.NEG_GUARD), ("neg_guard=3 alone", 0.0, 0, A.NEG_GUARD))
 
 
 def one(f, human, n, truth, rr, tau, guard, ng):

@@ -20,7 +20,7 @@ from llmci import audit_design as A  # noqa: E402
 import os
 SEED, MODEL = 20261107, os.environ.get("LLM", "Qwen2.5-1.5B-Instruct")  # 7aa: LLM=Qwen2.5-0.5B-Instruct for a second LLM
 SUF = "" if MODEL == "Qwen2.5-1.5B-Instruct" else "_" + MODEL.split("-")[1]
-RULES = (("pooled", 2.0, 0, 0), ("shipped default (neg_guard 3)", A.TAU, A.GUARD, A.NEG_GUARD), ("neg_guard=3 alone", 0.0, 0, A.NEG_GUARD))
+RULES = (("pooled", 2.0, 0, 0), ("shipped default (neg_guard 3)", A.TAU_6AM, A.GUARD_6AM, A.NEG_GUARD), ("neg_guard=3 alone", 0.0, 0, A.NEG_GUARD))
 
 
 def main():
