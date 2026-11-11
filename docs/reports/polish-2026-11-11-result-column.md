@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-11
+tagged: auto
+---
 # Polish 2026-11-11: sticky result cards no longer slide over the FAQ or proposal
 
 **Why this item.** Item 1 of "Still weakest" in `polish-2026-11-11-sticky-scroll-hint.md` was

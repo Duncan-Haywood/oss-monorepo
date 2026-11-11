@@ -1,3 +1,8 @@
+---
+kind: note
+topics: [python-env]
+tagged: auto
+---
 # Research src-layout pytest collection, 2026-11-11
 
 `research/_shared/src_layout.py` (run by `programme_check.py` in research CI) checks that a

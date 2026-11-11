@@ -1,3 +1,8 @@
+---
+kind: polish
+date: 2026-11-11
+tagged: auto
+---
 # Polish 2026-11-11: a scroll hint on capped result cards
 
 **Why this item.** Item 2 of "Still weakest" in `polish-2026-11-11-sticky-fit.md`. That run capped

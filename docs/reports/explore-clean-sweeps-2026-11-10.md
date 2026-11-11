@@ -1,6 +1,5 @@
 ---
-kind: audit
-subjects: [platform, ventures]
+kind: brief
 tagged: manual
 ---
 # Explore sweeps found clean, 2026-11-10 (agent note)

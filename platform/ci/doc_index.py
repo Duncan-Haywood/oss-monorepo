@@ -218,10 +218,10 @@ def _stem_parts(name: str) -> tuple[str | None, str]:
     m = re.match(r"(\d{4}-\d{2}-\d{2})-?", stem)
     if m:
         date, stem = m.group(1), stem[m.end():]
-    else:
-        m = re.search(r"-(\d{4}-\d{2}-\d{2})$", stem)  # shed-designer-price-gaps-2026-10-30
+    else:  # shed-designer-price-gaps-2026-10-30, process-2026-11-11-cite-check-cache
+        m = re.search(r"-(\d{4}-\d{2}-\d{2})(-|$)", stem)
         if m:
-            date, stem = m.group(1), stem[:m.start()]
+            date, stem = m.group(1), stem[:m.start()] + (stem[m.end() - 1:] if m.group(2) else "")
     return date, re.sub(r"^polish-", "", stem)  # 2026-11-06-polish-permit-preflight-faq
 
 

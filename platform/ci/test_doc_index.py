@@ -244,6 +244,12 @@ class RedTeam20261111(unittest.TestCase):
         m = di.infer_report("2026-11-06-polish-shed-designer-faq.md", "# FAQ\n", slugs, TAX)
         self.assertEqual((m["kind"], m["date"], m["subjects"]), ("polish", "2026-11-06", ["shed-designer"]))
 
+    def test_date_after_any_track_prefix(self):
+        for name in ("process-2026-11-11-cite-check-cache.md", "review-claim-stale-2026-11-11.md",
+                     "2026-11-11-x.md", "quality-2026-11-11-x-sweep.md"):
+            self.assertEqual(di._stem_parts(name)[0], "2026-11-11", name)
+        self.assertEqual(di._stem_parts("process-2026-11-11-cite-check-cache.md")[1], "process-cite-check-cache")
+
     def test_crlf_front_matter_is_read_and_not_duplicated(self):
         with tempfile.TemporaryDirectory() as d:
             root = tree(Path(d))

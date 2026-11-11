@@ -27,9 +27,10 @@ topics: [research-integrity]
 
 Before you push a report, run `python3 platform/ci/doc_index.py check`.
 `doc_index.py backfill --write` drafts missing front matter and swaps an alias
-topic (`aeo`, `pytest`) for its id; check the tags it writes. Until a PR
-workflow runs the check, nothing else will: it was red on main on 2026-11-06,
--08 and -11.
+topic (`aeo`, `lighthouse`) for its id; check the tags it writes. Topics come
+from the vocabulary (`doc_index.py topics`), not free text: on 2026-11-11 main
+carried 73 problems, most of them polish reports tagged `tooling` or `design`
+before `design` existed. Until a PR workflow runs the check, nothing else will.
 
 ## Finding things
 

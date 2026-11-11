@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [performance, accessibility, tooling]
+topics: [performance, accessibility]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: the scroll-box sweep in pf-site.js, cut from ~251 ms to ~123 ms on the heaviest flagship

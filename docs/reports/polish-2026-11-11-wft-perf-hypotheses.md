@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [performance, layout-shift, hub, tooling, lighthouse]
+topics: [performance]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: three perf ideas for wall-framing-takeoff measured (none helped); the hub hero stops jumping

@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [layout, accessibility, calculators, tooling]
+topics: [design, accessibility]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: a stuck result card taller than the window now scrolls inside

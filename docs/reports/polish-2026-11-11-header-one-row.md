@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, layout, consistency]
+topics: [design]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: the site header stops giving Search a row of its own

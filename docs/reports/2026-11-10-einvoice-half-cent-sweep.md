@@ -1,3 +1,9 @@
+---
+kind: analysis
+subjects: [einvoice-preflight]
+date: 2026-11-10
+tagged: auto
+---
 # einvoice-preflight: half-cent rounding sweep (2026-11-10)
 
 Follow-up to the half-cent fix in PR #14510. `grep -n "Math.round(" *.mjs`

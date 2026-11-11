@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [performance, guides, content-visibility, lighthouse, tooling]
+topics: [performance]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: /guides/ skips rendering off-screen tool blocks (mobile TBT 883 to 50 ms)
