@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKkPG7LNi9bo1Gpj45Y",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T03:18:22Z",
+  "ended": "2026-11-11T03:57:45Z",
+  "wall_minutes": 39.76,
+  "tokens_in": 13626120,
+  "tokens_out": 61771,
+  "cost_usd": 5.2062,
+  "tool_calls": 111,
+  "task": "Polish: fix the lowest-scoring flagship in the 2026-11-11 Lighthouse report (wall-framing-takeoff, perf 83, CLS 0.084)",
+  "projects": [
+    "platform/pages",
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14681",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "lighthouse.mjs failed every page with a chrome-launcher checkReady error while TMPDIR was the long scratchpad path",
+      "fix": "used a short TMPDIR (/tmp/claude-0/t); noted in platform/pages/README.md"
+    },
+    {
+      "what": "the first post description was 174 characters and failed 7 site-build tests (limit 160)",
+      "fix": "shortened it to 142 and re-ran the failing files"
+    },
+    {
+      "what": "the first reservation rule did nothing on wall-framing-takeoff: the venture declares [hidden]{display:none !important}",
+      "fix": "added !important, limited the rule to screen, and checked the result with layout-shift entries"
+    },
+    {
+      "what": "the post first said Google calls CLS over 0.1 poor; Google's bands are good at 0.1 or less and poor over 0.25",
+      "fix": "corrected before merge"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/lighthouse.mjs",
+      "issue": "Its header documents only Lantern scores. Lantern's LCP counts every request that finished before the observed paint, so it scored modulepreload as a 1.9 s first-paint cost that real throttling did not show. Added --throttling=devtools and a README note."
+    },
+    {
+      "file": "docs/security/agent-hardening.md",
+      "issue": "It says prompts/runs/ 'stay unowned', but .github/CODEOWNERS lists /prompts/runs/. One of the two is stale."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-11-lighthouse-first-numbers.md",
+      "why": "Its first suggestion was to cut what the first screen waits on, and Lighthouse pointed at the 43 modulepreload links. Real-throttling runs showed removing them would slow the tool by about 0.3 s, so I fixed the measured layout shift instead.",
+      "did": "kept the preloads; fixed the CLS causes in the shared chrome",
+      "result": "median CLS 0.113 to 0.002 on 14 sampled tool pages; wall-framing-takeoff Lighthouse perf 83 to 86"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-the-page-jumped-after-it-loaded.md",
+    "docs/reports/polish-2026-11-11-tool-page-layout-shift.md"
+  ],
+  "goal": null,
+  "notes": "Before/after with Lighthouse 12.8.2 mobile on the 16 default pages in the same session: CLS on 8 flagships went from 0.018-0.084 to <=0.003; accessibility and SEO stayed 100 everywhere. Page CLS sample (Playwright, 412 px) on every 12th saved-bids page: median 0.113 to 0.002, worst 0.253 to 0.007. Tests: node --test 'platform/pages/*.test.mjs': 1,507 tests, 1,499 passing; the 7 failures were all the post description, re-run green after the fix (see PR). The after numbers were taken on the local dist with regenerated pf-*.css/pf-rates.js and the rates status patched into the sampled pages the way the build now writes it, not on a full rebuild.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4615820f-9b9a-5bdb-a06c-3515cb2804c6",
+    "transcripts": 1,
+    "first": "2026-11-11T03:18:22Z",
+    "last": "2026-11-11T03:58:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 108,
+        "input": 204,
+        "output": 61771,
+        "thinking": 19118,
+        "cache_read": 13466334,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159582,
+        "api_equivalent_usd": 5.2062,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 108,
+      "input": 204,
+      "output": 61771,
+      "thinking": 19118,
+      "cache_read": 13466334,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159582,
+      "api_equivalent_usd": 5.2062,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 105,
+      "Write": 3,
+      "ToolSearch": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 39.76,
+      "active_minutes": 39.76,
+      "model_minutes": 12.68,
+      "tool_minutes": 27.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "front-end engineer: Lighthouse runs and trace reading, root-causing two CLS sources across shared chrome, CSS fixes, regression tests, report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 115.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -3,13 +3,14 @@ title: "Why our bid calculators jumped after they loaded, and the Lighthouse fix
 seo_title: "Fixing cumulative layout shift from hidden bars revealed by script"
 date: 2026-11-11
 tags: [performance, polish, lighthouse, layout-shift, static-site]
-description: "On 14 sampled tool pages, median layout shift fell from 0.113 to 0.002. The bigger Lighthouse gain, removing module preloads, was a simulation artifact, so we didn't take it."
+description: "Median layout shift on 14 tool pages fell from 0.113 to 0.002. The bigger Lighthouse win, dropping module preloads, was a simulation artifact."
 ---
 
 Open one of our trade bid calculators on a phone and start reading the
 heading. A moment later the page jumped down by about two lines. On the
 chimney-sweep calculator it jumped 144 pixels. That is cumulative layout shift
-(CLS), and that page scored 0.253. Google calls anything over 0.1 poor.
+(CLS), and that page scored 0.253. Google rates 0.1 or less as good and
+anything over 0.25 as poor.
 
 There were two causes. Both were in the shared site chrome, not in any one
 tool:
