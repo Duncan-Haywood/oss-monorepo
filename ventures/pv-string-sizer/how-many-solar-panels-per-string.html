@@ -8,6 +8,7 @@
   <meta property="og:title" content="How many solar panels per string? A worked example">
   <meta property="og:description" content="The datasheet says 12 modules fit under 600 V. At -20 C only 10 do. The arithmetic, step by step.">
   <link rel="canonical" href="./how-many-solar-panels-per-string.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why can't I just divide the inverter's maximum voltage by the module's Voc?", "acceptedAnswer": {"@type": "Answer", "text": "The datasheet Voc is measured at 25 C. Module voltage rises as cells get colder, so on the coldest morning each module makes more than its rating. In the example on this page, 600 V divided by 49.5 V says 12 modules, but at -20 C each module makes 55.51 V and only 10 fit."}}, {"@type": "Question", "name": "What sets the minimum number of modules in a string?", "acceptedAnswer": {"@type": "Answer", "text": "The inverter's MPPT minimum voltage against the module's maximum-power voltage on the hottest afternoon, when cells run well above the air temperature. Divide the MPPT minimum by the hot-day Vmp per module and round up."}}, {"@type": "Question", "name": "Does this apply to microinverters or DC optimisers?", "acceptedAnswer": {"@type": "Answer", "text": "No. With module-level power electronics the device's own rules set the string length, so use the maker's sizing guidance instead."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f6f4ee; }
     body { max-width: 820px; margin: auto; padding: 28px; }
@@ -70,6 +71,13 @@
 
   <h2>When to use something else</h2>
   <p>The inverter maker's own string-sizing tool knows its equipment's limits better than a datasheet does; use it for the final design. Microinverter and optimiser systems follow the module-level device's rules. And the code edition your jurisdiction adopted, not this page, decides the voltage limit and the conductor rules.</p>
+  <h2>Common questions</h2>
+  <h3>Why can't I just divide the inverter's maximum voltage by the module's Voc?</h3>
+  <p>The datasheet Voc is measured at 25 C. Module voltage rises as cells get colder, so on the coldest morning each module makes more than its rating. In the example on this page, 600 V divided by 49.5 V says 12 modules, but at -20 C each module makes 55.51 V and only 10 fit.</p>
+  <h3>What sets the minimum number of modules in a string?</h3>
+  <p>The inverter's MPPT minimum voltage against the module's maximum-power voltage on the hottest afternoon, when cells run well above the air temperature. Divide the MPPT minimum by the hot-day Vmp per module and round up.</p>
+  <h3>Does this apply to microinverters or DC optimisers?</h3>
+  <p>No. With module-level power electronics the device's own rules set the string length, so use the maker's sizing guidance instead.</p>
   <p><a class="cta" href="./index.html">Open the PV string sizer</a></p>
 </main>
 <footer>
