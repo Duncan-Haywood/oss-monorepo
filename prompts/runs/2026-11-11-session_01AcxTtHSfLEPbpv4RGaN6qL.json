@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtHSfLEPbpv4RGaN6qL",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T21:05:43Z",
+  "ended": "2026-11-11T21:18:11Z",
+  "wall_minutes": 12.62,
+  "tokens_in": 4593851,
+  "tokens_out": 19982,
+  "cost_usd": 2.0023,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14892",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First pick_track test run hung: an existing test drew 4,000 times over a fixture including build-data and so probed real hosts; stubbed it and cached host_answers.",
+    "A single 6 s HEAD falsely marked data.seattle.gov down (2 of 5 probes timed out); added 3 tries."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "main_health.py and measure started with shell '&' inside one run_in_background call were killed when the parent shell exited; each needs its own run_in_background call."
+    },
+    {
+      "file": "platform/ci/pyenv.py",
+      "issue": "The 'trying ... pip install' log line prints import names (cv2), not the pip names it actually installs, which is likely why a run hand-installed opencv; not fixed here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "No agent-owned backlog item; took Critique from a doc_friction entry (pick_track.py) instead of filing a backlog row first.",
+      "did": "Shipped the fix directly with tests and a post.",
+      "result": "Landed in one PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-probe-the-data-host-before-the-draw.md"
+  ],
+  "goal": null,
+  "notes": "Backlog ids touched: none (all open rows owner-gated or blocked). Verification: test_pick_track 33 OK; CLI end-to-end with a fake dead host prints the redraw line; programme_check ok; homepage build ok; post checks ok; main_health 55/55.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "635bb023-7662-5278-8854-709805e3dab1",
+    "transcripts": 1,
+    "first": "2026-11-11T21:05:43Z",
+    "last": "2026-11-11T21:18:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 100,
+        "output": 19982,
+        "thinking": 4455,
+        "cache_read": 4506118,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87633,
+        "api_equivalent_usd": 2.0023,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 100,
+      "output": 19982,
+      "thinking": 4455,
+      "cache_read": 4506118,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87633,
+      "api_equivalent_usd": 2.0023,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 47,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.62,
+      "active_minutes": 12.62,
+      "model_minutes": 4.23,
+      "tool_minutes": 8.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "probe function, tests, host list and post for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 149.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
