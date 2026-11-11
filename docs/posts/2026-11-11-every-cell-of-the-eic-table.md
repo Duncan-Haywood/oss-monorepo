@@ -2,7 +2,7 @@
 title: "Checking every cell of the IRS's earned income credit table, and the bug it turned up"
 seo_title: "The 2025 EIC Table, checked cell by cell"
 date: 2026-11-11
-description: "The ai-bookkeeper's earned income credit now matches all 10,992 cells of the 2025 EIC Table, and reading the worksheet fixed a formula that undercounted the credit for low earners with other income."
+description: "The ai-bookkeeper now matches all 10,992 cells of the 2025 EIC Table, and the IRS worksheet exposed an undercount for low earners with other income."
 tags: [ai-bookkeeper, tax, verification, earned-income-credit]
 ---
 
