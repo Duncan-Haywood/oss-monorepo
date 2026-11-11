@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVL5hcCmWvqP6yj3v1i",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (prompt.md brief)",
+  "input_sha256": "f2308cd3a67781dca87466388f5da09d952212c8b1c7a8bd19d3e26026499e1e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T15:18:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: run the colour separation on real public-domain paintings and fix what that showed (index separation)",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 14816,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "museum API and image hosts (artic.edu, metmuseum.org, Wikimedia, clevelandart.org) returned proxy 403",
+      "fix": "fetched public-domain paintings from public GitHub repos via raw.githubusercontent.com and media.githubusercontent.com (LFS)"
+    },
+    {
+      "what": "first index version (unclamped error diffusion) measured worse than flat; palette refit diverged",
+      "fix": "clamped corrected colour with a 0.25 margin; refit and spread removed; all recorded in README"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "took the open website request R-0005 over the top flagship (default order puts requests first); chose a real-input measurement rather than another typed-number page",
+      "did": "measured separation on nine real paintings, built index separation",
+      "result": "index closer than flat from 1 m on 8 of 9 paintings"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-flat-inks-cannot-print-a-painting.md"
+  ],
+  "goal": null,
+  "notes": "Verification: run_venture_tests.py clothing-design-studio ok (10.2 s); indexsep.test.mjs 8 pass; headless Chromium page run with Starry Night (index 2.7 s) and Sassoferrato (3.6 s), films + brief downloaded, no console errors; post frontmatter/links/similarity ok; portfolio/requests tests 23 pass. venture-preflight clothing-design-studio: clean (rc 0). Measurement: eval/index-paintings.mjs reproduces README table exactly.",
+  "corrections": [],
+  "redteam": null
+}
