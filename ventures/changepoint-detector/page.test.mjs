@@ -104,6 +104,7 @@ test("footer links the sibling research-algorithm tools", () => {
   assert.match(html, /href="\.\.\/conformal-prediction-intervals\/"/);
   assert.match(html, /href="\.\.\/matrix-profile-explorer\/"/);
   assert.match(html, /href="\.\.\/survival-analysis\/"/);
+  assert.match(html, /href="\.\.\/fdr-multiple-testing\/"/);
 });
 
 test("the trend box offers one bend and several, and passes the choice to the engine", () => {

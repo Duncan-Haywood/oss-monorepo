@@ -424,6 +424,7 @@
     "fba-aged-inventory-fee-analyzer": "2026-09-29",
     "fba-reimbursement-claim-finder": "2026-09-29",
     "fbar-8938-checker": "2026-10-08",
+    "fdr-multiple-testing": "2026-11-11",
     "feature-flag-pricing-calculator": "2026-10-03",
     "feedback-board": "2026-10-15",
     "feie-physical-presence-calculator": "2026-10-03",

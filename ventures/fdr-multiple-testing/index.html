@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%235b3f8c'/%3E%3Ctext%20x='16'%20y='23'%20font-size='18'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3Eq%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Benjamini-Hochberg FDR Calculator and P-Value Adjustment Online — free multiple testing correction</title>
+  <meta name="description" content="Free Benjamini-Hochberg false discovery rate calculator and multiple testing correction. Paste p-values and get BH, Benjamini-Yekutieli, two-stage BKY, Storey q-values, Bonferroni, Holm, Hochberg and Šidák adjusted p-values side by side, or run e-BH on e-values. Checked against statsmodels. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Benjamini-Hochberg, q-values and Holm for your p-values — free, private, in your browser">
+  <meta property="og:description" content="Which of your results survive multiple testing? Eight corrections side by side for a list of p-values from A/B tests, gene screens, survey cross-tabs or any batch of tests.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Multiple Testing Correction: Benjamini-Hochberg FDR, q-values, Holm and Bonferroni", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a list of p-values, or a CSV with a p-value column and a label column, and get adjusted p-values and the number of results kept by Bonferroni, Šidák, Holm, Hochberg, Benjamini-Hochberg, Benjamini-Yekutieli, the two-stage Benjamini-Krieger-Yekutieli procedure and Storey's q-values, with an estimate of the share of true nulls, a p-value histogram and a step-up plot. e-values are corrected with e-BH. Runs in your browser.", "featureList": "Benjamini-Hochberg calculator, false discovery rate calculator, FDR correction online, adjusted p-value calculator, q-value calculator, Storey pi0 estimate, Bonferroni correction calculator, Holm-Bonferroni calculator, Hochberg step-up, Šidák correction, Benjamini-Yekutieli correction, two-stage BKY adaptive FDR, e-BH for e-values, p-value histogram, CSV download", "citation": ["https://doi.org/10.1111/j.2517-6161.1995.tb02031.x", "https://doi.org/10.1214/aos/1013699998", "https://doi.org/10.1093/biomet/93.3.491", "https://doi.org/10.1111/1467-9868.00346", "https://doi.org/10.1111/rssb.12489"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why correct p-values at all?", "acceptedAnswer": {"@type": "Answer", "text": "Each test at the 5% level has a 5% chance of a false positive when nothing is going on. Run 20 such tests and you expect one false positive; run 20,000 and you expect a thousand. A correction decides which results still stand once you account for how many you ran."}}, {"@type": "Question", "name": "What is the difference between FWER and FDR?", "acceptedAnswer": {"@type": "Answer", "text": "Family-wise error rate (FWER) methods such as Bonferroni and Holm bound the chance of even one false positive among everything you call significant. False discovery rate (FDR) methods such as Benjamini-Hochberg bound the expected share of false positives in that list. FDR keeps more results and suits screening; FWER suits a few confirmatory claims where any error is costly."}}, {"@type": "Question", "name": "What is an adjusted p-value?", "acceptedAnswer": {"@type": "Answer", "text": "The smallest error rate at which that test would be kept by the method. Compare it with your chosen level: a Benjamini-Hochberg adjusted p-value of 0.03 means the test is kept at any false discovery rate of 3% or more."}}, {"@type": "Question", "name": "What is a q-value, and how is it different from a BH-adjusted p-value?", "acceptedAnswer": {"@type": "Answer", "text": "Storey's q-value is the Benjamini-Hochberg adjusted p-value multiplied by pi0, an estimate of the share of tests where nothing is going on. When many tests are real effects pi0 is below 1 and q-values keep more results. The estimate needs many tests, ideally hundreds; with few, use Benjamini-Hochberg."}}, {"@type": "Question", "name": "Which method should I use?", "acceptedAnswer": {"@type": "Answer", "text": "Decide before you look. For a screen (genes, features, many A/B metrics) use Benjamini-Hochberg, or Benjamini-Yekutieli if the tests could be dependent in ways other than positively. For a handful of primary claims use Holm, which is never worse than Bonferroni and valid under any dependence."}}, {"@type": "Question", "name": "What are e-values and e-BH?", "acceptedAnswer": {"@type": "Answer", "text": "An e-value is a non-negative test statistic whose average is at most 1 when the null hypothesis is true, such as a likelihood ratio or the final value of a betting martingale in a sequential test. e-BH (Wang and Ramdas 2022) controls the false discovery rate for e-values under any dependence between tests."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The list is read and corrected by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1b2a; background: #f4f2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #5b3f8c; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #3d2a60; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #3d2a60; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #574f63; }
+    .card { background: #fff; border: 1px solid #ddd6e6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3d2a6010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7d6f93; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #5b3f8c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #ebe5f3; color: #3d2a60; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ece8f1; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #574f63; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.kept { color: #1d6b3a; font-weight: 700; }
+    tr.lead td { background: #f6f2fb; }
+    footer { margin-top: 28px; border-top: 1px solid #ddd6e6; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #7d6f93; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f6f4f9; border: 1px solid #e4dfeb; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">BENJAMINI-HOCHBERG · q-VALUES · HOLM · BONFERRONI · e-BH · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>You ran many tests. Which results still stand?</h1>
+    <p>Paste the p-values from a batch of tests: twenty A/B-test metrics, a gene-expression screen, every cross-tab in a survey, a feature sweep. You get the <strong>Benjamini-Hochberg</strong> false discovery rate correction and seven others side by side (<strong>Benjamini-Yekutieli</strong>, the adaptive <strong>two-stage BKY</strong>, <strong>Storey's q-values</strong>, <strong>Bonferroni</strong>, <strong>Šidák</strong>, <strong>Holm</strong> and <strong>Hochberg</strong>), each test's adjusted p-value, how many results each method keeps, and a plain-language reading. e-values are corrected with <strong>e-BH</strong>, which holds under any dependence.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice, and not medical advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your tests</h2>
+    <label for="csv">p-values, one per line, or a CSV with a header row (for example <code>gene,pvalue</code>)</label>
+    <textarea id="csv" spellcheck="false" placeholder="metric,p&#10;conversion,0.012&#10;revenue,0.21&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: the 15 p-values of Benjamini &amp; Hochberg (1995)</button>
+    <p class="note" id="data-status">Rows with a missing value are left out and counted.</p>
+
+    <div class="grid">
+      <div><label for="kind">The values are</label><select id="kind"><option value="p" selected>p-values</option><option value="e">e-values (use e-BH)</option></select></div>
+      <div><label for="column">Value column</label><select id="column"></select></div>
+      <div><label for="label-col">Label column</label><select id="label-col"></select></div>
+      <div><label for="alpha">Error rate to control (FDR or FWER)</label><select id="alpha"><option value="0.01">1%</option><option value="0.05" selected>5%</option><option value="0.1">10%</option><option value="0.2">20%</option></select></div>
+      <div><label for="method">Lead method for the summary</label><select id="method"><option value="bh" selected>Benjamini-Hochberg (FDR)</option><option value="by">Benjamini-Yekutieli (FDR, any dependence)</option><option value="bky">Two-stage BKY (adaptive FDR)</option><option value="storey">Storey q-value</option><option value="holm">Holm (FWER)</option><option value="hochberg">Hochberg (FWER)</option><option value="bonferroni">Bonferroni (FWER)</option><option value="sidak">Šidák (FWER)</option></select></div>
+      <div><label for="lambda">lambda for Storey's pi0</label><input id="lambda" inputmode="decimal" value="0.5"></div>
+    </div>
+    <button type="button" id="analyze">Correct</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="warnings"></div>
+    <div class="scroll">
+      <table id="methods-table">
+        <thead><tr><th>Method</th><th>Controls</th><th>Valid under</th><th class="n">Kept</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note" id="pi0-line"></p>
+    <div class="charts" id="charts">
+      <div id="stepup" role="img" aria-label="Sorted p-values against rank with the Benjamini-Hochberg line; points above the plotted range sit on its top edge"></div>
+      <div id="hist" role="img" aria-label="Histogram of p-values with the estimated null level"></div>
+    </div>
+    <h3>Tests, smallest p first</h3>
+    <div class="scroll">
+      <table id="items-table">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="note" id="items-note"></p>
+    <button type="button" class="secondary" id="download">Download every test (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>Sort the <em>m</em> p-values so that <em>p</em><sub>(1)</sub> &le; &hellip; &le; <em>p</em><sub>(m)</sub>. Each method's <strong>adjusted p-value</strong> is the smallest error rate at which it would keep that test, so a test is kept when its adjusted value is at or below your level.</p>
+    <p><strong>Benjamini-Hochberg</strong> (1995): keep the <em>k</em> smallest, where <em>k</em> is the largest <em>i</em> with <code>p_(i) &lt;= i q / m</code>; adjusted value <code>min over j &gt;= i of m p_(j) / j</code>. It controls the false discovery rate at <em>q</em> for independent tests and, as Benjamini &amp; Yekutieli (2001) showed, for positively dependent ones (PRDS). <strong>Benjamini-Yekutieli</strong> divides <em>q</em> by <code>1 + 1/2 + ... + 1/m</code> and holds under any dependence. The <strong>two-stage BKY</strong> procedure (Benjamini, Krieger &amp; Yekutieli 2006) runs BH at <code>q / (1 + q)</code>, estimates the number of true nulls as <em>m</em> minus its rejections, and runs BH again at the correspondingly higher level; it is shown as rejections only.</p>
+    <p><strong>Storey's q-value</strong> (Storey 2002; Storey &amp; Tibshirani 2003) is the BH adjustment multiplied by <code>pi0 = #{p &gt; lambda} / (m (1 - lambda))</code>, the estimated share of true nulls, capped at 1. Below the histogram, the dashed line is that estimate: if the right-hand bars sit near it, the nulls look uniform as they should.</p>
+    <p><strong>Bonferroni</strong> multiplies by <em>m</em>; <strong>Šidák</strong> (1967) uses <code>1 - (1 - p)^m</code>; <strong>Holm</strong> (1979) steps down, <code>max over j &lt;= i of (m - j + 1) p_(j)</code>, and like Bonferroni holds under any dependence; <strong>Hochberg</strong> (1988) steps up with the same factors and needs independent or positively dependent tests. All four control the family-wise error rate.</p>
+    <p><strong>e-BH</strong> (Wang &amp; Ramdas 2022): with e-values sorted largest first, keep the <em>k</em> largest where <em>k</em> is the largest <em>i</em> with <code>e_[i] &gt;= m / (alpha i)</code>. An e-value (Vovk &amp; Wang 2021) is a non-negative statistic with expectation at most 1 under the null.</p>
+    <p>Verified by tests in the source against <strong>statsmodels 0.15.0</strong>: every adjusted p-value for Bonferroni, Šidák, Holm, Hochberg, BH and BY to 1e-12 on six lists (the example, all-null and all-significant edge cases, 200 tests with ties, 1,000 tests, and 120 with p-values down to 1e-14 and a block of exact 1s), the two-stage BKY rejections at four levels, Storey's q-values at three lambdas, and e-BH against a direct implementation of the paper's definition. On the example the tool gives the counts that statsmodels' own tests pin to the Benjamini, Krieger &amp; Yekutieli (2006) paper: one-stage BH keeps 4 and the two-stage procedure 8, with second-stage level 0.0649 (Bonferroni keeps 3).</p>
+    <h3>BibTeX</h3>
+    <pre>@article{benjamini1995controlling,
+  author  = {Benjamini, Yoav and Hochberg, Yosef},
+  title   = {Controlling the False Discovery Rate: A Practical and Powerful Approach to Multiple Testing},
+  journal = {Journal of the Royal Statistical Society, Series B},
+  volume  = {57}, number = {1}, pages = {289--300}, year = {1995},
+  doi     = {10.1111/j.2517-6161.1995.tb02031.x}
+}
+@article{benjamini2001control,
+  author  = {Benjamini, Yoav and Yekutieli, Daniel},
+  title   = {The Control of the False Discovery Rate in Multiple Testing under Dependency},
+  journal = {Annals of Statistics},
+  volume  = {29}, number = {4}, pages = {1165--1188}, year = {2001},
+  doi     = {10.1214/aos/1013699998}
+}
+@article{benjamini2006adaptive,
+  author  = {Benjamini, Yoav and Krieger, Abba M. and Yekutieli, Daniel},
+  title   = {Adaptive Linear Step-up Procedures That Control the False Discovery Rate},
+  journal = {Biometrika},
+  volume  = {93}, number = {3}, pages = {491--507}, year = {2006},
+  doi     = {10.1093/biomet/93.3.491}
+}
+@article{storey2002direct,
+  author  = {Storey, John D.},
+  title   = {A Direct Approach to False Discovery Rates},
+  journal = {Journal of the Royal Statistical Society, Series B},
+  volume  = {64}, number = {3}, pages = {479--498}, year = {2002},
+  doi     = {10.1111/1467-9868.00346}
+}
+@article{storey2003statistical,
+  author  = {Storey, John D. and Tibshirani, Robert},
+  title   = {Statistical Significance for Genomewide Studies},
+  journal = {Proceedings of the National Academy of Sciences},
+  volume  = {100}, number = {16}, pages = {9440--9445}, year = {2003},
+  doi     = {10.1073/pnas.1530509100}
+}
+@article{holm1979simple,
+  author  = {Holm, Sture},
+  title   = {A Simple Sequentially Rejective Multiple Test Procedure},
+  journal = {Scandinavian Journal of Statistics},
+  volume  = {6}, number = {2}, pages = {65--70}, year = {1979}
+}
+@article{hochberg1988sharper,
+  author  = {Hochberg, Yosef},
+  title   = {A Sharper Bonferroni Procedure for Multiple Tests of Significance},
+  journal = {Biometrika},
+  volume  = {75}, number = {4}, pages = {800--802}, year = {1988},
+  doi     = {10.1093/biomet/75.4.800}
+}
+@article{sidak1967rectangular,
+  author  = {{\v{S}}id{\'a}k, Zbyn{\v{e}}k},
+  title   = {Rectangular Confidence Regions for the Means of Multivariate Normal Distributions},
+  journal = {Journal of the American Statistical Association},
+  volume  = {62}, number = {318}, pages = {626--633}, year = {1967},
+  doi     = {10.1080/01621459.1967.10482935}
+}
+@article{wang2022false,
+  author  = {Wang, Ruodu and Ramdas, Aaditya},
+  title   = {False Discovery Rate Control with E-values},
+  journal = {Journal of the Royal Statistical Society, Series B},
+  volume  = {84}, number = {3}, pages = {822--852}, year = {2022},
+  doi     = {10.1111/rssb.12489}
+}
+@article{vovk2021evalues,
+  author  = {Vovk, Vladimir and Wang, Ruodu},
+  title   = {E-values: Calibration, Combination and Applications},
+  journal = {Annals of Statistics},
+  volume  = {49}, number = {3}, pages = {1736--1754}, year = {2021},
+  doi     = {10.1214/20-AOS2020}
+}</pre>
+    <p class="note">This is an independent implementation from the papers' definitions; no code from the authors or from other libraries was copied. statsmodels was used only to produce the reference numbers the tests check against.</p>
+    <h3>Example data</h3>
+    <p>"Load example" uses the 15 p-values of the worked example in Benjamini &amp; Hochberg (1995), which Benjamini, Krieger &amp; Yekutieli (2006) reuse for their two-stage procedure. They are labelled H1 to H15 in sorted order; the original hypotheses are not named here. The list is bundled with this page, so loading it makes no network request.</p>
+  </section>
+
+  <section class="card">
+    <h2>Limits</h2>
+    <ul>
+      <li><strong>The p-values must be valid.</strong> Every correction assumes each p-value is uniform (or larger) when its null is true. p-hacked, data-dredged or already adjusted p-values give corrections that mean nothing.</li>
+      <li><strong>Count every test you ran.</strong> <em>m</em> is the number of rows used. Leaving out tests you looked at, or pre-filtering to the promising ones, makes every method too lenient.</li>
+      <li><strong>Dependence.</strong> Benjamini-Hochberg, Hochberg, Šidák and the two-stage procedure need independent or positively dependent tests. Bonferroni, Holm, Benjamini-Yekutieli and e-BH hold under any dependence.</li>
+      <li><strong>Storey's pi0 needs many tests.</strong> With fewer than about 100 it is noisy, and q-values can be optimistic. It is also biased upward when null p-values pile up near 1 (discrete or conservative tests), and it breaks under strong correlation: in this tool's seeded simulation (1,000 one-sided z-tests, 100 real effects, every pair of statistics correlated 0.5, 400 runs) q-values at 0.05 had an actual false discovery rate of 0.109, while Benjamini-Hochberg's was 0.029 (<code>eval/simulate.mjs</code>).</li>
+      <li><strong>FDR is an average.</strong> A 5% false discovery rate bounds the expected share of false results over repeated studies, not the share in your list.</li>
+      <li><strong>Not modelled:</strong> local false discovery rates, weighted or grouped (hierarchical) procedures, online FDR for tests that arrive over time, resampling methods such as Westfall-Young, Hommel's procedure, closed testing and gatekeeping for clinical endpoints, and boosted e-BH.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why correct p-values at all?</h3>
+    <p>Each test at the 5% level has a 5% chance of a false positive when nothing is going on. Run 20 such tests and you expect one false positive; run 20,000 and you expect a thousand. A correction decides which results still stand once you account for how many you ran.</p>
+    <h3>What is the difference between FWER and FDR?</h3>
+    <p>Family-wise error rate (FWER) methods such as Bonferroni and Holm bound the chance of even one false positive among everything you call significant. False discovery rate (FDR) methods such as Benjamini-Hochberg bound the expected share of false positives in that list. FDR keeps more results and suits screening; FWER suits a few confirmatory claims where any error is costly.</p>
+    <h3>What is an adjusted p-value?</h3>
+    <p>The smallest error rate at which that test would be kept by the method. Compare it with your chosen level: a Benjamini-Hochberg adjusted p-value of 0.03 means the test is kept at any false discovery rate of 3% or more.</p>
+    <h3>What is a q-value, and how is it different from a BH-adjusted p-value?</h3>
+    <p>Storey's q-value is the Benjamini-Hochberg adjusted p-value multiplied by pi0, an estimate of the share of tests where nothing is going on. When many tests are real effects pi0 is below 1 and q-values keep more results. The estimate needs many tests, ideally hundreds; with few, use Benjamini-Hochberg.</p>
+    <h3>Which method should I use?</h3>
+    <p>Decide before you look. For a screen (genes, features, many A/B metrics) use Benjamini-Hochberg, or Benjamini-Yekutieli if the tests could be dependent in ways other than positively. For a handful of primary claims use Holm, which is never worse than Bonferroni and valid under any dependence.</p>
+    <h3>What are e-values and e-BH?</h3>
+    <p>An e-value is a non-negative test statistic whose average is at most 1 when the null hypothesis is true, such as a likelihood ratio or the final value of a betting martingale in a sequential test. e-BH (Wang and Ramdas 2022) controls the false discovery rate for e-values under any dependence between tests.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The list is read and corrected by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; they do not guarantee what is true for any particular test, and they are not medical advice. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs pvalues.csv --column p_value --alpha 0.05</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fdr-multiple-testing" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns and anomalies, and <a href="../survival-analysis/">survival analysis</a> estimates time to an event.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, parseCsv, formatP } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const SHOW = 500;
+    let last = null;
+
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      if (p.error) { $("#column").innerHTML = ""; $("#label-col").innerHTML = ""; $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste p-values or load the example."; return; }
+      const prev = { v: $("#column").value, l: $("#label-col").value };
+      $("#column").innerHTML = p.columns.map((c, j) => `<option value="${esc(c)}"${p.numeric[j] ? "" : " disabled"}>${esc(c)}${p.numeric[j] ? "" : " (not numeric)"}</option>`).join("");
+      $("#label-col").innerHTML = `<option value="">Row number</option>` + p.columns.map((c) => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+      const re = /^(p|p[-_ .]?val(ue)?s?|pval|pvalue|p_value|e|e[-_ ]?val(ue)?s?|evalue)$/i;
+      $("#column").value = p.columns.includes(prev.v) ? prev.v : p.columns.find((c) => re.test(c)) || p.columns.find((_, j) => p.numeric[j]) || "";
+      $("#label-col").value = p.columns.includes(prev.l) ? prev.l : p.list ? "" : p.columns.find((c, j) => !p.numeric[j]) || "";
+      $("#data-status").textContent = p.list ? `${p.rows.length} values (a bare list).` : `${p.rows.length} rows, ${p.columns.length} columns.`;
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+    $("#kind").addEventListener("change", () => { $("#method").disabled = $("#kind").value === "e"; });
+
+    function inputs() {
+      return { csv: $("#csv").value, column: $("#column").value || undefined, labelColumn: $("#label-col").value || undefined, kind: $("#kind").value, alpha: Number($("#alpha").value), method: $("#method").value, lambda: $("#lambda").value };
+    }
+
+    function stepUpChart(r) {
+      const W = 460, H = 300, L = 54, R = 12, T = 12, B = 40;
+      const s = r.items.map((it) => it.value);
+      const kept = Math.max(...r.methods.map((x) => x.rejections));
+      const K = Math.min(r.m, Math.max(20, 2 * kept + 10));
+      const bhKept = r.methods.find((x) => x.id === "bh").rejections;
+      // Zoom to where the decision is made: three times the BH line's height at K, or just past the last BH discovery.
+      const yMax = Math.min(1, Math.max((3 * r.alpha * K) / r.m, s[Math.min(K, bhKept + 2) - 1]) * 1.08) || 1;
+      const sx = (k) => L + ((k - 0.5) / K) * (W - L - R);
+      const sy = (v) => T + (1 - Math.min(v, yMax) / yMax) * (H - T - B);
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      for (let i = 0; i <= 4; i++) { const v = (yMax * i) / 4; out += `<line x1="${L}" x2="${W - R}" y1="${sy(v)}" y2="${sy(v)}" stroke="#efecf3"/><text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="11" fill="#574f63">${esc(formatP(v))}</text>`; }
+      out += `<line x1="${sx(0.5)}" y1="${sy(0)}" x2="${sx(K + 0.5)}" y2="${sy((r.alpha * K) / r.m)}" stroke="#b4541b" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+      for (let k = 1; k <= K; k++) { const it = r.items[k - 1]; out += `<circle cx="${sx(k).toFixed(1)}" cy="${sy(it.value).toFixed(1)}" r="3.5" fill="${it.rejected.bh ? "#5b3f8c" : "#fff"}" stroke="#5b3f8c" stroke-width="1.5"><title>${esc(it.label)}: p = ${esc(formatP(it.value))}${it.value > yMax ? " (above the plotted range)" : ""}</title></circle>`; }
+      for (const k of [1, Math.ceil(K / 2), K]) out += `<text x="${sx(k).toFixed(1)}" y="${H - 22}" text-anchor="middle" font-size="11" fill="#574f63">${k}</text>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle" font-size="12" fill="#574f63">rank ${K < r.m ? `(first ${K} of ${r.m}) ` : ""}· dashed: i × ${r.alpha} / m · filled: kept by BH</text></svg>`;
+      return out;
+    }
+
+    function histChart(r) {
+      const W = 460, H = 300, L = 44, R = 12, T = 12, B = 40, bins = r.histogram.length;
+      const nullLevel = (r.pi0 * r.m) / bins;
+      const top = Math.max(...r.histogram, nullLevel) * 1.08 || 1;
+      const bw = (W - L - R) / bins;
+      const sy = (v) => T + (1 - v / top) * (H - T - B);
+      let out = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      for (let i = 0; i <= 4; i++) { const v = (top * i) / 4; out += `<line x1="${L}" x2="${W - R}" y1="${sy(v)}" y2="${sy(v)}" stroke="#efecf3"/><text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="11" fill="#574f63">${Math.round(v)}</text>`; }
+      r.histogram.forEach((c, i) => { out += `<rect x="${(L + i * bw + 1).toFixed(1)}" y="${sy(c).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${(sy(0) - sy(c)).toFixed(1)}" fill="#8f78b5"><title>p in [${(i / bins).toFixed(2)}, ${((i + 1) / bins).toFixed(2)}): ${c}</title></rect>`; });
+      out += `<line x1="${L}" x2="${W - R}" y1="${sy(nullLevel)}" y2="${sy(nullLevel)}" stroke="#b4541b" stroke-width="1.5" stroke-dasharray="5 3"/>`;
+      for (const v of [0, 0.5, 1]) out += `<text x="${L + v * (W - L - R)}" y="${H - 22}" text-anchor="middle" font-size="11" fill="#574f63">${v}</text>`;
+      out += `<text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle" font-size="12" fill="#574f63">p-value · dashed: true-null level (pi0 = ${r.pi0.toFixed(2)})</text></svg>`;
+      return out;
+    }
+
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#methods-table tbody").innerHTML = r.methods.map((m) => `<tr${m.id === r.method ? ' class="lead"' : ""}><td>${esc(m.name)}</td><td>${esc(m.controls)}</td><td>${esc(m.assumption)}</td><td class="n">${m.rejections}</td></tr>`).join("");
+      const isP = r.kind === "p";
+      $("#charts").hidden = !isP;
+      $("#pi0-line").textContent = isP ? `Storey's estimated share of true nulls: pi0 = ${r.pi0.toFixed(3)} at lambda ${r.lambda} (at lambda 0.2, 0.5, 0.8: ${[0.2, 0.5, 0.8].map((l) => r.pi0Curve.find((c) => Math.abs(c.lambda - l) < 1e-9).pi0.toFixed(2)).join(", ")}). Benjamini-Hochberg cut-off: ${r.bhCutoff === null ? "nothing is kept" : `p ≤ ${formatP(r.bhCutoff)}`}.${r.bky.alphaStage2 ? ` Two-stage BKY: ${r.bky.stage1Rejections} kept in stage 1, stage-2 level ${r.bky.alphaStage2.toFixed(4)}.` : ""}` : `e-BH keeps the largest e-values down to ${r.threshold ? `e ≥ ${r.threshold.toPrecision(4)}` : "none"}; adjusted level = the smallest FDR level at which that test is kept.`;
+      if (isP) { $("#stepup").innerHTML = stepUpChart(r); $("#hist").innerHTML = histChart(r); }
+      const cols = isP ? [["bh", "BH"], ["by", "BY"], ["storey", "q-value"], ["holm", "Holm"], ["hochberg", "Hochberg"], ["bonferroni", "Bonferroni"], ["sidak", "Šidák"]] : [["ebh", "e-BH level"]];
+      $("#items-table thead").innerHTML = `<tr><th class="n">Rank</th><th>Test</th><th class="n">${isP ? "p" : "e"}</th>${cols.map(([, n]) => `<th class="n">${n}</th>`).join("")}<th>Kept by ${esc(r.methods.find((m) => m.id === r.method).name)}</th></tr>`;
+      $("#items-table tbody").innerHTML = r.items.slice(0, SHOW).map((it) => `<tr><td class="n">${it.rank}</td><td>${esc(it.label)}</td><td class="n">${isP ? formatP(it.value) : esc(it.value.toPrecision(4))}</td>${cols.map(([id]) => `<td class="n">${formatP(it.adjusted[id])}</td>`).join("")}<td class="${it.rejected[r.method] ? "kept" : ""}">${it.rejected[r.method] ? "kept" : "—"}</td></tr>`).join("");
+      $("#items-note").textContent = r.items.length > SHOW ? `Showing the first ${SHOW} of ${r.items.length}; the download has them all.` : "";
+    }
+
+    function runAnalysis() {
+      const r = analyze(inputs());
+      if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return false; }
+      last = r;
+      $("#status").textContent = `Done: ${r.m} tests corrected.`;
+      show(r);
+      return true;
+    }
+    $("#analyze").addEventListener("click", () => { if (runAnalysis()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      $("#kind").value = "p"; $("#method").disabled = false;
+      refreshColumns();
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: the 15 p-values of Benjamini & Hochberg (1995), reused by Benjamini, Krieger & Yekutieli (2006). Bonferroni keeps 3, BH 4 and the two-stage procedure 8."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const ids = last.kind === "e" ? ["ebh"] : Object.keys(last.items[0].adjusted);
+      const kept = last.methods.map((m) => m.id);
+      const lines = [["rank", "label", last.kind === "e" ? "e_value" : "p_value", ...ids.map((i) => `${i}_adjusted`), ...kept.map((i) => `${i}_kept`)].join(",")];
+      for (const it of last.items) lines.push([it.rank, JSON.stringify(String(it.label)), it.value, ...ids.map((i) => it.adjusted[i]), ...kept.map((i) => (it.rejected[i] ? 1 : 0))].join(","));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "multiple-testing-adjusted.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

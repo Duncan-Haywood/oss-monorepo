@@ -1,0 +1,62 @@
+name: fdr-multiple-testing
+description: >-
+  Free browser tool, CLI and agent call for analysts, researchers, growth and
+  experimentation teams and bioinformaticians: paste a list of p-values and
+  see which results survive multiple-testing correction, with
+  Benjamini-Hochberg, Benjamini-Yekutieli, two-stage BKY, Storey q-values,
+  Bonferroni, Šidák, Holm and Hochberg side by side, Storey's pi0 estimate
+  and a p-value histogram; e-values are corrected with e-BH. Checked against
+  statsmodels. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-11 on an explore run, as the fifth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md lists
+# Benjamini-Hochberg and e-value multiple testing as a candidate).
+# Implemented from the papers' definitions; no third-party code was ported.
+# statsmodels was used only to produce eval/reference.json, which the tests
+# check against. Example data: the Benjamini & Hochberg (1995) worked
+# example; source in data/SOURCE.md.
+#
+# First visitor: searches such as "benjamini hochberg calculator", "fdr
+# correction online", "adjusted p value calculator", "bonferroni correction
+# calculator", "holm bonferroni calculator", "q value calculator"; students
+# and analysts without R or Python; experimentation teams with a dashboard
+# of A/B metrics. Volume not measured with an external tool.
+#
+# Alternatives: R's p.adjust and the qvalue Bioconductor package, Python's
+# statsmodels multipletests (need an environment and code), GraphPad Prism
+# (paid), and single-method web calculators (not surveyed for this entry).
+# The differentiators here are no install, all eight methods side by side
+# with their assumptions, e-BH for e-values, and tests pinned to statsmodels.
+#
+# Liability: statistical output from supplied data, not medical advice; the
+# page states the validity and dependence limits. Data never leave the
+# browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and students who need to correct a batch of p-values will use
+      a no-install tool that shows every common method and its assumptions
+      side by side, and will link or cite it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports an adjusted p-value that disagrees with R's p.adjust or statsmodels on the same data and method, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/fdr-multiple-testing/
+  analytics: null
