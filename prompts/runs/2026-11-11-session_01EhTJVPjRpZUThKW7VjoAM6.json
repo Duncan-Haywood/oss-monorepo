@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVPjRpZUThKW7VjoAM6",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T10:01:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": 14754,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "tag-variant message did not name the post; fixed here"
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2100/40 runs toward the next review' again; review counter/claim still looks stuck (owner-gated path)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "left the run record's model field null: the session's harness forbids model identifiers in pushed artifacts",
+      "did": "model: null",
+      "result": "promptctl validate accepted it"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-error-messages-that-name-the-file.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog: owner rows only). main_health.py 55/55 pass. Fixed two friction items: check_post_frontmatter tag-variant message (names posts, spelling to keep), run_workflow_locally --for-changes --list step counts + background hint, bare --list hint. Tests: test_check_post_frontmatter 26 OK, test_run_workflow_locally 125 OK. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null
+}
