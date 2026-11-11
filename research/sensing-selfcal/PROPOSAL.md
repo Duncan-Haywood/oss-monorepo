@@ -171,8 +171,9 @@ planar vs non-planar scenes, mismatch rate.
    **(this session; see `LOG.md`)**
 2. Identifiability map: condition number and z-scores against view spread on the
    same real views (rotation-only and near-critical subsets), H4's first test.
-3. Natural features: SIFT matches on an openly licensed multi-view set with a known
-   calibration; H5.
+3. (a) Is the σ gap real, and does a cluster-robust or jackknife σ fix it (H8–H10,
+   done 2026-11-11, see `LOG.md`); (b) natural features: SIFT matches on an openly
+   licensed multi-view set with a known calibration; H5.
 4. The accept/reject test and its false-accept rate across milestones 1–3.
 5. Unmodelled lens terms (k2, principal point) on real data, tying to
    `sensing-bak2` and `sensing-bapp`.

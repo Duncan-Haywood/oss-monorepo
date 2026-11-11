@@ -26,6 +26,17 @@ is far worse** (rms z 5.8) and its focal length is further off than the target-f
 first accept gate (σ<sub>f</sub>/f ≤ 0.5%) rejected 92% of bad updates but accepted only 84%
 of good ones, short of the 90/90 target.
 
+**Milestone 3 headline** (same 560 subsets, plus 3,480 leave-one-view-out re-solves): the
+2× overconfidence is **real, not an artefact of the checkerboard reference**: scored against
+the target-free all-view solution with the nested variance, rms z is still 2.28. A
+**leave-one-view-out jackknife σ is honest without any fitted factor** (rms z 0.70 / 0.65,
+2σ coverage 97–99%, rms z 1.01 on near-critical subsets where the reported σ gives 2.34),
+while the cluster-robust sandwich only helps on the left camera (1.76 / 1.59). But the
+jackknife **ranks updates worse** (ROC AUC 0.75 against 0.91 for the reported σ) and is
+very conservative at 4 views, so **an honest σ and a good gate are different statistics**.
+
+![rms z by subset size for the reported, sandwich and jackknife σ, both cameras](experiments/m3_robust/rms_z_by_sigma.png)
+
 ![rms z-score of the focal length and median focal error against the number of views, target-free BA vs Zhang](experiments/m1_real/selfcal_vs_zhang.png)
 
 ## Why
@@ -149,6 +160,59 @@ this data. Near-parallel views are where a target calibration is most misleading
 error, which is an argument for self-calibrating BA plus an honest gate rather than for the
 board.
 
+## Milestone 3: is the overconfidence real, and does a robust σ fix it?
+
+Pre-registered in `LOG.md` before any run (H8–H10, H4's second test); results in
+`experiments/m3_robust/summary.json`. Same 560 subsets and reference views as milestone 2,
+same solver (all 560 converged again, identical f).
+
+**Estimators** (`src/selfcal.py`, no fitted constants). *Sandwich* (Huber–White):
+var f = G/(G − 1) Σ<sub>g</sub> ((J<sub>g</sub>b)·r<sub>g</sub>)², b = (JᵀJ)⁻¹e<sub>f</sub>,
+clustered by view, by corner, or unclustered (HC0). *Jackknife*: re-solve without each view
+in turn (cold start), var f = (k − 1)/k Σ (f<sub>(i)</sub> − f̄)². 3,473 of 3,480
+leave-one-out solves converged on tolerance. On all 13 views the jackknife σ is 2.59 px (left)
+and 1.74 px (right), against the reported 0.98 and 1.20.
+
+| rms z, random subsets of 4–12 views | left | right | near-critical, 4–6 views |
+|---|---|---|---|
+| reported σ (Gauss–Newton) | 2.21 | 1.63 | 2.34 |
+| sandwich, by view | 1.76 | 1.59 | 3.60 |
+| sandwich, by corner | 2.30 | 1.73 | 2.80 |
+| sandwich, unclustered | 2.32 | 1.89 | 2.66 |
+| **jackknife over views** | **0.70** | **0.65** | **1.01** |
+| 2σ coverage, reported / jackknife | 68% / 97% | 78% / 99% | 58% / 96% |
+
+**Hypotheses:**
+- H8 (the overconfidence is not the reference's fault): **held**. Against the target-free
+  all-view f with the nested variance σ<sub>sub</sub>² − σ<sub>all</sub>², rms z is 2.28 (95%
+  1.93–2.73; 302 subsets, 58 with σ<sub>sub</sub> ≤ σ<sub>all</sub> dropped). With the
+  jackknife σ the same test gives 0.85 (0.61–1.10).
+- H9 (jackknife σ honest, rms z in [0.7, 1.4] on each camera): **refuted, narrowly and on the
+  safe side**: 0.703 (left) and 0.651 (right, 95% 0.56–0.74), i.e. slightly conservative. The
+  view-clustered sandwich fails at 4–6 views as predicted (2.23).
+- H10 (jackknife σ ranks good against bad updates better than the reported σ): **refuted**.
+  ROC AUC 0.75 against 0.91 (difference −0.15, 95% −0.25 to −0.07; 388 good, 22 bad
+  updates of 4–12 views). The sandwich variants also rank worse (0.76–0.89).
+- H4, second test (gate σ<sub>jack</sub>/f ≤ 0.5%): **refuted**. It rejects every bad
+  update but accepts only 19% of good ones (0% on near-critical subsets). Thresholds fitted on
+  one camera do not transfer for any σ: the best is the reported σ (fit left, score right:
+  accept 76%, reject 79%; fit right, score left: 91% / 88%).
+
+**Why the jackknife is conservative where it is.** The jackknife variance is biased upward
+(Efron and Stein, 1981), and here the bias is large where the estimator is most non-linear:
+at 4 views each leave-one-out solve has only 3 views, where milestone 1 saw errors up to 20%,
+so σ<sub>jack</sub> is a median 15× the reported σ and rms z drops to 0.33. From 6 to 11
+views the ratio is 2–5× and rms z 0.55–0.94. That inflation is also what costs it as a
+ranking statistic: it measures how unstable the subset is to losing a view, which is noisy
+with few views, more than how far it is from the truth.
+
+**What it means for a robot.** The reported σ's 2× gap is real miscalibration, and
+correlated per-image error (what the sandwich assumes) explains little of it on the right
+camera. A jackknife over frames gives an error bar a robot can trust as a bound, at k extra
+solves, but should not be the accept statistic on its own; the next gate should rank by the
+reported σ (and view spread) and use the jackknife only to refuse updates whose honest error
+bar is too wide.
+
 ## Reproduce
 
 ```
@@ -158,6 +222,8 @@ python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
 python3 experiments/m2_spread/run.py      # ~10 min on 4 cores; results.json
 python3 experiments/m2_spread/analyse.py  # summary.json, spread_vs_error.png
+OMP_NUM_THREADS=1 python3 experiments/m3_robust/run.py   # ~9 min on 4 cores; results.json
+python3 experiments/m3_robust/analyse.py  # summary.json, rms_z_by_sigma.png
 python3 -m pytest tests
 ```
 
@@ -166,7 +232,7 @@ python3 -m pytest tests
 - One stereo rig, one board, one tutorial image set with strongly tilted views; the two
   cameras share every board pose, so they are not independent scenes.
 - The corners are correspondences without mismatches and with checkerboard-grade (~0.1 to
-  0.3 px) localisation. Natural features are milestone 3.
+  0.3 px) localisation. Natural features are milestone 3b.
 - Zhang's all-view fit is a reference, not a lens ground truth, and its own flat-board
   assumption is wrong at the 1% level found above. The subset z-scores overlap the reference
   views (at 12 of 13 views almost entirely), which deflates z at large sizes.
@@ -176,19 +242,23 @@ python3 -m pytest tests
 - View spread uses the all-view Zhang poses, i.e. the board's geometry; a robot would read it
   from its own pose estimates. Near-critical here means near-parallel board planes only: the
   set has no rotation-only motion.
+- Milestone 3 scores the robust σs on 22 bad updates, so the AUCs carry wide intervals; the
+  jackknife needs k extra solves (median 2.7 s per subset here, all solves included).
 - `cite_check.py` could not reach the DOI registries; citations are unchecked (see
   `PROPOSAL.md`).
 
 ## Next steps
 
-Milestone 3: natural features (SIFT) on an openly licensed multi-view set with a target
-calibration of the same camera (H5). For the gate: replace the fixed σ threshold with a test
-that uses the information the geometry adds (spread, condition number) and heavy-tailed
-residuals (a robust loss or a Student-t scale), fitted on one camera and scored on the other.
+Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
+calibration of the same camera (H5). For the gate (milestone 4): a two-stage test that ranks by
+the reported σ and view spread and vetoes with the jackknife σ, fitted on one camera and
+scored on the other; a cheaper honest σ than k re-solves (a one-step, linearised jackknife
+from the solution, or a delete-d jackknife for few views); and the χ² test against a
+disturbed camera.
 
 ## References
 
-Zhang (2000), *IEEE TPAMI* 22(11); Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
+Zhang (2000), *IEEE TPAMI* 22(11); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
 synthesis; Strobl and Hirzinger (2011), ICCV workshops; Nobre, Kasper and Heckman (2017),
 ICRA; the full list with notes is in [`PROPOSAL.md`](PROPOSAL.md). Earlier synthetic work in
 this repository: [`sensing-bafocal`](../sensing-bafocal/README.md),

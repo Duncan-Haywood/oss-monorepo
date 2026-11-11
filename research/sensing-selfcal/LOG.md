@@ -1,5 +1,25 @@
 # sensing-selfcal research log
 
+## 2026-11-11 · Milestone 3 result: the overconfidence is real; the jackknife σ is honest but a worse gate
+
+- **Re-solves identical.** All 560 subsets converged with the same f as milestone 2; 3,473 of 3,480 leave-one-view-out solves converged on tolerance. Median 2.7 s per subset with its jackknife.
+- **H8 held.** Against the target-free all-view f, nested variance: rms z 2.28 (95% 1.93–2.73; left 2.67, right 1.89; 58 of 360 subsets dropped with σ_sub ≤ σ_all). The 2× was not the Zhang reference. Jackknife σ in the same test: 0.85.
+- **H9 refuted, on the safe side.** Jackknife rms z 0.703 (left) and 0.651 (right; 95% 0.56–0.74), 2σ coverage 97% / 99%; near-critical 4–6 views 1.01 (reported σ 2.34). By size: 0.33 at 4 views (σ_jack a median 15× the reported σ), 0.55–0.94 from 5 to 11. The view-clustered sandwich: 1.76 / 1.59, and 2.23 at 4–6 views as predicted; corner-clustered and HC0 sandwiches are no better than the reported σ.
+- **H10 refuted.** AUC for good (≤ 1%) against bad (> 2%) updates, 4–12 views: reported σ 0.91, jackknife 0.75 (difference −0.15, 95% −0.25 to −0.07), sandwich by view 0.76, by corner 0.87, HC0 0.89. Only 22 bad updates.
+- **H4 second test refuted.** σ_jack/f ≤ 0.5% rejects 22/22 bad but accepts 19% of good (0% near-critical). Transfer: no σ's fitted threshold reaches 90/90 on the other camera; the reported σ comes closest (76/79 and 91/88).
+- **Reading.** The jackknife's upward bias (Efron–Stein) is largest where leave-one-out leaves 3 views. Honesty and ranking power pull apart: next gate ranks by reported σ and spread, and vetoes by the jackknife.
+
+## 2026-11-11 · Milestone 3 planned: is the 2× overconfidence real, and does a cluster-robust σ fix it?
+
+Written before any milestone-3 experiment was run. The proposal's milestone 3 (natural features on a second data set) moves to 3b; this step answers the question milestone 2 left open, on the same 560 subsets, with no new data.
+
+- **Why σ could be too small.** The Gauss–Newton σ assumes independent, equal-variance pixel residuals and a correct model. Corner-detector errors are correlated within an image (blur, lighting, the detector's shared sub-pixel window) and the k1-only lens leaves structured residuals. Both make the reported σ too small by a factor that differs between subsets, which a single inflation factor cannot follow (milestone 2's cross-camera κ).
+- **Robust σ, two estimators, no fitted constants.** (a) The cluster-robust sandwich, clustered by view: var f = Σ_views ((J b)·r)² over each view's residuals, with b = (JᵀJ)⁻¹e_f, times the small-sample factor G/(G − 1). (b) The leave-one-view-out jackknife: re-solve the subset k times without one view each (cold start, same solver), var f = (k − 1)/k Σ (f₍ᵢ₎ − f̄)². Ablation: the sandwich clustered by corner (54 clusters) and unclustered (HC0).
+- **H8 (the reference is not the cause).** Zhang's all-view f is itself 0.8 / 1.3 px from the target-free all-view f, so part of milestone 2's z could be reference mismatch. Self-consistency test against the target-free all-view solution, with the nested-estimator variance: z_n = (f_sub − f_all) / √(σ_sub² − σ_all²), random subsets of 4–12 views (subsets with σ_sub ≤ σ_all are counted and dropped). Predicted: rms z_n > 1.5 (the overconfidence is real). Refuted if ≤ 1.5.
+- **H9 (robust σ is honest).** With σ from the jackknife, rms z against all-view Zhang over random 4–12-view subsets lies in [0.7, 1.4] on each camera, with no fitted factor. Scored separately for the view-clustered sandwich; predicted to hold for the jackknife and to fail (rms z > 1.4) for the sandwich at 4–6 views, where few clusters bias it down.
+- **H10 (robust σ ranks better).** As a gate statistic for good (|Δf|/f ≤ 1%) against bad (> 2%) updates, pooled over all subsets of 4–12 views and both cameras, the jackknife σ/f has a higher ROC AUC than the reported σ/f. Refuted if it is equal or lower (paired bootstrap over subsets, 95% interval of the AUC difference).
+- **H4, second test.** Accept iff σ_jack / f ≤ 0.5% (the same threshold as milestone 2); target 90/90. Also scored on the near-critical subsets alone. And the transfer test from milestone 1's next steps: the threshold on each σ that maximises min(accept good, reject bad) on one camera, scored on the other.
+
 ## 2026-11-11 · Milestone 2 result: geometry predicts the error, σ stays 2× small, and Zhang's σ is far worse near the critical set
 
 - **Solver fixed.** The cap was not only the gauge: holding view `ref`'s pose fixed left the scale free (the initialisation puts that camera at the world origin, so its translation is zero), and scipy's `trf`/`lsmr` crawled even once the scale was pinned too (corner 0's depth). Levenberg–Marquardt on a dense analytic Jacobian (checked against finite differences, max error 1e-6 relative) converges in 21–23 evaluations on all 13 views and in at most 177 on any subset: **560 of 560 solves converged on tolerance**. All-view f moved by 0.0004 px (534.8239 / 538.4302).

@@ -79,3 +79,26 @@ def test_spread_of_parallel_normals_is_zero():
     from selfcal import spread_deg
     n = np.array([[0, 0, 1.0], [0, 0, 2.0], [0, np.sin(0.1), np.cos(0.1)]])
     assert spread_deg(n[:2]) < 1e-6 and abs(spread_deg(n) - np.degrees(0.1)) < 1e-6
+
+
+def test_robust_sigma_matches_gauss_newton_on_iid_noise():
+    # With independent equal-variance pixel noise and the right model, the sandwich
+    # and jackknife sigmas estimate the same thing as the Gauss-Newton sigma.
+    from selfcal import selfcal_fixed_analytic, jackknife_sf
+    obs = synth(n=8, noise=0.2, seed=3)
+    s = selfcal_fixed_analytic(obs, SIZE, 1.3 * TRUE[0], nk=1, ref=0)
+    assert 0.5 < s["sf_hc0"] / s["sf"] < 2.0
+    assert 0.3 < s["sf_cr_view"] / s["sf"] < 3.0
+    j = jackknife_sf(obs, SIZE, 1.3 * TRUE[0])
+    assert j["loo_converged"] == 8 and 0.3 < j["sf_jack"] / s["sf"] < 3.0
+
+
+def test_robust_sigma_sees_per_view_correlated_error():
+    # A shared shift per view (a correlated error the iid model ignores) inflates the
+    # view-clustered sandwich relative to the Gauss-Newton sigma.
+    from selfcal import selfcal_fixed_analytic
+    rng = np.random.default_rng(4)
+    obs = synth(n=8, noise=0.05, seed=4)
+    obs = obs + rng.normal(0, 0.5, (obs.shape[0], 1, 2)) * np.linspace(-1, 1, obs.shape[1])[None, :, None]
+    s = selfcal_fixed_analytic(obs, SIZE, 1.3 * TRUE[0], nk=1, ref=0)
+    assert s["sf_cr_view"] > 1.5 * s["sf"]
