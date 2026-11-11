@@ -1,6 +1,6 @@
 ---
 title: "Let the shop pick its own half-life: recency weighting for staff forecasts, tested on two real bakeries"
-seo_title: "Should a staffing forecast weight recent weeks? A backtest on real POS data"
+seo_title: "Should a staff forecast weight recent weeks? A real POS backtest"
 date: 2026-11-11
 tags: [scheduling, retail, forecasting, open-source]
 description: "A fixed recency weighting helped one bakery and hurt the other. Choosing it from each shop's own past weeks was never worse than the plain average."
