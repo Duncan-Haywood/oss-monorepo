@@ -11,8 +11,10 @@ ignored.
 
 from __future__ import annotations
 
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
+
+from .numbers import parse_decimal
 
 from .linenet import is_negative_invoice
 from .reference import looks_like_placeholder
@@ -26,11 +28,7 @@ def _money(value: Any) -> Decimal | None:
 
 
 def _number(value: Any) -> Decimal | None:
-    try:
-        result = Decimal(str(value))
-    except (InvalidOperation, ValueError, TypeError):
-        return None
-    return result if result.is_finite() else None
+    return parse_decimal(value)
 
 
 def normalize_kind(value: Any) -> str | None:
