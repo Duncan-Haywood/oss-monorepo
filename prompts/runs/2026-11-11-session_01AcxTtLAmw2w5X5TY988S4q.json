@@ -42,7 +42,7 @@
     "docs/posts/2026-11-11-a-for-example-in-the-footer.md"
   ],
   "goal": null,
-  "notes": "Two campaigns under platform/: wait_for.py 7/8 (gap triaged, caught_after_fix true), check_social_proof.py 8/8. Hunt on check_social_proof found 5 evasions (minified-line attribution, nbsp, inline tags, hyphen entities, k/M counts), all patched; full ventures/ scan still 0 findings. Guard tightened: check_social_proof runs in portfolio-validate on every PR. Local: python3 -m unittest test_wait_for test_check_social_proof OK.",
+  "notes": "Two campaigns under platform/: wait_for.py 7/8 (gap triaged, caught_after_fix true), check_social_proof.py 8/8. Hunt on check_social_proof found 5 evasions (minified-line attribution, nbsp, inline tags, hyphen entities, k/M counts), all patched; full ventures/ scan still 0 findings. Guard tightened: check_social_proof runs in portfolio-validate on every PR. Local: python3 -m unittest test_wait_for test_check_social_proof OK. Also fixed red main: duplicated FAQ in ventures/concrete-maturity (from #14774). platform/pages suite 1527/1527 locally; PR CI green on 7f67cafc.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -326,6 +326,12 @@
         "file": "platform/ci/check_social_proof.py",
         "issue": "Abbreviated counts ('Join 10k+ freelancers', 'Join 1.2M users', '50K happy customers') escaped the join/happy patterns. They now accept a decimal and a k/m suffix.",
         "patched": true
+      },
+      {
+        "file": "ventures/concrete-maturity/index.html",
+        "issue": "Main went red after PR #14774: the FAQ section was duplicated (id 'faq' twice), failing check_duplicate_ids in portfolio-validate. Removed the inner copy; venture suite and site tests green.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14778"
       }
     ]
   },
