@@ -11,6 +11,11 @@ Newest first.
   - R3: the two-point power-law variant differs from the orifice variant by under 0.03 in the R1 ratio. Prior 60%.
   - R4: across the four sizing rules the R1 ratio spans under 0.05. Prior 60%.
   - R5: the floor is at least 1.20 in each of the 18 Y-cycles (5o's zero-drop minimum was 1.19). Prior 65%.
+- **Not run this session:** zenodo.org (and doi.org, figshare, data.caltech.edu) answered the egress proxy's CONNECT with 403 at 09:12 and 09:13 UTC, so the 96 MB record could not be fetched; the 5n and 5o runs earlier today had it. R1 to R5 stay registered and unrun; `experiments/spool_floor.py` is written and smoke-tested on a synthetic trace, ready for a run that can reach Zenodo.
+- **What runs instead (synthetic part, `experiments/spool_floor_synthetic.py`):** the same bound on the programme's force-model cycles, in 2n's setup (45 L/min pump, PVG 32 neutral drop 10.91 bar, load factor 0.346, standby 2 L/min, eta 0.883). Since 2d the open-centre spool drop there has been a constant 6 bar from Juza and Hermanek's measured block, a different machine and valve from the PVG 32 that sets the neutral drop; this replaces it with the PVG 32's own full-travel floor, each actuator on the smallest spool covering its demand. Being a floor, it is the best case for open-centre. Predictions, written before the script was first run:
+  - S1: 2n's break-even dp_ls (28.0 bar with 6 bar) moves to 24 to 29 bar. Prior 65%.
+  - S2: load-sensing still wins at the Rexroth 14 bar margin, LS/OC median under 0.85 (2n: 0.759). Prior 85%.
+  - S3: the energy-weighted mean extra open-centre drop while moving is 3 to 7 bar. Prior 60%.
 
 ## 2026-11-11 · Milestone 5o: what counts as motion on the measured loader? A noise floor from the data and an open-centre floor (predictions registered before the first run)
 - Why: 5n's open-centre counterfactual moved most with `q_min`, the flow below which a section counted as still, which I chose after seeing the first run (0.5 / 2 / 5 L/min). It is a property of the trace, not of the valve: the authors' flows come from piston velocity (5 Hz low-pass), so a held boom carries small spurious flows. This step measures the noise floor instead of choosing it, checks it against a motion test built from piston position alone, and adds the physical floor of any open-centre valve.
