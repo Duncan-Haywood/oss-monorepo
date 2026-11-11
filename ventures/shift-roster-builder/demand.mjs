@@ -23,6 +23,9 @@ const SYN = {
   sales: ["sales", "net sales", "gross sales", "amount", "total", "revenue", "net revenue", "net amount", "sales amount", "total sales", "net sale", "gross", "net price", "order total", "check total", "net total", "gross total", "payment amount", "transaction amount", "subtotal", "sub total"],
 };
 const QTY = ["quantity", "qty", "units", "quantity sold", "units sold", "items sold", "item quantity", "qty sold"];
+// A ticket, order or receipt number: with o.count "tickets" (or no sales column at all) each distinct number is one
+// customer served, so staffing follows how many people came through, not how much they spent.
+const TICKET = ["ticket", "ticket number", "ticket no", "ticket id", "transaction", "transaction id", "transaction number", "transaction no", "order id", "order number", "order no", "receipt", "receipt number", "receipt no", "receipt id", "check number", "check no", "check id", "bill number", "bill no", "invoice number", "invoice no", "sale id", "sale number"];
 const PRICE = ["unit price", "price", "item price", "price each", "selling price", "sale price", "unit price eur", "unit price euro"];
 const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -124,7 +127,23 @@ export function readSales(text, o = {}) {
     const q = head.findIndex((h) => QTY.includes(h)), p = head.findIndex((h, i) => i !== q && (PRICE.includes(h) || /^unit price\b/.test(h)));
     if (q >= 0 && p >= 0) { ix.qty = q; ix.price = p; ix.sales = p; out.notes.push("No sales column: each row's sales are its quantity times its unit price (a line-item export)."); }
   }
-  if (ix.sales < 0) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + ")."); return out; }
+  const count = o.count === undefined || o.count === "sales" ? null : String(o.count);
+  if (count !== null && count !== "tickets" && count !== "rows") throw new Error('count must be "sales", "tickets" or "rows"');
+  const tix = head.findIndex((h) => TICKET.includes(h));
+  // Counting customers instead of money: "tickets" counts each distinct ticket number once (at its first row's hour),
+  // "rows" counts every row. A file with no sales column but a ticket column is counted by ticket, with a note.
+  let mode = "sales";
+  if (count === "tickets") {
+    if (tix < 0) { out.notes.push("No ticket, order or receipt number column found (looked for: " + TICKET.join(", ") + "). --count rows counts each row as one."); return out; }
+    mode = "tickets";
+  } else if (count === "rows") mode = "rows";
+  else if (ix.sales < 0 && tix >= 0) { mode = "tickets"; out.notes.push(`No sales column: counting tickets instead (each distinct "${splitCsvRow(lines[0], sep)[tix].trim()}" is one customer), so the rate is tickets per labor hour.`); }
+  out.count = mode;
+  if (mode === "tickets" && count === "tickets") out.notes.push(`Counting tickets: each distinct "${splitCsvRow(lines[0], sep)[tix].trim()}" is one customer, so the rate is tickets per labor hour.`);
+  if (mode === "rows") out.notes.push("Counting rows: each row is one customer, so the rate is rows per labor hour.");
+  if (mode !== "sales") { ix.sales = -1; delete ix.qty; delete ix.price; out.notes = out.notes.filter((n) => !n.startsWith("No sales column: each row's sales")); }
+  const seenTickets = new Set();
+  if (mode === "sales" && ix.sales < 0) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + "). --count tickets counts customers by a ticket, order or receipt number column instead; --count rows counts each row."); return out; }
   if (ix.stamp < 0) { out.notes.push("No date-time or hour column found."); return out; }
   // A slash or dash date whose first number is over 12 somewhere in the file (25/03/2026) means the whole file is day first;
   // one whose second number is over 12 means month first. With neither, 05/03/2026 is ambiguous: month first, and a note says so.
@@ -138,10 +157,28 @@ export function readSales(text, o = {}) {
   if (monthFirst) dayFirst = false;
   out.dayFirst = dayFirst;
   out.ambiguous = ambiguous && !dayFirst && !monthFirst;
+  const stampOf = (c) => ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
   lines.slice(1).forEach((line, i) => {
     const c = splitCsvRow(line, sep);
     // A row of empty cells (",,,,," at the end of a real bakery export, 233 of them) is not a sale and not an error.
     if (c.every((x) => String(x ?? "").trim() === "")) { out.blank++; return; }
+    if (mode !== "sales") {
+      const st = readStamp(stampOf(c), ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
+      if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampOf(c) || ""}"`); return; }
+      if (mode === "tickets") {
+        const id = String(c[tix] ?? "").trim();
+        if (!id) { out.skipped.push(`row ${i + 2}: no ticket number`); return; }
+        // Ticket numbers that restart each day are still distinct per date.
+        const k = `${st.key}|${id}`;
+        if (seenTickets.has(k)) return;
+        seenTickets.add(k);
+      }
+      if (st.key && skip.has(isoKey(st.key))) { out.skippedDays.add(st.key); return; }
+      out.entries.push({ ...st, amount: 1 });
+      if (!st.key) out.undated++;
+      out.rows++;
+      return;
+    }
     const amount = ix.qty !== undefined ? Math.round(readAmount(c[ix.qty]) * readAmount(c[ix.price]) * 100) / 100 : readAmount(c[ix.sales]);
     const stampText = ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
     const st = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
@@ -265,7 +302,7 @@ export function hourlySales(text, o = {}) {
   if (o.shortCost !== undefined) shortCostShare(o.shortCost);
   if (o.halfLife !== undefined && !(Number(o.halfLife) > 0)) throw new Error("half-life must be a positive number of weeks");
   const r = readSales(text, o);
-  const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), closed: [], rows: r.rows, skipped: r.skipped, notes: [...r.notes], entries: r.entries };
+  const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), closed: [], rows: r.rows, skipped: r.skipped, notes: [...r.notes], entries: r.entries, count: r.count };
   if (!r.rows && r.notes.length) return out;
   const a = averageSales(r.entries, o);
   Object.assign(out, { avg: a.avg, observed: a.observed, seen: a.seen, closed: a.closed, heads: a.heads, tail: a.tail });
@@ -546,7 +583,7 @@ export function demandShifts(text, o = {}) {
   }).sort((x, y) => x.ds[0] - y.ds[0] || x.a - y.a || x.b - y.b);
   const shiftsText = rows.map((r) => `${r.ds.map((d) => DAYS[d]).join("/")}, ${clock(r.a)}, ${clock(r.b)}, ${r.n}`).join("\n");
   const needed = days.reduce((a, d) => a + d.needed, 0), scheduled = days.reduce((a, d) => a + d.scheduled, 0);
-  return { shiftsText, rows: s.rows, needed, scheduled, extra: scheduled - needed, sales: days.reduce((a, d) => a + d.sales, 0), days, notes: s.notes, skipped: s.skipped };
+  return { shiftsText, rows: s.rows, needed, scheduled, extra: scheduled - needed, sales: days.reduce((a, d) => a + d.sales, 0), count: s.count, days, notes: s.notes, skipped: s.skipped };
 }
 
 // Backtest the staffing forecast on the file's own history: for every full week after the first `warmup` weeks, build
@@ -649,6 +686,6 @@ export function backtestSales(text, o = {}) {
   const perWeek = Object.fromEntries(results.map((res) => [res.id, res.short.map((x, i) => (rc === null ? 1 : rc) * x + res.over[i])]));
   const best = methods.reduce((a, b) => (b.miss < a.miss - 1e-9 ? b : a));
   const clear = best.id !== "all" && best.ci[1] < 0;
-  notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} sales per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
+  notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} ${r.count && r.count !== "sales" ? r.count : "sales"} per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
   return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, shifts: !!o.shifts, minShift, maxShift, perWeek, notes };
 }
