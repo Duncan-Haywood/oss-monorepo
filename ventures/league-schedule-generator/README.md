@@ -393,7 +393,8 @@ weights never reach the low-break end of the trade, where the Bundesliga sits (4
   the capped minimum. The old "fewest" choice is now labelled "fewer" (same value, same links).
   Odd leagues: until 2026-11-11 later their two extra tries were weighted ones at 160 and 320; now
   they run the capped search too (next section). `buildSchedule` takes
-  `carryOverCapped` beside `carryOverTries`. Tests: `capped-breaks.test.mjs` (9).
+  `carryOverCapped` beside `carryOverTries`. Tests: `capped-breaks.test.mjs` (9; the odd-league one
+  rewritten 2026-11-11 later).
 - **Measured** (`node eval/capped-breaks.mjs`, `eval/capped-breaks.txt`; seeds 1 to 3, recounted from
   the rounds):
 
@@ -486,7 +487,21 @@ which is why odd leagues' capped tries were weighted stand-ins.
   at about 1.6 times the carry-over. The weighted tries still cover the low carry-over end, so the
   page's "balanced" and "most even" choices are as before and "fewer"/"fewest" now have a low-break
   try to keep.
-- **DOUBLE_PLACEHOLDER**
+- **Measured, home-and-away season** (same file, third table; caps 3(n - 3) and 3(n + 1)):
+
+  | Teams | Old stand-ins (160 and 320) | Capped, 3(n - 3) | Capped, 3(n + 1) |
+  |---|---|---|---|
+  | 9 | 343 to 395 / 10 to 20 | 289 to 325 / 17 to 18 | 279 to 281 / 27 to 29 |
+  | 11 | 537 to 679 / 39 to 46 | 713 to 1,117 / 23 to 24 | 525 to 543 / 35 to 36 |
+  | 15 | 1,077 to 1,153 / 55 to 72 | 1,147, 1,951, 1,155 / 36 | 983 to 1,027 / 47 to 48 |
+  | 19 | 2,213 to 3,957 / 137 to 157 | 4,355 to 4,769 / 47 to 49 | 3,779 to 4,187 / 60 |
+  | 21 | 2,147 to 2,299 / 147 to 170 | 2,675 to 2,997 / 54 | 2,541 to 2,659 / 66 |
+
+  At 11 and 15 teams the second capped try beats both stand-ins on both counts on most seeds
+  (3 of 6 each, last column of the file); at 19 and 21 teams the capped tries cut a season's breaks
+  by two thirds (150 or so to 47 to 66) for 20 to 90% more carry-over, a point on the trade the page
+  had no try near before. At 9 teams the stand-in still wins on breaks for two seeds of three
+  (10 against 18) and is what the try keeps (sixth column).
 - **Tried, not landed: the 20-team leg one with the pattern fixed first.** Fix the minimum-break
   home/away pattern (18 breaks), then anneal the timetable freely with a rising penalty per match
   whose two teams the pattern puts at the same ground (plus moves that trade two teams' whole
