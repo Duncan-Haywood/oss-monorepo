@@ -27,11 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 6,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push failed CI validate: flagships.yaml changepoint-detector next: was 2304 chars (cap 2000); trimmed the new and an older item."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -41,6 +43,10 @@
     {
       "file": "platform/ci/check_post_frontmatter.py",
       "issue": "description <= 160 and seo_title <= 70 limits are not stated in goals.md 'Write about the work'; found only by running the checker."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says rewrite the venture's next: in flagships.yaml but not that it has a 2000-character cap checked by portfolio/router/validate.py; run validate.py locally before pushing."
     }
   ],
   "deviations": [
