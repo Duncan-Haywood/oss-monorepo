@@ -1,8 +1,8 @@
 ---
-title: "Does knowing the kind of work help a permit model move between cities? Yes for issue time, not for the build's long tail"
-seo_title: "Building permit duration across cities: paired test of a work-type feature"
+title: "Does a work-type label help a permit model move between cities? Yes for issue time, not build tails"
+seo_title: "Permit duration across cities: a paired test of a work-type feature"
 date: 2026-11-11
-description: "On Seattle's 2024 permits, a work type read from the description cuts the upper-tail error of a model trained in other cities by 3.9 days, but adds 2.2 days to the upper tail of build time."
+description: "On Seattle 2024 permits, a work type read from the description cuts a transferred model's upper-tail issue-time error by 3.9 days but adds 2.2 to build time."
 tags: [research, build-data, construction]
 ---
 
