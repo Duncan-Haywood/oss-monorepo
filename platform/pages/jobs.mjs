@@ -2781,6 +2781,16 @@ const JOBS_CSS = `
    white card (background, border, radius, shadow). Without these resets the
    bar rendered as an empty white slab jammed against the venture's heading. */
 section.pf-jobs{background:none;border:0;border-radius:0;box-shadow:none;min-height:0}
+/* The bar ships hidden and the script reveals it on 'load', after first paint,
+   so it used to push the venture's heading down by its own height (59px, a
+   layout shift of 0.056 on wall-framing-takeoff, measured 2026-11-11). When
+   scripting is on, the space is held from the first paint, invisible (out of
+   the accessibility tree and the tab order) until the script shows it. With
+   scripting off it stays display:none, as before. A browser without the
+   scripting media feature keeps the old behaviour. !important because many
+   ventures declare [hidden]{display:none !important}; screen-only so the print
+   rule below still wins. */
+@media screen and (scripting:enabled){.pf-jobs[hidden][data-pf-jobs-root]{display:block !important;visibility:hidden}}
 .pf-jobs-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
 .pf-jobs-status{opacity:.82}
 .pf-jobs button{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
