@@ -19,7 +19,7 @@ export function orderByFromLines(text, today) {
     rows.push({ id, name: item || "Item", startDate: need, critical: false });
     orders.push({ item: item || "Item " + (rows.length), for: id, leadDays: l, bufferDays: b, supplier: supplier || "" });
   });
-  for (const r of rows) if (!/^\d{4}-\d{2}-\d{2}$/.test(r.startDate) || isNaN(new Date(r.startDate + "T00:00:00Z").getTime())) errors.push(`${r.name}: need date "${r.startDate}" is not YYYY-MM-DD.`);
+  for (const r of rows) if (!/^\d{4}-\d{2}-\d{2}$/.test(r.startDate) || isNaN(new Date(r.startDate + "T00:00:00Z").getTime()) || new Date(r.startDate + "T00:00:00Z").toISOString().slice(0, 10) !== r.startDate) errors.push(`${r.name}: need date "${r.startDate}" is not YYYY-MM-DD.`);
   if (errors.length) return { ok: false, errors };
   if (!orders.length) return { ok: false, errors: ["Type at least one line."] };
   return procurement({ ok: true, rows }, orders, today || undefined);

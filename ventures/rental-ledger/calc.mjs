@@ -35,7 +35,7 @@ export const EXPENSE_LINES = {
 export const TYPES = { rent: "Rent received", deposit: "Security deposit received (not income)", expense: "Expense", improvement: "Improvement (depreciated)", principal: "Loan principal paid (not deductible)" };
 
 const int = (n) => Math.round(Number(n) || 0);
-export const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(String(s || "")) && !Number.isNaN(Date.parse(s));
+export const isDate = (s) => /^\d{4}-\d{2}-\d{2}$/.test(String(s || "")) && !Number.isNaN(Date.parse(s)) && new Date(s + "T00:00:00Z").toISOString().slice(0, 10) === s;
 const yearOf = (s) => (isDate(s) ? Number(String(s).slice(0, 4)) : NaN);
 const monthOf = (s) => (isDate(s) ? Number(String(s).slice(5, 7)) : NaN);
 
