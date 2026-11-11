@@ -101,21 +101,21 @@ flagships:
       run, self-host server with TLS and XOAUTH2, research agent, call prep, follow-ups,
       meeting slots and .ics invites, CRM write-back to Pipedrive/HubSpot against fake
       servers only; nineteen agent-written reply sets). Real people's mail (eval/enron.mjs,
-      Enron corpus): seven rounds, each tuned on read halves and scored once on an unread
-      half by a blind agent reader. Round 7, 2026-11-11 (eval/README "Seventh round"): on
-      unread 7* wrong stops 4.0 to 3.9 per 1,000 (round 6's first fresh reading is 4.0),
-      inside the ~1 per 1,000 reader effect, so rule rounds on Enron have stopped paying:
-      half of each half's stops repeat earlier halves' text, and 20 of the 37 left are the
-      writer's own absence in a working reply, a policy question. Reader brief now a file
-      (eval/enron-labels/READER.md). Next: (1) decide the away policy on purpose (pause on a
-      stated date vs reach a person) and label 0*-7* under it; a second reader from
-      READER.md, a person or another model family, on eighth.json's 90; de-duplicate
-      halves by text before any further round; (2) real replies to outreach and a real
-      rep's call notes to check the reply rules, prep rules and follow-up sorter; (3) M2:
-      score a hosted and a local model with eval/model.mjs on the fresh sets (needs a key);
-      (4) run the self-host server, OAuth and CRM write-back against a real mailbox, Google
-      or Microsoft app and HubSpot or Pipedrive account (all fakes so far); (5) a real
-      HubSpot or Pipedrive export for the research agent (none found public).
+      Enron corpus): seven rule rounds, each scored once on an unread half by a blind agent
+      reader; round 7 showed rule rounds had reached the reader's noise. Away policy decided
+      2026-11-11 (eval/README "The away policy"): an auto-responder's notice pauses silently,
+      a person's away reply pauses and goes to a person (subtype person_away); fresh 7* wrong
+      silent stops 3.9 to 1.8 per 1,000, 0 of 365 real auto-replies sent to a person, 2.0
+      extra tasks per 1,000 replies. eval/enron.mjs --seen drops text earlier halves fired on:
+      7* keeps 25 of 56 stops, precision 40% (vs 64% with repeats). Next: (1) a second reader
+      from READER.md, a person or another model family, on 7*'s 25 de-duplicated stops and the
+      not-interested, left-company and unsubscribe stops still wrong (7, 6 and 4 on 7*);
+      (2) real replies to outreach and a real rep's call notes to check the reply rules, prep
+      rules and follow-up sorter; (3) M2: score a hosted and a local model with eval/model.mjs
+      on the fresh sets (needs a key); (4) run the self-host server, OAuth and CRM write-back
+      against a real mailbox, Google or Microsoft app and HubSpot or Pipedrive account (all
+      fakes so far); (5) a real HubSpot or Pipedrive export for the research agent (none found
+      public).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
@@ -253,7 +253,12 @@ flagships:
       assignVenues two-colours stretches between byes (odd circle 0 breaks, balanced; was 46 at 19),
       run moves, never worse than the old pass; odd capped tries run the capped search (15 teams ~300
       at 12-16 breaks vs 35-40). Pattern-first 20-team leg one tried, not landed: 1,408-1,420 at 18,
-      same as capped, so likely the pattern's limit. Next, most valuable first: a bound for the
+      same as capped, so likely the pattern's limit. Field start 2026-11-11 later (README "Perfect
+      carry-over at 4, 8, 16 and 32 teams"): Russell's GF(2^k) timetable, every count 0 or 1, at
+      power-of-two sizes (bye included); 16 teams 316 to 224 (floor), 16-team season 1,048 to 912
+      (floor), page's balanced pick 1,220/54 to 996/48. Next, most valuable first: constructions for
+      other common sizes (12, 10, 14, 20: from the literature, e.g. starters or Latin-square based
+      ones, checked against the search); a bound for the
       minimum-break pattern (per-team opponent order), or a 20-team leg at 22-30 breaks from a
       non-circle timetable; 19-team odd legs (1,147+ at 20); the search's gap to the floor (12 teams
       156 vs 120); a real league's travel times (to check the 1.3 x 40 km/h estimate),
