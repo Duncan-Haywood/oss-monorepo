@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVKZq1UPa64feVCL9hg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T16:20:23Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14825,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR search is suggested before opening a PR; this run found draft PR #14821 (same flagship item, same eval/starter-climb.mjs filename) only after 30 minutes of work. Checking open PRs for the venture slug before starting would have saved it; allocate.py does flag open PRs naming the venture, but #14821 was opened after this run read the queue."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Kept going after finding concurrent draft PR #14821 rather than abandoning: it had no table update, and this run already had the 22-team floor and 24-40 gains measured. Renamed the script to eval/starter-anneal.mjs so the two branches do not collide on a file.",
+      "did": "landed the table, tests, measurements and post; named #14821's O(p) score as the next step",
+      "result": "22 and 21 teams at the floor; 24-40 teams 4-13% lower"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local checks: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (238.7s), 1 suite, 0 failed; starter.test.mjs 6/6; carryover.test.mjs 12/12 after the guide edit. Through the real search, the 22-team season reaches its floor 1,782; with break weight 10 the 24-team season gained 6 breaks and 30 teams scored worse (recorded in README as open). venture-preflight: see PR.",
+  "corrections": [],
+  "redteam": null
+}

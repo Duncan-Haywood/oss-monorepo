@@ -3,7 +3,7 @@ title: "A 22-team round robin with the least possible carry-over, found by climb
 seo_title: "22 team round robin schedule with balanced carry-over"
 date: 2026-11-11
 tags: [league-schedule-generator, scheduling, optimisation]
-description: "Annealing over starter timetables gives the league schedule generator a 22-team round robin where no team ever follows the same opponent twice, and cuts carry-over 4 to 13% at 24 to 40 teams."
+description: "Annealing over starter timetables gives a 22-team round robin where every carry-over count is 0 or 1, and cuts carry-over 4 to 13% at 24 to 40 teams."
 ---
 
 The [league schedule generator](https://marisstella.app/league-schedule-generator/)
