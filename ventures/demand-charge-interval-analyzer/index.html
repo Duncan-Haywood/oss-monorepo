@@ -9,8 +9,8 @@
   <meta property="og:description" content="Paste your utility interval data. See what your peaks cost and what lowering them would save. Runs in your browser.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6f5c'/%3E%3Cpath d='M5 22l6-8 5 4 6-10 5 8' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
   <link rel="canonical" href="./index.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Demand Charge Interval Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste utility interval data and see monthly peak demand, demand charges, ratchet effects, and what holding demand to a lower cap would save and require. Runs in your browser.", "featureList": "Interval CSV parser, monthly demand charges, ratchet, peak timing, peak-shaving cap table, battery sizing and payback, CSV export"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a demand charge?", "acceptedAnswer": {"@type": "Answer", "text": "Many commercial electricity tariffs bill not just for energy used (kWh) but for the highest average power drawn in any 15- or 30-minute window of the billing month (kW). That one interval is multiplied by a rate, often $10 to $25 per kW, so a single short spike can set a large part of the bill."}}, {"@type": "Question", "name": "What is a demand ratchet?", "acceptedAnswer": {"@type": "Answer", "text": "Some tariffs bill at least a set percentage, often 50% to 90%, of the highest demand reached in the previous 11 months, even if this month was quiet. A ratchet makes one bad afternoon cost money for a year, which is why the tool shows billed demand next to measured demand."}}, {"@type": "Question", "name": "Where do I get interval data?", "acceptedAnswer": {"@type": "Answer", "text": "Most utilities let commercial customers download 15-minute data from their online account, often as a Green Button CSV. Paste the file contents here, or use the file picker. The tool reads the date and time column and the usage column on its own and tells you which it chose."}}, {"@type": "Question", "name": "Is a battery worth it for peak shaving?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how tall and how long your peaks are. The cap table shows, for each level you could hold demand to, the yearly saving, the battery energy needed to ride through your longest peak above that level, and a rough payback from the costs you enter. Short, tall peaks pay back far faster than long, shallow ones. Load shifting or staggering equipment starts can capture some of the same saving for far less."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Demand Charge Interval Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste utility interval data and see monthly peak demand, demand charges, ratchet effects, and what holding demand to a lower cap would save and require. Runs in your browser.", "featureList": "Interval CSV parser, monthly demand charges, ratchet, peak timing, peak-shaving cap table, battery sizing and payback, time-of-use bill with battery peak shaving and energy arbitrage, CSV export"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a demand charge?", "acceptedAnswer": {"@type": "Answer", "text": "Many commercial electricity tariffs bill not just for energy used (kWh) but for the highest average power drawn in any 15- or 30-minute window of the billing month (kW). That one interval is multiplied by a rate, often $10 to $25 per kW, so a single short spike can set a large part of the bill."}}, {"@type": "Question", "name": "What is a demand ratchet?", "acceptedAnswer": {"@type": "Answer", "text": "Some tariffs bill at least a set percentage, often 50% to 90%, of the highest demand reached in the previous 11 months, even if this month was quiet. A ratchet makes one bad afternoon cost money for a year, which is why the tool shows billed demand next to measured demand."}}, {"@type": "Question", "name": "Where do I get interval data?", "acceptedAnswer": {"@type": "Answer", "text": "Most utilities let commercial customers download 15-minute data from their online account, often as a Green Button CSV. Paste the file contents here, or use the file picker. The tool reads the date and time column and the usage column on its own and tells you which it chose."}}, {"@type": "Question", "name": "Is a battery worth it for peak shaving?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how tall and how long your peaks are. The cap table shows, for each level you could hold demand to, the yearly saving, the battery energy needed to ride through your longest peak above that level, and a rough payback from the costs you enter. Short, tall peaks pay back far faster than long, shallow ones. Load shifting or staggering equipment starts can capture some of the same saving for far less."}}, {"@type": "Question", "name": "Can a battery save money on a time-of-use rate?", "acceptedAnswer": {"@type": "Answer", "text": "Two ways: by holding down the facility and on-peak demand peaks, and by charging when energy is cheap and discharging during the on-peak window. Enter your on-peak hours and prices and the tool plans one battery month by month against your own readings, showing how much of the saving comes from demand and how much from energy. A spread too small to cover round-trip losses is not traded."}}]}</script>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
@@ -21,7 +21,7 @@
     <p class="note">DEMAND CHARGE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>How much of our electric bill is one bad 15 minutes, and what would it take to remove it?</h1>
     <p>Paste the interval data your utility lets you download (15- or 30-minute readings, usually a Green Button CSV) and enter the demand charge from your bill. The tool finds each month's peak and when it happened, the charge it set, any ratchet carrying a past peak forward, and a table of what holding demand to a lower cap would save, the battery energy that would take, and a rough payback.</p>
-    <p class="note">Arithmetic on the data you paste. Not engineering, energy, tax, legal or financial advice. Real tariffs have rules this does not model, such as time-of-use demand tiers, power-factor charges and seasonal rates. The example data is a synthetic placeholder, not a real site or benchmark.</p>
+    <p class="note">Arithmetic on the data you paste. Not engineering, energy, tax, legal or financial advice. Real tariffs have rules this does not model, such as holidays and seasonal windows in time-of-use rates, power-factor charges and seasonal demand rates. The example data is a synthetic placeholder, not a real site or benchmark.</p>
   </header>
   <main>
     <section class="card" aria-labelledby="h-0">
@@ -47,6 +47,21 @@
       </div>
       <p class="note">Rate and ratchet are on your bill or tariff sheet. Battery costs are only used for the payback column.</p>
     </section>
+    <section class="card" aria-labelledby="h-tou">
+      <h2 id="h-tou">Time-of-use rates (optional)</h2>
+      <p>If your tariff has an on-peak window, enter it to see the whole bill, facility demand plus on-peak demand plus energy, with and without one battery that both shaves peaks and charges cheap to discharge dear.</p>
+      <div class="grid">
+        <div><label for="onStart">On-peak starts (hour, 0-23)</label><input id="onStart" type="text" inputmode="decimal" value=""></div>
+        <div><label for="onEnd">On-peak ends (hour, not included)</label><input id="onEnd" type="text" inputmode="decimal" value=""></div>
+        <div><label for="weekdaysOnly">On-peak applies on</label><select id="weekdaysOnly"><option value="yes">weekdays only</option><option value="no">every day</option></select></div>
+        <div><label for="onDemandRate">On-peak demand charge ($ per kW, blank if none)</label><input id="onDemandRate" type="text" inputmode="decimal" value=""></div>
+        <div><label for="onPrice">On-peak energy price ($ per kWh)</label><input id="onPrice" type="text" inputmode="decimal" value=""></div>
+        <div><label for="offPrice">Off-peak energy price ($ per kWh)</label><input id="offPrice" type="text" inputmode="decimal" value=""></div>
+        <div><label for="batteryKw">Battery inverter kW (blank = best size from the table)</label><input id="batteryKw" type="text" inputmode="decimal" value=""></div>
+        <div><label for="batteryKwh">Battery nameplate kWh (blank = best size from the table)</label><input id="batteryKwh" type="text" inputmode="decimal" value=""></div>
+      </div>
+      <p class="note">Holidays, seasonal windows, mid-peak periods and demand measured only in summer are not modelled. The demand charge above is treated as the facility (all-hours) charge.</p>
+    </section>
     <section class="card">
       <button type="button" id="run">Analyze</button>
       <button type="button" class="secondary" id="example">Load the example</button>
@@ -65,6 +80,8 @@
       <p>Most utilities let commercial customers download 15-minute data from their online account, often as a Green Button CSV. Paste the file contents here, or use the file picker. The tool reads the date and time column and the usage column on its own and tells you which it chose.</p>
       <h3>Is a battery worth it for peak shaving?</h3>
       <p>It depends on how tall and how long your peaks are. The cap table shows, for each level you could hold demand to, the yearly saving, the battery energy needed to ride through your longest peak above that level, and a rough payback from the costs you enter. Short, tall peaks pay back far faster than long, shallow ones. Load shifting or staggering equipment starts can capture some of the same saving for far less.</p>
+      <h3>Can a battery save money on a time-of-use rate?</h3>
+      <p>Two ways: by holding down the facility and on-peak demand peaks, and by charging when energy is cheap and discharging during the on-peak window. Enter your on-peak hours and prices and the tool plans one battery month by month against your own readings, showing how much of the saving comes from demand and how much from energy. A spread too small to cover round-trip losses is not traded.</p>
     </section>
     <section class="card">
       <h2>Not decided</h2>
@@ -84,6 +101,7 @@
   <script type="module">
     import { DEFAULTS, EXAMPLE_SETTINGS, parseIntervals, analyze, toCsv, exampleCsv, money, kw, fmtTime } from "./calc.mjs";
     import { sizeSweep } from "./battery.mjs";
+    import { touBattery } from "./tou.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
@@ -110,6 +128,8 @@
       const st = readAll();
       const sw = sizeSweep(a, { roundTrip: n(st.roundTripPct, 88) / 100, usablePct: n(st.usablePct, 90), perKwh: n(st.batteryCostPerKwh, 0), perKw: n(st.batteryCostPerKw, 0), energyRate: n(st.energyRate, 0) });
       h += '<div class="finding"><h4>Battery sizes, dispatched interval by interval</h4>' + table(["Inverter", "Duration", "Nameplate kWh", "Saves per year (net of losses)", "Est. cost", "Payback"], sw.rows.map((r) => [kw(r.kw), r.hours + " h", r.nameplateKwh.toFixed(0), money(r.saving), r.cost == null ? "enter costs" : money(r.cost), r.payback == null ? "n/a" : r.payback.toFixed(1) + " yr"])) + "<p>Unlike the cap table above, each size here is run through your readings: it discharges above the lowest cap it can hold each month and recharges as the cap allows, with the round-trip loss and the inverter limit. It knows the month's load in advance, so a real controller with a forecast will save somewhat less." + (sw.best ? " Fastest payback on your costs: " + kw(sw.best.kw) + " for " + sw.best.hours + " h, " + sw.best.payback.toFixed(1) + " years." : "") + "</p></div>";
+      const tou = touSection(a, st, sw, n);
+      if (tou) h += tou;
       h += '<p><button type="button" class="secondary" id="csv">Download tables (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;
@@ -121,6 +141,28 @@
         record("report_downloaded");
       });
       record("analysis_run");
+    }
+    function touSection(a, st, sw, n) {
+      const num = (v) => { const x = Number(String(v).replace(/[$,%\s]/g, "")); return v !== "" && Number.isFinite(x) ? x : NaN; };
+      const onStart = num(st.onStart), onEnd = num(st.onEnd), onPrice = num(st.onPrice), offPrice = num(st.offPrice);
+      if (!(onStart >= 0 && onStart < 24 && onEnd >= 0 && onEnd <= 24 && onStart !== onEnd)) return "";
+      const onDemandRate = num(st.onDemandRate) > 0 ? num(st.onDemandRate) : 0;
+      if (!(onPrice >= 0) || !(offPrice >= 0)) { if (!onDemandRate) return ""; }
+      const usable = n(st.usablePct, 90) / 100;
+      let bkw = num(st.batteryKw), bkwh = num(st.batteryKwh), src = "the battery you entered";
+      if (!(bkw > 0) || !(bkwh > 0)) {
+        const pick = sw.best || { kw: Math.max(1, a.maxPeak * 0.2), nameplateKwh: Math.max(1, a.maxPeak * 0.2) * 2 };
+        bkw = pick.kw; bkwh = pick.nameplateKwh; src = sw.best ? "the fastest-payback size from the table above" : "a placeholder size (20% of your peak for 2 h; enter costs or a size to change it)";
+      }
+      const tariff = { onStart, onEnd, weekdaysOnly: st.weekdaysOnly !== "no", onDemandRate, onPrice: onPrice >= 0 ? onPrice : 0, offPrice: offPrice >= 0 ? offPrice : 0 };
+      const r = touBattery(a, tariff, { kw: bkw, kwh: bkwh * usable, roundTrip: n(st.roundTripPct, 88) / 100 });
+      const y = r.yearly;
+      let h = '<div class="finding"><h4>Time-of-use bill: ' + money(r.yearlyBefore) + " a year now, " + money(r.yearlyAfter) + " with a " + kw(bkw) + " / " + bkwh.toFixed(0) + " kWh battery</h4>";
+      h += "<p>Battery: " + esc(src) + ". Saves " + money(r.demandSaving) + " a year in demand charges and " + money(r.energySaving) + " in energy, " + money(r.saving) + " in all, scaled to a year using " + a.monthsUsed + " complete month(s).</p>";
+      h += table(["Part of the bill (per year)", "Now", "With battery"], [["Facility demand", money(y.before.facility), money(y.after.facility)], ["On-peak demand", money(y.before.onDemand), money(y.after.onDemand)], ["Energy", money(y.before.energy), money(y.after.energy)]]);
+      h += table(["Month", "Peak now", "Peak after", "On-peak peak now", "On-peak peak after", "Bill now", "Bill after", "Best plan"], r.months.map((m) => [m.month + (m.complete ? "" : " (partial)"), kw(m.before.facKw), kw(m.after.facKw), kw(m.before.onKw), kw(m.after.onKw), money(m.before.total), money(m.after.total), m.method]));
+      h += "<p>Each month the battery is planned twice: first the lowest pair of facility and on-peak caps it can hold (exact, by bisection), then a dynamic programme over its charge level picks when to charge and discharge for the cheapest energy without breaking those caps. The cheaper of that, peak shaving alone, energy trading alone and no battery is shown. It starts each month full, pays to refill at month end, never exports, and knows the month's load in advance, so a real controller will save somewhat less. Energy prices here exclude fixed and per-kWh riders not tied to time of day.</p></div>";
+      return h;
     }
     fill(DEFAULTS);
     $("run").addEventListener("click", run);
