@@ -1726,7 +1726,7 @@ const RELATIVE_SELF = relative(
 // +1: `missed-call-textback` graduated.
 // +1: `allergen-label-maker` graduated.
 // +1: `service-load-check` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1303;
+const SWITCHES_IN_THE_CATALOGUE = 1304;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
@@ -1774,6 +1774,7 @@ const SWITCHES_IN_THE_CATALOGUE = 1303;
 // +1: `uk-mtd-income-tax-checker` graduated.
 // +1: `tutoring-group-schedule-optimizer` graduated.
 // +1: `concrete-maturity` graduated.
+// +1: `systemd-unit-hardening-check` graduated.
 
 let counter = 0;
 function fixture(source) {
