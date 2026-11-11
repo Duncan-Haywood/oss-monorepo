@@ -40,9 +40,46 @@ function topLevelEquality(test) {
   return index < 0 ? null : [test.slice(0, index), test.slice(index + 1)];
 }
 
-const slackTest = (test) => {
+// Split a test on a top-level boolean operator (`or`, `and`), outside brackets and
+// strings. Null when the operator is absent or the test has a top-level if/then,
+// quantifier or FLWOR, whose parts are not independent.
+export function splitTop(test, word) {
+  let depth = 0;
+  let quote = "";
+  const parts = [];
+  let start = 0;
+  for (let i = 0; i < test.length; i++) {
+    const c = test[i];
+    if (quote) { if (c === quote) quote = ""; continue; }
+    if (c === "'" || c === '"') { quote = c; continue; }
+    if ("([".includes(c)) depth++;
+    else if (")]".includes(c)) depth--;
+    else if (depth === 0 && /\s/.test(test[i - 1] ?? " ")) {
+      const rest = test.slice(i);
+      if (/^(then|else|return|satisfies)\s/.test(rest) || /^(if|some|every|for|let)[\s(]/.test(rest)) return null;
+      if (rest.startsWith(`${word} `) || rest.startsWith(`${word}(`)) { parts.push(test.slice(start, i)); start = i + word.length; }
+    }
+  }
+  if (!parts.length) return null;
+  parts.push(test.slice(start));
+  return parts.map((p) => p.trim());
+}
+
+// The same "within 1e-7" for an equality that is one disjunct or conjunct of the
+// test (`not(cbc:BaseAmount) or PriceAmount = BaseAmount - Amount`, PINT
+// aligned-ibrp-004). Loosening one part of an `or` or an `and` can only make the
+// whole test truer, so this too can only clear a finding.
+export const slackTest = (test) => {
   const sides = topLevelEquality(test);
-  return sides && `abs((${sides[0]}) - (${sides[1]})) lt 0.0000001`;
+  if (sides) return `abs((${sides[0]}) - (${sides[1]})) lt 0.0000001`;
+  for (const word of ["or", "and"]) {
+    const parts = splitTop(test, word);
+    if (!parts) continue;
+    const loose = parts.map((p) => slackTest(p));
+    if (loose.every((l) => !l)) return null;
+    return loose.map((l, i) => `(${l || parts[i]})`).join(` ${word} `);
+  }
+  return null;
 };
 
 const safely = (fn) => { try { return fn(); } catch { return false; } };

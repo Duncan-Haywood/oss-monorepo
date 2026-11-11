@@ -137,7 +137,9 @@ function inspectRow(row, index, negative = false) {
   }
   if ("percent" in row && row.percent !== null && row.percent !== "") {
     percent = parseNumber(row.percent);
-    if (percent === null || percent < 0 || percent > 100) {
+    // A negative invoice may state the percentage with the sign of its amounts
+    // (OpenPeppol's PINT A-NZ negative invoice: -10% of 1500 = -150.00).
+    if (percent === null || percent < (negative ? -100 : 0) || percent > 100) {
       findings.push(finding(
         "INV-051",
         "Header allowance or charge percentage is missing or invalid.",
