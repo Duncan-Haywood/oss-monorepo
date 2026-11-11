@@ -387,18 +387,36 @@ def base_contains(base: str, needles: list[str]) -> set[str]:
     anything it does not account for gets a whole-tree search before being
     called missing. `git grep -F` treats each pattern as a fixed string, which
     matters: added lines are code, full of regex metacharacters.
+
+    One `git grep -F -f` over the tree, not one per needle. The base here is
+    51k files, so a grep per line cost seconds each; a branch with a few
+    hundred unaccounted lines ran for over ten minutes with no output
+    (2026-11-11 run records, PR 14842). The batched grep prints every line
+    that holds at least one needle, so a needle is present exactly when it is a
+    substring of one of those lines. Binary files are skipped (`-I`): the
+    needles are added text lines, and the tree's binaries are compressed
+    mirror shards that cannot hold one verbatim.
     """
-    found: set[str] = set()
-    for needle in needles:
-        # The exit status is the whole answer, so this goes direct to
-        # subprocess rather than through _git, which reads stdout instead.
+    wanted = sorted({n for n in needles if n and "\n" not in n})
+    if not wanted:
+        return set()
+    with tempfile.NamedTemporaryFile("w", suffix=".txt", encoding="utf-8") as patterns:
+        patterns.write("\n".join(wanted) + "\n")
+        patterns.flush()
         result = subprocess.run(
-            ["git", "grep", "--fixed-strings", "--quiet", needle, base],
+            ["git", "grep", "-I", "-h", "--fixed-strings", "-f", patterns.name, base],
             capture_output=True,
             text=True,
+            errors="replace",
             check=False,
         )
-        if result.returncode == 0:
+    if result.returncode not in (0, 1):
+        raise RuntimeError(f"git grep failed: {result.stderr.strip()}")
+    hits = result.stdout.splitlines()
+    exact = {line.strip() for line in hits}
+    found: set[str] = set()
+    for needle in wanted:
+        if needle in exact or any(needle in line for line in hits):
             found.add(needle)
     return found
 
@@ -632,15 +650,18 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
         ).returncode == 0
     }
 
-    files: list[FileVerdict] = []
+    per_path: list[tuple[str, list[str], list[str]]] = []
     for path in paths:
         candidates = [l for l in added_lines(merge_base, head, path) if significant(l)]
         if not candidates:
             continue
-        unaccounted = [l for l in candidates if l.strip() not in base_lines]
-        if unaccounted:
-            elsewhere = base_contains(base, [l.strip() for l in unaccounted])
-            unaccounted = [l for l in unaccounted if l.strip() not in elsewhere]
+        per_path.append((path, candidates, [l for l in candidates if l.strip() not in base_lines]))
+    # One whole-tree search for every file's leftovers, not one per file.
+    elsewhere = base_contains(base, [l.strip() for _, _, left in per_path for l in left])
+
+    files: list[FileVerdict] = []
+    for path, candidates, unaccounted in per_path:
+        unaccounted = [l for l in unaccounted if l.strip() not in elsewhere]
         base_at = last_touched(base, path)
         head_at = last_touched(head, path)
         files.append(
