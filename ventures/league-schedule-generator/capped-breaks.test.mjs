@@ -142,11 +142,21 @@ test("the 'fewest' choice survives a share link and keeps the capped minimum", a
   assert.equal(r.breaks, 3 * (12 - 2), "the mirrored minimum 3(n - 2)");
 });
 
-test("an odd league's capped tries fall back to a heavy break weight and still build a valid season", () => {
+test("an odd league's capped tries run the capped search from a zero-break start and stay under their caps", () => {
   for (const double of [false, true]) {
-    const t = carryOverTry(7, 1, { double, seed: 1, effort: 0.3, weighted: 1 });
-    assert.equal(t.breakWeight, 160);
-    checkLeg(t.rounds.slice(0, 7), 7);
-    if (double) checkLeg(t.rounds.slice(7), 7);
+    const t = carryOverTry(9, 1, { double, seed: 1, effort: 0.3, weighted: 1 });
+    assert.equal(t.breakWeight, null, "a capped try, not a weighted stand-in");
+    const caps = cappedTryBreaks(9, 0, double);
+    assert.equal(t.maxBreaks, double ? caps.season : caps.leg);
+    checkLeg(t.rounds.slice(0, 9), 9);
+    if (double) checkLeg(t.rounds.slice(9), 9);
+    assert.ok(breaksOf(9, t.rounds) <= t.maxBreaks, `${breaksOf(9, t.rounds)} over ${t.maxBreaks}`);
   }
+  assert.deepEqual(cappedTryBreaks(9, 0), { leg: 6, season: null });
+  assert.deepEqual(cappedTryBreaks(9, 1, true), { leg: 10, season: 30 });
+  // 11 teams a leg at 8 breaks: well below the circle method's carry-over, which the old fallback
+  // (a heavy break weight) could only reach at 21 breaks
+  const r = lowCarryOverCappedRounds(11, { seed: 2, effort: 0.5, maxBreaks: 8 });
+  assert.ok(breaksOf(11, r.rounds) <= 8);
+  assert.ok(r.coe < r.circleCoe / 2, `${r.coe} vs circle ${r.circleCoe}`);
 });
