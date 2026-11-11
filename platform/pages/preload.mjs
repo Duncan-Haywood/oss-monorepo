@@ -20,6 +20,8 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
+import { mapLimit } from './share.mjs';
+
 /** Pages with at most this many levels gain nothing worth a tag per module:
  *  a page whose modules import nothing further already fetches in parallel. */
 export const MIN_DEPTH = 2;
@@ -145,21 +147,31 @@ export async function addModulePreloads(outDir, { listFiles, minDepth = MIN_DEPT
     if (!/\.m?js$/.test(file)) return null;
     try { return await fs.readFile(file, 'utf8'); } catch { return null; }
   };
+  // Pages are read and rewritten 32 at a time. Each task reads and writes only
+  // its own page, and reads only .js/.mjs files, which no task writes, so the
+  // finishing order cannot change any file. The shared `cache` may read one
+  // module twice when two pages ask for it at once; both reads give the same
+  // imports. The totals are sums and a max, so order-free too.
+  const html = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+  const done = await mapLimit(html, 32, async (file) => {
+    const page = await fs.readFile(file, 'utf8');
+    if (!/type=["']?module/i.test(page)) return null;
+    const { files, depth } = await moduleGraph(page, file, outDir, readModule, cache);
+    if (depth < minDepth) return null;
+    const hrefs = files.slice(0, max).map((f) => hrefFor(f, file));
+    const out = injectPreloads(page, hrefs);
+    if (out === page) return null;
+    await fs.writeFile(file, out);
+    return { links: hrefs.length, depth };
+  });
   let pages = 0;
   let links = 0;
   let deepest = 0;
-  for (const file of (await listFiles(outDir)).filter((f) => f.endsWith('.html'))) {
-    const html = await fs.readFile(file, 'utf8');
-    if (!/type=["']?module/i.test(html)) continue;
-    const { files, depth } = await moduleGraph(html, file, outDir, readModule, cache);
-    if (depth < minDepth) continue;
-    const hrefs = files.slice(0, max).map((f) => hrefFor(f, file));
-    const out = injectPreloads(html, hrefs);
-    if (out === html) continue;
-    await fs.writeFile(file, out);
+  for (const d of done) {
+    if (!d) continue;
     pages += 1;
-    links += hrefs.length;
-    deepest = Math.max(deepest, depth);
+    links += d.links;
+    deepest = Math.max(deepest, d.depth);
   }
   return { pages, links, deepest };
 }
