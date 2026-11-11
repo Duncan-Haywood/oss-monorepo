@@ -45,7 +45,7 @@
     "research/civ-levers/LOG.md (2026-11-11 entry)"
   ],
   "goal": null,
-  "notes": "Track 24 draw; advanced milestone 3 (civ-cascades) with the committed-minority check. Hypotheses logged and pushed before the run. H1, H2 held; H3 refuted and reversed (clustered committed patch never flips a ring lattice; random placement does from f=0.10). Xie et al. p_c 0.0979 reproduced. Local checks: civ-levers pytest 58 passed; build.py ok; research_live_links 0 updated; check_md_links ok. No agent doc: the LOG entry and README section carry what the next run needs.",
+  "notes": "Track 24 draw; advanced milestone 3 (civ-cascades) with the committed-minority check. Hypotheses logged and pushed before the run. H1, H2 held; H3 refuted and reversed (clustered committed patch never flips a ring lattice; random placement does from f=0.10). Xie et al. p_c 0.0979 reproduced. Local checks: civ-levers pytest 58 passed; build.py ok; research_live_links 0 updated; check_md_links ok. No agent doc: the LOG entry and README section carry what the next run needs. No GitHub check runs registered on the PR after several minutes, so merged on local verification: run_workflow_locally --for-changes passed 9/11 workflows (research-ci 3/3, readme-live-links 4/4); portfolio-pages hit the local runner's 300 s budget inside 'Test the site builder' (timeout, not a failure), and its post front-matter step was run directly (check_post_frontmatter.py exit 0); agent-cross-review jobs not runnable locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
