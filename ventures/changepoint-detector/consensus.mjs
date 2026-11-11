@@ -50,20 +50,33 @@ export function agreedText(c) {
 }
 
 // base: analyze() input minus model/ar1/noiseFloor/trend (those the panel sets).
-export function consensus(base = {}, { tolerance = null, panel = PANEL } = {}) {
+// Strips the keys the panel sets, so a caller's own model or floor never leaks into a setting.
+export function panelBase(base = {}) {
   const b = { ...base };
   for (const k of ['model', 'ar1', 'noiseFloor', 'trend']) delete b[k];
-  const runs = [];
-  let labels = null;
-  for (const p of panel) {
-    let r;
-    try { r = analyze({ ...b, ...p.opts }); } catch (e) { runs.push({ name: p.name, error: e.message, cuts: [] }); continue; }
-    labels = labels || r.labels;
-    const cuts = r.pelt.changepoints.map((c) => ({ index: c.index, shift: c.shift }));
-    runs.push({ name: p.name, opts: p.opts, cuts });
+  return b;
+}
+
+// One setting of the panel. Kept separate so the page can run the six settings in
+// parallel Web Workers (consensus-worker.mjs) and merge them with mergeConsensus.
+export function runSetting(base, p) {
+  try {
+    const r = analyze({ ...panelBase(base), ...p.opts });
+    return { name: p.name, opts: p.opts, labels: r.labels, cuts: r.pelt.changepoints.map((c) => ({ index: c.index, shift: c.shift })) };
+  } catch (e) {
+    return { name: p.name, error: e.message, cuts: [] };
   }
+}
+
+export function consensus(base = {}, { tolerance = null, panel = PANEL } = {}) {
+  return mergeConsensus(panel.map((p) => runSetting(base, p)), { tolerance });
+}
+
+// runs: runSetting() results in panel order (any that failed carry `error`).
+export function mergeConsensus(runs, { tolerance = null } = {}) {
   const ok = runs.filter((r) => !r.error);
   if (!ok.length) throw new Error(`No setting could run: ${runs[0].error}`);
+  const labels = ok[0].labels;
   const n = labels.length;
   const tol = tolerance != null ? Number(tolerance) : Math.max(2, Math.round(n * 0.02));
   if (!(tol >= 0)) throw new Error('tolerance must be a number of points, 0 or more.');
