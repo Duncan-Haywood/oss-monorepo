@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DEFAULTS, num, money, money2, jobCost, price, checkPrice, overrunImpact, distanceLadder, monthly, lowestSafePrice } from "./calc.mjs";
+import { DEFAULTS, num, readInputs, money, money2, jobCost, price, checkPrice, overrunImpact, distanceLadder, monthly, lowestSafePrice } from "./calc.mjs";
 
 const simple = {
   ...DEFAULTS, weldHours: 4, setupHours: 1, milesOneWay: 0, mph: 40, costPerMile: 1, welderRate: 50,
@@ -137,4 +137,23 @@ test("with card fees, monthly contribution subtracts the fee and materials are g
 test("DEFAULTS assume no helper", () => {
   assert.equal(DEFAULTS.helperHours, 0);
   assert.equal(jobCost(DEFAULTS).helper, 0);
+});
+
+// Quality audit 2026-11-08 (portfolio/quality/audits/2026-11-08-mobile-welding-job-price-calculator.json):
+// a cleared field fell back to the example value.
+test("a blank field is zero, not the example value", () => {
+  const raw = Object.fromEntries(Object.entries(DEFAULTS).map(([k, v]) => [k, String(v)]));
+  assert.ok(DEFAULTS.materials > 0);
+  const { o, bad } = readInputs({ ...raw, materials: "" });
+  assert.deepEqual(bad, []);
+  assert.equal(o.materials, 0);
+  assert.ok(price(o).price < price(DEFAULTS).price);
+  assert.equal(price(o).materials, 0);
+});
+
+test("text that is not a number is reported, not replaced", () => {
+  const raw = Object.fromEntries(Object.entries(DEFAULTS).map(([k, v]) => [k, String(v)]));
+  const { bad } = readInputs({ ...raw, welderRate: "eighty", materials: "$1,200" });
+  assert.deepEqual(bad, ["welderRate"]);
+  assert.equal(readInputs({ ...raw, materials: "$1,200" }).o.materials, 1200);
 });
