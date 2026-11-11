@@ -62,7 +62,7 @@
     "ventures/sales-agent/eval/README.md \"The away policy\""
   ],
   "goal": null,
-  "notes": "Security queue empty; IDEAS and website requests empty; routed ventures/1 by draw. Top flagship ai-bookkeeper had a 0h-old open PR from another session, so took flagship 3 sales-agent. Enron 0*-7* checked out from the CC0 mirror (clone works through the proxy). node --test (all *.test.mjs + self-host): 476 pass, 0 fail. Post frontmatter, links, similarity: pass. Venture preflight: see the line below once it finishes.",
+  "notes": "Security queue empty; IDEAS and website requests empty; routed ventures/1 by draw. Top flagship ai-bookkeeper had a 0h-old open PR from another session, so took flagship 3 sales-agent. Enron 0*-7* checked out from the CC0 mirror (clone works through the proxy). node --test (all *.test.mjs + self-host): 476 pass, 0 fail. Post frontmatter, links, similarity: pass. Venture preflight (node platform/pages/venture-preflight.mjs sales-agent): clean, exit 0.",
   "corrections": [],
   "redteam": null,
   "usage": {
