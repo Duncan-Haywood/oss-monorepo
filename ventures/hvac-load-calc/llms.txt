@@ -8,6 +8,7 @@ Free and open source (MIT). Results are estimates from an open first-principles 
 
 - [The tool](https://marisstella.app/hvac-load-calc/)
 - [How the load is worked out, with formulas and a worked example](https://marisstella.app/hvac-load-calc/how-it-works.html)
+- [Duct sizing by friction rate](https://marisstella.app/hvac-load-calc/ducts.html): room airflow, total effective lengths and the blower's external static pressure in; design friction rate, round size for each supply run, trunk (with a rectangular equivalent) and return, velocity, friction and balancing-damper pressure out. Darcy-Weisbach with the Colebrook friction factor; not ACCA Manual D.
 
 ## Inputs
 
@@ -17,4 +18,4 @@ Free and open source (MIT). Results are estimates from an open first-principles 
 
 ## Source
 
-- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc): MIT licensed. `node cli.mjs house.json` or `node cli.mjs --example --json`.
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc): MIT licensed. `node cli.mjs house.json` or `node cli.mjs --example --json`; add `--ducts` to size the ducts from the file's `ducts` block.

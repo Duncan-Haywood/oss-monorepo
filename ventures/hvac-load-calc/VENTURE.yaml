@@ -1,5 +1,5 @@
 name: hvac-load-calc
-description: Free browser tool and CLI that works out a house's heating and cooling load room by room, from walls by direction, windows, attic, slab and air leakage, with a 24-hour cooling design day from sun geometry, and reports each room's Btu/h, peak hour and airflow plus the whole-house tonnage. An open first-principles method, not ACCA Manual J.
+description: Free browser tool and CLI that works out a house's heating and cooling load room by room, from walls by direction, windows, attic, slab and air leakage, with a 24-hour cooling design day from sun geometry, and reports each room's Btu/h, peak hour and airflow plus the whole-house tonnage, then sizes each duct run, trunk and return by friction rate from the blower's static pressure. An open first-principles method, not ACCA Manual J.
 stage: prototype
 owner: duncan
 

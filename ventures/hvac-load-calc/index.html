@@ -22,7 +22,8 @@
     h2 { margin: 0 0 10px; font-size: 1.1rem; }
     .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
     .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-    label { display: grid; gap: 4px; font-size: .82rem; font-weight: 650; }
+    label { display: grid; gap: 4px; font-size: .82rem; font-weight: 650; min-width: 0; }
+    .layout > div { min-width: 0; }
     input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #a9b6bd; border-radius: 7px; padding: 7px; font: inherit; background: #fff; }
     input[type=checkbox] { width: auto; }
     textarea { font-family: ui-monospace, Menlo, monospace; font-size: .78rem; min-height: 110px; }
@@ -60,7 +61,7 @@
     <p class="eyebrow">FOR HOMEOWNERS, BUILDERS AND HVAC CONTRACTORS</p>
     <h1>How big should the heat pump really be?</h1>
     <p>Enter the house room by room: the walls and which way they face, the windows, the attic and the floor, how leaky it is. The page works out each room's heating and cooling load, the hour it peaks, the airflow it needs and the whole-house size, from sun angles and heat-transfer physics you can read. It is free and runs in your browser.</p>
-    <p><a href="./how-it-works.html">How the load is worked out, with the formulas</a></p>
+    <p><a href="./how-it-works.html">How the load is worked out, with the formulas</a> · <a href="./ducts.html">Size the ducts from these room airflows</a></p>
   </header>
 
   <main class="layout">
