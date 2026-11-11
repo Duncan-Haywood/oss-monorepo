@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLwjtY57B78Xrt5M71",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T18:06:56Z",
+  "ended": "2026-11-11T18:38:07Z",
+  "wall_minutes": 42.02,
+  "tokens_in": 12656010,
+  "tokens_out": 48206,
+  "cost_usd": 4.8701,
+  "tool_calls": 94,
+  "task": "flagship 9 (league-schedule-generator) next item: pick the start by carry-over + weight x breaks when a weight is set",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14851",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First venture-test run failed carryover.test.mjs (the guide's 18-team real-fixture table read from the code); the weighted starter changed the 18-team season, so the guide cells and eval/carryover-real.txt were updated and the suite rerun.",
+    "CI validate failed once: flagships.yaml next: over the 2,000-character cap after merging both sessions' text; trimmed to 1,438 and re-validated locally."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/README.md",
+      "issue": "The flagship's top next item ('pick the start by carry-over + weight x breaks') rested on a wrong premise: a starter's start is a relabelling of its teams, so carry-over and achievable breaks are start-invariant; ~10 minutes spent implementing a start picker that changed nothing before the check."
+    },
+    {
+      "file": "ventures/league-schedule-generator/eval/carryover-real.txt",
+      "issue": "Was stale before this run (still held pre-starter 20-team numbers, 1,884/1,596 etc.); the test reads the guide from code, not the txt, so nothing caught it."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Showed league-schedule-generator with no open PR, but another session's PR #14847 on the same file landed during this run; a conflict cost ~15 minutes. Unavoidable overlap, noted for the next run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The listed next item (pick the start) is a no-op; did the nearest real version of it (pick the starter on carry-over + weight x breaks).",
+      "did": "STARTERS_WEIGHTED table and a third, kept-only-if-better search run at break weights",
+      "result": "lower weighted score at 12, 14, 18, 25, 26, 28, 30, 33, 34 teams; none worse"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-league-schedule-starters-picked-with-their-breaks.md",
+    "ventures/league-schedule-generator/README.md#starters-picked-with-their-breaks-2026-11-11-latest"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures/1 by draw; took flagship 9 because flagships 2, 5 had open PRs and 3, 4, 6-8 items mostly need outside data or were just touched. Verified: node --test starter.test.mjs and carryover.test.mjs pass; full suite via platform/ci/run_venture_tests.py league-schedule-generator 422 tests pass after merging main (PR #14847 landed refilled rounds on the same file mid-run; conflicts in carryover.mjs, starter.test.mjs, README, flagships.yaml resolved by adding the weighted starter to its constructionStarts list; 12-14-18 re-measured). venture-preflight clean (run before the merge; the merge touched only venture code and docs). Measurements in eval/starter-breaks.txt and eval/starter-breaks-search.txt.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f341b14e-18bc-5e37-a6ab-24483fcc4566",
+    "transcripts": 1,
+    "first": "2026-11-11T18:06:56Z",
+    "last": "2026-11-11T18:48:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 174,
+        "output": 48206,
+        "thinking": 9588,
+        "cache_read": 12479671,
+        "cache_write_5m": 0,
+        "cache_write_1h": 176165,
+        "api_equivalent_usd": 4.8701,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 174,
+      "output": 48206,
+      "thinking": 9588,
+      "cache_read": 12479671,
+      "cache_write_5m": 0,
+      "cache_write_1h": 176165,
+      "api_equivalent_usd": 4.8701,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 94,
+    "tools": {
+      "Bash": 88,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 42.02,
+      "active_minutes": 42.02,
+      "model_minutes": 9.53,
+      "tool_minutes": 32.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an algorithms engineer: diagnose start invariance, build the rescoring climb, measure 30 sizes through the search, merge a concurrent change",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 205.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

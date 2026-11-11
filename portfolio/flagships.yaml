@@ -125,8 +125,8 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. All panels and the main analysis on threads/workers (README, 2026-11-11). `--model drift` on the page and agent tool 2026-11-11 (README "Jumps on a wandering level, on the page").
-      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (b) drift model in the branded report; TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere.
+      TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. `--model drift` on the page and agent tool 2026-11-11 (README "Jumps on a wandering level, on the page").
+      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (b) the drift model in several-columns mode (branded report done 2026-11-11, README); TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere.
       Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); `--model drift` 2026-11-11 (random-walk level, README "Jumps on a drifting level"); step-robust omega (README "A step-robust omega": now the drift default, F1 0.694/0.527; panel step held for fresh labelled data); biweight rejected and a walk/noise heavy-tail check 2026-11-11 (README "Heavy tails on a drifting level", "The heavy-tail check"); next: heavy-tailed level increments (t-walk), biweight where the check says noise on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -170,12 +170,12 @@ flagships:
       cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
       40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
       can score a staffed closure; whether to default to a half-life; forecasting from tickets (queue
-      length), not just sales; a real published-schedule export for --import-shifts; joining short runs an
-      hour or two apart into one shift and folding a short run into a neighbouring shift (the cost cut,
-      README "The short-cost weight carried through the shift cut", 2026-11-11, prices each run alone:
-      backtest now scores cut shifts, cost cut beats the old cut in 36 of 36 settings on both bakeries;
-      priced by default at r = 1 since the follow-up, README "The priced cut by default": 30 of 30 more,
-      but the default now runs shorter, so whether r = 1 is the right default needs a real manager's view).
+      length), not just sales, since the cut is no longer where the gap is (joining short runs and folding
+      them into neighbouring shifts, opt-in --join 2026-11-11, README "Joining short runs": optimal in
+      sample, but on held-out weeks clearly cheaper in 1 of 72 comparisons, dearer in 16, noise in 55, so
+      the default stays the per-run priced cut); a real published-schedule export for --import-shifts;
+      whether the priced cut's r = 1 default (README "The priced cut by default", runs shorter) suits a
+      real manager.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -244,23 +244,19 @@ flagships:
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
       CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
-      capped breaks, zero-break odd leagues, finite-field start at 4/8/16/32 teams, sampled starters
-      and the plain-mirror season candidate, all 2026-11-11). Climbed starters 2026-11-11 latest
-      (README "Climbed starters", eval/starter-anneal.mjs): annealed multi-start over starters at
-      step 1 (any step is a relabelling); 22 teams 516 to 440 and 21 teams 475 to 399 (floor, every
-      count 0 or 1), 22-team season 1,862 to 1,782 (floor); 24 to 40 teams 4 to 13% lower, still 16
-      to 28% above the floor. O(p) starter score 2026-11-11 latest (README "An O(p) starter score",
-      eval/starter-climb.mjs): cyclic carry-over from one difference sequence, 2-10M moves in 40 s;
-      24 teams 612 to 570, 30 1,002 to 948, 40 1,890 to 1,816 (8-21% above the floor); clears the
-      24- and 30-team break-weight regressions. Next, most valuable first: pick the start by
-      carry-over + weight x breaks when a weight is set; close 24-40 (tabu, longer runs, the
-      literature's starters and terraces); refilled rounds 2026-11-11 latest (README "Refilled
-      rounds", eval/round-refill.mjs: take 2-5 rounds out, refill by DFS): 12 teams 152 to 136
-      (floor 120), 9 teams 71 to 69, stored whole in TIMETABLES; next there: a lower bound or a
-      timetable below 136 at 12, the refill from climbed starters at 14-18 teams and on a season's
-      second leg;
-      a bound for the minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter
-      timetable; a real league's travel times and unavailable dates; a print check.
+      capped breaks, zero-break odd leagues, field start at 4/8/16/32 teams; sampled, annealed and
+      O(p)-climbed starters, 20 and 22 teams at the floor, 24-40 8-21% above it; refilled rounds,
+      12 teams 136 against 120, stored in TIMETABLES; all 2026-11-11). Break-weighted starters
+      2026-11-11 latest (README "Starters picked with their breaks", eval/starter-breaks.mjs): a
+      starter's start is a relabelling (never changes carry-over), so STARTERS_WEIGHTED, picked on
+      carry-over + 10 x breaks, is another start at break weights, kept only when strictly better:
+      26 teams 716/102 to 716/74, season 2,618/230 to 2,714/164; 12-18, 28, 30, 34 lower too. Next,
+      most valuable first: run 36-40 through the search and a climb that scores breaks inside the
+      move (odd sizes vs the circle's zero-break orientation); a lower bound or a timetable below 136
+      at 12, the refill from climbed starters at 14-18 teams and on a season's second leg; close
+      24-40 (tabu, longer runs, the literature's starters and terraces); a bound for the
+      minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter timetable; a real
+      league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

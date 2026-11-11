@@ -2203,6 +2203,47 @@ extra; an open-source CLI flag would be honest but is the owner's pricing call).
 (many columns) scrolls sideways on screen and may be clipped in print; a column-per-page layout for
 more than about six columns is open.
 
+## The wandering-level model in the branded report (2026-11-11)
+
+The branded change report (the planned paid extra, dark until `checkout.mjs` has a link) now covers
+`--model drift` too. Before, **Open the report** after a wandering-level run refused and pointed at
+the CSV. Now it builds `driftReportHtml` (`drift-report.mjs`) from the last run, without rerunning it,
+on the shared letterhead (`reportShell` in `report.mjs`; the one-column and several-column reports
+are unchanged, pinned by their sample tests). In order:
+
+- the lead: how many jumps stand out from the drift and the largest in noise sds, or, when none
+  does, that the movement reads as wander rather than a change;
+- the page's plain-language summary (`driftSummary`), the heavy-tail check when it fires and the
+  TCPD score (`driftNotes`), and a note naming any page options the model ignored (logs, season,
+  trend, AR(1), noise floor, growth-rate test, heavy-tailed noise), so a reader of the PDF knows;
+- the page's chart with the fitted level drawn per stretch (`driftChartSvg`, the same function);
+- the jumps table and the stretches table (the page's, the same functions), then noise sd, wander
+  sd, penalty and any steady growth taken out;
+- the analyst's notes, and assumptions written for a wandering level: a random walk plus Gaussian
+  noise after Romano, Rigaill, Runge and Fearnhead (2022); slow wander is never listed, so a gradual
+  shift is not a jump; season, trends other than a steady growth, autocorrelation and heavy tails are
+  not modelled; a jump does not show a cause; no warranty.
+
+**Sample.** `sample-drift-change-report.html`, built by `build-sample-report.mjs` from the real code
+on Canada's total fertility rate, 1931-1968 (`data/canada-fertility.csv`), for an invented firm. The
+plain level model cuts that series into 8 flat segments (1933, 1942, 1946, 1953, 1963, 1965, 1967;
+`canada-fertility.test.mjs`); the wandering-level model lists 3 jumps, 1946 (+388, 7.0 noise sd), 1965
+(-461, 8.3) and 1967 (-320, 5.8), and reads the rest (the 1930s fall, the 1950s rise to the peak)
+as wander. The marketing page (`change-report-for-analysts.html`) links it under "Series that wander".
+
+**Verification.** `drift-report.test.mjs` (5 tests): the report contains the page's chart, tables and
+summary for the Nile (1899 alone); the no-jump lead on Lake Huron; every typed string, label and
+ignored option escaped, SVG logos and non-hex colours refused; the sample equals the real code's
+output; the page imports `drift-report.mjs` and no longer refuses. `eval/drift-report-browser.mjs`
+(headless Chromium, `eval/drift-report-browser.out.txt`): Canada's fertility rate pasted, the drift
+model chosen with "take logs first" ticked, the report card shown as an unlocked key would, **Open
+the report** clicked; the opened report equals `driftReportHtml` in Node byte for byte (9,420
+characters), lists 1946, 1965 and 1967, names the ignored option, and the page raised no errors.
+
+**Not done.** The CLI has no report flag for any model (the report is a page feature); the
+several-columns mode still does not take the drift model; the report has no Bayesian panel for it
+because the model has none.
+
 ## Main analysis off the main thread (2026-11-11)
 
 The section above moved the six-setting panel into Web Workers but left the main analysis on the
@@ -2598,7 +2639,7 @@ so it belongs where most people meet the tool: the page.
   per-point CSV (`label,value,stretch,fitted_level`). The penalty takes BIC or a custom number; AIC
   and Hannan-Quinn are refused with a message (they are not defined for this model here). Boxes the
   model ignores (logs, season, trend, AR(1), noise floor, growth-rate test) are named in a note
-  rather than dropped silently. The branded report does not cover it yet and says so. Usage
+  rather than dropped silently. The branded report covers it since 2026-11-11 ("The wandering-level model in the branded report"). Usage
   counter `drift_run`, local like the others. The method section cites the paper (BibTeX added).
 - **Agents.** `node platform/agents/tools.mjs call changepoint-detector analyzeJob --input
   '{"kind":"drift","opts":{"csv":"..."}}'` now reaches the model, since the page imports the
@@ -2618,5 +2659,5 @@ so it belongs where most people meet the tool: the page.
   summary; switching back to the level model restores its legend, headings and tables; no page
   errors.
 - **Not done.** The model is not in the agreed-changes panel (that needs fresh labelled data, as
-  "A step-robust omega" decided) and has no Bayesian view; the branded report and the several-columns
-  mode do not take it.
+  "A step-robust omega" decided) and has no Bayesian view; the several-columns mode does not take it
+  (the branded report does since 2026-11-11).
