@@ -56,7 +56,8 @@ export function locumYear(p, weeks = p.weeks, rate = p.rate) {
   const gross = rate * p.hours * weeks;
   const netTravel = (p.travelCost - p.travelReimb) * weeks; // out-of-pocket travel (negative = reimbursed above cost)
   const profit = gross - p.malpractice - p.expenses - netTravel;
-  const seEarn = Math.max(0, profit) * SE_FACTOR;
+  const rawSeEarn = Math.max(0, profit) * SE_FACTOR;
+  const seEarn = rawSeEarn < 400 ? 0 : rawSeEarn; // Schedule SE: net earnings under $400 owe none
   const ss = Math.min(seEarn, SS_WAGE_BASE) * 0.124;
   const medicare = seEarn * 0.029;
   const addl = Math.max(0, seEarn - ADDL_MEDICARE_THRESHOLD[status]) * 0.009;

@@ -122,7 +122,8 @@ test("comparePlans with no input is an empty profit, not a $1 one", () => {
 
 test("a $1 profit still has earnings to contribute from", () => {
   const c = comparePlans({ netProfit: 1 });
-  assert.ok(c.earnings > 0 && c.earnings < 1);
+  // Under the $400 Schedule SE floor there is no SE tax, so no half of it comes off.
+  assert.equal(c.earnings, 1);
   assert.ok(!c.findings.some((f) => /No net self-employment earnings/.test(f.title)));
 });
 

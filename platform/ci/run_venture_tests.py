@@ -10,6 +10,7 @@ runner would report (docs/history/ci-local-first-2026-10-29.md).
     python3 platform/ci/run_venture_tests.py --changed       # vs merge-base with origin/main,
                                                              # uncommitted edits included
     python3 platform/ci/run_venture_tests.py --since BASE    # ventures BASE..HEAD touched (CI)
+    python3 platform/ci/run_venture_tests.py --slowest 30    # also end with the 30 slowest suites
 
 --changed and --since also run each venture whose code reaches into a changed
 one as `../<slug>/` (with_dependents), since a change there can break it.
@@ -284,12 +285,23 @@ def failures(out, context=30):
         l for l in lines[-10:] if l.startswith("# "))
 
 
+def slowest_table(times, n):
+    """The n slowest suites as a Markdown table. Perf runs re-timed suites by
+    hand because no list of suite times existed (doc friction 2026-11-11);
+    `--slowest 30` over every venture makes that one command."""
+    rows = sorted(times.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
+    return "\n".join(["| venture | seconds |", "|---|---:|",
+                      *(f"| {slug} | {secs:.1f} |" for slug, secs in rows)])
+
+
 def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("slugs", nargs="*")
     ap.add_argument("--changed", action="store_true")
     ap.add_argument("--since", metavar="BASE")
     ap.add_argument("--jobs", type=int, default=os.cpu_count() or 2)
+    ap.add_argument("--slowest", type=int, default=0, metavar="N",
+                    help="end with the N slowest suites, slowest first")
     args = ap.parse_args(argv)
 
     if args.since is not None and args.since.strip("0 "):
@@ -309,11 +321,12 @@ def main(argv):
     lint_slugs = [s for s in slugs if (VENTURES / s).is_dir()]
     slugs = sorted((s for s in slugs if has_tests(s)), key=lambda s: (-suite_weight(s), s))
 
-    failed = []
+    failed, times = [], {}
     with ThreadPoolExecutor(max_workers=args.jobs) as pool:
         # Printed as each finishes, so one slow suite does not hide the rest.
         for future in as_completed([pool.submit(run, s) for s in slugs]):
             slug, ok, out, secs = future.result()
+            times[slug] = secs
             print(f"{'ok  ' if ok else 'FAIL'} {slug} ({secs:.1f}s)", flush=True)
             if not ok:
                 failed.append(slug)
@@ -322,6 +335,8 @@ def main(argv):
                     print(f"::error title=venture tests failed::ventures/{slug}")
                 else:
                     print(failures(out))
+    if args.slowest:
+        print(slowest_table(times, args.slowest))
     print(f"{len(slugs)} suites run, {len(failed)} failed"
           + (f": {' '.join(sorted(failed))}" if failed else ""))
     # A choice looked up in a plain object map by the user's text: "constructor"

@@ -36,6 +36,7 @@ export function parseExpenses(text) {
 export function seTax(earnings, wageBase) {
   if (!(earnings > 0)) return 0;
   const base = earnings * 0.9235;
+  if (base < 400) return 0; // Schedule SE: net earnings under $400 owe none
   return round2(Math.min(base, wageBase) * 0.124 + base * 0.029);
 }
 

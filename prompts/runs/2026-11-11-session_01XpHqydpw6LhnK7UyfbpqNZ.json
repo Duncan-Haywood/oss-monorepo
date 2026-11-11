@@ -1,0 +1,275 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01XpHqydpw6LhnK7UyfbpqNZ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T22:37:44Z",
+  "ended": "2026-11-11T22:38:14Z",
+  "wall_minutes": 4.13,
+  "tokens_in": 2788931,
+  "tokens_out": 17895,
+  "cost_usd": 1.4774,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14914",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/security-txt-check/engine.test.mjs",
+      "issue": "A test comment said Date.parse('2027-02-30T00:00:00Z') is NaN in Node; it rolls over to 2027-03-02. Corrected, since it misleads anyone triaging the rollover mutant."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 5 open defects that are all control-plane edits already in owner-gated PRs (#12928, #14877, #14612, #14698); every run re-checks them. redteam.py open could mark entries that have an open PR as 'awaiting owner'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard; the natural one (validate our own site's security.txt with the engine in CI) needs the site to publish a security.txt with an owner contact address, which is publishing under the portfolio's name.",
+      "did": "Left the three regression tests as the guard and noted the idea instead.",
+      "result": "No new CI guard this run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-signed-security-txt-line-numbers.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/security-txt-check/engine.mjs (0.3 s suite). 8 mutants, 6 caught, 2 equivalent (brute-forced). 3 real defects patched with failing tests first. Checked siblings for the same charset regex: none. Verification: node --test engine.test.mjs 35/35; run_venture_tests.py security-txt-check ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/security-txt-check/engine.mjs",
+        "test": "node --test ventures/security-txt-check/**/*.test.mjs  (in .)",
+        "seed": 519173132,
+        "commit": "d9533a66",
+        "sites": 128,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/security-txt-check/engine.mjs",
+            "line": 91,
+            "col": 20,
+            "operator": "eq-flip",
+            "before": "if (line.trim() === '') return;",
+            "after": "if (line.trim() !== '') return;",
+            "line_text": "    if (line.trim() === '') return;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/security-txt-check/engine.mjs",
+            "line": 142,
+            "col": 42,
+            "operator": "const-plus-one",
+            "before": "const utc = new Date(Date.UTC(+y, +mo - 1, +d));",
+            "after": "const utc = new Date(Date.UTC(+y, +mo - 2, +d));",
+            "line_text": "  const utc = new Date(Date.UTC(+y, +mo - 1, +d));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/security-txt-check/engine.mjs",
+            "line": 143,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "if (utc.getUTCMonth() !== +mo - 1 || utc.getUTCDate() !== +d) return { valid: false, date: null };",
+            "after": "if (utc.getUTCMonth() !== +mo - 2 || utc.getUTCDate() !== +d) return { valid: false, date: null };",
+            "line_text": "  if (utc.getUTCMonth() !== +mo - 1 || utc.getUTCDate() !== +d) return { valid: false, date: null };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/security-txt-check/engine.mjs",
+            "line": 143,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "if (utc.getUTCMonth() !== +mo - 1 || utc.getUTCDate() !== +d) return { valid: false, date: null };",
+            "after": "if (utc.getUTCMonth() !== +mo - 1 && utc.getUTCDate() !== +d) return { valid: false, date: null };",
+            "line_text": "  if (utc.getUTCMonth() !== +mo - 1 || utc.getUTCDate() !== +d) return { valid: false, date: null };",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Checked by brute force over every YYYY-MM-DD (MM,DD 00-99, five years incl. leap and century years) that Date.parse accepts (1,860 dates): Date.parse already rejects month 00/13+ and day 00/32+, and any rollover of day 29-31 lands on day 1-3 of the next month, so month and day always differ together and || equals && on every reachable input."
+          },
+          {
+            "file": "ventures/security-txt-check/engine.mjs",
+            "line": 144,
+            "col": 21,
+            "operator": "gt-to-ge",
+            "before": "if (+h > 23 || +mi > 59 || (s !== undefined && +s > 60)) return { valid: false, date: null };",
+            "after": "if (+h > 23 || +mi >= 59 || (s !== undefined && +s > 60)) return { valid: false, date: null };",
+            "line_text": "  if (+h > 23 || +mi > 59 || (s !== undefined && +s > 60)) return { valid: false, date: null };",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/security-txt-check/engine.mjs",
+            "line": 144,
+            "col": 32,
+            "operator": "neq-flip",
+            "before": "if (+h > 23 || +mi > 59 || (s !== undefined && +s > 60)) return { valid: false, date: null };",
+            "after": "if (+h > 23 || +mi > 59 || (s === undefined && +s > 60)) return { valid: false, date: null };",
+            "line_text": "  if (+h > 23 || +mi > 59 || (s !== undefined && +s > 60)) return { valid: false, date: null };",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only the seconds clause flips. Date.parse returns NaN for every seconds value 61-99 (checked 00-99), and 60 is now handled before Date.parse as a leap second, so +s > 60 is never reached with a value above 60; the clause is a belt-and-braces guard."
+          },
+          {
+            "file": "ventures/security-txt-check/engine.mjs",
+            "line": 222,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "} else if (expires.length > 1) {",
+            "after": "} else if (expires.length > 2) {",
+            "line_text": "  } else if (expires.length > 1) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/security-txt-check/engine.mjs",
+            "line": 394,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "ok: dangerCount === 0,",
+            "after": "ok: dangerCount === 1,",
+            "line_text": "    ok: dangerCount === 0,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/security-txt-check/engine.mjs",
+        "issue": "Line numbers in a cleartext-signed file counted from the start of the signed payload, not the file: every field and every 'Line N is not a field' finding pointed 3+ lines too high (BEGIN line, Hash header, blank line, plus anything before BEGIN). unwrapSignature now returns lineOffset and parseSecurityTxt adds it.",
+        "patched": true
+      },
+      {
+        "file": "ventures/security-txt-check/engine.mjs",
+        "issue": "parseExpires rejected an RFC 3339 leap second (Expires: 2027-06-30T23:59:60Z) as 'not a valid timestamp', a danger, because Date.parse returns NaN for second 60 even though the code meant to allow it (+s > 60). Now parsed as :59 plus one second.",
+        "patched": true
+      },
+      {
+        "file": "ventures/security-txt-check/engine.mjs",
+        "issue": "Content-Type 'text/plain; charset=\"utf-8\"' (a quoted parameter, legal under RFC 2045) got the 'served without charset=utf-8' notice, and 'charset=utf-8x' passed. The check now parses the parameter, quoted or not, and requires it to end there.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "effbafdf-f9c1-56ba-a82f-cbcb45506944",
+    "transcripts": 1,
+    "first": "2026-11-11T22:37:44Z",
+    "last": "2026-11-11T22:41:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 70,
+        "output": 17895,
+        "thinking": 4880,
+        "cache_read": 2716882,
+        "cache_write_5m": 0,
+        "cache_write_1h": 71979,
+        "api_equivalent_usd": 1.4774,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 70,
+      "output": 17895,
+      "thinking": 4880,
+      "cache_read": 2716882,
+      "cache_write_5m": 0,
+      "cache_write_1h": 71979,
+      "api_equivalent_usd": 1.4774,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.13,
+      "active_minutes": 4.13,
+      "model_minutes": 3.02,
+      "tool_minutes": 1.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: read a 400-line validator, seed and triage 8 faults, reproduce and fix 3 bugs with tests, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 203.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -24,12 +24,13 @@
 //   usually a real line item billed to the client, not something a rate
 //   sheet with one row per service can show.
 
-function number(value, name, { min = 0, allowZero = true, max = null } = {}) {
+function number(value, name, { min = 0, allowZero = true, max = null, integer = false } = {}) {
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);
   if (!allowZero && result === 0) throw new Error(`${name} must be greater than zero`);
   if (max !== null && result > max) throw new Error(`${name} must be at most ${max}`);
+  if (integer && !Number.isInteger(result)) throw new Error(`${name} must be a whole number`);
   return result;
 }
 
@@ -105,18 +106,18 @@ export const DEFAULTS = {
  */
 export function calculateQuote(input) {
   const bridePrice = number(input.bridePrice, 'Bride price');
-  const brideCount = number(input.brideCount, 'Bride count');
+  const brideCount = number(input.brideCount, 'Bride count', { integer: true });
   const fullServicePrice = number(input.fullServicePrice, 'Full-service price');
-  const fullServiceCount = number(input.fullServiceCount, 'Full-service count');
+  const fullServiceCount = number(input.fullServiceCount, 'Full-service count', { integer: true });
   const hairOnlyPrice = number(input.hairOnlyPrice, 'Hair-only price');
-  const hairOnlyCount = number(input.hairOnlyCount, 'Hair-only count');
+  const hairOnlyCount = number(input.hairOnlyCount, 'Hair-only count', { integer: true });
   const makeupOnlyPrice = number(input.makeupOnlyPrice, 'Makeup-only price');
-  const makeupOnlyCount = number(input.makeupOnlyCount, 'Makeup-only count');
+  const makeupOnlyCount = number(input.makeupOnlyCount, 'Makeup-only count', { integer: true });
   const kidsPrice = number(input.kidsPrice, 'Kids price');
-  const kidsCount = number(input.kidsCount, 'Kids count');
+  const kidsCount = number(input.kidsCount, 'Kids count', { integer: true });
   const trialFee = number(input.trialFee, 'Trial fee');
-  const trialRequested = number(input.trialRequested, 'Trial requested', { max: 1 });
-  const creditTrialToBooking = number(input.creditTrialToBooking, 'Credit trial to booking', { max: 1 });
+  const trialRequested = number(input.trialRequested, 'Trial requested', { max: 1, integer: true });
+  const creditTrialToBooking = number(input.creditTrialToBooking, 'Credit trial to booking', { max: 1, integer: true });
   const startHour = number(input.startHour, 'Start hour', { max: 24 });
   const earlyStartThresholdHour = number(input.earlyStartThresholdHour, 'Early-start threshold hour', { max: 24 });
   const earlyStartFee = number(input.earlyStartFee, 'Early-start fee');
@@ -124,7 +125,7 @@ export function calculateQuote(input) {
   const travelRatePerMile = number(input.travelRatePerMile, 'Travel rate per mile');
   const travelSurcharge = number(input.travelSurcharge, 'Travel surcharge');
   const serviceMinimumRevenue = number(input.serviceMinimumRevenue, 'Service minimum revenue');
-  const serviceMinimumHeadcount = number(input.serviceMinimumHeadcount, 'Service minimum headcount');
+  const serviceMinimumHeadcount = number(input.serviceMinimumHeadcount, 'Service minimum headcount', { integer: true });
   const minutesPerFullService = number(input.minutesPerFullService, 'Minutes per full service', { allowZero: false });
   const minutesPerHairOnly = number(input.minutesPerHairOnly, 'Minutes per hair only');
   const minutesPerMakeupOnly = number(input.minutesPerMakeupOnly, 'Minutes per makeup only');
@@ -132,7 +133,7 @@ export function calculateQuote(input) {
   const brideExtraMinutes = number(input.brideExtraMinutes, 'Bride extra minutes');
   const bufferMinutesPerPerson = number(input.bufferMinutesPerPerson, 'Buffer minutes per person');
   const prepWindowMinutes = number(input.prepWindowMinutes, 'Prep window minutes', { allowZero: false });
-  const artistsBooked = number(input.artistsBooked, 'Artists booked', { min: 1 });
+  const artistsBooked = number(input.artistsBooked, 'Artists booked', { min: 1, integer: true });
   const assistantChargeToClient = number(input.assistantChargeToClient, 'Assistant charge to client');
   const assistantPayout = number(input.assistantPayout, 'Assistant payout');
 
@@ -167,6 +168,18 @@ export function calculateQuote(input) {
   const minutesShort = Math.max(0, totalServiceMinutes - capacityMinutes);
   const additionalArtistsNeeded = minutesShort > 0 ? Math.ceil(minutesShort / prepWindowMinutes) : 0;
 
+  // Pooled minutes are not the whole question: one person's look is done by
+  // one artist, so a look longer than the window cannot be finished by any
+  // number of artists. Only services someone is booked for count, and the
+  // between-people buffer is left out (it is setup, not the look itself).
+  const longestLookMinutes = Math.max(0,
+    brideCount > 0 ? minutesPerFullService + brideExtraMinutes : 0,
+    fullServiceCount > 0 ? minutesPerFullService : 0,
+    hairOnlyCount > 0 ? minutesPerHairOnly : 0,
+    makeupOnlyCount > 0 ? minutesPerMakeupOnly : 0,
+    kidsCount > 0 ? minutesPerKid : 0);
+  const lookLongerThanWindow = longestLookMinutes > prepWindowMinutes;
+
   const assistantChargeRevenue = additionalArtistsNeeded * assistantChargeToClient;
   const assistantPayoutCost = additionalArtistsNeeded * assistantPayout;
   const assistantMarkup = assistantChargeRevenue - assistantPayoutCost;
@@ -197,6 +210,8 @@ export function calculateQuote(input) {
     capacityMinutes,
     minutesShort,
     additionalArtistsNeeded,
+    longestLookMinutes,
+    lookLongerThanWindow,
     assistantChargeRevenue,
     assistantPayoutCost,
     assistantMarkup,

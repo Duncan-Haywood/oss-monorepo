@@ -154,6 +154,10 @@ class Report(unittest.TestCase):
         self.assertNotIn("ok 400", shown)
 
 
+    def test_slowest_table_lists_the_slowest_first(self):
+        table = rvt.slowest_table({"a": 1.0, "b": 9.5, "c": 3.25}, 2)
+        self.assertEqual(table.splitlines()[2:], ["| b | 9.5 |", "| c | 3.2 |"])
+
 class Selection(unittest.TestCase):
     def test_slugs_come_from_paths_under_a_venture(self):
         self.assertEqual(
