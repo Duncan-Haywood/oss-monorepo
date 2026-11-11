@@ -28,6 +28,18 @@ const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
 export const STORIES_PATH = 'stories/';
 const HEARTH = 'hearth-and-horizon';
 const SAINTS = 'saints-by-candlelight';
+
+/**
+ * The ventures whose pages are fiction, by slug, with the short name a
+ * breadcrumb shows. The site chrome (`injectChrome` in build.mjs) files their
+ * pages under Stories in the header and the trail, not under a tool category:
+ * until 2026-11-11 every story page marked "Tools" as the current section and
+ * led through "Learning & practice".
+ */
+export const STORY_VENTURES = Object.freeze({
+  [HEARTH]: 'Hearth & Horizon',
+  [SAINTS]: SHOW.title,
+});
 // How many of each shelf's newest pieces the page lists; the rest are one click away.
 const NEWEST = 6;
 
