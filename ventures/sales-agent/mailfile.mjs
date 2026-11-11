@@ -36,6 +36,9 @@ export const isMbox = (text) => /^\s*From \S+/.test(String(text || "").slice(0, 
 // 12:31:44 +0000 2016" from Takeout, "From - Thu Feb 23 19:37:30 2017" from Thunderbird, "From a@b Mon Jan  1 2001").
 const HEADER_LINE = /^[\x21-\x39\x3b-\x7e]+:(?:[ \t]|$)/; // not "http://..."
 const ENVELOPE = /^From \S+ +(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b.*\b(?:19|20)\d\d\b|.*\b\d{1,2}:\d\d(?::\d\d)?\b.*\b(?:19|20)\d\d\b)/;
+// Header fields an exporter writes first, after its envelope line. Any "Word:" line is not enough: a body paragraph
+// "From our side ..." followed by "Note: ..." split a reply in two and dropped its second half.
+const FIRST_HEADER = /^(?:x-[\w-]+|arc-[\w-]+|return-path|received|delivered-to|envelope-to|from|sender|to|cc|reply-to|date|subject|message-id|mime-version|content-type|dkim-signature|authentication-results|status):/i;
 
 /**
  * Splits an mbox stream into raw messages. push() takes text chunks of any size, end() flushes the last message.
@@ -44,9 +47,10 @@ const ENVELOPE = /^From \S+ +(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b.*\b(?:19|20)\d
  *
  * Some exporters write mboxo without escaping a body line that starts with "From " (one on GitHub split a reply in two
  * at "From a security standpoint, ...", as Python's mailbox module also does). So a candidate line only starts a message
- * when the line after it is a header ("X-GM-THRID: ...", "X-Mozilla-Status: ...", "Return-Path: ...") or the line itself
- * reads as an envelope (a token, then a date with a weekday or a clock time and a year). Otherwise it stays body text;
- * unescapedFrom counts how many did.
+ * when the line after it is a header an exporter writes first ("X-GM-THRID: ...", "X-Mozilla-Status: ...", "Return-Path:
+ * ...", not just any "Note: ..."), or the line itself reads as an envelope (a token, then a date with a weekday or a
+ * clock time and a year) and a header-shaped or blank line follows it. Otherwise it stays body text; unescapedFrom
+ * counts how many did.
  */
 export class MboxSplitter {
   constructor(onMessage, { maxBytes = MAX_BYTES } = {}) { Object.assign(this, { onMessage, maxBytes, carry: "", lines: [], size: 0, prevBlank: true, truncated: 0, cut: false, pending: null, unescapedFrom: 0 }); }
@@ -58,7 +62,7 @@ export class MboxSplitter {
   line(l) {
     if (this.pending !== null) {
       const p = this.pending; this.pending = null;
-      if (HEADER_LINE.test(l) || ENVELOPE.test(p)) { this.flush(); this.prevBlank = false; }
+      if (FIRST_HEADER.test(l) || (ENVELOPE.test(p) && (HEADER_LINE.test(l) || l === ""))) { this.flush(); this.prevBlank = false; }
       else { this.unescapedFrom++; this.body(p); }
     } else if (this.prevBlank && /^From \S/.test(l)) {
       if (!this.lines.length) { this.flush(); this.prevBlank = false; return; } // the first line of the file, or after blank lines only
@@ -138,8 +142,8 @@ export function readMailTexts(files, opts = {}) {
 export function describe(r) {
   const s = r.stats, bits = [];
   if (s.own) bits.push(`${s.own} of your own`);
-  if (s.notReply) bits.push(`${s.notReply} not replies`);
-  if (s.duplicates) bits.push(`${s.duplicates} duplicates`);
+  if (s.notReply) bits.push(`${s.notReply} not ${s.notReply === 1 ? "a reply" : "replies"}`);
+  if (s.duplicates) bits.push(`${s.duplicates} duplicate${s.duplicates === 1 ? "" : "s"}`);
   if (s.noText) bits.push(`${s.noText} with no text`);
   return `${s.messages} message${s.messages === 1 ? "" : "s"} read, ${s.kept} kept as replies${bits.length ? "; left out: " + bits.join(", ") : ""}${s.truncated ? `; ${s.truncated} cut at ${Math.round(MAX_BYTES / 1000)} KB` : ""}.`;
 }
