@@ -27,9 +27,10 @@ Also reported (descriptive): the per-buoy table, the share of the variance in lo
 Run: python3 experiments/run_waveglider_site.py > experiments/results_waveglider_site.txt   (under 1 s, stdlib)"""
 import csv
 import math
+import os
 import statistics as st
 
-D = "experiments/data/"
+D = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data") + os.sep
 B = 0.218
 B_SENS = (0.188, 0.248)
 SOLAR = 86.0
