@@ -44,6 +44,8 @@ FLAG_HOPPER_EMPTY = 8
 FLAG_HOPPER_FULL = 16
 FLAG_LOW_BATTERY = 32
 FLAG_AZ_UNHOMED = 64     # azimuth stepper has no position yet (homing, or lost after an abrupt stop)
+FLAG_AIM_SETTLING = 128  # elevation or azimuth not yet at its goal (or homing): the feed gate waits for it
+FLAG_ELEV_FAULT = 256    # elevation actuator stopped: feedback lost or stalled; power-cycle the board to retry
 
 
 def crc8(data):

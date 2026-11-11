@@ -30,7 +30,9 @@ button released *and* a `CLEAR_ESTOP` command.
 | 26 | ESC, bottom launcher wheel |
 | 34 | Tachometer, top wheel (IR reflective, 1 pulse/rev) |
 | 35 | Tachometer, bottom wheel |
-| 27 | Elevation servo / actuator |
+| 27 | Elevation actuator: servo pulse (`ELEV_MODE = "rc"`) or H-bridge PWM (`"pot"`, `"timed"`) |
+| 23 | Elevation H-bridge DIR (`pot`, `timed`) |
+| 39 | Elevation feedback pot wiper (`pot`; input-only, ADC1, 0-3.3 V: power the pot from 3.3 V; 100k wiper to GND) |
 | 14 / 21 | Azimuth stepper driver STEP / DIR (NEMA 17, 10:1 gear sector) |
 | 22 | Azimuth home switch (to GND, pull-up: low = at home, about -32 deg) |
 | 13 | Feed gate servo |

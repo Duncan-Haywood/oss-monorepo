@@ -10,3 +10,14 @@ AZ_RATIO = 10.0                 # 150-tooth sector over the 15-tooth pinion
 AZ_VMAX_DEG_S = 60.0            # peak turntable speed: 30 deg in 1 s, triangular (cad: Feeder.azimuth_drive)
 AZ_ACCEL_DEG_S2 = 120.0
 AZ_HOME_DEG = -32.0             # where the home switch trips (just past -30); set it from your build
+# Elevation actuator (cad: Feeder.elevation_drive). Mode: "rc" (actuator with its own servo input, L16-R class),
+# "pot" (feedback potentiometer, through an H-bridge, L16-P class) or "timed" (bare actuator through an H-bridge,
+# homed on its retract limit). Lengths are hole to hole; read yours off the datasheet and a ruler.
+ELEV_MODE = "pot"
+ELEV_CLOSED_MM = 240.0          # retracted length (the drawn window takes 245 or less)
+ELEV_STROKE_MM = 150.0
+ELEV_SPEED_EXT_MM_S = 18.0      # timed/rc: measured extending (nose down, against the head's weight)
+ELEV_SPEED_RET_MM_S = 22.0      # measured retracting (nose up, the weight helps)
+ELEV_POT_RAW_RETRACTED = 1500   # pot: read_u16() at full retract (measure it)
+ELEV_POT_RAW_EXTENDED = 63000   # pot: read_u16() at full extension (measure it)
+ELEV_SELF_LOCKING = True        # timed: False if the head sinks when power is cut (then every stop re-homes)
