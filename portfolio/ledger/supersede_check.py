@@ -84,8 +84,12 @@ superseded) and 1 when it would drop work, so it can gate an automated close.
 from __future__ import annotations
 
 import argparse
+import bisect
 import difflib
+import multiprocessing
+import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -139,8 +143,12 @@ _RENAME_MIN_TWINS = 3
 # `local_comparisons: 1`, and `reports_exported: 0` at 80% with an unrelated
 # venture's `shortlist_exported: 0`. Both pairs are true and neither means the
 # branch's work exists already -- which is the only question here.
+# Run records (`prompts/runs/*.json`, one per session) are the same: 6,000 files
+# of the same keys, so `"tool_minutes": 10.86` twins `"tool_minutes": 10.8`. On
+# 2026-11-11 a check of PR 14702 spent most of four minutes building that pairing.
 _RECORD_FILES = re.compile(
     r"(^|/)(usage/usage\.yaml"
+    r"|prompts/runs/[^/]+\.json"
     r"|ledger/\d{4}-\d{2}\.yaml"
     r"|ledger/(verifications|asks)\.yaml"
     r"|progress-log\.ts)$"
@@ -388,14 +396,16 @@ def base_contains(base: str, needles: list[str]) -> set[str]:
     called missing. `git grep -F` treats each pattern as a fixed string, which
     matters: added lines are code, full of regex metacharacters.
 
-    One `git grep -F -f` over the tree, not one per needle. The base here is
-    51k files, so a grep per line cost seconds each; a branch with a few
-    hundred unaccounted lines ran for over ten minutes with no output
-    (2026-11-11 run records, PR 14842). The batched grep prints every line
-    that holds at least one needle, so a needle is present exactly when it is a
-    substring of one of those lines. Binary files are skipped (`-I`): the
-    needles are added text lines, and the tree's binaries are compressed
-    mirror shards that cannot hold one verbatim.
+    One search over the tree, not one per needle. The base here is 51k files
+    (1 GB), so a `git grep` per line cost about 1.7 s each, and a branch with a
+    few hundred unaccounted lines ran for over ten minutes with no output
+    (2026-11-11 run records, PR 14842). `git grep -F -f` with many patterns is
+    no cure: on PR 14702's 190 lines it took 89 s, because git matches the
+    patterns one by one. GNU `grep -F -f` matches them all in one pass
+    (Aho-Corasick), so the tree is streamed out of `git archive` into it: 11 s
+    for the same 169,712 matching lines. A needle is present exactly when it is
+    a substring of one of the printed lines, since every line holding it is
+    printed. `git grep` remains the fallback where tar or grep is missing.
     """
     wanted = sorted({n for n in needles if n and "\n" not in n})
     if not wanted:
@@ -403,15 +413,26 @@ def base_contains(base: str, needles: list[str]) -> set[str]:
     with tempfile.NamedTemporaryFile("w", suffix=".txt", encoding="utf-8") as patterns:
         patterns.write("\n".join(wanted) + "\n")
         patterns.flush()
-        result = subprocess.run(
-            ["git", "grep", "-I", "-h", "--fixed-strings", "-f", patterns.name, base],
-            capture_output=True,
-            text=True,
-            errors="replace",
-            check=False,
-        )
+        if shutil.which("tar") and shutil.which("grep"):
+            archive = subprocess.Popen(["git", "archive", base], stdout=subprocess.PIPE)
+            untar = subprocess.Popen(["tar", "-xOf", "-"], stdin=archive.stdout,
+                                     stdout=subprocess.PIPE)
+            archive.stdout.close()
+            result = subprocess.run(
+                ["grep", "-a", "-h", "--fixed-strings", "-f", patterns.name],
+                stdin=untar.stdout, capture_output=True, text=True,
+                errors="replace", check=False,
+            )
+            untar.stdout.close()
+            if untar.wait() != 0 or archive.wait() != 0:
+                raise RuntimeError(f"git archive {base} | tar -xO failed")
+        else:
+            result = subprocess.run(
+                ["git", "grep", "-I", "-h", "--fixed-strings", "-f", patterns.name, base],
+                capture_output=True, text=True, errors="replace", check=False,
+            )
     if result.returncode not in (0, 1):
-        raise RuntimeError(f"git grep failed: {result.stderr.strip()}")
+        raise RuntimeError(f"grep failed: {result.stderr.strip()}")
     hits = result.stdout.splitlines()
     exact = {line.strip() for line in hits}
     found: set[str] = set()
@@ -474,6 +495,20 @@ def base_neighbourhood_lines(base: str, dirs: list[str]) -> dict[str, str]:
     return lines
 
 
+_NEAR_KEYS: list[str] = []
+_NEAR_LENGTHS: list[int] = []
+
+
+def _closest_key(stripped: str) -> str | None:
+    """The best twin of one line among `_NEAR_KEYS` inside its length window."""
+    c = _RENAME_RATIO
+    n = len(stripped)
+    lo = bisect.bisect_left(_NEAR_LENGTHS, n * c / (2 - c) - 1)
+    hi = bisect.bisect_right(_NEAR_LENGTHS, n * (2 - c) / c + 1)
+    close = difflib.get_close_matches(stripped, _NEAR_KEYS[lo:hi], n=1, cutoff=c)
+    return close[0] if close else None
+
+
 def nearest_in_base(
     unmatched: list[str], corpus: dict[str, str]
 ) -> list[NearMatch]:
@@ -482,17 +517,35 @@ def nearest_in_base(
     `difflib` on every pair would be quadratic over tens of thousands of lines.
     `get_close_matches` does the same comparison but stops early on candidates
     whose length alone puts them out of reach, which is most of them.
+
+    The length window below makes that early stop cheap. A ratio is at most
+    2*min(a, b)/(a + b), so a key shorter than L*c/(2-c) or longer than
+    L*(2-c)/c can never reach cutoff c, and `get_close_matches` would reject it
+    on its first bound anyway. Sorting keys by length and bisecting to the
+    window gives the same answer without visiting the rest: on PR 14702 the
+    corpus was about 700k lines and this function took most of the run.
+
+    Lines are independent, so they are spread over the cores by a forked pool
+    (the children inherit the sorted keys); the answers are the same in any
+    order. Without fork (or for a handful of lines) it runs in this process.
     """
     if not corpus:
         return []
-    keys = list(corpus)
+    global _NEAR_KEYS, _NEAR_LENGTHS
+    _NEAR_KEYS = sorted(corpus, key=len)
+    _NEAR_LENGTHS = [len(k) for k in _NEAR_KEYS]
+    stripped_lines = [line.strip() for line in unmatched]
+    workers = min(os.cpu_count() or 1, 8)
+    if (workers > 1 and len(stripped_lines) >= 8
+            and "fork" in multiprocessing.get_all_start_methods()):
+        with multiprocessing.get_context("fork").Pool(workers) as pool:
+            closest = pool.map(_closest_key, stripped_lines, chunksize=1)
+    else:
+        closest = [_closest_key(line) for line in stripped_lines]
     matches: list[NearMatch] = []
-    for line in unmatched:
-        stripped = line.strip()
-        close = difflib.get_close_matches(stripped, keys, n=1, cutoff=_RENAME_RATIO)
-        if not close:
+    for stripped, twin in zip(stripped_lines, closest):
+        if twin is None:
             continue
-        twin = close[0]
         matches.append(
             NearMatch(
                 line=stripped,
@@ -686,11 +739,16 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
     # Nor is the rename search worth its `git grep` when the branch is already
     # accounted for, or when the merge replay just proved the same thing more
     # cheaply.
-    if not identical and any(f.unmatched for f in files):
-        corpus = base_neighbourhood_lines(base, neighbourhood(paths))
-        for f in files:
-            if f.unmatched:
-                f.near = nearest_in_base(f.unmatched, corpus)
+    # Record files never report a rename (`_RECORD_FILES`), so they get no twin
+    # search and add no directory to the corpus.
+    searchable = [f for f in files if f.unmatched and not _RECORD_FILES.search(f.path)]
+    if not identical and searchable:
+        corpus = base_neighbourhood_lines(base, neighbourhood([f.path for f in searchable]))
+        # One search for every file's lines: the corpus is sorted once.
+        twins = {m.line: m for m in nearest_in_base(
+            [l for f in searchable for l in f.unmatched], corpus)}
+        for f in searchable:
+            f.near = [twins[l.strip()] for l in f.unmatched if l.strip() in twins]
 
     return Verdict(
         base=base,
