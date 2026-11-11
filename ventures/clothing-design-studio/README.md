@@ -72,6 +72,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `caresymbols.mjs` | The five care symbols (wash, bleach, tumble dry, iron, professional care) drawn as SVG from the starting care text, shown on the label page and downloadable one file each |
 | `commission.mjs`, `partners.html` | Multi-brand shop money: payout per sale after VAT, commission and card fees (shop, brand or split), shelf price for a target payout, settlement statement per partner with refunds, per-partner terms, CSV. Seller-of-record and VAT treatment are assumptions to check with an accountant |
 | `marketing.mjs` | Ad affordability (break-even cost per sale and ROAS) and a launch calendar of drafts from the break-even |
+| `indexsep.mjs` | Index separation: the flat separation's inks laid down as square dots by error diffusion, with the garment as a free colour; films, brief, and a flat-vs-index distance at three viewing distances |
 | `usage.mjs` | Anonymous local usage counts |
 
 Roadmap: [`ROADMAP.md`](ROADMAP.md).
@@ -241,3 +242,72 @@ errors. Not checked: the live APIs. From the build session both hosts were
 refused by the network proxy, so the field names come from the museums' public
 API documentation, not a live response. The rights flag is the museum's, not a
 legal check; the ppi figures are print-shop guidance, not a standard.
+
+## Index separation for paintings (2026-11-11)
+
+`indexsep.mjs`, the "Index separation (dots, for paintings)" button under
+"Separate a painting for screen print" on the studio page. The first
+interview's line is classical and devotional paintings on garments, and the
+flat separation turns a painting into a few flat inks. Measured on nine real
+public-domain paintings, flat inks leave the print a mean CIE76 delta E of 6 to
+14 from the painting even at 8 inks (about 2 is barely visible, 5 plain to
+see): flat colour cannot carry a painting's shading.
+
+The index separation keeps the same inks and screens but lays them down as
+square dots, one per finest dot the mesh holds (0.3 mm by default, coarser when
+the image is small), by serpentine Floyd-Steinberg error diffusion in linear
+RGB, nearest ink chosen in CIE Lab, with the bare garment as a free extra
+colour. Crop, surround removal and knock-outs carry over from the flat
+separation. The page shows a preview, the dot size, how much is bare garment,
+and the distance from the painting for flat and index at 0.5, 1 and 3 m, and
+downloads the films (underbase first on dark garments) and a printer brief.
+The page now decodes uploads at up to 1200 px (was 640) so the dots can reach
+0.3 mm at 25 cm wide.
+
+"Distance seen from" is a rough eye model: painting and print are both blurred
+by a Gaussian of 1 arcminute at that distance (0.29 mm at 1 m) in linear RGB
+and compared in CIE76. It is not S-CIELAB, and it is used only to compare the
+two methods on the same footing.
+
+### Measured (eval/index-paintings.mjs)
+
+Nine paintings fetched from public GitHub repositories (museum hosts were
+blocked from the build session): Van Gogh's Starry Night, Munch's Scream and a
+184 x 250 px Madonna thumbnail, Turner's Shipwreck of the Minotaur, Matisse's
+Woman with a Hat, Hokusai's Great Wave, Picabia's Udnie, Sassoferrato's
+Madonna in Prayer and a framed Barocci. Decoded at up to 640 px in Chromium's
+canvas, printed 28 cm wide. Mean delta E over the nine:
+
+| Garment, inks | 0.5 m flat / index | 1 m flat / index | 3 m flat / index | index closer at 1 m |
+|---|---|---|---|---|
+| white, 3 | 14.85 / 15.88 | 13.78 / 12.14 | 12.19 / 9.79 | 8 of 9 |
+| white, 4 | 13.43 / 14.48 | 12.30 / 10.64 | 10.71 / 8.34 | 8 of 9 |
+| white, 6 | 11.72 / 12.61 | 10.52 / 8.94 | 8.90 / 6.68 | 8 of 9 |
+| near-black, 4 | 13.43 / 14.41 | 12.15 / 11.04 | 10.29 / 8.78 | 7 of 9 |
+
+- Up close (0.5 m) the dots show and index is further from the painting; from
+  1 m it is closer on 8 of 9, and from 3 m four inks as index (8.34) sit closer
+  than six flat inks (8.90): two fewer screens for the same look across a room.
+- The one loser at 1 m is the 184 px Munch thumbnail: its dots are 1.5 mm, too
+  coarse to mix at that distance. The page says when the source limits the dot.
+- Neither gets near "barely visible": four inks cannot reach many of a
+  painting's colours. Index removes the banding, not the gamut limit.
+- Tuning, measured on the same set: unclamped error diffusion was worse than
+  flat (runaway error from out-of-gamut colours, 12.77 at 1 m with 4 inks);
+  clamping the corrected colour fixed it. Clamping exactly at 0..1 cost tone at
+  the ends of a grey ramp (4.1 delta E after blur against 0.9), so the clamp has
+  a 0.25 margin, which cost paintings about 0.3 at 1 m (five-painting partial
+  run: 9.32 vs 9.65). Damping the error (0.8) scored slightly better on
+  paintings but printed linear mid grey as 43% dots instead of 50%, so it is
+  off. Refitting the inks to what the dither asked of them diverged (worse
+  than flat), and pushing inks outward from the mean helped only at 3 m.
+
+Checked: `indexsep.test.mjs` (8 tests: grid size, blur width, a grey ramp that
+matches once blurred, linear mid grey at about 50% dots, unprinted surround
+kept, index closer than flat on a shaded test card and repeatable, films with
+underbase first and cm sizing, brief text) and a headless-Chromium run of the
+page with Starry Night and the Sassoferrato (index in 2.7 and 3.6 s, films 1.3
+and 1.8 MB, brief downloaded, no console errors). Not checked: a real screen
+printer's index print. Whether 0.3 mm single dots hold on their mesh, how dot
+gain darkens the result, and registration on a dark garment's underbase are
+all for a proof.
