@@ -187,6 +187,52 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Even carry-over (2026-11-11)
+
+Who you play right after whom. Team B *carries over* team A to team C when B plays A and then C in
+its next game; if A is the strongest side, C keeps meeting opponents just out of a hard game.
+Russell's carry-over value (1980) sums the squares of those counts: lower is fairer. The circle
+method this tool has always used is close to the worst case (8 teams: 148, with five of one team's
+seven opponents arriving straight from the same side; the least possible is 48).
+
+- `carryover.mjs`: `carryOver(schedule)` and `carryOverFromOpponents(opponents, { cyclic })` give the
+  matrix, value, worst count, repeated pairs and the floor any schedule with that many games could
+  reach. `lowCarryOverRounds(n, { seed, effort, breakWeight })` searches for a low-carry-over round
+  robin by seeded annealing from the circle method over round swaps, partial team swaps (needed: the
+  circle method is a perfect 1-factorization when n - 1 is prime, so partial round swaps alone
+  cannot leave it) and partial round swaps; `breakWeight` adds a second pass that trades carry-over
+  for fewer home/away breaks. Home/away is then set by a greedy "phase" pass plus annealing with
+  restarts, which finds the minimum n - 2 breaks on the circle timetable for 6 to 20 teams (tested).
+- The page: tick "Spread who you meet next" (share link keeps it; `readSpec({ carryOver: true })`,
+  `buildSchedule` uses `breakWeight: 10` and mirrors for a double round robin). Every schedule's
+  report now shows its carry-over value, floor and worst count, and suggests the option when one
+  pair repeats three times or more. About 1.4 s for 12 teams in Chromium; validator passes.
+- Checked: hand-worked 4-team matrix; all 720 ordered 1-factorizations of 6 teams enumerated
+  (least value 60 cyclic / 42 not, which the search reaches); 8 teams reaches Russell's bound 56
+  (cyclic) and 48 (not); validity, seeding and at least half the circle value for 7 to 20 teams.
+- Real fixture lists (`eval/carryover-real.mjs`, output in `eval/carryover-real.txt`; data
+  `eval/data/openfootball-fixtures.json`, 20 top-flight seasons 2021-22 to 2024-25 from
+  openfootball, CC0). Mirrored double round robin, ordered by matchday:
+
+  | Schedule | Teams | Carry-over | Breaks |
+  |---|---|---|---|
+  | Bundesliga (4 seasons) | 18 | 3,474 to 4,342 | 48 |
+  | Ligue 1 2023-24, 2024-25 | 18 | 1,840, 1,948 | 74, 96 |
+  | circle method | 18 | 14,610 | 48 |
+  | this tool, breakWeight 10 | 18 | 1,926 | 74 |
+  | this tool, carry-over only | 18 | 1,730 | 104 |
+  | EPL, La Liga, Serie A, Ligue 1 (14 seasons) | 20 | 2,278 to 2,564 | 70 to 146 |
+  | circle method | 20 | 21,044 | 54 |
+  | this tool, breakWeight 10 | 20 | 2,136 | 114 |
+  | this tool, carry-over only | 20 | 1,884 | 134 |
+
+  The professional schedules already avoid the circle pattern; the tool lands among them on both
+  counts, without their derby, policing and broadcast constraints. Not yet: a real rec league's
+  strength data (does carry-over move results at that level?), a double round robin optimised as a
+  whole rather than mirrored (mirroring doubles every count: worst 6 for 18 and 20 teams), and the
+  search's gap to the floor (12 teams: 156 non-cyclic against a floor of 120; whether that is the
+  optimum is unknown).
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

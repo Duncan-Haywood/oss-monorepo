@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVL2wvU7gjfJ2QFszA5",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled routine 4: continue work on the repo (ventures brief)",
+  "input_sha256": "6f991423f11d51bc6edb035bd37a70d2c50dfd2ee8357c640d04a54c1b73867b",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T05:16:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14701,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/page.test.mjs",
+      "issue": "Asserted calc.mjs has no imports at all; relaxed to one sibling module (./carryover.mjs), Dockerfile COPY updated to match."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Flagship 9's listed next items (real travel times, real unavailable-date requests) need outside inputs this run cannot get; OSRM and other routing hosts are blocked by the proxy. Took a different depth slice on the same flagship (carry-over fairness) and scored it on real open fixture data instead.",
+      "did": "carryover.mjs + page option + guide + real-league eval",
+      "result": "Tool's 20-team schedule sits among professional fixture lists on carry-over and breaks; tests pass"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "run_venture_tests.py league-schedule-generator ok (63.0s); carryover.test.mjs 8/8; router pytest 77 passed; Chromium click: 12 teams carry-over 768->182, validator ok, no page errors.",
+  "corrections": [],
+  "redteam": null
+}
