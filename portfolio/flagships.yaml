@@ -286,9 +286,10 @@ flagships:
       break weights, plus STARTERS_SHIFT from a climb with breaks in the move: odd leagues 17-39
       from 4-10 breaks per team to under 2 (23 teams 565/127 to 565/44), 18 of 28 sizes lower at
       weight 10, none higher. Refill from climbed starters at 13-18 teams: no gain (negative).
-      Next, most valuable first: the same shift candidate for a home-and-away season
-      (lowCarryOverDoubleRounds, mirrored shift venues; odd seasons 25 teams 2,889/262 today);
-      seed assignVenues with the shift orientation after the search's moves; a lower bound or a
+      Shift leg ones for home-and-away seasons 2026-11-11 (README "Shift venues for a home-and-away
+      season", eval/shift-double.txt): 25 teams 2,889/262 to 2,685/117, 9 of 10 sizes lower at
+      weight 10, 26 unchanged. Next, most valuable first: re-measure the page's best-of-k picks
+      with it; seed assignVenues with the shift orientation after the search's moves; a lower bound or a
       timetable below 136 at 12; close 24-40 (tabu, longer runs, the literature's starters and
       terraces); a 20-team leg at 22-30 breaks from a starter timetable; a real league's travel
       times and unavailable dates; a print check.
