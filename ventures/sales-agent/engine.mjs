@@ -653,7 +653,7 @@ const BARE_NO = /^\s*(nope|no|nah)\.?\s*$/i;
 // never heard back" stayed declines. Now the rest must decline in words that mean it.
 const REST_DECLINES = /\b(not interested|no longer|stop|remove|unsubscribe|(i'?ll|we'?ll|i will|we will) pass|happy with (our|what|the)|already (have|use|using|work with)|no,? thanks?|not (for (us|me)|a (good )?fit|now|right now|at this time)|(don'?t|do not) (need|want) (it|this|that|one|any|anything|your|you)\b|(we'?re|we are) (all )?(set|good|fine)|take (me|us) off|leave (me|us) alone|please don'?t|not something|(never|ever) (buy|use|need|want|switch|pay))\b/i;
 const REST_TALKS = /\b(i|i'?m|i'?ll|i'?ve|we|we'?ll|you|you'?re|he|she|it|they|is|are|was|were|have|has|had|do|does|did|will|can|could|should|would|think|know|go|let'?s|what|why|how|tell)\b/i;
-// Fifth round, 2026-11-12 (eval/README.md "Fifth round"): written from the stops still wrong on the 0*-4* Enron halves under
+// Fifth round, 2026-11-11 (eval/README.md "Fifth round"): written from the stops still wrong on the 0*-4* Enron halves under
 // the round-4 rules (10 + 9 + 14 + 39 + 48), frozen, then scored once on the unread 5* half. Each line quotes the real phrasing.
 VETO.left_company.push(
   // Someone else passed a task along, told after the fact: "Mr. Lay had passed this on to Joe Hirko in Enron Broadband Services",

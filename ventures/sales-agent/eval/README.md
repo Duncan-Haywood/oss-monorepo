@@ -427,6 +427,94 @@ What is left on the fresh half (48 wrong):
 
 `5*` and later are unread for round 5.
 
+### Fifth round, on a sixth half (2026-11-11)
+
+**Method.** Rules changed looking only at the stops still not right on `0*`-`4*` under the round-4 rules (10 + 9 + 14 +
+39 + 48 wrong, plus the unlabelled and ambiguous ones). The `5*` half (16 more folders, `'.bitcache/blobs/5*'`, 9,538 `RE:`
+replies) was checked out with the others, and its round-4 stops were saved to a file unread before any rule changed. With
+the rules frozen and committed, the union of the stops the round-4 and round-5 code fired there (107; every round-5 stop
+was also a round-4 stop, same category) was shuffled with a fixed seed (20261112), the engine's answers hidden, and
+labelled once by a **separate agent** (same model family, so still no independent human reader) with the writer-intent
+category and the same instructions as rounds 3 and 4. Labels: `eval/enron-labels/sixth.json` (Message-ID, category before
+and after, reader's category; no text). `node eval/enron.mjs <dir of links to blobs/5?> --replies --labels
+eval/enron-labels/sixth.json` scores the current rules.
+
+**What changed** (`engine.mjs`, the "Fifth round" block after the fourth, each line quoting its real phrasing):
+
+- *The bare "No." check.* Round 4's `REST_DECLINES` counted any "not", "n't", "need", "already" or "thanks" in the rest of
+  the reply as a decline, so "NO. I need to know how many beds there are total", "No. I do not have any contact
+  information for them" and "no - I never heard back" stayed declines. The rest must now decline in words that mean it
+  (not interested, no thanks, stop, remove, we're all set, don't need it, not a fit, not something we'd ever buy). A rest
+  that is only a sign-off ("No. thank you") still leaves the "No." standing.
+- *A short absence inside a working reply* (the hard case rounds 3 and 4 left). Under a `Re:`/`Fw:` subject, with no
+  auto-reply header, when the reply has two or more sentences of other substance (five or more words, none of the away,
+  contact, cover or footer vocabulary) and the away sentence names a day or part of one with no return date ("I will be out
+  of the office that day", "out of the office this morning with a sick kid", "I'm travelling on Monday, so please ask my
+  assistant"), it reaches a person instead of pausing the lead. A longer absence or a return date ("until November 12th",
+  "back on Thursday") still pauses, and a subject that is itself the notice ("Out of office -- Dec. 4 and 5") keeps the
+  away reading however long the body runs. The first draft of this rule had neither limit: it cut real auto-reply recall
+  on the tuning halves from 228 to 201 of 231 (people's own "Out of office" announcements, long and chatty), so both limits
+  were added before freezing.
+- *"Don't need the X" or "we're set" beside a request of the reader* is scoping work, not a decline: "we do not need the
+  extra night - is it ok to cancel ... please send a new confirm", "I don't need your map inserted ... Can you center the
+  one I already have", "i don't need the value. I just need the sitara transport report", "we are all set ... Give me a
+  call". "Not interested", "no thanks" and "not a fit" still decline whatever else the reply asks.
+- *Left-company vetoes*: someone else's handover told after the fact ("Mr. Lay had passed this on to Joe Hirko", "She said
+  that she passed it on to Fred Boas", "modified jump calibration code and passed it to IT"), quitting a habit ("I've quit
+  predicting"), "left us short", "Faxing drafts does not work for me". The writer's own handover ("I've passed this to our
+  CTO") still files as left / wrong person with a person deciding, as designed on 2026-11-04, although the round 3-5
+  readers label those `none`.
+- *Not-interested and unsubscribe vetoes*: reported speech ("So I told her I was not interested for now"), "they are not
+  looking at us", "the opportunity to opt-out of the program", "take my mind off the pain", "the only item from your list".
+
+| Stops fired on `RE:` replies | Round 4 rules | Round 5 rules |
+|---|---|---|
+| Tuning `0*` (9,559): right / wrong / ambiguous / unlabelled | 71 / 10 / 1 / 10 | 67 / 9 / 1 / 10 |
+| Tuning `1*` (9,619): same | 85 / 9 / 0 / 6 | 77 / 7 / 0 / 6 |
+| Tuning `2*` (9,584): right / wrong / ambiguous | 79 / 14 / 2 | 71 / 7 / 2 |
+| Tuning `3*` (9,656): same | 46 / 39 / 2 | 46 / 26 / 2 |
+| Tuning `4*` (9,589): same | 64 / 48 / 0 | 63 / 22 / 0 |
+| **Fresh `5*` (9,538), scored once: right / wrong / ambiguous** | **34 / 69 / 4 (107)** | **33 / 52 / 4 (89)** |
+| Fresh precision (ambiguous as wrong) | 32% | 37% |
+| **Fresh wrong stops per 1,000 replies** | **7.2** | **5.5** |
+| Real auto-replies caught, all six halves | 264 of 268 | 264 of 268 |
+| Real bounces caught (sender or subject), all six halves | 257 of 268 | 257 of 268 |
+
+Read the fresh row. On the halves the rules were written from, wrong stops fell 120 to 71 (41%); on new text, 69 to 52
+(25%), less than round 4's 30%. The fresh *before* column is the first honest reading of round 4's rules on new text: 7.2
+wrong stops per 1,000, against the 5.0 it reported on `4*`. So the 5.0 was partly a quiet half, and round 5's 5.5 should be
+read the same way until a seventh half says otherwise.
+
+*Right stops lost.* On `5*`, one: "No. I'll let this one go. Thanks", a real decline whose rest ("I'll let this one go")
+the narrower list does not read as declining. On the tuning halves 21 were lost. Twelve are "No." replies that go on to
+answer ("No. The GP contribution is enough", "No. We buy and sell where we see value"), which rounds 1 and 2 labelled on
+the flagged sentence alone. Seven are short absences in working replies that rounds 1 and 2 labelled right ("I will be out
+of the office that day"); round 4's reader labelled one of the same messages, filed again in `4*`, as `none`. The readers
+disagree on these, and this round sides with the later ones only for absences of a day or less. The rest: "I am no longer
+using the Palm Pilot and therefore do not need the Palm.Net service" beside "Please cancel" (a request, so the soft-no veto
+fires), and one sentence that is both a sick day and a handover.
+
+*Checks.* Opt-out recall on the labelled opt-outs in `2*` and `3*` (`eval/optout-recall.mjs`): 37 of 38 before and after;
+messages labelled `not` but filed unsubscribe, 6 of 79, unchanged. The 113-message recall set needs the whole corpus and
+was not re-run this round. Agent-written reply sets unchanged (`node --test`, 404 before; 423 with the round-5 real-mail
+phrasings in `enron-eval.test.mjs`).
+
+What is left on the fresh half (52 wrong):
+
+- *Away notices (17).* Short absences the new rule does not reach because the reply is short ("I'm out all day tomorrow.",
+  "I will be out of the office tomorrow.") or the absence is longer ("out of the office the next two weeks", "for the
+  balance of the year"). As replies to outreach, several of these are close to an away notice; the reader's `none` is
+  strict, and pausing a lead for a day costs little.
+- *Not-interested (15).* "We're fine." and "NO THANKS!" in personal chat, "I don't need to be on the call", "we are good,
+  only 1.3 contract difference", "don't need ceo's and vp's".
+- *Left-company (13).* Mostly referrals and the writer's own handovers ("Please contact Brent Price for our DASH", "I passed
+  it on to Stacey"), which this product files as wrong person by design; plus a third person who "left the company" and a
+  joke ("I just retired").
+- *Unsubscribe (6) and bounce (1).* "take further action", "getting out of your system", "taken off the following from
+  your list", "kudos to all those who opted", and a person mentioning "a delivery failure notice".
+
+`6*` and later are unread for round 6.
+
 ## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
 
 The Enron check above measured stops that fired wrongly. This one measures the

@@ -236,3 +236,45 @@ test("fourth round: the real asks still stop", () => {
   assert.equal(cat("Please leave me alone."), "unsubscribe");
   assert.equal(cat("Jordan has left Brightline."), "left_company");
 });
+
+// Fifth round (eval/README.md "Fifth round"): paraphrases of the real phrasings the round-5 rules answer, names changed.
+const re = (body) => triage({ subject: "Re: rollout", body }, "2001-06-01").category;
+const FIFTH_NOT_A_STOP = [
+  "NO. I need to know how many beds there are in total!",
+  "No. I do not have any contact information for them.",
+  "no - I never heard back from them.",
+  "Mr. Hale had passed this on to Jo Brant in the broadband group.",
+  "I spoke with Karen about the volume. She said that she passed it on to Fred Boas.",
+  "I just don't know how many questions they can come up with. I've quit predicting.",
+  "Broadband has taken five people out of East Power and left us short.",
+  "Faxing drafts does not work for me.",
+  "So I told her I was not interested for now, but it might be worth finding out more.",
+  "Actually they are not looking at us. I heard it wrong.",
+  "Sorry, we have booked the flights and we do not need the extra night. Is it ok to cancel it and send a new confirm?",
+  "Thank you. I don't need the value. I just need the transport report so I can check positions.",
+  "I agree that we don't need an RTO, we need to fix the transmission rules.",
+  "Thanks for your help, I have talked with Mr. Shaw and we are all set. Give  me a call, I will be here till 6.",
+  "It gives customers the opportunity to opt-out of the program.",
+  "Sure wish I had a coffee to take my mind off the pain.",
+  "The only item from your list that I need clarified is the extensions.",
+];
+for (const body of FIFTH_NOT_A_STOP) test(`fifth round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(re(body)), re(body)));
+
+test("fifth round: a short absence inside a working reply goes to a person; a notice or a longer absence still pauses", () => {
+  const work = "I have asked Bob, Kim and Mechelle to attend the review. I don't have confirmation yet on whether all three can make it. I thought that asking three would fit one of their schedules. I will be out of the office that day.";
+  assert.ok(!["out_of_office"].includes(re(work)), re(work));
+  // The same sentence under the notice's own subject, or with a return date, or with nothing else, is an away notice.
+  assert.equal(triage({ subject: "Out of office", body: work }, "2001-06-01").category, "out_of_office");
+  assert.equal(re("I have asked Bob, Kim and Mechelle to attend the review. I don't have confirmation yet on whether all three can make it. I thought that asking three would fit one of their schedules. I will be out of the office until November 12th."), "out_of_office");
+  assert.equal(re("I will be out of the office Friday."), "out_of_office");
+});
+
+test("fifth round: the real asks still stop", () => {
+  assert.equal(re("No. thank you"), "not_interested");
+  assert.equal(re("No. We are not interested."), "not_interested");
+  assert.equal(re("Nope. Not something a firm like ours would ever buy."), "not_interested");
+  assert.equal(re("We don't need it, thanks."), "not_interested");
+  assert.equal(re("Please take me off your list."), "unsubscribe");
+  assert.equal(re("I left Acme in March."), "left_company");
+  assert.equal(re("I've passed this to our head of operations."), "left_company");
+});
