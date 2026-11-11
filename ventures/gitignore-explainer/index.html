@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%233b3a6b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E!%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>.gitignore Explainer — Why Is This File Ignored? Why Doesn't My ! Rule Work?</title>
+  <meta name="description" content="Free .gitignore checker: paste your .gitignore files and a file list to see which rule decides every path, the way git does. Finds ! negations that cannot work because a parent folder is ignored, with a fix checked against your list, plus tracked files ignore rules do not touch. Runs in your browser.">
+  <meta property="og:title" content=".gitignore Explainer — free, private, in your browser">
+  <meta property="og:description" content="Which rule ignores this file? Why does my ! negation do nothing? Git's own resolution, rule by rule, with a checked fix.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": ".gitignore Explainer", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Resolves .gitignore rules the way git does and names the rule that decides every path, finds negation rules that cannot re-include a file because a parent directory is ignored, suggests a fix checked against your file list, and lists tracked files that ignore rules do not affect. Runs in your browser.", "featureList": "git check-ignore compatible resolution, nested .gitignore files, .git/info/exclude, blocked negation detection, verified fix, tracked-but-ignored files, shadowed and redundant rules, whitespace and comment lint, CSV download, command-line version"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my ! negation in .gitignore not work?", "acceptedAnswer": {"@type": "Answer", "text": "Almost always because a folder above the file is ignored. Git does not look inside an ignored folder at all, so it never reads a rule about a file inside it. With build/ followed by !build/keep.txt, the folder build is ignored and keep.txt is never considered. Ignore the folder's contents instead, with build/* followed by !build/keep.txt, and re-open each deeper folder on the way down with a rule like !build/sub/."}}, {"@type": "Question", "name": "Which rule is ignoring my file?", "acceptedAnswer": {"@type": "Answer", "text": "Git checks the rules from the last line up and the first one that matches decides. A .gitignore in a deeper folder is checked before the one above it, and .git/info/exclude and your global excludes file come last. The command git check-ignore -v path prints the deciding rule for one path; this tool does the same for every path in your list at once, and explains folder-by-folder when an ignored parent folder is the reason."}}, {"@type": "Question", "name": "Why is a file still showing up in git status after I added it to .gitignore?", "acceptedAnswer": {"@type": "Answer", "text": "Because it is already tracked. Ignore rules only apply to files git is not tracking yet. Run git rm --cached on the file to stop tracking it while keeping it on disk, then commit. Paste your git ls-files output into the tracked box and the tool lists every tracked file your rules match."}}, {"@type": "Question", "name": "When does a .gitignore pattern match only at the top level?", "acceptedAnswer": {"@type": "Answer", "text": "When it contains a slash anywhere except at the very end. docs/*.pdf matches only docs at the top of the folder the .gitignore lives in, while *.pdf or a pattern with only a trailing slash, like logs/, matches at any depth. To match a path with a slash at any depth, start it with **/, as in **/docs/*.pdf."}}, {"@type": "Question", "name": "What does ** mean in .gitignore?", "acceptedAnswer": {"@type": "Answer", "text": "Two asterisks cross folders only when they fill a whole path segment: **/name matches name in any folder, name/** matches everything inside name, and a/**/b matches b at any depth below a, including directly inside it. Glued to other characters, as in src/**.js, the two asterisks act like one and stop at the next slash."}}, {"@type": "Question", "name": "Can I put a comment at the end of a .gitignore line?", "acceptedAnswer": {"@type": "Answer", "text": "No. A line is a comment only when it starts with #. Anything after a pattern, including # and the words after it, becomes part of the pattern, so the rule stops matching what you meant. Trailing spaces are trimmed but tabs are not, and leading spaces count. The tool flags all of these."}}, {"@type": "Question", "name": "Is anything I paste uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The checker runs entirely in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1b2b; background: #f4f4f8; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #3b3a8f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #26254f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #26254f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    code { font: 0.92em ui-monospace, Menlo, Consolas, monospace; background: #ebebf3; padding: 1px 4px; border-radius: 4px; }
+    .note, footer { font-size: .86rem; color: #50506a; }
+    .card { background: #fff; border: 1px solid #dcdce8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #26254f10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #77779a; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    textarea { font: 13.5px ui-monospace, Menlo, Consolas, monospace; min-height: 12em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #3b3a8f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e6e6f2; color: #26254f; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ebebf3; vertical-align: top; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #50506a; }
+    td code { white-space: pre-wrap; word-break: break-all; }
+    .finding { border-bottom: 1px solid #ebebf3; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding ul { margin: 6px 0 0; padding-left: 20px; font: .85rem ui-monospace, Menlo, Consolas, monospace; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.low, .pill.info { background: #e6e6f2; color: #26254f; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #efeff7; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #26254f; }
+    pre.fix { background: #1f1f38; color: #f0f0ff; padding: 14px; border-radius: 10px; overflow-x: auto; font: 13.5px ui-monospace, Menlo, Consolas, monospace; }
+    .scroll { overflow-x: auto; }
+    .yes { color: #7a1f10; font-weight: 600; }
+    .row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+    .row > div { flex: 1 1 260px; }
+    ol.steps { padding-left: 20px; font-size: .94rem; }
+    footer { margin-top: 28px; border-top: 1px solid #dcdce8; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">.GITIGNORE EXPLAINER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Why is git ignoring this file, and why doesn't my <code>!</code> rule work?</h1>
+    <p>Paste your <code>.gitignore</code> files and a list of paths. For every path you get <strong>the rule that decides it</strong>, resolved the way git resolves it: last match wins, deeper files beat shallower ones, and <strong>git never looks inside an ignored folder</strong>, which is why <code>build/</code> followed by <code>!build/keep.txt</code> does nothing. The tool finds those dead negations, writes <strong>a fix it has checked against your list</strong>, and lists <strong>tracked files</strong> your rules match but cannot touch.</p>
+    <p class="note">Nothing you paste leaves this browser tab. Checked against <code>git check-ignore</code> on thousands of random repositories (see the README); still, your own git is the final word.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Your ignore files</h2>
+    <p class="note">Paste your root <code>.gitignore</code>. For more files, start each with a line <code>==&gt; path/to/.gitignore &lt;==</code> (what <code>head</code> prints for several files, so <code>head -n 1000 $(git ls-files '*.gitignore')</code> gives you the whole lot). <code>==&gt; .git/info/exclude &lt;==</code> works too.</p>
+    <label for="sources">Ignore files</label>
+    <textarea id="sources" spellcheck="false" placeholder="build/&#10;!build/keep.txt&#10;*.log"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>2. The paths to check</h2>
+    <div class="grid">
+      <div>
+        <label for="paths">Untracked paths, one per line</label>
+        <textarea id="paths" spellcheck="false" placeholder="build/keep.txt&#10;debug.log"></textarea>
+        <p class="note">From <code>git ls-files --others</code>, or <code>git status --porcelain --ignored</code>, or typed by hand. End a line with <code>/</code> to mark a folder.</p>
+      </div>
+      <div>
+        <label for="tracked">Tracked paths (optional)</label>
+        <textarea id="tracked" spellcheck="false" placeholder=".env&#10;README.md"></textarea>
+        <p class="note">From <code>git ls-files</code>. Ignore rules have no effect on these; the tool lists the ones your rules match.</p>
+      </div>
+    </div>
+    <p>
+      <button type="button" id="run">Explain</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p id="form-status" class="note" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>Report</h2>
+    <div class="big" id="totals"></div>
+    <div id="fix"></div>
+    <h3>Findings</h3>
+    <div id="findings"></div>
+    <h3>Every path</h3>
+    <div class="row">
+      <div><label for="filter">Filter paths</label><input id="filter" type="search" placeholder="part of a path"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="csv">Download CSV</button></div>
+    </div>
+    <div class="scroll"><table><thead><tr><th>Path</th><th>Ignored?</th><th>Decided by</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </section>
+
+  <section class="card">
+    <h2>Why is one path ignored?</h2>
+    <p class="note">The steps git takes, folder by folder, using the ignore files above.</p>
+    <div class="row">
+      <div><label for="whyPath">Path</label><input id="whyPath" type="text" spellcheck="false" placeholder="packages/web/dist/robots.txt"></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="why">Show the steps</button></div>
+    </div>
+    <ol class="steps" id="whySteps"></ol>
+  </section>
+
+  <section class="card">
+    <h2>From a terminal</h2>
+    <p>The same engine runs over a whole repository, with no install and no network: it reads every <code>.gitignore</code>, <code>.git/info/exclude</code>, and the tracked and untracked file lists itself.</p>
+    <pre class="fix">node ventures/gitignore-explainer/cli/check.mjs            # report
+node ventures/gitignore-explainer/cli/check.mjs --why path # the steps for one path
+node ventures/gitignore-explainer/cli/check.mjs --strict   # exit 1 on a high finding (CI)</pre>
+    <p class="note">Clone <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitignore-explainer" rel="noopener">the source</a>, then run it from inside your own repository with the path to <code>cli/check.mjs</code>. Node 18 or later.</p>
+  </section>
+
+  <section class="card" id="faq">
+    <h2>Questions</h2>
+    <h3>Why does my ! negation in .gitignore not work?</h3>
+    <p>Almost always because a folder above the file is ignored. Git does not look inside an ignored folder at all, so it never reads a rule about a file inside it. With build/ followed by !build/keep.txt, the folder build is ignored and keep.txt is never considered. Ignore the folder's contents instead, with build/* followed by !build/keep.txt, and re-open each deeper folder on the way down with a rule like !build/sub/.</p>
+    <h3>Which rule is ignoring my file?</h3>
+    <p>Git checks the rules from the last line up and the first one that matches decides. A .gitignore in a deeper folder is checked before the one above it, and .git/info/exclude and your global excludes file come last. The command git check-ignore -v path prints the deciding rule for one path; this tool does the same for every path in your list at once, and explains folder-by-folder when an ignored parent folder is the reason.</p>
+    <h3>Why is a file still showing up in git status after I added it to .gitignore?</h3>
+    <p>Because it is already tracked. Ignore rules only apply to files git is not tracking yet. Run git rm --cached on the file to stop tracking it while keeping it on disk, then commit. Paste your git ls-files output into the tracked box and the tool lists every tracked file your rules match.</p>
+    <h3>When does a .gitignore pattern match only at the top level?</h3>
+    <p>When it contains a slash anywhere except at the very end. docs/*.pdf matches only docs at the top of the folder the .gitignore lives in, while *.pdf or a pattern with only a trailing slash, like logs/, matches at any depth. To match a path with a slash at any depth, start it with **/, as in **/docs/*.pdf.</p>
+    <h3>What does ** mean in .gitignore?</h3>
+    <p>Two asterisks cross folders only when they fill a whole path segment: **/name matches name in any folder, name/** matches everything inside name, and a/**/b matches b at any depth below a, including directly inside it. Glued to other characters, as in src/**.js, the two asterisks act like one and stop at the next slash.</p>
+    <h3>Can I put a comment at the end of a .gitignore line?</h3>
+    <p>No. A line is a comment only when it starts with #. Anything after a pattern, including # and the words after it, becomes part of the pattern, so the rule stops matching what you meant. Trailing spaces are trimmed but tabs are not, and leading spaces count. The tool flags all of these.</p>
+    <h3>Is anything I paste uploaded?</h3>
+    <p>No. The checker runs entirely in this browser tab. There are no accounts, cookies or analytics vendors, and the command-line version makes no network calls.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, security or professional advice. Results come from the text you paste, resolved by this tool's own reimplementation of git's rules; it does not run git. You are responsible for reviewing and verifying its output, for example with <code>git check-ignore -v</code>, before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with or endorsed by the Git project, GitHub, GitLab or any other vendor. Git is a trademark of the Software Freedom Conservancy.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>gitignore_checked</code>, <code>example_loaded</code>, <code>why_shown</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Reviewing who owns which files? The <a href="../codeowners-shadow-check/">CODEOWNERS shadow checker</a> resolves the same last-match-wins patterns for review routing. Guide: <a href="why-gitignore-negation-does-not-work.html">why <code>!</code> in .gitignore sometimes does nothing</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, why, reportCsv, DEFAULTS } from "./gitignore.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const md = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+    const status = $("#form-status");
+    let last = null;
+
+    const ruleCell = (r, row) => {
+      if (!r) return '<span class="note">no rule matches</span>';
+      let s = `<code>${esc(r.text)}</code> <span class="note">${esc(r.source)}:${r.line}</span>`;
+      if (row && row.via) s += `<br><span class="note">via ignored folder ${esc(row.via)}/</span>`;
+      if (row && row.via && row.own && row.own.negated) s += `<br><span class="yes">blocked: <code>${esc(row.own.text)}</code></span>`;
+      return s;
+    };
+
+    function renderRows() {
+      if (!last) return;
+      const q = $("#filter").value.trim().toLowerCase();
+      const rows = last.paths.filter((r) => !q || r.path.toLowerCase().includes(q)).slice(0, 2000);
+      $("#rows").innerHTML = rows.map((r) => `<tr><td><code>${esc(r.path)}${r.isDir ? "/" : ""}</code>${r.tracked ? ' <span class="note">tracked</span>' : ""}</td><td>${r.ignored ? '<span class="yes">ignored</span>' : "kept"}</td><td>${ruleCell(r.rule, r)}</td></tr>`).join("") +
+        (last.paths.length > rows.length && !q ? `<tr><td colspan="3" class="note">Showing the first 2,000 of ${last.paths.length.toLocaleString()} paths; filter or download the CSV for the rest.</td></tr>` : "");
+    }
+
+    function run() {
+      const input = { sources: $("#sources").value, paths: $("#paths").value, tracked: $("#tracked").value };
+      if (!input.sources.trim()) { status.textContent = "Paste at least one .gitignore."; return; }
+      if (!input.paths.trim() && !input.tracked.trim()) { status.textContent = "Add at least one path to check."; return; }
+      const t0 = performance.now();
+      last = analyze(input);
+      const t = last.totals;
+      status.textContent = `Checked ${t.paths.toLocaleString()} paths against ${t.rules} rules in ${Math.round(performance.now() - t0)} ms.`;
+      $("#totals").innerHTML = [
+        ["Paths checked", t.paths], ["Ignored", t.ignored], ["Blocked negations", t.blockedNegations], ["Tracked but matched", t.trackedIgnored],
+      ].map(([k, v]) => `<div><strong>${v.toLocaleString()}</strong>${k}</div>`).join("");
+      const fx = last.fix;
+      $("#fix").innerHTML = fx ? `<h3>Suggested fix</h3><p>Re-open each blocking folder with <code>!/folder/</code>, ignore its contents with <code>/folder/*</code>, then repeat the negation. Run against your list, this re-includes <strong>${fx.fixed.length}</strong> path${fx.fixed.length === 1 ? "" : "s"}${fx.unfixed.length ? `, leaves ${fx.unfixed.length} still ignored` : ""}, and changes <strong>${fx.sideEffects.length}</strong> other path${fx.sideEffects.length === 1 ? "" : "s"}.</p>` +
+        fx.patches.map((p) => `<p class="note">Append to <code>${esc(p.file)}</code>:</p><pre class="fix">${esc(p.lines.join("\n"))}</pre>`).join("") +
+        (fx.sideEffects.length ? `<p class="note">Other changes: ${fx.sideEffects.slice(0, 12).map((s) => `<code>${esc(s.path)}</code> ${s.before ? "ignored" : "kept"} → ${s.after ? "ignored" : "kept"}`).join(", ")}${fx.sideEffects.length > 12 ? ", …" : ""}</p>` : "") : "";
+      $("#findings").innerHTML = last.findings.length ? last.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${md(f.title)}</h4><p class="note">${esc(f.source)}:${f.line} <code>${esc(f.text)}</code></p><p>${md(f.detail)}</p>${f.paths ? `<ul>${f.paths.slice(0, 10).map((p) => `<li>${esc(p)}</li>`).join("")}${f.paths.length > 10 ? `<li>… and ${f.paths.length - 10} more</li>` : ""}</ul>` : ""}</div>`).join("") : "<p>No findings: every rule does something in your list and nothing looks miswritten.</p>";
+      renderRows();
+      $("#report").hidden = false;
+      record("gitignore_checked");
+    }
+
+    function showWhy() {
+      const res = why({ sources: $("#sources").value, path: $("#whyPath").value });
+      $("#whySteps").innerHTML = res.steps.map((s) => `<li><code>${esc(s.path)}</code>: ${s.ignored ? '<span class="yes">ignored</span>' : "not ignored"}${s.rule ? ` by ${ruleCell(s.rule)}` : " (no rule matches)"}${s.note ? `<br><span class="note">${esc(s.note)}</span>` : ""}</li>`).join("") || "<li>Type a path.</li>";
+      record("why_shown");
+    }
+
+    $("#run").addEventListener("click", run);
+    $("#example").addEventListener("click", () => {
+      $("#sources").value = DEFAULTS.sources; $("#paths").value = DEFAULTS.paths; $("#tracked").value = DEFAULTS.tracked;
+      $("#whyPath").value = "packages/web/dist/robots.txt";
+      record("example_loaded");
+      run();
+    });
+    $("#clear").addEventListener("click", () => { for (const id of ["sources", "paths", "tracked", "whyPath"]) $("#" + id).value = ""; $("#report").hidden = true; status.textContent = ""; last = null; });
+    $("#filter").addEventListener("input", renderRows);
+    $("#why").addEventListener("click", showWhy);
+    $("#csv").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "gitignore-report.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

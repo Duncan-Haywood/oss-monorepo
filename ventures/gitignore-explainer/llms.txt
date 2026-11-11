@@ -1,0 +1,19 @@
+# .gitignore Explainer: which rule ignores this file, and why doesn't my ! rule work?
+
+> Free .gitignore checker. From your ignore files (root and nested .gitignore, .git/info/exclude) and a list of paths, it names the rule that decides every path the way git does (last match wins, deeper files first, an ignored folder hides everything inside it), finds `!` negations that cannot work because a parent folder is ignored and writes a fix it has re-checked against the list, lists tracked files that ignore rules match but do not affect, and flags rules that match nothing, never decide, or are redundant, plus whitespace, inline-comment, backslash and `**` mistakes. Runs in the browser; nothing is uploaded. A zero-dependency CLI runs it over a whole repository.
+
+Free and open source (MIT). Results come from this tool's reimplementation of git's ignore rules, checked against `git check-ignore` on random repositories; it is not legal, security or professional advice, and your own git is the final word.
+
+## Pages
+
+- [The tool](https://marisstella.app/gitignore-explainer/)
+- [Why a ! negation in .gitignore does nothing](https://marisstella.app/gitignore-explainer/why-gitignore-negation-does-not-work.html)
+
+## For agents
+
+- Engine: `gitignore.mjs`. `analyze({ sources, paths, tracked })`: `sources` is the root .gitignore text, or several files each introduced by a line `==> path/.gitignore <==` (`.git/info/exclude` allowed); `paths` and `tracked` are newline-separated paths (a trailing `/` marks a folder). Returns `paths` (deciding rule per path, `via` the ignored ancestor folder), `findings`, `fix` (`patches`: lines to append per file, with `fixed`, `unfixed`, `sideEffects`) and `totals`. `why({ sources, path })` gives the folder-by-folder steps. `DEFAULTS` is the page's example. Callable through `node platform/agents/tools.mjs call gitignore-explainer analyze --input '{"sources":"build/\n!build/keep.txt","paths":"build/keep.txt"}'` or the repository's MCP server (`call_tool`).
+- CLI: `node ventures/gitignore-explainer/cli/check.mjs` inside any git repository (`--why <path>`, `--json`, `--strict`, `--bundle`).
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitignore-explainer): MIT licensed.
