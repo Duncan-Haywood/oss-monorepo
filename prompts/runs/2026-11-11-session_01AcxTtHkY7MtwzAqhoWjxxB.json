@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtHkY7MtwzAqhoWjxxB",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T13:06:00Z",
+  "ended": "2026-11-11T13:21:13Z",
+  "wall_minutes": 15.74,
+  "tokens_in": 11683872,
+  "tokens_out": 84988,
+  "cost_usd": 5.4448,
+  "tool_calls": 85,
+  "task": "explore: new venture systemd-unit-hardening-check",
+  "projects": [
+    "systemd-unit-hardening-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14794",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 39,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft assumed SystemCallFilter= and similar imply NoNewPrivileges=; the current systemd.exec(5) does not say so",
+      "fix": "checked man7.org copy of the manual; only DynamicUser= is now credited"
+    },
+    {
+      "what": "First version gave nine sandbox findings for a docker-run wrapper unit (igmp-worker.service), which would only confine the client",
+      "fix": "added svc-container-launcher: one note, missing-sandbox checks skipped"
+    },
+    {
+      "what": "run_venture_tests flagged two unguarded object-map lookups in classify.mjs",
+      "fix": "index lookup on an array"
+    },
+    {
+      "what": "Mobile screenshot showed the findings table breaking file paths one character per line",
+      "fix": "table stacks as cards under 640px"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes failed on the fresh shallow clone (origin/main shared no commit with HEAD); needed git fetch --depth=40 origin main first. The script says so, but the CLAUDE.md line pointing at it could mention the fetch."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "The new-venture wiring (build.mjs category regex, DOWNLOADABLE_CLI_FILES, launched.json, optout SWITCHES count, sibling link) is learned by reading a previous venture's commit, not from one checklist."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/docker-compose-security-check (sibling pattern)",
+      "why": "Did not add a per-venture <slug>-ci.yml workflow like the sibling has: ventures/CLAUDE.md says ventures-tests.yml covers node --test, and a workflow file sits under CODEOWNERS and would hold the PR for owner approval.",
+      "did": "relied on run_venture_tests.py",
+      "result": "suite passes locally"
+    },
+    {
+      "file": "ventures/ubuntu-agent-server/roles/agent_runner/templates/agent-runner.service.j2",
+      "why": "The checker found 3 medium + 5 low hardening gaps in the repo's own agent-runner unit; did not change it, since sandboxing it untested on a real server could break the runner.",
+      "did": "recorded in the post as a known item",
+      "result": "unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-what-a-five-line-unit-file-hands-over.md"
+  ],
+  "goal": null,
+  "notes": "Idea: a file-based systemd .service hardening checker (drop-in merge, DynamicUser implications, container-launcher detection, starter drop-in generator) to sit beside the Compose/Kubernetes/Actions devsec checks; nothing in ventures/ read unit files. Ran it on the repo's own two units for the post. Verified: 16 Python + 23 Node tests, parity test Python/JS, run_venture_tests.py ok for this venture and docker-compose-security-check, optout-persistence test 20/20, check_llms_txt_links 0 dead, check_post_links 0 broken, Chromium drive at 390px with no console errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c2eeb6ad-5cde-5bf7-9da1-3f440446b567",
+    "transcripts": 1,
+    "first": "2026-11-11T13:06:00Z",
+    "last": "2026-11-11T13:21:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 157,
+        "output": 84988,
+        "thinking": 12662,
+        "cache_read": 11503248,
+        "cache_write_5m": 0,
+        "cache_write_1h": 180467,
+        "api_equivalent_usd": 5.4448,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 157,
+      "output": 84988,
+      "thinking": 12662,
+      "cache_read": 11503248,
+      "cache_write_5m": 0,
+      "cache_write_1h": 180467,
+      "api_equivalent_usd": 5.4448,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 69,
+      "Write": 5,
+      "Read": 4,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.74,
+      "active_minutes": 15.74,
+      "model_minutes": 13.73,
+      "tool_minutes": 2.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior Linux/devsec engineer: systemd.exec research, parser with drop-in merge, JS port with parity tests, page, guide and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 183.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

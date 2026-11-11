@@ -1,9 +1,9 @@
 ---
 title: "What a five-line unit file hands over: a free systemd hardening checker"
-seo_title: "Free systemd service hardening checker: root, ProtectSystem, secrets in Environment="
+seo_title: "Free systemd service hardening checker for .service files"
 date: 2026-11-11
 tags: [systemd, linux, security, self-hosting, devsec, open-source]
-description: "A new open-source tool reads a systemd .service file and its drop-ins, flags root services, missing sandboxing and secrets in Environment=, and writes a starter hardening drop-in. We ran it on the repository's own two units first."
+description: "A free tool reads a systemd .service and its drop-ins, flags root services, missing sandboxing and secrets, and writes a starter hardening drop-in."
 ---
 
 The [systemd Unit Hardening Check](../../ventures/systemd-unit-hardening-check/)
