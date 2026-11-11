@@ -261,3 +261,18 @@ test('redteam guards: explicit default port is kept; 172.16-19 are private', () 
     assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: `http://${ip}/v1` }), true, ip);
   }
 });
+
+// Red-team run 2026-11-11: PR #14676 changed this file and none of its 16 venture
+// copies, which turned 10 venture suites red on main. Venture suites only run when
+// their own venture changes, but this file's tests run on every platform/llm change,
+// so the sync check lives here too.
+test('every ventures/*/byok.mjs is a byte-identical copy of this file', async () => {
+  const { readFileSync, readdirSync, existsSync } = await import('node:fs');
+  const root = new URL('../../ventures/', import.meta.url);
+  const here = readFileSync(new URL('./byok.mjs', import.meta.url), 'utf8');
+  const stale = readdirSync(root, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(new URL(`${d.name}/byok.mjs`, root)))
+    .map((d) => d.name)
+    .filter((name) => readFileSync(new URL(`${name}/byok.mjs`, root), 'utf8') !== here);
+  assert.deepEqual(stale, [], `copy platform/llm/byok.mjs over ventures/<slug>/byok.mjs for: ${stale.join(', ')}`);
+});
