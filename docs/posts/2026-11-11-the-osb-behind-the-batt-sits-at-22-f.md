@@ -1,6 +1,6 @@
 ---
 title: "The OSB behind the batt sits at 22 F: a free month-by-month wall condensation check"
-seo_title: "Will my wall condense? A free Glaser dew point calculator with monthly drying"
+seo_title: "Will my wall condense? A free month-by-month dew point calculator"
 date: 2026-11-11
 tags: [construction, building-science, moisture, condensation, dew-point, walls, tools]
 description: "A free browser tool runs the Glaser condensation check month by month for any wall, carrying the water forward to see whether it dries by summer."
