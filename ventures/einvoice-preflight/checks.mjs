@@ -16,14 +16,10 @@ import { inspectTaxExemption } from "./tax.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectPartyVat } from "./vat.mjs";
 import { acceptedLineNet, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
+import { parseDecimal } from "./numbers.mjs";
 
-function parseNumber(value) {
-  if (value === undefined || value === null || value === "") return null;
-  const text = typeof value === "string" ? value.trim() : String(value);
-  if (text === "" || !Number.isFinite(Number(text))) return null;
-  const result = Number(text);
-  return Number.isFinite(result) ? result : null;
-}
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
 
 export function roundHalfUpToCents(value) {
   if (!Number.isFinite(value)) return null;

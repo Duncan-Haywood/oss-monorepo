@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from datetime import date
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP, localcontext
 from typing import Any
+
+from .numbers import parse_decimal
 
 from .adjustment import header_adjustment_net_delta, inspect_header_adjustments
 from .bic import inspect_payment_bic
@@ -27,11 +29,7 @@ def _money(value: Any) -> Decimal | None:
 
 def _number(value: Any) -> Decimal | None:
     """Parse a finite number without applying currency-specific rounding."""
-    try:
-        result = Decimal(str(value))
-    except (InvalidOperation, ValueError, TypeError):
-        return None
-    return result if result.is_finite() else None
+    return parse_decimal(value)
 
 
 def _iso_date(value: Any) -> date | None:
@@ -45,6 +43,15 @@ def _iso_date(value: Any) -> date | None:
 
 
 def check_invoice(invoice: Any) -> list[dict[str, str]]:
+    # Amounts are capped at 15 digits before the point when parsed, but a line's quantity times
+    # price, summed over lines and rounded to cents, can need more than Decimal's
+    # default 28 digits; quantize then raised InvalidOperation and the CLI crashed.
+    with localcontext() as ctx:
+        ctx.prec = 80
+        return _check_invoice(invoice)
+
+
+def _check_invoice(invoice: Any) -> list[dict[str, str]]:
     errors: list[dict[str, str]] = []
 
     def fail(rule: str, message: str, fix: str, path: str = "") -> None:

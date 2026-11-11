@@ -6,20 +6,16 @@ summed taxable amount, not per line. Mirrors linenet.mjs.
 """
 from __future__ import annotations
 
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
+
+from .numbers import parse_decimal
 
 _CENT = Decimal("0.01")
 
 
 def _number(value: Any) -> Decimal | None:
-    if value is None or value == "":
-        return None
-    try:
-        result = Decimal(str(value).strip())
-    except (InvalidOperation, ValueError):
-        return None
-    return result if result.is_finite() else None
+    return parse_decimal(value)
 
 
 def round_cents(value: Decimal) -> Decimal:
