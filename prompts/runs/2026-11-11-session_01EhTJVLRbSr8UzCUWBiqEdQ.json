@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
@@ -49,7 +49,7 @@
     "docs/posts/2026-11-11-twelve-teams-take-the-rounds-out.md"
   ],
   "goal": null,
-  "notes": "New eval/round-refill.mjs: LNS that takes 2-5 rounds out and refills by DFS with incremental carry-over pruning. 12 teams 152->136 non-cyclic (3 of 4 seeds, 420 s each), 9 teams 71->69; stored in carryover.mjs TIMETABLES and used as the starter-path start. 11 teams tied 115, 14 teams worse (220 vs 212), recorded in eval/round-refill.txt. Verification: node --test starter.test.mjs 9/9 pass; run_venture_tests.py league-schedule-generator and venture-preflight results in the PR.",
+  "notes": "New eval/round-refill.mjs: LNS that takes 2-5 rounds out and refills by DFS with incremental carry-over pruning. 12 teams 152->136 non-cyclic (3 of 4 seeds, 420 s each), 9 teams 71->69; stored in carryover.mjs TIMETABLES and used as the starter-path start. 11 teams tied 115, 14 teams worse (220 vs 212), recorded in eval/round-refill.txt. Verification: node --test starter.test.mjs 9/9 pass; run_venture_tests.py league-schedule-generator and venture-preflight results in the PR. Full suite first failed 1 test (12-team season, seed 2, weight 10: 596/46 vs the old 618/40, the stored leg replacing the starter); fixed by making the stored timetable a third start (constructionStarts). Then python3 platform/ci/run_venture_tests.py league-schedule-generator: ok (263.5 s, 0 failed); node platform/pages/venture-preflight.mjs league-schedule-generator: preflight clean.",
   "corrections": [],
   "redteam": null
 }
