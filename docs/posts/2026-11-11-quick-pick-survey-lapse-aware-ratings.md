@@ -1,6 +1,6 @@
 ---
 title: "Teaching our survey's rating update that people answer at random sometimes"
-seo_title: "Glicko-2 with a lapse term for pairwise surveys: what a fixed lapse rate can and cannot do"
+seo_title: "Glicko-2 with a lapse term for pairwise surveys, measured"
 date: 2026-11-11
 tags: [quick-pick-survey, ranking, glicko-2, pairwise-comparison, simulation, negative-result]
 description: "A Glicko-2 update that expects some coin-flip answers kept its intervals honest only when it knew the true rate; a fixed guess cost up to twice the answers."
