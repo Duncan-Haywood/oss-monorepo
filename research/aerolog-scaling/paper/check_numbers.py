@@ -90,11 +90,11 @@ CHECKS = [
     ("experiments/hub_throughput/cargo_hub_trace_results.txt", "2019-10-12 uniform: 40", "6f: Saturday 40 spares at 85%"),
     ("experiments/hub_throughput/cargo_hub_trace_taper_results.txt", "2019-10-09 uniform : 28", "6g: Wednesday 28 spares, 30-100%"),
     ("experiments/hub_throughput/cargo_hub_trace_taper_results.txt", "Poisson            : 20", "6g: Poisson 20 spares, 30-100%"),
-    ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 70% k=4: analytic 25, simulated 25", "6h: k=4 at 70%, 25 both"),
-    ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 85% k=4: analytic 45, simulated 45", "6h: k=4 at 85%, 45 both"),
-    ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 70% k=1: analytic 12, simulated 12", "6h: Poisson 12 at 70%"),
-    ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 85% k=1: analytic 17, simulated 17", "6h: Poisson 17 at 85%"),
-    ("experiments/hub_throughput/analytic_spares_results.txt", "P3 worst amount analytic falls below simulated: 0.3957", "6h: optimistic by up to 0.40"),
+    ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 70% k=4: analytic 25, simulated 25", "6i: k=4 at 70%, 25 both"),
+    ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 85% k=4: analytic 45, simulated 45", "6i: k=4 at 85%, 45 both"),
+    ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 70% k=1: analytic 12, simulated 12", "6i: Poisson 12 at 70%"),
+    ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 85% k=1: analytic 17, simulated 17", "6i: Poisson 17 at 85%"),
+    ("experiments/hub_throughput/analytic_spares_results.txt", "P3 worst amount analytic falls below simulated: 0.3957", "6i: optimistic by up to 0.40"),
 ]
 LOGCHECKS = [  # figures that exist in LOG.md outcomes (the results files print them in tables)
     "1,273 km at engine 1 kW/kg", "145 to 167", "0.40 (cruise-sized), 0.34 (hover-sized, 10e) and 0.18",

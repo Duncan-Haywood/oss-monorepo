@@ -1,4 +1,4 @@
-"""Milestone 6h: can a closed-form queueing rule replace the simulator for a hub's spare-pack count?
+"""Milestone 6i: can a closed-form queueing rule replace the simulator for a hub's spare-pack count?
 
 Model (6c's hub: 8 pads, 8 chargers, 1C, 20-90% window = 2520 s charge, 180 s swap+load).
 Each flight takes a charged pack from a ground pool of S packs; its depleted pack reaches a charger
@@ -146,7 +146,7 @@ def sim_share(rate, k, S, seeds=5, orders=40000):
 
 def main():
     lim = CH * 3600 / D
-    print(f"Milestone 6h: analytic spare-pack rule (M^X/D/c + pad transit) against the 6c simulator")
+    print(f"Milestone 6i: analytic spare-pack rule (M^X/D/c + pad transit) against the 6c simulator")
     print(f"hub: {PADS} pads, {CH} chargers, charge {D:.0f} s, swap+load {T_PAD:.0f} s, charger limit {lim:.2f} flights/h")
     worst_abs, worst_low, count_diffs = {}, 0.0, []
     for load in (0.7, 0.85):

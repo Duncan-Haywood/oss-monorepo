@@ -1,4 +1,4 @@
-Milestone 6h: analytic spare-pack rule (M^X/D/c + pad transit) against the 6c simulator
+Milestone 6i: analytic spare-pack rule (M^X/D/c + pad transit) against the 6c simulator
 hub: 8 pads, 8 chargers, charge 2520 s, swap+load 180 s, charger limit 11.43 flights/h
 
 load 70% (8.00/h), batch k=1: E[N_out] analytic 6.35 (Little: 6.00 + E[queue wait] term)

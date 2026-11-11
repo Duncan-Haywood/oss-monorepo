@@ -1,10 +1,12 @@
 // Classifies a probe result (real HTTP responses, collected by probe.mjs's
-// live network requests or pasted in by hand) against the same criteria
-// Chrome's own "installable-manifest" Lighthouse audit checks -- see
-// https://developer.chrome.com/docs/lighthouse/pwa/installable-manifest/ and
-// https://developer.chrome.com/docs/webapps/manifest -- so a report from this
-// tool and a Lighthouse report should never disagree about whether a manifest
-// clears the bar.
+// live network requests or pasted in by hand) against Chrome's published
+// install criteria -- see https://web.dev/articles/install-criteria and
+// https://developer.chrome.com/docs/webapps/manifest. Hard blockers are
+// errors; two items the published list names but Chrome's installer has
+// tolerated in practice (a 512x512 icon and an explicit start_url) are
+// notices, and a passing report names them, so "passes" never means more
+// than the checks below. Lighthouse 12 removed its PWA category, so there is
+// no current Lighthouse audit to match.
 //
 // Pure function, no I/O, no network -- this is the module both the CLI
 // (check.mjs, which fetches for real) and the browser page (index.html,
@@ -235,8 +237,9 @@ export function buildReport(pageUrl, probe) {
       severity: 'notice',
       title: 'No reachable icon is at least 512x512',
       detail:
-        'Not a hard installability blocker, but Chrome uses a 512x512-or-larger icon for a ' +
-        'richer install dialog and splash screen when one is present.',
+        'Chrome\'s published install criteria (web.dev/articles/install-criteria) list a ' +
+        '512x512 icon alongside the 192x192 one. Chrome\'s installer has accepted manifests ' +
+        'without it, so this is a notice, not a blocker, but add one: it is also the splash-screen icon.',
       evidence: icons.map((i) => `${i.src ?? '(no src)'} sizes=${i.sizes ?? '?'}`).join('; '),
     });
   }
@@ -260,9 +263,9 @@ export function buildReport(pageUrl, probe) {
       severity: 'notice',
       title: 'Manifest has no explicit "start_url"',
       detail:
-        'Not a hard blocker -- it defaults to the manifest\'s own document URL -- but an explicit ' +
-        '"start_url" is recommended so the installed app opens where you intend, not wherever the ' +
-        'manifest happened to be linked from.',
+        'Chrome\'s published install criteria (web.dev/articles/install-criteria) list ' +
+        '"start_url". When it is absent the browser falls back to the document URL, so this is a ' +
+        'notice rather than a blocker, but set it so the installed app opens where you intend.',
       evidence: 'start_url: (absent)',
     });
   }

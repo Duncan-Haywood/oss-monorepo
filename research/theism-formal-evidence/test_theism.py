@@ -188,6 +188,18 @@ def test_e10_theorem_matches_search():
     assert e10.predicted([[c] for c in range(6)], 2, 3) == 0
 
 
+def test_e11_anderson_own_a2_matches_prediction():
+    """With Anderson's own A2 the search's model count equals the number of generators H (E11),
+    and full property semantics gives one model per individual at any number of worlds."""
+    e11 = _load("e11_anderson_a2")
+    for w, d in [(2, 2), (3, 1), (1, 3)]:
+        for blocks in _load("e8_restricted").partitions(w * d):
+            assert len(e11.search_weak(w, d, blocks)[0]) == e11.predicted(w, d, blocks)
+    assert len(e11.search_weak(2, 1, [[0], [1]])[0]) == 1      # B&F's 2-world, 1-entity size
+    assert len(e11.search_weak(2, 2, [[0], [1], [2], [3]])[0]) == 2
+    assert e11.predicted(3, 2, [[c] for c in range(6)]) == 2
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

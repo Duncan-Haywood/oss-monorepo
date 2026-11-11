@@ -44,7 +44,7 @@ test('over-cut warning: fires on a smooth real pair, not on white noise with one
   assert.equal(jointOvercut(5, 200), true);
   assert.equal(jointOvercut(4, 100), true);
   const de = readFileSync(new URL('./data/german-unemployment.csv', import.meta.url), 'utf8');
-  const r = analyzeMulti({ csv: de });
+  const r = analyzeMulti({ csv: de, floor: 'off' });
   assert.ok(r.joint.length > 10, `${r.joint.length}`);
   assert.match(r.overcutWarning, /probably cutting smooth/);
   assert.match(multiText(r), /Read with care: The one segmentation/);
@@ -57,6 +57,21 @@ test('over-cut warning: fires on a smooth real pair, not on white noise with one
     if (analyzeMulti({ cols }).overcutWarning) warned++;
   }
   assert.equal(warned, 0, `${warned} of 20 white-noise series warned`);
+});
+
+test('joint noise floor (default auto): German unemployment keeps three changes and no warning', () => {
+  const de = readFileSync(new URL('./data/german-unemployment.csv', import.meta.url), 'utf8');
+  const r = analyzeMulti({ csv: de });
+  assert.equal(r.floor, 'auto');
+  assert.deepEqual(r.flooredColumns, ['unadjusted', 'adjusted']);
+  assert.deepEqual(r.joint.map((j) => j.label), ['1974Q4', '1982Q1', '1989Q2']);
+  assert.equal(r.overcutWarning, undefined);
+  assert.match(multiText(r), /noise floor on the over-cut columns unadjusted, adjusted/);
+  const a = analyzeMulti({ csv: de, ar1: true });
+  assert.deepEqual(a.joint.map((j) => j.label), ['1981Q3']);
+  assert.match(multiText(a), /AR\(1\) long-run sd per column/);
+  // the level-and-volatility model takes no floor
+  assert.equal(analyzeMulti({ csv: de, model: 'meanvar' }).floor, 0);
 });
 
 test('labels are escaped in every view', () => {

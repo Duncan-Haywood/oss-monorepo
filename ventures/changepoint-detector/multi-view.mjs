@@ -82,7 +82,9 @@ export function multiSummary(r) {
   const agreed = r.agreed.length
     ? ` Changes every setting agrees on, column by column: ${r.agreed.slice(0, 12).map((/** @type {any} */ c) => `${c.label} (${c.columns.join(", ")})`).join("; ")}${r.agreed.length > 12 ? `; and ${r.agreed.length - 12} more` : ""}.`
     : " No change that every setting agrees on in any column.";
-  return `${head}${agreed} One segmentation for all columns: ${r.joint.length} change${r.joint.length === 1 ? "" : "s"}.`;
+  const fl = r.flooredColumns || [];
+  const noise = r.model === "mean" && r.floor === "auto" && fl.length ? ` (noise floor on ${fl.join(", ")}, whose own level fit over-cut)` : "";
+  return `${head}${agreed} One segmentation for all columns: ${r.joint.length} change${r.joint.length === 1 ? "" : "s"}${noise}.`;
 }
 
 /**

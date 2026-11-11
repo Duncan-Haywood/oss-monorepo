@@ -54,6 +54,8 @@ Options:
   --noise-floor-quad [w]    the same with centred w-point quadratic fits
   --consensus [n]           run six settings (level, level under a trend with AR(1), the same with joint AR(1), noise floor, trend, trend with floor) and list each change by how many agree (changes within n points, default 2% of the series, are one); takes --log, --period, --penalty, --min-segment, --column
   --columns [a,b,...]       several columns measured at the same points: each column's agreed changes, merged, plus one segmentation for all columns (--model mean or meanvar); no list = every numeric column; takes --label-column, --penalty, --min-segment, --consensus n as the tolerance
+  --joint-floor auto|off|k  with --columns and the level model: each column's noise for the one segmentation. auto (default) floors only a column whose own level fit over-cuts; k floors every column at k x the local-line scatter; off is the plain fit
+  --joint-ar1               with --columns and the level model: each column's sd raised to its AR(1) long-run sd
   --no-agreed               with the level model: skip the six-setting panel that leads the text output with the changes every setting agrees on (skipped anyway above 2000 points)
   --json                    print the full result as JSON
   -h, --help                this help
@@ -81,6 +83,8 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--example') example = true;
     else if (a === '--no-agreed') agreed = false;
     else if (a === '--columns') opt.columns = argv[i + 1] && !argv[i + 1].startsWith('-') ? argv[++i].split(',').map((c) => c.trim()).filter(Boolean) : [];
+    else if (a === '--joint-floor') { const v = argv[++i]; if (v !== 'auto' && v !== 'off' && !(Number(v) > 0)) throw new Error('--joint-floor takes auto, off or a positive number.'); opt.jointFloor = v === 'auto' || v === 'off' ? v : Number(v); }
+    else if (a === '--joint-ar1') opt.jointAr1 = true;
     else if (a === '--drift') opt.drift = true;
     else if (a === '--log') opt.log = true;
     else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
@@ -122,7 +126,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   if (typeof opt.holidays === 'string') opt.holidays = opt.holidays.split(',').map((h) => h.trim()).filter(Boolean);
   if (opt.columns) {
     const { analyzeMulti, multiText } = await import('./multivariate.mjs');
-    const r = analyzeMulti({ csv: opt.csv, columns: opt.columns, labelColumn: opt.labelColumn, model: opt.model, penalty: opt.penalty, minSegment: opt.minSegment, tolerance: typeof opt.consensus === 'number' ? opt.consensus : null });
+    const r = analyzeMulti({ csv: opt.csv, columns: opt.columns, labelColumn: opt.labelColumn, model: opt.model, penalty: opt.penalty, minSegment: opt.minSegment, tolerance: typeof opt.consensus === 'number' ? opt.consensus : null, floor: opt.jointFloor, ar1: opt.jointAr1 });
     out((json ? JSON.stringify(r, null, 2) : multiText(r)) + '\n');
     return 0;
   }

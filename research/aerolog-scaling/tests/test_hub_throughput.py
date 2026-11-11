@@ -62,3 +62,24 @@ def test_analytic_share_tracks_simulator_poisson():
     a = ana.wait_share(p, 9, 1)
     s = ana.sim_share(rate, 1, 9, seeds=2, orders=20000)
     assert abs(a - s) < 0.03
+
+
+_pa = pathlib.Path(__file__).resolve().parents[1] / "experiments" / "hub_throughput" / "cargo_hub_aged_cells.py"
+_sa = importlib.util.spec_from_file_location("hub_aged", _pa)
+aged = importlib.util.module_from_spec(_sa)
+_sa.loader.exec_module(aged)
+
+
+def test_aged_groups_split_on_capacity():
+    rows = [{"cell": "X", "k": k, "first_capacity_Ah": 2.0, "prev_capacity_Ah": 2.0 - 0.1 * k} for k in range(1, 9)]
+    by, fresh, old = aged.groups(rows)
+    assert [r["k"] for r in fresh] == [1, 2, 3, 4, 5]
+    assert [r["k"] for r in old] == [5, 6, 7, 8]          # 1.5 Ah and below is < 0.8 x 2.0
+
+
+def test_measured_nasa_taper_is_longer_than_linear():
+    import json
+    rows = json.load(open(_pa.parent / "nasa_charge_metrics.json"))["charges"]
+    _, fresh, old = aged.groups(rows)
+    assert len(fresh) == 20 and len(old) > 100
+    assert all(r["ratio_30_100"] > r["ratio_20_90"] > 1.0 for r in fresh)

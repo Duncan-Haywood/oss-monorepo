@@ -17,7 +17,7 @@
   "tokens_out": 29748,
   "cost_usd": 2.5062,
   "tool_calls": 47,
-  "task": "research track 22 (aerolog), milestone 6h of aerolog-scaling: closed-form spare-pack rule for the cargo-VTOL hub, checked against the 6c simulator",
+  "task": "research track 22 (aerolog), milestone 6i of aerolog-scaling: closed-form spare-pack rule for the cargo-VTOL hub, checked against the 6c simulator",
   "projects": [
     "research/aerolog-scaling"
   ],

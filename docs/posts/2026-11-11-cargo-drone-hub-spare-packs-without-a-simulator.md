@@ -39,4 +39,4 @@ the hub holds. That is the chance that a second batch lands while all the pads
 are busy, a pad limit and not a battery one.
 
 Limits: constant charge time, fixed batch sizes, steady demand. Code, results
-and log: `research/aerolog-scaling/` (milestone 6h).
+and log: `research/aerolog-scaling/` (milestone 6i).
