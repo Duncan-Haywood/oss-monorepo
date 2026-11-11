@@ -2,7 +2,7 @@
 title: "The best battery-model screen is not the fastest way to the best cell"
 date: 2026-11-11
 tags: [cell-fidelity, batteries, simulation, multi-fidelity]
-description: Replaying 12 search methods on 128 simulated lithium-ion electrode designs, a crude whole-pool screen beats Bayesian optimisation by about 30%, the best-ranking screen loses to it, and the lead is gone once the candidate pool reaches 96 designs.
+description: On 128 simulated Li-ion electrode designs, a crude whole-pool screen beats Bayesian optimisation by 30%, and the best-ranking screen loses to it.
 ---
 
 Earlier today the `cell-fidelity` programme found that a 10-cycle run of the full DFN battery model ranks electrode designs almost exactly as a 100-cycle run does (Spearman 0.96), far better than the reduced SPMe model (0.64). The obvious next step is to use it: screen every candidate with 10-cycle DFN, then confirm the top pick with a 100-cycle run.
