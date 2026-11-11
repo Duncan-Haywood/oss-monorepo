@@ -256,6 +256,11 @@ share of answers pick the first option shown whatever the items are. 30 items,
 | 120 | 0.5 | 0.427 | 0.405 | 0.427 |
 | 300 | 0.5 | 0.632 | 0.421 | 0.592 |
 
+> **Superseded (2026-11-11):** this table and the two fallback tables below
+> ran without the route's slot shuffle and overstate the harm of position bias
+> about fourfold. Read "Position bias behind the slot shuffle" at the end of
+> this file instead.
+
 - The hybrid leads at bias 0.1 and 0.3 (+0.020, +0.023 at 300 answers) but
   trails shipped by 0.040 at bias 0.5, where half the answers carry no signal.
   The information selector alone collapses there (0.421 against 0.632).
@@ -1438,3 +1443,75 @@ form, so it overstates the harm; the fallback still pays with the shuffle
 (staged 0.686 against information-only 0.611), so `FIRST_OPTION_FALLBACK_SHARE`
 stays. The new sweep wraps the policy in the route's shuffle; the old tests
 are left as they are, with a caution in `infoGainSim.ts`.
+
+## Position bias behind the slot shuffle (2026-11-11)
+
+The 2026-10-28 position-bias tables ("A respondent who favours the first
+option", the first- and second-option fallback tables after it) put every
+biased answer on the item the selector chose first, because `simulate` does
+not shuffle slots and the route does. Re-measured here with every policy behind
+the route's per-pair coin flip (`scripts/position-bias-shuffled-sweep.ts`;
+raw per-seed rows for the first seed set in
+`docs/position-bias-shuffled-2026-11-11.jsonl`). 30 items, so staged has no
+warm-up and differs from the information selector only by its fallback.
+`staged@t` falls back to the shipped selector when the first-option share
+(30+ decided answers) is at or beyond `t` either way; 0.7 ships. Negative bias
+is a second-option bias. Mean rank accuracy, 60 seeds per cell, two seed sets
+(seed0 9100 / 50000); "staged - info" is the paired difference at 0.7 with a
+95% half-width.
+
+**300 answers**
+
+| bias | shipped | info | staged@0.7 | staged - info | fallback share of answers | honest people it ever fired for |
+|---|---|---|---|---|---|---|
+| -0.5 | 0.655 / 0.666 | 0.634 / 0.647 | 0.665 / 0.676 | +0.031 ± 0.036 / +0.030 ± 0.035 | 0.78 / 0.84 | |
+| -0.3 | 0.796 / 0.781 | 0.781 / 0.785 | 0.804 / 0.798 | +0.023 ± 0.017 / +0.012 ± 0.018 | 0.08 / 0.12 | |
+| 0 | 0.893 / 0.895 | 0.914 / 0.908 | 0.914 / 0.909 | +0.001 ± 0.002 / +0.001 ± 0.002 | 0.001 / 0.001 | 5.0% / 1.7% |
+| 0.1 | 0.869 / 0.861 | 0.889 / 0.881 | 0.886 / 0.881 | -0.002 ± 0.004 / +0.000 ± 0.008 | 0.004 / 0.003 | |
+| 0.3 | 0.804 / 0.800 | 0.785 / 0.794 | 0.782 / 0.797 | -0.003 ± 0.020 / +0.003 ± 0.015 | 0.11 / 0.07 | |
+| 0.4 | 0.738 / 0.742 | 0.729 / 0.728 | 0.729 / 0.733 | +0.000 ± 0.029 / +0.005 ± 0.028 | 0.45 / 0.42 | |
+| 0.5 | 0.680 / 0.672 | 0.623 / 0.642 | 0.671 / 0.665 | +0.048 ± 0.038 / +0.022 ± 0.036 | 0.79 / 0.84 | |
+| 0.6 | 0.557 / 0.581 | 0.544 / 0.520 | 0.605 / 0.560 | +0.061 ± 0.035 / +0.041 ± 0.046 | 0.89 / 0.89 | |
+
+**120 answers**
+
+| bias | shipped | info | staged@0.7 | staged - info |
+|---|---|---|---|---|
+| -0.5 | 0.444 / 0.464 | 0.484 / 0.501 | 0.476 / 0.483 | -0.008 ± 0.041 / -0.019 ± 0.037 |
+| 0 | 0.763 / 0.767 | 0.799 / 0.800 | 0.799 / 0.799 | -0.001 ± 0.001 / -0.001 ± 0.002 |
+| 0.3 | 0.637 / 0.646 | 0.623 / 0.643 | 0.628 / 0.637 | +0.005 ± 0.023 / -0.006 ± 0.021 |
+| 0.5 | 0.489 / 0.478 | 0.481 / 0.503 | 0.512 / 0.456 | +0.031 ± 0.039 / -0.047 ± 0.039 |
+| 0.6 | 0.384 / 0.397 | 0.413 / 0.389 | 0.426 / 0.377 | +0.013 ± 0.043 / -0.012 ± 0.045 |
+
+Thresholds 0.6, 0.65, 0.75 and 0.8 were run in the same cells (the jsonl and
+the script's table); none is better than 0.7 in both seed sets.
+
+**Reading.**
+
+- **The old table overstated the harm about fourfold.** At 300 answers and
+  bias 0.5 the information selector alone trails shipped by 0.057 / 0.030,
+  not 0.211 (0.421 against 0.632). Behind the shuffle half the biased answers
+  land on each item, so they mostly add noise to both instead of pushing the
+  first-chosen one up.
+- **The fallback still pays where it is meant to, at 300 answers:** +0.022 to
+  +0.061 over the information selector at bias 0.5 and 0.6 in both seed sets,
+  and +0.03 at a second-option bias of 0.5. With it, staged sits within seed
+  noise of shipped (or above it) at every bias from 0.3 up, and above shipped
+  at 0 and 0.1 (+0.014 to +0.021; level at 0.2). So `FIRST_OPTION_FALLBACK_SHARE` stays at 0.7.
+- **At 120 answers it is a wash:** the two seed sets disagree in sign at bias
+  0.5 (+0.031, -0.047). With 90 answers after the 30-answer gate there is
+  little left for either selector to win.
+- **It costs honest people nothing measurable.** With no bias it fired for
+  5.0% / 1.7% of respondents at some point, on 0.1% of answers, and moved
+  accuracy by 0.001.
+- **Where the shuffle threshold lands.** Behind the shuffle a bias b gives a
+  first-option share of 0.5 + b/2, so 0.7 fires on average from b = 0.4; the
+  fallback share column shows it (0.42-0.45 of answers at 0.4, 0.8+ at 0.5).
+  Between 0.3 and 0.4 neither selector is clearly better, so where exactly
+  it fires there does not matter much.
+
+Still synthetic, 30 items, one answerer model (a fixed share of biased answers
+from the first answer on). `biasedRespondent.simulation.test.ts` keeps the
+unshuffled form so its 2026-10-28 numbers reproduce; the tables above replace
+its reading. Reproduce: `npx tsx scripts/position-bias-shuffled-sweep.ts
+--seeds 60 [--seed0 50000] [--out rows.jsonl]` (about 10 minutes per seed set).

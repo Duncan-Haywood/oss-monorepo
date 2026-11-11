@@ -509,10 +509,12 @@ export function hybridSwitchAt(itemCount: number): number {
 
 /**
  * A person whose first-option share is at or above this has too many answers
- * that carry no signal for the information selector (it fell to 0.421 against
- * 0.632 shipped at 300 answers and first-option bias 0.5, a share near 0.75;
- * docs/INFORMATION-GAIN-SELECTOR.md). Slots are randomised, so an unbiased
- * share sits near 0.5.
+ * that carry no signal for the information selector. Behind the route's slot
+ * shuffle, at 300 answers and bias 0.5 (a share near 0.75), the fallback adds
+ * +0.022 to +0.048 rank accuracy over the information selector alone, and it
+ * fires on 0.1% of an honest person's answers (docs/INFORMATION-GAIN-SELECTOR.md,
+ * "Position bias behind the slot shuffle"; 0.6 to 0.8 were no better). Slots
+ * are randomised, so an unbiased share sits near 0.5.
  */
 export const FIRST_OPTION_FALLBACK_SHARE = 0.7;
 
