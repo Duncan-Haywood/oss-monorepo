@@ -3,7 +3,7 @@ title: "A cheap battery model can tell you where it's wrong, but in our test it 
 seo_title: "When to trust SPMe over DFN in Li-ion cell design (PyBaMM)"
 date: 2026-11-11
 tags: [research, cell-fidelity, energy]
-description: "SPMe's own minimum salt concentration flags the cell designs it mis-scores (AUC 0.997 on 49 designs). A 2-cycle DFN run costs about the same as the 2-cycle SPMe run, though: in this PyBaMM test, the cycle count was where the time went."
+description: "SPMe's own minimum salt concentration flags the Li-ion designs it mis-scores (AUC 0.997), but a 2-cycle DFN run costs about the same: the cost is in the cycles."
 ---
 
 Battery engineers often search over electrode designs (how thick, how porous, how much spare negative capacity) in simulation before they build anything. The full porous-electrode model, DFN, is the standard for this. Its reduced cousin, SPMe, is cheaper, so a search tends to use SPMe and check only the winners in DFN. [Earlier work here](../../research/energy-cell-dfn/README.md) found where that goes wrong. SPMe ranks most designs the way DFN does. But for a few thick, dense electrodes it gives 0 to 28 Wh/kg where DFN gives 120 to 146, because the salt in the electrolyte runs out. A search that believes SPMe throws that whole region away.
