@@ -486,7 +486,7 @@ function shipsDeployableApp(slug) {
 }
 
 // Tools that implement a published paper (portfolio/research-tools/README.md).
-export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer'];
+export const RESEARCH_ALGORITHM_SLUGS = ['changepoint-detector', 'conformal-prediction-intervals', 'matrix-profile-explorer', 'survival-analysis'];
 
 const CATEGORY_RULES = [
   {
@@ -3812,7 +3812,7 @@ const CATEGORY_RULES = [
     id: 'research-algorithms',
     title: 'Research algorithms & ML',
     accent: '#5b3f8c',
-    blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies. Also callable from the command line and by AI agents.',
+    blurb: 'Methods from published research papers, run on your own data in your browser and cited: changepoint detection, conformal prediction intervals, matrix-profile motifs and anomalies, Kaplan-Meier and Cox survival analysis. Also callable from the command line and by AI agents.',
     test: (slug) => RESEARCH_ALGORITHM_SLUGS.includes(slug),
   },
   {

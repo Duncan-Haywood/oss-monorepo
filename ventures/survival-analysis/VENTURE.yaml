@@ -1,0 +1,61 @@
+name: survival-analysis
+description: >-
+  Free browser tool, CLI and agent call for analysts, researchers, SaaS
+  operators and reliability engineers: paste a CSV of times and events and get
+  Kaplan-Meier curves with confidence bands, median and restricted mean time
+  to event, log-rank and weighted tests, and a Cox proportional hazards model
+  with hazard ratios, a proportional-hazards check and concordance, checked
+  against lifelines and statsmodels. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-11 on an explore run, as the fourth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md lists Kaplan-Meier,
+# log-rank and Cox as a next paper). Implemented from the papers'
+# mathematics; no third-party code was ported. lifelines and statsmodels were
+# used only to produce eval/reference.json, which the tests check against.
+# Example data: Freireich et al. (1963), source and licence in data/SOURCE.md.
+#
+# First visitor: searches such as "kaplan meier calculator", "log rank test
+# calculator online", "cox regression online", "hazard ratio calculator",
+# "median survival time confidence interval", "customer churn survival
+# analysis"; students and analysts without R or Python; SaaS operators asking
+# how long customers stay by plan. Volume not measured with an external tool.
+#
+# Alternatives: R's survival package, Python's lifelines and statsmodels
+# (need an environment and code), SPSS/Stata/GraphPad (paid), and web
+# calculators (not surveyed for this entry). The
+# differentiators here are no install, the Cox model with its assumption
+# check on the same page, plain-language output, and tests pinned to two
+# reference libraries.
+#
+# Liability: statistical output from supplied data, not medical advice; the
+# page states the censoring and proportional-hazards limits. Data never leave
+# the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts and students who need a survival curve and a hazard ratio from a
+      CSV will use a no-install tool that shows the assumption check beside
+      the estimate, and will link or cite it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a curve, test or Cox estimate that disagrees with R's survival package on the same data and options, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/survival-analysis/
+  analytics: null

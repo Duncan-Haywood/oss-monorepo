@@ -1,0 +1,24 @@
+# Survival analysis: Kaplan-Meier, log-rank and Cox regression
+
+> Free Kaplan-Meier survival curve calculator with log-rank test and Cox proportional hazards regression. Paste a CSV of times and events, compare groups, and get median survival with confidence intervals, hazard ratios, a proportional-hazards check and concordance. Checked against lifelines and statsmodels. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/survival-analysis/)
+
+## Use it from code
+
+- `node cli.mjs data.csv --time weeks --event relapsed --group treatment --covariates logWBC [--json]`
+- `node platform/agents/tools.mjs call survival-analysis analyze --input '{"csv":"time,event,group\n...","group":"group"}'`
+
+## What it answers
+
+- How long until the event, per group: median with confidence interval, restricted mean survival time.
+- Do the groups' curves differ: log-rank, Gehan-Breslow or Tarone-Ware test.
+- By how much, adjusting for covariates: Cox hazard ratios (Efron or Breslow ties), likelihood-ratio, Wald and score tests, Schoenfeld proportional-hazards check, Harrell's C.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/survival-analysis): MIT licensed.
