@@ -173,3 +173,148 @@ def selfcal_best(obs, size, f0, nk=1, refs=None):
         if best is None or s["cost"] < best["cost"]:
             best = s
     return best
+
+
+# ---------------------------------------------------------------------------
+# Milestone 2: gauge-fixed solver with an analytic Jacobian. View `ref`'s pose
+# is held at its initial value (rotation and translation: 6 of the 7
+# similarity directions; init_fronto puts that camera at the world origin) and
+# the depth of corner 0 is held too (the scale). With the gauge removed the
+# normal matrix is invertible; intrinsics are gauge-invariant, so their
+# covariance equals the pseudo-inverse one milestone 1 used.
+
+def board_normals(rvecs):
+    """Board-plane normals in each camera's frame, from target-calibration poses."""
+    return np.array([cv2.Rodrigues(np.asarray(r, float))[0][:, 2] for r in rvecs])
+
+
+def spread_deg(normals):
+    """Largest angle between two board normals, in degrees (0 = all planes parallel,
+    the planar critical configuration for focal length)."""
+    n = normals / np.linalg.norm(normals, axis=1, keepdims=True)
+    c = np.clip(n @ n.T, -1, 1)
+    return float(np.degrees(np.arccos(c.min())))
+
+
+def _proj_jac(intr, rvec, tvec, X, nk):
+    """Pixels and their analytic derivatives for one view.
+    Returns uv (N,2), J_intr (N,2,ni), J_pose (N,2,6) [rvec, tvec], J_X (N,2,3)."""
+    f, cx, cy = intr[:3]
+    k1 = intr[3]
+    k2 = intr[4] if nk > 1 else 0.0
+    R, dR = cv2.Rodrigues(np.asarray(rvec, float))  # dR: 3x9, row k = d vec(R) / d rvec_k
+    Xc = X @ R.T + tvec
+    z = Xc[:, 2]
+    xn = Xc[:, :2] / z[:, None]
+    r2 = (xn ** 2).sum(1)
+    d = 1.0 + k1 * r2 + k2 * r2 ** 2
+    dd = k1 + 2 * k2 * r2  # d d / d r2
+    uv = f * xn * d[:, None] + np.array([cx, cy])
+    N = len(X)
+    ni = 3 + nk
+    Ji = np.zeros((N, 2, ni))
+    Ji[:, :, 0] = xn * d[:, None]
+    Ji[:, 0, 1] = 1.0
+    Ji[:, 1, 2] = 1.0
+    Ji[:, :, 3] = f * xn * r2[:, None]
+    if nk > 1:
+        Ji[:, :, 4] = f * xn * (r2 ** 2)[:, None]
+    # d uv / d xn = f (d I + 2 dd xn xn^T)
+    Duv_xn = f * (d[:, None, None] * np.eye(2) + 2 * dd[:, None, None] * xn[:, :, None] * xn[:, None, :])
+    Dxn_Xc = np.zeros((N, 2, 3))
+    Dxn_Xc[:, 0, 0] = 1 / z
+    Dxn_Xc[:, 1, 1] = 1 / z
+    Dxn_Xc[:, :, 2] = -xn / z[:, None]
+    D = Duv_xn @ Dxn_Xc  # (N,2,3) d uv / d Xc
+    JX = D @ R
+    dXc_dr = np.stack([X @ dR[k].reshape(3, 3).T for k in range(3)], axis=2)  # (N,3,3)
+    Jp = np.concatenate([D @ dXc_dr, D], axis=2)
+    return uv, Ji, Jp, JX
+
+
+def _fun_jac_fixed(p, obs, nk, fixed_pose, ref, want_jac, z0=1.0):
+    """Parameters: intrinsics, the free poses, then the 54 points with corner 0's
+    depth (its third coordinate) removed and held at z0."""
+    from scipy.sparse import csr_matrix
+    nv, npt = obs.shape[:2]
+    ni = 3 + nk
+    intr = p[:ni]
+    free = p[ni:ni + 6 * (nv - 1)].reshape(nv - 1, 6)
+    poses = np.insert(free, ref, fixed_pose, axis=0)
+    X = np.insert(p[ni + 6 * (nv - 1):], 2, z0).reshape(npt, 3)
+    res, rows, cols, vals = [], [], [], []
+    xoff = ni + 6 * (nv - 1)
+    for v in range(nv):
+        uv, Ji, Jp, JX = _proj_jac(intr, poses[v, :3], poses[v, 3:], X, nk)
+        res.append((uv - obs[v]).ravel())
+        if not want_jac:
+            continue
+        base = v * npt * 2
+        r = base + np.arange(npt * 2).reshape(npt, 2)
+        rows.append(np.repeat(r.ravel(), ni)); cols.append(np.tile(np.arange(ni), npt * 2)); vals.append(Ji.ravel())
+        if v != ref:
+            pc = ni + 6 * (v if v < ref else v - 1) + np.arange(6)
+            rows.append(np.repeat(r.ravel(), 6)); cols.append(np.tile(pc, npt * 2)); vals.append(Jp.ravel())
+        xc = xoff + 3 * np.arange(npt)[:, None, None] + np.arange(3)[None, None, :]
+        xc = np.broadcast_to(xc, (npt, 2, 3))
+        rows.append(np.repeat(r.ravel(), 3)); cols.append(xc.ravel()); vals.append(JX.ravel())
+    if not want_jac:
+        return np.concatenate(res)
+    J = csr_matrix((np.concatenate(vals), (np.concatenate(rows), np.concatenate(cols))),
+                   shape=(nv * npt * 2, len(p) + 1))
+    keep = np.r_[0:xoff + 2, xoff + 3:len(p) + 1]
+    return J[:, keep]
+
+
+def selfcal_fixed_analytic(obs, size, f0, nk=1, ref=0, max_nfev=2000):
+    """Gauge-fixed target-free BA (same model as selfcal). status 1-4 = converged, 0 = cap."""
+    nv, npt = obs.shape[:2]
+    X, poses = init_fronto(obs, size, f0, ref)
+    ni = 3 + nk
+    intr = np.array([f0, size[0] / 2, size[1] / 2] + [0.0] * nk)
+    fixed = poses[ref].copy()
+    p0 = np.concatenate([intr, np.delete(poses, ref, axis=0).ravel(), np.delete(X.ravel(), 2)])
+    args = (obs, nk, fixed, ref)
+    # Levenberg-Marquardt on the dense analytic Jacobian (a few hundred columns):
+    # converges in ~25 evaluations where milestone 1's trf/lsmr stopped at its cap.
+    sol = least_squares(lambda p: _fun_jac_fixed(p, *args, False), p0,
+                        jac=lambda p: _fun_jac_fixed(p, *args, True).toarray(), method="lm",
+                        max_nfev=max_nfev, xtol=1e-12, ftol=1e-12, gtol=1e-10)
+    out = _summarise(sol, ni, nk, ref)
+    out["planarity"] = planarity(np.insert(sol.x[ni + 6 * (nv - 1):], 2, X[0, 2]).reshape(npt, 3))
+    return out
+
+
+def selfcal_fixed_best(obs, size, f0, nk=1, refs=(0,), max_nfev=2000):
+    """Run from several reference views; keep the lowest-cost solution."""
+    best = None
+    for ref in refs:
+        try:
+            s = selfcal_fixed_analytic(obs, size, f0, nk, ref, max_nfev)
+        except Exception:
+            continue
+        if best is None or s["cost"] < best["cost"]:
+            best = s
+    return best
+
+
+def _summarise(sol, ni, nk, ref):
+    J = sol.jac.toarray() if hasattr(sol.jac, "toarray") else np.asarray(sol.jac)
+    r = sol.fun
+    s2 = (r @ r) / (len(r) - len(sol.x))
+    sc = np.linalg.norm(J, axis=0)
+    sc[sc == 0] = 1.0
+    H = (J / sc).T @ (J / sc)
+    cov_s = np.linalg.pinv(H, rcond=1e-14, hermitian=True)
+    cov = cov_s / np.outer(sc, sc) * s2
+    ev = np.linalg.eigvalsh(np.linalg.inv(cov_s[:ni, :ni]))
+    sd = np.sqrt(np.diag(cov)[:ni])
+    names = ["f", "cx", "cy", "k1", "k2"][:ni]
+    out = {n: float(v) for n, v in zip(names, sol.x[:ni])}
+    out.update({"s" + n: float(v) for n, v in zip(names, sd)})
+    corr = cov[:ni, :ni] / np.outer(sd, sd)
+    out.update(rms=float(np.sqrt((r @ r) / len(r))), cost=float(sol.cost), nfev=int(sol.nfev),
+               status=int(sol.status), ref=ref, cond_intr=float(ev[-1] / ev[0]),
+               corr_f_cx=float(corr[0, 1]), corr_f_cy=float(corr[0, 2]), corr_f_k1=float(corr[0, 3]),
+               cond_full=float(np.linalg.cond(H)))
+    return out

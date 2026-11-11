@@ -49,3 +49,33 @@ def test_zhang_on_noise_free_synthetic():
 def test_real_image_detection():
     c, size = detect(os.path.join(os.path.dirname(__file__), "..", "data", "left01.jpg"))
     assert c.shape == (54, 2) and size == SIZE
+
+
+def test_analytic_jacobian_matches_finite_differences():
+    from selfcal import _fun_jac_fixed, init_fronto
+    obs = synth(n=4, noise=0.0, seed=3)
+    X, poses = init_fronto(obs, SIZE, 600.0, 0)
+    p = np.concatenate([[600.0, 320, 240, -0.1], np.delete(poses, 0, 0).ravel(), np.delete(X.ravel(), 2)])
+    a = (obs, 1, poses[0], 0)
+    J = _fun_jac_fixed(p, *a, True).toarray()
+    r0 = _fun_jac_fixed(p, *a, False)
+    Jn = np.empty_like(J)
+    for i in range(len(p)):
+        q = p.copy(); h = 1e-6 * max(1.0, abs(p[i])); q[i] += h
+        Jn[:, i] = (_fun_jac_fixed(q, *a, False) - r0) / h
+    assert np.abs(J - Jn).max() < 1e-5 * np.abs(J).max()
+
+
+def test_gauge_fixed_solver_converges_and_is_well_posed():
+    from selfcal import selfcal_fixed_analytic
+    obs = synth(n=8, noise=0.2, seed=1)
+    s = selfcal_fixed_analytic(obs, SIZE, 1.3 * TRUE[0], nk=1)
+    assert s["status"] > 0 and s["nfev"] < 200          # converged, not capped
+    assert s["cond_full"] < 1e12                          # no gauge left in the normal matrix
+    assert abs(s["f"] - TRUE[0]) < 4 * s["sf"] + 1.0
+
+
+def test_spread_of_parallel_normals_is_zero():
+    from selfcal import spread_deg
+    n = np.array([[0, 0, 1.0], [0, 0, 2.0], [0, np.sin(0.1), np.cos(0.1)]])
+    assert spread_deg(n[:2]) < 1e-6 and abs(spread_deg(n) - np.degrees(0.1)) < 1e-6
