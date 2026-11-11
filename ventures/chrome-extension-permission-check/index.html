@@ -22,7 +22,7 @@
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "featureList": [
     "Detects chrome.* namespace calls across 45+ Chrome extension permissions in JS/TS source",
-    "Flags a declared permission with no matching API call in source -- the most common Chrome Web Store rejection reason",
+    "Flags a declared permission with no matching API call in source -- the Chrome Web Store excessive-permissions (Purple Potassium) rejection",
     "Flags an API call whose permission is not declared anywhere (a runtime bug, not just a review risk)",
     "Flags broad all-sites host_permissions patterns ('<all_urls>', '*://*/*') that review asks to be justified",
     "Runs fully client-side or as a Node CLI in your own CI; no upload, no account"
@@ -37,12 +37,12 @@
     {
       "@type": "Question",
       "name": "Why did Chrome Web Store reject my extension for unused or excessive permissions (Purple Potassium)?",
-      "acceptedAnswer": { "@type": "Answer", "text": "Chrome's own troubleshooting documentation names this as the most common review rejection: your manifest.json declares a permission that reviewers cannot find a matching feature for. This tool scans your source for the chrome.* calls each permission unlocks and tells you exactly which declared permission has no detected use." }
+      "acceptedAnswer": { "@type": "Answer", "text": "Chrome's troubleshooting documentation names this as the excessive-permissions violation: your manifest.json declares a permission that reviewers cannot find a matching feature for. This tool scans your source for the chrome.* calls each permission unlocks and tells you exactly which declared permission has no detected use." }
     },
     {
       "@type": "Question",
       "name": "What does it mean if my extension uses a chrome.* API that isn't declared in the manifest?",
-      "acceptedAnswer": { "@type": "Answer", "text": "That call will fail at runtime, not just at review -- Chrome enforces the permission at the API level. This tool checks both directions: permissions declared but unused, and APIs used but undeclared." }
+      "acceptedAnswer": { "@type": "Answer", "text": "For most APIs that call will fail at runtime, not just at review -- Chrome enforces the permission at the API level (a few, such as most chrome.tabs and all chrome.action calls, need none, and the report says so). This tool checks both directions: permissions declared but unused, and APIs used but undeclared." }
     },
     {
       "@type": "Question",
@@ -165,11 +165,13 @@ chrome.storage.local.set({ seen: true });
 // notifications: declared in the manifest but never called below --
 // this is exactly what Chrome Web Store's "Purple Potassium" flags.
 
-// tabs: used here, but nowhere in the manifest's permissions -- this
-// call will fail at runtime with "chrome.tabs is undefined".
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-  console.log(tabs[0]?.url);
-});
+// alarms: used here, but nowhere in the manifest's permissions -- this
+// call fails at runtime because chrome.alarms is undefined.
+chrome.alarms.create('refresh', { periodInMinutes: 30 });
+
+// tabs: most chrome.tabs calls need no permission, so this is a note,
+// not a failure. Reading tab.url would need "tabs" or activeTab.
+chrome.tabs.create({ url: 'options.html' });
 `;
 
   loadExampleBtn?.addEventListener('click', () => {
@@ -188,6 +190,7 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       'declared-and-detected': 'Used',
       'declared-unused': 'Declared, not used',
       'detected-undeclared': 'Used, not declared',
+      'detected-no-permission-needed': 'Used, no permission needed for most calls',
     }[status];
   }
 
@@ -300,9 +303,9 @@ chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 <section class="card">
   <h2>Common questions</h2>
   <h3>Why did Chrome Web Store reject my extension for unused or excessive permissions (Purple Potassium)?</h3>
-  <p>Chrome's own troubleshooting documentation names this as the most common review rejection: your manifest.json declares a permission that reviewers cannot find a matching feature for. This tool scans your source for the chrome.* calls each permission unlocks and tells you exactly which declared permission has no detected use.</p>
+  <p>Chrome's troubleshooting documentation names this as the excessive-permissions violation: your manifest.json declares a permission that reviewers cannot find a matching feature for. This tool scans your source for the chrome.* calls each permission unlocks and tells you exactly which declared permission has no detected use.</p>
   <h3>What does it mean if my extension uses a chrome.* API that isn't declared in the manifest?</h3>
-  <p>That call will fail at runtime, not just at review -- Chrome enforces the permission at the API level. This tool checks both directions: permissions declared but unused, and APIs used but undeclared.</p>
+  <p>For most APIs that call will fail at runtime, not just at review -- Chrome enforces the permission at the API level (a few, such as most chrome.tabs and all chrome.action calls, need none, and the report says so). This tool checks both directions: permissions declared but unused, and APIs used but undeclared.</p>
   <h3>Is my extension's source code uploaded anywhere?</h3>
   <p>No. The browser tool reads the files you select using the File API and never sends them anywhere -- everything happens in memory in your tab. The CLI never makes a network call either.</p>
   <h3>Does a clean report mean Chrome Web Store will approve my extension?</h3>
