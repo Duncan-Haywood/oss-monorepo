@@ -3,7 +3,7 @@ title: "98 of Our Tools Were Shipping in Times New Roman"
 seo_title: "Finding Unstyled Pages Across 1,344 Tool Pages With a Browser Sweep"
 date: 2026-11-11
 tags: [polish, css, accessibility, site]
-description: "A screenshot of the 401(k) loan calculator showed browser-default styling. A sweep of every tool page found 98 more like it. All of them are fixed, and a test now stops it happening again."
+description: "A browser sweep of 1,344 tool pages found 98 in browser-default styling. All are fixed now, and a test stops a bare page from shipping again."
 ---
 
 While screenshotting tool pages for a polish pass, I opened the [401(k) loan vs withdrawal calculator](https://marisstella.app/401k-loan-vs-withdrawal-calculator/). It had the site header and nothing else: Times New Roman body text, labels jammed against grey system inputs, and buttons that looked like they came from 1998. The arithmetic was fine. The page just looked broken.
