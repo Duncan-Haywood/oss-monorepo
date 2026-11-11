@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // node cli.mjs --replies replies.txt [--prospects prospects.csv] [--suppression suppression.txt] [--offer offer.json]
 //              [--today YYYY-MM-DD] [--out DIR]
+//   or --mail inbox.mbox,a.eml [--own me@x.com] instead of --replies: exported mail files (mailfile.mjs).
 // Add --tasks cadence-tasks.csv (from sales-cadence-builder) for the daily run: it also reads the replies (if any), then
 //   writes todays-queue.csv, left-out.csv and brief.md: what is due today minus anyone stopped, paused or suppressed.
 //   [--done done.txt] lists touches already made ("email,step" per line).
@@ -15,7 +16,8 @@
 // Writes queue.json, prospects.csv, suppression-add.csv, deals.csv and tasks.csv to DIR (default ./sales-agent-out).
 // Sends nothing. With LLM_PROVIDER/LLM_MODEL/LLM_API_KEY or ANTHROPIC_API_KEY (etc.) set, a model triages and polishes
 // under the same limits; otherwise the rules run.
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, openSync, readSync, closeSync, createReadStream } from "node:fs";
+import { createCollector, MboxSplitter, isMbox, describe } from "./mailfile.mjs";
 import { join } from "node:path";
 import { csv, iso, runInbox } from "./engine.mjs";
 import { runDaily, csvQueue, csvLeftOut } from "./daily.mjs";
@@ -57,8 +59,26 @@ if (opt("crm")) {
   console.log(`${s.rows} rows: ${s.accounts} accounts ranked (${s.draftsReady} drafts pass the checks), ${s.held} held for consent, ${s.dropped} dropped. Nothing was sent. Output in ${o}/`);
   process.exit(0);
 }
-if (!opt("replies") && !opt("tasks")) { console.error("usage: node cli.mjs --crm crm.csv [--icp icp.json] | --replies replies.txt [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--tasks cadence-tasks.csv] [--done done.txt] [--today YYYY-MM-DD] [--out DIR]"); process.exit(2); }
-const input = { replies: opt("replies") ? read("replies") : "", prospects: read("prospects"), suppression: read("suppression"), offer: opt("offer") ? JSON.parse(read("offer")) : {}, today: opt("today") || iso(Date.now()) };
+// Exported mail: --mail inbox.mbox,reply.eml [--own me@x.com,me2@x.com] reads the files the way the self-host server reads a
+// mailbox (mailfile.mjs), keeps the replies, bounces and auto-replies, and runs them as --replies would.
+let mailReplies = "";
+if (opt("mail")) {
+  const c = createCollector({ own: (opt("own") || "").split(",").filter(Boolean) });
+  let cut = 0;
+  for (const f of opt("mail").split(",").filter(Boolean)) {
+    const fd = openSync(f, "r"), head = Buffer.alloc(1000), n = readSync(fd, head, 0, 1000, 0); closeSync(fd);
+    if (!isMbox(head.subarray(0, n).toString("utf8"))) { c.add(readFileSync(f, "utf8").replace(/^\uFEFF/, "")); continue; }
+    const sp = new MboxSplitter((raw) => c.add(raw));
+    for await (const chunk of createReadStream(f, { encoding: "utf8" })) sp.push(chunk);
+    sp.end(); cut += sp.truncated;
+  }
+  const m = c.finish();
+  m.stats.truncated += cut;
+  console.log(describe(m));
+  mailReplies = m.replies;
+}
+if (!opt("replies") && !opt("tasks") && !opt("mail")) { console.error("usage: node cli.mjs --crm crm.csv [--icp icp.json] | --replies replies.txt | --mail inbox.mbox,reply.eml [--own me@x.com] [--prospects p.csv] [--suppression s.txt] [--offer offer.json] [--tasks cadence-tasks.csv] [--done done.txt] [--today YYYY-MM-DD] [--out DIR]"); process.exit(2); }
+const input = { replies: [opt("replies") ? read("replies") : "", mailReplies].filter((x) => x.trim()).join("\n---\n"), prospects: read("prospects"), suppression: read("suppression"), offer: opt("offer") ? JSON.parse(read("offer")) : {}, today: opt("today") || iso(Date.now()) };
 const r = input.replies.trim() || !opt("tasks") ? await runInboxWithModel(configFromEnv(process.env), input) : { ...runInbox(input), source: "none", errors: [] };
 const out = opt("out") || "sales-agent-out";
 mkdirSync(out, { recursive: true });

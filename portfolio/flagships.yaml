@@ -104,8 +104,11 @@ flagships:
       eval/enron-labels/READER.md; (3) the local half of M2: `LLM_PROVIDER=llamacpp
       node eval/model.mjs eval/fresh-*.jsonl` (byok.mjs has a keyless llamacpp
       provider). ai-bookkeeper README "A bigger local model" has the CPU setup that
-      worked in a cloud session; huggingface.co answered 200 through the proxy on
-      2026-11-11.
+      worked in a cloud session; huggingface.co answered 200 through the proxy earlier
+      on 2026-11-11 but 403 (CONNECT refused) in a later session that day, as did
+      registry.ollama.ai, modelscope.cn and hf-mirror.com: probe first. Without a
+      model host: (6) the mail-file path on a real Takeout or Thunderbird mbox if one
+      is public (format corners), or the daily run reading the same --mail input.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
@@ -120,7 +123,11 @@ flagships:
       2026-11-11 (eval/README "The away policy"): an auto-responder's notice pauses silently,
       a person's away reply pauses and goes to a person (subtype person_away); fresh 7* wrong
       silent stops 3.9 to 1.8 per 1,000, 0 of 365 real auto-replies sent to a person, 2.0
-      extra tasks per 1,000 replies. eval/enron.mjs --seen drops text earlier halves fired on:
+      extra tasks per 1,000 replies. Mail files 2026-11-11 (README "Open your exported mail"):
+      the page and `cli.mjs --mail` read .eml/.mbox with the server's MIME reader (mime.mjs),
+      32,210 of 32,211 Enron messages read as the server reads them; found and fixed a
+      runInbox crash on a stray `wrong_person` model class and the server stopping only the
+      first address of a multi-recipient bounce. eval/enron.mjs --seen drops text earlier halves fired on:
       7* keeps 25 of 56 stops, precision 40% (vs 64% with repeats). Next: (1) a second reader
       from READER.md, a person or another model family, on 7*'s 25 de-duplicated stops and the
       not-interested, left-company and unsubscribe stops still wrong (7, 6 and 4 on 7*);
