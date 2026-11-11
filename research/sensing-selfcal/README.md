@@ -39,10 +39,26 @@ very conservative at 4 views, so **an honest σ and a good gate are different st
 calibration** (Strobl and Hirzinger's bend-aware Zhang) **is the same problem as our
 target-free bundle adjustment**: both return identical intrinsics, σ and board shape. Comparing
 it with the flat-board fit isolates the board assumption, and **the flat, evenly spaced board
-moves the principal point c<sub>y</sub> by 8.7 px (left) and 5.3 px (right)**. Adding a second
+moves the principal point c<sub>y</sub> by 8.7 px (left) and 5.3 px (right)** (corrected in milestone 6:
+most of that came from misplaced outer corners; with SB corners the shift is 1.2 / 1.4 px). Adding a second
 radial term k<sub>2</sub> (clearly non-zero) **does not make σ honest** (nested rms z 3.01,
 2.00 without five outliers, against 2.28), and the residuals stay correlated between
 neighbouring corners (0.31 / 0.24), but only along one board axis.
+
+**Milestone 6 headline** (the corner detector, 1,680 more solves): the one-axis residual
+pattern **comes from the corner localiser used in milestones 1–5**. `cornerSubPix` with an
+11×11 half-window (a 23 px box) **misplaces corners on the board's outer ring by up to 6.4 px**,
+because the box runs off the pattern. All 26 gaps over 1 px between it and a 5×5 window are on that ring. With a 5×5 window or
+OpenCV's `findChessboardCornersSB`, reprojection rms halves (0.26 → 0.11–0.14 px left) and
+the column structure mostly goes away. **That correction shrinks milestone 5's c<sub>y</sub>
+result**: the flat-board shift is 8.7 px with the old corners, 4.5 px with 5×5 and **1.2 px
+(1.8σ) with SB corners** on the left camera (5.3 → 3.8 → 1.4 px right). The board's bend
+survives, 25–45% shallower. The **detector choice alone moves Zhang's focal length by up to
+7.2 px (1.3%)**, several times its reported σ. And **better corners make σ less honest, not
+more**: σ halves but the error does not, so the nested rms z rises from 2.28 to 3.1–3.5. A
+sandwich clustered by board column does not fix it (2.44 / 1.72).
+
+![the 11×11 cornerSubPix window misplaces an outer corner; neighbour correlation along a column by detector; nested rms z by detector and σ](experiments/m6_detector/detector.png)
 
 ![principal point c_y for flat-board Zhang, released-board Zhang and target-free BA, and rms nested z with k1 vs k1+k2](experiments/m5_lens/cy_and_k2.png)
 
@@ -281,6 +297,67 @@ is not a fix for the overconfidence: the residuals are correlated along one boar
 the lens model, which is the pattern a cluster-robust σ by board column, or the jackknife, has
 to absorb.
 
+## Milestone 6: where the column pattern comes from, and does a better detector fix σ?
+
+Pre-registered in `LOG.md` before any run (H14–H17); results in
+`experiments/m6_detector/summary.json` and `bend.json`. Milestones 1–5 located corners with
+`findChessboardCorners`, then `cornerSubPix` with an 11×11 half-window, so the box is 23 px wide. Corners here
+are 25–41 px apart. This milestone adds two localisers on the same images, matched to the
+same corner order by nearest neighbour (one-to-one in all 26 images): `cornerSubPix` with a
+5×5 half-window, and `findChessboardCornersSB` with `CALIB_CB_ACCURACY` (Duda and Frese,
+2018). Then milestone 2's 560 subsets are re-solved per detector (k1 model; 1,679 of 1,680
+converged), and the sandwich σ is clustered by (view, board column) and (view, board row).
+
+**The old localiser misplaces outer corners.** Between the 11×11 and 5×5 windows the median
+gap is 0.07 px in the grid's interior, but **26 corners differ by more than 1 px (up to
+6.4 px), all of them on the outer ring**, where the 23 px box covers the end of the pattern
+(figure, panel a). SB against 11×11: 52 corners over 1 px (up to 7.7 px), again all on the ring;
+SB against 5×5: at most 1.7 px.
+
+| all 13 views, target-free k1 | left, 11×11 | left, 5×5 | left, SB | right, 11×11 | right, 5×5 | right, SB |
+|---|---|---|---|---|---|---|
+| reprojection rms per coordinate, px | 0.259 | 0.114 | 0.144 | 0.291 | 0.153 | 0.170 |
+| f (σ), px | 534.82 (0.98) | 534.34 (0.43) | 533.04 (0.54) | 538.43 (1.20) | 535.75 (0.62) | 534.18 (0.69) |
+| flat-board Zhang f, px | 535.62 | 531.96 | 530.86 | 539.71 | 534.56 | 532.54 |
+| c<sub>y</sub>, free board − flat board, px (σ) | 8.7 (8.3) | 4.5 (8.4) | **1.2 (1.8)** | 5.3 (4.3) | 3.8 (5.6) | **1.4 (2.0)** |
+| board flatness, rms (square widths) | 0.0077 | 0.0042 | 0.0058 | 0.0077 | 0.0050 | 0.0056 |
+| residual corr., neighbours along a column / a row | 0.56 / 0.06 | 0.30 / 0.28 | 0.32 / 0.23 | 0.44 / 0.09 | 0.39 / 0.34 | 0.56 / 0.29 |
+| variance in per-(view, column) means (null 0.17) | 0.65 | 0.27 | 0.41 | 0.51 | 0.23 | 0.43 |
+
+(Cy gaps in σ of the flat fit. The left/right correlation of the bend's heights stays 0.89–0.90 with every
+detector, so the bend is real and seen by both cameras; it is shallower.)
+
+**Hypotheses:**
+- H14 (with SB corners the along-column correlation falls below 0.2): **refuted**, 0.32
+  (left) and 0.56 (right). The *one-directional* pattern goes (along-row correlation rises
+  to 0.23–0.34, and the per-column share falls from 0.65 / 0.51 to 0.41 / 0.43, 0.27 / 0.23
+  with 5×5), but what is left is a smoother 2-D correlation that no localiser removes.
+- H15 (column offsets mostly sideways, ≥ 70%): **held**, 91% (left) and 78% (right) of the
+  per-(view, column) mean residual lies perpendicular to the column's line, with the old
+  corners (57–67% with the new ones). A whole column shifted sideways is what misplaced
+  end-of-column corners would do under a fitted model.
+- H16 (sandwich clustered by (view, column) is honest, rms z in [0.7, 1.4]): **refuted**,
+  2.44 (left) and 1.72 (right), no better than the reported σ (2.21 / 1.63); by (view, row)
+  2.42 / 1.94. On synthetic data with pure per-column offsets it moves the right way but
+  still covers only part of the gap (median σ 4.3 against a true 5.8 px and a reported 3.6),
+  so even a correct cluster model with 9k clusters is too small here.
+- H17 (with SB corners the nested rms z ≤ 1.5): **refuted, in the opposite direction**:
+  3.12 (95% 2.88–3.37; median |z| 1.97) against 2.28 (median |z| 1.40) with the old corners;
+  5×5 gives 3.45. Cleaner corners halve the residuals and so halve σ (median σ<sub>f</sub>
+  1.44 → 0.73–0.87 px), but the focal error against each detector's own all-view fit only
+  falls from 0.24% to 0.15–0.23%. (Fewer subsets drop out of the nested test with the new
+  corners, 7–11 against 58, which is part of the change; the median |z| rises too.)
+
+**What it means for a robot.** Three things. (1) With an 11×11 `cornerSubPix` window on a board whose
+squares are under ~45 px, check the outer ring: on these images it is several pixels off, and a
+free-board model reads that as a bent board and a shifted principal point. (2) The localiser
+moves f by up to 1.3% between three standard OpenCV settings while every fit reports a σ
+under 0.2%. That is a systematic error no σ from the residuals can see. (3) The σ's
+overconfidence is not a corner-noise problem: the better the corners, the more the error
+is dominated by something the residuals do not carry (the remaining smooth correlation,
+lens or board terms the model omits, or the data's few views), so the honest error bar has
+to come from outside the fit, as milestone 3's jackknife did.
+
 ## Reproduce
 
 ```
@@ -294,6 +371,9 @@ OMP_NUM_THREADS=1 python3 experiments/m3_robust/run.py   # ~9 min on 4 cores; re
 python3 experiments/m3_robust/analyse.py  # summary.json, rms_z_by_sigma.png
 OMP_NUM_THREADS=1 python3 experiments/m5_lens/run.py     # ~4 min on 4 cores; results.json
 python3 experiments/m5_lens/analyse.py    # summary.json, cy_and_k2.png
+OMP_NUM_THREADS=1 python3 experiments/m6_detector/run.py # ~15 min on 4 cores; results.json
+python3 experiments/m6_detector/analyse.py # summary.json, detector.png
+python3 experiments/m6_detector/bend.py    # ~1 min; bend.json
 python3 -m pytest tests
 ```
 
@@ -314,14 +394,22 @@ python3 -m pytest tests
   set has no rotation-only motion.
 - Milestone 3 scores the robust σs on 22 bad updates, so the AUCs carry wide intervals; the
   jackknife needs k extra solves (median 2.7 s per subset here, all solves included).
+- Milestones 1–5 used corners from an 11×11 `cornerSubPix` window, which misplaces outer
+  corners by up to 6–8 px here (milestone 6). Their relative comparisons (subsets against
+  the all-view fit, σ estimators against each other) used the same corners throughout, but their
+  absolute intrinsics, the c<sub>y</sub> gap and the bend's depth are detector-dependent.
+  There is no ground truth for which localiser is right; SB and 5×5 agree with each other
+  to 0.15 px median and 1.7 px at worst.
 - `cite_check.py` could not reach the DOI registries; citations are unchecked (see
   `PROPOSAL.md`).
 
 ## Next steps
 
-After milestone 5: find the one-directional residual correlation's source (per-column
-residuals against the board's print and the image rows), and score a sandwich σ clustered by
-board column. Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
+After milestone 6: rerun the milestone 3 jackknife and the milestone 2 gate on SB corners
+(does the jackknife stay honest when σ is this much smaller?); find the smooth 2-D residual
+field that survives every localiser (tangential or thin-prism lens terms, or a per-view
+board deformation); and synthetic renders with a known camera to say which localiser is
+right. Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
 calibration of the same camera (H5). For the gate (milestone 4): a two-stage test that ranks by
 the reported σ and view spread and vetoes with the jackknife σ, fitted on one camera and
 scored on the other; a cheaper honest σ than k re-solves (a one-step, linearised jackknife
@@ -330,7 +418,7 @@ disturbed camera.
 
 ## References
 
-Zhang (2000), *IEEE TPAMI* 22(11); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
+Zhang (2000), *IEEE TPAMI* 22(11); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
 synthesis; Strobl and Hirzinger (2011), ICCV workshops; Nobre, Kasper and Heckman (2017),
 ICRA; the full list with notes is in [`PROPOSAL.md`](PROPOSAL.md). Earlier synthetic work in
 this repository: [`sensing-bafocal`](../sensing-bafocal/README.md),

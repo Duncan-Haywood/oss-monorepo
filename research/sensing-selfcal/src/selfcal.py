@@ -15,15 +15,39 @@ from scipy.optimize import least_squares
 PATTERN = (9, 6)  # inner corners of OpenCV's samples/data board
 
 
-def detect(path, pattern=PATTERN):
-    """Sub-pixel checkerboard corners of one image, (N, 2) float64, or None."""
+def detect(path, pattern=PATTERN, method="subpix11"):
+    """Sub-pixel checkerboard corners of one image, (N, 2) float64, or None.
+
+    method: "subpix11" (milestones 1-5: findChessboardCorners, then cornerSubPix with an
+    11x11 half-window), "subpix5" (a 5x5 half-window), or "sb" (findChessboardCornersSB
+    with CALIB_CB_ACCURACY, Duda and Frese 2018), re-ordered to subpix11's corner order
+    by nearest neighbour so corner i is the same physical corner whatever the detector."""
     img = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
     ok, c = cv2.findChessboardCorners(img, pattern)
     if not ok:
         return None, img.shape[::-1]
-    c = cv2.cornerSubPix(img, c, (11, 11), (-1, -1),
-                         (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 50, 1e-4))
-    return c.reshape(-1, 2).astype(np.float64), img.shape[::-1]
+    crit = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 50, 1e-4)
+    if method in ("subpix11", "subpix5"):
+        w = 11 if method == "subpix11" else 5
+        c = cv2.cornerSubPix(img, c, (w, w), (-1, -1), crit)
+        return c.reshape(-1, 2).astype(np.float64), img.shape[::-1]
+    if method != "sb":
+        raise ValueError(method)
+    ref = cv2.cornerSubPix(img, c, (11, 11), (-1, -1), crit).reshape(-1, 2).astype(np.float64)
+    ok, sb = cv2.findChessboardCornersSB(img, pattern, flags=cv2.CALIB_CB_ACCURACY)
+    if not ok:
+        return None, img.shape[::-1]
+    return match_order(ref, sb.reshape(-1, 2).astype(np.float64)), img.shape[::-1]
+
+
+def match_order(ref, other, tol=10.0):
+    """Re-order `other` so other[i] is the corner nearest ref[i]; raises unless the
+    match is one-to-one and every pair is within tol px (corners are 25-41 px apart here)."""
+    d = np.linalg.norm(ref[:, None] - other[None], axis=2)
+    j = d.argmin(axis=1)
+    if len(set(j.tolist())) != len(ref) or d[np.arange(len(ref)), j].max() > tol:
+        raise ValueError("corner sets do not match one-to-one")
+    return other[j]
 
 
 def board_points(pattern=PATTERN, square=1.0):
@@ -304,9 +328,17 @@ def robust_sf(J, r, nv, npt):
     uv = u.reshape(nv, npt, 2)
     per_view = uv.sum(axis=(1, 2))
     per_point = uv.sum(axis=(0, 2))
-    return dict(sf_cr_view=float(np.sqrt(nv / (nv - 1) * per_view @ per_view)) if nv > 1 else float("nan"),
-                sf_cr_point=float(np.sqrt(npt / (npt - 1) * per_point @ per_point)),
-                sf_hc0=float(np.sqrt(u @ u)))
+    out = dict(sf_cr_view=float(np.sqrt(nv / (nv - 1) * per_view @ per_view)) if nv > 1 else float("nan"),
+               sf_cr_point=float(np.sqrt(npt / (npt - 1) * per_point @ per_point)),
+               sf_hc0=float(np.sqrt(u @ u)))
+    if npt == PATTERN[0] * PATTERN[1]:
+        # Milestone 6: clusters of one board column (or row) in one image.
+        g = uv.reshape(nv, PATTERN[1], PATTERN[0], 2)
+        for name, ax in (("viewcol", (1, 3)), ("viewrow", (2, 3))):
+            c = g.sum(axis=ax).ravel()
+            G = len(c)
+            out["sf_cr_" + name] = float(np.sqrt(G / (G - 1) * c @ c))
+    return out
 
 
 def jackknife_sf(obs, size, f0, nk=1, max_nfev=2000):
@@ -402,3 +434,35 @@ def neighbour_corr(resid, pattern=PATTERN):
     return dict(horizontal=corr(*h), vertical=corr(*v), both=both,
                 horizontal_lag2=corr(R[:, :, :-2], R[:, :, 2:]), vertical_lag2=corr(R[:, :-2], R[:, 2:]),
                 vertical_u=corr(R[:, :-1, :, 0], R[:, 1:, :, 0]), vertical_v=corr(R[:, :-1, :, 1], R[:, 1:, :, 1]))
+
+
+# ---------------------------------------------------------------------------
+# Milestone 6: where the column-wise residual correlation lives.
+
+def residual_structure(resid, obs, pattern=PATTERN):
+    """resid, obs: (views, points, 2). Share of the residual sum of squares explained by a
+    per-(view, board column) mean and a per-(view, board row) mean (null for independent
+    noise: 1/rows and 1/cols), and the share of the column means' energy perpendicular to
+    each column's line in the image (isotropic: 0.5)."""
+    nv = resid.shape[0]
+    R = resid.reshape(nv, pattern[1], pattern[0], 2)
+    O = obs.reshape(nv, pattern[1], pattern[0], 2)
+    tot = float((R ** 2).sum())
+    cm = R.mean(axis=1)                       # (views, cols, 2)
+    rm = R.mean(axis=2)                       # (views, rows, 2)
+    col_share = float(pattern[1] * (cm ** 2).sum() / tot)
+    row_share = float(pattern[0] * (rm ** 2).sum() / tot)
+    d = O[:, -1] - O[:, 0]                    # each column's direction in the image
+    d /= np.linalg.norm(d, axis=-1, keepdims=True)
+    along = (cm * d).sum(-1)
+    perp = cm[..., 0] * -d[..., 1] + cm[..., 1] * d[..., 0]
+    perp_share = float((perp ** 2).sum() / ((perp ** 2).sum() + (along ** 2).sum()))
+    # the same for row means, against each row's direction
+    e = O[:, :, -1] - O[:, :, 0]
+    e /= np.linalg.norm(e, axis=-1, keepdims=True)
+    ra = (rm * e).sum(-1)
+    rp = rm[..., 0] * -e[..., 1] + rm[..., 1] * e[..., 0]
+    row_perp = float((rp ** 2).sum() / ((rp ** 2).sum() + (ra ** 2).sum()))
+    return dict(col_share=col_share, col_null=1 / pattern[1], row_share=row_share, row_null=1 / pattern[0],
+                col_perp_share=perp_share, row_perp_share=row_perp,
+                col_mean_rms_px=float(np.sqrt((cm ** 2).sum(-1).mean())))
