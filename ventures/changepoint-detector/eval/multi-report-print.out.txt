@@ -1,0 +1,13 @@
+# before (multi-report.mjs at main c8d67583, one chart and one joint table):
+ok    UK road casualties, 7 columns, level: widest 648 px of 680; tallest chart 631 px of 1009; 1 chart, 3 tables; 4 A4 pages
+FAIL  UK road casualties, 7 columns, level and volatility: widest 814 px of 680 (1 box scroll sideways); tallest chart 631 px of 1009; 1 chart, 3 tables; 4 A4 pages
+FAIL  synthetic, 12 columns, level: widest 1081 px of 680 (1 box scroll sideways); tallest chart 1078 px of 1009; 1 chart, 3 tables; 5 A4 pages
+FAIL  synthetic, 20 columns, level and volatility: widest 2156 px of 680 (1 box scroll sideways); tallest chart 1792 px of 1009; 1 chart, 3 tables; 7 A4 pages
+3 case(s) do not fit the printed page
+
+# after (columnGroups):
+ok    UK road casualties, 7 columns, level: widest 648 px of 680; tallest chart 363 px of 1009; 2 charts, 4 tables; 3 A4 pages
+ok    UK road casualties, 7 columns, level and volatility: widest 648 px of 680; tallest chart 363 px of 1009; 2 charts, 4 tables; 4 A4 pages
+ok    synthetic, 12 columns, level: widest 648 px of 680; tallest chart 542 px of 1009; 2 charts, 4 tables; 6 A4 pages
+ok    synthetic, 20 columns, level and volatility: widest 648 px of 680; tallest chart 363 px of 1009; 5 charts, 7 tables; 8 A4 pages
+every case fits the printed page

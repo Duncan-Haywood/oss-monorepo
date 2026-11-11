@@ -2200,8 +2200,47 @@ shows the report card as an unlocked key would, opens the report, and compares i
 
 **Not done.** The CLI has no report output for one column or several (the report is the paid
 extra; an open-source CLI flag would be honest but is the owner's pricing call). A wide joint table
-(many columns) scrolls sideways on screen and may be clipped in print; a column-per-page layout for
-more than about six columns is open.
+(many columns) scrolls sideways on screen; in print it was clipped, fixed the same day (next section).
+
+### Wide sets in print: one chart and one table per group of columns (2026-11-11)
+
+The several-column report put every column in one small-multiples chart and one joint table. On a
+printed page neither can bend: the joint table sat in a box that scrolls sideways, which paper cannot
+do, and the chart is one image that cannot split. `eval/multi-report-print.mjs` (headless Chromium,
+print media, A4 with 15 mm margins, so 680 by 1009 CSS px printable; output
+`eval/multi-report-print.out.txt`) measured it on a real seven-column set, the UK road-casualty
+series behind the seat-belt studies (`data/uk-road-casualties.csv`, R's `Seatbelts`; Harvey 1989),
+and on synthetic 12- and 20-column sets:
+
+| case | joint table, before | after | tallest chart, before | after |
+|---|---|---|---|---|
+| road casualties, 7 columns, level | 648 px (fits, wrapped) | 648 px | 631 px | 363 px |
+| road casualties, 7 columns, level and volatility | **814 px** | 648 px | 631 px | 363 px |
+| synthetic, 12 columns, level | **1,081 px** | 648 px | **1,078 px** | 542 px |
+| synthetic, 20 columns, level and volatility | **2,156 px** | 648 px | **1,792 px** | 363 px |
+
+Now `columnGroups` (`multi-report.mjs`) splits the columns into balanced groups of at most
+`COLUMNS_PER_GROUP` (6 under the level model, 4 under level and volatility, whose cells also carry
+the sd ratio; on the road data 5 volatility columns still fit at 648 px and 6 reach 710, so 4 leaves
+room for longer numbers). Each group gets its own chart and its own joint table, captioned
+"Columns 1 to 4 of 7: DriversKilled, drivers, front, rear", each kept whole on a page. Every chart
+draws the same joint and agreed changes, so the groups line up by date. Sets that fit in one group
+(the usual 2 to 4 columns, and the FX sample) are laid out exactly as before: the three sample reports
+regenerate byte-identical.
+
+**What the road data says** (pinned in `multi-report.test.mjs`): the joint level-and-volatility fit
+has a change at 1983-02, the first full month of the front-seat belt law, among 5; but the only
+changes every column-by-column setting agrees on are the petrol price's three steps (1974-04,
+1977-08, 1979-06). The casualty counts are strongly seasonal and the several-column mode has no
+season term, so the per-column panel cannot settle on the law there; one column at a time,
+`--period 12` does find it (the seat-belt section under Verification). A season term per column is
+open.
+
+**Checked.** `multi-report.test.mjs` (7 tests, 2 new): the groups cover every column once and never
+exceed the limit; on the seven real columns the report has two charts, each equal to
+`multiChartSvg` on its group, two joint tables with each column's header exactly once, and no single
+tall chart. `node eval/multi-report-print.mjs`: before, 3 of 4 cases did not fit the printed page;
+after, all 4 do.
 
 ## The wandering-level model in the branded report (2026-11-11)
 
