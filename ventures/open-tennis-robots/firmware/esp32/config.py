@@ -14,7 +14,7 @@ AZ_HOME_DEG = -32.0             # where the home switch trips (just past -30); s
 # "pot" (feedback potentiometer, through an H-bridge, L16-P class) or "timed" (bare actuator through an H-bridge,
 # homed on its retract limit). Lengths are hole to hole; read yours off the datasheet and a ruler.
 ELEV_MODE = "pot"
-ELEV_CLOSED_MM = 240.0          # retracted length (the drawn window takes 245 or less)
+ELEV_CLOSED_MM = 246.0          # retracted length: 244.9 to 247.7 mm, so its own limit stops the head before the plates hit
 ELEV_STROKE_MM = 150.0
 ELEV_SPEED_EXT_MM_S = 18.0      # timed/rc: measured extending (nose down, against the head's weight)
 ELEV_SPEED_RET_MM_S = 22.0      # measured retracting (nose up, the weight helps)

@@ -58,11 +58,24 @@ mid-range move landed within a degree; at 5% it landed 1.8 degrees off, inside
 the budget the axis reported but not good enough to aim with. That is the case
 for the pot: timed mode works, but only as well as you measured the speeds.
 
-One finding the timed mode surfaced: homing on the retract limit takes the head
-past its range. With the drawn 240 mm actuator fully retracted, the head sits at
-+48.8 degrees, not +45. The CAD's collision sweeps only go to +45, so a builder
-using timed mode needs the head to clear that extra 3.8 degrees, or a shorter
-retracted length.
+## A crash the timed mode found
+
+Homing on the retract limit takes the head past its range. With the actuator
+the CAD drew this morning, 240 mm hole to hole when retracted, the head sits at
++48.8 degrees when it is fully retracted, not +45. The CAD's collision sweeps
+stopped at +45, so nobody had looked further. Run past it, the swept solids say
+the head plates cut 23 mm³ into the turntable plate at +47 degrees, and 193 mm³
+at +48.8, plus the mast plate. Bisection puts the last clear angle at +46.36
+degrees.
+
+That matters in every mode, not only timed. The actuator's own retract limit is
+the stop of last resort if a loop or a wire goes wrong, so it has to land
+somewhere the head is clear. The fix is in the CAD: the actuator must be 244.9
+to 247.7 mm retracted, so its limit falls between +45 and +46.36 degrees. The
+drawn one is now 246 mm (it stops at +45.8 degrees), and the build checks the
+range. A test re-runs the swept solids either side of the limit, and the
+firmware refuses timed mode outright if the configured length would home the
+head into the plates.
 
 ## The feed gate waits for the aim
 

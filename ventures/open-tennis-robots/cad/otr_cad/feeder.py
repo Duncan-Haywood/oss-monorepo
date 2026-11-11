@@ -952,7 +952,8 @@ def elevation_line(p: Feeder, gravity: dict[float, float]) -> str:
             f"so the actuator pushes one way all the way ({d['push_min_n']:.0f} to {d['push_peak_n']:.0f} N, hose slack or "
             f"taut, lever arm at least {d['arm_min_mm']:.0f} mm), {d['force_margin']:.1f}x under the assumed "
             f"{p.elev_act_force_n:g} N rating; pin-to-anchor {d['len_min_mm']:.0f} to {d['len_max_mm']:.0f} mm "
-            f"({d['travel_mm']:.0f} mm of travel), so any actuator retracted at most {d['closed_max_mm']:.0f} mm and extended at "
+            f"({d['travel_mm']:.0f} mm of travel), so any actuator retracted {d['closed_min_mm']:.1f} to {d['closed_max_mm']:.1f} mm (its own retract "
+            f"limit then stops the head short of the turntable plate) and extended at "
             f"least {d['extended_min_mm']:.0f} mm hole to hole fits; at {p.elev_act_speed_mm_s:g} mm/s the head turns "
             f"{d['deg_per_s_min']:.1f} to {d['deg_per_s_max']:.1f} deg/s, the full range in {d['full_sweep_s']:.1f} s")
 
@@ -1010,6 +1011,7 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                         "elev_push_peak_n": round(e["push_peak_n"], 1), "elev_force_margin": round(e["force_margin"], 2),
                         "elev_len_mm": [round(e["len_min_mm"], 1), round(e["len_max_mm"], 1)],
                         "elev_closed_max_mm": round(e["closed_max_mm"], 1),
+                        "elev_closed_min_mm": round(e["closed_min_mm"], 1),
                         "elev_extended_min_mm": round(e["extended_min_mm"], 1),
                         "elev_full_sweep_s": round(e["full_sweep_s"], 2)})
     return checks, derived

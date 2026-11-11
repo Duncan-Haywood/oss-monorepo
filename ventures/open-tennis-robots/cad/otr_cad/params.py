@@ -449,7 +449,11 @@ class Feeder:
     elev_act_y: float = -72.0         # actuator's centre plane: outboard of the -y cheek (outer face at -52.5)
     elev_act_r: float = 13.0          # actuator body radius for the clearance check (about a 1 in body; check yours)
     elev_act_stroke: float = 150.0    # stock 6 in stroke
-    elev_act_closed: float = 240.0    # hole-to-hole length retracted (assumption: read your datasheet; it must fit the window)
+    elev_act_closed: float = 246.0    # hole-to-hole length retracted (read your datasheet): its own retract limit must stop
+                                      # the head between +45 deg and `elev_clear_max` (2026-11-11; was 240, which pulled
+                                      # the plates into the turntable and mast plates at +48.8 deg)
+    elev_clear_max: float = 46.3      # the head plates clear the turntable plate up to +46.36 deg (bisection on the
+                                      # swept solids, 2026-11-11; test_cad re-checks both sides)
     elev_act_force_n: float = 220.0   # rated push (assumption: a 50 lb class 12-24 V actuator)
     elev_act_speed_mm_s: float = 20.0  # speed at that load (assumption)
     elev_end_mm: float = 3.0          # kept off each end stop
@@ -1142,7 +1146,9 @@ class Feeder:
         peak = max(pushes, key=abs)
         return {
             "rows": rows, "len_min_mm": min(lens), "len_max_mm": max(lens), "travel_mm": max(lens) - min(lens),
-            "closed_max_mm": min(lens) - self.elev_end_mm, "extended_min_mm": max(lens) + self.elev_end_mm,
+            # retracted: no margin at that end, because the actuator's own limit is the safe stop past +45 deg
+            "closed_max_mm": min(lens), "closed_min_mm": self.elev_act_len(self.elev_clear_max),
+            "extended_min_mm": max(lens) + self.elev_end_mm,
             "push_peak_n": peak, "push_min_n": min(pushes, key=abs), "one_way": all(x > 0 for x in pushes) or all(x < 0 for x in pushes),
             "arm_min_mm": min(abs(r["arm_mm"]) for r in rows), "force_margin": self.elev_act_force_n / abs(peak),
             "full_sweep_s": (max(lens) - min(lens)) / self.elev_act_speed_mm_s,
@@ -1156,7 +1162,10 @@ class Feeder:
         d = self.elevation_drive(gravity_nm)
         if self.elev_act_closed > d["closed_max_mm"]:
             bad.append(f"elevation actuator is {self.elev_act_closed:g} mm retracted; the shortest pose needs "
-                       f"{d['closed_max_mm']:.0f} mm or less")
+                       f"{d['closed_max_mm']:.1f} mm or less")
+        if self.elev_act_closed < d["closed_min_mm"]:
+            bad.append(f"elevation actuator is {self.elev_act_closed:g} mm retracted: fully retracted it pulls the head past "
+                       f"+{self.elev_clear_max:g} deg into the turntable plate (needs {d['closed_min_mm']:.1f} mm or more)")
         if self.elev_act_closed + self.elev_act_stroke < d["extended_min_mm"]:
             bad.append(f"elevation actuator reaches {self.elev_act_closed + self.elev_act_stroke:g} mm; the longest pose needs "
                        f"{d['extended_min_mm']:.0f} mm")

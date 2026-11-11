@@ -313,7 +313,7 @@ class FirmwareTest(unittest.TestCase):
     # ---- elevation actuator (2026-11-11) ----------------------------------------------------------------------
 
     def _elev(self, mode, **kw):
-        return controller.LinearAxis(mode, controller.ElevationGeometry(), 240.0, 150.0, -15.0, 45.0, 18.0, 22.0, **kw)
+        return controller.LinearAxis(mode, controller.ElevationGeometry(), 246.0, 150.0, -15.0, 45.0, 18.0, 22.0, **kw)
 
     def test_elevation_geometry_matches_the_cad(self):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
@@ -350,12 +350,12 @@ class FirmwareTest(unittest.TestCase):
             ax.target(goal)
             pos = self._plant(ax, 1200, start)
             self.assertTrue(ax.settled, (start, goal))
-            self.assertLess(abs(g.elev(pos + 240.0) - goal), 0.3)
+            self.assertLess(abs(g.elev(pos + 246.0) - goal), 0.3)
         ax = self._elev(controller.ELEV_POT)
-        ax.target(80.0)                       # clamped to +45 deg, 3 mm off the stops at most
-        self.assertAlmostEqual(ax.goal, max(3.0, g.length(45.0) - 240.0))
+        ax.target(80.0)                       # clamped to +45 deg
+        self.assertAlmostEqual(ax.goal, g.length(45.0) - 246.0)   # 1.7 mm off the retract limit
         ax.target(-80.0)
-        self.assertAlmostEqual(ax.goal, g.length(-15.0) - 240.0)
+        self.assertAlmostEqual(ax.goal, g.length(-15.0) - 246.0)
 
     def test_elevation_pot_faults_on_stall_and_lost_feedback(self):
         ax = self._elev(controller.ELEV_POT)
@@ -385,13 +385,13 @@ class FirmwareTest(unittest.TestCase):
         pos = self._plant(ax, 1000, pos, ext=18.36, ret=22.44)
         self.assertTrue(ax.settled)
         self.assertLessEqual(abs(pos - ax.pos), ax.budget + 0.25)
-        self.assertLess(abs(g.elev(pos + 240.0) - 10.0), 1.0)
+        self.assertLess(abs(g.elev(pos + 246.0) - 10.0), 1.0)
         # 5% off instead: the same move lands about 1.8 deg off, still inside the budget it reports
         far = self._elev(controller.ELEV_TIMED)
         far.target(10.0)
         p5 = self._plant(far, 2000, 0.0, ext=18.9, ret=23.1)
         self.assertLessEqual(abs(p5 - far.pos), far.budget + 0.25)
-        self.assertGreater(abs(g.elev(p5 + 240.0) - 10.0), 1.5)
+        self.assertGreater(abs(g.elev(p5 + 246.0) - 10.0), 1.5)
         # back and forth until the budget forces a re-home before a move, then it is clean again
         rehomed = False
         for goal in (40.0, -10.0, 40.0, -10.0, 40.0, -10.0):
@@ -403,6 +403,13 @@ class FirmwareTest(unittest.TestCase):
             self.assertLessEqual(abs(pos - ax.pos), ax.budget + 0.25)
             self.assertLessEqual(ax.budget, 3.0 + 150 * 0.05)
         self.assertTrue(rehomed)
+
+    def test_elevation_timed_refuses_a_retract_limit_past_the_clear_range(self):
+        short = controller.LinearAxis(controller.ELEV_TIMED, controller.ElevationGeometry(), 240.0, 150.0, -15.0, 45.0,
+                                      18.0, 22.0)
+        self.assertTrue(short.fault)          # homing would pull the head to +48.8 deg, into the turntable plate
+        self.assertEqual(short.update(10, None), 0.0)
+        self.assertFalse(self._elev(controller.ELEV_TIMED).fault)   # 246 mm stops at +45.8 deg, inside 46.3
 
     def test_elevation_timed_stops(self):
         ax = self._elev(controller.ELEV_TIMED)
@@ -424,7 +431,7 @@ class FirmwareTest(unittest.TestCase):
         ax = self._elev(controller.ELEV_RC)
         ax.target(15.0)
         frac = ax.update(10, None)
-        self.assertAlmostEqual(frac, (g.length(15.0) - 240.0) / 150.0)
+        self.assertAlmostEqual(frac, (g.length(15.0) - 246.0) / 150.0)
         self.assertFalse(ax.settled)          # the estimate assumes it starts at the far end
         n = 1
         while not ax.settled:

@@ -64,8 +64,14 @@ Pick what your actuator can report with `ELEV_MODE` in `config.py`:
   a 100k resistor from the wiper to GND (a loose wiper then reads 0) and check
   that neither end reads within about 2% of 0 or 65535, or the check cannot tell.
 - **timed**: at power-up it retracts for 1.25x the full-stroke time plus 0.5 s
-  and calls that stroke 0. **That is past +45 deg:** a 240 mm actuator fully
-  retracted puts the head at +48.8 deg. Each move runs at full speed and adds
+  and calls that stroke 0, which is past +45 deg. With the actuator the CAD first
+  drew (240 mm retracted) that is +48.8 deg, and the head plates cut into the
+  turntable and mast plates from +46.4 deg. The drawn actuator is now 246 mm
+  retracted (stops at +45.8 deg); any between 244.9 and 247.7 mm works
+  (`cad/README.md`, "Elevation drive"). The axis refuses timed mode (faults at
+  start-up) when `ELEV_CLOSED_MM` would put the stop past +46.3 deg. In every
+  mode this retract limit is the backstop if the loop or wiring goes wrong, so
+  check your actuator's length whatever the mode. Each move runs at full speed and adds
   5% of its length to an error budget; a move that would push the budget past
   3 mm homes first if homing and moving out would leave less error. Measure
   both speeds (`ELEV_SPEED_EXT_MM_S` against the head's weight,

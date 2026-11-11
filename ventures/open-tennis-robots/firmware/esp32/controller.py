@@ -197,7 +197,7 @@ class LinearAxis:
     """
 
     def __init__(self, mode, geom, closed_mm, stroke_mm, lo_deg, hi_deg, speed_ext_mm_s, speed_ret_mm_s,
-                 end_mm=3.0, deadband_mm=0.5, kp=0.08, min_duty=0.35, stall_ms=600, stall_mm=0.5,
+                 end_mm=3.0, retract_end_mm=0.5, stop_clear_deg=46.3, deadband_mm=0.5, kp=0.08, min_duty=0.35, stall_ms=600, stall_mm=0.5,
                  speed_tol=0.05, rehome_mm=3.0, coast_mm=1.0, self_locking=True):
         if mode not in (ELEV_RC, ELEV_POT, ELEV_TIMED):
             raise ValueError("elevation mode must be rc, pot or timed")
@@ -209,12 +209,15 @@ class LinearAxis:
         self.speed_tol, self.rehome_mm, self.coast_mm = speed_tol, rehome_mm, coast_mm
         self.self_locking = self_locking
         # Stroke limits from the angle limits (the higher angle is the shorter actuator), inside the end margins.
-        self.s_lo = max(end_mm, geom.length(hi_deg) - closed_mm)
+        # (the retract end gets a small margin only: the actuator's own limit there is the designed safe stop)
+        self.s_lo = max(retract_end_mm, geom.length(hi_deg) - closed_mm)
         self.s_hi = min(stroke_mm - end_mm, geom.length(lo_deg) - closed_mm)
         if self.s_lo >= self.s_hi:
             raise ValueError("elevation actuator cannot reach the angle range")
         self.homed = mode != ELEV_TIMED
-        self.fault = False
+        # Timed homing drives into the retract limit on purpose: refuse if that pulls the head past where its plates
+        # clear the turntable (cad `elev_clear_max`; a 240 mm actuator would stop at +48.8 deg, into the plates).
+        self.fault = mode == ELEV_TIMED and geom.elev(closed_mm) > stop_clear_deg
         self.pos = self.s_lo if mode == ELEV_RC else 0.0
         self.goal = self.pos
         self.duty = 0.0           # applied since the last update
