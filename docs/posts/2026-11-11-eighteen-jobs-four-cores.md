@@ -1,9 +1,9 @@
 ---
 title: "Eighteen jobs, four cores: the changepoint detector's several-column mode on threads"
-seo_title: "Running a changepoint consensus panel on worker threads, same answer, 2.5x faster"
+seo_title: "A changepoint panel on worker threads: same answer, 2.5x faster"
 date: 2026-11-11
 tags: [changepoint-detector, time-series, performance, worker-threads, web-workers]
-description: "Each column's six-setting changepoint panel now runs on worker threads in the CLI and on Web Workers in the browser. The answers are identical; the 3-column currency example went from 8.8 s to 3.6 s."
+description: "Each column's six-setting changepoint panel now runs on worker threads in the CLI and on Web Workers in the browser: same answers, 8.8 s down to 3.6 s."
 ---
 
 The [changepoint detector](../../ventures/changepoint-detector/README.md) answers "when did

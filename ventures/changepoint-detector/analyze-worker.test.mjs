@@ -45,7 +45,12 @@ test('the page runs both modes through the worker, cancels a stale run and keeps
   const html = read('index.html');
   assert.match(html, /new Worker\("\.\/analyze-worker\.mjs", \{ type: "module" \}\)/);
   assert.match(html, /startMain\(\{ kind: "one", opts \}/);
-  assert.match(html, /startMain\(\{ kind: "multi", csv: /);
+  assert.match(html, /startMain\(\{ kind: "multi", csv[,:] /);
+  // Several columns: every column's panel goes to the panel workers first, then the finished runs ride
+  // with the job to the main worker (columnRuns); a worker failure falls back to the main worker alone.
+  assert.match(html, /new Worker\("\.\/consensus-worker\.mjs", \{ type: "module" \}\)/);
+  assert.match(html, /runColumnPanels\(parsed\.cols, go\)/);
+  assert.match(html, /stopColumnPanels\(\);\s*done\(null\)/);
   assert.match(html, /if \(mainJob && mainWorker\) \{ mainWorker\.terminate\(\)/);
   assert.match(html, /finish\(analyzeJob\(job\)\)/);
   assert.doesNotMatch(html, /\banalyze\(\{|analyzeMulti\(/);

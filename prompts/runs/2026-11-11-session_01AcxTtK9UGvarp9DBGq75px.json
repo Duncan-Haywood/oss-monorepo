@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtK9UGvarp9DBGq75px",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T12:18:49Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship changepoint-detector (allocate.py row 3; rows 1-2 had a fresh open PR / a round just landed): --columns per-column panels on threads",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14783",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "eval/columns-workers-browser.mjs first compared innerHTML without stripping the browser-inserted <tbody>; all checks read FAIL until normalised",
+    "eval/cli-columns-threads.mjs first passed the file after --columns, which reads it as the column list; led to the CLI fix",
+    "full venture suite (472/474) caught two static page tests pinning the old index.html text (import list, startMain multi regex); updated, then 32/32 and 36/36 on the reached files"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to take the top Deepen row of allocate.py; the top two rows (ai-bookkeeper with a 0h-old open PR, sales-agent whose next says rule rounds have stopped paying and the rest need outside inputs) were not workable, so the choice fell to row 3 by judgment. allocate.py could skip a row with a PR under ~2h old."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top flagship row had an open PR 0 h old and row 2's next items need real mailboxes, keys or a policy decision",
+      "did": "Took row 3 (changepoint-detector) item (c)",
+      "result": "landed a measured 2.4-2.7x speed-up with identical answers"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-eighteen-jobs-four-cores.md",
+    "ventures/changepoint-detector/README.md section 'Several columns on worker threads, in the CLI and on the page'"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test columns-threads/consensus-threads/multivariate/multi-view/cli tests 31/31 pass; columns-threads 7/7 after the CLI fix; eval/cli-columns-threads.out.txt and eval/columns-workers-browser.out.txt (headless Chromium, all 5 checks ok); eval/analyze-worker-browser.mjs 3000 all ok (no regression). Full venture suite run_venture_tests.py changepoint-detector: 472/474, the 2 failures were static page tests pinning old markup, fixed and re-run (page, analyze-worker, columns-threads 32/32; cli, multivariate, multi-view, consensus-threads, agreed-worker, multi-report 36/36). No agent doc in docs/reports: the README section and flagships.yaml next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null
+}
