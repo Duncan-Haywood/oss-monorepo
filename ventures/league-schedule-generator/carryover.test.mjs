@@ -154,7 +154,51 @@ test("the carry-over guide's numbers come from the code and the real fixture dat
   for (const r of [r18, r20]) {
     assert.ok(html.includes(`<td>${fmt(r.circle)}</td><td>${r.circleBreaks}</td>`), `circle ${r.teams}`);
     assert.ok(html.includes(`<td>${fmt(r.balanced)}</td><td>${r.balancedBreaks}</td>`), `tool ${r.teams}`);
+    assert.ok(html.includes(`<td>${fmt(r.whole)}</td><td>${r.wholeBreaks}</td>`), `whole season ${r.teams}`);
+    assert.ok(r.whole < r.balanced);
   }
+  // 20 teams, whole season: below every professional 20-team season, breaks inside their range
+  assert.ok(r20.whole < tLo && r20.wholeBreaks >= bLo && r20.wholeBreaks <= bHi);
+  assert.ok(html.includes(`from ${fmt(r20.balanced)} to ${fmt(r20.whole)}`) && html.includes(`(${r20.wholeBreaks}, inside their ${bLo} to ${bHi})`));
   assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /how-to-balance-carry-over-in-a-round-robin\.html/);
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\/how-to-balance-carry-over-in-a-round-robin\.html"/);
+});
+
+test("double round robin searched as a whole: valid legs, return games reversed, below mirrored", async () => {
+  const { lowCarryOverDoubleRounds } = await import("./carryover.mjs");
+  for (const [n, bw] of [[6, 0], [7, 10], [8, 0], [9, 10], [12, 10], [16, 10]]) {
+    const r = lowCarryOverDoubleRounds(n, { seed: 2, effort: 0.3, breakWeight: bw });
+    const R = n % 2 ? n : n - 1;
+    assert.equal(r.rounds.length, 2 * R);
+    const leg0 = r.rounds.slice(0, R), leg1 = r.rounds.slice(R);
+    assert.ok(leg0.every((x) => x.leg === 0) && leg1.every((x) => x.leg === 1));
+    checkRoundRobin(leg0, n);
+    checkRoundRobin(leg1, n);
+    // the return game is at the other ground, so every team has n - 1 home games
+    const host = new Map();
+    for (const x of leg0) for (const [h, a] of x.matches) host.set(`${h},${a}`, 1);
+    for (const x of leg1) for (const [h, a] of x.matches) assert.ok(host.has(`${a},${h}`), `${n}: ${a}-${h} reversed`);
+    const home = Array(n).fill(0);
+    for (const x of r.rounds) for (const [h] of x.matches) home[h]++;
+    assert.ok(home.every((h) => h === n - 1));
+    // nobody meets the same side twice running, nobody sits out twice running
+    assert.equal(r.repeats, 0);
+    const c = carryOver({ teams: teams(n), rounds: r.rounds });
+    assert.equal(c.value, r.coe);
+    assert.equal(c.repeats, 0);
+    assert.ok(r.coe >= r.lowerBound);
+    assert.ok(n >= 12 ? r.coe < r.mirroredCoe : r.coe <= r.mirroredCoe, `${n}: ${r.coe} vs mirrored ${r.mirroredCoe}`);
+    assert.deepEqual(lowCarryOverDoubleRounds(n, { seed: 2, effort: 0.3, breakWeight: bw }).rounds, r.rounds, "seeded");
+  }
+  // 8 teams, carry-over only: reaches the floor for a double round robin with no repeats
+  assert.equal(lowCarryOverDoubleRounds(8).coe, 200);
+});
+
+test("lower bound counts the diagonal only when a schedule meets a side twice running", () => {
+  // 3 teams, team 0 plays 1, 1, 2: c[1][1] = 1
+  const r = carryOverFromOpponents([[1, 1, 2], [0, 0, 2], [0, 1]]);
+  assert.equal(r.repeats, 2);
+  assert.equal(r.total, 5);
+  assert.equal(r.lowerBound, 5); // 5 steps over 9 cells (the diagonal counts), all ones
+  assert.equal(carryOverFromOpponents([[1, 2], [0, 2], [0, 1]]).repeats, 0);
 });
