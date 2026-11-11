@@ -425,7 +425,7 @@ class Feeder:
     print_min_gap_mm: float = 0.8     # narrowest slot a 0.4 mm nozzle prints cleanly (two line widths; assumption)
     az_slew_deg: float = 30.0         # largest move between two shots: drill.example.json's corners at y +-2.5 m, x 9.5 m are 29.5 deg apart
     az_slew_s: float = 1.0            # time allowed for it: half of a 2 s feed interval, about a commercial machine's fastest (assumption)
-    az_inertia_kgm2: float = 0.32     # turning inertia; the build measures it from the CAD (0.31 nose up 45 deg, 0.11 level) and fails if this is below it
+    az_inertia_kgm2: float = 0.35     # turning inertia; the build measures it from the CAD (0.34 nose up 45 deg with the elevation actuator, 0.31 before it) and fails if this is below it
     az_bearing_mu: float = 0.02       # lazy-susan bearing, rolling friction at its ball circle (assumption)
     az_gear_eff: float = 0.90         # spur mesh efficiency, greased (assumption)
     az_shock: float = 1.5             # service factor on the tooth load (stepper start, a knock on the head)
@@ -438,6 +438,22 @@ class Feeder:
     stepper_body_mm: float = 48.0     # 42.3 mm square, this long under its flange
     az_torque_factor: float = 2.0     # pull-out (and holding) torque over the needed torque
     aim_range_m: float = 24.0         # net to the far baseline: where an azimuth error is read as a sideways miss
+
+    # Elevation drive (2026-11-11): a linear actuator in a plane outboard of the -y (guard-side) cheek pushes a pin on
+    # the guard plate. Gravity on the head is measured from the CAD (`feeder.head_moment`); the pin and anchor were
+    # chosen by a grid search (README "Elevation drive") for the least peak push with a stock 150 mm stroke.
+    elev_pin_x: float = -175.0        # pin, head frame (x from the wheel centres): behind the feed column's rear wall at -161
+    elev_pin_z: float = 60.0          # pin, head frame (z from the ball path): above the feed roof (47.5) with room for a nut
+    elev_anchor_dx: float = -100.0    # anchor, from the pivot (world x, turns with the turntable, not with elevation)
+    elev_anchor_dz: float = -75.0     # anchor, from the pivot (world z): 65 mm above the turntable plate, on the cheek's tab
+    elev_act_y: float = -72.0         # actuator's centre plane: outboard of the -y cheek (outer face at -52.5)
+    elev_act_r: float = 13.0          # actuator body radius for the clearance check (about a 1 in body; check yours)
+    elev_act_stroke: float = 150.0    # stock 6 in stroke
+    elev_act_closed: float = 240.0    # hole-to-hole length retracted (assumption: read your datasheet; it must fit the window)
+    elev_act_force_n: float = 220.0   # rated push (assumption: a 50 lb class 12-24 V actuator)
+    elev_act_speed_mm_s: float = 20.0  # speed at that load (assumption)
+    elev_end_mm: float = 3.0          # kept off each end stop
+    elev_force_factor: float = 2.0    # rated push over the largest push needed
 
     # ---- derived -----------------------------------------------------------
     @property
@@ -1059,6 +1075,103 @@ class Feeder:
             bad.append("azimuth stepper overhangs the mast plate")
         if self.post_dx - 10 < half + 5:
             bad.append("azimuth stepper hits the mast posts")
+        return bad
+
+    # ---- elevation drive (2026-11-11) -----------------------------------------
+    def _rot_pivot(self, x: float, z: float, elev_deg: float) -> tuple[float, float]:
+        t = math.radians(elev_deg)
+        return x * math.cos(t) - z * math.sin(t), x * math.sin(t) + z * math.cos(t)
+
+    def elev_pin_rel(self, elev_deg: float) -> tuple[float, float]:
+        """(x, z) of the actuator pin from the pivot, world frame, with the head tilted `elev_deg` nose up."""
+        return self._rot_pivot(self.elev_pin_x, self.elev_pin_z - self.pivot_z_rel, elev_deg)
+
+    def elev_act_len(self, elev_deg: float) -> float:
+        """Actuator length, anchor hole to pin hole (mm), measured in its own (x-z) plane."""
+        px, pz = self.elev_pin_rel(elev_deg)
+        return math.hypot(px - self.elev_anchor_dx, pz - self.elev_anchor_dz)
+
+    def _elevs(self, steps: int = 24) -> list[float]:
+        return [self.elev_min + (self.elev_max - self.elev_min) * i / steps for i in range(steps + 1)]
+
+    def elev_hose_moment_nm(self, elev_deg: float) -> float:
+        """Nose-up moment (N m) of the hose pull about the pivot: `hose_pull_n` at the socket mouth along the chord to
+        the hose's start (the sleeve's lower end, or the outlet). Same taut-string bound as `az_hose_torque_nm`."""
+        t = self.sleeve_take_up_design()
+        sx, sz = self.hopper_out_x, (t["start_z"] if t else self.hopper_out_z)
+        mx, mz = self.mouth_world(elev_deg)
+        dx, dz = sx - mx, sz - mz
+        n = math.hypot(dx, dz)
+        fx, fz = self.hose_pull_n * dx / n, self.hose_pull_n * dz / n
+        rx, rz = mx - self.head_x, mz - self.pivot_z
+        return (rx * fz - rz * fx) / 1000
+
+    def elevation_drive(self, gravity_nm: dict[float, float]) -> dict:
+        """Size the elevation actuator. `gravity_nm` maps elevation (deg) to the head's nose-up gravity moment about
+        the pivot (N m), measured from the CAD by `feeder.head_moment`; it is interpolated linearly between the
+        measured poses. Push needed at each pose = (gravity + hose) moment over the actuator's lever arm about the
+        pivot (the pin's moment arm along the actuator's line), with the hose taut or slack, whichever needs more;
+        positive is a push. The window is what a bought
+        actuator must span: retracted no longer than the shortest pose, extended no shorter than the longest. Rate is
+        degrees per second at `elev_act_speed_mm_s`, from the length's slope with elevation (the slowest pose).
+        Inertia is left out: at 20 mm/s the head's angular speed is a few degrees per second."""
+        ks = sorted(gravity_nm)
+
+        def g(e: float) -> float:
+            for a, b in zip(ks, ks[1:]):
+                if a - 1e-9 <= e <= b + 1e-9:
+                    return gravity_nm[a] + (gravity_nm[b] - gravity_nm[a]) * (e - a) / (b - a)
+            return gravity_nm[ks[0]] if e < ks[0] else gravity_nm[ks[-1]]
+
+        rows = []
+        for e in self._elevs():
+            px, pz = self.elev_pin_rel(e)
+            dx, dz = px - self.elev_anchor_dx, pz - self.elev_anchor_dz
+            length = math.hypot(dx, dz)
+            ux, uz = dx / length, dz / length
+            arm = px * uz - pz * ux          # nose-up moment (m per N, x1000) of a unit push along anchor -> pin
+            hose = self.elev_hose_moment_nm(e)
+            # the hose may pull anywhere from 0 to hose_pull_n (slack or taut): take the worse end
+            push = max((-(g(e) + k * hose) * 1000 / arm for k in (0.0, 1.0)), key=abs)
+            h = 0.25
+            rate = h / abs(self.elev_act_len(e + h) - self.elev_act_len(e - h)) * 2  # deg per mm
+            rows.append({"elev": e, "len_mm": length, "arm_mm": arm, "gravity_nm": g(e),
+                         "hose_nm": hose, "push_n": push, "deg_per_mm": rate})
+        lens = [r["len_mm"] for r in rows]
+        pushes = [r["push_n"] for r in rows]
+        peak = max(pushes, key=abs)
+        return {
+            "rows": rows, "len_min_mm": min(lens), "len_max_mm": max(lens), "travel_mm": max(lens) - min(lens),
+            "closed_max_mm": min(lens) - self.elev_end_mm, "extended_min_mm": max(lens) + self.elev_end_mm,
+            "push_peak_n": peak, "push_min_n": min(pushes, key=abs), "one_way": all(x > 0 for x in pushes) or all(x < 0 for x in pushes),
+            "arm_min_mm": min(abs(r["arm_mm"]) for r in rows), "force_margin": self.elev_act_force_n / abs(peak),
+            "full_sweep_s": (max(lens) - min(lens)) / self.elev_act_speed_mm_s,
+            "deg_per_s_min": min(r["deg_per_mm"] for r in rows) * self.elev_act_speed_mm_s,
+            "deg_per_s_max": max(r["deg_per_mm"] for r in rows) * self.elev_act_speed_mm_s,
+            "monotonic": all(b > a for a, b in zip(lens, lens[1:])) or all(b < a for a, b in zip(lens, lens[1:])),
+        }
+
+    def check_elevation(self, gravity_nm: dict[float, float]) -> list[str]:
+        bad = []
+        d = self.elevation_drive(gravity_nm)
+        if self.elev_act_closed > d["closed_max_mm"]:
+            bad.append(f"elevation actuator is {self.elev_act_closed:g} mm retracted; the shortest pose needs "
+                       f"{d['closed_max_mm']:.0f} mm or less")
+        if self.elev_act_closed + self.elev_act_stroke < d["extended_min_mm"]:
+            bad.append(f"elevation actuator reaches {self.elev_act_closed + self.elev_act_stroke:g} mm; the longest pose needs "
+                       f"{d['extended_min_mm']:.0f} mm")
+        if not d["monotonic"]:
+            bad.append("elevation actuator length is not monotonic over the range (the pin passes its dead centre)")
+        if d["force_margin"] < self.elev_force_factor:
+            bad.append(f"elevation actuator must push {abs(d['push_peak_n']):.0f} N against {self.elev_act_force_n:g} N rated "
+                       f"({self.elev_force_factor:g}x wanted)")
+        if not self.elev_pin_x - 8 > self.head_x0 + 10 or self.elev_pin_x + 8 > self.feed_col_x - self.hole_d / 2 - 2:
+            bad.append("elevation pin is off the head plate or inside the feed column")
+        if self.elev_pin_z - 8 < self.roof_bottom + self.feed_floor_t or self.elev_pin_z + 12 > self.head_z1:
+            bad.append("elevation pin's nut hits the feed roof or the pin is off the plate")
+        y_cheek = self.plate_half_y + self.plate_t + self.cheek_gap + self.plate_t
+        if -self.elev_act_y - self.elev_act_r < y_cheek + 4:
+            bad.append("elevation actuator rubs the -y cheek")
         return bad
 
     def check_launch(self) -> list[str]:

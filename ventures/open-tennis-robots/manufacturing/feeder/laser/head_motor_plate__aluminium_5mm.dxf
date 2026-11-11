@@ -553,7 +553,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-4F
+4E
   9
 $SURFTAB1
  70
@@ -1377,7 +1377,7 @@ AcDbSymbolTable
   0
 VPORT
   5
-4B
+4A
 330
 8
 100
@@ -1725,7 +1725,7 @@ ACAD
   0
 APPID
   5
-4C
+4B
 330
 3
 100
@@ -1739,7 +1739,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-4D
+4C
 330
 3
 100
@@ -2279,26 +2279,6 @@ AcDbEntity
 100
 AcDbCircle
  10
--100.0
- 20
--200.0
- 30
-0.0
- 40
-4.2
-  0
-CIRCLE
-  5
-39
-330
-17
-100
-AcDbEntity
-  8
-0
-100
-AcDbCircle
- 10
 -220.0
  20
 -37.5
@@ -2309,7 +2289,7 @@ AcDbCircle
   0
 CIRCLE
   5
-3A
+39
 330
 17
 100
@@ -2329,7 +2309,7 @@ AcDbCircle
   0
 CIRCLE
   5
-3B
+3A
 330
 17
 100
@@ -2349,7 +2329,7 @@ AcDbCircle
   0
 CIRCLE
   5
-3C
+3B
 330
 17
 100
@@ -2369,7 +2349,7 @@ AcDbCircle
   0
 CIRCLE
   5
-3D
+3C
 330
 17
 100
@@ -2380,6 +2360,26 @@ AcDbEntity
 AcDbCircle
  10
 -12.5
+ 20
+-114.5
+ 30
+0.0
+ 40
+2.2
+  0
+CIRCLE
+  5
+3D
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbCircle
+ 10
+12.5
  20
 -114.5
  30
@@ -2399,13 +2399,13 @@ AcDbEntity
 100
 AcDbCircle
  10
-12.5
+0.0
  20
--114.5
+-102.0
  30
 0.0
  40
-2.2
+7.0
   0
 CIRCLE
   5
@@ -2419,13 +2419,13 @@ AcDbEntity
 100
 AcDbCircle
  10
-0.0
+-12.5
  20
--102.0
+-89.5
  30
 0.0
  40
-7.0
+2.2
   0
 CIRCLE
   5
@@ -2439,7 +2439,7 @@ AcDbEntity
 100
 AcDbCircle
  10
--12.5
+12.5
  20
 -89.5
  30
@@ -2459,26 +2459,6 @@ AcDbEntity
 100
 AcDbCircle
  10
-12.5
- 20
--89.5
- 30
-0.0
- 40
-2.2
-  0
-CIRCLE
-  5
-42
-330
-17
-100
-AcDbEntity
-  8
-0
-100
-AcDbCircle
- 10
 -220.0
  20
 43.5
@@ -2489,7 +2469,7 @@ AcDbCircle
   0
 CIRCLE
   5
-43
+42
 330
 17
 100
@@ -2509,7 +2489,7 @@ AcDbCircle
   0
 CIRCLE
   5
-44
+43
 330
 17
 100
@@ -2529,7 +2509,7 @@ AcDbCircle
   0
 CIRCLE
   5
-45
+44
 330
 17
 100
@@ -2540,6 +2520,26 @@ AcDbEntity
 AcDbCircle
  10
 -12.5
+ 20
+89.5
+ 30
+0.0
+ 40
+2.2
+  0
+CIRCLE
+  5
+45
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbCircle
+ 10
+12.5
  20
 89.5
  30
@@ -2559,26 +2559,6 @@ AcDbEntity
 100
 AcDbCircle
  10
-12.5
- 20
-89.5
- 30
-0.0
- 40
-2.2
-  0
-CIRCLE
-  5
-47
-330
-17
-100
-AcDbEntity
-  8
-0
-100
-AcDbCircle
- 10
 0.0
  20
 102.0
@@ -2589,7 +2569,7 @@ AcDbCircle
   0
 CIRCLE
   5
-48
+47
 330
 17
 100
@@ -2609,7 +2589,7 @@ AcDbCircle
   0
 CIRCLE
   5
-49
+48
 330
 17
 100
@@ -2629,7 +2609,7 @@ AcDbCircle
   0
 CIRCLE
   5
-4A
+49
 330
 17
 100
@@ -3637,7 +3617,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-4E
+4D
   0
 DICTIONARYVAR
   5
@@ -3653,7 +3633,7 @@ DictionaryVariables
   0
 DICTIONARYVAR
   5
-4E
+4D
 330
 2D
 100
