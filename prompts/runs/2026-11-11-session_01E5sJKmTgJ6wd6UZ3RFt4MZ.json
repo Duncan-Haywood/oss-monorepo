@@ -35,6 +35,10 @@
     {
       "what": "venture-preflight failed: new post description 190 characters (limit 160)",
       "fix": "shortened to 154, and seo_title from 85 to 54 (limit 70) after validate caught it; preflight rerun"
+    },
+    {
+      "what": "CI validate red: main's flagships.yaml changepoint-detector next: was 2220 characters (cap 2000) after PR #14922",
+      "fix": "merged main and condensed the sticky-series sentence (measurements kept, README holds the detail); portfolio/router/validate.py passes"
     }
   ],
   "integrity_issues": [],
@@ -46,6 +50,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "blog post description (160) and seo_title (70) limits are enforced only by the pages build inside venture-preflight; not mentioned where posts are requested"
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "the 2000-character next: cap is checked by portfolio/router/validate.py in CI but not by venture-preflight, so a flagship PR (#14922) merged with main red"
     }
   ],
   "deviations": [
