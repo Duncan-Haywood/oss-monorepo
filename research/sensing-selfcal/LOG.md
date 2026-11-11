@@ -1,5 +1,14 @@
 # sensing-selfcal research log
 
+## 2026-11-11 · Milestone 3 result: the overconfidence is real; the jackknife σ is honest but a worse gate
+
+- **Re-solves identical.** All 560 subsets converged with the same f as milestone 2; 3,473 of 3,480 leave-one-view-out solves converged on tolerance. Median 2.7 s per subset with its jackknife.
+- **H8 held.** Against the target-free all-view f, nested variance: rms z 2.28 (95% 1.93–2.73; left 2.67, right 1.89; 58 of 360 subsets dropped with σ_sub ≤ σ_all). The 2× was not the Zhang reference. Jackknife σ in the same test: 0.85.
+- **H9 refuted, on the safe side.** Jackknife rms z 0.703 (left) and 0.651 (right; 95% 0.56–0.74), 2σ coverage 97% / 99%; near-critical 4–6 views 1.01 (reported σ 2.34). By size: 0.33 at 4 views (σ_jack a median 15× the reported σ), 0.55–0.94 from 5 to 11. The view-clustered sandwich: 1.76 / 1.59, and 2.23 at 4–6 views as predicted; corner-clustered and HC0 sandwiches are no better than the reported σ.
+- **H10 refuted.** AUC for good (≤ 1%) against bad (> 2%) updates, 4–12 views: reported σ 0.91, jackknife 0.75 (difference −0.15, 95% −0.25 to −0.07), sandwich by view 0.76, by corner 0.87, HC0 0.89. Only 22 bad updates.
+- **H4 second test refuted.** σ_jack/f ≤ 0.5% rejects 22/22 bad but accepts 19% of good (0% near-critical). Transfer: no σ's fitted threshold reaches 90/90 on the other camera; the reported σ comes closest (76/79 and 91/88).
+- **Reading.** The jackknife's upward bias (Efron–Stein) is largest where leave-one-out leaves 3 views. Honesty and ranking power pull apart: next gate ranks by reported σ and spread, and vetoes by the jackknife.
+
 ## 2026-11-11 · Milestone 3 planned: is the 2× overconfidence real, and does a cluster-robust σ fix it?
 
 Written before any milestone-3 experiment was run. The proposal's milestone 3 (natural features on a second data set) moves to 3b; this step answers the question milestone 2 left open, on the same 560 subsets, with no new data.

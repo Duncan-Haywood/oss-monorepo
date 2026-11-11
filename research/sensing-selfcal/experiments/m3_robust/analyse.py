@@ -154,6 +154,7 @@ def figure(S):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
+    import matplotlib.ticker
     fig, ax = plt.subplots(1, 2, figsize=(10, 4), sharey=True)
     ks = list(range(4, 13))
     sty = {"sf": ("#555555", "o-"), "sf_hc0": ("#8a8a8a", "x:"), "sf_cr_point": ("#7a5195", "s--"),
@@ -165,6 +166,9 @@ def figure(S):
         a.axhline(1, color="k", lw=.8)
         a.axhspan(0.7, 1.4, color="#3b6ea8", alpha=.08)
         a.set_yscale("log")
+        a.set_yticks([0.3, 0.5, 0.7, 1, 1.4, 2, 3])
+        a.yaxis.set_major_formatter(matplotlib.ticker.FormatStrFormatter("%g"))
+        a.yaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
         a.set_xlabel("views in the subset (20 random subsets each)")
         a.set_title(f"{cam} camera", fontsize=10)
     ax[0].set_ylabel("rms z of f against all-view Zhang (1 = honest)")
