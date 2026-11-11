@@ -181,12 +181,15 @@ flagships:
       POS export", "Second real POS export", "Short-vs-over cost weight"): two real bakery exports, backtest,
       lunch-closure breaks; --half-life auto default 2026-11-11 (README "Picking the half-life from your own weeks": chosen from
       past weeks, never clearly worse than plain in 12 settings, -7.4% mean; fixed 2 worse on the Korean file); --short-cost r 2026-11-11 staffs the r/(1+r) fractile and
-      beats the average at r = 3 on both files. Next: close the 100-person gaps (tree, not pricing, now);
+      beats the average at r = 3 on both files; --count tickets 2026-11-11 (README "Staffing to customers, not
+      money"): plans from tickets per hour, reads a third real file with no prices (Bread Basket, half-life 4
+      best at 5 tickets/h); on the French file it moves hours from mornings to late afternoon, on the Korean
+      nothing. Next: close the 100-person gaps (tree, not pricing, now);
       cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
       40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
       can score a staffed closure; whether auto should also choose the short cost's window or a 1-week half-life
-      (a third real file would test it); forecasting from tickets (queue
-      length), not just sales, since the cut is no longer where the gap is (joining short runs and folding
+      (the Bread Basket file is a third to test it on); a labour standard (minutes per ticket vs per euro)
+      to say which driver is right, or a blend of the two; the cut is no longer where the gap is (joining short runs and folding
       them into neighbouring shifts, opt-in --join 2026-11-11, README "Joining short runs": optimal in
       sample, but on held-out weeks clearly cheaper in 1 of 72 comparisons, dearer in 16, noise in 55, so
       the default stays the per-run priced cut); a real published-schedule export for --import-shifts;
