@@ -182,7 +182,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> An independent implementation from the published papers; not affiliated with or endorsed by the papers' authors or their institutions.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -191,7 +191,7 @@
 
   <script type="module">
     import { analyze, DEFAULTS } from "./engine.mjs";
-    import { consensus, agreedText } from "./consensus.mjs";
+    import { PANEL, runSetting, mergeConsensus, agreedText } from "./consensus.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { chartSvg, changeReportHtml, esc, fmt } from "./report.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
@@ -236,8 +236,62 @@
       }, 30);
     }
 
+    // The agreed-changes panel runs six full analyses, about five times the main one
+    // (32 s on 7,980 points in one thread). It runs in Web Workers, one setting each, up
+    // to the number of cores, so the results above show at once and the page stays usable;
+    // a newer run stops an older panel. Without workers it runs here, on up to 2,000 points.
+    const AGREED_SYNC_MAX = 2000;
+    let agreedJob = null;
+    function stopAgreed() {
+      if (agreedJob) { agreedJob.workers.forEach((w) => w.terminate()); agreedJob = null; }
+    }
+    function showAgreed(text) {
+      $("#agreed").innerHTML = `<strong>Agreed changes:</strong> ${esc(text)}`;
+      $("#agreed").hidden = false;
+    }
+    function finishAgreed(runs) {
+      try { lastAgreed = agreedText(mergeConsensus(runs)); showAgreed(lastAgreed); }
+      catch (e) { $("#agreed").hidden = true; /* the panel is extra; the main analysis already ran */ }
+    }
+    function runAgreed(base, n) {
+      const total = PANEL.length;
+      let workers = [];
+      try {
+        if (typeof Worker === "undefined") throw new Error("no workers");
+        const k = Math.max(1, Math.min(total, navigator.hardwareConcurrency || 2));
+        for (let i = 0; i < k; i++) workers.push(new Worker("./consensus-worker.mjs", { type: "module" }));
+      } catch (e) {
+        workers.forEach((w) => w.terminate());
+        if (n > AGREED_SYNC_MAX) { showAgreed(`not run on ${n} points in this browser (it has no background workers); the six-setting panel takes about five times the main analysis. The command line runs it with --consensus.`); return; }
+        finishAgreed(PANEL.map((p) => runSetting(base, p)));
+        return;
+      }
+      const job = { id: Math.random(), workers, runs: new Array(total), done: 0, next: 0, t0: performance.now() };
+      agreedJob = job;
+      showAgreed(`working in the background: 0 of ${total} settings done${n > AGREED_SYNC_MAX ? ` (a long series: ${n} points)` : ""}.`);
+      const feed = (w) => { if (job.next < total) w.postMessage({ id: job.id, base, setting: job.next++ }); };
+      for (const w of workers) {
+        w.onmessage = (e) => {
+          if (agreedJob !== job || e.data.id !== job.id) return;
+          job.runs[e.data.setting] = e.data.run;
+          job.done++;
+          if (job.done === total) { stopAgreed(); finishAgreed(job.runs); record("agreed_run"); return; }
+          showAgreed(`working in the background: ${job.done} of ${total} settings done.`);
+          feed(w);
+        };
+        w.onerror = (e) => {
+          e.preventDefault();
+          if (agreedJob !== job) return;
+          stopAgreed();
+          if (n <= AGREED_SYNC_MAX) finishAgreed(PANEL.map((p) => runSetting(base, p)));
+          else $("#agreed").hidden = true;
+        };
+        feed(w);
+      }
+    }
+
     function run() {
-      if ($("#shape").value === "multi") return runMulti();
+      if ($("#shape").value === "multi") { stopAgreed(); return runMulti(); }
       $("#multi-results").hidden = true;
       $("#error").textContent = "";
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
@@ -249,14 +303,8 @@
       // The settings panel (consensus.mjs) for the level model: the summary that held up on held-out labelled series.
       $("#agreed").hidden = true;
       lastAgreed = "";
-      if ($("#model").value === "mean") {
-        try {
-          const c = consensus({ csv: $("#csv").value, column: $("#column").value.trim() || null, log: $("#log").checked, period: Number($("#period").value) || 0, penalty });
-          lastAgreed = agreedText(c);
-          $("#agreed").innerHTML = `<strong>Agreed changes:</strong> ${esc(lastAgreed)}`;
-          $("#agreed").hidden = false;
-        } catch (e) { /* the panel is extra; the main analysis above already ran */ }
-      }
+      stopAgreed();
+      if ($("#model").value === "mean") runAgreed({ csv: $("#csv").value, column: $("#column").value.trim() || null, log: $("#log").checked, period: Number($("#period").value) || 0, penalty }, r.n);
       $("#warnings").innerHTML = ["rangeWarning", "driftWarning", "cycleWarning", "overcutWarning"].filter((k) => r[k]).map((k) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("");
       $("#slopeResult").innerHTML = r.slopeBreaks
         ? `<p class="note" role="note"><strong>Growth-rate test (bar ${esc(r.slopeBreaks.critical)}):</strong> ${r.slopeBreaks.breaks.length ? r.slopeBreaks.breaks.map((b) => `${esc(b.label)}: ${esc(b.slopeBefore)} → ${esc(b.slopeAfter)} per step (Wald ${esc(b.wald)})`).join("; ") : "no change of growth rate clears the bar."} ${esc(r.slopeBreaks.note)}</p>`
