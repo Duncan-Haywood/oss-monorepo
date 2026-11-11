@@ -534,6 +534,59 @@ Description` are read as the MCC, and rows with an amount but no date or descrip
 counted in one note. The real file reads all 4,823 lines with their codes. Tests:
 `toronto-pcard.test.mjs` (4, made-up rows under the real header).
 
+### A year of Toronto card lines, and the AI layer on what the rules miss (2026-11-11)
+
+The city's open-data portal answered from the session that wrote this, so the reading
+above now runs on a full year: every PCard line from July 2025 to June 2026 in the
+portal's `pcard-expenses.csv` (85,415 lines; fetch command in `eval/toronto-ai.mjs`,
+data not copied here). In November 2025 the city moved to 7-digit G/L accounts;
+`eval/toronto-gl-2025.json` pairs each new account with the 4-digit one that carried the
+same G/L description in the July-November rows (167 pairs, all one to one), so the
+account map written for 2017 still applies. 68,638 charges land on a chart account.
+The importer reads the portal file as it comes (`2025-07-02 00:00:00` dates, the
+`Cost Centre` spelling).
+
+**The whole city as one set of books** (replayed a day at a time from empty books):
+
+| | every line (68,638) | first-seen merchant (4,934) |
+|---|---|---|
+| category layer off | 88.2% / 10.8% | 60.6% / 32.5% |
+| default | 89.6% / 10.1% | 74.8% / 24.0% |
+
+The November 2017 month gave 62.2% to 72.7% on first-seen merchants; a year gives 60.6%
+to 74.8%, so the gain holds and grows a little as the books learn which categories this
+buyer files where.
+
+**Each division as its own books** is closer to a small business (one buyer, one
+spending pattern). Right / wrong; "blank" is no suggestion at all:
+
+| division | lines | every line right (wrong) | first-seen | right | wrong | blank |
+|---|---|---|---|---|---|---|
+| Parks and Recreation | 34,799 | 92.7% (7.3%) | 2,016 | 83.6% | 16.2% | 0.1% |
+| Toronto Water | 6,130 | 86.8% (13.0%) | 772 | 77.1% | 22.2% | 0.8% |
+| Seniors Services & Long-Term Care | 5,000 | 88.8% (11.0%) | 498 | 71.7% | 26.7% | 1.6% |
+| Legal Services | 3,686 | 98.9% (0.7%) | 50 | 50.0% | 38.0% | 12.0% |
+| Economic Development & Culture | 2,814 | 76.6% (17.9%) | 792 | 56.8% | 26.1% | 17.0% |
+| Solid Waste Management | 2,224 | 92.3% (7.5%) | 312 | 77.2% | 21.5% | 1.3% |
+| Corporate Real Estate | 2,090 | 90.7% (9.1%) | 392 | 78.3% | 20.9% | 0.8% |
+| Paramedic Services | 1,433 | 76.7% (18.6%) | 382 | 57.1% | 29.1% | 13.9% |
+| Shelter & Support Services | 1,329 | 86.1% (13.2%) | 304 | 73.0% | 23.7% | 3.3% |
+| Public Health | 1,317 | 77.0% (18.6%) | 339 | 62.5% | 23.3% | 14.2% |
+| Transportation Services | 1,149 | 88.9% (8.9%) | 229 | 70.7% | 20.1% | 9.2% |
+| Fire Services | 846 | 81.6% (15.5%) | 272 | 64.0% | 27.2% | 8.8% |
+| Employment & Social Services | 793 | 88.9% (9.8%) | 194 | 71.6% | 23.2% | 5.2% |
+| Municipal Licensing & Standards | 534 | 75.7% (20.4%) | 181 | 61.3% | 27.1% | 11.6% |
+| City Clerk's Office | 438 | 68.5% (23.3%) | 180 | 55.0% | 26.1% | 18.9% |
+| Fleet Services | 436 | 88.1% (9.4%) | 68 | 60.3% | 26.5% | 13.2% |
+
+(`node eval/toronto-pcard.mjs --file <year csv> --division "<name>"`.) First-seen
+merchants are right 55% to 84% of the time across sixteen buyers, wrong 16% to 38%. The
+small divisions, the size of a small business's card spend, sit at the bottom: fewer
+earlier lines to learn from, and more one-off merchants with no category the table
+maps. That remainder is what the AI layer is for.
+
+AI_LAYER_PLACEHOLDER
+
 ### Round-trip property test (2026-10-22)
 
 `node --test eval/roundtrip-fuzz.test.mjs` renders 40 seeded random statements (5-34 rows) with the quirks real exports have and checks `readStatement` returns exactly the rows rendered: BOM, CRLF, `;` delimiter, quoted commas and quotes, parenthesised negatives, thousands separators, European decimals, split debit/credit columns, and ISO, M/D/Y, D/M/Y and "12 Mar 2026" dates. 40 of 40 pass. Generated, not real bank data; a row that reads "PAYMENT - THANK YOU" is left out on purpose, because the card sign heuristic flips signs for it.
