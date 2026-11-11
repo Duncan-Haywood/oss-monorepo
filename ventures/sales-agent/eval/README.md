@@ -215,6 +215,74 @@ opt-outs in real sales replies is not measured: Enron holds only a few dozen rea
 "take me off this list" replies, all still caught, and the agent-written opt-out
 sets did not move.
 
+### Second round, on a third half (2026-11-11)
+
+The first round's held-out half had been read in full by the time its score was
+written down, so it could no longer test a second round. This one adds a third
+half and keeps it unread until the end.
+
+**Method.** Rules changed looking only at the stops still firing on the `0*` and `1*`
+halves (61 + 124 wrong). The `2*` half (16 more folders, same checkout with
+`'.bitcache/blobs/2*'`, 9,584 `RE:` replies) was not opened while tuning. Then the
+union of the stops the old and new code fired there (281) was shuffled, the engine's
+answers hidden, and labelled by a **separate agent** (same model family, so not an
+independent human reader) with one of `unsubscribe`, `not_interested`,
+`out_of_office`, `left_company`, `bounce`, `none` or `ambiguous` for what the writer's
+own words mean. A stop is right when that matches the category fired. The one stop
+only the final code fired (a bare "no") was labelled by the run agent.
+Labels: `eval/enron-labels/fresh.json` (Message-ID, category before and after,
+reader's category; no text). `node eval/enron.mjs <dir of links to blobs/2?>
+--replies --labels eval/enron-labels/fresh.json`.
+
+**What changed** (`engine.mjs`, each line commented with its real phrasing):
+
+- *Quote stripping.* Lotus Notes headers (`Name@ECT` / `09/26/2000 11:19 AM` / `To:`,
+  or `"Doe, Pat" <x> on 11/03/2000 03:18:19 PM`) and `---- Forwarded by` lines now end
+  the reply. Before, the quoted history was read as the writer's words, which caused
+  about a third of the wrong stops left after round one.
+- *Narrower rules.* "I/we left" counts only with a company-shaped object ("I left
+  Acme in March", "the firm"), not "I left you a voicemail" or "I left at noon"; the
+  referral rule needs a capitalised name right after "please contact/email" (with
+  the `i` flag, `[A-Z][a-z]+` had matched any word, so "Please email the form back
+  to me" was a referral); "I'm out" needs an away continuation (of the office, of
+  town, until, next week, on leave); "retired" needs a subject; "we're good" no
+  longer matches "were good" (the optional apostrophe made "were" match).
+- *Vetoes.* Someone else told to stop ("she needs to stop sending these"), "don't
+  need to <verb>" other than talk/buy/switch/meet, "no need to <verb>" other than
+  follow up/schedule/contact, "good to go", someone else's return ("you will be
+  back on Friday"), being back already, past absences, people mentioning an
+  undeliverable message, and "delete this message from your system" footers.
+
+| Stops fired on `RE:` replies | Round 1 rules | Round 2 rules |
+|---|---|---|
+| Tuning `0*` (9,559): right / wrong / ambiguous / new, unlabelled | 99 / 61 / 13 / 1 | 83 / 19 / 7 / 13 |
+| Tuning `1*` (9,619): same | 108 / 124 / 15 / 0 | 98 / 26 / 7 / 7 |
+| **Fresh `2*` (9,584), scored once: right / wrong / ambiguous** | **76 / 171 / 11 (258)** | **79 / 88 / 5 (172)** |
+| Fresh precision (ambiguous as wrong) | 29% | 46% |
+| **Fresh wrong stops per 1,000 replies** | **17.8** | **9.2** |
+| Real auto-replies, all three halves | 143 of 145 | 143 of 145 |
+
+Read the fresh row, not the tuning rows: the tuning halves fell 185 to 45 wrong
+stops, the fresh half 171 to 88, so about half of what the changes fixed on the
+text they were written from carries to new text. The fresh *before* column is also
+the first honest reading of round one: 17.8 wrong stops per 1,000, worse than the
+13 the `1*` half reported, as expected once a half has been read.
+
+Right stops on the fresh half: 6 lost, 9 gained. Three of the lost are one real
+pattern the stripper now hides: "Mine too...!!! PLEASE" typed above a quoted "Take
+me off this list", which reads the quote as the request. The others: "I'm out of
+pocket" and a typo ("out ot the office"), now unclear and sent to a person, and a
+third person who "has left the company" in a quoted message. On the tuning halves
+the right stops fell 207 to 181, almost all because the stop was in quoted
+history: the earlier labels judged the flagged sentence, wherever it sat.
+
+What is left on the fresh half (88): not-interested on "don't need"/"no need"
+in ordinary work talk (30), colleagues' or future absences read as away notices
+(29, "I will be out of the office Friday, but in all next week"), referrals and
+handovers (15), list and to-do wording (8), and 6 stops of the wrong kind. More cut forwards reach a person as
+empty replies (279 empty after stripping, from 17), which costs nothing but a
+look. No change on any agent-written reply set (`node --test`, 346 pass).
+
 ## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
 
 The Enron check above measured stops that fired wrongly. This one measures the
