@@ -1,9 +1,9 @@
 ---
 title: "A sticky card taller than the window hides its own bottom"
-seo_title: "position: sticky card taller than the viewport: why the bottom is unreachable, and a fix"
+seo_title: "Sticky card taller than the viewport: the hidden bottom, and a fix"
 date: 2026-11-11
 tags: [css, polish, accessibility, calculators, layout]
-description: "On an 800 px window, 110 of our calculators' sticky result cards ran past the bottom edge while stuck, hiding the copy buttons and notes at their foot. A capped height that scrolls inside fixed 101 of them."
+description: "On an 800 px window, 110 sticky result cards ran past the bottom edge while stuck, hiding their copy buttons. A capped height that scrolls inside fixed 101."
 ---
 
 Most of the calculators on this site share a layout: a long form on the left,
