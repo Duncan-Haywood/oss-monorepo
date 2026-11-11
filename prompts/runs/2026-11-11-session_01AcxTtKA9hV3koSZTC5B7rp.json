@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 0,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "PR CI 'validate' failed on main's flagships.yaml (changepoint-detector next: 2,115 chars > 2,000 cap, from #14855); fixed forward in this PR by trimming two landed items already in the venture README."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -48,7 +50,7 @@
     "docs/posts/2026-11-11-the-rising-shore.md"
   ],
   "goal": null,
-  "notes": "Project hearth-and-horizon, piece the-rising-shore (Hearth & Horizon shelf, 3,870 words, text only: audio dirs total 423 MB > 400 MB cap). Security queue empty; IDEAS.md and website requests empty; route drew creative. No open PR was on the same proposal. Numbers modelled year by year in a scratch script (uplift 8.0 mm/yr in 2000, 5,000-yr e-folding; assumed sea path); weekdays checked. Adversarial re-read fixed: Filipino seafarer share (a third -> about a quarter), Lule\u00e5 'miles from the sea' (unverified) -> 'well back from the water', bell audibility now blamed on the wood and ridge, uplift 'measured for six hundred years' -> 'for centuries'. node --test 14/14; run_workflow_locally --for-changes run (page-integrity ok, pages build ok; uses: steps not run). No agent doc in docs/reports: nothing a next run needs beyond the BIBLE/DONE entries.",
+  "notes": "Project hearth-and-horizon, piece the-rising-shore (Hearth & Horizon shelf, 3,870 words, text only: audio dirs total 423 MB > 400 MB cap). Security queue empty; IDEAS.md and website requests empty; route drew creative. No open PR was on the same proposal. Numbers modelled year by year in a scratch script (uplift 8.0 mm/yr in 2000, 5,000-yr e-folding; assumed sea path); weekdays checked. Adversarial re-read fixed: Filipino seafarer share (a third -> about a quarter), Lule\u00e5 'miles from the sea' (unverified) -> 'well back from the water', bell audibility now blamed on the wood and ridge, uplift 'measured for six hundred years' -> 'for centuries'. node --test 14/14; run_workflow_locally --for-changes run (page-integrity ok, pages build ok; uses: steps not run). No agent doc in docs/reports: nothing a next run needs beyond the BIBLE/DONE entries. Merged main in; fixed the main-red flagships cap. Local portfolio-pages/pages steps failed only on the runner's 300 s budget and absent _site; check_post_frontmatter.py rc=0 and platform/pages stories/podcast tests 16/16 run by hand; PR CI is the check for the rest.",
   "corrections": [],
   "redteam": null,
   "usage": {
