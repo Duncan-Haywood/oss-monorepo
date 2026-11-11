@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKmA7MptUyuMrCzJtWf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T09:17:52Z",
+  "ended": "2026-11-11T09:40:50Z",
+  "wall_minutes": 24.68,
+  "tokens_in": 12778178,
+  "tokens_out": 71160,
+  "cost_usd": 5.4264,
+  "tool_calls": 88,
+  "task": "Deepen flagship 9 (league-schedule-generator): the break-minimal end of the carry-over/breaks trade (flagships.yaml next item 1)",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14752",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "First capped-search design (hard cap, grounds always carried) froze at the circle method for 12 and 20 teams at the exact minimum; fixed by adding pattern-keeping moves.",
+    "A penalty (soft cap) variant and a squeeze from the weighted result were tried and dropped: neither reached the target cap.",
+    "Odd leagues: first version mis-counted breaks when a pattern-keeping move moved a bye; fixed by rechecking everything when n is odd; odd leagues then fall back to heavy break weights, since the capped search cannot move a bye."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The league next item named 'French/English break-minimal schemes as starts' as the fix for 20 teams never going under 88 breaks; measuring showed the cause is leg one (46-52 breaks vs 18 minimum), so leg-two start orders alone could not fix it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_venture_tests and node --test on carryover+best-of-k take ~4 min; foreground runs hit the 120 s timeout, as warned."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The listed item (French/English leg-two schemes) attacks leg two; the measured bottleneck was leg one's breaks.",
+      "did": "Built a carry-over search under a hard break cap for leg one, plus three leg-two start orders (backwards, mirror, mirror with ends swapped) under a season cap.",
+      "result": "18 teams: 2,154-2,674 carry-over at the minimum 48 breaks, below all four Bundesliga seasons (3,474-4,342 at 48); 20 teams weak above ~60 breaks (reported as such)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-same-breaks-as-the-bundesliga-less-carry-over.md",
+    "ventures/league-schedule-generator/README.md (Carry-over under a cap on breaks)"
+  ],
+  "goal": "Depth on a flagship: a new algorithmic slice measured against real fixture lists.",
+  "notes": "Verification: capped-breaks.test.mjs 9/9; carryover.test.mjs + best-of-k.test.mjs 25/25 after the change; Chromium pool check (eval/browser-carryover-pool.mjs --teams=12 --cores=1,4): 10 searches, no page errors, same season at every core count; full venture suite via run_venture_tests.py (see PR). Eval output eval/capped-breaks.txt.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b3c29521-0939-5eb0-9bfc-912f653ee70f",
+    "transcripts": 1,
+    "first": "2026-11-11T09:17:52Z",
+    "last": "2026-11-11T09:42:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 85,
+        "input": 167,
+        "output": 71160,
+        "thinking": 23498,
+        "cache_read": 12592503,
+        "cache_write_5m": 0,
+        "cache_write_1h": 185508,
+        "api_equivalent_usd": 5.4264,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 85,
+      "input": 167,
+      "output": 71160,
+      "thinking": 23498,
+      "cache_read": 12592503,
+      "cache_write_5m": 0,
+      "cache_write_1h": 185508,
+      "api_equivalent_usd": 5.4264,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 80,
+      "ReadNotifications": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.68,
+      "active_minutes": 24.68,
+      "model_minutes": 13.01,
+      "tool_minutes": 11.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "Senior engineer: design and debug a constrained annealing search, plumbing through worker pool and page, tests, eval against real seasons, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 294.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
