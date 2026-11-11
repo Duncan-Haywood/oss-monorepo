@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-11-11 · Milestone 5r: run 5p's registered R1 to R5 on the measured loader (Zenodo reachable again)
+- Why: 5p wrote `experiments/spool_floor.py` and registered R1 to R5 before any run, but zenodo.org refused the proxy that session. It answered at the start of this one, so the measured half of 5p runs now with the predictions unchanged.
+- In progress.
+
 ## 2026-11-11 · Milestone 5q: size each open-centre section per function, not per phase (predictions registered before the first run)
 - Why: 5p's largest unpredicted lever was spool sizing. Its "3g sizing" picks a spool per actuator-phase from that phase's demand, which no machine does: a valve section is chosen once per function (boom, arm, bucket, swing) for the largest flow that function is ever asked to pass, so light phases run on an oversized spool whose full-travel floor is near zero. This step sizes per function and asks where the break-even margin goes, and how small an open-centre drop must be before the 25 bar thesis margin loses.
 - Method (`experiments/spool_function_sizing.py`): same 3,000 force-model cycles, idle model and PVG 32 neutral drop as 2n/5p. Functions are my reading of the phase names (not sourced): dig = arm + bucket, lift and lower = boom, swing and swing back = swing, dump = bucket. Two rules: (a) design envelope, each function's spool covers the largest flow the model can give it (single function at the full 45 L/min pump, arm at 22.5 L/min, half of dig), so arm B and boom, bucket, swing D; (b) per cycle, each function sized to its largest demand in that cycle (a machine tuned to this one cycle). Plus a constant-drop sweep (0 to 8 bar) for the drop at which the break-even margin is 25 bar.
