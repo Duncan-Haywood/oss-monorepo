@@ -64,7 +64,7 @@
     "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (section 'Careless patterns that are not random')"
   ],
   "goal": "Deepen a flagship with a hard measured problem and ship the safe part",
-  "notes": "Local verification: tsc 0, eslint 0, npm run test:fast 365/365, npm run test:integration 113/113 on scripts/test-db.sh Postgres; the new route test fails with the slot-clicker filter reverted; build-sample-report.mjs regenerates the sample byte-identical. No new agent doc in docs/reports: the flagship next: and the INFORMATION-GAIN-SELECTOR.md section carry what the next run needs.",
+  "notes": "Local verification: tsc 0, eslint 0, npm run test:fast 365/365, npm run test:integration 113/113 on scripts/test-db.sh Postgres; the new route test fails with the slot-clicker filter reverted; build-sample-report.mjs regenerates the sample byte-identical; npm run test:simulations 53/53; venture-preflight clean. No check runs were created on the PR head within ~15 min (starved), so merged on these local checks. No new agent doc in docs/reports: the flagship next: and the INFORMATION-GAIN-SELECTOR.md section carry what the next run needs.",
   "corrections": [],
   "redteam": null,
   "usage": {
