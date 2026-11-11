@@ -64,8 +64,16 @@ export function inline(text, fromPath = '', { linkPrs = true } = {}) {
 const isTableSep = (line) => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$/.test(line);
 const cells = (line) => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
 
-/** Block-level rendering. Handles headings, fenced code, lists, tables, quotes and paragraphs. */
-export function renderMarkdown(src, { fromPath = '', dropTitle = false } = {}) {
+/**
+ * Block-level rendering. Handles headings, fenced code, lists, tables, quotes and paragraphs.
+ *
+ * The page owns `<h1>`. With `dropTitle` the source's `# ` title is that h1,
+ * so `##` renders as `<h2>` (levels as written, never above h2). Before
+ * 2026-11-11 every level moved down one, so each blog post went h1 -> h3 and
+ * failed Lighthouse's heading-order audit (352 of the site's pages). Without
+ * `dropTitle` the source's own `#` is not the page title and moves down one.
+ */
+export function renderMarkdown(src, { fromPath = '', dropTitle = false, shift = dropTitle ? 0 : 1 } = {}) {
   const lines = String(src).replace(/\r\n?/g, '\n').split('\n');
   const html = [];
   let i = 0;
@@ -95,7 +103,7 @@ export function renderMarkdown(src, { fromPath = '', dropTitle = false } = {}) {
         droppedTitle = true;
         continue;
       }
-      const level = Math.min(6, m[1].length + 1); // the page owns <h1>
+      const level = Math.min(6, Math.max(2, m[1].length + shift)); // the page owns <h1>
       html.push(`<h${level}>${inline(m[2], fromPath)}</h${level}>`);
       continue;
     }
@@ -116,7 +124,7 @@ export function renderMarkdown(src, { fromPath = '', dropTitle = false } = {}) {
       flush();
       const body = [];
       while (i < lines.length && /^\s*>/.test(lines[i])) body.push(lines[i++].replace(/^\s*>\s?/, ''));
-      html.push(`<blockquote>${renderMarkdown(body.join('\n'), { fromPath })}</blockquote>`);
+      html.push(`<blockquote>${renderMarkdown(body.join('\n'), { fromPath, shift })}</blockquote>`);
       continue;
     }
     if ((m = /^(\s*)([-*+]|\d+[.)])\s+/.exec(line))) {
@@ -145,7 +153,7 @@ export function renderMarkdown(src, { fromPath = '', dropTitle = false } = {}) {
             const [first, ...rest] = it;
             const nested = rest.some((r) => /^\s*([-*+]|\d+[.)])\s+/.test(r) || r === '');
             return nested
-              ? `<li>${inline(first, fromPath)}${renderMarkdown(rest.join('\n'), { fromPath })}</li>`
+              ? `<li>${inline(first, fromPath)}${renderMarkdown(rest.join('\n'), { fromPath, shift })}</li>`
               : `<li>${inline([first, ...rest.map((r) => r.trim())].join(' '), fromPath)}</li>`;
           })
           .join('')}</${tag}>`,
