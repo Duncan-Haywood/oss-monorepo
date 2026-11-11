@@ -84,6 +84,17 @@ export const slackTest = (test) => {
 
 const safely = (fn) => { try { return fn(); } catch { return false; } };
 
+// fontoxpath compiles an XSD regex to an automaton and expands a bounded repeat into
+// one state per count, so CIUS-PT's attachment rule DT-CIUS-PT-111.1,
+// matches(.,'^(.{1,6826666})$'), never finishes on a file with an attachment (4.4 GB
+// after 15 minutes on AMA's own examples, 2026-11-11). A whole-string length test with
+// a large bound is rewritten to the same test without the regex: "." matches any
+// character but a newline or carriage return, and ^...$ anchor the whole string.
+const LONG_REPEAT = /matches\(\s*\.\s*,\s*'\^\(?\.\{(\d+),(\d+)\}\)?\$'\s*\)/g;
+export const rewriteLongRepeat = (test) => test.replace(LONG_REPEAT, (whole, min, max) => (
+  Number(max) < 1000 ? whole : `(string-length(.) ge ${Number(min)} and string-length(.) le ${Number(max)} and not(matches(., '[\\n\\r]')))`
+));
+
 function locate(node) {
   const parts = [];
   for (let n = node; n && n.nodeType !== 9; n = n.parentNode || n.ownerElement) {
@@ -105,8 +116,10 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
     const resolver = (prefix) => rules.ns[prefix] ?? null;
     const xpath = { namespaceResolver: resolver };
     const xquery = { namespaceResolver: resolver, language: evaluateXPath.XQUERY_3_1_LANGUAGE };
-    const holds = (test, node, xq) =>
-      xq ? evaluateXPathToBoolean(`${rules.prolog}${test}`, node, null, null, xquery) : evaluateXPathToBoolean(test, node, null, null, xpath);
+    const holds = (raw, node, xq) => {
+      const test = rewriteLongRepeat(raw);
+      return xq ? evaluateXPathToBoolean(`${rules.prolog}${test}`, node, null, null, xquery) : evaluateXPathToBoolean(test, node, null, null, xpath);
+    };
     const out = [];
     out.skipped = [];
     for (const pattern of rules.patterns) {

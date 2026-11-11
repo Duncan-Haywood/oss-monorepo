@@ -35,6 +35,14 @@ test("built-in EU checks that PINT and ZATCA files trip falsely are dropped", { 
   }
   const z = await run("./examples/zatca-simplified-invoice.xml");
   for (const id of ["INV-022", "INV-005", "INV-017", "INV-018", "INV-024"]) assert.ok(!z.errors.some((e) => e.rule === id), id);
+  // ZATCA's own examples (2026-11-11): credit notes are Invoice documents with type 381
+  const cn = await run("./examples/zatca-simplified-credit-note.xml");
+  assert.ok(!cn.errors.some((e) => e.rule === "INV-034"), "INV-034 on a KSA credit note");
+  // a simplified invoice with no buyer name draws no INV-006 under ZATCA
+  const src = readFileSync(new URL("./examples/zatca-simplified-invoice.xml", import.meta.url), "utf8")
+    .replace(/(<cac:AccountingCustomerParty>)[\s\S]*?(<\/cac:AccountingCustomerParty>)/, "$1<cac:Party></cac:Party>$2");
+  const { reports } = await preflightDocuments([{ name: "nobuyer.xml", source: src }], { schematron: true });
+  assert.ok(!reports[0].errors.some((e) => e.rule === "INV-006"), "INV-006 on a KSA simplified invoice");
   // an ordinary EU file keeps them
   const d = await run("./examples/pint-sg-invoice-with-defects.xml");
   assert.ok(d.errors.some((e) => e.rule === "INV-038"));

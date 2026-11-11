@@ -11,6 +11,10 @@
 //     'phive-rules-cius-ro/src/test/**' 'phive-rules-cius-pt/src/test/**' \
 //     'phive-rules-zatca/src/test/**' 'phive-rules-simplerinvoicing/src/test/**'
 //   node eval/phive-corpus.mjs <phive-rules checkout> [--set pint-aunz/1.1.3] [--files] [--json] [--good]
+//                           [--builtin] [--messages]
+//
+// --builtin runs only the built-in INV-0xx checks (fast; no official rule sets), and
+// --messages prints one message per blocking rule id.
 //
 // --good scores only the files each module's CTestFiles.java lists as good cases
 // (getAllMatchingTestFiles / getAllMatchingGoodTestFiles; commented-out entries and
@@ -86,7 +90,7 @@ export async function runSet(dir, good = null) {
     // subfolder passed separately (PINT's "billing/"), so a bare file name also matches.
     if (good && !good.has(path.slice(dir.length + 1)) && !good.has(path.split("/").pop())) continue;
     const source = readFileSync(path, "utf8");
-    const { reports, readErrors } = await preflightDocuments([{ name: path.split("/").pop(), source }], { schematron: true, maxBytes: 5_000_000 });
+    const { reports, readErrors } = await preflightDocuments([{ name: path.split("/").pop(), source }], { schematron: !process.argv.includes("--builtin"), maxBytes: 5_000_000 });
     out.files++;
     if (readErrors.length) { out.unread++; out.perFile.push({ file: path.slice(dir.length + 1), unread: readErrors[0].error }); continue; }
     const r = reports[0];
@@ -116,6 +120,10 @@ for (const [name, rel] of Object.entries(SETS)) {
   if (flag("--json")) continue;
   console.log(`\n${name}: ${r.files} files, ${r.clean} with no blocking finding, ${r.unread} unreadable`);
   for (const [id, n] of Object.entries(r.rules).sort((a, b) => b[1] - a[1])) console.log(`  ${String(n).padStart(3)}  ${id}`);
+  if (flag("--messages")) {
+    const seen = new Set();
+    for (const f of r.perFile) for (const [id, msg] of Object.entries(f.messages || {})) if (!seen.has(id)) { seen.add(id); console.log(`    ${id} (${f.file}): ${msg}`); }
+  }
   if (flag("--files")) for (const f of r.perFile) if (f.unread || f.blocking.length) console.log(`    ${f.file}: ${f.unread ? "UNREAD " + f.unread : f.blocking.join(" ")}`);
 }
 if (flag("--json")) console.log(JSON.stringify(results, null, 1));
