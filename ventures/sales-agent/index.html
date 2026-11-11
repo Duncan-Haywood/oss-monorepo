@@ -19,6 +19,8 @@
     h3 { font-size: 1rem; margin: 18px 0 4px; }
     p, li { line-height: 1.55; }
     .note, footer { font-size: .86rem; color: #4a4f5e; }
+    .mailfile { border: 2px dashed #b8bdd0; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
+    .mailfile.over { border-color: #3d4fd6; background: #f3f5ff; }
     .card { background: #fff; border: 1px solid #d6d9e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1f2a5512; margin: 18px 0; }
     label { display: block; font-weight: 600; margin: 12px 0 4px; }
     input, select, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #5b6076; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
@@ -58,7 +60,7 @@
   <header>
     <p class="note">SALES AGENT · INBOX AGENT · RUNS IN YOUR BROWSER · SENDS NOTHING</p>
     <h1>The AI sales agent for your replies, with you in the loop</h1>
-    <p>Paste the <strong>replies your outreach got back</strong>. The agent decides what each one means, <strong>honours every unsubscribe</strong> (with their words kept as the record), <strong>pauses</strong> out-of-office and not-now prospects until the right date, <strong>stops the cadence</strong> for anyone who answered, and <strong>drafts the replies worth sending</strong> for you to approve.</p>
+    <p>Paste the <strong>replies your outreach got back</strong>, or open your exported mail. The agent decides what each one means, <strong>honours every unsubscribe</strong> (with their words kept as the record), <strong>pauses</strong> out-of-office and not-now prospects until the right date, <strong>stops the cadence</strong> for anyone who answered, and <strong>drafts the replies worth sending</strong> for you to approve.</p>
     <p class="cta-row"><a class="cta" href="#start">Paste your replies</a> <a class="cta alt" href="#start" id="cta-example">Try an example</a></p>
     <p class="note">One rule runs through it: <strong>the agent may always do less on its own; it may never do more without you.</strong> Stopping and pausing happen automatically. Anything that would contact a person waits for your approval, and you send it yourself. Pairs with the <a href="../sales-cadence-builder/">sales cadence builder</a> (the outreach) and <a href="../deal-keeper/">Deal Keeper</a> (the pipeline).</p>
   </header>
@@ -67,6 +69,13 @@
     <h2>1. The replies</h2>
     <label for="replies">Paste replies. Start each one with <code>From:</code> (and optionally <code>Subject:</code>), or separate them with a line of <code>---</code>. Quoted history below "On … wrote:" is ignored.</label>
     <textarea id="replies" rows="12" placeholder="From: Dana Reyes &lt;dana@brightline.example&gt;&#10;Subject: Re: route planning&#10;Sounds interesting. Could you send a few times next week?&#10;---&#10;From: omar@peakdental.example&#10;Please remove me from your list."></textarea>
+    <div class="mailfile" id="mail-drop">
+      <label for="mail-files"><strong>Or open exported mail:</strong> <code>.eml</code> files or an <code>.mbox</code> (Gmail via Google Takeout, Thunderbird, Apple Mail "Export Mailbox": open the <code>mbox</code> file inside the exported folder). Read in your browser, never uploaded. Only replies, bounces and auto-replies are kept; your own sent mail is left out.</label>
+      <input type="file" id="mail-files" multiple>
+      <label for="mail-own">Your own address(es), comma separated, so your sent mail is skipped (Gmail's "Sent" label is skipped anyway)</label>
+      <input id="mail-own" autocomplete="email" placeholder="sam@example-routing.co">
+      <p class="note" id="mail-status" aria-live="polite"></p>
+    </div>
     <details>
       <summary>Optional: your prospect list and suppression list</summary>
       <label for="prospects">Prospects CSV (needs an <code>email</code> column; <code>first_name</code> and <code>company</code> help the drafts). Its status columns come back updated.</label>
@@ -220,6 +229,7 @@
     import { runFollowUp } from "./followup.mjs";
     import { appendDictation, speakable } from "./voice.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { createCollector, MboxSplitter, isMbox, describe } from "./mailfile.mjs";
     const $ = (s) => document.querySelector(s);
     const SAVE = "sales-agent:setup", AIKEY = "sales-agent:ai";
     const OFFER = { sender: "sender", company: "company", address: "address", product: "product", booking_link: "booking", value: "value" };
@@ -307,6 +317,43 @@
       const a = el("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; a.click(); URL.revokeObjectURL(a.href); record("csv_downloaded");
     }
     $("#go").addEventListener("click", run);
+    // Exported mail: each file is streamed from disk (an mbox can be gigabytes), split, parsed and filtered here.
+    async function readMail(files) {
+      if (!files || !files.length) return;
+      const own = $("#mail-own").value.split(/[,;\s]+/).filter(Boolean);
+      const c = createCollector({ own });
+      let cut = 0;
+      $("#mail-status").textContent = "Reading " + files.length + " file" + (files.length === 1 ? "" : "s") + "…";
+      try {
+        for (const f of files) {
+          const head = await f.slice(0, 1000).text();
+          if (!isMbox(head)) { c.add((await f.slice(0, 200000).text()).replace(/^\uFEFF/, "")); continue; }
+          const s = new MboxSplitter((raw) => c.add(raw));
+          const reader = f.stream().pipeThrough(new TextDecoderStream()).getReader();
+          for (let n = 0; ; n++) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            s.push(value);
+            if (n % 64 === 0) $("#mail-status").textContent = "Reading " + f.name + ": " + c.stats.messages + " messages, " + c.stats.kept + " replies so far…";
+          }
+          s.end(); cut += s.truncated;
+        }
+      } catch (e) { $("#mail-status").textContent = "Could not read the file: " + e.message; return; }
+      const r = c.finish();
+      r.stats.truncated += cut;
+      let msg = describe(r);
+      if (!own.length && r.topSender && r.stats.messages >= 5 && r.topSender.count / r.stats.messages > 0.3) msg += " The most frequent sender is " + r.topSender.address + "; if that is you, enter it above and open the file again.";
+      $("#mail-status").textContent = msg;
+      if (!r.stats.kept) return;
+      $("#replies").value = r.replies;
+      record("mail_file_read");
+      run();
+    }
+    $("#mail-files").addEventListener("change", (e) => readMail(e.target.files));
+    const drop = $("#mail-drop");
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+    drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); readMail(e.dataTransfer.files); });
     $("#load-example").addEventListener("click", () => {
       $("#replies").value = SAMPLE_REPLIES; $("#prospects").value = SAMPLE_PROSPECTS;
       for (const [k, id] of Object.entries(OFFER)) if (!$("#" + id).value) $("#" + id).value = SAMPLE_OFFER[k] || "";
