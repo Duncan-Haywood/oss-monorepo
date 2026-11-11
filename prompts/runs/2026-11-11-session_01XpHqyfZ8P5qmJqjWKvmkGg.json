@@ -53,7 +53,7 @@
     "docs/posts/2026-11-11-redteam-hvac-duct-sizer-oversize-trunks.md"
   ],
   "goal": null,
-  "notes": "Step 0: 5 open defects all have control-plane PRs awaiting owner approval (#14612, #14698, #14877, #12926, #12928). Campaigns: load.mjs 8/10 caught, duct.mjs 3/8 (1 equivalent). After: 17/17 counted. Verified: node --test hvac-load-calc 38/38 pass; redteam rerun all gaps caught_after_fix true; Playwright load of ducts.html renders, no console errors.",
+  "notes": "Step 0: 5 open defects all have control-plane PRs awaiting owner approval (#14612, #14698, #14877, #12926, #12928). Campaigns: load.mjs 8/10 caught, duct.mjs 3/8 (1 equivalent). After: 17/17 counted. Verified: node --test hvac-load-calc 38/38 pass; redteam rerun all gaps caught_after_fix true; Playwright load of ducts.html renders, no console errors. No check runs registered on PR #14885 (nor on the last merged PR #14876), so verified locally: run_workflow_locally.py page-integrity-ci, sibling-links-ci, link-contrast-ci each 2/2 run steps passed (2 not run per workflow); promptctl validate ok; unittest discover -s prompts OK. A full --for-changes replay ran >5 min (it pulled in unrelated suites) and was stopped.",
   "corrections": [],
   "redteam": {
     "campaigns": [
