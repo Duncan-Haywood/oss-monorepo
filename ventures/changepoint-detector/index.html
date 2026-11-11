@@ -209,11 +209,13 @@
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
     import { parseColumns } from "./multivariate.mjs";
     import { multiReportHtml } from "./multi-report.mjs";
+    import { driftReportHtml } from "./drift-report.mjs";
     import { driftPagePenalty, driftIgnored, driftSummary, driftNotes, driftChartSvg, driftTableHtml, driftSegmentsHtml, driftCsv } from "./drift-view.mjs";
 
     const $ = (s) => document.querySelector(s);
     let last = null;
     let lastDrift = null;
+    let lastDriftIgnored = [];
     const LEGEND = $("#legend").innerHTML;
     let lastAgreed = "";
 
@@ -420,6 +422,7 @@
     function showDrift(r, ignored) {
       last = null;
       lastDrift = r;
+      lastDriftIgnored = ignored;
       lastAgreed = "";
       $("#agreed").hidden = true;
       $("#summary").textContent = driftSummary(r);
@@ -521,9 +524,9 @@
         const brand = { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date().toISOString().slice(0, 10) };
         // Several columns: the several-column report on the last run (multi-report.mjs); otherwise the one-column report.
         const multi = $("#shape").value === "multi";
-        if (!multi && lastDrift) { $("#report-state").textContent = "The branded report covers the other models; the wandering-level result can be downloaded as CSV."; return; }
-        if (multi ? !lastMulti : !last) return;
-        const html = multi ? multiReportHtml(lastMulti.p, lastMulti.r, brand) : changeReportHtml(last, { ...brand, agreed: lastAgreed });
+        // Wandering-level model (drift-report.mjs): its own report, with the options it ignored named.
+        if (multi ? !lastMulti : !(last || lastDrift)) return;
+        const html = multi ? multiReportHtml(lastMulti.p, lastMulti.r, brand) : lastDrift ? driftReportHtml(lastDrift, { ...brand, ignored: lastDriftIgnored }) : changeReportHtml(last, { ...brand, agreed: lastAgreed });
         const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
         record("report_opened");
       });
