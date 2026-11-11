@@ -1,0 +1,39 @@
+# Milestone 112: milestone 111's cost-ratio switch on a fresh pool where routing is dear (120 fresh sequences, six held-out designs, two clocks)
+
+Parameters fixed from milestone 111: SW theta = 3, G = (6, -1), SWG = (3, (6, -1)); 200 draws per cell.
+
+clock | design | n | routed/r2 | k | skip-r1 % | random % | SW % | G % | SWG %
+relaxed | barrel128 | 102 | 5.57 | 24 | 0.00 | 4.24 | 0.00 | 6.36 | 6.36
+tight | barrel128 | 102 | 5.56 | 24 | 0.00 | 4.07 | 0.00 | 9.48 | 9.48
+relaxed | bcastadd64 | 103 | 5.62 | 24 | 0.00 | 5.31 | 0.00 | 8.75 | 8.75
+tight | bcastadd64 | 103 | 8.22 | 19 | 0.00 | 3.50 | 0.00 | 5.06 | 5.06
+relaxed | gf2mat48 | 103 | 3.62 | 34 | 0.00 | 3.49 | 0.00 | 0.00 | 0.00
+tight | gf2mat48 | 103 | 14.34 | 14 | 0.14 | 5.93 | 0.14 | 0.12 | 0.12
+relaxed | mult16 | 103 | 4.75 | 27 | 0.17 | 0.71 | 0.17 | 0.30 | 0.30
+tight | mult16 | 103 | 13.54 | 15 | 0.00 | 2.41 | 0.00 | 2.90 | 2.90
+relaxed | mult24 | 103 | 7.76 | 20 | 6.46 | 3.17 | 6.46 | 6.38 | 6.38
+tight | mult24 | 103 | 19.51 | 12 | 0.27 | 2.64 | 0.27 | 0.25 | 0.25
+relaxed | xbar16 | 103 | 7.10 | 21 | 2.43 | 1.95 | 2.43 | 1.92 | 1.92
+tight | xbar16 | 103 | 10.75 | 16 | 3.18 | 0.46 | 3.18 | 1.12 | 1.12
+
+mean regret skip-r1: 1.05%, worst 6.46%; vs random better 9, worse 3 (sign p = 0.146)
+mean regret random: 3.16%, worst 5.93%; vs random better 0, worse 0 (sign p = 1.000)
+mean regret SW: 1.05%, worst 6.46%; vs random better 9, worse 3 (sign p = 0.146)
+mean regret G: 3.55%, worst 9.48%; vs random better 5, worse 7 (sign p = 0.774)
+mean regret SWG: 3.55%, worst 9.48%; vs random better 5, worse 7 (sign p = 0.774)
+
+cells with routed/r2 > 3: 12 of 12
+in them: skip-r1 1.05%, random 3.16%
+design bootstrap 95% interval of mean (SW - random): -3.95 to -0.06 points
+
+post hoc (lines added after the first run):
+post hoc: SWG vs SW per cell: better 5, worse 6, tied 1 (sign p = 1.000); G routes 6 random points and only the mapped best 2
+post hoc: the same 12 cells in milestone 111's held-out tables (60 milestone-1 sequences, older tools): skip-r1 1.13%, random 3.18%, G 0.82%; routed/r2 old vs new, median 4.76 vs 7.43
+post hoc: per cell skip-r1 old -> new: barrel128 relaxed 0.00 -> 0.00; barrel128 tight 0.00 -> 0.00; bcastadd64 relaxed 0.00 -> 0.00; bcastadd64 tight 0.36 -> 0.00; gf2mat48 relaxed 1.14 -> 0.00; gf2mat48 tight 0.00 -> 0.14; mult16 relaxed 0.00 -> 0.17; mult16 tight 0.74 -> 0.00; mult24 relaxed 11.35 -> 6.46; mult24 tight 0.00 -> 0.27; xbar16 relaxed 0.00 -> 2.43; xbar16 tight 0.00 -> 3.18
+
+(1) routed/r2 > 3 in at least 9 of 12 cells: True
+(2) in those cells skip-r1 below random: True
+(3) SW mean below random: True
+(4) SW better than random in more cells than worse: True
+(5) mult24 relaxed skip-r1 above random: True
+(6) SWG worst cell below SW worst cell: False

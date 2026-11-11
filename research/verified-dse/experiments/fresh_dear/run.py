@@ -31,26 +31,28 @@ SOURCES = {"mult16": "large", "mult24": "large", "xbar16": "hostile", "gf2mat48"
 FACTORS = {"tight": 1.0, "relaxed": 1.5}
 
 
-def designs_and_bases():
+def designs_and_bases(install=False):
+    """Design definitions and base periods; flow.DESIGNS is restored afterwards unless install (main() installs them before
+    forking, so workers inherit them; importing this module leaves flow.DESIGNS as it was)."""
+    saved = dict(flow.DESIGNS)
     defs, base = {}, {}
     for d, src in SOURCES.items():
         mod = _load(EXP / src / "run.py", f"vdse_{src}_run")  # each run.py clears flow.DESIGNS and installs its own
         defs[d] = dict(flow.DESIGNS)[d]
         base[d] = json.loads((EXP / src / "meta.json").read_text())["base_period_ns"][d]
     flow.DESIGNS.clear()
-    flow.DESIGNS.update(defs)
-    return base
+    flow.DESIGNS.update(defs if install else saved)
+    return defs, base
 
 
 def fresh_sequences(n=120):
     return _load(EXP / "fresh_pool" / "run.py", "vdse_fresh_run").fresh_sequences(n)
 
 
-BASE = designs_and_bases()  # at import, so forked workers see the same flow.DESIGNS
-
-
 def task(a):
     design, seq, tag, period, wd, lib, pdk, orb = a
+    if design not in flow.DESIGNS:  # a spawned or forkserver worker did not inherit main()'s table
+        designs_and_bases(install=True)
     try:
         r = flow.run_point(design, seq, period, wd, lib, pdk, orb)
         r["status"] = "ok"
@@ -67,7 +69,9 @@ def main():
     ap.add_argument("--out", default="/tmp/verified-dse-fresh-dear")
     ap.add_argument("--n", type=int, default=120)
     ap.add_argument("--jobs", type=int, default=4)
+    ap.add_argument("--resume", action="store_true", help="skip points already in results.jsonl and append the rest")
     a = ap.parse_args()
+    _, BASE = designs_and_bases(install=True)
     out, pdk = Path(a.out), Path(a.pdk)
     out.mkdir(parents=True, exist_ok=True)
     lib = out / "lib.lib"
@@ -77,7 +81,11 @@ def main():
     order = ["mult24", "gf2mat48", "xbar16", "barrel128", "mult16", "bcastadd64"]
     tasks = [(d, s, tag, round(BASE[d] * f, 3), out / d / f"{tag}_{i}", lib, pdk, a.openroad)
              for d in order for tag, f in FACTORS.items() for i, s in enumerate(seqs)]
-    with Pool(a.jobs) as pool, open(HERE / "results.jsonl", "w") as fh:
+    res = HERE / "results.jsonl"
+    if a.resume and res.exists():
+        done = {(r["design"], r["tag"], tuple(r["seq"])) for r in map(json.loads, res.read_text().splitlines())}
+        tasks = [t for t in tasks if (t[0], t[2], tuple(t[1])) not in done]
+    with Pool(a.jobs) as pool, open(res, "a" if a.resume else "w") as fh:
         for i, r in enumerate(pool.imap_unordered(task, tasks, chunksize=1)):
             fh.write(json.dumps(r) + "\n")
             fh.flush()

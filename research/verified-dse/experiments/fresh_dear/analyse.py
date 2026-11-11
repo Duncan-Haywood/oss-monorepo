@@ -82,6 +82,18 @@ def main(dst):
     if dear:
         out.append(f"in them: skip-r1 {statistics.mean(c['skip'] for c in dear):.2f}%, random {statistics.mean(c['rand'] for c in dear):.2f}%")
     out.append(f"design bootstrap 95% interval of mean (SW - random): {lo:+.2f} to {hi:+.2f} points")
+    w, l = sum(swg(c) < sw(c) for c in rs), sum(swg(c) > sw(c) for c in rs)
+    held = {(c["clock"], c["design"]): c for c in rule.build(rule.replay.load(), lambda k: f"m111held{k[0]}{k[1]}{k[2]}")}
+    same = [(c, held[(c["clock"], c["design"])]) for c in rs]
+    out += ["", "post hoc (lines added after the first run):",
+            f"post hoc: SWG vs SW per cell: better {w}, worse {l}, tied {len(rs) - w - l} (sign p = {rule.sign_p(w, l):.3f}); "
+            f"G routes 6 random points and only the mapped best {8 - G[0]}",
+            "post hoc: the same 12 cells in milestone 111's held-out tables (60 milestone-1 sequences, older tools): "
+            f"skip-r1 {statistics.mean(h['skip'] for _, h in same):.2f}%, random {statistics.mean(h['rand'] for _, h in same):.2f}%, "
+            f"G {statistics.mean(h['g'][G] for _, h in same):.2f}%; routed/r2 old vs new, median "
+            f"{statistics.median(h['ratio'] for _, h in same):.2f} vs {statistics.median(c['ratio'] for c, _ in same):.2f}",
+            "post hoc: per cell skip-r1 old -> new: " + "; ".join(f"{c['design']} {c['clock']} {h['skip']:.2f} -> {c['skip']:.2f}"
+                                                              for c, h in same)]
     m24 = [c for c in rs if c["design"] == "mult24" and c["clock"] == "relaxed"]
     W = lambda f: max(f(c) for c in rs)
     out += ["",
