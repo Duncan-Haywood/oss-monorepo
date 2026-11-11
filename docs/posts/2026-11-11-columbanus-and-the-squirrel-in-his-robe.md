@@ -2,7 +2,7 @@
 title: "Saint Columbanus and the squirrel in his robe: a Little Lamps bedtime story"
 seo_title: "Saint Columbanus and the squirrel, a bedtime story for ages 3 to 8"
 date: 2026-11-11
-description: "New Little Lamps story for his 23 November feast: an Irish monk, a bear asked to find another cave, and a squirrel called down a tall tree. From Jonas of Bobbio."
+description: "New Little Lamps story for his 23 November feast: an Irish monk, a bear asked to find another cave, a squirrel called down a tall tree. From Jonas of Bobbio."
 tags: [hearth-and-horizon, little-lamps, fiction]
 ---
 
