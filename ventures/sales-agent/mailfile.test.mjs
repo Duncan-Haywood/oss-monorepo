@@ -110,3 +110,34 @@ test("a word-model guess outside the category list is ignored, not a crash (foun
   const { CATEGORIES } = await import("./engine.mjs");
   for (const c of Object.keys(MODEL.docs)) assert.ok(CATEGORIES[c], `model class ${c} has no category`);
 });
+
+// Format corners found on real exports published on GitHub, 2026-11-11 (eval/mailfile-public.mjs); rebuilt here by hand.
+test("an unescaped body line starting with From after a blank line stays in the message (mboxo writers)", () => {
+  const text = `From 1800000000000000004@xxx Sun Sep 14 09:00:00 +0000 2025\nX-GM-THRID: 1800000000000000004\nFrom: Omar <omar@x.example>\nSubject: Re: Monitoring\nIn-Reply-To: <m1@x>\n\nFrom a security standpoint, Datadog is easier for our audit.\n\nOmar\n\nFrom 1800000000000000005@xxx Sun Sep 14 10:00:00 +0000 2025\nX-GM-THRID: 1800000000000000005\nFrom: Priya <priya@x.example>\nSubject: Re: Monitoring\nIn-Reply-To: <m1@x>\n\nAgreed.\n\nFrom the product side, SSO blocks five deals.\n`;
+  const got = []; const s = new MboxSplitter((m) => got.push(m)); s.push(text); s.end();
+  assert.equal(got.length, 2);
+  assert.match(got[0], /From a security standpoint[\s\S]*Omar/);
+  assert.match(got[1], /From the product side, SSO blocks five deals\./); // the last line of the file too
+  assert.equal(s.unescapedFrom, 2);
+  // A URL on the next line is not a header (seven Enron messages written unescaped split on "From the Editor" + "http://...").
+  const url = []; const u = new MboxSplitter((m) => url.push(m)); u.push(`From 1@x Thu Nov 05 10:00:00 +0000 2026\nFrom: a@x.example\n\nRead this.\n\nFrom the Editor BY JAMES TARANTO\nhttp://www.example.com/columnists/\n`); u.end();
+  assert.equal(url.length, 1);
+  const r = readMailTexts([{ name: "x.mbox", text }]);
+  assert.deepEqual([r.stats.messages, r.stats.kept, r.stats.noText], [2, 2, 0]);
+});
+
+test("Thunderbird 'From - ' envelopes with X-Mozilla headers, Takeout envelopes with CRLF, and a bare dated envelope", () => {
+  const tb = `From - Thu Feb 23 19:37:30 2017\r\nX-Mozilla-Status: 0011\r\nFrom: A <a@x.example>\r\nSubject: Re: one\r\n\r\nFirst.\r\n\r\nFrom - Thu Feb 23 19:38:00 2017\r\nX-Mozilla-Status: 0001\r\nFrom: B <b@x.example>\r\nSubject: Re: two\r\n\r\nSecond.\r\n`;
+  const takeout = `From 1512584914615853097@xxx Thu Sep 17 18:09:44 +0000 2015\r\nX-GM-THRID: 1512584914615853097\r\nX-Gmail-Labels: Inbox\r\nFrom: C <c@x.example>\r\nSubject: Re: three\r\n\r\nThird.\r\n\r\n`;
+  // An envelope followed by a blank line (a message with no headers) still splits when it reads as an envelope.
+  const bare = `From a@x.example Mon Jan  1 00:00:00 2001\nFrom: D <d@x.example>\nSubject: Re: four\n\nFourth.\n\nFrom b@x.example Mon Jan  1 00:00:01 2001\n\nheaderless\n`;
+  for (const [text, n] of [[tb, 2], [takeout, 1], [bare, 2]]) { const got = []; const s = new MboxSplitter((m) => got.push(m)); s.push(text); s.end(); assert.equal(got.length, n, text.slice(0, 30)); assert.equal(s.unescapedFrom, 0); }
+});
+
+test("a multipart message whose declared boundary never appears is read from the boundary its body uses", () => {
+  const raw = `From: La French Tech <support@x.example>\r\nSubject: Next steps\r\nContent-type: multipart/alternative; boundary="----------=_144278-1527-31"\r\n\r\nThis is a multi-part message in MIME format.\r\n\r\n------------=_1442425378-1527-31\r\nContent-Transfer-Encoding: quoted-printable\r\nContent-Type: text/plain; charset="utf-8"\r\n\r\nDear participants, caf=C3=A9 at 9.\r\n\r\n------------=_1442425378-1527-31\r\nContent-Type: text/html; charset="utf-8"\r\n\r\n<p>html</p>\r\n------------=_1442425378-1527-31--\r\n`;
+  assert.equal(parseMessage(raw).text, "Dear participants, café at 9.");
+  // A boundary that does appear is used as declared, even when another "--" line comes first.
+  const ok = `Content-Type: multipart/mixed; boundary="b1"\r\n\r\n--not-it\r\nContent-Type: text/plain\r\n\r\nwrong\r\n--b1\r\nContent-Type: text/plain\r\n\r\nright\r\n--b1--\r\n`;
+  assert.equal(parseMessage(ok).text, "right");
+});

@@ -58,8 +58,12 @@ export function parseMessage(raw) {
       return { h, kind: "other", text: "" };
     }
     if (/^multipart\//i.test(ct)) {
-      const b = param(ct, "boundary");
-      const parts = b ? body.split(new RegExp(`\\r?\\n?--${b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:--)?[ \\t]*\\r?\\n?`)).slice(1) : [];
+      const split = (b) => body.split(new RegExp(`\\r?\\n?--${b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:--)?[ \\t]*\\r?\\n?`)).slice(1);
+      let b = param(ct, "boundary"), parts = b ? split(b) : [];
+      // The declared boundary never appears (a real Takeout message on GitHub declares "=_144278-1527-31" and its body uses
+      // "=_1442425378-1527-31"; Python's email module reads no text from it): take the first "--" line followed by a part
+      // header as the boundary. Messages whose boundary does appear are read exactly as before.
+      if (!parts.length) { const g = body.match(/(?:^|\n)--([^\r\n]{1,70}?)[ \t]*\r?\n(?=content-[\w-]+:)/i); if (g && g[1] !== b) parts = split(g[1]); }
       const found = parts.map(walk).filter((p) => p.text);
       return { h, text: (found.find((p) => p.kind === "plain") || found[0] || { text: "" }).text, kind: found.find((p) => p.kind === "plain") ? "plain" : "html" };
     }
