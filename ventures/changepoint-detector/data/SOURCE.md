@@ -650,3 +650,20 @@ near 1898 (Cobb (1978), Table 1, p.249)". `UKDriverDeaths`: "Compulsory wearing 
 belts was introduced on 31 Jan 1983." Those are the two dates `eval/consensus-real.mjs`
 scores; the Cobb and Harvey-Durbin papers themselves are still unread.
 
+
+# Example data: UK road casualties, seven series, 1969-1984
+
+`uk-road-casualties.csv`: R's `datasets::Seatbelts` (Harvey 1989, pp. 519-523; Harvey and Durbin 1986),
+192 months, January 1969 to December 1984. Columns: car drivers killed (`DriversKilled`), car drivers
+killed or seriously injured (`drivers`, the same series as `uk-driver-deaths.csv`), front-seat and
+rear-seat passengers killed or seriously injured (`front`, `rear`), distance driven (`kms`), petrol
+price (`PetrolPrice`) and van drivers killed (`VanKilled`). The source's eighth column, `law` (0/1,
+the front-seat belt law in force from 31 January 1983), is left out: it is the answer, not data. The
+`month` column is built from the row order of the source. Used to check that the several-column
+report prints when the set is wider than one page (`eval/multi-report-print.mjs`).
+
+- **Retrieved:** 2026-11-11 from
+  <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/Seatbelts.csv>.
+- **Licence:** a published table (Harvey 1989); R's `datasets` package is GPL-2 or later. Only
+  the numbers are used here.
+- **Used by:** `eval/multi-report-print.mjs`, `multi-report.test.mjs`.

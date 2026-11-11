@@ -1,0 +1,318 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKoAMoNGhPnjt2cMmpF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T22:09:30Z",
+  "ended": "2026-11-11T22:10:00Z",
+  "wall_minutes": 6.38,
+  "tokens_in": 4871014,
+  "tokens_out": 30464,
+  "cost_usd": 2.346,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Two Bash heredocs containing dollar-sign strings were refused by the harness rm-safety parser (no rm in them); redone with Edit / a script file."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's `redteam.py open` listed 5 defects, all already waiting in owner-approval control-plane PRs; the list cannot tell 'needs work' from 'waiting on owner', so every run re-searches PRs to find that out. A pending_pr field on the entry would save it."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`git log --since=3.days --name-only origin/main` prints nothing in the shallow clone, so the suggested way to aim at recently changed files needs a deepen first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-the-400-dollar-floor-ten-calculators-missed.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/ci/check_se_tax_floor.py + test_check_se_tax_floor.py; on the pre-fix tree it flags 8 of the 10 broken files (the two profit-vs-earnings ones need their per-venture tests). Not yet run by any workflow: wiring it is control plane, own PR. Verified: run_venture_tests.py on all 10 slugs green; unittest test_check_se_tax_floor 6 OK; check_se_tax_floor.py clean; checklist_coverage.py OK. Step 0: all 5 open entries already have owner-approval PRs (#12928, #14612, #14877/#12926, #14808, #14698); none could be landed here.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+        "test": "node --test ventures/owner-operator-per-diem-calculator/**/*.test.mjs  (in .)",
+        "seed": 751048929,
+        "commit": "6d7547a4",
+        "sites": 82,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+            "line": 23,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const room = Math.max(0, wageBase - otherWages);",
+            "after": "const room = Math.max(1, wageBase - otherWages);",
+            "line_text": "  const room = Math.max(0, wageBase - otherWages);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had other wages at or above the wage base; room 1 instead of 0 adds 12.4 cents of SS tax. Test: 'wages at or above the wage base leave no Social Security room, only Medicare'."
+          },
+          {
+            "file": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+            "line": 23,
+            "col": 36,
+            "operator": "minus-to-plus",
+            "before": "const room = Math.max(0, wageBase - otherWages);",
+            "after": "const room = Math.max(0, wageBase + otherWages);",
+            "line_text": "  const room = Math.max(0, wageBase - otherWages);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+            "line": 24,
+            "col": 48,
+            "operator": "plus-to-minus",
+            "before": "return Math.min(base, room) * DEFAULTS.ssRate + base * DEFAULTS.medicareRate;",
+            "after": "return Math.min(base, room) * DEFAULTS.ssRate - base * DEFAULTS.medicareRate;",
+            "line_text": "  return Math.min(base, room) * DEFAULTS.ssRate + base * DEFAULTS.medicareRate;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+            "line": 43,
+            "col": 17,
+            "operator": "plus-to-minus",
+            "before": "if (v.fullDays + v.partialDays > 366) return { error: \"Full days plus travel days cannot be more than 366.\" };",
+            "after": "if (v.fullDays - v.partialDays > 366) return { error: \"Full days plus travel days cannot be more than 366.\" };",
+            "line_text": "  if (v.fullDays + v.partialDays > 366) return { error: \"Full days plus travel days cannot be more than 366.\" };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+            "line": 44,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "if (v.partialPct > 100) return { error: \"The travel day percentage cannot be more than 100.\" };",
+            "after": "if (v.partialPct > 101) return { error: \"The travel day percentage cannot be more than 100.\" };",
+            "line_text": "  if (v.partialPct > 100) return { error: \"The travel day percentage cannot be more than 100.\" };",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test of a travel-day percentage between 100 and 101. Test: 'a travel-day percentage just over 100 is rejected and exactly 100 is accepted'."
+          },
+          {
+            "file": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+            "line": 51,
+            "col": 40,
+            "operator": "times-to-div",
+            "before": "const perDiemDeduction = perDiemGross * (v.dotPct / 100);",
+            "after": "const perDiemDeduction = perDiemGross / (v.dotPct / 100);",
+            "line_text": "  const perDiemDeduction = perDiemGross * (v.dotPct / 100);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+            "line": 51,
+            "col": 52,
+            "operator": "div-to-times",
+            "before": "const perDiemDeduction = perDiemGross * (v.dotPct / 100);",
+            "after": "const perDiemDeduction = perDiemGross * (v.dotPct * 100);",
+            "line_text": "  const perDiemDeduction = perDiemGross * (v.dotPct / 100);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+            "line": 61,
+            "col": 96,
+            "operator": "const-plus-one",
+            "before": "const incomeTaxSaving = (Math.min(deduction, v.netProfit) + seSaving / 2) * (v.marginalRate / 100);",
+            "after": "const incomeTaxSaving = (Math.min(deduction, v.netProfit) + seSaving / 2) * (v.marginalRate / 101);",
+            "line_text": "  const incomeTaxSaving = (Math.min(deduction, v.netProfit) + seSaving / 2) * (v.marginalRate / 100);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/owner-operator-per-diem-calculator/calc.mjs",
+        "issue": "SE tax charged with no $400 Schedule SE floor (net earnings = profit x 92.35% under $400 owe none); reproduced by se-floor.test.mjs (profit 433 gave nonzero SE tax).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      },
+      {
+        "file": "ventures/booth-rent-vs-commission/payroll.mjs",
+        "issue": "SE tax charged with no $400 Schedule SE floor (net earnings = profit x 92.35% under $400 owe none); reproduced by se-floor.test.mjs (profit 433 gave nonzero SE tax).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      },
+      {
+        "file": "ventures/sep-ira-contribution-calculator/calc.mjs",
+        "issue": "SE tax charged with no $400 Schedule SE floor (net earnings = profit x 92.35% under $400 owe none); reproduced by se-floor.test.mjs (profit 433 gave nonzero SE tax).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      },
+      {
+        "file": "ventures/solo-401k-contribution-calculator/calc.mjs",
+        "issue": "SE tax charged with no $400 Schedule SE floor (net earnings = profit x 92.35% under $400 owe none); reproduced by se-floor.test.mjs (profit 433 gave nonzero SE tax).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      },
+      {
+        "file": "ventures/sep-ira-vs-solo-401k-calculator/calc.mjs",
+        "issue": "SE tax charged with no $400 Schedule SE floor (net earnings = profit x 92.35% under $400 owe none); reproduced by se-floor.test.mjs (profit 433 gave nonzero SE tax).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      },
+      {
+        "file": "ventures/contract-vs-fte-rate-calculator/calc.mjs",
+        "issue": "SE tax charged with no $400 Schedule SE floor (net earnings = profit x 92.35% under $400 owe none); reproduced by se-floor.test.mjs (profit 433 gave nonzero SE tax).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      },
+      {
+        "file": "ventures/clergy-housing-allowance-calculator/calc.mjs",
+        "issue": "SE tax charged with no $400 Schedule SE floor (net earnings = profit x 92.35% under $400 owe none); reproduced by se-floor.test.mjs (profit 433 gave nonzero SE tax).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      },
+      {
+        "file": "ventures/locum-tenens-vs-employed-calculator/calc.mjs",
+        "issue": "SE tax charged with no $400 Schedule SE floor (net earnings = profit x 92.35% under $400 owe none); reproduced by se-floor.test.mjs (profit 433 gave nonzero SE tax).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      },
+      {
+        "file": "ventures/self-employed-health-insurance-deduction-calculator/calc.mjs",
+        "issue": "$400 SE floor compared against profit instead of net earnings, so a $420 profit ($387.87 of net earnings) was taxed $59.34; reproduced by se-floor.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      },
+      {
+        "file": "ventures/babysitting-business-kit/engine.mjs",
+        "issue": "$400 SE floor compared against profit instead of net earnings, so a $420 profit ($387.87 of net earnings) was taxed $59.34; reproduced by se-floor.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14907"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "55c9c256-0167-5d78-874b-f8ce2f66ec52",
+    "transcripts": 1,
+    "first": "2026-11-11T22:09:30Z",
+    "last": "2026-11-11T22:15:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 102,
+        "output": 30464,
+        "thinking": 6197,
+        "cache_read": 4773200,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97712,
+        "api_equivalent_usd": 2.346,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 102,
+      "output": 30464,
+      "thinking": 6197,
+      "cache_read": 4773200,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97712,
+      "api_equivalent_usd": 2.346,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 51,
+      "Write": 4,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.38,
+      "active_minutes": 6.38,
+      "model_minutes": 5.18,
+      "tool_minutes": 1.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "tracing the SE floor across 23 files, 10 test-first fixes, a lint and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 213.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -53,6 +53,7 @@ export function employeeFica(wages, o) {
 export function selfEmploymentTax(net, o) {
   const ss = 2 * nz(o.ssRate) / 100, med = 2 * nz(o.medicareRate) / 100, cap = nz(o.wageBase);
   const base = nz(net) * 0.9235;
+  if (base < 400) return 0; // Schedule SE: net earnings under $400 owe none
   return Math.min(base, cap) * ss + base * med;
 }
 

@@ -113,7 +113,7 @@
   </section>
   <section class="card" id="daily">
     <h2>4. Today's queue (the daily run)</h2>
-    <p class="note">Paste the task CSV from <a href="../sales-cadence-builder/">Sales Cadence Builder</a>. It lists what is due today, leaving out anyone who unsubscribed, bounced, replied, is paused or suppressed, including the replies you just ran above. It sends nothing.</p>
+    <p class="note">Paste the task CSV from <a href="../sales-cadence-builder/">Sales Cadence Builder</a>. It lists what is due today, leaving out anyone who unsubscribed, bounced, replied, is paused or suppressed, including the replies you just ran above. If the mail file you opened above holds your sent mail too (Gmail's Takeout does; in Thunderbird add the Sent mbox), an email step you already sent is not queued again. It sends nothing.</p>
     <label for="cadence-tasks">Cadence task list (CSV)</label>
     <textarea id="cadence-tasks" rows="6" placeholder="date,call_window,channel,step,prospect,company,email,phone,subject,body,voicemail,issues"></textarea>
     <label for="done">Touches you already did (optional, one per line: email,step)</label>
@@ -318,6 +318,7 @@
     }
     $("#go").addEventListener("click", run);
     // Exported mail: each file is streamed from disk (an mbox can be gigabytes), split, parsed and filtered here.
+    let mailSent = []; // your own sent messages from the last mail file: the daily run's done list for email touches
     async function readMail(files) {
       if (!files || !files.length) return;
       const own = $("#mail-own").value.split(/[,;\s]+/).filter(Boolean);
@@ -343,6 +344,7 @@
       r.stats.truncated += cut;
       let msg = describe(r);
       if (!own.length && r.topSender && r.stats.messages >= 5 && r.topSender.count / r.stats.messages > 0.3) msg += " The most frequent sender is " + r.topSender.address + "; if that is you, enter it above and open the file again.";
+      mailSent = r.sent || [];
       $("#mail-status").textContent = msg;
       if (!r.stats.kept) return;
       $("#replies").value = r.replies;
@@ -367,9 +369,9 @@
       // After an inbox run, use its updated prospects and new suppressions, so today's replies count.
       const prospects = result ? result.prospects : $("#prospects").value;
       const suppression = [$("#suppression").value, ...(result ? result.suppression.map((x) => x.email) : [])].join("\n");
-      daily = runDaily({ tasks, prospects, suppression, done: $("#done").value, today: $("#today").value || iso(Date.now()) });
+      daily = runDaily({ tasks, prospects, suppression, done: $("#done").value, sent: mailSent, today: $("#today").value || iso(Date.now()) });
       $("#daily-brief").textContent = daily.brief; $("#daily-brief").hidden = false; $("#daily-dl").hidden = false;
-      $("#daily-status").textContent = daily.summary.due + " touches due today" + (result ? ", after the replies above" : "") + ". Nothing was sent.";
+      $("#daily-status").textContent = daily.summary.due + " touches due today" + (result ? ", after the replies above" : "") + (daily.summary.alreadySent ? "; " + daily.summary.alreadySent + " already in your sent mail" : "") + ". Nothing was sent.";
       record("daily_run");
     });
     let research = null;
