@@ -83,3 +83,36 @@ def test_measured_nasa_taper_is_longer_than_linear():
     _, fresh, old = aged.groups(rows)
     assert len(fresh) == 20 and len(old) > 100
     assert all(r["ratio_30_100"] > r["ratio_20_90"] > 1.0 for r in fresh)
+
+
+_pw = pathlib.Path(__file__).resolve().parents[1] / "experiments" / "hub_throughput" / "analytic_wait_tail.py"
+_sw = importlib.util.spec_from_file_location("hub_wait_tail", _pw)
+tail6j = importlib.util.module_from_spec(_sw)
+_sw.loader.exec_module(tail6j)
+
+
+def test_sub_exp_conserves_mass_and_mean():
+    x = [0.0] * 2000
+    x[1000] = 1.0
+    lam = 1 / 600.0
+    out, neg = tail6j.sub_exp(x, lam)
+    assert abs(sum(out) + neg - 1.0) < 1e-12
+    m = tail6j.DT * sum(i * v for i, v in enumerate(out))
+    assert abs(m - (10000.0 - 600.0)) < 2.0
+
+
+def test_batch_of_c_charger_wait_is_md1():
+    # k = c: each charger sees one pack per batch, an M/D/1 queue with Wq = rho D / (2 (1 - rho))
+    rate = 0.7 * tail6j.CH * 3600 / tail6j.D
+    wq, _ = tail6j.charger_wait_pmf(rate, tail6j.CH)
+    assert abs(tail6j.pmf_mean(wq) - 0.7 * tail6j.D / (2 * 0.3)) < 5.0
+
+
+def test_wait_tail_at_zero_matches_6i_wait_share():
+    rate = 0.7 * tail6j.CH * 3600 / tail6j.D
+    wq, _ = tail6j.charger_wait_pmf(rate, 2)
+    t = tail6j.pack_wait_tails(wq, rate, 2, 20, (0.0, 300.0))
+    p = ana.outstanding_pmf(rate, 2)
+    for S in (10, 14, 18):
+        assert abs(t[S][0.0] - ana.wait_share(p, S, 2)) < 0.003
+        assert t[S][300.0] < t[S][0.0]

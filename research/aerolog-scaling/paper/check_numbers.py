@@ -95,6 +95,10 @@ CHECKS = [
     ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 70% k=1: analytic 12, simulated 12", "6i: Poisson 12 at 70%"),
     ("experiments/hub_throughput/analytic_spares_results.txt", "P2 load 85% k=1: analytic 17, simulated 17", "6i: Poisson 17 at 85%"),
     ("experiments/hub_throughput/analytic_spares_results.txt", "P3 worst amount analytic falls below simulated: 0.3957", "6i: optimistic by up to 0.40"),
+    ("experiments/hub_throughput/analytic_wait_tail_results.txt", "P2/P4 load 70% k=8: analytic 41, simulated 39", "6j: k=8 at 70%, 41 against 39"),
+    ("experiments/hub_throughput/analytic_wait_tail_results.txt", "P2/P4 load 70% k=4: analytic 24, simulated 24", "6j: k=4 at 70%, 24 both"),
+    ("experiments/hub_throughput/analytic_wait_tail_results.txt", "P2/P4 load 85% k=8: analytic 81, simulated 79", "6j: k=8 at 85%, 81 against 79"),
+    ("experiments/hub_throughput/analytic_wait_tail_results.txt", "simulated in [0.01, 0.3] and S >= E[N_out]+2: 0.0092", "6j: tail within 0.009"),
 ]
 LOGCHECKS = [  # figures that exist in LOG.md outcomes (the results files print them in tables)
     "1,273 km at engine 1 kW/kg", "145 to 167", "0.40 (cruise-sized), 0.34 (hover-sized, 10e) and 0.18",
