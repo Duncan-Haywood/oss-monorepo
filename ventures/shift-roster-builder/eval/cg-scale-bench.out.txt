@@ -74,3 +74,22 @@ case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pri
 0	245	1551	300.00	300	-	false	27	1691	61	3660	0	106869	12264	62439	0	no
 1	238	1564	308.00	308	-	false	23	1203	45	2700	0	86005	31801	60517	0	no
 2	235	1520	183.00	183	-	false	23	1855	64	3840	0	116407	14363	61176	0	no
+
+# 2026-11-11 later: exact speed-ups (sparse refactor/pivot rows, per-row basic values, binary insertSorted, bit-mask validList).
+# Same node/column/round counts as the code before them. 3 benches at once on 4 cores. Before (old code), 80x224 week 0:
+0	304	1974	252.00	252	-	false	1	2338	32	2560	0	577737	109992	133288	0	no
+# after:
+40 people, 112 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+0	149	953	169.00	169	169	true	8	875	42	1169	0	22247	923	1958	7	yes
+1	148	943	146.00	146	146	true	44	1097	112	2205	0	67929	1063	3442	43	yes
+2	162	1079	281.00	281	281	true	8	923	44	1096	0	40298	509	1263	7	yes
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	106869	3189	10444	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	38793	3907	9218	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	116407	3018	11652	8	yes
+80 people, 224 shift lines, oracle cap 2000000 nodes per call, 120000 ms per week
+0	304	1974	257.00	257	257	true	82	3700	185	7625	0	577737	24599	90193	81	yes
+1	314	2105	331.00	331	331	true	75	2440	147	6487	0	473140	44660	100420	74	yes
+2	326	2064	281.00	281	281	true	9	2465	65	3338	0	627196	54678	77072	8	yes
+100 people, 280 shift lines, oracle cap 2000000 nodes per call, 180000 ms per week
+0	400	2607	294.00	294	-	false	1	3680	36	3600	0	1435826	128057	184852	0	no
