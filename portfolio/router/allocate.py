@@ -90,6 +90,11 @@ class Venture:
     # flagships with buildable work (run-record doc_friction, 2026-11-10: four
     # runs in two hours sent to the top Deepen row found nothing to build).
     flagship_inputs_only: Optional[str] = None
+    # flagships.yaml `buildable: <items a cloud session can do now>`: shown
+    # ahead of the `next:` history so a run need not read every full `next:`
+    # to find a tractable item (run-record doc_friction on this file,
+    # 2026-11-11: seven runs read rows 1-4 in full, then took a lower row).
+    flagship_buildable: Optional[str] = None
 
     @property
     def flagship(self) -> bool:
@@ -297,15 +302,20 @@ def load_flagships(path: Path = FLAGSHIPS_PATH) -> dict[str, tuple[int, str]]:
     return out
 
 
-def load_inputs_only(path: Path = FLAGSHIPS_PATH) -> dict[str, str]:
-    """{venture: what is missing} for flagships marked `inputs_only:`."""
+def load_flagship_field(field: str, path: Path = FLAGSHIPS_PATH) -> dict[str, str]:
+    """{venture: text} for flagships that set `field:` (e.g. inputs_only, buildable)."""
     if not path.is_file():
         return {}
     return {
-        e["venture"]: str(e["inputs_only"]).strip()
+        e["venture"]: " ".join(str(e[field]).split())
         for e in _load_yaml(path).get("flagships") or []
-        if isinstance(e, dict) and e.get("venture") and e.get("inputs_only")
+        if isinstance(e, dict) and e.get("venture") and e.get(field)
     }
+
+
+def load_inputs_only(path: Path = FLAGSHIPS_PATH) -> dict[str, str]:
+    """{venture: what is missing} for flagships marked `inputs_only:`."""
+    return load_flagship_field("inputs_only", path)
 
 
 def load_ventures(
@@ -318,6 +328,7 @@ def load_ventures(
     merit_scores = load_merit_scores(scores_path)
     flagships = load_flagships(flagships_path)
     inputs_only = load_inputs_only(flagships_path)
+    buildable = load_flagship_field("buildable", flagships_path)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -356,6 +367,7 @@ def load_ventures(
                 flagship_rank=flag_rank,
                 flagship_next=flag_next,
                 flagship_inputs_only=inputs_only.get(name) if flag_rank is not None else None,
+                flagship_buildable=buildable.get(name) if flag_rank is not None else None,
             )
         )
     return ventures
@@ -480,6 +492,8 @@ def next_task(v: Venture) -> str:
                 f"outside input ({v.flagship_inputs_only}). Take it only if you hold one; "
                 "otherwise take a Deepen row above. Full list: portfolio/flagships.yaml."
             )
+        if v.flagship_buildable:
+            milestone = f"BUILDABLE HERE: {v.flagship_buildable} -- Context: {milestone}"
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml."
@@ -703,6 +717,30 @@ def claims_by_venture(names, prs: list[tuple[int, str, str]]) -> dict[str, list[
 CLAIM_FRESH_HOURS = 24
 
 
+def _age_hours(created: str, now: datetime) -> float:
+    try:
+        return (now - datetime.fromisoformat(created.replace("Z", "+00:00"))).total_seconds() / 3600
+    except ValueError:
+        return float("inf")
+
+
+def start_here(queue: list[dict], claims: Optional[dict[str, list]],
+               now: Optional[datetime] = None) -> Optional[tuple[int, str]]:
+    """(row number, venture) of the first Deepen flagship row with no open PR
+    younger than CLAIM_FRESH_HOURS, or None. Rows marked `inputs_only` are not
+    Deepen rows, so they are skipped too. With claims unread (None) the first
+    Deepen row is named, since nothing is known against it."""
+    now = now or datetime.now(timezone.utc)
+    for i, item in enumerate(queue, 1):
+        if not (item["flagship"] and item["task"].startswith("Deepen")):
+            continue
+        hits = (claims or {}).get(item["venture"], [])
+        if any(_age_hours(created, now) < CLAIM_FRESH_HOURS for _, _, created in hits):
+            continue
+        return i, item["venture"]
+    return None
+
+
 def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None) -> str:
     """A prefix for the task column naming the open PRs on this venture.
 
@@ -712,10 +750,7 @@ def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None)
     now = now or datetime.now(timezone.utc)
     fresh, stale = [], []
     for num, title, created in sorted(hits, key=lambda h: h[2], reverse=True):
-        try:
-            age_h = (now - datetime.fromisoformat(created.replace("Z", "+00:00"))).total_seconds() / 3600
-        except ValueError:
-            age_h = float("inf")
+        age_h = _age_hours(created, now)
         (fresh if age_h < CLAIM_FRESH_HOURS else stale).append((num, title, age_h))
     note = ""
     if fresh:
@@ -764,6 +799,8 @@ def venture_report(name: str, ventures: list[Venture],
     if v.flagship:
         lines.append(f"Flagship {v.flagship_rank + 1} (portfolio/flagships.yaml)"
                      + (f", inputs only: {v.flagship_inputs_only}" if v.flagship_inputs_only else ""))
+        if v.flagship_buildable:
+            lines.append("buildable here: " + v.flagship_buildable)
         lines.append("next:")
         lines.append(v.flagship_next or "(none written)")
     else:
@@ -822,6 +859,14 @@ def print_table(ventures: list[Venture], queue: list[dict],
         print(
             f"Flagships ({len(flagships)}, portfolio/flagships.yaml): deepen these before "
             "adding another small tool -- owner, 2026-10-20."
+        )
+    first = start_here(queue, claims)
+    if first:
+        print(
+            f"Start here: row {first[0]}, {first[1]} (the first Deepen flagship with no PR "
+            f"opened in the last {CLAIM_FRESH_HOURS} h; `allocate.py --venture {first[1]}` "
+            "prints its full `next:`; a BUILDABLE HERE note says what a session can do with "
+            "no outside input)."
         )
     print()
     print(

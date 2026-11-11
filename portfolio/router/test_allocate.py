@@ -20,7 +20,9 @@ from allocate import (
     decisions_by_merit,
     is_calculator,
     load_flagships,
+    load_flagship_field,
     load_inputs_only,
+    start_here,
     load_merit_scores,
     load_ventures as _load_ventures,
     next_task,
@@ -725,6 +727,21 @@ class FlagshipTests(unittest.TestCase):
             p.write_text("flagships:\n  - venture: a\n    inputs_only: a real DXF\n  - venture: b\n")
             self.assertEqual(load_inputs_only(p), {"a": "a real DXF"})
 
+    def test_buildable_note_leads_the_deepen_task_and_the_full_report(self):
+        v = self.flag("deep", 0, "Long history of every slice.")
+        v.flagship_buildable = "(1) a second reader from a local GGUF model"
+        task = next_task(v)
+        self.assertTrue(task.startswith("Deepen (flagship 1): BUILDABLE HERE: (1) a second reader"), task)
+        self.assertIn("Context: Long history", task)
+        self.assertIn("buildable here: (1) a second reader", venture_report("deep", [v]))
+        self.assertNotIn("BUILDABLE", next_task(self.flag("plain", 1, "x")))
+
+    def test_load_flagship_field_folds_whitespace(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            p.write_text("flagships:\n  - venture: a\n    buildable: >-\n      one\n      two\n  - venture: b\n")
+            self.assertEqual(load_flagship_field("buildable", p), {"a": "one two"})
+
     def test_load_flagships_reads_order_and_tolerates_missing_file(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "flagships.yaml"
@@ -776,6 +793,23 @@ class OpenPrClaimTest(unittest.TestCase):
         now = datetime(2026, 11, 11, 7, 0, tzinfo=timezone.utc)
         note = claim_note([(1, "x" * 300, "2026-11-11T06:00:00Z")], now=now)
         self.assertLess(len(note), 160)
+
+
+class StartHereTests(unittest.TestCase):
+    def test_skips_fresh_claims_and_inputs_only_rows(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
+        queue = [
+            {"venture": "claimed", "flagship": True, "task": "Deepen (flagship 2): x"},
+            {"venture": "stuck", "flagship": True, "task": "Inputs only (flagship 1): x"},
+            {"venture": "free", "flagship": True, "task": "Deepen (flagship 3): x"},
+            {"venture": "small", "flagship": False, "task": "Explore: x"},
+        ]
+        claims = {"claimed": [(5, "claimed: slice", "2026-11-11T08:00:00Z")],
+                  "free": [(4, "free: stalled", "2026-11-01T00:00:00Z")]}
+        self.assertEqual(start_here(queue, claims, now=now), (3, "free"))
+        self.assertEqual(start_here(queue, None, now=now), (1, "claimed"))
+        self.assertIsNone(start_here(queue[1:2] + queue[3:], claims, now=now))
 
 
 class VentureReportTests(unittest.TestCase):
