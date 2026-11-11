@@ -1,6 +1,6 @@
 ---
 title: "Ninety-six in a hundred: forecasting a village's next earthquake with the law of tens"
-seo_title: "Induced earthquakes from geothermal wells: a Gutenberg-Richter forecast in fiction"
+seo_title: "Induced earthquakes from geothermal wells: a forecast in fiction"
 date: 2026-11-11
 tags: [fiction, hearth-and-horizon, science-fiction, geothermal, induced-seismicity, forecasting]
 description: "A new story set in 2047 Alsace: geothermal wells shake a village, and a Gutenberg-Richter forecast gives 96 in 100 for another felt shock."
