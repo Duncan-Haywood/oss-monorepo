@@ -18,6 +18,7 @@ export const SETTINGS = [
   { label: "4 x effort 0.25", tries: 4, effort: 0.25 },
   { label: "4 x effort 1", tries: 4, effort: 1 },
   { label: "8 x effort 0.5", tries: 8, effort: 0.5 },
+  { label: "8 x effort 1", tries: 8, effort: 1 },
 ];
 
 function breaksOf(n, rounds) {

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { bestCarryOverRounds, lowCarryOverRounds, lowCarryOverDoubleRounds, carryOverSummary, CARRY_OVER_PICK } from "./carryover.mjs";
+import { bestCarryOverRounds, lowCarryOverRounds, lowCarryOverDoubleRounds, carryOverSummary, CARRY_OVER_PICK, carryOverTry, combineCarryOverTries, splitCarryOverTries } from "./carryover.mjs";
 import { buildSchedule, readSpec, validateSchedule, encodeFields, decodeFields } from "./calc.mjs";
 
 function pairsMet(rounds) {
@@ -121,4 +121,36 @@ test("the page runs the search in a worker, with a main-thread fallback and a tr
   const worker = readFileSync(new URL("./carryover-worker.mjs", import.meta.url), "utf8");
   assert.match(worker, /bestCarryOverRounds/);
   assert.match(worker, /type: "done"/);
+});
+
+test("splitCarryOverTries hands every try to exactly one thread, round robin", () => {
+  for (const [k, w] of [[8, 1], [8, 2], [8, 3], [8, 4], [8, 8], [8, 16], [4, 3], [1, 4], [5, 0]]) {
+    const q = splitCarryOverTries(k, w);
+    assert.equal(q.length, Math.max(1, Math.min(k, w)));
+    assert.deepEqual(q.flat().sort((a, b) => a - b), Array.from({ length: k }, (_, i) => i));
+    assert.equal(Math.max(...q.map((x) => x.length)), Math.ceil(k / q.length));
+  }
+  assert.deepEqual(splitCarryOverTries(8, 3), [[0, 3, 6], [1, 4, 7], [2, 5]]);
+});
+
+test("a pool of any size, finishing in any order, returns exactly the serial search", () => {
+  for (const double of [false, true]) for (const pick of [0, 10, 40]) {
+    const serial = bestCarryOverRounds(8, { double, seed: 4, tries: 8, pick });
+    for (const workers of [1, 3, 8]) {
+      const done = splitCarryOverTries(8, workers).map((q) => q.map((i) => carryOverTry(8, i, { double, seed: 4 })));
+      // threads report in reverse: the combine must not depend on arrival order
+      const pooled = combineCarryOverTries(done.reverse().flat(), pick);
+      assert.deepEqual(pooled.rounds, serial.rounds);
+      assert.deepEqual(carryOverSummary(pooled), carryOverSummary(serial));
+    }
+  }
+});
+
+test("combineCarryOverTries refuses a missing try and survives a JSON round trip (worker messages)", () => {
+  const all = [0, 1, 2, 3].map((i) => carryOverTry(6, i, { double: true, seed: 2 }));
+  assert.throws(() => combineCarryOverTries([all[0], all[1], all[3]], 10), /try 2 is missing/);
+  assert.throws(() => combineCarryOverTries([], 10), /tries must be/);
+  const viaJson = combineCarryOverTries(JSON.parse(JSON.stringify(all)), 10);
+  assert.deepEqual(viaJson.rounds, bestCarryOverRounds(6, { double: true, seed: 2, tries: 4 }).rounds);
+  assert.equal("index" in viaJson, false);
 });

@@ -554,27 +554,72 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
  * candidates no other one beats on both counts, by carry-over).
  */
 export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+  checkBestOfK(tries, pick);
+  const results = [];
+  for (let i = 0; i < tries; i++) {
+    const t = carryOverTry(n, i, { double, seed, weights, effort });
+    results.push(t);
+    if (onTry) onTry(i, candidateOf(t, pick));
+  }
+  return combineCarryOverTries(results, pick);
+}
+
+function checkBestOfK(tries, pick) {
   if (!Number.isInteger(tries) || tries < 1) throw new Error("tries must be a whole number of at least 1.");
   // a NaN pick scores every try NaN, nothing beats Infinity and the result has no rounds at all
   if (typeof pick !== "number" || !Number.isFinite(pick) || pick < 0) throw new Error("pick must be a number of 0 or more (CARRY_OVER_PICK).");
-  const cands = [];
-  let best = null, bestScore = Infinity, chosen = -1;
-  for (let i = 0; i < tries; i++) {
-    // try 0 is exactly the plain search at `seed` and the first weight, so tries 1 changes nothing
-    const s = i === 0 ? seed : ((seed * 7919 + i * 104729) % 2147483647) || 1;
-    const w = weights[i % weights.length];
-    const r = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
-    const score = r.coe + pick * r.breaks + (r.repeats || 0) * REPEAT_PENALTY;
-    const c = { seed: s, breakWeight: w, coe: r.coe, breaks: r.breaks, score };
-    cands.push(c);
-    if (score < bestScore) { bestScore = score; best = r; chosen = i; }
-    if (onTry) onTry(i, c);
-  }
+}
+
+/** The seed try i of a best-of-k search uses: try 0 is the base seed itself. */
+export function carryOverTrySeed(seed, i) {
+  return i === 0 ? seed : ((seed * 7919 + i * 104729) % 2147483647) || 1;
+}
+
+/**
+ * Try i of bestCarryOverRounds on its own, so a pool of workers can run the tries in parallel and
+ * combineCarryOverTries can pick among them: the result is the same whichever thread ran which try.
+ * Returns the search result plus { index, seed, breakWeight }.
+ */
+export function carryOverTry(n, i, { double = false, seed = 1, weights = [10, 20, 40, 80], effort = 1 } = {}) {
+  if (!Number.isInteger(i) || i < 0) throw new Error("try index must be a whole number of 0 or more.");
+  // try 0 is exactly the plain search at `seed` and the first weight, so tries 1 changes nothing
+  const s = carryOverTrySeed(seed, i);
+  const w = weights[i % weights.length];
+  const r = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
+  return { ...r, index: i, seed: s, breakWeight: w };
+}
+
+function candidateOf(t, pick) {
+  return { seed: t.seed, breakWeight: t.breakWeight, coe: t.coe, breaks: t.breaks, score: t.coe + pick * t.breaks + (t.repeats || 0) * REPEAT_PENALTY };
+}
+
+/**
+ * Keep the try with the least carry-over + pick x breaks among results from carryOverTry (one per
+ * index 0..k-1, in any order). Ties go to the lower index, as in a serial run, so a pool of any
+ * size returns exactly what bestCarryOverRounds returns.
+ */
+export function combineCarryOverTries(results, pick = 10) {
+  checkBestOfK(Array.isArray(results) ? results.length : 0, pick);
+  const byIndex = [...results].sort((a, b) => a.index - b.index);
+  byIndex.forEach((t, i) => { if (t.index !== i) throw new Error(`carry-over tries must be numbered 0 to ${byIndex.length - 1}; try ${i} is missing.`); });
+  const cands = byIndex.map((t) => candidateOf(t, pick));
+  let chosen = 0;
+  for (let i = 1; i < cands.length; i++) if (cands[i].score < cands[chosen].score) chosen = i;
   const frontier = cands
     .map((c, i) => ({ ...c, index: i }))
     .filter((c) => !cands.some((d) => d.coe <= c.coe && d.breaks <= c.breaks && (d.coe < c.coe || d.breaks < c.breaks)))
     .sort((a, b) => a.coe - b.coe || a.breaks - b.breaks);
+  const { index, seed, breakWeight, ...best } = byIndex[chosen];
   return { ...best, tries: cands, chosen, frontier, pick };
+}
+
+/**
+ * Which try indices each of `workers` threads runs: round-robin, so with k tries and w threads the
+ * longest queue is ceil(k / w) tries. Thread j gets j, j + w, j + 2w, ...
+ */
+export function splitCarryOverTries(tries, workers) {
+  const w = Math.max(1, Math.min(tries, Math.floor(workers) || 1));
+  return Array.from({ length: w }, (_, j) => Array.from({ length: Math.ceil((tries - j) / w) }, (_, q) => j + q * w));
 }
 
 /** The organiser's choice among the tries: carry-over + pick x breaks (see bestCarryOverRounds). */

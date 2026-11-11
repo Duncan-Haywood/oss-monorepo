@@ -1,35 +1,43 @@
 teams  setting                seed carry-over breaks  score   w dominates     s
-   18  1 x effort 1 (today)      1       1498     88   2378  10       1/6   1.8
-   18  1 x effort 1 (today)      2       1538     84   2378  10       1/6   2.1
-   18  1 x effort 1 (today)      3       1530     88   2410  10       1/6   2.3
-   18  4 x effort 0.25           1       1536     86   2396  80       1/6   3.4
-   18  4 x effort 0.25           2       1492     86   2352  10       1/6   3.0
-   18  4 x effort 0.25           3       1556     82   2376  40       1/6   3.4
-   18  4 x effort 1              1       1514     78   2294  80       1/6   9.1
-   18  4 x effort 1              2       1616     72   2336  80       2/6   9.6
-   18  4 x effort 1              3       1590     70   2290  80       2/6   8.7
-   18  8 x effort 0.5            1       1554     72   2274  20       2/6   9.6
-   18  8 x effort 0.5            2       1510     78   2290  40       1/6   9.4
-   18  8 x effort 0.5            3       1622     70   2322  20       2/6   9.5
-   20  1 x effort 1 (today)      1       1678    124   2918  10      2/14   2.8
-   20  1 x effort 1 (today)      2       1820    112   2940  10      3/14   2.7
-   20  1 x effort 1 (today)      3       1784    108   2864  10      4/14   2.5
-   20  4 x effort 0.25           1       1760    126   3020  10      1/14   4.9
-   20  4 x effort 0.25           2       1792    112   2912  10      3/14   4.5
-   20  4 x effort 0.25           3       1720    126   2980  10      1/14   3.5
-   20  4 x effort 1              1       1678    124   2918  10      2/14  10.7
-   20  4 x effort 1              2       1820    112   2940  10      3/14  12.4
-   20  4 x effort 1              3       1784    108   2864  10      4/14  11.8
-   20  8 x effort 0.5            1       1700    110   2800  10      3/14  14.4
-   20  8 x effort 0.5            2       1754    118   2934  10      2/14  15.5
-   20  8 x effort 0.5            3       1898    114   3038  20      3/14  15.4
+   18  1 x effort 1 (today)      1       1498     88   2378  10       1/6   2.1
+   18  1 x effort 1 (today)      2       1538     84   2378  10       1/6   2.2
+   18  1 x effort 1 (today)      3       1530     88   2410  10       1/6   2.0
+   18  4 x effort 0.25           1       1536     86   2396  80       1/6   3.1
+   18  4 x effort 0.25           2       1492     86   2352  10       1/6   2.9
+   18  4 x effort 0.25           3       1556     82   2376  40       1/6   3.6
+   18  4 x effort 1              1       1514     78   2294  80       1/6   9.5
+   18  4 x effort 1              2       1616     72   2336  80       2/6   7.9
+   18  4 x effort 1              3       1590     70   2290  80       2/6   9.7
+   18  8 x effort 0.5            1       1554     72   2274  20       2/6   9.9
+   18  8 x effort 0.5            2       1510     78   2290  40       1/6   9.7
+   18  8 x effort 0.5            3       1622     70   2322  20       2/6  10.3
+   18  8 x effort 1              1       1662     58   2242  80       2/6  17.9
+   18  8 x effort 1              2       1550     72   2270  20       2/6  15.5
+   18  8 x effort 1              3       1468     76   2228  20       1/6  16.9
+   20  1 x effort 1 (today)      1       1678    124   2918  10      2/14   3.2
+   20  1 x effort 1 (today)      2       1820    112   2940  10      3/14   3.1
+   20  1 x effort 1 (today)      3       1784    108   2864  10      4/14   2.9
+   20  4 x effort 0.25           1       1760    126   3020  10      1/14   3.7
+   20  4 x effort 0.25           2       1792    112   2912  10      3/14   4.7
+   20  4 x effort 0.25           3       1720    126   2980  10      1/14   4.0
+   20  4 x effort 1              1       1678    124   2918  10      2/14  10.5
+   20  4 x effort 1              2       1820    112   2940  10      3/14  10.7
+   20  4 x effort 1              3       1784    108   2864  10      4/14  11.5
+   20  8 x effort 0.5            1       1700    110   2800  10      3/14  13.5
+   20  8 x effort 0.5            2       1754    118   2934  10      2/14  14.0
+   20  8 x effort 0.5            3       1898    114   3038  20      3/14  14.0
+   20  8 x effort 1              1       1678    124   2918  10      2/14  25.6
+   20  8 x effort 1              2       1698    116   2858  10      3/14  24.7
+   20  8 x effort 1              3       1784    108   2864  10      4/14  25.3
 
 means over the seeds
 18 1 x effort 1 (today)      carry-over 1522.0  breaks 86.7  score 2388.7  dominates 1.0  2.1 s
-18 4 x effort 0.25           carry-over 1528.0  breaks 84.7  score 2374.7  dominates 1.0  3.3 s
+18 4 x effort 0.25           carry-over 1528.0  breaks 84.7  score 2374.7  dominates 1.0  3.2 s
 18 4 x effort 1              carry-over 1573.3  breaks 73.3  score 2306.7  dominates 1.7  9.1 s
-18 8 x effort 0.5            carry-over 1562.0  breaks 73.3  score 2295.3  dominates 1.7  9.5 s
-20 1 x effort 1 (today)      carry-over 1760.7  breaks 114.7  score 2907.3  dominates 3.0  2.7 s
-20 4 x effort 0.25           carry-over 1757.3  breaks 121.3  score 2970.7  dominates 1.7  4.3 s
-20 4 x effort 1              carry-over 1760.7  breaks 114.7  score 2907.3  dominates 3.0  11.6 s
-20 8 x effort 0.5            carry-over 1784.0  breaks 114.0  score 2924.0  dominates 2.7  15.1 s
+18 8 x effort 0.5            carry-over 1562.0  breaks 73.3  score 2295.3  dominates 1.7  10.0 s
+18 8 x effort 1              carry-over 1560.0  breaks 68.7  score 2246.7  dominates 1.7  16.8 s
+20 1 x effort 1 (today)      carry-over 1760.7  breaks 114.7  score 2907.3  dominates 3.0  3.1 s
+20 4 x effort 0.25           carry-over 1757.3  breaks 121.3  score 2970.7  dominates 1.7  4.1 s
+20 4 x effort 1              carry-over 1760.7  breaks 114.7  score 2907.3  dominates 3.0  10.9 s
+20 8 x effort 0.5            carry-over 1784.0  breaks 114.0  score 2924.0  dominates 2.7  13.8 s
+20 8 x effort 1              carry-over 1720.0  breaks 116.0  score 2880.0  dominates 3.0  25.2 s

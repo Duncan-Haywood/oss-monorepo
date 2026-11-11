@@ -78,8 +78,8 @@
     <label for="teams">One team per line</label>
     <textarea id="teams" rows="8" placeholder="Net Ninjas&#10;Dink Dynasty&#10;Kitchen Kings&#10;Lob Squad&#10;Spin Doctors"></textarea>
     <div class="check"><input type="checkbox" id="double"><label for="double" style="display:inline;margin:0;font-weight:400">Double round robin (everyone plays everyone twice, once at each home)</label></div>
-    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs four searches in the background, a few seconds to about 12 for 20 teams (a home-and-away season searches both halves, not a mirror of the first); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
-    <div><label for="carryOverPick">When spreading, run four searches and keep the one with</label><select id="carryOverPick"><option value="balanced" selected>a balance of even carry-over and few back-to-back home or away games</option><option value="fair">the most even carry-over</option><option value="breaks">the fewest back-to-back home or away games</option></select></div>
+    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs eight searches in the background, side by side on your device's cores: a few seconds, up to about 25 on one core for 20 teams (a home-and-away season searches both halves, not a mirror of the first); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
+    <div><label for="carryOverPick">When spreading, run eight searches and keep the one with</label><select id="carryOverPick"><option value="balanced" selected>a balance of even carry-over and few back-to-back home or away games</option><option value="fair">the most even carry-over</option><option value="breaks">the fewest back-to-back home or away games</option></select></div>
 
     <h2 style="margin-top:18px">2. When</h2>
     <div class="row4">
@@ -359,7 +359,7 @@
   <script type="module">
     import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
-    import { bestCarryOverRounds, carryOverSummary } from "./carryover.mjs";
+    import { bestCarryOverRounds, carryOverSummary, combineCarryOverTries, splitCarryOverTries } from "./carryover.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -532,30 +532,55 @@
       $("#byteam tbody").innerHTML = teamRows(last.s, Number($("#team").value) || 0);
     }
 
-    // "Spread who you meet next" runs CARRY_TRIES searches (bestCarryOverRounds) in a Web Worker,
-    // so a 20-team season does not freeze the page; the result is cached by the settings it depends on.
-    const CARRY_TRIES = 4;
+    // "Spread who you meet next" runs CARRY_TRIES searches (bestCarryOverRounds) on a pool of Web
+    // Workers, one per core up to CARRY_POOL_MAX (splitCarryOverTries hands out the try numbers), so a
+    // 20-team season neither freezes the page nor waits for the tries one after another. The tries
+    // are fixed and combineCarryOverTries breaks ties as a serial run does, so the same settings give
+    // the same season on a phone and on a desktop; the core count only changes the wait. The result
+    // is cached by the settings it depends on.
+    const CARRY_TRIES = 8, CARRY_POOL_MAX = 8;
     const planCache = new Map();
-    let carryWorker = null;
+    let carryPool = [];
+    const stopPool = () => { for (const w of carryPool) w.terminate(); carryPool = []; };
     function searchCarryOver(key, spec, then) {
       const n = spec.teams.length;
-      const msg = { n, double: spec.double, seed: spec.seed, tries: CARRY_TRIES, pick: spec.carryOverPick };
+      const pick = spec.carryOverPick;
+      const msg = { n, double: spec.double, seed: spec.seed, tries: CARRY_TRIES, pick };
       const keep = (rounds, summary) => { planCache.set(key, { teams: n, double: spec.double, rounds, summary }); then(); };
       const onMain = () => later(() => {
         try { const b = bestCarryOverRounds(n, { ...msg }); keep(b.rounds, carryOverSummary(b)); } catch (e) { status.textContent = e.message; }
       });
-      if (carryWorker) carryWorker.terminate();
-      status.textContent = `Searching for an even carry-over: ${CARRY_TRIES} searches, ${n >= 16 ? "about 10 seconds" : "a few seconds"}...`;
+      stopPool();
+      const cores = Math.max(1, Math.min(CARRY_POOL_MAX, Number(navigator.hardwareConcurrency) || 2));
+      const queues = splitCarryOverTries(CARRY_TRIES, cores);
+      const wait = n >= 16 ? `about ${Math.max(3, Math.round((Math.ceil(CARRY_TRIES / queues.length) * 3)))} seconds` : "a few seconds";
+      status.textContent = `Searching for an even carry-over: ${CARRY_TRIES} searches on ${queues.length} thread${queues.length === 1 ? "" : "s"}, ${wait}...`;
+      const results = [];
+      let finished = 0, failed = false;
+      const pool = [];
+      const fail = () => { if (failed) return; failed = true; for (const w of pool) w.terminate(); if (carryPool === pool) carryPool = []; onMain(); };
       try {
-        const w = carryWorker = new Worker("./carryover-worker.mjs", { type: "module" });
-        w.onmessage = (e) => {
-          const d = e.data;
-          if (d.type === "try") status.textContent = `Searching for an even carry-over: search ${d.i + 1} of ${d.tries} done (carry-over ${d.candidate.coe}, ${d.candidate.breaks} back-to-back home or away)...`;
-          else { w.terminate(); if (carryWorker === w) carryWorker = null; if (d.type === "done") keep(d.rounds, d.summary); else status.textContent = d.error; }
-        };
-        w.onerror = (e) => { e.preventDefault(); w.terminate(); if (carryWorker === w) carryWorker = null; onMain(); };
-        w.postMessage(msg);
-      } catch { onMain(); }
+        for (const indices of queues) {
+          const w = new Worker("./carryover-worker.mjs", { type: "module" });
+          pool.push(w);
+          w.onmessage = (e) => {
+            const d = e.data;
+            if (carryPool !== pool || failed) return;
+            if (d.type === "try") {
+              results.push(d.result);
+              status.textContent = `Searching for an even carry-over: ${results.length} of ${CARRY_TRIES} searches done on ${queues.length} thread${queues.length === 1 ? "" : "s"} (latest: carry-over ${d.candidate.coe}, ${d.candidate.breaks} back-to-back home or away)...`;
+            } else if (d.type === "done") {
+              w.terminate();
+              if (++finished < pool.length) return;
+              carryPool = [];
+              try { const b = combineCarryOverTries(results, pick); keep(b.rounds, carryOverSummary(b)); } catch (err) { status.textContent = err.message; }
+            } else { failed = true; stopPool(); status.textContent = d.error; }
+          };
+          w.onerror = (e) => { e.preventDefault(); fail(); };
+        }
+        carryPool = pool;
+        pool.forEach((w, j) => w.postMessage({ n, double: spec.double, seed: spec.seed, indices: queues[j] }));
+      } catch { fail(); }
     }
 
     // Build, then call done(ok). Synchronous unless a carry-over search has to run first.
