@@ -1,7 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { score } from "./eval/run.mjs";
+import { score, baselineModel } from "./eval/run.mjs";
+import { crossValidate } from "./eval/guess-cv.mjs";
+import { MODEL } from "./model.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const load = (f) => page(`eval/${f}`).split("\n").filter(Boolean).map((l) => JSON.parse(l));
@@ -33,7 +35,11 @@ test("JSON-LD parses and every FAQ question and answer is on the page", () => {
 
 test("the accuracy the page states is what the eval measures", () => {
   const html = page("index.html");
-  const s = score(load("fresh-2026-10-21.jsonl"));
+  const s = score(load("fresh-2026-10-21.jsonl"), { model: baselineModel() });
+  const cv = crossValidate().totals;
+  assert.ok(html.includes(`right on ${cv.cvFresh.right} of the ${cv.cvFresh.handoffs} replies the rules handed over in the ${crossValidate().freshFiles} later test sets (the first model: ${cv.shippedFresh.right}), and ${cv.cvFresh.overreach} of its guesses`), "leave-one-set-out line");
+  assert.ok(html.includes(`(the first model: ${cv.shippedFresh.overreach})`));
+  assert.ok(html.includes(`trained on all ${MODEL.n} labelled replies`));
   const unsub = load("fresh-2026-10-21.jsonl").filter((r) => r.label === "unsubscribe").length;
   assert.ok(html.includes(`${s.acted} of ${s.n}; right on ${s.actedRight} (${Math.round(100 * s.precision)}%)`));
   assert.ok(html.includes(`${s.n - s.acted}; the word model's guess was right on ${s.guessRight}`));
