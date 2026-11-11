@@ -232,7 +232,7 @@ export function schedule(input) {
   // crewOff: { crew: [YYYY-MM-DD] } days that crew is unavailable (another job, vacation); converted to project working-day indices.
   const crewOff = new Map();
   for (const [c, list] of Object.entries(input.crewOff || {})) {
-    if (!Array.isArray(list) || list.some((h) => typeof h !== "string" || isNaN(new Date(h + "T00:00:00Z").getTime()))) return { ok: false, errors: [`crewOff.${c} must be a list of YYYY-MM-DD dates.`] };
+    if (!Array.isArray(list) || list.some((h) => typeof h !== "string" || isNaN(new Date(h + "T00:00:00Z").getTime()) || new Date(h + "T00:00:00Z").toISOString().slice(0, 10) !== h)) return { ok: false, errors: [`crewOff.${c} must be a list of YYYY-MM-DD dates.`] };
     if (crews[c] == null) warn.push(`crewOff names crew "${c}", which has no count in \`crews\`; it is ignored.`);
     const set = new Set();
     for (const h of list) { const t = new Date(h + "T00:00:00Z"); if (!isWork(t, off) || t < start) continue; let n = 0; const d = new Date(start); while (!isWork(d, off)) d.setUTCDate(d.getUTCDate() + 1); while (d < t) { d.setUTCDate(d.getUTCDate() + 1); if (isWork(d, off)) n++; } set.add(n); }

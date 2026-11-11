@@ -33,7 +33,7 @@ export function parse(input) {
   const rate = Number(i.rate);
   if (!RATES.includes(rate)) errors.push("Pick your income tax rate.");
   const asOf = String(i.asOf || "");
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf) || Number.isNaN(Date.parse(asOf))) errors.push("Enter today's date.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf) || Number.isNaN(Date.parse(asOf)) || new Date(asOf + "T00:00:00Z").toISOString().slice(0, 10) !== asOf) errors.push("Enter today's date.");
   if (!errors.length && !Object.values(weeks).some((w) => w > 0)) errors.push("Enter the weeks you worked from home in at least one tax year.");
   return { errors, weeks, reimbursed, actual, rate, asOf, required: yn(i.required), sa: yn(i.sa) };
 }

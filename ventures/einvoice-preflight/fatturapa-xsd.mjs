@@ -10,6 +10,15 @@
 // Messages never echo the value, only which element and why.
 import schema from "./fatturapa-xsd-data.mjs";
 
+/** True for a real YYYY-MM-DD calendar day. Date.parse alone rolls 2026-02-30
+ * over to 2 March instead of refusing it, and SdI's XSD refuses that date. */
+export function calendarDate(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!m) return false;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+  return d.getUTCFullYear() === +m[1] && d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3];
+}
+
 const STABLE_ENUMS = new Set([
   "Art73Type", "BolloVirtualeType", "CondizioniPagamentoType", "EsigibilitaIVAType", "RitenutaType",
   "SocioUnicoType", "SoggettoEmittenteType", "StatoLiquidazioneType", "TipoCessionePrestazioneType", "TipoScontoMaggiorazioneType",
@@ -53,8 +62,8 @@ function valueProblem(typeName, raw) {
   if (t.maxLength !== undefined && chars > t.maxLength) return `is longer than ${t.maxLength} characters`;
   if (t.base === "integer" && !/^[+-]?\d+$/.test(value)) return "is not a whole number";
   if (t.base === "decimal" && !/^[+-]?(\d+\.?\d*|\.\d+)$/.test(value)) return "is not a number";
-  if (t.base === "date" && !(/^\d{4}-\d{2}-\d{2}(Z|[+-]\d{2}:\d{2})?$/.test(value) && !Number.isNaN(Date.parse(value.slice(0, 10))))) return "is not a YYYY-MM-DD date";
-  if (t.base === "dateTime" && !(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/.test(value) && !Number.isNaN(Date.parse(value.slice(0, 10))))) return "is not a YYYY-MM-DDThh:mm:ss date and time";
+  if (t.base === "date" && !(/^\d{4}-\d{2}-\d{2}(Z|[+-]\d{2}:\d{2})?$/.test(value) && calendarDate(value.slice(0, 10)))) return "is not a YYYY-MM-DD date";
+  if (t.base === "dateTime" && !(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/.test(value) && calendarDate(value.slice(0, 10)))) return "is not a YYYY-MM-DDThh:mm:ss date and time";
   if ((t.base === "integer" || t.base === "decimal") && /^[+-]?[\d.]+$/.test(value)) {
     const n = Number(value);
     if (t.minInclusive !== undefined && n < t.minInclusive) return `is below ${t.minInclusive}`;

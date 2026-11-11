@@ -57,7 +57,7 @@ test("preflightDocuments routes FatturaPA to its own rules", async () => {
 test("examples/fatturapa-invoice-with-defects.xml is the planted-defect file, pinned rule by rule", () => {
   const bad = readFileSync(new URL("./examples/fatturapa-invoice-with-defects.xml", import.meta.url), "utf8");
   assert.ok(looksLikeFatturaPa(bad));
-  assert.deepEqual([...new Set(rules(bad))], ["IT-002", "IT-003", "IT-006", "IT-011", "IT-012", "IT-014", "IT-015", "IT-016", "IT-021"]);
+  assert.deepEqual([...new Set(rules(bad))], ["IT-002", "IT-003", "IT-006", "IT-011", "IT-012", "IT-014", "IT-015", "IT-016", "IT-021", "IT-024"]);
 });
 
 test("IT-018 flags elements out of schema order, once per block", () => {
@@ -125,4 +125,30 @@ test("spec 1.9 codes TD29 and RF20 are known; TD29 needs an Italian seller (IT-0
   const foreign = td29.replace(/(<CedentePrestatore>[\s\S]*?<IdPaese>)IT/, "$1DE");
   assert.ok(rules(foreign).includes("IT-023"));
   assert.ok(!rules(clean.replace(/<TipoDocumento>TD\d+/, "<TipoDocumento>TD30")).includes("IT-023"));
+});
+
+test("codice fiscale: an O in an odd position weighs 11 (red team 2026-11-11: no test reached that table entry)", () => {
+  // Check letter worked by hand from the Agenzia's odd-position table: R8 S18 O11 P15 L4 A0 ... = S.
+  assert.ok(codiceFiscaleValid("RSOPLA80A01H501S"));
+  assert.ok(!codiceFiscaleValid("RSOPLA80A01H501T"));
+});
+
+test("a date that does not exist (30 February) is refused, not rolled over to March", () => {
+  const feb30 = clean.replace(/<Data>[^<]*<\/Data>/, "<Data>2026-02-30</Data>");
+  assert.notEqual(feb30, clean);
+  assert.ok(rules(feb30).includes("IT-009"));
+  assert.ok(rules(feb30).includes("IT-021"));
+  const leap = clean.replace(/<Data>[^<]*<\/Data>/, "<Data>2028-02-29</Data>");
+  assert.deepEqual(rules(leap), []);
+});
+
+test("IT-024: lines at a rate and Natura with no DatiRiepilogo are flagged", () => {
+  const missing = clean
+    .replace(/<DatiRiepilogo><AliquotaIVA>0\.00.*?<\/DatiRiepilogo>/s, "")
+    .replace(/<ImportoTotaleDocumento>[^<]*<\/ImportoTotaleDocumento>/, "");
+  assert.notEqual(missing, clean);
+  const f = checkFatturaPa(missing).findings.filter((x) => x.rule === "IT-024");
+  assert.equal(f.length, 1);
+  assert.match(f[0].message, /0\.00 with Natura N2\.2/);
+  assert.deepEqual(rules(clean).filter((r) => r === "IT-024"), []);
 });
