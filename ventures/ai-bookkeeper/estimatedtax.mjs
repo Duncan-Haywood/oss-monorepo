@@ -153,7 +153,7 @@ export function estimatedTax(books, o = {}) {
   const nonNeg = (v) => Math.max(0, num(v)); // withholding and payments already sent cannot be negative
   const wages = nonNeg(o.wages), other = num(o.otherIncome), withholding = nonNeg(o.withholding), paid = nonNeg(o.paid);
   const priorTax = Number.isFinite(o.priorYearTax) ? Math.max(0, o.priorYearTax) : null; // blank or non-numeric means not given
-  const se = selfEmployment(profit, { year, wages, wageBase: o.wageBase });
+  const se = o.se ?? selfEmployment(profit, { year, wages, wageBase: o.wageBase }); // o.se: { tax, deduction, netEarnings, warnings } figured elsewhere (Schedule AI Part II, annualized.mjs)
   const table = o.brackets ? { std: o.standardDeduction ?? 0, b: o.brackets } : BRACKETS[year]?.[filing];
   if (!table) throw new Error(`No ${filing} brackets on file for ${year}; pass brackets (and standardDeduction).`);
   if (!o.brackets) warnings.push(year === 2026 ? `The 2026 brackets and standard deductions match the IRS text of Rev. Proc. 2025-32 (checked 2026-10-23); confirm they are still current or pass brackets.` : year === 2025 ? `The 2025 brackets match the IRS text of Rev. Proc. 2024-40 and the standard deductions the Form 1040 instructions as amended by the 2025 law (checked 2026-10-23); confirm they are still current or pass brackets.` : `The ${year} brackets and standard deduction are from memory and unchecked; confirm them on irs.gov or pass brackets.`);

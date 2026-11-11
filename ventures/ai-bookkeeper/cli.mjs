@@ -92,7 +92,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   retirement [--year Y] [--months N] [--age N] [--wages $] [--json]  most a sole proprietor can put in a SEP-IRA or solo 401(k) this year (worksheet)
   estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--service] [--business-wages $] [--itemized $] [--investment $] [--eitc-children N] [--eitc-table] [--state-rate PCT [--state-deduction $] [--state-withheld $]] [--tax-table file.json] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
   calendar [--year Y] [--state XX --freq monthly|quarterly|annual] [--payroll] [--contractors] [--planned Q1,Q2,Q3,Q4 dollars] [--ics file.ics] [--json]  Tax deadlines for the year (federal estimates, filing, 941/940/1099, your state's sales tax returns), printed or written as an iCalendar file with a 7-day reminder
-  annualized [--year Y] [--filing ...] [--wages $] [--withholding $] [--prior-tax $ --prior-agi $] [--payment DATE:$ ...] [--tax-table file.json] [--json]  Form 2210 Schedule AI worksheet: what each estimated-tax date requires when income is uneven (annualized income installment method)
+  annualized [--year Y] [--filing ...] [--wages $] [--withholding $] [--prior-tax $ --prior-agi $] [--payment DATE:$ ...] [--tax-table file.json] [--json]  Form 2210 Schedule AI worksheet: what each estimated-tax date requires when income is uneven (annualized income installment method), and the underpayment penalty figured both ways
   se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
@@ -821,8 +821,11 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     console.log(`ANNUALIZED INCOME INSTALLMENTS ${r.year} (Form 2210 Schedule AI), required annual payment ${fmt(r.requiredAnnual)}, regular quarter ${fmt(r.regularQuarter)}`);
     console.log("  Due         Profit to date  Annualized tax  Installment  Cumulative  Regular cum.  Credits  Short (annualized / regular)");
     for (const x of r.rows) console.log(`  ${x.due}  ${fmt(x.profitToDate).padStart(13)}  ${fmt(x.annualizedTax).padStart(14)}  ${fmt(x.installment).padStart(11)}  ${fmt(x.cumulativeRequired).padStart(10)}  ${fmt(x.regularCumulative).padStart(12)}  ${fmt(x.creditsByDue).padStart(7)}  ${fmt(x.shortfall)} / ${fmt(x.regularShortfall)}`);
+    const pen = r.penalty;
+    console.log(pen.exempt ? "  Underpayment penalty: none (tax after withholding under $1,000)" : `  Underpayment penalty (Form 2210 Part III, through April 15): regular ${fmt(pen.regular)}, annualized (box C) ${fmt(pen.annualized)}${pen.useScheduleAI ? "  -> Schedule AI lowers it" : ""}`);
+    if (!pen.exempt) console.log(`  Rates: ${pen.annualizedWorksheet.rates.map((x) => `${x.key.replace("-", " Q")} ${(x.rate * 100).toFixed(0)}%`).join(", ")}`);
     for (const w of r.warnings) console.log(`  ! ${w}`);
-    console.log("  A worksheet. Not tax advice; the penalty rate and the form's alternative periods are not modelled.");
+    console.log("  A worksheet. Not tax advice; Form 2210 and its instructions decide.");
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "retirement") {
   const yr = flag("--year"), mo = flag("--months"), ag = flag("--age"), wg = flag("--wages");
