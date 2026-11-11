@@ -49,6 +49,10 @@ not match its own visible copy reached `main`. The guard that catches it
 `ventures/**` change. `--for-changes` reads the `paths:` filters and works
 that out from the diff instead of asking a session to remember, then runs
 the jobs that cannot write anything and names the ones it held back.
+The diff starts at the merge base with the base ref, so commits that
+landed on `main` after the branch left it do not count as this branch's
+changes; with no merge base (a shallow clone, a stale `origin/main`) it
+stops and prints the fetch that gives it one.
 
 What it does not do. It is not a GitHub Actions emulator and does not try
 to be one:
@@ -918,17 +922,50 @@ def read_only_jobs(workflow: dict) -> tuple[set, list[tuple[str, str]]]:
     return allowed, held
 
 
-def changed_paths(base: str) -> list[str]:
-    """Repo-relative paths differing from `base`, uncommitted work included.
+# A branch this many commits past the merge base is unusual for one session's
+# work; past it, the likelier story is a base ref that was never refreshed.
+STALE_BASE_COMMITS = 30
+
+
+def changed_paths(base: str, repo: str = REPO) -> list[str]:
+    """Repo-relative paths this branch changed since it left `base`.
 
     Deliberately a working-tree diff rather than `base...HEAD`: the session
     that most needs this is about to commit, and the files it is verifying
     are the ones it has not committed yet.
+
+    The diff starts at the merge base, not at `base`'s tip. Against the tip,
+    every commit that landed on main after the branch left it reads as a
+    change of this branch (a stale or newer `origin/main` in a cloud clone
+    turned a one-post diff into 4,165 files and dozens of unrelated
+    workflows; several 2026-11-11 run records report it). With no merge base, as
+    in a shallow clone whose `origin/main` is older than the clone's
+    boundary, the result would mean nothing, so it stops and says how to
+    fetch one.
     """
-    done = subprocess.run(
-        ["git", "diff", "--name-only", base],
-        cwd=REPO, capture_output=True, text=True,
-    )
+    def git(*args):
+        return subprocess.run(["git", *args], cwd=repo,
+                              capture_output=True, text=True)
+
+    found = git("merge-base", base, "HEAD")
+    if found.returncode != 0 or not found.stdout.strip():
+        if git("rev-parse", "--verify", "--quiet", base).returncode != 0:
+            raise SystemExit(f"run_workflow_locally: no ref {base!r}; "
+                             f"fetch it: git fetch --depth=40 origin main")
+        raise SystemExit(
+            f"run_workflow_locally: {base} and HEAD share no commit in this "
+            f"clone (shallow, or {base} is stale), so a diff would count every "
+            f"change on both sides.\n"
+            f"  Refresh it: git fetch --depth=40 origin main\n"
+            f"  Still none: git fetch --deepen=500 origin main, until "
+            f"`git merge-base {base} HEAD` answers.")
+    merge_base = found.stdout.strip()
+    ahead = git("rev-list", "--count", f"{merge_base}..HEAD").stdout.strip()
+    if ahead.isdigit() and int(ahead) > STALE_BASE_COMMITS:
+        print(f"note: HEAD is {ahead} commits past its merge base with {base}; "
+              f"if this branch is not that long, {base} is stale "
+              f"(git fetch --depth=40 origin main).", file=sys.stderr)
+    done = git("diff", "--name-only", merge_base)
     if done.returncode != 0:
         raise SystemExit(f"run_workflow_locally: git diff against {base} failed:\n"
                          f"{done.stderr.strip()}")
