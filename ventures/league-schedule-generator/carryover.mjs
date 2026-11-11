@@ -185,6 +185,127 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
   return finish(bestOpp, n, cyclic, circleCoe, lb, iterations, seed);
 }
 
+/**
+ * Carry-over under a cap on breaks. Starts from the circle method with the fewest breaks it allows
+ * (n - 2 for an even league, the least any round robin can have; venues from assignVenues), then
+ * anneals carry-over alone over oriented timetables: every move carries each match's home and away
+ * with it, and a move is kept only if the season still has at most `maxBreaks` breaks (default
+ * the start's count) and every team's home and away games differ by at most one. Moves are the
+ * three of lowCarryOverRounds (partial team swap, where a takes over b's match and ground in each
+ * round of the swap; round swap; partial round swap) plus flipping one match's venue. This is the
+ * fewest-breaks end of the trade, where the breakWeight pass is the low-carry-over end.
+ * Returns the lowCarryOverRounds shape plus { maxBreaks }.
+ */
+export function lowCarryOverCappedRounds(n, { seed = 1, effort = 1, cyclic = false, maxBreaks = null } = {}) {
+  if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
+  const N = n % 2 === 0 ? n : n + 1;
+  const R = N - 1;
+  const rand = mulberry32((seed * 40503 + 7) >>> 0);
+  const circle = circleOpp(N);
+  const circleCoe = coeOf(circle, n, cyclic);
+  const lb = carryOverFromOpponents(opponentsFromOpp(circle, n), { cyclic }).lowerBound;
+  const opp = circle;
+  const ven = assignVenues(opp, n, seed);
+  const breaksOf = () => { let b = 0; for (let t = 0; t < n; t++) b += teamBreaks(ven, opp, t, n); return b; };
+  const balanced = (ts) => {
+    for (const t of ts) {
+      if (t >= n) continue;
+      let h = 0, g = 0;
+      for (let r = 0; r < R; r++) if (opp[r][t] < n) { g++; h += ven[r][t]; }
+      if (Math.abs(2 * h - g) > 1) return false;
+    }
+    return true;
+  };
+  const startBreaks = breaksOf();
+  const cap = maxBreaks == null ? startBreaks : Math.max(startBreaks, maxBreaks);
+  let curBreaks = startBreaks;
+  const iterations = N <= 6 ? 20000 : Math.max(2000, Math.round((effort * 4e7) / (N * N)));
+  let cur = coeOf(opp, n, cyclic);
+  let best = cur, bestOpp = opp.map((o) => o.slice()), bestVen = ven.map((v) => v.slice());
+  const T0 = Math.max(4, cur / (N * 4));
+  // a timetable move either keeps every team's ground in each round (the pattern stays; the move
+  // must leave a team at home facing one away) or carries each match's ground with it (the pattern
+  // changes; the cap and the balance are checked)
+  const fits = (q) => {
+    const o = opp[q], h = ven[q];
+    for (let t = 0; t < n; t++) { const u = o[t]; if (u < n && h[t] === h[u]) return false; }
+    return true;
+  };
+  let curCoe = cur;
+  const odd = N > n, everyone = Array.from({ length: n }, (_, t) => t);
+  for (let it = 0; it < iterations && best > lb && N > 2; it++) {
+    const T = T0 * (1 - it / iterations) + 0.05;
+    const r = Math.floor(rand() * R);
+    let s = Math.floor(rand() * (R - 1)); if (s >= r) s++;
+    const mv = rand();
+    const keep = rand() < 0.5; // keep the pattern, or carry grounds with the matches
+    let undo, fitsNow, touched = null, flip = false;
+    if (mv < 0.4) {
+      const a = Math.floor(rand() * N);
+      let b = Math.floor(rand() * (N - 1)); if (b >= a) b++;
+      const S = teamSwapRounds(opp, a, b, r);
+      if (S.length >= R) continue;
+      undo = () => {
+        if (!keep) for (const q of S) {
+          if (opp[q][a] === b) continue;
+          const x = ven[q][a]; ven[q][a] = ven[q][b]; ven[q][b] = x;
+        }
+        swapTeamsIn(opp, S, a, b);
+      };
+      fitsNow = () => S.every(fits);
+      touched = [a, b];
+    } else if (mv < 0.55) {
+      undo = () => { [opp[r], opp[s]] = [opp[s], opp[r]]; if (!keep) [ven[r], ven[s]] = [ven[s], ven[r]]; };
+      fitsNow = () => fits(r) && fits(s);
+    } else if (mv < 0.9) {
+      const t = Math.floor(rand() * N);
+      const cyc = cycleOf(opp, r, s, t);
+      if (cyc.length === N) continue;
+      undo = () => {
+        for (const x of cyc) {
+          const a = opp[r][x]; opp[r][x] = opp[s][x]; opp[s][x] = a;
+          if (!keep) { const v = ven[r][x]; ven[r][x] = ven[s][x]; ven[s][x] = v; }
+        }
+      };
+      fitsNow = () => fits(r) && fits(s);
+    } else {
+      // flip one match's venue: the timetable, and so the carry-over, is unchanged
+      const t = Math.floor(rand() * N), u = opp[r][t];
+      if (t >= n || u >= n) continue;
+      undo = () => { ven[r][t] ^= 1; ven[r][u] ^= 1; };
+      touched = [t, u]; flip = true;
+    }
+    undo(); // the move and its undo are the same swap
+    // keeping the pattern, a move must still put a home team against an away one, and leaves the
+    // breaks and the balance alone; carrying grounds, a round or partial round swap moves whole
+    // grounds between two rounds (each team's home count is unchanged), while a team swap or a
+    // flip can tip a team's balance
+    // With a bye (odd league) any timetable move can hand a team the bye in another round, which
+    // changes its breaks and its home count, so then everything is rechecked.
+    if (keep && !flip && !fitsNow()) { undo(); continue; }
+    if (odd ? !balanced(everyone) : (!keep || flip) && touched && !balanced(touched)) { undo(); continue; }
+    const nb = keep && !flip && !odd ? curBreaks : breaksOf();
+    const nc = flip ? curCoe : coeOf(opp, n, cyclic);
+    if (nb > cap || !(nc <= curCoe || rand() < Math.exp((curCoe - nc) / T))) { undo(); continue; }
+    curCoe = nc; curBreaks = nb;
+    if (curCoe < best) { best = curCoe; bestOpp = opp.map((o) => o.slice()); bestVen = ven.map((x) => x.slice()); }
+  }
+  const rounds = bestOpp.map((o, r) => {
+    const matches = [];
+    let bye = null;
+    for (let t = 0; t < N; t++) {
+      const u = o[t];
+      if (t > u) continue;
+      if (u >= n) { bye = t; continue; }
+      matches.push(bestVen[r][t] ? [t, u] : [u, t]);
+    }
+    return { leg: 0, matches, bye };
+  });
+  let breaks = 0;
+  for (let t = 0; t < n; t++) breaks += teamBreaks(bestVen, bestOpp, t, n);
+  return { rounds, coe: coeOf(bestOpp, n, cyclic), circleCoe, lowerBound: lb, breaks, iterations, maxBreaks: cap };
+}
+
 // `blocks` splits the rounds into legs that must each stay a round robin of their own (a double
 // round robin played leg by leg); every move picks one block and stays inside it.
 function anneal(opp, costOf, { iterations, T0, rand, stopAt, blocks = [[0, opp.length]] }) {
@@ -399,13 +520,21 @@ function hostBreaks(opp, n, R, host) {
  * a leg). `breakWeight` adds a pass that trades carry-over for fewer home/away breaks, as in the
  * single version. Returns { rounds (2(N-1), leg 0 then leg 1), coe, mirroredCoe, circleCoe,
  * lowerBound, breaks, iterations }; mirroredCoe is the value the same leg one would score mirrored.
+ * `maxBreaks` (a season cap) replaces `breakWeight` with caps: leg one is lowCarryOverCappedRounds
+ * at `legBreaks` (default a third of the season cap) and leg two moves on carry-over alone without
+ * the season going over `maxBreaks` (or over the fewest its starts allow, if that is more).
  */
-export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0 } = {}) {
+export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   const R = N - 1;
   const rand = mulberry32((seed * 2654435761) >>> 0);
-  const single = lowCarryOverRounds(n, { seed, effort, breakWeight });
+  // with a season cap, leg one is the capped search at half of it (each leg's breaks are about
+  // the same, as leg two starts as leg one backwards)
+  const capped = maxBreaks != null;
+  const single = capped
+    ? lowCarryOverCappedRounds(n, { seed, effort, maxBreaks: legBreaks ?? Math.floor(maxBreaks / 3) })
+    : lowCarryOverRounds(n, { seed, effort, breakWeight });
   const leg1 = oppFromRounds(single.rounds, N, n);
   // host[t * N + u] = t when t hosts u in leg one (the single search's home/away)
   const host = new Int16Array(N * N).fill(-1);
@@ -429,7 +558,24 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
     const coeCost = (o) => coeOf(o, n, false) + REPEAT_PENALTY * repeatsAcross(o, n, R);
     const startCoe = coeCost(opp);
     const T0 = Math.max(2, startCoe / (N * 16));
-    if (breakWeight > 0) {
+    if (capped) {
+      // Leg one stays as the capped search left it; leg two moves on carry-over alone under a hard
+      // season cap, venues from leg one. Played backwards, nearly every team breaks at the halfway
+      // point and again where leg one's last round rejoins (about 2n more breaks), so leg two
+      // starts from whichever of three orders is best inside the cap: backwards, the mirror (leg
+      // one again, grounds swapped: the fewest breaks, every carry-over count doubled), or the
+      // mirror with its first and last rounds swapped. If none fits, the cap rises to the fewest.
+      const mirror = leg1.map((o) => o.slice());
+      const turned = leg1.map((o) => o.slice());
+      [turned[0], turned[R - 1]] = [turned[R - 1], turned[0]];
+      const starts = [opp.slice(R), mirror, turned].map((leg) => [...leg1.map((o) => o.slice()), ...leg.map((o) => o.slice())]);
+      const fewest = Math.min(...starts.map((o) => hostBreaks(o, n, R, host) + REPEAT_PENALTY * repeatsAcross(o, n, R)));
+      const cap = Math.max(maxBreaks, fewest);
+      const startCost = (o) => { const b = hostBreaks(o, n, R, host); return coeCost(o) + (b > cap ? 1e9 : 0); };
+      opp = starts.reduce((a, b) => (startCost(b) < startCost(a) ? b : a));
+      const within = (o) => { const b = hostBreaks(o, n, R, host); return coeCost(o) + (b > cap ? 1e9 : 0); };
+      ({ bestOpp: opp } = anneal(opp, within, { iterations, T0, rand, stopAt: -Infinity, blocks: [[R, 2 * R]] }));
+    } else if (breakWeight > 0) {
       // Leg one keeps the rounds and home/away the single search chose for it (already traded for
       // breaks); only leg two moves, and its venues follow from leg one, so the breaks in the cost
       // are exact rather than estimated.
@@ -439,7 +585,7 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
       ({ bestOpp: opp } = anneal(opp, coeCost, { iterations, T0, rand, stopAt: lb, blocks }));
     }
   }
-  const venues = assignVenuesDouble(opp, n, seed, 6, breakWeight > 0 ? host : null);
+  const venues = assignVenuesDouble(opp, n, seed, 6, breakWeight > 0 || capped ? host : null);
   const rounds = opp.map((o, r) => {
     const matches = [];
     let bye = null;
@@ -551,13 +697,16 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
  * plain search). Seeded: the same arguments give the same rounds. `onTry(i, candidate)` reports
  * progress (the page's Web Worker posts it). Returns the chosen search's result plus `tries`
  * (every candidate's seed, weight, coe and breaks), `chosen` (its index) and `frontier` (the
- * candidates no other one beats on both counts, by carry-over).
+ * candidates no other one beats on both counts, by carry-over). `capped` more tries after those
+ * run the capped search (lowCarryOverCappedRounds; caps from cappedTryBreaks), the fewest-breaks end
+ * of the trade the weights do not reach (eval/capped-breaks.txt).
  */
-export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, capped = 0, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
   checkBestOfK(tries, pick);
+  if (!Number.isInteger(capped) || capped < 0) throw new Error("capped must be a whole number of 0 or more.");
   const results = [];
-  for (let i = 0; i < tries; i++) {
-    const t = carryOverTry(n, i, { double, seed, weights, effort });
+  for (let i = 0; i < tries + capped; i++) {
+    const t = carryOverTry(n, i, { double, seed, weights, effort, weighted: tries });
     results.push(t);
     if (onTry) onTry(i, candidateOf(t, pick));
   }
@@ -580,17 +729,43 @@ export function carryOverTrySeed(seed, i) {
  * combineCarryOverTries can pick among them: the result is the same whichever thread ran which try.
  * Returns the search result plus { index, seed, breakWeight }.
  */
-export function carryOverTry(n, i, { double = false, seed = 1, weights = [10, 20, 40, 80], effort = 1 } = {}) {
+export function carryOverTry(n, i, { double = false, seed = 1, weights = [10, 20, 40, 80], effort = 1, weighted = Infinity } = {}) {
   if (!Number.isInteger(i) || i < 0) throw new Error("try index must be a whole number of 0 or more.");
   // try 0 is exactly the plain search at `seed` and the first weight, so tries 1 changes nothing
   const s = carryOverTrySeed(seed, i);
+  if (i >= weighted && n % 2 === 1) {
+    // An odd league: every team sits out once a leg, a bye ends a run of home or away games, and
+    // the capped search cannot move a bye without unbalancing someone, so it would return the
+    // circle method. A heavy break weight stands in.
+    const w = 160 * (i - weighted + 1);
+    const r = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
+    return { ...r, index: i, seed: s, breakWeight: w };
+  }
+  if (i >= weighted) {
+    // a capped try: the fewest-breaks end of the trade (lowCarryOverCappedRounds)
+    const caps = cappedTryBreaks(n, i - weighted, double);
+    const r = double
+      ? lowCarryOverDoubleRounds(n, { seed: s, effort, maxBreaks: caps.season, legBreaks: caps.leg })
+      : lowCarryOverCappedRounds(n, { seed: s, effort, maxBreaks: caps.leg });
+    return { ...r, index: i, seed: s, breakWeight: null, maxBreaks: double ? caps.season : caps.leg };
+  }
   const w = weights[i % weights.length];
   const r = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
   return { ...r, index: i, seed: s, breakWeight: w };
 }
 
+/**
+ * The caps capped try j runs at: j = 0 the least breaks (n - 2 a leg for an even league, the
+ * minimum; 3(n - 2) over a home-and-away season, the mirrored minimum), each later try 4 more a leg
+ * and 12 more a season (eval/capped-breaks.txt has the curve these were picked from).
+ */
+export function cappedTryBreaks(n, j, double = false) {
+  const base = n % 2 === 0 ? n - 2 : 0;
+  return { leg: base + 4 * j, season: double ? 3 * base + 12 * j : null };
+}
+
 function candidateOf(t, pick) {
-  return { seed: t.seed, breakWeight: t.breakWeight, coe: t.coe, breaks: t.breaks, score: t.coe + pick * t.breaks + (t.repeats || 0) * REPEAT_PENALTY };
+  return { seed: t.seed, breakWeight: t.breakWeight, ...(t.maxBreaks != null ? { maxBreaks: t.maxBreaks } : {}), coe: t.coe, breaks: t.breaks, score: t.coe + pick * t.breaks + (t.repeats || 0) * REPEAT_PENALTY };
 }
 
 /**
@@ -623,7 +798,9 @@ export function splitCarryOverTries(tries, workers) {
 }
 
 /** The organiser's choice among the tries: carry-over + pick x breaks (see bestCarryOverRounds). */
-export const CARRY_OVER_PICK = { fair: 0, balanced: 10, breaks: 40 };
+// `fewest` prices a break above any carry-over a capped try saves, so it keeps the capped try at the
+// minimum (3(n - 2) over an even home-and-away season) and, among equal breaks, the lower carry-over.
+export const CARRY_OVER_PICK = { fair: 0, balanced: 10, breaks: 40, fewest: 1000 };
 
 /** A small, JSON-safe account of a best-of-k search, for the page's read-out and share-safe caching. */
 export function carryOverSummary(best) {
@@ -633,7 +810,7 @@ export function carryOverSummary(best) {
     pick: best.pick,
     coe: best.coe,
     breaks: best.breaks,
-    candidates: best.tries.map((c) => ({ coe: c.coe, breaks: c.breaks, breakWeight: c.breakWeight })),
+    candidates: best.tries.map((c) => ({ coe: c.coe, breaks: c.breaks, breakWeight: c.breakWeight, ...(c.maxBreaks != null ? { maxBreaks: c.maxBreaks } : {}) })),
     frontier: best.frontier.map((c) => ({ coe: c.coe, breaks: c.breaks, index: c.index })),
   };
 }

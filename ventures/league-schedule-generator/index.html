@@ -78,8 +78,8 @@
     <label for="teams">One team per line</label>
     <textarea id="teams" rows="8" placeholder="Net Ninjas&#10;Dink Dynasty&#10;Kitchen Kings&#10;Lob Squad&#10;Spin Doctors"></textarea>
     <div class="check"><input type="checkbox" id="double"><label for="double" style="display:inline;margin:0;font-weight:400">Double round robin (everyone plays everyone twice, once at each home)</label></div>
-    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs eight searches in the background, side by side on your device's cores: a few seconds, up to about 25 on one core for 20 teams (a home-and-away season searches both halves, not a mirror of the first); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
-    <div><label for="carryOverPick">When spreading, run eight searches and keep the one with</label><select id="carryOverPick"><option value="balanced" selected>a balance of even carry-over and few back-to-back home or away games</option><option value="fair">the most even carry-over</option><option value="breaks">the fewest back-to-back home or away games</option></select></div>
+    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs ten searches in the background, side by side on your device's cores: a few seconds, up to about 30 on one core for 20 teams (a home-and-away season searches both halves, not a mirror of the first); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
+    <div><label for="carryOverPick">When spreading, run ten searches and keep the one with</label><select id="carryOverPick"><option value="balanced" selected>a balance of even carry-over and few back-to-back home or away games</option><option value="fair">the most even carry-over</option><option value="breaks">fewer back-to-back home or away games</option><option value="fewest">the fewest back-to-back home or away games possible, then the most even carry-over</option></select></div>
 
     <h2 style="margin-top:18px">2. When</h2>
     <div class="row4">
@@ -538,14 +538,16 @@
     // are fixed and combineCarryOverTries breaks ties as a serial run does, so the same settings give
     // the same season on a phone and on a desktop; the core count only changes the wait. The result
     // is cached by the settings it depends on.
-    const CARRY_TRIES = 8, CARRY_POOL_MAX = 8;
+    // CARRY_CAPPED more tries hold the breaks near the minimum (lowCarryOverCappedRounds): the
+    // fewest-breaks end that the weighted tries do not reach.
+    const CARRY_WEIGHTED = 8, CARRY_CAPPED = 2, CARRY_TRIES = CARRY_WEIGHTED + CARRY_CAPPED, CARRY_POOL_MAX = 8;
     const planCache = new Map();
     let carryPool = [];
     const stopPool = () => { for (const w of carryPool) w.terminate(); carryPool = []; };
     function searchCarryOver(key, spec, then) {
       const n = spec.teams.length;
       const pick = spec.carryOverPick;
-      const msg = { n, double: spec.double, seed: spec.seed, tries: CARRY_TRIES, pick };
+      const msg = { n, double: spec.double, seed: spec.seed, tries: CARRY_WEIGHTED, capped: CARRY_CAPPED, pick };
       const keep = (rounds, summary) => { planCache.set(key, { teams: n, double: spec.double, rounds, summary }); then(); };
       const onMain = () => later(() => {
         try { const b = bestCarryOverRounds(n, { ...msg }); keep(b.rounds, carryOverSummary(b)); } catch (e) { status.textContent = e.message; }
@@ -579,7 +581,7 @@
           w.onerror = (e) => { e.preventDefault(); fail(); };
         }
         carryPool = pool;
-        pool.forEach((w, j) => w.postMessage({ n, double: spec.double, seed: spec.seed, indices: queues[j] }));
+        pool.forEach((w, j) => w.postMessage({ n, double: spec.double, seed: spec.seed, weighted: CARRY_WEIGHTED, indices: queues[j] }));
       } catch { fail(); }
     }
 
