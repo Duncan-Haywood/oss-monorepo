@@ -1730,7 +1730,8 @@ const RELATIVE_SELF = relative(
 // +1: `survival-analysis` graduated.
 // +1: `wall-condensation-check` graduated.
 // +1: `fdr-multiple-testing` graduated.
-const SWITCHES_IN_THE_CATALOGUE = 1309;
+// +1: `gitignore-explainer` graduated.
+const SWITCHES_IN_THE_CATALOGUE = 1310;
 // +1: `open-tennis-robots` graduated.
 // +1: `uk-statutory-residence-test-checker` graduated.
 // +1: `llm-spend-guard` graduated.
