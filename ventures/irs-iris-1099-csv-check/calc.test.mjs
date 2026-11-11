@@ -85,6 +85,11 @@ test("MISC: royalties from 10, rents from 600; NEC box on a MISC row is wrong-fo
   const m = { "Form Type": "1099-MISC", "NEC Box 1 Nonemployee Compensation": "" };
   assert.ok(!codes(one({ ...m, "MISC Box 2 Royalties": "10.00" })).includes("below-threshold"));
   assert.ok(codes(one({ ...m, "MISC Box 1 Rents": "599.00" })).includes("below-threshold"));
+  // 2026: rents and medical payments at $2,000, attorney proceeds still $600 (Rev. December 2026 instructions).
+  assert.ok(codes(one({ ...m, "Tax Year": "2026", "MISC Box 1 Rents": "1999.00" })).includes("below-threshold"));
+  assert.ok(!codes(one({ ...m, "Tax Year": "2026", "MISC Box 1 Rents": "2000.00" })).includes("below-threshold"));
+  assert.ok(!codes(one({ ...m, "Tax Year": "2026", "MISC Box 10 Gross Proceeds to an Attorney": "600.00" })).includes("below-threshold"));
+  assert.ok(codes(one({ ...m, "Tax Year": "2026", "MISC Box 6 Medical and Health Care Payments": "1500.00" })).includes("below-threshold"));
   assert.ok(codes(one({ "Form Type": "1099-MISC", "MISC Box 1 Rents": "700.00" })).includes("wrong-form-box"));
 });
 

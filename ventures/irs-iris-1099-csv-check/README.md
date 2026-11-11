@@ -24,7 +24,16 @@ Tyler-LeDuc/leducsystems). Where they differ (`Last Name` with or without `(Surn
 required columns, the 1099-MISC `FATCA Filing Requirements` and `Box 14` columns) every spelling is
 accepted. The old layout is still read as a fallback.
 
-**Unverified:** every other rule (limits, thresholds, accepted values for Name Type, TIN Type and
+**Checked on irs.gov (2026-11-11):** the IRS's own TY2025 IRIS CSV template formatting guidelines
+(irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip, linked from "E-file information
+returns with IRIS") list every column by letter; both layouts above match them, and the 1099-MISC has
+`FATCA Filing Requirements` in AK and no Box 14 column. For tax year 2026 the 1099-MISC reporting
+amounts come from the Instructions for Forms 1099-MISC and 1099-NEC (Rev. December 2026): $2,000 for
+rents, other income, medical payments, crop insurance, 409A deferrals and nonqualified deferred
+compensation; $600 for attorney proceeds and fish for resale; $10 for royalties and substitute
+payments. Earlier years keep the amounts below.
+
+**Unverified:** every other rule (limits, pre-2026 thresholds, accepted values for Name Type, TIN Type and
 the check-box columns, the 100-record file limit) is from memory or from those open-source
 readings. No IRS template or IRIS account was available. See `VENTURE.yaml` for the list.
 

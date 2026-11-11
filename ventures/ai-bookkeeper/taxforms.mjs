@@ -270,14 +270,17 @@ export function nec1099FilingCsv(r) {
   return rows.join("\n") + "\n";
 }
 
-// The IRS IRIS Taxpayer Portal 1099-NEC template, tax year 2025: columns A-BB.
-// Not read on irs.gov (blocked from where this was written, 2026-11-10; the portal
-// hands the template out behind its login). The header text is the one four
-// independent open-source IRIS tools agree on (ubukhari/iris-1099,
-// christcr2012/appliance-desk, techmore/rupert, Tyler-LeDuc/leducsystems), and the
-// sibling checker ventures/irs-iris-1099-csv-check reads the same layout.
+// The IRS IRIS Taxpayer Portal CSV templates, tax year 2025: 1099-NEC columns A-BB,
+// 1099-MISC columns A-BL. Read 2026-11-11 from the IRS's own "TY2025 IRIS CSV Template
+// Formatting" guidelines (irs.gov/pub/irs-efile/ty2025-template-formatting-guidelines.zip,
+// linked from irs.gov/filing/e-file-information-returns-with-iris): one PDF per form that
+// names every column by letter with its format rules. Column letters and field names below
+// match those PDFs one for one; the header spellings (e.g. "Last Name (Surname)") are the
+// ones four open-source IRIS tools use (ubukhari/iris-1099, christcr2012/appliance-desk,
+// techmore/rupert, Tyler-LeDuc/leducsystems), since the CSV itself sits behind the portal
+// login. The sibling checker ventures/irs-iris-1099-csv-check reads the same layouts.
 const IRIS_STATE = [1, 2].flatMap((n) => [`State ${n}`, `State ${n} - State Tax Withheld`, `State ${n} - State/Payer state number`, `State ${n} - State income`, `State ${n} - Local income tax withheld`, `State ${n} - Special Data Entries`]);
-export const IRIS_NEC_COLUMNS = [
+const IRIS_HEAD = [
   "Form Type", "Tax Year", "Payer TIN Type", "Payer Taxpayer ID Number", "Payer Name Type",
   "Payer Business or Entity Name Line 1", "Payer Business or Entity Name Line 2", "Payer First Name", "Payer Middle Name",
   "Payer Last Name (Surname)", "Payer Suffix", "Payer Country", "Payer Address Line 1", "Payer Address Line 2", "Payer City/Town",
@@ -286,12 +289,99 @@ export const IRIS_NEC_COLUMNS = [
   "Recipient Business or Entity Name Line 2", "Recipient First Name", "Recipient Middle Name", "Recipient Last Name (Surname)",
   "Recipient Suffix", "Recipient Country", "Recipient Address Line 1", "Recipient Address Line 2", "Recipient City/Town",
   "Recipient State/Province/Territory", "Recipient ZIP/Postal Code", "Office Code", "Form Account Number",
-  "2nd TIN Notice", "Box 1 - Nonemployee Compensation",
+];
+export const IRIS_NEC_COLUMNS = [
+  ...IRIS_HEAD, "2nd TIN Notice", "Box 1 - Nonemployee Compensation",
   "Box 2 - Payer made direct sales totaling $5,000 or more of consumer products to a recipient for resale",
   "Box 3 - Excess golden parachute payments", "Box 4 - Federal income tax withheld", "Combined Federal/State Filing (CF/SF)", ...IRIS_STATE,
 ];
-const BUSINESS_NAME = /\b(llc|l\.l\.c|inc|incorporated|corp|corporation|co|company|ltd|llp|lp|pllc|pc|group|services|studio|design|consulting|partners|associates|enterprises|holdings|solutions|agency|trust)\b\.?/i;
-// Rows in that layout for the payees over the line: the payer block from `payer`
+// 1099-MISC, A-BL (64 columns): FATCA in AK, 2nd TIN Notice in AL, Box 1 Rents in AM, Box 15 in AY,
+// CF/SF in AZ, the two state blocks BA-BL. There is no Box 13 or 14 column in the TY2025 template.
+export const IRIS_MISC_COLUMNS = [
+  ...IRIS_HEAD, "FATCA Filing Requirements", "2nd TIN Notice", "Box 1 - Rents", "Box 2 - Royalties", "Box 3 - Other income",
+  "Box 4 - Federal income tax withheld", "Box 5 - Fishing boat proceeds", "Box 6 - Medical and health care payments",
+  "Box 7 - Direct sales of $5,000 or more of consumer products to a recipient for resale",
+  "Box 8 - Substitute payments in lieu of dividends or interest", "Box 9 - Crop insurance proceeds", "Box 10 - Gross proceeds paid to an attorney",
+  "Box 11 - Fish purchased for resale", "Box 12 - Section 409A deferrals", "Box 15 - Nonqualified deferred compensation",
+  "Combined Federal/State Filing (CF/SF)", ...IRIS_STATE,
+];
+const BUSINESS_NAME = /\b(llc|l\.l\.c|inc|incorporated|corp|corporation|co|company|ltd|llp|lp|pllc|pc|group|services|studio|design|consulting|partners|associates|enterprises|holdings|solutions|agency|trust|properties|realty|management|rentals?|leasing)\b\.?/i;
+const CORPORATE = /\b(inc|incorporated|corp|corporation)\b\.?/i;
+
+// The guidelines' character rules, applied so the portal does not reject a row:
+// business name lines letters, digits, space and - # ( ) & ' (max 40); person names
+// letters, space and hyphen (max 20); address lines letters, digits, space, - and /
+// (max 35); city letters and space (max 40); domestic ZIP digits only, 5, 9 or 12 long;
+// EIN as XX-XXXXXXX and SSN as XXX-XX-XXXX ("digits and dashes only"); no leading,
+// trailing or doubled spaces anywhere. irisField returns { value, changed, cut }.
+const IRIS_RULES = {
+  business: { bad: /[^A-Za-z0-9 \-#()&']/g, max: 40 },
+  person: { bad: /[^A-Za-z \-]/g, max: 20 },
+  address: { bad: /[^A-Za-z0-9 \-/]/g, max: 35 },
+  city: { bad: /[^A-Za-z ]/g, max: 40 },
+};
+export function irisField(kind, raw) {
+  const rule = IRIS_RULES[kind];
+  const src = String(raw ?? "");
+  let v = src.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(kind === "person" ? /[.,'’]/g : /[.,’]/g, "").replace(rule.bad, " ").replace(/\s+/g, " ").trim();
+  let cut = false;
+  if (v.length > rule.max) { v = v.slice(0, rule.max).trim(); cut = true; }
+  return { value: v, changed: v !== src.trim(), cut };
+}
+export function irisTin(raw, type) {
+  const d = String(raw ?? "").replace(/\D/g, "");
+  if (d.length !== 9) return String(raw ?? "").trim();
+  return type === "SSN" || type === "ITIN" || type === "ATIN" ? `${d.slice(0, 3)}-${d.slice(3, 5)}-${d.slice(5)}` : `${d.slice(0, 2)}-${d.slice(2)}`;
+}
+const irisZip = (raw) => String(raw ?? "").replace(/\D/g, "");
+
+// One template file for either form. `rows` is [{ name, boxes: { column: cents } }].
+function irisCsv(formType, columns, year, payer, rows, extra = {}) {
+  const d = (c) => (c / 100).toFixed(2);
+  const esc = (v) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+  const notes = [];
+  const cleaned = new Set(), cut = new Set();
+  const field = (kind, raw, label) => { const f = irisField(kind, raw); if (f.cut) cut.add(label); else if (f.changed && String(raw ?? "").trim()) cleaned.add(label); return f.value; };
+  const tinType = payer.tinType ?? (payer.tin ? "EIN" : "");
+  const zip = irisZip(payer.zip);
+  if (payer.zip && ![5, 9, 12].includes(zip.length)) notes.push(`Payer ZIP "${payer.zip}" is not 5, 9 or 12 digits, which the IRIS guidelines require for a US address.`);
+  const phone = String(payer.phone ?? "").replace(/\D/g, "").replace(/^1(?=\d{10}$)/, "");
+  if (payer.phone && phone.length !== 10) notes.push("Payer phone is not a 10-digit US number; IRIS takes 1231231234, 123-123-1234 or (123) 123-1234 for a domestic phone.");
+  const base = {
+    "Form Type": formType, "Tax Year": String(year), "Payer TIN Type": tinType,
+    "Payer Taxpayer ID Number": irisTin(payer.tin, tinType), "Payer Name Type": payer.name ? "B" : "",
+    "Payer Business or Entity Name Line 1": field("business", payer.name, "payer name"), "Payer Country": "US",
+    "Payer Address Line 1": field("address", payer.address, "payer address"), "Payer City/Town": field("city", payer.city, "payer city"),
+    "Payer State/Province/Territory": String(payer.state ?? "").trim().toUpperCase(), "Payer ZIP/Postal Code": zip,
+    "Payer Phone Type": phone ? "D" : "", "Payer Phone": phone, "Recipient Country": "US", "2nd TIN Notice": "N", ...extra,
+  };
+  if (!payer.tin || !payer.name || !payer.address) notes.push("The payer's TIN, name or address is blank: pass them (CLI --payer payer.json) or fill them in before upload.");
+  if (payer.tin && String(payer.tin).replace(/\D/g, "").length !== 9) notes.push("The payer TIN is not nine digits.");
+  const out = [columns];
+  let guessed = 0;
+  for (const p of rows) {
+    const name = String(p.name).trim().replace(/\s+/g, " ");
+    const o = { ...base };
+    for (const [c, cents] of Object.entries(p.boxes)) o[c] = d(cents);
+    if (BUSINESS_NAME.test(name) || !name.includes(" ")) Object.assign(o, { "Recipient Name Type": "B", "Recipient Business or Entity Name Line 1": field("business", name, `"${name}"`) });
+    else {
+      const i = name.lastIndexOf(" ");
+      Object.assign(o, { "Recipient Name Type": "I", "Recipient First Name": field("person", name.slice(0, i), `"${name}"`), "Recipient Last Name (Surname)": field("person", name.slice(i + 1), `"${name}"`) });
+      guessed++;
+    }
+    out.push(columns.map((c) => o[c] ?? ""));
+  }
+  if (cleaned.size) notes.push(`Characters the IRIS guidelines do not allow were removed from ${[...cleaned].slice(0, 4).join(", ")}${cleaned.size > 4 ? ` and ${cleaned.size - 4} more` : ""}; the W-9 spelling decides, within those characters.`);
+  if (cut.size) notes.push(`Cut to the IRIS length limit (40 for a business name, 20 for a first or last name, 35 for an address line): ${[...cut].slice(0, 4).join(", ")}${cut.size > 4 ? ` and ${cut.size - 4} more` : ""}; put the rest on the name line 2 or address line 2 in the portal.`);
+  if (guessed) notes.push(`${guessed} name${guessed === 1 ? " was" : "s were"} split into first and last name (type I) because ${guessed === 1 ? "it has" : "they have"} no business word; check each against the W-9, where a sole proprietor's own name goes first.`);
+  if (rows.length) notes.push("Recipient TIN Type, TIN and address are blank on every row: this tool never stores them. Fill them from each W-9 before upload.");
+  if (year >= 2026) notes.push(`This is the TY2025 template layout; the IRS lists IRIS guidelines only through TY2025 (checked 2026-11-11). The December 2026 forms add boxes for cash tips and overtime (P.L. 119-21) and number the 1099-NEC's nonemployee compensation box 1a, so check the layout against the TY${year} template once the portal publishes it.`);
+  const batches = Math.ceil(rows.length / 100);
+  if (batches > 1) notes.push(`${rows.length} records: open-source IRIS tools quote a 100-record limit per portal upload, so split this into ${batches} files.`);
+  return { csv: out.map((x) => x.map(esc).join(",")).join("\r\n") + "\r\n", notes, batches };
+}
+
+// The 1099-NEC file for the payees over the line: the payer block from `payer`
 // (name, tin, tinType EIN|SSN, address, city, state, zip, phone), each payee's name
 // and Box 1, and the recipient's TIN and address left blank, because the books
 // never hold them (fill them from the W-9 before upload). A name with a business
@@ -299,32 +389,38 @@ const BUSINESS_NAME = /\b(llc|l\.l\.c|inc|incorporated|corp|corporation|co|compa
 // name is split at its last space into first and last name, type I: a guess, which
 // `notes` says, and which the W-9 decides. Returns { csv, notes, batches }.
 export function nec1099IrisCsv(r, payer = {}) {
-  const d = (c) => (c / 100).toFixed(2);
-  const esc = (v) => (/[",\r\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-  const notes = [];
-  const base = {
-    "Form Type": "1099-NEC", "Tax Year": String(r.year), "Payer TIN Type": payer.tinType ?? (payer.tin ? "EIN" : ""),
-    "Payer Taxpayer ID Number": String(payer.tin ?? "").replace(/[-\s]/g, ""), "Payer Name Type": payer.name ? "B" : "",
-    "Payer Business or Entity Name Line 1": payer.name ?? "", "Payer Country": "US", "Payer Address Line 1": payer.address ?? "",
-    "Payer City/Town": payer.city ?? "", "Payer State/Province/Territory": (payer.state ?? "").toUpperCase(), "Payer ZIP/Postal Code": payer.zip ?? "",
-    "Payer Phone Type": payer.phone ? "D" : "", "Payer Phone": String(payer.phone ?? "").replace(/\D/g, ""), "Recipient Country": "US", "2nd TIN Notice": "N",
-    "Box 2 - Payer made direct sales totaling $5,000 or more of consumer products to a recipient for resale": "N",
-  };
-  if (!payer.tin || !payer.name || !payer.address) notes.push("The payer's TIN, name or address is blank: pass them (CLI --payer payer.json) or fill them in before upload.");
-  const rows = [IRIS_NEC_COLUMNS];
-  let guessed = 0;
-  for (const p of r.reportable) {
-    const name = String(p.name).trim().replace(/\s+/g, " ");
-    const o = { ...base, "Box 1 - Nonemployee Compensation": d(p.cents) };
-    if (BUSINESS_NAME.test(name) || !name.includes(" ")) Object.assign(o, { "Recipient Name Type": "B", "Recipient Business or Entity Name Line 1": name });
-    else { const i = name.lastIndexOf(" "); Object.assign(o, { "Recipient Name Type": "I", "Recipient First Name": name.slice(0, i), "Recipient Last Name (Surname)": name.slice(i + 1) }); guessed++; }
-    rows.push(IRIS_NEC_COLUMNS.map((c) => o[c] ?? ""));
-  }
-  if (guessed) notes.push(`${guessed} name${guessed === 1 ? " was" : "s were"} split into first and last name (type I) because ${guessed === 1 ? "it has" : "they have"} no business word; check each against the W-9, where a sole proprietor's own name goes first.`);
-  if (r.reportable.length) notes.push("Recipient TIN Type, TIN and address are blank on every row: this tool never stores them. Fill them from each W-9 before upload.");
-  const batches = Math.ceil(r.reportable.length / 100);
-  if (batches > 1) notes.push(`${r.reportable.length} records: open-source IRIS tools quote a 100-record limit per portal upload, so split this into ${batches} files.`);
-  return { csv: rows.map((x) => x.map(esc).join(",")).join("\r\n") + "\r\n", notes, batches };
+  return irisCsv("1099-NEC", IRIS_NEC_COLUMNS, r.year, payer, r.reportable.map((p) => ({ name: p.name, boxes: { "Box 1 - Nonemployee Compensation": p.cents } })),
+    { "Box 2 - Payer made direct sales totaling $5,000 or more of consumer products to a recipient for resale": "N" });
+}
+
+// The 1099-MISC Box 1 rents worksheet: rent paid by bank from the Rent account
+// (6080, or `codes`), summed per landlord, against the line. Instructions for Forms
+// 1099-MISC and 1099-NEC (Rev. December 2026, read 2026-11-11): "Enter amounts of
+// $2,000 or more for all types of rents" (office space, machine and pasture rentals),
+// the threshold "increased to $2,000" for tax years beginning after 2025, $600 before;
+// rent paid to a real estate agent or property manager is not reported by you (they
+// report it to the owner); payments to a corporation are generally not reported; card
+// payments go on the processor's 1099-K. Copies to landlords by January 31, the IRS
+// by February 28 on paper or March 31 e-filed. The Rent account also catches HOA dues,
+// booth rent and site commissions, so each landlord is a line to look at, not an answer.
+export function rents1099(books, { year, threshold, codes = ["6080"] } = {}) {
+  const r = contractors1099(books, { year, threshold, codes });
+  const warnings = [];
+  if (r.payees.some((p) => p.cardCents)) warnings.push("Some rent was paid by card; the card processor reports those on a 1099-K, so they are left out of the totals (shown as card).");
+  const corp = r.reportable.filter((p) => CORPORATE.test(p.name));
+  if (corp.length) warnings.push(`${corp.map((p) => p.name).join(", ")} look${corp.length === 1 ? "s" : ""} like a corporation; payments to a corporation generally need no 1099-MISC. The W-9's tax classification decides.`);
+  if (r.reportable.length) warnings.push("Rent paid through a real estate agent or property manager is theirs to report, not yours: leave those landlords out of the filing.");
+  if (r.missingW9.length) warnings.push(`${r.missingW9.length} landlord${r.missingW9.length === 1 ? "" : "s"} over the line ${r.missingW9.length === 1 ? "has" : "have"} no W-9 on file; ask before you file (copies due January 31, the IRS by March 31 if e-filed).`);
+  if (r.year >= 2027 && r.threshold === NEC_THRESHOLD(r.year)) warnings.push(`From 2027 the $2,000 line may be adjusted for inflation; ${r.year}'s may be higher. Check the IRS instructions or pass a threshold.`);
+  if (!r.payees.length) warnings.push(`No rent paid by bank in ${r.year}.`);
+  return { ...r, warnings };
+}
+
+// The 1099-MISC IRIS file for the landlords over the line: Box 1 Rents, FATCA and
+// Box 7 "N", the rest of the boxes blank. Same payer block and notes as the NEC file.
+export function misc1099IrisCsv(r, payer = {}) {
+  return irisCsv("1099-MISC", IRIS_MISC_COLUMNS, r.year, payer, r.reportable.map((p) => ({ name: p.name, boxes: { "Box 1 - Rents": p.cents } })),
+    { "FATCA Filing Requirements": "N", "Box 7 - Direct sales of $5,000 or more of consumer products to a recipient for resale": "N" });
 }
 
 // Schedule SE worksheet: US self-employment tax on a Schedule C profit.
