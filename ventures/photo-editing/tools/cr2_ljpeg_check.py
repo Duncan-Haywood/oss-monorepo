@@ -73,7 +73,14 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("cr2", type=Path)
     parser.add_argument("--reference", action="store_true", help="also time the one-pass reference decoder")
     parser.add_argument("--no-libraw", action="store_true", help="skip the LibRaw comparison")
+    parser.add_argument(
+        "--decode-engine",
+        choices=("auto", "python", "numpy"),
+        default="auto",
+        help="prediction pass on numpy when importable (auto), pure Python, or numpy only",
+    )
     args = parser.parse_args(argv)
+    rd.DECODE_ENGINE = args.decode_engine
 
     stream, slices = cr2_stream(args.cr2.read_bytes())
     t = time.perf_counter()
@@ -86,6 +93,7 @@ def main(argv: list[str] | None = None) -> int:
         "slices": list(slices),
         "samples": len(samples),
         "decode_s": round(decode_s, 2),
+        "decode_engine": args.decode_engine,
     }
     if args.reference:
         keep = rd._decode_scan

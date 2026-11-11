@@ -19,6 +19,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from shootflow import raw_develop as rd
 
@@ -219,6 +220,69 @@ class FastDecoderTests(unittest.TestCase):
         stream[scan_at:] = b"\xfe\xfe\xff\xd9"
         with self.assertRaises(rd.DevelopError):
             rd.decode_lossless_jpeg(bytes(stream))
+
+
+try:
+    import numpy  # noqa: F401
+
+    HAVE_NUMPY = True
+except ImportError:
+    HAVE_NUMPY = False
+
+
+@unittest.skipUnless(HAVE_NUMPY, "numpy is optional")
+class NumpyPredictionTests(FastDecoderTests):
+    """Every case above again with the prediction pass on numpy (``raw_develop_np.predict_rows``).
+
+    The size floor is dropped so the small test images reach it, and the
+    engine is pinned to numpy so a silent fall-back to the pure path fails.
+    """
+
+    def setUp(self):
+        self._keep = rd._NP_PREDICT_MIN, rd.DECODE_ENGINE
+        rd._NP_PREDICT_MIN, rd.DECODE_ENGINE = 0, "numpy"
+
+    def tearDown(self):
+        rd._NP_PREDICT_MIN, rd.DECODE_ENGINE = self._keep
+
+    def test_numpy_path_is_taken(self):
+        from shootflow import raw_develop_np
+
+        calls = []
+        real = raw_develop_np.predict_rows
+
+        def spy(*a):
+            calls.append(a[4])
+            return real(*a)
+
+        raw_develop_np.predict_rows = spy
+        try:
+            for predictor in (1, 2, 4):
+                self.check(9, 6, 2, 16, predictor, 0, 0, [DEEP, DEEP], "noise", 99 + predictor)
+        finally:
+            raw_develop_np.predict_rows = real
+        self.assertEqual(calls, [1, 2])  # predictor 4 stays on the per-sample path
+
+    def test_array_reaches_parse_raw_unconverted(self):
+        stream = encode([1 << 15, 7, 9, 65535], 2, 2, 1, 16, 1, 0, 0, [DEEP])
+        _, _, _, internal = rd._decode_lossless_jpeg(stream)
+        _, _, _, public = rd.decode_lossless_jpeg(stream)
+        self.assertEqual(internal.typecode, "H")
+        self.assertIsInstance(public, list)
+        self.assertEqual(list(internal), public)
+        self.assertEqual(public, [1 << 15, 7, 9, 65535])
+
+    def test_dng_storage_variants_through_numpy(self):
+        """parse_raw blits the numpy pass's array('H') tiles and strips into the raw image."""
+
+        import test_raw_develop
+
+        suite = unittest.defaultTestLoader.loadTestsFromName(
+            "test_storage_variants_decode_identically", test_raw_develop.DevelopContainerTests
+        )
+        result = unittest.TestResult()
+        suite.run(result)
+        self.assertEqual((result.testsRun, result.failures, result.errors), (1, [], []))
 
 
 if __name__ == "__main__":

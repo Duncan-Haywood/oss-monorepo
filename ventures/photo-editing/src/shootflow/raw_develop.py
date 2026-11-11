@@ -226,6 +226,15 @@ def decode_lossless_jpeg(data: bytes) -> tuple[int, int, int, list[int]]:
     lays a lossless-JPEG tile onto the raw image.
     """
 
+    w, h, nf, samples = _decode_lossless_jpeg(data)
+    if not isinstance(samples, list):
+        samples = samples.tolist()
+    return w, h, nf, samples
+
+
+def _decode_lossless_jpeg(data: bytes):
+    """``decode_lossless_jpeg``, but the samples may come back as an ``array('H')``."""
+
     if data[:2] != b"\xff\xd8":
         raise DevelopError("lossless JPEG tile does not start with SOI")
     pos = 2
@@ -467,12 +476,36 @@ def _decode_scan(data, pos, width, height, tables, predictor, precision, pt, res
     diffs = _scan_diffs(data, pos, width * height, tables, restart)
     initial = 1 << (precision - pt - 1)
     if predictor in (1, 2) and (not restart or restart % width == 0):
-        out = _predict_rows(diffs, width, height, nf, predictor, initial, restart)
+        np_predict = _numpy_predict_rows()
+        if np_predict is not None and width * height >= _NP_PREDICT_MIN:
+            out = np_predict(diffs, width, height, nf, predictor, initial, restart)
+        else:
+            out = _predict_rows(diffs, width, height, nf, predictor, initial, restart)
     else:
         out = _predict_scan(diffs, width, height, nf, predictor, initial, restart)
     if pt:
         out = [v << pt for v in out]
     return out
+
+
+# Below about this many pixels the numpy prediction pass costs more in setup
+# than it saves; tests set it to 0 to run the numpy path on small cases.
+_NP_PREDICT_MIN = 1024
+# "auto" uses numpy for the prediction pass when it is importable; "python"
+# keeps the pure path (the reference); "numpy" requires it. Same samples.
+DECODE_ENGINE = "auto"
+
+
+def _numpy_predict_rows():
+    if DECODE_ENGINE == "python":
+        return None
+    try:
+        from shootflow.raw_develop_np import predict_rows
+    except ImportError:
+        if DECODE_ENGINE == "numpy":
+            raise DevelopError("decode engine 'numpy' needs numpy") from None
+        return None
+    return predict_rows
 
 
 _LUT_BITS = 12
@@ -822,7 +855,7 @@ def _decode_chunk(
             vals.extend([0] * (count - len(vals)))
         return vals
     if compression == 7:
-        w, h, nf, samples = decode_lossless_jpeg(chunk)
+        w, h, nf, samples = _decode_lossless_jpeg(chunk)
         if w * h * nf < count:
             raise DevelopError("lossless JPEG tile holds fewer samples than the tile size")
         return samples[:count]

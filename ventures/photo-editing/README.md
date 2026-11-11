@@ -1001,3 +1001,11 @@ How it was checked:
   extra bits do not, codes longer than it, size 16, byte stuffing, all seven predictors, one
   to four components, restart intervals on and off row boundaries, point transform; both
   decoders must return the encoded samples exactly.
+- Prediction pass on numpy (2026-11-11, `eval/ljpeg-numpy-predict-2026-11-11.md`): with
+  numpy installed, predictors 1 and 2 turn differences into samples as array running sums
+  (`raw_develop_np.predict_rows`) instead of over Python ints, and hand `parse_raw` an
+  `array('H')`. On the Canon CR2 stream the pass after the Huffman reader goes from 3.8-4.1 s to
+  1.1-1.5 s and the whole decode from 9.5-9.8 s to 6.6-7.3 s on the same container; a
+  256x256-sensel tile 27-30 ms to 18-21 ms. Same samples as the pure pass on all 345 encoder
+  cases and sensel-for-sensel equal to LibRaw on the CR2. `raw_develop.DECODE_ENGINE`
+  (`auto`, `python`, `numpy`) chooses; the Huffman pass is now about 85% of decoding.
