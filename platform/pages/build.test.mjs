@@ -5268,6 +5268,11 @@ test('isGuidePage lists the pages beside a tool and nothing already indexed else
   assert.ok(!isGuidePage('sitemap.xml'));
   // ...but a page that merely starts with the letters is not a comparison.
   assert.ok(isGuidePage('vsat-link-budget.html'));
+  // A builder's sample site is a fictional community's page, not a guide.
+  assert.ok(!isGuidePage('demo/abbey/about.html'));
+  assert.ok(!isGuidePage('demos/sisters/shop.html'));
+  // ...but a guide whose name merely contains the word stays.
+  assert.ok(isGuidePage('demo-day-pricing.html'));
 });
 
 test('guidePageMeta takes a guide’s label from the page’s own words, or drops it', () => {
@@ -5302,6 +5307,12 @@ test('discoverGuides reads what shipped, and groupGuidesByCategory puts the deep
   await fs.mkdir(path.join(outDir, 'deck-bid-calculator'), { recursive: true });
   await fs.writeFile(path.join(outDir, 'deck-bid-calculator', 'index.html'), page('Tool', 'x'));
   await fs.writeFile(path.join(outDir, 'deck-bid-calculator', 'c.html'), page('C question', 'See.'));
+  // Fiction and video shelves publish pages too, and none is a guide: the
+  // index promises how a price is built, from calculators.
+  for (const slug of ['hearth-and-horizon', 'catholic-shorts']) {
+    await fs.mkdir(path.join(outDir, slug), { recursive: true });
+    await fs.writeFile(path.join(outDir, slug, 'a-story.html'), page('A story', 'Once.'));
+  }
   // A tool with no guide page contributes no empty block.
   await fs.mkdir(path.join(outDir, 'shop-rate-calculator'), { recursive: true });
   await fs.writeFile(path.join(outDir, 'shop-rate-calculator', 'index.html'), page('Tool', 'x'));
@@ -5310,6 +5321,8 @@ test('discoverGuides reads what shipped, and groupGuidesByCategory puts the deep
     { slug: 'deck-bid-calculator', title: 'Deck Bid Calculator', description: 'Decks.' },
     { slug: 'ebay-fee-calculator', title: 'eBay Fee Calculator', description: 'Fees.' },
     { slug: 'shop-rate-calculator', title: 'Shop Rate Calculator', description: 'Rates.' },
+    { slug: 'hearth-and-horizon', title: 'Hearth & Horizon', description: 'Stories.' },
+    { slug: 'catholic-shorts', title: 'Catholic Shorts', description: 'Videos.' },
     // A surface with no directory in the artifact must not throw.
     { slug: 'never-published', title: 'Never Published', description: '' },
   ];
@@ -5321,7 +5334,7 @@ test('discoverGuides reads what shipped, and groupGuidesByCategory puts the deep
       ['deck-bid-calculator', ['c.html']],
       ['ebay-fee-calculator', ['a.html', 'b.html']],
     ],
-    'entry pages, comparison pages and guide-less tools are all excluded',
+    'entry pages, comparison pages, story shelves and guide-less tools are all excluded',
   );
   assert.equal(groups[1].items[0].label, 'A question');
   assert.equal(groups[1].items[0].description, 'Ay.');
