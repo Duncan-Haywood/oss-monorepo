@@ -247,8 +247,13 @@ flagships:
       to 28% above the floor. O(p) starter score 2026-11-11 latest (README "An O(p) starter score",
       eval/starter-climb.mjs): cyclic carry-over from one difference sequence, 2-10M moves in 40 s;
       24 teams 612 to 570, 30 1,002 to 948, 40 1,890 to 1,816 (8-21% above the floor); clears the
-      24- and 30-team break-weight regressions. Next, most valuable first: pick the start by
-      carry-over + weight x breaks when a weight is set; close 24-40 (tabu, longer runs, the
+      24- and 30-team break-weight regressions. Break-weighted starters 2026-11-11 latest (README
+      "Starters picked with their breaks", eval/starter-breaks.mjs): a starter's start is a
+      relabelling (never changes carry-over), so a second table STARTERS_WEIGHTED, picked on
+      carry-over + 10 x breaks, runs as a third search at break weights, kept only when strictly
+      better: 26 teams 716/102 to 716/74, season 2,618/230 to 2,714/164; 28, 30, 34 and 12-18
+      lower too. Next, most valuable first: run 36-40 through the search and a climb that scores
+      breaks inside the move (odd sizes vs the circle's zero-break orientation); close 24-40 (tabu, longer runs, the
       literature's starters and terraces); other constructions (Latin-square based, from the literature) for 12 teams (152 vs 120);
       a bound for the minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter
       timetable; a real league's travel times and unavailable dates; a print check.

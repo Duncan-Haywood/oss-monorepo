@@ -1,0 +1,32 @@
+# node eval/starter-breaks.mjs 10 10 <sizes> (2026-11-11; four processes: 6-22, 24 40, 26 38, 28-36; the 24-team bye entry is from an earlier 5 s run, 693 / 98 = 1,673, which beat this run's 1,709)
+{"N":6,"teams":6,"weight":10,"least":{"coe":42,"breaks":4,"score":82},"kept":{"coe":42,"breaks":4,"score":82,"from":"STARTERS"},"pool":1,"rescoreSeconds":0.1}
+{"N":6,"teams":5,"weight":10,"least":{"coe":33,"breaks":0,"score":33},"kept":{"coe":33,"breaks":0,"score":33,"from":"STARTERS"},"pool":1,"rescoreSeconds":0}
+{"N":10,"teams":10,"weight":10,"least":{"coe":94,"breaks":14,"score":234},"kept":{"coe":94,"breaks":14,"score":234,"from":"STARTERS"},"pool":8,"rescoreSeconds":0.1}
+{"N":10,"teams":9,"weight":10,"least":{"coe":89,"breaks":11,"score":199},"kept":{"coe":89,"breaks":10,"score":189,"from":"climb"},"pool":8,"rescoreSeconds":0.1}
+{"N":12,"teams":12,"weight":10,"least":{"coe":156,"breaks":22,"score":376},"kept":{"coe":174,"breaks":18,"score":354,"from":"climb"},"pool":24,"rescoreSeconds":0.5}
+{"N":12,"teams":11,"weight":10,"least":{"coe":135,"breaks":20,"score":335},"kept":{"coe":153,"breaks":17,"score":323,"from":"climb"},"pool":24,"rescoreSeconds":0.4}
+{"N":14,"teams":14,"weight":10,"least":{"coe":212,"breaks":30,"score":512},"kept":{"coe":212,"breaks":26,"score":472,"from":"climb"},"pool":89,"rescoreSeconds":3}
+{"N":14,"teams":13,"weight":10,"least":{"coe":187,"breaks":35,"score":537},"kept":{"coe":187,"breaks":33,"score":517,"from":"climb"},"pool":72,"rescoreSeconds":1.6}
+{"N":18,"teams":18,"weight":10,"least":{"coe":318,"breaks":52,"score":838},"kept":{"coe":348,"breaks":38,"score":728,"from":"climb"},"pool":250,"rescoreSeconds":17.2}
+{"N":18,"teams":17,"weight":10,"least":{"coe":313,"breaks":67,"score":983},"kept":{"coe":345,"breaks":53,"score":875,"from":"climb"},"pool":250,"rescoreSeconds":11.9}
+{"N":20,"teams":20,"weight":10,"least":{"coe":360,"breaks":52,"score":880},"kept":{"coe":360,"breaks":52,"score":880,"from":"STARTERS"},"pool":140,"rescoreSeconds":12.4}
+{"N":20,"teams":19,"weight":10,"least":{"coe":323,"breaks":89,"score":1213},"kept":{"coe":391,"breaks":73,"score":1121,"from":"climb"},"pool":201,"rescoreSeconds":12.3}
+{"N":22,"teams":22,"weight":10,"least":{"coe":440,"breaks":68,"score":1120},"kept":{"coe":592,"breaks":50,"score":1092,"from":"climb"},"pool":250,"rescoreSeconds":28.3}
+{"N":22,"teams":21,"weight":10,"least":{"coe":399,"breaks":108,"score":1479},"kept":{"coe":513,"breaks":85,"score":1363,"from":"climb"},"pool":250,"rescoreSeconds":21}
+{"N":24,"teams":24,"weight":10,"least":{"coe":570,"breaks":66,"score":1230},"kept":{"coe":570,"breaks":66,"score":1230,"from":"STARTERS"},"pool":250,"rescoreSeconds":39.5}
+{"N":24,"teams":23,"weight":10,"least":{"coe":565,"breaks":138,"score":1945},"kept":{"coe":609,"breaks":110,"score":1709,"from":"climb"},"pool":250,"rescoreSeconds":29.1}
+{"N":40,"teams":40,"weight":10,"least":{"coe":1816,"breaks":230,"score":4116},"kept":{"coe":2112,"breaks":144,"score":3552,"from":"climb"},"pool":250,"rescoreSeconds":164.1}
+{"N":40,"teams":39,"weight":10,"least":{"coe":1813,"breaks":401,"score":5823},"kept":{"coe":1885,"breaks":369,"score":5575,"from":"climb"},"pool":250,"rescoreSeconds":130.7}
+{"N":26,"teams":26,"weight":10,"least":{"coe":716,"breaks":104,"score":1756},"kept":{"coe":716,"breaks":74,"score":1456,"from":"climb"},"pool":250,"rescoreSeconds":48.7}
+{"N":26,"teams":25,"weight":10,"least":{"coe":665,"breaks":164,"score":2305},"kept":{"coe":805,"breaks":124,"score":2045,"from":"climb"},"pool":250,"rescoreSeconds":37.2}
+{"N":38,"teams":38,"weight":10,"least":{"coe":1648,"breaks":206,"score":3708},"kept":{"coe":1928,"breaks":170,"score":3628,"from":"climb"},"pool":250,"rescoreSeconds":139}
+{"N":38,"teams":37,"weight":10,"least":{"coe":1575,"breaks":362,"score":5195},"kept":{"coe":1643,"breaks":343,"score":5073,"from":"climb"},"pool":250,"rescoreSeconds":109.2}
+{"N":28,"teams":28,"weight":10,"least":{"coe":828,"breaks":114,"score":1968},"kept":{"coe":978,"breaks":76,"score":1738,"from":"climb"},"pool":250,"rescoreSeconds":59.8}
+{"N":28,"teams":27,"weight":10,"least":{"coe":823,"breaks":184,"score":2663},"kept":{"coe":925,"breaks":161,"score":2535,"from":"climb"},"pool":250,"rescoreSeconds":47.5}
+{"N":30,"teams":30,"weight":10,"least":{"coe":948,"breaks":138,"score":2328},"kept":{"coe":1164,"breaks":86,"score":2024,"from":"climb"},"pool":250,"rescoreSeconds":72.3}
+{"N":30,"teams":29,"weight":10,"least":{"coe":891,"breaks":216,"score":3051},"kept":{"coe":1105,"breaks":184,"score":2945,"from":"climb"},"pool":250,"rescoreSeconds":57.5}
+{"N":34,"teams":34,"weight":10,"least":{"coe":1274,"breaks":160,"score":2874},"kept":{"coe":1460,"breaks":136,"score":2820,"from":"climb"},"pool":250,"rescoreSeconds":104.4}
+{"N":34,"teams":33,"weight":10,"least":{"coe":1269,"breaks":280,"score":4069},"kept":{"coe":1395,"breaks":254,"score":3935,"from":"climb"},"pool":250,"rescoreSeconds":79.1}
+{"N":36,"teams":36,"weight":10,"least":{"coe":1422,"breaks":188,"score":3302},"kept":{"coe":1620,"breaks":158,"score":3200,"from":"climb"},"pool":250,"rescoreSeconds":120.8}
+{"N":36,"teams":35,"weight":10,"least":{"coe":1419,"breaks":324,"score":4659},"kept":{"coe":1483,"breaks":274,"score":4223,"from":"climb"},"pool":250,"rescoreSeconds":90.6}
+{"N":24,"teams":23,"weight":10,"least":{"coe":565,"breaks":123,"score":1795},"kept":{"coe":693,"breaks":98,"score":1673,"from":"climb"},"pool":600,"note":"earlier run: node eval/starter-breaks.mjs 5 10 12 24, pool 600, 8 venue restarts"}

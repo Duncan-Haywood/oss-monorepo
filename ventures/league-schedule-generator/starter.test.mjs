@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, circleOpp } from "./carryover.mjs";
+import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, STARTERS_WEIGHTED, circleOpp, assignVenues } from "./carryover.mjs";
 
 const seqs = (opp, n) => Array.from({ length: n }, (_, t) => opp.map((o) => o[t]).filter((u) => u < n));
 const decode = ([step, ...flat]) => ({ step, pairs: Array.from({ length: flat.length / 2 }, (_, i) => [flat[2 * i], flat[2 * i + 1]]) });
@@ -66,7 +66,7 @@ test("with a starter built in, the search never scores worse than the circle sta
     const now = lowCarryOverRounds(n, { effort: 0.2, breakWeight });
     const old = lowCarryOverRounds(n, { effort: 0.2, breakWeight, field: false });
     assert.ok(now.coe + breakWeight * now.breaks <= old.coe + breakWeight * old.breaks, `${n} teams, weight ${breakWeight}`);
-    assert.ok(now.start === "starter" || now.start === "circle");
+    assert.ok(["starter", "circle", "weighted starter"].includes(now.start));
   }
   for (const n of [12, 20]) {
     const now = lowCarryOverDoubleRounds(n, { effort: 0.2 });
@@ -127,4 +127,52 @@ test("climbed starters (eval/starter-climb.mjs) where they beat the annealed one
     assert.equal(best(N, N), even, `${N} teams`);
     assert.equal(best(N, N - 1), odd, `${N - 1} teams`);
   }
+});
+
+test("every break-weighted starter (STARTERS_WEIGHTED) is a round robin, for a size STARTERS has", () => {
+  for (const [key, entry] of Object.entries(STARTERS_WEIGHTED)) {
+    const N = Number(key);
+    assert.ok(starterApplies(N), `${N} has a STARTERS entry too`);
+    for (const kind of Object.keys(entry)) {
+      assert.ok(kind === "even" || kind === "odd");
+      const { step, pairs } = decode(entry[kind]);
+      checkTimetable(starterOpp(N, pairs, { step }), N);
+    }
+  }
+});
+
+test("a starter's start is a relabelling: carry-over is the same at every start", () => {
+  for (const N of [12, 18, 26]) for (const kind of ["even", "odd"]) {
+    const n = kind === "even" ? N : N - 1;
+    const { step, pairs } = decode(STARTERS[N][kind]);
+    const vals = new Set();
+    for (let start = 0; start < N - 1; start++) vals.add(carryOverFromOpponents(seqs(starterOpp(N, pairs, { step, start }), n)).value);
+    assert.equal(vals.size, 1, `${n} teams`);
+  }
+});
+
+test("26 teams: the weighted starter has STARTERS' carry-over with far fewer breaks (716 / 74 against 716 / 104)", () => {
+  const breaks = (opp, n) => {
+    const v = assignVenues(opp, n, 1, 4);
+    let b = 0;
+    for (let t = 0; t < n; t++) { let last = null; for (let r = 0; r < opp.length; r++) { if (last === v[r][t]) b++; last = v[r][t]; } }
+    return b;
+  };
+  const a = decode(STARTERS[26].even), w = decode(STARTERS_WEIGHTED[26].even);
+  const oa = starterOpp(26, a.pairs, { step: a.step }), ow = starterOpp(26, w.pairs, { step: w.step });
+  assert.equal(carryOverFromOpponents(seqs(oa, 26)).value, 716);
+  assert.equal(carryOverFromOpponents(seqs(ow, 26)).value, 716);
+  assert.ok(breaks(ow, 26) <= 80 && breaks(oa, 26) >= 96, `${breaks(ow, 26)} vs ${breaks(oa, 26)}`);
+});
+
+test("with a break weight, the weighted-starter run is kept only when strictly better", () => {
+  for (const n of [12, 18]) for (const double of [false, true]) {
+    const run = (weightedStarter) => (double ? lowCarryOverDoubleRounds : lowCarryOverRounds)(n, { effort: 0.2, breakWeight: 10, weightedStarter });
+    const score = (r) => r.coe + 10 * r.breaks + 1000 * (r.repeats || 0);
+    const now = run(true), old = run(false);
+    assert.ok(score(now) <= score(old), `${n} teams${double ? ", season" : ""}`);
+    if (now.start !== "weighted starter") assert.equal(score(now), score(old));
+  }
+  // carry-over only: the weighted table is not used
+  assert.notEqual(lowCarryOverRounds(12, { effort: 0.2 }).start, "weighted starter");
 });

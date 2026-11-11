@@ -1,0 +1,57 @@
+# node eval/starter-breaks-search.mjs 10 <sizes> (2026-11-11, four processes, seed 1, effort 1; with the full table before it was cut to the sizes that gained: even 12, 14, 18, 26, 28, 30, 34 and odd 25, 33 kept; 36-40 even kept, not run here)
+| Teams | Season | Before (carry-over / breaks, score) | With weighted starters | Score change |
+|---|---|---|---|---|
+| 9 | single | 89 / 5, 139 (starter) | 89 / 5, 139 (starter) | same |
+| 9 | home and away | 309 / 11, 419 (starter) | 309 / 11, 419 (starter) | same |
+| 12 | single | 152 / 18, 332 (starter) | 170 / 14, 310 (weighted starter) | -22 |
+| 12 | home and away | 598 / 46, 1,058 (starter) | 602 / 40, 1,002 (weighted starter) | -56 |
+| 13 | single | 199 / 25, 449 (starter) | 199 / 25, 449 (starter) | same |
+| 13 | home and away | 719 / 43, 1,149 (starter) | 719 / 43, 1,149 (starter) | same |
+| 14 | single | 252 / 18, 432 (starter) | 252 / 18, 432 (starter) | same |
+| 14 | home and away | 854 / 52, 1,374 (starter) | 870 / 50, 1,370 (weighted starter) | -4 |
+| 17 | single | 313 / 67, 983 (starter) | 313 / 67, 983 (starter) | same |
+| 17 | home and away | 1,333 / 87, 2,203 (circle) | 1,333 / 87, 2,203 (circle) | same |
+| 18 | single | 456 / 30, 756 (starter) | 348 / 40, 748 (weighted starter) | -8 |
+| 18 | home and away | 1,556 / 76, 2,316 (starter) | 1,316 / 98, 2,296 (weighted starter) | -20 |
+| 19 | single | 323 / 75, 1,073 (starter) | 323 / 75, 1,073 (starter) | same |
+| 19 | home and away | 1,525 / 119, 2,715 (starter) | 1,525 / 119, 2,715 (starter) | same |
+| 21 | single | 399 / 104, 1,439 (starter) | 399 / 104, 1,439 (starter) | same |
+| 21 | home and away | 1,891 / 171, 3,601 (starter) | 1,891 / 171, 3,601 (starter) | same |
+| 22 | single | 440 / 66, 1,100 (starter) | 440 / 66, 1,100 (starter) | same |
+| 22 | home and away | 1,782 / 144, 3,222 (starter) | 1,782 / 144, 3,222 (starter) | same |
+
+weight 10: lower 5, higher 0, same 13
+
+| Teams | Season | Before (carry-over / breaks, score) | With weighted starters | Score change |
+|---|---|---|---|---|
+| 23 | single | 565 / 127, 1,835 (starter) | 565 / 127, 1,835 (starter) | same |
+| 23 | home and away | 2,381 / 211, 4,491 (starter) | 2,381 / 211, 4,491 (starter) | same |
+| 25 | single | 665 / 164, 2,305 (starter) | 665 / 164, 2,305 (starter) | same |
+| 25 | home and away | 2,813 / 272, 5,533 (starter) | 2,889 / 262, 5,509 (weighted starter) | -24 |
+| 26 | single | 716 / 102, 1,736 (starter) | 716 / 74, 1,456 (weighted starter) | -280 |
+| 26 | home and away | 2,618 / 230, 4,918 (starter) | 2,714 / 164, 4,354 (weighted starter) | -564 |
+
+weight 10: lower 3, higher 0, same 3
+
+| Teams | Season | Before (carry-over / breaks, score) | With weighted starters | Score change |
+|---|---|---|---|---|
+| 27 | single | 823 / 174, 2,563 (starter) | 823 / 174, 2,563 (starter) | same |
+| 27 | home and away | 3,315 / 304, 6,355 (starter) | 3,315 / 304, 6,355 (starter) | same |
+| 28 | single | 828 / 114, 1,968 (starter) | 978 / 76, 1,738 (weighted starter) | -230 |
+| 28 | home and away | 3,148 / 246, 5,608 (starter) | 3,564 / 178, 5,344 (weighted starter) | -264 |
+| 30 | single | 948 / 136, 2,308 (starter) | 1,164 / 92, 2,084 (weighted starter) | -224 |
+| 30 | home and away | 3,624 / 288, 6,504 (starter) | 3,950 / 194, 5,890 (weighted starter) | -614 |
+
+weight 10: lower 4, higher 0, same 2
+
+| Teams | Season | Before (carry-over / breaks, score) | With weighted starters | Score change |
+|---|---|---|---|---|
+| 29 | single | 891 / 206, 2,951 (starter) | 891 / 206, 2,951 (starter) | same |
+| 29 | home and away | 3,885 / 370, 7,585 (starter) | 3,885 / 370, 7,585 (starter) | same |
+| 34 | single | 1,274 / 166, 2,934 (starter) | 1,460 / 142, 2,880 (weighted starter) | -54 |
+| 34 | home and away | 4,898 / 354, 8,438 (starter) | 4,898 / 354, 8,438 (starter) | same |
+| 33 | single | 1,269 / 280, 4,069 (starter) | 1,269 / 280, 4,069 (starter) | same |
+| 33 | home and away | 5,069 / 526, 10,329 (starter) | 5,151 / 507, 10,221 (weighted starter) | -108 |
+
+weight 10: lower 2, higher 0, same 4
+
