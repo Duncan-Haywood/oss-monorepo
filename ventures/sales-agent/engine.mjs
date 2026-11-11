@@ -30,13 +30,20 @@ export const CATEGORIES = Object.freeze({
 // ---------- dates (UTC days, YYYY-MM-DD) ----------
 
 export const iso = (ms) => new Date(ms).toISOString().slice(0, 10);
+// A date a reply can name, or null: "in 99999999 days" is past what Date can hold (iso would throw and stop the whole inbox run),
+// and a year past 9999 is not YYYY-MM-DD.
+const LAST_DAY = Date.UTC(9999, 11, 31);
+const safeIso = (ms) => (Number.isFinite(ms) && ms >= 0 && ms <= LAST_DAY ? iso(ms) : null);
+// A calendar date, or null when the month has no such day: Date.UTC rolls "2026-02-30" into March 2.
+const calDate = (y, m, d) => { const t = Date.UTC(y, m, d), x = new Date(t); return x.getUTCFullYear() === y && x.getUTCMonth() === m && x.getUTCDate() === d ? safeIso(t) : null; };
+const daysIn = (y, m) => new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
 export const toDay = (s) => { const t = Date.parse(String(s).slice(0, 10) + "T00:00:00Z"); return Number.isFinite(t) ? t : NaN; };
 export function addBusinessDays(day, n) {
   let t = toDay(day), left = n;
   while (left > 0) { t += DAY; const w = new Date(t).getUTCDay(); if (w !== 0 && w !== 6) left--; }
   return iso(t);
 }
-const addDays = (day, n) => iso(toDay(day) + n * DAY);
+const addDays = (day, n) => safeIso(toDay(day) + n * DAY);
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 const MONTH_RE = "(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)";
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -86,9 +93,9 @@ export function findDate(text, today) {
 function findDateLower(text, today) {
   const s = String(text).toLowerCase();
   let m;
-  if ((m = s.match(/\b(20\d\d)-(\d\d)-(\d\d)\b/))) return { date: `${m[1]}-${m[2]}-${m[3]}`, text: m[0] };
-  if ((m = s.match(/\b(20\d\d)[\/.](\d{1,2})[\/.](\d{1,2})\b/)) && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31) return { date: iso(Date.UTC(+m[1], +m[2] - 1, +m[3])), text: m[0] };
-  if ((m = s.match(/\b(\d{1,2})\.(\d{1,2})\.(20\d\d|\d\d)\b/)) && +m[1] >= 1 && +m[1] <= 31 && +m[2] >= 1 && +m[2] <= 12) return { date: iso(Date.UTC(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[2] - 1, +m[1])), text: m[0] }; // day.month.year, the European way
+  if ((m = s.match(/\b(20\d\d)-(\d\d)-(\d\d)\b/))) return { date: calDate(+m[1], +m[2] - 1, +m[3]), text: m[0] }; // "2026-13-45" is not a date
+  if ((m = s.match(/\b(20\d\d)[\/.](\d{1,2})[\/.](\d{1,2})\b/)) && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31) return { date: calDate(+m[1], +m[2] - 1, +m[3]), text: m[0] };
+  if ((m = s.match(/\b(\d{1,2})\.(\d{1,2})\.(20\d\d|\d\d)\b/)) && +m[1] >= 1 && +m[1] <= 31 && +m[2] >= 1 && +m[2] <= 12) return { date: calDate(m[3].length === 2 ? 2000 + +m[3] : +m[3], +m[2] - 1, +m[1]), text: m[0] }; // day.month.year, the European way
   if ((m = s.match(new RegExp(`\\b(${ORDINAL_WORDS.join("|")})\\s+of\\s+${MONTH_RE}\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[2].slice(0, 3)), ORDINAL_WORDS.indexOf(m[1]) + 1), text: m[0] };
   if ((m = s.match(/\bday after tomorrow\b/))) return { date: addDays(today, 2), text: m[0] };
   if ((m = s.match(/\btomorrow\b/))) return { date: addDays(today, 1), text: m[0] };
@@ -103,19 +110,20 @@ function findDateLower(text, today) {
     const mo = +m[1] - 1, d = +m[2]; // US order; a day over 12 in the first place means day/month
     const [mm, dd] = mo > 11 ? [d - 1, mo + 1] : [mo, d];
     if (mm >= 0 && mm < 12 && dd >= 1 && dd <= 31) {
-      if (m[3]) { const y = m[3].length === 2 ? 2000 + +m[3] : +m[3]; return { date: iso(Date.UTC(y, mm, dd)), text: m[0] }; }
+      if (m[3]) { const y = m[3].length === 2 ? 2000 + +m[3] : +m[3]; return { date: calDate(y, mm, dd), text: m[0] }; }
       return { date: nextMonthDay(today, mm, dd), text: m[0] };
     }
   }
   if ((m = s.match(/\b(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b/))) {
+    // The next month that has this day: "the 31st" on 10 November is 31 December, not 1 December; "the 0th" or "the 99th" is no date.
     const t = new Date(toDay(today)), d = +m[1];
-    let cand = Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), d);
-    if (cand < toDay(today)) cand = Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + 1, d);
-    return { date: iso(cand), text: m[0] };
+    let date = null;
+    for (let k = 0; k < 3 && !date && d >= 1 && d <= 31; k++) { const c = calDate(t.getUTCFullYear() + Math.floor((t.getUTCMonth() + k) / 12), (t.getUTCMonth() + k) % 12, d); if (c && toDay(c) >= toDay(today)) date = c; }
+    return { date, text: m[0] };
   }
   if ((m = s.match(/\b(?:in|for)\s+(\d+|a|an|one|two|three|four|five|six|a couple of|couple of|a few|few)\s+(day|week|wk|month|mo)s?\b/))) {
     const n = /^\d+$/.test(m[1]) ? +m[1] : NUM_WORDS[m[1].replace(/^a\s+|\s+of$/g, "").trim()] || 2;
-    const date = m[2] === "day" ? addDays(today, n) : (m[2] === "week" || m[2] === "wk") ? addDays(today, 7 * n) : (() => { const t = new Date(toDay(today)); return iso(Date.UTC(t.getUTCFullYear(), t.getUTCMonth() + n, t.getUTCDate())); })();
+    const date = m[2] === "day" ? addDays(today, n) : (m[2] === "week" || m[2] === "wk") ? addDays(today, 7 * n) : (() => { const t = new Date(toDay(today)), y = t.getUTCFullYear() + Math.floor((t.getUTCMonth() + n) / 12), mo = (t.getUTCMonth() + n) % 12; return Number.isFinite(y) && y <= 9999 ? safeIso(Date.UTC(y, mo, Math.min(t.getUTCDate(), daysIn(y, mo)))) : null; })(); // "in a month" from 31 January is 28 February, not 3 March
     return { date, text: m[0] };
   }
   if ((m = s.match(/\b(?:in|for)\s+(?:a|one|two)\s+fortnight\b|\ba fortnight\b/))) return { date: addDays(today, /two/.test(m[0]) ? 28 : 14), text: m[0] };
@@ -692,6 +700,67 @@ const AWAY_TALK = /\b(office|away|back|return(ing|s)?|vacation|holiday|leave|tra
 // later readers disagree on these (eval/README.md "Fifth round"), and a pause until a stated date is what the reply asks for.
 const SHORT_ABSENCE = (s) => /\b(today|tomorrow|tonight|this (morning|afternoon|evening)|that day|(on )?(monday|tuesday|wednesday|thursday|friday|saturday|sunday)|the \d{1,2}(st|nd|rd|th))\b/i.test(s) && !/\b(back|return|returns|until|till|thru|through|returning|next week|weeks?\b|rest of|remainder|beginning|starting|from \w+ to|vacation|leave)\b|\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b.{0,40}\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b.{0,20}\b(back|return)/i.test(s);
 const absenceInWorkTalk = (body) => sentences(body).filter((x) => x.split(/\s+/).length >= 5 && !AWAY_TALK.test(x)).length >= 2;
+// Sixth round, 2026-11-11 (eval/README.md "Sixth round"). A second session wrote its own round 5 from the same 0*-4* stops at the
+// same time, frozen before 5* was read and scored blind on 5* by a second reader; it did better than the landed round 5 under
+// both readers (3.7 vs 4.2 wrong stops per 1,000 with its reader, 4.7 vs 5.5 with the landed one's). This block adds what that
+// version had and this one lacked, then was scored once on the unread 6* half. Each line quotes its real phrasing.
+//
+// Who did the passing on, by the round-4 subject walk rather than a fixed pattern: "Mr. Lay had passed this on to Joe Hirko",
+// "Jaesoo modified jump calibration code and passed it to IT". The writer's own handover still files as left/wrong person.
+const subjectIsSomeoneElse = (at) => (s) => {
+  const m = s.match(at);
+  if (!m) return false;
+  const words = s.slice(0, m.index).split(/[\s,;:()"]+/).filter(Boolean);
+  for (let i = words.length - 1; i >= 0; i--) {
+    const w = words[i].replace(/[.!?'’]+$/, ""), lw = w.toLowerCase().replace(/’/g, "'"), prev = (words[i - 1] || "").toLowerCase();
+    if (/^(i|i'?m|i'?ll|i'?ve|i'?d|me|my|we|we'?re|we'?ll|we'?ve|us|our)$/.test(lw)) return false;
+    if (/^(he|she|they|he'?s|she'?s|they'?re|him|her|his|their|them|it|it'?s|who)$/.test(lw)) return true;
+    if (/^[A-Z][\w&'’-]*$/.test(w) && !NOT_A_SUBJECT.has(w.replace(/['’]s$/, "")) && !/^(in|at|to|from|of|with|for|on|into|near|via|by)$/.test(prev)) return true;
+  }
+  return false;
+};
+VETO.left_company.push({ test: subjectIsSomeoneElse(/\b(passed|handed|forwarded|sent|delegated)\b/i) },
+  // "Please, send me your resume, I shall forward it to our head trader": we send, they forward. "Please e-mail Karen or me".
+  /\bsend me\b.{0,60}\b(i|we) ?('ll|will|shall|can|could) forward\b/i,
+  /\b(contact|e-?mail|email|speak (to|with)) [A-Z][a-z]+( [A-Z][a-z]+)? or me\b/);
+VETO.out_of_office.push(
+  // "Yes I will be back tonight": a few hours, not an absence.
+  /\bwill be back (tonight|later( today| this (afternoon|evening))?|shortly|soon|in a (few|couple of|bit)|in (an|\d+) (hour|minute)s?|after lunch|this (afternoon|evening))\b/i);
+VETO.not_interested.push(
+  // "don't need" with an object that is not what we sell, with or without a request beside it: "we do not need the extra night",
+  // "I don't need this spreadsheet everyday", "We do not need anyone speaking at this", "I really don't need access anymore",
+  // "talent we don't need/like". A tool, service, product, vendor, call or demo within two words still declines ("we don't need
+  // a new CRM", "do not need the Palm.Net service").
+  // "I do not need a regulatory lawyer at this time" (5*, a real decline): a time limit keeps it a decline.
+  /\b(don'?t|do not|DON'?T) (really |yet |even )?need (?!.*\b(at this time|at the moment|right now|for now)\b)(the|an?|anyone|anybody|access|recorded) (?!([\w.&'-]+ ){0,2}(tools?|solutions?|services?|products?|platforms?|software|systems?|vendors?|agency|agencies|consultants?|providers?|apps?|crm|demo|call|meeting|help|support|offer|subscription|licen[cs]es?|plan|upgrade|integration|outreach|emails? from you|your)\b)/i,
+  /\bneed\/|\bneed your \w+ (inserted|added|included|attached|sent|signed|moved)\b|\bneed (this|that) \w+ (every|each) ?day\b/i,
+  // "Could you call me when we're set to trade w/ Cinnabar?"; "Okay I think we are good, tried calling you"; "No need for Ken's
+  // involvement with her at this point".
+  /\b(we'?re|we are) set to [a-z]+\b|\bi think we('re| are) (all )?(good|set|fine),? (tried|spoke|talked|called|he|she|they|i)\b/i,
+  /\b[Nn]o need for [A-Z][a-z]+['’]s\b/);
+VETO.unsubscribe.push(
+  // "let me know if you'd like me to politely intervene and take this off your list" (a to-do list); "have taken off the
+  // following from your list"; "Please notify the sender of the delivery error ... and then delete it from your system".
+  /\btake (this|it|that) off your (list|plate|hands)\b|\b(have|has) taken off\b.{0,30}\bfrom your list\b|\bdelete it from your (system|computer)\b|\bdelivery error\b/i);
+// "remove from list.  no longer with gas desk." (Enron 4*): a bare "remove from list" is the writer's own opt-out.
+RULES.unsubscribe.push(/^\s*(please )?remove from (the |this |your |that )?(mailing |distribution |e-?mail )?list\b/i);
+// An away sentence deep in a long reply ("... I will let you know later who will attend. I will be out of the office that day.")
+// is a person mentioning a day off in passing whatever its length; round 5's SHORT_ABSENCE kept longer ones ("I will be out of
+// the office for the next few days") as away notices. A body sentence counts only when it is among the first two (after a
+// greeting) or the reply is three sentences or fewer; a reply that offers another time ("Tomorrow is better than Monday",
+// "March 5-8 is better for me") is scheduling. Subjects and header signals are untouched.
+const AWAY_GREETING = /^((hi|hello|hey|dear|good (morning|afternoon|evening)|greetings)\b.{0,30}|[A-Z][a-z]+( [A-Z][a-z]+)?[,:]?)$/i;
+const awayTooDeep = (body, s) => {
+  const ss = sentences(body), i = ss.indexOf(s);
+  // Round 5's policy holds: a stated span ("out of the office until November 12th") is what the reply asks for, so it pauses.
+  if (i < 0 || /\b(until|till|thru|through)\b/i.test(s)) return false;
+  const lead = AWAY_GREETING.test(ss[0] || "") && ss[0] !== s ? 1 : 0;
+  return ss.length > 3 && i - lead >= 2;
+};
+// "No. I'll let this one go. Thanks", "No. I will not agree to any penalty charges" (5*, real declines the round-5 REST_DECLINES
+// did not read as one).
+const REST_DECLINES_6 = /\b(let (this|it|that) (one )?go|(will not|won'?t|do not|don'?t) agree to)\b/i;
+const SCHEDULING_INSTEAD = /\b(is|are|would be|works) better (for me|than)\b/i;
 const vetoed = (key, s) => (VETO[key] || []).some((re) => re.test(s));
 
 /**
@@ -716,13 +785,13 @@ export function triage(reply, today) {
   // Capacity", "Re: Louise Kitchen - out of office", "Re: Bobette Riner is no longer at TNE" (Enron, third round, 2026-11-11).
   // Auto-replies keep their own subjects ("Out of Office: ...", "Automatic reply: ..."), which do not start with Re:.
   // Fourth round: a bare "No." stands as a decline when the rest of the reply is empty, a sign-off, or declines too.
-  const bareNoStands = (s) => { const rest = sentences(body).filter((x) => x !== s).join(" "); return !REST_TALKS.test(rest.replace(/\b(thanks|thank you|thx|cheers|regards)\b/gi, "")) || REST_DECLINES.test(rest); };
+  const bareNoStands = (s) => { const rest = sentences(body).filter((x) => x !== s).join(" "); return !REST_TALKS.test(rest.replace(/\b(thanks|thank you|thx|cheers|regards)\b/gi, "")) || REST_DECLINES.test(rest) || REST_DECLINES_6.test(rest); };
   // Fifth round: an absence inside a working reply is a person writing, not an away notice (see absenceInWorkTalk).
   // Only under a reply subject: a subject that is itself the notice ("Out of Office: ...", "Automatic reply: ...", "Out of office --
   // Dec. 4 and 5") keeps the away reading however long the body runs.
   const workTalk = !signal0(reply) && /^\s*(re|fw|fwd|aw|wg|tr)\s*:/i.test(subject) && absenceInWorkTalk(body);
   const SUBJECT_SKIP = new Set(["unsubscribe", "left_company", "not_interested", "out_of_office"]);
-  const find = (key) => { if (human && (key === "bounce" || key === "out_of_office")) return null; if (key === "bounce" && replySubject) { for (const s of all0.slice(1)) { if (vetoed("bounce", s)) continue; const m = hits(RULES.bounce, s); if (m) return { s, m: m[0] }; } return null; } for (const s of (replySubject && SUBJECT_SKIP.has(key) ? all.slice(1) : all)) { if (vetoed(key, s)) continue; const m = hits(RULES[key], s); if (m && key === "not_interested" && BARE_NO.test(s) && !bareNoStands(s)) continue; if (m && key === "not_interested" && SOFT_NO.test(m[0]) && ASKS_READER.test(body.replace(/\s+/g, " "))) continue; if (m && key === "out_of_office" && workTalk && SHORT_ABSENCE(s)) continue; if (m) return { s, m: m[0] }; } return null; };
+  const find = (key) => { if (human && (key === "bounce" || key === "out_of_office")) return null; if (key === "bounce" && replySubject) { for (const s of all0.slice(1)) { if (vetoed("bounce", s)) continue; const m = hits(RULES.bounce, s); if (m) return { s, m: m[0] }; } return null; } for (const s of (replySubject && SUBJECT_SKIP.has(key) ? all.slice(1) : all)) { if (vetoed(key, s)) continue; if (key === "out_of_office" && !signal0(reply) && (awayTooDeep(body, s) || SCHEDULING_INSTEAD.test(body))) continue; const m = hits(RULES[key], s); if (m && key === "not_interested" && BARE_NO.test(s) && !bareNoStands(s)) continue; if (m && key === "not_interested" && SOFT_NO.test(m[0]) && ASKS_READER.test(body.replace(/\s+/g, " "))) continue; if (m && key === "out_of_office" && workTalk && SHORT_ABSENCE(s)) continue; if (m) return { s, m: m[0] }; } return null; };
   const res = (category, ev, extra = {}) => ({ category, subtype: null, confidence: "clear", evidence: ev ? ev.s : "", matched: ev ? ev.m : "", date: null, referral: null, ...extra });
 
   let ev;

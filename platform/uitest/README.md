@@ -231,6 +231,11 @@ Guardrails:
 - The smoke check's "nothing changed" warning reads visible text. A page that
   only updates an input's value, or draws on a canvas, gets the warning
   without being broken.
+- Without a key, the smoke check fails a page only on a few broken values:
+  `NaN`, `undefined`, `Infinity` or `[object Object]` that appear after its
+  fills and clicks and were not there before. A wrong but plausible number,
+  or an error written in words, needs a scripted `expectText` step or an
+  agent goal with a key.
 
 ## In this repository
 

@@ -99,27 +99,27 @@ flagships:
       real replies reliably, keeping consent records, and earning each step of autonomy with measurements.
     next: >-
       History and every measurement: README, eval/README and git (inbox agent, daily
-      run, self-host server with TLS and XOAUTH2, research agent, call prep, follow-
-      ups, meeting slots and .ics invites, CRM write-back to Pipedrive/HubSpot against
-      fake servers only; nineteen agent-written reply sets, latest 2026-11-08). Real
-      people's mail (eval/enron.mjs, Enron corpus, README): five rounds, each tuned on
-      read halves and scored once on an unread half labelled blind by a separate
-      agent; round 5, 2026-11-11 (eval/README "Fifth round": narrower bare-"No."
-      check, short absences inside working replies, "don't need the X" beside a
-      request): on unread 5* wrong stops 7.2 to 5.5 per 1,000, right 34 to 33. Real
-      opt-out recall set (eval/optout-recall.mjs): 112 of 113. Next: (1) the 52 left
-      on 5* (short replies that only say "I'm out tomorrow"; personal "We're fine"/"NO
-      THANKS!"; the writer's own handovers and referrals, which the readers label none
-      while the product files them wrong-person by design: settle that policy first)
-      tuned on 0*-5*, scored on 6*; a human second reader for the Enron and opt-out
-      labels (rounds 1-2 and 3-5 readers disagree on short absences); "Mine too" above
-      a quoted opt-out; (2) real replies to outreach and a real rep's call notes to
-      check the reply rules, prep rules and follow-up sorter; (3) M2: score a hosted
-      and a local model with eval/model.mjs on the fresh sets (needs a key), with a
-      set labelled by a person or another model family before any rule change; (4) run
-      the self-host server, OAuth and CRM write-back against a real mailbox, Google or
-      Microsoft app and HubSpot or Pipedrive account (all fakes so far); (5) a real
-      HubSpot or Pipedrive export for the research agent (none found public).
+      run, self-host server with TLS and XOAUTH2, research agent, call prep, follow-ups,
+      meeting slots and .ics invites, CRM write-back to Pipedrive/HubSpot against fake
+      servers only; nineteen agent-written reply sets, latest 2026-11-08). Real people's
+      mail (eval/enron.mjs, Enron corpus, README): six rounds, each tuned on read halves
+      and scored once on an unread half labelled blind by a separate agent; round 6,
+      2026-11-11 (eval/README "Sixth round": absences deep in a reply, "don't need"
+      objects, others' handovers): on unread 6* wrong stops 5.6 to 4.3 per 1,000, right
+      45 to 45. Two readers on 5* agreed on 81%; reader effect 1.0-1.4 per 1,000. Real
+      opt-out recall set (eval/optout-recall.mjs): 112 of 113. Next: (1) the 41 left on
+      6* (away 16, not-interested 11; "Please cancel the X service ... do not need the X
+      service" read as scoping) and the policy on the writer's own handovers (readers
+      say none, the product files wrong-person by design) tuned on 0*-6*, scored on 7*,
+      one reader's instructions throughout; a human second reader for the Enron and
+      opt-out labels; "Mine too" above a quoted opt-out; (2) real replies to outreach
+      and a real rep's call notes to check the reply rules, prep rules and follow-up
+      sorter; (3) M2: score a hosted and a local model with eval/model.mjs on the fresh
+      sets (needs a key), with a set labelled by a person or another model family before
+      any rule change; (4) run the self-host server, OAuth and CRM write-back against a
+      real mailbox, Google or Microsoft app and HubSpot or Pipedrive account (all fakes
+      so far); (5) a real HubSpot or Pipedrive export for the research agent (none found
+      public).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
@@ -131,7 +131,7 @@ flagships:
     next: >-
       TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. Panel and main analysis run in Web Workers on the page (README "Main analysis off the main thread", 2026-11-11).
       Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (c) CLI panel on worker_threads done 2026-11-11 (cap 2,000 to 10,000; tree-ring 9.5 s vs 23.5 s one thread); TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere; next: --columns per-column panels on threads.
-      Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
+      Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); `--model drift` 2026-11-11 (random-walk level, README "Jumps on a drifting level"): F1 0.677/0.420 vs plain 0.477/0.296, not above the warning's refit; next: its AR(1) term, a heavy-tail check (bank, bitcoin), a step-robust omega (Nile missed); (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -228,8 +228,12 @@ flagships:
       is outcome-blind, so a fixed e is a discount, not a detector; +0.002 to
       +0.014 rank, 15-115% more answers to the couple bar; with the true e it
       is calibrated (coverage 0.90-0.99) and lifts staged above shipped at 50%
-      lapse. Next: a per-respondent lapse estimate (grid posterior over e from
-      the person's own answers) against the e = true ceiling; staged's 0.90
+      lapse. Per-respondent lapse estimate measured 2026-11-11, not shipped
+      (lapseEstimate.ts, INFORMATION-GAIN-SELECTOR.md): a grid posterior from
+      one person's answers reads 0.02-0.05 whatever the true e, staged gives no
+      signal, and even true win chances leave sd 0.07-0.11 at 240 answers.
+      Next: a pooled per-survey lapse rate or easy anchor pairs as the e
+      signal; staged's 0.90
       coverage for honest respondents (close pairs shrink rd too fast); the
       switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator

@@ -2292,3 +2292,80 @@ already ran it in Web Workers; the CLI now does the same with Node's `worker_thr
 - **Not done.** The several-column panel (`--columns`) still runs its per-column panels on one
   thread; the page's 2,000-point no-worker fallback is unchanged.
 
+
+## Jumps on a drifting level: `--model drift` (2026-11-11)
+
+Open item (0) of the flagship: the plain level model cuts smooth or wandering series into staircases
+(406 cuts on TCPD's 816-month US population). Every fix tried so far kept the flat-level model and
+changed its noise (`--ar1`, the noise floors, the over-cut warning's refit). This one changes the
+model: between changes the level follows a random walk, so slow wander is paid for by a per-step
+variance omega^2 and only a jump too big for the walk is a change.
+
+- **What it is.** `drift-level.mjs`. The model is the phi = 0 case of DeCAFS (Romano, Rigaill,
+  Runge and Fearnhead, "Detecting Abrupt Changes in the Presence of Local Fluctuations and
+  Autocorrelated Noise", JASA 2022, doi 10.1080/01621459.2021.1909598; the arXiv abstract page
+  2005.01379 was read for the title and DOI, the paper's body was not re-read here). It is solved
+  differently: a change restarts the level from a flat prior, so segments are independent and each
+  costs the -2 log likelihood of a local-level Kalman filter over it; exact optimal partitioning
+  over all segment starts (the filter's variances depend only on the position in the segment, so
+  every start costs one multiply-add per point; O(n^2), 44 ms for all 38 TCPD series). sigma and
+  omega come first, robustly: the lag-k difference has variance 2 sigma^2 + k omega^2, so a
+  least-squares line through the MAD variances at lags 1 to 10 gives both. Penalty 2 log n, the
+  plain level model's BIC. `driftLevelPath` gives the smoothed level, so each jump is reported as
+  the level just before and just after it.
+- **Pre-registered on TCPD** (`node eval/tcpd-drift.mjs tcpd-data`, output `eval/tcpd-drift.out.txt`;
+  the settings and the decision rule are in the script's header, written before any TCPD series was
+  run through it). Rule: offer it if the primary setting beats the plain level model on both the 31
+  shipped and the 7 held-out series; put it in the default panel only if it also beats the level
+  model following the over-cut warning on both.
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift level, 2 log n (primary) | 0.677 | 0.592 | 247 | 0.420 | 0.524 | 284 |
+  | drift level, 4 log n | 0.682 | 0.620 | 117 | **0.538** | 0.606 | 182 |
+  | drift level, min segment 5 | **0.715** | 0.616 | 160 | 0.493 | 0.534 | 153 |
+  | drift level + median slope (post hoc) | 0.680 | 0.604 | 249 | 0.429 | 0.502 | 286 |
+  | level (default) | 0.477 | 0.374 | 1329 | 0.296 | 0.191 | 585 |
+  | level, following the over-cut warning | 0.655 | 0.561 | 653 | 0.497 | 0.394 | 233 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+  | zero (published) | 0.663 | 0.568 | | 0.639 | 0.597 | |
+  | binseg (published) | 0.714 | 0.671 | | 0.727 | 0.731 | |
+
+- **Verdict: offered, not in the panel.** Primary minus plain level: +0.200 F1 shipped (95%
+  bootstrap 0.115 to 0.286, better on 24 of 31) and +0.124 held out (0.070 to 0.195, better on 7
+  of 7). Primary minus following the warning: +0.022 shipped (-0.055 to 0.099) and -0.077 held out
+  (-0.151 to -0.001). So it beats the plain model everywhere and the warning's refit nowhere
+  reliably; the second half of the rule fails and the panel is unchanged. It does not beat
+  "no change" or binseg either.
+- **Where it helps and where it does not.** It takes US population from 406 cuts to 1 (F1 0.015 to
+  0.615), JFK passengers 57 to 0, seat belts 24 to 1 (0.333 to 0.824), Japan's GDP 17 to 2, and
+  dates Brent's changes better than any level setting (0.726). It fails on series whose trouble is
+  heavy tails or volatility bursts, not drift: `bank` 48 cuts where annotators mark none, bitcoin
+  103, measles 30, Ratner's stock 46. Those are the held-out set's bulk, which is why it drops there.
+  And it pays the absorbing price: Nile's 1899 drop (2.15 noise sd on a flat level) is read as
+  wander, because the robust omega estimate (45 on noise sd 118) is inflated by the step's own
+  lag-k differences. Of the secondary settings, 4 log n does best held out (0.538, above the
+  warning's 0.497) and min segment 5 best shipped (0.715); neither wins on both, and choosing
+  between them now would be tuning on the test.
+- **Synthetic, where the truth is known** (`node eval/drift-sim.mjs`, output
+  `eval/drift-sim.out.txt`; n 200, noise sd 1, random-walk step sd omega, one step at t = 100,
+  60 series per cell): with omega 0.3 and no step the plain model reports 5.40 cuts, the local
+  floor 1.70 and the drift model 0.30; a 5-sd step is found 60, 59 and 60 of 60 times with 5.05,
+  1.28 and 0.08 other cuts. A 3-sd step on that wander is found 57, 46 and 44 times. On white noise
+  (omega 0) all three agree (3-sd step 60, 60, 58 of 60).
+- **Steady growth: `--drift-slope` (post hoc).** A random walk without a drift term cannot follow a
+  steady slope, so Australian residents (smooth quarterly growth, no documented break) still gave
+  31 cuts (plain level 43). Taking out the median first difference first (`slope: true`) gives 0;
+  US real GDP 2 cuts (1978Q2, 1999Q4) without it and 0 with it; Mauna Loa CO2 16 to 10 (the season
+  is not modelled). Added after the TCPD scoring, so its TCPD row (+0.003 / +0.009 over the primary)
+  is in-sample and is not evidence; it stays an opt-in flag.
+- **Shipped.** `node cli.mjs series.csv --model drift [--drift-slope] [--penalty <number>]
+  [--min-segment n] [--json]` (`drift-cli.mjs`; the text quotes the TCPD figures above, which a test
+  checks against the eval output, and cites the paper). Not on the page or in the agent tool yet.
+  Tests: `drift-level.test.mjs` (noise estimates, a step on white noise and on a walk, the optimal
+  partition is exact against every single-change move, US GDP, Australian residents, the Nile miss,
+  the CLI).
+- **Next.** The AR(1) term (DeCAFS's phi) for sticky noise around the walk; a volatility-robust
+  cost (bitcoin, `bank`) or a check that tells drift from heavy tails before choosing this model;
+  an omega estimate that a single large step does not inflate (Nile); the model as a panel member
+  scored on fresh labelled data, not TCPD again.
