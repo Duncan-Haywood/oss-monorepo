@@ -1,0 +1,424 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJEdJeDgYHoazKzpVs",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T14:06:26Z",
+  "ended": "2026-11-11T14:07:25Z",
+  "wall_minutes": 13.55,
+  "tokens_in": 3338684,
+  "tokens_out": 21857,
+  "cost_usd": 1.6262,
+  "tool_calls": 47,
+  "task": "redteam: check_insecure_refs",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14804",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First run_workflow_locally --for-changes hit my 400 s timeout (8 workflows, up to 40 min); reran in background.",
+    "Python triple-quote clash in a generated-source heredoc; wrote the file with Write instead.",
+    "main was red on portfolio/router/validate.py (flagships.yaml next: over cap) from another run; fixed in this PR."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0: all four open entries were control-plane fixes with PRs already waiting on the owner; the prompt has no line for 'already has an owner-gated PR, leave it', so I spent time searching for them. `redteam.py open` could print the open PR per entry."
+    },
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "The docstring makes check_*.py read as CI-enforced, but the tree checks it runs (e.g. check_insecure_refs) run in no PR workflow; I almost claimed in the post that the check ran nightly."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally --for-changes on a platform/ci change selects 8 workflows (up to 40 min); CLAUDE.md does not say to background it or use --list."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b says to open a new workflow file edit as its own PR; the harness limits me to one designated branch, so the control-plane step goes in a second PR from the same branch after this one merges (as the 2026-11-10 run did).",
+      "did": "Recorded the exact fix as an open defect and queued the follow-up PR.",
+      "result": "Main fix lands without waiting on the owner."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix every open defect first; all four already have owner-gated PRs, so a fifth copy would only add to P063's stalled duplicates.",
+      "did": "Left them patched: false and linked their PRs in the PR body.",
+      "result": "No duplicate control-plane PRs."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-eleven-ways-past-a-mixed-content-check.md"
+  ],
+  "goal": null,
+  "notes": "Campaign 1 (random --under platform draw) 7/7 caught. Then I hunted with 11 hand-written bypass pages, all passed the check: real defect, fixed. Campaign 2 on the rewrite: 6/10 caught, 10/10 after two tests (rerun). Guard tightened: check_insecure_refs (an existing check) now rejects the inputs it exists to reject. Verification: unittest test_check_insecure_refs 11 OK; check over the tree 3724 files 0 hits; check_post_frontmatter and check_post_links clean; post_similarity 0 pairs >= 0.25. CI: portfolio-validate went red on the merge with main: league-schedule-generator `next:` in flagships.yaml was 2154 chars (cap 2000) after a commit on main. Main was red; trimmed the landed-work summary (details stay in the venture README), validate.py green.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_insecure_refs.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_insecure_refs  (in platform/ci)",
+        "seed": 581441180,
+        "commit": "e5ae2b86",
+        "sites": 7,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 15,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 36,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "after": "ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[1])",
+            "line_text": "    ap = argparse.ArgumentParser(description=__doc__.split(\"\\n\")[0])",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 37,
+            "col": 47,
+            "operator": "div-to-times",
+            "before": "ap.add_argument(\"--root\", default=str(ROOT / \"ventures\"))",
+            "after": "ap.add_argument(\"--root\", default=str(ROOT * \"ventures\"))",
+            "line_text": "    ap.add_argument(\"--root\", default=str(ROOT / \"ventures\"))",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 39,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "bad, pages = [], 0",
+            "after": "bad, pages = [], 1",
+            "line_text": "    bad, pages = [], 0",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 43,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "pages += 1",
+            "after": "pages += 2",
+            "line_text": "        pages += 1",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 48,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 2 if bad else 0",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 48,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_insecure_refs.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_insecure_refs  (in platform/ci)",
+        "seed": 55486286,
+        "commit": "2fe32742",
+        "sites": 24,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 42,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "yield m.group(1) or m.group(2)",
+            "after": "yield m.group(1) or m.group(3)",
+            "line_text": "        yield m.group(1) or m.group(2)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 54,
+            "col": 29,
+            "operator": "true-to-false",
+            "before": "self._in_style = True",
+            "after": "self._in_style = False",
+            "line_text": "            self._in_style = True",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 56,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "value = (value or \"\").strip()",
+            "after": "value = (value and \"\").strip()",
+            "line_text": "            value = (value or \"\").strip()",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 61,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "self.urls.append(parts[0])",
+            "after": "self.urls.append(parts[1])",
+            "line_text": "                        self.urls.append(parts[0])",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "srcset test only asserted truthiness; test_reports_the_url_itself asserts the URL"
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 71,
+            "col": 29,
+            "operator": "false-to-true",
+            "before": "self._in_style = False",
+            "after": "self._in_style = True",
+            "line_text": "            self._in_style = False",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "<style/> left _in_style set; test_css_scan_stops_at_end_of_style covers the self-closing form"
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 74,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if tag == \"style\":",
+            "after": "if tag != \"style\":",
+            "line_text": "        if tag == \"style\":",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "</style> did not end the CSS scan; test_css_scan_stops_at_end_of_style"
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 75,
+            "col": 29,
+            "operator": "false-to-true",
+            "before": "self._in_style = False",
+            "after": "self._in_style = True",
+            "line_text": "            self._in_style = False",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same as line 74"
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 88,
+            "col": 27,
+            "operator": "eq-flip",
+            "before": "if page.suffix.lower() == \".css\":",
+            "after": "if page.suffix.lower() != \".css\":",
+            "line_text": "    if page.suffix.lower() == \".css\":",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 102,
+            "col": 47,
+            "operator": "div-to-times",
+            "before": "ap.add_argument(\"--root\", default=str(ROOT / \"ventures\"))",
+            "after": "ap.add_argument(\"--root\", default=str(ROOT * \"ventures\"))",
+            "line_text": "    ap.add_argument(\"--root\", default=str(ROOT / \"ventures\"))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_insecure_refs.py",
+            "line": 114,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/check_insecure_refs.py",
+        "issue": "Regex needed quoted values and knew only src/link href/form action, so unquoted src/href, srcset, poster, object data, formaction, track/input src, '>' inside an earlier attribute, base href, and CSS url()/@import in style attributes, <style> blocks and .css files all passed. Rewritten on html.parser, plus .css scan; tree still clean (3,724 files).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14804"
+      },
+      {
+        "file": ".github/workflows/portfolio-validate.yml",
+        "issue": "No PR workflow runs check_insecure_refs.py or test_check_insecure_refs.py; only main_health.py run by hand. Fix: in portfolio-validate.yml's validate job (already triggered by ventures/**/*.html, *.css and platform/ci/**) add `python3 platform/ci/check_insecure_refs.py` and a `working-directory: platform/ci` step `python3 -m unittest test_check_insecure_refs`. Control plane: own PR from this branch after #14804 lands.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "46675f29-1f04-5e66-a017-ccbbdd708a79",
+    "transcripts": 1,
+    "first": "2026-11-11T14:06:26Z",
+    "last": "2026-11-11T14:19:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 21857,
+        "thinking": 4610,
+        "cache_read": 3271802,
+        "cache_write_5m": 0,
+        "cache_write_1h": 66797,
+        "api_equivalent_usd": 1.6262,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 21857,
+      "thinking": 4610,
+      "cache_read": 3271802,
+      "cache_write_5m": 0,
+      "cache_write_1h": 66797,
+      "api_equivalent_usd": 1.6262,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 43,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.55,
+      "active_minutes": 13.55,
+      "model_minutes": 5.2,
+      "tool_minutes": 8.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "audit a CI lint, write 11 bypass cases, rewrite on html.parser, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 184.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
