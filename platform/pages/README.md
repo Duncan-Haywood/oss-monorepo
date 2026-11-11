@@ -1977,6 +1977,29 @@ not yet in `browser_checks.py` (control-plane CI, its own PR).
 node platform/pages/ask-voice-icon.mjs
 ```
 
+### Lighthouse on the pages a visitor sees first
+
+`lighthouse.mjs` runs Lighthouse (mobile by default) on the hub, /research/,
+/writing/, /stories/, one post and every flagship in
+`portfolio/flagships.yaml`, against the built dist, and prints one Markdown
+table row per page with the failing accessibility audits named. It serves the
+dist itself, rewriting the local build's absolute origin (`DEFAULT_BASE_URL`)
+to its own port and gzipping text as Cloudflare does. Lighthouse is not a repo
+dependency: install it once into your scratchpad.
+
+```
+npm i --prefix "$SCRATCH/lh" lighthouse@12.8.2
+LIGHTHOUSE="$SCRATCH/lh/node_modules/.bin/lighthouse" node platform/pages/lighthouse.mjs
+... --pages=research/,writing/ --min-a11y=95 --form=desktop
+```
+
+First run, 2026-11-11: /research/ accessibility 88 and /writing/ 92 (theme-tag
+and chip-count contrast, an `h3` with no `h2` above it, links told apart by
+colour alone, 9 px pager targets), all 100 after PRs #14667 and the one that
+added this file. Venture pages score best-practices 96 here only because
+third-party hosts do not resolve in a cloud session; performance moves a few
+points between runs. Not in CI (needs Lighthouse and a browser).
+
 ## Reflow, and the two things that widen a page
 
 `reflow.mjs` is the build half of what `sideways.mjs` measures. Its header

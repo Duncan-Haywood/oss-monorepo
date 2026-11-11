@@ -139,6 +139,7 @@ h1 em{font-style:italic;color:var(--accent-ink)}
 .theme h2{font:600 clamp(1.6rem,3vw,2.1rem)/1.15 var(--serif);letter-spacing:-.015em;margin:0}
 .theme h2 a{color:inherit}
 .theme-head p{grid-column:2;margin:.25rem 0 0;color:var(--muted);max-width:70ch}
+.theme-head p a{text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:1px}
 .theme-tag{display:inline-flex;align-items:center;gap:.4rem;font:500 11.5px var(--mono);text-transform:uppercase;letter-spacing:.06em;overflow-wrap:anywhere;max-width:100%;color:var(--c)}
 .theme-tag::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--c)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(330px,100%),1fr));gap:14px}
@@ -201,7 +202,7 @@ footer a{color:var(--muted)}
 </div></section>
 
 <section class="featured"><div class="wrap">
-  <p class="label">Start here</p>
+  <h2 class="label">Start here</h2>
   <div class="feat-grid">
 {{FEATURED}}
   </div>

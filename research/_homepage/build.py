@@ -559,7 +559,7 @@ def build(out, base_url=None, chrome=None):
         for s, head in logs
     )
     log_section = (f'''<section class="featured" id="logs"><div class="wrap">
-  <p class="label">Research logs</p>
+  <h2 class="label">Research logs</h2>
   <div class="feat-grid">
 {log_items}
   </div>
