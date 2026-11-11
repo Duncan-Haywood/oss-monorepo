@@ -13,6 +13,12 @@
 // Payee strings from banks are messy ("SQ *BLUE BOTTLE 0412 OAKLAND CA",
 // "PURCHASE AUTHORIZED ON 03/14 AMZN MKTP US*2K3"), so everything keys on a
 // normalised payee. Pure functions, no DOM, no network.
+//
+// After the built-in keywords, three hints a file may carry are read for review
+// only: the card network's merchant category code (mcc.mjs), the bank's own
+// category label, and a new payee's shape and size (guessNewPayee).
+
+import { mccAccount, mccKey } from "./mcc.mjs";
 
 const NOISE = new Set(("pos ach debit credit card purchase checkcard visa mastercard mc dda withdrawal deposit payment pmt pymt web ppd ccd id ref trn txn " +
   "recurring online mobile preauthorized pre auth authorized authorization authorisation pending non pin at on from to the inc llc ltd co corp us usa www com net org help bill sq tst pp sp py fs " +
@@ -829,6 +835,23 @@ export const BANK_CATEGORY_IN = [
   ["4000", /^(sales|business income|self[- ]employment income|revenue)$/i],
 ];
 
+// These books' own filings for the category come first: a "consulting" merchant may sell
+// training in one business and advice in another. The fixed table speaks only when the
+// category has fewer than MCC_MEMORY.minLines earlier lines here.
+function mccSuggest(txn, model, ranked, off, d) {
+  if (!txn.mcc || off.has("mcc") || d !== "out") return null;
+  const ok = (a) => model.codes?.has(a) ?? true;
+  const seen = model.mccMemory?.get(mccKey(txn.mcc));
+  const total = seen ? [...seen.values()].reduce((a, v) => a + v, 0) : 0;
+  if (total >= MCC_MEMORY.minLines && !off.has("mcc-memory")) {
+    const [account, n] = [...seen].filter(([a]) => ok(a)).sort((a, b) => b[1] - a[1])[0] ?? [];
+    if (account && n / total >= MCC_MEMORY.minShare) return { account, confidence: Math.min(n / (total + 0.5), MCC_MEMORY.maxConfidence), source: "mcc", reason: `${n} of ${total} earlier lines in the card network's category "${String(txn.mcc).slice(0, 40)}" went here`, alternatives: ranked.slice(0, 2) };
+    return null;
+  }
+  const m = mccAccount(txn.mcc);
+  return m && ok(m.account) ? { account: m.account, confidence: 0.55, source: "mcc", reason: `the card network's merchant category${m.code ? ` ${m.code}` : ""} (${m.label})`, alternatives: ranked.slice(0, 2) } : null;
+}
+
 export function suggest(txn, model) {
   const off = model.skip ?? new Set();
   const text = String(txn.desc ?? "").toLowerCase().replace(/\s+/g, " ");
@@ -848,6 +871,7 @@ export function suggest(txn, model) {
   }
 
   const ranked = off.has("learned") ? [] : classify(model.classifier, txn, (a) => model.codes?.has(a) ?? true);
+  if (MCC_MEMORY.before) { const mc = mccSuggest(txn, model, ranked, off, d); if (mc) return mc; }
   // When a built-in keyword names the merchant, the classifier must be near-certain to
   // overrule it: on real Mint exports (eval/mint-labelled.mjs, 2026-11-10) a shared city
   // token ("brooklyn") was enough to send a deli and a burger chain to dues at p >= 0.5.
@@ -867,6 +891,9 @@ export function suggest(txn, model) {
     if (account !== "transfer" && model.codes && !model.codes.has(account)) continue;
     if (re.test(bi)) return { account, confidence: account === "transfer" ? 0.6 : 0.7, source: "built-in", reason: `built-in keyword "${(bi.match(re) ?? [""])[0].trim()}"`, alternatives: ranked.slice(0, 2) };
   }
+  // The card network's merchant category code: what kind of merchant it is, even for a
+  // payee these books have never seen (mcc.mjs; measured in eval/scotgov-card.mjs).
+  if (!MCC_MEMORY.before) { const mc = mccSuggest(txn, model, ranked, off, d); if (mc) return mc; }
   if (txn.bankCat && !off.has("bank-category")) {
     const hit = (d === "out" ? BANK_CATEGORY : BANK_CATEGORY_IN).find(([a, re]) => re.test(txn.bankCat) && (model.codes?.has(a) ?? true));
     if (hit) return { account: hit[0], confidence: 0.55, source: "bank-category", reason: `the bank's own category "${txn.bankCat}"`, alternatives: ranked.slice(0, 2) };
@@ -885,5 +912,20 @@ export function suggest(txn, model) {
 }
 
 export function historyRecord(txn, account) {
-  return { key: payeeKey(txn.desc), tokens: payeeTokens(txn.desc), dir: dir(txn.cents), cents: txn.cents, shape: payeeShape(txn.desc), account };
+  return { key: payeeKey(txn.desc), tokens: payeeTokens(txn.desc), dir: dir(txn.cents), cents: txn.cents, shape: payeeShape(txn.desc), ...(txn.mcc ? { mcc: mccKey(txn.mcc) } : {}), account };
+}
+
+// Card-network categories in these books: category key -> Map(account -> lines). Money out only.
+// minLines and minShare were set before the first reading (eval/scotgov-card.mjs) and not tuned:
+// three earlier lines, a majority. `before` (ahead of the classifier and keywords) was chosen on
+// the 2016-2019 lines only, then read once on 2020-2026.
+export const MCC_MEMORY = { minLines: 3, minShare: 0.5, maxConfidence: 0.6, before: true };
+export function buildMccMemory(history) {
+  const m = new Map();
+  for (const h of history) {
+    if (!h.mcc || (h.dir ?? dir(h.cents)) !== "out") continue;
+    if (!m.has(h.mcc)) m.set(h.mcc, new Map());
+    m.get(h.mcc).set(h.account, (m.get(h.mcc).get(h.account) ?? 0) + 1);
+  }
+  return m;
 }

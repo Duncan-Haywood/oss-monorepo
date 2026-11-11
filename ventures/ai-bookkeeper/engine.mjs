@@ -14,7 +14,7 @@
 
 import { readStatement, splitOfx, splitQif, sniffFormat, rowIds, checkRunningBalance, parseCents } from "./bank.mjs";
 import { DEFAULT_ACCOUNTS, accountMap, validateEntry, trialBalance, profitAndLoss, balanceSheet, cashFlow, cashFlowByMonth, ratios, breakEven, daysOutstanding, balances, natural, fmt, dollars } from "./ledger.mjs";
-import { suggest, trainClassifier, buildMemory, trainNewPayee, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
+import { suggest, trainClassifier, buildMemory, buildMccMemory, trainNewPayee, parseRules, historyRecord, payeeKey } from "./categorize.mjs";
 import { addDocuments, writeOff, settle, aging, documentEntries, AR, AP } from "./accruals.mjs";
 import { taxDepreciation, s179IncomeLimit } from "./taxdepr.mjs";
 import { FX_ACCOUNT, fxEntries, docRevalEntries, fxRegister as fxReg, convertRow, fxCurrency, foreignBalance, addFxAccount, setRates, parseRates, rateOn } from "./fx.mjs";
@@ -64,7 +64,7 @@ export function lockPeriod(booksIn, date) {
 // Rebuild the learned parts (memory, classifier) from the books' history.
 export function modelFor(books, skip = null) {
   const { rules, problems } = parseRules(books.rules, books.accounts);
-  return { rules, ruleProblems: problems, memory: buildMemory(books.history), classifier: trainClassifier(books.history), newPayee: trainNewPayee(books.history), codes: new Set(books.accounts.map((a) => a.code)), ...(skip ? { skip: new Set(skip) } : {}) };
+  return { rules, ruleProblems: problems, memory: buildMemory(books.history), classifier: trainClassifier(books.history), newPayee: trainNewPayee(books.history), mccMemory: buildMccMemory(books.history), codes: new Set(books.accounts.map((a) => a.code)), ...(skip ? { skip: new Set(skip) } : {}) };
 }
 
 // A bank shows a card purchase as pending ("SQ *BLUE BOTTLE") and later posts it
@@ -123,7 +123,7 @@ export function importStatement(booksIn, csv, account, opts = {}) {
     if (books.lockedThrough && r.date <= books.lockedThrough) { locked++; return; }
     const conv = convertRow(books, account, r);
     if (!conv) { noRate++; return; }
-    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: conv.cents, ...(conv.foreign ? { foreign: conv.foreign } : {}), balance: r.balance, ...(r.bankCat ? { bankCat: r.bankCat } : {}), status: "new" });
+    books.transactions.push({ id: ids[i], account, date: r.date, desc: r.desc, cents: conv.cents, ...(conv.foreign ? { foreign: conv.foreign } : {}), balance: r.balance, ...(r.bankCat ? { bankCat: r.bankCat } : {}), ...(r.mcc ? { mcc: r.mcc } : {}), status: "new" });
     added++;
   });
   // Balances are kept debit-positive (what you own is positive, what you owe
