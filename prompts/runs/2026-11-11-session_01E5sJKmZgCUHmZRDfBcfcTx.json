@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKmZgCUHmZRDfBcfcTx",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T01:20:35Z",
+  "ended": "2026-11-11T01:38:48Z",
+  "wall_minutes": 27.28,
+  "tokens_in": 5956680,
+  "tokens_out": 27114,
+  "cost_usd": 2.4423,
+  "tool_calls": 72,
+  "task": "perf: Pages build pass 1 copies venture trees concurrently",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14657",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "first timing loop used /usr/bin/time, which is absent; reran with bash time",
+    "first site-builder test run had 1 uncaptured failure while the new post was being written mid-run; clean rerun 312/312"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are owner-gated again; the prompt already says to skip to items 2-4, which worked. A cold full-build CPU profile (idle windows) found a lever the earlier 'no new lever' readings missed, because they looked at CPU self-time, not at main-thread idle spans."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "/usr/bin/time is not installed in the cloud container; a timing loop using it silently recorded nothing. Use bash `time` with TIMEFORMAT."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-site-build-waited-on-one-file-at-a-time.md",
+    "docs/history/pages-build-perf-2026-11-11-parallel-copy.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of a full Pages build (node platform/pages/build.mjs --out=<dir>), 4 cores, warm PAGES_CARD_CACHE, page cache dropped (echo 3 > /proc/sys/vm/drop_caches) before each run, before/after alternated. Before 70.6, 79.6, 77.6 s (mean 75.9); after 66.0, 74.6, 74.2 s (mean 71.6); -4.3 s (-5.7%). Copy pass alone (scratch bench: discoverSurfaces + copyTree for all 1331): cold 6.0/6.3 s -> 2.4/2.4 s at width 16; warm 4.4 -> 2.2 s. diff -r before/after build trees: only version.json built_at differs. Found via node --cpu-prof of a cold build: main thread 77.8 of 136.6 s idle; copyTree on stack 1.1-14.4 s with 0.8 s CPU. Tests: node --test build.test.mjs build-determinism.test.mjs custom-domain.test.mjs (warm card cache): first run 311/312, the one failure not captured (only the tail was kept; that run overlapped writing the new post into docs/posts/ mid-build); rerun 312/312 pass in 222 s. writing/page-identity/lastmod tests 49/49.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b88facd9-a4da-5bf2-b70e-7c4f447c2d03",
+    "transcripts": 1,
+    "first": "2026-11-11T01:20:35Z",
+    "last": "2026-11-11T01:47:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 125,
+        "output": 27114,
+        "thinking": 5410,
+        "cache_read": 5865755,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90800,
+        "api_equivalent_usd": 2.4423,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 125,
+      "output": 27114,
+      "thinking": 5410,
+      "cache_read": 5865755,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90800,
+      "api_equivalent_usd": 2.4423,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 66,
+      "Write": 2,
+      "Monitor": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.28,
+      "active_minutes": 27.28,
+      "model_minutes": 6.72,
+      "tool_minutes": 20.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile a build, find the idle span, change, benchmark and verify identical output",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 122.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
