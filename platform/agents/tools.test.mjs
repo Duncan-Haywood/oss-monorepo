@@ -64,6 +64,20 @@ test('commentFor returns the comment above an export and the module header', () 
   assert.equal(commentFor(src, 'bare'), '');
 });
 
+test('toJson writes shared references in full and marks only true cycles', () => {
+  const best = { cost: 1 };
+  assert.equal(toJson({ best, ranked: [best, { cost: 2 }] }, 0), '{"best":{"cost":1},"ranked":[{"cost":1},{"cost":2}]}');
+  const a = { x: 1 };
+  a.self = a;
+  assert.equal(toJson(a, 0), '{"x":1,"self":"[circular]"}');
+  const deep = { a: { b: {} } };
+  deep.a.b.up = deep.a;
+  assert.equal(toJson(deep, 0), '{"a":{"b":{"up":"[circular]"}}}');
+  const m = new Map([['k', 1]]);
+  m.set('me', m);
+  assert.equal(toJson({ m, again: m }, 0), '{"m":{"k":1,"me":"[circular]"},"again":{"k":1,"me":"[circular]"}}');
+});
+
 test('toJson keeps Maps, Sets, Infinity and BigInt readable', () => {
   assert.equal(toJson({ m: new Map([['a', 1]]), s: new Set([2]), i: Infinity, b: 3n, f: () => 1 }, 0), '{"m":{"a":1},"s":[2],"i":"Infinity","b":"3"}');
 });
@@ -150,6 +164,13 @@ test('call runs a real catalogue tool', async () => {
   const a = await call(REAL, 'analyze', { input: { need: 20000 } });
   assert.equal(a.args[0].need, 20000);
   assert.equal(a.args[0].balance, 80000, 'unspecified inputs come from DEFAULTS');
+  // Quality audit 2026-11-08-agents.json: the winner was written as "[circular]".
+  const out = JSON.parse(toJson(a, 0));
+  const ranked = out.result.result.ranked;
+  assert.deepEqual(ranked[0], out.result.result.cheapest, "the cheapest option is written in full in both places");
+  assert.ok(Array.isArray(ranked) && ranked.length > 1);
+  for (const row of ranked) assert.equal(typeof row, 'object', `ranked row is ${JSON.stringify(row)}`);
+  assert.ok(!toJson(a, 0).includes('[circular]'));
 });
 
 test('main prints JSON for search and exits 2 on bad usage', async () => {

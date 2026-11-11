@@ -165,22 +165,31 @@ export function commentFor(src, name) {
   return at > 0 ? take(at - 1, -1) : '';
 }
 
-/** JSON.stringify that keeps Maps, Sets, non-finite numbers and BigInts readable and drops functions. */
+/**
+ * JSON.stringify that keeps Maps, Sets, non-finite numbers and BigInts readable and drops functions.
+ * Only a true cycle (an object inside itself) becomes "[circular]"; an object shared by two
+ * branches is written out in both (quality audit 2026-11-08-agents.json: a WeakSet of every
+ * visited object turned a ranked list's winner, also stored as `best`, into "[circular]").
+ */
 export function toJson(value, space = 2) {
-  const seen = new WeakSet();
+  // Ancestors of the value being written: [original, what was written in its place].
+  // JSON.stringify calls the replacer with `this` set to the holder, so popping until the
+  // top is the holder leaves exactly the current path.
+  const path = [];
   return JSON.stringify(
     value,
-    (_k, v) => {
+    function replacer(_k, v) {
       if (typeof v === 'bigint') return v.toString();
       if (typeof v === 'number' && !Number.isFinite(v)) return String(v);
       if (typeof v === 'function') return undefined;
-      if (v instanceof Map) return Object.fromEntries(v);
-      if (v instanceof Set) return [...v];
-      if (v && typeof v === 'object') {
-        if (seen.has(v)) return '[circular]';
-        seen.add(v);
-      }
-      return v;
+      if (!v || typeof v !== 'object') return v;
+      while (path.length && path[path.length - 1][1] !== this) path.pop();
+      if (path.some(([orig]) => orig === v)) return '[circular]';
+      let out = v;
+      if (v instanceof Map) out = Object.fromEntries(v);
+      else if (v instanceof Set) out = [...v];
+      path.push([v, out]);
+      return out;
     },
     space,
   );
