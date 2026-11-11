@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 112 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 113 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -42,6 +42,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   six-point random hedge milestone 111 preferred by 0.07 points in-sample is worse than random routing here (3.55%), so it
   is dropped from the rule; relaxed-clock 24-bit multipliers and a crossbar remain the failures:
   [`experiments/fresh_dear/`](experiments/fresh_dear/results.txt).
+- **The switch holds on eight designs no table had run (milestone 113, flow run).** Unseen multiplier widths, a squarer (a new
+  family), a 32-port crossbar, a 64-bit GF(2) matrix, a 32-bit adder, popcount and barrel shifter, 120 fresh sequences, both
+  clocks: the rule, with theta = 3 fixed in advance, has 0.91% mean regret against 2.64% for random routing and 1.44% for
+  always running the ladder (better than random in 9 of 16 cells, worse in 1, sign test p = 0.02). Each branch picked the
+  better policy on average; the one miss is a relaxed-clock 18-bit multiplier (10.5%), the family's known failure:
+  [`experiments/fresh_designs/`](experiments/fresh_designs/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 
@@ -83,6 +89,9 @@ routed design, with a coverage guarantee that holds whatever the rung bias?
 ```bash
 # OpenROAD 26Q2 from the nixpkgs binary cache, Yosys 0.33 (apt), SKY130 platform files at chip-pnr's pinned ORFS commit
 research/chip-pnr/fetch_pdk.sh /tmp/pdk
+# Milestones 108 to 113 use Yosys 0.70 and OpenROAD 26Q3 instead (about a minute from the nixpkgs cache; put both bin/ dirs on PATH):
+#   nix --extra-experimental-features 'nix-command flakes' build --no-link --print-out-paths nixpkgs#openroad nixpkgs#yosys
+# Those flows run 1 to 2 hours on 4 cores: in a cloud session start them in the background with a long timeout, and use --resume if one stops.
 python3 experiments/rung_bias/run.py --openroad <openroad> --pdk /tmp/pdk/orfs/flow/platforms/sky130hd   # ~40 min on 4 cores
 python3 experiments/rung_bias/analyse.py                                                            # writes results.txt, summary.json
 python3 -m unittest discover -s tests                                                               # rank statistics
