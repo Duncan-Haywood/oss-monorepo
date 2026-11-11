@@ -1,5 +1,13 @@
 # energy-cell-dfn research log
 
+## 2026-11-11 · Outcome: low rate cannot separate the models; at 2C on the Ai cell DFN fits, on the Ecker cell at 5C neither does
+- H2 supported: SPMe and DFN differ by 0.4 mV (Ai 0.1C) and 0.5 mV (Ecker 1C), against 52 and 40 mV of error each against data.
+- H1 split. Ai 2C: DFN 17.9 mV RMSE against SPMe 53.4 (4x mesh; same on 1x and 2x): supported. Ecker 5C: SPMe 66.5 against DFN 70.6 (4x mesh), SPMe better on every mesh and thermal option: refuted for this cell.
+- Surprises: Ecker 5C was not mesh-converged on PyBaMM's default mesh (DFN 85.6 / 73.0 / 70.6 mV at 1x / 2x / 4x); the lumped thermal model changes the Ecker 5C error by 26 mV and makes the Ai 2C fit worse (DFN 46 mV), so the thermal treatment is a larger lever than the model choice on the Ecker cell.
+- Depletion: DFN's minimum salt is 30% of initial at Ai 2C, the deepest measured case; the SPMe-DFN gap grows with depletion (0.4, 3.4, 10, 41 mV at 97, 84, 67, 30%). The `energy-cell` failures sit near 0%, beyond every measured case.
+- Run fix: the first attempt used CasadiSolver in safe mode (about 13 minutes for 2 of 18 runs, with "mxstep" warnings); IDAKLU gave the same RMSE to 0.01 mV in a quarter of the time. Two 4x DFN runs in parallel were OOM-killed; they now run one at a time.
+- Output: `experiments/validate_data.txt`, `validate_data.json`, `validate_data.svg`; five tests pin the hypotheses' outcomes.
+
 ## 2026-11-10 · Are SPMe and DFN told apart by measured discharge curves? (plan, written before the run)
 - Question: README "Next steps" asks to compare both models with measured discharge curves. No measured curve exists for the OKane2022 (LG M50) designs here, so this uses the two measured sets PyBaMM ships with a matching parameter set: Ecker et al. 2015 (Kokam 7.5 Ah, `Ecker2015`, 1C and 5C) and Ai et al. 2020 (Enertech 2.28 Ah LCO pouch, `Ai2020`, 0.1C, 0.5C, 1C, 2C). Data from `pybamm.DataLoader` (pybamm-data v1.0.2).
 - Models: SPM, SPMe, DFN, each isothermal and with a lumped thermal model; same parameters per cell, constant-current discharge to the data's cut-off. Metric: voltage RMSE against data over the time both cover, and discharge-time error at cut-off. Mesh doubled once as a convergence check.

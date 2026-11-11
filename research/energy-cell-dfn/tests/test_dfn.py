@@ -73,3 +73,49 @@ def test_diagnose6_doubling_diffusivity_removes_spme_collapse():
         dfn2 = d[(design, "DFN", "default", 2.0)]["steps"]
         assert min(s["ce_min"] for s in spme2) > 0
         assert abs(spme2[-1]["ah"] - dfn2[-1]["ah"]) / dfn2[-1]["ah"] < 0.03
+
+
+def _val():
+    return json.loads((HERE / "validate_data.json").read_text())
+
+
+def test_crossing_time_interpolates_and_handles_no_crossing():
+    import validate_data as v
+    t, volt = np.array([0.0, 10.0, 20.0]), np.array([4.0, 3.5, 3.0])
+    assert v.crossing_time(t, volt, 3.25) == pytest.approx(15.0)
+    assert v.crossing_time(t, volt, 2.9) is None
+    assert v.rmse([1, 2], [1, 4]) == pytest.approx(np.sqrt(2))
+
+
+def test_validate_data_covers_every_case_and_model():
+    import validate_data as v
+    rows = _val()
+    seen = {(r["cell"], r["crate"]) for r in rows}
+    assert seen == {(c[0], c[2]) for c in v.CASES}
+    for r in rows:
+        for m in v.MODELS:
+            assert r[m]["covered"] > 0.95 and r[m]["rmse_mV"] > 0
+
+
+def test_low_rate_models_agree_far_closer_than_they_match_data():
+    """H2 (LOG.md): at the lowest rate the SPMe-DFN difference is far below either model's error."""
+    for r in _val():
+        if (r["cell"], r["crate"]) in (("Ecker", 1.0), ("Ai", 0.1)):
+            assert r["SPMe_vs_DFN_rmse_mV"] < 1.0
+            assert r["SPMe_vs_DFN_rmse_mV"] < 0.1 * min(r["SPMe"]["rmse_mV"], r["DFN"]["rmse_mV"])
+
+
+def test_ai_2c_dfn_fits_measured_curve_better_than_spme():
+    """H1 holds on the Ai cell: at 2C (isothermal, every mesh) DFN's RMSE is under half of SPMe's."""
+    rows = [r for r in _val() if r["cell"] == "Ai" and r["crate"] == 2.0 and not r["thermal"]]
+    assert rows
+    for r in rows:
+        assert r["DFN"]["rmse_mV"] < 0.5 * r["SPMe"]["rmse_mV"]
+
+
+def test_ecker_5c_spme_not_worse_than_dfn():
+    """H1 fails on the Ecker cell: at 5C SPMe is within 5 mV of DFN or better on every mesh and thermal option."""
+    rows = [r for r in _val() if r["cell"] == "Ecker" and r["crate"] == 5.0]
+    assert len(rows) >= 3
+    for r in rows:
+        assert r["SPMe"]["rmse_mV"] <= r["DFN"]["rmse_mV"] + 5.0
