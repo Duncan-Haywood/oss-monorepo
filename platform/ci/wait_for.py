@@ -6,7 +6,10 @@ reported blocked too (review prompt, cloud-session.md). Start the job with
 `run_in_background`, `echo DONE` as its last output line, then:
 
     python3 platform/ci/wait_for.py out.log            # waits up to 100 s
-    python3 platform/ci/wait_for.py out.log --marker END --timeout 60
+    python3 platform/ci/wait_for.py out.log --marker END --timeout 60   # --pattern works too
+
+On a timeout it says how big the log is, how long since it was written and its
+last line, so a live job is told apart from a stuck or silent one.
 
 A job that prints no marker (a `pip install`, a writer of a jsonl) can be waited on by
 a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0.
@@ -89,12 +92,37 @@ def wait_pid(pid, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sl
     return True
 
 
+def progress(path, now=time.time):
+    """What a timed-out wait can say about the job, so "call again" is not a guess.
+
+    A bare "still running? call again" after 100 s was read as no progress, and
+    once as a 10-minute interval that went into a README (friction 2026-11-11).
+    Say how big the log is, how long since it was written and its last line:
+    a log written seconds ago is a live job; one silent for many minutes may
+    be stuck, or buffering its output until the end (also reported).
+    """
+    try:
+        st = os.stat(path)
+    except OSError:
+        return "the log does not exist yet; check the job started and writes there, then call again"
+    with open(path, errors="replace") as f:
+        lines = [l for l in f.read().splitlines() if l.strip()]
+    idle = max(0, now() - st.st_mtime)
+    last = (lines[-1][:120] if lines else "(empty)")
+    hint = ("still being written: call again" if idle < 60 else
+            "silent for a while: the job may be stuck, or buffering its output (python3 -u); call again or check it")
+    return f"log is {st.st_size} bytes, last written {idle:.0f}s ago, last line: {last!r}; {hint}"
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("log", nargs="?")
     ap.add_argument("--until", help="shell command; wait until it exits 0 (no log needed)")
     ap.add_argument("--pid", type=int, help="wait until this process id has exited")
-    ap.add_argument("--marker", help="line (or first word) that means done; default DONE or EXIT")
+    # `--pattern` is what runs guess first (four friction reports, 2026-11-10/11);
+    # accepting it costs nothing and an argparse error costs a turn.
+    ap.add_argument("--marker", "--pattern", dest="marker",
+                    help="line (or first word) that means done; default DONE or EXIT")
     ap.add_argument("--timeout", type=float, default=100.0)
     a = ap.parse_args(argv)
     # An empty marker matches the first blank line, a false "done"; os.kill(-1, 0)
@@ -120,7 +148,7 @@ def main(argv=None):
     ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, a.timeout)
     if not ok:
         shown = a.marker or "DONE' or 'EXIT"
-        print(f"wait_for: no '{shown}' line in {a.log} after {a.timeout:.0f}s; still running? call again", file=sys.stderr)
+        print(f"wait_for: no '{shown}' line in {a.log} after {a.timeout:.0f}s; {progress(a.log)}", file=sys.stderr)
         return 1
     print("\n".join(lines[-15:]))
     return 0

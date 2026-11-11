@@ -71,6 +71,7 @@ for the browser-extension, iOS and Android packagers.
 | [`changepoint-detector`](../../ventures/changepoint-detector/) | Adams & MacKay 2007; Killick, Fearnhead & Eckley 2012 | Did this series change level or volatility, when, and how sure? |
 | [`conformal-prediction-intervals`](../../ventures/conformal-prediction-intervals/) | Lei et al. 2018; Romano, Patterson & Candès 2019 | How wide must a prediction interval be to cover 90% of new cases, with no distributional assumption? |
 | [`matrix-profile-explorer`](../../ventures/matrix-profile-explorer/) | Yeh et al. 2016; Zhu et al. 2016 | Which stretch of this series repeats (motif), and which is unlike anything else (discord)? |
+| [`survival-analysis`](../../ventures/survival-analysis/) | Kaplan & Meier 1958; Mantel 1966; Cox 1972; Efron 1977; Grambsch & Therneau 1994 | How long until the event, do groups differ, and by what hazard ratio once covariates are adjusted for? |
 
 The site files them under "Research algorithms & ML"
 (`platform/pages/build.mjs`, `research-algorithms`). Add a row here and the
@@ -79,8 +80,7 @@ slug there when a tool lands.
 ## Candidates
 
 Next papers to implement, each a job someone has: synthetic control (Abadie,
-Diamond & Hainmueller 2010) for "did my intervention work"; Kaplan-Meier with
-log-rank and Cox (1972) for churn and time-to-event; Sinkhorn optimal
+Diamond & Hainmueller 2010) for "did my intervention work"; Sinkhorn optimal
 transport (Cuturi 2013) for comparing distributions; Gaussian-process
 regression with marginal-likelihood fitting (Rasmussen & Williams 2006);
 isolation forest (Liu, Ting & Zhou 2008); robust PCA by principal component

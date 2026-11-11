@@ -2,7 +2,7 @@
 // random walk between them. Pure functions (strings in, strings out) so Node tests can pin exactly
 // what the page shows. The CLI text stays in drift-cli.mjs; this file only words it for the page.
 import { esc, fmt } from './report.mjs';
-import { tailLines, DRIFT_TCPD } from './drift-cli.mjs';
+import { tailLines, stickyLines, DRIFT_TCPD } from './drift-cli.mjs';
 
 /** Penalty boxes on the page -> driftResult's penalty. The drift model has a BIC (2 log n) and takes a number; AIC and Hannan-Quinn are not defined for it here. */
 export function driftPagePenalty(choice, value) {
@@ -38,6 +38,7 @@ export function driftSummary(r) {
 /** The notes under the summary: the heavy-tail check (when it fires) and what the model was scored at. */
 export function driftNotes(r) {
   const notes = tailLines(r).map((t) => t.replace('try --model meanvar on its differences', 'try the "Level and volatility" model on its differences (the first differences of the series)'));
+  notes.push(...stickyLines(r));
   const t = DRIFT_TCPD;
   const k = r.noise === 'ml' ? 'ml' : 'lags';
   notes.push(`On the 38 labelled series of the Turing Change Point Dataset this model scored F1 ${t.shipped[k].toFixed(3)} (31 series) and ${t.heldout[k].toFixed(3)} (7 held out), against ${t.shipped.level} and ${t.heldout.level.toFixed(3)} for the plain level model and ${t.shipped.zero} and ${t.heldout.zero} for reporting no change at all. It tames smooth and wandering series; on heavy-tailed or bursty ones (stock prices, counts) it still finds too many jumps.`);

@@ -1,0 +1,202 @@
+Shifts cut (min 4 h, max 8 h); short + over person-hours a week; online choice per tested week (K = 4).
+
+== french, 20 EUR/labor hour, min staff 1, default score (87 weeks)
+  plain 164.1; auto A 138.9
+  auto B 139.8  vs A +0.8 (-1.4 to +3.1)  used: all 5, last4 20, hl2 62
+  auto C 139.8  vs A +0.8 (-1.4 to +3.1)  used: all 5, last4 20, hl2 62
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 20 EUR/labor hour, min staff 1, --score-closed (87 weeks)
+  plain 169.9; auto A 144.7
+  auto B 145.1  vs A +0.4 (-2.0 to +2.8)  used: all 5, last4 21, hl2 61
+  auto C 145.1  vs A +0.4 (-2.0 to +2.8)  used: all 5, last4 21, hl2 61
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 20 EUR/labor hour, min staff 2, default score (87 weeks)
+  plain 145.3; auto A 123.7
+  auto B 124.3  vs A +0.7 (-1.6 to +3.0)  used: all 5, last4 20, hl2 62
+  auto C 124.3  vs A +0.7 (-1.6 to +3.0)  used: all 5, last4 20, hl2 62
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 20 EUR/labor hour, min staff 2, --score-closed (87 weeks)
+  plain 156.8; auto A 135.2
+  auto B 135.7  vs A +0.5 (-1.9 to +2.9)  used: all 5, last4 23, hl2 59
+  auto C 135.7  vs A +0.5 (-1.9 to +2.9)  used: all 5, last4 23, hl2 59
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 40 EUR/labor hour, min staff 1, default score (87 weeks)
+  plain 77.9; auto A 66.1
+  auto B 66.4  vs A +0.3 (-0.8 to +1.5)  used: all 5, last4 24, hl2 58
+  auto C 66.4  vs A +0.3 (-0.8 to +1.5)  used: all 5, last4 24, hl2 58
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 40 EUR/labor hour, min staff 1, --score-closed (87 weeks)
+  plain 83.7; auto A 71.9
+  auto B 72.1  vs A +0.3 (-1.0 to +1.6)  used: all 5, last4 26, hl2 56
+  auto C 72.1  vs A +0.3 (-1.0 to +1.6)  used: all 5, last4 26, hl2 56
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 40 EUR/labor hour, min staff 2, default score (87 weeks)
+  plain 61.1; auto A 52.0
+  auto B 52.3  vs A +0.2 (-0.9 to +1.4)  used: all 5, last4 29, hl2 53
+  auto C 52.4  vs A +0.3 (-0.9 to +1.5)  used: all 5, last1 1, hl2 53, last4 28
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 40 EUR/labor hour, min staff 2, --score-closed (87 weeks)
+  plain 72.7; auto A 63.6
+  auto B 63.9  vs A +0.3 (-1.0 to +1.6)  used: all 5, last4 32, hl2 50
+  auto C 64.0  vs A +0.4 (-0.9 to +1.7)  used: all 5, last1 1, last4 31, hl2 50
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 80 EUR/labor hour, min staff 1, default score (87 weeks)
+  plain 33.2; auto A 28.7
+  auto B 29.0  vs A +0.3 (-0.6 to +1.1)  used: all 8, last4 35, hl2 44
+  auto C 29.1  vs A +0.3 (-0.5 to +1.2)  used: all 8, last1 2, last4 33, hl2 44
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 80 EUR/labor hour, min staff 1, --score-closed (87 weeks)
+  plain 39.0; auto A 34.5
+  auto B 34.7  vs A +0.2 (-0.7 to +1.1)  used: all 7, last4 34, hl2 46
+  auto C 34.8  vs A +0.2 (-0.6 to +1.1)  used: all 7, last1 4, last4 30, hl2 46
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 80 EUR/labor hour, min staff 2, default score (87 weeks)
+  plain 21.2; auto A 18.0
+  auto B 18.1  vs A +0.1 (-0.7 to +0.9)  used: all 9, last4 41, hl2 37
+  auto C 18.1  vs A +0.1 (-0.7 to +0.9)  used: all 9, last4 41, hl2 37
+  pick on all weeks: A hl2, B hl2, C hl2
+== french, 80 EUR/labor hour, min staff 2, --score-closed (87 weeks)
+  plain 32.7; auto A 29.5
+  auto B 29.6  vs A +0.1 (-0.9 to +1.1)  used: all 5, last4 37, hl2 45
+  auto C 29.7  vs A +0.2 (-0.8 to +1.2)  used: all 5, last1 3, last4 34, hl2 45
+  pick on all weeks: A hl2, B hl2, C hl2
+== korean, 15000 won/labor hour, min staff 1, default score (38 weeks)
+  plain 51.5; auto A 52.1
+  auto B 52.1  vs A +0.0 (+0.0 to +0.0)  used: all 24, hl2 5, hl4 1, hl8 8
+  auto C 52.1  vs A +0.0 (+0.0 to +0.0)  used: all 24, hl2 5, hl4 1, hl8 8
+  pick on all weeks: A all, B all, C all
+== korean, 15000 won/labor hour, min staff 1, --score-closed (38 weeks)
+  plain 54.2; auto A 54.7
+  auto B 54.7  vs A +0.0 (+0.0 to +0.0)  used: all 24, hl2 5, hl4 1, hl8 8
+  auto C 54.7  vs A +0.0 (+0.0 to +0.0)  used: all 24, hl2 5, hl4 1, hl8 8
+  pick on all weeks: A all, B all, C all
+== korean, 15000 won/labor hour, min staff 2, default score (38 weeks)
+  plain 41.1; auto A 41.3
+  auto B 41.3  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl2 4, hl4 10, hl8 20
+  auto C 41.3  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl2 4, hl4 10, hl8 20
+  pick on all weeks: A hl8, B hl8, C hl8
+== korean, 15000 won/labor hour, min staff 2, --score-closed (38 weeks)
+  plain 46.4; auto A 46.6
+  auto B 46.6  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl2 4, hl4 10, hl8 20
+  auto C 46.6  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl2 4, hl4 10, hl8 20
+  pick on all weeks: A hl8, B hl8, C hl8
+== korean, 30000 won/labor hour, min staff 1, default score (38 weeks)
+  plain 24.0; auto A 23.9
+  auto B 23.9  vs A +0.0 (+0.0 to +0.0)  used: all 11, hl8 27
+  auto C 23.9  vs A +0.0 (+0.0 to +0.0)  used: all 11, hl8 27
+  pick on all weeks: A hl8, B hl8, C hl8
+== korean, 30000 won/labor hour, min staff 1, --score-closed (38 weeks)
+  plain 26.7; auto A 26.5
+  auto B 26.5  vs A +0.0 (+0.0 to +0.0)  used: all 11, hl8 27
+  auto C 26.5  vs A +0.0 (+0.0 to +0.0)  used: all 11, hl8 27
+  pick on all weeks: A hl8, B hl8, C hl8
+== korean, 30000 won/labor hour, min staff 2, default score (38 weeks)
+  plain 11.7; auto A 11.7
+  auto B 11.7  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  auto C 11.7  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  pick on all weeks: A all, B all, C all
+== korean, 30000 won/labor hour, min staff 2, --score-closed (38 weeks)
+  plain 16.9; auto A 16.9
+  auto B 16.9  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  auto C 16.9  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  pick on all weeks: A all, B all, C all
+== korean, 60000 won/labor hour, min staff 1, default score (38 weeks)
+  plain 8.4; auto A 8.4
+  auto B 8.4  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  auto C 8.4  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  pick on all weeks: A all, B all, C all
+== korean, 60000 won/labor hour, min staff 1, --score-closed (38 weeks)
+  plain 11.1; auto A 11.1
+  auto B 11.1  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  auto C 11.1  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  pick on all weeks: A all, B all, C all
+== korean, 60000 won/labor hour, min staff 2, default score (38 weeks)
+  plain 1.8; auto A 1.8
+  auto B 1.8  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  auto C 1.8  vs A +0.0 (+0.0 to +0.0)  used: all 38
+  pick on all weeks: A all, B all, C all
+== korean, 60000 won/labor hour, min staff 2, --score-closed (38 weeks)
+  plain 7.0; auto A 7.0
+  auto B 5.9  vs A -1.1 (-2.2 to +0.1)  used: all 30, last4 8
+  auto C 5.9  vs A -1.1 (-2.2 to +0.1)  used: all 30, last4 8
+  pick on all weeks: A all, B last4, C last4
+== breadbasket, 5 tickets/labor hour, min staff 1, default score (20 weeks)
+  plain 31.6; auto A 30.9
+  auto B 30.9  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl2 8, hl4 8
+  auto C 30.9  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl2 8, hl4 8
+  pick on all weeks: A hl4, B hl4, C hl4
+== breadbasket, 5 tickets/labor hour, min staff 1, --score-closed (20 weeks)
+  plain 44.0; auto A 43.3
+  auto B 37.5  vs A -5.8 (-8.8 to -2.9)  used: all 4, last4 16
+  auto C 37.5  vs A -5.8 (-8.8 to -2.9)  used: all 4, last4 16
+  pick on all weeks: A hl4, B last4, C last4
+== breadbasket, 5 tickets/labor hour, min staff 2, default score (20 weeks)
+  plain 11.1; auto A 11.3
+  auto B 11.3  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl2 15, hl4 1
+  auto C 11.3  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl2 15, hl4 1
+  pick on all weeks: A hl4, B hl4, C hl4
+== breadbasket, 5 tickets/labor hour, min staff 2, --score-closed (20 weeks)
+  plain 35.9; auto A 36.1
+  auto B 19.4  vs A -16.7 (-22.5 to -10.9)  used: all 4, last4 16
+  auto C 20.9  vs A -15.3 (-21.4 to -9.1)  used: all 4, last1 2, last4 14
+  pick on all weeks: A hl4, B last4, C last4
+== breadbasket, 10 tickets/labor hour, min staff 1, default score (20 weeks)
+  plain 9.8; auto A 10.0
+  auto B 10.0  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl4 10, hl2 6
+  auto C 10.0  vs A +0.0 (+0.0 to +0.0)  used: all 4, hl4 10, hl2 6
+  pick on all weeks: A hl4, B hl4, C hl4
+== breadbasket, 10 tickets/labor hour, min staff 1, --score-closed (20 weeks)
+  plain 22.1; auto A 22.4
+  auto B 14.4  vs A -8.0 (-11.0 to -5.0)  used: all 4, last4 16
+  auto C 14.9  vs A -7.5 (-10.6 to -4.4)  used: all 4, last1 1, last4 15
+  pick on all weeks: A hl4, B last4, C last4
+== breadbasket, 10 tickets/labor hour, min staff 2, default score (20 weeks)
+  plain 1.3; auto A 1.3
+  auto B 1.3  vs A +0.0 (+0.0 to +0.0)  used: all 20
+  auto C 1.3  vs A +0.0 (+0.0 to +0.0)  used: all 20
+  pick on all weeks: A all, B all, C all
+== breadbasket, 10 tickets/labor hour, min staff 2, --score-closed (20 weeks)
+  plain 26.1; auto A 26.1
+  auto B 9.4  vs A -16.6 (-22.5 to -10.8)  used: all 4, last4 16
+  auto C 11.3  vs A -14.8 (-20.2 to -9.5)  used: all 4, last1 10, last4 6
+  pick on all weeks: A all, B last4, C last4
+== breadbasket, 20 tickets/labor hour, min staff 1, default score (20 weeks)
+  plain 1.3; auto A 1.3
+  auto B 1.3  vs A +0.0 (+0.0 to +0.0)  used: all 20
+  auto C 1.3  vs A +0.0 (+0.0 to +0.0)  used: all 20
+  pick on all weeks: A all, B all, C all
+== breadbasket, 20 tickets/labor hour, min staff 1, --score-closed (20 weeks)
+  plain 13.7; auto A 13.7
+  auto B 5.8  vs A -7.8 (-10.8 to -4.9)  used: all 4, last4 16
+  auto C 6.5  vs A -7.2 (-10.3 to -4.0)  used: all 4, last1 3, last4 13
+  pick on all weeks: A all, B last4, C last4
+== breadbasket, 20 tickets/labor hour, min staff 2, default score (20 weeks)
+  plain 1.1; auto A 1.1
+  auto B 1.1  vs A +0.0 (+0.0 to +0.0)  used: all 20
+  auto C 1.1  vs A +0.0 (+0.0 to +0.0)  used: all 20
+  pick on all weeks: A all, B all, C all
+== breadbasket, 20 tickets/labor hour, min staff 2, --score-closed (20 weeks)
+  plain 25.9; auto A 25.9
+  auto B 9.3  vs A -16.7 (-22.6 to -10.8)  used: all 4, last4 16
+  auto C 11.0  vs A -14.9 (-20.2 to -9.7)  used: all 4, last1 10, last4 6
+  pick on all weeks: A all, B last4, C last4
+
+== Summary, default score, 18 settings: clearly better / tie / clearly worse, mean change
+  auto A vs plain 6 / 12 / 0   mean -4.7%
+  auto B vs plain 6 / 12 / 0   mean -4.6%
+  auto C vs plain 6 / 12 / 0   mean -4.6%
+  auto B vs A     0 / 18 / 0   mean 0.2%
+  auto C vs A     0 / 18 / 0   mean 0.2%
+  french: auto B vs A mean 0.6%
+  korean: auto B vs A mean 0.0%
+  breadbasket: auto B vs A mean 0.0%
+
+== Summary, --score-closed, 18 settings: clearly better / tie / clearly worse, mean change
+  auto A vs plain 6 / 12 / 0   mean -4.2%
+  auto B vs plain 12 / 6 / 0   mean -20.6%
+  auto C vs plain 11 / 7 / 0   mean -19.1%
+  auto B vs A     6 / 12 / 0   mean -16.3%
+  auto C vs A     6 / 12 / 0   mean -14.9%
+  french: auto B vs A mean 0.4%
+  korean: auto B vs A mean -2.6%
+  breadbasket: auto B vs A mean -46.8%

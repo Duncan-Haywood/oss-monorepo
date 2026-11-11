@@ -2795,3 +2795,79 @@ through many drift settings already, so (iii) is a guard, not evidence of a gain
   step), or a zero-inflated noise term, is the obvious next try; it is post hoc, so it needs a fresh
   pre-registration, and the held-out loss on iceland tourism (a single cut on a smooth seasonal
   series) is a separate failure it would not fix.
+
+## Sticky series: exact repeats (2026-11-11, two fixes measured and not offered; a warning ships)
+
+The last section left `bank` going from 63 to 170 cuts under a scale per segment, because it is
+sticky: 246 of its 580 steps repeat the previous value exactly (scanline 42049: 233 of 480,
+ratner_stock 138 of 599, children per woman 75 of 300). A stale quote or a sensor that sits still
+gives a flat run, the drift model reads it as a stretch of almost no noise, and a cut at each end
+buys a lot of likelihood. Simulation first showed this is not only a scale-per-segment problem:
+on a random walk with no change, the **shipped** `--model drift` reports 2.05 false changes a series
+with no repeats, 4.75 when 15% of points are stale repeats, **8.38 at 20% and 37.95 at 40%**
+(`eval/drift-sticky-share.mjs`, `.out.txt`, n 300, 60 series a share).
+
+**First try, pre-registered: drop the repeats** (`repeats: 'drop'` in `drift-level.mjs`; rules in the
+headers of `eval/drift-repeats-sim.mjs` and `eval/tcpd-drift-repeats.mjs`, committed in 94deb19c
+before either was run). Fit the model to the series with every exact repeat taken out and map the
+changes back. Continuous data has no repeats and is untouched (360 of 360 synthetic fits identical).
+
+- Sticky walk, no change (F): shipped 34.50 cuts, global with drop **3.68**; scale per segment 60.12,
+  with drop **0.98**. Sticky walk with a 5x volatility burst (H): 26.60 / 9.83 / 67.07 / **3.10**.
+- **Sticky walk with a 5-sd level step (G): found 59 / 51 / 58 / 38 of 60.** The rule allowed 6 fewer
+  than shipped. Both fail.
+- TCPD, mean F1 (shipped 31 / held out 7): scale per segment with drop **0.764 / 0.590**, against the
+  shipped drift 0.694 / 0.527 (+0.069, 95% 0.007 to 0.135, better on 17 and worse on 6; held out
+  +0.063, -0.093 to 0.203); global with drop 0.695 / 0.589. Both pass the TCPD guard. Held out,
+  scanline 42049 goes 0.593 to **0.963** (27 cuts to 13, annotators' median 7) and ratner_stock 0.324
+  to 0.549; `bank` 63 to 52 cuts (39 global). TCPD has been through many drift settings, so these
+  are a guard, not evidence of a gain.
+
+**Second try, post hoc: repeats as missing observations** (`repeats: 'missing'`, `gapPartition`;
+headers of `eval/drift-missing-sim.mjs` and `eval/tcpd-drift-missing.mjs`, committed before they
+ran, same rules, a new seed). Dropping a repeat charges the k + 1 steps of wander behind the next
+new value as one step, which I guessed made a real jump look like wander. The Kalman filter now keeps
+the time axis: the predicted variance grows by q for every step and only new values are charged
+(Durbin and Koopman, section 4.10); with no repeats it is the shipped partition to 1e-12. The guess
+was wrong: on G the step is found **46 and 33 of 60** (global, per segment) against shipped 60, worse
+than dropping; F falls further (1.28 and 0.20 cuts), and TCPD is within 0.006 of `drop`.
+
+**Verdict: neither is offered.** Each fails its pre-registered power rule, and shipped's 59 to 60 of
+60 on G is partly bought by 35 cuts a series (35 random cuts land within 5 points of the step about
+three times in four), but that reading came after the rule, so it does not change the verdict. Both
+stay in the library with tests (`drift-sticky.test.mjs`). The next try is a model in which a repeat
+is its own event (a zero-inflated observation with a shared stale probability), tested first on why
+a 5-sd step goes missing in G.
+
+**What ships: a sticky-series check.** `driftLevel` now returns `sticky` (`stickyCheck`: the share of
+steps that repeat exactly), and when at least 20% do (where the shipped model's false changes reach
+about four times the no-repeat rate on the table above; the threshold comes from that synthetic table,
+not from TCPD) the CLI text, the JSON and the page's "Read with care" notes say so, quote the table
+and tell the reader to treat jumps at the ends of flat runs as suspect. On TCPD it fires on `bank`,
+children per woman, ratner_stock and scanline 42049, and on no other series.
+
+### The same power loss on real shocks: frozen orange juice (2026-11-11, not pre-registered)
+
+The power cell above is synthetic. `eval/frozen-juice-sticky.mjs` (`.out.txt`) asks whether real shocks
+go missing too, on Florida frozen orange-juice prices (612 months, `data/frozen-juice.csv`; 253 of 611
+steps, **41%**, repeat the previous month exactly, so the sticky warning fires). Truth, as in "Shocks with a
+measured cause" above: the eight months with 19 or more Orlando freezing degree days, found if a change
+lies within 2 months. Run once, after both options had been declined. It informs the next try and is
+not a decision rule.
+
+| setting | cuts | freezes found | cuts near a freeze |
+|---|---|---|---|
+| shipped `--model drift` | 67 | **8 of 8** | 11 |
+| drop, global scale | 15 | 6 of 8 (misses 1970, 1985) | 6 |
+| drop, scale per segment | 15 | 4 of 8 | 5 |
+| missing, global scale | 18 | 5 of 8 | 7 |
+| missing, scale per segment | 15 | 5 of 8 | 5 |
+
+Handling the repeats removes about three quarters of the cuts and raises the share near a freeze (11
+of 67 is 16%; 6 of 15 is 40%), but it loses two to four documented shocks, which is the synthetic
+power loss on real data. The freezes it keeps are the largest (1963, 1977, 1984 and 1990 in every
+row). A second session reached the same option independently on 2026-11-11 with a rule that had no
+step-in-a-sticky-walk cell. Its rule passed (TCPD 0.764 / 0.585 with the penalty on the kept length,
+matching the 0.764 / 0.590 above), and it was not merged once this section's verdict was on `main`.
+A benchmark guard alone would have shipped an option that misses real shocks. Test:
+`frozen-juice-sticky.test.mjs`.

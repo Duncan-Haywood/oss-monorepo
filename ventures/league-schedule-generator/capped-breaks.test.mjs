@@ -114,10 +114,11 @@ test("weighted tries are unchanged by capped ones after them, and a pool returns
   const plain = bestCarryOverRounds(8, { double: true, seed: 4, tries: 4, pick: 0 });
   const more = bestCarryOverRounds(8, { double: true, seed: 4, tries: 4, capped: 2, pick: 0 });
   assert.deepEqual(more.tries.slice(0, 4), plain.tries);
+  // a try does not depend on the pick, so the pool searches once and each pick gets its own copy
+  const done = splitCarryOverTries(6, 4).map((q) => q.map((i) => carryOverTry(8, i, { double: true, seed: 4, weighted: 4 })));
   for (const pick of [0, 40]) {
     const serial = bestCarryOverRounds(8, { double: true, seed: 4, tries: 4, capped: 2, pick });
-    const done = splitCarryOverTries(6, 4).map((q) => q.map((i) => carryOverTry(8, i, { double: true, seed: 4, weighted: 4 })));
-    const pooled = combineCarryOverTries(JSON.parse(JSON.stringify(done.reverse().flat())), pick);
+    const pooled = combineCarryOverTries(JSON.parse(JSON.stringify([...done].reverse().flat())), pick);
     assert.deepEqual(pooled.rounds, serial.rounds);
   }
   assert.throws(() => bestCarryOverRounds(6, { tries: 2, capped: -1 }), /capped/);
