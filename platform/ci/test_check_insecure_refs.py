@@ -53,6 +53,16 @@ class T(unittest.TestCase):
                 '<link rel="canonical" href="https://a/"><img src="http://127.0.0.1/a.png">')
         self.assertEqual(self.run_on(html), [])
 
+    def test_reports_the_url_itself(self):
+        self.assertEqual(self.run_on('<img srcset="https://a/1.png 1x, http://a/2.png 2x">'),
+                         ["http://a/2.png"])
+
+    def test_css_scan_stops_at_end_of_style(self):
+        prose = "<p>write background:url(http://a/x.png) in your CSS</p>"
+        for html in ("<style>.x{}</style>" + prose, "<style/>" + prose):
+            with self.subTest(html=html):
+                self.assertEqual(self.run_on(html), [])
+
     def test_main_scans_css_files(self):
         rc, out = self.main_on({"a.css": "body{background:url('http://a/b.png')}",
                                 "ok.css": "body{background:url(https://a/b.png)}"})
