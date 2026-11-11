@@ -22,7 +22,7 @@ import { readFile } from "node:fs/promises";
 import process from "node:process";
 import { importStaffCsv } from "./import-staff.mjs";
 import { importShiftsCsv } from "./import-shifts.mjs";
-import { demandShifts } from "./demand.mjs";
+import { demandShifts, backtestSales } from "./demand.mjs";
 import {
   parseStaff, parseShifts, buildRoster, coverOptions, coverChain, checkTrade, planWeeks, planFairness, planStreaks, optimalityText, rosterCsv, scheduleChanges, restPremium, hoursCsv, rosterIcs, rosterMessages, openShiftPost, tipPool, shortShifts, longShifts, daysOffRuns, carryOverStaff, dailyLabor, budgetCheck, trimOptions, salesPerLaborHour, sampleStaff, sampleShifts,
   DAYS, fmtClock, money, num,
@@ -69,6 +69,10 @@ Options:
                       --max-shift hours (default 4 to 8), inside the hours with sales or --open/--close (0-24). Shift lines on stdout, summary on stderr;
                       the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
                       --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date)
+                      A weekday that traded on under 1 in 4 of its dates is treated as closed, and an edge hour with sales on under 1 in
+                      20 days does not stretch the day (--keep-rare turns both off). --backtest tests the forecast on your own file
+                      instead: each full week after the first --warmup weeks (default 4) is planned from the weeks before it and compared
+                      hour by hour with what its sales needed, for the plain average, --half-life 2/4/8, last 4 weeks and last week
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
@@ -114,6 +118,9 @@ export function parseArgs(argv) {
     else if (a === "--import-shifts") { o.importShifts = argv[++i]; if (!o.importShifts) throw new Error("--import-shifts needs a CSV file"); }
     else if (a === "--from-sales") { o.fromSales = argv[++i]; if (!o.fromSales) throw new Error("--from-sales needs a CSV file"); }
     else if (a === "--skip-dates") { o.demand = { ...o.demand, skipDates: String(argv[++i] || "").split(/[,\s]+/).filter(Boolean) }; if (!o.demand.skipDates.length) throw new Error("--skip-dates needs dates like 2026-11-26,2026-12-25"); }
+    else if (a === "--backtest") o.backtest = true;
+    else if (a === "--keep-rare") o.demand = { ...o.demand, keepRare: true };
+    else if (a === "--warmup") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--warmup needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, warmup: v }; }
     else if (a === "--half-life") { const v = Number(argv[++i]); if (!(v > 0)) throw new Error("--half-life needs a positive number of weeks"); o.demand = { ...o.demand, halfLife: v }; }
     else if (a === "--min-staff" || a === "--min-shift" || a === "--max-shift" || a === "--open" || a === "--close") {
       const v = Number(argv[++i]);
@@ -487,6 +494,11 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     }
     if (o.fromSales) {
       if (!(o.splh > 0)) throw new Error("--from-sales needs --splh <sales per labor hour>");
+      if (o.backtest) {
+        const b = backtestSales(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh });
+        process.stdout.write(backtestReport(b));
+        process.exit(b.weeks ? 0 : 1);
+      }
       const r = demandShifts(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.shiftsText) process.exit(1);
@@ -533,5 +545,24 @@ function swapReport(staff, slots, r, opts) {
   if (t.ok) lines.push(`Payroll change for the pair: ${t.extraCost >= 0 ? "+" : "-"}${money(Math.abs(t.extraCost))}`);
   else for (const p of t.problems) lines.push(`  ${p.name} ${p.reason}`);
   lines.push("", "Everyone else keeps their shifts. Planning aid, not legal advice.");
+  return lines.join("\n") + "\n";
+}
+
+// --backtest table: person-hours a week short of and over what each week's real sales needed, per method.
+export function backtestReport(b) {
+  if (!b.weeks) return b.notes.join("\n") + "\n";
+  const f = (x) => x.toFixed(1);
+  const lines = [b.notes[b.notes.length - 1], "", "Method                                  Short   Over  Scheduled  Short+over  vs default (95% CI)"];
+  for (const m of b.methods) {
+    const vs = m.id === "all" ? "" : `${m.vsDefault >= 0 ? "+" : ""}${f(m.vsDefault)} (${f(m.ci[0])} to ${f(m.ci[1])})`;
+    lines.push(`${m.label.padEnd(38)}${f(m.short).padStart(7)}${f(m.over).padStart(7)}${f(m.scheduled).padStart(11)}${f(m.miss).padStart(12)}  ${vs}`);
+  }
+  const best = b.methods.find((m) => m.id === b.best);
+  lines.push("", "Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.");
+  lines.push(b.clear
+    ? `Best on your file: ${best.label} (${f(-best.vsDefault)} fewer person-hours off per week than the default, interval below zero).`
+    : "No method is clearly better than the plain average on your file (every interval reaches zero or above): keep the default.");
+  lines.push("A test on your past weeks, not a promise about the next one. Planning aid, not legal advice.");
+  for (const n of b.notes.slice(0, -1)) lines.push(n);
   return lines.join("\n") + "\n";
 }

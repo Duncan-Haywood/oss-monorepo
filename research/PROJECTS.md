@@ -1750,7 +1750,7 @@ currents, Copernicus Marine and public AIS archives (probe each through the prox
    swaps, against a single larger vehicle at the same cost.
 8. `marine-dock`: autonomous docking and charging. Approach and capture into a dock in current and
    waves, success rate against approach strategy and sensor noise; the dock is a by-product design.
-9. `marine-detect`: seeing obstacles on the water. Reproduce a published segmentation baseline on
+9. `marine-detect` (9a landed 2026-11-11: LR-ASPP baseline, fog, glint and size on MaSTr1325; MODS and the colregs link next): seeing obstacles on the water. Reproduce a published segmentation baseline on
    MaSTr1325 (or a successor), then measure how glare, fog and small-object size cut recall, and
    what the detector's miss rate does to `marine-colregs`.
 10. `marine-wave`: station keeping on wave and solar power alone. A Wave Glider-style two-body
