@@ -92,16 +92,42 @@ def tag_key(tag):
     return k[:-1] if k.endswith("s") and len(k) > 3 else k
 
 
-def tag_variants(texts):
-    """Groups of tag spellings that mean one thing ({name: post text}); each splits the blog's tag filter."""
-    spellings = {}
-    for text in texts.values():
+def tag_users(texts):
+    """{tag spelling: sorted post names using it} ({name: post text})."""
+    users = {}
+    for name, text in texts.items():
         m = re.search(r"^tags:\s*\[(.*?)\]", text, re.M)
         for t in (m.group(1).split(",") if m else []):
             t = t.strip().strip("\"'")
             if t:
-                spellings.setdefault(tag_key(t), set()).add(t)
+                users.setdefault(t, set()).add(name)
+    return {t: sorted(v) for t, v in users.items()}
+
+
+def tag_variants(texts):
+    """Groups of tag spellings that mean one thing ({name: post text}); each splits the blog's tag filter."""
+    spellings = {}
+    for t in tag_users(texts):
+        spellings.setdefault(tag_key(t), set()).add(t)
     return [sorted(v) for v in spellings.values() if len(v) > 1]
+
+
+def variant_message(group, users, named=frozenset()):
+    """Say which spelling to keep (the one most posts use) and which posts to change.
+
+    Runs reported (2026-11-11) that the bare "spelled 2 ways" line left them
+    grepping for the post: name the posts, the named ones first.
+    """
+    keep = max(group, key=lambda t: (len(users[t]), t == t.lower(), -len(t)))  # ties: lower case, then shortest
+    parts = []
+    for t in group:
+        if t == keep:
+            continue
+        posts = sorted(users[t], key=lambda n: (n not in named, n))
+        shown = ", ".join(posts[:5]) + (f" (+{len(posts) - 5} more)" if len(posts) > 5 else "")
+        parts.append(f"`{t}` in {shown}")
+    return (f"tag spelled {len(group)} ways: {', '.join(group)}; use `{keep}` "
+            f"({len(users[keep])} post(s)), change " + "; ".join(parts))
 
 
 def duplicate_descriptions(texts):
@@ -141,10 +167,11 @@ def main(argv=None):
     for name in named:
         m = re.search(r"^tags:\s*\[(.*?)\]", texts[name], re.M)
         own_tags |= {t.strip().strip("\"'") for t in (m.group(1).split(",") if m else [])}
+    users = tag_users(texts)
     for group in tag_variants(texts):
         if named and not own_tags & set(group):
             continue
-        print(f"tag spelled {len(group)} ways: {', '.join(group)}; pick one")
+        print(variant_message(group, users, named))
         bad += 1
     for group in duplicate_descriptions(texts):
         if named and not named & set(group):

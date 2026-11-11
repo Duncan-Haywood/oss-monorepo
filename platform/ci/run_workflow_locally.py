@@ -1326,8 +1326,18 @@ def _run_selected(args, selected, held, absent=()) -> int:
         print(f"  [held  ] {name} / {job_id}: {why}; run it by name with "
               "--force if you have read it")
     if args.list:
-        for name, _, allowed in selected:
-            print(f"  [run   ] {name} ({', '.join(sorted(allowed))})")
+        total = 0
+        for name, workflow, allowed in selected:
+            steps, _ = collect(workflow, only=allowed)
+            total += len(steps)
+            print(f"  [run   ] {name} ({', '.join(sorted(allowed))}; "
+                  f"{len(steps)} run: step(s))")
+        # Runs reported (2026-11-11) a 13-17 workflow sweep outrunning the
+        # 600 s tool cap; the list is where that can be seen in advance.
+        if len(selected) > 3:
+            print(f"  {len(selected)} workflow(s), {total} step(s): up to "
+                  f"{args.workflow_timeout}s each. Start the sweep in the "
+                  "background, or run the few that cover your change by name.")
         return 0
 
     before = checkout_fingerprint()
@@ -1415,7 +1425,9 @@ def main(argv=None) -> int:
 
     if not args.workflow:
         print("name a workflow, --for-changes to select by diff, or --tree "
-              "to sweep the whole checkout", file=sys.stderr)
+              "to sweep the whole checkout"
+              + (" (for a dry run of your diff: --for-changes --list)"
+                 if args.list else ""), file=sys.stderr)
         return 2
 
     name = os.path.basename(args.workflow)
