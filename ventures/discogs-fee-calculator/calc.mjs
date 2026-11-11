@@ -226,8 +226,11 @@ export function calculateBatch(text, settings = {}) {
     const cells = line.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map((cell) => cell.trim().replace(/^"|"$/g, ''));
     const numeric = (cell) => /^\$?-?[\d,]*\.?\d+$/.test(cell.replace(/\s/g, ''));
     let label = '';
-    if (cells.length && !numeric(cells[0])) label = cells.shift();
-    if (!cells.length || cells.some((cell) => cell !== '' && !numeric(cell))) {
+    // Up to three values follow an optional label. Four values means the first
+    // is a label (an order number, say); reading it as the price would shift
+    // every column and silently drop the cost.
+    if (cells.length && (!numeric(cells[0]) || cells.length === 4)) label = cells.shift();
+    if (!cells.length || cells.length > 3 || cells.some((cell) => cell !== '' && !numeric(cell))) {
       if (rows.length === 0 && /^(label|title|record|item|price)/i.test(line)) return; // header row
       problems.push({ line: index + 1, message: `Line ${index + 1}: expected "label, price, shipping, cost"` });
       return;

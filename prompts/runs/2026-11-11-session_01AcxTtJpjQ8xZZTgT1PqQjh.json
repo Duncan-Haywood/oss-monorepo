@@ -58,8 +58,8 @@
     {
       "file": "portfolio/flagships.yaml",
       "why": "main was red on validate: changepoint-detector next: was 2,220 characters after #14922 (cap 2,000), failing every PR.",
-      "did": "Condensed the sticky-series/volatility item to a pointer at the README sections; no item dropped.",
-      "result": "portfolio/router/validate.py passes."
+      "did": "Condensed the entry on this branch; a parallel run fixed it on main first, so the merge took main's version.",
+      "result": "Superseded: validate passes on main's version; this PR leaves flagships.yaml unchanged."
     }
   ],
   "writeups": [

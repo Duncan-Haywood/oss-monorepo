@@ -1,0 +1,247 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVNC2uzMx6gADPpYi7m",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue products); merge when done",
+  "input_sha256": "c008369ff7f6bb1c9312f89c067345da62e288c7e2fdfd845bbb3668d6069ff1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T22:57:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14928",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix open entries first, but all five open entries are control-plane fixes already sitting in owner-gated PRs; the open list could mark entries with a pending PR so runs don't re-check them."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Step 0: all five open entries already have control-plane PRs awaiting owner approval (#12928 framerate, #14877 doc_index + insecure_refs, #14614 redteam rerun, #14698 einvoice deps); nothing to do without the owner. Campaign: wall-condensation-check/calc.mjs (new on main today), 12 mutants, 6 caught, 1 equivalent, 5 gaps all caught after fix (rerun). Real defects: 4 found and patched, the last two by grepping siblings for the same 'drop the first value if it looks like a label' pattern (only 3 hits under ventures/). Verification: python3 platform/ci/run_venture_tests.py wall-condensation-check discogs-fee-calculator caa-record-check -> 3 suites run, 0 failed; each new test confirmed failing on the unfixed code (caa analyze test tightened on nonWildcardDisallowAll after it first passed unfixed). Step 4b: no automated lint added; the class (optional label column decided by the value's look) is not reliably greppable, recorded here instead. Blog post docs/posts/2026-11-11-the-optional-first-column.md. Local run_workflow_locally --for-changes: first pass failed check_post_frontmatter (my post: description and seo_title too long, tag 'red-team' vs 'redteam'), fixed; hub/content tests 50/50 and platform/pages node --test 1550/1550 after the fix. Deploy and review-bot jobs not run locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-condensation-check/calc.mjs",
+        "test": "node --test ventures/wall-condensation-check/**/*.test.mjs  (in .)",
+        "seed": 579397567,
+        "commit": "2dddd76e",
+        "sites": 397,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 30,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "\"latex-paint\": { name: \"Latex primer and paint\", r: 0, perm: 5 },",
+            "after": "\"latex-paint\": { name: \"Latex primer and paint\", r: 1, perm: 5 },",
+            "line_text": "  \"latex-paint\": { name: \"Latex primer and paint\", r: 0, perm: 5 },",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "sample wall now pinned to LIBRARY values (test: the sample wall uses the library's own values)"
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 36,
+            "col": 61,
+            "operator": "const-plus-one",
+            "before": "\"batt-r21\": { name: \"R-21 fiberglass batt, 2x6 cavity\", r: 21, perm: 20 },",
+            "after": "\"batt-r21\": { name: \"R-21 fiberglass batt, 2x6 cavity\", r: 22, perm: 20 },",
+            "line_text": "  \"batt-r21\": { name: \"R-21 fiberglass batt, 2x6 cavity\", r: 21, perm: 20 },",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same library-vs-sample test; the R-21 batt is in the sample"
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 70,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "if (raw === \"\" || raw === null || raw === undefined) {",
+            "after": "if (raw === \"\" || raw === null && raw === undefined) {",
+            "line_text": "  if (raw === \"\" || raw === null || raw === undefined) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "num() is private and every caller passes a string cell from split(), so raw is never null or undefined; the null/undefined arms are unreachable"
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 70,
+            "col": 40,
+            "operator": "eq-flip",
+            "before": "if (raw === \"\" || raw === null || raw === undefined) {",
+            "after": "if (raw === \"\" || raw === null || raw !== undefined) {",
+            "line_text": "  if (raw === \"\" || raw === null || raw === undefined) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 98,
+            "col": 120,
+            "operator": "const-plus-one",
+            "before": "const tIn = num(cells[2], `${at} indoor temperature`, errs, { min: unit === \"F\" ? 40 : 4, max: unit === \"F\" ? 100 : 38 });",
+            "after": "const tIn = num(cells[2], `${at} indoor temperature`, errs, { min: unit === \"F\" ? 40 : 4, max: unit === \"F\" ? 100 : 39 });",
+            "line_text": "    const tIn = num(cells[2], `${at} indoor temperature`, errs, { min: unit === \"F\" ? 40 : 4, max: unit === \"F\" ? 100 : 38 });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "indoor temperature limits now tested inclusive at both ends, F and C"
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 162,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "const anchors = [0];",
+            "after": "const anchors = [1];",
+            "line_text": "  const anchors = [0];",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 173,
+            "col": 29,
+            "operator": "minus-to-plus",
+            "before": "let bestSlope = (p[to] - p[from]) / (pts[to].z - pts[from].z || 1e-30);",
+            "after": "let bestSlope = (p[to] + p[from]) / (pts[to].z - pts[from].z || 1e-30);",
+            "line_text": "      let bestSlope = (p[to] - p[from]) / (pts[to].z - pts[from].z || 1e-30);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 185,
+            "col": 24,
+            "operator": "plus-to-minus",
+            "before": "for (let j = from + 1; j < best; j++) p[j] = p[from] + (Number.isFinite(bestSlope) ? bestSlope : 0) * (pts[j].z - pts[from].z);",
+            "after": "for (let j = from - 1; j < best; j++) p[j] = p[from] + (Number.isFinite(bestSlope) ? bestSlope : 0) * (pts[j].z - pts[from].z);",
+            "line_text": "      for (let j = from + 1; j < best; j++) p[j] = p[from] + (Number.isFinite(bestSlope) ? bestSlope : 0) * (pts[j].z - pts[from].z);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 198,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "let b = i + 1;",
+            "after": "let b = i + 2;",
+            "line_text": "    let b = i + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 234,
+            "col": 26,
+            "operator": "div-to-times",
+            "before": "const pIn = (m.rhIn / 100) * psat(m.tIn);",
+            "after": "const pIn = (m.rhIn * 100) * psat(m.tIn);",
+            "line_text": "      const pIn = (m.rhIn / 100) * psat(m.tIn);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 248,
+            "col": 26,
+            "operator": "gt-to-ge",
+            "before": "if (moisture[i] > peak[i]) { peak[i] = moisture[i]; peakMonth[i] = k; }",
+            "after": "if (moisture[i] >= peak[i]) { peak[i] = moisture[i]; peakMonth[i] = k; }",
+            "line_text": "          if (moisture[i] > peak[i]) { peak[i] = moisture[i]; peakMonth[i] = k; }",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "dry interfaces must have peakMonth null and wetMonths 0; >= set peakMonth on 0 >= 0"
+          },
+          {
+            "file": "ventures/wall-condensation-check/calc.mjs",
+            "line": 261,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "change: Object.fromEntries(Object.entries(change).map(([i, c]) => [i, c * 1000])), // g/m² this month",
+            "after": "change: Object.fromEntries(Object.entries(change).map(([i, c]) => [i, c * 1001])), // g/m² this month",
+            "line_text": "          change: Object.fromEntries(Object.entries(change).map(([i, c]) => [i, c * 1000])), // g/m² this month",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test: row.change equals the month's moisture difference in g/m²"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-condensation-check/calc.mjs",
+        "issue": "parseClimate read a numeric month column ('1, 20, 75, 70, 35') as the outdoor temperature, shifting every column (outdoor RH read as 20%, indoor T as 75 F, indoor RH as 70%) with no error: the sample wall's peak went from 744 to 21,566 g/m². Months named out of order were silently relabelled, and single-space pastes were rejected. Fixed: a fifth leading value is the month (1-12), names are checked against the January-first order, extra values are refused, any whitespace separates.",
+        "patched": true
+      },
+      {
+        "file": "ventures/wall-condensation-check/calc.mjs",
+        "issue": "The sample wall (DEFAULTS and the layers placeholder) listed latex paint after the gypsum, although layers are entered inside to outside, so the model placed the paint inside the wall. Base results unchanged (744 g/m², 17%), but a user swapping paint for polyethylene got poly on the room face. Fixed: paint first; the guide's poly case now places poly behind the drywall explicitly.",
+        "patched": true
+      },
+      {
+        "file": "ventures/discogs-fee-calculator/calc.mjs",
+        "issue": "calculateBatch dropped a leading label only when it was non-numeric, so '1001, 25, 5, 10' (an order number) became price 1001, shipping 25, cost 5, and the real cost was silently dropped; five values were accepted with the extras ignored. Fixed: four values mean the first is a label; more than three values after the label are refused.",
+        "patched": true
+      },
+      {
+        "file": "ventures/caa-record-check/parse.mjs",
+        "issue": "parseIssueValue filtered empty ';' parts before reading the issuer, so '0 issue \"; accounturi=...\"' (no issuer: no CA may issue, RFC 8659 4.2) was read as authorising a CA named 'accounturi=...' and nonWildcardDisallowAll was false. Fixed: read the issuer before dropping empty parts.",
+        "patched": true
+      }
+    ]
+  }
+}

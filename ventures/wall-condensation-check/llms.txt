@@ -11,7 +11,7 @@ Free and open source (MIT). Results are a vapour-diffusion screen on the numbers
 
 ## For agents
 
-- Engine: `calc.mjs`, `analyze(input)` with `{ tempUnit: "F"|"C", rUnit: "IP"|"SI", permUnit: "perm"|"ng", layers: "name, R, perm" lines inside to outside, climate: "month, tOut, rhOut, tIn, rhIn" lines January first }`; `DEFAULTS` is the page's example (typical layer values, an invented climate). `LIBRARY` holds typical layers. Callable through `node platform/agents/tools.mjs call wall-condensation-check analyze --input '{"tempUnit":"F"}'` or the repository's MCP server (`call_tool`).
+- Engine: `calc.mjs`, `analyze(input)` with `{ tempUnit: "F"|"C", rUnit: "IP"|"SI", permUnit: "perm"|"ng", layers: "name, R, perm" lines inside to outside, climate: "month, tOut, rhOut, tIn, rhIn" lines January first, the month optional as a name or 1 to 12, out-of-order months refused }`; `DEFAULTS` is the page's example (typical layer values, an invented climate). `LIBRARY` holds typical layers. Callable through `node platform/agents/tools.mjs call wall-condensation-check analyze --input '{"tempUnit":"F"}'` or the repository's MCP server (`call_tool`).
 
 ## Source
 

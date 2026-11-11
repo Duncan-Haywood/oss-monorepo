@@ -87,7 +87,9 @@ Options:
                       --min-shift is stretched only where that is cheaper than leaving it unstaffed, to the cheapest window.
                       The backtest scores the shifts cut from each plan, so the shortest-shift stretch counts as over
                       --score-closed: in the backtest, minimum staff is not needed in an hour your shop normally keeps shut (traded
-                      on under 1 in 5 of that weekday's dates) on a day it sold nothing then, so a staffed closure counts as over
+                      on under 1 in 5 of that weekday's dates) on a day it sold nothing then, so a staffed closure counts as over;
+                      without --backtest, half-life auto picks on that score and may pick the last 4 weeks only
+                      --last-weeks <n>: plan from the last n weeks of dated sales only
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
@@ -141,6 +143,7 @@ export function parseArgs(argv) {
     else if (a === "--join") o.demand = { ...o.demand, join: true };
     else if (a === "--warmup") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--warmup needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, warmup: v }; }
     else if (a === "--short-cost") { const v = Number(argv[++i]); if (!(v > 0) || !Number.isFinite(v)) throw new Error("--short-cost needs a positive number (a short person-hour costs that many spare ones; 1 = equal)"); o.demand = { ...o.demand, shortCost: v }; }
+    else if (a === "--last-weeks") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--last-weeks needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, window: v }; }
     else if (a === "--half-life") {
       const t = String(argv[++i]).toLowerCase();
       const v = t === "auto" || t === "none" ? t : Number(t);
@@ -524,7 +527,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
         process.stdout.write(backtestReport(b));
         process.exit(b.weeks ? 0 : 1);
       }
-      const r = demandShifts(await readFile(o.fromSales, "utf8"), { halfLife: "auto", ...o.demand, splh: o.splh });
+      const r = demandShifts(await readFile(o.fromSales, "utf8"), { halfLife: o.demand?.window ? undefined : "auto", ...o.demand, splh: o.splh });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.shiftsText) process.exit(1);
       const extra = r.extra >= 0 ? `${r.extra} extra from the shortest-shift rule` : `${-r.extra} fewer: short runs left unstaffed at your short cost`;
