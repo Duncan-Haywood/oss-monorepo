@@ -268,11 +268,14 @@ export const SITE_HEADER_CSS = `
 /* The header on one row when it fits, two when it doesn't: brand and Search on top, the section links below.
    Before 2026-11-11 the Search control wrapped onto a row of its own, under the brand at the left edge, on every
    page but the hub from 721px up (even at 1280px, where the 236px form was too wide to share the row with ten
-   links). The query is on the header's own width, not the window's: a tool page's header can sit in a 1,000px column. */
-[data-pfs-head]{container:pfs-head/inline-size}
-@container pfs-head (max-width:1079px){
+   links). The query is on the bar's own content width, not the window's: a tool page's header can sit in a 1,000px column,
+   with or without side padding. One row needs about 1,016px (brand 153, links 721, gaps 44, Search pill 98). */
+[data-pfs-head] .pfs-bar{container:pfs-head/inline-size}
+@container pfs-head (max-width:1017px){
   [data-pfs-head] .pfs-brand{flex:1 1 auto}
   .pfs-nav{order:3;flex-basis:100%}
+  /* The pill is taller than the brand line; let it overhang the row gap so two rows cost no more than before. */
+  [data-pfs-head] .pfs-searchlink{margin-block:-4px}
 }
 @property --pfs-fade{syntax:'<length>';inherits:false;initial-value:28px}
 @keyframes pfs-fade-out{to{--pfs-fade:0px}}
