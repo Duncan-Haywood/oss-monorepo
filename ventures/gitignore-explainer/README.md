@@ -57,10 +57,9 @@ Measured with git 2.43.0 on 2026-11-11:
 
 | Run | Result |
 | --- | --- |
-| 4,000 random repositories (`GITIGNORE_DIFF_TRIALS=4000`) | every path agrees with git |
-| 2,000 random repositories | 31,589 paths, all agree |
+| 4,000 random repositories (`GITIGNORE_DIFF_TRIALS=4000`) | 63,578 paths and folders, every one agrees with git |
 | this repository's own 73 ignore files, 391 rules | 63,639 tracked paths and folders, 0 disagreements |
-| suggested fixes on 3,000 random repositories (seed 424242) | 492 fixes, each matching git; 446 re-include every blocked path, 463 change no other path |
+| suggested fixes, same run (8,000 random repositories, seed 424242) | 1,294 fixes, each matching git; 1,142 re-include every blocked path, 1,219 change no other path |
 
 The default suite runs 150 repositories (about 3 seconds); set `GITIGNORE_DIFF_TRIALS` for more. The random
 rules are deliberately odd, so the fix rates above are a stress figure, not a forecast for ordinary files.

@@ -35,7 +35,8 @@
     "The CLI's main-module check (argv[1].endsWith('check.mjs')) also fired when another script ending in check.mjs imported it. Replaced it with a fileURLToPath comparison.",
     "My first per-rule tally ignored the directory a nested .gitignore covers. The resolver was right, but 'never decides' findings were wrong. Found by checking this repo's report by hand; fixed with a base check in ruleMatches.",
     "The guide's 'before' git output came from a 4-line file while the page shows 2 lines (line numbers off by one). page.test.mjs, which recomputes the output with the engine, caught it before commit.",
-    "The first remove-each-rule effect pass was rules x paths: 118 s on this repo. Restricted it to the paths each rule can change: 2.3 s."
+    "The first remove-each-rule effect pass was rules x paths: 118 s on this repo. Restricted it to the paths each rule can change: 2.3 s.",
+    "sibling-links CI: a new tool needs an inbound link from a sibling; added one from codeowners-shadow-check with a page test."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -48,14 +49,21 @@
       "issue": "Nothing says a new venture must be registered in platform/pages/build.mjs CATEGORY_RULES, launched.json and the optout-persistence SWITCHES count; I learned it from the previous venture commit's diff. A one-line pointer would save the lookup."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "main was red on validate: changepoint-detector next: was 2,220 characters after #14922 (cap 2,000), failing every PR.",
+      "did": "Condensed the sticky-series/volatility item to a pointer at the README sections; no item dropped.",
+      "result": "portfolio/router/validate.py passes."
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-11-a-gitignore-rule-git-never-reads.md",
     "ventures/gitignore-explainer/README.md",
     "ventures/gitignore-explainer/why-gitignore-negation-does-not-work.html"
   ],
   "goal": "Ship a developer tool that explains .gitignore resolution exactly as git does, and verify it against git rather than the docs.",
-  "notes": "Idea: a .gitignore explainer (deciding rule per path, blocked negations with a fix re-checked against the list, tracked-but-ignored files, shadowed/redundant rules, lint). Verified: a differential test against git check-ignore --no-index -v on random repos (4,000 repos, every path agrees; it found git's literal-prefix step where /a**/x lets ** cross folders). This repo's 73 ignore files over 63,639 tracked paths and folders: 0 disagreements. Suggested fixes applied in git: 492 over 3,000 repos, all as reported (446 complete, 463 with no side effects). Venture tests 34 + 3 pass; Chromium at 1100 and 390 px: no console errors, no overflow; clauses.mjs ok; optout-persistence 20/20; post checks clean. No AI, no network. Next: a GitHub Action around --strict.",
+  "notes": "Idea: a .gitignore explainer (deciding rule per path, blocked negations with a fix re-checked against the list, tracked-but-ignored files, shadowed/redundant rules, lint). Verified: a differential test against git check-ignore --no-index -v on random repos (4,000 repos and 63,578 paths on the final engine, every path agrees; it found git's literal-prefix step where /a**/x lets ** cross folders). This repo's 73 ignore files over 63,639 tracked paths and folders: 0 disagreements. Suggested fixes applied in git: 1,294 over 8,000 repos, all as reported (1,142 complete, 1,219 with no side effects). Venture tests 34 + 3 pass; Chromium at 1100 and 390 px: no console errors, no overflow; clauses.mjs ok; optout-persistence 20/20; post checks clean. No AI, no network. Next: a GitHub Action around --strict.",
   "corrections": [],
   "redteam": null,
   "usage": {

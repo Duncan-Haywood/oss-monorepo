@@ -27,9 +27,9 @@ The reason is a speed shortcut in git. Before wildcard matching, git compares th
 
 With that in place, against git 2.43.0:
 
-- 4,000 random repositories: every path agrees with git.
+- 4,000 random repositories, 63,578 paths and folders: every one agrees with git.
 - This repository's own 73 ignore files (391 rules) over its 55,196 tracked files and 8,443 folders: 0 disagreements. Only 16 of those 63,639 paths match any rule at all, which is what you'd expect of tracked files. So this run says little about the hard cases; the random runs carry those.
-- A second test applies each suggested fix in git and checks that git does what the report claimed. Across 3,000 random repositories that was 492 fixes, all as reported. 446 brought back every blocked path, and 463 changed no other path. The random rules are deliberately odd, so read those rates as a stress figure. They are not a forecast for normal files.
+- A second test applies each suggested fix in git and checks that git does what the report claimed. Across 8,000 random repositories that was 1,294 fixes, all as reported. 1,142 brought back every blocked path, and 1,219 changed no other path. The random rules are deliberately odd, so read those rates as a stress figure. They are not a forecast for normal files.
 
 ## What it found here
 
