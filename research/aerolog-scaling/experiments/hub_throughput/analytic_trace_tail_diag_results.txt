@@ -1,0 +1,25 @@
+Milestone 6k diagnostic (post hoc): P(W > 300 s) by mechanism, time-varying Poisson orders, 100 seeds pooled
+  ('model' = no feedback and 100 pads, the rule's model; unlimited pads in effect at these rates)
+
+== load 70%, k=1, Wed 2019-10-09 shape
+  S  | rule   | model  | no-fb  | full
+   20 | 0.0837 | 0.0862 | 0.0862 | 0.0862
+   23 | 0.0455 | 0.0471 | 0.0471 | 0.0471
+
+== load 70%, k=4, Wed 2019-10-09 shape
+  S  | rule   | model  | no-fb  | full
+   36 | 0.0704 | 0.0876 | 0.0876 | 0.0876
+   40 | 0.0478 | 0.0616 | 0.0616 | 0.0616
+   44 | 0.0319 | 0.0433 | 0.0433 | 0.0433
+
+== load 85%, k=1, Wed 2019-10-09 shape
+  S  | rule   | model  | no-fb  | full
+   39 | 0.0787 | 0.0823 | 0.0823 | 0.0823
+   43 | 0.0479 | 0.0508 | 0.0508 | 0.0508
+   47 | 0.0275 | 0.0291 | 0.0291 | 0.0291
+
+== load 85%, k=4, Wed 2019-10-09 shape
+  S  | rule   | model  | no-fb  | full
+   63 | 0.0635 | 0.0858 | 0.0858 | 0.0858
+   67 | 0.0490 | 0.0708 | 0.0708 | 0.0708
+   71 | 0.0375 | 0.0569 | 0.0569 | 0.0569

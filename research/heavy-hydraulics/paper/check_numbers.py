@@ -10,6 +10,10 @@ from pathlib import Path
 P = Path(__file__).resolve().parent
 EXP = P.parent / "experiments"
 CHECKS = [
+    ("break-even margin of 26.5 bar", "spool_floor_synthetic_results.txt", "break-even dp_ls = 26.5 bar"),
+    ("the break-even to 23.0 bar", "spool_function_sizing_results.txt", "envelope, orifice: energy-weighted extra OC drop while moving 2.33 bar; break-even dp_ls = 23.0 bar"),
+    ("it is 25.6 bar", "spool_function_sizing_results.txt", "break-even dp_ls = 25.6 bar"),
+    ("break-even is 20.6 bar", "spool_function_sizing_results.txt", "  0: 20.6"),
     ("1.043", "physics_cycle_sourced_results.txt", "median 1.043"),
     ("| 0.942 | 34.9% |", "idle_sensitivity_results.txt", "0.942 (0.721 to 1.194) |  34.9%"),
     ("| 0.820 | 12.5% |", "idle_sensitivity_results.txt", "0.820 (0.619 to 1.079) |  12.5%"),
