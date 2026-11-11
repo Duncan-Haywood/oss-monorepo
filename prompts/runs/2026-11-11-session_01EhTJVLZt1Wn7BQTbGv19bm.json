@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVLZt1Wn7BQTbGv19bm",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (revenue products, merge when done)",
+  "input_sha256": "ab13366b76f7a4a7eff6fa3dd7ccc03f921272dad26ba0630c7b43db1469464e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T14:59:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14810,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; the doc-friction table's top ungated item that was still live (hearth-and-horizon BIBLE.md, 3 reports today) had to be found by filtering out CODEOWNERS-gated files by hand."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Not fixed: build-data is intermittently feed-blocked (Socrata answered in session 74, 403 in 68/70/72/73), so a BLOCKED file is wrong for it; pick_track has no notion of 'blocked sometimes'. Left for a research or process run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode via doc friction. Shipped ventures/hearth-and-horizon/bible_done.mjs + DONE.md + test: BIBLE.md 188,928 -> 39,788 bytes, 323 Done entries moved (291 Next up, 20 What not to do, 12 three shelves), 1 open proposal left. Checks: node --test stories.test.mjs usage.test.mjs 14/14; check_md_links ok; check_post_links ok; main_health.py 55/55. No backlog ids touched.",
+  "corrections": [],
+  "redteam": null
+}
