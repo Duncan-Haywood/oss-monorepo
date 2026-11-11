@@ -1249,7 +1249,31 @@ def run_for_changes(args) -> int:
     workflows = {name for name, *_ in selected} | {name for name, *_ in held}
     print(f"{len(changed)} changed file(s) against {args.for_changes} select "
           f"{len(workflows)} workflow(s).")
+    hint = budget_hint(len(selected), getattr(args, "workflow_timeout", 0),
+                       args.list)
+    if hint:
+        print(hint, flush=True)
     return _run_selected(args, selected, held)
+
+
+# A foreground tool call in a cloud session is cut off at 600 s. Runs kept
+# starting --for-changes in the foreground and losing the whole result when a
+# docs+venture diff selected 13 to 17 workflows (four doc-friction reports,
+# 2026-11-11). Saying so before the first step costs one line.
+TOOL_CAP_S = 600
+
+
+def budget_hint(n_selected: int, per_workflow_s: int, listing: bool) -> str | None:
+    """A warning when the selection can outrun a foreground tool call, else None."""
+    if listing or n_selected < 2 or not per_workflow_s:
+        return None
+    worst = n_selected * per_workflow_s
+    if worst <= TOOL_CAP_S:
+        return None
+    return (f"  {n_selected} workflow(s) x {per_workflow_s} s budget = up to "
+            f"{worst // 60} min, past a {TOOL_CAP_S} s foreground tool call: "
+            "run this in the background (log to a file), or --list first and "
+            "run the workflows you need by name.")
 
 
 def checkout_fingerprint() -> tuple[str, str] | None:
@@ -1326,18 +1350,16 @@ def _run_selected(args, selected, held, absent=()) -> int:
         print(f"  [held  ] {name} / {job_id}: {why}; run it by name with "
               "--force if you have read it")
     if args.list:
+        # Step counts say which workflow is the long one (on a platform/ci
+        # diff, portfolio-validate.yml holds 107 of 136 steps), so a run can
+        # pick the few to run by name.
         total = 0
         for name, workflow, allowed in selected:
-            steps, _ = collect(workflow, only=allowed)
-            total += len(steps)
-            print(f"  [run   ] {name} ({', '.join(sorted(allowed))}; "
-                  f"{len(steps)} run: step(s))")
-        # Runs reported (2026-11-11) a 13-17 workflow sweep outrunning the
-        # 600 s tool cap; the list is where that can be seen in advance.
-        if len(selected) > 3:
-            print(f"  {len(selected)} workflow(s), {total} step(s): up to "
-                  f"{args.workflow_timeout}s each. Start the sweep in the "
-                  "background, or run the few that cover your change by name.")
+            n = len(collect(workflow, only=allowed)[0])
+            total += n
+            print(f"  [run   ] {name} ({', '.join(sorted(allowed))}; {n} step(s))")
+        if selected:
+            print(f"  {total} run: step(s) in {len(selected)} workflow(s).")
         return 0
 
     before = checkout_fingerprint()
@@ -1396,7 +1418,8 @@ def main(argv=None) -> int:
                          "'is this checkout green?' where --for-changes "
                          "answers 'is my diff sound?'")
     ap.add_argument("--list", action="store_true",
-                    help="print the steps that would run, and run nothing")
+                    help="print the steps (or, with no workflow named, the "
+                         "workflows --for-changes would select) and run nothing")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
     ap.add_argument("--timeout", type=int, default=900,
@@ -1423,11 +1446,15 @@ def main(argv=None) -> int:
             return 2
         return run_for_changes(args)
 
+    if not args.workflow and args.list:
+        # `--list` alone used to fail with "name a workflow"; the question a
+        # run asks with it is "what would --for-changes run?", so answer that.
+        args.for_changes = LOCAL_BASE["ref"] = "origin/main"
+        return run_for_changes(args)
+
     if not args.workflow:
         print("name a workflow, --for-changes to select by diff, or --tree "
-              "to sweep the whole checkout"
-              + (" (for a dry run of your diff: --for-changes --list)"
-                 if args.list else ""), file=sys.stderr)
+              "to sweep the whole checkout", file=sys.stderr)
         return 2
 
     name = os.path.basename(args.workflow)

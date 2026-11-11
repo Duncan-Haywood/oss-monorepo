@@ -1092,6 +1092,18 @@ class Tree(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("nothing was verified", out.getvalue().lower())
 
+    def test_list_names_each_workflows_step_count(self):
+        wf = {"jobs": {"a": {"steps": [{"run": "true"}, {"run": "true"},
+                                      {"uses": "actions/checkout@v4"}]},
+                       "b": {"steps": [{"run": "true"}]}}}
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner._run_selected(argparse.Namespace(list=True, timeout=1),
+                                        [("x.yml", wf, {"a"})], [])
+        self.assertEqual(code, 0)
+        self.assertIn("x.yml (a; 2 step(s))", out.getvalue())
+        self.assertIn("2 run: step(s) in 1 workflow(s).", out.getvalue())
+
     def test_a_step_is_named_before_it_runs_not_after(self):
         # A sweep of this tree takes ~13 minutes. If the label is printed
         # only once `execute()` returns, a session that pipes the output --
@@ -1320,6 +1332,20 @@ class ChangedPaths(unittest.TestCase):
         with self.assertRaises(SystemExit) as caught:
             runner.changed_paths("origin/nope", repo=self.repo)
         self.assertIn("no ref", str(caught.exception))
+
+
+class BudgetHintTest(unittest.TestCase):
+    """--for-changes warns before a selection can outrun a 600 s tool call."""
+
+    def test_large_selection_warns(self):
+        hint = runner.budget_hint(13, 300, listing=False)
+        self.assertIn("65 min", hint)
+        self.assertIn("background", hint)
+
+    def test_small_selection_or_listing_is_quiet(self):
+        self.assertIsNone(runner.budget_hint(2, 300, listing=False))
+        self.assertIsNone(runner.budget_hint(13, 300, listing=True))
+        self.assertIsNone(runner.budget_hint(13, 0, listing=False))
 
 
 if __name__ == "__main__":
