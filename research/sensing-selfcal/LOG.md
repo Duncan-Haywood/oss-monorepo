@@ -1,5 +1,14 @@
 # sensing-selfcal research log
 
+## 2026-11-11 · Milestone 1 result: target-free BA matches Zhang to 0.2%, the board bends, σ is 2× optimistic
+
+- **H1 held.** All 13 views: target-free f 534.82 / 538.43 px against Zhang's 535.62 / 539.71 (left / right), gaps −0.15% / −0.24%, under 1σ; the same f from 0.7× and 1.3× starts.
+- **H2 held narrowly.** Subsets of 4–12 views (360 solves): rms z 1.94, 95% bootstrap 1.75–2.12. Ideal is 1, so σ is about twice too small; worst at 3–7 views (2.1–2.8). Zhang's own σ against the same reference: 2.16. Not planned: subsets of 3 views (rms z 2.79, worst error 20%).
+- **H3 refuted.** σ ratio target-free / Zhang 1.12 at 13 views (predicted ≥ 2); 2.9 at 3 views, falling with views as predicted.
+- **Unplanned finding: the board is not flat.** The free corners leave their best plane by 0.0077 square widths rms (max 0.024) on both cameras, and the two cameras' out-of-plane maps correlate at 0.903 (0.909 with k2). Target-free reprojection rms 0.26 / 0.29 px against Zhang's 0.42 / 0.49. The principal point's c_y differs by 8.7 px (5.3σ) and 5.2 px (2.9σ); the bend is the likely cause, not yet tested.
+- **Deviation from the plan.** Zhang's σ_f came out as 0 at first: with a fixed aspect ratio OpenCV reports it in the f_y slot; fixed before any analysis. Sizes 3–12 were run (plan said 4–12); H2 is scored on 4–12 as planned.
+- **Problem found.** Every solve stopped on the 1,000-evaluation cap (the similarity gauge slows trust-region). For all-view fits f agrees across starts to 0.001 px; subsets were not checked. Milestone 2 should fix the gauge and use an analytic Jacobian.
+
 ## 2026-11-11 · Milestone 1 planned: target-free self-calibration against Zhang on a real stereo pair
 
 Written before any experiment was run.
