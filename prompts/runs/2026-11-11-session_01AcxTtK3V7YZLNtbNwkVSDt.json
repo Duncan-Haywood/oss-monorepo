@@ -49,7 +49,7 @@
     "ventures/ai-bookkeeper/README.md (Adyen settlement details, on Adyen's own sample)"
   ],
   "goal": "Deepen flagship 2 on a real vendor-produced input rather than a made-up fixture",
-  "notes": "Security queue empty; IDEAS.md and website requests empty; route drew ventures. Adyen's sample (assets.ctfassets.net, linked from docs.adyen.com) is fetched at run time by eval/adyen-sample.mjs, not committed (vendor file, licence unknown). Old reader: Balancetransfer +4,014,796.34 / -4,015,315.41 as other income; new: batch ties exactly, 61 rows pending with a named next batch. Verification: node --test adyen.test.mjs 9 pass; run_venture_tests.py ai-bookkeeper ok (51.7s); venture-preflight ai-bookkeeper exit 0.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; route drew ventures. Adyen's sample (assets.ctfassets.net, linked from docs.adyen.com) is fetched at run time by eval/adyen-sample.mjs, not committed (vendor file, licence unknown). Old reader: Balancetransfer +4,014,796.34 / -4,015,315.41 as other income; new: batch ties exactly, 61 rows pending with a named next batch. Verification: node --test adyen.test.mjs 9 pass; run_venture_tests.py ai-bookkeeper ok (51.7s); venture-preflight ai-bookkeeper: first run exit 1 (post description 165 chars, cap 160), fixed, rerun clean exit 0.",
   "corrections": [],
   "redteam": null,
   "usage": {
