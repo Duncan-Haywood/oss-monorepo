@@ -3,7 +3,7 @@ title: "Don't mirror the second half: carry-over in a double round robin"
 seo_title: "Double round robin schedule without mirroring: lower carry-over"
 date: 2026-11-11
 tags: [league-schedule-generator, scheduling, algorithms, open-data]
-description: "Mirroring the first half of a double round robin doubles every carry-over count. Searching the season as a whole cuts the carry-over value by 22% and beats every top-flight fixture list in our data."
+description: "Mirroring a double round robin doubles every carry-over count. Searching the season as a whole cuts it 22% and beats every top-flight fixture list in our data."
 ---
 
 Most double round robins are built the lazy way: write the first half, then
