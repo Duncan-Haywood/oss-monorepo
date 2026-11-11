@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtHpA8ychj5a34Cw4Gg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T23:15:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 4 changepoint-detector item (b): sticky series on the drift model",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14921",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector next: suggested 'a floor tied to the data's resolution'; on TCPD the smallest nonzero step is 0.45 of sigma on bank, so a quantisation floor (r^2/12) is ~0.017, barely above the existing 0.01 floor, and could not have fixed it; checked in two minutes before pre-registering a different fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The listed next step (a resolution floor) would not move bank (see doc_friction)",
+      "did": "Pre-registered dropping exact repeats, then (post hoc, new seed, committed before running) treating them as missing observations; shipped a sticky-series warning instead of a model change",
+      "result": "Both fixes failed their power rule; the warning ships with tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-the-quote-that-did-not-move.md",
+    "ventures/changepoint-detector/README.md (Sticky series: exact repeats)"
+  ],
+  "goal": null,
+  "notes": "Pre-registration commit 94deb19c precedes the drop run; the missing-observation headers were committed before that run. Verification: drift-sticky.test.mjs 8/8 locally; full venture suite and venture-preflight results appended below once finished.",
+  "corrections": [],
+  "redteam": null
+}
