@@ -78,21 +78,22 @@ class Servo:
 
 
 class Tach:
-    """One pulse per revolution from a reflective IR sensor on the wheel hub."""
+    """One pulse per revolution from a reflective IR sensor on the wheel hub, timed per revolution
+    (controller.PeriodTach: counting pulses per 10 ms tick could only read multiples of 6000 rpm)."""
 
     def __init__(self, pin):
-        self.pulses = 0
-        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING)
+        self.core = controller.PeriodTach()
+        self.last_us = time.ticks_us()
         self.rpm = 0
-        self._last = 0
+        Pin(pin, Pin.IN).irq(self._p, Pin.IRQ_RISING)
 
     def _p(self, _):
-        self.pulses += 1
+        now = time.ticks_us()
+        self.core.edge(time.ticks_diff(now, self.last_us))
+        self.last_us = now
 
     def update(self, dt):
-        n = self.pulses - self._last
-        self._last = self.pulses
-        self.rpm = int(n * 60000 / dt) if dt else 0
+        self.rpm = self.core.rpm(time.ticks_diff(time.ticks_us(), self.last_us))
 
 
 class StepDir:
@@ -141,9 +142,13 @@ class FeederHw:
         self.adc = ADC(Pin(36))
         self.target_rpm = (0, 0)
         self.esc_cmd = [0.0, 0.0]
+        rpm_full = getattr(config, "WHEEL_RPM_FULL", 9000)
+        self.wheel_loops = (controller.WheelLoop(rpm_full), controller.WheelLoop(rpm_full))
+        self.wheels_steady = controller.SteadyGate()
         self.base_target = 0
         self.base_vmax = 0
         self.feeding = 0
+        self.fed = 0                  # balls released since power-up; telemetry tells the Pi when its ball has gone
         self.gate_open_until = 0
         self.arm()
 
@@ -154,6 +159,9 @@ class FeederHw:
     def stop_all(self):
         self.target_rpm = (0, 0)
         self.esc_cmd = [0.0, 0.0]
+        for loop in self.wheel_loops:
+            loop.i = 0.0
+        self.wheels_steady.ok_ms = 0
         self.arm()
         self.base.set(0)
         self.base_vmax = 0
@@ -197,7 +205,12 @@ class FeederHw:
             f |= protocol.FLAG_AIM_SETTLING
         if self.elev.fault:
             f |= protocol.FLAG_ELEV_FAULT
+        if not self.wheels_steady.steady:
+            f |= protocol.FLAG_WHEELS_SETTLING
         return f
+
+    def balls_fed(self):
+        return self.fed
 
     def aim_settled(self):
         return self.elev.settled and self.azim.settled
@@ -229,25 +242,22 @@ class FeederHw:
         self.tach_top.update(dt)
         self.tach_bottom.update(dt)
         for i, (esc, tach) in enumerate(((self.esc_top, self.tach_top), (self.esc_bottom, self.tach_bottom))):
-            want = self.target_rpm[i]
-            if want == 0:
-                self.esc_cmd[i] = 0.0
-            else:
-                self.esc_cmd[i] += (want - tach.rpm) * 2e-6 * dt
-                self.esc_cmd[i] = max(0.0, min(1.0, self.esc_cmd[i]))
+            self.esc_cmd[i] = self.wheel_loops[i].update(self.target_rpm[i], tach.rpm, dt)
             esc.frac(self.esc_cmd[i])
+        steady = self.wheels_steady.update(self.target_rpm, (self.tach_top.rpm, self.tach_bottom.rpm), dt)
         # Base: proportional position control capped at vmax (trapezoid in practice
         # because the cap limits speed and the gain limits deceleration).
         err = self.base_target - self.base_y_mm()
         duty = max(-1.0, min(1.0, err * 0.004)) * min(1.0, self.base_vmax / 3000)
         self.base.set(duty if abs(err) > 5 else 0)
-        # Feed one ball at a time, only with both wheels within 5% of target.
-        ok = all(t and abs(tach.rpm - t) < 0.05 * t for t, tach in zip(self.target_rpm, (self.tach_top, self.tach_bottom)))
-        ok = ok and self.aim_settled()     # never launch while the head is still moving
+        # Feed one ball at a time, only with both wheels held within 3% of target for 150 ms
+        # and the head at its aim (never launch while it is still moving).
+        ok = steady and self.aim_settled()
         if self.feeding and ok and now >= self.gate_open_until + 400:
             self.gate.frac(1)
             self.gate_open_until = now + 150
             self.feeding -= 1
+            self.fed += 1
         elif now >= self.gate_open_until:
             self.gate.frac(0)
 

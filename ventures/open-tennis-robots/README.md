@@ -93,6 +93,10 @@ tennisbots catch-study --net-width 2 --net-width 3 --base-speed 0 --base-speed 2
 
 # Plan the collector's route around a practice session's keep-out zones:
 tennisbots collect --balls 60 --practice
+
+# On the feeder's Raspberry Pi: run a drill on the machine over its serial port
+pip install "tennisbots[serial]"   # or pip install pyserial
+tennisbots run drill.example.json --port /dev/ttyAMA0
 ```
 
 Coordinates are metres. The origin is the centre of the net, x points
@@ -137,11 +141,72 @@ drill.json ──> launcher.aim ──> wheel rpm, angles      catcher.plan (cro
 collector camera ──> vision.Homography ──> collector.Planner ──> drive.PurePursuit ──> ESP32
 ```
 
+## Running a drill on the machine (2026-11-11)
+
+`tennisbots run` (`src/tennisbots/host.py`) is the loop between the planner and
+the ESP32. It plans every shot first, so an unreachable ball fails before a
+wheel turns; then, per shot, it sends the wheel speeds and the aim, waits for a
+telemetry frame that is certainly newer than the command (0.25 s, since a frame
+can be in flight) showing the aim arrived (`FLAG_AIM_SETTLING` clear, azimuth
+homed) and the wheels held at speed (`FLAG_WHEELS_SETTLING` clear), sends
+`FEED 1`, and waits until the firmware's released-ball counter (a new last byte
+of `TELEMETRY`) moves. Only then does it re-aim, so a queued ball can never ride
+a re-aim to the wrong place; the next ball goes no sooner than the drill's
+`interval` (default 3 s, per shot or per drill) after the last one. Heartbeats
+go out every 100 ms. An e-stop, watchdog or elevation fault, a silent link, or
+a step over its time limit aborts: the runner sends `ESTOP` (which also drops a
+queued ball) and says why.
+
+It is tested against the firmware itself: `tests/feeder_sim.py` runs
+`controller.py` and `main.py`'s `FeederHw` on stand-in `machine` and `time`
+modules, with invented physics (each wheel a first-order lag, the turntable
+following its step pulses, the actuator at its configured speeds or read
+through its pot). On that board `drill.example.json` runs clean in pot and
+timed elevation modes: four balls, each released within 0.6 deg of its planned
+elevation, 0.05 deg of its azimuth and 3.5% of both wheel speeds, at least 3 s
+apart. E-stop pressed mid-drill, a lost `FEED` frame, a pot wire coming off and
+a silent board each abort with no further ball. No real board has run it.
+
+### Wheel speed loop (2026-11-11)
+
+Writing the runner turned up two faults in the launcher wheels' firmware:
+
+- **The tachometer could not read the speeds it gates on.** It counted the
+  once-per-rev pulses in each 10 ms tick and scaled by 60000/dt, so its only
+  readings were 0, 6000, 12000 rpm...: a 3000 rpm wheel read 0 and 6000 in
+  turn. It now times each revolution (`controller.PeriodTach`, the mean of the
+  last four periods from a microsecond clock, the open period while the wheel
+  slows, 0 after 250 ms without a pulse, glitches faster than 12000 rpm folded
+  into their revolution).
+- **The speed loop was integral only** (`cmd += err x 2e-6 x dt`). With the new
+  tachometer, on the simulated board the bottom wheel at 1955 rpm swung
+  between about 1200 and 2900 rpm for ten seconds, and the gate's single 5%
+  reading let balls go mid-swing (one left at 1591 rpm, 19% slow). It is now
+  feedforward from the wheel's free speed (`WHEEL_RPM_FULL` in `config.py`;
+  measure it) plus PI with anti-wind-up (`controller.WheelLoop`), and the gate
+  wants both wheels held within 3% for 150 ms (`controller.SteadyGate`).
+
+`tests/wheel_loop_sweep.py` checks the loop over 36 cases: free speed 7000,
+9000 and 11000 rpm while the firmware is told 9000, spin-up time constants
+0.2, 0.4 and 0.8 s, and the drill's wheel pairs. All 36 reach steady within
+2.6 s. A 5% gate let balls go at up to 6.6% true speed error, because the
+tachometer's average trails the wheel; the 3% gate holds that to 2.8%
+(median 1.6%) for at most 0.6 s more spin-up. In the flight model a 22 m/s
+ball aimed 9.5 m out lands 0.7 m off at 2.8% and 1.7 m off at 6.6%. The
+wheel model is an assumption; the first build should log its tach readings
+during a spin-up and rerun the sweep with the measured lag.
+
+Also fixed: `launcher.aim` crashed with `AttributeError` on a shot too fast to
+land on its target (80 m/s), because its bisection closed on the jump between
+"hits the net" and "lands long"; it now raises the `ValueError` its callers
+handle.
+
 ## Develop
 
 ```
 cd ventures/open-tennis-robots
-PYTHONPATH=src python3 -m unittest discover -s tests   # Python: physics, planners, firmware logic, listing
+PYTHONPATH=src python3 -m unittest discover -s tests   # Python: physics, planners, firmware logic, drill runner, listing
+PYTHONPATH=src python3 tests/wheel_loop_sweep.py       # wheel speed loop over plant assumptions
 node --test *.test.mjs                                 # browser port vs Python fixtures, page checks
 PYTHONPATH=src python3 -m tennisbots.fixtures          # regenerate fixtures after changing the model
 ```

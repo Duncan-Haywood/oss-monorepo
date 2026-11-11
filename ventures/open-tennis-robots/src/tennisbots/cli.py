@@ -1,4 +1,4 @@
-"""Command line: `tennisbots aim | drill | catch-study | collect`."""
+"""Command line: `tennisbots aim | drill | run | catch-study | collect`."""
 
 from __future__ import annotations
 
@@ -63,6 +63,26 @@ def cmd_drill(a: argparse.Namespace) -> int:
             out.append({"shot": i, "error": str(exc)})
     print(json.dumps({"shots": out}, indent=2))
     return 1 if failed else 0
+
+
+def cmd_run(a: argparse.Namespace) -> int:
+    """Run a drill file on a real feeder over its serial port (pip install tennisbots[serial])."""
+    from . import host
+    print(DISCLAIMER, file=sys.stderr)
+    try:
+        res = host.run_file(a.file, a.port, log=print)
+    except ImportError:
+        print("drill not run: needs pyserial (pip install 'tennisbots[serial]')", file=sys.stderr)
+        return 2
+    except (ValueError, OSError) as exc:
+        print(f"drill not run: {exc}", file=sys.stderr)
+        return 2
+    if res.aborted:
+        print(f"aborted (ESTOP sent; release the button and send CLEAR_ESTOP to go again): {res.aborted}",
+              file=sys.stderr)
+        return 1
+    print(f"{len(res.shots)} balls fed; {res.link_errors} bad frames on the link")
+    return 0
 
 
 def cmd_catch_study(a: argparse.Namespace) -> int:
@@ -167,6 +187,11 @@ def build_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("drill", help="check and compile a JSON drill file into machine settings")
     s.add_argument("file")
     s.set_defaults(func=cmd_drill)
+
+    s = sub.add_parser("run", help="run a drill file on the feeder over serial: aim, wait for the wheels, feed")
+    s.add_argument("file")
+    s.add_argument("--port", default="/dev/ttyAMA0", help="serial device wired to the ESP32 (default /dev/ttyAMA0)")
+    s.set_defaults(func=cmd_run)
 
     s = sub.add_parser("catch-study", help="simulate how many returns a moving catch net would catch")
     s.add_argument("--n", type=int, default=200)

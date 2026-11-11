@@ -143,7 +143,12 @@ def aim(origin: bl.Vec, target: tuple[float, float], speed: float, topspin_rpm: 
             else:
                 b = m
         elev = (a + b) / 2
-        _, flight = dist(elev, az)
+        d, flight = dist(elev, az)
+        if abs(d - want) > 0.1:
+            # The bracket spanned a jump, not a crossing: just below it the ball hits the net, just above it lands
+            # past the target (too fast to come down short of it over the net). Seen at 80 m/s, 2026-11-11.
+            raise ValueError(f"target {target} cannot be reached at {speed:.1f} m/s: every arc that clears the net "
+                             "lands beyond it; slow the shot or add topspin")
         land = flight.first_bounce.pos
         err = math.atan2(ty - oy, tx - ox) - math.atan2(land[1] - oy, land[0] - ox)
         if abs(err) < 1e-5:
