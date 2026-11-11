@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKncn1kinrdTxuHimN6",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T11:24:46Z",
+  "ended": "2026-11-11T11:31:57Z",
+  "wall_minutes": 7.51,
+  "tokens_in": 3800906,
+  "tokens_out": 26792,
+  "cost_usd": 2.2356,
+  "tool_calls": 37,
+  "task": "research programme theism-formal-evidence, milestone 2 step E14 (drawn by pick_track.py)",
+  "projects": [
+    "research/theism-formal-evidence"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14772",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Portfolio Pages 'test' job red on this PR and on every PR since #14766: faq-visible.test.mjs failed because ventures/concrete-maturity/index.html carried FAQPage JSON-LD with no visible FAQ. Fixed forward in this PR (a visible Questions section with the same strings); faq-visible 4/4 and the venture's 23 tests pass locally."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/theism-formal-evidence/test_theism.py",
+      "issue": "My first view with sed + tail overlapped, so the single __main__ block looked duplicated; cost one failed edit. Not a doc problem, noted for the next run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Research work stays inside research/; this PR also touches ventures/concrete-maturity/index.html because main's Pages test was red from another PR and every PR inherits it.",
+      "did": "Added the missing visible FAQ section (strings copied from the page's own JSON-LD) instead of waiting for the owning run.",
+      "result": "faq-visible test passes locally; CI to confirm."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-anderson-godel-plain-necessary-existence-de-re.md",
+    "research/theism-formal-evidence/experiments/e14_plain_necessity/results.md",
+    "research/theism-formal-evidence/LOG.md"
+  ],
+  "goal": "Advance the programme: test whether a plain necessary-existence axiom closes E13's de re gap, with a Lean proof",
+  "notes": "Security queue empty (no security-alerts branch); IDEAS.md and website requests empty. Prediction H19 committed (67d1015d) before any search code ran. Lean 4.15.0 toolchain fetched by lean/build.sh in the background (~1 min), built Plain.lean first try, no sorry. E14 search 17,440 frames, ~2 min; (a),(b),(c),(e) held; flagged guess (d) refuted. Local checks: python3 test_theism.py all ok; research/_homepage/build.py ok; check_md_links ok; research_live_links --write; run_workflow_locally --for-changes run (see PR). run_workflow_locally: 8/10 workflows passed; portfolio-pages hit its 300 s local budget (not a real failure), so its test step was run directly: 1526 pass, 1 fail (the concrete-maturity FAQ, fixed here).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "05abb0bf-5e74-5b5f-a541-0528eae799d6",
+    "transcripts": 1,
+    "first": "2026-11-11T11:24:46Z",
+    "last": "2026-11-11T11:32:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 26792,
+        "thinking": 7122,
+        "cache_read": 3680416,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120422,
+        "api_equivalent_usd": 2.2356,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 26792,
+      "thinking": 7122,
+      "cache_read": 3680416,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120422,
+      "api_equivalent_usd": 2.2356,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.51,
+      "active_minutes": 7.51,
+      "model_minutes": 5.47,
+      "tool_minutes": 2.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a logician formalising the variant, writing the search and three Lean lemmas, and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 268.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

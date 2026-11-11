@@ -234,6 +234,23 @@ def test_e13_actualist_necessity_matches_prediction():
     e13.test_constant_domain_readings_agree(); e13.test_shared_essence_de_re_fails()
 
 
+def test_e14_plain_necessity_closes_de_re():
+    """Plain necessary existence positive (E14): search counts equal H19's formula on every 2x2
+    frame, every God-like individual of a model exists at every world, and each model also
+    satisfies Anderson's A5'."""
+    e14 = _load("e14_plain_necessity")
+    n = 0
+    for Ex in e14.e12.domains(2, 2):
+        for blocks in e14.e8.partitions(4):
+            fr = e14.e13.ActualFrame(2, 2, blocks, Ex)
+            models = [m for m in e14.search(fr) if m["a50"]]
+            assert len(models) == e14.predicted(fr)
+            assert all(m["re_all"] and m["dicto"] and m["a5"] for m in models)
+            n += len(models)
+    assert n == 35
+    e14.test_e13_countermodel_fails_a50(); e14.test_constant_domain_a50_is_a5()
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):
