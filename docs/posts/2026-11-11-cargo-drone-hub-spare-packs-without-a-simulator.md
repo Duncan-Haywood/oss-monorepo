@@ -3,7 +3,7 @@ title: "Sizing a cargo-drone hub's spare batteries with a formula instead of a s
 seo_title: "Drone battery swap hub: how many spare packs? A closed-form M/D/c rule"
 date: 2026-11-11
 tags: [research, aerolog-scaling, drone-logistics, queueing]
-description: "For a battery-swap hub with 8 chargers, a short queueing recursion gives the same spare-pack count as the simulator: 12 to 45 packs, depending on load and order bursts."
+description: "For a battery-swap drone hub with 8 chargers, a short queueing recursion gives the same spare-pack count as the simulator: 12 to 45 packs."
 ---
 
 The aerolog-scaling programme has been sizing a battery-swap hub for a cargo
