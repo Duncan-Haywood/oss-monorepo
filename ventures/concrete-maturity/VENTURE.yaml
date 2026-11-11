@@ -1,0 +1,37 @@
+name: concrete-maturity
+description: Free browser tool and CLI that estimates in-place concrete strength from a temperature logger's CSV and the mix's lab breaks by the maturity method (Nurse-Saul or equivalent age), fits the strength-maturity curve three ways, and reports each sensor's strength now and when it reaches a stripping or stressing target.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Contractors and QC technicians who already embed temperature loggers but have no vendor maturity app (or don't want one per project) work the strength out in spreadsheets, and a free tool that reads the logger CSV directly saves them that work on every pour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Showing every sensor with the coldest one marked as governing changes stripping decisions, because the mid-depth logger usually reads warmest.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searches such as "concrete maturity calculator" and "maturity method concrete strength" are a reachable free channel once the pages are in the catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Every calculation runs in the visitor's browser; one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No logger CSV from a real project parses or gives a plausible estimate after three attempts with real exports.
+  - Fewer than three contractors or technicians use it on a real pour within 90 days of it being discoverable.
+
+links:
+  production: https://marisstella.app/concrete-maturity/
+  analytics: null

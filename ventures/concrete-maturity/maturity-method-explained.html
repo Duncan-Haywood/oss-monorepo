@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23d9480f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Concrete Maturity Method Explained, with a Worked Example</title>
+  <meta name="description" content="How the concrete maturity method turns a temperature record into an in-place strength estimate: Nurse-Saul and equivalent age, building the strength-maturity curve from lab breaks, a worked cold-weather slab example, and when not to trust it.">
+  <link rel="canonical" href="./maturity-method-explained.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"The concrete maturity method explained, with a worked example","about":"Estimating in-place concrete strength from temperature history (ASTM C1074 maturity method)"}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2125; background: #eceae6; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; line-height: 1.6; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.08; letter-spacing: -.03em; }
+    h2 { margin-top: 2em; font-size: 1.3rem; }
+    a { color: #9a3412; }
+    .cta { display: inline-block; background: #c2410c; color: #fff; padding: 10px 16px; border-radius: 8px; text-decoration: none; font-weight: 700; }
+    code, .eq { font-family: ui-monospace, Menlo, monospace; font-size: .9em; background: #f6f4f0; padding: 1px 4px; border-radius: 4px; }
+    .eq { display: block; padding: 10px 12px; margin: 10px 0; overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .92rem; }
+    th, td { border-bottom: 1px solid #d8d3c9; padding: 6px; text-align: left; }
+    .tablewrap { overflow-x: auto; }
+    footer { margin-top: 3em; font-size: .82rem; color: #555c63; }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Concrete maturity calculator</a></p>
+  <h1>The concrete maturity method, explained with a worked example</h1>
+  <p>Every pour comes with the same question from the superintendent: <em>can we strip, stress or load it yet?</em> Field-cured cylinders answer it slowly and only for the concrete in the cylinder. The maturity method answers it from the temperature of the concrete itself, logged where it sits in the slab, wall or deck.</p>
+  <p><a class="cta" href="./">Try it on your own logger file</a></p>
+
+  <h2>Who this is for</h2>
+  <p>Concrete contractors deciding when to strip forms or cut joints, post-tensioning crews deciding when to stress, QC technicians and site engineers who already have embedded temperature loggers but work the strength out in a spreadsheet, or only through a vendor's app. If you have a logger's CSV and the lab's break results for the mix, you have everything this page needs.</p>
+
+  <h2>The idea in one paragraph</h2>
+  <p>Cement hydrates faster when it is warm. Two days at 25 °C and four days at 10 °C can leave the same concrete at roughly the same strength. The maturity method compresses a temperature history into one number, the <strong>maturity index</strong>, so that concrete with the same index has about the same strength regardless of the path it took. You learn how strength rises with the index once per mix, from lab specimens, and from then on any logger in that mix tells you its strength.</p>
+
+  <h2>Two ways to count maturity</h2>
+  <p><strong>Nurse-Saul (temperature-time factor).</strong> Add up the degrees above a datum temperature, below which hydration is taken to stop, times the hours spent there:</p>
+  <span class="eq">M = Σ (T<sub>a</sub> − T<sub>0</sub>) Δt</span>
+  <p><code>T<sub>a</sub></code> is the mean concrete temperature over each interval and <code>T<sub>0</sub></code> the datum. A 0 °C datum is a common starting value for plain portland cement; the right one for a mix with admixtures or blended cement is measured, which ASTM C1074's annex describes.</p>
+  <p><strong>Equivalent age (Arrhenius).</strong> Convert every hour to the number of hours at a reference temperature that would give the same strength gain:</p>
+  <span class="eq">t<sub>e</sub> = Σ exp(−E/R · (1/T<sub>a</sub> − 1/T<sub>s</sub>)) Δt</span>
+  <p>with temperatures in kelvin, <code>E</code> the apparent activation energy (around 40,000 J/mol is a commonly used starting value) and <code>T<sub>s</sub></code> the reference temperature, often 20 °C or 23 °C. With those numbers an hour at 30 °C counts as about 1.7 hours at 20 °C, and an hour at 5 °C as about 0.4 hours. Equivalent age follows the real temperature dependence more closely across a wide range; Nurse-Saul is simpler and is what many field crews use.</p>
+
+  <h2>Building the strength-maturity curve</h2>
+  <p>Break specimens of the mix at several ages, typically 1, 3, 7, 14 and 28 days, two or more at each. If they were moist-cured at a known constant temperature, each specimen's maturity is just that temperature (above the datum) times its age in hours: one day at 23 °C is 23 × 24 = 552 °C·h. If a logger sat in a companion specimen, use the logged maturity instead. Then fit a curve through the points. The calculator fits three common forms and shows all of them:</p>
+  <ul>
+    <li><strong>Logarithmic</strong>, <code>S = a + b ln(M)</code>: two parameters, the simplest and a widely used form. It never levels off, so it overstates strength far past the oldest specimen.</li>
+    <li><strong>Hyperbolic</strong>, <code>S = S<sub>u</sub> k(M − M<sub>0</sub>) / (1 + k(M − M<sub>0</sub>))</code>: levels off at a limiting strength <code>S<sub>u</sub></code>.</li>
+    <li><strong>Exponential</strong>, <code>S = S<sub>u</sub> exp(−(τ/M)<sup>α</sup>)</code>: also levels off, often the closest fit at early ages.</li>
+  </ul>
+  <p>It chooses between them by AICc, which rewards a closer fit and penalises the extra parameter, so a three-parameter curve has to earn its place. You can override the choice.</p>
+
+  <h2>A worked example</h2>
+  <p>The numbers below are made up for illustration (they are the calculator's "Load a made-up example" button), shaped like a slab placed at 2 pm on a cold November day with two loggers: one at mid-depth and one near an exposed edge.</p>
+  <p><strong>Lab breaks</strong> (two cylinders per age, moist-cured at 23 °C, psi):</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Age</th><th>Maturity, datum 0 °C</th><th>Breaks (psi)</th></tr></thead>
+    <tbody>
+      <tr><td>1 day</td><td>552 °C·h</td><td>1,180 and 1,240</td></tr>
+      <tr><td>3 days</td><td>1,656 °C·h</td><td>2,510 and 2,440</td></tr>
+      <tr><td>7 days</td><td>3,864 °C·h</td><td>3,420 and 3,510</td></tr>
+      <tr><td>14 days</td><td>7,728 °C·h</td><td>4,120 and 4,060</td></tr>
+      <tr><td>28 days</td><td>15,456 °C·h</td><td>4,580 and 4,650</td></tr>
+    </tbody>
+  </table></div>
+  <p>All three curves fit these well (R² 0.992 logarithmic, 0.998 hyperbolic, 0.999 exponential); the exponential has the lowest AICc, 82.4 against 87.7 and 99.6, so it is used. On it, 3,000 psi needs about 2,560 °C·h.</p>
+  <p><strong>After five days in the slab</strong> the mid-depth logger has averaged a little under 16 °C and reached about 1,900 °C·h, an estimated 2,650 psi. The edge logger ran colder, as low as 3.7 °C overnight, and has about 1,270 °C·h, an estimated 2,170 psi. Neither has reached 3,000 psi. If the last day's temperatures hold (about 10 °C at mid-depth, 7.5 °C at the edge), mid-depth gets there in about 2.7 more days and the edge in about 7.2. <strong>The edge governs</strong>: stripping on the mid-depth number alone would be stripping concrete the record says is about 830 psi short at the edge.</p>
+  <p>That is the point of logging more than one location: the coldest part of the pour sets the schedule, and the warm core flatters it.</p>
+
+  <h2>When not to trust the number</h2>
+  <ul>
+    <li><strong>It is a different mix.</strong> The curve belongs to one mix design. A change in cement, supplementary materials, water-cement ratio or admixtures needs new breaks.</li>
+    <li><strong>The concrete dried out or froze early.</strong> Maturity assumes the concrete kept enough moisture to hydrate. Concrete that froze before it gained strength, or cured very hot early on, can end up weaker than its maturity says. The calculator flags readings below 0 °C and above 60 °C.</li>
+    <li><strong>It is past the calibration.</strong> Estimates beyond the oldest specimen's maturity are extrapolation, and the calculator says so.</li>
+    <li><strong>Critical operations.</strong> ASTM C1074 asks for the estimate to be confirmed by other tests (field-cured cylinders, cores or other in-place methods) before critical operations such as form removal or post-tensioning. What evidence is enough is the engineer of record's call, not this page's.</li>
+  </ul>
+
+  <h2>When to use something else</h2>
+  <p>If you need wireless sensors that report from the slab without a site visit, an audit trail tied to a project, or a vendor to stand behind the process, commercial maturity systems sell exactly that, and this page is not a substitute. This calculator is for the case where you already have the logger file and want to see the arithmetic: free, open source, no account, and nothing uploaded. The command-line version in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/concrete-maturity">source</a> does the same in a script.</p>
+
+  <p><a class="cta" href="./">Open the calculator</a></p>
+
+  <footer>
+    <p><strong>No warranty.</strong> This page and the calculator are provided free and as-is, without warranty of any kind. They are not engineering, structural, construction or legal advice and do not replace the engineer of record, a testing laboratory or field-cured specimens. You are responsible for verifying any estimate before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+    <p>ASTM C1074 is a standard of ASTM International; this page is not affiliated with or endorsed by ASTM. Read the current edition of the standard for its requirements.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+  </footer>
+</body>
+</html>
