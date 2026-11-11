@@ -3,7 +3,7 @@ title: "Did immigration or big Catholic families keep the US Catholic share stea
 seo_title: "US Catholic share 1990-2018: immigration vs fertility (GSS)"
 date: 2026-11-11
 tags: [research, catholic-demography, GSS, demography]
-description: "GSS counterfactuals: immigrants added +1.07 points [0.52, 1.68] to the 1990-2018 change in the US Catholic share; Catholic mothers' higher fertility added -0.37."
+description: "GSS counterfactual: immigrants added +1.07 points [0.52, 1.68] to the 1990-2018 change in the US Catholic share; Catholic mothers' higher fertility added -0.37."
 ---
 
 Between the 1990s and 2010-18 the share of American adults who call themselves Catholic barely moved in the General Social Survey: 26.4% to 25.0%. It held while a quarter to a third of people raised Catholic were leaving (retention fell from 78% to 67%). Two stories are usually offered for what held it up: immigrants, mostly from Latin America, and Catholic families having more children. I tested them against each other today.
