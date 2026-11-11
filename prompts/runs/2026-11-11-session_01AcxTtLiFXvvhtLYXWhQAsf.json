@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLiFXvvhtLYXWhQAsf",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": "2026-11-11T20:05:42Z",
+  "ended": "2026-11-11T20:37:44Z",
+  "wall_minutes": 32.31,
+  "tokens_in": 8163824,
+  "tokens_out": 34612,
+  "cost_usd": 3.2125,
+  "tool_calls": 83,
+  "task": "Critique: supersede_check.py hang reported in doc_friction (2026-11-10, 2026-11-11)",
+  "projects": [
+    "portfolio/ledger"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14872",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Backlog held only owner rows; most fresh doc_friction targets (check_social_proof bare-comma regex, quality queue shallow-clone 'unknown', post description limit) were already fixed by sibling runs, so finding a live one took several greps. The measure table's 'grep git log since the report' hint is the right one."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate PRs asks for supersede_check.py before every close, but on this repo it took over 400 s (killed) on one PR from a shallow clone; fixed here to 46 s."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runcost.py",
+      "why": "runcost attach wrote the model id into models_seen/usage.models; this cloud session's rules forbid model identifiers in pushed files",
+      "did": "redacted the id (models key 'redacted', primary_model null)",
+      "result": "validate still passes; per-model measure loses this one run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-supersede-check-in-46-seconds.md"
+  ],
+  "goal": null,
+  "notes": "Backlog: no agent-owned item (P056 blocked; rest owner), so Critique via measure's doc-friction table. main_health: nothing red. Fix to portfolio/ledger/supersede_check.py (not a CODEOWNERS path). Timings on PR 14702 (refs/pull/14702/head, shallow clone, 4 cores): old > 400 s (timeout 124); batched git grep 249 s; + run-record exemption + length window 183 s; + GNU grep over git archive + forked pool 46 s. Profile (cProfile, pre-final): nearest_in_base 465/589 s, base_contains 100 s. Final verdict text identical to the 183 s version (diff of outputs: only timing lines). Windowed twin search checked equal to full get_close_matches on 400 random lines x 3000 keys (127-128 matches, equal). Tests: python3 -m unittest test_supersede_check in portfolio/ledger, 37 OK. No backlog id touched; no deviation from the process prompt.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3da61345-4da5-5429-90ca-e64438412692",
+    "transcripts": 1,
+    "first": "2026-11-11T20:05:42Z",
+    "last": "2026-11-11T20:38:00Z",
+    "primary_model": null,
+    "models": {
+      "redacted": {
+        "requests": 78,
+        "input": 146,
+        "output": 34612,
+        "thinking": 7830,
+        "cache_read": 8049970,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113708,
+        "api_equivalent_usd": 3.2125,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 146,
+      "output": 34612,
+      "thinking": 7830,
+      "cache_read": 8049970,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113708,
+      "api_equivalent_usd": 3.2125,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 76,
+      "Edit": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 32.31,
+      "active_minutes": 32.31,
+      "model_minutes": 7.46,
+      "tool_minutes": 24.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profiling and optimising a git-heavy Python CLI with equivalence checks, about half a day for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 93.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "redacted: the session's rules forbid model identifiers in pushed files",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
