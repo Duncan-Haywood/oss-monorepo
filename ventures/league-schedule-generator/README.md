@@ -228,10 +228,59 @@ seven opponents arriving straight from the same side; the least possible is 48).
 
   The professional schedules already avoid the circle pattern; the tool lands among them on both
   counts, without their derby, policing and broadcast constraints. Not yet: a real rec league's
-  strength data (does carry-over move results at that level?), a double round robin optimised as a
-  whole rather than mirrored (mirroring doubles every count: worst 6 for 18 and 20 teams), and the
+  strength data (does carry-over move results at that level?), and the
   search's gap to the floor (12 teams: 156 non-cyclic against a floor of 120; whether that is the
   optimum is unknown).
+
+## A double round robin searched as a whole (2026-11-11)
+
+Mirroring the first half of a home-and-away season repeats every carry-over step, so every count
+doubles. `lowCarryOverDoubleRounds(n, { seed, effort, breakWeight })` in `carryover.mjs` searches the
+second half as a round robin of its own, and `buildSchedule` uses it whenever "Spread who you meet
+next" and a double round robin are both ticked.
+
+- Leg one is the single search's result (rounds and home/away). Leg two starts as leg one played
+  backwards with leg one's last round moved to the end: backwards turns every step i -> j into
+  j -> i, so counts spread instead of doubling, and each team's home/away pattern is leg one's
+  reversed and flipped. With `breakWeight` only leg two moves and its venues follow from leg one,
+  so the breaks in the cost are exact; with 0 both legs move on carry-over alone.
+- Kept: each pair meets once per leg (phased, as the date placement plays leg by leg), the return
+  game at the other ground (every team n - 1 home, n - 1 away), no team meets the same side twice
+  running across the halfway point and no team sits out twice running (penalty 1000 each, 0 in
+  every test). `assignVenuesDouble` then improves home/away with one choice per pair.
+- `carryOverFromOpponents` now counts the diagonal in its floor only when a schedule has a
+  back-to-back repeat (`repeats`): a double round robin can, a single one cannot. None of the 20
+  real seasons does, so their floors are unchanged.
+- Measured (`eval/carryover-real.txt`, last columns, seed 1):
+
+  | Teams | Mirrored, w=10 | Whole season, w=10 | Whole season, carry-over only | Floor |
+  |---|---|---|---|---|
+  | 18 | 1,926 / 74 breaks | 1,498 / 88 | 1,334 / 142 | 1,170 |
+  | 20 | 2,136 / 114 | 1,678 / 124 | 1,596 / 184 | 1,460 |
+
+  The 20-team result is below all 14 professional 20-team seasons (2,278 to 2,564) and inside
+  their break range (70 to 146); the 18-team one is below the Bundesliga (3,474+) and Ligue 1
+  (1,840, 1,948), with more breaks than the Bundesliga's minimum 48. 8 teams, carry-over only,
+  reaches the 200 floor (test). About 2 to 2.5 s for 18 to 20 teams in Node.
+- Open: breaks still rise 10 to 19% over mirroring; a search that moves leg one too under exact
+  breaks, or a break-minimal leg-two order (the "French" and "English" schemes) as extra starts.
+- Measured later the same day (`eval/double-frontier.mjs`, output `eval/double-frontier.txt`;
+  break weights 10, 20, 40 and 80 at seeds 1 to 3, each run set against the professional seasons
+  of its size):
+  - **The seed matters more than the weight.** At 20 teams and w=10, seeds 1 to 3 give 1,678 / 124,
+    1,820 / 112 and 1,784 / 108. Raising the weight does not reliably cut breaks: w=80 gives 116,
+    108 and 88. The break side of the search is noisy, so one run is a sample, not the curve.
+  - **18 teams, w=20 to 80 is a better default than 10.** Every one of those nine runs has 68 to 84
+    breaks at 1,574 to 1,634, and six of them dominate both Ligue 1 18-team seasons (1,840 / 74
+    and 1,948 / 96: fewer or equal breaks *and* lower carry-over). At w=10 the breaks are 84 to 88.
+  - **20 teams:** the runs dominate 2 to 5 of the 14 professional seasons each (always EPL 2021-22,
+    2023-24 and 2024-25; sometimes Serie A 2024-25 and La Liga 2023-24). None gets under 88 breaks.
+  - **Moving leg one too adds almost nothing** (tried on a scratch copy, not landed: after the leg-two
+    pass, one or two more passes over both legs under the exact break cost with re-chosen hosts):
+    18 teams 1,498 / 88 went to 1,494 / 86 and then 1,492 / 84, 12 and 20 teams did not change,
+    and it cost 1 to 2 s more. Next is best-of-k (seeds or weights, kept by carry-over plus weight
+    times breaks), which the spread above says is worth more. It would cost k times the time, so
+    it needs the Web Worker first (2.3 s on the main thread for 20 teams in Chromium today).
 
 ## Several divisions on shared courts (`divisions.mjs`)
 

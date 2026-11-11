@@ -2,6 +2,8 @@ import math
 import pytest
 from heavy_hydraulics.measured import (inlet_pressure, load_pressure, energies,
                                        pump_torque, linfit, cycle_starts,
+                                       stationary_samples, percentile,
+                                       moving_by_position,
                                        W_PER_BAR_LPM)
 
 
@@ -68,3 +70,30 @@ def test_open_centre_q_min_treats_creep_as_neutral():
     assert e["open_centre"] == pytest.approx(q_fix * 8 * W_PER_BAR_LPM)
     e0 = energies(creep, 1.0, dp_ls=25, p_neutral=8, q_min=0.0)
     assert e0["open_centre"] == pytest.approx(q_fix * 190 * W_PER_BAR_LPM)
+
+
+def test_open_centre_q_min_per_section():
+    w = 2 * math.pi * 1500 / 60
+    q_fix = 63 * 1.5 - 2.5
+    # section 1 creeps under its own floor; section 2 moves above its floor
+    s = [(30.0, w, ((0.8, 180.0), (3.0, 60.0)))]
+    e = energies(s, 1.0, dp_ls=25, dp_spool=0, p_neutral=8, q_min=(1.0, 2.0))
+    assert e["open_centre"] == pytest.approx(q_fix * 60 * W_PER_BAR_LPM)
+    e2 = energies(s, 1.0, dp_ls=25, dp_spool=0, p_neutral=8, q_min=(0.5, 2.0))
+    assert e2["open_centre"] == pytest.approx(q_fix * 180 * W_PER_BAR_LPM)
+
+
+def test_stationary_samples_windows():
+    x = [0, 0, 0.0001, 0, 0.1, 0.2, 0.3, 0.4, 0.4, 0.4, 0.4, 0.4]
+    assert stationary_samples(x, 4, 0.001) == [0, 1, 2, 3, 8, 9, 10, 11]
+
+
+def test_percentile_matches_linear_rule():
+    assert percentile([1, 2, 3, 4], 50) == pytest.approx(2.5)
+    assert percentile([5], 99) == 5
+    assert percentile(list(range(101)), 99) == pytest.approx(99)
+
+
+def test_moving_by_position():
+    x = [0, 0, 0, 0.002, 0.004, 0.004, 0.004]
+    assert moving_by_position(x, 1, 0.001) == [False, False, True, True, True, False, False]

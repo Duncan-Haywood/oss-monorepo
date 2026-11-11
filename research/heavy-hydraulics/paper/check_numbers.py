@@ -91,6 +91,17 @@ CHECKS = [
     ("1.85 times the mean", "cwa_profile_results.txt", "= 1.85 x mean"),
     ("22.7 kWh over 1,779 s", "cwa_profile_results.txt", "energy 22.741 kWh"),
     ("0.001% of positive", "cwa_profile_results.txt", "(0.001% of positive)"),
+    ("median load-sensing margin during motion is 24.9 bar", "measured_loader_results.txt", "median 24.9"),
+    ("(standby 30.8 bar)", "measured_loader_results.txt", "median 30.8"),
+    ("(ratio 1.023)", "measured_loader_results.txt", "ratio to measured 1.023"),
+    ("1.37 to 1.43 times", "measured_motion_results.txt", "p_neutral  0.0 bar: OC/LS hydraulic 1.366"),
+    ("1.37 to 1.43 times", "measured_motion_results.txt", "p_neutral 10.0 bar: OC/LS hydraulic 1.428"),
+    ("0.80 L/min (lift) and 1.76 L/min (tilt)", "measured_motion_results.txt", "p99 0.800"),
+    ("0.80 L/min (lift) and 1.76 L/min (tilt)", "measured_motion_results.txt", "p99 1.763"),
+    ("uses 1.54 times the LS energy", "measured_motion_results.txt", "OC/LS hydraulic 1.543"),
+    ("1.46 to 1.63", "measured_motion_results.txt", "1.459 to 1.631"),
+    ("adds 14.7% to measured fuel", "measured_motion_results.txt", "extra fuel 14.7%"),
+    ("piston position alone gives 1.51", "measured_motion_results.txt", "d_min 1.0 mm: moving 265.0 s; OC/LS hydraulic 1.512"),
 ]
 
 

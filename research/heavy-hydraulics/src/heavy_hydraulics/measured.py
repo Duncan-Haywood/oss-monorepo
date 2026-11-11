@@ -44,8 +44,10 @@ def energies(samples, dt, dp_ls, dp_m=5.0, dp_spool=10.0, p_neutral=10.0,
                    counted in `oc_short_s` (the fixed pump could not deliver it).
                    A section counts as moving for open-centre only above q_min
                    L/min: below it the bypass is taken as open (a measured
-                   trace always carries small filtered flows).
+                   trace always carries small filtered flows). q_min may be
+                   one number or one per section (milestone 5o).
     """
+    n_sec = None
     out = dict(measured=0.0, ls_model=0.0, metered=0.0, useful=0.0,
                open_centre=0.0, oc_short_s=0.0, moving_s=0.0)
     for p_pump, w, sections in samples:
@@ -60,7 +62,10 @@ def energies(samples, dt, dp_ls, dp_m=5.0, dp_spool=10.0, p_neutral=10.0,
                 if q > 0 and p is not None:
                     out["metered"] += q * (p + dp_m) * W_PER_BAR_LPM * dt
                     out["useful"] += q * p * W_PER_BAR_LPM * dt
-        oc = [(q, p) for q, p in sections if q > q_min]
+        if n_sec is None:
+            n_sec = len(sections)
+            qm = tuple(q_min) if isinstance(q_min, (tuple, list)) else (q_min,) * n_sec
+        oc = [(q, p) for (q, p), m in zip(sections, qm) if q > m]
         p_oc = load_pressure(oc)
         if p_oc is None:
             out["open_centre"] += q_fix * p_neutral * W_PER_BAR_LPM * dt
@@ -97,3 +102,30 @@ def linfit(xs, ys):
 def cycle_starts(x, threshold):
     """Indices where x crosses `threshold` upwards (one per lift stroke)."""
     return [i for i in range(1, len(x)) if x[i - 1] < threshold <= x[i]]
+
+
+def stationary_samples(x, win, max_range):
+    """Indices of samples inside non-overlapping windows of `win` samples whose
+    position range (max - min) is below `max_range` (milestone 5o)."""
+    out = []
+    for i0 in range(0, len(x) - win + 1, win):
+        seg = x[i0:i0 + win]
+        if max(seg) - min(seg) < max_range:
+            out.extend(range(i0, i0 + win))
+    return out
+
+
+def percentile(vals, pct):
+    """Linear-interpolated percentile of a non-empty sequence (numpy's default)."""
+    v = sorted(vals)
+    k = (len(v) - 1) * pct / 100.0
+    lo = int(math.floor(k))
+    hi = min(lo + 1, len(v) - 1)
+    return v[lo] + (v[hi] - v[lo]) * (k - lo)
+
+
+def moving_by_position(x, half, d_min):
+    """True where the piston travels more than d_min over the centred window
+    x[i - half] .. x[i + half] (window clipped at the ends)."""
+    n = len(x)
+    return [abs(x[min(n - 1, i + half)] - x[max(0, i - half)]) > d_min for i in range(n)]
