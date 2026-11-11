@@ -456,3 +456,84 @@ test("CLI: --short-cost reaches the plan and the backtest report", async () => {
   assert.match(b.stdout, /every earlier week, short cost 3/);
   assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--short-cost", "0"], { encoding: "utf8" }).status, 2);
 });
+
+// The cost-aware cut (2026-11-11): a short run is stretched to its cheapest window, or dropped when every window costs
+// more in expected r x short + over than leaving it short.
+import { marginalCost, cutShifts as cut2 } from "./demand.mjs";
+
+test("cutShifts with a cost: drops a rarely-needed short run, keeps a usually-needed one, and is unchanged without", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 16; h++) p[h] = 1; p[12] = 2; // one-hour peak at 12:00
+  assert.deepEqual(cut2(p, 4, 8), [[8, 16], [12, 16]]); // the usual cut stretches the peak to 4 h
+  // the 2nd head at 12:00 is needed on 40% of dates, never in the other hours
+  const q = (h, n) => (n <= 1 ? 1 : h === 12 && n === 2 ? 0.4 : 0);
+  const at = (r) => (h, n) => (1 - q(h, n)) - r * q(h, n);
+  const dropped = [];
+  assert.deepEqual(cut2(p, 4, 8, at(3), dropped), [[8, 16]]); // 3 spare hours (3) beat 0.6 - 1.2 = -0.6 saved: drop
+  assert.deepEqual(dropped, [12]);
+  assert.deepEqual(cut2(p, 4, 8, at(9)), [[8, 16], [12, 16]]); // 0.6 - 3.6 = -3.0 + 3 = 0: a tie keeps the run
+  assert.deepEqual(cut2(p, 1, 8, at(3)), [[8, 16], [12, 13]]); // no stretch needed, nothing priced
+});
+
+test("cutShifts with a cost picks the cheapest window that holds the run", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 20; h++) p[h] = 1; p[15] = 2;
+  // 2nd head often needed 12-15, rarely 16-19: the window should reach back, not forward (the usual cut goes forward)
+  const q = (h, n) => (n <= 1 ? 1 : n === 2 && h >= 12 && h <= 15 ? 0.6 : 0);
+  const c = (h, n) => (1 - q(h, n)) - 3 * q(h, n);
+  assert.deepEqual(cut2(p, 4, 8).filter(([a, b]) => b - a === 4), [[15, 19]]);
+  assert.deepEqual(cut2(p, 4, 8, c).filter(([a, b]) => b - a === 4), [[12, 16]]);
+});
+
+test("marginalCost reads the spread of past dates, with minimum staff in staffed hours", () => {
+  const a = averageSales([
+    { key: "2026-10-05", day: 0, hour: 10, amount: 300 }, { key: "2026-10-12", day: 0, hour: 10, amount: 100 },
+    { key: "2026-10-19", day: 0, hour: 9, amount: 100 }, { key: "2026-10-26", day: 0, hour: 9, amount: 100 },
+  ], { splh: 100, dist: true });
+  assert.ok(a.dist && !a.heads);
+  const prof = DAYS7(); prof[0][10] = 1;
+  const c = marginalCost(a.dist, prof, 3, 1)(0);
+  // 10:00 needs 3, 1, 0, 0 heads; minimum 1 in a staffed hour makes that 3, 1, 1, 1
+  assert.equal(c(10, 1), 0 - 3 * 1);
+  assert.equal(c(10, 2), 0.75 - 3 * 0.25);
+  assert.equal(c(10, 4), 1);
+  assert.equal(c(9, 1), 0.5 - 3 * 0.5); // unstaffed hour: no floor, needed on 2 of 4 dates
+  assert.equal(marginalCost(a.dist, prof, 3)(1), null); // no Tuesday rows
+});
+function DAYS7() { return Array.from({ length: 7 }, () => new Array(24).fill(0)); }
+
+test("backtest cut modes: plain adds the stretch's spare hours, aware never costs more than plain here", () => {
+  const rows = ["datetime,sales"];
+  for (let w = 0; w < 10; w++) for (let k = 0; k < 7; k++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w + k)).toISOString().slice(0, 10);
+    for (let h = 8; h < 16; h++) rows.push(`${day} ${h}:00,${h === 12 && w % 3 === 0 ? 200 : 100}`);
+  }
+  const t = rows.join("\n");
+  const plan = bSales(t, { splh: 100, shortCost: 3 }), plain = bSales(t, { splh: 100, shortCost: 3, cut: "plain" }), aware = bSales(t, { splh: 100, shortCost: 3, cut: "aware" });
+  const q = (b) => b.methods.find((m) => m.id === "q-all");
+  assert.ok(q(plain).over >= q(plan).over);
+  assert.ok(q(aware).miss <= q(plain).miss + 1e-9, `${q(aware).miss} vs ${q(plain).miss}`);
+  assert.throws(() => bSales(t, { splh: 100, cut: "x" }), /cut must be/);
+  assert.equal(bSales(t, { splh: 100, cut: true }).methods.length, 6);
+});
+
+test("the cost-aware cut never drops a run of the minimum staff", () => {
+  const p = new Array(24).fill(0); p[20] = 1; p[21] = 1; // a 2-hour evening opening, minimum staff 1
+  const c = (h, n) => (h === 20 || h === 21 ? -0.1 : 1); c.keep = 1;
+  assert.deepEqual(cut2(p, 4, 8, c), [[20, 24]]); // the usual window wins a tie
+  const d = (h, n) => (h === 20 || h === 21 ? -0.1 : 1);
+  assert.deepEqual(cut2(p, 4, 8, d), []);
+});
+
+test("demandShifts: the aware cut is the default with dated rows, names what it leaves short, --plain-cut restores the stretch", () => {
+  const rows = ["datetime,sales"];
+  for (let w = 0; w < 12; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    for (let h = 8; h < 16; h++) rows.push(`${day} ${h}:00,${h === 12 ? (w % 4 === 0 ? 900 : 150) : 90}`);
+  }
+  const t = rows.join("\n");
+  const plain = dShifts(t, { splh: 100, cut: "plain" }), aware = dShifts(t, { splh: 100 });
+  assert.ok(plain.days[0].shifts.length > aware.days[0].shifts.length);
+  assert.ok(aware.extra < 0 && plain.extra > 0);
+  assert.match(aware.notes.join(" "), /Not staffed to the forecast .*Mon 12:00/);
+  assert.doesNotMatch(plain.notes.join(" "), /Not staffed/);
+  assert.throws(() => dShifts(t, { splh: 100, cut: "x" }), /cut must be/);
+});

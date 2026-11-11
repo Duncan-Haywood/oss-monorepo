@@ -165,7 +165,9 @@ const WEEKDAY_NAMES = ["Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Friday
 // hour), closed: [{day, open, of}] (weekdays left out as rarely open), notes }.
 // o.halfLife: weeks; a day's weight halves for every that many weeks it is older than o.newest (default: the newest date).
 // o.keepRare: keep a weekday that traded on fewer than 1 in 4 of its dates in the span (default: treat it as closed).
-// o.shortCost with o.splh: also return heads: [7][24], the newsvendor headcount (see fractileHeads).
+// o.dist with o.splh: return dist (needDist) without heads.
+// o.shortCost with o.splh: also return heads: [7][24], the newsvendor headcount (see fractileHeads), and dist, the
+// spread of heads needed per weekday-hour (see needDist).
 export function averageSales(entries, o = {}) {
   const halfLife = o.halfLife === undefined ? 0 : Number(o.halfLife);
   if (o.halfLife !== undefined && !(halfLife > 0)) throw new Error("half-life must be a positive number of weeks");
@@ -208,7 +210,8 @@ export function averageSales(entries, o = {}) {
     }
   }
   for (const c of out.closed) out.notes.push(`${WEEKDAY_NAMES[c.day]}: sales on ${c.open} of ${c.of} in the file, so treated as closed (--keep-rare keeps it).`);
-  if (o.shortCost !== undefined && o.splh) out.heads = fractileHeads(entries, dates, out, o.splh, o.shortCost);
+  if ((o.shortCost !== undefined || o.dist) && o.splh) out.dist = needDist(entries, dates, out, o.splh);
+  if (o.shortCost !== undefined && o.splh) out.heads = fractileHeads(out.dist, out, o.splh, o.shortCost);
   return out;
 }
 
@@ -225,23 +228,59 @@ export function shortCostShare(r) {
   return v / (1 + v);
 }
 
-function fractileHeads(entries, dates, a, splh, r) {
-  const p = shortCostShare(r);
+// Per weekday-hour, the weighted spread of heads the past dates needed: dist[d][h] = { need: [[n, w], ...] sorted by n,
+// total } (n = ceil(that date-hour's sales / splh), 0 on a date with no sale that hour), or null for a weekday with no
+// dated rows (undated weekday-average rows have no spread).
+function needDist(entries, dates, a, splh) {
   const perDateHour = new Map(); // "key|hour" -> sales
   for (const e of entries) if (e.key) { const k = `${e.key}|${e.hour}`; perDateHour.set(k, (perDateHour.get(k) || 0) + e.amount); }
   return DAYS.map((_, d) => {
-    const row = new Array(24).fill(0);
-    if (!a.observed[d]) return row;
-    if (!dates[d].size) { for (let h = 0; h < 24; h++) row[h] = Math.ceil(a.avg[d][h] / splh - 1e-9); return row; }
+    if (!a.observed[d] || !dates[d].size) return null;
     const ds = [...dates[d]]; // [key, weight]
     const total = ds.reduce((x, [, w]) => x + w, 0);
+    return Array.from({ length: 24 }, (_, h) => ({ total, need: ds.map(([k, w]) => [Math.max(0, Math.ceil((perDateHour.get(`${k}|${h}`) || 0) / splh - 1e-9)), w]).sort((x, y) => x[0] - y[0]) }));
+  });
+}
+
+function fractileHeads(dist, a, splh, r) {
+  const p = shortCostShare(r);
+  return DAYS.map((_, d) => {
+    const row = new Array(24).fill(0);
+    if (!a.observed[d]) return row;
+    if (!dist[d]) { for (let h = 0; h < 24; h++) row[h] = Math.ceil(a.avg[d][h] / splh - 1e-9); return row; }
     for (let h = 0; h < 24; h++) {
-      const need = ds.map(([k, w]) => [Math.max(0, Math.ceil((perDateHour.get(`${k}|${h}`) || 0) / splh - 1e-9)), w]).sort((x, y) => x[0] - y[0]);
+      const { need, total } = dist[d][h];
       let cum = 0;
       for (const [n, w] of need) { cum += w; if (cum >= p * total - 1e-9 * total) { row[h] = n; break; } }
     }
     return row;
   });
+}
+
+// The cost-aware cut (2026-11-11). The newsvendor rule above sets each hour's headcount, but a run of the k-th person
+// shorter than --min-shift is then stretched to a whole shift, and those stretched hours are spare on most days. With a
+// short-vs-over weight r the cut can weigh that: adding the n-th person in hour h changes the expected r x short + over
+// by (1 - q) - r q, where q is the weighted share of past dates that needed n or more heads that hour (at least
+// minStaff in the hours the plan staffs). Returns cost(d)(h, n), or null for a weekday with no spread.
+export function marginalCost(dist, profile, r, minStaff = 1) {
+  return (d) => {
+    if (!dist || !dist[d]) return null;
+    const memo = new Map();
+    const fn = (h, n) => {
+      const key = h * 1000 + n;
+      if (memo.has(key)) return memo.get(key);
+      const { need, total } = dist[d][h];
+      const floor = profile[d][h] > 0 ? minStaff : 0;
+      let ge = 0;
+      for (const [k, w] of need) if (Math.max(floor, k) >= n) ge += w;
+      const q = total ? ge / total : 0;
+      const c = (1 - q) - r * q;
+      memo.set(key, c);
+      return c;
+    };
+    fn.keep = minStaff; // a run of one of the first minStaff heads is never dropped (cutShifts)
+    return fn;
+  };
 }
 
 // Parse the export. Returns { avg: [7][24] average sales, observed: [7] days seen per weekday, seen, closed, rows, skipped, notes }.
@@ -255,7 +294,7 @@ export function hourlySales(text, o = {}) {
   const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), closed: [], rows: r.rows, skipped: r.skipped, notes: [...r.notes], entries: r.entries };
   if (!r.rows && r.notes.length) return out;
   const a = averageSales(r.entries, o);
-  Object.assign(out, { avg: a.avg, observed: a.observed, seen: a.seen, closed: a.closed, heads: a.heads });
+  Object.assign(out, { avg: a.avg, observed: a.observed, seen: a.seen, closed: a.closed, heads: a.heads, dist: a.dist });
   if (a.heads) out.notes.push(`Short-vs-over weight ${+o.shortCost}: a short person-hour counted as ${+o.shortCost} times a spare one, so each hour is staffed for ${Math.round(shortCostShare(o.shortCost) * 100)}% of its past dates, not for the average.`);
   if (r.refunds.n) out.notes.push(`${r.refunds.n} row${r.refunds.n === 1 ? "" : "s"} with negative sales (refunds or voids, ${Math.round(-r.refunds.amount * 100) / 100} in all) left out: the plan follows what was rung up.`);
   if (r.blank) out.notes.push(`${r.blank} empty row${r.blank === 1 ? "" : "s"} ignored.`);
@@ -310,10 +349,15 @@ export function headcount(avg, observed, o = {}) {
 }
 
 // Cut one day's headcount profile into [start, end) hour runs, minShift..maxShift hours each.
-export function cutShifts(profile, minShift = 4, maxShift = 8) {
+// cost (optional, from marginalCost): (h, n) -> the expected cost of an n-th person in hour h. With it, a run shorter
+// than minShift is not always stretched: every minShift window that holds the run is priced against dropping the run
+// (leaving those hours short), and the cheapest is kept; on a tie the run is kept. Runs of the first cost.keep layers
+// (the minimum staff) are only placed, never dropped. dropped: hours left uncovered.
+export function cutShifts(profile, minShift = 4, maxShift = 8, cost = null, dropped = null) {
   if (!(minShift >= 1) || !(maxShift >= minShift)) throw new Error("shift length: the longest must be at least the shortest, and the shortest at least 1 hour");
   const shifts = [];
   const top = Math.max(0, ...profile);
+  const cov = new Array(24).fill(0);
   for (let k = 1; k <= top; k++) {
     let h = 0;
     while (h < 24) {
@@ -321,6 +365,7 @@ export function cutShifts(profile, minShift = 4, maxShift = 8) {
       let e = h;
       while (e < 24 && profile[e] >= k) e++;
       let len = e - h, s = h;
+      const runEnd = e;
       if (len < minShift) {
         // Stretch into open hours (headcount above 0) first, forward then backward, so a short run before a lunch
         // closure or at closing time is not stretched into hours the shop is shut; then forward, then backward.
@@ -329,6 +374,32 @@ export function cutShifts(profile, minShift = 4, maxShift = 8) {
         if (e - s < minShift) { e = Math.min(24, s + minShift); s = e - minShift; }
         if (s < 0) { s = 0; e = Math.min(24, minShift); }
         len = e - s;
+        if (cost && len === minShift) {
+          // Price every window [w, w + minShift) that holds the run against the usual one, which wins ties.
+          const at = (t) => cost(t, cov[t] + 1);
+          const priced = (w) => { let c = 0; for (let t = w; t < w + minShift; t++) c += at(t); return c; };
+          // A window may not reach into more shut hours (headcount 0: closed, a lunch break) than the usual one does.
+          // A window may not reach into more shut hours (headcount 0) than the usual one does, nor into a break inside
+          // the day (a shut hour with staffed hours on both sides, such as a lunch closure) the usual one avoids.
+          const first = profile.findIndex((v) => v > 0), last = 23 - [...profile].reverse().findIndex((v) => v > 0);
+          const shut = (w) => { let n = 0, inner = 0; for (let t = w; t < w + minShift; t++) if (profile[t] === 0) { n++; if (t > first && t < last) inner++; } return [n, inner]; };
+          let best = s, bestCost = priced(s);
+          const [shut0, inner0] = shut(s);
+          for (let w = Math.min(h, 24 - minShift); w >= Math.max(0, runEnd - minShift); w--) {
+            const [n, inner] = shut(w);
+            if (n > shut0 || inner > inner0) continue;
+            const c = priced(w);
+            if (c < bestCost - 1e-9) { bestCost = c; best = w; }
+          }
+          // The first cost.keep layers are the minimum staff the user set: placed, never dropped.
+          if (bestCost > 1e-9 && k > (cost.keep || 0)) {
+            // Dropping costs 0 against this baseline, so every window adds expected cost: leave the run short.
+            if (dropped) for (let t = h; t < runEnd; t++) dropped.push(t);
+            h = Math.max(h + 1, runEnd);
+            continue;
+          }
+          s = best; e = best + minShift;
+        }
       }
       const n = Math.ceil(len / maxShift);
       let at = s;
@@ -337,6 +408,7 @@ export function cutShifts(profile, minShift = 4, maxShift = 8) {
         shifts.push([at, at + piece]);
         at += piece;
       }
+      for (let t = s; t < e; t++) cov[t]++;
       h = Math.max(h + 1, e);
     }
   }
@@ -346,8 +418,12 @@ export function cutShifts(profile, minShift = 4, maxShift = 8) {
 const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 
 // Everything at once. Returns { shiftsText, days: [{day, needed, scheduled, shifts}], needed, scheduled, extra, sales, notes, skipped }.
+// o.cut: "aware" (the default) prices each short run against the past dates (marginalCost, at the --short-cost weight,
+// or 1 without it) when the file has dated rows; "plain" always stretches, as before 2026-11-11.
 export function demandShifts(text, o = {}) {
-  const s = hourlySales(text, o);
+  const cutMode = o.cut === undefined || o.cut === true ? "aware" : o.cut;
+  if (cutMode !== "plain" && cutMode !== "aware") throw new Error('cut must be "plain" or "aware"');
+  const s = hourlySales(text, { ...o, dist: cutMode === "aware" });
   if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped };
   const prof = headcount(s.avg, s.observed, { ...o, seen: s.seen, heads: s.heads });
   if (o.open === undefined && o.close === undefined && !o.keepRare) {
@@ -356,8 +432,15 @@ export function demandShifts(text, o = {}) {
     if (trimmed.length) s.notes.push(`Hours left out of the trading day: rare edge hours (sales on under 1 in 20 days) and breaks (hours inside the day with sales on under 1 in 5 days between busier hours, such as a lunch closure): ${trimmed.join(", ")}. --open/--close or --keep-rare sets the hours yourself.`);
   }
   const minShift = o.minShift === undefined ? 4 : Number(o.minShift), maxShift = o.maxShift === undefined ? 8 : Number(o.maxShift);
+  const costOf = cutMode === "aware" && s.dist ? marginalCost(s.dist, prof, o.shortCost === undefined ? 1 : Number(o.shortCost), o.minStaff === undefined ? 1 : Number(o.minStaff)) : () => null;
+  const left = [];
   const days = prof.map((p, d) => {
-    const shifts = cutShifts(p, minShift, maxShift);
+    const dropped = [];
+    const shifts = cutShifts(p, minShift, maxShift, costOf(d), dropped);
+    if (dropped.length) {
+      const n = new Map(); for (const h of dropped) n.set(h, (n.get(h) || 0) + 1);
+      left.push(`${DAYS[d]} ${[...n].sort((a, b) => a[0] - b[0]).map(([h, k]) => `${h}:00${k > 1 ? ` (${k} heads)` : ""}`).join(" ")}`);
+    }
     const needed = p.reduce((a, b) => a + b, 0);
     return { day: DAYS[d], needed, scheduled: shifts.reduce((a, [x, y]) => a + (y - x), 0), shifts, sales: s.avg[d].reduce((a, b) => a + b, 0) };
   });
@@ -373,6 +456,7 @@ export function demandShifts(text, o = {}) {
     return { ds, a, b, n: Number(n) };
   }).sort((x, y) => x.ds[0] - y.ds[0] || x.a - y.a || x.b - y.b);
   const shiftsText = rows.map((r) => `${r.ds.map((d) => DAYS[d]).join("/")}, ${clock(r.a)}, ${clock(r.b)}, ${r.n}`).join("\n");
+  if (left.length) s.notes.push(`Not staffed to the forecast (one head short in each hour named unless marked; a whole ${minShift}-hour shift there costs more in spare hours than it saves, by your past dates${o.shortCost === undefined ? " with short and spare hours costed the same" : ` at short cost ${+o.shortCost}`}): ${left.join("; ")}. --plain-cut stretches every run to a shift instead.`);
   const needed = days.reduce((a, d) => a + d.needed, 0), scheduled = days.reduce((a, d) => a + d.scheduled, 0);
   return { shiftsText, rows: s.rows, needed, scheduled, extra: scheduled - needed, sales: days.reduce((a, d) => a + d.sales, 0), days, notes: s.notes, skipped: s.skipped };
 }
@@ -424,6 +508,11 @@ export function backtestSales(text, o = {}) {
   for (let w = warmup; w < fullWeeks; w++) if (byWeek.slice(0, w).some((x) => x.length)) tested.push(w);
   if (!tested.length) return { weeks: 0, methods: [], notes: notes.concat(`Needs more than ${warmup} full weeks of dated sales to test on (has ${fullWeeks}).`) };
   const hOpts = { splh, minStaff, maxStaff: o.maxStaff, open: o.open, close: o.close, keepRare: o.keepRare };
+  // o.cut: "plain" scores the shifts the usual cut makes from each plan; "aware" (or true) uses the cost-aware cut for
+  // the short-cost rows (marginalCost); unset scores the headcount plan itself, as before 2026-11-11.
+  const cut = o.cut === true ? "aware" : o.cut || null;
+  if (cut && cut !== "plain" && cut !== "aware") throw new Error('cut must be "plain" or "aware"');
+  const minShift = o.minShift === undefined ? 4 : Number(o.minShift), maxShift = o.maxShift === undefined ? 8 : Number(o.maxShift);
   // With a short-vs-over weight r, every weighting is also tried with the fractile rule, and a week scores r x short +
   // over; the plain average stays first as the baseline everything is compared with.
   const rc = o.shortCost === undefined ? null : Number(o.shortCost);
@@ -438,14 +527,26 @@ export function backtestSales(text, o = {}) {
     for (const res of results) {
       const from = res.window ? start - res.window * 7 * DAY_MS : -Infinity;
       const train = dated.filter((e) => { const t = keyMs(e.key); return t < start && t >= from; });
-      const a = averageSales(train, { halfLife: res.halfLife, newest: start - DAY_MS, keepRare: o.keepRare, splh, shortCost: res.shortCost });
+      const a = averageSales(train, { halfLife: res.halfLife, newest: start - DAY_MS, keepRare: o.keepRare, splh, shortCost: res.shortCost, dist: cut === "aware" });
       const plan = headcount(a.avg, a.observed, { ...hOpts, seen: a.seen, heads: a.heads });
+      // With o.cut, score what the shifts cut from the plan staff (the shortest-shift stretch included), not the plan.
+      let staffed = plan;
+      if (cut) {
+        // The aware cut prices hours at the weight the week is scored at (1 without --short-cost), for every row.
+        const costOf = cut === "aware" ? marginalCost(a.dist, plan, rc === null ? 1 : rc, minStaff) : () => null;
+        staffed = plan.map((p, d) => {
+          const c = new Array(24).fill(0);
+          for (const [x, y] of cutShifts(p, minShift, maxShift, costOf(d))) for (let t = x; t < y; t++) c[t]++;
+          return c;
+        });
+      }
       let short = 0, over = 0, sched = 0, shortH = 0;
       for (let d = 0; d < 7; d++) for (let h = 0; h < 24; h++) {
         const raw = Math.ceil(actual[d][h] / splh - 1e-9);
         const need = plan[d][h] > 0 ? Math.max(minStaff, raw) : raw;
-        sched += plan[d][h];
-        if (need > plan[d][h]) { short += need - plan[d][h]; shortH++; } else over += plan[d][h] - need;
+        const have = staffed[d][h];
+        sched += have;
+        if (need > have) { short += need - have; shortH++; } else over += have - need;
       }
       res.short.push(short); res.over.push(over); res.scheduled.push(sched); res.shortHours.push(shortH);
     }
@@ -458,10 +559,12 @@ export function backtestSales(text, o = {}) {
     const diff = miss.map((x, i) => x - (w * base.short[i] + base.over[i]));
     const md = mean(diff), sd = Math.sqrt(diff.reduce((a, x) => a + (x - md) ** 2, 0) / Math.max(1, diff.length - 1));
     const half = diff.length > 1 ? 1.96 * sd / Math.sqrt(diff.length) : 0;
-    return { id: res.id, label: res.label, halfLife: res.halfLife, window: res.window, shortCost: res.shortCost, short: mean(res.short), over: mean(res.over), scheduled: mean(res.scheduled), shortHours: mean(res.shortHours), miss: mean(miss), vsDefault: md, ci: [md - half, md + half] };
+    const out = { id: res.id, label: res.label, halfLife: res.halfLife, window: res.window, shortCost: res.shortCost, short: mean(res.short), over: mean(res.over), scheduled: mean(res.scheduled), shortHours: mean(res.shortHours), miss: mean(miss), vsDefault: md, ci: [md - half, md + half] };
+    if (o.weekly) out.weeks = res.short.map((x, i) => ({ short: x, over: res.over[i] }));
+    return out;
   });
   const best = methods.reduce((a, b) => (b.miss < a.miss - 1e-9 ? b : a));
   const clear = best.id !== "all" && best.ci[1] < 0;
-  notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} sales per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
+  notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} sales per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}${cut ? `, scored on the ${minShift}-${maxShift} hour shifts the ${cut === "aware" ? "cost-aware" : "plain"} cut makes` : ", scored on the headcount plan before it is cut into shifts"}.`);
   return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, notes };
 }

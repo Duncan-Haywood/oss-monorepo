@@ -75,7 +75,11 @@ Options:
                       hour by hour with what its sales needed, for the plain average, --half-life 2/4/8, last 4 weeks and last week.
                       --short-cost <r>: a short person-hour costs r spare ones (a queue or lost sale vs idle pay); each hour is then
                       staffed for the r/(1+r) share of its past dates (r 1 = median, 3 = 75th percentile) instead of the average,
-                      and --backtest scores r x short + over and tries every weighting with that rule
+                      and --backtest scores r x short + over and tries every weighting with that rule.
+                      A run shorter than --min-shift (one more head for an hour or two) is priced against the past dates: stretched to
+                      the cheapest whole shift that holds it, or left unstaffed when every such shift costs more in spare hours than the
+                      short hours it saves (at --short-cost, or 1); never a run of the minimum staff. The backtest scores those shifts.
+                      --plain-cut stretches every short run, as before 2026-11-11
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
@@ -123,6 +127,7 @@ export function parseArgs(argv) {
     else if (a === "--skip-dates") { o.demand = { ...o.demand, skipDates: String(argv[++i] || "").split(/[,\s]+/).filter(Boolean) }; if (!o.demand.skipDates.length) throw new Error("--skip-dates needs dates like 2026-11-26,2026-12-25"); }
     else if (a === "--backtest") o.backtest = true;
     else if (a === "--keep-rare") o.demand = { ...o.demand, keepRare: true };
+    else if (a === "--plain-cut") o.demand = { ...o.demand, cut: "plain" };
     else if (a === "--warmup") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--warmup needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, warmup: v }; }
     else if (a === "--short-cost") { const v = Number(argv[++i]); if (!(v > 0) || !Number.isFinite(v)) throw new Error("--short-cost needs a positive number (a short person-hour costs that many spare ones; 1 = equal)"); o.demand = { ...o.demand, shortCost: v }; }
     else if (a === "--half-life") { const v = Number(argv[++i]); if (!(v > 0)) throw new Error("--half-life needs a positive number of weeks"); o.demand = { ...o.demand, halfLife: v }; }
@@ -499,14 +504,15 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (o.fromSales) {
       if (!(o.splh > 0)) throw new Error("--from-sales needs --splh <sales per labor hour>");
       if (o.backtest) {
-        const b = backtestSales(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh });
+        // Score the shifts the plan would really be cut into (the cost-aware cut, or --plain-cut), not the bare headcount.
+        const b = backtestSales(await readFile(o.fromSales, "utf8"), { cut: "aware", ...o.demand, splh: o.splh });
         process.stdout.write(backtestReport(b));
         process.exit(b.weeks ? 0 : 1);
       }
       const r = demandShifts(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.shiftsText) process.exit(1);
-      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${r.extra} extra from the shortest-shift rule); average week sales ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
+      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${r.extra >= 0 ? `${r.extra} extra from the shortest-shift rule` : `${-r.extra} fewer: short runs left unstaffed`}); average week sales ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
     }
     if (o.importStaff) {
