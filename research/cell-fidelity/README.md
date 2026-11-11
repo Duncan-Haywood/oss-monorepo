@@ -6,7 +6,11 @@ Research programme, track 16 (energy), opened 2026-11-11. Proposal: [`PROPOSAL.m
 
 **Question.** Electrode design searches (thickness, porosity, N/P ratio) are cheap with a reduced electrochemical model (SPM, SPMe) and expensive with the full porous-electrode model (DFN). Which designs does the reduced model mis-score, can that be told from the reduced model's own output before any DFN call, and how much DFN budget does a search save by using that?
 
-**Latest headline, milestone 4 search replay (2026-11-11): the cheapest screen wins, until the candidate pool grows.** Replaying 12 search methods on the cached benchmark (30 pools of 64 designs, each simulation charged its measured wall time), **screening every candidate with the plain SPM or a 2-cycle DFN run, then verifying in screen order with 100-cycle DFN, reaches a design within 1% of the best in a median 153 to 168 s, about 30% faster than Bayesian optimisation (GP-EI) on DFN (220 s)**. The 10-cycle DFN screen, the best ranker in milestone 2, is *slower* than GP-EI (253 s): its first pick is always right, but screening 64 designs at 3.6 s each costs more than GP-EI's nine DFN calls. Milestone 1's trust flag cuts SPMe screening from 700 to 418 s, yet SPMe stays the slowest screen. On pools of 96 GP-EI catches the screens up, so whole-pool screening suits small candidate sets only.
+**Latest headline, milestone 3 theory (2026-11-11): what kind of battery-model error actually costs you full simulations.** A screen-then-verify search uses only the cheap model's *order*, so any error that is a scale and shift of the full model's score is free. We prove ([`THEORY.md`](THEORY.md)) that the number of full DFN runs needed is bounded by the screen's **residual after the best affine fit** (kappa), and checked the bound on all 330 (screen, pool) cases of the cached benchmark with no violation. Across 11 cheap screens, **this residual ranks the DFN calls they need at Spearman 0.72, while the raw error ranks them at -0.07**. It explains milestone 2's surprise: SPM and SPMe have similar raw errors (7.1 and 9.5 Wh/kg), but SPM's residual is a quarter of SPMe's (11.0 against 42.8 Wh/kg), and **SPMe's residual tracks its own minimum salt concentration (Spearman -0.82)**: the SPMe correction under-scores salt-depleted designs. The worst-case cost formula built on the bound is refuted as a planning tool (8 of 16 screen-versus-GP-EI calls right).
+
+![Each cheap screen's residual after an affine fit against the median DFN calls it needs](experiments/theory/theory.svg)
+
+**milestone 4 search replay (2026-11-11): the cheapest screen wins, until the candidate pool grows.** Replaying 12 search methods on the cached benchmark (30 pools of 64 designs, each simulation charged its measured wall time), **screening every candidate with the plain SPM or a 2-cycle DFN run, then verifying in screen order with 100-cycle DFN, reaches a design within 1% of the best in a median 153 to 168 s, about 30% faster than Bayesian optimisation (GP-EI) on DFN (220 s)**. The 10-cycle DFN screen, the best ranker in milestone 2, is *slower* than GP-EI (253 s): its first pick is always right, but screening 64 designs at 3.6 s each costs more than GP-EI's nine DFN calls. Milestone 1's trust flag cuts SPMe screening from 700 to 418 s, yet SPMe stays the slowest screen. On pools of 96 GP-EI catches the screens up, so whole-pool screening suits small candidate sets only.
 
 ![Median time to a design within 1% of the DFN best against candidate-pool size, for GP-EI and three screens](experiments/search/search.svg)
 
@@ -21,6 +25,29 @@ Research programme, track 16 (energy), opened 2026-11-11. Proposal: [`PROPOSAL.m
 **Milestone 1 headline (2026-11-11).** On the 49 designs of [`energy-cell-dfn`](../energy-cell-dfn), SPMe's own minimum electrolyte salt concentration from a **2-cycle** run flags the designs whose 100-cycle SPMe score is more than 25% below DFN's with **ROC AUC 0.997** (95% bootstrap 0.980 to 1.000; 7 untrusted of 49). A flag at 10% of the initial salt concentration catches all 7 with one false flag. But the cost model the programme assumed is wrong: a 2-cycle run takes **SPMe 1.2 s and DFN 1.3 s**, and at 100 cycles **SPMe 3.9 s and DFN 27.9 s**. Cutting the cycle count saves 21x on DFN, swapping DFN for SPMe saves 7x, so the cheapest trustworthy screen may be a short DFN run rather than a reduced model.
 
 ![SPMe minimum salt concentration against the SPMe-DFN score gap](experiments/trust/trust.svg)
+
+## Milestone 3 (theory, part 1): the affine-residual bound
+Hypotheses C1 and H11 to H14 logged before the run (`LOG.md`); theorem and proof in [`THEORY.md`](THEORY.md); no new PyBaMM runs (`experiments/theory/run.py`, about 2 s).
+
+| Hypothesis | Pre-registered test | Result |
+|---|---|---|
+| C1 the bound holds | no violation on 11 cells x 30 pools | **0 violations** of 330 |
+| H11 residual, not raw error, predicts DFN calls | Spearman(kappa_q, median R) >= 0.7 and >= raw + 0.2 | **0.72** vs raw -0.07: supported |
+| H12 SPM's residual at most half SPMe's | kappa_all ratio <= 0.5 | **11.0 vs 42.8 Wh/kg (0.26)**: supported |
+| H13 SPMe's residual is salt depletion | abs Spearman with r_min exceeds SPM's by 0.2 | **-0.82 vs +0.26**: supported |
+| H14 worst-case cost formula predicts screen vs GP-EI | >= 13 of 16 right | **8 of 16**: refuted |
+
+| Screen | kappa_q, Wh/kg | median R (DFN calls) | top-1 regret on 128, Wh/kg |
+|---|---|---|---|
+| SPM@2 | 18.3 | 6 | 9.9 |
+| SPM@100 | 18.3 | 3.5 | 15.2 |
+| SPMe@10 | 12.5 | 1 | 0 |
+| SPMe@100 | 15.7 (not a valid bound: best design outside top 25%) | 19 | 9.3 |
+| DFN@2 | 7.2 | 3 | 1.6 |
+| DFN@10 | 4.3 | 1 | 0 |
+| DFN@30 | 3.9 | 1 | 0 |
+
+All 11 cells are in `experiments/theory/results.txt`. The bound is worst-case, and one large residual widens the band for every design, so its cost corollary calls SPM screens losers even where they win; an average-case version is the next step.
 
 ## Milestone 4: search comparison on the cached benchmark
 Hypotheses H7 to H10 logged before the run (`LOG.md`). No new PyBaMM runs: each seed draws a pool of 64 of the 128 Sobol designs, and every method is replayed on the committed per-cycle scores, each evaluation charged the median fresh-run wall time of its (model, cycles) cell on the baseline design (DFN@100 24.5 s, DFN@10 3.6 s, DFN@2 1.35 s, SPM@100 1.05 s, SPM@2 0.33 s, SPMe@100 3.7 s). T1 is the charged time until a design within 1% of the pool's best 100-cycle DFN score has been run at 100-cycle DFN. 30 seeds, paired.

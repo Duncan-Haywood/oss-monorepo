@@ -173,7 +173,9 @@ flagships:
       length), not just sales; a real published-schedule export for --import-shifts; joining short runs an
       hour or two apart into one shift and folding a short run into a neighbouring shift (the cost cut,
       README "The short-cost weight carried through the shift cut", 2026-11-11, prices each run alone:
-      backtest now scores cut shifts, cost cut beats the old cut in 36 of 36 settings on both bakeries).
+      backtest now scores cut shifts, cost cut beats the old cut in 36 of 36 settings on both bakeries;
+      priced by default at r = 1 since the follow-up, README "The priced cut by default": 30 of 30 more,
+      but the default now runs shorter, so whether r = 1 is the right default needs a real manager's view).
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,

@@ -1,0 +1,38 @@
+Panels 2006-10: design codes present {2006: True, 2008: False, 2010: True} (a panel without them uses each person as a PSU).
+wave 1 to 2, raised Catholic, gross disagreement, phone minus in person: +1.57 points [-0.02, +3.16] (n 3699 in person, 930 phone)
+wave 1 to 2, raised Catholic, net disagreement, phone minus in person: +0.22 points [-1.40, +1.84] (n 3699 in person, 930 phone)
+wave 1 to 2, Catholic now, gross disagreement, phone minus in person: +1.25 points [-0.73, +3.24] (n 3704 in person, 927 phone)
+wave 1 to 2, Catholic now, net disagreement, phone minus in person: -0.32 points [-2.36, +1.72] (n 3704 in person, 927 phone)
+wave 1 to 3, raised Catholic, gross disagreement, phone minus in person: -0.32 points [-1.89, +1.25] (n 3095 in person, 743 phone)
+wave 1 to 3, raised Catholic, net disagreement, phone minus in person: +0.30 points [-1.26, +1.85] (n 3095 in person, 743 phone)
+wave 1 to 3, Catholic now, gross disagreement, phone minus in person: -0.21 points [-2.42, +2.00] (n 3098 in person, 740 phone)
+wave 1 to 3, Catholic now, net disagreement, phone minus in person: -0.11 points [-2.12, +1.90] (n 3098 in person, 740 phone)
+
+t27: within-person agreement, panels 2006-10 pooled (percentages; net and gross with 95% design intervals)
+  wave 1 to 2  raised Catholic  all                          n= 4633  first  33.2  later  33.2  net -0.06 [-0.65, +0.53]  gross  3.0 [2.4, 3.6]  stay  95.4  kappa 0.933
+  wave 1 to 2  raised Catholic  later wave in person         n= 3699  first  31.6  later  31.5  net -0.11 [-0.73, +0.51]  gross  2.6 [2.0, 3.3]  stay  95.7  kappa 0.939
+  wave 1 to 2  raised Catholic  later wave by phone          n=  930  first  38.9  later  39.0  net +0.12 [-1.39, +1.62]  gross  4.2 [2.7, 5.7]  stay  94.7  kappa 0.912
+  wave 1 to 2  raised Catholic  Catholic now at wave 1       n= 1074  first  91.9  later  90.1  net -1.80 [-2.98, -0.62]  gross  3.4 [2.2, 4.5]  stay  97.2  kappa 0.796
+  wave 1 to 2  raised Catholic  not Catholic now at wave 1   n= 3546  first  13.1  later  13.6  net +0.49 [-0.17, +1.14]  gross  2.8 [2.1, 3.5]  stay  91.2  kappa 0.879
+  wave 1 to 2  Catholic now     all                          n= 4636  first  25.5  later  24.5  net -1.04 [-1.88, -0.20]  gross  5.1 [4.3, 5.9]  stay  88.0  kappa 0.864
+  wave 1 to 2  Catholic now     later wave in person         n= 3704  first  24.1  later  23.1  net -0.97 [-1.93, -0.01]  gross  4.8 [3.9, 5.8]  stay  88.0  kappa 0.866
+  wave 1 to 2  Catholic now     later wave by phone          n=  927  first  30.7  later  29.5  net -1.29 [-3.08, +0.50]  gross  6.1 [4.3, 7.9]  stay  88.0  kappa 0.855
+  wave 1 to 3  raised Catholic  all                          n= 3843  first  33.0  later  32.2  net -0.77 [-1.44, -0.11]  gross  3.2 [2.5, 4.0]  stay  93.9  kappa 0.926
+  wave 1 to 3  raised Catholic  later wave in person         n= 3095  first  31.5  later  30.7  net -0.84 [-1.60, -0.07]  gross  3.3 [2.4, 4.1]  stay  93.5  kappa 0.924
+  wave 1 to 3  raised Catholic  later wave by phone          n=  743  first  38.5  later  38.0  net -0.54 [-1.88, +0.80]  gross  3.0 [1.6, 4.3]  stay  95.5  kappa 0.938
+  wave 1 to 3  raised Catholic  Catholic now at wave 1       n=  878  first  91.7  later  89.4  net -2.21 [-3.86, -0.56]  gross  4.2 [2.4, 6.1]  stay  96.5  kappa 0.753
+  wave 1 to 3  raised Catholic  not Catholic now at wave 1   n= 2955  first  12.9  later  12.6  net -0.37 [-1.06, +0.32]  gross  2.8 [2.1, 3.5]  stay  87.7  kappa 0.874
+  wave 1 to 3  Catholic now     all                          n= 3843  first  25.4  later  23.5  net -1.87 [-2.72, -1.02]  gross  5.0 [4.2, 5.8]  stay  86.5  kappa 0.865
+  wave 1 to 3  Catholic now     later wave in person         n= 3098  first  24.2  later  22.3  net -1.85 [-2.79, -0.91]  gross  5.0 [4.1, 5.9]  stay  85.8  kappa 0.860
+  wave 1 to 3  Catholic now     later wave by phone          n=  740  first  30.1  later  28.2  net -1.96 [-3.78, -0.15]  gross  4.8 [2.8, 6.8]  stay  88.8  kappa 0.884
+
+t28: weekly attendance, 2016-20 panel, first wave in person, 2020 by web or phone (percent; 95% design intervals)
+  everyone                     weekly, first wave           web  +19.2  phone  +30.3  web-phone -11.08 [-17.94, -4.22]  n 1110/449
+  everyone                     weekly, 2020                 web  +20.3  phone  +33.0  web-phone -12.64 [-18.23, -7.05]  n 1110/449
+  everyone                     change, first wave to 2020   web   +1.1  phone   +2.6  web-phone  -1.56 [-8.50, +5.38]  n 1110/449
+  Catholic at first wave       weekly, first wave           web  +17.7  phone  +32.4  web-phone -14.74 [-28.53, -0.95]  n 239/95
+  Catholic at first wave       weekly, 2020                 web  +21.6  phone  +35.0  web-phone -13.35 [-25.83, -0.87]  n 239/95
+  Catholic at first wave       change, first wave to 2020   web   +3.9  phone   +2.6  web-phone  +1.38 [-11.27, +14.04]  n 239/95
+  not Catholic at first wave   weekly, first wave           web  +19.8  phone  +30.0  web-phone -10.16 [-17.73, -2.59]  n 867/352
+  not Catholic at first wave   weekly, 2020                 web  +20.1  phone  +32.6  web-phone -12.56 [-19.05, -6.07]  n 867/352
+  not Catholic at first wave   change, first wave to 2020   web   +0.3  phone   +2.7  web-phone  -2.40 [-9.79, +4.98]  n 867/352

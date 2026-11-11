@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVKWqftQpteoX45KQVq",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products)",
+  "input_sha256": "0db859539a4c8f4baabbe57098f0bc9596472c0a728e4828199f711ec80642b5",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T18:01:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "programme step: heavy-hydraulics milestone 5s",
+  "projects": [
+    "heavy-hydraulics"
+  ],
+  "pr": 14843,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "zenodo.org, assets.danfoss.com and www.danfoss.com refused the egress proxy (403) at 17:58 UTC, so 5r's named next steps (PVG 100 curves, partial-travel drop, loader re-run) could not run"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "printed no CLAIM CHECK for track 25 although the programme had three merged steps today; I checked with search/commits instead"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-load-sensing-break-even-margin-formula.md"
+  ],
+  "goal": null,
+  "notes": "Closed-form break-even LS margin m* = (S + D + I) / B per cycle; median reproduces all ten grid break-evens of 2n/5p/5q within 0.075 bar and LS-worse shares within 0.03 points. B1, B2, B4, B5 hold; B3 (idle carries > half) refuted at 39%. Local checks: pytest 38 passed; paper/check_numbers.py 106 claims 0 missing; _homepage/build.py ok; check_md_links ok; post frontmatter, links and similarity ok; results file byte-identical on rerun.",
+  "corrections": [],
+  "redteam": null
+}

@@ -147,3 +147,15 @@ def test_equal_fertility_share_inverts_raised_share():
     # Equal fertility leaves the share unchanged; higher Catholic fertility raises it.
     assert np.allclose(accounting.raised_share(p, 1.0), p)
     assert np.all(accounting.raised_share(p, 1.2) > p)
+
+
+def test_panel_agreement_counts_and_kappa():
+    from cathdem import panel
+    a = np.array([1, 1, 1, 0, 0, 0, 0, 0, np.nan, 1])
+    b = np.array([1, 1, 0, 1, 0, 0, 0, 0, 1, np.nan])
+    r = panel.agreement(a, b, np.ones(10))
+    assert r['n'] == 8
+    assert math.isclose(r['p1'], 3 / 8) and math.isclose(r['p2'], 3 / 8) and r['net'] == 0
+    assert math.isclose(r['gross'], 2 / 8) and math.isclose(r['stay'], 2 / 3)
+    pe = (3 / 8) ** 2 + (5 / 8) ** 2
+    assert math.isclose(r['kappa'], (6 / 8 - pe) / (1 - pe))

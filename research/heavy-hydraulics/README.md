@@ -9,7 +9,7 @@ holds in every case, but only because each rung removes a loss term; the cycle a
 not sourced, so this is a first-order calculation, not a measurement of any machine.
 See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
-**Latest (5o, 2026-11-11): load-sensing vs open-centre on a measured machine, with the motion threshold measured.** On a public 440 s trace of a 6 t load-sensing wheel loader loading gravel (Linjama et al., Zenodo [10.5281/zenodo.10639199](https://doi.org/10.5281/zenodo.10639199), CC BY 4.0), the measured load-sensing margin is a median **24.9 bar** and the model's load-sensing rung reproduces measured pump energy to **2.3%** (5n). A fixed-pump open-centre circuit on the same motion needs at least **1.37 times** the load-sensing pump energy whatever its bypass closing law, and **1.54 times** (per-cycle 1.46 to 1.63) with a 10 bar spool drop, adding **14.7%** to fuel, now that the small-flow threshold 5n chose is measured from the data (0.80 L/min lift, 1.76 L/min tilt). See "Milestone 5o" below. **5p (same day):** the 6 bar open-centre spool drop used in the force-model cycles since 2d sits just above the least drop any Danfoss PVG 32 section could have at those flows (4.8 to 5.3 bar), so the earlier ranking stands (load-sensing ahead at a 14 bar margin; break-even 26.5 to 27.2 bar instead of 28.0); see "Milestone 5p". **5q (same day):** sized once per function, as real valves are, the floor drops to 2.3 bar and the break-even to **23.0 bar**; with no open-centre drop at all it is **20.6 bar**, so a 14 bar load-sensing margin beats any open-centre valve here, while 25 bar margins (thesis model; the measured loader's 24.9) sit where the real partial-lever drop decides; see "Milestone 5q". **5r (same day):** on the measured loader the PVG 32 floor moves open-centre only from 1.40 to **1.42 times** load-sensing pump energy (11.3% more fuel), so there the penalty is structural, not the spool; the bracket is 1.42 to 1.54 (11 to 15% fuel); see "Milestone 5p".
+**Latest (5o, 2026-11-11): load-sensing vs open-centre on a measured machine, with the motion threshold measured.** On a public 440 s trace of a 6 t load-sensing wheel loader loading gravel (Linjama et al., Zenodo [10.5281/zenodo.10639199](https://doi.org/10.5281/zenodo.10639199), CC BY 4.0), the measured load-sensing margin is a median **24.9 bar** and the model's load-sensing rung reproduces measured pump energy to **2.3%** (5n). A fixed-pump open-centre circuit on the same motion needs at least **1.37 times** the load-sensing pump energy whatever its bypass closing law, and **1.54 times** (per-cycle 1.46 to 1.63) with a 10 bar spool drop, adding **14.7%** to fuel, now that the small-flow threshold 5n chose is measured from the data (0.80 L/min lift, 1.76 L/min tilt). See "Milestone 5o" below. **5p (same day):** the 6 bar open-centre spool drop used in the force-model cycles since 2d sits just above the least drop any Danfoss PVG 32 section could have at those flows (4.8 to 5.3 bar), so the earlier ranking stands (load-sensing ahead at a 14 bar margin; break-even 26.5 to 27.2 bar instead of 28.0); see "Milestone 5p". **5q (same day):** sized once per function, as real valves are, the floor drops to 2.3 bar and the break-even to **23.0 bar**; with no open-centre drop at all it is **20.6 bar**, so a 14 bar load-sensing margin beats any open-centre valve here, while 25 bar margins (thesis model; the measured loader's 24.9) sit where the real partial-lever drop decides; see "Milestone 5q". **5r (same day):** on the measured loader the PVG 32 floor moves open-centre only from 1.40 to **1.42 times** load-sensing pump energy (11.3% more fuel), so there the penalty is structural, not the spool; the bracket is 1.42 to 1.54 (11 to 15% fuel); see "Milestone 5p". **5t (same day):** the measured loader's own **break-even load-sensing margin is 87 bar** (per Y-cycle 59 to 143 bar, median 81), against 20 to 30 bar on the synthetic excavator cycles, so its 24.9 bar margin uses under a third of the headroom; about 90% of it is surplus flow from a fixed pump sized for peaky demand; see "Milestone 5t".
 
 **Live page:** https://marisstella.app/research/heavy-hydraulics/
 
@@ -24,7 +24,7 @@ certified machine or a safety system. Nothing here was run on a real machine.
 
 ```bash
 cd research/heavy-hydraulics
-PYTHONPATH=src python3 -m pytest tests -q                      # 33 tests (numpy-free)
+PYTHONPATH=src python3 -m pytest tests -q                      # 40 tests (numpy-free)
 python3 experiments/run.py > experiments/results.txt           # 2,916 cases, under 5 s
 python3 experiments/envelope.py > experiments/envelope_results.txt  # 20,000 random cycles
 python3 experiments/idle_sensitivity.py > experiments/idle_sensitivity_results.txt  # milestone 2f, ~20 s
@@ -34,6 +34,7 @@ python3 experiments/regen_peaky.py > experiments/regen_peaky_results.txt  # mile
 python3 experiments/spool_floor_synthetic.py                 # milestone 5p, 14 s
 python3 experiments/spool_function_sizing.py                 # milestone 5q, 32 s
 python3 experiments/spool_floor.py <Short_Y_cycle_data.mat>  # milestone 5r, 3 s (numpy, scipy; Zenodo 10639199)
+python3 experiments/measured_breakeven.py <Short_Y_cycle_data.mat>  # milestone 5t, 3 s (numpy, scipy)
 python3 experiments/regen_measured.py <dir of the CC BY PATU 655 crane data, doi 10.17632/rn5j42rpyr.1>  # milestone 5g, needs numpy
 ```
 
@@ -57,6 +58,35 @@ pump efficiency (0.75 to 0.92). None is sourced yet.
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
 no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
 public measured cycle), then parts cost with [`heavy-market`](../heavy-market/) (step 1a, used-price depreciation and size scaling from real auction data, landed 2026-11-10).
+
+## Milestone 5t: the measured loader's own break-even margin
+
+5s's formula m* = (S + D + I) / B, run on the measured wheel loader's 440 s trace with load-sensing as 5n's constant-margin model on the measured demand and open-centre as 5o/5r's counterfactual on the same motion with the same 63 cc pump ([`experiments/measured_breakeven.py`](experiments/measured_breakeven.py), [results](experiments/measured_breakeven_results.txt); [`breakeven.trace_breakeven`](src/heavy_hydraulics/breakeven.py), 2 tests).
+
+| Open-centre counterfactual | Whole record m* | Per Y-cycle median (min to max) | Surplus-flow share |
+|---|---|---|---|
+| (a) no spool drop, 5 bar neutral | 82.9 bar | 76.9 (54.9 to 139.4) | 94% |
+| (b) PVG 32 full-travel orifice floor, 5 bar neutral | 87.0 | 81.2 (59.0 to 143.0) | 90% |
+| (c) 10 bar spool drop, 10 bar neutral | 105.5 | 99.0 (75.3 to 168.9) | 74% |
+
+The machine runs at a measured 24.9 bar median margin (21.3 bar as the constant margin that costs what it spent), so load-sensing wins every cycle with 34 bar or more to spare. One bar of open-centre spool drop is worth 1.78 bar of margin here (1.235 on the synthetic cycles): the ratio of the fixed pump's mean flow (93.8 L/min) to the mean demand while moving (52.7 L/min). Demand still exceeds the fixed pump in 23% of moving samples, so the loader's flow is peaky and a fixed pump sized for it wastes most of its flow. Registered: T1 (50 to 80 bar) refuted at 87.0; T2, T3, T5 held; T4 (standby flow) held vacuously, because the flow channels' noise floor means load-sensing never sees a still sample. The comparison keeps the loader's own pump size; a smaller open-centre pump would lower m* at a cycle-time cost, the next step.
+
+## Milestone 5s: the break-even margin in closed form
+
+In this model load-sensing energy is affine in its margin and open-centre energy does not depend on it, so each cycle has an exact break-even margin
+
+    m* = (S + D + I) / B
+
+with S the surplus pump flow dropped at the highest load pressure while moving, D the pump flow times the open-centre spool drop while moving, I the neutral bleed at idle less load-sensing's idle work, and B the volume load-sensing delivers (moving plus idle and standby). Load-sensing beats open-centre in a cycle exactly when its margin is below m*, so the margin at which the median LS/OC is 1 is the median of m*. [`src/heavy_hydraulics/breakeven.py`](src/heavy_hydraulics/breakeven.py) implements it (5 tests); [`experiments/breakeven_closed_form.py`](experiments/breakeven_closed_form.py) runs it on the programme's 3,000 cycles ([results](experiments/breakeven_closed_form_results.txt)).
+
+| Setting | Grid break-even | Closed form |
+|---|---|---|
+| constant 6 bar spool drop (2n) | 28.0 bar | 27.97 bar |
+| PVG 32 floor, per-phase sizing (5p) | 26.5 | 26.55 |
+| PVG 32 floor, per-function envelope sizing (5q) | 23.0 | 23.00 |
+| zero spool drop (5q) | 20.6 | 20.53 |
+
+Every grid answer is reproduced within 0.075 bar and every LS-worse share within 0.03 points. The slopes the programme read off its sweeps are exact ratios: 1.235 bar of margin per bar of spool drop (pump volume while moving over LS volume) and 0.916 per bar of neutral pressure (pump volume at idle over LS volume). At zero spool drop the per-cycle break-even spans 10.7 to 34.1 bar (5 to 95%), and surplus flow carries about 61% of it, idle bleed 39% (the registered guess that idle dominates was refuted). A builder can evaluate the formula on their own cycle from phase times, flows and peak pressures, without the simulator.
 
 ## Milestone 5q: size the open-centre sections per function
 
