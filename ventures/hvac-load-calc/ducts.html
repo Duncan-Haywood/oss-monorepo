@@ -253,7 +253,7 @@
       for (const r of s.returns) row(r, 'Return: ');
       for (const t of [...s.trunks, ...(s.returnTrunk ? [s.returnTrunk] : [])]) {
         const tr = make('tr');
-        cell(tr, t.name); cell(tr, n0(t.cfm)); cell(tr, t.diameterIn ? `${t.diameterIn} in.` : 'over 40 in.');
+        cell(tr, t.name); cell(tr, n0(t.cfm)); cell(tr, t.diameterIn ? `${t.diameterIn} in.` : `over ${s.settings.trunkLargestIn} in.`);
         cell(tr, t.rectangle ? `${t.rectangle.widthIn} × ${t.rectangle.heightIn} in.` : '-');
         cell(tr, t.fpm ? n0(t.fpm) : '-'); cell(tr, t.inWCPer100 != null ? t.inWCPer100.toFixed(3) : '-');
         el('trunkTable').append(tr);
