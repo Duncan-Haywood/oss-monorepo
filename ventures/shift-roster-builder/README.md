@@ -235,7 +235,10 @@ So with `--short-cost` the cut now prices each short run (`demand.mjs` `cutShift
 
 Readings on both real files (`eval/cost-cut.mjs`, output `eval/cost-cut.out.txt`; same downloads and SHA-256 as above; fractile rule with every earlier week equal, minimum staff 1, longest shift 8; paired 95% intervals over 38 and 87 tested weeks). The cost-aware cut beat the plain cut in every one of the 36 settings (3 splh x 3 r x shortest shift 4 or 6, both files), every interval below zero:
 
-COSTCUT_BULLETS
+- **The stretch was large.** Korean bakery, 30,000 won, r = 3, shortest shift 4: profile 47.4 a week, plain cut 59.3 (over 20.1 to 42.7), cost cut 48.2 (10.2 short, 17.6 over, 74.9 scheduled against 104.7): -11.1 (-15.2 to -6.9). French bakery, 40 EUR, r = 3: profile 147.3, plain cut 171.2, cost cut 154.1: -17.1 (-19.7 to -14.5). With a 6-hour shortest shift the gaps double (Korean -25.6, French -34.1 at the same settings).
+- **Across the grid** the cost cut saved 0.8 to 47.3 weighted person-hours a week on the Korean file and 7.6 to 85.8 on the French one against the plain cut; the largest savings are at a 6-hour shortest shift and low splh, where more runs are short.
+- **The fractile still beats the average once both are cut.** Against the plain average cut the old way (what `--from-sales` gives without `--short-cost`), the fractile with the cost cut is cheaper in all 36 settings, every interval below zero (Korean 30,000 won, r = 3, shortest 4: 58.7 to 48.2, -10.5; French 40 EUR: 176.7 to 154.1, -22.6). Scoring the cut also moves the earlier readings: at r = 1/3 the average's cost roughly doubles once cut (Korean 30,000 won: 16.3 as a profile, 36.2 cut).
+- **What it trades.** The cost cut runs a little shorter than the profile (Korean r = 3: 10.2 against 9.1 short person-hours a week) and far less over than the plain cut. The left-unstaffed runs are listed on every plan, so a manager can put one back by hand.
 
 What it does not do: each short run is priced on its own, so two short runs an hour apart (Wed 11:00 and 13:00 for a third person on the Korean file) are never joined into one 4-hour shift that covers both, and a short run is never folded into a neighbouring shift by lengthening it. Both are the next step. One weighting (every earlier week equal) was measured; the half-life rows run the same cut. Two bakeries, one layout each.
 

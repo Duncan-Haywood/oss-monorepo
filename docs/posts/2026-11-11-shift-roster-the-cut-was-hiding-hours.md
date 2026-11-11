@@ -49,7 +49,26 @@ minimum staff are never dropped.
 
 ## On two real files
 
-FRENCH_SUMMARY
+The measurement covers both public files used before (a Korean bakery's
+orders, a French bakery's item lines), at three sales-per-labor-hour levels
+each, short-hour weights of 1/3, 1 and 3, and shortest shifts of 4 and 6
+hours: 36 settings. Each week was planned only from the weeks before it
+(38 and 87 tested weeks).
+
+- **The cost-aware cut beat the old cut in all 36**, with every 95% interval
+  below zero. It saved 0.8 to 47 weighted person-hours a week on the Korean
+  file and 7.6 to 86 on the French one. The biggest savings came with
+  6-hour shortest shifts, where more runs are too short.
+- **The share-of-days rule still beats the plain average once both are cut**,
+  in all 36 settings. On the French bakery at 40 euros an hour and r = 3, the
+  average costs 176.7 a week and the new plan 154.1.
+- **Scoring the cut changes the old picture.** At r = 1/3 (a spare hour
+  costs three times a short one), the plain average's cost roughly doubles
+  once its shifts are cut: on the Korean file, 16.3 a week as a headcount and
+  36.2 as shifts.
+
+The backtest on the page and in the CLI now scores cut shifts too. Its
+numbers on your own file are what you would actually post.
 
 ## What it still does not do
 
