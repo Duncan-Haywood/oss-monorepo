@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Hour That Happens Twice</title>
+      <link>https://example.invalid/hearth-and-horizon/the-hour-that-happens-twice.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-hour-that-happens-twice.html</guid>
+      <pubDate>Wed, 11 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A parish's rota agent moves a twenty-four-hour vigil of adoration off a paper sheet and builds twenty-four hourly slots. The vigil falls on the night the clocks go back, so it lasts twenty-five hours, and the agent's own check said twenty-four because its date library subtracts two times in one zone as if they were on a wall. One slot is 120 minutes long, an 81-year-old widow means the second one o'clock, and the farmer before her means the first. A story about the line a migration drops, whose hour the extra hour is, and what a camera cannot do. Setting: Saint Laserian's church, Kilbrack (invented), Co. Carlow, Thursday 22 to Sunday 25 October 2054. Read the full text at https://example.invalid/hearth-and-horizon/the-hour-that-happens-twice.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A parish's rota agent moves a twenty-four-hour vigil of adoration off a paper sheet and builds twenty-four hourly slots. The vigil falls on the night the clocks go back, so it lasts twenty-five hours, and the agent's own check said twenty-four because its date library subtracts two times in one zone as if they were on a wall. One slot is 120 minutes long, an 81-year-old widow means the second one o'clock, and the farmer before her means the first. A story about the line a migration drops, whose hour the extra hour is, and what a camera cannot do.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Last Dark Noon</title>
       <link>https://example.invalid/hearth-and-horizon/the-last-dark-noon.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-last-dark-noon.html</guid>
