@@ -61,6 +61,9 @@
     <label for="file">Or open a CSV file</label>
     <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
     <div class="grid">
+      <div><label for="shape">What to analyse</label>
+        <select id="shape"><option value="one">One column</option><option value="multi">Several columns measured at the same points</option></select></div>
+      <div><label for="columns">Columns (several-columns mode; names or numbers, comma-separated; blank = every numeric column)</label><input id="columns" type="text" placeholder="e.g. temp, co2" disabled></div>
       <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
       <div><label for="model">Look for a change in</label>
         <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
@@ -85,6 +88,8 @@
     </div>
     <button type="button" id="run">Find changepoints</button>
     <button type="button" class="secondary" id="example">Load example: Nile river flow 1871–1970</button>
+    <button type="button" class="secondary" id="example-fx">Load example: franc, pound and yen, 2012–2018 (several columns)</button>
+    <p class="note" id="working" role="status" hidden>Working: several columns run the six-setting check on each column, which takes a few seconds on long series.</p>
   </section>
 
   <section class="card" aria-labelledby="res-h" id="results" hidden>
@@ -100,6 +105,21 @@
     <h3>Segments</h3>
     <div class="scroll"><table id="segments"></table></div>
     <button type="button" class="secondary" id="download">Download per-point results (CSV)</button>
+  </section>
+
+  <section class="card" aria-labelledby="multi-h" id="multi-results" hidden>
+    <h2 id="multi-h">2. What changed, across columns</h2>
+    <p class="summary" id="multi-summary"></p>
+    <div id="multi-warnings" aria-live="polite"></div>
+    <div class="legend"><span style="color:#1f5f86">┃ agreed change in that column (every setting)</span><span style="color:#c0392b">┆ one segmentation for all columns</span><span style="color:#c0392b">— its segment means</span></div>
+    <div id="multi-chart" role="img" aria-label="One chart per column on a shared time axis, with agreed and joint changes marked"></div>
+    <h3>Changes every setting agrees on, column by column</h3>
+    <p class="note">Each column is checked alone with the six settings of the one-column “Agreed changes” panel (level and slope models, with and without a noise floor or a trend with autocorrelated noise; the model and penalty boxes above do not change it); a change counts when all six find it, and changes in different columns within the tolerance are merged. On three labelled multi-column series this beat every published multi-column default except reporting no change (README, "Several columns at once").</p>
+    <div class="scroll"><table id="multi-agreed"></table></div>
+    <h3>One segmentation for all columns</h3>
+    <p class="note">A single fit over every column, each scaled by its own noise. It finds a small shift shared by many columns that no column shows alone (in simulation, 0.5 noise sd in each of 4 columns: 76% found, against 0% column by column), but on smooth or trending real columns it cuts too often. Shifts of a noise sd or more are in bold, and under the level-and-volatility model so is a column whose sd grew or shrank by half or more.</p>
+    <div class="scroll"><table id="multi-joint"></table></div>
+    <button type="button" class="secondary" id="multi-download">Download per-point results (CSV)</button>
   </section>
 
   <section class="card" id="report-card" aria-labelledby="report-h" hidden>
@@ -174,6 +194,8 @@
     import { chartSvg, changeReportHtml, esc, fmt } from "./report.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { parseColumns, analyzeMulti } from "./multivariate.mjs";
+    import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
 
     const $ = (s) => document.querySelector(s);
     let last = null;
@@ -181,7 +203,39 @@
 
     $("#penalty").addEventListener("change", () => { $("#penaltyValue").disabled = $("#penalty").value !== "custom"; });
 
+    let lastMulti = null;
+    $("#shape").addEventListener("change", () => { $("#columns").disabled = $("#shape").value !== "multi"; $("#column").disabled = $("#shape").value === "multi"; });
+
+    function runMulti() {
+      $("#error").textContent = "";
+      $("#results").hidden = true;
+      const model = $("#model").value;
+      if (model !== "mean" && model !== "meanvar") { $("#multi-results").hidden = true; $("#error").textContent = "Several columns take the level model or the level-and-volatility model."; return; }
+      const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
+      const list = $("#columns").value.split(",").map((c) => c.trim()).filter(Boolean).map((c) => (/^\d+$/.test(c) ? Number(c) - 1 : c));
+      $("#working").hidden = false;
+      // Let the "Working" note paint before the main thread is busy.
+      setTimeout(() => {
+        try {
+          const p = parseColumns($("#csv").value, list.length ? list : null, null);
+          if (p.cols.length < 2) throw new Error("Several-columns mode needs two or more numeric columns; for one column pick \u201cOne column\u201d.");
+          const r = analyzeMulti({ ...p, model, penalty });
+          lastMulti = { p, r };
+          $("#multi-summary").textContent = multiSummary(r);
+          $("#multi-warnings").innerHTML = r.overcutWarning ? `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r.overcutWarning)}</p>` : "";
+          $("#multi-chart").innerHTML = multiChartSvg(p, r);
+          $("#multi-agreed").innerHTML = agreedTableHtml(r);
+          $("#multi-joint").innerHTML = jointTableHtml(r, p);
+          $("#multi-results").hidden = false;
+          record("multi_run");
+        } catch (e) { $("#multi-results").hidden = true; $("#error").textContent = e.message; }
+        $("#working").hidden = true;
+      }, 30);
+    }
+
     function run() {
+      if ($("#shape").value === "multi") return runMulti();
+      $("#multi-results").hidden = true;
       $("#error").textContent = "";
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
       try {
@@ -216,7 +270,21 @@
     }
 
     $("#run").addEventListener("click", run);
-    $("#example").addEventListener("click", () => { $("#csv").value = DEFAULTS.csv; $("#column").value = ""; record("example_loaded"); run(); });
+    $("#example-fx").addEventListener("click", async () => {
+      const { FX_CSV } = await import("./example-fx.mjs");
+      $("#csv").value = FX_CSV; $("#shape").value = "multi"; $("#columns").value = ""; $("#columns").disabled = false; $("#column").disabled = true; $("#model").value = "meanvar";
+      record("example_loaded"); runMulti();
+    });
+    $("#multi-download").addEventListener("click", () => {
+      if (!lastMulti) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([multiCsv(lastMulti.p, lastMulti.r)], { type: "text/csv" }));
+      a.download = "changepoints-columns.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
+    $("#example").addEventListener("click", () => { $("#csv").value = DEFAULTS.csv; $("#column").value = ""; $("#shape").value = "one"; $("#columns").disabled = true; $("#column").disabled = false; record("example_loaded"); run(); });
     $("#file").addEventListener("change", async (e) => { const f = e.target.files?.[0]; if (!f) return; $("#csv").value = await f.text(); record("file_opened"); run(); });
     $("#download").addEventListener("click", () => {
       if (!last) return;
