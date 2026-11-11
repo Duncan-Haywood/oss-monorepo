@@ -2,8 +2,8 @@
 title: "The $400 floor: ten of our tax calculators charged self-employment tax on tiny profits"
 seo_title: "No self-employment tax under $400: a bug we found in ten calculators"
 date: 2026-11-11
-tags: [red-team, self-employment-tax, schedule-se, testing, calculators]
-description: "A red-team run on the owner-operator per diem calculator found that ten of our tools charged 15.3% SE tax on profits under $433, or checked the $400 floor against the wrong number."
+tags: [redteam, self-employment-tax, schedule-se, testing, calculators]
+description: "Ten of our tax calculators charged self-employment tax on profits under $433, or checked the $400 Schedule SE floor against the wrong number."
 ---
 
 Schedule SE has a floor. Multiply net profit by 92.35% to get net earnings
