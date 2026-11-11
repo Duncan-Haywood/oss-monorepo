@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVKuPF6WSiNxF9ATZuk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief",
+  "input_sha256": "e1d0b7f89ed15ab7631a0d90a2a7f4eda2f84f01b165a2130aeb78873301766e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T21:27:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 8 quick-pick-survey: re-measure the 2026-10-28 position-bias table behind the route's slot shuffle",
+  "projects": [
+    "ventures/quick-pick-survey"
+  ],
+  "pr": 14896,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "start-here row (sales-agent) needed a model host that refused CONNECT this session",
+      "did": "took flagship 8's buildable re-measure item instead",
+      "result": "landed a measured correction to a shipped constant's justification"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-quick-pick-survey-position-bias-shuffled.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md"
+  ],
+  "goal": null,
+  "notes": "allocate.py named sales-agent first, but huggingface.co and registry.ollama.ai refused CONNECT (000) so its buildable model items were blocked; the other Deepen flagships all landed within the hour, so took quick-pick-survey's concrete re-measure item. Result: old position-bias table overstated harm ~4x; the 0.7 fallback stays (pays at 300 answers, bias 0.5-0.6; wash at 120; 0.1% honest firing). Checks: tsc, eslint, vitest pairing.test (27 pass), post front matter/links/similarity; npm run verify (typecheck, lint, 52 files / 421 tests, build) exit 0.",
+  "corrections": [],
+  "redteam": null
+}

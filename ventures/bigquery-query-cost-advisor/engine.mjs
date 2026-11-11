@@ -13,7 +13,9 @@
 export const PRICES_AS_OF = "US multi-region list prices (on-demand $6.25/TiB with the first 1 TiB per month free; Editions pay-as-you-go $0.04/slot-hour Standard, $0.06 Enterprise); storage, streaming, BI Engine and commitments not modelled; verify against the BigQuery pricing page";
 export const DEFAULT_PRICES = { perTib: 6.25, freeTib: 1, slotHour: 0.06 };
 export const DEFAULTS = { guardrailUsd: 5, dominatesShare: 0.4, scanGb: 100, scanRuns: 100 };
-const GB_PER_TIB = 1024;
+// GB here is bytes/1e9 (the page and README tell users to divide total_bytes_billed by 1e9);
+// BigQuery bills per TiB, 2^40 bytes, so one TiB is 1099.511627776 such GB, not 1024.
+export const GB_PER_TIB = 2 ** 40 / 1e9;
 
 const toNum = (s) => {
   const n = Number(String(s ?? "").trim().replace(/,/g, ""));

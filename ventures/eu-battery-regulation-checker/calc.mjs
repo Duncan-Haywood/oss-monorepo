@@ -60,7 +60,7 @@ export function parse(input) {
   const location = ["eu", "noneu"].includes(i.location) ? i.location : null;
   if (!location) errors.push("Say where you are established.");
   const today = i.today === undefined || i.today === "" ? new Date().toISOString().slice(0, 10) : String(i.today);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(today) || Number.isNaN(Date.parse(today))) errors.push("Today's date must be written YYYY-MM-DD.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(today) || Number.isNaN(Date.parse(today)) || new Date(today + "T00:00:00Z").toISOString().slice(0, 10) !== today) errors.push("Today's date must be written YYYY-MM-DD.");
   const sme = opt(i.sme, ["yes", "no"], "yes");
   const sellsEu = opt(i.sellsEu, ["yes", "no", "unsure"], "yes");
   const euOperator = opt(i.euOperator, ["yes", "no", "unsure"], "unsure");

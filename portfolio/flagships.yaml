@@ -259,11 +259,15 @@ flagships:
       selector's own 0.7 first-slot rule (matches oracle-drop, 0.3-0.7% honest
       flagged, never touches a different-taste camp; `leftOut` in the route,
       builder and report); leave-one-out agreement ships as a NOTE, not a
-      weight (weights cost a real 25-40% camp). Next: half-time salience (q = 0.5 still leaks +0.12
+      weight (weights cost a real 25-40% camp). Position bias re-measured
+      behind the route's slot shuffle 2026-11-11 (INFORMATION-GAIN-SELECTOR.md
+      "Position bias behind the slot shuffle"): the 2026-10-28 table overstated
+      the harm ~4x; the 0.7 fallback still adds +0.02 to +0.06 at 300 answers
+      and bias 0.5-0.6, is a wash at 120, fires on 0.1% of honest answers, and
+      no other threshold beats it. Next: half-time salience (q = 0.5 still leaks +0.12
       to +0.29 and only 5-13% fall under 0.2 agreement), a signal from outside
       the answers (answer times, msToAnswer is stored) to tell a careless
-      block from a camp; re-measure the 2026-10-28 position-bias table (simulate's
-      positionBias is not slot-shuffled as the route is); staged's 0.90 coverage for honest respondents (close pairs
+      block from a camp; position bias that starts mid-session; staged's 0.90 coverage for honest respondents (close pairs
       shrink rd too fast); the switch rule above 120 items; then real pairwise
       answers.
   - venture: league-schedule-generator

@@ -186,10 +186,12 @@ class FocusTest(unittest.TestCase):
     def test_programme_draws_lean_to_focus(self):
         progs = [("heavy-hydraulics", True), ("lowcomm-training", True),
                  ("qual-x", True), ("build-data", False)]
-        # The fixture slugs must not depend on which programmes are BLOCKED on disk today.
+        # The fixture slugs must not depend on which programmes are BLOCKED on disk today,
+        # nor on the network (build-data has a HOSTS file).
         real, pick_track.is_blocked = pick_track.is_blocked, lambda slug: False
         try:
-            firsts = [pick_track.draw_programme(i / 4000, progs, lambda s: [])[0] for i in range(4000)]
+            firsts = [pick_track.draw_programme(i / 4000, progs, lambda s: [], unreachable=lambda s: [])[0]
+                      for i in range(4000)]
         finally:
             pick_track.is_blocked = real
         share = sum(pick_track.is_focus(s) for s in firsts) / len(firsts)
@@ -206,3 +208,56 @@ class SessionDrawTest(unittest.TestCase):
         first = pick_track.session_draw(new=True)
         self.assertEqual(pick_track.session_draw(), first)
         self.assertEqual(pick_track.session_draw(), first)
+
+
+class HostsTest(unittest.TestCase):
+    progs = [("a-prog", True), ("b-prog", True), ("c-prog", True)]
+
+    def test_programme_with_dead_host_is_passed_over(self):
+        down = lambda s: ["https://x.example/"] if s == "a-prog" else []
+        for r in [i / 50 for i in range(50)]:
+            slug, _, skipped = pick_track.draw_programme(r, self.progs, lambda s: [], unreachable=down)
+            self.assertNotEqual(slug, "a-prog")
+            self.assertTrue(all(l.startswith("a-prog: needs https://x.example/") for l in skipped))
+
+    def test_offline_beats_claimed_when_nothing_else_is_left(self):
+        claimed = lambda s: ["#1 x"] if s != "b-prog" else []
+        down = lambda s: ["https://x.example/"] if s == "b-prog" else []
+        slug, _, skipped = pick_track.draw_programme(0.3, self.progs, claimed, unreachable=down)
+        self.assertEqual(slug, "b-prog")
+        self.assertEqual(len(skipped), 3)
+
+    def test_unreachable_reports_only_failing_hosts(self):
+        old = pick_track.needed_hosts
+        pick_track.needed_hosts = lambda s: ["https://up.example/", "https://down.example/"]
+        try:
+            got = pick_track.unreachable_hosts("x", answers=lambda u: "up" in u)
+        finally:
+            pick_track.needed_hosts = old
+        self.assertEqual(got, ["https://down.example/"])
+
+    def test_no_hosts_file_probes_nothing(self):
+        def boom(u):
+            raise AssertionError("probed")
+        self.assertEqual(pick_track.unreachable_hosts("no-such-programme", answers=boom), [])
+
+    def test_hosts_file_parses_comments(self):
+        self.assertEqual(len(pick_track.needed_hosts("build-data")), 4)
+        self.assertTrue(all(h.startswith("https://") for h in pick_track.needed_hosts("build-data")))
+
+    def test_host_answers_counts_http_errors_as_up(self):
+        import urllib.error
+        old = pick_track.urllib.request.urlopen
+        def raise_(e):
+            def f(*a, **k):
+                raise e
+            return f
+        try:
+            pick_track.urllib.request.urlopen = raise_(urllib.error.HTTPError("u", 404, "nf", {}, None))
+            self.assertTrue(pick_track.host_answers("https://x/"))
+            pick_track.host_answers.cache_clear()
+            pick_track.urllib.request.urlopen = raise_(urllib.error.URLError("Tunnel connection failed: 403"))
+            self.assertFalse(pick_track.host_answers("https://x/"))
+        finally:
+            pick_track.urllib.request.urlopen = old
+            pick_track.host_answers.cache_clear()

@@ -130,3 +130,58 @@ def test_zhang_ro_recovers_flat_board_on_synthetic_views():
     z = zhang_ro(obs, (640, 480), k2=False)
     assert abs(z["f"] - 520.0) < 0.5 and abs(z["cy"] - 240.0) < 0.5
     assert np.abs(z["obj"][:, 2]).max() < 1e-3
+
+
+def test_match_order_reorders_and_rejects_ambiguous_sets():
+    from selfcal import match_order
+    rng = np.random.default_rng(1)
+    ref = board_points()[:, :2] * 30.0
+    perm = rng.permutation(len(ref))
+    other = ref[perm] + rng.normal(0, 0.2, ref.shape)
+    assert np.allclose(match_order(ref, other), ref, atol=1.0)
+    dup = other.copy(); dup[0] = dup[1]
+    try:
+        match_order(ref, dup)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a duplicated corner should not match one-to-one")
+
+
+def test_detectors_find_the_same_corners_on_a_real_image():
+    here = os.path.dirname(__file__)
+    a, _ = detect(os.path.join(here, "..", "data", "left01.jpg"))
+    for m in ("subpix5", "sb"):
+        b, _ = detect(os.path.join(here, "..", "data", "left01.jpg"), method=m)
+        assert b.shape == (54, 2) and np.median(np.linalg.norm(a - b, axis=1)) < 0.5
+
+
+def test_residual_structure_null_and_column_offsets():
+    from selfcal import residual_structure
+    rng = np.random.default_rng(2)
+    g = np.mgrid[0:6, 0:9].astype(float)
+    obs = np.stack([g[1] * 30, g[0] * 30], -1).reshape(54, 2)[None].repeat(40, 0)  # columns run along image y
+    white = residual_structure(rng.normal(size=(40, 54, 2)), obs)
+    assert abs(white["col_share"] - 1 / 6) < 0.03 and abs(white["row_share"] - 1 / 9) < 0.03
+    assert 0.4 < white["col_perp_share"] < 0.6
+    # every column of every view shifted sideways (along image x) by its own offset
+    off = np.zeros((40, 6, 9, 2)); off[..., 0] = rng.normal(size=(40, 1, 9))
+    s = residual_structure(off.reshape(40, 54, 2) + 0.1 * rng.normal(size=(40, 54, 2)), obs)
+    assert s["col_share"] > 0.9 and s["col_perp_share"] > 0.95
+
+
+def test_column_clustered_sandwich_sees_column_offsets():
+    # Per-(view, column) offsets make the Gauss-Newton sigma too small (true sd of f over
+    # draws ~5.8 px against a median 3.6 reported); clustering by (view, column) moves it
+    # up. One draw is too noisy to test, so compare medians over a few.
+    from selfcal import selfcal_fixed_analytic
+    obs = synth(n=8, noise=0.05, seed=5)
+    s0 = selfcal_fixed_analytic(obs, SIZE, 1.3 * TRUE[0], nk=1, ref=0)
+    assert 0.3 < s0["sf_cr_viewcol"] / s0["sf"] < 3.0
+    ratio = []
+    for t in range(8):
+        rng = np.random.default_rng(100 + t)
+        b = obs.reshape(8, 6, 9, 2) + rng.normal(0, 0.5, (8, 1, 9, 2))
+        s = selfcal_fixed_analytic(b.reshape(8, 54, 2), SIZE, 1.3 * TRUE[0], nk=1, ref=0)
+        ratio.append(s["sf_cr_viewcol"] / s["sf"])
+    assert np.median(ratio) > 1.05

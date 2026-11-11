@@ -52,8 +52,8 @@ function valueProblem(type, raw) {
   if (whole && !/^[+-]?\d+$/.test(value)) return "is not a whole number";
   if (t.base === "nonNegativeInteger" && value.startsWith("-")) return "must not be negative";
   if (t.base === "decimal" && !/^[+-]?(\d+\.?\d*|\.\d+)$/.test(value)) return "is not a number";
-  if (t.base === "date" && !(/^\d{4}-\d{2}-\d{2}(Z|[+-]\d{2}:\d{2})?$/.test(value) && !Number.isNaN(Date.parse(value.slice(0, 10))))) return "is not a YYYY-MM-DD date";
-  if (t.base === "dateTime" && !(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/.test(value) && !Number.isNaN(Date.parse(value.slice(0, 10))))) return "is not a date and time (YYYY-MM-DDThh:mm:ss)";
+  if (t.base === "date" && !(/^\d{4}-\d{2}-\d{2}(Z|[+-]\d{2}:\d{2})?$/.test(value) && !Number.isNaN(Date.parse(value.slice(0, 10))) && new Date(value.slice(0, 10) + "T00:00:00Z").toISOString().slice(0, 10) === value.slice(0, 10))) return "is not a YYYY-MM-DD date";
+  if (t.base === "dateTime" && !(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/.test(value) && !Number.isNaN(Date.parse(value.slice(0, 10))) && new Date(value.slice(0, 10) + "T00:00:00Z").toISOString().slice(0, 10) === value.slice(0, 10))) return "is not a date and time (YYYY-MM-DDThh:mm:ss)";
   if (t.base === "gYear" && !/^-?\d{4,}(Z|[+-]\d{2}:\d{2})?$/.test(value)) return "is not a year";
   if (t.base === "boolean" && !["true", "false", "1", "0"].includes(value)) return "is not true or false";
   if (t.base === "decimal" || whole) {
