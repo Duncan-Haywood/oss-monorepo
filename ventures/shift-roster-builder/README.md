@@ -262,6 +262,23 @@ Readings (`eval/join-cut.mjs`, output `eval/join-cut.out.txt`; same downloads an
 So the default stays the per-run priced cut, and `--join` is there for a shop whose own backtest says otherwise (`--backtest --join`). The gap between the plan and the week is in the forecast, not the cut.
 
 
+**Picking the half-life from your own weeks (2026-11-11; `--half-life auto`, now the `--from-sales` default).** The two backtests above disagreed on the best weighting (4 weeks on the Korean file, 2 on the French), and a default picked from the same files it is scored on flatters itself. `eval/halflife-default.mjs` (output `eval/halflife-default.out.txt`; same downloads and SHA-256) asked it out of sample, scored as the CLI and page score it (shifts cut, shortest 4, longest 8, short and over costed the same; 2 files x 3 sales-per-labor-hour x minimum staff 1 or 2 = 12 settings, paired 95% intervals over 38 and 87 weeks):
+
+| Against the plain average | clearly better | tie | clearly worse | mean short + over |
+|---|---|---|---|---|
+| fixed half-life 8 | 5 | 7 | 0 | -2.9% |
+| fixed half-life 4 | 5 | 7 | 0 | -4.7% |
+| fixed half-life 2 | 6 | 4 | **2** | -6.7% |
+| **chosen week by week from the weeks before it** | 6 | 6 | **0** | **-7.4%** |
+
+- **Scored on cut shifts, the Korean shop gains nothing from recency.** All six Korean settings are ties for every weighting (the earlier "half-life 4 beats the average" reading scored headcount profiles, before the priced cut); half-life 2 is clearly worse there at 30,000 and 60,000 won with minimum staff 1 or 2 (+0.3).
+- **The French shop gains a lot,** and half-life 2 is best at all six settings (-3.3 to -25.2 person-hours a week).
+- **Cross-file:** the fixed half-life that did best on the Korean file (8) used on the French one is clearly better at 5 of 6 settings, mean -5.8%; the French winner (2) used on the Korean one is clearly better at none and clearly worse at 2, mean +1.7%. No fixed number is safe for both.
+- **The choice from a shop's own past matched the best fixed number on the French file and stayed with the plain average on the Korean one** (34 of 38 weeks at 30,000 won, minimum 2), never clearly worse anywhere.
+
+So `--from-sales` now defaults to `--half-life auto` (`demand.mjs` `pickHalfLife`): it backtests equal weights and half-lives 8, 4 and 2 on the file (at `--short-cost` when given, picking among the fractile plans) and keeps the one with the least short + over a week; a tie keeps equal weights, and under 4 testable weeks (8 full weeks of dated rows) it keeps equal weights and says so. The rule shipped is the one measured: the pick on all past weeks is what the week-by-week rule would use for the next week. `--half-life none` turns it off; a number fixes it. On the page, type `auto` in the half-life box (opt-in there: it would rerun the backtest as you type, so the pick is cached until the sales or a setting changes). Cost: about 8 s on the 14 MB French file in the CLI, under 1 s on the Korean one. Limits: two bakeries; the candidate set is four weightings, so a shop that needs a 1-week half-life is not offered one; weeks are not independent, so the intervals are a little narrow; tests (`halflife-auto.test.mjs`) use hand-built sales (steady stays equal, growing picks a half-life).
+
+
 **Date order (2026-11-10).** `--from-sales` read `05/03/2026` as May 3 without a word. A slash or dash date over 12 in the first or second place now settles the order for the whole file; when none does, it reads month first and prints a note. Compact stamps (`20260305 1400`, `20260305T140000Z`) read too. Tests in `demand.test.mjs` (24 pass). Made-up rows only.
 ## Trade pages (2026-10-30)
 

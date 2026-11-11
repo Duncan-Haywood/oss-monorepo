@@ -179,11 +179,13 @@ flagships:
       bound in the pay oracle"): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
       359; week 1 347 over 344; the 60-person pay week is still $1.22 open. --from-sales (README "First real
       POS export", "Second real POS export", "Short-vs-over cost weight"): two real bakery exports, backtest,
-      lunch-closure breaks, half-life 4 / 2 best; --short-cost r 2026-11-11 staffs the r/(1+r) fractile and
+      lunch-closure breaks; --half-life auto default 2026-11-11 (README "Picking the half-life from your own weeks": chosen from
+      past weeks, never clearly worse than plain in 12 settings, -7.4% mean; fixed 2 worse on the Korean file); --short-cost r 2026-11-11 staffs the r/(1+r) fractile and
       beats the average at r = 3 on both files. Next: close the 100-person gaps (tree, not pricing, now);
       cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
       40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
-      can score a staffed closure; whether to default to a half-life; forecasting from tickets (queue
+      can score a staffed closure; whether auto should also choose the short cost's window or a 1-week half-life
+      (a third real file would test it); forecasting from tickets (queue
       length), not just sales, since the cut is no longer where the gap is (joining short runs and folding
       them into neighbouring shifts, opt-in --join 2026-11-11, README "Joining short runs": optimal in
       sample, but on held-out weeks clearly cheaper in 1 of 72 comparisons, dearer in 16, noise in 55, so
