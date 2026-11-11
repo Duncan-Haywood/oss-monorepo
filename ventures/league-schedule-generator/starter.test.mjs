@@ -128,3 +128,27 @@ test("climbed starters (eval/starter-climb.mjs) where they beat the annealed one
     assert.equal(best(N, N - 1), odd, `${N - 1} teams`);
   }
 });
+
+test("stored timetables (eval/round-refill.mjs) are round robins and beat the starters they replace", async () => {
+  const { TIMETABLES, storedTimetable } = await import("./carryover.mjs");
+  for (const [key, entry] of Object.entries(TIMETABLES)) {
+    const N = Number(key);
+    assert.ok(starterApplies(N));
+    for (const kind of Object.keys(entry)) {
+      const n = kind === "even" ? N : N - 1;
+      const opp = storedTimetable(N, n);
+      checkTimetable(opp, N);
+      const stored = carryOverFromOpponents(seqs(opp, n)).value;
+      assert.equal(stored, STORED_VALUES[`${N}/${kind}`], `${N} ${kind}`);
+      if (STARTERS[N]) {
+        const { step, pairs } = decode(STARTERS[N][kind]);
+        let best = Infinity;
+        for (let start = 0; start < N - 1; start++) best = Math.min(best, carryOverFromOpponents(seqs(starterOpp(N, pairs, { step, start }), n)).value);
+        assert.ok(stored < best, `${N} ${kind}: stored ${stored} vs starter ${best}`);
+      }
+      // the search starts from it and keeps it or better
+      const r = lowCarryOverRounds(n, { effort: 0.2 });
+      assert.ok(r.coe <= stored, `${n} teams: ${r.coe} > ${stored}`);
+    }
+  }
+});

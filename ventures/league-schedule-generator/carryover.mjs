@@ -204,9 +204,29 @@ export const STARTERS = {
   40: { even: [1, 1, 8, 2, 24, 3, 18, 4, 27, 5, 13, 6, 19, 7, 16, 9, 28, 10, 20, 11, 22, 12, 15, 14, 35, 17, 29, 21, 25, 23, 37, 26, 32, 30, 31, 33, 38, 34, 36], odd: [1, 1, 23, 2, 32, 3, 7, 4, 17, 5, 37, 6, 26, 8, 29, 9, 14, 10, 18, 11, 12, 13, 19, 15, 30, 16, 28, 20, 31, 21, 35, 22, 38, 24, 34, 25, 27, 33, 36] },
 };
 
-/** True when a searched starter is built in for N teams (N even, a bye team included). */
+/** True when a searched starter or stored timetable is built in for N teams (N even, a bye team included). */
 export function starterApplies(N) {
-  return STARTERS[N] !== undefined;
+  return STARTERS[N] !== undefined || TIMETABLES[N] !== undefined;
+}
+
+// ---------------------------------------------------------- stored timetables
+//
+// Below 22 teams no starter found by sampling, annealing or the O(p) climb reaches the floor, and
+// at 12 teams none goes below 156 (floor 120). eval/round-refill.mjs searches every round robin
+// instead: it takes 2 to 5 rounds out and refills their games with the least-carry-over split, by
+// depth-first search. Its best timetables are stored here whole, as opp[r][t] (team t meets
+// opp[r][t] in round r; team N - 1 is the bye in "odd"). The search start keeps whichever of the
+// starter and the stored timetable scores lower.
+
+/** N -> { even?, odd? }, each a list of rounds, each round the opponent of every team. */
+export const TIMETABLES = {
+  // TIMETABLES-DATA
+};
+
+/** The stored timetable for N teams, n real (n = N - 1: team N - 1 is the bye), or null. */
+export function storedTimetable(N, n) {
+  const rounds = TIMETABLES[N]?.[n === N ? "even" : "odd"];
+  return rounds ? rounds.map((o) => Int16Array.from(o)) : null;
 }
 
 /**
@@ -246,6 +266,16 @@ export function starterOpp(N, pairs, { step = 1, start = 0 } = {}) {
  * Null when no starter is built in for N.
  */
 function bestStarterOpp(N, n, cyclic) {
+  const stored = storedTimetable(N, n);
+  const fromStarter = bestStarterOnly(N, n, cyclic);
+  if (!stored) return fromStarter;
+  if (!fromStarter) return stored;
+  const cs = coeOf(stored, n, cyclic), cf = coeOf(fromStarter, n, cyclic);
+  if (cs !== cf) return cs < cf ? stored : fromStarter;
+  return greedyBreaks(stored, n) < greedyBreaks(fromStarter, n) ? stored : fromStarter;
+}
+
+function bestStarterOnly(N, n, cyclic) {
   const entry = STARTERS[N]?.[n === N ? "even" : "odd"];
   if (!entry) return null;
   const [step, ...flat] = entry;
