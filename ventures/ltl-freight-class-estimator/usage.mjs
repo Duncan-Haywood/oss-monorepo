@@ -10,7 +10,8 @@ export function usageAllowed() {
 export function recordUsage(event) {
   if (!usageAllowed()) return;
   try {
-    const current = JSON.parse(localStorage.getItem(KEY) || '{}');
+    let current = JSON.parse(localStorage.getItem(KEY) || '{}');
+    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
     current[event] = (current[event] || 0) + 1;
     localStorage.setItem(KEY, JSON.stringify(current));
   } catch { /* Private browsing may deny local storage. */ }

@@ -18,8 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CLAIM = re.compile(
-    r"(trusted by\b|\bjoin(ed)? (over |more than )?[\d,]+\+? "
-    r"|[\d,]+\+? (happy|satisfied) "
+    r"(trusted by\b|\bjoin(ed)? (over |more than )?\d[\d,]*\+? "
+    r"|\d[\d,]*\+? (happy|satisfied) "
     r"|\brated \d(\.\d)?\s*(/\s*5|stars|out of)"
     r"|[★⭐]{3,}|\b\d(\.\d)?\s*(/\s*5|out of 5) stars"
     r"|\b\d(\.\d)?-star (rated|rating|average)"

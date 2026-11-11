@@ -142,3 +142,44 @@ test("recall checks: auto-reply subjects only (not people asking for vacation da
   assert.ok(looksBounce({ from: "Mail Delivery Subsystem <MAILER-DAEMON@mx.example.test>", subject: "Returned mail" }));
   assert.ok(!looksBounce({ from: "postmaster@x.example.test", subject: "Auto Reply to your message" }));
 });
+
+// Third round, 2026-11-11 (eval/README.md "Third round"): written from the 0*-2* halves, scored once on the unread 3* half.
+// Paraphrased, no corpus names.
+const THIRD_NOT_A_STOP = [
+  "I will pass this information along to both Jo and Kim.",
+  "Thanks, I'll pass along your comments.",
+  "He is not a great fit because of his lack of legal experience.",
+  "When I asked Lee about it back then she decided against it.",
+  "We have some space available and were not looking to expand there.",
+  "We're all set to move forward starting next month.",
+  "You will probably need to close the file before you attach it.",
+  "We do not need access until Monday morning.",
+  "No need to call Lone Star.",
+  "Sam is out of the office until Monday, I will change the deals for him.",
+  "Both are out of the office right now, so it might be tomorrow.",
+  "Please note that Mike McConnell will be out of town through the 4th.",
+  "I just got back in the office today and am going over the days.",
+  "I'm traveling today but I'll call you back to set up an agenda.",
+  "Let's omit the people who left the company.",
+  "Nadia, would you please contact Patti and set up a time?",
+  "Saturday doesn't work for me.",
+  "They have moved on to plan B.",
+  "Tell them to stop sending invoices to you.",
+  "I will remove it from John's calendar.",
+];
+for (const body of THIRD_NOT_A_STOP) test(`third round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(cat(body)), cat(body)));
+
+test("third round: a Re: subject is the thread's subject, not the reply's words; an auto-reply subject still counts", () => {
+  assert.notEqual(cat("Good luck, keep in touch.", { subject: "Re: Pat is no longer at Acme" }), "left_company");
+  assert.notEqual(cat("The page went live today.", { subject: "RE: TW Unsubscribed Capacity" }), "unsubscribe");
+  assert.equal(cat("", { subject: "Out of Office: budget" }), "out_of_office");
+  assert.equal(cat("Please take me off your list.", { subject: "Re: quick question" }), "unsubscribe");
+});
+
+test("third round: the real asks still stop", () => {
+  assert.equal(cat("Please discontinue sending me these requests for approval."), "unsubscribe");
+  assert.equal(cat("I am out of the office until Monday."), "out_of_office");
+  assert.equal(cat("No."), "not_interested");
+  assert.equal(cat("This seems to not ever get resolved. Looks good to me."), "unclear");
+  assert.equal(cat("Not now, and not later either."), "not_interested");
+});

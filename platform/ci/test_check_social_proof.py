@@ -17,6 +17,12 @@ class SocialProof(unittest.TestCase):
 
     def test_join_count_flagged(self):
         self.assertTrue(check("Join 5,000+ happy users"))
+        self.assertTrue(check("12 happy customers"))
+
+    def test_comma_before_happy_is_prose_not_a_count(self):
+        # A bare comma matched [\d,]+, so story prose failed CI (doc_friction 2026-11-11).
+        self.assertEqual(check("<p>It was the long, happy night of the feast.</p>"), [])
+        self.assertEqual(check("<p>We joined , then left.</p>"), [])
 
     def test_stars_flagged(self):
         self.assertTrue(check("<span>★★★★★</span>"))

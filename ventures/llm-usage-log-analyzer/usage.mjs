@@ -29,7 +29,8 @@ export function setUsageEnabled(enabled, storage = globalThis.localStorage) {
 export function countUsage(event, storage = globalThis.localStorage, navigatorLike = globalThis.navigator) {
   if (!usageAllowed(storage, navigatorLike) || !storage) return;
   try {
-    const counts = JSON.parse(storage.getItem(KEY) || "{}");
+    let counts = JSON.parse(storage.getItem(KEY) || "{}");
+    if (!counts || typeof counts !== "object" || Array.isArray(counts)) counts = {};
     counts[event] = Number(counts[event] || 0) + 1;
     storage.setItem(KEY, JSON.stringify(counts));
   } catch {

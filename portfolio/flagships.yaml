@@ -110,12 +110,13 @@ flagships:
       the 1,857-reply label mix are agent-written). Real people's mail 2026-11-10
       (eval/enron.mjs, Enron corpus, 19,153 replies, README): stops 70% wrong; vetoes
       tuned on one half, held-out half scored once: wrong stops 30 to 13 per 1,000,
-      right 113 to 108. Second round 2026-11-11 (eval/README "Second round"): Notes
-      quote headers cut, "I left"/"please contact"/"I'm out" narrowed; third half 2*
-      unread while tuning, labelled blind by a separate agent: wrong stops 171 to 88
-      (17.8 to 9.2 per 1,000), right 76 to 79. Next: (1) the 88 left on 2* ("don't
-      need" in work talk, colleagues' absences) tuned on 0*-2*, scored on a fourth
-      half (3*); a human second reader; "Mine too" above a quoted opt-out; real
+      right 113 to 108. Rounds 2 and 3, 2026-11-11 (eval/README "Second round",
+      "Third round"): each tuned on read halves, scored once on an unread half
+      labelled blind by a separate agent; round 3 (Re: subjects not read, others'
+      absences, forwarding) on 3*: wrong stops 10.9 to 8.4 per 1,000, right 47 to
+      46. Next: (1) the 81 left on 3* (first-person short absences, "don't need the
+      X" in work talk) tuned on 0*-3*, scored on 4*; a human second reader; "Mine
+      too" above a quoted opt-out; real
       opt-out recall set 2026-11-10 (eval/optout-recall.mjs, Enron 2*-f*, README): 103
       of 113 caught before, 112 after five patterns, no new wrong stop on either half;
       open: a second reader for its labels; (2) real replies to outreach and a real
@@ -136,7 +137,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. Panel and main analysis run in Web Workers on the page (README "Main analysis off the main thread", 2026-11-11).
-      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (c) the CLI panel on worker_threads to lift its 2,000-point cap, then whether the agreed summary earns its cost on the long TCPD series.
+      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (c) CLI panel on worker_threads done 2026-11-11 (cap 2,000 to 10,000; tree-ring 9.5 s vs 23.5 s one thread); TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere; next: --columns per-column panels on threads.
       Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-

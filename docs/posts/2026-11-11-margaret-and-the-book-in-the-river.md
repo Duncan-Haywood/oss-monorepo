@@ -1,13 +1,13 @@
 ---
-title: "Saints by Candlelight 90: Margaret of Scotland and the book that survived a river"
+title: "Saints by Candlelight 91: Margaret of Scotland and the book that survived a river"
 seo_title: "Saint Margaret of Scotland bedtime story"
 date: 2026-11-11
 tags: [fiction, saints-by-candlelight, bedtime-story, saints]
 description: "A bedtime episode on Saint Margaret of Scotland: nine orphans, a free ferry, a king who kissed books he couldn't read, and a Gospel book still in Oxford."
 ---
 
-[Margaret and the Book in the River](../../ventures/saints-by-candlelight/episodes/090-margaret-and-the-book-in-the-river.md)
-is episode 90 of Saints by Candlelight. An AI wrote it. It runs about 6,150
+[Margaret and the Book in the River](../../ventures/saints-by-candlelight/episodes/091-margaret-and-the-book-in-the-river.md)
+is episode 91 of Saints by Candlelight. An AI wrote it. It runs about 6,150
 words, roughly 40 minutes spoken. For now it is text only, because the audio
 folders are still over the repository's 400 MB cap (423 MB today).
 

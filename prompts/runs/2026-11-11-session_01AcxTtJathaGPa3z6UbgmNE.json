@@ -1,0 +1,279 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJathaGPa3z6UbgmNE",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T05:05:37Z",
+  "ended": "2026-11-11T05:06:27Z",
+  "wall_minutes": 8.04,
+  "tokens_in": 4199493,
+  "tokens_out": 28617,
+  "cost_usd": 2.0637,
+  "tool_calls": 55,
+  "task": "redteam campaign on ventures/uk-rd-tax-relief-calculator/usage.mjs; class guard over all usage.mjs copies",
+  "projects": [
+    "platform/ci",
+    "ventures/uk-rd-tax-relief-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14699",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_storage_guard.py",
+      "issue": "Docstring said 18 ventures take `storage = globalThis.localStorage`; 239 do. Corrected."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2044/40 runs toward the next review': the review counter looks broken or the review is long overdue; did not investigate."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0: all four open defects are control plane; three already had owner-approval PRs (#12926, #12928, #14612) and `redteam.py open` does not say so, so each run re-searches. Listing the pending PR next to each entry would save that."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open defects first; all four are control plane needing owner approval.",
+      "did": "Opened PR #14698 for the one without a PR (einvoice-preflight CI deps), verified locally (1432 pass). Left patched:false on all four since none can merge without the owner.",
+      "result": "Control-plane fix waiting on owner approval; the redteam PR isn't held up."
+    },
+    {
+      "file": "system prompt (branch rule)",
+      "why": "CLAUDE.md requires control-plane edits in their own PR, which needs a second branch.",
+      "did": "Pushed claude/intelligent-volta-e7dc3t-einvoice-ci for PR #14698.",
+      "result": "Fine."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-one-counter-1293-copies.md"
+  ],
+  "goal": null,
+  "notes": "Campaign: 8 mutants on uk-rd-tax-relief-calculator/usage.mjs, 6 caught (0.75); both escapes (shape checks at :49 and :62) are gaps, now caught (1.0). Guard added: platform/ci/usage_contract.mjs, a behavioural contract over all 1001 record/readUsage copies (wrong-shape JSON, DNT, GPC, opt-out, blocked/full storage), run by check_storage_guard.py in portfolio-validate (node already set up in that job); on its first run all 1001 pass and it rejects both seeded mutants plus GPC-ignored and opt-out-keeps-counters variants. Second guard: unshaped_parses() lint, which flagged 263 copies on main; swept and fixed. Verification: python3 -m unittest test_check_storage_guard (20 OK); python3 platform/ci/check_storage_guard.py exit 0; node --test *.test.mjs in all 263 changed ventures: 263 PASS; uk-rd usage.test.mjs 7 pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-rd-tax-relief-calculator/usage.mjs",
+        "test": "node --test ventures/uk-rd-tax-relief-calculator/**/*.test.mjs  (in .)",
+        "seed": 969984687,
+        "commit": "b5cb73dc",
+        "sites": 24,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/uk-rd-tax-relief-calculator/usage.mjs",
+            "line": 11,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "return typeof localStorage === \"undefined\";",
+            "after": "return typeof localStorage !== \"undefined\";",
+            "line_text": "    return typeof localStorage === \"undefined\";",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-rd-tax-relief-calculator/usage.mjs",
+            "line": 34,
+            "col": 79,
+            "operator": "true-to-false",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return false;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-rd-tax-relief-calculator/usage.mjs",
+            "line": 42,
+            "col": 18,
+            "operator": "or-to-and",
+            "before": "if (noStorage() || usageBlocked()) return;",
+            "after": "if (noStorage() && usageBlocked()) return;",
+            "line_text": "  if (noStorage() || usageBlocked()) return;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-rd-tax-relief-calculator/usage.mjs",
+            "line": 49,
+            "col": 33,
+            "operator": "neq-flip",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current === \"object\" || Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-rd-tax-relief-calculator/usage.mjs",
+            "line": 49,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current !== \"object\" && Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test stored valid JSON of the wrong shape (array/number/null). Added a usage.test.mjs case, and platform/ci/usage_contract.mjs (run by check_storage_guard.py in portfolio-validate) which drives all 1001 record/readUsage copies through the same case."
+          },
+          {
+            "file": "ventures/uk-rd-tax-relief-calculator/usage.mjs",
+            "line": 50,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] && 0) + 1;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-rd-tax-relief-calculator/usage.mjs",
+            "line": 62,
+            "col": 35,
+            "operator": "eq-flip",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed && typeof parsed !== \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/uk-rd-tax-relief-calculator/usage.mjs",
+            "line": 62,
+            "col": 48,
+            "operator": "and-to-or",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed && typeof parsed === \"object\" || !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test stored valid JSON of the wrong shape (array/number/null). Added a usage.test.mjs case, and platform/ci/usage_contract.mjs (run by check_storage_guard.py in portfolio-validate) which drives all 1001 record/readUsage copies through the same case."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/*/usage.mjs (recordUsage family, 263 copies)",
+        "issue": "`const c = JSON.parse(stored || '{}'); c[event] = ...` with no shape check: valid JSON of another shape ([1], null, 5) under the counter key silently stops counting on every later visit (array drops named keys; a write to null/number throws into a swallowing catch). Reproduced on android-data-safety-check. Swept to `let` + reset-to-{} in 263 files; all 263 suites pass; lint unshaped_parses() in check_storage_guard.py guards new copies.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "13d9d70e-67e9-5982-b2e3-125cc037aaf2",
+    "transcripts": 1,
+    "first": "2026-11-11T05:05:37Z",
+    "last": "2026-11-11T05:13:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 28617,
+        "thinking": 5425,
+        "cache_read": 4115923,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83470,
+        "api_equivalent_usd": 2.0637,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 28617,
+      "thinking": 5425,
+      "cache_read": 4115923,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83470,
+      "api_equivalent_usd": 2.0637,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 50,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.04,
+      "active_minutes": 8.04,
+      "model_minutes": 5.7,
+      "tool_minutes": 2.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "campaign triage, contract script over 1001 files, 263-file sweep with per-venture test runs, lint + tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 242.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

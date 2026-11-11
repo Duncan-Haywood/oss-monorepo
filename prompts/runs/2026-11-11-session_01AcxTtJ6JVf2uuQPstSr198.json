@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJ6JVf2uuQPstSr198",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T05:06:28Z",
+  "ended": "2026-11-11T05:11:21Z",
+  "wall_minutes": 5.14,
+  "tokens_in": 2548728,
+  "tokens_out": 21907,
+  "cost_usd": 1.7325,
+  "tool_calls": 28,
+  "task": "verified-dse milestone 111: cost-ratio switch and routed-pilot guard, chosen on 26 held-out designs, tested on the fresh pool",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14697",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "verified-dse suite red on main when run whole (module-name shadowing of analyse.py)",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Landing step 2 says to work through open research PRs first; the only open one (#14696, marine-hull) was opened minutes earlier by a live sibling session, so 'land before you build' had nothing actionable; the step could say to skip PRs younger than a few hours."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 2 (land others' open research PRs first): left #14696 alone because a sibling session opened it 10 minutes before this run and is presumably still working on it.",
+      "did": "Built milestone 111 instead.",
+      "result": "No conflict; no duplicate."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc: the LOG.md 'Next' line is where the next verified-dse run looks, so a separate report would duplicate it.",
+      "did": "Wrote the hand-off into LOG.md.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-verified-dse-switching-rule.md",
+    "research/verified-dse/LOG.md (milestone 111 entry)",
+    "research/verified-dse/PAPER.md (switching-rule paragraph)"
+  ],
+  "goal": null,
+  "notes": "Predictions committed (c.f. first commit) before the first run of rule.py; post-hoc lines added afterwards and labelled. Local checks: pytest tests/test_switch_guard.py tests/test_heldout_designs.py 7 passed; research/_homepage/build.py ok; check_md_links ok; programme_check ok; research_live_links --write regenerated research/README.md. No new citations, so cite_check has nothing new to look up. Found and fixed a pre-existing failure on main: running the whole verified-dse suite (pytest tests) failed 3 tests because fresh_pool/price.py and heldout_designs/replay.py did a bare 'from analyse import', which picked up experiments/proof_success/analyse.py once another test had put it on sys.path; they (and rule.py) now load sibling modules by file path. Full suite: 59 passed; all committed results reproduce byte for byte.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e146b48e-fbc2-5445-a470-c98c98ef6713",
+    "transcripts": 1,
+    "first": "2026-11-11T05:06:28Z",
+    "last": "2026-11-11T05:11:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 51,
+        "output": 21907,
+        "thinking": 5426,
+        "cache_read": 2448111,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100566,
+        "api_equivalent_usd": 1.7325,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 27,
+      "input": 51,
+      "output": 21907,
+      "thinking": 5426,
+      "cache_read": 2448111,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100566,
+      "api_equivalent_usd": 1.7325,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.14,
+      "active_minutes": 5.14,
+      "model_minutes": 4.13,
+      "tool_minutes": 1.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design the two policies, write a budget-matched replay with LODO selection, analyse and write up: about a day for a grad student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 346.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

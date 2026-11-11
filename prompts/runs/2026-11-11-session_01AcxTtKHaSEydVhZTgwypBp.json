@@ -17,7 +17,7 @@
   "tokens_out": 29926,
   "cost_usd": 1.9959,
   "tool_calls": 34,
-  "task": "Saints by Candlelight episode 90: Saint Margaret of Scotland (feast 16 November)",
+  "task": "Saints by Candlelight episode 91: Saint Margaret of Scotland (feast 16 November)",
   "projects": [
     "saints-by-candlelight"
   ],
@@ -57,7 +57,7 @@
     "docs/posts/2026-11-11-margaret-and-the-book-in-the-river.md"
   ],
   "goal": null,
-  "notes": "Project: saints-by-candlelight. Piece: episode 90, margaret-and-the-book-in-the-river (6,150 words, text only; audio folders total 423 MB, over the 400 MB cap). Chosen because Saints had one piece in the last 15 creative commits against six for Hearth & Horizon, her feast is 16 Nov, and the bible's next-up list asks for more saints' lives. Adversarial re-read removed a grace-cup custom (folk tradition, not Turgot), a handwriting date for the Bodleian poem and a water-stain claim on the Oxford pages, all unverified; it also took 'forth' out of the slug because Turgot never names the river. Local checks: --check-script ok; node --test 14/14; check_post_frontmatter, check_post_links and post_similarity (0 pairs >= 0.25) pass; run_workflow_locally --for-changes: ventures-tests, doc-refs, page-integrity, link-contrast, control-plane-guard, sibling-links and conflict-markers pass; the portfolio-pages site build timed out locally at 300 s; agent-cross-review jobs not run.",
+  "notes": "Project: saints-by-candlelight. Piece: episode 91 (renumbered from 90 after #14700 landed Macrina as 90 while this PR was open), margaret-and-the-book-in-the-river (6,150 words, text only; audio folders total 423 MB, over the 400 MB cap). Chosen because Saints had one piece in the last 15 creative commits against six for Hearth & Horizon, her feast is 16 Nov, and the bible's next-up list asks for more saints' lives. Adversarial re-read removed a grace-cup custom (folk tradition, not Turgot), a handwriting date for the Bodleian poem and a water-stain claim on the Oxford pages, all unverified; it also took 'forth' out of the slug because Turgot never names the river. Local checks: --check-script ok; node --test 14/14; check_post_frontmatter, check_post_links and post_similarity (0 pairs >= 0.25) pass; run_workflow_locally --for-changes: ventures-tests, doc-refs, page-integrity, link-contrast, control-plane-guard, sibling-links and conflict-markers pass; the portfolio-pages site build timed out locally at 300 s; agent-cross-review jobs not run.",
   "corrections": [],
   "redteam": null,
   "usage": {

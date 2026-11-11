@@ -119,6 +119,14 @@ notice. Scored once on 9,584 replies never read while tuning, labelled blind by 
 separate agent: wrong stops 171 to 88 (17.8 to 9.2 per 1,000), right stops 76 to 79,
 precision 29% to 46%. Details: [`eval/README.md`](eval/README.md), "Second round".
 
+**Third round, 2026-11-11, on a fourth unread half.** A `Re:` subject (the thread's,
+usually ours) is no longer read as the reply's words, and someone else's absence
+("Mike is out of the office this week, but I'll follow up"), forwarding ("I'll pass
+this along") and scheduling ("Saturday doesn't work for me") no longer stop a lead.
+Scored once on 9,656 replies never read while tuning, labelled blind by a separate
+agent: wrong stops 105 to 81 (10.9 to 8.4 per 1,000), right stops 47 to 46, opt-out
+recall unchanged. Details: [`eval/README.md`](eval/README.md), "Third round".
+
 **Real opt-outs, 2026-11-10.** The other direction: of 113 distinct real
 "take me off this list" messages found in the rest of the Enron corpus (451,475
 messages, candidates chosen by a net written apart from the rules and read with

@@ -61,7 +61,10 @@ test('a CSV with its own options feeds the panel those options, and an unset opt
 
 test('a series longer than the cap says the panel was not run instead of running it', async () => {
   const { AGREED_MAX_POINTS } = await import('./cli.mjs');
-  const csv = 'v\n' + Array.from({ length: AGREED_MAX_POINTS + 1 }, (_, i) => (i % 7) + (i > 1000 ? 20 : 0)).join('\n');
-  const { s } = await run([], csv);
-  assert.match(s, new RegExp(`^Agreed changes: not run on ${AGREED_MAX_POINTS + 1} points .*--consensus`));
+  assert.equal(AGREED_MAX_POINTS, 10000);
+  const csv = 'v\n' + Array.from({ length: 301 }, (_, i) => (i % 7) + (i > 150 ? 20 : 0)).join('\n');
+  let s = '';
+  await main([], { stdin: Readable.from([csv]), out: (t) => { s += t; }, agreedMax: 300 });
+  assert.match(s, /^Agreed changes: not run on 301 points \(above 300 .*--consensus/);
+  assert.match(s, /\n\nPELT splits the 301 points/, 'the level model still runs');
 });

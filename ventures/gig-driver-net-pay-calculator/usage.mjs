@@ -14,7 +14,8 @@ function honorsBrowserSignal() {
 export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'session_calculated') {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   const today = new Date().toISOString().slice(0, 10);
-  const current = JSON.parse(storage.getItem('gig-driver-net-pay-usage') || '{}');
+  let current = JSON.parse(storage.getItem('gig-driver-net-pay-usage') || '{}');
+  if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
   current[event] = (current[event] || 0) + 1;
   current.last_day = today;
   storage.setItem('gig-driver-net-pay-usage', JSON.stringify(current));
