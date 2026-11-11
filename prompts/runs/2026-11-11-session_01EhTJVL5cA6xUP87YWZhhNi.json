@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVL5cA6xUP87YWZhhNi",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T13:00:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14787,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; most top doc-friction items (post_similarity file arg, lean zstd, quality fix-mode wording) were already fixed, so finding a live one took several greps. Critique via the friction table still found one (hearth README list)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/README.md",
+      "why": "Replaced 190 hand-written story summaries with a generated one-line index; the summaries already live on the site and in llms.txt, and a hand list had drifted 44% behind.",
+      "did": "generated block + stale-file test",
+      "result": "all 340 listed, README 92 KB -> 44 KB"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode. Lens: doc friction (prompts/creative/prompt-0.md 2026-11-11T10:04). Measured 190/340 stories listed in hearth-and-horizon README plus 4 strays below the disclaimer. Fix: generate.mjs writes the list; existing stale-file test covers it; new once-each test. Venture tests 13/13 pass; generate --check current; check_md_links, post checks ok; main_health 55/55 before. No backlog ids touched (none agent-owned open).",
+  "corrections": [],
+  "redteam": null
+}
