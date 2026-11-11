@@ -162,6 +162,12 @@ test("the carry-over guide's numbers come from the code and the real fixture dat
   for (const r of low.rounds) for (const [h] of r.matches) home[h]++;
   for (const h of home) assert.ok(h === 3 || h === 4);
   assert.ok(html.includes("a carry-over value of 48"));
+  // the field construction paragraph: 16 teams, single and home-and-away, at the floor
+  const f16 = lowCarryOverRounds(16, { effort: 0.2 });
+  assert.equal(f16.coe, f16.lowerBound);
+  assert.ok(html.includes(`a value of ${f16.coe}`));
+  const c16 = lowCarryOverRounds(16, { field: false });
+  assert.ok(html.includes(`stopped at ${c16.coe}`));
   // real fixture table
   const { run } = await import("./eval/carryover-real.mjs");
   const rows = run();

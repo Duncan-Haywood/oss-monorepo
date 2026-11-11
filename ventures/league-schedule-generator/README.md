@@ -514,6 +514,60 @@ which is why odd leagues' capped tries were weighted stand-ins.
   opponents at the other ground) gives no bound above the generic floor (360), so the question stays
   open; a tighter bound would need the per-team order of opponents.
 
+## Perfect carry-over at 4, 8, 16 and 32 teams: the field start (2026-11-11, later)
+
+Every search above starts from the circle method and anneals. At 16 teams it stopped at 316 against a
+floor of 224, at 32 teams at 1,538 against 960. Those sizes have an exact answer: when the league
+(a bye team included) has a power-of-two size N, Russell (1980) showed a round robin exists with every
+carry-over count 0 or 1.
+
+- **Construction** (`carryover.mjs`, `fieldOpp`, `fieldGenerators`, `fieldApplies`). Label the teams with
+  the elements of the finite field GF(N) (bit strings; addition is XOR) and let team x meet x + g^r in
+  round r, where g generates the field's multiplicative group. Each round is a perfect matching (x + g^r
+  + g^r = x), each pair {x, y} meets in the one round with g^r = x + y, and team t's two consecutive
+  opponents differ by g^r (1 + g), which fixes r; so every ordered pair is one team's carry-over step
+  exactly once. Removing one team as the bye keeps every count at 0 or 1 too (7, 15, 31 teams).
+  Reduction polynomials for N = 4 to 128 are built in.
+- **Which one.** Every generator and starting round gives the same, least carry-over; they differ in
+  breaks. `lowCarryOverRounds` tries them all (16 teams: 8 generators x 15 starts) and keeps the one the
+  greedy venue pass gives the fewest breaks, then `assignVenues` sets home/away. Because the
+  carry-over pass already sits at the floor it stops at once. With a break weight the second pass still
+  runs, but the result is now scored exactly against the untraded field timetable and the better one
+  kept: the greedy stand-in had traded 16 teams' 224 / 24 breaks for 256 / 24.
+- `field: false` restores the old circle start (for comparisons). Other sizes are unchanged.
+- **Measured** (`node eval/field-start.mjs`, `eval/field-start.txt`; seed 1, effort 1; carry-over / breaks):
+
+  | Teams | Season | Setting | Circle start | Field start | Floor |
+  |---|---|---|---|---|---|
+  | 15 | single | carry-over only | 259 / 43 | 195 / 41 | 195 |
+  | 15 | single | break weight 10 | 323 / 46 | 195 / 41 | 195 |
+  | 15 | home and away | carry-over only | 895 / 141 | 843 / 99 | 795 |
+  | 15 | home and away | break weight 10 | 977 / 74 | 945 / 67 | 795 |
+  | 16 | single | carry-over only | 316 / 32 | 224 / 24 | 224 |
+  | 16 | single | break weight 10 | 350 / 22 | 224 / 24 | 224 |
+  | 16 | home and away | carry-over only | 1,048 / 110 | 912 / 64 | 912 |
+  | 16 | home and away | break weight 10 | 1,166 / 64 | 912 / 64 | 912 |
+  | 31 | single | carry-over only | 1,459 / 232 | 899 / 245 | 899 |
+  | 31 | home and away | break weight 10 | 4,823 / 475 | 4,321 / 443 | 3,627 |
+  | 32 | single | carry-over only | 1,538 / 140 | 960 / 106 | 960 |
+
+  Read plainly: at 16 teams the single round robin and the whole home-and-away season now reach the
+  least carry-over there is (the season with 64 breaks, the same as the old weighted search's
+  64 at 1,166), and at 15, 16 and 32 teams breaks fall too. At 8 teams the search already reached the
+  floor; the season with a break weight goes 224 / 20 to 216 / 16. At 7 teams nothing changes except 2
+  more breaks on the carry-over-only season (147 / 20 to 147 / 22). At 31 teams the carry-over-only
+  single leg has 13 more breaks (232 to 245) for 38% less carry-over. Full table in the file.
+- **What the page keeps** (16-team home-and-away season, the page's 8 weighted + 2 capped tries, seed
+  1, "balanced"; scratch run, one thread, 19.5 s): 996 carry-over / 48 breaks, against 1,220 / 54 before.
+  The tries' frontier went from 1,166/64, 1,220/54, 1,656/42 to 912/64, 976/52, 996/48, 1,656/42:
+  every old point but the capped minimum is beaten on both counts.
+- Tests: `field.test.mjs` (every generator and three starts at 4 to 32 teams are valid round robins
+  with every count 0 or 1, cyclic and not, with and without a bye; the search reaches the floor at 15,
+  16, 31 and 32; the break-weighted result never scores worse than the field timetable; the 16-team
+  season reaches 912). The carry-over guide quotes the 16-team figures (its test reads them from code).
+- Open: other sizes have no such construction in this code. Known constructions exist for some other
+  sizes in the literature (not read here); 12 teams (156 against 120) and 20 teams remain search-only.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`
