@@ -1,5 +1,15 @@
 # cell-fidelity research log
 
+## 2026-11-11 · Milestone 2a: is a short DFN run a better screen than a full SPMe run? (plan, written before the run)
+- Question: milestone 1 found that cycle count, not model reduction, carries most of the cost (DFN 100 cycles 27.9 s against 1.3 s for 2 cycles on the baseline). If the ranking of designs by DFN at cycle 10 already matches the 100-cycle DFN ranking, a short-horizon DFN screen beats the full-horizon SPMe screen the multi-fidelity literature would reach for. This is the fidelity grid the outcome entry below asked for (model x cycles), run before the dense Sobol benchmark (proposal milestone 2) so that benchmark caches the right rungs.
+- Data: the same 49 designs, the same protocol and OKane2022 parameters, PyBaMM 26.10.1.1 (as committed). New runs, one process per design and model: SPM 100 cycles, SPMe 100 cycles, DFN 30 cycles, recording the discharge energy of every cycle and the wall time at the end of every cycle (PyBaMM `on_cycle_end` callback, set-up included). Score at cycle n = discharge Wh of cycle n / stack mass, the `energy-cell` score with `cycles = n`; 0 if the run did not complete n cycles. Reference: the committed 100-cycle DFN scores (`energy-cell-dfn/experiments/dfn.jsonl`); a check re-runs DFN 100 cycles on design 0 against its committed 116.26 Wh/kg.
+- Comparator: 100-cycle SPMe against 100-cycle DFN, Spearman 0.834 on the committed scores (computed before this plan; it is the milestone 1 data).
+- H4 (ranking): Spearman(DFN at cycle 10, DFN at cycle 100) is at least 0.90. Refuted if below 0.834 (no better than full SPMe).
+- H5 (cost): the median over the 49 of DFN wall time to the end of cycle 10 is at most the median SPMe 100-cycle wall time. Refuted if above 1.5 times it.
+- H6 (screen): DFN-verifying the top 5 by DFN cycle 10 has regret to the DFN best of the 49 no larger than the top 5 by SPMe 100 (2.1 Wh/kg). Refuted if larger.
+- Also reported (no hypothesis): Spearman and top-k regret for every rung (SPM, SPMe at 2, 10, 30, 100; DFN at 2, 10, 30), a linear extrapolation of DFN to cycle 100 from cycles 2 and 10, and where the 7 milestone-1 untrusted designs rank under DFN at cycle 10.
+- Script: `experiments/horizon/run.py`; outcome logged above this entry.
+
 ## 2026-11-11 · Outcome: the flag works (AUC 0.997), but cycle count, not model reduction, is where the cost is
 - H1 supported: SPMe's 2-cycle minimum electrolyte concentration (`r_min`) separates the 7 untrusted designs from the 42 trusted with ROC AUC 0.997 (bootstrap 95% 0.980 to 1.000). The 3 solver failures count as `r_min = 0` by the plan; over the 46 designs SPMe solved, AUC is 0.994 (4 untrusted). A flag at `r_min <= 0.10` catches all 7 with 1 false flag (design 30, gap 0.17); at `r_min <= 0` it catches 6 with none.
 - H2 supported: Spearman(`r_min`, relative gap) = -0.833 over 49.
