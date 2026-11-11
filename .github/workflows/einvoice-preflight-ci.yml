@@ -60,6 +60,10 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
+      # The official PINT/ZATCA/plain-runner route needs slimdom and fontoxpath;
+      # without them 45 tests skip and mutants in report.mjs survive (red-team
+      # record 2026-11-11). Pinned, and not saved to a lockfile.
+      - run: npm i --no-save --no-package-lock slimdom@4.3.5 fontoxpath@3.34.0
       - run: node --test
 
   examples:
