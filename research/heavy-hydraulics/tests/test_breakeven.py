@@ -71,3 +71,58 @@ def test_rejects_bad_inputs():
     c = (Phase("x", 1.0, (Actuator(100, 10),)),)
     with pytest.raises(ValueError):
         breakeven_margin(c, Q, oc_pressures=[90.0])
+
+
+from heavy_hydraulics.breakeven import trace_breakeven  # noqa: E402
+
+
+def _trace(rng, n=400):
+    out = []
+    for _ in range(n):
+        secs = []
+        for _ in range(2):
+            q = rng.choice((0.0, rng.uniform(-5, 0), rng.uniform(0, 3), rng.uniform(3, 80)))
+            p = None if rng.random() < 0.05 else rng.uniform(5, 250)
+            secs.append((q, p, q > rng.uniform(0, 3), rng.uniform(0, 8)))
+        out.append((rng.uniform(40, 140), tuple(secs)))
+    return out
+
+
+def _ls_oc(samples, dt, m, pn, q_sb, extra_drop=0.0):
+    k = dt / 0.6
+    ls = oc = 0.0
+    for q_fix, secs in samples:
+        known = [p for q, p, _, _ in secs if q > 0 and p is not None]
+        qt = sum(q for q, _, _, _ in secs if q > 0)
+        ls += (qt * (max(known) + m) if known else q_sb * m) * k
+        on = [(q, p, d + extra_drop) for q, p, o, d in secs if o and q > 0 and p is not None]
+        if on:
+            oc += max(q_fix, sum(q for q, _, _ in on)) * max(p + d for _, p, d in on) * k
+        else:
+            oc += q_fix * pn * k
+    return ls, oc
+
+
+def test_trace_breakeven_equalises_ls_and_oc():
+    rng = random.Random(5)
+    for _ in range(20):
+        s = _trace(rng)
+        pn, q_sb = rng.uniform(0, 15), rng.choice((0.0, 2.0, 5.0))
+        r = trace_breakeven(s, 0.002, pn, q_sb)
+        ls, oc = _ls_oc(s, 0.002, r["m"], pn, q_sb)
+        assert ls == pytest.approx(oc, rel=1e-9)
+        assert r["OC"] == pytest.approx(oc, rel=1e-9)
+        assert r["A"] + r["S"] + r["D"] + r["I"] == pytest.approx(oc, rel=1e-9)
+        lo, _ = _ls_oc(s, 0.002, r["m"] - 1.0, pn, q_sb)
+        assert lo < oc
+
+
+def test_trace_breakeven_slopes_are_exact():
+    rng = random.Random(6)
+    s = _trace(rng)
+    r0 = trace_breakeven(s, 0.002, 5.0, 2.0)
+    r1 = trace_breakeven(s, 0.002, 6.0, 2.0)
+    assert r1["m"] - r0["m"] == pytest.approx(r0["dm_dpn"], rel=1e-9)
+    s2 = [(qf, tuple((q, p, o, d + 1.0) for q, p, o, d in secs)) for qf, secs in s]
+    r2 = trace_breakeven(s2, 0.002, 5.0, 2.0)
+    assert r2["m"] - r0["m"] == pytest.approx(r0["dm_ddrop"], rel=1e-9)

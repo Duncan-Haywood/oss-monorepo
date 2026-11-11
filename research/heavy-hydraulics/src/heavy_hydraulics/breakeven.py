@@ -60,3 +60,46 @@ def share_ls_worse(margins, m):
     """Percent of cycles in which LS uses more energy than open-centre at margin m."""
     margins = list(margins)
     return 100.0 * sum(x < m for x in margins) / len(margins)
+
+
+def trace_breakeven(samples, dt, p_neutral, q_standby=0.0):
+    """Exact break-even LS margin (bar) on a sampled trace (milestone 5t).
+
+    samples: iterable of (q_fix, sections); q_fix is the open-centre pump flow (L/min) at that
+    sample and each section is (q, p, oc_on, drop): P-port flow (L/min), inlet pressure (bar, None
+    if unknown), whether open-centre counts the section as moving, and its open-centre spool drop
+    (bar) on top of p. Load-sensing delivers the summed positive demand at the highest known load
+    pressure plus m on samples where some section has q > 0 and a known p, and q_standby at m
+    elsewhere. Open-centre delivers max(q_fix, moving demand) at max(p + drop) over its moving
+    sections, else q_fix at p_neutral. Energies are bar*L/min*s/600 = J (no pump efficiency).
+
+    Returns dict with m, the open-centre energy OC = A + S + D + I + ... split as:
+    A (LS energy at zero margin), S (open-centre flow at load pressure minus A: surplus flow),
+    D (open-centre spool drop), I (open-centre neutral bleed), B (LS J per bar of margin),
+    and the slopes dm_ddrop (constant extra spool drop) and dm_dpn (neutral pressure)."""
+    k = dt / 0.6
+    A = Bm = n_still = S_oc = D = I = q_mv = q_still = 0.0
+    for q_fix, secs in samples:
+        known = [(q, p) for q, p, _, _ in secs if q > 0 and p is not None]
+        if known:
+            A += sum(q for q, _, _, _ in secs if q > 0) * max(p for _, p in known) * k
+            Bm += sum(q for q, _, _, _ in secs if q > 0) * k
+        else:
+            n_still += 1
+        on = [(q, p, d) for q, p, o, d in secs if o and q > 0 and p is not None]
+        if on:
+            q_oc = max(q_fix, sum(q for q, _, _ in on))
+            p_in = max(p for _, p, _ in on)
+            p_oc = max(p + d for _, p, d in on)
+            S_oc += q_oc * p_in * k
+            D += q_oc * (p_oc - p_in) * k
+            q_mv += q_oc * k
+        else:
+            I += q_fix * p_neutral * k
+            q_still += q_fix * k
+    B = Bm + q_standby * n_still * k
+    if B <= 0:
+        raise ValueError("load-sensing delivers no volume, so the margin has no effect")
+    S = S_oc - A
+    return {"m": (S + D + I) / B, "A": A, "S": S, "D": D, "I": I, "B": B, "OC": S_oc + D + I,
+            "dm_ddrop": q_mv / B, "dm_dpn": q_still / B}
