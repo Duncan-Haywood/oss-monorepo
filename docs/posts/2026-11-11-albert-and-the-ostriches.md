@@ -1,6 +1,6 @@
 ---
 title: "Go and look: a bedtime story about Saint Albert the Great and the ostriches"
-seo_title: "Saint Albert the Great bedtime story for kids: the ostriches and the Dumb Ox"
+seo_title: "Saint Albert the Great bedtime story: the ostriches and the Dumb Ox"
 date: 2026-11-11
 tags: [fiction, little-lamps, saints, bedtime-stories, albert-the-great, science]
 description: "A new Little Lamps story for ages 3 to 8: Saint Albert tests the old claim that ostriches eat iron, then sees what the others missed in a quiet student."
