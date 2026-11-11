@@ -21,7 +21,7 @@ Needs Python 3.10+ and `ffmpeg`. Run from `ventures/photo-editing/` in a clone:
 ## What comes out
 
 - `proxies/`: photos up to 1024 px, H.264 video up to 960 px, for review.
-- `graded/`: full-resolution masters with the LUT applied (ProRes 422 HQ for .MOV, high-bitrate H.264 for .MP4, photos in their own format).
+- `graded/`: full-resolution masters with the LUT applied (ProRes 422 HQ for .MOV, high-bitrate H.264 for .MP4, photos in their own format). Under `--grade-scope selected`, clips the storyline does not pick are graded at proxy resolution instead.
 - `deliverables/`: `instagram_reel.mp4` (1080x1920, clips up to 4 s each, up to 90 s total, no audio) and 1080x1350 (4:5) JPEG carousels and photo sets.
 
 ## Behaviour that matters
@@ -33,5 +33,5 @@ Needs Python 3.10+ and `ffmpeg`. Run from `ventures/photo-editing/` in a clone:
 
 - RAW stills (.CR3, .ARW, .NEF, .DNG ...) are scored from the camera's embedded JPEG preview. DNGs are developed from their sensor data (bilinear demosaic, as-shot white balance, camera matrix, sRGB; matches LibRaw within one 8-bit step on a real Nikon and Canon file; pure Python, tens of seconds per 12-21 MP frame, or 1.5-2.6 s with numpy installed, byte-identical output), by hand with `shootflow develop` and, since 2026-11-10, by the nightly pipeline's grade stage into 16-bit TIFF masters; a DNG with no embedded preview is proxied and scored from a half-size development. Other RAW formats stop at the grade with a message to convert them to DNG first. Camera-raw video is not decoded.
 - It sees faces and closed eyes only through an opt-in external detector command (`SHOOTFLOW_FACE_DETECTOR`; an OpenCV reference script is included, with no real blink data yet). The cull has not been compared with a photographer's real picks. The scene and look stages are deterministic stand-ins. The preview reader, tilt and noise measures are tested on synthetic data only.
-- Every asset is graded before selection; grading only selected shots is not built yet.
+- By default every asset gets a full-resolution master. `run-local-pipeline --grade-scope selected` gives full masters only to the clips and photos the storyline picks for a reel, carousel or photo set. The rest are graded from their review proxy and get a `.review-grade.json` note. On a 12-clip 1080p test card this cut the grade stage from 164 s to 88 s; it has not been run on real 4K camera footage.
 - Not professional editing advice; the tool is provided as-is without warranty.

@@ -191,12 +191,16 @@ flagships:
       stills into 16-bit TIFF masters and preview-less DNGs are proxied and
       scored from a half-size develop (real Nikon sensor DNG end to end in
       75 s, master bit-identical to `shootflow develop`;
-      eval/pipeline-dng-grade-2026-11-10.md). Next, most valuable first:
+      eval/pipeline-dng-grade-2026-11-10.md). Grade only the picks landed
+      2026-11-11 (`--grade-scope selected`, README "Grade only the picks",
+      eval/grade-scope-2026-11-11.md): unpicked clips graded from their proxy
+      with a note, story stage refuses a review-graded pick; synthetic 12-clip
+      1080p card, grade stage 164 s to 88 s; default stays all. Next, most
+      valuable first: that saving on real 4K camera footage and a long shoot;
       develop speed, rest of it (optional numpy engine landed 2026-11-10,
       byte-identical, 31 s to 1.5 s on the 12 MP Nikon, pipeline 74.5 s to
       7.5 s, README "Speed with numpy"; still pure: the file reader and the
-      lossless-JPEG decoder, unmeasured on a camera-written DNG); grade only the
-      selected shots; a camera- or phone-written DNG with lossless-JPEG tiles
+      lossless-JPEG decoder, unmeasured on a camera-written DNG); a camera- or phone-written DNG with lossless-JPEG tiles
       (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink model
       and a real shoot with a photographer's picks (wanted: a labelled
       portrait set); photos with a real horizon and human tilt labels.
