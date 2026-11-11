@@ -590,6 +590,11 @@ export const SERVED_EXTENSIONS = new Map([
   // dupehound's browser build (WebAssembly); mime.types lists application/wasm wasm (nginx 1.21+),
   // and GitHub Pages serves it as application/wasm.
   ['.wasm', 'stock'],
+  // systemd-unit-hardening-check's test fixtures (fixtures/app.service, app.service.d/*.conf),
+  // plain systemd unit text. No page fetches them; they are published only as part of the tree.
+  // mime-db has no entry for either, so Cloudflare may serve octet-stream: harmless for a download.
+  ['.service', 'stock'],
+  ['.conf', 'stock'],
 ]);
 
 /**
