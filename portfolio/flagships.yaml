@@ -243,25 +243,22 @@ flagships:
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
       CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons).
       Worker pool landed 2026-11-11 (README "Eight searches on a pool of workers"): the page runs
-      eight tries split over one Web Worker per core (carryOverTry, splitCarryOverTries,
-      combineCarryOverTries; same season on any core count, tested); 8 x effort 1 vs 4: 18 teams
-      score 2,307 to 2,247 (breaks 73.3 to 68.7), 20 teams 2,907 to 2,880. Capped breaks 2026-11-11
+      eight tries over one Web Worker per core (same season on any core count). Capped breaks 2026-11-11
       (README "Carry-over under a cap on breaks"): lowCarryOverCappedRounds, 8 + 2 capped tries, a
       "fewest" choice; 18 teams 2,154-2,674 at the minimum 48 (Bundesliga 3,474+ at 48), 20 teams
-      4,734-5,080 at 54. Odd leagues 2026-11-11 later (README "Odd leagues: zero-break home/away"):
-      assignVenues two-colours stretches between byes (odd circle 0 breaks, balanced; was 46 at 19),
-      run moves, never worse than the old pass; odd capped tries run the capped search (15 teams ~300
-      at 12-16 breaks vs 35-40). Pattern-first 20-team leg tried, not landed (README).
-      Field start 2026-11-11 later (README "Perfect
+      4,734-5,080 at 54. Odd leagues 2026-11-11 later (README "Odd leagues: zero-break home/away"): odd circle 0 breaks (was 46 at 19). Field start 2026-11-11 later (README "Perfect
       carry-over at 4, 8, 16 and 32 teams"): Russell's GF(2^k) timetable, every count 0 or 1, at
       power-of-two sizes (bye included); 16 teams 316 to 224 (floor), 16-team season 1,048 to 912
-      (floor), page's balanced pick 1,220/54 to 996/48. Next, most valuable first: constructions for
-      other common sizes (12, 10, 14, 20: from the literature, e.g. starters or Latin-square based
-      ones, checked against the search); a bound for the
-      minimum-break pattern (per-team opponent order), or a 20-team leg at 22-30 breaks from a
-      non-circle timetable; 19-team odd legs (1,147+ at 20); the search's gap to the floor (12 teams
-      156 vs 120); a real league's travel times (to check the 1.3 x 40 km/h estimate),
-      unavailable-date requests and duty rota; a paper print check.
+      (floor). Starter start 2026-11-11 latest (README "Starter
+      timetables for 6 to 40 teams"): built-in sampled starters (starterOpp, STARTERS,
+      eval/starter-search.mjs), search runs from both starts and keeps the better; 20 teams 448 to 360
+      (floor, every count 0 or 1), 18 teams 412 to 318, 22 teams 654 to 516; the season search keeps
+      the plain mirror when better (20-team season 1,750/118 to 1,460/116, the floor). Next, most
+      valuable first: a better starter search past 22 teams (hill-climb on the starter; a 10,000-sample
+      scratch run found 22 teams 478, 24 teams 570 vs the table's 516/654), then other constructions
+      (Latin-square based, from the literature) for 12 teams (152 vs 120); a bound for the
+      minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter timetable; a real
+      league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

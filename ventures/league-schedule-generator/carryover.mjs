@@ -171,6 +171,97 @@ function bestFieldOpp(N, n) {
   return best;
 }
 
+// ---------------------------------------------------------- starter construction
+//
+// Other even sizes have no field, but most have a starter timetable far better than the circle
+// method. A starter in Z_p (p = N - 1, odd) pairs up the residues 1 .. p - 1 so that the pair
+// differences +-(y - x) cover every nonzero residue exactly once. Team p plays the part of
+// "infinity": in round r, with s = step * (r + start) mod p, every starter pair {x, y} becomes the
+// match {x + s, y + s} and s meets team p. Each round is a perfect matching, and each pair {a, b}
+// meets once, in the one round whose shift carries the starter pair with difference +-(b - a) onto
+// it (or, for team p, the round where s = a). The circle method is the starter {i, -i}, the worst
+// of them for carry-over; eval/starter-search.mjs samples random starters with every step and
+// start and keeps the lowest non-cyclic carry-over for each size, with all N teams playing ("even")
+// and with team p as the bye ("odd"). Measured in eval/starter-search.txt: 20 teams reach the
+// floor (360, every count 0 or 1), where the annealing search from the circle start stopped at 448.
+
+/** The searched starters: N -> { even, odd }, each [step, x1, y1, x2, y2, ...] (eval/starter-search.mjs). */
+export const STARTERS = {
+  6: { even: [1, 1, 4, 2, 3], odd: [1, 1, 4, 2, 3] },
+  10: { even: [4, 1, 4, 2, 6, 3, 5, 7, 8], odd: [4, 1, 4, 2, 6, 3, 5, 7, 8] },
+  12: { even: [2, 1, 4, 2, 8, 3, 10, 5, 6, 7, 9], odd: [2, 1, 4, 2, 8, 3, 10, 5, 6, 7, 9] },
+  14: { even: [2, 1, 2, 3, 6, 4, 11, 5, 9, 7, 12, 8, 10], odd: [2, 1, 5, 2, 9, 3, 8, 4, 6, 7, 10, 11, 12] },
+  18: { even: [5, 1, 8, 2, 13, 3, 11, 4, 16, 5, 7, 6, 10, 9, 12, 14, 15], odd: [5, 1, 8, 2, 13, 3, 11, 4, 16, 5, 7, 6, 10, 9, 12, 14, 15] },
+  20: { even: [9, 1, 6, 2, 11, 3, 7, 4, 16, 5, 18, 8, 10, 9, 17, 12, 15, 13, 14], odd: [9, 1, 6, 2, 11, 3, 7, 4, 16, 5, 18, 8, 10, 9, 17, 12, 15, 13, 14] },
+  22: { even: [10, 1, 5, 2, 12, 3, 8, 4, 19, 6, 9, 7, 14, 10, 18, 11, 20, 13, 15, 16, 17], odd: [2, 1, 18, 2, 12, 3, 9, 4, 16, 5, 19, 6, 11, 7, 15, 8, 10, 13, 14, 17, 20] },
+  24: { even: [9, 1, 12, 2, 22, 3, 21, 4, 19, 5, 15, 6, 10, 7, 16, 8, 14, 9, 11, 13, 20, 17, 18], odd: [4, 1, 9, 2, 12, 3, 8, 4, 15, 5, 22, 6, 13, 7, 10, 11, 20, 14, 16, 17, 21, 18, 19] },
+  26: { even: [11, 1, 9, 2, 14, 3, 4, 5, 23, 6, 21, 7, 13, 8, 19, 10, 12, 11, 16, 15, 24, 17, 20, 18, 22], odd: [11, 1, 9, 2, 14, 3, 4, 5, 23, 6, 21, 7, 13, 8, 19, 10, 12, 11, 16, 15, 24, 17, 20, 18, 22] },
+  28: { even: [7, 1, 21, 2, 25, 3, 17, 4, 22, 5, 10, 6, 7, 8, 16, 9, 12, 11, 23, 13, 19, 14, 24, 15, 26, 18, 20], odd: [11, 1, 8, 2, 25, 3, 6, 4, 12, 5, 11, 7, 17, 9, 21, 10, 24, 13, 22, 14, 16, 15, 26, 18, 23, 19, 20] },
+  30: { even: [3, 1, 22, 2, 9, 3, 26, 4, 5, 6, 8, 7, 25, 10, 20, 11, 24, 12, 21, 13, 27, 14, 17, 15, 19, 16, 28, 18, 23], odd: [11, 1, 22, 2, 26, 3, 10, 4, 15, 5, 17, 6, 9, 7, 20, 8, 12, 11, 21, 13, 28, 14, 16, 18, 27, 19, 25, 23, 24] },
+  34: { even: [1, 1, 27, 2, 21, 3, 8, 4, 26, 5, 9, 6, 15, 7, 23, 10, 16, 11, 12, 13, 31, 14, 24, 17, 29, 18, 20, 19, 32, 22, 30, 25, 28], odd: [1, 1, 27, 2, 21, 3, 8, 4, 26, 5, 9, 6, 15, 7, 23, 10, 16, 11, 12, 13, 31, 14, 24, 17, 29, 18, 20, 19, 32, 22, 30, 25, 28] },
+  36: { even: [8, 1, 5, 2, 26, 3, 24, 4, 13, 6, 34, 7, 23, 8, 10, 9, 21, 11, 33, 12, 15, 14, 31, 16, 22, 17, 32, 18, 28, 19, 27, 20, 25, 29, 30], odd: [8, 1, 5, 2, 26, 3, 24, 4, 13, 6, 34, 7, 23, 8, 10, 9, 21, 11, 33, 12, 15, 14, 31, 16, 22, 17, 32, 18, 28, 19, 27, 20, 25, 29, 30] },
+  38: { even: [12, 1, 18, 2, 10, 3, 16, 4, 7, 5, 9, 6, 29, 8, 34, 11, 27, 12, 31, 13, 15, 14, 26, 17, 23, 19, 20, 21, 36, 22, 32, 24, 33, 25, 30, 28, 35], odd: [12, 1, 18, 2, 10, 3, 16, 4, 7, 5, 9, 6, 29, 8, 34, 11, 27, 12, 31, 13, 15, 14, 26, 17, 23, 19, 20, 21, 36, 22, 32, 24, 33, 25, 30, 28, 35] },
+  40: { even: [11, 1, 34, 2, 7, 3, 15, 4, 19, 5, 12, 6, 9, 8, 29, 10, 21, 11, 31, 13, 22, 14, 28, 16, 32, 17, 25, 18, 35, 20, 33, 23, 24, 26, 30, 27, 37, 36, 38], odd: [19, 1, 22, 2, 35, 3, 13, 4, 32, 5, 28, 6, 9, 7, 27, 8, 10, 11, 38, 12, 19, 14, 36, 15, 16, 17, 30, 18, 33, 20, 24, 21, 29, 23, 37, 25, 34, 26, 31] },
+};
+
+/** True when a searched starter is built in for N teams (N even, a bye team included). */
+export function starterApplies(N) {
+  return STARTERS[N] !== undefined;
+}
+
+/**
+ * The starter round robin on N teams (N even) as opp[r][t]. `pairs` is the starter, [[x, y], ...]
+ * over Z_(N-1); team N - 1 is the fixed point. Throws if `pairs` is not a starter or `step` is not
+ * coprime to N - 1 (either would break the round robin).
+ */
+export function starterOpp(N, pairs, { step = 1, start = 0 } = {}) {
+  const p = N - 1;
+  if (!Number.isInteger(N) || N < 4 || N % 2) throw new Error(`A starter timetable needs an even number of teams, not ${N}.`);
+  const seen = new Uint8Array(p), diff = new Uint8Array(p);
+  for (const [x, y] of pairs) {
+    if (!(x > 0 && x < p && y > 0 && y < p) || seen[x] || seen[y] || x === y) throw new Error("Not a starter: every residue 1 .. N - 2 must appear once.");
+    seen[x] = seen[y] = 1;
+    const d = (y - x + p) % p, e = Math.min(d, p - d);
+    if (diff[e]) throw new Error("Not a starter: two pairs share a difference.");
+    diff[e] = 1;
+  }
+  if (pairs.length !== (p - 1) / 2) throw new Error("Not a starter: every residue 1 .. N - 2 must appear once.");
+  let g = step, h = p;
+  while (h) [g, h] = [h, g % h];
+  if (g !== 1) throw new Error(`The step must be coprime to ${p}.`);
+  const rounds = [];
+  for (let r = 0; r < p; r++) {
+    const s = (((step * (r + start)) % p) + p) % p;
+    const o = new Int16Array(N);
+    o[s] = p; o[p] = s;
+    for (const [x, y] of pairs) { const a = (x + s) % p, b = (y + s) % p; o[a] = b; o[b] = a; }
+    rounds.push(o);
+  }
+  return rounds;
+}
+
+/**
+ * The built-in starter for N teams (n real; n = N - 1 means team N - 1 is the bye), at the start
+ * with the least carry-over and, among those, the fewest breaks after the greedy venue pass.
+ * Null when no starter is built in for N.
+ */
+function bestStarterOpp(N, n, cyclic) {
+  const entry = STARTERS[N]?.[n === N ? "even" : "odd"];
+  if (!entry) return null;
+  const [step, ...flat] = entry;
+  const pairs = [];
+  for (let i = 0; i < flat.length; i += 2) pairs.push([flat[i], flat[i + 1]]);
+  let best = null, bestC = Infinity, bestB = Infinity;
+  for (let start = 0; start < N - 1; start++) {
+    const o = starterOpp(N, pairs, { step, start });
+    const c = coeOf(o, n, cyclic);
+    if (c > bestC) continue;
+    const b = greedyBreaks(o, n);
+    if (c < bestC || b < bestB) { best = o; bestC = c; bestB = b; }
+  }
+  return best;
+}
+
 /** COE over real teams only (a phantom's "games" are byes and are skipped). */
 function coeOf(opp, n, cyclic) {
   const R = opp.length;
@@ -239,19 +330,36 @@ function cycleOf(opp, r, s, t) {
  * method over round swaps and partial round swaps, seeded, so the same seed gives the same rounds.
  * `effort` scales the iterations (1 is about a quarter of a second for 20 teams in Node).
  * `field` (default true): when the league size, a bye team included, is a power of two (4, 8, 16,
- * 32, ...), start from the perfectly balanced field timetable (fieldOpp) instead of the circle method.
+ * 32, ...), start from the perfectly balanced field timetable (fieldOpp) instead of the circle method;
+ * at other sizes with a built-in starter (STARTERS: 6 to 40 teams), the search runs from both the
+ * circle method and the starter timetable (starterOpp) and keeps the better (`start` says which).
  * Returns { rounds, coe, circleCoe, lowerBound, breaks, iterations }.
  */
-export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true } = {}) {
+export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
+  if (field && !fromStarter && !fieldApplies(N) && starterApplies(N)) {
+    // A starter start is far better at some sizes (20 teams: the floor, 360, against 448) and
+    // worse after annealing at others (11, 13 and 30 teams), so both run in full and the better on
+    // the search's own score is kept; a tie keeps the circle start, so no size gets worse.
+    const base = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field: false });
+    const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: true });
+    const score = (r) => r.coe + breakWeight * r.breaks;
+    return score(st) < score(base) ? { ...st, start: "starter" } : { ...base, start: "circle" };
+  }
   const rand = mulberry32(seed);
   let opp = circleOpp(N);
   const circleCoe = coeOf(opp, n, cyclic);
   // a power of two (a phantom included): start from the perfectly balanced field timetable, which
   // is already at the floor, so the carry-over pass stops at once (see fieldOpp)
-  const useField = field && fieldApplies(N);
+  let useField = field && fieldApplies(N);
   if (useField) opp = bestFieldOpp(N, n);
+  else if (fromStarter) {
+    // other even sizes: the searched starter (see starterOpp); the caller compares the result
+    // with the circle start's
+    opp = bestStarterOpp(N, n, cyclic);
+    useField = true;
+  }
   const R = N - 1;
   let cur = coeOf(opp, n, cyclic);
   let best = cur, bestOpp = opp.map((o) => o.slice());
@@ -720,9 +828,17 @@ function hostBreaks(opp, n, R, host) {
  * at `legBreaks` (default a third of the season cap) and leg two moves on carry-over alone without
  * the season going over `maxBreaks` (or over the fewest its starts allow, if that is more).
  */
-export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true } = {}) {
+export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
+  if (field && !fromStarter && maxBreaks == null && !fieldApplies(N) && starterApplies(N)) {
+    // as in lowCarryOverRounds: the season searched from a circle-start leg and from a
+    // starter-start leg, the better kept (a tie keeps the circle start)
+    const base = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field: false });
+    const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: true });
+    const score = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
+    return score(st) < score(base) ? { ...st, start: "starter" } : { ...base, start: "circle" };
+  }
   const R = N - 1;
   const rand = mulberry32((seed * 2654435761) >>> 0);
   // with a season cap, leg one is the capped search at half of it (each leg's breaks are about
@@ -730,7 +846,9 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
   const capped = maxBreaks != null;
   const single = capped
     ? lowCarryOverCappedRounds(n, { seed, effort, maxBreaks: legBreaks ?? Math.floor(maxBreaks / 3) })
-    : lowCarryOverRounds(n, { seed, effort, breakWeight, field });
+    : fromStarter
+      ? lowCarryOverRounds(n, { seed, effort, breakWeight, field, fromStarter: true })
+      : lowCarryOverRounds(n, { seed, effort, breakWeight, field });
   const leg1 = oppFromRounds(single.rounds, N, n);
   // host[t * N + u] = t when t hosts u in leg one (the single search's home/away)
   const host = new Int16Array(N * N).fill(-1);
@@ -795,7 +913,25 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
   });
   let breaks = 0;
   for (let t = 0; t < n; t++) breaks += teamBreaks(venues, opp, t, n);
-  return { rounds, coe: coeOf(opp, n, false), repeats: repeatsAcross(opp, n, R), mirroredCoe, circleCoe, lowerBound: lb, breaks, iterations };
+  const searched = { rounds, coe: coeOf(opp, n, false), repeats: repeatsAcross(opp, n, R), mirroredCoe, circleCoe, lowerBound: lb, breaks, iterations };
+  if (capped) return searched;
+  // The plain mirror (leg one again, grounds swapped) as a candidate too: when leg one is perfectly
+  // balanced (a field or a 20-team starter leg) the mirror is already at the floor, and the
+  // second-leg search can only add breaks (20 teams, weight 10: 1,478 / 122 against the
+  // mirror's 1,460 / 116). Kept only when strictly better on the search's own score.
+  const mOpp = [...leg1, ...leg1];
+  const mVenues = Array.from({ length: 2 * R }, () => new Uint8Array(N));
+  const mRounds = [];
+  for (let leg = 0; leg < 2; leg++) single.rounds.forEach((r, i) => {
+    const matches = r.matches.map(([h, a]) => (leg ? [a, h] : [h, a]));
+    for (const [h] of matches) mVenues[leg * R + i][h] = 1;
+    mRounds.push({ leg, matches, bye: r.bye });
+  });
+  let mBreaks = 0;
+  for (let t = 0; t < n; t++) mBreaks += teamBreaks(mVenues, mOpp, t, n);
+  const mirrored = { rounds: mRounds, coe: mirroredCoe, repeats: repeatsAcross(mOpp, n, R), mirroredCoe, circleCoe, lowerBound: lb, breaks: mBreaks, iterations, mirrored: true };
+  const score = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
+  return score(mirrored) < score(searched) ? mirrored : searched;
 }
 
 const REPEAT_PENALTY = 1000;

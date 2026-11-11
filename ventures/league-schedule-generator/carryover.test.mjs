@@ -186,11 +186,20 @@ test("the carry-over guide's numbers come from the code and the real fixture dat
     assert.ok(html.includes(`<td>${fmt(r.circle)}</td><td>${r.circleBreaks}</td>`), `circle ${r.teams}`);
     assert.ok(html.includes(`<td>${fmt(r.balanced)}</td><td>${r.balancedBreaks}</td>`), `tool ${r.teams}`);
     assert.ok(html.includes(`<td>${fmt(r.whole)}</td><td>${r.wholeBreaks}</td>`), `whole season ${r.teams}`);
-    assert.ok(r.whole < r.balanced);
+    assert.ok(r.whole <= r.balanced);
   }
+  // 18 teams: searching the second half beats the mirror; 20 teams: the mirror is the floor
+  assert.ok(r18.whole < r18.balanced);
+  assert.ok(html.includes(`from ${fmt(r18.balanced)} to ${fmt(r18.whole)}`) && html.includes(`(${r18.wholeBreaks})`));
+  assert.equal(r20.whole, r20.doubleLowerBound);
+  assert.ok(html.includes(`scores ${fmt(r20.whole)} with ${r20.wholeBreaks} breaks`));
+  // the starter paragraph: 20 teams at the floor, against the circle start
+  const s20 = lowCarryOverRounds(20, { effort: 0.2 });
+  assert.equal(s20.coe, s20.lowerBound);
+  assert.ok(html.includes(`a value of ${s20.coe}, where the search from the circle method stopped at ${lowCarryOverRounds(20, { field: false }).coe}`));
   // 20 teams, whole season: below every professional 20-team season, breaks inside their range
   assert.ok(r20.whole < tLo && r20.wholeBreaks >= bLo && r20.wholeBreaks <= bHi);
-  assert.ok(html.includes(`from ${fmt(r20.balanced)} to ${fmt(r20.whole)}`) && html.includes(`(${r20.wholeBreaks}, inside their ${bLo} to ${bHi})`));
+  assert.ok(html.includes(`${fmt(r20.whole)} with ${r20.wholeBreaks} breaks, below every one of the 14 professional 20-team seasons (inside their ${bLo} to ${bHi} breaks)`));
   assert.match(readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8"), /how-to-balance-carry-over-in-a-round-robin\.html/);
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\/how-to-balance-carry-over-in-a-round-robin\.html"/);
 });
