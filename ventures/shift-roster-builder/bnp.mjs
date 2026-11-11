@@ -18,9 +18,10 @@ const EPS = 1e-9;
 // for any row with no identity column; a basic artificial left positive at the optimum means the node is infeasible.
 // `warm` (optional) is a basis from an earlier solve of the same rows, as `basis` returns it: a column id, or -1 - r for the
 // artificial of row r. Column ids must mean the same columns (callers only append columns between solves).
-export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null } = {}) {
+// `bigM` is the cost of an artificial; it must exceed every column cost (the whole-score LP has open shifts at 100,000 per hour).
+export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, bigM = 1e6 } = {}) {
   const n = cols.length;
-  const BIG_M = 1e6;
+  const BIG_M = bigM;
   // Column ids >= n are artificials: id n + r covers row r.
   const basis = warm ? Int32Array.from(warm, (j) => (j >= 0 ? j : n + (-1 - j))) : Int32Array.from(init, (j, r) => (j >= 0 ? j : n + r));
   const colRows = (j) => (j < n ? cols[j] : [j - n]);
@@ -234,26 +235,45 @@ export function branchAndPriceOpen(sets, len, { incumbentOpen = Infinity, nodeLi
 // other copy at no cost, so the bound never rises (measured: 47.00 at every node of the rolling-gap 10x28 set 0 for 100,000
 // nodes, against an optimum of 48). A node whose LP is settled and whose class shares are all 0 or 1 is solved: every set
 // p uses at that node holds the same classes, so handing each holder of a class a different copy is a roster at the LP value.
-export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, warm = true } = {}) {
+//
+// Costed columns (2026-11-10, later): the same search bounds any objective of the form  sum over open shifts of openCost[s]  +  sum over
+// people of cost(p, set), when `price` also returns the set's `cost` and its `value` is sum of w[s] over the set minus that cost.
+// The open-hours LP is the case openCost = len, cost = 0. The whole roster score (pay, penalties and 100,000 per open hour) is
+// another (scoreBoundByColumnGeneration in calc.mjs); pass `unit: 0` there so bounds are not rounded to the hour grid.
+export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, warm = true, openCost = null, unit: unitOpt = null, tolerance = 0 } = {}) {
   const S = len.length;
+  const oc = openCost || len;
+  let maxCost = 0;
+  for (const c of oc) if (c > maxCost) maxCost = c;
+  const bigM = Math.max(1e6, maxCost * 1000);
   const C = cls ? Int32Array.from(cls) : Int32Array.from({ length: S }, (_, s) => s);
   const copies = new Map();
   for (let s = 0; s < S; s++) { if (!copies.has(C[s])) copies.set(C[s], []); copies.get(C[s]).push(s); }
-  const unit = hourUnit(len);
+  const unit = unitOpt ?? hourUnit(len);
   const t0 = Date.now();
   const timeUp = () => Date.now() - t0 > ms;
   const stats = { nodes: 0, pivots: 0, ms: 0, columns: 0, rounds: 0, pricingCalls: 0, inexactPricing: 0, maxPricingNodes: 0, pricingMs: 0, classes: copies.size };
   const pool = [], seen = new Set();
-  const addCol = (p, set) => {
+  const addCol = (p, set, cost = 0) => {
     const f = [...set].sort((a, b) => a - b);
     const key = p + ":" + f.join(",");
     if (seen.has(key)) return false;
-    seen.add(key); pool.push({ p, f }); stats.columns++;
+    seen.add(key); pool.push({ p, f, cost }); stats.columns++;
     return true;
   };
-  for (let p = 0; p < P; p++) addCol(p, []);
+  // Each person's empty set starts the pool (it keeps every person row covered); with costed columns its cost comes from the
+  // oracle with every price at zero and every shift banned, which can only return the empty set.
+  const allBanned = new Set(Array.from({ length: S }, (_, s) => s));
+  for (let p = 0; p < P; p++) addCol(p, [], openCost ? price(p, new Float64Array(S), [], allBanned).cost || 0 : 0);
   let best = incumbentOpen, bestRoster = null;
-  const cut = (b) => roundUp(b, unit) >= best - 1e-9;
+  // A node is cut when its bound cannot beat the best roster by more than `tolerance`. The lowest bound cut that way is kept, so
+  // the floor reported stays valid when the tolerance (not the bound) closed the search.
+  let cutLow = Infinity;
+  const cut = (b) => {
+    const r = roundUp(b, unit);
+    if (r >= best - tolerance - 1e-9) { if (r < cutLow) cutLow = r; return true; }
+    return false;
+  };
 
   // fix: Map key p*S+k -> 1 (p holds a copy of class k) or 0 (p holds no copy of class k).
   const evalNode = (fix, parentBound) => {
@@ -265,25 +285,24 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
       if (v === 1) needCls[p].push(k); else for (const s of copies.get(k)) ban[p].add(s);
     }
     const fits = ({ p, f }) => f.every((s) => !ban[p].has(s)) && needCls[p].every((k) => f.some((s) => C[s] === k));
-    let lb = parentBound, z = Infinity, lp = null, cols = null, owner = null, members = null, settled = false
+    let lb = parentBound, z = Infinity, lp = null, cols = null, owner = null, members = null, cost = null, settled = false
     let prevBasis = null;
     for (let round = 0; round < maxRounds; round++) {
       stats.rounds++;
-      cols = []; owner = []; members = [];
-      const cost = [];
+      cols = []; owner = []; members = []; cost = [];
       const init = new Int32Array(S + P).fill(-1);
-      for (let s = 0; s < S; s++) { init[s] = cols.length; cols.push([s]); cost.push(len[s]); owner.push(-1); members.push([s]); }
+      for (let s = 0; s < S; s++) { init[s] = cols.length; cols.push([s]); cost.push(oc[s]); owner.push(-1); members.push([s]); }
       for (const c of pool) {
         if (!fits(c)) continue;
         if (c.f.length === 0) init[S + c.p] = cols.length;
         const rows = c.f.slice(); rows.push(S + c.p);
-        cols.push(rows); cost.push(0); owner.push(c.p); members.push(c.f);
+        cols.push(rows); cost.push(c.cost); owner.push(c.p); members.push(c.f);
       }
       try {
         // Within a node the pool only grows at the end and `fits` does not change, so last round's basis is still a feasible
         // basis of this round's LP: start from it (warm) rather than from the artificials. A failed warm solve retries cold.
-        try { lp = solveLP(S + P, cols, cost, init, { warm: warm ? prevBasis : null }); }
-        catch (e) { if (!warm || !prevBasis) throw e; lp = solveLP(S + P, cols, cost, init); }
+        try { lp = solveLP(S + P, cols, cost, init, { warm: warm ? prevBasis : null, bigM }); }
+        catch (e) { if (!warm || !prevBasis) throw e; lp = solveLP(S + P, cols, cost, init, { bigM }); }
         prevBasis = lp.basis;
       } catch (e) {
         // A solver failure (pivot limit, singular basis) stops this node with the bound it already has, which is still valid;
@@ -308,11 +327,14 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
         if (!r.exact) { exact = false; stats.inexactPricing++; }
         if (!r.set) { lagr = Infinity; continue; }
         const rc = -r.value - lp.y[S + p];
-        if (rc < -1e-9) { if (addCol(p, r.set)) added++; lagr += rc; }
+        // Any negative reduced cost lowers the Lagrangian bound (so it stays valid under rounding); only a clearly negative one is a new
+        // column, or the duals' rounding (about 1e-10 of 100,000-per-hour open costs) would add columns forever.
+        if (rc < 0) lagr += rc;
+        if (rc < -1e-9 * (1 + Math.abs(lp.y[S + p])) && addCol(p, r.set, r.cost || 0)) added++;
       }
       if (lagr === Infinity) return { bound: Infinity }; // someone has no valid set under this node's fixes
       if (exact) lb = Math.max(lb, lagr);
-      if (!added) { if (exact) { lb = Math.max(lb, lp.infeasible ? Infinity : z); settled = true; } break; }
+      if (!added) { if (exact) { lb = Math.max(lb, lp.infeasible ? Infinity : lagr); settled = true; } break; }
       if (cut(lb) || timeUp()) break;
     }
     if (lb === Infinity) return { bound: Infinity };
@@ -332,11 +354,12 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
       // Every class share is 0 or 1: build the roster from each person's heaviest column, giving holders distinct copies.
       const roster = new Int32Array(S).fill(-1);
       const free = new Map([...copies].map(([k, ss]) => [k, ss.slice()]));
-      let ok = true;
+      let ok = true, used = 0;
       for (let p = 0; p < P && ok; p++) {
         let bj = -1;
         for (let j = 0; j < cols.length; j++) if (owner[j] === p && lp.x[j] > EPS && (bj < 0 || lp.x[j] > lp.x[bj])) bj = j;
         if (bj < 0) continue;
+        used += cost[bj];
         for (const s of members[bj]) {
           const k = C[s], list = free.get(k);
           const at = list.includes(s) ? list.indexOf(s) : 0; // keep p's own copy when it is still free
@@ -345,10 +368,11 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
         }
       }
       if (ok) {
-        let openH = 0;
-        for (let s = 0; s < S; s++) if (roster[s] < 0) openH += len[s];
+        // Copies of a class cost the same to whoever holds them, so the roster's value is the chosen columns' costs plus the open shifts.
+        let openH = used;
+        for (let s = 0; s < S; s++) if (roster[s] < 0) openH += oc[s];
         if (openH < best - 1e-9) { best = openH; bestRoster = roster; }
-        solved = openH <= lb + 1e-7;
+        solved = openH <= lb + 1e-7 * (1 + Math.abs(lb));
       }
     }
     return { fix, bound: lb, pick, settled, solved };
@@ -384,7 +408,7 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
   }
   let low = best;
   for (const nd of open) if (nd.bound < low) low = nd.bound;
-  const floor = Math.min(best, roundUp(low, unit));
+  const floor = Math.min(best, roundUp(low, unit), cutLow);
   stats.ms = Date.now() - t0;
-  return { floor, rootLP, rootSettled: root.settled, best: best === Infinity ? null : best, roster: bestRoster, proven: (!aborted && open.length === 0) || floor >= best - 1e-9, openNodes: open.length, stats };
+  return { floor, rootLP, rootSettled: root.settled, best: best === Infinity ? null : best, roster: bestRoster, proven: (!aborted && open.length === 0) || floor >= best - tolerance - 1e-9, openNodes: open.length, stats };
 }
