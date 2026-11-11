@@ -2,6 +2,12 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-11 · Milestone 2b: is the drape coefficient's EA dependence physics or membrane locking? (predictions in `experiments/m2b_locking/run.py`'s docstring, committed before the first run)
+- Why: milestone 2a read the climb of DC with EA (0.19 to 0.78 on fabric A from 150 to 12,800 N/m) as locking of the square spring grid, on two grids only. Milestone 1c then found the shallow-arm width choice moves with EA on the same grid. Before either is read as physics, refine the grid: gravity strains are under 0.1% here (W g L / EA, L = 6 cm, EA 150), so a converged near-inextensible sheet should not care about EA.
+- Plan: milestone 2a's `cusick.solve` unchanged (DC moves under 0.001 per 2000 L-BFGS iterations, cap 100,000); fabrics A and D; EA 150, 800, 3200 N/m; grids 7.5, 5, 3.75, 2.5 mm; seed 0, plus seed 1 at EA 3200 on 3.75 mm; 26 cases. Read the overhang's axis-spring strains (share compressed, mean compressive strain) to separate locking (high EA) from a soft membrane that shortens its circumference by compressing instead of folding (low EA).
+- Predictions: L1 at EA 3200, DC falls monotonically with refinement on both fabrics, by at least 0.05 in total; L2 DC(3200) − DC(800) at 2.5 mm is under half its 5 mm value on both; L3 the 7.5 to 2.5 mm change is larger at EA 3200 than at 150 on both; L4 mean compressive strain on 5 mm over 1% at EA 150 and under 0.3% at EA 3200, both fabrics; L5 even at 2.5 mm, EA 800 and 3200 differ by more than 0.03 on at least one fabric.
+- Outcome: pending.
+
 ## 2026-11-11 · Milestone 1c: does 1b's tier disagreement survive the unmeasured stretch stiffness and the mesh? (predictions in `experiments/m1c_ea_mesh/run.py`'s docstring, committed before the first run)
 - Why: milestone 2a showed the 3D spring sheet's drape moves with EA and the grid as much as with B (locking). The shallow-arm sheet of 1b is the same grid, so its 0.5 cm disagreement with the 2D chain might be an artefact.
 - Plan: 1b's converged solve (chunks of 3000 L-BFGS iterations until the whole-sheet error moves under 0.002 cm, cap 60,000), wood-shaped profile on the 3 cm arm, fabrics A and D, offsets 0 to +3 cm in half-cm steps; EA 40, 150, 800 N/m at the base mesh (5 mm rows, 9 depth columns), and at EA 150 7.5 mm rows or 13 depth columns; the 2D chain at the same EA and row spacing. 70 cases.
