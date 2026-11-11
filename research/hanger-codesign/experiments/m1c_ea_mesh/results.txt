@@ -1,0 +1,96 @@
+hanger-codesign milestone 1c. Size M, wood-shaped profile, 3 cm half-depth arm, whole-sheet shape
+error (cm RMS), converged with milestone 1b's rule (chunks of 3000, stop when the error moves
+< 0.002 cm over a chunk, cap 60000). 2D chain at the same EA and row spacing.
+
+1. per case: config fabric offset err3d iterations last_chunk_change converged seconds err2d
+EA150_ds5mm_nz9 A +0.0 2.2928 18000 0.0005 True 53 0.7904
+EA150_ds5mm_nz9 A +0.5 2.1356 18000 0.0012 True 52 0.3840
+EA150_ds5mm_nz9 A +1.0 2.0458 18000 0.0013 True 51 0.1822
+EA150_ds5mm_nz9 A +1.5 2.0402 15000 0.0009 True 44 0.5080
+EA150_ds5mm_nz9 A +2.0 2.0774 18000 0.0005 True 51 0.8987
+EA150_ds5mm_nz9 A +2.5 2.1905 15000 0.0010 True 42 1.2889
+EA150_ds5mm_nz9 A +3.0 2.3535 15000 0.0009 True 42 1.6684
+EA150_ds5mm_nz9 D +0.0 2.5457 18000 0.0000 True 50 0.8797
+EA150_ds5mm_nz9 D +0.5 2.3402 21000 0.0000 True 58 0.4735
+EA150_ds5mm_nz9 D +1.0 2.1987 15000 0.0007 True 43 0.2124
+EA150_ds5mm_nz9 D +1.5 2.1288 18000 0.0001 True 49 0.4614
+EA150_ds5mm_nz9 D +2.0 2.1331 15000 0.0008 True 43 0.8434
+EA150_ds5mm_nz9 D +2.5 2.2087 15000 0.0009 True 42 1.2325
+EA150_ds5mm_nz9 D +3.0 2.3433 15000 0.0001 True 45 1.6129
+EA40_ds5mm_nz9 A +0.0 2.7498 12000 0.0003 True 36 1.0962
+EA40_ds5mm_nz9 A +0.5 2.5214 18000 0.0012 True 56 0.6962
+EA40_ds5mm_nz9 A +1.0 2.3526 18000 0.0007 True 54 0.4222
+EA40_ds5mm_nz9 A +1.5 2.2447 18000 0.0004 True 56 0.4732
+EA40_ds5mm_nz9 A +2.0 2.2090 12000 0.0013 True 38 0.7827
+EA40_ds5mm_nz9 A +2.5 2.2477 21000 0.0013 True 62 1.1505
+EA40_ds5mm_nz9 A +3.0 2.3363 18000 0.0019 True 58 1.5206
+EA40_ds5mm_nz9 D +0.0 3.5515 12000 0.0008 True 36 1.6060
+EA40_ds5mm_nz9 D +0.5 3.2639 18000 0.0007 True 55 1.2464
+EA40_ds5mm_nz9 D +1.0 3.0145 15000 0.0001 True 44 0.9683
+EA40_ds5mm_nz9 D +1.5 2.8200 18000 0.0005 True 52 0.8270
+EA40_ds5mm_nz9 D +2.0 2.6838 18000 0.0002 True 52 0.9131
+EA40_ds5mm_nz9 D +2.5 2.6218 27000 0.0008 True 81 1.1596
+EA40_ds5mm_nz9 D +3.0 2.6393 21000 0.0010 True 63 1.4615
+EA800_ds5mm_nz9 A +0.0 2.1625 21000 0.0011 True 64 0.7277
+EA800_ds5mm_nz9 A +0.5 1.9917 21000 0.0005 True 63 0.3375
+EA800_ds5mm_nz9 A +1.0 2.0271 24000 0.0008 True 70 0.2349
+EA800_ds5mm_nz9 A +1.5 2.0555 21000 0.0016 True 64 0.5742
+EA800_ds5mm_nz9 A +2.0 2.0515 6000 0.0006 True 18 0.9619
+EA800_ds5mm_nz9 A +2.5 2.2814 18000 0.0011 True 52 1.3487
+EA800_ds5mm_nz9 A +3.0 2.4584 18000 0.0011 True 52 1.7252
+EA800_ds5mm_nz9 D +0.0 2.1839 24000 0.0005 True 66 0.7391
+EA800_ds5mm_nz9 D +0.5 2.0680 18000 0.0012 True 50 0.3434
+EA800_ds5mm_nz9 D +1.0 1.9337 6000 0.0007 True 18 0.2186
+EA800_ds5mm_nz9 D +1.5 2.0402 21000 0.0006 True 62 0.5587
+EA800_ds5mm_nz9 D +2.0 2.1268 15000 0.0020 True 44 0.9478
+EA800_ds5mm_nz9 D +2.5 2.2652 15000 0.0010 True 44 1.3358
+EA800_ds5mm_nz9 D +3.0 2.4443 15000 0.0006 True 44 1.7131
+EA150_ds7.5mm_nz9 A +0.0 2.2689 15000 0.0014 True 27 0.7970
+EA150_ds7.5mm_nz9 A +0.5 2.1174 18000 0.0003 True 33 0.3917
+EA150_ds7.5mm_nz9 A +1.0 2.0193 15000 0.0014 True 26 0.1790
+EA150_ds7.5mm_nz9 A +1.5 2.0101 15000 0.0017 True 26 0.5060
+EA150_ds7.5mm_nz9 A +2.0 2.0776 15000 0.0013 True 26 0.8955
+EA150_ds7.5mm_nz9 A +2.5 2.1862 12000 0.0009 True 20 1.2902
+EA150_ds7.5mm_nz9 A +3.0 2.3598 15000 0.0002 True 26 1.6734
+EA150_ds7.5mm_nz9 D +0.0 2.4856 15000 0.0007 True 28 0.8922
+EA150_ds7.5mm_nz9 D +0.5 2.3569 15000 0.0002 True 25 0.4842
+EA150_ds7.5mm_nz9 D +1.0 2.1952 18000 0.0004 True 30 0.2158
+EA150_ds7.5mm_nz9 D +1.5 2.1419 15000 0.0004 True 26 0.4557
+EA150_ds7.5mm_nz9 D +2.0 2.1515 15000 0.0001 True 26 0.8404
+EA150_ds7.5mm_nz9 D +2.5 2.2190 9000 0.0014 True 16 1.2346
+EA150_ds7.5mm_nz9 D +3.0 2.3566 15000 0.0000 True 24 1.6124
+EA150_ds5mm_nz13 A +0.0 2.2054 15000 0.0012 True 60 0.7904
+EA150_ds5mm_nz13 A +0.5 2.0572 21000 0.0010 True 86 0.3840
+EA150_ds5mm_nz13 A +1.0 1.9814 21000 0.0016 True 84 0.1822
+EA150_ds5mm_nz13 A +1.5 1.9773 21000 0.0014 True 85 0.5080
+EA150_ds5mm_nz13 A +2.0 2.0505 18000 0.0017 True 68 0.8987
+EA150_ds5mm_nz13 A +2.5 2.1916 15000 0.0010 True 61 1.2889
+EA150_ds5mm_nz13 A +3.0 2.4003 18000 0.0009 True 71 1.6684
+EA150_ds5mm_nz13 D +0.0 2.3752 18000 0.0001 True 70 0.8797
+EA150_ds5mm_nz13 D +0.5 2.2609 33000 0.0006 True 131 0.4735
+EA150_ds5mm_nz13 D +1.0 2.1423 30000 0.0019 True 120 0.2124
+EA150_ds5mm_nz13 D +1.5 2.1011 33000 0.0013 True 132 0.4614
+EA150_ds5mm_nz13 D +2.0 2.1206 21000 0.0008 True 83 0.8434
+EA150_ds5mm_nz13 D +2.5 2.2174 15000 0.0002 True 61 1.2325
+EA150_ds5mm_nz13 D +3.0 2.3862 21000 0.0011 True 85 1.6129
+
+2. decisions: config fabric best3d err3d@best margin3d(runner-up minus best) best2d gap(3d-2d)
+EA150_ds5mm_nz9 A +1.5 2.0402 0.0056 +1.0 +0.5
+EA150_ds5mm_nz9 D +1.5 2.1288 0.0043 +1.0 +0.5
+EA40_ds5mm_nz9 A +2.0 2.2090 0.0356 +1.0 +1.0
+EA40_ds5mm_nz9 D +2.5 2.6218 0.0175 +1.5 +1.0
+EA800_ds5mm_nz9 A +0.5 1.9917 0.0354 +1.0 -0.5
+EA800_ds5mm_nz9 D +1.0 1.9337 0.1065 +1.0 +0.0
+EA150_ds7.5mm_nz9 A +1.5 2.0101 0.0093 +1.0 +0.5
+EA150_ds7.5mm_nz9 D +1.5 2.1419 0.0096 +1.0 +0.5
+EA150_ds5mm_nz13 A +1.5 1.9773 0.0041 +1.0 +0.5
+EA150_ds5mm_nz13 D +1.5 2.1011 0.0195 +1.0 +0.5
+
+cases meeting the stopping rule: 70 of 70
+error at the 3D best across EA (max - min): A 0.2174, D 0.6880
+
+R1 base best +1.5 on both fabrics: held
+R2 EA 40-800 moves the 3D best by <= 0.5 cm: refuted
+R3 each mesh change moves the 3D best by <= 0.5 cm: held
+R4 3D best >= 2D best everywhere, strictly wider in >= 8 of 10: refuted
+R5 error at the best moves > 0.05 cm across EA on some fabric: held
