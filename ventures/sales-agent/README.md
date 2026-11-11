@@ -112,6 +112,13 @@ longer read as a bounce. Internal mail, not replies to outreach, and labelled by
 agent: details and labels in [`eval/README.md`](eval/README.md), "Real mail: the Enron
 corpus".
 
+**Second round, 2026-11-11, on a third unread half.** Lotus Notes quote headers
+are now cut (quoted history caused a third of the wrong stops left), and "I left",
+"please contact" and "I'm out" need the shape of a real departure, referral or away
+notice. Scored once on 9,584 replies never read while tuning, labelled blind by a
+separate agent: wrong stops 171 to 88 (17.8 to 9.2 per 1,000), right stops 76 to 79,
+precision 29% to 46%. Details: [`eval/README.md`](eval/README.md), "Second round".
+
 **Real opt-outs, 2026-11-10.** The other direction: of 113 distinct real
 "take me off this list" messages found in the rest of the Enron corpus (451,475
 messages, candidates chosen by a net written apart from the rules and read with

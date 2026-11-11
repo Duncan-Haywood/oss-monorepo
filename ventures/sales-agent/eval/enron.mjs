@@ -84,9 +84,12 @@ if (process.argv[1] && import.meta.url === new URL(`file://${path.resolve(proces
   for (const f of out.flagged) if (!show || f.category === show) console.log(`\n--- ${f.category} [${f.matched}] ${f.id}\n${show ? f.body.slice(0, 1200) : f.evidence}`);
   const lf = args.includes("--labels") ? args[args.indexOf("--labels") + 1] : null;
   if (lf) {
-    const lab = new Map(JSON.parse(fs.readFileSync(lf, "utf8")).rows.map((r) => [r.id, r.label]));
+    // dev/held rows carry a right/wrong label; fresh.json rows carry the reader's own category (`reader`), which is right
+    // when it equals the category fired now.
+    const lab = new Map(JSON.parse(fs.readFileSync(lf, "utf8")).rows.map((r) => [r.id, r]));
+    const verdict = (r, cat) => r.label || (r.reader === cat ? "right" : r.reader === "ambiguous" ? "ambiguous" : "wrong");
     const tally = { right: 0, wrong: 0, ambiguous: 0, unlabelled: 0 };
-    for (const f of out.flagged) tally[lab.get(f.id) || "unlabelled"]++;
+    for (const f of out.flagged) tally[lab.has(f.id) ? verdict(lab.get(f.id), f.category) : "unlabelled"]++;
     console.log(`against ${lf}: ${JSON.stringify(tally)}`);
   }
   if (show === "misses") for (const m of [...out.auto.misses, ...out.bounce.misses]) console.log(m);
