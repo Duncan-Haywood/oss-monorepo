@@ -58,6 +58,23 @@ Illustrative cycle written from memory; no dynamics, leakage, line losses or ene
 no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
 public measured cycle), then parts cost with [`heavy-market`](../heavy-market/) (step 1a, used-price depreciation and size scaling from real auction data, landed 2026-11-10).
 
+## Milestone 5s: the break-even margin in closed form
+
+In this model load-sensing energy is affine in its margin and open-centre energy does not depend on it, so each cycle has an exact break-even margin
+
+    m* = (S + D + I) / B
+
+with S the surplus pump flow dropped at the highest load pressure while moving, D the pump flow times the open-centre spool drop while moving, I the neutral bleed at idle less load-sensing's idle work, and B the volume load-sensing delivers (moving plus idle and standby). Load-sensing beats open-centre in a cycle exactly when its margin is below m*, so the margin at which the median LS/OC is 1 is the median of m*. [`src/heavy_hydraulics/breakeven.py`](src/heavy_hydraulics/breakeven.py) implements it (5 tests); [`experiments/breakeven_closed_form.py`](experiments/breakeven_closed_form.py) runs it on the programme's 3,000 cycles ([results](experiments/breakeven_closed_form_results.txt)).
+
+| Setting | Grid break-even | Closed form |
+|---|---|---|
+| constant 6 bar spool drop (2n) | 28.0 bar | 27.97 bar |
+| PVG 32 floor, per-phase sizing (5p) | 26.5 | 26.55 |
+| PVG 32 floor, per-function envelope sizing (5q) | 23.0 | 23.00 |
+| zero spool drop (5q) | 20.6 | 20.53 |
+
+Every grid answer is reproduced within 0.075 bar and every LS-worse share within 0.03 points. The slopes the programme read off its sweeps are exact ratios: 1.235 bar of margin per bar of spool drop (pump volume while moving over LS volume) and 0.916 per bar of neutral pressure (pump volume at idle over LS volume). At zero spool drop the per-cycle break-even spans 10.7 to 34.1 bar (5 to 95%), and surplus flow carries about 61% of it, idle bleed 39% (the registered guess that idle dominates was refuted). A builder can evaluate the formula on their own cycle from phase times, flows and peak pressures, without the simulator.
+
 ## Milestone 5q: size the open-centre sections per function
 
 5p sized a spool for each actuator in each phase; a machine picks one section per function for the largest flow it must pass. Mapping dig to arm + bucket, lift/lower to boom, dump to bucket and the swings to swing (our reading), the envelope rule gives arm spool B and boom, bucket and swing D. On the same 3,000 force-model cycles:
