@@ -53,7 +53,7 @@
     "docs/posts/2026-11-11-sales-agent-reads-your-mbox.md"
   ],
   "goal": null,
-  "notes": "Verification: old vs new MIME reader, 32,211 Enron 0* messages x latin1/UTF-8, 0 differences. eval/mailfile-enron.mjs on a 90 MB mbox of them: 32,210/32,211 identical to the server's read, 32,211 same category. Headless Chromium, page given the 90 MB mbox: 9,588 replies triaged in 17 s, no page errors; 390 px screenshot checked. node --test '*.test.mjs' 'self-host/*.test.mjs': 487 pass (476 before). New server test fails on the old agent.mjs (2 items, not 6). Leave-one-set-out guess score unchanged 28/57 after the label fix. PREFLIGHT_PLACEHOLDER",
+  "notes": "Verification: old vs new MIME reader, 32,211 Enron 0* messages x latin1/UTF-8, 0 differences. eval/mailfile-enron.mjs on a 90 MB mbox of them: 32,210/32,211 identical to the server's read, 32,211 same category. Headless Chromium, page given the 90 MB mbox: 9,588 replies triaged in 17 s, no page errors; 390 px screenshot checked. node --test '*.test.mjs' 'self-host/*.test.mjs': 487 pass (476 before). New server test fails on the old agent.mjs (2 items, not 6). Leave-one-set-out guess score unchanged 28/57 after the label fix. venture-preflight sales-agent: clean (after shortening the post description). run_workflow_locally --for-changes flagged two unguarded object-map lookups (inherited_keys.py); fixed with Object.hasOwn and re-run.",
   "corrections": [],
   "redteam": null
 }

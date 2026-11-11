@@ -37,7 +37,7 @@ export function guess(reply, model = MODEL) {
 // left_company); trained as its own class, a guess of it crashed runInbox (fixed 2026-11-11). Unknown labels are dropped.
 const ALIAS = { wrong_person: "left_company" };
 const KNOWN = new Set(["unsubscribe", "bounce", "not_interested", "left_company", "out_of_office", "not_now", "objection", "question", "interested", "unclear"]);
-export const trainingLabel = (r) => { const label = ALIAS[r.label] || r.label; return KNOWN.has(label) ? { ...r, label } : null; };
+export const trainingLabel = (r) => { const label = Object.hasOwn(ALIAS, r.label) ? ALIAS[r.label] : r.label; return KNOWN.has(label) ? { ...r, label } : null; };
 
 export const TRAINING_FILE = /^(replies|heldout|fresh-[\d-]+[a-z]?)\.jsonl$/;
 
