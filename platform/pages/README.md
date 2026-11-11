@@ -1977,6 +1977,26 @@ not yet in `browser_checks.py` (control-plane CI, its own PR).
 node platform/pages/ask-voice-icon.mjs
 ```
 
+### Checking a stuck result card fits the window
+
+Most calculators keep their result in a `position: sticky` card beside a long
+form. On 2026-11-11, 122 of the 193 such cards were taller than a 1280x800
+window with room to travel, so their lower part (copy buttons, the hour split,
+the notes) was out of reach while the card was stuck. `pf-site.js` now caps a
+card like that at the window's height and lets it scroll inside; the headline
+stays where it was (`sticky-fit.mjs`, pinned in a real browser by
+`sticky-fit.test.mjs`, which skips without Playwright). It is released on
+print, on a taller window, and when a recalculation shortens the card, and it
+leaves alone a card with no room to travel, so capping never moves the page.
+`sticky-fit-check.mjs` sweeps every tool page with a sticky element and exits 1
+listing any stuck card that still runs past the window. Same `BASE_URL` /
+`DIST` / `PLAYWRIGHT` variables as `sideways.mjs`, plus `HEIGHT` (default 800)
+and `ONLY_SLUGS`. Not in CI (Playwright).
+
+```
+node platform/pages/sticky-fit-check.mjs
+```
+
 ### Lighthouse on the pages a visitor sees first
 
 `lighthouse.mjs` runs Lighthouse (mobile by default) on the hub, /research/,

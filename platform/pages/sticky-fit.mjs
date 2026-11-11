@@ -24,9 +24,10 @@
  * height depends on the window, the font and what the calculator wrote, and
  * because 149 pages spell the rule 40 different ways. It touches only a sticky
  * element that is taller than the window *and* has room to travel. A card that
- * sets its own row's height cannot travel, so capping it would only shrink the
- * row and move the page; that case is left alone, which also means the cap
- * itself never shifts content below the layout (no layout shift on load).
+ * sets its own row's height either cannot travel, or (with more grid rows
+ * after it) would pull those rows up the page when capped; both are left
+ * alone, the second by capping, measuring the parent and undoing it in the
+ * same task. So the cap itself never shifts content (no layout shift on load).
  *
  * Candidates come from the page's stylesheet rules (`position: sticky`) and
  * `style` attributes, never from asking every element, the expensive part the
@@ -60,6 +61,7 @@ export const STICKY_FIT_JS = `
   var focusable='a[href],button,input,select,textarea,[tabindex]';
   var STYLE=['maxHeight','overflowY','scrollbarWidth','scrollbarColor'];
   var printing=false;
+  var moved=typeof WeakMap==='function'?new WeakMap():{get:function(){},set:function(){}};
   var release=function(el){
     el.removeAttribute(MARK);
     for(var k=0;k<STYLE.length;k++)el.style[STYLE[k]]='';
@@ -73,16 +75,19 @@ export const STICKY_FIT_JS = `
       var el=els[i],cs=getComputedStyle(el);
       var on=el.hasAttribute(MARK);
       var top=parseFloat(cs.top);
-      var want=false,avail=0;
+      var want=false,avail=0,par=el.parentElement,before=0;
       if(cs.position==='sticky'&&cs.top!=='auto'&&cs.bottom==='auto'&&top>=0&&el.parentElement){
         // The same gap below the card as its own top leaves above it.
         avail=Math.floor(vh-2*top);
-        var p=el.parentElement,ps=getComputedStyle(p);
-        var room=p.getBoundingClientRect().height-parseFloat(ps.paddingTop)-parseFloat(ps.paddingBottom);
+        var ps=getComputedStyle(par);
+        before=par.getBoundingClientRect().height;
+        var room=before-parseFloat(ps.paddingTop)-parseFloat(ps.paddingBottom);
         // Taller than the window, and its column is longer than it is: there
         // is travel, so part of it is out of reach while it is stuck. A card
         // that sets its own row's height has no travel and is left alone.
         want=avail>120&&el.scrollHeight>avail+1&&room>el.getBoundingClientRect().height+1;
+        // Already tried at this height and it moved the page: see below.
+        if(want&&!on&&moved.get(el)===el.scrollHeight)want=false;
       }
       if(want){
         if(!on){
@@ -100,6 +105,13 @@ export const STICKY_FIT_JS = `
         // and the cards' padding (20 px on most) would push the edge out again.
         var pad=cs.boxSizing==='border-box'?0:parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom)+parseFloat(cs.borderTopWidth)+parseFloat(cs.borderBottomWidth);
         el.style.maxHeight=Math.max(0,avail-pad)+'px';
+        // A card can have travel and still set its own grid row's height,
+        // with more rows after it (kitchen-tile-backsplash: the proposal
+        // sections). Capping that card shrinks the row and pulls everything
+        // below it up the page, a layout shift. Checked in the same task, so
+        // nothing is painted in between, and undone; the card is left as it
+        // was until its content changes height.
+        if(!on&&par.getBoundingClientRect().height<before-1){release(el);moved.set(el,el.scrollHeight);}
       }else if(on)release(el);
     }
   };

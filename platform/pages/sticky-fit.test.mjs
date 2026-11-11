@@ -93,6 +93,21 @@ test('a card with no room to travel is left alone (capping it would only move th
   });
 });
 
+test('a card that sets its own row height, with rows after it, is left alone (no layout shift)', { skip }, async () => {
+  // The card is longer than the form beside it, and the grid has a second row
+  // below: there is travel, but capping would pull that row up the page.
+  const html = page(30, 500).replace('</section></div>', '</section><div style="grid-column:1/-1;height:2000px" id="after"></div></div>');
+  await withPage(html, 700, async (p) => {
+    const s = await p.evaluate(() => ({
+      fit: document.querySelector('.result').hasAttribute('data-pf-sticky-fit'),
+      after: Math.round(document.getElementById('after').getBoundingClientRect().top + scrollY),
+      card: Math.round(document.querySelector('.result').getBoundingClientRect().height),
+    }));
+    assert.equal(s.fit, false);
+    assert.ok(s.after >= s.card, `the row below moved up to ${s.after}px, above the card's ${s.card}px foot`);
+  });
+});
+
 test('the cap follows the window and the card: a taller window or a shorter card releases it', { skip }, async () => {
   await withPage(page(30), 700, async (p) => {
     assert.equal((await state(p)).fit, true);
