@@ -1,5 +1,17 @@
 # sensing-selfcal research log
 
+## 2026-11-11 · Milestone 2 planned: does the view geometry predict the error, and can σ gate an update?
+
+Written before any milestone-2 experiment was run.
+
+- **Solver fix first.** Milestone 1's solves all stopped on the 1,000-evaluation cap. Fix the gauge by holding view 0's pose (rotation and translation) constant: that removes all 7 similarity directions (a fixed non-zero translation pins the scale), so the normal matrix is invertible and the intrinsics' covariance is the plain inverse, equal to the gauge-invariant pseudo-inverse. Raise the cap and record convergence status for every solve.
+- **H2 rerun (was the cap an artefact?).** Rerun milestone 1's 400 random subsets (same seeds) with the fixed solver. Predicted: rms z for 4–12 views stays within ±0.2 of 1.94 (the all-view f already agreed across starts to 0.001 px). Refuted if it moves by more than 0.2.
+- **View spread.** For each view, the board normal in the camera frame from the all-view Zhang poses. A subset's spread is the largest angle between two of its normals. All parallel normals is the planar critical case (Sturm and Maybank 1999): f is then unidentifiable.
+- **Near-critical subsets.** For sizes 3, 4, 5 and 6, enumerate every subset of the 13 views and keep the 20 with the smallest spread, per camera (160 solves), alongside the 400 random ones.
+- **H6 (geometry predicts error).** Pooled over random and near-critical subsets of 4–12 views, Spearman ρ between spread and |Δf|/f (against all-view Zhang) is ≤ −0.3 on each camera. Refuted if ρ > −0.3 on either.
+- **H7 (σ flags near-critical subsets).** On the near-critical subsets, rms z ≤ 2, i.e. σ grows as fast as the error. Refuted if rms z > 2.
+- **H4, first test (a precision gate).** Accept an update iff σ_f / f ≤ 0.5%. A good update has |Δf|/f ≤ 1%, a bad one > 2% (between is not scored). Pooled over all subsets and both cameras, the gate should reject ≥ 90% of bad updates and accept ≥ 90% of good ones. Refuted if either rate is below 90%. The proposal's χ² test against an old calibration needs a disturbed camera, which this data set does not have; that test waits for milestone 4.
+
 ## 2026-11-11 · Milestone 1 result: target-free BA matches Zhang to 0.2%, the board bends, σ is 2× optimistic
 
 - **H1 held.** All 13 views: target-free f 534.82 / 538.43 px against Zhang's 535.62 / 539.71 (left / right), gaps −0.15% / −0.24%, under 1σ; the same f from 0.7× and 1.3× starts.
