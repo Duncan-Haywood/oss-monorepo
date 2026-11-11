@@ -1,6 +1,6 @@
 ---
 title: "Our sales agent's second opinion was trained on 120 replies. We had 792."
-seo_title: "Retraining a reply classifier on all labelled data, scored leave-one-set-out"
+seo_title: "Retraining a reply classifier, scored leave-one-set-out"
 date: 2026-11-11
 tags: [sales-agent, evaluation]
 description: "The sales agent's word model now trains on 792 labelled replies. Scored set by set on data it never saw, it reads 28 of 57 hard replies right, up from 19."
