@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKny5PhCahszUbZ3jBD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T17:18:17Z",
+  "ended": "2026-11-11T17:35:00Z",
+  "wall_minutes": 21.05,
+  "tokens_in": 6780516,
+  "tokens_out": 41759,
+  "cost_usd": 3.2048,
+  "tool_calls": 61,
+  "task": "Deepen flagship 6 (shift-roster-builder): carry the short-cost fractile through the shift cut",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14842",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First cost-aware cut could drop a run of the minimum staff (leaving the shop unmanned at r=1/3); caught by inspecting short/over in the probe, fixed with cost.keep and a test before the eval was rerun.",
+    "First version let a priced window stretch across a lunch closure; the existing lunch-closure test caught it; windows may no longer reach into more shut hours or an inner break than the usual stretch.",
+    "Launched preflight with a relative path from the venture dir (module not found); reran from repo root."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Shell cwd drifted into the venture directory between calls (environment updates), so a `cd /repo && ...` inside a backgrounded subshell group ran relative paths from the wrong place; absolute paths avoided it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top Deepen rows (ai-bookkeeper, changepoint-detector) had PRs opened 0-2h ago and sales-agent's items all need outside readers, keys or real mailboxes; took flagship 6 (shift-roster-builder), whose item needed only the two public bakery files already used.",
+      "did": "Landed the cost-aware cut on flagship 6",
+      "result": "Merged slice with real-data measurement"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-shift-roster-the-shift-ate-the-forecast.md",
+    "ventures/shift-roster-builder/README.md (The cost-aware cut)"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (259.1s), 1 suites run, 0 failed; node platform/pages/venture-preflight.mjs shift-roster-builder -> preflight clean; check_post_frontmatter and check_post_links clean. eval/cut-cost.mjs: aware cut beats plain cut for the fractile at 30/30 settings with paired 95% CIs below zero; vs pre-change default (average, plain cut) -4.7 to -110.4 person-hours/week. No agent doc in docs/reports: README and flagships next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "23946ad6-5d3d-5cde-8565-78406dc36372",
+    "transcripts": 1,
+    "first": "2026-11-11T17:18:17Z",
+    "last": "2026-11-11T17:39:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 114,
+        "output": 41759,
+        "thinking": 11027,
+        "cache_read": 6650524,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129878,
+        "api_equivalent_usd": 3.2048,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 114,
+      "output": 41759,
+      "thinking": 11027,
+      "cache_read": 6650524,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129878,
+      "api_equivalent_usd": 3.2048,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 59,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.05,
+      "active_minutes": 21.05,
+      "model_minutes": 7.94,
+      "tool_minutes": 13.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design, implement and measure a cost-aware shift cut with tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 312.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
