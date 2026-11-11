@@ -1,0 +1,13 @@
+ok   Nile summary equals Node: "volume, 100 values. 1 jump too big for the drift: 1899 (-249, -2.1 noise sd). Be..."
+ok   jumps table equals Node (1899 alone; tbody aside)
+ok   notes equal Node
+ok   chart drawn with the wandering-level legend and headings
+ok   per-point CSV equals Node
+ok   AIC refused: "The wandering-level model takes the BIC penalty or a custom number; AIC and Hannan-Quinn are not defined for it."
+ok   ticked logs are reported as ignored
+tree-ring, 7980 points, browser cores 4: driftResult in Node 5739 ms; page click returned in 0 ms, results 5675 ms after it; a 50 ms timer fired 112 times, worst 35 ms late
+ok   tree-ring summary equals Node
+ok   page answers while it runs (click < 200 ms, timer lag < 200 ms)
+ok   the level model afterwards shows its own legend and tables
+ok   no page errors
+ok   without workers: the same Nile summary on the main thread

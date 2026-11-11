@@ -2361,7 +2361,7 @@ variance omega^2 and only a jump too big for the walk is a change.
   is in-sample and is not evidence; it stays an opt-in flag.
 - **Shipped.** `node cli.mjs series.csv --model drift [--drift-slope] [--penalty <number>]
   [--min-segment n] [--json]` (`drift-cli.mjs`; the text quotes the TCPD figures above, which a test
-  checks against the eval output, and cites the paper). Not on the page or in the agent tool yet.
+  checks against the eval output, and cites the paper). Not on the page or in the agent tool yet (both since 2026-11-11, "Jumps on a wandering level, on the page" below).
   Tests: `drift-level.test.mjs` (noise estimates, a step on white noise and on a walk, the optimal
   partition is exact against every single-change move, US GDP, Australian residents, the Nile miss,
   the CLI).
@@ -2579,3 +2579,44 @@ duplicate is not committed, and this section keeps only what it adds.
   data, not a default.
 - Tests: `drift-tails.test.mjs` (the check on known walks and noise, the text for each case, the
   JSON, the quoted figures against both eval outputs).
+
+## Jumps on a wandering level, on the page (2026-11-11)
+
+`--model drift` was CLI-only. It is the model that stops the plain level model cutting a smooth or
+wandering series into a staircase (TCPD F1 0.694 / 0.527 against the plain model's 0.477 / 0.296),
+so it belongs where most people meet the tool: the page.
+
+- **What changed.** "Look for a change in" has a fifth choice, **Sudden jumps on a level that
+  wanders (random walk)**, and a box **Take out a steady growth first** (the CLI's `--drift-slope`).
+  The run goes through the page's existing background worker (`analyze-job.mjs`, new job
+  `{ kind: 'drift', opts }` calling `driftResult`), so the page answers while the about 30 exact
+  partitions run. `drift-view.mjs` words the result for the page: a summary (the jumps with their
+  size in noise sds, the wander and the noise), the heavy-tail check in page words (the CLI's
+  "try `--model meanvar` on its differences" becomes the "Level and volatility" model), the TCPD
+  figures, a chart of the series with the fitted level drawn per stretch and a dashed line at each
+  jump, a jumps table (level before and after, jump, jump in noise sds), a stretches table and a
+  per-point CSV (`label,value,stretch,fitted_level`). The penalty takes BIC or a custom number; AIC
+  and Hannan-Quinn are refused with a message (they are not defined for this model here). Boxes the
+  model ignores (logs, season, trend, AR(1), noise floor, growth-rate test) are named in a note
+  rather than dropped silently. The branded report does not cover it yet and says so. Usage
+  counter `drift_run`, local like the others. The method section cites the paper (BibTeX added).
+- **Agents.** `node platform/agents/tools.mjs call changepoint-detector analyzeJob --input
+  '{"kind":"drift","opts":{"csv":"..."}}'` now reaches the model, since the page imports the
+  module (the tool exposes what the page imports).
+- **A fix found on the way.** With `--drift-slope`, each jump's size included one step of the
+  removed growth, because the fitted path adds the growth back. On Australian residents (growth
+  51.3 a quarter) the 1988 jump read +79.8 (+62.2 noise sd); it is +28.5 (+22.2). Where the jumps
+  fall is unchanged; only their reported size moves (`drift-level.mjs` `driftLevel`).
+- **Checked.** `drift-page.test.mjs`: the worker job equals `driftResult` after a structured
+  clone; Nile's summary, table, chart, stretches and CSV (1899 alone, -249, -2.11 noise sd); the
+  notes with and without the heavy-tail check; the penalty mapping and ignored options; the slope
+  fix; a flat series draws no NaN; labels escaped; the page wiring. `eval/drift-page-browser.mjs`
+  (headless Chromium, 4 cores, output `eval/drift-page-browser.out.txt`): summary, notes, jumps
+  table and CSV on the page equal Node's; AIC refused; logs reported as ignored; on tree-ring's
+  7,980 points the click returns at once, results show after about 5.7 s (5.7 s in Node) and a
+  50 ms timer is never more than 35 to 86 ms late across runs; without workers the same Nile
+  summary; switching back to the level model restores its legend, headings and tables; no page
+  errors.
+- **Not done.** The model is not in the agreed-changes panel (that needs fresh labelled data, as
+  "A step-robust omega" decided) and has no Bayesian view; the branded report and the several-columns
+  mode do not take it.
