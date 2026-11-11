@@ -2704,3 +2704,55 @@ fresh multi-column labelled data, not a finding.
 
 Where it still fails: apple's volume has volatility bursts, and the drift model reads them as
 jumps (30 cuts, 20 of them in 250-317), the same failure as `bank` and bitcoin in one column.
+
+## Volatility on a drifting level: a scale per segment (2026-11-11, measured, not offered)
+
+Flagship item (b): `--model drift` reads a burst of volatility as a run of jumps (`bank` 63 cuts where
+annotators mark none, bitcoin 52, apple's volume 30 in several-columns mode). `drift-level.mjs` now
+takes `scale: 'segment'`: every segment gets its own scale s, which multiplies both its noise sd and its
+wander sd (the wander-to-noise ratio q stays shared), so a calm stretch and a wild one are two segments,
+not a staircase of jumps. Each segment's s^2 is profiled out of its Kalman innovations
+(j log s^2 + sum log F + S / s^2 with s^2 = max(S / j, 0.01) in global-sigma units, `scaleCost`), the
+ML wander is chosen under the same cost, and the default penalty is 3 log n (a level and a scale per
+change, as `meanvar` has). Same O(n^2) exact partition: 1.5 s for all 38 TCPD series with the wander
+search. `driftLevel` reports each change's scale before and after (`scaleRatio`). No CLI flag.
+
+**Pre-registered** (headers of `eval/drift-scale-sim.mjs` and `eval/tcpd-drift-scale.mjs`, written
+before either was run): offer `--drift-scale segment` as an opt-in if (i) on a near-pure random walk
+whose step sd is 5x for 60 of 300 points it reports at most half the shipped model's cuts, (ii) on a
+3-sd step in white noise and a 5-sd step on a wander it finds the step at most 6 of 60 series less often,
+and (iii) its TCPD mean F1 is no more than 0.02 below the shipped drift on both sets. TCPD has been
+through many drift settings already, so (iii) is a guard, not evidence of a gain.
+
+- **Synthetic** (`eval/drift-scale-sim.out.txt`, n 300, 60 series a cell): the volatility-burst walk
+  goes from **17.00 cuts to 2.43**, with both burst edges found 1.98 times of 2 (shipped 1.83); the
+  same walk without a burst from 1.98 to 0.13; white noise whose sd triples for 60 points from 7.12 to
+  2.02. Steps: 60 and 60 of 60 on white noise, 60 and 59 on the wander. (i) and (ii) pass.
+- **TCPD** (`eval/tcpd-drift-scale.out.txt`):
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift, scale per segment, 3 log n (primary) | **0.756** | 0.661 | 285 | 0.464 | 0.390 | 173 |
+  | drift, scale per segment, min segment 5 | 0.749 | 0.654 | 175 | 0.479 | 0.400 | 138 |
+  | drift, scale per segment, 2 log n | 0.618 | 0.516 | 511 | 0.352 | 0.247 | 348 |
+  | drift, one scale (shipped `--model drift`) | 0.694 | 0.622 | 226 | 0.527 | 0.576 | 180 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+  | binseg (published) | 0.714 | 0.671 | | 0.727 | 0.731 | |
+
+- **Verdict: (iii) fails on the held-out set; nothing changes for users.** Primary minus shipped drift:
+  +0.062 shipped (95% bootstrap -0.001 to 0.127; better on 16, worse on 7) and **-0.064 held out**
+  (-0.176 to 0.043; 3 and 4). The shipped-set mean is the highest any setting of this detector has
+  scored there, binseg included, but the rule asked for both sets and the held-out set says no. The
+  option stays in the library with tests (`drift-scale.test.mjs`).
+- **Where it helps:** bitcoin 52 cuts to 28 (F1 0.407 to 0.535), quality control 4 3 to 1 (0.638 to
+  0.936), JFK 0 to 1 (0.723 to 0.868), Croatia's GDP 6 to 1, well log 21 to 18 (0.764 to 0.832).
+  **Where it hurts:** `bank` 63 to **170** cuts, scanline 42049 27 to 75, iceland tourism 0 to 1
+  (0.947 to 0.643), US population 0 to 3.
+- **Why `bank` gets worse (diagnostic, run once in the session, not an eval):** it is sticky, not
+  bursty. 246 of its 580 steps are exactly zero (scanline 42049: 233 of 480), so every flat run is a
+  stretch with no innovation at all; the profiled scale drops to its floor (81 of `bank`'s 171
+  segments, 44 of scanline's 76) and each flat run buys about j log 100 of likelihood, far above the
+  3 log n penalty. Median segment length 3. A floor tied to the data's resolution (the smallest nonzero
+  step), or a zero-inflated noise term, is the obvious next try; it is post hoc, so it needs a fresh
+  pre-registration, and the held-out loss on iceland tourism (a single cut on a smooth seasonal
+  series) is a separate failure it would not fix.
