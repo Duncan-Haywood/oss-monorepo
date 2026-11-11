@@ -145,12 +145,17 @@ test("the 'fewest' choice survives a share link and keeps the capped minimum", a
 test("an odd league's capped tries run the capped search from a zero-break start and stay under their caps", () => {
   for (const double of [false, true]) {
     const t = carryOverTry(9, 1, { double, seed: 1, effort: 0.3, weighted: 1 });
-    assert.equal(t.breakWeight, null, "a capped try, not a weighted stand-in");
     const caps = cappedTryBreaks(9, 0, double);
-    assert.equal(t.maxBreaks, double ? caps.season : caps.leg);
+    const cap = double ? caps.season : caps.leg;
+    // the capped search, or the heavy-weight stand-in when that found fewer breaks
+    if (t.breakWeight === null) assert.equal(t.maxBreaks, cap); else assert.equal(t.breakWeight, 160);
     checkLeg(t.rounds.slice(0, 9), 9);
     if (double) checkLeg(t.rounds.slice(9), 9);
-    assert.ok(breaksOf(9, t.rounds) <= t.maxBreaks, `${breaksOf(9, t.rounds)} over ${t.maxBreaks}`);
+    assert.ok(breaksOf(9, t.rounds) <= cap, `${breaksOf(9, t.rounds)} over ${cap}`);
+    const capped = double
+      ? lowCarryOverDoubleRounds(9, { seed: t.seed, effort: 0.3, maxBreaks: caps.season, legBreaks: caps.leg })
+      : lowCarryOverCappedRounds(9, { seed: t.seed, effort: 0.3, maxBreaks: caps.leg });
+    assert.ok(t.breaks <= capped.breaks, "never more breaks than the capped search alone");
   }
   assert.deepEqual(cappedTryBreaks(9, 0), { leg: 6, season: null });
   assert.deepEqual(cappedTryBreaks(9, 1, true), { leg: 10, season: 30 });

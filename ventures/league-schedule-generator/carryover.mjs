@@ -840,6 +840,15 @@ export function carryOverTry(n, i, { double = false, seed = 1, weights = [10, 20
     const r = double
       ? lowCarryOverDoubleRounds(n, { seed: s, effort, maxBreaks: caps.season, legBreaks: caps.leg })
       : lowCarryOverCappedRounds(n, { seed: s, effort, maxBreaks: caps.leg });
+    if (n % 2 === 1) {
+      // An odd league: the capped search starts at zero breaks (assignVenues' colouring) but at
+      // small sizes a heavy break weight sometimes lands on fewer breaks still (9 teams: 2 or 3
+      // against 5 or 6, eval/odd-capped.txt), so the try runs both and keeps the one with fewer
+      // breaks, then less carry-over: the capped tries are there for the low-break end.
+      const w = 160 * (i - weighted + 1);
+      const h = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
+      if (h.breaks < r.breaks || (h.breaks === r.breaks && h.coe < r.coe)) return { ...h, index: i, seed: s, breakWeight: w };
+    }
     return { ...r, index: i, seed: s, breakWeight: null, maxBreaks: double ? caps.season : caps.leg };
   }
   const w = weights[i % weights.length];

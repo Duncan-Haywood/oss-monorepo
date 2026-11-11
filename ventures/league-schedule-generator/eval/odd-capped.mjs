@@ -47,9 +47,9 @@ const SEEDS = [1, 2, 3];
 for (const double of [false, true]) {
   log();
   log(double ? "Home-and-away season (double round robin)" : "One leg (single round robin)");
-  log("teams | old fallback w=160 | old fallback w=320 | capped try 0 (cap) | capped try 1 (cap) | new tries dominating both old");
+  log("teams | old fallback w=160 | old fallback w=320 | capped try 0 (cap) | capped try 1 (cap) | what the two tries now keep | capped tries dominating both old");
   for (const n of [9, 11, 15, 19, 21]) {
-    const acc = { w160: [], w320: [], c0: [], c1: [] };
+    const acc = { w160: [], w320: [], c0: [], c1: [], now: [] };
     let dom = 0, of = 0;
     for (const seed of SEEDS) {
       const run = (f) => { const r = f(); return { coe: coeOf(n, r.rounds), breaks: breaksOf(n, r.rounds) }; };
@@ -59,11 +59,15 @@ for (const double of [false, true]) {
         return run(() => (double ? lowCarryOverDoubleRounds(n, { seed, maxBreaks: caps.season, legBreaks: caps.leg }) : lowCarryOverCappedRounds(n, { seed, maxBreaks: caps.leg })));
       });
       acc.w160.push(w[0]); acc.w320.push(w[1]); acc.c0.push(c[0]); acc.c1.push(c[1]);
+      // carryOverTry for an odd league keeps, per try, the fewer breaks (then less carry-over) of
+      // the capped search and the heavy-weight search (160, then 320)
+      const keep = (a, b) => (b.breaks < a.breaks || (b.breaks === a.breaks && b.coe < a.coe) ? b : a);
+      acc.now.push([keep(c[0], w[0]), keep(c[1], w[1])]);
       for (const x of c) { of++; if (w.every((y) => beats(x, y))) dom++; }
     }
     const fmt = (a) => `${a.map((x) => `${x.coe}/${x.breaks}`).join(", ")}`;
     const caps = [0, 1].map((j) => { const c = cappedTryBreaks(n, j, double); return double ? c.season : c.leg; });
-    log(`${n} | ${fmt(acc.w160)} | ${fmt(acc.w320)} | ${fmt(acc.c0)} (${caps[0]}) | ${fmt(acc.c1)} (${caps[1]}) | ${dom} of ${of}`);
+    log(`${n} | ${fmt(acc.w160)} | ${fmt(acc.w320)} | ${fmt(acc.c0)} (${caps[0]}) | ${fmt(acc.c1)} (${caps[1]}) | ${acc.now.map(([a, b]) => `${a.coe}/${a.breaks} + ${b.coe}/${b.breaks}`).join("; ")} | ${dom} of ${of}`);
   }
 }
 log();
