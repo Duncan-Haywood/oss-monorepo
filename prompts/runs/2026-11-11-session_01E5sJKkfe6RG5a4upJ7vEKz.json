@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKkfe6RG5a4upJ7vEKz",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T17:30:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 6 shift-roster-builder: carry the --short-cost fractile through the shift cut (flagships.yaml next item)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14840",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First background eval run killed and restarted to add an avg-cut column; a pkill with the script name in the same command line was refused by the hook",
+      "cost": "about 5 minutes"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The top flagship row (ai-bookkeeper) had a 2h-old open PR, and sales-agent's open items all need outside inputs or a key. Finding a buildable item meant reading several full next: texts (allocate.py --venture). A per-row flag saying 'items doable without outside input' would save that."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Rows 1-2 of allocate.py were blocked (row 1 had an open PR; row 2's items all need real outside data or a model key). The default is the top Deepen row.",
+      "did": "Took row 5, shift-roster-builder, whose next: item needed no outside input.",
+      "result": "A working slice landed and was measured on two real files."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-shift-roster-the-cut-was-hiding-hours.md",
+    "ventures/shift-roster-builder/README.md (section 'The short-cost weight carried through the shift cut')"
+  ],
+  "goal": null,
+  "notes": "The backtest now optionally scores the cut shifts (CLI and page default). With --short-cost, a cost-aware cut prices each short run at (1-q) - r q per hour, and the run is stretched to the cheapest window or left unstaffed. eval/cost-cut.mjs on both real bakeries (SHA-256 checked): cost cut < plain cut and fractile+cost cut < average+plain cut in 36/36 settings, all 95% intervals below zero. Local checks: run_venture_tests.py shift-roster-builder ok (162.5 s); node --test demand/page-sales/cli pass. No agent doc in docs/reports: the README section and the flagship next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,9 +1,9 @@
 ---
 title: "The shift cut was hiding spare hours: pricing a one-hour peak"
-seo_title: "Minimum shift length vs staffing a peak hour: a cost rule tested on real bakery sales"
+seo_title: "Minimum shift length vs a one-hour peak: a cost rule on real sales"
 date: 2026-11-11
 tags: [scheduling, forecasting, labor, small-business, open-source]
-description: "A free shift planner scored its staffing before cutting it into shifts. Scored after the cut, the four-hour minimum shift added up to twice the spare hours. A cost-aware cut fixes most of it."
+description: "Scored after the cut into shifts, a four-hour minimum shift doubled the spare hours. A cost-aware cut fixes most of it on two real bakeries."
 ---
 
 Earlier today the free [shift roster builder](../../ventures/shift-roster-builder/)
