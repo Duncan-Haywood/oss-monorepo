@@ -124,6 +124,7 @@ import {
   renderSearchIndex,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
+import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { ASSISTANT_VOICE_CSS } from './assistant.mjs';
 import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
@@ -3651,9 +3652,12 @@ test('each tool entry page carries breadcrumb structured data', async () => {
       .find((b) => b['@type'] === 'BreadcrumbList');
     assert.ok(crumb, `${surface.slug} has no BreadcrumbList`);
     assert.equal(crumb.itemListElement[0].item, BASE, 'the first crumb is the hub');
-    assert.match(crumb.itemListElement[1].item, new RegExp(`^${BASE}c/[a-z0-9-]+/$`), 'the second crumb is the category shelf');
+    // Fiction sits under Stories, with its shelf's short name (stories.mjs).
+    const shelf = Object.hasOwn(STORY_VENTURES, surface.slug) ? STORY_VENTURES[surface.slug] : null;
+    if (shelf) assert.equal(crumb.itemListElement[1].item, `${BASE}${STORIES_PATH}`, 'a story shelf sits under Stories');
+    else assert.match(crumb.itemListElement[1].item, new RegExp(`^${BASE}c/[a-z0-9-]+/$`), 'the second crumb is the category shelf');
     assert.equal(crumb.itemListElement.at(-1).item, `${BASE}${surface.slug}/`);
-    assert.equal(crumb.itemListElement.at(-1).name, surface.title);
+    assert.equal(crumb.itemListElement.at(-1).name, shelf ?? surface.title);
   }
 });
 
