@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
   "errors": [
     "page.fill timed out on a 6,000-line textarea in Playwright; set the value with page.evaluate instead",
-    "new Worker(new URL(..., import.meta.url)) broke page.test.mjs's new Function parse check; switched to a relative string URL like matrix-profile-explorer"
+    "new Worker(new URL(..., import.meta.url)) broke page.test.mjs's new Function parse check; switched to a relative string URL like matrix-profile-explorer",
+    "CI validate failed: flagships.yaml changepoint-detector next: was 2155 chars (cap 2000); I had not run portfolio/router/validate.py locally. Fixed by shortening the entry."
   ],
   "integrity_issues": [],
   "doc_friction": [
