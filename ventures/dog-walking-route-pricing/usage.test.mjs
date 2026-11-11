@@ -90,3 +90,17 @@ test('toggleUsage(true) re-enables counting after an opt-out', async () => {
     assert.equal(counts.estimate, 1);
   });
 });
+
+// Red-team 2026-11-11: an `||` turned into `&&` in the stored-value shape
+// check passed this suite, which never stored valid JSON that is not an object.
+test('recordEvent recovers from a stored value that is not a plain object', async () => {
+  for (const raw of ['null', '5', 'true', '"text"', '[]', '[1,2]']) {
+    const storage = memoryStorage();
+    storage.setItem('dog-walking-route-pricing-usage', raw);
+    await withGlobals(storage, {}, async () => {
+      const mod = await import(`./usage.mjs?t=${Date.now()}-shape-${raw}`);
+      mod.recordEvent('contract');
+      assert.deepEqual(JSON.parse(storage.getItem('dog-walking-route-pricing-usage')), { contract: 1 }, raw);
+    });
+  }
+});

@@ -115,6 +115,20 @@ MUTANTS = {
 }
 
 
+# The second design (usageAllowed/recordEvent/toggleUsage). Two of its copies'
+# own suites let these `||`-to-`&&` mutants through in red-team campaigns on
+# 2026-11-11 (dog-walking-route-pricing, vending-machine-route-margin).
+EVENT_GOOD = (Path(__file__).resolve().parents[2] / "ventures" / "vending-machine-route-margin" / "usage.mjs").read_text()
+SHAPE = "if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};"
+EVENT_MUTANTS = {
+    "null or a number kept": (SHAPE, SHAPE.replace("!counts ||", "!counts &&")),
+    "an array kept": (SHAPE, SHAPE.replace("'object' ||", "'object' &&")),
+    "Do Not Track ignored": ("navigator.doNotTrack === '1' || ", ""),
+    "opt-out ignored": ("return ls.getItem(OPT_OUT) !== 'true';", "return true;"),
+    "blocked storage throws": ("  } catch {\n    return null;\n  }", "  } finally {}"),
+}
+
+
 class Contract(unittest.TestCase):
     def tree(self, d, src, name="a"):
         v = Path(d) / name
@@ -134,6 +148,21 @@ class Contract(unittest.TestCase):
                 code, out = run_contract(d)
                 self.assertEqual(code, 1, out)
                 self.assertEqual(main(["x", d]), 1)
+
+    def test_a_correct_event_counter_passes(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.tree(d, EVENT_GOOD)
+            code, out = run_contract(d)
+            self.assertEqual(code, 0, out)
+            self.assertIn("1 files OK", out)
+
+    def test_each_event_counter_mutant_fails(self):
+        for label, (old, new) in EVENT_MUTANTS.items():
+            self.assertIn(old, EVENT_GOOD, label)
+            with self.subTest(label), tempfile.TemporaryDirectory() as d:
+                self.tree(d, EVENT_GOOD.replace(old, new))
+                code, out = run_contract(d)
+                self.assertEqual(code, 1, out)
 
     def test_a_module_that_throws_on_import_fails(self):
         with tempfile.TemporaryDirectory() as d:
