@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 6,
   "outcome": "success",
@@ -44,7 +44,7 @@
     "docs/posts/2026-11-11-live-try-on-that-does-not-shake.md"
   ],
   "goal": null,
-  "notes": "Local: node --test posetrack.test.mjs pose.test.mjs 12 pass; clothing p*/j*/c*/a* suites 184 pass 0 fail; post frontmatter check clean. Headless Chromium with fake camera and mocked MediaPipe: VIDEO mode, monotonic timestamps min gap 67 ms, outline drawn, hold note during 5-frame loss, freeze keeps outline, no console errors. One Euro defaults from a synthetic sweep (0.3 Hz, beta 0.005: jitter 0.32x, lag 16 px at 300 px/s). Unproven on a real person/webcam.",
+  "notes": "Local: node --test posetrack.test.mjs pose.test.mjs 12 pass; clothing p*/j*/c*/a* suites 184 pass 0 fail; post frontmatter check clean. Headless Chromium with fake camera and mocked MediaPipe: VIDEO mode, monotonic timestamps min gap 67 ms, outline drawn, hold note during 5-frame loss, freeze keeps outline, no console errors. One Euro defaults from a synthetic sweep (0.3 Hz, beta 0.005: jitter 0.32x, lag 16 px at 300 px/s). Unproven on a real person/webcam. PR #14660's red site-builder test was faq-visible.test.mjs: artwork.html carried FAQPage JSON-LD with no visible Q&A; added a visible Questions section with the same strings (faq-visible 4 pass; full platform/pages suite locally 1526 pass, 1 fail before the fix).",
   "corrections": [],
   "redteam": null
 }
