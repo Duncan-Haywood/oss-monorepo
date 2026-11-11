@@ -1467,22 +1467,55 @@ export function exactStock(items, boards, workLimit = 3e7) {
   let m = 1;
   for (const r of radix) { mult.push(m); m *= r; }
   const patIdx = pats.map((p) => p.counts.reduce((s, v, i) => s + v * mult[i], 0));
+  const P = pats.length;
+  const price = Float64Array.from(pats, (p) => p.price);
+  const step = Int32Array.from(patIdx);
+  // Pattern j fits state d when counts[i] <= d[i] for every item. As bitsets:
+  // fit[i][v] holds the patterns with counts[i] <= v, and a state's fitting set
+  // is the AND over its digits. Digits advance like an odometer, so only the
+  // digits that changed are re-ANDed (suf[i] = fit[i][d[i]] & suf[i + 1]).
+  // Bits are visited lowest first, the same order as a plain j loop, so ties
+  // resolve to the same pattern.
+  const W = (P + 31) >>> 5;
+  const fitOff = [];
+  let fitLen = 0;
+  for (let i = 0; i < n; i++) { fitOff.push(fitLen); fitLen += radix[i] * W; }
+  const fit = new Uint32Array(fitLen);
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < P; j++) {
+      const word = j >>> 5;
+      const bit = (1 << (j & 31)) >>> 0;
+      for (let v = pats[j].counts[i]; v < radix[i]; v++) fit[fitOff[i] + v * W + word] |= bit;
+    }
+  }
+  const suf = new Uint32Array((n + 1) * W);
+  for (let j = 0; j < P; j++) suf[n * W + (j >>> 5)] |= (1 << (j & 31)) >>> 0;
+  const d = new Int32Array(n);
+  for (let i = n - 1; i >= 0; i--) for (let w = 0; w < W; w++) suf[i * W + w] = fit[fitOff[i] + w] & suf[(i + 1) * W + w];
   const f = new Float64Array(states).fill(Infinity);
   const how = new Int32Array(states).fill(-1);
   f[0] = 0;
-  const d = new Array(n).fill(0);
   for (let idx = 1; idx < states; idx++) {
-    let r = idx;
-    for (let i = 0; i < n; i++) { d[i] = r % radix[i]; r = Math.floor(r / radix[i]); }
+    let k = 0;
+    d[0]++;
+    while (d[k] === radix[k]) { d[k] = 0; k++; d[k]++; }
+    for (let i = k; i >= 0; i--) {
+      const fo = fitOff[i] + d[i] * W;
+      const so = i * W;
+      const no = so + W;
+      for (let w = 0; w < W; w++) suf[so + w] = fit[fo + w] & suf[no + w];
+    }
     let best = Infinity;
     let arg = -1;
-    for (let j = 0; j < pats.length; j++) {
-      const pc = pats[j].counts;
-      let ok = true;
-      for (let i = 0; i < n; i++) if (pc[i] > d[i]) { ok = false; break; }
-      if (!ok) continue;
-      const v = pats[j].price + f[idx - patIdx[j]];
-      if (v < best - 1e-12) { best = v; arg = j; }
+    for (let w = 0; w < W; w++) {
+      let b = suf[w];
+      while (b !== 0) {
+        const low = b & -b;
+        const j = (w << 5) + 31 - Math.clz32(low);
+        b ^= low;
+        const v = price[j] + f[idx - step[j]];
+        if (v < best - 1e-12) { best = v; arg = j; }
+      }
     }
     f[idx] = best;
     how[idx] = arg;
