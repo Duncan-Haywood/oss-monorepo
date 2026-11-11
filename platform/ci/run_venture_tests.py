@@ -11,6 +11,9 @@ runner would report (docs/history/ci-local-first-2026-10-29.md).
                                                              # uncommitted edits included
     python3 platform/ci/run_venture_tests.py --since BASE    # ventures BASE..HEAD touched (CI)
 
+--changed and --since also run each venture whose code reaches into a changed
+one as `../<slug>/` (with_dependents), since a change there can break it.
+
 Each suite runs as `node --test` from the venture's own directory, which is
 what the 418 per-venture `<slug>-ci.yml` workflows this replaced ran: Node's
 default discovery (`**/*.test.mjs`, `test/**`, ..., never `node_modules`). A
@@ -40,6 +43,8 @@ import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+
+import inherited_keys
 
 ROOT = Path(__file__).resolve().parents[2]
 VENTURES = ROOT / "ventures"
@@ -126,8 +131,30 @@ def slugs_in(paths):
     return sorted({p.split("/")[1] for p in paths if p.startswith("ventures/") and p.count("/") >= 2})
 
 
+CODE_GLOBS = ("ventures/*.mjs", "ventures/*.js", "ventures/*.cjs", "ventures/*.py")
+
+
+def with_dependents(slugs, root=None):
+    """`slugs` plus every venture whose code names one of them as `../<slug>/`.
+
+    A venture that imports or vendors a sibling's code (open-house-plans copies
+    wall-framing-takeoff's engine and checks the copy byte for byte) goes red
+    when the sibling changes, but only the sibling's own suite used to run, so
+    the break reached main unseen (red-team run 2026-11-11). One level only:
+    the dependents' own dependents are not followed.
+    """
+    root = root or ROOT
+    out = set(slugs)
+    for slug in slugs:
+        proc = subprocess.run(["git", "grep", "-l", "-F", f"../{slug}/", "--", *CODE_GLOBS],
+                              cwd=root, capture_output=True, text=True)
+        out.update(p.split("/")[1] for p in proc.stdout.splitlines()
+                   if p.count("/") >= 2 and p.split("/")[1] != slug)
+    return sorted(out)
+
+
 def since_slugs(base):
-    return slugs_in(git("diff", "--name-only", base, "HEAD", "--", "ventures").splitlines())
+    return with_dependents(slugs_in(git("diff", "--name-only", base, "HEAD", "--", "ventures").splitlines()))
 
 
 def changed_slugs(base_ref="origin/main"):
@@ -135,7 +162,7 @@ def changed_slugs(base_ref="origin/main"):
     base = git("merge-base", base_ref, "HEAD").strip()
     paths = git("diff", "--name-only", base, "--", "ventures").splitlines()
     paths += git("ls-files", "--others", "--exclude-standard", "--", "ventures").splitlines()
-    return slugs_in(paths)
+    return with_dependents(slugs_in(paths))
 
 
 def own_workflow_slugs():
@@ -266,6 +293,7 @@ def main(argv):
         for slug in slugs:
             if not has_tests(slug):
                 print(skip_note(slug), flush=True)
+    lint_slugs = [s for s in slugs if (VENTURES / s).is_dir()]
     slugs = sorted((s for s in slugs if has_tests(s)), key=lambda s: (-suite_weight(s), s))
 
     failed = []
@@ -283,7 +311,17 @@ def main(argv):
                     print(failures(out))
     print(f"{len(slugs)} suites run, {len(failed)} failed"
           + (f": {' '.join(sorted(failed))}" if failed else ""))
-    return 1 if failed else 0
+    # A choice looked up in a plain object map by the user's text: "constructor"
+    # finds Object.prototype (inherited_keys.py). Only lookups newer than the
+    # baseline fail, so a venture PR is held to it from the day it lands.
+    lint = inherited_keys.new_hits(lint_slugs, VENTURES)
+    if lint:
+        print(inherited_keys.report(lint))
+        print(f"{len(lint)} new unguarded object-map lookup(s): see platform/ci/inherited_keys.py")
+        if ON_ACTIONS:
+            for rel, line, lookup in lint:
+                print(f"::error file={rel},line={line},title=inherited key::{lookup} needs Object.hasOwn")
+    return 1 if failed or lint else 0
 
 
 if __name__ == "__main__":

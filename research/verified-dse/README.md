@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 109 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 112 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -23,6 +23,25 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   same cost only slightly (1.04% against 1.26% regret, better in 14 of 20 cells, sign test p = 0.12); the hand-chosen
   schedule loses to its equal-cost random baseline (5.48% against 1.43%):
   [`experiments/fresh_pool/price_results.txt`](experiments/fresh_pool/price_results.txt).
+- **On 26 held-out designs (milestone 110), the ladder pays where routing is dear.** Where a routed point costs more than
+  3 times a mapped score (16 to 40-bit multipliers, a crossbar, a GF(2) matrix), "skip r1, keep 8" costs a quarter of
+  routing everything and beats random routing of the same wall-clock (2.07% against 3.59% mean regret, 18 of 23 cells).
+  Where routing is cheap, random routing is safer (1.29% against 6.21%), because a misleading mapped rung sends the
+  ladder to a bad 8: over all 52 cells it wins 37 and loses 13 (sign test p = 0.001) but loses on the mean (4.38% against
+  2.31%): [`experiments/heldout_designs/`](experiments/heldout_designs/results.txt).
+- **A rule fixed before any routing (milestone 111): time one point, run the ladder only if routing costs over 3x a
+  mapped score, else route randomly.** Chosen by leave-one-design-out on the 26 held-out designs (every fold picks 3), it
+  has 1.66% mean regret against 2.29% for random routing and 4.38% for always running the ladder, at the same wall-clock,
+  and its worst cell is 13% instead of 50%. Testing the mapped rung on a small routed pilot (tau-b on 3 to 6 points) does
+  not help; routing a few random points inside the ladder's budget hedges as well. On the small designs it costs 0.17
+  points against always running the ladder, within noise: [`experiments/switch_guard/`](experiments/switch_guard/results.txt).
+- **The rule's ladder branch holds on fresh data where routing is dear (milestone 112, flow run).** 120 new pass sequences on
+  six designs where a routed point costs 3.6 to 19.5 times a mapped score (12 cells, about 103 points each, newer tools):
+  "score everything at the mapped rung, route the best 8" has 1.05% mean regret against 3.16% for random routing of the
+  same wall-clock (better in 9 cells, worse in 3; design bootstrap interval of the difference -3.95 to -0.06 points). The
+  six-point random hedge milestone 111 preferred by 0.07 points in-sample is worse than random routing here (3.55%), so it
+  is dropped from the rule; relaxed-clock 24-bit multipliers and a crossbar remain the failures:
+  [`experiments/fresh_dear/`](experiments/fresh_dear/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 

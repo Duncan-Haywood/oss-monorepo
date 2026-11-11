@@ -67,15 +67,20 @@ test("suggest offers it only for a payee never filed, never above 0.5, and the s
   assert.equal(suggest({ desc: "Kim Lowe", cents: -90000 }, { ...model, newPayee: undefined }).source, "none");
 });
 
-test("the AI layer in fill mode still takes a line that only has a new-payee guess", async () => {
+// Since 2026-11-11 plain "fill" keeps the guess (a local 7B model over it did worse than
+// the guess on real Toronto card lines, README); "fill-guess" still sends the line.
+test("the AI layer in fill-guess mode still takes a line that only has a new-payee guess; fill keeps it", async () => {
   const books = { accounts: [{ code: "6020", name: "Contractors", type: "expense" }, { code: "6050", name: "Professional fees", type: "expense" }],
     transactions: [{ id: "t1", date: "2026-01-02", desc: "Kim Lowe", cents: -90000, status: "review", suggestion: { account: "6020", confidence: 0.5, source: "new-payee", reason: "x", alternatives: [] } }] };
   let asked = 0;
   const fetch = async (_u, init) => { asked++; const ids = [...String(JSON.parse(init.body).messages?.at(-1)?.content ?? init.body).matchAll(/"id"\s*:\s*"(t\d+)"/g)].map((m) => m[1]);
     return { ok: true, status: 200, json: async () => ({ message: { content: JSON.stringify({ lines: ids.map((id) => ({ id, account: "6050", confidence: 0.7, reason: "r" })) }) }, choices: [{ message: { content: JSON.stringify({ lines: ids.map((id) => ({ id, account: "6050", confidence: 0.7, reason: "r" })) }) } }], content: [{ type: "text", text: JSON.stringify({ lines: ids.map((id) => ({ id, account: "6050", confidence: 0.7, reason: "r" })) }) }] }), text: async () => "" }; };
-  const r = await aiSuggest({ provider: "ollama", model: "m", baseUrl: "http://localhost:11434" }, books, { fetch });
+  const r = await aiSuggest({ provider: "ollama", model: "m", baseUrl: "http://localhost:11434" }, books, { fetch, mode: "fill-guess" });
   assert.equal(asked, 1);
-  assert.notEqual(r.error, "every review line already has a suggestion from the rules, memory or classifier");
+  assert.notEqual(r.error, "every review line already has a suggestion from the rules, memory, classifier or new-payee guess");
+  const kept = await aiSuggest({ provider: "ollama", model: "m", baseUrl: "http://localhost:11434" }, books, { fetch });
+  assert.equal(asked, 1, "plain fill sends nothing");
+  assert.equal(kept.source, "fallback");
 });
 
 const gate = { ...NEW_PAYEE, minRecord: 0.4 };

@@ -41,9 +41,9 @@ function formatText(report) {
       lines.push(`  CNAME alias -> ${lookup.canonicalName}`);
     }
     if (analysis.noCaaAnywhere) {
-      lines.push(`  No CAA record found anywhere from ${lookup.canonicalName} up to the top level -- any CA may issue.`);
+      lines.push(`  No CAA record found anywhere from ${lookup.queriedName} up to the top level -- any CA may issue.`);
     } else {
-      lines.push(`  CAA record set found at: ${lookup.foundAtName}${lookup.foundAtName !== lookup.canonicalName ? ' (an ancestor, not the exact name)' : ''}`);
+      lines.push(`  CAA record set found at: ${lookup.foundAtName}${lookup.foundAtName === lookup.queriedName ? '' : lookup.foundAtName === lookup.canonicalName ? ' (the CNAME target)' : ' (an ancestor, not the exact name)'}`);
       for (const rec of lookup.records) {
         if (!rec.ok) {
           lines.push(`    !! MALFORMED: ${rec.error} (raw: ${rec.raw})`);

@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVP4TnCA2PhaBk6NRt2",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue software); merge when done",
+  "input_sha256": "1ac37a052859b1f454eae959706191b7e908911186c7614c2d5a5440ea360c36",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T02:02:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0003 AI sales agents: retrain the word model on all labelled replies, scored fairly",
+  "projects": [
+    "ventures/sales-agent"
+  ],
+  "pr": 14659,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "gh api search returned exit 2 in this cloud session; list_pull_requests via MCP was used for the duplicate check"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Router drew the process track, but the scheduled prompt asks for revenue product work; took website request R-0003 (sales-agent) instead.",
+      "did": "venture work on sales-agent",
+      "result": "shipped a measured product improvement"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-sales-agent-word-model-retrained.md"
+  ],
+  "goal": null,
+  "notes": "eval/guess-cv.mjs leave-one-set-out: 57 hand-offs in 23 fresh sets, new model 28 right / overreach 2 / 0 unsubscribes drafted, vs old 120-reply model 19 / 7 / 1. node --test in ventures/sales-agent: 302 pass, 0 fail; self-host 25 pass; run_venture_tests.py sales-agent ok.",
+  "corrections": [],
+  "redteam": null
+}

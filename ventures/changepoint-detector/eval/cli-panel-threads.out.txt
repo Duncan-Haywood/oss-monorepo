@@ -1,0 +1,6 @@
+cores 4, node v22.23.4
+treering, first 1000 points (treering-1000.csv): cli with panel on threads 0.9 s; --no-agreed 0.3 s; main + one-thread panel in-process 1.1 s; text equals one-thread: true
+treering, first 2000 points (treering-2000.csv): cli with panel on threads 2.1 s; --no-agreed 0.8 s; main + one-thread panel in-process 3.8 s; text equals one-thread: true
+treering, first 4000 points (treering-4000.csv): cli with panel on threads 4.3 s; --no-agreed 1.6 s; main + one-thread panel in-process 10.4 s; text equals one-thread: true
+treering, first 7980 points (treering-7980.csv): cli with panel on threads 9.5 s; --no-agreed 4.0 s; main + one-thread panel in-process 23.5 s; text equals one-thread: true
+data/djia-returns.csv (djia-returns.csv): cli with panel on threads 6.4 s; --no-agreed 2.3 s; main + one-thread panel in-process 15.9 s; text equals one-thread: true

@@ -50,7 +50,7 @@ FOCUS = ["house", "buildbot", "heavy", "sensing", "energy", "infra", "osrobot", 
          "chip", "eda", "accel", "codesign"]
 FOCUS_SHARE = 0.5
 # Programmes whose slug does not start with a FOCUS prefix but belong to it.
-FOCUS_PROGRAMMES = {"sim2real-inference", "build-data", "verified-dse"}
+FOCUS_PROGRAMMES = {"sim2real-inference", "build-data", "verified-dse", "cell-fidelity"}
 RESEARCH = Path(__file__).resolve().parents[1]
 
 

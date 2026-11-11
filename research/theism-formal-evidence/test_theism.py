@@ -200,6 +200,40 @@ def test_e11_anderson_own_a2_matches_prediction():
     assert e11.predicted(3, 2, [[c] for c in range(6)]) == 2
 
 
+
+def test_e12_varying_domains_matches_prediction():
+    """Varying domains (E12): search counts equal H17's formula on every 2x2 frame, the
+    conclusion holds in every model of all four axioms, and A5' binds somewhere."""
+    e12 = _load("e12_varying_domains")
+    binds = fails = 0
+    for Ex in e12.domains(2, 2):
+        for blocks in _load("e8_restricted").partitions(4):
+            fr = e12.Frame(2, 2, blocks, Ex)
+            models, _ = e12.search(fr)
+            assert (len(models), sum(m["a5"] for m in models)) == e12.predicted(fr)
+            assert all(m["concl"] for m in models if m["a5"])
+            binds += any(not m["a5"] for m in models)
+            fails += any(not m["concl"] for m in models)
+    assert binds > 0 and fails > 0
+    e12.test_contingent_existent_full_semantics(); e12.test_no_necessary_existent_no_model()
+
+
+def test_e13_actualist_necessity_matches_prediction():
+    """Actualist "has f necessarily" (E13): search counts equal H18's formula on every 2x2
+    frame, de dicto holds in every model of all four axioms, de re fails in some."""
+    e13 = _load("e13_actualist_necessity")
+    re_fails = 0
+    for Ex in e13.e12.domains(2, 2):
+        for blocks in _load("e8_restricted").partitions(4):
+            fr = e13.ActualFrame(2, 2, blocks, Ex)
+            models = e13.search(fr)
+            assert (len(models), sum(m["a5"] for m in models)) == e13.predicted(fr)
+            assert all(m["dicto"] for m in models if m["a5"])
+            re_fails += sum(m["a5"] and not m["re"] for m in models)
+    assert re_fails == 10
+    e13.test_constant_domain_readings_agree(); e13.test_shared_essence_de_re_fails()
+
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

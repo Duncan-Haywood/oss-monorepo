@@ -113,8 +113,10 @@ shadow and head turns read as blinks. Checked on one real portrait (scikit-image
 against made-up detector output and a fake command, and the tool's no-face path (`tests/test_opencv_face_detector.py`). `story_score` is otherwise only a blend of the measured scores, so
 *which* shot wins is technical, not taste-based. The scene and look stages are
 still deterministic stand-ins. The grade is your LUT, or no color change if you have
-none. Every asset is graded before selection; grading only the selected
-shots is the next throughput step.
+none. By default every asset gets a full-resolution master. Since 2026-11-11,
+`--grade-scope selected` (or `SHOOTFLOW_GRADE_SCOPE=selected`) gives full masters
+only to the assets the storyline picks. Every other clip is graded from its review
+proxy and gets a `.review-grade.json` note beside it ("Grade only the picks" below).
 
 ## Current repository state
 
@@ -872,6 +874,31 @@ from the running docs site; see `docs-site/README.md` and
 `shootflow cull` reports each keeper's score lead over the best alternate (`margin`); under 0.03 it is a `close_call`, counted in `summary.close_calls`. The 0.03 threshold is unmeasured; checking it against a photographer's real picks is open.
 
 `--picks` now also measures that threshold (2026-11-08): `keeper_misses` counts burst groups where you picked a frame other than the keeper, `misses_flagged_close` how many of those the close-call flag caught, and `margin_to_flag_all_misses` the lead a threshold would need to catch them all (null when a missed keeper had no rival). Tested on made-up frames only; a real shoot and its picks are still wanted.
+
+## Grade only the picks (2026-11-11)
+
+Most of the overnight run goes into encoding a full-resolution ProRes master of every
+clip, and most of those clips never reach a reel. `run-local-pipeline --grade-scope
+selected` (also `write-launchd-plist --grade-scope selected`, or
+`SHOOTFLOW_GRADE_SCOPE=selected`) gives full masters only to the clips and photos the
+storyline picks for the hero reel, a reel variant, the carousel or the photo set.
+Every other asset is graded from its review proxy: same LUT, proxy resolution
+(≤960 px video). Beside it goes `graded/<job>/<name>.review-grade.json`, which says
+where it came from and how to get a full master later.
+
+The grade stage can know the picks ahead of time because the storyline is a pure
+function of the analyses, and all of them are final and sha256-verified by the time
+any grade job runs (its look dependency waits on every analysis). As a backstop, the
+story stage refuses to run if a pick holds only a review grade. The photo set takes
+every photo, so in practice only video clips get review grades.
+
+Measured (`eval/grade-scope-2026-11-11.md`, `eval/grade_scope_bench.py`): on 12
+synthetic 1080p clips (four shots, three takes each) plus three 24 MP JPEGs, 6 clips
+were picked. The grade stage went from 164 s to 88 s and the whole pipeline from
+214 s to 129 s, with the same deliverables rendered. The picks are capped at about 180 s
+of footage, so longer shoots should save more. That projection has not been measured,
+and neither has real 4K camera footage. The default stays `all`, because an editor
+may want masters of every clip for their own NLE.
 
 ## Develop DNG raw files (2026-11-10)
 

@@ -18,13 +18,13 @@ test("every input has a label and nothing can send data anywhere", () => {
   const html = page("index.html");
   for (const id of [...Object.keys(DEFAULTS), "data", "file"]) assert.match(html, new RegExp(`<label (class="sr" )?for="${id}">`), id);
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
-  assert.doesNotMatch(page("calc.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  for (const f of ["calc.mjs", "battery.mjs", "tou.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
 });
 
 test("the module scripts import only local files", () => {
   const html = page("index.html");
   const imports = [...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["./battery.mjs", "./calc.mjs", "./usage.mjs"]);
+  assert.deepEqual(imports.sort(), ["./battery.mjs", "./calc.mjs", "./tou.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
 });
 

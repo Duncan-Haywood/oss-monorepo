@@ -271,6 +271,7 @@ def _run_local_pipeline_command(args: argparse.Namespace, *, stdout: TextIO, std
                 max_concurrency=args.max_concurrency,
                 max_iterations=args.max_iterations,
                 retry_retryable=args.retry_retryable,
+                grade_scope=args.grade_scope,
             )
         except (ValueError, OSError) as exc:  # one bad shoot must not stop the rest of the queue
             print(f"shootflow: {manifest}: {exc}", file=stderr)
@@ -290,6 +291,7 @@ def _run_write_launchd_plist_command(args: argparse.Namespace, *, stdout: TextIO
         max_concurrency=args.max_concurrency,
         log_path=args.log,
         source_root=Path(__file__).resolve().parent.parent,
+        grade_scope=args.grade_scope,
     )
     if args.output:
         output = Path(args.output).expanduser()
@@ -946,6 +948,15 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Retry production jobs left retryable by an earlier run (after you have reviewed them).",
     )
+    local_pipeline.add_argument(
+        "--grade-scope",
+        choices=("all", "selected"),
+        default=None,
+        help=(
+            "Full-resolution masters for 'all' assets (default) or only the 'selected' ones the storyline "
+            "picks; the rest are graded from their review proxy, with a .review-grade.json note."
+        ),
+    )
 
     launchd = subparsers.add_parser(
         "write-launchd-plist",
@@ -955,6 +966,7 @@ def _build_parser() -> argparse.ArgumentParser:
     launchd.add_argument("--hour", type=int, default=1)
     launchd.add_argument("--minute", type=int, default=30)
     launchd.add_argument("--max-concurrency", type=int, default=2)
+    launchd.add_argument("--grade-scope", choices=("all", "selected"), default=None)
     launchd.add_argument(
         "--log",
         default="~/Library/Logs/shootflow-local-pipeline.log",

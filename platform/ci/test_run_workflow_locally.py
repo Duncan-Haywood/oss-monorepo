@@ -298,6 +298,16 @@ class Execute(unittest.TestCase):
         step = self.run_one("echo diagnostic; exit 1")
         self.assertIn("diagnostic", step.tail)
 
+    def test_a_step_can_write_github_output_and_friends(self):
+        """portfolio-pages.yml's first step is `echo day=... >> "$GITHUB_OUTPUT"`;
+        unset, that is an ambiguous redirect and a FAILED row on every run."""
+        saved = {k: os.environ.pop(k) for k in ("GITHUB_OUTPUT", "GITHUB_ENV",
+                 "GITHUB_STEP_SUMMARY", "RUNNER_TEMP") if k in os.environ}
+        self.addCleanup(os.environ.update, saved)
+        step = self.run_one('echo day=1 >> "$GITHUB_OUTPUT" && echo X=1 >> "$GITHUB_ENV" '
+                            '&& echo ok >> "$GITHUB_STEP_SUMMARY" && test -d "$RUNNER_TEMP"')
+        self.assertEqual(step.status, "ok", step.tail)
+
     def test_a_resolved_variable_reaches_the_step_as_empty(self):
         step = runner.Step("j", "n", 'test -z "${BASE_URL-unset}"', ".")
         step.env = {"BASE_URL": ""}
@@ -1082,6 +1092,18 @@ class Tree(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("nothing was verified", out.getvalue().lower())
 
+    def test_list_names_each_workflows_step_count(self):
+        wf = {"jobs": {"a": {"steps": [{"run": "true"}, {"run": "true"},
+                                      {"uses": "actions/checkout@v4"}]},
+                       "b": {"steps": [{"run": "true"}]}}}
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner._run_selected(argparse.Namespace(list=True, timeout=1),
+                                        [("x.yml", wf, {"a"})], [])
+        self.assertEqual(code, 0)
+        self.assertIn("x.yml (a; 2 step(s))", out.getvalue())
+        self.assertIn("2 run: step(s) in 1 workflow(s).", out.getvalue())
+
     def test_a_step_is_named_before_it_runs_not_after(self):
         # A sweep of this tree takes ~13 minutes. If the label is printed
         # only once `execute()` returns, a session that pipes the output --
@@ -1258,6 +1280,72 @@ class CheckoutStability(unittest.TestCase):
         self.assertEqual(fp, runner.checkout_fingerprint(),
                          "the fingerprint is not stable across two reads of "
                          "an unchanged tree, so it would cry wolf on every run")
+
+
+class ChangedPaths(unittest.TestCase):
+    """The diff starts where the branch left its base, not at the base's tip."""
+
+    def setUp(self):
+        import subprocess
+        import tempfile
+        self.repo = tempfile.mkdtemp(prefix="changed-paths-")
+        self.sh = lambda *a: subprocess.run(
+            ["git", *a], cwd=self.repo, check=True, capture_output=True, text=True)
+        self.sh("init", "-q", "-b", "main")
+        self.sh("config", "user.email", "t@example.invalid")
+        self.sh("config", "user.name", "t")
+        self.commit("base.txt")
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.repo, ignore_errors=True)
+
+    def commit(self, name):
+        with open(os.path.join(self.repo, name), "w") as fh:
+            fh.write(name)
+        self.sh("add", name)
+        self.sh("commit", "-q", "-m", name)
+
+    def test_commits_landed_on_the_base_after_the_branch_left_are_not_changes(self):
+        self.sh("checkout", "-q", "-b", "work")
+        self.commit("mine.txt")
+        self.sh("checkout", "-q", "main")
+        self.commit("someone-else.txt")
+        self.sh("checkout", "-q", "work")
+        self.assertEqual(runner.changed_paths("main", repo=self.repo), ["mine.txt"])
+
+    def test_uncommitted_work_is_counted(self):
+        self.sh("checkout", "-q", "-b", "work")
+        with open(os.path.join(self.repo, "base.txt"), "w") as fh:
+            fh.write("edited")
+        self.assertEqual(runner.changed_paths("main", repo=self.repo), ["base.txt"])
+
+    def test_no_shared_commit_stops_instead_of_diffing_everything(self):
+        self.sh("checkout", "-q", "--orphan", "other")
+        self.commit("unrelated.txt")
+        with self.assertRaises(SystemExit) as caught:
+            runner.changed_paths("main", repo=self.repo)
+        self.assertIn("share no commit", str(caught.exception))
+        self.assertIn("git fetch", str(caught.exception))
+
+    def test_a_missing_base_says_to_fetch_it(self):
+        with self.assertRaises(SystemExit) as caught:
+            runner.changed_paths("origin/nope", repo=self.repo)
+        self.assertIn("no ref", str(caught.exception))
+
+
+class BudgetHintTest(unittest.TestCase):
+    """--for-changes warns before a selection can outrun a 600 s tool call."""
+
+    def test_large_selection_warns(self):
+        hint = runner.budget_hint(13, 300, listing=False)
+        self.assertIn("65 min", hint)
+        self.assertIn("background", hint)
+
+    def test_small_selection_or_listing_is_quiet(self):
+        self.assertIsNone(runner.budget_hint(2, 300, listing=False))
+        self.assertIsNone(runner.budget_hint(13, 300, listing=True))
+        self.assertIsNone(runner.budget_hint(13, 0, listing=False))
 
 
 if __name__ == "__main__":

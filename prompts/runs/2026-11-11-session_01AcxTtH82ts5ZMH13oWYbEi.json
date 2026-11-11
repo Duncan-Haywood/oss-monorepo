@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtH82ts5ZMH13oWYbEi",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T07:07:05Z",
+  "ended": "2026-11-11T07:15:20Z",
+  "wall_minutes": 8.4,
+  "tokens_in": 3104277,
+  "tokens_out": 39957,
+  "cost_usd": 2.1986,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14725",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The 'Next up' list is now almost entirely Done lines (hundreds), so finding an open proposal takes grepping; the remaining open items (Quarry Nine sequel) are hard to see. A short open-proposals list at the top would save time."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a new piece' did not discriminate: all three shelves and the podcast landed pieces in the last 24 hours, so the rule gave no answer and I fell back to the headline shelf."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-the-rule-for-after-rain.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (headline shelf). Piece: the-rule-for-after-rain (oyster hatchery, aragonite saturation after a May storm, Oregon 2047). Text only: audio dirs at 423 MB > 400 MB cap. Carbonate numbers from a scratch solver (Lueker 2000 K1/K2, Dickson 1990 KB, Mucci 1983 Ksp), checked against a textbook case (25 C, S35, TA 2300, DIC 2000 -> pH 8.05, Omega 3.39). Venture node --test 12/12 pass; run_workflow_locally --for-changes result in the PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b598e401-6943-541e-ba11-6e886e67369b",
+    "transcripts": 1,
+    "first": "2026-11-11T07:07:05Z",
+    "last": "2026-11-11T07:15:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 66,
+        "output": 39957,
+        "thinking": 15815,
+        "cache_read": 3004426,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99785,
+        "api_equivalent_usd": 2.1986,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 66,
+      "output": 39957,
+      "thinking": 15815,
+      "cache_read": 3004426,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99785,
+      "api_equivalent_usd": 2.1986,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 32,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.4,
+      "active_minutes": 8.4,
+      "model_minutes": 7.83,
+      "tool_minutes": 0.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a science-fiction writer researching carbonate chemistry and drafting a 5,000-word story with a checked technical note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 454.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

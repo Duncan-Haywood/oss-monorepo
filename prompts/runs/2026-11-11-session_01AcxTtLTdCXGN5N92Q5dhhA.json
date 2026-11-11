@@ -1,0 +1,287 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLTdCXGN5N92Q5dhhA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T09:05:46Z",
+  "ended": "2026-11-11T09:07:50Z",
+  "wall_minutes": 6.19,
+  "tokens_in": 2900091,
+  "tokens_out": 20092,
+  "cost_usd": 1.5528,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14746",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix open defects first, but all four open entries were control-plane fixes already sitting in owner-gated PRs; `redteam.py open` could show the PR that holds each so runs don't re-search for them."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-redteam-sales-agent-impossible-dates.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/sales-agent/engine.mjs (seed 980350689). Catch rate 2/8 -> 8/8 (2 equivalent). Two real defects patched: impossible or rolled-over dates from findDate, and a RangeError crash on a huge 'in N days'. Guard added: a property test over 9,360 findDate inputs (fails on the old code). Full sales-agent suite: 403 pass, 0 fail. No agent doc: the post and record cover it.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/sales-agent/engine.mjs",
+        "test": "node --test ventures/sales-agent/**/*.test.mjs  (in .)",
+        "seed": 980350689,
+        "commit": "9c56f310",
+        "sites": 688,
+        "baseline_seconds": 2.1,
+        "mutants": [
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 90,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "if ((m = s.match(/\\b(20\\d\\d)[\\/.](\\d{1,2})[\\/.](\\d{1,2})\\b/)) && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31) return { date: iso(Date.UTC(+m[1], +m[2] - 1, +m[3])), text: m[0] };",
+            "after": "if ((m = s.match(/\\b(20\\d\\d)[\\/.](\\d{1,3})[\\/.](\\d{1,2})\\b/)) && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31) return { date: iso(Date.UTC(+m[1], +m[2] - 1, +m[3])), text: m[0] };",
+            "line_text": "  if ((m = s.match(/\\b(20\\d\\d)[\\/.](\\d{1,2})[\\/.](\\d{1,2})\\b/)) && +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31) return { date: iso(Date.UTC(+m[1], +m[2] - 1, +m[3])), text: m[0] };",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only differs on a zero-padded three-digit month such as '2026/012/05'; any month over 12 still fails the range check on the same line. Either reading of that string is defensible, so no user-visible wrong answer."
+          },
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 101,
+            "col": 180,
+            "operator": "const-plus-one",
+            "before": "if ((m = s.match(new RegExp(`\\\\b(\\\\d{1,2})(?:st|nd|rd|th)?\\\\s+(?:of\\\\s+)?${MONTH_RE}\\\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[2].slice(0, 3)), +m[1]), text: m[0] };",
+            "after": "if ((m = s.match(new RegExp(`\\\\b(\\\\d{1,2})(?:st|nd|rd|th)?\\\\s+(?:of\\\\s+)?${MONTH_RE}\\\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[2].slice(0, 3)), +m[1]), text: m[1] };",
+            "line_text": "  if ((m = s.match(new RegExp(`\\\\b(\\\\d{1,2})(?:st|nd|rd|th)?\\\\s+(?:of\\\\s+)?${MONTH_RE}\\\\b`)))) return { date: nextMonthDay(today, MONTHS.indexOf(m[2].slice(0, 3)), +m[1]), text: m[0] };",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "findDate('back 5 March').text now asserted as '5 March'."
+          },
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 104,
+            "col": 42,
+            "operator": "plus-to-minus",
+            "before": "const [mm, dd] = mo > 11 ? [d - 1, mo + 1] : [mo, d];",
+            "after": "const [mm, dd] = mo > 11 ? [d - 1, mo - 1] : [mo, d];",
+            "line_text": "    const [mm, dd] = mo > 11 ? [d - 1, mo + 1] : [mo, d];",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "'back 25/3' (day over 12 first) asserted as 2027-03-25."
+          },
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 129,
+            "col": 115,
+            "operator": "const-plus-one",
+            "before": "const end = m[1] === \"month\" ? Date.UTC(y, mo + 1, 1) : m[1] === \"quarter\" ? Date.UTC(y, (Math.floor(mo / 3) + 1) * 3, 1) : Date.UTC(y + 1, 0, 1);",
+            "after": "const end = m[1] === \"month\" ? Date.UTC(y, mo + 1, 1) : m[1] === \"quarter\" ? Date.UTC(y, (Math.floor(mo / 3) + 2) * 3, 1) : Date.UTC(y + 1, 0, 1);",
+            "line_text": "    const end = m[1] === \"month\" ? Date.UTC(y, mo + 1, 1) : m[1] === \"quarter\" ? Date.UTC(y, (Math.floor(mo / 3) + 1) * 3, 1) : Date.UTC(y + 1, 0, 1);",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "'end of the quarter' asserted from two dates."
+          },
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 139,
+            "col": 45,
+            "operator": "plus-to-minus",
+            "before": "return { date: addDays(today, ((want - w + 7) % 7) || 7), text: m[0] };",
+            "after": "return { date: addDays(today, ((want - w - 7) % 7) || 7), text: m[0] };",
+            "line_text": "    return { date: addDays(today, ((want - w + 7) % 7) || 7), text: m[0] };",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 526,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "/\\b(i|we|you) (tried|had|got)\\b.{0,80}\\b(undeliverable|delivery failure)\\b|\\bcame back( to me)? as undeliverable\\b/i],",
+            "after": "/\\b(i|we|you) (tried|had|got)\\b.{0,81}\\b(undeliverable|delivery failure)\\b|\\bcame back( to me)? as undeliverable\\b/i],",
+            "line_text": "    /\\b(i|we|you) (tried|had|got)\\b.{0,80}\\b(undeliverable|delivery failure)\\b|\\bcame back( to me)? as undeliverable\\b/i],",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Veto width pinned: 80 chars between 'tried' and 'undeliverable' is a veto, 81 a bounce."
+          },
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 559,
+            "col": 147,
+            "operator": "const-plus-one",
+            "before": "/\\b[Nn]o need to (call|contact|e-?mail|write to) (?!(?:me|us|Me|Us)\\b)[A-Z][a-z]+|\\b(verify|confirm|check|make sure|ensure) (that|whether|if)\\b.{0,80}\\b(don'?t|do not) need\\b/);",
+            "after": "/\\b[Nn]o need to (call|contact|e-?mail|write to) (?!(?:me|us|Me|Us)\\b)[A-Z][a-z]+|\\b(verify|confirm|check|make sure|ensure) (that|whether|if)\\b.{1,80}\\b(don'?t|do not) need\\b/);",
+            "line_text": "  /\\b[Nn]o need to (call|contact|e-?mail|write to) (?!(?:me|us|Me|Us)\\b)[A-Z][a-z]+|\\b(verify|confirm|check|make sure|ensure) (that|whether|if)\\b.{0,80}\\b(don'?t|do not) need\\b/);",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "{0,80} -> {1,80}: zero characters between '\\b(that|whether|if)\\b' and '\\b(don'?t|do not)' cannot match (two adjacent words need a non-word character between them), so the minimum was already 1."
+          },
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 638,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "/\\b(they|he|she|it) (\\w+ ){0,2}leave me alone\\b|\\bwould just\\b.{0,40}\\bleave me alone\\b|\\bwill leave me alone\\b|\\bno more e-?mails? for (you|him|her|them)\\b/i,",
+            "after": "/\\b(they|he|she|it) (\\w+ ){0,2}leave me alone\\b|\\bwould just\\b.{0,41}\\bleave me alone\\b|\\bwill leave me alone\\b|\\bno more e-?mails? for (you|him|her|them)\\b/i,",
+            "line_text": "  /\\b(they|he|she|it) (\\w+ ){0,2}leave me alone\\b|\\bwould just\\b.{0,40}\\bleave me alone\\b|\\bwill leave me alone\\b|\\bno more e-?mails? for (you|him|her|them)\\b/i,",
+            "caught": false,
+            "seconds": 2.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Veto width pinned: 40 chars between 'would just' and 'leave me alone' is a veto, 41 an opt-out."
+          },
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 937,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (reply.from && !suppressedBy(reply.from) && !suppressedNow.has(emailKey(reply.from))) { suppressedNow.add(emailKey(reply.from)); suppression.push({ email: reply.from, reason: \"asked to stop\", date: today, evidence: t.evidence }); applied.push(\"Added to your suppression list, with their words as the record\"); }",
+            "after": "if (reply.from || !suppressedBy(reply.from) && !suppressedNow.has(emailKey(reply.from))) { suppressedNow.add(emailKey(reply.from)); suppression.push({ email: reply.from, reason: \"asked to stop\", date: today, evidence: t.evidence }); applied.push(\"Added to your suppression list, with their words as the record\"); }",
+            "line_text": "        if (reply.from && !suppressedBy(reply.from) && !suppressedNow.has(emailKey(reply.from))) { suppressedNow.add(emailKey(reply.from)); suppression.push({ email: reply.from, reason: \"asked to stop\", date: today, evidence: t.evidence }); applied.push(\"Added to your suppression list, with their words as the record\"); }",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sales-agent/engine.mjs",
+            "line": 1002,
+            "col": 237,
+            "operator": "or-to-and",
+            "before": "summary: { replies: items.length, drafts: items.filter((x) => x.draft).length, readyToApprove: items.filter((x) => x.lint?.ok).length, suppressed: suppression.length, paused: items.filter((x) => x.triage.category === \"out_of_office\" || x.triage.category === \"not_now\").length, tasks: tasks.length, counts },",
+            "after": "summary: { replies: items.length, drafts: items.filter((x) => x.draft).length, readyToApprove: items.filter((x) => x.lint?.ok).length, suppressed: suppression.length, paused: items.filter((x) => x.triage.category === \"out_of_office\" && x.triage.category === \"not_now\").length, tasks: tasks.length, counts },",
+            "line_text": "    summary: { replies: items.length, drafts: items.filter((x) => x.draft).length, readyToApprove: items.filter((x) => x.lint?.ok).length, suppressed: suppression.length, paused: items.filter((x) => x.triage.category === \"out_of_office\" || x.triage.category === \"not_now\").length, tasks: tasks.length, counts },",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Inbox test now asserts summary.paused == 2 (one away notice, one not-now)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/sales-agent/engine.mjs",
+        "issue": "findDate returned impossible dates: an ISO date was returned as typed ('2026-13-45', '2026-02-30'), and 'YYYY/MM/DD', 'DD.MM.YYYY', 'M/D/YYYY' and 'the 31st' let Date.UTC roll a missing day into the next month ('2026/02/31' -> 2026-03-03; 'the 31st' on 10 Nov -> 1 Dec; 'the 0th' -> 30 Nov; 'the 99th' -> a February date); 'in 1 month' from 31 Jan gave 3 Mar. A follow-up was scheduled on a day the person never named.",
+        "patched": true
+      },
+      {
+        "file": "ventures/sales-agent/engine.mjs",
+        "issue": "A reply saying 'back in 99999999 days' (or 'in 9999999 months') made iso() throw RangeError: Invalid time value from inside triage, so one stranger's reply stopped runInbox for the whole inbox; 'in 999999 months' returned the malformed date '+085360-02'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "12fead9d-912f-5445-a9c7-64ce9c559d96",
+    "transcripts": 1,
+    "first": "2026-11-11T09:05:46Z",
+    "last": "2026-11-11T09:11:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 20092,
+        "thinking": 5062,
+        "cache_read": 2826860,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73157,
+        "api_equivalent_usd": 1.5528,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 20092,
+      "thinking": 5062,
+      "cache_read": 2826860,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73157,
+      "api_equivalent_usd": 1.5528,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.19,
+      "active_minutes": 6.19,
+      "model_minutes": 4.14,
+      "tool_minutes": 2.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: read a 1,000-line parser, mutation triage, two fixes with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 257.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

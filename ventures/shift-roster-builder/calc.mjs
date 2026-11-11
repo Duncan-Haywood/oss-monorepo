@@ -83,7 +83,7 @@ export const money2 = (n) => (n < 0 ? "−" : "") + "$" + Math.abs(n).toLocaleSt
 export const num = (n, d = 1) => (Math.round(n * 10 ** d) / 10 ** d).toLocaleString("en-US", { maximumFractionDigits: d });
 
 function splitLine(line) {
-  return (line.includes("\t") ? line.split("\t") : line.split(",")).map((c) => c.trim().replace(/^"|"$/g, ""));
+  return splitCells(line);
 }
 
 // Availability text: "Mon-Fri 9-17; Sat 10-14; Sun off". Empty or "any" means always free.
@@ -445,7 +445,41 @@ function overDaily(ctx, p, list) {
   return [...byDay.values()].some((m) => m > cap + 1e-9);
 }
 
+// Hard-rule check for one person's list of shifts (a list ordered by start time; see insertSorted). The pricing oracle calls this
+// millions of times on big weeks, so days within 0-30 are tracked in a bit mask and per-day minutes in a reused array instead of
+// a Set, a Map and a sort; a list with a day outside that range takes validListSlow, the original. Both give the same answer.
+const DAY_MIN = new Float64Array(31);
 function validList(ctx, p, list) {
+  const { slots, staff, restMin, o } = ctx;
+  let minutes = 0, maxEnd = staff[p].prevEnd ?? -Infinity, mask = 0;
+  for (const i of list) {
+    const s = slots[i];
+    if (s.start < maxEnd + restMin) return false;
+    if (s.end > maxEnd) maxEnd = s.end;
+    minutes += s.end - s.start;
+    if (!(s.day >= 0 && s.day <= 30 && Number.isInteger(s.day))) return validListSlow(ctx, p, list);
+    mask |= 1 << s.day;
+  }
+  if (minutes > staff[p].maxHours * 60 + 1e-9) return false;
+  const a = staff[p].maxDaily, b = o.maxDailyHours;
+  const cap = a > 0 && b > 0 ? Math.min(a, b) * 60 : a > 0 ? a * 60 : b > 0 ? b * 60 : Infinity;
+  if (cap !== Infinity) {
+    for (const i of list) DAY_MIN[slots[i].day] = 0;
+    for (const i of list) { const s = slots[i]; DAY_MIN[s.day] += s.end - s.start; }
+    for (const i of list) if (DAY_MIN[slots[i].day] > cap + 1e-9) return false;
+  }
+  const before = staff[p].streakBefore || 0;
+  let run = before, prev = before > 0 ? -1 : -9;
+  for (let d = 0; d <= 30; d++) {
+    if (!(mask & (1 << d))) continue;
+    run = d === prev + 1 ? run + 1 : 1;
+    if (run > o.maxConsecDays) return false;
+    prev = d;
+  }
+  return true;
+}
+
+function validListSlow(ctx, p, list) {
   const { slots, staff, restMin, o } = ctx;
   let minutes = 0, maxEnd = staff[p].prevEnd ?? -Infinity;
   const days = new Set();
@@ -485,7 +519,30 @@ function paidMinutes(o, s) {
   const len = s.end - s.start;
   return o.mealAfter > 0 && len > o.mealAfter * 60 ? Math.max(0, len - Math.max(0, o.mealMin)) : len;
 }
+// Hours per day in a reused array, days visited in first-seen order (the order the Map below iterates in, so both sum the same
+// numbers in the same order and give the same result bit for bit). The pricing oracle prices millions of lists on a 40-person
+// week, and the Map per call was a fifth of its time (2026-11-11 profile). Days outside 0-30 take the Map.
+const PAY_DAY = new Float64Array(31), PAY_ORDER = new Int32Array(31);
 function payParts(ctx, list) {
+  const { o, slots } = ctx;
+  let mask = 0, nd = 0;
+  for (const i of list) {
+    const d = slots[i].day;
+    if (!(d >= 0 && d <= 30 && Number.isInteger(d))) return payPartsMap(ctx, list);
+    if (!(mask & (1 << d))) { mask |= 1 << d; PAY_ORDER[nd++] = d; PAY_DAY[d] = 0; }
+    PAY_DAY[d] += paidMinutes(o, slots[i]) / 60;
+  }
+  let straight = 0, ot = 0, dt = 0;
+  for (let k = 0; k < nd; k++) {
+    let rest = PAY_DAY[PAY_ORDER[k]];
+    if (o.dailyDtAfter > 0 && rest > o.dailyDtAfter) { dt += rest - o.dailyDtAfter; rest = o.dailyDtAfter; }
+    if (o.dailyOtAfter > 0 && rest > o.dailyOtAfter) { ot += rest - o.dailyOtAfter; rest = o.dailyOtAfter; }
+    straight += rest;
+  }
+  const weekly = Math.max(0, straight - o.otAfter);
+  return { straight: straight - weekly, ot: ot + weekly, dt };
+}
+function payPartsMap(ctx, list) {
   const { o, slots } = ctx;
   const byDay = new Map();
   for (const i of list) byDay.set(slots[i].day, (byDay.get(slots[i].day) || 0) + paidMinutes(o, slots[i]) / 60);
@@ -560,9 +617,27 @@ function personScore(ctx, p, list) {
   return payroll(ctx, p, list) + softPenalty(ctx, p, h, list);
 }
 
+// A new list holding `list` and shift i, ordered by start time then index. Lists built here are already in that order, so i
+// goes in by binary search; an unordered list (some callers push by index) falls back to a full sort, with the same result.
+// The search's pricing oracle calls this millions of times on a 60-person week: the full sort with a comparator was the
+// largest single cost of a branch-and-price run (5.6 s of 19.4 s, 2026-11-11 profile).
 function insertSorted(ctx, list, i) {
-  const out = list.concat(i);
-  out.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b);
+  const slots = ctx.slots;
+  const n = list.length;
+  const before = (a, b) => slots[a].start < slots[b].start || (slots[a].start === slots[b].start && a < b);
+  for (let k = 1; k < n; k++) {
+    if (before(list[k], list[k - 1])) {
+      const out = list.concat(i);
+      out.sort((a, b) => slots[a].start - slots[b].start || a - b);
+      return out;
+    }
+  }
+  let lo = 0, hi = n;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (before(list[mid], i)) lo = mid + 1; else hi = mid; }
+  const out = new Array(n + 1);
+  for (let k = 0; k < lo; k++) out[k] = list[k];
+  out[lo] = i;
+  for (let k = lo; k < n; k++) out[k + 1] = list[k];
   return out;
 }
 
@@ -1257,8 +1332,8 @@ export function branchedScoreBound(staff, slots, options = {}, { incumbentScore,
 // fractional-knapsack bound on the person's weekly hours. Every hard rule is downward closed (dropping a shift never breaks
 // one), so a branch whose list fails validList can be dropped with everything under it. `maxNodes` caps one call; a capped
 // call returns the best set it found with exact: false.
-function makeSetPricer(ctx, { maxNodes = 2000000 } = {}) {
-  const { P, S, elig, slots, staff } = ctx;
+export function makeSetPricer(ctx, { maxNodes = 2000000, chainBound = true } = {}) {
+  const { P, S, elig, slots, staff, restMin } = ctx;
   const mins = slots.map((s) => s.end - s.start);
   const items = Array.from({ length: P }, (_, p) => [...Array(S).keys()].filter((i) => elig[p][i] && validList(ctx, p, [i])));
   const cls = shiftClasses(ctx);
@@ -1278,19 +1353,31 @@ function makeSetPricer(ctx, { maxNodes = 2000000 } = {}) {
     for (const i of base) { baseVal += w[i]; baseMin += mins[i]; }
     const capMin = staff[p].maxHours * 60;
     let bestVal = baseVal, bestSet = base, nodes = 0, exact = true;
-    const bound = (x, room) => {
-      let v = 0;
-      for (; x < cand.length && room > 0; x++) {
-        const i = cand[x];
-        if (mins[i] <= room) { v += w[i]; room -= mins[i]; } else { v += (w[i] * room) / mins[i]; room = 0; }
+    // Chain bound (2026-11-11). Every pair of shifts in a valid set is at least restMin apart (validList), so a set is a chain
+    // of intervals [start, end + restMin) that do not overlap. The fractional knapsack below ignores that, and on 80-person
+    // weeks (cap 12-36 h, 4-9 h shifts, a 10 h rest rule) it let the search wander 578k nodes in one call. The Lagrangian of the
+    // hours cap at the knapsack's own critical price lam gives a second bound that keeps the chain rule:
+    //   lam * room + (best chain of the shifts still allowed, each worth max(0, w - lam * minutes)),
+    // a weighted interval scheduling solved in O(n) over the candidates sorted by end. For any lam >= 0 it is an upper bound on
+    // what a valid set can add, and at lam it is never above the knapsack's LP value, so the search takes the smaller of the two.
+    // "Still allowed" means later in density order than x and clear of every shift already in the list by restMin.
+    const n = cand.length;
+    const chain = chainBounder(ctx, cand, mins, w);
+    const bound = (x, room, list) => {
+      let val = 0, lam = 0, r = room;
+      for (let k = x; k < n && r > 0; k++) {
+        const i = cand[k];
+        if (mins[i] <= r) { val += w[i]; r -= mins[i]; } else { val += (w[i] * r) / mins[i]; lam = w[i] / mins[i]; r = 0; }
       }
-      return v;
+      if (!chainBound || room <= 0) return val;
+      const lag = lam * room + chain(x, list, lam);
+      return lag < val ? lag : val;
     };
     const go = (x, list, val, used) => {
       if (!exact) return;
       if (++nodes > maxNodes) { exact = false; return; }
       if (val > bestVal + 1e-12) { bestVal = val; bestSet = list; }
-      if (val + bound(x, capMin - used) <= bestVal + 1e-9) return;
+      if (val + bound(x, capMin - used, list) <= bestVal + 1e-9) return;
       for (let k = x; k < cand.length; k++) {
         const i = cand[k];
         if (used + mins[i] > capMin + 1e-9) continue;
@@ -1298,7 +1385,7 @@ function makeSetPricer(ctx, { maxNodes = 2000000 } = {}) {
         if (!validList(ctx, p, nl)) continue;
         go(k + 1, nl, val + w[i], used + mins[i]);
         if (!exact) return;
-        if (val + bound(k + 1, capMin - used) <= bestVal + 1e-9) return;
+        if (val + bound(k + 1, capMin - used, list) <= bestVal + 1e-9) return;
       }
     };
     go(0, base, baseVal, baseMin);
@@ -1306,6 +1393,30 @@ function makeSetPricer(ctx, { maxNodes = 2000000 } = {}) {
   };
   pricer.cls = cls;
   return pricer;
+}
+// The chain bound shared by both pricing oracles (2026-11-11; in makeScorePricer since 2026-11-11 later). cand is a person's
+// candidate shifts in the search's density order, val[i] the value a shift adds. Returns chain(x, list, lam): the best total of
+// max(0, val - lam * minutes) over a set of cand[x..] whose shifts are clear of each other and of `list` by restMin, a weighted
+// interval scheduling solved in O(n) over cand sorted by end. Every valid set is such a chain (validList), so for any lam >= 0,
+// lam * room + chain(...) bounds what a valid set within `room` minutes can add.
+function chainBounder(ctx, cand, mins, val) {
+  const { slots, restMin } = ctx;
+  const n = cand.length;
+  const st = cand.map((i) => slots[i].start), en = cand.map((i) => slots[i].end);
+  const byEnd = [...Array(n).keys()].sort((a, b) => en[a] - en[b] || a - b);
+  const endR = byEnd.map((a) => en[a] + restMin);
+  // pred[q]: how many of byEnd end (plus rest) at or before byEnd[q] starts; they form a prefix since endR is sorted.
+  const pred = byEnd.map((a) => { let lo = 0, hi = n; while (lo < hi) { const m = (lo + hi) >> 1; if (endR[m] <= st[a]) lo = m + 1; else hi = m; } return lo; });
+  const dp = new Float64Array(n + 1), v = new Float64Array(n);
+  const clear = (a, list) => {
+    for (const j of list) { const s = slots[j]; if (!(st[a] >= s.end + restMin || s.start >= en[a] + restMin)) return false; }
+    return true;
+  };
+  return (x, list, lam) => {
+    for (let a = 0; a < n; a++) { const r = a >= x && clear(a, list) ? val[cand[a]] - lam * mins[cand[a]] : 0; v[a] = r > 0 ? r : 0; }
+    for (let q = 0; q < n; q++) { const take = v[byEnd[q]] + dp[pred[q]]; dp[q + 1] = take > dp[q] ? take : dp[q]; }
+    return dp[n];
+  };
 }
 // Shift classes for column generation: copies of one shift line (same day and times, and the same people may take them) share
 // the smallest index among them. They are interchangeable for every hard rule, so branch-and-price branches on the class.
@@ -1337,7 +1448,7 @@ export function openFloorByColumnGeneration(staff, slots, options = {}, cfg = {}
 //   - the shortfall and fairness terms at their least over every total the person could still reach (both convex in hours);
 //   - the split premium at 0 (adding a shift can close a gap, so the current count is not a floor).
 // The added shifts then enter as a fractional knapsack on the weekly hours left. `maxNodes` caps one call (exact: false).
-function makeScorePricer(ctx, { maxNodes = 2000000 } = {}) {
+export function makeScorePricer(ctx, { maxNodes = 2000000, chainBound = true } = {}) {
   const { P, S, elig, slots, staff, o, target, avgWage } = ctx;
   const mins = slots.map((s) => s.end - s.start);
   const items = Array.from({ length: P }, (_, p) => [...Array(S).keys()].filter((i) => elig[p][i] && validList(ctx, p, [i])));
@@ -1385,21 +1496,28 @@ function makeScorePricer(ctx, { maxNodes = 2000000 } = {}) {
     const capMin = staff[p].maxHours * 60;
     const wOf = (list) => list.reduce((a, i) => a + w[i], 0);
     let bestSet = base, bestCost = personScore(ctx, p, base), bestVal = wOf(base) - bestCost, nodes = 0, exact = true;
-    const knap = (x, room) => {
-      let v = 0;
-      for (; x < cand.length && room > 0; x++) {
-        const i = cand[x];
+    // The added shifts' u by fractional knapsack on the hours left, then, as in makeSetPricer, the Lagrangian of the hours cap at
+    // the knapsack's critical price with the rest rule kept (chainBounder); the smaller of the two bounds the added u.
+    const chain = chainBound ? chainBounder(ctx, cand, mins, u) : null;
+    const knap = (x, room, list) => {
+      let v = 0, lam = 0, r = room;
+      for (let k = x; k < cand.length && r > 0; k++) {
+        const i = cand[k];
         if (u[i] <= 0) break;
-        if (mins[i] <= room) { v += u[i]; room -= mins[i]; } else { v += (u[i] * room) / mins[i]; room = 0; }
+        if (mins[i] <= r) { v += u[i]; r -= mins[i]; } else { v += (u[i] * r) / mins[i]; lam = u[i] / mins[i]; r = 0; }
       }
-      return v;
+      if (!chain || room <= 0 || v <= 0) return v;
+      const lag = lam * room + chain(x, list, lam);
+      return lag < v ? lag : v;
     };
     // Upper bound on the value of any valid set that adds shifts from cand[x..] to `list`.
-    const upper = (x, list, wv, used) => {
-      let reach = 0;
-      for (let k = x; k < cand.length; k++) reach += mins[cand[k]];
-      const room = Math.max(0, Math.min(capMin - used, reach));
-      return wv - fixedLB(p, list) + knap(x, capMin - used) - minQuad(p, used / 60, (used + room) / 60);
+    // reachMin[x]: minutes of cand[x..], so the bound reads it instead of summing on every node.
+    const reachMin = new Float64Array(cand.length + 1);
+    for (let k = cand.length - 1; k >= 0; k--) reachMin[k] = reachMin[k + 1] + mins[cand[k]];
+    // `fixed` is fixedLB(p, list), worked out once per node: the node's own check and every sibling cut use the same list.
+    const upper = (x, list, wv, used, fixed) => {
+      const room = Math.max(0, Math.min(capMin - used, reachMin[x]));
+      return wv - fixed + knap(x, capMin - used, list) - minQuad(p, used / 60, (used + room) / 60);
     };
     const go = (x, list, wv, used) => {
       if (!exact) return;
@@ -1408,7 +1526,8 @@ function makeScorePricer(ctx, { maxNodes = 2000000 } = {}) {
         const c = personScore(ctx, p, list);
         if (wv - c > bestVal + 1e-9) { bestVal = wv - c; bestSet = list; bestCost = c; }
       }
-      if (upper(x, list, wv, used) <= bestVal + 1e-9) return;
+      const fixed = fixedLB(p, list);
+      if (upper(x, list, wv, used, fixed) <= bestVal + 1e-9) return;
       for (let k = x; k < cand.length; k++) {
         const i = cand[k];
         if (used + mins[i] > capMin + 1e-9) continue;
@@ -1416,6 +1535,10 @@ function makeScorePricer(ctx, { maxNodes = 2000000 } = {}) {
         if (!validList(ctx, p, nl)) continue;
         go(k + 1, nl, wv + w[i], used + mins[i]);
         if (!exact) return;
+        // Sibling cut, as in makeSetPricer: every later sibling, and everything under it, adds shifts from cand[k + 1..] to
+        // this list, which upper(k + 1, ...) bounds; once that is at or below the best found nothing later in this loop can
+        // beat it (a set replaces the best only when strictly above it), so the search returns the same best set, sooner.
+        if (upper(k + 1, list, wv, used, fixed) <= bestVal + 1e-9) return;
       }
     };
     const baseMin = base.reduce((a, i) => a + mins[i], 0);
@@ -1433,9 +1556,9 @@ function makeScorePricer(ctx, { maxNodes = 2000000 } = {}) {
 export function scoreBoundByColumnGeneration(staff, slots, options = {}, cfg = {}) {
   return scoreColumnGeneration(buildContext(staff, slots, options), cfg);
 }
-function scoreColumnGeneration(ctx, { incumbentScore = Infinity, tolerance = 0, maxNodes = 2000000, ...cfg } = {}) {
+function scoreColumnGeneration(ctx, { incumbentScore = Infinity, tolerance = 0, maxNodes = 2000000, chainBound = true, ...cfg } = {}) {
   const len = ctx.slots.map((s) => (s.end - s.start) / 60);
-  const pricer = makeScorePricer(ctx, { maxNodes });
+  const pricer = makeScorePricer(ctx, { maxNodes, chainBound });
   return columnGenerationOpen(ctx.P, len, pricer, { cls: pricer.cls, openCost: len.map((h) => BIG * h), unit: 0, incumbentOpen: incumbentScore, tolerance, ...cfg });
 }
 function priceOpenFloor(ctx, { maxSets = 60000, rounds = 200, incumbentOpen = null, incumbentScore = null, scoreRounds = 300, cutoff = null } = {}) {
@@ -3150,3 +3273,29 @@ export const TEMPLATES = {
 
 export const _paidMinutes = paidMinutes;
 export const _internals = { buildContext, scoreOwner, ownerValid, validList, BIG };
+// Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
+export const _validListPair = { validList, validListSlow, buildContext };
+
+// One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
+// "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps
+// its commas (a spreadsheet's CSV export writes "$1,200") and "" inside it is a literal quote; a
+// quote later in a cell (17" rims) is text. Before 2026-11-11 a quoted "1,200" split in two and
+// shifted every later field (portfolio/quality, defect class input-handling).
+export function splitCells(line) {
+  const unq = (c) => { c = c.trim(); return /^".*"$/s.test(c) ? c.slice(1, -1).replace(/""/g, '"') : c; };
+  if (line.includes("\t")) return line.split("\t").map(unq);
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch !== '"') cur += ch;
+      else if (line[i + 1] === '"') { cur += '"'; i++; }
+      else q = false;
+    } else if (ch === '"' && cur.trim() === "") { cur = ""; q = true; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}

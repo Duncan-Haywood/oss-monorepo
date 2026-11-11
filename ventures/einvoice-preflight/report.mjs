@@ -131,9 +131,24 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
           // numbers (not IBANs), non-EU tax ids, and KSA's simplified invoices (no buyer id,
           // a second TaxTotal that repeats the tax with its breakdown).
           const sets = official.sets || [];
+          // Under PINT also: the branch id (BT-86) carries an Australian BSB or a
+          // Singapore bank code, not a BIC (INV-026); Singapore adds payment means
+          // codes such as Z01 for GIRO (INV-044); and GST categories ZR, NG, OS need no
+          // EU exemption reason (INV-035), PINT's own sets carry those rules.
+          // Measured on OpenPeppol's examples, eval/phive-corpus.mjs (2026-11-11).
           const drop = new Set(["INV-024"]);
-          if (sets.some((x) => /^zatca/.test(x))) ["INV-022", "INV-005", "INV-017", "INV-018"].forEach((r) => drop.add(r));
-          for (let i = errors.length - 1; i >= 0; i--) if (drop.has(errors[i].rule)) errors.splice(i, 1);
+          if (sets.some((x) => /^pint/.test(x))) ["INV-026", "INV-044", "INV-035"].forEach((r) => drop.add(r));
+          // Under ZATCA also (ZATCA's 19 good-case examples, eval/phive-corpus.mjs --good,
+          // 2026-11-11): a simplified (B2C) invoice names no buyer (INV-006; BR-KSA
+          // rules require one where KSA does); credit and debit notes are Invoice
+          // documents with type code 381 or 383 (INV-034); ZATCA's own cut of EN 16931
+          // leaves out BR-33 (allowance reason, INV-052) and BR-61 (account for a credit
+          // transfer, INV-045); and a prepayment adjustment repeats a rate in the tax
+          // breakdown (INV-038, that message only: a missing row is still reported).
+          const zatca = sets.some((x) => /^zatca/.test(x));
+          if (zatca) ["INV-022", "INV-005", "INV-017", "INV-018", "INV-006", "INV-034", "INV-045", "INV-052"].forEach((r) => drop.add(r));
+          const dropped = (e) => drop.has(e.rule) || (zatca && e.rule === "INV-038" && /repeats the same tax percentage/.test(e.message));
+          for (let i = errors.length - 1; i >= 0; i--) if (dropped(errors[i])) errors.splice(i, 1);
         }
         errors.push(...official.findings);
       }
@@ -168,7 +183,12 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
 }
 
 // A "note" is listed but does not fail a file: a style observation the standard does not require.
-export const isBlocking = (finding) => finding.severity !== "note";
+// Nor does an official rule flagged "warning": KoSIT, Peppol and phive validators pass a
+// file whose only findings are warnings, and SimplerInvoicing ships its BR-NL warning
+// examples as good cases (eval/phive-corpus.mjs --good, 2026-11-11).
+export const NON_BLOCKING = new Set(["note", "warning"]);
+export const isBlocking = (finding) => !NON_BLOCKING.has(finding.severity);
+export const severityLabel = (finding) => (NON_BLOCKING.has(finding.severity) ? finding.severity : "");
 const blockingCount = (report) => report.errors.filter(isBlocking).length;
 
 export function summarizePreflight({ reports, readErrors }) {
@@ -268,9 +288,9 @@ export function buildMarkdown({ reports, readErrors }) {
       lines.push("", "Status: **PASS**", "", "No defects found in the supported checks.", "");
       continue;
     }
-    lines.push("", blockingCount(report) ? "Status: **FAIL**" : "Status: **PASS** (notes only)", "");
+    lines.push("", blockingCount(report) ? "Status: **FAIL**" : "Status: **PASS** (notes and warnings only)", "");
     for (const error of report.errors) {
-      lines.push(`- ${error.severity === "note" ? "_note_ " : ""}**${escape(error.rule)}** at \`${escape(error.path || "/")}\`: ${escape(error.message)}`);
+      lines.push(`- ${severityLabel(error) ? `_${severityLabel(error)}_ ` : ""}**${escape(error.rule)}** at \`${escape(error.path || "/")}\`: ${escape(error.message)}`);
       lines.push(`  Fix: ${escape(error.fix)}`);
     }
     lines.push("");

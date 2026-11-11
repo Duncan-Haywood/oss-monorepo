@@ -101,6 +101,21 @@ const VIEWPORTS = [
   { name: 'phone', width: 390, height: 844 },
 ];
 
+// Both colour schemes, because most pages carry a `prefers-color-scheme: dark`
+// palette and until 2026-11-11 nothing measured it: the /writing/ topic chip
+// painted white on #86a8ff (2.31:1) for every dark-mode reader. COLOR_SCHEMES
+// narrows it (`COLOR_SCHEMES=dark`). Reduced motion is emulated so a fade-in
+// is read at its final colour: without it the hub's post list measured 3.01:1
+// mid-animation against a settled 7:1.
+const SCHEMES = (process.env.COLOR_SCHEMES || 'light,dark').split(',').map((s) => s.trim()).filter(Boolean);
+for (const s of SCHEMES) {
+  if (s !== 'light' && s !== 'dark') {
+    console.error(`COLOR_SCHEMES takes light and/or dark, not ${JSON.stringify(s)}`);
+    process.exit(2);
+  }
+}
+const RUNS = SCHEMES.flatMap((scheme) => VIEWPORTS.map((v) => ({ ...v, scheme, name: `${v.name}/${scheme}` })));
+
 /** Every built HTML page, relative to the artifact root. */
 async function pagesUnder(dir, rel = '') {
   const out = [];
@@ -130,14 +145,18 @@ try {
 
 requireNonEmpty(pages, only, 'built pages');
 
-console.log(`Checking ${pages.length} pages at ${BASE}, ${VIEWPORTS.map((v) => v.name).join(' and ')}\n`);
+console.log(`Checking ${pages.length} pages at ${BASE}, ${RUNS.map((v) => v.name).join(', ')}\n`);
 
 const browser = await chromium.launch(LAUNCH);
 const findings = [];
 let checked = 0;
 
-for (const viewport of VIEWPORTS) {
-  const page = await browser.newPage({ viewport: { width: viewport.width, height: viewport.height } });
+for (const viewport of RUNS) {
+  const page = await browser.newPage({
+    viewport: { width: viewport.width, height: viewport.height },
+    colorScheme: viewport.scheme,
+    reducedMotion: 'reduce',
+  });
   for (const relative of pages) {
     const url = `${BASE}/${relative}`;
     try {
@@ -168,14 +187,14 @@ for (const viewport of VIEWPORTS) {
       });
     }
     checked++;
-    if (checked % 100 === 0) console.log(`  ...${checked}/${pages.length * VIEWPORTS.length}`);
+    if (checked % 100 === 0) console.log(`  ...${checked}/${pages.length * RUNS.length}`);
   }
   await page.close();
 }
 await browser.close();
 
 if (findings.length === 0) {
-  console.log(`\n${pages.length} pages, ${VIEWPORTS.length} viewports: no WCAG A/AA violations.`);
+  console.log(`\n${pages.length} pages, ${RUNS.length} viewport/scheme runs: no WCAG A/AA violations.`);
   process.exit(0);
 }
 

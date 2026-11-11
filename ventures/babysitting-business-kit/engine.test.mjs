@@ -215,3 +215,15 @@ test("familyStatement counts what the family paid: packages when bought, not cre
   assert.equal(s.rows.length, 2);
   assert.doesNotMatch(s.text, /gift certificate/);
 });
+
+test("household-employee flag survives a year with no threshold on file (red-team 2026-11-11)", () => {
+  // The SE wage base fell back for 2027 but HOUSEHOLD_THRESHOLD[2027] was undefined,
+  // so the nanny-tax warning silently vanished from January 2027.
+  const desk = E.emptyDesk();
+  desk.families = [{ id: "f", name: "Rivera" }];
+  desk.bookings = [{ id: "1", familyId: "f", date: "2027-03-10", start: "08:00", end: "18:00", payments: [{ amount: 8000, date: "2027-03-31", method: "cash" }] }];
+  const t = E.taxSummary(desk, 2027, "2027-04-01");
+  const flag = t.flags.find((f) => /household employee/.test(f));
+  assert.ok(flag, "flag missing for 2027");
+  assert.match(flag, /2026/);
+});

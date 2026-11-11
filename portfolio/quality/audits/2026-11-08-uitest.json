@@ -23,6 +23,6 @@
     {"severity": "medium", "what": "Request failures default to warn, so a click that triggers a 404/500 API call still passes the run (documented, but a risky default for a CI gate).", "where": "platform/uitest/lib/report.mjs:18"},
     {"severity": "low", "what": "SKIP_BUTTON silently skips buttons named close/cancel/buy/pay/checkout etc. with no note in the report.", "where": "platform/uitest/lib/explore.mjs:60"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14750"],
   "verdict": "A well-structured, honestly-limited Playwright-based runner: all 28 tests pass (with PLAYWRIGHT set, the browser half runs 5/5), the CLI gave correct verdicts and exit codes on the fixture and on hand-built pages, and 3 of 4 seeded mutations were caught. It does not meet the bar because of the claims gap: the keyless smoke check passes NaN and error-banner pages that the README's framing implies it catches, no test covers the blank-page failure, and the default test command silently skips the browser tests in environments like this one. A senior QA engineer would adopt it for smoke and a few flows after adding a text-heuristic check and flipping request-failures to fail."
 }

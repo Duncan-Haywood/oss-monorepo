@@ -187,6 +187,241 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Even carry-over (2026-11-11)
+
+Who you play right after whom. Team B *carries over* team A to team C when B plays A and then C in
+its next game; if A is the strongest side, C keeps meeting opponents just out of a hard game.
+Russell's carry-over value (1980) sums the squares of those counts: lower is fairer. The circle
+method this tool has always used is close to the worst case (8 teams: 148, with five of one team's
+seven opponents arriving straight from the same side; the least possible is 48).
+
+- `carryover.mjs`: `carryOver(schedule)` and `carryOverFromOpponents(opponents, { cyclic })` give the
+  matrix, value, worst count, repeated pairs and the floor any schedule with that many games could
+  reach. `lowCarryOverRounds(n, { seed, effort, breakWeight })` searches for a low-carry-over round
+  robin by seeded annealing from the circle method over round swaps, partial team swaps (needed: the
+  circle method is a perfect 1-factorization when n - 1 is prime, so partial round swaps alone
+  cannot leave it) and partial round swaps; `breakWeight` adds a second pass that trades carry-over
+  for fewer home/away breaks. Home/away is then set by a greedy "phase" pass plus annealing with
+  restarts, which finds the minimum n - 2 breaks on the circle timetable for 6 to 20 teams (tested).
+- The page: tick "Spread who you meet next" (share link keeps it; `readSpec({ carryOver: true })`,
+  `buildSchedule` uses `breakWeight: 10` and mirrors for a double round robin). Every schedule's
+  report now shows its carry-over value, floor and worst count, and suggests the option when one
+  pair repeats three times or more. About 1.4 s for 12 teams in Chromium; validator passes.
+- Checked: hand-worked 4-team matrix; all 720 ordered 1-factorizations of 6 teams enumerated
+  (least value 60 cyclic / 42 not, which the search reaches); 8 teams reaches Russell's bound 56
+  (cyclic) and 48 (not); validity, seeding and at least half the circle value for 7 to 20 teams.
+- Real fixture lists (`eval/carryover-real.mjs`, output in `eval/carryover-real.txt`; data
+  `eval/data/openfootball-fixtures.json`, 20 top-flight seasons 2021-22 to 2024-25 from
+  openfootball, CC0). Mirrored double round robin, ordered by matchday:
+
+  | Schedule | Teams | Carry-over | Breaks |
+  |---|---|---|---|
+  | Bundesliga (4 seasons) | 18 | 3,474 to 4,342 | 48 |
+  | Ligue 1 2023-24, 2024-25 | 18 | 1,840, 1,948 | 74, 96 |
+  | circle method | 18 | 14,610 | 48 |
+  | this tool, breakWeight 10 | 18 | 1,926 | 74 |
+  | this tool, carry-over only | 18 | 1,730 | 104 |
+  | EPL, La Liga, Serie A, Ligue 1 (14 seasons) | 20 | 2,278 to 2,564 | 70 to 146 |
+  | circle method | 20 | 21,044 | 54 |
+  | this tool, breakWeight 10 | 20 | 2,136 | 114 |
+  | this tool, carry-over only | 20 | 1,884 | 134 |
+
+  The professional schedules already avoid the circle pattern; the tool lands among them on both
+  counts, without their derby, policing and broadcast constraints. Not yet: a real rec league's
+  strength data (does carry-over move results at that level?), and the
+  search's gap to the floor (12 teams: 156 non-cyclic against a floor of 120; whether that is the
+  optimum is unknown).
+
+## A double round robin searched as a whole (2026-11-11)
+
+Mirroring the first half of a home-and-away season repeats every carry-over step, so every count
+doubles. `lowCarryOverDoubleRounds(n, { seed, effort, breakWeight })` in `carryover.mjs` searches the
+second half as a round robin of its own, and `buildSchedule` uses it whenever "Spread who you meet
+next" and a double round robin are both ticked.
+
+- Leg one is the single search's result (rounds and home/away). Leg two starts as leg one played
+  backwards with leg one's last round moved to the end: backwards turns every step i -> j into
+  j -> i, so counts spread instead of doubling, and each team's home/away pattern is leg one's
+  reversed and flipped. With `breakWeight` only leg two moves and its venues follow from leg one,
+  so the breaks in the cost are exact; with 0 both legs move on carry-over alone.
+- Kept: each pair meets once per leg (phased, as the date placement plays leg by leg), the return
+  game at the other ground (every team n - 1 home, n - 1 away), no team meets the same side twice
+  running across the halfway point and no team sits out twice running (penalty 1000 each, 0 in
+  every test). `assignVenuesDouble` then improves home/away with one choice per pair.
+- `carryOverFromOpponents` now counts the diagonal in its floor only when a schedule has a
+  back-to-back repeat (`repeats`): a double round robin can, a single one cannot. None of the 20
+  real seasons does, so their floors are unchanged.
+- Measured (`eval/carryover-real.txt`, last columns, seed 1):
+
+  | Teams | Mirrored, w=10 | Whole season, w=10 | Whole season, carry-over only | Floor |
+  |---|---|---|---|---|
+  | 18 | 1,926 / 74 breaks | 1,498 / 88 | 1,334 / 142 | 1,170 |
+  | 20 | 2,136 / 114 | 1,678 / 124 | 1,596 / 184 | 1,460 |
+
+  The 20-team result is below all 14 professional 20-team seasons (2,278 to 2,564) and inside
+  their break range (70 to 146); the 18-team one is below the Bundesliga (3,474+) and Ligue 1
+  (1,840, 1,948), with more breaks than the Bundesliga's minimum 48. 8 teams, carry-over only,
+  reaches the 200 floor (test). About 2 to 2.5 s for 18 to 20 teams in Node.
+- Open: breaks still rise 10 to 19% over mirroring; a search that moves leg one too under exact
+  breaks, or a break-minimal leg-two order (the "French" and "English" schemes) as extra starts.
+- Measured later the same day (`eval/double-frontier.mjs`, output `eval/double-frontier.txt`;
+  break weights 10, 20, 40 and 80 at seeds 1 to 3, each run set against the professional seasons
+  of its size):
+  - **The seed matters more than the weight.** At 20 teams and w=10, seeds 1 to 3 give 1,678 / 124,
+    1,820 / 112 and 1,784 / 108. Raising the weight does not reliably cut breaks: w=80 gives 116,
+    108 and 88. The break side of the search is noisy, so one run is a sample, not the curve.
+  - **18 teams, w=20 to 80 is a better default than 10.** Every one of those nine runs has 68 to 84
+    breaks at 1,574 to 1,634, and six of them dominate both Ligue 1 18-team seasons (1,840 / 74
+    and 1,948 / 96: fewer or equal breaks *and* lower carry-over). At w=10 the breaks are 84 to 88.
+  - **20 teams:** the runs dominate 2 to 5 of the 14 professional seasons each (always EPL 2021-22,
+    2023-24 and 2024-25; sometimes Serie A 2024-25 and La Liga 2023-24). None gets under 88 breaks.
+  - **Moving leg one too adds almost nothing** (tried on a scratch copy, not landed: after the leg-two
+    pass, one or two more passes over both legs under the exact break cost with re-chosen hosts):
+    18 teams 1,498 / 88 went to 1,494 / 86 and then 1,492 / 84, 12 and 20 teams did not change,
+    and it cost 1 to 2 s more. Next is best-of-k (seeds or weights, kept by carry-over plus weight
+    times breaks), which the spread above says is worth more. It would cost k times the time, so
+    it needs the Web Worker first (2.3 s on the main thread for 20 teams in Chromium today).
+
+## Best of four searches, off the page thread (2026-11-11)
+
+One carry-over search is a sample, not the curve (the seed spread above). `bestCarryOverRounds(n,
+{ double, seed, tries, weights, pick, effort })` in `carryover.mjs` runs `tries` searches, each with
+its own seed and a break weight cycling 10, 20, 40, 80, and keeps the one with the least carry-over
++ `pick` x breaks. Try 0 is exactly today's single search, so it never does worse on that score.
+It also returns every try and the frontier (tries no other beats on both counts).
+
+- **Page.** Ticking "Spread who you meet next" now runs four searches in a Web Worker
+  (`carryover-worker.mjs`, with a main-thread fallback), shows "search i of 4 done" as each ends, and
+  caches the result by teams, double, seed and trade, so a rebuild with the same settings is instant.
+  A new choice says what to keep: a balance (`pick` 10, the default), the most even carry-over (0)
+  or the fewest back-to-back home or away games (40); it is in share links (`carryOverPick`). The
+  read-out lists all four tries as carry-over/breaks. Clicked in Chromium: 20-team double round robin
+  in 11.9 s with the worst wait for a frame 17 ms (one search blocked the page for about 2.3 s before);
+  8 teams in about 5 s.
+- **CLI and tests.** `buildSchedule` takes `carryOverTries` (runs it in place) or `carryOverPlan`
+  (rounds the worker found; ignored if its team count or double flag differ) and puts a summary in
+  `schedule.carryOverSearch`. `best-of-k.test.mjs` (10 tests).
+- **Measured** (`node eval/best-of-k.mjs`, output `eval/best-of-k.txt`; seeds 1 to 3, pick 10, each
+  run set against the professional seasons of its size):
+
+  | Teams | Setting | Carry-over | Breaks | Seasons dominated | Time (Node) |
+  |---|---|---|---|---|---|
+  | 18 | 1 search (before) | 1,522 | 86.7 | 1.0 of 6 | 2.1 s |
+  | 18 | 4 x effort 0.25 (same work) | 1,528 | 84.7 | 1.0 | 3.3 s |
+  | 18 | 4 x effort 1 (the page) | 1,573 | 73.3 | 1.7 | 9.1 s |
+  | 18 | 8 x effort 0.5 | 1,562 | 73.3 | 1.7 | 9.5 s |
+  | 20 | 1 search (before) | 1,761 | 114.7 | 3.0 of 14 | 2.7 s |
+  | 20 | 4 x effort 0.25 | 1,757 | 121.3 | 1.7 | 4.3 s |
+  | 20 | 4 x effort 1 | 1,761 | 114.7 | 3.0 | 11.6 s |
+  | 20 | 8 x effort 0.5 | 1,784 | 114.0 | 2.7 | 15.1 s |
+
+  Read plainly: **short searches do not substitute for one long one** (4 x 0.25 is no better at 18
+  teams and worse at 20), so the page spends four times the work, which the worker makes affordable.
+  At 18 teams that buys 13 fewer breaks (-15%) for 3% more carry-over. **At 20 teams and pick 10 it
+  buys nothing:** try 0 wins every time, because the other weights trade 260 to 460 carry-over for
+  14 to 20 breaks, which pick 10 prices as a loss.
+- **The trade is the useful part at 20 teams** (`node eval/best-of-k.mjs --picks`, output
+  `eval/best-of-k-picks.txt`; same four searches re-ranked): "fewest back-to-back" keeps 104 breaks
+  on seeds 1 and 2 (against 124 and 112) at 1,940 and 2,028 carry-over, still below every one of the
+  14 professional 20-team seasons' 2,278, and dominates 4 of them instead of 2 or 3. At 18 teams
+  "balanced" and "fewest" agree on two seeds of three (70 to 72 breaks); "most even" is the old
+  single search. Search figures, three seeds, made-up team names; no organiser has used it yet.
+- Open: the frontier is thin (four points). Superseded the same day by eight tries on a worker
+  pool (next section).
+
+## Eight searches on a pool of workers (2026-11-11)
+
+The four tries above ran one after another in one worker. They do not depend on each other, so the
+page now runs **eight** on a pool of Web Workers, one per core (`navigator.hardwareConcurrency`, at
+most eight).
+
+- **Code** (`carryover.mjs`). `carryOverTry(n, i, { double, seed })` runs try i alone (its seed and
+  break weight are the ones `bestCarryOverRounds` gives it); `splitCarryOverTries(k, workers)` deals
+  the try numbers round robin (8 tries on 3 threads: 0,3,6 / 1,4,7 / 2,5); `combineCarryOverTries(results,
+  pick)` sorts by try number, refuses a missing one and keeps the lowest score with ties to the lower
+  number, exactly as the serial loop. `bestCarryOverRounds` is now that loop over `carryOverTry`.
+  `carryover-worker.mjs` takes `{ n, double, seed, indices }` and posts each whole try back; the old
+  whole-search message still works for cached pages.
+- **Same season on any device.** The number of tries is fixed at eight, not taken from the core
+  count, so a share link builds the same fixtures on a one-core phone and an eight-core laptop; the
+  cores only change the wait. Tested (`best-of-k.test.mjs`): pools of 1, 3 and 8 workers reporting in
+  reverse order return the serial result for single and double seasons at picks 0, 10 and 40, and a
+  JSON round trip (the worker message) changes nothing.
+- **Measured** (`node eval/best-of-k.mjs`, `eval/best-of-k.txt`, new row "8 x effort 1"; seeds 1 to
+  3, pick 10; one thread):
+
+  | Teams | Tries | Carry-over | Breaks | Score | Seasons dominated | One-thread time |
+  |---|---|---|---|---|---|---|
+  | 18 | 4 | 1,573 | 73.3 | 2,307 | 1.7 of 6 | 9.1 s |
+  | 18 | 8 | 1,560 | 68.7 | 2,247 | 1.7 | 16.8 s |
+  | 20 | 4 | 1,761 | 114.7 | 2,907 | 3.0 of 14 | 10.9 s |
+  | 20 | 8 | 1,720 | 116.0 | 2,880 | 3.0 | 25.2 s |
+
+  Eight tries lower the score at both sizes. At 18 teams both carry-over and breaks fall; at 20
+  teams one seed of three changes (1,820/112 to 1,698/116), the other two keep try 0. Modest, and on
+  one core it doubles the wait; on four cores each thread runs two tries.
+- **In Chromium** (`node eval/browser-carryover-pool.mjs`, a four-core container, 20-team double
+  round robin, the page told it has 1, 2, 4 and 8 cores; `eval/browser-carryover-pool.txt`): eight
+  tries in 20.2 s on one thread, 10.0 s on two, 6.1 s on four (8 cores: 6.3 s, the container has four),
+  against 11.9 s for the old four tries on one thread; worst wait for a frame 17 ms at every size; the
+  same kept season (1,678/124 on seed 1) at every core count. Machines with fewer than two cores wait
+  longer than before (20 s, not 12) for the extra four tries.
+
+## Carry-over under a cap on breaks (2026-11-11)
+
+Every search above prices a break and trades it for carry-over, and none got a 20-team season under
+88 breaks. The reason is leg one: at 20 teams the single search's leg has 46 to 52 breaks against a
+minimum of 18 (18 teams: 28 to 34 against 16), so the season can not get far below twice that. The
+weights never reach the low-break end of the trade, where the Bundesliga sits (48 breaks, 3,474 to
+4,342 carry-over).
+
+- **Code** (`carryover.mjs`). `lowCarryOverCappedRounds(n, { seed, maxBreaks })` starts from the
+  circle method with its minimum-break home/away (n - 2 for an even league) and anneals carry-over
+  alone, refusing any move that takes the season over `maxBreaks` or a team's home and away games
+  more than one apart. Each timetable move either keeps every team's ground in each round (only
+  allowed if every match still has one team at home) or carries each match's ground with it (the
+  pattern changes, so breaks and balance are rechecked), and a fourth move flips one match.
+  `lowCarryOverDoubleRounds(n, { maxBreaks, legBreaks })` runs it for leg one and then moves leg two
+  on carry-over alone under the season cap. Leg two starts from whichever of three orders is best
+  inside the cap: leg one backwards (what the weighted search uses; nearly every team breaks at the
+  halfway point and where leg one's last round rejoins, about 2n more), the mirror (fewest breaks,
+  every carry-over count doubled) or the mirror with its first and last rounds swapped.
+- **Page and CLI.** "Spread who you meet next" now runs ten tries: the eight weighted ones,
+  unchanged, plus two capped ones (`cappedTryBreaks`: 3(n - 2) and 3(n - 2) + 12 over a
+  home-and-away season, n - 2 and n + 2 a leg). A fourth choice, "the fewest back-to-back home or
+  away games possible, then the most even carry-over" (`fewest`, pick 1000, in share links), keeps
+  the capped minimum. The old "fewest" choice is now labelled "fewer" (same value, same links).
+  Odd leagues: a bye ends a run, and the capped search can not move a bye without unbalancing a team,
+  so their two extra tries are weighted ones at 160 and 320. `buildSchedule` takes
+  `carryOverCapped` beside `carryOverTries`. Tests: `capped-breaks.test.mjs` (9).
+- **Measured** (`node eval/capped-breaks.mjs`, `eval/capped-breaks.txt`; seeds 1 to 3, recounted from
+  the rounds):
+
+  | Teams | Season cap | Carry-over | Breaks | Real seasons dominated |
+  |---|---|---|---|---|
+  | 18 | 48 (the minimum) | 2,154 to 2,674 | 48 | all 4 Bundesliga (3,474 to 4,342 at 48) |
+  | 18 | 60 | 1,696 to 1,858 | 60 | 1 or 2 Ligue 1 (1,840 / 74, 1,948 / 96) |
+  | 18 | 72 | 1,564 to 1,704 | 72 | both Ligue 1 |
+  | 20 | 54 (the minimum) | 4,734 to 5,080 | 54 | none (circle method 21,044 at 54; none of the 14 has under 70) |
+  | 20 | 90 | 2,870 to 3,180 | 82 to 88 | none |
+
+  Read plainly: **at 18 teams the Bundesliga's minimum-break fixture list could have had 38 to 50%
+  less carry-over at the same 48 breaks**, and the capped curve fills the gap between the minimum and
+  the weighted tries. **At 20 teams the capped search is weak**: leg one stays near 1,100 to 1,400
+  carry-over at 18 to 22 breaks, against about 500 for the unconstrained search, so above about 60
+  breaks the weighted tries are better. A "squeeze" from the weighted result down to a cap was tried
+  on a scratch copy and not landed: it never left the starting timetable (every move that cut breaks
+  cost more carry-over than the price of a break).
+- **What the page keeps** (same file, second table): the two capped tries change the "balanced" and
+  "most even" picks in none of six runs and "fewer" in one (18 teams, seed 2: 1,550 / 72 to 1,786 /
+  60). "Fewest" keeps the capped minimum every time: 18 teams 2,330 / 2,596 / 2,502 at 48 breaks
+  (all four Bundesliga seasons dominated; the eight weighted tries' fewest was 58 to 72 breaks), 20
+  teams 4,552 to 5,968 at 54 (weighted fewest 82 to 86). Ten tries take 16 to 17 s on one thread at
+  18 teams and 23 s at 20 (eight took 16.8 and 25.2 s on the earlier, less loaded run); a 12-team
+  season in Chromium ran all ten with no page errors and the same kept season on 1 and 4 cores.
+- Open: a 20-team leg one at low breaks (a start other than the circle method, or a search over
+  home/away patterns first), and odd leagues under a cap.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

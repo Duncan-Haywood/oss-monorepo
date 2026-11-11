@@ -595,12 +595,12 @@ export function renderEngineeringPage(model, { baseUrl = '' } = {}) {
 <meta name="robots" content="noindex">
 ${canonical}<style>
 :root{
-  --bg:#f7f7f4;--surface:#fff;--text:#1d1d22;--muted:#5c5b66;--faint:#8a8994;--border:#e3e1da;--accent:#3949ab;--code:#efede7;
+  --bg:#f7f7f4;--surface:#fff;--text:#1d1d22;--muted:#5c5b66;--faint:#706f78;--border:#e3e1da;--accent:#3949ab;--code:#efede7;
   --ok:#2b8a3e;--warn:#b35c00;--bad:#c92a2a;
   --t-ventures:#1c7ed6;--t-research:#7048e8;--t-process:#e8590c;--t-review:#2b8a3e;--t-redteam:#c2255c;--t-explore:#0b7285;--t-creative:#9c36b5;--t-other:#868e96;
 }
 @media (prefers-color-scheme:dark){:root{
-  --bg:#111114;--surface:#19191e;--text:#ececf1;--muted:#a3a2ad;--faint:#75747f;--border:#2c2c34;--accent:#9fa8ff;--code:#25252d;
+  --bg:#111114;--surface:#19191e;--text:#ececf1;--muted:#a3a2ad;--faint:#8e8d96;--border:#2c2c34;--accent:#9fa8ff;--code:#25252d;
   --ok:#69db7c;--warn:#ffa94d;--bad:#ff8787;
   --t-ventures:#4dabf7;--t-research:#9775fa;--t-process:#ff922b;--t-review:#51cf66;--t-redteam:#f06595;--t-explore:#3bc9db;--t-creative:#da77f2;--t-other:#adb5bd;
 }}
@@ -625,6 +625,7 @@ section{background:var(--surface);border:1px solid var(--border);border-radius:1
 .grid2>section{margin:0;min-width:0}
 @media (max-width:820px){.grid2{grid-template-columns:minmax(0,1fr)}}
 .scroll{overflow-x:auto}
+.scroll:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 table{border-collapse:collapse;width:100%;font-size:14px}
 th{text-align:left;font-weight:600;color:var(--muted);font-size:12.5px;border-bottom:1px solid var(--border);padding:6px 8px}
 td{border-bottom:1px solid var(--border);padding:7px 8px;vertical-align:top}
@@ -675,7 +676,7 @@ footer{color:var(--muted);font-size:13px;padding:8px 0 40px}
 <section>
   <h2>What sessions are working on</h2>
   <p class="sub">The 30 most recent run records: the task each session took, its pull request and that PR's state when <code>prompts/derived/github.json</code> was last refreshed, and what the session cost (API-equivalent) and took (active minutes) where it measured them.</p>
-  <div class="scroll"><table>
+  <div class="scroll" tabindex="0" role="region" aria-label="What sessions are working on"><table>
     <thead><tr><th>Date</th><th>Track</th><th>Task</th><th>PR</th><th class="num">Cost</th><th class="num">Min</th></tr></thead>
     <tbody>
 ${runRows || '<tr><td colspan="6" class="faint">No run records.</td></tr>'}
@@ -686,7 +687,7 @@ ${runRows || '<tr><td colspan="6" class="faint">No run records.</td></tr>'}
 <section>
   <h2>Recently landed on main</h2>
   <p class="sub">${historyNote} The areas column is every top-level part of the tree the merge changed.</p>
-  ${model.recentMerges ? `<div class="scroll"><table>
+  ${model.recentMerges ? `<div class="scroll" tabindex="0" role="region" aria-label="Recently landed on main"><table>
     <thead><tr><th>Date</th><th>PR</th><th>Title</th><th>Areas</th></tr></thead>
     <tbody>
 ${mergeRows}
@@ -698,7 +699,7 @@ ${mergeRows}
 <section>
   <h2>Where the effort goes</h2>
   <p class="sub">Sessions and compute by track over 30 days (${model.monthRuns} sessions${model.monthMeasured ? `, ${money(model.monthSpend)} measured on ${model.monthMeasured}` : ''}).</p>
-  <div class="scroll"><table>
+  <div class="scroll" tabindex="0" role="region" aria-label="Where the effort goes"><table>
     <thead><tr><th>Track</th><th class="num">Sessions</th><th class="num">Share</th><th class="num">Compute (measured)</th><th class="num">Partial</th></tr></thead>
     <tbody>${trackRows || '<tr><td colspan="5" class="faint">No sessions in the window.</td></tr>'}</tbody>
   </table></div>
@@ -731,7 +732,7 @@ ${mergeRows}
 <section>
   <h2>Friction the sessions reported</h2>
   <p class="sub">Files run records blamed for slowing a session down in the last 30 days (<code>doc_friction</code>), with the most recent complaint. The review track works from this list.</p>
-  <div class="scroll"><table>
+  <div class="scroll" tabindex="0" role="region" aria-label="Friction the sessions reported"><table>
     <thead><tr><th>File</th><th class="num">Reports</th><th>Latest</th></tr></thead>
     <tbody>${frictionRows || '<tr><td colspan="3" class="faint">None reported.</td></tr>'}</tbody>
   </table></div>
@@ -740,7 +741,7 @@ ${mergeRows}
 <section>
   <h2>Process backlog</h2>
   <p class="sub">Open items in <code>prompts/process/backlog/</code>, best effect-for-cost first.</p>
-  <div class="scroll"><table>
+  <div class="scroll" tabindex="0" role="region" aria-label="Process backlog"><table>
     <thead><tr><th>Id</th><th>Title</th><th class="num">Effect</th><th class="num">Cost</th><th>Owner</th></tr></thead>
     <tbody>${backlogRows || '<tr><td colspan="5" class="faint">Empty.</td></tr>'}</tbody>
   </table></div>

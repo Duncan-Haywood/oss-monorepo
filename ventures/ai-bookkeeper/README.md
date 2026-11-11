@@ -178,9 +178,10 @@ Suggestions never post alone unless memory or a rule made them. Which
 of the two extra layers adds the most cannot be read off this table: each
 "without" row removes a layer the others partly cover.
 
-**Not yet measured:** accuracy of the AI layer (no key or local model in the
-build environment, and model hosts were not reachable from it), and any real
-bank export.
+**Measured since:** a local Qwen2.5 7B on synthetic lines (README "The AI layer") and,
+with a 14B as well, on 140 real City of Toronto card lines ("A year of Toronto card lines and the AI layer");
+real bank and card exports in the sections below. A hosted model (Claude, GPT, Gemini)
+has not been measured: no key in the build environment.
 
 ### The AI layer (harness ready, no reading yet)
 
@@ -302,7 +303,9 @@ other payee's first filed line in the same view, and offers the plurality when a
 payees are in that view and at least 40% of them agree; otherwise it backs off from shape
 and size to shape, size, then direction, and stops at the first view with 8 payees if that
 view is split. It is a suggestion for review only: confidence at most 0.5, never posted
-alone, and the AI layer in fill mode still takes the line. The thresholds were set before
+alone. Since 2026-11-11 the AI layer's default fill mode leaves the guess alone (on real
+card lines a 7B model over the guess did worse than the guess, "A year of Toronto card
+lines" below); `mode: "fill-guess"` lets the model take the line. The thresholds were set before
 the first reading and not tuned.
 
 Online, each line at its real amount, first-time payees only, right of all:
@@ -534,6 +537,159 @@ Description` are read as the MCC, and rows with an amount but no date or descrip
 counted in one note. The real file reads all 4,823 lines with their codes. Tests:
 `toronto-pcard.test.mjs` (4, made-up rows under the real header).
 
+### A year of Toronto card lines, and the AI layer on what the rules miss (2026-11-11)
+
+The city's open-data portal answered from the session that wrote this, so the reading
+above now runs on a full year: every PCard line from July 2025 to June 2026 in the
+portal's `pcard-expenses.csv` (85,415 lines; fetch command in `eval/toronto-ai.mjs`,
+data not copied here). In November 2025 the city moved to 7-digit G/L accounts;
+`eval/toronto-gl-2025.json` pairs each new account with the 4-digit one that carried the
+same G/L description in the July-November rows (167 pairs, all one to one), so the
+account map written for 2017 still applies. 68,638 charges land on a chart account.
+The importer reads the portal file as it comes (`2025-07-02 00:00:00` dates, the
+`Cost Centre` spelling).
+
+**The whole city as one set of books** (replayed a day at a time from empty books):
+
+| | every line (68,638) | first-seen merchant (4,934) |
+|---|---|---|
+| category layer off | 88.2% / 10.8% | 60.6% / 32.5% |
+| default | 89.6% / 10.1% | 74.8% / 24.0% |
+
+The November 2017 month gave 62.2% to 72.7% on first-seen merchants; a year gives 60.6%
+to 74.8%, so the gain holds and grows a little as the books learn which categories this
+buyer files where.
+
+**Each division as its own books** is closer to a small business (one buyer, one
+spending pattern). Right / wrong; "blank" is no suggestion at all:
+
+| division | lines | every line right (wrong) | first-seen | right | wrong | blank |
+|---|---|---|---|---|---|---|
+| Parks and Recreation | 34,799 | 92.7% (7.3%) | 2,016 | 83.6% | 16.2% | 0.1% |
+| Toronto Water | 6,130 | 86.8% (13.0%) | 772 | 77.1% | 22.2% | 0.8% |
+| Seniors Services & Long-Term Care | 5,000 | 88.8% (11.0%) | 498 | 71.7% | 26.7% | 1.6% |
+| Legal Services | 3,686 | 98.9% (0.7%) | 50 | 50.0% | 38.0% | 12.0% |
+| Economic Development & Culture | 2,814 | 76.6% (17.9%) | 792 | 56.8% | 26.1% | 17.0% |
+| Solid Waste Management | 2,224 | 92.3% (7.5%) | 312 | 77.2% | 21.5% | 1.3% |
+| Corporate Real Estate | 2,090 | 90.7% (9.1%) | 392 | 78.3% | 20.9% | 0.8% |
+| Paramedic Services | 1,433 | 76.7% (18.6%) | 382 | 57.1% | 29.1% | 13.9% |
+| Shelter & Support Services | 1,329 | 86.1% (13.2%) | 304 | 73.0% | 23.7% | 3.3% |
+| Public Health | 1,317 | 77.0% (18.6%) | 339 | 62.5% | 23.3% | 14.2% |
+| Transportation Services | 1,149 | 88.9% (8.9%) | 229 | 70.7% | 20.1% | 9.2% |
+| Fire Services | 846 | 81.6% (15.5%) | 272 | 64.0% | 27.2% | 8.8% |
+| Employment & Social Services | 793 | 88.9% (9.8%) | 194 | 71.6% | 23.2% | 5.2% |
+| Municipal Licensing & Standards | 534 | 75.7% (20.4%) | 181 | 61.3% | 27.1% | 11.6% |
+| City Clerk's Office | 438 | 68.5% (23.3%) | 180 | 55.0% | 26.1% | 18.9% |
+| Fleet Services | 436 | 88.1% (9.4%) | 68 | 60.3% | 26.5% | 13.2% |
+
+(`node eval/toronto-pcard.mjs --file <year csv> --division "<name>"`.) First-seen
+merchants are right 55% to 84% of the time across sixteen buyers, wrong 16% to 38%. The
+small divisions, the size of a small business's card spend, sit at the bottom: fewer
+earlier lines to learn from, and more one-off merchants with no category the table
+maps. That remainder is what the AI layer is for.
+
+**The AI layer on what the rules leave** (`eval/toronto-ai.mjs`). On the whole-city year
+the four layers leave 307 lines (0.4%) for the AI layer's fill mode: 220 with only the
+new-payee guess, 87 with nothing. An evenly spaced 140 of them (from August 2025 on, so the
+books have a month behind them) went to Qwen2.5 7B Instruct (Q4_K_M GGUF from Hugging
+Face, llama.cpp through `llama-cpp-python` 0.3.16, CPU only, 4 cores, temperature 0) in 7
+batches of 20 through the page's own `aiSuggest`, each with the 40 lines filed just before
+it as examples, so nothing later leaks in. Every run sends the same 140 lines in the same
+batches. Right / wrong of 140:
+
+| | right | wrong | no answer |
+|---|---|---|---|
+| rules alone (new-payee guess on 98, nothing on 42) | 43 (30.7%) | 55 | 42 |
+| model, prompt before this change (no merchant category) | 25 | 105 | 10 |
+| model, merchant category on each line | 27 | 112 | 1 |
+| model, merchant category and the account's name asked for | 35 | 104 | 1 |
+| the same, name check on (code and name must agree) | 35 | 97 | 8 |
+| model over the guess (old fill mode), best prompt | 38 (27.1%) | 100 | 2 |
+| **guess kept, model on the 42 blank lines only (new default)** | **48 (34.3%)** | 90 | 2 |
+
+What it says:
+
+- **On real card lines a 7B model is worse than the rules' weakest layer.** The
+  synthetic reading (7 of 9 blank lines filled right) does not carry over: here it is
+  right on 18-25% of lines and wrong on most of the rest. Over the new-payee guess it
+  rescued 22 lines and broke 27-30, so fill mode no longer replaces that guess (`ai.mjs`;
+  the old behaviour is `mode: "fill-guess"`). Keeping the guess and letting the model fill
+  only blank lines gives 48 right against the rules' 43, at the cost of 35 wrong
+  suggestions on lines that had none (all go to review; nothing the model says posts).
+- **The merchant category barely moves it** (25 to 27 right). It is sent now because a
+  person reading the line would want it and it costs a few tokens, not because it was
+  shown to help this model.
+- **Asking for the account's name as well helped** (27 to 35 right), and the name check
+  dropped 7 answers whose code and name disagreed, all 7 wrong (an answer "Utilities and
+  phone" under code 6150, which is Wages). Both are now in `ai.mjs`.
+- Caveats: one buyer (a city, not a small business), one model size, 140 lines, one
+  sample; the reasons the model wrote were often sensible ("electricity or gas service")
+  while the account was not, which points at the chart lookup more than at understanding.
+  A hosted model is the obvious next reading. A 20-line batch took 3.5 to 8 minutes on 4
+  cores; Node's fetch gives up at 300 s, so long local runs need `node --import` of an
+  undici `Agent` with `headersTimeout: 0` (command in the file).
+
+**A bigger local model on the same 140 (2026-11-11, later).** Qwen2.5 14B Instruct
+(Q4_K_M GGUF, bartowski's build on Hugging Face; llama-cpp-python 0.3.16 server, CPU
+only, 4 cores, `--n_ctx 8192 --use_mmap false`, temperature 0), the current prompt
+(merchant category, account name asked for), the same 140 lines in the same seven
+batches. Right / wrong / no answer of 140:
+
+| | right | wrong | no answer |
+|---|---|---|---|
+| rules alone | 43 | 55 | 42 |
+| 7B, best prompt (above) | 35 | 104 | 1 |
+| **14B, same prompt** | **24** | 84 | 32 |
+| 14B over the guess (old fill mode) | 33 | 95 | 12 |
+| **14B, guess kept, model on the 42 blank lines only (default)** | **48 (34.3%)** | 80 | 12 |
+
+- **The bigger model is not better at this.** It was right on fewer lines than the 7B
+  (24 against 35). Over the new-payee guess it rescued 16 and broke 26.
+- **The kind of error changed.** Every one of its 140 account names matched its code, so
+  the name check dropped nothing, where the 7B lost its place in the chart 7 times. Its
+  wrong answers were mostly sensible readings of the merchant that differ from how this
+  buyer files. Software stores went to Software (6060) when the city filed them under
+  supplies (6100) or dues and training (6170), and a hosting company went to "ask my
+  accountant". It also answered 9999 (uncategorized) on 32 lines, which is an honest
+  abstention and costs nothing.
+- **Under the default fill mode the two models tie on right answers** (48 of 140, 5 of the
+  42 blank lines). The 14B makes 10 fewer wrong suggestions (80 against 90) because it
+  abstains instead of guessing. So the default stays as it is. Nothing in `ai.mjs` changed.
+- **It is slow.** 509 to 602 s per 20-line batch, 65 minutes for the 140 (prompt about 3,300
+  tokens at 16 tokens/s, then about 650 output tokens at 1.7/s). It needs about 11 GB of RAM:
+  the first try, at `--n_ctx 16384` with the file memory-mapped, was killed for memory.
+  `--resume` (below) keeps finished batches when a run dies.
+- What would help is knowing this buyer's habits, not a bigger model. A hosted model is
+  still unmeasured (no key in the build environment).
+
+`eval/toronto-ai.mjs` now rewrites `--out` after every batch, and `--resume` keeps the
+batches it already holds (a failed call is sent again). Tests: `toronto-ai.test.mjs`.
+
+**Split categories: the books' habit for the category, measured and left off.** On the
+same 140 lines the merchant category has a long history in these books (a median of 50
+earlier lines) but no majority account, so the category memory (three lines, a majority)
+says nothing and the line falls through to the new-payee guess. The commonest account
+for the category anyway was right on 52 of the 140, against 43 for the rules and 24 to 35
+for either model. Put ahead of the new-payee guess it gave 59. That reading is on the lines
+that suggested the idea, so before turning anything on I built it as a layer
+(`mccPlurality` in `categorize.mjs`: just before the new-payee layer, confidence capped at
+0.4, never posts) and read it on data it was not found on. First-seen lines, right / wrong /
+blank:
+
+| books | off | on |
+|---|---|---|
+| Toronto, whole city year (4,934) | 74.8% / 24.0% / 1.2% | 75.1% / 24.2% / 0.7% |
+| Toronto, sixteen divisions as their own books (7,057) | 5,116 / 1,552 / 389 | 5,138 / 1,598 / 321 |
+| Scottish Government 2020-2026, held out (1,923) | 66.0% / 30.9% / 3.1% | 66.8% / 31.9% / 1.4% |
+
+On the divisions it added 22 right and 46 wrong. Economic Development & Culture alone
+added 17 right and 40 wrong. On the whole city and in Scotland it turned blanks into
+guesses that were right about as often as wrong. Right of suggested fell slightly
+everywhere. The 140-line gain came from where the 140 come from: lines the rules had
+already given up on. So the layer is **off** (`MCC_MEMORY.plurality: false`) and kept for
+measurement. `--plurality` on `eval/toronto-pcard.mjs` (with `--division`) and on
+`eval/scotgov-card.mjs` reproduces the table. Test: `mcc.test.mjs`, "split category".
+
 ### Round-trip property test (2026-10-22)
 
 `node --test eval/roundtrip-fuzz.test.mjs` renders 40 seeded random statements (5-34 rows) with the quirks real exports have and checks `readStatement` returns exactly the rows rendered: BOM, CRLF, `;` delimiter, quoted commas and quotes, parenthesised negatives, thousands separators, European decimals, split debit/credit columns, and ISO, M/D/Y, D/M/Y and "12 Mar 2026" dates. 40 of 40 pass. Generated, not real bank data; a row that reads "PAYMENT - THANK YOU" is left out on purpose, because the card sign heuristic flips signs for it.
@@ -669,6 +825,31 @@ the prior-year route is often smaller. Tested against hand arithmetic
 (`estimatedtax.test.mjs`, 7 pass); the 2026 brackets and standard
 deductions (all three filing statuses) matched the IRS text of Rev. Proc. 2025-32 itself on 2026-10-23 (tables 1-3, standard deductions, the section 199A thresholds), the 2025 ones are typed from memory and unchecked (every result warns; pass `brackets`). Above the section 199A threshold (2026-10-28) the QBI deduction is limited to 50% of the business's own W-2 wages (`--business-wages $`; none for a sole proprietor with no staff), phased in over the range, and `--service` (a specified service trade) loses it over the same range, as `scorp` does; the $400 minimum still applies. The 2026 range (75,000 single / 150,000 joint) is unchecked against the statute (`qbiRange`), and the property leg is not modelled. `--itemized $` (2026-10-28) takes your Schedule A total (after the SALT cap and medical floor, which are yours to apply) and uses it when larger than the standard deduction; `--investment $` (the part of `--other` that is interest, dividends, gains or passive rent) adds the 3.8% net investment income tax (Form 8960) over the statutory $200,000 / $250,000 joint AGI line (tested by hand arithmetic, `estimatedtax.test.mjs`). Leaves out state tax, most credits (the child credits are in),
 the 0.9% Additional Medicare Tax's withholding side. Not tax advice. On the page since 2026-10-23 ("Optional: federal tax estimate and quarterly payments"), same function as the CLI.
+
+### Earned income credit, checked against the printed 2025 EIC Table (2026-11-11)
+
+`--eitc-children N` adds the refundable earned income credit (built-in 2025 and 2026 schedules,
+or `eitc` in a `--tax-table` file); `--eitc-table` (on by default in the page) works it the way the
+return does. The 2025 EIC Table in the Form 1040 instructions (pages 49-60 of
+`https://www.irs.gov/pub/irs-pdf/i1040gi.pdf`, read 2026-11-11) is in
+`fixtures/eic-table-2025.json`: 1,374 rows of $50 bands, eight columns, the eight footnoted end
+cells. `eicTableCredit` in `estimatedtax.mjs` reproduces all 10,992 cells: the credit at each
+band's midpoint, rounded to the dollar, except that the band holding the earned-income amount
+prints the (rounded) maximum, the phase-out starts only with the first band wholly above the
+phase-out start, and the last band is cut where the credit runs out. `eic-table.test.mjs` checks
+the bottom, middle and top of every band in cents (over 60,000 lookups). With the table on,
+the estimate follows Worksheet A: earned income's lookup, or the smaller of it and AGI's lookup
+when AGI differs and reaches the phase-out start.
+
+Reading the worksheet found a bug in the old formula: it took the phase-out off the phase-in
+credit, so someone with low earnings and other income (unemployment pay, a pension) above the
+phase-out start got too little. Single with one child, $5,000 of wages and $25,000 of other
+income: about $637 before, $1,709 now, which is the table's figure (26 U.S.C. 32(a)(2) subtracts
+the phase-out from the maximum credit, not from the phase-in amount). Without `--eitc-table`
+the exact figures are within $1 of the table on every band except the two straddle bands per
+column, where the table rounds up to the maximum (up to $2.25). Still assumed: the
+qualifying-child, age, residency and SSN tests. The 2026 table is not printed yet; the same rule
+on Rev. Proc. 2025-32's figures is what it is expected to show. Not tax advice.
 
 ## Schedule C worksheet (US sole proprietors)
 

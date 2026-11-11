@@ -78,6 +78,7 @@ const ALIASES = {
   date: ["date of service", "service date", "dos", "date", "service dt", "posted date"],
   code: ["cpt", "cpt code", "cpt hcpcs", "hcpcs", "procedure code", "procedure", "code", "service code", "cpt/hcpcs", "rev code", "revenue code"],
   desc: ["description", "service description", "service", "item", "item description", "procedure description", "charge description"],
+  mod: ["modifier", "modifiers", "mod", "mods", "modifier 1", "mod 1", "cpt modifier", "modifier s"],
   qty: ["qty", "quantity", "units", "unit", "service units"],
   charge: ["charge", "charges", "amount", "billed", "billed amount", "total charge", "total charges", "gross charge", "amount billed", "price"],
   paid: ["insurance paid", "ins paid", "plan paid", "payer paid", "insurance payment", "insurance payments", "payments"],
@@ -122,8 +123,36 @@ export function codeKind(code) {
   if (/^0?\d{3,4}$/.test(c)) return "revenue";
   return "other";
 }
-const cleanCode = (c) => String(c).trim().toUpperCase().replace(/\s+/g, "").replace(/-\d{2}$/, "");
-const modifierOf = (c) => (String(c).trim().toUpperCase().match(/-(\d{2}|[A-Z]{2})$/) || [])[1] || "";
+// "82947-XE", "99213-25-59" or "82947 59": the code, then two-character
+// modifiers (digits or letters: 25, 59, XE, XS, XP, XU, RT ...). A raw value
+// that does not split this way is kept whole and judged as an odd code.
+export function splitCode(raw) {
+  const s = String(raw ?? "").trim().toUpperCase();
+  const parts = s.split(/[\s-]+/).filter(Boolean);
+  if (parts.length > 1 && parts.slice(1).every((m) => /^[A-Z0-9]{2}$/.test(m)) && codeKind(parts[0]) !== "other") {
+    return { code: parts[0], modifiers: parts.slice(1) };
+  }
+  return { code: s.replace(/\s+/g, ""), modifiers: [] };
+}
+// A separate Modifier column: "59", "59, XU", "25 59", "-59".
+const modifierList = (v) => String(v ?? "").toUpperCase().split(/[^A-Z0-9]+/).filter((m) => /^[A-Z0-9]{2}$/.test(m));
+// Distinct procedural service modifiers (CMS NCCI policy manual, ch. I, E.1):
+// 59 and its X{EPSU} subsets; 91 is a repeat clinical lab test.
+export const DISTINCT_MODIFIERS = ["59", "XE", "XS", "XP", "XU", "91"];
+
+// One key per calendar day whatever the bill's format: 3/4/2026, 03/04/26 and
+// 2026-03-04 are the same day. Unparsed text is kept as it is.
+export function dayKey(text) {
+  const s = String(text ?? "").trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return `${m[1]}-${m[2].padStart(2, "0")}-${m[3].padStart(2, "0")}`;
+  m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/);
+  if (m) {
+    const y = m[3].length === 2 ? "20" + m[3] : m[3];
+    return `${y}-${m[1].padStart(2, "0")}-${m[2].padStart(2, "0")}`;
+  }
+  return s;
+}
 
 export function normalizeBill(parsed) {
   const { rows, lines } = parsed;
@@ -142,9 +171,12 @@ export function normalizeBill(parsed) {
     if (/^(sub)?total|^balance|^grand/i.test(get("desc")) || /^(sub)?total/i.test(get("code"))) { skipped.push({ line: lines[r], reason: "total row" }); continue; }
     const qtyRaw = get("qty");
     const qty = qtyRaw === "" ? 1 : parseFloat(qtyRaw.replace(/,/g, ""));
+    const split = splitCode(get("code"));
+    const mods = [...new Set([...split.modifiers, ...modifierList(get("mod"))])];
     const money2 = (k) => { const v = parseMoney(get(k)); return v === null || Number.isNaN(v) ? null : v; };
     records.push({
-      line: lines[r], date: get("date"), rawCode: get("code"), code: cleanCode(get("code")), modifier: modifierOf(get("code")),
+      line: lines[r], date: get("date"), day: dayKey(get("date")), rawCode: get("code"), code: split.code,
+      modifiers: mods, modifier: mods.join("-"),
       desc: get("desc"), qty: Number.isFinite(qty) && qty > 0 ? qty : 1, qtyGiven: qtyRaw !== "" && Number.isFinite(qty),
       charge, paid: money2("paid"), adj: money2("adj"), owed: money2("owed"),
     });
@@ -195,7 +227,7 @@ export function analyze(records, opts = {}) {
   // 1. Possible duplicates: same date, code, description, quantity and charge.
   const seen = new Map();
   for (const r of records) {
-    const key = [r.date, r.code, r.modifier, r.desc.toLowerCase(), r.qty, r.charge].join("|");
+    const key = [r.day, r.code, r.modifier, r.desc.toLowerCase(), r.qty, r.charge].join("|");
     if (!seen.has(key)) seen.set(key, []);
     seen.get(key).push(r);
   }
@@ -212,7 +244,7 @@ export function analyze(records, opts = {}) {
   const byDayCode = new Map();
   for (const r of records) {
     if (!r.code) continue;
-    const key = r.date + "|" + r.code;
+    const key = r.day + "|" + r.code;
     if (!byDayCode.has(key)) byDayCode.set(key, []);
     byDayCode.get(key).push(r);
   }
@@ -237,9 +269,10 @@ export function analyze(records, opts = {}) {
   }
 
   // 3. Unbundling: components billed alongside the panel that contains them.
-  const dates = new Set(records.map((r) => r.date));
-  for (const date of dates) {
-    const day = records.filter((r) => r.date === date && r.code);
+  const days = new Map();
+  for (const r of records) if (!days.has(r.day)) days.set(r.day, r.date);
+  for (const [dkey, date] of days) {
+    const day = records.filter((r) => r.day === dkey && r.code);
     const have = new Map();
     for (const r of day) { if (!have.has(r.code)) have.set(r.code, []); have.get(r.code).push(r); }
     for (const [panel, parts] of Object.entries(PANEL_MAP)) {
@@ -249,7 +282,7 @@ export function analyze(records, opts = {}) {
       const lines = hit.flatMap((p) => have.get(p));
       const amt = lines.reduce((s, r) => s + r.charge, 0);
       for (const r of lines) flagged.add(r.line);
-      const mod = lines.some((r) => ["59", "XE", "XS", "XP", "XU", "91"].includes(r.modifier));
+      const mod = lines.some((r) => r.modifiers.some((m) => DISTINCT_MODIFIERS.includes(m)));
       add(mod ? "info" : "high", "unbundling", `${hit.join(", ")} billed with ${panel} (${PANEL_NAMES[panel]})${date ? " on " + date : ""}`,
         `${panel} already includes ${hit.join(", ")}. Billing them again is called unbundling. ${mod ? "A distinct-service modifier is present, which can make separate billing legitimate; ask what it documents. " : ""}${usd(amt)} of charges are in question.`,
         [...have.get(panel).map((r) => r.line), ...lines.map((r) => r.line)], mod ? 0 : amt);
@@ -284,7 +317,7 @@ export function analyze(records, opts = {}) {
   if (uncoded.length) {
     add("info", "uncoded", `${uncoded.length} charge line(s) with no code`, `A summary bill lists no procedure codes. Ask for the itemized bill with CPT/HCPCS or revenue codes so each line can be checked. Lines: ${uncoded.slice(0, 8).map((r) => r.line).join(", ")}${uncoded.length > 8 ? ", …" : ""}. ${usd(uncoded.reduce((s, r) => s + r.charge, 0))} of charges cannot be checked without codes.`, uncoded.map((r) => r.line), 0);
   }
-  const odd = records.filter((r) => codeKind(r.rawCode) === "other");
+  const odd = records.filter((r) => codeKind(r.code) === "other");
   if (odd.length) add("info", "code", `${odd.length} code(s) not in a recognised format`, `Codes read as ${[...new Set(odd.map((r) => r.rawCode))].slice(0, 6).join(", ")}. CPT is five digits, HCPCS is a letter and four digits, revenue codes are four digits. These lines were not checked against the rules.`, odd.map((r) => r.line), 0);
   const credits = records.filter((r) => r.charge < 0);
   if (credits.length) add("info", "credit", `${credits.length} credit or negative line(s)`, `Credits are counted in the totals: ${usd(credits.reduce((s, r) => s + r.charge, 0))}. Confirm each matches an insurance payment or a corrected charge.`, credits.map((r) => r.line), 0);

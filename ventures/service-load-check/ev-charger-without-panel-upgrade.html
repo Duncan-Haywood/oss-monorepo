@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Adding an EV Charger Without a Panel Upgrade: NEC 220.83 vs 220.87</title>
+  <meta name="description" content="How an existing 100 A or 200 A home service is checked for an EV charger, heat pump or induction range under NEC 220.83 and 220.87, with a worked example, and a free tool that reads your utility's Green Button data.">
+  <meta property="og:title" content="Adding an EV charger without a panel upgrade">
+  <meta property="og:description" content="The two NEC methods for checking an existing service, a worked example, and a free browser tool.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23234e8c'/%3E%3Cpath d='M18 4L8 18h7l-2 10 11-15h-7z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./ev-charger-without-panel-upgrade.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Adding an EV charger without a panel upgrade: NEC 220.83 vs 220.87", "datePublished": "2026-11-11", "author": {"@type": "Organization", "name": "Maris Stella open tools"}, "description": "How an existing home service is checked for new load under NEC 220.83 and 220.87, with a worked example."}</script>
+</head>
+<body>
+  <header>
+    <p class="note">FOR HOMEOWNERS AND ELECTRICIANS · A GUIDE TO THE FREE SERVICE LOAD CHECK</p>
+    <h1>Adding an EV charger without a panel upgrade</h1>
+    <p>"You'll need a 200 amp upgrade first" is one of the most common reasons an EV charger, heat pump or induction range costs twice what was expected. Sometimes it is true. Often the existing service has room, and the National Electrical Code gives two ways to show it. This page explains both and works one example; the <a href="./index.html">free service load check</a> does the arithmetic on your own house and your own meter data.</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>Who this is for</h2>
+      <ul>
+        <li><strong>Homeowners</strong> quoted a service upgrade before an EV charger or heat pump can go in, who want to know whether to ask about the alternatives.</li>
+        <li><strong>Electricians and electrification contractors</strong> who want a quick 220.83 worksheet and a 220.87 reading of the customer's Green Button file to take to the inspector, instead of a spreadsheet per job.</li>
+        <li><strong>Energy advisors</strong> sizing a heat pump retrofit who need to know whether the panel is the real constraint.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>The two methods</h2>
+      <h3>NEC 220.83: calculate from what is installed</h3>
+      <p>Add up 3 VA per square foot for lighting and receptacles, 1,500 VA for each small-appliance and laundry circuit, and the nameplate of every fixed appliance, including the new one. The first 8,000 VA counts at 100%, the rest at 40%. If the new load is air conditioning, a heat pump or electric heat, the larger of the heating or cooling total counts at 100% on top instead. Divide by 240 V for amps.</p>
+      <h3>NEC 220.87: measure what the house actually draws</h3>
+      <p>Take the highest 15-minute average demand from a year of meter data, multiply by 125%, add the new load. If that is within the service rating, the service may carry it. Most smart meters already record exactly this, and the utility's <em>Green Button</em> download gives it to you. Hourly data is not enough: an hour's average hides the busiest quarter-hour inside it.</p>
+    </section>
+    <section class="card">
+      <h2>A worked example</h2>
+      <p>This is the example built into the tool: an invented 2,000 sq ft house on a 100 A, 120/240 V service with an electric range (12 kVA), dryer (5 kVA), electric water heater (4.5 kVA), dishwasher, gas furnace blower and a 3-ton central air conditioner (20 A at 240 V), and a synthetic year of 15-minute meter data. It is a placeholder to show the method, not a real home or a typical one.</p>
+      <ul>
+        <li><strong>220.83, before the charger:</strong> 6,000 VA lighting + 4,500 VA circuits + 28,100 VA of appliances = 38,600 VA. 8,000 + 40% of 30,600 = 20,240 VA, or 84.3 A. That leaves 3,760 VA of calculated load, which at 40% is 9,400 VA of new nameplate: enough for a charger set to 32 A, not 40 A.</li>
+        <li><strong>220.87:</strong> the synthetic year's highest 15-minute demand is 10.39 kW, on an August evening with the air conditioner running. 125% of that is 12,985 VA, or 54.1 A, leaving 11,015 VA: enough for a charger set to 40 A, not 48 A.</li>
+        <li><strong>A 48 A charger</strong> (11,520 VA) fits neither way: 103.5 A by 220.83 and 102.1 A by 220.87 on a 100 A service.</li>
+      </ul>
+      <p>So in this example the choice is not "upgrade or nothing". A 40 A setting on a 50 A circuit adds about 30 miles of range an hour on a typical EV, enough to refill a day's driving overnight. A load management device that holds the charger back when the house is busy (NEC 625.42 and 220.70 in the 2023 edition) is another route, and counts at its set limit.</p>
+      <p><a href="./index.html">Run the check on your house</a>: list the appliances, paste or choose your Green Button file, and the tool shows both methods, the largest charger setting each one allows, the five highest 15-minute blocks and every month's peak.</p>
+    </section>
+    <section class="card">
+      <h2>When to use something else</h2>
+      <ul>
+        <li><strong>The panel is full, damaged or recalled.</strong> Load is not the only reason to replace a panel. A licensed electrician should look.</li>
+        <li><strong>You have solar.</strong> A meter behind solar records net load and hides daytime demand. Use 220.83, or a consumption export from the solar monitor.</li>
+        <li><strong>You are adding a lot at once</strong>, such as an EV, a heat pump with backup strips and an induction range together. Run them together in the tool; if it is close, a service upgrade may be the honest answer.</li>
+        <li><strong>Your inspector wants a stamped or software-generated calculation.</strong> This tool prints a worksheet for the conversation; it is not a permit document.</li>
+      </ul>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Whether your inspector accepts either method, which code edition and local amendments apply, the condition of the panel and service conductors, breaker spaces, conductor sizing for the new circuit, and whether the utility's transformer and service drop are adequate.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, engineering, or financial advice. Verify with a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Free and open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/service-load-check">source code</a>. If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>.</p>
+  </footer>
+</body>
+</html>

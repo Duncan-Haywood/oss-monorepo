@@ -11,7 +11,9 @@
 
 import { readFile } from 'node:fs/promises';
 import process from 'node:process';
-import { analyze, DEFAULTS, PAPERS } from './engine.mjs';
+import { availableParallelism } from 'node:os';
+import { analyze, parseSeries, DEFAULTS, PAPERS } from './engine.mjs';
+import { NILE_CSV } from './example-data.mjs';
 
 const USAGE = `Find when a time series changed level or volatility (PELT + Bayesian online changepoint detection).
 
@@ -21,7 +23,7 @@ Usage:
 Options:
   --column <name|index>     value column (default: last numeric column)
   --label-column <name|i>   label/date column (default: first column)
-  --model mean|meanvar|trend|poisson  change in level, in level and volatility, in level or slope of a trending series, or in the rate of counts (default: mean)
+  --model mean|meanvar|trend|poisson|drift  change in level, in level and volatility, in level or slope of a trending series, in the rate of counts, or (drift) jumps on a level that wanders as a random walk between them, so a smooth or drifting series is not read as a staircase (default: mean; drift takes --penalty <number>, --min-segment, --drift-slope and --drift-noise only)
   --penalty bic|aic|hannan-quinn|<number>   PELT penalty per change (default: bic)
   --dispersion              with --model meanvar: scale the penalty by the dispersion of the squared residuals (fewer false alarms on heavy tails or clustered volatility)
   --robust                  with --model meanvar: Laplace noise instead of Gaussian, so heavy tails are not read as volatility changes
@@ -55,8 +57,10 @@ Options:
   --consensus [n]           run six settings (level, level under a trend with AR(1), the same with joint AR(1), noise floor, trend, trend with floor) and list each change by how many agree (changes within n points, default 2% of the series, are one); takes --log, --period, --penalty, --min-segment, --column
   --columns [a,b,...]       several columns measured at the same points: each column's agreed changes, merged, plus one segmentation for all columns (--model mean or meanvar); no list = every numeric column; takes --label-column, --penalty, --min-segment, --consensus n as the tolerance
   --joint-floor auto|off|k  with --columns and the level model: each column's noise for the one segmentation. auto (default) floors only a column whose own level fit over-cuts; k floors every column at k x the local-line scatter; off is the plain fit
+  --drift-slope             with --model drift: take out the series' median step first, so a steady growth (population, prices) is not paid for as wander
+  --drift-noise ml|lags     with --model drift: how the wander is sized. ml (default) chooses it together with the changes, so one big step is not absorbed as wander; lags is the earlier estimate from lag differences alone
   --joint-ar1               with --columns and the level model: each column's sd raised to its AR(1) long-run sd
-  --no-agreed               with the level model: skip the six-setting panel that leads the text output with the changes every setting agrees on (skipped anyway above 2000 points)
+  --no-agreed               with the level model: skip the six-setting panel that leads the text output with the changes every setting agrees on (runs on worker threads; skipped anyway above 10000 points)
   --json                    print the full result as JSON
   -h, --help                this help
 
@@ -67,9 +71,9 @@ Statistical analysis of data you supply, not advice. MIT licence.`;
 
 // Measured 2026-11-10 on the tree-ring series: 1,000 points 1.6 s with the panel vs 0.6 s without,
 // 2,000 points 5.3 s vs 1.1 s, 7,980 points 32 s vs 5.7 s. The text output stays quick on long series.
-export const AGREED_MAX_POINTS = 2000;
+export const AGREED_MAX_POINTS = 10000;
 
-export async function main(argv, { stdin = process.stdin, out = (s) => process.stdout.write(s) } = {}) {
+export async function main(argv, { stdin = process.stdin, out = (s) => process.stdout.write(s), agreedMax = AGREED_MAX_POINTS } = {}) {
   const opt = {};
   let file = null;
   let json = false;
@@ -85,6 +89,8 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--columns') opt.columns = argv[i + 1] && !argv[i + 1].startsWith('-') ? argv[++i].split(',').map((c) => c.trim()).filter(Boolean) : [];
     else if (a === '--joint-floor') { const v = argv[++i]; if (v !== 'auto' && v !== 'off' && !(Number(v) > 0)) throw new Error('--joint-floor takes auto, off or a positive number.'); opt.jointFloor = v === 'auto' || v === 'off' ? v : Number(v); }
     else if (a === '--joint-ar1') opt.jointAr1 = true;
+    else if (a === '--drift-slope') opt.driftSlope = true;
+    else if (a === '--drift-noise') { const v = argv[++i]; if (v !== 'ml' && v !== 'lags') throw new Error('--drift-noise takes ml or lags.'); opt.driftNoise = v; }
     else if (a === '--drift') opt.drift = true;
     else if (a === '--log') opt.log = true;
     else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
@@ -124,6 +130,12 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     }
   }
   if (typeof opt.holidays === 'string') opt.holidays = opt.holidays.split(',').map((h) => h.trim()).filter(Boolean);
+  if (opt.model === 'drift') {
+    const { driftText, driftResult } = await import('./drift-cli.mjs');
+    const r = driftResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, penalty: opt.penalty, minSegment: opt.minSegment, slope: opt.driftSlope, noise: opt.driftNoise });
+    out((json ? JSON.stringify(r, null, 2) : driftText(r)) + '\n');
+    return 0;
+  }
   if (opt.columns) {
     const { analyzeMulti, multiText } = await import('./multivariate.mjs');
     const r = analyzeMulti({ csv: opt.csv, columns: opt.columns, labelColumn: opt.labelColumn, model: opt.model, penalty: opt.penalty, minSegment: opt.minSegment, tolerance: typeof opt.consensus === 'number' ? opt.consensus : null, floor: opt.jointFloor, ar1: opt.jointAr1 });
@@ -131,25 +143,44 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     return 0;
   }
   if (opt.consensus) {
-    const { consensus: cons, consensusText } = await import('./consensus.mjs');
+    const { mergeConsensus, consensusText } = await import('./consensus.mjs');
+    const { runPanelThreaded } = await import('./consensus-threads.mjs');
     const { consensus: tol, ...rest } = opt;
-    const c = cons(rest, { tolerance: tol === true ? null : tol });
+    const c = mergeConsensus(await runPanelThreaded(rest), { tolerance: tol === true ? null : tol });
     out((json ? JSON.stringify(c, null, 2) : consensusText(c)) + '\n');
     return 0;
+  }
+  // The level model's text leads with the settings panel (consensus.mjs), as the page does: on labelled
+  // series held out from tuning, the changes every setting agrees on scored far above the level model alone.
+  // The panel's settings start on worker threads (consensus-threads.mjs) before the main analysis, which
+  // runs here meanwhile; when the options match, its result is the panel's "level" setting, so five run.
+  const levelText = agreed && !json && (opt.model == null || opt.model === 'mean');
+  let n = null;
+  if (levelText) { try { n = parseSeries(opt.csv ?? DEFAULTS.csv, opt.column ?? null, opt.labelColumn ?? null).values.length; } catch { /* analyze reports it */ } }
+  let panel = null;
+  let reuseLevel = false;
+  const base = Object.fromEntries(['csv', 'column', 'labelColumn', 'log', 'period', 'penalty', 'minSegment'].filter((k) => opt[k] != null).map((k) => [k, opt[k]]));
+  if (levelText && n != null && n <= agreedMax) {
+    const { levelRunFromMain } = await import('./consensus.mjs');
+    const { runPanelThreaded } = await import('./consensus-threads.mjs');
+    // labelColumn and minSegment go to both runs alike, so they do not stop the reuse.
+    const { labelColumn: _l, minSegment: _m, ...rest } = opt;
+    reuseLevel = levelRunFromMain({ ...rest, model: 'mean' }, { labels: [], pelt: { changepoints: [] } }) != null;
+    // One core is left for the main analysis, which runs on this thread meanwhile.
+    panel = runPanelThreaded(base, { skip: reuseLevel ? [0] : [], threads: Math.max(2, availableParallelism() - 1) });
+    panel.catch(() => {}); // awaited below; a failure there only drops the panel
   }
   const r = analyze(opt);
   if (json) { out(JSON.stringify(r, null, 2) + '\n'); return 0; }
   const lines = [];
-  // The level model's text leads with the settings panel (consensus.mjs), as the page does: on labelled
-  // series held out from tuning, the changes every setting agrees on scored far above the level model alone.
-  if (agreed && (opt.model == null || opt.model === 'mean') && r.n > AGREED_MAX_POINTS) {
-    lines.push(`Agreed changes: not run on ${r.n} points (above ${AGREED_MAX_POINTS} the six-setting panel takes about six times as long as the level model; add --consensus to run it).`, '');
-  } else if (agreed && (opt.model == null || opt.model === 'mean')) {
-    const { consensus: cons, agreedText } = await import('./consensus.mjs');
+  if (levelText && n != null && n > agreedMax) {
+    lines.push(`Agreed changes: not run on ${r.n} points (above ${agreedMax} the six-setting panel takes long even on several cores; add --consensus to run it).`, '');
+  } else if (panel) {
+    const { mergeConsensus, levelRunFromMain, agreedText } = await import('./consensus.mjs');
     try {
-      // Only the options the panel shares (as on the page); an unset key must stay absent, not undefined, or it hides the default.
-      const base = Object.fromEntries(['csv', 'column', 'labelColumn', 'log', 'period', 'penalty', 'minSegment'].filter((k) => opt[k] != null).map((k) => [k, opt[k]]));
-      lines.push(`Agreed changes: ${agreedText(cons(base))}`, '', 'Level model alone (the panel\'s first setting, with the options given):');
+      const runs = await panel;
+      if (reuseLevel) runs[0] = levelRunFromMain({ model: 'mean' }, r);
+      lines.push(`Agreed changes: ${agreedText(mergeConsensus(runs))}`, '', 'Level model alone (the panel\'s first setting, with the options given):');
     } catch { /* the panel is extra; the analysis below already ran */ }
   }
   lines.push(r.summary, '');

@@ -1,0 +1,60 @@
+// Text and JSON for `node cli.mjs --model drift` (drift-level.mjs). Kept apart from engine.mjs so
+// the level model's hundred-odd pinned real-series results cannot move.
+import { parseSeries } from './engine.mjs';
+import { driftLevel } from './drift-level.mjs';
+
+export const DRIFT_PAPER = {
+  authors: 'Gaetano Romano, Guillem Rigaill, Vincent Runge and Paul Fearnhead',
+  title: 'Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise',
+  venue: 'Journal of the American Statistical Association (2022), doi 10.1080/01621459.2021.1909598',
+  url: 'https://arxiv.org/abs/2005.01379',
+  implemented: 'The random-walk-plus-noise model (the paper\'s phi = 0 case) and its robust lag-difference estimate of the noise variance.',
+  deviations: 'Solved by exact optimal partitioning over segments with a local-level Kalman cost (a change restarts the level from a flat prior) instead of functional pruning; no AR(1) noise term; lags 1 to 10 fitted by least squares; by default the wander variance is then chosen together with the changes by penalised likelihood (--drift-noise lags keeps the lag-difference value).',
+};
+
+// TCPD figures quoted in the text, from eval/tcpd-drift-ml.out.txt (ml: wander by penalised
+// likelihood, the default; lags: from lag differences) and eval/tcpd-drift.out.txt (a test checks
+// they match).
+export const DRIFT_TCPD = {
+  shipped: { ml: 0.694, lags: 0.677, level: 0.477, warn: 0.655, zero: 0.663 },
+  heldout: { ml: 0.527, lags: 0.420, level: 0.296, warn: 0.497, zero: 0.639 },
+};
+
+export function driftResult({ csv, column = null, labelColumn = null, penalty = null, minSegment = null, slope = false, noise = 'ml' }) {
+  const { labels, values, column: col, skipped } = parseSeries(csv, column, labelColumn);
+  if (values.length < 4) throw new Error('Need at least 4 values.');
+  const pen = penalty == null || penalty === 'bic' ? undefined : Number(penalty);
+  if (pen !== undefined && !(pen >= 0)) throw new Error('--model drift takes --penalty bic or a number (on the -2 log likelihood scale, noise sd 1).');
+  const r = driftLevel(values, { penalty: pen, minSegment: minSegment == null ? 2 : Number(minSegment), slope: !!slope, noise: noise ?? 'ml' });
+  return {
+    model: 'drift', column: col, n: values.length, skipped,
+    sigma: r.sigma, omega: r.omega, penalty: r.penalty, slope: r.slope, noise: r.noise,
+    omegaFromLags: r.ml ? r.ml.start.omega : r.omega,
+    changes: r.changes.map((c) => ({ ...c, label: labels[c.index] })),
+    level: r.level, labels,
+    method: DRIFT_PAPER,
+  };
+}
+
+const fmt = (v) => (Math.abs(v) >= 100 ? v.toFixed(1) : Math.abs(v) >= 1 ? v.toFixed(3) : v.toPrecision(3));
+
+export function driftText(r) {
+  const L = [];
+  L.push(`${r.column}: ${r.n} values${r.skipped ? ` (${r.skipped} non-numeric rows skipped)` : ''}. Model: jumps on a drifting level (random walk between changes).`);
+  const how = r.noise === 'ml'
+    ? `noise sd from lag differences; wander chosen together with the changes by penalised likelihood, so one big step is not absorbed as wander (lag differences alone said ${fmt(r.omegaFromLags)}; --drift-noise lags uses that)`
+    : 'both from lag differences, before any change is fitted';
+  L.push(`Noise sd ${fmt(r.sigma)}; the level wanders by about ${fmt(r.omega)} a step between changes (${how}). Penalty ${r.penalty.toFixed(2)} per change.${r.slope ? ` A steady growth of ${fmt(r.slope)} a step was taken out first (--drift-slope).` : ''}`);
+  if (!r.changes.length) L.push('No jump stands out from the drift.');
+  else {
+    L.push(`${r.changes.length} jump${r.changes.length === 1 ? '' : 's'} too big for the drift:`);
+    for (const c of r.changes) L.push(`  ${c.label}: level ${fmt(c.before)} -> ${fmt(c.after)} (${c.jump >= 0 ? '+' : ''}${fmt(c.jump)}, ${c.jumpSd >= 0 ? '+' : ''}${c.jumpSd.toFixed(1)} noise sd)`);
+  }
+  const t = DRIFT_TCPD;
+  L.push('');
+  const k = r.noise === 'ml' ? 'ml' : 'lags';
+  L.push(`On the Turing Change Point Dataset (eval/tcpd-drift-ml.out.txt): F1 ${t.shipped[k].toFixed(3)} on 31 shipped series (plain level model ${t.shipped.level}, level following its over-cut warning ${t.shipped.warn}, reporting nothing ${t.shipped.zero}) and ${t.heldout[k].toFixed(3)} on 7 held out (${t.heldout.level.toFixed(3)}, ${t.heldout.warn.toFixed(3)}, ${t.heldout.zero.toFixed(3)}); ${k === 'ml' ? `the lag-difference wander scores ${t.shipped.lags.toFixed(3)} and ${t.heldout.lags.toFixed(3)}` : `the default (wander by likelihood) scores ${t.shipped.ml.toFixed(3)} and ${t.heldout.ml.toFixed(3)}`}; its gaps to the other drift setting and to the warning's refit have 95% intervals that include zero. It tames smooth and wandering series; heavy tails and volatility bursts (stock prices, counts) still over-cut it.`);
+  L.push(`Method: ${DRIFT_PAPER.authors}, ${DRIFT_PAPER.title}. ${DRIFT_PAPER.venue}. ${DRIFT_PAPER.url} (${DRIFT_PAPER.deviations})`);
+  L.push('Statistical analysis of data you supply, not advice.');
+  return L.join('\n');
+}

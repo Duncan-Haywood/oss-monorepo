@@ -10,8 +10,10 @@ correct. Findings never repeat invoice numbers or line descriptions.
 
 from __future__ import annotations
 
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
+
+from .numbers import parse_decimal
 
 from .linenet import tax_groups, tax_key, tax_percent_of
 
@@ -139,11 +141,7 @@ def _money(value: Any) -> Decimal | None:
 
 
 def _number(value: Any) -> Decimal | None:
-    try:
-        result = Decimal(str(value))
-    except (InvalidOperation, ValueError, TypeError):
-        return None
-    return result if result.is_finite() else None
+    return parse_decimal(value)
 
 
 def _finding(rule: str, message: str, fix: str, path: str) -> dict[str, str]:

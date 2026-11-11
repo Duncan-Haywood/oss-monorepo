@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKijw1ReBmh5eayjQfP",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T09:09:57Z",
+  "ended": "2026-11-11T09:18:35Z",
+  "wall_minutes": 8.87,
+  "tokens_in": 4496994,
+  "tokens_out": 31516,
+  "cost_usd": 2.566,
+  "tool_calls": 42,
+  "task": "research draw: programme heavy-hydraulics; milestone 5p, PVG 32 full-travel spool-drop floor",
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14748",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "zenodo.org (and doi.org, figshare) refused the egress proxy's CONNECT with 403, so the measured-loader record could not be fetched; the measured half of 5p (R1-R5) could not run",
+      "fix": "kept R1-R5 registered and unrun, shipped the measured script smoke-tested on a synthetic trace, and ran the same bound on the programme's force-model cycles with new predictions S1-S3 registered before running"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "the 'probe a host before planning on it' advice is right; I registered loader predictions before probing Zenodo (which two runs earlier today reached) and then had to pivot. Probing the data host first would have saved the detour."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org unreachable this session, so 3 ids were SKIP; they were checked ok by the 5n/5o run earlier today and no new citation was added"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "the planned real-data step needed a host the proxy refused",
+      "did": "shipped the synthetic-cycle version of the same bound as the result, and the measured-trace script ready with its predictions registered",
+      "result": "S1-S3 held; an unpredicted finding (spool sizing moves the break-even 26.5 -> 22.6 bar) is reported"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-least-spool-drop-open-centre-valve.md",
+    "research/heavy-hydraulics/LOG.md (5p)",
+    "research/heavy-hydraulics/README.md (Milestone 5p)"
+  ],
+  "goal": null,
+  "notes": "Local checks: heavy-hydraulics tests 33 passed (/usr/bin/python3.13 -m pytest, PYTHONPATH=src); spool_floor_synthetic.py reproduces 2n (28.0 bar) on its constant path; spool_floor.py smoke test on a fake trace reduces to 5o's dp_spool=0 floor for an oversized spool; paper/check_numbers.py 92 claims 0 missing; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post frontmatter/links ok, similarity 0 pairs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0ee6c185-0320-5a91-9b46-83561628adc1",
+    "transcripts": 1,
+    "first": "2026-11-11T09:09:57Z",
+    "last": "2026-11-11T09:18:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 79,
+        "output": 31516,
+        "thinking": 8371,
+        "cache_read": 4364093,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132822,
+        "api_equivalent_usd": 2.566,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 79,
+      "output": 31516,
+      "thinking": 8371,
+      "cache_read": 4364093,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132822,
+      "api_equivalent_usd": 2.566,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.87,
+      "active_minutes": 8.87,
+      "model_minutes": 6.88,
+      "tool_minutes": 1.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

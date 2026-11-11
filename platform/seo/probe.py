@@ -112,6 +112,22 @@ def norm(url: str) -> str:
     return f"{host}{p.path.rstrip('/')}"
 
 
+def canonical_key(url: str) -> str:
+    """The URL as a search engine keys it: scheme, host (www. kept), path and query.
+
+    ``norm`` is for matching result lists and deliberately forgiving; a canonical
+    link is not. Google treats http:// vs https://, www. vs bare and ?utm=
+    variants as different URLs, so a canonical naming any of them points the
+    index at another page. Only host case, the default port, the fragment and
+    a trailing slash are ignored (the slash is reported apart, as a warning)."""
+    p = urllib.parse.urlsplit(url.strip())
+    host = (p.hostname or "").lower()
+    if p.port and p.port != {"http": 80, "https": 443}.get(p.scheme.lower()):
+        host += f":{p.port}"
+    q = f"?{p.query}" if p.query else ""
+    return f"{p.scheme.lower()}://{host}{p.path.rstrip('/')}{q}"
+
+
 def rank_of(urls: list[str], expect: str, site: str) -> dict:
     """Where the expected page, and the site at all, first appear in ``urls``.
 
@@ -188,10 +204,21 @@ def http(url: str, *, data: bytes | None = None, headers: dict | None = None,
             return resp.status, {k.lower(): v for k, v in resp.headers.items()}, resp.read()
     except urllib.error.HTTPError as e:
         return e.code, {k.lower(): v for k, v in e.headers.items()}, e.read()
+    except (urllib.error.URLError, OSError) as e:
+        # DNS, refused connection, TLS, timeout: no answer at all. Status 0 lets
+        # callers say "unmeasured" (exit 2) instead of a traceback (exit 1, which
+        # means "the audit found a defect").
+        reason = getattr(e, "reason", e)
+        return NO_ANSWER, {}, f"{type(e).__name__}: {reason}".encode()
+
+
+NO_ANSWER = 0
 
 
 def egress_refused(status: int, body: bytes) -> bool:
-    """The session proxy's own refusal, not the remote service's answer."""
+    """The session proxy's own refusal, or no answer at all, not the remote service's."""
+    if status == NO_ANSWER:
+        return True
     text = body[:2000].decode("utf-8", "replace").lower()
     return status in (403, 407) and ("allowlist" in text or "egress" in text)
 
@@ -262,13 +289,15 @@ def rs256(message: str, private_key_pem: str) -> str:
         os.unlink(key_path)
 
 
-def gsc_token(sa: dict) -> str:
+def gsc_token(sa: dict) -> str | None:
     unsigned = jwt_unsigned(sa["client_email"], int(dt.datetime.now().timestamp()))
     assertion = unsigned + "." + rs256(unsigned, sa["private_key"])
     body = urllib.parse.urlencode({"grant_type": "urn:ietf:params:oauth:grant-type:jwt-bearer",
                                    "assertion": assertion}).encode()
     status, _, resp = http("https://oauth2.googleapis.com/token", data=body,
                            headers={"Content-Type": "application/x-www-form-urlencoded"})
+    if egress_refused(status, resp):
+        return None
     if status != 200:
         raise RuntimeError(f"token exchange answered {status}: {resp[:300]!r}")
     return json.loads(resp)["access_token"]
@@ -307,6 +336,9 @@ def cmd_gsc(args) -> int:
     end = dt.date.today() - dt.timedelta(days=3)  # GSC lags about two to three days
     start = end - dt.timedelta(days=27)
     token = gsc_token(json.loads(raw))
+    if token is None:
+        print("no answer from oauth2.googleapis.com from here: unmeasured.")
+        return EXIT_UNMEASURED
     url = ("https://www.googleapis.com/webmasters/v3/sites/"
            + urllib.parse.quote(prop, safe="") + "/searchAnalytics/query")
     body = json.dumps({"startDate": start.isoformat(), "endDate": end.isoformat(),
@@ -336,8 +368,10 @@ TAG = re.compile(r"<(meta|link)\b[^>]*>", re.I)
 
 
 def attr(tag: str, name: str) -> str | None:
-    m = re.search(rf'\b{name}\s*=\s*(["\'])(.*?)\1', tag, re.I | re.S)
-    return m.group(2) if m else None
+    m = re.search(rf'\b{name}\s*=\s*(?:(["\'])(.*?)\1|([^\s"\'=<>`]+))', tag, re.I | re.S)
+    if not m:
+        return None
+    return m.group(2) if m.group(1) else m.group(3)
 
 
 def audit_page(url: str, status: int, headers: dict, html: str) -> tuple[list[str], list[str]]:
@@ -362,8 +396,12 @@ def audit_page(url: str, status: int, headers: dict, html: str) -> tuple[list[st
             canonical = attr(tag, "href")
     if not canonical:
         problems.append(f"{url}: no canonical link")
-    elif norm(urllib.parse.urljoin(url, canonical)) != norm(url):
-        problems.append(f"{url}: canonical names {canonical}")
+    else:
+        target = urllib.parse.urljoin(url, canonical)
+        if canonical_key(target) != canonical_key(url):
+            problems.append(f"{url}: canonical names {canonical}")
+        elif urllib.parse.urlsplit(target).path != urllib.parse.urlsplit(url).path:
+            warnings.append(f"{url}: canonical {canonical} differs by a trailing slash")
     title = re.search(r"<title[^>]*>(.*?)</title>", html, re.I | re.S)
     if not title or not title.group(1).strip():
         problems.append(f"{url}: no <title>")
@@ -427,6 +465,9 @@ def cmd_audit(args) -> int:
     sample = [site] + rng.sample(urls, min(args.pages, len(urls)))
     for u in sample:
         s, h, b = http(u)
+        if s == NO_ANSWER:
+            problems.append(f"{u}: no answer ({b.decode('utf-8', 'replace')[:120]})")
+            continue
         blockers, warns = audit_page(u, s, h, b.decode("utf-8", "replace"))
         problems += blockers
         warnings += warns

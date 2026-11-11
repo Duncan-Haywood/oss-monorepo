@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import re
 from decimal import Decimal
 from xml.etree import ElementTree
 from typing import Any
+
+from .numbers import parse_decimal
 
 
 def _children(element: ElementTree.Element, name: str) -> list[ElementTree.Element]:
@@ -18,7 +21,11 @@ def _text(element: ElementTree.Element, name: str, required: bool = True) -> str
 
 
 def _number(value: str) -> int | float:
-    number = Decimal(value)
+    # A ValueError, not decimal.InvalidOperation (an ArithmeticError), so the CLI
+    # reports one unreadable file instead of crashing the whole batch.
+    number = parse_decimal(value)
+    if number is None:
+        raise ValueError(f"UBL amount is not a number: {value[:40]!r}")
     return int(number) if number == number.to_integral_value() else float(number)
 
 
@@ -68,11 +75,16 @@ def _party(element: ElementTree.Element) -> dict[str, Any]:
     vat_id = ""
     for scheme in _children(party, "PartyTaxScheme"):
         # A national tax number uses TaxScheme/ID "FC"; only VAT (or an
-        # unlabelled scheme) is a VAT ID.
+        # unlabelled scheme whose number starts with a country prefix) is a
+        # VAT ID. CIUS-RO puts a buyer that is not VAT registered in an
+        # unlabelled scheme with its bare fiscal code; BR-CO-9 reads only "VAT".
         scheme_id = _nested_text(scheme, "TaxScheme", "ID").upper()
         if scheme_id and scheme_id != "VAT":
             continue
         vat_id = _text(scheme, "CompanyID", required=False)
+        if not scheme_id and vat_id and not re.match(r"[A-Za-z]{2}", vat_id.strip()):
+            vat_id = ""
+            continue
         if vat_id:
             break
     if vat_id:

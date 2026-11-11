@@ -5,6 +5,7 @@
 // once. DTD and entity declarations are rejected by parseXmlTree.
 
 import { parseXmlTree } from "./ubl.mjs";
+import { parseDecimal } from "./numbers.mjs";
 
 const CII_NS = "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100";
 
@@ -137,11 +138,11 @@ function allowanceCharges(parent, name) {
     const indicator = textOf(child, "Indicator").toLowerCase();
     const amount = textOf(child, "ActualAmount");
     if (!indicator || !amount) continue;
-    const row = { kind: indicator === "true" || indicator === "1" ? "charge" : "allowance", amount: Number(amount) };
+    const row = { kind: indicator === "true" || indicator === "1" ? "charge" : "allowance", amount: parseDecimal(amount) ?? amount };
     const vat = firstChild(child, "CategoryTradeTax");
     if (vat) {
       const percent = textOf(vat, "RateApplicablePercent");
-      if (percent) row.tax_percent = Number(percent);
+      if (percent) row.tax_percent = parseDecimal(percent) ?? percent;
       const category = textOf(vat, "CategoryCode");
       if (category) row.tax_category = category;
     }
@@ -162,11 +163,11 @@ function logisticsCharges(settlement) {
     if (child.name !== "SpecifiedLogisticsServiceCharge") continue;
     const amount = textOf(child, "AppliedAmount");
     if (!amount) continue;
-    const row = { kind: "charge", amount: Number(amount) };
+    const row = { kind: "charge", amount: parseDecimal(amount) ?? amount };
     const vat = firstChild(child, "AppliedTradeTax");
     if (vat) {
       const percent = textOf(vat, "RateApplicablePercent");
-      if (percent) row.tax_percent = Number(percent);
+      if (percent) row.tax_percent = parseDecimal(percent) ?? percent;
       const category = textOf(vat, "CategoryCode");
       if (category) row.tax_category = category;
     }

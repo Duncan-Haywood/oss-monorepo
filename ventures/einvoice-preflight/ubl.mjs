@@ -1,6 +1,7 @@
 // Maps a local UBL Invoice document into the format-neutral checker shape.
 // Intentionally small: it is not a Peppol or EN 16931 validator. DTD and
 // entity declarations are rejected so a dropped file cannot expand entities.
+import { parseDecimal } from "./numbers.mjs";
 
 function localName(tag) {
   const trimmed = tag.replace(/^\/+/, "").split(/[\s>/]/, 1)[0];
@@ -65,9 +66,10 @@ function textOf(node, name, required = true) {
 }
 
 function asNumber(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) throw new Error(`UBL number is not finite: ${value}`);
-  return Number.isInteger(number) ? number : number;
+  // Not Number(): it reads "0x64" as 100, an amount no receiver accepts (xs:decimal).
+  const number = parseDecimal(value);
+  if (number === null) throw new Error(`UBL amount is not a number: ${String(value).slice(0, 40)}`);
+  return number;
 }
 
 function nestedText(node, parentName, childName) {
@@ -106,10 +108,15 @@ function party(node) {
   const mapped = { id: partyIdentifier(partyNode), name };
   for (const scheme of descendants(partyNode, "PartyTaxScheme")) {
     // A national tax number travels in the same element with TaxScheme/ID "FC"
-    // (or similar); only a VAT scheme -- or an unlabelled one -- is a VAT ID.
+    // (or similar); only a VAT scheme -- or an unlabelled one whose number starts
+    // with a country prefix -- is a VAT ID. CIUS-RO puts a buyer that is not VAT
+    // registered (a ministry, a school) in an unlabelled scheme with its bare
+    // fiscal code (CUI, "8609468"); EN 16931's BR-CO-9 reads only TaxScheme/ID
+    // "VAT", so that is not a VAT number either (ANAF's own examples, 2026-11-11).
     const schemeId = nestedText(scheme, "TaxScheme", "ID").toUpperCase();
     if (schemeId && schemeId !== "VAT") continue;
     const vatId = textOf(scheme, "CompanyID", false);
+    if (!schemeId && vatId && !/^[A-Za-z]{2}/.test(vatId.trim())) continue;
     if (vatId) {
       mapped.vat_id = vatId;
       break;
@@ -336,7 +343,7 @@ export function parseUblInvoice(source) {
     return !code || !docCurrency || code === docCurrency;
   });
   const taxTotal = (sameCurrency.length ? sameCurrency : taxTotals)
-    .reduce((sum, item) => sum + Number(textOf(item, "TaxAmount")), 0);
+    .reduce((sum, item) => sum + asNumber(textOf(item, "TaxAmount")), 0);
   const dueDate = textOf(root, "DueDate", false);
   const typeCode = textOf(root, "InvoiceTypeCode", false)
     || textOf(root, "CreditNoteTypeCode", false)

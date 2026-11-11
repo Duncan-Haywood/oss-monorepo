@@ -123,6 +123,21 @@ class FfmpegCommandTests(unittest.TestCase):
             payload["ProgramArguments"],
         )
         self.assertEqual(payload["EnvironmentVariables"]["PYTHONPATH"], "/Users/me/shootflow/src")
+        self.assertNotIn("--grade-scope", payload["ProgramArguments"])
+
+    def test_launchd_plist_passes_the_grade_scope(self) -> None:
+        arguments = plistlib.loads(
+            launchd_plist_bytes(
+                ingest_manifests=("/Volumes/SSD/shoot/ingest_manifest.json",),
+                hour=1,
+                minute=30,
+                max_concurrency=2,
+                log_path="/tmp/shootflow.log",
+                source_root="/tmp/src",
+                grade_scope="selected",
+            )
+        )["ProgramArguments"]
+        self.assertEqual(arguments[arguments.index("--grade-scope") + 1], "selected")
 
 
 @unittest.skipUnless(FFMPEG and FFPROBE, "ffmpeg and ffprobe are required for media tests")
@@ -211,6 +226,85 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertTrue(rerun.rendered)
             self.assertEqual(rerun.needs_review_ids, ())
             self.assertEqual((workspace / "deliverables" / "instagram_reel.mp4").read_bytes(), before)
+
+    def test_selected_grade_scope_masters_only_the_picked_clip(self) -> None:
+        # Two 46 s takes of the same shot: the hero reel keeps one per scene and
+        # the 45 s variants fit neither, so exactly one clip is ever rendered.
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            card = base / "card" / "DCIM"
+            card.mkdir(parents=True)
+            for name, audio in (("A001.MOV", True), ("A002.MOV", False)):
+                _run(
+                    "-f", "lavfi", "-i", "testsrc2=size=1280x720:rate=1:duration=46",
+                    *(("-f", "lavfi", "-i", "sine=duration=46", "-c:a", "aac", "-shortest") if audio else ()),
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", str(card / name),
+                )
+            _make_photo(card / "IMG_0001.JPG", color="red")
+            plan = plan_import(base / "card", base / "ssd", shoot_date="2026-10-18", shoot_slug="scope-test")
+            manifest = execute_copy_plan(plan).manifest_path
+            workspace = manifest.parent
+
+            self.assertNotIn("SHOOTFLOW_GRADE_SCOPE", os.environ)
+            result = run_local_pipeline(manifest, clock=_ticking_clock(), grade_scope="selected")
+            self.assertNotIn("SHOOTFLOW_GRADE_SCOPE", os.environ, "the run must restore the environment")
+
+            self.assertTrue(result.rendered, result)
+            self.assertEqual(result.needs_review_ids, ())
+            masters = sorted((workspace / "graded").glob("*/A00*.MOV"))
+            self.assertEqual(len(masters), 2)
+            notes = sorted((workspace / "graded").glob("*/*.review-grade.json"))
+            self.assertEqual(len(notes), 1)
+            note = json.loads(notes[0].read_text())
+            self.assertEqual(note["kind"], "review_grade")
+            self.assertTrue(note["graded_from"].startswith("proxies/"))
+            review = Path(str(notes[0]).removesuffix(".review-grade.json"))
+            full = next(path for path in masters if path != review)
+            self.assertEqual(_probe(full)["width"], 1280)
+            self.assertEqual(_probe(review)["width"], 960)
+            self.assertEqual(_probe(review)["codec_name"], "prores")
+            storyline = json.loads((workspace / "analysis" / "instagram_storylines.json").read_text())
+            picked = {
+                path
+                for sequence in storyline["sequences"] + storyline["reel_variants"]
+                for path in sequence["asset_paths"]
+            }
+            graded_root = workspace
+            self.assertIn(full.relative_to(graded_root).as_posix(), picked)
+            self.assertNotIn(review.relative_to(graded_root).as_posix(), picked)
+            # The photo set takes every photo, so photos always get a full master.
+            self.assertEqual([p.name for p in (workspace / "graded").glob("*/IMG_0001.JPG.review-grade.json")], [])
+
+    def test_bad_grade_scope_is_refused(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest = _ingested_shoot(Path(tmp))
+            with self.assertRaises(ValueError):
+                run_local_pipeline(manifest, grade_scope="some")
+            with patch.dict(os.environ, {"SHOOTFLOW_GRADE_SCOPE": "some"}):
+                result = run_local_pipeline(manifest, clock=_ticking_clock())
+            self.assertFalse(result.rendered)
+            status = json.loads((manifest.parent / "production_status.json").read_text())
+            messages = [job["error_message"] or "" for job in status["job_statuses"]]
+            self.assertTrue(any("SHOOTFLOW_GRADE_SCOPE must be one of" in message for message in messages))
+
+    def test_story_stage_refuses_a_pick_that_holds_only_a_review_grade(self) -> None:
+        from shootflow.production_adapter import ProductionAdapterError, _refuse_review_grades_in_storyline
+        from shootflow.story import AssetAnalysis, build_storyline_plan
+
+        clip = "graded/grade_asset_00000/A001.MOV"
+        plan = build_storyline_plan([
+            AssetAnalysis(
+                asset_path=clip, media_type="video", scene_label="s", aesthetic_score=0.5,
+                story_score=0.5, technical_score=0.5, motion_score=0.5, duration_seconds=2.0,
+            )
+        ])
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _refuse_review_grades_in_storyline(root, plan)
+            (root / clip).parent.mkdir(parents=True)
+            (root / (clip + ".review-grade.json")).write_text("{}")
+            with self.assertRaisesRegex(ProductionAdapterError, "review grade"):
+                _refuse_review_grades_in_storyline(root, plan)
 
     def test_raw_files_stop_before_render_and_are_listed_for_review(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -91,5 +91,64 @@ class McpWatchTests(unittest.TestCase):
         self.assertNotIn("inputSchema", output)
 
 
+CASES = json.loads((Path(__file__).parent / "cases.json").read_text(encoding="utf-8"))["cases"]
+
+
+def manifest(value):
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "m.json"
+        path.write_text(json.dumps(value), encoding="utf-8")
+        return load(str(path))
+
+
+class SharedCaseTests(unittest.TestCase):
+    """The same table site/compare.test.mjs runs against the browser engine."""
+
+    def test_every_shared_case(self):
+        self.assertGreaterEqual(len(CASES), 9)
+        for case in CASES:
+            with self.subTest(case["name"]):
+                changes = compare(manifest(case["before"]), manifest(case["after"]))["changes"]
+                self.assertEqual(len(changes), len(case["expected"]))
+                for got, want in zip(changes, case["expected"]):
+                    self.assertEqual((got["kind"], got["severity"], got["tool"], got.get("bucket")),
+                                     (want["kind"], want["severity"], want["tool"], want["bucket"]))
+                    if want["reason"] is None:
+                        self.assertNotIn("reason", got)
+                    else:
+                        self.assertIn(want["reason"], got["reason"])
+
+    def test_markdown_never_copies_a_hidden_payload(self):
+        case = CASES[0]
+        output = markdown(compare(manifest(case["before"]), manifest(case["after"])))
+        self.assertIn("inputSchema.properties.path.description", output)
+        self.assertNotIn("id_rsa", output)
+
+
+class CliTests(unittest.TestCase):
+    def run_cli(self, *extra):
+        import subprocess
+
+        root = Path(__file__).parents[1]
+        return subprocess.run([sys.executable, str(root / "src/mcp_watch.py"), str(root / "examples/before.json"),
+                               str(root / "examples/after.json"), *extra], capture_output=True, text=True)
+
+    def test_exit_zero_by_default_even_with_alerts(self):
+        self.assertEqual(self.run_cli().returncode, 0)
+
+    def test_fail_on_alert_gates_ci(self):
+        self.assertEqual(self.run_cli("--fail-on-alert").returncode, 2)
+
+    def test_fail_on_alert_passes_when_nothing_alerts(self):
+        import subprocess
+
+        root = Path(__file__).parents[1]
+        result = subprocess.run([sys.executable, str(root / "src/mcp_watch.py"), str(root / "examples/before.json"),
+                                 str(root / "examples/before.json"), "--fail-on-alert"], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0)
+
+
 if __name__ == "__main__":
     unittest.main()

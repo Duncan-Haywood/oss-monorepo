@@ -1,0 +1,45 @@
+b = 0.218; 2015 mission vehicle-state index s_m = median(u / Hs^b), m/s per m^b:
+  2015-05  0.361
+  2015-06  0.540
+  2015-07  0.571
+  2015-08  0.404
+  2015-09  0.401
+  2015-10  0.348
+  best 0.571, worst 0.348; state ratio 1.639
+
+2024 buoy-months (km/day at best / worst state; median WVHT m):
+   1 41009   52.0   31.7  1.22
+   1 42036   52.3   31.9  1.31
+   1 42040   52.4   32.0  1.35
+   1 44009   51.9   31.7  1.25
+   1 44013   50.5   30.8  1.04
+   1 46011   59.9   36.5  2.27
+   1 46013   60.7   37.1  2.55
+   1 46026   59.2   36.1  2.27
+   1 46054   58.6   35.8  2.10
+  month 1: 9 buoys, fleet median 52.4 (best) / 32.0 (worst) km/day; site ratio 1.203 against state ratio 1.639
+   7 41009   45.5   27.8  0.71
+   7 41010   50.5   30.8  1.13
+   7 42036   41.4   25.3  0.41
+   7 42040   42.1   25.7  0.46
+   7 44009   48.8   29.8  0.97
+   7 44013   41.1   25.1  0.40
+   7 44025   48.7   29.7  0.98
+   7 46011   54.4   33.2  1.56
+   7 46013   54.8   33.5  1.63
+   7 46026   53.2   32.4  1.35
+   7 46054   54.3   33.1  1.54
+  month 7: 11 buoys, fleet median 48.8 (best) / 29.8 (worst) km/day; site ratio 1.335 against state ratio 1.639
+
+P1 site ratio < state ratio in both months: held
+P2 fleet median Jan / Jul at a fixed state = 1.075: held (< 1.15)
+P3 every buoy-month below 86 km/day at the best state: held
+  b = 0.188: month 1 fleet median (best) 52.9 km/day (+0.9%)
+  b = 0.188: month 7 fleet median (best) 49.7 km/day (+2.0%)
+  b = 0.248: month 1 fleet median (best) 52.2 km/day (-0.5%)
+  b = 0.248: month 7 fleet median (best) 48.0 km/day (-1.6%)
+P4 fleet medians move under 5% over b 0.188 to 0.248: held
+P5 worst-state fleet medians 32.0 (Jan) and 29.8 (Jul) inside 29.6 to 46.8: held
+
+Descriptive: variance of log km/day over the buoy x month x state grid
+  share between states 0.825; between months 0.058; between buoys 0.106 (one-way shares, unbalanced grid, need not sum to 1)

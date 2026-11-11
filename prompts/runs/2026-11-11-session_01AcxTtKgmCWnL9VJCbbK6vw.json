@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKgmCWnL9VJCbbK6vw",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T09:06:29Z",
+  "ended": "2026-11-11T09:23:12Z",
+  "wall_minutes": 17.06,
+  "tokens_in": 5169600,
+  "tokens_out": 29464,
+  "cost_usd": 2.4109,
+  "tool_calls": 52,
+  "task": "quality track, fix mode: close high-severity queue defects",
+  "projects": [
+    "ventures/mcp-supply-chain-watch",
+    "ventures/caa-record-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14747",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": false,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes (17 workflows) outlasted a 600 s foreground timeout; relied on CI plus the targeted venture suites"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Describes only the sample round (steps 1-5); the four modes (fix/census/reflect) live only in portfolio/quality/README.md, so the prompt's step 1 'sample' contradicts mode=fix until you read the README."
+    },
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "faqEntries silently drops an FAQ answer containing a camelCase token of 10+ chars (readsAsCode), e.g. 'inputSchema'; the venture's page test then fails with only a count. Cost one debugging round."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes is recommended before merging but a docs+venture diff selects 17 workflows and exceeds the 600 s tool cap; the doc does not say to background it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Mode drew 'fix', so no sample round and no round-N post; wrote a fix post instead, as earlier fix-mode sessions did.",
+      "did": "Fixed 3 high defects in 2 ventures, recorded fix_prs, wrote docs/posts/2026-11-11-quality-fixes-hidden-in-the-schema.md",
+      "result": "high queue 23 -> 20"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-quality-fixes-hidden-in-the-schema.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (seeded draw; 23 high defects open). No sample seed, no subjects drawn, so no share-meeting-bar figure this run. Fixed: mcp-supply-chain-watch audit 2026-11-07 defects #0 (instruction signal ignored inputSchema text) and #1 (classifier untested; both auditor mutations survived) plus mediums #2 (masking), #3 (exit code), #4 (signal list) and low #5 (null description); caa-record-check audit 2026-11-08 #0 (RFC 8659 CNAME order). Verification: python3 platform/ci/run_venture_tests.py mcp-supply-chain-watch caa-record-check -> 2 suites, 0 failed; mcp node 48/48, python 10/10; caa node 75/75. Mutations: 6 Python + 3 JS seeded in mcp core, all caught; new caa regression tests (2) fail on HEAD~ lookup.mjs. Live DNS spot check: node check.mjs www.github.com docs.github.com reports CNAME target and ancestor correctly. Skipped platform/agents (open PR #14674) and quick-pick-survey (open PR #14742). quality_audit.py validate: 218 files, 0 problems. Fix PR: #14747.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b5b3db96-265c-5a8e-ab7a-d84e822926fa",
+    "transcripts": 1,
+    "first": "2026-11-11T09:06:29Z",
+    "last": "2026-11-11T09:23:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 29464,
+        "thinking": 4543,
+        "cache_read": 5068565,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100935,
+        "api_equivalent_usd": 2.4109,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 29464,
+      "thinking": 4543,
+      "cache_read": 5068565,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100935,
+      "api_equivalent_usd": 2.4109,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.06,
+      "active_minutes": 17.06,
+      "model_minutes": 6.1,
+      "tool_minutes": 10.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "security engineer: read two tools, write the schema walk in two languages, shared test table, RFC 8659 rework and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 248.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -35,7 +35,25 @@ test("built-in EU checks that PINT and ZATCA files trip falsely are dropped", { 
   }
   const z = await run("./examples/zatca-simplified-invoice.xml");
   for (const id of ["INV-022", "INV-005", "INV-017", "INV-018", "INV-024"]) assert.ok(!z.errors.some((e) => e.rule === id), id);
+  // ZATCA's own examples (2026-11-11): credit notes are Invoice documents with type 381
+  const cn = await run("./examples/zatca-simplified-credit-note.xml");
+  assert.ok(!cn.errors.some((e) => e.rule === "INV-034"), "INV-034 on a KSA credit note");
+  // a simplified invoice with no buyer name draws no INV-006 under ZATCA
+  const src = readFileSync(new URL("./examples/zatca-simplified-invoice.xml", import.meta.url), "utf8")
+    .replace(/(<cac:AccountingCustomerParty>)[\s\S]*?(<\/cac:AccountingCustomerParty>)/, "$1<cac:Party></cac:Party>$2");
+  const { reports } = await preflightDocuments([{ name: "nobuyer.xml", source: src }], { schematron: true });
+  assert.ok(!reports[0].errors.some((e) => e.rule === "INV-006"), "INV-006 on a KSA simplified invoice");
   // an ordinary EU file keeps them
   const d = await run("./examples/pint-sg-invoice-with-defects.xml");
   assert.ok(d.errors.some((e) => e.rule === "INV-038"));
+});
+
+test("a repeated tax rate stays reported under PINT; only ZATCA drops that INV-038", { skip }, async () => {
+  // Red-team run 2026-11-11: widening the ZATCA-only drop to every own-rules file survived the suite.
+  const src = readFileSync(new URL("./examples/pint-sg-invoice.xml", import.meta.url), "utf8");
+  const subtotal = src.match(/<cac:TaxSubtotal>[\s\S]*?<\/cac:TaxSubtotal>/)[0];
+  const doubled = src.replace(subtotal, subtotal + subtotal);
+  const { reports } = await preflightDocuments([{ name: "twice.xml", source: doubled }], { schematron: true });
+  assert.equal(reports[0].schematron, "ok");
+  assert.ok(reports[0].errors.some((e) => e.rule === "INV-038" && /repeats the same tax percentage/.test(e.message)));
 });

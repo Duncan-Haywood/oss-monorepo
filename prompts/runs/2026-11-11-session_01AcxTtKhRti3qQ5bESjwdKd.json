@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKhRti3qQ5bESjwdKd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T08:06:21Z",
+  "ended": "2026-11-11T08:23:27Z",
+  "wall_minutes": 17.43,
+  "tokens_in": 9819072,
+  "tokens_out": 44647,
+  "cost_usd": 4.4895,
+  "tool_calls": 73,
+  "task": "Flagship 3 (sales-agent), next item (1): fifth round of reply rules tuned on Enron halves 0*-4*, frozen, scored once on the unread 5* half with blind labels",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14736",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft of the work-talk absence veto cut real auto-reply recall on the tuning halves 228 to 201 of 231 (people's own 'Out of office' announcement mails)",
+      "fix": "limited to Re:/Fw: subjects and absences of a day or less before freezing; recall back to 228"
+    },
+    {
+      "what": "Dated the post and comments 2026-11-12 (local reasoning) while UTC was 2026-11-11; check_post_frontmatter caught it",
+      "fix": "renamed and re-dated; a blanket sed also hit a pre-existing fresh-2026-11-12.jsonl reference, restored"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/sales-agent/eval/README.md",
+      "issue": "Earlier rounds' labels (dev/held, rounds 1-2) judge the flagged sentence while rounds 3-5 judge the whole reply; the same message filed in two halves carries opposite labels, so tuning-half 'right stops lost' mixes rule changes with reader disagreement. Noted in the Fifth round section."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The 'sleep' block in the harness pushed me to Monitor/until-loops for a git checkout; fine, but the cloud-session guide could mention that large sparse checkouts of the Enron blobs finish in seconds after the clone."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Ran no venture-preflight: the change touches only the reply engine, tests and eval docs, not the venture's pages",
+      "did": "ran the venture's full node --test (423 pass) and the post checks",
+      "result": "no page change to check"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-sales-agent-fifth-round-real-mail.md",
+    "ventures/sales-agent/eval/README.md (Fifth round)"
+  ],
+  "goal": null,
+  "notes": "Fresh 5* (9,538 RE: replies, unread until rules were committed): wrong stops 69 -> 52 (7.2 -> 5.5 per 1,000), right 34 -> 33, precision 32% -> 37%. Tuning 0*-4*: wrong 120 -> 71, 21 right lost (12 talking 'No.' labelled per sentence by rounds 1-2, 7 short absences). Auto-replies 264/268 and bounces 257/268 across six halves unchanged; opt-out recall 37/38 on labelled 2*/3* unchanged. Labeller: a separate general-purpose subagent, same model family, engine answers hidden. node --test: 423 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "821d3961-285d-5bd0-acf7-6faca01c11b6",
+    "transcripts": 2,
+    "first": "2026-11-11T08:06:21Z",
+    "last": "2026-11-11T08:23:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 140,
+        "output": 44647,
+        "thinking": 13331,
+        "cache_read": 9590144,
+        "cache_write_5m": 50768,
+        "cache_write_1h": 178020,
+        "api_equivalent_usd": 4.4895,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 140,
+      "output": 44647,
+      "thinking": 13331,
+      "cache_read": 9590144,
+      "cache_write_5m": 50768,
+      "cache_write_1h": 178020,
+      "api_equivalent_usd": 4.4895,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1,
+      "Agent": 1,
+      "Write": 1,
+      "SubagentHandback": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.43,
+      "active_minutes": 17.43,
+      "model_minutes": 9.13,
+      "tool_minutes": 8.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.5
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an NLP engineer tuning rule vetoes on 50k real emails, freezing, arranging a blind labelling and writing up: about a working day plus",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 222.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

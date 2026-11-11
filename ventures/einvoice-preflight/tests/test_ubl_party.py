@@ -97,8 +97,6 @@ class PartyIdentifierTest(unittest.TestCase):
         self.assertEqual(document["customer"]["id"], "4098765000003")
 
 
-if __name__ == "__main__":
-    unittest.main()
 
 
 def test_national_tax_number_is_not_read_as_a_vat_id():
@@ -115,3 +113,39 @@ def test_national_tax_number_is_not_read_as_a_vat_id():
         "</AccountingSupplierParty>"
     )
     assert "vat_id" not in _party(ElementTree.fromstring(xml))
+
+
+class UnlabelledTaxSchemeTest(unittest.TestCase):
+    """CIUS-RO puts a buyer that is not VAT registered in an unlabelled
+    PartyTaxScheme with its bare fiscal code (ANAF's own examples); BR-CO-9
+    reads only TaxScheme/ID "VAT", so that is not a VAT number."""
+
+    @staticmethod
+    def customer(tax_scheme):
+        return f'''<cac:Party>
+  <cac:PartyTaxScheme>{tax_scheme}</cac:PartyTaxScheme>
+  <cac:PartyLegalEntity><cbc:RegistrationName>Ministerul Exemplu</cbc:RegistrationName></cac:PartyLegalEntity>
+</cac:Party>'''
+
+    SUPPLIER = '''<cac:Party><cac:PartyTaxScheme><cbc:CompanyID>RO12345674</cbc:CompanyID>
+  <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme></cac:PartyTaxScheme>
+  <cac:PartyLegalEntity><cbc:RegistrationName>Furnizor</cbc:RegistrationName></cac:PartyLegalEntity></cac:Party>'''
+
+    def test_bare_fiscal_code_is_not_a_vat_id(self):
+        parsed = parse_ubl_invoice(invoice(self.SUPPLIER, self.customer(
+            "<cbc:CompanyID>8609468</cbc:CompanyID><cac:TaxScheme></cac:TaxScheme>")))
+        self.assertNotIn("vat_id", parsed["customer"])
+
+    def test_prefixed_number_in_unlabelled_scheme_is_a_vat_id(self):
+        parsed = parse_ubl_invoice(invoice(self.SUPPLIER, self.customer(
+            "<cbc:CompanyID>RO76543210</cbc:CompanyID><cac:TaxScheme></cac:TaxScheme>")))
+        self.assertEqual(parsed["customer"]["vat_id"], "RO76543210")
+
+    def test_bare_number_under_vat_scheme_is_kept(self):
+        parsed = parse_ubl_invoice(invoice(self.SUPPLIER, self.customer(
+            "<cbc:CompanyID>8609468</cbc:CompanyID><cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>")))
+        self.assertEqual(parsed["customer"]["vat_id"], "8609468")
+
+
+if __name__ == "__main__":
+    unittest.main()

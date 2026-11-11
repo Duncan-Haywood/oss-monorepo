@@ -9,7 +9,8 @@ function honorsBrowserSignal() {
 export function recordUsage(storage = globalThis.localStorage, optedOut = false, eventName = 'reverb_sale_calculated') {
   if (optedOut || !storage || honorsBrowserSignal()) return;
   const today = new Date().toISOString().slice(0, 10);
-  const current = JSON.parse(storage.getItem('reverb-fee-usage') || '{}');
+  let current = JSON.parse(storage.getItem('reverb-fee-usage') || '{}');
+  if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
   current[eventName] = (current[eventName] || 0) + 1;
   current.last_day = today;
   storage.setItem('reverb-fee-usage', JSON.stringify(current));

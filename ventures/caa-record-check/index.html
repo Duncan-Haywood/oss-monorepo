@@ -22,7 +22,7 @@
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "featureList": [
     "Follows RFC 8659's tree-walk up the DNS hierarchy to the ancestor domain whose CAA records actually apply, not just the exact hostname typed",
-    "Follows a single CNAME hop first, since CAA for an aliased name is evaluated at the alias's target",
+    "Follows a CNAME at the name you enter to its target, then climbs your own name's parent labels, as RFC 8659 section 3 specifies",
     "Decodes CAA data in both the modern presentation format and the older RFC 3597 generic-hex encoding some resolvers still return",
     "Parses the RFC 8657 CA-account-authorization parameters (accounturi, validationmethods) inside an issue/issuewild value without losing the issuer domain",
     "Flags a critical-flagged, unrecognized property tag -- a configuration that silently blocks every CA that does not implement it, per RFC 8659",
@@ -225,8 +225,8 @@
     els.findings.innerHTML = findingsHtml.join('') || '<p>No syntax findings.</p>';
 
     els.foundAt.textContent = analysis.noCaaAnywhere
-      ? `No CAA record found from ${lookup.canonicalName} up through the top level.`
-      : `Found at: ${lookup.foundAtName}${lookup.foundAtName !== lookup.canonicalName ? ' (an ancestor of the name you entered, not the exact name)' : ''}`;
+      ? `No CAA record found from ${lookup.queriedName} up through the top level.`
+      : `Found at: ${lookup.foundAtName}${lookup.foundAtName === lookup.queriedName ? '' : lookup.foundAtName === lookup.canonicalName ? ' (the CNAME target of the name you entered)' : ' (an ancestor of the name you entered, not the exact name)'}`;
 
     els.recordsTable.innerHTML = lookup.records.map((rec) => rec.ok
       ? `<tr><td>${rec.flag}${rec.critical ? ' (critical)' : ''}</td><td>${escapeHtml(rec.tag)}</td><td>${escapeHtml(rec.value)}</td></tr>`

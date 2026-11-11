@@ -233,7 +233,9 @@ export function analyze(items, opts = {}) {
     const gainPerPlate = newPrice - x.price;
     // Volume loss at which the rise pays for itself: (cm + dp)(1 - L) = cm
     const denom = x.cm + x.price * (rise / 100);
-    const breakEvenLossPct = rise > 0 && denom > 0 ? (1 - x.cm / denom) * 100 : null;
+    // A plate that loses money (cm <= 0) has no loss at which the rise stops paying: null, not the
+    // over-100% figure 1 - cm / denom gave before 2026-11-11 (the cost-above-price finding covers it).
+    const breakEvenLossPct = rise > 0 && denom > 0 && x.cm > 0 ? (1 - x.cm / denom) * 100 : null;
     return { name: x.name, category: x.category, qty: x.qty, price: x.price, newPrice, newQty, gain, gainPerPlate, breakEvenLossPct, costSource: x.costSource };
   });
   const gainTotal = plow.reduce((s, p) => s + p.gain, 0);

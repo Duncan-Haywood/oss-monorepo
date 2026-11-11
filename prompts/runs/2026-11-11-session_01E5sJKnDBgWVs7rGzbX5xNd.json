@@ -1,0 +1,514 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnDBgWVs7rGzbX5xNd",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T08:18:16Z",
+  "ended": "2026-11-11T08:19:02Z",
+  "wall_minutes": 5.79,
+  "tokens_in": 3630161,
+  "tokens_out": 20381,
+  "cost_usd": 1.7284,
+  "tool_calls": 44,
+  "task": "redteam: random campaigns x3, purple-team fixes",
+  "projects": [
+    "platform/ci",
+    "ventures/carpet-cleaning-bid-calculator",
+    "ventures/dog-walking-route-pricing",
+    "ventures/vending-machine-route-margin"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14739",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run_workflow_locally.py --for-changes first refused: shallow clone shared no commit with origin/main",
+      "fix": "git fetch --depth=40 origin main"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix each open defect, but all 4 open entries are control-plane fixes that already have owner-approval PRs open (#12928, #12926, #14612, #14698). redteam.py open could list the open PR beside each entry so a run doesn't have to search for it."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun only runs the venture suite, so a class guard in platform/ci (usage_contract.mjs) does not show up in caught_after_fix; I added per-venture tests as well to get the gaps read as caught."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0: open defects not re-fixed; each already has a control-plane PR waiting on owner approval, and a duplicate would only add noise",
+      "did": "left patched:false, noted the PR numbers in the PR body",
+      "result": "run time went to new campaigns and a class guard"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-thirty-six-counters-nobody-fed-a-null.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: usage_contract.mjs checkEventModule covers the 36 usageAllowed/recordEvent/toggleUsage copies (1001 -> 1037 files; 17 of two other designs still skipped). First run: all 36 green; hand-applied escaped mutants fail it. Real-bug hunt on carpet calc.mjs: nothing reachable (share.mjs sanitises names; only 1e308 sq ft gives NaN). Local checks: node --test on the three touched suites green; python3 -m unittest test_check_storage_guard 22 OK; check_storage_guard.py green.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/carpet-cleaning-bid-calculator/calc.mjs",
+        "test": "node --test ventures/carpet-cleaning-bid-calculator/**/*.test.mjs  (in .)",
+        "seed": 927058966,
+        "commit": "f0fd8f54",
+        "sites": 139,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/carpet-cleaning-bid-calculator/calc.mjs",
+            "line": 83,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "if (roomsInput.length === 0) throw new Error('Add at least one room to price');",
+            "after": "if (roomsInput.length !== 0) throw new Error('Add at least one room to price');",
+            "line_text": "  if (roomsInput.length === 0) throw new Error('Add at least one room to price');",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/carpet-cleaning-bid-calculator/calc.mjs",
+            "line": 89,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "const otherJobCost = number(input.otherJobCost ?? 0, 'Other job cost');",
+            "after": "const otherJobCost = number(input.otherJobCost ?? 1, 'Other job cost');",
+            "line_text": "  const otherJobCost = number(input.otherJobCost ?? 0, 'Other job cost');",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: every fixture set otherJobCost; calc.test.mjs now omits it and checks job cost equals the explicit-0 case"
+          },
+          {
+            "file": "ventures/carpet-cleaning-bid-calculator/calc.mjs",
+            "line": 112,
+            "col": 39,
+            "operator": "div-to-times",
+            "before": "const extractionHours = squareFeet / productionRate;",
+            "after": "const extractionHours = squareFeet * productionRate;",
+            "line_text": "    const extractionHours = squareFeet / productionRate;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/carpet-cleaning-bid-calculator/calc.mjs",
+            "line": 129,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "return { name: label, minutes, hours: minutes / 60 };",
+            "after": "return { name: label, minutes, hours: minutes / 61 };",
+            "line_text": "    return { name: label, minutes, hours: minutes / 60 };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/carpet-cleaning-bid-calculator/calc.mjs",
+            "line": 158,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const overhead = directCost * (overheadRate / 100);",
+            "after": "const overhead = directCost * (overheadRate / 101);",
+            "line_text": "  const overhead = directCost * (overheadRate / 100);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/carpet-cleaning-bid-calculator/calc.mjs",
+            "line": 163,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const targetPrice = jobCost / (1 - targetMargin / 100);",
+            "after": "const targetPrice = jobCost / (2 - targetMargin / 100);",
+            "line_text": "  const targetPrice = jobCost / (1 - targetMargin / 100);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/carpet-cleaning-bid-calculator/calc.mjs",
+            "line": 210,
+            "col": 63,
+            "operator": "div-to-times",
+            "before": "effectiveHourlyRate: totalHours === 0 ? null : quotedPrice / totalHours,",
+            "after": "effectiveHourlyRate: totalHours === 0 ? null : quotedPrice * totalHours,",
+            "line_text": "    effectiveHourlyRate: totalHours === 0 ? null : quotedPrice / totalHours,",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/carpet-cleaning-bid-calculator/calc.mjs",
+            "line": 211,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "onSiteHourlyRate: onSiteHours === 0 ? null : quotedPrice / onSiteHours,",
+            "after": "onSiteHourlyRate: onSiteHours === 1 ? null : quotedPrice / onSiteHours,",
+            "line_text": "    onSiteHourlyRate: onSiteHours === 0 ? null : quotedPrice / onSiteHours,",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no fixture landed on exactly one on-site hour; calc.test.mjs now prices a 280 sq ft room at 280 sq ft/h"
+          }
+        ]
+      },
+      {
+        "target": "ventures/dog-walking-route-pricing/usage.mjs",
+        "test": "node --test ventures/dog-walking-route-pricing/**/*.test.mjs  (in .)",
+        "seed": 13329499,
+        "commit": "f0fd8f54",
+        "sites": 16,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/dog-walking-route-pricing/usage.mjs",
+            "line": 13,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "after": "if (typeof navigator !== 'undefined' || (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "line_text": "  if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-walking-route-pricing/usage.mjs",
+            "line": 13,
+            "col": 64,
+            "operator": "eq-flip",
+            "before": "if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "after": "if (typeof navigator !== 'undefined' && (navigator.doNotTrack !== '1' || navigator.globalPrivacyControl)) {",
+            "line_text": "  if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-walking-route-pricing/usage.mjs",
+            "line": 26,
+            "col": 44,
+            "operator": "or-to-and",
+            "before": "let counts = JSON.parse(ls.getItem(KEY) || '{}');",
+            "after": "let counts = JSON.parse(ls.getItem(KEY) && '{}');",
+            "line_text": "    let counts = JSON.parse(ls.getItem(KEY) || '{}');",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-walking-route-pricing/usage.mjs",
+            "line": 27,
+            "col": 16,
+            "operator": "or-to-and",
+            "before": "if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "after": "if (!counts && typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "line_text": "    if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: the venture's usage.test.mjs never stored valid JSON that is not an object; it now stores null, 5, true, \"text\", [], [1,2]. Class guard: platform/ci/usage_contract.mjs checkEventModule drives all 36 copies of this design the same way (check_storage_guard.py, portfolio-validate)"
+          },
+          {
+            "file": "ventures/dog-walking-route-pricing/usage.mjs",
+            "line": 28,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "counts[event] = (counts[event] || 0) + 1;",
+            "after": "counts[event] = (counts[event] && 0) + 1;",
+            "line_text": "    counts[event] = (counts[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-walking-route-pricing/usage.mjs",
+            "line": 28,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "counts[event] = (counts[event] || 0) + 1;",
+            "after": "counts[event] = (counts[event] || 1) + 1;",
+            "line_text": "    counts[event] = (counts[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-walking-route-pricing/usage.mjs",
+            "line": 28,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "counts[event] = (counts[event] || 0) + 1;",
+            "after": "counts[event] = (counts[event] || 0) - 1;",
+            "line_text": "    counts[event] = (counts[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/dog-walking-route-pricing/usage.mjs",
+            "line": 28,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "counts[event] = (counts[event] || 0) + 1;",
+            "after": "counts[event] = (counts[event] || 0) + 2;",
+            "line_text": "    counts[event] = (counts[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/vending-machine-route-margin/usage.mjs",
+        "test": "node --test ventures/vending-machine-route-margin/**/*.test.mjs  (in .)",
+        "seed": 837291924,
+        "commit": "f0fd8f54",
+        "sites": 16,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "ventures/vending-machine-route-margin/usage.mjs",
+            "line": 6,
+            "col": 31,
+            "operator": "neq-flip",
+            "before": "return typeof localStorage !== 'undefined' ? localStorage : null;",
+            "after": "return typeof localStorage === 'undefined' ? localStorage : null;",
+            "line_text": "    return typeof localStorage !== 'undefined' ? localStorage : null;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/vending-machine-route-margin/usage.mjs",
+            "line": 13,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "after": "if (typeof navigator !== 'undefined' || (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "line_text": "  if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/vending-machine-route-margin/usage.mjs",
+            "line": 13,
+            "col": 72,
+            "operator": "or-to-and",
+            "before": "if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "after": "if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' && navigator.globalPrivacyControl)) {",
+            "line_text": "  if (typeof navigator !== 'undefined' && (navigator.doNotTrack === '1' || navigator.globalPrivacyControl)) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/vending-machine-route-margin/usage.mjs",
+            "line": 18,
+            "col": 29,
+            "operator": "neq-flip",
+            "before": "return ls.getItem(OPT_OUT) !== 'true';",
+            "after": "return ls.getItem(OPT_OUT) === 'true';",
+            "line_text": "  return ls.getItem(OPT_OUT) !== 'true';",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/vending-machine-route-margin/usage.mjs",
+            "line": 26,
+            "col": 44,
+            "operator": "or-to-and",
+            "before": "let counts = JSON.parse(ls.getItem(KEY) || '{}');",
+            "after": "let counts = JSON.parse(ls.getItem(KEY) && '{}');",
+            "line_text": "    let counts = JSON.parse(ls.getItem(KEY) || '{}');",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/vending-machine-route-margin/usage.mjs",
+            "line": 27,
+            "col": 16,
+            "operator": "or-to-and",
+            "before": "if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "after": "if (!counts && typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "line_text": "    if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: the venture's usage.test.mjs never stored valid JSON that is not an object; it now stores null, 5, true, \"text\", [], [1,2]. Class guard: platform/ci/usage_contract.mjs checkEventModule drives all 36 copies of this design the same way (check_storage_guard.py, portfolio-validate)"
+          },
+          {
+            "file": "ventures/vending-machine-route-margin/usage.mjs",
+            "line": 27,
+            "col": 33,
+            "operator": "neq-flip",
+            "before": "if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "after": "if (!counts || typeof counts === 'object' || Array.isArray(counts)) counts = {};",
+            "line_text": "    if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/vending-machine-route-margin/usage.mjs",
+            "line": 27,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "after": "if (!counts || typeof counts !== 'object' && Array.isArray(counts)) counts = {};",
+            "line_text": "    if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: the venture's usage.test.mjs never stored valid JSON that is not an object; it now stores null, 5, true, \"text\", [], [1,2]. Class guard: platform/ci/usage_contract.mjs checkEventModule drives all 36 copies of this design the same way (check_storage_guard.py, portfolio-validate)"
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b95c6253-dd58-5e5f-8495-17f689a98a4c",
+    "transcripts": 1,
+    "first": "2026-11-11T08:18:16Z",
+    "last": "2026-11-11T08:24:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 20381,
+        "thinking": 3503,
+        "cache_read": 3553865,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76213,
+        "api_equivalent_usd": 1.7284,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 20381,
+      "thinking": 3503,
+      "cache_read": 3553865,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76213,
+      "api_equivalent_usd": 1.7284,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.79,
+      "active_minutes": 5.79,
+      "model_minutes": 4.13,
+      "tool_minutes": 1.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "3 mutation campaigns triaged, a contract extension with unit tests, 4 regression tests and a post: about 3 hours for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 173.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

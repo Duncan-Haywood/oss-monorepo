@@ -35,3 +35,6 @@ for s in theory/anchored theory/optimum_rank theory/optimum_rank_n theory/disjoi
 $PY experiments/theory/pilot_rho.py; $PY experiments/theory/pilot_rho_bound.py   # milestones 84, 90 (no flow) ; $PY experiments/theory/pilot_rho_power.py   # milestone 92
 git diff --stat -- experiments   # empty again when all of the above reproduce exactly
 $PY experiments/fresh_pool/analyse.py; $PY experiments/fresh_pool/price.py   # milestones 108, 109 (no flow; experiments/fresh_pool/run.py re-runs the 2,400-point flow, about 14 min on 4 cores)
+$PY experiments/heldout_designs/replay.py   # milestone 110 (no flow; under a second)
+$PY experiments/switch_guard/rule.py   # milestone 111 (no flow; under 10 s)
+$PY experiments/fresh_dear/analyse.py   # milestone 112 (no flow; under 2 s; experiments/fresh_dear/run.py re-runs the 1,440-point flow, about 50 min on 4 cores)

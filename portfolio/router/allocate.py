@@ -25,9 +25,13 @@ display-only counts per venture — neither is part of `rank()`:
 Neither count drives ranking yet — see README.md's "Attribution honesty"
 section for why that next step is deliberately not automated.
 
+Rows that an open PR already works say so first ("OPEN PR #N (2h old)"),
+from one `gh api` search; `--no-claims` skips it.
+
 Usage:
     python3 portfolio/router/allocate.py           # table
     python3 portfolio/router/allocate.py --json     # JSON work queue
+    python3 portfolio/router/allocate.py --venture ai-bookkeeper   # one row in full
 """
 from __future__ import annotations
 
@@ -469,7 +473,7 @@ def next_task(v: Venture) -> str:
         milestone = v.flagship_next or "the venture's own roadmap"
         if len(milestone) > FLAGSHIP_NEXT_CHARS:
             # The full history is in flagships.yaml; the queue prints the head.
-            milestone = milestone[:FLAGSHIP_NEXT_CHARS].rstrip() + " ... (full `next:` in portfolio/flagships.yaml)"
+            milestone = milestone[:FLAGSHIP_NEXT_CHARS].rstrip() + f" ... (full `next:`: allocate.py --venture {v.name})"
         if v.flagship_inputs_only:
             return (
                 f"Inputs only (flagship {v.flagship_rank + 1}): every listed item needs a real "
@@ -642,7 +646,148 @@ def recent_commits(days: int = 7, deepen: bool = True) -> dict[str, int]:
     return counts
 
 
-def print_table(ventures: list[Venture], queue: list[dict]) -> None:
+OPEN_PR_TIMEOUT_S = 20
+OPEN_PR_TITLE_CHARS = 70
+
+
+def open_pr_titles(timeout: int = OPEN_PR_TIMEOUT_S) -> Optional[list[tuple[int, str, str]]]:
+    """Open same-repo PRs as (number, title, created_at), or None if unreadable.
+
+    Display-only. Concurrent sessions kept taking the same top row because the
+    table did not show that an open PR already worked it (run-record
+    doc_friction on this file, 2026-11-10/11: #14628, #14678 and rows 3-5
+    found only by searching by hand). One `gh api` search call; `gh` is
+    unauthenticated in cloud sessions but search works there (CLAUDE.md)."""
+    try:
+        remote = subprocess.run(
+            ["git", "remote", "get-url", "origin"], capture_output=True, text=True,
+            timeout=5, cwd=REPO_ROOT,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return None
+    m = re.search(r"github\.com[:/]([\w.-]+/[\w.-]+?)(?:\.git)?$", remote)
+    if not m:
+        return None
+    try:
+        proc = subprocess.run(
+            ["gh", "api", "-X", "GET", "search/issues", "--paginate",
+             "-f", f"q=repo:{m.group(1)} is:pr is:open", "-f", "per_page=100",
+             "--jq", '.items[] | [.number, .title, .created_at] | @json'],
+            capture_output=True, text=True, timeout=timeout,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if proc.returncode != 0:
+        return None
+    rows = []
+    for line in proc.stdout.splitlines():
+        try:
+            num, title, created = json.loads(line)
+        except (ValueError, TypeError):
+            continue
+        rows.append((int(num), str(title), str(created)))
+    return rows
+
+
+def claims_by_venture(names, prs: list[tuple[int, str, str]]) -> dict[str, list[tuple[int, str, str]]]:
+    """{venture: open PRs whose title names its slug as a whole word}."""
+    out: dict[str, list[tuple[int, str, str]]] = {}
+    for name in names:
+        pat = re.compile(rf"(?<![\w-]){re.escape(name)}(?![\w-])")
+        hits = [pr for pr in prs if pat.search(pr[1])]
+        if hits:
+            out[name] = hits
+    return out
+
+
+CLAIM_FRESH_HOURS = 24
+
+
+def claim_note(hits: list[tuple[int, str, str]], now: Optional[datetime] = None) -> str:
+    """A prefix for the task column naming the open PRs on this venture.
+
+    A PR opened in the last CLAIM_FRESH_HOURS is a live claim by a concurrent
+    session ("OPEN PR #N (2h old): title -- ..."); older ones are usually
+    stalled and are listed by number only, so they do not scare a run off."""
+    now = now or datetime.now(timezone.utc)
+    fresh, stale = [], []
+    for num, title, created in sorted(hits, key=lambda h: h[2], reverse=True):
+        try:
+            age_h = (now - datetime.fromisoformat(created.replace("Z", "+00:00"))).total_seconds() / 3600
+        except ValueError:
+            age_h = float("inf")
+        (fresh if age_h < CLAIM_FRESH_HOURS else stale).append((num, title, age_h))
+    note = ""
+    if fresh:
+        parts = []
+        for num, title, age_h in fresh[:2]:
+            short = title if len(title) <= OPEN_PR_TITLE_CHARS else title[:OPEN_PR_TITLE_CHARS].rstrip() + "..."
+            parts.append(f"#{num} ({age_h:.0f}h old): {short}")
+        more = f" (+{len(fresh) - 2} more)" if len(fresh) > 2 else ""
+        note = "OPEN PR " + "; ".join(parts) + more + " -- extend it or pick a different item. "
+    if stale:
+        note += "[older open PRs: " + ", ".join(f"#{n}" for n, _, _ in stale[:3]) + ("..." if len(stale) > 3 else "") + "] "
+    return note
+
+
+def last_landed(name: str) -> Optional[str]:
+    """ISO commit date of the newest commit on main touching ventures/<name>, or None."""
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cI", "origin/main", "--", f"ventures/{name}"],
+            capture_output=True, text=True, timeout=15, cwd=REPO_ROOT,
+        ).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return out or None
+
+
+def venture_report(name: str, ventures: list[Venture],
+                   claims: Optional[dict[str, list]] = None,
+                   landed: Optional[str] = None,
+                   now: Optional[datetime] = None) -> Optional[str]:
+    """One venture's row in full: rank, task with the untruncated flagship
+    `next:`, open PRs with their ages and when work last landed.
+
+    The table cuts each flagship's `next:` at FLAGSHIP_NEXT_CHARS, so runs
+    grepped flagships.yaml for the rest, and `grep 'slug: <name>'` misses
+    because the key is `venture:` (run-record doc_friction on this file,
+    2026-11-11). None when `name` is not a venture."""
+    now = now or datetime.now(timezone.utc)
+    ranked = rank(ventures)
+    pos = next((i for i, v in enumerate(ranked) if v.name == name), None)
+    if pos is None:
+        return None
+    v = ranked[pos]
+    lines = [f"{v.name}: queue row {pos + 1} of {len(ranked)}, stage {v.stage}, "
+             f"{v.recent_commits} commits in 7 days"]
+    if v.flagship:
+        lines.append(f"Flagship {v.flagship_rank + 1} (portfolio/flagships.yaml)"
+                     + (f", inputs only: {v.flagship_inputs_only}" if v.flagship_inputs_only else ""))
+        lines.append("next:")
+        lines.append(v.flagship_next or "(none written)")
+    else:
+        lines.append("task: " + next_task(v))
+    if landed:
+        try:
+            age_h = (now - datetime.fromisoformat(landed)).total_seconds() / 3600
+            lines.append(f"last landed on main: {landed} ({age_h:.1f}h ago)")
+        except ValueError:
+            lines.append(f"last landed on main: {landed}")
+    else:
+        lines.append("last landed on main: not in the fetched history")
+    if claims is None:
+        lines.append("open PRs: not read (search PR titles yourself)")
+    else:
+        hits = sorted(claims.get(v.name, []), key=lambda h: h[2], reverse=True)
+        lines.append(f"open PRs naming it: {len(hits)}")
+        for num, title, created in hits:
+            lines.append(f"  #{num} opened {created}: {title}")
+    return "\n".join(lines)
+
+def print_table(ventures: list[Venture], queue: list[dict],
+                recent: Optional[dict[str, int]] = None,
+                claims: Optional[dict[str, list]] = None) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
     total_cap = later_cap + early_cap
@@ -683,7 +828,8 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
         f"{'#':<3}{'venture':<32}{'stage':<12}{'cap':>6}{'merit':>7}"
         f"{'ledger':>8}{'mentions':>10}{'7d-commits':>12}  task"
     )
-    recent = recent_commits()
+    if recent is None:
+        recent = recent_commits()
     empty_shown = 0
     empty_hidden = 0
     for i, item in enumerate(queue, 1):
@@ -698,7 +844,9 @@ def print_table(ventures: list[Venture], queue: list[dict]) -> None:
             f"{item['spend_ceiling_usd']:>6.0f}{merit:>7}"
             f"{item['ledger_entries_this_period']:>8}"
             f"{item['portfolio_mentions_this_period']:>10}"
-            f"{recent.get(item['venture'], 0):>12}  {item['task']}"
+            f"{recent.get(item['venture'], 0):>12}  "
+            f"{claim_note(claims[item['venture']]) if claims and item['venture'] in claims else ''}"
+            f"{item['task']}"
         )
     if empty_hidden:
         print(
@@ -743,6 +891,10 @@ def main(argv: Optional[list[str]] = None) -> int:
     )
     parser.add_argument("--no-deepen", action="store_true",
                         help="skip the shallow-clone fetch; 7-day commit counts may be partial")
+    parser.add_argument("--no-claims", action="store_true",
+                        help="skip the open-PR lookup (one `gh api` search) that marks rows already being worked")
+    parser.add_argument("--venture", metavar="SLUG",
+                        help="print one venture's row in full (untruncated flagship `next:`, open PRs, last landing)")
     args = parser.parse_args(argv)
 
     ventures = load_ventures()
@@ -757,12 +909,36 @@ def main(argv: Optional[list[str]] = None) -> int:
     recent = recent_commits(deepen=not args.no_deepen)
     for v in ventures:
         v.recent_commits = recent.get(v.name, 0)
+    if args.venture:
+        claims_one = None
+        if not args.no_claims:
+            prs = open_pr_titles()
+            if prs is not None:
+                claims_one = claims_by_venture([args.venture], prs)
+        report = venture_report(args.venture, ventures, claims=claims_one,
+                                landed=last_landed(args.venture))
+        if report is None:
+            print(f"No venture named {args.venture!r} (ventures/<slug>/VENTURE.yaml).", file=sys.stderr)
+            return 1
+        print(report)
+        return 0
+
     queue = work_queue(ventures)
+
+    claims: Optional[dict[str, list]] = None
+    if not args.no_claims:
+        prs = open_pr_titles()
+        if prs is not None:
+            claims = claims_by_venture([item["venture"] for item in queue], prs)
+            for item in queue:
+                item["open_prs"] = [h[0] for h in claims.get(item["venture"], [])]
 
     if args.json:
         print(json.dumps(queue, indent=2))
     else:
-        print_table(ventures, queue)
+        if claims is None and not args.no_claims:
+            print("(open PRs not read: `gh api` search failed; search PR titles before taking a row)")
+        print_table(ventures, queue, recent=recent, claims=claims)
     return 0
 
 

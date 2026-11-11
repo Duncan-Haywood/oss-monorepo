@@ -38,7 +38,7 @@ the audit.
 |---|---|---|
 | `sample` | the stratified random round below: the unbiased share meeting the bar | `sample` |
 | `census` | the full-repository sweep: never-audited subjects first, so every venture, research project and platform directory gets a first audit | `census --n 6` |
-| `fix` | work the open-defect queue: fix, add the test that would have caught it, record the PR in the audit's `fix_prs`, then re-audit the subject in a new file | `queue --severity high` |
+| `fix` | work the open-defect queue: fix, add the test that would have caught it, record the PR in the audit's `fix_prs`; a later round re-audits the subject in a new file. `queue` flags rows whose subject has commits since the audit: check those first, since a fix may have landed unrecorded (PR #14329 did) | `queue --severity high` |
 | `reflect` | read the corpus and the process, write `reflections/<date>-<slug>.md`: where quality drops, why, and process fixes with the metric each should move | `metrics --md` |
 
 Census audits use stratum `venture`, `research` or `platform` like sampled

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { triage } from "./engine.mjs";
+import { triage, stripQuoted } from "./engine.mjs";
 import { readAsServer, looksAuto, looksBounce } from "./eval/enron.mjs";
 
 // Phrasings found on real mail (eval/enron.mjs on the Enron corpus, 2026-11-10; eval/README.md "Real mail: the Enron
@@ -30,6 +30,39 @@ const NOT_A_STOP = [
   "That adds about $800,ooo to this year's earnings.",
   "Can you get me off the phone with their lawyer by noon?",
   "Don't send me a message back saying it isn't true.",
+  // Second round, 2026-11-11 (eval/README.md "Second round"), written from the two earlier halves only.
+  "I left a copy of the broker quotes on your desk.",
+  "I left at noon to catch my flight.",
+  "Sorry I left your name off the note.",
+  "Please email the signed version of both documents.",
+  "Please email your street address to me.",
+  "If you could handle this please.",
+  "He has left town by now.",
+  "Please consider the following retired judges.",
+  "If you're not the right person, could you please pass it on.",
+  "I tried to send this to your home email, but it was undeliverable.",
+  "This came back to me as undeliverable so I'll try again.",
+  "Please notify us immediately by reply e-mail and then delete this message from your system.",
+  "Then she needs to stop sending these out like they are.",
+  "Please do not email this to the lawyers.",
+  "At least this is one thing to cross off your list.",
+  "Voluntary opt out of the rate freeze.",
+  "According to legal, we don't need to confirm any of these deals.",
+  "No need to retract the invite at this point.",
+  "No need for thanks.",
+  "Not for us to contact the regulator about it.",
+  "Thanks, I'll pass the good news on to the trader.",
+  "I think we are good to go.",
+  "The results were good.",
+  "If you got them from the desk, then we're set.",
+  "The assistant told me that you will be back on Friday.",
+  "I will be back in touch within the next day or so.",
+  "Now that I'm back in the office, I'm having folks check this.",
+  "I have been out of the office with no access to e-mail, so sorry for the slow reply.",
+  "I'm out of excuses now.",
+  "While I'm out, please keep an eye on the deal.",
+  "She wants us to hire everyone who is out on leave.",
+  "I was unexpectedly out of the office yesterday and did not get to review it.",
 ];
 for (const body of NOT_A_STOP) {
   test(`real-mail phrasing is not a stop: ${body.slice(0, 60)}`, () => {
@@ -59,7 +92,30 @@ const STILL = {
   "Please delete my name off the mailing list and add my colleague.": "unsubscribe",
   "Please do not send me these charts.": "unsubscribe",
   "Please do not send me any other solicitation.": "unsubscribe",
+  // Second round (2026-11-11): the narrowed rules still read these.
+  "I left Acme in March, so please try Dana.": "left_company",
+  "I have left the company.": "left_company",
+  "Jordan has left Brightline.": "left_company",
+  "I've recently retired.": "left_company",
+  "Please contact Dana Lee, she runs purchasing now.": "left_company",
+  "I'm out of town next week.": "out_of_office",
+  "I am out for the next several weeks.": "out_of_office",
+  "I'm currently out on a family emergency.": "out_of_office",
+  "No need to follow up, thanks.": "not_interested",
+  "We don't need to talk, we're covered.": "not_interested",
+  "No thanks, we're good.": "not_interested",
 };
+
+// Lotus Notes quote headers (no "wrote:", no ">") are history, not the reply; so is a "Forwarded by" block.
+test("a Lotus Notes quote header ends the reply", () => {
+  const body = "Thanks, will look today.\n\n\nPat Doe@ECT\n09/26/2000 11:19 AM\nTo: Sam Roe/HOU/ECT@ECT\ncc:\nSubject: Re: contract\n\nPlease take me off this list.";
+  assert.equal(stripQuoted(body), "Thanks, will look today.");
+  assert.notEqual(cat(stripQuoted(body)), "unsubscribe");
+  const fwd = "See below.\n---------------------- Forwarded by Sam Roe/HOU/ECT on 04/09/2001 04:48 PM ---------------------------\nI am out of the office until Monday.";
+  assert.equal(stripQuoted(fwd), "See below.");
+  const outlook = "ok\n\n\"Doe, Pat\" <pat@example.test> on 11/03/2000 03:18:19 PM\nTo: <sam@example.test>\ncc:\nSubject: RE:\n\nNot interested.";
+  assert.equal(stripQuoted(outlook), "ok");
+});
 for (const [body, want] of Object.entries(STILL)) test(`real ask still stops: ${body}`, () => assert.equal(cat(body), want));
 
 test("an auto-reply sent from postmaster@ is an away notice, not a bounce (real: maternity leave, referrals)", () => {
@@ -85,4 +141,169 @@ test("recall checks: auto-reply subjects only (not people asking for vacation da
   assert.ok(!looksAuto({ subject: "Vacation days" }) && !looksAuto({ subject: "Re: Out of office" }));
   assert.ok(looksBounce({ from: "Mail Delivery Subsystem <MAILER-DAEMON@mx.example.test>", subject: "Returned mail" }));
   assert.ok(!looksBounce({ from: "postmaster@x.example.test", subject: "Auto Reply to your message" }));
+});
+
+// Third round, 2026-11-11 (eval/README.md "Third round"): written from the 0*-2* halves, scored once on the unread 3* half.
+// Paraphrased, no corpus names.
+const THIRD_NOT_A_STOP = [
+  "I will pass this information along to both Jo and Kim.",
+  "Thanks, I'll pass along your comments.",
+  "He is not a great fit because of his lack of legal experience.",
+  "When I asked Lee about it back then she decided against it.",
+  "We have some space available and were not looking to expand there.",
+  "We're all set to move forward starting next month.",
+  "You will probably need to close the file before you attach it.",
+  "We do not need access until Monday morning.",
+  "No need to call Lone Star.",
+  "Sam is out of the office until Monday, I will change the deals for him.",
+  "Both are out of the office right now, so it might be tomorrow.",
+  "Please note that Mike McConnell will be out of town through the 4th.",
+  "I just got back in the office today and am going over the days.",
+  "I'm traveling today but I'll call you back to set up an agenda.",
+  "Let's omit the people who left the company.",
+  "Nadia, would you please contact Patti and set up a time?",
+  "Saturday doesn't work for me.",
+  "They have moved on to plan B.",
+  "Tell them to stop sending invoices to you.",
+  "I will remove it from John's calendar.",
+];
+for (const body of THIRD_NOT_A_STOP) test(`third round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(cat(body)), cat(body)));
+
+test("third round: a Re: subject is the thread's subject, not the reply's words; an auto-reply subject still counts", () => {
+  assert.notEqual(cat("Good luck, keep in touch.", { subject: "Re: Pat is no longer at Acme" }), "left_company");
+  assert.notEqual(cat("The page went live today.", { subject: "RE: TW Unsubscribed Capacity" }), "unsubscribe");
+  assert.equal(cat("", { subject: "Out of Office: budget" }), "out_of_office");
+  assert.equal(cat("Please take me off your list.", { subject: "Re: quick question" }), "unsubscribe");
+});
+
+test("third round: the real asks still stop", () => {
+  assert.equal(cat("Please discontinue sending me these requests for approval."), "unsubscribe");
+  assert.equal(cat("I am out of the office until Monday."), "out_of_office");
+  assert.equal(cat("No."), "not_interested");
+  assert.equal(cat("This seems to not ever get resolved. Looks good to me."), "unclear");
+  assert.equal(cat("Not now, and not later either."), "not_interested");
+});
+
+// Fourth round, 2026-11-11 (eval/README.md "Fourth round"): written from the 0*-3* halves, scored once on the unread 4* half.
+// Paraphrased, no corpus names.
+const FOURTH_NOT_A_STOP = [
+  "Lee, the firm's CEO, is traveling and won't be back in the office until Wednesday.",
+  "Apparently the person she needs to talk to is out of the office.",
+  "One of those guys should be back in the office shortly, and I'll let you know.",
+  "Somehow her Out of Office notification stopped working.",
+  "We hope you will return soon to our site.",
+  "I will be out of the office on Friday, but will be in all next week if you want to discuss.",
+  "I will be out of the office this afternoon but in all day tomorrow.",
+  "My mom had surgery last week and I was in and out of the office.",
+  "It is amazing what two days out of the office will do to my workload!",
+  "Sorry, I am traveling a bunch.",
+  "I am not sure when I will be back up there.",
+  "There is a good chance that I will return to Portland.",
+  "We're all fine, but very busy!",
+  "We are set for closing at 10:00 AM today.",
+  "I'll pass on any other articles on the industry.",
+  "I guess we don't need the talking points, but we should still find out why.",
+  "If you are comfortable with where this is going, then we do not need to meet.",
+  "We don't need three different people collecting the same information.",
+  "I don't need Smith & Jones to serve as lobbyists.",
+  "It isn't really relevant for purposes of the guaranty.",
+  "But no need to set up a formal agenda.",
+  "The daily quantity does not fit in a deficiency default.",
+  "If you need to take it off, take it as vacation for now.",
+  "Could we sell it to one buyer and take it off the market?",
+  "I would rather not get into the habit of locking in curves early.",
+  "At least they leave me alone and let me work out.",
+  "No more email for you today.",
+  "The updated TW Unsubscribed Capacity page went to production today.",
+  "If you have any legal questions feel free to call our lawyer at 555-0100.",
+  "The agreement has a confidentiality provision that goes to internal communication.",
+  "Now that Randy Lee has left Brightline, they are unlikely to reply soon.",
+  "Turns out I was just asking the wrong person.",
+  "No. 5 -- add that we are always the counterparty.",
+  "No - they pay you just for being you!",
+  "Nope. What's the occasion?",
+];
+for (const body of FOURTH_NOT_A_STOP) test(`fourth round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(cat(body)), cat(body)));
+
+test("fourth round: the real asks still stop", () => {
+  assert.equal(cat("No."), "not_interested");
+  assert.equal(cat("Nope.\n\nPat Doe\nVP Sales, Acme"), "not_interested");
+  assert.equal(cat("No. We are happy with our current vendor."), "not_interested");
+  assert.equal(cat("I am out of the office until Monday."), "out_of_office");
+  assert.equal(cat("Hi Sam, I am out of the office until Monday, November 20."), "out_of_office");
+  assert.equal(cat("I am in London until Friday and out of the office."), "out_of_office");
+  assert.equal(cat("Please take me off your list."), "unsubscribe");
+  assert.equal(cat("Please leave me alone."), "unsubscribe");
+  assert.equal(cat("Jordan has left Brightline."), "left_company");
+});
+
+// Fifth round (eval/README.md "Fifth round"): paraphrases of the real phrasings the round-5 rules answer, names changed.
+const re = (body) => triage({ subject: "Re: rollout", body }, "2001-06-01").category;
+const FIFTH_NOT_A_STOP = [
+  "NO. I need to know how many beds there are in total!",
+  "No. I do not have any contact information for them.",
+  "no - I never heard back from them.",
+  "Mr. Hale had passed this on to Jo Brant in the broadband group.",
+  "I spoke with Karen about the volume. She said that she passed it on to Fred Boas.",
+  "I just don't know how many questions they can come up with. I've quit predicting.",
+  "Broadband has taken five people out of East Power and left us short.",
+  "Faxing drafts does not work for me.",
+  "So I told her I was not interested for now, but it might be worth finding out more.",
+  "Actually they are not looking at us. I heard it wrong.",
+  "Sorry, we have booked the flights and we do not need the extra night. Is it ok to cancel it and send a new confirm?",
+  "Thank you. I don't need the value. I just need the transport report so I can check positions.",
+  "I agree that we don't need an RTO, we need to fix the transmission rules.",
+  "Thanks for your help, I have talked with Mr. Shaw and we are all set. Give  me a call, I will be here till 6.",
+  "It gives customers the opportunity to opt-out of the program.",
+  "Sure wish I had a coffee to take my mind off the pain.",
+  "The only item from your list that I need clarified is the extensions.",
+];
+for (const body of FIFTH_NOT_A_STOP) test(`fifth round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(re(body)), re(body)));
+
+test("fifth round: a short absence inside a working reply goes to a person; a notice or a longer absence still pauses", () => {
+  const work = "I have asked Bob, Kim and Mechelle to attend the review. I don't have confirmation yet on whether all three can make it. I thought that asking three would fit one of their schedules. I will be out of the office that day.";
+  assert.ok(!["out_of_office"].includes(re(work)), re(work));
+  // The same sentence under the notice's own subject, or with a return date, or with nothing else, is an away notice.
+  assert.equal(triage({ subject: "Out of office", body: work }, "2001-06-01").category, "out_of_office");
+  assert.equal(re("I have asked Bob, Kim and Mechelle to attend the review. I don't have confirmation yet on whether all three can make it. I thought that asking three would fit one of their schedules. I will be out of the office until November 12th."), "out_of_office");
+  assert.equal(re("I will be out of the office Friday."), "out_of_office");
+});
+
+test("fifth round: the real asks still stop", () => {
+  assert.equal(re("No. thank you"), "not_interested");
+  assert.equal(re("No. We are not interested."), "not_interested");
+  assert.equal(re("Nope. Not something a firm like ours would ever buy."), "not_interested");
+  assert.equal(re("We don't need it, thanks."), "not_interested");
+  assert.equal(re("Please take me off your list."), "unsubscribe");
+  assert.equal(re("I left Acme in March."), "left_company");
+  assert.equal(re("I've passed this to our head of operations."), "left_company");
+});
+
+// Sixth round, 2026-11-11 (eval/README.md "Sixth round"): what the parallel round-5 version had and the landed one lacked, plus
+// three real declines both lost on 5*. Real phrasings, names changed.
+const SIXTH_NOT_A_STOP = [
+  "Mr. Lay had passed this on to Joe Hirko in Broadband Services.",
+  "Another thought. Please, send me your resume, I shall forward it to our head trader.",
+  "Please e-mail Karen or me with feedback on the candidates.",
+  "Yes I will be back tonight",
+  "Ryan runs our model for us now so I don't need this spreadsheet everyday.",
+  "I agree. We do not need anyone speaking at this.",
+  "Could you call me when we're set to trade with Cinnabar?",
+  "No need for Ken's involvement with her at this point.",
+  "Let me know if you'd like me to politely intervene and take this off your list.",
+  "Please notify the sender of the delivery error by replying to this message, and then delete it from your system.",
+  "Sorry for the delayed response. Moving Azurix back was decided last year. We did combine them into the D&O program. I am traveling tomorrow and will return to the office Wednesday before noon.",
+  "FYI - Tomorrow is better than Monday. On Monday I will be out of the office until late afternoon.",
+];
+for (const body of SIXTH_NOT_A_STOP) test(`sixth round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(re(body)), re(body)));
+
+test("sixth round: the real asks still stop", () => {
+  assert.equal(re("No.  I'll let this one go.    Thanks,  Grigsby"), "not_interested");
+  assert.equal(re("No.  I will not agree to any penalty charges on nomination errors.  Please call me if you have any questions."), "not_interested");
+  assert.equal(re("Thanks for the resume.  I do not need a regulatory lawyer at this time.    Mark"), "not_interested");
+  // Not yet: "Please cancel the Palm.Net service ... do not need the Palm.Net service" reads as a request beside a soft no (round
+  // 5's ASKS_READER), so it reaches a person as unclear. Round 7's list (eval/README.md "Sixth round").
+  assert.equal(re("remove from list.  no longer with gas desk.  LC"), "unsubscribe");
+  assert.equal(re("Thanks for your note. I am out of the office until Monday, November 20."), "out_of_office");
+  assert.equal(re("I have passed this on to our head of procurement."), "left_company");
 });

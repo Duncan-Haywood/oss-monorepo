@@ -15,7 +15,8 @@ function honorsBrowserSignal() {
 export function recordUsage(event, optedOut = false, storage = globalThis.localStorage) {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   try {
-    const entries = JSON.parse(storage.getItem(KEY) || '{}');
+    let entries = JSON.parse(storage.getItem(KEY) || '{}');
+    if (!entries || typeof entries !== 'object' || Array.isArray(entries)) entries = {};
     const day = new Date().toISOString().slice(0, 10);
     entries[`${event}:${day}`] = (entries[`${event}:${day}`] || 0) + 1;
     storage.setItem(KEY, JSON.stringify(entries));

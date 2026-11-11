@@ -1,10 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { triage, findDate, parseReplies, stripQuoted, parseCsv, toCsv, runInbox, checkDraft, draftReply, addBusinessDays, csv, SAMPLE_REPLIES, SAMPLE_PROSPECTS, SAMPLE_OFFER, CATEGORIES } from "./engine.mjs";
-import { score } from "./eval/run.mjs";
-import { train, guess } from "./learn.mjs";
+import { score, baselineModel } from "./eval/run.mjs";
+import { train, guess, TRAINING_FILE } from "./learn.mjs";
 import { MODEL } from "./model.mjs";
+import { crossValidate } from "./eval/guess-cv.mjs";
 
 const T = "2026-10-21"; // a Wednesday
 const load = (f) => readFileSync(new URL(`./eval/${f}`, import.meta.url), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
@@ -61,7 +62,7 @@ test("the tuned eval sets score perfectly (a regression floor, not an accuracy c
 });
 
 test("the fresh set is reported, not tuned: numbers recorded in README stay as measured", () => {
-  const s = score(load("fresh-2026-10-21.jsonl"));
+  const s = score(load("fresh-2026-10-21.jsonl"), { model: baselineModel() });
   // README "How well it reads replies" quotes these. If a rule change moves them, re-measure on a NEW fresh set and
   // update the README; do not tune on this file.
   assert.equal(s.n, 40);
@@ -91,7 +92,7 @@ test("opt-outs in French, German, Spanish and Italian and \"cease and desist\" s
 });
 
 test("second fresh set (2026-10-24, written by another session, scored once): numbers stay as measured", () => {
-  const s = score(load("fresh-2026-10-24.jsonl"));
+  const s = score(load("fresh-2026-10-24.jsonl"), { model: baselineModel() });
   assert.equal(s.n, 41);
   // 27 when scored once; 28 after 2026-11-02, when "I left X" counted as a wrong-person reply (one item, no regression).
   // Row 9 (a full mailbox, first labelled bounce) was relabelled out_of_office on 2026-11-05 when full mailboxes became soft bounces; the count stays 28.
@@ -105,14 +106,16 @@ test("second fresh set (2026-10-24, written by another session, scored once): nu
 });
 
 test("word model: rebuilt from the training files exactly, and it guesses", () => {
-  const rows = ["replies.jsonl", "heldout.jsonl"].flatMap(load);
-  assert.deepEqual(train(rows), MODEL);
+  const files = readdirSync(new URL("./eval/", import.meta.url)).filter((f) => TRAINING_FILE.test(f)).sort();
+  assert.ok(files.length >= 25 && files.includes("replies.jsonl") && files.includes("fresh-2026-10-21.jsonl"));
+  assert.deepEqual(train(files.flatMap(load)), MODEL);
   assert.equal(guess({ subject: "Re: hi", body: "please remove me" }).category, "unsubscribe");
   assert.equal(guess({ subject: "", body: "x" }, null), null);
 });
 
 test("the inbox agent: suppresses, pauses, drafts, and queues for approval", () => {
   const r = runInbox({ replies: SAMPLE_REPLIES, prospects: SAMPLE_PROSPECTS, offer: SAMPLE_OFFER, today: T });
+  assert.equal(r.summary.paused, 2); // the away notice and the "try me in Q1" both count as paused
   const by = Object.fromEntries(r.items.map((i) => [i.from, i]));
   assert.equal(by["omar@peakdental.example"].triage.category, "unsubscribe");
   assert.equal(by["omar@peakdental.example"].draft, null);
@@ -507,4 +510,68 @@ test("twenty-first set (2026-11-13 file): question, objection and interest probe
   assert.equal(s.n, 20);
   assert.equal(s.right, 19);
   assert.equal(s.overreach, 0);
+});
+
+test("word model, leave-one-set-out (eval/guess-cv.mjs): the wider model beats the first one on unseen sets", () => {
+  const { totals } = crossValidate();
+  // 2026-11-11: 28/57 right, overreach 2, no unsubscribe drafted; the 120-reply model 19/57, overreach 7, 1 unsubscribe drafted.
+  assert.deepEqual([totals.cvFresh.right, totals.cvFresh.handoffs, totals.cvFresh.overreach, totals.cvFresh.unsubAsOutbound], [28, 57, 2, 0]);
+  assert.deepEqual([totals.shippedFresh.right, totals.shippedFresh.overreach, totals.shippedFresh.unsubAsOutbound], [19, 7, 1]);
+});
+
+test("dates a reply can't mean are no date, not a rolled-over or malformed one (red team 2026-11-11)", () => {
+  // Date.UTC rolls a day the month lacks into the next month, and an ISO string was returned as typed.
+  assert.equal(findDate("returning 2026-13-45", T), null);
+  assert.equal(findDate("call me 2026-02-30", T), null);
+  assert.equal(findDate("back 2026/02/31", T), null);
+  assert.equal(findDate("back 31.02.2026", T), null);
+  assert.equal(findDate("back 2/30/2026", T), null);
+  assert.equal(findDate("back 2026/02/28", T).date, "2026-02-28");
+  // "the 31st" in a 30-day month is the next month that has a 31st; "the 0th" and "the 99th" are not dates.
+  assert.equal(findDate("call me on the 31st", "2026-11-10").date, "2026-12-31");
+  assert.equal(findDate("call me on the 31st", "2026-02-10").date, "2026-03-31");
+  assert.equal(findDate("the 0th", "2026-11-10"), null);
+  assert.equal(findDate("the 99th", "2026-11-10"), null);
+  assert.equal(findDate("call me on the 15th", T).date, "2026-11-15");
+  // "In a month" from 31 January is the end of February, not 3 March; months cross the year.
+  assert.equal(findDate("in 1 month", "2026-01-31").date, "2026-02-28");
+  assert.equal(findDate("in 13 months", "2026-12-15").date, "2028-01-15");
+});
+
+test("a huge 'in N days' in one reply gives no date instead of throwing and stopping the whole inbox run (red team 2026-11-11)", () => {
+  assert.equal(findDate("back in 99999999 days", T), null);
+  assert.equal(findDate("in 9999999 months", T), null);
+  const r = runInbox({ replies: "From: a@co.example\nSubject: Re: hi\nOut of office. Back in 99999999 days.\n---\nFrom: b@co.example\nSubject: Re: hi\nSounds good, send times.", today: T });
+  assert.equal(r.items.length, 2);
+});
+
+test("date edges the mutation run found unguarded: day/month order, day-month text, end of quarter (red team 2026-11-11)", () => {
+  assert.equal(findDate("back 25/3", T).date, "2027-03-25"); // a first number over 12 is the day
+  assert.equal(findDate("back 5 March", T).text, "5 March");
+  assert.equal(findDate("by the end of the quarter", T).date, "2027-01-01");
+  assert.equal(findDate("by the end of the quarter", "2026-02-10").date, "2026-04-01");
+});
+
+// The veto windows below were tuned on real mail (eval/README.md); these pin their width so a change is a decision, not a slip.
+test("veto windows keep their tuned width: 80 characters for a person's own delivery failure, 40 for 'would just ... leave me alone'", () => {
+  const bounce = (gap) => triage({ from: "a@b.example", subject: "Re: hi", body: `We tried ${"x".repeat(gap - 2)} undeliverable` }, T).category;
+  assert.notEqual(bounce(80), "bounce"); // inside the window: someone describing a failure
+  assert.equal(bounce(81), "bounce");
+  const stop = (gap) => triage({ from: "a@b.example", subject: "Re: hi", body: `if jeff would just ${"x".repeat(gap - 2)} leave me alone` }, T).category;
+  assert.notEqual(stop(40), "unsubscribe"); // someone else being left alone
+  assert.equal(stop(41), "unsubscribe");
+});
+
+test("property: findDate never throws and every date it returns is a real YYYY-MM-DD calendar day (red team 2026-11-11)", () => {
+  const real = (s) => /^\d{4}-\d\d-\d\d$/.test(s) && new Date(`${s}T00:00:00Z`).toISOString().slice(0, 10) === s;
+  const nums = [0, 1, 12, 13, 28, 29, 30, 31, 32, 99, 123, 99999999];
+  const shapes = (a, b) => [`2026-${String(a).padStart(2, "0")}-${String(b).padStart(2, "0")}`, `2026/${a}/${b}`, `${a}.${b}.2026`, `${a}/${b}`, `${a}/${b}/2027`, `the ${a}th`, `the ${a}st`,
+    `in ${a} days`, `in ${a} weeks`, `in ${a} months`, `back on February ${a}`, `${a} April`, `${a}. März`];
+  const todays = ["2026-01-31", "2026-02-28", "2026-11-30", "2028-02-29", "2026-12-31"];
+  let checked = 0;
+  for (const today of todays) for (const a of nums) for (const b of nums) for (const s of shapes(a, b)) {
+    const r = findDate(s, today);
+    if (r) { assert.ok(real(r.date), `${JSON.stringify(s)} on ${today} gave ${r.date}`); checked++; }
+  }
+  assert.ok(checked > 1000); // the grid reaches real dates, not only nulls
 });

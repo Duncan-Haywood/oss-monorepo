@@ -32,19 +32,24 @@ export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, b
   const refactor = () => {
     // Invert B by Gauss-Jordan with partial pivoting (B is 0/1 and well scaled).
     const A = new Float64Array(m * 2 * m);
+    const nz = new Int32Array(2 * m);
     for (let c = 0; c < m; c++) for (const r of colRows(basis[c])) A[r * 2 * m + c] = 1;
     for (let r = 0; r < m; r++) A[r * 2 * m + m + r] = 1;
     for (let c = 0; c < m; c++) {
       let piv = c;
       for (let r = c + 1; r < m; r++) if (Math.abs(A[r * 2 * m + c]) > Math.abs(A[piv * 2 * m + c])) piv = r;
       if (Math.abs(A[piv * 2 * m + c]) < 1e-12) throw new Error("singular basis");
-      if (piv !== c) for (let k = 0; k < 2 * m; k++) { const t = A[c * 2 * m + k]; A[c * 2 * m + k] = A[piv * 2 * m + k]; A[piv * 2 * m + k] = t; }
+      // Columns left of c are already zero outside their own pivot rows, so every row operation starts at column c.
+      if (piv !== c) for (let k = c; k < 2 * m; k++) { const t = A[c * 2 * m + k]; A[c * 2 * m + k] = A[piv * 2 * m + k]; A[piv * 2 * m + k] = t; }
       const d = A[c * 2 * m + c];
-      for (let k = 0; k < 2 * m; k++) A[c * 2 * m + k] /= d;
+      // Row operations touch only the pivot row's nonzero entries: subtracting f * 0 leaves an entry as it was, so skipping those
+      // gives the same inverse bit for bit, and the pivot row of a 0/1 basis stays mostly zeros (a 60-person week: refactor 3.3 s).
+      let nnz = 0;
+      for (let k = c; k < 2 * m; k++) { const v = A[c * 2 * m + k]; if (v !== 0) { A[c * 2 * m + k] = v / d; nz[nnz++] = k; } }
       for (let r = 0; r < m; r++) {
         if (r === c) continue;
         const f = A[r * 2 * m + c];
-        if (f !== 0) for (let k = 0; k < 2 * m; k++) A[r * 2 * m + k] -= f * A[c * 2 * m + k];
+        if (f !== 0) { const o = r * 2 * m, oc = c * 2 * m; for (let t = 0; t < nnz; t++) { const k = nz[t]; A[o + k] -= f * A[oc + k]; } }
       }
     }
     // Rows of [I | B^-1] are in basis-position order after the swaps above: B^-1 row c belongs to basis position c.
@@ -56,10 +61,12 @@ export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, b
   // Basic values within 1e-9 of zero are set to zero. Without this, rounding left values like 1e-11 on degenerate rows, the
   // ratio test saw a step of 1e-11 as progress, the anti-cycling switch below never stayed on, and a 20-person week (102 rows,
   // 497 columns) cycled at its optimum past 400,000 pivots (eval/cg-scale-bench.mjs, 2026-11-10). With it: 479 pivots.
-  const computeX = () => { for (let r = 0; r < m; r++) { let v = 0; for (let k = 0; k < m; k++) v += Binv[r * m + k]; xB[r] = Math.abs(v) < 1e-9 ? 0 : v; } };
+  const rowX = (r) => { let v = 0; for (let k = 0; k < m; k++) v += Binv[r * m + k]; xB[r] = Math.abs(v) < 1e-9 ? 0 : v; };
+  const computeX = () => { for (let r = 0; r < m; r++) rowX(r); };
   computeX();
   const y = new Float64Array(m);
   const d = new Float64Array(m);
+  const rowNz = new Int32Array(m);
   let pivots = 0, sinceRefactor = 0, degenerate = 0;
   for (;;) {
     // Duals y = c_B B^-1.
@@ -92,17 +99,21 @@ export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, b
     degenerate = ratio < 1e-9 ? degenerate + 1 : 0;
     // Pivot.
     const dl = d[leave];
-    for (let k = 0; k < m; k++) Binv[leave * m + k] /= dl;
+    // As in refactor: only the leaving row's nonzero entries can change another row, so the update runs over those alone.
+    let nnz = 0;
+    for (let k = 0; k < m; k++) { const v = Binv[leave * m + k]; if (v !== 0) { Binv[leave * m + k] = v / dl; rowNz[nnz++] = k; } }
     for (let r = 0; r < m; r++) {
       if (r === leave || Math.abs(d[r]) < 1e-15) continue;
-      const f = d[r];
-      for (let k = 0; k < m; k++) Binv[r * m + k] -= f * Binv[leave * m + k];
+      const f = d[r], o = r * m, ol = leave * m;
+      for (let t = 0; t < nnz; t++) { const k = rowNz[t]; Binv[o + k] -= f * Binv[ol + k]; }
     }
     inBasis[basis[leave]] = 0;
     basis[leave] = enter;
     inBasis[enter] = 1;
-    if (++sinceRefactor >= 64) { refactor(); sinceRefactor = 0; }
-    computeX();
+    // A pivot changes only the leaving row and the rows it updated, so only their basic values are summed again (an unchanged
+    // row gives the same sum); after a refactor every row is.
+    if (++sinceRefactor >= 64) { refactor(); sinceRefactor = 0; computeX(); }
+    else for (let r = 0; r < m; r++) if (r === leave || Math.abs(d[r]) >= 1e-15) rowX(r);
     if (++pivots > maxPivots) throw new Error("simplex pivot limit");
   }
   let obj = 0, infeasible = false;
@@ -240,7 +251,7 @@ export function branchAndPriceOpen(sets, len, { incumbentOpen = Infinity, nodeLi
 // people of cost(p, set), when `price` also returns the set's `cost` and its `value` is sum of w[s] over the set minus that cost.
 // The open-hours LP is the case openCost = len, cost = 0. The whole roster score (pay, penalties and 100,000 per open hour) is
 // another (scoreBoundByColumnGeneration in calc.mjs); pass `unit: 0` there so bounds are not rounded to the hour grid.
-export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, rootDive = true, diveWidth = null, warm = true, openCost = null, unit: unitOpt = null, tolerance = 0 } = {}) {
+export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, rootDive = true, diveWidth = null, warm = true, openCost = null, unit: unitOpt = null, tolerance = 0, diveBacktrack = null } = {}) {
   const S = len.length;
   const oc = openCost || len;
   let maxCost = 0;
@@ -403,34 +414,57 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
   // pins every unpinned person whose LP column is at 1, plus the person with the heaviest fractional column, then re-prices the
   // rest; it ends at an integral LP (a roster), when the pinned problem cannot beat the best roster, or after `diveSteps`. No
   // backtracking: a failed dive costs its steps and leaves the tree search as it was.
-  const runDive = (maxSteps, width) => {
-    const pins = new Map();
-    for (let step = 0; step < maxSteps && !timeUp(); step++) {
+  // Backtracking (2026-11-11 later): with `backtrack` > 0 the dive is a depth-first search. When a step dead-ends (the pinned
+  // problem is infeasible or cannot beat the best roster) it returns to the step before and pins that step's next fractional
+  // candidate instead, up to `backtrack` such retries in all (a retry is one extra pinned LP). A roster found above the root
+  // bound does not end the search: it only tightens the cut, so later branches must beat it. Still a heuristic: rosters only,
+  // never a floor. Retries stop once half of `ms` is spent, so a long dive leaves the tree its share of the time.
+  const runDive = (maxSteps, width, backtrack = 0) => {
+    let retries = backtrack;
+    const goal = () => cut(root.bound); // a roster meets the root bound
+    const go = (pins, depth) => {
+      if (depth >= maxSteps || timeUp()) return;
       stats.diveSteps = (stats.diveSteps || 0) + 1;
       const r = evalNode(new Map(), 0, pins);
       if (r.bound === Infinity || r.solved || !r.lpCols) return;
       if (roundUp(r.bound, unit) >= best - tolerance - 1e-9) return;
-      let added = 0;
+      const base = new Map(pins);
       const frac = [];
       for (const c of r.lpCols) {
-        if (pins.has(c.p)) continue;
-        if (c.x > 1 - 1e-7) { pins.set(c.p, { f: c.f, key: c.f.join(","), cost: c.cost }); added++; }
+        if (base.has(c.p)) continue;
+        if (c.x > 1 - 1e-7) base.set(c.p, { f: c.f, key: c.f.join(","), cost: c.cost });
         else frac.push(c);
       }
       // Then the heaviest fractional columns, up to `width` of them, of different people and sharing no shift copy with each other
       // or with a pin (a shared copy would leave the pinned problem infeasible).
       frac.sort((a, b) => b.x - a.x || b.f.length - a.f.length);
       const taken = new Set();
-      for (const [, { f }] of pins) for (const s of f) taken.add(s);
-      let took = 0;
-      for (const c of frac) {
-        if (took >= width) break;
-        if (pins.has(c.p) || c.f.some((s) => taken.has(s))) continue;
-        pins.set(c.p, { f: c.f, key: c.f.join(","), cost: c.cost }); added++; took++;
-        for (const s of c.f) taken.add(s);
+      for (const [, { f }] of base) for (const s of f) taken.add(s);
+      const fits = frac.filter((c) => !c.f.some((s) => taken.has(s)));
+      const pick = (from, n) => {
+        const next = new Map(base), t = new Set(taken);
+        let took = 0;
+        for (let i = from; i < fits.length && took < n; i++) {
+          const c = fits[i];
+          if (next.has(c.p) || c.f.some((s) => t.has(s))) continue;
+          next.set(c.p, { f: c.f, key: c.f.join(","), cost: c.cost }); took++;
+          for (const s of c.f) t.add(s);
+        }
+        return next.size > pins.size ? next : null;
+      };
+      const first = pick(0, width);
+      if (!first) return;
+      go(first, depth + 1);
+      // Retry this step with the next candidates, one pin each, while retries last and no roster meets the root bound.
+      for (let i = 1; i < fits.length && retries > 0 && !goal() && Date.now() - t0 < ms / 2; i++) {
+        if (roundUp(r.bound, unit) >= best - tolerance - 1e-9) return; // a roster found below now beats this whole subtree
+        const alt = pick(i, 1);
+        if (!alt) continue;
+        retries--; stats.diveRetries = (stats.diveRetries || 0) + 1;
+        go(alt, depth + 1);
       }
-      if (!added) return;
-    }
+    };
+    go(new Map(), 0);
   };
 
   const root = evalNode(new Map(), 0);
@@ -442,7 +476,7 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
     const widths = diveWidth ? [diveWidth] : [Math.max(1, Math.ceil(P / 7)), 1];
     for (const w of [...new Set(widths)]) {
       if (timeUp() || cut(root.bound)) break; // stop once a roster meets the root bound
-      runDive(P + 1, w);
+      runDive(P + 1, w, w === 1 ? (diveBacktrack ?? P) : 0);
     }
     stats.diveFound = best < before;
   }

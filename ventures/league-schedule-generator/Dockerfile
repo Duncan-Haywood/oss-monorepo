@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY calc.mjs server.mjs ./
+COPY calc.mjs carryover.mjs server.mjs ./
 RUN mkdir /data && chown node /data
 USER node
 ENV PORT=8080 STATE=/data/state.json

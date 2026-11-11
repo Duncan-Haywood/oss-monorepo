@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23471b7e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How To Balance Carry-Over In A Round Robin</title>
+  <meta name="description" content="What the carry-over effect is (meeting the same team straight after the strongest side), why the circle method is close to the worst case, a worked eight-team example, and how real top-flight fixture lists compare. Then build a balanced schedule free.">
+  <meta property="og:title" content="How To Balance Carry-Over In A Round Robin">
+  <meta property="og:description" content="Carry-over explained with a worked eight-team example and real fixture lists. Free, private, in your browser.">
+  <link rel="canonical" href="./how-to-balance-carry-over-in-a-round-robin.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the carry-over effect in a round robin?", "acceptedAnswer": {"@type": "Answer", "text": "Team A carries over team B to team C when B plays A and then plays C in its very next game. If A is the strongest side, or plays a bruising style, C keeps meeting opponents who have just been through A. The carry-over matrix counts, for every pair (A, C), how many teams play A and then C next; Russell's carry-over value adds up the squares of those counts."}}, {"@type": "Question", "name": "Is the circle method bad for carry-over?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The circle method, the usual way to write a round robin by hand, repeats the same carry-over again and again. With 8 teams one team meets five of its seven opponents straight after they have played the same other team. A searched schedule for 8 teams gets every count down to 0 or 1, which is the best possible."}}, {"@type": "Question", "name": "Does balancing carry-over cost home and away balance?", "acceptedAnswer": {"@type": "Answer", "text": "Somewhat. The circle method has the fewest back-to-back home or away games possible (teams minus two in a single round robin), and a schedule with even carry-over usually has more. The tool weighs both and tells you the numbers, so you can keep the circle method when home venues matter more."}}, {"@type": "Question", "name": "Do professional leagues balance carry-over?", "acceptedAnswer": {"@type": "Answer", "text": "Some more than others. On the published fixture lists for the English, Spanish, Italian, French and German top flights from 2021-22 to 2024-25, the Bundesliga's carry-over value ran 1.4 to 2.4 times the others' (3,474 to 4,342 against 1,840 to 2,564), with the fewest possible home/away breaks. The tool's 20-team double round robin, searched as a whole season, scores 1,678 with 124 breaks (2,136 with 114 if the first half is simply mirrored), against 2,278 to 2,564 and 70 to 146 breaks for the 20-team leagues in those seasons."}}, {"@type": "Question", "name": "When does carry-over matter for a rec league?", "acceptedAnswer": {"@type": "Answer", "text": "When one or two teams are much stronger than the rest, when games are physical, or when teams play on consecutive nights. If every team plays at the same venue, home/away breaks do not matter at all, so even carry-over is a free improvement."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f5f2; }
+    body { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; line-height: 1.55; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); letter-spacing: -.04em; line-height: 1.05; }
+    h2 { font-size: 1.2rem; margin-top: 1.8em; }
+    h3 { font-size: 1rem; margin-bottom: .3em; }
+    a { color: #1d5a3f; }
+    table { border-collapse: collapse; width: 100%; margin: 10px 0; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #d4dad2; }
+    .cta { display: inline-block; margin: 8px 0 0; padding: 10px 14px; border-radius: 8px; background: #1d5a3f; color: #ffffff; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 2.5em; font-size: .85rem; color: #4a5148; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">&larr; League schedule generator</a></p>
+  <h1>How to balance carry-over in a round robin</h1>
+  <p>Every round robin decides not just who you play, but who your opponent played the week before. If the strongest team in the league is always followed by the same opponent, that opponent keeps meeting sides who have just been beaten up, rested their stars or travelled. Sports schedulers call this the carry-over effect, and the usual hand-made schedule, the circle method, is close to the worst case for it.</p>
+  <p><a class="cta" href="./">Open the free schedule tool</a> (tick “Spread who you meet next”)</p>
+  <h2>A worked example: 8 teams, 7 rounds</h2>
+  <p>Eight invented teams play a single round robin written by the circle method. Count, for each pair, how many teams play the first and then the second in their next game:</p>
+  <table>
+    <thead><tr><th>Pattern in the circle method</th><th>How often</th></tr></thead>
+    <tbody>
+      <tr><td>Teams who play the Lions and then the Hawks next</td><td>5 of the Hawks' 7 opponents</td></tr>
+      <tr><td>Largest count for any pair</td><td>5</td></tr>
+      <tr><td>Pairs that repeat (count of 2 or more)</td><td>7</td></tr>
+      <tr><td>Carry-over value (sum of the squared counts)</td><td>148</td></tr>
+    </tbody>
+  </table>
+  <p>So if the Lions are the strongest side, the Hawks meet five opponents straight after the Lions have played them. The searched schedule for the same eight teams has every count at 0 or 1, a carry-over value of 48, which is the least any eight-team round robin can have, and still 3 or 4 home games per team. The numbers come from the same code the page runs, and a test recomputes them, so they cannot drift from the tool.</p>
+  <h2>How the tool finds it</h2>
+  <p>It starts from the circle method and makes small changes that keep a valid round robin: swapping the order of two rounds, swapping two teams' opponents over the fewest rounds that keeps every pair meeting once, and exchanging the games of two rounds along one cycle. A seeded search keeps the changes that lower the carry-over value, then a second pass trades a little of it for fewer back-to-back home or away games, and home and away are set for the fewest breaks it can find. The same seed gives the same schedule. It runs in your browser in about a second for 20 teams.</p>
+  <h2>Why a double round robin should not just be mirrored</h2>
+  <p>The usual way to write a home-and-away season is to play the first half again with the venues swapped. That repeats every carry-over step, so every count doubles and the value roughly quadruples. For a double round robin the tool now searches the second half as a round robin of its own: it starts from the first half played backwards (which turns "A then C" into "C then A", so the counts spread instead of doubling), keeps every pair meeting once in each half with the return game at the other ground, never has a team meet the same side twice running across the halfway point, and weighs home/away breaks with the same exact count it reports. For 20 teams that takes the value from 2,136 to 1,678, below every one of the 14 professional 20-team seasons, for 10 more back-to-back home or away games (124, inside their 70 to 146).</p>
+  <h2>How real fixture lists compare</h2>
+  <p>On the published double round robin fixture lists of five European top flights over four seasons (open data from openfootball, ordered by matchday), with each team's games in order:</p>
+  <table>
+    <thead><tr><th>Schedule</th><th>Teams</th><th>Carry-over value</th><th>Home/away breaks</th></tr></thead>
+    <tbody>
+      <tr><td>Bundesliga, 2021-22 to 2024-25</td><td>18</td><td>3,474 to 4,342</td><td>48</td></tr>
+      <tr><td>Ligue 1, 2023-24 and 2024-25</td><td>18</td><td>1,840 and 1,948</td><td>74 and 96</td></tr>
+      <tr><td>Circle method, mirrored</td><td>18</td><td>14,610</td><td>48</td></tr>
+      <tr><td>This tool, searched and mirrored</td><td>18</td><td>1,926</td><td>74</td></tr>
+      <tr><td>This tool, whole season searched</td><td>18</td><td>1,498</td><td>88</td></tr>
+      <tr><td>Premier League, La Liga, Serie A, Ligue 1 (20 teams)</td><td>20</td><td>2,278 to 2,564</td><td>70 to 146</td></tr>
+      <tr><td>Circle method, mirrored</td><td>20</td><td>21,044</td><td>54</td></tr>
+      <tr><td>This tool, searched and mirrored</td><td>20</td><td>2,136</td><td>114</td></tr>
+      <tr><td>This tool, whole season searched</td><td>20</td><td>1,678</td><td>124</td></tr>
+    </tbody>
+  </table>
+  <p>The professional leagues already avoid the circle method's pattern; the Bundesliga keeps the fewest possible breaks and pays for it in carry-over. Searched as a whole season, the tool's schedule is below every professional one on carry-over and inside their range on breaks. It does not know about derbies, police requests, European fixtures or television, which those schedules also carry.</p>
+  <p><a class="cta" href="./">Build your own schedule</a></p>
+  <h2>Questions</h2>
+  <h3>What is the carry-over effect in a round robin?</h3>
+  <p>Team A carries over team B to team C when B plays A and then plays C in its very next game. If A is the strongest side, or plays a bruising style, C keeps meeting opponents who have just been through A. The carry-over matrix counts, for every pair (A, C), how many teams play A and then C next; Russell's carry-over value adds up the squares of those counts.</p>
+  <h3>Is the circle method bad for carry-over?</h3>
+  <p>Yes. The circle method, the usual way to write a round robin by hand, repeats the same carry-over again and again. With 8 teams one team meets five of its seven opponents straight after they have played the same other team. A searched schedule for 8 teams gets every count down to 0 or 1, which is the best possible.</p>
+  <h3>Does balancing carry-over cost home and away balance?</h3>
+  <p>Somewhat. The circle method has the fewest back-to-back home or away games possible (teams minus two in a single round robin), and a schedule with even carry-over usually has more. The tool weighs both and tells you the numbers, so you can keep the circle method when home venues matter more.</p>
+  <h3>Do professional leagues balance carry-over?</h3>
+  <p>Some more than others. On the published fixture lists for the English, Spanish, Italian, French and German top flights from 2021-22 to 2024-25, the Bundesliga's carry-over value ran 1.4 to 2.4 times the others' (3,474 to 4,342 against 1,840 to 2,564), with the fewest possible home/away breaks. The tool's 20-team double round robin, searched as a whole season, scores 1,678 with 124 breaks (2,136 with 114 if the first half is simply mirrored), against 2,278 to 2,564 and 70 to 146 breaks for the 20-team leagues in those seasons.</p>
+  <h3>When does carry-over matter for a rec league?</h3>
+  <p>When one or two teams are much stronger than the rest, when games are physical, or when teams play on consecutive nights. If every team plays at the same venue, home/away breaks do not matter at all, so even carry-over is a free improvement.</p>
+  <p>Related: <a href="./how-to-balance-home-and-away-games-in-a-round-robin.html">how to balance home and away games</a>, <a href="./how-to-make-a-round-robin-schedule.html">how to make a round-robin schedule</a>, and <a href="./round-robin-schedule-by-number-of-teams.html">rounds and games for 3 to 16 teams</a>.</p>
+</main>
+<footer>
+    <p><strong>No warranty.</strong> Free and as-is, without warranty of any kind. This page is general information, not legal or financial advice. Check every pairing and date before you announce it; your event's own rules and tie-breaks apply. The example teams are invented.</p>
+    <p>Everything the tool does runs in your browser; team names and results are never uploaded. Free and open source: <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+  </footer>
+</body>
+</html>

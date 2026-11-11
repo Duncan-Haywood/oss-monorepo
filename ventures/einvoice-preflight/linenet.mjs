@@ -3,13 +3,10 @@
 // + line charges - line allowances, rounded to cents; VAT is worked out per
 // rate on the summed taxable amount, not per line. Mirrors
 // src/einvoice_preflight/linenet.py.
+import { parseDecimal } from "./numbers.mjs";
 
-function parseNumber(value) {
-  if (value === undefined || value === null || value === "") return null;
-  const text = typeof value === "string" ? value.trim() : String(value);
-  if (text === "" || !Number.isFinite(Number(text))) return null;
-  return Number(text);
-}
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
 
 export function roundCents(value) {
   if (!Number.isFinite(value)) return null;
@@ -48,7 +45,10 @@ export function expectedLineNet(line, applyBase = true) {
   if (quantity === null || price === null) return null;
   let base = applyBase ? parseNumber(line.price_base_quantity) : 1;
   if (base === null || base <= 0) base = 1;
-  return roundCents((quantity * price) / base + signedAdjustment(line.adjustments));
+  // Line allowances and charges are summed with their sign: a credit line may carry
+  // a negative charge (OpenPeppol's PINT A-NZ negative invoice, line 2:
+  // -4 x 400/2 - 200 charge + 100 allowance = -900.00).
+  return roundCents((quantity * price) / base + signedAdjustment(line.adjustments, true));
 }
 
 // The line net a file should carry. The price base quantity (BT-149) is

@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJT4v2Y7suMY2nV5nc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T09:07:00Z",
+  "ended": "2026-11-11T09:15:38Z",
+  "wall_minutes": 9.02,
+  "tokens_in": 5877512,
+  "tokens_out": 38432,
+  "cost_usd": 3.0021,
+  "tool_calls": 53,
+  "task": "Deepen flagship changepoint-detector item (0): smooth-series over-cut, via a random-walk level model (DeCAFS phi=0)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14749",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first version of the exact-partition test summed the penalty twice and called the partitioner on segments shorter than 2*minSegment",
+      "fix": "exported driftSegmentCost and used it in the test"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Ranks ai-bookkeeper first despite 77 commits in 7 days and a next: list where almost every item needs real outside inputs; I took flagship 4 instead, which had a buildable algorithmic item."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Reports 'tag spelled 2 ways: benchmark, benchmarks' as a repo-wide error when one new post uses the less common spelling. That is right, but the message does not say which file to change."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is the top Deepen row (ai-bookkeeper), but its open items need real bank/settlement/payroll inputs no session holds, and it already had 77 commits this week.",
+      "did": "Took changepoint-detector (row 3), item (0), which needs only TCPD (fetchable).",
+      "result": "A pre-registered model landed with a clear verdict: it beats the plain level model on both TCPD sets, but not the warning refit."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "why": "The feature is CLI-only this run; the page and agent tool were not wired.",
+      "did": "Recorded as next in the README.",
+      "result": "No new user-facing page surface, so the disclaimer and tracking duties are unchanged; the CLI text carries 'not advice'."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-changepoints-on-a-drifting-level.md",
+    "ventures/changepoint-detector/README.md (Jumps on a drifting level)"
+  ],
+  "goal": "Flagship deepening: a hard modelling problem with a pre-registered benchmark test",
+  "notes": "TCPD: drift primary F1 0.677 shipped / 0.420 held out vs plain 0.477/0.296 and warning-refit 0.655/0.497. Pre-registered rule part 2 failed, so the default panel is unchanged. --drift-slope added post hoc and labelled so. Verification: node --test drift-level.test.mjs 7/7 pass; full suite via platform/ci/run_venture_tests.py changepoint-detector (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4b69c5e2-6203-5c64-b835-a89f3523d9b6",
+    "transcripts": 1,
+    "first": "2026-11-11T09:07:00Z",
+    "last": "2026-11-11T09:16:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 95,
+        "output": 38432,
+        "thinking": 8098,
+        "cache_read": 5741832,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135585,
+        "api_equivalent_usd": 3.0021,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 95,
+      "output": 38432,
+      "thinking": 8098,
+      "cache_read": 5741832,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135585,
+      "api_equivalent_usd": 3.0021,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 46,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.02,
+      "active_minutes": 9.02,
+      "model_minutes": 7.27,
+      "tool_minutes": 1.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a statistician implementing and benchmarking a DeCAFS-style model with tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 399.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

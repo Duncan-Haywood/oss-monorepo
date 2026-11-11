@@ -14,3 +14,5 @@ dependencies xspattern and prsc (both MIT).
 The pint-*.json sets are OpenPeppol PINT Schematron (Singapore, Australia/New Zealand; MPL-2.0), read from the compiled XSLT in com.helger.phive.rules:phive-rules-peppol (Apache-2.0) on Maven Central by build-pint-rules.mjs.
 
 The zatca-*.json sets are ZATCA's e-invoice validation rules (rules version 3.4.6; the ZATCA e-invoicing toolkit SDK, LGPL-3.0), read from the compiled XSLT in com.helger.phive.rules:phive-rules-zatca (Apache-2.0) on Maven Central by build-zatca-rules.mjs. They are converted data files; the LGPL text is at https://www.gnu.org/licenses/lgpl-3.0.txt.
+
+The pint1-*.json sets are the current OpenPeppol PINT releases (Singapore 1.4.1, Australia/New Zealand 1.1.3), read from the compiled XSLT in com.helger.phive.rules:phive-rules-peppol-pint 4.6.4 (Apache-2.0) on Maven Central by build-pint-rules.mjs. That artefact's NOTICE names OpenPeppol's PINT repositories (https://github.com/OpenPeppol/PINT and its jurisdiction siblings) and https://docs.peppol.eu/poac/ as their origin; the licence text of those upstream repositories was not re-read for this build (the older PINT sets above are MPL-2.0).

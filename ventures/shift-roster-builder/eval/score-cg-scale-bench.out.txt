@@ -29,3 +29,35 @@ case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  col
 case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
 0	149	17013255.07	16913221.40	16913221.40	16913221.40	0.00	true	6	1221	0	19255
 1	148	14613474.64	14613268.36	14613268.36	14613268.36	0.00	true	7	1442	0	43039
+
+# 2026-11-11: 60 people, root dive without backtracking (first pay run at this size). Shared 4-core machine.
+60 people, 168 shift lines, 300000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	245	30021218.22	30021152.70	30021152.70	30021161.23	8.53	false	32	2754	0	301107
+1	238	30821320.70	30821320.70	30821320.70	30821320.70	0.00	true	1	1144	0	17475
+
+# 2026-11-11 later: week 0 again with dive backtracking (retries of the next fractional pin, budget P, at most half of ms).
+60 people, 168 shift lines, 300000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	245	30021218.22	30021152.70	30021152.70	30021155.38	2.68	false	55	3078	0	307908
+
+# 2026-11-11 later still: pay oracle (makeScorePricer) with the chain bound (CHAIN=0 off), then with the sibling cut, one fixedLB
+# per node and array-based payParts as well. Columns: + pricing-ms, max-pricing-nodes. Four benches side by side on 4 cores.
+# chain bound off
+40 people, 112 shift lines, 120000 ms per week
+0	149	17013255.07	16913221.40	16913221.40	16913221.40	0.00	true	6	1221	0	5707	3522	98301
+1	148	14613474.64	14613268.36	14613268.36	14613268.36	0.00	true	7	1442	0	11159	8845	78750
+60 people, 168 shift lines, 300000 ms per week
+0	245	30021218.22	30021152.70	30021152.70	30021153.92	1.22	false	160	3580	0	301259	195071	650983
+# chain bound on
+40 people, 112 shift lines, 120000 ms per week
+0	149	17013255.07	16913221.40	16913221.40	16913221.40	0.00	true	6	1221	0	5406	3193	86764
+1	148	14613474.64	14613268.36	14613268.36	14613268.36	0.00	true	7	1442	0	11411	9032	59929
+60 people, 168 shift lines, 300000 ms per week
+0	245	30021218.22	30021152.70	30021152.70	30021153.92	1.22	false	160	3565	0	300656	193471	659786
+# chain bound + sibling cut + fixedLB once + array payParts
+40 people, 112 shift lines, 120000 ms per week
+0	149	17013255.07	16913221.40	16913221.40	16913221.40	0.00	true	6	1221	0	3421	1380	63734
+1	148	14613474.64	14613268.36	14613268.36	14613268.36	0.00	true	7	1442	0	8517	6313	55933
+60 people, 168 shift lines, 300000 ms per week
+0	245	30021218.22	30021152.70	30021152.70	30021153.92	1.22	false	172	3737	0	300753	180599	640450

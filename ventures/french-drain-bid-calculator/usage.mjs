@@ -17,7 +17,8 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
   // throw into the calculator that called it.
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const current = JSON.parse(storage.getItem('french-drain-bid-usage') || '{}');
+    let current = JSON.parse(storage.getItem('french-drain-bid-usage') || '{}');
+    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
     current[event] = (current[event] || 0) + 1;
     current.last_day = today;
     storage.setItem('french-drain-bid-usage', JSON.stringify(current));

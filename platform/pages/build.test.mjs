@@ -124,6 +124,7 @@ import {
   renderSearchIndex,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
+import { ASSISTANT_VOICE_CSS } from './assistant.mjs';
 import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { renderCard } from './sharecard.mjs';
@@ -3681,10 +3682,13 @@ test('chrome takes its theme from the host page, not the operating system', asyn
   // (`VENTURE_CHROME_CSS`), light by default and dark only where pf-site.js
   // measured the host page's background as dark; and the logo square's
   // fallback gradient, a 20px mark rather than text or a band. Everything else
-  // the chrome draws still takes its colours from the page.
+  // the chrome draws still takes its colours from the page. The floating voice
+  // button (assistant.mjs, `ASSISTANT_VOICE_CSS`) is the third: it sets both
+  // its fill and its ink (white on #1f4e8c, 8.3:1), so no host palette reaches it.
   assert.ok(style.includes(VENTURE_CHROME_CSS), 'the venture header carries the site palette');
+  assert.ok(style.includes(ASSISTANT_VOICE_CSS), 'the voice button carries its own palette');
   assert.match(VENTURE_CHROME_CSS, /\[data-pfs-theme="dark"\]/, 'dark only on a measured dark host');
-  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
+  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(ASSISTANT_VOICE_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
   assert.ok(!/#[0-9a-f]{3,8}\b/i.test(rest),
     `the chrome must not hard-code a colour: ${rest.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
   assert.match(style, /color:inherit/, 'text colour comes from the page');
@@ -3984,7 +3988,10 @@ test('the injected chrome never dims text it did not choose the colour of', asyn
   // have gone quiet the moment the block moved, and passed on every page.
   const style = await read('pf-chrome.css');
   assert.ok(/\.pf-chrome-foot/.test(style), 'pf-chrome.css is not the chrome stylesheet');
-  assert.ok(!/opacity\s*:/.test(style),
+  // Except the voice button, which owns both its colours: its opacity is the
+  // fade to 0 as it steps aside on scroll, not a tint of host text.
+  assert.ok(style.includes(ASSISTANT_VOICE_CSS));
+  assert.ok(!/opacity\s*:/.test(style.replace(ASSISTANT_VOICE_CSS, '')),
     'the chrome sets an opacity on text whose colour comes from the host page, ' +
     'so its contrast depends on a palette it cannot see');
 });
@@ -5841,4 +5848,95 @@ test('copyTree rewrites the placeholder in .ics files, even across a folded line
   const out = await fs.readFile(path.join(dst, 'cal.ics'), 'utf8');
   assert.match(out, /URL:https:\/\/real\.test\/tool\/page\.html/);
   assert.ok(!out.includes('example.invalid'));
+});
+
+/**
+ * Runs the shared chrome file's scroll pass against a stub page and returns the
+ * elements it asked getComputedStyle about and the ones it gave a tab stop.
+ *
+ * Why it is executed, not read: the 2026-11-11 change made the sweep ask only
+ * the elements a stylesheet rule (or a style attribute) could make scroll,
+ * with the full sweep as the fallback. Both halves are behaviour a string
+ * match cannot see: that a cross-origin sheet other than Google Fonts' falls
+ * back, and that the sweep runs after a frame, not inside DOMContentLoaded.
+ */
+function scrollPass({ sheets, elements, matches = (sel) => elements.filter((e) => sel.split(',').some((s) => e.matches.includes(s.trim()))) }) {
+  const asked = [];
+  const frames = [];
+  const timers = [];
+  const el = (e) => Object.assign(e, {
+    attrs: {},
+    hasAttribute(k) { return k in this.attrs; },
+    setAttribute(k, v) { this.attrs[k] = v; },
+    removeAttribute(k) { delete this.attrs[k]; },
+  });
+  elements.forEach(el);
+  const document = {
+    readyState: 'complete',
+    styleSheets: sheets,
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    addEventListener: () => {},
+    getElementsByTagName: () => [],
+    head: { appendChild() {} },
+    body: {
+      getElementsByTagName: () => elements,
+      querySelectorAll: (sel) => matches(sel),
+      appendChild() {},
+    },
+  };
+  new Function('navigator', 'localStorage', 'document', 'addEventListener', 'getComputedStyle', 'requestAnimationFrame', 'setTimeout',
+    renderChromeModule())(
+    {}, { getItem: () => null, setItem() {} }, document, () => {},
+    (e) => { asked.push(e.id); return { overflowX: e.overflowX || 'visible' }; },
+    (fn) => frames.push(fn), (fn) => timers.push(fn),
+  );
+  const flush = () => { while (frames.length || timers.length) { (frames.shift() || timers.shift())(); } };
+  return { asked, frames, flush, stops: () => elements.filter((e) => e.attrs.tabindex === '0').map((e) => e.id) };
+}
+
+const rule = (selectorText, overflowX = '') => ({ selectorText, style: { overflowX, getPropertyValue: () => '' } });
+const wide = (id, extra = {}) => ({ id, scrollWidth: 900, clientWidth: 300, ...extra });
+
+test('the scroll pass asks only the elements a rule could make scroll, and after a frame', () => {
+  const elements = [
+    wide('scroller', { overflowX: 'auto', matches: ['.table-wrap'] }),
+    wide('plain', { matches: ['p'] }),
+    wide('inline', { overflowX: 'scroll', matches: ['[style*="overflow"]'] }),
+    { id: 'fits', overflowX: 'auto', scrollWidth: 300, clientWidth: 300, matches: ['.table-wrap'] },
+  ];
+  const page = scrollPass({
+    sheets: [
+      { href: 'https://fonts.googleapis.com/css2?family=x', get cssRules() { throw new Error('SecurityError'); } },
+      { href: null, cssRules: [rule('p'), { cssRules: [rule('.table-wrap', 'auto')] }] },
+    ],
+    elements,
+  });
+  assert.deepEqual(page.asked, [], 'nothing is measured inside the event that asked for it');
+  // Two frames: this pass's, and the sticky-card fit's (sticky-fit.mjs), which
+  // shares pf-site.js and also waits for the paint. Neither measures before it.
+  assert.equal(page.frames.length, 2, 'it waits for the next frame');
+  page.flush();
+  assert.deepEqual(page.asked.sort(), ['fits', 'inline', 'scroller'],
+    'a <p> no overflow rule names is never asked; a rule inside @media is');
+  assert.deepEqual(page.stops().sort(), ['inline', 'scroller'], 'only a box that really scrolls gets a tab stop');
+});
+
+test('the scroll pass sweeps every element when a stylesheet hides its rules', () => {
+  const elements = [wide('a', { overflowX: 'auto', matches: [] }), wide('b', { matches: [] })];
+  const page = scrollPass({
+    sheets: [{ href: 'https://cdn.example/x.css', get cssRules() { throw new Error('SecurityError'); } }],
+    elements,
+  });
+  page.flush();
+  assert.deepEqual(page.asked, ['a', 'b'], 'a cross-origin sheet that is not Google Fonts could hold an overflow rule');
+  assert.deepEqual(page.stops(), ['a']);
+
+  const bad = scrollPass({
+    sheets: [{ href: null, cssRules: [rule('pre::-webkit-scrollbar', 'auto')] }],
+    elements,
+    matches: () => { throw new Error('SyntaxError'); },
+  });
+  bad.flush();
+  assert.deepEqual(bad.asked, ['a', 'b'], 'a selector querySelectorAll rejects falls back too');
 });

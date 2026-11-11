@@ -48,8 +48,8 @@ where it departs from the paper.
   `node cli.mjs series.csv --column sales --model meanvar` (`--model poisson` for counts), `--json` for
   machine-readable output, `--example` for the Nile data, `--help` for all options. With the level
   model (the default) the text output leads with the changes all six settings agree on, as the page
-  does (`--no-agreed` to skip it; skipped on its own above 2,000 points, see "Agreed changes in the CLI
-  and the report").
+  does (`--no-agreed` to skip it). The panel runs on worker threads beside the main analysis and is
+  skipped on its own above 10,000 points (see "Agreed changes on worker threads in the CLI").
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   or the `call_tool` tool of the repository's MCP server
@@ -2025,7 +2025,7 @@ Tests: `cli.test.mjs` (lead line on the Nile example, `--no-agreed`, another mod
 `--column` whose unset options keep their defaults, the length cap) and `report.test.mjs` (lead
 paragraph, escaping, absent when not passed).
 
-Next: the same length cap on the page (or run the panel in a worker), and a check that the
+Next: the same length cap on the page (or run the panel in a worker: done 2026-11-11, "Agreed changes off the main thread"), and a check that the
 "agreed" summary on real long series (the TCPD ones above 2,000 points) is worth its cost.
 
 ## Measles: the consensus loses F1 by cutting, not by missing (2026-11-10)
@@ -2087,7 +2087,7 @@ Only the level and level-and-volatility models take several columns; the page sa
 
 **Joint over-cut warning** (`jointOvercut`, `JOINT_OVERCUT_EVERY` in `multivariate.mjs`; page and CLI text). The joint fit is called over-cut when it has more than one change per 50 points (and more than 3). The bar was set from measurements already in the repository, before any new series was scored: on white noise with one shared step (`eval/multi-sim.out.txt`, every cell) the joint fit averaged at most 1.5 cuts per 200 points; on the three labelled TCPD multi-column series (`eval/tcpd-multi.out.txt`) the level fit made one cut per 4 to 7 points and the level-and-volatility fit one per 13 to 21, so the warning fires on all six of those fits. Checked afterwards: German unemployment, unadjusted and adjusted (120 quarters, two smooth series), 22 joint cuts, warned; the currency example, 9 cuts on 1,751 points, not warned; 20 seeded white-noise sets of 4 columns with a 1 sd shared step, one joint cut each and none warned (`multi-view.test.mjs`).
 
-Limits: the warning is a count, not a test; it says to prefer the column-by-column list, it does not fix the joint fit. The joint fit itself is unchanged (independent columns, plain level cost); a noise floor or trend per column inside the joint cost is the next step. Not yet in the branded report.
+Limits: the warning is a count, not a test; it says to prefer the column-by-column list, it does not fix the joint fit. The joint fit itself is unchanged (independent columns, plain level cost); a noise floor or trend per column inside the joint cost is the next step. In the branded report since 2026-11-11 (section "Several columns in the branded report").
 
 ## A joint fit that survives smooth columns: a noise floor per column (2026-11-11)
 
@@ -2126,3 +2126,312 @@ What it says:
 
 Limits: three labelled series; columns still independent (no cross-correlation); no trend term per column (a floor is a blunt answer to a trend); the level-and-volatility joint fit is unchanged.
 
+
+## Agreed changes off the main thread (2026-11-11)
+
+The page ran the six-setting "Agreed changes" panel on the main thread, straight after the main
+analysis and with no length cap (the CLI skips it above 2,000 points). The panel costs about four
+times the main analysis, so a long series froze the tab: on the 7,980-point tree-ring series
+(`data/treering.csv`) nothing could be clicked or scrolled for about half a minute.
+
+- **What changed.** `consensus()` is now `runSetting` (one setting) plus `mergeConsensus` (the
+  grouping and tiers), with the same result, pinned in `agreed-worker.test.mjs` for any finishing
+  order. `consensus-worker.mjs` runs one setting. The page shows the main results first, then
+  starts up to `navigator.hardwareConcurrency` module workers (at most six), hands out the slowest
+  settings first (the two AR(1) settings, then level, noise floor, the trend pair: measured 7.0,
+  6.9, 5.6, 4.8, 1.4 and 1.0 s on tree-ring in Node), shows "k of 6 settings done", and merges
+  when all are back. Analyzing again stops an unfinished panel. Without workers (an old browser, a
+  `file:` page) it runs on the main thread as before, but only up to 2,000 points; above that it
+  says it was not run and points to `--consensus`. A worker error falls back the same way. Usage
+  counter `agreed_run` counts finished panels, locally like the others.
+- **Measured** (`node eval/agreed-worker-browser.mjs [points | file.csv]`, headless Chromium,
+  4 cores, output `eval/agreed-worker-browser.out.txt`): the page's panel text is identical to
+  `consensus()` in Node on every input. Wall clock from the click:
+
+  | series | main results shown | panel done | `consensus()` alone, one thread | a 50 ms timer during the panel |
+  |---|---|---|---|---|
+  | 1,500 seeded points, three steps | 0.3 s | 1.2 s | 1.4 s | 2 ms late |
+  | 6,000 seeded points | 3.3 s | 8.2 s | 12.2 s | 33 ms late |
+  | tree-ring, 7,980 points | 6.5 s | 16.0 s | 27.2 s | 80 ms late |
+
+  Before, the tab was blocked for the main analysis plus the one-thread panel (tree-ring: about
+  34 s); now it is blocked only for the main analysis, and the panel finishes in about a third of
+  its one-thread time after it. The 80 ms on tree-ring is the main thread sharing four cores with
+  four workers; clicks and scrolling still answer.
+- **Not done.** The main analysis itself is still on the main thread (6.5 s on tree-ring); the
+  "level" setting repeats the main analysis when the page's options are the defaults and could
+  reuse it; the CLI panel could use `worker_threads` the same way to lift its 2,000-point cap.
+  Whether the agreed summary is worth its cost on long real series (the TCPD ones above 2,000
+  points) is still open.
+
+## Several columns in the branded report (2026-11-11)
+
+The branded change report (the planned paid extra, dark until `checkout.mjs` has a link) now covers
+the several-column view too. With **What to analyse** set to several columns, **Open the report**
+builds `multiReportHtml` (`multi-report.mjs`) from the last run, without rerunning it, on the same
+letterhead as the one-column report (`reportShell` in `report.mjs`, shared, so the colour and logo
+rules and the escaping are the same code; the one-column report's output is byte-identical, pinned
+by its sample test). In order:
+
+- the agreed changes, column by column and merged, as the lead (the reading that held up on the
+  labelled multi-column TCPD series), then the column count, point count and joint change count;
+- the over-cut warning when the joint fit trips it;
+- the page's small-multiples chart (`multiChartSvg`, the same function);
+- the merged agreed-changes table, with the merge tolerance stated;
+- **each column on its own**: how many agreed changes it has and their dates (new: the page shows
+  these only as marks on the chart);
+- the one-segmentation table with each column's shift in its own noise sds and, under level and
+  volatility, the sd ratio; the model, penalty and noise floor are stated above it;
+- the analyst's notes, and assumptions written for several columns: the six settings, the
+  independence assumption of the joint fit, that a change seen in several columns is not evidence
+  that one caused another, and that a change does not show its cause.
+
+**Sample** (`sample-multi-change-report.html`, built by `node build-sample-report.mjs` from the
+bundled FX returns, an invented firm; linked from `change-report-for-analysts.html`, `noindex`).
+Its agreed changes are the franc on 2015-01-20 and the pound on 2016-06-24, as in the section above;
+the notes name the Swiss National Bank's 2015-01-15 floor removal and the 2016-06-23 referendum.
+
+**Checked.** `multi-report.test.mjs`: the report's sections, the chart equal to the page's,
+escaping of column names, labels and typed text, the colour and logo restrictions, the empty case,
+the sample equal to what the code builds now, and the page wiring. `eval/multi-report-browser.mjs`
+(headless Chromium, output `eval/multi-report-browser.out.txt`): loads the FX example on the page,
+shows the report card as an unlocked key would, opens the report, and compares it with
+`multiReportHtml` run in Node on the same input: equal, 74,364 characters, no page errors.
+
+**Not done.** The CLI has no report output for one column or several (the report is the paid
+extra; an open-source CLI flag would be honest but is the owner's pricing call). A wide joint table
+(many columns) scrolls sideways on screen and may be clipped in print; a column-per-page layout for
+more than about six columns is open.
+
+## Main analysis off the main thread (2026-11-11)
+
+The section above moved the six-setting panel into Web Workers but left the main analysis on the
+page's main thread, so a long series still froze the tab until its results showed. That was the
+flagship's item (c), "next: main analysis in a worker".
+
+- **What changed.** `analyze-job.mjs` turns one page request into plain data (`{ kind: 'one',
+  opts }` for `analyze`, `{ kind: 'multi', csv, columns, opts }` for `parseColumns` plus
+  `analyzeMulti`) and returns `{ result }` or `{ error }`, never throwing. `analyze-worker.mjs`
+  runs it in a module worker. The page keeps one such worker; clicking Analyze again while it is
+  busy terminates it and starts a new one, so a stale result can never overwrite a newer one.
+  Without workers (an old browser, a `file:` page) or if the worker fails to load, the same call
+  runs on the main thread after a 30 ms pause that lets the "Working" note paint. Both modes (one
+  column and several columns) go through it. Results are identical: `analyze-worker.test.mjs`
+  checks the job against a direct call after a structured clone, for eight model setups and the
+  several-columns example.
+- **The page's own result now stands in for the panel's "level" setting** when nothing in its
+  options moves a cut (`levelRunFromMain` in `consensus.mjs`: plain level model; the Bayesian
+  hazard and threshold and the trend knot margin may differ, every other box must be off). The
+  panel then runs five analyses instead of six. `agreed-worker.test.mjs` checks that the stand-in
+  equals `runSetting(base, PANEL[0])` and that the merged panel equals `consensus()` on seven
+  option sets, and that nine option sets that could move a cut (AR(1), trend, bursts, drift,
+  meanvar, the local floor, holidays, the growth-rate test, a minimum segment) get no stand-in.
+- **Measured** (headless Chromium, 4 cores, one run each, same container; before = this
+  directory at the parent commit, `eval/agreed-worker-browser.mjs`; after =
+  `eval/analyze-worker-browser.mjs`, output `eval/analyze-worker-browser.out.txt`, and
+  `eval/agreed-worker-browser.out.txt`):
+
+  | series | tab blocked before | after: click returns / worst 50 ms timer lag | results shown | panel done before → after |
+  |---|---|---|---|---|
+  | 6,000 seeded points | 2.2 s | 1 ms / 21 ms | 2.2 s | 5.6 s → 5.0 s |
+  | tree-ring, 7,980 points | 4.7 s | 1 ms / 29 ms | 4.7 s | 11.9 s → 11.0 s |
+
+  The results arrive no sooner (the worker does the same work), but the page answers clicks and
+  scrolling throughout, and a new click cancels the old run instead of queueing behind it. The
+  panel's 7 to 11% saving is one run each and within run-to-run noise on a shared container, so
+  read it as "one fewer analysis", not a measured speed-up. The panel text matched `consensus()`
+  in Node on all three inputs; the stale-run, no-worker and several-columns checks passed on both.
+- **Not done.** The CLI's panel still runs in one thread with its 2,000-point cap
+  (`worker_threads` would lift it); whether the agreed summary earns its cost on the long TCPD
+  series is still open.
+
+## Agreed changes on worker threads in the CLI (2026-11-11)
+
+The CLI led its text output with the six-setting panel only up to 2,000 points, because on one
+thread the panel cost about five times the main analysis (2026-11-10 measurement above). The page
+already ran it in Web Workers; the CLI now does the same with Node's `worker_threads`.
+
+- **What changed.** `consensus-threads.mjs` (`runPanelThreaded`) hands the settings to up to
+  one thread per core (`consensus-thread.mjs`), slowest first (the two AR(1) settings, then level,
+  noise floor and the trend pair), and returns `runSetting` results in panel order for
+  `mergeConsensus`. The CLI starts the threads *before* its main analysis and runs that analysis on
+  its own thread meanwhile, leaving one core for it. When the options cannot move a cut away from
+  the panel's "level" setting (`levelRunFromMain`, the page's rule; `--label-column` and
+  `--min-segment` go to both alike), the main result stands in for that setting and five settings
+  run, not six. `--consensus` uses the same threads (all six). If threads cannot start, or one
+  dies, the missing settings run on the main thread, so the answer never depends on the threads.
+  The length cap (`AGREED_MAX_POINTS`) goes from 2,000 to 10,000 points.
+- **Same answer.** `consensus-threads.test.mjs` pins the threaded merge to one-thread `consensus()`
+  with three threads, one thread, and the main level run standing in; the CLI's lead line and
+  `--consensus` output on a 2,400-point series (above the old cap) equal the one-thread text, and
+  with `--ar1` (no reuse) too. The eval below checks the same on every input.
+- **Measured** (`node eval/cli-panel-threads.mjs [file.csv ...]`, 4 cores, wall clock of a whole
+  `node cli.mjs` run, output `eval/cli-panel-threads.out.txt`):
+
+  | series | CLI, panel on threads | CLI, `--no-agreed` | main + panel on one thread |
+  |---|---|---|---|
+  | tree-ring, first 1,000 points | 0.9 s | 0.3 s | 1.1 s |
+  | tree-ring, first 2,000 points | 2.1 s | 0.8 s | 3.8 s |
+  | tree-ring, first 4,000 points | 4.3 s | 1.6 s | 10.4 s |
+  | tree-ring, all 7,980 points | 9.5 s | 4.0 s | 23.5 s |
+  | DJIA daily returns, 8,609 points | 6.4 s | 2.3 s | 15.9 s |
+
+  So the panel now adds about 1.4 to 2.4 times the plain run, against about 3 to 6 times before;
+  the full tree-ring series, which the old cap skipped, now gets its agreed line in under ten
+  seconds. The threads run slower than one setting alone (the AR(1) setting takes 5.1 s alone on
+  tree-ring, more beside four other busy threads), so the wall clock sits above the slowest
+  setting; four cores are the ceiling here. The cap of 10,000 covers every committed series; above
+  it the CLI still says the panel was not run and points to `--consensus`.
+- **"Is the agreed summary worth its cost on the long TCPD series?" has no subject.** The open item
+  assumed TCPD has univariate series above 2,000 points. It does not: of the 31 series that ship
+  (fetched with `eval/tcpd-fetch.sh` 2026-11-11) the longest is `us_population` at 816 points, and
+  of the 7 held out the longest is `measles` at 991. Every TCPD series was already under the old
+  cap, so the held-out F1 figures quoted in the agreed line (0.71 vs 0.30) are from series of 52 to
+  991 points. Whether the panel earns its cost on long real series needs labelled long series
+  from elsewhere; the tool now says so rather than implying TCPD covers them.
+- **Not done.** The several-column panel (`--columns`) still runs its per-column panels on one
+  thread; the page's 2,000-point no-worker fallback is unchanged.
+
+
+## Jumps on a drifting level: `--model drift` (2026-11-11)
+
+Open item (0) of the flagship: the plain level model cuts smooth or wandering series into staircases
+(406 cuts on TCPD's 816-month US population). Every fix tried so far kept the flat-level model and
+changed its noise (`--ar1`, the noise floors, the over-cut warning's refit). This one changes the
+model: between changes the level follows a random walk, so slow wander is paid for by a per-step
+variance omega^2 and only a jump too big for the walk is a change.
+
+- **What it is.** `drift-level.mjs`. The model is the phi = 0 case of DeCAFS (Romano, Rigaill,
+  Runge and Fearnhead, "Detecting Abrupt Changes in the Presence of Local Fluctuations and
+  Autocorrelated Noise", JASA 2022, doi 10.1080/01621459.2021.1909598; the arXiv abstract page
+  2005.01379 was read for the title and DOI, the paper's body was not re-read here). It is solved
+  differently: a change restarts the level from a flat prior, so segments are independent and each
+  costs the -2 log likelihood of a local-level Kalman filter over it; exact optimal partitioning
+  over all segment starts (the filter's variances depend only on the position in the segment, so
+  every start costs one multiply-add per point; O(n^2), 44 ms for all 38 TCPD series). sigma and
+  omega come first, robustly: the lag-k difference has variance 2 sigma^2 + k omega^2, so a
+  least-squares line through the MAD variances at lags 1 to 10 gives both. Penalty 2 log n, the
+  plain level model's BIC. `driftLevelPath` gives the smoothed level, so each jump is reported as
+  the level just before and just after it.
+- **Pre-registered on TCPD** (`node eval/tcpd-drift.mjs tcpd-data`, output `eval/tcpd-drift.out.txt`;
+  the settings and the decision rule are in the script's header, written before any TCPD series was
+  run through it). Rule: offer it if the primary setting beats the plain level model on both the 31
+  shipped and the 7 held-out series; put it in the default panel only if it also beats the level
+  model following the over-cut warning on both.
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift level, 2 log n (primary) | 0.677 | 0.592 | 247 | 0.420 | 0.524 | 284 |
+  | drift level, 4 log n | 0.682 | 0.620 | 117 | **0.538** | 0.606 | 182 |
+  | drift level, min segment 5 | **0.715** | 0.616 | 160 | 0.493 | 0.534 | 153 |
+  | drift level + median slope (post hoc) | 0.680 | 0.604 | 249 | 0.429 | 0.502 | 286 |
+  | level (default) | 0.477 | 0.374 | 1329 | 0.296 | 0.191 | 585 |
+  | level, following the over-cut warning | 0.655 | 0.561 | 653 | 0.497 | 0.394 | 233 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+  | zero (published) | 0.663 | 0.568 | | 0.639 | 0.597 | |
+  | binseg (published) | 0.714 | 0.671 | | 0.727 | 0.731 | |
+
+- **Verdict: offered, not in the panel.** Primary minus plain level: +0.200 F1 shipped (95%
+  bootstrap 0.115 to 0.286, better on 24 of 31) and +0.124 held out (0.070 to 0.195, better on 7
+  of 7). Primary minus following the warning: +0.022 shipped (-0.055 to 0.099) and -0.077 held out
+  (-0.151 to -0.001). So it beats the plain model everywhere and the warning's refit nowhere
+  reliably; the second half of the rule fails and the panel is unchanged. It does not beat
+  "no change" or binseg either.
+- **Where it helps and where it does not.** It takes US population from 406 cuts to 1 (F1 0.015 to
+  0.615), JFK passengers 57 to 0, seat belts 24 to 1 (0.333 to 0.824), Japan's GDP 17 to 2, and
+  dates Brent's changes better than any level setting (0.726). It fails on series whose trouble is
+  heavy tails or volatility bursts, not drift: `bank` 48 cuts where annotators mark none, bitcoin
+  103, measles 30, Ratner's stock 46. Those are the held-out set's bulk, which is why it drops there.
+  And it pays the absorbing price: Nile's 1899 drop (2.15 noise sd on a flat level) is read as
+  wander, because the robust omega estimate (45 on noise sd 118) is inflated by the step's own
+  lag-k differences. Of the secondary settings, 4 log n does best held out (0.538, above the
+  warning's 0.497) and min segment 5 best shipped (0.715); neither wins on both, and choosing
+  between them now would be tuning on the test.
+- **Synthetic, where the truth is known** (`node eval/drift-sim.mjs`, output
+  `eval/drift-sim.out.txt`; n 200, noise sd 1, random-walk step sd omega, one step at t = 100,
+  60 series per cell): with omega 0.3 and no step the plain model reports 5.40 cuts, the local
+  floor 1.70 and the drift model 0.30; a 5-sd step is found 60, 59 and 60 of 60 times with 5.05,
+  1.28 and 0.08 other cuts. A 3-sd step on that wander is found 57, 46 and 44 times. On white noise
+  (omega 0) all three agree (3-sd step 60, 60, 58 of 60).
+- **Steady growth: `--drift-slope` (post hoc).** A random walk without a drift term cannot follow a
+  steady slope, so Australian residents (smooth quarterly growth, no documented break) still gave
+  31 cuts (plain level 43). Taking out the median first difference first (`slope: true`) gives 0;
+  US real GDP 2 cuts (1978Q2, 1999Q4) without it and 0 with it; Mauna Loa CO2 16 to 10 (the season
+  is not modelled). Added after the TCPD scoring, so its TCPD row (+0.003 / +0.009 over the primary)
+  is in-sample and is not evidence; it stays an opt-in flag.
+- **Shipped.** `node cli.mjs series.csv --model drift [--drift-slope] [--penalty <number>]
+  [--min-segment n] [--json]` (`drift-cli.mjs`; the text quotes the TCPD figures above, which a test
+  checks against the eval output, and cites the paper). Not on the page or in the agent tool yet.
+  Tests: `drift-level.test.mjs` (noise estimates, a step on white noise and on a walk, the optimal
+  partition is exact against every single-change move, US GDP, Australian residents, the Nile miss,
+  the CLI).
+- **Next.** The AR(1) term (DeCAFS's phi) for sticky noise around the walk; a volatility-robust
+  cost (bitcoin, `bank`) or a check that tells drift from heavy tails before choosing this model;
+  an omega estimate that a single large step does not inflate (Nile); the model as a panel member
+  scored on fresh labelled data, not TCPD again.
+
+
+## A step-robust omega: wander chosen with the changes (2026-11-11, later)
+
+Open item from "Jumps on a drifting level": the lag-difference estimate of the wander omega is
+inflated by the very steps the model is meant to find (Nile: omega 45 on noise sd 118, so the 1899
+drop of 2.1 noise sd is read as wander). Now `--model drift` keeps sigma from the lag fit's
+intercept, which a few jumps barely move, and chooses omega *together with the changes*: for each
+q = omega^2 / sigma^2 one exact partition gives the penalised cost, q is profiled on a log grid
+(0 and 1e-4 to 1e4) and refined by golden section (`driftNoiseML` in `drift-level.mjs`). A step is
+then absorbed as wander only if a larger omega costs less than one change at the penalty.
+
+- **Check of the likelihood.** With no change allowed, the segment cost's minimum on the Nile is
+  Durbin and Koopman's local level fit (sigma_eps^2 15,099 and sigma_eta^2 1,469, *Time Series
+  Analysis by State Space Methods*, 2nd ed., section 2.10; our grid lands within 100 and 50 of
+  them; `drift-level.test.mjs`). With changes allowed, omega drops to 0.9 and 1899 is the one cut.
+- **Two estimators that did not work, kept here so nobody retries them.** First, profiling sigma
+  too. Each segment's first point is diffuse, so the likelihood in the data's units drops one
+  log sigma^2 per change: a change is worth -log sigma^2, a bonus that depends on the data's units,
+  and the first coded version also reported a sigma one step ahead of its changes. Its TCPD run
+  (seen, then discarded): F1 0.649 shipped, 0.413 held out. Second, charging that point log sigma^2
+  too: scale-free, but unbounded (sigma to 0 and q at the grid's top, 1e4, on each of the TCPD series looked at; looked
+  at as q values and cut counts, not scored). The third, sigma held, is what ships. Because the
+  first two were seen on TCPD, the figures below are not as clean as a first, pre-registered run.
+- **TCPD** (`node eval/tcpd-drift-ml.mjs tcpd-data`, output `eval/tcpd-drift-ml.out.txt`; the rule
+  is in the script's header, written before the first run: ML wander becomes `--model drift`'s
+  default if its mean F1 beats the lag estimate on both sets; the model joins the consensus panel
+  only if it also beats the level model following the over-cut warning on both).
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift level, wander by likelihood (now the default) | **0.694** | 0.622 | 226 | **0.527** | 0.576 | 180 |
+  | drift level, lag-difference wander | 0.677 | 0.592 | 247 | 0.420 | 0.524 | 284 |
+  | level, following the over-cut warning | 0.655 | 0.561 | 653 | 0.497 | 0.394 | 233 |
+  | level (default) | 0.477 | 0.374 | 1329 | 0.296 | 0.191 | 585 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+  | zero / binseg (published) | 0.663 / 0.714 | | | 0.639 / 0.727 | | |
+
+  Paired, ML minus lags: +0.018 shipped (95% bootstrap -0.036 to 0.071; better on 14, worse on 10)
+  and +0.107 held out (-0.043 to 0.321; 5 and 2). ML minus the warning's refit: +0.040 (-0.048 to
+  0.131) and +0.031 (-0.115 to 0.199). Both halves of the rule pass on the means; no interval
+  excludes zero.
+- **Decision: the default for `--model drift`, not a panel member.** The first half is taken. The
+  second half also passes on the means, but the panel step is not taken this run: the gaps are
+  inside noise on 7 and 31 series, the estimator is a third version chosen after seeing TCPD output,
+  and the panel's agreed line is the tool's headline. That needs fresh labelled data (a deviation
+  from the written rule, recorded in the run record). `--drift-noise lags` keeps the earlier
+  estimate; the library default stays `lags` so existing callers see no change.
+- **Where it helps:** Nile 0 to 1 cut (F1 0.824 to 1.000), quality control 1 and 2 (to 1.000),
+  `businv` 18 cuts to 3 (0.348 to 0.559), US population 1 to 0, Iceland tourism 5 to 0 (0.281 to
+  0.947), bitcoin 103 to 52, scanline 42049 69 to 27, Brent 0.726 to 0.773, Dutch unemployment
+  0.817 to 0.930. **Where it loses:** quality control 3 and 4 (0.571 to 0.333, 0.936 to 0.638), Iran's
+  GDP (0.888 to 0.655), Japan's GDP (0.800 to 0.571), seat belts (0.824 to 0.621, the 1983 law's
+  step now absorbed), robocalls (0.966 to 0.778), and `bank` stays at 63 false cuts (heavy tails, not
+  drift). On the committed series: Mauna Loa CO2 16 cuts to 4; Australian residents with
+  `--drift-slope` 0 to 4 (worse; no documented break); US real GDP 2 to 6, and with `--drift-slope`
+  0 to 11, several near recession dates (1958Q1, 1975Q1, 1980Q2, 1982Q1, 1990Q4; not scored).
+- **Synthetic** (`eval/drift-sim.mjs`, new last column, data unchanged): white noise with a 3-sd
+  step found 60 of 60 (lags 58); omega 0.1 with no step 0.08 false cuts (lags 0.47); omega 0.3 with
+  a 3-sd step 42 of 60 (lags 44) and 0.18 other cuts (0.28); with a 5-sd step 0.25 other cuts
+  (0.08), the one cell where it is clearly worse.
+- **Cost.** About 30 exact O(n^2) partitions a series instead of one: 566 ms for all 38 TCPD series
+  (lags: 44 ms); a 10,000-point series takes seconds, not milliseconds.
+- **Next.** A heavy-tail check before choosing this model (`bank`, bitcoin); why ML absorbs the
+  seat-belt law and quality control 4's step (omega chosen high on a seasonal or trending series);
+  the AR(1) term; the model as a panel member on fresh labelled data, not TCPD again.

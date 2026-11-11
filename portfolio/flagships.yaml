@@ -74,9 +74,7 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; guess held out on Hack Club (wrong 4% to 25%); record gate (seven sets): off, record caps confidence; card MCC 2026-11-11 (README, Scotland and Toronto): first-seen right 41% to 66% and 62% to 73%; next: one-off local merchants via the AI layer; wanted: a firm's own labelled bank books; (1) the AI layer in
-      fill-only mode on real bank descriptions, more seeds, a bigger model
-      (synthetic so far); (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) a real Stripe, PayPal, eBay, Amazon or Adyen settlement export, and a real 1099-K; (4) a real supplier's terms letter
+      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto year, 16 divisions 55-84%); wanted: a firm's own labelled bank books; (1) AI layer on real lines (README "A year of Toronto"): local Qwen 7B right on 35 of 140, 14B on 24 (abstains 32), rules 43; fill keeps the guess (48 either model); split-category plurality measured, off; next: a hosted model (needs a key), real bank text; (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) a real Stripe, PayPal, eBay, Amazon or Adyen settlement export, and a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
       through real OCR (SROIE totals 76.2%, dates 80.2%, merchants 45.8%;
@@ -86,10 +84,9 @@ flagships:
       return` (page card; no-sales-tax states warn): due dates read from the
       state's own page for 11 states (README; OH quarterly unsettled); other states from excerpts or memory; open: a real return layout; (8b) `annualized`
       (Schedule AI): percentages matched to the 2024 form by excerpt
-      2026-10-30, factors to state forms, federal text unread (irs.gov
-      blocked); (9) EITC: built-in 2025 and 2026 schedules (Schedule EIC
-      rows unchecked); 2027 `estimate` takes `--tax-table file.json` until
-      the IRS publishes the figures. A run that lands a slice replaces its
+      2026-10-30, federal text unread (irs.gov answers since 2026-11-11);
+      (9) EITC: 2025 EIC Table matched on all 10,992 cells (HISTORY); open:
+      the 2026 table once printed. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -100,28 +97,28 @@ flagships:
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
       real replies reliably, keeping consent records, and earning each step of autonomy with measurements.
     next: >-
-      History and every measurement: README, eval/README and git (inbox agent,
-      daily run, self-host server with TLS and XOAUTH2, research agent, call prep,
-      follow-ups, meeting slots and .ics invites, CRM write-back to
-      Pipedrive/HubSpot against fake servers only; nineteen agent-written reply
-      sets, latest 2026-11-08: false-not-now and wrong-person probe 9/20 before, 15/20 after three narrow changes; false-bounce and false-away probe 9/20 before,
-      16/20 after one veto; all sets other than the 117 real bounces, 11 + 12 real
-      mail-client emails and the 1,857-reply label mix are agent-written). Real
-      people's mail 2026-11-10 (eval/enron.mjs, Enron corpus, 19,153 replies, README):
-      stops 70% wrong; vetoes tuned on one half, held-out half scored once: wrong
-      stops 30 to 13 per 1,000, right 113 to 108. Next: (1) on the Enron halves, a
-      second reader for the labels, the 124 held-out wrong stops left (third-person
-      "no need", Lotus Notes quote headers) on the tuning half only; real
-      opt-out recall set 2026-11-10 (eval/optout-recall.mjs, Enron 2*-f*,
-      README): 103 of 113 caught before, 112 after five patterns, no new wrong
-      stop on either half; open: a second reader for its labels; (2)
-      real replies to outreach and a real rep's call notes to check the reply rules,
-      prep rules and follow-up sorter; (3) M2: score a hosted and a local model
-      with eval/model.mjs on the fresh sets (needs a key), with a set labelled by
-      a person or another model family before any rule change; (4) run the self-
-      host server, OAuth and CRM write-back against a real mailbox, Google or
-      Microsoft app and HubSpot or Pipedrive account (all fakes so far); (5) a
-      real HubSpot or Pipedrive export for the research agent (none found public).
+      History and every measurement: README, eval/README and git (inbox agent, daily
+      run, self-host server with TLS and XOAUTH2, research agent, call prep, follow-ups,
+      meeting slots and .ics invites, CRM write-back to Pipedrive/HubSpot against fake
+      servers only; nineteen agent-written reply sets, latest 2026-11-08). Real people's
+      mail (eval/enron.mjs, Enron corpus, README): six rounds, each tuned on read halves
+      and scored once on an unread half labelled blind by a separate agent; round 6,
+      2026-11-11 (eval/README "Sixth round": absences deep in a reply, "don't need"
+      objects, others' handovers): on unread 6* wrong stops 5.6 to 4.3 per 1,000, right
+      45 to 45. Two readers on 5* agreed on 81%; reader effect 1.0-1.4 per 1,000. Real
+      opt-out recall set (eval/optout-recall.mjs): 112 of 113. Next: (1) the 41 left on
+      6* (away 16, not-interested 11; "Please cancel the X service ... do not need the X
+      service" read as scoping) and the policy on the writer's own handovers (readers
+      say none, the product files wrong-person by design) tuned on 0*-6*, scored on 7*,
+      one reader's instructions throughout; a human second reader for the Enron and
+      opt-out labels; "Mine too" above a quoted opt-out; (2) real replies to outreach
+      and a real rep's call notes to check the reply rules, prep rules and follow-up
+      sorter; (3) M2: score a hosted and a local model with eval/model.mjs on the fresh
+      sets (needs a key), with a set labelled by a person or another model family before
+      any rule change; (4) run the self-host server, OAuth and CRM write-back against a
+      real mailbox, Google or Microsoft app and HubSpot or Pipedrive account (all fakes
+      so far); (5) a real HubSpot or Pipedrive export for the research agent (none found
+      public).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
@@ -131,9 +128,9 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      History and every trial: README and git. Labelled benchmark landed 2026-11-10 (README "A labelled benchmark", `eval/tcpd.mjs`): 31 Turing Change Point Dataset series, TCPDBench metrics ported (published scores reproduced to 2e-16); BOCPD F1 0.706 and consensus every-setting 0.702 vs best published binseg 0.714 and "no change" 0.663, but the page's default level model 0.477; tier hit rates 39/28/25% now printed under `--consensus`.
-      Held out 2026-11-10 (README "Held out", eval/tcpd-heldout.mjs; the 7 univariate series TCPD does not ship, md5-checked): every-setting consensus F1 0.711 (binseg 0.727, zero 0.639), BOCPD 0.622 (so no BOCPD-led summary), warning beat plain level on 6/6; the page now leads with "Agreed changes". Several columns (README "Several columns at once"/"on the page"): CLI --columns 2026-11-10, F1 0.521 on 3 multi-dim series (bocpd 0.480, zero 0.621); page 2026-11-11. Joint noise floor per column 2026-11-11 (README, eval/tcpd-multi-floor.mjs): pre-registered 'auto' floor now the joint default, mean F1 0.172 to 0.286, white-noise power unchanged in 20/20 cells; ar1 + floor 2 scored 0.564 (not primary). Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (a lead, not a finding), a trend term per column, several columns in the branded report; (b) Measles answered; (c) agreed changes: the same 2,000-point cap or a worker on the page.
-      Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
+      TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. Panel and main analysis run in Web Workers on the page (README "Main analysis off the main thread", 2026-11-11).
+      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (c) CLI panel on worker_threads done 2026-11-11 (cap 2,000 to 10,000; tree-ring 9.5 s vs 23.5 s one thread); TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere; next: --columns per-column panels on threads.
+      Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); `--model drift` 2026-11-11 (random-walk level, README "Jumps on a drifting level"); step-robust omega 2026-11-11 later (README "A step-robust omega": wander chosen with the changes by penalised likelihood, now the drift default; Nile 1899 found; F1 0.694/0.527 vs lags 0.677/0.420 and the warning's refit 0.655/0.497, intervals include zero; panel step held for fresh labelled data); next: a heavy-tail check (bank, bitcoin), why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
@@ -148,7 +145,7 @@ flagships:
       (AA/RED/INT/NOR fail EU BR-CL-17/18 though AMA's rules admit them: which
       validator does AT run?); Poland's FA(3) on a KSeF test-environment file and
       a real correction, advance or settlement file; the rules and a repair on a
-      real ERP or Factur-X export; PINT SG and A-NZ rules on a real PINT file;
+      real ERP or Factur-X export; PINT SG and A-NZ: current releases (billing-1@sg-1/@aunz-1) added and run on OpenPeppol's 40 examples 2026-11-11 (README, eval/phive-corpus.mjs: 0 to 39 pass); open: a real business's PINT file, PINT JP/MY/AE/OM; NL/RO/PT/ZATCA good cases scored 2026-11-11 (README `--good`; 4 fixes); open: UBL-SR-53 on RO empty TaxScheme, INV-026 on clearing codes in BT-86, ZATCA rate-change row;
       RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
       check on a real IRP payload; mandate dates read from primary sources where
       pages cite guides (Israel, Denmark, Czech, Latvia; Luxembourg; ato.gov.au
@@ -164,24 +161,24 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*-bench.mjs. State: exact
-      check with a min-cost-flow coverage bound, symmetry cuts, coverage-first pass, ejection
-      chains, reduced-cost fixing, priced-bound branching, and branch-and-price by column
-      generation (bnp.mjs, per-person pricing oracle, branching on classes of identical shift
-      copies): the open-hours floor equals the HiGHS optimum on every bench week and every
-      20-60 person scale week, proven for 20 to 60 people (60 in 18-27 s). Pay bound by
-      the same column generation, 2026-11-10 later (scoreBoundByColumnGeneration,
-      makeScorePricer; eval/score-cg-bench.mjs): buildRoster proves 12 of 12 pay-gap weeks to
-      within $0.50 (exact search alone 3 of 12, $5,906 unproven) in 4-198 ms each; 20x56 3 of 3
-      in 2-6 s; 30x84 1 of 2 and 40x112 0 of 2 in 120 s (eval/score-cg-scale-bench.mjs). Also
-      landed (README): pay and premium flags, time budget, cover chains, notice and seniority
-      rules, `--from-sales` with page `shifts-from-sales.html`, `--skip-dates`, `--half-life`.
-      Root dive 2026-11-11 (README "A root dive"): pin whole LP columns, re-price; 60-person
-      weeks proven at the HiGHS optimum in 18-27 s (0 of 3 before), 30/40-person pay weeks 4 of
-      4 to within $0.50 (1 of 4). Next: 80-120 person weeks and the pay proof at 60 people
-      (untried); buildRoster end to end on 40-person weeks with exact on (3-5 min before the
-      dive, not re-timed: its other passes, not the proof); backtracking when both dives miss; a real POS hourly export for --from-sales and the page (made-up exports only); a
-      real published-schedule export for --import-shifts.
+      Landed work and every measurement are in the README and eval/*-bench.mjs. State: branch-and-price by
+      column generation (bnp.mjs) with a root dive (now backtracking, `diveBacktrack`) proves the least open
+      hours at the HiGHS optimum on every bench and 20-60 person week; the pay bound
+      (scoreBoundByColumnGeneration) proves 12 of 12 pay-gap weeks and 4 of 4 30/40-person weeks to within
+      $0.50; 60-person pay 1 of 2 proven, the other $2.68 open in 300 s. Exact speed-ups 2026-11-11 later
+      (README "Same search, two to three times faster": sparse simplex rows, binary insertSorted, bit-mask
+      validList, same search path bit for bit): 60-person weeks 9-12 s (were 15-23); 80-person weeks, which
+      did not settle the root LP in 120 s before, proven 3 of 3 (HiGHS 1 of 3 in 300 s); 100x280 (the
+      400-copy cap) did not settle the root LP in 180 s (1.4M oracle nodes a call). Chain bound in the set
+      oracle 2026-11-11 later (README "A chain bound", chain-bound.test.mjs; rest rule as a Lagrangian
+      weighted-interval bound): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
+      359; week 1 347 over 344; largest call under 89k nodes. Pay oracle 2026-11-11 latest (README "The chain
+      bound in the pay oracle"): chain bound, sibling cut, array payParts; same search, 40-person pay pricing
+      28-60% less; the 60-person pay week is still $1.22 open, bound = root LP after 172 nodes. Next: close the
+      100-person gaps (tree, not pricing, now); cuts or branching that move the score LP on the 60-person pay
+      week (a faster oracle will not close it); buildRoster end to end on
+      40-person weeks with exact on (3-5 min, not re-timed); a real POS hourly export for --from-sales and the
+      page (made-up exports only); a real published-schedule export for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -195,12 +192,16 @@ flagships:
       stills into 16-bit TIFF masters and preview-less DNGs are proxied and
       scored from a half-size develop (real Nikon sensor DNG end to end in
       75 s, master bit-identical to `shootflow develop`;
-      eval/pipeline-dng-grade-2026-11-10.md). Next, most valuable first:
+      eval/pipeline-dng-grade-2026-11-10.md). Grade only the picks landed
+      2026-11-11 (`--grade-scope selected`, README "Grade only the picks",
+      eval/grade-scope-2026-11-11.md): unpicked clips graded from their proxy
+      with a note, story stage refuses a review-graded pick; synthetic 12-clip
+      1080p card, grade stage 164 s to 88 s; default stays all. Next, most
+      valuable first: that saving on real 4K camera footage and a long shoot;
       develop speed, rest of it (optional numpy engine landed 2026-11-10,
       byte-identical, 31 s to 1.5 s on the 12 MP Nikon, pipeline 74.5 s to
       7.5 s, README "Speed with numpy"; still pure: the file reader and the
-      lossless-JPEG decoder, unmeasured on a camera-written DNG); grade only the
-      selected shots; a camera- or phone-written DNG with lossless-JPEG tiles
+      lossless-JPEG decoder, unmeasured on a camera-written DNG); a camera- or phone-written DNG with lossless-JPEG tiles
       (raw.pixls.us and rawsamples.ch 403 from cloud); a trained blink model
       and a real shoot with a photographer's picks (wanted: a labelled
       portrait set); photos with a real horizon and human tilt labels.
@@ -220,22 +221,40 @@ flagships:
       selector reaches it 4-8 answers sooner at 8-120 items and ranks better, so
       "staged" now uses it from the first answer up to 120 items (equals the
       information row on real rankings, all 25 cells). Careless-answer fallback
-      measured 2026-11-11, not shipped (INFORMATION-GAIN-SELECTOR.md,
-      scripts/careless-fallback-sweep.ts; 75 cells, 60 fresh seeds): staged
-      beats shipped by 0.014 mean, trails >0.02 in both seed sets only at 50%
-      random answers on 11 and 30 items; the agreement z-score trips for
-      15-40% of honest respondents, fallback -0.002. Next: a Glicko update with
-      a lapse term (win chance e/2 + (1-e)p) so careless answers stop
-      shrinking rd, measured on the synthetic sweep and the PrefLib rankings
-      before it touches stored ratings; the switch rule above 120 items on the
-      couple bar; then real pairwise answers from a real survey.
+      measured 2026-11-11, not shipped (scripts/careless-fallback-sweep.ts).
+      Glicko lapse term 2026-11-11, off by default (glicko2.ts `lapse`,
+      scripts/lapse-update-sweep.ts, INFORMATION-GAIN-SELECTOR.md): rd shrink
+      is outcome-blind, so a fixed e is a discount, not a detector; +0.002 to
+      +0.014 rank, 15-115% more answers to the couple bar; with the true e it
+      is calibrated (coverage 0.90-0.99) and lifts staged above shipped at 50%
+      lapse. Per-respondent lapse estimate measured 2026-11-11, not shipped
+      (lapseEstimate.ts, INFORMATION-GAIN-SELECTOR.md): a grid posterior from
+      one person's answers reads 0.02-0.05 whatever the true e, staged gives no
+      signal, and even true win chances leave sd 0.07-0.11 at 240 answers.
+      Next: a pooled per-survey lapse rate or easy anchor pairs as the e
+      signal; staged's 0.90
+      coverage for honest respondents (close pairs shrink rd too fast); the
+      switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
       assignment under rest constraints, blackouts, play-offs, ladders and
       Swiss formats, with a self-hosted league page.
     next: >-
-      Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/ (multi-division scheduling on shared venues, travel, rainouts and change notices, standings, play-offs, weekly update, clinch watch, overdue scores, remaining-schedule strength, officials, and a per-venue facility booking request via divisionsBookings / CLI --bookings, 2026-11-04; a coach sign-up form CSV loads into the blackout box on both the multi-division and one-division pages, 2026-11-04; the page also downloads the blank per-team sign-up sheet, 2026-11-04; all unit-tested and browser-clicked on made-up leagues only). travel estimated from venue coordinates, 2026-11-04, hand arithmetic only; season facility cost and a fee per team from typed venue rates, 2026-11-04; the rate reader takes a decimal comma and leaves per-season or per-night quotes unpriced, 2026-11-05). random-league check of the report and edit functions (unavailable dates, withdrawals, calendar, deadline, bookings, cost split), 2026-11-05, synthetic only. Duty rota is on the multi-division page, 2026-11-10; printable team sheets with each team's games and duty nights plus the rota page (divisionsTeamSheetsHtml, page button, CLI --team-sheets), 2026-11-10; next there: a real league's rota and a paper print check. Next: a real league's travel times (to check the 1.3 x 40 km/h estimate) and a real league's unavailable-date requests.
+      Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
+      (multi-division scheduling on shared venues, travel, rainouts, standings, play-offs, officials,
+      bookings, coach sign-up CSVs, facility cost, duty rota and printable team sheets; even carry-over
+      by Russell's value with a whole-season double round robin, scored on 20 real top-flight seasons).
+      Worker pool landed 2026-11-11 (README "Eight searches on a pool of workers"): the page runs
+      eight tries split over one Web Worker per core (carryOverTry, splitCarryOverTries,
+      combineCarryOverTries; same season on any core count, tested); 8 x effort 1 vs 4: 18 teams
+      score 2,307 to 2,247 (breaks 73.3 to 68.7), 20 teams 2,907 to 2,880. Capped breaks 2026-11-11
+      (README "Carry-over under a cap on breaks"): lowCarryOverCappedRounds, 8 + 2 capped tries, a
+      "fewest" choice; 18 teams 2,154-2,674 at the minimum 48 (Bundesliga 3,474+ at 48), 20 teams
+      4,734-5,080 at 54. Next, most valuable first: a 20-team leg one at low breaks (capped leg one
+      stays 1,100-1,400 at 18-22 breaks vs 500 unconstrained; a non-circle start or patterns first);
+      odd leagues under a cap; the search's gap to the floor (12 teams 156 vs 120); a real league's travel times (to check
+      the 1.3 x 40 km/h estimate), unavailable-date requests and duty rota; a paper print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

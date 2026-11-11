@@ -288,8 +288,17 @@ above zero) with the revised rules, whose interval covers 0.755 against 0.644. I
 q0.1 and q0.5 stay about 10 to 11% better than the baseline in every configuration, and q0.9 stays
 within noise of it. So part of the upper-tail transfer gap was a class problem, and a noisy class
 did more harm than none. One test year and one held-out city so far; the three configurations are
-not yet compared with each other by a paired bootstrap (the code for one is in place since
-session 73: `transfer.py --classes type cascade2`, with a prediction in `../LOG.md`).
+compared with the baseline only; the paired comparison follows.
+
+A paired week-block bootstrap of the revised-rule class against the permit-type class on the same
+test rows (`../results/paired_transfer_seattle_*_2024_4city_cascade2_vs_type.json`, session 74;
+predictions written in session 73) puts an interval on the difference itself. For application-to-issue
+the work type lowers the transfer model's q0.9 loss by 3.9 days (95% interval 2.8 to 4.9; 11.5% of
+the baseline's loss) and helps a little at q0.5 (0.5 days). For issue-to-completion it helps at q0.1
+and q0.5 (0.7 and 0.8 days) but costs 2.2 days at q0.9 (interval 0.9 to 3.5; 4.7%), which the unpaired
+comparison could not detect. The own-city model gains in all six target-quantile cells (0.4 to 2.1
+days), so the class carries signal inside Seattle; across cities it helps everywhere except the upper
+tail of build time. One test year; the 2023 repeat was not run.
 
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.

@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVNp8pJNa2PvRWMJQQ1",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T08:16:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture service-load-check (NEC 220.83 + 220.87 existing-service check from Green Button interval data)",
+  "projects": [
+    "ventures/service-load-check"
+  ],
+  "pr": 14733,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 3,
+  "review_findings": null,
+  "tests_added": 29,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a new venture runs pages.yml and portfolio-pages.yml, which time out at the 300 s budget and skip the ${{ }} build step, so the downstream checks report 'no _site' failures that say nothing about the change; real CI is the only signal for those."
+    },
+    {
+      "file": "platform/ci/browser_checks.py",
+      "issue": "--only still runs journey, which fails in cloud sessions because the proxy blocks the workers.dev /hit endpoint (ERR_TUNNEL_CONNECTION_FAILED), not because of the venture."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-ev-charger-without-panel-upgrade.md"
+  ],
+  "goal": null,
+  "notes": "Idea: service-load-check. Can an existing home service take an EV charger / heat pump / induction range? It runs NEC 220.83 from an appliance list and NEC 220.87 from a year of the utility's Green Button 15-minute data (CSV in several layouts, plus ESPI XML). 5-minute readings go into clock-aligned blocks. Hourly data, short records, gaps and solar each get a flag. It shows the largest charger setting each method allows. Marketing guide with a worked example; a test checks every figure in it against the engine. Checks: node --test 26/26 pass. browser_checks.py --only service-load-check: sideways, presets, roundtrip, optout, sweep ok; highlight and contrast skipped (no dependency); journey failed on proxy-blocked workers.dev only. run_workflow_locally --for-changes: venture and page checks ran; pages.yml and portfolio-pages.yml steps failed on the harness (300 s budget, build step not evaluated), so I relied on real CI. Code factors are as I read the 2017-2023 NEC, not checked against a licensed copy (README says so). Next: model a load-managed charger against the interval data, and an inspector-format worksheet as a paid contractor path. CI: three red rounds before green. All were real wiring gaps for a new venture, now fixed: (1) no launch date (launched.mjs --write); the opt-out count pinned at 1301 (now 1302); the hub catch-all over its bound (filed under trades); a crawlable orphan (one-hop links added from electrical-panel-upgrade-bid-calculator and ev-charger-bid-calculator, with tests); FAQ JSON-LD not matching the visible text (regenerated from the page). (2) The trades sub-group rule (trades-mep). (3) An unguarded KINDS[l.kind] lookup, now Object.hasOwn, with a test. Local platform/pages suite: 1515/1515 pass.",
+  "corrections": [],
+  "redteam": null
+}

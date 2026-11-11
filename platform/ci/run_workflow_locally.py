@@ -49,6 +49,10 @@ not match its own visible copy reached `main`. The guard that catches it
 `ventures/**` change. `--for-changes` reads the `paths:` filters and works
 that out from the diff instead of asking a session to remember, then runs
 the jobs that cannot write anything and names the ones it held back.
+The diff starts at the merge base with the base ref, so commits that
+landed on `main` after the branch left it do not count as this branch's
+changes; with no merge base (a shallow clone, a stale `origin/main`) it
+stops and prints the fetch that gives it one.
 
 What it does not do. It is not a GitHub Actions emulator and does not try
 to be one:
@@ -918,21 +922,80 @@ def read_only_jobs(workflow: dict) -> tuple[set, list[tuple[str, str]]]:
     return allowed, held
 
 
-def changed_paths(base: str) -> list[str]:
-    """Repo-relative paths differing from `base`, uncommitted work included.
+# A branch this many commits past the merge base is unusual for one session's
+# work; past it, the likelier story is a base ref that was never refreshed.
+STALE_BASE_COMMITS = 30
+
+
+def changed_paths(base: str, repo: str = REPO) -> list[str]:
+    """Repo-relative paths this branch changed since it left `base`.
 
     Deliberately a working-tree diff rather than `base...HEAD`: the session
     that most needs this is about to commit, and the files it is verifying
     are the ones it has not committed yet.
+
+    The diff starts at the merge base, not at `base`'s tip. Against the tip,
+    every commit that landed on main after the branch left it reads as a
+    change of this branch (a stale or newer `origin/main` in a cloud clone
+    turned a one-post diff into 4,165 files and dozens of unrelated
+    workflows; several 2026-11-11 run records report it). With no merge base, as
+    in a shallow clone whose `origin/main` is older than the clone's
+    boundary, the result would mean nothing, so it stops and says how to
+    fetch one.
     """
-    done = subprocess.run(
-        ["git", "diff", "--name-only", base],
-        cwd=REPO, capture_output=True, text=True,
-    )
+    def git(*args):
+        return subprocess.run(["git", *args], cwd=repo,
+                              capture_output=True, text=True)
+
+    found = git("merge-base", base, "HEAD")
+    if found.returncode != 0 or not found.stdout.strip():
+        if git("rev-parse", "--verify", "--quiet", base).returncode != 0:
+            raise SystemExit(f"run_workflow_locally: no ref {base!r}; "
+                             f"fetch it: git fetch --depth=40 origin main")
+        raise SystemExit(
+            f"run_workflow_locally: {base} and HEAD share no commit in this "
+            f"clone (shallow, or {base} is stale), so a diff would count every "
+            f"change on both sides.\n"
+            f"  Refresh it: git fetch --depth=40 origin main\n"
+            f"  Still none: git fetch --deepen=500 origin main, until "
+            f"`git merge-base {base} HEAD` answers.")
+    merge_base = found.stdout.strip()
+    ahead = git("rev-list", "--count", f"{merge_base}..HEAD").stdout.strip()
+    if ahead.isdigit() and int(ahead) > STALE_BASE_COMMITS:
+        print(f"note: HEAD is {ahead} commits past its merge base with {base}; "
+              f"if this branch is not that long, {base} is stale "
+              f"(git fetch --depth=40 origin main).", file=sys.stderr)
+    done = git("diff", "--name-only", merge_base)
     if done.returncode != 0:
         raise SystemExit(f"run_workflow_locally: git diff against {base} failed:\n"
                          f"{done.stderr.strip()}")
     return [line for line in done.stdout.splitlines() if line.strip()]
+
+
+_RUNNER_FILES: dict[str, str] = {}
+
+
+def runner_files() -> dict[str, str]:
+    """Scratch stand-ins for the files Actions hands every step.
+
+    A step that writes `>> "$GITHUB_OUTPUT"` fails here with an unset
+    variable (bash: ambiguous redirect), whatever the diff: every
+    `--for-changes` run selects portfolio-pages.yml, and its first step does
+    exactly that, so each run reported FAILED rows it did not cause (run
+    record 2026-11-11, session_01E5sJKmNy2). What a step writes lands in one
+    temp directory per process; values a later `${{ steps.x.outputs.y }}`
+    would read are still not resolved (those steps stay skipped as
+    unevaluable expressions). An export already in this shell wins.
+    """
+    if not _RUNNER_FILES:
+        tmp = tempfile.mkdtemp(prefix="run_workflow_locally-")
+        for name in ("GITHUB_OUTPUT", "GITHUB_ENV", "GITHUB_STEP_SUMMARY",
+                     "GITHUB_PATH", "GITHUB_STATE"):
+            path = os.path.join(tmp, name.lower())
+            open(path, "a").close()
+            _RUNNER_FILES[name] = path
+        _RUNNER_FILES["RUNNER_TEMP"] = tmp
+    return {k: v for k, v in _RUNNER_FILES.items() if k not in os.environ}
 
 
 def execute(step: Step, timeout: int) -> None:
@@ -954,7 +1017,7 @@ def execute(step: Step, timeout: int) -> None:
     # in this shell's environment: the point is to reproduce the repository's
     # unset state, and inheriting a developer's stray export would verify a
     # configuration CI does not have.
-    env = {**os.environ, **step.env} if step.env else None
+    env = {**os.environ, **runner_files(), **step.env}
 
     start = time.monotonic()
     try:
@@ -1186,7 +1249,31 @@ def run_for_changes(args) -> int:
     workflows = {name for name, *_ in selected} | {name for name, *_ in held}
     print(f"{len(changed)} changed file(s) against {args.for_changes} select "
           f"{len(workflows)} workflow(s).")
+    hint = budget_hint(len(selected), getattr(args, "workflow_timeout", 0),
+                       args.list)
+    if hint:
+        print(hint, flush=True)
     return _run_selected(args, selected, held)
+
+
+# A foreground tool call in a cloud session is cut off at 600 s. Runs kept
+# starting --for-changes in the foreground and losing the whole result when a
+# docs+venture diff selected 13 to 17 workflows (four doc-friction reports,
+# 2026-11-11). Saying so before the first step costs one line.
+TOOL_CAP_S = 600
+
+
+def budget_hint(n_selected: int, per_workflow_s: int, listing: bool) -> str | None:
+    """A warning when the selection can outrun a foreground tool call, else None."""
+    if listing or n_selected < 2 or not per_workflow_s:
+        return None
+    worst = n_selected * per_workflow_s
+    if worst <= TOOL_CAP_S:
+        return None
+    return (f"  {n_selected} workflow(s) x {per_workflow_s} s budget = up to "
+            f"{worst // 60} min, past a {TOOL_CAP_S} s foreground tool call: "
+            "run this in the background (log to a file), or --list first and "
+            "run the workflows you need by name.")
 
 
 def checkout_fingerprint() -> tuple[str, str] | None:
@@ -1263,8 +1350,16 @@ def _run_selected(args, selected, held, absent=()) -> int:
         print(f"  [held  ] {name} / {job_id}: {why}; run it by name with "
               "--force if you have read it")
     if args.list:
-        for name, _, allowed in selected:
-            print(f"  [run   ] {name} ({', '.join(sorted(allowed))})")
+        # Step counts say which workflow is the long one (on a platform/ci
+        # diff, portfolio-validate.yml holds 107 of 136 steps), so a run can
+        # pick the few to run by name.
+        total = 0
+        for name, workflow, allowed in selected:
+            n = len(collect(workflow, only=allowed)[0])
+            total += n
+            print(f"  [run   ] {name} ({', '.join(sorted(allowed))}; {n} step(s))")
+        if selected:
+            print(f"  {total} run: step(s) in {len(selected)} workflow(s).")
         return 0
 
     before = checkout_fingerprint()
@@ -1323,7 +1418,8 @@ def main(argv=None) -> int:
                          "'is this checkout green?' where --for-changes "
                          "answers 'is my diff sound?'")
     ap.add_argument("--list", action="store_true",
-                    help="print the steps that would run, and run nothing")
+                    help="print the steps (or, with no workflow named, the "
+                         "workflows --for-changes would select) and run nothing")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
     ap.add_argument("--timeout", type=int, default=900,
@@ -1348,6 +1444,12 @@ def main(argv=None) -> int:
         if args.workflow:
             print("pass a workflow name or --for-changes, not both", file=sys.stderr)
             return 2
+        return run_for_changes(args)
+
+    if not args.workflow and args.list:
+        # `--list` alone used to fail with "name a workflow"; the question a
+        # run asks with it is "what would --for-changes run?", so answer that.
+        args.for_changes = LOCAL_BASE["ref"] = "origin/main"
         return run_for_changes(args)
 
     if not args.workflow:

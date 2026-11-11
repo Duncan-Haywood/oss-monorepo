@@ -920,7 +920,7 @@ What it shows:
 50% random answers, where every selector's ranking is poor (0.59 to 0.65 at 8
 answers per item on run 2, against 0.84 to 0.89 for an honest respondent).
 
-**What might work instead** (not tried): fix the cause, not the selector. Both
+**What might work instead** (tried the same day: next section, "A Glicko update with a lapse term"): fix the cause, not the selector. Both
 selectors share a Glicko update that treats every answer as true preference, so
 a random answer tightens rd as much as a careful one. An update with a lapse term
 (win probability e/2 + (1 - e) p) would keep rd honest under careless
@@ -930,3 +930,203 @@ own measurement against the real rankings in REAL-RANKINGS.md first.
 Caveats: synthetic respondent, lapses uniform over the session (the late-onset
 case is "Lapses that start late in a session" above), lists of 30 items or fewer,
 no real pairwise answers.
+
+
+## A Glicko update with a lapse term: measured, not shipped (2026-11-11)
+
+The section above ended on "fix the cause, not the selector": both selectors
+share a Glicko-2 update that treats every answer as a true preference. This
+run built that update and measured it.
+
+**The update** (`src/lib/glicko2.ts`, `updateGlicko(..., lapse)` and
+`applyComparison(..., lapse)`). With an assumed lapse share e the chance of a
+win is q = e/2 + (1 - e) p. Glicko-2's v and delta are the inverse Fisher
+information and the score step of the one-game log-likelihood, so with q in
+place of p they become info = (dq/dmu)^2 / (q(1 - q)) and step =
+(s - q) dq/dmu / (q(1 - q)), with dq/dmu = (1 - e) g p (1 - p). At e = 0 the
+old arithmetic runs unchanged (pinned to the bit in `glicko2.test.ts`; the
+closed form is checked there against a finite-difference derivative of the
+lapse likelihood). The routes still pass 0.
+
+**What it cannot do.** Glicko's rd update depends on the expected information
+of a game, not on its outcome. So a fixed e cannot make a careless answer
+shrink rd less than a careful one, which was the hope: it shrinks rd less for
+*every* answer, and only the rating step (and a little of the volatility
+step) treats a surprise differently.
+
+**Synthetic sweep** (`scripts/lapse-update-sweep.ts`; respondent of
+`infoGainSim.ts`; 8, 11, 15, 20 and 30 items; true lapse 0, 0.1, 0.2, 0.35 and
+0.5; 2, 4 and 8 answers per item; 75 cells; run 1 seeds from 1000, run 2 from
+50000, 60 respondents each). `coverage` is a new `simulate` output: the share
+of item pairs whose 95% interval on the rating difference
+(1.96 sqrt(rd_a^2 + rd_b^2)) holds the true difference. "e = true" gives the
+update the respondent's real lapse rate, which the survey cannot know: the
+ceiling for this kind of update.
+
+Mean rank accuracy change against the same selector with e = 0, over the 75
+cells (run 1 / run 2), and cells better or worse by more than 0.02:
+
+| selector, assumed e | mean change | cells > +0.02 | cells < -0.02 |
+|---|---:|---:|---:|
+| shipped, 0.05 | +0.009 / +0.003 | 18 / 4 | 0 / 5 |
+| shipped, 0.1 | +0.008 / +0.003 | 18 / 11 | 1 / 6 |
+| shipped, 0.2 | +0.006 / +0.008 | 15 / 10 | 3 / 1 |
+| shipped, true | +0.008 / +0.010 | 18 / 14 | 2 / 1 |
+| staged, 0.05 | +0.002 / +0.003 | 4 / 7 | 0 / 1 |
+| staged, 0.1 | +0.007 / +0.006 | 13 / 15 | 1 / 3 |
+| staged, 0.2 | +0.013 / +0.006 | 21 / 13 | 1 / 4 |
+| staged, true | +0.014 / +0.009 | 21 / 15 | 0 / 3 |
+
+95% pairwise coverage by true lapse 0 / 0.1 / 0.2 / 0.35 / 0.5 (run 2; run 1
+within 0.01):
+
+| selector, assumed e | coverage |
+|---|---|
+| shipped, 0 (today) | 0.969 / 0.962 / 0.950 / 0.921 / 0.881 |
+| shipped, 0.2 | 0.985 / 0.983 / 0.978 / 0.963 / 0.941 |
+| shipped, true | 0.969 / 0.974 / 0.978 / 0.983 / 0.989 |
+| staged, 0 (today) | 0.901 / 0.878 / 0.853 / 0.801 / 0.746 |
+| staged, 0.1 | 0.927 / 0.907 / 0.886 / 0.846 / 0.794 |
+| staged, 0.2 | 0.951 / 0.940 / 0.920 / 0.883 / 0.841 |
+| staged, true | 0.901 / 0.907 / 0.920 / 0.941 / 0.967 |
+
+The two cells where staged trailed shipped on both seed sets in the previous
+section (lapse 0.5, 8 answers per item; run 1 / run 2): 11 items, shipped
+0.645 / 0.644, staged 0.567 / 0.613, staged e = 0.2 0.614 / 0.665, staged
+e = true 0.623 / 0.720; 30 items, shipped 0.640 / 0.610, staged 0.608 / 0.585,
+staged e = 0.2 0.633 / 0.623, staged e = true 0.666 / 0.672.
+
+**The cost: answers to the couple bar** (`--couple-bar`; median / p90 answers
+until min(8, items) items are under rd 200; 40 respondents; the count barely
+moves with the true lapse, as the rd argument above predicts, so lapse 0 is
+shown):
+
+| items | shipped e 0 | 0.05 | 0.1 | 0.2 | staged e 0 | 0.05 | 0.1 | 0.2 |
+|---:|---|---|---|---|---|---|---|---|
+| 8 | 26 / 31 | 30 / 37 | 32 / 42 | 48 / 69 | 19 / 20 | 24 / 26 | 24 / 28 | 35 / 41 |
+| 15 | 34 / 38 | 38 / 42 | 42 / 47 | 57 / 64 | 27 / 27 | 33 / 34 | 34 / 35 | 42 / 42 |
+| 30 | 39 / 44 | 46 / 53 | 57 / 64 | 83 / 94 | 35 / 35 | 45 / 46 | 50 / 50 | 74 / 77 |
+
+**Real people's rankings** (`scripts/real-rankings-eval.ts --seeds 200
+--selectors shipped,staged --lapse L --update-lapse e`, new flags; PrefLib
+breakfast and T-shirt panels, all 25 cells; the e = 0 rows reproduce
+REAL-RANKINGS.md). Means over the 25 cells:
+
+| true lapse | selector, assumed e | Spearman vs others | top pick right | rank range holds | range width | pairs ordered | ordered wrong |
+|---:|---|---:|---:|---:|---:|---:|---:|
+| 0 | shipped, 0 | 0.696 | 31.2% | 99.4% | 12.07 | 12.4% | 2.00% |
+| 0 | shipped, 0.1 | 0.696 | 32.1% | 99.5% | 12.24 | 11.0% | 1.80% |
+| 0 | shipped, 0.2 | 0.695 | 31.7% | 99.6% | 12.42 | 9.5% | 1.40% |
+| 0 | staged, 0 | 0.716 | 34.8% | 99.2% | 11.88 | 13.9% | 1.92% |
+| 0 | staged, 0.1 | 0.715 | 35.3% | 99.3% | 12.06 | 12.4% | 1.56% |
+| 0 | staged, 0.2 | 0.715 | 35.2% | 99.4% | 12.27 | 10.6% | 1.28% |
+| 0.1 | shipped, 0 | 0.677 | 30.4% | 99.5% | 12.30 | 10.6% | 2.00% |
+| 0.1 | shipped, 0.1 | 0.677 | 31.2% | 99.5% | 12.43 | 9.4% | 1.60% |
+| 0.1 | shipped, 0.2 | 0.676 | 31.4% | 99.7% | 12.61 | 7.8% | 1.32% |
+| 0.1 | staged, 0 | 0.697 | 34.4% | 99.3% | 12.05 | 12.6% | 1.80% |
+| 0.1 | staged, 0.1 | 0.696 | 34.3% | 99.3% | 12.19 | 11.2% | 1.68% |
+| 0.1 | staged, 0.2 | 0.696 | 34.6% | 99.5% | 12.40 | 9.6% | 1.24% |
+
+Spearman moves by at most 0.01 in any cell (mean -0.001 to 0.000); the pooled
+report's rank ranges already hold 99%+, so the lapse term only makes it more
+cautious: at e = 0.2 it confidently orders about a quarter fewer pairs (13.9%
+to 10.6% for staged, honest panel) and gets about a third fewer of those
+wrong (1.92% to 1.28%).
+
+**Decision.** The routes keep e = 0. A fixed e is a uniform discount, not a
+careless-answer detector: it buys 0.002 to 0.014 of mean rank accuracy and better
+coverage on synthetic respondents, at 15% to 115% more answers (e 0.05 to 0.2) before the
+couple screen can speak, and on real people's rankings it trades confidently
+ordered pairs for fewer wrong ones in a report whose ranges already hold
+99%+. The update stays in `glicko2.ts` as an option, off, with the sweep.
+
+**What it does show.** With the respondent's real lapse rate the update is
+calibrated at every lapse (coverage 0.90 to 0.97 for staged, 0.97 to 0.99 for
+shipped) and lifts staged above shipped in both heavy-lapse cells that had
+trailed. So the next step is a per-respondent estimate of e (for example a
+grid posterior over e from the respondent's own answer likelihood, refit as
+answers arrive), measured on this sweep against the e = true ceiling before
+it touches stored ratings. Separately, staged's coverage is 0.90 even for an
+honest respondent (shipped 0.97): the information selector's close pairs make
+the single-game rd shrink too fast, a calibration gap in today's per-person
+rd that no lapse term fixes.
+
+Caveats: synthetic respondent with uniform lapses; lists of 30 items or fewer;
+the real rankings are complete orders answered without noise unless `--lapse`
+adds it; no real pairwise answers.
+
+
+## A per-respondent lapse estimate: measured, not shipped (2026-11-11)
+
+The section above named the next step: estimate e for each respondent from
+their own answers, and measure it against the e = true ceiling. Built and
+measured the same day; the answer is that a respondent's answers do not carry
+enough about e at survey lengths, and the adaptive selectors make it worse.
+
+**The estimator** (`src/lib/lapseEstimate.ts`, unit tests in
+`lapseEstimate.test.ts`). A grid posterior over e in 0, 0.025, ..., 0.9 with a
+Beta(1, b) prior (b = 19, mean 0.05): each answer adds
+log(e/2 + (1 - e) p), where p is the chance the picked item wins. Three ways
+to get p, all in `scripts/lapse-update-sweep.ts` (`--assumed est...`):
+in-sample (current ratings with rd folded in through Glicko's g, suffix
+`-in`), prequential (the ratings just before the answer was applied, rd
+folded in; the default `est`), and prequential on point ratings (`-point`,
+rd ignored). `simulate` takes the estimate as `updateLapse` (a function now,
+as well as a number) and re-reads it before every answer. An `-oracle`
+suffix scores each answer with the respondent's true win chance instead: the
+most any estimator of this kind could know.
+
+**Final estimate of e, mean and 10th-90th percentile over 20 respondents**
+(`--estimates`; 8 and 30 items, 2 and 8 answers per item; uniform prior
+`est-b1` unless noted, so the data, not the prior, has to move it):
+
+| setup | true e 0 | 0.1 | 0.2 | 0.35 | 0.5 |
+|---|---|---|---|---|---|
+| staged, prequential, 30 items x 8 | 0.45 (0.36-0.58) | 0.44 | 0.48 | 0.45 | 0.46 (0.36-0.59) |
+| shipped, point ratings, 30 x 8, prior b=19 | 0.15 (0.09-0.22) | 0.21 | 0.26 | 0.34 | 0.40 (0.35-0.45) |
+| shipped, oracle, 30 x 8 | 0.06 (0.03-0.12) | 0.14 | 0.20 | 0.40 | 0.54 (0.33-0.67) |
+| shipped, oracle, 8 x 2 | 0.35 (0.20-0.53) | 0.33 | 0.37 | 0.40 | 0.45 (0.26-0.70) |
+| staged, oracle, 8 x 8 | 0.20 (0.13-0.35) | 0.21 | 0.27 | 0.36 | 0.51 (0.36-0.68) |
+
+The in-sample and default prequential estimates (prior b = 19) sit at 0.023
+to 0.055 whatever the true e, on both selectors: the ratings absorb the
+coin flips, and early answers with large rd have p near 1/2, which says
+nothing about e. Point ratings help the shipped selector only, and with a
+bias: an honest respondent reads 0.15. The staged selector gives no signal at
+all, because it asks pairs the current ratings call even (p near 1/2 under
+the model, so a lapse looks like an honest answer).
+
+**The information bound** (`--information`): the Fisher information about e
+in one answer, from the true win chance of each pair asked, at true e = 0.1,
+is 0.70 to 0.81 for shipped, 0.37 to 0.65 for staged and 0.75 to 0.90 for a
+uniform random pair. The smallest possible sd of any estimate of e is then
+0.27 to 0.33 after 16 answers (8 items, 2 each), 0.11 to 0.15 after 120 (15
+x 8), and 0.074 to 0.106 after 240 (30 x 8). Telling an honest respondent
+from a 20% lapser needs an sd near 0.07, so about 240 answers even with the
+true win chances, and these are not known: the ratings estimating them are
+built from the same few answers.
+
+**Rank accuracy and coverage with the best practical estimate** (shipped,
+`est-point`, 15 and 30 items, 4 and 8 answers per item, true e 0 to 0.5, 30
+respondents per cell, `docs/lapse-estimate-accuracy-2026-11-11.jsonl`): mean
+rank accuracy 0.716 at e = 0, 0.718 with the estimate, 0.725 at e = true;
+the estimate is better by more than 0.02 in 4 cells of 20 and worse in 3.
+Mean 95% coverage 0.915, 0.942 and 0.972: it closes half the coverage gap,
+which a fixed e = 0.1 also does (previous section), and it charges honest
+respondents the same slower rd as a fixed e because it reads them at 0.15.
+
+**Decision.** Not shipped; the routes keep e = 0. The module and the sweep
+modes stay as the measurement. A per-respondent e is not identifiable from
+one person's answers at survey lengths, and least of all under the staged
+selector the survey uses. What could carry the signal instead: pairs the
+respondent should find easy (a known anchor, or a repeat of a confidently
+ordered pair: one answer on a pair with true p = 0.95 carries about 2.4 units
+of information about e at e = 0.1, 1.7 at e = 0.2, against 0.4 to 0.8 for an
+adaptive question, though p itself must then be known), pooled lapse rates
+across respondents of one survey (a population e, then shrink each person
+toward it), or answer timing. Each is a separate measurement.
+
+Caveats: synthetic respondent with uniform lapses, Bradley-Terry truth with
+slope 2 on a uniform spread (a wider spread of true preferences gives more
+easy pairs and more information about e); lists of 30 items or fewer; 20 to
+30 respondents per cell; no real pairwise answers.

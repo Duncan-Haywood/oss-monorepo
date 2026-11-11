@@ -128,6 +128,7 @@ import {
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
+import { STICKY_FIT_JS } from './sticky-fit.mjs';
 import {
   SITE_NAME,
   MARK_BG,
@@ -147,7 +148,7 @@ import {
   writeResearchChrome,
   siteTitle,
 } from './site-nav.mjs';
-import { ASK_PATH, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
+import { ASK_PATH, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import {
   HERO_BACKDROP_HTML,
@@ -755,7 +756,10 @@ const CATEGORY_RULES = [
     // a framing bid, so its readers browse this section.
     // `shed-designer` joined 2026-10-29 on its first PR: framing plans, a cut
     // sheet and a lumber order for a shed, the same reader as `wall-framing-takeoff`.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'shed-designer' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    // `service-load-check` joined 2026-11-11 on its first commit: the NEC 220.83 / 220.87
+    // check an electrician runs before quoting an EV charger or heat pump on an existing
+    // service, beside `electrical-panel-upgrade-bid-calculator` and `ev-charger-bid-calculator`.
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'shed-designer' || slug === 'service-load-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -4710,7 +4714,8 @@ const SUBCATEGORY_RULES = {
       // `security-camera` sits here as low-voltage electrical work: the people
       // who bid it are the electrical and structured-cabling trades, and it is
       // closer to a panel or EV-charger job than to anything in the other groups.
-      test: (slug) => /^(furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      // `service-load-check` (2026-11-11): the NEC service load check electricians run before an EV charger or heat pump job.
+      test: (slug) => /^(service-load-check|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -9867,20 +9872,25 @@ const CHROME_CSS = `
  *
  * The mark is the one literal colour here, and it is not text: it is the
  * site's logo (pf-site.css draws the same compass-star mark), so it reads as one
- * site on every venture palette instead of a blot of the host's ink. */
-body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
+ * site on every venture palette instead of a blot of the host's ink.
+ *
+ * "First child" also allows one leading <noscript>. The JavaScript-needed
+ * notice (addNoscriptNotice, 2026-11-09) is inserted right after <body>, so on
+ * the 1,900-odd tool pages that carry it the band stopped being :first-child and
+ * all three rules here stopped matching. The band sat 24px down until pf-site.js
+ * pulled it up after first paint: a layout shift of 0.027 on every one of those
+ * pages, measured with Lighthouse on wall-framing-takeoff on 2026-11-11. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]){padding-top:0;margin-top:0}
 .pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
   box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
 .pf-chrome-top .pfs-bar{padding:12px 0}
 .pf-chrome-top .pfs-crumbs{padding:0 0 10px}
 .pf-chrome-top .pfs-mark{background:${MARK_BG}}
-.pf-chrome-top .pfs-searchlink{padding:4px 14px;border:1px solid var(--pf-line);border-radius:999px}
-[data-pfs-head].pf-chrome-top .pfs-searchlink:hover{text-decoration:none;border-color:currentColor}
 /* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
  * in the same column, so they line up with the venture's content rather than
  * their own 18px inset. */
-body:has(> .pf-chrome-top[data-pfs-head]:first-child) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
-body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status:empty{display:none}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > .pf-jobs .pf-jobs-status:empty{display:none}
 
 /* Site chrome is not part of anything a visitor prints.
  *
@@ -9934,7 +9944,8 @@ export function renderChromeStyle() {
   // The site header's layout rules ride along (see site-nav.mjs), then
   // `VENTURE_CHROME_CSS`, which gives the venture header and footer the site's
   // own palette so every tool page carries the same bar as the rest of the site.
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}`;
+  // The floating voice button's rules close it (assistant.mjs, ASSISTANT_VOICE_CSS).
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -10047,18 +10058,66 @@ const SCROLL_A11Y_SCRIPT = `
   // for directly.
   var candidates=[];
   var tables=0;
+  var SCROLLS=/^(auto|scroll|overlay)$/;
+  // The elements worth asking getComputedStyle about: those some rule or a
+  // style attribute could give overflow-x:auto|scroll. Asking all of them was
+  // the expensive part. Measured 2026-11-11 on wall-framing-takeoff (4,204
+  // elements) at 4x CPU throttling: the first sweep took ~100 ms of the
+  // page's DOMContentLoaded task and a second identical sweep ~15 ms, because
+  // Chrome builds a computed-style object for each element the first time it is
+  // asked. The rule scan reads a few hundred rules instead. It is a superset
+  // (a rule inside a media query that does not match still counts) and every
+  // element it finds is checked with getComputedStyle, so it never adds a tab
+  // stop the old sweep would not have. The one thing it leaves out is the
+  // browser's own stylesheet, which gives only <textarea> overflow:auto, and a
+  // textarea takes focus already. null means the rules could not all be read:
+  // sweep everything, as before.
+  var selectors=function(){
+    if(!document.styleSheets||!document.body||!document.body.querySelectorAll)return null;
+    var out=[],ok=true;
+    var walk=function(rules){
+      for(var i=0;i<rules.length;i++){
+        var r=rules[i];
+        // @import: its sheet's rules, or null when that sheet is cross-origin.
+        if(r.styleSheet){walk(r.styleSheet.cssRules);continue;}
+        var st=r.style;
+        if(st&&r.selectorText&&(SCROLLS.test(st.overflowX)||SCROLLS.test(st.getPropertyValue('overflow-inline'))))out.push(r.selectorText);
+        if(r.cssRules)walk(r.cssRules);
+      }
+    };
+    var sheets=[].slice.call(document.styleSheets).concat(document.adoptedStyleSheets||[]);
+    for(var s=0;s<sheets.length&&ok;s++){
+      try{walk(sheets[s].cssRules);}catch(e){
+        // A cross-origin sheet hides its rules. Google Fonts' is the only one
+        // the site links, and it holds nothing but @font-face; any other one
+        // could hold an overflow rule we cannot see.
+        if(!/^https:\\/\\/fonts\\.googleapis\\.com\\//.test(sheets[s].href||''))ok=false;
+      }
+    }
+    return ok?out:null;
+  };
+  var wrap=function(){
+    ${WRAP_TABLES_JS}
+    tables=document.getElementsByTagName('table').length;
+  };
   var collect=function(){
     // Before the sweep, not after: a table a calculator just wrote into its
     // result panel has no scrolling box around it yet, so collecting first
     // would find nothing to give a tab stop to. See reflow.mjs.
-    ${WRAP_TABLES_JS}
+    wrap();
     candidates=[];
-    var all=document.body?document.body.getElementsByTagName('*'):[];
+    var sel=selectors(),all=null;
+    if(sel){
+      sel.push('[style*="overflow"]');
+      // One bad selector (a pseudo-element, say) throws for the whole list,
+      // and then the full sweep below is the answer.
+      try{all=document.body.querySelectorAll(sel.join(','));}catch(e){all=null;}
+    }
+    if(!all)all=document.body?document.body.getElementsByTagName('*'):[];
     for(var i=0;i<all.length;i++){
       var o=getComputedStyle(all[i]).overflowX;
       if(o==='auto'||o==='scroll')candidates.push(all[i]);
     }
-    tables=document.getElementsByTagName('table').length;
   };
   var measure=function(){
     for(var i=0;i<candidates.length;i++){
@@ -10076,16 +10135,33 @@ const SCROLL_A11Y_SCRIPT = `
       }
     }
   };
-  var full=function(){try{collect();measure();}catch(e){}};
+  // The sweep and the width check run just after the next paint, not inside
+  // the event that asked for them. Reading scrollWidth in the middle of a
+  // DOMContentLoaded or input handler, after a calculator has just rewritten
+  // its result panel, makes the browser lay the page out there and then; after
+  // the paint the layout is already done and the read is free. Measured
+  // 2026-11-11 (docs/reports/polish-2026-11-11-scroll-sweep.md). A tab stop
+  // that arrives one frame later costs a keyboard user nothing. Wrapping a new
+  // table is not deferred: a wide table left unwrapped for a frame would push
+  // the page sideways.
+  // 0: nothing queued, 1: a width check, 2: a sweep and a width check.
+  var queued=0;
+  var later=function(level){
+    if(queued){if(level>queued)queued=level;return;}
+    queued=level;
+    var run=function(){var q=queued;queued=0;try{if(q>1)collect();measure();}catch(e){}};
+    var next=function(){setTimeout(run,0);};
+    if(typeof requestAnimationFrame==='function')requestAnimationFrame(next);else next();
+  };
+  var full=function(){try{wrap();}catch(e){}later(2);};
   // A recalculation that replaced the result panel can have added or removed a
   // table, and a table that arrived after the last sweep is not a candidate yet
   // — so the cheap path re-sweeps exactly when the table count moved, and stays
   // cheap on every other keystroke.
   var quick=function(){
-    try{
-      if(document.getElementsByTagName('table').length!==tables){collect();}
-      measure();
-    }catch(e){}
+    var moved=false;
+    try{if(document.getElementsByTagName('table').length!==tables){wrap();moved=true;}}catch(e){}
+    later(moved?2:1);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',full);
   else full();
@@ -10113,7 +10189,7 @@ export const CHROME_MODULE_FILE = 'pf-site.js';
 
 /** The contents of that file. Written once by the build, at the site root. */
 export function renderChromeModule({ counterUrl = SITE_COUNTER_URL } = {}) {
-  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
+  return `${stripForInjection(CHROME_SCRIPT({ counterUrl }))}\n${stripForInjection(VENTURE_CHROME_JS)}\n${stripForInjection(SCROLL_A11Y_SCRIPT)}\n${stripForInjection(STICKY_FIT_JS)}\n${stripForInjection(ASSISTANT_LAUNCHER_JS)}\n`;
 }
 
 // ---------------------------------------------------------------------------
@@ -11766,8 +11842,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // same in any order; one at a time, the pass spent most of its 4 to 6 s
   // waiting on single file reads (perf, 2026-11-11:
   // `docs/history/pages-build-perf-2026-11-11-parallel-copy.md`). Pass 2 below
-  // stays serial on purpose: `repairLinks` tests whether a link target exists,
-  // and pass 2 writes files (sitemap.xml, llms.txt) another surface may link to.
+  // runs its link repairs to completion before it writes any file another
+  // surface could link to (see there).
   await mapLimit(discovered, 16, (surface) => copyTree(surface.sourceDir, path.join(outDir, surface.slug), base));
 
   // A handful of ventures (currently: ai-engineering-academy, tender-radar,
@@ -11812,24 +11888,40 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
 
   // Pass 2: everything that has to read a complete site.
   //
-  // `repairLinks` stays ahead of `surfaceExternalFetchHosts` within this loop,
-  // and that order is load-bearing: a repair can rewrite a `<script src>` or a
-  // stylesheet `<link href>` to a github.com URL, which is a genuine external
-  // request the privacy copy has to report.
+  // `repairLinks` stays ahead of `surfaceExternalFetchHosts`, and that order is
+  // load-bearing: a repair can rewrite a `<script src>` or a stylesheet
+  // `<link href>` to a github.com URL, which is a genuine external request the
+  // privacy copy has to report.
+  //
+  // Pass 2a repairs every surface's links, 16 at a time, before 2b writes
+  // anything. `repairLinks` rewrites HTML only inside its own surface and asks
+  // only whether a target exists, and pass 1 already created every file it can
+  // find, so no repair can see another repair's work. The files 2b creates
+  // (each surface's `sitemap.xml`, a generated `llms.txt`) used to be visible to
+  // the repairs of surfaces that sorted later and invisible to those that sorted
+  // earlier; now they are invisible to all, which makes the pass independent of
+  // order. On the tree as it stood (2026-11-11) the built site was
+  // byte-identical either way (`docs/history/pages-build-perf-2026-11-11-pass-two-concurrent.md`).
+  //
+  // Pass 2b then does the per-surface work, also 16 at a time. Each surface
+  // reads and writes only under its own `outDir/<slug>` and its own source
+  // directory; `mapLimit` returns results in input order, so `surfaces` and
+  // `repairs` keep the slug order the hub and the report depend on.
   const sourceDates = await loadLastChanged(REPO_ROOT);
-  for (const surface of discovered) {
+  const repairLists = await mapLimit(discovered, 16, (surface) =>
+    repairLinks({
+      publishedDir: path.join(outDir, surface.slug),
+      sourceDir: surface.sourceDir,
+      repoRoot: REPO_ROOT,
+      outDir,
+    }),
+  );
+  for (const list of repairLists) repairs.push(...list);
+
+  const built = await mapLimit(discovered, 16, async (surface) => {
     const html = await fs.readFile(surface.entryFile, 'utf8');
     const { title, description, fullDescription } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
-
-    repairs.push(
-      ...(await repairLinks({
-        publishedDir: destination,
-        sourceDir: surface.sourceDir,
-        repoRoot: REPO_ROOT,
-        outDir,
-      })),
-    );
 
     // Overwrite whatever sitemap the venture shipped with one generated from
     // what actually published. See `renderVentureSitemap` for why.
@@ -11864,7 +11956,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       if (dated !== text) await fs.writeFile(own, dated);
     }
 
-    surfaces.push({
+    return {
       ...surface,
       title,
       description,
@@ -11881,7 +11973,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       publishedPageCount: pages.length,
       llmsDoc: ownLlmsDoc,
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
-    });
+    };
+  });
+  for (const surface of built) {
+    surfaces.push(surface);
     log(`  ${surface.slug}`);
   }
 
