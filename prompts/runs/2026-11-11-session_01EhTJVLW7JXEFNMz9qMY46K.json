@@ -26,8 +26,8 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
-  "ci_failures_before_green": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
@@ -41,6 +41,10 @@
     {
       "file": "portfolio/flagships.yaml",
       "issue": "sales-agent buildable: note says huggingface.co answered 200 on 2026-11-11; in this session it was refused with 403. Proxy reachability varies per session, so the note should say 'probe first'."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes gives Portfolio Pages a 300 s budget that the site-builder test step alone exceeds, so it always reports that workflow as failed by timeout; running the step directly took about 10 minutes and passed."
     }
   ],
   "deviations": [
@@ -56,7 +60,7 @@
     "ventures/bank-statement-pdf-to-csv/eval/README.md"
   ],
   "goal": "Make the free statement converter work on statements it was not written against",
-  "notes": "Local checks: node --test ventures/bank-statement-pdf-to-csv/ gives 49 pass, 0 fail. eval/bench.mjs on the 5 published benchmark PDFs: 5 of 5 reconciled with true row counts (main this morning: 1 of 5). Held-out transtractor and ICICI-format PDFs first failed with both old and new code; after adding date-carried rows and one-decimal amounts they score 56/62 and 100/100 on date and signed amount (old: 15/62, 80/100). Page driven in Playwright Chromium: card auto-detected, two accounts shown and proved, a mixed-account Xero export is blocked, the picked account downloads, no console errors. venture-preflight: first run failed on the post's 180-character description (limit 160); after shortening it, 'preflight clean for bank-statement-pdf-to-csv'.",
+  "notes": "Local checks: node --test ventures/bank-statement-pdf-to-csv/ gives 49 pass, 0 fail. eval/bench.mjs on the 5 published benchmark PDFs: 5 of 5 reconciled with true row counts (main this morning: 1 of 5). Held-out transtractor and ICICI-format PDFs first failed with both old and new code; after adding date-carried rows and one-decimal amounts they score 56/62 and 100/100 on date and signed amount (old: 15/62, 80/100). Page driven in Playwright Chromium: card auto-detected, two accounts shown and proved, a mixed-account Xero export is blocked, the picked account downloads, no console errors. venture-preflight: first run failed on the post's 180-character description (limit 160); after shortening it, 'preflight clean for bank-statement-pdf-to-csv'. CI: the first push's Portfolio Pages build and test jobs went red on the same post description (reproduced by preflight, fixed in the second commit). The second push's 14 workflow runs stayed queued with no jobs for 30+ minutes (ci_starvation.py: 'no jobs found', i.e. starved), so verification is local: platform/pages node --test '*.test.mjs' 'cloudflare/*.test.mjs' gives 1549 pass, 0 fail; venture-preflight clean; promptctl validate ok; run_workflow_locally --for-changes passed every non-Pages workflow, with the Pages steps hitting its 300 s per-workflow budget (inconclusive, covered by the two runs above).",
   "corrections": [],
   "redteam": null,
   "usage": {
