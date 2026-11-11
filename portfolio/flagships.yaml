@@ -253,7 +253,12 @@ flagships:
       assignVenues two-colours stretches between byes (odd circle 0 breaks, balanced; was 46 at 19),
       run moves, never worse than the old pass; odd capped tries run the capped search (15 teams ~300
       at 12-16 breaks vs 35-40). Pattern-first 20-team leg one tried, not landed: 1,408-1,420 at 18,
-      same as capped, so likely the pattern's limit. Next, most valuable first: a bound for the
+      same as capped, so likely the pattern's limit. Field start 2026-11-11 later (README "Perfect
+      carry-over at 4, 8, 16 and 32 teams"): Russell's GF(2^k) timetable, every count 0 or 1, at
+      power-of-two sizes (bye included); 16 teams 316 to 224 (floor), 16-team season 1,048 to 912
+      (floor), page's balanced pick 1,220/54 to 996/48. Next, most valuable first: constructions for
+      other common sizes (12, 10, 14, 20: from the literature, e.g. starters or Latin-square based
+      ones, checked against the search); a bound for the
       minimum-break pattern (per-team opponent order), or a 20-team leg at 22-30 breaks from a
       non-circle timetable; 19-team odd legs (1,147+ at 20); the search's gap to the floor (12 teams
       156 vs 120); a real league's travel times (to check the 1.3 x 40 km/h estimate),
