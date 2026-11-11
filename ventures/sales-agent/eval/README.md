@@ -717,6 +717,31 @@ out as not replies. Before the reader moved to `mime.mjs`, a one-off script comp
 one on all 32,211 files read both as latin1 and as UTF-8: 0 differences. Running all 9,588 replies through `runInbox`
 is what found the `wrong_person` crash (README, "Two bugs found on the way").
 
+## Public mbox files: real Takeout and Thunderbird exports (2026-11-11)
+
+`node eval/mailfile-public.mjs` fetches eleven mbox files published on GitHub (found with a code search for
+`X-Gmail-Labels` and `X-Mozilla-Status` in `.mbox` files), checks each against the sha256 prefix read on 2026-11-11 and
+prints counts only: no message text, and the files are not committed (their licences are not ours). Four are real exports
+(UAlbanyArchives/mailbagit and mark-watson/power-java: Takeout, the second CRLF; the8472/mldht and
+johannes-riecken/mailman: Thunderbird `From - ` envelopes, the second CRLF); seven are exporter fixtures. A personal
+mailbox the same search turned up is left out on purpose.
+
+| | before | after | Python `mailbox` + `email` |
+|---|---|---|---|
+| messages split right | 10 of 11 files (InboxQA: 107 for 105) | 11 of 11 | 10 of 11 (same 107) |
+| messages with no text | 3 (two split halves, one stray boundary) | 0 | 3 |
+
+Both faults, and the fixes (`MboxSplitter`'s envelope check, `parseMessage`'s boundary fallback), are in the README,
+"Real exported mailboxes". At scale, `eval/mailfile-enron.mjs <dir> --mboxo` writes the 32,211 `0*` Enron messages
+without escaping: 139 messages hold a `From ` line after a blank line (157 lines). A split at every such line, as this
+reader did before and Python's `mailbox` does, cuts all 139; the envelope check makes 0 extra splits and the output is
+identical to the escaped file's (32,210 of 32,211 as the server reads them, the same one `---` difference as above). A
+first version took any `name:` line as a header and still split 7 messages whose `From the Editor` line was followed by a
+`http://` URL; a header now needs whitespace after the colon. The escaped (mboxrd) run is unchanged by both fixes.
+
+Not tried: Apple Mail's `.mbox` export (a folder holding an `mbox` file) and
+`Content-Length`-delimited mboxcl2 files, none found public.
+
 ## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
 
 The Enron check above measured stops that fired wrongly. This one measures the

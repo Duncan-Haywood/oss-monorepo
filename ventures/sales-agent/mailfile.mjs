@@ -32,20 +32,41 @@ export const addressOf = (from) => ((String(from || "").match(/<([^>]+)>/) || []
 /** True when a text looks like an mbox file (first non-empty line is a "From " envelope line). */
 export const isMbox = (text) => /^\s*From \S+/.test(String(text || "").slice(0, 1000));
 
+// A header field line (RFC 5322 field name, then a colon) and an mbox envelope line ("From 1538...@xxx Thu Jun 30
+// 12:31:44 +0000 2016" from Takeout, "From - Thu Feb 23 19:37:30 2017" from Thunderbird, "From a@b Mon Jan  1 2001").
+const HEADER_LINE = /^[\x21-\x39\x3b-\x7e]+:(?:[ \t]|$)/; // not "http://..."
+const ENVELOPE = /^From \S+ +(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b.*\b(?:19|20)\d\d\b|.*\b\d{1,2}:\d\d(?::\d\d)?\b.*\b(?:19|20)\d\d\b)/;
+
 /**
  * Splits an mbox stream into raw messages. push() takes text chunks of any size, end() flushes the last message.
  * A new message starts at a "From " line at the start of the file or after a blank line; ">From " lines are unescaped
  * (mboxrd). Lines past MAX_BYTES of a message are dropped and counted.
+ *
+ * Some exporters write mboxo without escaping a body line that starts with "From " (one on GitHub split a reply in two
+ * at "From a security standpoint, ...", as Python's mailbox module also does). So a candidate line only starts a message
+ * when the line after it is a header ("X-GM-THRID: ...", "X-Mozilla-Status: ...", "Return-Path: ...") or the line itself
+ * reads as an envelope (a token, then a date with a weekday or a clock time and a year). Otherwise it stays body text;
+ * unescapedFrom counts how many did.
  */
 export class MboxSplitter {
-  constructor(onMessage, { maxBytes = MAX_BYTES } = {}) { Object.assign(this, { onMessage, maxBytes, carry: "", lines: [], size: 0, prevBlank: true, truncated: 0, cut: false }); }
+  constructor(onMessage, { maxBytes = MAX_BYTES } = {}) { Object.assign(this, { onMessage, maxBytes, carry: "", lines: [], size: 0, prevBlank: true, truncated: 0, cut: false, pending: null, unescapedFrom: 0 }); }
   push(chunk) {
     const text = this.carry + chunk, parts = text.split("\n");
     this.carry = parts.pop();
     for (const p of parts) this.line(p.endsWith("\r") ? p.slice(0, -1) : p);
   }
   line(l) {
-    if (this.prevBlank && /^From \S/.test(l)) { this.flush(); this.prevBlank = false; return; }
+    if (this.pending !== null) {
+      const p = this.pending; this.pending = null;
+      if (HEADER_LINE.test(l) || ENVELOPE.test(p)) { this.flush(); this.prevBlank = false; }
+      else { this.unescapedFrom++; this.body(p); }
+    } else if (this.prevBlank && /^From \S/.test(l)) {
+      if (!this.lines.length) { this.flush(); this.prevBlank = false; return; } // the first line of the file, or after blank lines only
+      this.pending = l; return;
+    }
+    this.body(l);
+  }
+  body(l) {
     this.prevBlank = l === "";
     const u = /^>+From /.test(l) ? l.slice(1) : l;
     if (this.cut || this.size + u.length + 2 > this.maxBytes) { if (!this.cut) { this.cut = true; this.truncated++; } return; }
@@ -55,7 +76,11 @@ export class MboxSplitter {
     if (this.lines.some((l) => l.trim())) this.onMessage(this.lines.join("\r\n"));
     this.lines = []; this.size = 0; this.cut = false;
   }
-  end() { if (this.carry) { this.line(this.carry.endsWith("\r") ? this.carry.slice(0, -1) : this.carry); this.carry = ""; } this.flush(); }
+  end() {
+    if (this.carry) { this.line(this.carry.endsWith("\r") ? this.carry.slice(0, -1) : this.carry); this.carry = ""; }
+    if (this.pending !== null) { if (!ENVELOPE.test(this.pending)) { this.unescapedFrom++; this.body(this.pending); } this.pending = null; }
+    this.flush();
+  }
 }
 
 /**

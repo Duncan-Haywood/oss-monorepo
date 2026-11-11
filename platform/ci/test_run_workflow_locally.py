@@ -269,9 +269,22 @@ class WorkflowBudget(unittest.TestCase):
                  runner.Step("j", "after", "true", ".")]
         with contextlib.redirect_stdout(io.StringIO()):
             runner.run_steps(steps, 900, budget=1)
-        self.assertEqual([s.status for s in steps], ["failed", "failed"])
+        # UNRUN, not FAILED: a budget cut is no verdict on the check.
+        self.assertEqual([s.status for s in steps], ["unrun", "unrun"])
+        self.assertEqual({s.missing_kind for s in steps}, {"budget"})
         self.assertTrue(all(s.reason.startswith("TIMEOUT") for s in steps))
         self.assertLess(steps[0].seconds, 4)
+
+    def test_a_budget_cut_workflow_is_not_green_and_not_failed(self):
+        steps = [runner.Step("j", "ok", "true", "."),
+                 runner.Step("j", "slow", "sleep 5", ".")]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            runner.run_steps(steps, 900, budget=1)
+            code = runner.report("wf.yml", steps, [], False)
+        self.assertEqual(code, runner.BUDGET_SPENT)
+        self.assertNotIn("FAILED", out.getvalue())
+        self.assertIn("run_workflow_locally.py wf.yml", out.getvalue())
 
     def test_no_budget_runs_normally(self):
         steps = [runner.Step("j", "ok", "true", ".")]
