@@ -197,6 +197,14 @@ def main(dst):
     Fm = {name: mean(fresh, name) for name in POLICIES}
     bestF = min(Fm["skip-r1"], Fm["random"])
     bm = [c for c in held if c["design"] == "bcastmix192"]
+    w, l = (sum(swg(c, TH, G2) < sw(c, chosen["SW"]) for c in held), sum(swg(c, TH, G2) > sw(c, chosen["SW"]) for c in held))
+    out += ["", "post hoc (lines added after the first run):",
+            "post hoc: G fall-back share on bcastmix192 (tight, relaxed) with p = 6: " + "; ".join(
+                f"tau0={t:g}: " + ", ".join(f"{c['fell'][(6, t)]:.2f}" for c in sorted(bm, key=lambda c: c["clock"] != "tight"))
+                for t in (0, 0.2, 0.4)),
+            f"post hoc: held-out SWG vs SW per cell: better {w}, worse {l}, tied {len(held) - w - l} (sign p = {sign_p(w, l):.3f})",
+            f"post hoc: both test tables (40 cells): SW {statistics.mean([sw(c, chosen['SW']) for c in fresh + old]):.2f}%, "
+            f"skip-r1 {statistics.mean([c['skip'] for c in fresh + old]):.2f}%, random {statistics.mean([c['rand'] for c in fresh + old]):.2f}%"]
     out += ["",
             f"(1) LODO SW below skip-r1 and random: {M['SW'] < M['skip-r1'] and M['SW'] < M['random']}",
             f"(2) fresh SW within 0.3 of the better of skip-r1 and random: {Fm['SW'] <= bestF + 0.3}",

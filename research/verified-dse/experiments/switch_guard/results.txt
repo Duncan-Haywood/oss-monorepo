@@ -1,0 +1,160 @@
+# Milestone 111: a cost-ratio switch and a routed-pilot guard, chosen on 26 held-out designs, tested on the fresh pool (cached tables, no flow run)
+
+## Chosen parameters (mean regret on the 52 held-out cells)
+
+skip-r1: None -> in-sample 4.38%, leave-one-design-out 4.38%
+random: None -> in-sample 2.29%, leave-one-design-out 2.29%
+SW: 3 -> in-sample 1.66%, leave-one-design-out 1.66%
+G: (6, -1) -> in-sample 2.32%, leave-one-design-out 3.11%
+SWG: (3, (6, -1)) -> in-sample 1.59%, leave-one-design-out 1.59%
+
+## Grids on the held-out cells (mean regret %, worst cell %)
+
+SW theta=1.5: 4.42, worst 49.85, skip-r1 cells 47
+SW theta=2: 4.53, worst 49.85, skip-r1 cells 39
+SW theta=2.5: 2.72, worst 29.22, skip-r1 cells 31
+SW theta=3: 1.66, worst 13.17, skip-r1 cells 23
+SW theta=4: 1.91, worst 13.17, skip-r1 cells 19
+SW theta=5: 2.37, worst 13.17, skip-r1 cells 15
+SW theta=6: 2.31, worst 13.17, skip-r1 cells 12
+SW theta=8: 2.31, worst 13.17, skip-r1 cells 12
+G p=3 tau0=-1: 2.58, worst 28.11, mean fall-back share 0.00
+G p=3 tau0=0: 2.62, worst 22.77, mean fall-back share 0.18
+G p=3 tau0=0.2: 2.55, worst 22.33, mean fall-back share 0.21
+G p=3 tau0=0.4: 2.35, worst 15.65, mean fall-back share 0.49
+G p=4 tau0=-1: 2.34, worst 26.86, mean fall-back share 0.00
+G p=4 tau0=0: 2.37, worst 21.14, mean fall-back share 0.12
+G p=4 tau0=0.2: 2.44, worst 21.14, mean fall-back share 0.23
+G p=4 tau0=0.4: 2.36, worst 17.47, mean fall-back share 0.40
+G p=6 tau0=-1: 2.32, worst 21.80, mean fall-back share 0.00
+G p=6 tau0=0: 2.39, worst 20.29, mean fall-back share 0.12
+G p=6 tau0=0.2: 2.42, worst 18.38, mean fall-back share 0.19
+G p=6 tau0=0.4: 2.37, worst 16.29, mean fall-back share 0.32
+
+## Per cell, held-out (G and SWG at their chosen parameters)
+
+table | clock | design | routed/r2 | k | skip-r1 % | random % | SW % | G % | G fall-back | SWG %
+fanout_rich | relaxed | bcastadd64 | 4.68 | 16 | 0.00 | 3.04 | 0.00 | 0.00 | 0.00 | 0.00
+fanout_rich | tight | bcastadd64 | 5.62 | 15 | 0.36 | 1.03 | 0.36 | 0.31 | 0.00 | 0.31
+fanout_rich | relaxed | fanao96 | 2.87 | 22 | 10.67 | 0.65 | 0.65 | 6.58 | 0.00 | 0.65
+fanout_rich | tight | fanao96 | 2.88 | 22 | 11.56 | 0.52 | 0.52 | 6.94 | 0.00 | 0.52
+hostile | relaxed | bcastmix192 | 2.05 | 33 | 49.85 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+hostile | tight | bcastmix192 | 2.06 | 33 | 49.85 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+hostile | relaxed | cmp128 | 1.53 | 35 | 0.00 | 3.03 | 3.03 | 0.00 | 0.00 | 3.03
+hostile | tight | cmp128 | 1.65 | 33 | 0.00 | 0.64 | 0.64 | 0.00 | 0.00 | 0.64
+hostile | relaxed | gf2mat48 | 2.69 | 23 | 1.14 | 0.10 | 0.10 | 0.65 | 0.00 | 0.10
+hostile | tight | gf2mat48 | 13.01 | 11 | 0.00 | 1.40 | 0.00 | 0.00 | 0.00 | 0.00
+hostile | relaxed | rotmix64 | 2.96 | 22 | 0.00 | 7.06 | 7.06 | 0.00 | 0.00 | 7.06
+hostile | tight | rotmix64 | 3.21 | 21 | 0.00 | 5.55 | 0.00 | 0.00 | 0.00 | 0.00
+hostile | relaxed | xbar16 | 3.16 | 21 | 0.00 | 2.87 | 0.00 | 0.00 | 0.00 | 0.00
+hostile | tight | xbar16 | 4.85 | 16 | 0.00 | 9.98 | 0.00 | 0.00 | 0.00 | 0.00
+large | relaxed | adder_op64 | 2.19 | 27 | 0.00 | 0.69 | 0.69 | 0.00 | 0.00 | 0.69
+large | tight | adder_op64 | 3.04 | 21 | 0.00 | 1.17 | 0.00 | 0.00 | 0.00 | 0.00
+large | relaxed | adder_ripple64 | 1.39 | 39 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+large | tight | adder_ripple64 | 2.33 | 26 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+large | relaxed | mult16 | 3.74 | 19 | 0.00 | 3.36 | 0.00 | 0.00 | 0.00 | 0.00
+large | tight | mult16 | 8.94 | 12 | 0.74 | 0.86 | 0.74 | 1.26 | 0.00 | 1.26
+large | relaxed | mult24 | 5.87 | 15 | 11.35 | 3.30 | 11.35 | 7.29 | 0.00 | 7.29
+large | tight | mult24 | 14.76 | 10 | 0.00 | 1.18 | 0.00 | 0.29 | 0.00 | 0.29
+large | relaxed | mult32 | 8.18 | 13 | 13.17 | 4.58 | 13.17 | 8.34 | 0.00 | 8.34
+large | tight | mult32 | 19.86 | 10 | 0.00 | 2.35 | 0.00 | 0.53 | 0.00 | 0.53
+nonarith | relaxed | alu32 | 1.91 | 29 | 0.00 | 1.25 | 1.25 | 0.00 | 0.00 | 1.25
+nonarith | tight | alu32 | 2.43 | 25 | 0.00 | 2.28 | 2.28 | 8.52 | 0.00 | 2.28
+nonarith | relaxed | barrel128 | 4.03 | 18 | 0.00 | 5.52 | 0.00 | 0.00 | 0.00 | 0.00
+nonarith | tight | barrel128 | 4.01 | 18 | 0.00 | 5.48 | 0.00 | 0.00 | 0.00 | 0.00
+nonarith | relaxed | barrel64 | 2.50 | 24 | 29.22 | 6.99 | 6.99 | 20.75 | 0.00 | 6.99
+nonarith | tight | barrel64 | 2.51 | 24 | 26.26 | 7.00 | 7.00 | 21.80 | 0.00 | 7.00
+nonarith | relaxed | popcount128 | 1.93 | 30 | 0.00 | 0.56 | 0.56 | 0.20 | 0.00 | 0.56
+nonarith | tight | popcount128 | 2.77 | 23 | 0.00 | 0.84 | 0.84 | 0.10 | 0.00 | 0.84
+nonarith | relaxed | popcount64 | 1.57 | 34 | 0.00 | 0.33 | 0.33 | 1.59 | 0.00 | 0.33
+nonarith | tight | popcount64 | 2.22 | 26 | 0.00 | 0.57 | 0.57 | 2.40 | 0.00 | 0.57
+unfaithful | relaxed | mult20 | 5.76 | 15 | 0.00 | 4.43 | 0.00 | 7.69 | 0.00 | 7.69
+unfaithful | tight | mult20 | 16.72 | 10 | 0.00 | 2.74 | 0.00 | 0.85 | 0.00 | 0.85
+unfaithful | relaxed | mult28 | 8.35 | 13 | 6.89 | 2.69 | 6.89 | 5.15 | 0.00 | 5.15
+unfaithful | tight | mult28 | 21.02 | 9 | 0.00 | 3.48 | 0.00 | 0.00 | 0.00 | 0.00
+unfaithful | relaxed | mult36 | 9.75 | 12 | 6.46 | 2.68 | 6.46 | 4.07 | 0.00 | 4.07
+unfaithful | tight | mult36 | 21.69 | 9 | 0.00 | 3.83 | 0.00 | 0.00 | 0.00 | 0.00
+unfaithful | relaxed | mult40 | 9.99 | 12 | 8.52 | 6.40 | 8.52 | 7.04 | 0.00 | 7.04
+unfaithful | tight | mult40 | 22.02 | 9 | 0.00 | 2.33 | 0.00 | 0.76 | 0.00 | 0.76
+unseen | relaxed | crc32 | 1.60 | 34 | 0.00 | 0.04 | 0.04 | 0.00 | 0.00 | 0.04
+unseen | tight | crc32 | 2.03 | 28 | 0.00 | 0.48 | 0.48 | 3.49 | 0.00 | 0.48
+unseen | relaxed | decmux64 | 1.24 | 42 | 0.00 | 0.53 | 0.53 | 0.00 | 0.00 | 0.53
+unseen | tight | decmux64 | 1.32 | 40 | 0.00 | 0.50 | 0.50 | 0.00 | 0.00 | 0.50
+unseen | relaxed | prio64 | 1.21 | 42 | 0.00 | 0.28 | 0.28 | 0.00 | 0.00 | 0.28
+unseen | tight | prio64 | 1.32 | 39 | 0.00 | 0.62 | 0.62 | 0.00 | 0.00 | 0.62
+unseen | relaxed | sbox | 1.68 | 33 | 1.59 | 0.37 | 0.37 | 2.69 | 0.00 | 0.37
+unseen | tight | sbox | 1.89 | 30 | 0.00 | 1.31 | 1.31 | 0.00 | 0.00 | 1.31
+unseen | relaxed | sort8x8 | 2.11 | 27 | 0.00 | 1.43 | 1.43 | 0.88 | 0.00 | 1.43
+unseen | tight | sort8x8 | 2.72 | 23 | 0.00 | 0.79 | 0.79 | 0.31 | 0.00 | 0.79
+
+## fresh pool (test): 20 cells, parameters fixed on the held-out cells
+
+clock | design | routed/r2 | k | skip-r1 % | random % | SW % | G % | G fall-back | SWG %
+relaxed | adder_op16 | 1.47 | 72 | 0.00 | 0.23 | 0.23 | 0.00 | 0.00 | 0.23
+tight | adder_op16 | 1.70 | 63 | 1.56 | 0.09 | 0.09 | 4.24 | 0.00 | 0.09
+relaxed | adder_ripple16 | 1.34 | 79 | 0.00 | 2.41 | 2.41 | 0.00 | 0.00 | 2.41
+tight | adder_ripple16 | 1.59 | 68 | 0.00 | 4.58 | 4.58 | 0.00 | 0.00 | 4.58
+relaxed | alu8 | 1.46 | 73 | 0.00 | 0.04 | 0.04 | 0.00 | 0.00 | 0.04
+tight | alu8 | 1.48 | 72 | 2.20 | 0.78 | 0.78 | 2.97 | 0.00 | 0.78
+relaxed | barrel16 | 1.53 | 69 | 0.00 | 0.79 | 0.79 | 0.00 | 0.00 | 0.79
+tight | barrel16 | 1.63 | 66 | 0.00 | 1.52 | 1.52 | 0.00 | 0.00 | 1.52
+relaxed | cmp_sat12 | 1.41 | 75 | 0.00 | 1.08 | 1.08 | 0.00 | 0.00 | 1.08
+tight | cmp_sat12 | 1.65 | 65 | 0.00 | 0.57 | 0.57 | 2.01 | 0.00 | 0.57
+relaxed | crc16 | 1.32 | 79 | 6.24 | 0.28 | 0.28 | 3.48 | 0.00 | 0.28
+tight | crc16 | 1.45 | 73 | 2.22 | 0.00 | 0.00 | 2.18 | 0.00 | 0.00
+relaxed | fifo8x4 | 2.94 | 40 | 5.19 | 3.28 | 3.28 | 4.94 | 0.00 | 3.28
+tight | fifo8x4 | 3.11 | 38 | 3.35 | 1.02 | 3.35 | 2.80 | 0.00 | 2.80
+relaxed | mac4 | 1.40 | 75 | 0.00 | 0.61 | 0.61 | 0.00 | 0.00 | 0.61
+tight | mac4 | 2.04 | 54 | 0.00 | 2.24 | 2.24 | 0.00 | 0.00 | 2.24
+relaxed | mult8 | 1.86 | 59 | 0.00 | 0.45 | 0.45 | 1.35 | 0.00 | 0.45
+tight | mult8 | 3.40 | 35 | 0.00 | 1.78 | 0.00 | 0.72 | 0.00 | 0.72
+relaxed | popcount16 | 1.36 | 78 | 0.00 | 1.24 | 1.24 | 0.00 | 0.00 | 1.24
+tight | popcount16 | 1.46 | 73 | 0.00 | 0.67 | 0.67 | 0.00 | 0.00 | 0.67
+
+fresh pool mean regret skip-r1: 1.04%, worst 6.24%; vs skip-r1 better 0, worse 0 (sign p = 1.000)
+fresh pool mean regret random: 1.18%, worst 4.58%; vs skip-r1 better 6, worse 14 (sign p = 0.115)
+fresh pool mean regret SW: 1.21%, worst 4.58%; vs skip-r1 better 5, worse 13 (sign p = 0.096)
+fresh pool mean regret G: 1.23%, worst 4.94%; vs skip-r1 better 4, worse 5 (sign p = 1.000)
+fresh pool mean regret SWG: 1.22%, worst 4.58%; vs skip-r1 better 6, worse 14 (sign p = 0.115)
+
+## milestone 1 table (second test; skip-r1 was chosen on it): 20 cells, parameters fixed on the held-out cells
+
+clock | design | routed/r2 | k | skip-r1 % | random % | SW % | G % | G fall-back | SWG %
+relaxed | adder_op16 | 1.29 | 40 | 0.00 | 1.12 | 1.12 | 4.55 | 0.00 | 1.12
+tight | adder_op16 | 1.49 | 36 | 0.00 | 3.93 | 3.93 | 12.18 | 0.00 | 3.93
+relaxed | adder_ripple16 | 1.20 | 44 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+tight | adder_ripple16 | 1.33 | 41 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+relaxed | alu8 | 1.29 | 40 | 0.00 | 0.43 | 0.43 | 0.00 | 0.00 | 0.43
+tight | alu8 | 1.43 | 37 | 0.00 | 0.87 | 0.87 | 0.00 | 0.00 | 0.87
+relaxed | barrel16 | 1.33 | 39 | 11.83 | 0.04 | 0.04 | 6.53 | 0.00 | 0.04
+tight | barrel16 | 1.38 | 38 | 6.78 | 0.03 | 0.03 | 3.09 | 0.00 | 0.03
+relaxed | cmp_sat12 | 1.24 | 41 | 0.00 | 0.56 | 0.56 | 0.00 | 0.00 | 0.56
+tight | cmp_sat12 | 1.41 | 37 | 0.00 | 0.74 | 0.74 | 2.29 | 0.00 | 0.74
+relaxed | crc16 | 1.19 | 43 | 0.00 | 0.01 | 0.01 | 0.00 | 0.00 | 0.01
+tight | crc16 | 1.29 | 40 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+relaxed | fifo8x4 | 2.21 | 27 | 0.00 | 0.51 | 0.51 | 2.37 | 0.00 | 0.51
+tight | fifo8x4 | 2.31 | 26 | 0.00 | 1.71 | 1.71 | 0.98 | 0.00 | 1.71
+relaxed | mac4 | 1.25 | 41 | 0.00 | 0.24 | 0.24 | 0.00 | 0.00 | 0.24
+tight | mac4 | 1.62 | 34 | 0.00 | 0.62 | 0.62 | 3.23 | 0.00 | 0.62
+relaxed | mult8 | 1.51 | 35 | 0.00 | 0.62 | 0.62 | 0.00 | 0.00 | 0.62
+tight | mult8 | 2.65 | 23 | 0.45 | 1.00 | 1.00 | 4.05 | 0.00 | 1.00
+relaxed | popcount16 | 1.21 | 42 | 0.00 | 0.09 | 0.09 | 0.00 | 0.00 | 0.09
+tight | popcount16 | 1.29 | 40 | 0.00 | 0.08 | 0.08 | 0.74 | 0.00 | 0.08
+
+milestone 1 table mean regret skip-r1: 0.95%, worst 11.83%; vs skip-r1 better 0, worse 0 (sign p = 1.000)
+milestone 1 table mean regret random: 0.63%, worst 3.93%; vs skip-r1 better 2, worse 15 (sign p = 0.002)
+milestone 1 table mean regret SW: 0.63%, worst 3.93%; vs skip-r1 better 2, worse 15 (sign p = 0.002)
+milestone 1 table mean regret G: 2.00%, worst 12.18%; vs skip-r1 better 2, worse 8 (sign p = 0.109)
+milestone 1 table mean regret SWG: 0.63%, worst 3.93%; vs skip-r1 better 2, worse 15 (sign p = 0.002)
+
+post hoc (lines added after the first run):
+post hoc: G fall-back share on bcastmix192 (tight, relaxed) with p = 6: tau0=0: 0.94, 0.96; tau0=0.2: 1.00, 1.00; tau0=0.4: 1.00, 1.00
+post hoc: held-out SWG vs SW per cell: better 6, worse 6, tied 40 (sign p = 1.000)
+post hoc: both test tables (40 cells): SW 0.92%, skip-r1 1.00%, random 0.91%
+
+(1) LODO SW below skip-r1 and random: True
+(2) fresh SW within 0.3 of the better of skip-r1 and random: True
+(3) best G worst cell below skip-r1's on held-out: True
+(4) G falls back in more than half the draws on bcastmix192 at both clocks: False
+(5) LODO SWG lowest of the five: True
+(6) fresh SWG within 0.3 of the better of skip-r1 and random: True

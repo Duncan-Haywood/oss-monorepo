@@ -36,3 +36,4 @@ $PY experiments/theory/pilot_rho.py; $PY experiments/theory/pilot_rho_bound.py  
 git diff --stat -- experiments   # empty again when all of the above reproduce exactly
 $PY experiments/fresh_pool/analyse.py; $PY experiments/fresh_pool/price.py   # milestones 108, 109 (no flow; experiments/fresh_pool/run.py re-runs the 2,400-point flow, about 14 min on 4 cores)
 $PY experiments/heldout_designs/replay.py   # milestone 110 (no flow; under a second)
+$PY experiments/switch_guard/rule.py   # milestone 111 (no flow; under 10 s)
