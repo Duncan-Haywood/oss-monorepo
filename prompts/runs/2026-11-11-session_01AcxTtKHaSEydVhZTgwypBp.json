@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKHaSEydVhZTgwypBp",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T05:06:54Z",
+  "ended": "2026-11-11T05:22:36Z",
+  "wall_minutes": 16.0,
+  "tokens_in": 3129250,
+  "tokens_out": 29926,
+  "cost_usd": 1.9959,
+  "tool_calls": 34,
+  "task": "Saints by Candlelight episode 91: Saint Margaret of Scotland (feast 16 November)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14704",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "run_workflow_locally --for-changes refused at first: origin/main shared no commit with HEAD in the shallow clone",
+      "fix": "git fetch --depth=40 origin main, as its message said"
+    },
+    {
+      "what": "local portfolio-pages 'Test the site builder' hit the 300 s step timeout, so the dependent build steps did not run",
+      "fix": "ran the post checks the build gates on (check_post_frontmatter, check_post_links, post_similarity) directly; CI on the PR covers the full build"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The open-PR search it suggests (search_pull_requests) is not available in cloud sessions, and `gh api search/issues` returned nothing silently. list_pull_requests with fields [number,title] worked."
+    },
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The Publishing section still names the github.io address and a 300 MB audio threshold. CLAUDE.md says the site is marisstella.app and the creative prompt's cap is 400 MB. Left alone because it is outside this run's scope."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-margaret-and-the-book-in-the-river.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight. Piece: episode 91 (renumbered from 90 after #14700 landed Macrina as 90 while this PR was open), margaret-and-the-book-in-the-river (6,150 words, text only; audio folders total 423 MB, over the 400 MB cap). Chosen because Saints had one piece in the last 15 creative commits against six for Hearth & Horizon, her feast is 16 Nov, and the bible's next-up list asks for more saints' lives. Adversarial re-read removed a grace-cup custom (folk tradition, not Turgot), a handwriting date for the Bodleian poem and a water-stain claim on the Oxford pages, all unverified; it also took 'forth' out of the slug because Turgot never names the river. Local checks: --check-script ok; node --test 14/14; check_post_frontmatter, check_post_links and post_similarity (0 pairs >= 0.25) pass; run_workflow_locally --for-changes: ventures-tests, doc-refs, page-integrity, link-contrast, control-plane-guard, sibling-links and conflict-markers pass; the portfolio-pages site build timed out locally at 300 s; agent-cross-review jobs not run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0f968895-7660-5110-aac0-ec758d8c4031",
+    "transcripts": 1,
+    "first": "2026-11-11T05:06:54Z",
+    "last": "2026-11-11T05:22:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 60,
+        "output": 29926,
+        "thinking": 8447,
+        "cache_read": 3030305,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98885,
+        "api_equivalent_usd": 1.9959,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 60,
+      "output": 29926,
+      "thinking": 8447,
+      "cache_read": 3030305,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98885,
+      "api_equivalent_usd": 1.9959,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.0,
+      "active_minutes": 16.0,
+      "model_minutes": 6.2,
+      "tool_minutes": 9.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researching Turgot and the sources plus writing and editing a 6,000-word script, a writer's estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 300.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
