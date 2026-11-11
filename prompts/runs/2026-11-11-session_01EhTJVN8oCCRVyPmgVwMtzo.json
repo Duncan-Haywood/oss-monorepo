@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVN8oCCRVyPmgVwMtzo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T02:56:03Z",
+  "ended": "2026-11-11T03:44:12Z",
+  "wall_minutes": 48.49,
+  "tokens_in": 15195664,
+  "tokens_out": 54838,
+  "cost_usd": 5.6547,
+  "tool_calls": 100,
+  "task": "Deepen (flagship 5, einvoice-preflight): score the NLCIUS, CIUS-RO, CIUS-PT and ZATCA folders of the phive-rules corpus on their CTestFiles.java good-case lists",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14672",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "First corpus run had no official rules at all: plain-node.mjs needs `npm i --no-save slimdom fontoxpath`, and without it runPlain silently reports 'unavailable', so the PINT/ZATCA drops never fired and the numbers looked far worse than they were.",
+    "Seven corpus runs started in parallel; the CIUS-PT one hung at 4.4 GB, which is how the DT-CIUS-PT-111.1 regex blow-up was found."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/phive-corpus.mjs",
+      "issue": "Header did not say the official rules need slimdom+fontoxpath installed; without them the script silently scores built-in checks only. Worth a loud warning when plainAvailable() is false (not done here)."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Top flagship (wall-framing-takeoff) is inputs_only and ai-bookkeeper's next item needs an LLM; no model endpoint or Hugging Face access from this container, so both were skipped for flagship 5."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Bare route drew research (weight 0.27); the scheduled prompt asks for revenue product work, so re-routed with --task, which picked ventures as prompt.md allows.",
+      "did": "route --task <scheduled prompt>",
+      "result": "ventures/1"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Rank 1 ai-bookkeeper's next item is the AI layer on one-off merchants, which needs a model; no Ollama, provider key or Hugging Face reachable here. Took flagship 5 (einvoice-preflight), the flagship with the clearest revenue path (EU mandates) and a buildable open item.",
+      "did": "einvoice-preflight good-case scoring",
+      "result": "4 real defects fixed, ZATCA 8->18/19"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-einvoice-official-good-cases.md",
+    "ventures/einvoice-preflight/README.md (national examples section)"
+  ],
+  "goal": null,
+  "notes": "Local verification: run_venture_tests einvoice-preflight ok (16.5s); pytest tests 368 passed incl. 3 new; run_workflow_locally --for-changes 11/16 workflows passed, the other 5 (agent-cross-review bots, portfolio-pages gate/deploy) are not runnable locally. Corpus: phive-rules 36d1f09, `--good`: PINT A-NZ 24/24, SG 15/16, ZATCA 8->18/19, NLCIUS 0/61 (54/61 with placeholder VAT/IBAN set aside), RO 0/10, PT hang -> 0/10 in ~3 s each (template placeholders). No post written about the agent doc: the README section is the agent-facing record.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4229bade-31fc-5583-9229-5a31df084a44",
+    "transcripts": 1,
+    "first": "2026-11-11T02:56:03Z",
+    "last": "2026-11-11T03:44:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 98,
+        "input": 187,
+        "output": 54838,
+        "thinking": 14983,
+        "cache_read": 15000845,
+        "cache_write_5m": 0,
+        "cache_write_1h": 194632,
+        "api_equivalent_usd": 5.6547,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 98,
+      "input": 187,
+      "output": 54838,
+      "thinking": 14983,
+      "cache_read": 15000845,
+      "cache_write_5m": 0,
+      "cache_write_1h": 194632,
+      "api_equivalent_usd": 5.6547,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 100,
+    "tools": {
+      "Bash": 96,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 48.49,
+      "active_minutes": 48.49,
+      "model_minutes": 12.27,
+      "tool_minutes": 36.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: corpus harness, reading ~140 example files, four fixes with JS+Python tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 176.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
