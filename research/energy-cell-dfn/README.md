@@ -6,6 +6,8 @@ Track 16 (`PROJECTS.md`), a fidelity check on [`energy-cell`](../energy-cell), t
 
 **Headline (modelled, stack level, one parameter set; not a tested cell).** Over the 45 designs both models could cycle, the two models rank cycle-100 energy per kilogram with Spearman correlation **0.86** (0.93 at beginning of life). The SPMe winner (143.4 Wh/kg, a session proposal) is still near the top under DFN: **3rd of 45**, at 160.9 Wh/kg against a DFN best of 163.0 for another design. The design gain survives: the SPMe winner beats the reference cell by **+31% under SPMe and +38% under DFN**. DFN reports more energy than SPMe for almost every design (mean +18.6 Wh/kg, median relative gap 9%), and the gap is far larger for a few designs (up to +127 Wh/kg). SPMe could not cycle 3 designs that DFN cycled normally.
 
+**Measured-data check (2026-11-11).** Against published discharge curves of two real cells, SPMe and DFN agree within 0.5 mV at low rate, so the data cannot separate them there; at 2C on the Ai et al. (2020) pouch cell, where the electrolyte drops to 30% of its initial salt, DFN fits the measurement to **18 mV RMSE against SPMe's 53 mV**; at 5C on the Ecker et al. (2015) cell the two differ by 6 mV and both miss by about 70 mV (see "Measured discharge curves").
+
 **Builds on.** `research/energy-cell` (code imported unchanged: parameters, mass model, bounds, logged designs); the DFN model of Doyle, Fuller and Newman (1993), *J. Electrochem. Soc.*, and the SPMe reduction as implemented in PyBaMM (Sulzer et al. 2021, *J. Open Research Software*); the `OKane2022` parameter set (O'Kane et al. 2022, *Phys. Chem. Chem. Phys.*). Citations were not re-fetched in this run; check them before reuse. No group in `prompt.md` covers battery design, and none is claimed.
 
 ![SPMe against DFN energy at cycle 100](experiments/scatter.svg)
@@ -47,6 +49,30 @@ See `experiments/results.txt` (sections A to C; every design is listed). In shor
 - **What this still does not show.** The pattern fits SPMe's reduced electrolyte treatment breaking down at high rate with thick, poorly connected electrodes, and the 2026-11-10 run ties it to salt diffusion (doubling the diffusivity removes it), but with no measured cell neither model is shown to be the accurate one.
 - **Consequence for `energy-cell`.** Its 0-score region (thick electrode, low porosity) was partly an SPMe artefact at the 5 A rate, so a search that treats it as infeasible has pruned designs DFN cycles normally (120 to 140 Wh/kg at cycle 100 here). Re-searching with a charge-rate-aware or DFN score is the natural next step.
 
+## Measured discharge curves (2026-11-11)
+Neither model had been checked against a real cell. No measured curve exists for the OKane2022 designs, so `experiments/validate_data.py` uses the two measured sets PyBaMM ships with a matching parameter set: Ecker et al. (2015a, 2015b; Kokam 7.5 Ah graphite/NMC, `Ecker2015`, 1C and 5C) and Ai et al. (2020; Enertech 2.28 Ah graphite/LCO pouch, `Ai2020`, 0.1C to 2C). Files come from `pybamm.DataLoader` (pybamm-data v1.0.2, hash-checked). SPM, SPMe and DFN are run with the published parameters, isothermal and with a lumped thermal model, on PyBaMM's default mesh, twice it and (at the highest rate) four times it. Hypotheses were logged first (`LOG.md`). Output: `experiments/validate_data.txt`, `validate_data.json`, figure `validate_data.svg`.
+
+![Measured voltage against SPM, SPMe and DFN at each cell's highest rate](experiments/validate_data.svg)
+
+Voltage RMSE against the measured curve, isothermal, finest mesh run (mV):
+
+| cell, rate | SPM | SPMe | DFN | SPMe vs DFN | DFN min. salt / initial |
+|---|---|---|---|---|---|
+| Ecker, 1C | 48.4 | 39.6 | 39.5 | 0.5 | 0.86 |
+| Ecker, 5C (4x mesh) | 78.2 | 66.5 | 70.6 | 5.7 | 0.40 |
+| Ai, 0.1C | 53.1 | 52.1 | 52.1 | 0.4 | 0.97 |
+| Ai, 0.5C | 67.6 | 54.9 | 53.1 | 3.4 | 0.84 |
+| Ai, 1C | 90.7 | 54.0 | 46.1 | 10.1 | 0.67 |
+| Ai, 2C (4x mesh) | 150.9 | 53.4 | **17.9** | 41.5 | 0.30 |
+
+- **At low rate the data cannot tell SPMe from DFN** (H2 supported). At Ai 0.1C and Ecker 1C the two models differ by 0.4 and 0.5 mV, against 40 to 52 mV of error each against the measurement; that error sits in the open-circuit curve and the end-of-discharge knee (over the first 90% of the time it is 7 and 17 mV).
+- **At high rate the answer depends on the cell** (H1 split). On the Ai cell at 2C, DFN fits the measured curve to 18 mV against SPMe's 53 mV, and its discharge time to 2.1% against 3.6%, on every mesh: here the electrolyte drops to 30% of its initial concentration and SPMe's reduced electrolyte overestimates the late-discharge voltage. On the Ecker cell at 5C the two models differ by only 5.7 mV, SPMe is 4 mV closer to the data, and both miss by 55 to 70 mV; on the 1x mesh the lumped thermal model removes about 26 mV of that (81 / 86 to 55 / 58 mV), more than the mesh refinement (15 mV) and far more than the choice between the models. The SPMe&ndash;DFN difference grows as the electrolyte empties (0.4 mV at 97% of the initial salt, 10 mV at 67%, 41 mV at 30% on the Ai cell), which matches the mechanism found above.
+- **Mesh matters at 5C.** The Ecker 5C errors move by 15 mV between PyBaMM's default mesh and 4x (DFN 85.6, 73.0, 70.6 mV); every other case moves by under 1 mV. A 5C comparison on the default mesh would have reported SPMe and DFN both 15 mV worse than they are.
+- **Thermal.** The lumped model helps the Ecker cell at 5C and hurts the Ai cell at 2C (DFN 46 mV against 18 isothermal). The Ai measurements were taken with the cell's surface temperature logged (files `*_discharge_T.txt`), which this run does not use; how the original authors held temperature is not settled here.
+- **What this means for the designs above.** Neither measured case reaches the near-zero salt concentration where SPMe failed on the `energy-cell` designs (the lowest is 30%). In the deepest-depletion measured case, the full model is the one that matches the cell, which supports reading DFN, not SPMe, in the thick-electrode region; it does not validate either model at the OKane2022 designs, which no measured curve covers.
+- Sources: Ecker et al. 2015a, *J. Electrochem. Soc.* 162, A1836, doi:10.1149/2.0551509jes (parameters); Ecker et al. 2015b, *J. Electrochem. Soc.* 162, A1849, doi:10.1149/2.0541509jes (validation curves); Ai et al. 2020, *J. Electrochem. Soc.* 167, 013512, doi:10.1149/2.0122001JES; SPMe as derived by Marquis et al. 2019, *J. Electrochem. Soc.* 166, A3693, doi:10.1149/2.0341915jes; DFN, Doyle, Fuller and Newman 1993, *J. Electrochem. Soc.* 140, 1526, doi:10.1149/1.2221597. Bibliographic details taken from PyBaMM's `CITATIONS.bib`; `cite_check.py` could not resolve the DOIs in this run (doi.org refused by the proxy), so they are not independently checked.
+- Limits: two cells, one published parameter set each, constant-current discharge only, no charge and no ageing; RMSE includes the first rest point and the knee. The Ecker curves are 31 and 33 points (digitised in the PyBaMM data set); the Ai curves are logged at 1 s.
+
 ## Direct DFN search (2026-11-01)
 `experiments/dfn_search.py` runs the `energy-cell` proposers (random, Gaussian-process Bayesian) with the same 30-evaluation budget but scoring every candidate with DFN (cycle-100 Wh/kg). Outputs: `experiments/dfn_search_<proposer><seed>.json`. 2 seeds per proposer, so this shows a size, not a ranking.
 | proposer, seed | best DFN Wh/kg | design (positive thickness &micro;m, pos. porosity, neg. porosity, N/P) | zero scores |
@@ -62,14 +88,14 @@ See `experiments/results.txt` (sections A to C; every design is listed). In shor
 
 ## Limitations
 - 49 designs, one cell, one parameter set, one protocol. The designs were chosen to spread across the SPMe ranking, so the correlation is not the one over the whole search space or over what a search visits.
-- Both models use the same degradation submodels and the same parameters; DFN giving more energy is not evidence that it is closer to a real cell. No measured data is used, so neither model is validated here.
+- Both models use the same degradation submodels and the same parameters; DFN giving more energy is not evidence that it is closer to a real cell. The measured-data check uses two other cells (Ecker 2015, Ai 2020), not the OKane2022 cell, so the designs themselves are not validated.
 - Stack-level mass only (no casing or tabs), as in `energy-cell`.
 
 ## Next steps
-Compare plating once the variable name is found; measure DFN's negative-electrode reaction distribution during the charge (not at the step start, see diagnose6); find how far the diffusivity can drop before the SPMe winners' ranking changes, since the failing region is set by it; more DFN-search seeds and a tuned GP; compare both models with measured discharge curves.
+Compare plating once the variable name is found; measure DFN's negative-electrode reaction distribution during the charge (not at the step start, see diagnose6); find how far the diffusivity can drop before the SPMe winners' ranking changes, since the failing region is set by it; more DFN-search seeds and a tuned GP; fit the Ai cell's temperature data to settle the thermal option; find measured LG M50 curves at 2C or above (the OKane2022 cell) and repeat the measured-data check there; add measured charge curves, since the SPMe collapse happens on charge.
 
 ## Reproduce
-`python experiments/run.py select|dfn|report`, then `python experiments/figure.py` (needs numpy, scipy, pybamm; `dfn` needs a lot of RAM headroom and takes about 30 minutes). Tests: `pytest research/energy-cell-dfn/tests`.
+`python experiments/run.py select|dfn|report`, then `python experiments/figure.py` (needs numpy, scipy, pybamm; `dfn` needs a lot of RAM headroom and takes about 30 minutes). Measured-data check: `python experiments/validate_data.py` (about 10 minutes on 4 cores; downloads the data on first run; two 4x DFN runs at once ran out of a 16 GB machine's memory, so those run one at a time), then `python experiments/validate_figure.py`. Tests: `pytest research/energy-cell-dfn/tests`.
 
 ## Outside dependencies
 PyBaMM and its parameter data. Cell fabrication, cycling and measured parameters are owner steps.

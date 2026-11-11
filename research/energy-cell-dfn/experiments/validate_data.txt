@@ -1,0 +1,27 @@
+Measured-data check: voltage RMSE [mV] against data over the time both cover; body = RMSE over the
+first 90% of the data's time (no end-of-discharge knee); t_err = model time to a common voltage level
+(0.05 V above the highest end voltage) minus the data's, % of the data's; ce_min = DFN minimum
+electrolyte concentration / initial. Constant-current discharge, parameters as published in PyBaMM
+26.10.1.1; mesh = multiple of PyBaMM's default points in every dimension.
+
+cell      C thermal mesh     SPM rmse  body   t_err  SPMe rmse  body   t_err   DFN rmse  body   t_err  SPMe-DFN  SPM-DFN  ce_min
+Ecker   1.0 iso     1x           48.4  26.0   +1.0%       39.6  17.0   +0.9%       39.5  16.7   +0.9%       0.5     14.2    0.86
+Ecker   1.0 iso     2x           48.4  26.1   +1.0%       39.6  17.1   +0.9%       39.5  16.8   +0.9%       0.5     14.3    0.86
+Ecker   1.0 lumped  1x           48.5  26.1   +1.0%       39.8  17.1   +0.9%       39.7  16.8   +0.9%       0.5     14.2    0.86
+Ecker   5.0 iso     1x           82.1  81.0   -1.2%       81.4  35.1   -2.3%       85.6  37.2   -2.4%       5.5     79.8    0.40
+Ecker   5.0 iso     2x           78.4  82.9   -0.7%       68.8  32.5   -1.9%       73.0  34.4   -2.0%       5.6     79.8    0.40
+Ecker   5.0 iso     4x           78.2  83.7   -0.7%       66.5  32.2   -1.8%       70.6  34.1   -1.9%       5.7     80.0    0.40
+Ecker   5.0 lumped  1x           79.2  86.1   -0.5%       55.1  31.3   -1.4%       57.9  32.0   -1.5%       4.9     71.2    0.41
+Ai      0.1 iso     1x           53.1   4.7   +4.3%       52.1   7.0   +4.3%       52.1   7.1   +4.3%       0.4      5.6    0.97
+Ai      0.1 iso     2x           53.1   4.7   +4.3%       52.1   7.0   +4.3%       52.1   7.2   +4.3%       0.4      5.6    0.97
+Ai      0.1 lumped  1x           53.0   4.7   +4.3%       52.1   7.0   +4.3%       52.1   7.1   +4.3%       0.4      5.6    0.97
+Ai      0.5 iso     1x           67.7  30.1   +4.4%       54.9   8.3   +4.3%       53.2   6.9   +4.3%       3.3     27.9    0.84
+Ai      0.5 iso     2x           67.6  30.1   +4.4%       54.9   8.3   +4.3%       53.1   6.9   +4.3%       3.4     28.1    0.84
+Ai      0.5 lumped  1x           67.5  30.0   +4.4%       55.0   8.5   +4.3%       53.5   7.1   +4.3%       3.2     27.3    0.85
+Ai      1.0 iso     1x           90.8  65.2   +4.6%       54.0  19.7   +4.2%       46.3  14.7   +4.1%      10.0     58.4    0.67
+Ai      1.0 iso     2x           90.7  65.1   +4.6%       54.0  19.7   +4.2%       46.1  14.5   +4.1%      10.1     58.9    0.67
+Ai      1.0 lumped  1x           90.6  65.0   +4.7%       55.6  21.3   +4.3%       49.2  17.2   +4.2%       8.7     54.5    0.70
+Ai      2.0 iso     1x          151.0 135.4   +5.0%       53.3  35.4   +3.6%       18.6  15.1   +2.1%      41.0    137.8    0.30
+Ai      2.0 iso     2x          150.9 135.3   +5.0%       53.4  35.5   +3.6%       18.1  14.6   +2.1%      41.3    138.7    0.30
+Ai      2.0 iso     4x          150.9 135.3   +5.0%       53.4  35.5   +3.6%       17.9  14.3   +2.1%      41.5    139.2    0.30
+Ai      2.0 lumped  1x          150.7 135.1   +5.1%       66.6  47.4   +4.1%       46.3  35.5   +3.7%      24.9    109.1    0.47
