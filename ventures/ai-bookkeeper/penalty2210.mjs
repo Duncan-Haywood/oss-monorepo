@@ -19,7 +19,14 @@
 // show otherwise"); pass `withheld` [{ date, cents }] to treat it as paid on the dates actually
 // withheld, which is what checking box D does. Either way withholding never goes on the
 // worksheet's line 1b ("Do not enter any withheld federal income tax ... on line 1b").
-// Not modelled: the January 31 return-and-pay rule for column (d), waivers, fiscal
+// January 31 rule (added 2026-11-11, same instructions, "Line 11"): "If you file your return and pay
+// the tax due by January 31, 2026, include on line 11, column (d), the amount of tax you pay with
+// your tax return. In this case, you won't owe a penalty for the payment due on January 15, 2026."
+// A payment marked { withReturn: true } dated after the January due date and by January 31 goes in
+// column (d), and the worksheet applies what is left of it to earlier columns only. Filed later it
+// is an ordinary payment dated the filing day (Table 1). The printed date is used; whether a
+// weekend moves it is not checked.
+// Not modelled: waivers, fiscal
 // years, farmers and fishers, Form 1040-NR's two-column variant. Day counts use the printed dates
 // (4/15, 6/15, 9/15, 1/15) as the worksheet does; a payment made by the date moved for a weekend
 // or holiday (IRC 7503, `estimatedDueDates`) counts as on time. Amounts are cents.
@@ -58,7 +65,7 @@ export function ratePeriods(year, rates = {}) {
     let rate = rates[key] ?? UNDERPAYMENT_RATES[key];
     if (rate === undefined) {
       rate = UNDERPAYMENT_RATES[LAST_ON_FILE];
-      warnings.push(`No IRS underpayment rate on file for ${key.replace("-", " Q")}; ${rate * 100}% (the last one on file, ${LAST_ON_FILE.replace("-", " Q")}) is used. Check irs.gov/payments/quarterly-interest-rates or pass rates.`);
+      warnings.push(`No IRS underpayment rate on file for ${key.replace("-", " Q")}; ${+(rate * 100).toFixed(4)}% (the last one on file, ${LAST_ON_FILE.replace("-", " Q")}) is used. Check irs.gov/payments/quarterly-interest-rates or pass rates.`);
     }
     return { start, end, rate, key };
   });
@@ -91,7 +98,8 @@ export function sectionA(required, credits) {
 // [{ date: "YYYY-MM-DD", cents }]; an overpayment from last year's return is a payment dated
 // April 15 (instructions, Table 1). With `withheld` (box D, an array of the same shape) each
 // withholding counts in the column whose window holds its date, like a payment.
-const inColumn = (due, j) => (p) => p.date <= due[j] && (j === 0 || p.date > due[j - 1]);
+const withEarlyReturn = (due, p) => !!p.withReturn && p.date > due[3] && p.date <= `${+due[3].slice(0, 4)}-01-31`;
+const inColumn = (due, j) => (p) => (withEarlyReturn(due, p) ? j === 3 : p.date <= due[j] && (j === 0 || p.date > due[j - 1]));
 const total = (xs) => xs.reduce((s, p) => s + Math.max(0, p.cents || 0), 0);
 export function creditsByColumn(year, payments = [], withholding = 0, withheld = null) {
   const due = estimatedDueDates(year);
@@ -126,6 +134,7 @@ export function penaltyWorksheet(year, underpayments, payments = [], opts = {}) 
     let amount = p.cents;
     for (let j = 0; j < 4 && amount > 0; j++) {
       if (!(p.date > due[j]) || left[j] <= 0) continue;
+      if (j === 3 && withEarlyReturn(due, p)) continue; // already on line 11, column (d)
       const use = Math.min(left[j], amount);
       applied[j].push({ date: p.date, cents: use });
       left[j] -= use;

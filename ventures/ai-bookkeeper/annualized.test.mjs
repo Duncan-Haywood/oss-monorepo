@@ -122,3 +122,17 @@ test("under $1,000 of tax after withholding owes no penalty", () => {
   assert.equal(r.penalty.exempt, true);
   assert.equal(r.penalty.regular, 0);
 });
+
+test("tax paid with a return filed by January 31 removes the January 15 penalty", () => {
+  const b = books([["2025-10-01", "60000.00"]]);
+  const q = annualizedInstallments(b, { year: 2025 }).regularQuarter;
+  const jan15 = annualizedInstallments(b, { year: 2025, payments: [{ date: "2026-01-15", cents: q * 4 }] });
+  const filed = annualizedInstallments(b, { year: 2025, payments: [{ date: "2026-01-30", cents: q * 4, withReturn: true }] });
+  // Filed January 30 it lands in column (d) as a January 15 payment would; the earlier columns of
+  // the regular method run 15 more days, and Schedule AI (nothing due before January) owes nothing.
+  assert.equal(filed.penalty.annualized, 0);
+  assert.ok(filed.penalty.regular > jan15.penalty.regular);
+  assert.equal(filed.rows[3].creditsByDue, q * 4);
+  assert.ok(!filed.warnings.some((w) => /January 31 \(mark it/.test(w)));
+  assert.ok(jan15.warnings.some((w) => /January 31 \(mark it/.test(w)));
+});
