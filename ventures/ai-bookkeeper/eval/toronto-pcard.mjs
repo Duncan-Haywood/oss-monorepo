@@ -59,19 +59,27 @@ export const GL_MAP = {
   "4520": ["6080"], "4525": ["6080"], "4530": ["6080"], "4590": ["6080"], "4510": ["6080", "6160", "6120"],
 };
 
-export function loadToronto(csv, { field = "both" } = {}) {
+// November 2025 onwards the report uses 7-digit accounts; toronto-gl-2025.json pairs
+// each with the 4-digit account of the same description, read off the portal's rows.
+export const NEW_GL = JSON.parse(readFileSync(new URL("./toronto-gl-2025.json", import.meta.url), "utf8")).pairs;
+const glWant = (g) => GL_MAP[g] ?? GL_MAP[NEW_GL[g]];
+
+export function loadToronto(csv, { field = "both", division = null } = {}) {
   const rows = parseCsv(csv);
   const h = rows[0].map((x) => String(x).trim());
   const col = (name) => h.indexOf(name);
-  const c = { date: col("Transaction Date"), desc: col("Merchant Name"), amt: col("Transaction Amt."), gl: col("G/L Account"), code: col("Merchant Type"), name: col("Merchant Type Description") };
+  const c = { date: col("Transaction Date"), desc: col("Merchant Name"), amt: col("Transaction Amt."), gl: col("G/L Account"), code: col("Merchant Type"), name: col("Merchant Type Description"), div: col("Division") };
   const out = [];
   for (const r of rows.slice(1)) {
-    const date = String(r[c.date] ?? "").trim(), amount = Number(r[c.amt]), want = GL_MAP[String(r[c.gl] ?? "").trim()];
+    // The portal's CSV prints "2025-07-02 00:00:00"; the 2017 workbook prints the date alone.
+    const date = String(r[c.date] ?? "").trim().slice(0, 10), amount = Number(r[c.amt]), want = glWant(String(r[c.gl] ?? "").trim());
     // Rows with no date are the report's per-card subtotals.
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !want || !Number.isFinite(amount) || amount <= 0) continue;
+    const div = c.div === -1 ? "" : String(r[c.div] ?? "").trim();
+    if (division && div !== division) continue;
     const code = String(r[c.code] ?? "").trim(), name = String(r[c.name] ?? "").trim();
     const mcc = field === "code" ? code : field === "name" ? name : [code, name].filter(Boolean).join(" ");
-    out.push({ desc: String(r[c.desc] ?? "").trim(), date, cents: -Math.round(amount * 100), mcc, want });
+    out.push({ desc: String(r[c.desc] ?? "").trim(), date, cents: -Math.round(amount * 100), mcc, want, ...(div ? { division: div } : {}) });
   }
   return out.sort((a, b) => a.date.localeCompare(b.date));
 }
@@ -81,7 +89,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const bytes = readFileSync(arg("--file"));
   const csv = looksLikeXlsx(bytes) ? await xlsxToCsv(new Uint8Array(bytes)) : bytes.toString("utf8");
   const field = arg("--field", "both");
-  const rows = loadToronto(csv, { field });
+  const rows = loadToronto(csv, { field, division: arg("--division") });
   const skip = new Set((arg("--skip") ?? "").split(",").filter(Boolean));
   const o = replay(rows, { skip });
   const pct = (a, b) => (b ? (100 * a / b).toFixed(1) + "%" : "-");

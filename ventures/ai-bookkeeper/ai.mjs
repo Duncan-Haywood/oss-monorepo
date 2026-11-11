@@ -7,7 +7,8 @@
 // Guard rails, because a bookkeeping error is quiet and expensive:
 //  * the model only suggests; nothing it says is posted until a person accepts it;
 //  * an answer naming an account that is not in the chart is dropped;
-//  * only the review lines' dates, descriptions and amounts are sent, plus the
+//  * only the review lines' dates, descriptions, amounts and (on card lines that
+//    carry one) the network's merchant category are sent, plus the
 //    chart of accounts and up to 40 lines the user already confirmed as examples.
 import { complete, withFallback } from "./byok.mjs";
 import { accountMap, dollars } from "./ledger.mjs";
@@ -17,6 +18,7 @@ export const SYSTEM = [
   "A positive amount is money into the bank or card account; a negative amount is money out.",
   "Money out is usually an expense, an asset purchase, a loan or card payment (a liability), or an owner draw (equity). Money in is usually income, a loan, an owner contribution or a refund.",
   "Follow the examples of how this business filed past lines when the payee matches.",
+  "A card line may carry the card network's merchant category (a 4-digit code and its name): it says what kind of business the merchant is, which helps when the merchant's name does not.",
   "If you cannot tell, use the uncategorized account and say why in the reason. Never invent an account.",
   'Answer with JSON only, no prose and no code fence: {"lines":[{"id":"...","account":"<code>","confidence":0.0,"reason":"<under 15 words>"}]}',
 ].join("\n");
@@ -24,12 +26,14 @@ export const SYSTEM = [
 export function aiPrompt(books, lines, { examples = 40 } = {}) {
   const map = accountMap(books.accounts);
   const chart = books.accounts.map((a) => `${a.code} ${a.name} (${a.type})`).join("\n");
-  const past = books.transactions.filter((t) => t.status === "confirmed").slice(-examples).map((t) => `${dollars(t.cents)} | ${t.desc} => ${t.posted} ${map.get(t.posted)?.name ?? ""}`);
-  const rows = lines.map((t) => JSON.stringify({ id: t.id, date: t.date, bank_account: map.get(t.account)?.name, amount: dollars(t.cents), description: t.desc }));
+  // The card network's merchant category, when the statement carried one (mcc.mjs).
+  const cat = (t) => (t.mcc ? ` [${t.mcc}]` : "");
+  const past = books.transactions.filter((t) => t.status === "confirmed").slice(-examples).map((t) => `${dollars(t.cents)} | ${t.desc}${cat(t)} => ${t.posted} ${map.get(t.posted)?.name ?? ""}`);
+  const rows = lines.map((t) => JSON.stringify({ id: t.id, date: t.date, bank_account: map.get(t.account)?.name, amount: dollars(t.cents), description: t.desc, ...(t.mcc ? { merchant_category: t.mcc } : {}) }));
   return [
     `Business: ${books.name || "a small business"}`,
     "Chart of accounts:", chart,
-    past.length ? "Lines this business already filed (amount | description => account):" : "",
+    past.length ? "Lines this business already filed (amount | description [merchant category, if any] => account):" : "",
     ...past,
     "Lines to file:", ...rows,
   ].filter(Boolean).join("\n");

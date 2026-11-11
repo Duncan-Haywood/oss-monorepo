@@ -113,3 +113,14 @@ test("parseReply keeps a bare array as is, and the prompt caps past examples at 
   assert.doesNotMatch(p, /PAST4\b/);
   assert.match(p, /PAST44/);
 });
+
+test("a card line's merchant category goes to the model; a line without one sends no field", () => {
+  const csv = "Date,Description,Amount,MCC\n2026-01-03,ZQX 4411 TORONTO,-30.00,5251\n2026-01-04,MYSTERY LLC,-12.00,\n";
+  const b = importStatement(newBooks(), csv, "2000").books;
+  const [withCode, without] = b.transactions;
+  assert.equal(withCode.mcc, "5251");
+  const p = aiPrompt(b, b.transactions);
+  const rows = p.split("Lines to file:")[1].trim().split("\n").map((l) => JSON.parse(l));
+  assert.equal(rows.find((r) => r.id === withCode.id).merchant_category, "5251");
+  assert.equal("merchant_category" in rows.find((r) => r.id === without.id), false);
+});
