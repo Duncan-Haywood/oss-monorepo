@@ -9867,8 +9867,15 @@ const CHROME_CSS = `
  *
  * The mark is the one literal colour here, and it is not text: it is the
  * site's logo (pf-site.css draws the same compass-star mark), so it reads as one
- * site on every venture palette instead of a blot of the host's ink. */
-body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0}
+ * site on every venture palette instead of a blot of the host's ink.
+ *
+ * "First child" also allows one leading <noscript>. The JavaScript-needed
+ * notice (addNoscriptNotice, 2026-11-09) is inserted right after <body>, so on
+ * the 1,900-odd tool pages that carry it the band stopped being :first-child and
+ * all three rules here stopped matching. The band sat 24px down until pf-site.js
+ * pulled it up after first paint: a layout shift of 0.027 on every one of those
+ * pages, measured with Lighthouse on wall-framing-takeoff on 2026-11-11. */
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]){padding-top:0;margin-top:0}
 .pf-chrome-top[data-pfs-head]{margin:0 0 26px;border-bottom:0;
   box-shadow:0 0 0 100vmax var(--pfs-head-bg,rgba(128,128,128,.07));clip-path:inset(0 -100vmax)}
 .pf-chrome-top .pfs-bar{padding:12px 0}
@@ -9877,8 +9884,8 @@ body:has(> .pf-chrome-top[data-pfs-head]:first-child){padding-top:0;margin-top:0
 /* The shop-rates and saved-bids bars (rates.mjs, jobs.mjs) sit under the band
  * in the same column, so they line up with the venture's content rather than
  * their own 18px inset. */
-body:has(> .pf-chrome-top[data-pfs-head]:first-child) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
-body:has(> .pf-chrome-top[data-pfs-head]:first-child) > .pf-jobs .pf-jobs-status:empty{display:none}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > :is(.pf-rates,.pf-jobs){padding-left:0;padding-right:0}
+body:has(> .pf-chrome-top[data-pfs-head]:first-child, > noscript:first-child + .pf-chrome-top[data-pfs-head]) > .pf-jobs .pf-jobs-status:empty{display:none}
 
 /* Site chrome is not part of anything a visitor prints.
  *
