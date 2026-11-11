@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
   "errors": [
     "My first header comment in eval/toronto-pcard.mjs had a placeholder commit hash and line counts written before the run; corrected from the run's own output (66321c9, 4,823 lines, 4,284 mapped) before commit.",
-    "Python run from inside the downloaded clone was refused by the auto-mode classifier (code from external); reran from outside with -I and then used the venture's own xlsx.mjs reader."
+    "Python run from inside the downloaded clone was refused by the auto-mode classifier (code from external); reran from outside with -I and then used the venture's own xlsx.mjs reader.",
+    "Portfolio validate failed on CI: my flagships.yaml next: addition took ai-bookkeeper's next to 2131 characters (cap 2000). I had run only a YAML parse locally, not portfolio/router/validate.py; shortened and re-ran validate.py locally before pushing."
   ],
   "integrity_issues": [],
   "doc_friction": [
