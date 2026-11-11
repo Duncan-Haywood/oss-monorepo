@@ -120,3 +120,33 @@ test("CSV and formatters", () => {
   assert.equal(money2(12.5), "$12.50");
   assert.equal(pct(0.1234), "12.3%");
 });
+
+// Quality audit 2026-11-10 (portfolio/quality/audits/2026-11-10-tire-shop-ticket-margin-calculator.json):
+// "Tires,$1,200,800,60,100" parsed as price $1, parts $200 with no warning.
+test("a thousands comma is read inside quotes or a tab paste, and refused when unquoted", () => {
+  const q = parseItems('Tires,"$1,200",800,60,100');
+  assert.deepEqual(q.rows[0], { name: "Tires", price: 1200, cost: 800, minutes: 60, attach: 100 });
+  assert.equal(parseItems("Tires\t$1,200\t800\t60\t100").rows[0].price, 1200);
+  const bare = parseItems("Tires,$1,200,800,60,100");
+  assert.equal(bare.rows, undefined);
+  assert.match(bare.error, /comma inside a number/);
+  // "$1" then "200" splits a number even when the column count still fits (blank attach rate).
+  const short = parseItems("Tires,$1,200,800,60\nAlign,120,8,40,30");
+  assert.equal(short.rows.length, 1);
+  assert.equal(short.rows[0].name, "Align");
+  assert.match(short.warnings[0], /1 line\(s\) not read/);
+  // A quote inside a name is text, not a CSV quote.
+  assert.equal(parseItems('17" rims,720,520,50').rows[0].name, '17" rims');
+});
+
+// Same audit: the discount test ran only at 0% fee, so dropping (1 - fee) survived.
+test("discount loss nets out the card fee: 100 x 10% x (1 - 3%) = 9.70", () => {
+  const r = analyze(rows("T,100,60,0,100"), { ticketsPerMonth: 100, cardFeePct: 3, laborCostPerHour: 0, overheadMonthly: 0 });
+  const cut = r.discounts[0].cuts[1];
+  near(cut.perTicketLoss, 9.7, 1e-9);
+  near(cut.volumeGain, 37 / 27.3 - 1, 1e-9);
+});
+
+test("an ordinary $720 price followed by a 520 cost is not mistaken for a split number", () => {
+  assert.deepEqual(parseItems("Tires,$720,520,50,100").rows[0], { name: "Tires", price: 720, cost: 520, minutes: 50, attach: 100 });
+});

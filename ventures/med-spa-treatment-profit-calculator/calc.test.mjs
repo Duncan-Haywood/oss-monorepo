@@ -85,3 +85,17 @@ test("money and pct format", () => {
   assert.equal(pct(0.4281), "42.8%");
   assert.equal(pct(null), "n/a");
 });
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-med-spa-treatment-profit-calculator.json):
+// "1,200" split on the comma and gave price $1, contribution -$705.70, with no warning.
+test("a thousands comma is read inside quotes or a tab paste, and the line is refused when unquoted", () => {
+  const q = parseTreatments('Filler,"$1,200",280,30,20\nLaser\t1,200\t12\t30\t40');
+  assert.deepEqual(q.rows.map((r) => r.price), [1200, 1200]);
+  assert.deepEqual(q.bad, []);
+  const p = parseTreatments("Botox,1,200,280,30,20");
+  assert.equal(p.rows.length, 0);
+  assert.deepEqual(p.split, ["Botox,1,200,280,30,20"]);
+  const r = analyse({ ...cfg, treatmentText: "Botox,1,200,280,30,20\nHydraFacial,220,40,50,25" });
+  assert.equal(r.result.rows ? r.result.rows.length : r.result.treatments.length, 1);
+  assert.match(r.findings[0].detail, /comma inside a number such as \$1,200/);
+});

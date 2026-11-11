@@ -8,27 +8,60 @@ export const money = (x) =>
   (x < 0 ? "-$" : "$") + Math.abs(Math.round(x)).toLocaleString("en-US");
 export const pct = (x) => (x === null || !Number.isFinite(x) ? "n/a" : (x * 100).toFixed(1) + "%");
 
+// One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
+// "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps
+// its commas ("$1,200") and "" inside it is a literal quote; a quote later in a cell (17" rims) is text.
+export function splitCells(line) {
+  const unq = (c) => { c = c.trim(); return /^".*"$/s.test(c) ? c.slice(1, -1).replace(/""/g, '"') : c; };
+  if (line.includes("\t")) return line.split("\t").map(unq);
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch !== '"') cur += ch;
+      else if (line[i + 1] === '"') { cur += '"'; i++; }
+      else q = false;
+    } else if (ch === '"' && cur.trim() === "") { cur = ""; q = true; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+// True when an unquoted thousands comma has split one number in two: more cells than the line
+// has columns, or a "$1" or "$12" cell followed by a three-digit cell ("$1,200" read as "$1" and
+// "200"). "$720,520" stays two numbers: a $720 price and a 520 cost is an ordinary line.
+// Reading on would shift every later field into the wrong column, so such a line is refused.
+export function looksSplitNumber(cells, columns) {
+  if (cells.length > columns) return true;
+  return cells.some((c, i) => /^\$\d{1,2}$/.test(c) && /^\d{3}(\.\d*)?$/.test(cells[i + 1] ?? ""));
+}
+
 // One treatment per line: name, price, product cost, minutes, visits per month.
 // Separator is a comma or a tab (so a spreadsheet paste works). Bad lines are
 // reported rather than silently dropped.
 export function parseTreatments(text) {
   const rows = [];
   const bad = [];
+  const split = [];
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const parts = line.split(/\t|,/).map((s) => s.trim());
+    const parts = splitCells(line);
     if (/^name$/i.test(parts[0])) continue; // header row from a paste
+    if (looksSplitNumber(parts, 5)) { bad.push(line); split.push(line); continue; }
     const [name, price, product, minutes, volume] = parts;
     const nums = [price, product, minutes, volume === undefined || volume === "" ? "0" : volume].map((s) =>
-      Number(String(s ?? "").replace(/[$\s]/g, "")));
+      Number(String(s ?? "").replace(/[$,\s]/g, "")));
     if (!name || parts.length < 4 || nums.some((n) => !Number.isFinite(n) || n < 0) || nums[2] <= 0) {
       bad.push(line);
       continue;
     }
     rows.push({ name, price: nums[0], product: nums[1], minutes: nums[2], volume: nums[3] });
   }
-  return { rows, bad };
+  return { rows, bad, split };
 }
 
 // cost basis for one visit. providerRate and roomRate are $/hour.
@@ -59,7 +92,7 @@ export function analyse(input) {
   const parsed = parseTreatments(input.treatmentText);
   if (parsed.bad.length) {
     findings.push({ severity: "high", title: "Some lines were not read",
-      detail: `Ignored: ${parsed.bad.join(" | ")}. Use name, price, product cost, minutes, visits per month, with minutes above zero.` });
+      detail: `Ignored: ${parsed.bad.join(" | ")}. Use name, price, product cost, minutes, visits per month, with minutes above zero.${parsed.split.length ? " A line with more values than columns usually has a comma inside a number such as $1,200: type 1200, or put the number in quotes." : ""}` });
   }
   if (!parsed.rows.length) {
     findings.push({ severity: "high", title: "Enter at least one treatment",
