@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { runCheck } from './check.mjs';
+import { runCheck, formatText } from './check.mjs';
 
 function fakeProbe(overrides = {}) {
   return {
@@ -71,4 +71,15 @@ test('runCheck defaults to the real runProbe when no probeFn is injected', async
   const { report } = await runCheck('http://127.0.0.1:1/', { timeoutMs: 500 });
   assert.equal(report.incomplete, true);
   assert.equal(report.ok, false);
+});
+
+test('a pass with no 512 icon and no start_url names them instead of claiming full compliance (quality audit 2026-11-08)', async () => {
+  const probe = fakeProbe();
+  delete probe.manifestJson.start_url;
+  const { report } = await runCheck('https://example.com/', { probeFn: async () => probe });
+  assert.equal(report.ok, true);
+  const text = formatText(report);
+  assert.match(text, /No hard install blocker found/);
+  assert.match(text, /512x512 icon, start_url/);
+  assert.doesNotMatch(text, /same criteria|Lighthouse/);
 });
