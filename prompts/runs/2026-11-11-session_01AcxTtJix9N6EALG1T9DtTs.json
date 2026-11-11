@@ -54,6 +54,12 @@
       "why": "I picked the performance item the last reports carried, not the 'weakest visible surface'. The measurement then turned up a visible defect on the hub, and I fixed that.",
       "did": "Measured three perf hypotheses (all null), shipped the hub ticker layout-shift fix and the measuring tools.",
       "result": "Hub CLS 0.087 to 0.005 under devtools Lighthouse. Hero height constant over a full word cycle."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "I fixed another run's breakage (#14774's duplicated FAQ) inside a polish PR instead of a separate one, because it was turning every PR's CI red.",
+      "did": "Deleted the duplicate section.",
+      "result": "duplicate-id check passes"
     }
   ],
   "writeups": [
@@ -61,7 +67,7 @@
     "docs/reports/polish-2026-11-11-wft-perf-hypotheses.md"
   ],
   "goal": null,
-  "notes": "Verification: node platform/pages/build.mjs exited 0. check.mjs: publishable, no dead links. node --test platform/pages/*.test.mjs: 1533/1536 pass; the 3 failures were the post description length, now fixed, and build.test.mjs was rerun. ticker-fit.test.mjs fails 3 of 5 with the fix removed.",
+  "notes": "Verification: node platform/pages/build.mjs exited 0. check.mjs: publishable, no dead links. node --test platform/pages/*.test.mjs: 1533/1536 pass; the 3 failures were the post description length, now fixed, and build.test.mjs was rerun. ticker-fit.test.mjs fails 3 of 5 with the fix removed. CI after merging main: validate and test both failed on ventures/concrete-maturity/index.html, where #14774 had pasted the FAQ section in twice (a duplicate id 'faq' and duplicated FAQ items), which broke main. I fixed it forward in this PR by removing the copy inside <main>. check_duplicate_ids passes and the concrete-maturity tests pass 32/32.",
   "corrections": [],
   "redteam": null,
   "usage": {
