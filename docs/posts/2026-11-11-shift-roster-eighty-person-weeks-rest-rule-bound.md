@@ -1,9 +1,9 @@
 ---
 title: "Shift roster builder: the rest rule as a bound, and what 80-person weeks need next"
-seo_title: "A weighted-interval Lagrangian bound for the pricing problem in staff-scheduling column generation"
+seo_title: "A rest-rule bound for pricing in staff-scheduling column generation"
 date: 2026-11-11
 tags: [scheduling, optimisation, column-generation, open-source]
-description: "On 80-person weeks the pricing oracle spent 108 of 121 seconds per root. Bounding it with the 10-hour rest rule cut its largest call from 578k nodes to 27k, and the root now finishes."
+description: "Bounding the pricing oracle by the 10-hour rest rule cut its largest call from 578k nodes to 27k; 80-person weeks now finish the root LP."
 ---
 
 Earlier today the [shift roster builder](../../ventures/shift-roster-builder/)

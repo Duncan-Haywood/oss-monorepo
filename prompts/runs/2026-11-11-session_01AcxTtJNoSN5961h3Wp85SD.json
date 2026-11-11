@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJNoSN5961h3Wp85SD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T02:06:25Z",
+  "ended": "2026-11-11T02:21:16Z",
+  "wall_minutes": 15.31,
+  "tokens_in": 6981410,
+  "tokens_out": 30326,
+  "cost_usd": 2.9843,
+  "tool_calls": 65,
+  "task": "Deepen flagship 6 (shift-roster-builder): 80-120 person weeks",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14666",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "Backgrounded the first bench with a trailing '&' inside run_in_background, so the harness notified at once and the process ran untracked; polled with until-loops instead.",
+    "A first wait loop matched the bench's header line ('80 people ...') as a data row."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/eval/cg-scale-bench.mjs",
+      "issue": "Checked ps.error, which parseShifts never sets (it returns errors[]), so a refused 120-person week printed a zero row marked proven; fixed in this PR."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The '80-120 person weeks' item did not say that 120x336 is over the tool's 400-shift cap; the item cost a run to find that out."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The top Deepen row (ai-bookkeeper) has 74 commits in 7 days, and its first open item needs the AI layer or real outside books. I took flagship 6 (shift-roster-builder), whose next item could be done here.",
+      "did": "Took the 80-person item on shift-roster-builder.",
+      "result": "Landed a measured algorithmic slice (root LP now finishes at 80 people)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-shift-roster-eighty-person-weeks-rest-rule-bound.md",
+    "ventures/shift-roster-builder/README.md (A chain bound in the pricing oracle)"
+  ],
+  "goal": null,
+  "notes": "Bench output in ventures/shift-roster-builder/eval/cg-scale-bench.out.txt. 80x224 before: root unfinished at 120 s, oracle 108 of 121 s, max call 577,737 nodes. After: max call 11.8k-57k nodes, 1 of 3 proven (281 h, 96 s), 2 rosters 4-5 h over the bound. 60x168 same-session control: 22-31 s off vs 12-22 s on, same search path. Local verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (428.8 s); node --test chain-bound.test.mjs 2/2. node platform/pages/venture-preflight.mjs shift-roster-builder -> preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "32a97970-5c07-5b02-bda6-8af741484f6b",
+    "transcripts": 1,
+    "first": "2026-11-11T02:06:25Z",
+    "last": "2026-11-11T02:21:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 119,
+        "output": 30326,
+        "thinking": 8969,
+        "cache_read": 6855513,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125778,
+        "api_equivalent_usd": 2.9843,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 119,
+      "output": 30326,
+      "thinking": 8969,
+      "cache_read": 6855513,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125778,
+      "api_equivalent_usd": 2.9843,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Monitor": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.31,
+      "active_minutes": 15.31,
+      "model_minutes": 6.34,
+      "tool_minutes": 8.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an optimisation engineer diagnosing the oracle, deriving and testing the Lagrangian chain bound, and benching 60/80-person weeks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 201.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
