@@ -1,9 +1,9 @@
 ---
 title: "A wave model can stand in for a Wave Glider's own wave sensor, for planning"
-seo_title: "Planning Wave Glider km/day from ERA5 wave reanalysis instead of on-board waves"
+seo_title: "Planning Wave Glider km/day from ERA5 instead of on-board waves"
 date: 2026-11-11
 tags: [research, marine-hull]
-description: "At a 2015 Wave Glider's hourly position, ERA5 waves give the same speed law (exponent 0.533 vs 0.534) and the same monthly km/day as its own sensor, but little forecast skill a day ahead."
+description: "ERA5 waves at a 2015 Wave Glider's position give the same speed law (0.533 vs 0.534) and monthly km/day as its own sensor, but little day-ahead skill."
 ---
 
 The last two posts found that a fielded Wave Glider's speed follows its own measured heave velocity: speed goes roughly as (Hs/T)^0.53, wave height over wave period. That law came from a wave sensor bolted to the vehicle. Someone planning a mission doesn't have that record. Away from a buoy they have a wave model and nothing else.
