@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T22:06:53Z",
   "ended": "2026-11-11T22:20:25Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 25.78,
+  "tokens_in": 8235759,
+  "tokens_out": 40230,
+  "cost_usd": 3.5469,
+  "tool_calls": 72,
   "task": "Deepen flagship 6 shift-roster-builder: a backtest that can score a staffed closure",
   "projects": [
     "shift-roster-builder"
@@ -67,5 +69,82 @@
   "goal": "Deepen the top unclaimed flagship",
   "notes": "Real data: three public bakery exports (French, Korean, Bread Basket) downloaded from raw.githubusercontent.com mirrors, SHA-256 matched the committed hashes, not committed. Verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (217.2s), 1 suites run, 0 failed; node --test score-closed.test.mjs 2/2 pass; eval/closure-score.mjs run to completion (~2 min). node platform/pages/venture-preflight.mjs shift-roster-builder: first run FAILED on the new post's description (192 > 160 chars) and seo_title (74 > 70); fixed, rerun: 'preflight clean for shift-roster-builder'. run_workflow_locally.py --for-changes run in background; see PR checks. run_workflow_locally --for-changes: real failure was the next: cap (fixed; validate.py and test_allocate then OK); agent-permission-harness byte-identical test failed only because files were being created during the run (rerun OK, 94 tests); pages.yml link checks failed because the local runner skips the build step (${{ }} expression), not from this change.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "35cfb35a-5a9a-5b2b-986a-28901e58137f",
+    "transcripts": 1,
+    "first": "2026-11-11T22:06:53Z",
+    "last": "2026-11-11T22:32:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 128,
+        "output": 40230,
+        "thinking": 10931,
+        "cache_read": 8095287,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140344,
+        "api_equivalent_usd": 3.5469,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 128,
+      "output": 40230,
+      "thinking": 10931,
+      "cache_read": 8095287,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140344,
+      "api_equivalent_usd": 3.5469,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 65,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.78,
+      "active_minutes": 25.78,
+      "model_minutes": 8.6,
+      "tool_minutes": 17.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer designing a scoring rule, measuring it on three real POS files, finding and fixing the edge-hour fault, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 281.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
