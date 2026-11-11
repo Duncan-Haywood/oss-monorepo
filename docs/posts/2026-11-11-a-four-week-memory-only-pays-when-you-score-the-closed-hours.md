@@ -1,9 +1,9 @@
 ---
 title: "A four-week memory only pays when you score the closed hours"
-seo_title: "Staffing from POS sales: should the forecast use only the last 4 weeks?"
+seo_title: "Staffing from POS sales: should a forecast use only the last 4 weeks?"
 date: 2026-11-11
 tags: [shift-roster-builder, scheduling, forecasting, backtest, small-business, pre-registration]
-description: "Adding 'the last 4 weeks only' to an automatic staffing forecast changed nothing on three real bakeries, until the score counted a staffed closed hour as waste. Then it cut short plus spare hours by 16%."
+description: "A last-4-weeks window in an automatic staffing forecast did nothing on three real bakeries until closed hours were scored. Then it cut hours short or spare 16%."
 ---
 
 [Shift Roster Builder](../../ventures/shift-roster-builder/README.md) turns an
