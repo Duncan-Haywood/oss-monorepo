@@ -55,7 +55,7 @@ Options:
   --noise-floor-local [w]   take it from residuals of centred w-point line fits (default 7)
   --noise-floor-quad [w]    the same with centred w-point quadratic fits
   --consensus [n]           run six settings (level, level under a trend with AR(1), the same with joint AR(1), noise floor, trend, trend with floor) and list each change by how many agree (changes within n points, default 2% of the series, are one); takes --log, --period, --penalty, --min-segment, --column
-  --columns [a,b,...]       several columns measured at the same points: each column's agreed changes, merged, plus one segmentation for all columns (--model mean or meanvar); no list = every numeric column; takes --label-column, --penalty, --min-segment, --consensus n as the tolerance
+  --columns [a,b,...]       several columns measured at the same points: each column's agreed changes, merged, plus one segmentation for all columns (--model mean or meanvar); no list = every numeric column; takes --label-column, --penalty, --min-segment, --consensus n as the tolerance; the per-column panels run on worker threads
   --joint-floor auto|off|k  with --columns and the level model: each column's noise for the one segmentation. auto (default) floors only a column whose own level fit over-cuts; k floors every column at k x the local-line scatter; off is the plain fit
   --drift-slope             with --model drift: take out the series' median step first, so a steady growth (population, prices) is not paid for as wander
   --drift-noise ml|lags     with --model drift: how the wander is sized. ml (default) chooses it together with the changes, so one big step is not absorbed as wander; lags is the earlier estimate from lag differences alone
@@ -118,6 +118,10 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     } else if (a.startsWith('-')) throw new Error(`Unknown option ${a}. Try --help.`);
     else file = a;
   }
+  // `--columns prices.csv` with no other file: the optional list swallowed the file name. A column
+  // list of one name ending in .csv, .tsv or .txt is read as the file (decided by the name, not by
+  // whether the file exists, so the command means the same in every folder).
+  if (!file && opt.columns && opt.columns.length === 1 && /\.(csv|tsv|txt)$/i.test(opt.columns[0])) { file = opt.columns[0]; opt.columns = []; }
   for (const k of ['minSegment', 'hazardLambda', 'threshold', 'period', 'knotMargin']) if (opt[k] != null) opt[k] = Number(opt[k]);
   if (opt.hazardLambda != null && !(opt.hazardLambda >= 1)) throw new Error('--hazard (expected points between changes) must be a number of at least 1.');
   if (opt.threshold != null && !(opt.threshold > 0 && opt.threshold <= 1)) throw new Error('--threshold must be a probability above 0 and at most 1.');
@@ -137,8 +141,13 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     return 0;
   }
   if (opt.columns) {
-    const { analyzeMulti, multiText } = await import('./multivariate.mjs');
-    const r = analyzeMulti({ csv: opt.csv, columns: opt.columns, labelColumn: opt.labelColumn, model: opt.model, penalty: opt.penalty, minSegment: opt.minSegment, tolerance: typeof opt.consensus === 'number' ? opt.consensus : null, floor: opt.jointFloor, ar1: opt.jointAr1 });
+    const { analyzeMulti, multiText, parseColumns } = await import('./multivariate.mjs');
+    const { runColumnPanelsThreaded } = await import('./consensus-threads.mjs');
+    // Each column's six-setting panel is most of the work (8.0 s of 8.2 s on the 1,751-day currency
+    // example): those 6 x columns settings run on worker threads, then merge exactly as on one thread.
+    const parsed = parseColumns(opt.csv, opt.columns, opt.labelColumn);
+    const columnRuns = await runColumnPanelsThreaded(parsed.cols);
+    const r = analyzeMulti({ ...parsed, columnRuns, model: opt.model, penalty: opt.penalty, minSegment: opt.minSegment, tolerance: typeof opt.consensus === 'number' ? opt.consensus : null, floor: opt.jointFloor, ar1: opt.jointAr1 });
     out((json ? JSON.stringify(r, null, 2) : multiText(r)) + '\n');
     return 0;
   }
