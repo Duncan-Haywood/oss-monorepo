@@ -248,8 +248,35 @@ def infer_track(task: str, tracks: dict[str, Any]) -> str | None:
     return None
 
 
+REVIEW_CLAIM_HOURS = 48
+
+
+def fresh_review_claims(pulls: list[dict[str, Any]], now: datetime,
+                        max_age_hours: float = REVIEW_CLAIM_HOURS) -> list[int]:
+    """Numbers of open "prompts: review" PRs young enough to hold the claim.
+
+    A review PR touches /prompts/ (CODEOWNERS), so it can sit open for days
+    waiting on the owner. Treating such a PR as a live claim stopped every
+    review: from 2026-10-31 to 2026-11-11 three open review PRs (#12026,
+    #12272, #12367) held it while the counter passed 2000/40. A claim older
+    than max_age_hours is stale; the next review starts from current records."""
+    fresh = []
+    for p in pulls:
+        if not str(p.get("title", "")).lower().startswith("prompts: review"):
+            continue
+        try:
+            opened = datetime.fromisoformat(str(p.get("created_at", "")).replace("Z", "+00:00"))
+        except ValueError:
+            fresh.append(p.get("number"))  # unknown age: honour the claim
+            continue
+        if (now - opened).total_seconds() < max_age_hours * 3600:
+            fresh.append(p.get("number"))
+    return fresh
+
+
 def review_claimed(repo: str = "duncan-haywood/oss-monorepo") -> bool:
-    """True when an open PR titled "prompts: review" already holds the review claim.
+    """True when an open PR titled "prompts: review", opened in the last
+    REVIEW_CLAIM_HOURS, already holds the review claim.
 
     Reads the public pulls API; any failure (offline, rate limit, proxy) says
     False, so routing never blocks on the network."""
@@ -258,8 +285,7 @@ def review_claimed(repo: str = "duncan-haywood/oss-monorepo") -> bool:
         url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page=100"
         with urllib.request.urlopen(url, timeout=8) as r:
             pulls = json.load(r)
-        return any(str(p.get("title", "")).lower().startswith("prompts: review")
-                   for p in pulls)
+        return bool(fresh_review_claims(pulls, datetime.now(timezone.utc)))
     except Exception:
         return False
 
@@ -273,6 +299,7 @@ def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False
     every = int(routing["review_every"])
     since = runs_since_review(load_runs(root))
     inferred = infer_track(task, tracks) if task and track is None else None
+    claimed = False
     if inferred:
         track = inferred
 
@@ -282,7 +309,8 @@ def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False
         if track not in tracks:
             raise SystemExit(f"unknown track {track!r}; tracks: {', '.join(tracks)}")
         reason = "chosen by the session (--track)"
-    elif (since >= every and not skip_review and not review_claimed()
+    elif (since >= every and not skip_review
+          and not (claimed := review_claimed())
           and rng.random() < float(routing.get("review_when_due", 1))):
         # Scheduled runs start in the same minute, so a due review goes to a
         # share of them rather than all of them at once.
@@ -299,8 +327,17 @@ def route(root: Path = ROOT, track: str | None = None, skip_review: bool = False
             pick -= weight
             if pick < 0:
                 break
-        reason = (f"weighted draw ({track} has weight {weights[track]:g} of {total:g}; "
-                  f"{since}/{every} runs toward the next review)")
+        if since < every:
+            due = f"{since}/{every} runs toward the next review"
+        elif skip_review:
+            due = f"review due ({since} runs since the last), skipped by --skip-review"
+        elif claimed:
+            due = (f"review due ({since} runs since the last) but claimed by an open "
+                   f"'prompts: review' PR under {REVIEW_CLAIM_HOURS} h old")
+        else:
+            due = (f"review due ({since} runs since the last); this run lost the "
+                   f"{float(routing.get('review_when_due', 1)):g} review draw")
+        reason = f"weighted draw ({track} has weight {weights[track]:g} of {total:g}; {due})"
 
     cfg = tracks[track]
     draw = rng.random()
