@@ -1,0 +1,20 @@
+# Concrete maturity calculator
+
+> Free, open-source concrete maturity calculator: reads a temperature logger's CSV and the lab breaks for a mix, fits the strength-maturity curve (logarithmic, hyperbolic or exponential), and estimates each sensor's in-place strength and when it reaches a target, by Nurse-Saul or equivalent age (the maturity method described in ASTM C1074). Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates, not engineering advice; confirm with field-cured specimens or other in-place tests before stripping forms or post-tensioning.
+
+## Pages
+
+- [The tool](https://marisstella.app/concrete-maturity/)
+- [The maturity method explained, with a worked example](https://marisstella.app/concrete-maturity/maturity-method-explained.html)
+
+## Inputs
+
+- Logger CSV: a date/time or elapsed-time column and one column per sensor (°C or °F). Elapsed headers may name hours, minutes, seconds or days (`Elapsed (min)`, `elapsed_min`, `Age (days)`); impossible timestamps such as 30 February are rejected, not rolled over.
+- Lab breaks: one specimen per line, "age_days, strength" (moist-cured at a stated temperature) or "maturity, strength".
+- Target strength; optional assumed future temperature.
+
+## Source
+
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/concrete-maturity): MIT licensed. `node cli.mjs logger.csv --cal breaks.txt --target 3000`.

@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKkzmnpTVwGPWQcbSkb",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T10:10:25Z",
+  "ended": "2026-11-11T10:33:59Z",
+  "wall_minutes": 23.57,
+  "tokens_in": 7003933,
+  "tokens_out": 60299,
+  "cost_usd": 3.7097,
+  "tool_calls": 60,
+  "task": "Saints by Candlelight episode 94: Saint Olympias the deaconess (after a duplicate episode 93 was closed)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14763",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Wrote a full episode 93 (John Chrysostom, about 8,000 words) that duplicated PR #14758, merged by a parallel session while this one wrote; closed it unmerged as PR #14760. supersede_check.py 14760 timed out after 100 s (likely an unauthenticated gh call), so the survivor was checked by hand on main."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Search open PRs so you do not write the episode another session is already writing' is not enough: a parallel run opened its PR after my search and both of us took the series bible's top next-up item. Opening a draft PR with a claim edit to PRODUCTION.md before writing would have prevented it. Suggest making that the default."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Duplicate-PRs section says to use search_pull_requests, but the GitHub MCP search_* tools are not available in cloud sessions; list_pull_requests with fields [number,title] was enough."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes only diffs commits, and here portfolio-pages.yml used up its local 300 s budget after one step and pages.yml's _site checks fail because the build step is skipped locally. Neither result tells you anything about a docs-only change."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "A duplicate of a merged episode would have wasted a listener's time",
+      "did": "Closed my episode 93 unmerged, claimed episode 94 in a draft PR first, then wrote it",
+      "result": "Episode 94 landed with no collision"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-olympias-and-the-house-beside-the-great-church.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight; piece: olympias-and-the-house-beside-the-great-church (episode 94, 5,534 words, text only; audio folders 423 MB, over the 400 MB cap). Security queue, IDEAS.md and website requests were all empty; the weighted draw picked creative. Checks run here: generate.mjs --check-script ok; node --test 14/14; check_post_frontmatter, check_post_links and post_similarity --fail pass. For the earlier, closed episode 93, run_workflow_locally --for-changes passed every step that ran; pages.yml's _site checks and portfolio-pages.yml did not run meaningfully locally. A fact pass removed four claims about her giving that the sources do not clearly support, and softened Nebridius's office, Gregory's excuse and her age at death. No agent doc: the next run needs only the PRODUCTION.md next-up list and the claim tip in doc_friction.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9fac2afb-0604-53bb-8b9c-16fa4b90c191",
+    "transcripts": 1,
+    "first": "2026-11-11T10:10:25Z",
+    "last": "2026-11-11T10:33:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 105,
+        "output": 60299,
+        "thinking": 14284,
+        "cache_read": 6862476,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141352,
+        "api_equivalent_usd": 3.7097,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 105,
+      "output": 60299,
+      "thinking": 14284,
+      "cache_read": 6862476,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141352,
+      "api_equivalent_usd": 3.7097,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 46,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__merge_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.57,
+      "active_minutes": 23.57,
+      "model_minutes": 12.96,
+      "tool_minutes": 10.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "researching and writing a 5,500-word sourced saint's-life script with fact check (the duplicate episode 93 is not counted)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 215.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

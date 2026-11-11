@@ -9,7 +9,7 @@ holds in every case, but only because each rung removes a loss term; the cycle a
 not sourced, so this is a first-order calculation, not a measurement of any machine.
 See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
-**Latest (5o, 2026-11-11): load-sensing vs open-centre on a measured machine, with the motion threshold measured.** On a public 440 s trace of a 6 t load-sensing wheel loader loading gravel (Linjama et al., Zenodo [10.5281/zenodo.10639199](https://doi.org/10.5281/zenodo.10639199), CC BY 4.0), the measured load-sensing margin is a median **24.9 bar** and the model's load-sensing rung reproduces measured pump energy to **2.3%** (5n). A fixed-pump open-centre circuit on the same motion needs at least **1.37 times** the load-sensing pump energy whatever its bypass closing law, and **1.54 times** (per-cycle 1.46 to 1.63) with a 10 bar spool drop, adding **14.7%** to fuel, now that the small-flow threshold 5n chose is measured from the data (0.80 L/min lift, 1.76 L/min tilt). See "Milestone 5o" below. **5p (same day):** the 6 bar open-centre spool drop used in the force-model cycles since 2d sits just above the least drop any Danfoss PVG 32 section could have at those flows (4.8 to 5.3 bar), so the earlier ranking stands (load-sensing ahead at a 14 bar margin; break-even 26.5 to 27.2 bar instead of 28.0); see "Milestone 5p".
+**Latest (5o, 2026-11-11): load-sensing vs open-centre on a measured machine, with the motion threshold measured.** On a public 440 s trace of a 6 t load-sensing wheel loader loading gravel (Linjama et al., Zenodo [10.5281/zenodo.10639199](https://doi.org/10.5281/zenodo.10639199), CC BY 4.0), the measured load-sensing margin is a median **24.9 bar** and the model's load-sensing rung reproduces measured pump energy to **2.3%** (5n). A fixed-pump open-centre circuit on the same motion needs at least **1.37 times** the load-sensing pump energy whatever its bypass closing law, and **1.54 times** (per-cycle 1.46 to 1.63) with a 10 bar spool drop, adding **14.7%** to fuel, now that the small-flow threshold 5n chose is measured from the data (0.80 L/min lift, 1.76 L/min tilt). See "Milestone 5o" below. **5p (same day):** the 6 bar open-centre spool drop used in the force-model cycles since 2d sits just above the least drop any Danfoss PVG 32 section could have at those flows (4.8 to 5.3 bar), so the earlier ranking stands (load-sensing ahead at a 14 bar margin; break-even 26.5 to 27.2 bar instead of 28.0); see "Milestone 5p". **5q (same day):** sized once per function, as real valves are, the floor drops to 2.3 bar and the break-even to **23.0 bar**; with no open-centre drop at all it is **20.6 bar**, so a 14 bar load-sensing margin beats any open-centre valve here, while 25 bar margins (thesis model; the measured loader's 24.9) sit where the real partial-lever drop decides; see "Milestone 5q".
 
 **Live page:** https://marisstella.app/research/heavy-hydraulics/
 
@@ -32,6 +32,7 @@ python3 experiments/idle_models.py > experiments/idle_models_results.txt  # mile
 PYTHONPATH=src python3 experiments/regen_bound.py > experiments/regen_bound_results.txt  # milestone 5a, ~10 s
 python3 experiments/regen_peaky.py > experiments/regen_peaky_results.txt  # milestone 5e, under 1 s
 python3 experiments/spool_floor_synthetic.py                 # milestone 5p, 14 s
+python3 experiments/spool_function_sizing.py                 # milestone 5q, 32 s
 python3 experiments/regen_measured.py <dir of the CC BY PATU 655 crane data, doi 10.17632/rn5j42rpyr.1>  # milestone 5g, needs numpy
 ```
 
@@ -55,6 +56,20 @@ pump efficiency (0.75 to 0.92). None is sourced yet.
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
 no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
 public measured cycle), then parts cost with [`heavy-market`](../heavy-market/) (step 1a, used-price depreciation and size scaling from real auction data, landed 2026-11-10).
+
+## Milestone 5q: size the open-centre sections per function
+
+5p sized a spool for each actuator in each phase; a machine picks one section per function for the largest flow it must pass. Mapping dig to arm + bucket, lift/lower to boom, dump to bucket and the swings to swing (our reading), the envelope rule gives arm spool B and boom, bucket and swing D. On the same 3,000 force-model cycles:
+
+| Open-centre drop while moving | Energy-weighted drop | Break-even LS margin | LS/OC at 14 bar | LS/OC at 25 bar |
+|---|---|---|---|---|
+| constant 6 bar (2n) | 6.00 bar | 28.0 bar | 0.759 | 0.949 |
+| PVG 32 floor, per phase (5p) | 4.77 bar | 26.5 bar | 0.778 | 0.972 |
+| PVG 32 floor, per function, per cycle | 4.11 bar | 25.6 bar | 0.792 | 0.990 |
+| PVG 32 floor, per function, envelope | 2.33 bar | 23.0 bar | 0.830 | 1.037 |
+| zero (no spool drop) | 0 | 20.6 bar | | |
+
+All five predictions (F1 to F5) held. The break-even rises 1.24 bar per bar of drop, and a 25 bar margin breaks even at a 3.6 bar drop. Source: [`experiments/spool_function_sizing_results.txt`](experiments/spool_function_sizing_results.txt).
 
 ## Milestone 5p: the least spool drop any PVG 32 open-centre section can have
 

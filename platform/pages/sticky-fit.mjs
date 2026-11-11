@@ -135,3 +135,32 @@ export const STICKY_FIT_JS = `
   addEventListener('click',later);
 })();
 `;
+
+/**
+ * A scroll hint for a capped card. On macOS, iOS and many Linux desktops the
+ * scrollbar is an overlay that stays hidden until you scroll, so a capped card
+ * looked complete: the only cue that more sat below was a line cut off at the
+ * edge (polish-2026-11-11-sticky-fit.md, "Still weakest", item 2).
+ *
+ * The card's bottom 40 px fade out while there is more below, and the fade
+ * goes away as the card reaches its end; once it has scrolled, its top 24 px
+ * fade too, so the headline row reads as "more above". The fade is a mask on
+ * the card itself, so it works on any card colour, gradient or image without
+ * knowing it, and moves no layout. The amount follows the card's own scroll
+ * position (a scroll-driven animation on two registered lengths), so it costs
+ * no scroll handler and is tied to the reader's scrolling, not to time.
+ *
+ * Only where the browser has scroll timelines: without them the fade could
+ * not lift at the end and would dim the card's last line for good, so those
+ * browsers keep the plain capped card. It applies only to elements the script
+ * capped (`data-pf-sticky-fit`), which the script releases before printing.
+ */
+export const STICKY_FIT_CSS = `
+@property --pf-fit-top{syntax:'<length>';inherits:false;initial-value:0px}
+@property --pf-fit-end{syntax:'<length>';inherits:false;initial-value:40px}
+@keyframes pf-fit-fade{0%{--pf-fit-top:0px;--pf-fit-end:40px}8%{--pf-fit-top:24px}92%{--pf-fit-end:40px}100%{--pf-fit-top:24px;--pf-fit-end:0px}}
+@supports (animation-timeline:scroll()){
+[data-pf-sticky-fit]{-webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.25) 0,#000 var(--pf-fit-top),#000 calc(100% - var(--pf-fit-end)),rgba(0,0,0,.12) 100%);mask-image:linear-gradient(to bottom,rgba(0,0,0,.25) 0,#000 var(--pf-fit-top),#000 calc(100% - var(--pf-fit-end)),rgba(0,0,0,.12) 100%);animation:pf-fit-fade linear both;animation-timeline:scroll(self)}
+}
+@media (forced-colors:active){[data-pf-sticky-fit]{-webkit-mask-image:none;mask-image:none}}
+`;

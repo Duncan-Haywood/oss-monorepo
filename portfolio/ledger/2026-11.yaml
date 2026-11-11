@@ -53,3 +53,20 @@ entries:
         in-house vs partner-brand pieces, first drop within a budget). 69
         tests. Not yet used by the designer.
     mrr_end: 0
+  - venture: concrete-maturity
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/concrete-maturity, a free
+        in-browser and CLI concrete maturity calculator for the construction
+        direction. Reads a logger CSV (several sensors, deg F or C, US/ISO/
+        day-first timestamps or elapsed time), computes Nurse-Saul or
+        equivalent-age maturity, fits logarithmic, hyperbolic and exponential
+        strength-maturity curves to lab breaks (chosen by AICc), and reports
+        each sensor's estimated strength, time to target or a projection, with
+        the lowest sensor marked governing. Explainer page with a worked
+        made-up example, llms.txt, post. 23 tests; driven in headless Chromium
+        with no console errors and no overflow at 390 px. Not yet run on a real
+        project's record.
+    mrr_end: 0

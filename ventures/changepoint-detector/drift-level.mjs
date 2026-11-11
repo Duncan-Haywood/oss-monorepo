@@ -87,12 +87,19 @@ function gains(n, q) {
 // Exact optimal partitioning. Returns the change indices (the first point of each new segment).
 // penalty is on the -2 log likelihood scale with sigma = 1; the default, 2 log n, is the BIC the
 // plain level model uses (engine.mjs penaltyValue 'bic' for model 'mean').
-export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false } = {}) {
+// noise: 'lags' sizes sigma and omega from lag differences (driftNoise); 'ml' keeps that sigma and
+// chooses omega with the changes (driftNoiseML). Library default 'lags' (the pinned tests and the
+// O(n^2) single fit); the CLI defaults to 'ml' (eval/tcpd-drift-ml.mjs, README "A step-robust omega").
+export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags' } = {}) {
   const raw = Array.from(values, Number);
   const g = slope ? medianSlope(raw) : 0;
   const x = g ? raw.map((v, t) => v - g * t) : raw;
   const n = x.length;
   if (n < 2 * minSegment) return { changepoints: [], sigma: sigma ?? null, omega: omega ?? null, penalty: null };
+  if (noise === 'ml' && (sigma == null || omega == null)) {
+    const ml = driftNoiseML(x, { penalty, minSegment });
+    return { ...driftLevelChanges(x, { sigma: ml.sigma, omega: ml.omega, penalty, minSegment }), slope: g, noise: 'ml', ml };
+  }
   const est = sigma == null || omega == null ? driftNoise(x) : null;
   const s = sigma ?? est.sigma, w = omega ?? est.omega;
   const beta = penalty ?? 2 * Math.log(n);
@@ -124,7 +131,52 @@ export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 
   const cps = [];
   for (let t = n; t > 0; t = last[t]) if (last[t] > 0) cps.push(last[t]);
   cps.reverse();
-  return { changepoints: cps, sigma: s, omega: w, penalty: beta, cost: best[n], slope: g };
+  return { changepoints: cps, sigma: s, omega: w, penalty: beta, cost: best[n], slope: g, noise: est ? 'lags' : 'given' };
+}
+
+// omega chosen together with the changes, by penalised likelihood, so that a single large step
+// cannot inflate it the way it inflates the lag-difference estimate's slope: a step is absorbed as
+// wander only if a larger omega gives a lower cost than one change at the penalty. sigma stays at
+// the lag fit's intercept, which a few jumps barely move. The objective is exactly the one optimal
+// partitioning minimises (the -2 log likelihood in sigma units plus the penalty per change), so
+// for each q = omega^2 / sigma^2 one exact partition gives its value; q is profiled on a log grid
+// from 1e-4 to 1e4 with q = 0 (a flat level) included, then refined by golden section in log q
+// around the best grid point.
+//
+// Why sigma is not profiled too (tried first, 2026-11-11, README "A step-robust omega"): each
+// segment's first point is diffuse, so the likelihood in the input's units drops one log sigma^2
+// per change, which makes a change worth -log sigma^2 (a bonus that depends on the data's units);
+// charging that point log sigma^2 instead makes the likelihood unbounded as sigma goes to 0 with
+// many short segments. Holding sigma at a robust estimate avoids both.
+export function driftNoiseML(values, { penalty, minSegment = 2, grid = null, sigma = null } = {}) {
+  const x = Array.from(values, Number), n = x.length;
+  const beta = penalty ?? 2 * Math.log(n);
+  const start = driftNoise(x);
+  const s = sigma ?? start.sigma;
+  const memo = new Map();
+  const evalQ = (q) => {
+    const key = q.toPrecision(12);
+    if (!memo.has(key)) {
+      const r = driftLevelChanges(x, { sigma: s, omega: s * Math.sqrt(q), penalty: beta, minSegment });
+      memo.set(key, { q, sigma: s, omega: r.omega, objective: r.cost, changepoints: r.changepoints });
+    }
+    return memo.get(key);
+  };
+  const qs = grid ?? [0, ...Array.from({ length: 17 }, (_, i) => 10 ** (-4 + i / 2))];
+  let best = null, bi = 0;
+  qs.forEach((q, i) => { const r = evalQ(q); if (!best || r.objective < best.objective) { best = r; bi = i; } });
+  if (!grid && best.q > 0) {
+    // Golden section on log q between the neighbouring grid points (below 1e-4, down to 1e-5).
+    let lo = Math.log10(bi > 1 ? qs[bi - 1] : 1e-5), hi = Math.log10(bi + 1 < qs.length ? qs[bi + 1] : qs[bi]);
+    const gr = (Math.sqrt(5) - 1) / 2;
+    let c = hi - gr * (hi - lo), d = lo + gr * (hi - lo);
+    for (let it = 0; it < 10; it++) {
+      if (evalQ(10 ** c).objective < evalQ(10 ** d).objective) { hi = d; d = c; c = hi - gr * (hi - lo); }
+      else { lo = c; c = d; d = lo + gr * (hi - lo); }
+    }
+    for (const q of [10 ** c, 10 ** d]) { const r = evalQ(q); if (r.objective < best.objective) best = r; }
+  }
+  return { ...best, fits: memo.size, atGridEdge: !grid && bi === qs.length - 1, start: { sigma: start.sigma, omega: start.omega } };
 }
 
 // The -2 log likelihood of one segment on its own (the cost optimal partitioning adds up), in the

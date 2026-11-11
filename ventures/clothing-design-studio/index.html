@@ -170,6 +170,7 @@
         <details>
           <summary>Public-domain paintings to start from</summary>
           <p class="muted">Many old paintings of saints and angels are in the public domain, and these collections publish images released for reuse. Check the terms on each image: the studio does not check rights.</p>
+          <p><a href="artwork.html">Search two museum collections here and check each painting prints sharp at your size</a></p>
           <ul id="pd-sources" class="muted"></ul>
         </details>
         <div id="selected-panel" hidden>
@@ -410,6 +411,7 @@
   <script type="module">
     import { GARMENTS, FABRICS, METHODS, COLOURS, PX_PER_CM, compatibilityNotes } from "./catalogue.mjs";
     import { MOTIFS, PUBLIC_DOMAIN_SOURCES } from "./motifs.mjs";
+    import { printResolution, resolutionSummary, takeHandoff } from "./artwork.mjs";
     import { newDesign, History, variants, applyOp, encodeDesign, decodeDesign, sanitizeDesign, OpError } from "./design.mjs";
     import { EXAMPLES } from "./commands.mjs";
     import { interpret } from "./ai.mjs";
@@ -632,10 +634,21 @@
       e.target.value = "";
       if (!file) return;
       const src = await downscale(file, 1400);
+      const original = await pixelSize(file);
       const img = new Image();
-      img.onload = () => commit({ op: "add", kind: "image", src, aspect: img.naturalHeight / img.naturalWidth || 1, label: file.name.slice(0, 40), method: "dtg" }, "upload_image");
+      img.onload = () => commit({ op: "add", kind: "image", src, aspect: img.naturalHeight / img.naturalWidth || 1, label: file.name.slice(0, 40), method: "dtg", srcPx: original }, "upload_image");
       img.src = src;
     });
+    // the stored copy is downscaled for the preview; keep the file's own size for the print check
+    function pixelSize(file) {
+      if (file.type === "image/svg+xml") return Promise.resolve(null);
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => { resolve({ w: img.naturalWidth, h: img.naturalHeight }); URL.revokeObjectURL(img.src); };
+        img.onerror = () => resolve(null);
+        img.src = URL.createObjectURL(file);
+      });
+    }
     function downscale(file, max) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -1006,6 +1019,12 @@
         $("#sel-ink").disabled = p.kind === "image";
         if (p.ink) $("#sel-ink").value = p.ink;
         $("#method-note").textContent = METHODS[p.method].note;
+        if (p.kind === "image" && p.srcPx) {
+          try {
+            const r = printResolution({ widthPx: p.srcPx.w, heightPx: p.srcPx.h, printWidthCm: p.w, method: p.method });
+            $("#method-note").textContent += " " + resolutionSummary(r, `The original (${p.srcPx.w} x ${p.srcPx.h} px)`);
+          } catch { /* unknown method or size: leave the method note alone */ }
+        }
       }
       const notes = [...new Set(design.placements.flatMap(q => compatibilityNotes(design.fabric, q.method, { colour: design.colour, gsm: design.gsm })))];
       $("#compat").innerHTML = notes.map(esc).join("<br>");
@@ -1138,6 +1157,16 @@
       const a = document.createElement("a"); a.href = url; a.download = "launch-calendar.csv"; a.click(); URL.revokeObjectURL(url);
       recordUsage("marketing_csv");
     });
+
+    // a painting chosen on artwork.html arrives once through local storage
+    try {
+      const h = takeHandoff(localStorage);
+      if (h) {
+        const img = new Image();
+        img.onload = () => { commit({ op: "add", kind: "image", src: h.src, aspect: img.naturalHeight / img.naturalWidth || 1, label: h.label, method: "dtg", srcPx: h.widthPx && h.heightPx ? { w: h.widthPx, h: h.heightPx } : undefined }, "artwork_handoff"); if (h.credit) log(`Added ${esc(h.label)}. Credit: ${esc(h.credit)}`); };
+        img.src = h.src;
+      }
+    } catch { /* storage blocked: nothing to pick up */ }
 
     render();
     recordUsage("open");

@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVNsnMBf1CwcMjbJqJP",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T10:04:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "new Hearth & Horizon story",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 14755,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The hearth-and-horizon README 'Stories so far' list is not updated by generate.mjs and recent story PRs skip it; unclear whether it is maintained by hand."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-the-ground-under-the-drift.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (headline shelf). Piece: the-ground-under-the-drift (winter grave in frozen clay, ND 2049; Stefan frost depth with surface n-factor, snowdrift insulation, thaw-blanket energy). Text only: audio at 423 MB > 400 MB cap. Verification: node --test in ventures/hearth-and-horizon 12/12 pass after node generate.mjs. Arithmetic re-checked with a calculator (1.0757 m, 0.532 m, 592 MJ/147 h, 266 MJ/66 h, Prudhoe Bay to Walsh County ~3,580 km); weekdays checked in Python.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVNjwoLA31An9CYwecg",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T12:15:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Polish: scroll hint (fade) on stuck result cards the shared script caps, so hidden overlay scrollbars no longer make them look complete",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 14781,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "says to re-run platform/ci/wait_for.py until the build returns but the build log needs --marker DONE (the script has no --pattern); the default worked for build.log but a test log needs --marker EXIT"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "record wrote the model id into the run record; the session's harness instructions forbid model identifiers in pushed artifacts, so model is left null",
+      "did": "set model to null",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-a-scroll-hint-for-stuck-result-cards.md",
+    "docs/reports/polish-2026-11-11-sticky-scroll-hint.md"
+  ],
+  "goal": null,
+  "notes": "Local checks (CI not awaited): sticky-fit.test.mjs 12/12. Full node --test 'platform/pages/*.test.mjs' 1524/1527 before fixes; the chrome-colour test (mask #000) is fixed in-branch by exempting STICKY_FIT_CSS and asserting it paints nothing; 'post did not ship' passed after a rebuild with the post; the remaining failure is faq-visible on concrete-maturity/index.html, pre-existing from PR #14766, not touched here. check.mjs: 8439 pages, no dead links. sticky-fit-check.mjs at 1280x800: 195 pages, 192 sticky, 105 capped (all get the hint), the same 9 row-setter cards cut off as before. pf-chrome.css +802 bytes.",
+  "corrections": [],
+  "redteam": null
+}

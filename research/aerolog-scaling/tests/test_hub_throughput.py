@@ -83,3 +83,67 @@ def test_measured_nasa_taper_is_longer_than_linear():
     _, fresh, old = aged.groups(rows)
     assert len(fresh) == 20 and len(old) > 100
     assert all(r["ratio_30_100"] > r["ratio_20_90"] > 1.0 for r in fresh)
+
+
+_pw = pathlib.Path(__file__).resolve().parents[1] / "experiments" / "hub_throughput" / "analytic_wait_tail.py"
+_sw = importlib.util.spec_from_file_location("hub_wait_tail", _pw)
+tail6j = importlib.util.module_from_spec(_sw)
+_sw.loader.exec_module(tail6j)
+
+
+def test_sub_exp_conserves_mass_and_mean():
+    x = [0.0] * 2000
+    x[1000] = 1.0
+    lam = 1 / 600.0
+    out, neg = tail6j.sub_exp(x, lam)
+    assert abs(sum(out) + neg - 1.0) < 1e-12
+    m = tail6j.DT * sum(i * v for i, v in enumerate(out))
+    assert abs(m - (10000.0 - 600.0)) < 2.0
+
+
+def test_batch_of_c_charger_wait_is_md1():
+    # k = c: each charger sees one pack per batch, an M/D/1 queue with Wq = rho D / (2 (1 - rho))
+    rate = 0.7 * tail6j.CH * 3600 / tail6j.D
+    wq, _ = tail6j.charger_wait_pmf(rate, tail6j.CH)
+    assert abs(tail6j.pmf_mean(wq) - 0.7 * tail6j.D / (2 * 0.3)) < 5.0
+
+
+def test_wait_tail_at_zero_matches_6i_wait_share():
+    rate = 0.7 * tail6j.CH * 3600 / tail6j.D
+    wq, _ = tail6j.charger_wait_pmf(rate, 2)
+    t = tail6j.pack_wait_tails(wq, rate, 2, 20, (0.0, 300.0))
+    p = ana.outstanding_pmf(rate, 2)
+    for S in (10, 14, 18):
+        assert abs(t[S][0.0] - ana.wait_share(p, S, 2)) < 0.003
+        assert t[S][300.0] < t[S][0.0]
+
+
+_pk = pathlib.Path(__file__).resolve().parents[1] / "experiments" / "hub_throughput" / "analytic_trace_tail.py"
+_sk = importlib.util.spec_from_file_location("hub_trace_tail", _pk)
+tail6k = importlib.util.module_from_spec(_sk)
+_sk.loader.exec_module(tail6k)
+
+
+def test_rate_integral_is_exact_on_bins():
+    r = tail6k.Rate([3600.0, 7200.0])  # 1/s then 2/s, 900 s bins
+    assert abs(r.L(0, 1800) - 2700.0) < 1e-9
+    assert abs(r.L(450, 1350) - (450 + 900)) < 1e-9
+    assert r.L(-100, 0) == 0.0
+
+
+def test_time_varying_rule_at_constant_rate_matches_6i():
+    rate = 0.7 * tail6k.CH * 3600 / tail6k.D
+    r = tail6k.Rate([rate] * int(2 * 86400 / tail6k.BIN))
+    nq = tail6k.nq_path(r, 1)
+    got = tail6k.order_tails(r, 1, nq, 0.0, [11])[11]
+    assert abs(got - ana.wait_share(ana.outstanding_pmf(rate, 1), 11, 1)) < 0.003
+
+
+def test_heap_simulator_matches_6f_run():
+    import random
+    counts = tail6k.h6f.load_profile()["2019-10-09"]
+    for sd in range(3):
+        ts = tail6k.h6f.arrivals(counts, 8.0, "uniform", random.Random(sd), 2)
+        w = sorted(tail6k.sim_waits(ts, 14))
+        mean, p95 = tail6k.h6f.run(ts, 14)
+        assert abs(sum(w) / len(w) - mean) < 1e-9 and w[int(0.95 * len(w))] == p95

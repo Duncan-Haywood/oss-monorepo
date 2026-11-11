@@ -2369,3 +2369,69 @@ variance omega^2 and only a jump too big for the walk is a change.
   cost (bitcoin, `bank`) or a check that tells drift from heavy tails before choosing this model;
   an omega estimate that a single large step does not inflate (Nile); the model as a panel member
   scored on fresh labelled data, not TCPD again.
+
+
+## A step-robust omega: wander chosen with the changes (2026-11-11, later)
+
+Open item from "Jumps on a drifting level": the lag-difference estimate of the wander omega is
+inflated by the very steps the model is meant to find (Nile: omega 45 on noise sd 118, so the 1899
+drop of 2.1 noise sd is read as wander). Now `--model drift` keeps sigma from the lag fit's
+intercept, which a few jumps barely move, and chooses omega *together with the changes*: for each
+q = omega^2 / sigma^2 one exact partition gives the penalised cost, q is profiled on a log grid
+(0 and 1e-4 to 1e4) and refined by golden section (`driftNoiseML` in `drift-level.mjs`). A step is
+then absorbed as wander only if a larger omega costs less than one change at the penalty.
+
+- **Check of the likelihood.** With no change allowed, the segment cost's minimum on the Nile is
+  Durbin and Koopman's local level fit (sigma_eps^2 15,099 and sigma_eta^2 1,469, *Time Series
+  Analysis by State Space Methods*, 2nd ed., section 2.10; our grid lands within 100 and 50 of
+  them; `drift-level.test.mjs`). With changes allowed, omega drops to 0.9 and 1899 is the one cut.
+- **Two estimators that did not work, kept here so nobody retries them.** First, profiling sigma
+  too. Each segment's first point is diffuse, so the likelihood in the data's units drops one
+  log sigma^2 per change: a change is worth -log sigma^2, a bonus that depends on the data's units,
+  and the first coded version also reported a sigma one step ahead of its changes. Its TCPD run
+  (seen, then discarded): F1 0.649 shipped, 0.413 held out. Second, charging that point log sigma^2
+  too: scale-free, but unbounded (sigma to 0 and q at the grid's top, 1e4, on each of the TCPD series looked at; looked
+  at as q values and cut counts, not scored). The third, sigma held, is what ships. Because the
+  first two were seen on TCPD, the figures below are not as clean as a first, pre-registered run.
+- **TCPD** (`node eval/tcpd-drift-ml.mjs tcpd-data`, output `eval/tcpd-drift-ml.out.txt`; the rule
+  is in the script's header, written before the first run: ML wander becomes `--model drift`'s
+  default if its mean F1 beats the lag estimate on both sets; the model joins the consensus panel
+  only if it also beats the level model following the over-cut warning on both).
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift level, wander by likelihood (now the default) | **0.694** | 0.622 | 226 | **0.527** | 0.576 | 180 |
+  | drift level, lag-difference wander | 0.677 | 0.592 | 247 | 0.420 | 0.524 | 284 |
+  | level, following the over-cut warning | 0.655 | 0.561 | 653 | 0.497 | 0.394 | 233 |
+  | level (default) | 0.477 | 0.374 | 1329 | 0.296 | 0.191 | 585 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+  | zero / binseg (published) | 0.663 / 0.714 | | | 0.639 / 0.727 | | |
+
+  Paired, ML minus lags: +0.018 shipped (95% bootstrap -0.036 to 0.071; better on 14, worse on 10)
+  and +0.107 held out (-0.043 to 0.321; 5 and 2). ML minus the warning's refit: +0.040 (-0.048 to
+  0.131) and +0.031 (-0.115 to 0.199). Both halves of the rule pass on the means; no interval
+  excludes zero.
+- **Decision: the default for `--model drift`, not a panel member.** The first half is taken. The
+  second half also passes on the means, but the panel step is not taken this run: the gaps are
+  inside noise on 7 and 31 series, the estimator is a third version chosen after seeing TCPD output,
+  and the panel's agreed line is the tool's headline. That needs fresh labelled data (a deviation
+  from the written rule, recorded in the run record). `--drift-noise lags` keeps the earlier
+  estimate; the library default stays `lags` so existing callers see no change.
+- **Where it helps:** Nile 0 to 1 cut (F1 0.824 to 1.000), quality control 1 and 2 (to 1.000),
+  `businv` 18 cuts to 3 (0.348 to 0.559), US population 1 to 0, Iceland tourism 5 to 0 (0.281 to
+  0.947), bitcoin 103 to 52, scanline 42049 69 to 27, Brent 0.726 to 0.773, Dutch unemployment
+  0.817 to 0.930. **Where it loses:** quality control 3 and 4 (0.571 to 0.333, 0.936 to 0.638), Iran's
+  GDP (0.888 to 0.655), Japan's GDP (0.800 to 0.571), seat belts (0.824 to 0.621, the 1983 law's
+  step now absorbed), robocalls (0.966 to 0.778), and `bank` stays at 63 false cuts (heavy tails, not
+  drift). On the committed series: Mauna Loa CO2 16 cuts to 4; Australian residents with
+  `--drift-slope` 0 to 4 (worse; no documented break); US real GDP 2 to 6, and with `--drift-slope`
+  0 to 11, several near recession dates (1958Q1, 1975Q1, 1980Q2, 1982Q1, 1990Q4; not scored).
+- **Synthetic** (`eval/drift-sim.mjs`, new last column, data unchanged): white noise with a 3-sd
+  step found 60 of 60 (lags 58); omega 0.1 with no step 0.08 false cuts (lags 0.47); omega 0.3 with
+  a 3-sd step 42 of 60 (lags 44) and 0.18 other cuts (0.28); with a 5-sd step 0.25 other cuts
+  (0.08), the one cell where it is clearly worse.
+- **Cost.** About 30 exact O(n^2) partitions a series instead of one: 566 ms for all 38 TCPD series
+  (lags: 44 ms); a 10,000-point series takes seconds, not milliseconds.
+- **Next.** A heavy-tail check before choosing this model (`bank`, bitcoin); why ML absorbs the
+  seat-belt law and quality control 4's step (omega chosen high on a seasonal or trending series);
+  the AR(1) term; the model as a panel member on fresh labelled data, not TCPD again.

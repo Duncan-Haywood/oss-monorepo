@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23d9480f'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Concrete Maturity Calculator | In-Place Strength from Logger Data (ASTM C1074 Method)</title>
+  <meta name="description" content="Free concrete maturity calculator: drop in your temperature logger's CSV and your lab breaks, fit the mix's strength-maturity curve, and see each sensor's estimated in-place strength and when it should reach your stripping or stressing target. Runs in your browser.">
+  <meta property="og:title" content="Concrete Maturity Calculator">
+  <meta property="og:description" content="Logger CSV plus lab cylinder breaks in, estimated in-place strength per sensor and time to target out. Nurse-Saul or equivalent age, three curve fits, nothing uploaded.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Concrete Maturity Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Reads temperature logger CSV exports with several sensors; Nurse-Saul temperature-time factor or Arrhenius equivalent age; fits logarithmic, hyperbolic and exponential strength-maturity curves to lab breaks; estimated in-place strength per sensor; time to reach a target strength, from the record or projected at an assumed temperature; CSV export"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the concrete maturity method?","acceptedAnswer":{"@type":"Answer","text":"Concrete gains strength faster when it is warm and slower when it is cold. The maturity method turns a temperature record into a single number, the maturity index, that accounts for both time and temperature. Once you know how strength rises with maturity for one mix (from lab cylinders broken at several ages), a sensor's maturity tells you roughly how strong the concrete around it is now. ASTM C1074 is the US standard practice that describes it."}},{"@type":"Question","name":"What is the difference between Nurse-Saul and equivalent age?","acceptedAnswer":{"@type":"Answer","text":"Nurse-Saul adds up degrees above a datum temperature times hours (a temperature-time factor in degree-hours). Equivalent age converts each hour into the number of hours at a reference temperature that would have produced the same strength gain, using the Arrhenius equation and an activation energy. Equivalent age tracks the real temperature dependence better over a wide range; Nurse-Saul is simpler and widely used in the field."}},{"@type":"Question","name":"What calibration data do I need?","acceptedAnswer":{"@type":"Answer","text":"Compressive strengths of specimens of the same mix, broken at several ages (commonly 1, 3, 7, 14 and 28 days, two or more at each), together with their maturity at the time of testing. If the specimens were moist-cured at a known constant temperature, the age is enough and the tool works out the maturity. If a logger sat in a companion specimen, enter the logged maturity directly."}},{"@type":"Question","name":"Can I strip forms on this estimate alone?","acceptedAnswer":{"@type":"Answer","text":"No. The estimate assumes the field concrete is the same mix as the calibration specimens and was kept moist enough to keep hydrating. It cannot see a batching error, a wrong mix or a dried-out surface. ASTM C1074 itself asks for the estimate to be checked by other tests before critical operations. The engineer of record decides what evidence is needed."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read and every calculation runs in your browser. Nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2125; background: #eceae6; --accent: #c2410c; --ink2: #555c63; --line: #c9c5bd; --panel: #fbfaf8; }
+    body { max-width: 1160px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 780px; margin-bottom: 24px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3.1rem); line-height: 1.02; margin: 0 0 12px; letter-spacing: -.04em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    h3 { margin: 14px 0 6px; font-size: .98rem; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    label { display: grid; gap: 5px; font-size: .86rem; font-weight: 650; }
+    input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #b7b1a6; border-radius: 7px; padding: 9px; font: inherit; background: #fff; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .8rem; min-height: 120px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #b7b1a6; background: #f1eee8; padding: 9px 13px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #e5e0d6; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: #9a3412; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    .eqage { display: none; } .eq .eqage { display: grid; } .eq .nsonly { display: none; }
+    .cards { display: grid; gap: 12px; }
+    .card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
+    .card.gov { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .big { font-size: 2rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin: 2px 0; }
+    .row { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: .86rem; font-variant-numeric: tabular-nums; }
+    .warn { font-size: .82rem; background: #fff4e5; border-left: 3px solid #d97706; padding: 6px 9px; margin: 6px 0 0; border-radius: 4px; }
+    .err { color: #b42318; font-size: .86rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .84rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid #e3dfd7; }
+    tr.chosen td { font-weight: 700; }
+    svg { width: 100%; height: auto; display: block; }
+    .chartwrap { overflow: hidden; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a { color: #9a3412; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 520px) { .fields { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR CONCRETE CONTRACTORS, QC TECHNICIANS AND SITE ENGINEERS</p>
+    <h1>How strong is that slab right now?</h1>
+    <p>Drop in your temperature logger's export and the lab breaks for the mix. The page fits the mix's strength-maturity curve, then shows each sensor's estimated in-place strength and when it should reach your form-stripping or stressing target, using the maturity method described in ASTM C1074. Everything runs in your browser.</p>
+    <p><a href="./maturity-method-explained.html">The maturity method explained, with a worked example</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. Temperature record</h2>
+        <p class="hint">A CSV with a date/time (or elapsed hours) column and one column per sensor. Most logger apps export this. Humidity, battery and index columns are ignored.</p>
+        <label>Logger file <input id="loggerFile" type="file" accept=".csv,.txt,text/csv"></label>
+        <label style="margin-top:10px">Or paste it <textarea id="loggerText" spellcheck="false" placeholder="Date/Time,Sensor 1 (°F)&#10;11/2/2026 2:00 PM,61.2&#10;..."></textarea></label>
+        <div class="fields" style="margin-top:10px">
+          <label>Temperature unit
+            <select id="tempUnit"><option value="auto">From the header (else °C)</option><option value="F">°F</option><option value="C">°C</option></select>
+          </label>
+          <label>Dates like 03/04
+            <select id="dateOrder"><option value="us">Month first (US)</option><option value="dayfirst">Day first</option></select>
+          </label>
+        </div>
+        <p class="muted" id="loggerInfo" aria-live="polite"></p>
+      </section>
+
+      <section id="methodBox">
+        <h2>2. Maturity function</h2>
+        <div class="fields">
+          <label>Method
+            <select id="method"><option value="nurse-saul">Nurse-Saul (temperature-time factor)</option><option value="equivalent-age">Equivalent age (Arrhenius)</option></select>
+          </label>
+          <label class="nsonly">Datum temperature (°C) <input id="datumC" type="number" step="0.5" value="0"></label>
+          <label class="eqage">Activation energy (J/mol) <input id="activationEnergy" type="number" step="500" value="40000"></label>
+          <label class="eqage">Reference temperature (°C) <input id="referenceC" type="number" step="0.5" value="20"></label>
+        </div>
+        <p class="hint" style="margin-top:10px">The datum and activation energy depend on the cement and admixtures. The defaults are commonly used starting values for plain portland cement; ASTM C1074's annex describes how to measure them for your mix.</p>
+      </section>
+
+      <section>
+        <h2>3. Lab breaks for this mix</h2>
+        <p class="hint">One specimen per line: age in days and strength. Two or more at each of several ages is best.</p>
+        <div class="fields">
+          <label>Each line is
+            <select id="calColumn"><option value="age">Age (days), strength</option><option value="index">Maturity index, strength</option></select>
+          </label>
+          <label>Lab curing temperature (°C) <input id="labCuringC" type="number" step="0.5" value="23"></label>
+        </div>
+        <label style="margin-top:10px">Specimens <textarea id="calText" spellcheck="false" placeholder="1, 1200&#10;3, 2500&#10;7, 3450&#10;28, 4600"></textarea></label>
+        <div class="fields" style="margin-top:10px">
+          <label>Curve
+            <select id="model"><option value="auto">Best by AICc</option><option value="logarithmic">Logarithmic</option><option value="hyperbolic">Hyperbolic</option><option value="exponential">Exponential</option></select>
+          </label>
+          <label>Strength unit
+            <select id="strengthUnit"><option>psi</option><option>MPa</option></select>
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <h2>4. Target</h2>
+        <div class="fields">
+          <label>Target strength <input id="target" type="number" min="0" step="any" value="3000"></label>
+          <label>Assumed temperature from now on (°C) <input id="futureC" type="number" step="0.5" placeholder="average of last 24 h"></label>
+        </div>
+        <div class="actions">
+          <button type="button" class="primary" id="run">Estimate strength</button>
+          <button type="button" id="example">Load a made-up example</button>
+          <button type="button" id="download" disabled>Download results CSV</button>
+        </div>
+        <p class="err" id="errors" role="alert"></p>
+      </section>
+    </div>
+
+    <div id="output">
+      <section>
+        <h2>Estimated in-place strength</h2>
+        <p class="muted" id="empty">Load a record and lab breaks, or try the made-up example.</p>
+        <div class="cards" id="cards"></div>
+      </section>
+      <section>
+        <h2>Strength over time</h2>
+        <div class="chartwrap" id="chart" role="img" aria-label="Estimated strength over time per sensor"></div>
+      </section>
+      <section>
+        <h2>Strength-maturity fit</h2>
+        <div class="chartwrap" id="fitChart" role="img" aria-label="Lab specimens and fitted curve"></div>
+        <table><thead><tr><th>Curve</th><th>R²</th><th>RMSE</th><th>AICc</th></tr></thead><tbody id="fitTable"></tbody></table>
+        <p class="muted" id="fitNote"></p>
+      </section>
+    </div>
+      <section id="faq">
+        <h2>Questions</h2>
+        <h3>What is the concrete maturity method?</h3>
+        <p>Concrete gains strength faster when it is warm and slower when it is cold. The maturity method turns a temperature record into a single number, the maturity index, that accounts for both time and temperature. Once you know how strength rises with maturity for one mix (from lab cylinders broken at several ages), a sensor's maturity tells you roughly how strong the concrete around it is now. ASTM C1074 is the US standard practice that describes it.</p>
+        <h3>What is the difference between Nurse-Saul and equivalent age?</h3>
+        <p>Nurse-Saul adds up degrees above a datum temperature times hours (a temperature-time factor in degree-hours). Equivalent age converts each hour into the number of hours at a reference temperature that would have produced the same strength gain, using the Arrhenius equation and an activation energy. Equivalent age tracks the real temperature dependence better over a wide range; Nurse-Saul is simpler and widely used in the field.</p>
+        <h3>What calibration data do I need?</h3>
+        <p>Compressive strengths of specimens of the same mix, broken at several ages (commonly 1, 3, 7, 14 and 28 days, two or more at each), together with their maturity at the time of testing. If the specimens were moist-cured at a known constant temperature, the age is enough and the tool works out the maturity. If a logger sat in a companion specimen, enter the logged maturity directly.</p>
+        <h3>Can I strip forms on this estimate alone?</h3>
+        <p>No. The estimate assumes the field concrete is the same mix as the calibration specimens and was kept moist enough to keep hydrating. It cannot see a batching error, a wrong mix or a dried-out surface. ASTM C1074 itself asks for the estimate to be checked by other tests before critical operations. The engineer of record decides what evidence is needed.</p>
+        <h3>Is my data uploaded?</h3>
+        <p>No. The file is read and every calculation runs in your browser. Nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day.</p>
+      </section>
+  </main>
+
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>What is the concrete maturity method?</h3>
+    <p>Concrete gains strength faster when it is warm and slower when it is cold. The maturity method turns a temperature record into a single number, the maturity index, that accounts for both time and temperature. Once you know how strength rises with maturity for one mix (from lab cylinders broken at several ages), a sensor's maturity tells you roughly how strong the concrete around it is now. ASTM C1074 is the US standard practice that describes it.</p>
+    <h3>What is the difference between Nurse-Saul and equivalent age?</h3>
+    <p>Nurse-Saul adds up degrees above a datum temperature times hours (a temperature-time factor in degree-hours). Equivalent age converts each hour into the number of hours at a reference temperature that would have produced the same strength gain, using the Arrhenius equation and an activation energy. Equivalent age tracks the real temperature dependence better over a wide range; Nurse-Saul is simpler and widely used in the field.</p>
+    <h3>What calibration data do I need?</h3>
+    <p>Compressive strengths of specimens of the same mix, broken at several ages (commonly 1, 3, 7, 14 and 28 days, two or more at each), together with their maturity at the time of testing. If the specimens were moist-cured at a known constant temperature, the age is enough and the tool works out the maturity. If a logger sat in a companion specimen, enter the logged maturity directly.</p>
+    <h3>Can I strip forms on this estimate alone?</h3>
+    <p>No. The estimate assumes the field concrete is the same mix as the calibration specimens and was kept moist enough to keep hydrating. It cannot see a batching error, a wrong mix or a dried-out surface. ASTM C1074 itself asks for the estimate to be checked by other tests before critical operations. The engineer of record decides what evidence is needed.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. The file is read and every calculation runs in your browser. Nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day.</p>
+  </section>
+
+  <footer>
+    <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
+    <p><strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind. It is not engineering, structural, construction, legal or financial advice, and it does not replace the engineer of record, a testing laboratory or field-cured specimens. It does not decide when forms can be stripped, shores removed, tendons stressed or a slab loaded. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> This tool is free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use it as a system of record; keep your logger files and lab reports.</p>
+    <p><strong>Nothing leaves your browser.</strong> Your logger file and lab results are read and calculated on this device and never uploaded. We don't have accounts, tracking cookies or an analytics vendor. An anonymous counter in this browser's local storage records which features were used and the day, never a temperature, a strength or a file name; the box above turns it off.</p>
+    <p>Framing the walls that go on this slab? <a href="../wall-framing-takeoff/">Wall framing takeoff</a> lays out studs, headers and plates and orders the lumber.</p>
+    <p>Free and open source: the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> (<a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/concrete-maturity" rel="noopener">source</a>, with a command-line version). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { parseLoggerCsv, parseCalibrationText, calibrationPoints, fitStrength, estimate, predictStrength, indexUnit, toCsv, exampleCsv, EXAMPLE_CALIBRATION } from './maturity.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    const NS = 'http://www.w3.org/2000/svg';
+    const COLORS = ['#c2410c', '#1d4ed8', '#047857', '#7c3aed', '#b45309', '#be185d'];
+    let last = null;
+
+    function count(event) { recordUsage(localStorage, el('usageOptOut').checked, event); }
+    function num(id) { const v = el(id).value.trim(); return v === '' ? null : Number(v); }
+    function opts() {
+      const o = { method: el('method').value };
+      for (const k of ['datumC', 'activationEnergy', 'referenceC', 'labCuringC']) { const v = num(k); if (Number.isFinite(v)) o[k] = v; }
+      return o;
+    }
+    function text(tag, content, attrs = {}) {
+      const n = document.createElement(tag);
+      if (content != null) n.textContent = content;
+      for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+      return n;
+    }
+    function svgEl(tag, attrs = {}, content) {
+      const n = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+      if (content != null) n.textContent = content;
+      return n;
+    }
+    const fmtH = h => (h < 48 ? `${h.toFixed(1)} h` : `${(h / 24).toFixed(1)} days`);
+
+    function niceMax(v) { const p = 10 ** Math.floor(Math.log10(v || 1)); return Math.ceil(v / p) * p; }
+
+    function plot(container, series, { xLabel, yLabel, hLine, points, xMax, yMax }) {
+      container.replaceChildren();
+      const W = 560, H = 300, L = 54, R = 12, T = 12, B = 40;
+      const svg = svgEl('svg', { viewBox: `0 0 ${W} ${H}` });
+      const xm = niceMax(xMax), ym = niceMax(yMax);
+      const X = x => L + (x / xm) * (W - L - R), Y = y => H - B - (y / ym) * (H - T - B);
+      for (let i = 0; i <= 4; i++) {
+        const yv = ym * i / 4, xv = xm * i / 4;
+        svg.append(svgEl('line', { x1: L, x2: W - R, y1: Y(yv), y2: Y(yv), stroke: '#e3dfd7' }));
+        svg.append(svgEl('text', { x: L - 6, y: Y(yv) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#555c63' }, Math.round(yv).toLocaleString()));
+        svg.append(svgEl('text', { x: X(xv), y: H - B + 16, 'text-anchor': 'middle', 'font-size': 11, fill: '#555c63' }, Math.round(xv).toLocaleString()));
+      }
+      svg.append(svgEl('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', 'font-size': 12, fill: '#1d2125' }, xLabel));
+      svg.append(svgEl('text', { x: 12, y: (T + H - B) / 2, 'text-anchor': 'middle', 'font-size': 12, fill: '#1d2125', transform: `rotate(-90 12 ${(T + H - B) / 2})` }, yLabel));
+      if (hLine) {
+        svg.append(svgEl('line', { x1: L, x2: W - R, y1: Y(hLine.y), y2: Y(hLine.y), stroke: '#1d2125', 'stroke-dasharray': '5 4' }));
+        svg.append(svgEl('text', { x: W - R - 4, y: Y(hLine.y) - 5, 'text-anchor': 'end', 'font-size': 11, fill: '#1d2125' }, hLine.label));
+      }
+      series.forEach((s, i) => {
+        const d = s.pts.filter(p => p[0] <= xm).map((p, j) => `${j ? 'L' : 'M'}${X(p[0]).toFixed(1)},${Y(Math.min(p[1], ym)).toFixed(1)}`).join('');
+        svg.append(svgEl('path', { d, fill: 'none', stroke: s.color || COLORS[i % COLORS.length], 'stroke-width': 2.2, 'stroke-dasharray': s.dash || '' }));
+        svg.append(svgEl('text', { x: L + 8, y: T + 14 + i * 15, 'font-size': 11, fill: s.color || COLORS[i % COLORS.length] }, s.name));
+      });
+      for (const p of points || []) svg.append(svgEl('circle', { cx: X(p[0]), cy: Y(p[1]), r: 3.5, fill: '#1d2125' }));
+      container.append(svg);
+    }
+
+    function runEstimate() {
+      el('errors').textContent = '';
+      const o = opts();
+      const logger = parseLoggerCsv(el('loggerText').value, { unit: el('tempUnit').value, dayFirst: el('dateOrder').value === 'dayfirst' });
+      el('loggerInfo').textContent = logger.sensors.length
+        ? `Read ${logger.sensors.length} sensor(s): ${logger.sensors.map(s => `${s.name} (${s.hours.length} readings, °${s.unit})`).join(', ')}. ${logger.notes.join(' ')}`
+        : logger.notes.join(' ');
+      const cal = parseCalibrationText(el('calText').value, { column: el('calColumn').value });
+      const problems = [...logger.errors, ...cal.errors];
+      const fit = fitStrength(calibrationPoints(cal.rows, o), el('model').value);
+      if (!fit.chosen) problems.push(`No usable strength-maturity curve: ${fit.fits.map(f => `${f.name} ${f.reason}`).join('; ')}.`);
+      if (problems.length) { el('errors').textContent = problems.join(' '); return; }
+      const unit = el('strengthUnit').value;
+      const target = num('target');
+      const result = estimate(logger.sensors, fit.chosen, { ...o, target, futureC: num('futureC'), range: fit.range });
+      last = { result, unit, o };
+      el('download').disabled = false;
+      count('maturity_estimated');
+      render(result, fit, unit, target, o);
+    }
+
+    function render(result, fit, unit, target, o) {
+      el('empty').hidden = true;
+      const cards = el('cards');
+      cards.replaceChildren();
+      const iu = indexUnit(o);
+      result.sensors.forEach((s, i) => {
+        const c = text('div', null, { class: 'card' + (s.name === result.governing && result.sensors.length > 1 ? ' gov' : '') });
+        const h = text('h3', s.name + (s.name === result.governing && result.sensors.length > 1 ? ' (lowest)' : ''));
+        h.style.color = COLORS[i % COLORS.length];
+        c.append(h, text('p', `${Math.round(s.strengthNow).toLocaleString()} ${unit}`, { class: 'big' }));
+        const row = text('div', null, { class: 'row' });
+        row.append(text('span', `Maturity ${Math.round(s.maturityNow).toLocaleString()} ${iu}`), text('span', `${fmtH(s.spanHours)} logged`), text('span', `${s.minC.toFixed(1)} to ${s.maxC.toFixed(1)} °C`));
+        c.append(row);
+        let t = null;
+        if (s.reached?.status === 'reached') t = `Reached ${target.toLocaleString()} ${unit} about ${fmtH(s.reached.hour)} after the first reading.`;
+        else if (s.reached?.status === 'unreachable') t = `The fitted curve levels off below ${target.toLocaleString()} ${unit}.`;
+        else if (s.projected?.status === 'projected') t = `Not yet at ${target.toLocaleString()} ${unit}: about ${fmtH(s.projected.hoursMore)} more if it stays near ${s.projected.assumedC.toFixed(1)} °C.`;
+        else if (s.projected?.status === 'stalled') t = `Not yet at ${target.toLocaleString()} ${unit}, and no maturity is gained at ${s.projected.assumedC.toFixed(1)} °C.`;
+        if (t) c.append(text('p', t, { class: 'muted' }));
+        for (const w of s.warnings) c.append(text('p', w, { class: 'warn' }));
+        cards.append(c);
+      });
+
+      const maxH = Math.max(...result.sensors.map(s => s.spanHours));
+      const maxS = Math.max(target || 0, ...result.sensors.map(s => s.strengthNow)) * 1.1;
+      plot(el('chart'), result.sensors.map(s => ({ name: s.name, pts: s.curve.map(p => [p.hour, p.strength]) })), {
+        xLabel: 'Hours since first reading', yLabel: `Strength (${unit})`, xMax: maxH, yMax: maxS,
+        hLine: target > 0 ? { y: target, label: `Target ${target.toLocaleString()}` } : null,
+      });
+
+      const xs = []; const xMax = Math.max(fit.range.max, ...result.sensors.map(s => s.maturityNow)) * 1.05;
+      for (let k = 1; k <= 120; k++) xs.push(xMax * k / 120);
+      const pts = calibrationPoints(parseCalibrationText(el('calText').value, { column: el('calColumn').value }).rows, o);
+      const curves = fit.fits.filter(f => f.ok).map((f, i) => ({ name: f.name + (f === fit.chosen ? ' (used)' : ''), color: f === fit.chosen ? '#c2410c' : '#9aa1a8', dash: f === fit.chosen ? '' : '4 3', pts: xs.map(x => [x, predictStrength(f, x)]) }));
+      plot(el('fitChart'), curves, { xLabel: `Maturity (${iu})`, yLabel: `Strength (${unit})`, xMax, yMax: Math.max(...pts.map(p => p.strength)) * 1.15, points: pts.map(p => [p.index, p.strength]) });
+      const tb = el('fitTable');
+      tb.replaceChildren();
+      for (const f of fit.fits) {
+        const tr = text('tr', null, f === fit.chosen ? { class: 'chosen' } : {});
+        if (f.ok) tr.append(text('td', f.label), text('td', f.r2.toFixed(3)), text('td', `${f.rmse.toFixed(unit === 'MPa' ? 2 : 0)}`), text('td', Number.isFinite(f.aicc) ? f.aicc.toFixed(1) : 'n/a'));
+        else { tr.append(text('td', f.label)); const td = text('td', f.reason); td.colSpan = 3; tr.append(td); }
+        tb.append(tr);
+      }
+      el('fitNote').textContent = `${fit.n} specimens, maturity ${Math.round(fit.range.min).toLocaleString()} to ${Math.round(fit.range.max).toLocaleString()} ${iu}. Lower AICc is better; it penalises the three-parameter curves for their extra freedom.`;
+    }
+
+    el('loggerFile').addEventListener('change', async e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      el('loggerText').value = await f.text();
+      count('logger_file_loaded');
+    });
+    el('method').addEventListener('change', () => el('methodBox').classList.toggle('eq', el('method').value === 'equivalent-age'));
+    el('run').addEventListener('click', runEstimate);
+    el('example').addEventListener('click', () => {
+      el('loggerText').value = exampleCsv();
+      el('calText').value = EXAMPLE_CALIBRATION;
+      el('calColumn').value = 'age'; el('strengthUnit').value = 'psi'; el('target').value = '3000';
+      count('example_loaded');
+      runEstimate();
+    });
+    el('download').addEventListener('click', () => {
+      if (!last) return;
+      const blob = new Blob([toCsv(last.result, last.unit, last.o)], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = 'maturity-estimate.csv'; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      count('csv_downloaded');
+    });
+    try {
+      const u = el('usageOptOut');
+      u.checked = readOptOut(localStorage);
+      u.addEventListener('change', () => writeOptOut(localStorage, u.checked));
+    } catch { /* storage is optional */ }
+  </script>
+</body>
+</html>
