@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKmTgJ6wd6UZ3RFt4MZ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T23:18:41Z",
+  "ended": "2026-11-11T23:45:26Z",
+  "wall_minutes": 27.53,
+  "tokens_in": 15495396,
+  "tokens_out": 52299,
+  "cost_usd": 5.5699,
+  "tool_calls": 109,
+  "task": "flagship 6 (shift-roster-builder): 4-week window in half-life auto; then, after PR #14923 landed it first, the fourth real sales file both open items waited on",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14924",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "duplicate work: built and measured the 4-week window in half-life auto (same eval file name, identical numbers) while PR #14923 from another session landed it first; my merge conflicted",
+      "fix": "dropped my version (theirs had a pre-registered rule and a hindsight caveat mine lacked), reset the branch onto main and reused PR #14924 for the fourth-file work"
+    },
+    {
+      "what": "post front matter: description and seo_title over the build's 160/70 limits on the first draft",
+      "fix": "shortened; caught by venture-preflight and promptctl validate"
+    },
+    {
+      "what": "main briefly red: changepoint-detector next: 2220 > 2000 after PR #14922",
+      "fix": "another session fixed it on main before I merged; my fix was dropped with the reset"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "the Maven Analytics 'Coffee Shop Sales' file found first describes a fictional chain (Maven Roasters)",
+      "handled": "not used as the 'fourth real file'; said so in the post"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "duplicate-PR search happened before work started, but PR #14923 was opened and merged during my run on the same flagship row; allocate.py's 'no PR opened in the last 24 h' row selection gives two concurrent sessions the same item. A claim marker (draft PR right after routing) would have shown it; I opened my draft only after the eval"
+    },
+    {
+      "file": "docs/posts",
+      "issue": "description (160) and seo_title (70) limits are enforced only by the pages build (venture-preflight) and promptctl validate, not stated where posts are requested"
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "closing a superseded PR and opening a new one would leave a dead PR; the branch was mine and unmerged",
+      "did": "reset my branch to main and retitled PR #14924 for the new, non-overlapping work",
+      "result": "one PR, no duplicate code on main"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-the-fourth-file-a-wholesaler-agrees.md",
+    "ventures/shift-roster-builder/README.md (The fourth file agrees)"
+  ],
+  "goal": null,
+  "notes": "Security queue, IDEAS.md and website requests empty; routed ventures/2 by draw; allocate.py row 5. Fourth file: UCI Online Retail II via GitHub LFS mirror (SHA-256 32569a66... = LFS oid; UCI host refused by the proxy). Reader fix: camelCase header split + invoice synonyms (demand.test.mjs 50/50). eval/fourth-file.mjs pre-registered rule: AGREES, 6/6 and 6/6. Local: run_venture_tests.py shift-roster-builder ok (159.6 s); venture-preflight before merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "61c56dc8-29a5-5023-bb13-7e73ba698d10",
+    "transcripts": 1,
+    "first": "2026-11-11T23:18:41Z",
+    "last": "2026-11-11T23:46:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 104,
+        "input": 203,
+        "output": 52299,
+        "thinking": 8866,
+        "cache_read": 15312624,
+        "cache_write_5m": 0,
+        "cache_write_1h": 182569,
+        "api_equivalent_usd": 5.5699,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 104,
+      "input": 203,
+      "output": 52299,
+      "thinking": 8866,
+      "cache_read": 15312624,
+      "cache_write_5m": 0,
+      "cache_write_1h": 182569,
+      "api_equivalent_usd": 5.5699,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 109,
+    "tools": {
+      "Bash": 97,
+      "Write": 4,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.53,
+      "active_minutes": 27.53,
+      "model_minutes": 10.82,
+      "tool_minutes": 16.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "senior engineer: duplicate window eval, locating and verifying a fourth real dataset, header fix, pre-registered eval, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 143.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
