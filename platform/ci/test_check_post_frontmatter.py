@@ -161,6 +161,14 @@ class T(unittest.TestCase):
         code, out = self._run({"2026-10-24-x.md": GOOD.replace("[a, b]", "[labs]"), "2026-10-24-y.md": GOOD.replace("[a, b]", "[lab]")})
         self.assertEqual((code, out), (1, "tag spelled 2 ways: lab, labs; pick one\n"))
 
+    def test_minority_spelling_names_the_post_to_edit(self):
+        posts = {f"2026-10-24-x{i}.md": GOOD.replace("[a, b]", "[benchmarks]") for i in range(3)}
+        posts["2026-10-24-new.md"] = GOOD.replace("[a, b]", "[benchmark]")
+        code, out = self._run(posts)
+        self.assertEqual((code, out), (1, "tag spelled 2 ways: benchmark, benchmarks; pick one\n"
+                                          "  `benchmarks` is on 3 posts; change the other spelling in: "
+                                          "2026-10-24-new.md\n"))
+
     def test_three_letter_s_is_not_a_plural(self):
         code, out = self._run({"2026-10-24-x.md": GOOD.replace("[a, b]", "[gas]"), "2026-10-24-y.md": GOOD.replace("[a, b]", "[ga]")})
         self.assertEqual(code, 0)

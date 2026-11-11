@@ -1249,7 +1249,31 @@ def run_for_changes(args) -> int:
     workflows = {name for name, *_ in selected} | {name for name, *_ in held}
     print(f"{len(changed)} changed file(s) against {args.for_changes} select "
           f"{len(workflows)} workflow(s).")
+    hint = budget_hint(len(selected), getattr(args, "workflow_timeout", 0),
+                       args.list)
+    if hint:
+        print(hint, flush=True)
     return _run_selected(args, selected, held)
+
+
+# A foreground tool call in a cloud session is cut off at 600 s. Runs kept
+# starting --for-changes in the foreground and losing the whole result when a
+# docs+venture diff selected 13 to 17 workflows (four doc-friction reports,
+# 2026-11-11). Saying so before the first step costs one line.
+TOOL_CAP_S = 600
+
+
+def budget_hint(n_selected: int, per_workflow_s: int, listing: bool) -> str | None:
+    """A warning when the selection can outrun a foreground tool call, else None."""
+    if listing or n_selected < 2 or not per_workflow_s:
+        return None
+    worst = n_selected * per_workflow_s
+    if worst <= TOOL_CAP_S:
+        return None
+    return (f"  {n_selected} workflow(s) x {per_workflow_s} s budget = up to "
+            f"{worst // 60} min, past a {TOOL_CAP_S} s foreground tool call: "
+            "run this in the background (log to a file), or --list first and "
+            "run the workflows you need by name.")
 
 
 def checkout_fingerprint() -> tuple[str, str] | None:
@@ -1386,7 +1410,8 @@ def main(argv=None) -> int:
                          "'is this checkout green?' where --for-changes "
                          "answers 'is my diff sound?'")
     ap.add_argument("--list", action="store_true",
-                    help="print the steps that would run, and run nothing")
+                    help="print the steps (or, with no workflow named, the "
+                         "workflows --for-changes would select) and run nothing")
     ap.add_argument("--force", action="store_true",
                     help="allow a workflow that is not verification-only")
     ap.add_argument("--timeout", type=int, default=900,
@@ -1411,6 +1436,12 @@ def main(argv=None) -> int:
         if args.workflow:
             print("pass a workflow name or --for-changes, not both", file=sys.stderr)
             return 2
+        return run_for_changes(args)
+
+    if not args.workflow and args.list:
+        # `--list` alone used to fail with "name a workflow"; the question a
+        # run asks with it is "what would --for-changes run?", so answer that.
+        args.for_changes = LOCAL_BASE["ref"] = "origin/main"
         return run_for_changes(args)
 
     if not args.workflow:
