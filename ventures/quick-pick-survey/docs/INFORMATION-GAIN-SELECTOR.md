@@ -845,7 +845,8 @@ prints a `staged` row): staged equals the information row in all 25 cells
 Spearman against a new crowd in every cell (+0.00 to +0.06) and picks the
 crowd's favourite more often in 21 of 25 (the same in 1, less often in 3).
 
-**Not tested, and the known cost.** Heavy careless answering: with 35% to 50%
+**Not tested, and the known cost.** (Measured 2026-11-11, next section: mostly
+seed noise, and no fallback ships.) Heavy careless answering: with 35% to 50%
 of answers at random, the information selector trailed the shipped one on 15
 and 30 items by up to 0.06 rank (30 seeds; it was ahead on 8, 11 and 20 items
 and at 10% lapse everywhere). The staged selector has no fallback for that,
@@ -858,3 +859,74 @@ fail with the old fixed switch), `infoGainPairing.simulation.test.ts` (the
 couple bar at 11 and 41 items; the rd 150 assertion now holds only where the
 rule still switches at 120 or at 300 answers).
 
+
+## A careless-answer fallback for the staged selector: measured, not shipped (2026-11-11)
+
+The 2026-11-10 section above left one known cost: with 35% to 50% of answers
+given at random, the information selector trailed the shipped one on 15 and 30
+items by up to 0.06 rank, and the staged selector (information from the first
+answer up to 120 items) had no fallback for it. The candidate was the
+2026-11-09 "answers look random" score (`answerAgreement`, last 80 decided
+answers scored on the ratings stored before each answer).
+
+`scripts/careless-fallback-sweep.ts` (synthetic respondent of `infoGainSim.ts`;
+8, 11, 15, 20 and 30 items; lapse 0, 0.1, 0.2, 0.35 and 0.5; 2, 4 and 8
+answers per item; 75 cells). Policies: shipped, information, staged, and staged
+with a fallback that hands the pair to the shipped selector while the z-score is
+below -2, -1.5 or -1 (and sticky variants that stay there once it trips). The
+score goes to the fallback rule only, so the information selector's admission
+pause stays off, as in the route. Two rules that need no detection were added
+for the second run: a fixed 25% or 50% of answers always from the shipped
+selector.
+
+Run 1 chose what to keep (30 seeds, seed base 1000, every policy). Run 2
+checked it on 60 fresh respondents (seed base 50000, `--policies 'shipped;staged;staged, z<-2 sticky;staged, 25% shipped;staged, 50% shipped'`).
+Run 2, over the 75 cells:
+
+| policy | mean rank vs staged | worst cell vs staged | cells behind shipped by > 0.02 |
+|---|---:|---:|---:|
+| shipped | -0.014 | -0.060 | 0 |
+| staged (as shipped today) | 0 | 0 | 7 |
+| staged, fallback at z < -2, sticky | -0.002 | -0.025 | 7 |
+| staged, 25% of answers shipped | -0.007 | -0.084 | 16 |
+| staged, 50% of answers shipped | -0.004 | -0.065 | 10 |
+
+Share of runs in which the sticky z < -2 fallback tripped by 8 answers per item
+(run 2): honest respondents (lapse 0) 0.18, 0.15, 0.32, 0.33 and 0.40 at 8, 11,
+15, 20 and 30 items; half-random respondents (lapse 0.5) 0.53, 0.43, 0.43, 0.35
+and 0.57. Under 40 answers it cannot trip (`AGREEMENT_MIN_DECIDED`), and on a
+short list that is most of the session.
+
+What it shows:
+
+- **The cost being fixed is mostly seed noise.** Of the cells where staged
+  trailed shipped by more than 0.02 in either run, only two trailed in both:
+  11 items at lapse 0.5 and 8 answers per item (-0.084, then -0.031) and 30
+  items at lapse 0.5 and 8 per item (-0.045, then -0.025). The 0.06 quoted
+  before came from one seed set; 11 items at lapse 0.5 read -0.066 to -0.084 on
+  run 1 and -0.002 to -0.031 on run 2. Across all 75 cells staged is ahead of
+  shipped by 0.021 (run 1) and 0.014 (run 2), including most heavy-lapse cells.
+- **The score cannot tell careless from careful.** It trips for a third of
+  honest respondents on 15 to 30 items and for about half of half-random ones,
+  so a fallback on it swaps selectors almost at random. It moved the mean by
+  -0.002 and left the same 7 cells behind shipped.
+- **A fixed share of shipped pairs costs more than it saves.** Both mixes gain
+  in some heavy-lapse cells (+0.10 at 8 items, lapse 0.2, 2 per item) and lose
+  more elsewhere, including on honest respondents (-0.065 at 8 items, 4 per
+  item).
+
+**Decision.** The staged selector stays as it is: no careless-answer fallback.
+`answerAgreement` stays unwired. The two cells that trail on both runs are at
+50% random answers, where every selector's ranking is poor (0.59 to 0.65 at 8
+answers per item on run 2, against 0.84 to 0.89 for an honest respondent).
+
+**What might work instead** (not tried): fix the cause, not the selector. Both
+selectors share a Glicko update that treats every answer as true preference, so
+a random answer tightens rd as much as a careful one. An update with a lapse term
+(win probability e/2 + (1 - e) p) would keep rd honest under careless
+answering for both selectors. It changes every stored rating, so it needs its
+own measurement against the real rankings in REAL-RANKINGS.md first.
+
+Caveats: synthetic respondent, lapses uniform over the session (the late-onset
+case is "Lapses that start late in a session" above), lists of 30 items or fewer,
+no real pairwise answers.
