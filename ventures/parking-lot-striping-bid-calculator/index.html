@@ -109,6 +109,18 @@
        home-elevator-bid-calculator (#2319). */
     #proposalSection, main.layout > section:not(.result) { grid-column: 1 / -1; }
 
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row, and the form, proposal and FAQ stack on the left.
+       The card is taller than the form, so as one grid cell it set its row's
+       height and, being sticky, slid down over whatever came next in its
+       column (the FAQ, or the full-width proposal). With a column of its own it
+       has room to travel, pf-site.js caps it at the window's height, and it
+       covers nothing. Phones keep the single column. */
+    @media (min-width: 781px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 3; }
+    }
+
     /* Printing sends the proposal and nothing else: no calculator, no cost
        breakdown, no wages. Handing the customer a sheet with your loaded labour
        rate on it is the one failure mode this feature must not have. `main` is

@@ -78,7 +78,16 @@
       a { text-decoration: none; color: inherit; }
       @page { margin: 16mm; }
     }
-/* proposal:end */</style>
+/* proposal:end */
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row and everything else stacks on the left, so the
+       sticky card has room to travel and never slides over the FAQ or the
+       proposal (docs/reports/polish-2026-11-11-result-column.md). */
+    @media (min-width: 761px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 2; }
+    }
+</style>
 </head>
 <body>
 <header><p class="eyebrow">FOR CONTRACTORS AND TRADE BUSINESSES</p><h1>Price the change before it changes your margin.</h1><p>A customer adds outlets, a wall, a repair, or a delivery. Enter the added labor and direct costs to see the walk-away floor, a target-margin price, and a summary you can send for written approval.</p><p><a href="./how-to-price-a-change-order.html">How do I price a construction change order?</a> · <a href="./vs-buildertrend.html">This calculator vs. Buildertrend</a> · <a href="./vs-jobtread.html">This calculator vs. JobTread</a> · <a href="./vs-a-rough-lump-sum.html">This calculator vs. a rough lump sum</a></p></header>

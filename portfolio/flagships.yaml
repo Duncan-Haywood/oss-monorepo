@@ -16,6 +16,11 @@
 # tells runs to take it only if they hold such an input. Remove the field when
 # a buildable item is added to `next:`.
 #
+# `buildable: <items a cloud session can do now>` (optional) leads the row's
+# task as "BUILDABLE HERE", so a run need not read every full `next:` to find
+# a tractable item (seven runs on 2026-11-11 did). Name only items checked to
+# need no key, account or person; drop or rewrite it when they land.
+#
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
 #
@@ -92,6 +97,15 @@ flagships:
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
+    buildable: >-
+      (1) the second reader as another model family, keyless: a local GGUF model
+      (e.g. Qwen2.5, Llama 3.x or Mistral Instruct, Q4_K_M, from Hugging Face)
+      served by llama.cpp (`llama-cpp-python` server, CPU), labelling from
+      eval/enron-labels/READER.md; (3) the local half of M2: `LLM_PROVIDER=llamacpp
+      node eval/model.mjs eval/fresh-*.jsonl` (byok.mjs has a keyless llamacpp
+      provider). ai-bookkeeper README "A bigger local model" has the CPU setup that
+      worked in a cloud session; huggingface.co answered 200 through the proxy on
+      2026-11-11.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
@@ -170,12 +184,12 @@ flagships:
       cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
       40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
       can score a staffed closure; whether to default to a half-life; forecasting from tickets (queue
-      length), not just sales; a real published-schedule export for --import-shifts; joining short runs an
-      hour or two apart into one shift and folding a short run into a neighbouring shift (the cost cut,
-      README "The short-cost weight carried through the shift cut", 2026-11-11, prices each run alone:
-      backtest now scores cut shifts, cost cut beats the old cut in 36 of 36 settings on both bakeries;
-      priced by default at r = 1 since the follow-up, README "The priced cut by default": 30 of 30 more,
-      but the default now runs shorter, so whether r = 1 is the right default needs a real manager's view).
+      length), not just sales, since the cut is no longer where the gap is (joining short runs and folding
+      them into neighbouring shifts, opt-in --join 2026-11-11, README "Joining short runs": optimal in
+      sample, but on held-out weeks clearly cheaper in 1 of 72 comparisons, dearer in 16, noise in 55, so
+      the default stays the per-run priced cut); a real published-schedule export for --import-shifts;
+      whether the priced cut's r = 1 default (README "The priced cut by default", runs shorter) suits a
+      real manager.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -230,9 +244,16 @@ flagships:
       and a pooled survey prior"): under staged, one easy pair in five lifts
       honest-vs-lapser AUC from 0.56-0.72 to 0.87-0.99 (rank accuracy flat at
       15 items, -0.01 to -0.03 at 30); shipped needs none (0.83-0.97 already);
-      pooling does not improve separation. Next: the anchor estimate as a
-      per-person weight in pooling.ts, scored on the pooled ranking with a
-      mixed population, and the false-flag rate at a threshold; staged's 0.90
+      pooling does not improve separation. Anchor weights in the pooled
+      ranking 2026-11-11 (scripts/anchor-weight-sweep.ts, section "Anchor
+      weights in the pooled ranking"; shared-truth surveys, 40 cells): no
+      weight, not even the true e, moves the groupRanking pool beyond noise
+      (-0.014 to +0.009 Spearman); dropping flagged people costs up to 0.055
+      on 8-person panels; random answering only compresses a person's
+      ratings, so the pool needs no protection. Flag at 0.5 with 20+ anchors:
+      2% or fewer honest flagged, 55-60% of lapsers caught; not built. Next:
+      non-random carelessness (position bias, one-item clicking) on the
+      shared-truth pool, which biases rather than adds noise; staged's 0.90
       coverage for honest respondents (close pairs shrink rd too fast); the
       switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator

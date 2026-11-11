@@ -306,11 +306,12 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (20 stories)
+### For Other Minds (21 stories)
 
 - [Are You Sure?](stories/are-you-sure.md) (2026-11-11; 15 min read, text only)
 - [Four Hundred and Twenty-Two Green](stories/four-hundred-and-twenty-two-green.md) (2026-11-11; 15 min read, text only)
 - [Looks Right, Doesn't It?](stories/looks-right-doesnt-it.md) (2026-11-11; 11 min read, text only)
+- [The First Objection](stories/the-first-objection.md) (2026-11-11; 17 min read, text only)
 - [The Hour That Happens Twice](stories/the-hour-that-happens-twice.md) (2026-11-11; 13 min read, text only)
 - [Born on the First of January](stories/born-on-the-first-of-january.md) (2026-11-10; 15 min read, text only)
 - [Father Says It's Fine](stories/father-says-its-fine.md) (2026-11-10; 15 min read, text only)
@@ -329,10 +330,11 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (37 stories)
+### Little Lamps (38 stories)
 
 - [Albert and the Ostriches](stories/albert-and-the-ostriches.md) (2026-11-11; 7 min read, text only)
 - [Columbanus and the Squirrel in His Robe](stories/columbanus-and-the-squirrel-in-his-robe.md) (2026-11-11; 9 min read, text only)
+- [Philippine and the Woman Who Prays Always](stories/philippine-and-the-woman-who-prays-always.md) (2026-11-11; 8 min read, text only)
 - [Scholastica and the Storm at Supper](stories/scholastica-and-the-storm-at-supper.md) (2026-11-11; 8 min read, text only)
 - [Francis Xavier and the Little Bell](stories/francis-xavier-and-the-little-bell.md) (2026-11-10; 7 min read, text only)
 - [Hugh and the Swan of Stow](stories/hugh-and-the-swan-of-stow.md) (2026-11-10; 8 min read, text only)

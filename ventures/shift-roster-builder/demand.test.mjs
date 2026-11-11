@@ -535,3 +535,48 @@ test("default plan: short runs are priced at r = 1 without --short-cost; costCut
   for (let w = 0; w < 6; w++) { const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10); for (let h = 8; h < 16; h++) flat.push(`${day} ${h}:00,${h === 12 || h === 13 ? 150 : 90}`); }
   assert.equal(ds(flat.join("\n"), { splh: 100 }).scheduled, ds(flat.join("\n"), { splh: 100, costCut: false }).scheduled);
 });
+
+// Joining short runs (2026-11-11): the priced cut chooses each headcount level whole.
+test("joined cut: two short runs four hours apart share one shift instead of one being dropped", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 18; h++) p[h] = 1; p[10] = 2; p[14] = 2;
+  const q2 = (h) => (h === 10 || h === 14 ? 0.6 : h >= 11 && h <= 13 ? 0.2 : 0);
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 8 && h < 18 ? [1, 1, q2(h), 0] : [1, 0]])));
+  const cost = { tail, r: 3, minStaff: 1, join: true };
+  const old = cutShifts(p, 4, 8, { ...cost, join: false });
+  assert.ok(old.some(([a, b]) => a === 10 && b === 14), JSON.stringify(old));
+  assert.deepEqual(old.dropped, [[14, 15, 2]]); // run by run: 10:00 stretched to 10-14, 14:00 left (each window costs more)
+  const joined = cutShifts(p, 4, 8, cost);
+  assert.ok(joined.some(([a, b]) => a === 10 && b === 15), JSON.stringify(joined)); // one 5-hour shift covers both
+  assert.deepEqual(joined.dropped, []);
+});
+
+test("joined cut: a short run is folded into the neighbouring shift by lengthening it", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 20; h++) p[h] = 1; for (let h = 10; h < 14; h++) p[h] = 2; p[15] = 2;
+  const q2 = (h) => (h >= 10 && h < 14 ? 0.9 : h === 15 ? 0.6 : h === 14 ? 0.3 : 0);
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 8 && h < 20 ? [1, 1, q2(h), 0] : [1, 0]])));
+  const cost = { tail, r: 3, minStaff: 1, join: true };
+  assert.deepEqual(cutShifts(p, 4, 8, { ...cost, join: false }).dropped, [[15, 16, 2]]);
+  const joined = cutShifts(p, 4, 8, cost);
+  assert.ok(joined.some(([a, b]) => a === 10 && b === 16), JSON.stringify(joined));
+  assert.deepEqual(joined.dropped, []);
+  // at r = 1 the fold is priced, not automatic: 14:00 costs 0.7 - 0.3 = +0.4, 15:00 0.4 - 0.6 = -0.2, so +0.2: left
+  assert.deepEqual(cutShifts(p, 4, 8, { ...cost, r: 1 }).dropped, [[15, 16, 2]]);
+});
+
+test("joined cut: a join never covers a shut hour, and a 9-hour fold is not split into pieces under the shortest shift", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 13; h++) p[h] = 1; for (let h = 14; h < 18; h++) p[h] = 1;
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, [1, h === 13 ? 0.9 : h >= 8 && h < 18 ? 1 : 0, 0]])));
+  const sh = cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1, join: true });
+  for (const [a, b] of sh) assert.ok(b <= 13 || a >= 14, `${a}-${b} covers the shut 13:00`);
+  // 9 hours at max 8 splits 4 + 5: fine at min 4, not at min 6, so with min 6 the two runs stay apart
+  const p2 = new Array(24).fill(0); for (let h = 8; h < 14; h++) p2[h] = 2; p2[16] = 2; for (let h = 6; h < 20; h++) p2[h] = Math.max(1, p2[h]);
+  const t2 = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 6 && h < 20 ? [1, 1, h < 14 && h >= 8 ? 1 : h === 16 ? 0.95 : 0.6, 0] : [1, 0]])));
+  for (const [a, b] of cutShifts(p2, 6, 8, { tail: t2, r: 3, minStaff: 1, join: true })) assert.ok(b - a >= 6, `${a}-${b}`);
+});
+
+test("joined cut is opt-in: without join the priced cut is unchanged, and backtestSales passes o.join through", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 18; h++) p[h] = 1; p[10] = 2; p[14] = 2;
+  const q2 = (h) => (h === 10 || h === 14 ? 0.6 : h >= 11 && h <= 13 ? 0.2 : 0);
+  const tail = tailOf(Object.fromEntries([...Array(24).keys()].map((h) => [h, h >= 8 && h < 18 ? [1, 1, q2(h), 0] : [1, 0]])));
+  assert.deepEqual(cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1 }), cutShifts(p, 4, 8, { tail, r: 3, minStaff: 1, join: false }));
+});

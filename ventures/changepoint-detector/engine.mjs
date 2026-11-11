@@ -1038,11 +1038,44 @@ export function parseSeries(csv, column = null, labelColumn = null) {
 // ---------------------------------------------------------------- helpers
 
 function median(a) {
-  // a typed-array sort is numeric and far faster than a comparator sort of a copy; it orders the same values the same way
-  // (only -0 and +0 may swap, and both give the same median value)
-  const s = Float64Array.from(a).sort();
-  const m = s.length >> 1;
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+  // The same value a numeric sort would put in the middle, found by selection in O(n) rather than an O(n log n) sort:
+  // median runs on every robustSd, ar1Rho and trend pass (docs/history/ci-perf-2026-11-11-median-select-pelt-one-pass.md).
+  const n = a.length;
+  const s = Float64Array.from(a);
+  const m = n >> 1;
+  for (let i = 0; i < n; i++) if (s[i] !== s[i]) { s.sort(); return n % 2 ? s[m] : (s[m - 1] + s[m]) / 2; } // NaN: keep the sort's order
+  select(s, m);
+  let hi = s[m];
+  let lo = 0;
+  if (n % 2 === 0) { lo = s[0]; for (let i = 1; i < m; i++) if (s[i] > lo) lo = s[i]; }
+  if (hi === 0 || (n % 2 === 0 && lo === 0)) {
+    // the sort orders -0 before +0, and selection does not: sorted position k holds -0 exactly when k < (count of x < 0 or -0)
+    let neg = 0;
+    for (let i = 0; i < n; i++) if (a[i] < 0 || Object.is(a[i], -0)) neg++;
+    if (hi === 0) hi = m < neg ? -0 : 0;
+    if (n % 2 === 0 && lo === 0) lo = m - 1 < neg ? -0 : 0;
+  }
+  return n % 2 ? hi : (lo + hi) / 2;
+}
+
+/** Partial sort in place (no NaN): afterwards s[k] holds the k-th smallest value, everything before it is <= s[k]. */
+function select(s, k) {
+  let l = 0, r = s.length - 1;
+  while (r > l) {
+    // median-of-three pivot, Hoare partition
+    const mid = (l + r) >> 1;
+    let a = s[l], b = s[mid], c = s[r];
+    const p = a < b ? (b < c ? b : a < c ? c : a) : (a < c ? a : b < c ? c : b);
+    let i = l, j = r;
+    while (i <= j) {
+      while (s[i] < p) i++;
+      while (s[j] > p) j--;
+      if (i <= j) { const t = s[i]; s[i] = s[j]; s[j] = t; i++; j--; }
+    }
+    if (k <= j) r = j;
+    else if (k >= i) l = i;
+    else return;
+  }
 }
 
 /** Robust noise sd from successive differences: MAD(diff) / (0.6745 * sqrt 2). Immune to a few level shifts. */
@@ -1375,7 +1408,9 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
   const beta = penaltyValue(penalty, n, model);
   const minSeg = Math.max(1, Math.floor(minSegment));
   const sd = sigma ?? robustSd(x);
-  const cost = makeCost(x, model, sd, rho, exposure, size);
+  const mean = model === 'mean';
+  // 'mean' builds its own prefix sums below, so its closure is only needed for the short-series answer
+  const cost = mean && n >= 2 * minSeg ? null : makeCost(x, model, sd, rho, exposure, size);
   if (n < 2 * minSeg) return { changepoints: [], cost: n ? cost(0, n) : 0, penalty: beta };
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
@@ -1383,21 +1418,30 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
   // The candidate starts R live in a typed array compacted in place, and each start's value in a parallel one: no array,
   // closure or boxed number per step. The 'mean' cost (most calls: every trend and seasonal pass) is written out inline,
   // the same expression in the same order as makeCost's, so the call is not a megamorphic closure call.
-  // Same values compared in the same order as before, so the same changepoints (docs/history/ci-perf-2026-11-11-pelt-inner-loop.md).
+  // Pruning is deferred one step and folded into the next step's scan: at step t a start whose value at t - 1 failed the
+  // prune test against F(t - 1) is dropped as it is reached, so R is walked once per step, not twice. The same starts are
+  // scored in the same order against the same values, so the same changepoints
+  // (docs/history/ci-perf-2026-11-11-pelt-inner-loop.md, ci-perf-2026-11-11-median-select-pelt-one-pass.md).
   let R = new Int32Array(n + 1), V = new Float64Array(n + 1), r = 1;
-  const mean = model === 'mean';
+  V[0] = -Infinity; // a new start is kept unconditionally, as before
   let S1 = null, S2 = null, s2 = 0;
   if (mean) {
     S1 = new Float64Array(n + 1); S2 = new Float64Array(n + 1);
     for (let i = 0; i < n; i++) { S1[i + 1] = S1[i] + x[i]; S2[i + 1] = S2[i] + x[i] * x[i]; }
     s2 = sd * sd;
   }
+  let prev = Infinity; // F at the previous step, the bound the stored values are pruned against
   for (let t = minSeg; t <= n; t++) {
     let best = Infinity;
     let arg = -1;
+    let k = 0;
     for (let i = 0; i < r; i++) {
+      // Prune: s can never be the last change for any t' > t - 1 if F(s) + C(s,t - 1) > F(t - 1) (K = 0). A start too recent
+      // to score was marked -Infinity, which keeps it, as the old null did; a NaN cost is pruned, as before.
+      if (!(V[i] - beta <= prev)) continue;
       const s = R[i];
-      if (t - s < minSeg) { V[i] = -Infinity; continue; }
+      R[k] = s;
+      if (t - s < minSeg) { V[k++] = -Infinity; continue; }
       let c;
       if (mean) {
         const m = t - s;
@@ -1405,17 +1449,14 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
         c = Math.max(0, S2[t] - S2[s] - (a * a) / m) / s2;
       } else c = cost(s, t);
       const v = F[s] + c + beta;
-      V[i] = v;
+      V[k++] = v;
       if (v < best) { best = v; arg = s; }
     }
     F[t] = best;
     last[t] = arg;
-    // Prune: s can never be the last change for any t' > t if F(s) + C(s,t) > F(t) (K = 0). A start too recent to score is
-    // marked -Infinity, which keeps it, as the old null did; a NaN cost is pruned, as before.
-    let k = 0;
-    for (let i = 0; i < r; i++) if (V[i] - beta <= best) R[k++] = R[i];
-    if (Number.isFinite(F[t])) R[k++] = t;
+    if (Number.isFinite(best)) { R[k] = t; V[k++] = -Infinity; }
     r = k;
+    prev = best;
   }
   const cps = [];
   for (let t = n; last[t] > 0; t = last[t]) cps.push(last[t]);
