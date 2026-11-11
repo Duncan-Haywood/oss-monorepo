@@ -90,15 +90,23 @@ function gains(n, q) {
 // noise: 'lags' sizes sigma and omega from lag differences (driftNoise); 'ml' keeps that sigma and
 // chooses omega with the changes (driftNoiseML). Library default 'lags' (the pinned tests and the
 // O(n^2) single fit); the CLI defaults to 'ml' (eval/tcpd-drift-ml.mjs, README "A step-robust omega").
-export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags' } = {}) {
+// loss: 'gauss' (the -2 log likelihood above, the default), 'biweight' or 'huber' on the standardised
+// innovation z = v / sqrt(F). Both keep the Gaussian cost while |z| <= lossK and change it past that:
+// biweight charges a flat lossK^2 and leaves the level where it was (the point is treated as an
+// outlier: Fearnhead and Rigaill, "Changepoint detection in the presence of outliers", JASA 2019,
+// bounded losses, here inside the filter instead of a flat segment mean); huber charges
+// 2 lossK |z| - lossK^2 and moves the level by the clipped innovation (Masreliez-style robust filter).
+// The filter's variances are left as they are, so the O(n^2) structure is unchanged
+// (README "Heavy tails on a drifting level").
+export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags', loss = 'gauss', lossK = 3 } = {}) {
   const raw = Array.from(values, Number);
   const g = slope ? medianSlope(raw) : 0;
   const x = g ? raw.map((v, t) => v - g * t) : raw;
   const n = x.length;
   if (n < 2 * minSegment) return { changepoints: [], sigma: sigma ?? null, omega: omega ?? null, penalty: null };
   if (noise === 'ml' && (sigma == null || omega == null)) {
-    const ml = driftNoiseML(x, { penalty, minSegment });
-    return { ...driftLevelChanges(x, { sigma: ml.sigma, omega: ml.omega, penalty, minSegment }), slope: g, noise: 'ml', ml };
+    const ml = driftNoiseML(x, { penalty, minSegment, loss, lossK });
+    return { ...driftLevelChanges(x, { sigma: ml.sigma, omega: ml.omega, penalty, minSegment, loss, lossK }), slope: g, noise: 'ml', ml };
   }
   const est = sigma == null || omega == null ? driftNoise(x) : null;
   const s = sigma ?? est.sigma, w = omega ?? est.omega;
@@ -106,6 +114,7 @@ export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 
   const q = (w * w) / (s * s);
   const y = x.map((v) => v / s);
   const { K, logF, F } = gains(n, q);
+  const lossKind = lossCode(loss), K2 = lossK * lossK;
   // For every open segment start st: its filtered level a[st] and its cost so far c[st].
   const a = new Float64Array(n), c = new Float64Array(n);
   const best = new Float64Array(n + 1); // best[t] = optimal cost of y[0..t-1]
@@ -113,10 +122,19 @@ export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 
   best[0] = -beta;
   for (let t = 0; t < n; t++) {
     // Extend every segment that started before t by the point t, then open one starting at t.
-    for (let st = 0; st < t; st++) {
-      const j = t - st, v = y[t] - a[st];
-      c[st] += logF[j] + (v * v) / F[j];
-      a[st] += K[j] * v;
+    if (lossKind === 0) {
+      for (let st = 0; st < t; st++) {
+        const j = t - st, v = y[t] - a[st];
+        c[st] += logF[j] + (v * v) / F[j];
+        a[st] += K[j] * v;
+      }
+    } else {
+      for (let st = 0; st < t; st++) {
+        const j = t - st, v = y[t] - a[st], z2 = (v * v) / F[j];
+        if (z2 <= K2) { c[st] += logF[j] + z2; a[st] += K[j] * v; }
+        else if (lossKind === 1) c[st] += logF[j] + K2;
+        else { const az = Math.sqrt(z2); c[st] += logF[j] + 2 * lossK * az - K2; a[st] += (K[j] * v * lossK) / az; }
+      }
     }
     a[t] = y[t]; c[t] = 0;
     // best[t+1]: the last segment is y[st..t], at least minSegment long.
@@ -131,7 +149,13 @@ export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 
   const cps = [];
   for (let t = n; t > 0; t = last[t]) if (last[t] > 0) cps.push(last[t]);
   cps.reverse();
-  return { changepoints: cps, sigma: s, omega: w, penalty: beta, cost: best[n], slope: g, noise: est ? 'lags' : 'given' };
+  return { changepoints: cps, sigma: s, omega: w, penalty: beta, cost: best[n], slope: g, noise: est ? 'lags' : 'given', loss, lossK: lossKind ? lossK : null };
+}
+
+function lossCode(loss) {
+  const k = { gauss: 0, biweight: 1, huber: 2 }[loss];
+  if (k == null) throw new Error(`loss must be gauss, biweight or huber, not ${loss}`);
+  return k;
 }
 
 // omega chosen together with the changes, by penalised likelihood, so that a single large step
@@ -148,7 +172,7 @@ export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 
 // per change, which makes a change worth -log sigma^2 (a bonus that depends on the data's units);
 // charging that point log sigma^2 instead makes the likelihood unbounded as sigma goes to 0 with
 // many short segments. Holding sigma at a robust estimate avoids both.
-export function driftNoiseML(values, { penalty, minSegment = 2, grid = null, sigma = null } = {}) {
+export function driftNoiseML(values, { penalty, minSegment = 2, grid = null, sigma = null, loss = 'gauss', lossK = 3 } = {}) {
   const x = Array.from(values, Number), n = x.length;
   const beta = penalty ?? 2 * Math.log(n);
   const start = driftNoise(x);
@@ -157,7 +181,7 @@ export function driftNoiseML(values, { penalty, minSegment = 2, grid = null, sig
   const evalQ = (q) => {
     const key = q.toPrecision(12);
     if (!memo.has(key)) {
-      const r = driftLevelChanges(x, { sigma: s, omega: s * Math.sqrt(q), penalty: beta, minSegment });
+      const r = driftLevelChanges(x, { sigma: s, omega: s * Math.sqrt(q), penalty: beta, minSegment, loss, lossK });
       memo.set(key, { q, sigma: s, omega: r.omega, objective: r.cost, changepoints: r.changepoints });
     }
     return memo.get(key);
@@ -181,11 +205,17 @@ export function driftNoiseML(values, { penalty, minSegment = 2, grid = null, sig
 
 // The -2 log likelihood of one segment on its own (the cost optimal partitioning adds up), in the
 // same units as driftLevelChanges: values divided by sigma. For tests and for checking a partition.
-export function driftSegmentCost(values, { sigma, omega }) {
+export function driftSegmentCost(values, { sigma, omega, loss = 'gauss', lossK = 3 }) {
   const y = Array.from(values, (v) => Number(v) / sigma), m = y.length;
   const { K, F, logF } = gains(m, (omega * omega) / (sigma * sigma));
+  const kind = lossCode(loss), K2 = lossK * lossK;
   let a = y[0], c = 0;
-  for (let j = 1; j < m; j++) { const v = y[j] - a; c += logF[j] + (v * v) / F[j]; a += K[j] * v; }
+  for (let j = 1; j < m; j++) {
+    const v = y[j] - a, z2 = (v * v) / F[j];
+    if (kind === 0 || z2 <= K2) { c += logF[j] + z2; a += K[j] * v; }
+    else if (kind === 1) c += logF[j] + K2;
+    else { const az = Math.sqrt(z2); c += logF[j] + 2 * lossK * az - K2; a += (K[j] * v * lossK) / az; }
+  }
   return c;
 }
 
