@@ -45,7 +45,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "open-tennis-robots: tests/ 49 pass (PYTHONPATH=src python3 -m unittest discover -s tests); page.test.mjs pass. build123d install hung in pip (cloud), so the +48.8 deg clearance at timed homing is unchecked and is first in next:.",
+  "notes": "open-tennis-robots: tests/ 50 pass; page.test.mjs pass; cad tests 51 pass under build123d 0.13.0 (pytest, incl. new ElevationStopTest and package freshness); feeder package regenerated (build exit 0, no rules/collisions). Finding: 240 mm actuator's retract limit put the head at +48.8 deg, into the turntable plate (clear to +46.36); drawn now 246 mm. run_workflow_locally --for-changes: open-tennis-robots-ci all ok except the CAD step's 300 s local budget (run directly instead: pass); pages.yml hub-link/placeholder steps failed only because the site build step is skipped locally (no _site).",
   "corrections": [],
   "redteam": null
 }
