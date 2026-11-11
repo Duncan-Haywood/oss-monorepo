@@ -30,7 +30,8 @@
   "tests_added": 5,
   "outcome": "success",
   "errors": [
-    "A first full test run was started before the last edits and killed; rerun after them."
+    "A first full test run was started before the last edits and killed; rerun after them.",
+    "carryover.test.mjs whole-season test failed at 16 teams after the change (912 = mirrored 912 = floor); fixed by asking strict improvement only above the floor."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,7 +53,7 @@
     "ventures/league-schedule-generator/README.md (Perfect carry-over at 4, 8, 16 and 32 teams)"
   ],
   "goal": null,
-  "notes": "Verification: node --test field.test.mjs 5/5; full venture suite node --test *.test.mjs (see PR); eval/field-start.mjs output committed; scratch best-of-k run at 16 teams double: balanced pick 996/48 vs 1,220/54 before. venture-preflight run in background.",
+  "notes": "Verification (local; no CI check runs had started on the PR): node --test *.test.mjs in the venture 410/410 pass (first run 409/410: the whole-season test asked for strictly below mirrored, but a mirrored field leg is already at the floor 912 at 16 teams; test relaxed to strict only above the floor, README and post explain why); venture-preflight clean (exit 0); eval/field-start.mjs output committed; scratch best-of-k at 16 teams double: balanced pick 996/48 vs 1,220/54 before.",
   "corrections": [],
   "redteam": null
 }
