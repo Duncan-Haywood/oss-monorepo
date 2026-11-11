@@ -210,3 +210,33 @@ Measured 2026-11-09, 150 cm cloth: one tee M 85.1 cm (77.5% of the cloth is patt
 ## Zip-front hoodie
 
 `draft("hoodie", size, { zip: true })` (checkbox on `pattern.html`) cuts the front as two halves with a 1.5 cm centre-front allowance (`zipSeamCm`, 0.5 to 4) instead of a fold, reports the centre-front stitch length for buying an open-end zip, and nests in the cutting plan. Typed drafting allowance, not checked against a real hoodie or zip tape.
+
+## Painting finder and print resolution (2026-11-11)
+
+`artwork.html` + `artwork.mjs`. The first interview's line is classical and
+devotional paintings on garments, and the studio used to stop at a list of
+museum links. Now the designer searches the Art Institute of Chicago and The
+Met open-access APIs from the page (calls go from the browser to the museum;
+nothing passes through us), sees only works the museum flags as public domain
+(paintings only by default), and gets a print verdict per image at the planned
+width and method: pixels per inch, sharp / acceptable / too low against
+typical figures (300 sharp and 150 floor for DTG, DTF and sublimation; 200
+floor for high-density and puff, whose relief exaggerates edges; 150 enough
+for embroidery, which a digitiser redraws), the largest sharp width, and a
+halftone note at 1.5 x the ruling. "Use in the studio" puts a preview copy on
+the garment and keeps the original's pixel size on the placement (`srcPx`);
+uploads keep it too. The studio's method note then says whether the chosen
+print width is sharp, which matters because the studio stores a 1400 px
+preview: a 25 cm print of that preview would be 142 ppi.
+
+Checked: `artwork.test.mjs` (11 tests: ppi worked by hand, verdict per method,
+halftone note, both museums' parsers on their documented response shapes,
+one museum down, the hand-off read once and refusing stale or non-image data)
+and a design test that `srcPx` survives a saved design; a headless-Chromium run
+with both APIs mocked: search, measure, a Met image served without CORS (the
+page measures it and says to save it from the museum page instead of copying
+it), hand-off to the studio and the warning in the method note, no console
+errors. Not checked: the live APIs. From the build session both hosts were
+refused by the network proxy, so the field names come from the museums' public
+API documentation, not a live response. The rights flag is the museum's, not a
+legal check; the ppi figures are print-shop guidance, not a standard.
