@@ -114,9 +114,13 @@ flagships:
       "Third round"): each tuned on read halves, scored once on an unread half
       labelled blind by a separate agent; round 3 (Re: subjects not read, others'
       absences, forwarding) on 3*: wrong stops 10.9 to 8.4 per 1,000, right 47 to
-      46. Next: (1) the 81 left on 3* (first-person short absences, "don't need the
-      X" in work talk) tuned on 0*-3*, scored on 4*; a human second reader; "Mine
-      too" above a quoted opt-out; real
+      46. Round 4, 2026-11-11 (eval/README "Fourth round"): whose absence (nearest
+      subject), "out Friday but in all next week", bare "No." that goes on talking;
+      scored once on unread 4*: wrong stops 7.2 to 5.0 per 1,000, right 65 to 64.
+      Next: (1) the 48 left on 4* (REST_DECLINES too broad: "need"/"thanks"/"n't"
+      keep a talking "No." a stop; first-person short absences; handovers) tuned
+      on 0*-4*, scored on 5*; a human second reader; "Mine too" above a quoted
+      opt-out; real
       opt-out recall set 2026-11-10 (eval/optout-recall.mjs, Enron 2*-f*, README): 103
       of 113 caught before, 112 after five patterns, no new wrong stop on either half;
       open: a second reader for its labels; (2) real replies to outreach and a real
