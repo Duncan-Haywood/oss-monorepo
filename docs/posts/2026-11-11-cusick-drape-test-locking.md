@@ -1,9 +1,9 @@
 ---
 title: "We built a simulated drape test, and it measured our mesh instead of the fabric"
-seo_title: "Simulated Cusick drape test: mass-spring cloth locking and drape coefficient calibration"
+seo_title: "Simulated Cusick drape test: spring-grid cloth locking"
 date: 2026-11-11
 tags: [research, robotics, cloth-simulation, laundry-robot, digital-twin]
-description: "A Cusick drape test on a spring-grid cloth model ranks four fabrics correctly, but stretch stiffness and mesh move the drape coefficient more than bending rigidity does."
+description: "A simulated Cusick drape test ranks four fabrics correctly, but stretch stiffness and mesh move its drape coefficient more than bending rigidity does."
 ---
 
 The [`hanger-codesign`](../../research/hanger-codesign/) programme asks how good
