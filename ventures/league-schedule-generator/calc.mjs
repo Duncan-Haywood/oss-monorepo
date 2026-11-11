@@ -653,7 +653,8 @@ export function buildSchedule(spec) {
   // second leg as well (mirroring the first would double every carry-over count): each pair still
   // meets once per leg, the return game at the other ground.
   // `carryOverPlan` is rounds the page already searched in a Web Worker (carryover-worker.mjs) for
-  // these settings; `carryOverTries` > 1 runs the best-of-k search here (CLI, tests), choosing by
+  // these settings; `carryOverTries` > 1 runs the best-of-k search here (CLI, tests), with
+  // `carryOverCapped` capped tries after them (as the page runs 8 + 2), choosing by
   // carry-over + `carryOverPick` x breaks.
   let carryOverSearch = null;
   if (spec.carryOver && n >= 4) {
@@ -662,7 +663,7 @@ export function buildSchedule(spec) {
       plan = plan0.rounds;
       carryOverSearch = plan0.summary || null;
     } else if (Number.isInteger(spec.carryOverTries) && spec.carryOverTries > 1) {
-      const best = bestCarryOverRounds(n, { double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries, pick: spec.carryOverPick ?? CARRY_OVER_PICK.balanced });
+      const best = bestCarryOverRounds(n, { double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries, capped: Number.isInteger(spec.carryOverCapped) && spec.carryOverCapped > 0 ? spec.carryOverCapped : 0, pick: spec.carryOverPick ?? CARRY_OVER_PICK.balanced });
       plan = best.rounds;
       carryOverSearch = carryOverSummary(best);
     } else {
@@ -2718,7 +2719,7 @@ export function decodeFields(text) {
     const str = (v) => (typeof v === "string" ? v : "");
     const wd = Array.isArray(o.weekdays) ? o.weekdays.filter((d) => WEEKDAYS.includes(d)) : [];
     return {
-      teams: str(o.teams), double: o.double === true, carryOver: o.carryOver === true, carryOverPick: ["fair", "balanced", "breaks"].includes(o.carryOverPick) ? o.carryOverPick : "balanced", start: str(o.start), weekdays: wd,
+      teams: str(o.teams), double: o.double === true, carryOver: o.carryOver === true, carryOverPick: ["fair", "balanced", "breaks", "fewest"].includes(o.carryOverPick) ? o.carryOverPick : "balanced", start: str(o.start), weekdays: wd,
       skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courtLimits: str(o.courtLimits), courtClosures: str(o.courtClosures), courts: str(o.courts), times: str(o.times),
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
