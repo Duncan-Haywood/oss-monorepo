@@ -45,6 +45,10 @@
     {
       "file": "portfolio/flagships.yaml",
       "issue": "The '80-120 person weeks' item did not say that 120x336 is over the tool's 400-shift cap; the item cost a run to find that out."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says search open PRs before opening one; three runs took the same shift-roster flagship item within the hour, and two had not opened PRs yet when I searched, so the search could not see them. A flagship claim (e.g. a branch-name or file marker per flagship item) would avoid it."
     }
   ],
   "deviations": [
@@ -60,7 +64,7 @@
     "ventures/shift-roster-builder/README.md (A chain bound in the pricing oracle)"
   ],
   "goal": null,
-  "notes": "Bench output in ventures/shift-roster-builder/eval/cg-scale-bench.out.txt. 80x224 before: root unfinished at 120 s, oracle 108 of 121 s, max call 577,737 nodes. After: max call 11.8k-57k nodes, 1 of 3 proven (281 h, 96 s), 2 rosters 4-5 h over the bound. 60x168 same-session control: 22-31 s off vs 12-22 s on, same search path. Local verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (428.8 s); node --test chain-bound.test.mjs 2/2. node platform/pages/venture-preflight.mjs shift-roster-builder -> preflight clean. Merge conflict with a parallel run's dive backtracking (landed on main mid-run, same 80-person item): resolved keeping both; re-ran 80x224 on the merged code (same result, 1 of 3 proven; backtracking 3 retries on week 0, no gain) and the full suite again (ok, 408.3 s).",
+  "notes": "Bench output in ventures/shift-roster-builder/eval/cg-scale-bench.out.txt. 80x224 before: root unfinished at 120 s, oracle 108 of 121 s, max call 577,737 nodes. After: max call 11.8k-57k nodes, 1 of 3 proven (281 h, 96 s), 2 rosters 4-5 h over the bound. 60x168 same-session control: 22-31 s off vs 12-22 s on, same search path. Local verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (428.8 s); node --test chain-bound.test.mjs 2/2. node platform/pages/venture-preflight.mjs shift-roster-builder -> preflight clean. Merge conflict with a parallel run's dive backtracking (landed on main mid-run, same 80-person item): resolved keeping both; re-ran 80x224 on the merged code (same result, 1 of 3 proven; backtracking 3 retries on week 0, no gain) and the full suite again (ok, 408.3 s). Second conflict: PR #14665 (exact speed-ups, 80-person 3 of 3 in 77-100 s) landed too. Merged and re-benched with everything on: 80x224 3 of 3 in 42-86 s; 100x280 week 0 root now settles (358, roster 359; before: unsettled, 1.4M-node oracle calls), week 1 347/344 unchanged; 60x168 on vs CHAIN=0 side by side 5.0-10.5 s vs 6.2-11.2 s. Docs rewritten to the combined state.",
   "corrections": [],
   "redteam": null,
   "usage": {

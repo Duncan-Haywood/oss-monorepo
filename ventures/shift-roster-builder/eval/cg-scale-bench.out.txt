@@ -82,6 +82,36 @@ case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pri
 1	314	2105	331.00	331	335	false	12	2246	62	3050	0	473140	85368	122798	11	yes
 2	326	2064	261.00	261	-	false	1	1920	23	1840	0	541621	110904	131044	0	no
 
+# 2026-11-11 later: exact speed-ups (sparse refactor/pivot rows, per-row basic values, binary insertSorted, bit-mask validList).
+# Same node/column/round counts as the code before them. 3 benches at once on 4 cores. Before (old code), 80x224 week 0:
+0	304	1974	252.00	252	-	false	1	2338	32	2560	0	577737	109992	133288	0	no
+# after:
+40 people, 112 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+0	149	953	169.00	169	169	true	8	875	42	1169	0	22247	923	1958	7	yes
+1	148	943	146.00	146	146	true	44	1097	112	2205	0	67929	1063	3442	43	yes
+2	162	1079	281.00	281	281	true	8	923	44	1096	0	40298	509	1263	7	yes
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	106869	3189	10444	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	38793	3907	9218	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	116407	3018	11652	8	yes
+80 people, 224 shift lines, oracle cap 2000000 nodes per call, 120000 ms per week
+0	304	1974	257.00	257	257	true	82	3700	185	7625	0	577737	24599	90193	81	yes
+1	314	2105	331.00	331	331	true	75	2440	147	6487	0	473140	44660	100420	74	yes
+2	326	2064	281.00	281	281	true	9	2465	65	3338	0	627196	54678	77072	8	yes
+100 people, 280 shift lines, oracle cap 2000000 nodes per call, 180000 ms per week
+0	400	2607	294.00	294	-	false	1	3680	36	3600	0	1435826	128057	184852	0	no
+1	400	2642	344.00	344	347	false	18	4489	88	6202	0	469451	36833	185306	17	yes
+# HiGHS (eval/ilp-check.py, scipy 1.18.1, 300 s) on the 80x224 and 100x280 weeks:
+# 80x224 0 0 Optimization terminated successfully. (H min open hours 257.0 dual bound 257.0 engine open None engine floor None 7.9s
+# 80x224 1 1 Time limit reached. (HiGHS Status 13: Ti min open hours 338.0 dual bound 331.0000000000091 engine open None engine floor None 300.2s
+# 80x224 2 1 Time limit reached. (HiGHS Status 13: Ti min open hours 283.0 dual bound 281.0000000000097 engine open None engine floor None 300.2s
+# 100x280 0 1 Time limit reached. (HiGHS Status 13: Ti min open hours 360.99999999999994 dual bound 358.00000000000153 engine open None engine floor None 300.5s
+# 100x280 1 1 Time limit reached. (HiGHS Status 13: Ti min open hours 357.99999999999983 dual bound 344.0000000000019 engine open None engine floor None 300.4s
+# merged with main (dive backtracking on), 80x224, beside the full test suite:
+0	304	1974	257.00	257	257	true	82	3700	185	7625	0	577737	27817	99490	81	yes
+1	314	2105	331.00	331	331	true	75	2440	147	6487	0	473140	44783	101646	74	yes
+2	326	2064	281.00	281	281	true	9	2465	65	3338	0	627196	56070	79194	8	yes
+
 # 2026-11-11 later: chain bound in the pricing oracle (on by default; CHAIN=0 is the control). 4-core machine, up to three benches at once.
 # 80x224 before (chain bound off, old code; case 2 not run before the kill):
 0	304	1974	161.00	161	-	false	1	1680	20	1600	0	577737	108379	121256	0	no
@@ -111,3 +141,25 @@ case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pri
 0	304	1974	257.00	257	262	false	27	3047	86	5159	0	26952	16345	120421	26	yes
 1	314	2105	331.00	331	335	false	32	2255	86	4620	0	11778	18713	120555	31	yes
 2	326	2064	281.00	281	281	true	9	2465	65	3338	0	57116	47156	99337	8	yes
+
+# After merging the exact speed-ups (#14665) with the chain bound: both on. Same 4-core machine, two benches at a time.
+80 people, 224 shift lines, oracle cap 2000000 nodes per call, 120000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	304	1974	257.00	257	257	true	82	3700	185	7625	0	26952	5979	85724	81	yes
+1	314	2105	331.00	331	331	true	75	2440	147	6487	0	11778	6767	75802	74	yes
+2	326	2064	281.00	281	281	true	9	2465	65	3338	0	57116	13312	42344	8	yes
+100 people, 280 shift lines, oracle cap 2000000 nodes per call, 180000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	400	2607	358.00	358	359	false	14	4713	96	5850	0	88591	32406	180208	13	yes
+1	400	2642	344.00	344	347	false	18	4489	88	6202	0	47086	12058	184073	17	yes
+# 60x168, chain bound on and CHAIN=0, run side by side on the merged code:
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	5288	1106	8448	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	6251	848	4977	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	3674	1237	10461	8	yes
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	106869	1949	9141	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	38793	2169	6248	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	116407	2236	11249	8	yes
