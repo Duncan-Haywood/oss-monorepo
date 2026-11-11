@@ -14,6 +14,8 @@ import path from 'node:path';
 import os from 'node:os';
 import zlib from 'node:zlib';
 import { promisify } from 'node:util';
+import { execFile } from 'node:child_process';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const gzip = promisify(zlib.gzip);
 
@@ -146,8 +148,40 @@ let built;
 function site() {
   if (!built) {
     built = fs.mkdtemp(path.join(os.tmpdir(), 'pages-build-')).then((outDir) => buildSite({ outDir, baseUrl: BASE }));
+    // Started here so it runs beside the shared build, not after it: see
+    // 'an identical build produces an identical cache name'.
+    childSite().catch(() => {});
   }
   return built;
+}
+
+// A second full build of the same site, in its own process. buildSite keeps
+// per-build state at module level (SITE_COUNTER_URL and friends), so a second
+// build cannot share this process. The determinism test compares its cache
+// name with the shared build's. Until 2026-11-11 that test lived in
+// build-determinism.test.mjs and built the site twice in two children, a third
+// full build of the same configuration beside this file's; comparing one child
+// against the build this file makes anyway is the same claim for one build
+// fewer (docs/history/pages-test-perf-2026-11-11-determinism-one-child.md).
+const BUILD_MODULE = pathToFileURL(fileURLToPath(new URL('./build.mjs', import.meta.url))).href;
+let childBuilt;
+function childSite() {
+  if (!childBuilt) {
+    childBuilt = fs.mkdtemp(path.join(os.tmpdir(), 'pages-sw-child-')).then(async (outDir) => {
+      const code = `import { buildSite } from ${JSON.stringify(BUILD_MODULE)};
+        const r = await buildSite({ outDir: ${JSON.stringify(outDir)}, baseUrl: ${JSON.stringify(BASE)} });
+        process.stdout.write(JSON.stringify({ outDir: r.outDir, cacheName: r.offline.cacheName }));`;
+      try {
+        const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', code], {
+          maxBuffer: 1 << 28,
+        });
+        return JSON.parse(stdout.slice(stdout.lastIndexOf('{')));
+      } finally {
+        await fs.rm(outDir, { recursive: true, force: true });
+      }
+    });
+  }
+  return childBuilt;
 }
 
 const read = async (...parts) => fs.readFile(path.join((await site()).outDir, ...parts), 'utf8');
@@ -3278,9 +3312,15 @@ test('the cache name carries the build, so a deploy cannot serve a stale mix', a
   assert.match(sw, /key !== CACHE/);
 });
 
-// 'an identical build produces an identical cache name' lives in
-// build-determinism.test.mjs: it needs a second full build, and in its own
-// file that build runs beside this file's instead of after it.
+test('an identical build produces an identical cache name', async () => {
+  // Two builds of the same site: the shared one, in this process, and one in
+  // a child process, in different temp directories, both started together by
+  // site(). They share no module state, so equal names show the hash depends
+  // on neither build order, process nor output path.
+  const [a, b] = await Promise.all([site(), childSite()]);
+  assert.notEqual(a.outDir, b.outDir);
+  assert.equal(a.offline.cacheName, b.cacheName, 'the hash must not depend on build order or paths');
+});
 
 test('the worker only ever touches same-origin GETs', async () => {
   const sw = await read('sw.js');
