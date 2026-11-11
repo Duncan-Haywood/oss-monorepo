@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 25,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "Two of my own test expectations were wrong at first (a mental estimate of 9.4 g/m\u00b2/day that the hand formula gives as 7.52; an 'accumulating' climate whose summer did dry the wall inward)",
       "fix": "Corrected the expectations to the hand formula, and used a subarctic climate that cannot dry; the engine itself was not changed for either"
+    },
+    {
+      "what": "sibling-links gate failed locally: the new tool had no sibling page linking to it (orphan budget 0)",
+      "fix": "hvac-load-calc's footer now links wall-condensation-check (and the reverse link was already there), with an href test in each page.test.mjs"
     }
   ],
   "integrity_issues": [],
@@ -46,6 +50,10 @@
     {
       "file": "prompts/explore/prompt-0.md",
       "issue": "Registering a new venture in the catalogue takes four hand edits (two build.mjs group regexes with comments, launched.json, the SWITCHES_IN_THE_CATALOGUE count in optout-persistence.test.mjs), and no doc lists them; I found them by grepping the previous explore venture's slug. A one-line pointer or a scaffold script would save each new-venture run that grep."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "pages.yml's two _site checks report FAIL when its build step is skipped (a ${{ }} expression). They should report UNRUN, as budget-cut steps now do, so a run does not have to look into an expected failure."
     }
   ],
   "deviations": [
@@ -61,7 +69,7 @@
     "ventures/wall-condensation-check/will-my-wall-condense.html"
   ],
   "goal": null,
-  "notes": "Explore idea: graduate research/house-dewpoint (a fixed four-climate Glaser table in Python) into a browser venture, wall-condensation-check, that takes any layers and any monthly climate. Engine: ISO 13788 psat over water and ice, a taut-string vapour profile by gift wrapping over the interfaces, condensed water carried forward with wet interfaces pinned at saturation (so they dry), the ISO start month, two-year runs to expose accumulation, and the safe indoor RH by bisection. duplicate_check top match 0.11. Verification: node --test 25/25 (hand-checked two-layer rate, moisture conservation, poly/XPS behaviour, unit equivalence F/C); optout-persistence 20/20; tools.mjs call works; Chromium at 390/1100 px has no errors and no horizontal scroll. No agent doc: the README and VENTURE.yaml carry what the next run needs. Next: reproduce an ISO 13788 annex example, humidity-dependent permeance, an air-leakage term.",
+  "notes": "Explore idea: graduate research/house-dewpoint (a fixed four-climate Glaser table in Python) into a browser venture, wall-condensation-check, that takes any layers and any monthly climate. Engine: ISO 13788 psat over water and ice, a taut-string vapour profile by gift wrapping over the interfaces, condensed water carried forward with wet interfaces pinned at saturation (so they dry), the ISO start month, two-year runs to expose accumulation, and the safe indoor RH by bisection. duplicate_check top match 0.11. Verification: node --test 25/25 (hand-checked two-layer rate, moisture conservation, poly/XPS behaviour, unit equivalence F/C); optout-persistence 20/20; tools.mjs call works; Chromium at 390/1100 px has no errors and no horizontal scroll. No agent doc: the README and VENTURE.yaml carry what the next run needs. Next: reproduce an ISO 13788 annex example, humidity-dependent permeance, an air-leakage term. Local CI (run_workflow_locally --for-changes): everything green except (a) sibling-links, fixed in this PR; (b) agent-permission-harness byte-identity, which was racing my new run-record file (14331 vs 14332 files) and passes on a rerun; (c) the distribution hub tests, which failed once during the parallel run and pass 50/50 when rerun on the branch; (d) the pages.yml _site checks, which the local runner skips because the build step uses a ${{ }} expression, so I built the site and ran them separately.",
   "corrections": [],
   "redteam": null,
   "usage": {

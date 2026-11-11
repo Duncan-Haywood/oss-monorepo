@@ -95,6 +95,10 @@ test("the guide's worked numbers are the engine's", async () => {
   assert.ok(xps2.rows.find((r) => r.name === "Jan").interfaces[i].t > 0, "2 in XPS: OSB face above freezing in January");
 });
 
+test("index links one hop to the hvac-load-calc sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/hvac-load-calc\/"/);
+});
+
 test("page documents the method, omissions and usage events", () => {
   const html = page("index.html");
   assert.match(html, /Not modelled/);
