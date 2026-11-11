@@ -47,6 +47,10 @@
     {
       "what": "Mobile screenshot showed the findings table breaking file paths one character per line",
       "fix": "table stacks as cards under 640px"
+    },
+    {
+      "what": "platform/pages faq-visible test: JSON-LD answer said 'ProtectKernel settings', page said 'ProtectKernel* settings'",
+      "fix": "page text matched to JSON-LD"
     }
   ],
   "integrity_issues": [],
@@ -58,6 +62,10 @@
     {
       "file": "PRODUCT_PLAYBOOK.md",
       "issue": "The new-venture wiring (build.mjs category regex, DOWNLOADABLE_CLI_FILES, launched.json, optout SWITCHES count, sibling link) is learned by reading a previous venture's commit, not from one checklist."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes spends its 300 s budget inside 'Test the site builder' (~5 min alone), so every later build step reports FAIL (TIMEOUT); running `node --test` in platform/pages directly was needed to see the one real failure."
     }
   ],
   "deviations": [
@@ -78,7 +86,7 @@
     "docs/posts/2026-11-11-what-a-five-line-unit-file-hands-over.md"
   ],
   "goal": null,
-  "notes": "Idea: a file-based systemd .service hardening checker (drop-in merge, DynamicUser implications, container-launcher detection, starter drop-in generator) to sit beside the Compose/Kubernetes/Actions devsec checks; nothing in ventures/ read unit files. Ran it on the repo's own two units for the post. Verified: 16 Python + 23 Node tests, parity test Python/JS, run_venture_tests.py ok for this venture and docker-compose-security-check, optout-persistence test 20/20, check_llms_txt_links 0 dead, check_post_links 0 broken, Chromium drive at 390px with no console errors.",
+  "notes": "Idea: a file-based systemd .service hardening checker (drop-in merge, DynamicUser implications, container-launcher detection, starter drop-in generator) to sit beside the Compose/Kubernetes/Actions devsec checks; nothing in ventures/ read unit files. Ran it on the repo's own two units for the post. Verified: 16 Python + 23 Node tests, parity test Python/JS, run_venture_tests.py ok for this venture and docker-compose-security-check, optout-persistence test 20/20, check_llms_txt_links 0 dead, check_post_links 0 broken, Chromium drive at 390px with no console errors. platform/pages site-builder suite run directly: 1551 tests, 1 failure (faq-visible, fixed), then faq-visible 4/4. run_workflow_locally validate steps all ok; build steps hit its 300 s budget.",
   "corrections": [],
   "redteam": null,
   "usage": {
