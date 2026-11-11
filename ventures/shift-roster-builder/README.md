@@ -300,6 +300,17 @@ Readings (`eval/closure-score.mjs`, output `eval/closure-score.out.txt`; the sam
 
 `--score-closed` is opt-in for now. Half-life auto still picks with the old score, and the page's "Test on my past weeks" button does not offer it yet. Earlier readings in this README and the committed `eval/*.out.txt` were taken before the one-date edge rule, so the Korean values can differ from a fresh run by up to about 4 scheduled hours a week; the French ones by under 0.5.
 
+**A 4-week window in half-life auto (2026-11-11; `--last-weeks <n>`, and auto under `--score-closed`).** Bread Basket's "last 4 weeks only" win above was read in sample; adding a candidate to auto also lets it overfit more. `eval/window-auto.mjs` (output `eval/window-auto.out.txt`; the same three downloads, SHA-256 checked) asked it out of sample: at every tested week, auto uses the candidate with the least short + over over the weeks already tested (plain until 4 earlier weeks exist), with set A = equal weights and half-lives 8/4/2 (shipped), B = A plus last 4 weeks, C = B plus last week. 3 files x 3 rates x minimum staff 1 or 2 = 18 settings per score. The rule was written in the script before the first run: B replaces A if, under the default score, it is clearly worse in none and lower on average.
+
+| auto set vs A (clearly better / tie / clearly worse, mean) | default score | `--score-closed` |
+|---|---|---|
+| B (adds last 4 weeks) | 0 / 18 / 0, +0.2% | **6 / 12 / 0, -16.3%** |
+| C (adds last 4 weeks and last week) | 0 / 18 / 0, +0.2% | 6 / 12 / 0, -14.9% |
+
+By file under `--score-closed`, B against A: Bread Basket -46.8% (5 tickets per labor hour, minimum 2: 36.1 to 19.4 person-hours off a week, CI -22.5 to -10.9), Korean -2.6%, French +0.4% (no setting clearly worse). Under the default score the window only matters on the French file (+0.6%), where it is never clearly worse but never helps.
+
+So B failed its pre-registered rule under the default score and is **not** offered there: plain `--from-sales` is unchanged. Under `--score-closed` it is: `--from-sales ... --score-closed` now makes half-life auto backtest on that score and offer "the last 4 weeks only" (`pickHalfLife` in `demand.mjs`); last week alone (C) adds nothing and is not offered. `--last-weeks <n>` fixes a window by hand and turns auto off (the plan reads the dated rows of the n weeks before the week after the newest date, the rows the backtest's window method trains on; undated weekday rows are kept). Tests: `halflife-auto.test.mjs` (a made-up shop that moved its close from 17:00 to 15:00 after 3 of 20 weeks: under `--score-closed` auto picks the window and no shift runs past 15:00; the default score never offers it; `--score-closed` and `--last-weeks 4` give the same shifts). Limits: three bakeries, the window's win is mostly one (a shop whose hours shrank during the file); the scorer's view of which hours are normally shut uses the whole file, so on a file whose hours changed the window is partly scored against hindsight it does not use; weeks are not independent. The page does not offer `--score-closed` or the window yet.
+
 **Date order (2026-11-10).** `--from-sales` read `05/03/2026` as May 3 without a word. A slash or dash date over 12 in the first or second place now settles the order for the whole file; when none does, it reads month first and prints a note. Compact stamps (`20260305 1400`, `20260305T140000Z`) read too. Tests in `demand.test.mjs` (24 pass). Made-up rows only.
 ## Trade pages (2026-10-30)
 

@@ -188,9 +188,12 @@ flagships:
       (--from-sales, three real bakery files): backtest, lunch breaks, half-life auto, --short-cost, priced
       cut, --count tickets; --backtest --score-closed 2026-11-11 (README "Scoring a staffed closure") counts a
       staffed closure as over, shows the break rules save 6-15 person-hours a week (French), and led to a
-      one-date edge rule (Bread Basket 12-24 fewer off a week). Next: make --score-closed the default for the
-      backtest and half-life auto, and offer it on the page, once a fourth file agrees; add a 4-week window
-      to half-life auto (wins clearly on Bread Basket under the new score); close the 100-person gaps (tree,
+      one-date edge rule (Bread Basket 12-24 fewer off a week); 2026-11-11 later, half-life auto offers the
+      last 4 weeks under --score-closed only (out of sample: 6 of 18 clearly better, 0 worse, -16%; no gain
+      under the default score; README "A 4-week window in half-life auto"), and --last-weeks <n>. Next: make
+      --score-closed the default for the backtest and half-life auto, and offer it and the window on the
+      page, once a fourth file agrees (a file whose opening hours changed would test the window's hindsight
+      limit); close the 100-person gaps (tree,
       not pricing); cuts or branching that move the score LP on the 60-person pay week; buildRoster end to
       end on 40-person weeks with exact on; a US POS item export (Square or Toast); a labour standard
       (minutes per ticket vs per euro) or a blend of the two drivers; a real published-schedule export for
