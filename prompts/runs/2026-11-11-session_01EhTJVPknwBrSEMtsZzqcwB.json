@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVPknwBrSEMtsZzqcwB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine 3: continue work on the repo (ventures brief)",
+  "input_sha256": "1fc31181a0492970f93aa9740a4b593b73cc73e18bf3296881c1cb5182d4f8a3",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T19:12:44Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005 clothing-design-studio: dot gain for the index separation",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 14858,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-dot-gain-matters-less-than-the-inks.md"
+  ],
+  "goal": null,
+  "notes": "R-0005 (clothing-design-studio): dot gain model, model-based error diffusion compensation, calibration strip and gain read-back for the index separation. Venture tests 650 pass / 0 fail; headless page run no console errors; eval/index-gain.mjs on nine real paintings (grey ramp 20% gain 3.39 -> 0.78 dE; paintings 0.1-0.26 at 30%, over-guess worse than none). venture-preflight clothing-design-studio: clean (exit 0).",
+  "corrections": [],
+  "redteam": null
+}
