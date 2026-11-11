@@ -25,6 +25,6 @@
   {"severity": "low", "what": "llms.txt and the page's 'Free tools' link point to the retired github.io host instead of https://marisstella.app/hands-free-language-coach/; sitemap.xml has a relative <loc> and the canonical link is relative; llms.txt carries an irrelevant 'not legal, tax, financial' line.", "where": "ventures/hands-free-language-coach/llms.txt:6,10; sitemap.xml:3; index.html:8,52"},
   {"severity": "low", "what": "Only 12 phrases per language and no microphone-denied handling, so a user who denies mic permission hears repeated retries instead of an explanation.", "where": "ventures/hands-free-language-coach/index.html listen()"}
  ],
- "fix_prs": [],
+ "fix_prs": [14670],
  "verdict": "A tidy, honest, zero-cost prototype whose arithmetic is right (five similarity scores and the streak logic recomputed independently and matched) and whose privacy and scoring caveats are truthful, but it does not meet the bar. Its grader rewards meaning-inverting errors such as 'Yo entiendo' for 'No entiendo', its 'spaced review' has no time dimension, its listen-only mode awards XP and streaks for no attempt, and its tests are weak enough that two seeded core mutations (pass threshold 0.8 to 0.6, streak tolerating a missed day) both survived with 13/13 passing. It is finished against what it claims to ship (completeness 3) but verification (1), correctness (2) and claims (2) keep it below the bar. Real browser speech was not run in this audit."
 }
