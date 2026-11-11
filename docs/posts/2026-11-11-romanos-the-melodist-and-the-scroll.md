@@ -3,7 +3,7 @@ title: "Saints by Candlelight 97: Romanos the Melodist, the deacon who could not
 seo_title: "Saint Romanos the Melodist bedtime story"
 date: 2026-11-11
 tags: [fiction, saints-by-candlelight, bedtime-story, saints]
-description: "A bedtime episode on Saint Romanos the Melodist, the Constantinople deacon whose Christmas hymn is still sung, told from his hymns and the old calendar's legend."
+description: "A bedtime episode on Saint Romanos the Melodist, the Constantinople deacon whose Christmas hymn is still sung, from his hymns and the old calendar's legend."
 ---
 
 [Romanos and the Scroll on Christmas Night](../../ventures/saints-by-candlelight/episodes/097-romanos-and-the-scroll-on-christmas-night.md)
