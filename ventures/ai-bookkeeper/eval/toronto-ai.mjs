@@ -12,6 +12,10 @@
 //
 //   curl -o pcard-expenses.csv https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/ebc3f9c2-2f80-4405-bf4f-5fb309581485/resource/24b9c441-e6e6-4f81-aea0-315f613c1e6e/download/pcard-expenses.csv
 //   (cut the rows you want, e.g. July 2025 to June 2026, into one CSV with the same header)
+//   (the 2026-11-11 readings: header plus every row whose Transaction Date is 2025-07-01
+//   to 2026-06-30, 85,415 rows, 68,638 mapped; a fill queue of 307 from 2025-08 confirms it)
+//   A 14B model in a 16 GB machine: llama-cpp-python's server with --n_ctx 8192 --use_mmap false
+//   (about 11 GB; with the file memory-mapped and 16k context it was killed for memory).
 //   LLM_PROVIDER=llamacpp node eval/toronto-ai.mjs --file y2526.csv [--division "TORONTO WATER"]
 //        [--sample 160] [--first 140] [--batch 20] [--from 2025-08] [--no-mcc] [--out answers.json]
 //        [--resume]   (--out is rewritten after every batch; --resume keeps its answered batches)
