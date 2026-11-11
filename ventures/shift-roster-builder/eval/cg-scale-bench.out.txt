@@ -44,3 +44,33 @@ case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pri
 
 # HiGHS (eval/ilp-check.py on WEEKS= dumps): least open hours
 # 20x56: 151 78 48; 30x84: 181 142 189; 40x112: 169 146 281; 60x168: 300 308 183 (each proven, 0.0-7.3 s)
+
+# 2026-11-11: root dive on (default: a wide dive pinning ceil(P/7) fractional columns a step, then a narrow one if no roster
+# meets the root bound). The 30 and 60 rows ran beside another bench on a 4-core machine, so their times are pessimistic.
+20 people, 56 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	76	521	151.00	151	151	true	18	357	55	666	0	4703	298	522	17	yes
+1	82	550	78.00	78	78	true	49	783	138	2028	0	2507	716	2076	22	yes
+2	75	480	48.00	48	48	true	23	505	79	908	0	2509	227	434	22	yes
+40 people, 112 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	149	953	169.00	169	169	true	8	875	42	1169	0	22247	1934	3339	7	yes
+1	148	943	146.00	146	146	true	44	1097	112	2205	0	67929	4000	7402	43	yes
+2	162	1079	281.00	281	281	true	8	923	44	1096	0	40298	1935	3304	7	yes
+30 people, 84 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	121	800	181.00	181	181	true	7	641	44	866	0	26284	1355	1864	6	yes
+1	122	843	142.00	142	142	true	5	592	37	910	0	8805	885	1457	4	yes
+2	122	781	189.00	189	189	true	6	503	34	781	0	9524	978	1407	5	yes
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	106869	10967	22002	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	38793	11996	18302	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	116407	13165	27245	8	yes
+
+# same run, ROOTDIVE=0 (control)
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	-	false	27	1691	61	3660	0	106869	12264	62439	0	no
+1	238	1564	308.00	308	-	false	23	1203	45	2700	0	86005	31801	60517	0	no
+2	235	1520	183.00	183	-	false	23	1855	64	3840	0	116407	14363	61176	0	no
