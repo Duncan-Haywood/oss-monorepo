@@ -14,7 +14,8 @@ function honorsBrowserSignal() {
 export function recordUsage(storage, optedOut, event = 'calculation') {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   try {
-    const counts = JSON.parse(storage.getItem(KEY) || '{}');
+    let counts = JSON.parse(storage.getItem(KEY) || '{}');
+    if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};
     counts[event] = (counts[event] || 0) + 1;
     storage.setItem(KEY, JSON.stringify(counts));
   } catch { /* Private browsing must not break the calculator. */ }

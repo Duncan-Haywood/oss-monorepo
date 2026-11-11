@@ -14,7 +14,8 @@ function honorsBrowserSignal() {
 export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'week_calculated') {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   const today = new Date().toISOString().slice(0, 10);
-  const current = JSON.parse(storage.getItem('owner-operator-cpm-usage') || '{}');
+  let current = JSON.parse(storage.getItem('owner-operator-cpm-usage') || '{}');
+  if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
   current[event] = (current[event] || 0) + 1;
   current.last_day = today;
   storage.setItem('owner-operator-cpm-usage', JSON.stringify(current));

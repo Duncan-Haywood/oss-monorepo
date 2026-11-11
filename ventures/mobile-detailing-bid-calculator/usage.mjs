@@ -12,7 +12,8 @@ function honorsBrowserSignal() {
 export function recordUsage(storage = globalThis.localStorage, optedOut = false, eventName = 'bid_calculated') {
   if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
   try {
-    const current = JSON.parse(storage.getItem('mobile-detailing-usage') || '{}');
+    let current = JSON.parse(storage.getItem('mobile-detailing-usage') || '{}');
+    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
     current[eventName] = (current[eventName] || 0) + 1;
     current.last_day = new Date().toISOString().slice(0, 10);
     storage.setItem('mobile-detailing-usage', JSON.stringify(current));

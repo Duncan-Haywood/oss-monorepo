@@ -21,7 +21,8 @@ export function recordUsage(
   if (optedOut || !storage || honorsBrowserSignal(navigatorLike)) return;
   try {
     const key = "appliance-repair-usage";
-    const current = JSON.parse(storage.getItem(key) || "{}");
+    let current = JSON.parse(storage.getItem(key) || "{}");
+    if (!current || typeof current !== "object" || Array.isArray(current)) current = {};
     const day = new Date().toISOString().slice(0, 10);
     current[event] = (current[event] || 0) + 1;
     current.last_day = day;

@@ -30,7 +30,8 @@ export function recordUsage(eventName) {
   if (!isUsageEnabled() || !eventName) return;
   try {
     const day = new Date().toISOString().slice(0, 10);
-    const events = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    let events = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    if (!events || typeof events !== 'object' || Array.isArray(events)) events = {};
     const key = `${eventName}:${day}`;
     events[key] = (events[key] || 0) + 1;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(events));

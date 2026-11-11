@@ -6,7 +6,8 @@ export function recordUsage(event, optedOut = false) {
   if (readOptOut()) return;
   if (optedOut || navigator.doNotTrack === '1' || window.doNotTrack === '1' || navigator.globalPrivacyControl) return;
   try {
-    const entries = JSON.parse(localStorage.getItem(KEY) || '{}');
+    let entries = JSON.parse(localStorage.getItem(KEY) || '{}');
+    if (!entries || typeof entries !== 'object' || Array.isArray(entries)) entries = {};
     const day = new Date().toISOString().slice(0, 10);
     entries[`${event}:${day}`] = (entries[`${event}:${day}`] || 0) + 1;
     localStorage.setItem(KEY, JSON.stringify(entries));
