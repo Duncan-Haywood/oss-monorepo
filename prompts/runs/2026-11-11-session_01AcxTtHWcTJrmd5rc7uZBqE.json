@@ -31,7 +31,10 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "My first merge of main committed BIBLE.md with conflict markers (fixed in the next commit, before merge).",
+    "main itself carried unresolved conflict markers in ventures/hearth-and-horizon/BIBLE.md from #14639; fixed here by keeping all three Done lines."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -49,13 +52,19 @@
       "why": "Audio cap exceeded (423 MB > 400 MB), so the story landed text only, as the prompt directs.",
       "did": "text, pages, feeds, llms.txt, post; no MP3",
       "result": "tests pass; no audio added"
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Today's Miranda story (#14638) also has a station AI called 'the almanac' and an elderly protagonist chasing a 'last sun'; I renamed my AI Roster to keep the two distinct.",
+      "did": "renamed the AI in the story, BIBLE line and post",
+      "result": "no shared AI name on the shelf"
     }
   ],
   "writeups": [
     "docs/posts/2026-11-11-last-dark-noon.md"
   ],
   "goal": null,
-  "notes": "Project hearth-and-horizon, piece the-last-dark-noon (Pluto, sub-Charon station, 2237; noon eclipse season, a last eclipse that is not total). Chosen because the science fiction shelf is the headline project and no Pluto/Charon story existed. Numbers from a scratch script: Charon 3.77 deg at zenith, 96 min central eclipse, 0.037 deg/Pluto day drift, ~103 eclipses, last totals 41/37/32/26/18 min, 103 a 12.6 min partial with ~6% uncovered; every weekday checked in code (28 May 2235 Thu, 30 Jan 2237 Mon, 11 Feb Sat, 3 Mar Fri, 9 Mar 2237 Thu; Easter 2237 = 2 Apr, so 9 Mar is in Lent week 3, corrected from a first-draft 'second week'). Adversarial pass also fixed a heater rationale that made no thermal sense at 1.5 W/m2 and a 16,000 km limb distance (18,400). Verification: node --test in ventures/hearth-and-horizon 12/12 pass; run_workflow_locally --for-changes run in the background (see PR).",
+  "notes": "Project hearth-and-horizon, piece the-last-dark-noon (Pluto, sub-Charon station, 2237; noon eclipse season, a last eclipse that is not total). Chosen because the science fiction shelf is the headline project and no Pluto/Charon story existed. Numbers from a scratch script: Charon 3.77 deg at zenith, 96 min central eclipse, 0.037 deg/Pluto day drift, ~103 eclipses, last totals 41/37/32/26/18 min, 103 a 12.6 min partial with ~6% uncovered; every weekday checked in code (28 May 2235 Thu, 30 Jan 2237 Mon, 11 Feb Sat, 3 Mar Fri, 9 Mar 2237 Thu; Easter 2237 = 2 Apr, so 9 Mar is in Lent week 3, corrected from a first-draft 'second week'). Adversarial pass also fixed a heater rationale that made no thermal sense at 1.5 W/m2 and a 16,000 km limb distance (18,400). Verification: node --test in ventures/hearth-and-horizon 12/12 pass; run_workflow_locally --for-changes run in the background (see PR). Overlapping sessions landed two more H&H stories while this ran; merged main, regenerated pages, cleaned main's conflict markers in BIBLE.md.",
   "corrections": [],
   "redteam": null,
   "usage": {

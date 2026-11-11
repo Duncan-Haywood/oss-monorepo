@@ -38,7 +38,7 @@ and eccentricity 0.2488), are these:
   sixth of the full Moon's light.
 
 The plot is a queue. A viewing window holds 24 people. For 97 eclipses almost
-nobody came. Then the station's scheduling AI adds one line to its weekly
+nobody came. Then the station's scheduling AI, Roster, adds one line to its weekly
 notice, "six remain", and 318 of 412 people ask for the last one, which is the
 one that will not get dark. Lots are drawn and fail. The AI declines to use its
 safety door log to find out who never went. A self-report and six-minute turns

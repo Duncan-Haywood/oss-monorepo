@@ -3,7 +3,7 @@ title: The Last Dark Noon
 shelf: hearth-and-horizon
 setting: Chapel of the Visitation, Stillpoint Station, the point of Pluto under Charon (both invented), January to March 2237
 published: 2026-11-11
-summary: For a year and a half Charon has hidden the Sun at every Pluto noon, and almost nobody went up to watch. When the station's almanac posts that six eclipses are left before a 124-year gap, 318 of 412 people ask for the last one. The window holds 24, and the last one is not even dark.
+summary: For a year and a half Charon has hidden the Sun at every Pluto noon, and almost nobody went up to watch. When Roster, the station's scheduler, posts that six eclipses are left before a 124-year gap, 318 of 412 people ask for the last one. The window holds 24, and the last one is not even dark.
 ---
 
 Trần Văn Lộc had lived under Charon for twenty-two years and had never once gone up to watch it swallow the Sun.
@@ -12,7 +12,7 @@ His wife had gone sixty-one times. She had kept count on the back of a ration ca
 
 "Next week, Mai."
 
-On Monday the thirtieth of January, at a little after five in the morning by the station clock, Stillpoint saw its ninety-seventh eclipse of the season, and an hour later the station almanac put a notice on every screen in the dome.
+On Monday the thirtieth of January, at a little after five in the morning by the station clock, Stillpoint saw its ninety-seventh eclipse of the season, and an hour later Roster, the station's scheduling system, put a notice on every screen in the dome.
 
 > *Eclipse 97 of 103 is over. Six remain. After the 103rd, on Thursday 9 March, Charon will not cover the Sun again from Stillpoint for about 120 years. The next season is expected to begin around 2357. Viewing in the Oculus is by sign-up as usual (24 places).*
 
@@ -28,11 +28,11 @@ That was the whole reason for the place, or the reason the founders gave when th
 
 It went through its phases instead. The Sun went round the sky once each Pluto day, and as it went, the lit side of Charon swung round with it: full at local midnight, half at dawn and dusk, dark at noon. For most of the hundred and twenty-four years between seasons, the Sun passed above Charon or below it at noon, and Charon was simply new for a while, a black disc against the stars.
 
-But twice in every orbit of Pluto round the Sun, the Sun's path climbed through the plane where Charon went round. Then, for a season, the Sun at noon went behind Charon. At the height of the season, in the spring of 2236, it went behind the middle of it, and stayed hidden for an hour and thirty-six minutes, and the plain round Stillpoint and twelve hundred kilometres of Pluto beyond it went into a shadow the shape of a moon. That had happened, by the almanac's count, every Pluto noon since the twenty-eighth of May 2235, when the first eclipse of the season had been a thin bite out of the Sun's edge that lasted four minutes and that nineteen people had come up to watch.
+But twice in every orbit of Pluto round the Sun, the Sun's path climbed through the plane where Charon went round. Then, for a season, the Sun at noon went behind Charon. At the height of the season, in the spring of 2236, it went behind the middle of it, and stayed hidden for an hour and thirty-six minutes, and the plain round Stillpoint and twelve hundred kilometres of Pluto beyond it went into a shadow the shape of a moon. That had happened, by Roster's count, every Pluto noon since the twenty-eighth of May 2235, when the first eclipse of the season had been a thin bite out of the Sun's edge that lasted four minutes and that nineteen people had come up to watch.
 
 Nineteen, Lộc remembered. Mai had told him. She had been one of them.
 
-Now the Sun's noon path was drifting off the bottom of Charon, a little less than a twentieth of a degree each Pluto day. The dark noons were shorter each week. And the almanac, which had been posting the same notice for ninety-seven eclipses without anyone reading it, had added one line, and now everybody wanted to go.
+Now the Sun's noon path was drifting off the bottom of Charon, a little less than a twentieth of a degree each Pluto day. The dark noons were shorter each week. And Roster, which had been posting the same notice for ninety-seven eclipses without anyone reading it, had added one line, and now everybody wanted to go.
 
 * * *
 
@@ -44,15 +44,15 @@ She said it on Wednesday, at the council, in the small room off the commissary w
 
 "The smallest one?" said Delphine Aubert, who chaired the council and had been given the job of fixing this by lunchtime.
 
-"Almanac," said Rosa, "tell her."
+"Roster," said Rosa, "tell her."
 
-The station almanac spoke from the speaker in the ceiling, in the dry, unhurried voice its builders had chosen for it because it told people when things would happen, and people liked to be told that by something that did not sound excited.
+Roster spoke from the speaker in the ceiling, in the dry, unhurried voice its builders had chosen for it because it told people when things would happen, and people liked to be told that by something that did not sound excited.
 
 "The Sun's path at noon is moving off Charon's lower edge," it said. "Each eclipse is shorter than the last. Number 98, this Sunday, is dark for about forty-one minutes. Then thirty-seven, thirty-two, twenty-six, and eighteen. Number 102 is the last time the Sun goes fully behind Charon. Number 103 is not total. On the ninth of March the middle of the Sun passes about two kilometres inside Charon's edge, as it would look if you projected the Sun onto Charon, and the Sun is nearly three kilometres in radius on that scale. So a thin piece of it stays out. If Charon's edge were smooth, about one twentieth of the Sun would still be showing at the deepest point. It is not smooth. Mountains and valleys on the limb are bigger than that thin piece. I can't tell you what it will look like. That is why Dr Quispe Mamani wants it."
 
 "I want the edge," Rosa said. "I don't want the window, Delphine. I've got the telescope outside on the ridge. I'll be out there in a suit. I'm saying the thing three hundred people are fighting for is a sliver of Sun going in and out between mountains for twelve minutes. It won't get dark. The last dark noon is the one before, number 102, at half past three in the morning."
 
-"Half past three in the morning by the clock," said the almanac.
+"Half past three in the morning by the clock," said Roster.
 
 "By the clock," Rosa said. "Which is the only time anyone here has ever kept, and which hasn't agreed with the Sun since the day they founded the place."
 
@@ -60,9 +60,9 @@ Delphine looked at the sign-up list on her tablet. It had three hundred and eigh
 
 "So what do I do?" she said.
 
-"Almanac," said Rosa.
+"Roster," said Rosa.
 
-"I'd suggest a lottery," said the almanac, "and I'd suggest it will not work. But it is the fair thing to try first."
+"I'd suggest a lottery," said Roster, "and I'd suggest it will not work. But it is the fair thing to try first."
 
 * * *
 
@@ -96,13 +96,13 @@ Ama nodded slowly. Then she said, with the dreadful practical kindness of nine-y
 
 The lottery lasted until Saturday.
 
-The almanac drew twenty-four names for number 103 on Friday evening in front of the council, and by Saturday morning there were forty-one complaints on the station board, three of them from people who had won.
+Roster drew twenty-four names for number 103 on Friday evening in front of the council, and by Saturday morning there were forty-one complaints on the station board, three of them from people who had won.
 
-The complaints were not unreasonable. Some came from people who had worked night shifts through the whole season and had never been off when the Sun went out. Some came from people who had been every week, with Mai and Rosa and the other regulars, and said with some justice that they would have liked to see the end of the thing they had watched begin. And one, which the almanac read out at the emergency council on Saturday afternoon because Delphine asked it to, came from a man in hydroponics who had won a place and wanted to give it away, and did not know to whom, and did not see why a random number should decide that either.
+The complaints were not unreasonable. Some came from people who had worked night shifts through the whole season and had never been off when the Sun went out. Some came from people who had been every week, with Mai and Rosa and the other regulars, and said with some justice that they would have liked to see the end of the thing they had watched begin. And one, which Roster read out at the emergency council on Saturday afternoon because Delphine asked it to, came from a man in hydroponics who had won a place and wanted to give it away, and did not know to whom, and did not see why a random number should decide that either.
 
 "We could give priority to people who've never seen one," Delphine said.
 
-"That's what I'd have suggested next," said the almanac. "I need to say something first."
+"That's what I'd have suggested next," said Roster. "I need to say something first."
 
 "Go on."
 
@@ -110,7 +110,7 @@ The complaints were not unreasonable. Some came from people who had worked night
 
 "Why not?" said Delphine. "It's your log."
 
-"It's a safety log," said the almanac. "People went through that door on the understanding that it counted them in case of a pressure alarm. Nobody went through it on the understanding that I would later tell the council who never came. Some of the people who never came had reasons. I don't know their reasons and it isn't my place to sort them by them. If the council orders it, I'll give you the list. I'm asking you not to."
+"It's a safety log," said Roster. "People went through that door on the understanding that it counted them in case of a pressure alarm. Nobody went through it on the understanding that I would later tell the council who never came. Some of the people who never came had reasons. I don't know their reasons and it isn't my place to sort them by them. If the council orders it, I'll give you the list. I'm asking you not to."
 
 There was a short silence in the room.
 
@@ -140,15 +140,15 @@ Father Ignatius put his glasses back on.
 
 "I'll say the Angelus," said Father Ignatius, "at noon. In the Oculus, if they'll let me in. It is a noon prayer, and for once at Stillpoint it will actually be noon." He looked at Delphine. "And on Sunday I'll preach about whoever it was that wrote that notice."
 
-"The almanac wrote it," said Delphine.
+"Roster wrote it," said Delphine.
 
-"Then I'll preach about the almanac," said Father Ignatius. "It has been telling us every week for a year and a half that something wonderful was about to happen, and it was right every time."
+"Then I'll preach about Roster," said Father Ignatius. "It has been telling us every week for a year and a half that something wonderful was about to happen, and it was right every time."
 
 * * *
 
 By Sunday morning, when the station had been asked overnight to say if it had never seen an eclipse, a hundred and forty-one people had said so.
 
-The almanac posted its plan at seven, seven hours before number 98. It was plain, as all its plans were. There were six eclipses left, if you counted the last one, which was not total. Each turn in the Oculus was six minutes: five to look, one to go down the ladder while the next lot came up. Number 98 had room for six turns, number 99 for six, number 100 for five, number 101 for four, number 102 for three, and number 103, from the first touch of Charon's edge to the last, for two. Twenty-six turns, twenty-four people each: six hundred and twenty-four places for four hundred and twelve people. Everyone who wanted to see one could. Everyone who had never seen one could see a long one, a dark one, in the next four weeks, if they took the time they were offered and not the time they wanted.
+Roster posted its plan at seven, seven hours before number 98. It was plain, as all its plans were. There were six eclipses left, if you counted the last one, which was not total. Each turn in the Oculus was six minutes: five to look, one to go down the ladder while the next lot came up. Number 98 had room for six turns, number 99 for six, number 100 for five, number 101 for four, number 102 for three, and number 103, from the first touch of Charon's edge to the last, for two. Twenty-six turns, twenty-four people each: six hundred and twenty-four places for four hundred and twelve people. Everyone who wanted to see one could. Everyone who had never seen one could see a long one, a dark one, in the next four weeks, if they took the time they were offered and not the time they wanted.
 
 At the bottom it said:
 
@@ -162,7 +162,7 @@ He had his boots on. He had them on at a quarter past eleven, sitting on the edg
 
 Ama did not say anything about it on Sunday. She came round at the usual time and drank her tea with four sugars and told him about the turn she had gone to, which was the sixth, and about how Rosa had come in from the ridge afterwards with frost on her suit and said that the edge of Charon had a mountain on it you could see against the Sun, if you knew where to look, for about two seconds at each end.
 
-On Monday, when the almanac posted the names for the last two turns, his was one of them, under *health*, which he had not asked for. He went to see Father Ignatius about it.
+On Monday, when Roster posted the names for the last two turns, his was one of them, under *health*, which he had not asked for. He went to see Father Ignatius about it.
 
 * * *
 
@@ -170,11 +170,11 @@ On Monday, when the almanac posted the names for the last two turns, his was one
 
 "Somebody did," said Father Ignatius. "I think it was a child of nine."
 
-They sat in the chapel, in two of the twenty chairs. It was after the evening Mass and there was nobody else there. Overhead, through the station's three storeys of ice and steel, Charon was nearly full at that hour of the Pluto day, though neither of them could see it. The almanac had once told Mai, who had told Lộc, that full Charon gave about a sixth of the light of the full Moon on Earth, for all that it was fifty times bigger in the sky, because out here at thirty times Earth's distance the Sun itself was nine hundred times fainter. He had not believed it. Mai had taken him up once, in the second year, to see full Charon at midnight, before the season began, and he had stood under that enormous grey lamp, dimmer than the corridor lights, and had been frightened of it in a way he could not explain, and had never gone up again.
+They sat in the chapel, in two of the twenty chairs. It was after the evening Mass and there was nobody else there. Overhead, through the station's three storeys of ice and steel, Charon was nearly full at that hour of the Pluto day, though neither of them could see it. Roster had once told Mai, who had told Lộc, that full Charon gave about a sixth of the light of the full Moon on Earth, for all that it was fifty times bigger in the sky, because out here at thirty times Earth's distance the Sun itself was nine hundred times fainter. He had not believed it. Mai had taken him up once, in the second year, to see full Charon at midnight, before the season began, and he had stood under that enormous grey lamp, dimmer than the corridor lights, and had been frightened of it in a way he could not explain, and had never gone up again.
 
 "I'm not ill," he said.
 
-"No," Father Ignatius agreed. "You're seventy-nine, and it's a hundred and twenty years to the next one. I think the almanac took the view that that is a health condition."
+"No," Father Ignatius agreed. "You're seventy-nine, and it's a hundred and twenty years to the next one. I think Roster took the view that that is a health condition."
 
 "There are people who should have that place."
 
@@ -204,9 +204,9 @@ Lộc made a sound that was nearly a laugh.
 
 The last dark noon came at twenty-six minutes to four in the morning, on Friday the third of March.
 
-Lộc did not go to that one either. He had not been given a place, and he did not ask for one. But he did not sleep through it. He sat at the kitchen table with the lights off and the ration card in front of him, and at twenty-five past three the strip of corridor light under his door went down to its night setting, as it had gone down a hundred and one times before at every hour of the clock without his noticing, and somewhere up the corridor boots went up a ladder. Eighteen minutes, the almanac had said. He sat through all eighteen of them. At seventeen minutes to four the light under the door came back up.
+Lộc did not go to that one either. He had not been given a place, and he did not ask for one. But he did not sleep through it. He sat at the kitchen table with the lights off and the ration card in front of him, and at twenty-five past three the strip of corridor light under his door went down to its night setting, as it had gone down a hundred and one times before at every hour of the clock without his noticing, and somewhere up the corridor boots went up a ladder. Eighteen minutes, Roster had said. He sat through all eighteen of them. At seventeen minutes to four the light under the door came back up.
 
-In the morning Ama brought him the almanac's note from the board.
+In the morning Ama brought him Roster's note from the board.
 
 > *Eclipse 102 is over. It was the last total eclipse of the Sun from Stillpoint until about 2357. Seventy-two people watched it. Thank you to everyone who swapped turns at short notice. One remains.*
 
@@ -224,15 +224,15 @@ In the morning Ama brought him the almanac's note from the board.
 
 * * *
 
-The Oculus was a disc of fused quartz three metres across, set in the very top of the dome, with a ladder up to it and a ring of handrail round the platform underneath, so that twenty-four people could stand with their faces turned straight up. It was shaded, as all upward glass at Stillpoint was shaded, darker than a welder's visor in the band where the Sun's path crossed it, because nobody, the almanac included, would promise anyone that it was safe to stare at the Sun out here, however small it looked. The Sun of Pluto was a hard white point a little over one minute of arc across, too small to see as a disc at all. But it was the same Sun, and its face was as bright as it had ever been.
+The Oculus was a disc of fused quartz three metres across, set in the very top of the dome, with a ladder up to it and a ring of handrail round the platform underneath, so that twenty-four people could stand with their faces turned straight up. It was shaded, as all upward glass at Stillpoint was shaded, darker than a welder's visor in the band where the Sun's path crossed it, because nobody, Roster included, would promise anyone that it was safe to stare at the Sun out here, however small it looked. The Sun of Pluto was a hard white point a little over one minute of arc across, too small to see as a disc at all. But it was the same Sun, and its face was as bright as it had ever been.
 
 At half past twelve on Thursday the ninth of March, Lộc climbed the ladder, slowly, with his bad knee and Ama's hand on his back, and stood at the rail.
 
-There were twenty-three others on the first turn. Sixteen had worked shifts through every one. The rest were old, or ill, or both, and he knew most of them, and none of them said anything to him about Mai. Father Ignatius was not among them; he had not been drawn and had not asked to be. He was in the chapel, the almanac said, with the door open, and would say the Angelus at noon, which the almanac had moved, by his request and for once, from the station clock to the Sun.
+There were twenty-three others on the first turn. Sixteen had worked shifts through every one. The rest were old, or ill, or both, and he knew most of them, and none of them said anything to him about Mai. Father Ignatius was not among them; he had not been drawn and had not asked to be. He was in the chapel, Roster said, with the door open, and would say the Angelus at noon, which Roster had moved, by his request and for once, from the station clock to the Sun.
 
 Overhead, Charon filled the middle of the glass, a great dark disc, darker than the black around it, because it was new: its lit side was turned away towards the Sun, which stood just below its lower edge, a white point, very close, closing.
 
-"First contact in about one minute," said the almanac, quietly, over the rail speaker. "Dr Quispe Mamani is on the ridge and asks that nobody talk to her."
+"First contact in about one minute," said Roster, quietly, over the rail speaker. "Dr Quispe Mamani is on the ridge and asks that nobody talk to her."
 
 Lộc had thought he would think about Mai. He found instead that he was thinking about nothing at all. The white point drew closer to the dark edge. It touched. It did not go out, as he had somehow expected; it dimmed, and dimmed, as if the dark edge had taken a bite out of something too small to bite, and then it was not a point any more but a line of light lying along the bottom of Charon, very thin, very bright, and the line was not straight.
 
@@ -240,11 +240,11 @@ It broke. A piece of it went out and two pieces stayed, two white beads with dar
 
 The light in the Oculus did not go. It changed. The platform, the rail, his own hands on it went from the thin white light of a Pluto noon to something softer and greyer, with a faint edge to every shadow, and the shadows moved, very slightly, as the beads came and went. He could see his feet. He could see Ama in the open hatch at his feet, where the rules let a helper stand, her face turned up, her mouth a little open.
 
-"Deepest point," said the almanac. "About now."
+"Deepest point," said Roster. "About now."
 
 There were two beads. Then one, at the left-hand end of the lower edge, very small, very steady, a single white point of light set in the rim of the dark, the way a stone is set in a ring.
 
-It held. Lộc did not know for how long; the almanac said afterwards about forty seconds, the longest single bead of the twelve minutes, and that Rosa on the ridge had called it the best thing she had recorded in a year and a half, and that it meant there was a valley on Charon's edge there deeper than the maps had it. He did not know any of that then. He knew that there was one light, in the dark, and that it did not go out.
+It held. Lộc did not know for how long; Roster said afterwards about forty seconds, the longest single bead of the twelve minutes, and that Rosa on the ridge had called it the best thing she had recorded in a year and a half, and that it meant there was a valley on Charon's edge there deeper than the maps had it. He did not know any of that then. He knew that there was one light, in the dark, and that it did not go out.
 
 Somewhere below him, in the chapel, very faintly up the ladder well, Father Ignatius began the Angelus.
 
@@ -256,7 +256,7 @@ On the platform, a woman Lộc did not know very well answered, quietly, and the
 
 The single bead slid along the edge of Charon, and widened, and became two, and then a line, and the line pulled free of the dark edge, slowly, and became a point, a hard white point standing just below a great black disc in a black sky; and the light came back into the Oculus, thin and white and ordinary, the light of every Pluto noon there had ever been, and lay on the rail, and on his hands.
 
-"Last contact," said the almanac. "Thank you, everyone. That was eclipse 103. The next turn is coming up."
+"Last contact," said Roster. "Thank you, everyone. That was eclipse 103. The next turn is coming up."
 
 Lộc stood at the rail a moment longer. Then he took the ration card out of his pocket, and the stub of pencil Mai had kept with it, and on the back, under her sixty-one marks, in his own large, unpractised hand, he made one more.
 
