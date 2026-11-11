@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnGC1NdLhTjwQ9wgkc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T00:16:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship changepoint-detector: --columns on the page (flagships.yaml item a)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14641",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says take the top 'Deepen' row of allocate.py; the top row (ai-bookkeeper) had 75 commits in 7 days and every open item needs real outside data, so I took flagship 4 instead. The allocator could weight down rows whose items all say 'wanted: real X'."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_venture_tests.py for changepoint-detector (~150 test files) outlasts the 120 s foreground limit; it needs run_in_background, as noted for ai-bookkeeper, but the note does not name this venture."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top Deepen row (ai-bookkeeper) open items all need real bank/receipt/payroll inputs this session does not hold, and the venture is the busiest in the fleet.",
+      "did": "Took changepoint-detector item (a), which needs no outside data.",
+      "result": "Shipped the page slice and the over-cut warning in one run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-franc-pound-yen-several-columns-changepoints.md",
+    "ventures/changepoint-detector/README.md (Several columns on the page, and a joint over-cut warning)"
+  ],
+  "goal": "Depth over calculators: deepen an existing flagship",
+  "notes": "Security queue empty; ideas inbox and website requests empty. Verification: node --test multi-view.test.mjs page.test.mjs multivariate.test.mjs all pass (51 tests); headless Chromium e2e (FX example, joint over-cut warning on German unemployment, trend-model error, switch back to one column) with no console errors; full suite result below.",
+  "corrections": [],
+  "redteam": null
+}

@@ -3,7 +3,7 @@ title: "Three currencies, one page: changepoints across several columns"
 seo_title: "Changepoint detection on several columns at once, in the browser"
 date: 2026-11-11
 tags: [changepoint-detector, time-series, multivariate]
-description: "The changepoint detector's page now takes several columns. On the franc, pound and yen it finds the 2015 Swiss floor removal in the franc only and the Brexit vote in the pound only."
+description: "The changepoint page now takes several columns. On franc, pound and yen it finds the 2015 Swiss floor removal in the franc and the Brexit vote in the pound."
 ---
 
 Our changepoint detector could already check several columns at once from the
