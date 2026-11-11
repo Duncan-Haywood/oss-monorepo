@@ -146,6 +146,64 @@ function repairDate(lines, dayFirst) {
   return null;
 }
 
+// The total, checked against the receipt's own arithmetic. OCR misreads a digit
+// of the total line (9.00 as 9.60, 31.00 as 34.00, 54.50 as 64.50) more often
+// than it misreads the same digit everywhere else, and a receipt states its
+// total more than once: cash handed over less change, the before-tax subtotal
+// plus the GST or SST line (and any rounding), the items added up. When the
+// printed total matches none of these, and exactly one of them is the printed
+// total with one digit changed, that one is taken; a total any check confirms,
+// or one no check comes within a digit of, is left as printed.
+export const oneDigitApart = (a, b) => {
+  const x = String(a), y = String(b);
+  if (x.length !== y.length || x === y) return false;
+  let d = 0;
+  for (let i = 0; i < x.length; i++) if (x[i] !== y[i] && ++d > 1) return false;
+  return true;
+};
+function totalChecks(lines, comma, at, bare) {
+  const amt = (i) => { if (i < 0 || i >= lines.length) return null; const a = amountsIn(lines[i], comma).length ? amountsIn(lines[i], comma) : bare(lines[i + 1]); return a.length ? a[a.length - 1] : null; };
+  const checks = []; // [cents, why]
+  // cash handed over less change, both read after the total line
+  const ti = lines.findIndex((l, i) => i > at && /\b(?:cash|tender(?:ed)?|received|tunai)\b/i.test(l) && !/\bchange\b/i.test(l) && !/cash\s*(?:bill|sale|ier)/i.test(l));
+  const ci = ti < 0 ? -1 : lines.findIndex((l, i) => i > ti && /\b(?:change|kembali\w*|baki)\b/i.test(l) && !/exchange/i.test(l));
+  const tender = amt(ti), change = amt(ci);
+  if (tender !== null && change !== null && tender > change) checks.push([tender - change, "cash less change"]);
+  // before-tax subtotal plus each GST/SST/tax line, with any printed rounding
+  const subs = [], taxes = [], rounds = [0];
+  lines.forEach((l, i) => {
+    const v = amt(i);
+    if (v === null) return;
+    if (/sub\s*-?\s*total|excl(?:uding|usive)?\b|before\s+(?:gst|tax)|\bnett?\s+total/i.test(l) && !/\btotal\s+(?:gst|tax)\b/i.test(l)) subs.push(v);
+    else if (/\b(?:gst|sst|tax|service\s+charge)\b/i.test(l) && !/incl|excl|\bid\b|reg|summary|sales/i.test(l) && !(TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l))) taxes.push(v);
+    else if (/\bround(?:ing)?\b/i.test(l) && !TOTAL_RE.test(l)) { const m = l.match(/(-|\()\s*(?:rm\s*)?\d*[.,]\d{2}/i); if (Math.abs(v) <= 10) rounds.push(m ? -v : v); }
+  });
+  for (const s of subs) for (const t of taxes) if (t > 0 && t < s) for (const r of rounds) checks.push([s + t + r, "subtotal plus tax"]);
+  // the items added up, with and without the tax
+  const items = parseItems(lines, comma);
+  if (items.length >= 2) {
+    const sum = items.reduce((a, x) => a + x.cents, 0);
+    checks.push([sum, "the items"]);
+    for (const t of taxes) checks.push([sum + t, "the items plus tax"]);
+  }
+  // another total line ("Total : 9.00" above "Rounded Total 9.60")
+  lines.forEach((l, i) => { if (i !== at && TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) { const v = amt(i); if (v !== null) checks.push([v, "another total line"]); } });
+  return checks;
+}
+function crossCheckTotal(checks, cents) {
+  if (checks.some(([v]) => v === cents)) return null;
+  // One check alone is not enough (on the dataset's clean text, 15 receipts whose
+  // printed total was right had one check a digit off: a discount the items miss,
+  // a misprinted change). Two different kinds of check must agree, and a few cents
+  // either way is the 5-sen rounding, not a misread digit.
+  const near = new Map();
+  for (const [v, why] of checks) if (v > 0 && Math.abs(v - cents) > 5 && oneDigitApart(v, cents)) near.set(v, new Set([...(near.get(v) ?? []), why.replace(" plus tax", "")]));
+  const agreed = [...near].filter(([, w]) => w.size >= 2);
+  if (agreed.length !== 1) return null;
+  const [[v, why]] = agreed;
+  return { cents: v, why: [...why].join(" and ") };
+}
+
 export function parseReceipt(block, { dayFirst = null } = {}) {
   const lines = cleanOcr(String(block)).split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const notes = [];
@@ -286,6 +344,11 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     if (all.length) { cents = Math.max(...all); notes.push("no total line; took the largest amount"); }
   }
   if (cents === null) notes.push("no amount found");
+  const checks = totalChecks(lines, comma, at, bare);
+  if (cents !== null) {
+    const fix = crossCheckTotal(checks, cents);
+    if (fix) { notes.push(`total read as ${(cents / 100).toFixed(2)}; ${fix.why} give ${(fix.cents / 100).toFixed(2)}, one digit apart: used that, check the total`); cents = fix.cents; }
+  }
 
   let taxCents = null;
   for (const l of lines) if (TAX_RE.test(l) && (!TOTAL_RE.test(l) || TAX_TOTAL_RE.test(l)) && !/subtotal/i.test(l) && !NOT_TAX_RE.test(l)) { const a = amountsIn(l, comma); if (a.length) taxCents = a[a.length - 1]; }
@@ -303,19 +366,54 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
     else notes.push(`items add to ${(sum / 100).toFixed(2)} but the total is ${(cents / 100).toFixed(2)}${taxCents !== null ? " with tax" : ""}: not used for a split`);
   }
   const currency = detectCurrency(lines);
-  return { date, merchant, currency, cents, taxCents, tipCents, items: itemsOk ? items : [], itemsOk: !!itemsOk, taxIncluded: itemsOk === "tax included", ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
+  const out = { date, merchant, currency, cents, taxCents, tipCents, items: itemsOk ? items : [], itemsOk: !!itemsOk, taxIncluded: itemsOk === "tax included", ok: !!(date && merchant && cents), notes, totalLine: from, text: lines.join("\n").slice(0, 400) };
+  // the arithmetic checks, kept off the enumerable fields so results compare as before
+  Object.defineProperty(out, "checks", { value: checks, enumerable: false });
+  return out;
+}
+
+// One receipt read by OCR more than once (two page-segmentation modes, or two
+// engines): the first reading is the default; a field the readings disagree on
+// takes the reading the receipt's own arithmetic confirms. A total confirmed by
+// more kinds of check (cash less change, subtotal plus tax, the items), counted over every reading's text, beats one confirmed by fewer;
+// a tie keeps the first reading. Merchant and date follow the first reading;
+// a merchant it missed is taken from another.
+export function parseReceiptPasses(texts, opts = {}) {
+  const ps = texts.filter((t) => String(t ?? "").trim()).map((t) => parseReceipt(t, opts));
+  if (!ps.length) return parseReceipt("", opts);
+  const best = ps[0];
+  if (ps.length === 1) return best;
+  const all = ps.flatMap((p) => p.checks);
+  // "another total line" is left out here: in a second reading the first reading's
+  // own total line, misread differently, shows up as one (on SROIE, counting it
+  // picked the wrong reading as often as the right one)
+  const support = (c) => new Set(all.filter(([v, w]) => v === c && w !== "another total line").map(([, w]) => w.replace(" plus tax", ""))).size;
+  let pick = best;
+  for (const p of ps.slice(1)) if (p.cents !== null && p.cents !== pick.cents && (pick.cents === null || support(p.cents) > support(pick.cents))) pick = p;
+  const out = { ...best };
+  if (pick !== best) {
+    Object.assign(out, { cents: pick.cents, taxCents: pick.taxCents, tipCents: pick.tipCents, items: pick.items, itemsOk: pick.itemsOk, taxIncluded: pick.taxIncluded, totalLine: pick.totalLine });
+    out.notes = [...best.notes.filter((n) => !/total|items add/i.test(n)), `OCR readings disagree on the total (${ps.map((p) => p.cents === null ? "none" : (p.cents / 100).toFixed(2)).join(" vs ")}); took ${(pick.cents / 100).toFixed(2)}, which the receipt's arithmetic confirms`];
+  }
+  if (!out.merchant && (out.merchant = ps.find((p) => p.merchant)?.merchant ?? null)) out.notes = out.notes.filter((n) => n !== "no merchant found");
+  // a date only the second reading found is not taken: on SROIE that filled 18
+  // receipts, 9 right and 9 wrong, so the receipt asks instead
+  out.ok = !!(out.date && out.merchant && out.cents);
+  return out;
 }
 
 const sameReceipt = (a, b) => a.date === b.date && a.cents === b.cents && (a.merchant ?? "").toLowerCase() === (b.merchant ?? "").toLowerCase();
 
 // Parse and keep every readable receipt; returns the new books, the ones kept
 // and the blocks that could not be read (each with why).
+// `text` may also be an array: one receipt photo read more than once by OCR
+// (ocr.mjs receiptPassesFromFile), settled by parseReceiptPasses.
 export function addReceipts(books, text) {
   const kept = [...(books.receipts ?? [])];
   let n = kept.reduce((m, r) => Math.max(m, +String(r.id).slice(1) || 0), 0);
   const added = [], skipped = [], duplicates = [];
-  for (const block of splitReceipts(text)) {
-    const p = parseReceipt(block);
+  const parsed = Array.isArray(text) ? (text.length > 1 ? [parseReceiptPasses(text)] : splitReceipts(text[0] ?? "").map((b) => parseReceipt(b))) : splitReceipts(text).map((b) => parseReceipt(b));
+  for (const p of parsed) {
     if (!p.ok) { skipped.push({ text: p.text.split("\n")[0], notes: p.notes }); continue; }
     const dup = kept.find((r) => sameReceipt(r, p));
     if (dup) { duplicates.push({ id: dup.id, merchant: p.merchant, date: p.date, cents: p.cents }); continue; }

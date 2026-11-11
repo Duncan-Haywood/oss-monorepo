@@ -13,6 +13,7 @@ import { xlsToCsv, looksLikeXls } from "./xls.mjs";
 
 export { cleanOcr };
 
+const DEFAULT_OCR = "tesseract {file} stdout --psm 6";
 const IMAGE = new Set([".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp", ".webp", ".gif"]);
 
 export function receiptTextFromFile(path, { run = spawnSync, env = process.env } = {}) {
@@ -24,7 +25,10 @@ export function receiptTextFromFile(path, { run = spawnSync, env = process.env }
     return r.stdout;
   }
   if (IMAGE.has(ext)) {
-    const cmd = (env.RECEIPT_OCR_CMD || "tesseract {file} stdout").split(/\s+/);
+    // --psm 6 (one block of text): on SROIE's 626 receipt scans tesseract's own
+    // default (--psm 3, page layout analysis) read the total right on 67.5%, --psm 6
+    // on 76.2% (README "Totals checked against the receipt's own arithmetic")
+    const cmd = (env.RECEIPT_OCR_CMD || DEFAULT_OCR).split(/\s+/);
     const args = cmd.slice(1).map((a) => (a === "{file}" ? path : a));
     if (!cmd.slice(1).includes("{file}")) args.push(path);
     const r = run(cmd[0], args, { encoding: "utf8" });
@@ -32,6 +36,21 @@ export function receiptTextFromFile(path, { run = spawnSync, env = process.env }
     return cleanOcr(r.stdout);
   }
   return readFileSync(path, "utf8");
+}
+
+// A photo read twice, for parseReceiptPasses: the OCR command as configured, then
+// the same tesseract command with `--psm 4` (one column of text of varying sizes,
+// which is what a till slip is). Where the two readings disagree on the total,
+// the receipt's own arithmetic picks one (receipts.mjs). Text and PDF files, and
+// an OCR command that is not tesseract, have one reading. A second pass that
+// fails is dropped, not an error.
+export function receiptPassesFromFile(path, { run = spawnSync, env = process.env } = {}) {
+  const first = receiptTextFromFile(path, { run, env });
+  if (!IMAGE.has(extname(path).toLowerCase())) return [first];
+  const base = env.RECEIPT_OCR_CMD || DEFAULT_OCR;
+  if (!/^\S*tesseract\b/.test(base) || /--psm\s+4\b/.test(base)) return [first];
+  const second = /--psm\s+\d+/.test(base) ? base.replace(/--psm\s+\d+/, "--psm 4") : `${base} --psm 4`;
+  try { return [first, receiptTextFromFile(path, { run, env: { ...env, RECEIPT_OCR_CMD: second } })]; } catch { return [first]; }
 }
 
 // A bank statement that is a PDF file: the same pdftotext route as a receipt, and
