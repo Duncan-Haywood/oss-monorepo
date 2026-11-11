@@ -161,7 +161,12 @@ function parse(provider, data) {
   if (provider === 'gemini') {
     const parts = data.candidates?.[0]?.content?.parts || [];
     const u = data.usageMetadata || {};
-    return { text: parts.map(p => p.text || '').join(''), usage: { input: u.promptTokenCount || 0, output: u.candidatesTokenCount || 0 } };
+    // Google bills thinking tokens (thoughtsTokenCount) at the output rate and tool-use
+    // prompt tokens at the input rate; candidatesTokenCount alone under-counts both
+    // (quality audit 2026-11-07-llm.json). Thought-summary parts are not the answer.
+    const text = parts.filter(p => !p.thought).map(p => p.text || '').join('');
+    return { text, usage: { input: (u.promptTokenCount || 0) + (u.toolUsePromptTokenCount || 0),
+      output: (u.candidatesTokenCount || 0) + (u.thoughtsTokenCount || 0) } };
   }
   const u = data.usage || {};
   return { text: data.choices?.[0]?.message?.content || '', usage: { input: u.prompt_tokens || 0, output: u.completion_tokens || 0 } };
