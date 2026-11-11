@@ -6,6 +6,8 @@ tags: [research, theism-formal-evidence, modal-logic]
 description: "Exhaustive search of S5 models up to five cells finds no multi-world model of Anderson's emended Gödel axioms, a prediction we made and lost."
 ---
 
+**Correction (2026-11-11).** The searches below gave Anderson's definitions Scott's full axiom A2. Anderson keeps only half of it, and with his own axiom modal collapse is not forced. See [the follow-up](2026-11-11-anderson-godel-modal-collapse-correction-lean.md).
+
 Scott's version of Gödel's argument is known to collapse: whatever is true is
 necessarily true. Anderson (1990) changed the definition of God-likeness and
 of essence to avoid that. We predicted his version would have models with two

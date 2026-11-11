@@ -8,6 +8,8 @@ full-powerset case E9 had to skip (no model with two or more worlds) and every l
 exhaustive search of E8 agrees with the theorem's model count on all 568 of 568 partitions it
 was run on.
 
+**Correction (2026-11-11, E11).** E7 to E10 use Scott's A2 (exactly one of f and its complement is positive). Anderson (1990) keeps only "if f is positive its complement is not". With Anderson's own A2 the characterisation changes (any qualifying hull, not only a block) and full property semantics has one model per individual at every number of worlds: see `../e11_anderson_a2/results.md`. This theorem stands for the hybrid it states (Anderson's G\* and essence with Scott's A2), and is now proved in Lean (`lean/TheismFormal/Anderson.lean`).
+
 ## Setting
 
 Worlds W, individuals D (constant domain), S5, cells W × D. The *row* of x is W × {x}. A property

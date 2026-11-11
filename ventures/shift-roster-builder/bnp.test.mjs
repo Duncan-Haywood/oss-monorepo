@@ -154,3 +154,27 @@ test("a warm basis from the last solve gives the same LP optimum", () => {
   assert.ok(Math.abs(warm.obj - cold.obj) < 1e-6, `warm ${warm.obj} cold ${cold.obj}`);
   assert.ok(warm.pivots < cold.pivots, `warm ${warm.pivots} pivots, cold ${cold.pivots}`);
 });
+
+test("root dive: any width gives a valid roster, never below brute force, and the same proven floor as no dive", () => {
+  for (let c = 0; c < 40; c++) {
+    const { staff, slots } = seededWeek(777 + c * 53, 3 + (c % 4), 8 + (c % 7));
+    const pf = openFloorByPricing(staff, slots, {});
+    const truth = bruteOpen(pf.cov.sets, pf.cov.len);
+    const off = openFloorByColumnGeneration(staff, slots, {}, { rootDive: false });
+    assert.ok(Math.abs(off.floor - truth) < 1e-6, `case ${c}: no-dive floor ${off.floor} vs ${truth}`);
+    for (const cfg of [{}, { diveWidth: 1 }, { diveWidth: 3 }, { diveWidth: 2, nodeLimit: 1 }]) {
+      const r = openFloorByColumnGeneration(staff, slots, {}, cfg);
+      assert.ok(r.floor <= truth + 1e-6, `case ${c} ${JSON.stringify(cfg)}: floor ${r.floor} above ${truth}`);
+      if (r.proven) assert.ok(Math.abs(r.floor - truth) < 1e-6, `case ${c} ${JSON.stringify(cfg)}`);
+      if (!r.roster) continue;
+      assert.ok(r.best >= truth - 1e-6, `case ${c} ${JSON.stringify(cfg)}: roster ${r.best} below ${truth}`);
+      let openH = 0;
+      for (let s = 0; s < slots.length; s++) if (r.roster[s] < 0) openH += pf.cov.len[s];
+      assert.ok(Math.abs(openH - r.best) < 1e-6, `case ${c}: roster leaves ${openH} open, reported ${r.best}`);
+      for (let p = 0; p < staff.length; p++) {
+        const mine = [...r.roster.keys()].filter((s) => r.roster[s] === p);
+        assert.ok(pf.cov.sets[p].some((f) => f.length === mine.length && f.every((s) => mine.includes(s))), `case ${c} ${JSON.stringify(cfg)}: person ${p}`);
+      }
+    }
+  }
+});
