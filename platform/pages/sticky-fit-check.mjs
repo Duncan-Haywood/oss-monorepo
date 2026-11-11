@@ -17,7 +17,8 @@
 //
 // Same BASE_URL / DIST / PLAYWRIGHT / CHROME_PATH variables as sideways.mjs.
 // HEIGHT sets the window height (default 800) and ONLY_SLUGS a comma list.
-// Exits 1 listing each page whose stuck card is cut off.
+// Exits 1 listing each page whose stuck card is cut off or slides over a
+// neighbouring grid cell.
 // Not part of CI: Playwright is not a dependency of this repo.
 
 import fs from 'node:fs';
@@ -80,6 +81,32 @@ for (const name of pages) {
         cut: stuck && r.bottom > innerHeight + 1 && el.scrollHeight <= el.clientHeight + 1
           ? Math.round(r.bottom - innerHeight) : 0,
       });
+      // Covering a neighbour: a card that is the tallest thing in its grid
+      // row (polish-2026-11-11-row-setter-cards.md) can't be capped, and
+      // Chrome lets it travel down the whole grid container, over the FAQ or
+      // proposal below it in the same column. Stepped through the parent; a
+      // grid parent only, since a sticky header over the page body is meant
+      // to cover what scrolls under it.
+      let over = null;
+      if (getComputedStyle(el.parentElement).display.includes('grid')) {
+        const sibs = [...el.parentElement.children].filter((s) => s !== el);
+        for (let t = 0; t <= 1 && !over; t += 0.1) {
+          const pb = el.parentElement.getBoundingClientRect();
+          scrollTo(0, scrollY + pb.top + t * pb.height - innerHeight / 2);
+          await settle();
+          const a = el.getBoundingClientRect();
+          for (const s of sibs) {
+            const b = s.getBoundingClientRect();
+            const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+            const h = Math.min(a.bottom, b.bottom, innerHeight) - Math.max(a.top, b.top, 0);
+            if (w > 4 && h > 4) {
+              over = `${s.tagName.toLowerCase()}${s.id ? '#' + s.id : ''} (${Math.round(h)}px)`;
+              break;
+            }
+          }
+        }
+      }
+      out[out.length - 1].over = over;
       scrollTo(0, 0);
     }
     return out;
@@ -88,6 +115,7 @@ for (const name of pages) {
     cards += 1;
     if (c.fitted) fitted += 1;
     if (c.cut) failures.push(`${name}: .${c.name} runs ${c.cut}px past a ${HEIGHT}px window while stuck`);
+    if (c.over) failures.push(`${name}: .${c.name} slides over ${c.over} while stuck`);
   }
 }
 await browser.close();
@@ -97,4 +125,4 @@ if (failures.length) {
   console.log(failures.join('\n'));
   process.exit(1);
 }
-console.log('No stuck card is cut off.');
+console.log('No stuck card is cut off or covers a neighbour.');

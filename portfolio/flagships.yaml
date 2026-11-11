@@ -16,6 +16,11 @@
 # tells runs to take it only if they hold such an input. Remove the field when
 # a buildable item is added to `next:`.
 #
+# `buildable: <items a cloud session can do now>` (optional) leads the row's
+# task as "BUILDABLE HERE", so a run need not read every full `next:` to find
+# a tractable item (seven runs on 2026-11-11 did). Name only items checked to
+# need no key, account or person; drop or rewrite it when they land.
+#
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
 #
@@ -92,6 +97,15 @@ flagships:
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
+    buildable: >-
+      (1) the second reader as another model family, keyless: a local GGUF model
+      (e.g. Qwen2.5, Llama 3.x or Mistral Instruct, Q4_K_M, from Hugging Face)
+      served by llama.cpp (`llama-cpp-python` server, CPU), labelling from
+      eval/enron-labels/READER.md; (3) the local half of M2: `LLM_PROVIDER=llamacpp
+      node eval/model.mjs eval/fresh-*.jsonl` (byok.mjs has a keyless llamacpp
+      provider). ai-bookkeeper README "A bigger local model" has the CPU setup that
+      worked in a cloud session; huggingface.co answered 200 through the proxy on
+      2026-11-11.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
@@ -125,8 +139,8 @@ flagships:
       against brute force and a closed-form evidence check, reproducing the
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
-      TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. All panels and the main analysis on threads/workers (README, 2026-11-11). `--model drift` on the page and agent tool 2026-11-11 (README "Jumps on a wandering level, on the page").
-      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (b) drift model in the branded report; TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere.
+      TCPD benchmark (README "Labelled benchmark", "Held out"; all trials in README and git): every-setting consensus F1 0.702 on 31 shipped series and 0.711 on 7 held out (binseg 0.714/0.727, "no change" 0.663/0.639); plain level model 0.477/0.296, hence "Agreed changes" first. Several columns (README): CLI and page, joint 'auto' noise floor per column, branded report 2026-11-11. `--model drift` on the page and agent tool 2026-11-11 (README "Jumps on a wandering level, on the page").
+      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (scored 0.564 on TCPD's 3; a lead, not a finding), a trend term per column, a print layout past about six columns; (b) the drift model in several-columns mode (branded report done 2026-11-11, README); TCPD has no series over 991 points, so long-series value needs labelled long data from elsewhere.
       Open: (0) smooth series over-cut (TCPD: 406 cuts on US population, 178 on bank); `--model drift` 2026-11-11 (random-walk level, README "Jumps on a drifting level"); step-robust omega (README "A step-robust omega": now the drift default, F1 0.694/0.527; panel step held for fresh labelled data); biweight rejected and a walk/noise heavy-tail check 2026-11-11 (README "Heavy tails on a drifting level", "The heavy-tail check"); next: heavy-tailed level increments (t-walk), biweight where the check says noise on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope-break test dates GDP's 1970s break at 1971Q2, not significantly; wanted: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-
@@ -165,17 +179,19 @@ flagships:
       bound in the pay oracle"): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
       359; week 1 347 over 344; the 60-person pay week is still $1.22 open. --from-sales (README "First real
       POS export", "Second real POS export", "Short-vs-over cost weight"): two real bakery exports, backtest,
-      lunch-closure breaks, half-life 4 / 2 best; --short-cost r 2026-11-11 staffs the r/(1+r) fractile and
+      lunch-closure breaks; --half-life auto default 2026-11-11 (README "Picking the half-life from your own weeks": chosen from
+      past weeks, never clearly worse than plain in 12 settings, -7.4% mean; fixed 2 worse on the Korean file); --short-cost r 2026-11-11 staffs the r/(1+r) fractile and
       beats the average at r = 3 on both files. Next: close the 100-person gaps (tree, not pricing, now);
       cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
       40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
-      can score a staffed closure; whether to default to a half-life; forecasting from tickets (queue
-      length), not just sales; a real published-schedule export for --import-shifts; joining short runs an
-      hour or two apart into one shift and folding a short run into a neighbouring shift (the cost cut,
-      README "The short-cost weight carried through the shift cut", 2026-11-11, prices each run alone:
-      backtest now scores cut shifts, cost cut beats the old cut in 36 of 36 settings on both bakeries;
-      priced by default at r = 1 since the follow-up, README "The priced cut by default": 30 of 30 more,
-      but the default now runs shorter, so whether r = 1 is the right default needs a real manager's view).
+      can score a staffed closure; whether auto should also choose the short cost's window or a 1-week half-life
+      (a third real file would test it); forecasting from tickets (queue
+      length), not just sales, since the cut is no longer where the gap is (joining short runs and folding
+      them into neighbouring shifts, opt-in --join 2026-11-11, README "Joining short runs": optimal in
+      sample, but on held-out weeks clearly cheaper in 1 of 72 comparisons, dearer in 16, noise in 55, so
+      the default stays the per-run priced cut); a real published-schedule export for --import-shifts;
+      whether the priced cut's r = 1 default (README "The priced cut by default", runs shorter) suits a
+      real manager.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -230,9 +246,16 @@ flagships:
       and a pooled survey prior"): under staged, one easy pair in five lifts
       honest-vs-lapser AUC from 0.56-0.72 to 0.87-0.99 (rank accuracy flat at
       15 items, -0.01 to -0.03 at 30); shipped needs none (0.83-0.97 already);
-      pooling does not improve separation. Next: the anchor estimate as a
-      per-person weight in pooling.ts, scored on the pooled ranking with a
-      mixed population, and the false-flag rate at a threshold; staged's 0.90
+      pooling does not improve separation. Anchor weights in the pooled
+      ranking 2026-11-11 (scripts/anchor-weight-sweep.ts, section "Anchor
+      weights in the pooled ranking"; shared-truth surveys, 40 cells): no
+      weight, not even the true e, moves the groupRanking pool beyond noise
+      (-0.014 to +0.009 Spearman); dropping flagged people costs up to 0.055
+      on 8-person panels; random answering only compresses a person's
+      ratings, so the pool needs no protection. Flag at 0.5 with 20+ anchors:
+      2% or fewer honest flagged, 55-60% of lapsers caught; not built. Next:
+      non-random carelessness (position bias, one-item clicking) on the
+      shared-truth pool, which biases rather than adds noise; staged's 0.90
       coverage for honest respondents (close pairs shrink rd too fast); the
       switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator
@@ -246,17 +269,19 @@ flagships:
       CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
       capped breaks, zero-break odd leagues, field start at 4/8/16/32 teams; sampled, annealed and
       O(p)-climbed starters, 20 and 22 teams at the floor, 24-40 8-21% above it; refilled rounds,
-      12 teams 136 against 120, stored in TIMETABLES; all 2026-11-11). Break-weighted starters
-      2026-11-11 latest (README "Starters picked with their breaks", eval/starter-breaks.mjs): a
-      starter's start is a relabelling (never changes carry-over), so STARTERS_WEIGHTED, picked on
-      carry-over + 10 x breaks, is another start at break weights, kept only when strictly better:
-      26 teams 716/102 to 716/74, season 2,618/230 to 2,714/164; 12-18, 28, 30, 34 lower too. Next,
-      most valuable first: run 36-40 through the search and a climb that scores breaks inside the
-      move (odd sizes vs the circle's zero-break orientation); a lower bound or a timetable below 136
-      at 12, the refill from climbed starters at 14-18 teams and on a season's second leg; close
-      24-40 (tabu, longer runs, the literature's starters and terraces); a bound for the
-      minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter timetable; a real
-      league's travel times and unavailable dates; a print check.
+      12 teams 136 against 120; break-weighted starters; all 2026-11-11). Shift venues 2026-11-11
+      latest (README "Home and away that moves with the starter", eval/starter-orient.mjs,
+      eval/shift-search.txt): a starter's home/away read off the starter has exactly
+      (p-1)(E+1) breaks, or (p-1)E with a bye, least E by a Gray-code walk; scored as a candidate at
+      break weights, plus STARTERS_SHIFT from a climb with breaks in the move: odd leagues 17-39
+      from 4-10 breaks per team to under 2 (23 teams 565/127 to 565/44), 18 of 28 sizes lower at
+      weight 10, none higher. Refill from climbed starters at 13-18 teams: no gain (negative).
+      Next, most valuable first: the same shift candidate for a home-and-away season
+      (lowCarryOverDoubleRounds, mirrored shift venues; odd seasons 25 teams 2,889/262 today);
+      seed assignVenues with the shift orientation after the search's moves; a lower bound or a
+      timetable below 136 at 12; close 24-40 (tabu, longer runs, the literature's starters and
+      terraces); a 20-team leg at 22-30 breaks from a starter timetable; a real league's travel
+      times and unavailable dates; a print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
@@ -269,10 +294,14 @@ flagships:
       confirms release from a balls_fed telemetry byte before re-aiming; tested on a simulated board running the
       real controller.py and main.py. Same run: per-revolution tach (the old one read only 6000 rpm steps) and a
       feedforward+PI wheel loop with a 3%/150 ms gate (tests/wheel_loop_sweep.py: true speed error at release 6.6%
-      to 2.8% over 36 plant cases). Next: log a real wheel's tach on spin-up and rerun the sweep with its lag; weigh the head and measure the hose's torque, the
-      stepper's pull-out and the actuator's real lengths (needs a person); the home switch's bracket; hang a
-      real hose from a tube; the shuttle actuator's bracket; the netting trough that rolls balls to the
-      hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
+      to 2.8% over 36 plant cases). Shuttle drive 2026-11-11 (cad/README.md "Shuttle drive"): servo slider-crank
+      outboard of the motor plate replaces the BOM's linear actuator (9.7 s a ball at 20 mm/s; crank 1.68 s,
+      assumed loads); the firmware gate now holds the stroke and counts a ball only at the wheels, and the
+      simulated board moves a physical shuttle. Next: log a real wheel's tach on spin-up and rerun the sweep with
+      its lag; weigh the head and measure the hose's torque, the stepper's pull-out, the actuator's real lengths,
+      the column's load on the shuttle and the servo's loaded stroke time (needs a person); the home switch's
+      bracket; hang a real hose from a tube; the servo's supply and the cable runs; the netting trough that rolls
+      balls to the hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

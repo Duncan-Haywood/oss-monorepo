@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKkdRtyovdhc8rougu6",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T19:18:37Z",
+  "ended": "2026-11-11T19:31:32Z",
+  "wall_minutes": 13.05,
+  "tokens_in": 2350389,
+  "tokens_out": 13842,
+  "cost_usd": 1.322,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14865",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes first refused: origin/main shared no commit with HEAD in the shallow clone; fixed with git fetch --depth=40 origin main"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "the 300 s workflow budget always runs out on portfolio-pages 'Test the site builder', so every later step reports FAIL (0.0s) and looks like a real failure until you read the TIMEOUT line"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-philippine-and-the-woman-who-prays-always.md"
+  ],
+  "goal": null,
+  "notes": "Project: Little Lamps (hearth-and-horizon). Piece: philippine-and-the-woman-who-prays-always (Rose Philippine Duchesne; feast 18 Nov, US proper calendar). Text only: audio 423 MB, over the 400 MB cap. Added a Little Lamps 'Next up' proposal (Elizabeth Ann Seton) to BIBLE.md. Local checks: venture node --test 14/14, check_post_frontmatter ok, ventures-tests/doc-refs/page-integrity/link-contrast/sibling-links ok; pages site-builder steps hit the local 300 s budget, so CI decides them.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7d80cdc4-1e35-54b7-9b30-37e11d2b2a54",
+    "transcripts": 1,
+    "first": "2026-11-11T19:18:37Z",
+    "last": "2026-11-11T19:31:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 55,
+        "output": 13842,
+        "thinking": 3059,
+        "cache_read": 2276636,
+        "cache_write_5m": 0,
+        "cache_write_1h": 73698,
+        "api_equivalent_usd": 1.322,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 55,
+      "output": 13842,
+      "thinking": 3059,
+      "cache_read": 2276636,
+      "cache_write_5m": 0,
+      "cache_write_1h": 73698,
+      "api_equivalent_usd": 1.322,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.05,
+      "active_minutes": 13.05,
+      "model_minutes": 3.25,
+      "tool_minutes": 9.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "researching and writing a fact-checked 1,300-word children's saint story with a sourced note, plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 226.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

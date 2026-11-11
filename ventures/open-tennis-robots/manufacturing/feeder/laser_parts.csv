@@ -1,5 +1,5 @@
 file,part,qty,material,thickness_mm,width_mm,height_mm,area_cm2,cut_length_mm,holes_and_cutouts,notes
-head_motor_plate__aluminium_5mm.dxf,head_motor_plate,1,aluminium 5052,5.0,360.0,415.0,1486.4,1879,19,Both outrunners mount on this plate (M4 on a 25 mm square; check your motor). Pivot bolt M8 through the lower hole.
+head_motor_plate__aluminium_5mm.dxf,head_motor_plate,1,aluminium 5052,5.0,360.0,415.0,1480.3,2128,23,Both outrunners mount on this plate (M4 on a 25 mm square; check your motor). Pivot bolt M8 through the lower hole.
 head_guard_plate__aluminium_5mm.dxf,head_guard_plate,1,aluminium 5052,5.0,360.0,415.0,1490.3,1700,10,Keeps hands and balls off the open side of the wheels; held by four M5 standoffs.
 trunnion_cheek__aluminium_5mm.dxf,trunnion_cheek,1,aluminium 5052,5.0,120.0,165.0,196.6,610,3,Motor-side (+y) cheek: holds the head's M8 pivot bolt; a printed foot bolts it to the turntable plate.
 trunnion_cheek_elev__aluminium_5mm.dxf,trunnion_cheek_elev,1,aluminium 5052,5.0,176.0,165.0,241.5,739,4,"Guard-side (-y) cheek: holds the pivot bolt, and its rear tab carries the elevation actuator's anchor (M6 shoulder bolt). Same feet as the other cheek."

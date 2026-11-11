@@ -333,6 +333,22 @@ export function cutShifts(profile, minShift = 4, maxShift = 8, cost = null) {
   const staffed = new Array(24).fill(0);
   const top = Math.max(0, ...profile);
   for (let k = 1; k <= top; k++) {
+    // cost.join (opt-in, --join): choose the whole level at once, so two short runs near each other can share one shift
+    // and a short run can be folded into its neighbour (joinLevel). Off by default: on two real bakeries it lowered the
+    // expected cost in sample but not on held-out weeks (README "Joining short runs", eval/join-cut.mjs).
+    if (cost && cost.join === true) {
+      const got = joinLevel(profile, staffed, k, minShift, maxShift, cost);
+      if (got) {
+        for (const [s, e] of got.blocks) {
+          for (let t = s; t < e; t++) staffed[t]++;
+          const len = e - s, n = Math.ceil(len / maxShift);
+          let at = s;
+          for (let j = 0; j < n; j++) { const piece = Math.floor((len - (at - s)) / (n - j)); shifts.push([at, at + piece]); at += piece; }
+        }
+        dropped.push(...got.dropped);
+        continue;
+      }
+    }
     let h = 0;
     while (h < 24) {
       if (profile[h] < k) { h++; continue; }
@@ -369,6 +385,68 @@ export function cutShifts(profile, minShift = 4, maxShift = 8, cost = null) {
   return shifts;
 }
 
+// One level k of the priced cut, chosen whole (2026-11-11, "Joining short runs"). The runs are the maximal stretches with
+// profile >= k. Each is either staffed inside a block or, when it is shorter than minShift, above minimum staff and has
+// a tail, left unstaffed. A block covers one or more consecutive runs and the gaps between them: their exact span when
+// that is at least minShift long (a short run folded into a neighbouring shift, or two short runs joined), otherwise a
+// minShift window holding them that does not reach into another run or the previous block. A block longer than maxShift
+// is split into near-equal pieces, and must give pieces of at least minShift unless it is a single run (as before).
+// Each hour a block covers costs shiftCost at one more person than is already there; leaving a run costs 0. The least
+// total wins (ties: fewer runs left, fewer shut hours, fewer hours, stretches nearer the old forward one). Returns
+// { blocks: [[s, e)], dropped: [[h, e, k]] }, or null when no choice is valid (the caller falls back to the old cut).
+function joinLevel(profile, staffed, k, minShift, maxShift, cost) {
+  const runs = [];
+  for (let h = 0; h < 24;) {
+    if (profile[h] < k) { h++; continue; }
+    let e = h; while (e < 24 && profile[e] >= k) e++;
+    runs.push([h, e]); h = e;
+  }
+  const R = runs.length;
+  const pc = [0], ps = [0];
+  for (let t = 0; t < 24; t++) { pc.push(pc[t] + shiftCost(cost, profile, t, staffed[t] + 1)); ps.push(ps[t] + (profile[t] === 0 ? 1 : 0)); }
+  const droppable = runs.map(([a, b]) => b - a < minShift && k > (cost.minStaff || 0) && hasTail(cost, a, b));
+  const better = (x, y) => {
+    if (!y) return true;
+    if (Math.abs(x.v - y.v) > 1e-12) return x.v < y.v;
+    for (const f of ["nd", "shut", "hrs", "back"]) if (x[f] !== y[f]) return x[f] < y[f];
+    return false;
+  };
+  // states[i]: Map lastEnd -> best partial plan having decided runs 0..i-1.
+  const states = Array.from({ length: R + 1 }, () => new Map());
+  states[0].set(0, { v: 0, nd: 0, shut: 0, hrs: 0, back: 0, blocks: [], dropped: [] });
+  const put = (i, end, x) => { if (better(x, states[i].get(end))) states[i].set(end, x); };
+  for (let i = 0; i < R; i++) {
+    for (const [lastEnd, st] of states[i]) {
+      if (droppable[i]) put(i + 1, lastEnd, { ...st, nd: st.nd + 1, dropped: [...st.dropped, [runs[i][0], runs[i][1], k]] });
+      const lo = Math.max(lastEnd, i ? runs[i - 1][1] : 0);
+      for (let j = i; j < R; j++) {
+        const a = runs[i][0], b = runs[j][1], hi = j + 1 < R ? runs[j + 1][0] : 24;
+        const span = b - a;
+        // A block over several runs never covers a shut hour (a lunch closure stays unstaffed, as headcount set it).
+        if (j > i && ps[b] - ps[a] > 0) break;
+        const wins = span >= minShift ? [[a, b]] : [];
+        if (span < minShift && i === j && !droppable[i]) {
+          // A short run that must be staffed (minimum staff, or no tail) and is not joined keeps the old stretch.
+          let s = a, e = b;
+          while (e - s < minShift && e < 24 && profile[e] > 0) e++;
+          while (e - s < minShift && s > 0 && profile[s - 1] > 0) s--;
+          if (e - s < minShift) { e = Math.min(24, s + minShift); s = e - minShift; }
+          if (s < 0) { s = 0; e = Math.min(24, minShift); }
+          if (s >= lo && e <= hi) wins.push([s, e]);
+        } else if (span < minShift) for (let s = Math.max(lo, b - minShift); s <= Math.min(a, hi - minShift); s++) if (j === i || ps[s + minShift] - ps[s] === 0) wins.push([s, s + minShift]);
+        for (const [s, e] of wins) {
+          const len = e - s;
+          if (len > maxShift && !(i === j && s === a && e === b) && Math.floor(len / Math.ceil(len / maxShift)) < minShift) continue;
+          put(j + 1, e, { v: st.v + pc[e] - pc[s], nd: st.nd, shut: st.shut + ps[e] - ps[s], hrs: st.hrs + len, back: st.back + (a - s), blocks: [...st.blocks, [s, e]], dropped: st.dropped });
+        }
+      }
+    }
+  }
+  let best = null;
+  for (const x of states[R].values()) if (better(x, best)) best = x;
+  return best;
+}
+
 const hasTail = (cost, a, b) => { for (let t = a; t < b; t++) if (!cost.tail[t]) return false; return true; };
 
 // Expected change in r x short + over from adding one person at hour t when c - 1 are already there: on the share q of
@@ -401,7 +479,38 @@ function cheapestStretch(profile, staffed, h, e, minShift, cost) {
 const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 
 // Everything at once. Returns { shiftsText, days: [{day, needed, scheduled, shifts}], needed, scheduled, extra, sales, notes, skipped }.
+// --half-life auto: pick the weighting from the shop's own past weeks. Runs the backtest (shifts cut and scored as the
+// CLI scores them, at the same short cost) for every earlier week equal and half-lives 8, 4 and 2, and keeps the one
+// with the least (r x) short + over a week; a tie keeps the plain average. Needs AUTO_MIN_WEEKS tested weeks, else
+// plain. Measured 2026-11-11 (eval/halflife-default.mjs, README "Picking the half-life from your own weeks"): chosen
+// this way week by week on two real bakeries it was never clearly worse than the plain average in 12 settings and
+// 7.4% better on average, where a fixed half-life 2 was clearly worse in 2 and half-lives 4 and 8 helped less.
+export const AUTO_MIN_WEEKS = 4;
+export function pickHalfLife(text, o = {}) {
+  const rc = o.shortCost === undefined ? null : Number(o.shortCost);
+  const ids = ["hl8", "hl4", "hl2"];
+  const pre = rc === null ? "" : "q-";
+  let b;
+  try { b = backtestSales(text, { ...o, halfLife: undefined, shifts: true, methods: rc === null ? ids : ["all", ...ids].map((x) => pre + x) }); }
+  catch { return { halfLife: undefined, note: "Half-life auto: the file could not be backtested, so every earlier week weighs the same." }; }
+  if (b.weeks < AUTO_MIN_WEEKS) return { halfLife: undefined, weeks: b.weeks, note: `Half-life auto: ${b.weeks} full week${b.weeks === 1 ? "" : "s"} to test on, fewer than ${AUTO_MIN_WEEKS}, so every earlier week weighs the same.` };
+  const cands = b.methods.filter((m) => m.id === pre + "all" || ids.some((x) => m.id === pre + x));
+  const base = cands.find((m) => m.id === pre + "all");
+  const best = cands.reduce((a, m) => (m.miss < a.miss - 1e-9 ? m : a), base);
+  const hl = best.halfLife;
+  const what = hl ? `half-life ${hl} weeks` : "every earlier week weighed the same";
+  const gain = base.miss - best.miss;
+  return { halfLife: hl, weeks: b.weeks, note: `Half-life auto: ${what}, the weighting with the least short + over on your last ${b.weeks} weeks${hl ? ` (${gain.toFixed(1)} person-hours a week fewer than equal weights)` : ""}. --half-life none turns it off; a number fixes it.` };
+}
+
 export function demandShifts(text, o = {}) {
+  if (o.halfLife === "auto") {
+    const p = pickHalfLife(text, o);
+    const r = demandShifts(text, { ...o, halfLife: p.halfLife });
+    r.notes.push(p.note); r.halfLife = p.halfLife;
+    return r;
+  }
+  if (o.halfLife === "none" || o.halfLife === 0) o = { ...o, halfLife: undefined };
   const s = hourlySales(text, { ...o, priceCut: o.costCut !== false });
   if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped };
   const prof = headcount(s.avg, s.observed, { ...o, seen: s.seen, heads: s.heads });
@@ -415,7 +524,7 @@ export function demandShifts(text, o = {}) {
   // The cut is priced with dated rows whether or not --short-cost is given; without it a short and a spare hour weigh
   // the same (r = 1), the weight the plain backtest scores at.
   const rCut = o.shortCost === undefined ? 1 : Number(o.shortCost);
-  const cutCost = (d) => (s.tail && o.costCut !== false ? { tail: s.tail[d], r: rCut, minStaff } : null);
+  const cutCost = (d) => (s.tail && o.costCut !== false ? { tail: s.tail[d], r: rCut, minStaff, join: o.join === true } : null);
   const dropped = [];
   const days = prof.map((p, d) => {
     const shifts = cutShifts(p, minShift, maxShift, cutCost(d));
@@ -493,7 +602,9 @@ export function backtestSales(text, o = {}) {
   // over; the plain average stays first as the baseline everything is compared with.
   const rc = o.shortCost === undefined ? null : Number(o.shortCost);
   if (rc !== null) shortCostShare(rc);
-  const methods0 = rc === null ? BACKTEST_METHODS : [BACKTEST_METHODS[0], ...BACKTEST_METHODS.map((m) => ({ ...m, id: "q-" + m.id, label: `${m.id === "all" ? "every earlier week" : m.label}, short cost ${rc}`, shortCost: rc }))];
+  const methodsAll = rc === null ? BACKTEST_METHODS : [BACKTEST_METHODS[0], ...BACKTEST_METHODS.map((m) => ({ ...m, id: "q-" + m.id, label: `${m.id === "all" ? "every earlier week" : m.label}, short cost ${rc}`, shortCost: rc }))];
+  // o.methods: ids to run (the baseline "all" always runs first), so pickHalfLife skips the windows it never picks.
+  const methods0 = o.methods ? methodsAll.filter((m, i) => i === 0 || o.methods.includes(m.id)) : methodsAll;
   const results = methods0.map((m) => ({ ...m, short: [], over: [], scheduled: [], shortHours: [] }));
   for (const w of tested) {
     const start = monday0 + w * 7 * DAY_MS;
@@ -509,7 +620,7 @@ export function backtestSales(text, o = {}) {
       // a short-cost weight, the runs the cost-aware cut leaves unstaffed) show up in short and over.
       const plan = !o.shifts ? prof : prof.map((p, d) => {
         // Every row's cut is priced at the weight the week is scored at (rc, or 1), average rows included (2026-11-11).
-        const cost = a.tail && o.costCut !== false ? { tail: a.tail[d], r: rc === null ? 1 : rc, minStaff } : null;
+        const cost = a.tail && o.costCut !== false ? { tail: a.tail[d], r: rc === null ? 1 : rc, minStaff, join: o.join === true } : null;
         const row = new Array(24).fill(0);
         for (const [x, y] of cutShifts(p, minShift, maxShift, cost)) for (let t = x; t < y; t++) row[t]++;
         return row;

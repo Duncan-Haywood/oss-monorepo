@@ -25,6 +25,17 @@
  *   compared in CIE76. A crude stand-in for the eye's blur, not S-CIELAB; it
  *   is used only to compare flat and index on the same footing.
  *
+ * - Dot gain (2026-11-11): ink spreads past its cell on press. Modelled as an
+ *   isolated dot covering (1 + gain) cells, so a cell takes gain/4 of each
+ *   4-neighbour printed after it (area mixing in linear light): ink onto bare
+ *   garment, and a later ink over an earlier one (wet on wet, in print order). With `dotGainPct` set, the
+ *   error diffusion is model-based (after Pappas and Neuhoff's printer-model
+ *   halftoning): each candidate is judged by how the cell will actually look
+ *   next to its already-placed neighbours, and the ink it spills onto those
+ *   neighbours is counted as error already spent. `calibrationFilms` gives a
+ *   proof strip (solid, 50% checkerboard, bare) and `gainFromPatch` turns the
+ *   three colours read off a photo of it into a gain figure.
+ *
  * Pure functions over typed arrays; no DOM, nothing uploaded.
  */
 import { toLab, cropImage, maskSvg } from "./separation.mjs";
@@ -40,6 +51,9 @@ const NONE = 255;
 const lin = v => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
 const unlin = v => 255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
 const rgbOf = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+/** Largest dot gain accepted (percent of a cell's area): beyond it a bare cell between four dots would be over-covered. */
+export const MAX_GAIN_PCT = 100;
+const gainSide = pct => Math.max(0, Math.min(MAX_GAIN_PCT, Number(pct) || 0)) / 400;
 const labLin = ([r, g, b]) => toLab(unlin(Math.max(0, Math.min(1, r))), unlin(Math.max(0, Math.min(1, g))), unlin(Math.max(0, Math.min(1, b))));
 
 /** Box/bilinear resample of RGBA to w x h, returned as linear-RGB Float32 triples. */
@@ -74,7 +88,8 @@ export function gridSize(srcW, srcH, widthCm, cellMm) {
 /**
  * @param image RGBA pixels (the same the flat separation was given)
  * @param base  the result of `separate(image, o)`: its inks, garment, width, crop and background are reused
- * @param o     { crop } as given to `separate` (so the dots line up), minFeatureMm (default base.minFeatureMm), serpentine (default true), margin (default MARGIN)
+ * @param o     { crop } as given to `separate` (so the dots line up), minFeatureMm (default base.minFeatureMm), serpentine (default true), margin (default MARGIN),
+ *              dotGainPct (default 0: the printer's dot gain to compensate for, percent of a cell's area)
  */
 export function indexSeparate(image, base, o = {}) {
   if (!base || !Array.isArray(base.inks) || !base.labels) throw new Error("indexSeparate: run the flat separation first");
@@ -91,22 +106,47 @@ export function indexSeparate(image, base, o = {}) {
   // The corrected colour is clamped near the displayable range: a painting's colours often lie outside what
   // the few inks can mix, and unclamped error then runs away into streaks (measured, README).
   const margin = Math.max(0, Number(o.margin ?? MARGIN));
+  const sg = gainSide(o.dotGainPct), gLin = pal[GARMENT].lin;
   const labels = new Uint8Array(w * h).fill(NONE);
   const err = new Float32Array(w * h * 3);
+  const seen = new Uint8Array(w * h); // decided (inked, bare or background)
+  // print order: the bare garment is "first", then the inks in their order; a later layer spreads over an earlier one
+  const rank = [...base.inks.map((ink, p) => Number(ink.order) || p + 1), 0];
+  const cand = pal.map(() => [0, 0, 0]);
   for (let y = 0; y < h; y++) {
     const ltr = !serp || y % 2 === 0, dir = ltr ? 1 : -1;
     for (let n = 0; n < w; n++) {
       const x = ltr ? n : w - 1 - n, i = y * w + x;
-      if (bgAt(x, y)) continue;
+      if (bgAt(x, y)) { seen[i] = 1; continue; }
       const c = [0, 1, 2].map(k => Math.max(-margin, Math.min(1 + margin, src[i * 3 + k] + err[i * 3 + k])));
       const L = labLin(c.map(v => Math.max(0, Math.min(1, v))));
       let best = 0, bd = Infinity;
-      for (let p = 0; p < pal.length; p++) {
-        const q = pal[p].lab, d = (L[0] - q[0]) ** 2 + (L[1] - q[1]) ** 2 + (L[2] - q[2]) ** 2;
-        if (d < bd) { bd = d; best = p; }
+      if (!sg) {
+        for (let p = 0; p < pal.length; p++) {
+          const q = pal[p].lab, d = (L[0] - q[0]) ** 2 + (L[1] - q[1]) ** 2 + (L[2] - q[2]) ** 2;
+          if (d < bd) { bd = d; best = p; }
+        }
+        for (let k = 0; k < 3; k++) cand[best][k] = pal[best].lin[k];
+      } else {
+        // the already-decided 4-neighbours: the one behind in this row and the one above
+        const nb = [];
+        if (x - dir >= 0 && x - dir < w && seen[i - dir]) nb.push(labels[i - dir]);
+        if (y > 0) nb.push(labels[i - w]);
+        for (let p = 0; p < pal.length; p++) {
+          const r = cand[p], rp = rank[p], cp = pal[p].lin;
+          for (let k = 0; k < 3; k++) r[k] = cp[k];
+          for (const l of nb) {
+            if (l === NONE) continue; // background: nothing spreads there that the print is judged on
+            // a later-printed neighbour spreads onto this cell; this cell spreads onto an earlier one (error spent there)
+            if (rank[l] > rp) for (let k = 0; k < 3; k++) r[k] += sg * (pal[l].lin[k] - cp[k]);
+            else if (rank[l] < rp) for (let k = 0; k < 3; k++) r[k] += sg * (cp[k] - pal[l].lin[k]);
+          }
+          const q = labLin(r), d = (L[0] - q[0]) ** 2 + (L[1] - q[1]) ** 2 + (L[2] - q[2]) ** 2;
+          if (d < bd) { bd = d; best = p; }
+        }
       }
-      labels[i] = best;
-      const e = [0, 1, 2].map(k => c[k] - pal[best].lin[k]);
+      labels[i] = best; seen[i] = 1;
+      const e = [0, 1, 2].map(k => c[k] - cand[best][k]);
       const push = (xx, yy, f) => {
         if (xx < 0 || xx >= w || yy >= h) return;
         const j = yy * w + xx;
@@ -136,8 +176,10 @@ export function indexSeparate(image, base, o = {}) {
     `${garmentPct}% of the artwork is bare garment between the dots; the garment colour is part of the palette.`,
   ];
   if (dotMm > cellMm * 1.05) notes.push(`The source image limits the dot to ${dotMm} mm; a larger scan would allow ${cellMm} mm.`);
+  if (sg) notes.push(`Compensated for ${+(sg * 400).toFixed(1)}% dot gain: fewer, more spaced dots where ink would spread. Check it against a proof of the calibration strip.`);
+  else notes.push("Not compensated for dot gain. Ink spreads on press and darkens the dots; print the calibration strip on a proof and enter the gain it shows.");
   if (base.underbase) notes.push("The white underbase sits under every inked dot (not the bare-garment ones); index prints on dark garments need tight registration between it and the inks.");
-  return { method: "index", width: w, height: h, widthCm: base.widthCm, heightCm, garment: base.garment, dotMm, labels, palette: pal.map(p => p.hex), garmentIndex: GARMENT, inks, garmentPct, underbase: base.underbase, screens: base.screens, notes, src };
+  return { method: "index", width: w, height: h, widthCm: base.widthCm, heightCm, garment: base.garment, dotMm, labels, palette: pal.map(p => p.hex), garmentIndex: GARMENT, inks, garmentPct, ranks: rank, dotGainPct: +(sg * 400).toFixed(1), underbase: base.underbase, screens: base.screens, notes, src };
 }
 
 /** Separable Gaussian blur of linear-RGB triples (sigma in cells); edges clamp. */
@@ -161,11 +203,29 @@ export function blurLinear(px, w, h, sigma) {
   return out;
 }
 
-/** Linear-RGB triples of a labelled print: palette colour per cell, garment where nothing prints. */
-export function printLinear(labels, palette, garment) {
+/**
+ * Linear-RGB triples of a labelled print: palette colour per cell, garment where nothing prints.
+ * With `w` and `dotGainPct`, ink spreads: a cell takes gain/4 of each 4-neighbour printed after it (the garment
+ * and unprinted cells come first, then `ranks`, the print order per palette entry; by default every ink ranks 1,
+ * so inks spread onto bare cells only), in place of its own colour.
+ */
+export function printLinear(labels, palette, garment, { w = 0, dotGainPct = 0, garmentIndex = -1, ranks = null } = {}) {
   const pl = palette.map(hx => rgbOf(hx).map(lin)), g = rgbOf(garment).map(lin);
   const out = new Float32Array(labels.length * 3);
-  for (let i = 0; i < labels.length; i++) { const c = labels[i] === NONE ? g : pl[labels[i]]; out[i * 3] = c[0]; out[i * 3 + 1] = c[1]; out[i * 3 + 2] = c[2]; }
+  const bare = l => l === NONE || l === garmentIndex || !pl[l];
+  const rk = l => bare(l) ? 0 : ranks ? ranks[l] : 1;
+  for (let i = 0; i < labels.length; i++) { const c = bare(labels[i]) ? g : pl[labels[i]]; out[i * 3] = c[0]; out[i * 3 + 1] = c[1]; out[i * 3 + 2] = c[2]; }
+  const sg = gainSide(dotGainPct);
+  if (!sg || !w) return out;
+  const h = labels.length / w;
+  const own = out.slice();
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x, ri = rk(labels[i]);
+    for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, y > 0 ? i - w : -1, y < h - 1 ? i + w : -1]) {
+      if (j < 0 || rk(labels[j]) <= ri) continue;
+      for (let k = 0; k < 3; k++) out[i * 3 + k] += sg * (own[j * 3 + k] - own[i * 3 + k]);
+    }
+  }
   return out;
 }
 
@@ -180,11 +240,11 @@ export function flatOnGrid(base, w, h) {
   return out;
 }
 
-/** Mean CIE76 between painting and print after both are blurred by sigmaMm, over the cells that print. */
-export function perceivedDeltaE(idx, labels, sigmaMm) {
+/** Mean CIE76 between painting and print after both are blurred by sigmaMm, over the cells that print; the print spread by `dotGainPct`. */
+export function perceivedDeltaE(idx, labels, sigmaMm, dotGainPct = 0) {
   const { width: w, height: h, src, palette, garment } = idx;
   const sig = sigmaMm / idx.dotMm;
-  const a = blurLinear(src, w, h, sig), b = blurLinear(printLinear(labels, palette, garment), w, h, sig);
+  const a = blurLinear(src, w, h, sig), b = blurLinear(printLinear(labels, palette, garment, { w, dotGainPct, garmentIndex: idx.garmentIndex, ranks: idx.ranks }), w, h, sig);
   let s = 0, n = 0;
   for (let i = 0; i < w * h; i++) {
     if (idx.labels[i] === NONE) continue;
@@ -198,9 +258,45 @@ export function perceivedDeltaE(idx, labels, sigmaMm) {
 export const sigmaAt = metres => +(metres * 1000 * Math.tan(Math.PI / 180 / 60)).toFixed(3);
 
 /** Flat against index at the given viewing distances, same palette, same grid. */
-export function compareFlatIndex(base, idx, distances = [0.5, 1, 3]) {
+export function compareFlatIndex(base, idx, distances = [0.5, 1, 3], { dotGainPct = idx.dotGainPct || 0 } = {}) {
   const flat = flatOnGrid(base, idx.width, idx.height);
-  return distances.map(m => ({ metres: m, sigmaMm: sigmaAt(m), flat: perceivedDeltaE(idx, flat, sigmaAt(m)), index: perceivedDeltaE(idx, idx.labels, sigmaAt(m)) }));
+  return distances.map(m => ({ metres: m, sigmaMm: sigmaAt(m), flat: perceivedDeltaE(idx, flat, sigmaAt(m), dotGainPct), index: perceivedDeltaE(idx, idx.labels, sigmaAt(m), dotGainPct) }));
+}
+
+/** Relative luminance (linear) of a hex colour. */
+const lum = hex => { const [r, g, b] = rgbOf(hex).map(lin); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+
+/**
+ * Dot gain from a printed calibration strip. Read three colours off one photo or scan of the proof (same light,
+ * so their ratios hold): the bare garment, the solid ink and the 50% checkerboard. Under this file's spread model
+ * every bare cell of a checkerboard touches four dots, so its inked share is 0.5 + gain/200; solved for gain.
+ * Returns { dotGainPct, coveragePct, warnings }.
+ */
+export function gainFromPatch({ garment, solid, patch }) {
+  for (const [k, v] of Object.entries({ garment, solid, patch })) if (!/^#[0-9a-f]{6}$/i.test(String(v))) throw new Error(`gainFromPatch: ${k} must be a #rrggbb colour`);
+  const yg = lum(garment), yi = lum(solid), yp = lum(patch), warnings = [];
+  if (Math.abs(yg - yi) < 0.05) throw new Error("gainFromPatch: the ink and the garment are too close in lightness to read coverage from; use a lighter garment area or a darker ink");
+  const cov = (yg - yp) / (yg - yi);
+  let gain = 200 * (cov - 0.5);
+  if (cov < 0 || cov > 1) warnings.push("The patch is outside the range between garment and solid ink: read all three from the same photo, in even light, away from glare.");
+  if (gain < 0) { warnings.push("The checkerboard came out lighter than half: the dots are losing area (dot loss), so the mesh may not hold single dots this size. Use a larger dot (finest dot setting) rather than compensating."); gain = 0; }
+  if (gain > MAX_GAIN_PCT) { warnings.push(`Gain above ${MAX_GAIN_PCT}%: the checkerboard has filled in. Use a larger dot or a finer mesh.`); gain = MAX_GAIN_PCT; }
+  return { dotGainPct: +gain.toFixed(1), coveragePct: +(100 * cov).toFixed(1), warnings };
+}
+
+/**
+ * Calibration films: per ink, a strip of three 10 mm squares (solid, 50% checkerboard at the index dot size, bare)
+ * for the printer to run on the same garment as a proof. `gainFromPatch` reads the result.
+ */
+export function calibrationFilms(idx, { squareMm = 10 } = {}) {
+  const n = Math.max(2, Math.round(squareMm / idx.dotMm)), w = 3 * n, h = n;
+  const mask = new Uint8Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < 2 * n; x++) if (x < n || (x + y) % 2 === 0) mask[y * w + x] = 1;
+  const geo = { width: w, height: h, widthCm: +(w * idx.dotMm / 10).toFixed(2), heightCm: +(h * idx.dotMm / 10).toFixed(2) };
+  const out = [];
+  if (idx.underbase) out.push({ name: "00-calibration-underbase-white", ink: "#ffffff", svg: maskSvg(geo, mask, { title: "calibration strip: white underbase" }) });
+  for (const ink of idx.inks) out.push({ name: `${String(ink.order).padStart(2, "0")}-calibration-${ink.hex.slice(1)}`, ink: ink.hex, svg: maskSvg(geo, mask, { title: `calibration strip ink ${ink.order} ${ink.hex}: solid, 50% checkerboard of ${idx.dotMm} mm dots, bare` }) });
+  return out;
 }
 
 /** The index print as RGBA for a canvas (garment colour where nothing prints). */
@@ -230,6 +326,7 @@ export function indexFilms(idx) {
 export function indexBrief(idx, comparison = []) {
   return [
     `Index separation: ${idx.inks.length} inks${idx.underbase ? " + white underbase" : ""} = ${idx.screens} screens, ${idx.widthCm} x ${idx.heightCm} cm on ${idx.garment}, square dots of ${idx.dotMm} mm (${idx.width} x ${idx.height}).`,
+    idx.dotGainPct ? `Films compensated for ${idx.dotGainPct}% dot gain (a dot printing ${idx.dotGainPct}% larger in area than its film). Please keep press conditions as for the calibration proof.` : "Films not compensated for dot gain. Please print the calibration strip on a proof first if you can.",
     ...idx.inks.map(i => `Screen ${i.order}: ${i.hex}, ${i.coveragePct}% of the artwork, ${i.loneDotPct}% single dots.`),
     ...comparison.map(c => `Seen from ${c.metres} m: flat inks ${c.flat} delta E from the painting, index ${c.index} (lower is closer; a rough blur model, judge a proof).`),
     ...idx.notes,

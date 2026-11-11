@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { separate } from "./separation.mjs";
-import { indexSeparate, gridSize, sigmaAt, perceivedDeltaE, flatOnGrid, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief, MAX_GRID } from "./indexsep.mjs";
+import { indexSeparate, gridSize, sigmaAt, perceivedDeltaE, flatOnGrid, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief, MAX_GRID, printLinear, gainFromPatch, calibrationFilms } from "./indexsep.mjs";
 
 const NONE = 255;
 /** w x h RGBA from f(x, y) -> [r, g, b]. */
@@ -89,4 +89,64 @@ test("films: white underbase first on a dark garment, one per ink, sized in cm; 
 
 test("refuses without a flat separation", () => {
   assert.throws(() => indexSeparate(painting(), null), /run the flat separation first/);
+});
+
+test("dot gain: the spread model darkens a bare cell by gain/4 per inked neighbour, and no gain changes nothing", () => {
+  // 3 x 3: black dot in the middle on white, palette [black, white garment]
+  const labels = new Uint8Array([1, 1, 1, 1, 0, 1, 1, 1, 1]);
+  const flat = printLinear(labels, ["#000000", "#ffffff"], "#ffffff", { w: 3, garmentIndex: 1 });
+  const spread = printLinear(labels, ["#000000", "#ffffff"], "#ffffff", { w: 3, dotGainPct: 20, garmentIndex: 1 });
+  assert.equal(flat[3], 1); // left of the dot, no gain
+  assert.ok(Math.abs(spread[3] - 0.95) < 1e-6, `edge neighbour takes 5% black, got ${spread[3]}`);
+  assert.equal(spread[0], 1); // corner: not a 4-neighbour
+  assert.equal(spread[12], 0); // the dot itself
+  const total = [...Array(9).keys()].reduce((s, i) => s + (1 - spread[i * 3]), 0);
+  assert.ok(Math.abs(total - 1.2) < 1e-6, `an isolated dot covers 1.2 cells at 20% gain, got ${total}`);
+});
+
+test("compensated dots keep a grey ramp under 20% gain; plain dots go dark", () => {
+  const ramp = img(200, 60, x => { const v = Math.round(255 * x / 199); return [v, v, v]; });
+  const plain = indexSeparate(ramp, oneInk(200, 60)), comp = indexSeparate(ramp, oneInk(200, 60), { dotGainPct: 20 });
+  const p = perceivedDeltaE(plain, plain.labels, 4, 20), c = perceivedDeltaE(comp, comp.labels, 4, 20);
+  assert.ok(p > 2.5, `uncompensated print darkens, got ${p}`);
+  assert.ok(c < 1.2, `compensated print matches once blurred, got ${c}`);
+  assert.equal(comp.dotGainPct, 20);
+  assert.ok(comp.inks[0].coveragePct < plain.inks[0].coveragePct, "fewer dots when they spread");
+  assert.match(indexBrief(comp), /compensated for 20% dot gain/);
+  // gain 0 is the old behaviour, cell for cell
+  assert.deepEqual(indexSeparate(ramp, oneInk(200, 60), { dotGainPct: 0 }).labels, plain.labels);
+});
+
+test("gainFromPatch recovers the gain from a checkerboard printed through the spread model", () => {
+  for (const g of [0, 15, 35]) {
+    const w = 20, labels = new Uint8Array(w * w).map((_, i) => ((i % w) + Math.floor(i / w)) % 2 ? 1 : 0);
+    const px = printLinear(labels, ["#1d3a8a", "#f4efe6"], "#f4efe6", { w, dotGainPct: g, garmentIndex: 1 });
+    let m = [0, 0, 0], n = 0; // interior only: the strip's edge cells touch fewer dots
+    for (let y = 1; y < w - 1; y++) for (let x = 1; x < w - 1; x++, n++) for (let k = 0; k < 3; k++) m[k] += px[(y * w + x) * 3 + k];
+    m = m.map(v => v / n);
+    const hex = "#" + m.map(v => Math.round(255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055)).toString(16).padStart(2, "0")).join("");
+    const r = gainFromPatch({ garment: "#f4efe6", solid: "#1d3a8a", patch: hex });
+    assert.ok(Math.abs(r.dotGainPct - g) < 2, `gain ${g}: read ${r.dotGainPct}`);
+  }
+  const loss = gainFromPatch({ garment: "#ffffff", solid: "#000000", patch: "#d0d0d0" });
+  assert.equal(loss.dotGainPct, 0);
+  assert.match(loss.warnings.join(" "), /dot loss/);
+  assert.throws(() => gainFromPatch({ garment: "#ffffff", solid: "#fefefe", patch: "#ffffff" }), /too close/);
+  assert.throws(() => gainFromPatch({ garment: "white", solid: "#000000", patch: "#777777" }), /#rrggbb/);
+});
+
+test("calibration films: solid, checkerboard and bare squares at the index dot size, underbase first", () => {
+  const idx = indexSeparate(img(40, 20, () => [120, 120, 120]), { ...oneInk(40, 20, "#1b1b1d"), underbase: true, screens: 2 });
+  const f = calibrationFilms(idx);
+  assert.deepEqual(f.map(x => x.name), ["00-calibration-underbase-white", "01-calibration-000000"]);
+  assert.match(f[1].svg, /width="3cm" height="1cm"/);
+  assert.match(f[1].svg, /50% checkerboard of 1 mm dots/);
+});
+
+test("dot gain, wet on wet: a later ink spreads over an earlier one, never the reverse", () => {
+  // one row: ink 0 (printed first, yellow) next to ink 1 (printed second, blue)
+  const labels = new Uint8Array([0, 1]);
+  const px = printLinear(labels, ["#ffff00", "#0000ff", "#ffffff"], "#ffffff", { w: 2, dotGainPct: 40, garmentIndex: 2, ranks: [1, 2, 0] });
+  assert.ok(Math.abs(px[0] - 0.9) < 1e-6 && Math.abs(px[2] - 0.1) < 1e-6, `yellow cell takes 10% blue, got ${[...px.slice(0, 3)]}`);
+  assert.deepEqual([...px.slice(3)], [0, 0, 1], "the later blue is untouched");
 });

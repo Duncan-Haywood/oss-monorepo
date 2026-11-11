@@ -30,7 +30,7 @@ test("sales page: text with no readable sales is shown as an error, not 'Paste s
 
 test("sales page: the backtest button runs backtestSales and counts its use locally", () => {
   const html = page("shifts-from-sales.html");
-  assert.match(html, /import \{ demandShifts, backtestSales \} from "\.\/demand\.mjs"/);
+  assert.match(html, /import \{ demandShifts, backtestSales, pickHalfLife \} from "\.\/demand\.mjs"/);
   assert.match(html, /id="backtest"/);
   assert.match(html, /record\("sales_backtest_run"\)/);
   assert.match(html, /not a promise about the next one/);

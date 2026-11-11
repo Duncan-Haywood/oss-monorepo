@@ -81,7 +81,16 @@
       a { text-decoration: none; color: inherit; }
       @page { margin: 16mm; }
     }
-/* proposal:end */</style></head>
+/* proposal:end */
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row and everything else stacks on the left, so the
+       sticky card has room to travel and never slides over the FAQ or the
+       proposal (docs/reports/polish-2026-11-11-result-column.md). */
+    @media (min-width: 721px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 2; }
+    }
+</style></head>
 <body>
 <header><p>FOR MOBILE LOCKSMITHS</p><h1>Quote the call before you're already at the door.</h1><p class="lede">A lockout or a rekey feels like a quick mental-math job on the phone, and that is exactly how the after-hours premium gets forgotten and the trip fee gets absorbed into "just the labor." This free calculator prices one service call with the emergency premium and a minimum charge floor built in, then checks whether a day's worth of calls hits your income goal.</p><p class="lede">Curious how the numbers work on a real lockout? See <a href="how-much-should-a-locksmith-charge-for-a-service-call.html">how much should a locksmith charge for a service call?</a> for a worked example, <a href="vs-a-flat-rate-for-every-call.html">why a flat rate misses the after-hours premium</a>, or how this differs from <a href="vs-housecall-pro.html">Housecall Pro</a>, <a href="vs-workiz.html">Workiz</a>, or <a href="vs-jobber.html">Jobber</a>.</p></header>
 

@@ -36,6 +36,17 @@
     .primary:hover { background: #175538; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 14px; }
     .result { position: sticky; top: 15px; background: #16261e; color: #eaf3ed; border-color: #16261e; }
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row, and the form, proposal and FAQ stack on the left.
+       The card is taller than the form, so as one grid cell it set its row's
+       height and, being sticky, slid down over whatever came next in its
+       column (the FAQ, or the full-width proposal). With a column of its own it
+       has room to travel, pf-site.js caps it at the window's height, and it
+       covers nothing. Phones keep the single column. */
+    @media (min-width: 901px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 2; }
+    }
     .result a { color: inherit; }
     .hero-number { font-size: 2.6rem; font-weight: 750; letter-spacing: -.05em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
     .hero-label { font-size: .84rem; opacity: .82; margin: 0; }

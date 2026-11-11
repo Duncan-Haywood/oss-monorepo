@@ -22,3 +22,9 @@ ELEV_SPEED_RET_MM_S = 22.0      # measured retracting (nose up, the weight helps
 ELEV_POT_RAW_RETRACTED = 1500   # pot: read_u16() at full retract (measure it)
 ELEV_POT_RAW_EXTENDED = 63000   # pot: read_u16() at full extension (measure it)
 ELEV_SELF_LOCKING = True        # timed: False if the head sinks when power is cut (then every stop re-homes)
+# Feed shuttle servo (cad: Feeder.shuttle_drive): a crank turned 180 deg between these pulses moves the shuttle from
+# retracted (pocket under the column) to forward (ball at the wheels); both ends are the crank's dead centres.
+GATE_LO_US = 500                # retracted; many servos turn 180 deg over 500-2500 us: check yours, and that it
+GATE_HI_US = 2500               # does not buzz against its own stop at either end
+GATE_OUT_MS = 900               # forward stroke: cad 0.76 s loaded, plus 0.1 s held while the wheels take the ball
+GATE_BACK_MS = 850              # back stroke: cad 0.68 s, plus 0.14 s for the next ball to drop into the pocket

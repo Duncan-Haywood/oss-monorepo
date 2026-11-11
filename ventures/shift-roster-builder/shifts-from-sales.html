@@ -44,8 +44,9 @@
     </div>
     <label for="skip">Dates to leave out (optional, YYYY-MM-DD, comma separated)</label>
     <input id="skip" placeholder="2026-11-26, 2026-12-25">
-    <label for="half">Weigh recent weeks more: half-life in weeks (optional)</label>
-    <input id="half" inputmode="decimal">
+    <label for="half">Weigh recent weeks more: half-life in weeks, or auto (optional)</label>
+    <input id="half" placeholder="blank: every week the same; auto: picked from your past weeks">
+    <p class="note">auto tests equal weights and half-lives of 8, 4 and 2 weeks on your own file (each past week planned from the weeks before it) and keeps whichever left the fewest hours short or spare. It needs 8 or more full weeks of dated sales; on a long file it takes a few seconds.</p>
     <label for="shortcost">A short hour costs this many times a spare one (optional; 1 = the same, 3 = being short is three times worse)</label>
     <input id="shortcost" inputmode="decimal" placeholder="blank: staff for the average hour">
     <p class="note">Planned from the average, an hour is short about half the time. With a number here each hour is staffed for that share of its past days instead: 1 staffs for the median day, 3 for 3 days in 4 (75%), 0.5 for 1 in 3.</p>
@@ -73,7 +74,7 @@
   </footer>
 
   <script type="module">
-    import { demandShifts, backtestSales } from "./demand.mjs";
+    import { demandShifts, backtestSales, pickHalfLife } from "./demand.mjs";
     import { record } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -87,14 +88,27 @@
       return rows.join("\n");
     };
     const num = (id) => { const v = $(id).value.trim(); return v === "" ? undefined : Number(v); };
+    // "auto" backtests the file, too slow to repeat on every keystroke, so the pick is kept until the sales or a
+    // setting that changes the backtest changes.
+    let autoKey = null, autoPick = null;
     function run() {
       const problem = $("#problem");
       let r;
       try {
-        r = demandShifts($("#csv").value, {
+        const o = {
           splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"),
-          skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), halfLife: num("#half"), shortCost: num("#shortcost"),
-        });
+          skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: num("#shortcost"),
+        };
+        const half = $("#half").value.trim().toLowerCase();
+        let autoNote = null;
+        if (half === "auto") {
+          const key = JSON.stringify(o) + "\n" + $("#csv").value;
+          if (key !== autoKey) { autoPick = pickHalfLife($("#csv").value, o); autoKey = key; record("sales_auto_halflife"); }
+          o.halfLife = autoPick.halfLife;
+          autoNote = autoPick.note.replace(" --half-life none turns it off; a number fixes it.", "");
+        } else o.halfLife = num("#half");
+        r = demandShifts($("#csv").value, o);
+        if (autoNote) r.notes.push(autoNote);
         problem.hidden = true;
       } catch (e) { problem.hidden = false; problem.textContent = e.message; $("#out").textContent = ""; $("#summary").textContent = ""; $("#table").innerHTML = ""; return; }
       if (!r.rows && $("#csv").value.trim()) {

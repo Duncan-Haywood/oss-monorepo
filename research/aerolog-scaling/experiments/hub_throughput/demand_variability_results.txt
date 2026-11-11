@@ -1,0 +1,91 @@
+Milestone 6l: hub spare packs under measured day-to-day and within-day demand variability (Uber NYC pickups, weekdays Apr to Sep 2014)
+hub: 8 pads, 8 chargers, charge 2520 s, swap+load 180 s, limit 11.43 flights/h; k = 1; target p95 wait <= 300 s; simulator 1000 seeds x 8 days (days 2-8 scored)
+
+== P1, P2. Rate variability (weekdays; trend and weekday removed; Poisson part removed)
+  catchment | days | pickups/day | CV(M) debiased (raw) | M min (day) .. max (day) | CV(r) 07-23h | lag-1 corr | 15-min peak/mean
+  city      |  131 |       25939 | 0.1329 (0.1330) | 0.489 (2014-07-04) .. 1.578 (2014-04-30) | 0.1490 | +0.723 | 1.89
+  cell1     |  131 |        4751 | 0.1731 (0.1737) | 0.297 (2014-07-04) .. 1.656 (2014-04-30) | 0.1703 | +0.580 | 2.55
+  cell2     |  131 |        3390 | 0.1609 (0.1619) | 0.427 (2014-07-04) .. 1.662 (2014-04-30) | 0.2000 | +0.610 | 1.69
+  cell3     |  131 |        2193 | 0.1848 (0.1861) | 0.301 (2014-05-26) .. 1.749 (2014-04-30) | 0.1634 | +0.486 | 2.13
+  cell4     |  131 |        2062 | 0.1593 (0.1608) | 0.397 (2014-07-04) .. 1.705 (2014-04-30) | 0.1638 | +0.484 | 1.79
+  cell5     |  131 |        1941 | 0.1679 (0.1695) | 0.343 (2014-07-04) .. 1.568 (2014-04-30) | 0.2083 | +0.593 | 1.84
+
+== cell1, load 70% (mean 8.00/h; busiest observed bin 46.16/h)
+  S   | R1 P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s) | sim share of days missing p95
+   62 |      0.0478 |       0.0539 | 0.0018 | -0.0062 |         791 | 0.156
+   63 |      0.0454 |       0.0513 | 0.0017 | -0.0059 |         477 | 0.147
+   64 |      0.0433 |       0.0489 | 0.0017 | -0.0056 |         156 | 0.140
+   65 |      0.0412 |       0.0466 | 0.0017 | -0.0054 |           0 | 0.135
+  mean-shape check (no rate variability): S | R0 P(W>300) | sim P(W>300) | sim se
+     46 | 0.0536 | 0.0520 | 0.0012
+     47 | 0.0462 | 0.0446 | 0.0011
+     48 | 0.0395 | 0.0380 | 0.0010
+  smallest S with p95 <= 300 s: R0 (mean shape) 47, R1 (mixture) 62, R1M (day multiplier only) 58, simulator 64, simulator on the mean shape 47; R1 without holidays 60
+  R1 at S=62: 0.153 of observed days have expected P(W>300) > 0.05; 95% of days meet it at S = 87
+
+== cell1, load 85% (mean 9.71/h; busiest observed bin 56.05/h)
+  S   | R1 P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s) | sim share of days missing p95
+   90 |      0.0492 |       0.0910 | 0.0036 | -0.0417 |        6813 | 0.229
+   91 |      0.0474 |       0.0883 | 0.0036 | -0.0409 |        6495 | 0.221
+   92 |      0.0457 |       0.0858 | 0.0035 | -0.0401 |        6175 | 0.217
+   93 |      0.0440 |       0.0833 | 0.0035 | -0.0393 |        5868 | 0.210
+   94 |      0.0424 |       0.0809 | 0.0035 | -0.0385 |        5554 | 0.202
+   95 |      0.0409 |       0.0786 | 0.0034 | -0.0377 |        5244 | 0.198
+   96 |      0.0394 |       0.0763 | 0.0034 | -0.0369 |        4927 | 0.191
+   97 |      0.0380 |       0.0742 | 0.0033 | -0.0362 |        4613 | 0.186
+   98 |      0.0367 |       0.0721 | 0.0033 | -0.0354 |        4293 | 0.180
+   99 |      0.0354 |       0.0700 | 0.0033 | -0.0347 |        3975 | 0.176
+  100 |      0.0341 |       0.0680 | 0.0032 | -0.0339 |        3655 | 0.170
+  101 |      0.0330 |       0.0661 | 0.0032 | -0.0331 |        3348 | 0.166
+  102 |      0.0318 |       0.0642 | 0.0031 | -0.0323 |        3034 | 0.161
+  103 |      0.0307 |       0.0622 | 0.0031 | -0.0315 |        2724 | 0.156
+  104 |      0.0297 |       0.0604 | 0.0031 | -0.0307 |        2407 | 0.151
+  105 |      0.0287 |       0.0587 | 0.0030 | -0.0301 |        2093 | 0.145
+  106 |      0.0277 |       0.0571 | 0.0030 | -0.0294 |        1773 | 0.142
+  107 |      0.0267 |       0.0555 | 0.0029 | -0.0287 |        1455 | 0.138
+  108 |      0.0258 |       0.0540 | 0.0029 | -0.0282 |        1135 | 0.134
+  109 |      0.0250 |       0.0525 | 0.0028 | -0.0275 |         828 | 0.130
+  110 |      0.0241 |       0.0510 | 0.0028 | -0.0269 |         514 | 0.128
+  111 |      0.0233 |       0.0496 | 0.0028 | -0.0263 |         204 | 0.125
+  112 |      0.0225 |       0.0482 | 0.0027 | -0.0257 |           0 | 0.121
+  mean-shape check (no rate variability): S | R0 P(W>300) | sim P(W>300) | sim se
+     70 | 0.0522 | 0.0511 | 0.0010
+     71 | 0.0464 | 0.0454 | 0.0010
+     72 | 0.0411 | 0.0401 | 0.0009
+  smallest S with p95 <= 300 s: R0 (mean shape) 71, R1 (mixture) 90, R1M (day multiplier only) 86, simulator 111, simulator on the mean shape 71; R1 without holidays 88
+  R1 at S=90: 0.160 of observed days have expected P(W>300) > 0.05; 95% of days meet it at S = 129
+
+== city, load 70% (mean 8.00/h; busiest observed bin 29.79/h)
+  S   | R1 P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s) | sim share of days missing p95
+   38 |      0.0499 |       0.0543 | 0.0017 | -0.0044 |         682 | 0.173
+   39 |      0.0464 |       0.0507 | 0.0017 | -0.0043 |         368 | 0.160
+   40 |      0.0432 |       0.0474 | 0.0016 | -0.0042 |          51 | 0.150
+   41 |      0.0402 |       0.0443 | 0.0016 | -0.0041 |           0 | 0.138
+  smallest S with p95 <= 300 s: R0 (mean shape) 29, R1 (mixture) 38, R1M (day multiplier only) 35, simulator 40
+  R1 at S=38: 0.176 of observed days have expected P(W>300) > 0.05; 95% of days meet it at S = 56
+
+== city, load 85% (mean 9.71/h; busiest observed bin 36.17/h)
+  S   | R1 P(W>300) | sim P(W>300) | sim se | diff    | sim p95 (s) | sim share of days missing p95
+   62 |      0.0493 |       0.0803 | 0.0032 | -0.0310 |        4049 | 0.221
+   63 |      0.0468 |       0.0771 | 0.0032 | -0.0302 |        3735 | 0.213
+   64 |      0.0445 |       0.0741 | 0.0031 | -0.0296 |        3422 | 0.202
+   65 |      0.0423 |       0.0712 | 0.0031 | -0.0289 |        3107 | 0.194
+   66 |      0.0402 |       0.0684 | 0.0030 | -0.0282 |        2791 | 0.187
+   67 |      0.0382 |       0.0657 | 0.0030 | -0.0275 |        2482 | 0.180
+   68 |      0.0364 |       0.0632 | 0.0029 | -0.0268 |        2165 | 0.174
+   69 |      0.0347 |       0.0607 | 0.0029 | -0.0261 |        1844 | 0.167
+   70 |      0.0330 |       0.0584 | 0.0029 | -0.0254 |        1529 | 0.160
+   71 |      0.0315 |       0.0561 | 0.0028 | -0.0246 |        1215 | 0.153
+   72 |      0.0300 |       0.0540 | 0.0028 | -0.0239 |         902 | 0.147
+   73 |      0.0286 |       0.0518 | 0.0027 | -0.0232 |         587 | 0.141
+   74 |      0.0273 |       0.0498 | 0.0027 | -0.0225 |         271 | 0.136
+   75 |      0.0261 |       0.0480 | 0.0026 | -0.0219 |           0 | 0.130
+  smallest S with p95 <= 300 s: R0 (mean shape) 49, R1 (mixture) 62, R1M (day multiplier only) 58, simulator 74
+  R1 at S=62: 0.183 of observed days have expected P(W>300) > 0.05; 95% of days meet it at S = 89
+
+Summary
+  cell1 70%: R0 47, R1 62, R1M 58, simulator 64 (sim on mean shape 47); R1 no-holiday 60; 95%-of-days (R1) 87; sim share of days missing at S=64: 0.140
+  cell1 85%: R0 71, R1 90, R1M 86, simulator 111 (sim on mean shape 71); R1 no-holiday 88; 95%-of-days (R1) 129; sim share of days missing at S=111: 0.125
+  city 70%: R0 29, R1 38, R1M 35, simulator 40 (sim on mean shape None); R1 no-holiday None; 95%-of-days (R1) 56; sim share of days missing at S=40: 0.150
+  city 85%: R0 49, R1 62, R1M 58, simulator 74 (sim on mean shape None); R1 no-holiday None; 95%-of-days (R1) 89; sim share of days missing at S=74: 0.136
+  runtime 917 s
