@@ -1,9 +1,9 @@
 ---
 title: "How far does a Wave Glider go per day anywhere on the ocean? A map from ERA5 waves"
-seo_title: "Wave Glider km/day map from ERA5 wave reanalysis, checked against NOAA buoys"
+seo_title: "Wave Glider km/day map from ERA5 waves, checked against buoys"
 date: 2026-11-11
 tags: [research, marine-hull]
-description: "Planned from ERA5 waves, a 2015 Wave Glider at its best makes 50 to 79 km/day over open ocean and never reaches a solar boat's 86 km/day; against buoys ERA5 runs 10% high."
+description: "From ERA5 waves, a 2015 Wave Glider at its best makes 50 to 79 km/day over open ocean, never a solar boat's 86; at buoys ERA5 runs 10% high."
 ---
 
 This series follows one fielded Wave Glider, a wave-powered surface robot that sailed from Hawaii in 2015. Its speed turned out to follow a simple law: roughly (Hs/T)^0.53, wave height over wave period, which is close to how fast the float is pushed up and down. The last milestone found that ERA5, the ECMWF wave reanalysis on a 0.5 degree grid, reproduces that law along the vehicle's own track as well as the vehicle's wave sensor did. That suggested one could plan a Wave Glider's distance per day anywhere ERA5 covers, which is the whole ocean.
