@@ -68,3 +68,29 @@ test("a payment after April 15 of the next year stops the count at April 15", ()
   const w = penaltyWorksheet(2025, [D(1000), 0, 0, 0], [{ date: "2026-06-01", cents: D(1000) }]);
   assert.deepEqual(w.columns[0].lines.map((l) => l.days[0]), [76, 92, 92, 105]);
 });
+
+test("January 31 rule: tax paid with a return filed by January 31 goes in column (d) and the January 15 installment owes nothing", () => {
+  // Instructions for Form 2210 (2025), "Line 11": "If you file your return and pay the tax due by
+  // January 31, 2026, include on line 11, column (d) ... you won't owe a penalty for the payment
+  // due on January 15, 2026."
+  const req = [0, 0, 0, D(4000)];
+  const at7 = (cents, n) => Math.round((cents * n * 0.07) / 365);
+  const onTime = form2210Penalty(2025, req, { payments: [{ date: "2026-01-30", cents: D(4000), withReturn: true }] });
+  assert.equal(onTime.credits[3], D(4000));
+  assert.equal(onTime.penalty, 0);
+  // Filed February 2: an ordinary payment dated the filing day (Table 1), 18 days late.
+  const late = form2210Penalty(2025, req, { payments: [{ date: "2026-02-02", cents: D(4000), withReturn: true }] });
+  assert.equal(late.credits[3], 0);
+  assert.equal(late.penalty, at7(D(4000), 18));
+  // The same January 30 payment not marked as paid with the return is an ordinary late payment.
+  assert.equal(form2210Penalty(2025, req, { payments: [{ date: "2026-01-30", cents: D(4000) }] }).penalty, at7(D(4000), 15));
+  // By January 31 it first pays earlier columns' shortfalls (line 1b), and never column (d) twice.
+  const mixed = form2210Penalty(2025, [D(1000), 0, 0, D(1000)], { payments: [{ date: "2026-01-31", cents: D(2000), withReturn: true }] });
+  assert.deepEqual(mixed.sectionA.map((c) => c.l17), [D(1000), 0, 0, 0]);
+  assert.deepEqual(mixed.worksheet[0].paidBy, [{ date: "2026-01-31", cents: D(1000) }]);
+  assert.deepEqual(mixed.worksheet[3].paidBy, []);
+});
+
+test("a missing quarter's rate prints as a plain percentage", () => {
+  assert.match(ratePeriods(2026).warnings[0], /; 7% \(the last one on file/);
+});
