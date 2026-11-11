@@ -44,7 +44,7 @@ without the new `pf-site.js`):
 | window | sticky elements | stuck and cut off, before | after | capped, after |
 |---|---|---|---|---|
 | 800 px | 192 on 195 pages | 110 | 9 | 105 |
-| 1000 px | 192 on 195 pages | (running) | (running) | (running) |
+| 1000 px | 192 on 195 pages | 86 | 9 | 82 |
 
 - An earlier, looser sweep (card bottom below the window mid-column) gave 131 of 193 cards
   taller than an 800 px window, a median of 338 px out of reach and a maximum of 2,496 px.
