@@ -107,3 +107,7 @@ case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pri
 # 80x224 2 1 Time limit reached. (HiGHS Status 13: Ti min open hours 283.0 dual bound 281.0000000000097 engine open None engine floor None 300.2s
 # 100x280 0 1 Time limit reached. (HiGHS Status 13: Ti min open hours 360.99999999999994 dual bound 358.00000000000153 engine open None engine floor None 300.5s
 # 100x280 1 1 Time limit reached. (HiGHS Status 13: Ti min open hours 357.99999999999983 dual bound 344.0000000000019 engine open None engine floor None 300.4s
+# merged with main (dive backtracking on), 80x224, beside the full test suite:
+0	304	1974	257.00	257	257	true	82	3700	185	7625	0	577737	27817	99490	81	yes
+1	314	2105	331.00	331	331	true	75	2440	147	6487	0	473140	44783	101646	74	yes
+2	326	2064	281.00	281	281	true	9	2465	65	3338	0	627196	56070	79194	8	yes

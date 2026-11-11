@@ -13,9 +13,9 @@ branch-and-price solver written in plain JavaScript. Earlier today it reached
 60-person weeks in 18 to 27 seconds. Its open item was "80 to 120 person
 weeks, untried".
 
-So we tried them first. At 80 people and 224 shift lines, the old code had
-not even finished the root linear program after 133 seconds. It had no
-roster.
+A run earlier this evening, which taught the dive to backtrack, tried them first. At 80 people and 224 shift lines, none of three
+weeks was proven in 120 seconds. Our own rerun of the old code agreed: after
+133 seconds the root linear program had not settled, and there was no roster.
 
 ## Where the time went
 
@@ -66,6 +66,9 @@ slow side.
 | 40 x 112 | 3 of 3 proven, 2.8-6.3 s | 3 of 3, 1.3-3.4 s |
 | 60 x 168 | 3 of 3, 15.1-22.7 s | 3 of 3, 9.2-11.7 s |
 | 80 x 224 | root LP not settled in 133 s | 3 of 3 proven (257, 331, 281 h), 77-100 s |
+
+These rows were rerun after merging the backtracking dive, with the same
+nodes and the same proofs in 79-102 s.
 
 For an independent check, we gave the same 80-person weeks to HiGHS through
 scipy, with a 300-second limit. It proved week 0 at 257 in 8 seconds. On
