@@ -5,8 +5,11 @@ stratum: spend the rest of the budget on fresh random items) or "cells" (two str
 Neyman-allocated with a floor, `cell_allocation`). The rule is a design-time heuristic with no coverage theorem; it
 was checked on GoEmotions and NaijaSenti with zero-shot Qwen2.5 coders (see LOG.md, 6ak to 6am).
 """
-TAU = 0.3  # minimum pilot informedness J_hat for coder cells; any value in 0.2 to 0.5 gave widths within 1% (6am)
-GUARD = 20  # minimum human positives in the pilot (6al); below it the pilot cannot tell a coder from luck
+TAU = 0.1  # minimum pilot informedness J_hat for coder cells (LOG.md 7ah, 7ai: 0.1 keeps a J 0.03 coder out and keeps
+#           97 to 99% of a J 0.26 to 0.65 coder's gain; 0.2 keeps 81% at J 0.26; was 0.3 from 6am to 7ah)
+GUARD = 0  # minimum human positives in the pilot (6al set 20; LOG.md 7ai: at 1% prevalence that sent every draw to
+#           pooled and gave up 15% of width; NEG_GUARD and TAU now do its job; guard=20 restores the 6al screen)
+TAU_6AM, GUARD_6AM = 0.3, 20  # the screen shipped from 6am to 7ah; experiments before 7ai compare against it
 PILOT_SHARE = 0.3
 NEG_GUARD = 3  # minimum pilot positives in the coder-negative cell (7r to 7w); the default since 7w, neg_guard=0 turns it off
 FLOOR = 0.35  # each coder cell gets at least this share of n (6ai)

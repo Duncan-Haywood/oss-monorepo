@@ -20,7 +20,7 @@ from llmci import audit_design as A  # noqa: E402
 REPS = int(ARGS[0]) if ARGS else 500
 SEED = 20261104
 N, CORPUS, PREV = 1000, 6000, 0.02
-RULES = (("pooled", 2.0, 0), ("cells g0", 0.0, 0), ("cells g5", 0.0, 5), ("cells g10", 0.0, 10), ("default", A.TAU, A.GUARD))
+RULES = (("pooled", 2.0, 0), ("cells g0", 0.0, 0), ("cells g5", 0.0, 5), ("cells g10", 0.0, 10), ("default", A.TAU_6AM, A.GUARD_6AM))
 
 
 def main():

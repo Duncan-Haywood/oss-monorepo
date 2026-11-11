@@ -2279,26 +2279,6 @@ AcDbEntity
 100
 AcDbCircle
  10
--100.0
- 20
--200.0
- 30
-0.0
- 40
-4.2
-  0
-CIRCLE
-  5
-39
-330
-17
-100
-AcDbEntity
-  8
-0
-100
-AcDbCircle
- 10
 -220.0
  20
 -37.5
@@ -2309,7 +2289,7 @@ AcDbCircle
   0
 CIRCLE
   5
-3A
+39
 330
 17
 100
@@ -2329,7 +2309,7 @@ AcDbCircle
   0
 CIRCLE
   5
-3B
+3A
 330
 17
 100
@@ -2349,7 +2329,7 @@ AcDbCircle
   0
 CIRCLE
   5
-3C
+3B
 330
 17
 100
@@ -2369,7 +2349,7 @@ AcDbCircle
   0
 CIRCLE
   5
-3D
+3C
 330
 17
 100
@@ -2386,6 +2366,26 @@ AcDbCircle
 0.0
  40
 2.2
+  0
+CIRCLE
+  5
+3D
+330
+17
+100
+AcDbEntity
+  8
+0
+100
+AcDbCircle
+ 10
+-175.0
+ 20
+60.0
+ 30
+0.0
+ 40
+3.2
   0
 CIRCLE
   5

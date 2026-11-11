@@ -244,7 +244,8 @@ def test_screen_needs_both_informedness_and_enough_positives():
     assert S.screen(y, f) == "cells"
     assert S.screen(y, [rng.randint(0, 1) for _ in y]) == "pooled"  # empty coder
     rare = [1] * 10 + [0] * 110
-    assert S.screen(rare, rare) == "pooled"  # perfect coder but 10 < 20 positives
+    assert S.screen(rare, rare) == "pooled"  # perfect coder: no coder-negative positives, so neg_guard keeps it pooled
+    assert S.screen(rare, rare, tau=S.TAU_6AM, guard=S.GUARD_6AM, neg_guard=0) == "pooled"  # 10 < 20 positives (6al)
     assert S.screen(rare, rare, guard=10, neg_guard=0) == "cells"
 
 
@@ -390,3 +391,18 @@ def test_cells_probability_tau_matches_brute_force_screen():
                 assert abs(S.cells_probability(pilot, 3, 3, 3, 13, neg_guard=ng, tau=tau) - hits / len(combos)) < 1e-12
     # a higher tau never raises the share
     assert S.cells_probability(600, 120, 80, 3000, 30000, tau=0.2) <= S.cells_probability(600, 120, 80, 3000, 30000)
+
+
+def test_default_screen_admits_a_rare_informative_coder_the_6am_screen_refused():
+    # LOG.md 7ai: at 1% prevalence a pilot holds about 11 positives, so guard 20 sent every draw to pooled; the
+    # default since 7ai (tau 0.1, guard 0, neg_guard 3) admits a coder that finds some positives and misses 3 or more
+    from llmci import audit_design as S
+    assert (S.TAU, S.GUARD, S.NEG_GUARD) == (0.1, 0, 3)
+    y = [1] * 11 + [0] * 989
+    f = [1] * 5 + [0] * 6 + [1] * 20 + [0] * 969  # sens 5/11, spec 969/989: J about 0.43
+    assert S.screen(y, f) == "cells"
+    assert S.screen(y, f, tau=S.TAU_6AM, guard=S.GUARD_6AM) == "pooled"
+    weak = [1] * 1 + [0] * 10 + [1] * 60 + [0] * 929  # sens 1/11, spec 929/989: J about 0.03
+    assert S.screen(y, weak) == "pooled"
+    plan = S.plan_audit(f, {i: y[i] for i in range(1000)}, 2000)
+    assert plan["design"] == "cells"

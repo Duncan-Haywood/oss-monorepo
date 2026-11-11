@@ -13,9 +13,12 @@ Azimuth (2026-11-10): a NEMA 17 stepper under the mast plate turns a bought
 m1.5 pinion that meshes with a printed gear sector bolted under the turntable
 plate; the plate is trimmed inside the pinion's reach.
 
+Elevation (2026-11-11): a linear actuator outboard of the -y cheek, anchored on
+a tab of that cheek, pushes a pin on the guard plate; it is posed for each
+elevation in the sweeps (`elev_actuator_shapes`).
+
 Not modelled yet: the netting and its trough, the hopper agitator, the shuttle
-actuator and its bracket, the elevation actuator and its bracket, and the
-cable runs. They are listed in `hardware/feeder-catcher.md`.
+actuator and its bracket, and the cable runs. They are listed in `hardware/feeder-catcher.md`.
 """
 
 from __future__ import annotations
@@ -67,7 +70,8 @@ def _head_plate_sketch(p: Feeder, *, motors: bool):
                 _holes([(sx * p.motor_pitch / 2, z + sz * p.motor_pitch / 2) for sx in (-1, 1) for sz in (-1, 1)], 4.4)
         _holes(_standoffs(p), 5.5)
         _holes([(0, p.pivot_z_rel)], 8.4)
-        _holes([(-100.0, p.pivot_z_rel)], 8.4)  # elevation link
+        if not motors:
+            _holes([(p.elev_pin_x, p.elev_pin_z)], 6.4)  # elevation actuator's pin (M6), guard side
         _holes(_feed_screws(p), 4.4)             # M4 into the feed floor and roof
     return s.sketch
 
@@ -121,20 +125,48 @@ def head_guard_plate(p: Feeder) -> Part:
                 notes="Keeps hands and balls off the open side of the wheels; held by four M5 standoffs.")
 
 
-def trunnion_cheek(p: Feeder) -> Part:
+ELEV_TAB_PAD = 16.0  # aluminium round the actuator's anchor hole
+
+
+def elev_anchor_world(p: Feeder) -> tuple[float, float]:
+    return p.head_x + p.elev_anchor_dx, p.pivot_z + p.elev_anchor_dz
+
+
+def _cheek_face(p: Feeder, tab: bool):
     z0 = p.turntable_top
     z1 = p.pivot_z + 25.0
     with BuildSketch() as s:
         with Locations((p.head_x, (z0 + z1) / 2)):
             RectangleRounded(2 * p.cheek_x_half, z1 - z0, 8)
+        if tab:  # reaches back to the elevation actuator's anchor
+            ax, az = elev_anchor_world(p)
+            x0, x1 = ax - ELEV_TAB_PAD, p.head_x - p.cheek_x_half + 10.0
+            z_top = az + ELEV_TAB_PAD
+            with Locations(((x0 + x1) / 2, (z0 + z_top) / 2)):
+                RectangleRounded(x1 - x0, z_top - z0, 8)
+            _holes([(ax, az)], 6.4)
         _holes([(p.head_x, p.pivot_z)], 8.4)
         _holes([(p.head_x + sx * 35.0, z0 + 30.0) for sx in (-1, 1)], 4.4)
-    face = s.sketch
+    return s.sketch
+
+
+def trunnion_cheek(p: Feeder) -> Part:
+    face = _cheek_face(p, tab=False)
     y_in = p.plate_half_y + p.plate_t + p.cheek_gap
-    return Part("trunnion_cheek", "laser", "aluminium 5052", 2, extrude(face, p.plate_t),
-                [Location((0, y_in + p.plate_t, 0), ROT_XZ), Location((0, -y_in, 0), ROT_XZ)],
+    return Part("trunnion_cheek", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
+                [Location((0, y_in + p.plate_t, 0), ROT_XZ)],
                 flat=face, thickness=p.plate_t,
-                notes="Holds the head's M8 pivot bolt; a printed foot on each cheek bolts it to the turntable plate.")
+                notes="Motor-side (+y) cheek: holds the head's M8 pivot bolt; a printed foot bolts it to the turntable plate.")
+
+
+def trunnion_cheek_elev(p: Feeder) -> Part:
+    face = _cheek_face(p, tab=True)
+    y_in = p.plate_half_y + p.plate_t + p.cheek_gap
+    return Part("trunnion_cheek_elev", "laser", "aluminium 5052", 1, extrude(face, p.plate_t),
+                [Location((0, -y_in, 0), ROT_XZ)],
+                flat=face, thickness=p.plate_t,
+                notes="Guard-side (-y) cheek: holds the pivot bolt, and its rear tab carries the elevation actuator's "
+                      "anchor (M6 shoulder bolt). Same feet as the other cheek.")
 
 
 MAST_NOTCH_R = 115.0  # the head's plates reach below the mast plate's top only beyond 119.6 mm behind the axis (+45 deg)
@@ -651,34 +683,91 @@ def envelopes(p: Feeder) -> list[Part]:
 
 
 def all_parts(p: Feeder) -> list[Part]:
-    return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), mast_plate(p), turntable_plate(p),
+    return [head_motor_plate(p), head_guard_plate(p), trunnion_cheek(p), trunnion_cheek_elev(p), mast_plate(p), turntable_plate(p),
             base_deck(p), wheel_bracket(p, True), wheel_bracket(p, False),
             cheek_foot(p), az_gear_sector(p), pole_foot(p), pole_elbow(p), camera_clamp(p),
             feed_floor(p), feed_roof_column(p), feed_shuttle(p), hopper_shelf(p), hopper_spigot(p), feed_hose(p),
-            *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p)]
+            *take_up_parts(p), *extrusions(p), *poles(p), *envelopes(p), *elev_actuator_parts(p)]
+
+
+# ---------------------------------------------------------------- elevation actuator
+
+ELEV_ACT_PARTS = ("elev_actuator", "elev_actuator_rod")
+ELEV_ROD_R = 5.0
+ELEV_EYE_MM = 12.0   # anchor eye centre to the body's end, and rod end to the pin (clevis eyes, assumed)
+
+
+def _y_cyl(r: float, y0: float, y1: float):
+    return Cylinder(r, abs(y1 - y0)).moved(Location((0, (y0 + y1) / 2, 0), ROT_Y_AXIS))
+
+
+def _seg(r: float, a: tuple[float, float], b: tuple[float, float], y: float):
+    """Cylinder of radius r from world (x, z) a to b, in the plane at y."""
+    dx, dz = b[0] - a[0], b[1] - a[1]
+    h = math.hypot(dx, dz)
+    return Cylinder(r, h).moved(Location(((a[0] + b[0]) / 2, y, (a[1] + b[1]) / 2), (0, math.degrees(math.atan2(dx, dz)), 0)))
+
+
+def elev_actuator_shapes(p: Feeder, elev_deg: float) -> list:
+    """(body, rod) of the elevation actuator in world coordinates with the head at `elev_deg`. The body runs from its
+    anchor eye for the retracted length less both eyes; the rod fills the rest up to the pin's eye."""
+    ax, az = elev_anchor_world(p)
+    px, pz = p.elev_pin_rel(elev_deg)
+    px, pz = p.head_x + px, p.pivot_z + pz
+    L = math.hypot(px - ax, pz - az)
+    ux, uz = (px - ax) / L, (pz - az) / L
+    at = lambda d: (ax + ux * d, az + uz * d)  # noqa: E731
+    body_end = p.elev_act_closed - ELEV_EYE_MM
+    return [_seg(p.elev_act_r, at(ELEV_EYE_MM), at(body_end), p.elev_act_y),
+            _seg(ELEV_ROD_R, at(body_end), at(L - ELEV_EYE_MM), p.elev_act_y)]
+
+
+def elev_actuator_parts(p: Feeder) -> list[Part]:
+    body, rod = elev_actuator_shapes(p, 0.0)
+    y_out = p.elev_act_y - 10.0
+    y_guard = -(p.plate_half_y + p.plate_t)
+    y_cheek = -(p.plate_half_y + p.plate_t + p.cheek_gap + p.plate_t)
+    ax, az = elev_anchor_world(p)
+    pin = _y_cyl(3.0, y_guard, y_out)
+    bolt = _y_cyl(3.0, y_cheek, y_out)
+    return [
+        Part("elev_actuator", "cots", "", 1, body, [Location((0, 0, 0))],
+             spec=f"Linear actuator, 12-24 V, {p.elev_act_stroke:g} mm stroke, {p.elev_act_force_n:g} N class, clevis "
+                  f"eyes for M6, retracted {p.elev_act_closed:g} mm hole to hole (drawn at 0 deg; posed per pose in the sweeps)"),
+        Part("elev_actuator_rod", "cots", "", 1, rod, [Location((0, 0, 0))], spec="The elev_actuator's own rod (not bought separately), drawn at 0 deg"),
+        Part("elev_pin", "cots", "", 1, pin, [_head_loc(p, p.elev_pin_x, 0, p.elev_pin_z)],
+             spec="M6 shoulder bolt, 40 mm shoulder, + nyloc: through the guard plate (nut inside), the actuator's rod eye"),
+        Part("elev_anchor_bolt", "cots", "", 1, bolt, [Location((ax, 0, az))],
+             spec="M6 shoulder bolt, 30 mm shoulder, + nyloc: through the guard-side cheek's tab, the actuator's anchor eye"),
+    ]
 
 
 # ---------------------------------------------------------------- elevation sweep
 
 HEAD_PARTS = {"head_motor_plate", "head_guard_plate", "launcher_wheel", "launcher_motor", "head_standoff",
-              "feed_floor", "feed_roof_column", "feed_shuttle"}
+              "feed_floor", "feed_roof_column", "feed_shuttle", "elev_pin"}
 
 
 def swept_solids(p: Feeder, elev_deg: float) -> list[tuple[str, object]]:
     """Every placed solid, with the head tilted to `elev_deg` (positive = nose up) about its pivot bolt."""
     axis = Axis((p.head_x, 0.0, p.pivot_z), (0, 1, 0))
     out = []
+    posed = dict(zip(ELEV_ACT_PARTS, elev_actuator_shapes(p, elev_deg)))
     for part in all_parts(p):
         for i, s in enumerate(part.placed()):
             if part.name in HEAD_PARTS:
                 s = s.rotate(axis, -elev_deg)
+            elif part.name in posed:
+                s = posed[part.name]
             out.append((f"{part.name}[{i}]", s))
     return out
 
 
-TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "trunnion_cheek", "cheek_foot", "az_gear_sector"}
+TURNTABLE_PARTS = HEAD_PARTS | {"turntable_plate", "trunnion_cheek", "trunnion_cheek_elev", "cheek_foot", "az_gear_sector",
+                                 "elev_anchor_bolt", *ELEV_ACT_PARTS}
 HOSE_PARTS = {"feed_hose", "take_up_sleeve", "take_up_collar", "take_up_spring"}  # the hose bends; checked by the take-up model
-COTS_MASS_KG = {"launcher_motor": 0.60, "launcher_wheel": 0.35, "head_standoff": 0.015}  # assumptions: weigh yours
+COTS_MASS_KG = {"launcher_motor": 0.60, "launcher_wheel": 0.35, "head_standoff": 0.015,
+                "elev_actuator": 0.60}  # assumptions: weigh yours
 
 
 def turned_solids(p: Feeder, elev_deg: float, az_deg: float) -> tuple[list, list]:
@@ -724,6 +813,41 @@ def turning_inertia(p: Feeder, elev_deg: float = 0.0) -> tuple[float, float]:
     return j, m
 
 
+def head_moment(p: Feeder, elev_deg: float) -> tuple[float, float]:
+    """(nose-up gravity moment N m about the pivot, mass kg) of everything that tilts, from the CAD solids at
+    `elev_deg`; same densities and assumed bought-part masses as `turning_inertia`. Positive means the head's weight
+    pulls its nose up (its centre of mass is behind the pivot). The actuator's own weight, about half on the pin, is
+    left out (a few newtons)."""
+    from OCP.BRepGProp import BRepGProp
+    from OCP.GProp import GProp_GProps
+
+    from .package import DENSITY
+    mats = {part.name: part.material for part in all_parts(p)}
+    m = mx = 0.0
+    for name, s in swept_solids(p, elev_deg):
+        base = name.split("[")[0]
+        if base not in HEAD_PARTS:
+            continue
+        g = GProp_GProps()
+        BRepGProp.VolumeProperties_s(s.wrapped, g)
+        vol = g.Mass()
+        if base in COTS_MASS_KG:
+            kg = COTS_MASS_KG[base]
+        elif mats.get(base) in DENSITY:
+            kg = DENSITY[mats[base]] * vol / 1e6
+        else:
+            continue
+        m += kg
+        mx += kg * (g.CentreOfMass().X() - p.head_x)
+    return -mx / 1000 * 9.81, m
+
+
+def gravity_table(p: Feeder, steps: int = 4) -> dict[float, float]:
+    """Nose-up gravity moment (N m) at `steps` + 1 elevations across the range, measured from the CAD."""
+    es = [p.elev_min + (p.elev_max - p.elev_min) * i / steps for i in range(steps + 1)]
+    return {e: head_moment(p, e)[0] for e in es}
+
+
 # ---------------------------------------------------------------- BOM extras and summary
 
 def fasteners(p: Feeder) -> list[tuple[str, int, str]]:
@@ -761,7 +885,6 @@ COTS_EXTRA = [
     ("ESP32 dev board (ESP32-WROOM-32)", 1, "firmware/esp32, feeder role"),
     ("50 A+ BLDC ESC, servo-pulse input", 2, "launcher wheels"),
     ("Dual DC motor driver, 10 A/ch", 1, "base drive"),
-    ("High-torque servo or linear actuator", 1, "elevation (bracket not modelled yet)"),
     ("Linear actuator, 12-24 V, 100 mm stroke, 30 N+", 1, "feed shuttle (bracket not modelled yet; clevis pin in the shuttle's rear)"),
     ("Storage tub, about 440 x 340 x 250 mm", 1, "hopper; see the part notes for the cut"),
     ("Stepper driver, 2 A class (TMC2209 or A4988), 24 V", 1, "azimuth stepper"),
@@ -821,8 +944,21 @@ def azimuth_line(p: Feeder, inertia_kgm2: float, load_n: float) -> str:
             f"{d['backlash_deg']:.3f} deg = {d['backlash_miss_mm']:.0f} mm")
 
 
+def elevation_line(p: Feeder, gravity: dict[float, float]) -> str:
+    d = p.elevation_drive(gravity)
+    g = [gravity[k] for k in sorted(gravity)]
+    return (f"elevation: linear actuator outboard of the guard-side cheek pushes a pin on the guard plate; the head's weight "
+            f"(from the CAD) pulls its nose up by {min(g):.2f} to {max(g):.2f} N m over {p.elev_min:+.0f} to {p.elev_max:+.0f} deg, "
+            f"so the actuator pushes one way all the way ({d['push_min_n']:.0f} to {d['push_peak_n']:.0f} N, hose slack or "
+            f"taut, lever arm at least {d['arm_min_mm']:.0f} mm), {d['force_margin']:.1f}x under the assumed "
+            f"{p.elev_act_force_n:g} N rating; pin-to-anchor {d['len_min_mm']:.0f} to {d['len_max_mm']:.0f} mm "
+            f"({d['travel_mm']:.0f} mm of travel), so any actuator retracted at most {d['closed_max_mm']:.0f} mm and extended at "
+            f"least {d['extended_min_mm']:.0f} mm hole to hole fits; at {p.elev_act_speed_mm_s:g} mm/s the head turns "
+            f"{d['deg_per_s_min']:.1f} to {d['deg_per_s_max']:.1f} deg/s, the full range in {d['full_sweep_s']:.1f} s")
+
+
 def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_g: float = 0.0,
-            turning: tuple[float, float] | None = None):
+            turning: tuple[float, float] | None = None, gravity: dict[float, float] | None = None):
     ballast = p.ballast_kg(structure_kg(p, mass_g - hopper_g))
     width = 2 * (p.wheel_y + p.wheel_w / 2)
     chords = p.hose_chords()
@@ -855,6 +991,8 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
     ]
     if turning is not None:
         checks.insert(-3, azimuth_line(p, turning[0], turning[1] * 9.81))
+    if gravity is not None:
+        checks.insert(-3, elevation_line(p, gravity))
     derived = {"wheel_gap_mm": p.wheel_gap, "ball_squeeze_mm": round(p.ball_d - p.wheel_gap, 1),
                "base_width_mm": round(width), "net_w_mm": p.net_w, "wind_force_n": round(p.wind_force_n, 1),
                "ballast_kg": round(ballast, 1), "hose_len_mm": p.hose_len,
@@ -866,4 +1004,12 @@ def summary(p: Feeder, mass_g: float, rules, clash, contacts, ground_ok, hopper_
                         "az_torque_margin": round(d["torque_margin"], 2), "az_fastest_slew_s": round(d["fastest_slew_s"], 2),
                         "az_tooth_stress_mpa": round(d["tooth_stress_mpa"], 2), "az_step_miss_mm": round(d["step_miss_mm"]),
                         "az_hose_torque_nm": round(d["torque_hose_nm"], 3)})
+    if gravity is not None:
+        e = p.elevation_drive(gravity)
+        derived.update({"elev_gravity_nm": {f"{k:+g}": round(v, 2) for k, v in sorted(gravity.items())},
+                        "elev_push_peak_n": round(e["push_peak_n"], 1), "elev_force_margin": round(e["force_margin"], 2),
+                        "elev_len_mm": [round(e["len_min_mm"], 1), round(e["len_max_mm"], 1)],
+                        "elev_closed_max_mm": round(e["closed_max_mm"], 1),
+                        "elev_extended_min_mm": round(e["extended_min_mm"], 1),
+                        "elev_full_sweep_s": round(e["full_sweep_s"], 2)})
     return checks, derived

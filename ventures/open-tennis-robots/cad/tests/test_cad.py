@@ -147,6 +147,38 @@ class FeederParamsTest(unittest.TestCase):
         self.assertEqual(p.check(), [])
         self.assertGreater(p.turntable_top, p.mast_top_z)
 
+    def test_elevation_drive_sizing(self):
+        p = Feeder()
+        # a head whose centre of mass sits 60 mm behind and 190 mm above the pivot at 0 deg (about the CAD's)
+        w, cx, cz = 6.7 * 9.81, -60.0, 190.0
+        grav = {e: -w * (cx * math.cos(math.radians(e)) - cz * math.sin(math.radians(e))) / 1000
+                for e in (-15.0, 0.0, 15.0, 30.0, 45.0)}
+        d = p.elevation_drive(grav)
+        self.assertEqual(p.check_elevation(grav), [])
+        self.assertTrue(d["one_way"] and d["monotonic"])    # always a push: no backlash flip mid-range
+        self.assertGreater(d["push_peak_n"], 0)
+        self.assertLessEqual(p.elev_act_closed, d["closed_max_mm"])
+        self.assertGreaterEqual(p.elev_act_closed + p.elev_act_stroke, d["extended_min_mm"])
+        # the push at +45 deg is at least gravity alone over the lever arm there
+        top = d["rows"][-1]
+        self.assertGreaterEqual(top["push_n"] + 1e-9, grav[45.0] * 1000 / abs(top["arm_mm"]))
+        # nose up shortens the actuator (the pin swings down and back)
+        self.assertLess(p.elev_act_len(45.0), p.elev_act_len(-15.0))
+        # failures are reported
+        from dataclasses import replace
+        self.assertTrue(any("retracted" in r for r in replace(p, elev_act_closed=260.0).check_elevation(grav)))
+        self.assertTrue(any("reaches" in r for r in replace(p, elev_act_stroke=100.0).check_elevation(grav)))
+        self.assertTrue(any("push" in r for r in replace(p, elev_act_force_n=150.0).check_elevation(grav)))
+        self.assertTrue(any("cheek" in r for r in replace(p, elev_act_y=-60.0).check_elevation(grav)))
+        self.assertTrue(any("feed column" in r for r in replace(p, elev_pin_x=-150.0).check_elevation(grav)))
+
+    def test_elevation_hose_moment_is_bounded_by_the_pull(self):
+        p = Feeder()
+        for e in (-15.0, 0.0, 45.0):
+            mx, mz = p.mouth_world(e)
+            r = math.hypot(mx - p.head_x, mz - p.pivot_z) / 1000
+            self.assertLessEqual(abs(p.elev_hose_moment_nm(e)), p.hose_pull_n * r + 1e-9)
+
     def test_rules_catch_bad_changes(self):
         self.assertTrue(any("wheel gap" in r for r in Feeder(wheel_gap=67.0).check()))
         self.assertTrue(any("ball path" in r for r in Feeder(plate_half_y=36.0).check()))
@@ -426,6 +458,49 @@ class FeederGeometryTest(unittest.TestCase):
         bad = Feeder(mast_top_z=700.0)  # turntable raised into the head's path
         self.assertEqual(bad.check(), [])
         self.assertTrue(any("turntable" in c for c in elevation_sweep(bad, steps=2)))
+
+    def test_head_gravity_moment_from_the_cad_is_a_rigid_rotation(self):
+        g = self.F.gravity_table(self.p)
+        m0, mass = self.F.head_moment(self.p, 0.0)
+        self.assertGreater(mass, 2 * self.F.COTS_MASS_KG["launcher_motor"])
+        ks = sorted(g)
+        self.assertTrue(all(g[b] > g[a] > 0 for a, b in zip(ks, ks[1:])))   # nose-up, growing with elevation
+        # one centre of mass, rotated: fit (cx, cz) from 0 and 45 deg and predict the other poses
+        w = mass * 9.81 / 1000
+        cx = -g[0.0] / w
+        t = math.radians(45.0)
+        cz = (g[45.0] / w + cx * math.cos(t)) / math.sin(t)
+        for e in (-15.0, 15.0, 30.0):
+            r = math.radians(e)
+            self.assertAlmostEqual(g[e], -w * (cx * math.cos(r) - cz * math.sin(r)), places=6)
+
+    def test_elevation_actuator_meets_its_pin_and_anchor(self):
+        ax, az = self.F.elev_anchor_world(self.p)
+        for e in (self.p.elev_min, 0.0, self.p.elev_max):
+            body, rod = self.F.elev_actuator_shapes(self.p, e)
+            px, pz = self.p.elev_pin_rel(e)
+            px, pz = self.p.head_x + px, self.p.pivot_z + pz
+            L = self.p.elev_act_len(e)
+            self.assertAlmostEqual(body.volume, math.pi * self.p.elev_act_r ** 2 * (self.p.elev_act_closed - 2 * self.F.ELEV_EYE_MM), delta=5)
+            self.assertAlmostEqual(rod.volume, math.pi * self.F.ELEV_ROD_R ** 2 * (L - self.p.elev_act_closed), delta=5)
+            # the rod ends one eye short of the pin, along the line from the anchor
+            ux, uz = (px - ax) / L, (pz - az) / L
+            tip = rod.center()  # the rod's axis lies on the anchor-pin line
+            self.assertAlmostEqual((tip.X - ax) * uz - (tip.Z - az) * ux, 0.0, places=6)
+            self.assertAlmostEqual(tip.Y, self.p.elev_act_y, places=6)
+        # the guard plate carries the pin hole, the guard-side cheek the anchor hole
+        guard = next(x for x in self.parts if x.name == "head_guard_plate")
+        self.assertTrue(any(e.geom_type == GeomType.CIRCLE and abs(e.radius - 3.2) < 1e-6
+                            and math.hypot(e.arc_center.X - self.p.elev_pin_x, e.arc_center.Y - self.p.elev_pin_z) < 0.01
+                            for e in guard.flat.edges()))
+        cheek = next(x for x in self.parts if x.name == "trunnion_cheek_elev")
+        self.assertTrue(any(e.geom_type == GeomType.CIRCLE and abs(e.radius - 3.2) < 1e-6
+                            and math.hypot(e.arc_center.X - ax, e.arc_center.Y - az) < 0.01 for e in cheek.flat.edges()))
+
+    def test_elevation_actuator_sweep_can_fail(self):
+        from otr_cad.package import elevation_sweep
+        bad = Feeder(elev_act_y=-62.0)  # body radius 13: rubs the cheek's tab
+        self.assertTrue(any("elev_actuator" in c and "trunnion_cheek_elev" in c for c in elevation_sweep(bad, steps=1)))
 
     def test_head_tilts_nose_up(self):
         up = dict(self.F.swept_solids(self.p, 45.0))["launcher_wheel[0]"].center()

@@ -1,0 +1,24 @@
+P1 forecast within max(5 points, 3 SE): 40 of 40; misses []; largest gap 3.0
+P2 coverage >= 93% in every cell and rule: yes
+0.5B fear n 500: tau=0.0 1.028 (18% cells), tau=0.1 1.027 (17% cells), tau=0.2 1.018 (13% cells), tau=0.3 1.007 (6% cells), shipped 1.000 (0% cells)
+0.5B fear n 2000: tau=0.0 0.909 (97% cells), tau=0.1 0.914 (90% cells), tau=0.2 0.930 (68% cells), tau=0.3 0.961 (36% cells), shipped 1.000 (0% cells)
+0.5B sadness n 500: tau=0.0 1.037 (62% cells), tau=0.1 1.027 (56% cells), tau=0.2 1.008 (37% cells), tau=0.3 0.997 (21% cells), shipped 1.000 (0% cells)
+0.5B sadness n 2000: tau=0.0 0.942 (100% cells), tau=0.1 0.942 (97% cells), tau=0.2 0.949 (77% cells), tau=0.3 0.972 (33% cells), shipped 0.980 (26% cells)
+tau=0.1: 0.5B cells with tau-0 ratio < 0.97 (2) keep 97% of the tau 0 gain
+tau=0.2: 0.5B cells with tau-0 ratio < 0.97 (2) keep 81% of the tau 0 gain
+tau=0.3: 0.5B cells with tau-0 ratio < 0.97 (2) keep 45% of the tau 0 gain
+tau=0.1 in the other 0.5B cells: largest ratio above max(tau 0 ratio, 1) -0.001
+P3 tau 0.1 keeps >= 85%: yes
+P4 tau 0.2 keeps < 85%: yes
+0.5B fear n 500: shipped 1.000, tau 0.3 guard 0 1.007, tau 0.1 guard 0 1.027
+0.5B fear n 2000: shipped 1.000, tau 0.3 guard 0 0.961, tau 0.1 guard 0 0.914
+0.5B sadness n 500: shipped 1.000, tau 0.3 guard 0 0.997, tau 0.1 guard 0 1.027
+0.5B sadness n 2000: shipped 0.980, tau 0.3 guard 0 0.972, tau 0.1 guard 0 0.942
+1.5B admiration n 500: shipped 0.937, tau 0.3 guard 0 0.910, tau 0.1 guard 0 0.910
+1.5B admiration n 2000: shipped 0.742, tau 0.3 guard 0 0.742, tau 0.1 guard 0 0.742
+1.5B fear n 500: shipped 1.000, tau 0.3 guard 0 1.004, tau 0.1 guard 0 1.014
+1.5B fear n 2000: shipped 0.999, tau 0.3 guard 0 0.847, tau 0.1 guard 0 0.831
+1.5B sadness n 500: shipped 1.000, tau 0.3 guard 0 0.974, tau 0.1 guard 0 0.973
+1.5B sadness n 2000: shipped 0.770, tau 0.3 guard 0 0.714, tau 0.1 guard 0 0.714
+P5 1.5B fear n 2000: tau 0.3 guard 0 0.847 vs shipped 0.999: yes
+Decision rule: change the library default to TAU 0.1, GUARD 0

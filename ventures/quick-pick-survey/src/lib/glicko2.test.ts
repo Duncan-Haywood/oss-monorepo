@@ -5,6 +5,7 @@ import {
   DEFAULT_GLICKO_STATE,
   ratingToLogit,
   updateGlicko,
+  updateGlickoPeriod,
 } from "./glicko2";
 
 /**
@@ -44,6 +45,63 @@ describe("Glicko-2 single game, pinned", () => {
     expect(next.rating).toBeCloseTo(1563.564, 2);
     expect(next.rd).toBeCloseTo(175.4027, 2);
   });
+});
+
+describe("Glicko-2 rating period, Glickman's published example", () => {
+  it("reproduces 1464.06 / 151.52 / 0.05999 (Glickman 2013, section 'Example')", () => {
+    // The paper's player (1500, 200, 0.06) beats 1400/30 and loses to 1550/100
+    // and 1700/300 in one period, tau 0.5. Published: r' = 1464.06,
+    // RD' = 151.52, sigma' = 0.05999 (the paper rounds intermediate steps;
+    // an unrounded independent implementation gives 1464.0507, 151.5165,
+    // 0.0599960).
+    const next = updateGlickoPeriod({ rating: 1500, rd: 200, volatility: 0.06 }, [
+      { opponent: { rating: 1400, rd: 30, volatility: 0.06 }, score: 1 },
+      { opponent: { rating: 1550, rd: 100, volatility: 0.06 }, score: 0 },
+      { opponent: { rating: 1700, rd: 300, volatility: 0.06 }, score: 0 },
+    ]);
+    expect(next.rating).toBeCloseTo(1464.06, 1);
+    expect(next.rd).toBeCloseTo(151.52, 1);
+    expect(next.volatility).toBeCloseTo(0.059996, 6);
+  });
+
+  it("a one-game period equals the single-game update", () => {
+    const p = { rating: 1580, rd: 120, volatility: 0.061 };
+    const o = { rating: 1490, rd: 210, volatility: 0.058 };
+    const a = updateGlickoPeriod(p, [{ opponent: o, score: 0.5 }]);
+    const b = updateGlicko(p, o, 0.5);
+    expect(a.rating).toBeCloseTo(b.rating, 10);
+    expect(a.rd).toBeCloseTo(b.rd, 10);
+    expect(a.volatility).toBeCloseTo(b.volatility, 12);
+  });
+
+  it("refuses an empty period", () => {
+    expect(() => updateGlickoPeriod(DEFAULT_GLICKO_STATE, [])).toThrow(RangeError);
+  });
+});
+
+describe("Glicko-2 single game, rating, RD and volatility pinned", () => {
+  // Reference values from an independent Python implementation of Glickman's
+  // steps 1-8 that reproduces the paper's example above (quality audit
+  // 2026-11-10, fix round 2026-11-11). Volatility moves by about 1e-5 per
+  // game, so it is pinned to 1e-7: a change to tau or the Illinois solver
+  // shows up there first.
+  const cases: [string, [number, number], [number, number], 0 | 0.5 | 1, [number, number, number]][] = [
+    ["a draw between two new items", [1500, 350], [1500, 350], 0.5, [1500, 290.318962, 0.05999896]],
+    ["a favourite losing", [1620, 80], [1450, 150], 0, [1596.904029, 79.247502, 0.06000293]],
+    ["an upset win", [1300, 60], [1800, 60], 1, [1319.677458, 60.709368, 0.06001079]],
+  ];
+  for (const [name, [r, rd], [ro, rdo], score, [er, erd, esig]] of cases) {
+    it(name, () => {
+      const next = updateGlicko(
+        { rating: r, rd, volatility: 0.06 },
+        { rating: ro, rd: rdo, volatility: 0.06 },
+        score,
+      );
+      expect(next.rating).toBeCloseTo(er, 3);
+      expect(next.rd).toBeCloseTo(erd, 3);
+      expect(next.volatility).toBeCloseTo(esig, 7);
+    });
+  }
 });
 
 describe("applyComparison", () => {

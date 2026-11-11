@@ -22,10 +22,11 @@ hypotheses:
       standard- and daylight-time reading) before and after the fix; the
       March start and the AU/NZ rules were independently re-derived from
       IANA tzdata's Rule lines and found already correct. Fixed in
-      CityData.mc; no test harness exists for Monkey C in this repo (CI
-      only XML-validates manifest/resources, per the venture's own CI
-      workflow), so this is verified by the tzdata cross-check above, not
-      by an automated regression test.
+      CityData.mc. Since 2026-11-11 test/citydata.test.mjs runs the shipped
+      CityData.mc (translated by test/monkeyc.mjs, Toybox time calls
+      emulated) against Node's IANA data for 2025-2027, and reverting this
+      fix (end key 01:00 -> 02:00) fails it. Nothing compiles the Monkey C
+      (no Connect IQ SDK here).
 
 economics:
   currency: USD
