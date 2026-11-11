@@ -28,13 +28,17 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 28,
   "outcome": "success",
   "errors": [
     {
       "what": "first purity probe pass reported 0 hits with no output; checked coverage before trusting it (only 103 of 993 calc.mjs export DEFAULTS and a known entry point)",
+      "fixed": true
+    },
+    {
+      "what": "CI red on first push: no launch date (launched.mjs --write), orphan tool (no sibling link), opt-out switch count pinned at 1303, tool in the catalogue catch-all, guide page with no JSON-LD; plus a concrete-maturity FAQ duplicate already fixed on main (merged main)",
       "fixed": true
     }
   ],
@@ -47,6 +51,10 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "refused at first because the shallow clone's origin/main shared no commit with HEAD; git fetch --depth=40 origin main fixed it (the message says so, which helped)"
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "issue": "definition of done does not list the five repo-wide gates a new venture trips (launched.json, a sibling link for siblings.mjs, SWITCHES_IN_THE_CATALOGUE in platform/privacy/optout-persistence.test.mjs, a build.mjs category, FAQPage JSON-LD on every secondary page); each cost a CI round. A scaffold or a single 'new venture preflight' command would catch them locally"
     }
   ],
   "deviations": [
@@ -62,7 +70,7 @@
     "ventures/pv-string-sizer/how-many-solar-panels-per-string.html"
   ],
   "goal": null,
-  "notes": "Explore idea: PV string sizing (cold-Voc / hot-Vmp / strings per MPPT / layouts), new venture pv-string-sizer. duplicate_check top 0.13. Engine tests pin hand arithmetic; guide's numbers are asserted equal to the engine's. Chromium at 390 px: no console errors, no external requests, no horizontal scroll. clauses.mjs 2/2 pages; validate.py all valid; post frontmatter and links clean. Side sweep: platform/ci/calc_purity.mjs (input/DEFAULTS mutation, nondeterminism) over 993 calc.mjs: 103 reachable, 0 hits; add to explore's 'already clean' list in a control-plane PR. Not verified against a manufacturer's string tool.",
+  "notes": "Explore idea: PV string sizing (cold-Voc / hot-Vmp / strings per MPPT / layouts), new venture pv-string-sizer. duplicate_check top 0.13. Engine tests pin hand arithmetic; guide's numbers are asserted equal to the engine's. Chromium at 390 px: no console errors, no external requests, no horizontal scroll. clauses.mjs 2/2 pages; validate.py all valid; post frontmatter and links clean. Side sweep: platform/ci/calc_purity.mjs (input/DEFAULTS mutation, nondeterminism) over 993 calc.mjs: 103 reachable, 0 hits; add to explore's 'already clean' list in a control-plane PR. Not verified against a manufacturer's string tool. CI green on 45887cbf after two fix rounds (all 23 checks success/skipped).",
   "corrections": [],
   "redteam": null,
   "usage": {
