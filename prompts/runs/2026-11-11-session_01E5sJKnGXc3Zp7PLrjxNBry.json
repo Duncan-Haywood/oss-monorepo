@@ -1,0 +1,529 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnGXc3Zp7PLrjxNBry",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T11:24:55Z",
+  "ended": "2026-11-11T11:26:11Z",
+  "wall_minutes": 17.17,
+  "tokens_in": 4840306,
+  "tokens_out": 29610,
+  "cost_usd": 2.4454,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14774",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First push failed CI validate/build: post seo_title 73>70 chars, description 167>160, tag 'red-team' vs house 'redteam'. Fixed in the second push.",
+    "CI 'test' (platform/pages suite) red on this PR: faq-visible.test.mjs found concrete-maturity/index.html's FAQPage JSON-LD with no visible copy (shipped that way in #14766; main's Pages runs after it were cancelled or passed on a path filter). Fixed here: visible Questions section generated from the JSON-LD strings. Local platform/pages suite: 1526 pass, 1 fail before the fix; faq-visible 4/4 after."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 4 entries that all already have owner-gated control-plane PRs (#12928, #12926, #14612, #14698); redteam.py open could show the open PR per entry so runs stop re-checking them."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes needs `git fetch --depth=40 origin main` first in a fresh clone (it says so), and the full run exceeds the 10-min foreground limit: start it with run_in_background from the outset."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes gives each workflow a 300 s budget, so portfolio-pages' site-builder step (~5 min here) always reads TIMEOUT and every later step FAIL; the summary looks red for reasons unrelated to the diff. Running `node --test` in platform/pages directly found the real failure."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-concrete-maturity-red-team.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/concrete-maturity/maturity.mjs (new on main 2026-11-10). 3 campaigns x 8 mutants: 12/24 caught. 9 gaps guarded, 3 equivalent (checked by an 80-set comparison script for the two optimiser mutants). Catch rate 0.571 -> 1.0 of non-equivalent. 4 real defects found and patched with failing tests first (thousands comma in calibration, rolled-over timestamps, 'Average' as time column, elapsed_min read as hours). Guard added (4b-style): a test pinning every number maturity-method-explained.html quotes for the worked example, so a page/code drift fails CI. Local: node --test in ventures/concrete-maturity 32/32 pass; defect tests fail (4) against the pre-fix maturity.mjs. Class not generalised: other ventures' CSV header regexes may share the \\b/underscore and substring issue; headerHasWord is local to this venture. Also fixed a pre-existing faq-visible failure on concrete-maturity/index.html (see errors).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/concrete-maturity/maturity.mjs",
+        "test": "node --test ventures/concrete-maturity/**/*.test.mjs  (in .)",
+        "seed": 356198259,
+        "commit": "b87e9cda",
+        "sites": 654,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 79,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "m = /^(\\d{1,2})[/.-](\\d{1,2})[/.-](\\d{2,4})(?:[ ,T]+(\\d{1,2}):(\\d{2})(?::(\\d{2}))?\\s*([AaPp][Mm])?)?$/.exec(s);",
+            "after": "m = /^(\\d{2,2})[/.-](\\d{1,2})[/.-](\\d{2,4})(?:[ ,T]+(\\d{1,2}):(\\d{2})(?::(\\d{2}))?\\s*([AaPp][Mm])?)?$/.exec(s);",
+            "line_text": "  m = /^(\\d{1,2})[/.-](\\d{1,2})[/.-](\\d{2,4})(?:[ ,T]+(\\d{1,2}):(\\d{2})(?::(\\d{2}))?\\s*([AaPp][Mm])?)?$/.exec(s);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 91,
+            "col": 39,
+            "operator": "lt-to-le",
+            "before": "if (month < 1 || month > 12 || day < 1 || day > 31) return NaN;",
+            "after": "if (month < 1 || month > 12 || day <= 1 || day > 31) return NaN;",
+            "line_text": "    if (month < 1 || month > 12 || day < 1 || day > 31) return NaN;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 108,
+            "col": 51,
+            "operator": "div-to-times",
+            "before": "if (/\\bmin(ute)?s?\\b|\\(min\\)/i.test(h)) return 1 / 60;",
+            "after": "if (/\\bmin(ute)?s?\\b|\\(min\\)/i.test(h)) return 1 * 60;",
+            "line_text": "  if (/\\bmin(ute)?s?\\b|\\(min\\)/i.test(h)) return 1 / 60;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 111,
+            "col": 9,
+            "operator": "const-plus-one",
+            "before": "return 1; // hours",
+            "after": "return 2; // hours",
+            "line_text": "  return 1; // hours",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 377,
+            "col": 19,
+            "operator": "gt-to-ge",
+            "before": "const r2 = sst > 0 ? 1 - err / sst : 1;",
+            "after": "const r2 = sst >= 0 ? 1 - err / sst : 1;",
+            "line_text": "    const r2 = sst > 0 ? 1 - err / sst : 1;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 434,
+            "col": 14,
+            "operator": "and-to-or",
+            "before": "if (range && now < range.min * 0.95 && now > 0) warnings.push('Maturity now is below the youngest calibration specimen; the strength is extrapolated.');",
+            "after": "if (range || now < range.min * 0.95 && now > 0) warnings.push('Maturity now is below the youngest calibration specimen; the strength is extrapolated.');",
+            "line_text": "    if (range && now < range.min * 0.95 && now > 0) warnings.push('Maturity now is below the youngest calibration specimen; the strength is extrapolated.');",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 528,
+            "col": 20,
+            "operator": "le-to-lt",
+            "before": "for (let i = 0; i <= 240; i++) {",
+            "after": "for (let i = 0; i < 240; i++) {",
+            "line_text": "  for (let i = 0; i <= 240; i++) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 531,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "const heat = 34 * (h / 14) * Math.exp(1 - h / 14); // hydration bump peaking near 14 h",
+            "after": "const heat = 34 * (h / 15) * Math.exp(1 - h / 14); // hydration bump peaking near 14 h",
+            "line_text": "    const heat = 34 * (h / 14) * Math.exp(1 - h / 14); // hydration bump peaking near 14 h",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/concrete-maturity/maturity.mjs",
+        "test": "node --test ventures/concrete-maturity/**/*.test.mjs  (in .)",
+        "seed": 1028415403,
+        "commit": "b87e9cda",
+        "sites": 654,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 90,
+            "col": 30,
+            "operator": "eq-flip",
+            "before": "if (ampm === 'am' && hour === 12) hour = 0;",
+            "after": "if (ampm === 'am' && hour !== 12) hour = 0;",
+            "line_text": "    if (ampm === 'am' && hour === 12) hour = 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 109,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "if (/\\bdays?\\b|\\(d\\)/i.test(h)) return 24;",
+            "after": "if (/\\bdays?\\b|\\(d\\)/i.test(h)) return 25;",
+            "line_text": "  if (/\\bdays?\\b|\\(d\\)/i.test(h)) return 24;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "rerun: line changed (elapsedScale rewritten to headerHasWord). Re-applied by hand on the new line (return 24 -> 25 for days): the 'elapsed units' test fails, so caught."
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 125,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "if (lines.length < 2) return { sensors: [], start: null, notes, errors: ['The file needs a header row and at least one reading.'] };",
+            "after": "if (lines.length < 3) return { sensors: [], start: null, notes, errors: ['The file needs a header row and at least one reading.'] };",
+            "line_text": "  if (lines.length < 2) return { sensors: [], start: null, notes, errors: ['The file needs a header row and at least one reading.'] };",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 195,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "const hours = timeKind === 'stamp' ? (t - start) / 3600000 : t;",
+            "after": "const hours = timeKind !== 'stamp' ? (t - start) / 3600000 : t;",
+            "line_text": "      const hours = timeKind === 'stamp' ? (t - start) / 3600000 : t;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 271,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "if (fr < values[0]) {",
+            "after": "if (fr < values[1]) {",
+            "line_text": "    if (fr < values[0]) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "Nelder-Mead expansion test against the second-best vertex instead of the best: still a convergent simplex variant. Over 80 random hyperbolic/exponential calibration sets, 79 predictions were identical and one differed by 4e-5 relative (0.2 psi at 5000 psi), inside the optimiser's own tolerance."
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 347,
+            "col": 31,
+            "operator": "lt-to-le",
+            "before": "if (!best || r.value < best.value) best = r;",
+            "after": "if (!best || r.value <= best.value) best = r;",
+            "line_text": "          if (!best || r.value < best.value) best = r;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "Tie-break between multistart fits with exactly equal loss: over 80 random calibration sets the prediction at 5000 C h was bit-identical."
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 369,
+            "col": 89,
+            "operator": "false-to-true",
+            "before": "if (distinct < m.params || n < m.params + 1) { fits.push({ name, label: m.label, ok: false, reason: `needs at least ${m.params} different maturities and ${m.params + 1} specimens` }); continue; }",
+            "after": "if (distinct < m.params || n < m.params + 1) { fits.push({ name, label: m.label, ok: true, reason: `needs at least ${m.params} different maturities and ${m.params + 1} specimens` }); continue; }",
+            "line_text": "    if (distinct < m.params || n < m.params + 1) { fits.push({ name, label: m.label, ok: false, reason: `needs at least ${m.params} different maturities and ${m.params + 1} specimens` }); continue; }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 446,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "const h = i === 0 ? s.hours[0] : s.hours[i - 1] + (need - ms.index[i - 1]) / (ms.index[i] - ms.index[i - 1]) * (s.hours[i] - s.hours[i - 1]);",
+            "after": "const h = i === 0 ? s.hours[1] : s.hours[i - 1] + (need - ms.index[i - 1]) / (ms.index[i] - ms.index[i - 1]) * (s.hours[i] - s.hours[i - 1]);",
+            "line_text": "          const h = i === 0 ? s.hours[0] : s.hours[i - 1] + (need - ms.index[i - 1]) / (ms.index[i] - ms.index[i - 1]) * (s.hours[i] - s.hours[i - 1]);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "i === 0 is unreachable: ms.index[0] is 0 and indexForStrength never returns less than 1e-6, so findIndex(v >= need) cannot return 0."
+          }
+        ]
+      },
+      {
+        "target": "ventures/concrete-maturity/maturity.mjs",
+        "test": "node --test ventures/concrete-maturity/**/*.test.mjs  (in .)",
+        "seed": 434884736,
+        "commit": "b87e9cda",
+        "sites": 654,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 26,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "referenceC: 20, // equivalent-age reference temperature, deg C",
+            "after": "referenceC: 21, // equivalent-age reference temperature, deg C",
+            "line_text": "  referenceC: 20, // equivalent-age reference temperature, deg C",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 194,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const c = u === 'F' ? (v - 32) * 5 / 9 : v;",
+            "after": "const c = u === 'F' ? (v - 32) * 6 / 9 : v;",
+            "line_text": "      const c = u === 'F' ? (v - 32) * 5 / 9 : v;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 219,
+            "col": 64,
+            "operator": "div-to-times",
+            "before": "return Math.exp(-(o.activationEnergy / R_GAS) * (1 / ta - 1 / ts));",
+            "after": "return Math.exp(-(o.activationEnergy / R_GAS) * (1 / ta - 1 * ts));",
+            "line_text": "    return Math.exp(-(o.activationEnergy / R_GAS) * (1 / ta - 1 / ts));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 306,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if (sxx === 0) return null;",
+            "after": "if (sxx !== 0) return null;",
+            "line_text": "      if (sxx === 0) return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 369,
+            "col": 17,
+            "operator": "lt-to-le",
+            "before": "if (distinct < m.params || n < m.params + 1) { fits.push({ name, label: m.label, ok: false, reason: `needs at least ${m.params} different maturities and ${m.params + 1} specimens` }); continue; }",
+            "after": "if (distinct <= m.params || n < m.params + 1) { fits.push({ name, label: m.label, ok: false, reason: `needs at least ${m.params} different maturities and ${m.params + 1} specimens` }); continue; }",
+            "line_text": "    if (distinct < m.params || n < m.params + 1) { fits.push({ name, label: m.label, ok: false, reason: `needs at least ${m.params} different maturities and ${m.params + 1} specimens` }); continue; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 369,
+            "col": 44,
+            "operator": "plus-to-minus",
+            "before": "if (distinct < m.params || n < m.params + 1) { fits.push({ name, label: m.label, ok: false, reason: `needs at least ${m.params} different maturities and ${m.params + 1} specimens` }); continue; }",
+            "after": "if (distinct < m.params || n < m.params - 1) { fits.push({ name, label: m.label, ok: false, reason: `needs at least ${m.params} different maturities and ${m.params + 1} specimens` }); continue; }",
+            "line_text": "    if (distinct < m.params || n < m.params + 1) { fits.push({ name, label: m.label, ok: false, reason: `needs at least ${m.params} different maturities and ${m.params + 1} specimens` }); continue; }",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 379,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "const aicc = n * Math.log(Math.max(err, 1e-12) / n) + 2 * k + (n - k - 1 > 0 ? (2 * k * (k + 1)) / (n - k - 1) : Infinity);",
+            "after": "const aicc = n * Math.log(Math.max(err, 1e-12) / n) + 2 * k + (n - k - 1 > 0 ? (3 * k * (k + 1)) / (n - k - 1) : Infinity);",
+            "line_text": "    const aicc = n * Math.log(Math.max(err, 1e-12) / n) + 2 * k + (n - k - 1 > 0 ? (2 * k * (k + 1)) / (n - k - 1) : Infinity);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/concrete-maturity/maturity.mjs",
+            "line": 528,
+            "col": 20,
+            "operator": "le-to-lt",
+            "before": "for (let i = 0; i <= 240; i++) {",
+            "after": "for (let i = 0; i < 240; i++) {",
+            "line_text": "  for (let i = 0; i <= 240; i++) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/concrete-maturity/maturity.mjs",
+        "issue": "parseCalibrationText split '7, 3,420' and '7 3,420' on the thousands comma, reading the strength as 3 psi with no error. Fixed: with a space/tab/semicolon between fields, a d,ddd number keeps its comma as a thousands separator.",
+        "patched": true
+      },
+      {
+        "file": "ventures/concrete-maturity/maturity.mjs",
+        "issue": "parseTimestamp let Date.UTC roll impossible cells over ('2/30/2026 25:00' became 3 March 01:00; 13:00 PM, minute 75, 31-Apr accepted). Fixed: utcChecked validates month, day of month, hour, minute, second and the 1-12 AM/PM hour.",
+        "patched": true
+      },
+      {
+        "file": "ventures/concrete-maturity/maturity.mjs",
+        "issue": "With no timestamp column, the time-column regex matched 'age' inside 'Average'/'Stage' (and 'min' inside 'Minimum'), so 'Average (°C),Elapsed (h)' read the temperatures as hours and the hours as degrees. Fixed: headerHasWord requires a non-letter on each side.",
+        "patched": true
+      },
+      {
+        "file": "ventures/concrete-maturity/maturity.mjs",
+        "issue": "elapsedScale used \\b, which an underscore defeats, so 'elapsed_min' and 'time_s' were read as hours (60x / 3600x the maturity, overestimating strength). Fixed with the same headerHasWord.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5732d19c-31b0-50ae-a4e7-96cb01a97e63",
+    "transcripts": 1,
+    "first": "2026-11-11T11:24:55Z",
+    "last": "2026-11-11T11:42:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 92,
+        "output": 29610,
+        "thinking": 9822,
+        "cache_read": 4726781,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113433,
+        "api_equivalent_usd": 2.4454,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 92,
+      "output": 29610,
+      "thinking": 9822,
+      "cache_read": 4726781,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113433,
+      "api_equivalent_usd": 2.4454,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 3,
+      "mcp__github__get_job_logs": 3,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__actions_list": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.17,
+      "active_minutes": 17.17,
+      "model_minutes": 6.81,
+      "tool_minutes": 10.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: mutation campaign triage, 4 parser fixes with tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 245.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

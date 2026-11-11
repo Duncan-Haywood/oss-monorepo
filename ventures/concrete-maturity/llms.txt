@@ -11,7 +11,7 @@ Free and open source (MIT). Results are estimates, not engineering advice; confi
 
 ## Inputs
 
-- Logger CSV: a date/time or elapsed-time column and one column per sensor (°C or °F).
+- Logger CSV: a date/time or elapsed-time column and one column per sensor (°C or °F). Elapsed headers may name hours, minutes, seconds or days (`Elapsed (min)`, `elapsed_min`, `Age (days)`); impossible timestamps such as 30 February are rejected, not rolled over.
 - Lab breaks: one specimen per line, "age_days, strength" (moist-cured at a stated temperature) or "maturity, strength".
 - Target strength; optional assumed future temperature.
 

@@ -157,6 +157,20 @@
       </section>
   </main>
 
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
+    <h3>What is the concrete maturity method?</h3>
+    <p>Concrete gains strength faster when it is warm and slower when it is cold. The maturity method turns a temperature record into a single number, the maturity index, that accounts for both time and temperature. Once you know how strength rises with maturity for one mix (from lab cylinders broken at several ages), a sensor's maturity tells you roughly how strong the concrete around it is now. ASTM C1074 is the US standard practice that describes it.</p>
+    <h3>What is the difference between Nurse-Saul and equivalent age?</h3>
+    <p>Nurse-Saul adds up degrees above a datum temperature times hours (a temperature-time factor in degree-hours). Equivalent age converts each hour into the number of hours at a reference temperature that would have produced the same strength gain, using the Arrhenius equation and an activation energy. Equivalent age tracks the real temperature dependence better over a wide range; Nurse-Saul is simpler and widely used in the field.</p>
+    <h3>What calibration data do I need?</h3>
+    <p>Compressive strengths of specimens of the same mix, broken at several ages (commonly 1, 3, 7, 14 and 28 days, two or more at each), together with their maturity at the time of testing. If the specimens were moist-cured at a known constant temperature, the age is enough and the tool works out the maturity. If a logger sat in a companion specimen, enter the logged maturity directly.</p>
+    <h3>Can I strip forms on this estimate alone?</h3>
+    <p>No. The estimate assumes the field concrete is the same mix as the calibration specimens and was kept moist enough to keep hydrating. It cannot see a batching error, a wrong mix or a dried-out surface. ASTM C1074 itself asks for the estimate to be checked by other tests before critical operations. The engineer of record decides what evidence is needed.</p>
+    <h3>Is my data uploaded?</h3>
+    <p>No. The file is read and every calculation runs in your browser. Nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day.</p>
+  </section>
+
   <footer>
     <label style="display:inline-flex;gap:6px;align-items:center;font-weight:400"><input id="usageOptOut" type="checkbox" style="width:auto"> Do not keep anonymous local usage counts</label>
     <p><strong>No warranty.</strong> This free tool is provided as-is, without warranty of any kind. It is not engineering, structural, construction, legal or financial advice, and it does not replace the engineer of record, a testing laboratory or field-cured specimens. It does not decide when forms can be stripped, shores removed, tendons stressed or a slab loaded. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
