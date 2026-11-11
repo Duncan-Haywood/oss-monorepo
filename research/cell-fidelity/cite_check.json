@@ -1,0 +1,22 @@
+{
+ "doi:10.1039/D2CP00417H": {
+  "checked": "2026-11-11",
+  "title": "Lithium-ion battery degradation: how to model it (2022)"
+ },
+ "doi:10.1149/1.2221597": {
+  "checked": "2026-11-11",
+  "title": "Modeling of Galvanostatic Charge and Discharge of the Lithium/Polymer/Insertion Cell (1993)"
+ },
+ "doi:10.1149/1945-7111/ab9050": {
+  "checked": "2026-11-11",
+  "title": "Development of Experimental Techniques for Parameterization of Multi-scale Lithium-ion Battery Models (2020)"
+ },
+ "doi:10.1149/2.0341915jes": {
+  "checked": "2026-11-11",
+  "title": "An Asymptotic Derivation of a Single Particle Model with Electrolyte (2019)"
+ },
+ "doi:10.5334/jors.309": {
+  "checked": "2026-11-11",
+  "title": "Python Battery Mathematical Modelling (PyBaMM) (2021)"
+ }
+}
