@@ -154,6 +154,15 @@ something we don't sell, handovers someone else did. Scored once on 9,592 unread
 wrong stops 54 to 41 (5.6 to 4.3 per 1,000), right stops 45 to 45. Details:
 [`eval/README.md`](eval/README.md), "Sixth round".
 
+**Seventh round, 2026-11-11, on an eighth unread half: no measurable gain.** Vetoes from
+the stops still wrong on the seven read halves cut wrong stops on the half they came from
+by more than half (41 to 17), then changed one stop in 90 on 9,428 unread replies (4.0 to
+3.9 wrong per 1,000, inside the reader effect). About half of each half's stops repeat text
+from earlier halves, and most of what is left is the writer's own absence inside a working
+reply, a policy choice rather than a phrasing fault. So rule rounds on Enron have stopped
+paying; the reader's brief is now a file (`eval/enron-labels/READER.md`) for a person or
+another model family to label from. Details: [`eval/README.md`](eval/README.md), "Seventh round".
+
 **Real opt-outs, 2026-11-10.** The other direction: of 113 distinct real
 "take me off this list" messages found in the rest of the Enron corpus (451,475
 messages, candidates chosen by a net written apart from the rules and read with
