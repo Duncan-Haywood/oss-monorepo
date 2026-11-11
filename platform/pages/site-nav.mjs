@@ -151,7 +151,7 @@ export function renderSiteHeader({ toRoot = '', current = '', search, crumbs = [
   // where an input in the header would cost a whole row.
   const searchHtml =
     mode === true
-      ? `<form class="pfs-search" action="${esc(root)}" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search tools &amp; research" autocomplete="off"><button type="submit"><span class="pfs-vh">Search</span></button></form>${link}`
+      ? `<form class="pfs-search" action="${esc(root)}" method="get" role="search"><label class="pfs-vh" for="pfs-q">Search all tools and research</label><input id="pfs-q" name="q" type="search" placeholder="Search" autocomplete="off"><button type="submit"><span class="pfs-vh">Search</span></button></form>${link}`
       : mode === 'link' || mode === 'narrow'
         ? link
         : '';
@@ -228,11 +228,11 @@ export const SITE_HEADER_CSS = `
 .pfs-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 22px;max-width:1120px;margin:0 auto;padding:10px 16px}
 [data-pfs-head] .pfs-brand{display:inline-flex;align-items:center;gap:9px;font-weight:750;letter-spacing:-.01em;white-space:nowrap}
 .pfs-mark{display:inline-block;width:22px;height:22px;border-radius:50%;flex:none;background:var(--pfs-mark,currentColor)}
-.pfs-nav{display:flex;flex-wrap:wrap;gap:4px 16px;flex:1 1 auto;min-width:0}
+.pfs-nav{display:flex;flex-wrap:wrap;gap:4px 16px;flex:0 1 auto;min-width:0}
 [data-pfs-head] .pfs-nav a{display:inline-block;padding:4px 0;font-weight:600;color:var(--pfs-muted,inherit);
   border-bottom:2px solid transparent}
 [data-pfs-head] .pfs-nav a[aria-current="page"]{color:var(--pfs-ink,inherit);border-bottom-color:var(--pfs-accent,currentColor)}
-.pfs-search{position:relative;display:flex;margin:0;padding:0;border:0;flex:0 1 236px;min-width:0}
+.pfs-search{position:relative;display:flex;margin:0 0 0 auto;padding:0;border:0;flex:1 1 100px;min-width:0;max-width:236px}
 .pfs-search input{flex:1 1 auto;min-width:0;width:100%;font:inherit;font-size:14px;padding:7px 12px 7px 34px;margin:0;border-radius:999px;
   border:1px solid var(--pfs-line,rgba(128,128,128,.5));background:var(--pfs-panel,transparent);color:inherit;
   transition:border-color .15s ease,box-shadow .15s ease}
@@ -244,7 +244,7 @@ export const SITE_HEADER_CSS = `
   -webkit-mask:var(--pfs-glass) center/contain no-repeat;mask:var(--pfs-glass) center/contain no-repeat}
 [data-pfs-head]{--pfs-glass:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E")}
 /* One Search control on every page family: a pill with the same glass as the form. It was a pill on tool pages, bare text on site pages and missing on the hub (2026-11-11). */
-[data-pfs-head] .pfs-searchlink{display:none;align-items:center;gap:6px;padding:5px 13px 5px 11px;font-weight:600;line-height:1.25;
+[data-pfs-head] .pfs-searchlink{display:none;align-items:center;gap:6px;margin-left:auto;padding:5px 13px 5px 11px;font-weight:600;line-height:1.25;
   white-space:nowrap;border:1px solid var(--pfs-line,rgba(128,128,128,.5));border-radius:999px;transition:border-color .15s ease}
 [data-pfs-head] .pfs-searchlink::before{content:"";width:15px;height:15px;flex:none;background:currentColor;
   -webkit-mask:var(--pfs-glass) center/contain no-repeat;mask:var(--pfs-glass) center/contain no-repeat}
@@ -264,6 +264,15 @@ export const SITE_HEADER_CSS = `
 @media (max-width:1080px){
   .pfs-search{display:none}
   [data-pfs-head] .pfs-searchlink{display:inline-flex}
+}
+/* The header on one row when it fits, two when it doesn't: brand and Search on top, the section links below.
+   Before 2026-11-11 the Search control wrapped onto a row of its own, under the brand at the left edge, on every
+   page but the hub from 721px up (even at 1280px, where the 236px form was too wide to share the row with ten
+   links). The query is on the header's own width, not the window's: a tool page's header can sit in a 1,000px column. */
+[data-pfs-head]{container:pfs-head/inline-size}
+@container pfs-head (max-width:1079px){
+  [data-pfs-head] .pfs-brand{flex:1 1 auto}
+  .pfs-nav{order:3;flex-basis:100%}
 }
 @property --pfs-fade{syntax:'<length>';inherits:false;initial-value:28px}
 @keyframes pfs-fade-out{to{--pfs-fade:0px}}

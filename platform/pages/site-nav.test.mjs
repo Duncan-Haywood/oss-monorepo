@@ -67,6 +67,25 @@ test('every page family draws the Search link as the same pill with the glass ic
   assert.doesNotMatch(SITE_HEADER_CSS, /pfs-searchlink\{display:inline-block\}/);
 });
 
+test('the header keeps Search on the brand row instead of a row of its own', () => {
+  // From 721px up, Search wrapped under the brand on every page but the hub (2026-11-11).
+  // The layout follows the header's own width, since a tool page can put it in a 1,000px column.
+  assert.match(SITE_HEADER_CSS, /\[data-pfs-head\]\{container:pfs-head\/inline-size\}/);
+  const twoRow = /@container pfs-head \(max-width:(\d+)px\)\{([^}]*\}[^}]*\})/.exec(SITE_HEADER_CSS);
+  assert.ok(twoRow, 'a container query moves the links to their own row when one row is too narrow');
+  assert.match(twoRow[2], /\.pfs-nav\{order:3;flex-basis:100%\}/);
+  assert.match(twoRow[2], /\.pfs-brand\{flex:1 1 auto\}/);
+  // The form shrinks to fit the row (its basis is small, so it does not force a wrap) and sits right.
+  assert.match(SITE_HEADER_CSS, /\.pfs-search\{[^}]*margin:0 0 0 auto;[^}]*flex:1 1 100px;[^}]*max-width:236px/);
+  assert.match(SITE_HEADER_CSS, /\[data-pfs-head\] \.pfs-searchlink\{[^}]*margin-left:auto/);
+  // Rough width budget for one row: brand, links, gaps, form at its basis and padding must fit
+  // under the breakpoint. At 15px semibold the links measured 7.9px a character (577px for 73).
+  // A new nav item that breaks this needs a wider breakpoint or a shorter label.
+  const chars = SITE_NAV.reduce((n, item) => n + item.label.length, 0);
+  const budget = 153 + Math.ceil(chars * 8.2) + 16 * (SITE_NAV.length - 1) + 22 * 2 + 100 + 32;
+  assert.ok(budget <= Number(twoRow[1]) + 1, `one-row header needs about ${budget}px, breakpoint is ${twoRow[1]}px`);
+});
+
 test('a breadcrumb names the page last, unlinked', () => {
   const html = renderSiteHeader({ toRoot: '../../', crumbs: [{ label: 'Tools', href: '../../c/' }, { label: 'A <b> page' }] });
   assert.match(html, /aria-label="Breadcrumb"><a href="\.\.\/\.\.\/" data-pf-to="hub">Home<\/a>/);
