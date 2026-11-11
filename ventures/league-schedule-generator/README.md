@@ -282,6 +282,53 @@ next" and a double round robin are both ticked.
     times breaks), which the spread above says is worth more. It would cost k times the time, so
     it needs the Web Worker first (2.3 s on the main thread for 20 teams in Chromium today).
 
+## Best of four searches, off the page thread (2026-11-11)
+
+One carry-over search is a sample, not the curve (the seed spread above). `bestCarryOverRounds(n,
+{ double, seed, tries, weights, pick, effort })` in `carryover.mjs` runs `tries` searches, each with
+its own seed and a break weight cycling 10, 20, 40, 80, and keeps the one with the least carry-over
++ `pick` x breaks. Try 0 is exactly today's single search, so it never does worse on that score.
+It also returns every try and the frontier (tries no other beats on both counts).
+
+- **Page.** Ticking "Spread who you meet next" now runs four searches in a Web Worker
+  (`carryover-worker.mjs`, with a main-thread fallback), shows "search i of 4 done" as each ends, and
+  caches the result by teams, double, seed and trade, so a rebuild with the same settings is instant.
+  A new choice says what to keep: a balance (`pick` 10, the default), the most even carry-over (0)
+  or the fewest back-to-back home or away games (40); it is in share links (`carryOverPick`). The
+  read-out lists all four tries as carry-over/breaks. Clicked in Chromium: 20-team double round robin
+  in 11.9 s with the worst wait for a frame 17 ms (one search blocked the page for about 2.3 s before);
+  8 teams in about 5 s.
+- **CLI and tests.** `buildSchedule` takes `carryOverTries` (runs it in place) or `carryOverPlan`
+  (rounds the worker found; ignored if its team count or double flag differ) and puts a summary in
+  `schedule.carryOverSearch`. `best-of-k.test.mjs` (10 tests).
+- **Measured** (`node eval/best-of-k.mjs`, output `eval/best-of-k.txt`; seeds 1 to 3, pick 10, each
+  run set against the professional seasons of its size):
+
+  | Teams | Setting | Carry-over | Breaks | Seasons dominated | Time (Node) |
+  |---|---|---|---|---|---|
+  | 18 | 1 search (before) | 1,522 | 86.7 | 1.0 of 6 | 2.1 s |
+  | 18 | 4 x effort 0.25 (same work) | 1,528 | 84.7 | 1.0 | 3.3 s |
+  | 18 | 4 x effort 1 (the page) | 1,573 | 73.3 | 1.7 | 9.1 s |
+  | 18 | 8 x effort 0.5 | 1,562 | 73.3 | 1.7 | 9.5 s |
+  | 20 | 1 search (before) | 1,761 | 114.7 | 3.0 of 14 | 2.7 s |
+  | 20 | 4 x effort 0.25 | 1,757 | 121.3 | 1.7 | 4.3 s |
+  | 20 | 4 x effort 1 | 1,761 | 114.7 | 3.0 | 11.6 s |
+  | 20 | 8 x effort 0.5 | 1,784 | 114.0 | 2.7 | 15.1 s |
+
+  Read plainly: **short searches do not substitute for one long one** (4 x 0.25 is no better at 18
+  teams and worse at 20), so the page spends four times the work, which the worker makes affordable.
+  At 18 teams that buys 13 fewer breaks (-15%) for 3% more carry-over. **At 20 teams and pick 10 it
+  buys nothing:** try 0 wins every time, because the other weights trade 260 to 460 carry-over for
+  14 to 20 breaks, which pick 10 prices as a loss.
+- **The trade is the useful part at 20 teams** (`node eval/best-of-k.mjs --picks`, output
+  `eval/best-of-k-picks.txt`; same four searches re-ranked): "fewest back-to-back" keeps 104 breaks
+  on seeds 1 and 2 (against 124 and 112) at 1,940 and 2,028 carry-over, still below every one of the
+  14 professional 20-team seasons' 2,278, and dominates 4 of them instead of 2 or 3. At 18 teams
+  "balanced" and "fewest" agree on two seeds of three (70 to 72 breaks); "most even" is the old
+  single search. Search figures, three seeds, made-up team names; no organiser has used it yet.
+- Open: the frontier is thin (four points); a worker pool could run the tries in parallel on
+  multi-core phones and laptops (about 3 s instead of 12 at 20 teams) and so afford eight.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

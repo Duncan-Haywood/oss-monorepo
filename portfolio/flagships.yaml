@@ -234,23 +234,17 @@ flagships:
     next: >-
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
       (multi-division scheduling on shared venues, travel, rainouts, standings, play-offs, officials,
-      bookings, coach sign-up CSVs, facility cost, duty rota and printable team sheets; unit-tested and
-      browser-clicked on made-up leagues). Even carry-over landed 2026-11-11 (carryover.mjs, README "Even
-      carry-over"): Russell's carry-over value on every schedule and a seeded search (round swaps, partial
-      team and round swaps, then a break-weighted pass), K6 optimum and 8-team bound reached by test; on
-      20 real top-flight seasons (openfootball) the tool's mirrored double round robin scores 2,136 / 114
-      breaks (20 teams) against 2,278-2,564 / 70-146 for EPL, La Liga, Serie A, Ligue 1, and 1,926 / 74
-      (18 teams) against the Bundesliga's 3,474-4,342 / 48. Whole-season double round robin landed
-      2026-11-11 (lowCarryOverDoubleRounds, README "A double round robin searched as a whole"): leg two
-      its own round robin, return games reversed, no back-to-back repeats; 20 teams 1,678 / 124 breaks
-      (below all 14 pro seasons) vs 2,136 / 114 mirrored, 18 teams 1,498 / 88 vs 1,926 / 74. Next, most
-      valuable first: cut the extra breaks. Measured 2026-11-11 (eval/double-frontier.txt, README):
-      moving leg one too gains under 1%, but seed spread is large (20 teams w=10: 1,678-1,820 /
-      108-124), so build best-of-k seeds/weights in a Web Worker (2.3 s main thread today), and
-      consider w=20+ at 18 teams (68-84 breaks, dominates both Ligue 1 seasons). Then French/English
-      schemes as starts, the search's gap to the floor (12 teams 156 vs 120), a real league's travel times (to
-      check the 1.3 x 40 km/h estimate), a real league's unavailable-date requests and duty rota, and a
-      paper print check.
+      bookings, coach sign-up CSVs, facility cost, duty rota and printable team sheets; even carry-over
+      by Russell's value with a whole-season double round robin, scored on 20 real top-flight seasons).
+      Best of four searches landed 2026-11-11 (bestCarryOverRounds, README "Best of four searches"): the
+      page runs four in a Web Worker (20 teams 11.9 s, worst frame wait 17 ms) with a fair / balanced /
+      fewest-breaks choice; 18 teams 86.7 to 73.3 breaks at +3% carry-over; 20 teams gains only through
+      the choice (fewest: 104 breaks at 1,940-2,028, dominating 4 of 14 pro seasons); 4 short searches
+      do not equal 1 long one. Next, most valuable first: a worker pool (navigator.hardwareConcurrency)
+      to run the tries in parallel and afford eight; French/English break-minimal schemes as starts (20
+      teams never gets under 88 breaks); the search's gap to the floor (12 teams 156 vs 120); a real
+      league's travel times (to check the 1.3 x 40 km/h estimate), unavailable-date requests and duty
+      rota; a paper print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
