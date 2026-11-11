@@ -249,7 +249,11 @@ flagships:
       24 teams 612 to 570, 30 1,002 to 948, 40 1,890 to 1,816 (8-21% above the floor); clears the
       24- and 30-team break-weight regressions. Next, most valuable first: pick the start by
       carry-over + weight x breaks when a weight is set; close 24-40 (tabu, longer runs, the
-      literature's starters and terraces); other constructions (Latin-square based, from the literature) for 12 teams (152 vs 120);
+      literature's starters and terraces); refilled rounds 2026-11-11 latest (README "Refilled
+      rounds", eval/round-refill.mjs: take 2-5 rounds out, refill by DFS): 12 teams 152 to 136
+      (floor 120), 9 teams 71 to 69, stored whole in TIMETABLES; next there: a lower bound or a
+      timetable below 136 at 12, the refill from climbed starters at 14-18 teams and on a season's
+      second leg;
       a bound for the minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter
       timetable; a real league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots

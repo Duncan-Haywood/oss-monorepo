@@ -759,8 +759,9 @@ the annealing search from both starts. `eval/round-refill.mjs` searches all roun
   1,500 moves with no change it restarts from the start timetable with its rounds shuffled. Each
   result is re-scored with `carryOverFromOpponents` and checked to be a round robin.
 - **Measured** (12 teams, all playing, non-cyclic; 420 s per seed from the circle method, 4 seeds):
-  136, 136, 136 and 152. Every count is 0, 1 or 2: 8 pairs repeat once, against 16 at 152. The
-  seeds that reached 136 got there by 100,000 moves. The search does not show whether 136 is the
+  136, 136, 136 and 152. At 136 every count is 0, 1 or 2, and 8 cells hold 2. These four runs used
+  the first restart rule (after 4,000 moves with no change, the best so far with two rounds
+  swapped). The shuffled restart above came later and was used for the other sizes below. The search does not show whether 136 is the
   least possible.
 - **Stored timetables** (`TIMETABLES`, `storedTimetable` in `carryover.mjs`). The best result is
   stored whole as opp[r][t]. `bestStarterOpp` keeps whichever of the starter and the stored
@@ -779,7 +780,15 @@ the annealing search from both starts. `eval/round-refill.mjs` searches all roun
 - Tests (`starter.test.mjs`): every stored timetable is a round robin. Its value is pinned and is
   below the starter it replaces at every start. `lowCarryOverRounds` from it returns no more than
   the stored value.
-<!-- REFILL-MORE -->
+- **Other sizes** (300 s, one or two seeds each, `eval/round-refill.txt`). 9 teams (10 with a bye): 69,
+  against 71 for the starter, floor 63. The 10-team run tied the starter at 94 with all ten playing, but
+  the same timetable with one team as the bye scores 69. It is stored as `TIMETABLES[10].odd`,
+  relabelled so the bye is team 9, and the 9-team search now returns 69 / 12. 11 teams (searched with a
+  bye) tied the circle search at 115. 14 teams stopped at 220 from the circle start, worse than the
+  starter's 212. Past 12 teams the refill DFS has many more splits per move, so it needs a longer
+  run or a starter start.
+- Open: 12 teams at 136 against 120 (a lower bound, or a 12-team timetable below 136); the refill
+  from the climbed starters at 14 to 18 teams; refilling the second leg of a season.
 
 ## Several divisions on shared courts (`divisions.mjs`)
 

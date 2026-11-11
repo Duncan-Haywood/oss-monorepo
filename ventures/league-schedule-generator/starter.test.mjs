@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, circleOpp, TIMETABLES, storedTimetable } from "./carryover.mjs";
 
 // pinned values of the stored timetables (carryover.mjs TIMETABLES)
-const STORED_VALUES = { "12/even": 136 };
+const STORED_VALUES = { "12/even": 136, "10/odd": 69 };
 
 const seqs = (opp, n) => Array.from({ length: n }, (_, t) => opp.map((o) => o[t]).filter((u) => u < n));
 const decode = ([step, ...flat]) => ({ step, pairs: Array.from({ length: flat.length / 2 }, (_, i) => [flat[2 * i], flat[2 * i + 1]]) });
