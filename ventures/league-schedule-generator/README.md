@@ -367,6 +367,61 @@ most eight).
   same kept season (1,678/124 on seed 1) at every core count. Machines with fewer than two cores wait
   longer than before (20 s, not 12) for the extra four tries.
 
+## Carry-over under a cap on breaks (2026-11-11)
+
+Every search above prices a break and trades it for carry-over, and none got a 20-team season under
+88 breaks. The reason is leg one: at 20 teams the single search's leg has 46 to 52 breaks against a
+minimum of 18 (18 teams: 28 to 34 against 16), so the season can not get far below twice that. The
+weights never reach the low-break end of the trade, where the Bundesliga sits (48 breaks, 3,474 to
+4,342 carry-over).
+
+- **Code** (`carryover.mjs`). `lowCarryOverCappedRounds(n, { seed, maxBreaks })` starts from the
+  circle method with its minimum-break home/away (n - 2 for an even league) and anneals carry-over
+  alone, refusing any move that takes the season over `maxBreaks` or a team's home and away games
+  more than one apart. Each timetable move either keeps every team's ground in each round (only
+  allowed if every match still has one team at home) or carries each match's ground with it (the
+  pattern changes, so breaks and balance are rechecked), and a fourth move flips one match.
+  `lowCarryOverDoubleRounds(n, { maxBreaks, legBreaks })` runs it for leg one and then moves leg two
+  on carry-over alone under the season cap. Leg two starts from whichever of three orders is best
+  inside the cap: leg one backwards (what the weighted search uses; nearly every team breaks at the
+  halfway point and where leg one's last round rejoins, about 2n more), the mirror (fewest breaks,
+  every carry-over count doubled) or the mirror with its first and last rounds swapped.
+- **Page and CLI.** "Spread who you meet next" now runs ten tries: the eight weighted ones,
+  unchanged, plus two capped ones (`cappedTryBreaks`: 3(n - 2) and 3(n - 2) + 12 over a
+  home-and-away season, n - 2 and n + 2 a leg). A fourth choice, "the fewest back-to-back home or
+  away games possible, then the most even carry-over" (`fewest`, pick 1000, in share links), keeps
+  the capped minimum. The old "fewest" choice is now labelled "fewer" (same value, same links).
+  Odd leagues: a bye ends a run, and the capped search can not move a bye without unbalancing a team,
+  so their two extra tries are weighted ones at 160 and 320. `buildSchedule` takes
+  `carryOverCapped` beside `carryOverTries`. Tests: `capped-breaks.test.mjs` (9).
+- **Measured** (`node eval/capped-breaks.mjs`, `eval/capped-breaks.txt`; seeds 1 to 3, recounted from
+  the rounds):
+
+  | Teams | Season cap | Carry-over | Breaks | Real seasons dominated |
+  |---|---|---|---|---|
+  | 18 | 48 (the minimum) | 2,154 to 2,674 | 48 | all 4 Bundesliga (3,474 to 4,342 at 48) |
+  | 18 | 60 | 1,696 to 1,858 | 60 | 1 or 2 Ligue 1 (1,840 / 74, 1,948 / 96) |
+  | 18 | 72 | 1,564 to 1,704 | 72 | both Ligue 1 |
+  | 20 | 54 (the minimum) | 4,734 to 5,080 | 54 | none (circle method 21,044 at 54; none of the 14 has under 70) |
+  | 20 | 90 | 2,870 to 3,180 | 82 to 88 | none |
+
+  Read plainly: **at 18 teams the Bundesliga's minimum-break fixture list could have had 38 to 50%
+  less carry-over at the same 48 breaks**, and the capped curve fills the gap between the minimum and
+  the weighted tries. **At 20 teams the capped search is weak**: leg one stays near 1,100 to 1,400
+  carry-over at 18 to 22 breaks, against about 500 for the unconstrained search, so above about 60
+  breaks the weighted tries are better. A "squeeze" from the weighted result down to a cap was tried
+  on a scratch copy and not landed: it never left the starting timetable (every move that cut breaks
+  cost more carry-over than the price of a break).
+- **What the page keeps** (same file, second table): the two capped tries change the "balanced" and
+  "most even" picks in none of six runs and "fewer" in one (18 teams, seed 2: 1,550 / 72 to 1,786 /
+  60). "Fewest" keeps the capped minimum every time: 18 teams 2,330 / 2,596 / 2,502 at 48 breaks
+  (all four Bundesliga seasons dominated; the eight weighted tries' fewest was 58 to 72 breaks), 20
+  teams 4,552 to 5,968 at 54 (weighted fewest 82 to 86). Ten tries take 16 to 17 s on one thread at
+  18 teams and 23 s at 20 (eight took 16.8 and 25.2 s on the earlier, less loaded run); a 12-team
+  season in Chromium ran all ten with no page errors and the same kept season on 1 and 4 cores.
+- Open: a 20-team leg one at low breaks (a start other than the circle method, or a search over
+  home/away patterns first), and odd leagues under a cap.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`

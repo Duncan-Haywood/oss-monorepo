@@ -245,9 +245,12 @@ flagships:
       Worker pool landed 2026-11-11 (README "Eight searches on a pool of workers"): the page runs
       eight tries split over one Web Worker per core (carryOverTry, splitCarryOverTries,
       combineCarryOverTries; same season on any core count, tested); 8 x effort 1 vs 4: 18 teams
-      score 2,307 to 2,247 (breaks 73.3 to 68.7), 20 teams 2,907 to 2,880. Next, most valuable
-      first: French/English break-minimal schemes as starts (20 teams never gets under 88 breaks);
-      the search's gap to the floor (12 teams 156 vs 120); a real league's travel times (to check
+      score 2,307 to 2,247 (breaks 73.3 to 68.7), 20 teams 2,907 to 2,880. Capped breaks 2026-11-11
+      (README "Carry-over under a cap on breaks"): lowCarryOverCappedRounds, 8 + 2 capped tries, a
+      "fewest" choice; 18 teams 2,154-2,674 at the minimum 48 (Bundesliga 3,474+ at 48), 20 teams
+      4,734-5,080 at 54. Next, most valuable first: a 20-team leg one at low breaks (capped leg one
+      stays 1,100-1,400 at 18-22 breaks vs 500 unconstrained; a non-circle start or patterns first);
+      odd leagues under a cap; the search's gap to the floor (12 teams 156 vs 120); a real league's travel times (to check
       the 1.3 x 40 km/h estimate), unavailable-date requests and duty rota; a paper print check.
   - venture: open-tennis-robots
     why: >-
