@@ -9,7 +9,37 @@ fog and sun glint do to that. Research code, not a certified perception system.
 
 **Live page:** https://marisstella.app/research/marine-detect/
 
-RESULTS_PLACEHOLDER
+## Result (300 held-out frames from 16 sequence blocks, 204 floating obstacles, 3 seeds, mean and 95% t-interval)
+
+| model | mIoU | obstacle IoU | floating obstacles found | of those at least 16 px (n = 31) | false alarms per frame |
+|---|---|---|---|---|---|
+| pixel MLP (colour, saturation, row) | 0.848 | 0.642 | 8.0% | 10.8% | 2.25 |
+| LR-ASPP MobileNetV3, clean training | 0.967 +- 0.004 | 0.919 | 31.9% +- 4.9 | 60.2% +- 12.2 | 0.08 |
+| LR-ASPP, fog + glint augmentation | 0.967 +- 0.000 | 0.920 | 33.7% +- 6.2 | 64.5% +- 16.0 | 0.09 |
+
+![Recall and false alarms against fog and glint](experiments/fig_degradation.png)
+
+- **A 0.97 mIoU hides a detector that misses most floating obstacles.** Pixel IoU is dominated by water, sky and
+  shore. Of the 204 obstacle components surrounded by water, the network covers half the pixels of only a third.
+  173 of them are under 16 pixels at 320x240 (41 px in the 512x384 originals): distant buoys and swimmers, and
+  fragments of thin structures (poles, mooring lines); recall there is 27%. Larger objects: 60% (32 to 256 px 48 to
+  64%, over 256 px 100%; n = 31, so the object-sampling interval alone is about +-17 points).
+- **Fog costs the clean-trained network most of its large-object recall.** At transmission 0.3 (an object at 31% of
+  the visibility range) recall of objects of at least 16 px falls from 60% to 28%, and to 23% at t = 0.15, while
+  mIoU only drops from 0.967 to 0.884. The pixel MLP finds nothing at t = 0.5.
+- **Fog augmentation makes recall almost fog-invariant, but on the same fog model it was trained on.** With fog and
+  glint in training, large-object recall stays at 61 to 65% across every fog level, and all-object recall falls only
+  from 34% to 24%. Real fog thickens with range and is not this uniform affine change, so this is an upper bound on
+  what augmentation buys.
+- **Glint does not hide obstacles; it creates false ones.** Recall is flat under glint for every model, but the
+  clean-trained network's false alarms on open water rise from 0.08 to 0.28 per frame at glint strength 0.9 (3.6x);
+  with augmentation they stay at 0.09.
+- **Far obstacles are missed first.** Objects within 10 rows of the water edge (far away on a flat sea) are found
+  10 to 26% of the time; those more than 40 rows below it 46 to 50% (clean frames). At t = 0.15 the near group also
+  falls, to 12% (clean training) and 19% (augmented).
+- Full tables, by size and by rows below the water edge: [`experiments/results.txt`](experiments/results.txt).
+  Training takes 12 to 13 minutes per LR-ASPP run on 4 CPU cores. CPU training is not bit-reproducible: a rerun of
+  one seed moved clean mIoU by 0.002.
 
 ## Method and reproduce
 
