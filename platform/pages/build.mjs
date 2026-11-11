@@ -4041,15 +4041,56 @@ export function markSponsorLinks(html) {
  * arriving from search lands on first. Returns the files it changed.
  */
 export async function markSponsorLinksIn(outDir) {
-  const marked = [];
-  for (const file of (await listFiles(outDir)).filter((f) => f.endsWith('.html'))) {
+  return rewriteHtmlIn(outDir, markSponsorLinks);
+}
+
+/**
+ * Applies a pure `html -> html` rewrite to every HTML file under `outDir` and
+ * returns the relative paths it changed, in `listFiles` order.
+ *
+ * Pages are read and rewritten 32 at a time (`mapLimit` keeps input order), as
+ * `addShareCards` does: one at a time, the disk sat idle between them. Each
+ * rewrite reads and writes only its own file, so the order files finish in
+ * cannot change any output.
+ */
+async function rewriteHtmlIn(outDir, rewrite) {
+  const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+  const changed = await mapLimit(files, 32, async (file) => {
     const html = await fs.readFile(file, 'utf8');
-    const next = markSponsorLinks(html);
-    if (next === html) continue;
+    const next = rewrite(html);
+    if (next === html) return null;
     await fs.writeFile(file, next);
-    marked.push(path.relative(outDir, file));
-  }
-  return marked;
+    return path.relative(outDir, file);
+  });
+  return changed.filter((file) => file !== null);
+}
+
+/**
+ * `markSponsorLinksIn` then `addNoscriptNoticesIn`, in one walk and one read
+ * and write per page.
+ *
+ * Measured 2026-11-11: the two passes each listed the whole output tree and
+ * read every HTML page one at a time, the same pages twice in a row. The
+ * notice is inserted after `<body>` and only looks for `<noscript>`, `<script>`
+ * and form controls, none of which the sponsor marker (an attribute inside a
+ * Sponsors `<a>`) adds or removes, so applying both to one read gives the
+ * same bytes as the two passes in turn. `build-determinism.test.mjs` and the
+ * test beside these functions pin that.
+ */
+export async function markSponsorsAndNoscriptIn(outDir) {
+  const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+  const results = await mapLimit(files, 32, async (file) => {
+    const html = await fs.readFile(file, 'utf8');
+    const marked = markSponsorLinks(html);
+    const next = addNoscriptNotice(marked);
+    if (next !== html) await fs.writeFile(file, next);
+    const relative = path.relative(outDir, file);
+    return { sponsored: marked !== html ? relative : null, noscripted: next !== marked ? relative : null };
+  });
+  return {
+    sponsored: results.map((r) => r.sponsored).filter((f) => f !== null),
+    noscripted: results.map((r) => r.noscripted).filter((f) => f !== null),
+  };
 }
 
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
@@ -4082,15 +4123,7 @@ export function addNoscriptNotice(html) {
 
 /** Applies `addNoscriptNotice` across the finished site; returns the files changed. */
 export async function addNoscriptNoticesIn(outDir) {
-  const changed = [];
-  for (const file of (await listFiles(outDir)).filter((f) => f.endsWith('.html'))) {
-    const html = await fs.readFile(file, 'utf8');
-    const next = addNoscriptNotice(html);
-    if (next === html) continue;
-    await fs.writeFile(file, next);
-    changed.push(path.relative(outDir, file));
-  }
-  return changed;
+  return rewriteHtmlIn(outDir, addNoscriptNotice);
 }
 
 // The optional-support line (`sponsorsNote`, site-nav.mjs) rides in
@@ -12331,8 +12364,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // uncounted. Before the offline layer below, for the reason stated there:
   // this rewrites HTML, so a cache named from a hash taken earlier would ship
   // pages that no longer match it.
-  const sponsored = await markSponsorLinksIn(outDir);
-  const noscripted = await addNoscriptNoticesIn(outDir);
+  // One walk for both (`markSponsorsAndNoscriptIn`): the notice pass reads the
+  // same pages straight after.
+  const { sponsored, noscripted } = await markSponsorsAndNoscriptIn(outDir);
 
   // After every generator has written its pages and the chrome has wrapped
   // them: a card for each page still on the site-wide one (research, writing,
