@@ -19,6 +19,8 @@ only 4%. Milestone 5 adds a hydrofoil rung: in 2,916 swept cases a foilborne 200
 
 **Does wave period matter for a Wave Glider (milestone 6s)?** Not measurably, once the vehicle state is held fixed: the period exponent is -0.025 (95% -0.27 to 0.17), adding it to an oracle day-ahead forecast changes the error by under 1%, and 6r's km/day rows move by -0.5% to +1.2%. The Pacific buoys' 10 to 14% lead is from wave height. See [`experiments/results_waveglider_period.txt`](experiments/results_waveglider_period.txt).
 
+**Is the Wave Glider's speed loss fouling or an event (milestone 6t)?** Mostly an event. The 30% loss is mainly one drop between 14 and 15 UTC on **7 August 2015**: through-water speed falls from 0.63 to 0.51 m/s in an hour and stays near 0.45 m/s. The GPS track drops too (over-ground ratio 0.76 over a week), so it is not a sensor fault. On every hour, a step model beats a smooth ramp by 15 to 21 BIC. After the step, speed declines slowly, at about **0.2 to 0.3% a day** (7% a month), the size a fouling ramp would be. A similar drop on 12 June reversed after a week. The pre-registered test, which used only hours within 300 km of a buoy, could not locate the step: the vehicle was 900+ km from every buoy in July, and that test preferred the ramp. The step result comes from the post-hoc analysis on all hours. See [`experiments/results_waveglider_step.txt`](experiments/results_waveglider_step.txt).
+
 ![Fielded Wave Glider speed against buoy wave height, early and late in the 2015 mission, with the foil model](experiments/waveglider_speed.svg)
 
 **Live page:** https://marisstella.app/research/marine-hull/
@@ -38,6 +40,7 @@ PYTHONPATH=src python3 experiments/figure_waveglider.py   # experiments/waveglid
 python3 experiments/run_waveglider_drift.py > experiments/results_waveglider_drift.txt   # milestone 6q (forecast skill: recent speed vs sea state vs trend), under 1 s
 python3 experiments/run_waveglider_site.py > experiments/results_waveglider_site.txt   # milestone 6r (km/day at the 2024 buoys: site vs vehicle state), under 1 s
 python3 experiments/run_waveglider_period.py > experiments/results_waveglider_period.txt   # milestone 6s (period term at fixed vehicle state), under 2 s
+python3 experiments/run_waveglider_step.py > experiments/results_waveglider_step.txt   # milestone 6t (step against ramp in the speed loss), 7 s
 PYTHONPATH=src python3 experiments/run_suboff_bare.py > experiments/results_suboff_bare.txt   # milestone 3u (SUBOFF bare-hull form factor), under 1 s
 PYTHONPATH=src python3 experiments/run_solar.py > experiments/results_solar.txt   # milestone 5c, 5 s
 PYTHONPATH=src python3 experiments/run_solar_mass.py > experiments/results_solar_mass.txt   # milestone 5d, 10 s
@@ -185,3 +188,5 @@ Milestone 6q (Wave Glider forecasting): a 24 h trailing median speed cuts the he
 Milestone 6r (Wave Glider planning): at the 2024 buoys the site moves km/day by 20 to 34% within a month, the vehicle state by 64%; fleet medians 52 / 49 km/day (Jan / Jul) at the best state and 32 / 30 at the worst. `experiments/run_waveglider_site.py`, `LOG.md`.
 
 Milestone 6s (Wave Glider period): at a fixed vehicle state the DPD exponent is -0.025 (95% -0.27 to 0.17), so 6p's pooled period residual was mostly the mission drift; the period term adds no forecast skill (0.991 of M2) and moves 6r's buoy rows by under 1.2%. `experiments/run_waveglider_period.py`, `LOG.md`.
+
+Milestone 6t (Wave Glider step or ramp): the mission's speed loss is mostly an hour-scale step on 2015-08-07 (ratio 0.70 to 0.74, GPS-confirmed; step beats ramp by 15 to 21 BIC on all hours, post hoc) plus a decline of 0.2 to 0.3%/day; a June step of the same size reversed after a week. The pre-registered 300 km series has a 67-day July gap and could not locate it (ramp preferred there). `experiments/run_waveglider_step.py`, `LOG.md`.
