@@ -445,7 +445,41 @@ function overDaily(ctx, p, list) {
   return [...byDay.values()].some((m) => m > cap + 1e-9);
 }
 
+// Hard-rule check for one person's list of shifts (a list ordered by start time; see insertSorted). The pricing oracle calls this
+// millions of times on big weeks, so days within 0-30 are tracked in a bit mask and per-day minutes in a reused array instead of
+// a Set, a Map and a sort; a list with a day outside that range takes validListSlow, the original. Both give the same answer.
+const DAY_MIN = new Float64Array(31);
 function validList(ctx, p, list) {
+  const { slots, staff, restMin, o } = ctx;
+  let minutes = 0, maxEnd = staff[p].prevEnd ?? -Infinity, mask = 0;
+  for (const i of list) {
+    const s = slots[i];
+    if (s.start < maxEnd + restMin) return false;
+    if (s.end > maxEnd) maxEnd = s.end;
+    minutes += s.end - s.start;
+    if (!(s.day >= 0 && s.day <= 30 && Number.isInteger(s.day))) return validListSlow(ctx, p, list);
+    mask |= 1 << s.day;
+  }
+  if (minutes > staff[p].maxHours * 60 + 1e-9) return false;
+  const a = staff[p].maxDaily, b = o.maxDailyHours;
+  const cap = a > 0 && b > 0 ? Math.min(a, b) * 60 : a > 0 ? a * 60 : b > 0 ? b * 60 : Infinity;
+  if (cap !== Infinity) {
+    for (const i of list) DAY_MIN[slots[i].day] = 0;
+    for (const i of list) { const s = slots[i]; DAY_MIN[s.day] += s.end - s.start; }
+    for (const i of list) if (DAY_MIN[slots[i].day] > cap + 1e-9) return false;
+  }
+  const before = staff[p].streakBefore || 0;
+  let run = before, prev = before > 0 ? -1 : -9;
+  for (let d = 0; d <= 30; d++) {
+    if (!(mask & (1 << d))) continue;
+    run = d === prev + 1 ? run + 1 : 1;
+    if (run > o.maxConsecDays) return false;
+    prev = d;
+  }
+  return true;
+}
+
+function validListSlow(ctx, p, list) {
   const { slots, staff, restMin, o } = ctx;
   let minutes = 0, maxEnd = staff[p].prevEnd ?? -Infinity;
   const days = new Set();
@@ -560,9 +594,27 @@ function personScore(ctx, p, list) {
   return payroll(ctx, p, list) + softPenalty(ctx, p, h, list);
 }
 
+// A new list holding `list` and shift i, ordered by start time then index. Lists built here are already in that order, so i
+// goes in by binary search; an unordered list (some callers push by index) falls back to a full sort, with the same result.
+// The search's pricing oracle calls this millions of times on a 60-person week: the full sort with a comparator was the
+// largest single cost of a branch-and-price run (5.6 s of 19.4 s, 2026-11-11 profile).
 function insertSorted(ctx, list, i) {
-  const out = list.concat(i);
-  out.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b);
+  const slots = ctx.slots;
+  const n = list.length;
+  const before = (a, b) => slots[a].start < slots[b].start || (slots[a].start === slots[b].start && a < b);
+  for (let k = 1; k < n; k++) {
+    if (before(list[k], list[k - 1])) {
+      const out = list.concat(i);
+      out.sort((a, b) => slots[a].start - slots[b].start || a - b);
+      return out;
+    }
+  }
+  let lo = 0, hi = n;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (before(list[mid], i)) lo = mid + 1; else hi = mid; }
+  const out = new Array(n + 1);
+  for (let k = 0; k < lo; k++) out[k] = list[k];
+  out[lo] = i;
+  for (let k = lo; k < n; k++) out[k + 1] = list[k];
   return out;
 }
 
@@ -3150,6 +3202,8 @@ export const TEMPLATES = {
 
 export const _paidMinutes = paidMinutes;
 export const _internals = { buildContext, scoreOwner, ownerValid, validList, BIG };
+// Test hook: the fast and the original hard-rule check, so a test can hold them to the same answers.
+export const _validListPair = { validList, validListSlow, buildContext };
 
 // One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
 // "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps

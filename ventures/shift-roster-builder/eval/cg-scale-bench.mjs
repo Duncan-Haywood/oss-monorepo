@@ -22,7 +22,7 @@ for (let c = 0; c < cases; c++) {
   const st = Array.from({ length: P }, (_, p) => `P${p},${10 + rnd(12)},${12 + rnd(5) * 6},0,${days[rnd(3)]}-Fri ${6 + rnd(4)}-${16 + rnd(8)}`).join("\n");
   const sh = Array.from({ length: S }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
   const staff = parseStaff(st).staff, ps = parseShifts(sh);
-  if (ps.error) { console.log(c, "shifts file refused:", ps.error); continue; }
+  if (ps.error || ps.errors?.length) { console.log(c, "shifts file refused:", ps.error || ps.errors.join("; ")); continue; }
   const slots = ps.slots;
   const demand = slots.reduce((a, s) => a + (s.end - s.start) / 60, 0);
   const r = openFloorByColumnGeneration(staff, slots, { exact: true }, { nodeLimit: 100000, ms, maxNodes, dive: process.env.DIVE !== "0", rootDive: process.env.ROOTDIVE !== "0", diveWidth: process.env.WIDTH ? Number(process.env.WIDTH) : null, warm: process.env.WARM !== "0" });

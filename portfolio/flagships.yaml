@@ -164,28 +164,19 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*-bench.mjs. State: exact
-      check with a min-cost-flow coverage bound, symmetry cuts, coverage-first pass, ejection
-      chains, reduced-cost fixing, priced-bound branching, and branch-and-price by column
-      generation (bnp.mjs, per-person pricing oracle, branching on classes of identical shift
-      copies): the open-hours floor equals the HiGHS optimum on every bench week and every
-      20-60 person scale week, proven for 20 to 60 people (60 in 18-27 s). Pay bound by
-      the same column generation, 2026-11-10 later (scoreBoundByColumnGeneration,
-      makeScorePricer; eval/score-cg-bench.mjs): buildRoster proves 12 of 12 pay-gap weeks to
-      within $0.50 (exact search alone 3 of 12, $5,906 unproven) in 4-198 ms each; 20x56 3 of 3
-      in 2-6 s; 30x84 1 of 2 and 40x112 0 of 2 in 120 s (eval/score-cg-scale-bench.mjs). Also
-      landed (README): pay and premium flags, time budget, cover chains, notice and seniority
-      rules, `--from-sales` with page `shifts-from-sales.html`, `--skip-dates`, `--half-life`.
-      Root dive 2026-11-11 (README "A root dive"): pin whole LP columns, re-price; 60-person
-      weeks proven at the HiGHS optimum in 18-27 s (0 of 3 before), 30/40-person pay weeks 4 of
-      4 to within $0.50 (1 of 4). Dive backtracking and first 60/80-person readings 2026-11-11 later
-      (README "Backtracking in the dive", eval/dive-backtrack-bench.mjs): retries reach the optimum on 4-6 of
-      11 small weeks the dive missed; 60-person pay 1 of 2 proven, the other $8.53 -> $2.68 open in 300 s;
-      80 people: root column generation does not settle in 120 s (pricing 85-111 s of it). Next: a faster
-      pricing oracle at 80-120 people (dual stabilisation or heuristic pricing first, exact last); close the
-      60-person pay week; buildRoster end to end on 40-person weeks with exact on (3-5 min, not re-timed); a
-      real POS hourly export for --from-sales and the page (made-up exports only); a real published-schedule
-      export for --import-shifts.
+      Landed work and every measurement are in the README and eval/*-bench.mjs. State: branch-and-price by
+      column generation (bnp.mjs) with a root dive (now backtracking, `diveBacktrack`) proves the least open
+      hours at the HiGHS optimum on every bench and 20-60 person week; the pay bound
+      (scoreBoundByColumnGeneration) proves 12 of 12 pay-gap weeks and 4 of 4 30/40-person weeks to within
+      $0.50; 60-person pay 1 of 2 proven, the other $2.68 open in 300 s. Exact speed-ups 2026-11-11 later
+      (README "Same search, two to three times faster": sparse simplex rows, binary insertSorted, bit-mask
+      validList, same search path bit for bit): 60-person weeks 9-12 s (were 15-23); 80-person weeks, which
+      did not settle the root LP in 120 s before, proven 3 of 3 (HiGHS 1 of 3 in 300 s); 100x280 (the
+      400-copy cap) does not settle the root LP in 180 s, pricing (1.4M oracle nodes a call) is the wall.
+      Next: a faster pricing oracle for 100-person weeks (dominance or labels over days, dual stabilisation,
+      heuristic pricing first and exact last); close the 60-person pay week; buildRoster end to end on
+      40-person weeks with exact on (3-5 min, not re-timed); a real POS hourly export for --from-sales and the
+      page (made-up exports only); a real published-schedule export for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,

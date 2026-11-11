@@ -179,6 +179,31 @@ test("root dive: any width gives a valid roster, never below brute force, and th
   }
 });
 
+test("solveLP matches the dense reference solver bit for bit (pivots, basis, x, y)", async () => {
+  // The sparse row operations and row-by-row basic values (2026-11-11) skip only work that cannot change a number, so the
+  // solver must take the very same pivots as before; a different path would change which roster the search reaches.
+  const { solveLPDense } = await import("./eval/solve-lp-dense.mjs");
+  for (const file of ["cycling-lp-20x56.json", "cycling-lp-40x112.json"]) {
+    const L = JSON.parse(readFileSync(new URL(`./eval/fixtures/${file}`, import.meta.url), "utf8"));
+    const half = Math.floor(L.cols.length / 2);
+    const keep = L.cols.slice(0, half), cost = L.cost.slice(0, half), init = Int32Array.from(L.init, (j) => (j < half ? j : -1));
+    const runs = [
+      [L.m, L.cols, L.cost, Int32Array.from(L.init), {}],
+      [L.m, keep, cost, init, {}],
+    ];
+    const a = solveLP(L.m, keep, cost, Int32Array.from(init));
+    runs.push([L.m, L.cols, L.cost, Int32Array.from(L.init), { warm: a.basis }]);
+    for (const [m, cols, c, ini, opt] of runs) {
+      const r = solveLP(m, cols, c, Int32Array.from(ini), opt), d = solveLPDense(m, cols, c, Int32Array.from(ini), opt);
+      assert.equal(r.pivots, d.pivots, `${file}: pivots`);
+      assert.deepEqual([...r.basis], [...d.basis], `${file}: basis`);
+      assert.deepEqual([...r.x], [...d.x], `${file}: x`);
+      assert.deepEqual([...r.y], [...d.y], `${file}: y`);
+      assert.equal(r.obj, d.obj);
+    }
+  }
+});
+
 test("dive backtracking: dive-only rosters are valid, never below brute force, and never worse than the dive without retries", () => {
   let retried = 0;
   for (let c = 0; c < 60; c++) {
