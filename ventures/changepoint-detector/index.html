@@ -68,7 +68,8 @@
         <select id="jointNoise" disabled><option value="auto">Floor only the columns that over-cut (default)</option><option value="off">Plain: each column's step-to-step scatter</option><option value="floor2">Floor every column at 2x its local-line scatter</option><option value="ar1floor">Autocorrelation and a floor on every column (fewest cuts)</option></select></div>
       <div><label for="column">Value column (name or number; blank = last numeric)</label><input id="column" type="text" placeholder="e.g. volume"></div>
       <div><label for="model">Look for a change in</label>
-        <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option></select></div>
+        <select id="model"><option value="mean">Level (mean)</option><option value="meanvar">Level and volatility</option><option value="trend">Level or slope (trending series)</option><option value="poisson">Rate of counts (Poisson)</option><option value="drift">Sudden jumps on a level that wanders (random walk)</option></select></div>
+      <div><label for="driftSlope"><input id="driftSlope" type="checkbox"> Take out a steady growth first (wandering-level model; e.g. population or prices that rise every period)</label></div>
       <div><label for="robust"><input id="robust" type="checkbox"> Heavy-tailed noise: Laplace cost, and outliers clipped in the Bayesian view (level and volatility only; fewer false alarms from outliers, less power on clean Gaussian data)</label></div>
       <div><label for="penalty">Penalty per change (PELT)</label>
         <select id="penalty"><option value="bic">BIC (default)</option><option value="aic">AIC (finds more)</option><option value="hannan-quinn">Hannan-Quinn</option><option value="custom">Custom number…</option></select></div>
@@ -100,11 +101,11 @@
     <p class="note" id="agreed" role="note" hidden></p>
     <div id="warnings" aria-live="polite"></div>
     <div id="slopeResult" aria-live="polite"></div>
-    <div class="legend"><span>● series</span><span style="color:#c0392b">— segment mean (PELT)</span><span style="color:#1f5f86">▮ change probability (Bayesian)</span></div>
+    <div class="legend" id="legend"><span>● series</span><span style="color:#c0392b">— segment mean (PELT)</span><span style="color:#1f5f86">▮ change probability (Bayesian)</span></div>
     <div id="chart" role="img" aria-label="Chart of the series with segment means and change probabilities"></div>
-    <h3>Changes (PELT)</h3>
+    <h3 id="changes-h">Changes (PELT)</h3>
     <div class="scroll"><table id="changes"></table></div>
-    <h3>Segments</h3>
+    <h3 id="segments-h">Segments</h3>
     <div class="scroll"><table id="segments"></table></div>
     <button type="button" class="secondary" id="download">Download per-point results (CSV)</button>
   </section>
@@ -142,6 +143,7 @@
     <h2 id="method-h">Method and citation</h2>
     <p><strong>PELT</strong> (Pruned Exact Linear Time; Killick, Fearnhead &amp; Eckley 2012) minimises the total cost of a segmentation — twice the negative Gaussian log-likelihood of each segment, plus a penalty for every change — over <em>every</em> possible set of changes. Dynamic programming makes this exact; pruning discards candidate change locations that can never be optimal, which makes it about linear in the length of the series. For a change in level, the noise standard deviation is estimated once from the median absolute difference of successive points, so the level shifts themselves do not inflate it.</p>
     <p><strong>Bayesian online changepoint detection</strong> (Adams &amp; MacKay 2007) keeps a posterior distribution over the <em>run length</em> — how many points since the last change — and updates it with each new point. Each segment has an unknown mean and variance with a Normal-Inverse-Gamma prior, so predictions are Student-t and the update is exact. The prior is centred on your data (its median and robust noise variance) and kept weak. Because the probability of a change <em>at</em> the newest point always equals the hazard, this tool reports, for each point, the posterior probability — seen five points later — that a new segment began there.</p>
+    <p><strong>Jumps on a level that wanders</strong> (the last choice under &ldquo;Look for a change in&rdquo;) follows Romano, Rigaill, Runge &amp; Fearnhead (2022): between changes the level is a random walk, so a slow wander costs only its small per-step variance and only a jump too big for the walk counts as a change. Each stretch is scored by a local-level Kalman filter and the best set of jumps is found exactly; the noise sd comes from lag differences and the size of the wander is chosen together with the jumps, so one big step is not absorbed as wander. On the Nile it finds 1899 alone. Use it when the plain level model cuts a smooth or drifting series into a staircase. It ignores the season, trend, logs and autocorrelation boxes and has no Bayesian view.</p>
     <p><strong>Limits.</strong> Both methods assume the points within a segment are independent around a constant level; strong seasonality or autocorrelation shows up as extra changes, so remove a known seasonal pattern first. Gradual trends are approximated as steps unless you choose the level-or-slope model, which fits a straight line per segment. BIC, the default penalty, still splits roughly one series in ten of pure noise of length 300 (our tests measure this), so treat a single small change with care. A changepoint is a statement about the data, not about what caused it.</p>
     <p>Source, tests and a command-line version: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/changepoint-detector">GitHub</a>. AI agents can call the same engine: <code>node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'</code>.</p>
     <h3>Cite the methods</h3>
@@ -157,6 +159,13 @@
   journal = {Journal of the American Statistical Association},
   volume  = {107}, number = {500}, pages = {1590--1598}, year = {2012},
   doi     = {10.1080/01621459.2012.737745}
+}
+@article{romano2022decafs,
+  title   = {Detecting Abrupt Changes in the Presence of Local Fluctuations and Autocorrelated Noise},
+  author  = {Romano, Gaetano and Rigaill, Guillem and Runge, Vincent and Fearnhead, Paul},
+  journal = {Journal of the American Statistical Association},
+  year    = {2022},
+  doi     = {10.1080/01621459.2021.1909598}
 }</pre>
     <p class="note">Example data: annual flow of the Nile at Aswan, 1871–1970 (10<sup>8</sup> m³), first analysed for a changepoint by Cobb (1978, <em>Biometrika</em> 65(2):243–251); public domain, as distributed with statsmodels. Both methods here put the change after 1898, as the literature does.</p>
   </section>
@@ -182,7 +191,7 @@
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> An independent implementation from the published papers; not affiliated with or endorsed by the papers' authors or their institutions.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>drift_run</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
@@ -200,9 +209,12 @@
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
     import { parseColumns } from "./multivariate.mjs";
     import { multiReportHtml } from "./multi-report.mjs";
+    import { driftPagePenalty, driftIgnored, driftSummary, driftNotes, driftChartSvg, driftTableHtml, driftSegmentsHtml, driftCsv } from "./drift-view.mjs";
 
     const $ = (s) => document.querySelector(s);
     let last = null;
+    let lastDrift = null;
+    const LEGEND = $("#legend").innerHTML;
     let lastAgreed = "";
 
     $("#penalty").addEventListener("change", () => { $("#penaltyValue").disabled = $("#penalty").value !== "custom"; });
@@ -384,14 +396,53 @@
       const agreedBase = { csv: $("#csv").value, column: $("#column").value.trim() || null, log: $("#log").checked, period: Number($("#period").value) || 0, penalty };
       const wantAgreed = $("#model").value === "mean";
       stopAgreed();
+      if (opts.model === "drift") return runDrift(opts);
       startMain({ kind: "one", opts }, (out) => {
         if (out.error) { $("#results").hidden = true; $("#error").textContent = out.error; return; }
         show(out.result, wantAgreed ? agreedBase : null, opts);
       });
     }
 
+    // Jumps on a level that wanders as a random walk (drift-level.mjs, the CLI's --model drift): a smooth
+    // or wandering series is not cut into a staircase. Runs in the same worker; about 30 exact O(n^2)
+    // partitions, so a few seconds on 8,000 points.
+    function runDrift(opts) {
+      let penalty;
+      try { penalty = driftPagePenalty($("#penalty").value, $("#penaltyValue").value); }
+      catch (e) { stopMain(); $("#results").hidden = true; $("#error").textContent = e.message; return; }
+      const ignored = driftIgnored(opts);
+      startMain({ kind: "drift", opts: { csv: opts.csv, column: opts.column, penalty, slope: $("#driftSlope").checked } }, (out) => {
+        if (out.error) { $("#results").hidden = true; $("#error").textContent = out.error; return; }
+        showDrift(out.result, ignored);
+      });
+    }
+
+    function showDrift(r, ignored) {
+      last = null;
+      lastDrift = r;
+      lastAgreed = "";
+      $("#agreed").hidden = true;
+      $("#summary").textContent = driftSummary(r);
+      const notes = driftNotes(r).map((t) => `<p class="note" role="note"><strong>Read with care:</strong> ${esc(t)}</p>`);
+      if (ignored.length) notes.unshift(`<p class="note" role="note">The wandering-level model uses only the value column, the penalty and the steady-growth box; it ignored: ${esc(ignored.join(", "))}.</p>`);
+      $("#warnings").innerHTML = notes.join("");
+      $("#slopeResult").innerHTML = "";
+      $("#legend").innerHTML = '<span>● series</span><span style="color:#c0392b">— fitted level (it may wander between jumps)</span><span style="color:#c0392b">┆ jump</span>';
+      $("#changes-h").textContent = "Jumps (wandering-level model)";
+      $("#segments-h").textContent = "Stretches between jumps";
+      $("#chart").innerHTML = driftChartSvg(r);
+      $("#changes").innerHTML = driftTableHtml(r);
+      $("#segments").innerHTML = driftSegmentsHtml(r);
+      $("#results").hidden = false;
+      record("drift_run");
+    }
+
     function show(r, agreedBase, opts) {
       last = r;
+      lastDrift = null;
+      $("#legend").innerHTML = LEGEND;
+      $("#changes-h").textContent = "Changes (PELT)";
+      $("#segments-h").textContent = "Segments";
       $("#summary").textContent = r.summary + (r.bursts && r.bursts.length ? ` Spikes cut back before fitting: ${r.bursts.slice(0, 10).map((b) => `${b.label} (${b.value} kept as ${b.keptAs})`).join(", ")}${r.bursts.length > 10 ? `, and ${r.bursts.length - 10} more` : ""}.` : "");
       // The settings panel (consensus.mjs) for the level model: the summary that held up on held-out labelled series.
       $("#agreed").hidden = true;
@@ -431,6 +482,15 @@
     $("#example").addEventListener("click", () => { $("#csv").value = DEFAULTS.csv; $("#column").value = ""; $("#shape").value = "one"; $("#columns").disabled = true; $("#column").disabled = false; record("example_loaded"); run(); });
     $("#file").addEventListener("change", async (e) => { const f = e.target.files?.[0]; if (!f) return; $("#csv").value = await f.text(); record("file_opened"); run(); });
     $("#download").addEventListener("click", () => {
+      if (lastDrift) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([driftCsv(lastDrift)], { type: "text/csv" }));
+        a.download = "changepoints-drift.csv";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        record("report_downloaded");
+        return;
+      }
       if (!last) return;
       const seg = new Array(last.n);
       last.pelt.segments.forEach((s, k) => { for (let i = s.start; i <= s.end; i++) seg[i] = [k + 1, s.mean]; });
@@ -461,6 +521,7 @@
         const brand = { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date().toISOString().slice(0, 10) };
         // Several columns: the several-column report on the last run (multi-report.mjs); otherwise the one-column report.
         const multi = $("#shape").value === "multi";
+        if (!multi && lastDrift) { $("#report-state").textContent = "The branded report covers the other models; the wandering-level result can be downloaded as CSV."; return; }
         if (multi ? !lastMulti : !last) return;
         const html = multi ? multiReportHtml(lastMulti.p, lastMulti.r, brand) : changeReportHtml(last, { ...brand, agreed: lastAgreed });
         const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
