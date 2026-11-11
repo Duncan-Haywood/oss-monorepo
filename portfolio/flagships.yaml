@@ -170,8 +170,10 @@ flagships:
       cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
       40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
       can score a staffed closure; whether to default to a half-life; forecasting from tickets (queue
-      length), not just sales; the fractile carried through the shift cut (the cut can add over-hours the
-      backtest never sees); a real published-schedule export for --import-shifts.
+      length), not just sales; a real published-schedule export for --import-shifts; joining short runs an
+      hour or two apart into one shift and folding a short run into a neighbouring shift (the cost cut,
+      README "The short-cost weight carried through the shift cut", 2026-11-11, prices each run alone:
+      backtest now scores cut shifts, cost cut beats the old cut in 36 of 36 settings on both bakeries).
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,

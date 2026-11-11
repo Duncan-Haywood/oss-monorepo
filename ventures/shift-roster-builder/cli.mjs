@@ -75,7 +75,9 @@ Options:
                       hour by hour with what its sales needed, for the plain average, --half-life 2/4/8, last 4 weeks and last week.
                       --short-cost <r>: a short person-hour costs r spare ones (a queue or lost sale vs idle pay); each hour is then
                       staffed for the r/(1+r) share of its past dates (r 1 = median, 3 = 75th percentile) instead of the average,
-                      and --backtest scores r x short + over and tries every weighting with that rule
+                      and --backtest scores r x short + over and tries every weighting with that rule. With it, a run shorter than
+                      --min-shift is stretched only where that is cheaper than leaving it unstaffed, to the cheapest window.
+                      The backtest scores the shifts cut from each plan, so the shortest-shift stretch counts as over
   --import-staff <csv>  convert a staff export from another scheduler (name, hourly rate, hours, position columns) to staff lines on stdout; notes on stderr
   --hours-watch <h>   list everyone whose planned week reaches <h> hours (a full-time or benefit line you set, e.g. 30) or lands within --watch-within <h> (default 2) of it
   --sales "1200,900,..."  seven daily sales figures, Monday first (0 or blank = unknown): prints each day's labor cost as a share of sales; --labor-target <%> flags days over it,
@@ -499,14 +501,15 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (o.fromSales) {
       if (!(o.splh > 0)) throw new Error("--from-sales needs --splh <sales per labor hour>");
       if (o.backtest) {
-        const b = backtestSales(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh });
+        const b = backtestSales(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh, shifts: true });
         process.stdout.write(backtestReport(b));
         process.exit(b.weeks ? 0 : 1);
       }
       const r = demandShifts(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh });
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.shiftsText) process.exit(1);
-      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${r.extra} extra from the shortest-shift rule); average week sales ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
+      const extra = r.extra >= 0 ? `${r.extra} extra from the shortest-shift rule` : `${-r.extra} fewer: short runs left unstaffed at your short cost`;
+      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week sales ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
     }
     if (o.importStaff) {
@@ -565,6 +568,7 @@ export function backtestReport(b) {
   }
   const best = b.methods.find((m) => m.id === b.best);
   lines.push("", "Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.");
+  if (b.shifts) lines.push(`Scored on the shifts cut from each plan (${b.minShift} to ${b.maxShift} hours), so hours added to reach the shortest shift count as over.`);
   if (r !== null) lines.push(`Scored as ${r} x short + over (--short-cost ${r}). Rows with "short cost" staff each hour for ${Math.round(r / (1 + r) * 100)}% of its past dates instead of the average.`);
   lines.push(b.clear
     ? `Best on your file: ${best.label} (${f(-best.vsDefault)} ${r === null ? "fewer person-hours off" : "less weighted cost"} per week than the default, interval below zero).`

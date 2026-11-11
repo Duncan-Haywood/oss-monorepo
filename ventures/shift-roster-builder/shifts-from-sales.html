@@ -61,7 +61,7 @@
   </section>
   <section class="card">
     <h2 style="font-size:1.05rem;margin:0 0 6px">Test it on your past weeks</h2>
-    <p class="note">Each full week after the first four is planned from the weeks before it only, then compared hour by hour with what that week's sales needed. Tried for the plain average, three half-lives, the last four weeks and last week alone; with a short-cost number, each of those staffed for that share of past days too, scored as that many times the short hours plus the spare ones. Needs dated rows and at least five full weeks.</p>
+    <p class="note">Each full week after the first four is planned from the weeks before it only, then compared hour by hour with what that week's sales needed. Tried for the plain average, three half-lives, the last four weeks and last week alone; with a short-cost number, each of those staffed for that share of past days too, scored as that many times the short hours plus the spare ones. Each plan is cut into shifts first, as above, so the hours added to reach the shortest shift count; with a short-cost number, a run shorter than the shortest shift is staffed only where that is cheaper than leaving it short. Needs dated rows and at least five full weeks.</p>
     <button type="button" id="backtest">Test on my past weeks</button>
     <div id="btout" aria-live="polite"></div>
   </section>
@@ -105,7 +105,7 @@
       $("#out").textContent = r.shiftsText || "Paste sales above.";
       const pageNote = (n) => n.replace(" (--keep-rare keeps it)", "").replace(" --open/--close or --keep-rare sets the hours yourself.", "");
       const notes = [...r.notes.map(pageNote), ...r.skipped.slice(0, 5)];
-      $("#summary").innerHTML = r.rows ? `${r.needed} labor hours needed, ${r.scheduled} scheduled (${r.extra} extra from minimum shift length).<br>${notes.map(esc).join("<br>")}` : notes.map(esc).join("<br>");
+      $("#summary").innerHTML = r.rows ? `${r.needed} labor hours needed, ${r.scheduled} scheduled (${r.extra >= 0 ? `${r.extra} extra from minimum shift length` : `${-r.extra} fewer: short runs left unstaffed at your short cost`}).<br>${notes.map(esc).join("<br>")}` : notes.map(esc).join("<br>");
       $("#table").innerHTML = r.rows ? `<table><tr><th>Day</th><th>Avg sales</th><th>Hours needed</th><th>Hours scheduled</th></tr>${r.days.map((d) => `<tr><td>${d.day}</td><td>$${Math.round(d.sales).toLocaleString("en-US")}</td><td>${d.needed}</td><td>${d.scheduled}</td></tr>`).join("")}</table>` : "";
     }
     document.addEventListener("input", run);
@@ -120,7 +120,7 @@
       const out = $("#btout");
       let b;
       const rc = num("#shortcost");
-      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc }); }
+      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc, shifts: true }); }
       catch (e) { out.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
       if (!b.weeks) { out.innerHTML = `<p class="err">${b.notes.map(esc).join(" ")}</p>`; return; }
       record("sales_backtest_run");
@@ -129,7 +129,7 @@
       const best = b.methods.find((m) => m.id === b.best);
       const hint = (m) => { const t = [m.halfLife ? `put ${m.halfLife} in the half-life box above` : "", m.shortCost ? `keep ${m.shortCost} in the short-cost box` : ""].filter(Boolean); return t.length ? ` (${t.join("; ")})` : ""; };
       out.innerHTML = `<p class="note">${esc(b.notes.at(-1))}</p><div class="scroll"><table><tr><th>Method</th><th>Short</th><th>Over</th><th>Scheduled</th>${b.shortCost != null ? `<th>${b.shortCost} &times; short + over</th>` : ""}<th>vs default (95% CI)</th></tr>${b.methods.map((m) => `<tr${m.id === b.best ? ' style="font-weight:600"' : ""}><td>${esc(m.label)}</td><td>${f(m.short)}</td><td>${f(m.over)}</td><td>${f(m.scheduled)}</td>${b.shortCost != null ? `<td>${f(m.miss)}</td>` : ""}<td>${m.id === "all" ? "" : `${m.vsDefault >= 0 ? "+" : ""}${f(m.vsDefault)} (${f(m.ci[0])} to ${f(m.ci[1])})`}</td></tr>`).join("")}</table></div>`
-        + `<p class="note">Labor hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that. `
+        + `<p class="note">Labor hours per week, scored on the shifts cut from each plan (${b.minShift} to ${b.maxShift} hours), so hours added to reach the shortest shift count as over. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that. `
         + (b.shortCost != null ? `Scored with a short hour costing ${b.shortCost} spare ones; the rows marked "short cost" staff each hour for that share of its past days. ` : "")
         + (b.clear ? `Best on your sales: <strong>${esc(best.label)}</strong>${hint(best)}.` : `No method is clearly better than the plain average on your sales: leave the half-life${b.shortCost != null ? " and short-cost boxes" : " box"} empty.`)
         + ` A test on your past weeks, not a promise about the next one.</p>`;
