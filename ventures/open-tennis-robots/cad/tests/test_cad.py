@@ -198,7 +198,7 @@ class FeederParamsTest(unittest.TestCase):
         self.assertTrue(any("stall" in r for r in Feeder(servo_stall_nm=0.9).check_shuttle_drive(0.45)))
         self.assertTrue(any("drill interval" in r for r in Feeder(servo_s_per_60=0.3).check_shuttle_drive(0.45)))
         self.assertTrue(any("jams" in r for r in Feeder(feed_mu_slide=1.2).check_shuttle_drive(0.45)))
-        self.assertTrue(any("solid rear" in r for r in Feeder(shuttle_pin_back=90.0).check_shuttle_drive(0.45)))
+        self.assertTrue(any("solid rear" in r for r in Feeder(shuttle_pin_back=100.0).check_shuttle_drive(0.45)))
 
     def test_firmware_gate_times_cover_the_loaded_strokes(self):
         import importlib.util
@@ -206,7 +206,7 @@ class FeederParamsTest(unittest.TestCase):
         cfg = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cfg)
         p = Feeder()
-        d = p.shuttle_drive(0.45)
+        d = p.shuttle_drive(0.46)             # the CAD shuttle is 0.448 kg; a little over it
         self.assertGreaterEqual(cfg.GATE_OUT_MS / 1000, d["fwd"]["stroke_s"] + p.feed_dwell_s)
         self.assertGreaterEqual(cfg.GATE_BACK_MS / 1000, d["back"]["stroke_s"] + d["drop_s"])
         self.assertLessEqual((cfg.GATE_OUT_MS + cfg.GATE_BACK_MS) / 1000, p.feed_interval_min_s)
@@ -651,9 +651,9 @@ class FeederGeometryTest(unittest.TestCase):
             self.assertLess((pin & plate).volume, 0.5, th)            # through the slot, not the plate
             moved = shuttle.shape.moved(self.F.shuttle_drive_locs(p, th)["feed_shuttle"])
             self.assertLess((pin & moved).volume, 0.5, th)            # into the shuttle's insert hole
-        # and the slot is where the plate was solid before: a pin 20 mm behind the slot hits metal
+        # and the slot is only the pin's width: a pin 10 mm above it hits metal
         pin = Cylinder(p.shuttle_pin_d / 2, 6.0).moved(
-            Location((p.head_x + p.shuttle_pin_x - 20.0, p.plate_half_y + p.plate_t / 2, p.launch_z + p.shuttle_zc), ROT_Y_AXIS))
+            Location((p.head_x + p.shuttle_pin_x, p.plate_half_y + p.plate_t / 2, p.launch_z + p.shuttle_zc + 10.0), ROT_Y_AXIS))
         self.assertGreater((pin & plate).volume, 50.0)
 
     def test_hopper_posts_stand_on_the_deck_and_meet_the_shelf(self):

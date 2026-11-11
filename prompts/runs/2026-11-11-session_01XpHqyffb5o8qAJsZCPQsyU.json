@@ -31,7 +31,10 @@
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First CAD run: 3 of my new tests failed (gate time 7 ms short, wrong probe point, weak rule-test parameter); fixed.",
+    "Gate servo left unpulsed at power-up in my first firmware edit; caught by test_robots, fixed."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -56,7 +59,7 @@
     "ventures/open-tennis-robots/cad/README.md (Shuttle drive)"
   ],
   "goal": null,
-  "notes": "Feeder package rebuilt: design_rules [], collisions [] (static, elevation sweep, azimuth sweep, new feed-stroke sweep); az inertia 0.3475 vs 0.35 limit (close). Host tests against the simulated board: 15 pass with the new firmware; the old firmware fails 4 of 15, count-at-open fails 2. Node tests 21/21 pass. Full CAD and Python suites: see the follow-up commit.",
+  "notes": "Feeder package rebuilt: design_rules [], collisions [] (static, elevation sweep, azimuth sweep, new feed-stroke sweep); az inertia 0.3475 vs 0.35 limit (close). Host tests against the simulated board: the old firmware fails 4 of 15, count-at-open fails 2. Local verification: python unittest (PYTHONPATH=src, tests/) 67 OK; node --test sim/page/usage 21 pass; CAD suite 56 tests: first full run had 3 failures in my new tests (GATE_OUT_MS 850 was 7 ms short of the CAD's 0.857 s with the 0.448 kg shuttle -> 900; a probe point off the plate; a rule test parameter that did not trip), fixed and the 27 affected tests re-run OK; the other 53 passed in the full run on the same package. Python suite also caught that the new gate code left the servo unpulsed at power-up; it now holds GATE_LO_US every idle tick.",
   "corrections": [],
   "redteam": null,
   "usage": {

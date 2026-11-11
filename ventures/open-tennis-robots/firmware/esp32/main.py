@@ -122,7 +122,7 @@ class FeederHw:
         self.tach_top, self.tach_bottom = Tach(34), Tach(35)
         # Feed shuttle: a servo crank (cad/README.md, "Shuttle drive"); a stroke takes most of a second each way.
         self.gate = Servo(13, getattr(config, "GATE_LO_US", 500), getattr(config, "GATE_HI_US", 2500))
-        self.gate_out_ms = getattr(config, "GATE_OUT_MS", 850)
+        self.gate_out_ms = getattr(config, "GATE_OUT_MS", 900)
         self.gate_back_ms = getattr(config, "GATE_BACK_MS", 850)
         # Elevation: a linear actuator on the guard-side cheek (cad/README.md, "Elevation drive"); GPIO 27 carries
         # its servo pulse (rc) or the H-bridge PWM (pot, timed) with DIR on 23; the pot wiper is on 39 (ADC1).
@@ -275,6 +275,8 @@ class FeederHw:
             self.gate_out = True
             self.gate_open_until = now + self.gate_out_ms
             self.feeding -= 1
+        else:
+            self.gate.frac(0)             # hold the shuttle retracted (also from power-up)
 
 
 class CollectorHw:

@@ -26,5 +26,5 @@ ELEV_SELF_LOCKING = True        # timed: False if the head sinks when power is c
 # retracted (pocket under the column) to forward (ball at the wheels); both ends are the crank's dead centres.
 GATE_LO_US = 500                # retracted; many servos turn 180 deg over 500-2500 us: check yours, and that it
 GATE_HI_US = 2500               # does not buzz against its own stop at either end
-GATE_OUT_MS = 850               # forward stroke: cad 0.76 s loaded, plus 0.1 s held while the wheels take the ball
+GATE_OUT_MS = 900               # forward stroke: cad 0.76 s loaded, plus 0.1 s held while the wheels take the ball
 GATE_BACK_MS = 850              # back stroke: cad 0.68 s, plus 0.14 s for the next ball to drop into the pocket

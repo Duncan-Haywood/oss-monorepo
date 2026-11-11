@@ -524,7 +524,7 @@ class FirmwareTest(unittest.TestCase):
             hw.feed(1)
             hw.update(10, 0)
             self.assertTrue(hw.flags() & protocol.FLAG_AIM_SETTLING, mode)
-            self.assertEqual(hw.gate.pwm.duty, int(1000 / 20000 * 65535), mode)   # gate shut while aiming
+            self.assertEqual(hw.gate.pwm.duty, int(cfg.GATE_LO_US / 20000 * 65535), mode)   # shuttle held back while aiming
             hw.stop_all()
             self.assertFalse(hw.flags() & protocol.FLAG_ELEV_FAULT, mode)
             if mode == controller.ELEV_POT:

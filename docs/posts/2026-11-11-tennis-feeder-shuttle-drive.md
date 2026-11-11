@@ -72,7 +72,7 @@ the moment the gate opened. The Pi's drill runner re-aims as soon as that count
 goes up, so with any real stroke time the head would start turning toward the
 next shot while this ball was still riding to the wheels.
 
-Now the gate holds the shuttle forward for 850 ms, counts the ball when the
+Now the gate holds the shuttle forward for 900 ms, counts the ball when the
 forward stroke is over, and waits another 850 ms for the shuttle to return and
 the next ball to drop. A test checks those times cover the CAD's loaded strokes.
 
