@@ -595,12 +595,12 @@ export function renderEngineeringPage(model, { baseUrl = '' } = {}) {
 <meta name="robots" content="noindex">
 ${canonical}<style>
 :root{
-  --bg:#f7f7f4;--surface:#fff;--text:#1d1d22;--muted:#5c5b66;--faint:#8a8994;--border:#e3e1da;--accent:#3949ab;--code:#efede7;
+  --bg:#f7f7f4;--surface:#fff;--text:#1d1d22;--muted:#5c5b66;--faint:#706f78;--border:#e3e1da;--accent:#3949ab;--code:#efede7;
   --ok:#2b8a3e;--warn:#b35c00;--bad:#c92a2a;
   --t-ventures:#1c7ed6;--t-research:#7048e8;--t-process:#e8590c;--t-review:#2b8a3e;--t-redteam:#c2255c;--t-explore:#0b7285;--t-creative:#9c36b5;--t-other:#868e96;
 }
 @media (prefers-color-scheme:dark){:root{
-  --bg:#111114;--surface:#19191e;--text:#ececf1;--muted:#a3a2ad;--faint:#75747f;--border:#2c2c34;--accent:#9fa8ff;--code:#25252d;
+  --bg:#111114;--surface:#19191e;--text:#ececf1;--muted:#a3a2ad;--faint:#8e8d96;--border:#2c2c34;--accent:#9fa8ff;--code:#25252d;
   --ok:#69db7c;--warn:#ffa94d;--bad:#ff8787;
   --t-ventures:#4dabf7;--t-research:#9775fa;--t-process:#ff922b;--t-review:#51cf66;--t-redteam:#f06595;--t-explore:#3bc9db;--t-creative:#da77f2;--t-other:#adb5bd;
 }}
