@@ -1,8 +1,8 @@
 ---
-title: "The card network already knows what kind of shop it was: merchant category codes on 14,000 government card lines"
+title: "The card network already knows what kind of shop it was: merchant category codes on government card lines"
 seo_title: "Merchant category codes for bookkeeping"
 date: 2026-11-11
-description: "Reading the card network's merchant category took first-time merchants from 41% to 66% right on the Scottish Government's published card spending, held out. Most of the gain came from learning what each category meant in these books."
+description: "Card merchant categories took first-time merchants from 41% to 66% right on held-out Scottish Government card lines, mostly by learning each category per book."
 tags: [ai-bookkeeper, evaluation, bookkeeping, machine-learning]
 ---
 
