@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKmQK9Geuafd9mwgex1",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T21:37:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "pick_track drew track 20 (buildbot), which had 26 projects and no programme; opened programme buildbot-sheathing (proposal) and landed milestone 1 (panel gap, sheet pose and row drift in the joint-nail budget)",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14895",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "Two pre-registered hypotheses were written with arithmetic I had not fully worked through (H4 predicted the third butted sheet's window empty; the drift exceeds the window by 0.08 mm, so noise opens it in 46% of trials; H5 would have failed by arithmetic). Both are reported as partly refuted / refuted rather than re-written.",
+    "Section B's pre-registered base budget (stud 0.5 mm) already failed 95% at zero pose error once the gap was in, so H2 and H3 held trivially; a 0.3 mm sensitivity was added after seeing that and is labelled unplanned in LOG.md and README."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "Crossref, doi.org and arXiv refused by the proxy (connect_rejected), and WebFetch could not resolve publisher or repository hosts (par.nsf.gov, iaarc.org, copernicus.org): related work could only be checked against search-result catalogue records. The proposal says so per citation."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "pick_track drew a track (20) with no open programme; the brief says 'open a programme in this area or advance one' but PROGRAMMES.md's bar asks for ten 'read and checked' works, which a session with blocked registries cannot meet. Opened it anyway with each citation's checking status stated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "The proposal bar asks for related work 'read and checked'; registries and publisher hosts were unreachable.",
+      "did": "Checked each work against a catalogue record seen via web search (DBLP, arXiv listing, publisher record), marked two identifiers [memory], and stated in the proposal that none was read in full.",
+      "result": "programme_check passes; the citations need a live cite_check run in a later session."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-the-eighth-inch-gap-a-nailing-robot-forgot.md",
+    "research/buildbot-sheathing/LOG.md"
+  ],
+  "goal": "PhD-level programme for track 20 (construction robotics), aimed at Automation in Construction",
+  "notes": "Milestone 1: with APA's 1/8 in gap the joint window shrinks +-3.93 -> +-3.14 mm; stud-read budget for 95% clean sheets 0.90 -> 0.41 mm; sheet rotation allowed ~0.03 deg (1 sigma) with edge-aimed nails; butted rows leave the studs by sheet 3 (full panels) or 5 (1/16 in trim); stud-referenced placement keeps 98% clean. Verification: pytest 6 passed (python3.13); research/_homepage/build.py ok; programme_check ok; check_md_links ok; post frontmatter/links/similarity ok; run_workflow_locally --for-changes run (see PR).",
+  "corrections": [],
+  "redteam": null
+}
