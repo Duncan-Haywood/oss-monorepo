@@ -45,13 +45,13 @@ test("every input has a label and nothing is sent anywhere", () => {
     assert.ok(/aria-label=/.test(tag) || (id && html.includes(`<label for="${id}">`)), `unlabelled: ${tag}`);
   }
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
-  for (const f of ["engine.mjs", "example-data.mjs", "usage.mjs", "report.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
+  for (const f of ["engine.mjs", "example-data.mjs", "example-fx.mjs", "usage.mjs", "report.mjs", "multivariate.mjs", "multi-view.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
 });
 
 test("the module script imports only local files and parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./checkout.mjs", "./consensus.mjs", "./engine.mjs", "./licence.mjs", "./report.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./checkout.mjs", "./consensus.mjs", "./engine.mjs", "./licence.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));

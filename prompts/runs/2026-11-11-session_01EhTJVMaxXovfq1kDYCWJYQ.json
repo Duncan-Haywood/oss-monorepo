@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVMaxXovfq1kDYCWJYQ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "e4a3e7a17f446f0eaa59faa5ccd9a3acae14f792e3d61e0442a9ec5380052eef",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T00:37:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research track 16 (energy): measured-data check of SPM/SPMe/DFN for research/energy-cell-dfn",
+  "projects": [
+    "energy-cell-dfn"
+  ],
+  "pr": 14636,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "CasadiSolver safe mode took ~13 min for 2 of 18 runs; switched to IDAKLU (same RMSE to 0.01 mV)"
+    },
+    {
+      "what": "two 4x-mesh DFN runs in parallel were OOM-killed on a 16 GB container and hung the Pool; 4x runs now go one at a time"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org refused by the proxy for all 6 DOIs; citations taken from PyBaMM CITATIONS.bib and marked unchecked in the README"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-battery-model-measured-curves.md"
+  ],
+  "goal": null,
+  "notes": "Ran experiments/validate_data.py: SPM/SPMe/DFN vs pybamm-data v1.0.2 measured curves (Ecker 2015 1C/5C, Ai 2020 0.1-2C), iso + lumped thermal, mesh 1x/2x/4x. H2 supported (models differ <1 mV at low rate). H1 split: Ai 2C DFN 17.9 vs SPMe 53.4 mV RMSE; Ecker 5C SPMe 66.5 vs DFN 70.6. Ecker 5C not mesh-converged on default mesh (85.6->70.6 mV). Local checks: pytest research/energy-cell-dfn/tests 12 passed; build.py ok; check_md_links ok; research_live_links ok.",
+  "corrections": [],
+  "redteam": null
+}

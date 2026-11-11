@@ -335,6 +335,15 @@ test("inside the phase-in the QBI deduction falls linearly; a service business l
   assert.equal(estimatedTax(books("250000.00"), { ...o, qbiRange: 100, qbiMinimum: { floor: 0, threshold: 1000 } }).qbiDeduction, 0);
 });
 
+test("a service business above the phase-in range gets no $400 minimum: none of its QBI counts (199A(d)(3), (i)(2))", () => {
+  const o = { year: 2026, wageBase: 18450000, service: true };
+  const above = estimatedTax(books("400000.00"), o);
+  assert.equal(above.qbiDeduction, 0);
+  assert.ok(!above.warnings.some((w) => /minimum QBI deduction/.test(w)));
+  // A non-service business with the same profit and no staff still gets the floor.
+  assert.equal(estimatedTax(books("400000.00"), { year: 2026, wageBase: 18450000 }).qbiDeduction, 40000);
+});
+
 test("itemised deductions replace the standard deduction only when larger", () => {
   const base = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000 });
   const small = estimatedTax(books("100000.00"), { year: 2026, wageBase: 18450000, itemized: 1000000 });

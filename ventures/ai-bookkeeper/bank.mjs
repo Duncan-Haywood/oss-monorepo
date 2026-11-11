@@ -1010,6 +1010,11 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
   const memoCols = hdr.map((x, ix) => (/^(memo|notes?|comments?|remarks)$/.test(x) && ix !== columns.desc ? ix : -1)).filter((ix) => ix !== -1);
   const labelCols = ["reporting category", "category", "category name", "transaction type", "type"].map((n) => hdr.indexOf(n)).filter((ix) => ix !== -1 && ix !== columns.desc);
   const catCol = hdr.indexOf("category") !== -1 && hdr.indexOf("category") !== columns.desc ? hdr.indexOf("category") : -1;
+  // The card network's merchant category: a four-digit code (Tinkoff's MCC, purchasing-card files) or its name.
+  // A code column wins over a name column; a "merchant category" column is read only when it is not the description.
+  const mccCodeCol = hdr.findIndex((x, ix) => ix !== columns.desc && /^(mch\.)?(mcc|mcc code|mcc_code|mcc-code|merchant category code|merchant category code \(mcc\)|sic\/mcc code|mcc kod|код mcc)$/.test(x));
+  const mccNameCol = mccCodeCol !== -1 ? -1 : hdr.findIndex((x, ix) => ix !== columns.desc && /^(mch\.)?(mcc description|merchant category|merchant category name|merchant category description|mcc name)$/.test(x));
+  const mccCol = mccCodeCol !== -1 ? mccCodeCol : mccNameCol;
   const idCol = hdr.findIndex((x) => /^(balance transaction id|transaction id|txn id|reference id)$/.test(x));
   const dirCol = columns.amount !== -1 && drcrCol === -1 ? hdr.indexOf("to/from") : -1;
   // ICICI credit-card CSV: every amount is unsigned and BillingAmountSign says "CR" on a credit; blank is a charge.
@@ -1134,7 +1139,8 @@ export function readStatement(text, { dayFirst, decimalComma, invert, year, only
     }
     // The bank's or app's own category label (Chase, Capital One, Mint, Maybe): kept as a weak hint for the categorizer.
     const bankCat = catCol === -1 ? "" : String(r[catCol] ?? "").trim().slice(0, 60);
-    out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}) });
+    const mcc = mccCol === -1 ? "" : String(r[mccCol] ?? "").trim().slice(0, 60);
+    out.push({ line: i + 1, date, desc, cents, balance: Number.isFinite(balance) ? balance : null, ...(bankCat ? { bankCat } : {}), ...(mcc ? { mcc } : {}) });
   }
   if (tradesSkipped) problems.push(`${tradesSkipped} brokerage buy/sell line${tradesSkipped === 1 ? " was" : "s were"} not booked: they move value between cash and securities. Dividends, interest, fees and transfers in the file are booked.`);
   else if (bank === "schwab-brokerage" && !out.length) problems.push("The file has the Schwab transactions header but no transaction rows (an empty period).");

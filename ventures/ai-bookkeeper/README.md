@@ -52,7 +52,7 @@ spreadsheet, or a bookkeeping subscription with a bank login.
 | `opening.mjs` | Opening balances from a trial balance CSV (`code,amount` in natural sign, or `code,debit,credit`), dated; whatever does not balance goes to 3000 and is reported. For starting mid-stream with a receivable, a loan, equipment and prior earnings already on the books. CLI `opening FILE --date D`; agents `opening: {csv, date}`. |
 | `payroll.mjs` | Pay-run register to books: wages, employer taxes, the 2300 liability, bank-line matching and a Form 941 worksheet. |
 | `ledger.mjs` | The double-entry core, in integer cents: a 37-account small-business chart (or your own), entries that must balance, trial balance, monthly profit and loss, and a balance sheet where unclosed profit shows as current earnings, and an indirect-method cash flow statement (`cashFlow`, in `report`) that must tie to the change in the bank accounts (since 2026-10-26 depreciation is an operating add-back and a disposal shows proceeds in investing; 2026-10-26 `freeCashFlow` = operations less fixed-asset purchases; `monthlyBurn` and `runwayMonths` = cash used by operations and investing per month, and closing cash over it, null when not burning; 2026-10-27 `cashFlowByMonth` gives each month's statement and the last three months' burn and runway, in the CLI `report` and a table on the page; 2026-10-27 `ratios` (in `report`, the CLI and the page): gross and net margin, working capital, current and quick ratio, debt to equity, each null rather than invented when its denominator is zero or negative, with the loan counted as long term). |
-| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5 and at most its own record on earlier new payees, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
+| `categorize.mjs` | Four layers, in order: your rules (`keyword => account`), memory (the account you chose for this payee before), then, on a card line that carries the network's merchant category code or name (`mcc.mjs`), where these books filed that category before or a fixed table of codes (README "Merchant category codes"), a naive Bayes classifier trained on everything you filed, and conservative built-in keywords; then the bank's own category label, and for a payee never filed before a weak guess from the kind of name (person, business, other) and the line's size, read against every other payee's first line (never posted alone, at most 0.5 and at most its own record on earlier new payees, README "New payees"). Payees are normalised first: `SQ *BLUE BOTTLE 0412 OAKLAND CA` and `POS DEBIT SQ *BLUE BOTTLE 9981` are both `blue bottle`. |
 | `engine.mjs` | Import, transfer pairing, auto-posting, confirming, the journal, close checks and exports. `analyze()` is the one call for agents and the CLI. |
 | `ai.mjs` | The optional fifth layer, through `byok.mjs` (a synced copy of `platform/llm/byok.mjs`): Anthropic, OpenAI, Gemini, any OpenAI-compatible endpoint, or Ollama, LM Studio or llama.cpp on your own computer. |
 
@@ -429,9 +429,64 @@ What it says:
   `eval/opencollective-labelled.mjs --new-payee` reproduce the gate; `minRecord` in
   `NEW_PAYEE` turns it on for a book. Tests: `new-payee.test.mjs` (7).
 
-Next on this item is the card network's merchant category code (MCC) where a file carries
-it, and the AI layer for one-off local merchants, not more thresholds on the same two
-features.
+The card network's merchant category code landed next (below, "Merchant category codes");
+the AI layer for one-off local merchants is still open.
+
+### Merchant category codes, on real purchasing-card books (2026-11-11)
+
+A card line can carry the card network's merchant category code (MCC, ISO 18245) or its
+name: purchasing-card files from Bank of America Works and Citi, Tinkoff, some business
+cards. The code says what kind of merchant took the money even when the merchant is new
+to these books, which is where every other layer is weakest. `mcc.mjs` reads a code
+(`4121`), a name (`Lodging-Hotels,Motels,Resorts-Not Classified`, in its many spellings)
+or both, and maps it to one chart account where one is the usual answer. Catch-alls map
+to nothing: 5999 miscellaneous retail, 7399 business services, 5964-5969 direct marketing
+(Amazon), 9399 government services, 5045 computers and software, 8999 professional
+services. The statement reader keeps an `MCC`, `Merchant Category Code`, `MCC
+Description` or `Merchant Category Name` column on each line.
+
+The table says what a merchant sells, not why these books bought it, so the layer first
+asks the books: once a category has 3 earlier lines here and a majority of them went to
+one account, that account is the suggestion ("4 of 5 earlier lines in the card network's
+category ... went here", confidence at most 0.6). The fixed table speaks only before that.
+It runs after your rules and payee memory and ahead of the classifier and keywords, on
+money out only, and it never posts a line alone (only rules and memory do).
+
+Measured on the Scottish Government's published payment-card lines over £500
+(`node eval/scotgov-card.mjs --dir <govspend.opendata.scot>/_data/spendsOver500`, fetch
+command in the file; Open Data Scotland's scrape of gov.scot's monthly reports, Open
+Government Licence, not copied here). Each line has the merchant's name, the network's
+category name and the expense description the staff filed it under. 11,087 of 13,998
+lines have a description that names a chart account (the map was written before the first
+reading); they are replayed a day at a time. The 2016-2019 lines chose the design
+(memory on, layer ahead of the classifier, five name spellings and two catch-alls added);
+the 2020-2026 lines were then read once.
+
+Held out, 2020-01 to 2026-08, right / wrong of all:
+
+| | every line (7,554) | first-seen merchant (1,923) |
+|---|---|---|
+| layer off | 72.4% / 22.9% | 41.4% / 43.3% |
+| fixed table only | 75.7% / 22.1% | 52.4% / 40.2% |
+| table, then these books' own filings (default) | 79.3% / 19.8% | 66.0% / 30.9% |
+
+What it says:
+
+- **For a merchant never seen before, the category is the strongest hint the books
+  have:** 24.6 points more right and 12.4 fewer wrong on first-seen lines, and on the
+  1,536 first-seen lines where the layer spoke it was right 74.2% of the time, against
+  56.2% for the classifier and 36.2% for the new-payee guess on the same kind of line with
+  the layer off.
+- **The books' own filings matter more than the table.** On its own the table is right on
+  71.6% of the lines it speaks for, but it is skewed by what a buyer uses cards for: on
+  the 2016-2019 lines, 62 of 67 lines from "consulting, management and public relations"
+  merchants were training courses or conferences, not consultants, and 68 of 120 from
+  "computer software stores" were training, against 41 software. Learning the category's account from
+  earlier lines turns those around without a rule for this buyer.
+- Caveats: one buyer, a government, with its own expense list and only lines over £500;
+  the map from its descriptions to a small business's chart is a judgment, and equipment
+  is accepted as supplies or fixed assets. A file with codes rather than names is read the
+  same way but was not measured here. Tests: `mcc.test.mjs` (8).
 
 ### Round-trip property test (2026-10-22)
 
