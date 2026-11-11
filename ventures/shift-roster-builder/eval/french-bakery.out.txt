@@ -1,0 +1,135 @@
+== --from-sales --splh 40 (defaults)
+Mon/Tue/Wed/Thu/Fri/Sat/Sun, 7:00, 14:00, 1
+Mon/Tue/Wed/Thu/Fri, 8:00, 13:00, 2
+Mon/Wed/Fri/Sun, 10:00, 14:00, 2
+Mon/Tue/Wed/Thu/Fri/Sat, 16:00, 20:00, 2
+Tue/Thu/Sat, 10:00, 14:00, 1
+Sat/Sun, 8:00, 13:00, 3
+Sat/Sun, 9:00, 13:00, 1
+Sun, 7:00, 13:00, 1
+Sun, 8:00, 12:00, 1
+No sales column: each row's sales are its quantity times its unit price (a line-item export).
+1294 rows with negative sales (refunds or voids, 4075.85 in all) left out: the plan follows what was rung up.
+232711 rows read, up to 91 days per weekday averaged.
+Hours left out of the trading day: rare edge hours (sales on under 1 in 20 days) and breaks (hours inside the day with sales on under 1 in 5 days between busier hours, such as a lunch closure): Mon 14:00 (7 of 88 days), Mon 15:00 (7 of 88 days), Mon 20:00 (1 of 88 days), Tue 14:00 (12 of 89 days), Tue 15:00 (6 of 89 days), Tue 20:00 (1 of 89 days), Wed 14:00 (2 of 62 days), Wed 15:00 (6 of 62 days), Wed 20:00 (1 of 62 days), Thu 14:00 (11 of 89 days), Thu 15:00 (10 of 89 days), Thu 20:00 (1 of 89 days), Fri 14:00 (9 of 91 days), Fri 15:00 (9 of 91 days), Sat 14:00 (9 of 90 days), Sat 15:00 (9 of 90 days), Sun 14:00 (4 of 91 days). --open/--close or --keep-rare sets the hours yourself.
+203 person-hours needed, 239 scheduled; unreadable rows: 0
+
+== same with --keep-rare (no break or rare-hour rules): 220 needed, 256 scheduled
+Mon/Tue/Wed/Thu, 7:00, 14:00, 1
+Mon/Tue/Wed/Thu/Fri, 8:00, 13:00, 2
+Mon/Wed/Thu/Sun, 10:00, 14:00, 1
+Mon/Wed/Fri, 12:00, 16:00, 1
+Mon/Tue/Wed/Thu, 14:00, 21:00, 1
+Mon/Tue/Wed/Thu, 17:00, 21:00, 1
+Tue/Fri/Sat/Sun, 11:00, 15:00, 1
+Fri/Sat/Sun, 7:00, 13:00, 1
+Fri/Sat, 13:00, 20:00, 1
+Fri/Sat, 16:00, 20:00, 1
+Sat/Sun, 8:00, 13:00, 3
+Sat/Sun, 9:00, 13:00, 1
+Sun, 7:00, 15:00, 1
+Sun, 8:00, 12:00, 1
+
+shift lines that span 14:00-16:00: 0 with the rules, 3 with --keep-rare
+
+== --backtest --splh 20 --min-staff 1
+Tested on 87 full weeks (first 4 used only to learn from), at 20 sales per labor hour and 1 minimum staff.
+
+Method                                  Short   Over  Scheduled  Short+over  vs default (95% CI)
+every earlier week, equal (default)      89.9   60.0      332.2       149.9  
+--half-life 8                            78.4   59.5      343.1       137.9  -12.0 (-19.1 to -4.9)
+--half-life 4                            70.6   60.2      351.7       130.8  -19.1 (-30.3 to -8.0)
+--half-life 2                            64.1   61.6      359.5       125.7  -24.2 (-37.9 to -10.5)
+last 4 weeks only                        64.0   64.5      365.2       128.5  -21.4 (-37.6 to -5.3)
+last week only                           69.0   64.9      356.9       134.0  -16.0 (-31.0 to -0.9)
+
+Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.
+Best on your file: --half-life 2 (24.2 fewer person-hours off per week than the default, interval below zero).
+A test on your past weeks, not a promise about the next one. Planning aid, not legal advice.
+No sales column: each row's sales are its quantity times its unit price (a line-item export).
+
+== --backtest --splh 20 --min-staff 2
+Tested on 87 full weeks (first 4 used only to learn from), at 20 sales per labor hour and 2 minimum staff.
+
+Method                                  Short   Over  Scheduled  Short+over  vs default (95% CI)
+every earlier week, equal (default)      87.4   48.6      347.8       136.0  
+--half-life 8                            76.1   50.7      361.2       126.9  -9.2 (-16.2 to -2.2)
+--half-life 4                            68.3   52.3      370.6       120.7  -15.4 (-26.4 to -4.4)
+--half-life 2                            61.7   54.2      379.2       115.9  -20.2 (-33.7 to -6.7)
+last 4 weeks only                        61.3   58.1      388.7       119.4  -16.7 (-32.6 to -0.7)
+last week only                           65.5   59.4      377.7       124.9  -11.1 (-25.9 to 3.6)
+
+Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.
+Best on your file: --half-life 2 (20.2 fewer person-hours off per week than the default, interval below zero).
+A test on your past weeks, not a promise about the next one. Planning aid, not legal advice.
+No sales column: each row's sales are its quantity times its unit price (a line-item export).
+
+== --backtest --splh 40 --min-staff 1
+Tested on 87 full weeks (first 4 used only to learn from), at 40 sales per labor hour and 1 minimum staff.
+
+Method                                  Short   Over  Scheduled  Short+over  vs default (95% CI)
+every earlier week, equal (default)      45.7   27.5      187.1        73.2  
+--half-life 8                            39.0   28.3      194.6        67.3  -6.0 (-9.7 to -2.3)
+--half-life 4                            35.2   29.3      199.4        64.6  -8.7 (-14.3 to -3.0)
+--half-life 2                            32.3   29.5      202.5        61.8  -11.4 (-18.3 to -4.6)
+last 4 weeks only                        32.0   31.1      207.0        63.2  -10.1 (-18.2 to -1.9)
+last week only                           35.2   31.4      200.5        66.7  -6.6 (-14.2 to 1.1)
+
+Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.
+Best on your file: --half-life 2 (11.4 fewer person-hours off per week than the default, interval below zero).
+A test on your past weeks, not a promise about the next one. Planning aid, not legal advice.
+No sales column: each row's sales are its quantity times its unit price (a line-item export).
+
+== --backtest --splh 40 --min-staff 2
+Tested on 87 full weeks (first 4 used only to learn from), at 40 sales per labor hour and 2 minimum staff.
+
+Method                                  Short   Over  Scheduled  Short+over  vs default (95% CI)
+every earlier week, equal (default)      39.4   17.4      218.1        56.8  
+--half-life 8                            34.0   19.1      225.2        53.2  -3.6 (-6.8 to -0.4)
+--half-life 4                            30.7   20.6      230.0        51.4  -5.4 (-10.4 to -0.5)
+--half-life 2                            27.6   21.3      233.8        49.0  -7.8 (-14.0 to -1.7)
+last 4 weeks only                        27.0   23.6      241.9        50.6  -6.1 (-13.6 to 1.3)
+last week only                           29.8   24.8      231.7        54.6  -2.2 (-9.1 to 4.7)
+
+Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.
+Best on your file: --half-life 2 (7.8 fewer person-hours off per week than the default, interval below zero).
+A test on your past weeks, not a promise about the next one. Planning aid, not legal advice.
+No sales column: each row's sales are its quantity times its unit price (a line-item export).
+
+== --backtest --splh 80 --min-staff 1
+Tested on 87 full weeks (first 4 used only to learn from), at 80 sales per labor hour and 1 minimum staff.
+
+Method                                  Short   Over  Scheduled  Short+over  vs default (95% CI)
+every earlier week, equal (default)      21.5   10.8      118.0        32.3  
+--half-life 8                            18.8   10.8      120.7        29.6  -2.7 (-4.3 to -1.2)
+--half-life 4                            17.3   11.4      122.9        28.6  -3.7 (-6.2 to -1.3)
+--half-life 2                            15.8   12.0      124.9        27.8  -4.6 (-7.6 to -1.5)
+last 4 weeks only                        15.5   13.2      129.0        28.6  -3.7 (-7.5 to 0.1)
+last week only                           17.4   13.8      124.1        31.2  -1.1 (-4.8 to 2.6)
+
+Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.
+Best on your file: --half-life 2 (4.6 fewer person-hours off per week than the default, interval below zero).
+A test on your past weeks, not a promise about the next one. Planning aid, not legal advice.
+No sales column: each row's sales are its quantity times its unit price (a line-item export).
+
+== --backtest --splh 80 --min-staff 2
+Tested on 87 full weeks (first 4 used only to learn from), at 80 sales per labor hour and 2 minimum staff.
+
+Method                                  Short   Over  Scheduled  Short+over  vs default (95% CI)
+every earlier week, equal (default)      16.7    4.2      165.7        21.0  
+--half-life 8                            14.4    5.2      169.0        19.6  -1.4 (-2.7 to -0.1)
+--half-life 4                            13.0    6.2      171.4        19.2  -1.8 (-3.9 to 0.3)
+--half-life 2                            11.6    6.7      173.3        18.4  -2.6 (-5.3 to 0.1)
+last 4 weeks only                        10.9    7.8      180.3        18.8  -2.2 (-5.5 to 1.1)
+last week only                           12.7    8.7      170.1        21.5  +0.5 (-2.8 to 3.8)
+
+Person-hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that.
+No method is clearly better than the plain average on your file (every interval reaches zero or above): keep the default.
+A test on your past weeks, not a promise about the next one. Planning aid, not legal advice.
+No sales column: each row's sales are its quantity times its unit price (a line-item export).
+
+== default plan, rules off vs on (splh 20): scheduled 342.10 vs 332.16, short 88.09 vs 89.91, over 60.08 vs 60.02 person-hours/week
+
+== default plan, rules off vs on (splh 40): scheduled 196.32 vs 187.06, short 44.55 vs 45.72, over 27.53 vs 27.51 person-hours/week
+
+== default plan, rules off vs on (splh 80): scheduled 126.95 vs 117.98, short 20.63 vs 21.54, over 10.80 vs 10.80 person-hours/week

@@ -10,8 +10,9 @@
 //      2, ...), each run kept between minShift and maxShift hours; a run shorter than minShift is stretched to it and the
 //      stretch is reported as extra hours.
 //
-// No forecast model: it is the average of what you sold, so a holiday or a rainy week in the file moves it. Not
-// tested on a real POS export; column names are matched by synonym, written from memory. Nothing leaves the machine.
+// No forecast model: it is the average of what you sold, so a holiday or a rainy week in the file moves it. Read on
+// two real POS exports (a Korean bakery's orders, a French bakery's item lines; eval/); other column names are matched by
+// synonym, written from memory. Nothing leaves the machine.
 import { splitCsvRow } from "./import-staff.mjs";
 import { DAYS } from "./calc.mjs";
 
@@ -21,6 +22,8 @@ const SYN = {
   day: ["day", "weekday", "day of week", "dow"],
   sales: ["sales", "net sales", "gross sales", "amount", "total", "revenue", "net revenue", "net amount", "sales amount", "total sales", "net sale", "gross", "net price", "order total", "check total", "net total", "gross total", "payment amount", "transaction amount", "subtotal", "sub total"],
 };
+const QTY = ["quantity", "qty", "units", "quantity sold", "units sold", "items sold", "item quantity", "qty sold"];
+const PRICE = ["unit price", "price", "item price", "price each", "selling price", "sale price", "unit price eur", "unit price euro"];
 const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 const dayOfName = (s) => DAYNAMES.indexOf(String(s).trim().toLowerCase().slice(0, 3));
@@ -104,7 +107,7 @@ export function readSales(text, o = {}) {
   const skip = new Set((o.skipDates || []).map(isoKey));
   // Excel writes "sep=," as a first line when it saves a CSV for another locale; it is not a header.
   const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim()).filter((l, i) => !(i === 0 && /^"?sep=.?"?\s*$/i.test(l.trim())));
-  const out = { entries: [], rows: 0, skipped: [], notes: [], blank: 0, undated: 0, dayFirst: false, ambiguous: false, skippedDays: new Set() };
+  const out = { entries: [], rows: 0, skipped: [], notes: [], blank: 0, undated: 0, dayFirst: false, ambiguous: false, skippedDays: new Set(), refunds: { n: 0, amount: 0 } };
   if (lines.length < 2) { out.notes.push("Needs a header row and at least one row of sales."); return out; }
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
   // "Net Sales (USD)" and "Sales [GBP]" are the column "Net Sales": a bracketed unit is dropped from a header.
@@ -115,6 +118,12 @@ export function readSales(text, o = {}) {
   const dateCol = head.findIndex((h) => ["date", "day date", "business date", "sale date", "order date"].includes(h));
   const timeCol = head.findIndex((h, i) => i !== dateCol && ["time", "hour", "sale time", "order time", "start time", "interval", "period"].includes(h));
   if (dateCol >= 0 && timeCol >= 0) { ix.stamp = dateCol; ix.clock = timeCol; }
+  // A line-item export (one row per item sold: a French bakery's "date,time,ticket_number,article,Quantity,unit_price",
+  // 234,005 lines) has no total column: sales are quantity x unit price.
+  if (ix.sales < 0) {
+    const q = head.findIndex((h) => QTY.includes(h)), p = head.findIndex((h, i) => i !== q && (PRICE.includes(h) || /^unit price\b/.test(h)));
+    if (q >= 0 && p >= 0) { ix.qty = q; ix.price = p; ix.sales = p; out.notes.push("No sales column: each row's sales are its quantity times its unit price (a line-item export)."); }
+  }
   if (ix.sales < 0) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + ")."); return out; }
   if (ix.stamp < 0) { out.notes.push("No date-time or hour column found."); return out; }
   // A slash or dash date whose first number is over 12 somewhere in the file (25/03/2026) means the whole file is day first;
@@ -133,12 +142,13 @@ export function readSales(text, o = {}) {
     const c = splitCsvRow(line, sep);
     // A row of empty cells (",,,,," at the end of a real bakery export, 233 of them) is not a sale and not an error.
     if (c.every((x) => String(x ?? "").trim() === "")) { out.blank++; return; }
-    const amount = readAmount(c[ix.sales]);
+    const amount = ix.qty !== undefined ? Math.round(readAmount(c[ix.qty]) * readAmount(c[ix.price]) * 100) / 100 : readAmount(c[ix.sales]);
     const stampText = ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
     const st = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
     if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampText || ""}"`); return; }
-    if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "") { out.skipped.push(`row ${i + 2}: could not read the sales "${c[ix.sales] || ""}"`); return; }
-    if (amount < 0) { out.skipped.push(`row ${i + 2}: negative sales (a refund?) skipped`); return; }
+    if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "" || (ix.qty !== undefined && String(c[ix.qty] || "").trim() === "")) { out.skipped.push(`row ${i + 2}: could not read the sales "${ix.qty !== undefined ? `${c[ix.qty] || ""} x ${c[ix.price] || ""}` : c[ix.sales] || ""}"`); return; }
+    // A refund or void line is counted, not listed: the French bakery file has 1,294 of them, one "skipped" line each before.
+    if (amount < 0) { out.refunds.n++; out.refunds.amount += amount; return; }
     if (st.key && skip.has(isoKey(st.key))) { out.skippedDays.add(st.key); return; }
     out.entries.push({ ...st, amount });
     if (!st.key) out.undated++;
@@ -159,8 +169,10 @@ export function averageSales(entries, o = {}) {
   const halfLife = o.halfLife === undefined ? 0 : Number(o.halfLife);
   if (o.halfLife !== undefined && !(halfLife > 0)) throw new Error("half-life must be a positive number of weeks");
   const dated = entries.filter((e) => e.key);
-  const newest = o.newest !== undefined ? o.newest : Math.max(0, ...dated.map((e) => keyMs(e.key)));
-  const oldest = Math.min(Infinity, ...dated.map((e) => keyMs(e.key)));
+  // A loop, not Math.max(...rows): spreading 234,005 rows overflowed the call stack on the French bakery file.
+  let latest = 0, oldest = Infinity;
+  for (const e of dated) { const t = keyMs(e.key); if (t > latest) latest = t; if (t < oldest) oldest = t; }
+  const newest = o.newest !== undefined ? o.newest : latest;
   const weightOf = (k) => (halfLife && k ? Math.pow(0.5, (newest - keyMs(k)) / DAY_MS / 7 / halfLife) : 1);
   const sum = DAYS.map(() => new Array(24).fill(0));
   const dates = DAYS.map(() => new Map()); // date -> weight
@@ -209,6 +221,7 @@ export function hourlySales(text, o = {}) {
   if (!r.rows && r.notes.length) return out;
   const a = averageSales(r.entries, o);
   Object.assign(out, { avg: a.avg, observed: a.observed, seen: a.seen, closed: a.closed });
+  if (r.refunds.n) out.notes.push(`${r.refunds.n} row${r.refunds.n === 1 ? "" : "s"} with negative sales (refunds or voids, ${Math.round(-r.refunds.amount * 100) / 100} in all) left out: the plan follows what was rung up.`);
   if (r.blank) out.notes.push(`${r.blank} empty row${r.blank === 1 ? "" : "s"} ignored.`);
   if (r.skippedDays.size) out.notes.push(`${r.skippedDays.size} day${r.skippedDays.size === 1 ? "" : "s"} left out (--skip-dates): ${[...r.skippedDays].sort().join(", ")}.`);
   if (o.halfLife) out.notes.push(`Recent weeks weigh more: a day's weight halves every ${o.halfLife} week${+o.halfLife === 1 ? "" : "s"} back from the newest date.`);
@@ -236,7 +249,24 @@ export function headcount(avg, observed, o = {}) {
     let lo = o.open !== undefined ? Number(o.open) : firstH === undefined ? -1 : firstH;
     let hi = o.close !== undefined ? Number(o.close) : lastH === undefined ? 25 : lastH + 1;
     if (lo < 0 || hi > 24 || (o.open === undefined && !hours.some((v) => v > 0))) return new Array(24).fill(0);
-    return hours.map((v, h) => (h >= lo && h < hi ? Math.min(maxStaff, Math.max(minStaff, Math.ceil(v / splh - 1e-9))) : 0));
+    // A break, not a quiet hour: a run of hours inside the trading day that traded on fewer than 1 in 5 of the weekday's
+    // dates, between an hour before it and an hour after it that each traded on at least half of them. The French bakery
+    // shuts about 13:30-16:00: its 14:00 and 15:00 traded on 7-13% of dates (about 1 euro an hour on average), its 12:00
+    // and 16:00 on 70-100%, and minimum staff there would pay people to stand in a locked shop. A shop that is quiet all
+    // day has no busy neighbours, so its slow hours stay staffed. Needs 20 or more dates of that weekday; only when the
+    // hours come from the file (no --open/--close) and not with --keep-rare.
+    const brk = new Array(24).fill(false);
+    if (o.seen && !o.keepRare && o.open === undefined && o.close === undefined && observed[d] >= 20) {
+      const n = observed[d], seen = o.seen[d], rare = (h) => seen[h] * 5 < n, busy = (h) => seen[h] * 2 >= n;
+      for (let h = lo + 1; h < hi - 1; h++) {
+        if (!rare(h) || rare(h - 1)) continue;
+        let e = h;
+        while (e < hi && rare(e)) e++;
+        if (e < hi && busy(h - 1) && busy(e)) for (let k = h; k < e; k++) brk[k] = true;
+        h = e;
+      }
+    }
+    return hours.map((v, h) => (h >= lo && h < hi && !brk[h] ? Math.min(maxStaff, Math.max(minStaff, Math.ceil(v / splh - 1e-9))) : 0));
   });
 }
 
@@ -253,8 +283,11 @@ export function cutShifts(profile, minShift = 4, maxShift = 8) {
       while (e < 24 && profile[e] >= k) e++;
       let len = e - h, s = h;
       if (len < minShift) {
-        // stretch forward, then backward when the day ends first
-        e = Math.min(24, s + minShift); s = e - minShift;
+        // Stretch into open hours (headcount above 0) first, forward then backward, so a short run before a lunch
+        // closure or at closing time is not stretched into hours the shop is shut; then forward, then backward.
+        while (e - s < minShift && e < 24 && profile[e] > 0) e++;
+        while (e - s < minShift && s > 0 && profile[s - 1] > 0) s--;
+        if (e - s < minShift) { e = Math.min(24, s + minShift); s = e - minShift; }
         if (s < 0) { s = 0; e = Math.min(24, minShift); }
         len = e - s;
       }
@@ -281,7 +314,7 @@ export function demandShifts(text, o = {}) {
   if (o.open === undefined && o.close === undefined && !o.keepRare) {
     const trimmed = [];
     s.avg.forEach((hours, d) => hours.forEach((v, h) => { if (v > 0 && prof[d][h] === 0 && s.observed[d]) trimmed.push(`${DAYS[d]} ${h}:00 (${s.seen[d][h]} of ${s.observed[d]} days)`); }));
-    if (trimmed.length) s.notes.push(`Rare edge hours left out of the trading day (sales on under 1 in 20 days): ${trimmed.join(", ")}. --open/--close or --keep-rare sets the hours yourself.`);
+    if (trimmed.length) s.notes.push(`Hours left out of the trading day: rare edge hours (sales on under 1 in 20 days) and breaks (hours inside the day with sales on under 1 in 5 days between busier hours, such as a lunch closure): ${trimmed.join(", ")}. --open/--close or --keep-rare sets the hours yourself.`);
   }
   const minShift = o.minShift === undefined ? 4 : Number(o.minShift), maxShift = o.maxShift === undefined ? 8 : Number(o.maxShift);
   const days = prof.map((p, d) => {
@@ -328,10 +361,20 @@ export function backtestSales(text, o = {}) {
   if (!Number.isInteger(warmup) || warmup < 1) throw new Error("warm-up must be a whole number of weeks, 1 or more");
   const r = readSales(text, o);
   const notes = [...r.notes];
-  const dated = r.entries.filter((e) => e.key);
+  // One entry per date and hour (sales summed) gives the same averages as one per row: averageSales weighs by date and
+  // counts dates, not rows. The French bakery's 232,711 item lines become 5,566, and its backtest drops from 67 s a
+  // setting to about 3 s (the page runs it on the main thread).
+  const agg = new Map();
+  for (const e of r.entries) {
+    if (!e.key) continue;
+    const k = `${e.key}|${e.hour}`, x = agg.get(k);
+    if (x) x.amount += e.amount; else agg.set(k, { ...e });
+  }
+  const dated = [...agg.values()];
   if (!dated.length) return { weeks: 0, methods: [], notes: notes.concat("A backtest needs dated rows (a date and hour per sale), not weekday averages.") };
   const ms = dated.map((e) => keyMs(e.key));
-  const lo = Math.min(...ms), hi = Math.max(...ms);
+  let lo = Infinity, hi = -Infinity;
+  for (const t of ms) { if (t < lo) lo = t; if (t > hi) hi = t; }
   const monday0 = lo - ((new Date(lo).getUTCDay() + 6) % 7) * DAY_MS;
   const nWeeks = Math.floor((hi - monday0) / DAY_MS / 7) + 1;
   // Only full weeks are tested: the last one counts when the file reaches its Sunday.
