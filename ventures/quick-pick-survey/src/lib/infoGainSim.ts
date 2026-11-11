@@ -39,6 +39,11 @@ export type LapseSource = ((answers: readonly LapseAnswer[], states: ReadonlyMap
  * `lapse` is the share of answers given at random (an inconsistent respondent);
  * `positionBias` is the share of answers that take the first option shown whatever
  * the items are (negative: the second option). Both draw nothing extra at 0, so older seeds reproduce.
+ * Caution: the first option here is the policy's first id, which the selectors do not shuffle; the
+ * route shuffles slots per pair. Unshuffled, a first-option bias lands on the item the selector chose
+ * first and costs far more than it does live (information selector, 30 items, 300 answers, bias 0.5:
+ * 0.351 here, 0.611 shuffled; docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not
+ * random"). Wrap the policy in a slot shuffle to measure what the route sees.
  * `updateLapse` is the lapse share the Glicko update assumes (glicko2.ts; 0 is the published update),
  * or a function that reads it before each answer from the answers so far and the current states
  * (lapseEstimate.ts, the per-respondent estimate). `onLapse` sees the share each update used.
