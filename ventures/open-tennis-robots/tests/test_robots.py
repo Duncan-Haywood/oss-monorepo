@@ -310,5 +310,228 @@ class FirmwareTest(unittest.TestCase):
                                                      protocol.FLAG_HOPPER_EMPTY, protocol.FLAG_HOPPER_FULL,
                                                      protocol.FLAG_LOW_BATTERY))
 
+    # ---- elevation actuator (2026-11-11) ----------------------------------------------------------------------
+
+    def _elev(self, mode, **kw):
+        return controller.LinearAxis(mode, controller.ElevationGeometry(), 246.0, 150.0, -15.0, 45.0, 18.0, 22.0, **kw)
+
+    def test_elevation_geometry_matches_the_cad(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "cad"))
+        from otr_cad.params import Feeder  # pure dataclass, no CAD kernel needed
+        p, g = Feeder(), controller.ElevationGeometry()
+        self.assertEqual((p.elev_pin_x, p.elev_pin_z, p.pivot_z_rel, p.elev_anchor_dx, p.elev_anchor_dz),
+                         (g.pin_x, g.pin_z + p.pivot_z_rel, p.pivot_z_rel, g.ax, g.az))
+        prev = None
+        for i in range(111):
+            e = -40.0 + i
+            self.assertAlmostEqual(g.length(e), p.elev_act_len(e), places=9)
+            if prev is not None:
+                self.assertLess(g.length(e), prev)          # monotonic over the whole bisection span
+            prev = g.length(e)
+            self.assertAlmostEqual(g.elev(g.length(e)), e, places=6)
+        # a servo pulse spread evenly over -15..45 deg (the old firmware) is off by this much mid-range
+        lo, hi = g.length(45.0), g.length(-15.0)
+        worst = max(abs(g.elev(hi - (hi - lo) * (e + 15) / 60) - e) for e in range(-15, 46))
+        self.assertAlmostEqual(worst, 1.46, places=2)
+
+    def _plant(self, ax, steps, pos, ext=18.0, ret=22.0, dt=10, moves=True, feedback=True):
+        """Drive `ax` against a simulated actuator: it moves at duty x its speed (stops at its own limits)."""
+        duty = 0.0
+        for _ in range(steps):
+            if moves:
+                pos = min(150.0, max(0.0, pos + (ext * duty if duty > 0 else ret * duty) * dt / 1000))
+            duty = ax.update(dt, pos if feedback else None)
+        return pos
+
+    def test_elevation_pot_loop_reaches_the_angle(self):
+        g = controller.ElevationGeometry()
+        for start, goal in ((5.0, 30.0), (140.0, -10.0), (60.0, 44.9), (100.0, 0.0)):
+            ax = self._elev(controller.ELEV_POT)
+            ax.target(goal)
+            pos = self._plant(ax, 1200, start)
+            self.assertTrue(ax.settled, (start, goal))
+            self.assertLess(abs(g.elev(pos + 246.0) - goal), 0.3)
+        ax = self._elev(controller.ELEV_POT)
+        ax.target(80.0)                       # clamped to +45 deg
+        self.assertAlmostEqual(ax.goal, g.length(45.0) - 246.0)   # 1.7 mm off the retract limit
+        ax.target(-80.0)
+        self.assertAlmostEqual(ax.goal, g.length(-15.0) - 246.0)
+
+    def test_elevation_pot_faults_on_stall_and_lost_feedback(self):
+        ax = self._elev(controller.ELEV_POT)
+        ax.target(0.0)
+        self._plant(ax, 100, 20.0, moves=False)     # jammed (or no motor power): 1 s without moving
+        self.assertTrue(ax.fault)
+        self.assertEqual(ax.update(10, 20.0), 0.0)
+        self.assertFalse(ax.settled)
+        ax = self._elev(controller.ELEV_POT)
+        ax.target(0.0)
+        self.assertEqual(ax.update(10, None), 0.0)  # pot wire off
+        self.assertTrue(ax.fault)
+
+    def test_elevation_timed_homes_then_dead_reckons(self):
+        g = controller.ElevationGeometry()
+        ax = self._elev(controller.ELEV_TIMED)
+        ax.target(10.0)
+        self.assertFalse(ax.homed)
+        t, pos, duty = 0, 90.0, 0.0
+        while not ax.homed:                   # retracts onto its own limit
+            pos = max(0.0, pos + 22.0 * duty * 0.01)
+            duty = ax.update(10, None)
+            t += 10
+        self.assertEqual(pos, 0.0)
+        self.assertAlmostEqual(t / 1000, 150 / 22.0 * 1.25 + 0.5, delta=0.02)
+        # the real actuator runs 2% fast both ways (speeds measured, not exact); the budget covers the error
+        pos = self._plant(ax, 1000, pos, ext=18.36, ret=22.44)
+        self.assertTrue(ax.settled)
+        self.assertLessEqual(abs(pos - ax.pos), ax.budget + 0.25)
+        self.assertLess(abs(g.elev(pos + 246.0) - 10.0), 1.0)
+        # 5% off instead: the same move lands about 1.8 deg off, still inside the budget it reports
+        far = self._elev(controller.ELEV_TIMED)
+        far.target(10.0)
+        p5 = self._plant(far, 2000, 0.0, ext=18.9, ret=23.1)
+        self.assertLessEqual(abs(p5 - far.pos), far.budget + 0.25)
+        self.assertGreater(abs(g.elev(p5 + 246.0) - 10.0), 1.5)
+        # back and forth until the budget forces a re-home before a move, then it is clean again
+        rehomed = False
+        for goal in (40.0, -10.0, 40.0, -10.0, 40.0, -10.0):
+            ax.target(goal)
+            pos = self._plant(ax, 1, pos)
+            rehomed = rehomed or not ax.homed
+            pos = self._plant(ax, 2500, pos, ext=18.36, ret=22.44)   # homing (8.5 s) and a full move fit
+            self.assertTrue(ax.settled)
+            self.assertLessEqual(abs(pos - ax.pos), ax.budget + 0.25)
+            self.assertLessEqual(ax.budget, 3.0 + 150 * 0.05)
+        self.assertTrue(rehomed)
+
+    def test_elevation_timed_refuses_a_retract_limit_past_the_clear_range(self):
+        short = controller.LinearAxis(controller.ELEV_TIMED, controller.ElevationGeometry(), 240.0, 150.0, -15.0, 45.0,
+                                      18.0, 22.0)
+        self.assertTrue(short.fault)          # homing would pull the head to +48.8 deg, into the turntable plate
+        self.assertEqual(short.update(10, None), 0.0)
+        self.assertFalse(self._elev(controller.ELEV_TIMED).fault)   # 246 mm stops at +45.8 deg, inside 46.3
+
+    def test_elevation_timed_stops(self):
+        ax = self._elev(controller.ELEV_TIMED)
+        self._plant(ax, 1000, 0.0)
+        ax.target(-10.0)
+        self._plant(ax, 50, 0.0)
+        before = ax.budget
+        ax.stop()                             # e-stop mid-move: coast added, home kept
+        self.assertTrue(ax.homed)
+        self.assertAlmostEqual(ax.budget, before + 1.0)
+        loose = self._elev(controller.ELEV_TIMED, self_locking=False)
+        self._plant(loose, 1000, 0.0)
+        self.assertTrue(loose.homed)
+        loose.stop()                          # the head sinks with the power off: position unknown
+        self.assertFalse(loose.homed)
+
+    def test_elevation_rc_pulse_follows_the_geometry(self):
+        g = controller.ElevationGeometry()
+        ax = self._elev(controller.ELEV_RC)
+        ax.target(15.0)
+        frac = ax.update(10, None)
+        self.assertAlmostEqual(frac, (g.length(15.0) - 246.0) / 150.0)
+        self.assertFalse(ax.settled)          # the estimate assumes it starts at the far end
+        n = 1
+        while not ax.settled:
+            ax.update(10, None)
+            n += 1
+        self.assertLessEqual(n * 10, 150 / 18.0 * 1000 + 20)
+        ax.stop()
+        ax.update(10, None)
+        self.assertFalse(ax.settled)
+
+    def test_azimuth_settled(self):
+        ax = self._axis()
+        self.assertFalse(ax.settled)
+        ax.update(10, True)                   # homed at -32 deg; the goal is still 0
+        self.assertFalse(ax.settled)
+        for _ in range(300):
+            ax.update(10, False)
+        self.assertTrue(ax.settled)
+        ax.target(10.0)
+        self.assertFalse(ax.settled)
+        self.assertNotIn(protocol.FLAG_AIM_SETTLING, (protocol.FLAG_AZ_UNHOMED, protocol.FLAG_LOW_BATTERY))
+        self.assertEqual(protocol.FLAG_AIM_SETTLING & protocol.FLAG_ELEV_FAULT, 0)
+
+    def test_feeder_board_layer_runs_on_stub_pins(self):
+        """main.py's FeederHw on stand-in machine/time modules: each elevation mode builds, aims and stops, and the
+        feed gate stays shut until the aim has arrived (the layer has never run on a board)."""
+        import types
+        state = {"adc": 30000}
+
+        class Pin:
+            IN, OUT, PULL_UP, IRQ_RISING, IRQ_FALLING = 0, 1, 2, 4, 8
+
+            def __init__(self, n, *a, **k):
+                self.n, self.v = n, k.get("value", 1)
+
+            def value(self, v=None):
+                if v is None:
+                    return 0 if self.n == 22 else self.v   # azimuth home switch closed; e-stop (4) not pressed
+                self.v = v
+
+            def irq(self, *a):
+                pass
+
+        class PWM:
+            def __init__(self, pin, freq=0, duty_u16=0):
+                self.duty = duty_u16
+
+            def duty_u16(self, d):
+                self.duty = d
+
+        class ADC:
+            ATTN_11DB = 3
+
+            def __init__(self, pin, atten=None):
+                self.pin = pin
+
+            def read_u16(self):
+                return state["adc"]
+
+            def read_uv(self):
+                return 2_300_000
+
+        machine = types.SimpleNamespace(Pin=Pin, PWM=PWM, ADC=ADC, UART=object)
+        fake_time = types.SimpleNamespace(sleep_us=lambda us: None, sleep_ms=lambda ms: None, ticks_ms=lambda: 0,
+                                          ticks_diff=lambda a, b: a - b)
+        path = os.path.join(os.path.dirname(__file__), "..", "firmware", "esp32")
+        with open(os.path.join(path, "main.py")) as f:
+            src = f.read()
+        self.assertTrue(src.rstrip().endswith("run()"))
+        src = src.rstrip()[:-len("run()")]
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("fw_config", os.path.join(path, "config.py"))
+        for mode in (controller.ELEV_RC, controller.ELEV_POT, controller.ELEV_TIMED):
+            cfg = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(cfg)
+            cfg.ELEV_MODE = mode
+            saved = {k: sys.modules.get(k) for k in ("machine", "time", "config")}
+            sys.modules.update(machine=machine, time=fake_time, config=cfg)
+            try:
+                ns = {"__name__": "fw_main"}
+                exec(compile(src, "main.py", "exec"), ns)
+                hw = ns["FeederHw"]()
+            finally:
+                for k, v in saved.items():
+                    if v is None:
+                        sys.modules.pop(k, None)
+                    else:
+                        sys.modules[k] = v
+            hw.set_aim(1000, 0)
+            hw.feed(1)
+            hw.update(10, 0)
+            self.assertTrue(hw.flags() & protocol.FLAG_AIM_SETTLING, mode)
+            self.assertEqual(hw.gate.pwm.duty, int(1000 / 20000 * 65535), mode)   # gate shut while aiming
+            hw.stop_all()
+            self.assertFalse(hw.flags() & protocol.FLAG_ELEV_FAULT, mode)
+            if mode == controller.ELEV_POT:
+                state["adc"] = 0               # wiper off: below the calibrated span
+                hw.update(10, 10)
+                self.assertTrue(hw.flags() & protocol.FLAG_ELEV_FAULT)
+                state["adc"] = 30000
+
 if __name__ == "__main__":
     unittest.main()

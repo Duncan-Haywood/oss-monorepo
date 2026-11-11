@@ -158,6 +158,7 @@ class FeederParamsTest(unittest.TestCase):
         self.assertTrue(d["one_way"] and d["monotonic"])    # always a push: no backlash flip mid-range
         self.assertGreater(d["push_peak_n"], 0)
         self.assertLessEqual(p.elev_act_closed, d["closed_max_mm"])
+        self.assertGreaterEqual(p.elev_act_closed, d["closed_min_mm"])   # its retract limit stops the head in time
         self.assertGreaterEqual(p.elev_act_closed + p.elev_act_stroke, d["extended_min_mm"])
         # the push at +45 deg is at least gravity alone over the lever arm there
         top = d["rows"][-1]
@@ -167,6 +168,7 @@ class FeederParamsTest(unittest.TestCase):
         # failures are reported
         from dataclasses import replace
         self.assertTrue(any("retracted" in r for r in replace(p, elev_act_closed=260.0).check_elevation(grav)))
+        self.assertTrue(any("turntable plate" in r for r in replace(p, elev_act_closed=240.0).check_elevation(grav)))
         self.assertTrue(any("reaches" in r for r in replace(p, elev_act_stroke=100.0).check_elevation(grav)))
         self.assertTrue(any("push" in r for r in replace(p, elev_act_force_n=150.0).check_elevation(grav)))
         self.assertTrue(any("cheek" in r for r in replace(p, elev_act_y=-60.0).check_elevation(grav)))
@@ -670,6 +672,21 @@ class FeederGeometryTest(unittest.TestCase):
         self.assertEqual(len(bores), 1)
         self.assertAlmostEqual(bores[0][0], self.p.head_x)
         self.assertAlmostEqual(bores[0][1], self.p.az_centre_dist)
+
+@unittest.skipUnless(HAVE_CAD, "build123d not installed")
+class ElevationStopTest(unittest.TestCase):
+    def test_head_clears_the_turntable_up_to_elev_clear_max_and_not_beyond(self):
+        from otr_cad import feeder as F, package as P
+        p = Feeder()
+
+        def plates(e):  # past the retract limit the drawn rod overlaps its own body, which a real one cannot: skip that
+            return [c for c in P.clashes(F.swept_solids(p, e)) if not c.startswith("elev_actuator[0] x elev_actuator_rod")]
+        self.assertEqual(plates(p.elev_clear_max), [])
+        self.assertTrue(any("turntable_plate" in c for c in plates(p.elev_clear_max + 0.1)))
+        # the actuator's own end stops land inside the clear range at both ends
+        g = {e: 0.0 for e in (-15.0, 45.0)}
+        self.assertEqual(p.check_elevation(g), [])
+
 
 @unittest.skipUnless(HAVE_CAD, "build123d not installed")
 class FeederPackageTest(unittest.TestCase):

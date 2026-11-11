@@ -276,8 +276,11 @@ flagships:
       rear edge: posts moved to y +-245 and the mast plate notched. Elevation drive landed 2026-11-11
       (`Feeder.elevation_drive`, cad/README.md "Elevation drive"): head gravity measured from the CAD pulls
       the nose up 0.63-11.75 N m, so a 150 mm-stroke actuator outboard of the guard-side cheek pushes one way,
-      18-100 N, window 245/374 mm hole to hole. Next: firmware for the elevation actuator (feedback pot or
-      timed from a stop; set_aim today assumes a servo); weigh the head and measure the hose's torque, the
+      18-100 N, window 245/374 mm hole to hole. Elevation firmware landed 2026-11-11 (controller.LinearAxis, firmware/esp32/README.md "Elevation
+      actuator"): angle to length through the CAD geometry (a linear servo map aimed up to 1.46 deg high), rc/pot/timed
+      modes, stall and lost-pot faults, feed gate waits for the aim (FLAG_AIM_SETTLING). Same run: a 240 mm actuator's
+      retract limit put the head at +48.8 deg, into the turntable plate (clear only to +46.36); drawn now 246 mm
+      (window 244.9-247.7, checked). Next: Pi side waits on FLAG_AIM_SETTLING; weigh the head and measure the hose's torque, the
       stepper's pull-out and the actuator's real lengths (needs a person); the home switch's bracket; hang a
       real hose from a tube; the shuttle actuator's bracket; the netting trough that rolls balls to the
       hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.

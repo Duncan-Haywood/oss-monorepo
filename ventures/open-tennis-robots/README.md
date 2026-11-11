@@ -49,7 +49,12 @@ shuttle that meters one ball at a time to the wheels. The azimuth drive is model
 inertia), and the head is checked for collisions turned as well as tilted.
 The elevation drive is modelled too (2026-11-11): a 150 mm-stroke linear
 actuator outboard of the guard-side cheek, sized on the head's gravity moment
-measured from the CAD. Not yet modelled: netting and trough, hopper agitator,
+measured from the CAD, and the firmware drives it the same day: SET_AIM's angle
+becomes an actuator length through the CAD's own geometry (a straight servo
+mapping would aim up to 1.46 deg high), from a feedback pot, an RC-input
+actuator or timing off the retract limit, and the feed gate waits until the aim
+has arrived ([`firmware/esp32/README.md`](firmware/esp32/README.md), "Elevation
+actuator"). Not yet modelled: netting and trough, hopper agitator,
 and the shuttle actuator's bracket ([`cad/README.md`](cad/README.md)).
 
 > **Status:** the collector is design v0.2 with a complete package; the

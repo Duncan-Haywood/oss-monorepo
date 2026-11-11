@@ -119,7 +119,18 @@ class FeederHw:
     def __init__(self):
         self.esc_top, self.esc_bottom = Servo(25), Servo(26)
         self.tach_top, self.tach_bottom = Tach(34), Tach(35)
-        self.elev, self.gate = Servo(27, 500, 2500), Servo(13)
+        self.gate = Servo(13)
+        # Elevation: a linear actuator on the guard-side cheek (cad/README.md, "Elevation drive"); GPIO 27 carries
+        # its servo pulse (rc) or the H-bridge PWM (pot, timed) with DIR on 23; the pot wiper is on 39 (ADC1).
+        mode = getattr(config, "ELEV_MODE", controller.ELEV_RC)
+        self.elev = controller.LinearAxis(mode, controller.ElevationGeometry(), config.ELEV_CLOSED_MM,
+                                          config.ELEV_STROKE_MM, -15.0, 45.0, config.ELEV_SPEED_EXT_MM_S,
+                                          config.ELEV_SPEED_RET_MM_S, self_locking=config.ELEV_SELF_LOCKING)
+        if mode == controller.ELEV_RC:
+            self.elev_out = Servo(27, 1000, 2000)
+        else:
+            self.elev_out = Motor(27, 23)
+        self.elev_pot = ADC(Pin(39), atten=ADC.ATTN_11DB) if mode == controller.ELEV_POT else None
         # Azimuth: NEMA 17 through the 15:150 gear sector (cad/README.md, "Azimuth drive"), homed on a switch.
         self.azim_pins = StepDir(14, 21, 22)
         self.azim = controller.StepperAxis(200 * config.AZ_MICROSTEPS * config.AZ_RATIO / 360, config.AZ_VMAX_DEG_S,
@@ -149,12 +160,17 @@ class FeederHw:
         self.feeding = 0
         self.gate.frac(0)
         self.azim.stop()
+        self.elev.stop()
+        if self.elev.mode == controller.ELEV_RC:
+            self.elev_out.pwm.duty_u16(0)     # no pulse: the actuator holds where it is
+        else:
+            self.elev_out.set(0)
 
     def set_launch_rpm(self, top, bottom):
         self.target_rpm = (top, bottom)
 
     def set_aim(self, elev_cdeg, az_cdeg):
-        self.elev.frac((elev_cdeg + 1500) / 6000)   # -15..45 deg over the servo range
+        self.elev.target(elev_cdeg / 100)           # -15..45 deg, through the actuator's geometry
         self.azim.target(az_cdeg / 100)             # -30..30 deg; driven once homed
 
     def feed(self, n):
@@ -176,7 +192,23 @@ class FeederHw:
         return False
 
     def flags(self):
-        return 0 if self.azim.homed else protocol.FLAG_AZ_UNHOMED
+        f = 0 if self.azim.homed else protocol.FLAG_AZ_UNHOMED
+        if not self.aim_settled():
+            f |= protocol.FLAG_AIM_SETTLING
+        if self.elev.fault:
+            f |= protocol.FLAG_ELEV_FAULT
+        return f
+
+    def aim_settled(self):
+        return self.elev.settled and self.azim.settled
+
+    def elev_feedback_mm(self):
+        raw = self.elev_pot.read_u16()
+        lo, hi = config.ELEV_POT_RAW_RETRACTED, config.ELEV_POT_RAW_EXTENDED
+        margin = abs(hi - lo) * 0.01
+        if not min(lo, hi) - margin <= raw <= max(lo, hi) + margin:
+            return None                      # wiper or supply wire off: the reading cannot be a position
+        return (raw - lo) / (hi - lo) * config.ELEV_STROKE_MM
 
     def base_y_mm(self):
         return int(self.base_enc.count / config.BASE_COUNTS_PER_MM)
@@ -189,6 +221,11 @@ class FeederHw:
 
     def update(self, dt, now):
         self.azim_pins.pulse(self.azim.update(dt, self.azim_pins.home_closed()))
+        out = self.elev.update(dt, self.elev_feedback_mm() if self.elev_pot else None)
+        if self.elev.mode == controller.ELEV_RC:
+            self.elev_out.frac(out)
+        else:
+            self.elev_out.set(out)
         self.tach_top.update(dt)
         self.tach_bottom.update(dt)
         for i, (esc, tach) in enumerate(((self.esc_top, self.tach_top), (self.esc_bottom, self.tach_bottom))):
@@ -206,6 +243,7 @@ class FeederHw:
         self.base.set(duty if abs(err) > 5 else 0)
         # Feed one ball at a time, only with both wheels within 5% of target.
         ok = all(t and abs(tach.rpm - t) < 0.05 * t for t, tach in zip(self.target_rpm, (self.tach_top, self.tach_bottom)))
+        ok = ok and self.aim_settled()     # never launch while the head is still moving
         if self.feeding and ok and now >= self.gate_open_until + 400:
             self.gate.frac(1)
             self.gate_open_until = now + 150

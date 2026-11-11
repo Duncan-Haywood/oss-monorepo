@@ -45,7 +45,7 @@ wheel,cots,4,"150 x 40 mm non-marking wheel, 6 mm D hub (drive) or 8 mm bore (id
 gearmotor,cots,2,"37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft, quadrature encoder",
 levelling_foot,cots,2,"M10 levelling foot with a 40 mm rubber pad, 155 mm of stud; T-nut in the beam",
 battery,cots,1,"24 V (8S) LiFePO4 20 Ah with BMS, max 90 x 200 x 130 mm",
-elev_actuator,cots,1,"Linear actuator, 12-24 V, 150 mm stroke, 220 N class, clevis eyes for M6, retracted 240 mm hole to hole (drawn at 0 deg; posed per pose in the sweeps)",
+elev_actuator,cots,1,"Linear actuator, 12-24 V, 150 mm stroke, 220 N class, clevis eyes for M6, retracted 246 mm hole to hole (drawn at 0 deg; posed per pose in the sweeps)",
 elev_actuator_rod,cots,1,"The elev_actuator's own rod (not bought separately), drawn at 0 deg",
 elev_pin,cots,1,"M6 shoulder bolt, 40 mm shoulder, + nyloc: through the guard plate (nut inside), the actuator's rod eye",
 elev_anchor_bolt,cots,1,"M6 shoulder bolt, 30 mm shoulder, + nyloc: through the guard-side cheek's tab, the actuator's anchor eye",
