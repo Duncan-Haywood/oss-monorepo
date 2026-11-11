@@ -39,7 +39,7 @@ import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { fixPostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
-import { buildStories, STORIES_PATH } from './stories.mjs';
+import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, QUEUE_PATH } from './queue.mjs';
@@ -154,6 +154,7 @@ import {
   HERO_BACKDROP_HTML,
   HOME_MOTION_CSS,
   HOME_MOTION_SCRIPT,
+  longestWord,
   copyShowcase,
   loadShowcase,
   renderMarquee,
@@ -8736,7 +8737,7 @@ ${HERO_BACKDROP_HTML}
       <h1>Free tools to <span class="grad">price the job, check the fees</span> and run your business.</h1>
 ${
   audienceWords.length
-    ? `      <p class="ticker">Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</p>\n`
+    ? `      <p class="ticker" data-longest="${escapeHtml(longestWord(audienceWords))}"><span>Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</span></p>\n`
     : ''
 }
       <p class="lede">
@@ -10669,11 +10670,16 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // 2026-10-24 only entry pages carried any, and it skipped the category the
   // visible trail shows, so ~1,750 guide and comparison pages inside tools
   // showed a four-level trail and declared none.
-  const category = categoryFor(slug);
-  const categoryHref = categoryPagePath(category.id);
+  // Fiction (stories.mjs, STORY_VENTURES) sits under the Stories section, with
+  // the shelf's short name rather than its search title in the trail.
+  const shelfName = Object.hasOwn(STORY_VENTURES, slug) ? STORY_VENTURES[slug] : null;
+  const category = shelfName ? { title: 'Stories' } : categoryFor(slug);
+  const categoryHref = shelfName ? STORIES_PATH : categoryPagePath(category.id);
+  const section = shelfName ? 'stories' : 'tools';
+  const name = shelfName || title || slug;
   const crumbs = [{ label: category.title, href: `${toRoot}${categoryHref}` }];
-  if (isEntry) crumbs.push({ label: title || slug });
-  else crumbs.push({ label: title || slug, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
+  if (isEntry) crumbs.push({ label: name });
+  else crumbs.push({ label: name, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
   if (canonical && !html.includes('"BreadcrumbList"') && (isEntry || pageTitle)) {
     // Lets a result render as "Maris Stella Labs › Marketplace sellers ›
     // eBay Fee Calculator" rather than a bare URL, and tells an answer engine
@@ -10685,7 +10691,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       const trail = [
         { name: SITE_NAME, item: base },
         { name: category.title, item: `${base}${categoryHref}` },
-        { name: title || slug, item: `${base}${slug}/` },
+        { name, item: `${base}${slug}/` },
       ];
       if (!isEntry) trail.push({ name: pageTitle, item: canonical });
       headExtras += `\n<script type="application/ld+json">${jsonLd({
@@ -10730,7 +10736,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // first form or every input on its page still finds its own.
   const topBar = renderSiteHeader({
     toRoot,
-    current: 'tools',
+    current: section,
     search: 'link',
     crumbs,
     extraClass: 'pf-chrome pf-chrome-top',

@@ -18,7 +18,7 @@
 // Missing cells are carried forward from the last value in that column so every column keeps
 // the same indexes; a column whose first cell is missing is an error.
 import { makeCost, penaltyValue, robustSd, splitLine, numCell, pelt, localFitScale, ar1Rho, longRunSd } from './engine.mjs';
-import { consensus } from './consensus.mjs';
+import { consensus, mergeConsensus } from './consensus.mjs';
 
 function check(cols) {
   if (!Array.isArray(cols) || cols.length < 1) throw new Error('Give one or more columns.');
@@ -115,14 +115,16 @@ export function multiPelt(cols, { model = 'mean', penalty = 'bic', minSegment, f
 /**
  * Per-column consensus, merged across columns. Returns { changes: [{ index, label, columns, support, of }], perColumn }.
  * tier: 'every' keeps each column's every-setting changes (the default), 'most' adds half-or-more.
+ * runs: optional, one array of runSetting() results per column (the panels already run, e.g. on
+ * worker threads by consensus-threads.mjs runColumnPanelsThreaded); merged here exactly as consensus() would.
  */
-export function columnConsensus(cols, { names = null, labels = null, tolerance = null, tier = 'every', base = {} } = {}) {
+export function columnConsensus(cols, { names = null, labels = null, tolerance = null, tier = 'every', base = {}, runs = null } = {}) {
   const n = check(cols);
   const nm = names || cols.map((_, i) => `column ${i + 1}`);
   const tol = tolerance != null ? Number(tolerance) : Math.max(2, Math.round(n * 0.02));
   const keep = tier === 'most' ? (c) => c.tier !== 'few' : (c) => c.tier === 'all';
   const perColumn = cols.map((values, i) => {
-    const c = consensus({ ...base, values }, { tolerance: tol });
+    const c = runs && runs[i] ? mergeConsensus(runs[i], { tolerance: tol }) : consensus({ ...base, values }, { tolerance: tol });
     return { column: nm[i], changes: c.changes.filter(keep).map((x) => x.index).sort((a, z) => a - z) };
   });
   const all = [];
@@ -200,9 +202,9 @@ export function parseColumns(csv, columns = null, labelColumn = null) {
 export const JOINT_OVERCUT_EVERY = 50;
 export function jointOvercut(cuts, n) { return cuts > Math.max(3, n / JOINT_OVERCUT_EVERY); }
 
-/** Both ways on one input. input: { csv, columns, labelColumn } or { cols, names, labels }. */
+/** Both ways on one input. input: { csv, columns, labelColumn } or { cols, names, labels, filled }; columnRuns: per-column panel runs already done (columnConsensus runs). */
 export function analyzeMulti(input = {}) {
-  let { cols, names, labels } = input, filled = 0;
+  let { cols, names, labels } = input, filled = input.filled || 0;
   if (!cols) ({ cols, names, labels, filled } = parseColumns(input.csv, input.columns, input.labelColumn));
   const n = check(cols);
   names = names || cols.map((_, i) => `column ${i + 1}`);
@@ -221,7 +223,7 @@ export function analyzeMulti(input = {}) {
     index: cp, label: labels[cp],
     shifts: cols.map((c, i) => ({ column: names[i], shift: meanOf(c, cp, segs[k + 2]) - meanOf(c, segs[k], cp), sds: (meanOf(c, cp, segs[k + 2]) - meanOf(c, segs[k], cp)) / j.sigmas[i] })),
   }));
-  const cc = columnConsensus(cols, { names, labels, tolerance: input.tolerance });
+  const cc = columnConsensus(cols, { names, labels, tolerance: input.tolerance, runs: input.columnRuns || null });
   const overcutWarning = jointOvercut(joint.length, n)
     ? `The one segmentation for all columns has ${joint.length} changes in ${n} points (more than one per ${JOINT_OVERCUT_EVERY}): it is probably cutting smooth, trending or autocorrelated columns into steps, as it did on all three labelled multi-column TCPD series (level: 95 to 132 cuts on 509 to 622 points). Read the column-by-column list instead.`
     : null;

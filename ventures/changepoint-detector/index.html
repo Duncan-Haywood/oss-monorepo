@@ -198,6 +198,7 @@
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { analyzeJob } from "./analyze-job.mjs";
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
+    import { parseColumns } from "./multivariate.mjs";
     import { multiReportHtml } from "./multi-report.mjs";
 
     const $ = (s) => document.querySelector(s);
@@ -216,6 +217,7 @@
     let mainJob = null;
     let mainWorker = null;
     function stopMain() {
+      stopColumnPanels();
       if (mainJob && mainWorker) { mainWorker.terminate(); mainWorker = null; }
       mainJob = null;
       $("#working").hidden = true;
@@ -250,18 +252,67 @@
       const penalty = $("#penalty").value === "custom" ? Number($("#penaltyValue").value) : $("#penalty").value;
       const list = $("#columns").value.split(",").map((c) => c.trim()).filter(Boolean).map((c) => (/^\d+$/.test(c) ? Number(c) - 1 : c));
       const jn = $("#jointNoise").value;
-      startMain({ kind: "multi", csv: $("#csv").value, columns: list, opts: { model, penalty, floor: jn === "off" ? "off" : jn === "auto" ? "auto" : 2, ar1: jn === "ar1floor" } }, (out) => {
-        if (out.error) { $("#multi-results").hidden = true; $("#error").textContent = out.error; return; }
-        const { p, r } = out.result;
-        lastMulti = { p, r };
-        $("#multi-summary").textContent = multiSummary(r);
-        $("#multi-warnings").innerHTML = r.overcutWarning ? `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r.overcutWarning)}</p>` : "";
-        $("#multi-chart").innerHTML = multiChartSvg(p, r);
-        $("#multi-agreed").innerHTML = agreedTableHtml(r);
-        $("#multi-joint").innerHTML = jointTableHtml(r, p);
-        $("#multi-results").hidden = false;
-        record("multi_run");
-      });
+      const csv = $("#csv").value;
+      const opts = { model, penalty, floor: jn === "off" ? "off" : jn === "auto" ? "auto" : 2, ar1: jn === "ar1floor" };
+      stopMain();
+      // Each column's six-setting panel is most of the work (8.0 of 8.2 s on the currency example in
+      // one thread), so those settings go to the panel's Web Workers first, all cores at once; the
+      // joint fit and the merge then run in the main worker with the panels done (columnRuns).
+      let parsed = null;
+      try { parsed = parseColumns(csv, list.length ? list : null, null); } catch (e) { /* analyzeJob reports it */ }
+      const go = (columnRuns) => startMain({ kind: "multi", csv, columns: list, opts: columnRuns ? { ...opts, columnRuns } : opts }, showMulti);
+      if (parsed && parsed.cols.length >= 2) runColumnPanels(parsed.cols, go); else go(null);
+    }
+
+    // The per-column panels of several-columns mode on Web Workers (consensus-worker.mjs), slowest
+    // setting first across every column. done(runs) gets one array of runSetting results per column, or
+    // done(null) when workers are missing or one fails, and the main worker then runs the panels itself.
+    let columnJob = null;
+    function stopColumnPanels() {
+      if (columnJob) { columnJob.workers.forEach((w) => w.terminate()); columnJob = null; }
+    }
+    function runColumnPanels(cols, done) {
+      const order = [1, 2, 0, 3, 4, 5].filter((i) => i < PANEL.length);
+      const tasks = [];
+      for (const setting of order) cols.forEach((values, column) => tasks.push({ setting, column, values }));
+      let workers = [];
+      try {
+        if (typeof Worker === "undefined") throw new Error("no workers");
+        const k = Math.max(1, Math.min(tasks.length, navigator.hardwareConcurrency || 2));
+        for (let i = 0; i < k; i++) workers.push(new Worker("./consensus-worker.mjs", { type: "module" }));
+      } catch (e) { workers.forEach((w) => w.terminate()); return done(null); }
+      const job = { id: Math.random(), workers, runs: cols.map(() => new Array(PANEL.length)), done: 0, next: 0 };
+      columnJob = job;
+      $("#working").hidden = false;
+      const feed = (w) => { if (job.next < tasks.length) { const t = tasks[job.next++]; w.postMessage({ id: job.id, base: { values: t.values }, setting: t.setting, column: t.column }); } };
+      for (const w of workers) {
+        w.onmessage = (e) => {
+          if (columnJob !== job || e.data.id !== job.id) return;
+          job.runs[e.data.column][e.data.setting] = e.data.run;
+          if (++job.done === tasks.length) { stopColumnPanels(); done(job.runs); return; }
+          feed(w);
+        };
+        w.onerror = (e) => {
+          e.preventDefault();
+          if (columnJob !== job) return;
+          stopColumnPanels();
+          done(null);
+        };
+        feed(w);
+      }
+    }
+
+    function showMulti(out) {
+      if (out.error) { $("#multi-results").hidden = true; $("#error").textContent = out.error; return; }
+      const { p, r } = out.result;
+      lastMulti = { p, r };
+      $("#multi-summary").textContent = multiSummary(r);
+      $("#multi-warnings").innerHTML = r.overcutWarning ? `<p class="note" role="note"><strong>Read with care:</strong> ${esc(r.overcutWarning)}</p>` : "";
+      $("#multi-chart").innerHTML = multiChartSvg(p, r);
+      $("#multi-agreed").innerHTML = agreedTableHtml(r);
+      $("#multi-joint").innerHTML = jointTableHtml(r, p);
+      $("#multi-results").hidden = false;
+      record("multi_run");
     }
 
     // The agreed-changes panel runs six full analyses, about five times the main one

@@ -91,6 +91,12 @@ def main(argv=None):
     ap.add_argument("--marker", default="DONE")
     ap.add_argument("--timeout", type=float, default=100.0)
     a = ap.parse_args(argv)
+    # An empty marker matches the first blank line, a false "done"; os.kill(-1, 0)
+    # probes every process and os.kill(0, 0) the process group, so neither ends.
+    if not a.marker.strip():
+        ap.error("--marker must not be empty")
+    if a.pid is not None and a.pid <= 0:
+        ap.error("--pid must be a positive process id")
     if a.pid:
         if wait_pid(a.pid, a.timeout):
             print(f"wait_for: pid {a.pid} has exited")

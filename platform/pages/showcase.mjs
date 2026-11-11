@@ -154,6 +154,18 @@ export const HOME_MOTION_CSS = `
     .ticker b { display: inline-block; color: var(--ink); font-weight: 750;
                 border-bottom: 2px solid var(--accent); transition: opacity .35s, transform .35s; }
     @media (min-width: 720px) { .ticker b { min-width: 6ch; } }
+    /* The words turn, so the line is as tall as its longest one before the
+       first paint: a hidden copy of the sentence with that word (data-longest,
+       set by the build) shares the grid cell with the real one. Bold all
+       through, so it errs tall. The motion script's fit() then pins the exact
+       height. Not under reduced motion, where the word never changes. */
+    @media (prefers-reduced-motion: no-preference) {
+      .ticker[data-longest] { display: grid; }
+      .ticker[data-longest] > span, .ticker[data-longest]::after { grid-area: 1 / 1; }
+      .ticker[data-longest]::after { content: "Built for " attr(data-longest) " and anyone with numbers to run.";
+                                     visibility: hidden; font-weight: 750; pointer-events: none;
+                                     padding-bottom: 2px; /* the word's underline */ }
+    }
     .ticker b.out { opacity: 0; transform: translateY(-.4em); }
     .hero .stats { background: rgba(14, 20, 38, .72); border-color: var(--line); }
     .hero .stats div { border-color: var(--line); }
@@ -238,6 +250,12 @@ export const HOME_MOTION_CSS = `
       .shots { grid-auto-columns: 82%; }
       .frame { transform: none; }
     }`;
+
+/** The audience name with the most characters: the hero ticker reserves the
+ *  height of its sentence with this word before the words start turning. */
+export function longestWord(words) {
+  return words.reduce((best, w) => (w.length > best.length ? w : best), '');
+}
 
 /** Hero decoration: the drifting colour and the canvas the script draws on. */
 export const HERO_BACKDROP_HTML = `    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -347,6 +365,32 @@ export const HOME_MOTION_SCRIPT = `
       const word = document.querySelector('.ticker b');
       const words = word ? JSON.parse(word.dataset.words || '[]') : [];
       if (word && words.length > 1 && !still) {
+        // Hold the line at the height of its tallest word. On a phone "Roofers"
+        // fits on one line and "Amazon sellers & KDP authors" takes two, so the
+        // line wrapped and unwrapped as the words turned and moved the search
+        // box, stats and the hero's backdrop 20 px up or down, for as long as
+        // the page was open (CLS 0.087 on the hub under Lighthouse's devtools
+        // throttling, 2026-11-11, docs/reports/polish-2026-11-11-wft-perf-hypotheses.md).
+        // Measured here, at the end of the body, and not by an inline script
+        // beside the line: an inline script waits for the stylesheets above it,
+        // so the browser painted half a hero first (CLS 0.89 when tried).
+        // System fonts, so no font swap changes the answer later.
+        const line = word.closest('.ticker');
+        const fit = () => {
+          if (!line) return;
+          const shown = word.textContent;
+          let max = 0;
+          line.style.minHeight = '';
+          for (const w of words) { word.textContent = w; max = Math.max(max, line.offsetHeight); }
+          word.textContent = shown;
+          line.style.minHeight = max + 'px';
+        };
+        fit();
+        let width = innerWidth, refit;
+        addEventListener('resize', () => {
+          if (innerWidth === width) return;
+          width = innerWidth; clearTimeout(refit); refit = setTimeout(fit, 100);
+        });
         let at = 0;
         setInterval(() => {
           if (document.hidden) return;

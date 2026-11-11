@@ -374,3 +374,19 @@ def test_cells_probability_matches_brute_force_screen():
     # never above the guard-only tail, and equal to it when hits are plentiful
     assert S.cells_probability(6, 2, 4, 3, 12) <= S.guard_fire_probability(6, 4, 12) + 1e-12
     assert abs(S.cells_probability(400, 2000, 60, 50, 10000) - S.guard_fire_probability(400, 60, 10000)) < 1e-6
+
+
+def test_cells_probability_tau_matches_brute_force_screen():
+    import itertools
+    from llmci import audit_design as S
+    y = [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+    f = [1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0]
+    for pilot in (5, 7):
+        combos = list(itertools.combinations(range(13), pilot))
+        for tau in (0.0, 0.05, 0.1, 0.2, 0.25, 0.5, 1.0):
+            for ng in (0, 1, 3):
+                hits = sum(1 for c in combos
+                           if S.screen([y[i] for i in c], [f[i] for i in c], tau=tau, guard=0, neg_guard=ng) == "cells")
+                assert abs(S.cells_probability(pilot, 3, 3, 3, 13, neg_guard=ng, tau=tau) - hits / len(combos)) < 1e-12
+    # a higher tau never raises the share
+    assert S.cells_probability(600, 120, 80, 3000, 30000, tau=0.2) <= S.cells_probability(600, 120, 80, 3000, 30000)

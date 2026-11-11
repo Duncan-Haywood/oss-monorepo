@@ -2435,3 +2435,51 @@ then absorbed as wander only if a larger omega costs less than one change at the
 - **Next.** A heavy-tail check before choosing this model (`bank`, bitcoin); why ML absorbs the
   seat-belt law and quality control 4's step (omega chosen high on a seasonal or trending series);
   the AR(1) term; the model as a panel member on fresh labelled data, not TCPD again.
+
+## Several columns on worker threads, in the CLI and on the page (2026-11-11, later)
+
+"Several columns" ran each column's six-setting panel one after another, on one thread: on the
+1,751-day currency example that was 8.0 s of an 8.2 s analysis (the joint fit takes 0.2 s). The
+flagship's item (c) ended "next: --columns per-column panels on threads". Both front ends now
+hand those 6 x columns settings to a pool, slowest setting first across every column, and merge
+them exactly as before.
+
+- **What changed.** `consensus-threads.mjs` has a general job pool (`runJobsThreaded`: jobs of
+  `{ base, setting }`, the next job to whichever thread finishes first, everything missing run here
+  if threads cannot start or one dies). `runPanelThreaded` (the one-column panel) now uses it, and
+  `runColumnPanelsThreaded(cols)` is new. `columnConsensus` and `analyzeMulti` take the runs done
+  elsewhere (`runs`, `columnRuns`) and merge each column with `mergeConsensus`, the same call
+  `consensus()` makes. `cli.mjs --columns` parses the columns, runs the pool, then the joint fit.
+  On the page, several-columns mode feeds every column's settings to the panel's Web Workers
+  (`consensus-worker.mjs` now echoes a `column`), then sends the finished runs with the job to the
+  main analysis worker; a newer click stops both. With no workers, or a worker that fails, the
+  main worker runs the panels itself, as before.
+- **Same answer.** `columns-threads.test.mjs` pins the threaded `columnConsensus` to the one-thread
+  result with 1, 2 and 4 threads, `analyzeMulti` with runs done elsewhere to `analyzeMulti` alone,
+  the CLI's text and `--json` to the one-thread text and JSON, and the currency example's two agreed
+  dates (chf 2015-01-20, gbp 2016-06-24). The evals below compare text and tables on every input.
+- **Measured, CLI** (`node eval/cli-columns-threads.mjs`, 4 cores, wall clock of a whole
+  `node cli.mjs file --columns` run against `analyzeMulti` in-process on one thread, output
+  `eval/cli-columns-threads.out.txt`):
+
+  | input | CLI, panels on threads | one thread, in-process | text equal |
+  |---|---|---|---|
+  | German unemployment, 2 columns, 120 quarters | 0.4 s | 0.2 s | yes |
+  | currency returns, 3 columns, 1,751 days | 3.6 s | 8.8 s | yes |
+  | the same, level and volatility | 3.0 s | 7.3 s | yes |
+  | European index returns (DAX, CAC, FTSE, SMI), 4 columns, 1,859 days | 6.1 s | 16.4 s | yes |
+
+- **Measured, page** (`node eval/columns-workers-browser.mjs`, headless Chromium, 4 cores, click to
+  results shown; "before" blocks the panel workers so the page takes its fallback, every panel in
+  the one main worker, which is what it did until now; output `eval/columns-workers-browser.out.txt`):
+  currency returns 3.8 s against 7.5 s, European indices 7.2 s against 15.8 s. Summary and agreed
+  table equal `analyzeMulti` in Node in all three modes (panel workers, one worker, no workers).
+- **What it does not change.** The answers, the cap-free several-column path (there is no length
+  cap there; a long multi-column file still takes seconds per column on 4 cores), and the small
+  case: on 120 points thread start-up makes the CLI slower than one thread in-process (0.4 s
+  against 0.2 s, process start included). Timings are one run each on a shared container.
+- **Found on the way, and fixed.** `node cli.mjs --columns file.csv` read `file.csv` as the
+  column list (the option takes an optional list) and then waited on stdin. Now a list of one
+  name ending in `.csv`, `.tsv` or `.txt`, with no other file given, is read as the file; decided
+  by the name, not by whether the file exists, so the command means the same in every folder
+  (`columns-threads.test.mjs`).
