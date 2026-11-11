@@ -1,6 +1,6 @@
 ---
 title: "Fewer floods, lower island: the summer dike arithmetic behind a hallig story"
-seo_title: "Hallig flood sediment arithmetic in a North Frisian science fiction story"
+seo_title: "Hallig flood sediment arithmetic in a North Frisian sci-fi story"
 date: 2026-11-11
 tags: [fiction, hearth-and-horizon, science-fiction, hallig, wadden-sea, sea-level, salt-marsh]
 description: "A new story set on an invented North Frisian hallig in 2058: a higher dike means fewer floods, less mud, and a marsh that falls behind the sea faster."
