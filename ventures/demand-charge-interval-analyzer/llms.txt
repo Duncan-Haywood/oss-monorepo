@@ -1,12 +1,12 @@
 # How much of our electric bill is one bad 15 minutes, and what would it take to remove it?
 
-> Free tool for businesses with demand charges: paste 15-minute utility interval data and see monthly peaks, demand charges, ratchet effects, and what shaving the peak would save and need. Nothing uploaded.
+> Free tool for businesses with demand charges: paste 15-minute utility interval data and see monthly peaks, demand charges, ratchet effects, and what shaving the peak would save and need. With time-of-use rates it plans one battery month by month for peak shaving plus energy arbitrage (charge off-peak, discharge on-peak) and splits the saving into demand and energy. Nothing uploaded.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/demand-charge-interval-analyzer/)
+- [The tool](https://marisstella.app/demand-charge-interval-analyzer/)
 
 ## Source
 

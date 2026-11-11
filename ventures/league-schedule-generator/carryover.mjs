@@ -540,3 +540,53 @@ export function assignVenuesDouble(opp, n, seed = 1, restarts = 6, initialHost =
   }
   return best;
 }
+
+/**
+ * Best of several searches. One search is a sample, not the curve: at 20 teams the same settings
+ * give 1,678 to 1,820 carry-over and 108 to 124 breaks across seeds (eval/double-frontier.txt).
+ * This runs `tries` searches, cycling through `weights` (the break weight inside each search) with
+ * a fresh seed per try, and keeps the one with the least carry-over + `pick` x breaks. `pick` is
+ * the organiser's trade: 0 keeps the fairest carry-over, a large value the fewest breaks.
+ * `effort` scales each search, so tries x effort is the total work (tries 4 at effort 0.25 costs one
+ * plain search). Seeded: the same arguments give the same rounds. `onTry(i, candidate)` reports
+ * progress (the page's Web Worker posts it). Returns the chosen search's result plus `tries`
+ * (every candidate's seed, weight, coe and breaks), `chosen` (its index) and `frontier` (the
+ * candidates no other one beats on both counts, by carry-over).
+ */
+export function bestCarryOverRounds(n, { double = false, seed = 1, tries = 4, weights = [10, 20, 40, 80], pick = 10, effort = 1, onTry = null } = {}) {
+  if (!Number.isInteger(tries) || tries < 1) throw new Error("tries must be a whole number of at least 1.");
+  const cands = [];
+  let best = null, bestScore = Infinity, chosen = -1;
+  for (let i = 0; i < tries; i++) {
+    // try 0 is exactly the plain search at `seed` and the first weight, so tries 1 changes nothing
+    const s = i === 0 ? seed : ((seed * 7919 + i * 104729) % 2147483647) || 1;
+    const w = weights[i % weights.length];
+    const r = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
+    const score = r.coe + pick * r.breaks + (r.repeats || 0) * REPEAT_PENALTY;
+    const c = { seed: s, breakWeight: w, coe: r.coe, breaks: r.breaks, score };
+    cands.push(c);
+    if (score < bestScore) { bestScore = score; best = r; chosen = i; }
+    if (onTry) onTry(i, c);
+  }
+  const frontier = cands
+    .map((c, i) => ({ ...c, index: i }))
+    .filter((c) => !cands.some((d) => d.coe <= c.coe && d.breaks <= c.breaks && (d.coe < c.coe || d.breaks < c.breaks)))
+    .sort((a, b) => a.coe - b.coe || a.breaks - b.breaks);
+  return { ...best, tries: cands, chosen, frontier, pick };
+}
+
+/** The organiser's choice among the tries: carry-over + pick x breaks (see bestCarryOverRounds). */
+export const CARRY_OVER_PICK = { fair: 0, balanced: 10, breaks: 40 };
+
+/** A small, JSON-safe account of a best-of-k search, for the page's read-out and share-safe caching. */
+export function carryOverSummary(best) {
+  return {
+    tries: best.tries.length,
+    chosen: best.chosen,
+    pick: best.pick,
+    coe: best.coe,
+    breaks: best.breaks,
+    candidates: best.tries.map((c) => ({ coe: c.coe, breaks: c.breaks, breakWeight: c.breakWeight })),
+    frontier: best.frontier.map((c) => ({ coe: c.coe, breaks: c.breaks, index: c.index })),
+  };
+}

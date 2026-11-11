@@ -12,6 +12,14 @@ export const DEFAULTS = {
   usablePct: "",
   roundTripPct: "",
   energyRate: "",
+  onStart: "",
+  onEnd: "",
+  weekdaysOnly: "yes",
+  onDemandRate: "",
+  onPrice: "",
+  offPrice: "",
+  batteryKw: "",
+  batteryKwh: "",
 };
 
 export const EXAMPLE_SETTINGS = {
@@ -24,6 +32,14 @@ export const EXAMPLE_SETTINGS = {
   usablePct: "90",
   roundTripPct: "88",
   energyRate: "0.12",
+  onStart: "16",
+  onEnd: "21",
+  weekdaysOnly: "yes",
+  onDemandRate: "8",
+  onPrice: "0.22",
+  offPrice: "0.11",
+  batteryKw: "",
+  batteryKwh: "",
 };
 
 const num = (v) => {
