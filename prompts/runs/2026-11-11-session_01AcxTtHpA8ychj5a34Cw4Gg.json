@@ -7,14 +7,16 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T23:05:54Z",
   "ended": "2026-11-11T23:15:10Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
+  "wall_minutes": 12.2,
+  "tokens_in": 6701452,
+  "tokens_out": 41126,
+  "cost_usd": 3.2369,
+  "tool_calls": 56,
   "task": "Flagship 4 changepoint-detector item (b): sticky series on the drift model",
   "projects": [
     "changepoint-detector"
@@ -24,7 +26,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 8,
@@ -50,7 +52,82 @@
     "ventures/changepoint-detector/README.md (Sticky series: exact repeats)"
   ],
   "goal": null,
-  "notes": "Pre-registration commit 94deb19c precedes the drop run; the missing-observation headers were committed before that run. Verification: drift-sticky.test.mjs 8/8 locally; full venture suite and venture-preflight results appended below once finished.",
+  "notes": "Pre-registration commit 94deb19c precedes the drop run; the missing-observation headers were committed before that run. Verification: run_venture_tests.py changepoint-detector ok (205 s, 0 failed); drift-sticky.test.mjs 8/8; venture-preflight clean (rc 0); post frontmatter and links checks pass.",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "35d6e4b2-afd0-5602-8330-77fdad80c736",
+    "transcripts": 1,
+    "first": "2026-11-11T23:05:54Z",
+    "last": "2026-11-11T23:18:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 108,
+        "output": 41126,
+        "thinking": 8537,
+        "cache_read": 6563692,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137652,
+        "api_equivalent_usd": 3.2369,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 108,
+      "output": 41126,
+      "thinking": 8537,
+      "cache_read": 6563692,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137652,
+      "api_equivalent_usd": 3.2369,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.2,
+      "active_minutes": 11.19,
+      "model_minutes": 7.48,
+      "tool_minutes": 3.71,
+      "waiting_on_human_minutes": 1.01,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "two pre-registered experiments with Kalman gap filter, warning, tests, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 308.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
