@@ -2,9 +2,11 @@
 // Web Worker (analyze-worker.mjs) or on the main thread when workers are missing.
 // job = { kind: 'one', opts }              -> analyze(opts)
 //     | { kind: 'multi', csv, columns, opts } -> parseColumns + analyzeMulti
+//     | { kind: 'drift', opts }            -> driftResult(opts) (jumps on a wandering level)
 // Returns { result } or { error } (an error message for the page to show), never throws.
 import { analyze } from './engine.mjs';
 import { parseColumns, analyzeMulti } from './multivariate.mjs';
+import { driftResult } from './drift-cli.mjs';
 
 export const MULTI_NEEDS_TWO = 'Several-columns mode needs two or more numeric columns; for one column pick “One column”.';
 
@@ -15,6 +17,7 @@ export function analyzeJob(job) {
       if (p.cols.length < 2) throw new Error(MULTI_NEEDS_TWO);
       return { result: { p, r: analyzeMulti({ ...p, ...job.opts }) } };
     }
+    if (job.kind === 'drift') return { result: driftResult(job.opts) };
     return { result: analyze(job.opts) };
   } catch (e) {
     return { error: String((e && e.message) || e) };
