@@ -1,9 +1,9 @@
 ---
 title: "Staff for the average hour and you are short half the time"
-seo_title: "How many staff per hour? The newsvendor rule on two real bakeries' sales"
+seo_title: "How many staff per hour? The newsvendor rule on real bakery sales"
 date: 2026-11-11
 tags: [scheduling, forecasting, labor, small-business, open-source]
-description: "A free shift planner now staffs each hour for a chosen share of past days, not the average. On two real bakeries it cut the weighted cost of being short or overstaffed."
+description: "A free shift planner now staffs each hour for a chosen share of past days, not the average. On two real bakeries it cut the cost of short and spare hours."
 ---
 
 The [shifts-from-sales page](../../ventures/shift-roster-builder/shifts-from-sales.html)
