@@ -32,7 +32,7 @@
   "tests_added": 5,
   "outcome": "success",
   "errors": [
-    "CI validate failed after merging main: portfolio/flagships.yaml league-schedule-generator next: was 2154 chars (cap 2000), landed by #14799; compacted it in this PR (history stays in the venture README)."
+    "CI validate failed after merging main: portfolio/flagships.yaml league-schedule-generator next: was 2154 chars (cap 2000), landed by #14799. I compacted it on the branch; another PR fixed it on main first, so the merge took main's version."
   ],
   "integrity_issues": [],
   "doc_friction": [
