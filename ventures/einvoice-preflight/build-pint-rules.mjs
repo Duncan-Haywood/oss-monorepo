@@ -72,7 +72,7 @@ for (const [name, xslt] of Object.entries(current)) {
   const asserts = (readFileSync(xslt, "utf8").match(/<svrl:failed-assert\b/g) || []).length;
   if (checks !== asserts) throw new Error(`${name}: ${checks} checks read, ${asserts} failed-asserts in ${xslt}`);
   writeFileSync(join(out, `${name}.json`), JSON.stringify(rules) + "\n");
-  manifest.sets[name] = { source: `OpenPeppol PINT via phive-rules-peppol-pint ${pintVersion} on Maven Central (MPL-2.0)`, from: xslt.split("schematron/")[1], checks };
+  manifest.sets[name] = { source: `OpenPeppol PINT via phive-rules-peppol-pint ${pintVersion} on Maven Central (Apache-2.0 wrapper; rules from OpenPeppol, licence per OpenPeppol/PINT)`, from: xslt.split("schematron/")[1], checks };
   console.log(`${name}: ${checks} checks`);
 }
 writeFileSync(manifestFile, JSON.stringify(manifest, null, 2) + "\n");
