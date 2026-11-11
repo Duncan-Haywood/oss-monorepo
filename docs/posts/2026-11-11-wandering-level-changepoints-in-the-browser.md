@@ -3,7 +3,7 @@ title: "A level that wanders, now on the page: changepoint detection that does n
 seo_title: "Changepoint detection for drifting time series, free in the browser"
 date: 2026-11-11
 tags: [changepoint-detector, changepoint-detection, time-series, random-walk, kalman-filter, browser]
-description: "The Changepoint Detector's random-walk level model was command-line only. It is now a choice on the page, runs in a background worker, and shows the fitted level, the jumps and a CSV."
+description: "The Changepoint Detector's random-walk level model is now on the page: it runs in a background worker and shows the fitted level, the jumps and a CSV."
 ---
 
 Most changepoint tools assume that between changes a series sits at a flat
