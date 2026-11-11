@@ -5913,7 +5913,9 @@ test('the scroll pass asks only the elements a rule could make scroll, and after
     elements,
   });
   assert.deepEqual(page.asked, [], 'nothing is measured inside the event that asked for it');
-  assert.equal(page.frames.length, 1, 'it waits for the next frame');
+  // Two frames: this pass's, and the sticky-card fit's (sticky-fit.mjs), which
+  // shares pf-site.js and also waits for the paint. Neither measures before it.
+  assert.equal(page.frames.length, 2, 'it waits for the next frame');
   page.flush();
   assert.deepEqual(page.asked.sort(), ['fits', 'inline', 'scroller'],
     'a <p> no overflow rule names is never asked; a rule inside @media is');
