@@ -488,6 +488,52 @@ What it says:
   is accepted as supplies or fixed assets. A file with codes rather than names is read the
   same way but was not measured here. Tests: `mcc.test.mjs` (8).
 
+### Merchant category codes on a second buyer: the City of Toronto (2026-11-11)
+
+The reading above has one buyer and category names only. The City of Toronto's monthly
+PCard expenditure report has the merchant's name, the network's four-digit code ("Merchant
+Type") beside its name, and the G/L account the city filed each line to. One month,
+November 2017, is in a public repository (`node eval/toronto-pcard.mjs --file <xlsx>`,
+fetch command in the file; City of Toronto data under the Open Government Licence -
+Toronto, not copied here): 4,823 card lines, of which 4,284 charges have a G/L account
+that names a chart account (`GL_MAP`, written from the account names before the first
+reading; "miscellaneous", "other expenses" and "contracted services - general" left out).
+They are replayed a day at a time from empty books, so most merchants are new. Nothing in
+the layer was changed after reading it.
+
+| | every line (4,284) | first-seen merchant (973) |
+|---|---|---|
+| layer off | 82.3% / 16.1% | 62.2% / 34.8% |
+| fixed table only | 84.8% / 14.2% | 70.7% / 27.4% |
+| table, then these books' own filings (default) | 85.3% / 13.8% | 72.7% / 25.5% |
+| the same, code column only | 85.3% / 13.8% | 72.7% / 25.5% |
+| the same, name column only | 85.2% / 13.9% | 72.3% / 25.9% |
+
+What it says:
+
+- **It holds on a second buyer: 10.5 points more right and 9.3 fewer wrong on first-seen
+  merchants.** Smaller than Scotland's 24.6 because the classifier already does better
+  here (62.2% against 41.4%: Toronto's card lines are small purchases at chains, ESSO,
+  Home Depot, Staples, whose names repeat). On the 744 first-seen lines where the layer
+  spoke it was right 78.6% of the time.
+- **The code and the name read the same** (72.7% and 72.3%), so the code path `mcc.mjs`
+  was written for, unmeasured until now, works.
+- **On first-seen merchants the books' own filings add less here (2 points over the table) than in Scotland
+  (13.6)**, because one month is short: a category needs 3 earlier lines before memory
+  speaks. Grocery stores (5411, 791 lines) and discount stores (5310, 233) are left
+  unmapped by the table and are learned from the books, as intended: the city files
+  them to food and to recreation supplies.
+- Caveats: one month, one city, and the G/L-to-chart map is a judgment.
+
+**Found on the way, fixed:** the real report did not import at all ("No transaction
+lines were found"). `Transaction Amt.` was not an amount heading, and the description
+fell to the "Cost Center ... Description" column over `Merchant Name`; the per-card
+subtotal rows each raised an "unreadable date" warning (1,234 of them). Now `merchant
+name` and `transaction amt.` are known headings, `Merchant Type` and `Merchant Type
+Description` are read as the MCC, and rows with an amount but no date or description are
+counted in one note. The real file reads all 4,823 lines with their codes. Tests:
+`toronto-pcard.test.mjs` (4, made-up rows under the real header).
+
 ### Round-trip property test (2026-10-22)
 
 `node --test eval/roundtrip-fuzz.test.mjs` renders 40 seeded random statements (5-34 rows) with the quirks real exports have and checks `readStatement` returns exactly the rows rendered: BOM, CRLF, `;` delimiter, quoted commas and quotes, parenthesised negatives, thousands separators, European decimals, split debit/credit columns, and ISO, M/D/Y, D/M/Y and "12 Mar 2026" dates. 40 of 40 pass. Generated, not real bank data; a row that reads "PAYMENT - THANK YOU" is left out on purpose, because the card sign heuristic flips signs for it.
