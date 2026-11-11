@@ -27,12 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
   "errors": [
-    "First push blocked by the post front-matter hook: description 163 chars (limit 160); shortened and pushed again."
+    "First push blocked by the post front-matter hook: description 163 chars (limit 160); shortened and pushed again.",
+    "CI Portfolio validate failed: sales-agent next: 2,171 chars (cap 2,000); trimmed the mail-files history to one sentence."
   ],
   "integrity_issues": [],
   "doc_friction": [
