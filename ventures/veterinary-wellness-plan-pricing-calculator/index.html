@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Veterinary Wellness Plan Pricing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Price an in-house veterinary wellness plan: monthly fee for a target margin, margin by member utilisation, patient savings, and yearly plan profit. Runs in your browser.","featureList":"Monthly fee for a target margin, utilisation stress table, fee ladder, patient savings, churn and sign-up cost, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I price a veterinary wellness plan?","acceptedAnswer":{"@type":"Answer","text":"Add up what the included services would cost a client a la carte at your list prices, apply the plan discount, then work backwards from your own cost of delivering them. This tool takes each service with its yearly quantity, list price and your cost, subtracts billing fees, assumes only some members use everything, and shows the monthly fee that reaches the margin you target."}},{"@type":"Question","name":"Why do plan members who skip services matter?","acceptedAnswer":{"@type":"Answer","text":"A wellness plan is paid monthly whether or not the services are used. If members use 85% of what is bundled, the practice pays for 85% of the cost. If they use more, margin shrinks fast, which is why the result shows margin at 60%, 80%, 100% and 120% of planned use."}},{"@type":"Question","name":"Is a plan better than selling the same services a la carte?","acceptedAnswer":{"@type":"Answer","text":"The result shows the margin you would earn selling the same visits at list price against the margin on the plan. The plan can still win through predictable monthly revenue, higher visit frequency and fewer skipped visits; those effects are not modelled here, so treat the comparison as the price of the discount only."}},{"@type":"Question","name":"What does the break-even utilisation number mean?","acceptedAnswer":{"@type":"Answer","text":"It is the share of the bundled services a member could use before the plan stops covering its own service cost and billing fees. If it is only a little above your planned use, the plan has little room for members who use more than you assumed."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1f6f5c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #175144; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #175144; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1f6f5c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6f5c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #175144; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
@@ -101,12 +139,12 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const b = a.base, c = a.cohort;
-      h += '<div class="finding"><h4>' + money2(a.fee) + " a month" + (a.mode === "target" ? " reaches your target margin" : " gives a " + pct(b.marginPct) + " margin") + "</h4><p>Members pay " + money(b.collected) + " a year for services worth " + money(b.listValue) + " a la carte (" + money(b.planValue) + " after the discount). After billing fees of " + money(b.fees) + " and about " + money(b.cost) + " of service cost, the practice keeps " + money(b.margin) + " per member (" + pct(b.marginPct) + ")." + (a.mode === "fixed" ? " The fee for your target margin would be " + money2(a.suggested) + " a month." : "") + "</p></div>";
-      h += '<div class="finding"><h4>Members ' + (b.patientSavings >= 0 ? "save " + money(b.patientSavings) : "pay " + money(-b.patientSavings) + " more than a la carte") + " a year</h4><p>Against buying what they use at list price. Selling those same visits a la carte would earn the practice " + money(b.alaCarteMargin) + " per client; the plan earns " + money(b.margin) + ". Visit frequency and retention effects are not counted.</p></div>";
-      h += '<div class="finding"><h4>If members use more or less than planned</h4>' + table(["Share of bundle used", "Margin per member", "Margin %"], a.sweep.map((s) => [s.use + "%", money(s.margin), pct(s.marginPct)])) + "<p>The plan stops covering its own cost and billing fees at " + (a.breakEvenUse == null ? "any use" : pct(a.breakEvenUse) + " of the bundle used") + ".</p></div>";
-      h += '<div class="finding"><h4>Other monthly fees</h4>' + table(["Monthly fee", "Margin per member", "Margin %", "Member saves per year"], a.ladder.map((l) => [money2(l.fee), money(l.margin), pct(l.marginPct), money(l.patientSavings)])) + "</div>";
-      h += '<div class="finding"><h4>Across ' + c.members.toLocaleString("en-US") + " members: " + money(c.annualMargin) + " a year</h4><p>" + money(b.margin * c.members) + " plan margin less " + money(c.signupSpend) + " to replace about " + Math.round(c.churned) + " members who leave (" + money(c.perMember) + " per member).</p></div>";
-      h += '<div class="finding"><h4>Each service</h4>' + table(["Service", "Per year", "List total", "Your cost", "Margin at list"], a.lines.map((l) => [esc(l.name), l.qty, money(l.listTotal), money(l.costTotal), pct(l.marginPct)])) + "</div>";
+      h += '<div class="finding"><h3>' + money2(a.fee) + " a month" + (a.mode === "target" ? " reaches your target margin" : " gives a " + pct(b.marginPct) + " margin") + "</h3><p>Members pay " + money(b.collected) + " a year for services worth " + money(b.listValue) + " a la carte (" + money(b.planValue) + " after the discount). After billing fees of " + money(b.fees) + " and about " + money(b.cost) + " of service cost, the practice keeps " + money(b.margin) + " per member (" + pct(b.marginPct) + ")." + (a.mode === "fixed" ? " The fee for your target margin would be " + money2(a.suggested) + " a month." : "") + "</p></div>";
+      h += '<div class="finding"><h3>Members ' + (b.patientSavings >= 0 ? "save " + money(b.patientSavings) : "pay " + money(-b.patientSavings) + " more than a la carte") + " a year</h3><p>Against buying what they use at list price. Selling those same visits a la carte would earn the practice " + money(b.alaCarteMargin) + " per client; the plan earns " + money(b.margin) + ". Visit frequency and retention effects are not counted.</p></div>";
+      h += '<div class="finding"><h3>If members use more or less than planned</h3>' + table(["Share of bundle used", "Margin per member", "Margin %"], a.sweep.map((s) => [s.use + "%", money(s.margin), pct(s.marginPct)])) + "<p>The plan stops covering its own cost and billing fees at " + (a.breakEvenUse == null ? "any use" : pct(a.breakEvenUse) + " of the bundle used") + ".</p></div>";
+      h += '<div class="finding"><h3>Other monthly fees</h3>' + table(["Monthly fee", "Margin per member", "Margin %", "Member saves per year"], a.ladder.map((l) => [money2(l.fee), money(l.margin), pct(l.marginPct), money(l.patientSavings)])) + "</div>";
+      h += '<div class="finding"><h3>Across ' + c.members.toLocaleString("en-US") + " members: " + money(c.annualMargin) + " a year</h3><p>" + money(b.margin * c.members) + " plan margin less " + money(c.signupSpend) + " to replace about " + Math.round(c.churned) + " members who leave (" + money(c.perMember) + " per member).</p></div>";
+      h += '<div class="finding"><h3>Each service</h3>' + table(["Service", "Per year", "List total", "Your cost", "Margin at list"], a.lines.map((l) => [esc(l.name), l.qty, money(l.listTotal), money(l.costTotal), pct(l.marginPct)])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download table (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

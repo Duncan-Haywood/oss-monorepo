@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Contract vs. Salary Rate Calculator (W-2 to 1099)", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find the hourly contract rate that matches a salaried job offer after self-employment tax, health insurance, unpaid time off, bench time, lost 401(k) match and expenses. Runs in your browser; nothing is uploaded.", "featureList": "Break-even contract rate, W-2 to 1099 conversion, self-employment tax, benefits replacement, offered-rate comparison"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What hourly rate should a contract pay to match a salaried offer?", "acceptedAnswer": {"@type": "Answer", "text": "Not salary divided by 2,080. A contractor pays both halves of Social Security and Medicare tax, buys their own health cover, gets no paid vacation or holidays, loses weeks between contracts and replaces the retirement match. For a typical software salary that adds roughly 30% to 45% to the naive hourly figure. The tool shows each gap as its own step."}}, {"@type": "Question", "name": "Why is self-employment tax not simply 15.3%?", "acceptedAnswer": {"@type": "Answer", "text": "It applies to 92.35% of net earnings, and the 12.4% Social Security part stops at the annual wage base while the 2.9% Medicare part does not. The tool nets this against the employee half of FICA you stop paying when you leave a W-2 job."}}, {"@type": "Question", "name": "Does the comparison include income tax?", "acceptedAnswer": {"@type": "Answer", "text": "No. Income tax depends on state, filing status and deductions, and it is left out of both sides. This slightly favours the contractor, because half of self-employment tax is deductible and the qualified business income deduction may apply. Ask a CPA for the after-tax picture."}}, {"@type": "Question", "name": "Why count unpaid vacation and gaps between contracts?", "acceptedAnswer": {"@type": "Answer", "text": "A salaried offer pays you through holidays and time off. A contract pays only for hours worked, so every unpaid week raises the rate you need on the weeks you do bill. Enter zero for any you do not expect."}}, {"@type": "Question", "name": "What about corp-to-corp or an S corporation?", "acceptedAnswer": {"@type": "Answer", "text": "The tool models a sole proprietor or single-member LLC taxed as one. An S corporation can lower self-employment tax but adds payroll, reasonable-compensation rules and filing costs, so enter those as business expenses or ask a CPA."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in. It does not know your state, your client's terms, worker classification rules or your own benefits. Have an advisor review a real offer before you sign."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -91,12 +129,12 @@
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
     function run() {
       const a = analyze(opts()), b = a.breakEven;
-      let h = `<div class="finding"><h4>Break-even contract rate: ${money2(b.rate)} an hour</h4><p class="stats">That is ${a.multiplier.toFixed(2)}x the naive salary-over-2,080 figure of ${money2(a.naive)}. Billing ${b.weeks.toFixed(1)} weeks of ${(b.hours / b.weeks).toFixed(0)} hours needs about ${money(b.revenue)} of revenue to leave the same cash as the offer (${money(a.fteCash)} after the employee half of FICA).</p></div>`;
+      let h = `<div class="finding"><h3>Break-even contract rate: ${money2(b.rate)} an hour</h3><p class="stats">That is ${a.multiplier.toFixed(2)}x the naive salary-over-2,080 figure of ${money2(a.naive)}. Billing ${b.weeks.toFixed(1)} weeks of ${(b.hours / b.weeks).toFixed(0)} hours needs about ${money(b.revenue)} of revenue to leave the same cash as the offer (${money(a.fteCash)} after the employee half of FICA).</p></div>`;
       let prev = 0;
-      h += `<div class="finding"><h4>Where the extra rate comes from</h4>${table(["Step", "Rate", "Added"], a.steps.map((s) => { const d = s.rate - prev; prev = s.rate; return [s.label, money2(s.rate), (d >= 0 ? "+" : "") + money2(d)]; }))}</div>`;
+      h += `<div class="finding"><h3>Where the extra rate comes from</h3>${table(["Step", "Rate", "Added"], a.steps.map((s) => { const d = s.rate - prev; prev = s.rate; return [s.label, money2(s.rate), (d >= 0 ? "+" : "") + money2(d)]; }))}</div>`;
       if (a.offer) {
         const o = a.offer;
-        h += `<div class="finding"><h4>${money2(o.rate)} an hour leaves you ${money(Math.abs(o.diff))} a year ${o.diff >= 0 ? "ahead of" : "behind"} the salaried offer</h4><p>Contract cash after expenses, self-employment tax, health cover and match replacement: ${money(o.contractCash)}, against ${money(o.fteCash)} for the job. ${o.shortfallRate > 0 ? `You would need ${money2(o.shortfallRate)} an hour more to break even.` : "It clears break-even."} Before income tax on either side.</p></div>`;
+        h += `<div class="finding"><h3>${money2(o.rate)} an hour leaves you ${money(Math.abs(o.diff))} a year ${o.diff >= 0 ? "ahead of" : "behind"} the salaried offer</h3><p>Contract cash after expenses, self-employment tax, health cover and match replacement: ${money(o.contractCash)}, against ${money(o.fteCash)} for the job. ${o.shortfallRate > 0 ? `You would need ${money2(o.shortfallRate)} an hour more to break even.` : "It clears break-even."} Before income tax on either side.</p></div>`;
       }
       $("result").innerHTML = h;
       $("out").hidden = false;

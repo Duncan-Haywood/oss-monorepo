@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Demand Charge Interval Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste utility interval data and see monthly peak demand, demand charges, ratchet effects, and what holding demand to a lower cap would save and require. Runs in your browser.", "featureList": "Interval CSV parser, monthly demand charges, ratchet, peak timing, peak-shaving cap table, battery sizing and payback, time-of-use bill with battery peak shaving and energy arbitrage, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a demand charge?", "acceptedAnswer": {"@type": "Answer", "text": "Many commercial electricity tariffs bill not just for energy used (kWh) but for the highest average power drawn in any 15- or 30-minute window of the billing month (kW). That one interval is multiplied by a rate, often $10 to $25 per kW, so a single short spike can set a large part of the bill."}}, {"@type": "Question", "name": "What is a demand ratchet?", "acceptedAnswer": {"@type": "Answer", "text": "Some tariffs bill at least a set percentage, often 50% to 90%, of the highest demand reached in the previous 11 months, even if this month was quiet. A ratchet makes one bad afternoon cost money for a year, which is why the tool shows billed demand next to measured demand."}}, {"@type": "Question", "name": "Where do I get interval data?", "acceptedAnswer": {"@type": "Answer", "text": "Most utilities let commercial customers download 15-minute data from their online account, often as a Green Button CSV. Paste the file contents here, or use the file picker. The tool reads the date and time column and the usage column on its own and tells you which it chose."}}, {"@type": "Question", "name": "Is a battery worth it for peak shaving?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how tall and how long your peaks are. The cap table shows, for each level you could hold demand to, the yearly saving, the battery energy needed to ride through your longest peak above that level, and a rough payback from the costs you enter. Short, tall peaks pay back far faster than long, shallow ones. Load shifting or staggering equipment starts can capture some of the same saving for far less."}}, {"@type": "Question", "name": "Can a battery save money on a time-of-use rate?", "acceptedAnswer": {"@type": "Answer", "text": "Two ways: by holding down the facility and on-peak demand peaks, and by charging when energy is cheap and discharging during the on-peak window. Enter your on-peak hours and prices and the tool plans one battery month by month against your own readings, showing how much of the saving comes from demand and how much from energy. A spread too small to cover round-trip losses is not traded."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1f6f5c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #175144; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #175144; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1f6f5c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6f5c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #175144; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
@@ -119,15 +157,15 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const top = a.months.reduce((x, y) => (y.charge > x.charge ? y : x));
-      h += '<div class="finding"><h4>About ' + money(a.yearly) + " a year in demand charges</h4><p>From " + a.monthsUsed + " complete month(s) of " + a.readings.toLocaleString("en-US") + " readings at " + a.intervalMin + " minutes, scaled to 12 months. Your highest peak was " + kw(a.maxPeak) + ". The costliest month, " + top.month + ", billed " + kw(top.billed) + " for " + money(top.charge) + ".</p></div>";
-      h += '<div class="finding"><h4>Each month</h4>' + table(["Month", "Peak", "When", "Billed", "Charge", "Load factor", "Min. within 10% of peak"], a.months.map((m) => [m.month, kw(m.peak), fmtTime(m.peakAt), kw(m.billed) + (m.ratcheted ? " (ratchet)" : ""), money(m.charge), (m.loadFactor * 100).toFixed(0) + "%", m.near90Min])) + "<p>A low load factor with few minutes near the peak means a short spike is setting the bill, the easiest kind to remove.</p></div>";
+      h += '<div class="finding"><h3>About ' + money(a.yearly) + " a year in demand charges</h3><p>From " + a.monthsUsed + " complete month(s) of " + a.readings.toLocaleString("en-US") + " readings at " + a.intervalMin + " minutes, scaled to 12 months. Your highest peak was " + kw(a.maxPeak) + ". The costliest month, " + top.month + ", billed " + kw(top.billed) + " for " + money(top.charge) + ".</p></div>";
+      h += '<div class="finding"><h3>Each month</h3>' + table(["Month", "Peak", "When", "Billed", "Charge", "Load factor", "Min. within 10% of peak"], a.months.map((m) => [m.month, kw(m.peak), fmtTime(m.peakAt), kw(m.billed) + (m.ratcheted ? " (ratchet)" : ""), money(m.charge), (m.loadFactor * 100).toFixed(0) + "%", m.near90Min])) + "<p>A low load factor with few minutes near the peak means a short spike is setting the bill, the easiest kind to remove.</p></div>";
       const hrs = a.hourHits.map((n, i) => [i + ":00", n]).filter((r) => r[1] > 0);
-      h += '<div class="finding"><h4>When the peaks happen</h4>' + table(["Hour of day", "Readings within 5% of a monthly peak"], hrs) + "</div>";
-      h += '<div class="finding"><h4>What holding demand to a lower cap would do</h4>' + table(["Cap", "Shave", "Saves per year", "Longest stretch above cap", "Battery kWh (usable-adjusted)", "Est. cost", "Payback"], a.caps.map((c) => [kw(c.capKw), kw(c.kwShave), money(c.saving), c.longestMin + " min", c.batteryKwh.toFixed(1), c.cost == null ? "enter costs" : money(c.cost), c.payback == null ? "n/a" : c.payback.toFixed(1) + " yr"])) + "<p>Battery energy is the largest single stretch of demand above the cap. Round-trip losses, degradation, tariff changes, incentives and controls are not modelled. Staggering equipment starts or shifting loads can capture part of the same saving without a battery." + (a.best ? " With your costs the fastest payback in this table is a " + kw(a.best.capKw) + " cap at " + a.best.payback.toFixed(1) + " years." : "") + "</p></div>";
+      h += '<div class="finding"><h3>When the peaks happen</h3>' + table(["Hour of day", "Readings within 5% of a monthly peak"], hrs) + "</div>";
+      h += '<div class="finding"><h3>What holding demand to a lower cap would do</h3>' + table(["Cap", "Shave", "Saves per year", "Longest stretch above cap", "Battery kWh (usable-adjusted)", "Est. cost", "Payback"], a.caps.map((c) => [kw(c.capKw), kw(c.kwShave), money(c.saving), c.longestMin + " min", c.batteryKwh.toFixed(1), c.cost == null ? "enter costs" : money(c.cost), c.payback == null ? "n/a" : c.payback.toFixed(1) + " yr"])) + "<p>Battery energy is the largest single stretch of demand above the cap. Round-trip losses, degradation, tariff changes, incentives and controls are not modelled. Staggering equipment starts or shifting loads can capture part of the same saving without a battery." + (a.best ? " With your costs the fastest payback in this table is a " + kw(a.best.capKw) + " cap at " + a.best.payback.toFixed(1) + " years." : "") + "</p></div>";
       const n = (v, d) => { const x = Number(String(v).replace(/[$,%\s]/g, "")); return v !== "" && x > 0 ? x : d; };
       const st = readAll();
       const sw = sizeSweep(a, { roundTrip: n(st.roundTripPct, 88) / 100, usablePct: n(st.usablePct, 90), perKwh: n(st.batteryCostPerKwh, 0), perKw: n(st.batteryCostPerKw, 0), energyRate: n(st.energyRate, 0) });
-      h += '<div class="finding"><h4>Battery sizes, dispatched interval by interval</h4>' + table(["Inverter", "Duration", "Nameplate kWh", "Saves per year (net of losses)", "Est. cost", "Payback"], sw.rows.map((r) => [kw(r.kw), r.hours + " h", r.nameplateKwh.toFixed(0), money(r.saving), r.cost == null ? "enter costs" : money(r.cost), r.payback == null ? "n/a" : r.payback.toFixed(1) + " yr"])) + "<p>Unlike the cap table above, each size here is run through your readings: it discharges above the lowest cap it can hold each month and recharges as the cap allows, with the round-trip loss and the inverter limit. It knows the month's load in advance, so a real controller with a forecast will save somewhat less." + (sw.best ? " Fastest payback on your costs: " + kw(sw.best.kw) + " for " + sw.best.hours + " h, " + sw.best.payback.toFixed(1) + " years." : "") + "</p></div>";
+      h += '<div class="finding"><h3>Battery sizes, dispatched interval by interval</h3>' + table(["Inverter", "Duration", "Nameplate kWh", "Saves per year (net of losses)", "Est. cost", "Payback"], sw.rows.map((r) => [kw(r.kw), r.hours + " h", r.nameplateKwh.toFixed(0), money(r.saving), r.cost == null ? "enter costs" : money(r.cost), r.payback == null ? "n/a" : r.payback.toFixed(1) + " yr"])) + "<p>Unlike the cap table above, each size here is run through your readings: it discharges above the lowest cap it can hold each month and recharges as the cap allows, with the round-trip loss and the inverter limit. It knows the month's load in advance, so a real controller with a forecast will save somewhat less." + (sw.best ? " Fastest payback on your costs: " + kw(sw.best.kw) + " for " + sw.best.hours + " h, " + sw.best.payback.toFixed(1) + " years." : "") + "</p></div>";
       const tou = touSection(a, st, sw, n);
       if (tou) h += tou;
       h += '<p><button type="button" class="secondary" id="csv">Download tables (CSV)</button></p>';
@@ -157,7 +195,7 @@
       const tariff = { onStart, onEnd, weekdaysOnly: st.weekdaysOnly !== "no", onDemandRate, onPrice: onPrice >= 0 ? onPrice : 0, offPrice: offPrice >= 0 ? offPrice : 0 };
       const r = touBattery(a, tariff, { kw: bkw, kwh: bkwh * usable, roundTrip: n(st.roundTripPct, 88) / 100 });
       const y = r.yearly;
-      let h = '<div class="finding"><h4>Time-of-use bill: ' + money(r.yearlyBefore) + " a year now, " + money(r.yearlyAfter) + " with a " + kw(bkw) + " / " + bkwh.toFixed(0) + " kWh battery</h4>";
+      let h = '<div class="finding"><h3>Time-of-use bill: ' + money(r.yearlyBefore) + " a year now, " + money(r.yearlyAfter) + " with a " + kw(bkw) + " / " + bkwh.toFixed(0) + " kWh battery</h3>";
       h += "<p>Battery: " + esc(sizeNote) + ". Saves " + money(r.demandSaving) + " a year in demand charges and " + money(r.energySaving) + " in energy, " + money(r.saving) + " in all, scaled to a year using " + a.monthsUsed + " complete month(s).</p>";
       h += table(["Part of the bill (per year)", "Now", "With battery"], [["Facility demand", money(y.before.facility), money(y.after.facility)], ["On-peak demand", money(y.before.onDemand), money(y.after.onDemand)], ["Energy", money(y.before.energy), money(y.after.energy)]]);
       h += table(["Month", "Peak now", "Peak after", "On-peak peak now", "On-peak peak after", "Bill now", "Bill after", "Best plan"], r.months.map((m) => [m.month + (m.complete ? "" : " (partial)"), kw(m.before.facKw), kw(m.after.facKw), kw(m.before.onKw), kw(m.after.onKw), money(m.before.total), money(m.after.total), m.method]));

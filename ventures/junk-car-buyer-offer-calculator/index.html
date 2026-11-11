@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Junk Car Buyer Offer Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Work out the most a scrap or salvage buyer can offer for a junk car and still hit a target profit: scrap weight, catalytic converter, parts, tow, storage and labour. Runs in your browser.","featureList":"Max offer, profit at the seller's ask, break-even scrap price, farthest tow, break-even parts sell-through, sensitivity tables, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What should I pay for a junk car?","acceptedAnswer":{"@type":"Answer","text":"Work backward from what the car brings you. Add the scrap value of the stripped hulk (weight times the crusher's price per ton), the catalytic converter, and the parts that really sell after fees, then subtract the tow, paperwork, disposal, yard storage, your labour and the haul to the crusher. Subtract the profit you need and what is left is the most you can offer. This tool does that for the car in front of you."}},{"@type":"Question","name":"How is a junk car priced by weight?","acceptedAnswer":{"@type":"Answer","text":"Crushers and shredders pay per ton of the stripped hulk. Weigh or look up the curb weight, subtract the parts you pull and sell separately, and multiply by the price per 2,000 lb ton. The price moves with the scrap market, so it is an input here, not a constant."}},{"@type":"Question","name":"How far can I tow a junk car and still make money?","acceptedAnswer":{"@type":"Answer","text":"The tool finds the farthest one-way tow at which the seller's asking price still leaves your target profit, and shows the offer you could make at 5 to 80 miles."}},{"@type":"Question","name":"What if the parts do not sell?","acceptedAnswer":{"@type":"Answer","text":"Parts are counted at the share you say actually sells, net of marketplace and payment fees, and the tool shows the sell-through the ask needs and what the offer looks like from none to all of the parts selling."}},{"@type":"Question","name":"Is this financial, tax or legal advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Title rules, licensing for salvage buyers, converter laws and environmental disposal rules are set by state and local law; check yours with a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -106,7 +144,7 @@
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
-    const ladder = (title, label, key, rows, fmt) => `<div class="finding"><h4>${title}</h4>${table([label, "Profit at the ask", "Most you can offer"], rows.map((x) => [fmt(x[key]), money(x.profit), money(x.maxOffer)]))}</div>`;
+    const ladder = (title, label, key, rows, fmt) => `<div class="finding"><h3>${title}</h3>${table([label, "Profit at the ask", "Most you can offer"], rows.map((x) => [fmt(x[key]), money(x.profit), money(x.maxOffer)]))}</div>`;
     let last = null;
     function run() {
       const a = analyze(opts());
@@ -115,9 +153,9 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result, o = a.opts;
-      h += `<div class="finding"><h4>${r.buy ? "Take it at the ask" : "Counter below the ask"}: offer up to ${money(Math.max(0, r.maxOffer))}</h4>${table(["", "Amount"], [["Profit at the seller's ask", money(r.profitAtAsk)], ["Most you can offer and still hit your target", money(r.maxOffer)], ["Break-even offer (zero profit)", money(r.breakEvenOffer)]])}</div>`;
-      h += `<div class="finding"><h4>What the car brings and costs</h4>${table(["Line", "Dollars"], [["Stripped hulk to the crusher", money(r.hulk)], ["Catalytic converter", money(r.converter)], ["Parts that sell, after fees", money(r.parts)], ["Total in", money(r.revenue)], ["Tow", "-" + money(r.tow)], ["Paperwork and disposal", "-" + money(r.admin + r.disposal)], ["Yard storage", "-" + money(r.storage)], ["Parts labour", "-" + money(r.labour)], ["Hulk to the crusher", "-" + money(r.haulOut)], ["Worth to you before paying the seller", money(r.net)]])}</div>`;
-      h += `<div class="finding"><h4>Where the seller's ask stops working</h4>${table(["What would have to change", "Limit", "Your figure"], [
+      h += `<div class="finding"><h3>${r.buy ? "Take it at the ask" : "Counter below the ask"}: offer up to ${money(Math.max(0, r.maxOffer))}</h3>${table(["", "Amount"], [["Profit at the seller's ask", money(r.profitAtAsk)], ["Most you can offer and still hit your target", money(r.maxOffer)], ["Break-even offer (zero profit)", money(r.breakEvenOffer)]])}</div>`;
+      h += `<div class="finding"><h3>What the car brings and costs</h3>${table(["Line", "Dollars"], [["Stripped hulk to the crusher", money(r.hulk)], ["Catalytic converter", money(r.converter)], ["Parts that sell, after fees", money(r.parts)], ["Total in", money(r.revenue)], ["Tow", "-" + money(r.tow)], ["Paperwork and disposal", "-" + money(r.admin + r.disposal)], ["Yard storage", "-" + money(r.storage)], ["Parts labour", "-" + money(r.labour)], ["Hulk to the crusher", "-" + money(r.haulOut)], ["Worth to you before paying the seller", money(r.net)]])}</div>`;
+      h += `<div class="finding"><h3>Where the seller's ask stops working</h3>${table(["What would have to change", "Limit", "Your figure"], [
         ["Crusher price per ton", money(r.breakEvenScrapPrice) + " a ton", money(o.scrapPricePerTon) + " a ton"],
         ["Farthest one-way tow", Number.isNaN(r.maxTowMiles) ? "n/a" : r.maxTowMiles < 0 ? "none, even a free tow is not enough" : r.maxTowMiles.toFixed(0) + " miles", o.towMiles + " miles"],
         ["Share of parts value that must sell", Number.isNaN(r.breakEvenSellThrough) ? "never at these figures" : pct(r.breakEvenSellThrough), pct(o.partsSellThroughPct)]])}</div>`;

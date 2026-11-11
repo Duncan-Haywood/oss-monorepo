@@ -63,7 +63,9 @@ test("the page's tier defaults are the module's tier defaults", () => {
 test("FAQ in the markup and in the structured data are the same questions", () => {
   const html = page("index.html");
   const ld = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map((m) => JSON.parse(m[1])).find((j) => j["@type"] === "FAQPage");
-  const shown = [...html.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].replace(/&#x27;/g, "'"));
+  // Static markup only: the result renderer's own <h3> headings live in the module script.
+  const markup = html.replace(/<script\b[\s\S]*?<\/script>/g, "");
+  const shown = [...markup.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].replace(/&#x27;/g, "'"));
   assert.deepEqual(ld.mainEntity.map((q) => q.name), shown);
 });
 

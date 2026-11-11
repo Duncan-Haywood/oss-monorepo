@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Independent Pharmacy Prescription Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Margin per prescription type for an independent pharmacy after drug cost, supplies, PBM claim fees, DIR fees, rejected-claim rework, delivery and staff time, with profit per staff-hour, the copay for a target margin and break-even prescriptions per month. Runs in your browser.","featureList":"Margin per prescription type, profit per staff-hour, copay for target margin, insured vs cash comparison, break-even prescriptions, cost sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good margin on a prescription?","acceptedAnswer":{"@type":"Answer","text":"Per fill it is thin and it varies enormously by type. A generic on a good commercial plan can earn several dollars after drug cost, supplies, fees and staff time, while a brand or specialty drug on the same plan often passes almost all of its money straight through to the wholesaler and nets a dollar or two. A generic from a low-reimbursement PBM can lose money on every fill. This tool subtracts drug acquisition cost, vials and supplies, PBM claim fees, DIR and post-sale fees, a rework allowance, copay card fees, delivery and the staff's time, then shows what each kind of fill really earns."}},{"@type":"Question","name":"How do PBM reimbursements and DIR fees change the math?","acceptedAnswer":{"@type":"Answer","text":"A PBM pays a contracted amount per claim and the patient pays a copay on top. Fees charged after the sale, often called DIR fees, can claw back part of it weeks later. Enter the copay, what the PBM pays, and your DIR and post-sale fees per fill as separate numbers. The card fee applies only to the copay and the claim fee only to the PBM payment, and the tool gives you the copay that would reach your target margin if the PBM payment is fixed."}},{"@type":"Question","name":"What does a rejected claim cost?","acceptedAnswer":{"@type":"Answer","text":"A rejected or reversed claim costs the vial and supplies again plus staff time to call, resubmit or restock. Multiply by how often it happens. Even a four percent rework rate quietly takes cents from every fill, and the scenario table shows what three more points would cost across a month."}},{"@type":"Question","name":"How many prescriptions a month do I need to cover fixed costs?","acceptedAnswer":{"@type":"Answer","text":"Divide monthly fixed costs (rent, utilities, base staffing, pharmacy software, insurance, licenses) by the average contribution per fill at your current mix of generics, brands, cash and specialty fills. The result is only as good as that mix, so rerun it if a PBM changes its rates or you add a specialty line."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1f6e4e; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #175139; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #175139; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1f6e4e; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6e4e; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #175139; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .menu input { width: 100%; min-width: 4.5em; box-sizing: border-box; }
@@ -150,11 +188,11 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const t = a.totals;
-      h += '<div class="finding"><h4>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h4><p>" + Math.round(t.sales) + " prescriptions a month bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after goods, remakes, fees and staff time, against " + money(a.v.fixedMonth) + " of fixed costs. " + (a.breakEvenSales == null ? "Contribution per sale is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenSales + " prescriptions a month.") + "</p></div>";
-      h += '<div class="finding"><h4>Each prescription type</h4>' + table(["Prescription type", "Collected", "Drug and supplies", "Rework allowance", "Fees", "Staff time", "Earns", "Margin", "Per staff-hour", "Copay for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.collected), money2(r.goods), money2(r.reworkCost), money2(r.card + r.planFee), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perStaffHour), r.targetPrice == null ? "—" : money2(r.targetPrice.patient)])) + '<p class="note">Per staff-hour is what the sale earns before labor, if the optician did only that kind of sale for an hour. Copay for target assumes the PBM payment stays fixed.</p></div>';
-      h += '<div class="finding"><h4>Best and worst use of an staff hour</h4><p>' + esc(a.bestPerHour.name) + " earns the most per staff-hour (" + money(a.bestPerHour.perStaffHour) + "); " + esc(a.worstPerHour.name) + " earns the least (" + money(a.worstPerHour.perStaffHour) + ").</p></div>";
-      if (a.planAvg != null && a.cashAvg != null) h += '<div class="finding"><h4>Insurance fills vs cash fills</h4><p>Insured fills are ' + Math.round(a.planShare * 100) + "% of your volume. An average insured fill earns " + money2(a.planAvg) + " and an average cash fill earns " + money2(a.cashAvg) + ", a gap of " + money2(a.cashAvg - a.planAvg) + " a fill.</p></div>";
-      h += '<div class="finding"><h4>If costs move (monthly profit)</h4>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
+      h += '<div class="finding"><h3>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h3><p>" + Math.round(t.sales) + " prescriptions a month bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after goods, remakes, fees and staff time, against " + money(a.v.fixedMonth) + " of fixed costs. " + (a.breakEvenSales == null ? "Contribution per sale is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenSales + " prescriptions a month.") + "</p></div>";
+      h += '<div class="finding"><h3>Each prescription type</h3>' + table(["Prescription type", "Collected", "Drug and supplies", "Rework allowance", "Fees", "Staff time", "Earns", "Margin", "Per staff-hour", "Copay for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.collected), money2(r.goods), money2(r.reworkCost), money2(r.card + r.planFee), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perStaffHour), r.targetPrice == null ? "—" : money2(r.targetPrice.patient)])) + '<p class="note">Per staff-hour is what the sale earns before labor, if the optician did only that kind of sale for an hour. Copay for target assumes the PBM payment stays fixed.</p></div>';
+      h += '<div class="finding"><h3>Best and worst use of an staff hour</h3><p>' + esc(a.bestPerHour.name) + " earns the most per staff-hour (" + money(a.bestPerHour.perStaffHour) + "); " + esc(a.worstPerHour.name) + " earns the least (" + money(a.worstPerHour.perStaffHour) + ").</p></div>";
+      if (a.planAvg != null && a.cashAvg != null) h += '<div class="finding"><h3>Insurance fills vs cash fills</h3><p>Insured fills are ' + Math.round(a.planShare * 100) + "% of your volume. An average insured fill earns " + money2(a.planAvg) + " and an average cash fill earns " + money2(a.cashAvg) + ", a gap of " + money2(a.cashAvg - a.planAvg) + " a fill.</p></div>";
+      h += '<div class="finding"><h3>If costs move (monthly profit)</h3>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download Rx table (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

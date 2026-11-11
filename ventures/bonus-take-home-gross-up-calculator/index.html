@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bonus Take-Home and Gross-Up Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"See what a bonus pays after federal supplemental withholding, Social Security, Medicare and state tax, whether you will owe or get a refund at filing, and the gross bonus an employer must pay to leave a target amount net. Runs in your browser; nothing is uploaded.","featureList":"Bonus take-home, supplemental withholding vs real bracket, Social Security cap, Additional Medicare Tax, 401(k) deferral comparison, employer gross-up, employer cost"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does my bonus check look so small?","acceptedAnswer":{"@type":"Answer","text":"Most employers withhold federal income tax on a bonus at a flat 22% (the supplemental rate), then take Social Security, Medicare and your state's share on top. With a state rate of 5% that is about 35 cents of every dollar before anything else. The tool lists each piece."}},{"@type":"Question","name":"Is a bonus really taxed at a higher rate?","acceptedAnswer":{"@type":"Answer","text":"No. The extra withholding is not a higher tax. Withholding is a prepayment: the bonus is added to your income for the year and taxed at your real bracket when you file. If 22% was more than your bracket, the difference comes back as a refund; if your bracket is higher, you owe the rest. The tool shows which."}},{"@type":"Question","name":"How much do I need to gross up to pay a bonus net?","acceptedAnswer":{"@type":"Answer","text":"Divide the net you want by what is left after every tax that applies, or let the tool solve it, including the Social Security cap and the Additional Medicare Tax once the wages pass their lines. This is what employers do when they promise a bonus after tax, for example a relocation or sign-on payment."}},{"@type":"Question","name":"Does putting a bonus in a 401(k) help?","acceptedAnswer":{"@type":"Answer","text":"A deferral takes income tax off that part now, but not Social Security or Medicare, which are still taken on the full bonus. The table shows take-home and the after-tax value of the bonus at several deferral shares. Contribution limits and your plan's rules apply and are not checked here."}},{"@type":"Question","name":"Is this tax or payroll advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on rates you type in. It does not run a payroll, know your W-4 or your state's rules, or file anything. The federal rates in the boxes are U.S. figures that change; confirm them before relying on a number."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #0f766e; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #0a514c; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #0a514c; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f766e; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #0a514c; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -105,15 +143,15 @@
       if (!(o.bonus > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter the gross bonus.</div>'; $("out").hidden = false; return; }
       const a = analyze(o), b = a.b;
       let h = "";
-      h += `<div class="finding"><h4>You take home ${money(b.net)} of a ${money(b.gross)} bonus (${pct(b.keptRate, 0)})</h4><p class="stats">Withheld: federal <strong>${money(b.fedW)}</strong>, state <strong>${money(b.stateW)}</strong>, Social Security <strong>${money(b.ss)}</strong>, Medicare <strong>${money(b.medicare)}</strong>${b.addl > 0 ? ", Additional Medicare <strong>" + money(b.addl) + "</strong>" : ""}${b.deferred > 0 ? ". " + money(b.deferred) + " goes to your 401(k)" : ""}.${b.ssWages < b.gross ? " Social Security stops once your wages pass the base, so only " + money(b.ssWages) + " of the bonus is charged." : ""}</p></div>`;
-      h += `<div class="finding"><h4>${b.settlement >= 0 ? "About " + money(b.settlement) + " of this comes back at filing" : "You may owe about " + money(-b.settlement) + " more at filing"}</h4><p>Withholding is a prepayment. At your real federal bracket (${o.fedMarginalPct}%) and state rate (${o.stateMarginalPct}%) the bonus owes ${money(b.fedTrue + b.stateTrue)} in income tax against ${money(b.fedW + b.stateW)} withheld. After every tax the bonus is worth <strong>${money(b.afterTaxValue)}</strong> to you (${pct(b.afterTaxRate, 0)}).</p></div>`;
+      h += `<div class="finding"><h3>You take home ${money(b.net)} of a ${money(b.gross)} bonus (${pct(b.keptRate, 0)})</h3><p class="stats">Withheld: federal <strong>${money(b.fedW)}</strong>, state <strong>${money(b.stateW)}</strong>, Social Security <strong>${money(b.ss)}</strong>, Medicare <strong>${money(b.medicare)}</strong>${b.addl > 0 ? ", Additional Medicare <strong>" + money(b.addl) + "</strong>" : ""}${b.deferred > 0 ? ". " + money(b.deferred) + " goes to your 401(k)" : ""}.${b.ssWages < b.gross ? " Social Security stops once your wages pass the base, so only " + money(b.ssWages) + " of the bonus is charged." : ""}</p></div>`;
+      h += `<div class="finding"><h3>${b.settlement >= 0 ? "About " + money(b.settlement) + " of this comes back at filing" : "You may owe about " + money(-b.settlement) + " more at filing"}</h3><p>Withholding is a prepayment. At your real federal bracket (${o.fedMarginalPct}%) and state rate (${o.stateMarginalPct}%) the bonus owes ${money(b.fedTrue + b.stateTrue)} in income tax against ${money(b.fedW + b.stateW)} withheld. After every tax the bonus is worth <strong>${money(b.afterTaxValue)}</strong> to you (${pct(b.afterTaxRate, 0)}).</p></div>`;
       if (a.grossUp) {
         const g = a.grossUp;
-        h += `<div class="finding"><h4>To leave ${money(o.targetNet)} in the paycheck, pay a gross bonus of ${money(g.gross)}</h4><p>That is ${(g.gross / o.targetNet).toFixed(2)} times the net. The employer's total cost with its matching Social Security and Medicare is <strong>${money(g.employerCost)}</strong>. Gross-ups are themselves taxable pay, which is why the number is larger than a simple 1 + rate.</p></div>`;
+        h += `<div class="finding"><h3>To leave ${money(o.targetNet)} in the paycheck, pay a gross bonus of ${money(g.gross)}</h3><p>That is ${(g.gross / o.targetNet).toFixed(2)} times the net. The employer's total cost with its matching Social Security and Medicare is <strong>${money(g.employerCost)}</strong>. Gross-ups are themselves taxable pay, which is why the number is larger than a simple 1 + rate.</p></div>`;
       }
-      h += `<div class="finding"><h4>What the employer pays</h4><p>${money(b.gross)} bonus plus ${money(b.employerFica)} employer payroll tax is <strong>${money(b.employerCost)}</strong>.</p></div>`;
-      h += `<div class="finding"><h4>If part of the bonus goes to a 401(k)</h4>${table(["Share deferred", "Into 401(k)", "In your paycheck", "After-tax value of the bonus"], a.deferrals.map((r) => [r.share + "%", money(r.deferred), money(r.net), money(r.afterTaxValue)]))}<p class="note">Deferral lowers income tax only; Social Security and Medicare still apply to the whole bonus. Plan limits are not checked.</p></div>`;
-      h += `<div class="finding"><h4>At other bonus sizes</h4>${table(["Gross bonus", "In your paycheck", "Share kept", "Employer cost"], a.sizes.map((r) => [money(r.gross), money(r.net), pct(r.keptRate, 0), money(r.employerCost)]))}</div>`;
+      h += `<div class="finding"><h3>What the employer pays</h3><p>${money(b.gross)} bonus plus ${money(b.employerFica)} employer payroll tax is <strong>${money(b.employerCost)}</strong>.</p></div>`;
+      h += `<div class="finding"><h3>If part of the bonus goes to a 401(k)</h3>${table(["Share deferred", "Into 401(k)", "In your paycheck", "After-tax value of the bonus"], a.deferrals.map((r) => [r.share + "%", money(r.deferred), money(r.net), money(r.afterTaxValue)]))}<p class="note">Deferral lowers income tax only; Social Security and Medicare still apply to the whole bonus. Plan limits are not checked.</p></div>`;
+      h += `<div class="finding"><h3>At other bonus sizes</h3>${table(["Gross bonus", "In your paycheck", "Share kept", "Employer cost"], a.sizes.map((r) => [money(r.gross), money(r.net), pct(r.keptRate, 0), money(r.employerCost)]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("analysis_run");

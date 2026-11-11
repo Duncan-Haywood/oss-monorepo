@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Hard Money Loan Cost Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare two hard money lenders on a fix-and-flip: interest on drawn balances, points, draw fees, minimum interest, extension fees, effective annual rate and deal profit. Runs in your browser.", "featureList": "Effective annual rate, draw-based interest, minimum-interest floor, extension fees, lender crossover month, hold-length sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a hard money loan really cost?", "acceptedAnswer": {"@type": "Answer", "text": "Add the interest, the points, the flat fees, the fee on every draw and any extension fees, then divide by the money you actually had outstanding. A 10% loan with 2 points and draw fees on a six-month flip can cost a rate well above 15% a year, because the points are paid on money that is only outstanding for months. This tool shows that effective rate for each lender."}}, {"@type": "Question", "name": "Are points charged on the rehab money too?", "acceptedAnswer": {"@type": "Answer", "text": "Usually yes: points are quoted on the whole loan commitment, purchase plus rehab, even though the rehab part is released in draws and earns interest only once drawn. Check your term sheet. Enter the lender's own definition in the points and advance fields."}}, {"@type": "Question", "name": "When does the lower rate lose?", "acceptedAnswer": {"@type": "Answer", "text": "When the lender with the lower rate charges more points, draw fees or a minimum-interest period. On a short flip the upfront cost dominates; on a long one the rate does. The tool finds the hold length at which the two lenders cost the same."}}, {"@type": "Question", "name": "What happens if my flip runs late?", "acceptedAnswer": {"@type": "Answer", "text": "Interest keeps running, holding costs keep running, and past the loan term extension fees apply. The sensitivity table shows the finance cost and profit at 3 to 15 months so you can see what a delay costs before you sign."}}, {"@type": "Question", "name": "Is this lending, legal or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the terms you type, with simplifications listed under Not decided. Read the lender's actual term sheet and loan documents, and ask a lawyer or accountant before you borrow."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -117,10 +155,10 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result, A = r.a, B = r.b, o = a.opts;
-      h += `<div class="finding"><h4>Lender ${r.better} leaves you ${money(r.profitGap)} more profit on this deal</h4><p>Over ${o.holdMonths} months, A costs ${money(A.total)} in finance charges (${pct(A.effectiveApr)} a year effective) and B costs ${money(B.total)} (${pct(B.effectiveApr)} a year effective).</p></div>`;
-      h += `<div class="finding"><h4>Where each lender's money goes</h4>${table(["Line", "Lender A", "Lender B"], [["Total loan commitment", money(A.commitment), money(B.commitment)], ["Interest" + (A.floorApplied || B.floorApplied ? " (minimum applied where it bites)" : ""), money(A.interest), money(B.interest)], ["Points", money(A.pointsCost), money(B.pointsCost)], ["Flat fees", money(A.flat), money(B.flat)], ["Draw fees", money(A.drawFees), money(B.drawFees)], ["Extension fees", money(A.extensionFees), money(B.extensionFees)], ["Total finance cost", money(A.total), money(B.total)], ["Effective annual rate", pct(A.effectiveApr), pct(B.effectiveApr)], ["Your cash in", money(A.cash), money(B.cash)], ["Profit after selling and holding costs", money(A.profit), money(B.profit)], ["Return on cash in", pct(A.roi), pct(B.roi)], ["Loan as share of after-repair value", pct(A.ltarv), pct(B.ltarv)]])}</div>`;
-      h += `<div class="finding"><h4>Where the cheaper lender changes</h4><p>${r.crossover ? `Past ${r.crossover.month - 1} months, lender ${r.crossover.cheaperAfter} becomes the cheaper loan. If you expect to sell before then, the other one wins.` : "One lender is cheaper at every hold length from 1 to 36 months."}</p></div>`;
-      h += `<div class="finding"><h4>If the flip runs late</h4>${table(["Months held", "A finance cost", "B finance cost", "A profit", "B profit", "Cheaper"], a.rows.map((x) => [x.months, money(x.aCost), money(x.bCost), money(x.aProfit), money(x.bProfit), x.cheaper]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>Lender ${r.better} leaves you ${money(r.profitGap)} more profit on this deal</h3><p>Over ${o.holdMonths} months, A costs ${money(A.total)} in finance charges (${pct(A.effectiveApr)} a year effective) and B costs ${money(B.total)} (${pct(B.effectiveApr)} a year effective).</p></div>`;
+      h += `<div class="finding"><h3>Where each lender's money goes</h3>${table(["Line", "Lender A", "Lender B"], [["Total loan commitment", money(A.commitment), money(B.commitment)], ["Interest" + (A.floorApplied || B.floorApplied ? " (minimum applied where it bites)" : ""), money(A.interest), money(B.interest)], ["Points", money(A.pointsCost), money(B.pointsCost)], ["Flat fees", money(A.flat), money(B.flat)], ["Draw fees", money(A.drawFees), money(B.drawFees)], ["Extension fees", money(A.extensionFees), money(B.extensionFees)], ["Total finance cost", money(A.total), money(B.total)], ["Effective annual rate", pct(A.effectiveApr), pct(B.effectiveApr)], ["Your cash in", money(A.cash), money(B.cash)], ["Profit after selling and holding costs", money(A.profit), money(B.profit)], ["Return on cash in", pct(A.roi), pct(B.roi)], ["Loan as share of after-repair value", pct(A.ltarv), pct(B.ltarv)]])}</div>`;
+      h += `<div class="finding"><h3>Where the cheaper lender changes</h3><p>${r.crossover ? `Past ${r.crossover.month - 1} months, lender ${r.crossover.cheaperAfter} becomes the cheaper loan. If you expect to sell before then, the other one wins.` : "One lender is cheaper at every hold length from 1 to 36 months."}</p></div>`;
+      h += `<div class="finding"><h3>If the flip runs late</h3>${table(["Months held", "A finance cost", "B finance cost", "A profit", "B profit", "Cheaper"], a.rows.map((x) => [x.months, money(x.aCost), money(x.bCost), money(x.aProfit), money(x.bProfit), x.cheaper]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

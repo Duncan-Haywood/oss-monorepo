@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Vending Machine Planogram Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find how many coils each product should get in a vending machine to earn the most per week, and how often to restock. Runs in your browser.","featureList":"Exact best coil split, sell-out probability, perishable waste, substitution when sold out, restock interval scan, value of one more coil, CSV"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many coils should each vending machine product get?","acceptedAnswer":{"@type":"Answer","text":"Give coils where an extra coil earns the most. Each product's profit rises with its coils but with diminishing returns: the first coil catches most of the demand, later ones only cover busy weeks. The tool computes the exact best split of your coils from each product's price, cost, weekly sales and units per coil, so a fast mover gets more coils and a slow, high-margin item gets just enough."}},{"@type":"Question","name":"Why do vending machines sell out of the best sellers first?","acceptedAnswer":{"@type":"Answer","text":"Coils are usually split evenly by habit, but demand is not. A product selling 70 a week on 4 coils of 10 sells out in four days, while a product selling 6 a week sits for months. Moving coils from the slow item to the fast one turns missed sales into profit with no extra visits."}},{"@type":"Question","name":"How often should I restock a vending machine?","acceptedAnswer":{"@type":"Answer","text":"Enter what a restocking visit costs you (drive time, fuel, labour). The tool re-optimises the coils for restock gaps from 2 to 14 days and shows weekly profit after visit costs for each, so you can see whether visiting less often loses more in sell-outs than it saves in trips."}},{"@type":"Question","name":"What about customers who switch when their pick is sold out?","acceptedAnswer":{"@type":"Answer","text":"Set the substitution share, the portion of a sold-out product's unmet demand that buys something else in stock. The recommended layout is re-measured against your current one on thousands of identical simulated restock intervals with that switching included, and the gain is shown with its standard error."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. It runs in your browser; nothing you type leaves your device."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 <style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
 </head>
 <body>
@@ -111,10 +149,10 @@
       last = a;
       const base = a.haveNow ? "your layout today" : "an even split of the coils";
       const verdict = a.deltaWeekly > 0 && a.significant ? "earns about " + money(a.deltaWeekly) + " more a week" : a.deltaWeekly < 0 && a.significant ? "earns less than the comparison (" + base + ")" : "is not clearly different (" + base + ")";
-      h += `<div class="finding"><h4>The recommended split ${verdict}</h4><p>Against ${base}: ${money(a.cur.weeklyNet)} a week after visit costs now, ${money(a.rec.weeklyNet)} with the recommended split (difference ${money(a.deltaWeekly)} ± ${money(a.deltaSe)}, one standard error, over ${a.nSim} identical simulated restock intervals). That is about ${money(a.monthly)} a month. Sales lost to empty coils fall from ${one(a.cur.missedPerWeek)} to ${one(a.rec.missedPerWeek)} units a week.</p></div>`;
+      h += `<div class="finding"><h3>The recommended split ${verdict}</h3><p>Against ${base}: ${money(a.cur.weeklyNet)} a week after visit costs now, ${money(a.rec.weeklyNet)} with the recommended split (difference ${money(a.deltaWeekly)} ± ${money(a.deltaSe)}, one standard error, over ${a.nSim} identical simulated restock intervals). That is about ${money(a.monthly)} a month. Sales lost to empty coils fall from ${one(a.cur.missedPerWeek)} to ${one(a.rec.missedPerWeek)} units a week.</p></div>`;
       h += table(["Product", "Coils now", "Recommended", "Units loaded", "Sold a week", "Sold out before next visit", "Profit a week"], a.rows.map((r) => [esc(r.name) + (r.perishable ? " (perishable)" : ""), r.now, r.coils, r.unitsPerVisit, one(r.soldPerWeek), r.sellOutPct === null ? "-" : Math.round(r.sellOutPct) + "%", money2(r.weeklyProfit)]));
-      h += `<div class="finding"><h4>What one coil is worth</h4><p>One more coil in the machine would add about ${money2(a.extraCoil)} a week; losing one would cost about ${money2(a.fewerCoil)} a week. ${a.extraCoil < 1 ? "The machine has more coils than the products can use well, so the next dollar is better spent on a better product or location." : ""}</p></div>`;
-      h += `<div class="finding"><h4>How often to restock</h4>${table(["Days between visits", "Profit before visits", "Visits a week", "Profit after visit costs"], a.intervals.map((r) => [r.days + (r.current ? " (yours)" : "") + (r.days === a.bestInterval.days ? " (best)" : ""), money(r.gross), one(r.visits), money(r.net)]))}<p class="note">Each row re-optimises the coils for that gap, using the visit cost you entered.</p></div>`;
+      h += `<div class="finding"><h3>What one coil is worth</h3><p>One more coil in the machine would add about ${money2(a.extraCoil)} a week; losing one would cost about ${money2(a.fewerCoil)} a week. ${a.extraCoil < 1 ? "The machine has more coils than the products can use well, so the next dollar is better spent on a better product or location." : ""}</p></div>`;
+      h += `<div class="finding"><h3>How often to restock</h3>${table(["Days between visits", "Profit before visits", "Visits a week", "Profit after visit costs"], a.intervals.map((r) => [r.days + (r.current ? " (yours)" : "") + (r.days === a.bestInterval.days ? " (best)" : ""), money(r.gross), one(r.visits), money(r.net)]))}<p class="note">Each row re-optimises the coils for that gap, using the visit cost you entered.</p></div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download the plan (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

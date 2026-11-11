@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "PTO Accrual Liability Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a roster of PTO balances and get the dollar liability now and projected, with caps, state payout rules and cost above a target balance. Runs in your browser.", "featureList": "PTO liability by employee, projection with accrual caps, months to cap, payout rule for CA CO IL MA, employer payroll tax load, cost above a target balance, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is accrued PTO liability?", "acceptedAnswer": {"@type": "Answer", "text": "The cash value of paid time off employees have earned and not used: balance hours times hourly rate. Under accrual accounting many employers record it as a liability, and in some states it is a wage debt that becomes due the day someone leaves. This tool adds the employer payroll tax that a payout would also trigger."}}, {"@type": "Question", "name": "Does my state require paying out unused PTO?", "acceptedAnswer": {"@type": "Answer", "text": "A few states treat earned vacation or PTO as wages: this tool lists California, Colorado, Illinois and Massachusetts. In most other states your written policy decides, and a policy that promises payout creates the obligation. Some states have narrower rules not listed here, so check your state labor department or an employment lawyer before relying on any answer."}}, {"@type": "Question", "name": "Why does a cap matter?", "acceptedAnswer": {"@type": "Answer", "text": "Without a cap, a balance grows for as long as the employee stays, and so does what you owe. A cap stops accrual at a number of hours. Employees at their cap stop earning, which is the usual nudge to take time off. The tool shows who is at the cap and how many months until the rest get there."}}, {"@type": "Question", "name": "What is a sensible target balance?", "acceptedAnswer": {"@type": "Answer", "text": "There is no legal number. Many employers aim for balances under a year or so of accrual. Type your own hours and the tool prices everything above it, which is the cash you would be sitting on if everyone used their time down to that level."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -89,10 +127,10 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const t = a.totals;
-      h += '<div class="finding"><h4>Liability today: ' + money(t.now) + "</h4><p>" + t.employees + " employees hold " + hrs(t.hours) + " hours, worth " + money(t.wages) + " in wages" + (a.owed ? ", or " + money(t.now) + " with " + a.burden + "% employer payroll tax if all of it were paid out" : "") + ". " + (a.owed ? (a.rule ? "Payout rule for " + esc(a.state) + ": " + esc(a.rule.law) + "." : "You said unused PTO is always owed.") : "No payout is assumed; your written policy decides.") + "</p></div>";
-      h += '<div class="finding"><h4>In ' + a.horizon + " months: " + money(t.projected) + "</h4><p>" + (t.growth >= 0 ? "Up " : "Down ") + money(Math.abs(t.growth)) + " from accrual, stopping each person at their cap. " + t.atCap + " of " + t.employees + " already at or above their cap.</p></div>";
-      if (a.target != null) h += '<div class="finding"><h4>Above your ' + hrs(a.target) + "-hour comfort level: " + money(t.excessValue) + "</h4><p>" + hrs(t.excessHours) + " hours across the team. That is the cash exposure you would remove by having people use their time down to that balance.</p></div>";
-      h += '<div class="finding"><h4>By employee</h4>' + table(["Employee", "Rate", "Balance", "Liability now", "In " + a.horizon + " mo", "Cap", "Months to cap"], a.per.map((r) => [esc(r.name), money(r.rate), hrs(r.bal), money(r.now), money(r.projected), r.cap == null ? "none" : hrs(r.cap), r.capped ? "at cap" : r.monthsToCap == null ? "—" : String(Math.round(r.monthsToCap * 10) / 10)])) + "</div>";
+      h += '<div class="finding"><h3>Liability today: ' + money(t.now) + "</h3><p>" + t.employees + " employees hold " + hrs(t.hours) + " hours, worth " + money(t.wages) + " in wages" + (a.owed ? ", or " + money(t.now) + " with " + a.burden + "% employer payroll tax if all of it were paid out" : "") + ". " + (a.owed ? (a.rule ? "Payout rule for " + esc(a.state) + ": " + esc(a.rule.law) + "." : "You said unused PTO is always owed.") : "No payout is assumed; your written policy decides.") + "</p></div>";
+      h += '<div class="finding"><h3>In ' + a.horizon + " months: " + money(t.projected) + "</h3><p>" + (t.growth >= 0 ? "Up " : "Down ") + money(Math.abs(t.growth)) + " from accrual, stopping each person at their cap. " + t.atCap + " of " + t.employees + " already at or above their cap.</p></div>";
+      if (a.target != null) h += '<div class="finding"><h3>Above your ' + hrs(a.target) + "-hour comfort level: " + money(t.excessValue) + "</h3><p>" + hrs(t.excessHours) + " hours across the team. That is the cash exposure you would remove by having people use their time down to that balance.</p></div>";
+      h += '<div class="finding"><h3>By employee</h3>' + table(["Employee", "Rate", "Balance", "Liability now", "In " + a.horizon + " mo", "Cap", "Months to cap"], a.per.map((r) => [esc(r.name), money(r.rate), hrs(r.bal), money(r.now), money(r.projected), r.cap == null ? "none" : hrs(r.cap), r.capped ? "at cap" : r.monthsToCap == null ? "—" : String(Math.round(r.monthsToCap * 10) / 10)])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download result (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

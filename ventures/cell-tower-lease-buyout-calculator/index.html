@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Cell Tower Lease Buyout Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare a lump-sum cell tower, rooftop or ground lease buyout offer with the rent you would keep collecting: present value at your discount rate, the buyer's implied return, colocation upside, tenant-exit risk and an after-tax comparison. Runs in your browser; nothing is uploaded.", "featureList": "Present value of lease rent, implied buyer return, offer vs your discount rate, colocation upside, tenant exit sensitivity, partial-term buyouts, after-tax comparison"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Should I accept a lump-sum offer for my cell tower lease?", "acceptedAnswer": {"@type": "Answer", "text": "This tool does not tell you to. It shows what the offer is worth against the rent you would otherwise collect: the present value of that rent at your own discount rate, the annual return the buyer earns at the offered price, and the same comparison after tax. An offer that implies a buyer return well above what you could earn elsewhere is paying you less than the stream is worth to you."}}, {"@type": "Question", "name": "What is the implied return on a tower lease buyout?", "acceptedAnswer": {"@type": "Answer", "text": "It is the discount rate at which the rent you would give up is worth exactly the offer, an internal rate of return. A buyer paying $330,000 for $543,000 of discounted rent is earning that gap. The higher it is, the cheaper the buyer is getting your income. Compare it with what the money could earn if you kept it."}}, {"@type": "Question", "name": "Why does the tool ask about colocation?", "acceptedAnswer": {"@type": "Answer", "text": "Towers usually gain carriers over time, and many leases pay the landowner more when they do. A buyer prices that in; an offer built only on today's rent ignores it. The tool shows the value and the implied return with and without the extra carriers so you can see how much of the price rests on tenants that have not signed."}}, {"@type": "Question", "name": "What does tenant-exit chance mean?", "acceptedAnswer": {"@type": "Answer", "text": "The yearly probability that the carrier stops paying, through lease termination, tower decommissioning or consolidation. It shrinks the expected rent each year. Zero is a tower that never leaves; a few percent is a more cautious view. The grid shows how much the answer moves."}}, {"@type": "Question", "name": "Can I sell only part of the lease term?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Many offers buy the rent for a fixed number of years, then return it to you. Enter the years the offer buys; the tool values the years you sell and, separately, the years you keep."}}, {"@type": "Question", "name": "How is tax handled?", "acceptedAnswer": {"@type": "Answer", "text": "You type a rate for the lump sum, applied to the offer minus your basis, and a rate for ordinary rent. It is a rough comparison only. Whether a buyout is a sale, an easement or ordinary income depends on its structure, so confirm with a tax professional before signing anything."}}, {"@type": "Question", "name": "Is this legal, tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in, with simplified assumptions: yearly end-of-year payments, a constant escalator and a constant exit chance. Read your lease and any proposed contract with a real estate attorney, and check your lease for rights of first refusal and assignment clauses."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -95,12 +133,12 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.horizon || !a.offer) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const verdict = a.gap >= 0 ? "The offer is at or above what this rent is worth to you at " + a.rate + "%." : "The offer is " + money(-a.gap) + " below what this rent is worth to you at " + a.rate + "%, so the buyer earns " + pct(a.irr) + " a year on it.";
-      h += `<div class="finding"><h4>Offer against your own discount rate</h4><p>${esc(verdict)}</p>${table(["Measure", "Result"], [["Offer", money(a.offer) + " for " + a.sold + " year(s) of rent"], ["Expected rent sold, undiscounted", money(a.undiscounted)], ["Worth to you at " + a.rate + "% (present value)", money(a.pvSold)], ["Offer as a share of that value", pct(a.offerVsPv, 0)], ["Return the buyer earns at this price", pct(a.irr)], ["Offer that would match your rate", money(a.matchOffer)], ["Offer as years of first-year income", a.multiple.toFixed(1) + "x"], ["Year the rent you sell would pass the offer", a.paybackYear ? "year " + a.paybackYear : "never within the term sold"]])}</div>`;
-      h += `<div class="finding"><h4>How much rests on carriers not yet signed</h4>${table(["Measure", "With added carriers", "Existing rent only"], [["Present value of rent sold", money(a.pvSold), money(a.pvSoldBare)], ["Return the buyer earns", pct(a.irr), pct(a.irrBare)]])}</div>`;
-      h += `<div class="finding"><h4>After tax (rough)</h4>${table(["Measure", "Result"], [["Tax on the lump sum", money(a.lumpTax)], ["Offer after tax", money(a.offerAfterTax)], ["Rent sold, present value after tax", money(a.pvSoldAfterTax)], ["After-tax gap (offer minus rent value)", (a.afterTaxGap >= 0 ? "+" : "") + money(a.afterTaxGap)], ["After-tax return the buyer-side price implies", pct(a.irrAfterTax)]])}</div>`;
-      if (!a.soldAll) h += `<div class="finding"><h4>What you keep</h4><p>Present value of the rent after year ${a.sold}: ${money(a.pvKept)}.</p></div>`;
-      h += `<div class="finding"><h4>Value of the rent sold at other discount rates</h4>${table(["Discount rate", "Present value", "Offer minus value"], a.rates.map((r) => [r.rate + "%", money(r.pv), (a.offer - r.pv >= 0 ? "+" : "") + money(a.offer - r.pv)]))}</div>`;
-      h += `<div class="finding"><h4>Present value by discount rate and yearly chance the tenant leaves</h4>${table(["Discount rate", ...a.churns.map((c) => c + "% exit")], a.grid.map((g) => [g.rate + "%", ...g.values.map(money)]))}</div>`;
+      h += `<div class="finding"><h3>Offer against your own discount rate</h3><p>${esc(verdict)}</p>${table(["Measure", "Result"], [["Offer", money(a.offer) + " for " + a.sold + " year(s) of rent"], ["Expected rent sold, undiscounted", money(a.undiscounted)], ["Worth to you at " + a.rate + "% (present value)", money(a.pvSold)], ["Offer as a share of that value", pct(a.offerVsPv, 0)], ["Return the buyer earns at this price", pct(a.irr)], ["Offer that would match your rate", money(a.matchOffer)], ["Offer as years of first-year income", a.multiple.toFixed(1) + "x"], ["Year the rent you sell would pass the offer", a.paybackYear ? "year " + a.paybackYear : "never within the term sold"]])}</div>`;
+      h += `<div class="finding"><h3>How much rests on carriers not yet signed</h3>${table(["Measure", "With added carriers", "Existing rent only"], [["Present value of rent sold", money(a.pvSold), money(a.pvSoldBare)], ["Return the buyer earns", pct(a.irr), pct(a.irrBare)]])}</div>`;
+      h += `<div class="finding"><h3>After tax (rough)</h3>${table(["Measure", "Result"], [["Tax on the lump sum", money(a.lumpTax)], ["Offer after tax", money(a.offerAfterTax)], ["Rent sold, present value after tax", money(a.pvSoldAfterTax)], ["After-tax gap (offer minus rent value)", (a.afterTaxGap >= 0 ? "+" : "") + money(a.afterTaxGap)], ["After-tax return the buyer-side price implies", pct(a.irrAfterTax)]])}</div>`;
+      if (!a.soldAll) h += `<div class="finding"><h3>What you keep</h3><p>Present value of the rent after year ${a.sold}: ${money(a.pvKept)}.</p></div>`;
+      h += `<div class="finding"><h3>Value of the rent sold at other discount rates</h3>${table(["Discount rate", "Present value", "Offer minus value"], a.rates.map((r) => [r.rate + "%", money(r.pv), (a.offer - r.pv >= 0 ? "+" : "") + money(a.offer - r.pv)]))}</div>`;
+      h += `<div class="finding"><h3>Present value by discount rate and yearly chance the tenant leaves</h3>${table(["Discount rate", ...a.churns.map((c) => c + "% exit")], a.grid.map((g) => [g.rate + "%", ...g.values.map(money)]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("analysis_run");

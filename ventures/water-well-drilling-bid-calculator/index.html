@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Water Well Drilling Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Bid a water well from drilling by formation, casing, grout, pump and tank, trench, mobilization, rig hours and a dry-hole allowance to your target margin. Runs in your browser.","featureList":"Bid price for a target margin, break-even, effective price per foot, cost of a dry hole, depth and dry-risk tables, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do you price a water well drilling job?","acceptedAnswer":{"@type":"Answer","text":"Add drilling by formation, the rig hours the hole takes, casing, grout, the pitless adapter, pump and tank, the trench and electric run, the permit and the move. Add overhead and an allowance for the chance of a dry hole, then divide by one minus your target margin."}},{"@type":"Question","name":"Why include an allowance for a dry hole?","acceptedAnswer":{"@type":"Answer","text":"A hole that does not make usable water still costs the drilling, casing, move and sealing. Spread across the wells that do produce, the expected loss is the chance of a dry hole times that cost. The tool shows that cost and how many good wells it takes to pay for one."}},{"@type":"Question","name":"Should I quote by the foot or a flat price?","acceptedAnswer":{"@type":"Answer","text":"A per-foot rate alone ignores the fixed items: the move, the pump system and the trench. The depth table shows the effective price per foot falling as the fixed items spread over more depth, so a single rate under-charges shallow wells."}},{"@type":"Question","name":"How do I shift dry-hole risk to the customer?","acceptedAnswer":{"@type":"Answer","text":"Many drillers bill drilling by the foot whether or not the hole produces. Enter the share of a dry hole that your contract bills and the allowance falls with it."}},{"@type":"Question","name":"Is this pricing or business advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Check local well-construction rules, licensing, insurance and contract terms with a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -125,11 +163,11 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result, c = r.cost, p = r.atPrice, o = a.opts, d = c.drilling;
-      h += `<div class="finding"><h4>Bid ${money(r.price)} (${money2(p.perFoot)} per foot)</h4><p>A ${o.depthFt} ft well. That leaves ${money(p.profit)} profit, ${pct(p.margin)} of the price, after the dry-hole allowance. Your break-even is ${money(r.breakEven)}, or ${money(r.breakEvenIfGood)} if you count only the wells that produce.</p></div>`;
-      h += `<div class="finding"><h4>What one dry hole costs</h4><p>A dry hole costs ${money(c.dryHoleCost)} in drilling, casing, the move, the permit and sealing, and ${money(c.dryHoleLoss)} after what your contract bills. A good well at this bid earns ${money(p.profitIfGood)} before the allowance, so it takes ${Number.isFinite(r.wellsToCoverDry) ? r.wellsToCoverDry.toFixed(1) : "more than any number of"} good wells to pay for one dry hole.</p></div>`;
-      h += `<div class="finding"><h4>Where the cost goes</h4>${table(["Item", "Cost"], [["Drilling (consumables and rig hours)", money(d.cost)], ["Casing", money(c.casing)], ["Grout seal", money(c.grout)], ["Pump system and install", money(c.pumpSystem)], ["Trench and electric run", money(c.trench)], ["Permit, test and mobilization", money(o.permitTest + o.mobilization)], ["Overhead", money(c.overhead)], ["Dry-hole allowance", money(c.allowance)], ["Total cost", money(c.cost)]])}<p>The hole takes ${d.rigHours.toFixed(1)} rig hours: ${d.driveHours.toFixed(1)} drilling ${d.over.toFixed(0)} ft of overburden and ${d.rock.toFixed(0)} ft of rock, plus ${o.setupHours} for setup and development.</p></div>`;
-      h += `<div class="finding"><h4>If the depth changes</h4>${table(["Depth (ft)", "Bid", "Per foot", "Dry-hole cost"], a.depth.map((x) => [x.depthFt, money(x.price), money2(x.perFoot), money(x.dryHoleCost)]))}</div>`;
-      h += `<div class="finding"><h4>If the dry-hole chance changes</h4>${table(["Chance", "Bid", "Per foot", "Allowance"], a.risk.map((x) => [x.dryHolePct + "%", money(x.price), money2(x.perFoot), money(x.allowance)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>Bid ${money(r.price)} (${money2(p.perFoot)} per foot)</h3><p>A ${o.depthFt} ft well. That leaves ${money(p.profit)} profit, ${pct(p.margin)} of the price, after the dry-hole allowance. Your break-even is ${money(r.breakEven)}, or ${money(r.breakEvenIfGood)} if you count only the wells that produce.</p></div>`;
+      h += `<div class="finding"><h3>What one dry hole costs</h3><p>A dry hole costs ${money(c.dryHoleCost)} in drilling, casing, the move, the permit and sealing, and ${money(c.dryHoleLoss)} after what your contract bills. A good well at this bid earns ${money(p.profitIfGood)} before the allowance, so it takes ${Number.isFinite(r.wellsToCoverDry) ? r.wellsToCoverDry.toFixed(1) : "more than any number of"} good wells to pay for one dry hole.</p></div>`;
+      h += `<div class="finding"><h3>Where the cost goes</h3>${table(["Item", "Cost"], [["Drilling (consumables and rig hours)", money(d.cost)], ["Casing", money(c.casing)], ["Grout seal", money(c.grout)], ["Pump system and install", money(c.pumpSystem)], ["Trench and electric run", money(c.trench)], ["Permit, test and mobilization", money(o.permitTest + o.mobilization)], ["Overhead", money(c.overhead)], ["Dry-hole allowance", money(c.allowance)], ["Total cost", money(c.cost)]])}<p>The hole takes ${d.rigHours.toFixed(1)} rig hours: ${d.driveHours.toFixed(1)} drilling ${d.over.toFixed(0)} ft of overburden and ${d.rock.toFixed(0)} ft of rock, plus ${o.setupHours} for setup and development.</p></div>`;
+      h += `<div class="finding"><h3>If the depth changes</h3>${table(["Depth (ft)", "Bid", "Per foot", "Dry-hole cost"], a.depth.map((x) => [x.depthFt, money(x.price), money2(x.perFoot), money(x.dryHoleCost)]))}</div>`;
+      h += `<div class="finding"><h3>If the dry-hole chance changes</h3>${table(["Chance", "Bid", "Per foot", "Allowance"], a.risk.map((x) => [x.dryHolePct + "%", money(x.price), money2(x.perFoot), money(x.allowance)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const csvBtn = $("csv");

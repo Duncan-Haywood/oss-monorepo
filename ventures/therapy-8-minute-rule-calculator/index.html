@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Therapy 8-Minute Rule Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Medicare 8-minute rule calculator for physical, occupational and speech therapy clinics: billable units from timed minutes, units assigned to each CPT code, per-code count comparison and revenue. Runs in your browser.","featureList":"CMS 8-minute rule units, unit assignment by code, per-code midpoint comparison, minutes to next unit, revenue at your rates, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the 8-minute rule?","acceptedAnswer":{"@type":"Answer","text":"Under Medicare's rule for timed therapy codes, you add up the minutes of all timed services in a visit and bill units from the total: 8 to 22 minutes is one unit, 23 to 37 is two, 38 to 52 is three, and so on, one more unit for each further 15 minutes. Fewer than 8 total timed minutes is not billable as a timed unit. This tool applies that table to the minutes you type, then shows which codes the units go to."}},{"@type":"Question","name":"Does the rule apply to each code or to the whole visit?","acceptedAnswer":{"@type":"Answer","text":"Under the CMS method the total of all timed minutes sets the number of units, and the units are then assigned to codes. Some other payers count each code on its own, giving a unit when a code reaches 8 minutes past a full 15. That can produce more units than the CMS method for the same visit, so the tool shows both counts and the difference. Check which rule your payer contract uses."}},{"@type":"Question","name":"Which codes are timed?","acceptedAnswer":{"@type":"Answer","text":"Codes such as 97110 therapeutic exercise, 97112 neuromuscular re-education, 97140 manual therapy, 97530 therapeutic activities and 97035 ultrasound are timed. Evaluations, supervised modalities such as 97010 hot and cold packs, and 97014 or G0283 unattended electrical stimulation are untimed: they are listed but add no minutes to the total."}},{"@type":"Question","name":"How do I find visits that are a few minutes short of a unit?","acceptedAnswer":{"@type":"Answer","text":"Visits whose timed total sits one to three minutes below the next threshold are flagged with how many more minutes of documented, skilled treatment would have reached it. Only add time you actually spent; the point is to see where your schedule leaves units unbilled, not to round up."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1f6f5c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #175144; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #175144; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1f6f5c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f6f5c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #175144; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
@@ -88,9 +126,9 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const t = a.totals;
-      h += '<div class="finding"><h4>' + t.units + " units across " + t.visits + " visits under the CMS total-time method</h4><p>A per-code count of the same minutes gives " + t.perCodeUnits + " units" + (t.over > 0 ? ", " + t.over + " more than the CMS method allows. If your payer uses the CMS method, billing the per-code count would overbill by about " + money2(t.revenuePerCode - t.revenue) + "." : ".") + " At your rates the CMS count is worth " + money2(t.revenue) + ".</p></div>";
-      h += '<div class="finding"><h4>Each visit</h4>' + table(["Visit", "Timed min", "CMS units", "Per-code units", "Units by code", "Min to next unit", "CMS amount"], a.rows.map((r) => [esc(r.name), r.total, r.units, r.perCodeUnits + (r.over ? " (+" + r.over + ")" : ""), r.lines.map((l) => esc(l.code) + " ×" + l.units).join(", "), r.nearMiss ? "<strong>" + r.minutesToNextUnit + "</strong> (near miss)" : r.minutesToNextUnit, money2(r.revenue)])) + "</div>";
-      if (t.nearMisses > 0) h += '<div class="finding"><h4>' + t.nearMisses + " visit" + (t.nearMisses > 1 ? "s" : "") + " within 3 minutes of another unit</h4><p>Check whether skilled treatment was delivered in that time and documented. Only bill time you actually spent.</p></div>";
+      h += '<div class="finding"><h3>' + t.units + " units across " + t.visits + " visits under the CMS total-time method</h3><p>A per-code count of the same minutes gives " + t.perCodeUnits + " units" + (t.over > 0 ? ", " + t.over + " more than the CMS method allows. If your payer uses the CMS method, billing the per-code count would overbill by about " + money2(t.revenuePerCode - t.revenue) + "." : ".") + " At your rates the CMS count is worth " + money2(t.revenue) + ".</p></div>";
+      h += '<div class="finding"><h3>Each visit</h3>' + table(["Visit", "Timed min", "CMS units", "Per-code units", "Units by code", "Min to next unit", "CMS amount"], a.rows.map((r) => [esc(r.name), r.total, r.units, r.perCodeUnits + (r.over ? " (+" + r.over + ")" : ""), r.lines.map((l) => esc(l.code) + " ×" + l.units).join(", "), r.nearMiss ? "<strong>" + r.minutesToNextUnit + "</strong> (near miss)" : r.minutesToNextUnit, money2(r.revenue)])) + "</div>";
+      if (t.nearMisses > 0) h += '<div class="finding"><h3>' + t.nearMisses + " visit" + (t.nearMisses > 1 ? "s" : "") + " within 3 minutes of another unit</h3><p>Check whether skilled treatment was delivered in that time and documented. Only bill time you actually spent.</p></div>";
       h += '<p><button type="button" class="secondary" id="csv">Download code table (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

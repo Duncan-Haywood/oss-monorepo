@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Optical Dispensary Margin Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Margin per eyeglass sale type for an optical shop or optometry practice after frames, lenses, remakes, plan and card fees and optician time, with profit per optician-hour, patient price for a target margin and break-even sales per month. Runs in your browser.","featureList":"Margin per sale type, profit per optician-hour, patient price for target margin, vision plan vs cash comparison, break-even sales, cost sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a good margin on eyeglasses?","acceptedAnswer":{"@type":"Answer","text":"Optical retail is one of the higher-margin parts of an eye care practice, but the average hides a wide spread. A cash sale with a marked-up frame can earn several times what a sale on a low-reimbursement vision plan earns. This tool subtracts the frame, lenses, coatings, a remake allowance, card and plan fees, free adjustments and the optician's time, then shows what each kind of sale really earns so you can see where the margin is made."}},{"@type":"Question","name":"How do vision plans change the math?","acceptedAnswer":{"@type":"Answer","text":"A plan pays a fixed amount toward the frame and lenses and often withholds a claim fee, while the patient pays the rest. Enter what the plan pays and what the patient pays as separate numbers. The tool applies the card fee only to the patient's payment and the claim fee only to the plan's, and gives you the patient price that reaches your target margin if the plan payment is fixed."}},{"@type":"Question","name":"How much does a remake cost?","acceptedAnswer":{"@type":"Answer","text":"A remake costs the lens lab charge and coatings again plus the optician's time to re-order, verify and re-fit. Multiply by how often it happens. Even a six percent remake rate quietly takes a few dollars from every sale, and the scenario table shows what three more points would cost across a month."}},{"@type":"Question","name":"How many sales a month do I need to cover fixed costs?","acceptedAnswer":{"@type":"Answer","text":"Divide monthly fixed costs (rent, utilities, base staffing, software, doctor lease) by the average contribution per sale at your current mix of cash and plan sales. The result is only as good as that mix, so rerun it if plans change what they pay or you add a premium frame line."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1f4e79; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1d4972; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1d4972; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1f4e79; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1f4e79; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1d4972; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
   <style>
     .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .menu input { width: 100%; min-width: 4.5em; box-sizing: border-box; }
@@ -150,11 +188,11 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const t = a.totals;
-      h += '<div class="finding"><h4>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h4><p>" + Math.round(t.sales) + " sales a month bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after goods, remakes, fees and optician time, against " + money(a.v.fixedMonth) + " of fixed costs. " + (a.breakEvenSales == null ? "Contribution per sale is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenSales + " sales a month.") + "</p></div>";
-      h += '<div class="finding"><h4>Each sale type</h4>' + table(["Sale type", "Collected", "Goods", "Remake allowance", "Fees", "Optician time", "Earns", "Margin", "Per optician-hour", "Patient price for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.collected), money2(r.goods), money2(r.remakeCost), money2(r.card + r.planFee), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perOpticianHour), r.targetPrice == null ? "—" : money2(r.targetPrice.patient)])) + '<p class="note">Per optician-hour is what the sale earns before labor, if the optician did only that kind of sale for an hour. Patient price for target assumes the plan payment stays fixed.</p></div>';
-      h += '<div class="finding"><h4>Best and worst use of an optician hour</h4><p>' + esc(a.bestPerHour.name) + " earns the most per optician-hour (" + money(a.bestPerHour.perOpticianHour) + "); " + esc(a.worstPerHour.name) + " earns the least (" + money(a.worstPerHour.perOpticianHour) + ").</p></div>";
-      if (a.planAvg != null && a.cashAvg != null) h += '<div class="finding"><h4>Plan sales vs cash sales</h4><p>Plan sales are ' + Math.round(a.planShare * 100) + "% of your volume. An average plan sale earns " + money2(a.planAvg) + " and an average cash sale earns " + money2(a.cashAvg) + ", a gap of " + money2(a.cashAvg - a.planAvg) + " a sale.</p></div>";
-      h += '<div class="finding"><h4>If costs move (monthly profit)</h4>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
+      h += '<div class="finding"><h3>' + (t.profitMonth >= 0 ? "Left after fixed costs: " : "Short of fixed costs by ") + money(Math.abs(t.profitMonth)) + " a month</h3><p>" + Math.round(t.sales) + " sales a month bring in " + money(t.revenue) + " and contribute " + money(t.contribution) + " after goods, remakes, fees and optician time, against " + money(a.v.fixedMonth) + " of fixed costs. " + (a.breakEvenSales == null ? "Contribution per sale is not positive, so no volume breaks even." : "At this mix you break even at about " + a.breakEvenSales + " sales a month.") + "</p></div>";
+      h += '<div class="finding"><h3>Each sale type</h3>' + table(["Sale type", "Collected", "Goods", "Remake allowance", "Fees", "Optician time", "Earns", "Margin", "Per optician-hour", "Patient price for " + a.v.target + "%"], a.rows.map((r) => [esc(r.name), money2(r.collected), money2(r.goods), money2(r.remakeCost), money2(r.card + r.planFee), money2(r.labor), money2(r.contribution), pct(r.margin), money(r.perOpticianHour), r.targetPrice == null ? "—" : money2(r.targetPrice.patient)])) + '<p class="note">Per optician-hour is what the sale earns before labor, if the optician did only that kind of sale for an hour. Patient price for target assumes the plan payment stays fixed.</p></div>';
+      h += '<div class="finding"><h3>Best and worst use of an optician hour</h3><p>' + esc(a.bestPerHour.name) + " earns the most per optician-hour (" + money(a.bestPerHour.perOpticianHour) + "); " + esc(a.worstPerHour.name) + " earns the least (" + money(a.worstPerHour.perOpticianHour) + ").</p></div>";
+      if (a.planAvg != null && a.cashAvg != null) h += '<div class="finding"><h3>Plan sales vs cash sales</h3><p>Plan sales are ' + Math.round(a.planShare * 100) + "% of your volume. An average plan sale earns " + money2(a.planAvg) + " and an average cash sale earns " + money2(a.cashAvg) + ", a gap of " + money2(a.cashAvg - a.planAvg) + " a sale.</p></div>";
+      h += '<div class="finding"><h3>If costs move (monthly profit)</h3>' + table(["Change", "Monthly profit", "Difference"], a.scenarios.map((s) => [esc(s.label), money(s.profitMonth), money(s.change)])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download sale table (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;
