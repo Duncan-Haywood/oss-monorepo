@@ -2,6 +2,16 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-11 · Milestone 6h: do measured CC-CV charges, fresh and aged, bear out 6d's taper model and its spare-pack counts? (predictions in `experiments/hub_throughput/cargo_hub_aged_cells.py`'s docstring, fixed before the data was opened)
+- Why: 6d fitted an exponential CV taper to two datasheet numbers and assumed no ageing. Data: NASA Ames PCoE Li-ion ageing set (Saha and Goebel 2007), 18650 cells B0005/6/7/18, 2 Ah, 1.5 A (0.75C) CC to 4.2 V then CV to 20 mA (C/100), cycled to about 30% fade. `nasa_charge_extract.py` (scipy) turns 543 measured charges into `nasa_charge_metrics.json`; the analysis is stdlib. Two rules were added after the files were opened and before any metric was computed: charges starting above 3.7 V are dropped (59), and a C/50 cut-off variant is reported for comparison with 6d.
+### Outcome (`experiments/hub_throughput/cargo_hub_aged_cells_results.txt`)
+- Fresh cells (first 5 charges per cell, n = 20): 20-90% takes **1.19x** the linear time (6d's fitted curve: 1.03x); 30-100% takes **2.68x** (2.31x to a C/50 cut-off; 6d: 1.71x). **P1 refuted** (bar 1.4 to 2.0) and **P3 refuted** (bar 1.10): the datasheet fit understates the taper.
+- Aged cells (after capacity fell below 80% of the first, n = 193): 20-90% 1.60x, 30-100% 3.74x (3.05x to C/50), 1.40x fresh. **P2 held.** Share of charge delivered in CV rises from 26% to 41%; CV time constant 28 to 35 min.
+- **P4 held** on R^2 (0.98), but the decay is not one exponential: tau is 19 min while current is above 0.3 I_cc and 32 min below it, so the tail is slower than 6d's model.
+- Hub (6d model, 8 pads, 8 chargers, 6.0 flights/h): at the 90% ceiling spares for p95 wait <= 300 s go from 9 (linear) to 12 (fresh) and 16 (aged); the charger limit from 11.4 to 9.7 and 7.1 flights/h. Charging to 100% puts the limit at 4.3 (fresh) and 3.1 (aged) flights/h, below the 6.0 demanded, so no spare count works: 6d's 24 spares was an artefact of its short taper; the hub needs more chargers. **P5 untestable as worded** (both cases unstable).
+- Limits: a 2007 18650 cell, not the Molicel P45B; 0.75C, applied to a 1C hub as a ratio (a 1C charge reaches 4.2 V sooner, so the 1C ratio is likely higher); room temperature; SOC is charge delivered, not rated capacity. Preliminary.
+- Next: a dataset with CC-CV at 1C and 2C on a current 21700 cell; add 6f to 6h to the paper and `check_numbers.py`.
+
 ## 2026-11-10 · Milestone 6g: do 6d's taper and 6f's daily demand shape compound? (predictions in `experiments/hub_throughput/cargo_hub_trace_taper.py`'s docstring, fixed before the counts were read)
 - Why: 6d and 6f each changed the spare-pack count alone; a hub that charges to 100% and sees a daily peak gets both. Fixed 6.0 flights/h mean, Chicago ride-hail shape (6f), 6d's CC-CV charge times, 3 seeds, 4 days, stdlib.
 ### Outcome (`experiments/hub_throughput/cargo_hub_trace_taper_results.txt`)

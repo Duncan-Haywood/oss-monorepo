@@ -1,0 +1,51 @@
+Source: NASA PCoE Li-ion Battery Aging Datasets (Saha and Goebel 2007), B0005/6/7/18; 543 charges kept, dropped {'start>3.7V': 59, 'short': 3, 'no cut-off': 39}
+
+Per cell: charges kept, first and last preceding discharge capacity (Ah), charges in the aged set
+  B0005: 164 charges, capacity 1.856 -> 1.287, aged 62
+  B0006:  89 charges, capacity 2.035 -> 1.347, aged 36
+  B0007: 167 charges, capacity 1.891 -> 1.422, aged 44
+  B0018: 123 charges, capacity 1.855 -> 1.355, aged 51
+
+metric                              | fresh median [min, max] (n)      | aged median [min, max] (n)
+30->100% time / linear              |    2.681 [  2.418,   2.962] ( 20) |    3.741 [  3.229,   4.313] (193)
+20->90% time / linear               |    1.185 [  1.175,   1.234] ( 20) |    1.600 [  1.451,   1.884] (193)
+30->100% (to C/50) / linear         |    2.310 [  2.194,   2.392] ( 20) |    3.048 [  2.629,   3.588] (193)
+20->90% (to C/50) / linear          |    1.170 [  1.162,   1.203] ( 20) |    1.540 [  1.403,   1.783] (193)
+share of charge delivered in CV     |    0.256 [  0.250,   0.277] ( 20) |    0.406 [  0.364,   0.544] (193)
+CV phase (min)                      |  108.602 [ 99.812, 121.668] ( 20) |  133.616 [113.587, 154.230] (193)
+whole charge (min)                  |  165.347 [159.371, 175.471] ( 20) |  166.989 [149.588, 180.043] (193)
+charge delivered (Ah)               |    1.899 [  1.850,   2.067] ( 20) |    1.439 [  1.290,   1.624] (193)
+single-exp tau (min)                |   28.389 [ 27.392,  30.352] ( 20) |   34.856 [ 31.637,  39.276] (193)
+tau, I > 0.3 I_cc (min)             |   18.829 [ 16.779,  19.324] ( 20) |   22.173 [ 19.685,  27.531] (193)
+tau, I <= 0.3 I_cc (min)            |   31.520 [ 30.218,  33.594] ( 20) |   38.383 [ 34.300,  44.168] (193)
+R^2 of single exponential           |    0.981 [  0.975,   0.985] ( 20) |    0.980 [  0.970,   0.988] (193)
+peak cell temperature (C)           |   30.621 [ 27.947,  36.187] ( 20) |   29.663 [ 27.684,  34.356] (193)
+
+Per cell, median 30->100% ratio fresh / aged:
+  B0005: 2.744 / 3.981
+  B0006: 2.497 / 3.858
+  B0007: 2.552 / 3.381
+  B0018: 2.867 / 3.718
+
+Predictions:
+  P1 fresh 30->100% ratio in [1.4, 2.0]: 2.681 -> refuted
+  P2 aged ratio >= 1.15 x fresh: 3.741 = 1.395 x -> held
+  P3 20->90% ratio <= 1.10 fresh and aged: 1.185, 1.600 -> refuted
+  P4 single exponential R^2 >= 0.95 (fresh median): 0.9812 -> held
+
+Hub (6d model, 8 pads, 8 chargers, 6.0 flights/h Poisson, 3 seeds): charge time = ratio x 42 min
+  linear (6b)               42.0 min  limit 11.43/h  spares for p95<=300 s: 9
+  6d fitted CC-CV 30-100%   72.0 min  limit  6.67/h  spares for p95<=300 s: 24
+  measured fresh 20-90%     49.8 min  limit  9.65/h  spares for p95<=300 s: 12
+  measured aged 20-90%      67.2 min  limit  7.14/h  spares for p95<=300 s: 16
+  measured fresh 30-100%   112.6 min  limit  4.26/h  spares for p95<=300 s: >64
+  measured aged 30-100%    157.1 min  limit  3.05/h  spares for p95<=300 s: >64
+  P5 aged needs >= fresh + 8 spares: untestable as worded: both 30->100% cases put 6.0 flights/h above the 8-charger limit, so no spare count stops the queue growing
+
+By the charger limit alone (8 chargers, ratio x 42 min): flights/h the hub can sustain
+  fresh 20_90       ratio 1.185 ->  9.65 flights/h
+  fresh 30_100      ratio 2.681 ->  4.26 flights/h
+  fresh 30_100_c50  ratio 2.310 ->  4.95 flights/h
+  aged  20_90       ratio 1.600 ->  7.14 flights/h
+  aged  30_100      ratio 3.741 ->  3.05 flights/h
+  aged  30_100_c50  ratio 3.048 ->  3.75 flights/h

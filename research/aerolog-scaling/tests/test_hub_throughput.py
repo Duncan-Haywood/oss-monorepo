@@ -24,3 +24,24 @@ def test_saturated_swap_throughput_equals_charger_limit():
     Tc = 0.7 * 32 * 60
     thr = hub.simulate(0.01, 4, lambda r: 180.0, "swap", chargers=4, spares=8, T_charge=Tc, n=20000)[2]
     assert abs(thr * 3600 - 4 * 3600 / Tc) / (4 * 3600 / Tc) < 0.03
+
+
+_pa = pathlib.Path(__file__).resolve().parents[1] / "experiments" / "hub_throughput" / "cargo_hub_aged_cells.py"
+_sa = importlib.util.spec_from_file_location("hub_aged", _pa)
+aged = importlib.util.module_from_spec(_sa)
+_sa.loader.exec_module(aged)
+
+
+def test_aged_groups_split_on_capacity():
+    rows = [{"cell": "X", "k": k, "first_capacity_Ah": 2.0, "prev_capacity_Ah": 2.0 - 0.1 * k} for k in range(1, 9)]
+    by, fresh, old = aged.groups(rows)
+    assert [r["k"] for r in fresh] == [1, 2, 3, 4, 5]
+    assert [r["k"] for r in old] == [5, 6, 7, 8]          # 1.5 Ah and below is < 0.8 x 2.0
+
+
+def test_measured_nasa_taper_is_longer_than_linear():
+    import json
+    rows = json.load(open(_pa.parent / "nasa_charge_metrics.json"))["charges"]
+    _, fresh, old = aged.groups(rows)
+    assert len(fresh) == 20 and len(old) > 100
+    assert all(r["ratio_30_100"] > r["ratio_20_90"] > 1.0 for r in fresh)
