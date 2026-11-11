@@ -89,6 +89,19 @@ test('a deposit that is not a usable number never reaches the panel', () => {
   assert.equal(decodeTerms('depositPercent=abc').depositPercent, undefined);
 });
 
+test('a deposit of exactly zero is a usable number and travels', () => {
+  // non-negative means zero is allowed; a "no deposit" bid must not lose its 0
+  assert.equal(decodeTerms(encodeTerms({ depositPercent: '0' })).depositPercent, '0');
+});
+
+test('a null or missing deposit is empty, not a deposit of zero', () => {
+  // Number(null) is 0, so only the explicit null check keeps a cleared field off the link
+  for (const empty of [null, undefined]) {
+    const encoded = encodeTerms({ depositPercent: empty });
+    assert.equal(new URLSearchParams(encoded).has('depositPercent'), false, `${empty} was accepted`);
+  }
+});
+
 test('a crafted link cannot paste control characters into a printed proposal', () => {
   const crafted = new URLSearchParams({ paymentTerms: 'Net \u001b[2J\u0007 30' }).toString();
   assert.equal(decodeTerms(crafted).paymentTerms, 'Net [2J 30');
