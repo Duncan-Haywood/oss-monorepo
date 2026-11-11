@@ -11,7 +11,7 @@ import { formatSnapshot } from './lib/observe.mjs';
 import { parseReply, validateAction, ActionError, describeAction, perform } from './lib/actions.mjs';
 import { runAgent, buildPrompt, SYSTEM } from './lib/agent.mjs';
 import { runSteps, toMatcher } from './lib/steps.mjs';
-import { explorePage, sampleValue, pageLinks, clickableButtons } from './lib/explore.mjs';
+import { explorePage, sampleValue, pageLinks, clickableButtons, brokenValues } from './lib/explore.mjs';
 import { judge, exitCode, toJUnit, toMarkdown, summarise } from './lib/report.mjs';
 import { safePath, serveStatic, waitForUrl } from './lib/server.mjs';
 import { run } from './lib/run.mjs';
@@ -180,6 +180,21 @@ test('smoke check fills, clicks, and notices a page that never responds', async 
   assert.match(dead.issues[0].message, /visible text never changed/);
   const missing = await explorePage(fakeDriver(), 'http://app.test/missing', { isAllowed: allowAll.isAllowed });
   assert.deepEqual(missing.issues, [{ level: 'fail', message: 'HTTP 404 for http://app.test/missing' }]);
+});
+
+test('smoke check fails a page that answers NaN, and a blank page (audit 2026-11-08 defects 0 and 1)', async () => {
+  const nan = await explorePage(fakeDriver({ nan: true }), 'http://app.test/', { isAllowed: allowAll.isAllowed });
+  assert.deepEqual(nan.issues.map(i => i.level), ['fail']);
+  assert.match(nan.issues[0].message, /shows "NaN"/);
+  const blank = await explorePage(fakeDriver({ blank: true }), 'http://app.test/', { isAllowed: allowAll.isAllowed });
+  assert.deepEqual(blank.issues, [{ level: 'fail', message: 'blank page: no text and no controls at http://app.test/' }]);
+});
+
+test('brokenValues counts only tokens the interaction added', () => {
+  assert.deepEqual(brokenValues('Total: $0', 'Total: $NaN and undefined'), ['NaN', 'undefined']);
+  assert.deepEqual(brokenValues('JavaScript undefined is explained here', 'JavaScript undefined is explained here. Total 4'), []);
+  assert.deepEqual(brokenValues('', 'ratio Infinity, [object Object]'), ['Infinity', '[object Object]']);
+  assert.deepEqual(brokenValues('', 'Infinityville and Number.Infinity'), []);
 });
 
 test('sample values respect type, bounds and field names; risky buttons are left alone', () => {
