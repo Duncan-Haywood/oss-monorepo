@@ -1,0 +1,43 @@
+n 400, 60 series a cell; check = how often driftTailCheck says walk / noise / nothing.
+
+Gaussian noise, flat level, 3-sd step
+  check: walk 0, noise 0, nothing 60
+  gauss     found 60/60  other 0.00
+  huber     found 60/60  other 0.00
+  biweight  found 60/60  other 0.00
+
+t3 noise, flat level, 3-sd step
+  check: walk 0, noise 36, nothing 24
+  gauss     found 57/60  other 3.07
+  huber     found 60/60  other 0.22
+  biweight  found 60/60  other 0.07
+
+t3 noise, wander 0.2, 5-sd step
+  check: walk 0, noise 44, nothing 16
+  gauss     found 60/60  other 2.68
+  huber     found 60/60  other 0.38
+  biweight  found 60/60  other 0.48
+
+t3 noise, flat level, no step
+  check: walk 0, noise 30, nothing 30
+  gauss     found   -    other 3.00
+  huber     found   -    other 0.08
+  biweight  found   -    other 0.05
+
+Gaussian random walk, no noise, no step
+  check: walk 0, noise 0, nothing 60
+  gauss     found   -    other 2.33
+  huber     found   -    other 4.18
+  biweight  found   -    other 2.30
+
+t3 random walk, no noise, no step
+  check: walk 42, noise 12, nothing 6
+  gauss     found   -    other 17.40
+  huber     found   -    other 20.80
+  biweight  found   -    other 18.08
+
+t3 random walk, small noise 0.1, no step
+  check: walk 43, noise 9, nothing 8
+  gauss     found   -    other 16.50
+  huber     found   -    other 18.80
+  biweight  found   -    other 17.02

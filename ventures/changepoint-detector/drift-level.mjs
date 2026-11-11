@@ -268,10 +268,42 @@ export function driftLevelPath(values, changepoints, { sigma, omega, slope = 0, 
 // One call for the CLI and tests: changes with the level before and after each, in sigma units too.
 export function driftLevel(values, opts = {}) {
   const r = driftLevelChanges(values, opts);
-  if (!r.changepoints.length && r.sigma == null) return { ...r, changes: [], level: [] };
+  const tails = driftTailCheck(values);
+  if (!r.changepoints.length && r.sigma == null) return { ...r, tails, changes: [], level: [] };
   const level = driftLevelPath(values, r.changepoints, r);
   const changes = r.changepoints.map((i) => ({
     index: i, before: level[i - 1], after: level[i], jump: level[i] - level[i - 1], jumpSd: (level[i] - level[i - 1]) / r.sigma,
   }));
-  return { ...r, changes, level };
+  return { ...r, tails, changes, level };
+}
+
+// The heavy-tail check (README "Heavy tails on a drifting level"). It says where a series' heavy
+// tails live, which decides whether a robust cost can help:
+//   'walk':  the lag fit finds no observation noise beyond its floor (the series reads as a pure
+//            random walk) and the first differences, which are then the walk's own steps, are
+//            heavy-tailed. A jump in a random walk is one big step, so the model cannot tell a
+//            change from the tail of the walk; robust costs made this worse on TCPD (bank 63 cuts
+//            to 111, bitcoin 52 to 96), and the jumps are best read as the largest steps, not changes.
+//   'noise': there is observation noise and the differences are heavy-tailed, so the tails are
+//            outliers around the level: the case `loss: 'biweight'` is for (well_log 21 cuts to 15).
+// Kurtosis of the first differences above 6 (a t distribution with 6 degrees of freedom); the
+// value was set after looking at TCPD's per-series kurtosis, so TCPD figures for it are in-sample;
+// eval/drift-tails-sim.mjs checks it on series where the truth is known.
+export const TAIL_KURTOSIS = 6;
+export function driftTailCheck(values) {
+  const x = Array.from(values, Number), n = x.length;
+  if (n < 20) return { kind: null, stepKurtosis: null, noiseShare: null, atFloor: null };
+  const e = driftNoise(x);
+  const v1 = e.lagVariances[0].v;
+  const noiseShare = v1 > 0 ? (2 * e.sigma * e.sigma) / v1 : 0;
+  const atFloor = noiseShare <= 0.02 * (1 + 1e-9);
+  const d = [];
+  for (let t = 1; t < n; t++) d.push(x[t] - x[t - 1]);
+  const m = d.reduce((s, v) => s + v, 0) / d.length;
+  let s2 = 0, s4 = 0;
+  for (const v of d) { const z = (v - m) ** 2; s2 += z; s4 += z * z; }
+  s2 /= d.length; s4 /= d.length;
+  const stepKurtosis = s2 > 0 ? s4 / (s2 * s2) : 0;
+  const kind = stepKurtosis > TAIL_KURTOSIS ? (atFloor ? 'walk' : 'noise') : null;
+  return { kind, stepKurtosis, noiseShare, atFloor };
 }
