@@ -29,8 +29,8 @@ side's conclusion rests on, so a reader can change one entry and see what follow
 **Limits.** These are model outputs given stated inputs, not findings about whether God exists.
 Most ranges are swept, not sourced, and each entry says which (`basis`). The ledger treats items
 as independent. A crude ρ = 0.5 discount barely moves the theism result: the share of draws with
-P(N) > 0.5 goes from 58% to 55%. The Lean files have not yet been compiled, because the session's
-permission policy refused the toolchain download. The McGrews' figure is a secondary report.
+P(N) > 0.5 goes from 58% to 55%. The Lean files were first compiled on 2026-11-11 (E11 below);
+they built unchanged. The McGrews' figure is a secondary report.
 
 **M2 results (2026-11-07).** *Leave-one-out (E3):* at the midpoints P(naturalism) is 0.76, and
 dropping any one of three theism-level items flips it below 0.5: natural evil (to 0.09),
@@ -49,8 +49,7 @@ large to enumerate) are not covered, and general models are not excluded by sear
 Unwin's formula. They multiply to 2.5×10^−4, so P(God) = 0.025%, not the 2% the column states; the
 stated bottom line is about 82 times too large in odds for its own inputs. Unwin's 67% does reproduce.
 Which side is a slip is not knowable from the column; no claim is made. Order of application is
-irrelevant. Swinburne's four inputs remain untranscribed (the book is not reachable) and Lean is
-still uncompiled.
+irrelevant. Swinburne's four inputs remain untranscribed (the book is not reachable).
 
 **M4 (part), shared-cause dependence (E5, 2026-11-07).** Replacing the crude ρ discount, the
 resurrection testimony items share one latent source reliability. The combined Bayes factor is
@@ -71,17 +70,31 @@ So the God-like individual has no contingent property, and the algebra cannot co
 that p" for any contingent p: the repair avoids modal collapse only for propositions its property
 space cannot express. Under full property semantics there is no model with two or more worlds at
 any finite size. The exhaustive search agrees on all 563 partitions it was run on. Finite models,
-S5, constant domain only; the proof is on paper (in `experiments/e10_theorem/results.md`), not yet
-in Lean, and whether the characterisation is already in the literature is still to check.
+S5, constant domain only; the proof is in `experiments/e10_theorem/results.md` and, since E11, in Lean.
+
+**M2 (part), Lean compiled, and a correction: Anderson's own A2 (E11, 2026-11-11).** The Lean
+files now compile (Lean 4.15.0, no `sorry`; `lean/build.sh`), and E10's theorem is proved in
+`lean/TheismFormal/Anderson.lean` for every block algebra, finite or not. Checking the
+literature turned up a modelling error: E7 to E10 gave Anderson's emendation Scott's A2 ("exactly
+one of a property and its complement is positive"), but Anderson keeps only "if a property is
+positive, its complement is not" (Benzmüller & Fuenmayor 2020). So E7's "Anderson's repair
+collapses under full property semantics" is true of a hybrid, not of Anderson's system. With his own
+A2 (prediction written before the run, proved in Lean, search agrees on all 573 partitions
+checked): models are exactly the principal filters at a non-empty union of blocks H that is the
+union of the rows of the individuals whose hull is H. Under full property semantics that means one
+model per individual at every number of worlds, with the God-like individual free to have
+contingent properties, so modal collapse is not forced, as Benzmüller & Fuenmayor's model finder
+found for two worlds and one entity. Constant domain, S5, extensional properties; Anderson's
+intended varying-domain reading is not covered.
 
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
-- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results and the S4 countermodel.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`: these regenerate `results.md` and `results.json`.
-- `test_theism.py`: 20 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`: these regenerate `results.md` and `results.json`.
+- `test_theism.py`: 21 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
 
@@ -94,7 +107,8 @@ python3 research/theism-formal-evidence/experiments/e4_godel_scott/run.py
 python3 research/theism-formal-evidence/experiments/e5_shared_cause/run.py
 python3 research/theism-formal-evidence/experiments/e6_shermer_check/run.py
 python3 research/theism-formal-evidence/experiments/e10_theorem/run.py   # about 6 s
-cd research/theism-formal-evidence/lean && lake build   # needs Lean 4 (toolchain pinned in lean-toolchain)
+python3 research/theism-formal-evidence/experiments/e11_anderson_a2/run.py   # about 5 s
+research/theism-formal-evidence/lean/build.sh   # downloads Lean 4.15.0 (~250 MB) if lake is not on PATH; needs zstd
 ```
 
 To use your own numbers, edit the `lo`/`hi` of any item in `src/ledger.py` (or a prior in
