@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-11-11 · Milestone 5o: what counts as motion on the measured loader? A noise floor from the data and an open-centre floor (predictions registered before the first run)
+- Why: 5n's open-centre counterfactual moved most with `q_min`, the flow below which a section counted as still, which I chose after seeing the first run (0.5 / 2 / 5 L/min). It is a property of the trace, not of the valve: the authors' flows come from piston velocity (5 Hz low-pass), so a held boom carries small spurious flows. This step measures the noise floor instead of choosing it, checks it against a motion test built from piston position alone, and adds the physical floor of any open-centre valve.
+- Why no orifice closing law: for any open-centre spool, flow can enter a chamber at p_i only if pump pressure exceeds p_i, and the fixed pump delivers its whole flow at that pressure (the bypass passes the rest). So while a loaded section moves, the open-centre pump power is at least `Q_fix x p_load`, whatever the bypass closing law (3a to 3d); the law only sets the extra drop, which 5n swept as `dp_spool`. With the PVG 32 bypass closing inside the dead band (3d), the 5n step model is the large-k limit. So `dp_spool = 0` is a closing-law-free floor for open-centre while moving.
+- Method (`experiments/measured_motion.py`): stationary windows are 1 s windows in which a cylinder's position range is under 0.5 mm (mean speed under 0.5 mm/s, about 0.3 L/min at the lift cylinders' 100.5 cm2 piston area); the noise floor of a section is the 99th percentile of its |P-port flow| in those windows. Position-based motion: a section moves when its piston travels more than d_min over a centred 0.5 s window (d_min 0.5 / 1 / 2 mm).
+- **Predictions (written before any of these statistics was computed):**
+  - Q1: the noise floor (p99 in stationary windows) of both lift and tilt sections lies in 0.5 to 5 L/min, the range 5n swept. Prior 60%. Refuted if either is outside.
+  - Q2: with `q_min` at each section's measured noise floor (dp_spool 10, p_neutral 10 bar), open-centre over load-sensing pump hydraulic energy is 1.3 to 1.6. Prior 55%.
+  - Q3: the open-centre floor (dp_spool 0, p_neutral 5 bar, the low end of 5n's sweep, noise-floor `q_min`) still needs at least 1.2 times the measured load-sensing pump energy. Prior 70%.
+  - Q4: the position-based motion test at d_min 1 mm gives an open-centre ratio within 0.10 of Q2's. Prior 55%.
+
 ## 2026-11-11 · Milestone 5n: the first measured pressure-and-fuel trace, a 6 t load-sensing wheel loader (Zenodo 10639199); predictions registered before the first run
 - Why: BLOCKED since 2026-11-03 for want of a measured pressure/fuel trace. A Zenodo search ("wheel loader bucket filling") found Linjama, Huova, Tammisto, Tervonen and Ahola, "6-ton wheel loader short Y-cycle data for 440 seconds loading of gravel", Zenodo doi:10.5281/zenodo.10639199 (CC BY 4.0, 2024): 2 ms samples of lift, tilt and stabilizer cylinder positions and chamber pressures, work-pump outlet pressure, engine speed and ECU fuel rate on a 63 cc variable work pump and an 83 kW diesel, measured 2017-08-02 at Tampere University. Not an excavator, but the first real machine in this programme with pump pressure, actuator pressures and fuel on one clock.
 - **Predictions (written before any statistic was computed):**
