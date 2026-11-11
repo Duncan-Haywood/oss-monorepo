@@ -1,5 +1,15 @@
 # sensing-selfcal research log
 
+## 2026-11-11 · Milestone 5 planned: does the bent board explain the principal-point gap, and does an unmodelled k2 explain the 2× σ?
+
+Written before any milestone-5 experiment was run. Proposal milestone 5 (unmodelled lens terms on real data), taken before 3b and 4 because it needs no new data and milestones 1 and 3 left two named suspects untested: the bent board (for the c<sub>y</sub> gap) and the k1-only lens (for the overconfidence).
+
+- **Bend-aware reference.** Zhang with a released object (`cv2.calibrateCameraROExtended`, Strobl and Hirzinger 2011): the board's 3-D corners are refined with the camera, two corners fixed (OpenCV's `iFixedPoint` = 8, the last corner of the first row). Same model (f, c<sub>x</sub>, c<sub>y</sub>, k1; k2 as ablation), all 13 views.
+- **H11 (the bend explains c<sub>y</sub>).** With the released-object reference, |c<sub>y,RO</sub> − c<sub>y,target-free</sub>| < 2σ on both cameras (σ: both solvers' σ in quadrature), against 5.3σ and 2.9σ with the flat board. Refuted if ≥ 2σ on either camera.
+- **H12 (k2 is not the cause of the 2×).** Target-free BA with k1 and k2 on milestone 2's 560 subsets (same views and reference views). The nested self-consistency rms z of milestone 3 (H8; against the k1+k2 all-view solution) stays > 1.5. Refuted if ≤ 1.5, which would make the unmodelled k2 the main cause.
+- **H13 (structured residuals survive k2).** On the all-view fits, the correlation of the residual vectors of horizontally and vertically adjacent corners in the same image is ≥ 0.1 with k1 and k2 (correlated detector error, not lens model). Refuted if it falls below 0.1 with k2.
+- **Also reported, not scored:** rms z of the k1+k2 subsets against the released-object Zhang f, and the f shift from adding k2 in each solver.
+
 ## 2026-11-11 · Milestone 3 result: the overconfidence is real; the jackknife σ is honest but a worse gate
 
 - **Re-solves identical.** All 560 subsets converged with the same f as milestone 2; 3,473 of 3,480 leave-one-view-out solves converged on tolerance. Median 2.7 s per subset with its jackknife.
