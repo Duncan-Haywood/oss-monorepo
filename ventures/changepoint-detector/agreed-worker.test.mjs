@@ -50,4 +50,7 @@ test('the page starts the worker, stops a stale panel and keeps a no-worker fall
   assert.match(html, /stopAgreed\(\);\s*if \(\$\("#model"\)\.value === "mean"\) runAgreed/);
   assert.match(html, /AGREED_SYNC_MAX = 2000/);
   assert.match(html, /<code>agreed_run<\/code>/);
+  // The slowest-first order must hand out every setting exactly once.
+  const order = JSON.parse(html.match(/const order = (\[[\d, ]+\])/)[1]);
+  assert.deepEqual([...order].sort((a, z) => a - z), PANEL.map((_, i) => i));
 });

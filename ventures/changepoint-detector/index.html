@@ -269,7 +269,10 @@
       const job = { id: Math.random(), workers, runs: new Array(total), done: 0, next: 0, t0: performance.now() };
       agreedJob = job;
       showAgreed(`working in the background: 0 of ${total} settings done${n > AGREED_SYNC_MAX ? ` (a long series: ${n} points)` : ""}.`);
-      const feed = (w) => { if (job.next < total) w.postMessage({ id: job.id, base, setting: job.next++ }); };
+      // Slowest settings first (measured on 7,980 tree-ring points: the two AR(1) settings ~7 s,
+      // level ~5.5 s, noise floor ~4.8 s, the trend pair ~1 s each), so four cores finish together.
+      const order = [2, 1, 0, 3, 4, 5].filter((i) => i < total);
+      const feed = (w) => { if (job.next < total) w.postMessage({ id: job.id, base, setting: order[job.next++] }); };
       for (const w of workers) {
         w.onmessage = (e) => {
           if (agreedJob !== job || e.data.id !== job.id) return;

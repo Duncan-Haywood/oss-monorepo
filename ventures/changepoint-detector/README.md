@@ -2025,7 +2025,7 @@ Tests: `cli.test.mjs` (lead line on the Nile example, `--no-agreed`, another mod
 `--column` whose unset options keep their defaults, the length cap) and `report.test.mjs` (lead
 paragraph, escaping, absent when not passed).
 
-Next: the same length cap on the page (or run the panel in a worker), and a check that the
+Next: the same length cap on the page (or run the panel in a worker: done 2026-11-11, "Agreed changes off the main thread"), and a check that the
 "agreed" summary on real long series (the TCPD ones above 2,000 points) is worth its cost.
 
 ## Measles: the consensus loses F1 by cutting, not by missing (2026-11-10)
@@ -2126,3 +2126,40 @@ What it says:
 
 Limits: three labelled series; columns still independent (no cross-correlation); no trend term per column (a floor is a blunt answer to a trend); the level-and-volatility joint fit is unchanged.
 
+
+## Agreed changes off the main thread (2026-11-11)
+
+The page ran the six-setting "Agreed changes" panel on the main thread, straight after the main
+analysis and with no length cap (the CLI skips it above 2,000 points). The panel costs about four
+times the main analysis, so a long series froze the tab: on the 7,980-point tree-ring series
+(`data/treering.csv`) nothing could be clicked or scrolled for about half a minute.
+
+- **What changed.** `consensus()` is now `runSetting` (one setting) plus `mergeConsensus` (the
+  grouping and tiers), with the same result, pinned in `agreed-worker.test.mjs` for any finishing
+  order. `consensus-worker.mjs` runs one setting. The page shows the main results first, then
+  starts up to `navigator.hardwareConcurrency` module workers (at most six), hands out the slowest
+  settings first (the two AR(1) settings, then level, noise floor, the trend pair: measured 7.0,
+  6.9, 5.6, 4.8, 1.4 and 1.0 s on tree-ring in Node), shows "k of 6 settings done", and merges
+  when all are back. Analyzing again stops an unfinished panel. Without workers (an old browser, a
+  `file:` page) it runs on the main thread as before, but only up to 2,000 points; above that it
+  says it was not run and points to `--consensus`. A worker error falls back the same way. Usage
+  counter `agreed_run` counts finished panels, locally like the others.
+- **Measured** (`node eval/agreed-worker-browser.mjs [points | file.csv]`, headless Chromium,
+  4 cores, output `eval/agreed-worker-browser.out.txt`): the page's panel text is identical to
+  `consensus()` in Node on every input. Wall clock from the click:
+
+  | series | main results shown | panel done | `consensus()` alone, one thread | a 50 ms timer during the panel |
+  |---|---|---|---|---|
+  | 1,500 seeded points, three steps | 0.3 s | 1.2 s | 1.4 s | 2 ms late |
+  | 6,000 seeded points | 3.3 s | 8.2 s | 12.2 s | 33 ms late |
+  | tree-ring, 7,980 points | 6.5 s | 16.0 s | 27.2 s | 80 ms late |
+
+  Before, the tab was blocked for the main analysis plus the one-thread panel (tree-ring: about
+  34 s); now it is blocked only for the main analysis, and the panel finishes in about a third of
+  its one-thread time after it. The 80 ms on tree-ring is the main thread sharing four cores with
+  four workers; clicks and scrolling still answer.
+- **Not done.** The main analysis itself is still on the main thread (6.5 s on tree-ring); the
+  "level" setting repeats the main analysis when the page's options are the defaults and could
+  reuse it; the CLI panel could use `worker_threads` the same way to lift its 2,000-point cap.
+  Whether the agreed summary is worth its cost on long real series (the TCPD ones above 2,000
+  points) is still open.
