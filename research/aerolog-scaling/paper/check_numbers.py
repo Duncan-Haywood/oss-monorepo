@@ -99,6 +99,11 @@ CHECKS = [
     ("experiments/hub_throughput/analytic_wait_tail_results.txt", "P2/P4 load 70% k=4: analytic 24, simulated 24", "6j: k=4 at 70%, 24 both"),
     ("experiments/hub_throughput/analytic_wait_tail_results.txt", "P2/P4 load 85% k=8: analytic 81, simulated 79", "6j: k=8 at 85%, 81 against 79"),
     ("experiments/hub_throughput/analytic_wait_tail_results.txt", "simulated in [0.01, 0.3] and S >= E[N_out]+2: 0.0092", "6j: tail within 0.009"),
+    ("experiments/hub_throughput/analytic_trace_tail_results.txt", "load 70% k=1 2019-10-09: rule 23, simulated 23 (diff +0), 6f generator 15", "6k: 23/23, 6f generator 15"),
+    ("experiments/hub_throughput/analytic_trace_tail_results.txt", "load 85% k=1 2019-10-12: rule 45, simulated 45 (diff +0), 6f generator 33", "6k: 45/45 at 85%"),
+    ("experiments/hub_throughput/analytic_trace_tail_results.txt", "load 70% k=4 2019-10-09: rule 40, simulated 41 (diff -1)", "6k: k=4 40/41"),
+    ("experiments/hub_throughput/analytic_trace_tail_results.txt", "load 85% k=4 2019-10-09: rule 67, simulated 68 (diff -1)", "6k: k=4 67/68"),
+    ("experiments/hub_throughput/analytic_trace_tail_results.txt", "    22 |     10.91 |        0.2097 |       0.2121", "6k: waits peak at 22:00"),
 ]
 LOGCHECKS = [  # figures that exist in LOG.md outcomes (the results files print them in tables)
     "1,273 km at engine 1 kW/kg", "145 to 167", "0.40 (cruise-sized), 0.34 (hover-sized, 10e) and 0.18",
