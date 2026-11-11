@@ -126,6 +126,10 @@ One sentence the section can carry: *at a measured tack cost of about 240 s, the
 
 Limits to carry with it: one tack price per row (tau is pure dead time), 10 buoys with within-month windows not independent (intervals optimistic), buoy anemometer height not corrected, HRRR only (no ensemble or radar nowcast), and a margin grid not refined between 0.5 and 4. The open input is offshore upwind sensing or a radar nowcast, which need data not in `experiments/data`.
 
+### 2.6 Wave-powered rung: a fielded Wave Glider against a quasi-steady foil model (milestone 6p; numbers from `../experiments/results_waveglider.txt`)
+
+One sentence the section can carry: *a fielded Wave Glider's through-water speed responds to sea state far more weakly than a quasi-steady foil model predicts, and a slow 30% loss over the mission is as large as the whole sea-state effect.* Data: the Honey Badger Wave Glider (MAGI mission, Hawaii, May to Nov 2015, NOAA ERD ERDDAP), 1,245 hourly means within 300 km of an NDBC wave buoy. Pooled Spearman(speed, Hs) is 0.12; median speed at Hs at least 2.5 m is 1.05 times that at 1.5 m or less, against 1.93 for the fitted model (linear in Hs at fixed period). Held out on Aug to Oct, the model (MAE 0.165 m/s, bias +0.12) loses to a constant (0.138) and beats a two-parameter power law fitted on Jun to Jul (0.194); no foil constant in an 18-cell sweep brings it below the constant (best 0.153). Post hoc, monthly median speed falls from 0.60 to 0.64 m/s (Jun, Jul) to 0.41 to 0.47 (Aug to Oct) while monthly Hs rises from 1.45 to 2.07 m; within months speed does track Hs (Spearman +0.02 to +0.76, four of six months above +0.25), and month-normalised the height ratio is 1.18. At the programme's 2024 buoys the fitted model gives 50 km/day (January) and 37 (July) and the power law 43 and 33: about half the 86 km/day solar ceiling and below 6o's capability wind drone (126 and 80). Limits: one vehicle and mission, a buoy up to 300 km away, no record of thruster use or fouling, period from DPD only.
+
 ## 2.4 Still to write
 
 4. Sensitivity: input ranking hotel > eta_pv > derate > c_s > k_form > wave scale

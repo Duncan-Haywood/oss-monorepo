@@ -84,7 +84,7 @@ rise is a stronger pound; CHF and JPY are per USD, so a rise is a weaker franc o
   (originally FRED, series DEXSZUS, DEXUSUK, DEXJPUS).
 - **Licence:** Open Data Commons Public Domain Dedication and Licence 1.0, per that
   repository's `datapackage.json`.
-- **Used by:** `eval/fx-shocks.mjs`, `fx-shocks.test.mjs`.
+- **Used by:** `eval/fx-shocks.mjs`, `fx-shocks.test.mjs`; the page's several-columns example (`example-fx.mjs`, pinned to this file by `multi-view.test.mjs`).
 
 # Example data: UK gas consumption, 1960-1986
 
@@ -424,7 +424,7 @@ labels are added here (the source has row numbers; the series is 30 years of fou
   <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/AER/GermanUnemployment.csv>
   (the Rdatasets collection; AER is GPL-2/3 as software, the 240 rates are a published statistic).
 - **Cite:** Franses, P. H. (1998). *Time Series Models for Business and Economic Forecasting*. Cambridge UP.
-- **Used by:** `german-unemployment.test.mjs`.
+- **Used by:** `german-unemployment.test.mjs`, `multi-view.test.mjs` (the joint over-cut warning).
 
 # Example data: Florida frozen orange juice prices, 1950-2000
 

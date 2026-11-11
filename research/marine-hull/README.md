@@ -11,6 +11,10 @@ only 4%. Milestone 5 adds a hydrofoil rung: in 2,916 swept cases a foilborne 200
 
 **SUBOFF check (milestone 3u).** Integrating the DARPA SUBOFF bare-hull equations gives 5.988 m² of wetted area, and with it the measured DTMB tow-tank resistance implies a bare-hull form factor 1+k = **1.17** (1.14 to 1.18 over water viscosity) above 5 m/s. Hoerner's streamlined-body formula gives 1.07, **8% low**; the bow tripwire's drag is part of that gap. See [`LOG.md`](LOG.md).
 
+**Wave Glider check (milestone 6p).** Does a wave-powered glider go faster in bigger waves? On 1,245 hours of a fielded Wave Glider off Hawaii (2015, NOAA ERDDAP) matched to NDBC buoy sea state, barely: median through-water speed is only **1.05 times** higher at 2.5 m+ significant wave height than at 1.5 m or less, where a quasi-steady two-body foil model predicts 1.9 times, and the one-parameter model loses to a constant on held-out months. A **30% speed loss** from June-July to August-October (cause not in the data) is as large as the whole sea-state effect; within a month speed does track wave height. At the programme's buoys a wave glider makes about **33 to 50 km/day**, half the solar ceiling. See [`LOG.md`](LOG.md) and [`experiments/results_waveglider.txt`](experiments/results_waveglider.txt).
+
+![Fielded Wave Glider speed against buoy wave height, early and late in the 2015 mission, with the foil model](experiments/waveglider_speed.svg)
+
 **Live page:** https://marisstella.app/research/marine-hull/
 
 **Programme.** Track 23 (`marine`, autonomous water vehicles) in [`../PROJECTS.md`](../PROJECTS.md).
@@ -21,7 +25,10 @@ lab has reviewed this.
 
 ```bash
 cd research/marine-hull
-PYTHONPATH=src python3 -m pytest tests -q          # 112 tests
+PYTHONPATH=src python3 -m pytest tests -q          # 118 tests
+python3 experiments/fetch_waveglider.py   # milestone 6p data (NOAA ERDDAP + NDBC), under a minute
+PYTHONPATH=src python3 experiments/run_waveglider.py > experiments/results_waveglider.txt   # milestone 6p (Wave Glider vs foil model), 47 s
+PYTHONPATH=src python3 experiments/figure_waveglider.py   # experiments/waveglider_speed.svg
 PYTHONPATH=src python3 experiments/run_suboff_bare.py > experiments/results_suboff_bare.txt   # milestone 3u (SUBOFF bare-hull form factor), under 1 s
 PYTHONPATH=src python3 experiments/run_solar.py > experiments/results_solar.txt   # milestone 5c, 5 s
 PYTHONPATH=src python3 experiments/run_solar_mass.py > experiments/results_solar_mass.txt   # milestone 5d, 10 s
@@ -161,3 +168,5 @@ Milestone 6l (864 fielded drone-days): NOAA's west-coast Saildrone surveys (13 d
 Milestone 6m (fit on 2018, test on 2019): fitting the drone's sail area (0.45 m2 against the default 5; hull drag unchanged, and the two are not separately identified) to cell-mean SOG of the 2018 Saildrone blocks cuts the unseen-2019 daily-distance error from 2.4 times observed (default) to 0.89 (10th to 90th 0.68 to 1.18; median absolute error 0.15 against 0.24 for the 0.33 scalar). Re-running the buoy winds with it: corridor median 100 km/day in January (1.16 times the 86 km/day solar ceiling) and 62 in July (0.72 times), no buoy-month at 2x solar. The wind drone has a thin edge in winter and none in summer at these sites; the drone is a survey-mission drone, not a capability bound. `experiments/run_saildrone_fit.py`, `LOG.md`.
 
 Milestone 6o (capability drone): re-running the buoy winds with 6n's capability drone (0.90 m2, hull drag x1.2) gives a corridor median of 126 km/day in January (1.47 times the 86 km/day solar ceiling) and 80 in July (0.93 times), 1.26 to 1.29 times 6m's mission drone, and still no buoy-month at 2x solar (0 of 19). The wind drone's winter edge is 1.2 to 1.5 times the solar ceiling; in July it is level. `experiments/run_wind_vs_sun_capability.py`, `LOG.md`.
+
+Milestone 6p (wave-powered rung): a fielded Wave Glider's speed rises only 5% (18% after removing a month-scale drift) from 1.5 m to 2.5 m seas, against 90% in a quasi-steady foil model, which loses to a constant on held-out months; a 30% speed loss over the mission matches the whole sea-state effect. Next: a second Wave Glider deployment (SECOORA ERDDAP) and a model with sub lag, tether slack and a drift term. `experiments/run_waveglider.py`, `LOG.md`.

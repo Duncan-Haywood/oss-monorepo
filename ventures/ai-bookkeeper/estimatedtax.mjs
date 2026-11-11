@@ -193,8 +193,12 @@ export function estimatedTax(books, o = {}) {
   // years after 2026 (subsection (i)(3), rounded to $5): pass qbiMinimum { floor, threshold } in cents
   // for those years. Capped here by taxable income before the deduction. Only bites for QBI of $1,000
   // to $2,000. Materially participating is the user's call; the page does not ask.
+  // Only QBI that counts toward the deduction counts toward the $1,000: a service business keeps the
+  // applicable percentage of it inside the range and none above it (199A(d)(3)).
+  const servicePct = o.service && beforeQbi > qbiThreshold ? Math.max(0, 1 - (beforeQbi - qbiThreshold) / qbiRange) : 1;
+  const countedQbi = qbiIncome * servicePct;
   const qmin = { floor: D(400), threshold: D(1000), ...(o.qbiMinimum ?? {}) };
-  if (o.qbi !== false && year >= 2026 && qbiIncome >= qmin.threshold && qmin.floor > qbiDeduction) {
+  if (o.qbi !== false && year >= 2026 && countedQbi >= qmin.threshold && qmin.floor > qbiDeduction) {
     qbiDeduction = Math.min(qmin.floor, beforeQbi);
     warnings.push("The minimum QBI deduction (IRC 199A(i)) applies only if you materially participate in the business; if not, the deduction may be smaller.");
   }
