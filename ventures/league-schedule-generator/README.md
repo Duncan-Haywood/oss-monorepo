@@ -458,6 +458,13 @@ which is why odd leagues' capped tries were weighted stand-ins.
 
   Every carry-over schedule on the page goes through this pass, so even leagues gain 2 to 4 breaks on
   some timetables too. The page's plain (circle-method) schedules never used it and are unchanged.
+  Rerun on the real-fixture comparison (`eval/carryover-real.txt`, seed 1; the tables in the two
+  sections above keep the figures measured then): 18 teams mirrored 1,926 / 74 -> 1,926 / 70 breaks,
+  whole season 1,498 / 88 -> 1,486 / 84, carry-over only 104 -> 98 breaks a season; 20 teams mirrored
+  2,136 / 114 -> 2,136 / 108, carry-over only 134 -> 126, and whole season 1,678 / 124 -> 1,750 / 118
+  (leg two is searched against leg one's home/away, so a different leg one moves its carry-over too;
+  still below all 14 professional 20-team seasons' 2,278). The carry-over guide page quotes the new
+  figures (its test reads them from the code).
 - **Capped tries for odd leagues.** `cappedTryBreaks` now gives an odd league a base of n - 3 breaks a
   leg (at 0 the capped search can not leave the circle method's high carry-over), and `carryOverTry`
   runs the capped search for odd leagues. At small sizes a heavy break weight sometimes lands on
