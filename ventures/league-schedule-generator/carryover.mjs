@@ -224,6 +224,107 @@ export const STARTERS_WEIGHTED = {
   40: { even: [1, 1, 34, 2, 17, 3, 35, 4, 32, 5, 21, 6, 24, 7, 16, 8, 30, 9, 14, 10, 18, 11, 31, 12, 22, 13, 27, 15, 19, 20, 33, 23, 26, 25, 37, 28, 29, 36, 38] },
 };
 
+/**
+ * Starters picked on carry-over + 10 x the breaks of their shift venues (shiftVenues below), by
+ * eval/starter-orient.mjs (eval/starter-orient.txt); same shape as STARTERS. Used only as a
+ * shift-venue candidate with a break weight (shiftStarts), kept when strictly better.
+ */
+export const STARTERS_SHIFT = {
+  12: { odd: [1, 1, 9, 2, 8, 3, 4, 5, 7, 6, 10] },
+  14: { odd: [1, 1, 7, 2, 12, 3, 5, 4, 8, 6, 11, 9, 10] },
+  18: { odd: [1, 1, 6, 2, 11, 3, 14, 4, 5, 7, 10, 8, 12, 9, 16, 13, 15] },
+  22: { even: [1, 1, 13, 2, 19, 3, 17, 4, 9, 5, 20, 6, 14, 7, 18, 8, 11, 10, 12, 15, 16], odd: [1, 1, 16, 2, 19, 3, 14, 4, 18, 5, 6, 7, 15, 8, 20, 9, 11, 10, 13, 12, 17] },
+  26: { odd: [1, 1, 14, 2, 8, 3, 12, 4, 21, 5, 7, 6, 10, 9, 19, 11, 18, 13, 24, 15, 16, 17, 22, 20, 23] },
+  28: { odd: [1, 1, 5, 2, 23, 3, 8, 4, 22, 6, 20, 7, 14, 9, 25, 10, 13, 11, 21, 12, 24, 15, 16, 17, 19, 18, 26] },
+  30: { even: [1, 1, 4, 2, 25, 3, 10, 5, 17, 6, 15, 7, 26, 8, 21, 9, 14, 11, 22, 12, 16, 13, 28, 18, 20, 19, 27, 23, 24], odd: [1, 1, 6, 2, 9, 3, 28, 4, 17, 5, 23, 7, 10, 8, 20, 11, 21, 12, 27, 13, 19, 14, 15, 16, 25, 18, 26, 22, 24] },
+  34: { even: [1, 1, 2, 3, 30, 4, 17, 5, 26, 6, 21, 7, 18, 8, 10, 9, 32, 11, 15, 12, 20, 13, 27, 14, 31, 16, 23, 19, 28, 22, 25, 24, 29], odd: [1, 1, 18, 2, 21, 3, 28, 4, 25, 5, 8, 6, 10, 7, 30, 9, 20, 11, 17, 12, 14, 13, 31, 15, 24, 16, 29, 19, 26, 22, 23, 27, 32] },
+  36: { even: [1, 1, 32, 2, 18, 3, 9, 4, 16, 5, 13, 6, 23, 7, 14, 8, 30, 10, 34, 11, 31, 12, 26, 15, 20, 17, 27, 19, 21, 22, 25, 24, 33, 28, 29], odd: [1, 1, 28, 2, 17, 3, 21, 4, 9, 5, 12, 6, 19, 7, 16, 8, 33, 10, 24, 11, 14, 13, 32, 15, 26, 18, 20, 22, 34, 23, 27, 25, 31, 29, 30] },
+  38: { even: [1, 1, 10, 2, 7, 3, 18, 4, 33, 5, 25, 6, 9, 8, 19, 11, 34, 12, 24, 13, 32, 14, 35, 15, 16, 17, 30, 20, 22, 21, 28, 23, 29, 26, 36, 27, 31], odd: [1, 1, 36, 2, 26, 3, 20, 4, 15, 5, 10, 6, 24, 7, 32, 8, 30, 9, 16, 11, 25, 12, 21, 13, 23, 14, 35, 17, 18, 19, 27, 22, 28, 29, 33, 31, 34] },
+  40: { even: [1, 1, 38, 2, 3, 4, 21, 5, 25, 6, 17, 7, 10, 8, 13, 9, 36, 11, 24, 12, 33, 14, 37, 15, 22, 16, 30, 18, 26, 19, 29, 20, 35, 23, 32, 27, 31, 28, 34], odd: [1, 1, 36, 2, 9, 3, 27, 4, 23, 5, 16, 6, 33, 7, 29, 8, 26, 10, 35, 11, 20, 12, 28, 13, 14, 15, 18, 17, 22, 19, 25, 21, 31, 24, 37, 30, 38, 32, 34] },
+};
+
+/**
+ * The partner map f of a starter entry [step, x1, y1, ...] at step 1: starter S at step k is the
+ * timetable of S / k at step 1 with the teams renamed (carry-over and breaks unchanged), so every
+ * entry can be played at step 1. f[x] is x's partner; f[0] is unused (team 0 meets the fixed team
+ * in round 0).
+ */
+export function starterPartner(N, entry) {
+  const p = N - 1, [step, ...flat] = entry;
+  let inv = 1;
+  while ((inv * step) % p !== 1) inv++;
+  const f = new Int16Array(p);
+  for (let i = 0; i < flat.length; i += 2) { const x = (flat[i] * inv) % p, y = (flat[i + 1] * inv) % p; f[x] = y; f[y] = x; }
+  return f;
+}
+
+/**
+ * Home/away for a starter timetable in closed form, the "shift orientation" (eval/starter-orient.mjs).
+ * At step 1 round r plays each starter pair {x, y} as {x + r, y + r}; give every pair a host and keep
+ * it in every round, and let the fixed team alternate. H[u] = 1 when position u hosts. Team t is at
+ * position t - r in round r, so with E the number of u in 2 .. p - 1 where H[u] = H[u - 1]:
+ * breaks = (p - 1)(E + 1) with all N teams playing, (p - 1) E with team p as the bye, and every
+ * team is balanced. This walks every orientation in Gray-code order (the first pair fixed: flipping
+ * all of them changes nothing) and returns the least E with its H. At most 2^18 steps (40 teams,
+ * about 40 ms).
+ */
+export function shiftOrientation(f, p) {
+  const xs = [];
+  for (let x = 1; x < p; x++) if (x < f[x]) xs.push(x);
+  const H = new Uint8Array(p);
+  for (const x of xs) { H[x] = 1; H[f[x]] = 0; }
+  const eq = (u) => (u >= 2 && u < p && H[u] === H[u - 1] ? 1 : 0);
+  let E = 0;
+  for (let u = 2; u < p; u++) E += eq(u);
+  let best = E, bestH = Uint8Array.from(H);
+  const total = 2 ** Math.max(0, xs.length - 1);
+  for (let g = 1; g < total && best > 0; g++) {
+    let i = 0;
+    while (!((g >> i) & 1)) i++;
+    const x = xs[i + 1], y = f[x];
+    // the neighbour pairs (u - 1, u) touching x or y, each once
+    const a = x, b = x + 1, c = y, d = y + 1;
+    E -= eq(a) + (b !== c ? eq(b) : 0) + eq(c) + (d !== a ? eq(d) : 0);
+    H[x] ^= 1; H[y] ^= 1;
+    E += eq(a) + (b !== c ? eq(b) : 0) + eq(c) + (d !== a ? eq(d) : 0);
+    if (E < best) { best = E; bestH = Uint8Array.from(H); }
+  }
+  return { E: best, H: bestH };
+}
+
+/** venues[r][t] = 1 when t hosts in round r, for starterOpp(N, pairs of f, { step: 1 }) and host bits H. */
+export function shiftVenues(N, f, H) {
+  const p = N - 1, venues = [];
+  for (let r = 0; r < p; r++) {
+    const v = new Uint8Array(N);
+    v[p] = r % 2 === 0 ? 1 : 0;
+    for (let t = 0; t < p; t++) { const u = (((t - r) % p) + p) % p; v[t] = u === 0 ? 1 - v[p] : H[u]; }
+    venues.push(v);
+  }
+  return venues;
+}
+
+/**
+ * The shift-venue candidates for N teams (n real): every built-in starter (STARTERS,
+ * STARTERS_WEIGHTED, STARTERS_SHIFT) as a timetable at step 1 with its least-break shift venues,
+ * not annealed. With a break weight lowCarryOverRounds scores each and keeps one only when it
+ * beats every searched start (odd leagues of 17 to 35 teams: about half the breaks at the same
+ * carry-over, README "Home and away that moves with the starter").
+ */
+function shiftStarts(N, n) {
+  const kind = n === N ? "even" : "odd", p = N - 1, out = [];
+  for (const [which, table] of [["starter", STARTERS], ["weighted starter", STARTERS_WEIGHTED], ["shift starter", STARTERS_SHIFT]]) {
+    const entry = table[N]?.[kind];
+    if (!entry) continue;
+    const f = starterPartner(N, entry);
+    const pairs = [];
+    for (let x = 1; x < p; x++) if (x < f[x]) pairs.push([x, f[x]]);
+    const { H } = shiftOrientation(f, p);
+    out.push({ which, opp: starterOpp(N, pairs, { step: 1 }), venues: shiftVenues(N, f, H) });
+  }
+  return out;
+}
+
 /** True when a searched starter or stored timetable is built in for N teams (N even, a bye team included). */
 export function starterApplies(N) {
   return STARTERS[N] !== undefined || TIMETABLES[N] !== undefined;
@@ -426,9 +527,11 @@ function cycleOf(opp, r, s, t) {
  * 32, ...), start from the perfectly balanced field timetable (fieldOpp) instead of the circle method;
  * at other sizes with a built-in starter (STARTERS: 6 to 40 teams), the search runs from both the
  * circle method and the starter timetable (starterOpp) and keeps the better (`start` says which).
+ * With a break weight the built-in starters are also scored as they are, with shift venues
+ * (shiftStarts; `shift: false` turns it off), and one is kept only when strictly better.
  * Returns { rounds, coe, circleCoe, lowerBound, breaks, iterations }.
  */
-export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true } = {}) {
+export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true, shift = true } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   if (field && !fromStarter && !fieldApplies(N) && starterApplies(N)) {
@@ -440,6 +543,14 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
     for (const which of constructionStarts(N, n, breakWeight > 0 && weightedStarter)) {
       const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: which });
       if (score(st) < score(best)) best = { ...st, start: which };
+    }
+    if (breakWeight > 0 && shift) {
+      // the built-in starters as they are, with home/away that shifts with them (shiftVenues):
+      // no venue search gets near it on odd leagues, so it is a candidate of its own
+      for (const c of shiftStarts(N, n)) {
+        const st = finish(c.opp, n, cyclic, best.circleCoe, best.lowerBound, best.iterations, seed, c.venues);
+        if (score(st) < score(best)) best = { ...st, start: `${c.which}, shift venues` };
+      }
     }
     return best;
   }
@@ -672,8 +783,7 @@ function opponentsFromOpp(opp, n) {
   return out;
 }
 
-function finish(opp, n, cyclic, circleCoe, lowerBound, iterations, seed) {
-  const venues = assignVenues(opp, n, seed);
+function finish(opp, n, cyclic, circleCoe, lowerBound, iterations, seed, venues = assignVenues(opp, n, seed)) {
   const rounds = opp.map((o, r) => {
     const matches = [];
     let bye = null;

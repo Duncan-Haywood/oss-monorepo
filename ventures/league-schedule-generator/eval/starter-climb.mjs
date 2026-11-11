@@ -87,10 +87,11 @@ function repair(f, p, k, rand, visit, cap = 2000) {
   shuffle(starts, rand);
   const freed = [], classes = new Uint8Array(p);
   for (const x of starts.slice(0, k)) { freed.push(x, f[x]); classes[cls(f[x] - x, p)] = 1; }
-  const saved = freed.map((x) => f[x]);
   const free = new Uint8Array(p);
   for (const x of freed) free[x] = 1;
   shuffle(freed, rand);
+  // saved after the shuffle: the restore below pairs freed[i] with saved[i]
+  const saved = freed.map((x) => f[x]);
   let count = 0;
   const rec = () => {
     if (count >= cap) return;
