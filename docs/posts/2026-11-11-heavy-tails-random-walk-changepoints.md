@@ -1,6 +1,6 @@
 ---
 title: "Outliers or a wild random walk? A robust changepoint cost that failed, and why"
-seo_title: "Robust changepoint detection on heavy-tailed series: when a biweight cost helps"
+seo_title: "Robust changepoint costs on heavy-tailed series: when biweight helps"
 date: 2026-11-11
 tags: [changepoint-detector, statistics, time-series, changepoint, robust-statistics, negative-result]
 description: "A biweight cost was pre-registered to fix false changes on heavy-tailed series. It lost on the benchmark, and the reason shows where heavy tails can live."
