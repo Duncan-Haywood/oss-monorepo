@@ -60,6 +60,12 @@
       "why": "After the pre-registered rule failed, a post hoc 'biweight where the check says noise' rule was scored on the same TCPD series.",
       "did": "reported it only as in-sample, in a separate script and README bullet; not shipped as a default",
       "result": "0.701/0.527 vs 0.694/0.527, a lead for fresh labelled data"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Skipped venture-preflight.mjs: the change touches the CLI, library, evals and docs only; no page, sitemap or site-wide surface changed.",
+      "did": "ran the full venture suite and promptctl validate instead",
+      "result": "suite green"
     }
   ],
   "writeups": [
@@ -67,7 +73,7 @@
     "ventures/changepoint-detector/README.md#heavy-tails-on-a-drifting-level"
   ],
   "goal": "Deepen a flagship with a measured algorithmic slice",
-  "notes": "Pre-registration committed (first commit) before the TCPD run. Biweight default lost (0.677/0.441 vs 0.694/0.527). Diagnosis: bank/bitcoin are pure random walks with heavy-tailed steps (noise share at the lag fit's 2% floor on 21 of 38 TCPD series). Synthetic: biweight false cuts 3.00->0.05 on t3 noise, no help on t3 walks. Local checks: node --test drift-tails.test.mjs drift-level.test.mjs pass 17/17; full suite via platform/ci/run_venture_tests.py changepoint-detector (result appended below).",
+  "notes": "Pre-registration committed (first commit) before the TCPD run. Biweight default lost (0.677/0.441 vs 0.694/0.527). Diagnosis: bank/bitcoin are pure random walks with heavy-tailed steps (noise share at the lag fit's 2% floor on 21 of 38 TCPD series). Synthetic: biweight false cuts 3.00->0.05 on t3 noise, no help on t3 walks. Local checks: node --test drift-tails.test.mjs drift-level.test.mjs pass 17/17; full suite via platform/ci/run_venture_tests.py changepoint-detector passed: 'ok changepoint-detector (515.6s), 1 suites run, 0 failed'.",
   "corrections": [],
   "redteam": null,
   "usage": {
