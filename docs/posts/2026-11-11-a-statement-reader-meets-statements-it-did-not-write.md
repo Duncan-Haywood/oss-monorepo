@@ -2,8 +2,8 @@
 title: "A bank statement reader meets statements it did not write"
 seo_title: "Testing a bank statement PDF to CSV converter on an outside benchmark"
 date: 2026-11-11
-tags: [bank-statement-pdf-to-csv, pdf, bookkeeping, benchmark, testing, xero, quickbooks]
-description: "Our free statement PDF converter had only been tested on PDFs it generated itself. On an independent benchmark it read 1 of 5 statements. Here is what broke, and what it reads now."
+tags: [bank-statement-pdf-to-csv, pdf, bookkeeping, benchmarks, testing, xero, quickbooks]
+description: "Our free statement PDF converter was only ever tested on its own PDFs. On an outside benchmark it read 1 of 5. What broke, and what it reads now."
 ---
 
 The [bank statement PDF to CSV converter](https://marisstella.app/bank-statement-pdf-to-csv/)
