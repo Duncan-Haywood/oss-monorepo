@@ -31,12 +31,21 @@
   "review_findings": null,
   "tests_added": 6,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    {
+      "what": "My flagships.yaml edit appended to changepoint-detector's next: and took it to 2374 characters (cap 2000); validate.py and test_allocate failed in the local sweep",
+      "fix": "Rewrote the whole next: under the cap and left history in the README"
+    }
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/ci/check_post_frontmatter.py",
       "issue": "The 160-char description and 70-char seo_title limits are not stated in CLAUDE.md or the ventures prompt; I found them only by running the checker."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The 2,000-character cap on next: is written in another flagship's text and enforced in validate.py; the changepoint entry gives no hint of it, so appending a slice goes over without warning."
     }
   ],
   "deviations": [],
@@ -45,7 +54,7 @@
     "ventures/changepoint-detector/README.md (section 'Volatility on a drifting level')"
   ],
   "goal": "Deepen a flagship with a pre-registered measurement",
-  "notes": "Security queue empty, IDEAS and website requests empty. The route draw gave ventures/1, and allocate.py pointed at row 3, changepoint-detector. Pre-registered rule: sim parts (i) and (ii) pass; TCPD part (iii) fails on held out (-0.064 vs a 0.02 guard), so the option stays library-only with no CLI flag. Drift-related test files: 41/41 pass locally. Full venture suite: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok (201.9 s), 1 suites run, 0 failed.",
+  "notes": "Security queue empty, IDEAS and website requests empty. The route draw gave ventures/1, and allocate.py pointed at row 3, changepoint-detector. Pre-registered rule: sim parts (i) and (ii) pass; TCPD part (iii) fails on held out (-0.064 vs a 0.02 guard), so the option stays library-only with no CLI flag. Drift-related test files: 41/41 pass locally. Full venture suite: python3 platform/ci/run_venture_tests.py changepoint-detector -> ok (201.9 s), 1 suites run, 0 failed. Local sweep (run_workflow_locally.py --for-changes, re-run on a stable tree): portfolio-validate first failed with 2 steps on the flagships next: cap, both pass after the fix (validate.py: all valid; test_allocate: OK). ventures-tests, prompts-ci and readme-live-links: their run: steps passed. Not run here: pytest-only steps, portfolio-pages (out of budget) and the cross-review bots. The PR had no GitHub check runs when I looked.",
   "corrections": [],
   "redteam": null,
   "usage": {
