@@ -3,7 +3,10 @@
  * people's published rankings (src/lib/realRankings.ts) and prints the tables
  * in docs/REAL-RANKINGS.md.
  *
- *   npx tsx scripts/real-rankings-eval.ts [--seeds 40] [--lapse 0.1] [--rule overlap|difference]
+ *   npx tsx scripts/real-rankings-eval.ts [--seeds 40] [--lapse 0.1] [--rule overlap|difference] [--update-lapse 0.1] [--selectors shipped,staged]
+ *
+ * --update-lapse is the lapse share the Glicko update assumes (glicko2.ts;
+ * 0, the default, is the published update the survey uses).
  *
  * The data are fetched from the PrefLib-Data repository at run time and pinned
  * by SHA-256; they are not committed here (that repository is GPL-3.0, and the
@@ -67,11 +70,16 @@ const f2 = (x: number) => x.toFixed(2);
 async function main() {
   const seeds = arg("--seeds", 40);
   const lapse = arg("--lapse", 0);
+  const updateLapse = arg("--update-lapse", 0);
+  if (updateLapse >= 1) throw new Error("--update-lapse must be below 1");
   const ri = process.argv.indexOf("--rule");
   const rule = (ri < 0 ? "overlap" : process.argv[ri + 1]) as RangeRule;
   if (!RANGE_RULES.includes(rule)) throw new Error(`--rule must be one of ${RANGE_RULES.join(", ")}`);
-  const selectors: Selector[] = ["shipped", "information", "staged", "random"];
-  console.log(`seeds ${seeds}, lapse ${lapse}, rule ${rule}`);
+  const ALL: Selector[] = ["shipped", "information", "staged", "random"];
+  const si = process.argv.indexOf("--selectors");
+  const selectors = si < 0 ? ALL : (process.argv[si + 1].split(",") as Selector[]);
+  for (const s of selectors) if (!ALL.includes(s)) throw new Error(`--selectors takes ${ALL.join(", ")}`);
+  console.log(`seeds ${seeds}, lapse ${lapse}, rule ${rule}${updateLapse ? `, update lapse ${updateLapse}` : ""}`);
   for (const d of DATASETS) {
     const panel = parseSoc(await load(d.path, d.sha256));
     console.log(`\n### ${d.title}\n`);
@@ -80,7 +88,7 @@ async function main() {
     for (const n of d.respondents) {
       for (const k of d.budgets) {
         for (const s of selectors) {
-          const r = summarise(panel, n, k, s, seeds, lapse, rule);
+          const r = summarise(panel, n, k, s, seeds, lapse, rule, updateLapse);
           console.log(`| ${n} | ${k} | ${s} | ${f2(r.vsPanel)} | ${f2(r.vsSample)} | ${pct(r.top1)} | ${pct(r.rangeHolds)} | ${r.rangeWidth.toFixed(1)} of ${panel.names.length} | ${pct(r.ordered)} | ${pct(r.orderedWrong)} |`);
         }
       }

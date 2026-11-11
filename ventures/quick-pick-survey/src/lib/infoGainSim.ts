@@ -3,7 +3,7 @@
  * A plain module, not a test file: importing a test file registers its tests again
  * in every importer (each poolCap/longBudget/... file re-ran the infoGain suite).
  */
-import { applyComparison, DEFAULT_GLICKO_STATE, type GlickoState } from "@/lib/glicko2";
+import { applyComparison, DEFAULT_GLICKO_STATE, GLICKO_SCALE, ratingToLogit, type GlickoState } from "@/lib/glicko2";
 import {
   AGREEMENT_WINDOW,
   answerAgreement,
@@ -31,8 +31,12 @@ export type Policy = typeof selectNextPair;
  * `lapse` is the share of answers given at random (an inconsistent respondent);
  * `positionBias` is the share of answers that take the first option shown whatever
  * the items are (negative: the second option). Both draw nothing extra at 0, so older seeds reproduce.
+ * `updateLapse` is the lapse share the Glicko update assumes (glicko2.ts; 0 is the published update).
+ * `coverage95` is the share of item pairs whose 95% interval on the rating
+ * difference, sqrt(rd_a^2 + rd_b^2) wide each side, holds the true difference
+ * (truth is on a logit scale with slope 2, so true mu difference = 2 dt).
  */
-export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false, onAnswer?: (answered: number, rds: number[]) => void) {
+export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false, onAnswer?: (answered: number, rds: number[]) => void, updateLapse = 0) {
   const rand = mulberry32(seed);
   const truth = new Map<string, number>();
   const state = new Map<string, GlickoState>();
@@ -74,7 +78,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
     const pickedFirst = positionBias > 0 && rand() < positionBias ? true : positionBias < 0 && rand() < -positionBias ? false : lapse > 0 && answered >= lapseFrom && rand() < lapse ? rand() < 0.5 : rand() < pA;
     if (pickedFirst) firstPicks++;
     { const sa = state.get(aId)!, sb = state.get(bId)!; picks.push(pickedFirst ? { picked: sa.rating, other: sb.rating, pickedRd: sa.rd, otherRd: sb.rd } : { picked: sb.rating, other: sa.rating, pickedRd: sb.rd, otherRd: sa.rd }); }
-    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, pickedFirst ? "A" : "B");
+    const { a, b } = applyComparison(state.get(aId)!, state.get(bId)!, pickedFirst ? "A" : "B", updateLapse);
     state.set(aId, a);
     state.set(bId, b);
     timesShown.set(aId, (timesShown.get(aId) ?? 0) + 1);
@@ -90,7 +94,19 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
     entries.map(([id]) => truth.get(id)!),
     entries.map(([, s]) => s.rating)
   );
-  return { under, rankAccuracy, touched: timesShown.size, truth };
+  let pairs = 0, held = 0;
+  for (let i = 0; i < entries.length; i++) {
+    for (let j = i + 1; j < entries.length; j++) {
+      const [ia, sa] = entries[i], [ib, sb] = entries[j];
+      const est = ratingToLogit(sa.rating) - ratingToLogit(sb.rating);
+      const real = 2 * (truth.get(ia)! - truth.get(ib)!);
+      const half = (1.96 * Math.hypot(sa.rd, sb.rd)) / GLICKO_SCALE;
+      pairs++;
+      if (Math.abs(est - real) <= half) held++;
+    }
+  }
+  const coverage95 = pairs === 0 ? 1 : held / pairs;
+  return { under, rankAccuracy, coverage95, touched: timesShown.size, truth };
 }
 
 export function spearman(xs: number[], ys: number[]): number {
