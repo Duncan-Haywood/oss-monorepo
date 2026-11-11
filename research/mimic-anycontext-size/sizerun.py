@@ -31,24 +31,29 @@ def run(model):
         json.dump(cache, open(out, "w"))
         print(model, "candidate", ci, "done", flush=True)
 
-def analyse(models=MODELS):
-    """Per model: mean-over-families AUROC of each candidate, of the best-of-N_CAND chosen on the test
-    texts (optimistic), and of the sign-flipped (1 - AUROC) score, plus per-family AUROC of candidate 0."""
+def summarise(sc):
+    """One model's summary from nested scores sc[cand][family]["test"][label]: mean-over-families AUROC
+    of each candidate, of the best-of-N_CAND chosen on the test texts (optimistic), and of the
+    sign-flipped (1 - AUROC) score, plus per-family AUROC of candidate 0."""
+    fams = sorted(sc[0])
+    mean = lambda xs: sum(xs) / len(xs)
+    per = [mean([anyprompt.fam_auc(sc, c, f, "test") for f in fams]) for c in sc]
+    pooled = [anyprompt.pool_auc(sc, c, fams, "test") for c in sc]
+    frac_inv = mean([int(anyprompt.fam_auc(sc, c, f, "test") < 0.5) for c in sc for f in fams])
+    return {"families": fams, "mean_auroc_by_candidate": per, "pooled_auroc_by_candidate": pooled,
+            "plain_by_family": {f: anyprompt.fam_auc(sc, 0, f, "test") for f in fams},
+            "best_candidate_mean": max(per), "flipped_plain_mean": 1 - per[0],
+            "share_family_candidate_cells_below_half": frac_inv}
+
+def analyse(models=MODELS, out=os.path.join(HERE, "results.json")):
+    """summarise() for each model with a score cache; writes results.json unless out is None."""
     res = {}
     for m in models:
         p = cache_path(m)
         if not os.path.exists(p): continue
-        sc = anyprompt.nest(json.load(open(p)))
-        fams = sorted(sc[0])
-        mean = lambda xs: sum(xs) / len(xs)
-        per = [mean([anyprompt.fam_auc(sc, c, f, "test") for f in fams]) for c in sc]
-        pooled = [anyprompt.pool_auc(sc, c, fams, "test") for c in sc]
-        frac_inv = mean([int(anyprompt.fam_auc(sc, c, f, "test") < 0.5) for c in sc for f in fams])
-        res[m] = {"families": fams, "mean_auroc_by_candidate": per, "pooled_auroc_by_candidate": pooled,
-                  "plain_by_family": {f: anyprompt.fam_auc(sc, 0, f, "test") for f in fams},
-                  "best_candidate_mean": max(per), "flipped_plain_mean": 1 - per[0],
-                  "share_family_candidate_cells_below_half": frac_inv}
-    json.dump(res, open(os.path.join(HERE, "results.json"), "w"), indent=1)
+        res[m] = summarise(anyprompt.nest(json.load(open(p))))
+    if out is not None:
+        json.dump(res, open(out, "w"), indent=1)
     return res
 
 if __name__ == "__main__":
