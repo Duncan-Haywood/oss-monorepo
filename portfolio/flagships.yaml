@@ -178,8 +178,12 @@ flagships:
       rules, `--from-sales` with page `shifts-from-sales.html`, `--skip-dates`, `--half-life`.
       Root dive 2026-11-11 (README "A root dive"): pin whole LP columns, re-price; 60-person
       weeks proven at the HiGHS optimum in 18-27 s (0 of 3 before), 30/40-person pay weeks 4 of
-      4 to within $0.50 (1 of 4). Next: 80-120 person weeks and the pay proof at 60 people
-      (untried); buildRoster end to end on 40-person weeks with exact on (3-5 min before the
+      4 to within $0.50 (1 of 4). Chain bound in the set oracle, 2026-11-11 later (README "A
+      chain bound", chain-bound.test.mjs): 80x224 weeks now finish the root LP (did not in
+      120 s), 1 of 3 proven in 96 s, 2 of 3 rosters 4-5 h over the bound; 120 people is over
+      the 400-shift cap. Next: close the 80-person gaps (LP time now dominates: a faster LP
+      or a dive with backtracking), HiGHS on the 80-person weeks, the chain bound in
+      makeScorePricer, the pay proof at 60 people (untried); buildRoster end to end on 40-person weeks with exact on (3-5 min before the
       dive, not re-timed: its other passes, not the proof); backtracking when both dives miss; a real POS hourly export for --from-sales and the page (made-up exports only); a
       real published-schedule export for --import-shifts.
   - venture: photo-editing

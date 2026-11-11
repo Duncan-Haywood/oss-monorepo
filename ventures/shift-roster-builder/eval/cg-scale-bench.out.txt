@@ -74,3 +74,27 @@ case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pri
 0	245	1551	300.00	300	-	false	27	1691	61	3660	0	106869	12264	62439	0	no
 1	238	1564	308.00	308	-	false	23	1203	45	2700	0	86005	31801	60517	0	no
 2	235	1520	183.00	183	-	false	23	1855	64	3840	0	116407	14363	61176	0	no
+
+# 2026-11-11 later: chain bound in the pricing oracle (on by default; CHAIN=0 is the control). 4-core machine, up to three benches at once.
+# 80x224 before (chain bound off, old code; case 2 not run before the kill):
+0	304	1974	161.00	161	-	false	1	1680	20	1600	0	577737	108379	121256	0	no
+1	314	2105	331.00	331	-	false	3	1915	29	2280	0	473140	88887	120692	2	no
+# 80x224 with the chain bound:
+80 people, 224 shift lines, oracle cap 2000000 nodes per call, 120000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	304	1974	257.00	257	262	false	24	3047	83	4976	0	26952	17633	121694	23	yes
+1	314	2105	331.00	331	335	false	32	2255	86	4620	0	11778	17258	121384	31	yes
+2	326	2064	281.00	281	281	true	9	2465	65	3338	0	57116	43677	95814	8	yes
+# 60x168 with the chain bound:
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	5288	2867	15709	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	6251	3031	11625	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	3674	4281	22084	8	yes
+# 60x168 CHAIN=0, same session:
+60 people, 168 shift lines, oracle cap 2000000 nodes per call, 60000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	245	1551	300.00	300	300	true	8	2021	69	2442	0	106869	11799	24765	7	yes
+1	238	1564	308.00	308	308	true	8	1327	40	1612	0	38793	14523	21573	7	yes
+2	235	1520	183.00	183	183	true	9	2188	72	2530	0	116407	15653	30733	8	yes
+# 120x336: refused by parseShifts (over 400 shift copies), so not a size the tool takes.
