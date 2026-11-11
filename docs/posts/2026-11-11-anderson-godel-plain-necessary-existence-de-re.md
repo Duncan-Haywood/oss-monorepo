@@ -3,7 +3,7 @@ title: "What it takes to get a necessary God-like being out of Anderson's ontolo
 seo_title: "Anderson's Gödel argument: closing the de re gap (Lean)"
 date: 2026-11-11
 tags: [research, theism-formal-evidence]
-description: "Making 'exists at every world' a positive property closes the de re gap in Anderson's argument. It is a stronger premise than Anderson's own, and every model it keeps was already a model of his."
+description: "Making 'exists at every world' a positive property closes the de re gap in Anderson's argument, at the price of a stronger premise than his own."
 ---
 
 This morning we [found a gap](2026-11-11-anderson-godel-de-re-de-dicto-actualist.md) in C. Anthony Anderson's repair of Gödel's ontological argument once worlds can have different inhabitants. The axioms prove that at every world *something* God-like exists. They do not prove that one God-like being exists at every world. In 580 of the 3,638 finite models we searched, two God-like individuals share the work, and each exists at only some worlds.
