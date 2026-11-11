@@ -924,9 +924,48 @@ timetables now get that home/away as a candidate of its own.
   `repair`: it saved the freed residues' partners before shuffling them, so a rejected move restored
   the wrong partners. `eval/starter-climb.mjs` almost never rejects a move, so its tables are
   unaffected; it is fixed in both scripts.
-- Open: the same candidate for a home-and-away season (`lowCarryOverDoubleRounds`, mirrored shift
-  venues); seeding `assignVenues` with the shift orientation after the search's moves; longer
+- Open: seeding `assignVenues` with the shift orientation after the search's moves; longer
   climbs, and a better break bound inside the move than single-pair flips.
+
+## Shift venues for a home-and-away season (2026-11-11, latest)
+
+The shift candidates above reached only the single round robin. `lowCarryOverDoubleRounds` builds
+each leg one from a searched start (circle, starter, weighted starter), so a home-and-away season
+never saw them: 25 teams stayed at 2,889 carry-over with 262 breaks.
+
+- **The change** (`carryover.mjs`). With a break weight, every shift candidate (`shiftStarts`: each
+  built-in starter as it is, with its least-break shift venues) is now also a leg one. Leg two is
+  then handled as for any leg one: it starts as leg one played backwards and is annealed with the
+  breaks counted exactly from leg one's hosts, and the plain mirror (leg one again, grounds swapped)
+  is scored too. A candidate is kept only when its carry-over + 1000 x repeats + weight x breaks is
+  strictly lower than every searched start's (`start: "... , shift venues"`; `shift: false` turns it
+  off; a `leg1` option takes the given leg one). Carry-over only (weight 0): nothing changes.
+- **Measured through the search** (`node eval/shift-double.mjs 10 <sizes>`, seed 1, effort 1, weight
+  10, `eval/shift-double.txt`; each season checked as valid: every ordered pair once, the two
+  meetings in different legs, every team n - 1 home games; carry-over / breaks recounted from the
+  rounds):
+
+  | Teams | Before | Now | Score |
+  |---|---|---|---|
+  | 11 | 487 / 31 | 497 / 23 | 797 -> 727 |
+  | 13 | 719 / 43 | 733 / 35 | 1,149 -> 1,083 |
+  | 17 | 1,333 / 87 | **1,285 / 65** | 2,203 -> 1,935 |
+  | 19 | 1,525 / 119 | **1,311 / 87** | 2,715 -> 2,181 |
+  | 21 | 1,891 / 171 | 1,937 / 97 | 3,601 -> 2,907 |
+  | 23 | 2,381 / 211 | **2,189 / 109** | 4,491 -> 3,279 |
+  | 25 | 2,889 / 262 | **2,685 / 117** | 5,509 -> 3,855 |
+  | 26 | 2,714 / 164 | 2,714 / 164 | unchanged |
+  | 27 | 3,315 / 304 | 3,359 / 148 | 6,355 -> 4,839 |
+  | 29 | 3,885 / 370 | 3,951 / 165 | 7,585 -> 5,601 |
+
+  Odd seasons of 17 to 29 teams go from 5 to 13 breaks per team to 4 to 6, and at 17, 19, 23 and 25
+  teams (bold) the carry-over drops as well: the searched leg ones were worse on both counts. At 19
+  and 21 teams the plain mirror of the shift leg one won. 26 teams (even, all playing) keeps its
+  weighted starter. Each row's time (9 to 23 s) is both searches together; the extra candidates
+  are up to three leg-two searches, so a home-and-away search with a break weight takes longer at
+  sizes with built-in starters.
+- Not claimed: one seed, one weight, ten sizes; the page's best-of-k tries at weights 10 to 80 run
+  this inside each try, but their picks were not re-measured.
 
 ## Several divisions on shared courts (`divisions.mjs`)
 

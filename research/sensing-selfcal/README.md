@@ -35,6 +35,17 @@ while the cluster-robust sandwich only helps on the left camera (1.76 / 1.59). B
 jackknife **ranks updates worse** (ROC AUC 0.75 against 0.91 for the reported σ) and is
 very conservative at 4 views, so **an honest σ and a good gate are different statistics**.
 
+**Milestone 5 headline** (lens terms and the bent board): OpenCV's **released-object
+calibration** (Strobl and Hirzinger's bend-aware Zhang) **is the same problem as our
+target-free bundle adjustment**: both return identical intrinsics, σ and board shape. Comparing
+it with the flat-board fit isolates the board assumption, and **the flat, evenly spaced board
+moves the principal point c<sub>y</sub> by 8.7 px (left) and 5.3 px (right)**. Adding a second
+radial term k<sub>2</sub> (clearly non-zero) **does not make σ honest** (nested rms z 3.01,
+2.00 without five outliers, against 2.28), and the residuals stay correlated between
+neighbouring corners (0.31 / 0.24), but only along one board axis.
+
+![principal point c_y for flat-board Zhang, released-board Zhang and target-free BA, and rms nested z with k1 vs k1+k2](experiments/m5_lens/cy_and_k2.png)
+
 ![rms z by subset size for the reported, sandwich and jackknife σ, both cameras](experiments/m3_robust/rms_z_by_sigma.png)
 
 ![rms z-score of the focal length and median focal error against the number of views, target-free BA vs Zhang](experiments/m1_real/selfcal_vs_zhang.png)
@@ -76,7 +87,7 @@ Jacobian). σ from the Gauss–Newton normal matrix, scaled by the residual vari
 | Target-free f (σ), px | 534.82 (0.98) | 538.43 (1.20) |
 | Gap | −0.15% (−0.6 σ) | −0.24% (−0.8 σ) |
 | σ ratio, target-free / Zhang | 1.12 | 1.12 |
-| Reprojection rms, Zhang / target-free, px | 0.42 / 0.26 | 0.49 / 0.29 |
+| Reprojection rms per coordinate, Zhang / target-free, px | 0.30 / 0.26 | 0.34 / 0.29 |
 | c<sub>y</sub> gap, px (σ) | +8.7 (5.3 σ) | +5.2 (2.9 σ) |
 | Same f from a 0.7× start | 534.82 | 538.43 |
 | f with k<sub>2</sub> added, Zhang / target-free | 536.27 / 535.72 | 541.07 / 538.15 |
@@ -100,7 +111,8 @@ views the worst was 4.4%, from 8 views under 1%.
 from their best-fit plane by 0.0077 (left) and 0.0077 (right) square widths rms, 0.024 at
 most; the out-of-plane heights from the two independently solved cameras correlate at 0.903
 (0.909 with k<sub>2</sub>). Grid spacing varies by 0.3%. A flat-board model cannot fit that
-bend, which is the likely reason the target-free fit has about 40% lower reprojection error and
+bend, which is the likely reason the target-free fit has 13–15% lower reprojection error (milestone 1 first
+said about 40%, comparing OpenCV's per-point rms with our per-coordinate one; corrected in milestone 5) and
 part of the c<sub>y</sub> disagreement (Strobl and Hirzinger, 2011, found the same for
 printed targets).
 
@@ -213,6 +225,62 @@ solves, but should not be the accept statistic on its own; the next gate should 
 reported σ (and view spread) and use the jackknife only to refuse updates whose honest error
 bar is too wide.
 
+## Milestone 5: does the bent board explain c<sub>y</sub>, and does k<sub>2</sub> explain the 2× σ?
+
+Pre-registered in `LOG.md` before any run (H11–H13); results in
+`experiments/m5_lens/summary.json`. Milestone 1 left two suspects: the bent board for the
+8.7 / 5.2 px c<sub>y</sub> gap, and the k1-only lens for the overconfident σ.
+
+**Bend-aware reference.** `zhang_ro` in `src/selfcal.py` wraps OpenCV's
+`calibrateCameraROExtended` (released object; Strobl and Hirzinger, 2011): the board's 3-D
+corners are refined with the camera, corner 0 and corner 8 held at their nominal positions.
+
+**The released-object fit and target-free BA are the same estimator.** On both cameras and
+both lens models they agree to 1e-6 px in f and c<sub>y</sub>, to 1e-8 in σ, and in the
+reconstructed board (height correlation 1.000). With every corner free, the board contributes
+only a metric scale, and scale carries no information about the intrinsics. That makes the
+target-free numbers of milestones 1–3 also the numbers of a bend-aware target calibration of
+these photos, and it isolates what the flat-board assumption does:
+
+| all 13 views | left, k1 | left, k1+k2 | right, k1 | right, k1+k2 |
+|---|---|---|---|---|
+| c<sub>y</sub>, flat-board Zhang (σ), px | 234.1 (1.05) | 234.0 (1.07) | 247.2 (1.21) | 247.2 (1.19) |
+| c<sub>y</sub>, released board = target-free (σ), px | 242.8 (1.26) | 244.2 (1.29) | 252.5 (1.34) | 252.4 (1.31) |
+| c<sub>y</sub> shift from the flat assumption | −8.7 px (5.3σ) | −10.1 px (6.0σ) | −5.3 px (2.9σ) | −5.3 px (3.0σ) |
+| f shift from the flat assumption | +0.79 px | +0.55 px | +1.28 px | +2.93 px |
+| adjacent-corner residual correlation, flat / free board | 0.36 / 0.32 | 0.36 / 0.31 | 0.35 / 0.28 | 0.32 / 0.24 |
+
+(Image centre: c<sub>y</sub> = 240. Neither fit is lens ground truth; the free-board one makes
+fewer assumptions and fits better.) k<sub>2</sub> is 0.143 ± 0.018 (left) and 0.091 ± 0.007
+(right): a real term the k1 model omits.
+
+**Hypotheses:**
+- H11 (with the released-object reference, the c<sub>y</sub> gap is under 2σ): **held, but
+  trivially**: the gap is 4e-6σ because the two estimators coincide. The substantive result is
+  the table's third row: the flat-board assumption alone moves c<sub>y</sub> by 5–10 px.
+- H12 (k<sub>2</sub> is not the cause of the 2× overconfidence: nested rms z stays > 1.5 with
+  k1 + k2 on milestone 2's 560 subsets): **held**. rms z 3.01 (95% 2.05–4.04; left 3.85,
+  right 2.04; 296 subsets, 64 with σ<sub>sub</sub> ≤ σ<sub>all</sub> dropped), against 2.28
+  with k1. The rise is fragile: two left-camera subsets of 4–5 views (z −28 and −23, where
+  σ<sub>sub</sub> barely exceeds σ<sub>all</sub>) carry it. Without the five largest |z| it is
+  2.00 (k1: 1.94); median |z| 1.31 (k1: 1.40). All 560 solves converged, at most 180 evaluations.
+- H13 (residuals of adjacent corners stay correlated ≥ 0.1 with k1 + k2): **held**, 0.31
+  and 0.24. The structure is one-directional: along the board's columns the correlation is
+  0.44–0.56 (0.65–0.76 two corners apart), along its rows −0.02 to 0.09. A lens term acts
+  radially in the image, not along one board axis, so the cause is likely in the board or the
+  detector; this milestone does not establish which.
+
+**Unscored.** Against the released-object reference itself, rms z over random 4–12-view
+subsets is 1.66 (k1) and 1.79 (k2); k<sub>2</sub> shrinks σ<sub>f</sub> by a median 5% and
+leaves the median focal error at 0.24%.
+
+**What it means for a robot.** A flat-board target calibration of a printed board can be off
+by 5–10 px in the principal point while reporting a 1 px σ, and a self-calibrating BA (or the
+released-object option, which is the same thing) removes that bias for free. Adding lens terms
+is not a fix for the overconfidence: the residuals are correlated along one board axis whatever
+the lens model, which is the pattern a cluster-robust σ by board column, or the jackknife, has
+to absorb.
+
 ## Reproduce
 
 ```
@@ -224,6 +292,8 @@ python3 experiments/m2_spread/run.py      # ~10 min on 4 cores; results.json
 python3 experiments/m2_spread/analyse.py  # summary.json, spread_vs_error.png
 OMP_NUM_THREADS=1 python3 experiments/m3_robust/run.py   # ~9 min on 4 cores; results.json
 python3 experiments/m3_robust/analyse.py  # summary.json, rms_z_by_sigma.png
+OMP_NUM_THREADS=1 python3 experiments/m5_lens/run.py     # ~4 min on 4 cores; results.json
+python3 experiments/m5_lens/analyse.py    # summary.json, cy_and_k2.png
 python3 -m pytest tests
 ```
 
@@ -249,7 +319,9 @@ python3 -m pytest tests
 
 ## Next steps
 
-Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
+After milestone 5: find the one-directional residual correlation's source (per-column
+residuals against the board's print and the image rows), and score a sandwich σ clustered by
+board column. Milestone 3b: natural features (SIFT) on an openly licensed multi-view set with a target
 calibration of the same camera (H5). For the gate (milestone 4): a two-stage test that ranks by
 the reported σ and view spread and vetoes with the jackknife σ, fitted on one camera and
 scored on the other; a cheaper honest σ than k re-solves (a one-step, linearised jackknife
