@@ -93,7 +93,9 @@ export function compute(input, limits = DEFAULT_LIMITS) {
     } else if (klass === "heavy_suv") {
       add("macrs", "Regular MACRS, no election", macrs, ["The 280F caps do not apply over 6,000 lb."]);
       add("bonus", "100% bonus depreciation", full, ["Bonus is not limited by the 179 SUV cap."]);
-      const cap = Math.min(price, limits.heavySuv179Cap) * biz;
+      // IRC 179(b)(5) / IRS Pub 946 ch. 2: the SUV limit caps the 179 deduction itself, on the
+      // business-use basis. It is not prorated by business-use percent.
+      const cap = Math.min(basis, limits.heavySuv179Cap);
       let first = cap;
       const carry = [];
       if (income !== null && first > income) { carry[1] = first - income; first = income; warnings.push("Section 179 cannot exceed your business taxable income; the excess carries to next year here."); }
