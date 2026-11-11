@@ -3,6 +3,7 @@
 
 Run: python3 -m unittest test_run_venture_tests   (from platform/ci/)
 """
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -146,6 +147,27 @@ class Selection(unittest.TestCase):
         self.assertEqual(
             rvt.slugs_in(["ventures/a/x.js", "ventures/a/b/y", "ventures/README.md", "docs/z", "ventures/b/i"]),
             ["a", "b"])
+
+    def test_a_venture_that_reaches_into_a_changed_one_runs_too(self):
+        # open-house-plans vendors ../wall-framing-takeoff/ and checks the copy;
+        # a change to the source alone turned it red on main (2026-11-11).
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            files = {
+                "ventures/source/engine.mjs": "export const x = 1;\n",
+                "ventures/user/vendor.mjs": 'const src = "../source/engine.mjs";\n',
+                "ventures/links-only/index.html": '<a href="../source/">x</a>\n',
+                "ventures/other/calc.mjs": "export const y = 2;\n",
+            }
+            for rel, text in files.items():
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_text(text)
+            subprocess.run(["git", "init", "-q"], cwd=root, check=True)
+            subprocess.run(["git", "add", "-A"], cwd=root, check=True)
+            self.assertEqual(rvt.with_dependents(["source"], root=root), ["source", "user"])
+            self.assertEqual(rvt.with_dependents(["other"], root=root), ["other"])
+            self.assertEqual(rvt.with_dependents([], root=root), [])
 
     def test_an_all_zero_base_means_every_venture(self):
         # A push that creates a branch reports `before` as forty zeros.

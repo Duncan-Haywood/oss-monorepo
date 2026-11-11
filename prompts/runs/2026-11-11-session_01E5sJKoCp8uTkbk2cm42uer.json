@@ -51,6 +51,10 @@
     {
       "file": "platform/ci/run_venture_tests.py",
       "issue": "Venture suites run only for changed ventures, so a change to a shared file (platform/llm/byok.mjs) copied into 16 ventures turned 10 suites red on main unseen. Fixed for byok with a copy check in platform/llm/byok.test.mjs; other shared-copy files may have the same blind spot."
+    },
+    {
+      "file": "platform/pages (landmark sweep, PRs #14662/#14667 era)",
+      "issue": "A sweep that hand-edits generated HTML (adding <main>) without touching the generator turns each venture's 'page is current' test red; two such pages (sales-cadence-builder, estimate-maker) were red on main. Sweeps should grep for a generator (make-*.mjs, build-*.mjs) before editing an .html."
     }
   ],
   "deviations": [
@@ -71,7 +75,7 @@
     "docs/posts/2026-11-11-the-year-the-tables-run-out.md"
   ],
   "goal": null,
-  "notes": "Guard added: platform/llm/byok.test.mjs 'every ventures/*/byok.mjs is a byte-identical copy' (runs in llm-spend-guard-ci and uitest-ci on platform/llm/** changes); first run caught 16 stale copies. Sibling sweep for `TABLE[year] ||` fallbacks across ventures found babysitting-business-kit's HOUSEHOLD_THRESHOLD gap. Verification: run_venture_tests.py on the 16 byok ventures + qbi: 17 suites, sales-cadence-builder red (pre-existing on main, verified with stash), fixed in make-guide.mjs, then 31/31; qbi 49/49 (calc, page, usage); babysitting engine 23/23; byok.test 24/24.",
+  "notes": "Guard added: platform/llm/byok.test.mjs 'every ventures/*/byok.mjs is a byte-identical copy' (runs in llm-spend-guard-ci and uitest-ci on platform/llm/** changes); first run caught 16 stale copies. Sibling sweep for `TABLE[year] ||` fallbacks across ventures found babysitting-business-kit's HOUSEHOLD_THRESHOLD gap. Verification: run_venture_tests.py on the 16 byok ventures + qbi: 17 suites, sales-cadence-builder red (pre-existing on main, verified with stash), fixed in make-guide.mjs, then 31/31; qbi 49/49 (calc, page, usage); babysitting engine 23/23; byok.test 24/24. Follow-up after PR #14692 merged: a full run_venture_tests.py sweep (1,330 suites) found 2 more red on main, open-house-plans (stale vendored engine) and estimate-maker (generator lacked <main>); both fixed in a second PR, with with_dependents() in run_venture_tests.py as the guard for the vendored-copy class (test_a_venture_that_reaches_into_a_changed_one_runs_too fails without it).",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -334,6 +338,18 @@
         "issue": "Red on main: page.test.mjs 'the guide is not stale' failed because a landmark sweep added <main> to sales-cadence-template.html by hand but not to the generator, so regenerating would drop it. Fixed in make-guide.mjs and regenerated.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14692"
+      },
+      {
+        "file": "ventures/open-house-plans/vendor-framing.mjs",
+        "issue": "Red on main: wall-framing-takeoff's engine/drawings/panels changed (~400 lines) and the vendored wft-*.mjs copies plus the generated catalogue were never refreshed; only the source venture's suite ran. Fixed: re-vendored and rebuilt the catalogue (board counts move by a few boards, e.g. 1,000 -> 1,001 board feet). Guard: run_venture_tests.py --changed/--since now also runs ventures whose code names a changed venture as ../<slug>/ (with_dependents).",
+        "patched": true,
+        "patched_in": "follow-up PR from this run (see notes)"
+      },
+      {
+        "file": "ventures/estimate-maker/build-trades.mjs",
+        "issue": "Red on main: same as sales-cadence-builder; a landmark sweep added <main> to the generated trade-bid-calculators.html by hand, not to its generator, so the 'trade index is current' test failed. Fixed in the generator; regenerated output is byte-identical to the committed page.",
+        "patched": true,
+        "patched_in": "follow-up PR from this run (see notes)"
       }
     ]
   },
