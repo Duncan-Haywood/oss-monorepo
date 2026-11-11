@@ -1,9 +1,9 @@
 ---
 title: "Shift roster builder: the same search, two to three times faster, and 80-person weeks proven"
-seo_title: "Speeding up a branch-and-price staff scheduler without changing a single pivot"
+seo_title: "A faster branch-and-price staff scheduler, same pivots"
 date: 2026-11-11
 tags: [scheduling, optimisation, column-generation, performance, open-source]
-description: "Four exact speed-ups to a JavaScript branch-and-price solver: same nodes, same rosters, 60-person weeks in 9-12 s, and 80-person weeks proven where HiGHS stalls."
+description: "Four exact speed-ups to a JavaScript branch-and-price solver: same nodes and rosters, 60-person weeks in 9-12 s, 80-person weeks proven where HiGHS stalls."
 ---
 
 The [shift roster builder](../../ventures/shift-roster-builder/) proves its
@@ -79,8 +79,10 @@ The tool caps a week at 400 shift copies. At 100 people and 280 lines the
 seeded weeks come to 400, 400 and 407 copies, so they are as big as the
 product accepts. On the first 100-person week, the root LP did not settle in
 180 seconds. Pricing took 128 s of that, with up to 1.4 million search nodes
-for one person's best shift set. The pricing oracle is now the limit, not
-the LP. A faster oracle, using dominance, labels or a dynamic programme over
+for one person's best shift set. On the second week it stopped at 180 s with
+a roster of 347 hours over a floor of 344. HiGHS, given 300 s, had 358 over
+the same 344 on that week, and 361 over 358 on the first. The pricing oracle
+is now the limit, not the LP. A faster oracle, using dominance, labels or a dynamic programme over
 days, is the next item.
 
 What this does not show: the weeks are seeded and synthetic, only the hard

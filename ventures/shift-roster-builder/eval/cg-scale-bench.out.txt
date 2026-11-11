@@ -93,3 +93,10 @@ case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pri
 2	326	2064	281.00	281	281	true	9	2465	65	3338	0	627196	54678	77072	8	yes
 100 people, 280 shift lines, oracle cap 2000000 nodes per call, 180000 ms per week
 0	400	2607	294.00	294	-	false	1	3680	36	3600	0	1435826	128057	184852	0	no
+1	400	2642	344.00	344	347	false	18	4489	88	6202	0	469451	36833	185306	17	yes
+# HiGHS (eval/ilp-check.py, scipy 1.18.1, 300 s) on the 80x224 and 100x280 weeks:
+# 80x224 0 0 Optimization terminated successfully. (H min open hours 257.0 dual bound 257.0 engine open None engine floor None 7.9s
+# 80x224 1 1 Time limit reached. (HiGHS Status 13: Ti min open hours 338.0 dual bound 331.0000000000091 engine open None engine floor None 300.2s
+# 80x224 2 1 Time limit reached. (HiGHS Status 13: Ti min open hours 283.0 dual bound 281.0000000000097 engine open None engine floor None 300.2s
+# 100x280 0 1 Time limit reached. (HiGHS Status 13: Ti min open hours 360.99999999999994 dual bound 358.00000000000153 engine open None engine floor None 300.5s
+# 100x280 1 1 Time limit reached. (HiGHS Status 13: Ti min open hours 357.99999999999983 dual bound 344.0000000000019 engine open None engine floor None 300.4s
