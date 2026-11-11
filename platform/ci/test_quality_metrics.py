@@ -194,5 +194,44 @@ class RealCorpusTest(unittest.TestCase):
         self.assertIn("Coverage of the repository", m.render_md(out))
 
 
+class ChangesSinceTest(unittest.TestCase):
+    """queue's 'changed since audit' note: a fix can land without fix_prs (PR #14329, photo-editing)."""
+
+    def fake(self, log="", boundary_date=None, has_ref=True, shallow=None):
+        def git(args):
+            if args[0] == "rev-parse" and args[1] == "--verify":
+                return "abc\n" if has_ref else ""
+            if args[:2] == ["rev-parse", "--git-path"]:
+                return str(shallow) if shallow else ""
+            if args[0] == "log" and args[1] == "-1":
+                return (boundary_date or "") + "\n"
+            if args[0] == "log":
+                return log
+            return ""
+        return git
+
+    def shallow_file(self, sha):
+        import tempfile
+        f = Path(tempfile.mkdtemp()) / "shallow"
+        f.write_text(sha + "\n")
+        return f
+
+    def test_changed_drops_the_shallow_boundary_commit(self):
+        log = "f1\tf596041\tquality: audit round 30 + photo-editing page fix (#14329)\nb0\tb0short\tboundary\n"
+        out = m.changes_since("ventures/photo-editing", "2026-11-09",
+                              git=self.fake(log, "2026-11-01", shallow=self.shallow_file("b0")))
+        self.assertEqual(out["status"], "changed")
+        self.assertEqual([c["sha"] for c in out["commits"]], ["f596041"])  # audit-round commits that touch the subject count
+
+    def test_history_starting_after_the_audit_is_unknown(self):
+        out = m.changes_since("ventures/x", "2026-11-07", git=self.fake("", "2026-11-10", shallow=self.shallow_file("b0")))
+        self.assertEqual(out["status"], "unknown")
+        self.assertIn("--shallow-since=2026-11-07", out["why"])
+
+    def test_untouched_and_no_git(self):
+        self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake(""))["status"], "untouched")
+        self.assertEqual(m.changes_since("ventures/x", "2026-11-07", git=self.fake("", has_ref=False))["status"], "unknown")
+
+
 if __name__ == "__main__":
     unittest.main()
