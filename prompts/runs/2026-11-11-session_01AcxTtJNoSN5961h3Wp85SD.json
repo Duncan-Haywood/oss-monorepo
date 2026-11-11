@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "Backgrounded the first bench with a trailing '&' inside run_in_background, so the harness notified at once and the process ran untracked; polled with until-loops instead.",
-    "A first wait loop matched the bench's header line ('80 people ...') as a data row."
+    "A first wait loop matched the bench's header line ('80 people ...') as a data row.",
+    "Did not search main for same-venture work again just before merging; a parallel shift-roster-builder run landed on the same item, causing conflicts in README, llms.txt, flagships.yaml and the bench output."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -59,7 +60,7 @@
     "ventures/shift-roster-builder/README.md (A chain bound in the pricing oracle)"
   ],
   "goal": null,
-  "notes": "Bench output in ventures/shift-roster-builder/eval/cg-scale-bench.out.txt. 80x224 before: root unfinished at 120 s, oracle 108 of 121 s, max call 577,737 nodes. After: max call 11.8k-57k nodes, 1 of 3 proven (281 h, 96 s), 2 rosters 4-5 h over the bound. 60x168 same-session control: 22-31 s off vs 12-22 s on, same search path. Local verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (428.8 s); node --test chain-bound.test.mjs 2/2. node platform/pages/venture-preflight.mjs shift-roster-builder -> preflight clean.",
+  "notes": "Bench output in ventures/shift-roster-builder/eval/cg-scale-bench.out.txt. 80x224 before: root unfinished at 120 s, oracle 108 of 121 s, max call 577,737 nodes. After: max call 11.8k-57k nodes, 1 of 3 proven (281 h, 96 s), 2 rosters 4-5 h over the bound. 60x168 same-session control: 22-31 s off vs 12-22 s on, same search path. Local verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (428.8 s); node --test chain-bound.test.mjs 2/2. node platform/pages/venture-preflight.mjs shift-roster-builder -> preflight clean. Merge conflict with a parallel run's dive backtracking (landed on main mid-run, same 80-person item): resolved keeping both; re-ran 80x224 on the merged code (same result, 1 of 3 proven; backtracking 3 retries on week 0, no gain) and the full suite again (ok, 408.3 s).",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -49,9 +49,15 @@ The search takes the smaller of the two bounds at every node.
 
 On the 60-person weeks the search took exactly the same path either way (same
 nodes, columns and floors). Only the oracle got faster. Pricing fell from
-12–16 seconds to 3–4, and the LP solve is now most of the time. That is what
-the next run should work on: a faster LP, or a dive that can backtrack, to
-close the 4- and 5-hour gaps on the two unproven 80-person weeks.
+12–16 seconds to 3–4, and the LP solve is now most of the time.
+
+A parallel run landed [backtracking in the dive](2026-11-11-shift-roster-dive-backtracking-and-the-80-person-wall.md)
+at the same time and reached the same diagnosis from the other side: at 80
+people "the limit is pricing, not search". With both changes merged, the
+80-person result is the same as the table above. On week 0 the backtracking
+spent three retries and found nothing below 262 hours. So the next lever for
+the 4- and 5-hour gaps on the two unproven weeks is the LP itself: a faster
+solve, or dual stabilisation so that fewer rounds are needed.
 
 A test checks the new bound against brute force over every valid set. It uses
 60 random small weeks, rest rules of 0, 8, 10 and 12 hours, an optional daily

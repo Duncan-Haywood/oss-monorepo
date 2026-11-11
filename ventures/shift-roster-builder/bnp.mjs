@@ -240,7 +240,7 @@ export function branchAndPriceOpen(sets, len, { incumbentOpen = Infinity, nodeLi
 // people of cost(p, set), when `price` also returns the set's `cost` and its `value` is sum of w[s] over the set minus that cost.
 // The open-hours LP is the case openCost = len, cost = 0. The whole roster score (pay, penalties and 100,000 per open hour) is
 // another (scoreBoundByColumnGeneration in calc.mjs); pass `unit: 0` there so bounds are not rounded to the hour grid.
-export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, rootDive = true, diveWidth = null, warm = true, openCost = null, unit: unitOpt = null, tolerance = 0 } = {}) {
+export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, nodeLimit = 2000, ms = 20000, maxRounds = 400, cls = null, dive = true, rootDive = true, diveWidth = null, warm = true, openCost = null, unit: unitOpt = null, tolerance = 0, diveBacktrack = null } = {}) {
   const S = len.length;
   const oc = openCost || len;
   let maxCost = 0;
@@ -403,34 +403,57 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
   // pins every unpinned person whose LP column is at 1, plus the person with the heaviest fractional column, then re-prices the
   // rest; it ends at an integral LP (a roster), when the pinned problem cannot beat the best roster, or after `diveSteps`. No
   // backtracking: a failed dive costs its steps and leaves the tree search as it was.
-  const runDive = (maxSteps, width) => {
-    const pins = new Map();
-    for (let step = 0; step < maxSteps && !timeUp(); step++) {
+  // Backtracking (2026-11-11 later): with `backtrack` > 0 the dive is a depth-first search. When a step dead-ends (the pinned
+  // problem is infeasible or cannot beat the best roster) it returns to the step before and pins that step's next fractional
+  // candidate instead, up to `backtrack` such retries in all (a retry is one extra pinned LP). A roster found above the root
+  // bound does not end the search: it only tightens the cut, so later branches must beat it. Still a heuristic: rosters only,
+  // never a floor. Retries stop once half of `ms` is spent, so a long dive leaves the tree its share of the time.
+  const runDive = (maxSteps, width, backtrack = 0) => {
+    let retries = backtrack;
+    const goal = () => cut(root.bound); // a roster meets the root bound
+    const go = (pins, depth) => {
+      if (depth >= maxSteps || timeUp()) return;
       stats.diveSteps = (stats.diveSteps || 0) + 1;
       const r = evalNode(new Map(), 0, pins);
       if (r.bound === Infinity || r.solved || !r.lpCols) return;
       if (roundUp(r.bound, unit) >= best - tolerance - 1e-9) return;
-      let added = 0;
+      const base = new Map(pins);
       const frac = [];
       for (const c of r.lpCols) {
-        if (pins.has(c.p)) continue;
-        if (c.x > 1 - 1e-7) { pins.set(c.p, { f: c.f, key: c.f.join(","), cost: c.cost }); added++; }
+        if (base.has(c.p)) continue;
+        if (c.x > 1 - 1e-7) base.set(c.p, { f: c.f, key: c.f.join(","), cost: c.cost });
         else frac.push(c);
       }
       // Then the heaviest fractional columns, up to `width` of them, of different people and sharing no shift copy with each other
       // or with a pin (a shared copy would leave the pinned problem infeasible).
       frac.sort((a, b) => b.x - a.x || b.f.length - a.f.length);
       const taken = new Set();
-      for (const [, { f }] of pins) for (const s of f) taken.add(s);
-      let took = 0;
-      for (const c of frac) {
-        if (took >= width) break;
-        if (pins.has(c.p) || c.f.some((s) => taken.has(s))) continue;
-        pins.set(c.p, { f: c.f, key: c.f.join(","), cost: c.cost }); added++; took++;
-        for (const s of c.f) taken.add(s);
+      for (const [, { f }] of base) for (const s of f) taken.add(s);
+      const fits = frac.filter((c) => !c.f.some((s) => taken.has(s)));
+      const pick = (from, n) => {
+        const next = new Map(base), t = new Set(taken);
+        let took = 0;
+        for (let i = from; i < fits.length && took < n; i++) {
+          const c = fits[i];
+          if (next.has(c.p) || c.f.some((s) => t.has(s))) continue;
+          next.set(c.p, { f: c.f, key: c.f.join(","), cost: c.cost }); took++;
+          for (const s of c.f) t.add(s);
+        }
+        return next.size > pins.size ? next : null;
+      };
+      const first = pick(0, width);
+      if (!first) return;
+      go(first, depth + 1);
+      // Retry this step with the next candidates, one pin each, while retries last and no roster meets the root bound.
+      for (let i = 1; i < fits.length && retries > 0 && !goal() && Date.now() - t0 < ms / 2; i++) {
+        if (roundUp(r.bound, unit) >= best - tolerance - 1e-9) return; // a roster found below now beats this whole subtree
+        const alt = pick(i, 1);
+        if (!alt) continue;
+        retries--; stats.diveRetries = (stats.diveRetries || 0) + 1;
+        go(alt, depth + 1);
       }
-      if (!added) return;
-    }
+    };
+    go(new Map(), 0);
   };
 
   const root = evalNode(new Map(), 0);
@@ -442,7 +465,7 @@ export function columnGenerationOpen(P, len, price, { incumbentOpen = Infinity, 
     const widths = diveWidth ? [diveWidth] : [Math.max(1, Math.ceil(P / 7)), 1];
     for (const w of [...new Set(widths)]) {
       if (timeUp() || cut(root.bound)) break; // stop once a roster meets the root bound
-      runDive(P + 1, w);
+      runDive(P + 1, w, w === 1 ? (diveBacktrack ?? P) : 0);
     }
     stats.diveFound = best < before;
   }

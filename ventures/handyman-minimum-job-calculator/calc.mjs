@@ -21,17 +21,47 @@ const num = (v, d = 0) => {
   return Number.isFinite(n) ? n : NaN;
 };
 
-const cells = (line) => (line.includes("\t") ? line.split("\t") : line.split(",")).map((c) => c.trim().replace(/^"|"$/g, ""));
+// One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
+// "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps
+// its commas ("$1,200") and "" inside it is a literal quote; a quote later in a cell (17" rims) is text.
+export function splitCells(line) {
+  const unq = (c) => { c = c.trim(); return /^".*"$/s.test(c) ? c.slice(1, -1).replace(/""/g, '"') : c; };
+  if (line.includes("\t")) return line.split("\t").map(unq);
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch !== '"') cur += ch;
+      else if (line[i + 1] === '"') { cur += '"'; i++; }
+      else q = false;
+    } else if (ch === '"' && cur.trim() === "") { cur = ""; q = true; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
+// True when an unquoted thousands comma has split one number in two: more cells than the line
+// has columns, or a "$1" or "$12" cell followed by a three-digit cell ("$1,200" read as "$1" and
+// "200"). "$720,520" stays two numbers: a $720 price and a 520 cost is an ordinary line.
+// Reading on would shift every later field into the wrong column, so such a line is refused.
+export function looksSplitNumber(cells, columns) {
+  if (cells.length > columns) return true;
+  return cells.some((c, i) => /^\$\d{1,2}$/.test(c) && /^\d{3}(\.\d*)?$/.test(cells[i + 1] ?? ""));
+}
 
 // Lines: "job, work hours, materials cost $, price you quote $". Price may be blank (floor only).
 // Header optional.
 export function parseJobs(text) {
   const rows = [];
-  let skipped = 0;
+  let skipped = 0, split = 0;
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const c = cells(line);
+    const c = splitCells(line);
+    if (looksSplitNumber(c, 4)) { split++; continue; }
     const hours = num(c[1], NaN);
     if (c.length < 2 || !Number.isFinite(hours)) { if (rows.length || !/job|hours|label|name/i.test(line)) skipped++; continue; }
     const materials = num(c[2], 0), price = num(c[3], 0);
@@ -39,7 +69,8 @@ export function parseJobs(text) {
     rows.push({ label: c[0] || "Job", workHours: hours, materials, price });
   }
   const warnings = skipped ? [`${skipped} job line(s) skipped (need a name, work hours above 0, and materials and price of 0 or more).`] : [];
-  if (!rows.length) return { error: "Add at least one job line: name, work hours, materials $, price you quote $ (price may be blank)." };
+  if (split) warnings.unshift(`${split} job line(s) not read: more values than columns, usually a comma inside a number such as $1,200. Type 1200, or put the number in quotes.`);
+  if (!rows.length) return split ? { error: warnings[0] } : { error: "Add at least one job line: name, work hours, materials $, price you quote $ (price may be blank)." };
   return { rows, warnings };
 }
 
