@@ -139,13 +139,37 @@ export function similarity(heard, expected) {
   return 1 - levenshtein(a, b) / Math.max(a.length, b.length);
 }
 
-// Speech recognisers return several alternatives; grade the best one.
+// Negation words in every pack, after normalize() (accents dropped, "n'" split
+// off). A short edit can invert the meaning ("Lo entiendo" for "No entiendo")
+// while staying within the PASS edit distance, so an answer whose negation
+// words differ from the expected phrase's is capped at "close".
+export const NEGATIONS = new Set([
+  "no", "nunca", "nada", "nadie", "ni", // es
+  "ne", "n", "pas", "jamais", "rien", "personne", // fr
+  "nicht", "kein", "keine", "keinen", "keinem", "keiner", "nie", "nichts", // de
+  "non", "mai", "niente", "nessuno", // it
+  "nao", "nem", "ninguem", // pt
+]);
+const negationsOf = (text) => normalize(text).split(" ").filter((w) => NEGATIONS.has(w)).sort().join(" ");
+
+// Speech recognisers return several alternatives; grade each and keep the
+// best verdict (then the best score), so a correct alternative wins over a
+// closer-sounding one that drops the negation.
+const RANK = { miss: 0, close: 1, pass: 2 };
 export function grade(alternatives, expected) {
   const list = Array.isArray(alternatives) ? alternatives : [alternatives];
-  let best = 0;
-  for (const alt of list) best = Math.max(best, similarity(alt, expected));
-  const verdict = best >= PASS ? "pass" : best >= CLOSE ? "close" : "miss";
-  return { score: Math.round(best * 100) / 100, verdict };
+  const want = negationsOf(expected);
+  let out = { score: 0, verdict: "miss", negationMismatch: false };
+  for (const alt of list) {
+    const score = similarity(alt, expected);
+    const negationMismatch = negationsOf(alt) !== want;
+    let verdict = score >= PASS ? "pass" : score >= CLOSE ? "close" : "miss";
+    if (verdict === "pass" && negationMismatch) verdict = "close";
+    if (RANK[verdict] > RANK[out.verdict] || (RANK[verdict] === RANK[out.verdict] && score > out.score)) {
+      out = { score, verdict, negationMismatch };
+    }
+  }
+  return { ...out, score: Math.round(out.score * 100) / 100 };
 }
 
 export function parseCommand(heard, packId) {

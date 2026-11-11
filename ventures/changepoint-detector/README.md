@@ -2087,7 +2087,7 @@ Only the level and level-and-volatility models take several columns; the page sa
 
 **Joint over-cut warning** (`jointOvercut`, `JOINT_OVERCUT_EVERY` in `multivariate.mjs`; page and CLI text). The joint fit is called over-cut when it has more than one change per 50 points (and more than 3). The bar was set from measurements already in the repository, before any new series was scored: on white noise with one shared step (`eval/multi-sim.out.txt`, every cell) the joint fit averaged at most 1.5 cuts per 200 points; on the three labelled TCPD multi-column series (`eval/tcpd-multi.out.txt`) the level fit made one cut per 4 to 7 points and the level-and-volatility fit one per 13 to 21, so the warning fires on all six of those fits. Checked afterwards: German unemployment, unadjusted and adjusted (120 quarters, two smooth series), 22 joint cuts, warned; the currency example, 9 cuts on 1,751 points, not warned; 20 seeded white-noise sets of 4 columns with a 1 sd shared step, one joint cut each and none warned (`multi-view.test.mjs`).
 
-Limits: the warning is a count, not a test; it says to prefer the column-by-column list, it does not fix the joint fit. The joint fit itself is unchanged (independent columns, plain level cost); a noise floor or trend per column inside the joint cost is the next step. Not yet in the branded report.
+Limits: the warning is a count, not a test; it says to prefer the column-by-column list, it does not fix the joint fit. The joint fit itself is unchanged (independent columns, plain level cost); a noise floor or trend per column inside the joint cost is the next step. In the branded report since 2026-11-11 (section "Several columns in the branded report").
 
 ## A joint fit that survives smooth columns: a noise floor per column (2026-11-11)
 
@@ -2163,3 +2163,42 @@ times the main analysis, so a long series froze the tab: on the 7,980-point tree
   reuse it; the CLI panel could use `worker_threads` the same way to lift its 2,000-point cap.
   Whether the agreed summary is worth its cost on long real series (the TCPD ones above 2,000
   points) is still open.
+
+## Several columns in the branded report (2026-11-11)
+
+The branded change report (the planned paid extra, dark until `checkout.mjs` has a link) now covers
+the several-column view too. With **What to analyse** set to several columns, **Open the report**
+builds `multiReportHtml` (`multi-report.mjs`) from the last run, without rerunning it, on the same
+letterhead as the one-column report (`reportShell` in `report.mjs`, shared, so the colour and logo
+rules and the escaping are the same code; the one-column report's output is byte-identical, pinned
+by its sample test). In order:
+
+- the agreed changes, column by column and merged, as the lead (the reading that held up on the
+  labelled multi-column TCPD series), then the column count, point count and joint change count;
+- the over-cut warning when the joint fit trips it;
+- the page's small-multiples chart (`multiChartSvg`, the same function);
+- the merged agreed-changes table, with the merge tolerance stated;
+- **each column on its own**: how many agreed changes it has and their dates (new: the page shows
+  these only as marks on the chart);
+- the one-segmentation table with each column's shift in its own noise sds and, under level and
+  volatility, the sd ratio; the model, penalty and noise floor are stated above it;
+- the analyst's notes, and assumptions written for several columns: the six settings, the
+  independence assumption of the joint fit, that a change seen in several columns is not evidence
+  that one caused another, and that a change does not show its cause.
+
+**Sample** (`sample-multi-change-report.html`, built by `node build-sample-report.mjs` from the
+bundled FX returns, an invented firm; linked from `change-report-for-analysts.html`, `noindex`).
+Its agreed changes are the franc on 2015-01-20 and the pound on 2016-06-24, as in the section above;
+the notes name the Swiss National Bank's 2015-01-15 floor removal and the 2016-06-23 referendum.
+
+**Checked.** `multi-report.test.mjs`: the report's sections, the chart equal to the page's,
+escaping of column names, labels and typed text, the colour and logo restrictions, the empty case,
+the sample equal to what the code builds now, and the page wiring. `eval/multi-report-browser.mjs`
+(headless Chromium, output `eval/multi-report-browser.out.txt`): loads the FX example on the page,
+shows the report card as an unlocked key would, opens the report, and compares it with
+`multiReportHtml` run in Node on the same input: equal, 74,364 characters, no page errors.
+
+**Not done.** The CLI has no report output for one column or several (the report is the paid
+extra; an open-source CLI flag would be honest but is the owner's pricing call). A wide joint table
+(many columns) scrolls sideways on screen and may be clipped in print; a column-per-page layout for
+more than about six columns is open.
