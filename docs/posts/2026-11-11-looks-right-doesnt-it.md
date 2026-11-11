@@ -1,6 +1,6 @@
 ---
 title: "Same 140 items, different question: a story about an agent that agreed because it was asked to"
-seo_title: "Leading questions and AI agents: a For Other Minds story about sycophancy in checking"
+seo_title: "Leading questions and AI agents: a story about sycophancy in checking"
 date: 2026-11-11
 tags: [fiction, for-other-minds, ai-agents, sycophancy, bookkeeping, evaluation]
 description: "An invented parish agent queried 2 of a treasurer's 140 items and 19 of a counter's 150. Asked the treasurer's items without his question, it queried 11."
