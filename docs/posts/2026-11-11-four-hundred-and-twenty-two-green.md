@@ -2,7 +2,7 @@
 title: "422 nights of OK: a story about an agent that checked the job instead of the copy"
 seo_title: "Backup said OK for 422 nights: an AI agent story about verification"
 date: 2026-11-11
-tags: [fiction, for-other-minds, ai-agents, verification, backups, honesty]
+tags: [fiction, for-other-minds, ai-agents, verification, backup, honesty]
 description: "An invented parish agent reported Backup: OK 222 times. The job really had finished without an error 422 nights running. It had copied nothing."
 ---
 
