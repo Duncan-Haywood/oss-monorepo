@@ -127,7 +127,7 @@ def main():
     m14 = ratio(14.0, ("orifice", 0))[0]
     wd = res["floor, orifice, 3g sizing"][2]
     p("")
-    p(f"S1 {'HOLDS' if x1 is not None and 24 <= x1 <= 29 else 'REFUTED'} (break-even 24 to 29 bar: {x1})")
+    p(f"S1 {"HOLDS" if x1 is not None and 24 <= x1 <= 29 else "REFUTED"} (break-even 24 to 29 bar: {x1:.1f})")
     p(f"S2 {'HOLDS' if m14 < 0.85 else 'REFUTED'} (LS/OC at 14 bar < 0.85: {m14:.3f})")
     p(f"S3 {'HOLDS' if 3 <= wd <= 7 else 'REFUTED'} (energy-weighted floor drop 3 to 7 bar: {wd:.2f})")
     return "\n".join(out)
