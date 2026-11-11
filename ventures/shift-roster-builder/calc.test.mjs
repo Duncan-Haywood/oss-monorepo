@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, placeRestBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, daysOffRuns,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
-  sampleStaff, openFloorByPricing, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
+  sampleStaff, openFloorByPricing, scoreBoundByColumnGeneration, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -232,8 +232,8 @@ test("exact mode on a deliberately weak anneal finds the improvement and reports
 
 test("exact mode gives up honestly: a tiny node limit reports a bound, not a proof", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
-  // coverLP off: branch-and-price has its own limits (coverLPNodes, coverLPMs) and would find and prove the 15-hour roster here.
-  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false, coverLP: false });
+  // coverLP and scoreCG off: both branch-and-prices have their own limits and would find and prove the 15-hour roster here.
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false, coverLP: false, scoreCG: false });
   assert.equal(r.optimality.status, "bounded");
   assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
   assert.ok(r.optimality.gap >= 0);
@@ -264,7 +264,7 @@ test("the exact bound sees that hours, overlaps and rest force shifts open, and 
   // Hours terms inside the coverage flow (tangent lines under each person's convex hours curve): who can work when is priced with the
   // balance targets, and the gap falls to cents. The same flow without them (flowBalance: false) leaves the older Lagrangian gap.
   assert.ok(r.score - r.optimality.lowerBound < 1, `flow gap ${r.score - r.optimality.lowerBound}`);
-  const old = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false });
+  const old = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false, scoreCG: false });
   assert.ok(old.score - old.optimality.lowerBound > 50);
   // Random tight weeks (caps, overlaps, rest rules all biting): the exact answer still equals brute force.
   let seed = 7;
@@ -1869,4 +1869,43 @@ test("CSV exports defuse spreadsheet formulas and still read back", async () => 
   for (const k of lastShiftEnds(csv).values()) assert.ok(!k.name.startsWith("'"));
   assert.ok(!/(^|\n)[=+\-@]/.test(hoursCsv(r)));
   assert.match(hoursCsv(r), /^person,/);
+});
+
+test("whole-score column generation: its bound never passes brute force, and with no incumbent it finds the optimum", () => {
+  // Every score term the pricing oracle has to bound: overtime (weekly and daily), double time, burden, unpaid meals, split-shift
+  // premium, a pay differential, shortfall and fairness, tough-shift history, avoid and prefer windows.
+  let seed = 11;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const days = ["Mon", "Tue", "Wed"];
+  const extras = ["", ",avoid: Tue", ",prefer: Mon", ",tough: 3", ",avoid: Mon 6-12", ",prefer: Wed"];
+  let checked = 0;
+  for (let c = 0; c < 60; c++) {
+    const st = Array.from({ length: 2 + rnd(2) }, (_, p) => `P${p},${10 + rnd(10)},${8 + rnd(4) * 4},${rnd(3) * 4},${days[rnd(3)]}-Wed ${6 + rnd(3)}-${18 + rnd(5)}${extras[rnd(extras.length)]}`).join("\n");
+    const sh = Array.from({ length: 5 + rnd(3) }, () => { const a = 6 + rnd(10); return `${days[rnd(3)]},${a},${a + 3 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
+    const stf = staffOf(st), sl = slotsOf(sh);
+    if (sl.length > 8) continue;
+    const opts = [{ balance: 40 }, { otAfter: 10, otMult: 1.5, burdenPct: 12 }, { dailyOtAfter: 6, dailyDtAfter: 9, mealAfter: 5 },
+      { splitPremium: 20, splitGap: 1 }, { toughBalance: 50, diffWhen: "Mon-Wed 18-24", diffPerHour: 2, diffPct: 10 }][c % 5];
+    const brute = bruteForceBest(stf, sl, opts);
+    const free = scoreBoundByColumnGeneration(stf, sl, opts, { nodeLimit: 20000, ms: 20000 });
+    assert.ok(free.floor <= brute + 1e-6, `case ${c}: bound ${free.floor} above optimum ${brute}`);
+    assert.ok(free.proven, `case ${c} not proven`);
+    assert.ok(Math.abs(free.best - brute) < 1e-6, `case ${c}: column generation best ${free.best} vs brute force ${brute}`);
+    // With the optimum as incumbent and no tolerance, the bound proves it and stays at or below it.
+    const at = scoreBoundByColumnGeneration(stf, sl, opts, { incumbentScore: brute, nodeLimit: 20000, ms: 20000 });
+    assert.ok(at.proven && at.floor <= brute + 1e-6, `case ${c}: at-optimum bound ${at.floor}`);
+    checked++;
+  }
+  assert.ok(checked >= 25, `only ${checked} cases checked`);
+});
+
+test("buildRoster proves the sample week by whole-score column generation where the exact search alone stops short", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const off = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false, coverLP: false, scoreCG: false });
+  const on = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false, coverLP: false });
+  assert.equal(off.optimality.status, "bounded");
+  assert.ok(["optimal", "improved"].includes(on.optimality.status), on.optimality.status);
+  assert.ok(on.optimality.scoreCG.proven);
+  assert.ok(on.score <= off.score + 1e-6);
+  assert.ok(on.optimality.lowerBound <= on.score + 1e-6);
 });
