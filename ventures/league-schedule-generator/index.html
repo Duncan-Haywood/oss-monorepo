@@ -78,7 +78,8 @@
     <label for="teams">One team per line</label>
     <textarea id="teams" rows="8" placeholder="Net Ninjas&#10;Dink Dynasty&#10;Kitchen Kings&#10;Lob Squad&#10;Spin Doctors"></textarea>
     <div class="check"><input type="checkbox" id="double"><label for="double" style="display:inline;margin:0;font-weight:400">Double round robin (everyone plays everyone twice, once at each home)</label></div>
-    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Takes a second or two (a home-and-away season searches both halves, not a mirror of the first); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
+    <div class="check"><input type="checkbox" id="carryOver"><label for="carryOver" style="display:inline;margin:0;font-weight:400">Spread who you meet next (carry-over): stop the same teams always playing right after the strongest side. Runs four searches in the background, a few seconds to about 12 for 20 teams (a home-and-away season searches both halves, not a mirror of the first); may add some back-to-back home or away games. <a href="./how-to-balance-carry-over-in-a-round-robin.html">Why</a></label></div>
+    <div><label for="carryOverPick">When spreading, run four searches and keep the one with</label><select id="carryOverPick"><option value="balanced" selected>a balance of even carry-over and few back-to-back home or away games</option><option value="fair">the most even carry-over</option><option value="breaks">the fewest back-to-back home or away games</option></select></div>
 
     <h2 style="margin-top:18px">2. When</h2>
     <div class="row4">
@@ -358,6 +359,7 @@
   <script type="module">
     import { tieBreakNotes, doubleEliminationBracket, blackoutsFromCsv, parseTeams, readSpec, buildSchedule, applyRainouts, changeNotices, applyPinnedMatches, applyWithdrawals, applyLateTeams, parseGrounds, applyGroundSharing, parseLinkedTeams, separateLinkedTeams, parseOfficials, assignOfficials, validateOfficials, validateSchedule, restReport, forfeitReport, homeAwayReport, byeReport, rematchReport, seasonCost, deadlineCheck, parseDate, slotFairness, teamSchedule, scheduleCsv, scheduleCalendarCsv, seasonGridCsv, standingsCsv, scheduleIcs, scheduleText, teamMessages, officialMessages, leaguePageHtml, parseResults, parsePointSystem, standings, playoffBracket, bracketText, playoffRace, playoffOdds, raceText, crossTable, seasonRecords, remainingFixtures, resultsCheck, overdueResults, weeklyUpdate, gamesLeft, scheduleStrength, buildPoolPlay, poolAdvancers, swissRounds, swissStandings, swissPairings, parseSwissResults, validateSwiss, swissText, oneDayTimetable, oneDayText, americano, validateAmericano, americanoStats, americanoText, parseMexicanoScores, mexicanoStandings, mexicanoNextRound, mexicanoText, parseLadderResults, ladderStandings, ladderText, dayLabel, WEEKDAYS, sampleFields, encodeFields, decodeFields, nextSeasonFields } from "./calc.mjs";
     import { printPackHtml } from "./printpack.mjs";
+    import { bestCarryOverRounds, carryOverSummary } from "./carryover.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -379,6 +381,7 @@
       $("#teams").value = f.teams;
       $("#double").checked = Boolean(f.double);
       $("#carryOver").checked = Boolean(f.carryOver);
+      $("#carryOverPick").value = f.carryOverPick || "balanced";
       $("#start").value = f.start;
       $("#minutes").value = f.minutes;
       $("#seed").value = f.seed;
@@ -409,7 +412,7 @@
       const weekdays = [];
       for (let i = 0; i < 7; i++) if ($("#wd" + i).checked) weekdays.push(WEEKDAYS[i]);
       return {
-        teams: $("#teams").value, double: $("#double").checked, carryOver: $("#carryOver").checked, start: $("#start").value, weekdays,
+        teams: $("#teams").value, double: $("#double").checked, carryOver: $("#carryOver").checked, carryOverPick: $("#carryOverPick").value, start: $("#start").value, weekdays,
         skip: $("#skip").value, blackouts: $("#blackouts").value, timeLimits: $("#timeLimits").value, courtLimits: $("#courtLimits").value, courtClosures: $("#courtClosures").value, courts: $("#courts").value, times: $("#times").value,
         seed: $("#seed").value, minutes: $("#minutes").value, rounds: $("#rounds").value,
         results: $("#results").value, playoff: $("#playoff").value, playoffDouble: $("#playoffDouble").checked, playoffThird: $("#playoffThird").checked, pins: $("#pins").value, rainouts: $("#rainouts").value, withdrawals: $("#withdrawals").value, lateTeams: $("#lateTeams").value, officials: $("#officials").value, grounds: $("#grounds").value, linked: $("#linked").value, scoring: $("#scoring").value,
@@ -438,7 +441,7 @@
         : `<span class="pill high">problem</span> ${esc(v.errors.slice(0, 4).join(" "))}`;
       const co = s.stats.carryOver;
       $("#carry-line").textContent = co && s.teams.length >= 4
-        ? `Carry-over: ${co.value} (lower is fairer; ${co.lowerBound} is the floor for this many games). At worst, ${co.max} different team(s) meet the same opponent straight after the same other team${co.pairs ? ` (${co.pairs} such pair(s) repeat)` : ""}.${s.config.carryOver ? " Rounds searched for an even carry-over." : co.max > 2 ? " Tick \u201cSpread who you meet next\u201d to even it out." : ""}`
+        ? `Carry-over: ${co.value} (lower is fairer; ${co.lowerBound} is the floor for this many games). At worst, ${co.max} different team(s) meet the same opponent straight after the same other team${co.pairs ? ` (${co.pairs} such pair(s) repeat)` : ""}.${s.config.carryOver ? (s.carryOverSearch ? ` Best of ${s.carryOverSearch.tries} searches for an even carry-over (carry-over / back-to-back home or away: ${s.carryOverSearch.candidates.map((c) => c.coe + "/" + c.breaks).join(", ")}; kept ${s.carryOverSearch.coe}/${s.carryOverSearch.breaks}).` : " Rounds searched for an even carry-over.") : co.max > 2 ? " Tick \u201cSpread who you meet next\u201d to even it out." : ""}`
         : "";
       $("#off-th").hidden = !s.rounds.some((r) => r.matches.some((m) => m.official !== undefined));
       const offNames = [...new Set(s.rounds.flatMap((r) => r.matches.map((m) => m.official)).filter(Boolean))];
@@ -529,7 +532,39 @@
       $("#byteam tbody").innerHTML = teamRows(last.s, Number($("#team").value) || 0);
     }
 
-    function run(seedOverride) {
+    // "Spread who you meet next" runs CARRY_TRIES searches (bestCarryOverRounds) in a Web Worker,
+    // so a 20-team season does not freeze the page; the result is cached by the settings it depends on.
+    const CARRY_TRIES = 4;
+    const planCache = new Map();
+    let carryWorker = null;
+    function searchCarryOver(key, spec, then) {
+      const n = spec.teams.length;
+      const msg = { n, double: spec.double, seed: spec.seed, tries: CARRY_TRIES, pick: spec.carryOverPick };
+      const keep = (rounds, summary) => { planCache.set(key, { teams: n, double: spec.double, rounds, summary }); then(); };
+      const onMain = () => later(() => {
+        try { const b = bestCarryOverRounds(n, { ...msg }); keep(b.rounds, carryOverSummary(b)); } catch (e) { status.textContent = e.message; }
+      });
+      if (carryWorker) carryWorker.terminate();
+      status.textContent = `Searching for an even carry-over: ${CARRY_TRIES} searches, ${n >= 16 ? "about 10 seconds" : "a few seconds"}...`;
+      try {
+        const w = carryWorker = new Worker(new URL("./carryover-worker.mjs", import.meta.url), { type: "module" });
+        w.onmessage = (e) => {
+          const d = e.data;
+          if (d.type === "try") status.textContent = `Searching for an even carry-over: search ${d.i + 1} of ${d.tries} done (carry-over ${d.candidate.coe}, ${d.candidate.breaks} back-to-back home or away)...`;
+          else { w.terminate(); if (carryWorker === w) carryWorker = null; if (d.type === "done") keep(d.rounds, d.summary); else status.textContent = d.error; }
+        };
+        w.onerror = (e) => { e.preventDefault(); w.terminate(); if (carryWorker === w) carryWorker = null; onMain(); };
+        w.postMessage(msg);
+      } catch { onMain(); }
+    }
+
+    // Build, then call done(ok). Synchronous unless a carry-over search has to run first.
+    function go(seedOverride, done) {
+      const ok = run(seedOverride, done);
+      if (ok !== null && done) done(ok);
+    }
+
+    function run(seedOverride, done) {
       const f = readFields();
       if (seedOverride !== undefined) { f.seed = seedOverride; $("#seed").value = seedOverride; }
       const { spec, errors } = readSpec(f);
@@ -538,6 +573,12 @@
       let bracket = null;
       let extraMoves = [];
       if (errors.length) { status.textContent = errors.join(" "); return false; }
+      if (spec.carryOver && spec.teams.length >= 4) {
+        const key = [spec.teams.length, spec.double, spec.seed, spec.carryOverPick].join("|");
+        const hit = planCache.get(key);
+        if (hit) spec.carryOverPlan = hit;
+        else { searchCarryOver(key, spec, () => go(seedOverride, done)); return null; }
+      }
       let s;
       try { s = buildSchedule(spec); } catch (e) { status.textContent = e.message; return false; }
       if ($("#pins").value.trim()) {
@@ -649,11 +690,11 @@
     }
     const fullText = () => scheduleText(last.s, last.bracket);
 
-    $("#build").addEventListener("click", () => later(() => { if (run()) record("schedule_built"); }));
-    $("#reshuffle").addEventListener("click", () => later(() => { const n = (Number($("#seed").value) || 0) + 1; if (run(n)) record("schedule_built"); }));
+    $("#build").addEventListener("click", () => later(() => go(undefined, (ok) => { if (ok) record("schedule_built"); })));
+    $("#reshuffle").addEventListener("click", () => later(() => { const n = (Number($("#seed").value) || 0) + 1; go(n, (ok) => { if (ok) record("schedule_built"); }); }));
     $("#load-example").addEventListener("click", () => {
       setFields(sampleFields());
-      later(() => { if (run()) { record("example_loaded"); status.textContent = "Sample league: invented teams, not a real league."; } });
+      later(() => go(undefined, (ok) => { if (ok) { record("example_loaded"); status.textContent = "Sample league: invented teams, not a real league."; } }));
     });
     $("#next-season").addEventListener("click", () => {
       if (!last) return;
@@ -900,7 +941,7 @@
         if (saved && Array.isArray(saved.weekdays) && typeof saved.teams === "string") { setFields({ ...sampleFields(), ...saved }); status.textContent = "Restored your last league from this device. Click Build the schedule to rebuild; Clear forgets it."; }
       } catch (e) { /* optional */ }
     }
-    if (shared) later(() => { setFields(shared); if (run()) { status.textContent = "Loaded the setup from the link you opened. Check every date before you use it."; record("link_opened"); } });
+    if (shared) later(() => { setFields(shared); go(undefined, (ok) => { if (ok) { status.textContent = "Loaded the setup from the link you opened. Check every date before you use it."; record("link_opened"); } }); });
     $("#optout").addEventListener("click", () => { setUsageOptOut(true); const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; });
     if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
   </script>

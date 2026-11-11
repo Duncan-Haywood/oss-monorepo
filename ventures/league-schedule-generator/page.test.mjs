@@ -58,7 +58,7 @@ test("every static input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./carryover.mjs", "./checkout.mjs", "./licence.mjs", "./printpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   // calc.mjs imports one sibling module only (the carry-over search), never a package or URL
   assert.deepEqual([...page("calc.mjs").matchAll(/^\s*import .* from "([^"]+)"/gm)].map((m) => m[1]), ["./carryover.mjs"]);

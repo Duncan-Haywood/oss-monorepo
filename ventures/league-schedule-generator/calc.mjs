@@ -6,7 +6,7 @@
 // assignment by seeded simulated annealing -> outputs (tables, CSV, .ics, text) and an
 // independent validator that re-checks the finished schedule from its output alone.
 
-import { lowCarryOverRounds, lowCarryOverDoubleRounds, carryOver } from "./carryover.mjs";
+import { lowCarryOverRounds, lowCarryOverDoubleRounds, bestCarryOverRounds, carryOverSummary, CARRY_OVER_PICK, carryOver } from "./carryover.mjs";
 
 export const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const WEEKDAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -338,7 +338,7 @@ export function readSpec(f) {
   return {
     errors,
     spec: {
-      rounds, teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), start, weekdays: w.weekdays, skipDays: skip.days,
+      rounds, teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: CARRY_OVER_PICK[f.carryOverPick] ?? CARRY_OVER_PICK.balanced, start, weekdays: w.weekdays, skipDays: skip.days,
       blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courtClosures: cc.closures, courts: courtNames, times: times.times, seed, minutes,
     },
   };
@@ -652,11 +652,25 @@ export function buildSchedule(spec) {
   // weight on home/away breaks, in place of the circle method. A double round robin searches its
   // second leg as well (mirroring the first would double every carry-over count): each pair still
   // meets once per leg, the return game at the other ground.
+  // `carryOverPlan` is rounds the page already searched in a Web Worker (carryover-worker.mjs) for
+  // these settings; `carryOverTries` > 1 runs the best-of-k search here (CLI, tests), choosing by
+  // carry-over + `carryOverPick` x breaks.
+  let carryOverSearch = null;
   if (spec.carryOver && n >= 4) {
-    const low = spec.double
-      ? lowCarryOverDoubleRounds(n, { seed: spec.seed ?? 1, breakWeight: 10 })
-      : lowCarryOverRounds(n, { seed: spec.seed ?? 1, breakWeight: 10 });
-    plan = low.rounds;
+    const plan0 = spec.carryOverPlan;
+    if (plan0 && Array.isArray(plan0.rounds) && plan0.teams === n && Boolean(plan0.double) === Boolean(spec.double)) {
+      plan = plan0.rounds;
+      carryOverSearch = plan0.summary || null;
+    } else if (Number.isInteger(spec.carryOverTries) && spec.carryOverTries > 1) {
+      const best = bestCarryOverRounds(n, { double: Boolean(spec.double), seed: spec.seed ?? 1, tries: spec.carryOverTries, pick: spec.carryOverPick ?? CARRY_OVER_PICK.balanced });
+      plan = best.rounds;
+      carryOverSearch = carryOverSummary(best);
+    } else {
+      const low = spec.double
+        ? lowCarryOverDoubleRounds(n, { seed: spec.seed ?? 1, breakWeight: 10 })
+        : lowCarryOverRounds(n, { seed: spec.seed ?? 1, breakWeight: 10 });
+      plan = low.rounds;
+    }
   }
   // A shorter season: the first k rounds of the circle method. Every team still meets k different
   // opponents (k games, minus a bye in an odd league), and the home/away alternation is unchanged.
@@ -772,6 +786,7 @@ export function buildSchedule(spec) {
     notices,
     slotCost: cost,
   };
+  if (carryOverSearch) schedule.carryOverSearch = carryOverSearch;
   for (const e of validateSchedule(schedule).errors) if (e.includes("only plays at") || e.includes("only plays on")) notices.push(e.replace(/^Round \d+: |^Makeup \d+: /, ""));
   schedule.stats = scheduleStats(schedule);
   return schedule;
@@ -2680,7 +2695,7 @@ export function bracketText(bracket) {
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "carryOver", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
+const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "officials", "grounds", "linked", "scoring"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -2703,7 +2718,7 @@ export function decodeFields(text) {
     const str = (v) => (typeof v === "string" ? v : "");
     const wd = Array.isArray(o.weekdays) ? o.weekdays.filter((d) => WEEKDAYS.includes(d)) : [];
     return {
-      teams: str(o.teams), double: o.double === true, carryOver: o.carryOver === true, start: str(o.start), weekdays: wd,
+      teams: str(o.teams), double: o.double === true, carryOver: o.carryOver === true, carryOverPick: ["fair", "balanced", "breaks"].includes(o.carryOverPick) ? o.carryOverPick : "balanced", start: str(o.start), weekdays: wd,
       skip: str(o.skip), blackouts: str(o.blackouts), timeLimits: str(o.timeLimits), courtLimits: str(o.courtLimits), courtClosures: str(o.courtClosures), courts: str(o.courts), times: str(o.times),
       seed: Number.isFinite(Number(o.seed)) ? Math.trunc(Number(o.seed)) : 1,
       minutes: Number.isFinite(Number(o.minutes)) ? Number(o.minutes) : 60,
