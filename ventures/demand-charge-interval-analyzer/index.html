@@ -149,16 +149,16 @@
       const onDemandRate = num(st.onDemandRate) > 0 ? num(st.onDemandRate) : 0;
       if (!(onPrice >= 0) || !(offPrice >= 0)) { if (!onDemandRate) return ""; }
       const usable = n(st.usablePct, 90) / 100;
-      let bkw = num(st.batteryKw), bkwh = num(st.batteryKwh), src = "the battery you entered";
+      let bkw = num(st.batteryKw), bkwh = num(st.batteryKwh), sizeNote = "the battery you entered";
       if (!(bkw > 0) || !(bkwh > 0)) {
         const pick = sw.best || { kw: Math.max(1, a.maxPeak * 0.2), nameplateKwh: Math.max(1, a.maxPeak * 0.2) * 2 };
-        bkw = pick.kw; bkwh = pick.nameplateKwh; src = sw.best ? "the fastest-payback size from the table above" : "a placeholder size (20% of your peak for 2 h; enter costs or a size to change it)";
+        bkw = pick.kw; bkwh = pick.nameplateKwh; sizeNote = sw.best ? "the fastest-payback size from the table above" : "a placeholder size (20% of your peak for 2 h; enter costs or a size to change it)";
       }
       const tariff = { onStart, onEnd, weekdaysOnly: st.weekdaysOnly !== "no", onDemandRate, onPrice: onPrice >= 0 ? onPrice : 0, offPrice: offPrice >= 0 ? offPrice : 0 };
       const r = touBattery(a, tariff, { kw: bkw, kwh: bkwh * usable, roundTrip: n(st.roundTripPct, 88) / 100 });
       const y = r.yearly;
       let h = '<div class="finding"><h4>Time-of-use bill: ' + money(r.yearlyBefore) + " a year now, " + money(r.yearlyAfter) + " with a " + kw(bkw) + " / " + bkwh.toFixed(0) + " kWh battery</h4>";
-      h += "<p>Battery: " + esc(src) + ". Saves " + money(r.demandSaving) + " a year in demand charges and " + money(r.energySaving) + " in energy, " + money(r.saving) + " in all, scaled to a year using " + a.monthsUsed + " complete month(s).</p>";
+      h += "<p>Battery: " + esc(sizeNote) + ". Saves " + money(r.demandSaving) + " a year in demand charges and " + money(r.energySaving) + " in energy, " + money(r.saving) + " in all, scaled to a year using " + a.monthsUsed + " complete month(s).</p>";
       h += table(["Part of the bill (per year)", "Now", "With battery"], [["Facility demand", money(y.before.facility), money(y.after.facility)], ["On-peak demand", money(y.before.onDemand), money(y.after.onDemand)], ["Energy", money(y.before.energy), money(y.after.energy)]]);
       h += table(["Month", "Peak now", "Peak after", "On-peak peak now", "On-peak peak after", "Bill now", "Bill after", "Best plan"], r.months.map((m) => [m.month + (m.complete ? "" : " (partial)"), kw(m.before.facKw), kw(m.after.facKw), kw(m.before.onKw), kw(m.after.onKw), money(m.before.total), money(m.after.total), m.method]));
       h += "<p>Each month the battery is planned twice: first the lowest pair of facility and on-peak caps it can hold (exact, by bisection), then a dynamic programme over its charge level picks when to charge and discharge for the cheapest energy without breaking those caps. The cheaper of that, peak shaving alone, energy trading alone and no battery is shown. It starts each month full, pays to refill at month end, never exports, and knows the month's load in advance, so a real controller will save somewhat less. Energy prices here exclude fixed and per-kWh riders not tied to time of day.</p></div>";
