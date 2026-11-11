@@ -170,12 +170,12 @@ flagships:
       cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
       40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
       can score a staffed closure; whether to default to a half-life; forecasting from tickets (queue
-      length), not just sales; a real published-schedule export for --import-shifts; joining short runs an
-      hour or two apart into one shift and folding a short run into a neighbouring shift (the cost cut,
-      README "The short-cost weight carried through the shift cut", 2026-11-11, prices each run alone:
-      backtest now scores cut shifts, cost cut beats the old cut in 36 of 36 settings on both bakeries;
-      priced by default at r = 1 since the follow-up, README "The priced cut by default": 30 of 30 more,
-      but the default now runs shorter, so whether r = 1 is the right default needs a real manager's view).
+      length), not just sales, since the cut is no longer where the gap is (joining short runs and folding
+      them into neighbouring shifts, opt-in --join 2026-11-11, README "Joining short runs": optimal in
+      sample, but on held-out weeks clearly cheaper in 1 of 72 comparisons, dearer in 16, noise in 55, so
+      the default stays the per-run priced cut); a real published-schedule export for --import-shifts;
+      whether the priced cut's r = 1 default (README "The priced cut by default", runs shorter) suits a
+      real manager.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
