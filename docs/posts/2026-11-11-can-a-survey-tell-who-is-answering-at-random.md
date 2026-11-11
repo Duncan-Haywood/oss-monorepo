@@ -3,7 +3,7 @@ title: "Can a survey tell, from your own answers, how often you click at random?
 seo_title: "Estimating a respondent's lapse rate in pairwise surveys: why it fails"
 date: 2026-11-11
 tags: [quick-pick-survey, ranking, glicko-2, pairwise-comparison, simulation, negative-result, fisher-information]
-description: "We built a per-respondent estimate of how often someone answers at random in a pick-one-of-two survey. At survey lengths their answers barely move it, and the adaptive question picker hides the signal."
+description: "A per-respondent estimate of how often someone answers a pick-one-of-two survey at random: their own answers barely move it, and adaptive pairs hide it."
 ---
 
 [Quick Pick Survey](../../ventures/quick-pick-survey/) ranks a list by asking

@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVPeJWdsU96wgm73xRp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T09:05:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 8 (quick-pick-survey): per-respondent lapse estimate against the e = true ceiling",
+  "projects": [
+    "ventures/quick-pick-survey"
+  ],
+  "pr": 14742,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Top Deepen row (ai-bookkeeper) lists only items needing real outside inputs (bank exports, settlement files, irs.gov); took flagship 8, whose next item needs no outside data, as prompt-1 allows.",
+      "did": "quick-pick-survey lapse estimate",
+      "result": "measured negative result landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-can-a-survey-tell-who-is-answering-at-random.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md"
+  ],
+  "goal": "Measure whether a survey can read each respondent's lapse share from their own answers well enough to feed the Glicko lapse update",
+  "notes": "Negative result: in-sample/prequential grid posterior reads 0.02-0.05 regardless of true e; staged selector gives no signal; oracle Fisher bound sd 0.07-0.11 at 240 answers. Checks: quick-pick-survey vitest fast 37 files/336 tests pass, tsc clean, eslint clean on changed files; run_workflow_locally --for-changes run (see PR).",
+  "corrections": [],
+  "redteam": null
+}
