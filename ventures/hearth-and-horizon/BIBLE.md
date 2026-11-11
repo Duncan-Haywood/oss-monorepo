@@ -278,6 +278,8 @@ until it has. An empty shelf below means: write a proposal.
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
+- *Elizabeth Ann Seton* (4 January, United States calendar): a widowed mother of five in New York who opened a school for poor children in Emmitsburg, Maryland. Her own letters survive in quantity, so quote nothing that is not in them; the grown-ups note should separate the letters from the later Lives.
+
 ## What not to do
 
 - No cliffhanger endings that depend on a sequel. Each story stands alone.
