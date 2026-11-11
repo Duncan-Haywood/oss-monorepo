@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKjmGuUXpo9QtxZVibc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T20:18:14Z",
+  "ended": "2026-11-11T20:25:13Z",
+  "wall_minutes": 7.27,
+  "tokens_in": 5520075,
+  "tokens_out": 30430,
+  "cost_usd": 2.6255,
+  "tool_calls": 54,
+  "task": "changepoint-detector flagship item (b): drift model in several-columns mode",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14880",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "huggingface.co, registry.ollama.ai, hf-mirror.com and modelscope.cn all 403 (connect_rejected) through this session's proxy, so the allocator's 'start here' item (sales-agent local GGUF reader / M2 local half) could not run"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "sales-agent next: says 'huggingface.co answered 200 through the proxy on 2026-11-11'; in this session (same day) it was refused at CONNECT. Proxy policy differs per session, so the BUILDABLE HERE note should say 'probe first' rather than imply reachability."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "changepoint-detector item (b) read '(b) the drift model in several-columns mode (branded report done 2026-11-11, README)', which is ambiguous about whether (b) itself was done; had to grep cli.mjs to see --columns didn't take drift."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "'Start here' was sales-agent (flagship 3) but both buildable items need a local GGUF model from Hugging Face, blocked in this session",
+      "did": "took the next Deepen flagship with buildable work (changepoint-detector, item b)",
+      "result": "landed a measured negative result plus a real bug fix in the one-column drift model"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-a-sensor-that-sits-still-breaks-a-robust-noise-estimate.md",
+    "ventures/changepoint-detector/README.md section 'The drift model on several columns'"
+  ],
+  "goal": "deepen a flagship",
+  "notes": "Pre-registered rule for joint drift failed on both halves (TCPD 0.245 vs 0.286; 1 sd white-noise power 43-85% vs 90-97%); not wired into --columns. Fix: driftNoise MAD=0 fallback to plain variance (occupancy V3 86->23 cuts, F1 0.418->0.724); eval/tcpd-drift{,-ml,-robust,-tails}.mjs outputs regenerated identical apart from timings. Local checks: node --test drift*.test.mjs multivariate/multi-view/multi-report: 62/62 pass; multi-drift.test.mjs 6/6; full venture suite via run_venture_tests.py (see PR). Post frontmatter, links and similarity checks pass. No agent doc in docs/reports/: the README section carries everything the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4419a9ab-6b2d-51c7-bce3-d1007feab92a",
+    "transcripts": 1,
+    "first": "2026-11-11T20:18:14Z",
+    "last": "2026-11-11T20:25:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 96,
+        "output": 30430,
+        "thinking": 6260,
+        "cache_read": 5402987,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116992,
+        "api_equivalent_usd": 2.6255,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 96,
+      "output": 30430,
+      "thinking": 6260,
+      "cache_read": 5402987,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116992,
+      "api_equivalent_usd": 2.6255,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 49,
+      "Read": 1,
+      "Edit": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.27,
+      "active_minutes": 7.27,
+      "model_minutes": 5.02,
+      "tool_minutes": 2.25,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: implement and test a multivariate Kalman-cost changepoint fit, two pre-registered evals, debug and fix the noise estimator, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 228.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
