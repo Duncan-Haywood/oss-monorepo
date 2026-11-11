@@ -1,9 +1,9 @@
 ---
 title: "An honest interval for a survey year nobody asked: price in the drift"
-seo_title: "Conformal intervals for imputed GSS shares: 95% coverage where MICE had 20%"
+seo_title: "Conformal intervals for imputed GSS shares: 95% where MICE gave 20%"
 date: 2026-11-11
 tags: [research, surveys, religion, imputation, conformal-prediction]
-description: "Drift-aware conformal intervals for an imputed Catholic belief share on a held-out GSS year cover 95% overall and at least 83% per item, where Rubin's MICE intervals covered 20%."
+description: "Drift-aware conformal intervals for an imputed Catholic belief share on a held-out GSS year cover 95% overall and 83%+ per item; MICE covered 20%."
 ---
 
 Yesterday's run of `research/christian-belief-models` found that textbook multiple imputation (MICE with Rubin's rules) gives intervals for a held-out survey year's Catholic belief share that look fine on average, 83% coverage at a nominal 95%, but cover only 1 year in 5 for opposition to same-sex marriage, the item whose trend broke. The intervals carry the model's uncertainty, and a model that cannot see the year cannot know opinion moved.
