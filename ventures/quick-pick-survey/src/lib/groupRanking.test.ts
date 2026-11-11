@@ -31,6 +31,31 @@ describe("pool", () => {
     expect(split.tau).toBeGreaterThan(200);
     expect(split.se).toBeGreaterThan(agree.se * 3);
   });
+  it("matches DerSimonian-Laird computed independently (tau above zero)", () => {
+    // Reference: DerSimonian & Laird (1986) moment estimator, computed by a
+    // separate Python implementation: Q = 4.5576 on k = 3, so
+    // tau^2 = (Q - (k - 1)) / C > 0.
+    const p = pool([{ rating: 1600, rd: 100 }, { rating: 1450, rd: 80 }, { rating: 1750, rd: 120 }]);
+    expect(p.rating).toBeCloseTo(1582.4258, 3);
+    expect(p.se).toBeCloseTo(86.1424, 3);
+    expect(p.tau).toBeCloseTo(111.6348, 3);
+  });
+  it("matches DerSimonian-Laird on five unequal-precision respondents", () => {
+    const p = pool([
+      { rating: 1500, rd: 50 }, { rating: 1520, rd: 60 }, { rating: 1480, rd: 70 },
+      { rating: 1700, rd: 90 }, { rating: 1350, rd: 40 },
+    ]);
+    expect(p.rating).toBeCloseTo(1495.3895, 3);
+    expect(p.se).toBeCloseTo(53.0126, 3);
+    expect(p.tau).toBeCloseTo(101.1839, 3);
+  });
+  it("truncates tau to zero when Q is below its degrees of freedom", () => {
+    // Q = 0.02 < k - 1 = 2: the fixed-effect answer, se = 100 / sqrt(3).
+    const p = pool([{ rating: 1500, rd: 100 }, { rating: 1510, rd: 100 }, { rating: 1490, rd: 100 }]);
+    expect(p.tau).toBe(0);
+    expect(p.rating).toBeCloseTo(1500, 6);
+    expect(p.se).toBeCloseTo(57.735027, 5);
+  });
   it("covers the true mean about 95% of the time (seeded)", () => {
     const rand = mulberry(7);
     let hit = 0;
