@@ -1,6 +1,6 @@
 ---
 title: "Sizing a drone hub's spare batteries to a waiting-time target, without a simulator"
-seo_title: "Spare battery packs for a drone delivery hub: a p95 waiting-time formula"
+seo_title: "Drone hub spare battery packs: a p95 waiting-time formula"
 date: 2026-11-11
 tags: [research, uav, logistics, queueing]
 description: "Two short stdlib calculations reproduce a hub simulator's spare-pack count for p95 wait under 300 s, matching it or over-providing by at most 2 packs (5%)."
