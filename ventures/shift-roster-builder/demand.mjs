@@ -16,16 +16,18 @@
 import { splitCsvRow } from "./import-staff.mjs";
 import { DAYS } from "./calc.mjs";
 
-const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+// camelCase headers split into words first ("InvoiceDate" is "invoice date", "UnitPrice" "unit price"; 2026-11-11, the
+// UCI Online Retail export could not be read before).
+const norm = (s) => String(s || "").replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 const SYN = {
-  stamp: ["datetime", "date time", "timestamp", "time", "hour", "date", "sale time", "order time", "created at", "opened", "check opened", "start", "interval", "period", "order date", "sale date", "transaction time", "transaction date", "paid at", "closed", "check closed", "payment time"],
+  stamp: ["datetime", "date time", "timestamp", "time", "hour", "date", "sale time", "order time", "created at", "opened", "check opened", "start", "interval", "period", "order date", "sale date", "transaction time", "transaction date", "invoice date", "time stamp", "paid at", "closed", "check closed", "payment time"],
   day: ["day", "weekday", "day of week", "dow"],
   sales: ["sales", "net sales", "gross sales", "amount", "total", "revenue", "net revenue", "net amount", "sales amount", "total sales", "net sale", "gross", "net price", "order total", "check total", "net total", "gross total", "payment amount", "transaction amount", "subtotal", "sub total"],
 };
 const QTY = ["quantity", "qty", "units", "quantity sold", "units sold", "items sold", "item quantity", "qty sold"];
 // A ticket, order or receipt number: with o.count "tickets" (or no sales column at all) each distinct number is one
 // customer served, so staffing follows how many people came through, not how much they spent.
-const TICKET = ["ticket", "ticket number", "ticket no", "ticket id", "transaction", "transaction id", "transaction number", "transaction no", "order id", "order number", "order no", "receipt", "receipt number", "receipt no", "receipt id", "check number", "check no", "check id", "bill number", "bill no", "invoice number", "invoice no", "sale id", "sale number"];
+const TICKET = ["ticket", "ticket number", "ticket no", "ticket id", "transaction", "transaction id", "transaction number", "transaction no", "order id", "order number", "order no", "receipt", "receipt number", "receipt no", "receipt id", "check number", "check no", "check id", "bill number", "bill no", "invoice", "invoice number", "invoice no", "invoice id", "sale id", "sale number"];
 const PRICE = ["unit price", "price", "item price", "price each", "selling price", "sale price", "unit price eur", "unit price euro"];
 const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -118,7 +120,7 @@ export function readSales(text, o = {}) {
   const find = (k) => head.findIndex((h) => SYN[k].includes(h));
   const ix = { stamp: find("stamp"), day: find("day"), sales: find("sales"), clock: -1 };
   // A separate date column and time column ("Date,Time,Net Sales" is how many POS exports come): join them into one stamp.
-  const dateCol = head.findIndex((h) => ["date", "day date", "business date", "sale date", "order date"].includes(h));
+  const dateCol = head.findIndex((h) => ["date", "day date", "business date", "sale date", "order date", "invoice date"].includes(h));
   const timeCol = head.findIndex((h, i) => i !== dateCol && ["time", "hour", "sale time", "order time", "start time", "interval", "period"].includes(h));
   if (dateCol >= 0 && timeCol >= 0) { ix.stamp = dateCol; ix.clock = timeCol; }
   // A line-item export (one row per item sold: a French bakery's "date,time,ticket_number,article,Quantity,unit_price",
