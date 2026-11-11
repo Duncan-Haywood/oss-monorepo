@@ -3,7 +3,7 @@ title: "Chip design search: the cheap-estimate rule passes a fresh test where ro
 seo_title: "Multi-fidelity chip design search tested on fresh SKY130 runs"
 date: 2026-11-11
 tags: [research, chip-design, verified-dse, open-source]
-description: "On 1,440 new Yosys and OpenROAD runs, routing only the 8 best mapped candidates cuts regret to a third of random routing where routing is dear; the random hedge does not survive."
+description: "On 1,440 new Yosys and OpenROAD runs, routing the 8 best mapped candidates cuts regret to a third of random routing where routing is dear."
 ---
 
 The [verified-dse](../../research/verified-dse/) programme asks when a cheap
