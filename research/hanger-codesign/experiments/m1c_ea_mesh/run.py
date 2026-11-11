@@ -1,7 +1,7 @@
 """Milestone 1c: does milestone 1b's tier disagreement (the converged 3 cm arm picks a width
 0.5 cm wider than the 2D chain) survive changing the unmeasured stretch stiffness EA and the mesh?
 
-    python3 experiments/m1c_ea_mesh/run.py     (about 25 to 40 min on 4 cores; needs numpy)
+    python3 experiments/m1c_ea_mesh/run.py     (about 15 min on 4 cores; needs numpy)
 
 Milestone 2a found that the 3D spring sheet's Cusick drape coefficient moves with EA (40 against
 800 N/m: 0.15 to 0.23) and with the grid (7.5 against 5 mm: up to 0.047) as much as with bending

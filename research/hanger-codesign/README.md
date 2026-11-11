@@ -205,7 +205,7 @@ cd research/hanger-codesign
 python3 -m unittest discover -s tests              # 14 tests, under a minute; needs numpy
 python3 experiments/m1_kes_fidelity/run.py         # about 4 min on 4 cores
 python3 experiments/m1_kes_fidelity/figure.py      # the SVG above, stdlib only
-python3 experiments/m1c_ea_mesh/run.py           # milestone 1c, 70 cases, about 30 min on 4 cores
+python3 experiments/m1c_ea_mesh/run.py           # milestone 1c, 70 cases, about 15 min on 4 cores
 python3 experiments/m1c_ea_mesh/figure.py        # stdlib only
 python3 experiments/m2_cusick/run.py               # milestone 2a, 140 cases, about 25 min on 4 cores
 python3 experiments/m2_cusick/posthoc_ea.py        # post hoc EA sweep, about 6 min
