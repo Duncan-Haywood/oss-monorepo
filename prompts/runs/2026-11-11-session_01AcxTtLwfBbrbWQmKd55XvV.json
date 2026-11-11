@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLwfBbrbWQmKd55XvV",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T04:06:35Z",
+  "ended": "2026-11-11T04:12:42Z",
+  "wall_minutes": 6.29,
+  "tokens_in": 2738997,
+  "tokens_out": 15541,
+  "cost_usd": 1.4028,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14687",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2032/40 runs toward the next review' while three stale owner-gated 'prompts: review' PRs silently held the claim; no review since 2026-10-31. Fix in control-plane PR #14686."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "--marker EXIT did not match an 'EXIT 0' line and waited its full timeout (reproduced this run on main); fixed in #14687."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says control-plane PRs wait 'once the ruleset is applied', but whether it is applied is not discoverable: PR #14496 touched prompts/promptctl.py and merged 5 s after opening, while review PRs have waited 11 days. A run can't tell which applies."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Every session lands its own work: the control-plane fix (#14686) is left open for the owner rather than self-merged, per the control-plane exception.",
+      "did": "Split into two PRs: #14687 (ungated, merged) and #14686 (gated, waiting).",
+      "result": "Ungated work landed; review-loop fix awaits owner."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-the-review-that-never-came.md",
+    "docs/reports/review-claim-stale-2026-11-11.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog held only owner/blocked rows). main_health 55/55 green. Found the review track stalled 11 days by stale claims (#12026, #12272, #12367). Tests: platform/ci test_wait_for 15 OK; prompts unittest discover 138 OK on the #14686 branch; promptctl validate ok. No backlog ids touched (backlog files are under /prompts/, gated).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2a112479-459e-55cc-b4b4-4b805bd50ca1",
+    "transcripts": 1,
+    "first": "2026-11-11T04:06:35Z",
+    "last": "2026-11-11T04:12:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 65,
+        "output": 15541,
+        "thinking": 3551,
+        "cache_read": 2669191,
+        "cache_write_5m": 0,
+        "cache_write_1h": 69741,
+        "api_equivalent_usd": 1.4028,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 65,
+      "output": 15541,
+      "thinking": 3551,
+      "cache_read": 2669191,
+      "cache_write_5m": 0,
+      "cache_write_1h": 69741,
+      "api_equivalent_usd": 1.4028,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 32,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.29,
+      "active_minutes": 6.29,
+      "model_minutes": 3.44,
+      "tool_minutes": 2.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "trace a routing stall, fix plus tests, small helper fix, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 142.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
