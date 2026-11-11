@@ -53,6 +53,10 @@ an accept/reject test, checked on real images.
   **[unchecked]**. Shows a printed board is not the plane the model assumes and
   estimates its deformation. Relevant to why a target is not ground truth; does not
   remove the target.
+- Duda and Frese (2018), accurate detection and localization of checkerboard corners
+  for calibration, BMVC **[unchecked; no DOI]**. The sector-based localiser behind
+  OpenCV's `findChessboardCornersSB`, more accurate than `cornerSubPix` in their tests;
+  milestone 6 uses it as the second localiser. Target detection only.
 - Furgale, Rehder and Siegwart (2013), unified temporal and spatial calibration for
   multi-sensor systems (Kalibr), IROS, doi:10.1109/IROS.2013.6696514 **[unchecked]**.
   The standard robotics calibration toolbox; target-based.

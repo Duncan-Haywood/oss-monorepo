@@ -1,5 +1,16 @@
 # sensing-selfcal research log
 
+## 2026-11-11 · Milestone 6 result: the one-axis pattern was the corner localiser; it also made most of milestone 5's c<sub>y</sub> shift; better corners make σ less honest
+
+- **Localiser.** Corners from `cornerSubPix` with an 11×11 half-window (milestones 1–5) against a 5×5 window and `findChessboardCornersSB` (`CALIB_CB_ACCURACY`), matched one-to-one in all 26 images. Interior median gap 0.07 px (11 vs 5), but 26 corners differ by > 1 px (max 6.4 px), every one on the outer ring of the grid, where the 23 px box runs off the pattern. SB vs 11×11: 52 over 1 px, max 7.7, all on the ring; SB vs 5×5: max 1.7 px.
+- **H14 refuted.** SB along-column correlation 0.32 (left) / 0.56 (right), not < 0.2. The *one-directional* structure goes (along-row correlation rises to 0.23–0.34; per-(view, column) variance share 0.65 / 0.51 → 0.41 / 0.43, null 0.17), leaving a smoother 2-D correlation no localiser removes.
+- **H15 held.** 91% / 78% of the per-(view, column) mean residual is perpendicular to the column, with the old corners (57–67% with the new ones).
+- **H16 refuted.** (view, column)-clustered sandwich, original corners, random 4–12 views against all-view Zhang: rms z 2.44 / 1.72 (reported σ 2.21 / 1.63). Synthetic check (in the tests): with pure per-column offsets it rises above the reported σ but still covers only part of the true spread (4.3 against 5.8 px; reported 3.6).
+- **H17 refuted, opposite direction.** Nested rms z with SB corners 3.12 (95% 2.88–3.37), 5×5 3.45, against 2.28 with the old corners; median |z| 1.97 / 1.70 / 1.40. σ halves (median 1.44 → 0.87 / 0.73 px) while the error against each detector's own all-view fit falls only from 0.24% to 0.23% / 0.15%. Fewer subsets drop from the nested test with the new corners (7–11 vs 58).
+- **Unplanned, corrects milestone 5.** The flat-board c<sub>y</sub> shift is 8.7 px (old corners), 4.5 px (5×5) and 1.2 px, 1.8σ (SB) on the left camera; 5.3 / 3.8 / 1.4 px on the right. The bend survives every detector (flatness rms 0.0042–0.0058 against 0.0077; left/right height correlation 0.89–0.90). Milestone 5's "5–10 px" was mostly misplaced outer corners, which a free-board fit absorbs as bend.
+- **Unplanned.** The localiser alone moves flat-board Zhang's f by 4.8 px (left) and 7.2 px (right), 0.9–1.3%, and the target-free f by 1.8 / 4.2 px, while every fit reports σ ≤ 1.2 px. No ground truth says which localiser is right.
+- **Deviation.** The SB matching tolerance was first 3 px and failed on images with 4–8 px outliers (which were the finding); raised to 10 px (half the smallest corner spacing), with the one-to-one check kept. All 1,680 subset solves ran after that; 1,679 converged.
+
 ## 2026-11-11 · Milestone 6 planned: where does the column-wise residual correlation come from, and does a better corner detector or a column-clustered σ fix the 2×?
 
 Written before any milestone-6 experiment was run (only the corner spacing and the detection rate of the second detector were checked: 25–41 px between neighbours, and `findChessboardCornersSB` finds the board in 26 of 26 images).
