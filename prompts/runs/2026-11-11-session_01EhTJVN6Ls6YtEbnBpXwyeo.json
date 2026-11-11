@@ -27,13 +27,20 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "validate (check_social_proof) failed on first push from the comma false positive; fixed by rewording one line."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_social_proof.py",
+      "issue": "CLAIM's `[\\d,]+\\+? (happy|satisfied) ` matches a bare comma, so prose like 'the long, happy night' fails CI as an unattributed social-proof claim. Requiring a digit ([\\d][\\d,]*) would fix it; not changed here because platform/ci is control plane. Worked around by rewording."
+    }
+  ],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Creative track, Hearth & Horizon / Little Lamps: new story scholastica-and-the-storm-at-supper (Gregory, Dialogues II.33-34; spoken lines as close paraphrase attributed to 'the old book'; twins tradition flagged as later; weeping omitted for small listeners). Text only: audio du = 423 MB, over the 400 MB cap. Checks: generate --check current; node --test stories/usage 12/0; post front matter clean. Post docs/posts/2026-11-11-scholastica-and-the-storm-at-supper.md.",
+  "notes": "Creative track, Hearth & Horizon / Little Lamps: new story scholastica-and-the-storm-at-supper (Gregory, Dialogues II.33-34; spoken lines as close paraphrase attributed to 'the old book'; twins tradition flagged as later; weeping omitted for small listeners). Text only: audio du = 423 MB, over the 400 MB cap. Checks: generate --check current; node --test stories/usage 12/0; post front matter clean. Post docs/posts/2026-11-11-scholastica-and-the-storm-at-supper.md. run_workflow_locally --for-changes sweep reported UNSTABLE CHECKOUT (I committed during it), so not cited; relied on PR CI.",
   "corrections": [],
   "redteam": null
 }
