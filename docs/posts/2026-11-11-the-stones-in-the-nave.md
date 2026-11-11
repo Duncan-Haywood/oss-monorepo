@@ -3,7 +3,7 @@ title: "Three cubic metres of sea per cubic metre of lava: the heat budget behin
 seo_title: "Cooling lava with seawater: the arithmetic in a Reykjanes sci-fi story"
 date: 2026-11-11
 tags: [fiction, hearth-and-horizon, science-fiction, iceland, lava, volcano, heat-budget]
-description: "A new story set in an invented Reykjanes village in 2048: seawater can freeze a lava edge, the pumps are a quarter short, and someone has to choose where 470 cubic metres go."
+description: "A story set in a Reykjanes village in 2048: seawater can freeze a lava edge, the pumps are a quarter short, and someone must choose where 470 m³ of lava go."
 ---
 
 [The Stones in the Nave](../../ventures/hearth-and-horizon/stories/the-stones-in-the-nave.md)
