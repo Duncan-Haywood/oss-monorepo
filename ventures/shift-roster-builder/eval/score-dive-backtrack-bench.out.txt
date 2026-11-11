@@ -1,0 +1,7 @@
+# 2026-11-11. node eval/score-dive-backtrack-bench.mjs 10 28 60
+29 gap no-retry 34.88 56ms | retries 10 gap 4.74 open 60ms
+31 gap no-retry 1.34 110ms | retries 10 gap 1.34 open 124ms
+32 gap no-retry 1.11 56ms | retries 10 gap 0.91 open 54ms
+34 gap no-retry 6.70 45ms | retries 10 gap 6.70 open 59ms
+48 gap no-retry 49991.90 25ms | retries 10 gap 49991.90 open 36ms
+P=10 S=28 seed 5, budget 10: 5 of 60 weeks open after the dives without retries; backtracking proves 0, narrows 2
