@@ -1,0 +1,43 @@
+cell-fidelity milestone 2: the cycle count as a fidelity axis
+designs: 128 (scrambled Sobol, seed 0, energy-cell bounds); target DFN@100 (Wh/kg at cycle 100)
+fails (run stopped before cycle 100 or solver error), per model: SPM 0, SPMe 7, DFN 0
+DFN@100: best 162.3, median 128.8, zeros 0
+
+prefix check (baseline, 10-cycle run vs first 10 cycles of the 100-cycle run), max relative difference: SPM 0.0e+00, SPMe 0.0e+00, DFN 0.0e+00
+baseline 100-cycle score: SPM 122.02, SPMe 109.14, DFN 116.26 (energy-cell-dfn: SPMe 109.14, DFN 116.26)
+
+A. each (model, cycles) cell as a screen for DFN@100
+cell       Spearman          95% CI top10 overlap best of top10 regret %  cost s
+SPM@2         0.941   0.893-0.971               5         160.6     1.01     0.3
+SPM@10        0.955   0.913-0.979               5         162.3     0.00     0.4
+SPM@30        0.956   0.914-0.981               5         162.3     0.00     0.5
+SPM@100       0.955   0.912-0.980               5         162.3     0.00     1.1
+SPMe@2        0.736   0.581-0.873               6         162.3     0.00     0.9
+SPMe@10       0.718   0.560-0.856               8         162.3     0.00     1.5
+SPMe@30       0.657   0.499-0.801               4         159.1     1.98     1.7
+SPMe@100      0.641   0.480-0.789               4         159.1     1.98     3.7
+DFN@2         0.942   0.896-0.969               7         162.3     0.00     1.3
+DFN@10        0.962   0.932-0.977               8         162.3     0.00     3.6
+DFN@30        0.980   0.963-0.988               9         162.3     0.00     8.7
+DFN@100       1.000   1.000-1.000              10         162.3     0.00    24.5
+
+B. hypotheses
+H1 Spearman(DFN@10) - Spearman(SPMe@100) = +0.320 (paired bootstrap 95% +0.178 to +0.477); supported if >= 0, refuted if < -0.05
+H2 cost DFN@10 / SPMe@100 on the baseline = 3.6 / 3.7 s = 0.98; supported if <= 1, refuted if > 1.5
+H3 regret of DFN@10 screen + top-10 DFN@100 verify: 0.00% (SPMe@100 screen: 1.98%); supported if <= 1%, refuted if > 2%
+
+C. (extra, not in the plan) regret % of top-k verify, by k
+cell          k=1    k=3    k=5   k=10   k=20
+SPM@100      9.36   6.08   0.00   0.00   0.00
+SPMe@100     5.74   1.98   1.98   1.98   1.98
+DFN@2        1.01   1.01   1.01   0.00   0.00
+DFN@10       0.00   0.00   0.00   0.00   0.00
+DFN@30       0.00   0.00   0.00   0.00   0.00
+SPMe@10      0.00   0.00   0.00   0.00   0.00
+
+D. (extra, not in the plan) over the 121 designs SPMe ran for 100 cycles, Spearman with DFN@100: SPM@100 0.984, SPMe@100 0.769, SPMe@2 0.871, DFN@10 0.978
+   untrusted by milestone 1's label (SPMe 0 or gap > 0.25): 15 of 128; ROC AUC of -r_min (min over the whole 100-cycle SPMe run, not milestone 1's 2-cycle run): 0.994
+   flag r_min <= 0.0: 10 flagged, 10 of 15 caught
+   flag r_min <= 0.1: 23 flagged, 15 of 15 caught
+   DFN@100 best (design 12, x = [123.979, 0.372, 0.249, 1.281]): DFN 162.3, SPMe 121.0 (gap 0.25), SPM 182.7, SPMe rank 41 of 128
+   median score minus DFN@100 (Wh/kg): SPM@100 +7.1, SPMe@100 over its 121 -8.7

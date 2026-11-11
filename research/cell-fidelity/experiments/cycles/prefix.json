@@ -1,0 +1,20 @@
+{
+ "SPM": {
+  "max_rel_diff_first10": 0.0,
+  "score100": 122.02490271918488,
+  "cycles10": 10,
+  "cycles100": 100
+ },
+ "SPMe": {
+  "max_rel_diff_first10": 0.0,
+  "score100": 109.14159339713163,
+  "cycles10": 10,
+  "cycles100": 100
+ },
+ "DFN": {
+  "max_rel_diff_first10": 0.0,
+  "score100": 116.25618984465824,
+  "cycles10": 10,
+  "cycles100": 100
+ }
+}
