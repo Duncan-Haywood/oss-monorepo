@@ -3,8 +3,8 @@
 // (PLAYWRIGHT / CHROME_PATH, as in lab.test.mjs).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { STICKY_FIT_JS } from './sticky-fit.mjs';
-import { renderChromeModule } from './build.mjs';
+import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
+import { renderChromeModule, renderChromeStyle } from './build.mjs';
 import { stripForInjection } from './jobs.mjs';
 
 let chromium = null;
@@ -157,5 +157,49 @@ test('a card with nothing focusable in it gets a tab stop while it scrolls, and 
     await p.setViewportSize({ width: 1280, height: 2000 });
     await p.waitForTimeout(150);
     assert.equal((await state(p)).tabindex, null);
+  });
+});
+
+test('pf-chrome.css carries the scroll hint, only for capped cards and only with scroll timelines', () => {
+  assert.ok(renderChromeStyle().includes(STICKY_FIT_CSS));
+  // Every mask rule sits behind @supports or turns the mask off: without a
+  // scroll timeline the fade could not lift at the end and would dim the
+  // card's last line for good.
+  const gated = STICKY_FIT_CSS.slice(STICKY_FIT_CSS.indexOf('@supports (animation-timeline:scroll())'));
+  const before = STICKY_FIT_CSS.slice(0, STICKY_FIT_CSS.indexOf('@supports'));
+  assert.ok(!/mask-image/.test(before));
+  assert.ok(/\[data-pf-sticky-fit\]\{[^}]*mask-image:linear-gradient/.test(gated));
+  assert.ok(/forced-colors:active\)\{\[data-pf-sticky-fit\]\{[^}]*mask-image:none/.test(STICKY_FIT_CSS));
+});
+
+test('a capped card fades at its foot while more is below, and the fade lifts at the end', { skip }, async () => {
+  await withPage(page(30, 3000, STICKY_FIT_CSS), 700, async (p) => {
+    const read = () => p.evaluate(() => {
+      const el = document.querySelector('.result');
+      const cs = getComputedStyle(el);
+      return {
+        top: cs.getPropertyValue('--pf-fit-top').trim(),
+        end: cs.getPropertyValue('--pf-fit-end').trim(),
+        mask: cs.maskImage || cs.webkitMaskImage,
+      };
+    });
+    assert.equal((await state(p)).fit, true);
+    const start = await read();
+    assert.match(start.mask, /linear-gradient/);
+    assert.deepEqual([start.top, start.end], ['0px', '40px']);
+    await p.evaluate(() => { const el = document.querySelector('.result'); el.scrollTop = el.scrollHeight; });
+    await p.waitForTimeout(150);
+    const end = await read();
+    assert.deepEqual([end.top, end.end], ['24px', '0px']);
+  });
+});
+
+test('a card that fits gets no fade', { skip }, async () => {
+  await withPage(page(5, 3000, STICKY_FIT_CSS), 700, async (p) => {
+    const mask = await p.evaluate(() => {
+      const cs = getComputedStyle(document.querySelector('.result'));
+      return cs.maskImage || cs.webkitMaskImage;
+    });
+    assert.equal(mask, 'none');
   });
 });
