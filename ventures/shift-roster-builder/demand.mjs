@@ -207,6 +207,16 @@ const WEEKDAY_NAMES = ["Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Friday
 export function averageSales(entries, o = {}) {
   const halfLife = o.halfLife === undefined ? 0 : Number(o.halfLife);
   if (o.halfLife !== undefined && !(halfLife > 0)) throw new Error("half-life must be a positive number of weeks");
+  // o.window: weeks; only dated rows from the last that many weeks up to o.newest (or the newest date) count, the
+  // backtest's "last 4 weeks only" applied to the plan itself (2026-11-11, half-life auto can pick it).
+  if (o.window !== undefined) {
+    const win = Number(o.window);
+    if (!Number.isInteger(win) || win < 1) throw new Error("the window must be a whole number of weeks, 1 or more");
+    let top = 0;
+    for (const e of entries) if (e.key) { const t = keyMs(e.key); if (t > top) top = t; }
+    const end = o.newest !== undefined ? o.newest : top;
+    entries = entries.filter((e) => !e.key || (keyMs(e.key) > end - win * 7 * DAY_MS && keyMs(e.key) <= end));
+  }
   const dated = entries.filter((e) => e.key);
   // A loop, not Math.max(...rows): spreading 234,005 rows overflowed the call stack on the French bakery file.
   let latest = 0, oldest = Infinity;
@@ -301,6 +311,7 @@ function fractileHeads(entries, dates, a, splh, r) {
 export function hourlySales(text, o = {}) {
   if (o.shortCost !== undefined) shortCostShare(o.shortCost);
   if (o.halfLife !== undefined && !(Number(o.halfLife) > 0)) throw new Error("half-life must be a positive number of weeks");
+  if (o.halfLife && o.window) throw new Error("use a half-life or a window of recent weeks, not both");
   const r = readSales(text, o);
   const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), closed: [], rows: r.rows, skipped: r.skipped, notes: [...r.notes], entries: r.entries, count: r.count };
   if (!r.rows && r.notes.length) return out;
@@ -310,6 +321,7 @@ export function hourlySales(text, o = {}) {
   if (r.refunds.n) out.notes.push(`${r.refunds.n} row${r.refunds.n === 1 ? "" : "s"} with negative sales (refunds or voids, ${Math.round(-r.refunds.amount * 100) / 100} in all) left out: the plan follows what was rung up.`);
   if (r.blank) out.notes.push(`${r.blank} empty row${r.blank === 1 ? "" : "s"} ignored.`);
   if (r.skippedDays.size) out.notes.push(`${r.skippedDays.size} day${r.skippedDays.size === 1 ? "" : "s"} left out (--skip-dates): ${[...r.skippedDays].sort().join(", ")}.`);
+  if (o.window) out.notes.push(`Only the last ${o.window} week${+o.window === 1 ? "" : "s"} of dated sales planned from (up to the newest date); earlier weeks left out.`);
   if (o.halfLife) out.notes.push(`Recent weeks weigh more: a day's weight halves every ${o.halfLife} week${+o.halfLife === 1 ? "" : "s"} back from the newest date.`);
   if (r.dayFirst) out.notes.push("Dates read day first (a date such as 25/03/2026 in the file shows the order).");
   if (r.ambiguous) out.notes.push("Dates such as 05/03/2026 could be 5 March or May 3 and no date in the file settles it: read month first (US). If yours are day first, change the export to YYYY-MM-DD.");
@@ -521,34 +533,43 @@ const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 
 // Everything at once. Returns { shiftsText, days: [{day, needed, scheduled, shifts}], needed, scheduled, extra, sales, notes, skipped }.
 // --half-life auto: pick the weighting from the shop's own past weeks. Runs the backtest (shifts cut and scored as the
-// CLI scores them, at the same short cost) for every earlier week equal and half-lives 8, 4 and 2, and keeps the one
-// with the least (r x) short + over a week; a tie keeps the plain average. Needs AUTO_MIN_WEEKS tested weeks, else
-// plain. Measured 2026-11-11 (eval/halflife-default.mjs, README "Picking the half-life from your own weeks"): chosen
-// this way week by week on two real bakeries it was never clearly worse than the plain average in 12 settings and
-// 7.4% better on average, where a fixed half-life 2 was clearly worse in 2 and half-lives 4 and 8 helped less.
+// CLI scores them, at the same short cost) for every earlier week equal, half-lives 8, 4 and 2 and the last 4 weeks
+// only, and keeps the one with the least (r x) short + over a week; a tie keeps the plain average. Needs AUTO_MIN_WEEKS
+// tested weeks, else plain. Scored with the closure-aware score (scoreClosed: staffing an hour the shop is normally
+// shut counts as over) unless o.scoreClosed === false.
+// Measured 2026-11-11, out of sample week by week:
+// - eval/halflife-default.mjs (two bakeries, old score): the four weightings were never clearly worse than the plain
+//   average in 12 settings and 7.4% better on average.
+// - eval/window-auto.mjs (three bakeries, 18 settings, README "Half-life auto now offers the last 4 weeks"): adding the
+//   4-week window AND picking on the closure-aware score was clearly better than the previous rule in 6 settings (all
+//   six Bread Basket ones, 5.8-16.7 person-hours a week) and clearly worse in none, -16.3% on average; either change
+//   alone moved nothing.
 export const AUTO_MIN_WEEKS = 4;
+export const AUTO_CANDIDATES = ["hl8", "hl4", "hl2", "last4"];
 export function pickHalfLife(text, o = {}) {
   const rc = o.shortCost === undefined ? null : Number(o.shortCost);
-  const ids = ["hl8", "hl4", "hl2"];
+  const ids = AUTO_CANDIDATES;
   const pre = rc === null ? "" : "q-";
+  const scoreClosed = o.scoreClosed !== false;
   let b;
-  try { b = backtestSales(text, { ...o, halfLife: undefined, shifts: true, methods: rc === null ? ids : ["all", ...ids].map((x) => pre + x) }); }
+  try { b = backtestSales(text, { ...o, halfLife: undefined, window: undefined, shifts: true, scoreClosed, methods: rc === null ? ids : ["all", ...ids].map((x) => pre + x) }); }
   catch { return { halfLife: undefined, note: "Half-life auto: the file could not be backtested, so every earlier week weighs the same." }; }
   if (b.weeks < AUTO_MIN_WEEKS) return { halfLife: undefined, weeks: b.weeks, note: `Half-life auto: ${b.weeks} full week${b.weeks === 1 ? "" : "s"} to test on, fewer than ${AUTO_MIN_WEEKS}, so every earlier week weighs the same.` };
   const cands = b.methods.filter((m) => m.id === pre + "all" || ids.some((x) => m.id === pre + x));
   const base = cands.find((m) => m.id === pre + "all");
   const best = cands.reduce((a, m) => (m.miss < a.miss - 1e-9 ? m : a), base);
-  const hl = best.halfLife;
-  const what = hl ? `half-life ${hl} weeks` : "every earlier week weighed the same";
+  const hl = best.halfLife, win = best.window;
+  const what = hl ? `half-life ${hl} weeks` : win ? `only the last ${win} weeks` : "every earlier week weighed the same";
   const gain = base.miss - best.miss;
-  return { halfLife: hl, weeks: b.weeks, note: `Half-life auto: ${what}, the weighting with the least short + over on your last ${b.weeks} weeks${hl ? ` (${gain.toFixed(1)} person-hours a week fewer than equal weights)` : ""}. --half-life none turns it off; a number fixes it.` };
+  const fix = win ? `--last-weeks ${win} fixes it` : "a number fixes it";
+  return { halfLife: hl, window: win, weeks: b.weeks, scoreClosed, note: `Half-life auto: ${what}, the weighting with the least short + over on your last ${b.weeks} weeks${hl || win ? ` (${gain.toFixed(1)} person-hours a week fewer than equal weights)` : ""}${scoreClosed ? ", counting staff in an hour you are normally shut as spare" : ""}. --half-life none turns it off; ${fix}.` };
 }
 
 export function demandShifts(text, o = {}) {
   if (o.halfLife === "auto") {
     const p = pickHalfLife(text, o);
-    const r = demandShifts(text, { ...o, halfLife: p.halfLife });
-    r.notes.push(p.note); r.halfLife = p.halfLife;
+    const r = demandShifts(text, { ...o, halfLife: p.halfLife, window: p.window });
+    r.notes.push(p.note); r.halfLife = p.halfLife; r.window = p.window;
     return r;
   }
   if (o.halfLife === "none" || o.halfLife === 0) o = { ...o, halfLife: undefined };

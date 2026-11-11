@@ -34,7 +34,7 @@ test("half-life auto: steady sales keep equal weights (a tie goes to the plain a
 test("half-life auto: sales that kept growing pick a half-life, and the plan follows the recent level", () => {
   const text = sales(20, (w) => 1 + 0.12 * w);
   const p = pickHalfLife(text, { splh: 60 });
-  assert.ok([8, 4, 2].includes(p.halfLife), `picked ${p.halfLife}`);
+  assert.ok([8, 4, 2].includes(p.halfLife) || p.window === 4, `picked ${p.halfLife} / ${p.window}`);
   assert.match(p.note, /fewer than equal weights/);
   const auto = demandShifts(text, { splh: 60, halfLife: "auto" });
   const plain = demandShifts(text, { splh: 60 });
@@ -43,13 +43,13 @@ test("half-life auto: sales that kept growing pick a half-life, and the plan fol
   assert.ok(auto.notes.some((n) => n.startsWith("Half-life auto:")));
   // An explicit number or none is used as given.
   assert.equal(demandShifts(text, { splh: 60, halfLife: "none" }).needed, plain.needed);
-  assert.equal(demandShifts(text, { splh: 60, halfLife: p.halfLife }).needed, auto.needed);
+  assert.equal(demandShifts(text, { splh: 60, halfLife: p.halfLife, window: p.window }).needed, auto.needed);
 });
 
 test("half-life auto: with a short cost it picks among the fractile plans", () => {
   const text = sales(20, (w) => 1 + 0.12 * w);
   const p = pickHalfLife(text, { splh: 60, shortCost: 3 });
-  assert.ok([8, 4, 2].includes(p.halfLife), `picked ${p.halfLife}`);
+  assert.ok([8, 4, 2].includes(p.halfLife) || p.window === 4, `picked ${p.halfLife} / ${p.window}`);
 });
 
 test("CLI: --from-sales defaults to auto; --half-life none and numbers still work; 0 is refused", () => {
@@ -60,7 +60,58 @@ test("CLI: --from-sales defaults to auto; --half-life none and numbers still wor
   const run = (...a) => execFileSync(process.execPath, [cli, "--from-sales", f, "--splh", "60", ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   const auto = run(), none = run("--half-life", "none"), four = run("--half-life", "4");
   assert.notEqual(auto, none);
-  assert.ok(auto === four || auto === run("--half-life", "2") || auto === run("--half-life", "8"));
+  assert.ok(auto === four || auto === run("--half-life", "2") || auto === run("--half-life", "8") || auto === run("--last-weeks", "4"));
+  assert.throws(() => run("--last-weeks", "0"));
   assert.throws(() => run("--half-life", "0"));
   assert.match(readFileSync(cli, "utf8"), /the default, auto, backtests/);
+});
+
+// A shop that stopped opening its last two evening hours partway through the file (the Bread Basket pattern,
+// README "Half-life auto now offers the last 4 weeks"): 9:00-19:00 for 10 weeks, then 9:00-17:00 for 10.
+function shortened(weeks = 20, cut = 10) {
+  const rows = ["datetime,sales"];
+  const t0 = Date.UTC(2026, 0, 5);
+  for (let d = 0; d < weeks * 7; d++) {
+    const date = new Date(t0 + d * 864e5).toISOString().slice(0, 10);
+    const close = Math.floor(d / 7) < cut ? 19 : 17;
+    for (let h = 9; h < close; h++) rows.push(`${date} ${String(h).padStart(2, "0")}:00,${Math.round((h === 12 ? 160 : 70) * (1 + 0.15 * Math.sin(d * 1.7 + h)))}`);
+  }
+  return rows.join("\n");
+}
+
+test("window: averageSales and demandShifts with window plan from the last n weeks only", () => {
+  const text = shortened();
+  const last = demandShifts(text, { splh: 60, window: 4 });
+  const all = demandShifts(text, { splh: 60 });
+  const closeOf = (r) => Math.max(...r.days[0].shifts.map(([, b]) => b));
+  assert.equal(closeOf(last), 17);
+  assert.ok(closeOf(all) >= 18, `plain closes at ${closeOf(all)}`);
+  assert.ok(last.notes.some((n) => /Only the last 4 weeks/.test(n)));
+  assert.throws(() => demandShifts(text, { splh: 60, window: 4, halfLife: 2 }), /not both/);
+  assert.throws(() => demandShifts(text, { splh: 60, window: 0 }), /whole number/);
+});
+
+test("half-life auto: hours that shrank pick a recent weighting, scored with the closure-aware score", () => {
+  const text = shortened();
+  const p = pickHalfLife(text, { splh: 60 });
+  assert.equal(p.scoreClosed, true);
+  assert.ok(p.halfLife || p.window, `picked plain: ${p.note}`);
+  assert.match(p.note, /normally shut as spare/);
+  const auto = demandShifts(text, { splh: 60, halfLife: "auto" });
+  assert.equal(auto.window, p.window);
+  assert.equal(auto.halfLife, p.halfLife);
+  // The old score cannot see staffing the hours the shop stopped opening, so it keeps more of them.
+  const old = pickHalfLife(text, { splh: 60, scoreClosed: false });
+  assert.equal(old.scoreClosed, false);
+  assert.doesNotMatch(old.note, /normally shut/);
+});
+
+test("CLI: --last-weeks plans from the recent weeks and overrides auto", () => {
+  const dir = mkdtempSync(join(tmpdir(), "lw-"));
+  const f = join(dir, "s.csv");
+  writeFileSync(f, shortened());
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  const out = execFileSync(process.execPath, [cli, "--from-sales", f, "--splh", "60", "--last-weeks", "4"], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+  assert.doesNotMatch(out, /18:00|19:00/);
+  assert.match(readFileSync(cli, "utf8"), /--last-weeks <n> plans from the last n weeks only/);
 });

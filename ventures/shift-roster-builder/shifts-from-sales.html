@@ -47,7 +47,7 @@
     <input id="skip" placeholder="2026-11-26, 2026-12-25">
     <label for="half">Weigh recent weeks more: half-life in weeks, or auto (optional)</label>
     <input id="half" placeholder="blank: every week the same; auto: picked from your past weeks">
-    <p class="note">auto tests equal weights and half-lives of 8, 4 and 2 weeks on your own file (each past week planned from the weeks before it) and keeps whichever left the fewest hours short or spare. It needs 8 or more full weeks of dated sales; on a long file it takes a few seconds.</p>
+    <p class="note">auto tests equal weights, half-lives of 8, 4 and 2 weeks and the last 4 weeks alone on your own file (each past week planned from the weeks before it) and keeps whichever left the fewest hours short or spare (staff kept on in an hour you are normally shut count as spare). It needs 8 or more full weeks of dated sales; on a long file it takes a few seconds.</p>
     <label for="shortcost">A short hour costs this many times a spare one (optional; 1 = the same, 3 = being short is three times worse)</label>
     <input id="shortcost" inputmode="decimal" placeholder="blank: staff for the average hour">
     <p class="note">Planned from the average, an hour is short about half the time. With a number here each hour is staffed for that share of its past days instead: 1 staffs for the median day, 3 for 3 days in 4 (75%), 0.5 for 1 in 3.</p>
@@ -106,8 +106,8 @@
         if (half === "auto") {
           const key = JSON.stringify(o) + "\n" + $("#csv").value;
           if (key !== autoKey) { autoPick = pickHalfLife($("#csv").value, o); autoKey = key; record("sales_auto_halflife"); }
-          o.halfLife = autoPick.halfLife;
-          autoNote = autoPick.note.replace(" --half-life none turns it off; a number fixes it.", "");
+          o.halfLife = autoPick.halfLife; o.window = autoPick.window;
+          autoNote = autoPick.note.replace(/ --half-life none turns it off; .*$/, "");
         } else o.halfLife = num("#half");
         r = demandShifts($("#csv").value, o);
         if (autoNote) r.notes.push(autoNote);

@@ -71,8 +71,9 @@ Options:
                       hour; --count rows counts each row); a file with a ticket column and no sales column is counted by ticket.
                       the average of what you sold, not a forecast. --skip-dates 2026-11-26,2026-12-25 leaves those days out (holiday, storm);
                       --half-life <weeks> weights recent weeks more (a day's weight halves every that many weeks back from the newest date);
-                      the default, auto, backtests equal weights and half-lives 8, 4 and 2 on your file and keeps the best (equal
-                      weights under 4 testable weeks or on a tie); none weighs every week the same
+                      the default, auto, backtests equal weights, half-lives 8, 4 and 2 and the last 4 weeks only on your file and
+                      keeps the best (equal weights under 4 testable weeks or on a tie; staff in an hour you are normally shut count
+                      as spare); none weighs every week the same. --last-weeks <n> plans from the last n weeks only
                       A weekday that traded on under 1 in 4 of its dates is treated as closed, and an edge hour with sales on under 1 in
                       20 days does not stretch the day (--keep-rare turns both off). --backtest tests the forecast on your own file
                       instead: each full week after the first --warmup weeks (default 4) is planned from the weeks before it and compared
@@ -146,6 +147,11 @@ export function parseArgs(argv) {
       const v = t === "auto" || t === "none" ? t : Number(t);
       if (typeof v === "number" && !(v > 0)) throw new Error("--half-life needs a positive number of weeks, auto or none");
       o.demand = { ...o.demand, halfLife: v };
+    }
+    else if (a === "--last-weeks") {
+      const v = Number(argv[++i]);
+      if (!Number.isInteger(v) || v < 1) throw new Error("--last-weeks needs a whole number of weeks, 1 or more");
+      o.demand = { ...o.demand, halfLife: undefined, window: v };
     }
     else if (a === "--min-staff" || a === "--min-shift" || a === "--max-shift" || a === "--open" || a === "--close") {
       const v = Number(argv[++i]);
