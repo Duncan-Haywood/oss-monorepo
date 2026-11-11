@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVMj8QUeoqWA7EXyBXo",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine prompt)",
+  "input_sha256": "4207abd77e9a8607d5ea627a8aa7754abc9fab62bb68e0f6eb3a480afbda5e64",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T11:05:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture concrete-maturity (ASTM C1074 maturity method strength estimator)",
+  "projects": [
+    "ventures/concrete-maturity"
+  ],
+  "pr": 14766,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 23,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "parseCalibrationText read a trailing-comma line '7,' as strength 0",
+      "fix": "filter empty cells before Number(); caught by own test"
+    },
+    {
+      "what": "inherited_keys lint flagged MODELS[fit.name]",
+      "fix": "Object.hasOwn guard in one expression"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-the-cold-edge-sets-the-stripping-date.md"
+  ],
+  "goal": null,
+  "notes": "Idea: concrete maturity calculator (logger CSV + lab breaks -> in-place strength per sensor, Nurse-Saul or equivalent age, three curve fits by AICc, time to target, governing sensor). Chosen for the construction direction; commercial maturity sensors are a real business, the arithmetic is not offered free on raw logger files. Verified: run_venture_tests.py concrete-maturity green (23 tests), clauses.mjs and router validate.py pass, headless Chromium drive with example under both methods: no console errors, no overflow at 390 px. Not yet run on a real project's logger export; that is the next input it needs. Next: datum/activation energy from mortar cubes (C1074 Annex A1), named logger format readers.",
+  "corrections": [],
+  "redteam": null
+}
