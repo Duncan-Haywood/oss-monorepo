@@ -23,6 +23,6 @@
     {"severity": "medium", "what": "Line 6 (other income) can only be reached by a user rule; refunds of expenses (e.g. AMAZON REFUND) land in uncategorised with no guidance.", "where": "ventures/freelancer-schedule-c-categorizer/calc.mjs:269"},
     {"severity": "low", "what": "llms.txt points at the retired github.io address; canonical, sitemap and robots use relative URLs; README test command fails on Node 22.", "where": "ventures/freelancer-schedule-c-categorizer/llms.txt:6"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14648"],
   "verdict": "A small, honest prototype whose arithmetic is right: on the sample file I recomputed income 8620.10, expenses 1129.51 and net 7490.59 by hand and the tool agreed, the Schedule C line numbers match the 2024 form as I know it, and the held-out buckets match what a preparer would exclude. 35 of 35 tests pass and two seeded mutations (meals rate, debit/credit sign) were each caught. It misses the bar on depth, not honesty: the keyword table has misfires that a preparer would hit in the first hour (Uber Eats deducted at 100% as travel, 'mobile' as car expense, equipment rental on 20b instead of 20a), line 6 is unreachable by built-in rules, and it was never run on a real bank export. Scores are before any fix; the audit meets the numeric bar (correctness, claims and verification all 3) but fitness is 2 and the high-severity meals misroute should be fixed first."
 }
