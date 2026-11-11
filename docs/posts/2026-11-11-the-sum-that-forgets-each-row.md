@@ -1,9 +1,9 @@
 ---
 title: "Decoding a camera's lossless JPEG: the sum that forgets each row"
-seo_title: "Lossless JPEG predictor 1 as a numpy cumulative sum: faster RAW decoding in Python"
+seo_title: "Lossless JPEG predictor 1 as numpy cumulative sums in Python"
 date: 2026-11-11
 tags: [photo-editing, shootflow, raw, dng, lossless-jpeg, numpy, performance]
-description: "How ShootFlow cut the prediction pass of its pure-Python lossless-JPEG decoder from about 4 s to about 1.2 s on a real Canon CR2, with every sensel still equal to LibRaw."
+description: "How ShootFlow cut its lossless-JPEG prediction pass from about 4 s to 1.2 s on a real Canon CR2, every sensel still equal to LibRaw."
 ---
 
 DNG files, and Canon's CR2 files, store the sensor as a *lossless JPEG*: each
