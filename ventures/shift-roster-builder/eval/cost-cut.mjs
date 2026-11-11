@@ -44,8 +44,9 @@ for (const [i, F] of FILES.entries()) {
       return `${md >= 0 ? "+" : ""}${f(md)} (${f(md - half)} to ${f(md + half)})`;
     };
     const vsPlain = paired(costB.perWeek["q-all"], plainB.perWeek["q-all"]);
-    const vsAvg = paired(costB.perWeek["q-all"], costB.perWeek.all);
-    const avgCut = costB.methods[0];
+    // The average row cut the old way (since 2026-11-11 the average's own cut is priced too unless costCut is false).
+    const vsAvg = paired(costB.perWeek["q-all"], plainB.perWeek.all);
+    const avgCut = plainB.methods[0];
     console.log(`${String(splh).padEnd(7)}${String(minShift).padEnd(11)}${r.toFixed(2).padEnd(6)}${f(p.short).padStart(13)} ${f(p.over).padStart(4)} ${f(p.miss).padStart(5)} | ${f(a.short).padStart(16)} ${f(a.over).padStart(4)} ${f(a.scheduled).padStart(5)} ${f(a.miss).padStart(5)} | ${f(c.short).padStart(15)} ${f(c.over).padStart(4)} ${f(c.scheduled).padStart(5)} ${f(c.miss).padStart(5)} | ${vsPlain.padEnd(23)}| ${f(avgCut.miss).padStart(12)}  ${vsAvg}`);
   }
 }

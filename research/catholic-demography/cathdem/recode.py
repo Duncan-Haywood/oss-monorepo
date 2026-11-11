@@ -11,6 +11,7 @@ import pandas as pd
 HERE = Path(__file__).resolve().parents[1]
 RAW = Path(os.environ.get('GSS_RAW', HERE / 'data' / 'raw'))
 DTA = 'GSS_stata/gss7224_r3a.dta'
+RDA = 'gssr/gss_all.rda'  # fallback: the same cumulative file as shipped in the gssr R package (data/download_gssr.sh)
 
 COLS = ['year', 'id', 'relig', 'relig16', 'attend', 'childs', 'age', 'cohort', 'hispanic',
         'race', 'born', 'parborn', 'wtssps', 'vpsu', 'vstrat', 'sex', 'degree', 'marital',
@@ -24,9 +25,31 @@ PERIODS = [(1972, 1979, '1972-79'), (1980, 1989, '1980-89'), (1990, 1999, '1990-
            (2000, 2009, '2000-09'), (2010, 2018, '2010-18'), (2021, 2024, '2021-24')]
 
 
-def load(path=None):
+def load(path=None, cols=None):
+    """Read the cumulative file. Uses NORC's .dta when present, else gssr's gss_all.rda.
+
+    A path given explicitly that does not exist also falls back to the .rda, so every experiment script runs
+    from either source. pyreadr is needed only for the .rda."""
+    cols = cols or COLS
     path = Path(path) if path else RAW / DTA
-    return pd.read_stata(path, columns=COLS, convert_categoricals=False)
+    if path.suffix == '.dta' and path.exists():
+        return pd.read_stata(path, columns=cols, convert_categoricals=False)
+    rda = path if path.suffix == '.rda' else RAW / RDA
+    if not rda.exists():
+        raise FileNotFoundError(f'neither {path} nor {rda}: run data/download.sh (NORC) or data/download_gssr.sh')
+    return read_rda(rda, cols)
+
+
+def read_rda(path, cols=None):
+    """One data frame from an .rda file, numeric columns as float with NaN for every missing code.
+
+    gssr stores the GSS's labelled missing codes (IAP, don't know, no answer, skipped on web) as R NA, as
+    pandas.read_stata does with Stata's extended missing values, so codes match the .dta read."""
+    import pyreadr
+    (df,) = pyreadr.read_r(str(path)).values()
+    if cols is not None:
+        df = df[[c for c in cols if c in df.columns]]
+    return df.apply(lambda c: pd.to_numeric(c, errors='coerce') if c.dtype == object else c)
 
 
 def _band(x, bands):
