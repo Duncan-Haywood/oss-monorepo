@@ -3,6 +3,7 @@
 
     python3 research/_shared/cite_check.py research/<slug>/README.md [more files]
     python3 research/_shared/cite_check.py --offline README.md   # list ids only
+    python3 research/_shared/cite_check.py --no-write README.md  # do not update cite_check.json
 
 Each identifier is looked up (Crossref for DOIs, DataCite when Crossref has no such DOI, the arXiv API for arXiv ids)
 and printed with the title and year the registry holds, so you can compare it
@@ -12,7 +13,17 @@ as the cloud proxy sometimes does) or a connection that never completes
 (proxy connect rejected, DNS, timeout) prints SKIP and does not fail the run;
 open the source by hand and say in the README that it was not machine-checked. Citations without a DOI or arXiv id (datasheets, standards, URLs)
 are not checked here: open them.
+
+Every successful lookup is remembered in `cite_check.json` beside the file
+checked (commit it with the README). When a later session's proxy refuses the
+registries, an id found there prints `ok*` with the date a live lookup last
+confirmed it, instead of SKIP, so a blocked session can still tell a checked
+citation from an unchecked one (13 run records from 2026-11-10/11 report doi.org or
+arXiv refused and re-verified ids by hand). Only this script writes the file;
+a 404 removes the entry. `--no-write` leaves it untouched.
 """
+import datetime
+import os
 import json
 import re
 import sys
@@ -78,36 +89,81 @@ def lookup_arxiv(aid):
     return f"{' '.join(title.split())} ({year.group(1) if year else '?'})"
 
 
+CACHE_NAME = "cite_check.json"
+
+
+def cache_path(path):
+    return os.path.join(os.path.dirname(os.path.abspath(path)), CACHE_NAME)
+
+
+def load_cache(cpath):
+    try:
+        with open(cpath, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}
+
+
+def save_cache(cpath, cache):
+    with open(cpath, "w", encoding="utf-8") as f:
+        json.dump(cache, f, indent=1, sort_keys=True, ensure_ascii=False)  # one id per line: parallel edits merge
+        f.write("\n")
+
+
 def main(argv):
     offline = "--offline" in argv
+    write = "--no-write" not in argv
     paths = [a for a in argv if not a.startswith("--")]
     if not paths:
         print(__doc__)
         return 2
-    bad = blocked = 0
+    bad = blocked = cached = 0
+    today = datetime.date.today().isoformat()
     for path in paths:
         dois, arxivs = extract(open(path, encoding="utf-8").read())
         print(f"{path}: {len(dois)} DOI(s), {len(arxivs)} arXiv id(s)")
+        cpath = cache_path(path)
+        cache = load_cache(cpath)
+        before = json.dumps(cache, sort_keys=True)
         for kind, ids, fn in (("doi", dois, lookup_doi), ("arxiv", arxivs, lookup_arxiv)):
             for i in ids:
+                key = f"{kind}:{i}"
                 if offline:
-                    print(f"  {kind}:{i}")
+                    print(f"  {key}")
                     continue
+                reason = None
                 try:
-                    print(f"  ok   {kind}:{i}  {fn(i)}")
+                    found = fn(i)
+                    print(f"  ok   {key}  {found}")
+                    if (cache.get(key) or {}).get("title") != found:
+                        cache[key] = {"title": found, "checked": today}
                 except urllib.error.HTTPError as e:
                     if e.code == 404:  # the registry answered: no such id
                         bad += 1
-                        print(f"  FAIL {kind}:{i}  not found (404)")
+                        cache.pop(key, None)
+                        print(f"  FAIL {key}  not found (404)")
                     else:  # proxy block, rate limit or outage: says nothing about the id
-                        blocked += 1
-                        print(f"  SKIP {kind}:{i}  host unreachable (HTTP {e.code}); open the source and say so in the README")
+                        reason = f"HTTP {e.code}"
                 except (urllib.error.URLError, OSError) as e:  # no answer at all (proxy connect rejected, DNS, timeout)
-                    blocked += 1
-                    print(f"  SKIP {kind}:{i}  host unreachable ({e}); open the source and say so in the README")
+                    reason = str(e)
                 except (ValueError, KeyError) as e:  # the registry answered with no such record
                     bad += 1
-                    print(f"  FAIL {kind}:{i}  {e}")
+                    cache.pop(key, None)
+                    print(f"  FAIL {key}  {e}")
+                if reason is None:
+                    continue
+                hit = cache.get(key)
+                if hit:
+                    cached += 1
+                    print(f"  ok*  {key}  {hit['title']}  (host unreachable now; a live lookup confirmed it on {hit['checked']})")
+                else:
+                    blocked += 1
+                    print(f"  SKIP {key}  host unreachable ({reason}); open the source and say so in the README")
+        if write and not offline and json.dumps(cache, sort_keys=True) != before:
+            save_cache(cpath, cache)
+            print(f"  (updated {os.path.relpath(cpath)}: commit it with the README)")
+    if cached:
+        print(f"{cached} id(s) marked ok* were confirmed by an earlier live lookup ({CACHE_NAME}), not this run.")
     if blocked:
         print(f"{blocked} id(s) could not be checked because the host refused the lookup (not a verdict on the id).")
     return 1 if bad else 0

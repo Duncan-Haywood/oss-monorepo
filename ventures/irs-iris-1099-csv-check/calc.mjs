@@ -33,6 +33,17 @@ const MISC_MIN = {
   "MISC Box 10 Gross Proceeds to an Attorney": 600, "MISC Box 11 Fish Purchased for Resale": 600,
   "MISC Box 12 Section 409A Deferrals": 0.01, "MISC Box 14 Excess Golden Parachute Payments": 0.01, "MISC Box 15 Nonqualified Deferred Compensation": 0.01,
 };
+// From 2026 (tax years beginning after 2025) the Instructions for Forms 1099-MISC and 1099-NEC
+// (Rev. December 2026, read on irs.gov 2026-11-11) list: at least $10 in royalties (box 2) or
+// substitute payments (box 8); any fishing boat proceeds (box 5); at least $600 in gross proceeds
+// paid to an attorney (box 10) and in cash for fish for resale (box 11); and at least $2,000 in
+// rents (1), other income (3), medical and health care payments (6), crop insurance proceeds (9),
+// section 409A deferrals (12) and nonqualified deferred compensation (15).
+const MISC_MIN_2026 = {
+  ...MISC_MIN, "MISC Box 1 Rents": 2000, "MISC Box 3 Other Income": 2000, "MISC Box 6 Medical and Health Care Payments": 2000,
+  "MISC Box 9 Crop Insurance Proceeds": 2000, "MISC Box 12 Section 409A Deferrals": 2000, "MISC Box 15 Nonqualified Deferred Compensation": 2000,
+};
+const miscMin = (yr) => (yr >= 2026 ? MISC_MIN_2026 : MISC_MIN);
 const NORM = (s) => String(s).toLowerCase().replace(/\(surname\)/g, "").replace(/[^a-z0-9]/g, "");
 
 // The IRS IRIS Taxpayer Portal CSV template layout, tax year 2025: columns A-BB for the 1099-NEC
@@ -463,7 +474,8 @@ export function validate(input, opts = {}) {
     } else {
       for (const col of ownBoxes) {
         const v = amt[col];
-        if (v > 0 && v < MISC_MIN[col] && withheld === 0) add("warning", "below-threshold", line, `${col} ${fmt(v)} is under its ${fmt(MISC_MIN[col])} reporting amount`, "From memory of the 1099-MISC instructions; unverified.");
+        const min = miscMin(yr)[col];
+        if (v > 0 && v < min && withheld === 0) add("warning", "below-threshold", line, `${col} ${fmt(v)} is under its ${fmt(min)} reporting amount`, yr >= 2026 ? "From the Instructions for Forms 1099-MISC and 1099-NEC (Rev. December 2026). Filing below it is allowed; check you meant to." : "From memory of the 1099-MISC instructions; unverified.");
       }
     }
     if (withheld > reportable && reportable > 0) add("error", "withheld-exceeds", line, "Federal tax withheld is more than the amount paid", `Withheld ${fmt(withheld)} against ${fmt(reportable)} reported.`);

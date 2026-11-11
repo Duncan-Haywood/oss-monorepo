@@ -1,0 +1,6 @@
+[Service]
+User=0
+ExecStart=!/home/ops/run.sh
+Environment=GH_TOKEN="ghp x" A=1 "SECRET_KEY=abc def"
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_CHOWN
+ProtectSystem=no

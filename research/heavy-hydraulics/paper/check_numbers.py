@@ -10,6 +10,9 @@ from pathlib import Path
 P = Path(__file__).resolve().parent
 EXP = P.parent / "experiments"
 CHECKS = [
+    ("1.40 to 1.424 times", "spool_floor_results.txt", "orifice p_neutral  5.0: OC/LS hydraulic 1.424"),
+    ("(11.3% more fuel)", "spool_floor_results.txt", "extra fuel 11.3%"),
+    ("in 11.2% of moving samples", "spool_floor_results.txt", "11.2% of moving samples"),
     ("break-even margin of 26.5 bar", "spool_floor_synthetic_results.txt", "break-even dp_ls = 26.5 bar"),
     ("the break-even to 23.0 bar", "spool_function_sizing_results.txt", "envelope, orifice: energy-weighted extra OC drop while moving 2.33 bar; break-even dp_ls = 23.0 bar"),
     ("it is 25.6 bar", "spool_function_sizing_results.txt", "break-even dp_ls = 25.6 bar"),

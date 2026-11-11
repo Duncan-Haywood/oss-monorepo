@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnH3rE2ncExXBeMdGg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T11:17:46Z",
+  "ended": "2026-11-11T11:59:25Z",
+  "wall_minutes": 129.74,
+  "tokens_in": 8806809,
+  "tokens_out": 31997,
+  "cost_usd": 3.4189,
+  "tool_calls": 71,
+  "task": "research programme verified-dse, milestone 113: the cost-ratio switch on eight designs no earlier table ran",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14771",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First background flow job hit the default 30-minute background limit at 394 of 1,920 points; resumed with --resume and a 2-hour timeout, rerunning only points in flight.",
+    "A first backgrounded 'nix build' command wrote no output (shell backgrounding with & in a compound command); rerun in the foreground in about 1 minute."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/README.md",
+      "issue": "The Reproduce section still names OpenROAD 26Q2 and apt Yosys 0.33; recent milestones use `nix build nixpkgs#openroad nixpkgs#yosys` (26Q3, 0.70), which nowhere states the one-line command. Fixed in this PR: the Reproduce block now gives the nix command and the long-job advice."
+    },
+    {
+      "file": "research/verified-dse/LOG.md",
+      "issue": "Milestone 112 noted the 30-minute background limit, but nothing near the flow scripts says to start long flows with a longer run_in_background timeout from the start; this run lost a restart to it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-verified-dse-fresh-designs.md",
+    "research/verified-dse/LOG.md (milestone 113 entry)"
+  ],
+  "goal": null,
+  "notes": "Predictions committed in 3d1bece8 before the flow. 1,920 flow points (Yosys 0.70, OpenROAD 26Q3 from the nixpkgs cache), about 2 h on 4 cores; 272 ABC failures (the known 17 dch sequences). Outcome: SW 0.91% vs random 2.64% vs skip-r1 1.44%; predictions 1, 2, 4, 5 held, 3 and 6 refuted. New MIT designs xbar_w.v, gf2mat_w.v (SAT-miter equivalent to xbar.v, gf2mat.v at the original parameters) and sq_op.v. Checks: tests/test_fresh_designs.py, test_fresh_dear.py, test_switch_guard.py pass (11 tests); research/_homepage/build.py ok; check_md_links ok; research_live_links ok; check_post_frontmatter ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b84d899d-a432-57b0-83da-6f2838c540ca",
+    "transcripts": 1,
+    "first": "2026-11-11T11:17:46Z",
+    "last": "2026-11-11T13:27:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 148,
+        "output": 31997,
+        "thinking": 5988,
+        "cache_read": 8676273,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130388,
+        "api_equivalent_usd": 3.4189,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 148,
+      "output": 31997,
+      "thinking": 5988,
+      "cache_read": 8676273,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130388,
+      "api_equivalent_usd": 3.4189,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 129.74,
+      "active_minutes": 100.61,
+      "model_minutes": 7.66,
+      "tool_minutes": 92.95,
+      "waiting_on_human_minutes": 29.13,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design and verify three parameterised RTL designs, pre-register, run and babysit a 2 h EDA flow, analyse and write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 292.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

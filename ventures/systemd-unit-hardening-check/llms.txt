@@ -1,0 +1,18 @@
+# What can your systemd service do to the rest of the machine?
+
+> Paste a systemd .service file and its drop-ins: find services running as root, missing NoNewPrivileges, ProtectSystem, ProtectHome and PrivateTmp, passwords in Environment=, binaries in /tmp, curl | sh and CAP_SYS_ADMIN, each with its line and fix, plus a starter hardening drop-in for systemctl edit. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). A static read of the files you give it, not a security audit and not systemd-analyze security; a clean result is not proof a service is safe, and the starter drop-in can break a service until you test it.
+
+## Pages
+
+- [The tool](https://marisstella.app/systemd-unit-hardening-check/)
+- [systemd service hardening: each setting, what it blocks, what it breaks](https://marisstella.app/systemd-unit-hardening-check/systemd-service-hardening-explained.html)
+
+## CLI
+
+- `python3 check.py /etc/systemd/system/ --drop-in` scans units with their drop-ins merged and prints findings and a starter override; `--format json`, `--fail-on-risk` (exit 2 on medium or high), `--user-units`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/systemd-unit-hardening-check): MIT licensed, Python stdlib only.

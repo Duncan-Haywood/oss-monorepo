@@ -1,0 +1,41 @@
+# Milestone 113: milestone 111's cost-ratio switch on eight designs no earlier table ran (120 fresh sequences, two clocks)
+
+Parameters fixed from milestone 111: SW theta = 3; 200 draws per cell.
+
+clock | design | n | routed/r2 | k | skip-r1 % | random % | SW branch | SW %
+relaxed | adder_op32 | 103 | 2.01 | 55 | 0.00 | 0.22 | random | 0.22
+tight | adder_op32 | 103 | 2.75 | 42 | 0.00 | 0.46 | random | 0.46
+relaxed | barrel32 | 103 | 2.26 | 50 | 3.37 | 0.00 | random | 0.00
+tight | barrel32 | 103 | 2.42 | 47 | 3.38 | 0.00 | random | 0.00
+relaxed | gf2mat64 | 103 | 6.57 | 22 | 0.00 | 2.29 | ladder | 0.00
+tight | gf2mat64 | 103 | 14.43 | 14 | 0.00 | 3.46 | ladder | 0.00
+relaxed | mult18 | 103 | 5.48 | 25 | 10.48 | 1.00 | ladder | 10.48
+tight | mult18 | 103 | 15.76 | 14 | 0.00 | 5.07 | ladder | 0.00
+relaxed | mult22 | 103 | 7.00 | 21 | 0.00 | 3.57 | ladder | 0.00
+tight | mult22 | 103 | 19.38 | 12 | 2.73 | 2.89 | ladder | 2.73
+relaxed | popcount32 | 103 | 1.61 | 66 | 0.00 | 0.28 | random | 0.28
+tight | popcount32 | 103 | 1.93 | 57 | 3.04 | 0.35 | random | 0.35
+relaxed | sq20 | 103 | 5.90 | 24 | 0.00 | 4.48 | ladder | 0.00
+tight | sq20 | 103 | 18.68 | 13 | 0.00 | 5.70 | ladder | 0.00
+relaxed | xbar32x4 | 103 | 21.06 | 12 | 0.00 | 4.01 | ladder | 0.00
+tight | xbar32x4 | 103 | 58.94 | 9 | 0.00 | 8.40 | ladder | 0.00
+
+mean regret skip-r1: 1.44%, worst 10.48%; vs random better 12, worse 4 (sign p = 0.077)
+mean regret random: 2.64%, worst 8.40%; vs random better 0, worse 0 (sign p = 1.000)
+mean regret SW: 0.91%, worst 10.48%; vs random better 9, worse 1 (sign p = 0.021)
+mean regret oracle: 0.26%, worst 2.73%; vs random better 12, worse 0 (sign p = 0.000)
+SW vs skip-r1: better 3, worse 3, tied 10 (sign p = 1.000)
+
+cells with routed/r2 > 3: 10 of 16
+ratio > 3: skip-r1 1.32%, random 4.09% (10 cells)
+ratio <= 3: skip-r1 1.63%, random 0.22% (6 cells)
+design bootstrap 95% interval of mean (SW - random): -3.54 to +0.05 points
+design bootstrap 95% interval of mean (SW - skip-r1): -1.42 to +0.08 points
+planned descriptive line: SW mean regret at theta 2: 1.29%, 2.5: 0.88%, 4: 0.91%, 6: 0.60%
+
+(1) SW mean below random: True
+(2) SW mean below skip-r1: True
+(3) SW within 0.5 points of the oracle switch: False
+(4) routed/r2 > 3 in 6 to 12 of 16 cells: True
+(5) each branch's choice is the better one on average: True
+(6) mult22 relaxed skip-r1 above random: False
