@@ -50,7 +50,7 @@
     "docs/posts/2026-11-11-basil-and-the-soup-kitchen-at-caesarea.md"
   ],
   "goal": null,
-  "notes": "Creative track. Project: saints-by-candlelight; piece: basil-and-the-soup-kitchen-at-caesarea (episode 89, about 5,840 words, text only because audio is at 423 MB, over the 400 MB cap). Security queue empty; IDEAS.md and website requests empty. Adversarial fact check cut three details I couldn't source (mist on the Iris, the 'hut with no door' in Gregory's letter, the offer of a house to Elias) and moved Valens's gift of land to Theodoret. Checks: node generate.mjs --check-script ok; venture node --test 14/14 passed.",
+  "notes": "Creative track. Project: saints-by-candlelight; piece: basil-and-the-soup-kitchen-at-caesarea (episode 89, about 5,840 words, text only because audio is at 423 MB, over the 400 MB cap). Security queue empty; IDEAS.md and website requests empty. Adversarial fact check cut three details I couldn't source (mist on the Iris, the 'hut with no door' in Gregory's letter, the offer of a house to Elias) and moved Valens's gift of land to Theodoret. Checks: node generate.mjs --check-script ok; venture node --test 14/14 passed. run_workflow_locally --for-changes: all relevant workflows green except einvoice-preflight-ci (module not installed because pip step is a skipped uses:/setup step locally; unrelated to this diff) and distribution-versions hub tests, which failed on the first commit and pass 50/50 after trimming the post description to 160 characters. No PR check runs had appeared at merge time.",
   "corrections": [],
   "redteam": null,
   "usage": {
