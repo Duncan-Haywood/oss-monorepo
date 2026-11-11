@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVMSaVdcDqR34PKw8A9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T14:05:47Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 9) league-schedule-generator: close the carry-over search's gap to the floor",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14799",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "A first full test run was started before the last edits and killed; rerun after them."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook also refuses a bracketed pattern when the same word appears elsewhere in the command (a sed on the same file); it cost one retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Took flagship 9 (league-schedule-generator) instead of the top row: rows 1-5 had 46-94 commits in 7 days or open PRs, and the 'gap to the floor' item had a provable, testable win available (Russell's GF(2^k) construction).",
+      "did": "field start at power-of-two sizes",
+      "result": "16 teams 316 -> 224 (floor); 16-team season 1,048 -> 912 (floor)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-sixteen-teams-perfect-carry-over.md",
+    "ventures/league-schedule-generator/README.md (Perfect carry-over at 4, 8, 16 and 32 teams)"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test field.test.mjs 5/5; full venture suite node --test *.test.mjs (see PR); eval/field-start.mjs output committed; scratch best-of-k run at 16 teams double: balanced pick 996/48 vs 1,220/54 before. venture-preflight run in background.",
+  "corrections": [],
+  "redteam": null
+}

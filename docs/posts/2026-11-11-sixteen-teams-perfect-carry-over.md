@@ -3,7 +3,7 @@ title: "Sixteen teams, perfectly fair: a schedule built from a finite field"
 seo_title: "Round robin with perfect carry-over for 8, 16 or 32 teams"
 date: 2026-11-11
 tags: [league-schedule-generator, scheduling, algorithms, finite-fields]
-description: "For 16 teams our carry-over search stopped 41% above the best possible value. A 1980 construction from GF(16) reaches the best possible value exactly, and now the tool starts from it."
+description: "For 16 teams our carry-over search stopped 41% above the best possible value. A 1980 finite-field construction reaches it exactly."
 ---
 
 *Carry-over* is about who you play straight after whom. If the Lions
