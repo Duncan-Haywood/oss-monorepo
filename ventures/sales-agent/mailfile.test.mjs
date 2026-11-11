@@ -119,6 +119,9 @@ test("an unescaped body line starting with From after a blank line stays in the 
   assert.match(got[0], /From a security standpoint[\s\S]*Omar/);
   assert.match(got[1], /From the product side, SSO blocks five deals\./); // the last line of the file too
   assert.equal(s.unescapedFrom, 2);
+  // A URL on the next line is not a header (seven Enron messages written unescaped split on "From the Editor" + "http://...").
+  const url = []; const u = new MboxSplitter((m) => url.push(m)); u.push(`From 1@x Thu Nov 05 10:00:00 +0000 2026\nFrom: a@x.example\n\nRead this.\n\nFrom the Editor BY JAMES TARANTO\nhttp://www.example.com/columnists/\n`); u.end();
+  assert.equal(url.length, 1);
   const r = readMailTexts([{ name: "x.mbox", text }]);
   assert.deepEqual([r.stats.messages, r.stats.kept, r.stats.noText], [2, 2, 0]);
 });

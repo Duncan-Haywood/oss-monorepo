@@ -34,7 +34,7 @@ export const isMbox = (text) => /^\s*From \S+/.test(String(text || "").slice(0, 
 
 // A header field line (RFC 5322 field name, then a colon) and an mbox envelope line ("From 1538...@xxx Thu Jun 30
 // 12:31:44 +0000 2016" from Takeout, "From - Thu Feb 23 19:37:30 2017" from Thunderbird, "From a@b Mon Jan  1 2001").
-const HEADER_LINE = /^[\x21-\x39\x3b-\x7e]+:/;
+const HEADER_LINE = /^[\x21-\x39\x3b-\x7e]+:(?:[ \t]|$)/; // not "http://..."
 const ENVELOPE = /^From \S+ +(?:(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b.*\b(?:19|20)\d\d\b|.*\b\d{1,2}:\d\d(?::\d\d)?\b.*\b(?:19|20)\d\d\b)/;
 
 /**

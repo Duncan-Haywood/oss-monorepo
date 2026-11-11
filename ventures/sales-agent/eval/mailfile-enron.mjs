@@ -4,7 +4,10 @@
 // read back through mailfile.mjs (MboxSplitter, createCollector) and parsed as pasted replies, then compared item by item
 // with the server's own read of each message (replyBlocks, then parseReplies(block)[0]): from, subject, body, signals.
 //
-//   node --max-old-space-size=8000 eval/mailfile-enron.mjs <dir> [--write out.mbox]
+//   node --max-old-space-size=8000 eval/mailfile-enron.mjs <dir> [--write out.mbox] [--mboxo]
+//
+// --mboxo writes the mbox without escaping body lines that start with "From " (as some exporters do) and also reports
+// how many messages the splitter recovered whole: added 2026-11-11 with the envelope check in MboxSplitter.
 import fs from "node:fs";
 import path from "node:path";
 import { MboxSplitter, createCollector } from "../mailfile.mjs";
@@ -16,7 +19,9 @@ if (!dir) { console.error("usage: node eval/mailfile-enron.mjs <dir of Enron mes
 const files = [];
 (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (!p.endsWith(".xz")) files.push(p); } })(dir);
 files.sort();
-const mbox = files.map((f, i) => { const m = fs.readFileSync(f, "utf8"); return `From ${i}@enron Mon Jan 01 00:00:00 2001\n${m.replace(/\r\n/g, "\n").replace(/^(>*From )/gm, ">$1")}${m.endsWith("\n") ? "" : "\n"}\n`; }).join("");
+const mboxo = process.argv.includes("--mboxo");
+const originals = files.map((f) => fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n"));
+const mbox = originals.map((m, i) => `From ${i}@enron Mon Jan 01 00:00:00 2001\n${mboxo ? m : m.replace(/^(>*From )/gm, ">$1")}${m.endsWith("\n") ? "" : "\n"}\n`).join("");
 const w = process.argv.indexOf("--write"); if (w > 0) fs.writeFileSync(process.argv[w + 1], mbox);
 
 let t = Date.now();
@@ -47,3 +52,9 @@ console.log(`file items ${got.length}, server items ${want.length}: identical ${
 for (const i of diffs) console.log(`  differs at ${i}: ${got[i]?.from} "${got[i]?.subject}"`);
 const r = createCollector(); raws.forEach((x) => r.add(x));
 console.log(`replies only (the page's default): ${JSON.stringify(r.finish().stats)}`);
+if (mboxo) {
+  // A split at every "From " line after a blank line (this splitter before 2026-11-11, and Python's mailbox module) would
+  // cut each message holding one; count them, and the splits the envelope check still makes.
+  const naive = originals.filter((m) => /\n\nFrom /.test(m.slice(m.search(/\n\n/) + 1) || "") || /\n\nFrom /.test(m)).length;
+  console.log(`mboxo: ${naive} of ${files.length} messages hold a "From " line after a blank line; split into ${raws.length} messages (${sp.unescapedFrom} candidate lines kept as body); ${raws.length - files.length} extra splits`);
+}
