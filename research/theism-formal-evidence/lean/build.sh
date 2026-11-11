@@ -2,7 +2,7 @@
 # Build the Lean files and print the axioms each headline theorem uses.
 # If `lake` is not on PATH, fetch the toolchain named in lean-toolchain from the
 # Lean 4 GitHub release (a tarball; no installer script runs) into $LEAN_HOME.
-# Needs curl and zstd (apt-get install -y zstd).
+# Needs curl and zstd (apt-get update -qq && apt-get install -y zstd; the install alone fails in a fresh container).
 set -euo pipefail
 cd "$(dirname "$0")"
 if ! command -v lake >/dev/null 2>&1; then
