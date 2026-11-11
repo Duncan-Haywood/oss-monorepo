@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23245a52'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3ES%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kaplan-Meier Calculator, Log-Rank Test and Cox Regression Online — free survival analysis</title>
+  <meta name="description" content="Free Kaplan-Meier survival curve calculator with log-rank test and Cox proportional hazards regression. Paste a CSV of times and events, compare groups, and get median survival with confidence intervals, hazard ratios, a proportional-hazards check and concordance. Checked against lifelines and statsmodels. Runs in your browser; nothing is uploaded.">
+  <meta property="og:title" content="Kaplan-Meier, log-rank and Cox regression — free, private, in your browser">
+  <meta property="og:description" content="Survival curves, median time to event, log-rank tests and hazard ratios for your own CSV: churn, time to failure, time to relapse.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Survival Analysis: Kaplan-Meier, Log-Rank and Cox Regression", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a CSV with a time column and an event column, optionally a group and covariates, and get Kaplan-Meier survival curves with Greenwood confidence bands, median and restricted mean survival time, the log-rank, Gehan-Breslow and Tarone-Ware tests, and a Cox proportional hazards model with Efron or Breslow ties, hazard ratios, likelihood-ratio, Wald and score tests, a Schoenfeld-residual proportional-hazards check and Harrell's concordance. Runs in your browser.", "featureList": "Kaplan-Meier calculator, survival curve online, log-rank test calculator, Cox proportional hazards regression online, hazard ratio calculator, median survival time with confidence interval, restricted mean survival time, Gehan-Breslow Wilcoxon test, Tarone-Ware test, Schoenfeld residual proportional hazards test, Harrell's C concordance, customer churn survival analysis, CSV download", "citation": ["https://doi.org/10.1080/01621459.1958.10501452", "https://doi.org/10.1111/j.2517-6161.1972.tb00899.x", "https://doi.org/10.1080/01621459.1977.10480613", "https://doi.org/10.1093/biomet/81.3.515"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does a Kaplan-Meier curve show?", "acceptedAnswer": {"@type": "Answer", "text": "The share of subjects who have not yet had the event (died, relapsed, churned, failed) at each time, estimated so that subjects who left the study early still count for as long as they were watched. Those subjects are called censored: you know they lasted at least that long, not how long in total."}}, {"@type": "Question", "name": "What does my CSV need?", "acceptedAnswer": {"@type": "Answer", "text": "One row per subject, a header row, a column with the time from that subject's start to the event or to the end of follow-up, and a column saying whether the event happened (1/0, true/false, yes/no or event/censored). Add a group column to compare curves, and numeric or text columns as Cox covariates."}}, {"@type": "Question", "name": "What is the difference between the log-rank test and Cox regression?", "acceptedAnswer": {"@type": "Answer", "text": "The log-rank test asks whether the groups' curves differ at all. Cox regression estimates by how much: a hazard ratio of 2 means the event rate in that group is twice the reference group's at every time, and it can adjust for other covariates at the same time."}}, {"@type": "Question", "name": "Why does the median say not reached?", "acceptedAnswer": {"@type": "Answer", "text": "Fewer than half of that group had the event by the last time anyone was observed, so the curve never drops to 50% and the median cannot be estimated from these data. The same applies to the upper end of a confidence interval."}}, {"@type": "Question", "name": "What is the proportional-hazards check?", "acceptedAnswer": {"@type": "Answer", "text": "A Cox model assumes each hazard ratio is constant over time. The check (Grambsch and Therneau 1994) tests whether each term's scaled Schoenfeld residuals trend against time. A small p-value means the effect seems to grow or fade, so the single hazard ratio is an average over a changing effect."}}, {"@type": "Question", "name": "Which test should I pick: log-rank, Gehan-Breslow or Tarone-Ware?", "acceptedAnswer": {"@type": "Answer", "text": "Decide before you look at the data. The log-rank test weights every event time equally and is most powerful when hazards are proportional. Gehan-Breslow weights early times, where more subjects are at risk, and Tarone-Ware sits between the two."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The CSV is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f5f4; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d5f56; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #1d4740; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #1d4740; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5a57; }
+    .card { background: #fff; border: 1px solid #d6e0dd; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #1d474010; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6a8a84; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    select[multiple] { min-height: 110px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d5f56; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2eeeb; color: #1d4740; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6ecea; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5a57; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0dd; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #6a8a84; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 5px; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f4f7f6; border: 1px solid #e0e7e5; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">KAPLAN-MEIER · LOG-RANK · COX REGRESSION · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>How long until it happens, and does the group matter?</h1>
+    <p>Paste a CSV with how long each subject was watched and whether the event happened: a customer cancelling, a machine failing, a patient relapsing, an invoice getting paid. You get <strong>Kaplan-Meier survival curves</strong> with confidence bands, the <strong>median time to event</strong> with its interval, a <strong>log-rank test</strong> of whether groups differ, and a <strong>Cox proportional hazards model</strong> with hazard ratios, a check of its key assumption and a concordance score. Subjects still waiting at the end (censored) count for as long as they were watched.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice, and not medical advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your data</h2>
+    <label for="csv">CSV with a header row: one row per subject, a time column and an event column (comma, tab or semicolon)</label>
+    <textarea id="csv" spellcheck="false" placeholder="time,event,plan&#10;12,1,basic&#10;30,0,pro&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: leukaemia remission, 6-MP vs placebo (42 patients)</button>
+    <p class="note" id="data-status">Rows with a missing value in a column you use are left out and counted.</p>
+
+    <div class="grid">
+      <div><label for="time">Time column (duration from each subject's start)</label><select id="time"></select></div>
+      <div><label for="event">Event column (1 = happened, 0 = censored)</label><select id="event"></select></div>
+      <div><label for="event-value">Value that means "event" (blank: detect)</label><input id="event-value" placeholder="e.g. cancelled"></div>
+      <div><label for="group">Compare groups by</label><select id="group"></select></div>
+      <div><label for="reference">Reference group for hazard ratios</label><select id="reference"></select></div>
+      <div><label for="covariates">Cox covariates (Ctrl/Cmd-click for several)</label><select id="covariates" multiple></select></div>
+      <div><label for="test">Test of equal curves</label><select id="test"><option value="logrank" selected>Log-rank</option><option value="wilcoxon">Gehan-Breslow (Wilcoxon)</option><option value="tarone-ware">Tarone-Ware</option></select></div>
+      <div><label for="ties">Tied event times in Cox</label><select id="ties"><option value="efron" selected>Efron</option><option value="breslow">Breslow</option></select></div>
+      <div><label for="confidence">Confidence level</label><select id="confidence"><option value="0.9">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+      <div><label for="tau">Horizon for restricted mean (blank: shortest follow-up)</label><input id="tau" inputmode="decimal" placeholder="auto"></div>
+    </div>
+    <button type="button" id="analyze">Analyse</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="warnings"></div>
+    <div id="chart" role="img" aria-label="Kaplan-Meier survival curves with confidence bands"></div>
+    <p class="legend" id="legend"></p>
+    <h3>Groups</h3>
+    <div class="scroll">
+      <table id="groups-table">
+        <thead><tr><th>Group</th><th class="n">Subjects</th><th class="n">Events</th><th class="n">Censored</th><th class="n">Median</th><th class="n">CI for median</th><th class="n">Restricted mean</th><th class="n">Observed / expected</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p id="test-line"></p>
+    <div id="cox-block" hidden>
+      <h3>Cox proportional hazards model</h3>
+      <div class="scroll">
+        <table id="cox-table">
+          <thead><tr><th>Term</th><th class="n">Coefficient</th><th class="n">Std error</th><th class="n">Hazard ratio</th><th class="n">CI</th><th class="n">p</th><th class="n">PH check p</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="note" id="cox-tests"></p>
+    </div>
+    <button type="button" class="secondary" id="download">Download curves (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Kaplan-Meier</strong> (Kaplan &amp; Meier 1958): at each time <em>t<sub>i</sub></em> with <em>d<sub>i</sub></em> events among <em>n<sub>i</sub></em> still at risk, the curve is multiplied by <code>1 - d_i / n_i</code>. Subjects censored at <em>t<sub>i</sub></em> are still counted at risk at <em>t<sub>i</sub></em>. The standard error is Greenwood's (1926), <code>S(t) * sqrt(sum d_i / (n_i (n_i - d_i)))</code>, and the band is built on the log(&minus;log S) scale so it stays between 0 and 1. The median is the first time the curve is at or below 0.5; its interval is where the band crosses 0.5. The restricted mean is the area under the curve up to the horizon: the average event-free time within it.</p>
+    <p><strong>Log-rank test</strong> (Mantel 1966): at every event time, each group's expected events are its share of those at risk times the events; the statistic compares observed with expected, summed over times, using the hypergeometric covariance, on (groups &minus; 1) degrees of freedom. Gehan-Breslow weights each time by the number at risk, Tarone-Ware by its square root.</p>
+    <p><strong>Cox regression</strong> (Cox 1972): the hazard is <code>h0(t) * exp(b1 x1 + ... + bp xp)</code> with the baseline <em>h0</em> left unspecified, fitted by maximising the partial likelihood with Newton-Raphson. Tied event times use Efron's (1977) approximation or Breslow's. A group column becomes one 0/1 term per group against the reference; text covariates likewise against their first value. Reported: coefficients, standard errors from the inverse information, Wald intervals for the hazard ratios, likelihood-ratio, Wald and score tests, Harrell's concordance (Harrell et al. 1982) and, per term, the Grambsch &amp; Therneau (1994) test of scaled Schoenfeld residuals against 1 &minus; KM(<em>t</em>).</p>
+    <p>Verified by tests in the source against independent implementations: every curve value and band, median and interval, restricted mean, log-rank statistic, Cox coefficient, standard error, log-likelihood, likelihood-ratio test, concordance and proportional-hazards statistic on the example and on three seeded data sets with heavy ties, three groups and a text covariate, against <strong>lifelines 0.30.3</strong> and <strong>statsmodels 0.15.0</strong> (Cox coefficients agree with statsmodels to 1e-8); the weighted tests against statsmodels' <code>survdiff</code>; and pinned values for the example (log-rank 16.79; Efron hazard ratio 4.82; likelihood-ratio 16.35, Wald 14.53, score 17.25).</p>
+    <h3>BibTeX</h3>
+    <pre>@article{kaplan1958nonparametric,
+  author  = {Kaplan, E. L. and Meier, Paul},
+  title   = {Nonparametric Estimation from Incomplete Observations},
+  journal = {Journal of the American Statistical Association},
+  volume  = {53}, number = {282}, pages = {457--481}, year = {1958},
+  doi     = {10.1080/01621459.1958.10501452}
+}
+@article{mantel1966evaluation,
+  author  = {Mantel, Nathan},
+  title   = {Evaluation of Survival Data and Two New Rank Order Statistics Arising in Its Consideration},
+  journal = {Cancer Chemotherapy Reports},
+  volume  = {50}, number = {3}, pages = {163--170}, year = {1966}
+}
+@article{cox1972regression,
+  author  = {Cox, D. R.},
+  title   = {Regression Models and Life-Tables},
+  journal = {Journal of the Royal Statistical Society, Series B},
+  volume  = {34}, number = {2}, pages = {187--220}, year = {1972},
+  doi     = {10.1111/j.2517-6161.1972.tb00899.x}
+}
+@article{efron1977efficiency,
+  author  = {Efron, Bradley},
+  title   = {The Efficiency of Cox's Likelihood Function for Censored Data},
+  journal = {Journal of the American Statistical Association},
+  volume  = {72}, number = {359}, pages = {557--565}, year = {1977},
+  doi     = {10.1080/01621459.1977.10480613}
+}
+@article{grambsch1994proportional,
+  author  = {Grambsch, Patricia M. and Therneau, Terry M.},
+  title   = {Proportional Hazards Tests and Diagnostics Based on Weighted Residuals},
+  journal = {Biometrika},
+  volume  = {81}, number = {3}, pages = {515--526}, year = {1994},
+  doi     = {10.1093/biomet/81.3.515}
+}
+@article{harrell1982evaluating,
+  author  = {Harrell, Frank E., Jr. and Califf, Robert M. and Pryor, David B. and Lee, Kerry L. and Rosati, Robert A.},
+  title   = {Evaluating the Yield of Medical Tests},
+  journal = {JAMA},
+  volume  = {247}, number = {18}, pages = {2543--2546}, year = {1982},
+  doi     = {10.1001/jama.1982.03320430047030}
+}
+@article{freireich1963effect,
+  author  = {Freireich, Emil J. and others},
+  title   = {The Effect of 6-Mercaptopurine on the Duration of Steroid-Induced Remissions in Acute Leukemia},
+  journal = {Blood},
+  volume  = {21}, number = {6}, pages = {699--716}, year = {1963}
+}</pre>
+    <p class="note">This is an independent implementation from the papers' mathematics; no code from the authors or from other libraries was copied. lifelines and statsmodels were used only to produce the reference numbers the tests check against.</p>
+    <h3>Example data</h3>
+    <p>"Load example" uses the remission data of Freireich et al. (1963), <em>Blood</em> 21(6): 42 children with acute leukaemia in remission, given 6-mercaptopurine (6-MP) or placebo, with the weeks until relapse or until follow-up ended (<code>relapsed</code> = 0 means still in remission, censored). The <code>sex</code> and <code>logWBC</code> (log white blood cell count) columns come from the version in Kleinbaum &amp; Klein's textbook <em>Survival Analysis: A Self-Learning Text</em>, as redistributed in the MIT-licensed lifelines package. It is bundled with this page, so loading it makes no network request.</p>
+  </section>
+
+  <section class="card">
+    <h2>Limits</h2>
+    <ul>
+      <li><strong>Independent censoring.</strong> Every method here assumes that a subject who is censored had the same outlook as those still watched. If people leave follow-up because they are about to have the event (or because they are doing well), the curves are biased and nothing in the data can show it.</li>
+      <li><strong>Proportional hazards.</strong> A Cox hazard ratio is one number for the whole follow-up. When the check flags a term, the effect changes over time; report curves or split time instead of leaning on that ratio.</li>
+      <li><strong>Small samples.</strong> Bands, tests and Wald intervals are large-sample approximations. With few events per Cox term (under about 10) estimates are unstable, and when a term perfectly separates who fails first the coefficient is infinite: the tool warns rather than printing a number you should trust.</li>
+      <li><strong>Concordance is in-sample.</strong> It is measured on the rows the model was fitted on, so it flatters the model.</li>
+      <li><strong>Right censoring only.</strong> Every subject starts at time 0 and is followed until the event or censoring.</li>
+      <li><strong>Not modelled:</strong> late entry (left truncation), time-varying covariates, strata, competing risks, frailty or clustering, interval censoring, weights, and parametric (Weibull, log-normal) models.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What does a Kaplan-Meier curve show?</h3>
+    <p>The share of subjects who have not yet had the event (died, relapsed, churned, failed) at each time, estimated so that subjects who left the study early still count for as long as they were watched. Those subjects are called censored: you know they lasted at least that long, not how long in total.</p>
+    <h3>What does my CSV need?</h3>
+    <p>One row per subject, a header row, a column with the time from that subject's start to the event or to the end of follow-up, and a column saying whether the event happened (1/0, true/false, yes/no or event/censored). Add a group column to compare curves, and numeric or text columns as Cox covariates.</p>
+    <h3>What is the difference between the log-rank test and Cox regression?</h3>
+    <p>The log-rank test asks whether the groups' curves differ at all. Cox regression estimates by how much: a hazard ratio of 2 means the event rate in that group is twice the reference group's at every time, and it can adjust for other covariates at the same time.</p>
+    <h3>Why does the median say not reached?</h3>
+    <p>Fewer than half of that group had the event by the last time anyone was observed, so the curve never drops to 50% and the median cannot be estimated from these data. The same applies to the upper end of a confidence interval.</p>
+    <h3>What is the proportional-hazards check?</h3>
+    <p>A Cox model assumes each hazard ratio is constant over time. The check (Grambsch and Therneau 1994) tests whether each term's scaled Schoenfeld residuals trend against time. A small p-value means the effect seems to grow or fade, so the single hazard ratio is an average over a changing effect.</p>
+    <h3>Which test should I pick: log-rank, Gehan-Breslow or Tarone-Ware?</h3>
+    <p>Decide before you look at the data. The log-rank test weights every event time equally and is most powerful when hazards are proportional. Gehan-Breslow weights early times, where more subjects are at risk, and Tarone-Ware sits between the two.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The CSV is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; they do not guarantee what will happen for any particular case, and they are not medical advice. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs data.csv --time weeks --event relapsed --group treatment</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/survival-analysis" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns and anomalies.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, parseCsv, formatP } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const num = (v) => (v === Infinity ? "not reached" : typeof v !== "number" || !Number.isFinite(v) ? "—" : Math.abs(v) >= 100 ? v.toFixed(1) : Math.abs(v) >= 1 ? v.toFixed(2) : v.toPrecision(3));
+    const COLORS = ["#1d5f56", "#b4541b", "#4b4fa6", "#8a6d0b", "#a3336b", "#2f7d32", "#5d6b78", "#7b3fa0"];
+    let last = null;
+
+    function opts(cols, numericOnly, p, blank) {
+      return (blank ? `<option value="">${blank}</option>` : "") + cols.map((c) => { const j = p.columns.indexOf(c); const dis = numericOnly && !p.numeric[j]; return `<option value="${esc(c)}"${dis ? " disabled" : ""}>${esc(c)}${dis ? " (not numeric)" : ""}</option>`; }).join("");
+    }
+    const guess = (cols, re) => cols.find((c) => re.test(c)) || "";
+    function refreshColumns() {
+      const p = parseCsv($("#csv").value);
+      if (p.error) { for (const id of ["#time", "#event", "#group", "#covariates", "#reference"]) $(id).innerHTML = ""; $("#data-status").textContent = $("#csv").value.trim() ? p.error : "Paste a CSV or load the example."; return; }
+      const prev = { t: $("#time").value, e: $("#event").value, g: $("#group").value };
+      $("#time").innerHTML = opts(p.columns, true, p);
+      $("#event").innerHTML = opts(p.columns, false, p);
+      $("#group").innerHTML = opts(p.columns, false, p, "No groups (one curve)");
+      $("#time").value = p.columns.includes(prev.t) ? prev.t : guess(p.columns, /^(time|times|duration|t|weeks|days|months|years|tenure|futime)$/i) || p.columns.find((_, j) => p.numeric[j]) || "";
+      $("#event").value = p.columns.includes(prev.e) ? prev.e : guess(p.columns, /^(event|status|e|dead|death|died|churned|churn|observed|relapsed|failed)$/i) || p.columns[1] || "";
+      $("#group").value = p.columns.includes(prev.g) ? prev.g : "";
+      fillDependent(p);
+      $("#data-status").textContent = `${p.rows.length} rows, ${p.columns.length} columns.`;
+    }
+    function fillDependent(p) {
+      const t = $("#time").value, e = $("#event").value, g = $("#group").value;
+      const prevCov = new Set([...$("#covariates").selectedOptions].map((o) => o.value));
+      $("#covariates").innerHTML = p.columns.filter((c) => c !== t && c !== e && c !== g).map((c) => `<option value="${esc(c)}"${prevCov.has(c) ? " selected" : ""}>${esc(c)}</option>`).join("");
+      const levels = g ? [...new Set(p.rows.map((r) => r[p.columns.indexOf(g)]))].slice(0, 20) : [];
+      $("#reference").innerHTML = `<option value="">First group seen</option>` + levels.map((l) => `<option value="${esc(l)}">${esc(l)}</option>`).join("");
+    }
+    $("#csv").addEventListener("input", refreshColumns);
+    for (const id of ["#time", "#event", "#group"]) $(id).addEventListener("change", () => fillDependent(parseCsv($("#csv").value)));
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshColumns();
+    });
+
+    function inputs() {
+      return {
+        csv: $("#csv").value,
+        time: $("#time").value,
+        event: $("#event").value,
+        eventValue: $("#event-value").value,
+        group: $("#group").value,
+        reference: $("#reference").value,
+        covariates: [...$("#covariates").selectedOptions].map((o) => o.value),
+        test: $("#test").value,
+        ties: $("#ties").value,
+        confidence: Number($("#confidence").value),
+        tau: $("#tau").value,
+      };
+    }
+
+    function chart(r) {
+      const W = 820, H = 360, L = 50, R = 14, T = 12, B = 40;
+      const tMax = Math.max(...r.groups.map((g) => g.maxTime)) || 1;
+      const sx = (t) => L + (t / tMax) * (W - L - R);
+      const sy = (s) => T + (1 - s) * (H - T - B);
+      let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+      for (const v of [0, 0.25, 0.5, 0.75, 1]) s += `<line x1="${L}" x2="${W - R}" y1="${sy(v)}" y2="${sy(v)}" stroke="${v === 0.5 ? "#c9d4d1" : "#edf1f0"}"${v === 0.5 ? ' stroke-dasharray="4 3"' : ""}/><text x="${L - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="11" fill="#4b5a57">${Math.round(v * 100)}%</text>`;
+      for (let i = 0; i <= 5; i++) { const t = (tMax * i) / 5; s += `<text x="${sx(t).toFixed(1)}" y="${H - 22}" text-anchor="middle" font-size="11" fill="#4b5a57">${esc(num(t))}</text>`; }
+      r.groups.forEach((g, gi) => {
+        const col = COLORS[gi % COLORS.length];
+        let path = `M${sx(0)},${sy(1)}`, upper = [[0, 1]], lower = [[0, 1]], S = 1, lo = 1, hi = 1;
+        for (const k of g.km) {
+          path += ` H${sx(k.time).toFixed(1)} V${sy(k.survival).toFixed(1)}`;
+          upper.push([k.time, hi], [k.time, k.hi]); lower.push([k.time, lo], [k.time, k.lo]);
+          S = k.survival; lo = k.lo; hi = k.hi;
+        }
+        path += ` H${sx(g.maxTime).toFixed(1)}`;
+        upper.push([g.maxTime, hi]); lower.push([g.maxTime, lo]);
+        const band = upper.map(([t, v]) => `${sx(t).toFixed(1)},${sy(v).toFixed(1)}`).concat(lower.reverse().map(([t, v]) => `${sx(t).toFixed(1)},${sy(v).toFixed(1)}`)).join(" ");
+        s += `<polygon points="${band}" fill="${col}" opacity="0.12"/>`;
+        s += `<path d="${path}" fill="none" stroke="${col}" stroke-width="2"/>`;
+        for (const k of g.km) if (k.censored) s += `<line x1="${sx(k.time).toFixed(1)}" x2="${sx(k.time).toFixed(1)}" y1="${(sy(k.survival) - 5).toFixed(1)}" y2="${(sy(k.survival) + 5).toFixed(1)}" stroke="${col}" stroke-width="1.5"><title>${esc(g.name)}: ${k.censored} censored at ${esc(num(k.time))}</title></line>`;
+      });
+      s += `<text x="${(L + W - R) / 2}" y="${H - 6}" text-anchor="middle" font-size="12" fill="#4b5a57">${esc(r.columns.time)} (ticks mark censored subjects; shading is the ${Math.round(r.confidence * 100)}% band)</text></svg>`;
+      return s;
+    }
+
+    function show(r) {
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#chart").innerHTML = chart(r);
+      $("#legend").innerHTML = r.groups.map((g, i) => `<span><i class="swatch" style="background:${COLORS[i % COLORS.length]}"></i>${esc(g.name)}</span>`).join("");
+      $("#groups-table tbody").innerHTML = r.groups.map((g, i) => `<tr><td>${esc(g.name)}</td><td class="n">${g.n}</td><td class="n">${g.events}</td><td class="n">${g.censored}</td><td class="n">${esc(num(g.median))}</td><td class="n">${esc(num(g.medianLo))} to ${esc(num(g.medianHi))}</td><td class="n">${esc(num(g.rmst))}</td><td class="n">${r.logrank ? `${r.logrank.observed[i]} / ${r.logrank.expected[i].toFixed(2)}` : "—"}</td></tr>`).join("");
+      $("#test-line").textContent = r.logrank ? `${r.logrank.name}: chi-square ${r.logrank.chiSquare.toFixed(3)} on ${r.logrank.df} degree${r.logrank.df === 1 ? "" : "s"} of freedom, p = ${formatP(r.logrank.p)}. Restricted mean up to ${num(r.tau)}.${r.logrank.note ? " " + r.logrank.note : ""}` : `Restricted mean up to ${num(r.tau)}. Pick a group column to test whether curves differ.`;
+      $("#cox-block").hidden = !r.cox;
+      if (r.cox) {
+        const c = r.cox;
+        $("#cox-table tbody").innerHTML = c.terms.map((t) => `<tr><td>${esc(t.name)}</td><td class="n">${t.coef.toFixed(4)}</td><td class="n">${t.se.toFixed(4)}</td><td class="n">${esc(num(t.hr))}</td><td class="n">${esc(num(t.hrLo))} to ${esc(num(t.hrHi))}</td><td class="n">${formatP(t.p)}</td><td class="n">${t.ph ? formatP(t.ph.p) : "—"}</td></tr>`).join("");
+        $("#cox-tests").textContent = `${c.n} rows, ${c.events} events, ${c.ties} ties, ${c.iterations} Newton steps. Likelihood ratio ${c.lr.chiSquare.toFixed(3)} (p ${formatP(c.lr.p)}), Wald ${c.wald.chiSquare.toFixed(3)} (p ${formatP(c.wald.p)}), score ${c.score.chiSquare.toFixed(3)} (p ${formatP(c.score.p)}) on ${c.lr.df} df. Concordance (Harrell's C, in-sample) ${c.concordance.toFixed(3)}: 0.5 is a coin flip, 1 orders every comparable pair correctly.`;
+      }
+    }
+
+    function runAnalysis() {
+      const r = analyze(inputs());
+      if (r.error) { $("#status").textContent = r.error; $("#results").hidden = true; last = null; return false; }
+      last = r;
+      $("#status").textContent = `Done: ${r.rows.used} subjects, ${r.rows.events} events, ${r.groups.length} group${r.groups.length === 1 ? "" : "s"}.`;
+      show(r);
+      return true;
+    }
+    $("#analyze").addEventListener("click", () => { if (runAnalysis()) record("analysis_run"); });
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshColumns();
+      $("#time").value = "weeks"; $("#event").value = "relapsed"; $("#group").value = "treatment";
+      fillDependent(parseCsv(EXAMPLE_CSV));
+      for (const o of $("#covariates").options) o.selected = o.value === "logWBC";
+      if (runAnalysis()) { record("example_loaded"); $("#data-status").textContent = "Example: Freireich et al. (1963), 42 children with leukaemia in remission, weeks to relapse on 6-MP or placebo; logWBC is the log white blood cell count."; }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const lines = ["group,time,at_risk,events,censored,survival,std_err,lower,upper"];
+      for (const g of last.groups) for (const k of g.km) lines.push([JSON.stringify(String(g.name)), k.time, k.atRisk, k.events, k.censored, k.survival, k.se, k.lo, k.hi].join(","));
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([lines.join("\n") + "\n"], { type: "text/csv" }));
+      a.download = "kaplan-meier-curves.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

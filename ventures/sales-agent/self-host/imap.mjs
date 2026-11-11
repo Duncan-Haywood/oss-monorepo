@@ -69,13 +69,42 @@ export class Imap {
     const last = r.lines.at(-1);
     if (!new RegExp(`^${tag} OK`, "i").test(last)) throw new Error("XOAUTH2 " + last.replace(/^A\d+ /, "").slice(0, 200));
   }
-  async examine(box = "INBOX") { await this.cmd(`EXAMINE ${q(box)}`); }
+  // Returns { uidValidity } so a caller can tell a rebuilt mailbox (new UIDs) from new mail in the old one.
+  async examine(box = "INBOX") { const r = await this.cmd(`EXAMINE ${q(box)}`); const v = r.lines.map((l) => l.match(/\[UIDVALIDITY (\d+)\]/i)).find(Boolean); return { uidValidity: v ? Number(v[1]) : null }; }
+  // LIST "" "*": every mailbox as { name, flags }. Names are returned as the server sends them (quoted or a literal).
+  async list() {
+    const r = await this.cmd(`LIST "" "*"`);
+    let lit = 0;
+    return r.lines.filter((l) => /^\* LIST /i.test(l)).map((l) => {
+      const m = l.match(/^\* LIST \(([^)]*)\) (?:"(?:[^"\\]|\\.)*"|NIL) (.*)$/i);
+      if (!m) return null;
+      let name = m[2].trim();
+      if (/^\{\d+\}$/.test(name)) name = r.literals[lit++] || "";
+      else if (name.startsWith('"')) name = name.slice(1, -1).replace(/\\(.)/g, "$1");
+      return { name, flags: m[1].split(/\s+/).filter(Boolean).map((f) => f.toLowerCase()) };
+    }).filter(Boolean);
+  }
+  // Only the named header fields, read-only (BODY.PEEK): what the Sent-folder read needs, a few hundred bytes a message.
+  async fetchHeaders(uid, fields = ["DATE", "TO", "CC", "SUBJECT", "MESSAGE-ID"]) {
+    const r = await this.cmd(`UID FETCH ${uid} (BODY.PEEK[HEADER.FIELDS (${fields.join(" ")})])`);
+    return r.literals[0] || "";
+  }
   async search(criteria) { const r = await this.cmd(`UID SEARCH ${criteria}`); const l = r.lines.find((x) => x.startsWith("* SEARCH")); return l ? l.slice(8).trim().split(/\s+/).filter(Boolean).map(Number) : []; }
   async fetchRaw(uid, maxBytes = 200000) {
     const r = await this.cmd(`UID FETCH ${uid} (BODY.PEEK[]<0.${maxBytes}>)`);
     return r.literals[0] || "";
   }
   async logout() { try { await this.cmd("LOGOUT"); } catch {} this.sock?.destroy(); }
+}
+
+// The Sent folder by its RFC 6154 \Sent attribute (Gmail's "[Gmail]/Sent Mail", Outlook's "Sent Items", a localised name),
+// else by the usual English names. null when there is none, so the caller can say so instead of reading INBOX twice.
+const SENT_NAMES = ["sent", "sent items", "sent mail", "sent messages", "[gmail]/sent mail", "inbox.sent", "inbox/sent", "inbox.sent items", "inbox.sent messages"];
+export function findSentBox(boxes) {
+  const special = boxes.find((b) => b.flags.includes("\\sent"));
+  if (special) return special.name;
+  for (const n of SENT_NAMES) { const b = boxes.find((x) => x.name.toLowerCase() === n && !x.flags.includes("\\noselect")); if (b) return b.name; }
+  return null;
 }
 
 // ---------- MIME ----------

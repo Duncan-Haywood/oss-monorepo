@@ -107,10 +107,11 @@ flagships:
       worked in a cloud session; huggingface.co answered 200 through the proxy earlier
       on 2026-11-11 but 403 (CONNECT refused) in a later session that day, as did
       registry.ollama.ai, modelscope.cn and hf-mirror.com (all 000 again in a third
-      session that day): probe first. Without a model host: (6) the self-host server
-      reading the mailbox's Sent folder over IMAP into runDaily's `sent` input (landed
-      for mail files 2026-11-11, README "Your sent mail is the done list"), so the
-      server's daily queue drops steps already sent, tested on fake-imap.mjs.
+      session that day): probe first. Without a model host: (6) a "Done" button per
+      call and LinkedIn row in the server's Today's queue (landed 2026-11-11 with the
+      Sent-folder read, README "The self-host server reads your Sent folder too"),
+      kept in state as runDaily's `done` input, since those touches never show in
+      mail, so the done box needs no typing; tested on fake-imap.mjs.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
@@ -118,7 +119,7 @@ flagships:
     next: >-
       History and every measurement: README, eval/README and git (inbox agent, daily
       run with sent mail as the done list (2026-11-11; recipients right on 7,801 of 7,836
-      Enron sent messages), self-host server with TLS and XOAUTH2, research agent, call prep, follow-ups,
+      Enron sent messages; self-host reads the Sent folder), self-host server with TLS and XOAUTH2, research agent, call prep, follow-ups,
       meeting slots and .ics invites, CRM write-back to Pipedrive/HubSpot against fake
       servers only; nineteen agent-written reply sets). Real people's mail (eval/enron.mjs,
       Enron corpus): seven rule rounds, each scored once on an unread half by a blind agent
@@ -149,7 +150,7 @@ flagships:
       published Nile 1898 change; page, CLI and agent engine.
     next: >-
       History and every measurement: README and git (TCPD benchmark: consensus F1 0.702 shipped / 0.711 held out, binseg 0.714/0.727; several columns on CLI, page and report; `--model drift` on the page and agent tool, step-robust omega, heavy-tail check).
-      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) volatility on a drifting level: a scale per segment measured 2026-11-11, not offered (README "Volatility on a drifting level": burst walk 17.0 to 2.4 cuts, TCPD 0.756 shipped but 0.464 held out, failed its rule; sticky series such as bank go 63 to 170 cuts as flat runs hit the scale floor); next: a floor tied to the data's resolution or a zero-inflated term, pre-registered, then apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
+      Next, most valuable first: (a) ar1 + floor 2 on fresh multi-column labelled data (0.564 on TCPD's 3, a lead), a season and a trend term per column (README "Wide sets in print"); (b) volatility on a drifting level: a scale per segment measured 2026-11-11, not offered (README "Volatility on a drifting level": burst walk 17.0 to 2.4 cuts, TCPD 0.756 shipped but 0.464 held out, failed its rule; sticky series such as bank go 63 to 170 cuts as flat runs hit the scale floor); sticky series measured 2026-11-11 (README "Sticky series: exact repeats"): dropping exact repeats or treating them as missing observations cuts false changes on a sticky walk 34.5 to 1-4 and lifts TCPD (scale per segment + drop 0.764 / 0.590 against shipped 0.694 / 0.527) but finds a 5-sd step in a sticky walk 33-51 of 60 against 59-60, failing its power rule; the same loss on real shocks (frozen-juice prices, 41% repeats: 8 of 8 freezes in 67 cuts shipped, 4-6 of 8 in 15-18 cuts with repeats handled; eval/frozen-juice-sticky.out.txt); a sticky-series warning ships (20% repeats). Next: why that step goes missing, then a zero-inflated (stale-probability) observation term, pre-registered; then apple's volume in several-columns mode; joint drift (measured, not offered) and its 2x penalty on fresh multi-column labelled data; long labelled series from outside TCPD (none over 991 points).
       Open: (0) drift model: heavy-tailed level increments (t-walk), biweight where the check says noise on fresh data, why it absorbs seat belts and quality control 4, its AR(1) term; (1) slope breaks: a model that dates and tests the 1976 temperature acceleration, a real step inside a cycle, a cycle check not tied to rho, real documented ramps and close steps; (2) steep-bump clumpy-count cell under-covered (173/217); (3) GARCH segment prune leaves 48% false alarms at n=200; (4) driftWarning fires on real shocks: tell a shape from a shock; (5) holiday list: wanted a shop's counts or a yearly term.
   - venture: einvoice-preflight
     why: >-

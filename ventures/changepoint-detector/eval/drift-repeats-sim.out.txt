@@ -1,0 +1,39 @@
+n 300, 60 series a cell, ML wander. found: a change within 5 of the step; edges: changes within 5 of 100 or 160; cuts: mean changes a series.
+
+A white noise, 3-sd step
+  shipped (global scale)     cuts   1.00  found 60/60
+  R: global, repeats drop    cuts   1.00  found 60/60
+  scale per segment          cuts   1.02  found 60/60
+  S: segment, repeats drop   cuts   1.02  found 60/60
+
+B walk 0.3, 5-sd step
+  shipped (global scale)     cuts   1.20  found 60/60
+  R: global, repeats drop    cuts   1.20  found 60/60
+  scale per segment          cuts   1.05  found 59/60
+  S: segment, repeats drop   cuts   1.05  found 59/60
+
+C walk 1 / noise 0.1, 5x burst
+  shipped (global scale)     cuts  17.00  edges 1.83 of 2
+  R: global, repeats drop    cuts  17.00  edges 1.83 of 2
+  scale per segment          cuts   2.43  edges 1.98 of 2
+  S: segment, repeats drop   cuts   2.43  edges 1.98 of 2
+
+F sticky walk (40% repeats), no change
+  shipped (global scale)     cuts  34.50
+  R: global, repeats drop    cuts   3.68
+  scale per segment          cuts  60.12
+  S: segment, repeats drop   cuts   0.98
+
+G sticky walk, 5-sd step
+  shipped (global scale)     cuts  36.45  found 59/60
+  R: global, repeats drop    cuts   4.55  found 51/60
+  scale per segment          cuts  60.67  found 58/60
+  S: segment, repeats drop   cuts   1.63  found 38/60
+
+H sticky walk, 5x burst
+  shipped (global scale)     cuts  26.60  edges 1.97 of 2
+  R: global, repeats drop    cuts   9.83  edges 1.50 of 2
+  scale per segment          cuts  67.07  edges 1.98 of 2
+  S: segment, repeats drop   cuts   3.10  edges 1.83 of 2
+
+A, B, C (no exact repeats): drop gave the same changes as keep on 360 of 360 fits.

@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01XpHqyceC9rVRMSV35WbfiU",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md (scheduled)",
+  "input_sha256": "20453bb101005f0b2b7a2bbd00593c1743d9646a6ac22be06239cc431a0993d8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T22:38:59Z",
+  "ended": "2026-11-11T22:59:55Z",
+  "wall_minutes": 23.16,
+  "tokens_in": 8395621,
+  "tokens_out": 41569,
+  "cost_usd": 3.677,
+  "tool_calls": 72,
+  "task": "research track draw -> track 23 (marine); advanced research/marine-hull with milestone 6x (6w's 'Next')",
+  "projects": [
+    "marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14915",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "16e5203f",
+    "ad1e05d9"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Open-Meteo marine API answered HTTP 429 and once 'Daily API request limit exceeded' through the proxy; the fetch's backoff retries got every request through in about 15 minutes",
+    "Playwright page.goto on a local .svg file timed out on screenshot; setContent with the SVG inline worked"
+  ],
+  "integrity_issues": [
+    "The pre-registered docstring says 22 buoy-months; 6v's table has 20 (9 buoys in January). A miscount in the rules, disclosed in LOG.md; no site was dropped.",
+    "The calibration analysis (r 0.991) was written after reading P1 to P9 and is labelled post hoc in the script, LOG, README and post."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "'Cloud sessions: data hosts' covers 403s but not per-IP 429 rate limits; Open-Meteo (used by 6w and 6x) rate-limits the shared egress IP, and a fetch needs long backoff rather than giving up"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-wave-glider-open-ocean-map-era5.md",
+    "research/marine-hull/LOG.md (6x entry)"
+  ],
+  "goal": null,
+  "notes": "Milestone 6x: P1 to P3 and P9 refuted, P4 to P8 held. ERA5 plan 1.10x the buoy plan (20 buoy-months), Spearman 0.93 July / -0.12 January; open-ocean grid 50-79 km/day at the best state, none above 86. Checks run locally: marine-hull pytest 146 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check (no new DOIs).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "651b109f-da2c-5593-8001-fd7373c3ef0c",
+    "transcripts": 1,
+    "first": "2026-11-11T22:38:59Z",
+    "last": "2026-11-11T23:02:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 122,
+        "output": 41569,
+        "thinking": 8812,
+        "cache_read": 8246010,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149489,
+        "api_equivalent_usd": 3.677,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 122,
+      "output": 41569,
+      "thinking": 8812,
+      "cache_read": 8246010,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149489,
+      "api_equivalent_usd": 3.677,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 61,
+      "Write": 5,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.16,
+      "active_minutes": 23.16,
+      "model_minutes": 6.62,
+      "tool_minutes": 16.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "data fetch with rate limits, pre-registered analysis, post-hoc calibration check, map figure, tests and write-ups for one milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 163.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
