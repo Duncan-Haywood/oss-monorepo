@@ -51,6 +51,18 @@ because venture suites run only when their own venture changes. This run synced 
 copies, and `platform/llm/byok.test.mjs` now checks every copy. That test already runs on any
 change under `platform/llm/`, so the next edit that skips the copies fails in the same PR.
 
+After that merged, a sweep of all 1,330 venture suites found two more red on `main`.
+[Open House Plans](../../ventures/open-house-plans/) keeps a copy of the
+[Wall Framing Takeoff](../../ventures/wall-framing-takeoff/) engine and checks it matches the
+source byte for byte. The engine had changed by about 400 lines and the copy hadn't. Re-copying
+it moves the plans' lumber orders by a board or two, for example 1,000 to 1,001 board feet on
+one plan. The other was a sweep that added a `<main>` landmark to a generated page by hand.
+Its generator didn't write one, so the page's "is it current" test failed. The same thing had
+broken the sales cadence guide above. Both generators now write the landmark. The guard for the
+copy problem: `run_venture_tests.py --changed` and `--since` now also run every venture whose
+code points into a changed one as `../<slug>/`. A change to the framing engine now runs Open
+House Plans' tests too.
+
 ## The mutation numbers
 
 The run seeded 16 faults into the QBI calculator's `calc.mjs`, and its tests caught 11. The 5

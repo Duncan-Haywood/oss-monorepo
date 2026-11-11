@@ -19,7 +19,7 @@ A free, public-domain (CC0) house plan generated from a brief by [Open House Pla
 
 ## Wall framing, stud by stud
 
-Every wall is laid out member by member (`framing.svg`): 26 walls, 543 ft, 806 pieces cut from 471 boards (4,200 board feet, 0.6% offcut, within 0.19% of the cutting-stock lower bound for this cut list). Studs are 104-5/8" precuts. `framing-cuts.csv` lists every cut and the board it comes from; `lumber-order.csv` is the order. The board order counts wall framing only (no floor, roof, sheathing or blocking), and comes from the Wall Framing Takeoff engine. 1 header is an engineered beam (LVL), drawn at 2x12 depth and listed for the supplier to size.
+Every wall is laid out member by member (`framing.svg`): 26 walls, 543 ft, 806 pieces cut from 469 boards (4,194 board feet, 0.4% offcut, within 0.05% of the cutting-stock lower bound for this cut list). Studs are 104-5/8" precuts. `framing-cuts.csv` lists every cut and the board it comes from; `lumber-order.csv` is the order. The board order counts wall framing only (no floor, roof, sheathing or blocking), and comes from the Wall Framing Takeoff engine. 1 header is an engineered beam (LVL), drawn at 2x12 depth and listed for the supplier to size.
 
 Framing notes:
 
