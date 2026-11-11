@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": 1,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 25,
   "outcome": "success",
@@ -43,6 +43,10 @@
     {
       "what": "sibling-links gate failed locally: the new tool had no sibling page linking to it (orphan budget 0)",
       "fix": "hvac-load-calc's footer now links wall-condensation-check (and the reverse link was already there), with an href test in each page.test.mjs"
+    },
+    {
+      "what": "GitHub CI portfolio-pages 'test' failed 1/1565: secondary-schema.test.mjs requires every secondary prose page to carry JSON-LD, and the guide had none (run_workflow_locally had skipped this suite)",
+      "fix": "Added a FAQPage block to the guide with the same Q&A visible on the page; secondary-schema and faq-visible pass locally"
     }
   ],
   "integrity_issues": [],
@@ -54,6 +58,10 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "pages.yml's two _site checks report FAIL when its build step is skipped (a ${{ }} expression). They should report UNRUN, as budget-cut steps now do, so a run does not have to look into an expected failure."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes ran portfolio-pages.yml as '1/1 passed (29 not run)', which skipped the 1,565-test site-builder suite that then failed on GitHub. The 'passed' summary gave false confidence; the venture template (pv-string-sizer's guide) also has JSON-LD, which I dropped when copying."
     }
   ],
   "deviations": [
