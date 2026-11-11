@@ -1,3 +1,9 @@
+---
+kind: note
+topics: [review]
+date: 2026-11-11
+tagged: auto
+---
 # Review track stalled by stale claims (2026-11-11, process run)
 
 - **Finding.** No `track: review` record has been written since 2026-10-31 (checked `prompts/runs/*.json`), and `runs_since_review` reached 2032. `promptctl.review_claimed()` treats any open PR titled `prompts: review` as a live claim. #12026, #12272 and #12367 are review PRs that touch `/prompts/` (CODEOWNERS) and have waited on the owner since 2026-10-31/11-01, so the claim never cleared.

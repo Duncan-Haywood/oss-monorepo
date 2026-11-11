@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [performance, layout-shift, lighthouse, tooling]
+topics: [performance]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: tool pages stopped jumping after first paint (CLS 0.11 → 0.002 on bid calculators)

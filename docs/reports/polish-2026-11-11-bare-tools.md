@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [css, unstyled, heading-order, tooling, venture-pages]
+topics: [design, accessibility]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: 98 tool pages shipped in browser defaults; all styled, plus a check

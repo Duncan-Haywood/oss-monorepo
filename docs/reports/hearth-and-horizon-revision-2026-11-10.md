@@ -1,3 +1,9 @@
+---
+kind: note
+subjects: [hearth-and-horizon]
+date: 2026-11-10
+tagged: auto
+---
 # Hearth & Horizon revision pass, 2026-11-10
 
 A creative-track run did a revision pass instead of a new story. It re-checked

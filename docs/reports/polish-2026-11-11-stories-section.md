@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [navigation, seo, stories, structured-data]
+topics: [seo]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: story pages sit under Stories, not Tools

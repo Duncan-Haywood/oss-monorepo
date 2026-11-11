@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-11
+tagged: auto
+---
 # cite_check remembers live lookups (process, 2026-11-11)
 
 **What changed.** `research/_shared/cite_check.py` writes `cite_check.json`

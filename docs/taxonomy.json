@@ -156,6 +156,15 @@
      "covered_by": ["research/CLAUDE.md#Run the numbers", "prompts/goals.md#Research guardrails", "prompts/goals.md#Direction: research at PhD+ level", "research/PROGRAMMES.md"]},
     {"id": "research-homepage", "label": "Keeping the research homepage current",
      "aliases": ["research-site"],
-     "covered_by": ["research/CLAUDE.md#Keep the research homepage"]}
+     "covered_by": ["research/CLAUDE.md#Keep the research homepage"]},
+    {"id": "design", "label": "Site design: layout, consistency and the polish bar", "infer": ["visual-design", "dark-mode"],
+     "aliases": ["layout", "css", "visual-design", "consistency", "dark-mode"],
+     "covered_by": ["prompts/polish/prompt-0.md#The three jobs", "prompts/polish/prompt-0.md#The bar"]},
+    {"id": "accessibility", "label": "Accessibility: contrast, focus, heading order, reflow",
+     "aliases": ["a11y", "wcag", "contrast", "heading-order", "aria", "reflow"],
+     "covered_by": ["prompts/polish/prompt-0.md#The bar"]},
+    {"id": "performance", "label": "Performance: Lighthouse, layout shift, suite and build time",
+     "aliases": ["perf", "lighthouse", "layout-shift", "cls", "tbt", "content-visibility"],
+     "covered_by": ["prompts/perf/prompt-0.md#Where to look", "prompts/perf/prompt-0.md#How to work", "prompts/polish/prompt-0.md#The bar"]}
   ]
 }

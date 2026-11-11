@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [performance, css, assistant, tooling]
+topics: [performance, design]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: the floating voice button's CSS moved into pf-chrome.css

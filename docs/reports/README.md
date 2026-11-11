@@ -25,6 +25,13 @@ topics: [research-integrity]
 | `superseded_by` | no | the report that replaces this one, when `status: superseded` |
 | `tagged` | no | `auto` when `doc_index.py backfill` inferred the tags; delete it once a person or agent has checked them |
 
+Before you push a report, run `python3 platform/ci/doc_index.py check`.
+`doc_index.py backfill --write` drafts missing front matter and swaps an alias
+topic (`aeo`, `lighthouse`) for its id; check the tags it writes. Topics come
+from the vocabulary (`doc_index.py topics`), not free text: on 2026-11-11 main
+carried 73 problems, most of them polish reports tagged `tooling` or `design`
+before `design` existed. Until a PR workflow runs the check, nothing else will.
+
 ## Finding things
 
 ```

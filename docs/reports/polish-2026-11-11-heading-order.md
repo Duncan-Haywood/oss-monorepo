@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [accessibility, performance, lighthouse, tooling]
+topics: [accessibility, performance]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: desktop Lighthouse, then 415 pages fixed by three renderer changes

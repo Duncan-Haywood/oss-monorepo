@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, consistency]
+topics: [design]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: one header Search control on every page family
