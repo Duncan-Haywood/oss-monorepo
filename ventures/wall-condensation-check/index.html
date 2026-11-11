@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23285e78'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EW%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Wall Condensation Check — Will My Wall Assembly Get Wet? Month-by-Month Dew Point</title>
+  <meta name="description" content="Free wall condensation calculator for builders, designers and energy raters. Enter the layers inside to outside with R-values and perms, and twelve months of indoor and outdoor conditions, to see where vapour condenses, how much collects, and whether it dries out by summer. Runs in your browser.">
+  <meta property="og:title" content="Wall Condensation Check — free, private, in your browser">
+  <meta property="og:description" content="Where in the wall does water vapour condense, how much builds up over the winter, and does it dry out? A month-by-month Glaser check from your layers and climate.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Wall Condensation Check", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Checks a wall, roof or floor assembly for interstitial condensation month by month: temperature and vapour pressure at every layer interface, where vapour condenses, how much accumulates, whether it dries out within the year, and the indoor humidity at which the assembly first gets wet. Runs in your browser.", "featureList": "Glaser method, ISO 13788 style monthly accumulation, layer library, R-value and perm inputs in IP or SI, dew point profile chart, safe indoor humidity, CSV download"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Will my wall get condensation inside it?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on where the cold side of the wall is, how humid the inside is, and how easily vapour passes through each layer. Vapour moves from the warm, humid side toward the cold side. If it reaches a layer that is colder than its dew point and that layer, or the one beyond it, slows the vapour down, it condenses there. This tool finds that layer and works out how much collects each month."}}, {"@type": "Question", "name": "What is the Glaser method?", "acceptedAnswer": {"@type": "Answer", "text": "A steady-state calculation from the 1950s that is still the basis of ISO 13788 and of many code commentaries. Temperature falls through the wall in proportion to thermal resistance and vapour pressure falls in proportion to vapour resistance. Wherever the vapour pressure would rise above the saturation pressure at that temperature, the excess condenses. Run month by month with the condensed water carried forward, it shows whether a wall dries out over the year."}}, {"@type": "Question", "name": "Is some winter condensation acceptable?", "acceptedAnswer": {"@type": "Answer", "text": "Often a small amount is, if it dries out completely by summer and the material can hold it without damage. ISO 13788 treats an assembly as acceptable when everything that condenses evaporates within the year and the material's own limits are not exceeded. Wood sheathing that stays wet for months is a different matter: the tool reports how long each interface stays wet as well as the peak amount."}}, {"@type": "Question", "name": "Where do I find the perm rating of a layer?", "acceptedAnswer": {"@type": "Answer", "text": "On the product's data sheet, usually as water vapour permeance in US perms (ASTM E96) or in metric units. The library values on this page are typical rounded figures to start from. Replace them with your own products' values, and note that wood sheathing, kraft and variable-permeance membranes become far more permeable when damp."}}, {"@type": "Question", "name": "Why does exterior foam help?", "acceptedAnswer": {"@type": "Answer", "text": "It keeps the sheathing warmer. With insulation outside the sheathing, the sheathing's temperature rises toward the indoor temperature and its saturation pressure rises with it, so less vapour condenses there. Too little foam can make things worse if the foam also slows drying to the outside, which is why the amount of foam matters."}}, {"@type": "Question", "name": "What does the model leave out?", "acceptedAnswer": {"@type": "Answer", "text": "Air leakage, which in real walls often moves far more moisture than diffusion; rain, built-in construction moisture and wet cladding; solar-driven inward vapour in summer; moisture stored in materials; and liquid transport. Use a transient hygrothermal model such as those described in ASHRAE Standard 160 for a design decision."}}, {"@type": "Question", "name": "Is anything I enter uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #172026; background: #f2f5f6; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f66; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #163c4e; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #163c4e; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a63; }
+    .card { background: #fff; border: 1px solid #d6e0e4; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #163c4e10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input, textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f8791; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    textarea { font: 14px ui-monospace, Menlo, Consolas, monospace; min-height: 11em; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f66; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2ecef; color: #163c4e; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6edf0; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a63; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    td.wet { background: #dbeaf3; font-weight: 600; }
+    .finding { border-bottom: 1px solid #e6edf0; padding: 12px 0; }
+    .finding:last-child { border-bottom: 0; }
+    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
+    .pill.high { background: #f8dcd6; color: #7a1f10; }
+    .pill.medium { background: #fdf0d5; color: #7c5e10; }
+    .pill.info { background: #e2ecef; color: #163c4e; }
+    .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin: 10px 0 14px; }
+    .big div { background: #eef4f6; border-radius: 10px; padding: 12px; }
+    .big strong { display: block; font-size: 1.5rem; color: #163c4e; }
+    footer { margin-top: 28px; border-top: 1px solid #d6e0e4; padding-top: 16px; }
+    .scroll { overflow-x: auto; }
+    .row { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+    .row > div { flex: 1 1 240px; }
+    svg text { font: 11px system-ui, sans-serif; fill: #4a5a63; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">WALL CONDENSATION CHECK · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Will this wall get wet inside?</h1>
+    <p>List the layers from inside to outside with their R-values and perm ratings, and give twelve months of indoor and outdoor temperature and humidity. You get the <strong>temperature and dew point at every layer</strong>, <strong>where vapour condenses</strong>, <strong>how much builds up month by month</strong>, whether it <strong>dries out by summer</strong>, and the <strong>indoor humidity</strong> at which the wall first gets wet.</p>
+    <p class="note">Nothing you type leaves this browser tab. A vapour-diffusion screen on your numbers, not engineering advice: air leaks and rain wet more walls than diffusion does, and this model has neither.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Units</h2>
+    <div class="grid">
+      <div><label for="tempUnit">Temperature</label><select id="tempUnit"><option value="F">Fahrenheit</option><option value="C">Celsius</option></select></div>
+      <div><label for="rUnit">R-value</label><select id="rUnit"><option value="IP">h·ft²·°F/Btu (US R-value)</option><option value="SI">m²·K/W (RSI)</option></select></div>
+      <div><label for="permUnit">Vapour permeance</label><select id="permUnit"><option value="perm">US perms</option><option value="ng">ng/(s·m²·Pa)</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Layers, inside to outside</h2>
+    <p class="note">One layer per line: <code>name, R-value of the layer, permeance of the layer</code>. Paint and membranes have R 0. Vented cladding counts as outside air, so leave it out or give it a very high perm.</p>
+    <div class="row">
+      <div><label for="libraryPick">Add a typical layer (rounded values; replace with your product's data)</label><select id="libraryPick"></select></div>
+      <div style="flex:0 0 auto"><button type="button" class="secondary" id="add-layer">Add layer</button></div>
+    </div>
+    <label for="layers">Layers</label>
+    <textarea id="layers" spellcheck="false" placeholder="1/2 in gypsum board, 0.45, 50&#10;Latex primer and paint, 0, 5&#10;R-21 fiberglass batt, 21, 20&#10;7/16 in OSB, 0.62, 1.5&#10;Polymer housewrap, 0, 50"></textarea>
+  </section>
+
+  <section class="card">
+    <h2>Twelve months, January first</h2>
+    <p class="note">One month per line: <code>month, outdoor mean temperature, outdoor RH %, indoor temperature, indoor RH %</code>. Monthly means from your local climate normals, and the indoor humidity you expect (a tight house with no humidity control often runs 40 to 50% in winter).</p>
+    <label for="climate">Climate</label>
+    <textarea id="climate" spellcheck="false" placeholder="Jan, 20, 75, 70, 35"></textarea>
+  </section>
+
+  <section class="card">
+    <button type="button" id="analyze">Check the wall</button>
+    <button type="button" class="secondary" id="load-example">Load an example</button>
+    <button type="button" class="secondary" id="clear-all">Clear</button>
+    <p id="form-status" role="status" class="note">Enter the layers and the twelve months, then click Check the wall.</p>
+  </section>
+
+  <section id="report" class="card" hidden>
+    <h2>Result</h2>
+    <div class="big" id="big"></div>
+    <div id="report-findings"></div>
+    <h3 id="chart-title">Pressure profile</h3>
+    <div class="scroll" id="chart"></div>
+    <h3>Moisture lying at each interface at month end, g/m²</h3>
+    <div class="scroll"><table id="month-table"><thead></thead><tbody></tbody></table></div>
+    <h3>Layers</h3>
+    <div class="scroll"><table id="layer-table"><thead><tr><th>Layer</th><th class="n">R (IP)</th><th class="n">RSI</th><th class="n">Perm</th></tr></thead><tbody></tbody></table></div>
+    <button type="button" id="download">Download CSV</button>
+  </section>
+
+  <section class="card">
+    <h2>How it is calculated</h2>
+    <p>For each month, temperature falls through the wall in proportion to thermal resistance, with surface resistances of 0.13 m²K/W inside and 0.04 outside. The saturation vapour pressure at each layer interface comes from the ISO 13788 formulas (over water above 0 C, over ice below). Vapour pressure falls from the indoor to the outdoor value in proportion to vapour resistance (one over permeance). Where that straight line would rise above saturation, the real profile is pulled down to touch saturation at the interface it crosses, like a string pulled taut under a ceiling; the condensation rate there is the vapour arriving minus the vapour leaving.</p>
+    <p>Condensed water is carried from month to month. While an interface is wet its vapour pressure stays at saturation, so in warmer months the flow reverses and it dries, inward or outward. The year starts in the first month that condenses after a dry month, as in ISO 13788, and runs twice so you can see whether anything is left over a second winter. The safe indoor humidity is found by bisection: the highest constant indoor RH at which no interface collects any water in any month.</p>
+    <p><strong>Not modelled:</strong> air leakage (often the larger moisture source in real walls), rain, wet cladding and solar-driven inward vapour, built-in construction moisture, moisture stored in materials, liquid water movement, and permeance that changes with humidity. Condensation is checked at interfaces only, as ISO 13788 does. <strong>Unverified:</strong> checked by a hand calculation and unit tests only, not against WUFI, a field measurement or a worked example from the standard. Use it to screen assemblies, not to sign one off.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Will my wall get condensation inside it?</h3>
+    <p>It depends on where the cold side of the wall is, how humid the inside is, and how easily vapour passes through each layer. Vapour moves from the warm, humid side toward the cold side. If it reaches a layer that is colder than its dew point and that layer, or the one beyond it, slows the vapour down, it condenses there. This tool finds that layer and works out how much collects each month.</p>
+    <h3>What is the Glaser method?</h3>
+    <p>A steady-state calculation from the 1950s that is still the basis of ISO 13788 and of many code commentaries. Temperature falls through the wall in proportion to thermal resistance and vapour pressure falls in proportion to vapour resistance. Wherever the vapour pressure would rise above the saturation pressure at that temperature, the excess condenses. Run month by month with the condensed water carried forward, it shows whether a wall dries out over the year.</p>
+    <h3>Is some winter condensation acceptable?</h3>
+    <p>Often a small amount is, if it dries out completely by summer and the material can hold it without damage. ISO 13788 treats an assembly as acceptable when everything that condenses evaporates within the year and the material's own limits are not exceeded. Wood sheathing that stays wet for months is a different matter: the tool reports how long each interface stays wet as well as the peak amount.</p>
+    <h3>Where do I find the perm rating of a layer?</h3>
+    <p>On the product's data sheet, usually as water vapour permeance in US perms (ASTM E96) or in metric units. The library values on this page are typical rounded figures to start from. Replace them with your own products' values, and note that wood sheathing, kraft and variable-permeance membranes become far more permeable when damp.</p>
+    <h3>Why does exterior foam help?</h3>
+    <p>It keeps the sheathing warmer. With insulation outside the sheathing, the sheathing's temperature rises toward the indoor temperature and its saturation pressure rises with it, so less vapour condenses there. Too little foam can make things worse if the foam also slows drying to the outside, which is why the amount of foam matters.</p>
+    <h3>What does the model leave out?</h3>
+    <p>Air leakage, which in real walls often moves far more moisture than diffusion; rain, built-in construction moisture and wet cladding; solar-driven inward vapour in summer; moisture stored in materials; and liquid transport. Use a transient hygrothermal model such as those described in ASHRAE Standard 160 for a design decision.</p>
+    <h3>Is anything I enter uploaded?</h3>
+    <p>No. Everything runs in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, architectural, legal or code-compliance advice, and it does not replace a qualified professional, a hygrothermal analysis or your building official. Results are arithmetic on the numbers you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with any building-material manufacturer, standards body or software vendor, and no product is named or ranked here.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>wall_checked</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Sizing the heating and cooling? The <a href="../hvac-load-calc/">HVAC load calculator</a> works room by room from the same layers. The research behind this tool: <a href="../../research/house-dewpoint/">house-dewpoint</a>. Guide: <a href="will-my-wall-condense.html">will my wall condense? A worked example</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+
+  <script type="module">
+    import { analyze, reportCsv, sampleInput, LIBRARY, cToF } from "./calc.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const status = $("#form-status"), report = $("#report");
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const KEYS = ["tempUnit", "rUnit", "permUnit", "climate", "layers"];
+    const SELECTS = { tempUnit: "F", rUnit: "IP", permUnit: "perm" };
+    const START = "Enter the layers and the twelve months, then click Check the wall.";
+    let last = null;
+
+    $("#libraryPick").innerHTML = Object.entries(LIBRARY).map(([k, l]) => `<option value="${k}">${esc(l.name)} (R ${l.r}, ${l.perm} perm)</option>`).join("");
+    function read() { return Object.fromEntries(KEYS.map((k) => [k, $("#" + k).value])); }
+    function fill(x) { KEYS.forEach((k) => { $("#" + k).value = x[k] ?? SELECTS[k] ?? ""; }); }
+
+    function chart(a, row) {
+      const W = 640, H = 270, L = 46, R = 80, T = 12, B = 74;
+      const n = a.layers.length;
+      const pts = row.interfaces;
+      const max = Math.max(...pts.map((p) => Math.max(p.psat, p.p))) * 1.08;
+      const x = (i) => L + ((W - L - R) * i) / n;
+      const y = (v) => T + (H - T - B) * (1 - v / max);
+      const line = (key, color, dash) => `<polyline fill="none" stroke="${color}" stroke-width="2.5"${dash ? ' stroke-dasharray="6 4"' : ""} points="${pts.map((p, i) => `${x(i).toFixed(1)},${y(p[key]).toFixed(1)}`).join(" ")}"/>`;
+      const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => `<line x1="${L}" x2="${W - R}" y1="${y(f * max)}" y2="${y(f * max)}" stroke="#e6edf0"/><text x="${L - 6}" y="${y(f * max) + 4}" text-anchor="end">${(f * max).toFixed(0)}</text>`).join("");
+      const cols = a.layers.map((l, i) => `<line x1="${x(i)}" x2="${x(i)}" y1="${T}" y2="${H - B}" stroke="#d6e0e4"/><text transform="translate(${x(i) + 4},${H - B + 14}) rotate(20)">${esc(l.name.length > 22 ? l.name.slice(0, 21) + "…" : l.name)}</text>`).join("");
+      const wet = Object.keys(row.rates).map((i) => `<circle cx="${x(+i)}" cy="${y(pts[+i].p)}" r="5" fill="#1d4f66"/>`).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:560px" role="img" aria-label="Saturation and vapour pressure through the wall in ${row.name}">${ticks}${cols}<line x1="${x(n)}" x2="${x(n)}" y1="${T}" y2="${H - B}" stroke="#d6e0e4"/>${line("psat", "#b5452a")}${line("p", "#1d4f66", true)}${wet}<text x="${L}" y="${H - 6}">Pa. Solid: saturation pressure. Dashed: vapour pressure. Dots: condensing or drying planes. Inside on the left.</text></svg>`;
+    }
+
+    function run() {
+      const a = analyze(read());
+      if (a.error) { status.textContent = a.error; report.hidden = true; return false; }
+      last = a;
+      const f = $("#tempUnit").value === "F";
+      const temp = (c) => (f ? `${cToF(c).toFixed(0)} F` : `${c.toFixed(1)} C`);
+      const w = a.worst;
+      const tiles = [
+        [w ? `${w.peak.toFixed(0)} g/m²` : "None", w ? `peak at ${w.label.split(" | ")[1]}, ${w.peakMonth}` : "condensation in any month"],
+        [w ? `${w.wetMonths}` : "0", "months wet"],
+        [w ? (a.accumulates ? "No" : "Yes") : "n/a", "dries out within the year"],
+        [a.safeIndoorRh === null ? "95%+" : `${a.safeIndoorRh.toFixed(0)}%`, "indoor RH that first wets it"],
+        [`R-${a.rTotalIP.toFixed(1)}`, "layers only, IP"],
+      ];
+      $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      const row = a.worstRow || a.coldest;
+      $("#chart-title").textContent = `Pressure profile in ${row.name} (outdoor ${temp(row.tOut)}, indoor ${temp(row.tIn)})`;
+      $("#chart").innerHTML = chart(a, row);
+      $("#month-table thead").innerHTML = `<tr><th>Month</th><th class="n">Outdoor</th>${a.interfaces.map((x) => `<th class="n">${esc(x.label)}</th>`).join("")}<th class="n">Inside surface RH</th></tr>`;
+      $("#month-table tbody").innerHTML = a.rows.map((r) => `<tr><td>${r.name}</td><td class="n">${temp(r.tOut)}</td>${a.interfaces.map((x) => `<td class="n${r.moisture[x.index] > 0 ? " wet" : ""}">${r.moisture[x.index].toFixed(0)}</td>`).join("")}<td class="n">${r.insideSurfaceRh.toFixed(0)}%</td></tr>`).join("");
+      $("#layer-table tbody").innerHTML = a.layers.map((l) => `<tr><td>${esc(l.name)}</td><td class="n">${l.rIP.toFixed(2)}</td><td class="n">${l.rSI.toFixed(3)}</td><td class="n">${l.perm.toPrecision(3)}</td></tr>`).join("");
+      report.hidden = false;
+      status.textContent = "Done. Scroll down for the result.";
+      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      return true;
+    }
+
+    $("#add-layer").addEventListener("click", () => {
+      const l = LIBRARY[$("#libraryPick").value];
+      const box = $("#layers");
+      const r = $("#rUnit").value === "SI" ? +(l.r * 0.17611).toFixed(3) : l.r;
+      const p = $("#permUnit").value === "ng" ? +(l.perm * 57.2135).toFixed(1) : l.perm;
+      box.value = (box.value.trim() ? box.value.trim() + "\n" : "") + `${l.name}, ${r}, ${p}`;
+    });
+    $("#analyze").addEventListener("click", () => { if (run()) record("wall_checked"); });
+    $("#load-example").addEventListener("click", () => {
+      fill(sampleInput());
+      if (run()) { record("example_loaded"); status.textContent = "Example: a 2x6 wall with OSB sheathing in an invented cold-climate year, not a real weather station."; }
+    });
+    $("#clear-all").addEventListener("click", () => { fill({}); report.hidden = true; last = null; status.textContent = START; });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([reportCsv(last)], { type: "text/csv" }));
+      a.download = "wall-condensation-check.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
