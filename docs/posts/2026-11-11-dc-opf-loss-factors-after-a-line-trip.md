@@ -3,7 +3,7 @@ title: "Loss penalty factors from before a line trip still fix DC dispatch after
 seo_title: "Stale loss penalty factors after a line outage: DC OPF on IEEE 118-bus"
 date: 2026-11-11
 tags: [infra-dcopf, research, power-systems]
-description: "On the IEEE 118-bus case, loss penalty factors computed before a single line trip beat plain DC OPF on all 80 trips tested and kept at least 88% of the gain from fresh factors."
+description: "On IEEE 118-bus, loss penalty factors from before a line trip beat plain DC OPF on all 80 trips tested and kept at least 88% of the gain of fresh factors."
 ---
 
 A DC optimal power flow ignores losses, so on the IEEE 118-bus case its dispatch costs about 1.5 % more than the AC optimum once the losses are paid for. Earlier `infra-dcopf` runs showed that nodal loss penalty factors close most of that gap, and that factors an hour or even twelve hours old still do. The open question was a topology change. When a line trips, the loss sensitivities change at once. Can an operator keep using the factors they held just before the trip?
