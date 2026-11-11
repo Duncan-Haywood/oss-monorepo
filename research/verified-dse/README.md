@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 114 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 115 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -53,6 +53,16 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   missed both relaxed multipliers on 28 fresh dear-pool cells and raised regret from 0.97% to 1.16%: the spread is a property
   of the sequence pool, not the design, and the stable slack does not separate the failures. The switch stays the rule:
   [`experiments/r2_guard/`](experiments/r2_guard/results.txt).
+- **A mapped score clipped at the clock fixes the relaxed-clock multiplier miss, blind (milestone 115, flow run).** At a relaxed
+  clock the routed flow repairs timing up to the period and stops, so routed delay is the period (median 0.993 to 1.000 of it
+  on every relaxed multiplier and squarer) and routed area x delay ranks by area alone; the mapped score keeps rewarding mapped
+  speed nobody will see. Scoring a point as area x max(period, 1.25 x mapped delay), chosen on the 52 held-out cells (1.66% to
+  0.77% in-sample; 1.66% leave-one-family-out, since the gain is all in one family), then run blind on seven new designs
+  (1,680 flow runs, predictions committed first): the switch's mean regret falls from 2.73% to 0.83%, better in 5 cells and
+  worse in none, every relaxed cell on the ladder at 0.00% (mult26 9.58%, sq24 11.30% before); design bootstrap interval of the
+  difference -3.63 to -0.41 points. All six predictions held. It can hurt where routed delay sits far below the period: on an
+  earlier, already seen table it sent barrel128 relaxed from 0.00% to 19.2%:
+  [`experiments/clip_score/`](experiments/clip_score/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 

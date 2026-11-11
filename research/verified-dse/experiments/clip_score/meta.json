@@ -1,0 +1,73 @@
+{
+ "base_period_ns": {
+  "mult26": 4.81,
+  "sq24": 4.75,
+  "xbar32x2": 0.95,
+  "gf2mat56": 1.54,
+  "sq16": 3.87,
+  "mult14": 3.72,
+  "gf2mat40": 1.54
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "mult14": [
+   "mult_op",
+   "mult_op",
+   {
+    "W": 14
+   },
+   ""
+  ],
+  "mult26": [
+   "mult_op",
+   "mult_op",
+   {
+    "W": 26
+   },
+   ""
+  ],
+  "sq16": [
+   "sq_op",
+   "sq_op",
+   {
+    "W": 16
+   },
+   ""
+  ],
+  "sq24": [
+   "sq_op",
+   "sq_op",
+   {
+    "W": 24
+   },
+   ""
+  ],
+  "xbar32x2": [
+   "xbar_w",
+   "xbar_w",
+   {
+    "P": 32,
+    "B": 2,
+    "SB": 5
+   },
+   ""
+  ],
+  "gf2mat40": [
+   "gf2mat_w",
+   "gf2mat_w",
+   {
+    "N": 40
+   },
+   ""
+  ],
+  "gf2mat56": [
+   "gf2mat_w",
+   "gf2mat_w",
+   {
+    "N": 56
+   },
+   ""
+  ]
+ }
+}
