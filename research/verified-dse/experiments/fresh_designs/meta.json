@@ -1,0 +1,84 @@
+{
+ "base_period_ns": {
+  "mult22": 4.53,
+  "gf2mat64": 1.74,
+  "sq20": 4.34,
+  "mult18": 4.01,
+  "xbar32x4": 0.95,
+  "adder_op32": 1.54,
+  "popcount32": 3.17,
+  "barrel32": 1.97
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "mult18": [
+   "mult_op",
+   "mult_op",
+   {
+    "W": 18
+   },
+   ""
+  ],
+  "mult22": [
+   "mult_op",
+   "mult_op",
+   {
+    "W": 22
+   },
+   ""
+  ],
+  "sq20": [
+   "sq_op",
+   "sq_op",
+   {
+    "W": 20
+   },
+   ""
+  ],
+  "xbar32x4": [
+   "xbar_w",
+   "xbar_w",
+   {
+    "P": 32,
+    "B": 4,
+    "SB": 5
+   },
+   ""
+  ],
+  "gf2mat64": [
+   "gf2mat_w",
+   "gf2mat_w",
+   {
+    "N": 64
+   },
+   ""
+  ],
+  "barrel32": [
+   "barrel_w",
+   "barrel_w",
+   {
+    "W": 32,
+    "SW": 5
+   },
+   ""
+  ],
+  "popcount32": [
+   "popcount_w",
+   "popcount_w",
+   {
+    "W": 32,
+    "NW": 6
+   },
+   ""
+  ],
+  "adder_op32": [
+   "adder_op",
+   "adder_op",
+   {
+    "W": 32
+   },
+   ""
+  ]
+ }
+}
