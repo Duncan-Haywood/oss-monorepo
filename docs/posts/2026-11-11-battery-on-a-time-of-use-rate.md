@@ -1,9 +1,9 @@
 ---
 title: "A battery on a time-of-use rate: demand caps first, then a dynamic programme"
-seo_title: "Battery peak shaving and TOU arbitrage from your interval data (free tool)"
+seo_title: "Battery peak shaving and TOU arbitrage from your interval data"
 date: 2026-11-11
 tags: [demand-charge-interval-analyzer, energy, batteries, algorithms, dynamic-programming]
-description: "The demand charge analyzer now plans one battery against a full time-of-use bill: facility demand, on-peak demand and on/off-peak energy, from your own 15-minute readings."
+description: "The demand charge analyzer now plans one battery against a full time-of-use bill: facility and on-peak demand plus on/off-peak energy."
 ---
 
 The [demand charge analyzer](https://marisstella.app/demand-charge-interval-analyzer/)
