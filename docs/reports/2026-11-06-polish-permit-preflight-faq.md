@@ -1,5 +1,5 @@
 ---
-kind: analysis
+kind: polish
 subjects: [permit-packet-preflight]
 date: 2026-11-06
 tagged: auto

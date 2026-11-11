@@ -1,5 +1,6 @@
 ---
 kind: note
+date: 2026-11-06
 tagged: auto
 ---
 # CSV formula guard sweep (2026-11-06)
