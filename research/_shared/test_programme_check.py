@@ -67,3 +67,59 @@ class ProgrammeCheckTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SrcLayoutTest(unittest.TestCase):
+    """research/_shared/src_layout.py: tests that import a src/ package need src/ on pytest's path."""
+
+    def setUp(self):
+        import src_layout
+        self.sl = src_layout
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def project(self, name, test="from pkg import f\n", **files):
+        d = self.root / name
+        (d / "src" / "pkg").mkdir(parents=True)
+        (d / "src" / "pkg" / "__init__.py").write_text("def f(): return 1\n")
+        (d / "tests").mkdir()
+        (d / "tests" / "test_pkg.py").write_text(test)
+        for fname, text in files.items():
+            (d / fname.replace("_", ".", 1) if fname in ("pytest_ini", "setup_cfg", "tox_ini") else d / fname).write_text(text)
+        return d
+
+    def test_bare_project_flagged_then_fixed_with_pytest_ini(self):
+        d = self.project("bare")
+        self.assertTrue(self.sl.needs_fix(d))
+        self.assertEqual(self.sl.main([], self.root), 1)
+        self.assertEqual(self.sl.main(["--fix"], self.root), 0)
+        self.assertEqual((d / "pytest.ini").read_text(), "[pytest]\npythonpath = src\n")
+        self.assertEqual(self.sl.main([], self.root), 0)
+
+    def test_pyproject_without_table_gets_table_appended(self):
+        d = self.project("py", **{"pyproject.toml": '[project]\nname = "x"'})
+        self.sl.fix(d)
+        self.assertEqual((d / "pyproject.toml").read_text(),
+                         '[project]\nname = "x"\n\n[tool.pytest.ini_options]\npythonpath = ["src"]\n')
+
+    def test_existing_table_gets_one_line(self):
+        d = self.project("tbl", **{"pyproject.toml": '[tool.pytest.ini_options]\ntestpaths = ["tests"]\n'})
+        self.sl.fix(d)
+        self.assertEqual((d / "pyproject.toml").read_text(),
+                         '[tool.pytest.ini_options]\npythonpath = ["src"]\ntestpaths = ["tests"]\n')
+
+    def test_pytest_ini_wins_over_pyproject(self):
+        d = self.project("both", **{"pyproject.toml": "[project]\n", "pytest_ini": "[pytest]\naddopts = -q\n"})
+        self.assertEqual(self.sl.fix(d).name, "pytest.ini")
+        self.assertEqual((d / "pyproject.toml").read_text(), "[project]\n")
+
+    def test_handled_projects_pass(self):
+        self.assertFalse(self.sl.needs_fix(self.project("hack", test="import sys\nsys.path.insert(0, 'src')\nfrom pkg import f\n")))
+        self.assertFalse(self.sl.needs_fix(self.project("cfg", **{"pyproject.toml": '[tool.pytest.ini_options]\npythonpath = ["src"]\n'})))
+        self.assertFalse(self.sl.needs_fix(self.project("other", test="import json\n")))
+        d = self.project("conf")
+        (d / "tests" / "conftest.py").write_text("")
+        self.assertFalse(self.sl.needs_fix(d))

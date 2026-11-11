@@ -42,7 +42,7 @@ makes up for the sag. A 2D model whose cloth hangs in one plane barely sees
 this.
 
 Why it matters: the four fabrics come from a published table of bending
-rigidity and weight (KES-FB2). It has no tensile column. On the 3D tier, those
+rigidity and weight (KES-FB2). Its tensile columns (LT, WT, RT) do not convert to a stretch stiffness without the tester settings. On the 3D tier, those
 two numbers are not enough to choose a shallow-arm hanger. You also need
 stretch stiffness, from a tensile test like KES-FB1. That is early evidence
 against one of the programme's own hypotheses (H2, "bending and weight are

@@ -39,7 +39,7 @@ import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, loadPosts, WRITING_PATH } from './writing.mjs';
 import { fixPostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
-import { buildStories, STORIES_PATH } from './stories.mjs';
+import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, QUEUE_PATH } from './queue.mjs';
@@ -128,7 +128,7 @@ import {
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
-import { STICKY_FIT_JS } from './sticky-fit.mjs';
+import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
 import {
   SITE_NAME,
   MARK_BG,
@@ -154,6 +154,7 @@ import {
   HERO_BACKDROP_HTML,
   HOME_MOTION_CSS,
   HOME_MOTION_SCRIPT,
+  longestWord,
   copyShowcase,
   loadShowcase,
   renderMarquee,
@@ -762,7 +763,7 @@ const CATEGORY_RULES = [
     // `concrete-maturity` joined 2026-11-11 on its first commit: a concrete contractor or QC
     // technician estimating in-place strength from logger data before stripping forms, the
     // same site reader as `wall-framing-takeoff` and the concrete bid calculators.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'concrete-maturity' || slug === 'shed-designer' || slug === 'service-load-check' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'concrete-maturity' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -4040,15 +4041,56 @@ export function markSponsorLinks(html) {
  * arriving from search lands on first. Returns the files it changed.
  */
 export async function markSponsorLinksIn(outDir) {
-  const marked = [];
-  for (const file of (await listFiles(outDir)).filter((f) => f.endsWith('.html'))) {
+  return rewriteHtmlIn(outDir, markSponsorLinks);
+}
+
+/**
+ * Applies a pure `html -> html` rewrite to every HTML file under `outDir` and
+ * returns the relative paths it changed, in `listFiles` order.
+ *
+ * Pages are read and rewritten 32 at a time (`mapLimit` keeps input order), as
+ * `addShareCards` does: one at a time, the disk sat idle between them. Each
+ * rewrite reads and writes only its own file, so the order files finish in
+ * cannot change any output.
+ */
+async function rewriteHtmlIn(outDir, rewrite) {
+  const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+  const changed = await mapLimit(files, 32, async (file) => {
     const html = await fs.readFile(file, 'utf8');
-    const next = markSponsorLinks(html);
-    if (next === html) continue;
+    const next = rewrite(html);
+    if (next === html) return null;
     await fs.writeFile(file, next);
-    marked.push(path.relative(outDir, file));
-  }
-  return marked;
+    return path.relative(outDir, file);
+  });
+  return changed.filter((file) => file !== null);
+}
+
+/**
+ * `markSponsorLinksIn` then `addNoscriptNoticesIn`, in one walk and one read
+ * and write per page.
+ *
+ * Measured 2026-11-11: the two passes each listed the whole output tree and
+ * read every HTML page one at a time, the same pages twice in a row. The
+ * notice is inserted after `<body>` and only looks for `<noscript>`, `<script>`
+ * and form controls, none of which the sponsor marker (an attribute inside a
+ * Sponsors `<a>`) adds or removes, so applying both to one read gives the
+ * same bytes as the two passes in turn. `build-determinism.test.mjs` and the
+ * test beside these functions pin that.
+ */
+export async function markSponsorsAndNoscriptIn(outDir) {
+  const files = (await listFiles(outDir)).filter((f) => f.endsWith('.html'));
+  const results = await mapLimit(files, 32, async (file) => {
+    const html = await fs.readFile(file, 'utf8');
+    const marked = markSponsorLinks(html);
+    const next = addNoscriptNotice(marked);
+    if (next !== html) await fs.writeFile(file, next);
+    const relative = path.relative(outDir, file);
+    return { sponsored: marked !== html ? relative : null, noscripted: next !== marked ? relative : null };
+  });
+  return {
+    sponsored: results.map((r) => r.sponsored).filter((f) => f !== null),
+    noscripted: results.map((r) => r.noscripted).filter((f) => f !== null),
+  };
 }
 
 const NOSCRIPT_SCRIPT_RE = /<script\b(?![^>]*\btype\s*=\s*["']?(?:application\/(?:ld\+)?json|text\/(?:template|html))["']?)[^>]*>/i;
@@ -4081,15 +4123,7 @@ export function addNoscriptNotice(html) {
 
 /** Applies `addNoscriptNotice` across the finished site; returns the files changed. */
 export async function addNoscriptNoticesIn(outDir) {
-  const changed = [];
-  for (const file of (await listFiles(outDir)).filter((f) => f.endsWith('.html'))) {
-    const html = await fs.readFile(file, 'utf8');
-    const next = addNoscriptNotice(html);
-    if (next === html) continue;
-    await fs.writeFile(file, next);
-    changed.push(path.relative(outDir, file));
-  }
-  return changed;
+  return rewriteHtmlIn(outDir, addNoscriptNotice);
 }
 
 // The optional-support line (`sponsorsNote`, site-nav.mjs) rides in
@@ -4718,7 +4752,8 @@ const SUBCATEGORY_RULES = {
       // who bid it are the electrical and structured-cabling trades, and it is
       // closer to a panel or EV-charger job than to anything in the other groups.
       // `service-load-check` (2026-11-11): the NEC service load check electricians run before an EV charger or heat pump job.
-      test: (slug) => /^(service-load-check|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
+      // `pv-string-sizer` (2026-11-11): PV string sizing (cold Voc, hot Vmp, strings per MPPT) for solar installers.
+      test: (slug) => /^(service-load-check|pv-string-sizer|furnace|boiler|mini-split|hvac-maintenance|ev-charger|electrical-panel|standby-generator|solar-pv|commercial-solar|water-heater|water-softener|well-pump|sump-pump|toilet-replacement|sewer-|septic-|security-camera|appliance-repair)/.test(slug),
     },
     {
       id: 'trades-interior',
@@ -8735,7 +8770,7 @@ ${HERO_BACKDROP_HTML}
       <h1>Free tools to <span class="grad">price the job, check the fees</span> and run your business.</h1>
 ${
   audienceWords.length
-    ? `      <p class="ticker">Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</p>\n`
+    ? `      <p class="ticker" data-longest="${escapeHtml(longestWord(audienceWords))}"><span>Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</span></p>\n`
     : ''
 }
       <p class="lede">
@@ -9947,8 +9982,10 @@ export function renderChromeStyle() {
   // The site header's layout rules ride along (see site-nav.mjs), then
   // `VENTURE_CHROME_CSS`, which gives the venture header and footer the site's
   // own palette so every tool page carries the same bar as the rest of the site.
-  // The floating voice button's rules close it (assistant.mjs, ASSISTANT_VOICE_CSS).
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}`;
+  // The floating voice button's rules close it (assistant.mjs, ASSISTANT_VOICE_CSS),
+  // then the scroll hint for a stuck result card that pf-site.js capped
+  // (sticky-fit.mjs, STICKY_FIT_CSS).
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -10666,11 +10703,16 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // 2026-10-24 only entry pages carried any, and it skipped the category the
   // visible trail shows, so ~1,750 guide and comparison pages inside tools
   // showed a four-level trail and declared none.
-  const category = categoryFor(slug);
-  const categoryHref = categoryPagePath(category.id);
+  // Fiction (stories.mjs, STORY_VENTURES) sits under the Stories section, with
+  // the shelf's short name rather than its search title in the trail.
+  const shelfName = Object.hasOwn(STORY_VENTURES, slug) ? STORY_VENTURES[slug] : null;
+  const category = shelfName ? { title: 'Stories' } : categoryFor(slug);
+  const categoryHref = shelfName ? STORIES_PATH : categoryPagePath(category.id);
+  const section = shelfName ? 'stories' : 'tools';
+  const name = shelfName || title || slug;
   const crumbs = [{ label: category.title, href: `${toRoot}${categoryHref}` }];
-  if (isEntry) crumbs.push({ label: title || slug });
-  else crumbs.push({ label: title || slug, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
+  if (isEntry) crumbs.push({ label: name });
+  else crumbs.push({ label: name, href: `${toRoot}${slug}/` }, { label: pageTitle || 'This page' });
   if (canonical && !html.includes('"BreadcrumbList"') && (isEntry || pageTitle)) {
     // Lets a result render as "Maris Stella Labs › Marketplace sellers ›
     // eBay Fee Calculator" rather than a bare URL, and tells an answer engine
@@ -10682,7 +10724,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       const trail = [
         { name: SITE_NAME, item: base },
         { name: category.title, item: `${base}${categoryHref}` },
-        { name: title || slug, item: `${base}${slug}/` },
+        { name, item: `${base}${slug}/` },
       ];
       if (!isEntry) trail.push({ name: pageTitle, item: canonical });
       headExtras += `\n<script type="application/ld+json">${jsonLd({
@@ -10727,7 +10769,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // first form or every input on its page still finds its own.
   const topBar = renderSiteHeader({
     toRoot,
-    current: 'tools',
+    current: section,
     search: 'link',
     crumbs,
     extraClass: 'pf-chrome pf-chrome-top',
@@ -12323,8 +12365,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // uncounted. Before the offline layer below, for the reason stated there:
   // this rewrites HTML, so a cache named from a hash taken earlier would ship
   // pages that no longer match it.
-  const sponsored = await markSponsorLinksIn(outDir);
-  const noscripted = await addNoscriptNoticesIn(outDir);
+  // One walk for both (`markSponsorsAndNoscriptIn`): the notice pass reads the
+  // same pages straight after.
+  const { sponsored, noscripted } = await markSponsorsAndNoscriptIn(outDir);
 
   // After every generator has written its pages and the chrome has wrapped
   // them: a card for each page still on the site-wide one (research, writing,

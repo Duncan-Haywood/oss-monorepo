@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKntWKCRuMgZb87y6PC",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T12:12:59Z",
+  "ended": "2026-11-11T12:21:08Z",
+  "wall_minutes": 8.41,
+  "tokens_in": 5006248,
+  "tokens_out": 20822,
+  "cost_usd": 2.1128,
+  "tool_calls": 67,
+  "task": "polish: story pages filed under Tools in header, breadcrumb and BreadcrumbList",
+  "projects": [
+    "platform/pages",
+    "hearth-and-horizon",
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14782",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "PIL in system python3 fails to import (_imaging missing); cropped screenshots with Playwright instead",
+    "curl to marisstella.app and github.io refused by the egress proxy, so production could not be probed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Seven polish runs had already landed today on the hub, tool pages and Lighthouse; the prompt's survey list (hub, flagship, research, Stories, blog post) is what found an untouched defect. Worth saying: check today's polish reports first and survey the surfaces they did not cover."
+    },
+    {
+      "file": "docs/reports/polish-2026-11-11-header-search-pill.md",
+      "issue": "Several of today's polish reports have no '## Still weakest' heading (they use a bold 'Next.' paragraph), so grepping for the next list misses them."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A red test on main (concrete-maturity doubled FAQ) was being fixed in parallel by another session (#14780); searching open PRs by venture slug found nothing because it was bundled into a shift-roster-builder PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-436-stories-filed-under-tools.md",
+    "docs/reports/polish-2026-11-11-stories-section.md"
+  ],
+  "goal": "impressive sites, SEO and AEO",
+  "notes": "Full local build before and after. After: 341/341 hearth-and-horizon and 95/95 saints-by-candlelight HTML pages mark Stories current, 0 mark Tools. check.mjs: publishable, 8442 pages, no dead links. Full `node --test platform/pages/*.test.mjs`: 1525 tests, 1514 pass, 2 fail on first run: (1) build.test 'each tool entry page carries breadcrumb structured data' expected every venture under c/ (updated for story shelves); (2) faq-duplicate: concrete-maturity/index.html carried its FAQ twice on main after #14766 and #14774 both added it (also fixed by #14780, which landed first; the merge took main's copy). Re-run: build.test.mjs 309/309, faq-duplicate.test.mjs 14/14. No CI check runs appeared on the PR. run_workflow_locally.py --for-changes: 11/14 workflows passed; portfolio-pages.yml hit the tool's 300 s budget in the site-builder tests (run in full separately, see above) and pages.yml needs a _site build the tool cannot produce; separately ran check_post_frontmatter.py (exit 0) and devstats/daily tests (47/47).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a21815f8-e460-5517-9a83-b0c7599c968e",
+    "transcripts": 1,
+    "first": "2026-11-11T12:12:59Z",
+    "last": "2026-11-11T12:21:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 110,
+        "output": 20822,
+        "thinking": 3722,
+        "cache_read": 4917081,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89057,
+        "api_equivalent_usd": 2.1128,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 110,
+      "output": 20822,
+      "thinking": 3722,
+      "cache_read": 4917081,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89057,
+      "api_equivalent_usd": 2.1128,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 58,
+      "Read": 6,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.41,
+      "active_minutes": 8.41,
+      "model_minutes": 4.19,
+      "tool_minutes": 4.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "find the cause, change the chrome, test, rebuild and count 436 pages, write report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 94.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

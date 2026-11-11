@@ -334,7 +334,7 @@ const RULES = {
     // "refrain from further correspondence", "no-solicitation policy", "rather you didn't contact me", "leave our company out", "don't ever contact",
     // "don't send me anything else", and ES/FR/IT phrasings. Unscored on real mail.
     P("\\bdo[- ]not[- ](contact|call|email|mail)\\b"), P("\\b(i'?d|i would|i'?ll|we'?d) (much )?(rather|prefer to) not (get|receive|hear|have)\\b"), P("\\bnot (to )?(get|receive) any more\\b"), P("\\brefrain from (any )?(further|more|future)? ?(correspondence|contact|communication|emails?|messages?)"), P("\\bno[- ]solicitation\\b"),
-    P("\\b(rather|prefer) (that )?you (didn'?t|did not|not|wouldn'?t|would not) (contact|email|write|message|call)"), P("\\bleave (me|us|our \\w+|my \\w+) out of\\b"), P("\\b(don'?t|do not|never) ever (contact|email|write|message|call)"),
+    P("\\b(rather|prefer) (that )?you (didn'?t|did not|not|wouldn'?t|would not) (contact|email|write|message|call)"), P("\\bleave (me|us|our \\w+|my \\w+) out of\\b"), P("\\b(don'?t|do not|never) ever (contact|email|write|message|call)\\b"),
     P("\\b(don'?t|dont|do not) send (me|us) (anything|any ?more|more)\\b"), P("\\b(contact|email|write to|message) (me|us) (anymore|any more|again)\\b.*\\b(don'?t|do not|please don)"),
     P("supprimiez (mon|mes|notre|nos)\\b"), P("deja de (enviar|mandar|escribir)(me|nos)?\\b"), P("\\bnon (scrivetemi|scrivermi|inviatemi|mandatemi)\\b"),
     P("\\bcease and desist\\b"), P("\\bcease (all )?(further )?(email|e-mail|communication|contact)"),
@@ -687,7 +687,7 @@ VETO.unsubscribe.push(
 // the sitara transport report", "we don't need an RTO, we need to fix the transmission rules", "we are all set ... Give me a call".
 // Only the need/set phrasings; "not interested", "no thanks" and "not a fit" still decline whatever else the reply asks.
 const SOFT_NO = /\b(don'?t|do not) (really )?need\b|\bno need\b|\b(we['’]re|we are) (all )?(set|good|fine)\b/i;
-const ASKS_READER = /\?|\b(can|could|would|will) you\b|\bplease (send|fax|provide|cancel|center|call|let me know|confirm|forward|check|add|change|update|review|schedule|lay out|give|get|book|order|make|print|file)\b|\bis it (ok|okay|alright)\b|\b(give me|call me|let me know)\b|\b(i|we) (just |only |still |really )?need (the|a|an|to|your|you)\b/i;
+const ASKS_READER = /\?|\b(can|could|would|will) you\b|\bplease (send|fax|provide|center|call|let me know|confirm|forward|check|add|change|update|review|schedule|lay out|give|get|book|order|make|print|file)\b|\bis it (ok|okay|alright)\b|\b(give me|call me|let me know)\b|\b(i|we) (just |only |still |really )?need (the|a|an|to|your|you)\b/i;
 // An absence mentioned inside a working reply (the hard case rounds 3 and 4 left): "I have asked Bob Superty, Kim Theriot and
 // Mechelle Stevens to attend ... I will be out of the office that day", "Ron - Mary has asked that the document ... be faxed to
 // her ... I will be out of the office Friday", "I am out of town on Thursday & Friday; I will touch base with you on Monday" after
@@ -753,14 +753,77 @@ const AWAY_GREETING = /^((hi|hello|hey|dear|good (morning|afternoon|evening)|gre
 const awayTooDeep = (body, s) => {
   const ss = sentences(body), i = ss.indexOf(s);
   // Round 5's policy holds: a stated span ("out of the office until November 12th") is what the reply asks for, so it pauses.
-  if (i < 0 || /\b(until|till|thru|through)\b/i.test(s)) return false;
+  if (i < 0 || STATED_SPAN.test(s)) return false;
   const lead = AWAY_GREETING.test(ss[0] || "") && ss[0] !== s ? 1 : 0;
   return ss.length > 3 && i - lead >= 2;
 };
 // "No. I'll let this one go. Thanks", "No. I will not agree to any penalty charges" (5*, real declines the round-5 REST_DECLINES
 // did not read as one).
 const REST_DECLINES_6 = /\b(let (this|it|that) (one )?go|(will not|won'?t|do not|don'?t) agree to)\b/i;
-const SCHEDULING_INSTEAD = /\b(is|are|would be|works) better (for me|than)\b/i;
+// Seventh round: "these new dates don't work for me ... I will be out of the office that week", "I can meet at 900 on Thurs. I
+// will be out of office from 1030 until 300" (6*): a reply about which times work is scheduling, not an away notice.
+const SCHEDULING_INSTEAD = /\b(is|are|would be|works) better (for me|than)\b|\b(dates?|times?|days?) (don'?t|do not|doesn'?t|does not|won'?t) work for (me|us)\b|\bi can (meet|do|make it)\b(?! (it )?(next|after|when)\b)/i;
+// Seventh round, 2026-11-11 (eval/README.md "Seventh round"): written from the stops still wrong on the 0*-6* Enron halves
+// under the round-6 rules (41 on 6*, plus 3*-5*), frozen, then scored once on the unread 7* half. Each line quotes its real
+// phrasing. Round 6's span test read any "through" as a date span, so "I am traveling wednesday but reachable through my
+// assistant" deep in a long reply still paused the lead; a span now needs a date word after it.
+const STATED_SPAN = /\b(until|till|thru|through) (about |around |at least |the |early |mid-?|late |the end of |next |after )*(monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun|tomorrow|week|month|year|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec|january|february|march|april|june|july|august|september|october|november|december|christmas|x-?mas|new year|thanksgiving|easter|\d)/i;
+VETO.out_of_office.push(
+  // "I will be out of the office tomorrow during the same time out today -- 9:30 until 11", "out of office from 1030 until 300":
+  // a few hours, not an absence. A clock time, not a date (no "/", month or "th" after it).
+  /\b(from \d{1,2}(:?\d\d)?\s*(am|pm|a\.m\.|p\.m\.)?\s*)?(until|till|to) \d{1,2}(:?\d\d)?\s*(am|pm|a\.m\.|p\.m\.)?(?!\d|[\/.-]\d|\s*(st|nd|rd|th)\b|\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*)/i,
+  // "I'm very willing to get away from my desk for a little while"; "you're not supposed to let go while I'm away" (3*, 4*). Not
+  // "Grant can handle urgent matters while I am away", an away notice's own handover (5*).
+  /\b(willing|like|love|want|need|happy|glad) to get away\b|\bsupposed to\b.{0,30}\bwhile (i'?m|i am) (away|gone)\b/i,
+  // "I won't be able to attend the forum since I am travelling but do have a suggestion": a reason for missing one event.
+  /\b(won'?t|will not|can'?t|cannot|unable to|not be able to) (be able to )?(attend|make (it|the \w+)|join)\b.{0,60}\b(since|because|as)\b/i,
+  // "I'm here until about mid-May and then will go on leave in Europe for a year": here now, leaving months away.
+  /\b(i'?m|i am|i'?ll be|i will be) here until\b/i,
+  // "I will be back in not too long", "Will be back early evening and all day sunday" (5*).
+  /\bwill be back (in not too long|before long|in a while|(early |late )?(evening|afternoon|tonight))\b/i);
+VETO.unsubscribe.push(
+  // "I'll take my ring off my finger" (6*): a thing in hand, not a name on a list. "I'll take it off the list" (6*): the writer
+  // doing the removing. "Maybe getting out of your system would help!" (5*, 6*): a file, not a contact record.
+  /\btake (my|his|her|their|your|our) (ring|rings|shoes?|coat|jacket|hat|glasses|hands?|eyes|feet|foot|gloves?|tie|watch|clothes|shirt|makeup) off\b/i,
+  /\b(i'?ll|i will|we'?ll|we will|i can|we can|let me) take (it|this|that|him|her|them) off (the|my|our) (list|plate|calendar|agenda|schedule|board|sheet|report)\b/i,
+  /\b(getting|get) (it |this |that |them )?out of your system (would|might|may|will|could)\b/i,
+  // 'I sent back a screaming "UNSUBSCRIBE" message' (6*): telling what happened elsewhere. "kudos to all those who opted out of
+  // Sam's Boat" (5*, 6*): someone else opting out of an event.
+  /\b(sent|sending|replied|typed|wrote)\b.{0,40}\bunsubscribe"? (message|e-?mail|request|reply)\b/i,
+  /\b(who|those|they|he|she|people|everyone|others) (had |have |has )?opted out\b/i);
+VETO.not_interested.push(
+  // "John was not interested in Mike after I spoke with him" (6*): someone else's no, by the round-4 subject walk.
+  { test: subjectIsSomeoneElse(/\bnot interested\b/i) },
+  // "We do not need anything from you yet" (6*): a status, not a no. "no thanks necessary" (5*).
+  /\b(don'?t|do not) need anything (from (you|us) )?(yet|just yet|right now,? but|until)\b|\bno thanks? (necessary|needed|required)\b/i,
+  // "It is not relevant that it is not standard practice" (6*).
+  /\b(it|that|this) is not relevant (that|whether|if|how|what|who)\b/i,
+  // "I'm not looking to make money on the grapes" (4*, 6*): a goal the writer does not have, not a purchase they decline.
+  /\bnot looking to (?!((really|actually|necessarily) )?(buy|trade|switch|cancel|leave|drop|renew|change|add|hire|use|purchase|invest|replace|outsource|move|try|sign|take on|work with|partner|engage|talk|meet|chat|spend|pay|be (contacted|sold))\b)\w+/i,
+  // "their key does not fit any of the doors" (6*), "If they do not fit within one of the exceptions" (5*).
+  /\b(does|do|did) not fit (any|in|into|within|on|through|together|properly|one of)\b/i);
+VETO.left_company.push(
+  // "Please contact Brent Price for our DASH" (5*, 6*), "If you have any questions, please speak with Maggie or Julie" (5*).
+  /\b(please )?(contact|e-?mail|call|speak (with|to)) [A-Z][a-z]+( [A-Z][a-z]+)? (for our|for all (the )?details)\b/,
+  /\b(if|any) (you have )?(any )?(questions|queries)\b.{0,40}\bspeak (with|to)\b/i,
+  // "Unfortunately, these new dates don't work for me" (6*): a time that does not suit, not "I don't work for them".
+  /\b(don'?t|doesn'?t|do not|does not|won'?t|will not) work for (me|us)\b/i,
+  // "My husband is no longer with Koch" (6*): family, not a contact.
+  // "I have passed it on to Dave and will let you know!" (5*): the writer's own handover with a promise to come back is a person
+  // still on the thread. A bare "I passed it on to Stacey" still files as wrong person, by design (2026-11-04).
+  /\b(passed|handed|forwarded|sent) (it|this|that|them) (on |along |over )?to\b.{1,60}\b(and )?(i )?(will|'ll) (let you know|get back to you|follow up|be in touch)\b/i,
+  /\bmy (husband|wife|son|daughter|brother|sister|mother|father|mom|mum|dad|partner|boyfriend|girlfriend|fianc[eé]e?|kids?|children) (is|was|has|had|doesn'?t|does not|no longer)\b/i);
+VETO.bounce.push(
+  // "I received a delivery failure notice when I tried to forward this to you" (5*, 6*).
+  /\b(i|we) (received|got|had) (a |an )?(delivery failure|undeliverable|bounce)\b|\bwhen (i|we) tried to (send|forward|e-?mail)\b/i);
+// "I am no longer using the Palm Pilot and therefore do not need the Palm.Net service ... Please cancel" (4*, open since round 5):
+// a request to cancel a service, or "no longer using" one, is a decline, not a request that scopes work.
+// "Please cancel" is also no longer one of the requests that make a soft no into scoping (ASKS_READER); "is it ok to cancel
+// ... please send a new confirm" (round 5) still asks.
+RULES.not_interested.push(/\b(please )?cancel (the|my|our) ([\w.&'-]+ ){0,2}(service|subscription|account|membership|plan|contract)(?=\s*($|[.,;:!)]|(for|with|on|at|from|now|today|immediately|effective|please|as|and|so|because)\b))|\bno longer (using|use|need|want) (the|your|this|our|my) ([\w.&'-]+ ){0,2}(service|subscription|product|tool|software|platform|app)\b/i);
+// "No.  Just wanted your thoughts", "no - just a chance to sell more" (6*): a bare "No." followed by "just wanted / asking /
+// a chance ..." answers a question; it does not decline. "Nope.  Just bring a smile" (1*) still declines.
+const REST_EXPLAINS_7 = /^\s*just (wanted|wanting|asking|checking|curious|wondering|a (chance|thought|question|heads|reminder)|fyi|thought|thinking|confirming)\b/i;
 const vetoed = (key, s) => (VETO[key] || []).some((re) => re.test(s));
 
 /**
@@ -785,7 +848,7 @@ export function triage(reply, today) {
   // Capacity", "Re: Louise Kitchen - out of office", "Re: Bobette Riner is no longer at TNE" (Enron, third round, 2026-11-11).
   // Auto-replies keep their own subjects ("Out of Office: ...", "Automatic reply: ..."), which do not start with Re:.
   // Fourth round: a bare "No." stands as a decline when the rest of the reply is empty, a sign-off, or declines too.
-  const bareNoStands = (s) => { const rest = sentences(body).filter((x) => x !== s).join(" "); return !REST_TALKS.test(rest.replace(/\b(thanks|thank you|thx|cheers|regards)\b/gi, "")) || REST_DECLINES.test(rest) || REST_DECLINES_6.test(rest); };
+  const bareNoStands = (s) => { const rest = sentences(body).filter((x) => x !== s).join(" "); if (REST_EXPLAINS_7.test(rest)) return false; return !REST_TALKS.test(rest.replace(/\b(thanks|thank you|thx|cheers|regards)\b/gi, "")) || REST_DECLINES.test(rest) || REST_DECLINES_6.test(rest); };
   // Fifth round: an absence inside a working reply is a person writing, not an away notice (see absenceInWorkTalk).
   // Only under a reply subject: a subject that is itself the notice ("Out of Office: ...", "Automatic reply: ...", "Out of office --
   // Dec. 4 and 5") keeps the away reading however long the body runs.

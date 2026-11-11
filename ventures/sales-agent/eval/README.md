@@ -589,6 +589,68 @@ What is left on `6*` (41 wrong): away notices (16), not-interested (11), left-co
 still open: "Please cancel the Palm.Net service ... do not need the Palm.Net service", a real decline that round 5's
 request check reads as scoping (a request beside a soft no); `7*` and later are unread for round 7.
 
+### Seventh round, on an eighth half: the rules have reached the reader's noise (2026-11-11)
+
+**Method.** As round 6: before any rule changed, the round-6 stops on `7*` (16 more folders, `'.bitcache/blobs/7*'`, 9,428
+`RE:` replies) were written to a file unread. Rules changed looking only at the stops still not right on `0*`-`6*`
+(mostly the 41 on `6*`, then `3*`-`5*`), were frozen (`engine.mjs` sha256 `52f6408406d0...`, commit "seventh round ... frozen
+before 7* is read"), and the union of the stops either rule set fired on `7*` (90) was shuffled with a fixed seed (20261114),
+the engine's answers hidden, and labelled once by a separate agent (same model family). New this round: the reader's brief is
+a file, [`enron-labels/READER.md`](enron-labels/READER.md), written from the instructions rounds 3-6 gave in their prompts, so
+later rounds and a human second reader can use the same text. Labels: `eval/enron-labels/eighth.json`.
+
+**What changed** (`engine.mjs`, the "Seventh round" block):
+
+- *A stated span needs a date after it*: round 6 read any "through" as one, so "I am traveling wednesday but reachable through
+  my assistant" deep in a long reply still paused the lead.
+- *Away vetoes*: clock-time spans ("out of the office ... 9:30 until 11", "from 1030 until 300"), "willing to get away from my
+  desk", "won't be able to attend ... since I am travelling", "I'm here until mid-May", "will be back in not too long". A reply
+  about which times work ("these new dates don't work for me", "I can meet at 900 on Thurs") is scheduling.
+- *Unsubscribe vetoes*: "take my ring off", "I'll take it off the list" (the writer removing), "getting out of your system would
+  help" (a file), a reported 'sent back a screaming "UNSUBSCRIBE" message', "those who opted out of" an event; "never EVER
+  called you" no longer matches "never ever call".
+- *Not-interested*: someone else's no by the subject walk ("John was not interested in Mike"), "don't need anything from you
+  yet", "no thanks necessary", "it is not relevant that", "not looking to make money" (a goal, not a purchase), "does not fit any
+  of the doors"; a bare "No." followed by "just wanted / just a chance" answers a question. Added as a decline: "Please cancel
+  the X service", "no longer using the X service" (the Palm.Net case open since round 5); "please cancel" no longer counts as a
+  request that turns a soft no into scoping.
+- *Left-company*: "please contact X for our DASH", "if you have any questions, please speak with", family ("my husband is no
+  longer with"), "dates don't work for me", and the writer's own handover *with a promise to come back* ("I have passed it on to
+  Dave and will let you know!"). A bare "I passed it on to Stacey" still files as wrong person, by design.
+- *Bounce*: "I received a delivery failure notice when I tried to forward this".
+
+| Stops fired on `RE:` replies, wrong (right lost) | Round 6 | Round 7 |
+|---|---|---|
+| Tuning `0*`-`4*` | 33 | 28 (one right lost: "We do not need anything from you yet", labelled right on `0*` and `none` when the same message came back on `6*`) |
+| Tuning `5*` (first reader) | 45 | 32 |
+| Tuning `6*` | 41 | 17 (none lost; one more right stop, the Palm.Net cancel on `1*`) |
+| **Fresh `7*` (9,428), scored once: right / wrong / ambiguous** | **49 / 38 / 3 (90)** | **49 / 37 / 3 (89)** |
+| Fresh precision (ambiguous as wrong) | 54% | 55% |
+| **Fresh wrong stops per 1,000 replies** | **4.0** | **3.9** |
+
+**Read the fresh row: no measurable gain.** Round 7 changed one stop out of 90 on new text (an away mention dropped; the reader
+says `none`), against 24 on the half it was written from. The `6*` gain was real for `6*` but did not carry. Two reasons, both
+measured:
+
+- *Repeated text.* The corpus files the same message under several IDs, and each half holds copies of the others: 43 of the
+  88 round-6 stops on `6*` have the same text (first 300 characters, case and punctuation folded) as a stop on `0*`-`5*`, and
+  49 of the 90 on `7*` repeat a stop on `0*`-`6*`. A fix for a repeat moves a tuning half and does nothing for a fresh one. 8
+  of round 7's 24 removals on `6*` were repeats of earlier halves.
+- *What is left is policy, not phrasing.* Of the 37 wrong stops on `7*`, 20 are the writer's own absence inside a working
+  reply. Whether "I am out of the office until next Thursday and can't give you the detail now" should pause a lead is a
+  product choice the readers decide one way (`none`) and the product the other (a stated date pauses, round 5). More vetoes
+  won't move it.
+
+The fresh `before` column is also the first honest reading of round 6 on new text: 4.0 per 1,000 (4.3 on `6*`, its own fresh
+half). So rounds 6 and 7 both sit at about 4 wrong stops per 1,000 real replies under one reader, a figure that a second reader
+moves by about 1. **Rule rounds on this corpus have stopped paying.** The next useful measurements are a different reader (a
+person, or another model family, labelling from `READER.md`), the away policy decided on purpose, and real replies to outreach.
+
+*Checks.* Opt-out recall on the labelled opt-outs (`eval/optout-recall.mjs`, `2*`-`7*`): 115 of 119, same misses before and
+after. Agent-written reply sets (792 replies in `replies.jsonl`, `heldout.jsonl`, `fresh-*.jsonl`): no reply changes category
+against round 6 (one did in the first draft, "Not looking to cancel our contract", fixed before freezing). Real auto-replies
+and bounces caught: unchanged on every half. `node --test`: 471 pass (441 before this round's tests).
+
 ## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
 
 The Enron check above measured stops that fired wrongly. This one measures the

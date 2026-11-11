@@ -1294,6 +1294,63 @@ a stray comma, and four receipts with no total word where the largest amount (th
 cash handed over) was taken. Score it: `node eval/cord-receipts.mjs
 eval/cord/test.jsonl [--misses]`; `cord-receipts.test.mjs` pins the table.
 
+### Totals checked against the receipt's own arithmetic (SROIE through tesseract)
+
+2026-11-11, flagship item (5). On SROIE's 626 receipt scans read by tesseract
+5.3.4 (`--psm 6`, no preprocessing), the reader got the total right on 76.2%,
+against 97.4% from the dataset's hand-made word boxes. Most of the gap is one
+misread digit in the total line: `9.60` for `9.00`, `34.00` for `31.00`, `64.50`
+for `54.50`. A receipt states its total more than once, though: cash handed over
+less change, the before-tax subtotal plus the GST/SST line (and any rounding),
+the items added up, and often a second total line. Two changes in `receipts.mjs`:
+
+- **One reading** (`parseReceipt`): when the printed total matches none of those
+  checks, and one value that is the printed total with exactly one digit changed
+  is confirmed by **two different kinds** of check, that value is taken, with a
+  note asking the person to check the total. One check alone is not enough: on
+  the clean box text, letting any single check overrule the total broke 15
+  receipts that were right (a discount the items miss, a misprinted change), and
+  through OCR single checks broke as many as they fixed, because the cash and
+  change lines get misread too. A few cents either way is the 5-sen rounding, not
+  a misread digit, and is left alone.
+- **Two readings** (`parseReceiptPasses`, CLI `receipts photo.jpg --two-pass`,
+  `ocr.mjs` `receiptPassesFromFile`): the photo is read again with tesseract's
+  `--psm 4` (one column of text of varying sizes). Where the readings disagree on
+  the total, the one confirmed by more kinds of check (cash less change, subtotal
+  plus tax, the items) is taken; a tie keeps the first. "Another total line" is
+  not counted here: in the second reading the first reading's own total line,
+  misread differently, shows up as one, and counting it picked the wrong reading
+  as often as the right one. The check kinds were chosen on the even-numbered
+  receipts (6 changed, 6 right) and then scored on the odd ones (3 changed, 3
+  right, 0 wrong). A date only the second reading found is not taken (18 filled,
+  9 right, 9 wrong); the receipt asks instead.
+
+| SROIE, 626 scans, 625 with a total | Total right | Wrong | Off by 5 cents or less |
+|---|---|---|---|
+| word boxes (no OCR), before and after | 609 (97.4%) | 16 | 6 |
+| tesseract `--psm 6`, before | 476 (76.2%) | 141 | 22 |
+| tesseract `--psm 6`, arithmetic check | 478 (76.5%) | 139 | 22 |
+| tesseract default (`--psm 3`), what the CLI ran before | 422 (67.5%) | 186 | 20 |
+| tesseract `--psm 4` alone | 425 (68.0%) | 188 | 23 |
+| `--psm 6` then `--psm 4`, two readings | **487 (77.9%)** | 130 | 23 |
+
+The CLI used to call tesseract with no mode, so it ran tesseract's own default
+(`--psm 3`, page layout analysis), 8.7 points worse on totals than `--psm 6`, the
+mode every SROIE number above was taken with. The CLI's default command is now
+`tesseract {file} stdout --psm 6` (`RECEIPT_OCR_CMD` still overrides it), so a
+photo read by the CLI goes from 67.5% to 76.5% on its own, 77.9% with
+`--two-pass`. The page's tesseract.js reads one block by default already.
+
+The box-text scores (merchant 531, date 601, total 609) are unchanged. Either
+reading had the right total on 509 receipts, so a perfect chooser would reach
+81.4%; the rest are OCR-bound (the digit is wrong in both readings, or the
+total line is lost). Reproduce: clone zzzDavid/ICDAR-2019-SROIE (MIT), run
+`eval/sroie-ocr-variants.sh <clone>/data <out> base`, OCR the images again with
+`--psm 4` into `<out>/psm4`, then `node eval/sroie-receipts.mjs <clone>/data --ocr
+<out>/base,<out>/psm4`. Tests: `receipt-crosscheck.test.mjs` (11, receipt text
+made up). Still flat scans, not phone photos; the in-browser OCR on the page
+reads once.
+
 ## Budget against actual
 
 `node cli.mjs --books books.json budget 6130 200` sets a monthly budget of $200
@@ -1342,6 +1399,8 @@ command (CHARGE sales, REFUND refunds, fee types fees, other types other income;
 fixture `fixtures/square-payout-entries.json`, 2 tests; hand-made from the published
 entry shape, type names checked against Square's ActivityType list 2026-10-25, so a fee refund books as a fee and holds, savings and loans as balance movements; no real API response tried). Square's
 dashboard Transactions CSV (2026-10-23: `Deposit ID`, `Deposit Date`, `Event Type`, `Total Collected`, `Fees` as negatives, `Net Total`) reads too, grouped by deposit; payments are sales and refunds refunds, and, since 2026-10-23, tax and tip inside Total Collected are split out of it: tax to Sales tax payable 2100, tips to the sales account unless `--tips CODE` (say a staff liability) is given (`payouts.test.mjs`; fixture only). Layout from memory of Square's export, one hand-written fixture (`fixtures/square-transactions.csv`), no real export. Etsy's payment-account ledger CSV (Date, Type, Title, Amount, Fees & Taxes, Net; 2026-10-22) is grouped under each Deposit row the way PayPal is (newest-first order handled, split only when the rows net exactly to the deposit); layout from memory of Etsy's help pages, one hand-written test, no real export. Ko-fi's transactions CSV (DateTime (UTC), Received, Given, TransactionType; 2026-11-06) reads Received as money in and Given as money out (`kofi-export.test.mjs`); header from memory, made-up rows, no real export. Patreon's earnings report (Date, Event Type, Creator Share; 2026-11-06) books Creator Share, what the creator keeps after Patreon's fees, under the event type (`patreon-earnings.test.mjs`); column names from a third-party importer's notes, made-up rows, no real export. Paddle's transactions CSV (Transaction ID, Billed At, Product, Total, Fee, Earnings; 2026-11-06) books Earnings, what the merchant of record leaves after tax and its fee, under the product (`paddle-earnings.test.mjs`); header from memory of the Paddle Billing export, made-up rows, no real export. Airbnb's host transaction-history CSV (Reservation, Adjustment and Payout rows; 2026-10-23) reads the same way, with a worked page `airbnb-bookkeeping.html` for short-term-rental hosts; layout from memory, one hand-written fixture, no real export.
+
+**Adyen settlement details, on Adyen's own sample** (2026-11-11). The Adyen reader (`readAdyen` in `payouts.mjs`, since 2026-10-25) was written from the column list and a hand-made fixture. Adyen links a sample Settlement details report from its docs (batch 134, 63 rows, the 2023 64-column layout); `node eval/adyen-sample.mjs` fetches it at run time (it is Adyen's file, so it is not copied here) and runs it through `payouts`. Before this change the reader got the file wrong in one way that matters: the two `Balancetransfer` rows (EUR 4,014,796.34 carried in from batch 133 and EUR 4,015,315.41 carried out to batch 135) were read as other income, and had the batch carried a payout they would have put four million euros through account 4100. Adyen's "Journal types" table (read the same day) says a Balancetransfer moves a balance between payout batches when a batch is not paid out. Now each batch must tie: carried in + activity - carried out = MerchantPayout (0 when none). On the sample: 4,014,796.34 + 519.07 (58 Settled rows, 525.27 net; three Fee rows, 6.20) = 4,015,315.41, so the batch ties to the cent; with no payout, its 61 rows stay pending and the problem line says which batch to export with it. Batches chained by a matching carry (out of 20 to 21, into 21 from 20, same amount) are merged, so the payout that reaches the bank splits into every sale behind it; a balance carried in from a batch not in the export is booked to the processor-balance account (1200, the `reserve` role) and named, never to sales. The same table fixed six journal types the reader misfiled: DepositCorrection and ReserveAdjustment (and MerchantPayin, BankInstructionReturned) move the reserve, not income; CaptureFailed was skipped as if it moved no money and SettledReversed was income, both now reduce sales; RefundFailed and RefundNotCleared undo a refund; PaidOut, EpaPaid, ManualCorrected and the other types that are not the merchant's sale or cost go to other income only with a problem line naming them. Tests: `adyen.test.mjs` (9 pass; the five new ones use made-up rows in the sample's 64-column layout). Not tried: a real merchant's report with a MerchantPayout, a batch in another currency than its payout, or the XLSX form; Adyen notes a real account's report can carry columns the sample lacks.
 
 **Amazon seller settlements** (2026-10-22): the settlement report, flat file V2 (tab-delimited; `settlement-id`, `deposit-date`, `total-amount`, `transaction-type`, `amount-type`, `amount-description`, `amount`), reads through the same `payouts` command. The summary row's total is the deposit; item price, shipping and promotions go to sales (refunds and promotions negative), tax collected and marketplace-facilitator tax withheld to Sales tax payable 2100 (they net to zero where Amazon remits), advertising to 6000, commissions, FBA, subscription and storage fees to 6010, reimbursements to other income. New role flags `--tax` and `--ads`. A settlement is split only when its rows add up to the summary total; a reserve line or a mismatch is listed under problems and left alone. Layout written from Amazon's published column names and a hand-written fixture (`fixtures/amazon-settlement-v2.txt`, 2 tests in `payouts.test.mjs`); no real settlement file tried. `Promotion` rows whose description names tax (`TaxDiscount`) go to tax, not refunds (2026-11-03; Amazon's reference pages 403 from the sandbox, so the names are from the fixture). The Seller Central date-range transaction CSV (2026-10-22; note lines, then `settlement id`, `type`, `product sales` ... `selling fees`, `fba fees`, `other`, `total`; dates like `Mar 2, 2026 9:15:02 AM PST`) is read too: a `Transfer` row is the deposit, a settlement is split only when its other rows add up to it and each row's columns add up to its own total, and a settlement with no transfer yet is pending (fixture `fixtures/amazon-date-range.csv`, 2 tests; hand-written from the published column names, no real export tried).
 Shopify's full payout-transactions header (Order ID, Card Brand, Payout Status, Available On ... Business Entity Name; written from memory of the export, 2026-10-22) reads too; `chargeback_fee` and `dispute_fee` rows now post as fees and hold/withdrawal types as disputes instead of other income (1 test, no real export).
@@ -1502,6 +1561,7 @@ one per customer, part-payments, the `--min` cut); on the page (2026-10-22): und
 - Sales tax return property test, 2026-10-27 (`salestaxreturn-property.test.mjs`, 2 tests, made-up ledgers only): 150 seeded ledgers of invoices and credit notes with up to three jurisdictions, at monthly, quarterly and annual frequency; total tax equals the signed tax lines typed in, payable is tax less discount, and period totals match their rows. Every state's due-day rule gives a due date after the period that lands on a business day once moved. It passed first time; a flipped credit-note sign made it fail. It checks no state's real dates (state tax sites refused the session's proxy).
 - Hawaii semiannual sales tax (GET) return, 2026-10-28 (`salestaxreturn.test.mjs`, 1 test): the worksheet already gave calendar halves (Jan-Jun, Jul-Dec) due the 20th after, i.e. Jul 20 and Jan 20; the code comment calling this "not modelled" was stale and is fixed. Source is one 2026 third-party guide (trykintsugi.com) plus a 2009 bill that moved the date from month end to the 20th; HRS 237-30 and tax.hawaii.gov were not read, so check your own notice.
 - Annualized income check, 2026-10-30 (no code logic changed): the Schedule AI percentages (22.5, 45, 67.5, 90%) were matched to a search excerpt of the 2024 federal Form 2210, and the factors (4, 2.4, 1.5, 1) to Alabama and Iowa Schedule AI forms and a tax guide; the federal factors line and the second set of periods remain unread (irs.gov blocked). The worksheet's warning now says so.
+- Form 2210 read and the penalty added, 2026-11-11 (`annualized.mjs`, `penalty2210.mjs`, `annualized.test.mjs` +5 tests, `penalty2210.test.mjs` 7 tests). irs.gov answered from the session, so the 2025 Form 2210 and its instructions were read with pdftotext (the form's own text, not an excerpt). Schedule AI checked line by line: line 2 factors 4, 2.4, 1.5, 1 and line 20 percentages 22.5 to 90% as coded; the "second set of periods" (2/28, 4/30, 7/31, 11/30) is for estates and trusts only, so not modelling it is right for a sole proprietor. One real difference: Part II (self-employment tax) has its own lines, and line 28 is zero when the *period's* net earnings are under $400, where the old shortcut taxed the annualized figure (a $300 first quarter, annualized to $1,108 of earnings, was charged about $170 of SE tax). Part II now runs line by line (line 29 reproduces the printed $44,025 / $73,375 / $117,400 / $176,100 from the 2025 wage base; lines 32 and 34 the printed 0.496 ... 0.029). New: the underpayment penalty itself (Part III Section A lines 10 to 18 and the instructions' penalty worksheet), for the regular and the annualized installments, at the IRS quarterly underpayment rates read from irs.gov/payments/quarterly-interest-rates (2025 all 7%; 2026 Q1 7%, Q2 6%, Q3 7%, Q4 7%; 2027 Q1 not out, last rate used with a warning). The tests reproduce the instructions' Examples 1, 3 and 4 and Table 2's day counts. Example (4,000 earned by February, 100,000 by November 2025, single, 20,000 paid January 15): regular-method penalty 602.92, Schedule AI 37.28, both checked by hand. The CLI and page show both and say when box C lowers it; the page takes dated estimates. Not modelled: box D (actual withholding dates), the January 31 file-and-pay rule, waivers.
 
 ### Time/Timestamp date headers and HELD rows (2026-11-04)
 

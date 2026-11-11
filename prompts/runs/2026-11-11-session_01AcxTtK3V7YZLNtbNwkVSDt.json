@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtK3V7YZLNtbNwkVSDt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T13:07:02Z",
+  "ended": "2026-11-11T13:13:50Z",
+  "wall_minutes": 7.05,
+  "tokens_in": 4346790,
+  "tokens_out": 28136,
+  "cost_usd": 2.3168,
+  "tool_calls": 46,
+  "task": "Flagship 2 (ai-bookkeeper) item (3): Adyen payout reader on Adyen's own published sample settlement report",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14791",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "The README had no Adyen section at all (only HISTORY.md did), so finding what the reader claimed took a grep of payouts.mjs."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper's next: sits at ~1,950 of its 2,000-character cap, so any landed slice has to be squeezed to a few words."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-adyen-four-million-euros-of-income.md",
+    "ventures/ai-bookkeeper/README.md (Adyen settlement details, on Adyen's own sample)"
+  ],
+  "goal": "Deepen flagship 2 on a real vendor-produced input rather than a made-up fixture",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; route drew ventures. Adyen's sample (assets.ctfassets.net, linked from docs.adyen.com) is fetched at run time by eval/adyen-sample.mjs, not committed (vendor file, licence unknown). Old reader: Balancetransfer +4,014,796.34 / -4,015,315.41 as other income; new: batch ties exactly, 61 rows pending with a named next batch. Verification: node --test adyen.test.mjs 9 pass; run_venture_tests.py ai-bookkeeper ok (51.7s); venture-preflight ai-bookkeeper: first run exit 1 (post description 165 chars, cap 160), fixed, rerun clean exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f7c04ff5-56e6-541a-b5e5-cd409be26b98",
+    "transcripts": 1,
+    "first": "2026-11-11T13:07:02Z",
+    "last": "2026-11-11T13:14:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 82,
+        "output": 28136,
+        "thinking": 7012,
+        "cache_read": 4233317,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113391,
+        "api_equivalent_usd": 2.3168,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 82,
+      "output": 28136,
+      "thinking": 7012,
+      "cache_read": 4233317,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113391,
+      "api_equivalent_usd": 2.3168,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "WebSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.05,
+      "active_minutes": 7.05,
+      "model_minutes": 5.29,
+      "tool_minutes": 1.76,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior engineer reading Adyen's docs and sample, reworking batch reconciliation and writing tests and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 259.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

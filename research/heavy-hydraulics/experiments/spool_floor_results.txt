@@ -1,0 +1,39 @@
+noise-floor q_min (5o): lift 0.800, tilt 1.763 L/min; Willans slope 0.2332 L/kWh
+  sizing p99: lift design flow 121.6 L/min -> spool E (rated 100)
+  sizing p99: tilt design flow 81.6 L/min -> spool E (rated 100)
+    lift above spool E rated 100 L/min: 11.2% of moving samples, 30.2% of moving hydraulic energy (floor extrapolated past rating)
+    tilt above spool E rated 100 L/min: 0.1% of moving samples, 0.1% of moving hydraulic energy (floor extrapolated past rating)
+    orifice p_neutral  5.0: OC/LS hydraulic 1.424, shaft 1.346, extra fuel 11.3%; weighted extra drop 2.59 bar
+    orifice p_neutral 10.0: OC/LS hydraulic 1.455, shaft 1.373, extra fuel 12.2%; weighted extra drop 2.59 bar
+    power   p_neutral  5.0: OC/LS hydraulic 1.419, shaft 1.342, extra fuel 11.2%; weighted extra drop 2.11 bar
+    power   p_neutral 10.0: OC/LS hydraulic 1.450, shaft 1.369, extra fuel 12.1%; weighted extra drop 2.11 bar
+  sizing p99.9: lift design flow 129.2 L/min -> spool E (rated 100)
+  sizing p99.9: tilt design flow 95.3 L/min -> spool E (rated 100)
+    lift above spool E rated 100 L/min: 11.2% of moving samples, 30.2% of moving hydraulic energy (floor extrapolated past rating)
+    tilt above spool E rated 100 L/min: 0.1% of moving samples, 0.1% of moving hydraulic energy (floor extrapolated past rating)
+    orifice p_neutral  5.0: OC/LS hydraulic 1.424, shaft 1.346, extra fuel 11.3%; weighted extra drop 2.59 bar
+    orifice p_neutral 10.0: OC/LS hydraulic 1.455, shaft 1.373, extra fuel 12.2%; weighted extra drop 2.59 bar
+    power   p_neutral  5.0: OC/LS hydraulic 1.419, shaft 1.342, extra fuel 11.2%; weighted extra drop 2.11 bar
+    power   p_neutral 10.0: OC/LS hydraulic 1.450, shaft 1.369, extra fuel 12.1%; weighted extra drop 2.11 bar
+  sizing max: lift design flow 133.2 L/min -> spool E (rated 100)
+  sizing max: tilt design flow 132.8 L/min -> spool E (rated 100)
+    lift above spool E rated 100 L/min: 11.2% of moving samples, 30.2% of moving hydraulic energy (floor extrapolated past rating)
+    tilt above spool E rated 100 L/min: 0.1% of moving samples, 0.1% of moving hydraulic energy (floor extrapolated past rating)
+    orifice p_neutral  5.0: OC/LS hydraulic 1.424, shaft 1.346, extra fuel 11.3%; weighted extra drop 2.59 bar
+    orifice p_neutral 10.0: OC/LS hydraulic 1.455, shaft 1.373, extra fuel 12.2%; weighted extra drop 2.59 bar
+    power   p_neutral  5.0: OC/LS hydraulic 1.419, shaft 1.342, extra fuel 11.2%; weighted extra drop 2.11 bar
+    power   p_neutral 10.0: OC/LS hydraulic 1.450, shaft 1.369, extra fuel 12.1%; weighted extra drop 2.11 bar
+  sizing p99.9 + 1 size: lift design flow 129.2 L/min -> spool E (rated 100)
+  sizing p99.9 + 1 size: tilt design flow 95.3 L/min -> spool E (rated 100)
+    lift above spool E rated 100 L/min: 11.2% of moving samples, 30.2% of moving hydraulic energy (floor extrapolated past rating)
+    tilt above spool E rated 100 L/min: 0.1% of moving samples, 0.1% of moving hydraulic energy (floor extrapolated past rating)
+    orifice p_neutral  5.0: OC/LS hydraulic 1.424, shaft 1.346, extra fuel 11.3%; weighted extra drop 2.59 bar
+    orifice p_neutral 10.0: OC/LS hydraulic 1.455, shaft 1.373, extra fuel 12.2%; weighted extra drop 2.59 bar
+    power   p_neutral  5.0: OC/LS hydraulic 1.419, shaft 1.342, extra fuel 11.2%; weighted extra drop 2.11 bar
+    power   p_neutral 10.0: OC/LS hydraulic 1.450, shaft 1.369, extra fuel 12.1%; weighted extra drop 2.11 bar
+per cycle (18), orifice floor, p99.9 sizing, p_neutral 5: mean 1.419 (95% bootstrap 1.350 to 1.506); min 1.224
+R1 HOLDS (1.41 to 1.48: 1.424)
+R2 HOLDS (weighted extra drop < 5 bar: 2.59)
+R3 HOLDS (|power - orifice| < 0.03: 0.005)
+R4 HOLDS (sizing span < 0.05: 0.000)
+R5 HOLDS (every cycle >= 1.20: min 1.224)

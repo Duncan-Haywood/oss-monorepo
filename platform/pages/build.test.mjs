@@ -124,7 +124,9 @@ import {
   renderSearchIndex,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
+import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { ASSISTANT_VOICE_CSS } from './assistant.mjs';
+import { STICKY_FIT_CSS } from './sticky-fit.mjs';
 import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { renderCard } from './sharecard.mjs';
@@ -2317,6 +2319,27 @@ test('a lone tool advertises no siblings and still renders', () => {
   assert.ok(html.includes('data-pf-to="hub"'));
 });
 
+// 2026-11-11: every story page marked "Tools" as its section and led through
+// "Learning & practice", though Stories has its own place in the top nav.
+test('story pages sit under Stories in the header, the trail and the BreadcrumbList', () => {
+  const page = '<html><head><title>Aim Off</title></head><body><p>Fog.</p></body></html>';
+  const html = injectChrome(page, {
+    slug: 'hearth-and-horizon', toRoot: '../', total: 2, related: [],
+    title: 'Hearth & Horizon: free AI-written science fiction and Catholic bedtime stories, with audio',
+    pageTitle: 'Aim Off', canonical: 'https://x.test/hearth-and-horizon/aim-off', baseUrl: 'https://x.test/', isEntry: false,
+  });
+  assert.match(html, /data-pfs-nav="stories" href="\.\.\/stories\/" aria-current="page"/);
+  assert.doesNotMatch(html, /data-pfs-nav="tools"[^>]*aria-current/);
+  assert.match(html, /<a href="\.\.\/stories\/">Stories<\/a>/);
+  assert.match(html, /<a href="\.\.\/hearth-and-horizon\/">Hearth &amp; Horizon<\/a>/);
+  const trail = JSON.parse(html.match(/<script type="application\/ld\+json">(\{[^<]*BreadcrumbList[^<]*\})<\/script>/)[1]);
+  assert.deepEqual(trail.itemListElement.map((c) => c.name), ['Maris Stella Labs', 'Stories', 'Hearth & Horizon', 'Aim Off']);
+  assert.equal(trail.itemListElement[1].item, 'https://x.test/stories/');
+  // A tool keeps its category.
+  const tool = injectChrome(page, { slug: 'ebay-fee-calculator', toRoot: '../', total: 2, related: [], title: 'eBay', isEntry: true });
+  assert.match(tool, /data-pfs-nav="tools"[^>]*aria-current="page"/);
+});
+
 // Found 2026-09-23 on `git-exposure-check`'s own
 // "how-to-tell-a-real-exposed-git-directory-from-a-soft-404.html": its FAQPage
 // JSON-LD quotes a literal example error page, `<html><body>404 Not
@@ -3630,9 +3653,12 @@ test('each tool entry page carries breadcrumb structured data', async () => {
       .find((b) => b['@type'] === 'BreadcrumbList');
     assert.ok(crumb, `${surface.slug} has no BreadcrumbList`);
     assert.equal(crumb.itemListElement[0].item, BASE, 'the first crumb is the hub');
-    assert.match(crumb.itemListElement[1].item, new RegExp(`^${BASE}c/[a-z0-9-]+/$`), 'the second crumb is the category shelf');
+    // Fiction sits under Stories, with its shelf's short name (stories.mjs).
+    const shelf = Object.hasOwn(STORY_VENTURES, surface.slug) ? STORY_VENTURES[surface.slug] : null;
+    if (shelf) assert.equal(crumb.itemListElement[1].item, `${BASE}${STORIES_PATH}`, 'a story shelf sits under Stories');
+    else assert.match(crumb.itemListElement[1].item, new RegExp(`^${BASE}c/[a-z0-9-]+/$`), 'the second crumb is the category shelf');
     assert.equal(crumb.itemListElement.at(-1).item, `${BASE}${surface.slug}/`);
-    assert.equal(crumb.itemListElement.at(-1).name, surface.title);
+    assert.equal(crumb.itemListElement.at(-1).name, shelf ?? surface.title);
   }
 });
 
@@ -3685,10 +3711,16 @@ test('chrome takes its theme from the host page, not the operating system', asyn
   // the chrome draws still takes its colours from the page. The floating voice
   // button (assistant.mjs, `ASSISTANT_VOICE_CSS`) is the third: it sets both
   // its fill and its ink (white on #1f4e8c, 8.3:1), so no host palette reaches it.
+  // The capped result card's scroll hint (sticky-fit.mjs, `STICKY_FIT_CSS`) names
+  // #000 only inside a mask gradient, where a colour is read for its alpha and
+  // never painted.
   assert.ok(style.includes(VENTURE_CHROME_CSS), 'the venture header carries the site palette');
   assert.ok(style.includes(ASSISTANT_VOICE_CSS), 'the voice button carries its own palette');
+  assert.ok(style.includes(STICKY_FIT_CSS), 'the scroll hint rides in the chrome stylesheet');
+  assert.ok(!/(?:^|[;{])\s*(?:color|background(?:-color)?|border(?:-color)?|fill|stroke)\s*:/m.test(STICKY_FIT_CSS),
+    'the scroll hint paints nothing: it only masks');
   assert.match(VENTURE_CHROME_CSS, /\[data-pfs-theme="dark"\]/, 'dark only on a measured dark host');
-  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(ASSISTANT_VOICE_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
+  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(ASSISTANT_VOICE_CSS, '').replace(STICKY_FIT_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
   assert.ok(!/#[0-9a-f]{3,8}\b/i.test(rest),
     `the chrome must not hard-code a colour: ${rest.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
   assert.match(style, /color:inherit/, 'text colour comes from the page');

@@ -68,6 +68,14 @@ function toNumber(cell, decimalComma) {
 
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
 
+// Date.UTC silently rolls 30 February into March and 25:00 into the next day;
+// a logger never writes those, so a cell that has them is not a timestamp.
+function utcChecked(year, month, day, hour = 0, minute = 0, second = 0) {
+  if (month < 1 || month > 12 || day < 1 || hour > 23 || minute > 59 || second > 59) return NaN;
+  const t = Date.UTC(year, month - 1, day, hour, minute, second);
+  return new Date(t).getUTCDate() === day ? t : NaN;
+}
+
 // Returns milliseconds on a naive (zone-free) clock, or NaN. Only differences
 // between readings are ever used, so the zone does not matter as long as the
 // whole file uses one.
@@ -75,7 +83,7 @@ export function parseTimestamp(cell, { dayFirst = false } = {}) {
   const s = String(cell ?? '').trim();
   if (!s) return NaN;
   let m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ](\d{1,2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?)?\s*(Z|[+-]\d{2}:?\d{2})?$/.exec(s);
-  if (m) return Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
+  if (m) return utcChecked(+m[1], +m[2], +m[3], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
   m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?:[ ,T]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp][Mm])?)?$/.exec(s);
   if (m) {
     let a = +m[1];
@@ -86,14 +94,15 @@ export function parseTimestamp(cell, { dayFirst = false } = {}) {
     if (a > 12) { day = a; month = b; } else if (b > 12) { month = a; day = b; } else if (dayFirst) { day = a; month = b; } else { month = a; day = b; }
     let hour = +(m[4] || 0);
     const ampm = (m[7] || '').toLowerCase();
+    if (ampm && (hour < 1 || hour > 12)) return NaN;
     if (ampm === 'pm' && hour < 12) hour += 12;
     if (ampm === 'am' && hour === 12) hour = 0;
     if (month < 1 || month > 12 || day < 1 || day > 31) return NaN;
-    return Date.UTC(year, month - 1, day, hour, +(m[5] || 0), +(m[6] || 0));
+    return utcChecked(year, month, day, hour, +(m[5] || 0), +(m[6] || 0));
   }
   m = /^(\d{1,2})[ -]([A-Za-z]{3})[a-z]*[ -](\d{4})(?:[ ,T]+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/.exec(s);
   if (m && MONTHS[m[2].toLowerCase()]) {
-    return Date.UTC(+m[3], MONTHS[m[2].toLowerCase()] - 1, +m[1], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
+    return utcChecked(+m[3], MONTHS[m[2].toLowerCase()], +m[1], +(m[4] || 0), +(m[5] || 0), +(m[6] || 0));
   }
   return NaN;
 }
@@ -104,10 +113,16 @@ function unitFromHeader(h) {
   return null;
 }
 
+// True when `h` has one of `words` not glued to other letters: "elapsed_min"
+// and "Time (s)" match, "Average" and "Minimum" do not.
+export function headerHasWord(h, words) {
+  return new RegExp(`(^|[^a-z])(${words})($|[^a-z])`, 'i').test(h);
+}
+
 function elapsedScale(h) {
-  if (/\bmin(ute)?s?\b|\(min\)/i.test(h)) return 1 / 60;
-  if (/\bdays?\b|\(d\)/i.test(h)) return 24;
-  if (/\bsec(ond)?s?\b|\(s\)/i.test(h)) return 1 / 3600;
+  if (headerHasWord(h, 'min|mins|minutes?')) return 1 / 60;
+  if (headerHasWord(h, 'd|days?')) return 24;
+  if (headerHasWord(h, 's|secs?|seconds?')) return 1 / 3600;
   return 1; // hours
 }
 
@@ -151,7 +166,8 @@ export function parseLoggerCsv(text, { unit = 'auto', dayFirst = false } = {}) {
   }
   if (timeCol < 0) {
     for (let j = 0; j < width && timeCol < 0; j++) {
-      if (/time|elapsed|hour|\bhrs?\b|age|min|day|sec/i.test(header[j] || '')) { timeCol = j; timeKind = 'elapsed'; }
+      const hj = header[j] || '';
+      if (/elapsed/i.test(hj) || headerHasWord(hj, 'time|hours?|hrs?|age|min|mins|minutes?|days?|secs?|seconds?')) { timeCol = j; timeKind = 'elapsed'; }
     }
   }
   if (timeCol < 0) { timeCol = 0; timeKind = 'elapsed'; notes.push(`No time column named; read "${header[0] || 'column 1'}" as elapsed hours.`); }
@@ -496,7 +512,14 @@ export function parseCalibrationText(text, { column = 'age' } = {}) {
   String(text ?? '').split(/\r?\n/).forEach((line, i) => {
     const t = line.trim();
     if (!t || /^[A-Za-z#]/.test(t)) return;
-    const parts = t.split(/[,;\t ]+/).filter(Boolean).map(Number);
+    // "7, 3,420" or "7 3,420": with a space, tab or semicolon between the
+    // fields, a comma before three digits inside a number is a thousands
+    // separator, not a field break. A comma-only line ("7,3420") splits on commas.
+    const spaced = t.split(/[;\t ]+/).map(c => c.replace(/^,+|,+$/g, '')).filter(Boolean);
+    const cells = spaced.length >= 2
+      ? spaced.flatMap(c => (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(c) ? [c.replace(/,/g, '')] : c.split(',')))
+      : t.split(',');
+    const parts = cells.map(c => c.trim()).filter(Boolean).map(Number);
     if (parts.length < 2 || !parts.slice(0, 2).every(Number.isFinite)) { errors.push(`Line ${i + 1}: expected two numbers.`); return; }
     rows.push(column === 'index' ? { index: parts[0], strength: parts[1] } : { ageDays: parts[0], strength: parts[1] });
   });

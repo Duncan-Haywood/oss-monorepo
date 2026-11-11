@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the share of orders that wait more than 300 s for a charged pack, by hour of day; the exact time-varying rule and the simulator both stay near zero until the evening peak, then rise to about 0.2 at 22:00 as the pack backlog carries past the peak">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cargo-drone hub: share of orders waiting > 300 s by hour (Wed shape, 85% load)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="264.4" y2="264.4" stroke="#ddd"/><text x="58" y="268.4" text-anchor="end" font-family="sans-serif" font-size="11">0.05</text>
+<line x1="64" x2="624" y1="204.8" y2="204.8" stroke="#ddd"/><text x="58" y="208.8" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="145.2" y2="145.2" stroke="#ddd"/><text x="58" y="149.2" text-anchor="end" font-family="sans-serif" font-size="11">0.15</text>
+<line x1="64" x2="624" y1="85.6" y2="85.6" stroke="#ddd"/><text x="58" y="89.6" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="137.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="210.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="283.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">9</text>
+<text x="356.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">12</text>
+<text x="429.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">15</text>
+<text x="502.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">18</text>
+<text x="575.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">21</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">hour of day</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">P(wait > 300 s)</text>
+<polyline points="64.0,215.8 88.3,289.9 112.7,316.7 137.0,323.2 161.4,323.9 185.7,324.0 210.1,324.0 234.4,324.0 258.8,324.0 283.1,324.0 307.5,323.9 331.8,323.9 356.2,323.9 380.5,323.8 404.9,323.6 429.2,323.4 453.6,322.6 477.9,318.8 502.3,301.7 526.6,251.6 551.0,183.6 575.3,117.2 599.7,74.0 624.0,121.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="215.8" r="3" fill="#c0392b"/>
+<circle cx="88.3" cy="289.9" r="3" fill="#c0392b"/>
+<circle cx="112.7" cy="316.7" r="3" fill="#c0392b"/>
+<circle cx="137.0" cy="323.2" r="3" fill="#c0392b"/>
+<circle cx="161.4" cy="323.9" r="3" fill="#c0392b"/>
+<circle cx="185.7" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="210.1" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="234.4" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="258.8" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="283.1" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="307.5" cy="323.9" r="3" fill="#c0392b"/>
+<circle cx="331.8" cy="323.9" r="3" fill="#c0392b"/>
+<circle cx="356.2" cy="323.9" r="3" fill="#c0392b"/>
+<circle cx="380.5" cy="323.8" r="3" fill="#c0392b"/>
+<circle cx="404.9" cy="323.6" r="3" fill="#c0392b"/>
+<circle cx="429.2" cy="323.4" r="3" fill="#c0392b"/>
+<circle cx="453.6" cy="322.6" r="3" fill="#c0392b"/>
+<circle cx="477.9" cy="318.8" r="3" fill="#c0392b"/>
+<circle cx="502.3" cy="301.7" r="3" fill="#c0392b"/>
+<circle cx="526.6" cy="251.6" r="3" fill="#c0392b"/>
+<circle cx="551.0" cy="183.6" r="3" fill="#c0392b"/>
+<circle cx="575.3" cy="117.2" r="3" fill="#c0392b"/>
+<circle cx="599.7" cy="74.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="121.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">time-varying rule</text>
+<polyline points="64.0,209.7 88.3,294.0 112.7,317.8 137.0,322.7 161.4,324.0 185.7,324.0 210.1,324.0 234.4,324.0 258.8,324.0 283.1,324.0 307.5,324.0 331.8,324.0 356.2,324.0 380.5,324.0 404.9,324.0 429.2,323.9 453.6,323.6 477.9,319.6 502.3,304.1 526.6,251.4 551.0,183.8 575.3,120.6 599.7,71.2 624.0,124.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="209.7" r="3" fill="#1f6fb2"/>
+<circle cx="88.3" cy="294.0" r="3" fill="#1f6fb2"/>
+<circle cx="112.7" cy="317.8" r="3" fill="#1f6fb2"/>
+<circle cx="137.0" cy="322.7" r="3" fill="#1f6fb2"/>
+<circle cx="161.4" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="185.7" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="210.1" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="234.4" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="258.8" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="283.1" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="307.5" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="331.8" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="356.2" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="380.5" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="404.9" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="429.2" cy="323.9" r="3" fill="#1f6fb2"/>
+<circle cx="453.6" cy="323.6" r="3" fill="#1f6fb2"/>
+<circle cx="477.9" cy="319.6" r="3" fill="#1f6fb2"/>
+<circle cx="502.3" cy="304.1" r="3" fill="#1f6fb2"/>
+<circle cx="526.6" cy="251.4" r="3" fill="#1f6fb2"/>
+<circle cx="551.0" cy="183.8" r="3" fill="#1f6fb2"/>
+<circle cx="575.3" cy="120.6" r="3" fill="#1f6fb2"/>
+<circle cx="599.7" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="124.8" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">simulator</text>
+</svg>

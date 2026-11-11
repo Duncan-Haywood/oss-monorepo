@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVNxFETDyfkoYG4WRkj",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work ... revenue generating software products)",
+  "input_sha256": "cc1bf1e174fd836ef04a5338d11e5895b49e9f5c2929c47ccc48a31eaf56dde4",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T12:10:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2) ai-bookkeeper item (5): receipts through real OCR",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 14776,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/ocr.mjs",
+      "issue": "Every SROIE OCR number in HISTORY was measured with --psm 6, but the CLI called tesseract with no mode (psm 3, 67.5% vs 76.2% of totals). Measured numbers didn't describe the shipped path until now; eval settings should match the product's defaults."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The first route drew research (weighted draw); the scheduled message asks for revenue products, so I re-routed with --task as prompt.md allows.",
+      "did": "route --task <scheduled brief> -> ventures/2",
+      "result": "ventures flagship work landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-ai-bookkeeper-receipt-arithmetic.md"
+  ],
+  "goal": "Close part of the gap between receipt totals read from clean text (97.4%) and from tesseract (76.2%) on SROIE, without breaking clean readings.",
+  "notes": "SROIE (zzzDavid clone, MIT, not copied), tesseract 5.3.4 installed with apt. Baseline reproduced exactly: total 476/625 (76.2%) psm 6. Single-reading cross-check (two kinds of check must agree on a one-digit-off value, >5 cents): 478 (76.5%), 0 broken; box text unchanged 609/625. Two readings psm6+psm4 settled by cash/subtotal/items support: 487 (77.9%); check kinds chosen on even ids (6 changed, 6 right), odd ids held out (3 changed, 3 right, 0 wrong). Oracle 509 (81.4%). psm 3 (old CLI default) 422 (67.5%) -> CLI default now --psm 6. Second-reading date fill 9 right/9 wrong: not shipped. ai-bookkeeper suite: run_venture_tests.py ok (81.6 s) before the CLI default change; rerun after in the PR.",
+  "corrections": [],
+  "redteam": null
+}

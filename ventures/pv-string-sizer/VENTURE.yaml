@@ -1,0 +1,55 @@
+name: pv-string-sizer
+description: >-
+  Free browser tool for solar installers, designers and DIY builders: sizes PV
+  strings from the module and inverter datasheets and two site temperatures,
+  giving the longest string by cold-weather Voc, the shortest by hot-weather Vmp
+  against the MPPT minimum, strings per MPPT by 1.25 x Isc, conductor ampacity,
+  and every layout that fits a module count. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-11 in an explore run. duplicate_check.py: top match 0.13
+# (open-floor-robots); no venture sizes PV strings. solar-pv-bid-calculator
+# prices an install and solar-payback-calculator is the homeowner's payback;
+# neither touches voltage. The hearth-and-horizon story "The Morning It Was Too
+# Cold" is about exactly this failure (a string over the inverter limit in the cold).
+#
+# Why a tool and not a chatbot answer: the arithmetic is short but its traps
+# (coefficient sign and units, cold Voc vs 25 C Voc, hot cell vs hot air, which
+# of three voltage limits binds, rounding direction, current per MPPT) are the
+# ones a quick answer gets wrong, and the layout search over MPPT inputs is
+# tedious by hand. The engine is pure and callable through platform/agents.
+#
+# First visitor: installers and DIY builders searching "how many solar panels
+# per string", "string sizing calculator", "max panels in series inverter";
+# volume not measured with an external tool.
+#
+# Liability: arithmetic on typed numbers, not engineering or code advice; the
+# code edition, AHJ, listings and the maker's string tool decide. No product
+# is named. Unverified: hand arithmetic and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Installers and DIY builders will use a no-signup string sizer that works
+      from any datasheet, not one maker's equipment list.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a result that disagrees with a manufacturer's string tool on the same inputs and the disagreement is the engine's error.
+
+links:
+  production: https://marisstella.app/pv-string-sizer/
+  analytics: null

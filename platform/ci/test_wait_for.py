@@ -1,7 +1,7 @@
 import os, tempfile, unittest
 import contextlib, io
 import subprocess
-from wait_for import main, wait, wait_until, wait_pid
+from wait_for import main, wait, wait_until, wait_pid, pid_alive
 
 
 class WaitFor(unittest.TestCase):
@@ -137,6 +137,27 @@ class WaitFor(unittest.TestCase):
             p.wait()
         self.assertEqual(main(["--pid", str(p.pid), "--timeout", "1"]), 0)
         self.assertTrue(wait_pid(2**22 + 7, timeout=1))
+
+    def test_unreaped_child_counts_as_exited(self):
+        # A child that exited but was never reaped is a zombie: os.kill still
+        # succeeds on it, so only the /proc state field says it is gone.
+        p = subprocess.Popen(["true"])
+        try:
+            self.assertTrue(wait_until(f"grep -q '^State:.*Z' /proc/{p.pid}/status", timeout=5, interval=0.05))
+            self.assertFalse(pid_alive(p.pid))
+            self.assertEqual(main(["--pid", str(p.pid), "--timeout", "0"]), 0)
+        finally:
+            p.wait()
+
+    def test_rejects_inputs_that_can_never_mean_done(self):
+        # --marker "" matched the first blank line (a false "done"); --pid -1
+        # made os.kill probe every process (never done) and --pid 0 was ignored.
+        for argv in (["o.log", "--marker", ""], ["o.log", "--marker", "  "],
+                     ["--pid", "-1"], ["--pid", "0"]):
+            with self.subTest(argv=argv), contextlib.redirect_stderr(io.StringIO()), \
+                    self.assertRaises(SystemExit) as e:
+                main(argv + ["--timeout", "0"])
+            self.assertEqual(e.exception.code, 2)
 
 
 if __name__ == "__main__":

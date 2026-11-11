@@ -29,7 +29,7 @@ test("pdf and image go through the named tool; missing tool explains itself", ()
   let seen;
   const spy = (c, a) => { seen = [c, a]; return { status: 0, stdout: "Total l2.00", stderr: "" }; };
   assert.equal(receiptTextFromFile("a.JPG", { run: spy, env: {} }), "Total 12.00");
-  assert.deepEqual(seen, ["tesseract", ["a.JPG", "stdout"]]);
+  assert.deepEqual(seen, ["tesseract", ["a.JPG", "stdout", "--psm", "6"]]);
   receiptTextFromFile("a.png", { run: spy, env: { RECEIPT_OCR_CMD: "myocr --lang en {file}" } });
   assert.deepEqual(seen, ["myocr", ["--lang", "en", "a.png"]]);
   assert.throws(() => receiptTextFromFile("a.png", { run: () => ({ error: new Error("ENOENT") }), env: {} }), /tesseract-ocr/);
