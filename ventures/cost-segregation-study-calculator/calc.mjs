@@ -71,7 +71,8 @@ function tableSchedule(basis, table, years) {
 export function costSegEstimate(input = {}) {
   const price = Math.max(0, num(input.price));
   const landShare = clamp(num(input.landShare, 0.2), 0, 0.95);
-  const type = PROPERTY_TYPES[input.propertyType] || PROPERTY_TYPES["multifamily"];
+  // own keys only: "constructor" or "toString" would find Object.prototype and give null figures
+  const type = Object.hasOwn(PROPERTY_TYPES, input.propertyType) ? PROPERTY_TYPES[input.propertyType] : PROPERTY_TYPES["multifamily"];
   const life = input.life === 27.5 || input.life === 39 ? input.life : type.life;
   const fiveShare = clamp(num(input.fiveShare, type.five), 0, 0.9);
   const fifteenShare = clamp(num(input.fifteenShare, type.fifteen), 0, 0.9);

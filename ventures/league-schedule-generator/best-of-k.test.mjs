@@ -95,6 +95,23 @@ test("an unknown trade falls back to balanced, and the share link keeps the choi
   assert.equal(decodeFields(encodeFields(fields({ carryOverPick: "<x>" }))).carryOverPick, "balanced");
 });
 
+test("a trade name that is an Object key (constructor, toString) falls back to balanced, not a crash", () => {
+  for (const name of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+    const { spec } = readSpec(fields({ carryOverPick: name }));
+    assert.equal(spec.carryOverPick, CARRY_OVER_PICK.balanced, name);
+    const s = buildSchedule({ ...spec, carryOverTries: 2 });
+    assert.deepEqual(validateSchedule(s).errors, [], name);
+  }
+});
+
+test("a pick that is not a number of 0 or more is refused, not a result with no rounds", () => {
+  for (const pick of [NaN, Infinity, -1, "10", () => 0, null]) {
+    assert.throws(() => bestCarryOverRounds(6, { tries: 2, pick }), /pick/, String(pick));
+  }
+  // left out, it is the balanced default
+  assert.equal(bestCarryOverRounds(6, { tries: 2 }).rounds.length, 5);
+});
+
 test("the page runs the search in a worker, with a main-thread fallback and a trade picker", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /new Worker\("\.\/carryover-worker\.mjs", \{ type: "module" \}\)/);

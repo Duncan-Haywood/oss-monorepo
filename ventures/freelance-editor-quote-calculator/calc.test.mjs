@@ -109,3 +109,12 @@ test("rush needs both a deadline and a window, and dollars shows negatives", () 
   assert.equal(compute(raw({ workDays: "7", rushDays: "7", hoursPerDay: "40" })).rush, true);
   assert.equal(dollars(-5), "-$5.00");
 });
+
+test("a level or condition that is an Object key (constructor, toString) is not a level", () => {
+  for (const name of ["constructor", "toString", "__proto__"]) {
+    const p = parse(raw({ level: name }));
+    assert.equal(p.level, null, name);
+    assert.ok(p.errors.includes("Choose a level of edit."), name);
+    assert.equal(parse(raw({ condition: name })).condition, "average", name);
+  }
+});
