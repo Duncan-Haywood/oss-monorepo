@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 8,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "drift-tails.test.mjs pinned seed 7 for the 'noise' check, which the check does not fire on (it fires on about half of single t3 series)",
       "fix": "seed 5, with a comment pointing at the sim's rates"
+    },
+    {
+      "what": "CI validate: flagships.yaml changepoint-detector next: 2432 chars (cap 2000) after appending",
+      "fix": "rewrote item (0) compactly; portfolio/router/validate.py passes locally"
     }
   ],
   "integrity_issues": [],
