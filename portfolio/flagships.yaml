@@ -249,10 +249,15 @@ flagships:
       score 2,307 to 2,247 (breaks 73.3 to 68.7), 20 teams 2,907 to 2,880. Capped breaks 2026-11-11
       (README "Carry-over under a cap on breaks"): lowCarryOverCappedRounds, 8 + 2 capped tries, a
       "fewest" choice; 18 teams 2,154-2,674 at the minimum 48 (Bundesliga 3,474+ at 48), 20 teams
-      4,734-5,080 at 54. Next, most valuable first: a 20-team leg one at low breaks (capped leg one
-      stays 1,100-1,400 at 18-22 breaks vs 500 unconstrained; a non-circle start or patterns first);
-      odd leagues under a cap; the search's gap to the floor (12 teams 156 vs 120); a real league's travel times (to check
-      the 1.3 x 40 km/h estimate), unavailable-date requests and duty rota; a paper print check.
+      4,734-5,080 at 54. Odd leagues 2026-11-11 later (README "Odd leagues: zero-break home/away"):
+      assignVenues two-colours stretches between byes (odd circle 0 breaks, balanced; was 46 at 19),
+      run moves, never worse than the old pass; odd capped tries run the capped search (15 teams ~300
+      at 12-16 breaks vs 35-40). Pattern-first 20-team leg one tried, not landed: 1,408-1,420 at 18,
+      same as capped, so likely the pattern's limit. Next, most valuable first: a bound for the
+      minimum-break pattern (per-team opponent order), or a 20-team leg at 22-30 breaks from a
+      non-circle timetable; 19-team odd legs (1,147+ at 20); the search's gap to the floor (12 teams
+      156 vs 120); a real league's travel times (to check the 1.3 x 40 km/h estimate),
+      unavailable-date requests and duty rota; a paper print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

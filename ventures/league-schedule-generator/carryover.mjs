@@ -406,18 +406,90 @@ function teamBreaks(venues, opp, t, n) {
 
 /**
  * Home/away for a fixed opponent table: venues[r][t] is true when t is at home in round r (the two
- * sides of a match always disagree). Annealing over single-match flips with cost breaks plus a heavy
- * penalty for any team whose home and away games differ by more than one. A team's first game
- * alternates from its team number so the search starts from a reasonable pattern.
+ * sides of a match always disagree). Annealing with cost breaks plus a heavy penalty for any team
+ * whose home and away games differ by more than one. Two moves: flip one match, or flip a whole
+ * run (every match of one team over a stretch where it alternates home and away, so its own run
+ * stays alternating and only the run's two ends and its opponents' rounds change). Restarts
+ * alternate two starts: the greedy "phase" pass, and, when every team has at most one bye (an odd
+ * league's single round robin), a two-colouring of the stretches between byes, which is a
+ * zero-break, balanced home/away whenever the timetable allows one (the circle method always does).
+ * `legacy: true` is the single-flip search with the greedy start only, kept for the measurements
+ * in eval/venue-runs.mjs.
  */
-export function assignVenues(opp, n, seed = 1, restarts = 8) {
+export function assignVenues(opp, n, seed = 1, restarts = 8, { legacy = false } = {}) {
   let best = null, bestCost = Infinity;
+  const colour = !legacy && byeStretches(opp, n);
   for (let k = 0; k < restarts; k++) {
-    const v = assignVenuesOnce(opp, n, (seed * 7919 + k * 104729) >>> 0);
+    const start = colour && k % 2 === 0 ? colourStart(opp, n, colour, (seed * 31 + k) >>> 0) : null;
+    const v = assignVenuesOnce(opp, n, (seed * 7919 + k * 104729) >>> 0, { start, runs: !legacy });
     const c = venueCost(v, opp, n);
     if (c < bestCost) { best = v; bestCost = c; }
+    if (bestCost === 0) break; // no breaks and balanced: nothing left to find
+  }
+  if (!legacy && bestCost > 0) {
+    // never worse than the single-flip search on the same seed
+    const old = assignVenues(opp, n, seed, restarts, { legacy: true });
+    if (venueCost(old, opp, n) < bestCost) best = old;
   }
   return best;
+}
+
+/**
+ * Each team's stretch number in each round (byes split a team's games into stretches), or null if
+ * some team has more than one bye or no team has any (an even league: one stretch each, and the
+ * colouring below cannot help).
+ */
+function byeStretches(opp, n) {
+  const R = opp.length, N = opp[0].length;
+  const seg = opp.map(() => new Int8Array(N));
+  let anyBye = false;
+  for (let t = 0; t < n; t++) {
+    let s = 0;
+    for (let r = 0; r < R; r++) {
+      if (opp[r][t] >= n) { s++; anyBye = true; if (s > 1) return null; }
+      seg[r][t] = s;
+    }
+  }
+  return anyBye ? seg : null;
+}
+
+/**
+ * Venues from a two-colouring of the stretch graph (one node per team stretch, one edge per match):
+ * a stretch's colour c sets home in round r to c XOR (r odd), so a stretch alternates with no break,
+ * and two teams in a match get opposite colours whenever the graph allows it. A match whose two
+ * stretches end up the same colour (an odd cycle) takes a seeded coin and costs one break, which
+ * the annealing then works on.
+ */
+function colourStart(opp, n, seg, seed) {
+  const R = opp.length, N = opp[0].length;
+  const rand = mulberry32(seed ^ 0x5bd1e995);
+  const adj = Array.from({ length: 2 * n }, () => []);
+  for (let r = 0; r < R; r++) for (let t = 0; t < n; t++) {
+    const u = opp[r][t];
+    if (u < n) adj[2 * t + seg[r][t]].push(2 * u + seg[r][u]);
+  }
+  const col = new Int8Array(2 * n).fill(-1);
+  const order = Array.from({ length: 2 * n }, (_, i) => i);
+  for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(rand() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  for (const s0 of order) {
+    if (col[s0] >= 0) continue;
+    col[s0] = rand() < 0.5 ? 1 : 0;
+    const q = [s0];
+    for (let h = 0; h < q.length; h++) for (const v of adj[q[h]]) if (col[v] < 0) { col[v] = 1 - col[q[h]]; q.push(v); }
+  }
+  const venues = opp.map(() => new Uint8Array(N));
+  for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
+    const u = opp[r][t];
+    if (t > u) continue;
+    let home;
+    if (u >= n) home = 1; // t's bye (the phantom's side does not count)
+    else {
+      const ct = col[2 * t + seg[r][t]], cu = col[2 * u + seg[r][u]];
+      home = ct !== cu ? (ct ^ (r & 1)) : (rand() < 0.5 ? 1 : 0);
+    }
+    venues[r][t] = home; venues[r][u] = home ? 0 : 1;
+  }
+  return venues;
 }
 
 /** Breaks plus 50 per game of home/away imbalance beyond one: the venue search's cost. */
@@ -432,15 +504,15 @@ export function venueCost(venues, opp, n) {
   return c;
 }
 
-function assignVenuesOnce(opp, n, seed) {
+function assignVenuesOnce(opp, n, seed, { start = null, runs = true } = {}) {
   const R = opp.length, N = opp[0].length;
   const rand = mulberry32(seed ^ 0x9e3779b9);
-  const venues = opp.map(() => new Uint8Array(N));
+  const venues = start ? start.map((v) => v.slice()) : opp.map(() => new Uint8Array(N));
   // Start greedy, in "phase" terms: phase = venue XOR round parity, so an alternating team keeps
   // one phase and every break is a phase change. Each match takes the orientation that keeps its
   // two teams' phases from the round before; ties go to a seeded coin.
   const phase = new Int8Array(N).fill(-1);
-  for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
+  if (!start) for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
     const u = opp[r][t];
     if (t > u) continue;
     const keepT = phase[t] < 0 ? 0 : (phase[t] === 1 ? 1 : -1); // +1 favours t phase 1
@@ -469,22 +541,51 @@ function assignVenuesOnce(opp, n, seed) {
   let cost = 0;
   for (let t = 0; t < n; t++) cost += teamBreaks(venues, opp, t, n) + PEN * imb(t);
   const iters = Math.max(5000, 60 * R * N);
+  const teamCost = (x) => teamBreaks(venues, opp, x, n) + PEN * imb(x);
+  const flipMatch = (q, x) => {
+    const y = opp[q][x], hx = venues[q][x];
+    venues[q][x] = hx ? 0 : 1; venues[q][y] = hx ? 1 : 0;
+    if (x < n) homeCount[x] += hx ? -1 : 1;
+    if (y < n) homeCount[y] += hx ? 1 : -1;
+  };
+  let best = cost, bestVenues = runs ? venues.map((v) => v.slice()) : null;
   for (let it = 0; it < iters; it++) {
     const T = 1.5 * (1 - it / iters) + 0.02;
     const r = Math.floor(rand() * R);
     const t = Math.floor(rand() * N);
     const u = opp[r][t];
     if (t >= n || u >= n) continue;
-    const before = local(r, t) + local(r, u) + PEN * (imb(t) + imb(u));
-    const ht = venues[r][t];
-    venues[r][t] = ht ? 0 : 1; venues[r][u] = ht ? 1 : 0;
-    homeCount[t] += ht ? -1 : 1; homeCount[u] += ht ? 1 : -1;
-    const after = local(r, t) + local(r, u) + PEN * (imb(t) + imb(u));
-    const d = after - before;
-    if (d <= 0 || rand() < Math.exp(-d / T)) cost += d;
-    else { venues[r][t] = ht; venues[r][u] = ht ? 0 : 1; homeCount[t] += ht ? 1 : -1; homeCount[u] += ht ? -1 : 1; }
+    if (runs && rand() < 0.3) {
+      // a run move: t's alternating stretch through round r, or the part of it before or after r
+      let a = r, b = r;
+      while (a > 0 && opp[a - 1][t] < n && venues[a - 1][t] !== venues[a][t]) a--;
+      while (b < R - 1 && opp[b + 1][t] < n && venues[b + 1][t] !== venues[b][t]) b++;
+      const side = rand();
+      if (side < 0.33) a = r; else if (side < 0.66) b = r;
+      const touched = [t];
+      for (let q = a; q <= b; q++) touched.push(opp[q][t]);
+      let before = 0;
+      for (const x of touched) before += teamCost(x);
+      for (let q = a; q <= b; q++) flipMatch(q, t);
+      let after = 0;
+      for (const x of touched) after += teamCost(x);
+      const d = after - before;
+      if (d <= 0 || rand() < Math.exp(-d / T)) cost += d;
+      else for (let q = a; q <= b; q++) flipMatch(q, t);
+    } else {
+      const before = local(r, t) + local(r, u) + PEN * (imb(t) + imb(u));
+      const ht = venues[r][t];
+      venues[r][t] = ht ? 0 : 1; venues[r][u] = ht ? 1 : 0;
+      homeCount[t] += ht ? -1 : 1; homeCount[u] += ht ? 1 : -1;
+      const after = local(r, t) + local(r, u) + PEN * (imb(t) + imb(u));
+      const d = after - before;
+      if (d <= 0 || rand() < Math.exp(-d / T)) cost += d;
+      else { venues[r][t] = ht; venues[r][u] = ht ? 0 : 1; homeCount[t] += ht ? 1 : -1; homeCount[u] += ht ? -1 : 1; }
+    }
+    // the legacy search returned where it ended; the run search keeps the best it saw
+    if (runs && cost < best) { best = cost; bestVenues = venues.map((v) => v.slice()); if (best === 0) break; }
   }
-  return venues;
+  return runs ? bestVenues : venues;
 }
 
 // ------------------------------------------------------------------ double round robin as a whole
@@ -733,20 +834,21 @@ export function carryOverTry(n, i, { double = false, seed = 1, weights = [10, 20
   if (!Number.isInteger(i) || i < 0) throw new Error("try index must be a whole number of 0 or more.");
   // try 0 is exactly the plain search at `seed` and the first weight, so tries 1 changes nothing
   const s = carryOverTrySeed(seed, i);
-  if (i >= weighted && n % 2 === 1) {
-    // An odd league: every team sits out once a leg, a bye ends a run of home or away games, and
-    // the capped search cannot move a bye without unbalancing someone, so it would return the
-    // circle method. A heavy break weight stands in.
-    const w = 160 * (i - weighted + 1);
-    const r = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
-    return { ...r, index: i, seed: s, breakWeight: w };
-  }
   if (i >= weighted) {
     // a capped try: the fewest-breaks end of the trade (lowCarryOverCappedRounds)
     const caps = cappedTryBreaks(n, i - weighted, double);
     const r = double
       ? lowCarryOverDoubleRounds(n, { seed: s, effort, maxBreaks: caps.season, legBreaks: caps.leg })
       : lowCarryOverCappedRounds(n, { seed: s, effort, maxBreaks: caps.leg });
+    if (n % 2 === 1) {
+      // An odd league: the capped search starts at zero breaks (assignVenues' colouring) but at
+      // small sizes a heavy break weight sometimes lands on fewer breaks still (9 teams: 2 or 3
+      // against 5 or 6, eval/odd-capped.txt), so the try runs both and keeps the one with fewer
+      // breaks, then less carry-over: the capped tries are there for the low-break end.
+      const w = 160 * (i - weighted + 1);
+      const h = double ? lowCarryOverDoubleRounds(n, { seed: s, effort, breakWeight: w }) : lowCarryOverRounds(n, { seed: s, effort, breakWeight: w });
+      if (h.breaks < r.breaks || (h.breaks === r.breaks && h.coe < r.coe)) return { ...h, index: i, seed: s, breakWeight: w };
+    }
     return { ...r, index: i, seed: s, breakWeight: null, maxBreaks: double ? caps.season : caps.leg };
   }
   const w = weights[i % weights.length];
@@ -757,10 +859,12 @@ export function carryOverTry(n, i, { double = false, seed = 1, weights = [10, 20
 /**
  * The caps capped try j runs at: j = 0 the least breaks (n - 2 a leg for an even league, the
  * minimum; 3(n - 2) over a home-and-away season, the mirrored minimum), each later try 4 more a leg
- * and 12 more a season (eval/capped-breaks.txt has the curve these were picked from).
+ * and 12 more a season (eval/capped-breaks.txt has the curve these were picked from). An odd league
+ * can have no breaks at all (the circle method, home and away set by assignVenues' colouring), but
+ * at 0 the search cannot leave the circle method, so its base is n - 3 a leg (eval/odd-capped.txt).
  */
 export function cappedTryBreaks(n, j, double = false) {
-  const base = n % 2 === 0 ? n - 2 : 0;
+  const base = n % 2 === 0 ? n - 2 : Math.max(0, n - 3);
   return { leg: base + 4 * j, season: double ? 3 * base + 12 * j : null };
 }
 

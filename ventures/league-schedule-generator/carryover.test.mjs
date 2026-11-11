@@ -89,6 +89,31 @@ test("search is valid, seeded and far below the circle method for 5 to 20 teams"
   }
 });
 
+test("venue search: zero breaks, balanced, on an odd circle timetable (the old single-flip search left 46 at 19 teams)", () => {
+  for (const n of [5, 7, 9, 11, 15, 19, 21]) {
+    const opp = circleOpp(n + 1);
+    assert.equal(venueCost(assignVenues(opp, n, 1), opp, n), 0, `${n} teams`);
+  }
+  const opp = circleOpp(20);
+  assert.ok(venueCost(assignVenues(opp, 19, 1, 8, { legacy: true }), opp, 19) > 0, "the legacy search does not find it");
+});
+
+test("venue search is never worse than the legacy single-flip search on the same seed", () => {
+  for (const n of [7, 10, 11, 14, 15]) for (const seed of [1, 2]) {
+    const lo = lowCarryOverRounds(n, { seed, effort: 0.2 });
+    const N = n % 2 ? n + 1 : n;
+    const opp = lo.rounds.map((r) => {
+      const o = new Int16Array(N);
+      for (const [a, b] of r.matches) { o[a] = b; o[b] = a; }
+      if (r.bye != null) { o[r.bye] = n; o[n] = r.bye; }
+      return o;
+    });
+    const now = venueCost(assignVenues(opp, n, seed), opp, n);
+    const before = venueCost(assignVenues(opp, n, seed, 8, { legacy: true }), opp, n);
+    assert.ok(now <= before, `${n} teams seed ${seed}: ${now} vs ${before}`);
+  }
+});
+
 test("venue search finds the minimum n - 2 breaks on the circle timetable", () => {
   for (const n of [6, 8, 10, 12, 16, 20]) {
     const opp = circleOpp(n);
