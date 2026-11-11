@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { loadToronto, NEW_GL } from "./eval/toronto-pcard.mjs";
-import { fillQueue, evenSample, batchBooks, runAi, score } from "./eval/toronto-ai.mjs";
+import { fillQueue, evenSample, batchBooks, runAi, score, resumable } from "./eval/toronto-ai.mjs";
 import { aiPrompt } from "./ai.mjs";
 
 const HEADER = "_id,Division,Batch-Transaction ID,Transaction Date,Card Posting Dt,Merchant Name,Transaction Amt.,Transaction Currency,Original Amount,Original Currency,G/L Account,G/L Account Description,Cost Centre / WBS Element / Order Number,Cost Centre / WBS Element / Order Number Description,Merchant Type,Merchant Type Description,Purpose";
@@ -59,4 +59,28 @@ test("harness with a scripted model: answers land on the right lines and score a
   assert.equal(t.aiRight, queue.length);
   assert.equal(t.combinedRight, queue.length);
   assert.equal(t.aiRight + t.aiWrong + t.aiAbstain, t.n);
+});
+
+test("resume: answered batches are kept and not sent again; a failed call and a changed sample are sent again", async () => {
+  const queue = Array.from({ length: 7 }, (_, i) => ({ desc: `ZQX ${i}`, date: `2025-09-0${i + 1}`, cents: -100 * (i + 1), mcc: "", want: ["6100"], det: null, detSource: "none", filedBefore: 0 }));
+  const filed = [];
+  const config = { provider: "anthropic", apiKey: "stub" };
+  const checkpoints = [];
+  const first = await runAi(queue, filed, { config, stub: 1, batch: 2, onBatch: (o) => checkpoints.push(o.length) });
+  assert.deepEqual(checkpoints, Array.from({ length: Math.ceil(queue.length / 2) }, (_, i) => Math.min(queue.length, 2 * (i + 1))));
+  // A run killed after 3 lines: only the first whole batch (2) is kept, the rest resent.
+  const sent = [];
+  const logs = [];
+  const again = await runAi(queue, filed, { config, stub: 0, batch: 2, done: first.slice(0, 3), log: (s) => logs.push(s), onBatch: (o) => sent.push(o.length) });
+  assert.match(logs[0], /resuming: 2 lines \(1 batches\)/);
+  assert.equal(again.length, queue.length);
+  assert.deepEqual(again.slice(0, 2), first.slice(0, 2));
+  assert.equal(score(again.slice(0, 2)).aiRight, 2);
+  assert.equal(score(again.slice(2)).aiRight, 0);
+  assert.equal(sent[0], 4);
+  // A failed call is not an answer, and results for other lines do not count.
+  const failed = first.map((x, i) => (i === 1 ? { ...x, ai: null, reason: "could not reach llamacpp: fetch failed" } : x));
+  assert.equal(resumable(failed, queue).length, 1);
+  assert.equal(resumable(first, queue.slice(1)).length, 0);
+  assert.equal(resumable(first, queue).length, queue.length);
 });
