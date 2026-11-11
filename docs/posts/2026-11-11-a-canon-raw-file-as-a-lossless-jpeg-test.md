@@ -1,9 +1,9 @@
 ---
 title: "Testing a DNG decoder on a Canon raw file: 22 million sensels, zero differences, twice as fast"
-seo_title: "Lossless JPEG (SOF3) decoder in pure Python checked on a real Canon CR2 against LibRaw"
+seo_title: "Pure-Python lossless JPEG decoder checked on a Canon CR2 vs LibRaw"
 date: 2026-11-11
 tags: [photography, raw, dng, lossless-jpeg, python, performance, open-source]
-description: "A Canon CR2 holds a lossless JPEG the camera wrote itself. ShootFlow's DNG tile decoder read all 22 million sensels exactly as LibRaw does, and a two-pass rewrite cut it from 16.8 s to 7.4 s."
+description: "ShootFlow's DNG tile decoder read a Canon CR2's camera-written stream exactly as LibRaw does, all 22 M sensels, and now runs 2.2x faster."
 ---
 
 Most DNG files from cameras, and from Adobe's free DNG Converter, store the sensor data as
