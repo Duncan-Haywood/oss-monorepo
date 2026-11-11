@@ -11837,8 +11837,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // same in any order; one at a time, the pass spent most of its 4 to 6 s
   // waiting on single file reads (perf, 2026-11-11:
   // `docs/history/pages-build-perf-2026-11-11-parallel-copy.md`). Pass 2 below
-  // stays serial on purpose: `repairLinks` tests whether a link target exists,
-  // and pass 2 writes files (sitemap.xml, llms.txt) another surface may link to.
+  // runs its link repairs to completion before it writes any file another
+  // surface could link to (see there).
   await mapLimit(discovered, 16, (surface) => copyTree(surface.sourceDir, path.join(outDir, surface.slug), base));
 
   // A handful of ventures (currently: ai-engineering-academy, tender-radar,
@@ -11883,24 +11883,40 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
 
   // Pass 2: everything that has to read a complete site.
   //
-  // `repairLinks` stays ahead of `surfaceExternalFetchHosts` within this loop,
-  // and that order is load-bearing: a repair can rewrite a `<script src>` or a
-  // stylesheet `<link href>` to a github.com URL, which is a genuine external
-  // request the privacy copy has to report.
+  // `repairLinks` stays ahead of `surfaceExternalFetchHosts`, and that order is
+  // load-bearing: a repair can rewrite a `<script src>` or a stylesheet
+  // `<link href>` to a github.com URL, which is a genuine external request the
+  // privacy copy has to report.
+  //
+  // Pass 2a repairs every surface's links, 16 at a time, before 2b writes
+  // anything. `repairLinks` rewrites HTML only inside its own surface and asks
+  // only whether a target exists, and pass 1 already created every file it can
+  // find, so no repair can see another repair's work. The files 2b creates
+  // (each surface's `sitemap.xml`, a generated `llms.txt`) used to be visible to
+  // the repairs of surfaces that sorted later and invisible to those that sorted
+  // earlier; now they are invisible to all, which makes the pass independent of
+  // order. On the tree as it stood (2026-11-11) the built site was
+  // byte-identical either way (`docs/history/pages-build-perf-2026-11-11-pass-two-concurrent.md`).
+  //
+  // Pass 2b then does the per-surface work, also 16 at a time. Each surface
+  // reads and writes only under its own `outDir/<slug>` and its own source
+  // directory; `mapLimit` returns results in input order, so `surfaces` and
+  // `repairs` keep the slug order the hub and the report depend on.
   const sourceDates = await loadLastChanged(REPO_ROOT);
-  for (const surface of discovered) {
+  const repairLists = await mapLimit(discovered, 16, (surface) =>
+    repairLinks({
+      publishedDir: path.join(outDir, surface.slug),
+      sourceDir: surface.sourceDir,
+      repoRoot: REPO_ROOT,
+      outDir,
+    }),
+  );
+  for (const list of repairLists) repairs.push(...list);
+
+  const built = await mapLimit(discovered, 16, async (surface) => {
     const html = await fs.readFile(surface.entryFile, 'utf8');
     const { title, description, fullDescription } = readMeta(html, surface.slug);
     const destination = path.join(outDir, surface.slug);
-
-    repairs.push(
-      ...(await repairLinks({
-        publishedDir: destination,
-        sourceDir: surface.sourceDir,
-        repoRoot: REPO_ROOT,
-        outDir,
-      })),
-    );
 
     // Overwrite whatever sitemap the venture shipped with one generated from
     // what actually published. See `renderVentureSitemap` for why.
@@ -11935,7 +11951,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       if (dated !== text) await fs.writeFile(own, dated);
     }
 
-    surfaces.push({
+    return {
       ...surface,
       title,
       description,
@@ -11952,7 +11968,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       publishedPageCount: pages.length,
       llmsDoc: ownLlmsDoc,
       externalFetchHosts: await surfaceExternalFetchHosts(destination),
-    });
+    };
+  });
+  for (const surface of built) {
+    surfaces.push(surface);
     log(`  ${surface.slug}`);
   }
 
