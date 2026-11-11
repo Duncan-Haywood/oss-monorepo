@@ -219,6 +219,21 @@
         </div>
         <div class="bar"><button class="btn small" type="button" id="sep-halftone" disabled>Download one-ink halftone film</button></div>
         <p class="muted">Paintings are shaded, and flat inks flatten the shading. An index separation prints the same inks as a scatter of square dots, one per finest dot the mesh holds, so the eye mixes them with the bare garment into the in-between tones. Same screens, finer films.</p>
+        <div class="row3">
+          <div><label for="ix-gain">Dot gain on press (% of a dot's area, 0 = none)</label><input id="ix-gain" type="number" min="0" max="100" step="1" value="0"></div>
+        </div>
+        <details id="ix-calib">
+          <summary>Measure dot gain from a proof</summary>
+          <p class="muted">Ink spreads on press, so dots print larger than their film and the print comes out darker. Download the calibration strip (per ink: a solid square, a 50% checkerboard of single dots, a bare square), ask the printer to run it on your garment, photograph it flat in even light, and pick the three colours from that one photo (the middle of the checkerboard). The gain it shows goes into the box above and the next index separation spaces its dots to allow for it.</p>
+          <div class="bar"><button class="btn small" type="button" id="ix-calib-films" disabled>Download calibration strip</button></div>
+          <div class="row3">
+            <div><label for="ix-cal-garment">Bare garment in the photo</label><input id="ix-cal-garment" type="color" value="#f2f2f2"></div>
+            <div><label for="ix-cal-solid">Solid ink square</label><input id="ix-cal-solid" type="color" value="#202020"></div>
+            <div><label for="ix-cal-patch">Checkerboard (middle)</label><input id="ix-cal-patch" type="color" value="#a1a1a1"></div>
+          </div>
+          <div class="bar"><button class="btn small" type="button" id="ix-cal-read">Read the gain</button></div>
+          <p id="ix-cal-out" aria-live="polite"></p>
+        </details>
         <div class="bar">
           <button class="btn small" type="button" id="sep-index" disabled>Index separation (dots, for paintings)</button>
           <button class="btn small" type="button" id="sep-index-films" disabled>Download index films</button>
@@ -437,7 +452,7 @@
     import { inkTradeoff } from "./inktradeoff.mjs";
     import { singleInkFilm, contrastInk, halftoneSvg, halftoneBrief } from "./halftone.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
-    import { indexSeparate, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief } from "./indexsep.mjs";
+    import { indexSeparate, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief, calibrationFilms, gainFromPatch } from "./indexsep.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = s => document.querySelector(s);
@@ -877,17 +892,17 @@
     $("#sep-index").addEventListener("click", () => {
       if (!lastSep || !lastPixels) return;
       try {
-        lastIndex = indexSeparate(lastPixels, lastSep, { crop: sepExtras().crop });
+        lastIndex = indexSeparate(lastPixels, lastSep, { crop: sepExtras().crop, dotGainPct: Number($("#ix-gain").value) || 0 });
         lastIndexCmp = compareFlatIndex(lastSep, lastIndex, [0.5, 1, 3]);
       } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); return; }
       const ix = lastIndex, c = document.createElement("canvas");
       c.width = ix.width; c.height = ix.height;
       c.getContext("2d").putImageData(new ImageData(indexPreviewRgba(ix), ix.width, ix.height), 0, 0);
       $("#sep-out").insertAdjacentHTML("beforeend", `<h3>Index separation</h3><img id="sep-index-preview" alt="Index separation preview: square dots of each ink on the garment colour" src="${c.toDataURL()}" style="max-width:100%;border:1px solid #888">
-        <p><strong>${ix.screens} screens</strong>, square dots of ${ix.dotMm} mm (${ix.width} x ${ix.height}), ${ix.garmentPct}% bare garment between them.</p>
+        <p><strong>${ix.screens} screens</strong>, square dots of ${ix.dotMm} mm (${ix.width} x ${ix.height}), ${ix.garmentPct}% bare garment between them${ix.dotGainPct ? `, spaced for ${ix.dotGainPct}% dot gain (distances below are for a press with that gain)` : ""}.</p>
         <table id="sep-index-table"><caption>Distance from the painting (mean delta E after a rough eye blur; lower is closer)</caption><tr><th>Seen from</th><th>Flat inks</th><th>Index dots</th></tr>${lastIndexCmp.map(r => `<tr><td>${r.metres} m</td><td>${r.flat}</td><td${r.index < r.flat ? ' style="font-weight:bold"' : ""}>${r.index}</td></tr>`).join("")}</table>
         <ul class="muted">${ix.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`);
-      $("#sep-index-films").disabled = false; $("#sep-index-brief").disabled = false;
+      $("#sep-index-films").disabled = false; $("#sep-index-brief").disabled = false; $("#ix-calib-films").disabled = false;
       recordUsage("separation_index");
     });
     $("#sep-index-films").addEventListener("click", () => {
@@ -895,6 +910,20 @@
       const pages = indexFilms(lastIndex).map(f => `<section style="page-break-after:always"><h2>${esc(f.name)} (${esc(f.ink)})</h2>${f.svg}</section>`).join("");
       download("index-films.html", `<!doctype html><meta charset="utf-8"><title>Index films</title><body style="font-family:sans-serif">${pages}</body>`, "text/html");
       recordUsage("separation_index_films");
+    });
+    $("#ix-calib-films").addEventListener("click", () => {
+      if (!lastIndex) return;
+      const pages = calibrationFilms(lastIndex).map(f => `<section style="page-break-after:always"><h2>${esc(f.name)} (${esc(f.ink)})</h2><p>Solid | 50% checkerboard | bare</p>${f.svg}</section>`).join("");
+      download("calibration-strip.html", `<!doctype html><meta charset="utf-8"><title>Dot gain calibration strip</title><body style="font-family:sans-serif">${pages}</body>`, "text/html");
+      recordUsage("separation_index_calibration");
+    });
+    $("#ix-cal-read").addEventListener("click", () => {
+      try {
+        const r = gainFromPatch({ garment: $("#ix-cal-garment").value, solid: $("#ix-cal-solid").value, patch: $("#ix-cal-patch").value });
+        $("#ix-gain").value = r.dotGainPct;
+        $("#ix-cal-out").innerHTML = `<strong>${r.dotGainPct}% dot gain</strong> (the checkerboard prints ${r.coveragePct}% inked, against 50% on the film). Entered above; run the index separation again.${r.warnings.map(w => `<br><span class="miss">${esc(w)}</span>`).join("")}`;
+        recordUsage("separation_index_gain_read");
+      } catch (e) { $("#ix-cal-out").innerHTML = `<span class="miss">${esc(e.message)}</span>`; }
     });
     $("#sep-index-brief").addEventListener("click", () => { if (lastIndex) { download("index-separation-brief.txt", indexBrief(lastIndex, lastIndexCmp), "text/plain"); recordUsage("separation_index_brief"); } });
     $("#sep-apply").addEventListener("click", () => {

@@ -72,7 +72,7 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `caresymbols.mjs` | The five care symbols (wash, bleach, tumble dry, iron, professional care) drawn as SVG from the starting care text, shown on the label page and downloadable one file each |
 | `commission.mjs`, `partners.html` | Multi-brand shop money: payout per sale after VAT, commission and card fees (shop, brand or split), shelf price for a target payout, settlement statement per partner with refunds, per-partner terms, CSV. Seller-of-record and VAT treatment are assumptions to check with an accountant |
 | `marketing.mjs` | Ad affordability (break-even cost per sale and ROAS) and a launch calendar of drafts from the break-even |
-| `indexsep.mjs` | Index separation: the flat separation's inks laid down as square dots by error diffusion, with the garment as a free colour; films, brief, and a flat-vs-index distance at three viewing distances |
+| `indexsep.mjs` | Index separation: the flat separation's inks laid down as square dots by error diffusion, with the garment as a free colour; films, brief, and a flat-vs-index distance at three viewing distances; dot-gain model, model-based compensation, calibration strip and gain read-back |
 | `usage.mjs` | Anonymous local usage counts |
 
 Roadmap: [`ROADMAP.md`](ROADMAP.md).
@@ -311,3 +311,53 @@ and 1.8 MB, brief downloaded, no console errors). Not checked: a real screen
 printer's index print. Whether 0.3 mm single dots hold on their mesh, how dot
 gain darkens the result, and registration on a dark garment's underbase are
 all for a proof.
+
+### Dot gain (2026-11-11)
+
+Ink spreads past its film on press, so dots print bigger than drawn and the
+print goes darker. `indexsep.mjs` now models it and can compensate for it:
+
+- **Model.** An isolated dot covers (1 + gain) cells, so each 4-neighbour
+  takes gain/4 of it. A cell takes that share from every neighbour printed
+  *after* it: ink onto bare garment, and a later ink over an earlier one (wet
+  on wet, in print order). Mixing is by area in linear light.
+- **Compensation.** With a gain set ("Dot gain on press" on the studio page),
+  the error diffusion is model-based (after Pappas and Neuhoff's printer-model
+  halftoning): each candidate ink is judged by how the cell will look beside
+  its already-placed neighbours, and the ink it spills onto them is counted as
+  error already spent. Gain 0 gives the old dots cell for cell (tested).
+- **Calibration.** "Measure dot gain from a proof" downloads a strip per ink
+  (10 mm solid, 50% checkerboard of single dots, bare). Pick the three colours
+  from one photo of the printed proof; `gainFromPatch` solves the model for the
+  gain (every bare checkerboard cell touches four dots, so its inked share is
+  0.5 + gain/200), warns on dot *loss* (the mesh is not holding the dots) and on
+  fill-in, and enters the figure.
+
+Measured (`eval/index-gain.mjs`, the same nine paintings at 640 px, 28 cm,
+four inks; mean delta E at 1 m with the print rendered at the true gain):
+
+| Garment, true gain | No gain at all | Plain dots | Compensated for the true gain | for half | for double |
+|---|---|---|---|---|---|
+| white, 15% | 10.64 | 10.54 | 10.54 (5 of 9 better) | 10.52 (7 of 9) | 10.60 (3 of 9) |
+| white, 30% | 10.64 | 10.53 | 10.40 (7 of 9) | 10.43 (9 of 9) | 10.76 (2 of 9) |
+| near-black, 15% | 11.04 | 10.94 | 10.94 (4 of 9) | 10.92 (6 of 9) | 11.04 (2 of 9) |
+| near-black, 30% | 11.04 | 10.91 | 10.86 (6 of 9) | 10.83 (7 of 9) | 10.88 (3 of 9) |
+
+- On paintings, gain is not what keeps the print from the painting: four inks
+  cannot mix many of a painting's colours, and that 10-11 delta E swamps it.
+  Under this model gain even helps plain dots slightly (it blurs them together).
+  Compensation is worth 0.1-0.26 at 30% (3 m, white: 8.54 to 8.28).
+- A guess too high is worse than no compensation (double: 2-3 of 9 better);
+  half the true gain is as good as the truth. Measure, or guess low.
+- Where colours are in reach of the inks, gain matters a lot: a grey ramp in
+  black on white (`indexsep.test.mjs`) is 0.89 delta E blurred with no gain,
+  3.39 with 20% gain uncompensated, and 0.78 compensated (10%: 1.90 to 0.82;
+  30%: 5.09 to 0.80; 50%: 9.12 to 0.62). One-ink and tonal prints are where
+  the setting earns its keep.
+- An earlier version that let ink spread onto bare garment only measured even
+  smaller effects (compensation within 0.05 at 1 m); the wet-on-wet term is
+  what the table above uses.
+
+Not checked: any real press. The spread model is a first-order guess (no
+ink-trapping, flash or squeegee direction), and whether a real printer's
+proof follows it is what the calibration strip is for.
