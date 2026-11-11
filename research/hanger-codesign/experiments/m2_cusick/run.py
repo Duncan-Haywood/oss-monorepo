@@ -71,9 +71,8 @@ def solve(case):
     _, B, W = KES[f]
     t = time.time()
     r = cusick.drape(B * kb, W * kw, ea, seed=seed, h=h, shear=sh)
-    keep = tag == "base" and seed == 0
     return case, dict(dc=r["dc"], iters=r["iters"], last=r["last_change"], gmax=r["gmax"],
-                      nodes=r["nodes"], drop=r["drop"], sec=time.time() - t, X=r["X"] if keep else None)
+                      nodes=r["nodes"], drop=r["drop"], sec=time.time() - t)
 
 
 def main():
@@ -149,8 +148,6 @@ def main():
     v.append("C7 |7.5mm - 5mm|: " + ", ".join(f"{f} {d:.4f}" for f, d in d7.items()) + f": {'held' if max(d7.values()) < 0.03 else 'refuted'}")
     out += v
     (HERE / "results.txt").write_text("\n".join(out) + "\n")
-    shapes = {f: res[("base", f, 1.0, 1.0, EA, cusick.SHEAR, 0.005, 0)]["X"] for f in FABRICS}
-    np.savez_compressed(HERE / "shapes_seed0.npz", **shapes)
     print("\n".join(out[-9:]))
 
 
