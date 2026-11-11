@@ -560,9 +560,27 @@ function personScore(ctx, p, list) {
   return payroll(ctx, p, list) + softPenalty(ctx, p, h, list);
 }
 
+// A new list holding `list` and shift i, ordered by start time then index. Lists built here are already in that order, so i
+// goes in by binary search; an unordered list (some callers push by index) falls back to a full sort, with the same result.
+// The search's pricing oracle calls this millions of times on a 60-person week: the full sort with a comparator was the
+// largest single cost of a branch-and-price run (5.6 s of 19.4 s, 2026-11-11 profile).
 function insertSorted(ctx, list, i) {
-  const out = list.concat(i);
-  out.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b);
+  const slots = ctx.slots;
+  const n = list.length;
+  const before = (a, b) => slots[a].start < slots[b].start || (slots[a].start === slots[b].start && a < b);
+  for (let k = 1; k < n; k++) {
+    if (before(list[k], list[k - 1])) {
+      const out = list.concat(i);
+      out.sort((a, b) => slots[a].start - slots[b].start || a - b);
+      return out;
+    }
+  }
+  let lo = 0, hi = n;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (before(list[mid], i)) lo = mid + 1; else hi = mid; }
+  const out = new Array(n + 1);
+  for (let k = 0; k < lo; k++) out[k] = list[k];
+  out[lo] = i;
+  for (let k = lo; k < n; k++) out[k + 1] = list[k];
   return out;
 }
 

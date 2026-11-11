@@ -32,19 +32,24 @@ export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, b
   const refactor = () => {
     // Invert B by Gauss-Jordan with partial pivoting (B is 0/1 and well scaled).
     const A = new Float64Array(m * 2 * m);
+    const nz = new Int32Array(2 * m);
     for (let c = 0; c < m; c++) for (const r of colRows(basis[c])) A[r * 2 * m + c] = 1;
     for (let r = 0; r < m; r++) A[r * 2 * m + m + r] = 1;
     for (let c = 0; c < m; c++) {
       let piv = c;
       for (let r = c + 1; r < m; r++) if (Math.abs(A[r * 2 * m + c]) > Math.abs(A[piv * 2 * m + c])) piv = r;
       if (Math.abs(A[piv * 2 * m + c]) < 1e-12) throw new Error("singular basis");
-      if (piv !== c) for (let k = 0; k < 2 * m; k++) { const t = A[c * 2 * m + k]; A[c * 2 * m + k] = A[piv * 2 * m + k]; A[piv * 2 * m + k] = t; }
+      // Columns left of c are already zero outside their own pivot rows, so every row operation starts at column c.
+      if (piv !== c) for (let k = c; k < 2 * m; k++) { const t = A[c * 2 * m + k]; A[c * 2 * m + k] = A[piv * 2 * m + k]; A[piv * 2 * m + k] = t; }
       const d = A[c * 2 * m + c];
-      for (let k = 0; k < 2 * m; k++) A[c * 2 * m + k] /= d;
+      // Row operations touch only the pivot row's nonzero entries: subtracting f * 0 leaves an entry as it was, so skipping those
+      // gives the same inverse bit for bit, and the pivot row of a 0/1 basis stays mostly zeros (a 60-person week: refactor 3.3 s).
+      let nnz = 0;
+      for (let k = c; k < 2 * m; k++) { const v = A[c * 2 * m + k]; if (v !== 0) { A[c * 2 * m + k] = v / d; nz[nnz++] = k; } }
       for (let r = 0; r < m; r++) {
         if (r === c) continue;
         const f = A[r * 2 * m + c];
-        if (f !== 0) for (let k = 0; k < 2 * m; k++) A[r * 2 * m + k] -= f * A[c * 2 * m + k];
+        if (f !== 0) { const o = r * 2 * m, oc = c * 2 * m; for (let t = 0; t < nnz; t++) { const k = nz[t]; A[o + k] -= f * A[oc + k]; } }
       }
     }
     // Rows of [I | B^-1] are in basis-position order after the swaps above: B^-1 row c belongs to basis position c.
@@ -56,10 +61,12 @@ export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, b
   // Basic values within 1e-9 of zero are set to zero. Without this, rounding left values like 1e-11 on degenerate rows, the
   // ratio test saw a step of 1e-11 as progress, the anti-cycling switch below never stayed on, and a 20-person week (102 rows,
   // 497 columns) cycled at its optimum past 400,000 pivots (eval/cg-scale-bench.mjs, 2026-11-10). With it: 479 pivots.
-  const computeX = () => { for (let r = 0; r < m; r++) { let v = 0; for (let k = 0; k < m; k++) v += Binv[r * m + k]; xB[r] = Math.abs(v) < 1e-9 ? 0 : v; } };
+  const rowX = (r) => { let v = 0; for (let k = 0; k < m; k++) v += Binv[r * m + k]; xB[r] = Math.abs(v) < 1e-9 ? 0 : v; };
+  const computeX = () => { for (let r = 0; r < m; r++) rowX(r); };
   computeX();
   const y = new Float64Array(m);
   const d = new Float64Array(m);
+  const rowNz = new Int32Array(m);
   let pivots = 0, sinceRefactor = 0, degenerate = 0;
   for (;;) {
     // Duals y = c_B B^-1.
@@ -92,17 +99,21 @@ export function solveLP(m, cols, cost, init, { maxPivots = 20000, warm = null, b
     degenerate = ratio < 1e-9 ? degenerate + 1 : 0;
     // Pivot.
     const dl = d[leave];
-    for (let k = 0; k < m; k++) Binv[leave * m + k] /= dl;
+    // As in refactor: only the leaving row's nonzero entries can change another row, so the update runs over those alone.
+    let nnz = 0;
+    for (let k = 0; k < m; k++) { const v = Binv[leave * m + k]; if (v !== 0) { Binv[leave * m + k] = v / dl; rowNz[nnz++] = k; } }
     for (let r = 0; r < m; r++) {
       if (r === leave || Math.abs(d[r]) < 1e-15) continue;
-      const f = d[r];
-      for (let k = 0; k < m; k++) Binv[r * m + k] -= f * Binv[leave * m + k];
+      const f = d[r], o = r * m, ol = leave * m;
+      for (let t = 0; t < nnz; t++) { const k = rowNz[t]; Binv[o + k] -= f * Binv[ol + k]; }
     }
     inBasis[basis[leave]] = 0;
     basis[leave] = enter;
     inBasis[enter] = 1;
-    if (++sinceRefactor >= 64) { refactor(); sinceRefactor = 0; }
-    computeX();
+    // A pivot changes only the leaving row and the rows it updated, so only their basic values are summed again (an unchanged
+    // row gives the same sum); after a refactor every row is.
+    if (++sinceRefactor >= 64) { refactor(); sinceRefactor = 0; computeX(); }
+    else for (let r = 0; r < m; r++) if (r === leave || Math.abs(d[r]) >= 1e-15) rowX(r);
     if (++pivots > maxPivots) throw new Error("simplex pivot limit");
   }
   let obj = 0, infeasible = false;
