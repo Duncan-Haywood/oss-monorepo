@@ -1034,7 +1034,7 @@ function hostBreaks(opp, n, R, host) {
  * at `legBreaks` (default a third of the season cap) and leg two moves on carry-over alone without
  * the season going over `maxBreaks` (or over the fewest its starts allow, if that is more).
  */
-export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false, weightedStarter = true } = {}) {
+export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false, weightedStarter = true, shift = true, leg1: givenLeg1 = null } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   if (field && !fromStarter && maxBreaks == null && !fieldApplies(N) && starterApplies(N)) {
@@ -1046,6 +1046,17 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
       const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: which });
       if (score(st) < score(best)) best = { ...st, start: which };
     }
+    if (breakWeight > 0 && shift) {
+      // The built-in starters with shift venues as leg one (shiftStarts), not annealed, as the
+      // single search does: leg two is then searched against its host as usual and the plain
+      // mirror is tried too (README "Shift venues for a home-and-away season", 2026-11-11). Before
+      // this, no double season saw these candidates: every leg one came from a searched start.
+      for (const c of shiftStarts(N, n)) {
+        const legOne = finish(c.opp, n, false, best.circleCoe, best.lowerBound, 0, seed, c.venues);
+        const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: "shift", leg1: legOne });
+        if (score(st) < score(best)) best = { ...st, start: `${c.which}, shift venues` };
+      }
+    }
     return best;
   }
   const R = N - 1;
@@ -1053,7 +1064,7 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
   // with a season cap, leg one is the capped search at half of it (each leg's breaks are about
   // the same, as leg two starts as leg one backwards)
   const capped = maxBreaks != null;
-  const single = capped
+  const single = givenLeg1 && !capped ? givenLeg1 : capped
     ? lowCarryOverCappedRounds(n, { seed, effort, maxBreaks: legBreaks ?? Math.floor(maxBreaks / 3) })
     : fromStarter
       ? lowCarryOverRounds(n, { seed, effort, breakWeight, field, fromStarter })
