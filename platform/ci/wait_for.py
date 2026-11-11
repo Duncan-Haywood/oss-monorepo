@@ -15,8 +15,10 @@ A job with a known pid: `--pid 12345` returns once that process has exited. Do n
 use `--until "pgrep -f name"`: the shell running it matches its own command line, so it
 returns at once (friction 2026-11-06); use `--pid`, or bracket the first letter, `'[n]ame'`.
 
-`echo EXIT $?` works as a marker line too: `--marker EXIT` matches `EXIT 0`, and
-the printed tail shows the job's exit code.
+`echo EXIT $?` works as a marker line too: with no `--marker`, a `DONE` line or an
+`EXIT 0` line both end the wait (friction 2026-11-11: runs guessed `--pattern` or
+waited out the timeout on an EXIT log), and the printed tail shows the exit code.
+`--marker X` waits for X alone.
 
 Exit 0 and the log's last lines once the marker line appears; exit 1 on timeout
 (the job may still run: call again). The default stays under the 120 s tool limit.
@@ -37,13 +39,17 @@ def is_marker(line, marker):
     return s == marker or (s.startswith(marker) and s[len(marker)] in " \t:")
 
 
-def wait(path, marker="DONE", timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep):
+DEFAULT_MARKERS = ("DONE", "EXIT")
+
+
+def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep):
     end = clock() + timeout
     while True:
         if os.path.exists(path):
             with open(path, errors="replace") as f:
                 lines = f.read().splitlines()
-            if any(is_marker(l, marker) for l in lines):
+            markers = (marker,) if isinstance(marker, str) else marker
+            if any(is_marker(l, m) for l in lines for m in markers):
                 return True, lines
         if clock() >= end:
             return False, []
@@ -88,12 +94,12 @@ def main(argv=None):
     ap.add_argument("log", nargs="?")
     ap.add_argument("--until", help="shell command; wait until it exits 0 (no log needed)")
     ap.add_argument("--pid", type=int, help="wait until this process id has exited")
-    ap.add_argument("--marker", default="DONE")
+    ap.add_argument("--marker", help="line (or first word) that means done; default DONE or EXIT")
     ap.add_argument("--timeout", type=float, default=100.0)
     a = ap.parse_args(argv)
     # An empty marker matches the first blank line, a false "done"; os.kill(-1, 0)
     # probes every process and os.kill(0, 0) the process group, so neither ends.
-    if not a.marker.strip():
+    if a.marker is not None and not a.marker.strip():
         ap.error("--marker must not be empty")
     if a.pid is not None and a.pid <= 0:
         ap.error("--pid must be a positive process id")
@@ -111,9 +117,10 @@ def main(argv=None):
         return 1
     if not a.log:
         ap.error("give a log file, --until or --pid")
-    ok, lines = wait(a.log, a.marker, a.timeout)
+    ok, lines = wait(a.log, a.marker or DEFAULT_MARKERS, a.timeout)
     if not ok:
-        print(f"wait_for: no '{a.marker}' line in {a.log} after {a.timeout:.0f}s; still running? call again", file=sys.stderr)
+        shown = a.marker or "DONE' or 'EXIT"
+        print(f"wait_for: no '{shown}' line in {a.log} after {a.timeout:.0f}s; still running? call again", file=sys.stderr)
         return 1
     print("\n".join(lines[-15:]))
     return 0

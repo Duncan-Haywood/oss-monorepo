@@ -31,6 +31,18 @@ class WaitFor(unittest.TestCase):
             open(p, "w").write("DONE: 3 checks\n")
             self.assertTrue(wait(p, timeout=1)[0])
 
+    def test_default_accepts_done_or_exit_but_explicit_marker_is_strict(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("tests ran\nEXIT 1\n")
+            ok, lines = wait(p, timeout=1)
+            self.assertTrue(ok)
+            self.assertEqual(lines[-1], "EXIT 1")
+            self.assertEqual(main([p, "--timeout", "0"]), 0)
+            t = [0.0]
+            nap = lambda s: t.__setitem__(0, t[0] + s)
+            self.assertFalse(wait(p, marker="DONE", timeout=3, clock=lambda: t[0], nap=nap)[0])
+
     def test_marker_prefix_of_a_word_does_not_count(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")
@@ -107,7 +119,7 @@ class WaitFor(unittest.TestCase):
             self.assertEqual((code, out), (0, "x\nDONE\n"))
         code, _, err = self._main("/nonexistent/x.log", "--timeout", "0")
         self.assertEqual(code, 1)
-        self.assertIn("no 'DONE' line", err)
+        self.assertIn("no 'DONE' or 'EXIT' line", err)
         code, out, _ = self._main("--until", "true")
         self.assertEqual((code, out), (0, "wait_for: condition met\n"))
         code, _, err = self._main("--until", "false", "--timeout", "0")
