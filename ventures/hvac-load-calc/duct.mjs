@@ -31,6 +31,8 @@ export const ROUGHNESS_FT = Object.freeze({
   flex: 0.003,
 });
 export const ROUND_SIZES_IN = Object.freeze([4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24]);
+// Larger stock rounds tried for trunks on top of the branch list.
+export const TRUNK_EXTRA_SIZES_IN = Object.freeze([26, 28, 30, 32, 36, 40]);
 
 export const DUCT_DEFAULTS = Object.freeze({
   blowerStaticInWC: 0.5,       // the air handler's rated external static pressure at the design airflow
@@ -183,19 +185,23 @@ export function sizeDucts(design) {
     r.pathInWC = r.dropInWC + worstReturn;
     r.damperInWC = Math.max(0, available - r.pathInWC);
   }
+  // Trunks may go past the branch list: the stock large rounds up to 40 in., plus anything larger the user listed.
+  const trunkFo = { ...fo, sizesIn: [...new Set([...fo.sizesIn, ...TRUNK_EXTRA_SIZES_IN])].sort((a, b) => a - b) };
+  const trunkLargestIn = trunkFo.sizesIn.at(-1);
   const trunkDefs = o.trunks ?? [{ name: 'Supply trunk', rooms: o.runs.map(r => r.room) }];
   const trunks = trunkDefs.map((t, i) => {
     const cfm = o.runs.filter(r => t.rooms.includes(r.room)).reduce((a, r) => a + r.cfm, 0);
-    const pick = pickRound(cfm, frictionRate, o.trunkMaxFpm, { ...fo, sizesIn: [...new Set([...fo.sizesIn, 26, 28, 30, 32, 36, 40])].sort((a, b) => a - b) });
+    const pick = pickRound(cfm, frictionRate, o.trunkMaxFpm, trunkFo);
     const name = t.name || `Trunk ${i + 1}`;
-    if (!pick) { warnings.push(`Trunk "${name}" (${Math.round(cfm)} cfm) needs more than a 40 in. round.`); return { name, rooms: t.rooms, cfm, diameterIn: null }; }
+    if (!pick) { warnings.push(`Trunk "${name}" (${r0(cfm)} cfm) needs more than a ${trunkLargestIn} in. round.`); return { name, rooms: t.rooms, cfm, diameterIn: null }; }
     return { name, rooms: t.rooms, cfm, diameterIn: pick.diameterIn, fpm: pick.fpm, inWCPer100: pick.inWCPer100, limit: pick.limit, rectangle: rectangleFor(pick.diameterIn, o.rectHeightIn, o.rectStepIn) };
   });
   const returnTrunk = (() => {
     const cfm = ret.reduce((a, r) => a + r.cfm, 0);
     if (ret.length < 2) return null;
-    const pick = pickRound(cfm, frictionRate, o.returnMaxFpm, { ...fo, sizesIn: [...new Set([...fo.sizesIn, 26, 28, 30, 32, 36, 40])].sort((a, b) => a - b) });
-    return pick ? { name: 'Return trunk', cfm, diameterIn: pick.diameterIn, fpm: pick.fpm, inWCPer100: pick.inWCPer100, limit: pick.limit, rectangle: rectangleFor(pick.diameterIn, o.rectHeightIn, o.rectStepIn) } : null;
+    const pick = pickRound(cfm, frictionRate, o.returnMaxFpm, trunkFo);
+    if (!pick) { warnings.push(`Return trunk (${r0(cfm)} cfm) needs more than a ${trunkLargestIn} in. round.`); return { name: 'Return trunk', cfm, diameterIn: null }; }
+    return { name: 'Return trunk', cfm, diameterIn: pick.diameterIn, fpm: pick.fpm, inWCPer100: pick.inWCPer100, limit: pick.limit, rectangle: rectangleFor(pick.diameterIn, o.rectHeightIn, o.rectStepIn) };
   })();
   const returnCfm = ret.reduce((a, r) => a + r.cfm, 0);
   if (Math.abs(returnCfm - totalSupply) > 0.05 * totalSupply) warnings.push(`Return airflow (${Math.round(returnCfm)} cfm) differs from supply (${Math.round(totalSupply)} cfm) by more than 5%.`);
@@ -203,7 +209,7 @@ export function sizeDucts(design) {
   return {
     errors: [], warnings,
     pressure: { blowerStaticInWC: o.blowerStaticInWC, componentsInWC: components, availableInWC: available, longestSupplyFt: longestSupply, longestReturnFt: longestReturn, totalEffectiveLengthFt: tel, frictionRate },
-    settings: { roughnessFt: fo.roughnessFt, material: o.roughnessFt != null ? 'custom' : o.material, elevationFt: o.elevationFt, airDensity: airDensity(o.elevationFt), branchMaxFpm: o.branchMaxFpm, trunkMaxFpm: o.trunkMaxFpm, returnMaxFpm: o.returnMaxFpm },
+    settings: { roughnessFt: fo.roughnessFt, material: o.roughnessFt != null ? 'custom' : o.material, elevationFt: o.elevationFt, airDensity: airDensity(o.elevationFt), branchMaxFpm: o.branchMaxFpm, trunkMaxFpm: o.trunkMaxFpm, returnMaxFpm: o.returnMaxFpm, trunkLargestIn },
     supply, returns: ret, trunks, returnTrunk, totalSupplyCFM: totalSupply, totalReturnCFM: returnCfm,
   };
 }
@@ -216,7 +222,7 @@ export function sizeDucts(design) {
 export function designFromLoad(loadResult, house) {
   const d = house?.ducts || {};
   const lengths = d.lengths || {};
-  const runs = loadResult.rooms.map(r => ({ room: r.name, cfm: r.airflow.design, effectiveLengthFt: lengths[r.name] ?? d.defaultEffectiveLengthFt }));
+  const runs = loadResult.rooms.map(r => ({ room: r.name, cfm: r.airflow.design, effectiveLengthFt: (Object.hasOwn(lengths, r.name) ? lengths[r.name] : undefined) ?? d.defaultEffectiveLengthFt }));
   const { lengths: _l, defaultEffectiveLengthFt: _d, ...rest } = d;
   return { elevationFt: house?.site?.elevationFt ?? 0, ...rest, runs };
 }
@@ -235,7 +241,7 @@ export function ductReport(s) {
   for (const r of s.returns) l.push(`${('R: ' + r.name).padEnd(16).slice(0, 16)}${r0(r.cfm).padStart(6)}${r0(r.effectiveLengthFt).padStart(8)}${(r.diameterIn ? r.diameterIn + '"' : '-').padStart(7)}${(r.fpm ? r0(r.fpm) : '-').padStart(8)}${(r.inWCPer100 != null ? f3(r.inWCPer100) : '-').padStart(10)}  ${(r.limit ?? 'smallest').padEnd(9)}`);
   l.push('');
   for (const t of [...s.trunks, ...(s.returnTrunk ? [s.returnTrunk] : [])]) {
-    l.push(`${t.name}: ${r0(t.cfm)} cfm -> ${t.diameterIn ? `${t.diameterIn} in. round` : 'over 40 in.'}${t.rectangle ? ` or ${t.rectangle.widthIn} x ${t.rectangle.heightIn} in. rectangular (equivalent ${t.rectangle.equivalentIn.toFixed(1)} in.)` : ''}${t.fpm ? `, ${r0(t.fpm)} ft/min, ${f3(t.inWCPer100)} in/100 ft` : ''}`);
+    l.push(`${t.name}: ${r0(t.cfm)} cfm -> ${t.diameterIn ? `${t.diameterIn} in. round` : `over ${s.settings.trunkLargestIn} in.`}${t.rectangle ? ` or ${t.rectangle.widthIn} x ${t.rectangle.heightIn} in. rectangular (equivalent ${t.rectangle.equivalentIn.toFixed(1)} in.)` : ''}${t.fpm ? `, ${r0(t.fpm)} ft/min, ${f3(t.inWCPer100)} in/100 ft` : ''}`);
   }
   for (const w of s.warnings) l.push(`Note: ${w}`);
   l.push('');

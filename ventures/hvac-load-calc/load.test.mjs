@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculate, validate, wallU, ceilingU, sunPosition, irradiance, saturationKPa, humidityRatio, pressureKPa, grains, densityRatio, EXAMPLE, DAILY_RANGE_FRACTION } from './load.mjs';
+import { calculate, validate, wallU, ceilingU, floorU, sunPosition, irradiance, saturationKPa, humidityRatio, pressureKPa, grains, densityRatio, EXAMPLE, DAILY_RANGE_FRACTION } from './load.mjs';
 
 const close = (a, b, tol, msg) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ''} ${a} vs ${b}`);
 
@@ -115,4 +115,17 @@ test('the whole-house cooling components add up to the peak sensible load', () =
   const sum = Object.values(r.house.cooling.components).reduce((a, b) => a + b, 0);
   close(sum, r.house.cooling.sensible, 1e-6);
   assert.ok(r.house.cooling.components.windowSolar > 0);
+});
+
+test('framed floor U over a crawlspace: 90% cavity path, 10% through 9.25 in. joists', () => {
+  // Cavity path R = 19 + 0.94 subfloor + 2 x 0.92 films = 21.78; joist path 9.25 x 1.25 + 2.78 = 14.3425.
+  close(floorU({ floorR: 19 }), 0.9 / 21.78 + 0.1 / 14.3425, 1e-12);
+  close(floorU({ floorR: 0 }), 0.9 / 2.78 + 0.1 / 14.3425, 1e-12);
+});
+
+test('slab perimeter accepts up to 2,000 ft and refuses more', () => {
+  const slab = p => box({ rooms: [{ name: 'S', areaFt2: 100, floor: 'slab', slabPerimeterFt: p, walls: [{ facing: 'S', lengthFt: 10 }] }] });
+  assert.deepEqual(validate(slab(2000)), []);
+  assert.match(validate(slab(2000.5)).join(), /slab perimeter must be between 0 and 2000/);
+  assert.match(validate(slab(-1)).join(), /slab perimeter/);
 });
