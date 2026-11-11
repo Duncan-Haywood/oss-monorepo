@@ -92,6 +92,7 @@ Voltage RMSE against the measured curve, isothermal, finest mesh run (mV):
 - Stack-level mass only (no casing or tabs), as in `energy-cell`.
 
 ## Next steps
+The fidelity question is now the programme [`cell-fidelity`](../cell-fidelity/README.md), whose first step found that SPMe's own minimum salt concentration flags these designs (AUC 0.997) and that a 2-cycle DFN run costs about as much as a 2-cycle SPMe one.
 Compare plating once the variable name is found; measure DFN's negative-electrode reaction distribution during the charge (not at the step start, see diagnose6); find how far the diffusivity can drop before the SPMe winners' ranking changes, since the failing region is set by it; more DFN-search seeds and a tuned GP; fit the Ai cell's temperature data to settle the thermal option; find measured LG M50 curves at 2C or above (the OKane2022 cell) and repeat the measured-data check there; add measured charge curves, since the SPMe collapse happens on charge.
 
 ## Reproduce
