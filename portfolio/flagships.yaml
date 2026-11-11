@@ -158,26 +158,20 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*-bench.mjs. State: branch-and-price by
-      column generation (bnp.mjs) with a root dive (now backtracking, `diveBacktrack`) proves the least open
-      hours at the HiGHS optimum on every bench and 20-60 person week; the pay bound
-      (scoreBoundByColumnGeneration) proves 12 of 12 pay-gap weeks and 4 of 4 30/40-person weeks to within
-      $0.50; 60-person pay 1 of 2 proven, the other $2.68 open in 300 s. Exact speed-ups 2026-11-11 (README "Same
-      search, two to three times faster"): 60-person weeks 9-12 s (were 15-23); 80-person weeks, which
-      did not settle the root LP in 120 s before, proven 3 of 3 (HiGHS 1 of 3 in 300 s); 100x280 (the
-      400-copy cap) did not settle the root LP in 180 s (1.4M oracle nodes a call). Chain bound in the set
-      oracle 2026-11-11 later (README "A chain bound", chain-bound.test.mjs; rest rule as a Lagrangian
-      weighted-interval bound): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
-      359; week 1 347 over 344; largest call under 89k nodes. Pay oracle (README "The chain
-      bound in the pay oracle"): 40-person pay pricing 28-60% less; the 60-person pay week is still $1.22 open, bound = root LP after 172 nodes. Next: close the
-      100-person gaps (tree, not pricing, now); cuts or branching that move the score LP on the 60-person pay
-      week (a faster oracle will not close it); buildRoster end to end on
-      40-person weeks with exact on (3-5 min, not re-timed); --from-sales on two real POS exports
-      (Korean bakery orders, README "First real POS export", half-life 4 best; French bakery item lines
-      2026-11-11, README "Second real POS export": qty x price, lunch-closure breaks, refund note, 232k rows,
-      backtest 67 s to 3 s, half-life 2 best at 5 of 6 settings); next a US POS item export (Square or Toast),
-      a short-vs-over cost weight, a backtest that can score a staffed closure, and whether to default to a
-      half-life; a real published-schedule export for --import-shifts.
+      Landed work and every measurement are in the README and eval/*-bench.mjs. State: branch-and-price
+      (bnp.mjs) with a backtracking root dive proves the least open hours at the HiGHS optimum on every bench
+      and 20-80 person week; the pay bound proves 12 of 12 pay-gap weeks and 4 of 4 30/40-person weeks to
+      within $0.50. Chain bound in the set and pay oracles 2026-11-11 (README "A chain bound", "The chain
+      bound in the pay oracle"): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
+      359; week 1 347 over 344; the 60-person pay week is still $1.22 open. --from-sales (README "First real
+      POS export", "Second real POS export", "Short-vs-over cost weight"): two real bakery exports, backtest,
+      lunch-closure breaks, half-life 4 / 2 best; --short-cost r 2026-11-11 staffs the r/(1+r) fractile and
+      beats the average at r = 3 on both files. Next: close the 100-person gaps (tree, not pricing, now);
+      cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
+      40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
+      can score a staffed closure; whether to default to a half-life; forecasting from tickets (queue
+      length), not just sales; the fractile carried through the shift cut (the cut can add over-hours the
+      backtest never sees); a real published-schedule export for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,

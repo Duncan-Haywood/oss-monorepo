@@ -165,6 +165,7 @@ const WEEKDAY_NAMES = ["Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Friday
 // hour), closed: [{day, open, of}] (weekdays left out as rarely open), notes }.
 // o.halfLife: weeks; a day's weight halves for every that many weeks it is older than o.newest (default: the newest date).
 // o.keepRare: keep a weekday that traded on fewer than 1 in 4 of its dates in the span (default: treat it as closed).
+// o.shortCost with o.splh: also return heads: [7][24], the newsvendor headcount (see fractileHeads).
 export function averageSales(entries, o = {}) {
   const halfLife = o.halfLife === undefined ? 0 : Number(o.halfLife);
   if (o.halfLife !== undefined && !(halfLife > 0)) throw new Error("half-life must be a positive number of weeks");
@@ -207,7 +208,40 @@ export function averageSales(entries, o = {}) {
     }
   }
   for (const c of out.closed) out.notes.push(`${WEEKDAY_NAMES[c.day]}: sales on ${c.open} of ${c.of} in the file, so treated as closed (--keep-rare keeps it).`);
+  if (o.shortCost !== undefined && o.splh) out.heads = fractileHeads(entries, dates, out, o.splh, o.shortCost);
   return out;
+}
+
+// The short-vs-over cost weight (2026-11-11). An hour planned from the average is short about half the time: the average
+// of 0, 0, 3 and 5 heads is 2, so the two busy dates were short 4 person-hours between them. If a short person-hour (a
+// queue, a lost sale, a worn-out team) costs r times a spare one (pay for someone with nothing to do), the headcount that
+// minimises r x short + over over the past dates is the smallest k whose share of dates needing k or fewer reaches
+// r / (1 + r): the newsvendor critical fractile. r = 1 is the median; r = 3 the 75th percentile; r = 1/3 the 25th.
+// Each date of the weekday counts once, with its --half-life weight, needing ceil(that date-hour's sales / splh) heads
+// (0 on a date with no sale that hour). Undated weekday-average rows have no spread: those hours keep ceil(average / splh).
+export function shortCostShare(r) {
+  const v = Number(r);
+  if (!(v > 0) || !Number.isFinite(v)) throw new Error("short cost must be a positive number (how many times a spare person-hour a short one costs)");
+  return v / (1 + v);
+}
+
+function fractileHeads(entries, dates, a, splh, r) {
+  const p = shortCostShare(r);
+  const perDateHour = new Map(); // "key|hour" -> sales
+  for (const e of entries) if (e.key) { const k = `${e.key}|${e.hour}`; perDateHour.set(k, (perDateHour.get(k) || 0) + e.amount); }
+  return DAYS.map((_, d) => {
+    const row = new Array(24).fill(0);
+    if (!a.observed[d]) return row;
+    if (!dates[d].size) { for (let h = 0; h < 24; h++) row[h] = Math.ceil(a.avg[d][h] / splh - 1e-9); return row; }
+    const ds = [...dates[d]]; // [key, weight]
+    const total = ds.reduce((x, [, w]) => x + w, 0);
+    for (let h = 0; h < 24; h++) {
+      const need = ds.map(([k, w]) => [Math.max(0, Math.ceil((perDateHour.get(`${k}|${h}`) || 0) / splh - 1e-9)), w]).sort((x, y) => x[0] - y[0]);
+      let cum = 0;
+      for (const [n, w] of need) { cum += w; if (cum >= p * total - 1e-9 * total) { row[h] = n; break; } }
+    }
+    return row;
+  });
 }
 
 // Parse the export. Returns { avg: [7][24] average sales, observed: [7] days seen per weekday, seen, closed, rows, skipped, notes }.
@@ -215,12 +249,14 @@ export function averageSales(entries, o = {}) {
 // o.halfLife: weeks; a day's weight halves for every that many weeks it is older than the newest date in the file
 // (a trend: recent weeks count more). Both are plain arithmetic on the average, not a forecast model.
 export function hourlySales(text, o = {}) {
+  if (o.shortCost !== undefined) shortCostShare(o.shortCost);
   if (o.halfLife !== undefined && !(Number(o.halfLife) > 0)) throw new Error("half-life must be a positive number of weeks");
   const r = readSales(text, o);
   const out = { avg: DAYS.map(() => new Array(24).fill(0)), observed: new Array(7).fill(0), seen: DAYS.map(() => new Array(24).fill(0)), closed: [], rows: r.rows, skipped: r.skipped, notes: [...r.notes], entries: r.entries };
   if (!r.rows && r.notes.length) return out;
   const a = averageSales(r.entries, o);
-  Object.assign(out, { avg: a.avg, observed: a.observed, seen: a.seen, closed: a.closed });
+  Object.assign(out, { avg: a.avg, observed: a.observed, seen: a.seen, closed: a.closed, heads: a.heads });
+  if (a.heads) out.notes.push(`Short-vs-over weight ${+o.shortCost}: a short person-hour counted as ${+o.shortCost} times a spare one, so each hour is staffed for ${Math.round(shortCostShare(o.shortCost) * 100)}% of its past dates, not for the average.`);
   if (r.refunds.n) out.notes.push(`${r.refunds.n} row${r.refunds.n === 1 ? "" : "s"} with negative sales (refunds or voids, ${Math.round(-r.refunds.amount * 100) / 100} in all) left out: the plan follows what was rung up.`);
   if (r.blank) out.notes.push(`${r.blank} empty row${r.blank === 1 ? "" : "s"} ignored.`);
   if (r.skippedDays.size) out.notes.push(`${r.skippedDays.size} day${r.skippedDays.size === 1 ? "" : "s"} left out (--skip-dates): ${[...r.skippedDays].sort().join(", ")}.`);
@@ -235,6 +271,8 @@ export function hourlySales(text, o = {}) {
 }
 
 // Headcount per hour per day from average sales. open/close (hour 0-24) override the hours with sales.
+// o.heads ([7][24], from averageSales with shortCost): the heads wanted per hour instead of ceil(average / splh); the
+// trading day, breaks, minimum and maximum staff are set the same way.
 export function headcount(avg, observed, o = {}) {
   const splh = Number(o.splh), minStaff = o.minStaff === undefined ? 1 : Number(o.minStaff);
   if (!(splh > 0)) throw new Error("sales per labor hour must be a positive number");
@@ -266,7 +304,8 @@ export function headcount(avg, observed, o = {}) {
         h = e;
       }
     }
-    return hours.map((v, h) => (h >= lo && h < hi && !brk[h] ? Math.min(maxStaff, Math.max(minStaff, Math.ceil(v / splh - 1e-9))) : 0));
+    const want = (v, h) => (o.heads ? o.heads[d][h] : Math.ceil(v / splh - 1e-9));
+    return hours.map((v, h) => (h >= lo && h < hi && !brk[h] ? Math.min(maxStaff, Math.max(minStaff, want(v, h))) : 0));
   });
 }
 
@@ -310,7 +349,7 @@ const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 export function demandShifts(text, o = {}) {
   const s = hourlySales(text, o);
   if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped };
-  const prof = headcount(s.avg, s.observed, { ...o, seen: s.seen });
+  const prof = headcount(s.avg, s.observed, { ...o, seen: s.seen, heads: s.heads });
   if (o.open === undefined && o.close === undefined && !o.keepRare) {
     const trimmed = [];
     s.avg.forEach((hours, d) => hours.forEach((v, h) => { if (v > 0 && prof[d][h] === 0 && s.observed[d]) trimmed.push(`${DAYS[d]} ${h}:00 (${s.seen[d][h]} of ${s.observed[d]} days)`); }));
@@ -385,7 +424,12 @@ export function backtestSales(text, o = {}) {
   for (let w = warmup; w < fullWeeks; w++) if (byWeek.slice(0, w).some((x) => x.length)) tested.push(w);
   if (!tested.length) return { weeks: 0, methods: [], notes: notes.concat(`Needs more than ${warmup} full weeks of dated sales to test on (has ${fullWeeks}).`) };
   const hOpts = { splh, minStaff, maxStaff: o.maxStaff, open: o.open, close: o.close, keepRare: o.keepRare };
-  const results = BACKTEST_METHODS.map((m) => ({ ...m, short: [], over: [], scheduled: [], shortHours: [] }));
+  // With a short-vs-over weight r, every weighting is also tried with the fractile rule, and a week scores r x short +
+  // over; the plain average stays first as the baseline everything is compared with.
+  const rc = o.shortCost === undefined ? null : Number(o.shortCost);
+  if (rc !== null) shortCostShare(rc);
+  const methods0 = rc === null ? BACKTEST_METHODS : [BACKTEST_METHODS[0], ...BACKTEST_METHODS.map((m) => ({ ...m, id: "q-" + m.id, label: `${m.id === "all" ? "every earlier week" : m.label}, short cost ${rc}`, shortCost: rc }))];
+  const results = methods0.map((m) => ({ ...m, short: [], over: [], scheduled: [], shortHours: [] }));
   for (const w of tested) {
     const start = monday0 + w * 7 * DAY_MS;
     // The real need, per weekday-hour, from that week's sales.
@@ -394,8 +438,8 @@ export function backtestSales(text, o = {}) {
     for (const res of results) {
       const from = res.window ? start - res.window * 7 * DAY_MS : -Infinity;
       const train = dated.filter((e) => { const t = keyMs(e.key); return t < start && t >= from; });
-      const a = averageSales(train, { halfLife: res.halfLife, newest: start - DAY_MS, keepRare: o.keepRare });
-      const plan = headcount(a.avg, a.observed, { ...hOpts, seen: a.seen });
+      const a = averageSales(train, { halfLife: res.halfLife, newest: start - DAY_MS, keepRare: o.keepRare, splh, shortCost: res.shortCost });
+      const plan = headcount(a.avg, a.observed, { ...hOpts, seen: a.seen, heads: a.heads });
       let short = 0, over = 0, sched = 0, shortH = 0;
       for (let d = 0; d < 7; d++) for (let h = 0; h < 24; h++) {
         const raw = Math.ceil(actual[d][h] / splh - 1e-9);
@@ -409,14 +453,15 @@ export function backtestSales(text, o = {}) {
   const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
   const base = results[0];
   const methods = results.map((res) => {
-    const miss = res.short.map((x, i) => x + res.over[i]);
-    const diff = miss.map((x, i) => x - (base.short[i] + base.over[i]));
+    const w = rc === null ? 1 : rc;
+    const miss = res.short.map((x, i) => w * x + res.over[i]);
+    const diff = miss.map((x, i) => x - (w * base.short[i] + base.over[i]));
     const md = mean(diff), sd = Math.sqrt(diff.reduce((a, x) => a + (x - md) ** 2, 0) / Math.max(1, diff.length - 1));
     const half = diff.length > 1 ? 1.96 * sd / Math.sqrt(diff.length) : 0;
-    return { id: res.id, label: res.label, short: mean(res.short), over: mean(res.over), scheduled: mean(res.scheduled), shortHours: mean(res.shortHours), miss: mean(miss), vsDefault: md, ci: [md - half, md + half] };
+    return { id: res.id, label: res.label, halfLife: res.halfLife, window: res.window, shortCost: res.shortCost, short: mean(res.short), over: mean(res.over), scheduled: mean(res.scheduled), shortHours: mean(res.shortHours), miss: mean(miss), vsDefault: md, ci: [md - half, md + half] };
   });
   const best = methods.reduce((a, b) => (b.miss < a.miss - 1e-9 ? b : a));
   const clear = best.id !== "all" && best.ci[1] < 0;
-  notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} sales per labor hour and ${minStaff} minimum staff.`);
-  return { weeks: tested.length, methods, best: best.id, clear, notes };
+  notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} sales per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
+  return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, notes };
 }
