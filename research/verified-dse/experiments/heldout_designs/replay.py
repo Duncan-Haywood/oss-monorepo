@@ -118,6 +118,14 @@ def main(dst):
             f"median skip-r1 share of all-routed cost: {med([r['share'] for r in rows]):.2f} overall; "
             f"{sh_hi:.2f} in {len(hi)} cells with routed/r2 > {RATIO:g}, {sh_lo:.2f} in {len(lo)} cells at or below",
             f"cells with routed/r2 > {RATIO:g}: skip-r1 better than equal-cost random in {wh}, worse in {lh}, tied in {len(hi) - wh - lh}",
+            f"post hoc (added after the first run): mean regret in cells with routed/r2 > {RATIO:g}: skip-r1 "
+            f"{statistics.mean(r['skip'] for r in hi):.2f}%, equal-cost random {statistics.mean(r['rs'] for r in hi):.2f}%; at or below: "
+            f"{statistics.mean(r['skip'] for r in lo):.2f}% and {statistics.mean(r['rs'] for r in lo):.2f}%",
+            f"post hoc: cells with regret above 5%: skip-r1 {sum(r['skip'] > 5 for r in rows)}, equal-cost random "
+            f"{sum(r['rs'] > 5 for r in rows)}; worst cell skip-r1 {max(r['skip'] for r in rows):.2f}%, random {max(r['rs'] for r in rows):.2f}%",
+            f"post hoc: without bcastmix192 (two outcome classes, milestone 28): skip-r1 "
+            f"{statistics.mean(r['skip'] for r in rows if r['design'] != 'bcastmix192'):.2f}%, equal-cost random "
+            f"{statistics.mean(r['rs'] for r in rows if r['design'] != 'bcastmix192'):.2f}%",
             "",
             f"(1) skip-r1 <= 105-style + 0.3: {M['skip'] <= M['m105'] + 0.3}",
             f"(2) both beat random 8: {M['skip'] < M['r8'] and M['m105'] < M['r8']}",
