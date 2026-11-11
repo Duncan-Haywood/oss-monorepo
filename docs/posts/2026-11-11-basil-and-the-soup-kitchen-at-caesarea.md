@@ -3,7 +3,7 @@ title: "Saints by Candlelight 89: Basil, the barns sermon and a hospital outside
 seo_title: "Saint Basil the Great bedtime story"
 date: 2026-11-11
 tags: [fiction, saints-by-candlelight, bedtime-story, saints]
-description: "A new bedtime episode on Saint Basil the Great: the famine of 368, the soup he served himself, the barns sermon and the Basileias, sorted into what each source says."
+description: "A bedtime episode on Saint Basil the Great: the famine of 368, the soup he served himself, the barns sermon and the Basileias, sorted by source."
 ---
 
 [Basil and the Soup Kitchen at Caesarea](../../ventures/saints-by-candlelight/episodes/089-basil-and-the-soup-kitchen-at-caesarea.md)
