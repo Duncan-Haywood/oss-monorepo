@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Last Dark Noon</title>
+      <link>https://example.invalid/hearth-and-horizon/the-last-dark-noon.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-last-dark-noon.html</guid>
+      <pubDate>Wed, 11 Nov 2026 12:00:00 GMT</pubDate>
+      <description>For a year and a half Charon has hidden the Sun at every Pluto noon, and almost nobody went up to watch. When the station's almanac posts that six eclipses are left before a 124-year gap, 318 of 412 people ask for the last one. The window holds 24, and the last one is not even dark. Setting: Chapel of the Visitation, Stillpoint Station, the point of Pluto under Charon (both invented), January to March 2237. Read the full text at https://example.invalid/hearth-and-horizon/the-last-dark-noon.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>For a year and a half Charon has hidden the Sun at every Pluto noon, and almost nobody went up to watch. When the station's almanac posts that six eclipses are left before a 124-year gap, 318 of 412 people ask for the last one. The window holds 24, and the last one is not even dark.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>Born on the First of January</title>
       <link>https://example.invalid/hearth-and-horizon/born-on-the-first-of-january.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/born-on-the-first-of-january.html</guid>
