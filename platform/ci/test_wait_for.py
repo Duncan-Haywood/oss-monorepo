@@ -126,6 +126,30 @@ class WaitFor(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("still failing", err)
 
+    def test_pattern_is_an_alias_for_marker(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("x\nEND\n")
+            code, out, _ = self._main(p, "--pattern", "END", "--timeout", "1")
+        self.assertEqual((code, out), (0, "x\nEND\n"))
+
+    def test_timeout_reports_log_progress(self):
+        from wait_for import progress
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            self.assertIn("does not exist yet", progress(p))
+            open(p, "w").write("step 1\nstep 2\n\n")
+            mtime = os.stat(p).st_mtime
+            live = progress(p, now=lambda: mtime + 5)
+            self.assertIn("15 bytes", live)
+            self.assertIn("5s ago", live)
+            self.assertIn("'step 2'", live)
+            self.assertIn("still being written", live)
+            self.assertIn("buffering", progress(p, now=lambda: mtime + 600))
+            code, _, err = self._main(p, "--timeout", "0")
+            self.assertEqual(code, 1)
+            self.assertIn("last line: 'step 2'", err)
+
     def test_main_prints_only_last_15_lines(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")
