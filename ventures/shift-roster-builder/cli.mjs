@@ -78,6 +78,8 @@ Options:
                       --short-cost <r>: a short person-hour costs r spare ones (a queue or lost sale vs idle pay); each hour is then
                       staffed for the r/(1+r) share of its past dates (r 1 = median, 3 = 75th percentile) instead of the average,
                       and --backtest scores r x short + over and tries every weighting with that rule.
+                      --tickets-per-hour <n> instead of --splh plans from customers, not money: distinct tickets (a ticket, order,
+                      receipt or check number column; one row per order when there is none) per hour, n of them per person-hour.
                       With dated rows, a run shorter than --min-shift is priced against past dates (at --short-cost, or 1): put in
                       the cheapest whole shift that holds it, or left unstaffed and listed when every such shift costs more than it
                       saves; never a run of minimum staff. --plain-cut stretches every short run instead. --join lets short runs near each
@@ -200,6 +202,11 @@ export function parseArgs(argv) {
       const v = Number(argv[++i]);
       if (!(v > 0 && v <= 100)) throw new Error("--labor-target needs a percent between 0 and 100");
       o.laborTarget = v;
+    }
+    else if (a === "--tickets-per-hour") {
+      const v = Number(argv[++i]);
+      if (!(v > 0)) throw new Error("--tickets-per-hour needs a positive number of tickets (customers) one person serves in an hour");
+      o.splh = v; o.demand = { ...o.demand, unit: "tickets" };
     }
     else if (a === "--splh") {
       const v = Number(argv[++i]);
@@ -512,7 +519,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
     }
     if (o.fromSales) {
-      if (!(o.splh > 0)) throw new Error("--from-sales needs --splh <sales per labor hour>");
+      if (!(o.splh > 0)) throw new Error("--from-sales needs --splh <sales per labor hour> or --tickets-per-hour <n>");
       if (o.backtest) {
         const b = backtestSales(await readFile(o.fromSales, "utf8"), { ...o.demand, splh: o.splh, shifts: true });
         process.stdout.write(backtestReport(b));
@@ -522,7 +529,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       for (const n of [...r.notes, ...r.skipped.map((x) => "Skipped " + x)]) process.stderr.write(n + "\n");
       if (!r.shiftsText) process.exit(1);
       const extra = r.extra >= 0 ? `${r.extra} extra from the shortest-shift rule` : `${-r.extra} fewer: short runs left unstaffed at your short cost`;
-      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week sales ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
+      const unit = o.demand && o.demand.unit === "tickets" ? "tickets" : "sales";
+      process.stderr.write(`${r.needed} person-hours needed, ${r.scheduled} scheduled (${extra}); average week ${unit} ${Math.round(r.sales)}, ${Math.round(r.sales / r.scheduled)} per scheduled hour.\n`);
       process.stdout.write(r.shiftsText + "\n"); process.exit(0);
     }
     if (o.importStaff) {

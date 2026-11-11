@@ -23,6 +23,9 @@ const SYN = {
   sales: ["sales", "net sales", "gross sales", "amount", "total", "revenue", "net revenue", "net amount", "sales amount", "total sales", "net sale", "gross", "net price", "order total", "check total", "net total", "gross total", "payment amount", "transaction amount", "subtotal", "sub total"],
 };
 const QTY = ["quantity", "qty", "units", "quantity sold", "units sold", "items sold", "item quantity", "qty sold"];
+// Ticket (order, receipt, check) id columns, for --tickets-per-hour: written from memory of common exports (a Square item
+// export's "Transaction ID", a Toast "Order Id" or "Check #"), read on one real file (the French bakery's ticket_number).
+const TICKET = ["ticket number", "ticket", "ticket no", "ticket id", "order id", "order number", "order no", "order", "transaction id", "transaction number", "receipt number", "receipt no", "receipt", "check number", "check", "check id", "check no", "invoice number", "invoice no", "bill number", "bill no", "sale id", "sale number"];
 const PRICE = ["unit price", "price", "item price", "price each", "selling price", "sale price", "unit price eur", "unit price euro"];
 const isoKey = (k) => String(k).trim().replace(/^(\d{4})-(\d{1,2})-(\d{1,2})$/, (_, y, m, d) => `${y}-${+m}-${+d}`);
 const DAYNAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
@@ -124,7 +127,16 @@ export function readSales(text, o = {}) {
     const q = head.findIndex((h) => QTY.includes(h)), p = head.findIndex((h, i) => i !== q && (PRICE.includes(h) || /^unit price\b/.test(h)));
     if (q >= 0 && p >= 0) { ix.qty = q; ix.price = p; ix.sales = p; out.notes.push("No sales column: each row's sales are its quantity times its unit price (a line-item export)."); }
   }
-  if (ix.sales < 0) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + ")."); return out; }
+  // o.unit "tickets": the plan counts customers served (distinct tickets per hour) instead of money, so a morning of
+  // many small orders and an afternoon of a few big ones are staffed by the queue, not the till total (2026-11-11).
+  const tickets = o.unit === "tickets";
+  if (tickets) {
+    ix.ticket = head.findIndex((h) => TICKET.includes(h));
+    if (ix.ticket < 0 && ix.qty !== undefined) { out.notes.push("Counting tickets needs a ticket, order, receipt or check number column in a line-item export (looked for: " + TICKET.join(", ") + "); without one, plan from sales."); return out; }
+    if (ix.ticket < 0 && ix.sales < 0) { ix.rowCount = true; }
+    out.notes.push(ix.ticket >= 0 ? `Counting tickets: each distinct "${head[ix.ticket]}" is one customer, in the hour of its first line; the per-hour figure is tickets one person serves in an hour.` : "Counting tickets: no ticket column, so each row is taken as one order (an order-level export); the per-hour figure is orders one person serves in an hour.");
+  }
+  if (ix.sales < 0 && !(tickets && ix.ticket >= 0)) { out.notes.push("No sales column found (looked for: " + SYN.sales.join(", ") + ")."); return out; }
   if (ix.stamp < 0) { out.notes.push("No date-time or hour column found."); return out; }
   // A slash or dash date whose first number is over 12 somewhere in the file (25/03/2026) means the whole file is day first;
   // one whose second number is over 12 means month first. With neither, 05/03/2026 is ambiguous: month first, and a note says so.
@@ -138,22 +150,47 @@ export function readSales(text, o = {}) {
   if (monthFirst) dayFirst = false;
   out.dayFirst = dayFirst;
   out.ambiguous = ambiguous && !dayFirst && !monthFirst;
+  const seenTickets = new Set();
+  let ticketRows = 0;
   lines.slice(1).forEach((line, i) => {
     const c = splitCsvRow(line, sep);
     // A row of empty cells (",,,,," at the end of a real bakery export, 233 of them) is not a sale and not an error.
     if (c.every((x) => String(x ?? "").trim() === "")) { out.blank++; return; }
-    const amount = ix.qty !== undefined ? Math.round(readAmount(c[ix.qty]) * readAmount(c[ix.price]) * 100) / 100 : readAmount(c[ix.sales]);
+    if (tickets && ix.ticket >= 0) {
+      const id = String(c[ix.ticket] ?? "").trim();
+      const st = readStamp(ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp], ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
+      if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour`); return; }
+      if (!id) { out.skipped.push(`row ${i + 2}: no ticket number`); return; }
+      // A refund line is not a new customer: left out and counted, as in a sales plan.
+      if (ix.sales >= 0) {
+        const amt = ix.qty !== undefined ? readAmount(c[ix.qty]) * readAmount(c[ix.price]) : readAmount(c[ix.sales]);
+        if (Number.isFinite(amt) && amt < 0) { out.refunds.n++; out.refunds.amount += amt; return; }
+      }
+      if (st.key && skip.has(isoKey(st.key))) { out.skippedDays.add(st.key); return; }
+      ticketRows++;
+      // Ticket numbers restart on some tills each day, so a ticket is its id on its date.
+      const tk = `${st.key || st.day}|${id}`;
+      if (seenTickets.has(tk)) return;
+      seenTickets.add(tk);
+      out.entries.push({ ...st, amount: 1 });
+      if (!st.key) out.undated++;
+      out.rows++;
+      return;
+    }
+    const amount = ix.rowCount ? 1 : ix.qty !== undefined ? Math.round(readAmount(c[ix.qty]) * readAmount(c[ix.price]) * 100) / 100 : readAmount(c[ix.sales]);
     const stampText = ix.clock >= 0 ? `${String(c[ix.stamp] || "").trim()} ${String(c[ix.clock] || "").trim()}` : c[ix.stamp];
     const st = readStamp(stampText, ix.day >= 0 ? c[ix.day] : undefined, dayFirst);
     if (!st) { out.skipped.push(`row ${i + 2}: could not read the date and hour "${stampText || ""}"`); return; }
-    if (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "" || (ix.qty !== undefined && String(c[ix.qty] || "").trim() === "")) { out.skipped.push(`row ${i + 2}: could not read the sales "${ix.qty !== undefined ? `${c[ix.qty] || ""} x ${c[ix.price] || ""}` : c[ix.sales] || ""}"`); return; }
+    if (!ix.rowCount && (!Number.isFinite(amount) || String(c[ix.sales] || "").trim() === "" || (ix.qty !== undefined && String(c[ix.qty] || "").trim() === ""))) { out.skipped.push(`row ${i + 2}: could not read the sales "${ix.qty !== undefined ? `${c[ix.qty] || ""} x ${c[ix.price] || ""}` : c[ix.sales] || ""}"`); return; }
     // A refund or void line is counted, not listed: the French bakery file has 1,294 of them, one "skipped" line each before.
     if (amount < 0) { out.refunds.n++; out.refunds.amount += amount; return; }
+    const value = tickets ? 1 : amount;
     if (st.key && skip.has(isoKey(st.key))) { out.skippedDays.add(st.key); return; }
-    out.entries.push({ ...st, amount });
+    out.entries.push({ ...st, amount: value });
     if (!st.key) out.undated++;
     out.rows++;
   });
+  if (tickets && ix.ticket >= 0 && out.rows) out.notes.push(`${out.rows} tickets from ${ticketRows} lines (${(ticketRows / out.rows).toFixed(2)} lines a ticket).`);
   return out;
 }
 
@@ -577,13 +614,20 @@ export function backtestSales(text, o = {}) {
   // One entry per date and hour (sales summed) gives the same averages as one per row: averageSales weighs by date and
   // counts dates, not rows. The French bakery's 232,711 item lines become 5,566, and its backtest drops from 67 s a
   // setting to about 3 s (the page runs it on the main thread).
-  const agg = new Map();
-  for (const e of r.entries) {
-    if (!e.key) continue;
-    const k = `${e.key}|${e.hour}`, x = agg.get(k);
-    if (x) x.amount += e.amount; else agg.set(k, { ...e });
-  }
-  const dated = [...agg.values()];
+  const aggregate = (entries) => {
+    const agg = new Map();
+    for (const e of entries) {
+      if (!e.key) continue;
+      const k = `${e.key}|${e.hour}`, x = agg.get(k);
+      if (x) x.amount += e.amount; else agg.set(k, { ...e });
+    }
+    return [...agg.values()];
+  };
+  const dated = aggregate(r.entries);
+  // o.judgeBy {unit, splh}: score each week against the heads another count calls for (plan from sales, judge by
+  // tickets, or the reverse), so two drivers can be compared on one yardstick (eval/tickets.mjs, 2026-11-11).
+  const judge = o.judgeBy ? { dated: aggregate(readSales(text, { ...o, unit: o.judgeBy.unit }).entries), splh: Number(o.judgeBy.splh) } : null;
+  if (judge && !(judge.splh > 0)) throw new Error("judgeBy needs a positive per-labor-hour figure");
   if (!dated.length) return { weeks: 0, methods: [], notes: notes.concat("A backtest needs dated rows (a date and hour per sale), not weekday averages.") };
   const ms = dated.map((e) => keyMs(e.key));
   let lo = Infinity, hi = -Infinity;
@@ -610,7 +654,10 @@ export function backtestSales(text, o = {}) {
     const start = monday0 + w * 7 * DAY_MS;
     // The real need, per weekday-hour, from that week's sales.
     const actual = DAYS.map(() => new Array(24).fill(0));
-    for (const e of byWeek[w]) actual[e.day][e.hour] += e.amount;
+    const wEnd = start + 7 * DAY_MS;
+    if (judge) { for (const e of judge.dated) { const t = keyMs(e.key); if (t >= start && t < wEnd) actual[e.day][e.hour] += e.amount; } }
+    else for (const e of byWeek[w]) actual[e.day][e.hour] += e.amount;
+    const jsplh = judge ? judge.splh : splh;
     for (const res of results) {
       const from = res.window ? start - res.window * 7 * DAY_MS : -Infinity;
       const train = dated.filter((e) => { const t = keyMs(e.key); return t < start && t >= from; });
@@ -628,7 +675,7 @@ export function backtestSales(text, o = {}) {
       const open = prof;
       let short = 0, over = 0, sched = 0, shortH = 0;
       for (let d = 0; d < 7; d++) for (let h = 0; h < 24; h++) {
-        const raw = Math.ceil(actual[d][h] / splh - 1e-9);
+        const raw = Math.ceil(actual[d][h] / jsplh - 1e-9);
         const need = open[d][h] > 0 ? Math.max(minStaff, raw) : raw;
         sched += plan[d][h];
         if (need > plan[d][h]) { short += need - plan[d][h]; shortH++; } else over += plan[d][h] - need;
