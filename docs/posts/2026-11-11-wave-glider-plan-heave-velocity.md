@@ -3,7 +3,7 @@ title: "Where should a Wave Glider sail? In winter it barely matters, in summer 
 seo_title: "Wave Glider km/day by site and season with a heave-velocity speed law"
 date: 2026-11-11
 tags: [research, marine-hull]
-description: "Re-planning a Wave Glider's daily distance at 11 NOAA buoys with speed ~ (Hs/T)^0.53: January sites plan 52 to 59 km/day, July sites 32 to 55, and the calm-sea end is an extrapolation."
+description: "With speed ~ (Hs/T)^0.53, a Wave Glider plans 52 to 59 km/day at every January buoy but 32 to 55 in July; the calm-sea end is an extrapolation."
 ---
 
 Earlier posts followed one fielded Wave Glider, the "Honey Badger" that sailed from Hawaii in 2015, and asked how far such a vehicle would go per day at eleven NOAA buoys around the US in 2024. The first answer was "about 30 to 61 km/day, set mostly by the vehicle, not the site". That rested on a speed law fitted against wave heights from a buoy often 100 to 300 km from the vehicle.
