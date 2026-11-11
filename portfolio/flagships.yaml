@@ -256,32 +256,21 @@ flagships:
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      The feeder CAD package (manufacturing/feeder/; history in cad/README.md and git): launcher head,
-      turntable, mast, 2040 base, net frame, hopper, hose with a sliding-sleeve take-up sized over elevation
-      and azimuth, retainer, bracing, launch window, plate clearance, axle squaring. Azimuth drive landed
-      2026-11-10 (`Feeder.azimuth_drive`, cad/README.md "Azimuth drive"): NEMA 17 under the mast plate, m1.5
-      15-tooth pinion, printed 150-tooth PETG sector under a trimmed turntable plate (10:1), sized on the
-      turning inertia measured from the CAD (0.11 kg m^2 level, 0.31 at +45 deg): 30 deg in 1 s at 2.3x
-      pull-out margin, fastest 0.88 s; firmware drives it as a homed step/dir axis (controller.StepperAxis).
-      A new azimuth collision sweep found the turned head cut the hopper's front posts and the mast plate's
-      rear edge: posts moved to y +-245 and the mast plate notched. Elevation drive landed 2026-11-11
-      (`Feeder.elevation_drive`, cad/README.md "Elevation drive"): head gravity measured from the CAD pulls
-      the nose up 0.63-11.75 N m, so a 150 mm-stroke actuator outboard of the guard-side cheek pushes one way,
-      18-100 N, window 245/374 mm hole to hole. Elevation firmware landed 2026-11-11 (controller.LinearAxis, firmware/esp32/README.md "Elevation
-      actuator"): angle to length through the CAD geometry (a linear servo map aimed up to 1.46 deg high), rc/pot/timed
-      modes, stall and lost-pot faults, feed gate waits for the aim (FLAG_AIM_SETTLING). Same run: a 240 mm actuator's
-      retract limit put the head at +48.8 deg, into the turntable plate (clear only to +46.36); drawn now 246 mm
-      (window 244.9-247.7, checked). Pi drill player landed 2026-11-11 (`tennisbots play`, src/tennisbots/play.py,
-      firmware/esp32/README.md "Wheel tachometers"): waits for a fresh settled aim and wheels within 2% for 300 ms,
-      feeds, holds 700 ms; tested against main.py itself on a simulated board (simboard.py). That sim found the
-      1-pulse/rev tach counted per 10 ms tick read only 0/6,000/12,000 rpm, so the gate never opened: now timed
-      pulse to pulse. Sim (assumed wheel plant): the wheel band sets landing scatter (4% up to 0.6 m, 2% 0.3 m),
-      timed mode re-homes once a round. Next: tune or replace the wheel loop (integral-only, underdamped on the
-      assumed plant; 1-4.6 s per speed change), with a real ESC/motor step response (needs a person); a phone
-      drill page driving `play` over the Pi's local web server; weigh the head and measure the hose's torque, the
-      stepper's pull-out and the actuator's real lengths (needs a person); the home switch's bracket; hang a
-      real hose from a tube; the shuttle actuator's bracket; the netting trough that rolls balls to the
-      hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
+      History and every measurement: cad/README.md, firmware/esp32/README.md and git (feeder CAD package with
+      launcher head, turntable, mast, base, net frame, hopper, sliding-sleeve hose take-up, azimuth drive sized
+      on CAD inertia, elevation drive sized on head gravity, actuator 246 mm so its retract limit is a safe
+      stop; firmware StepperAxis and LinearAxis rc/pot/timed, feed gate waits for the aim). Pi drill player
+      landed 2026-11-11 (`tennisbots play`, src/tennisbots/play.py, firmware README "Wheel tachometers"): fresh
+      settled aim and wheels within 2% for 300 ms, then FEED, hold 700 ms; tested on main.py itself on a
+      simulated board (simboard.py), which found the per-tick tach count read only 0/6,000/12,000 rpm so the
+      gate never opened (now pulse-period timed). Sim, assumed wheel plant: the wheel band sets landing
+      scatter (4% up to 0.6 m, 2% 0.3 m); timed mode re-homes once a round. Next: tune or replace the
+      integral-only wheel loop (underdamped on the assumed plant, 1-4.6 s per speed change) from a real
+      ESC/motor step response (needs a person); a phone drill page driving `play` from the Pi's local web
+      server; weigh the head and measure the hose's torque, the stepper's pull-out and the actuator's real
+      lengths (needs a person); the home switch's bracket; hang a real hose from a tube; the shuttle
+      actuator's bracket; the netting trough to the hopper inlet; consider a lower, rear-mounted tub if the
+      2.3 m rim is too high to fill.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to
