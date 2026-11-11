@@ -2,7 +2,7 @@
 title: "Four million euros of income that wasn't: Adyen's own sample report"
 seo_title: "Adyen settlement details report Balancetransfer reconciliation"
 date: 2026-11-11
-description: "Run through the ai-bookkeeper's payout reader, Adyen's published sample settlement report booked a EUR 4.0M balance carry as income. The fix: every batch has to tie."
+description: "Adyen's published sample settlement report booked a EUR 4.0M balance carry as income in our payout reader. The fix: every batch has to tie."
 tags: [ai-bookkeeper, adyen, reconciliation, payments, bookkeeping]
 ---
 
