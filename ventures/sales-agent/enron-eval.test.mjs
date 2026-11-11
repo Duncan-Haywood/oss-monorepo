@@ -183,3 +183,56 @@ test("third round: the real asks still stop", () => {
   assert.equal(cat("This seems to not ever get resolved. Looks good to me."), "unclear");
   assert.equal(cat("Not now, and not later either."), "not_interested");
 });
+
+// Fourth round, 2026-11-11 (eval/README.md "Fourth round"): written from the 0*-3* halves, scored once on the unread 4* half.
+// Paraphrased, no corpus names.
+const FOURTH_NOT_A_STOP = [
+  "Lee, the firm's CEO, is traveling and won't be back in the office until Wednesday.",
+  "Apparently the person she needs to talk to is out of the office.",
+  "One of those guys should be back in the office shortly, and I'll let you know.",
+  "Somehow her Out of Office notification stopped working.",
+  "We hope you will return soon to our site.",
+  "I will be out of the office on Friday, but will be in all next week if you want to discuss.",
+  "I will be out of the office this afternoon but in all day tomorrow.",
+  "My mom had surgery last week and I was in and out of the office.",
+  "It is amazing what two days out of the office will do to my workload!",
+  "Sorry, I am traveling a bunch.",
+  "I am not sure when I will be back up there.",
+  "There is a good chance that I will return to Portland.",
+  "We're all fine, but very busy!",
+  "We are set for closing at 10:00 AM today.",
+  "I'll pass on any other articles on the industry.",
+  "I guess we don't need the talking points, but we should still find out why.",
+  "If you are comfortable with where this is going, then we do not need to meet.",
+  "We don't need three different people collecting the same information.",
+  "I don't need Smith & Jones to serve as lobbyists.",
+  "It isn't really relevant for purposes of the guaranty.",
+  "But no need to set up a formal agenda.",
+  "The daily quantity does not fit in a deficiency default.",
+  "If you need to take it off, take it as vacation for now.",
+  "Could we sell it to one buyer and take it off the market?",
+  "I would rather not get into the habit of locking in curves early.",
+  "At least they leave me alone and let me work out.",
+  "No more email for you today.",
+  "The updated TW Unsubscribed Capacity page went to production today.",
+  "If you have any legal questions feel free to call our lawyer at 555-0100.",
+  "The agreement has a confidentiality provision that goes to internal communication.",
+  "Now that Randy Lee has left Brightline, they are unlikely to reply soon.",
+  "Turns out I was just asking the wrong person.",
+  "No. 5 -- add that we are always the counterparty.",
+  "No - they pay you just for being you!",
+  "Nope. What's the occasion?",
+];
+for (const body of FOURTH_NOT_A_STOP) test(`fourth round, not a stop: ${body}`, () => assert.ok(!["unsubscribe", "bounce", "left_company", "not_interested", "out_of_office"].includes(cat(body)), cat(body)));
+
+test("fourth round: the real asks still stop", () => {
+  assert.equal(cat("No."), "not_interested");
+  assert.equal(cat("Nope.\n\nPat Doe\nVP Sales, Acme"), "not_interested");
+  assert.equal(cat("No. We are happy with our current vendor."), "not_interested");
+  assert.equal(cat("I am out of the office until Monday."), "out_of_office");
+  assert.equal(cat("Hi Sam, I am out of the office until Monday, November 20."), "out_of_office");
+  assert.equal(cat("I am in London until Friday and out of the office."), "out_of_office");
+  assert.equal(cat("Please take me off your list."), "unsubscribe");
+  assert.equal(cat("Please leave me alone."), "unsubscribe");
+  assert.equal(cat("Jordan has left Brightline."), "left_company");
+});

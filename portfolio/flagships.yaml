@@ -101,30 +101,23 @@ flagships:
       History and every measurement: README, eval/README and git (inbox agent, daily
       run, self-host server with TLS and XOAUTH2, research agent, call prep,
       follow-ups, meeting slots and .ics invites, CRM write-back to Pipedrive/HubSpot
-      against fake servers only; nineteen agent-written reply sets, latest 2026-11-08:
-      false-not-now and wrong-person probe 9/20 before, 15/20 after three narrow
-      changes; false-bounce and false-away probe 9/20 before, 16/20 after one veto;
-      all sets other than the 117 real bounces, 11 + 12 real mail-client emails and
-      the 1,857-reply label mix are agent-written). Real people's mail 2026-11-10
-      (eval/enron.mjs, Enron corpus, 19,153 replies, README): stops 70% wrong; vetoes
-      tuned on one half, held-out half scored once: wrong stops 30 to 13 per 1,000,
-      right 113 to 108. Rounds 2 and 3, 2026-11-11 (eval/README "Second round",
-      "Third round"): each tuned on read halves, scored once on an unread half
-      labelled blind by a separate agent; round 3 (Re: subjects not read, others'
-      absences, forwarding) on 3*: wrong stops 10.9 to 8.4 per 1,000, right 47 to
-      46. Next: (1) the 81 left on 3* (first-person short absences, "don't need the
-      X" in work talk) tuned on 0*-3*, scored on 4*; a human second reader; "Mine
-      too" above a quoted opt-out; real
-      opt-out recall set 2026-11-10 (eval/optout-recall.mjs, Enron 2*-f*, README): 103
-      of 113 caught before, 112 after five patterns, no new wrong stop on either half;
-      open: a second reader for its labels; (2) real replies to outreach and a real
-      rep's call notes to check the reply rules, prep rules and follow-up sorter; (3)
-      M2: score a hosted and a local model with eval/model.mjs on the fresh sets
-      (needs a key), with a set labelled by a person or another model family before
-      any rule change; (4) run the self- host server, OAuth and CRM write-back against
-      a real mailbox, Google or Microsoft app and HubSpot or Pipedrive account (all
-      fakes so far); (5) a real HubSpot or Pipedrive export for the research agent
-      (none found public).
+      against fake servers only; nineteen agent-written reply sets, latest
+      2026-11-08). Real people's mail (eval/enron.mjs, Enron corpus, README): four
+      rounds, each tuned on read halves and scored once on an unread half labelled
+      blind by a separate agent; round 4, 2026-11-11 (eval/README "Fourth round",
+      whose absence, a talking "No."): on 4* wrong stops 7.2 to 5.0 per 1,000,
+      right 65 to 64. Real opt-out recall set (eval/optout-recall.mjs): 112 of 113.
+      Next: (1) the 48 left on 4* (REST_DECLINES too broad: "need"/"thanks"/"n't"
+      keep a talking "No." a stop; first-person short absences; handovers) tuned
+      on 0*-4*, scored on 5*; a human second reader for the Enron and opt-out
+      labels; "Mine too" above a quoted opt-out; (2) real replies to outreach and
+      a real rep's call notes to check the reply rules, prep rules and follow-up
+      sorter; (3) M2: score a hosted and a local model with eval/model.mjs on the
+      fresh sets (needs a key), with a set labelled by a person or another model
+      family before any rule change; (4) run the self-host server, OAuth and CRM
+      write-back against a real mailbox, Google or Microsoft app and HubSpot or
+      Pipedrive account (all fakes so far); (5) a real HubSpot or Pipedrive export
+      for the research agent (none found public).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.

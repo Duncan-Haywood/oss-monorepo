@@ -345,6 +345,88 @@ X" in ordinary work talk; left-company (6) and unsubscribe (6). The first-person
 real reply to outreach that says "I'm out Friday" is close to an away notice, and pausing the lead for a day is cheap.
 A fifth half (`4*`) is unread for the next round.
 
+### Fourth round, on a fifth half (2026-11-11)
+
+**Method.** Rules changed looking only at the stops still wrong on `0*`-`3*` under the round-3 rules (17 + 17 + 30 + 81).
+The `4*` half (16 more folders, `'.bitcache/blobs/4*'`, 9,589 `RE:` replies) was not opened: its round-3 stops were
+saved to a file unread before any rule changed. With the rules frozen, the union of the stops the round-3 and round-4
+code fired there (134; every round-4 stop was also a round-3 stop, same category) was shuffled with a fixed seed, the
+engine's answers hidden, and labelled once by a **separate agent** (same model family, so still no independent human
+reader) with the writer-intent category, the same instructions as round 3 (a bare "No." with nothing else or only a
+sign-off is `not_interested`). Labels: `eval/enron-labels/fifth.json` (Message-ID, category before and after, reader's
+category; no text). `node eval/enron.mjs <dir of links to blobs/4?> --replies --labels eval/enron-labels/fifth.json`
+scores `after` (the `reader` field is compared with the category fired now).
+
+**What changed** (`engine.mjs`, the "Fourth round" block after the third, each line quoting its real phrasing):
+
+- *Whose absence.* `awayIsSomeoneElse` walks back from the away phrase to the nearest subject. If it is not the writer
+  (I, me, my, we), the reply is not an away notice. Examples: "Craver, Edison's CEO, is traveling and won't be back in the
+  office", "the person she needs to talk to is out of the office", "One of those guys should be back", "Somehow her Out of
+  Office notification stopped working", "the Whalley's will be returning on Sunday", "We hope you will return soon to our
+  site". Sentence openers, days, months and words after a preposition ("I am in SF today but will be back") are not
+  subjects. This replaces nothing: round 3's `THIRD_AWAY` still runs.
+- *Away briefly, here otherwise*: "I will be out of the office on Friday, but will be in all next week", "this afternoon
+  but in all day tomorrow". *Not an absence*: "in and out of the office", "two days out of the office will do to my
+  workload", "traveling a bunch", "not sure when I will be back", "will return to PDX".
+- *Bare "No."* The rule `^(nope|no|nah)\.?$` fires per sentence, so "No. I don't think I know him" and "No - they pay you
+  just for being you!" were declines. A bare no now stands only when the rest of the reply has no conversational words
+  (a sign-off, a name, a title) or also declines. The sentence splitter no longer splits "No. 5" (a numbered item).
+- *Not-interested vetoes*: "We're all fine, but very busy!!!", "We are set for closing at 10:00 AM", "I'll pass on any other
+  articles", "don't need the talking points, but we should still", "if you get comfortable ... then we do NOT need to
+  meet", "We don't need three different people", "I don't need Stokes & Bartholemew to serve", "isn't really relevant
+  for purposes of", "not relevant when", "no need to set up a formal agenda", "does not fit in a Deficiency Default".
+- *Unsubscribe vetoes*: "take it off, take it as vacation", "take it off the market", "rather not get into the habit",
+  "rather not have that process further delay", someone else leaving the writer alone ("At least they leave me alone", "so
+  he will leave me alone"), "No more email for you today", "TW Unsubscribed Capacity", "feel free to call our lawyer".
+- *Left-company vetoes*: "a confidentiality provision that goes to internal", "There is one that goes to Vallejo", "now
+  that Randy Baker has left Reliant", "I was just asking the wrong person".
+
+| Stops fired on `RE:` replies | Round 3 rules | Round 4 rules |
+|---|---|---|
+| Tuning `0*` (9,559): right / wrong / ambiguous / unlabelled | 83 / 17 / 1 / 12 | 71 / 10 / 1 / 10 |
+| Tuning `1*` (9,619): same | 93 / 17 / 2 / 6 | 85 / 9 / 0 / 6 |
+| Tuning `2*` (9,584): right / wrong / ambiguous | 80 / 30 / 3 | 79 / 14 / 2 |
+| Tuning `3*` (9,656): same | 46 / 81 / 2 | 46 / 40 / 2 |
+| **Fresh `4*` (9,589), scored once: right / wrong / ambiguous** | **65 / 69 / 0 (134)** | **64 / 48 / 0 (112)** |
+| Fresh precision (ambiguous as wrong) | 49% | 57% |
+| **Fresh wrong stops per 1,000 replies** | **7.2** | **5.0** |
+| Real auto-replies caught, all five halves | 228 of 231 | 228 of 231 |
+| Real bounces caught (sender or subject), all five halves | 205 of 214 | 205 of 214 |
+
+Read the fresh row. On the halves the rules were written from, wrong stops fell 145 to 73 (50%); on new text, 69 to 48
+(30%). The fresh *before* column is the first honest reading of round 3's rules on new text: 7.2 wrong stops per 1,000,
+under the 8.4 it reported on `3*`, partly because `4*` simply has fewer stops.
+
+*Right stops lost.* On `4*`, one: "Carol St Clair is the attorney working on this now that Janice Moore has left
+Enron". That is a real handover, which the new "now that X has left" veto sends to a person. On the tuning halves 21
+were lost (12 on `0*`, 8 on `1*`, 1 on `2*`), all a "No." followed by an answer: "Nope. That would involve reading",
+"No. The reference date has expired", "No. 1 -- (a) We need to clarify". Rounds 1 and 2 labelled the flagged sentence
+on its own. Read as the writer's whole reply, none declines anything. They now reach a person as unclear or a
+question, the cheaper direction.
+
+*Checks.* Opt-out recall on the labelled opt-outs in `2*` and `3*` (`eval/optout-recall.mjs`): 37 of 38 before and after;
+messages labelled `not` but filed unsubscribe, 6 of 79, unchanged. Agent-written reply sets unchanged (`node --test`, 343
+before; 379 with the new real-mail phrasings in `enron-eval.test.mjs`).
+
+*Two bugs found after scoring.* Two of the frozen round-4 vetoes were case-sensitive by mistake. The "not an absence"
+pattern lacked the `i` flag because it shared a regex with the capitalised-place check. The "now that X has left"
+veto missed a capitalised "Now". Both were fixed after the `4*` score was written down. Re-run on `4*`, the fixed rules
+give the same 64 / 48, and on `3*` one fewer wrong stop (40 to 39 in the table above; the frozen rules gave 40).
+
+What is left on the fresh half (48 wrong):
+
+- *Not-interested (19).* "don't need the X" in work talk ("we do not need the extra night", "we don't need an RTO"),
+  "No need to call", "We're good." after settling a bill, and three "No." replies that go on to talk. Those three stayed
+  stops because `REST_DECLINES` counts any "need", "thanks" or "n't" in the rest of the reply as a decline. That is too
+  broad. It was found by scoring, so the fix waits for round 5.
+- *Away notices (13).* First-person short absences: "I will be out of the office Friday", "I am traveling tomorrow and
+  will call you on Monday".
+- *Left-company (13).* Mostly handovers ("I've handed this over to Jeff", "Please speak with Tana"), plus "I've quit
+  predicting" and "the timing does not work for me".
+- *Unsubscribe (3).* "the only item from your list", "take my mind off", "opt-out" in a statute.
+
+`5*` and later are unread for round 5.
+
 ## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
 
 The Enron check above measured stops that fired wrongly. This one measures the
