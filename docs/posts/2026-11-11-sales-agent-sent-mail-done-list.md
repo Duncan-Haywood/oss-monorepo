@@ -1,9 +1,9 @@
 ---
 title: "Your sent folder already knows which follow-ups you made"
-seo_title: "Stop double-sending cold email follow-ups: read your sent mail as the done list"
+seo_title: "Stop double-sending cold email follow-ups: read your sent mail"
 date: 2026-11-11
 tags: [sales-agent, cold-email, evaluation]
-description: "Sales Agent's daily queue now reads your own sent mail from a Gmail Takeout or Thunderbird export, so steps you already sent by hand are not queued again. Checked on 7,836 real sent messages."
+description: "Sales Agent now reads your sent mail from a Takeout or Thunderbird export, so follow-ups you already sent are not queued again. Checked on 7,836 real emails."
 ---
 
 [Sales Agent](https://marisstella.app/sales-agent/) builds a daily queue from a cadence plan: who gets an email today, who gets a call, who gets left out because they unsubscribed, bounced or replied. It never sends anything. You send, by hand or from your own tool.
