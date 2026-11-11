@@ -98,14 +98,26 @@ none if no individual does. Prediction written before the search; the search agr
 all 17,440 (domain, algebra) frames checked. Whenever "exists" is expressible as a property, it is
 positive. Possibilist reading of "x has f necessarily"; other variants not covered.
 
+**M2 (part), actualist necessity and de re vs de dicto (E13, 2026-11-11).** Reading "x has f
+necessarily" actualistically too (box (x exists -> x has f)), every model of Anderson's four
+axioms still has some God-like individual at every world (Lean 4,
+`lean/TheismFormal/Actualist.lean`). But under both readings the de re claim, one God-like
+individual existing at every world, fails in some models: 580 of 3,638 (actualist) and 382 of
+6,706 (possibilist) models found share God-likeness between individuals that each exist at only
+some worlds. The smallest is two worlds, two individuals and one block, proved in Lean under both
+readings. Under full property semantics de re always holds. Prediction written before the
+search; it matched on all 17,440 frames. So the argument shows "necessarily something God-like
+exists", and "something God-like necessarily exists" only when the properties separate
+individuals.
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
-- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) and E12's varying-domain theorems (`TheismFormal/Varying.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`: these regenerate `results.md` and `results.json`.
-- `test_theism.py`: 22 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) and E13's actualist ones (`TheismFormal/Actualist.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`: these regenerate `results.md` and `results.json`.
+- `test_theism.py`: 23 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
 
@@ -120,6 +132,7 @@ python3 research/theism-formal-evidence/experiments/e6_shermer_check/run.py
 python3 research/theism-formal-evidence/experiments/e10_theorem/run.py   # about 6 s
 python3 research/theism-formal-evidence/experiments/e11_anderson_a2/run.py   # about 5 s
 python3 research/theism-formal-evidence/experiments/e12_varying_domains/run.py   # about 2 min
+python3 research/theism-formal-evidence/experiments/e13_actualist_necessity/run.py   # about 4 min
 research/theism-formal-evidence/lean/build.sh   # downloads Lean 4.15.0 (~250 MB) if lake is not on PATH; needs zstd
 ```
 
