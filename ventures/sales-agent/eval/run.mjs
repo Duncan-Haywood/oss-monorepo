@@ -3,9 +3,13 @@
 //   node eval/run.mjs --json     -> machine-readable result
 import { readFileSync } from "node:fs";
 import { triage, CATEGORIES, stripQuoted } from "../engine.mjs";
-import { guess } from "../learn.mjs";
+import { guess, train } from "../learn.mjs";
 
-export function score(rows, { fn = triage, today = "2026-10-21", useGuess = true } = {}) {
+const loadEval = (f) => readFileSync(new URL(`./${f}`, import.meta.url), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
+/** The word model as shipped until 2026-11-11 (replies + heldout only): the model the recorded fresh-set guess numbers were measured with. */
+export const baselineModel = () => train(["replies.jsonl", "heldout.jsonl"].flatMap(loadEval));
+
+export function score(rows, { fn = triage, today = "2026-10-21", useGuess = true, model } = {}) {
   const misses = [], confusion = {};
   let right = 0, sub = 0, subRight = 0, overreach = 0, unsubMissed = 0, acted = 0, actedRight = 0, guessed = 0, guessRight = 0, guessOverreach = 0;
   for (const r of rows) {
@@ -15,7 +19,7 @@ export function score(rows, { fn = triage, today = "2026-10-21", useGuess = true
     // The rules "act" when they name a category; otherwise the reply goes to a person with the word model's guess.
     if (t.category !== "unclear") { acted++; if (t.category === r.label) actedRight++; }
     else if (useGuess) {
-      const g = guess({ subject: r.subject, body: r.body });
+      const g = guess({ subject: r.subject, body: r.body }, model);
       if (g && g.category !== "unclear") { guessed++; if (g.category === r.label) guessRight++; else if (CATEGORIES[g.category].outbound && CATEGORIES[g.category].rank > CATEGORIES[r.label].rank) guessOverreach++; }
       else if (r.label === "unclear") guessRight++;
     }

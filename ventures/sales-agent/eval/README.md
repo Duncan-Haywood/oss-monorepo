@@ -280,3 +280,13 @@ list" usually means the address.
 node eval/optout-recall.mjs <dir of links to blobs/2?..f?> --labels eval/enron-labels/optout.json
 node eval/optout-recall.mjs <dir> --blind     # the candidates, engine answer hidden, for a second reader
 ```
+
+## The word model, leave-one-set-out (2026-11-11)
+
+`node eval/guess-cv.mjs` (`--min-margin=N` to withhold low-margin guesses, `--json`). Since 2026-11-11 `learn.mjs` trains
+on every reply file here (`replies`, `heldout`, `fresh-*`), so a fresh set no longer scores the shipped model fairly. This
+script does: each file is guessed by a model trained on all the others, counted only on replies the current rules hand to
+a person (where the product shows the guess). Fresh files, 57 hand-offs: 28 right, 2 overreach, 0 unsubscribes drafted;
+the old 120-reply model on the same hand-offs: 19 right, 7 overreach, 1 unsubscribe drafted. Margin sweep (all files):
+0 -> 28/64 shown 64, overreach 2; 3 -> 22/34, 1; 8 -> 15/17, 0. Pinned in `engine.test.mjs`. The guess numbers recorded in
+older tests (fresh-2026-10-21, fresh-2026-10-24) are kept by scoring them with `baselineModel()` from `run.mjs`.
