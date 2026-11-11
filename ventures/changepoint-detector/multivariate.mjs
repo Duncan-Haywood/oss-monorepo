@@ -154,6 +154,15 @@ export function parseColumns(csv, columns = null, labelColumn = null) {
   return { cols, names: vis.map((c) => (header ? header[c] : `column ${c}`)), labels, filled };
 }
 
+/**
+ * When the joint fit has more than one change per JOINT_OVERCUT_EVERY points (and more than 3), call it over-cut.
+ * Set from eval/tcpd-multi.out.txt and eval/multi-sim.out.txt: on white-noise columns the joint fit made
+ * at most 1.5 cuts per 200 points on average (step plus other cuts, every cell); on the three real TCPD series the
+ * level fit made one per 4 to 7 points and the level-and-volatility fit one per 13 to 21.
+ */
+export const JOINT_OVERCUT_EVERY = 50;
+export function jointOvercut(cuts, n) { return cuts > Math.max(3, n / JOINT_OVERCUT_EVERY); }
+
 /** Both ways on one input. input: { csv, columns, labelColumn } or { cols, names, labels }. */
 export function analyzeMulti(input = {}) {
   let { cols, names, labels } = input, filled = 0;
@@ -171,7 +180,10 @@ export function analyzeMulti(input = {}) {
     shifts: cols.map((c, i) => ({ column: names[i], shift: meanOf(c, cp, segs[k + 2]) - meanOf(c, segs[k], cp), sds: (meanOf(c, cp, segs[k + 2]) - meanOf(c, segs[k], cp)) / j.sigmas[i] })),
   }));
   const cc = columnConsensus(cols, { names, labels, tolerance: input.tolerance });
-  return { n, columns: names, filled, model, penalty: j.penalty, joint, agreed: cc.changes, perColumn: cc.perColumn, tolerance: cc.tolerance };
+  const overcutWarning = jointOvercut(joint.length, n)
+    ? `The one segmentation for all columns has ${joint.length} changes in ${n} points (more than one per ${JOINT_OVERCUT_EVERY}): it is probably cutting smooth, trending or autocorrelated columns into steps, as it did on all three labelled multi-column TCPD series (level: 95 to 132 cuts on 509 to 622 points). Read the column-by-column list instead.`
+    : null;
+  return { n, columns: names, filled, model, penalty: j.penalty, joint, agreed: cc.changes, perColumn: cc.perColumn, tolerance: cc.tolerance, ...(overcutWarning ? { overcutWarning } : {}) };
 }
 
 export function multiText(r) {
@@ -185,6 +197,7 @@ export function multiText(r) {
     const moved = c.shifts.filter((s) => Math.abs(s.sds) >= 1).sort((a, z) => Math.abs(z.sds) - Math.abs(a.sds));
     L.push(`  ${c.label}  ${moved.length ? moved.map((s) => `${s.column} ${s.shift >= 0 ? '+' : ''}${+s.shift.toPrecision(3)} (${s.sds.toFixed(1)} sd)`).join(', ') : 'every column moved under 1 noise sd'}`);
   }
+  if (r.overcutWarning) L.push('', `Read with care: ${r.overcutWarning}`);
   L.push('', '(The joint fit over-cuts a smooth or trending column as the level model does on one column; the column-by-column list inherits the consensus default measured on held-out labelled series. Estimates, not advice.)');
   return L.join('\n');
 }

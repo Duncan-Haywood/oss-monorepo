@@ -2067,4 +2067,25 @@ What it says:
 
 **What shipped.** `cli.mjs --columns [a,b,...]` (no list: every numeric column) prints the column-by-column agreed changes first, then the joint segmentation with each column's shift in its own noise sds (`--model meanvar` for level and volatility; `--json` for the full result). Missing cells are carried forward so every column keeps its row indexes. `multivariate.test.mjs` pins the one-column identity, the penalty, the parser, a 0.75 sd step shared by four columns that the joint fit finds, the CLI, and the figures above.
 
-Limits: three series is a panel, not a benchmark (one series moves the mean F1 by a third); the half-the-columns variant was listed in advance but is not the primary, so its slightly higher mean is not a finding; the joint cost assumes independent columns (no cross-correlation) and uses the plain level model with no trend, AR(1) or noise floor. Not on the page yet.
+Limits: three series is a panel, not a benchmark (one series moves the mean F1 by a third); the half-the-columns variant was listed in advance but is not the primary, so its slightly higher mean is not a finding; the joint cost assumes independent columns (no cross-correlation) and uses the plain level model with no trend, AR(1) or noise floor. On the page since 2026-11-11 (next section).
+
+## Several columns on the page, and a joint over-cut warning (2026-11-11)
+
+The page now has a **What to analyse** box: "Several columns measured at the same points" runs `analyzeMulti` on the pasted CSV (every numeric column, or the ones named in the new **Columns** box) and shows:
+
+- one small chart per column on a shared time axis, the column-by-column agreed changes as solid blue marks on the columns that found them, the joint segmentation as dashed red marks with its segment means;
+- the agreed changes table (date, how many columns, which), led as the safer reading;
+- the joint table with each column's shift in its own noise sds, and under the level-and-volatility model the column's sd after over before, so a volatility change no longer reads as "+0.0" (bold at 1 sd of shift or a 1.5x sd change either way);
+- a per-point CSV (each column, the joint segment number, and which columns have an agreed change at that row).
+
+Only the level and level-and-volatility models take several columns; the page says so for the others. The run takes about 5 s on 1,751 points by 3 columns (the six-setting check per column), so a "Working" note paints first.
+
+**Example: the franc, the pound and the yen, 2012 to 2018** (`data/fx-daily-returns.csv`, daily log returns, Federal Reserve H.10; loaded on click from `example-fx.mjs`, which a test pins byte for byte to the data file). Level and volatility, BIC:
+
+- agreed, column by column: **2015-01-20 in chf only** (the Swiss National Bank dropped its floor on 2015-01-15; the six settings put the merged change three trading days on) and **2016-06-24 in gbp only** (the day after the Brexit referendum);
+- joint: 9 changes, among them 2015-01-15 to the day (chf -1.09, -2.2 sd) and 2015-01-30, 2016-06-16 and 2016-07-06 bracketing the vote in gbp (+-1.4 sd); the other five move every mean by under 0.3 sd and are volatility regimes, which the new sd column shows.
+
+**Joint over-cut warning** (`jointOvercut`, `JOINT_OVERCUT_EVERY` in `multivariate.mjs`; page and CLI text). The joint fit is called over-cut when it has more than one change per 50 points (and more than 3). The bar was set from measurements already in the repository, before any new series was scored: on white noise with one shared step (`eval/multi-sim.out.txt`, every cell) the joint fit averaged at most 1.5 cuts per 200 points; on the three labelled TCPD multi-column series (`eval/tcpd-multi.out.txt`) the level fit made one cut per 4 to 7 points and the level-and-volatility fit one per 13 to 21, so the warning fires on all six of those fits. Checked afterwards: German unemployment, unadjusted and adjusted (120 quarters, two smooth series), 22 joint cuts, warned; the currency example, 9 cuts on 1,751 points, not warned; 20 seeded white-noise sets of 4 columns with a 1 sd shared step, one joint cut each and none warned (`multi-view.test.mjs`).
+
+Limits: the warning is a count, not a test; it says to prefer the column-by-column list, it does not fix the joint fit. The joint fit itself is unchanged (independent columns, plain level cost); a noise floor or trend per column inside the joint cost is the next step. Not yet in the branded report.
+
