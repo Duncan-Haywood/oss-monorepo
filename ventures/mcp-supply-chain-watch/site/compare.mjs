@@ -4,7 +4,8 @@
  * two locally captured manifests. It never contacts a server, never proxies
  * traffic, and never claims a server is safe -- only that a tool addition,
  * removal, schema change, or description change was observed, plus a small
- * set of model-directed instruction signals in a *changed* description.
+ * set of model-directed instruction signals that newly appear in a tool's
+ * description or anywhere inside its inputSchema.
  */
 
 export const EXAMPLE_BEFORE = {
@@ -32,7 +33,45 @@ export const EXAMPLE_AFTER = {
   ],
 };
 
-const INSTRUCTION = /\b(ignore|disregard|override|system message|you must|do not tell|send .* to|reveal)\b/i;
+const INSTRUCTION = new RegExp(
+  String.raw`\b(ignore|disregard|override|system message|you must|do not (?:tell|mention|inform)|before using|send .* to|reveal)\b` +
+    String.raw`|<\s*important\s*>|~/\.ssh|\bid_rsa\b|\.cursor/mcp\.json`,
+  "gi",
+);
+// Zero-width and bidirectional-control characters hide text from a human reviewer.
+const HIDDEN = /[\u200b-\u200f\u202a-\u202e\u2060-\u2064\ufeff]/;
+
+/** Every model-visible string of a tool, keyed by where it sits: the top-level
+ * description and every string anywhere inside inputSchema. Same paths as the
+ * Python CLI's text_fields(). */
+export function textFields(tool) {
+  const fields = { description: typeof tool.description === "string" ? tool.description : "" };
+  const walk = (value, path) => {
+    if (typeof value === "string") fields[path] = value;
+    else if (Array.isArray(value)) value.forEach((item, index) => walk(item, `${path}[${index}]`));
+    else if (value && typeof value === "object") {
+      for (const key of Object.keys(value).sort()) walk(value[key], `${path}.${key}`);
+    }
+  };
+  walk(tool.inputSchema, "inputSchema");
+  return fields;
+}
+
+function signals(text) {
+  const found = new Set([...text.matchAll(INSTRUCTION)].map((match) => match[0].toLowerCase()));
+  if (HIDDEN.test(text)) found.add("hidden-characters");
+  return found;
+}
+
+/** Locations whose text gained an instruction signal it did not have before. */
+export function newSignals(oldTool, newTool) {
+  const oldFields = textFields(oldTool);
+  const newFields = textFields(newTool);
+  return Object.keys(newFields).filter((path) => {
+    const before = signals(oldFields[path] ?? "");
+    return [...signals(newFields[path])].some((signal) => !before.has(signal));
+  });
+}
 
 /** Recursively sorted JSON so key order never affects an equality check. */
 function canonical(value) {
@@ -75,8 +114,9 @@ function classify(oldTool, newTool) {
   const oldText = oldTool.description || "";
   const newText = newTool.description || "";
   const descriptionChanged = oldText !== newText;
-  if (descriptionChanged && INSTRUCTION.test(newText) && !INSTRUCTION.test(oldText)) {
-    return { bucket: "instruction-bearing", reason: "new description contains model-directed language" };
+  const flagged = newSignals(oldTool, newTool);
+  if (flagged.length) {
+    return { bucket: "instruction-bearing", reason: `newly contains model-directed language in: ${flagged.join(", ")}` };
   }
   const oldSchema = canonical(oldTool.inputSchema || {});
   const newSchema = canonical(newTool.inputSchema || {});
@@ -101,7 +141,18 @@ export function compare(before, after) {
   const newNames = new Set(Object.keys(newTools));
   const changes = [];
   for (const name of [...newNames].filter((n) => !oldNames.has(n)).sort()) {
-    changes.push({ kind: "tool_added", severity: "review", tool: name });
+    const flagged = newSignals({}, newTools[name]);
+    if (flagged.length) {
+      changes.push({
+        kind: "tool_added",
+        severity: "alert",
+        tool: name,
+        bucket: "instruction-bearing",
+        reason: `contains model-directed language in: ${flagged.join(", ")}`,
+      });
+    } else {
+      changes.push({ kind: "tool_added", severity: "review", tool: name });
+    }
   }
   for (const name of [...oldNames].filter((n) => !newNames.has(n)).sort()) {
     changes.push({ kind: "tool_removed", severity: "alert", tool: name });
