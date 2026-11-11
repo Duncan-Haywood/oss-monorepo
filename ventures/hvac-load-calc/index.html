@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230e7490'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Room-by-Room HVAC Load Calculator | Heating and Cooling Load, Free</title>
+  <meta name="description" content="Free room-by-room heating and cooling load calculator for houses: walls by direction, windows, attic, slab, air leakage and ventilation in; each room's Btu/h, peak hour and airflow, plus the whole-house tonnage, out. Open method, runs in your browser.">
+  <meta property="og:title" content="Room-by-Room HVAC Load Calculator">
+  <meta property="og:description" content="How big should the heat pump or AC be? A room-by-room load from sun angles, insulation and air leakage, with every formula shown. Free, open source, nothing uploaded.">
+  <link rel="canonical" href="./">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Room-by-Room HVAC Load Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":"Room-by-room heating load; 24-hour cooling design day with sun position, window SHGC and wall sol-air temperature; attic temperature; slab edge loss; air leakage from a blower-door ACH50; ventilation with heat or energy recovery; latent load from the design dew point; altitude correction; whole-house peak versus sum of room peaks; room airflow; JSON import and export; CLI"}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is this a Manual J?","acceptedAnswer":{"@type":"Answer","text":"No. ACCA Manual J is a proprietary procedure with its own tables, and many permits ask for a report from approved software. This tool uses an open first-principles method (sun geometry, U-values, air leakage, psychrometrics) with every formula shown. Use it to sanity-check a quote or a design before paying for a full report, not in place of one."}},{"@type":"Question","name":"Why is the answer smaller than 1 ton per 500 square feet?","acceptedAnswer":{"@type":"Answer","text":"Because rules of thumb date from leaky, poorly insulated houses. A house with R-13 walls, an R-38 attic and low-e windows often needs one ton per 700 to 1,000 square feet. Oversized equipment short-cycles, removes less humidity and costs more."}},{"@type":"Question","name":"Why is the whole-house load less than the sum of the rooms?","acceptedAnswer":{"@type":"Answer","text":"Rooms peak at different times: east rooms in the morning, west rooms late in the afternoon. The equipment sees the hour when the sum is largest, which is smaller than adding every room's own worst hour. Ducts and room airflow are sized from each room's own peak."}},{"@type":"Question","name":"Is my data uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every calculation runs in your browser. An optional anonymous counter in this browser's local storage records only that a calculation ran and the day."}}]}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2228; background: #e9eef0; --accent: #0e7490; --accent2: #155e75; --ink2: #52606b; --line: #c4ced3; --panel: #fbfcfc; --heat: #c2410c; }
+    body { max-width: 1180px; margin: 0 auto; padding: 32px 16px; }
+    header { max-width: 800px; margin-bottom: 22px; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.04; margin: 0 0 12px; letter-spacing: -.035em; }
+    p { line-height: 1.5; }
+    .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+    section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+    h2 { margin: 0 0 10px; font-size: 1.1rem; }
+    .hint { font-size: .83rem; color: var(--ink2); margin: -4px 0 12px; }
+    .fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    label { display: grid; gap: 4px; font-size: .82rem; font-weight: 650; }
+    input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #a9b6bd; border-radius: 7px; padding: 7px; font: inherit; background: #fff; }
+    input[type=checkbox] { width: auto; }
+    textarea { font-family: ui-monospace, Menlo, monospace; font-size: .78rem; min-height: 110px; }
+    button { font: inherit; border-radius: 7px; border: 1px solid #a9b6bd; background: #eef3f5; padding: 8px 12px; cursor: pointer; font-weight: 650; }
+    button:hover { background: #dde7eb; }
+    .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent2); }
+    .small { padding: 4px 8px; font-size: .8rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+    .room { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; margin-bottom: 10px; }
+    .room .fields { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .wall { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 6px; align-items: end; margin-top: 6px; }
+    .check { display: flex; gap: 6px; align-items: center; font-weight: 600; }
+    .muted { color: var(--ink2); font-size: .84rem; }
+    .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; }
+    .tile .big { font-size: 1.9rem; font-weight: 750; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+    .tile.cool .big { color: var(--accent2); } .tile.heat .big { color: var(--heat); }
+    .note { font-size: .84rem; background: #ecfeff; border-left: 3px solid var(--accent); padding: 7px 10px; margin: 10px 0 0; border-radius: 4px; }
+    .err { color: #b42318; font-size: .86rem; white-space: pre-line; }
+    table { border-collapse: collapse; width: 100%; font-size: .82rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 5px 6px; border-bottom: 1px solid #dde4e7; }
+    th:first-child, td:first-child { text-align: left; }
+    .tablewrap { overflow-x: auto; }
+    svg { width: 100%; height: auto; display: block; }
+    details summary { cursor: pointer; font-weight: 650; }
+    footer { margin-top: 24px; font-size: .82rem; color: var(--ink2); }
+    footer a, header a { color: var(--accent2); }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .fields, .room .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .wall { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="eyebrow">FOR HOMEOWNERS, BUILDERS AND HVAC CONTRACTORS</p>
+    <h1>How big should the heat pump really be?</h1>
+    <p>Enter the house room by room: the walls and which way they face, the windows, the attic and the floor, how leaky it is. The page works out each room's heating and cooling load, the hour it peaks, the airflow it needs and the whole-house size, from sun angles and heat-transfer physics you can read. It is free and runs in your browser.</p>
+    <p><a href="./how-it-works.html">How the load is worked out, with the formulas</a></p>
+  </header>
+
+  <main class="layout">
+    <div>
+      <section>
+        <h2>1. Where and how hot</h2>
+        <p class="hint">Design temperatures are the outdoor conditions you size for, not record extremes. Your local code office, an energy-code compliance tool or a weather-data source lists them for your county (the 99% heating and 1% cooling values).</p>
+        <div class="fields">
+          <label>Latitude (°N) <input id="latitude" type="number" step="0.1"></label>
+          <label>Elevation (ft) <input id="elevationFt" type="number" step="10"></label>
+          <label>Daily range (°F) <input id="dailyRangeF" type="number" step="1"></label>
+          <label>Winter design outdoor (°F) <input id="heatingOutdoorF" type="number" step="1"></label>
+          <label>Summer design outdoor (°F) <input id="coolingOutdoorF" type="number" step="1"></label>
+          <label>Summer design dew point (°F) <input id="coolingDewPointF" type="number" step="1"></label>
+          <label>Indoor winter (°F) <input id="indoorHeatF" type="number" step="1"></label>
+          <label>Indoor summer (°F) <input id="indoorCoolF" type="number" step="1"></label>
+          <label>Indoor summer RH (%) <input id="indoorRH" type="number" step="1"></label>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. The shell</h2>
+        <div class="fields">
+          <label>Wall cavity R <input id="wallCavityR" type="number" step="1"></label>
+          <label>Stud depth (in) <select id="studDepthIn"><option value="3.5">2x4 (3.5)</option><option value="5.5">2x6 (5.5)</option></select></label>
+          <label>Continuous exterior R <input id="wallContinuousR" type="number" step="1"></label>
+          <label>Wall colour <select id="wallColor"><option value="light">Light</option><option value="medium">Medium</option><option value="dark">Dark</option></select></label>
+          <label>Wall type <select id="wallMass"><option value="frame">Wood frame</option><option value="masonry">Masonry / ICF</option></select></label>
+          <label>Attic insulation R <input id="ceilingR" type="number" step="1"></label>
+          <label>Roof colour <select id="roofColor"><option value="light">Light / cool roof</option><option value="medium">Medium</option><option value="dark">Dark shingles</option></select></label>
+          <label>Floor over crawl R <input id="floorR" type="number" step="1"></label>
+          <label>Slab edge F-factor <input id="slabF" type="number" step="0.01"></label>
+          <label>Window U-factor <input id="windowU" type="number" step="0.01"></label>
+          <label>Window SHGC <input id="windowSHGC" type="number" step="0.01"></label>
+          <label>Inside blinds <select id="interiorShade"><option value="1">None counted</option><option value="0.8">Blinds half used</option><option value="0.65">Blinds or drapes drawn</option></select></label>
+          <label>Door U-factor <input id="doorU" type="number" step="0.01"></label>
+          <label>Air leakage ACH50 <input id="ach50" type="number" step="0.5"></label>
+          <label>N factor <input id="nFactor" type="number" step="1"></label>
+          <label>Ventilation (cfm) <input id="ventCFM" type="number" step="5"></label>
+          <label>HRV/ERV sensible (0-0.9) <input id="ventSensibleRecovery" type="number" step="0.05"></label>
+          <label>ERV latent (0-0.9) <input id="ventLatentRecovery" type="number" step="0.05"></label>
+          <label>Duct heat loss (%) <input id="ductHeatPct" type="number" step="1"></label>
+          <label>Duct heat gain (%) <input id="ductCoolPct" type="number" step="1"></label>
+          <label>Supply ΔT (°F) <input id="supplyDeltaT" type="number" step="1"></label>
+        </div>
+        <p class="muted">Window U and SHGC are on the NFRC sticker. ACH50 comes from a blower-door test (about 3 for a new code-built house, 7 to 15 for older ones). Ducts inside the conditioned space lose 0%; ducts in a vented attic commonly 10 to 25%.</p>
+      </section>
+
+      <section>
+        <h2>3. Rooms</h2>
+        <p class="hint">List the walls that face outdoors, with the direction each one faces and the window and door area in it. Interior walls don't count. The slab perimeter is the length of exposed slab edge under that room.</p>
+        <div id="rooms"></div>
+        <div class="actions">
+          <button type="button" id="addRoom">Add a room</button>
+          <button type="button" id="loadExample">Load the example house</button>
+          <button type="button" id="clearRooms">Clear rooms</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>Save or load the house</h2>
+        <p class="hint">The whole house as JSON. Paste one in to load it, or copy it to keep. The CLI reads the same file.</p>
+        <textarea id="jsonText" spellcheck="false" aria-label="House as JSON"></textarea>
+        <div class="actions">
+          <button type="button" id="exportJson">Copy current house to the box</button>
+          <button type="button" id="importJson">Load from the box</button>
+          <button type="button" id="downloadJson">Download house.json</button>
+        </div>
+        <p class="err" id="jsonError" aria-live="polite"></p>
+      </section>
+    </div>
+
+    <div>
+      <section>
+        <h2>Result</h2>
+        <div class="actions" style="margin-top:0;margin-bottom:12px">
+          <button type="button" class="primary" id="calculate">Calculate</button>
+          <button type="button" id="downloadCsv">Download room table (CSV)</button>
+        </div>
+        <p class="err" id="errors" aria-live="polite"></p>
+        <div class="tiles">
+          <div class="tile heat"><div class="muted">Heating load</div><div class="big" id="heatTotal">-</div><div class="muted" id="heatNote"></div></div>
+          <div class="tile cool"><div class="muted">Cooling load</div><div class="big" id="coolTotal">-</div><div class="muted" id="coolNote"></div></div>
+          <div class="tile"><div class="muted">Cooling size</div><div class="big" id="tons">-</div><div class="muted" id="tonsNote"></div></div>
+          <div class="tile"><div class="muted">Design airflow</div><div class="big" id="cfm">-</div><div class="muted" id="cfmNote"></div></div>
+        </div>
+        <p class="note" id="sizingNote"></p>
+      </section>
+
+      <section>
+        <h2>Room by room</h2>
+        <div class="tablewrap">
+          <table>
+            <thead><tr><th>Room</th><th>Heat Btu/h</th><th>Cool Btu/h</th><th>Peak hr</th><th>Latent</th><th>cfm</th></tr></thead>
+            <tbody id="roomTable"></tbody>
+          </table>
+        </div>
+        <p class="muted">Cool is the room's sensible load at its own peak hour (solar time; add about an hour, or two in daylight saving time, for clock time). The cfm column is the larger of the room's heating and cooling share of the design airflow, the number a duct designer sizes its run for.</p>
+      </section>
+
+      <section>
+        <h2>The design day</h2>
+        <div class="chartwrap"><svg id="chart" viewBox="0 0 600 240" role="img" aria-label="Whole-house sensible cooling load and outdoor temperature by hour"></svg></div>
+        <p class="muted" id="chartNote"></p>
+      </section>
+
+      <section>
+        <details>
+          <summary>Where the heat goes (whole house)</summary>
+          <div class="tablewrap" style="margin-top:8px">
+            <table>
+              <thead><tr><th>Component</th><th>Heating Btu/h</th><th>Cooling Btu/h at house peak</th></tr></thead>
+              <tbody id="breakdown"></tbody>
+            </table>
+          </div>
+          <p class="muted" id="assumptions"></p>
+        </details>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p><strong>No warranty. This is an estimate, not engineering advice and not an ACCA Manual J report.</strong> It uses an open first-principles method with simplifications described on <a href="./how-it-works.html">how it works</a>. Many permits require a load calculation from approved software; buy equipment on a full calculation by a qualified designer.</p>
+    <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc">Source, CLI and README</a>. If it saved you a bad quote, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
+  </footer>
+
+  <script type="module">
+    import { calculate, EXAMPLE, DEFAULTS, FACINGS } from './load.mjs';
+    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+
+    const el = id => document.getElementById(id);
+    const SITE = Object.keys(DEFAULTS.site);
+    const ENV = ['wallCavityR', 'studDepthIn', 'wallContinuousR', 'wallColor', 'wallMass', 'ceilingR', 'roofColor', 'floorR', 'slabF', 'windowU', 'windowSHGC', 'interiorShade', 'doorU', 'ach50', 'nFactor', 'ventCFM', 'ventSensibleRecovery', 'ventLatentRecovery', 'ductHeatPct', 'ductCoolPct', 'supplyDeltaT'];
+    const TEXT_FIELDS = new Set(['wallColor', 'wallMass', 'roofColor']);
+    const fmt = x => Math.round(x).toLocaleString('en-US');
+    let rooms = [];
+    let last = null;
+
+    function make(tag, props = {}, kids = []) {
+      const n = document.createElement(tag);
+      for (const [k, v] of Object.entries(props)) {
+        if (k === 'text') n.textContent = v; else if (k === 'on') for (const [e, f] of Object.entries(v)) n.addEventListener(e, f); else n.setAttribute(k, v);
+      }
+      for (const c of kids) n.append(c);
+      return n;
+    }
+
+    function setForm(input) {
+      const site = { ...DEFAULTS.site, ...(input.site || {}) }, env = { ...DEFAULTS.envelope, ...(input.envelope || {}) };
+      for (const k of SITE) el(k).value = site[k];
+      for (const k of ENV) el(k).value = String(env[k]);
+      rooms = structuredClone(input.rooms || []);
+      drawRooms();
+    }
+
+    function readForm() {
+      const site = {}, envelope = {};
+      for (const k of SITE) site[k] = Number(el(k).value);
+      for (const k of ENV) envelope[k] = TEXT_FIELDS.has(k) ? el(k).value : Number(el(k).value);
+      return { site, envelope, rooms: structuredClone(rooms) };
+    }
+
+    function field(label, value, onInput, type = 'number', step = '1') {
+      const inp = make('input', { type, step });
+      inp.value = value ?? '';
+      inp.addEventListener('input', () => onInput(type === 'number' ? (inp.value === '' ? 0 : Number(inp.value)) : inp.value));
+      return make('label', {}, [label, inp]);
+    }
+
+    function drawRooms() {
+      const box = el('rooms');
+      box.replaceChildren();
+      rooms.forEach((r, i) => {
+        const floor = make('select');
+        for (const [v, t] of [['conditioned', 'Over conditioned space'], ['slab', 'Slab on grade'], ['crawl', 'Over crawl/garage']]) floor.append(make('option', { value: v, text: t }));
+        floor.value = r.floor || 'conditioned';
+        floor.addEventListener('change', () => { r.floor = floor.value; });
+        const attic = make('input', { type: 'checkbox' });
+        attic.checked = !!r.ceilingToAttic;
+        attic.addEventListener('change', () => { r.ceilingToAttic = attic.checked; });
+        const walls = make('div');
+        (r.walls ||= []).forEach((w, j) => {
+          const facing = make('select');
+          for (const f of Object.keys(FACINGS)) facing.append(make('option', { value: f, text: f }));
+          facing.value = w.facing;
+          facing.addEventListener('change', () => { w.facing = facing.value; });
+          walls.append(make('div', { class: 'wall' }, [
+            make('label', {}, ['Faces', facing]),
+            field('Length ft', w.lengthFt, v => { w.lengthFt = v; }, 'number', '0.5'),
+            field('Window ft²', w.windowFt2 ?? 0, v => { w.windowFt2 = v; }),
+            field('Door ft²', w.doorFt2 ?? 0, v => { w.doorFt2 = v; }),
+            make('button', { type: 'button', class: 'small', text: 'Remove', 'aria-label': `Remove wall ${j + 1} of ${r.name || 'room'}`, on: { click: () => { r.walls.splice(j, 1); drawRooms(); } } }),
+          ]));
+        });
+        box.append(make('div', { class: 'room' }, [
+          make('div', { class: 'fields' }, [
+            field('Name', r.name ?? '', v => { r.name = v; }, 'text'),
+            field('Floor ft²', r.areaFt2, v => { r.areaFt2 = v; }),
+            field('Ceiling ft', r.ceilingFt ?? 8, v => { r.ceilingFt = v; }, 'number', '0.5'),
+            make('label', {}, ['Floor', floor]),
+            field('Slab edge ft', r.slabPerimeterFt ?? 0, v => { r.slabPerimeterFt = v; }),
+            field('People', r.people ?? 0, v => { r.people = v; }),
+            field('Appliances Btu/h', r.applianceBtuh ?? 0, v => { r.applianceBtuh = v; }, 'number', '100'),
+            make('label', { class: 'check' }, [attic, 'Attic above']),
+          ]),
+          walls,
+          make('div', { class: 'actions' }, [
+            make('button', { type: 'button', class: 'small', text: 'Add an outside wall', on: { click: () => { r.walls.push({ facing: 'S', lengthFt: 10, windowFt2: 0, doorFt2: 0 }); drawRooms(); } } }),
+            make('button', { type: 'button', class: 'small', text: 'Remove room', on: { click: () => { rooms.splice(i, 1); drawRooms(); } } }),
+          ]),
+        ]));
+      });
+    }
+
+    function drawChart(r) {
+      const svg = el('chart');
+      svg.replaceChildren();
+      const NS = 'http://www.w3.org/2000/svg';
+      const s = (tag, attrs, text) => { const n = document.createElementNS(NS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text != null) n.textContent = text; return n; };
+      const d = r.designDay, W = 600, H = 240, L = 50, Rr = 40, T = 14, B = 30;
+      const maxQ = Math.max(...d.map(x => x.houseSensible)) * 1.1 || 1;
+      const tMin = Math.min(...d.map(x => x.outdoorF)) - 2, tMax = Math.max(...d.map(x => x.outdoorF)) + 2;
+      const x = h => L + (h - 1) / 23 * (W - L - Rr), yq = q => H - B - q / maxQ * (H - T - B), yt = t => H - B - (t - tMin) / (tMax - tMin) * (H - T - B);
+      svg.append(s('line', { x1: L, y1: H - B, x2: W - Rr, y2: H - B, stroke: '#9aa8b0' }));
+      for (const h of [3, 6, 9, 12, 15, 18, 21, 24]) svg.append(s('text', { x: x(h), y: H - 10, 'font-size': 11, 'text-anchor': 'middle', fill: '#52606b' }, String(h)));
+      for (const f of [0.5, 1]) svg.append(s('text', { x: L - 6, y: yq(maxQ * f / 1.1) + 4, 'font-size': 11, 'text-anchor': 'end', fill: '#155e75' }, fmt(maxQ * f / 1.1)));
+      svg.append(s('path', { d: d.map((p, k) => `${k ? 'L' : 'M'}${x(p.hour)},${yq(p.houseSensible)}`).join(''), fill: 'none', stroke: '#0e7490', 'stroke-width': 2.5 }));
+      svg.append(s('path', { d: d.map((p, k) => `${k ? 'L' : 'M'}${x(p.hour)},${yt(p.outdoorF)}`).join(''), fill: 'none', stroke: '#c2410c', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' }));
+      const pk = r.house.cooling.peakHour;
+      svg.append(s('circle', { cx: x(pk), cy: yq(d[pk - 1].houseSensible), r: 4, fill: '#0e7490' }));
+      svg.append(s('text', { x: W - Rr + 4, y: yt(d[23].outdoorF) + 4, 'font-size': 11, fill: '#c2410c' }, `${Math.round(d[23].outdoorF)}°F`));
+      el('chartNote').textContent = `Solid: whole-house sensible cooling load (Btu/h) by solar hour, peaking at ${pk}:00. Dashed: outdoor temperature.`;
+    }
+
+    function show(r) {
+      const h = r.house, c = h.cooling;
+      el('heatTotal').textContent = `${fmt(h.heating.total)} Btu/h`;
+      el('heatNote').textContent = `${h.heatingBtuhPerFt2.toFixed(1)} Btu/h per ft² of floor`;
+      el('coolTotal').textContent = `${fmt(c.total)} Btu/h`;
+      el('coolNote').textContent = `${fmt(c.sensible)} sensible + ${fmt(c.latent)} latent at hour ${c.peakHour}; SHR ${c.sensibleHeatRatio.toFixed(2)}`;
+      el('tons').textContent = `${h.coolingTons.toFixed(2)} tons`;
+      el('tonsNote').textContent = h.ft2PerTon ? `${fmt(h.ft2PerTon)} ft² per ton` : '';
+      el('cfm').textContent = `${fmt(h.designCFM)} cfm`;
+      el('cfmNote').textContent = `at a ${readForm().envelope.supplyDeltaT} °F supply temperature difference`;
+      const nominal = h.nominalTons ? `The smallest common size that covers it is ${h.nominalTons} tons.` : 'Over 5 tons: consider two systems or zoning.';
+      el('sizingNote').textContent = `${nominal} A 1-ton-per-500-ft² rule of thumb would say ${h.ruleOfThumbTons.toFixed(1)} tons. The sizing guide most US codes point to (ACCA Manual S) keeps air-conditioner cooling capacity close to the load, roughly no more than 15% over, because oversized equipment short-cycles and leaves the house clammy. Adding up each room's own peak gives ${fmt(c.sumOfRoomPeaks)} Btu/h sensible: that is for sizing ducts, not equipment.`;
+      const body = el('roomTable');
+      body.replaceChildren();
+      for (const x of r.rooms) body.append(make('tr', {}, [x.name, fmt(x.heating.total), fmt(x.cooling.sensible), String(x.cooling.peakHour), fmt(x.cooling.latent), fmt(x.airflow.design)].map(t => make('td', { text: t }))));
+      const sumH = k => r.rooms.reduce((a, x) => a + x.heating[k], 0), cc = c.components;
+      const rows = [['Walls', sumH('walls'), cc.walls], ['Windows (conduction)', sumH('windows'), cc.windows], ['Windows (sun)', 0, cc.windowSolar], ['Doors', sumH('doors'), cc.doors], ['Ceiling to attic', sumH('ceiling'), cc.ceiling], ['Floor / slab edge', sumH('floor'), 0], ['Air leakage', sumH('infiltration'), cc.infiltration], ['People and appliances', 0, cc.internal], ['Ventilation', h.heating.ventilation, cc.ventilation], ['Ducts', h.heating.ducts, cc.ducts], ['Latent (moisture)', 0, c.latent]];
+      const bd = el('breakdown');
+      bd.replaceChildren();
+      for (const [name, a, b] of rows) bd.append(make('tr', {}, [name, fmt(a), fmt(b)].map(t => make('td', { text: t }))));
+      const as = r.assumptions;
+      el('assumptions').textContent = `Wall U ${as.wallU.toFixed(3)}, ceiling U ${as.ceilingU.toFixed(3)}, crawl floor U ${as.floorU.toFixed(3)} Btu/h·ft²·°F. Natural air change ${as.naturalACH.toFixed(2)} per hour = ${fmt(as.infiltrationCFM)} cfm over ${fmt(as.volumeFt3)} ft³. Moisture: outdoor ${as.outdoorGrains.toFixed(0)} vs indoor ${as.indoorGrains.toFixed(0)} grains per lb. Attic peaks ${as.atticRiseF} °F over outdoor. Air density ${(as.densityRatio * 100).toFixed(1)}% of sea level.`;
+      drawChart(r);
+    }
+
+    function run() {
+      const input = readForm();
+      const r = calculate(input);
+      if (r.errors.length) { el('errors').textContent = r.errors.join('\n'); return; }
+      el('errors').textContent = '';
+      last = r;
+      show(r);
+      recordUsage(globalThis.localStorage, el('optOut').checked, 'load_calculated');
+    }
+
+    function download(name, text, type) {
+      const a = make('a', { href: URL.createObjectURL(new Blob([text], { type })), download: name });
+      document.body.append(a); a.click(); a.remove();
+    }
+
+    el('calculate').addEventListener('click', run);
+    el('addRoom').addEventListener('click', () => { rooms.push({ name: `Room ${rooms.length + 1}`, areaFt2: 150, ceilingFt: 8, ceilingToAttic: true, floor: 'slab', slabPerimeterFt: 12, people: 0, applianceBtuh: 0, walls: [{ facing: 'S', lengthFt: 12, windowFt2: 15, doorFt2: 0 }] }); drawRooms(); });
+    el('loadExample').addEventListener('click', () => { setForm(EXAMPLE); run(); });
+    el('clearRooms').addEventListener('click', () => { rooms = []; drawRooms(); });
+    el('exportJson').addEventListener('click', () => { el('jsonText').value = JSON.stringify(readForm(), null, 2); });
+    el('downloadJson').addEventListener('click', () => download('house.json', JSON.stringify(readForm(), null, 2), 'application/json'));
+    el('importJson').addEventListener('click', () => {
+      try { setForm(JSON.parse(el('jsonText').value)); el('jsonError').textContent = ''; run(); }
+      catch (e) { el('jsonError').textContent = `That is not valid JSON: ${e.message}`; }
+    });
+    el('downloadCsv').addEventListener('click', () => {
+      if (!last) run();
+      if (!last) return;
+      const q = s => `"${String(s).replace(/"/g, '""')}"`;
+      const lines = ['Room,Floor ft2,Heating Btu/h,Cooling sensible Btu/h,Peak solar hour,Latent Btu/h,Design cfm'];
+      for (const x of last.rooms) lines.push([q(x.name), x.areaFt2, Math.round(x.heating.total), Math.round(x.cooling.sensible), x.cooling.peakHour, Math.round(x.cooling.latent), Math.round(x.airflow.design)].join(','));
+      download('room-loads.csv', lines.join('\n') + '\n', 'text/csv');
+    });
+    el('optOut').checked = readOptOut();
+    el('optOut').addEventListener('change', () => writeOptOut(globalThis.localStorage, el('optOut').checked));
+
+    setForm(EXAMPLE);
+    run();
+  </script>
+</body>
+</html>

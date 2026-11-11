@@ -1,0 +1,37 @@
+name: hvac-load-calc
+description: Free browser tool and CLI that works out a house's heating and cooling load room by room, from walls by direction, windows, attic, slab and air leakage, with a 24-hour cooling design day from sun geometry, and reports each room's Btu/h, peak hour and airflow plus the whole-house tonnage. An open first-principles method, not ACCA Manual J.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Homeowners getting heat pump or AC quotes sized by rule of thumb (about 1 ton per 500 ft²) would use a free room-by-room load estimate to question an oversized quote before signing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Small builders and HVAC installers who do not own load software would use it for a quick check before paying for a full report, and the per-room airflow is the part they use most.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searches such as "hvac load calculator", "heat pump size calculator" and "room by room load calculation" are a reachable free channel once the pages are in the catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Every calculation runs in the visitor's browser; one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - A full load report from approved software on a real house differs from this tool's whole-house total by more than 30% with the same inputs, and the cause is not a documented simplification that can be fixed.
+  - Fewer than ten load calculations a month in the usage counts within 120 days of the page being discoverable.
+
+links:
+  production: https://marisstella.app/hvac-load-calc/
+  analytics: null

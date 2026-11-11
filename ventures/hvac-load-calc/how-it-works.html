@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%230e7490'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EL%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How a Room-by-Room HVAC Load Is Worked Out | Formulas and a Worked Example</title>
+  <meta name="description" content="The open method behind the free room-by-room load calculator: U-values by the parallel-path method, sun position and clear-sky irradiance, sol-air temperature, attic temperature, air leakage from ACH50, latent load from the dew point, and why the house peak is less than the sum of the rooms.">
+  <link rel="canonical" href="./how-it-works.html">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2228; background: #e9eef0; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; line-height: 1.55; }
+    h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); line-height: 1.08; letter-spacing: -.03em; }
+    h2 { margin-top: 28px; font-size: 1.2rem; }
+    code { font-family: ui-monospace, Menlo, monospace; font-size: .88em; background: #fff; padding: 1px 4px; border-radius: 4px; }
+    pre { background: #fff; border: 1px solid #c4ced3; border-radius: 8px; padding: 12px; overflow-x: auto; font-size: .84rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+    th, td { text-align: right; padding: 5px 8px; border-bottom: 1px solid #d3dbdf; } th:first-child, td:first-child { text-align: left; }
+    a { color: #155e75; } footer { margin-top: 32px; font-size: .84rem; color: #52606b; }
+  </style>
+</head>
+<body>
+  <p><a href="./">← Back to the load calculator</a></p>
+  <h1>How the room-by-room load is worked out</h1>
+  <p>A load calculation answers one question: how many Btu per hour must the equipment add in winter, and take out in summer, to hold the indoor temperature on a design day? This page lists every step the <a href="./">calculator</a> takes, so you can check it or redo it by hand. It is an open first-principles method. It is not ACCA Manual J, whose tables and procedure belong to ACCA, and it simplifies in the ways listed at the end.</p>
+
+  <h2>1. How easily heat crosses each surface (U-values)</h2>
+  <p>A wood-framed wall is two heat paths side by side: through the insulated cavity and through the studs. Each path's resistance is the sum of its layers, and the wall's U-factor is the area-weighted sum of the two paths' conductances (the parallel-path method):</p>
+  <pre>U = (1 − f) / R_cavity_path + f / R_stud_path</pre>
+  <p>With inside air film R 0.68, ½" drywall 0.45, sheathing 0.62, siding 0.62, outside film 0.17, softwood at R 1.25 per inch and a framing fraction f of 0.25, a 2x4 wall with R-13 batts works out at U ≈ 0.084 Btu/h·ft²·°F, about R-11.8 overall rather than the R-13 on the bag. The attic floor is <code>1 / (R_insulation + 0.45 + 2 × 0.61)</code>. Windows and doors use the U-factor from their label. A slab loses heat mostly at its edge, so it is counted as <code>F × perimeter × ΔT</code>; the default F of 0.73 Btu/h·ft·°F is the usual figure for an uninsulated slab edge, and an insulated edge is lower.</p>
+
+  <h2>2. Heating: the cold night</h2>
+  <p>Heating is steady state at the winter design temperature, with no credit for sun or people, since the worst hour is a cloudy pre-dawn:</p>
+  <pre>Q_heat = Σ U·A·ΔT  +  F·P·ΔT  +  1.08 · ρ · cfm_leak · ΔT</pre>
+  <p>Air leakage comes from a blower-door number. A house's natural air change rate is roughly ACH50 divided by an N factor (about 20 for a typical single-storey house; lower for tall or windy sites), so 6 ACH50 is 0.3 air changes an hour. That airflow is shared among rooms by their outside wall area. 1.08 is the sensible heat of air (Btu/h per cfm per °F) at sea level; ρ scales it down with altitude by the standard atmosphere (about 83% at 5,000 ft). Mechanical ventilation adds <code>1.08 · ρ · cfm · (1 − recovery) · ΔT</code> to the whole house, and ducts outside the conditioned space add a percentage on top.</p>
+
+  <h2>3. Cooling: a whole design day, hour by hour</h2>
+  <p>Summer loads swing with the sun, so the calculator runs 24 solar hours of a clear 21 July:</p>
+  <ul>
+    <li><strong>Outdoor temperature</strong> follows the standard ASHRAE daily-range profile: the design dry bulb at 3 pm, falling by the daily range to its low around 5 am.</li>
+    <li><strong>Sun position</strong> from latitude, declination and hour angle; <strong>sunlight</strong> from the ASHRAE 1985 clear-sky model for July (direct normal = A·e^(−B / sin altitude), A = 1085 W/m², B = 0.207; diffuse = C × direct with C = 0.136; ground reflectance 0.2). Beam on each wall depends on the angle between the sun and the direction the wall faces.</li>
+    <li><strong>Windows</strong> gain <code>A · SHGC · shade · (beam · K(θ) + 0.9 · diffuse)</code>, where K(θ) trims the beam at steep incidence, plus conduction <code>U · A · (T_out − T_in)</code>.</li>
+    <li><strong>Walls</strong> see the sol-air temperature, the outdoor air temperature raised by the sun the surface absorbs (<code>T_out + α·I / 3.0</code>, with α 0.45, 0.7 or 0.9 for light, medium or dark). A frame wall passes 80% of the sol-air swing about its daily mean through to the inside, two hours late; masonry passes 35%, six hours late.</li>
+    <li><strong>Ceilings</strong> see the attic, which runs above outdoor air in proportion to the sun on the roof, peaking about 35 °F over outdoor under dark shingles (20 °F under a light roof; you can change this in the JSON as <code>atticRiseF</code>).</li>
+    <li><strong>People</strong> add 230 Btu/h sensible and 200 latent each; appliances add what you enter.</li>
+    <li><strong>Moisture</strong>: leakage and ventilation air carries water. The latent load is <code>0.68 · ρ · cfm · Δgrains</code>, with outdoor humidity from the design dew point and indoor from the set point and RH (75 °F at 50% is about 65 grains per pound).</li>
+  </ul>
+
+  <h2>4. The house peak is not the sum of the rooms</h2>
+  <p>An east bedroom peaks around 9 am, a west living room near 4 pm. The equipment sees the hour when the house total is largest, which is smaller than adding every room's worst hour. The calculator reports both: the house peak sizes the equipment, and each room's own peak sizes its duct. Design airflow is <code>sensible load / (1.08 · ρ · supply ΔT)</code>, shared among rooms by the larger of each room's heating and cooling share.</p>
+
+  <h2>Worked example: the example house</h2>
+  <p>The page loads an illustrative 1,800 ft² single-storey ranch on a slab (36°N, 600 ft, 22 °F winter and 93 °F summer design, 72 °F dew point, R-13 walls, R-38 attic, U-0.32 / SHGC-0.27 windows, 6 ACH50, 50 cfm ventilation, ducts in the attic at 10%). It is not a measured house. The result:</p>
+  <table>
+    <thead><tr><th>Cooling, at the house peak (3 pm solar)</th><th>Btu/h</th></tr></thead>
+    <tbody>
+      <tr><td>People and appliances</td><td>4,400</td></tr>
+      <tr><td>Sun through windows</td><td>3,946</td></tr>
+      <tr><td>Walls</td><td>3,470</td></tr>
+      <tr><td>Ceiling to attic</td><td>2,222</td></tr>
+      <tr><td>Ducts in the attic</td><td>1,794</td></tr>
+      <tr><td>Air leakage</td><td>1,434</td></tr>
+      <tr><td>Window conduction</td><td>1,083</td></tr>
+      <tr><td>Ventilation</td><td>951</td></tr>
+      <tr><td>Doors</td><td>432</td></tr>
+      <tr><td><strong>Sensible total</strong></td><td><strong>19,732</strong></td></tr>
+      <tr><td>Latent (moisture)</td><td>6,569</td></tr>
+      <tr><td><strong>Total</strong></td><td><strong>26,301 (2.19 tons)</strong></td></tr>
+    </tbody>
+  </table>
+  <p>The heating load is 26,901 Btu/h. The 1-ton-per-500-ft² rule of thumb would have put a 3.5 to 4 ton unit in this house; the load says a 2.5 ton unit covers it, at about 820 ft² per ton. That gap is the reason to run the numbers: an oversized system costs more, short-cycles and pulls less moisture out of the air. Adding up each room's own peak gives 17,910 Btu/h sensible, against 16,987 for the same rooms at the house's 3 pm peak (both before ventilation and ducts), a 5% gap: most of this house's glass faces south and west, so its rooms peak within a few hours of each other. A house with large east glass would show a bigger gap.</p>
+
+  <h2>What it leaves out</h2>
+  <ul>
+    <li>Overhangs, trees and neighbouring buildings shading windows (it assumes full sun, which overstates the load of shaded glass).</li>
+    <li>Basements and below-grade walls; multi-storey stack effects beyond the N factor; skylights.</li>
+    <li>Heat stored in furniture and floors (it treats window sun as an instant load, which overstates the peak slightly).</li>
+    <li>Duct leakage modelled in detail; it takes a percentage.</li>
+    <li>Design temperatures: you enter them; the tool has no weather database.</li>
+  </ul>
+  <p>For a permit, or before buying equipment, have a full load calculation done with approved software. Use this one to know whether the number on a quote is in the right range, and to ask why if it is not.</p>
+
+  <footer>
+    <p><strong>No warranty. An estimate, not engineering advice and not an ACCA Manual J report.</strong> Nothing you enter leaves your browser. MIT licensed: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc">source and CLI</a>.</p>
+  </footer>
+</body>
+</html>
