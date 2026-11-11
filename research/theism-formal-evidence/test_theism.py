@@ -200,6 +200,23 @@ def test_e11_anderson_own_a2_matches_prediction():
     assert e11.predicted(3, 2, [[c] for c in range(6)]) == 2
 
 
+
+def test_e12_varying_domains_matches_prediction():
+    """Varying domains (E12): search counts equal H17's formula on every 2x2 frame, the
+    conclusion holds in every model of all four axioms, and A5' binds somewhere."""
+    e12 = _load("e12_varying_domains")
+    binds = fails = 0
+    for Ex in e12.domains(2, 2):
+        for blocks in _load("e8_restricted").partitions(4):
+            fr = e12.Frame(2, 2, blocks, Ex)
+            models, _ = e12.search(fr)
+            assert (len(models), sum(m["a5"] for m in models)) == e12.predicted(fr)
+            assert all(m["concl"] for m in models if m["a5"])
+            binds += any(not m["a5"] for m in models)
+            fails += any(not m["concl"] for m in models)
+    assert binds > 0 and fails > 0
+    e12.test_contingent_existent_full_semantics(); e12.test_no_necessary_existent_no_model()
+
 if __name__ == "__main__":
     for name, fn in list(globals().items()):
         if name.startswith("test_"):

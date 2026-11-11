@@ -74,9 +74,7 @@ flagships:
       synthetic data (README Verification).
     next: >-
       Tested on fixtures; next are real inputs. Open items, most valuable
-      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; guess held out on Hack Club (wrong 4% to 25%); record gate (seven sets): off, record caps confidence; card MCC 2026-11-11 (README, Scotland and Toronto): first-seen right 41% to 66% and 62% to 73%; next: one-off local merchants via the AI layer; wanted: a firm's own labelled bank books; (1) the AI layer in
-      fill-only mode on real bank descriptions, more seeds, a bigger model
-      (synthetic so far); (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) a real Stripe, PayPal, eBay, Amazon or Adyen settlement export, and a real 1099-K; (4) a real supplier's terms letter
+      first: (0) built-in keywords on real bank and card exports (HISTORY); Open Collective books (README): learning 63-87% right from memos, 43-65% from payee names; new-payee guess (README): first-time payees 5-21% to 20-65% right; Mint exports (six held out): first-seen 68.7% right, 15.6% wrong; card MCC (README): first-seen right 41% to 66% (Scotland), 61% to 75% (Toronto year, 16 divisions 55-84%); wanted: a firm's own labelled bank books; (1) AI layer on real lines 2026-11-11 (README "A year of Toronto"): local Qwen 7B right on 25-35 of 140 vs the rules' 43, so fill keeps the new-payee guess (48); next: a hosted model (needs a key) or a bigger local one on the same 140, and real bank text; (2) the bank readers on real US bank exports (six layouts pinned on made-up rows); (3) a real Stripe, PayPal, eBay, Amazon or Adyen settlement export, and a real 1099-K; (4) a real supplier's terms letter
       checked against the fee and discount rules, and one named lender's own
       schedule against the loan register (`loan check`); (5) receipts
       through real OCR (SROIE totals 76.2%, dates 80.2%, merchants 45.8%;
@@ -103,30 +101,23 @@ flagships:
       History and every measurement: README, eval/README and git (inbox agent, daily
       run, self-host server with TLS and XOAUTH2, research agent, call prep,
       follow-ups, meeting slots and .ics invites, CRM write-back to Pipedrive/HubSpot
-      against fake servers only; nineteen agent-written reply sets, latest 2026-11-08:
-      false-not-now and wrong-person probe 9/20 before, 15/20 after three narrow
-      changes; false-bounce and false-away probe 9/20 before, 16/20 after one veto;
-      all sets other than the 117 real bounces, 11 + 12 real mail-client emails and
-      the 1,857-reply label mix are agent-written). Real people's mail 2026-11-10
-      (eval/enron.mjs, Enron corpus, 19,153 replies, README): stops 70% wrong; vetoes
-      tuned on one half, held-out half scored once: wrong stops 30 to 13 per 1,000,
-      right 113 to 108. Rounds 2 and 3, 2026-11-11 (eval/README "Second round",
-      "Third round"): each tuned on read halves, scored once on an unread half
-      labelled blind by a separate agent; round 3 (Re: subjects not read, others'
-      absences, forwarding) on 3*: wrong stops 10.9 to 8.4 per 1,000, right 47 to
-      46. Next: (1) the 81 left on 3* (first-person short absences, "don't need the
-      X" in work talk) tuned on 0*-3*, scored on 4*; a human second reader; "Mine
-      too" above a quoted opt-out; real
-      opt-out recall set 2026-11-10 (eval/optout-recall.mjs, Enron 2*-f*, README): 103
-      of 113 caught before, 112 after five patterns, no new wrong stop on either half;
-      open: a second reader for its labels; (2) real replies to outreach and a real
-      rep's call notes to check the reply rules, prep rules and follow-up sorter; (3)
-      M2: score a hosted and a local model with eval/model.mjs on the fresh sets
-      (needs a key), with a set labelled by a person or another model family before
-      any rule change; (4) run the self- host server, OAuth and CRM write-back against
-      a real mailbox, Google or Microsoft app and HubSpot or Pipedrive account (all
-      fakes so far); (5) a real HubSpot or Pipedrive export for the research agent
-      (none found public).
+      against fake servers only; nineteen agent-written reply sets, latest
+      2026-11-08). Real people's mail (eval/enron.mjs, Enron corpus, README): four
+      rounds, each tuned on read halves and scored once on an unread half labelled
+      blind by a separate agent; round 4, 2026-11-11 (eval/README "Fourth round",
+      whose absence, a talking "No."): on 4* wrong stops 7.2 to 5.0 per 1,000,
+      right 65 to 64. Real opt-out recall set (eval/optout-recall.mjs): 112 of 113.
+      Next: (1) the 48 left on 4* (REST_DECLINES too broad: "need"/"thanks"/"n't"
+      keep a talking "No." a stop; first-person short absences; handovers) tuned
+      on 0*-4*, scored on 5*; a human second reader for the Enron and opt-out
+      labels; "Mine too" above a quoted opt-out; (2) real replies to outreach and
+      a real rep's call notes to check the reply rules, prep rules and follow-up
+      sorter; (3) M2: score a hosted and a local model with eval/model.mjs on the
+      fresh sets (needs a key), with a set labelled by a person or another model
+      family before any rule change; (4) run the self-host server, OAuth and CRM
+      write-back against a real mailbox, Google or Microsoft app and HubSpot or
+      Pipedrive account (all fakes so far); (5) a real HubSpot or Pipedrive export
+      for the research agent (none found public).
   # Added 2026-10-20 first, on the owner's direction that day for research
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
@@ -180,8 +171,11 @@ flagships:
       400-copy cap) did not settle the root LP in 180 s (1.4M oracle nodes a call). Chain bound in the set
       oracle 2026-11-11 later (README "A chain bound", chain-bound.test.mjs; rest rule as a Lagrangian
       weighted-interval bound): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
-      359; week 1 347 over 344; largest call under 89k nodes. Next: close the 100-person gaps (tree, not
-      pricing, now); the chain bound in makeScorePricer; close the 60-person pay week; buildRoster end to end on
+      359; week 1 347 over 344; largest call under 89k nodes. Pay oracle 2026-11-11 latest (README "The chain
+      bound in the pay oracle"): chain bound, sibling cut, array payParts; same search, 40-person pay pricing
+      28-60% less; the 60-person pay week is still $1.22 open, bound = root LP after 172 nodes. Next: close the
+      100-person gaps (tree, not pricing, now); cuts or branching that move the score LP on the 60-person pay
+      week (a faster oracle will not close it); buildRoster end to end on
       40-person weeks with exact on (3-5 min, not re-timed); a real POS hourly export for --from-sales and the
       page (made-up exports only); a real published-schedule export for --import-shifts.
   - venture: photo-editing
@@ -250,8 +244,11 @@ flagships:
       2026-11-11 (lowCarryOverDoubleRounds, README "A double round robin searched as a whole"): leg two
       its own round robin, return games reversed, no back-to-back repeats; 20 teams 1,678 / 124 breaks
       (below all 14 pro seasons) vs 2,136 / 114 mirrored, 18 teams 1,498 / 88 vs 1,926 / 74. Next, most
-      valuable first: cut the extra breaks (move leg one too under exact breaks; French/English schemes
-      as starts), the search's gap to the floor (12 teams 156 vs 120), a real league's travel times (to
+      valuable first: cut the extra breaks. Measured 2026-11-11 (eval/double-frontier.txt, README):
+      moving leg one too gains under 1%, but seed spread is large (20 teams w=10: 1,678-1,820 /
+      108-124), so build best-of-k seeds/weights in a Web Worker (2.3 s main thread today), and
+      consider w=20+ at 18 teams (68-84 breaks, dominates both Ligue 1 seasons). Then French/English
+      schemes as starts, the search's gap to the floor (12 teams 156 vs 120), a real league's travel times (to
       check the 1.3 x 40 km/h estimate), a real league's unavailable-date requests and duty rota, and a
       paper print check.
   - venture: open-tennis-robots

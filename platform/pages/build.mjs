@@ -147,7 +147,7 @@ import {
   writeResearchChrome,
   siteTitle,
 } from './site-nav.mjs';
-import { ASK_PATH, ASSISTANT_LAUNCHER_JS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
+import { ASK_PATH, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import {
   HERO_BACKDROP_HTML,
@@ -9939,7 +9939,8 @@ export function renderChromeStyle() {
   // The site header's layout rules ride along (see site-nav.mjs), then
   // `VENTURE_CHROME_CSS`, which gives the venture header and footer the site's
   // own palette so every tool page carries the same bar as the rest of the site.
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}`;
+  // The floating voice button's rules close it (assistant.mjs, ASSISTANT_VOICE_CSS).
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were

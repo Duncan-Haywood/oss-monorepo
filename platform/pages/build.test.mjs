@@ -124,6 +124,7 @@ import {
   renderSearchIndex,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
+import { ASSISTANT_VOICE_CSS } from './assistant.mjs';
 import { AGENT_POSTS_DIR, loadPosts } from './writing.mjs';
 import { renderSocialCard, SOCIAL_CARD_WIDTH, SOCIAL_CARD_HEIGHT, offlineBundleSizeLabel } from './offline.mjs';
 import { renderCard } from './sharecard.mjs';
@@ -3681,10 +3682,13 @@ test('chrome takes its theme from the host page, not the operating system', asyn
   // (`VENTURE_CHROME_CSS`), light by default and dark only where pf-site.js
   // measured the host page's background as dark; and the logo square's
   // fallback gradient, a 20px mark rather than text or a band. Everything else
-  // the chrome draws still takes its colours from the page.
+  // the chrome draws still takes its colours from the page. The floating voice
+  // button (assistant.mjs, `ASSISTANT_VOICE_CSS`) is the third: it sets both
+  // its fill and its ink (white on #1f4e8c, 8.3:1), so no host palette reaches it.
   assert.ok(style.includes(VENTURE_CHROME_CSS), 'the venture header carries the site palette');
+  assert.ok(style.includes(ASSISTANT_VOICE_CSS), 'the voice button carries its own palette');
   assert.match(VENTURE_CHROME_CSS, /\[data-pfs-theme="dark"\]/, 'dark only on a measured dark host');
-  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
+  const rest = style.replace(VENTURE_CHROME_CSS, '').replace(ASSISTANT_VOICE_CSS, '').replace(/\.pf-chrome-top \.pfs-mark\{[^}]*\}/, '');
   assert.ok(!/#[0-9a-f]{3,8}\b/i.test(rest),
     `the chrome must not hard-code a colour: ${rest.match(/#[0-9a-f]{3,8}\b/i)?.[0]}`);
   assert.match(style, /color:inherit/, 'text colour comes from the page');
@@ -3984,7 +3988,10 @@ test('the injected chrome never dims text it did not choose the colour of', asyn
   // have gone quiet the moment the block moved, and passed on every page.
   const style = await read('pf-chrome.css');
   assert.ok(/\.pf-chrome-foot/.test(style), 'pf-chrome.css is not the chrome stylesheet');
-  assert.ok(!/opacity\s*:/.test(style),
+  // Except the voice button, which owns both its colours: its opacity is the
+  // fade to 0 as it steps aside on scroll, not a tint of host text.
+  assert.ok(style.includes(ASSISTANT_VOICE_CSS));
+  assert.ok(!/opacity\s*:/.test(style.replace(ASSISTANT_VOICE_CSS, '')),
     'the chrome sets an opacity on text whose colour comes from the host page, ' +
     'so its contrast depends on a palette it cannot see');
 });

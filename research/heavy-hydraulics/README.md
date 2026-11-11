@@ -9,7 +9,7 @@ holds in every case, but only because each rung removes a loss term; the cycle a
 not sourced, so this is a first-order calculation, not a measurement of any machine.
 See [`PROPOSAL.md`](PROPOSAL.md) and [`LOG.md`](LOG.md).
 
-**Latest (5n, 2026-11-11): first measured machine.** On a public 440 s trace of a 6 t load-sensing wheel loader loading gravel (Linjama et al., Zenodo [10.5281/zenodo.10639199](https://doi.org/10.5281/zenodo.10639199), CC BY 4.0), the measured load-sensing margin is a median **24.9 bar**, the model's load-sensing rung reproduces the measured pump energy to **2.3%**, and an open-centre pump on the same motion would use **1.24 to 1.79 times** the energy and **6 to 22% more fuel** (central 1.46 and 12.3%). The open-centre figure depends most on how the bypass behaves at small flows. See "Milestone 5n" below.
+**Latest (5o, 2026-11-11): load-sensing vs open-centre on a measured machine, with the motion threshold measured.** On a public 440 s trace of a 6 t load-sensing wheel loader loading gravel (Linjama et al., Zenodo [10.5281/zenodo.10639199](https://doi.org/10.5281/zenodo.10639199), CC BY 4.0), the measured load-sensing margin is a median **24.9 bar** and the model's load-sensing rung reproduces measured pump energy to **2.3%** (5n). A fixed-pump open-centre circuit on the same motion needs at least **1.37 times** the load-sensing pump energy whatever its bypass closing law, and **1.54 times** (per-cycle 1.46 to 1.63) with a 10 bar spool drop, adding **14.7%** to fuel, now that the small-flow threshold 5n chose is measured from the data (0.80 L/min lift, 1.76 L/min tilt). See "Milestone 5o" below.
 
 **Live page:** https://marisstella.app/research/heavy-hydraulics/
 
@@ -54,6 +54,31 @@ pump efficiency (0.75 to 0.92). None is sourced yet.
 Illustrative cycle written from memory; no dynamics, leakage, line losses or energy recovery;
 no parts cost; references web-searched, not cite_check-ed. Next: a sourced duty cycle (earthmoving equation or a
 public measured cycle), then parts cost with [`heavy-market`](../heavy-market/) (step 1a, used-price depreciation and size scaling from real auction data, landed 2026-11-10).
+
+## Milestone 5o: what counts as motion, measured, and an open-centre floor
+
+**Question.** 5n's open-centre answer moved most with `q_min`, a small-flow threshold chosen after its first
+run. The authors' flows come from 5 Hz filtered piston velocity, so a held boom shows small spurious flows.
+`experiments/measured_motion.py` measures that floor as the 99th percentile of |P-port flow| in 1 s windows
+where the piston moves less than 0.5 mm, checks it against a motion rule from piston position alone, and adds a
+floor that holds for any open-centre bypass law: to feed a chamber at p the pump must exceed p, and the fixed
+pump then delivers all its flow at that pressure, so the spool drop is set to 0. Predictions Q1 to Q4 were
+registered in [`LOG.md`](LOG.md) before the run; all four held.
+
+| quantity (same 440 s record) | value | 95% bootstrap over 18 cycles |
+|---|---|---|
+| flow noise floor, lift / tilt (p99 in still windows) | 0.80 / 1.76 L/min | (window rule sweep 0.31 to 4.0 / 1.47 to 4.46) |
+| open-centre / LS hydraulic, q_min at floor, spool drop 10 bar | 1.54 | 1.46 to 1.63 |
+| open-centre extra fuel, same | 14.7% | 12.9 to 16.2% |
+| open-centre floor (spool drop 0), neutral 0 / 5 / 10 bar | 1.37 / 1.40 / 1.43 | (5 bar: 1.32 to 1.48) |
+| position-based motion rule, travel > 0.5 / 1 / 2 mm in 0.5 s | 1.67 / 1.51 / 1.46 | |
+
+Reading: on this cycle load-sensing uses at most 73% of what any open-centre valve on a 63 cc fixed pump would,
+and about 65% at a 10 bar spool drop; the fuel saving is about 10 to 18% of measured fuel. The bypass closing
+law does not matter for the floor; the spool drop and the motion rule set the spread. Limits as in 5n (a wheel
+loader, one record, a simulated open-centre machine); the position rule shares the sensor the velocity came
+from. Reproduce: `python3 experiments/measured_motion.py <path to Short_Y_cycle_data.mat>` (numpy and scipy,
+about 60 s).
 
 ## Milestone 5n: a measured load-sensing wheel loader (pressures, flows and fuel)
 

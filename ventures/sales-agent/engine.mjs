@@ -276,7 +276,7 @@ export const toCsv = (rows, cols) => [cols.join(","), ...rows.map((r) => cols.ma
 
 // ---------- triage ----------
 
-const sentences = (t) => String(t).replace(/\s+/g, " ").split(/(?<=[.!?])(?<!\b\d{1,2}\.)\s+|\s+[-–—]\s+/).map((x) => x.trim()).filter(Boolean);
+const sentences = (t) => String(t).replace(/\s+/g, " ").split(/(?<=[.!?])(?<!\b\d{1,2}\.)(?<!\b[Nn][Oo]\.(?=\s+\d))\s+|\s+[-–—]\s+/).map((x) => x.trim()).filter(Boolean);
 const P = (re) => new RegExp(re, "i");
 
 const RULES = {
@@ -578,6 +578,78 @@ VETO.unsubscribe.push(
 VETO.bounce.push(
   // A person narrating: "The following message that was originally sent with three attachments was returned as undeliverable."
   /\b(that|which) (was|i) (originally )?sent\b.{0,80}\b(returned|came back)\b/i);
+// Fourth round, 2026-11-11 (eval/README.md "Fourth round"): written from the stops still wrong on the 0*-3* Enron halves
+// (17 + 17 + 30 + 81 under the round-3 rules), frozen, then scored once on the unread 4* half. Each line quotes the real
+// phrasing it answers.
+//
+// Whose absence: the last subject before the away phrase. "Craver, Edison's CEO, is traveling and won't be back in the office
+// until Wednesday", "the person she needs to talk to is out of the office", "One of those guys should be back in the office",
+// "Somehow her Out of Office notification stopped working", "the plane the Whalley's will be returning on Sunday", "We hope
+// you will return soon to our site". When the nearest subject before the phrase is not the writer (I, me, my, we) the writer
+// is not away. Sentence openers, days, months and words after a preposition ("I am in SF today but will be back") are not
+// subjects. A wrong veto sends an away notice to a person instead of pausing the lead, the cheaper direction.
+const AWAY_AT = /\bout of (the )?office\b|\bwill (be back|return)\b|\bback in the office\b|\breturning (on|to the office)\b|\b(away|travell?ing|on (vacation|holiday|leave))\b|\bout (today|tomorrow|until|till|through|this|next|all)\b/i;
+const NOT_A_SUBJECT = new Set("I We This That It Our My Your Please Also And But Currently Today Tomorrow Tonight Unfortunately Note Hi Hello Hey Dear Sorry Thanks Thank Yes No Just If When As The Greetings Regards Actually Again Re RE FYI PS Out Away Office Back Automatic Reply Vacation Holiday Leave However Will Due Until From Through Starting Beginning On In At For Regarding Morning Afternoon Evening Good Monday Tuesday Wednesday Thursday Friday Saturday Sunday Mon Tue Wed Thu Fri Sat Sun January February March April May June July August September October November December Jan Feb Mar Apr Jun Jul Aug Sep Sept Oct Nov Dec Ok OK Okay Well So Then Now While Should Could Would Can Let Let's Best Kind Cheers Enron".split(" "));
+const awayIsSomeoneElse = (s) => {
+  const m = s.match(AWAY_AT);
+  if (!m) return false;
+  const words = s.slice(0, m.index).split(/[\s,;:()"]+/).filter(Boolean);
+  for (let i = words.length - 1; i >= 0; i--) {
+    const w = words[i].replace(/[.!?'’]+$/, ""), lw = w.toLowerCase(), prev = (words[i - 1] || "").toLowerCase();
+    if (/^(i|i'?m|i'?ll|i'?ve|i'?d|me|my|we|we'?re|we'?ll|we'?ve|us|our)$/.test(lw.replace(/’/g, "'"))) return false;
+    if (/^(he|she|they|he'?s|she'?s|they'?re|him|her|his|their|them|you|you'?re|your|it|it'?s|guys|person|people|someone|everyone|members|team|who)$/.test(lw.replace(/’/g, "'"))) return true;
+    if (/^[A-Z][\w&'’-]*$/.test(w) && !NOT_A_SUBJECT.has(w.replace(/['’]s$/, "")) && !/^(in|at|to|from|of|with|for|on|into|near|via|by)$/.test(prev)) return true;
+  }
+  return false;
+};
+VETO.out_of_office.push({ test: awayIsSomeoneElse },
+  // Away for part of a day and here the rest of the week: "I will be out of the office on Friday, but will be in all next
+  // week", "I will be out of the office this afternoon but in all day tomorrow".
+  /\bbut (i'?ll |i will |will )?(be )?in (all|the office all)\b/i,
+  // Not an absence: "My mom had some surgery last week and I was in and out of the office", "It is amazing what two days out of
+  // the office will do to my workload", "Sorry I am traveling a bunch", "am not sure when I will be back up", "There is a good
+  // chance that I will return to PDX".
+  // (Case-insensitive, except the capitalised place; the frozen round-4 rules had them in one case-sensitive pattern, so the
+  // first four missed capitalised text: fixed after the 4* score, README "Fourth round".)
+  /\bin and out of the office\b|\b(days?|weeks?|hours?) out of the office\b|\btravell?ing (a bunch|a lot|so much|constantly)\b|\b(not sure|unsure|don'?t know) when (i|we) will be back\b/i,
+  /\bwill return to (?!(the |my )?(office|desk|work)\b)[A-Z]/);
+VETO.not_interested.push(
+  // "We're all fine, but very busy!!!" (how are you, not a decline); "We are set for closing at 10:00 AM today".
+  /\b(we'?re|we are) (all )?(fine|good|well),? but (very |really |pretty |so |super )?(busy|tired|hectic|swamped)\b|\b(we'?re|we are) (all )?set for (the )?(closing|close|signing|meeting|call|trip|deal|\d|today|tomorrow|monday|tuesday|wednesday|thursday|friday)\b/i,
+  // Forwarding: "I'll pass on any other articles on the transportation industry".
+  /\b(i'?ll|i will|we'?ll|we will) pass on (any|other|all|some|more|articles|info|information|news|comments|feedback|the (articles?|info|information|news|comments|feedback|word|message))\b/i,
+  // A need with a reason or a condition: "I guess we don't need the talking points, but we should still try", "if you get
+  // comfortable with the direction these emails are going, then we do NOT need to meet", "We don't need three different
+  // people obtaining the same information", "I don't need Stokes & Bartholemew to serve as lobbyists".
+  /\b(don'?t|do not) need\b.{0,60}\bbut (we|i|you) (should|will|still|need|can|must)\b|\bif\b.{0,140}\bthen (we|i) (don'?t|do not) need\b|\bneed (two|three|four|five|several|multiple|both) (different |separate )?\w+/i,
+  /\b(don'?t|do not|DON'?T|NOT) need [A-Z][\w&]*( (&|and) [A-Z][\w&]*)? to [a-z]+/,
+  // Technical relevance, not a decline: "it isn't really relevant for purposes of the Guarantor", "comparables ... is not
+  // relevant when his business is clearly different", "capacity not relevant and self serving".
+  /\brelevant for (the )?purposes\b|\bnot relevant (when|and self)\b/i,
+  // "But no need to set up a formal agenda"; "Maximum Daily Delivery Point Quantity does not fit in a Deficiency Default".
+  /\bno need (to \w+ (up )?)?(a |an )?formal\b|\bnot fit (in|into|within|inside) (a|an|the)\b/i);
+VETO.unsubscribe.push(
+  // "If you need to take it off, take it as vacation", "Could we really sell MarketPoint to a single entity ... and take it off the
+  // market?"; "I would rather not get into the habit", "I would rather not have that process further delay".
+  /\btake it off\b.{0,40}\b(as|for) (vacation|pto|holiday|a (personal|sick) day)\b|\btake (it|this|that) off the (market|table|books|agenda)\b/i,
+  /\brather not (get into|have (that|this|the) \w+ (further|delay))\b/i,
+  // Someone else leaving the writer alone: "At least they leave me alone", "if jeff would just give it up and please leave me
+  // alone", "so he will leave me alone". "No more email for you today."
+  /\b(they|he|she|it) (\w+ ){0,2}leave me alone\b|\bwould just\b.{0,40}\bleave me alone\b|\bwill leave me alone\b|\bno more e-?mails? for (you|him|her|them)\b/i,
+  // "the TW Unsubscribed Capacity" (a pipeline report); "If you have any legal questions feel free to call our lawyer".
+  /\bunsubscribed (capacity|page|transport|firm|volume|report)\b|\bfeel free to (call|contact) our (lawyer|attorney|counsel)\b/i);
+VETO.left_company.push(
+  // "the agreement ... has a fairly tight confidentiality provision that goes to internal communication", "There is one that goes
+  // to Vallejo"; "now that Randy Baker has left Reliant"; "Turns out I was just asking the wrong person".
+  /\b(provision|one|clause|section|line|road|route|bus|train|flight|pipeline|payment) that goes to\b/i,
+  /\b([Nn]ow that|[Ss]ince|[Aa]fter|[Bb]ecause) [A-Z][a-z]+( [A-Z][a-z]+)? (has |had )?left\b/,
+  /\b(i was|i'?ve been|i am|i'?m) (just )?(asking|calling|e-?mailing|talking to) the wrong person\b/i);
+// A bare "No." starts many replies that go on to answer a question ("No. I don't think I know him. I had another contact there",
+// "No - they pay you just for being you!", "no. go out after you're done at work"). It is a decline when it is the whole reply,
+// or the rest is a sign-off, or the rest also declines. Applied in triage(), which sees the whole body.
+const BARE_NO = /^\s*(nope|no|nah)\.?\s*$/i;
+const REST_DECLINES = /\b(not|never|no longer|n'?t|stop|remove|unsubscribe|pass|happy with|already|thanks|thank you|interest(ed)?|need)\b|n['’]t\b/i;
+const REST_TALKS = /\b(i|i'?m|i'?ll|i'?ve|we|we'?ll|you|you'?re|he|she|it|they|is|are|was|were|have|has|had|do|does|did|will|can|could|should|would|think|know|go|let'?s|what|why|how|tell)\b/i;
 const vetoed = (key, s) => (VETO[key] || []).some((re) => re.test(s));
 
 /**
@@ -601,8 +673,10 @@ export function triage(reply, today) {
   // A "Re:"/"Fw:" subject is the thread's subject, usually the one we wrote, not the reply's words: "RE: TW Unsubscribed
   // Capacity", "Re: Louise Kitchen - out of office", "Re: Bobette Riner is no longer at TNE" (Enron, third round, 2026-11-11).
   // Auto-replies keep their own subjects ("Out of Office: ...", "Automatic reply: ..."), which do not start with Re:.
+  // Fourth round: a bare "No." stands as a decline when the rest of the reply is empty, a sign-off, or declines too.
+  const bareNoStands = (s) => { const rest = sentences(body).filter((x) => x !== s).join(" "); return !REST_TALKS.test(rest) || REST_DECLINES.test(rest); };
   const SUBJECT_SKIP = new Set(["unsubscribe", "left_company", "not_interested", "out_of_office"]);
-  const find = (key) => { if (human && (key === "bounce" || key === "out_of_office")) return null; if (key === "bounce" && replySubject) { for (const s of all0.slice(1)) { if (vetoed("bounce", s)) continue; const m = hits(RULES.bounce, s); if (m) return { s, m: m[0] }; } return null; } for (const s of (replySubject && SUBJECT_SKIP.has(key) ? all.slice(1) : all)) { if (vetoed(key, s)) continue; const m = hits(RULES[key], s); if (m) return { s, m: m[0] }; } return null; };
+  const find = (key) => { if (human && (key === "bounce" || key === "out_of_office")) return null; if (key === "bounce" && replySubject) { for (const s of all0.slice(1)) { if (vetoed("bounce", s)) continue; const m = hits(RULES.bounce, s); if (m) return { s, m: m[0] }; } return null; } for (const s of (replySubject && SUBJECT_SKIP.has(key) ? all.slice(1) : all)) { if (vetoed(key, s)) continue; const m = hits(RULES[key], s); if (m && key === "not_interested" && BARE_NO.test(s) && !bareNoStands(s)) continue; if (m) return { s, m: m[0] }; } return null; };
   const res = (category, ev, extra = {}) => ({ category, subtype: null, confidence: "clear", evidence: ev ? ev.s : "", matched: ev ? ev.m : "", date: null, referral: null, ...extra });
 
   let ev;

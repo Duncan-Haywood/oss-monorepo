@@ -87,14 +87,25 @@ contingent properties, so modal collapse is not forced, as Benzmüller & Fuenmay
 found for two worlds and one entity. Constant domain, S5, extensional properties; Anderson's
 intended varying-domain reading is not covered.
 
+**M2 (part), varying domains (E12, 2026-11-11).** Anderson intends worlds with different
+domains and quantifiers over what exists. With them (and his own A2), every model of his four
+axioms has a God-like individual existing at every world, for any property algebra: the
+argument's conclusion follows, proved in Lean 4 (`lean/TheismFormal/Varying.lean`). But the axiom
+"necessary existence is positive" (A5'), idle under a constant domain, now carries the weight:
+without it 1,612 of 8,534 models found have a world with no God-like existent. Under full
+property semantics a model exists exactly for each individual that exists at every world, and
+none if no individual does. Prediction written before the search; the search agrees with it on
+all 17,440 (domain, algebra) frames checked. Whenever "exists" is expressible as a property, it is
+positive. Possibilist reading of "x has f necessarily"; other variants not covered.
+
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
-- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`: these regenerate `results.md` and `results.json`.
-- `test_theism.py`: 21 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) and E12's varying-domain theorems (`TheismFormal/Varying.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`: these regenerate `results.md` and `results.json`.
+- `test_theism.py`: 22 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
 
@@ -108,6 +119,7 @@ python3 research/theism-formal-evidence/experiments/e5_shared_cause/run.py
 python3 research/theism-formal-evidence/experiments/e6_shermer_check/run.py
 python3 research/theism-formal-evidence/experiments/e10_theorem/run.py   # about 6 s
 python3 research/theism-formal-evidence/experiments/e11_anderson_a2/run.py   # about 5 s
+python3 research/theism-formal-evidence/experiments/e12_varying_domains/run.py   # about 2 min
 research/theism-formal-evidence/lean/build.sh   # downloads Lean 4.15.0 (~250 MB) if lake is not on PATH; needs zstd
 ```
 

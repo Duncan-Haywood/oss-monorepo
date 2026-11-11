@@ -264,6 +264,23 @@ next" and a double round robin are both ticked.
   reaches the 200 floor (test). About 2 to 2.5 s for 18 to 20 teams in Node.
 - Open: breaks still rise 10 to 19% over mirroring; a search that moves leg one too under exact
   breaks, or a break-minimal leg-two order (the "French" and "English" schemes) as extra starts.
+- Measured later the same day (`eval/double-frontier.mjs`, output `eval/double-frontier.txt`;
+  break weights 10, 20, 40 and 80 at seeds 1 to 3, each run set against the professional seasons
+  of its size):
+  - **The seed matters more than the weight.** At 20 teams and w=10, seeds 1 to 3 give 1,678 / 124,
+    1,820 / 112 and 1,784 / 108. Raising the weight does not reliably cut breaks: w=80 gives 116,
+    108 and 88. The break side of the search is noisy, so one run is a sample, not the curve.
+  - **18 teams, w=20 to 80 is a better default than 10.** Every one of those nine runs has 68 to 84
+    breaks at 1,574 to 1,634, and six of them dominate both Ligue 1 18-team seasons (1,840 / 74
+    and 1,948 / 96: fewer or equal breaks *and* lower carry-over). At w=10 the breaks are 84 to 88.
+  - **20 teams:** the runs dominate 2 to 5 of the 14 professional seasons each (always EPL 2021-22,
+    2023-24 and 2024-25; sometimes Serie A 2024-25 and La Liga 2023-24). None gets under 88 breaks.
+  - **Moving leg one too adds almost nothing** (tried on a scratch copy, not landed: after the leg-two
+    pass, one or two more passes over both legs under the exact break cost with re-chosen hosts):
+    18 teams 1,498 / 88 went to 1,494 / 86 and then 1,492 / 84, 12 and 20 teams did not change,
+    and it cost 1 to 2 s more. Next is best-of-k (seeds or weights, kept by carry-over plus weight
+    times breaks), which the spread above says is worth more. It would cost k times the time, so
+    it needs the Web Worker first (2.3 s on the main thread for 20 teams in Chromium today).
 
 ## Several divisions on shared courts (`divisions.mjs`)
 
