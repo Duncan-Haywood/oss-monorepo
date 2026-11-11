@@ -56,3 +56,7 @@ and the BreadcrumbList".
 **Next.** The shelf-index length above; the doubled kicker; then the carried-over items in
 `polish-2026-11-11-voice-button-css.md` (wall-framing-takeoff `content-visibility`, modulepreload
 A/B, desktop Lighthouse).
+
+**Also fixed.** `ventures/concrete-maturity/index.html` carried its FAQ twice (once inside `<main>`,
+once after it) after PRs #14766 and #14774 both added it, so `faq-duplicate.test.mjs` was red on
+main. One copy stays, inside `<main>`, labelled by its heading.
