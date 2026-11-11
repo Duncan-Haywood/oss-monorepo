@@ -179,31 +179,20 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*-bench.mjs. State: branch-and-price
-      (bnp.mjs) with a backtracking root dive proves the least open hours at the HiGHS optimum on every bench
-      and 20-80 person week; the pay bound proves 12 of 12 pay-gap weeks and 4 of 4 30/40-person weeks to
-      within $0.50. Chain bound in the set and pay oracles 2026-11-11 (README "A chain bound", "The chain
-      bound in the pay oracle"): 80-person 3 of 3 in 42-86 s; 100x280 week 0 root settles at 358, roster
-      359; week 1 347 over 344; the 60-person pay week is still $1.22 open. --from-sales (README "First real
-      POS export", "Second real POS export", "Short-vs-over cost weight"): two real bakery exports, backtest,
-      lunch-closure breaks; --half-life auto default and --short-cost r 2026-11-11 (README "Picking the half-life from your own
-      weeks", "Short-vs-over cost weight"); --count tickets 2026-11-11 (README "Staffing to customers, not
-      money"): plans from tickets per hour, reads a third real file with no prices (Bread Basket, half-life 4
-      best at 5 tickets/h); on the French file it moves hours from mornings to late afternoon, on the Korean
-      nothing. --backtest --score-closed 2026-11-11 (README "Scoring a staffed closure"): a staffed closure
-      now counts as over; scored so, the break and rare-hour rules save 6-15 person-hours a week (French) where
-      the old score said they cost 1-2; it exposed stray late orders stretching short files' days, fixed with a
-      one-date edge rule (Bread Basket 12-24 fewer person-hours off a week). Next: make --score-closed the
-      backtest and half-life-auto default (and offer it on the page) once a fourth file agrees; add a 4-week
-      window to half-life auto (it wins clearly on Bread Basket under the new score: hours the shop stopped
-      opening); close the 100-person gaps (tree, not pricing, now);
-      cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
-      40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast);
-      whether auto should also choose the short cost's window or a 1-week half-life; a labour standard (minutes per ticket vs per euro)
-      to say which driver is right, or a blend of the two; the cut is no longer where the gap is (opt-in --join 2026-11-11, README
-      "Joining short runs": dearer than the priced cut on held-out weeks); a real published-schedule export for --import-shifts;
-      whether the priced cut's r = 1 default (README "The priced cut by default", runs shorter) suits a
-      real manager.
+      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price (bnp.mjs)
+      with a backtracking root dive and chain bound proves least open hours on every bench and 20-80 person
+      week; pay bound 12 of 12 pay-gap weeks, 4 of 4 30/40-person weeks within $0.50; 100x280 week 0 root
+      358 vs roster 359, week 1 347 vs 344; the 60-person pay week is $1.22 open. Forecast side
+      (--from-sales, three real bakery files): backtest, lunch breaks, half-life auto, --short-cost, priced
+      cut, --count tickets; --backtest --score-closed 2026-11-11 (README "Scoring a staffed closure") counts a
+      staffed closure as over, shows the break rules save 6-15 person-hours a week (French), and led to a
+      one-date edge rule (Bread Basket 12-24 fewer off a week). Next: make --score-closed the default for the
+      backtest and half-life auto, and offer it on the page, once a fourth file agrees; add a 4-week window
+      to half-life auto (wins clearly on Bread Basket under the new score); close the 100-person gaps (tree,
+      not pricing); cuts or branching that move the score LP on the 60-person pay week; buildRoster end to
+      end on 40-person weeks with exact on; a US POS item export (Square or Toast); a labour standard
+      (minutes per ticket vs per euro) or a blend of the two drivers; a real published-schedule export for
+      --import-shifts; whether the priced cut's r = 1 default suits a real manager.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,

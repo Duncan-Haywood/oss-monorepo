@@ -32,13 +32,18 @@
   "errors": [
     "First version of score-closed.test.mjs used a 24-week made-up file, shorter than the break rule's 20-dates-per-weekday minimum plus warm-up, so the assertions measured the wrong thing; lengthened to 40 weeks and reshaped so the afternoon run is a full shift.",
     "A foreground run_venture_tests.py under `timeout 110` was killed silently; reran with run_in_background.",
-    "Blog post front matter over the description/seo_title length limits; caught by venture-preflight and promptctl validate, fixed before merge."
+    "Blog post front matter over the description/seo_title length limits; caught by venture-preflight and promptctl validate, fixed before merge.",
+    "flagships.yaml next: grew to 2489 chars (cap 2000) by appending; caught by run_workflow_locally (validate.py, test_allocate); rewrote it to 1386 chars replacing history."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "CLAUDE.md",
       "issue": "Says run_workflow_locally.py --for-changes runs what the diff triggers but not how long it takes; I guessed a --dry-run flag that does not exist."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says rewrite the flagship next: but not that it is capped at 2000 chars; the cap only showed in CI."
     }
   ],
   "deviations": [
@@ -60,7 +65,7 @@
     "ventures/shift-roster-builder/README.md (Scoring a staffed closure)"
   ],
   "goal": "Deepen the top unclaimed flagship",
-  "notes": "Real data: three public bakery exports (French, Korean, Bread Basket) downloaded from raw.githubusercontent.com mirrors, SHA-256 matched the committed hashes, not committed. Verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (217.2s), 1 suites run, 0 failed; node --test score-closed.test.mjs 2/2 pass; eval/closure-score.mjs run to completion (~2 min). node platform/pages/venture-preflight.mjs shift-roster-builder: first run FAILED on the new post's description (192 > 160 chars) and seo_title (74 > 70); fixed, rerun: 'preflight clean for shift-roster-builder'. run_workflow_locally.py --for-changes run in background; see PR checks.",
+  "notes": "Real data: three public bakery exports (French, Korean, Bread Basket) downloaded from raw.githubusercontent.com mirrors, SHA-256 matched the committed hashes, not committed. Verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (217.2s), 1 suites run, 0 failed; node --test score-closed.test.mjs 2/2 pass; eval/closure-score.mjs run to completion (~2 min). node platform/pages/venture-preflight.mjs shift-roster-builder: first run FAILED on the new post's description (192 > 160 chars) and seo_title (74 > 70); fixed, rerun: 'preflight clean for shift-roster-builder'. run_workflow_locally.py --for-changes run in background; see PR checks. run_workflow_locally --for-changes: real failure was the next: cap (fixed; validate.py and test_allocate then OK); agent-permission-harness byte-identical test failed only because files were being created during the run (rerun OK, 94 tests); pages.yml link checks failed because the local runner skips the build step (${{ }} expression), not from this change.",
   "corrections": [],
   "redteam": null
 }
