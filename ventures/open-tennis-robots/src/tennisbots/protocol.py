@@ -21,7 +21,8 @@ FEED = 0x12           # uint8 balls
 SET_BASE = 0x13       # int16 target_y_mm, uint16 max_speed_mm_s
 DRIVE = 0x20          # int16 left_mm_s, int16 right_mm_s
 PICKUP = 0x21         # uint8 on
-TELEMETRY = 0x80      # uint16 flags, int16 base_y_mm, int16 rpm_top, int16 rpm_bottom, uint16 battery_mv
+TELEMETRY = 0x80      # uint16 flags, int16 base_y_mm, int16 rpm_top, int16 rpm_bottom, uint16 battery_mv,
+                      # uint8 balls_fed (feeder: balls released through the gate since power-up, mod 256)
 
 FORMATS = {
     HEARTBEAT: "",
@@ -33,7 +34,7 @@ FORMATS = {
     SET_BASE: "<hH",
     DRIVE: "<hh",
     PICKUP: "<B",
-    TELEMETRY: "<HhhhH",
+    TELEMETRY: "<HhhhHB",
 }
 
 # TELEMETRY flag bits
@@ -46,6 +47,7 @@ FLAG_LOW_BATTERY = 32
 FLAG_AZ_UNHOMED = 64     # azimuth stepper has no position yet (homing, or lost after an abrupt stop)
 FLAG_AIM_SETTLING = 128  # elevation or azimuth not yet at its goal (or homing): the feed gate waits for it
 FLAG_ELEV_FAULT = 256    # elevation actuator stopped: feedback lost or stalled; power-cycle the board to retry
+FLAG_WHEELS_SETTLING = 512  # launcher wheels not yet held within 3% of target for 150 ms (or stopped): the gate waits
 
 
 def crc8(data):

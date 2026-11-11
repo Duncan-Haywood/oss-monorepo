@@ -35,6 +35,23 @@ port.write(P.encode(P.HEARTBEAT))   # at least every 300 ms, or the watchdog sto
 frames = P.Decoder().feed(port.read(256))
 ```
 
+For drills, use `tennisbots run drill.json --port /dev/ttyAMA0`
+(`src/tennisbots/host.py`; the main README's "Running a drill on the
+machine"): it keeps the heartbeats up, waits for `FLAG_AIM_SETTLING` and
+`FLAG_WHEELS_SETTLING` (512) to clear before each `FEED`, and waits for the
+released-ball counter (`TELEMETRY`'s last byte, mod 256) to move before
+re-aiming.
+
+## Launcher wheels (2026-11-11)
+
+Speed is timed per revolution (`controller.PeriodTach`); the old per-tick
+pulse count could only read multiples of 6000 rpm. The loop is feedforward
+plus PI (`controller.WheelLoop`): set `WHEEL_RPM_FULL` in `config.py` to the
+wheel's free speed at full throttle, read with the tach and no ball. The feed
+gate waits until both wheels have held within 3% for 150 ms
+(`controller.SteadyGate`); telemetry sets `FLAG_WHEELS_SETTLING` until then.
+Tuned on a simulated wheel (`tests/wheel_loop_sweep.py`), not a real one.
+
 ## Elevation actuator (2026-11-11)
 
 The head tilts on a linear actuator (`cad/README.md`, "Elevation drive"), not a

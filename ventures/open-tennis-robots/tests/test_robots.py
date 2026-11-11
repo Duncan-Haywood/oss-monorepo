@@ -249,7 +249,7 @@ class FirmwareTest(unittest.TestCase):
         (cmd, vals), = protocol.Decoder().feed(out)
         self.assertEqual(cmd, protocol.TELEMETRY)
         self.assertTrue(vals[0] & protocol.FLAG_ESTOP)
-        self.assertEqual(vals[1:], (120, 4000, 2000, 25600))
+        self.assertEqual(vals[1:], (120, 4000, 2000, 25600, 0))
 
     def _axis(self):
         return controller.StepperAxis(200 * 4 * 10 / 360, 60.0, 120.0, -32.0, -30.0, 30.0)
@@ -496,7 +496,7 @@ class FirmwareTest(unittest.TestCase):
 
         machine = types.SimpleNamespace(Pin=Pin, PWM=PWM, ADC=ADC, UART=object)
         fake_time = types.SimpleNamespace(sleep_us=lambda us: None, sleep_ms=lambda ms: None, ticks_ms=lambda: 0,
-                                          ticks_diff=lambda a, b: a - b)
+                                          ticks_us=lambda: 0, ticks_diff=lambda a, b: a - b)
         path = os.path.join(os.path.dirname(__file__), "..", "firmware", "esp32")
         with open(os.path.join(path, "main.py")) as f:
             src = f.read()

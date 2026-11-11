@@ -251,22 +251,13 @@ flagships:
       package, ballistics and tracking planners, ESP32 firmware and a browser
       simulator. Unbuilt hardware, long payoff.
     next: >-
-      The feeder CAD package (manufacturing/feeder/; history in cad/README.md and git): launcher head,
-      turntable, mast, 2040 base, net frame, hopper, hose with a sliding-sleeve take-up sized over elevation
-      and azimuth, retainer, bracing, launch window, plate clearance, axle squaring. Azimuth drive landed
-      2026-11-10 (`Feeder.azimuth_drive`, cad/README.md "Azimuth drive"): NEMA 17 under the mast plate, m1.5
-      15-tooth pinion, printed 150-tooth PETG sector under a trimmed turntable plate (10:1), sized on the
-      turning inertia measured from the CAD (0.11 kg m^2 level, 0.31 at +45 deg): 30 deg in 1 s at 2.3x
-      pull-out margin, fastest 0.88 s; firmware drives it as a homed step/dir axis (controller.StepperAxis).
-      A new azimuth collision sweep found the turned head cut the hopper's front posts and the mast plate's
-      rear edge: posts moved to y +-245 and the mast plate notched. Elevation drive landed 2026-11-11
-      (`Feeder.elevation_drive`, cad/README.md "Elevation drive"): head gravity measured from the CAD pulls
-      the nose up 0.63-11.75 N m, so a 150 mm-stroke actuator outboard of the guard-side cheek pushes one way,
-      18-100 N, window 245/374 mm hole to hole. Elevation firmware landed 2026-11-11 (controller.LinearAxis, firmware/esp32/README.md "Elevation
-      actuator"): angle to length through the CAD geometry (a linear servo map aimed up to 1.46 deg high), rc/pot/timed
-      modes, stall and lost-pot faults, feed gate waits for the aim (FLAG_AIM_SETTLING). Same run: a 240 mm actuator's
-      retract limit put the head at +48.8 deg, into the turntable plate (clear only to +46.36); drawn now 246 mm
-      (window 244.9-247.7, checked). Next: Pi side waits on FLAG_AIM_SETTLING; weigh the head and measure the hose's torque, the
+      History: cad/README.md (feeder CAD package, azimuth and elevation drives, collision sweeps) and the README
+      ("Running a drill on the machine", "Wheel speed loop"). Latest, 2026-11-11: the Pi-side drill runner
+      (`tennisbots run`, src/tennisbots/host.py) waits on FLAG_AIM_SETTLING and FLAG_WHEELS_SETTLING, feeds, and
+      confirms release from a balls_fed telemetry byte before re-aiming; tested on a simulated board running the
+      real controller.py and main.py. Same run: per-revolution tach (the old one read only 6000 rpm steps) and a
+      feedforward+PI wheel loop with a 3%/150 ms gate (tests/wheel_loop_sweep.py: true speed error at release 6.6%
+      to 2.8% over 36 plant cases). Next: log a real wheel's tach on spin-up and rerun the sweep with its lag; weigh the head and measure the hose's torque, the
       stepper's pull-out and the actuator's real lengths (needs a person); the home switch's bracket; hang a
       real hose from a tube; the shuttle actuator's bracket; the netting trough that rolls balls to the
       hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
