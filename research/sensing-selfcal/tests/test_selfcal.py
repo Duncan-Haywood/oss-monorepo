@@ -102,3 +102,31 @@ def test_robust_sigma_sees_per_view_correlated_error():
     obs = obs + rng.normal(0, 0.5, (obs.shape[0], 1, 2)) * np.linspace(-1, 1, obs.shape[1])[None, :, None]
     s = selfcal_fixed_analytic(obs, SIZE, 1.3 * TRUE[0], nk=1, ref=0)
     assert s["sf_cr_view"] > 1.5 * s["sf"]
+
+
+def test_neighbour_corr_white_and_smooth():
+    from selfcal import neighbour_corr
+    rng = np.random.default_rng(0)
+    white = rng.normal(size=(5, 54, 2))
+    assert abs(neighbour_corr(white)["both"]) < 0.1
+    # a smooth per-view field: neighbours nearly identical
+    g = np.mgrid[0:6, 0:9].astype(float)
+    field = np.stack([np.sin(g[1] / 4), np.cos(g[0] / 4)], -1).reshape(54, 2)
+    smooth = np.stack([field * s for s in rng.normal(size=5)]) + 0.01 * rng.normal(size=(5, 54, 2))
+    assert neighbour_corr(smooth)["both"] > 0.9
+
+
+def test_zhang_ro_recovers_flat_board_on_synthetic_views():
+    from selfcal import zhang_ro, board_points, project
+    import cv2
+    X = board_points()
+    intr = np.array([520.0, 320.0, 240.0, -0.2])
+    obs = []
+    for a in np.linspace(-0.5, 0.5, 6):
+        rv = np.array([a, 0.4 * np.cos(3 * a), 0.1])
+        tv = np.array([-4.0, -2.5, 12.0])
+        uv, _ = project(intr, rv, tv, X, 1)
+        obs.append(uv)
+    z = zhang_ro(obs, (640, 480), k2=False)
+    assert abs(z["f"] - 520.0) < 0.5 and abs(z["cy"] - 240.0) < 0.5
+    assert np.abs(z["obj"][:, 2]).max() < 1e-3
