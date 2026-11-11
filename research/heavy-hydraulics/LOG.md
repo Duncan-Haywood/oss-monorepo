@@ -2,6 +2,15 @@
 
 Newest first.
 
+## 2026-11-11 · Milestone 5s: the break-even LS margin in closed form (predictions registered before any code was written)
+- Why: every break-even in this programme (2l, 2n, 5p, 5q) was found by sweeping dp_ls on a grid and interpolating where the median LS/OC crosses 1, and the slopes it reported (0.92 bar of margin per bar of neutral pressure in 2l, 1.24 per bar of spool drop in 5q) were read off those sweeps. In the model the load-sensing energy is affine in the margin, LS_c(m) = A_c + B_c m, and open-centre does not depend on it, so each cycle has an exact break-even m*_c = (OC_c - A_c) / B_c. Because LS_c/OC_c is increasing in m for every cycle, the median ratio crosses 1 exactly at the median of m*_c, and the share of cycles in which LS loses at margin m is the share with m*_c < m. That turns the programme's grid answers into a formula a reader can evaluate on their own machine's cycle: m* = (surplus-flow throttling + Q x spool drop x moving time + Q x p_n x idle time - LS idle useful work) / (LS delivered volume + LS idle volume). zenodo.org and assets.danfoss.com refused the proxy this session (403 at 17:58 UTC), so the measured loader and the PVG 100 / partial-travel steps 5r named could not run; this step needs no download.
+- **Predictions (written before any code of this step existed):**
+  - B1: the median of the closed-form m*_c reproduces the grid break-evens of 2n (28.0 bar), 5p orifice (26.5), 5q envelope orifice (23.0) and every row of 5q's constant-drop sweep (0 to 8 bar: 20.6 to 30.5) within 0.15 bar. Prior 85%.
+  - B2: the share of cycles with m*_c < m equals the printed "LS worse" share at 14 and 25 bar in 5p and 5q to 0.1 points. Prior 95%.
+  - B3: at a zero open-centre spool drop (5q's 20.6 bar row) the idle term (Q p_n t_idle net of LS idle useful work) carries over half of m*_c in the median cycle (median per-cycle share > 0.5). Prior 50%.
+  - B4: the median of the per-cycle slope Q T_work / B_c is within 0.05 of 5q's 1.24 bar of margin per bar of drop. Prior 70%.
+  - B5: at zero spool drop the 5 to 95% range of m*_c is wider than 12 bar. Prior 65%.
+
 ## 2026-11-11 · Milestone 5r: 5p's registered R1 to R5 on the measured loader (Zenodo reachable again)
 - Why: 5p wrote `experiments/spool_floor.py` and registered R1 to R5 before any run, but zenodo.org refused the proxy that session. It answered at the start of this one (HTTP 200 at about 13:05 UTC; the 96 MB `Short_Y_cycle_data.mat` downloaded in under a minute), so the measured half of 5p ran with the predictions unchanged. Data check: `experiments/measured_motion.py` on this download reproduces `measured_motion_results.txt` byte for byte.
 - Code changes before the first run: none to the computation. After it, two edits that leave every number unchanged: the weighted-drop mean now subtracts only moving samples (the old line computed `-inf - -inf` on still samples and then masked them, a NumPy warning), and each sizing rule now prints how much of each section's moving flow exceeds its spool's rated flow.
