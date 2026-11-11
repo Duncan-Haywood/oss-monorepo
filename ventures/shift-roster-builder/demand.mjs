@@ -165,7 +165,8 @@ const WEEKDAY_NAMES = ["Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Friday
 // hour), closed: [{day, open, of}] (weekdays left out as rarely open), notes }.
 // o.halfLife: weeks; a day's weight halves for every that many weeks it is older than o.newest (default: the newest date).
 // o.keepRare: keep a weekday that traded on fewer than 1 in 4 of its dates in the span (default: treat it as closed).
-// o.shortCost with o.splh: also return heads: [7][24], the newsvendor headcount (see fractileHeads).
+// o.shortCost with o.splh: also return heads: [7][24], the newsvendor headcount (see fractileHeads), and its tail.
+// o.priceCut with o.splh: return the tail only (heads stay the average's).
 export function averageSales(entries, o = {}) {
   const halfLife = o.halfLife === undefined ? 0 : Number(o.halfLife);
   if (o.halfLife !== undefined && !(halfLife > 0)) throw new Error("half-life must be a positive number of weeks");
@@ -209,6 +210,9 @@ export function averageSales(entries, o = {}) {
   }
   for (const c of out.closed) out.notes.push(`${WEEKDAY_NAMES[c.day]}: sales on ${c.open} of ${c.of} in the file, so treated as closed (--keep-rare keeps it).`);
   if (o.shortCost !== undefined && o.splh) Object.assign(out, fractileHeads(entries, dates, out, o.splh, o.shortCost));
+  // o.priceCut without o.shortCost: the tail alone, so the cut can price short runs at r = 1 while the heads stay the
+  // average's (2026-11-11).
+  else if (o.priceCut && o.splh) out.tail = fractileHeads(entries, dates, out, o.splh, 1).tail;
   return out;
 }
 
@@ -389,15 +393,16 @@ function cheapestStretch(profile, staffed, h, e, minShift, cost) {
     const v = keep + add;
     if (!best || v < best.v - 1e-12 || (Math.abs(v - best.v) <= 1e-12 && shut < best.shut)) best = { s, v, shut };
   }
-  // Staffing the window costs best.v against 0 for leaving the run (and the stretch hours) as they are.
-  return best && best.v < 0 ? [best.s, best.s + minShift] : null;
+  // Staffing the window costs best.v against 0 for leaving the run (and the stretch hours) as they are; a tie keeps the
+  // run staffed (2026-11-11: with the cut priced by default, a run whose stretch exactly pays for itself is not dropped).
+  return best && best.v <= 1e-12 ? [best.s, best.s + minShift] : null;
 }
 
 const clock = (h) => `${h === 24 ? "0" : h}:00`.replace(/^(\d):/, "$1:");
 
 // Everything at once. Returns { shiftsText, days: [{day, needed, scheduled, shifts}], needed, scheduled, extra, sales, notes, skipped }.
 export function demandShifts(text, o = {}) {
-  const s = hourlySales(text, o);
+  const s = hourlySales(text, { ...o, priceCut: o.costCut !== false });
   if (!s.rows) return { shiftsText: "", rows: 0, needed: 0, scheduled: 0, extra: 0, sales: 0, days: [], notes: s.notes, skipped: s.skipped };
   const prof = headcount(s.avg, s.observed, { ...o, seen: s.seen, heads: s.heads });
   if (o.open === undefined && o.close === undefined && !o.keepRare) {
@@ -407,7 +412,10 @@ export function demandShifts(text, o = {}) {
   }
   const minShift = o.minShift === undefined ? 4 : Number(o.minShift), maxShift = o.maxShift === undefined ? 8 : Number(o.maxShift);
   const minStaff = o.minStaff === undefined ? 1 : Number(o.minStaff);
-  const cutCost = (d) => (s.tail && o.costCut !== false ? { tail: s.tail[d], r: Number(o.shortCost), minStaff } : null);
+  // The cut is priced with dated rows whether or not --short-cost is given; without it a short and a spare hour weigh
+  // the same (r = 1), the weight the plain backtest scores at.
+  const rCut = o.shortCost === undefined ? 1 : Number(o.shortCost);
+  const cutCost = (d) => (s.tail && o.costCut !== false ? { tail: s.tail[d], r: rCut, minStaff } : null);
   const dropped = [];
   const days = prof.map((p, d) => {
     const shifts = cutShifts(p, minShift, maxShift, cutCost(d));
@@ -415,7 +423,7 @@ export function demandShifts(text, o = {}) {
     const needed = p.reduce((a, b) => a + b, 0);
     return { day: DAYS[d], needed, scheduled: shifts.reduce((a, [x, y]) => a + (y - x), 0), shifts: [...shifts], sales: s.avg[d].reduce((a, b) => a + b, 0) };
   });
-  if (dropped.length) s.notes.push(`Left unstaffed: ${dropped.length} run${dropped.length === 1 ? "" : "s"} shorter than the shortest shift, where a ${minShift}-hour shift would cost more in spare hours than the short hours it saves at short cost ${+o.shortCost}: ${dropped.join(", ")}.`);
+  if (dropped.length) s.notes.push(`Left unstaffed: ${dropped.length} run${dropped.length === 1 ? "" : "s"} shorter than the shortest shift, where a ${minShift}-hour shift would cost more in spare hours than the short hours it saves at short cost ${rCut}${o.shortCost === undefined ? " (short and spare hours weighed the same)" : ""}: ${dropped.join(", ")}.`);
   // Group identical shift lists across days: "Mon/Tue/Wed, 11:00, 15:00, 2".
   const lines = new Map();
   days.forEach((dd, d) => {
@@ -495,12 +503,13 @@ export function backtestSales(text, o = {}) {
     for (const res of results) {
       const from = res.window ? start - res.window * 7 * DAY_MS : -Infinity;
       const train = dated.filter((e) => { const t = keyMs(e.key); return t < start && t >= from; });
-      const a = averageSales(train, { halfLife: res.halfLife, newest: start - DAY_MS, keepRare: o.keepRare, splh, shortCost: res.shortCost });
+      const a = averageSales(train, { halfLife: res.halfLife, newest: start - DAY_MS, keepRare: o.keepRare, splh, shortCost: res.shortCost, priceCut: !!o.shifts });
       const prof = headcount(a.avg, a.observed, { ...hOpts, seen: a.seen, heads: a.heads });
       // o.shifts: score what the cut shifts staff, not the headcount profile, so the shortest-shift stretch (and, with
       // a short-cost weight, the runs the cost-aware cut leaves unstaffed) show up in short and over.
       const plan = !o.shifts ? prof : prof.map((p, d) => {
-        const cost = a.tail && o.costCut !== false ? { tail: a.tail[d], r: res.shortCost, minStaff } : null;
+        // Every row's cut is priced at the weight the week is scored at (rc, or 1), average rows included (2026-11-11).
+        const cost = a.tail && o.costCut !== false ? { tail: a.tail[d], r: rc === null ? 1 : rc, minStaff } : null;
         const row = new Array(24).fill(0);
         for (const [x, y] of cutShifts(p, minShift, maxShift, cost)) for (let t = x; t < y; t++) row[t]++;
         return row;

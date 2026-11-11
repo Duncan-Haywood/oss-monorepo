@@ -326,3 +326,20 @@ test("--budget compares payroll with a budget and lists drops that close the gap
   assert.match(lo.out, /\$\d+\.\d\d over/);
   assert.match(lo.out, /saves \$/);
 });
+
+test("CLI: --plain-cut stretches every short run; the default prices them without --short-cost", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  const dir = mkdtempSync(tmpdir() + "/pc-");
+  const rows = ["datetime,sales"];
+  for (let w = 0; w < 12; w++) { const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10); for (let h = 8; h < 16; h++) rows.push(`${day} ${h}:00,${h === 12 ? (w % 4 === 0 ? 900 : 150) : 90}`); }
+  writeFileSync(dir + "/s.csv", rows.join("\n"));
+  const run = (...a) => spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", ...a], { encoding: "utf8" });
+  const priced = run(), plain = run("--plain-cut");
+  assert.equal(priced.status, 0, priced.stderr); assert.equal(plain.status, 0, plain.stderr);
+  assert.match(priced.stderr, /Left unstaffed/);
+  assert.doesNotMatch(plain.stderr, /Left unstaffed/);
+  assert.notEqual(priced.stdout, plain.stdout);
+});

@@ -514,3 +514,24 @@ test("backtest with shifts scores the cut: the shortest-shift stretch shows up a
   assert.equal(cc.over, 0);
   assert.ok(cc.miss < cut.miss);
 });
+
+// 2026-11-11: the cut is priced without --short-cost too (r = 1), and a run whose stretch exactly pays for itself stays.
+test("default plan: short runs are priced at r = 1 without --short-cost; costCut false restores the stretch", async () => {
+  const { demandShifts: ds } = await import("./demand.mjs");
+  const rows = ["datetime,sales"];
+  for (let w = 0; w < 12; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    // 12:00 needs a 3rd head on 1 Monday in 4 (900 vs 150 at splh 100): average 337.5 -> 4 heads, but a 4-hour shift
+    // for heads 3-4 is spare most days
+    for (let h = 8; h < 16; h++) rows.push(`${day} ${h}:00,${h === 12 ? (w % 4 === 0 ? 900 : 150) : 90}`);
+  }
+  const t = rows.join("\n");
+  const plain = ds(t, { splh: 100, costCut: false }), priced = ds(t, { splh: 100 });
+  assert.ok(priced.scheduled < plain.scheduled, `${priced.scheduled} vs ${plain.scheduled}`);
+  assert.match(priced.notes.join(" "), /Left unstaffed: .*short and spare hours weighed the same.*Mon 12:00-13:00/);
+  assert.doesNotMatch(plain.notes.join(" "), /Left unstaffed/);
+  // every date needs the same heads: stretching costs exactly what it saves, and the run is kept (a tie)
+  const flat = ["datetime,sales"];
+  for (let w = 0; w < 6; w++) { const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10); for (let h = 8; h < 16; h++) flat.push(`${day} ${h}:00,${h === 12 || h === 13 ? 150 : 90}`); }
+  assert.equal(ds(flat.join("\n"), { splh: 100 }).scheduled, ds(flat.join("\n"), { splh: 100, costCut: false }).scheduled);
+});

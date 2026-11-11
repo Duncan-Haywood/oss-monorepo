@@ -49,6 +49,7 @@
     <label for="shortcost">A short hour costs this many times a spare one (optional; 1 = the same, 3 = being short is three times worse)</label>
     <input id="shortcost" inputmode="decimal" placeholder="blank: staff for the average hour">
     <p class="note">Planned from the average, an hour is short about half the time. With a number here each hour is staffed for that share of its past days instead: 1 staffs for the median day, 3 for 3 days in 4 (75%), 0.5 for 1 in 3.</p>
+    <p class="note">An extra person wanted for only an hour or two is checked against your past days before it becomes a whole shift. It goes in the cheapest shift that holds it, or is left out (and listed) when that shift's spare hours cost more than the short hours it saves, at this number or at 1 when blank. Minimum staff is always scheduled.</p>
   </section>
   <section class="card">
     <h2 style="font-size:1.05rem;margin:0 0 6px">Shifts to schedule</h2>
@@ -105,7 +106,7 @@
       $("#out").textContent = r.shiftsText || "Paste sales above.";
       const pageNote = (n) => n.replace(" (--keep-rare keeps it)", "").replace(" --open/--close or --keep-rare sets the hours yourself.", "");
       const notes = [...r.notes.map(pageNote), ...r.skipped.slice(0, 5)];
-      $("#summary").innerHTML = r.rows ? `${r.needed} labor hours needed, ${r.scheduled} scheduled (${r.extra >= 0 ? `${r.extra} extra from minimum shift length` : `${-r.extra} fewer: short runs left unstaffed at your short cost`}).<br>${notes.map(esc).join("<br>")}` : notes.map(esc).join("<br>");
+      $("#summary").innerHTML = r.rows ? `${r.needed} labor hours needed, ${r.scheduled} scheduled (${r.extra >= 0 ? `${r.extra} extra from minimum shift length` : `${-r.extra} fewer: short runs left unstaffed: a whole shift there costs more than it saves at your short cost (1 when blank)`}).<br>${notes.map(esc).join("<br>")}` : notes.map(esc).join("<br>");
       $("#table").innerHTML = r.rows ? `<table><tr><th>Day</th><th>Avg sales</th><th>Hours needed</th><th>Hours scheduled</th></tr>${r.days.map((d) => `<tr><td>${d.day}</td><td>$${Math.round(d.sales).toLocaleString("en-US")}</td><td>${d.needed}</td><td>${d.scheduled}</td></tr>`).join("")}</table>` : "";
     }
     document.addEventListener("input", run);
