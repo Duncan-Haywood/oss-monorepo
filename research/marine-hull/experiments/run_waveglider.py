@@ -23,6 +23,10 @@ Predictions, written before this script was first run (commit before the results
 Sensitivity: the foil constants (theta_stop 20/30/40 deg, aspect 1/2/4, C_L_max 0.8/1.2) are swept, r refitted each time;
 the 150 km distance cut is also reported. Nothing about the foils is sourced.
 
+Post-hoc (added after the first run, not pre-registered): monthly medians of speed and WVHT, and within-month Spearman
+and height ratio, to separate a slow drift over the mission (fouling is the usual suspect; nothing in the data says
+which) from the response to sea state.
+
 Run: PYTHONPATH=src python3 experiments/run_waveglider.py > experiments/results_waveglider.txt   (about 1 min)"""
 import csv
 import math
@@ -176,6 +180,28 @@ def main():
               f"solar ceiling 86, wind drone {wind}")
         held = held and md < 86 and md < wind
     print(f"P5: {'held' if held else 'refuted'} (model median below solar ceiling and wind drone in both months)")
+
+    print("\nPost-hoc (not pre-registered): drift over the mission, all buoy distances, speed >= 0.1 m/s")
+    allr = load(1e9)
+    bym = {}
+    for x in allr:
+        bym.setdefault(x[0][:7], []).append(x)
+    norm = []
+    print("  month   hours  median speed m/s  median WVHT m  Spearman(speed, WVHT) within month")
+    for k in sorted(bym):
+        v = bym[k]
+        u = [x[1] for x in v]
+        h = [x[2] for x in v]
+        rho = spearman(u, h) if len(v) >= 50 else float("nan")
+        print(f"  {k}  {len(v):5d}  {st.median(u):.3f}  {st.median(h):.2f}  {rho:+.3f}")
+        if len(v) >= 50:
+            mu = st.median(u)
+            norm += [(x[1] / mu, x[2]) for x in v]
+    hi = [u for u, h in norm if h >= 2.5]
+    lo = [u for u, h in norm if h <= 1.5]
+    print(f"  speed / its month's median, WVHT >= 2.5 m over <= 1.5 m: {st.median(hi) / st.median(lo):.3f} "
+          f"({len(hi)} and {len(lo)} h); pooled Spearman of the normalised speed with WVHT "
+          f"{spearman([u for u, _ in norm], [h for _, h in norm]):+.3f}")
 
 
 if __name__ == "__main__":
