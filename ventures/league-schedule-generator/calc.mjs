@@ -338,7 +338,7 @@ export function readSpec(f) {
   return {
     errors,
     spec: {
-      rounds, teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: CARRY_OVER_PICK[f.carryOverPick] ?? CARRY_OVER_PICK.balanced, start, weekdays: w.weekdays, skipDays: skip.days,
+      rounds, teams: t.teams, double: Boolean(f.double), carryOver: Boolean(f.carryOver), carryOverPick: Object.hasOwn(CARRY_OVER_PICK, f.carryOverPick) ? CARRY_OVER_PICK[f.carryOverPick] : CARRY_OVER_PICK.balanced, start, weekdays: w.weekdays, skipDays: skip.days,
       blackouts: b.blackouts, timeLimits: tl.limits, courtLimits: cl.limits, courtClosures: cc.closures, courts: courtNames, times: times.times, seed, minutes,
     },
   };
