@@ -74,7 +74,8 @@ export function parseReply(text) {
 // -> { books, source: "model" | "fallback", error?, suggested, dropped }
 // mode "fill" (default): only lines the four deterministic layers could not
 // suggest an account for go to the model, and a line that has a suggestion is
-// never overwritten. mode "replace": every review line goes and the model's
+// never overwritten (a new-payee guess counts as a suggestion; mode "fill-guess"
+// sends those lines too). mode "replace": every review line goes and the model's
 // answer takes over the suggestion. A 3B local model measured worse than the
 // rules in "replace" (eval/ai-eval.mjs, README Next), so "fill" is the default.
 // nameCheck: an answer whose "name" is not the chart's name for its "account" code
@@ -87,8 +88,10 @@ export const sameAccountName = (a, b) => {
 };
 
 export async function aiSuggest(config, books, { max = 40, offset = 0, fetch, maxTokens = 3000, mode = "fill", nameCheck = true } = {}) {
-  // A new-payee guess is only a prior from other payees, so the model may fill over it.
-  const hasOwn = (t) => t.suggestion?.account && t.suggestion.source !== "ai" && t.suggestion.source !== "new-payee";
+  // "fill" keeps the new-payee guess too: on 140 real Toronto card lines a local 7B
+  // model filling over it was right on fewer lines than the guess it replaced
+  // (README "A year of Toronto card lines"). "fill-guess" lets it fill over the guess.
+  const hasOwn = (t) => t.suggestion?.account && t.suggestion.source !== "ai" && (mode !== "fill-guess" || t.suggestion.source !== "new-payee");
   const queue = books.transactions.filter((t) => t.status === "review" && (mode === "replace" || !hasOwn(t))).slice(offset, offset + max);
   const unchanged = () => ({ books, suggested: 0, dropped: 0 });
   if (!queue.length) return { ...unchanged(), source: "fallback", error: mode === "replace" ? "nothing is waiting for review" : "every review line already has a suggestion from the rules, memory or classifier" };

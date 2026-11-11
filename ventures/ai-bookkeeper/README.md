@@ -178,9 +178,10 @@ Suggestions never post alone unless memory or a rule made them. Which
 of the two extra layers adds the most cannot be read off this table: each
 "without" row removes a layer the others partly cover.
 
-**Not yet measured:** accuracy of the AI layer (no key or local model in the
-build environment, and model hosts were not reachable from it), and any real
-bank export.
+**Measured since:** a local Qwen2.5 7B on synthetic lines (README "The AI layer") and on
+140 real City of Toronto card lines ("A year of Toronto card lines and the AI layer");
+real bank and card exports in the sections below. A hosted model (Claude, GPT, Gemini)
+has not been measured: no key in the build environment.
 
 ### The AI layer (harness ready, no reading yet)
 
@@ -302,7 +303,9 @@ other payee's first filed line in the same view, and offers the plurality when a
 payees are in that view and at least 40% of them agree; otherwise it backs off from shape
 and size to shape, size, then direction, and stops at the first view with 8 payees if that
 view is split. It is a suggestion for review only: confidence at most 0.5, never posted
-alone, and the AI layer in fill mode still takes the line. The thresholds were set before
+alone. Since 2026-11-11 the AI layer's default fill mode leaves the guess alone (on real
+card lines a 7B model over the guess did worse than the guess, "A year of Toronto card
+lines" below); `mode: "fill-guess"` lets the model take the line. The thresholds were set before
 the first reading and not tuned.
 
 Online, each line at its real amount, first-time payees only, right of all:
@@ -585,7 +588,46 @@ small divisions, the size of a small business's card spend, sit at the bottom: f
 earlier lines to learn from, and more one-off merchants with no category the table
 maps. That remainder is what the AI layer is for.
 
-AI_LAYER_PLACEHOLDER
+**The AI layer on what the rules leave** (`eval/toronto-ai.mjs`). On the whole-city year
+the four layers leave 307 lines (0.4%) for the AI layer's fill mode: 220 with only the
+new-payee guess, 87 with nothing. An evenly spaced 140 of them (from August 2025 on, so the
+books have a month behind them) went to Qwen2.5 7B Instruct (Q4_K_M GGUF from Hugging
+Face, llama.cpp through `llama-cpp-python` 0.3.16, CPU only, 4 cores, temperature 0) in 7
+batches of 20 through the page's own `aiSuggest`, each with the 40 lines filed just before
+it as examples, so nothing later leaks in. Every run sends the same 140 lines in the same
+batches. Right / wrong of 140:
+
+| | right | wrong | no answer |
+|---|---|---|---|
+| rules alone (new-payee guess on 98, nothing on 42) | 43 (30.7%) | 55 | 42 |
+| model, prompt before this change (no merchant category) | 25 | 105 | 10 |
+| model, merchant category on each line | 27 | 112 | 1 |
+| model, merchant category and the account's name asked for | 35 | 104 | 1 |
+| the same, name check on (code and name must agree) | 35 | 97 | 8 |
+| model over the guess (old fill mode), best prompt | 38 (27.1%) | 100 | 2 |
+| **guess kept, model on the 42 blank lines only (new default)** | **48 (34.3%)** | 90 | 2 |
+
+What it says:
+
+- **On real card lines a 7B model is worse than the rules' weakest layer.** The
+  synthetic reading (7 of 9 blank lines filled right) does not carry over: here it is
+  right on 18-25% of lines and wrong on most of the rest. Over the new-payee guess it
+  rescued 22 lines and broke 27-30, so fill mode no longer replaces that guess (`ai.mjs`;
+  the old behaviour is `mode: "fill-guess"`). Keeping the guess and letting the model fill
+  only blank lines gives 48 right against the rules' 43, at the cost of 35 wrong
+  suggestions on lines that had none (all go to review; nothing the model says posts).
+- **The merchant category barely moves it** (25 to 27 right). It is sent now because a
+  person reading the line would want it and it costs a few tokens, not because it was
+  shown to help this model.
+- **Asking for the account's name as well helped** (27 to 35 right), and the name check
+  dropped 7 answers whose code and name disagreed, all 7 wrong (an answer "Utilities and
+  phone" under code 6150, which is Wages). Both are now in `ai.mjs`.
+- Caveats: one buyer (a city, not a small business), one model size, 140 lines, one
+  sample; the reasons the model wrote were often sensible ("electricity or gas service")
+  while the account was not, which points at the chart lookup more than at understanding.
+  A hosted model is the obvious next reading. A 20-line batch took 3.5 to 8 minutes on 4
+  cores; Node's fetch gives up at 300 s, so long local runs need `node --import` of an
+  undici `Agent` with `headersTimeout: 0` (command in the file).
 
 ### Round-trip property test (2026-10-22)
 

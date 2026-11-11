@@ -15,6 +15,14 @@
 //   LLM_PROVIDER=llamacpp node eval/toronto-ai.mjs --file y2526.csv [--division "TORONTO WATER"]
 //        [--sample 160] [--first 140] [--batch 20] [--from 2025-08] [--no-mcc] [--out answers.json]
 //
+// A 20-line batch on a 7B model on 4 CPU cores takes 4-8 minutes, past Node fetch's
+// 300 s headers timeout; preload a dispatcher without it (npm i undici@6 anywhere):
+//   echo 'import { Agent, setGlobalDispatcher } from "<path>/undici/index.js";
+//         setGlobalDispatcher(new Agent({ headersTimeout: 0, bodyTimeout: 0 }));' > notimeout.mjs
+//   node --import ./notimeout.mjs eval/toronto-ai.mjs ...
+// The reading of 2026-11-11 (README "A year of Toronto card lines"): --from 2025-08
+// --sample 160 --first 140 --batch 20, Qwen2.5 7B Instruct Q4_K_M via llama-cpp-python.
+//
 // --stub 0.8 swaps in a scripted model (right on 80% of lines) to test the harness;
 // its numbers say nothing about any model. Requests go out at temperature 0.
 import { readFileSync, writeFileSync } from "node:fs";
@@ -81,8 +89,10 @@ export async function runAi(sample, filed, { config, batch = 20, mcc = true, stu
     const books = batchBooks(these, filed, { mcc, name });
     const t0 = Date.now();
     const f = stub !== null ? stubFetch(these, stub, books.accounts.map((a) => a.code)) : coldFetch();
-    // The name check is applied in score(), from the raw answers, so one run scores both ways.
-    const r = await aiSuggest(config, books, { max: batch, mode: "fill", fetch: f, maxTokens: 2500, nameCheck: false });
+    // Every queued line is sent ("fill-guess"), so score() can read both policies:
+    // the model over the new-payee guess, and the default that keeps the guess.
+    // The name check is applied in score() from the raw answers, likewise.
+    const r = await aiSuggest(config, books, { max: batch, mode: "fill-guess", fetch: f, maxTokens: 2500, nameCheck: false });
     const names = new Map(books.accounts.map((a) => [a.code, a.name]));
     these.forEach((q, i) => {
       const s = r.books.transactions.find((x) => x.id === `q${i}`).suggestion;
@@ -97,7 +107,7 @@ export async function runAi(sample, filed, { config, batch = 20, mcc = true, stu
 
 // nameCheck: drop an answer whose name disagrees with its code, as aiSuggest does by default.
 export function score(results, { nameCheck = false } = {}) {
-  const t = { n: results.length, aiRight: 0, aiWrong: 0, aiAbstain: 0, detRight: 0, detWrong: 0, detNone: 0, rescued: 0, broke: 0, combinedRight: 0, combinedWrong: 0 };
+  const t = { n: results.length, keepRight: 0, keepWrong: 0, aiRight: 0, aiWrong: 0, aiAbstain: 0, detRight: 0, detWrong: 0, detNone: 0, rescued: 0, broke: 0, combinedRight: 0, combinedWrong: 0 };
   for (const x of results) {
     // The uncategorized account is the model saying it cannot tell.
     const ai = x.ai && x.ai !== "9999" && !(nameCheck && x.nameAgrees === false) ? x.ai : null;
@@ -106,6 +116,9 @@ export function score(results, { nameCheck = false } = {}) {
     const detOk = !!x.det && x.want.includes(x.det), aiOk = !!ai && x.want.includes(ai);
     if (ai && aiOk && !detOk) t.rescued++;
     if (ai && !aiOk && detOk) t.broke++;
+    // The default fill mode: the guess stays, the model fills only blank lines.
+    const k = x.det ?? ai;
+    if (k && x.want.includes(k)) t.keepRight++; else if (k) t.keepWrong++;
     const c = ai ?? x.det;
     if (c && x.want.includes(c)) t.combinedRight++; else if (c) t.combinedWrong++;
   }
@@ -131,6 +144,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log(`  rules alone (new-payee guess or nothing): right ${pct(score(results).detRight, results.length)}, wrong ${pct(score(results).detWrong, results.length)}, none ${pct(score(results).detNone, results.length)}`);
   for (const nameCheck of [false, true]) {
     const t = score(results, { nameCheck });
-    console.log(` name check ${nameCheck ? "on " : "off"}: model right ${pct(t.aiRight, t.n)}, wrong ${pct(t.aiWrong, t.n)}, abstained ${pct(t.aiAbstain, t.n)} (right of answered ${pct(t.aiRight, t.aiRight + t.aiWrong)}); model first, else the guess: right ${pct(t.combinedRight, t.n)}, wrong ${pct(t.combinedWrong, t.n)}; rescued ${t.rescued}, broke ${t.broke}`);
+    console.log(` name check ${nameCheck ? "on " : "off"}: model right ${pct(t.aiRight, t.n)}, wrong ${pct(t.aiWrong, t.n)}, abstained ${pct(t.aiAbstain, t.n)} (right of answered ${pct(t.aiRight, t.aiRight + t.aiWrong)}); model first, else the guess: right ${pct(t.combinedRight, t.n)}, wrong ${pct(t.combinedWrong, t.n)}; rescued ${t.rescued}, broke ${t.broke}; guess kept, model on blank lines only (the default): right ${pct(t.keepRight, t.n)}, wrong ${pct(t.keepWrong, t.n)}`);
   }
 }

@@ -139,3 +139,18 @@ test("an answer whose name disagrees with its code is dropped; one with no name 
   const off = await aiSuggest({ provider: "anthropic", apiKey: "k" }, b, { fetch: reply(text), nameCheck: false });
   assert.equal(off.books.transactions.find((x) => x.id === a.id).suggestion.account, "6150");
 });
+
+test("fill keeps a new-payee guess; fill-guess sends that line to the model", async () => {
+  const b = books();
+  const [a, m] = b.transactions;
+  a.status = "review"; a.suggestion = { account: "6100", confidence: 0.4, source: "new-payee" };
+  m.status = "review"; delete m.suggestion;
+  let sent = "";
+  const spy = async (_u, init) => { sent = init.body; return reply(JSON.stringify({ lines: [{ id: m.id, account: "6070" }, { id: a.id, account: "6080" }] }))(); };
+  const r = await aiSuggest({ provider: "anthropic", apiKey: "k" }, b, { fetch: spy });
+  assert.equal(sent.includes(a.id), false, "the guessed line is not sent");
+  assert.equal(r.books.transactions.find((x) => x.id === a.id).suggestion.account, "6100");
+  assert.equal(r.books.transactions.find((x) => x.id === m.id).suggestion.account, "6070");
+  const g = await aiSuggest({ provider: "anthropic", apiKey: "k" }, b, { fetch: spy, mode: "fill-guess" });
+  assert.equal(g.books.transactions.find((x) => x.id === a.id).suggestion.account, "6080");
+});
