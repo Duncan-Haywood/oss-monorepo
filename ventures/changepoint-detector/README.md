@@ -2537,3 +2537,45 @@ variances are untouched, so the cost stays O(n^2) and the ML wander is profiled 
   its largest steps" when q is far above 1. Either needs fresh labelled data to score, not TCPD again.
   Huber K 2 beat the Gaussian on both TCPD means (+0.015 shipped, +0.006 held out). That is a lead
   for fresh data, not a finding: it was reported only, and the gaps are within noise.
+
+## The heavy-tail check: walk or noise (2026-11-11, after "a bounded loss makes it worse")
+
+The section above ends with "`--model drift` should say 'this looks like a random walk with
+heavy-tailed steps; its jumps are its largest steps' when q is far above 1". Every `--model drift`
+text and JSON (`tails`) now carries that check (`driftTailCheck` in `drift-level.mjs`). A second
+session ran the same pre-registered loss study in parallel and reached the same verdict; its
+duplicate is not committed, and this section keeps only what it adds.
+
+- **The check.** Kurtosis of the first differences above 6 (a t distribution with 6 degrees of
+  freedom). Then **walk** if the lag fit finds no noise around the level beyond its 2% floor (the
+  series reads as a pure random walk, so its differences are the walk's own steps), else **noise**.
+  'walk' says the jumps may be the walk's largest steps, not changes, that a robust cost does not help,
+  and to try `--model meanvar` on the differences. 'noise' says lone outliers may be read as jumps,
+  and that the bounded cost which helps there is not offered yet because it failed its pre-registered
+  rule. The CLI flag stays out, as the rule above decided.
+- **Synthetic, where the truth is known** (`node eval/drift-tails-sim.mjs`, output
+  `eval/drift-tails-sim.out.txt`; n 400, 60 series a cell, t3 tails scaled to sd 1, biweight K 3 and
+  Huber K 2 as in the TCPD run; cells written after the TCPD run, before this one):
+
+  | cell | Gaussian: found / other cuts | biweight: found / other | check says |
+  |---|---|---|---|
+  | Gaussian noise, 3-sd step | 60 / 0.00 | 60 / 0.00 | nothing 60 of 60 |
+  | t3 noise, 3-sd step | 57 / 3.07 | 60 / 0.07 | noise 36, nothing 24 |
+  | t3 noise, wander 0.2, 5-sd step | 60 / 2.68 | 60 / 0.52 | noise 44, nothing 16 |
+  | t3 noise, no step | - / 3.00 | - / 0.07 | noise 30, nothing 30 |
+  | Gaussian random walk, no noise | - / 2.33 | - / 2.30 | nothing 60 |
+  | t3 random walk, no noise | - / 17.40 | - / 18.18 | walk 42, noise 12 |
+  | t3 random walk, noise 0.1 | - / 16.50 | - / 17.12 | walk 43, noise 9 |
+
+  On a heavy-tailed walk no loss helps (Huber 18.30 and 16.65), and the check says 'walk' on 42
+  and 43 of 60. It is a check, not a test: on single t3-noise series it fires about half the time.
+- **On TCPD (in-sample: the bar of 6 was set after looking at TCPD's per-series kurtosis;
+  `eval/tcpd-drift-tails.mjs`, output `eval/tcpd-drift-tails.out.txt`).** The lag fit's noise is at
+  its floor on 21 of 38 series. 'walk' on 12 (bank, bitcoin, measles, both scanlines, usd_isk,
+  children per woman, ...): Gaussian drift F1 0.552 there against 0.595 for reporting nothing.
+  'noise' on 5 (well_log, homeruns, lga, shanghai, ratner): biweight 0.619 against Gaussian 0.573.
+  Using biweight only where the check says 'noise' would score 0.702 shipped and 0.526 held out
+  (Gaussian 0.694 and 0.527). That is post hoc, so it is a rule to pre-register on fresh labelled
+  data, not a default.
+- Tests: `drift-tails.test.mjs` (the check on known walks and noise, the text for each case, the
+  JSON, the quoted figures against both eval outputs).
