@@ -134,6 +134,8 @@ Milestone 6q (`../experiments/results_waveglider_drift.txt`) asks which input fo
 
 Milestone 6r (`../experiments/results_waveglider_site.txt`) carries that into the planning rows. With U = s Hs^0.218, s the median of u/Hs^0.218 in a 2015 mission month, the 2024 buoy-months give fleet medians of 52.4 (January, 9 buoys) and 48.8 km/day (July, 11) at the best month's state and 32.0 and 29.8 at the worst. The best buoy over the worst is 1.20 (January) and 1.34 (July), the best state over the worst 1.64 (1.41 for July to August alone), and 82.5% of the variance of log km/day over the buoy x month x state grid is between states. Changing the exponent over 0.188 to 0.248 moves the fleet medians by at most 2%. So the 6p rows should be read as a band set by vehicle state, about 30 to 52 km/day, with site a smaller correction.
 
+Milestone 6s (`../experiments/results_waveglider_period.txt`) adds the wave period 6r left out. With month intercepts, log u = b2 log Hs + c log DPD on the 416 Jun to Jul hours gives b2 = 0.224 and c = -0.025 (1-day block bootstrap 95% -0.271 to 0.170), so the pooled period residual of 6p (-0.26) does not survive holding the vehicle state; the period ratio adds nothing to the oracle forecast (24 h MAE ratio 0.991, 0.979 to 1.001), and the 2024 buoy-months move by -0.5% to +1.2% (fleet medians 53.1 and 49.1 km/day at the best state). NDBC's binned DPD and the up-to-300 km buoy match both attenuate a period slope, so the claim is "no detectable effect at this resolution", not "none".
+
 ## 2.4 Still to write
 
 4. Sensitivity: input ranking hotel > eta_pv > derate > c_s > k_form > wave scale
