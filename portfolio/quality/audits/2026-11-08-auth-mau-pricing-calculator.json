@@ -61,6 +61,6 @@
       "where": "ventures/auth-mau-pricing-calculator/llms.txt:7"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14795"],
   "verdict": "Well-built, honest-looking small tool whose arithmetic is correct and whose engine, CLI and page all run (26/26 tests; 3 of 4 seeded mutations caught). But the data a pricing calculator stands on is wrong for two of six vendors against their live pages fetched today: Clerk (the free tier is 50,000 MRUs, not 10,000, so the headline 40k-MAU result is $625 instead of $0) and AWS Cognito (invented volume ladder instead of flat $0.015 Essentials). Supabase, Firebase/Identity Platform and WorkOS match their pages exactly. The freshness claim is a bare '2025' and nothing in the tests would catch rate-card drift. Correctness 1 and claims 1 mean it does not meet the bar; it is finished (completeness 3) but not reliable."
 }
