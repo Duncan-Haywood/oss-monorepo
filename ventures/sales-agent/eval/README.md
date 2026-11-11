@@ -515,6 +515,80 @@ What is left on the fresh half (52 wrong):
 
 `6*` and later are unread for round 6.
 
+### Sixth round, on a seventh half, and a second reader on the sixth (2026-11-11)
+
+**Two round 5s.** Two sessions wrote a round 5 at the same time, from the same stops on `0*`-`4*`, each freezing its rules
+before `5*` was read and each having its own separate agent label `5*` blind. One landed (above). The other (PR #14741)
+was scored on the same 107 messages: every round-5 stop of either rule set was a round-4 stop, so both readers labelled
+exactly the round-4 stops. That gives the first measure of how far two readers agree. Second reader's labels:
+`eval/enron-labels/sixth-reader2.json` (Message-ID and category; no text).
+
+*Reader agreement on `5*`*: 87 of 107 same category (81%); stop or not, 89 of 107. Of the 20 disagreements, 11 are the
+writer's own absence (second reader `out_of_office`, first `none` or ambiguous), 4 are handovers, 3 are declines, and 2 are one reader's ambiguous against the other's none.
+
+| On `5*` (9,538 replies), wrong stops per 1,000 (right / wrong / ambiguous) | First reader (landed) | Second reader |
+|---|---|---|
+| Round-4 rules | 7.2 (34 / 69 / 4) | 5.8 (50 / 55 / 2) |
+| Landed round 5 | 5.5 (33 / 52 / 4) | 4.2 (48 / 40 / 1) |
+| Parallel round 5 (PR #14741, never landed) | 4.7 (32 / 45 / 4) | 3.7 (45 / 35 / 1) |
+
+The choice of reader moves the score by 1.0 to 1.4 per 1,000, as much as a whole round of rule changes. Both readers rank the
+three rule sets the same way. So a single blind reader can rank rule sets, but its per-1,000 figure carries a reader effect
+of that size. Compare rounds only under the same reader, and treat a gain under about 1 per 1,000 as within reader noise. A human reader is still missing.
+
+**Method.** Round 6 is the landed round 5 plus what the parallel version had and the landed one lacked, then fixes from
+`5*` (now a read half). Before any rule changed, the landed round-5 stops on `6*` (16 more folders, `'.bitcache/blobs/6*'`,
+9,592 `RE:` replies) were written to a file unread. The rules were then frozen (`engine.mjs` sha256 `af751e48...`), and the
+union of the stops the round-5 and round-6 code fired there (101) was shuffled with a fixed seed (20261113), the engine's
+answers hidden, and labelled once by a separate agent (same model family) with the same instructions as round 5's second
+reader. Labels: `eval/enron-labels/seventh.json`. `node eval/enron.mjs <dir of links to blobs/6?> --replies --labels
+eval/enron-labels/seventh.json`.
+
+**What changed** (`engine.mjs`, the "Sixth round" block):
+
+- *An absence mentioned deep in a long reply*, whatever its length: a first-person away sentence counts only when it is
+  among the first two sentences (after a greeting) or the reply is three sentences or fewer, or it states a span ("until
+  November 12th", round 5's policy that a stated date pauses). A reply offering another time ("Tomorrow is better than
+  Monday") is scheduling. Round 5's `SHORT_ABSENCE` kept "I will be out of the office for the next few days" and "I am on
+  vacation beginning this afternoon, and will return on Monday" as away notices.
+- *Who did the passing on*, by round 4's subject walk instead of a fixed pattern ("Mr. Lay had passed this on to Joe").
+- *"Don't need" with an object we don't sell, with or without a request beside it* ("I don't need this spreadsheet
+  everyday", "We do not need anyone speaking at this"); a product word within two words, or "at this time", keeps a decline.
+- *A bare "No." whose rest declines in other words*: "No. I'll let this one go", "No. I will not agree to any penalty
+  charges" (both lost on `5*` by every round-5 version); "I do not need a regulatory lawyer at this time" (also lost on `5*`).
+- *Narrow vetoes*: "send me your resume, I shall forward it", "e-mail Karen or me", "will be back tonight", "when we're set
+  to trade", "No need for Ken's involvement", "take this off your list" (a to-do list), "delete it from your system" after a
+  "delivery error". One opt-out added: a bare "remove from list".
+
+| Stops fired on `RE:` replies | Landed round 5 | Round 6 |
+|---|---|---|
+| Tuning `0*` (9,559): right / wrong / ambiguous / unlabelled | 68 / 9 / 1 / 10 | 57 / 2 / 1 / 7 |
+| Tuning `1*` (9,619): same | 77 / 7 / 0 / 6 | 68 / 5 / 0 / 5 |
+| Tuning `2*` (9,584): same | 71 / 7 / 2 / 0 | 66 / 5 / 2 / 1 |
+| Tuning `3*` (9,656): same | 46 / 26 / 2 / 0 | 44 / 8 / 2 / 0 |
+| Tuning `4*` (9,589): same | 63 / 22 / 0 / 0 | 64 / 13 / 0 / 1 |
+| Tuning `5*` (9,538), first reader / second reader | 33 / 52 / 4; 48 / 40 / 1 | 34 / 45 / 4; 49 / 33 / 1 |
+| **Fresh `6*` (9,592), scored once: right / wrong / ambiguous** | **45 / 54 / 2 (101)** | **45 / 41 / 2 (88)** |
+| Fresh precision (ambiguous as wrong) | 45% | 51% |
+| **Fresh wrong stops per 1,000 replies** | **5.6** | **4.3** |
+| Real auto-replies caught, all seven halves | 315 of 320 | 315 of 320 |
+| Real bounces caught (sender or subject), all seven halves | 304 of 315 | 304 of 315 |
+
+Read the fresh row. No right stop was lost on `6*`. Wrong stops fell 54 to 41 (24%) on new text, against 123 to 78 (37%,
+first-reader labels) on the halves the rules were written from. The fresh *before* column is the first honest reading of the
+landed round 5 on new text: 5.6 per 1,000, against the 5.5 it reported on `5*` (a different reader; see above). Most of the
+gain is absences (26 wrong to 16).
+
+*Right stops lost on the tuning halves*: 27 (11 on `0*`, 9 on `1*`, 5 on `2*`, 2 on `3*`; one gained on each of `4*` and `5*`).
+Almost all are mid-reply first-person absences, which rounds 1 and 2 labelled by the sentence and later readers split on.
+
+*Checks.* Opt-out recall on the labelled opt-outs in `2*` and `3*`: 37 of 38, unchanged. Agent-written reply sets: no reply
+changes category against the landed round 5. `node --test`: 411 pass (398 before this round's tests).
+
+What is left on `6*` (41 wrong): away notices (16), not-interested (11), left-company (7), unsubscribe (6), one bounce. Also
+still open: "Please cancel the Palm.Net service ... do not need the Palm.Net service", a real decline that round 5's
+request check reads as scoping (a request beside a soft no); `7*` and later are unread for round 7.
+
 ## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
 
 The Enron check above measured stops that fired wrongly. This one measures the

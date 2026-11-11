@@ -145,6 +145,15 @@ departed contact. Scored once on 9,538 replies never read while tuning, labelled
 separate agent: wrong stops 69 to 52 (7.2 to 5.5 per 1,000), right stops 34 to 33, opt-out
 recall unchanged. Details: [`eval/README.md`](eval/README.md), "Fifth round".
 
+**Sixth round, 2026-11-11, on a seventh unread half, and a second reader.** Two sessions
+wrote a round 5 in parallel, each scored blind on the same half by its own reader. The
+readers agreed on 81% of stops, and the choice of reader moved the score by 1.0 to 1.4
+wrong stops per 1,000, about one round's gain, though both ranked the rule sets the same.
+Round 6 combines the two: an absence mentioned deep in a long reply, "don't need" about
+something we don't sell, handovers someone else did. Scored once on 9,592 unread replies:
+wrong stops 54 to 41 (5.6 to 4.3 per 1,000), right stops 45 to 45. Details:
+[`eval/README.md`](eval/README.md), "Sixth round".
+
 **Real opt-outs, 2026-11-10.** The other direction: of 113 distinct real
 "take me off this list" messages found in the rest of the Enron corpus (451,475
 messages, candidates chosen by a net written apart from the rules and read with
