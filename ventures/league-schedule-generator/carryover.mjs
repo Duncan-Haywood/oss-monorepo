@@ -456,22 +456,37 @@ function bestStarterOnly(N, n, cyclic, weighted = false) {
   return best;
 }
 
-/** COE over real teams only (a phantom's "games" are byes and are skipped). */
+/**
+ * COE over real teams only (a phantom's "games" are byes and are skipped).
+ * The annealers call this once per move, so the pair counts live in one scratch table reused across
+ * calls: an entry counts only when its stamp is this call's, which clears the table in O(1) instead
+ * of allocating and zeroing N * N cells each time (the allocation was most of the cost at 6 to 12 teams).
+ */
+let coeStamp = new Uint32Array(0), coeCount = new Int32Array(0), coeGen = 0;
 function coeOf(opp, n, cyclic) {
   const R = opp.length;
   const N = opp[0].length;
-  const c = new Int32Array(N * N);
+  if (coeStamp.length < N * N) { coeStamp = new Uint32Array(N * N); coeCount = new Int32Array(N * N); coeGen = 0; }
+  if (++coeGen > 0xfffffffe) { coeStamp.fill(0); coeGen = 1; }
+  const gen = coeGen, stamp = coeStamp, c = coeCount;
   let value = 0;
   for (let k = 0; k < n; k++) {
     let first = -1, prev = -1;
     for (let r = 0; r < R; r++) {
       const o = opp[r][k];
       if (o >= n) continue;
-      if (prev >= 0) { const idx = prev * N + o; value += 2 * c[idx] + 1; c[idx]++; }
-      else first = o;
+      if (prev >= 0) {
+        const idx = prev * N + o;
+        if (stamp[idx] !== gen) { stamp[idx] = gen; c[idx] = 1; value += 1; }
+        else { value += 2 * c[idx] + 1; c[idx]++; }
+      } else first = o;
       prev = o;
     }
-    if (cyclic && prev >= 0 && first >= 0 && prev !== first) { const idx = prev * N + first; value += 2 * c[idx] + 1; c[idx]++; }
+    if (cyclic && prev >= 0 && first >= 0 && prev !== first) {
+      const idx = prev * N + first;
+      if (stamp[idx] !== gen) { stamp[idx] = gen; c[idx] = 1; value += 1; }
+      else { value += 2 * c[idx] + 1; c[idx]++; }
+    }
   }
   return value;
 }
@@ -483,15 +498,25 @@ function coeOf(opp, n, cyclic) {
  * rounds form one long cycle), so partial round swaps alone cannot leave it.
  */
 function teamSwapRounds(opp, a, b, r, lo = 0, hi = opp.length) {
+  // X and Y are the opponents a and b meet over S, each in first-seen order (the order the search
+  // used to read them out of a Set, so the same round is added); S only grows, so each round's two
+  // opponents are appended once rather than the sets being rebuilt every pass.
+  const N = opp[0].length;
   const inS = new Uint8Array(opp.length);
+  const inX = new Uint8Array(N), inY = new Uint8Array(N);
+  const X = [], Y = [];
   const S = [r]; inS[r] = 1;
   const roundOf = (t, o) => { for (let q = lo; q < hi; q++) if (opp[q][t] === o) return q; return -1; };
+  let seen = 0;
   for (;;) {
-    const X = new Set(), Y = new Set();
-    for (const q of S) { const x = opp[q][a], y = opp[q][b]; if (x !== b) X.add(x); if (y !== a) Y.add(y); }
+    for (; seen < S.length; seen++) {
+      const q = S[seen], x = opp[q][a], y = opp[q][b];
+      if (x !== b && !inX[x]) { inX[x] = 1; X.push(x); }
+      if (y !== a && !inY[y]) { inY[y] = 1; Y.push(y); }
+    }
     let add = -1;
-    for (const y of Y) if (!X.has(y)) { add = roundOf(a, y); break; }
-    if (add < 0) for (const x of X) if (!Y.has(x)) { add = roundOf(b, x); break; }
+    for (const y of Y) if (!inX[y]) { add = roundOf(a, y); break; }
+    if (add < 0) for (const x of X) if (!inY[x]) { add = roundOf(b, x); break; }
     if (add < 0) return S;
     if (inS[add]) return S; // cannot happen for a valid round robin; stop safely
     inS[add] = 1; S.push(add);
@@ -759,9 +784,12 @@ function anneal(opp, costOf, { iterations, T0, rand, stopAt, blocks = [[0, opp.l
 }
 
 /** Breaks after the greedy venue pass alone (no annealing): a cheap stand-in inside the search. */
+let greedyPhase = new Int8Array(0); // scratch, reused across calls (see coeOf)
 function greedyBreaks(opp, n) {
   const R = opp.length, N = opp[0].length;
-  const phase = new Int8Array(N).fill(-1);
+  if (greedyPhase.length < N) greedyPhase = new Int8Array(N);
+  const phase = greedyPhase;
+  phase.fill(-1, 0, N);
   let changes = 0;
   for (let r = 0; r < R; r++) for (let t = 0; t < N; t++) {
     const u = opp[r][t];

@@ -134,14 +134,20 @@ test("splitCarryOverTries hands every try to exactly one thread, round robin", (
 });
 
 test("a pool of any size, finishing in any order, returns exactly the serial search", () => {
-  for (const double of [false, true]) for (const pick of [0, 10, 40]) {
-    const serial = bestCarryOverRounds(8, { double, seed: 4, tries: 8, pick });
-    for (const workers of [1, 3, 8]) {
-      const done = splitCarryOverTries(8, workers).map((q) => q.map((i) => carryOverTry(8, i, { double, seed: 4 })));
-      // threads report in reverse: the combine must not depend on arrival order
-      const pooled = combineCarryOverTries(done.reverse().flat(), pick);
-      assert.deepEqual(pooled.rounds, serial.rounds);
-      assert.deepEqual(carryOverSummary(pooled), carryOverSummary(serial));
+  for (const double of [false, true]) {
+    // A try depends on neither the pick nor the thread that runs it, so each is searched once here,
+    // apart from the serial runs, and every pool gets its own copy, as a worker message would (this
+    // test used to search the same 8 tries 9 times over: 245 s of the suite's critical path).
+    const searched = Array.from({ length: 8 }, (_, i) => carryOverTry(8, i, { double, seed: 4 }));
+    for (const pick of [0, 10, 40]) {
+      const serial = bestCarryOverRounds(8, { double, seed: 4, tries: 8, pick });
+      for (const workers of [1, 3, 8]) {
+        const done = splitCarryOverTries(8, workers).map((q) => q.map((i) => structuredClone(searched[i])));
+        // threads report in reverse: the combine must not depend on arrival order
+        const pooled = combineCarryOverTries(done.reverse().flat(), pick);
+        assert.deepEqual(pooled.rounds, serial.rounds);
+        assert.deepEqual(carryOverSummary(pooled), carryOverSummary(serial));
+      }
     }
   }
 });

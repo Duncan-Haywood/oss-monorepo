@@ -30,6 +30,17 @@ const MACHINE_FROM = /^(mailer-daemon|postmaster|mail-daemon|bounce[s]?)@/i;
 export const addressOf = (from) => ((String(from || "").match(/<([^>]+)>/) || [])[1] || (String(from || "").match(/[^\s<>"',;]+@[^\s<>"',;]+/) || [""])[0]).trim().toLowerCase();
 
 /** True when a text looks like an mbox file (first non-empty line is a "From " envelope line). */
+/** One message you sent as { date, to, subject } for runDaily({ sent }), or null with no recipient or readable date.
+ * top: the raw header map (headerMap), subject: the decoded subject. Shared by the mail-file reader and the self-host
+ * server's Sent-folder read, so both find the same recipients. To and Cc count; an apostrophe is legal in a local
+ * part (o'neal.winfree@...: 64 of 7,836 Enron sent messages), so it is kept inside an address and trimmed only where
+ * it quotes one ('a@b'). */
+export function sentRecord(top, subject) {
+  const to = [...new Set((`${top.to || ""},${top.cc || ""}`.match(/[^\s<>",;:()]+@[^\s<>"',;:()]+/g) || []).map((a) => a.replace(/^'+/, "").toLowerCase()))];
+  const t = Date.parse(top.date);
+  return to.length && Number.isFinite(t) ? { date: new Date(t).toISOString().slice(0, 10), to, subject: subject ?? top.subject ?? "" } : null;
+}
+
 export const isMbox = (text) => /^\s*From \S+/.test(String(text || "").slice(0, 1000));
 
 // A header field line (RFC 5322 field name, then a colon) and an mbox envelope line ("From 1538...@xxx Thu Jun 30
@@ -113,9 +124,8 @@ export function createCollector({ own = [], repliesOnly = true, maxBytes = MAX_B
         // the done list (daily.mjs, input.sent), so a step you sent by hand is not queued again.
         // An apostrophe is legal in a local part (o'neal.winfree@...: 64 of 7,836 Enron sent messages), so it is kept
         // inside an address and trimmed only where it quotes one ('a@b').
-        const to = [...new Set((`${top.to || ""},${top.cc || ""}`.match(/[^\s<>",;:()]+@[^\s<>"',;:()]+/g) || []).map((a) => a.replace(/^'+/, "").toLowerCase()))];
-        const t = Date.parse(hd.date);
-        if (to.length && Number.isFinite(t)) sent.push({ date: new Date(t).toISOString().slice(0, 10), to, subject: hd.subject });
+        const r = sentRecord(top, hd.subject);
+        if (r) sent.push(r);
         return;
       }
       const machine = !!m.dsn || MACHINE_FROM.test(from) || /^auto-(replied|generated|notified)/i.test(hd.autoSubmitted) || !!hd.xAutoreply || /^auto[_-]?reply\b/i.test(hd.precedence);
