@@ -1,9 +1,9 @@
 ---
 title: "'Back on the 31st', said in November: the dates our reply sorter invented"
-seo_title: "Parsing dates in email replies: February 30, the 31st and Date.UTC rollover"
+seo_title: "Parsing dates in email replies: February 30 and Date.UTC rollover"
 date: 2026-11-11
 tags: [sales-agent, dates, javascript, mutation-testing]
-description: "JavaScript's Date.UTC quietly turns February 30 into March 2. Our reply sorter booked follow-ups on days nobody named, and one huge number could crash a whole inbox run."
+description: "JavaScript's Date.UTC turns February 30 into March 2. Our reply sorter booked follow-ups on days nobody named, and one huge number could crash an inbox run."
 ---
 
 Today's red-team run seeded ten faults into `engine.mjs` of the
