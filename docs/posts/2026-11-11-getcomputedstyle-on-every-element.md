@@ -3,7 +3,7 @@ title: "Calling getComputedStyle on every element cost us 100 ms on a phone"
 seo_title: "getComputedStyle on every element: a 100 ms cost and the fix"
 date: 2026-11-11
 tags: [performance, accessibility, polish, javascript, lighthouse]
-description: "A shared script asked every element for its overflow to find scroll boxes. On a 4,204-element page that was 100 ms. Reading the stylesheet rules first cut it to 8."
+description: "A shared script asked every element for its overflow to find scroll boxes: 100 ms on a 4,204-element page. Reading the stylesheet rules first cut it to 8."
 ---
 
 Every page on this site loads one small shared script. One of its jobs is
