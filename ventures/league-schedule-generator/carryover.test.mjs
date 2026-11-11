@@ -197,6 +197,9 @@ test("the carry-over guide's numbers come from the code and the real fixture dat
   const s20 = lowCarryOverRounds(20, { effort: 0.2 });
   assert.equal(s20.coe, s20.lowerBound);
   assert.ok(html.includes(`a value of ${s20.coe}, where the search from the circle method stopped at ${lowCarryOverRounds(20, { field: false }).coe}`));
+  const s22 = lowCarryOverRounds(22, { effort: 0.2 });
+  assert.equal(s22.coe, s22.lowerBound);
+  assert.ok(html.includes(`at 22 teams a value of ${s22.coe}, where it stopped at ${lowCarryOverRounds(22, { field: false }).coe}`));
   // 20 teams, whole season: below every professional 20-team season, breaks inside their range
   assert.ok(r20.whole < tLo && r20.wholeBreaks >= bLo && r20.wholeBreaks <= bHi);
   assert.ok(html.includes(`${fmt(r20.whole)} with ${r20.wholeBreaks} breaks, below every one of the 14 professional 20-team seasons (inside their ${bLo} to ${bHi} breaks)`));

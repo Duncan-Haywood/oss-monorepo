@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Adjunct Course Offer Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Compare adjunct and part-time teaching offers by effective hourly pay after prep, grading, unpaid hours, commute, costs and cancellation risk. Runs in your browser.","featureList":"Effective hourly pay, side-by-side offer ranking, pay needed for a target rate, largest class at target, annual totals, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does an adjunct course really pay per hour?","acceptedAnswer":{"@type":"Answer","text":"Divide the net pay by every hour the course takes, not only the hours in the room. Prep, grading that grows with each student, unpaid office hours and email, unpaid training and the drive all count. Many contracts that quote a good rate per class hour pay a fraction of it per hour of your time."}},{"@type":"Question","name":"How do I compare two adjunct offers?","acceptedAnswer":{"@type":"Answer","text":"Enter each offer's pay, weeks, hours, enrolment, commute and costs. The tool ranks them by effective hourly pay after unpaid work, travel and costs, and shows the annual total at the number of courses you would teach, so a lower-paying online section can beat a higher-paying one across town."}},{"@type":"Question","name":"How big a class should I accept?","acceptedAnswer":{"@type":"Answer","text":"Grading time rises with every student while the pay does not. The tool shows the largest class at which the course still pays your target hourly rate, and a table of your hourly pay at class sizes from 10 to 40, which is the figure to bring to a department that asks you to take extra students."}},{"@type":"Question","name":"What should I do about cancellation risk?","acceptedAnswer":{"@type":"Answer","text":"Sections with low enrolment are often cancelled days before the term, after you have prepared. Enter the chance and any cancellation fee the contract promises. The tool cuts the expected pay accordingly and shows the per-course pay that would still reach your hourly target."}},{"@type":"Question","name":"Is this pay or career advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Benefits eligibility, tax, loan forgiveness rules and contract terms vary by school and state; check them with the school and a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -161,11 +199,11 @@
       for (const r of cmp.bad) for (const w of r.a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(r.name)}: ${esc(w)}</div>`;
       if (!cmp.ranked.length) { h += '<div class="finding"><span class="pill">Check</span> Enter a pay above zero for at least one offer.</div>'; $("result").innerHTML = h; $("out").hidden = false; return; }
       const s = cmp.shared, b = cmp.best;
-      h += `<div class="finding"><h4>${cmp.ranked.length > 1 ? "Best offer: " : ""}${esc(b.name)} at ${money2(b.a.e.hourly)} an hour</h4><p>That is after ${b.a.e.allHours.toFixed(0)} hours (${b.a.e.workHours.toFixed(0)} working, ${b.a.e.commuteHours.toFixed(0)} travelling) for ${money(b.a.e.net)} net per course. Across ${b.a.annual.courses} courses a year that is ${money(b.a.annual.net)} for ${b.a.annual.hours.toFixed(0)} hours.</p></div>`;
-      h += `<div class="finding"><h4>The offers side by side</h4>${table(["Offer", "Net per course", "Hours per course", "Real $/hour", "Contract $/class hour", "Per year"], cmp.ranked.map((r) => [esc(r.name), money(r.a.e.net), r.a.e.allHours.toFixed(0), money2(r.a.e.hourly), money2(r.a.e.quotedHourly), money(r.a.annual.net)]))}</div>`;
+      h += `<div class="finding"><h3>${cmp.ranked.length > 1 ? "Best offer: " : ""}${esc(b.name)} at ${money2(b.a.e.hourly)} an hour</h3><p>That is after ${b.a.e.allHours.toFixed(0)} hours (${b.a.e.workHours.toFixed(0)} working, ${b.a.e.commuteHours.toFixed(0)} travelling) for ${money(b.a.e.net)} net per course. Across ${b.a.annual.courses} courses a year that is ${money(b.a.annual.net)} for ${b.a.annual.hours.toFixed(0)} hours.</p></div>`;
+      h += `<div class="finding"><h3>The offers side by side</h3>${table(["Offer", "Net per course", "Hours per course", "Real $/hour", "Contract $/class hour", "Per year"], cmp.ranked.map((r) => [esc(r.name), money(r.a.e.net), r.a.e.allHours.toFixed(0), money2(r.a.e.hourly), money2(r.a.e.quotedHourly), money(r.a.annual.net)]))}</div>`;
       for (const r of cmp.ranked) {
         const e = r.a.e, o = r.a.opts;
-        h += `<div class="finding"><h4>${esc(r.name)}</h4>`;
+        h += `<div class="finding"><h3>${esc(r.name)}</h3>`;
         for (const w of r.a.warnings) h += `<p><span class="pill">Check</span> ${esc(w)}</p>`;
         h += `<p>To earn ${money2(s.targetHourly)} an hour this course would have to pay ${money(r.a.targetPay)} (it offers ${money(o.pay)}). At the pay on offer the largest class that still reaches your rate is ${cls(r.a.maxClass)}.</p>`;
         h += table(["Where the hours go", "Hours"], [["In the room", e.contactHours.toFixed(0)], ["Prep", (o.weeks * o.prepHours).toFixed(0)], ["Grading", (o.weeks * e.grading).toFixed(0)], ["Office hours and email", (o.weeks * (o.officeHours + o.emailHours)).toFixed(0)], ["Unpaid training and meetings", o.unpaidHours.toFixed(0)], ["Travel", e.commuteHours.toFixed(0)]]);

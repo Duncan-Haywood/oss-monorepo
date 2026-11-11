@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Recipe Costing Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Cost recipes from your own pantry prices: pack price to cost per gram, cup or each, trim yield, sub-recipes, labor and packaging, cost per portion, food cost percentage and the menu price that hits a target. Runs in your browser; nothing is uploaded.","featureList":"Recipe cost per portion, ingredient yield and trim, weight and volume conversion with density, sub-recipes, labor and packaging, target food cost price, price-rise sensitivity"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I calculate the cost of a recipe?","acceptedAnswer":{"@type":"Answer","text":"Convert every ingredient to what it costs per gram, ounce, cup or each, multiply by how much the recipe uses, and add the lines. Then divide by the number of portions. The hard parts are the unit conversions (a cup of flour is not a cup of sugar by weight) and the trim you throw away, and the tool does both."}},{"@type":"Question","name":"What is yield percent and why does it matter?","acceptedAnswer":{"@type":"Answer","text":"Yield is the share of what you buy that you can actually use. If walnuts are 92% usable after sorting, each usable pound costs about 8.7% more than the pack price says. Costing from the pack price alone understates the dish."}},{"@type":"Question","name":"What food cost percentage should I aim for?","acceptedAnswer":{"@type":"Answer","text":"Many restaurants plan around 28 to 35 percent of menu price for ingredients, and bakeries and cafes often run lower, but it depends on your labor, rent and menu. The target is a box you can change; the tool shows the price that hits it and how far a dish is from it today."}},{"@type":"Question","name":"Can I cost a recipe that uses another recipe, like a sauce or a frosting?","acceptedAnswer":{"@type":"Answer","text":"Yes. Write the sub-recipe as its own block and use it in another with a line starting with @, for example @Vanilla frosting, 12 portion. Its cost per portion or per batch rolls up into the parent, and the tool warns about loops."}},{"@type":"Question","name":"Is this accounting or pricing advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the prices and quantities you type. It does not know your suppliers, taxes, waste or local rules, and a menu price is your decision. Prices in the example are placeholders."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #b45309; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #753606; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #753606; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #b45309; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #b45309; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #753606; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -94,7 +132,7 @@
       if (!a.results.length) h += '<div class="finding"><span class="pill">Check inputs</span> Add a recipe that starts with # and a name.</div>';
       for (const r of a.results) {
         if (!(r.portions > 0)) continue;
-        h += `<div class="finding"><h4>${esc(r.name)}: ${money(r.perPortion)} per portion, ${money(r.batchCost)} per batch of ${r.portions}</h4>`;
+        h += `<div class="finding"><h3>${esc(r.name)}: ${money(r.perPortion)} per portion, ${money(r.batchCost)} per batch of ${r.portions}</h3>`;
         h += `<p class="stats">Ingredients <strong>${money(r.ingredientCost)}</strong>${r.laborCost ? ", labor <strong>" + money(r.laborCost) + "</strong>" : ""}${r.packagingCost ? ", packaging <strong>" + money(r.packagingCost) + "</strong>" : ""}. At a ${o.targetFoodCostPct}% food cost the menu price is <strong>${money(r.suggestedPrice)}</strong>, rounded up to <strong>${money(r.suggestedRounded)}</strong>.</p>`;
         if (r.price > 0) h += `<p>${r.overTarget ? '<span class="pill">Over target</span> ' : ""}At ${money(r.price)} the food cost is <strong>${pct(r.foodCostPct)}</strong> and the margin after labor is <strong>${money(r.marginPerPortion)}</strong> a portion, <strong>${money(r.marginBatch)}</strong> a batch.${r.overTarget ? " To reach " + o.targetFoodCostPct + "% either charge " + money(r.suggestedPrice) + " or cut the cost per portion to " + money(r.breakEvenCost) + "." : ""}</p>`;
         h += table(["Ingredient", "Used", "Cost", "Share"], r.ranked.map((l) => [esc(l.name) + (l.sub ? " (sub-recipe)" : l.yieldPct < 100 ? " (" + l.yieldPct + "% usable)" : ""), l.qty + " " + l.unit, money(l.cost), pct(l.share, 0)]));

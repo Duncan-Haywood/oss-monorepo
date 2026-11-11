@@ -1,0 +1,71 @@
+Milestone 6u: the Wave Glider's sea-state response with its own on-board waves and wind
+3657 hours; 3281 usable (speed >= 0.1 m/s, MOSE Hs 0.2 to 10 m)
+
+A1  within-month exponent of speed on Hs (month intercepts)
+  S1 (246 hours, before 2015-08-01, buoy <= 300 km): b_buoy 0.092, b_ob 0.404 (95% 0.153 to 0.469); b_ob - b_buoy +0.312 (95% -0.213 to +0.500)
+  S2 (3281 hours from 2015-06-01, any distance): b_ob 0.354 (95% 0.299 to 0.415)
+    month  6:  705 hours, median u 0.598 m/s, median Hs_ob 1.50 m, b_ob +0.613
+    month  7:  714 hours, median u 0.644 m/s, median Hs_ob 2.01 m, b_ob +0.338
+    month  8:  697 hours, median u 0.459 m/s, median Hs_ob 2.00 m, b_ob +0.550
+    month  9:  662 hours, median u 0.462 m/s, median Hs_ob 2.12 m, b_ob +0.229
+    month 10:  495 hours, median u 0.411 m/s, median Hs_ob 2.27 m, b_ob +0.218
+    month 11:    8 hours, median u 0.353 m/s, median Hs_ob 1.65 m, b_ob +0.480
+  P1 (S1: b_ob > b_buoy and 0.25 <= b_ob <= 0.70): held
+
+A2  how good a proxy the buoy is (S1, month-demeaned logs)
+  within-month corr(log Hs_ob, log Hs_buoy) 0.201; lambda 0.518; lambda x b_ob 0.209 against b_buoy 0.092; median Hs_buoy / Hs_ob 0.928
+  P2 (0.3 <= corr <= 0.8): refuted
+
+A3  wave period at a fixed vehicle state (S2)
+  3281 hours: b 0.542, c (T_avg) -0.711 (95% -0.804 to -0.608)
+  3281 hours: b 0.330, c (T_dom) -0.165 (descriptive)
+  P3 (95% interval of c contains 0): refuted
+
+A4  wind at a fixed vehicle state (S2 hours with on-board wind)
+  3278 hours: b 0.333, d (headwind, per m/s) -0.0012 (95% -0.0044 to +0.0022), e (|crosswind|) +0.0131; median wind 6.55 m/s
+  a 5 m/s headwind changes speed by -0.6%
+  P4 (d < 0, 95% below 0, d <= -0.01): refuted
+
+A5  forecast: does an on-board oracle Hs (and headwind) add skill to 24 h persistence?
+  training (2015-06-01 to 2015-07-31): b 0.495 (1419 hours), d +0.0145 (1419 hours)
+   h     n   MAE M1  M2ob   M2w   | M2ob/M1  M2w/M1
+    6  1798  0.0270 0.0335 0.0387 | 1.239    1.433
+   24  1806  0.0391 0.0459 0.0516 | 1.172    1.319
+   72  1805  0.0574 0.0591 0.0648 | 1.030    1.128
+  24 h block bootstrap (90 days): M2ob/M1 95% 0.974 to 1.426; M2w/M1 95% 1.116 to 1.582
+  P5 (M2ob/M1 >= 0.95 at 24 h): held
+
+A6  the events of 6t, with on-board sea state, wind, power and steering
+  window                     n    u      Hs_ob  wind   head   power     |hdg-desired|
+  7 days before 08-07 15h   167  0.636  2.43   9.53   -8.26     578410 5.7
+  7 days after              168  0.454  1.85   8.54   -7.86     594990 2.9
+  observed speed ratio 0.714; A4-model ratio from Hs and headwind 0.913 (share of the log step +0.27); Hs -23.7%, wind -10.4%, power +2.9%
+  P6 (|dHs| < 15%, |dwind| < 30%, share < 1/3): refuted
+  P7 (|dpower| > 5%): refuted
+  hour by hour, 6 to 8 August (UTC): hour  u  Hs_ob  wind  head  power  sub_heading  desired
+    08-07 06  0.603  2.20  9.4  -9.3  528135  264  256
+    08-07 07  0.633  2.12  9.5  -9.4  518025  264  264
+    08-07 08  0.617  2.09  9.3  -8.9  507900  274  265
+    08-07 09  0.618  2.17  9.0  -8.8  497570  275  273
+    08-07 10  0.616  2.20  9.0  -8.3  493855  284  279
+    08-07 11  0.637  2.10  9.1  -7.9  487045  291  286
+    08-07 12  0.619  2.31  8.7  -7.6  475580  285  278
+    08-07 13  0.654  2.09  8.9  -7.7  465295  287  281
+    08-07 14  0.632  2.05  9.3  -8.0  454810  283  285
+    08-07 15  0.512  2.15  9.2  -7.0  443850  294  297
+    08-07 16  0.476  1.97  9.2  -7.9  383785  283  289
+    08-07 17  0.466  1.94  9.6  -9.2  386720  267  265
+    08-07 18  0.448  1.82  9.3  -8.4  400320  275  275
+    08-07 19  0.460  1.97  9.2  -8.2  424300  277  277
+    08-07 20  0.471  1.81  9.3  -8.5  455315  274  275
+    08-07 21  0.447  1.82  9.2  -8.4  491735  274  277
+    08-07 22  0.457  1.86  8.8  -8.8  543260  254  255
+    08-07 23  0.459  2.00  8.4  -8.3  583365  258  260
+  June event (6t: dropped 12-13 June, recovered 20 June)
+  6-12 June                 165  0.654  1.78   5.20   +0.93     606575 3.2
+  13-19 June                168  0.439  1.21   2.85   -1.06     614680 4.9
+  21-27 June                160  0.585  1.44   3.58   +1.67     605698 3.8
+  6-12 June -> 13-19 June: observed 0.672, A4-model 0.882
+  13-19 June -> 21-27 June: observed 1.331, A4-model 1.055
+  total_power by local hour (UTC-10), median over the mission (descriptive: what does the field track?)
+   00:603k  01:602k  02:592k  03:581k  04:571k  05:560k  06:543k  07:519k  08:518k  09:535k  10:563k  11:596k  12:628k  13:638k  14:640k  15:639k  16:639k  17:635k  18:625k  19:612k  20:602k  21:594k  22:588k  23:586k

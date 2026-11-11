@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Structured Settlement Buyout Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find the yearly discount rate a structured settlement buyer is charging: type the payments sold and the cash offered. Runs in your browser; nothing is uploaded.", "featureList": "Implied yearly discount rate, cents on the dollar, value at a fair rate, effect of fees, counter-offer rate table"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the discount rate in a structured settlement offer?", "acceptedAnswer": {"@type": "Answer", "text": "It is the yearly interest rate at which the payments you would sell are worth exactly the cash you would get. Factoring companies earn their profit as the gap between what the payments are worth at a normal rate and the cash they hand over, so a high rate means a big gap. This tool solves for it from the figures in the offer: the payments, their dates and the cash."}}, {"@type": "Question", "name": "Is 15% or 20% a bad rate to be charged?", "acceptedAnswer": {"@type": "Answer", "text": "Compare it with what you could borrow at, since selling payments is a form of borrowing against them. Many sales are priced well above ordinary loan and mortgage rates. This tool does not say whether to sell; it shows the rate so you can compare it with your alternatives and ask other buyers for quotes."}}, {"@type": "Question", "name": "Why do fees change the rate?", "acceptedAnswer": {"@type": "Answer", "text": "Legal and court costs, transfer fees and any amount withheld come out of the cash you actually receive, so the buyer's true return, and your true cost, is computed on the net. Type the fees from the offer and the tool shows the rate on the net as well as the rate on the headline figure."}}, {"@type": "Question", "name": "How do I counter an offer?", "acceptedAnswer": {"@type": "Answer", "text": "The table shows what the same payments are worth at a range of yearly rates. Use it to see which rate your offer corresponds to, then ask for a quote at a lower one, and get quotes from several buyers. Many states require a court to review the sale and some require independent advice; read your own paperwork."}}, {"@type": "Question", "name": "Does this handle life-contingent payments or taxes?", "acceptedAnswer": {"@type": "Answer", "text": "No. It assumes every payment you list is certain to be paid on its date. Payments that stop on death, tax consequences, state rules and the court approval process are not modelled. Confirm anything that matters with a lawyer or tax professional before signing."}}, {"@type": "Question", "name": "Is this financial or legal advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in, with simplified assumptions: monthly payments, an optional yearly step-up, up to two lump sums and effective annual rates. The example figures are placeholders, not a real offer."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -73,10 +111,10 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.fl.length || !a.gross || !a.net) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const verdict = Number.isFinite(a.rate) ? "The buyer earns about " + pct(a.rate) + " a year on this trade. You would receive " + money(a.net) + " for payments that add up to " + money(a.total) + ", which is " + Math.round(a.cents * 100) + " cents on the dollar." : "No yearly rate between -50% and 2000% explains this cash for these payments; check the figures.";
-      h += `<div class="finding"><h4>The rate behind the offer</h4><p>${esc(verdict)}</p>${table(["Measure", "Result"], [["Payments you would sell, undiscounted", money(a.total)], ["Cash offered", money(a.gross)], ["Fees and costs", money(a.fees)], ["Cash you receive", money(a.net)], ["Yearly rate on the net cash", pct(a.rate)], ["Yearly rate on the headline offer, before fees", pct(a.rateGross)], ["Cents on the dollar", pct(a.cents, 0)], ["Average wait for a payment", Number.isFinite(a.avgYears) ? a.avgYears.toFixed(1) + " years" : "n/a"]])}</div>`;
+      h += `<div class="finding"><h3>The rate behind the offer</h3><p>${esc(verdict)}</p>${table(["Measure", "Result"], [["Payments you would sell, undiscounted", money(a.total)], ["Cash offered", money(a.gross)], ["Fees and costs", money(a.fees)], ["Cash you receive", money(a.net)], ["Yearly rate on the net cash", pct(a.rate)], ["Yearly rate on the headline offer, before fees", pct(a.rateGross)], ["Cents on the dollar", pct(a.cents, 0)], ["Average wait for a payment", Number.isFinite(a.avgYears) ? a.avgYears.toFixed(1) + " years" : "n/a"]])}</div>`;
       const fair = a.gap >= 0 ? "At " + a.benchmark + "% the payments are worth " + money(a.pvBench) + ", which is " + money(a.gap) + " more than the cash you would receive." : "At " + a.benchmark + "% the payments are worth " + money(a.pvBench) + ", which is " + money(-a.gap) + " less than the cash you would receive.";
-      h += `<div class="finding"><h4>Against a rate you call fair</h4><p>${esc(fair)}</p></div>`;
-      h += `<div class="finding"><h4>What the same payments fetch at other rates</h4>${table(["Yearly rate", "Worth today", "Cents on the dollar", "Versus your cash"], a.grid.map((g) => [g.rate + "%", money(g.value), pct(g.ofPayments, 0), (g.giveUp >= 0 ? "+" : "") + money(g.giveUp)]))}<p class="note">A positive figure is how much more than your cash a buyer pricing at that rate would pay for the same payments. Use it as a counter-offer range and get quotes from more than one buyer.</p></div>`;
+      h += `<div class="finding"><h3>Against a rate you call fair</h3><p>${esc(fair)}</p></div>`;
+      h += `<div class="finding"><h3>What the same payments fetch at other rates</h3>${table(["Yearly rate", "Worth today", "Cents on the dollar", "Versus your cash"], a.grid.map((g) => [g.rate + "%", money(g.value), pct(g.ofPayments, 0), (g.giveUp >= 0 ? "+" : "") + money(g.giveUp)]))}<p class="note">A positive figure is how much more than your cash a buyer pricing at that rate would pay for the same payments. Use it as a counter-offer range and get quotes from more than one buyer.</p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("analysis_run");

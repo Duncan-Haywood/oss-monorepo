@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pet Sitting Platform Fee Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare what a pet sitter or dog walker keeps per booking on Rover, Wag or another marketplace versus booking clients directly, with break-even direct bookings and the platform price that matches direct take-home. Runs in your browser.", "featureList": "platform vs direct take-home, break-even direct bookings, matching platform price, direct-share table, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does Rover take from sitters?", "acceptedAnswer": {"@type": "Answer", "text": "Rover has charged sitters a service fee of about 20% of each booking, and owners a separate fee on top. Fees change, so type the current figure from your own payout statement into this tool instead of trusting any blog post, including this one."}}, {"@type": "Question", "name": "How much does Wag take from walkers?", "acceptedAnswer": {"@type": "Answer", "text": "Wag has reported a commission on the order of 40% on walks, much higher than a typical sitting marketplace. Check your current terms and type the number you actually see on a payout."}}, {"@type": "Question", "name": "Is booking clients directly really better?", "acceptedAnswer": {"@type": "Answer", "text": "Per booking it usually nets more, because card processing is about 3% instead of 20-40%. But direct clients cost time to find, and software and marketing are monthly costs. The tool shows how many direct bookings a month it takes before the move pays for itself."}}, {"@type": "Question", "name": "Can I move my Rover clients off the platform?", "acceptedAnswer": {"@type": "Answer", "text": "Marketplace terms generally restrict taking clients you met on the platform off it to avoid fees, and you may lose your account. This tool does not tell you what your agreement allows. It is meant for clients you find yourself: neighbours, vet referrals, your own website."}}, {"@type": "Question", "name": "What price should I list on the platform to net what I net direct?", "acceptedAnswer": {"@type": "Answer", "text": "The tool divides your direct take-home by one minus the platform fee. That is the price at which a platform booking pays the same, and it shows how large a raise that would be for your owners."}}, {"@type": "Question", "name": "Is this tax or business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type and ignores income tax and self-employment tax. Check your own records and a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #166534; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #12542b; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #12542b; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #166534; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #166534; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #12542b; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -87,9 +125,9 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const o = a.opts;
-      h += `<div class="finding"><h4>You keep ${money2(a.platformNet)} per platform booking and ${money2(a.directNet)} per direct booking</h4><p>Each booking you move off the platform adds ${money2(a.gainPerDirect)}. ${a.breakEvenOk ? `Direct booking covers its ${money(o.softwareMonthly + o.marketingMonthly)} a month of software and marketing once ${Math.ceil(a.breakEvenDirect)} bookings a month are direct.` : Number.isFinite(a.breakEvenDirect) ? `It would take ${Math.ceil(a.breakEvenDirect)} direct bookings a month to cover the software and marketing, more than the ${o.bookingsPerMonth} you book.` : "Direct booking does not earn more per booking on these figures."}</p></div>`;
-      h += `<div class="finding"><h4>To net the same on the platform, list ${money2(a.matchPrice)}</h4><p>That is ${money2(a.matchRaise)} more than your ${money2(o.price)} price, which the owner would also pay their own platform fee on.</p></div>`;
-      h += `<div class="finding"><h4>By share of bookings that come direct</h4>${table(["Direct share", "Fees paid", "Software and marketing", "Take-home per month", "Per hour"], a.grid.map((g) => [pct(g.share, 0), money(g.fees), money(g.fixed), money(g.net), money2(g.hourly)]))}<p>Your current mix of ${pct(o.directShare, 0)} direct takes home ${money(a.current.net)} a month. All direct instead of all platform is worth ${money(a.annualGain)} a year.</p><p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>You keep ${money2(a.platformNet)} per platform booking and ${money2(a.directNet)} per direct booking</h3><p>Each booking you move off the platform adds ${money2(a.gainPerDirect)}. ${a.breakEvenOk ? `Direct booking covers its ${money(o.softwareMonthly + o.marketingMonthly)} a month of software and marketing once ${Math.ceil(a.breakEvenDirect)} bookings a month are direct.` : Number.isFinite(a.breakEvenDirect) ? `It would take ${Math.ceil(a.breakEvenDirect)} direct bookings a month to cover the software and marketing, more than the ${o.bookingsPerMonth} you book.` : "Direct booking does not earn more per booking on these figures."}</p></div>`;
+      h += `<div class="finding"><h3>To net the same on the platform, list ${money2(a.matchPrice)}</h3><p>That is ${money2(a.matchRaise)} more than your ${money2(o.price)} price, which the owner would also pay their own platform fee on.</p></div>`;
+      h += `<div class="finding"><h3>By share of bookings that come direct</h3>${table(["Direct share", "Fees paid", "Software and marketing", "Take-home per month", "Per hour"], a.grid.map((g) => [pct(g.share, 0), money(g.fees), money(g.fixed), money(g.net), money2(g.hourly)]))}<p>Your current mix of ${pct(o.directShare, 0)} direct takes home ${money(a.current.net)} a month. All direct instead of all platform is worth ${money(a.annualGain)} a year.</p><p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

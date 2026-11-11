@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Brewery Tank Schedule Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Plan which beer to brew when across your fermenters and bright tanks to finish the most margin, with brew-day limits, cleaning turnaround and an upper bound. Runs in your browser.", "featureList": "Tank-by-tank brew schedule, minimum and maximum batches per beer, tank utilisation, gain over brewing in rotation, value of one more tank, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I schedule fermenters and brite tanks in a small brewery?", "acceptedAnswer": {"@type": "Answer", "text": "Treat each batch as two bookings: a fermenter for its fermenting days plus cleaning, then a bright tank for its conditioning days plus cleaning. The plan that earns the most is rarely brewing your beers in rotation, because a long lager blocks a tank that two ales could use. This tool tries many orders of batches and keeps the one that finishes the most margin by the end of the horizon."}}, {"@type": "Question", "name": "Is the schedule guaranteed to be the best possible?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is a search, not a proof. On small cases it is checked against an exhaustive search and matches or comes close. The page also shows an upper bound that no schedule can beat, so you can see how much room is left; the bound is loose because it pools tank days and cannot see that a 30-barrel batch needs a 30-barrel tank."}}, {"@type": "Question", "name": "What does adding a tank do to the plan?", "acceptedAnswer": {"@type": "Answer", "text": "The tool re-plans with one more fermenter and one more bright tank of your largest size and shows the extra margin over the horizon and per year. That is margin, not profit after the tank cost, and it assumes you can sell what the extra tank makes."}}, {"@type": "Question", "name": "Does it know demand, seasonality or what I can sell?", "acceptedAnswer": {"@type": "Answer", "text": "No. Margin per barrel is the number you type, and the only demand control is the minimum and maximum batches per beer. A beer you cannot sell more of should have a maximum."}}, {"@type": "Question", "name": "Is this brewing, food-safety or regulatory advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is scheduling arithmetic on figures you type. Fermentation times, packaging and any licensing, tax or quality questions are yours to confirm."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #b45309; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #753606; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #753606; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #b45309; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #b45309; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #753606; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -191,11 +229,11 @@
       last = a;
       if (a.problems.length) h += `<div class="finding"><span class="pill">Check</span> The plan failed its own feasibility check: ${esc(a.problems.join("; "))}. Do not use it.</div>`;
       const weeks = a.shared.weeks;
-      h += `<div class="finding"><h4>${money(a.value)} of margin finishes in ${weeks} weeks (${Math.round(a.barrels)} barrels, ${a.schedule.length} batches)</h4><p>${a.gain > 0.5 ? `Brewing your beers in rotation finishes ${money(a.naiveValue)}, so this plan is ${money(a.gain)} better over the period, about ${money(a.annualGain)} a year if it repeats.` : "Brewing your beers in rotation does about as well here."} No plan can finish more than ${money(a.bound)}; this one is ${Math.round(a.gapPct)}% below that ceiling, which is loose rather than a promise that the gap is recoverable.</p></div>`;
-      h += `<div class="finding"><h4>Batches by beer</h4>${table(["Beer", "Barrels each", "Batches", "Margin"], a.beers.map((b) => [esc(b.name), b.batchBbl, b.made, money(b.made * b.value)]))}</div>`;
-      h += `<div class="finding"><h4>Brew schedule</h4>${table(["#", "Beer", "Brew day", "Fermenter", "Bright tank", "Ready"], a.schedule.map((r) => [r.n, esc(r.beer), r.brew, r.fermenter + " (" + r.fermenterBbl + " bbl)", r.brite ?? "none", r.ready]))}</div>`;
-      h += `<div class="finding"><h4>Tank use, day by day</h4><p class="note">Each character is a day, from week 1 Monday. A digit is the beer number, ~ is cleaning, . is idle.</p><div class="scroll"><pre>${a.rowsF.map((r, i) => "F" + (i + 1) + " " + String(a.shared.fermenters[i]).padStart(3) + "bbl " + r + "  " + pct(a.fermUtil[i])).concat(a.rowsB.map((r, i) => "B" + (i + 1) + " " + String(a.shared.brites[i]).padStart(3) + "bbl " + r + "  " + pct(a.briteUtil[i]))).join("\n")}</pre></div><p class="note">${a.beers.map((b, i) => (i + 1) + " = " + esc(b.name)).join(", ")}</p></div>`;
-      if (a.scenarios.length) h += `<div class="finding"><h4>What one more tank would add</h4>${table(["Tank", "", "Extra margin in period", "Per year"], a.scenarios.map((s) => [esc(s.label), "", money(s.gain), money(s.annual)]))}<p class="note">Margin before the cost of the tank, assuming everything extra sells at the margin you typed.</p></div>`;
+      h += `<div class="finding"><h3>${money(a.value)} of margin finishes in ${weeks} weeks (${Math.round(a.barrels)} barrels, ${a.schedule.length} batches)</h3><p>${a.gain > 0.5 ? `Brewing your beers in rotation finishes ${money(a.naiveValue)}, so this plan is ${money(a.gain)} better over the period, about ${money(a.annualGain)} a year if it repeats.` : "Brewing your beers in rotation does about as well here."} No plan can finish more than ${money(a.bound)}; this one is ${Math.round(a.gapPct)}% below that ceiling, which is loose rather than a promise that the gap is recoverable.</p></div>`;
+      h += `<div class="finding"><h3>Batches by beer</h3>${table(["Beer", "Barrels each", "Batches", "Margin"], a.beers.map((b) => [esc(b.name), b.batchBbl, b.made, money(b.made * b.value)]))}</div>`;
+      h += `<div class="finding"><h3>Brew schedule</h3>${table(["#", "Beer", "Brew day", "Fermenter", "Bright tank", "Ready"], a.schedule.map((r) => [r.n, esc(r.beer), r.brew, r.fermenter + " (" + r.fermenterBbl + " bbl)", r.brite ?? "none", r.ready]))}</div>`;
+      h += `<div class="finding"><h3>Tank use, day by day</h3><p class="note">Each character is a day, from week 1 Monday. A digit is the beer number, ~ is cleaning, . is idle.</p><div class="scroll"><pre>${a.rowsF.map((r, i) => "F" + (i + 1) + " " + String(a.shared.fermenters[i]).padStart(3) + "bbl " + r + "  " + pct(a.fermUtil[i])).concat(a.rowsB.map((r, i) => "B" + (i + 1) + " " + String(a.shared.brites[i]).padStart(3) + "bbl " + r + "  " + pct(a.briteUtil[i]))).join("\n")}</pre></div><p class="note">${a.beers.map((b, i) => (i + 1) + " = " + esc(b.name)).join(", ")}</p></div>`;
+      if (a.scenarios.length) h += `<div class="finding"><h3>What one more tank would add</h3>${table(["Tank", "", "Extra margin in period", "Per year"], a.scenarios.map((s) => [esc(s.label), "", money(s.gain), money(s.annual)]))}<p class="note">Margin before the cost of the tank, assuming everything extra sells at the margin you typed.</p></div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

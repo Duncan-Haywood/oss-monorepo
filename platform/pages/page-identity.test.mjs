@@ -108,3 +108,21 @@ test('a post with its own title is left alone, and a skipped page does not reser
   ]);
   assert.deepEqual(resolvePostTitleClashes(pages), []);
 });
+
+test('loadPages keeps serial walk order while reading concurrently', async () => {
+  // More pages than the 32 reads in flight, spread over nested directories, so
+  // a finishing order that leaked into the Map would show.
+  const files = {};
+  for (let i = 0; i < 80; i += 1) files[`d${i % 7}/p${i}/${i % 3 ? 'index' : 'other'}.html`] = page(`T${i}`, `<h1>${i}</h1>${'x'.repeat(i * 997)}`);
+  const dir = await mkSite(files);
+  const serial = [];
+  const walk = async (d, prefix) => {
+    for (const e of await fs.readdir(d, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${e.name}` : e.name;
+      if (e.isDirectory()) await walk(path.join(d, e.name), rel);
+      else if (e.name.endsWith('.html')) serial.push([rel, await fs.readFile(path.join(d, e.name), 'utf8')]);
+    }
+  };
+  await walk(dir, '');
+  assert.deepEqual([...(await loadPages(dir)).entries()], serial);
+});

@@ -7,6 +7,8 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { mapLimit } from './share.mjs';
+
 // Pages that are not search landing pages (error and offline shells).
 const SKIP = new Set(['404.html', 'offline.html']);
 
@@ -102,17 +104,23 @@ export async function fixPostTitleClashes(site, { log = () => {} } = {}) {
   return changes;
 }
 
+/** Every .html page under `site`, as a Map of relative path to text, in
+ *  directory-walk order. The walk lists paths first; the reads then run 32 at
+ *  a time (a built site is ~8,500 pages, 1.1 GB), and the Map is filled in
+ *  walk order, so callers see the same keys in the same order as a serial
+ *  read (docs/history/pages-build-perf-2026-11-11-identity-preload-reads.md). */
 export async function loadPages(site) {
-  const pages = new Map();
+  const rels = [];
   async function go(dir, prefix) {
     for (const e of await fs.readdir(dir, { withFileTypes: true })) {
       const rel = prefix ? `${prefix}/${e.name}` : e.name;
       if (e.isDirectory()) await go(path.join(dir, e.name), rel);
-      else if (e.name.endsWith('.html')) pages.set(rel, await fs.readFile(path.join(dir, e.name), 'utf8'));
+      else if (e.name.endsWith('.html')) rels.push(rel);
     }
   }
   await go(site, '');
-  return pages;
+  const texts = await mapLimit(rels, 32, (rel) => fs.readFile(path.join(site, rel), 'utf8'));
+  return new Map(rels.map((rel, i) => [rel, texts[i]]));
 }
 
 const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));

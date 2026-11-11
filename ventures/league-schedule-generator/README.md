@@ -575,7 +575,7 @@ carry-over count 0 or 1.
 - Open: other sizes have no such construction in this code. Known constructions exist for some other
   sizes in the literature (not read here); 12 teams (156 against 120) and 20 teams remain search-only.
 
-## Starter timetables for 6 to 40 teams, and 20 teams at the floor (2026-11-11, latest)
+## Starter timetables for 6 to 40 teams, and 20 teams at the floor (2026-11-11)
 
 The field start covers only power-of-two sizes. Most other even sizes (a bye team included) now get a
 second start, a **starter** timetable, and the search keeps whichever start does better.
@@ -633,62 +633,115 @@ second start, a **starter** timetable, and the search keeps whichever start does
   starter {i, -i}; bad starters and steps refused; 20 and 19 teams at the floor; never worse than the
   circle start alone at 11, 12, 13, 18 and 22 teams, both weights, and on 12- and 20-team seasons);
   `carryover.test.mjs` reads the guide's new figures from the code.
-- Open: the sample was thin past 30 teams; replaced from 22 teams up by the local search below.
+- Open: the sample was thin past 30 teams; replaced from 22 teams up by the two climbs below.
   12 teams is still 152 against 120.
 
-## Starters by local search: 22 teams at the floor (2026-11-11, latest)
+## Climbed starters: 22 teams at the floor, 24 to 40 teams 4 to 13% lower (2026-11-11, later)
 
-The sampled starter table scored each starter with the full O(N^2) count at every step and start, so
-past 30 teams it saw 122 to 289 starters in 20 s. `eval/starter-climb.mjs` replaces it from 22 teams up.
+The starter table above came from random sampling, which past 22 teams saw only a few hundred
+starters per size. `eval/starter-anneal.mjs` climbs instead, and the table in `carryover.mjs`
+(`STARTERS`) now holds its results wherever they are lower.
 
-- **The count collapses to one sequence.** Take step 1 (step k with starter S is the same timetable
-  as step 1 with S / k, up to relabelling the teams). With f(u) the partner of u and f(0) the fixed
-  team, team t meets r + f(t - r) in round r, so over a cyclic timetable the count between two
-  ordinary teams depends only on their difference d:
+- **Two reductions.** The step is a relabelling: starter S with step k is, round for round, the
+  timetable of starter k^-1 S with step 1 with every team t renamed k^-1 t, so the climb runs at step
+  1 only (new entries have step 1). And the cyclic carry-over matrix does not depend on the start; a
+  start only picks which round-to-round transition the season drops, so each starter is scored once
+  and every start is an O(N) correction.
+- **The move.** Remove 3 to 10 random pairs and re-pair the freed residues with the freed differences
+  by randomised backtracking (a large-neighbourhood move that keeps it a starter), accepted by
+  simulated annealing on the least non-cyclic carry-over over every start. Single climbs stall fast
+  (most moves are big steps up), so it restarts every second from a fresh random starter, the first
+  two from the table's entries, and keeps the best. 60 s per size and parity, one process per core.
+- **Measured** (`eval/starter-anneal.txt`; non-cyclic carry-over at the best start, old table ->
+  climbed, floor):
+
+  | Teams | All N play | Floor | With a bye (N - 1 teams) | Floor |
+  |---|---|---|---|---|
+  | 22 | 516 -> **440** (every count 0 or 1) | 440 | 475 -> **399** (every count 0 or 1) | 399 |
+  | 24 | 654 -> 612 | 528 | 609 -> 565 | 483 |
+  | 26 | 762 -> 716 | 624 | 757 -> 667 | 575 |
+  | 28 | 878 -> 828 | 728 | 875 -> 823 | 675 |
+  | 30 | 1,110 -> 1,002 | 840 | 1,053 -> 943 | 783 |
+  | 34 | 1,460 -> 1,274 | 1,088 | 1,455 -> 1,271 | 1,023 |
+  | 36 | 1,620 -> 1,488 | 1,224 | 1,551 -> 1,483 | 1,155 |
+  | 38 | 1,928 -> 1,718 | 1,368 | 1,855 -> 1,645 | 1,295 |
+  | 40 | 2,112 -> 1,890 | 1,520 | 2,035 -> 1,885 | 1,443 |
+
+  10 to 20 teams did not move in 60 s each (sampling had already seen tens of thousands of starters
+  there; 20 was already at the floor). 12 teams stays 156 against 120, so the starter family itself
+  may not reach lower there.
+- **22 teams, and 21, now reach the floor**, cyclic too (462 = 22 x 21, Russell's bound), joining 4, 8,
+  16, 20 and 32. As with 20 I have not compared this with published constructions; the test checks
+  the counts directly (`starter.test.mjs`).
+- The annealing search in `lowCarryOverRounds` runs from this start (and the circle start, keeping the
+  better), so the gains carry into what the page builds. **Through the search** (`node
+  eval/field-start.mjs 21 22 23 24 26 30`, seed 1, effort 1, `eval/starter-anneal-search.txt`;
+  carry-over / breaks, sampled starter -> climbed starter):
+
+  | Teams | Single, carry-over only | Season, carry-over only | Season, weight 10 |
+  |---|---|---|---|
+  | 22 | 516/68 -> 440/66 (floor) | 1,862/154 -> 1,782/148 (floor) | 1,920/150 -> 1,782/144 (floor) |
+  | 24 | 654/76 -> 612/84 | 2,482/248 -> 2,312/194 | 2,488/172 -> 2,488/178 |
+  | 26 | 762/98 -> 716/102 | 2,780/310 -> 2,618/230 | 3,098/208 -> 2,618/230 |
+  | 30 | 1,042/132 (circle) -> 1,002/140 | 3,684/424, unchanged (circle) | 3,726/278 -> 3,838/300 |
+
+  With carry-over only, every size moved down or held. With a break weight, two got worse: 24-team
+  season +6 breaks at the same carry-over, and 30 teams (single 1,110/126 -> 1,154/122, score 2,370 to
+  2,374; season score 6,506 -> 6,838). The climbed starters were chosen on carry-over alone, and
+  `bestStarterOpp` picks the start by carry-over first, so a lower-carry-over start can leave the
+  break pass a worse pattern. Open: pick the start (or keep a second starter) by carry-over + weight x
+  breaks when a weight is set.
+- Open: 24 to 40 teams are still 16 to 28% above the floor; longer runs keep finding small gains, so the
+  table is a measurement of 60 s, not a limit. The previous section's 10,000-sample scratch run
+  reported 24 teams 570, below the climb's 612 with all 24 playing (570 is close to the climb's 565
+  with a bye, so it may have been that entry; that run was not kept), so at 24 the climb may not yet
+  beat long sampling. A faster exact score (O(p) per starter from the
+  difference counts) would let the climb try far more moves.
+
+## An O(p) starter score, and climbed starters at 24 to 40 teams (2026-11-11, latest)
+
+The climb above scores every move with the full carry-over count. `eval/starter-climb.mjs` (written
+in parallel, PR #14821) scores a starter in one pass over p numbers instead, so a 40 s run makes 2 to
+10 million moves past 22 teams. Its entries replace the annealed ones wherever they are lower.
+
+- **The count collapses to one sequence.** At step 1 (any step is a relabelling, as above), with
+  f(u) the partner of u and f(0) the fixed team, team t meets r + f(t - r) in round r, so over a
+  cyclic timetable the count between two ordinary teams depends only on their difference d:
   D(d) = #{u not 0, 1 : f(u - 1) + 1 - f(u) = d (mod p)} + [d = 1] (the fixed team; with it as the
   bye, that term is the jump over the bye round, [f(-1) + 2 - f(1) = d]). The cyclic carry-over is
   p x sum D(d)^2 + 2p (all N play) or p x sum D(d)^2 (bye), and the floor is D(d) = 1 for every d.
-  An O(p) score. The script checks it against `carryOverFromOpponents` on every result;
-  `starter.test.mjs` checks it on every built-in starter at its stored step.
-- **Search.** Random starters, then large-neighbourhood moves: free 2 to 5 pairs, try every re-pairing
-  of their residues that uses each freed difference class once (backtracking, up to 2,000), keep the
-  best when no worse, restart after a stall of 400 + 40p moves. The best cyclic candidates (up to 40)
-  are then scored exactly, non-cyclic, at every start. 40 s per size and parity, 2 to 10 million
-  moves past 22 teams (`eval/starter-climb.txt`).
-- **Starter alone, one round robin, best start** (before = the sampled table):
+  The script checks it against `carryOverFromOpponents` on every result; `starter.test.mjs` checks it
+  on every built-in starter at its stored step.
+- **Search.** Random starters, then moves that free 2 to 5 pairs and try every re-pairing of their
+  residues that uses each freed difference once (backtracking, up to 2,000), keeping the best when
+  no worse; restart after 400 + 40p moves without a gain. Up to 40 of the best cyclic candidates are
+  then scored exactly, non-cyclic, at every start. 40 s per size and parity (`eval/starter-climb.txt`).
+- **Against the annealed table** (non-cyclic carry-over at the best start; `starter.test.mjs` pins
+  the kept values):
 
-  | Teams | 21 (bye) | 22 | 24 | 26 | 28 | 30 | 34 | 36 | 38 | 40 |
-  |---|---|---|---|---|---|---|---|---|---|---|
-  | Before | 475 | 516 | 654 | 762 | 878 | 1,110 | 1,460 | 1,620 | 1,928 | 2,112 |
-  | Now | **399** | **440** | 570 | 716 | 828 | 948 | 1,274 | 1,422 | 1,648 | 1,816 |
-  | Floor | 399 | 440 | 528 | 624 | 728 | 840 | 1,088 | 1,224 | 1,368 | 1,520 |
+  | Teams | 24 | 26 (bye) | 30 | 29 (bye) | 34 (bye) | 36 | 35 (bye) | 38 | 37 (bye) | 40 | 39 (bye) |
+  |---|---|---|---|---|---|---|---|---|---|---|---|
+  | Annealed | 612 | 667 | 1,002 | 943 | 1,271 | 1,488 | 1,483 | 1,718 | 1,645 | 1,890 | 1,885 |
+  | Climbed (kept) | **570** | **665** | **948** | **891** | **1,269** | **1,422** | **1,419** | **1,648** | **1,575** | **1,816** | **1,813** |
+  | Floor | 528 | 575 | 840 | 783 | 1,023 | 1,224 | 1,155 | 1,368 | 1,295 | 1,520 | 1,443 |
 
-  22 teams and 21 have every count 0 or 1, cyclic too (462 = 22 x 21). Not checked against published
-  constructions; the tests count it. Below 22 nothing moved in 40 s (6, 10, 12, 14, 18 teams kept the
-  sampled values), so their floors probably need something other than a starter.
-- **End to end** (`node eval/field-start.mjs 21 22 23 24 25 26 28 30`, seed 1, effort 1, the search
-  from both starts, the better kept; `eval/starter-climb-start.txt`; carry-over / breaks, before -> now):
+  The other entries tie (22 and 21 at the floor in both; 23, 26, 27, 28, 34 with all playing), and the
+  annealed entry is kept there. Below 22, 40 s and millions of moves left 6, 10, 12, 14 and 18 teams
+  where sampling had them.
+- **Through the search** (`node eval/field-start.mjs 21 22 23 24 25 26 28 30`, seed 1, effort 1,
+  `eval/starter-climb-start.txt`; carry-over / breaks, annealed table -> merged table):
 
-  | Teams | Single, carry-over only | Season, carry-over only | Season, weight 10 | Floors |
+  | Teams | Single, carry-over only | Single, weight 10 | Season, carry-over only | Season, weight 10 |
   |---|---|---|---|---|
-  | 21 | 475/90 -> 399/104 (floor) | 1,867/305 -> 1,617/216 (floor) | 1,919/162 -> 1,891/171 | 399, 1,617 |
-  | 22 | 516/68 -> 440/66 (floor) | 1,862/154 -> 1,782/148 (floor) | 1,920/150 -> 1,782/144 (floor) | 440, 1,782 |
-  | 23 | 609/125 -> 565/127 | 2,271/317 -> 2,207/338 | 2,407/213 -> 2,381/211 | 483, 1,955 |
-  | 24 | 654/76 -> 570/66 | 2,482/248 -> 2,222/218 | 2,488/172 -> 2,224/154 | 528, 2,136 |
-  | 25 | 749/160 -> 665/164 | 2,773/438 -> 2,631/351 | 2,791/285 -> 2,813/272 | 575, 2,325 |
-  | 26 | 762/98 -> 716/100 | 2,780/310 -> 2,708/256 | 3,098/208 -> 2,714/218 | 624, 2,522 |
-  | 28 | 878/114 -> 828/126 | 3,252/254 -> 3,148/270 | 3,252/254 -> 3,148/270 | 728, 2,940 |
-  | 30 | 1,042/132 -> 948/136 | 3,684/424 -> 3,614/288 | 3,726/278 -> 3,624/288 | 840, 3,390 |
+  | 24 | 612/84 -> 570/66 | 612/84 -> 570/66 | 2,312/194 -> 2,222/218 | 2,488/178 -> 2,224/154 |
+  | 30 | 1,002/140 -> 948/136 | 1,154/122 (circle) -> 948/136 | 3,684/424 (circle) -> 3,614/288 | 3,838/300 -> 3,624/288 |
 
-  Every row's score (carry-over + weight x breaks) is lower or equal; at 25 teams, weight 10, the
-  carry-over rises by 22 and breaks fall by 13. At 30 teams the starter start now beats the circle
-  start (it lost before). The single, weight-10 column matches the carry-over-only one at every size
-  here: the starter's breaks already win.
-- Tests: `starter.test.mjs` adds the O(p) score against the full count on every built-in starter, and
-  22 and 21 teams at the floor (starter, single search and home-and-away season).
-- Open: 24 to 40 teams are 8 to 21% above the floor; a longer run, a tabu list, or seeding from the
-  literature's constructions (Anderson's starters, the even-size terraces) might close more. Whether a
-  starter can reach the floor at 24 is not known to me; the search's best is sum D^2 = 24 against 22.
+  21, 22, 23 and 26 are unchanged. This also clears both break-weight regressions noted above: the
+  24-team season at weight 10 scores 3,764 (was 4,268 annealed, 4,208 sampled), and 30 teams 2,308 single
+  (was 2,374) and 6,504 season (was 6,838 annealed, 6,506 sampled). 25 and 28 teams, first measured
+  here: 665/164 and 828/114 single; seasons 2,631/351 and 3,146/270.
+- Open: 24 to 40 teams are still 8 to 21% above the floor. At 24 the best cyclic sum D^2 found is 24
+  against 22; whether a 24-team starter can reach the floor is not known to me.
 
 ## Several divisions on shared courts (`divisions.mjs`)
 

@@ -1,0 +1,20 @@
+# Room-by-room HVAC load calculator
+
+> Free, open-source heating and cooling load calculator for houses. Enter rooms with their outside walls (direction, length, window and door area), the attic, the floor (slab edge or crawl), insulation, window U and SHGC, blower-door ACH50 and ventilation; it returns each room's heating Btu/h, cooling Btu/h with its peak hour, latent load and airflow, and the whole-house heating load, cooling tons and design cfm. Cooling runs a 24-hour clear July design day from sun position, so the house peak is less than the sum of room peaks. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates from an open first-principles method, not engineering advice and not an ACCA Manual J report; many permits need a report from approved software.
+
+## Pages
+
+- [The tool](https://marisstella.app/hvac-load-calc/)
+- [How the load is worked out, with formulas and a worked example](https://marisstella.app/hvac-load-calc/how-it-works.html)
+
+## Inputs
+
+- Site: latitude, elevation, winter and summer design temperatures, daily range, summer design dew point, indoor set points.
+- Shell: wall cavity and continuous R, stud depth, wall colour and type, attic R, roof colour, crawl floor R, slab F-factor, window U and SHGC, interior shades, door U, ACH50 and N factor, ventilation cfm and recovery, duct loss and gain percentages, supply ΔT.
+- Rooms: floor area, ceiling height, attic above, floor type, slab perimeter, people, appliance Btu/h, outside walls.
+
+## Source
+
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc): MIT licensed. `node cli.mjs house.json` or `node cli.mjs --example --json`.

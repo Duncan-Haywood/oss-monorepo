@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Daily Prep Quantity Optimizer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Find how many units of each perishable item to prep each day from your past sales, treating sell-out days correctly. Runs in your browser.", "featureList": "Profit-maximising prep per item, sell-out aware demand estimate, leftover waste cost, oven-minute and cash limits, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How many croissants, loaves or dishes should I prep each day?", "acceptedAnswer": {"@type": "Answer", "text": "Prep up to the point where the next unit is no longer worth making: the chance it sells times the profit from selling it must still beat the loss if it is left over. This is the newsvendor rule. The tool applies it unit by unit to your own daily sales, so a high-margin item that rarely sells out gets a generous prep and a low-margin one gets a lean prep."}}, {"@type": "Question", "name": "Why mark the days I sold out with a plus sign?", "acceptedAnswer": {"@type": "Answer", "text": "On a sell-out day you only learn that demand was at least what you sold. Treating it as the true demand makes you under-prep forever. The tool treats such a day as a lower bound and re-estimates the demand curve with the Kaplan-Meier method used in survival analysis."}}, {"@type": "Question", "name": "What if a limit like oven time or cash binds?", "acceptedAnswer": {"@type": "Answer", "text": "Set the minutes or the cash. The tool ranks every extra unit by profit per share of the limit and takes the best first, so scarce oven time goes to the items that earn the most from it. With a limit the plan is a ranking heuristic, close to best but not guaranteed exact."}}, {"@type": "Question", "name": "Does it know about weekdays, weather or events?", "acceptedAnswer": {"@type": "Answer", "text": "No. It uses the days you paste. For a Saturday plan paste only Saturdays. Seasonality, promotions, weather and events are yours to adjust for."}}, {"@type": "Question", "name": "Is this food-safety, accounting or business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Food-safety holding times, discount rules and donation programs vary; check with your local authority and a qualified advisor."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #b45309; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #753606; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #753606; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #b45309; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #b45309; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #753606; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -187,9 +225,9 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const vs = a.hasCurrent ? ` Against your current prep that is ${a.dayGain > 0.5 ? money(a.dayGain) + " a day better, about " + money(a.monthGain) + " a month" : "no better"}, and leftover cost goes from ${money(a.curWaste)} to ${money(a.bestWaste)} a day.` : "";
-      h += `<div class="finding"><h4>Best plan: ${money(a.bestProfit)} expected profit a day</h4><p>Expected leftover cost is ${money(a.bestWaste)} a day.${vs}</p></div>`;
-      h += `<div class="finding"><h4>Prep by item</h4>${table(["Item", "Prep", "Expected sold", "Expected leftover", "Chance of selling out", "Expected profit", "Your prep"], a.rows.map((r) => [esc(r.name), r.best.prep, one(r.best.sold), one(r.best.left), Math.round(r.best.pSellOut * 100) + "%", money(r.best.profit), r.current ? r.current.prep + " (" + money(r.current.profit) + ")" : ""]))}</div>`;
-      if (a.limited) h += `<div class="finding"><h4>Your limits</h4><p>The plan uses ${one(a.usedMinutes)} prep minutes and ${money(a.usedBudget)} of ingredients.${a.blocked && a.shadow > 0 ? " A limit is holding the plan back: the next unit it could not fit earns about " + money2(a.shadow) + " per whole limit used. Extra oven time or cash is worth having." : " No limit is holding the plan back."}</p></div>`;
+      h += `<div class="finding"><h3>Best plan: ${money(a.bestProfit)} expected profit a day</h3><p>Expected leftover cost is ${money(a.bestWaste)} a day.${vs}</p></div>`;
+      h += `<div class="finding"><h3>Prep by item</h3>${table(["Item", "Prep", "Expected sold", "Expected leftover", "Chance of selling out", "Expected profit", "Your prep"], a.rows.map((r) => [esc(r.name), r.best.prep, one(r.best.sold), one(r.best.left), Math.round(r.best.pSellOut * 100) + "%", money(r.best.profit), r.current ? r.current.prep + " (" + money(r.current.profit) + ")" : ""]))}</div>`;
+      if (a.limited) h += `<div class="finding"><h3>Your limits</h3><p>The plan uses ${one(a.usedMinutes)} prep minutes and ${money(a.usedBudget)} of ingredients.${a.blocked && a.shadow > 0 ? " A limit is holding the plan back: the next unit it could not fit earns about " + money2(a.shadow) + " per whole limit used. Extra oven time or cash is worth having." : " No limit is holding the plan back."}</p></div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

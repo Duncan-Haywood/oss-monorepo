@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Mosquito Control Program Pricing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Work out the minimum price per visit and per season for a mosquito barrier spray program after product, labour, drive time, free re-treats, overhead and prepay discounts, plus customer lifetime value and break-even customers."}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should I charge for mosquito control?", "acceptedAnswer": {"@type": "Answer", "text": "Work up from your cost per visit: product for the yard, the applicator's time on site and driving, truck cost, free re-treats, then overhead and card fees as a share of price. Divide the direct cost by one minus those percentages and your wanted margin. This tool shows that minimum price per visit and for a prepaid season."}}, {"@type": "Question", "name": "Why does the prepay discount matter?", "acceptedAnswer": {"@type": "Answer", "text": "A discount comes straight off your margin because the costs do not fall. If you give 8% off to get paid up front, the list price has to be about 8% higher than the pay-per-visit minimum to keep the same margin. The tool shows both."}}, {"@type": "Question", "name": "What are free re-treats costing me?", "acceptedAnswer": {"@type": "Answer", "text": "Every visit you redo after rain costs product and a trip. The tool adds your re-treat share to the direct cost of every visit, so a bad weather season shows up as a lower margin before you sign the program."}}, {"@type": "Question", "name": "How many customers do I need to cover startup costs?", "acceptedAnswer": {"@type": "Answer", "text": "Divide the startup cost by the profit per season-program customer. The tool also shows how many customers one truck can serve from your stops per day, days a week and season length."}}, {"@type": "Question", "name": "Is this legal or business advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type. Pesticide applicator licences, product labels, local limits and insurance requirements vary; check yours and use a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -107,12 +145,12 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result, v = r.visit, o = a.opts, s = r.season;
-      h += `<div class="finding"><h4>Charge at least ${money2(r.minPrice)} per visit, or ${money2(r.minListPrice)} per visit on a prepaid season</h4><p>That leaves ${pct(o.wantPct)} margin. At your ${money2(o.visitPrice)} you keep ${money2(v.profit)} a visit (${pct(v.margin)}). The season program collects ${money(s.paid)} after the ${pct(o.prepayDiscountPct)} prepay discount and earns ${money(s.profit)} (${pct(s.margin)}).</p><p><button type="button" class="secondary" id="csv">Download CSV</button></p></div>`;
-      h += `<div class="finding"><h4>Where one visit's money goes</h4>${table(["Line", "Amount"], [["Price", money2(v.price)], ["Product", money2(v.product)], ["Applicator time", money2(v.labor)], ["Truck and sprayer", money2(v.truck)], ["Free re-treats", money2(v.callback)], ["Overhead and card fees", money2(v.fees)], ["Profit", money2(v.profit)]])}</div>`;
-      h += `<div class="finding"><h4>If you charge more or less</h4>${table(["Price per visit", "Profit per visit", "Margin", "Season paid", "Season profit"], r.ladder.map((x) => [money(x.price), money2(x.visitProfit), pct(x.visitMargin), money(x.seasonPaid), money(x.seasonProfit)]))}</div>`;
+      h += `<div class="finding"><h3>Charge at least ${money2(r.minPrice)} per visit, or ${money2(r.minListPrice)} per visit on a prepaid season</h3><p>That leaves ${pct(o.wantPct)} margin. At your ${money2(o.visitPrice)} you keep ${money2(v.profit)} a visit (${pct(v.margin)}). The season program collects ${money(s.paid)} after the ${pct(o.prepayDiscountPct)} prepay discount and earns ${money(s.profit)} (${pct(s.margin)}).</p><p><button type="button" class="secondary" id="csv">Download CSV</button></p></div>`;
+      h += `<div class="finding"><h3>Where one visit's money goes</h3>${table(["Line", "Amount"], [["Price", money2(v.price)], ["Product", money2(v.product)], ["Applicator time", money2(v.labor)], ["Truck and sprayer", money2(v.truck)], ["Free re-treats", money2(v.callback)], ["Overhead and card fees", money2(v.fees)], ["Profit", money2(v.profit)]])}</div>`;
+      h += `<div class="finding"><h3>If you charge more or less</h3>${table(["Price per visit", "Profit per visit", "Margin", "Season paid", "Season profit"], r.ladder.map((x) => [money(x.price), money2(x.visitProfit), pct(x.visitMargin), money(x.seasonPaid), money(x.seasonProfit)]))}</div>`;
       const l = r.lifetime, t = r.route;
-      h += `<div class="finding"><h4>What a customer and a truck are worth</h4><p>With ${pct(o.renewPct)} renewing, a customer stays about ${l.expectedSeasons.toFixed(1)} seasons and earns ${money(l.value)} in profit on ${money(l.revenue)} of revenue. A full route day brings in ${money(t.dayRevenue)} and ${money(t.dayProfit)} of profit. One truck can serve about ${Math.floor(t.customers)} program customers a season, worth ${money(t.seasonProfit)}. ${Number.isFinite(t.breakEvenCustomers) ? `You need ${t.breakEvenCustomers} customers to cover the ${money(o.startupCost)} startup cost.` : "At these prices a season loses money, so startup cost is never recovered."}</p></div>`;
-      h += `<div class="finding"><h4>What one worse number costs per customer-season</h4>${table(["If this happens", "Change in season profit"], r.sensitivity.map((x) => [esc(x.label), money(x.delta)]))}</div>`;
+      h += `<div class="finding"><h3>What a customer and a truck are worth</h3><p>With ${pct(o.renewPct)} renewing, a customer stays about ${l.expectedSeasons.toFixed(1)} seasons and earns ${money(l.value)} in profit on ${money(l.revenue)} of revenue. A full route day brings in ${money(t.dayRevenue)} and ${money(t.dayProfit)} of profit. One truck can serve about ${Math.floor(t.customers)} program customers a season, worth ${money(t.seasonProfit)}. ${Number.isFinite(t.breakEvenCustomers) ? `You need ${t.breakEvenCustomers} customers to cover the ${money(o.startupCost)} startup cost.` : "At these prices a season loses money, so startup cost is never recovered."}</p></div>`;
+      h += `<div class="finding"><h3>What one worse number costs per customer-season</h3>${table(["If this happens", "Change in season profit"], r.sensitivity.map((x) => [esc(x.label), money(x.delta)]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

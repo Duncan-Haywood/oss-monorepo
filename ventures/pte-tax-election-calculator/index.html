@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"PTE Tax Election Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Estimate whether a state pass-through entity tax (PTET) election saves federal tax for an S corporation or partnership owner, with the SALT cap phase-out, the lower AGI, the credit and the lost 20% pass-through deduction. Runs in your browser; nothing is uploaded.","featureList":"Federal and state tax with and without a PTET election, SALT cap phase-out, QBI deduction effect, first income at which the election pays, sensitivity grid"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does a PTET election always save federal tax?","acceptedAnswer":{"@type":"Answer","text":"No. It only helps when your state and local taxes already exceed the SALT deduction cap. If they fit under the cap, moving the state tax to the entity changes nothing except a smaller 20% pass-through deduction, and the election costs you money. The calculator shows which side you are on and the income at which it starts to pay."}},{"@type":"Question","name":"How does a pass-through entity tax election work?","acceptedAnswer":{"@type":"Answer","text":"The partnership or S corporation pays state income tax itself, deducts it in computing the income that flows to you, and the state gives you a credit or exclusion so you are not taxed again on the same income. Because the deduction is taken at the entity, it is not subject to the personal SALT cap."}},{"@type":"Question","name":"Why does the election lower my AGI and raise my cap?","acceptedAnswer":{"@type":"Answer","text":"The entity-level deduction reduces the income reported to you. The SALT cap phases out as income rises, so lower income means a higher cap, which can restore some deduction for your other state and local taxes. The calculator includes that effect."}},{"@type":"Question","name":"Why does it reduce my 20% pass-through deduction?","acceptedAnswer":{"@type":"Answer","text":"The qualified business income deduction is a percentage of the business income that reaches your return. A PTET payment deducted at the entity lowers that income, so the deduction base shrinks. The calculator shows the lost deduction as its own line."}},{"@type":"Question","name":"Is this tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the numbers you type in, with one flat federal rate. State rules differ on who may elect, the rate, the credit, the payment deadline and whether the election is binding, so confirm with a tax professional before electing. The defaults are placeholders."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1d4ed8; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #173da9; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #173da9; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1d4ed8; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4ed8; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #173da9; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -101,12 +139,12 @@
       if (!(o.pteIncome > 0) || !(o.pteRatePct > 0) || !(o.fedRatePct > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Enter pass-through income, a PTET rate and a federal rate above zero.</div>'; $("out").hidden = false; return; }
       const c = compare(o);
       let h = "";
-      h += `<div class="finding"><h4>${c.helps ? "The election saves" : "The election costs"}</h4><p class="stats"><strong>${money(Math.abs(c.savings))}</strong> a year on these numbers. Federal tax ${c.federalSavings >= 0 ? "falls" : "rises"} by ${money(Math.abs(c.federalSavings))}; your state bill ${Math.abs(c.stateChange) < 1 ? "does not change" : (c.stateChange > 0 ? "rises by " : "falls by ") + money(Math.abs(c.stateChange))}.</p></div>`;
-      h += `<div class="finding"><h4>Why</h4>${table(["Effect on federal tax", "Amount"], [["State tax moved to the entity: itemized deduction change", money(c.parts.deductionChange)], ["Lower AGI (income reported to you falls by the PTET payment)", money(c.parts.agiDrop)], ["Smaller 20% pass-through deduction", money(c.parts.qbiLoss)]])}<p class="note">Positive is tax saved. Without the election, ${money(c.no.saltStuck)} of your state and local tax sits above the cap and earns no deduction; with it, ${money(c.yes.saltStuck)}. Your cap is ${money(c.no.cap)} without the election and ${money(c.yes.cap)} with it.${c.yes.wastedCredit > 0 ? ` The state credit exceeds your personal tax on this income by ${money(c.yes.wastedCredit)}, which this assumes is lost.` : ""}</p></div>`;
+      h += `<div class="finding"><h3>${c.helps ? "The election saves" : "The election costs"}</h3><p class="stats"><strong>${money(Math.abs(c.savings))}</strong> a year on these numbers. Federal tax ${c.federalSavings >= 0 ? "falls" : "rises"} by ${money(Math.abs(c.federalSavings))}; your state bill ${Math.abs(c.stateChange) < 1 ? "does not change" : (c.stateChange > 0 ? "rises by " : "falls by ") + money(Math.abs(c.stateChange))}.</p></div>`;
+      h += `<div class="finding"><h3>Why</h3>${table(["Effect on federal tax", "Amount"], [["State tax moved to the entity: itemized deduction change", money(c.parts.deductionChange)], ["Lower AGI (income reported to you falls by the PTET payment)", money(c.parts.agiDrop)], ["Smaller 20% pass-through deduction", money(c.parts.qbiLoss)]])}<p class="note">Positive is tax saved. Without the election, ${money(c.no.saltStuck)} of your state and local tax sits above the cap and earns no deduction; with it, ${money(c.yes.saltStuck)}. Your cap is ${money(c.no.cap)} without the election and ${money(c.yes.cap)} with it.${c.yes.wastedCredit > 0 ? ` The state credit exceeds your personal tax on this income by ${money(c.yes.wastedCredit)}, which this assumes is lost.` : ""}</p></div>`;
       const x = firstPayingIncome(o);
-      h += `<div class="finding"><h4>Where it starts to pay</h4><p>${x === null ? "On these settings the election does not pay at any income up to $5 million." : `Holding everything else fixed, the election first saves tax at about <strong>${money(x)}</strong> of pass-through income. Below that, your state and local tax fits under the cap and the election only shrinks your 20% deduction.`}</p></div>`;
+      h += `<div class="finding"><h3>Where it starts to pay</h3><p>${x === null ? "On these settings the election does not pay at any income up to $5 million." : `Holding everything else fixed, the election first saves tax at about <strong>${money(x)}</strong> of pass-through income. Below that, your state and local tax fits under the cap and the election only shrinks your 20% deduction.`}</p></div>`;
       const g = sensitivity(o);
-      h += `<div class="finding"><h4>Yearly saving by income and federal rate</h4>${table(["Pass-through income \\ Federal rate", ...g[0].cells.map((x) => x.rate + "%")], g.map((r) => [money(r.income), ...r.cells.map((x) => money(x.savings))]))}<p class="note">Negative means the election costs money.</p></div>`;
+      h += `<div class="finding"><h3>Yearly saving by income and federal rate</h3>${table(["Pass-through income \\ Federal rate", ...g[0].cells.map((x) => x.rate + "%")], g.map((r) => [money(r.income), ...r.cells.map((x) => money(x.savings))]))}<p class="note">Negative means the election costs money.</p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("compare_run");

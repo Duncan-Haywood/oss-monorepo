@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Film Tax Credit Net Value Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Turn a film or TV production tax credit into the net cash it really puts in the budget: qualified spend, cap and minimum, sale discount, fees, bridge-loan interest and the wait, plus sensitivity grids. Runs in your browser; nothing is uploaded.","featureList":"Net cash from a production tax credit, sale or transfer discount, bridge-loan interest, time value, marginal value of qualified spend, break-even qualified share, sale price by qualified share grid, wait-time sensitivity"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does a film tax credit actually put into my budget?","acceptedAnswer":{"@type":"Answer","text":"Less than its face value. The credit is paid on qualified spend only, may be capped, often arrives months after wrap, and is frequently sold or transferred at a discount to someone who can use it. Enter your programme's rate, your qualified share of the budget, the cents on the dollar you expect, the fees and the wait, and the tool shows the net cash and what it is worth in today's money."}},{"@type":"Question","name":"What counts as qualified spend?","acceptedAnswer":{"@type":"Answer","text":"That is defined by your incentive programme, not by this tool. Many programmes count only spend inside their territory and exclude some above-the-line fees or out-of-area costs. Type the share of your budget your programme or its auditor says qualifies, and use the grid to see how much the answer moves if that share is 10 points higher or lower."}},{"@type":"Question","name":"How do I find the sale price of a credit?","acceptedAnswer":{"@type":"Answer","text":"Ask the credit broker or your production accountant for current indications, and treat the sale price as a range. The grid shows the net cash at five sale prices and five qualified-spend shares so you can see what a bid is worth before you accept it."}},{"@type":"Question","name":"What is the marginal value of one more qualified dollar?","acceptedAnswer":{"@type":"Answer","text":"It is how many cents of net cash one extra dollar of qualified spend brings into the budget, found by re-running the model with a little more spend. It reads zero when a cap binds and can be far below the headline rate once the sale discount and fees are taken out, which is why moving a shoot day in-territory is rarely worth the headline rate."}},{"@type":"Question","name":"Does this tool know my state's or country's programme?","acceptedAnswer":{"@type":"Answer","text":"No. It embeds no programme, rate table or eligibility rule, because those change and a stale one would be worse than none. You type the numbers from the current guidelines, and the tool does the arithmetic and the sensitivities."}},{"@type":"Question","name":"Is this tax, legal or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type, with simplified assumptions: one rate, one cap, one minimum, one sale price and a single payment date. It does not decide whether your production qualifies and is not an audit. Confirm eligibility and the numbers with your programme office, production accountant or tax adviser."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #7c2d12; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #7c2d12; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #7c2d12; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #7c2d12; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #7c2d12; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #7c2d12; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -99,10 +137,10 @@
       const verdict = r.granted > 0
         ? "A credit of " + money(r.granted) + " (" + pct(r.grantedPctBudget) + " of budget) puts " + money(r.received) + " into the budget, " + pct(r.netPctBudget) + " of budget and " + (r.centsPerCredit * 100).toFixed(0) + " cents per credit dollar. Worth " + money(r.netPv) + " in today's money after a " + r.years.toFixed(1) + " year wait."
         : "At these inputs the model pays no credit.";
-      h += `<div class="finding"><h4>Face value against what you keep</h4><p>${esc(verdict)}</p>${table(["Step", "Amount"], a.rows.map(([k, v]) => [k, money(v)]))}</div>`;
-      if (Number.isFinite(a.marginal)) h += `<div class="finding"><h4>What one more qualified dollar is worth</h4><p>An extra dollar of qualified spend brings ${(a.marginal * 100).toFixed(1)} cents of net cash into the budget, against a headline base rate of ${o.baseRatePct}%.${a.breakEvenPct === null ? " The credit never covers its fees at these inputs." : " The programme starts paying once about " + a.breakEvenPct.toFixed(1) + "% of the budget is qualified."}</p></div>`;
-      h += `<div class="finding"><h4>Net cash by qualified share and sale price</h4>${table(["Qualified share", ...a.prices.map((p) => p + "¢ sale")], a.grid.map((g) => [g.share + "%", ...g.values.map(money)]))}</div>`;
-      h += `<div class="finding"><h4>What waiting costs</h4>${table(["Months to cash", "Net cash", "Worth today"], a.waits.map((w) => [w.months, money(w.received), money(w.netPv)]))}</div>`;
+      h += `<div class="finding"><h3>Face value against what you keep</h3><p>${esc(verdict)}</p>${table(["Step", "Amount"], a.rows.map(([k, v]) => [k, money(v)]))}</div>`;
+      if (Number.isFinite(a.marginal)) h += `<div class="finding"><h3>What one more qualified dollar is worth</h3><p>An extra dollar of qualified spend brings ${(a.marginal * 100).toFixed(1)} cents of net cash into the budget, against a headline base rate of ${o.baseRatePct}%.${a.breakEvenPct === null ? " The credit never covers its fees at these inputs." : " The programme starts paying once about " + a.breakEvenPct.toFixed(1) + "% of the budget is qualified."}</p></div>`;
+      h += `<div class="finding"><h3>Net cash by qualified share and sale price</h3>${table(["Qualified share", ...a.prices.map((p) => p + "¢ sale")], a.grid.map((g) => [g.share + "%", ...g.values.map(money)]))}</div>`;
+      h += `<div class="finding"><h3>What waiting costs</h3>${table(["Months to cash", "Net cash", "Worth today"], a.waits.map((w) => [w.months, money(w.received), money(w.netPv)]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       record("analysis_run");

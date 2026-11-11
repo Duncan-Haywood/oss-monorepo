@@ -111,14 +111,24 @@ def recent_programme_commits(slug, hours=6):
 
 
 @functools.lru_cache(maxsize=None)
-def _open_pr_titles(repo, limit):
-    """[(number, title)] of open PRs; fetched once per process (best effort; [] on any error)."""
+def _open_pr_titles(repo, limit, pages=10):
+    """[(number, title)] of open PRs, fetched once per process; None when the API could not be read.
+
+    Pages through the list: the first page alone (100) missed PRs once 91+ were open
+    (2026-11-11). None, not [], on an error, so the CLI can say the check did not run
+    instead of printing nothing, which reads as "no claim" (friction 2026-11-11)."""
+    found = []
     try:
-        url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page={limit}"
-        with urllib.request.urlopen(url, timeout=15) as r:
-            return [(p["number"], p.get("title", "")) for p in json.load(r)]
+        for page in range(1, pages + 1):
+            url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page={limit}&page={page}"
+            with urllib.request.urlopen(url, timeout=15) as r:
+                batch = json.load(r)
+            found += [(p["number"], p.get("title", "")) for p in batch]
+            if len(batch) < limit:
+                break
     except Exception:
-        return []
+        return None
+    return found
 
 
 def open_prs_for(slug, repo="duncan-haywood/oss-monorepo", limit=100):
@@ -127,7 +137,44 @@ def open_prs_for(slug, repo="duncan-haywood/oss-monorepo", limit=100):
     The commit check cannot see a sibling that has not merged yet: two runs drew the same
     programme milestone and one trained for 2 hours before the other landed (friction
     2026-10-25). Unauthenticated REST works from cloud sessions for this public repo."""
-    return [f"#{n} {t}" for n, t in _open_pr_titles(repo, limit) if slug in t]
+    return [f"#{n} {t}" for n, t in (_open_pr_titles(repo, limit) or []) if slug in t]
+
+
+def origin_main_age_hours():
+    """Hours since origin/main's tip was committed, or None when origin/main is unknown."""
+    out = subprocess.run(["git", "log", "origin/main", "-1", "--format=%ct"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    try:
+        return (time.time() - int(out.stdout.strip())) / 3600
+    except ValueError:
+        return None
+
+
+def claim_check(slug, hours=6):
+    """The CLAIM CHECK lines for a programme draw. Always at least one line, so a run can tell
+    "checked, clear" from "not checked" (a run read a silent clear as a missing check, 2026-11-11)."""
+    lines = []
+    recent = recent_programme_commits(slug, hours)
+    if recent:
+        lines.append(f"CLAIM CHECK: origin/main touched research/{slug} in the last {hours}h; "
+                     "pick a milestone these do not cover:")
+        lines += [f"  {line}" for line in recent[:5]]
+    age = origin_main_age_hours()
+    if age is None:
+        lines.append("CLAIM CHECK: origin/main is not in this clone; run `git fetch --depth=40 origin main`, then re-run")
+    elif age > hours:
+        lines.append(f"CLAIM CHECK: origin/main's newest commit is {age:.0f}h old, so the commit check may be stale; "
+                     "run `git fetch --depth=40 origin main`, then re-run")
+    titles = _open_pr_titles("duncan-haywood/oss-monorepo", 100)
+    if titles is None:
+        lines.append(f"CLAIM CHECK: could not list open PRs (GitHub API unreachable); search open PRs for '{slug}' by hand")
+    else:
+        prs = [f"#{n} {t}" for n, t in titles if slug in t]
+        lines += [f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {p}"
+                  for p in prs]
+        if not recent and not prs and age is not None and age <= hours:
+            lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; none of {len(titles)} open PRs names {slug})")
+    return lines
 
 
 def programmes():
@@ -254,13 +301,8 @@ if __name__ == "__main__":
             print(f"read research/{slug}/PROPOSAL.md and the newest research/{slug}/LOG.md entries; land the next milestone")
         else:
             print(f"no proposal yet: write research/{slug}/PROPOSAL.md to the bar in PROGRAMMES.md")
-        recent = recent_programme_commits(slug)
-        if recent:
-            print(f"CLAIM CHECK: origin/main touched research/{slug} in the last 6h; pick a milestone these do not cover:")
-            for line in recent[:5]:
-                print(f"  {line}")
-        for line in open_prs_for(slug):
-            print(f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {line}")
+        for line in claim_check(slug):
+            print(line)
         sys.exit(0)
     t = pick(r)
     focus = t != "free" and PREFIX[t - 1] in FOCUS

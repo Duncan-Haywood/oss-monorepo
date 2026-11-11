@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wedding Venue Date Pricing Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find the price per date type (peak Saturday, off-peak, Friday or Sunday, weekday) that earns a wedding venue the most, given bookings, turned-away enquiries and price sensitivity. Runs in your browser.","featureList":"Optimal price per date type, current-vs-best contribution, sold-out detection, price-sensitivity stress test, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How should a wedding venue price Saturdays versus weekdays?","acceptedAnswer":{"@type":"Answer","text":"Price each kind of date on its own demand. A Saturday that sells out every season, with enquiries turned away, is underpriced: raising the price loses few bookings until the date type stops selling out. A weekday that rarely books is limited by demand, so the best price sits close to your cost of hosting scaled by how price-sensitive couples are. The tool finds each price exactly."}},{"@type":"Question","name":"What is price sensitivity (elasticity) for a venue?","acceptedAnswer":{"@type":"Answer","text":"It is the percentage drop in bookings for each 1 percent rise in price. A value of 2 means a 10 percent price rise loses about 20 percent of bookings. Peak dates are usually less sensitive than weekdays. If you have raised prices before, use what you saw; otherwise run the tool at a low and a high value and read the stress test."}},{"@type":"Question","name":"Why count turned-away enquiries?","acceptedAnswer":{"@type":"Answer","text":"A calendar that is full hides true demand. If you booked all 26 peak Saturdays and turned away 14 more couples, demand at today's price is 40, not 26. Without that number no tool can tell you how far a sold-out date can rise."}},{"@type":"Question","name":"Does the tool include fixed costs?","acceptedAnswer":{"@type":"Answer","text":"No. It maximises contribution: price minus what each event costs you to host (catering margin share, cleaning, staff, insurance per event). Rent, mortgage and salaried staff are the same at any price, so they do not change the best price."}},{"@type":"Question","name":"Is this financial or pricing advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type, using a simple constant-elasticity demand curve. Real demand also depends on season, reviews, competitors and deposits. Test price changes on future dates before applying them everywhere."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -143,9 +181,9 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
-      h += `<div class="finding"><h4>Best prices earn ${money(a.best)} a year after hosting costs</h4><p>Today's prices earn ${money(a.now)}, so repricing is worth ${a.gain > 0.5 ? money(a.gain) + " a year" : "nothing"} on the demand curve you entered.</p></div>`;
-      h += `<div class="finding"><h4>Price by date type</h4>${table(["Date type", "Today", "Best price", "Change", "Bookings now", "Bookings at best", "Earned now", "Earned at best"], a.rows.map((r) => [esc(r.name), money(r.nowPrice), money(r.price) + (r.soldOut ? " (sells out)" : ""), (r.change >= 0 ? "+" : "") + (r.change * 100).toFixed(0) + "%", r.nowBookings.toFixed(1), r.bookings.toFixed(1), money(r.nowProfit), money(r.profit)]))}</div>`;
-      h += `<div class="finding"><h4>If your price sensitivity is off</h4><p>Pricing as if customers were 30% less sensitive than you entered would earn ${money(a.stress[1].profit)} on your curve; 30% more sensitive, ${money(a.stress[0].profit)}. A small gap from the best figure means the answer is safe to act on; a large one means test on a few dates first.</p></div>`;
+      h += `<div class="finding"><h3>Best prices earn ${money(a.best)} a year after hosting costs</h3><p>Today's prices earn ${money(a.now)}, so repricing is worth ${a.gain > 0.5 ? money(a.gain) + " a year" : "nothing"} on the demand curve you entered.</p></div>`;
+      h += `<div class="finding"><h3>Price by date type</h3>${table(["Date type", "Today", "Best price", "Change", "Bookings now", "Bookings at best", "Earned now", "Earned at best"], a.rows.map((r) => [esc(r.name), money(r.nowPrice), money(r.price) + (r.soldOut ? " (sells out)" : ""), (r.change >= 0 ? "+" : "") + (r.change * 100).toFixed(0) + "%", r.nowBookings.toFixed(1), r.bookings.toFixed(1), money(r.nowProfit), money(r.profit)]))}</div>`;
+      h += `<div class="finding"><h3>If your price sensitivity is off</h3><p>Pricing as if customers were 30% less sensitive than you entered would earn ${money(a.stress[1].profit)} on your curve; 30% more sensitive, ${money(a.stress[0].profit)}. A small gap from the best figure means the answer is safe to act on; a large one means test on a few dates first.</p></div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

@@ -76,6 +76,28 @@ test("with a starter built in, the search never scores worse than the circle sta
   }
 });
 
+test("22 teams (and 21 with a bye): the climbed starter reaches the floor too, every count 0 or 1", () => {
+  for (const [kind, n] of [["even", 22], ["odd", 21]]) {
+    const { step, pairs } = decode(STARTERS[22][kind]);
+    let best = Infinity;
+    for (let start = 0; start < 21; start++) {
+      const flat = carryOverFromOpponents(seqs(starterOpp(22, pairs, { step, start }), n));
+      assert.equal(flat.max, 1);
+      best = Math.min(best, flat.value);
+      if (start === 0) {
+        const cyc = carryOverFromOpponents(seqs(starterOpp(22, pairs, { step, start }), n), { cyclic: true });
+        assert.equal(cyc.value, cyc.lowerBound, "Russell's cyclic bound");
+      }
+    }
+    assert.equal(best, n === 22 ? 440 : 399);
+  }
+  for (const n of [22, 21]) {
+    const r = lowCarryOverRounds(n, { effort: 0.2 });
+    assert.equal(r.coe, r.lowerBound);
+    assert.equal(r.start, "starter");
+  }
+});
+
 test("the O(p) cyclic score (eval/starter-climb.mjs) equals the full carry-over count", async () => {
   const { cyclicScore } = await import("./eval/starter-climb.mjs");
   for (const [key, entry] of Object.entries(STARTERS)) {
@@ -94,20 +116,15 @@ test("the O(p) cyclic score (eval/starter-climb.mjs) equals the full carry-over 
   }
 });
 
-test("22 teams (and 21 with a bye): the searched starter reaches the floor, the season too", () => {
-  for (const kind of ["even", "odd"]) {
-    const { step, pairs } = decode(STARTERS[22][kind]);
-    const n = kind === "even" ? 22 : 21;
-    let best = Infinity;
-    for (let start = 0; start < 21; start++) {
-      const c = carryOverFromOpponents(seqs(starterOpp(22, pairs, { step, start }), n));
-      if (c.value < best) best = c.value;
-      if (start === 0) assert.equal(carryOverFromOpponents(seqs(starterOpp(22, pairs, { step }), n), { cyclic: true }).max, 1);
-    }
-    assert.equal(best, n === 22 ? 440 : 399);
+test("climbed starters (eval/starter-climb.mjs) where they beat the annealed ones: 24, 30, 36, 38, 40 teams", () => {
+  const best = (N, n) => {
+    const { step, pairs } = decode(STARTERS[N][n === N ? "even" : "odd"]);
+    let v = Infinity;
+    for (let start = 0; start < N - 1; start++) v = Math.min(v, carryOverFromOpponents(seqs(starterOpp(N, pairs, { step, start }), n)).value);
+    return v;
+  };
+  for (const [N, even, odd] of [[24, 570, 565], [26, 716, 665], [30, 948, 891], [34, 1274, 1269], [36, 1422, 1419], [38, 1648, 1575], [40, 1816, 1813]]) {
+    assert.equal(best(N, N), even, `${N} teams`);
+    assert.equal(best(N, N - 1), odd, `${N - 1} teams`);
   }
-  const r = lowCarryOverRounds(22, { effort: 0.2 });
-  assert.equal(r.coe, r.lowerBound);
-  const s = lowCarryOverDoubleRounds(22, { effort: 0.2 });
-  assert.equal(s.coe, s.lowerBound);
 });

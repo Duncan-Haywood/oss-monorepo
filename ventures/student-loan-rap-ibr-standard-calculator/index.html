@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Student Loan RAP vs IBR vs Standard Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare the tiered Standard plan, the Repayment Assistance Plan (RAP) and Income-Based Repayment (IBR): first payment, total paid, amount forgiven and net cost after tax on forgiveness. Runs in your browser; nothing is uploaded.", "featureList": "RAP, IBR and Standard comparison, PSLF mode, forgiveness tax, income-growth sensitivity grid, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which student loan repayment plan is cheapest?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your balance, rate, income and how fast your income grows. This tool runs the tiered Standard plan, the new Repayment Assistance Plan (RAP) and Income-Based Repayment (IBR) month by month and shows the first payment, the total you pay, the amount forgiven and the net cost after tax on forgiveness, so you can see which plan costs least on your numbers."}}, {"@type": "Question", "name": "How is the RAP payment calculated?", "acceptedAnswer": {"@type": "Answer", "text": "RAP takes a percentage of your adjusted gross income, from 1% in the $10,000 to $20,000 band up to 10% above $100,000, divides it by 12 and subtracts $50 for each dependent, with a $10 monthly minimum. Interest your payment does not cover is waived, and the government matches principal reduction up to $50 a month. Forgiveness comes after 360 qualifying payments."}}, {"@type": "Question", "name": "How does IBR differ from RAP?", "acceptedAnswer": {"@type": "Answer", "text": "IBR charges 10% (newer borrowers, forgiven after 20 years) or 15% (older borrowers, 25 years) of income above 150% of the poverty guideline, capped at the 10-year standard payment. Unpaid interest keeps accruing but is not capitalized, so the balance can grow. RAP waives unpaid interest instead."}}, {"@type": "Question", "name": "Is forgiven student loan debt taxable?", "acceptedAnswer": {"@type": "Answer", "text": "Outside Public Service Loan Forgiveness, forgiveness under income-driven plans is treated as taxable federal income from 2026. The tool lets you type a tax rate and adds the tax on the forgiven amount to the net cost. PSLF forgiveness is tax-free."}}, {"@type": "Question", "name": "How does Public Service Loan Forgiveness change the answer?", "acceptedAnswer": {"@type": "Answer", "text": "With PSLF mode on, RAP and IBR are cut off at 120 qualifying payments and the rest is forgiven tax-free, so the lowest-payment plan usually wins. You must work full time for a qualifying employer and certify your employment; the tool does not check eligibility."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on figures you type and on rules that Congress and the Department of Education can change. Poverty guidelines, plan terms and tax treatment are editable defaults. Confirm your plan options with your loan servicer and a qualified adviser before switching plans."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e3a8a; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1e3a8a; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1e3a8a; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e3a8a; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e3a8a; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1e3a8a; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -100,9 +138,9 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.plans.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const b = a.best, l = a.lowestMonthly;
-      h += `<div class="finding"><h4>Lowest net cost: ${b.plan} at ${money(b.netCost)}</h4><p>You pay ${money(b.totalPaid)} over ${yrs(b.months)} years${b.forgiven > 0 ? `, then ${money(b.forgiven)} is forgiven (${money(b.forgivenessTax)} of tax on it at your rate)` : " and the loan is fully repaid"}. The lowest first payment is ${l.plan} at ${money(l.firstPayment)} a month.</p></div>`;
-      h += `<div class="finding"><h4>The three plans side by side</h4>${table(["Plan", "First payment", "Highest payment", "Years paying", "Total paid", "Forgiven", "Tax on forgiven", "Net cost"], a.plans.map((r) => [r.plan, money(r.firstPayment), money(r.maxPayment), yrs(r.months), money(r.totalPaid), money(r.forgiven), money(r.forgivenessTax), money(r.netCost)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
-      h += `<div class="finding"><h4>How income growth moves the net cost</h4>${table(["Income growth ↓", ...a.plans.map((p) => p.plan)], a.grid.map((g) => [g.growth + "% a year", ...g.costs.map(money)]))}</div>`;
+      h += `<div class="finding"><h3>Lowest net cost: ${b.plan} at ${money(b.netCost)}</h3><p>You pay ${money(b.totalPaid)} over ${yrs(b.months)} years${b.forgiven > 0 ? `, then ${money(b.forgiven)} is forgiven (${money(b.forgivenessTax)} of tax on it at your rate)` : " and the loan is fully repaid"}. The lowest first payment is ${l.plan} at ${money(l.firstPayment)} a month.</p></div>`;
+      h += `<div class="finding"><h3>The three plans side by side</h3>${table(["Plan", "First payment", "Highest payment", "Years paying", "Total paid", "Forgiven", "Tax on forgiven", "Net cost"], a.plans.map((r) => [r.plan, money(r.firstPayment), money(r.maxPayment), yrs(r.months), money(r.totalPaid), money(r.forgiven), money(r.forgivenessTax), money(r.netCost)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>How income growth moves the net cost</h3>${table(["Income growth ↓", ...a.plans.map((p) => p.plan)], a.grid.map((g) => [g.growth + "% a year", ...g.costs.map(money)]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

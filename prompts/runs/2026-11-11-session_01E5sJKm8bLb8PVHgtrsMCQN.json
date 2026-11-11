@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKm8bLb8PVHgtrsMCQN",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T15:19:17Z",
+  "ended": "2026-11-11T15:59:40Z",
+  "wall_minutes": 40.57,
+  "tokens_in": 8523774,
+  "tokens_out": 48804,
+  "cost_usd": 3.6918,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14818",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First Zhang sigma_f read as 0: with CALIB_FIX_ASPECT_RATIO OpenCV reports sigma(f) in the fy slot of stdDeviationsIntrinsics; fixed before analysis.",
+    "Every target-free solve stopped on its 1,000-evaluation cap (similarity gauge slows trf); disclosed in README and LOG."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "Crossref, doi.org and arXiv all refused by the proxy (connect_rejected); every DOI in the new proposal is marked unchecked."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "pick_track drew track 15 (sensing) whose seven milestones are all landed and which had no programme; nothing says whether to open a programme or extend a sensing-* project, so a programme was opened."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Recommended data hosts (ETH3D, Middlebury, BAL) are refused by the proxy; only GitHub raw worked, which limited real multi-view data to OpenCV samples."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/LOG.md",
+      "why": "Pre-registration said view subsets of 4-12; 3 was also run for completeness.",
+      "did": "H2 scored on 4-12 as planned; size 3 reported separately as unplanned.",
+      "result": "no effect on the verdict"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-calibrating-a-camera-without-the-checkerboard.md",
+    "research/sensing-selfcal/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Opened programme sensing-selfcal (PROPOSAL.md to the bar, row in PROGRAMMES.md). Milestone 1 on OpenCV's real stereo set: target-free BA within 0.15%/0.24% of Zhang f, sigma ratio 1.12 (H3 refuted), rms z 1.94 over 360 subsets (H2 held narrowly), board bend reconstructed identically by both cameras (r 0.90). Local checks: 5 pytest pass, build.py ok, programme_check ok, research_live_links, check_md_links, post frontmatter/links/similarity ok. No separate agent doc: the LOG.md entry carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a37d3c80-c4de-515d-845b-47b21efd15ce",
+    "transcripts": 1,
+    "first": "2026-11-11T15:19:17Z",
+    "last": "2026-11-11T15:59:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 140,
+        "output": 48804,
+        "thinking": 11876,
+        "cache_read": 8394096,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129538,
+        "api_equivalent_usd": 3.6918,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 140,
+      "output": 48804,
+      "thinking": 11876,
+      "cache_read": 8394096,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129538,
+      "api_equivalent_usd": 3.6918,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 66,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 40.57,
+      "active_minutes": 40.57,
+      "model_minutes": 8.77,
+      "tool_minutes": 31.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a PhD student: proposal with 15 references (~6 h), BA solver with gauge-correct covariance and a 400-solve study on real images (~8 h), write-ups (~2 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 433.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

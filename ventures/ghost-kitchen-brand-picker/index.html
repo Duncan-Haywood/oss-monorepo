@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Ghost Kitchen Brand Picker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Choose which virtual brands to run out of one delivery-only kitchen when kitchen hours are limited: the exact most profitable set after food, platform fees, packaging and labour, compared with simple rules, break-even orders, the value of more kitchen hours and sensitivity to order volume. Runs in your browser.", "featureList": "Exact brand selection under a kitchen-hours limit, profit per order and per kitchen hour, break-even orders, comparison with rules of thumb, value of extra hours, order-volume sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I run more virtual brands out of one kitchen?", "acceptedAnswer": {"@type": "Answer", "text": "Often, but each brand adds prep hours, packaging and its own costs. Past the hours your line can actually staff, extra brands slow every ticket and hurt ratings on all of them. This tool finds the set of brands that earns the most inside the kitchen hours you really have."}}, {"@type": "Question", "name": "How is a brand's profit worked out here?", "acceptedAnswer": {"@type": "Answer", "text": "Per order: order value less food cost, less platform fees and promotions, less packaging, less the kitchen labour to make it. Multiply by orders a month, then subtract the brand's own monthly cost. Brands that lose money are never picked."}}, {"@type": "Question", "name": "Why not just rank brands by profit?", "acceptedAnswer": {"@type": "Answer", "text": "Profit per kitchen hour, biggest profit and best margin each miss some combinations. When the hours are tight, a brand that looks best can crowd out two others that earn more together. The tool tries every set of up to 14 brands and shows how far each rule falls short."}}, {"@type": "Question", "name": "What are break-even orders?", "acceptedAnswer": {"@type": "Answer", "text": "The weekly orders at which a brand covers its own monthly cost after food, fees, packaging and labour. Below it, the brand loses money no matter how busy the kitchen feels."}}, {"@type": "Question", "name": "Is this business or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type. It does not model brands taking sales from each other, ratings, delivery-app rule changes or ramp-up time."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #0f766e; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #0a514c; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #0a514c; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f766e; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #0a514c; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -273,15 +311,15 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       if (a.plan.length) {
-        h += `<div class="finding"><h4>Run these brands</h4><p>${a.plan.map((p) => esc(p.name)).join(", ")}.</p><p>That uses ${one(a.hoursUsed)} of your ${one(a.shared.kitchenHours)} kitchen hours a week and earns ${money(a.profit)} a month after food, fees, packaging, labour and each brand's own cost, on ${money(a.revenue)} of orders. ${one(a.hoursLeft)} hours are left over.</p></div>`;
+        h += `<div class="finding"><h3>Run these brands</h3><p>${a.plan.map((p) => esc(p.name)).join(", ")}.</p><p>That uses ${one(a.hoursUsed)} of your ${one(a.shared.kitchenHours)} kitchen hours a week and earns ${money(a.profit)} a month after food, fees, packaging, labour and each brand's own cost, on ${money(a.revenue)} of orders. ${one(a.hoursLeft)} hours are left over.</p></div>`;
       } else {
-        h += `<div class="finding"><h4>Run none of them</h4><p>At these numbers no brand earns money inside your kitchen hours.</p></div>`;
+        h += `<div class="finding"><h3>Run none of them</h3><p>At these numbers no brand earns money inside your kitchen hours.</p></div>`;
       }
-      h += `<div class="finding"><h4>Against the usual rules</h4>${table(["Rule", "Monthly profit", "Brands run", "Extra over this rule"], a.rules.map((r) => [esc(r.label), money(r.profit), r.count, r.extra > 0.5 ? "+" + money(r.extra) : "same"]))}<p>${a.ruleLoss > 0.5 ? "The exact answer earns " + money(a.ruleLoss) + " a month more than the best of these rules." : "Here the best rule of thumb finds an equally good set."}</p></div>`;
-      if (a.skipped.length) h += `<div class="finding"><h4>Dropped</h4>${table(["Brand", "Monthly profit alone", "Why"], a.skipped.map((s) => [esc(s.name), money(s.profit), esc(s.reason)]))}</div>`;
-      h += `<div class="finding"><h4>What more kitchen hours would buy</h4><p>${a.extraLevels.map((e) => "With " + one(e.add) + " more hours a week you would earn " + money(e.gain) + " more a month (" + e.count + " brands).").join(" ")} Compare that with what the extra labour and equipment cost.</p></div>`;
-      h += `<div class="finding"><h4>How fragile is this?</h4><p>${a.volumeChecks.map((c) => "If every brand's orders were " + Math.round((c.scale - 1) * 100) + "% " + (c.scale < 1 ? "lower" : "higher") + " the best set " + (c.same ? "is the same" : "changes") + " (earns " + money(c.profit) + " a month).").join(" ")}</p></div>`;
-      h += `<div class="finding"><h4>The plan</h4>${table(["Brand", "Orders a week", "Profit per order", "Kitchen hours", "Monthly profit", "Per kitchen hour", "Break-even orders"], a.plan.map((p) => [esc(p.name), p.orders, money(p.perOrder), one(p.hoursPerWeek), money(p.profit), money(p.perHour), be(p)]))}</div>`;
+      h += `<div class="finding"><h3>Against the usual rules</h3>${table(["Rule", "Monthly profit", "Brands run", "Extra over this rule"], a.rules.map((r) => [esc(r.label), money(r.profit), r.count, r.extra > 0.5 ? "+" + money(r.extra) : "same"]))}<p>${a.ruleLoss > 0.5 ? "The exact answer earns " + money(a.ruleLoss) + " a month more than the best of these rules." : "Here the best rule of thumb finds an equally good set."}</p></div>`;
+      if (a.skipped.length) h += `<div class="finding"><h3>Dropped</h3>${table(["Brand", "Monthly profit alone", "Why"], a.skipped.map((s) => [esc(s.name), money(s.profit), esc(s.reason)]))}</div>`;
+      h += `<div class="finding"><h3>What more kitchen hours would buy</h3><p>${a.extraLevels.map((e) => "With " + one(e.add) + " more hours a week you would earn " + money(e.gain) + " more a month (" + e.count + " brands).").join(" ")} Compare that with what the extra labour and equipment cost.</p></div>`;
+      h += `<div class="finding"><h3>How fragile is this?</h3><p>${a.volumeChecks.map((c) => "If every brand's orders were " + Math.round((c.scale - 1) * 100) + "% " + (c.scale < 1 ? "lower" : "higher") + " the best set " + (c.same ? "is the same" : "changes") + " (earns " + money(c.profit) + " a month).").join(" ")}</p></div>`;
+      h += `<div class="finding"><h3>The plan</h3>${table(["Brand", "Orders a week", "Profit per order", "Kitchen hours", "Monthly profit", "Per kitchen hour", "Break-even orders"], a.plan.map((p) => [esc(p.name), p.orders, money(p.perOrder), one(p.hoursPerWeek), money(p.profit), money(p.perHour), be(p)]))}</div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Crop Insurance Coverage Level Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Compare crop insurance coverage levels (RP, RP-HPE, YP) for corn, soybeans and other row crops using your agent's quoted premiums: guarantee, break-even yield, cost of each extra 5 points and net result across yield and price scenarios. Runs in your browser; nothing is uploaded.", "featureList": "Revenue Protection, RP-HPE and Yield Protection, coverage level comparison, break-even yield, marginal cost of coverage, scenario net result"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which coverage level should I buy?", "acceptedAnswer": {"@type": "Answer", "text": "There is no universal answer, and this tool does not pick one. It lays your agent's quoted farmer-paid premiums beside what each level guarantees, what each extra 5 points costs per dollar of added protection, and what you would net in the yield-and-price years you describe. A higher level costs more in good years and protects more in bad ones; the step-cost table shows how fast the price per added dollar rises."}}, {"@type": "Question", "name": "What is the difference between RP, RP-HPE and YP?", "acceptedAnswer": {"@type": "Answer", "text": "Revenue Protection sets the guarantee at the higher of the projected (spring) and harvest (fall) price, so a drought that lifts prices still pays on the higher value. RP with Harvest Price Exclusion guarantees only the projected price. Yield Protection pays missing bushels at the projected price and ignores price falls. The tool applies each rule to your scenarios."}}, {"@type": "Question", "name": "Where do I get the premium numbers?", "acceptedAnswer": {"@type": "Answer", "text": "From your crop insurance agent's quote or the USDA RMA Cost Estimator. Use the farmer-paid premium per acre, which is after the federal premium subsidy. The tool does not know your county rates, unit structure or subsidy, so it cannot produce a quote."}}, {"@type": "Question", "name": "What is the break-even yield?", "acceptedAnswer": {"@type": "Answer", "text": "The yield at which an indemnity first covers the premium if the harvest price equals the projected price: APH times coverage minus the premium divided by the price. Below it the policy pays more than it cost; above it the premium was the cost of protection."}}, {"@type": "Question", "name": "Does it calculate expected value?", "acceptedAnswer": {"@type": "Answer", "text": "Only over the scenarios you type, with the probabilities you choose. It does not know your county's yield or price distribution, so the expected figure is as good as your scenarios. The worst-case column does not depend on probabilities."}}, {"@type": "Question", "name": "Is this insurance or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on numbers you type in. It does not sell, quote or bind insurance, and it does not know your policy's unit structure, prevented-planting, replant, trend-adjusted APH or endorsements such as SCO and ECO. Talk to your crop insurance agent before choosing coverage."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #b45309; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #753606; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #753606; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #b45309; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #b45309; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #753606; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -90,11 +128,11 @@
       if (a.skippedCoverage.length) h += `<div class="finding"><span class="pill">Skipped</span> ${a.skippedCoverage.length} coverage line(s) could not be read: ${a.skippedCoverage.map(esc).join(" | ")}</div>`;
       if (a.skippedScenarios.length) h += `<div class="finding"><span class="pill">Skipped</span> ${a.skippedScenarios.length} year line(s) could not be read: ${a.skippedScenarios.map(esc).join(" | ")}</div>`;
       if (a.scenarios.length && Math.abs(a.probSum - 100) > 0.001) h += `<div class="finding"><span class="pill">Check chances</span> Your chances add to ${a.probSum}%, not 100%. They are scaled to 100% for the expected figures.</div>`;
-      h += `<div class="finding"><h4>${PLANS[a.plan]}: what each level guarantees and costs (per acre)</h4>${table(["Coverage", "Premium", "Guaranteed at projected price", "Protected floor after premium", "Break-even yield (bu)", "Premium on all acres"], a.levels.map((l) => [l.level + "%", money2(l.premium), money2(l.baseGuarantee), money2(l.floorAfterPremium), l.breakEvenYield.toFixed(1), money(l.totalPremium)]))}<p class="note">Break-even yield: below it, with the harvest price at the projected price, the policy pays more than the premium cost.</p></div>`;
-      if (a.levels.length > 1) h += `<div class="finding"><h4>What each step up costs</h4>${table(["Step to", "Extra premium", "Extra guarantee", "Cost per $1 of added guarantee"], a.levels.slice(1).map((l) => [l.level + "%", money2(l.stepPremium), money2(l.stepGuarantee), l.stepCostPerDollar == null ? "—" : "$" + l.stepCostPerDollar.toFixed(3)]))}<p class="note">The added guarantee only pays in years bad enough to reach it, so this price is not the chance of being paid.</p></div>`;
+      h += `<div class="finding"><h3>${PLANS[a.plan]}: what each level guarantees and costs (per acre)</h3>${table(["Coverage", "Premium", "Guaranteed at projected price", "Protected floor after premium", "Break-even yield (bu)", "Premium on all acres"], a.levels.map((l) => [l.level + "%", money2(l.premium), money2(l.baseGuarantee), money2(l.floorAfterPremium), l.breakEvenYield.toFixed(1), money(l.totalPremium)]))}<p class="note">Break-even yield: below it, with the harvest price at the projected price, the policy pays more than the premium cost.</p></div>`;
+      if (a.levels.length > 1) h += `<div class="finding"><h3>What each step up costs</h3>${table(["Step to", "Extra premium", "Extra guarantee", "Cost per $1 of added guarantee"], a.levels.slice(1).map((l) => [l.level + "%", money2(l.stepPremium), money2(l.stepGuarantee), l.stepCostPerDollar == null ? "—" : "$" + l.stepCostPerDollar.toFixed(3)]))}<p class="note">The added guarantee only pays in years bad enough to reach it, so this price is not the chance of being paid.</p></div>`;
       if (a.scenarios.length) {
-        h += `<div class="finding"><h4>Net per acre in each year you described (indemnity minus premium)</h4>${table(["Year (chance)", ...a.levels.map((l) => l.level + "%")], a.scenarios.map((s, i) => [esc(s.label) + " (" + s.probability + "%): " + s.yield + " bu at $" + s.harvestPrice, ...a.levels.map((l) => money2(l.outcomes[i].net))]))}</div>`;
-        h += `<div class="finding"><h4>Across those years</h4>${table(["Coverage", "Expected indemnity", "Expected net", "Worst-year net"], a.levels.map((l) => [l.level + "%", money2(l.expectedIndemnity), money2(l.expectedNet), money2(l.worstNet)]))}<p>${a.best ? `With your chances, the level with the best expected net is <strong>${a.best.level}%</strong> at ${money2(a.best.expectedNet)} an acre. That says nothing about the best level for your farm: the answer is only as good as the years and chances you typed, and a higher level also lifts the floor in the years you fear.` : ""}</p></div>`;
+        h += `<div class="finding"><h3>Net per acre in each year you described (indemnity minus premium)</h3>${table(["Year (chance)", ...a.levels.map((l) => l.level + "%")], a.scenarios.map((s, i) => [esc(s.label) + " (" + s.probability + "%): " + s.yield + " bu at $" + s.harvestPrice, ...a.levels.map((l) => money2(l.outcomes[i].net))]))}</div>`;
+        h += `<div class="finding"><h3>Across those years</h3>${table(["Coverage", "Expected indemnity", "Expected net", "Worst-year net"], a.levels.map((l) => [l.level + "%", money2(l.expectedIndemnity), money2(l.expectedNet), money2(l.worstNet)]))}<p>${a.best ? `With your chances, the level with the best expected net is <strong>${a.best.level}%</strong> at ${money2(a.best.expectedNet)} an acre. That says nothing about the best level for your farm: the answer is only as good as the years and chances you typed, and a higher level also lifts the floor in the years you fear.` : ""}</p></div>`;
       }
       $("result").innerHTML = h;
       $("out").hidden = false;

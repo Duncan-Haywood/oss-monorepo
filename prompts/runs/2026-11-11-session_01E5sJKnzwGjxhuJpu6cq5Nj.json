@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnzwGjxhuJpu6cq5Nj",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T15:19:10Z",
+  "ended": "2026-11-11T15:39:10Z",
+  "wall_minutes": 20.35,
+  "tokens_in": 12376665,
+  "tokens_out": 48900,
+  "cost_usd": 4.585,
+  "tool_calls": 112,
+  "task": "polish: find the weakest visitor-facing surface; 98 tool pages rendered in browser defaults",
+  "projects": [
+    "platform/pages",
+    "allergen-label-maker",
+    "medical-bill-error-checker",
+    "surety-bond-capacity-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14820",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "Post description was 188 chars; build.test.mjs's 160-char limit made 161 build tests fail until shortened. Ran the page test suite before noticing the limit.",
+    "One venture test (surety-bond page.test.mjs) read <h3> inside scripts as FAQ questions; scoped it to static markup.",
+    "build.test.mjs 'identical build produces an identical cache name' failed once because I wrote this run record (the build reads prompts/runs/) while the two test builds ran; passed on rerun with the tree untouched."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "The build has no per-slug mode, so verifying a 101-page source change meant a second 20-minute full build; I patched dist copies for the heading check instead. A --only=<slugs> on build.mjs would save every polish run this."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "A post description over 160 chars fails 161 unrelated build tests with the same error; a single early writing check (or a note in the polish prompt's 'Write about it') would point at the real cause."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Site build still writes canonical URLs on duncan-haywood.github.io (seen in dist); PR #14596 addresses it but is still open."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-11-heading-order.md",
+      "why": "Its next item suggested one shared result renderer for the h2->h4 skips; there is no shared renderer (each page inlines its own), so I changed the 95 pages where the swap was provably invisible (base sheet styles both) and left the ~290 self-styled ones for a run with a computed-style diff.",
+      "did": "95-page h4->h3 swap, rendered check",
+      "result": "93 -> 0 rendered skips, 0 page errors"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-ninety-eight-tools-in-times-new-roman.md",
+    "docs/reports/polish-2026-11-11-bare-tools.md"
+  ],
+  "goal": "impressive sites: no unstyled corner on any tool page",
+  "notes": "Chromium sweep of 1,344 tool index pages (JS off, computed font of first main label/p): 98 Times New Roman before, 0 after. bare-tool.mjs static check matches the browser list exactly. ink.mjs: no link contrast violations over 3,629 pages. 101 changed ventures' suites: 2,664 tests, 1 failure fixed. Allergen 'undefined:' line fixed, checked in browser on UK and US lists. node --test platform/pages/*.test.mjs: 1,550 tests; after the description fix all pass (the cache-name test on an isolated rerun).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8dc707ca-7037-52fc-8f3f-a3058001f955",
+    "transcripts": 1,
+    "first": "2026-11-11T15:19:10Z",
+    "last": "2026-11-11T15:39:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 103,
+        "input": 197,
+        "output": 48900,
+        "thinking": 11956,
+        "cache_read": 12231476,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144992,
+        "api_equivalent_usd": 4.585,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 103,
+      "input": 197,
+      "output": 48900,
+      "thinking": 11956,
+      "cache_read": 12231476,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144992,
+      "api_equivalent_usd": 4.585,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 112,
+    "tools": {
+      "Bash": 97,
+      "Read": 6,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Edit": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__list_commits": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.35,
+      "active_minutes": 20.35,
+      "model_minutes": 8.96,
+      "tool_minutes": 11.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "front-end dev: find 98 unstyled pages across 1,344, write base sheet + check, 95-page heading fix, allergen bug, before/after verification",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 218.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CD and Treasury Ladder Planner","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Build a CD or Treasury ladder from the rates you type, see after-tax yield per rung and how the ladder compares with the longest CD or rolling short under rate rises and falls. Runs in your browser; nothing is uploaded.","featureList":"CD ladder, Treasury ladder, after-tax yield with state-tax exemption, rate shift scenarios, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a CD ladder?","acceptedAnswer":{"@type":"Answer","text":"You split your money into equal parts and buy CDs or Treasuries with different maturities, for example 1, 2, 3, 4 and 5 years. Each year one rung matures, giving you cash access, and you can reinvest it at the longest term. You earn closer to long-term rates while some money always comes due soon."}},{"@type":"Question","name":"Is a Treasury ladder better than a CD ladder?","acceptedAnswer":{"@type":"Answer","text":"Treasury interest is exempt from state and local income tax, CD interest is not, so in a state with income tax a Treasury can win after tax even at a slightly lower rate. Where there is no state income tax the higher headline rate usually wins. The tool compares both after tax at the rates you type."}},{"@type":"Question","name":"Is a ladder better than putting everything in the longest CD?","acceptedAnswer":{"@type":"Answer","text":"Only when rates rise. If rates fall after you buy, the single longest CD wins because you locked the high rate. If rates rise, rolling short or a ladder reinvests at the better rates. The scenario table shows the result for rate moves of minus 2 to plus 2 points."}},{"@type":"Question","name":"How many rungs and how long should each be?","acceptedAnswer":{"@type":"Answer","text":"More rungs mean smaller chunks come due more often, which helps liquidity, at the cost of managing more positions. Common ladders use 4 to 5 rungs of 12 months, or 12 monthly or quarterly rungs of short T-bills. Match the spacing to when you may need the cash."}},{"@type":"Question","name":"Are the rates in the example real?","acceptedAnswer":{"@type":"Answer","text":"No. They are placeholders, not current quotes. Type in the rates you can actually get from your bank, brokerage or TreasuryDirect, and update them when they change."}},{"@type":"Question","name":"Is this financial or tax advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type. It does not know your tax situation, FDIC or SIPC coverage limits, early-withdrawal penalties or whether a CD is callable, and it does not recommend any bank or security. Talk to a qualified adviser."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e3a8a; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1e3a8a; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1e3a8a; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e3a8a; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e3a8a; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1e3a8a; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -91,10 +129,10 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const t = a.rows.find((r) => r.shift === 0);
-      h += `<div class="finding"><h4>Ladder summary</h4><p>${a.rungs.length} rungs of ${money0(a.opts.amount / a.rungs.length)}, the first coming due in ${a.firstAccessMonths} months and the last in ${a.horizon}. Blended after-tax yield ${pct(a.blended)}. If rates do not move, the ladder ends with ${money0(t.ladder)} (${money0(a.interest)} after-tax interest), versus ${money0(t.longest)} for one ${a.horizon}-month term and ${money0(t.shortest)} for rolling ${a.opts.spacingMonths}-month terms.</p></div>`;
-      h += `<div class="finding"><h4>Each rung</h4>${table(["Rung", "Term (months)", "Amount", "After-tax yield", "Value at maturity", "Rate"], a.rungs.map((r) => [r.rung, r.months, money0(r.amount), pct(r.afterTaxYield), money0(r.maturity), r.interpolated ? "interpolated" : "quoted"]))}<p><button type="button" class="secondary" id="csv">Download ladder (CSV)</button></p></div>`;
-      h += `<div class="finding"><h4>If rates move right after you buy</h4>${table(["Rate move", "Ladder", "All in longest", "Roll shortest", "Highest"], a.rows.map((r, i) => [(r.shift > 0 ? "+" : "") + r.shift + " pts", money0(r.ladder), money0(r.longest), money0(r.shortest), a.shiftWinners[i].winner]))}</div>`;
-      if (a.compare.length) h += `<div class="finding"><h4>Treasury vs CD after tax at your tax rates</h4>${table(["Term (months)", "CD APY", "Treasury APY", "CD after tax", "Treasury after tax", "Higher"], a.compare.map((c) => [c.months, pct(c.cdApy), pct(c.treasuryApy), pct(c.cdAfterTax), pct(c.treasuryAfterTax), c.winner]))}</div>`;
+      h += `<div class="finding"><h3>Ladder summary</h3><p>${a.rungs.length} rungs of ${money0(a.opts.amount / a.rungs.length)}, the first coming due in ${a.firstAccessMonths} months and the last in ${a.horizon}. Blended after-tax yield ${pct(a.blended)}. If rates do not move, the ladder ends with ${money0(t.ladder)} (${money0(a.interest)} after-tax interest), versus ${money0(t.longest)} for one ${a.horizon}-month term and ${money0(t.shortest)} for rolling ${a.opts.spacingMonths}-month terms.</p></div>`;
+      h += `<div class="finding"><h3>Each rung</h3>${table(["Rung", "Term (months)", "Amount", "After-tax yield", "Value at maturity", "Rate"], a.rungs.map((r) => [r.rung, r.months, money0(r.amount), pct(r.afterTaxYield), money0(r.maturity), r.interpolated ? "interpolated" : "quoted"]))}<p><button type="button" class="secondary" id="csv">Download ladder (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>If rates move right after you buy</h3>${table(["Rate move", "Ladder", "All in longest", "Roll shortest", "Highest"], a.rows.map((r, i) => [(r.shift > 0 ? "+" : "") + r.shift + " pts", money0(r.ladder), money0(r.longest), money0(r.shortest), a.shiftWinners[i].winner]))}</div>`;
+      if (a.compare.length) h += `<div class="finding"><h3>Treasury vs CD after tax at your tax rates</h3>${table(["Term (months)", "CD APY", "Treasury APY", "CD after tax", "Treasury after tax", "Higher"], a.compare.map((c) => [c.months, pct(c.cdApy), pct(c.treasuryApy), pct(c.cdAfterTax), pct(c.treasuryAfterTax), c.winner]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

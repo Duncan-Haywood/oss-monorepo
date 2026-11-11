@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Wedding Flower Order Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Work out the cheapest wholesale flower order for a wedding or event from stems needed, damage allowance and pack sizes and prices. Runs in your browser.","featureList":"Cheapest mix of two wholesale pack sizes per flower, damage allowance, spare stems, savings against small packs only, flower cost share of budget, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many flowers should I order for a wedding?","acceptedAnswer":{"@type":"Answer","text":"Add up the stems in every bouquet, centrepiece and installation recipe, then add an allowance for stems that arrive damaged or are lost in conditioning. Ten percent is a common starting point for roses and more for delicate flowers. This tool adds that allowance and rounds up to the packs your wholesaler really sells."}},{"@type":"Question","name":"Is it cheaper to buy a bigger wholesale box?","acceptedAnswer":{"@type":"Answer","text":"Often, but only if you can use the extra stems. The tool tries every number of big boxes and fills the rest with bunches, then returns the cheapest order that still covers what you need, and shows how many spare stems come with it."}},{"@type":"Question","name":"How much should flowers cost against the client's budget?","acceptedAnswer":{"@type":"Answer","text":"Many florists aim for flowers to be around a third of what the client pays, with labour, hard goods and delivery covering the rest. Enter the client's flower budget and the tool shows your wholesale cost as a share of it."}},{"@type":"Question","name":"What does the tool not know?","acceptedAnswer":{"@type":"Answer","text":"Wholesale prices change by week and season, minimum order values, delivery fees, substitutions and shelf life are yours to weigh. It does the pack arithmetic on the numbers you type."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #be185d; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #8b1244; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #8b1244; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #be185d; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #be185d; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #8b1244; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 <style>/* mobile-overflow-guard */table{position:relative;display:block;max-width:100%;overflow-x:auto}</style>
 </head>
 <body>
@@ -109,8 +147,8 @@
       for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
-      h += '<div class="finding"><h4>Cheapest order: ' + money(a.total) + "</h4><p>" + (a.saving > 0.005 ? "That is " + money(a.saving) + " less than buying the small pack only. " : "Buying the small pack only costs the same. ") + a.spareStems + " spare stems come with it (about " + money(a.spareValue) + " of flowers)." + (a.budget ? " Wholesale cost is " + Math.round(a.flowerCostPct * 100) + "% of the " + money(a.budget) + " flower budget." : "") + "</p></div>";
-      h += '<div class="finding"><h4>What to order</h4>' + table(["Flower", "Stems to cover", "Pack A", "Pack B", "Spare", "Cost"], a.lines.map((l) => [esc(l.name), l.stemsToCover, l.packA + " × " + l.sizeA, l.packB ? l.packB + " × " + l.sizeB : "–", l.spare, money(l.cost)])) + "</div>";
+      h += '<div class="finding"><h3>Cheapest order: ' + money(a.total) + "</h3><p>" + (a.saving > 0.005 ? "That is " + money(a.saving) + " less than buying the small pack only. " : "Buying the small pack only costs the same. ") + a.spareStems + " spare stems come with it (about " + money(a.spareValue) + " of flowers)." + (a.budget ? " Wholesale cost is " + Math.round(a.flowerCostPct * 100) + "% of the " + money(a.budget) + " flower budget." : "") + "</p></div>";
+      h += '<div class="finding"><h3>What to order</h3>' + table(["Flower", "Stems to cover", "Pack A", "Pack B", "Spare", "Cost"], a.lines.map((l) => [esc(l.name), l.stemsToCover, l.packA + " × " + l.sizeA, l.packB ? l.packB + " × " + l.sizeB : "–", l.spare, money(l.cost)])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download order (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

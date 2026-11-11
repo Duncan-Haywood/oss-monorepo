@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tax Lot Sale Optimizer","applicationCategory":"FinanceApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Paste your purchase lots, say how much cash you need, and see which specific lots to sell to pay the least tax, compared with FIFO, LIFO and highest-cost-first. Runs in your browser; nothing is uploaded.","featureList":"Specific lot identification, lowest-tax lot selection, FIFO LIFO HIFO comparison, short-term and long-term netting, capital loss deduction, wash-sale warning, wait-until-long-term table, CSV of lots to sell"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Which lots should I sell to raise cash with the least tax?","acceptedAnswer":{"@type":"Answer","text":"Usually a mix. Lots sold at a loss lower the tax bill, lots held more than a year are taxed at the lower long-term rate, and among lots of the same kind the highest-cost ones give the smallest gain. The best mix depends on your gains and losses already realized this year, so the tool searches every split between short-term and long-term lots and shows the lowest-tax plan next to FIFO, LIFO and highest-cost-first."}},{"@type":"Question","name":"What is specific identification and how do I use it?","acceptedAnswer":{"@type":"Answer","text":"Specific identification means telling your broker exactly which lots to sell instead of letting the default method pick, which at most brokers is first-in, first-out. You choose the lots before the trade settles, through the broker's cost-basis or lot-selection setting on the order ticket, and keep a record. The table lists the shares to sell from each lot so you can enter them."}},{"@type":"Question","name":"How does the tool decide a lot is long-term?","acceptedAnswer":{"@type":"Answer","text":"A lot is long-term when the sale date is more than one year after the purchase date. A sale on the first anniversary is still short-term; the next day is long-term. The waiting table re-runs the plan on the dates short-term lots turn long-term, so you can see what a few days of patience is worth before you accept the price risk."}},{"@type":"Question","name":"Does it handle the wash-sale rule?","acceptedAnswer":{"@type":"Answer","text":"It warns, it does not apply the rule. If the plan sells shares at a loss while you still hold shares bought in the 30 days before the sale, part of the loss can be disallowed, and so can a loss if you buy the same security again within 30 days after. Purchases in other accounts, including a spouse's or an IRA, can also trigger it, and the tool cannot see them."}},{"@type":"Question","name":"What tax rates should I enter?","acceptedAnswer":{"@type":"Answer","text":"Your federal rate on ordinary income (short-term gains are taxed at it), your long-term capital-gains rate, your state rate on gains, and 3.8 for the net investment income tax if your income is over its threshold, otherwise 0. The tool embeds no tax tables because they change; check the current ones or ask your tax preparer."}},{"@type":"Question","name":"Is this tax or financial advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the rates and amounts you type, with simplifications: one security, one sale date, one price, a flat rate per character, and no alternative minimum tax. It does not decide your tax. Confirm the plan with your tax adviser or broker before you trade."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #065f46; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #05543e; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #05543e; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #065f46; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #065f46; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #05543e; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -100,11 +138,11 @@
       if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const b = a.best;
       const verdict = "Selling " + sh(b.shares) + " shares raises " + money(b.proceeds) + " and adds " + (b.tax >= 0 ? money(b.tax) + " of tax" : "no tax and saves " + money(-b.tax)) + " with the lots below" + (a.savingVsFifo > 1 ? ", which is " + money(a.savingVsFifo) + " less than selling oldest-first (FIFO)." : ".");
-      h += `<div class="finding"><h4>The plan</h4><p>${esc(verdict)}</p>${table(["Lot", "Bought", "Sell shares", "Cost / share", "Term", "Gain / loss"], a.rows.map((x) => [x.id, isoDate(x.acquired), sh(x.shares), money(x.cost), x.longTerm ? "Long" : "Short", money(x.gain)]))}<p><button type="button" class="secondary" id="csv">Download lots to sell (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>The plan</h3><p>${esc(verdict)}</p>${table(["Lot", "Bought", "Sell shares", "Cost / share", "Term", "Gain / loss"], a.rows.map((x) => [x.id, isoDate(x.acquired), sh(x.shares), money(x.cost), x.longTerm ? "Long" : "Short", money(x.gain)]))}<p><button type="button" class="secondary" id="csv">Download lots to sell (CSV)</button></p></div>`;
       if (b.carry > 0) h += `<div class="finding"><span class="pill">Note</span> This sale leaves ${money(b.carry)} of net capital loss to carry forward after the $3,000 deduction; the tool does not value the carryforward.</div>`;
       if (a.washLots.length) h += `<div class="finding"><span class="pill">Wash sale</span> The plan sells lot${a.washLots.length > 1 ? "s" : ""} ${a.washLots.join(", ")} at a loss while you still hold shares bought in the 30 days before ${esc($("saleDate").value)}. That part of the loss can be disallowed. Waiting 31 days, or selling the newer lots too, avoids it; purchases in other accounts also count.</div>`;
-      h += `<div class="finding"><h4>Same sale, four ways of choosing lots</h4>${table(["Method", "Short-term gain", "Long-term gain", "Tax added"], a.results.map((r) => [r.label, money(r.stGain), money(r.ltGain), money(r.tax)]))}</div>`;
-      if (a.waits.length) h += `<div class="finding"><h4>If you waited for lots to turn long-term</h4><p>Same price assumed; the real price will move. Tax added by the best plan on each date:</p>${table(["Wait", "Date", "Tax added", "Saved vs today"], a.waits.map((w) => [w.days + " days", w.date, money(w.tax), money(w.saving)]))}</div>`;
+      h += `<div class="finding"><h3>Same sale, four ways of choosing lots</h3>${table(["Method", "Short-term gain", "Long-term gain", "Tax added"], a.results.map((r) => [r.label, money(r.stGain), money(r.ltGain), money(r.tax)]))}</div>`;
+      if (a.waits.length) h += `<div class="finding"><h3>If you waited for lots to turn long-term</h3><p>Same price assumed; the real price will move. Tax added by the best plan on each date:</p>${table(["Wait", "Date", "Tax added", "Saved vs today"], a.waits.map((w) => [w.days + " days", w.date, money(w.tax), money(w.saving)]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");
