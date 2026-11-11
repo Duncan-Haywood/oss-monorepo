@@ -116,7 +116,29 @@ export function gains(n, q) {
 // penalty becomes 3 log n (a level and a scale per change, as engine.mjs gives 'meanvar'). Gaussian
 // loss only. Same O(n^2): the running S per open start replaces the running cost.
 export const SCALE_FLOOR = 0.01;
-export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags', loss = 'gauss', lossK = 3, scale = 'global' } = {}) {
+// repeats: 'keep' (the default) or 'drop'. 'drop' fits the model to the series with every exact
+// repeat of the previous value taken out (x_t === x_{t-1}), then maps the changes back to the
+// original positions. A sticky series (a quote that is not updated, a sensor that sits still: 246 of
+// TCPD bank's 580 steps are exactly zero) carries no new information in a repeat, but the Gaussian
+// cost reads each flat run as a stretch of near-zero noise, which a scale per segment buys with a
+// cut at either end (README "Volatility on a drifting level": bank 63 to 170 cuts). The wander over
+// the dropped points is not added back (the filter steps once per kept point), so this is an
+// approximation for a series that is sticky, not a general missing-data filter. Continuous data has
+// no exact repeats and is untouched. A change maps to the position of the first kept point of its
+// segment. README "Sticky series: exact repeats dropped" (pre-registered, 2026-11-11).
+export function dropRepeats(values) {
+  const x = Array.from(values, Number), keep = [];
+  for (let t = 0; t < x.length; t++) if (t === 0 || x[t] !== x[t - 1]) keep.push(t);
+  return { values: keep.map((t) => x[t]), index: keep };
+}
+export function driftLevelChanges(values, { sigma, omega, penalty, minSegment = 2, slope = false, noise = 'lags', loss = 'gauss', lossK = 3, scale = 'global', repeats = 'keep' } = {}) {
+  if (repeats !== 'keep' && repeats !== 'drop') throw new Error(`repeats must be keep or drop, not ${repeats}`);
+  if (repeats === 'drop') {
+    if (slope) throw new Error('repeats drop does not take slope (the median step would be per kept point, not per period)');
+    const d = dropRepeats(values);
+    const r = driftLevelChanges(d.values, { sigma, omega, penalty: penalty ?? (scale === 'segment' ? 3 : 2) * Math.log(Array.from(values).length), minSegment, slope, noise, loss, lossK, scale });
+    return { ...r, changepoints: r.changepoints.map((c) => d.index[c]), repeats, repeatsDropped: Array.from(values).length - d.values.length, kept: d };
+  }
   if (scale !== 'global' && scale !== 'segment') throw new Error(`scale must be global or segment, not ${scale}`);
   if (scale === 'segment' && loss !== 'gauss') throw new Error('scale segment takes the Gaussian loss only');
   const raw = Array.from(values, Number);
@@ -329,7 +351,7 @@ export function driftLevel(values, opts = {}) {
   // With slope, the path carries the steady growth back in, so one step's growth is taken off the
   // jump (before 2026-11-11 the jump on Australian residents included the 51.3-a-quarter growth).
   const g = r.slope || 0;
-  const scales = r.scale === 'segment' ? segmentScales(values, r.changepoints, r) : null;
+  const scales = r.scale === 'segment' ? (r.kept ? segmentScales(r.kept.values, r.changepoints.map((c) => r.kept.index.indexOf(c)), r) : segmentScales(values, r.changepoints, r)) : null;
   const changes = r.changepoints.map((i, k) => ({
     index: i, before: level[i - 1], after: level[i], jump: level[i] - level[i - 1] - g, jumpSd: (level[i] - level[i - 1] - g) / r.sigma,
     ...(scales ? { scaleBefore: scales[k], scaleAfter: scales[k + 1], scaleRatio: scales[k + 1] / scales[k] } : {}),
