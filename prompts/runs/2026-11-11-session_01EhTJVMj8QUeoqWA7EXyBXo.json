@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 23,
   "outcome": "success",
@@ -37,6 +37,14 @@
     {
       "what": "inherited_keys lint flagged MODELS[fit.name]",
       "fix": "Object.hasOwn guard in one expression"
+    },
+    {
+      "what": "sibling-links CI: new venture had no inbound sibling link",
+      "fix": "concrete-bid-calculator footer links it, with a page test"
+    },
+    {
+      "what": "Portfolio validate: optout-persistence pins the count of opt-out switches",
+      "fix": "1302 -> 1303 with a graduation note"
     }
   ],
   "integrity_issues": [],
@@ -46,7 +54,7 @@
     "docs/posts/2026-11-11-the-cold-edge-sets-the-stripping-date.md"
   ],
   "goal": null,
-  "notes": "Idea: concrete maturity calculator (logger CSV + lab breaks -> in-place strength per sensor, Nurse-Saul or equivalent age, three curve fits by AICc, time to target, governing sensor). Chosen for the construction direction; commercial maturity sensors are a real business, the arithmetic is not offered free on raw logger files. Verified: run_venture_tests.py concrete-maturity green (23 tests), clauses.mjs and router validate.py pass, headless Chromium drive with example under both methods: no console errors, no overflow at 390 px. Not yet run on a real project's logger export; that is the next input it needs. Next: datum/activation energy from mortar cubes (C1074 Annex A1), named logger format readers.",
+  "notes": "Idea: concrete maturity calculator (logger CSV + lab breaks -> in-place strength per sensor, Nurse-Saul or equivalent age, three curve fits by AICc, time to target, governing sensor). Chosen for the construction direction; commercial maturity sensors are a real business, the arithmetic is not offered free on raw logger files. Verified: run_venture_tests.py concrete-maturity green (23 tests), clauses.mjs and router validate.py pass, headless Chromium drive with example under both methods: no console errors, no overflow at 390 px. Not yet run on a real project's logger export; that is the next input it needs. Next: datum/activation energy from mortar cubes (C1074 Annex A1), named logger format readers. CI green on fd34f0c4 (13 success, 5 skipped). run_workflow_locally --for-changes timed out at 590 s locally; CI had runners so it was the gate.",
   "corrections": [],
   "redteam": null
 }
