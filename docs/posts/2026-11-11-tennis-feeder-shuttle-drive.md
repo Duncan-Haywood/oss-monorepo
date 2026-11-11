@@ -1,9 +1,9 @@
 ---
 title: "Ten seconds a ball: sizing the drive that meters the tennis feeder's balls"
-seo_title: "DIY tennis ball machine feed: a servo crank instead of a linear actuator"
+seo_title: "DIY tennis ball machine feed: a servo crank, not a linear actuator"
 date: 2026-11-11
 tags: [open-tennis-robots, cad, firmware, hardware]
-description: "The tennis feeder's bill of materials listed a linear actuator for its feed shuttle. Sizing it showed about 9.7 s a ball. A servo crank needs about 1.7 s, and the firmware was counting balls too early."
+description: "The feeder's listed linear actuator would need 9.7 s a ball. A servo crank needs 1.7 s, and the firmware was counting balls before they reached the wheels."
 ---
 
 The open tennis-ball feeder meters its balls with a printed shuttle that slides
