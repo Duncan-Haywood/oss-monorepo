@@ -42,7 +42,7 @@
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Critique mode via doc friction. Shipped ventures/hearth-and-horizon/bible_done.mjs + DONE.md + test: BIBLE.md 188,928 -> 39,788 bytes, 323 Done entries moved (291 Next up, 20 What not to do, 12 three shelves), 1 open proposal left. Checks: node --test stories.test.mjs usage.test.mjs 14/14; check_md_links ok; check_post_links ok; main_health.py 55/55. No backlog ids touched.",
+  "notes": "Critique mode via doc friction. Shipped ventures/hearth-and-horizon/bible_done.mjs + DONE.md + test: BIBLE.md 188,928 -> 39,788 bytes, 323 Done entries moved (291 Next up, 20 What not to do, 12 three shelves), 1 open proposal left. Checks: node --test stories.test.mjs usage.test.mjs 14/14; check_md_links ok; check_post_links ok; main_health.py 55/55. No backlog ids touched. CI runners never started (0 check runs); run_workflow_locally --for-changes: portfolio-validate 100/100, prompts-ci, ventures-tests, doc-refs, control-plane-guard, conflict-markers, checklist-coverage pass; pages.yml/portfolio-pages.yml fail only on the skipped ${{ }} build step and the 300 s local budget, so ran instead: check_post_frontmatter (rc 0) and platform/pages post|blog tests 106/106.",
   "corrections": [],
   "redteam": null
 }
