@@ -73,6 +73,8 @@ Options:
                       20 days does not stretch the day (--keep-rare turns both off). --backtest tests the forecast on your own file
                       instead: each full week after the first --warmup weeks (default 4) is planned from the weeks before it and compared
                       hour by hour with what its sales needed, for the plain average, --half-life 2/4/8, last 4 weeks and last week.
+                      A run shorter than --min-shift is lengthened toward the hours your dates most often needed one more
+                      person (and with --short-cost may be left unstaffed); --plain-cut keeps the old later-first stretch
                       --short-cost <r>: a short person-hour costs r spare ones (a queue or lost sale vs idle pay); each hour is then
                       staffed for the r/(1+r) share of its past dates (r 1 = median, 3 = 75th percentile) instead of the average,
                       and --backtest scores r x short + over and tries every weighting with that rule. With it, a run shorter than
@@ -124,6 +126,7 @@ export function parseArgs(argv) {
     else if (a === "--from-sales") { o.fromSales = argv[++i]; if (!o.fromSales) throw new Error("--from-sales needs a CSV file"); }
     else if (a === "--skip-dates") { o.demand = { ...o.demand, skipDates: String(argv[++i] || "").split(/[,\s]+/).filter(Boolean) }; if (!o.demand.skipDates.length) throw new Error("--skip-dates needs dates like 2026-11-26,2026-12-25"); }
     else if (a === "--backtest") o.backtest = true;
+    else if (a === "--plain-cut") o.demand = { ...o.demand, costCut: false };
     else if (a === "--keep-rare") o.demand = { ...o.demand, keepRare: true };
     else if (a === "--warmup") { const v = Number(argv[++i]); if (!Number.isInteger(v) || v < 1) throw new Error("--warmup needs a whole number of weeks, 1 or more"); o.demand = { ...o.demand, warmup: v }; }
     else if (a === "--short-cost") { const v = Number(argv[++i]); if (!(v > 0) || !Number.isFinite(v)) throw new Error("--short-cost needs a positive number (a short person-hour costs that many spare ones; 1 = equal)"); o.demand = { ...o.demand, shortCost: v }; }

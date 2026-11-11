@@ -514,3 +514,31 @@ test("backtest with shifts scores the cut: the shortest-shift stretch shows up a
   assert.equal(cc.over, 0);
   assert.ok(cc.miss < cut.miss);
 });
+
+// Placing the plain average's stretch (2026-11-11, eval/place-cut.mjs): no --short-cost, nothing dropped.
+test("cutShifts place: the stretch goes where past dates needed one more head, and the run is never dropped", () => {
+  const p = new Array(24).fill(0); for (let h = 8; h < 22; h++) p[h] = 1; p[12] = p[13] = 2;
+  const tail = Array.from({ length: 24 }, (_, h) => (p[h] ? [1, 1, h === 10 || h === 11 ? 0.8 : 0] : [1, 0]));
+  const four = (sh) => sh.filter(([a, b]) => b - a === 4);
+  assert.deepEqual(four(cutShifts(p, 4, 8)), [[12, 16]], "old rule: later first");
+  assert.deepEqual(four(cutShifts(p, 4, 8, { tail, r: 1, minStaff: 1, place: true })), [[10, 14]]);
+  // No hour ever needed a second head: every window costs more than leaving the run, and place still staffs it.
+  const flat = Array.from({ length: 24 }, (_, h) => (p[h] ? [1, 1, 0] : [1, 0]));
+  const kept = cutShifts(p, 4, 8, { tail: flat, r: 1, minStaff: 1, place: true });
+  assert.deepEqual(four(kept), [[12, 16]], "ties keep the later window");
+  assert.deepEqual(kept.dropped, []);
+  assert.equal(cutShifts(p, 4, 8, { tail: flat, r: 1, minStaff: 1 }).dropped.length, 1, "without place the cost cut drops it");
+});
+
+test("demandShifts without --short-cost places the stretch from the file; --plain-cut (costCut false) keeps the old one", () => {
+  let csv = "Date Time,Sales\n";
+  for (let w = 0; w < 12; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    for (let h = 8; h < 18; h++) csv += `${day} ${h}:00,${h === 12 || h === 13 ? 150 : h === 11 && w % 3 === 0 ? 110 : 80}\n`;
+  }
+  const placed = demandShifts(csv, { splh: 100, minShift: 4 }), old = demandShifts(csv, { splh: 100, minShift: 4, costCut: false });
+  assert.ok(old.days[0].shifts.some(([a, b]) => a === 12 && b === 16), JSON.stringify(old.days[0].shifts));
+  assert.ok(placed.days[0].shifts.some(([a, b]) => a === 11 && b === 15), JSON.stringify(placed.days[0].shifts));
+  assert.equal(placed.scheduled, old.scheduled, "same hours, placed elsewhere");
+  assert.doesNotMatch(placed.notes.join(" "), /Left unstaffed/);
+});

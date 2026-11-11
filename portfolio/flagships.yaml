@@ -173,7 +173,10 @@ flagships:
       length), not just sales; a real published-schedule export for --import-shifts; joining short runs an
       hour or two apart into one shift and folding a short run into a neighbouring shift (the cost cut,
       README "The short-cost weight carried through the shift cut", 2026-11-11, prices each run alone:
-      backtest now scores cut shifts, cost cut beats the old cut in 36 of 36 settings on both bakeries).
+      backtest now scores cut shifts, cost cut beats the old cut in 36 of 36 settings on both bakeries;
+      the plain average's stretch is now placed the same way, README "The plain average's stretch, placed":
+      French 18 of 18 lower by 2.8-60.2, Korean level); why the stretch gain differs so much between the
+      two files.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
