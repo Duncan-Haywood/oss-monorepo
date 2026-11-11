@@ -66,7 +66,9 @@ alternative; wheels are simpler and need no setup.
 **Launcher head.** Two outrunner BLDC motors (the 50-63 mm class sold for
 e-skateboards) each driving a 150 mm wheel directly. Stack them vertically
 so the speed difference becomes topspin or backspin; tilt the whole head
-for elevation (linear actuator or high-torque servo on a pivot) and rotate
+for elevation (as drawn in `cad/`, 2026-11-11: a 150 mm-stroke linear actuator
+outboard of the guard-side cheek pushes a pin high on the guard plate;
+`cad/README.md`, "Elevation drive") and rotate
 it on a small turntable for azimuth (as drawn in `cad/`, 2026-11-10: a NEMA
 17 stepper turns a printed gear sector under the turntable through a 15-tooth
 pinion, 10:1, homed on a switch; `cad/README.md`, "Azimuth drive"). A reflective IR sensor on each hub

@@ -826,6 +826,20 @@ RULES.not_interested.push(/\b(please )?cancel (the|my|our) ([\w.&'-]+ ){0,2}(ser
 const REST_EXPLAINS_7 = /^\s*just (wanted|wanting|asking|checking|curious|wondering|a (chance|thought|question|heads|reminder)|fyi|thought|thinking|confirming)\b/i;
 const vetoed = (key, s) => (VETO[key] || []).some((re) => re.test(s));
 
+// A machine's away notice, not a person's reply: a header signal (handled above, kept here for callers), an auto-responder's own
+// subject ("Automatic reply: ...", "Out of Office: ...", "OOO"; never a Re:/Fw: one), a daemon or no-reply sender, or wording only a
+// template uses ("this is an automatic reply", "thank you for your email ... I am on leave ... for urgent matters", "I will reply when
+// I return", "limited access to email"). Everything else that says "away" is a person writing. Narrow on purpose: calling a
+// notice a person's reply adds one task to read; calling a person's reply a notice hides it.
+const AUTO_SUBJECT = /^\s*(out of (the )?office|ooo\b|auto(matic|mated)?[- ]?(reply|response|antwort)|autoreply|auto:|away from (the |my )?(office|desk)|on (vacation|holiday|leave)\b|abwesenheit|absence|r[ée]ponse automatique|respuesta autom|risposta automatica|resposta autom|fuera de la oficina|afwezig|automatisch)/i;
+const AUTO_BODY = /\b(this is an? auto(matic|mated)(ally generated)?[- ]?(reply|response|message|notice|e-?mail)|auto(matic|mated)[- ]?(reply|response)|(i|i'?ll) (will |shall )?(respond|reply|get back to you|answer)( to (your|you) ?(e-?mail|message|note)?s?)? (when|upon|on|after) (my |i )?(return|get back|am back|'m back)|(have|with) (limited|no|intermittent|sporadic) (access to (my )?(e-?mail|messages)|e-?mail access)|for (anything|any|something) (urgent|time[- ]sensitive)\b|for (urgent|immediate|time[- ]sensitive) (matters?|issues?|requests?|enquir(y|ies)|inquir(y|ies)|assistance|questions?|needs?)\b|(will not|won'?t) be (checking|reading|monitoring) (my |this )?(e-?mails?|inbox|messages)|messages (are|will) not (be )?(monitored|read|forwarded)|(will|shall) (reply|respond) when i'?m back|lese meine e-?mails? nicht|lees mijn (e-?)?mail niet|svarar n[äa]r jag [äa]r tillbaka)/i;
+// A body that opens the way a template does: "Auto-reply: ...", "Thanks for your email. I'm on parental leave until March."
+const AUTO_OPENING = /^(auto[- ]?reply|automatic reply|out of (the )?office)\s*:|^thanks?( you)? for (your|the) (e-?mail|message|note|mail)\s*[.!]\s*(i'?m|i am|i will be) (currently )?(on|out|away)\b/i;
+export const awayNotice = ({ subject = "", body = "", from = "", signal = "" } = {}) => {
+  const flat = body.replace(/\s+/g, " ").trim();
+  return Boolean(signal) || AUTO_SUBJECT.test(subject) || /^\s*away\s*$/i.test(subject) || /^(mailer-daemon|postmaster|no-?reply|do-?not-?reply)\b/i.test(from) || AUTO_BODY.test(flat) || AUTO_OPENING.test(flat);
+};
+
 /**
  * Classify one reply. Returns { category, subtype, confidence: "clear" | "weak", evidence, date, referral, why }.
  * Order matters and is the policy: anything that asks for less contact beats anything that asks for more, so
@@ -892,7 +906,13 @@ export function triage(reply, today) {
 
   if ((ev = find("out_of_office"))) {
     const d = (() => { for (const s of all) { if (/\b(back|return|returning|until|till|away|leave|office|reply|jusqu|retour|hasta|vuelta|at[ée]|volto|bis|zur[üu]ck|fino|tot)\b/i.test(s)) { const f = findDate(s, today); if (f) return f; } } return null; })();
-    return res("out_of_office", ev, { date: d?.date || null, dateText: d?.text || null, referral, why: d ? `away until ${d.date}` : "away, no return date given" });
+    // The away policy, decided 2026-11-11 (eval/README.md "The away policy"): only a machine's away notice pauses the lead
+    // silently. A person who wrote back and said they are away gets both readings at once: the cadence still pauses until the
+    // date they give (what the reply asks for), and the reply goes into the tasks so a person reads it (what a reader of a
+    // working reply expects). The pause costs nothing either way; hiding a person's reply is the error that loses a lead.
+    const subtype = awayNotice({ subject, body, from, signal: signal0(reply) }) ? null : "person_away";
+    const why = subtype ? `a person wrote back and said they are away${d ? ` until ${d.date}` : ""}` : d ? `away until ${d.date}` : "away, no return date given";
+    return res("out_of_office", ev, { subtype, date: d?.date || null, dateText: d?.text || null, referral, why });
   }
   // Added 2026-11-08 (eighteenth set, a false-not-now and wrong-person probe): "not later, not ever", "no need to check back",
   // "close the file" are a final no, whatever "not now" or "wrong person" sits beside them.
@@ -1087,7 +1107,12 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
         const back = t.date ? addBusinessDays(t.date, 1) : addDays(today, 7);
         set("status", "paused", "Paused the cadence");
         set("paused_until", back, t.date ? `Resumes ${back}, the business day after they are back` : `Resumes ${back} (no return date given: one week)`);
-        if (t.referral) tasks.push({ email: t.referral.email, task: `Auto-reply names ${t.referral.email} as a contact while they are away. Only for urgent matters; usually wait.` });
+        if (t.subtype === "person_away") {
+          // A person wrote this, not an auto-responder: the pause stands, and the reply reaches a person (the away policy, triage).
+          applied.push("Put in your tasks to read: a person wrote this, not an auto-responder");
+          tasks.push({ email: p.email, task: `${p.email} wrote back themselves and said they are away${t.date ? ` until ${t.date}` : ""}. The cadence is paused until ${back}; read the reply in case it says more ("${(t.evidence || "").slice(0, 120)}").` });
+        }
+        if (t.referral) tasks.push({ email: t.referral.email, task: `${t.subtype === "person_away" ? "Their reply" : "Auto-reply"} names ${t.referral.email} as a contact while they are away. Only for urgent matters; usually wait.` });
         break;
       }
       case "not_now":

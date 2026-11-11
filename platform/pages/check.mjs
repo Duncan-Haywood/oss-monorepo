@@ -587,6 +587,11 @@ export const SERVED_EXTENSIONS = new Map([
   ['.eml', 'stock'],
   // wall-framing-takeoff's IFC fixtures (STEP text); same note: no location block on the retired origin.
   ['.ifc', 'stock'],
+  // systemd-unit-hardening-check's test fixtures (fixtures/*.service, *.service.d/*.conf), plain unit-file text its page never
+  // fetches. mime-db (Cloudflare's asset server) types .conf as text/plain; .service has no entry, so a visitor who opens one
+  // directly downloads it rather than reading it, harmless for a fixture (added 2026-11-11 after PR #14794 broke the pages check).
+  ['.conf', 'stock'],
+  ['.service', 'stock'],
   // dupehound's browser build (WebAssembly); mime.types lists application/wasm wasm (nginx 1.21+),
   // and GitHub Pages serves it as application/wasm.
   ['.wasm', 'stock'],

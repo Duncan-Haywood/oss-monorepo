@@ -651,6 +651,59 @@ after. Agent-written reply sets (792 replies in `replies.jsonl`, `heldout.jsonl`
 against round 6 (one did in the first draft, "Not looking to cancel our contract", fixed before freezing). Real auto-replies
 and bounces caught: unchanged on every half. `node --test`: 471 pass (441 before this round's tests).
 
+### The away policy, decided on purpose (2026-11-11)
+
+Round 7 left one question that more rules could not answer: when a person writes back "I'm out of the office this entire
+week on vacation, so I will be unable to participate", should the lead pause (the product, since round 5, when a date is
+stated) or should the reply reach a person (what the blind readers said, `none`, 20 of the 37 wrong stops on `7*`)? Reading
+every away stop on `7*` (33) settled it: all 33 were typed by a person, with a greeting, a name, a question or a promise to call,
+including the 13 the reader called away notices. So the answer is both, split by who wrote it:
+
+- **A machine's away notice pauses silently**, as before: a header signal (`Auto-Submitted`, `Precedence: auto_reply`,
+  `X-Autoreply`), an auto-responder's own subject ("Automatic reply:", "Out of Office:", "OOO", "Away"; never a `Re:`), a
+  daemon or no-reply sender, or wording only a template uses ("This is an automatic message", "I will respond to your message
+  when I return", "limited email access", "for anything urgent", "messages are not monitored", a body that opens "Thanks for
+  your email. I am on ..."). `engine.mjs` `awayNotice`.
+- **A person who says they are away gets both readings** (`subtype: "person_away"`): the cadence pauses until the business day
+  after the date they give (one week with none), and the reply goes into the tasks so a person reads it. Nothing is drafted.
+
+The pause costs nothing in either reading, and hiding a person's reply is the error that loses a lead, so the split errs toward
+the task: a notice taken for a person adds one task to read; a person taken for a notice is hidden. No away label needs to
+change under this policy, because a `none` and an `out_of_office` reading of a person's away reply are both served. The other
+stop categories are untouched. `eval/enron.mjs` now counts `person_away` replies apart ("reached a person") and no longer as stops.
+
+| `RE:` replies, rules frozen at round 7 | Silent stops: right / wrong / ambiguous, before | After | Away replies that now reach a person (reader's label) |
+|---|---|---|---|
+| `2*`-`6*` (47,959; readers' labels) | 253 / 71 / 10 | 201 / 44 / 6 | 83 (52 out_of_office, 26 none, 4 ambiguous, 1 not_interested) |
+| **`7*` (9,428; round 7's fresh half)** | **49 / 37 / 3** | **36 / 17 / 3** | **33 (13 out_of_office, 20 none)** |
+| `7*`, wrong silent stops per 1,000 | 3.9 | **1.8** | |
+| `7*`, only stops whose text no earlier half fired on (`--seen`) | | 10 / 12 / 3 (25 of 56) | 16 |
+| `0*`-`1*` (older right/wrong labels) | 125 / 6 / 1 | 90 / 5 / 1 | 38 (35 right, 1 wrong, 2 unlabelled) |
+
+(`2*`-`6*` cells sum the five halves; the 'before' column is the round-7 rules as landed, read with today's script.)
+
+**Read it as a policy, not a blind score.** The policy was chosen after reading `7*`'s labels (round 7 had already reported
+the 20), and its effect on the labelled stops is mechanical: every person-typed away reply now reaches a person, so the readers'
+`none` on those is satisfied by construction. What it costs is measured instead:
+
+- *Tasks.* 154 away replies across the eight halves (2.0 per 1,000 real replies) now land in the tasks, each a person's own
+  writing. Two remain silent pauses on human `RE:` replies, both real templates ("I will respond to your message when I return";
+  "This is an automatic message").
+- *Real auto-replies.* All 365 messages the corpus marks as auto-replies by subject or header stay silent notices (0 sent to a
+  person). The body wording alone, with the subject and header taken away, recognises only 14 of them as notices, so a
+  header-less, subject-less notice will usually cost a task to read. That is the cheap direction, and modern responders
+  (Gmail, Outlook, Exchange) set `Auto-Submitted`.
+- *Agent-written sets.* Of the 61 away replies in `replies.jsonl`, `heldout.jsonl` and `fresh-*.jsonl`, 2 are now read as a
+  person ("I'm currently out on a family emergency. My colleague ... can help", "I've left the office for the day and will be
+  back tomorrow morning"); the template wording was widened on these sets (a first draft sent 15 of the 61 to a person), so they
+  are tuning data for `awayNotice`, not a score. No reply changes category.
+
+**De-duplicated, the fresh half is small.** With `--seen` (drop every stop whose first 300 characters, case and punctuation
+folded, an earlier half already fired on), 31 of `7*`'s 56 silent stops are repeats. On the 25 left, precision is 40% (10 right,
+12 wrong, 3 ambiguous), lower than the 64% with repeats: list mail and opt-out chains that repeat across halves are mostly right.
+Any further rule round should score on de-duplicated text only, and a 25-stop half is too small to measure a rule change against
+the ~1 per 1,000 reader effect. The useful next data is a second reader on these and real replies to outreach.
+
 ## Real opt-outs: a recall set from the rest of Enron, added 2026-11-10
 
 The Enron check above measured stops that fired wrongly. This one measures the

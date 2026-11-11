@@ -1,7 +1,8 @@
 item,kind,qty,what,notes
 head_motor_plate,laser,1,aluminium 5052 5 mm,Both outrunners mount on this plate (M4 on a 25 mm square; check your motor). Pivot bolt M8 through the lower hole.
 head_guard_plate,laser,1,aluminium 5052 5 mm,Keeps hands and balls off the open side of the wheels; held by four M5 standoffs.
-trunnion_cheek,laser,2,aluminium 5052 5 mm,Holds the head's M8 pivot bolt; a printed foot on each cheek bolts it to the turntable plate.
+trunnion_cheek,laser,1,aluminium 5052 5 mm,Motor-side (+y) cheek: holds the head's M8 pivot bolt; a printed foot bolts it to the turntable plate.
+trunnion_cheek_elev,laser,1,aluminium 5052 5 mm,"Guard-side (-y) cheek: holds the pivot bolt, and its rear tab carries the elevation actuator's anchor (M6 shoulder bolt). Same feet as the other cheek."
 mast_plate,laser,1,aluminium 5052 5 mm,Bolts to the end-tapped posts (M5) and to the fixed ring of the turntable bearing; the azimuth stepper hangs under it on four M3 screws.
 turntable_plate,laser,1,aluminium 5052 5 mm,Bolts to the rotating ring of the bearing. Trimmed to a 108 mm radius so the azimuth pinion clears it at every angle; the printed gear sector bolts under its +y edge (3 x M4).
 base_deck,laser,1,aluminium 5052 5 mm,Sits on the rails (M5 and T-nuts); holds the battery and electronics.
@@ -44,6 +45,10 @@ wheel,cots,4,"150 x 40 mm non-marking wheel, 6 mm D hub (drive) or 8 mm bore (id
 gearmotor,cots,2,"37 mm gearmotor, 24 V, ~200 rpm, 6 mm D shaft, quadrature encoder",
 levelling_foot,cots,2,"M10 levelling foot with a 40 mm rubber pad, 155 mm of stud; T-nut in the beam",
 battery,cots,1,"24 V (8S) LiFePO4 20 Ah with BMS, max 90 x 200 x 130 mm",
+elev_actuator,cots,1,"Linear actuator, 12-24 V, 150 mm stroke, 220 N class, clevis eyes for M6, retracted 240 mm hole to hole (drawn at 0 deg; posed per pose in the sweeps)",
+elev_actuator_rod,cots,1,"The elev_actuator's own rod (not bought separately), drawn at 0 deg",
+elev_pin,cots,1,"M6 shoulder bolt, 40 mm shoulder, + nyloc: through the guard plate (nut inside), the actuator's rod eye",
+elev_anchor_bolt,cots,1,"M6 shoulder bolt, 30 mm shoulder, + nyloc: through the guard-side cheek's tab, the actuator's anchor eye",
 M8 x 110 bolt + nyloc nut + 4 washers,cots,1,M8 x 110 bolt + nyloc nut + 4 washers,head pivot through the cheeks
 "M5 female-female standoff, 80 mm",cots,4,"M5 female-female standoff, 80 mm",between the head plates
 M5 x 12 button head,cots,34,M5 x 12 button head,"standoffs, mast plate to posts, turntable, deck, brackets"
@@ -73,7 +78,6 @@ Global-shutter camera module + cable,cots,2,Global-shutter camera module + cable
 ESP32 dev board (ESP32-WROOM-32),cots,1,ESP32 dev board (ESP32-WROOM-32),"firmware/esp32, feeder role"
 "50 A+ BLDC ESC, servo-pulse input",cots,2,"50 A+ BLDC ESC, servo-pulse input",launcher wheels
 "Dual DC motor driver, 10 A/ch",cots,1,"Dual DC motor driver, 10 A/ch",base drive
-High-torque servo or linear actuator,cots,1,High-torque servo or linear actuator,elevation (bracket not modelled yet)
 "Linear actuator, 12-24 V, 100 mm stroke, 30 N+",cots,1,"Linear actuator, 12-24 V, 100 mm stroke, 30 N+",feed shuttle (bracket not modelled yet; clevis pin in the shuttle's rear)
 "Storage tub, about 440 x 340 x 250 mm",cots,1,"Storage tub, about 440 x 340 x 250 mm",hopper; see the part notes for the cut
 "Stepper driver, 2 A class (TMC2209 or A4988), 24 V",cots,1,"Stepper driver, 2 A class (TMC2209 or A4988), 24 V",azimuth stepper
