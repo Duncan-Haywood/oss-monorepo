@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-11-11 · Milestone 5t: the measured loader's own break-even margin, per Y-cycle (predictions registered before any code was written)
+- Why: 5s turned the programme's break-evens into one formula, m* = (S + D + I) / B, and named the measured loader (5n to 5r) as the next place to apply it. Every break-even so far (20.6 to 30.5 bar) comes from the synthetic force-model excavator cycles. The loader is a real load-sensing machine running at a measured 24.9 bar median margin; the question is what margin it could run at before the best open-centre counterfactual of 5o/5r (same motion, fixed 63 cc pump, full-travel spool floor) would use less hydraulic energy, and how much headroom its actual margin leaves. zenodo.org answered (HTTP 200) at the start of this session.
+- Setup fixed before the run: LS(m) = sum over moving samples of q_demand (p_load + m) dt + sum over still samples of q_sb m dt, the 5n "LS model" (constant margin on the measured P-port demand); OC from 5o/5r's noise-floor motion masks, (a) the floor dp_spool 0, p_neutral 5 bar, (b) 5r's PVG 32 orifice floor, p99.9 sizing, p_neutral 5, (c) 5n's central case, dp_spool 10, p_neutral 10. Standby flow q_sb = 0 by default (5n's convention), swept to 2 and 5 L/min.
+- **Predictions (written before any code of this step existed):**
+  - T1: over the whole record, the break-even margin against the 5r floor (b) is 50 to 80 bar. Prior 60%.
+  - T2: in every one of the 18 Y-cycles m*_c exceeds the measured 24.9 bar, so load-sensing at its own margin beats the best open-centre counterfactual in every cycle. Prior 90%.
+  - T3: surplus flow at load pressure (S) carries over 70% of S + D + I under (b). Prior 70%.
+  - T4: a 2 L/min standby flow lowers the whole-record m* under (b) by less than 15%. Prior 60%.
+  - T5: the median per-cycle m*_c under (a) is more than twice the synthetic zero-drop break-even of 5q/5s (20.5 bar). Prior 65%.
+
 ## 2026-11-11 · Milestone 5s: the break-even LS margin in closed form (predictions registered before any code was written)
 - Why: every break-even in this programme (2l, 2n, 5p, 5q) was found by sweeping dp_ls on a grid and interpolating where the median LS/OC crosses 1, and the slopes it reported (0.92 bar of margin per bar of neutral pressure in 2l, 1.24 per bar of spool drop in 5q) were read off those sweeps. In the model the load-sensing energy is affine in the margin, LS_c(m) = A_c + B_c m, and open-centre does not depend on it, so each cycle has an exact break-even m*_c = (OC_c - A_c) / B_c. Because LS_c/OC_c is increasing in m for every cycle, the median ratio crosses 1 exactly at the median of m*_c, and the share of cycles in which LS loses at margin m is the share with m*_c < m. That turns the programme's grid answers into a formula a reader can evaluate on their own machine's cycle: m* = (surplus-flow throttling + Q x spool drop x moving time + Q x p_n x idle time - LS idle useful work) / (LS delivered volume + LS idle volume). zenodo.org and assets.danfoss.com refused the proxy this session (403 at 17:58 UTC), so the measured loader and the PVG 100 / partial-travel steps 5r named could not run; this step needs no download.
 - **Predictions (written before any code of this step existed):**
