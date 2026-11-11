@@ -33,6 +33,17 @@
     .primary { background: #2f5d50; border-color: #2f5d50; color: #f4f8f6; }
     .primary:hover { background: #26493f; }
     .result { position: sticky; top: 15px; background: #172b26; color: #eef5f2; border-color: #172b26; }
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row, and the form, proposal and FAQ stack on the left.
+       The card is taller than the form, so as one grid cell it set its row's
+       height and, being sticky, slid down over whatever came next in its
+       column (the FAQ, or the full-width proposal). With a column of its own it
+       has room to travel, pf-site.js caps it at the window's height, and it
+       covers nothing. Phones keep the single column. */
+    @media (min-width: 821px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 3; }
+    }
     /* The panel paints its own dark fill but never a link colour, so a link inside it
        would fall back to the browser default blue — 1.1:1 here, invisible. Inheriting
        the panel ink cannot drift from the background the panel actually paints, and the
@@ -131,7 +142,6 @@
       </section>
     </form>
 
-    <div>
       <section class="result" id="result" aria-live="polite">
         <h2>What you actually collect</h2>
         <p class="empty" id="exampleNote">This is the worked example the form opens on &mdash; a three-technician shop, not yours yet. Change the figures and press the button.</p>
@@ -166,7 +176,6 @@
         <p class="hint" style="margin-bottom:10px">This page divides the numbers you typed. It has no way to know your market, your competition, your warranty contracts or your customers, so it does not tell you what to charge, what work to take, or what to pay anybody &mdash; it says what the month you entered actually did.</p>
         <p class="hint" style="margin:0">It is not an accounting, tax, legal or employment opinion, and it makes no determination about how any figure should be recorded or how any technician should be paid or classified. Check every number against your management system and your accounts, and against a qualified professional, before pricing work with it.</p>
       </section>
-    </div>
   </main>
 
   <footer>

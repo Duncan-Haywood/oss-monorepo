@@ -45,8 +45,11 @@ export type LapseSource = ((answers: readonly LapseAnswer[], states: ReadonlyMap
  * `coverage95` is the share of item pairs whose 95% interval on the rating
  * difference, sqrt(rd_a^2 + rd_b^2) wide each side, holds the true difference
  * (truth is on a logit scale with slope 2, so true mu difference = 2 dt).
+ * `truthFor`, when given, replaces item i's drawn truth (the draw still happens,
+ * so the rest of the seed's stream is unchanged): a survey whose respondents
+ * share one truth plus a personal deviation (scripts/anchor-weight-sweep.ts).
  */
-export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false, onAnswer?: (answered: number, rds: number[]) => void, updateLapse: number | LapseSource = 0, onLapse?: (answered: number, e: number) => void) {
+export function simulate(policy: Policy, itemCount: number, budget: number, seed: number, lapse = 0, positionBias = 0, lapseFrom = 0, useAgreement = false, onAnswer?: (answered: number, rds: number[]) => void, updateLapse: number | LapseSource = 0, onLapse?: (answered: number, e: number) => void, truthFor?: (index: number, drawn: number) => number) {
   const rand = mulberry32(seed);
   const truth = new Map<string, number>();
   const state = new Map<string, GlickoState>();
@@ -54,7 +57,8 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
   const items: PairItem[] = [];
   for (let i = 0; i < itemCount; i++) {
     const id = `item-${String(i).padStart(3, "0")}`;
-    truth.set(id, rand() * 2 - 1);
+    const drawn = rand() * 2 - 1;
+    truth.set(id, truthFor ? truthFor(i, drawn) : drawn);
     state.set(id, { ...DEFAULT_GLICKO_STATE });
     items.push({
       id,
@@ -124,7 +128,7 @@ export function simulate(policy: Policy, itemCount: number, budget: number, seed
     }
   }
   const coverage95 = pairs === 0 ? 1 : held / pairs;
-  return { under, rankAccuracy, coverage95, touched: timesShown.size, truth };
+  return { under, rankAccuracy, coverage95, touched: timesShown.size, truth, states: state, history };
 }
 
 export function spearman(xs: number[], ys: number[]): number {

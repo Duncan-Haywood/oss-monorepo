@@ -33,6 +33,17 @@
     .primary { background: #1f4a8c; border-color: #1f4a8c; color: #f0f4fa; }
     .primary:hover { background: #183a70; }
     .result { position: sticky; top: 15px; background: #10182b; color: #eaeffa; border-color: #10182b; }
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row, and the form, proposal and FAQ stack on the left.
+       The card is taller than the form, so as one grid cell it set its row's
+       height and, being sticky, slid down over whatever came next in its
+       column (the FAQ, or the full-width proposal). With a column of its own it
+       has room to travel, pf-site.js caps it at the window's height, and it
+       covers nothing. Phones keep the single column. */
+    @media (min-width: 821px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 2; }
+    }
     .result a { color: inherit; }
     /* .hint's default color is tuned for the light form section; the target
        box sits on the dark result background and needs its own contrast. */
