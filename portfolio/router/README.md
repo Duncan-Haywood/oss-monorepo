@@ -106,14 +106,8 @@ queue:
 pip install -r portfolio/router/requirements.txt
 python3 portfolio/router/allocate.py         # table
 python3 portfolio/router/allocate.py --json  # machine-readable work queue
-python3 portfolio/router/allocate.py --no-prs  # skip the open-PR search
 python3 -m unittest discover -s portfolio/router -t portfolio/router
 ```
-
-Each row's task starts with `[open PR #N age]` when an open pull request's
-title names the venture's slug (one `gh` search; the age is since its last
-update, so a stale claim reads as one). It does not change the ranking: read
-the PR, then extend it or take the next row.
 
 v1 ranks by: ventures measured at $0 MRR past `revenue` stage first (they
 need a kill/fix decision, not more blind spend), then unmeasured ventures

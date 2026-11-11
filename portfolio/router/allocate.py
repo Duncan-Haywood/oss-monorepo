@@ -25,17 +25,9 @@ display-only counts per venture — neither is part of `rank()`:
 Neither count drives ranking yet — see README.md's "Attribution honesty"
 section for why that next step is deliberately not automated.
 
-Open pull requests: each row's task is prefixed with the open PRs whose
-title names the venture's slug (one GitHub search through `gh`; `--no-prs`
-skips it). Display-only, like the counts above: a stale open PR should not
-lock a flagship, so the run reads the PR's age and decides. Eleven run records
-on 2026-11-10/11 reported stepping down the table by hand after a search
-found the top row already taken by a concurrent session.
-
 Usage:
     python3 portfolio/router/allocate.py           # table
     python3 portfolio/router/allocate.py --json     # JSON work queue
-    python3 portfolio/router/allocate.py --no-prs   # skip the open-PR search
 """
 from __future__ import annotations
 
@@ -650,66 +642,7 @@ def recent_commits(days: int = 7, deepen: bool = True) -> dict[str, int]:
     return counts
 
 
-GH_REPO = "duncan-haywood/oss-monorepo"
-
-
-def fetch_open_prs(timeout: int = 30) -> tuple[list[dict], str]:
-    """Open PRs as [{number, title, updated_at}], plus a one-line note.
-
-    Fails soft: without `gh` or a working search the table still prints and
-    the note says the claims were not checked (never "none open")."""
-    try:
-        out = subprocess.run(
-            ["gh", "api", "-X", "GET", "search/issues", "--paginate",
-             "-f", f"q=repo:{GH_REPO} is:pr is:open", "-f", "per_page=100",
-             "--jq", ".items[] | {number, title, updated_at}"],
-            capture_output=True, text=True, timeout=timeout)
-    except (OSError, subprocess.TimeoutExpired):
-        return [], "open PRs not checked (gh unavailable or slow)"
-    if out.returncode != 0:
-        return [], "open PRs not checked (gh search failed)"
-    prs = []
-    for line in out.stdout.splitlines():
-        try:
-            prs.append(json.loads(line))
-        except json.JSONDecodeError:
-            return [], "open PRs not checked (unreadable gh output)"
-    return prs, f"checked {len(prs)} open PR(s) for venture slugs in titles"
-
-
-def claims_by_venture(prs: list[dict], slugs: list[str],
-                      now: Optional[datetime] = None) -> dict[str, list[str]]:
-    """{slug: ["#14678 3h", ...]} for open PRs whose title names the slug.
-
-    Whole-slug match (`sales-agent` must not claim `sales-agent-pro`). The
-    age is time since the PR was last updated, so a run can tell a live
-    claim from one stranded days ago."""
-    now = now or datetime.now(timezone.utc)
-    found: dict[str, list[str]] = {}
-    for slug in slugs:
-        pat = re.compile(rf"(?<![a-z0-9-]){re.escape(slug)}(?![a-z0-9-])", re.I)
-        for pr in prs:
-            if not pat.search(pr.get("title") or ""):
-                continue
-            age = ""
-            try:
-                updated = datetime.fromisoformat(str(pr["updated_at"]).replace("Z", "+00:00"))
-                hours = max(0, int((now - updated).total_seconds() // 3600))
-                age = f" {hours}h" if hours < 48 else f" {hours // 24}d"
-            except (KeyError, ValueError, TypeError):
-                pass
-            found.setdefault(slug, []).append(f"#{pr['number']}{age}")
-    return found
-
-
-def claimed(item: dict) -> str:
-    """Task prefix naming the open PRs on this row, or ''."""
-    prs = item.get("open_prs") or []
-    return f"[open PR {', '.join(prs)}] " if prs else ""
-
-
-def print_table(ventures: list[Venture], queue: list[dict],
-                pr_note: Optional[str] = None) -> None:
+def print_table(ventures: list[Venture], queue: list[dict]) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
     total_cap = later_cap + early_cap
@@ -751,9 +684,6 @@ def print_table(ventures: list[Venture], queue: list[dict],
         f"{'ledger':>8}{'mentions':>10}{'7d-commits':>12}  task"
     )
     recent = recent_commits()
-    if pr_note:
-        print(f"({pr_note}; 'open PR' rows may already be taken: read the PR, "
-              "then extend it or take the next row)")
     empty_shown = 0
     empty_hidden = 0
     for i, item in enumerate(queue, 1):
@@ -768,7 +698,7 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"{item['spend_ceiling_usd']:>6.0f}{merit:>7}"
             f"{item['ledger_entries_this_period']:>8}"
             f"{item['portfolio_mentions_this_period']:>10}"
-            f"{recent.get(item['venture'], 0):>12}  {claimed(item)}{item['task']}"
+            f"{recent.get(item['venture'], 0):>12}  {item['task']}"
         )
     if empty_hidden:
         print(
@@ -811,8 +741,6 @@ def main(argv: Optional[list[str]] = None) -> int:
         action="store_true",
         help="emit the owner-decision / merit-unblocked rollup as JSON",
     )
-    parser.add_argument("--no-prs", action="store_true",
-                        help="skip the GitHub search that marks rows named by an open PR")
     parser.add_argument("--no-deepen", action="store_true",
                         help="skip the shallow-clone fetch; 7-day commit counts may be partial")
     args = parser.parse_args(argv)
@@ -831,15 +759,10 @@ def main(argv: Optional[list[str]] = None) -> int:
         v.recent_commits = recent.get(v.name, 0)
     queue = work_queue(ventures)
 
-    prs, pr_note = ([], "open PRs not checked (--no-prs)") if args.no_prs else fetch_open_prs()
-    claims = claims_by_venture(prs, [item["venture"] for item in queue])
-    for item in queue:
-        item["open_prs"] = claims.get(item["venture"], [])
-
     if args.json:
         print(json.dumps(queue, indent=2))
     else:
-        print_table(ventures, queue, pr_note)
+        print_table(ventures, queue)
     return 0
 
 
