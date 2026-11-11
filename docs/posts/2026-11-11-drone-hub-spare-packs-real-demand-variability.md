@@ -1,9 +1,9 @@
 ---
 title: "Real demand swings add 36 to 56% to a drone hub's spare batteries"
-seo_title: "Drone delivery hub spare batteries under real day-to-day demand variability"
+seo_title: "Drone hub spare batteries under real day-to-day demand swings"
 date: 2026-11-11
 tags: [research, uav, logistics, queueing]
-description: "Using 131 weekdays of Uber pickups in New York, a cargo-drone hub needs 64 and 111 spare packs where the mean-day formula says 47 and 71. A busy evening still leaves packs at the chargers the next morning."
+description: "On 131 weekdays of real NYC demand a drone hub needs 64 and 111 spare packs, not the mean-day 47 and 71: busy evenings leave packs queued into the next morning."
 ---
 
 The `aerolog-scaling` programme has a model of a delivery-drone hub: 8 pads,
