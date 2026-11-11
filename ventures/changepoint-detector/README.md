@@ -2483,3 +2483,57 @@ them exactly as before.
   name ending in `.csv`, `.tsv` or `.txt`, with no other file given, is read as the file; decided
   by the name, not by whether the file exists, so the command means the same in every folder
   (`columns-threads.test.mjs`).
+
+## Heavy tails on a drifting level: a bounded loss makes it worse (2026-11-11, latest, negative result)
+
+Open item from "A step-robust omega": `--model drift` still makes 63 false cuts on TCPD's `bank`
+(annotators mark none) and 52 on bitcoin. Both look heavy-tailed, so the obvious fix is a loss that
+an outlier cannot dominate. `drift-level.mjs` now takes `loss: 'biweight' | 'huber'` and `lossK`
+on the standardised innovation z = v / sqrt(F) of the segment's Kalman filter. Biweight charges
+min(z^2, K^2) and leaves the level unchanged past K. That is the bounded loss of Fearnhead and Rigaill,
+"Changepoint Detection in the Presence of Outliers" (JASA 114(525), 2019, doi
+10.1080/01621459.2017.1385466; abstract read, not the body), applied inside the filter instead of to
+a flat segment mean. Huber charges 2K|z| - K^2 and moves the level by the clipped innovation. The
+variances are untouched, so the cost stays O(n^2) and the ML wander is profiled under the same loss.
+
+- **Synthetic first** (`node eval/drift-robust-sim.mjs`, output `eval/drift-robust-sim.out.txt`;
+  n 200, one step at 100, 60 series a cell). Student t3 noise with no step: Gaussian 1.58 false
+  cuts a series, Huber 0.15, biweight 0.03. A 3-sd step on t3 noise is found 55, 58 and 60 times
+  out of 60. With wander (omega 0.3), the 3-sd step is found 32, 45 and 45 times. On Gaussian noise
+  all three agree to within one series a cell. So where the tails are in the *observation* noise,
+  the robust losses work as intended.
+- **Pre-registered on TCPD** (`node eval/tcpd-drift-robust.mjs tcpd-data`, output
+  `eval/tcpd-drift-robust.out.txt`; settings and rule in the script's header, written before any
+  TCPD series went through either loss). Primary: biweight K 3. Rule: it becomes an opt-in if its
+  mean F1 beats the shipped Gaussian drift on both sets, and the default only if it is also better
+  on more series than worse on both. Huber K 2 is reported, not acted on.
+
+  | setting | F1 shipped (31) | cover | cuts | F1 held out (7) | cover | cuts |
+  |---|---|---|---|---|---|---|
+  | drift ML, biweight K 3 (primary) | 0.681 | 0.624 | 341 | 0.448 | 0.408 | 278 |
+  | drift ML, Huber K 2 (reported only) | 0.709 | 0.622 | 265 | 0.533 | 0.563 | 216 |
+  | drift ML, Gaussian (shipped default) | 0.694 | 0.622 | 226 | 0.527 | 0.576 | 180 |
+  | level, following the over-cut warning | 0.655 | 0.561 | 653 | 0.497 | 0.394 | 233 |
+  | `--consensus` every setting | 0.702 | 0.633 | 59 | 0.711 | 0.742 | 25 |
+
+- **Verdict: rejected. Nothing changes for users.** Biweight minus Gaussian: -0.013 shipped (95%
+  bootstrap -0.050 to 0.027; better on 5, worse on 9) and -0.080 held out (-0.186 to 0.007; 1 and 4).
+  It makes the two series it was aimed at worse: `bank` 63 cuts to 111, bitcoin 52 to 98 (F1 0.407 to
+  0.164), scanline 42049 27 to 56, UK coal employment 11 to 31. Its one clear gain is `well_log`
+  (21 cuts to 15, F1 0.764 to 0.874), the series in TCPD that has isolated outliers. No CLI flag ships.
+  The option stays in the library, with tests (`drift-robust.test.mjs`), for the evals and the next try.
+- **Why: the tails are in the walk, not the noise.** On the fitted Gaussian drift model the
+  wander-to-noise ratio q = omega^2 / sigma^2 is 6,400 on `bank`, 4,100 on bitcoin and 3,900 on
+  scanline 42049, against 0.016 on `well_log` and 0.00006 on the Nile. So the model reads the first
+  three as near-pure random walks. Their large moves are big *increments of the level*, and once the
+  cuts are in, the standardised innovations look ordinary: 1.4 to 2.9% beyond 3, sd 1.00. A bounded
+  loss on the observation then does the wrong thing. It refuses to follow a big increment, the level is
+  left behind, and every later point is "an outlier" until a cut restarts it, which means more cuts,
+  not fewer. Huber follows the increment partway, which is why it does less harm. (Diagnostic run
+  once in the session on the fitted filters, not committed as an eval; numbers above.)
+- **What it means for the next try.** The heavy tail belongs in the state equation: a level whose
+  increments are heavy-tailed (a t or a mixture walk) treats a big move as part of the walk. Or
+  `--model drift` should say "this looks like a random walk with heavy-tailed steps; its jumps are
+  its largest steps" when q is far above 1. Either needs fresh labelled data to score, not TCPD again.
+  Huber K 2 beat the Gaussian on both TCPD means (+0.015 shipped, +0.006 held out). That is a lead
+  for fresh data, not a finding: it was reported only, and the gaps are within noise.
