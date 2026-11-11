@@ -40,7 +40,9 @@ test("a short peak is stretched to the shortest shift and counted as extra", () 
 test("shift lines round-trip through parseShifts and group days with the same shape", () => {
   const two = CSV + "2026-11-03 09:00,100\n2026-11-03 10:00,250\n2026-11-03 11:00,100\n2026-11-10 09:00,300\n2026-11-10 10:00,250\n2026-11-10 11:00,100\n";
   const r = demandShifts(two, { splh: 100, minShift: 3, maxShift: 8 });
-  assert.match(r.shiftsText, /^Mon\/Tue, 9:00, 12:00, 2\nMon\/Tue, 10:00, 13:00, 1/);
+  // The 1-hour top layer (10:00) is stretched into open hours (9:00-12:00), not past the 12:00 close (was 10:00-13:00
+  // before 2026-11-11, an hour after the last sale).
+  assert.equal(r.shiftsText, "Mon/Tue, 9:00, 12:00, 3");
   const p = parseShifts(r.shiftsText);
   assert.deepEqual(p.errors, []);
   assert.equal(p.slots.length, r.days.reduce((a, d) => a + d.shifts.length, 0));
@@ -50,7 +52,8 @@ test("shift lines round-trip through parseShifts and group days with the same sh
 test("bad rows are skipped with a reason; missing columns are reported", () => {
   const r = hourlySales("Date Time,Sales\nsoon,10\n2026-11-02 09:00,abc\n2026-11-02 09:00,-5\n2026-11-02 09:00,40");
   assert.equal(r.rows, 1);
-  assert.equal(r.skipped.length, 3);
+  assert.equal(r.skipped.length, 2); // the refund is counted in a note, not listed (2026-11-11)
+  assert.ok(r.notes.some((n) => /1 row with negative sales \(refunds or voids, 5 in all\)/.test(n)), JSON.stringify(r.notes));
   assert.match(hourlySales("Date,Qty\n2026-11-02 09:00,1").notes[0], /No sales column/);
   assert.match(hourlySales("Foo,Sales\nx,1").notes[0], /No date-time/);
 });
@@ -315,4 +318,56 @@ test("CLI: --backtest prints the method table and a verdict", async () => {
   writeFileSync(dir + "/t.csv", weeksCsv(2, () => 100));
   assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/t.csv", "--splh", "100", "--backtest"], { encoding: "utf8" }).status, 1);
   assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/t.csv", "--splh", "100", "--warmup", "0"], { encoding: "utf8" }).status, 2);
+});
+
+// Made-up rows in the shape of the second real POS export (a French bakery's item lines, eval/french-bakery.mjs).
+test("line-item exports: sales are quantity x unit price, decimal-comma euros; refund lines are one note", () => {
+  const csv = ',date,time,ticket_number,article,Quantity,unit_price\n0,2026-11-02,08:38,150040.0,BAGUETTE,1.0,"0,90 €"\n1,2026-11-02,08:39,150041.0,PAIN AU CHOCOLAT,3.0,"1,20 €"\n2,2026-11-02,09:14,150042.0,BAGUETTE,-1.0,"0,90 €"\n3,2026-11-02,09:20,150043.0,TRADITIONAL BAGUETTE,2.0,"1,20 €"\n';
+  const r = hourlySales(csv);
+  assert.equal(r.rows, 3);
+  assert.equal(r.skipped.length, 0);
+  assert.ok(Math.abs(r.avg[0][8] - 4.5) < 1e-9, String(r.avg[0][8])); // 0.90 + 3 x 1.20
+  assert.ok(Math.abs(r.avg[0][9] - 2.4) < 1e-9);
+  assert.match(r.notes.join(" "), /quantity times its unit price/);
+  assert.match(r.notes.join(" "), /1 row with negative sales \(refunds or voids, 0\.9 in all\)/);
+  assert.deepEqual(hourlySales("Date,Time,Qty,Price\n2026-11-02,09:00,,2\n").skipped, ['row 2: could not read the sales " x 2"']);
+});
+
+// 24 Mondays: busy 8-13 and 16-18, 14:00 and 15:00 trade on 2 of 24 dates (a lunch closure), 18:00 every week.
+const lunch = () => {
+  let csv = "Date Time,Sales\n";
+  for (let w = 0; w < 24; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    for (const h of [8, 9, 10, 11, 12, 13, 16, 17, 18]) csv += `${day} ${h}:00,${h === 12 ? 250 : 90}\n`;
+    if (w < 2) csv += `${day} 14:00,5\n${day} 15:00,5\n`;
+  }
+  return csv;
+};
+test("a lunch closure inside the day is not staffed, and no shift is stretched across it", () => {
+  const r = demandShifts(lunch(), { splh: 100, minShift: 4 });
+  const mon = r.days[0];
+  for (const [a, b] of mon.shifts) assert.ok(b <= 14 || a >= 16, `${a}-${b} crosses the closure`);
+  assert.match(r.notes.join(" "), /breaks .*Mon 14:00 \(2 of 24 days\), Mon 15:00 \(2 of 24 days\)/);
+  const k = demandShifts(lunch(), { splh: 100, minShift: 4, keepRare: true });
+  assert.ok(k.days[0].shifts.some(([a, b]) => a < 16 && b > 14), "--keep-rare staffs the closure as before");
+  const set = demandShifts(lunch(), { splh: 100, minShift: 4, open: 8, close: 19 });
+  assert.ok(set.days[0].shifts.some(([a, b]) => a < 16 && b > 14), "--open/--close are taken as given");
+});
+test("a quiet hour in a shop that is quiet all day stays staffed (no busy neighbours)", () => {
+  // Sales in most hours on only some dates: 11:00 trades on 3 of 24, its neighbours on 10 of 24 (under half).
+  let csv = "Date Time,Sales\n";
+  for (let w = 0; w < 24; w++) {
+    const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10);
+    for (const h of [9, 10, 12, 13]) if (w % 12 < 5 || h === 9 || h === 13) csv += `${day} ${h}:00,40\n`;
+    if (w < 3) csv += `${day} 11:00,40\n`;
+  }
+  const p = headcount(...(() => { const s = hourlySales(csv); return [s.avg, s.observed, { splh: 100, seen: s.seen }]; })());
+  assert.equal(p[0][11], 1);
+});
+test("a file too large to spread into Math.max still reads (the French bakery has 234,005 lines)", () => {
+  const rows = ["Date Time,Sales"];
+  for (let i = 0; i < 200000; i++) rows.push(`2026-0${1 + (i % 9)}-1${i % 10} ${8 + (i % 10)}:00,1`);
+  const r = hourlySales(rows.join("\n"));
+  assert.equal(r.rows, 200000);
+  assert.ok(backtestSales(rows.join("\n"), { splh: 50 }).weeks > 0);
 });
