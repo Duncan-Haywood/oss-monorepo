@@ -221,15 +221,16 @@ flagships:
       selector reaches it 4-8 answers sooner at 8-120 items and ranks better, so
       "staged" now uses it from the first answer up to 120 items (equals the
       information row on real rankings, all 25 cells). Careless-answer fallback
-      measured 2026-11-11, not shipped (INFORMATION-GAIN-SELECTOR.md,
-      scripts/careless-fallback-sweep.ts; 75 cells, 60 fresh seeds): staged
-      beats shipped by 0.014 mean, trails >0.02 in both seed sets only at 50%
-      random answers on 11 and 30 items; the agreement z-score trips for
-      15-40% of honest respondents, fallback -0.002. Next: a Glicko update with
-      a lapse term (win chance e/2 + (1-e)p) so careless answers stop
-      shrinking rd, measured on the synthetic sweep and the PrefLib rankings
-      before it touches stored ratings; the switch rule above 120 items on the
-      couple bar; then real pairwise answers from a real survey.
+      measured 2026-11-11, not shipped (scripts/careless-fallback-sweep.ts).
+      Glicko lapse term 2026-11-11, off by default (glicko2.ts `lapse`,
+      scripts/lapse-update-sweep.ts, INFORMATION-GAIN-SELECTOR.md): rd shrink
+      is outcome-blind, so a fixed e is a discount, not a detector; +0.002 to
+      +0.014 rank, 15-115% more answers to the couple bar; with the true e it
+      is calibrated (coverage 0.90-0.99) and lifts staged above shipped at 50%
+      lapse. Next: a per-respondent lapse estimate (grid posterior over e from
+      the person's own answers) against the e = true ceiling; staged's 0.90
+      coverage for honest respondents (close pairs shrink rd too fast); the
+      switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
