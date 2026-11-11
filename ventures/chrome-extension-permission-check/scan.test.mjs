@@ -102,10 +102,10 @@ test('buildReport: declared unused in optional_permissions does not count toward
 });
 
 test('buildReport: used but not declared anywhere is detected-undeclared', () => {
-  const files = [{ path: 'a.js', content: 'chrome.tabs.query({}, () => {});' }];
+  const files = [{ path: 'a.js', content: 'chrome.alarms.create("a", {});' }];
   const manifest = parseManifest(JSON.stringify({ permissions: [] }));
   const report = buildReport(detectApiUsage(files), manifest);
-  const perm = report.permissions.find((p) => p.id === 'tabs');
+  const perm = report.permissions.find((p) => p.id === 'alarms');
   assert.equal(perm.status, 'detected-undeclared');
   assert.equal(report.detectedUndeclaredCount, 1);
   assert.equal(report.ok, false);
@@ -156,14 +156,14 @@ test('every documented broad host pattern is actually flagged', () => {
 });
 
 test('buildReport: no manifest found means not ok, and detected usage is still reported as undeclared', () => {
-  const report = buildReport(detectApiUsage([{ path: 'a.js', content: 'chrome.tabs.query({});' }]), null);
+  const report = buildReport(detectApiUsage([{ path: 'a.js', content: 'chrome.alarms.create("a", {});' }]), null);
   assert.equal(report.manifestFound, false);
   assert.equal(report.ok, false);
   // Nothing can be "declared" with no manifest at all, but the API usage
   // that was actually found in source is still real evidence worth surfacing
   // rather than discarding.
   assert.equal(report.permissions.length, 1);
-  assert.equal(report.permissions[0].id, 'tabs');
+  assert.equal(report.permissions[0].id, 'alarms');
   assert.equal(report.permissions[0].status, 'detected-undeclared');
 });
 
@@ -177,4 +177,37 @@ test('buildReport: a fully clean manifest (everything declared and used, nothing
   const manifest = parseManifest(JSON.stringify({ permissions: ['storage', 'tabs'], host_permissions: ['https://example.com/*'] }));
   const report = buildReport(detectApiUsage(files), manifest);
   assert.equal(report.ok, true);
+});
+
+// Quality audit 2026-11-08 (portfolio/quality/audits/2026-11-08-chrome-extension-permission-check.json):
+// chrome.action and chrome.tabs use without a permission was reported as a
+// runtime failure, and users were told to add an "action" permission that
+// does not exist.
+test('chrome.action use needs no permission and never fails the check', () => {
+  const files = [{ path: 'a.js', content: 'chrome.action.setBadgeText({ text: "1" });' }];
+  const report = buildReport(detectApiUsage(files), parseManifest(JSON.stringify({ manifest_version: 3, action: {} })));
+  assert.equal(report.detectedUndeclaredCount, 0);
+  assert.ok(!report.permissions.some((p) => p.id === 'action'));
+  assert.equal(report.ok, true);
+});
+
+test('declaring "action" as a permission is explained, not mapped to chrome.action', () => {
+  const report = buildReport(detectApiUsage([]), parseManifest(JSON.stringify({ permissions: ['action'] })));
+  assert.ok(report.uncheckable.some((u) => u.id === 'action' && /not a permission/i.test(u.reason)));
+});
+
+test('chrome.tabs use without the tabs permission is a note, not a failure', () => {
+  const files = [{ path: 'a.js', content: 'chrome.tabs.create({ url: "x.html" });' }];
+  const report = buildReport(detectApiUsage(files), parseManifest(JSON.stringify({ permissions: [] })));
+  const perm = report.permissions.find((p) => p.id === 'tabs');
+  assert.equal(perm.status, 'detected-no-permission-needed');
+  assert.match(perm.note, /url, pendingUrl, title or favIconUrl/);
+  assert.equal(report.detectedUndeclaredCount, 0);
+  assert.equal(report.ok, true);
+});
+
+test('a declared tabs permission with no chrome.tabs call is still declared-unused', () => {
+  const report = buildReport(detectApiUsage([]), parseManifest(JSON.stringify({ permissions: ['tabs'] })));
+  assert.equal(report.permissions.find((p) => p.id === 'tabs').status, 'declared-unused');
+  assert.equal(report.declaredUnusedCount, 1);
 });

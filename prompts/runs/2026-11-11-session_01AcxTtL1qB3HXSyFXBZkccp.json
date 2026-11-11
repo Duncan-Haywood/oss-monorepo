@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtL1qB3HXSyFXBZkccp",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T03:05:31Z",
+  "ended": "2026-11-11T03:13:51Z",
+  "wall_minutes": 8.59,
+  "tokens_in": 2159114,
+  "tokens_out": 29327,
+  "cost_usd": 1.7188,
+  "tool_calls": 26,
+  "task": "Saints by Candlelight episode 89, Basil and the Soup Kitchen at Caesarea",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14675",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes outlasted the 110 s foreground timeout; re-ran in the background"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to run run_workflow_locally.py --for-changes before merging but not that it can outlast the 120 s tool timeout for a docs-plus-venture diff (it runs unrelated workflows such as devsec-toolkit-ci); the long-commands note covers venture suites only."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says to pick the project that has gone longest without a new piece. Hearth & Horizon had six pieces on 2026-11-10 against one Saints episode, so that rule plus 'give the science fiction shelf at least an equal share' sent me to Saints. Fine, but the two rules can pull in opposite directions and the prompt doesn't say which wins."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-basil-and-the-soup-kitchen-at-caesarea.md"
+  ],
+  "goal": null,
+  "notes": "Creative track. Project: saints-by-candlelight; piece: basil-and-the-soup-kitchen-at-caesarea (episode 89, about 5,840 words, text only because audio is at 423 MB, over the 400 MB cap). Security queue empty; IDEAS.md and website requests empty. Adversarial fact check cut three details I couldn't source (mist on the Iris, the 'hut with no door' in Gregory's letter, the offer of a house to Elias) and moved Valens's gift of land to Theodoret. Checks: node generate.mjs --check-script ok; venture node --test 14/14 passed. run_workflow_locally --for-changes: all relevant workflows green except einvoice-preflight-ci (module not installed because pip step is a skipped uses:/setup step locally; unrelated to this diff) and distribution-versions hub tests, which failed on the first commit and pass 50/50 after trimming the post description to 160 characters. No PR check runs had appeared at merge time.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "227d4875-87c6-5f6b-9975-7205c26b9f19",
+    "transcripts": 1,
+    "first": "2026-11-11T03:05:31Z",
+    "last": "2026-11-11T03:14:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 24,
+        "input": 51,
+        "output": 29327,
+        "thinking": 8691,
+        "cache_read": 2069288,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89775,
+        "api_equivalent_usd": 1.7188,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 51,
+      "output": 29327,
+      "thinking": 8691,
+      "cache_read": 2069288,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89775,
+      "api_equivalent_usd": 1.7188,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.958,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 22,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.59,
+      "active_minutes": 8.59,
+      "model_minutes": 5.69,
+      "tool_minutes": 2.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researched ~5,800-word scripted episode from primary sources plus a short post; a skilled writer, about 6 hours",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 349.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
