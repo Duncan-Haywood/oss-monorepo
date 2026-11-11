@@ -1,6 +1,6 @@
 ---
 title: "Two artists cannot share one bride: a scheduling bug in pooled minutes"
-seo_title: "Bridal hair and makeup scheduling: why pooled artist minutes overstate capacity"
+seo_title: "Bridal makeup scheduling: why pooled artist minutes overstate capacity"
 date: 2026-11-11
 tags: [bridal-hair-makeup-pricing-calculator, scheduling, mutation-testing]
 description: "Our bridal pricing calculator added up every artist's minutes and called a booking on time, even when the bride's own look took longer than the whole window."
