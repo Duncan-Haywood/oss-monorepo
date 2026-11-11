@@ -126,7 +126,7 @@
 
   <section class="card" id="report-card" aria-labelledby="report-h" hidden>
     <h2 id="report-h">Branded change report</h2>
-    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions, as one page to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions (with several columns: each column's chart and agreed changes and the one segmentation for all of them), as one page to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
     <p id="report-buy-row" hidden><a id="report-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
     <p><label>Licence key <input id="report-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="report-check">Check key</button> <span id="report-state" role="status"></span></p>
     <div id="report-fields" hidden>
@@ -198,6 +198,7 @@
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
     import { analyzeJob } from "./analyze-job.mjs";
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
+    import { multiReportHtml } from "./multi-report.mjs";
 
     const $ = (s) => document.querySelector(s);
     let last = null;
@@ -209,7 +210,7 @@
     $("#shape").addEventListener("change", () => { $("#columns").disabled = $("#shape").value !== "multi"; $("#jointNoise").disabled = $("#shape").value !== "multi"; $("#column").disabled = $("#shape").value === "multi"; });
 
     // The main analysis runs in a Web Worker (analyze-worker.mjs), so a long series does not
-    // freeze the page: 6.5 s on the 7,980-point tree-ring series in one thread. One worker is
+    // freeze the page: 4.7 to 6.5 s on the 7,980-point tree-ring series in one thread. One worker is
     // kept; a newer run terminates a busy one. Without workers the same call (analyzeJob) runs
     // here, after a pause that lets the "Working" note paint.
     let mainJob = null;
@@ -406,8 +407,11 @@
         if (v.valid) record("report_unlocked");
       });
       $("#report-open").addEventListener("click", () => {
-        if (!last) return;
-        const html = changeReportHtml(last, { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, agreed: lastAgreed, date: new Date().toISOString().slice(0, 10) });
+        const brand = { title: $("#report-title").value, author: $("#report-author").value, contact: $("#report-contact").value, accent: $("#report-accent").value, logo, notes: $("#report-notes").value, date: new Date().toISOString().slice(0, 10) };
+        // Several columns: the several-column report on the last run (multi-report.mjs); otherwise the one-column report.
+        const multi = $("#shape").value === "multi";
+        if (multi ? !lastMulti : !last) return;
+        const html = multi ? multiReportHtml(lastMulti.p, lastMulti.r, brand) : changeReportHtml(last, { ...brand, agreed: lastAgreed });
         const url = URL.createObjectURL(new Blob([html], { type: "text/html" })); window.open(url, "_blank", "noopener"); setTimeout(() => URL.revokeObjectURL(url), 60000);
         record("report_opened");
       });

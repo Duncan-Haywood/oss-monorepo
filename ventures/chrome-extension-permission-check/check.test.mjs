@@ -71,7 +71,7 @@ test('runCheck: no manifest anywhere fails and says so', () => {
 
 test('runCheck: declared-unused and detected-undeclared both fail the check', () => {
   const root = makeFixture({
-    'background.js': 'chrome.tabs.query({}, () => {});', // used, not declared
+    'background.js': 'chrome.alarms.create("a", {});', // used, not declared
     'manifest.json': JSON.stringify({ permissions: ['notifications'] }), // declared, not used
   });
   try {

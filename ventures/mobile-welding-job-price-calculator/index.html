@@ -95,16 +95,19 @@
     <p>If this helped you price a job, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
   </footer>
     <script type="module">
-    import { DEFAULTS, num, money, money2, price, checkPrice, overrunImpact, distanceLadder, monthly, lowestSafePrice } from "./calc.mjs";
+    import { DEFAULTS, num, readInputs, money, money2, price, checkPrice, overrunImpact, distanceLadder, monthly, lowestSafePrice } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
-    const opts = () => { const o = {}; for (const k of KEYS) { const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const raw = () => Object.fromEntries(KEYS.map((k) => [k, $(k).value]));
+    const labelOf = (k) => (document.querySelector(`label[for="${k}"]`)?.textContent || k).trim();
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
     const pct = (x) => (x * 100).toFixed(0) + "%";
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
     function run() {
-      const o = opts();
+      const { o, bad } = readInputs(raw());
+      for (const k of KEYS) $(k).setAttribute("aria-invalid", bad.includes(k) ? "true" : "false");
+      if (bad.length) { $("result").innerHTML = `<div class="finding"><span class="pill">Check inputs</span> Not a number: ${bad.map(labelOf).join(", ")}. Leave a field blank for zero.</div>`; $("out").hidden = false; return; }
       const q = price(o);
       if (!q.valid) { $("result").innerHTML = '<div class="finding"><span class="pill">Check inputs</span> Your margin and card fee leave nothing to price against. Keep them well under 100% together.</div>'; $("out").hidden = false; return; }
       if (!(q.totalHours > 0)) { $("result").innerHTML = '<div class="finding"><span class="pill">No hours</span> Enter welding, setup or driving time.</div>'; $("out").hidden = false; return; }
