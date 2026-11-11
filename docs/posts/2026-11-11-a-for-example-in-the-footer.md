@@ -1,9 +1,9 @@
 ---
 title: "A \"for example\" in the footer excused every fake-review claim on the page"
-seo_title: "Testing a social-proof lint against minified HTML, entities and inline tags"
+seo_title: "Testing a social-proof lint against minified HTML and entities"
 date: 2026-11-11
 tags: [mutation-testing, honest-marketing, ci, testing]
-description: "A red-team run attacked the check that keeps unbacked 'trusted by 5,000' claims off our pages. Five kinds of copy slipped past it. The check now catches all five, and the tree is still clean."
+description: "A red-team run found five kinds of copy that slipped a fake-review claim past our honest-marketing check. It now catches all five."
 ---
 
 Our pages may not say "trusted by 5,000 businesses" or "rated 4.9 out of 5" unless a file

@@ -1,0 +1,407 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLAmw2w5X5TY988S4q",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T12:07:06Z",
+  "ended": "2026-11-11T12:08:01Z",
+  "wall_minutes": 4.33,
+  "tokens_in": 2130421,
+  "tokens_out": 14238,
+  "cost_usd": 1.1882,
+  "tool_calls": 29,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14778",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix each open defect first, but all four open entries are control-plane fixes already sitting in owner-gated PRs (#12928, #12926, #14612, #14698); redteam.py open could show the pending PR so runs don't re-check each by hand."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-a-for-example-in-the-footer.md"
+  ],
+  "goal": null,
+  "notes": "Two campaigns under platform/: wait_for.py 7/8 (gap triaged, caught_after_fix true), check_social_proof.py 8/8. Hunt on check_social_proof found 5 evasions (minified-line attribution, nbsp, inline tags, hyphen entities, k/M counts), all patched; full ventures/ scan still 0 findings. Guard tightened: check_social_proof runs in portfolio-validate on every PR. Local: python3 -m unittest test_wait_for test_check_social_proof OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/wait_for.py",
+        "test": "/usr/local/bin/python3 -m unittest test_wait_for  (in platform/ci)",
+        "seed": 569310848,
+        "commit": "116caba9",
+        "sites": 36,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 37,
+            "col": 13,
+            "operator": "eq-flip",
+            "before": "return s == marker or (s.startswith(marker) and s[len(marker)] in \" \\t:\")",
+            "after": "return s != marker or (s.startswith(marker) and s[len(marker)] in \" \\t:\")",
+            "line_text": "    return s == marker or (s.startswith(marker) and s[len(marker)] in \" \\t:\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 37,
+            "col": 48,
+            "operator": "and-to-or",
+            "before": "return s == marker or (s.startswith(marker) and s[len(marker)] in \" \\t:\")",
+            "after": "return s == marker or (s.startswith(marker) or s[len(marker)] in \" \\t:\")",
+            "line_text": "    return s == marker or (s.startswith(marker) and s[len(marker)] in \" \\t:\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 42,
+            "col": 10,
+            "operator": "true-to-false",
+            "before": "while True:",
+            "after": "while False:",
+            "line_text": "    while True:",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 72,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "return f.read().rsplit(\")\", 1)[1].split()[0] != \"Z\"",
+            "after": "return f.read().rsplit(\")\", 1)[1].split()[1] != \"Z\"",
+            "line_text": "            return f.read().rsplit(\")\", 1)[1].split()[0] != \"Z\"",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test ran pid_alive on a real zombie, so reading the ppid field instead of the state field went unseen; test_unreaped_child_counts_as_exited spawns an unreaped child."
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 78,
+            "col": 18,
+            "operator": "plus-to-minus",
+            "before": "end = clock() + timeout",
+            "after": "end = clock() - timeout",
+            "line_text": "    end = clock() + timeout",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 103,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "            return 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 105,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 1",
+            "after": "return 2",
+            "line_text": "        return 1",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/wait_for.py",
+            "line": 113,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "    return 0",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/ci/check_social_proof.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_social_proof  (in platform/ci)",
+        "seed": 164416127,
+        "commit": "116caba9",
+        "sites": 18,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 19,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "ROOT = Path(__file__).resolve().parents[2]",
+            "after": "ROOT = Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = Path(__file__).resolve().parents[2]",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 39,
+            "col": 53,
+            "operator": "or-to-and",
+            "before": "return any(k in lowered for k in PREFILTER_KEYS) or SLASH5.search(lowered) is not None",
+            "after": "return any(k in lowered for k in PREFILTER_KEYS) and SLASH5.search(lowered) is not None",
+            "line_text": "    return any(k in lowered for k in PREFILTER_KEYS) or SLASH5.search(lowered) is not None",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 57,
+            "col": 13,
+            "operator": "and-to-or",
+            "before": "if m and not ATTRIBUTED.search(line):",
+            "after": "if m or not ATTRIBUTED.search(line):",
+            "line_text": "        if m and not ATTRIBUTED.search(line):",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 58,
+            "col": 57,
+            "operator": "minus-to-plus",
+            "before": "out.append((i, line.strip()[max(0, m.start() - 40):m.end() + 40]))",
+            "after": "out.append((i, line.strip()[max(0, m.start() + 40):m.end() + 40]))",
+            "line_text": "            out.append((i, line.strip()[max(0, m.start() - 40):m.end() + 40]))",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 58,
+            "col": 59,
+            "operator": "const-plus-one",
+            "before": "out.append((i, line.strip()[max(0, m.start() - 40):m.end() + 40]))",
+            "after": "out.append((i, line.strip()[max(0, m.start() - 41):m.end() + 40]))",
+            "line_text": "            out.append((i, line.strip()[max(0, m.start() - 40):m.end() + 40]))",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 71,
+            "col": 47,
+            "operator": "div-to-times",
+            "before": "ap.add_argument(\"--root\", default=str(ROOT / \"ventures\"))",
+            "after": "ap.add_argument(\"--root\", default=str(ROOT * \"ventures\"))",
+            "line_text": "    ap.add_argument(\"--root\", default=str(ROOT / \"ventures\"))",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 73,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "bad, n = 0, 0",
+            "after": "bad, n = 0, 1",
+            "line_text": "    bad, n = 0, 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_social_proof.py",
+            "line": 80,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "return 1 if bad else 0",
+            "after": "return 1 if bad else 1",
+            "line_text": "    return 1 if bad else 0",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/wait_for.py",
+        "issue": "--marker \"\" (or whitespace) matched the first blank line of the log, so wait_for reported a job done that was still running. Now an argparse error (exit 2); test_rejects_inputs_that_can_never_mean_done.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/wait_for.py",
+        "issue": "--pid -1 made os.kill(-1, 0) probe every process, so it waited the full timeout and never reported done; --pid 0 was silently ignored and fell through to the log/--until path. Both are now argparse errors (exit 2).",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/check_social_proof.py",
+        "issue": "Attribution was searched across the whole line, and a minified page is one line, so any 'for example'/'such as'/'sample' anywhere on it excused every unbacked claim. Now attribution must sit within 120 characters of the claim.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/check_social_proof.py",
+        "issue": "'Trusted&nbsp;by', 'As&nbsp;seen in', '&#160;' and U+00A0 hid claims from the pattern. Entities and NBSP now normalise to a space first.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/check_social_proof.py",
+        "issue": "Inline tags between the words ('Trusted <b>by</b> 4,000 shops') hid claims. Inline tags (b, strong, em, span, a, ...) are now stripped first; <code> is kept, since it marks an example.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/check_social_proof.py",
+        "issue": "'Award&#8209;winning' (non-breaking hyphen) escaped. Hyphen entities and U+2010/2011 now normalise to '-'.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/check_social_proof.py",
+        "issue": "Abbreviated counts ('Join 10k+ freelancers', 'Join 1.2M users', '50K happy customers') escaped the join/happy patterns. They now accept a decimal and a k/m suffix.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4fce8b0c-ce3c-5a60-b2cd-3cf5cd8c7b2c",
+    "transcripts": 1,
+    "first": "2026-11-11T12:07:06Z",
+    "last": "2026-11-11T12:11:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 29,
+        "input": 57,
+        "output": 14238,
+        "thinking": 3322,
+        "cache_read": 2069188,
+        "cache_write_5m": 0,
+        "cache_write_1h": 61176,
+        "api_equivalent_usd": 1.1882,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 57,
+      "output": 14238,
+      "thinking": 3322,
+      "cache_read": 2069188,
+      "cache_write_5m": 0,
+      "cache_write_1h": 61176,
+      "api_equivalent_usd": 1.1882,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 26,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.33,
+      "active_minutes": 4.33,
+      "model_minutes": 3.45,
+      "tool_minutes": 0.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "two mutation campaigns, seven fixes with tests, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 252.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
