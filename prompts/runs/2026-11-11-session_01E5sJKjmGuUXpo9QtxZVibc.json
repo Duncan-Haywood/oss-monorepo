@@ -27,12 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 6,
   "outcome": "success",
   "errors": [
-    "huggingface.co, registry.ollama.ai, hf-mirror.com and modelscope.cn all 403 (connect_rejected) through this session's proxy, so the allocator's 'start here' item (sales-agent local GGUF reader / M2 local half) could not run"
+    "huggingface.co, registry.ollama.ai, hf-mirror.com and modelscope.cn all 403 (connect_rejected) through this session's proxy, so the allocator's 'start here' item (sales-agent local GGUF reader / M2 local half) could not run",
+    "my flagships.yaml append pushed changepoint-detector next: to 2283 chars (cap 2000); caught by local portfolio-validate, trimmed"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -58,7 +59,7 @@
     "ventures/changepoint-detector/README.md section 'The drift model on several columns'"
   ],
   "goal": "deepen a flagship",
-  "notes": "Pre-registered rule for joint drift failed on both halves (TCPD 0.245 vs 0.286; 1 sd white-noise power 43-85% vs 90-97%); not wired into --columns. Fix: driftNoise MAD=0 fallback to plain variance (occupancy V3 86->23 cuts, F1 0.418->0.724); eval/tcpd-drift{,-ml,-robust,-tails}.mjs outputs regenerated identical apart from timings. Local checks: node --test drift*.test.mjs multivariate/multi-view/multi-report: 62/62 pass; multi-drift.test.mjs 6/6; full venture suite via run_venture_tests.py (see PR). Post frontmatter, links and similarity checks pass. No agent doc in docs/reports/: the README section carries everything the next run needs.",
+  "notes": "Pre-registered rule for joint drift failed on both halves (TCPD 0.245 vs 0.286; 1 sd white-noise power 43-85% vs 90-97%); not wired into --columns. Fix: driftNoise MAD=0 fallback to plain variance (occupancy V3 86->23 cuts, F1 0.418->0.724); eval/tcpd-drift{,-ml,-robust,-tails}.mjs outputs regenerated identical apart from timings. Local checks: node --test drift*.test.mjs multivariate/multi-view/multi-report: 62/62 pass; multi-drift.test.mjs 6/6; full venture suite via run_venture_tests.py (see PR). Post frontmatter, links and similarity checks pass. No agent doc in docs/reports/: the README section carries everything the next run needs. Local workflows: conflict-markers, prompts-ci, portfolio-validate (after trimming flagships next: under the 2,000-char cap, which my first append broke: validate.py + test_allocate), check_md_links, check_code_refs all pass. CI posted no check runs on the PR while I watched.",
   "corrections": [],
   "redteam": null,
   "usage": {
