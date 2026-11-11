@@ -1,9 +1,9 @@
 ---
 title: "Two changes that only work together"
-seo_title: "Choosing a staffing forecast window from your own sales: a backtest on three bakeries"
+seo_title: "Picking a staffing forecast window from your own sales"
 date: 2026-11-11
 tags: [scheduling, forecasting, labor, small-business, open-source]
-description: "Adding a 4-week window to the shift planner's auto weighting did nothing. Picking with a better score did nothing. Both together cut the misses on one bakery by up to 17 person-hours a week."
+description: "A 4-week window alone did nothing for the shift planner. A better score alone did nothing. Together they cut one bakery's misses by up to 17 hours a week."
 ---
 
 The free [shift roster builder](https://marisstella.app/shift-roster-builder/shifts-from-sales.html)
