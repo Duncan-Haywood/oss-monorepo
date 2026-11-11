@@ -1,9 +1,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hourlySales, headcount, cutShifts, demandShifts } from "./demand.mjs";
+import { hourlySales, headcount, cutShifts, demandShifts, backtestSales } from "./demand.mjs";
 import { parseShifts } from "./calc.mjs";
 
-// Invented hand-built sales; no real POS export has been tested.
+// Invented hand-built sales; the real bakery export is in eval/bakery-backtest.mjs (not committed).
 const CSV = "Date Time,Net Sales\n2026-11-02 09:00,100\n2026-11-02 10:00,250\n2026-11-02 11:00,100\n2026-11-09 09:00,300\n2026-11-09 10:00,250\n2026-11-09 11:00,100\n";
 
 test("averages each weekday-hour over the days seen", () => {
@@ -240,4 +240,79 @@ test("one day-first date settles the order for the whole file; with none, month 
   const amb = hourlySales("Time,Sales\n05/03/2026 14:00,10\n");
   assert.ok(amb.avg[6][14] > 0);
   assert.ok(amb.notes.some((n) => /could be 5 March or May 3/.test(n)));
+});
+
+// ---- Found on a real bakery POS export (2026-11-11, eval/bakery-backtest.mjs) ----
+const ymd = (t) => new Date(t).toISOString().slice(0, 10);
+// n weeks of a shop open Wed-Sun 11:00-15:00, `amt(week, hour)` per hour, from Monday 2026-01-05.
+function weeksCsv(n, amt, extra = []) {
+  const rows = ["datetime,total"];
+  for (let w = 0; w < n; w++) for (let d = 2; d < 7; d++) for (let h = 11; h < 15; h++) {
+    rows.push(`${ymd(Date.UTC(2026, 0, 5) + (w * 7 + d) * 86400000)} ${h}:10,${amt(w, h)}`);
+  }
+  return rows.concat(extra).join("\n");
+}
+
+test("rows of empty cells are ignored with one note, not reported row by row", () => {
+  const r = hourlySales("datetime,total,place\n2026-01-07 11:00,100,\n,,\n,,\n");
+  assert.equal(r.rows, 1);
+  assert.equal(r.skipped.length, 0);
+  assert.ok(r.notes.some((n) => /2 empty rows ignored/.test(n)));
+});
+
+test("a weekday that traded on 1 of 8 dates is treated as closed; --keep-rare keeps it", () => {
+  const csv = weeksCsv(8, () => 100, ["2026-01-06 11:30,500"]); // one Tuesday
+  const r = hourlySales(csv);
+  assert.equal(r.observed[1], 0);
+  assert.ok(r.notes.some((n) => /Tuesdays: sales on 1 of 8/.test(n)));
+  assert.equal(hourlySales(csv, { keepRare: true }).observed[1], 1);
+  const d = demandShifts(csv, { splh: 100 });
+  assert.ok(!/Tue/.test(d.shiftsText));
+});
+
+test("an edge hour seen on 1 of 20+ days does not stretch the trading day", () => {
+  const csv = weeksCsv(21, () => 100, ["2026-01-11 23:05,50"]); // one late Sunday order
+  const d = demandShifts(csv, { splh: 100, minShift: 4 });
+  assert.ok(!/0:00/.test(d.shiftsText), d.shiftsText);
+  assert.ok(d.notes.some((n) => /Sun 23:00 \(1 of 21 days\)/.test(n)));
+  assert.match(demandShifts(csv, { splh: 100, keepRare: true }).shiftsText, /Sun, \d+:00, 0:00/);
+});
+
+test("backtest: a steady shop has no short or over hours under any method", () => {
+  const b = backtestSales(weeksCsv(10, () => 150), { splh: 100 });
+  assert.equal(b.weeks, 6);
+  for (const m of b.methods) { assert.equal(m.short, 0, m.id); assert.equal(m.over, 0, m.id); assert.equal(m.scheduled, 5 * 4 * 2); }
+  assert.equal(b.clear, false);
+});
+
+test("backtest: on a growing shop recent weeks win and the plain average runs short", () => {
+  const b = backtestSales(weeksCsv(16, (w) => 100 + 25 * w), { splh: 100 });
+  const by = Object.fromEntries(b.methods.map((m) => [m.id, m]));
+  assert.ok(by.all.short > by.hl2.short, "the plain average lags the growth");
+  assert.ok(by.last1.miss <= by.all.miss);
+  assert.notEqual(b.best, "all");
+  assert.equal(b.clear, true);
+});
+
+test("backtest needs dated rows and enough weeks", () => {
+  assert.equal(backtestSales("Day,Hour,Sales\nMon,9,100", { splh: 50 }).weeks, 0);
+  assert.match(backtestSales(weeksCsv(3, () => 100), { splh: 50 }).notes.at(-1), /more than 4 full weeks/);
+  assert.throws(() => backtestSales("x", { splh: 0 }), /positive/);
+});
+
+test("CLI: --backtest prints the method table and a verdict", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const dir = mkdtempSync(tmpdir() + "/bt-");
+  writeFileSync(dir + "/s.csv", weeksCsv(16, (w) => 100 + 25 * w));
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  const r = spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", "--backtest", "--warmup", "3"], { encoding: "utf8" });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /Tested on 13 full weeks/);
+  assert.match(r.stdout, /--half-life 4/);
+  assert.match(r.stdout, /Best on your file:/);
+  writeFileSync(dir + "/t.csv", weeksCsv(2, () => 100));
+  assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/t.csv", "--splh", "100", "--backtest"], { encoding: "utf8" }).status, 1);
+  assert.equal(spawnSync("node", [cli, "--from-sales", dir + "/t.csv", "--splh", "100", "--warmup", "0"], { encoding: "utf8" }).status, 2);
 });

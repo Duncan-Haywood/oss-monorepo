@@ -57,6 +57,6 @@ and the BreadcrumbList".
 `polish-2026-11-11-voice-button-css.md` (wall-framing-takeoff `content-visibility`, modulepreload
 A/B, desktop Lighthouse).
 
-**Also fixed.** `ventures/concrete-maturity/index.html` carried its FAQ twice (once inside `<main>`,
-once after it) after PRs #14766 and #14774 both added it, so `faq-duplicate.test.mjs` was red on
-main. One copy stays, inside `<main>`, labelled by its heading.
+**Also seen.** `ventures/concrete-maturity/index.html` carried its FAQ twice after PRs #14766 and
+#14774, which turned `faq-duplicate.test.mjs` red on main. This run fixed it too, but #14780 landed
+the same fix first, so the merge kept main's copy.

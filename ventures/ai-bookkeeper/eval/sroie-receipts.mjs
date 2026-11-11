@@ -7,9 +7,11 @@
 // --ocr <dir> reads <dir>/<id>.txt (tesseract output on <clone>/data/img/<id>.jpg,
 // e.g. `tesseract img/000.jpg <dir>/000 --psm 6`) instead of the dataset's boxes,
 // so the reader meets what an OCR engine prints from a photo, as the CLI does.
+// --ocr <dirA>,<dirB> reads each receipt from both (e.g. --psm 6 and --psm 4) and
+// scores parseReceiptPasses, which settles a disagreement by the receipt's arithmetic.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { cleanOcr } from "../cleanocr.mjs";
-import { parseReceipt } from "../receipts.mjs";
+import { parseReceipt, parseReceiptPasses } from "../receipts.mjs";
 import { labelCents } from "./cord-receipts.mjs";
 
 const norm = (s) => String(s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -59,9 +61,11 @@ export function load(dir, ocrDir = null) {
     let key;
     try { key = JSON.parse(readFileSync(`${dir}/key/${f}`, "utf8")); } catch { continue; }
     const id = f.replace(/\.json$/, "");
-    if (ocrDir && !existsSync(`${ocrDir}/${id}.txt`)) continue;
-    const text = ocrDir ? cleanOcr(readFileSync(`${ocrDir}/${id}.txt`, "utf8")) : rowsOf(readFileSync(`${dir}/box/${id}.csv`, "utf8"));
-    rows.push({ id: f.replace(/\.json$/, ""), key, text });
+    const dirs = ocrDir ? String(ocrDir).split(",") : [];
+    if (dirs.some((d) => !existsSync(`${d}/${id}.txt`))) continue;
+    const texts = dirs.map((d) => cleanOcr(readFileSync(`${d}/${id}.txt`, "utf8")));
+    const text = dirs.length ? texts[0] : rowsOf(readFileSync(`${dir}/box/${id}.csv`, "utf8"));
+    rows.push({ id: f.replace(/\.json$/, ""), key, text, ...(texts.length > 1 ? { texts } : {}) });
   }
   return rows;
 }
@@ -69,7 +73,7 @@ export function load(dir, ocrDir = null) {
 export function score(rows) {
   const r = { receipts: rows.length, merchant: { exact: 0, contained: 0, wrong: 0, none: 0 }, date: { labelled: 0, right: 0, wrong: 0, none: 0 }, total: { labelled: 0, right: 0, within5: 0, wrong: 0, none: 0 }, misses: { merchant: [], date: [], total: [] } };
   for (const row of rows) {
-    const p = parseReceipt(row.text);
+    const p = row.texts ? parseReceiptPasses(row.texts) : parseReceipt(row.text);
     const want = norm(row.key.company), got = norm(p.merchant);
     if (!got) { r.merchant.none++; r.misses.merchant.push({ id: row.id, want: row.key.company, got: null }); }
     else if (got === want) r.merchant.exact++;

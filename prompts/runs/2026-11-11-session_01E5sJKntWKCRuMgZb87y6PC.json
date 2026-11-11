@@ -46,22 +46,19 @@
     {
       "file": "docs/reports/polish-2026-11-11-header-search-pill.md",
       "issue": "Several of today's polish reports have no '## Still weakest' heading (they use a bold 'Next.' paragraph), so grepping for the next list misses them."
-    }
-  ],
-  "deviations": [
+    },
     {
-      "file": "prompts/polish/prompt-0.md",
-      "why": "Fixed an unrelated venture (concrete-maturity's doubled FAQ) in a polish PR because it made the required site-build tests red on main",
-      "did": "Removed the second FAQ section, kept the one in <main> with aria-labelledby",
-      "result": "faq-duplicate test passes"
+      "file": "CLAUDE.md",
+      "issue": "A red test on main (concrete-maturity doubled FAQ) was being fixed in parallel by another session (#14780); searching open PRs by venture slug found nothing because it was bundled into a shift-roster-builder PR."
     }
   ],
+  "deviations": [],
   "writeups": [
     "docs/posts/2026-11-11-436-stories-filed-under-tools.md",
     "docs/reports/polish-2026-11-11-stories-section.md"
   ],
   "goal": "impressive sites, SEO and AEO",
-  "notes": "Full local build before and after. After: 341/341 hearth-and-horizon and 95/95 saints-by-candlelight HTML pages mark Stories current, 0 mark Tools. check.mjs: publishable, 8442 pages, no dead links. Full `node --test platform/pages/*.test.mjs`: 1525 tests, 1514 pass, 2 fail on first run: (1) build.test 'each tool entry page carries breadcrumb structured data' expected every venture under c/ (updated for story shelves); (2) faq-duplicate: concrete-maturity/index.html carried its FAQ twice on main after #14766 and #14774 both added it (fixed in this PR). Re-run: build.test.mjs 309/309, faq-duplicate.test.mjs 14/14. No CI check runs appeared on the PR. run_workflow_locally.py --for-changes: 11/14 workflows passed; portfolio-pages.yml hit the tool's 300 s budget in the site-builder tests (run in full separately, see above) and pages.yml needs a _site build the tool cannot produce; separately ran check_post_frontmatter.py (exit 0) and devstats/daily tests (47/47).",
+  "notes": "Full local build before and after. After: 341/341 hearth-and-horizon and 95/95 saints-by-candlelight HTML pages mark Stories current, 0 mark Tools. check.mjs: publishable, 8442 pages, no dead links. Full `node --test platform/pages/*.test.mjs`: 1525 tests, 1514 pass, 2 fail on first run: (1) build.test 'each tool entry page carries breadcrumb structured data' expected every venture under c/ (updated for story shelves); (2) faq-duplicate: concrete-maturity/index.html carried its FAQ twice on main after #14766 and #14774 both added it (also fixed by #14780, which landed first; the merge took main's copy). Re-run: build.test.mjs 309/309, faq-duplicate.test.mjs 14/14. No CI check runs appeared on the PR. run_workflow_locally.py --for-changes: 11/14 workflows passed; portfolio-pages.yml hit the tool's 300 s budget in the site-builder tests (run in full separately, see above) and pages.yml needs a _site build the tool cannot produce; separately ran check_post_frontmatter.py (exit 0) and devstats/daily tests (47/47).",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -55,6 +55,12 @@
     <button type="button" id="copy">Copy shifts</button>
     <p id="status" role="status" class="note"></p>
   </section>
+  <section class="card">
+    <h2 style="font-size:1.05rem;margin:0 0 6px">Test it on your past weeks</h2>
+    <p class="note">Each full week after the first four is planned from the weeks before it only, then compared hour by hour with what that week's sales needed. Tried for the plain average, three half-lives, the last four weeks and last week alone. Needs dated rows and at least five full weeks.</p>
+    <button type="button" id="backtest">Test on my past weeks</button>
+    <div id="btout" aria-live="polite"></div>
+  </section>
 </main>
 <footer>
     <p>Part of the free <a href="./">Shift Roster Builder</a>. This page works in your browser only: what you paste here is never sent anywhere. Not legal, tax, or financial advice; the shifts are arithmetic on the sales you paste, not a forecast, and you decide what to schedule. No warranty. Not affiliated with any scheduling, payroll or point-of-sale vendor.</p>
@@ -62,7 +68,8 @@
   </footer>
 
   <script type="module">
-    import { demandShifts } from "./demand.mjs";
+    import { demandShifts, backtestSales } from "./demand.mjs";
+    import { record } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const sample = () => {
@@ -92,7 +99,8 @@
         return;
       }
       $("#out").textContent = r.shiftsText || "Paste sales above.";
-      const notes = [...r.notes, ...r.skipped.slice(0, 5)];
+      const pageNote = (n) => n.replace(" (--keep-rare keeps it)", "").replace(" --open/--close or --keep-rare sets the hours yourself.", "");
+      const notes = [...r.notes.map(pageNote), ...r.skipped.slice(0, 5)];
       $("#summary").innerHTML = r.rows ? `${r.needed} labor hours needed, ${r.scheduled} scheduled (${r.extra} extra from minimum shift length).<br>${notes.map(esc).join("<br>")}` : notes.map(esc).join("<br>");
       $("#table").innerHTML = r.rows ? `<table><tr><th>Day</th><th>Avg sales</th><th>Hours needed</th><th>Hours scheduled</th></tr>${r.days.map((d) => `<tr><td>${d.day}</td><td>$${Math.round(d.sales).toLocaleString("en-US")}</td><td>${d.needed}</td><td>${d.scheduled}</td></tr>`).join("")}</table>` : "";
     }
@@ -103,6 +111,21 @@
       const t = $("#out").textContent; if (!t || t.startsWith("Paste")) return;
       try { await navigator.clipboard.writeText(t); $("#status").textContent = "Copied. Paste it into the shifts box of the roster builder."; }
       catch { $("#status").textContent = "Select the text above and copy it."; }
+    });
+    $("#backtest").addEventListener("click", () => {
+      const out = $("#btout");
+      let b;
+      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean) }); }
+      catch (e) { out.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+      if (!b.weeks) { out.innerHTML = `<p class="err">${b.notes.map(esc).join(" ")}</p>`; return; }
+      record("sales_backtest_run");
+      const f = (x) => x.toFixed(1);
+      for (const m of b.methods) m.label = m.label.replace(/^--half-life (\d+)$/, "half-life $1 weeks");
+      const best = b.methods.find((m) => m.id === b.best);
+      out.innerHTML = `<p class="note">${esc(b.notes.at(-1))}</p><table><tr><th>Method</th><th>Short</th><th>Over</th><th>Scheduled</th><th>vs default (95% CI)</th></tr>${b.methods.map((m) => `<tr${m.id === b.best ? ' style="font-weight:600"' : ""}><td>${esc(m.label)}</td><td>${f(m.short)}</td><td>${f(m.over)}</td><td>${f(m.scheduled)}</td><td>${m.id === "all" ? "" : `${m.vsDefault >= 0 ? "+" : ""}${f(m.vsDefault)} (${f(m.ci[0])} to ${f(m.ci[1])})`}</td></tr>`).join("")}</table>`
+        + `<p class="note">Labor hours per week. Short: hours a week's real sales needed that the plan did not staff; over: staffed beyond that. `
+        + (b.clear ? `Best on your sales: <strong>${esc(best.label)}</strong>${best.halfLife ? ` (put ${best.halfLife} in the half-life box above)` : ""}.` : "No method is clearly better than the plain average on your sales: leave the half-life box empty.")
+        + ` A test on your past weeks, not a promise about the next one.</p>`;
     });
     run();
   </script>

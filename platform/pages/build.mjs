@@ -128,7 +128,7 @@ import {
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
-import { STICKY_FIT_JS } from './sticky-fit.mjs';
+import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
 import {
   SITE_NAME,
   MARK_BG,
@@ -154,6 +154,7 @@ import {
   HERO_BACKDROP_HTML,
   HOME_MOTION_CSS,
   HOME_MOTION_SCRIPT,
+  longestWord,
   copyShowcase,
   loadShowcase,
   renderMarquee,
@@ -8735,7 +8736,7 @@ ${HERO_BACKDROP_HTML}
       <h1>Free tools to <span class="grad">price the job, check the fees</span> and run your business.</h1>
 ${
   audienceWords.length
-    ? `      <p class="ticker">Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</p>\n`
+    ? `      <p class="ticker" data-longest="${escapeHtml(longestWord(audienceWords))}"><span>Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</span></p>\n`
     : ''
 }
       <p class="lede">
@@ -9947,8 +9948,10 @@ export function renderChromeStyle() {
   // The site header's layout rules ride along (see site-nav.mjs), then
   // `VENTURE_CHROME_CSS`, which gives the venture header and footer the site's
   // own palette so every tool page carries the same bar as the rest of the site.
-  // The floating voice button's rules close it (assistant.mjs, ASSISTANT_VOICE_CSS).
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}`;
+  // The floating voice button's rules close it (assistant.mjs, ASSISTANT_VOICE_CSS),
+  // then the scroll hint for a stuck result card that pf-site.js capped
+  // (sticky-fit.mjs, STICKY_FIT_CSS).
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
