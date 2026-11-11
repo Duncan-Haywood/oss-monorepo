@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First run of my new wait_for test failed: test_main_exit_codes asserted the old 'no DONE line' message; updated it."
+    "First run of my new wait_for test failed: test_main_exit_codes asserted the old 'no DONE line' message; updated it.",
+    "uitest-ci test job red twice from runner DNS failures during apt font install (infra, not this diff)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,7 +53,7 @@
     "docs/posts/2026-11-11-five-browser-tests-that-never-ran.md"
   ],
   "goal": null,
-  "notes": "Backlog ids touched: none (no agent-owned open row). Critique via 2026-11-11 doc_friction. Verification: platform/uitest node --test browser.test.mjs uitest.test.mjs: before 25 pass/5 skipped, after 30 pass/0 fail/0 skipped. platform/ci python3 -m unittest test_wait_for: 18 OK. promptctl validate ok. check_social_proof friction (bare comma) was already fixed on main (#14778).",
+  "notes": "Backlog ids touched: none (no agent-owned open row). Critique via 2026-11-11 doc_friction. Verification: platform/uitest node --test browser.test.mjs uitest.test.mjs: before 25 pass/5 skipped, after 30 pass/0 fail/0 skipped. platform/ci python3 -m unittest test_wait_for: 18 OK. promptctl validate ok. check_social_proof friction (bare comma) was already fixed on main (#14778). CI: all checks green except uitest-ci test, which failed twice (run 43047710330, rerun too) in the action's `playwright install --with-deps` step: apt could not resolve security.ubuntu.com on the runner. Unit-test step passed; the browser step was skipped behind it. The diff does not touch action.yml, and with PLAYWRIGHT set (as in CI) the loader path is unchanged, so merged on the local 30/30 browser run. run_workflow_locally --for-changes: 7/10 workflows passed; portfolio-pages hit the 300 s local budget and uitest's PLAYWRIGHT comes from a uses: step it cannot run.",
   "corrections": [],
   "redteam": null,
   "usage": {
