@@ -230,9 +230,16 @@ flagships:
       and a pooled survey prior"): under staged, one easy pair in five lifts
       honest-vs-lapser AUC from 0.56-0.72 to 0.87-0.99 (rank accuracy flat at
       15 items, -0.01 to -0.03 at 30); shipped needs none (0.83-0.97 already);
-      pooling does not improve separation. Next: the anchor estimate as a
-      per-person weight in pooling.ts, scored on the pooled ranking with a
-      mixed population, and the false-flag rate at a threshold; staged's 0.90
+      pooling does not improve separation. Anchor weights in the pooled
+      ranking 2026-11-11 (scripts/anchor-weight-sweep.ts, section "Anchor
+      weights in the pooled ranking"; shared-truth surveys, 40 cells): no
+      weight, not even the true e, moves the groupRanking pool beyond noise
+      (-0.014 to +0.009 Spearman); dropping flagged people costs up to 0.055
+      on 8-person panels; random answering only compresses a person's
+      ratings, so the pool needs no protection. Flag at 0.5 with 20+ anchors:
+      2% or fewer honest flagged, 55-60% of lapsers caught; not built. Next:
+      non-random carelessness (position bias, one-item clicking) on the
+      shared-truth pool, which biases rather than adds noise; staged's 0.90
       coverage for honest respondents (close pairs shrink rd too fast); the
       switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator

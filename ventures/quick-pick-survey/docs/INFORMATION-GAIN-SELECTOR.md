@@ -1202,10 +1202,100 @@ possible, at one question in five or ten spent on an easy pair. Because the
 estimate ranks respondents well but reads honest people at 0.15 to 0.30, the
 useful form is a flag or a down-weight in the pooled report (a lapser's
 answers count less), not an e fed to the Glicko update. Next step: per-person
-weights from the anchor estimate in `pooling.ts`, scored on the pooled ranking
-with a mixed population, and the false-flag rate at a fixed threshold.
+weights from the anchor estimate in the pooled ranking, scored with a mixed
+population, and the false-flag rate at a fixed threshold (done in the next
+section: weights do not help, the pool is already robust to random answers;
+the pool is `groupRanking.ts`, not `pooling.ts`, which pools one person's
+perspectives).
 
 Caveats: synthetic respondent with uniform lapses and a Bradley-Terry truth;
 lists of 30 items or fewer; one population mix; 180 respondents per cell; the
 anchor rule is one design (most lopsided pair), not tuned; no real pairwise
 answers.
+
+## Anchor weights in the pooled ranking: measured, not shipped (2026-11-11)
+
+The section above left one use for the anchor estimate: a flag or a
+down-weight in the survey's pooled ranking, so a careless respondent's answers
+count less. Built and measured here (`scripts/anchor-weight-sweep.ts`; raw
+rows `docs/anchor-weight-2026-11-11.jsonl`).
+
+**Setup.** Unlike the earlier sweeps, every respondent of a survey shares one
+truth: each item gets a common value (uniform on [-1, 1]), and each person
+sees it plus their own N(0, 0.25) deviation (`simulate`'s new `truthFor`
+argument, unit-tested in `infoGainSim.test.ts`). Each person answers at
+random a share e of the time, e drawn from the earlier mix (60% honest,
+15% / 10% / 15% at 0.1 / 0.2 / 0.5) or a heavier one (40% honest, 10% / 20% /
+30%). They run the staged selector with an anchor every fifth answer; their
+final Glicko ratings go into `groupRanking` (the DerSimonian-Laird pool the
+report uses). 15 and 30 items, 4 and 8 answers per item, panels of 20 and 60,
+30 surveys per cell, two seed sets: 32 cells. A weight w enters the pool as
+that person's rd divided by sqrt(w).
+
+Scored on the Spearman correlation of the pooled ranking with the common
+truth, as a paired difference (same people, same seeds) from what ships
+(no anchors, equal weights; 0.948 to 0.988 across the cells), and on the
+share of item pairs the rank ranges call clear that are the wrong way round.
+
+| scheme | what it does | difference from shipped, range over 32 cells | cells beyond 2 SE (up / down) |
+|---|---|---|---|
+| equal | anchors asked, equal weights | -0.007 to +0.004 | 0 / 0 |
+| w-flat | weight (1 - e_hat)^2, uniform prior | -0.014 to +0.003 | 0 / 3 |
+| w-pooled | weight (1 - e_hat)^2, survey's pooled prior | -0.013 to +0.004 | 1 / 1 |
+| drop-0.4 | leave out e_hat > 0.4 | -0.019 to +0.003 | 0 / 5 |
+| drop-0.5 | leave out e_hat > 0.5 | -0.015 to +0.003 | 0 / 3 |
+| oracle-w | weight (1 - e)^2 with the true e | -0.009 to +0.004 | 1 / 1 |
+| oracle-drop | leave out true e >= 0.2 | -0.018 to +0.004 | 1 / 9 |
+
+A stress check (8 cells) made the case for weights as strong as this model
+allows: respondents agree exactly (no personal deviation), the heavy mix (60%
+careless), panels of 8 and 20, 4 answers per item, 40 surveys. Weights still
+did nothing (w-pooled -0.008 to +0.005, oracle-w -0.004 to +0.009, none beyond
+2 SE), and dropping hurt in every cell (drop-0.4 -0.010 to -0.039, oracle-drop
+-0.006 to -0.055, all 7 or 8 beyond 2 SE).
+
+What it shows:
+
+- **The pool does not need protecting from random answering.** Even weights
+  from the true e do not move the ranking. A careless respondent's ratings
+  are a compressed, noisier copy of their preferences: random answers pull
+  every rating toward the middle without reordering them, and the 1 - e of
+  answers that are honest still point the right way. Averaged with everyone
+  else, that copy helps a little more than it harms.
+- **Leaving people out is worse than keeping them**, even when the right
+  people are left out (oracle-drop): a quarter to a half fewer respondents
+  costs more than their noise. In 8-person panels, by 0.006 to 0.055.
+- **No scheme makes the report overconfident.** Wrong-way pairs among those
+  the rank ranges call clear stay under 0.4% in every cell for every scheme.
+- **Flag rates** (uniform prior, anchors every fifth answer; share of
+  respondents above the threshold):
+
+  | answers | threshold | honest flagged | e = 0.1 flagged | e >= 0.2 caught |
+  |---|---|---|---|---|
+  | 15 x 4 (about 11 anchors) | 0.4 | 15-26% | 33-42% | 74-79% |
+  | 15 x 4 | 0.5 | 6-13% | 12-23% | 55-64% |
+  | 30 x 4 (about 23 anchors) | 0.4 | 2-4% | 10-20% | 69-74% |
+  | 30 x 4 | 0.5 | 0.5-2% | 2-9% | 55-63% |
+  | 15 or 30 x 8 (23-47 anchors) | 0.4 | 0-6% | 0-19% | 64-79% |
+  | 15 or 30 x 8 | 0.5 | 0-2% | 0-8% | 48-59% |
+
+  The false-flag rate is set by the number of anchors a person answers, not
+  the list: with about 11 anchors one honest person in five is flagged at
+  0.4; with 23 or more, one in twenty or fewer.
+
+**Decision.** Not shipped: the report keeps equal weights and asks no anchor
+pairs. The anchor estimate's only remaining use is a data-quality notice for
+the survey owner ("these respondents answered their easy pairs at random
+about half the time"), at 0.5 and only when a person answered 20 or more
+anchors (about 100 answers at one anchor in five), where the false-flag rate
+is 2% or less and about 55-60% of lapsers are caught. That notice is not
+worth an anchor in every five questions on its own: the ranking does not need
+it. Build it only if a survey owner asks for it.
+
+Caveats: synthetic respondents with uniform random lapses and a
+Bradley-Terry truth; one personal-deviation size (0.25) and zero; lists of
+30 or fewer; panels of 8 to 60. A careless pattern that is not random (always
+the left option, always the same item, or answers that track something other
+than the question) would bias the pool rather than add noise to it, and is
+not covered here: `positionBias` in `infoGainSim.ts` is the place to measure
+that next.
