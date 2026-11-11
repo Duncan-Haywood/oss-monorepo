@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, normalizeBill, analyze, codeKind, requestLetter, summaryText, reportCsv, sampleCsv, detectDelimiter, decodeBuffer, money } from "./calc.mjs";
+import { parseCsv, normalizeBill, analyze, codeKind, requestLetter, summaryText, reportCsv, sampleCsv, detectDelimiter, decodeBuffer, money, splitCode, dayKey } from "./calc.mjs";
 
 const run = (csv, opts) => {
   const n = normalizeBill(parseCsv(csv, detectDelimiter(csv)));
@@ -174,4 +174,45 @@ test("summary and csv exports carry every finding", () => {
 test("semicolon-delimited files are read", () => {
   const csv = "Date;CPT;Description;Qty;Charge\n3/1/26;99213;Visit;1;100\n";
   assert.equal(run(csv).n.records.length, 1);
+});
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-medical-bill-error-checker.json):
+// letter modifiers and a separate Modifier column were ignored, and dates
+// written two ways were treated as two days.
+test("splitCode separates digit and letter modifiers", () => {
+  assert.deepEqual(splitCode("82947-XE"), { code: "82947", modifiers: ["XE"] });
+  assert.deepEqual(splitCode("99213-25-59"), { code: "99213", modifiers: ["25", "59"] });
+  assert.deepEqual(splitCode("j1885 rt"), { code: "J1885", modifiers: ["RT"] });
+  assert.deepEqual(splitCode("0250"), { code: "0250", modifiers: [] });
+  assert.equal(splitCode("ABC-DEF").modifiers.length, 0);
+});
+
+test("an X{EPSU} suffix downgrades unbundling to information", () => {
+  for (const m of ["XE", "XS", "XP", "XU", "59"]) {
+    const { a } = run(H + `3/1/26,80053,CMP,1,200\n3/1/26,82947-${m},Glucose,1,40\n`);
+    const u = a.findings.find((f) => f.kind === "unbundling");
+    assert.equal(u.severity, "info", m);
+    assert.equal(u.amount, 0, m);
+  }
+  const { a } = run(H + "3/1/26,80053,CMP,1,200\n3/1/26,82947-25,Glucose,1,40\n");
+  assert.equal(a.findings.find((f) => f.kind === "unbundling").severity, "high");
+});
+
+test("a separate Modifier column is read", () => {
+  const csv = "Date of Service,CPT,Modifier,Description,Qty,Charge\n3/1/26,80053,,CMP,1,200\n3/1/26,82947,59,Glucose,1,40\n";
+  const { n, a } = run(csv);
+  assert.deepEqual(n.records[1].modifiers, ["59"]);
+  assert.equal(a.findings.find((f) => f.kind === "unbundling").severity, "info");
+});
+
+test("dates written two ways are one day", () => {
+  assert.equal(dayKey("3/4/2026"), dayKey("03/04/26"));
+  assert.equal(dayKey("3/4/2026"), dayKey("2026-03-04"));
+  const { a } = run(H + "03/04/2026,80053,CMP,1,200\n3/4/2026,82947,Glucose,1,40\n");
+  assert.equal(a.findings.find((f) => f.kind === "unbundling").severity, "high");
+});
+
+test("a parsed modifier is not reported as an unrecognised code", () => {
+  const { a } = run(H + "3/1/26,99213-25,Visit,1,100\n");
+  assert.ok(!a.findings.some((f) => f.kind === "code"));
 });
