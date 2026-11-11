@@ -233,5 +233,50 @@ def main():
     print(f"P9 Florida-Straits lowest of the corridor sites in both months: {'held' if ok9 else 'refuted'}")
 
 
+def implied_ratio(hs_ratio, t_ratio, a, cal_h, cal_t):
+    """ERA5/buoy plan ratio implied by hour-matched median Hs and period ratios at a site, once the vehicle-side
+    calibration (ERA5 against the on-board sensor, which 6v found matches buoy WVHT and APD) is divided out."""
+    return ((hs_ratio / cal_h) / (t_ratio / cal_t)) ** a
+
+
+def post_hoc():
+    """Written after reading P1 to P9 (exploratory). Where does the +10% come from? The vehicle state s was fitted on
+    ERA5 (Hs_e/Tm_e) at the vehicle, where median Tm_e/T_avg was 1.285 and Hs_e/Hs_ob 0.960 (6w A1); if ERA5's ratios
+    to the buoys differ from those, the plan shifts by the implied ratio. Also: the plan with ERA5 Hs and period
+    rescaled by those site ratios, and ranks with the buoys' own ratios."""
+    a, s, _ = vehicle()
+    best = max(s.values())
+    S0 = e.hours(e.load())
+    cal_h = st.median(r["hs_e"] / r["hs"] for r in S0)
+    cal_t = st.median(r["tm_e"] / r["tavg"] for r in S0)
+    st6v = v.plan(v.s2_rows(), v.ratio_g)[3]
+    raw = {}
+    for x in csv.DictReader(open(D + "ndbc_waves_2024.csv")):
+        raw[(x["buoy"], x["hour"])] = (float(x["wvht"]), float(x["apd"]))
+    print("\nPost hoc (written after reading P1 to P9; exploratory)")
+    print(f"  vehicle-side calibration (6w hours): Hs_e/Hs_ob {cal_h:.3f}, Tm_e/T_avg {cal_t:.3f}")
+    obs, imp = [], []
+    for k, z in sorted(sites().items()):
+        if k not in st6v:
+            continue
+        m = [(hs / raw[(k[0], t)][0], tm / raw[(k[0], t)][1]) for t, hs, tm in z["h"]
+             if (k[0], t) in raw and raw[(k[0], t)][0] > 0 and raw[(k[0], t)][1] > 0]
+        obs.append(math.log(km_exact(best, a, z["h"]) / st6v[k][0]))
+        imp.append(math.log(implied_ratio(st.median(x[0] for x in m), st.median(x[1] for x in m), a, cal_h, cal_t)))
+    mo, mi = st.fmean(obs), st.fmean(imp)
+    c = sum((x - mo) * (y - mi) for x, y in zip(obs, imp))
+    r_ = c / math.sqrt(sum((x - mo) ** 2 for x in obs) * sum((y - mi) ** 2 for y in imp))
+    res = [x - y for x, y in zip(obs, imp)]
+    print(f"  {len(obs)} buoy-months: mean log ratio observed {mo:+.3f} (x{math.exp(mo):.3f}), implied by the median "
+          f"Hs and period ratios {mi:+.3f} (x{math.exp(mi):.3f}); correlation {r_:.3f}; residual sd "
+          f"{st.pstdev(res):.3f} against {st.pstdev(obs):.3f} raw")
+    tr = []
+    for k, z in sites().items():
+        if k in st6v:
+            tr += [tm / raw[(k[0], t)][1] for t, _, tm in z["h"] if (k[0], t) in raw and raw[(k[0], t)][1] > 0]
+    print(f"  median Tm_e/APD at the buoys {st.median(tr):.3f} over all matched hours (vehicle side {cal_t:.3f}; 6v's k_T MOSE/APD 0.988)")
+
+
 if __name__ == "__main__":
     main()
+    post_hoc()
