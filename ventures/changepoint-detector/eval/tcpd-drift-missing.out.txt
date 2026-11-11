@@ -1,0 +1,88 @@
+
+TCPD shipped (31): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
+  * S: scale per segment, repeats drop       0.764  0.669    153
+  * MS: scale per segment, repeats missing   0.762  0.666    154
+  * drift ML, scale per segment              0.756  0.661    285
+    binseg (published)                       0.714  0.671  
+    pelt (published)                         0.704  0.672  
+  * consensus: every setting                 0.702  0.633     59
+  * R: global scale, repeats drop            0.695  0.623    199
+  * drift ML, Gaussian (shipped)             0.694  0.622    226
+  * MR: global scale, repeats missing        0.693  0.622    199
+    bocpd (published)                        0.673  0.616  
+    zero (published)                         0.663  0.568  
+  * level, following the over-cut warning    0.655  0.561    653
+
+TCPD held out (7): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
+    binseg (published)                       0.727  0.731  
+  * consensus: every setting                 0.711  0.742     25
+    bocpd (published)                        0.683  0.605  
+    zero (published)                         0.639  0.597  
+    pelt (published)                         0.636  0.639  
+  * S: scale per segment, repeats drop       0.590  0.518     93
+  * R: global scale, repeats drop            0.589  0.613    137
+  * MS: scale per segment, repeats missing   0.586  0.515     98
+  * MR: global scale, repeats missing        0.583  0.607    138
+  * drift ML, Gaussian (shipped)             0.527  0.576    180
+  * level, following the over-cut warning    0.497  0.394    233
+  * drift ML, scale per segment              0.464  0.390    173
+
+Paired F1, shipped (31) (bootstrap over series, sign test):
+  MS minus drift Gaussian (shipped)     +0.068 [95% 0.006, 0.133]; better on 17, worse on 6, sign p 0.035
+  MS minus S (drop)                     -0.001 [95% -0.004, 0.000]; better on 0, worse on 1, sign p 1.000
+  MS minus binseg                       +0.049 [95% -0.039, 0.146]; better on 13, worse on 11, sign p 0.839
+  MR minus drift Gaussian (shipped)     -0.002 [95% -0.008, 0.002]; better on 2, worse on 1, sign p 1.000
+  MR minus R (drop)                     -0.003 [95% -0.008, 0.000]; better on 0, worse on 2, sign p 0.500
+  MR minus consensus every setting      -0.009 [95% -0.078, 0.063]; better on 9, worse on 15, sign p 0.307
+
+Paired F1, held out (7) (bootstrap over series, sign test):
+  MS minus drift Gaussian (shipped)     +0.059 [95% -0.098, 0.199]; better on 5, worse on 2, sign p 0.453
+  MS minus S (drop)                     -0.004 [95% -0.010, 0.000]; better on 0, worse on 2, sign p 0.500
+  MS minus binseg                       -0.141 [95% -0.416, 0.073]; better on 2, worse on 4, sign p 0.688
+  MR minus drift Gaussian (shipped)     +0.056 [95% 0.003, 0.122]; better on 4, worse on 0, sign p 0.125
+  MR minus R (drop)                     -0.006 [95% -0.032, 0.015]; better on 1, worse on 1, sign p 1.000
+  MR minus consensus every setting      -0.128 [95% -0.306, 0.010]; better on 1, worse on 5, sign p 0.219
+
+Per series: cuts and F1 for drift Gaussian (shipped) / R / MR / S / MS; exact repeats; annotators' median count.
+  shipped (31)
+    bank                   n  581  repeats 246  gauss  63 0.031  R  39 0.049  MR  40 0.048  S  52 0.037  MS  52 0.037  annotators 0  zero 1.000
+    brent_spot             n  500  repeats   2  gauss   4 0.773  R   4 0.773  MR   4 0.773  S   4 0.386  MS   4 0.386  annotators 5  zero 0.315
+    businv                 n  330  repeats   0  gauss   3 0.559  R   3 0.559  MR   3 0.559  S   3 0.797  MS   3 0.797  annotators 3  zero 0.588
+    centralia              n   15  repeats   0  gauss   3 1.000  R   3 1.000  MR   3 1.000  S   1 0.909  MS   1 0.909  annotators 1  zero 0.763
+    children_per_woman     n  301  repeats  75  gauss  19 0.571  R  16 0.576  MR  16 0.576  S   7 0.623  MS   8 0.578  annotators 2  zero 0.507
+    co2_canada             n  215  repeats   7  gauss  14 0.625  R  14 0.625  MR  13 0.546  S   4 0.542  MS   4 0.542  annotators 5  zero 0.361
+    construction           n  319  repeats   0  gauss   0 0.696  R   0 0.696  MR   0 0.696  S   0 0.696  MS   0 0.696  annotators 1  zero 0.696
+    debt_ireland           n   21  repeats   0  gauss   9 0.824  R   9 0.824  MR   9 0.824  S   5 1.000  MS   5 1.000  annotators 2  zero 0.469
+    gdp_argentina          n   59  repeats   0  gauss   4 0.720  R   4 0.720  MR   4 0.720  S   1 0.889  MS   1 0.889  annotators 0  zero 0.824
+    gdp_croatia            n   24  repeats   0  gauss   6 0.444  R   6 0.444  MR   6 0.444  S   1 1.000  MS   1 1.000  annotators 1  zero 0.824
+    gdp_iran               n   58  repeats   0  gauss   9 0.655  R   9 0.655  MR   9 0.655  S   4 0.735  MS   4 0.735  annotators 2  zero 0.652
+    gdp_japan              n   58  repeats   0  gauss   4 0.571  R   4 0.571  MR   4 0.571  S   3 0.667  MS   3 0.667  annotators 0  zero 0.889
+    global_co2             n  104  repeats   0  gauss   7 0.523  R   7 0.523  MR   7 0.523  S   4 0.547  MS   4 0.547  annotators 0  zero 0.846
+    homeruns               n  118  repeats   1  gauss   5 0.667  R   5 0.667  MR   5 0.667  S   2 0.873  MS   2 0.873  annotators 1  zero 0.659
+    jfk_passengers         n  468  repeats   0  gauss   0 0.723  R   0 0.723  MR   0 0.723  S   1 0.868  MS   1 0.868  annotators 1  zero 0.723
+    lga_passengers         n  468  repeats   0  gauss   1 0.693  R   1 0.693  MR   1 0.693  S   1 0.693  MS   1 0.693  annotators 3  zero 0.535
+    nile                   n  100  repeats   1  gauss   1 1.000  R   1 1.000  MR   1 1.000  S   1 1.000  MS   1 1.000  annotators 1  zero 0.824
+    ozone                  n   54  repeats   1  gauss   4 0.560  R   4 0.560  MR   4 0.560  S   2 0.778  MS   2 0.778  annotators 1  zero 0.723
+    quality_control_1      n  313  repeats   0  gauss   1 1.000  R   1 1.000  MR   1 1.000  S   1 1.000  MS   1 1.000  annotators 1  zero 0.667
+    quality_control_2      n  283  repeats   0  gauss   1 1.000  R   1 1.000  MR   1 1.000  S   1 1.000  MS   1 1.000  annotators 1  zero 0.750
+    quality_control_3      n  366  repeats   0  gauss   3 0.333  R   3 0.333  MR   3 0.333  S   2 0.800  MS   2 0.800  annotators 1  zero 0.667
+    quality_control_4      n  500  repeats   0  gauss   3 0.638  R   3 0.638  MR   3 0.638  S   1 0.936  MS   1 0.936  annotators 1  zero 0.780
+    quality_control_5      n  325  repeats   0  gauss   0 1.000  R   0 1.000  MR   0 1.000  S   0 1.000  MS   0 1.000  annotators 0  zero 1.000
+    rail_lines             n   37  repeats   0  gauss   5 0.800  R   5 0.800  MR   5 0.800  S   5 0.800  MS   5 0.800  annotators 2  zero 0.537
+    seatbelts              n  192  repeats   0  gauss   0 0.621  R   0 0.621  MR   0 0.621  S   0 0.621  MS   0 0.621  annotators 2  zero 0.621
+    shanghai_license       n  205  repeats   1  gauss   6 0.416  R   6 0.416  MR   6 0.416  S   8 0.471  MS   8 0.471  annotators 1  zero 0.636
+    uk_coal_employ         n  105  repeats   2  gauss  11 0.749  R  11 0.749  MR  11 0.749  S   6 1.000  MS   6 1.000  annotators 5  zero 0.513
+    unemployment_nl        n  214  repeats   0  gauss   9 0.930  R   9 0.930  MR   9 0.930  S   6 0.851  MS   6 0.851  annotators 3  zero 0.566
+    us_population          n  816  repeats   0  gauss   0 0.889  R   0 0.889  MR   0 0.889  S   3 0.667  MS   3 0.667  annotators 0  zero 0.889
+    usd_isk                n  247  repeats   0  gauss  10 0.749  R  10 0.749  MR  10 0.749  S   6 0.660  MS   6 0.660  annotators 2  zero 0.489
+    well_log               n  675  repeats   2  gauss  21 0.764  R  21 0.764  MR  21 0.764  S  18 0.832  MS  18 0.832  annotators 9  zero 0.237
+  held out (7)
+    bitcoin                n  774  repeats   1  gauss  52 0.407  R  52 0.407  MR  52 0.407  S  28 0.535  MS  28 0.535  annotators 4  zero 0.450
+    iceland_tourism        n  199  repeats   0  gauss   0 0.947  R   0 0.947  MR   0 0.947  S   1 0.643  MS   1 0.643  annotators 0  zero 0.947
+    measles                n  991  repeats  33  gauss  39 0.049  R  35 0.054  MR  35 0.054  S  28 0.066  MS  28 0.066  annotators 0  zero 0.947
+    ratner_stock           n  600  repeats 138  gauss  30 0.324  R  10 0.512  MR   9 0.547  S   2 0.549  MS   2 0.549  annotators 2  zero 0.571
+    robocalls              n   52  repeats   0  gauss   5 0.778  R   5 0.778  MR   5 0.778  S   2 0.698  MS   2 0.698  annotators 2  zero 0.636
+    scanline_126007        n  481  repeats  31  gauss  27 0.593  R  25 0.617  MR  25 0.617  S  19 0.677  MS  24 0.656  annotators 1  zero 0.644
+    scanline_42049         n  481  repeats 233  gauss  27 0.593  R  10 0.805  MR  12 0.732  S  13 0.963  MS  13 0.954  annotators 7  zero 0.276
+
+Primary MS run time over all 38 series: 2058 ms (about 20 O(n^2) fits a series; machine-dependent).
