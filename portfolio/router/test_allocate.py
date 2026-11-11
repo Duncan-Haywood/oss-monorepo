@@ -25,6 +25,7 @@ from allocate import (
     load_ventures as _load_ventures,
     next_task,
     rank,
+    venture_report,
     work_queue,
     LEDGER_DIR,
     SCORES_PATH,
@@ -775,3 +776,36 @@ class OpenPrClaimTest(unittest.TestCase):
         now = datetime(2026, 11, 11, 7, 0, tzinfo=timezone.utc)
         note = claim_note([(1, "x" * 300, "2026-11-11T06:00:00Z")], now=now)
         self.assertLess(len(note), 160)
+
+
+class VentureReportTests(unittest.TestCase):
+    def test_prints_the_full_next_open_prs_and_last_landing(self):
+        from datetime import datetime, timezone
+        long_next = "Open items: " + "x" * 900 + " END"
+        deep = make("deep")
+        deep.flagship_rank, deep.flagship_next = 0, long_next
+        other = make("tiny-csv-check")
+        claims = {"deep": [(7, "deep: older", "2026-11-01T00:00:00Z"),
+                           (9, "deep: newer", "2026-11-11T06:00:00Z")]}
+        now = datetime(2026, 11, 11, 10, 0, tzinfo=timezone.utc)
+        out = venture_report("deep", [other, deep], claims=claims,
+                             landed="2026-11-11T08:30:00+00:00", now=now)
+        self.assertIn("queue row 1 of 2", out)
+        self.assertIn(long_next, out)  # untruncated, unlike the table
+        self.assertIn("(1.5h ago)", out)
+        self.assertLess(out.index("#9 "), out.index("#7 "))  # newest first
+        self.assertIn("open PRs naming it: 2", out)
+
+    def test_non_flagship_shows_its_task_and_unknowns_say_so(self):
+        out = venture_report("tiny-csv-check", [make("tiny-csv-check")])
+        self.assertIn("task: ", out)
+        self.assertIn("not in the fetched history", out)
+        self.assertIn("open PRs: not read", out)
+
+    def test_unknown_venture_is_none(self):
+        self.assertIsNone(venture_report("nope", [make("a")]))
+
+    def test_table_points_a_truncated_next_at_the_flag(self):
+        v = make("deep")
+        v.flagship_rank, v.flagship_next = 0, "y" * 900
+        self.assertIn("allocate.py --venture deep", next_task(v))
