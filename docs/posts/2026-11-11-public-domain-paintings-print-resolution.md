@@ -1,6 +1,6 @@
 ---
 title: "Will that museum painting print sharp on a t-shirt?"
-seo_title: "Public-domain paintings for clothing: find one and check print resolution"
+seo_title: "Public-domain paintings on clothing: will it print sharp?"
 date: 2026-11-11
 tags: [clothing-design-studio, tools, design]
 description: "A free page searches two museum open-access collections and tells you whether each painting has enough pixels for your print size and method."
