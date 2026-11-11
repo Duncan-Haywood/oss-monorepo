@@ -48,8 +48,8 @@ where it departs from the paper.
   `node cli.mjs series.csv --column sales --model meanvar` (`--model poisson` for counts), `--json` for
   machine-readable output, `--example` for the Nile data, `--help` for all options. With the level
   model (the default) the text output leads with the changes all six settings agree on, as the page
-  does (`--no-agreed` to skip it; skipped on its own above 2,000 points, see "Agreed changes in the CLI
-  and the report").
+  does (`--no-agreed` to skip it). The panel runs on worker threads beside the main analysis and is
+  skipped on its own above 10,000 points (see "Agreed changes on worker threads in the CLI").
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   or the `call_tool` tool of the repository's MCP server
@@ -2244,3 +2244,51 @@ flagship's item (c), "next: main analysis in a worker".
 - **Not done.** The CLI's panel still runs in one thread with its 2,000-point cap
   (`worker_threads` would lift it); whether the agreed summary earns its cost on the long TCPD
   series is still open.
+
+## Agreed changes on worker threads in the CLI (2026-11-11)
+
+The CLI led its text output with the six-setting panel only up to 2,000 points, because on one
+thread the panel cost about five times the main analysis (2026-11-10 measurement above). The page
+already ran it in Web Workers; the CLI now does the same with Node's `worker_threads`.
+
+- **What changed.** `consensus-threads.mjs` (`runPanelThreaded`) hands the settings to up to
+  one thread per core (`consensus-thread.mjs`), slowest first (the two AR(1) settings, then level,
+  noise floor and the trend pair), and returns `runSetting` results in panel order for
+  `mergeConsensus`. The CLI starts the threads *before* its main analysis and runs that analysis on
+  its own thread meanwhile, leaving one core for it. When the options cannot move a cut away from
+  the panel's "level" setting (`levelRunFromMain`, the page's rule; `--label-column` and
+  `--min-segment` go to both alike), the main result stands in for that setting and five settings
+  run, not six. `--consensus` uses the same threads (all six). If threads cannot start, or one
+  dies, the missing settings run on the main thread, so the answer never depends on the threads.
+  The length cap (`AGREED_MAX_POINTS`) goes from 2,000 to 10,000 points.
+- **Same answer.** `consensus-threads.test.mjs` pins the threaded merge to one-thread `consensus()`
+  with three threads, one thread, and the main level run standing in; the CLI's lead line and
+  `--consensus` output on a 2,400-point series (above the old cap) equal the one-thread text, and
+  with `--ar1` (no reuse) too. The eval below checks the same on every input.
+- **Measured** (`node eval/cli-panel-threads.mjs [file.csv ...]`, 4 cores, wall clock of a whole
+  `node cli.mjs` run, output `eval/cli-panel-threads.out.txt`):
+
+  | series | CLI, panel on threads | CLI, `--no-agreed` | main + panel on one thread |
+  |---|---|---|---|
+  | tree-ring, first 1,000 points | 0.9 s | 0.3 s | 1.1 s |
+  | tree-ring, first 2,000 points | 2.1 s | 0.8 s | 3.8 s |
+  | tree-ring, first 4,000 points | 4.3 s | 1.6 s | 10.4 s |
+  | tree-ring, all 7,980 points | 9.5 s | 4.0 s | 23.5 s |
+  | DJIA daily returns, 8,609 points | 6.4 s | 2.3 s | 15.9 s |
+
+  So the panel now adds about 1.4 to 2.4 times the plain run, against about 3 to 6 times before;
+  the full tree-ring series, which the old cap skipped, now gets its agreed line in under ten
+  seconds. The threads run slower than one setting alone (the AR(1) setting takes 5.1 s alone on
+  tree-ring, more beside four other busy threads), so the wall clock sits above the slowest
+  setting; four cores are the ceiling here. The cap of 10,000 covers every committed series; above
+  it the CLI still says the panel was not run and points to `--consensus`.
+- **"Is the agreed summary worth its cost on the long TCPD series?" has no subject.** The open item
+  assumed TCPD has univariate series above 2,000 points. It does not: of the 31 series that ship
+  (fetched with `eval/tcpd-fetch.sh` 2026-11-11) the longest is `us_population` at 816 points, and
+  of the 7 held out the longest is `measles` at 991. Every TCPD series was already under the old
+  cap, so the held-out F1 figures quoted in the agreed line (0.71 vs 0.30) are from series of 52 to
+  991 points. Whether the panel earns its cost on long real series needs labelled long series
+  from elsewhere; the tool now says so rather than implying TCPD covers them.
+- **Not done.** The several-column panel (`--columns`) still runs its per-column panels on one
+  thread; the page's 2,000-point no-worker fallback is unchanged.
+
