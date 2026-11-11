@@ -104,8 +104,56 @@ class OpenPrsTest(unittest.TestCase):
         with mock.patch("urllib.request.urlopen", return_value=io.BytesIO(body)):
             self.assertEqual(pick_track.open_prs_for("lowcomm-training"),
                              ["#7 research/lowcomm-training: 3d"])
+        pick_track._open_pr_titles.cache_clear()
         with mock.patch("urllib.request.urlopen", side_effect=OSError):
             self.assertEqual(pick_track.open_prs_for("x"), [])
+        pick_track._open_pr_titles.cache_clear()
+
+    def test_pages_past_the_first_hundred(self):
+        import io, json
+        from unittest import mock
+        page1 = [{"number": i, "title": "other"} for i in range(100)]
+        page2 = [{"number": 500, "title": "research/lowcomm-training: 4"}]
+        bodies = [io.BytesIO(json.dumps(page1).encode()), io.BytesIO(json.dumps(page2).encode())]
+        pick_track._open_pr_titles.cache_clear()
+        with mock.patch("urllib.request.urlopen", side_effect=bodies):
+            self.assertEqual(pick_track.open_prs_for("lowcomm-training"), ["#500 research/lowcomm-training: 4"])
+        pick_track._open_pr_titles.cache_clear()
+
+
+class ClaimCheckTest(unittest.TestCase):
+    def setUp(self):
+        pick_track._open_pr_titles.cache_clear()
+
+    def tearDown(self):
+        pick_track._open_pr_titles.cache_clear()
+
+    def _run(self, titles, recent=(), age=1.0):
+        from unittest import mock
+        with mock.patch.object(pick_track, "_open_pr_titles", return_value=titles), \
+             mock.patch.object(pick_track, "recent_programme_commits", return_value=list(recent)), \
+             mock.patch.object(pick_track, "origin_main_age_hours", return_value=age):
+            return pick_track.claim_check("cell-fidelity")
+
+    def test_says_clear_when_nothing_found(self):
+        lines = self._run([(1, "other")])
+        self.assertEqual(len(lines), 1)
+        self.assertIn("clear", lines[0])
+
+    def test_api_error_is_not_silent(self):
+        lines = self._run(None)
+        self.assertTrue(any("could not list open PRs" in l for l in lines))
+        self.assertFalse(any("clear" in l for l in lines))
+
+    def test_stale_origin_main_is_flagged(self):
+        lines = self._run([], age=30)
+        self.assertTrue(any("30h old" in l for l in lines))
+        self.assertFalse(any("clear" in l for l in lines))
+
+    def test_claims_listed(self):
+        lines = self._run([(9, "research/cell-fidelity: m2")], recent=["abc 1 hour ago: x"])
+        self.assertTrue(any("#9" in l for l in lines))
+        self.assertTrue(any("abc" in l for l in lines))
 
 
 class CliTest(unittest.TestCase):
