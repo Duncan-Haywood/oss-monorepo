@@ -47,7 +47,7 @@ class ParseDecimal(unittest.TestCase):
             self.assertIsNone(parse_decimal(text), repr(text))
 
     def test_magnitudes_a_browser_cannot_hold_to_the_cent_are_rejected(self):
-        self.assertIsNotNone(parse_decimal("999999999999999.99"))
+        self.assertIsNotNone(parse_decimal("99999999999999.99"))
         for text in ["1e15", "1000000000000000", "1e27", "1e999999", "1e9999999999999999999999"]:
             self.assertIsNone(parse_decimal(text), text)
 

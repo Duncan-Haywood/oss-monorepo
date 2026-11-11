@@ -1,6 +1,7 @@
 // Maps a local UBL Invoice document into the format-neutral checker shape.
 // Intentionally small: it is not a Peppol or EN 16931 validator. DTD and
 // entity declarations are rejected so a dropped file cannot expand entities.
+import { parseDecimal } from "./numbers.mjs";
 
 function localName(tag) {
   const trimmed = tag.replace(/^\/+/, "").split(/[\s>/]/, 1)[0];
@@ -65,9 +66,10 @@ function textOf(node, name, required = true) {
 }
 
 function asNumber(value) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) throw new Error(`UBL number is not finite: ${value}`);
-  return Number.isInteger(number) ? number : number;
+  // Not Number(): it reads "0x64" as 100, an amount no receiver accepts (xs:decimal).
+  const number = parseDecimal(value);
+  if (number === null) throw new Error(`UBL amount is not a number: ${String(value).slice(0, 40)}`);
+  return number;
 }
 
 function nestedText(node, parentName, childName) {
@@ -341,7 +343,7 @@ export function parseUblInvoice(source) {
     return !code || !docCurrency || code === docCurrency;
   });
   const taxTotal = (sameCurrency.length ? sameCurrency : taxTotals)
-    .reduce((sum, item) => sum + Number(textOf(item, "TaxAmount")), 0);
+    .reduce((sum, item) => sum + asNumber(textOf(item, "TaxAmount")), 0);
   const dueDate = textOf(root, "DueDate", false);
   const typeCode = textOf(root, "InvoiceTypeCode", false)
     || textOf(root, "CreditNoteTypeCode", false)

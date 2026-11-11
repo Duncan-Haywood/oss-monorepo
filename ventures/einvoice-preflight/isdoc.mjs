@@ -4,6 +4,7 @@
 // the UBL reader so the format-neutral arithmetic, VAT and date checks apply. It applies
 // no Czech national rules and no XSD.
 import { parseXmlTree } from "./ubl.mjs";
+import { parseDecimal } from "./numbers.mjs";
 
 function find(node, name) {
   if (node.name === name) return node;
@@ -17,8 +18,8 @@ function txt(node, name) {
 }
 function num(s) {
   if (s === "") return "";
-  const v = Number(s);
-  return Number.isFinite(v) ? v : s;
+  const v = parseDecimal(s);
+  return v === null ? s : v;
 }
 
 export function parseIsdocInvoice(source) {
