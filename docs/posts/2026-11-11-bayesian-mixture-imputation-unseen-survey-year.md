@@ -3,7 +3,7 @@ title: "Two opposite imputation models miss an unseen survey year by the same am
 seo_title: "Bayesian mixture (DPMPM) vs MICE on a held-out GSS year"
 date: 2026-11-11
 tags: [research, christian-belief-models, surveys, religion, imputation, multiple-imputation]
-description: "Si and Reiter's Dirichlet-process mixture misses a held-out GSS year of Catholic opinion by 4.8 points, MICE by 4.7, interpolation by 3.4. The barrier is period, not model."
+description: "On held-out GSS years of Catholic opinion, the Si-Reiter mixture misses by 4.8 points, MICE by 4.7, interpolation by 3.4: the barrier is period, not model."
 ---
 
 The [christian-belief-models](/research/christian-belief-models/) programme keeps asking one narrow question. Take one survey year of the General Social Survey (GSS), hide every Catholic's answer to one item, and fill those answers in from everything else the survey knows. Does the filled-in share match what that year actually said?
