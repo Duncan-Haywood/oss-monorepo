@@ -248,8 +248,11 @@ flagships:
       2026-11-11 (lowCarryOverDoubleRounds, README "A double round robin searched as a whole"): leg two
       its own round robin, return games reversed, no back-to-back repeats; 20 teams 1,678 / 124 breaks
       (below all 14 pro seasons) vs 2,136 / 114 mirrored, 18 teams 1,498 / 88 vs 1,926 / 74. Next, most
-      valuable first: cut the extra breaks (move leg one too under exact breaks; French/English schemes
-      as starts), the search's gap to the floor (12 teams 156 vs 120), a real league's travel times (to
+      valuable first: cut the extra breaks. Measured 2026-11-11 (eval/double-frontier.txt, README):
+      moving leg one too gains under 1%, but seed spread is large (20 teams w=10: 1,678-1,820 /
+      108-124), so build best-of-k seeds/weights in a Web Worker (2.3 s main thread today), and
+      consider w=20+ at 18 teams (68-84 breaks, dominates both Ligue 1 seasons). Then French/English
+      schemes as starts, the search's gap to the floor (12 teams 156 vs 120), a real league's travel times (to
       check the 1.3 x 40 km/h estimate), a real league's unavailable-date requests and duty rota, and a
       paper print check.
   - venture: open-tennis-robots
