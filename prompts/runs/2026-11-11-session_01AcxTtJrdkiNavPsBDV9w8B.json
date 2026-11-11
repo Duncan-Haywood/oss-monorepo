@@ -34,7 +34,8 @@
   "errors": [
     "llama_cpp.server failed to load a split GGUF renamed to q7-1.gguf: split files must keep their -0000N-of-0000M names",
     "pip installed llama-cpp-python into /usr/bin/python3 (3.13), not the PATH python3 (/usr/local/bin, 3.11); the first server start failed with ModuleNotFoundError",
-    "Node fetch's 300 s headers timeout cut off the last batch of one run and every batch of the first name-field run (35 min lost); fixed with an undici Agent preloaded via --import"
+    "Node fetch's 300 s headers timeout cut off the last batch of one run and every batch of the first name-field run (35 min lost); fixed with an undici Agent preloaded via --import",
+    "run_workflow_locally --for-changes reported UNSTABLE CHECKOUT because I edited the run record while it ran; its one real failure (new-payee.test.mjs pinned the old fill behaviour) was fixed and the suite re-run"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -58,7 +59,7 @@
     "ventures/ai-bookkeeper/HISTORY.md"
   ],
   "goal": "Measure the optional AI layer on real data and make its default safe on what was found",
-  "notes": "Hosts: huggingface.co (GGUF download) and the City of Toronto CKAN portal answered; github.com releases 403. Qwen2.5-7B-Instruct Q4_K_M via llama-cpp-python 0.3.16 built from source (4 CPU cores, ~37 tok/s prompt, ~4 tok/s generation; 20-line batch 3.5-8 min). Readings on 140 real fill-queue lines: rules 43 right; model 25 (old prompt), 27 (+merchant category), 35 (+account name); name check dropped 7, all wrong; keep-guess policy 48. Verification: node --test ai.test.mjs toronto-ai.test.mjs toronto-pcard.test.mjs page.test.mjs 47 pass; python3 platform/ci/run_venture_tests.py ai-bookkeeper ok (54.5 s, before the last ai.mjs change; re-run below); post frontmatter/links/similarity checks clean.",
+  "notes": "Hosts: huggingface.co (GGUF download) and the City of Toronto CKAN portal answered; github.com releases 403. Qwen2.5-7B-Instruct Q4_K_M via llama-cpp-python 0.3.16 built from source (4 CPU cores, ~37 tok/s prompt, ~4 tok/s generation; 20-line batch 3.5-8 min). Readings on 140 real fill-queue lines: rules 43 right; model 25 (old prompt), 27 (+merchant category), 35 (+account name); name check dropped 7, all wrong; keep-guess policy 48. Verification: node --test ai.test.mjs toronto-ai.test.mjs toronto-pcard.test.mjs page.test.mjs 47 pass; python3 platform/ci/run_venture_tests.py ai-bookkeeper ok (44.8 s, final tree; an earlier sweep caught new-payee.test.mjs pinning the old fill-over-guess behaviour, updated to fill-guess); post frontmatter/links/similarity checks clean.",
   "corrections": [],
   "redteam": null,
   "usage": {

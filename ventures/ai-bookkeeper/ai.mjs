@@ -94,7 +94,7 @@ export async function aiSuggest(config, books, { max = 40, offset = 0, fetch, ma
   const hasOwn = (t) => t.suggestion?.account && t.suggestion.source !== "ai" && (mode !== "fill-guess" || t.suggestion.source !== "new-payee");
   const queue = books.transactions.filter((t) => t.status === "review" && (mode === "replace" || !hasOwn(t))).slice(offset, offset + max);
   const unchanged = () => ({ books, suggested: 0, dropped: 0 });
-  if (!queue.length) return { ...unchanged(), source: "fallback", error: mode === "replace" ? "nothing is waiting for review" : "every review line already has a suggestion from the rules, memory or classifier" };
+  if (!queue.length) return { ...unchanged(), source: "fallback", error: mode === "replace" ? "nothing is waiting for review" : "every review line already has a suggestion from the rules, memory, classifier or new-payee guess" };
   const r = await withFallback(config, unchanged, async (c) => {
     const out = await complete(c, { system: SYSTEM, prompt: aiPrompt(books, queue), maxTokens, fetch });
     const answers = parseReply(out.text);
