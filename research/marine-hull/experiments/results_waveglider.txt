@@ -1,0 +1,64 @@
+kept hours (<= 300 km, speed >= 0.1 m/s): 1245
+speed median 0.437 m/s (37.7 km/day), WVHT median 1.78 m, DPD median 10.0 s
+
+P1 Spearman(speed, WVHT) = 0.117: refuted (>= 0.3)
+P2 Spearman(residual from WVHT-bin median, DPD) = -0.260: held (< 0)
+  speed by WVHT bin (m): n, median m/s
+    1.00-1.25:   107 0.383
+    1.25-1.50:   203 0.446
+    1.50-1.75:   271 0.437
+    1.75-2.00:   238 0.427
+    2.00-2.25:   169 0.469
+    2.25-2.50:   102 0.458
+    2.50-2.75:    51 0.430
+    2.75-3.00:    38 0.454
+    3.00-3.25:    23 0.456
+
+P3 default foils (theta_stop 30, AR 2, CL_max 1.0): train 416 h, test 829 h; fitted r 3.063 (train MAE 0.124 m/s)
+  held-out MAE m/s: model 0.165 (bias +0.123), constant 0.138, power law 0.194 (U = 0.387 Hs^0.669)
+  model/constant 1.190, model/power 0.851
+P3: refuted (model <= 0.85 x constant and <= 1.10 x power law)
+
+P4 median speed WVHT >= 2.5 m (147 h) / WVHT <= 1.5 m (326 h): data 1.054, model 1.931, mean-height ratio 2.332: refuted (data in 1.2 to 2.0)
+
+Sensitivity, foil constants (r refitted on the training hours each time):
+  theta_stop AR CL_max | r | test MAE model / constant / power
+    20   1  0.8 |   3.522 | 0.171 / 0.138 / 0.194
+    20   1  1.2 |   3.063 | 0.170 / 0.138 / 0.194
+    20   2  0.8 |   2.664 | 0.166 / 0.138 / 0.194
+    20   2  1.2 |   2.014 | 0.164 / 0.138 / 0.194
+    20   4  0.8 |   2.316 | 0.162 / 0.138 / 0.194
+    20   4  1.2 |   1.751 | 0.172 / 0.138 / 0.194
+    30   1  0.8 |   4.658 | 0.163 / 0.138 / 0.194
+    30   1  1.2 |   4.051 | 0.153 / 0.138 / 0.194
+    30   2  0.8 |   3.522 | 0.167 / 0.138 / 0.194
+    30   2  1.2 |   2.664 | 0.156 / 0.138 / 0.194
+    30   4  0.8 |   3.063 | 0.168 / 0.138 / 0.194
+    30   4  1.2 |   2.316 | 0.168 / 0.138 / 0.194
+    40   1  0.8 |  10.775 | 0.164 / 0.138 / 0.194
+    40   1  1.2 |  10.775 | 0.164 / 0.138 / 0.194
+    40   2  0.8 |   6.161 | 0.156 / 0.138 / 0.194
+    40   2  1.2 |   6.161 | 0.161 / 0.138 / 0.194
+    40   4  0.8 |   5.357 | 0.163 / 0.138 / 0.194
+    40   4  1.2 |   4.658 | 0.164 / 0.138 / 0.194
+
+Sensitivity, buoy distance <= 150 km:
+  default foils: train 307 h, test 349 h; fitted r 3.063 (train MAE 0.125 m/s)
+  held-out MAE m/s: model 0.193 (bias +0.186), constant 0.069, power law 0.169 (U = 0.399 Hs^0.479)
+  model/constant 2.799, model/power 1.139
+
+P5 km/day at the programme buoys, 2024 (fitted default model; hourly WVHT and DPD):
+  month 1: 9 buoys, model median 50.1 km/day (min 43.7 at 46054, max 58.2 at 42040); power law median 42.5; solar ceiling 86, wind drone 126
+  month 7: 11 buoys, model median 36.5 km/day (min 17.4 at 44013, max 48.0 at 46013); power law median 32.9; solar ceiling 86, wind drone 80
+P5: held (model median below solar ceiling and wind drone in both months)
+
+Post-hoc (not pre-registered): drift over the mission, all buoy distances, speed >= 0.1 m/s
+  month   hours  median speed m/s  median WVHT m  Spearman(speed, WVHT) within month
+  2015-05    170  0.388  1.31  +0.257
+  2015-06    707  0.598  1.45  +0.524
+  2015-07    718  0.644  1.69  +0.017
+  2015-08    739  0.459  1.67  +0.447
+  2015-09    693  0.465  2.00  +0.762
+  2015-10    495  0.411  2.07  +0.255
+  2015-11      8  0.353  1.51  +nan
+  speed / its month's median, WVHT >= 2.5 m over <= 1.5 m: 1.182 (445 and 968 h); pooled Spearman of the normalised speed with WVHT +0.365
