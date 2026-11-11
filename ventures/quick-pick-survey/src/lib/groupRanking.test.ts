@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { coverage, groupRanking, pool, rankingCsv } from "./groupRanking";
+import { AGREEMENT_MIN_OPTIONS, agreementSummary, coverage, groupRanking, LOW_AGREEMENT, pool, rankCorrelation, rankingCsv, respondentAgreement, type ParticipantRatingRow } from "./groupRanking";
 
 // Small seeded PRNG so the coverage check is reproducible.
 function mulberry(seed: number) {
@@ -137,5 +137,76 @@ describe("groupRanking", () => {
       const c2 = coverage(mk(40, counts), 20, 1);
       expect(c2.advice).toContain("shorten the list to about 13 options");
     });
+  });
+});
+
+describe("rankCorrelation", () => {
+  it("is 1 for the same order, -1 for the reverse, and averages ties", () => {
+    expect(rankCorrelation([1, 2, 3, 4], [10, 20, 30, 40])).toBeCloseTo(1);
+    expect(rankCorrelation([1, 2, 3, 4], [4, 3, 2, 1])).toBeCloseTo(-1);
+    // Reference: Pearson on average ranks, computed separately in Python: 0.9746794344808964
+    expect(rankCorrelation([1, 2, 3, 4, 5], [1, 2, 2, 3, 5])).toBeCloseTo(0.9746794, 6);
+    expect(rankCorrelation([1, 1, 1], [1, 2, 3])).toBe(0);
+  });
+});
+
+describe("respondentAgreement", () => {
+  // Ten options with a shared order; honest people rate by it with a little noise.
+  const ids = Array.from({ length: 10 }, (_, i) => `o${i}`);
+  function panel(seed: number, odd: (i: number) => number) {
+    const r = mulberry(seed);
+    const rows: ParticipantRatingRow[] = [];
+    for (let p = 0; p < 8; p++) {
+      for (let i = 0; i < ids.length; i++) {
+        const rating = p === 0 ? odd(i) : 1500 + 40 * i + 15 * normal(r);
+        rows.push({ participantId: `p${p}`, itemId: ids[i], rating, rd: 90 });
+      }
+    }
+    return rows;
+  }
+
+  it("scores honest respondents high and one answering by an unrelated trait near or below zero", () => {
+    // p0 ranks the options in an order unrelated to everyone else's (Spearman with it: -0.04).
+    const unrelated = [4, 9, 1, 7, 0, 6, 2, 8, 3, 5];
+    const out = respondentAgreement(panel(5, (i) => 1500 + 40 * unrelated[i]));
+    const byId = new Map(out.map((a) => [a.participantId, a]));
+    expect(byId.get("p0")!.rho!).toBeLessThan(LOW_AGREEMENT);
+    for (let p = 1; p < 8; p++) expect(byId.get(`p${p}`)!.rho!).toBeGreaterThan(0.8);
+    expect(out[0].participantId).toBe("p0"); // lowest first
+  });
+
+  it("leaves out the respondent being scored (a reversed person cannot agree with a pool that holds them)", () => {
+    const out = respondentAgreement(panel(9, (i) => 1900 - 40 * i));
+    expect(out.find((a) => a.participantId === "p0")!.rho!).toBeLessThan(-0.9);
+  });
+
+  it("gives no score under AGREEMENT_MIN_OPTIONS answered options, and ignores never-answered rows", () => {
+    const rows: ParticipantRatingRow[] = [
+      ...ids.slice(0, AGREEMENT_MIN_OPTIONS - 1).map((itemId, i) => ({ participantId: "few", itemId, rating: 1500 + i, rd: 100 })),
+      ...ids.map((itemId, i) => ({ participantId: "many", itemId, rating: 1500 + i, rd: 100 })),
+      ...ids.map((itemId, i) => ({ participantId: "other", itemId, rating: 1500 + i, rd: 100 })),
+      { participantId: "few", itemId: "o9", rating: 1500, rd: 350 },
+    ];
+    const out = new Map(respondentAgreement(rows).map((a) => [a.participantId, a]));
+    expect(out.get("few")).toEqual({ participantId: "few", options: AGREEMENT_MIN_OPTIONS - 1, rho: null });
+    expect(out.get("many")!.rho).toBeCloseTo(1);
+  });
+});
+
+describe("agreementSummary", () => {
+  const a = (rho: number | null, i: number) => ({ participantId: `p${i}`, options: 10, rho });
+  it("says nothing on a small panel or when everyone agrees", () => {
+    expect(agreementSummary([0.9, 0.1, 0.8, 0.7].map(a)).advice).toBe("");
+    expect(agreementSummary([0.9, 0.8, 0.85, 0.7, 0.6, null].map(a))).toEqual({ checked: 5, low: 0, advice: "" });
+  });
+  it("names how many disagree, and does not call a large block careless", () => {
+    const few = agreementSummary([0.9, 0.8, 0.85, 0.7, 0.6, 0.75, 0.05].map(a));
+    expect(few.low).toBe(1);
+    expect(few.advice).toMatch(/^1 of 7 respondents/);
+    expect(few.advice).toMatch(/genuinely different taste/);
+    expect(few.advice).toMatch(/counts every respondent equally/);
+    const split = agreementSummary([0.9, 0.8, -0.2, 0.1, 0.6, 0.75, 0.05].map(a));
+    expect(split.low).toBe(3);
+    expect(split.advice).toMatch(/split into groups/);
   });
 });

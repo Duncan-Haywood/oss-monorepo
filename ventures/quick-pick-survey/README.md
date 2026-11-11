@@ -165,4 +165,11 @@ Signed in as admin, `POST /api/admin/surveys` with `{"title": "...", "items": "o
 `GET /api/admin/surveys/<slug>/ranking` returns the pooled ranking; add `?format=csv` to download it.
 Each item carries a 95% interval from a random-effects pool of the respondents' Glicko-2 ratings
 (so disagreement widens it) and a best/worst rank range: items whose intervals overlap share a range
-rather than being ordered by noise. Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
+rather than being ordered by noise. The response also carries `agreement`: each respondent's
+ratings are rank-correlated with everyone else's pool (leave one out), and when 5 or more could
+be scored and any fall under 0.2, a note says how many (shown in the builder and the report).
+It is a data-quality note, never a weight: careless clicking by something other than the
+question (a familiar name, a short label) moves the pool and makes it confidently wrong, but a
+group with a genuinely different taste scores just as low, and down-weighting would quiet it
+(docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not random").
+Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.

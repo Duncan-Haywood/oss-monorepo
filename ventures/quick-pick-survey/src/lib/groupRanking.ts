@@ -179,3 +179,112 @@ export function coverage(ranked: RankedItem[], participants: number, answersPerR
       : `${thin.length} of ${n} options were rated by fewer than ${THIN_RESPONDENTS} people, so their places are guesses. Wait for more respondents.`;
   return { options: n, thin, median, status: "thin", advice };
 }
+
+/** A respondent's rating rows, tagged with who gave them (participantItemRating). */
+export type ParticipantRatingRow = RatingRow & { participantId: string };
+
+export type RespondentAgreement = {
+  participantId: string;
+  /** Options this person answered about. */
+  options: number;
+  /** Spearman correlation of their ratings with everyone else's pooled ratings on the same options; null under AGREEMENT_MIN_OPTIONS. */
+  rho: number | null;
+};
+
+/** Options a person must have answered about before their agreement means anything. */
+export const AGREEMENT_MIN_OPTIONS = 5;
+/**
+ * Below this leave-one-out agreement a respondent's answers do not follow the
+ * rest of the panel: careless clicking (always the first slot, one favourite,
+ * a trait unrelated to the question) or a genuine outlier. In the careless-pattern
+ * sweep 0-4% of honest respondents fell under it on 15 to 30 options
+ * (docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not random").
+ */
+export const LOW_AGREEMENT = 0.2;
+
+/** Spearman with average ranks for ties (ratings left at the default tie often). */
+export function rankCorrelation(xs: number[], ys: number[]): number {
+  const rank = (v: number[]) => {
+    const order = v.map((x, i) => [x, i] as const).sort((a, b) => a[0] - b[0]);
+    const r = new Array<number>(v.length);
+    for (let k = 0; k < order.length; ) {
+      let j = k;
+      while (j + 1 < order.length && order[j + 1][0] === order[k][0]) j++;
+      for (let t = k; t <= j; t++) r[order[t][1]] = (k + j) / 2;
+      k = j + 1;
+    }
+    return r;
+  };
+  const rx = rank(xs), ry = rank(ys);
+  const n = xs.length;
+  const mx = rx.reduce((a, b) => a + b, 0) / n, my = ry.reduce((a, b) => a + b, 0) / n;
+  let num = 0, dx = 0, dy = 0;
+  for (let i = 0; i < n; i++) {
+    num += (rx[i] - mx) * (ry[i] - my);
+    dx += (rx[i] - mx) ** 2;
+    dy += (ry[i] - my) ** 2;
+  }
+  return dx === 0 || dy === 0 ? 0 : num / Math.sqrt(dx * dy);
+}
+
+/**
+ * How well each respondent agrees with the rest of the panel: the rank
+ * correlation of their ratings with the pool of everyone else's (leave one
+ * out), over the options they answered about. Options nobody else rated are
+ * skipped. A person whose answers follow something other than the question
+ * scores near zero or below.
+ */
+export function respondentAgreement(rows: ParticipantRatingRow[]): RespondentAgreement[] {
+  const answered = rows.filter((r) => r.rd < DEFAULT_RD - 1e-9);
+  const byItem = new Map<string, ParticipantRatingRow[]>();
+  const byPerson = new Map<string, ParticipantRatingRow[]>();
+  for (const r of answered) {
+    (byItem.get(r.itemId) ?? byItem.set(r.itemId, []).get(r.itemId)!).push(r);
+    (byPerson.get(r.participantId) ?? byPerson.set(r.participantId, []).get(r.participantId)!).push(r);
+  }
+  const out: RespondentAgreement[] = [];
+  for (const [participantId, mine] of byPerson) {
+    const own: number[] = [], others: number[] = [];
+    for (const r of mine) {
+      const rest = byItem.get(r.itemId)!.filter((o) => o.participantId !== participantId);
+      if (rest.length === 0) continue;
+      own.push(r.rating);
+      others.push(pool(rest).rating);
+    }
+    out.push({ participantId, options: own.length, rho: own.length >= AGREEMENT_MIN_OPTIONS ? rankCorrelation(own, others) : null });
+  }
+  return out.sort((a, b) => (a.rho ?? Infinity) - (b.rho ?? Infinity) || a.participantId.localeCompare(b.participantId));
+}
+
+export type AgreementSummary = {
+  /** Respondents with enough answered options to score. */
+  checked: number;
+  /** Of those, how many fell under LOW_AGREEMENT. */
+  low: number;
+  /** One plain paragraph for the survey owner, or "" when there is nothing to say. */
+  advice: string;
+};
+
+/** Respondents scored before the check says anything: leave-one-out needs a panel to compare against. */
+export const AGREEMENT_MIN_RESPONDENTS = 5;
+
+/**
+ * A data-quality note from respondentAgreement. It never changes the ranking:
+ * in the careless-pattern sweep, weighting people by their agreement recovered
+ * much of what careless clickers cost (up to +0.08 Spearman) but quieted a
+ * genuine minority taste by 0.01 to 0.04, and the score cannot tell the two
+ * apart (docs/INFORMATION-GAIN-SELECTOR.md). So the owner is told, and decides.
+ */
+export function agreementSummary(agreements: RespondentAgreement[]): AgreementSummary {
+  const scored = agreements.filter((a) => a.rho !== null);
+  const low = scored.filter((a) => a.rho! < LOW_AGREEMENT).length;
+  if (scored.length < AGREEMENT_MIN_RESPONDENTS || low === 0) return { checked: scored.length, low, advice: "" };
+  const split = low / scored.length >= 0.3;
+  const advice =
+    `${low} of ${scored.length} respondents ranked the options in an order that barely matches everyone else's (rank agreement under ${LOW_AGREEMENT}). ` +
+    (split
+      ? "That many usually means the panel is split into groups with different tastes, or a block of careless answers; compare the groups before acting on one overall order. "
+      : "That is what careless clicking looks like (always the first option, or picking by something other than the question), but a person with a genuinely different taste looks the same. ") +
+    "The ranking counts every respondent equally.";
+  return { checked: scored.length, low, advice };
+}

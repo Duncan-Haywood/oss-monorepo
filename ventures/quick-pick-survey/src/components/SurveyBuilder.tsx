@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { Coverage, RankedItem } from "@/lib/groupRanking";
+import type { AgreementSummary, Coverage, RankedItem } from "@/lib/groupRanking";
 import { CHECKOUT_URL } from "@/lib/checkout";
 import { buyLink } from "@/lib/licence";
 
-type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage };
+type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage; agreement?: AgreementSummary };
 
 const INPUT =
   "rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-neutral-700 dark:bg-neutral-900";
@@ -135,6 +135,11 @@ function RankingTable({ r }: { r: Ranking }) {
       {r.coverage?.advice && (
         <p role="note" className="mt-1 rounded bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">
           {r.coverage.advice}
+        </p>
+      )}
+      {r.agreement?.advice && (
+        <p role="note" className="mt-1 rounded bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+          {r.agreement.advice}
         </p>
       )}
       {none ? (

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/adminAuth";
-import { coverage, groupRanking, rankingCsv } from "@/lib/groupRanking";
+import { agreementSummary, coverage, groupRanking, rankingCsv, respondentAgreement } from "@/lib/groupRanking";
 import { CHECKOUT_URL, VALIDATE_URL } from "@/lib/checkout";
 import { reportGate } from "@/lib/reportAccess";
 import { resultsReportHtml } from "@/lib/resultsReport";
@@ -26,10 +26,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     if (!survey) return NextResponse.json({ error: "Survey not found" }, { status: 404 });
     const ratings = await prisma.participantItemRating.findMany({
       where: { item: { survey: { slug } } },
-      select: { itemId: true, rating: true, rd: true },
+      select: { participantId: true, itemId: true, rating: true, rd: true },
       take: 200000,
     });
     const ranked = groupRanking(survey.items, ratings);
+    // A data-quality note only: the ranking above counts everyone equally (groupRanking.ts, agreementSummary).
+    const agreement = agreementSummary(respondentAgreement(ratings));
     const answered = await prisma.trial.groupBy({
       by: ["participantId"],
       where: { result: { not: null }, participant: { survey: { slug } } },
@@ -52,11 +54,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       if (!gate.ok) return NextResponse.json({ error: gate.error }, { status: gate.status });
       const q = req.nextUrl.searchParams;
       const html = resultsReportHtml(survey.title, ranked, coverage(ranked, survey._count.participants, medianAnswers), survey._count.participants, {
+        agreement: agreement.advice || undefined,
         name: q.get("name") ?? undefined, logo: q.get("logo") ?? undefined, colour: q.get("colour") ?? undefined, note: q.get("note") ?? undefined,
       });
       return new NextResponse(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
     }
-    return NextResponse.json({ title: survey.title, participants: survey._count.participants, ranking: ranked, coverage: coverage(ranked, survey._count.participants, medianAnswers) });
+    return NextResponse.json({ title: survey.title, participants: survey._count.participants, ranking: ranked, coverage: coverage(ranked, survey._count.participants, medianAnswers), agreement });
   } catch (err) {
     console.error("admin/surveys ranking failed", err);
     return NextResponse.json({ error: "Could not compute the ranking" }, { status: 500 });

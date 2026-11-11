@@ -23,6 +23,11 @@
  *               people answer by preference (same logistic slope); every
  *               careless person shares the same salience, so this is the
  *               pattern that can move the pool
+ *   dissent     not careless: a camp with a taste of its own (a second common
+ *               truth, uniform on [-1, 1]) answering honestly by it. Scored
+ *               against the panel's average taste, so a scheme that quiets
+ *               this camp is penalised (the cost of treating disagreement as
+ *               carelessness); `--q` is ignored
  *
  * Everyone runs the staged selector (what ships) with the route's slot shuffle;
  * the first-option share reaches the selector as in the route. Pool schemes:
@@ -157,6 +162,9 @@ for (const pattern of patterns) {
               const sr = mulberry32(svSeed);
               const common = Array.from({ length: items }, () => sr() * 2 - 1);
               const salience = Array.from({ length: items }, () => sr() * 2 - 1);
+              // A second taste for the dissent pattern; drawn always so other patterns' streams match.
+              const camp = Array.from({ length: items }, () => sr() * 2 - 1);
+              const target = pattern === "dissent" ? common.map((m, i) => (1 - nCareless / nResp) * m + (nCareless / nResp) * camp[i]) : common;
               const ids = common.map((_, i) => `item-${String(i).padStart(3, "0")}`);
               const idx = new Map(ids.map((id, i) => [id, i]));
               const people: Person[] = [];
@@ -164,10 +172,10 @@ for (const pattern of patterns) {
                 const seed = svSeed + r * 7919;
                 const pr = mulberry32(seed ^ 0x5bd1e995);
                 const careless = r < nCareless;
-                const own = common.map((m) => m + spread * normal(pr));
+                const own = (careless && pattern === "dissent" ? camp : common).map((m) => m + spread * normal(pr));
                 const fav = ids[Math.floor(pr() * items)];
                 const slots: string[] = [];
-                const careChooser: Chooser | undefined = !careless
+                const careChooser: Chooser | undefined = !careless || pattern === "dissent"
                   ? undefined
                   : pattern === "random"
                     ? (_a, _b, _p, rand) => (rand() < q ? rand() < 0.5 : undefined)
@@ -198,12 +206,12 @@ for (const pattern of patterns) {
                 else { looH.push(p.loo); nH++; if (flagged) flagH++; }
               }
               const flag = (p: Person) => p.answered >= FLAG_MIN && (p.firstShare >= FLAG_SHARE || p.firstShare <= 1 - FLAG_SHARE);
-              add("shipped", score(ids, common, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: 1 })))));
-              add("first-flag", score(ids, common, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: flag(p) ? 0 : 1 })))));
-              add("loo-w", score(ids, common, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: Math.max(0, p.loo) ** 2 })))));
-              add("loo-drop", score(ids, common, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.loo < looMin ? 0 : 1 })))));
-              add("median", medianScore(ids, common, salience, people));
-              add("oracle-drop", score(ids, common, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.careless ? 0 : 1 })))));
+              add("shipped", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: 1 })))));
+              add("first-flag", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: flag(p) ? 0 : 1 })))));
+              add("loo-w", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: Math.max(0, p.loo) ** 2 })))));
+              add("loo-drop", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.loo < looMin ? 0 : 1 })))));
+              add("median", medianScore(ids, target, salience, people));
+              add("oracle-drop", score(ids, target, salience, pooled(ids, people.map((p) => ({ rows: p.rows, w: p.careless ? 0 : 1 })))));
             }
             const cell: Record<string, unknown> = { pattern, q, items, perItem: k, respondents: nResp, careless: share, surveys: nSurveys };
             for (const [name, a] of Object.entries(acc)) {
