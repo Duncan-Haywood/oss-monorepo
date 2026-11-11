@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnxip6D18uqLvrcXyr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T10:18:31Z",
+  "ended": "2026-11-11T11:23:21Z",
+  "wall_minutes": 65.25,
+  "tokens_in": 12737655,
+  "tokens_out": 54265,
+  "cost_usd": 5.2615,
+  "tool_calls": 96,
+  "task": "Deepen flagship sales-agent (allocate.py row 2; ai-bookkeeper row 1 had a 0h-old open PR): next item (1), round 7 of the Enron reply-rule rounds tuned on 0*-6*, scored once on unread 7*.",
+  "projects": [
+    "sales-agent"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14770",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 31,
+  "outcome": "success",
+  "errors": [
+    "First draft of the veto block was written through a non-raw Python string, so one '\\b' became a backspace byte in engine.mjs; caught by grepping for 0x08 before running anything.",
+    "First draft's 'not looking to' veto flipped one agent-written reply ('Not looking to cancel our contract') from not_interested to objection; caught by diffing all 792 agent-written replies before freezing.",
+    "portfolio-pages 'test' red on this PR from a pre-existing main breakage (concrete-maturity FAQ not visible, #14766; fix in #14774); the job log tail (5,000 lines) did not reach the failure and the full-log host is blocked by the proxy, so it was reproduced locally with pull_request env."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/sales-agent/eval/README.md",
+      "issue": "Rounds 3-6 say the blind reader had 'the same instructions' but the instructions were never saved; I had to reconstruct them from the method paragraphs (now eval/enron-labels/READER.md)."
+    },
+    {
+      "file": "ventures/sales-agent/eval/README.md",
+      "issue": "The fetch recipe checks out two halves; each round adds one, and nothing says the 8-half checkout is ~3.1 GB and takes ~10 minutes; worth saying before a session plans its time."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "Rewriting a 'next:' block by regex can swallow the comment lines that sit between entries; I did and restored them. A promptctl/allocate helper that rewrites one venture's next: safely would remove the trap."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "faq-visible (and other hygiene checks) are fatal only on pull_request events, so a venture can land on main with the check red and every later PR inherits the failure; a local run without GITHUB_EVENT_NAME=pull_request passes and hides it. Worth a line on reproducing with that env."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is to land a working slice that moves the milestone; the honest fresh score showed no gain, so the slice that landed is the measurement and the conclusion that rule rounds have stopped paying, not a better number.",
+      "did": "Shipped round 7's rules (gains on read halves, no regressions), its blind fresh score of ~0, the duplicate-text measurement, the reader brief file, and a rewritten next: that stops further rule rounds.",
+      "result": "Next runs are pointed at the away policy, a second reader, de-duplication and real outreach replies instead of round 8."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-sales-agent-seventh-round-no-gain.md",
+    "ventures/sales-agent/eval/README.md (Seventh round)",
+    "ventures/sales-agent/eval/enron-labels/READER.md"
+  ],
+  "goal": null,
+  "notes": "Method: round-6 stops on 7* saved unread before any rule change; rules frozen at engine.mjs sha256 52f6408406d0 (commit efbba2c2d); union of round-6/round-7 stops on 7* (90) shuffled seed 20261114 and labelled once by a separate agent from READER.md. Fresh 7*: round 6 49/38/3 (4.0 per 1,000), round 7 49/37/3 (3.9). Tuning: 6* wrong 41->17, 5* 45->32, 0*-4* 33->28, one right lost (reader conflict on a duplicated message). Duplicates: 43 of 88 round-6 stops on 6* and 49 of 90 on 7* share text with earlier halves' stops. Checks run here: node --test in ventures/sales-agent 471 pass; run_venture_tests.py sales-agent ok; opt-out recall 115/119 same misses before/after; 792 agent-written replies no category change; check_post_frontmatter, check_post_links ok; venture-preflight result in PR body. CI: every check green except portfolio-pages 'test' (twice), reproduced locally with GITHUB_EVENT_NAME=pull_request: the one failure is faq-visible.test.mjs on ventures/concrete-maturity/index.html (FAQPage JSON-LD with no visible copy), inherited from main via #14766 and fixed in the open PR #14774; it is fatal only on pull_request events, so main's push runs passed. Without that env the full platform/pages suite passes on this branch. Merged with that one red check, reason recorded here.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "216bf7df-03ee-5909-bd6a-bd3bdc5bf734",
+    "transcripts": 2,
+    "first": "2026-11-11T10:18:31Z",
+    "last": "2026-11-11T11:23:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 178,
+        "output": 54265,
+        "thinking": 16797,
+        "cache_read": 12507698,
+        "cache_write_5m": 54758,
+        "cache_write_1h": 175021,
+        "api_equivalent_usd": 5.2615,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 178,
+      "output": 54265,
+      "thinking": 16797,
+      "cache_read": 12507698,
+      "cache_write_5m": 54758,
+      "cache_write_1h": 175021,
+      "api_equivalent_usd": 5.2615,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 85,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Read": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Monitor": 1,
+      "Agent": 1,
+      "mcp__github__create_pull_request": 1,
+      "SubagentHandback": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 65.25,
+      "active_minutes": 65.25,
+      "model_minutes": 11.43,
+      "tool_minutes": 53.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.56
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an ML engineer reading ~110 wrong stops, writing and checking ~30 vetoes, running the blind protocol and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 114.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 import TheismFormal
-open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actualist
+open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actualist TheismFormal.Plain
 #print axioms model_has_row_block
 #print axioms row_block_gives_model
 #print axioms no_contingent_proposition
@@ -19,3 +19,7 @@ open TheismFormal TheismFormal.Anderson TheismFormal.Varying TheismFormal.Actual
 #print axioms godlike_exists_everywhereA
 #print axioms de_re_fails
 #print axioms full_godlike_necessaryA
+#print axioms godlike_necessary_plain
+#print axioms de_re_plain
+#print axioms ne0_imp_nea
+#print axioms cm_a5_not_a5z
