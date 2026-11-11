@@ -10,6 +10,9 @@ import unittest
 from pathlib import Path
 
 from allocate import (
+    claimed,
+    claims_by_venture,
+    fetch_open_prs,
     deepen_to_window,
     recent_commits,
     Venture,
@@ -661,6 +664,33 @@ class ReexecTests(unittest.TestCase):
                 allocate._reexec_with_libyaml()
             ex.assert_not_called()
 
+
+
+class OpenPrClaimTests(unittest.TestCase):
+    NOW = __import__("datetime").datetime(2026, 11, 11, 12, tzinfo=__import__("datetime").timezone.utc)
+
+    def test_whole_slug_match_with_age(self):
+        prs = [{"number": 1, "title": "sales-agent: stop fixes + post", "updated_at": "2026-11-11T09:00:00Z"},
+               {"number": 2, "title": "sales-agent-pro: new thing", "updated_at": "2026-11-11T09:00:00Z"},
+               {"number": 3, "title": "Adopt branch: SALES-AGENT eval", "updated_at": "2026-11-01T12:00:00Z"}]
+        got = claims_by_venture(prs, ["sales-agent", "agent"], now=self.NOW)
+        self.assertEqual(got["sales-agent"], ["#1 3h", "#3 10d"])
+        self.assertNotIn("agent", got)  # 'agent' only appears inside a longer slug
+
+    def test_missing_date_still_lists_pr(self):
+        got = claims_by_venture([{"number": 9, "title": "chant-forge: x"}], ["chant-forge"], now=self.NOW)
+        self.assertEqual(got, {"chant-forge": ["#9"]})
+
+    def test_claimed_prefix(self):
+        self.assertEqual(claimed({"open_prs": ["#1 3h"]}), "[open PR #1 3h] ")
+        self.assertEqual(claimed({"open_prs": []}), "")
+
+    def test_fetch_fails_soft_without_gh(self):
+        from unittest import mock
+        with mock.patch("allocate.subprocess.run", side_effect=OSError):
+            prs, note = fetch_open_prs()
+        self.assertEqual(prs, [])
+        self.assertIn("not checked", note)
 
 if __name__ == "__main__":
     unittest.main()

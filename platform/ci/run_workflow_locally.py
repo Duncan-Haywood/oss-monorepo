@@ -972,6 +972,32 @@ def changed_paths(base: str, repo: str = REPO) -> list[str]:
     return [line for line in done.stdout.splitlines() if line.strip()]
 
 
+_RUNNER_FILES: dict[str, str] = {}
+
+
+def runner_files() -> dict[str, str]:
+    """Scratch stand-ins for the files Actions hands every step.
+
+    A step that writes `>> "$GITHUB_OUTPUT"` fails here with an unset
+    variable (bash: ambiguous redirect), whatever the diff: every
+    `--for-changes` run selects portfolio-pages.yml, and its first step does
+    exactly that, so each run reported FAILED rows it did not cause (run
+    record 2026-11-11, session_01E5sJKmNy2). What a step writes lands in one
+    temp directory per process; values a later `${{ steps.x.outputs.y }}`
+    would read are still not resolved (those steps stay skipped as
+    unevaluable expressions). An export already in this shell wins.
+    """
+    if not _RUNNER_FILES:
+        tmp = tempfile.mkdtemp(prefix="run_workflow_locally-")
+        for name in ("GITHUB_OUTPUT", "GITHUB_ENV", "GITHUB_STEP_SUMMARY",
+                     "GITHUB_PATH", "GITHUB_STATE"):
+            path = os.path.join(tmp, name.lower())
+            open(path, "a").close()
+            _RUNNER_FILES[name] = path
+        _RUNNER_FILES["RUNNER_TEMP"] = tmp
+    return {k: v for k, v in _RUNNER_FILES.items() if k not in os.environ}
+
+
 def execute(step: Step, timeout: int) -> None:
     if step.status == "skipped":
         return
@@ -991,7 +1017,7 @@ def execute(step: Step, timeout: int) -> None:
     # in this shell's environment: the point is to reproduce the repository's
     # unset state, and inheriting a developer's stray export would verify a
     # configuration CI does not have.
-    env = {**os.environ, **step.env} if step.env else None
+    env = {**os.environ, **runner_files(), **step.env}
 
     start = time.monotonic()
     try:
