@@ -94,3 +94,15 @@ test("formatters", () => {
   assert.equal(money2(5), "$5.00");
   assert.equal(pct(0.1234), "12.3%");
 });
+
+// Quality fix 2026-11-11: a quoted "$1,200" (what a spreadsheet CSV export writes) used to split
+// at the comma and shift every later field. See docs/posts/2026-11-11-quality-fix-thousands-commas.md.
+import { splitCells as splitCellsForTest } from "./calc.mjs";
+import { test as testSplit } from "node:test";
+import assertSplit from "node:assert/strict";
+testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a mid-cell quote as text", () => {
+  assertSplit.deepEqual(splitCellsForTest('Item,"$1,200",800'), ["Item", "$1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest("Item\t1,200\t800"), ["Item", "1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
+  assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
+});

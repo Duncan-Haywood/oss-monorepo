@@ -1,0 +1,18 @@
+1500 seeded points, browser cores 4
+main results shown after 293 ms; panel note then: "Agreed changes: working in the background: 0 of 6 settings done."
+a 50 ms timer fired 2 ms late while the panel ran
+panel finished 1196 ms after the click (consensus() in Node, one thread: 1396 ms)
+panel text matches Node: true
+
+6000 seeded points, browser cores 4
+main results shown after 3287 ms; panel note then: "Agreed changes: working in the background: 0 of 6 settings done (a long series: "
+a 50 ms timer fired 33 ms late while the panel ran
+panel finished 8226 ms after the click (consensus() in Node, one thread: 12228 ms)
+panel text matches Node: true
+
+data/treering.csv, browser cores 4
+main results shown after 6530 ms; panel note then: "Agreed changes: working in the background: 0 of 6 settings done (a long series: "
+a 50 ms timer fired 80 ms late while the panel ran
+panel finished 15960 ms after the click (consensus() in Node, one thread: 27163 ms)
+panel text matches Node: true
+

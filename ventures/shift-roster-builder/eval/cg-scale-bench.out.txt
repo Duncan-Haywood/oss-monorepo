@@ -74,3 +74,10 @@ case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pri
 0	245	1551	300.00	300	-	false	27	1691	61	3660	0	106869	12264	62439	0	no
 1	238	1564	308.00	308	-	false	23	1203	45	2700	0	86005	31801	60517	0	no
 2	235	1520	183.00	183	-	false	23	1855	64	3840	0	116407	14363	61176	0	no
+
+# 2026-11-11: 80 people, before the dive backtracking (no effect here: the root LP did not settle). 4-core machine shared with other benches.
+80 people, 224 shift lines, oracle cap 2000000 nodes per call, 120000 ms per week
+case  copies  demand-h  rootLP  floor  best  proven  nodes  columns  rounds  pricing-calls  inexact  max-oracle-nodes  pricing-ms  ms  dive-steps  dive-found
+0	304	1974	252.00	252	-	false	1	2416	33	2640	0	577737	107721	129612	0	no
+1	314	2105	331.00	331	335	false	12	2246	62	3050	0	473140	85368	122798	11	yes
+2	326	2064	261.00	261	-	false	1	1920	23	1840	0	541621	110904	131044	0	no

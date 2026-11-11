@@ -178,3 +178,32 @@ test("root dive: any width gives a valid roster, never below brute force, and th
     }
   }
 });
+
+test("dive backtracking: dive-only rosters are valid, never below brute force, and never worse than the dive without retries", () => {
+  let retried = 0;
+  for (let c = 0; c < 60; c++) {
+    const { staff, slots } = seededWeek(4242 + c * 31, 3 + (c % 4), 8 + (c % 7));
+    const pf = openFloorByPricing(staff, slots, {});
+    const truth = bruteOpen(pf.cov.sets, pf.cov.len);
+    // nodeLimit 1: the tree never runs, so the roster comes from the dives alone.
+    const plain = openFloorByColumnGeneration(staff, slots, {}, { nodeLimit: 1, diveBacktrack: 0 });
+    for (const bt of [1, 3, 50]) {
+      const r = openFloorByColumnGeneration(staff, slots, {}, { nodeLimit: 1, diveBacktrack: bt });
+      const tag = `case ${c} backtrack ${bt}`;
+      retried += r.stats.diveRetries || 0;
+      assert.ok(r.floor <= truth + 1e-6, `${tag}: floor ${r.floor} above ${truth}`);
+      assert.equal(r.floor, plain.floor, `${tag}: retries changed the floor`);
+      if (plain.best != null) assert.ok(r.best != null && r.best <= plain.best + 1e-9, `${tag}: ${r.best} worse than ${plain.best}`);
+      if (!r.roster) continue;
+      assert.ok(r.best >= truth - 1e-6, `${tag}: roster ${r.best} below ${truth}`);
+      let openH = 0;
+      for (let s = 0; s < slots.length; s++) if (r.roster[s] < 0) openH += pf.cov.len[s];
+      assert.ok(Math.abs(openH - r.best) < 1e-6, `${tag}: roster leaves ${openH} open, reported ${r.best}`);
+      for (let p = 0; p < staff.length; p++) {
+        const mine = [...r.roster.keys()].filter((s) => r.roster[s] === p);
+        assert.ok(pf.cov.sets[p].some((f) => f.length === mine.length && f.every((s) => mine.includes(s))), `${tag}: person ${p}`);
+      }
+    }
+  }
+  assert.ok(retried > 0, "no case exercised a retry");
+});
