@@ -50,17 +50,23 @@ test('images render as <img>: repository paths served raw, unsafe sources droppe
   assert.equal(summaryOf('# T\n\n![chart](a.svg) The point of this paragraph is long enough.'), 'The point of this paragraph is long enough.');
 });
 
-test('blocks: title dropped, headings demoted, tables, lists, fences', () => {
+test('blocks: title dropped, headings as written, tables, lists, fences', () => {
   const md = '# Title\n\nPara one\ncontinues.\n\n## Sub\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n- one\n- two\n\n```\n<b>x</b>\n```\n';
   const html = renderMarkdown(md, { dropTitle: true });
   assert.ok(!html.includes('Title'));
-  assert.ok(html.includes('<h3>Sub</h3>'));
+  assert.ok(html.includes('<h2>Sub</h2>')); // the page's h1 is the title, so no h1 -> h3 skip
   assert.ok(html.includes('<p>Para one continues.</p>'));
   assert.ok(html.includes('<td>1</td><td>2</td>'));
   assert.ok(html.includes('<ul><li>one</li><li>two</li></ul>'));
   assert.ok(html.includes('&lt;b&gt;x&lt;/b&gt;'));
   assert.equal(titleOf(md), 'Title');
   assert.equal(summaryOf(md), 'Para one continues.'.length >= 20 ? 'Para one continues.' : '');
+});
+
+test('heading levels: never h1, never a skip under the page h1', () => {
+  assert.ok(renderMarkdown('# T\n\n### Deep\n\n# Again', { dropTitle: true }).includes('<h3>Deep</h3>\n<h2>Again</h2>'));
+  assert.ok(renderMarkdown('# Not the title\n\n## Sub').includes('<h2>Not the title</h2>\n<h3>Sub</h3>'));
+  assert.ok(renderMarkdown('# T\n\n> ## Quoted', { dropTitle: true }).includes('<h2>Quoted</h2>'));
 });
 
 test('experiments: fields, continuation lines, verdicts', () => {

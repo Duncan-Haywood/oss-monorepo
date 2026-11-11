@@ -2033,6 +2033,23 @@ Two things that cost the second run time (2026-11-11):
   throttling showed first paint at about 1.45 s either way and the tool ready
   about 0.3 s *sooner* with them. They stayed. Layout shift (CLS) is measured,
   not simulated, so trust it in either mode.
+- **Pass `--pages` without a doubled slash.** `--pages=stories//` serves the
+  page, but its relative `../pf-site.css` then resolves inside `/stories/` and
+  404s, so Lighthouse scores an unstyled page (a false `target-size` failure,
+  2026-11-11).
+
+Run three, 2026-11-11: desktop (`--form=desktop`) scores 100/100/100 on
+performance, accessibility and SEO on all 16 default pages. A mobile sample of
+other page types found two classes the default list cannot see. `/ask/` had
+CLS 0.219 (the assistant panel mounting above the article), and the blog,
+compare and flat category pages skipped from `h1` to `h3`.
+`heading-order.mjs` now scans a build for heading skips. It exits 1 when a
+page the site build writes has one, and `heading-order.test.mjs` renders
+every real post through `renderPost` so CI catches a skip before it ships:
+
+```
+node platform/pages/heading-order.mjs [--dist=DIR] [--list]
+```
 
 ## Reflow, and the two things that widen a page
 

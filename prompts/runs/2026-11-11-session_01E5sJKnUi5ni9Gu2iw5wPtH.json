@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnUi5ni9Gu2iw5wPtH",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T13:22:57Z",
+  "ended": "2026-11-11T13:58:41Z",
+  "wall_minutes": 36.01,
+  "tokens_in": 13689938,
+  "tokens_out": 48614,
+  "cost_usd": 4.7974,
+  "tool_calls": 133,
+  "task": "Polish: desktop Lighthouse (open item), then a mobile Lighthouse sample of unmeasured page types; fixed heading-order skips on 414 site-built pages and /ask/ CLS 0.219",
+  "projects": [
+    "platform/pages",
+    "platform/devlog"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14797",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Passed --pages=stories//: the doubled slash broke the page's relative stylesheet and gave a false target-size failure. Caught by comparing header geometry in Playwright; noted in platform/pages/README.md.",
+    "A first rough heading scan did not strip <script>, so it flagged 123 venture pages whose <h4> lives in JS template strings; heading-order.mjs strips scripts (those runtime skips are listed as the next item).",
+    "First card CSS change (.card h2) lost to a later .subject h2 rule on compare pages (17.92px instead of 16.48px); caught by a computed-style check and fixed with .cards > .card h2."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to re-run platform/ci/wait_for.py build.log with no flags; waiting on any other log needs --marker, which neither the prompt nor CLAUDE.md mention (I guessed --pattern first)."
+    },
+    {
+      "file": "platform/pages/lighthouse.mjs",
+      "issue": "Header comment and README pin lighthouse@12.8.2; 13.6.0 (npm latest) worked unchanged. Only a version-pin staleness note."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-one-plus-sign-and-352-posts-skipped-a-heading.md",
+    "docs/reports/polish-2026-11-11-heading-order.md"
+  ],
+  "goal": null,
+  "notes": "Desktop Lighthouse 13.6.0 on the 16 default pages: perf/a11y/SEO 100 everywhere, BP 96 on venture pages (errors-in-console from unresolvable third-party hosts in the cloud session). Mobile sample: /ask/ CLS 0.219 -> 0.000 (perf 89 -> 100); /compare/acculynx/ a11y 98 -> 100; a post 98 -> 100 (pre-fix HTML served beside the build). heading-order.mjs on rebuilt dist: 8462 pages, 0 skips. Verification: full local build OK; node --test 'platform/pages/*.test.mjs' 1544 tests, 1529 pass, 0 fail (15 skipped); writing + heading-order tests rerun after the post was added: 37 pass; node platform/pages/check.mjs: publishable, 8462 pages, no dead links; node --test platform/devlog/*.test.mjs pass. run_workflow_locally.py: portfolio-validate 100/100 run steps passed, sibling-links 2/2, conflict-markers 2/2 (uses: steps not run locally); doc-refs and checklist-coverage steps run directly: check_md_links ok (7910 files), check_code_refs exit 0, checklist_coverage exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cc18a8ad-16c4-5e0c-b0ab-b95a2324b4ef",
+    "transcripts": 1,
+    "first": "2026-11-11T13:22:57Z",
+    "last": "2026-11-11T13:58:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 124,
+        "input": 232,
+        "output": 48614,
+        "thinking": 10977,
+        "cache_read": 13550448,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139258,
+        "api_equivalent_usd": 4.7974,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 124,
+      "input": 232,
+      "output": 48614,
+      "thinking": 10977,
+      "cache_read": 13550448,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139258,
+      "api_equivalent_usd": 4.7974,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 133,
+    "tools": {
+      "Bash": 117,
+      "Grep": 4,
+      "Edit": 4,
+      "Write": 4,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.01,
+      "active_minutes": 36.01,
+      "model_minutes": 10.58,
+      "tool_minutes": 25.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior front-end engineer: Lighthouse sampling across page types, tracing the heading skip to the markdown renderer, CSS specificity check, scanner + tests, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 125.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

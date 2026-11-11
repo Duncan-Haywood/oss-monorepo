@@ -232,6 +232,20 @@ test('the Ask page prints the score the build measured, and says where words go'
   for (const [, body] of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) JSON.parse(body);
 });
 
+test('the Ask page reserves the inline panel height, so the article below does not shift', () => {
+  const html = renderAskPage({
+    baseUrl: 'https://example.test/',
+    siteName: 'Site',
+    toolCount: 10,
+    chrome: { style: '', styleLink: '', header: '<nav></nav>', disclaimer: '', footerNav: '', script: '' },
+  });
+  const client = readFileSync(path.join(HERE, 'assistant/client.js'), 'utf8');
+  const panel = /#pf-assistant\.pa-inline\{[^}]*min-height:(\d+)px/.exec(client);
+  assert.ok(panel, 'client.js no longer sets a min-height on the inline panel');
+  // Only when scripts run: without JavaScript the box holds a one-line notice.
+  assert.match(html, new RegExp(`@media \\(scripting:enabled\\)\\{\\.ask-app\\{min-height:${panel[1]}px\\}\\}`));
+});
+
 test('the floating mic steps aside on downward scroll, pads the page on phones, and honours reduced motion', () => {
   assert.match(ASSISTANT_LAUNCHER_JS, /pf-away/);
   assert.match(ASSISTANT_VOICE_CSS, /\.pf-ask-voice\.pf-away\{/);

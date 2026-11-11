@@ -5925,9 +5925,9 @@ const CATEGORY_STYLE = `
     .card:hover, .card:focus-within { transform: translateY(-2px); border-color: var(--pf-cat, var(--accent));
                                       box-shadow: 0 10px 28px rgba(20, 30, 60, .10); }
     @media (prefers-reduced-motion: reduce) { .card, .cat { transition: none; } .card:hover, .cat:hover { transform: none; } }
-    .card h3 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; }
+    .card h3, .cards > .card h2 { margin: 0 0 7px; font-size: 1.03rem; line-height: 1.25; } /* h2: beats .subject h2 */
     .card a { color: inherit; text-decoration: none; }
-    .card a:hover h3, .card a:focus-visible h3 { color: var(--accent); text-decoration: underline; }
+    .card a:hover :is(h2, h3), .card a:focus-visible :is(h2, h3) { color: var(--accent); text-decoration: underline; }
     .card p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
     .card .meta { margin-top: 8px; font-size: .82rem; color: var(--soft); }
     .starting { margin: 12px 0 0; max-width: 70ch; line-height: 1.6; padding: 12px 14px;
@@ -6105,10 +6105,14 @@ export function renderCategoryPage({
   const categoryExceptions = externalCallExceptions(items);
   const { claim: countPrivacyClaim, list: countExceptionList } = privacyClaimParts(categoryExceptions);
   const flat = subgroups.length === 1 && subgroups[0].subcategory === null;
+  // A flat page with no h2 above its cards (no subgroups, no audience lead)
+  // would go h1 -> h3: Lighthouse's heading-order audit failed 17 category
+  // pages on it until 2026-11-11. There the card titles are the h2s.
+  const cardH = flat && !/<h2[\s>]/.test(copy.lead ?? '') ? 'h2' : 'h3';
 
   const renderCard = (surface) => `          <li class="card">
             <a href="${escapeHtml(`${toRoot}${surface.slug}/`)}" data-tool="${escapeHtml(surface.slug)}" data-pf-to="${escapeHtml(surface.slug)}">
-              <h3>${escapeHtml(surface.title)}</h3>
+              <${cardH}>${escapeHtml(surface.title)}</${cardH}>
             </a>
             <p>${escapeHtml(surface.description)}</p>
             ${
@@ -6867,9 +6871,11 @@ export function renderCompareProductPage({
 
   const cards = group.items
     .map(
+      // h2: the cards sit right under the page's h1 (an h3 here failed
+      // Lighthouse's heading-order audit on all 45 pages until 2026-11-11).
       (entry) => `          <li class="card">
             <a href="${escapeHtml(entryHref(entry))}" data-tool="${escapeHtml(entry.slug)}" data-pf-to="${escapeHtml(entry.slug)}">
-              <h3>${escapeHtml(entry.title)}</h3>
+              <h2>${escapeHtml(entry.title)}</h2>
             </a>
             <p>${escapeHtml(truncate(entry.description, 120))}</p>
           </li>`,
