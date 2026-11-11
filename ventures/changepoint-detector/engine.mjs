@@ -1038,7 +1038,9 @@ export function parseSeries(csv, column = null, labelColumn = null) {
 // ---------------------------------------------------------------- helpers
 
 function median(a) {
-  const s = [...a].sort((x, y) => x - y);
+  // a typed-array sort is numeric and far faster than a comparator sort of a copy; it orders the same values the same way
+  // (only -0 and +0 may swap, and both give the same median value)
+  const s = Float64Array.from(a).sort();
   const m = s.length >> 1;
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 }
@@ -1372,29 +1374,48 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
   const minSeg = Math.max(1, Math.floor(minSegment));
-  const cost = makeCost(x, model, sigma ?? robustSd(x), rho, exposure, size);
+  const sd = sigma ?? robustSd(x);
+  const cost = makeCost(x, model, sd, rho, exposure, size);
   if (n < 2 * minSeg) return { changepoints: [], cost: n ? cost(0, n) : 0, penalty: beta };
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
   F[0] = -beta;
-  let R = [0];
+  // The candidate starts R live in a typed array compacted in place, and each start's value in a parallel one: no array,
+  // closure or boxed number per step. The 'mean' cost (most calls: every trend and seasonal pass) is written out inline,
+  // the same expression in the same order as makeCost's, so the call is not a megamorphic closure call.
+  // Same values compared in the same order as before, so the same changepoints (docs/history/ci-perf-2026-11-11-pelt-inner-loop.md).
+  let R = new Int32Array(n + 1), V = new Float64Array(n + 1), r = 1;
+  const mean = model === 'mean';
+  let S1 = null, S2 = null, s2 = 0;
+  if (mean) {
+    S1 = new Float64Array(n + 1); S2 = new Float64Array(n + 1);
+    for (let i = 0; i < n; i++) { S1[i + 1] = S1[i] + x[i]; S2[i + 1] = S2[i] + x[i] * x[i]; }
+    s2 = sd * sd;
+  }
   for (let t = minSeg; t <= n; t++) {
     let best = Infinity;
     let arg = -1;
-    const vals = [];
-    for (const s of R) {
-      if (t - s < minSeg) { vals.push(null); continue; }
-      const v = F[s] + cost(s, t) + beta;
-      vals.push(v);
+    for (let i = 0; i < r; i++) {
+      const s = R[i];
+      if (t - s < minSeg) { V[i] = -Infinity; continue; }
+      let c;
+      if (mean) {
+        const m = t - s;
+        const a = S1[t] - S1[s];
+        c = Math.max(0, S2[t] - S2[s] - (a * a) / m) / s2;
+      } else c = cost(s, t);
+      const v = F[s] + c + beta;
+      V[i] = v;
       if (v < best) { best = v; arg = s; }
     }
     F[t] = best;
     last[t] = arg;
-    // Prune: s can never be the last change for any t' > t if F(s) + C(s,t) > F(t) (K = 0).
-    const next = [];
-    R.forEach((s, i) => { if (vals[i] === null || vals[i] - beta <= best) next.push(s); });
-    if (Number.isFinite(F[t])) next.push(t);
-    R = next;
+    // Prune: s can never be the last change for any t' > t if F(s) + C(s,t) > F(t) (K = 0). A start too recent to score is
+    // marked -Infinity, which keeps it, as the old null did; a NaN cost is pruned, as before.
+    let k = 0;
+    for (let i = 0; i < r; i++) if (V[i] - beta <= best) R[k++] = R[i];
+    if (Number.isFinite(F[t])) R[k++] = t;
+    r = k;
   }
   const cps = [];
   for (let t = n; last[t] > 0; t = last[t]) cps.push(last[t]);
