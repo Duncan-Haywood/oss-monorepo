@@ -1,6 +1,6 @@
 ---
 title: "Seven steps or three jumps? Canada's fertility rate in a change report"
-seo_title: "A changepoint report for series that drift: Canada's baby boom as an example"
+seo_title: "A changepoint report for drifting series: Canada's baby boom"
 date: 2026-11-11
 tags: [changepoint-detector, time-series, reports]
 description: "A flat-segment model cuts Canada's 1931-1968 fertility rate into 8 pieces. A model whose level may wander finds 3 jumps. The branded report now prints either."
