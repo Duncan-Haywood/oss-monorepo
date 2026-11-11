@@ -15,6 +15,11 @@
  * lapse estimate"): at survey lengths one person's answers barely move this
  * posterior, in-sample or prequential, and not at all under the staged
  * selector, whose pairs the ratings call even. Kept as the measurement.
+ *
+ * Anchor pairs (scripts/anchor-lapse-sweep.ts) give it a signal under the
+ * staged selector; pooledLapsePrior and posteriorMean below fit a survey's
+ * lapse distribution from everyone's answers ("Anchor pairs and a pooled
+ * survey prior" in the same doc). Also measured, not shipped.
  */
 import { GLICKO_SCALE, type GlickoState } from "@/lib/glicko2";
 

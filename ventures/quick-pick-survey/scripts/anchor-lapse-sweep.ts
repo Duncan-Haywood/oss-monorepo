@@ -34,6 +34,7 @@
  *   npx tsx scripts/anchor-lapse-sweep.ts [--items 15,30] [--per-item 4,8] [--every 0,10,5] [--respondents 60] [--surveys 3] [--mix 0:0.6,0.1:0.15,0.2:0.1,0.5:0.15] [--selector staged] [--min-shown 2] [--seed-base 1000]
  */
 import { selectNextPair, selectNextPairHybrid, pairKey, type PairingInput } from "../src/lib/pairing";
+import { DEFAULT_GLICKO_STATE } from "../src/lib/glicko2";
 import { simulate, type LapseSource, type Policy } from "../src/lib/infoGainSim";
 import { DEFAULT_PRIOR_B, LAPSE_GRID, pickProbability, pooledLapsePrior, posteriorMean, type LapseAnswer } from "../src/lib/lapseEstimate";
 
@@ -69,7 +70,7 @@ function withAnchors(base: Policy, every: number, anchors: Set<number>): Policy 
       for (let i = 0; i < pool.length; i++) {
         for (let j = i + 1; j < pool.length; j++) {
           if (input.recentPairKeys.has(pairKey(pool[i].id, pool[j].id))) continue;
-          const p = pickProbability(pool[i], pool[j]);
+          const p = pickProbability({ ...DEFAULT_GLICKO_STATE, ...pool[i] }, { ...DEFAULT_GLICKO_STATE, ...pool[j] });
           const gap = Math.abs(p - 0.5);
           if (gap > bestGap) {
             bestGap = gap;

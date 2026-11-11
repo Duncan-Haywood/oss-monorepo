@@ -224,8 +224,14 @@ flagships:
       (lapseEstimate.ts, INFORMATION-GAIN-SELECTOR.md): a grid posterior from
       one person's answers reads 0.02-0.05 whatever the true e, staged gives no
       signal, and even true win chances leave sd 0.07-0.11 at 240 answers.
-      Next: a pooled per-survey lapse rate or easy anchor pairs as the e
-      signal; staged's 0.90
+      Anchor pairs and a pooled survey prior measured 2026-11-11, not shipped
+      (scripts/anchor-lapse-sweep.ts, pooledLapsePrior, INFORMATION-GAIN-SELECTOR.md
+      "Anchor pairs and a pooled survey prior"): under staged, one easy pair in
+      five lifts honest-vs-lapser AUC from 0.56-0.72 to 0.87-0.99 (rank
+      accuracy flat at 15 items, -0.01 to -0.03 at 30); shipped needs none
+      (0.83-0.97 already); pooling does not improve separation. Next: anchor
+      estimate as a per-person weight in pooling.ts, scored on the pooled
+      ranking with a mixed population, and the false-flag rate; staged's 0.90
       coverage for honest respondents (close pairs shrink rd too fast); the
       switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator
