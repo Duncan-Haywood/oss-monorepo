@@ -1,9 +1,9 @@
 ---
 title: "Chip design search: the cheap score was ranking for speed the router would throw away"
-seo_title: "Clock-clipped mapped score fixes multi-fidelity chip search at relaxed clocks"
+seo_title: "Clock-clipped mapped score fixes chip search at relaxed clocks"
 date: 2026-11-11
 tags: [research, chip-design, verified-dse, open-source, eda]
-description: "At a relaxed clock OpenROAD repairs timing up to the period and stops, so speed beyond the clock counts for nothing. Scoring mapped netlists the same way cut search regret on seven new designs, run blind, from 2.73% to 0.83%."
+description: "Routing stops at the clock, so mapped speed past it counts for nothing. Scoring that way cut search regret on 7 blind chip designs from 2.73% to 0.83%."
 ---
 
 The [verified-dse](../../research/verified-dse/) programme searches ABC
