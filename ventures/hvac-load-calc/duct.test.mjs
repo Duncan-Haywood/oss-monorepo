@@ -110,3 +110,65 @@ test('CLI --ducts runs on the example and refuses a house with no ducts block', 
   const withDucts = JSON.stringify({ ...JSON.parse(house), ducts: { defaultEffectiveLengthFt: 80, returnEffectiveLengthFt: 30 } });
   assert.equal(run(parseArgs(['h.json', '--ducts']), () => withDucts).ducts.supply[0].room, 'A');
 });
+
+test('the size lists: 14 in. is a stock round, and trunks reach 40 in.', () => {
+  const o = { sizesIn: ROUND_SIZES_IN, roughnessFt: 0.0003, elevationFt: 0 };
+  assert.deepEqual([...ROUND_SIZES_IN], [4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24]);
+  assert.equal(pickRound(650, 0.08, 2000, o).diameterIn, 14);
+  // 11,750 cfm at 0.08 in./100 ft needs a 40 in. trunk (36 in. is too small).
+  const third = { cfm: 11750 / 3, effectiveLengthFt: 100 };
+  const s = sizeDucts({ runs: [{ room: 'A', ...third }, { room: 'B', ...third }, { room: 'C', ...third }], returnEffectiveLengthFt: 75, blowerStaticInWC: 0.5, trunkMaxFpm: 3000, branchMaxFpm: 3000, returnMaxFpm: 3000, sizesIn: [4, 6, 8, 10, 60] });
+  close(s.pressure.frictionRate, 0.08, 1e-12);
+  assert.equal(s.trunks[0].diameterIn, 40);
+});
+
+test('limit says velocity when the next size down met the friction rate within tolerance', () => {
+  // 200 cfm in a 7 in. round runs about 750 ft/min, over a 700 limit; set the friction rate a
+  // hair (5e-10) under the 7 in. loss, inside pickRound's 1e-9 tolerance, so friction passed.
+  const s7 = roundFriction(200, 7);
+  assert.ok(s7.fpm > 700);
+  const p = pickRound(200, s7.inWCPer100 - 5e-10, 700, { sizesIn: [7, 8], roughnessFt: 0.0003, elevationFt: 0 });
+  assert.equal(p.diameterIn, 8);
+  assert.equal(p.limit, 'velocity');
+});
+
+test('return airflow bounds: 0 cfm is allowed, negative is refused', () => {
+  const d = cfm => ({ runs: [{ room: 'A', cfm: 100, effectiveLengthFt: 50 }], returns: [{ name: 'R', cfm, effectiveLengthFt: 20 }] });
+  assert.deepEqual(validateDucts(d(0)), []);
+  assert.deepEqual(validateDucts(d(0.5)), []);
+  assert.match(validateDucts(d(-1)).join(), /Return "R" airflow must be between 0 and 10000/);
+});
+
+test('an oversize trunk names the largest size actually tried, not a fixed 40 in.', () => {
+  const runs = ['A', 'B', 'C'].map(room => ({ room, cfm: 5000, effectiveLengthFt: 1000 }));
+  const s = sizeDucts({ sizesIn: [4, 6, 8, 10, 12, 48, 54, 60], runs, returnEffectiveLengthFt: 1000, trunkMaxFpm: 200 });
+  assert.equal(s.trunks[0].diameterIn, null);
+  assert.equal(s.settings.trunkLargestIn, 60);
+  assert.ok(s.warnings.some(w => /Supply trunk.*more than a 60 in\. round/.test(w)), s.warnings.join('\n'));
+  assert.match(ductReport(s), /Supply trunk: 15,000 cfm -> over 60 in\./);
+  // The default list still tops out at 40 in. for trunks.
+  const d = sizeDucts({ runs, returnEffectiveLengthFt: 1000, trunkMaxFpm: 200 });
+  assert.equal(d.settings.trunkLargestIn, 40);
+  assert.ok(d.warnings.some(w => /more than a 40 in\. round/.test(w)));
+});
+
+test('a return trunk too big for every size is reported, not silently dropped', () => {
+  const s = sizeDucts({
+    runs: [{ room: 'A', cfm: 5000, effectiveLengthFt: 100 }, { room: 'B', cfm: 5000, effectiveLengthFt: 100 }],
+    returns: [{ name: 'R1', cfm: 5000, effectiveLengthFt: 100 }, { name: 'R2', cfm: 5000, effectiveLengthFt: 100 }],
+    returnMaxFpm: 200,
+  });
+  assert.deepEqual(s.errors, []);
+  assert.ok(s.returnTrunk, 'the return trunk is still listed');
+  assert.equal(s.returnTrunk.diameterIn, null);
+  assert.equal(s.returnTrunk.cfm, 10000);
+  assert.ok(s.warnings.some(w => /Return trunk.*10,000 cfm|Return trunk.*10000 cfm/.test(w)), s.warnings.join('\n'));
+  assert.match(ductReport(s), /Return trunk: 10,000 cfm -> over 40 in\./);
+});
+
+test('designFromLoad reads only lengths typed for that room, not inherited object keys', () => {
+  const load = { rooms: [{ name: 'toString', airflow: { design: 100 } }, { name: 'constructor', airflow: { design: 80 } }] };
+  const d = designFromLoad(load, { ducts: { defaultEffectiveLengthFt: 80, returnEffectiveLengthFt: 30 } });
+  assert.deepEqual(d.runs.map(r => r.effectiveLengthFt), [80, 80]);
+  assert.deepEqual(sizeDucts(d).errors, []);
+});
