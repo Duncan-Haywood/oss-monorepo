@@ -53,6 +53,13 @@ class T(unittest.TestCase):
         pip = [c for c in run.calls if c[1:3] == ["-m", "pip"]]
         self.assertEqual(pip[0][0], py)
 
+    def test_trying_line_names_pip_packages_not_import_names(self):
+        logs = []
+        pyenv.find(["cv2"], ["/usr/bin/python3"], FakeRun(pip_ok={"/usr/bin/python3"}), logs.append)
+        trying = [m for m in logs if "trying" in m]
+        self.assertIn("opencv-python-headless", trying[0])
+        self.assertNotIn(" cv2", trying[0])
+
     def test_install_notice_mentions_background(self):
         logs = []
         pyenv.find(["pytest"], ["/usr/bin/python3"], FakeRun(pip_ok={"/usr/bin/python3"}), logs.append)

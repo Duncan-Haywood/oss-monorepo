@@ -236,7 +236,10 @@ def install(modules, cands, run, log, venv_dir):
         "(can take over 120 s, torch-class wheels 15 min or more: if your shell tool times out, rerun with run_in_background "
         "and read the path from its output)")
     for py, lacks in nearest_first(modules, cands, run):
-        log(f"pyenv: trying {py} -m pip install {' '.join(lacks) or '(nothing missing?)'}")
+        # Print pip names, not import names: a log of `pip install cv2` (no such
+        # package) led runs to hand-install opencv (doc friction 2026-11-11).
+        pkgs = ' '.join(PIP_NAMES.get(m, m) for m in lacks) or '(nothing missing?)'
+        log(f"pyenv: trying {py} -m pip install {pkgs}")
         if pip_install(py, lacks or modules, run, log) and imports(py, modules, run):
             log(f"pyenv: installed with {py} -m pip")
             return py
