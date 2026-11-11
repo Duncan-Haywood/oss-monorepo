@@ -1,0 +1,84 @@
+
+TCPD shipped (31): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
+  * drift level, min segment 5               0.715  0.616    160
+    binseg (published)                       0.714  0.671  
+    pelt (published)                         0.704  0.672  
+  * consensus: every setting                 0.702  0.633     59
+  * drift level, 4 log n                     0.682  0.620    117
+  * drift level + median slope (post hoc)    0.680  0.604    249
+  * drift level, 2 log n (primary)           0.677  0.592    247
+    bocpd (published)                        0.673  0.616  
+    zero (published)                         0.663  0.568  
+  * level, following the over-cut warning    0.655  0.561    653
+  * level (default)                          0.477  0.374   1329
+
+TCPD held out (7): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
+    binseg (published)                       0.727  0.731  
+  * consensus: every setting                 0.711  0.742     25
+    bocpd (published)                        0.683  0.605  
+    zero (published)                         0.639  0.597  
+    pelt (published)                         0.636  0.639  
+  * drift level, 4 log n                     0.538  0.606    182
+  * level, following the over-cut warning    0.497  0.394    233
+  * drift level, min segment 5               0.493  0.534    153
+  * drift level + median slope (post hoc)    0.429  0.502    286
+  * drift level, 2 log n (primary)           0.420  0.524    284
+  * level (default)                          0.296  0.191    585
+
+Paired F1, primary minus ..., shipped (31) (bootstrap over series, sign test):
+  level (default)              +0.200 [95% 0.115, 0.286]; better on 24, worse on 5, sign p 0.001
+  level following the warning  +0.022 [95% -0.055, 0.099]; better on 16, worse on 13, sign p 0.711
+  consensus every setting      -0.025 [95% -0.100, 0.045]; better on 10, worse on 15, sign p 0.424
+  zero                         +0.014 [95% -0.094, 0.110]; better on 14, worse on 10, sign p 0.541
+  binseg                       -0.037 [95% -0.124, 0.054]; better on 11, worse on 18, sign p 0.265
+
+Paired F1, primary minus ..., held out (7) (bootstrap over series, sign test):
+  level (default)              +0.124 [95% 0.070, 0.195]; better on 7, worse on 0, sign p 0.016
+  level following the warning  -0.077 [95% -0.151, -0.001]; better on 2, worse on 4, sign p 0.688
+  consensus every setting      -0.291 [95% -0.502, -0.049]; better on 1, worse on 6, sign p 0.125
+  zero                         -0.219 [95% -0.526, 0.076]; better on 2, worse on 5, sign p 0.453
+  binseg                       -0.307 [95% -0.541, -0.091]; better on 1, worse on 6, sign p 0.125
+
+Per series: cuts and F1 for level / level+warning / drift primary; annotators' median count.
+  shipped (31)
+    bank                   n  581  level 178 0.011  warn   3 0.400  drift  48 0.040  annotators 0  zero 1.000
+    brent_spot             n  500  level  56 0.506  warn  13 0.577  drift   6 0.726  annotators 5  zero 0.315
+    businv                 n  330  level  65 0.192  warn  19 0.249  drift  18 0.348  annotators 3  zero 0.588
+    centralia              n   15  level   3 1.000  warn   3 1.000  drift   1 0.909  annotators 1  zero 0.763
+    children_per_woman     n  301  level  65 0.216  warn  65 0.216  drift  24 0.485  annotators 2  zero 0.507
+    co2_canada             n  215  level  40 0.481  warn   8 0.854  drift  25 0.542  annotators 5  zero 0.361
+    construction           n  319  level  51 0.175  warn   5 0.634  drift   0 0.696  annotators 1  zero 0.696
+    debt_ireland           n   21  level   6 0.923  warn   6 0.923  drift   9 0.824  annotators 2  zero 0.469
+    gdp_argentina          n   59  level  10 0.533  warn   4 0.889  drift   4 0.720  annotators 0  zero 0.824
+    gdp_croatia            n   24  level   7 0.400  warn   7 0.400  drift  10 0.308  annotators 1  zero 0.824
+    gdp_iran               n   58  level  15 0.609  warn   2 0.622  drift   5 0.888  annotators 2  zero 0.652
+    gdp_japan              n   58  level  17 0.200  warn   4 0.571  drift   2 0.800  annotators 0  zero 0.889
+    global_co2             n  104  level  27 0.303  warn  27 0.303  drift   8 0.481  annotators 0  zero 0.846
+    homeruns               n  118  level  17 0.615  warn   4 0.800  drift   7 0.723  annotators 1  zero 0.659
+    jfk_passengers         n  468  level  57 0.159  warn   4 0.490  drift   0 0.723  annotators 1  zero 0.723
+    lga_passengers         n  468  level  37 0.414  warn   5 0.526  drift   1 0.693  annotators 3  zero 0.535
+    nile                   n  100  level   1 1.000  warn   1 1.000  drift   0 0.824  annotators 1  zero 0.824
+    ozone                  n   54  level  12 0.375  warn   2 0.650  drift   0 0.723  annotators 1  zero 0.723
+    quality_control_1      n  313  level   3 0.667  warn   3 0.667  drift   0 0.667  annotators 1  zero 0.667
+    quality_control_2      n  283  level   1 1.000  warn   1 1.000  drift   0 0.750  annotators 1  zero 0.750
+    quality_control_3      n  366  level  15 0.222  warn   1 1.000  drift   4 0.571  annotators 1  zero 0.667
+    quality_control_4      n  500  level  52 0.233  warn   4 0.726  drift   1 0.936  annotators 1  zero 0.780
+    quality_control_5      n  325  level   0 1.000  warn   0 1.000  drift   0 1.000  annotators 0  zero 1.000
+    rail_lines             n   37  level   8 0.615  warn   1 0.846  drift   5 0.800  annotators 2  zero 0.537
+    seatbelts              n  192  level  24 0.333  warn   1 0.474  drift   1 0.824  annotators 2  zero 0.621
+    shanghai_license       n  205  level  32 0.263  warn  10 0.422  drift  20 0.310  annotators 1  zero 0.636
+    uk_coal_employ         n  105  level  23 0.667  warn   5 0.863  drift   9 0.670  annotators 5  zero 0.513
+    unemployment_nl        n  214  level  39 0.513  warn   9 0.776  drift  12 0.817  annotators 3  zero 0.566
+    us_population          n  816  level 406 0.015  warn 406 0.015  drift   1 0.615  annotators 0  zero 0.889
+    usd_isk                n  247  level  41 0.385  warn   9 0.632  drift   6 0.780  annotators 2  zero 0.489
+    well_log               n  675  level  21 0.764  warn  21 0.764  drift  20 0.785  annotators 9  zero 0.237
+  held out (7)
+    bitcoin                n  774  level 150 0.202  warn  74 0.349  drift 103 0.281  annotators 4  zero 0.450
+    iceland_tourism        n  199  level  35 0.105  warn   2 0.486  drift   5 0.281  annotators 0  zero 0.947
+    measles                n  991  level 167 0.024  warn  40 0.047  drift  30 0.062  annotators 0  zero 0.947
+    ratner_stock           n  600  level  75 0.190  warn  23 0.452  drift  46 0.291  annotators 2  zero 0.571
+    robocalls              n   52  level   7 0.651  warn   2 0.966  drift   3 0.966  annotators 2  zero 0.636
+    scanline_126007        n  481  level  69 0.494  warn  10 0.772  drift  28 0.581  annotators 1  zero 0.644
+    scanline_42049         n  481  level  82 0.404  warn  82 0.404  drift  69 0.478  annotators 7  zero 0.276
+
+Drift primary run time over all 38 series: 46 ms (exact O(n^2) partitioning; machine-dependent).
