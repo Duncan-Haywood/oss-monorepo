@@ -3,7 +3,7 @@ title: "The From line that splits your mailbox: reading real Gmail and Thunderbi
 seo_title: "Why an mbox file splits a message in two at a line starting with From"
 date: 2026-11-11
 tags: [sales-agent, mbox, email, gmail-takeout, thunderbird, parsing]
-description: "We ran the sales agent's mail-file reader on eleven mbox files people published on GitHub. Two corners were wrong, and Python's mailbox module gets both wrong too."
+description: "The sales agent's mail-file reader on eleven mbox files people published on GitHub: two corners were wrong, and Python's mailbox module gets both wrong too."
 ---
 
 The [sales agent](../../ventures/sales-agent/README.md) can open an exported
