@@ -190,11 +190,16 @@ flagships:
       weeks", "Short-vs-over cost weight"); --count tickets 2026-11-11 (README "Staffing to customers, not
       money"): plans from tickets per hour, reads a third real file with no prices (Bread Basket, half-life 4
       best at 5 tickets/h); on the French file it moves hours from mornings to late afternoon, on the Korean
-      nothing. Next: close the 100-person gaps (tree, not pricing, now);
+      nothing. --backtest --score-closed 2026-11-11 (README "Scoring a staffed closure"): a staffed closure
+      now counts as over; scored so, the break and rare-hour rules save 6-15 person-hours a week (French) where
+      the old score said they cost 1-2; it exposed stray late orders stretching short files' days, fixed with a
+      one-date edge rule (Bread Basket 12-24 fewer person-hours off a week). Next: make --score-closed the
+      backtest and half-life-auto default (and offer it on the page) once a fourth file agrees; add a 4-week
+      window to half-life auto (it wins clearly on Bread Basket under the new score: hours the shop stopped
+      opening); close the 100-person gaps (tree, not pricing, now);
       cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on
-      40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast); a backtest that
-      can score a staffed closure; whether auto should also choose the short cost's window or a 1-week half-life
-      (the Bread Basket file is a third to test it on); a labour standard (minutes per ticket vs per euro)
+      40-person weeks with exact on (not re-timed); a US POS item export (Square or Toast);
+      whether auto should also choose the short cost's window or a 1-week half-life; a labour standard (minutes per ticket vs per euro)
       to say which driver is right, or a blend of the two; the cut is no longer where the gap is (opt-in --join 2026-11-11, README
       "Joining short runs": dearer than the priced cut on held-out weeks); a real published-schedule export for --import-shifts;
       whether the priced cut's r = 1 default (README "The priced cut by default", runs shorter) suits a
