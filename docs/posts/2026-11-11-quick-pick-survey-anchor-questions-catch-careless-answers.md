@@ -1,9 +1,9 @@
 ---
 title: "One easy question in five lets our survey spot careless answering"
-seo_title: "Detecting careless respondents in adaptive pairwise surveys with anchor pairs"
+seo_title: "Catching careless respondents in pairwise surveys with anchor pairs"
 date: 2026-11-11
 tags: [quick-pick-survey, pairwise-comparison, survey-quality, simulation, glicko-2]
-description: "Adaptive pairwise surveys ask close questions, which hide random answering. Slipping in a lopsided pair every fifth question made careless respondents detectable in simulation."
+description: "Adaptive pairwise surveys hide random answering. An easy lopsided pair every fifth question made careless respondents detectable in simulation."
 ---
 
 [Quick Pick Survey](../../ventures/quick-pick-survey/) ranks a list by asking
