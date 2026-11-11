@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 113 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 114 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -48,6 +48,11 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   always running the ladder (better than random in 9 of 16 cells, worse in 1, sign test p = 0.02). Each branch picked the
   better policy on average; the one miss is a relaxed-clock 18-bit multiplier (10.5%), the family's known failure:
   [`experiments/fresh_designs/`](experiments/fresh_designs/results.txt).
+- **No guard from the mapped rung alone (milestone 114, no flow run).** A guard on the mapped slack and delay spread, chosen
+  on the held-out cells (where it caught exactly the five failing relaxed multipliers, 1.66% to 1.25% leave-one-family-out),
+  missed both relaxed multipliers on 28 fresh dear-pool cells and raised regret from 0.97% to 1.16%: the spread is a property
+  of the sequence pool, not the design, and the stable slack does not separate the failures. The switch stays the rule:
+  [`experiments/r2_guard/`](experiments/r2_guard/results.txt).
 - **Proof success (H5) is predicted by design size, not by the rewrite**; it is not testable on this benchmark as built.
 - Limits: one corner and utilisation, global-route estimates, cached tables from tens of designs.
 
