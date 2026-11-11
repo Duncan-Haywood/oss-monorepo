@@ -204,6 +204,26 @@ export const STARTERS = {
   40: { even: [1, 1, 8, 2, 24, 3, 18, 4, 27, 5, 13, 6, 19, 7, 16, 9, 28, 10, 20, 11, 22, 12, 15, 14, 35, 17, 29, 21, 25, 23, 37, 26, 32, 30, 31, 33, 38, 34, 36], odd: [1, 1, 23, 2, 32, 3, 7, 4, 17, 5, 37, 6, 26, 8, 29, 9, 14, 10, 18, 11, 12, 13, 19, 15, 30, 16, 28, 20, 31, 21, 35, 22, 38, 24, 34, 25, 27, 33, 36] },
 };
 
+/**
+ * Starters picked on carry-over + 10 x breaks of the full venue search instead of carry-over alone
+ * (eval/starter-breaks.mjs, eval/starter-breaks.txt); same shape as STARTERS. With a break weight,
+ * the search runs from this entry too and keeps it only when strictly better. Kept only where the
+ * run through the search scored lower at weight 10 (eval/starter-breaks-search.txt), plus 36, 38
+ * and 40 teams, not measured through the search (README "Starters picked with their breaks").
+ */
+export const STARTERS_WEIGHTED = {
+  12: { even: [1, 1, 5, 2, 10, 3, 9, 4, 6, 7, 8] },
+  14: { even: [1, 1, 4, 2, 7, 3, 12, 5, 11, 6, 8, 9, 10] },
+  18: { even: [1, 1, 7, 2, 10, 3, 6, 4, 8, 5, 12, 9, 14, 11, 13, 15, 16] },
+  26: { even: [1, 1, 24, 2, 6, 3, 15, 4, 13, 5, 10, 7, 21, 8, 11, 9, 17, 12, 22, 14, 20, 16, 23, 18, 19], odd: [1, 1, 23, 2, 11, 3, 15, 4, 5, 6, 24, 7, 9, 8, 19, 10, 18, 12, 22, 13, 17, 14, 20, 16, 21] },
+  28: { even: [1, 1, 8, 2, 13, 3, 22, 4, 19, 5, 11, 6, 23, 7, 9, 10, 14, 12, 26, 15, 20, 16, 25, 17, 18, 21, 24] },
+  30: { even: [1, 1, 4, 2, 9, 3, 26, 5, 20, 6, 15, 7, 24, 8, 16, 10, 23, 11, 12, 13, 17, 14, 25, 18, 28, 19, 21, 22, 27] },
+  34: { even: [1, 1, 17, 2, 7, 3, 11, 4, 8, 5, 19, 6, 29, 9, 31, 10, 28, 12, 32, 13, 25, 14, 16, 15, 22, 18, 24, 20, 23, 21, 30, 26, 27], odd: [1, 1, 28, 2, 10, 3, 16, 4, 9, 5, 7, 6, 27, 8, 19, 11, 25, 12, 13, 14, 24, 15, 31, 17, 32, 18, 21, 20, 29, 22, 26, 23, 30] },
+  36: { even: [1, 1, 14, 2, 20, 3, 13, 4, 11, 5, 26, 6, 30, 7, 22, 8, 27, 9, 10, 12, 17, 15, 18, 16, 25, 19, 23, 21, 33, 24, 32, 28, 34, 29, 31] },
+  38: { even: [1, 1, 3, 2, 11, 4, 5, 6, 17, 7, 31, 8, 15, 9, 24, 10, 22, 12, 32, 13, 27, 14, 33, 16, 26, 18, 21, 19, 35, 20, 25, 23, 29, 28, 36, 30, 34] },
+  40: { even: [1, 1, 34, 2, 17, 3, 35, 4, 32, 5, 21, 6, 24, 7, 16, 8, 30, 9, 14, 10, 18, 11, 31, 12, 22, 13, 27, 15, 19, 20, 33, 23, 26, 25, 37, 28, 29, 36, 38] },
+};
+
 /** True when a searched starter or stored timetable is built in for N teams (N even, a bye team included). */
 export function starterApplies(N) {
   return STARTERS[N] !== undefined || TIMETABLES[N] !== undefined;
@@ -291,11 +311,14 @@ export function starterOpp(N, pairs, { step = 1, start = 0 } = {}) {
 /**
  * The built-in starter for N teams (n real; n = N - 1 means team N - 1 is the bye), at the start
  * with the least carry-over and, among those, the fewest breaks after the greedy venue pass.
+ * Every start gives the same timetable up to renaming the teams (start t's round r is start 0's
+ * round r + t with team u renamed u - t), so the loop over starts only settles the greedy venue
+ * pass's ties. "weighted starter" takes the STARTERS_WEIGHTED entry.
  * Null when no starter is built in for N.
  */
 function bestStarterOpp(N, n, cyclic, which = "starter") {
   if (which === "timetable") return storedTimetable(N, n);
-  return bestStarterOnly(N, n, cyclic);
+  return bestStarterOnly(N, n, cyclic, which === "weighted starter");
 }
 
 /**
@@ -304,16 +327,19 @@ function bestStarterOpp(N, n, cyclic, which = "starter") {
  * its lower carry-over can leave a break-weighted season search worse off than the starter
  * (12 teams, seed 2, weight 10: 596 / 46 against 618 / 40), so every start runs and the best is kept.
  */
-function constructionStarts(N, n) {
+function constructionStarts(N, n, weighted = false) {
   const kind = n === N ? "even" : "odd";
   const out = [];
   if (STARTERS[N]?.[kind]) out.push("starter");
   if (TIMETABLES[N]?.[kind]) out.push("timetable");
+  // with a break weight: the starter picked on carry-over + 10 x breaks (STARTERS_WEIGHTED), kept
+  // only when strictly better, like every start here
+  if (weighted && STARTERS_WEIGHTED[N]?.[kind]) out.push("weighted starter");
   return out;
 }
 
-function bestStarterOnly(N, n, cyclic) {
-  const entry = STARTERS[N]?.[n === N ? "even" : "odd"];
+function bestStarterOnly(N, n, cyclic, weighted = false) {
+  const entry = (weighted ? STARTERS_WEIGHTED : STARTERS)[N]?.[n === N ? "even" : "odd"];
   if (!entry) return null;
   const [step, ...flat] = entry;
   const pairs = [];
@@ -402,7 +428,7 @@ function cycleOf(opp, r, s, t) {
  * circle method and the starter timetable (starterOpp) and keeps the better (`start` says which).
  * Returns { rounds, coe, circleCoe, lowerBound, breaks, iterations }.
  */
-export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false } = {}) {
+export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, breakWeight = 0, field = true, fromStarter = false, weightedStarter = true } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   if (field && !fromStarter && !fieldApplies(N) && starterApplies(N)) {
@@ -411,7 +437,7 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
     // the search's own score is kept; a tie keeps the circle start, so no size gets worse.
     const score = (r) => r.coe + breakWeight * r.breaks;
     let best = { ...lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field: false }), start: "circle" };
-    for (const which of constructionStarts(N, n)) {
+    for (const which of constructionStarts(N, n, breakWeight > 0 && weightedStarter)) {
       const st = lowCarryOverRounds(n, { seed, effort, cyclic, breakWeight, field, fromStarter: which });
       if (score(st) < score(best)) best = { ...st, start: which };
     }
@@ -427,7 +453,7 @@ export function lowCarryOverRounds(n, { seed = 1, effort = 1, cyclic = false, br
   else if (fromStarter) {
     // other even sizes: the searched starter (see starterOpp); the caller compares the result
     // with the circle start's
-    opp = bestStarterOpp(N, n, cyclic, fromStarter === "timetable" ? "timetable" : "starter");
+    opp = bestStarterOpp(N, n, cyclic, fromStarter === true ? "starter" : fromStarter);
     useField = true;
   }
   const R = N - 1;
@@ -898,7 +924,7 @@ function hostBreaks(opp, n, R, host) {
  * at `legBreaks` (default a third of the season cap) and leg two moves on carry-over alone without
  * the season going over `maxBreaks` (or over the fewest its starts allow, if that is more).
  */
-export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false } = {}) {
+export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight = 0, maxBreaks = null, legBreaks = null, field = true, fromStarter = false, weightedStarter = true } = {}) {
   if (!Number.isInteger(n) || n < 2) throw new Error("A round robin needs at least two teams.");
   const N = n % 2 === 0 ? n : n + 1;
   if (field && !fromStarter && maxBreaks == null && !fieldApplies(N) && starterApplies(N)) {
@@ -906,7 +932,7 @@ export function lowCarryOverDoubleRounds(n, { seed = 1, effort = 1, breakWeight 
     // starter-start leg, the better kept (a tie keeps the circle start)
     const score = (r) => r.coe + REPEAT_PENALTY * r.repeats + breakWeight * r.breaks;
     let best = { ...lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field: false }), start: "circle" };
-    for (const which of constructionStarts(N, n)) {
+    for (const which of constructionStarts(N, n, breakWeight > 0 && weightedStarter)) {
       const st = lowCarryOverDoubleRounds(n, { seed, effort, breakWeight, field, fromStarter: which });
       if (score(st) < score(best)) best = { ...st, start: which };
     }

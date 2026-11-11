@@ -794,6 +794,64 @@ the annealing search from both starts. `eval/round-refill.mjs` searches all roun
 - Open: 12 teams at 136 against 120 (a lower bound, or a 12-team timetable below 136); the refill
   from the climbed starters at 14 to 18 teams; refilling the second leg of a season.
 
+## Starters picked with their breaks (2026-11-11, latest)
+
+The open item above was "pick the start by carry-over + weight x breaks when a weight is set". Two
+findings, one negative.
+
+- **The start does not matter.** Start t's round r is start 0's round r + t, and renaming every
+  ordinary team u to u - t (the fixed team stays) turns one into the other, so the carry-over, and
+  every home/away a full search can find, is the same at every start. `starter.test.mjs` checks it
+  (every start of the 12-, 18- and 26-team entries, both parities), and `eval/starter-breaks.mjs`
+  checks it on every entry. Picking the start on the weighted score changed no result at 12, 20 or 24
+  teams. The loop over starts in `bestStarterOpp` only settles the greedy venue pass's ties, and the
+  "every start is an O(N) correction" line above is moot. What can change is **which starter**.
+- **A second table, `STARTERS_WEIGHTED`** (`carryover.mjs`). `eval/starter-breaks.mjs` reruns the O(p)
+  climb of `eval/starter-climb.mjs` keeping a wide pool (250 starters whose cyclic sum D^2 is within
+  6 + p/4 of the best) and rescores each on exact non-cyclic carry-over + 10 x the breaks of the full
+  venue search (`assignVenues`). Raw starters (`eval/starter-breaks.txt`, carry-over / breaks,
+  carry-over-first entry -> weighted pick): 26 teams 716 / 104 -> **716 / 74** (same carry-over, 30
+  fewer breaks), 28 teams 828 / 114 -> 978 / 76, 30 teams 948 / 138 -> 1,164 / 86, 40 teams
+  1,816 / 230 -> 2,112 / 144, 18 teams 318 / 52 -> 348 / 38.
+- **Through the search.** With a break weight, `lowCarryOverRounds` and `lowCarryOverDoubleRounds`
+  now run one more search from the weighted entry (`start: "weighted starter"`), beside the circle,
+  starter and stored-timetable starts (`constructionStarts`), and keep it only when its score is
+  strictly lower (so no size can score worse; `weightedStarter: false` turns it
+  off). Measured at weight 10, seed 1, effort 1 (`node eval/starter-breaks-search.mjs 10 <sizes>`,
+  `eval/starter-breaks-search.txt`; carry-over / breaks, before -> now; 12 teams rerun after merging
+  the refilled-rounds start of PR #14847):
+
+  | Teams | Single | Season (home and away) |
+  |---|---|---|
+  | 12 | 180 / 14 -> 170 / 14 (-10; before = the refilled timetable start) | 618 / 42 -> 602 / 40 (-36) |
+  | 14 | same | 854 / 52 -> 870 / 50 (-4) |
+  | 18 | 456 / 30 -> 348 / 40 (-8) | 1,556 / 76 -> 1,316 / 98 (-20) |
+  | 25 | same | 2,813 / 272 -> 2,889 / 262 (-24) |
+  | 26 | 716 / 102 -> **716 / 74** (-280) | 2,618 / 230 -> **2,714 / 164** (-564) |
+  | 28 | 828 / 114 -> 978 / 76 (-230) | 3,148 / 246 -> 3,564 / 178 (-264) |
+  | 30 | 948 / 136 -> 1,164 / 92 (-224) | 3,624 / 288 -> 3,950 / 194 (-614) |
+  | 33 | same | 5,069 / 526 -> 5,151 / 507 (-108) |
+  | 34 | 1,274 / 166 -> 1,460 / 142 (-54) | same |
+
+  The 26-team season loses 66 of its 230 breaks for 4% more carry-over. No change at 9, 13, 17, 19,
+  21, 22, 23, 27 or 29 teams, so the table keeps only the entries that gained: even 12, 14, 18, 26,
+  28, 30 and 34, the bye entries for 25 and 33, and even 36, 38 and 40 (raw gains of 80 to 564 in
+  score, not yet run through the search). Odd leagues rarely gain: their circle start already has a
+  zero-break home/away.
+- **Cost.** The extra run is only made at sizes with an entry and a break weight: a 26-team season at
+  weight 10 took 6.3 s and now 9.6 s in Node. The page's eight weighted tries pay that; carry-over
+  only, the capped tries and every size without an entry are unchanged.
+- **Real fixtures** (`eval/carryover-real.txt`, rerun; the guide's table): the tool's 18-team season is
+  now 1,316 / 98 (was 1,556 / 76), and mirrored 1,426 / 90 (was 1,902 / 72); both Ligue 1 seasons
+  (1,840 / 74, 1,948 / 96) still sit between them on the trade. 20 teams unchanged (1,460 / 116).
+- Tests (`starter.test.mjs`, 4 new): every weighted entry is a round robin for a size STARTERS has;
+  start invariance; the 26-team entry has 716 carry-over and at most 80 breaks against 96 or more;
+  the weighted run is kept only when strictly better (12 and 18 teams, single and season), and is not
+  used without a weight.
+- Open: run 36 to 40 through the search; a climb that scores breaks inside the move (the pool
+  rescore takes 30 to 160 s a size, so only 250 starters are tried); odd sizes, where the weighted
+  pick should be compared with the circle's zero-break orientation rather than the starter's.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`
