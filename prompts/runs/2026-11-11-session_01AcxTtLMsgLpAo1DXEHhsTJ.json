@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLMsgLpAo1DXEHhsTJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T02:06:29Z",
+  "ended": "2026-11-11T02:22:08Z",
+  "wall_minutes": 15.97,
+  "tokens_in": 6862567,
+  "tokens_out": 26836,
+  "cost_usd": 2.7238,
+  "tool_calls": 63,
+  "task": "Deepen flagship shift-roster-builder: backtracking in the root dive; first 60-person pay and 80-person open-hours readings",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14664",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Bash foreground `sleep` is blocked by the harness; waiting on long benches needs Monitor with an until-loop, which no repo doc mentions."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Top Deepen row was ai-bookkeeper, which merged a PR minutes earlier (74 commits in 7 days); took the next flagship without an open PR (shift-roster-builder) to avoid overlap.",
+      "did": "Deepened shift-roster-builder instead.",
+      "result": "Landed without conflict."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate agent doc in docs/reports/: the README section and flagships.yaml next: carry what the next run needs.",
+      "did": "Wrote README + flagships next.",
+      "result": "next: names the pricing bottleneck at 80 people."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-shift-roster-dive-backtracking-and-the-80-person-wall.md",
+    "ventures/shift-roster-builder/README.md (Backtracking in the dive)"
+  ],
+  "goal": null,
+  "notes": "Benches on a shared 4-core machine (up to 4 benches at once). Dive-only: retries reach the optimum on 4-6 of 11 small missed weeks; 60-person pay week 0 gap $8.53 -> $2.68 (not proven); 80-person root CG does not settle in 120 s, pricing 85-111 s. bnp.test.mjs 12/12 pass. Venture tests and preflight results in PR description.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "66582fde-302c-5137-9f2d-4487043b062b",
+    "transcripts": 1,
+    "first": "2026-11-11T02:06:29Z",
+    "last": "2026-11-11T02:22:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 140,
+        "output": 26836,
+        "thinking": 5864,
+        "cache_read": 6758060,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104367,
+        "api_equivalent_usd": 2.7238,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 140,
+      "output": 26836,
+      "thinking": 5864,
+      "cache_read": 6758060,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104367,
+      "api_equivalent_usd": 2.7238,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 50,
+      "Monitor": 7,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.97,
+      "active_minutes": 9.17,
+      "model_minutes": 5.67,
+      "tool_minutes": 3.5,
+      "waiting_on_human_minutes": 6.81,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an OR engineer implementing and benchmarking a backtracking dive in a branch-and-price code, about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 367.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
