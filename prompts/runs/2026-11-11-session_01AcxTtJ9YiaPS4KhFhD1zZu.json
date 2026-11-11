@@ -32,7 +32,7 @@
   "tests_added": 5,
   "outcome": "success",
   "errors": [
-    "PR CI 'validate' went red on ventures/concrete-maturity/index.html (duplicate id 'faq', a second identical FAQ section outside <main>), from #14774 on main, not this diff; fixed forward here by removing the duplicate (check_duplicate_ids ok, venture tests 32/32)."
+    "PR CI 'validate' went red on ventures/concrete-maturity/index.html (duplicate id 'faq', from #14774 on main), not this diff. I fixed it here, but #14780 fixed it on main first; the merge conflict was resolved by taking main's version (check_duplicate_ids ok, venture tests 32/32)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,7 +51,7 @@
     "docs/reports/research-src-layout-pytest.md"
   ],
   "goal": "Every run spends less time on routine setup (software for the routine, agents for judgment)",
-  "notes": "Backlog ids: none touched (only owner/blocked rows open). main_health: 55/55 checks pass. Static scan: 391 of 959 src-layout research projects had tests importing their src/ package with no pythonpath/conftest/sys.path handling. Baseline: 20/20 sampled failed `pytest --collect-only` (python3.13 from pyenv.py, PYTHONPATH unset). After `src_layout.py --fix` (389 pyproject.toml tables, 2 new pytest.ini): 366/391 collect; 17 need a missing third-party package (scipy 9, sklearn 3, cv2 3, mujoco 2... torch 1), 8 import a sibling project's package (listed in docs/reports/research-src-layout-pytest.md). aerolog-scaling 33 passed, marine-hull 124 passed with plain pytest. research/_shared: python3 -m unittest test_programme_check test_pick_track -> 34 OK (5 new); programme_check.py -> ok; research/_homepage/build.py -> ok; check_md_links ok; post frontmatter/links ok. Fixed red main in the same PR: concrete-maturity duplicate FAQ section (from #14774).",
+  "notes": "Backlog ids: none touched (only owner/blocked rows open). main_health: 55/55 checks pass. Static scan: 391 of 959 src-layout research projects had tests importing their src/ package with no pythonpath/conftest/sys.path handling. Baseline: 20/20 sampled failed `pytest --collect-only` (python3.13 from pyenv.py, PYTHONPATH unset). After `src_layout.py --fix` (389 pyproject.toml tables, 2 new pytest.ini): 366/391 collect; 17 need a missing third-party package (scipy 9, sklearn 3, cv2 3, mujoco 2... torch 1), 8 import a sibling project's package (listed in docs/reports/research-src-layout-pytest.md). aerolog-scaling 33 passed, marine-hull 124 passed with plain pytest. research/_shared: python3 -m unittest test_programme_check test_pick_track -> 34 OK (5 new); programme_check.py -> ok; research/_homepage/build.py -> ok; check_md_links ok; post frontmatter/links ok. Red main (concrete-maturity duplicate FAQ from #14774) was fixed on main by #14780 while this PR waited; took main's version. Local run_workflow_locally: portfolio-validate 100/100, research-ci 3/3, prompts-ci 2/2; portfolio-pages hit the local 300 s budget, green on GitHub CI.",
   "corrections": [],
   "redteam": null,
   "usage": {

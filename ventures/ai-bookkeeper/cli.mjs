@@ -36,7 +36,7 @@ import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
 import { payeeReport } from "./payees.mjs";
-import { receiptTextFromFile, statementTextFromFile } from "./ocr.mjs";
+import { receiptTextFromFile, receiptPassesFromFile, statementTextFromFile } from "./ocr.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { cashBasis } from "./cashbasis.mjs";
@@ -126,7 +126,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
- receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
+ receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD; --two-pass reads a photo twice)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
   payroll deposits YEAR [--schedule monthly|semiweekly]  federal deposit due dates (lookback, $100,000 next-day rule, holidays) and whether the bank shows each paid on time
@@ -489,7 +489,8 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (rest[0] && !rest[0].startsWith("--")) {
     if (!existsSync(rest[0])) { console.error(`no file ${rest[0]}`); process.exit(2); }
     let text;
-    try { text = receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
+    // --two-pass: a photo is read twice by tesseract and the receipt's arithmetic settles the total
+    try { text = has("--two-pass") ? receiptPassesFromFile(rest[0]) : receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
     const r = addReceipts(books, text);
     books = r.books; save();
     console.log(`Read ${r.added.length} receipt${r.added.length === 1 ? "" : "s"}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read.`);
