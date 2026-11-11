@@ -178,10 +178,14 @@ flagships:
       rules, `--from-sales` with page `shifts-from-sales.html`, `--skip-dates`, `--half-life`.
       Root dive 2026-11-11 (README "A root dive"): pin whole LP columns, re-price; 60-person
       weeks proven at the HiGHS optimum in 18-27 s (0 of 3 before), 30/40-person pay weeks 4 of
-      4 to within $0.50 (1 of 4). Next: 80-120 person weeks and the pay proof at 60 people
-      (untried); buildRoster end to end on 40-person weeks with exact on (3-5 min before the
-      dive, not re-timed: its other passes, not the proof); backtracking when both dives miss; a real POS hourly export for --from-sales and the page (made-up exports only); a
-      real published-schedule export for --import-shifts.
+      4 to within $0.50 (1 of 4). Dive backtracking and first 60/80-person readings 2026-11-11 later
+      (README "Backtracking in the dive", eval/dive-backtrack-bench.mjs): retries reach the optimum on 4-6 of
+      11 small weeks the dive missed; 60-person pay 1 of 2 proven, the other $8.53 -> $2.68 open in 300 s;
+      80 people: root column generation does not settle in 120 s (pricing 85-111 s of it). Next: a faster
+      pricing oracle at 80-120 people (dual stabilisation or heuristic pricing first, exact last); close the
+      60-person pay week; buildRoster end to end on 40-person weeks with exact on (3-5 min, not re-timed); a
+      real POS hourly export for --from-sales and the page (made-up exports only); a real published-schedule
+      export for --import-shifts.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
