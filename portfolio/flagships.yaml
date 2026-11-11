@@ -242,29 +242,19 @@ flagships:
     next: >-
       Landed work and every measurement are in ventures/league-schedule-generator/README.md and eval/
       (multi-division scheduling, venues, travel, rainouts, standings, play-offs, officials, sign-up
-      CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons).
-      Worker pool landed 2026-11-11 (README "Eight searches on a pool of workers"): the page runs
-      eight tries over one Web Worker per core (same season on any core count). Capped breaks 2026-11-11
-      (README "Carry-over under a cap on breaks"): lowCarryOverCappedRounds, 8 + 2 capped tries, a
-      "fewest" choice; 18 teams 2,154-2,674 at the minimum 48 (Bundesliga 3,474+ at 48), 20 teams
-      4,734-5,080 at 54. Odd leagues 2026-11-11 later (README "Odd leagues: zero-break home/away"): odd circle 0 breaks (was 46 at 19). Field start 2026-11-11 later (README "Perfect
-      carry-over at 4, 8, 16 and 32 teams"): Russell's GF(2^k) timetable, every count 0 or 1, at
-      power-of-two sizes (bye included); 16 teams 316 to 224 (floor), 16-team season 1,048 to 912
-      (floor). Starter start 2026-11-11 (README "Starter
-      timetables for 6 to 40 teams"): built-in sampled starters (starterOpp, STARTERS,
-      eval/starter-search.mjs), search runs from both starts and keeps the better; 20 teams 448 to 360
-      (floor, every count 0 or 1), 18 teams 412 to 318, 22 teams 654 to 516; the season search keeps
-      the plain mirror when better (20-team season 1,750/118 to 1,460/116, the floor). Climbed
-      starters 2026-11-11 latest (README "Climbed starters", eval/starter-anneal.mjs): annealed
-      multi-start over starters at step 1 (any step is a relabelling); 22 teams 516 to 440 and 21
-      teams 475 to 399 (floor, every count 0 or 1), 24 to 40 teams 4 to 13% lower, still 16 to 28%
-      above the floor; 10 to 20 unchanged. Next, most valuable first: a faster exact starter score
-      (O(p) from difference counts; draft PR #14821 has one) and longer climbs at 24 to 40 (an earlier
-      10,000-sample scratch run reported 24 teams 570, below the climb's 612 for 24 playing, so the
-      climb is not yet beating long sampling there); other constructions (Latin-square based, from the
-      literature) for 12 teams (152 vs 120); a bound for the minimum-break pattern, or a 20-team leg at
-      22-30 breaks from a starter timetable; a real
-      league's travel times and unavailable dates; a print check.
+      CSVs, duty rota, team sheets; carry-over scored on 20 real top-flight seasons; worker pool,
+      capped breaks, zero-break odd leagues, finite-field start at 4/8/16/32 teams, sampled starters
+      and the plain-mirror season candidate, all 2026-11-11). Climbed starters 2026-11-11 latest
+      (README "Climbed starters", eval/starter-anneal.mjs): annealed multi-start over starters at
+      step 1 (any step is a relabelling); 22 teams 516 to 440 and 21 teams 475 to 399 (floor, every
+      count 0 or 1), 22-team season 1,862 to 1,782 (floor); 24 to 40 teams 4 to 13% lower, still 16
+      to 28% above the floor. Next, most valuable first: with a break weight, 24 and 30 teams got
+      slightly worse (README), so pick the start or keep a second starter by carry-over + weight x
+      breaks; a faster exact starter score (O(p) from difference counts; draft PR #14821 has one) and
+      longer climbs at 24 to 40 (an earlier scratch run reported 24 teams 570 against the climb's
+      612); other constructions (Latin-square based, from the literature) for 12 teams (152 vs 120);
+      a bound for the minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter
+      timetable; a real league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
