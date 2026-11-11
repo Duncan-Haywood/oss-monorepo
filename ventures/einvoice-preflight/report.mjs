@@ -131,7 +131,13 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
           // numbers (not IBANs), non-EU tax ids, and KSA's simplified invoices (no buyer id,
           // a second TaxTotal that repeats the tax with its breakdown).
           const sets = official.sets || [];
+          // Under PINT also: the branch id (BT-86) carries an Australian BSB or a
+          // Singapore bank code, not a BIC (INV-026); Singapore adds payment means
+          // codes such as Z01 for GIRO (INV-044); and GST categories ZR, NG, OS need no
+          // EU exemption reason (INV-035), PINT's own sets carry those rules.
+          // Measured on OpenPeppol's examples, eval/phive-corpus.mjs (2026-11-11).
           const drop = new Set(["INV-024"]);
+          if (sets.some((x) => /^pint/.test(x))) ["INV-026", "INV-044", "INV-035"].forEach((r) => drop.add(r));
           if (sets.some((x) => /^zatca/.test(x))) ["INV-022", "INV-005", "INV-017", "INV-018"].forEach((r) => drop.add(r));
           for (let i = errors.length - 1; i >= 0; i--) if (drop.has(errors[i].rule)) errors.splice(i, 1);
         }

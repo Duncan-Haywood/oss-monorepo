@@ -155,7 +155,9 @@ def _inspect_row(row: Any, index: int, negative: bool = False) -> list[dict[str,
             base = None
     if "percent" in row and row.get("percent") not in (None, ""):
         percent = _number(row.get("percent"))
-        if percent is None or percent < 0 or percent > 100:
+        # A negative invoice may state the percentage with the sign of its amounts
+        # (OpenPeppol's PINT A-NZ negative invoice: -10% of 1500 = -150.00).
+        if percent is None or percent < (-100 if negative else 0) or percent > 100:
             findings.append(_finding(
                 "INV-051",
                 "Header allowance or charge percentage is missing or invalid.",

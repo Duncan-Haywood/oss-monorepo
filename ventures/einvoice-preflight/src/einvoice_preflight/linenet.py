@@ -56,7 +56,9 @@ def expected_line_net(line: dict[str, Any], apply_base: bool = True) -> Decimal 
     base = _number(line.get("price_base_quantity")) if apply_base else None
     if base is None or base <= 0:
         base = Decimal("1")
-    return round_cents(quantity * price / base + _signed_adjustment(line.get("adjustments")))
+    # Line allowances and charges are summed with their sign: a credit line may carry
+    # a negative charge (OpenPeppol's PINT A-NZ negative invoice, line 2).
+    return round_cents(quantity * price / base + _signed_adjustment(line.get("adjustments"), True))
 
 
 def accepted_line_net(line: dict[str, Any], supplied: Decimal | None) -> Decimal | None:

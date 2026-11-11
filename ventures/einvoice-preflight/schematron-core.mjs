@@ -33,6 +33,12 @@ export const PROFILES = {
   // own cut of the EN 16931 rules beside the KSA ones, so the EU base steps aside. build-zatca-rules.mjs.
   zatca: { source: "zatca-schematron", match: /(?!)/, profileId: /^\s*(?:reporting|clearance):1\.0\s*$/i, files: { ubl: ["zatca-en16931-ubl.json", "zatca-ksa-ubl.json"] } },
   "pint-aunz-sb": { source: "pint-aunz-schematron", match: /poacc:selfbilling:international:aunz:/i, files: { ubl: ["pint-aunz-en16931-ubl.json", "pint-aunz-sb-peppol-ubl.json"] } },
+  // The current PINT releases (SG 1.4.1, A-NZ 1.1.3) name the profile as
+  // urn:peppol:pint:billing-1@sg-1 / @aunz-1 / selfbilling-1@aunz-1, which the patterns
+  // above do not match: OpenPeppol's own examples for them got the EU base instead.
+  "pint-sg-1": { source: "pint-sg-schematron", match: /^\s*urn:peppol:pint:billing-1@sg-1\b/i, files: { ubl: ["pint1-sg-ubl.json", "pint1-sg-jur-ubl.json"] } },
+  "pint-aunz-1": { source: "pint-aunz-schematron", match: /^\s*urn:peppol:pint:billing-1@aunz-1\b/i, files: { ubl: ["pint1-aunz-ubl.json", "pint1-aunz-jur-ubl.json"] } },
+  "pint-aunz-sb-1": { source: "pint-aunz-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@aunz-1\b/i, files: { ubl: ["pint1-aunz-sb-ubl.json", "pint1-aunz-sb-jur-ubl.json"] } },
 };
 
 export function matchingProfile(xml, syntax) {
