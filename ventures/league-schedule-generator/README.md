@@ -575,6 +575,69 @@ carry-over count 0 or 1.
 - Open: other sizes have no such construction in this code. Known constructions exist for some other
   sizes in the literature (not read here); 12 teams (156 against 120) and 20 teams remain search-only.
 
+## Starter timetables for 6 to 40 teams, and 20 teams at the floor (2026-11-11, latest)
+
+The field start covers only power-of-two sizes. Most other even sizes (a bye team included) now get a
+second start, a **starter** timetable, and the search keeps whichever start does better.
+
+- **Construction** (`carryover.mjs`, `starterOpp`, `STARTERS`, `starterApplies`). Number the teams
+  0 .. p - 1 with p = N - 1 (odd) plus a fixed team p. A starter pairs up 1 .. p - 1 so that the
+  differences +-(y - x) of the pairs cover every nonzero residue mod p once. In round r, with
+  s = step x (r + start) mod p, each pair {x, y} plays as {x + s, y + s} and s plays team p. Each pair
+  meets once (the round whose shift carries the starter pair with that difference onto it), so every
+  starter gives a valid round robin; `starterOpp` refuses a non-starter or a step sharing a factor
+  with p. The circle method is the starter {i, -i} (tested), and one of the worst for carry-over.
+- **The table** (`eval/starter-search.mjs`, `eval/starter-search.txt`): a seeded random sample of
+  starters (backtracking with shuffled partners), every step coprime to p and every start, 20 s per
+  size, scored on non-cyclic carry-over with all N teams ("even") and with team p as the bye ("odd").
+  Built in for N = 6, 10, 12, 14, 18, 20, 22, 24, 26, 28, 30, 34, 36, 38, 40. At run time
+  `bestStarterOpp` tries every start and keeps the least carry-over, then the fewest greedy breaks.
+- **20 teams, and 19, reach the floor.** The sampled 20-team starter (step 9) has every carry-over count
+  0 or 1, cyclic too (380 = 20 x 19, Russell's bound): non-cyclic 360 with all 20 playing, 323 with a
+  bye. The search from the circle method had stopped at 448 and 381. I have not checked this against
+  published constructions; the tests check the counts directly.
+- **Both starts run, the better kept** (`start: "starter" | "circle"` on the result). Annealed, the
+  starter start loses to the circle start at 11, 13 and 30 teams, so `lowCarryOverRounds` and
+  `lowCarryOverDoubleRounds` run the full search from both and keep the lower score
+  (carry-over + breakWeight x breaks; ties keep the circle start). So no size scores worse than
+  before, and a search at these sizes takes about twice as long (20-team season, weight 10: 2.7 s to
+  4.5 s in Node; 6-team searches are unchanged in result).
+- **The plain mirror is now a candidate for the whole season.** When leg one has every count 0 or 1
+  (field sizes, 20 teams), mirroring it is already at the season floor, and the second-leg search
+  could only add breaks: 20 teams, weight 10, gave 1,478 / 122 against the mirror's 1,460 / 116.
+  `lowCarryOverDoubleRounds` (not the capped one) now also scores the mirror and keeps it when it is
+  strictly better (`mirrored: true`). That gives 16 teams 912 / 56 (was 912 / 64) too.
+- **Measured** (`node eval/field-start.mjs <sizes>`, `eval/starter-start.txt`; seed 1, effort 1;
+  carry-over / breaks, before -> now):
+
+  | Teams | Single, carry-over only | Single, weight 10 | Season, carry-over only | Season, weight 10 | Floors |
+  |---|---|---|---|---|---|
+  | 10 | 98/12 -> 94/14 | same | 358/38 -> 330/38 (floor) | same | 80, 330 |
+  | 12 | 156/18 -> 152/18 | 182/16 -> 152/18 | same | 640/42 -> 598/46 | 120, 492 |
+  | 14 | 216/26 -> 212/32 | 260/22 -> 252/18 | 746/86 -> 732/84 | 862/56 -> 854/52 | 168, 686 |
+  | 18 | 412/44 -> 318/52 | 458/30 -> 456/30 | 1,334/142 -> 1,214/148 | 1,486/84 -> 1,556/76 | 288, 1,170 |
+  | 19 | 381/84 -> 323/75 (floor) | 449/81 -> 323/75 | 1,389/231 -> 1,311/159 (floor) | 1,597/172 -> 1,525/119 | 323, 1,311 |
+  | 20 | 448/58 -> 360/52 (floor) | 510/48 -> 360/52 | 1,596/182 -> 1,460/126 (floor) | 1,750/118 -> 1,460/116 | 360, 1,460 |
+  | 22 | 654/66 -> 516/68 | 714/58 -> 516/68 | 2,086/218 -> 1,862/154 | 2,370/146 -> 1,920/150 | 440, 1,782 |
+  | 24 | 796/78 -> 654/76 | 878/74 -> 654/76 | 2,538/270 -> 2,482/248 | 2,774/180 -> 2,488/172 | 528, 2,136 |
+  | 26 | 954/98 -> 762/98 | 1,072/84 -> 762/98 | 3,040/322 -> 2,780/310 | 3,312/196 -> 3,098/208 | 624, 2,522 |
+
+  11, 13 and 30 teams keep the circle start's carry-over-only results; with a break weight they still
+  move (30 teams: 1,154/122 -> 1,110/126, season 4,076/278 -> 3,726/278). Full table in the file,
+  odd sizes included.
+- **Real fixtures** (`eval/carryover-real.mjs`, the guide's table): 20 teams, the tool's season is now
+  1,460 / 116 (was 1,750 / 118), the least a 20-team home-and-away season can have, against 2,278 to
+  2,564 for the 14 professional 20-team seasons; 18 teams 1,556 / 76 (was 1,486 / 84: lower score at
+  weight 10, 2,316 against 2,326, but more carry-over).
+- Tests: `starter.test.mjs` (every built-in starter at three starts is a round robin; circle method =
+  starter {i, -i}; bad starters and steps refused; 20 and 19 teams at the floor; never worse than the
+  circle start alone at 11, 12, 13, 18 and 22 teams, both weights, and on 12- and 20-team seasons);
+  `carryover.test.mjs` reads the guide's new figures from the code.
+- Open: the sample is thin past 30 teams (122 to 289 starters in 20 s; a 10,000-starter scratch run
+  found 22 teams 478 and 24 teams 570 against the table's 516 and 654), so a longer or smarter
+  starter search (hill-climbing on the starter, or the literature's constructions) should lower 22 to
+  40; 12 teams is still 152 against 120.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`
