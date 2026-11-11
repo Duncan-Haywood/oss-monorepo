@@ -4,7 +4,7 @@
 `check_jsonld.py` guards the structured-data side of `goals.md` ("Honest
 marketing", 16 CFR Part 465); this guards the visible side: "trusted by",
 "join 5,000 users", star ratings, "award-winning", "as seen in". A line that
-attributes the claim to someone else ("X says it is trusted by thousands",
+attributes the claim to someone else, within 120 characters of it ("X says it is trusted by thousands",
 "its own marketing", a quoted example) is allowed, because comparison pages
 describe competitors. Scans `*.html`, `README.md` and `llms.txt` under
 `ventures/` (or `--root`).
@@ -18,8 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CLAIM = re.compile(
-    r"(trusted by\b|\bjoin(ed)? (over |more than )?\d[\d,]*\+? "
-    r"|\d[\d,]*\+? (happy|satisfied) "
+    r"(trusted by\b|\bjoin(ed)? (over |more than )?\d[\d,]*(\.\d+)?[km]?\+? "
+    r"|\d[\d,]*(\.\d+)?[km]?\+? (happy|satisfied) "
     r"|\brated \d(\.\d)?\s*(/\s*5|stars|out of)"
     r"|[★⭐]{3,}|\b\d(\.\d)?\s*(/\s*5|out of 5) stars"
     r"|\b\d(\.\d)?-star (rated|rating|average)"
@@ -43,19 +43,32 @@ def maybe_claim(lowered):
 ATTRIBUTED = re.compile(
     r"\b(says|said|claims?|claimed|advertis\w+|its own marketing|own marketing"
     r"|marketing says|according to|sample|example|e\.g\.|such as|seen in a third)\b|<code>", re.I)
+# Attribution counts only this close to the claim: on a minified page one line
+# is the whole page, and a "for example" in its footer excused every claim on it.
+NEAR = 120
+# Markup that renders as plain words: "Trusted&nbsp;by", "Trusted <b>by</b>",
+# "Award&#8209;winning" read as claims on screen, so they are checked as such.
+INLINE_TAG = re.compile(r"</?(?:a|abbr|b|em|i|mark|small|span|strong|u)\b[^>]*>", re.I)
+SPACE = re.compile(r"&(?:nbsp|#160|#xa0);|[\u00a0\u2007\u202f]", re.I)
+HYPHEN = re.compile(r"&(?:#8208|#8209|#x2010|#x2011|hyphen|dash);|[\u2010\u2011]", re.I)
+
+
+def normalise(text):
+    return HYPHEN.sub("-", SPACE.sub(" ", INLINE_TAG.sub("", text)))
 
 
 def check(text):
     """Return [(line_no, snippet)] for unattributed social-proof claims."""
     out = []
+    text = normalise(text)
     if not maybe_claim(text.lower()):
         return out
     for i, line in enumerate(text.splitlines(), 1):
         if not maybe_claim(line.lower()):
             continue
         m = CLAIM.search(line)
-        if m and not ATTRIBUTED.search(line):
-            out.append((i, line.strip()[max(0, m.start() - 40):m.end() + 40]))
+        if m and not ATTRIBUTED.search(line[max(0, m.start() - NEAR):m.end() + NEAR]):
+            out.append((i, line[max(0, m.start() - 40):m.end() + 40].strip()))
     return out
 
 
