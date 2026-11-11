@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "First push blocked by the post front-matter hook: description 163 chars (limit 160); shortened and pushed again.",
-    "CI Portfolio validate failed: sales-agent next: 2,171 chars (cap 2,000); trimmed the mail-files history to one sentence."
+    "CI Portfolio validate failed: sales-agent next: 2,171 chars (cap 2,000); trimmed the mail-files history to one sentence.",
+    "After that, Portfolio validate failed on main itself: PR #14896 left quick-pick-survey next: at 2,195 chars. Merged main in and shortened its 'measured, not shipped' list to names (the details are in INFORMATION-GAIN-SELECTOR.md), 2,000 chars."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,7 +43,14 @@
       "issue": "sales-agent buildable (1)/(3) need huggingface.co etc.; all returned 000 (no connection) through the proxy in this session too, so only (6) was buildable; recorded that in the row."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "main was red from another PR's quick-pick-survey next: overflow; fixed forward in this PR rather than wait",
+      "did": "shortened one sentence to its item names; details remain in the venture's doc",
+      "result": "validate passes locally"
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-11-the-from-line-that-splits-your-mailbox.md",
     "ventures/sales-agent/eval/README.md (Public mbox files)"

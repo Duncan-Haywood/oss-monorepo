@@ -244,12 +244,7 @@ flagships:
       random-effects ranking with rank ranges, information-gain and staged
       selectors, pool cap, lapse and repeat-probe studies; PrefLib real
       rankings 2026-11-10). Staged uses the information selector up to 120
-      items (couple bar 8 items under rd 200, 2026-11-10). Measured 2026-11-11,
-      not shipped (INFORMATION-GAIN-SELECTOR.md): careless-answer fallback;
-      Glicko lapse term (glicko2.ts `lapse`; a fixed e is a discount, not a
-      detector); per-respondent lapse estimate (lapseEstimate.ts; no signal
-      under staged); anchor pairs and anchor weights (whole-session random
-      answering only compresses ratings; no weight moves the pool). Careless
+      items (couple bar 8 items under rd 200, 2026-11-10). Measured 2026-11-11, not shipped (INFORMATION-GAIN-SELECTOR.md): careless-answer fallback, Glicko lapse term, per-respondent lapse estimate, anchor pairs and weights. Careless
       patterns that are not random 2026-11-11 (scripts/careless-pattern-sweep.ts,
       section "Careless patterns that are not random"; random, first-slot,
       favourite, shared-salience and a different-taste control, 236 cells):
