@@ -331,8 +331,12 @@ export function headcount(avg, observed, o = {}) {
   return avg.map((hours, d) => {
     if (!observed[d]) return new Array(24).fill(0);
     // o.seen (dates with any sale per weekday-hour): an edge hour that traded on fewer than 1 in 20 of the weekday's dates
-    // (one 23:00 order in 43 Sundays) does not stretch the trading day; o.keepRare turns this off.
-    const trades = (h) => hours[h] > 0 && (!o.seen || o.keepRare || o.seen[d][h] * 20 >= observed[d]);
+    // (one 23:00 order in 43 Sundays) does not stretch the trading day; o.keepRare turns this off. Nor, once the weekday
+    // has 4 or more dates, does an edge hour that traded on only one of them (2026-11-11): under 21 dates the 1-in-20
+    // test can never trim anything, so on the Bread Basket file (21-23 dates a weekday) one stray 22:00 or 23:00 order
+    // staffed every Saturday to midnight for the whole backtest. Scored with --score-closed this cut the plain plan's
+    // short + over by 12-24 person-hours a week there and 1-3 on the Korean bakery; the French one moved by 0.1.
+    const trades = (h) => hours[h] > 0 && (!o.seen || o.keepRare || (o.seen[d][h] * 20 >= observed[d] && (o.seen[d][h] >= 2 || observed[d] < 4)));
     const firstH = [...Array(24).keys()].find(trades), lastH = [...Array(24).keys()].reverse().find(trades);
     let lo = o.open !== undefined ? Number(o.open) : firstH === undefined ? -1 : firstH;
     let hi = o.close !== undefined ? Number(o.close) : lastH === undefined ? 25 : lastH + 1;
@@ -635,6 +639,14 @@ export function backtestSales(text, o = {}) {
   for (let w = warmup; w < fullWeeks; w++) if (byWeek.slice(0, w).some((x) => x.length)) tested.push(w);
   if (!tested.length) return { weeks: 0, methods: [], notes: notes.concat(`Needs more than ${warmup} full weeks of dated sales to test on (has ${fullWeeks}).`) };
   const hOpts = { splh, minStaff, maxStaff: o.maxStaff, open: o.open, close: o.close, keepRare: o.keepRare };
+  // The scorer's view of which weekday-hours are normally shut, from the whole file (hindsight is fine in the score; the
+  // plans still learn only from earlier weeks). Fixed whatever rules the plan uses, so --keep-rare and the break rule
+  // are scored against the same reference (2026-11-11).
+  let closedRef = null;
+  if (o.scoreClosed) {
+    const ref = averageSales(dated, { keepRare: true });
+    closedRef = ref.seen.map((row, d) => row.map((n) => ref.observed[d] > 0 && n * 5 < ref.observed[d]));
+  }
   // With a short-vs-over weight r, every weighting is also tried with the fractile rule, and a week scores r x short +
   // over; the plain average stays first as the baseline everything is compared with.
   const rc = o.shortCost === undefined ? null : Number(o.shortCost);
@@ -647,7 +659,8 @@ export function backtestSales(text, o = {}) {
     const start = monday0 + w * 7 * DAY_MS;
     // The real need, per weekday-hour, from that week's sales.
     const actual = DAYS.map(() => new Array(24).fill(0));
-    for (const e of byWeek[w]) actual[e.day][e.hour] += e.amount;
+    const soldOn = DAYS.map(() => new Array(24).fill(false));
+    for (const e of byWeek[w]) { actual[e.day][e.hour] += e.amount; if (e.amount > 0) soldOn[e.day][e.hour] = true; }
     for (const res of results) {
       const from = res.window ? start - res.window * 7 * DAY_MS : -Infinity;
       const train = dated.filter((e) => { const t = keyMs(e.key); return t < start && t >= from; });
@@ -666,7 +679,11 @@ export function backtestSales(text, o = {}) {
       let short = 0, over = 0, sched = 0, shortH = 0;
       for (let d = 0; d < 7; d++) for (let h = 0; h < 24; h++) {
         const raw = Math.ceil(actual[d][h] / splh - 1e-9);
-        const need = open[d][h] > 0 ? Math.max(minStaff, raw) : raw;
+        // o.scoreClosed: minimum staff is not needed in an hour the shop is normally shut (it traded on under 1 in 5 of
+        // the weekday's dates across the whole file) on a date it sold nothing in that hour, so staffing a closure
+        // shows as over. Without it, minimum staff counts as needed in every hour the plan staffs.
+        const shut = closedRef && closedRef[d][h] && !soldOn[d][h];
+        const need = open[d][h] > 0 && !shut ? Math.max(minStaff, raw) : raw;
         sched += plan[d][h];
         if (need > plan[d][h]) { short += need - plan[d][h]; shortH++; } else over += plan[d][h] - need;
       }
@@ -687,5 +704,5 @@ export function backtestSales(text, o = {}) {
   const best = methods.reduce((a, b) => (b.miss < a.miss - 1e-9 ? b : a));
   const clear = best.id !== "all" && best.ci[1] < 0;
   notes.push(`Tested on ${tested.length} full week${tested.length === 1 ? "" : "s"} (first ${warmup} used only to learn from), at ${splh} ${r.count && r.count !== "sales" ? r.count : "sales"} per labor hour and ${minStaff} minimum staff${rc === null ? "" : `, a short person-hour costing ${rc} spare ones`}.`);
-  return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, shifts: !!o.shifts, minShift, maxShift, perWeek, notes };
+  return { weeks: tested.length, methods, best: best.id, clear, shortCost: rc, shifts: !!o.shifts, scoreClosed: !!o.scoreClosed, minShift, maxShift, perWeek, notes };
 }
