@@ -1,9 +1,9 @@
 ---
 title: "'Over 40 in.' when we had tried 60: three quiet faults in our duct sizer"
-seo_title: "Duct sizing calculator edge cases: oversize trunks, missing return trunks, and a room called toString"
+seo_title: "Duct sizing calculator bugs: oversize and missing return trunks"
 date: 2026-11-11
 tags: [hvac-load-calc, ducts, javascript, mutation-testing]
-description: "A red-team run on the free HVAC load and duct calculator found a hard-coded size in an error message, a return trunk that vanished without a word, and a JavaScript object-key trap."
+description: "A red-team run on our free duct sizer found a hard-coded size in a warning, a return trunk that vanished silently, and a JavaScript object-key trap."
 ---
 
 Today's red-team run seeded 18 faults into the two engine files of the

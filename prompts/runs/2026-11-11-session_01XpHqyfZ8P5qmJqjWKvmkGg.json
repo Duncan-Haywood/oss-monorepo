@@ -1,0 +1,429 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01XpHqyfZ8P5qmJqjWKvmkGg",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T20:38:42Z",
+  "ended": "2026-11-11T20:39:17Z",
+  "wall_minutes": 12.87,
+  "tokens_in": 3364651,
+  "tokens_out": 22547,
+  "cost_usd": 1.7597,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14885",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` with no --under probes nothing useful for a specific file; aiming at recently changed files (league-schedule-generator, shift-roster-builder, changepoint-detector) found every guarded file >20s, costing several probe minutes before landing on hvac-load-calc."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill bracket hint is right, but the hook also rejects a command line where the unbracketed pattern appears elsewhere (e.g. the server start in the same call); worth saying 'in its own call'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a class guard; the defects were one-off logic faults in one venture (a hard-coded size in messages, a missing warning branch, one plain-object lookup), with no cheap repo-wide lint that would not be noisy.",
+      "did": "Guarded each with a test in the venture suite that ventures-tests.yml runs on every PR; no new platform/ci lint.",
+      "result": "All three defects and six gaps fail CI if reintroduced."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-redteam-hvac-duct-sizer-oversize-trunks.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 5 open defects all have control-plane PRs awaiting owner approval (#14612, #14698, #14877, #12926, #12928). Campaigns: load.mjs 8/10 caught, duct.mjs 3/8 (1 equivalent). After: 17/17 counted. Verified: node --test hvac-load-calc 38/38 pass; redteam rerun all gaps caught_after_fix true; Playwright load of ducts.html renders, no console errors.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/hvac-load-calc/load.mjs",
+        "test": "node --test ventures/hvac-load-calc/**/*.test.mjs  (in .)",
+        "seed": 184387662,
+        "commit": "91e57c58",
+        "sites": 573,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 68,
+            "col": 98,
+            "operator": "times-to-div",
+            "before": "export const floorU = ({ floorR }) => 0.9 / (floorR + R.subfloor + 2 * R.filmFloor) + 0.1 / (9.25 * R.woodPerIn + R.subfloor + 2 * R.filmFloor);",
+            "after": "export const floorU = ({ floorR }) => 0.9 / (floorR + R.subfloor + 2 * R.filmFloor) + 0.1 / (9.25 / R.woodPerIn + R.subfloor + 2 * R.filmFloor);",
+            "line_text": "export const floorU = ({ floorR }) => 0.9 / (floorR + R.subfloor + 2 * R.filmFloor) + 0.1 / (9.25 * R.woodPerIn + R.subfloor + 2 * R.filmFloor);",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "floorU had no numeric test; added a hand-calculated framed-floor U test (load.test.mjs)."
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 71,
+            "col": 74,
+            "operator": "times-to-div",
+            "before": "export function densityRatio(elevationFt) { return Math.pow(1 - 6.8754e-6 * elevationFt, 5.2559); }",
+            "after": "export function densityRatio(elevationFt) { return Math.pow(1 - 6.8754e-6 / elevationFt, 5.2559); }",
+            "line_text": "export function densityRatio(elevationFt) { return Math.pow(1 - 6.8754e-6 * elevationFt, 5.2559); }",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 83,
+            "col": 57,
+            "operator": "plus-to-minus",
+            "before": "const sinAlt = Math.cos(L) * Math.cos(d) * Math.cos(h) + Math.sin(L) * Math.sin(d);",
+            "after": "const sinAlt = Math.cos(L) * Math.cos(d) * Math.cos(h) - Math.sin(L) * Math.sin(d);",
+            "line_text": "  const sinAlt = Math.cos(L) * Math.cos(d) * Math.cos(h) + Math.sin(L) * Math.sin(d);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 87,
+            "col": 29,
+            "operator": "times-to-div",
+            "before": "const sinAz = (Math.cos(d) * Math.sin(h)) / cosAlt;",
+            "after": "const sinAz = (Math.cos(d) / Math.sin(h)) / cosAlt;",
+            "line_text": "  const sinAz = (Math.cos(d) * Math.sin(h)) / cosAlt;",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 95,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "if (sun.altitude <= 0) return { beam: 0, diffuse: 0, reflected: 0, cosIncidence: 0 };",
+            "after": "if (sun.altitude <= 0) return { beam: 0, diffuse: 0, reflected: 1, cosIncidence: 0 };",
+            "line_text": "  if (sun.altitude <= 0) return { beam: 0, diffuse: 0, reflected: 0, cosIncidence: 0 };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 165,
+            "col": 102,
+            "operator": "const-plus-one",
+            "before": "if ((r.floor === 'slab')) num(r.slabPerimeterFt ?? 0, `${n} slab perimeter`, errs, { min: 0, max: 2000 });",
+            "after": "if ((r.floor === 'slab')) num(r.slabPerimeterFt ?? 0, `${n} slab perimeter`, errs, { min: 0, max: 2001 });",
+            "line_text": "    if ((r.floor === 'slab')) num(r.slabPerimeterFt ?? 0, `${n} slab perimeter`, errs, { min: 0, max: 2000 });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "slab perimeter upper bound untested; added 2000 accepted / 2000.5 refused."
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 219,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "const dGrains = Math.max(0, grains(wOut - wIn));",
+            "after": "const dGrains = Math.max(1, grains(wOut - wIn));",
+            "line_text": "  const dGrains = Math.max(0, grains(wOut - wIn));",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 243,
+            "col": 72,
+            "operator": "times-to-div",
+            "before": "cool[k].windowSolar += win * env.windowSHGC * env.interiorShade * fs.window[k];",
+            "after": "cool[k].windowSolar += win * env.windowSHGC * env.interiorShade / fs.window[k];",
+            "line_text": "        cool[k].windowSolar += win * env.windowSHGC * env.interiorShade * fs.window[k];",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 330,
+            "col": 167,
+            "operator": "const-plus-one",
+            "before": "site: { latitude: 36, elevationFt: 600, heatingOutdoorF: 22, coolingOutdoorF: 93, dailyRangeF: 20, coolingDewPointF: 72, indoorHeatF: 70, indoorCoolF: 75, indoorRH: 50 },",
+            "after": "site: { latitude: 36, elevationFt: 600, heatingOutdoorF: 22, coolingOutdoorF: 93, dailyRangeF: 20, coolingDewPointF: 72, indoorHeatF: 70, indoorCoolF: 75, indoorRH: 51 },",
+            "line_text": "  site: { latitude: 36, elevationFt: 600, heatingOutdoorF: 22, coolingOutdoorF: 93, dailyRangeF: 20, coolingDewPointF: 72, indoorHeatF: 70, indoorCoolF: 75, indoorRH: 50 },",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/load.mjs",
+            "line": 331,
+            "col": 181,
+            "operator": "const-plus-one",
+            "before": "envelope: { wallCavityR: 13, studDepthIn: 3.5, ceilingR: 38, roofColor: 'dark', windowU: 0.32, windowSHGC: 0.27, ach50: 6, nFactor: 20, ventCFM: 50, ductHeatPct: 10, ductCoolPct: 10, slabF: 0.73 },",
+            "after": "envelope: { wallCavityR: 13, studDepthIn: 3.5, ceilingR: 38, roofColor: 'dark', windowU: 0.32, windowSHGC: 0.27, ach50: 6, nFactor: 20, ventCFM: 50, ductHeatPct: 10, ductCoolPct: 11, slabF: 0.73 },",
+            "line_text": "  envelope: { wallCavityR: 13, studDepthIn: 3.5, ceilingR: 38, roofColor: 'dark', windowU: 0.32, windowSHGC: 0.27, ach50: 6, nFactor: 20, ventCFM: 50, ductHeatPct: 10, ductCoolPct: 10, slabF: 0.73 },",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/hvac-load-calc/duct.mjs",
+        "test": "node --test ventures/hvac-load-calc/**/*.test.mjs  (in .)",
+        "seed": 24772904,
+        "commit": "91e57c58",
+        "sites": 214,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/hvac-load-calc/duct.mjs",
+            "line": 33,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "export const ROUND_SIZES_IN = Object.freeze([4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24]);",
+            "after": "export const ROUND_SIZES_IN = Object.freeze([4, 5, 6, 7, 9, 9, 10, 12, 14, 16, 18, 20, 22, 24]);",
+            "line_text": "export const ROUND_SIZES_IN = Object.freeze([4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24]);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/duct.mjs",
+            "line": 33,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "export const ROUND_SIZES_IN = Object.freeze([4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24]);",
+            "after": "export const ROUND_SIZES_IN = Object.freeze([4, 5, 6, 7, 8, 9, 10, 12, 15, 16, 18, 20, 22, 24]);",
+            "line_text": "export const ROUND_SIZES_IN = Object.freeze([4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18, 20, 22, 24]);",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned a 14 in. pick; added 650 cfm at 0.08 in./100 ft -> 14 in. and the list itself."
+          },
+          {
+            "file": "ventures/hvac-load-calc/duct.mjs",
+            "line": 54,
+            "col": 22,
+            "operator": "minus-to-plus",
+            "before": "if (Math.abs(next - f) < 1e-12) return next;",
+            "after": "if (Math.abs(next + f) < 1e-12) return next;",
+            "line_text": "    if (Math.abs(next - f) < 1e-12) return next;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "convergence early-exit test: with `next + f` the loop never exits early but Colebrook has already converged well inside 50 iterations, so it returns f, which differs from next by under 1e-12; only run time changes."
+          },
+          {
+            "file": "ventures/hvac-load-calc/duct.mjs",
+            "line": 74,
+            "col": 23,
+            "operator": "div-to-times",
+            "before": "const psf = f * (100 / d) * rho * v * v / (2 * GC);",
+            "after": "const psf = f * (100 * d) * rho * v * v / (2 * GC);",
+            "line_text": "  const psf = f * (100 / d) * rho * v * v / (2 * GC);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/duct.mjs",
+            "line": 96,
+            "col": 49,
+            "operator": "const-plus-one",
+            "before": "limit = s.inWCPer100 > frictionRate + 1e-9 ? 'friction' : 'velocity';",
+            "after": "limit = s.inWCPer100 > frictionRate + 1e-10 ? 'friction' : 'velocity';",
+            "line_text": "        limit = s.inWCPer100 > frictionRate + 1e-9 ? 'friction' : 'velocity';",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "limit label tolerance: added a case where the next size down passes friction within the 1e-9 tolerance but fails velocity, so the label must read velocity."
+          },
+          {
+            "file": "ventures/hvac-load-calc/duct.mjs",
+            "line": 141,
+            "col": 128,
+            "operator": "const-plus-one",
+            "before": "else o.returns.forEach((r, i) => { const n = `Return ${r?.name ? `\"${r.name}\"` : i + 1}`; num(r?.cfm, `${n} airflow`, errs, 0, 10000); num(r?.effectiveLengthFt, `${n} total effective length`, errs, 1, 2000); });",
+            "after": "else o.returns.forEach((r, i) => { const n = `Return ${r?.name ? `\"${r.name}\"` : i + 1}`; num(r?.cfm, `${n} airflow`, errs, 1, 10000); num(r?.effectiveLengthFt, `${n} total effective length`, errs, 1, 2000); });",
+            "line_text": "    else o.returns.forEach((r, i) => { const n = `Return ${r?.name ? `\"${r.name}\"` : i + 1}`; num(r?.cfm, `${n} airflow`, errs, 0, 10000); num(r?.effectiveLengthFt, `${n} total effective length`, errs, 1, 2000); });",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "return airflow lower bound untested; added 0 and 0.5 cfm accepted, -1 refused."
+          },
+          {
+            "file": "ventures/hvac-load-calc/duct.mjs",
+            "line": 143,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (o.trunks != null && Array.isArray(runs)) {",
+            "after": "if (o.trunks != null || Array.isArray(runs)) {",
+            "line_text": "  if (o.trunks != null && Array.isArray(runs)) {",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/hvac-load-calc/duct.mjs",
+            "line": 189,
+            "col": 127,
+            "operator": "const-plus-one",
+            "before": "const pick = pickRound(cfm, frictionRate, o.trunkMaxFpm, { ...fo, sizesIn: [...new Set([...fo.sizesIn, 26, 28, 30, 32, 36, 40])].sort((a, b) => a - b) });",
+            "after": "const pick = pickRound(cfm, frictionRate, o.trunkMaxFpm, { ...fo, sizesIn: [...new Set([...fo.sizesIn, 26, 28, 30, 32, 36, 41])].sort((a, b) => a - b) });",
+            "line_text": "    const pick = pickRound(cfm, frictionRate, o.trunkMaxFpm, { ...fo, sizesIn: [...new Set([...fo.sizesIn, 26, 28, 30, 32, 36, 40])].sort((a, b) => a - b) });",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test reached a 40 in. trunk; added 11,750 cfm at 0.08 -> 40 in. The line was later refactored into TRUNK_EXTRA_SIZES_IN (re-applied 40->41 by hand there: the test fails)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/hvac-load-calc/duct.mjs",
+        "issue": "A trunk too big for every size warned 'needs more than a 40 in. round' and the report/page said 'over 40 in.' even when the user's size list went to 60 in. (the code had tried 60). Now names the largest size tried (settings.trunkLargestIn).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14885"
+      },
+      {
+        "file": "ventures/hvac-load-calc/duct.mjs",
+        "issue": "With two or more returns, a return trunk too big for every size was set to null with no warning, so the report and page silently showed no return trunk. Now listed with diameterIn null and a warning.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14885"
+      },
+      {
+        "file": "ventures/hvac-load-calc/duct.mjs",
+        "issue": "designFromLoad read ducts.lengths[room] off a plain object, so a room named toString or constructor got a function as its length and the design was refused even with a default length. Now Object.hasOwn.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14885"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f945c06c-e130-55d0-b2ed-015f7121706a",
+    "transcripts": 1,
+    "first": "2026-11-11T20:38:42Z",
+    "last": "2026-11-11T20:51:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 77,
+        "output": 22547,
+        "thinking": 5542,
+        "cache_read": 3283099,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81475,
+        "api_equivalent_usd": 1.7597,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 77,
+      "output": 22547,
+      "thinking": 5542,
+      "cache_read": 3283099,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81475,
+      "api_equivalent_usd": 1.7597,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 39,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.87,
+      "active_minutes": 12.87,
+      "model_minutes": 3.9,
+      "tool_minutes": 8.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, 9 tests, 3 fixes, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 227.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
