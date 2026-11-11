@@ -59,6 +59,10 @@ test('the worked example on the explainer matches the engine', () => {
   for (const v of [r.house.cooling.sensible, r.house.cooling.latent, r.house.cooling.total, r.house.heating.total, r.house.cooling.sumOfRoomPeaks, ...Object.values(r.house.cooling.components)]) assert.ok(page.includes(n(v)), `explainer is missing ${n(v)}`);
 });
 
+test('index links one hop to the wall-condensation-check sibling', () => {
+  assert.match(markup, /href="\.\.\/wall-condensation-check\/"/);
+});
+
 test('index links one hop to the mini-split-bid-calculator sibling', () => {
   assert.match(markup, /href="\.\.\/mini-split-bid-calculator\/"/);
 });

@@ -1,0 +1,56 @@
+name: wall-condensation-check
+description: >-
+  Free browser tool for builders, designers and energy raters: checks a wall,
+  roof or floor assembly for interstitial condensation month by month (Glaser,
+  in the manner of ISO 13788), from the layers' R-values and perms and twelve
+  months of indoor and outdoor conditions, giving where vapour condenses, how
+  much accumulates, whether it dries within the year, and the indoor humidity
+  at which the assembly first gets wet. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-11 in an explore run. duplicate_check.py: top match 0.11
+# (cron-dst-drift-check); no venture checks wall moisture. It graduates the
+# physics of research/house-dewpoint (a fixed four-climate Python table) into a
+# tool that takes any layers and any climate. hvac-load-calc is the sibling
+# for heat; this is the moisture check on the same assembly.
+#
+# Why a tool and not a chatbot answer: a single-month dew point is one line,
+# but the monthly accumulate-and-dry cycle, the taut-string vapour profile when
+# several interfaces could condense, and the bisection for the safe indoor RH
+# are tedious by hand and easy to get wrong in a reply. Free Glaser tools are
+# mostly desktop spreadsheets or tied to one maker's products.
+#
+# First visitor: builders and designers searching "wall dew point
+# calculator", "will my wall condense", "vapor retarder calculator"; volume not
+# measured with an external tool.
+#
+# Liability: a vapour-diffusion screen on typed numbers, not engineering or
+# code advice; air leakage and rain, which it does not model, wet more walls.
+# No product is named. Unverified: hand arithmetic and unit tests only.
+
+hypotheses:
+  - claim: >-
+      Builders and designers will use a no-signup condensation check that takes
+      any layers and their own climate, before reaching for WUFI or a consultant.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a result that disagrees with an ISO 13788 worked example or a published Glaser calculation on the same inputs and the disagreement is the engine's error.
+
+links:
+  production: https://marisstella.app/wall-condensation-check/
+  analytics: null
