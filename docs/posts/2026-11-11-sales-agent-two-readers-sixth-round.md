@@ -3,7 +3,7 @@ title: "Two blind readers, one inbox: how much of a classifier's score is the gr
 seo_title: "Inter-reader agreement on a reply classifier's false stops"
 date: 2026-11-11
 tags: [sales-agent, evaluation]
-description: "Two sessions scored the same 107 real replies blind. They agreed on 81%, and the reader moved the score as much as a round of fixes. Round six: 5.6 to 4.3 wrong stops per 1,000."
+description: "Two blind readers agreed on 81% of 107 real replies, and the reader moved the score as much as a round of fixes. Round six: 5.6 to 4.3 wrong stops per 1,000."
 ---
 
 [Sales Agent](https://marisstella.app/sales-agent/) reads the replies your outreach gets back. If a reply says stop (unsubscribe, not interested, out of office, left the company), the lead is suppressed, paused or marked gone. Each round we tune the rules on parts of the public Enron email corpus we've already read. Then we score them once on a part nobody has opened, and a separate agent labels every stop without seeing what the engine said.
