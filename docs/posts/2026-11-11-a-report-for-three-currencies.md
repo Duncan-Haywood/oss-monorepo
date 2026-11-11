@@ -3,7 +3,7 @@ title: "A report for three currencies: the franc floor and the Brexit vote on on
 seo_title: "Changepoint report for several time series at once"
 date: 2026-11-11
 tags: [changepoint-detector, time-series, reporting, multivariate, fx]
-description: "The changepoint detector's branded report now takes several columns at once. On 2012-2018 daily FX returns it finds the franc in January 2015 and the pound in June 2016."
+description: "The changepoint report now takes several columns. On 2012-2018 daily FX returns it finds the franc in January 2015 and the pound in June 2016."
 ---
 
 The [changepoint detector](../../ventures/changepoint-detector/) has had a
