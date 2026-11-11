@@ -292,10 +292,14 @@ flagships:
       confirms release from a balls_fed telemetry byte before re-aiming; tested on a simulated board running the
       real controller.py and main.py. Same run: per-revolution tach (the old one read only 6000 rpm steps) and a
       feedforward+PI wheel loop with a 3%/150 ms gate (tests/wheel_loop_sweep.py: true speed error at release 6.6%
-      to 2.8% over 36 plant cases). Next: log a real wheel's tach on spin-up and rerun the sweep with its lag; weigh the head and measure the hose's torque, the
-      stepper's pull-out and the actuator's real lengths (needs a person); the home switch's bracket; hang a
-      real hose from a tube; the shuttle actuator's bracket; the netting trough that rolls balls to the
-      hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
+      to 2.8% over 36 plant cases). Shuttle drive 2026-11-11 (cad/README.md "Shuttle drive"): servo slider-crank
+      outboard of the motor plate replaces the BOM's linear actuator (9.7 s a ball at 20 mm/s; crank 1.68 s,
+      assumed loads); the firmware gate now holds the stroke and counts a ball only at the wheels, and the
+      simulated board moves a physical shuttle. Next: log a real wheel's tach on spin-up and rerun the sweep with
+      its lag; weigh the head and measure the hose's torque, the stepper's pull-out, the actuator's real lengths,
+      the column's load on the shuttle and the servo's loaded stroke time (needs a person); the home switch's
+      bracket; hang a real hose from a tube; the servo's supply and the cable runs; the netting trough that rolls
+      balls to the hopper inlet; consider a lower, rear-mounted tub if the 2.3 m rim is too high to fill.
   # Added 2026-11-03 on the owner's direction that day: Gregorian chant and
   # Catholic hymns with EDM, metal, deep house and hard rock, "all male choirs",
   # "would be fun to make as a long term project. also being able to publish to

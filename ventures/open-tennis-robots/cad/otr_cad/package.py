@@ -144,6 +144,27 @@ def azimuth_sweep(p: Feeder) -> list[str]:
     return out
 
 
+def feed_stroke_sweep(p: Feeder, thetas=(45.0, 90.0, 135.0, 180.0)) -> list[str]:
+    """Clashes of the shuttle, its rod and its crank along the feed stroke (the drawn pose is crank angle 0), at both
+    ends of the elevation range (2026-11-11)."""
+    out = []
+    for e in (p.elev_min, p.elev_max):
+        for th in thetas:
+            moving, other = F.feed_stroke_solids(p, e, th)
+            ob = [(n, s, s.bounding_box()) for n, s in other]
+            for na, a in moving:
+                ba = a.bounding_box()
+                for nb, b, bb in ob:
+                    if (ba.max.X <= bb.min.X or bb.max.X <= ba.min.X or ba.max.Y <= bb.min.Y or bb.max.Y <= ba.min.Y
+                            or ba.max.Z <= bb.min.Z or bb.max.Z <= ba.min.Z):
+                        continue
+                    v = (a & b).volume
+                    if v > 1.0:
+                        out.append(f"at {e:+.0f} deg, crank {th:.0f} deg: {na} x {nb}: {v:.0f} mm^3")
+            out += [f"at {e:+.0f} deg, crank {th:.0f} deg: {c}" for c in clashes(moving)]
+    return out
+
+
 def ground_contacts(parts: list[C.Part], want=("wheel", "ball_caster", "drum_disc")) -> dict[str, float]:
     """Lowest z of each part that should touch the ground."""
     out = {}
@@ -215,6 +236,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
     if feeder:
         clash += elevation_sweep(p)
         clash += azimuth_sweep(p)
+        clash += feed_stroke_sweep(p)
         turning = max((F.turning_inertia(p, e) for e in (p.elev_min, 0.0, p.elev_max)), key=lambda t: t[0])
         if turning[0] > p.az_inertia_kgm2:
             rules = rules + [f"turning inertia from the CAD is {turning[0]:.4f} kg m^2, above the "
@@ -222,6 +244,7 @@ def _build(out, p, M, robot, fasteners_, cots_extra, readme, drawings, zip_it) -
         rules = rules + [r for r in p.check_azimuth(turning[0]) if r not in rules]
         gravity = F.gravity_table(p)
         rules = rules + p.check_elevation(gravity)
+        rules = rules + p.check_shuttle_drive(F.shuttle_kg(p))
     contacts = ground_contacts(parts, ('wheel', 'levelling_foot') if feeder else ('wheel', 'ball_caster', 'drum_disc'))
     ground_ok = all(abs(z) < 0.05 for z in contacts.values())
 
@@ -344,8 +367,7 @@ ORDER
                tap M5 into the extrusion ends where noted.
 4. bom.csv     Buy the rest. Check bought-in dimensions against params.py.
 
-NOT IN THIS PACKAGE YET: netting and trough, hopper agitator, shuttle actuator
-bracket, cabling. See hardware/feeder-catcher.md. The elevation actuator is
+NOT IN THIS PACKAGE YET: netting and trough, hopper agitator, cabling. See hardware/feeder-catcher.md. The elevation actuator is
 bought to the window in the elevation check below (any make whose retracted and
 extended lengths span it).
 
