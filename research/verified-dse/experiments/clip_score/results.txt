@@ -1,0 +1,162 @@
+# Milestone 115: a mapped score clipped at the clock period, chosen on 26 held-out designs, tested blind on 7 new designs (cached tables plus one flow run)
+
+Chosen alpha: 1.25; SW theta = 3; 200 draws per cell.
+
+## Held-out cells (selection set)
+
+SW 1.66%, SWC in-sample 0.77%, SWC leave-one-family-out 1.66%
+
+alpha grid on the held-out cells (mean SWC regret %, worst cell %):
+  unclipped: 1.66, worst 13.17
+  1: 0.97, worst 8.24
+  1.25: 0.77, worst 7.06
+  1.5: 1.65, worst 12.58
+  2: 1.66, worst 13.17
+  3: 1.66, worst 13.17
+
+## Held-out (selection): 52 cells
+
+table | clock | design | routed/r2 | routed delay/period | clip binds | skip-r1 % | clipped skip-r1 % | random % | SW % | SWC %
+fanout_rich | relaxed | bcastadd64 | 4.68 | 0.982 | 0.38 | 0.00 | 0.00 | 3.04 | 0.00 | 0.00
+fanout_rich | tight | bcastadd64 | 5.62 | 1.000 | 0.00 | 0.36 | 0.36 | 1.03 | 0.36 | 0.36
+fanout_rich | relaxed | fanao96 | 2.87 | 0.549 | 0.92 | 10.67 | 0.00 | 0.65 | 0.65 | 0.65
+fanout_rich | tight | fanao96 | 2.88 | 0.790 | 0.32 | 11.56 | 0.00 | 0.52 | 0.52 | 0.52
+hostile | relaxed | bcastmix192 | 2.05 | 0.113 | 1.00 | 49.85 | 0.00 | 0.00 | 0.00 | 0.00
+hostile | tight | bcastmix192 | 2.06 | 0.170 | 0.40 | 49.85 | 49.85 | 0.00 | 0.00 | 0.00
+hostile | relaxed | cmp128 | 1.53 | 0.934 | 1.00 | 0.00 | 0.00 | 3.03 | 3.03 | 3.03
+hostile | tight | cmp128 | 1.65 | 1.106 | 0.32 | 0.00 | 0.00 | 0.64 | 0.64 | 0.64
+hostile | relaxed | gf2mat48 | 2.69 | 0.995 | 0.90 | 1.14 | 1.14 | 0.10 | 0.10 | 0.10
+hostile | tight | gf2mat48 | 13.01 | 1.178 | 0.00 | 0.00 | 0.00 | 1.40 | 0.00 | 0.00
+hostile | relaxed | rotmix64 | 2.96 | 0.752 | 0.52 | 0.00 | 0.00 | 7.06 | 7.06 | 7.06
+hostile | tight | rotmix64 | 3.21 | 0.988 | 0.00 | 0.00 | 0.00 | 5.55 | 0.00 | 0.00
+hostile | relaxed | xbar16 | 3.16 | 1.000 | 1.00 | 0.00 | 0.00 | 2.87 | 0.00 | 0.00
+hostile | tight | xbar16 | 4.85 | 1.000 | 0.32 | 0.00 | 0.00 | 9.98 | 0.00 | 0.00
+large | relaxed | adder_op64 | 2.19 | 0.981 | 0.48 | 0.00 | 0.00 | 0.69 | 0.69 | 0.69
+large | tight | adder_op64 | 3.04 | 1.096 | 0.00 | 0.00 | 0.00 | 1.17 | 0.00 | 0.00
+large | relaxed | adder_ripple64 | 1.39 | 0.995 | 0.96 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+large | tight | adder_ripple64 | 2.33 | 1.194 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+large | relaxed | mult16 | 3.74 | 0.998 | 0.70 | 0.00 | 0.00 | 3.36 | 0.00 | 0.00
+large | tight | mult16 | 8.94 | 1.070 | 0.00 | 0.74 | 0.74 | 0.86 | 0.74 | 0.74
+large | relaxed | mult24 | 5.87 | 0.999 | 0.62 | 11.35 | 0.00 | 3.30 | 11.35 | 0.00
+large | tight | mult24 | 14.76 | 1.116 | 0.00 | 0.00 | 0.00 | 1.18 | 0.00 | 0.00
+large | relaxed | mult32 | 8.18 | 1.000 | 0.62 | 13.17 | 0.00 | 4.58 | 13.17 | 0.00
+large | tight | mult32 | 19.86 | 1.128 | 0.00 | 0.00 | 0.00 | 2.35 | 0.00 | 0.00
+nonarith | relaxed | alu32 | 1.91 | 0.791 | 0.94 | 0.00 | 12.26 | 1.25 | 1.25 | 1.25
+nonarith | tight | alu32 | 2.43 | 0.996 | 0.50 | 0.00 | 0.00 | 2.28 | 2.28 | 2.28
+nonarith | relaxed | barrel128 | 4.03 | 0.412 | 0.48 | 0.00 | 0.00 | 5.52 | 0.00 | 0.00
+nonarith | tight | barrel128 | 4.01 | 0.628 | 0.00 | 0.00 | 0.00 | 5.48 | 0.00 | 0.00
+nonarith | relaxed | barrel64 | 2.50 | 0.582 | 0.84 | 29.22 | 69.89 | 6.99 | 6.99 | 6.99
+nonarith | tight | barrel64 | 2.51 | 0.855 | 0.00 | 26.26 | 26.26 | 7.00 | 7.00 | 7.00
+nonarith | relaxed | popcount128 | 1.93 | 0.827 | 1.00 | 0.00 | 0.00 | 0.56 | 0.56 | 0.56
+nonarith | tight | popcount128 | 2.77 | 1.000 | 0.00 | 0.00 | 0.00 | 0.84 | 0.84 | 0.84
+nonarith | relaxed | popcount64 | 1.57 | 0.849 | 1.00 | 0.00 | 0.00 | 0.33 | 0.33 | 0.33
+nonarith | tight | popcount64 | 2.22 | 1.000 | 0.04 | 0.00 | 0.00 | 0.57 | 0.57 | 0.57
+unfaithful | relaxed | mult20 | 5.76 | 0.998 | 0.62 | 0.00 | 0.00 | 4.43 | 0.00 | 0.00
+unfaithful | tight | mult20 | 16.72 | 1.121 | 0.00 | 0.00 | 0.00 | 2.74 | 0.00 | 0.00
+unfaithful | relaxed | mult28 | 8.35 | 1.000 | 0.62 | 6.89 | 0.00 | 2.69 | 6.89 | 0.00
+unfaithful | tight | mult28 | 21.02 | 1.123 | 0.00 | 0.00 | 0.00 | 3.48 | 0.00 | 0.00
+unfaithful | relaxed | mult36 | 9.75 | 1.000 | 0.62 | 6.46 | 0.00 | 2.68 | 6.46 | 0.00
+unfaithful | tight | mult36 | 21.69 | 1.154 | 0.00 | 0.00 | 0.00 | 3.83 | 0.00 | 0.00
+unfaithful | relaxed | mult40 | 9.99 | 1.000 | 0.62 | 8.52 | 0.00 | 6.40 | 8.52 | 0.00
+unfaithful | tight | mult40 | 22.02 | 1.145 | 0.00 | 0.00 | 0.00 | 2.33 | 0.00 | 0.00
+unseen | relaxed | crc32 | 1.60 | 0.876 | 1.00 | 0.00 | 1.88 | 0.04 | 0.04 | 0.04
+unseen | tight | crc32 | 2.03 | 0.998 | 0.04 | 0.00 | 0.00 | 0.48 | 0.48 | 0.48
+unseen | relaxed | decmux64 | 1.24 | 0.912 | 1.00 | 0.00 | 12.92 | 0.53 | 0.53 | 0.53
+unseen | tight | decmux64 | 1.32 | 0.967 | 0.10 | 0.00 | 0.00 | 0.50 | 0.50 | 0.50
+unseen | relaxed | prio64 | 1.21 | 0.891 | 1.00 | 0.00 | 0.00 | 0.28 | 0.28 | 0.28
+unseen | tight | prio64 | 1.32 | 1.324 | 0.00 | 0.00 | 0.00 | 0.62 | 0.62 | 0.62
+unseen | relaxed | sbox | 1.68 | 0.790 | 1.00 | 1.59 | 0.00 | 0.37 | 0.37 | 0.37
+unseen | tight | sbox | 1.89 | 0.981 | 0.18 | 0.00 | 0.00 | 1.31 | 1.31 | 1.31
+unseen | relaxed | sort8x8 | 2.11 | 0.839 | 1.00 | 0.00 | 0.00 | 1.43 | 1.43 | 1.43
+unseen | tight | sort8x8 | 2.72 | 0.997 | 0.00 | 0.00 | 0.00 | 0.79 | 0.79 | 0.79
+
+mean regret: SW 1.66%, SWC 0.77%, skip-r1 4.38%, random 2.29%; SWC vs SW better 5, worse 0 (sign p = 0.062)
+
+## Dear-pool cells of milestones 112, 113 (seen in the exploration; not a test): 28 cells
+
+table | clock | design | routed/r2 | routed delay/period | clip binds | skip-r1 % | clipped skip-r1 % | random % | SW % | SWC %
+fresh_dear | relaxed | barrel128 | 5.57 | 0.396 | 0.65 | 0.00 | 19.21 | 4.24 | 0.00 | 19.21
+fresh_dear | tight | barrel128 | 5.56 | 0.593 | 0.00 | 0.00 | 0.00 | 4.07 | 0.00 | 0.00
+fresh_dear | relaxed | bcastadd64 | 5.62 | 0.989 | 0.38 | 0.00 | 0.00 | 5.31 | 0.00 | 0.00
+fresh_dear | tight | bcastadd64 | 8.22 | 1.003 | 0.00 | 0.00 | 0.00 | 3.50 | 0.00 | 0.00
+fresh_dear | relaxed | gf2mat48 | 3.62 | 1.000 | 0.98 | 0.00 | 0.00 | 3.49 | 0.00 | 0.00
+fresh_dear | tight | gf2mat48 | 14.34 | 1.170 | 0.00 | 0.14 | 0.14 | 5.93 | 0.14 | 0.14
+fresh_dear | relaxed | mult16 | 4.75 | 0.998 | 0.68 | 0.17 | 0.00 | 0.71 | 0.17 | 0.00
+fresh_dear | tight | mult16 | 13.54 | 1.064 | 0.00 | 0.00 | 0.00 | 2.41 | 0.00 | 0.00
+fresh_dear | relaxed | mult24 | 7.76 | 0.999 | 0.60 | 6.46 | 0.00 | 3.17 | 6.46 | 0.00
+fresh_dear | tight | mult24 | 19.51 | 1.098 | 0.00 | 0.27 | 0.27 | 2.64 | 0.27 | 0.27
+fresh_dear | relaxed | xbar16 | 7.10 | 0.994 | 1.00 | 2.43 | 0.00 | 1.95 | 2.43 | 0.00
+fresh_dear | tight | xbar16 | 10.75 | 1.000 | 0.22 | 3.18 | 0.64 | 0.46 | 3.18 | 0.64
+fresh_designs | relaxed | adder_op32 | 2.01 | 0.978 | 0.57 | 0.00 | 4.52 | 0.22 | 0.22 | 0.22
+fresh_designs | tight | adder_op32 | 2.75 | 1.084 | 0.00 | 0.00 | 0.00 | 0.46 | 0.46 | 0.46
+fresh_designs | relaxed | barrel32 | 2.26 | 0.780 | 0.83 | 3.37 | 30.25 | 0.00 | 0.00 | 0.00
+fresh_designs | tight | barrel32 | 2.42 | 0.964 | 0.00 | 3.38 | 3.38 | 0.00 | 0.00 | 0.00
+fresh_designs | relaxed | gf2mat64 | 6.57 | 1.000 | 1.00 | 0.00 | 0.00 | 2.29 | 0.00 | 0.00
+fresh_designs | tight | gf2mat64 | 14.43 | 1.052 | 0.02 | 0.00 | 0.00 | 3.46 | 0.00 | 0.00
+fresh_designs | relaxed | mult18 | 5.48 | 0.998 | 0.66 | 10.48 | 0.00 | 1.00 | 10.48 | 0.00
+fresh_designs | tight | mult18 | 15.76 | 1.070 | 0.00 | 0.00 | 0.00 | 5.07 | 0.00 | 0.00
+fresh_designs | relaxed | mult22 | 7.00 | 0.999 | 0.61 | 0.00 | 0.00 | 3.57 | 0.00 | 0.00
+fresh_designs | tight | mult22 | 19.38 | 1.084 | 0.00 | 2.73 | 2.73 | 2.89 | 2.73 | 2.73
+fresh_designs | relaxed | popcount32 | 1.61 | 0.832 | 1.00 | 0.00 | 1.95 | 0.28 | 0.28 | 0.28
+fresh_designs | tight | popcount32 | 1.93 | 0.997 | 0.02 | 3.04 | 3.04 | 0.35 | 0.35 | 0.35
+fresh_designs | relaxed | sq20 | 5.90 | 0.998 | 0.61 | 0.00 | 0.00 | 4.48 | 0.00 | 0.00
+fresh_designs | tight | sq20 | 18.68 | 1.115 | 0.00 | 0.00 | 0.00 | 5.70 | 0.00 | 0.00
+fresh_designs | relaxed | xbar32x4 | 21.06 | 1.042 | 0.75 | 0.00 | 0.00 | 4.01 | 0.00 | 0.00
+fresh_designs | tight | xbar32x4 | 58.94 | 1.242 | 0.00 | 0.00 | 0.00 | 8.40 | 0.00 | 0.00
+
+mean regret: SW 0.97%, SWC 0.87%, skip-r1 1.27%, random 2.86%; SWC vs SW better 5, worse 1 (sign p = 0.219)
+
+## Fresh pool of milestone 108 (seen in the exploration; not a test): 20 cells
+
+table | clock | design | routed/r2 | routed delay/period | clip binds | skip-r1 % | clipped skip-r1 % | random % | SW % | SWC %
+fresh_pool | relaxed | adder_op16 | 1.47 | 0.983 | 0.48 | 0.00 | 0.00 | 0.23 | 0.23 | 0.23
+fresh_pool | tight | adder_op16 | 1.70 | 1.120 | 0.00 | 1.56 | 1.56 | 0.09 | 0.09 | 0.09
+fresh_pool | relaxed | adder_ripple16 | 1.34 | 0.972 | 1.00 | 0.00 | 39.56 | 2.41 | 2.41 | 2.41
+fresh_pool | tight | adder_ripple16 | 1.59 | 1.137 | 0.04 | 0.00 | 0.00 | 4.58 | 4.58 | 4.58
+fresh_pool | relaxed | alu8 | 1.46 | 0.699 | 1.00 | 0.00 | 4.14 | 0.04 | 0.04 | 0.04
+fresh_pool | tight | alu8 | 1.48 | 0.976 | 0.96 | 2.20 | 0.00 | 0.78 | 0.78 | 0.78
+fresh_pool | relaxed | barrel16 | 1.53 | 0.866 | 1.00 | 0.00 | 0.00 | 0.79 | 0.79 | 0.79
+fresh_pool | tight | barrel16 | 1.63 | 0.984 | 0.33 | 0.00 | 0.00 | 1.52 | 1.52 | 1.52
+fresh_pool | relaxed | cmp_sat12 | 1.41 | 0.931 | 0.87 | 0.00 | 12.06 | 1.08 | 1.08 | 1.08
+fresh_pool | tight | cmp_sat12 | 1.65 | 0.994 | 0.10 | 0.00 | 0.00 | 0.57 | 0.57 | 0.57
+fresh_pool | relaxed | crc16 | 1.32 | 0.884 | 0.97 | 6.24 | 1.37 | 0.28 | 0.28 | 0.28
+fresh_pool | tight | crc16 | 1.45 | 1.111 | 0.00 | 2.22 | 2.22 | 0.00 | 0.00 | 0.00
+fresh_pool | relaxed | fifo8x4 | 2.94 | 0.888 | 1.00 | 5.19 | 5.19 | 3.28 | 3.28 | 3.28
+fresh_pool | tight | fifo8x4 | 3.11 | 0.991 | 0.00 | 3.35 | 3.35 | 1.02 | 3.35 | 3.35
+fresh_pool | relaxed | mac4 | 1.40 | 0.944 | 0.98 | 0.00 | 2.47 | 0.61 | 0.61 | 0.61
+fresh_pool | tight | mac4 | 2.04 | 1.152 | 0.00 | 0.00 | 0.00 | 2.24 | 2.24 | 2.24
+fresh_pool | relaxed | mult8 | 1.86 | 0.906 | 1.00 | 0.00 | 3.23 | 0.45 | 0.45 | 0.45
+fresh_pool | tight | mult8 | 3.40 | 1.037 | 0.02 | 0.00 | 0.00 | 1.78 | 0.00 | 0.00
+fresh_pool | relaxed | popcount16 | 1.36 | 0.798 | 1.00 | 0.00 | 12.30 | 1.24 | 1.24 | 1.24
+fresh_pool | tight | popcount16 | 1.46 | 0.995 | 0.03 | 0.00 | 0.00 | 0.67 | 0.67 | 0.67
+
+mean regret: SW 1.21%, SWC 1.21%, skip-r1 1.04%, random 1.18%; SWC vs SW better 0, worse 0 (sign p = 1.000)
+
+## Blind test: seven new designs (milestone 115 flow run): 14 cells
+
+table | clock | design | routed/r2 | routed delay/period | clip binds | skip-r1 % | clipped skip-r1 % | random % | SW % | SWC %
+clip_score | relaxed | gf2mat40 | 2.34 | 0.957 | 1.00 | 3.67 | 0.00 | 1.07 | 1.07 | 1.07
+clip_score | tight | gf2mat40 | 3.64 | 1.013 | 0.11 | 1.60 | 1.60 | 0.90 | 1.60 | 1.60
+clip_score | relaxed | gf2mat56 | 4.58 | 1.000 | 1.00 | 1.42 | 0.00 | 0.30 | 1.42 | 0.00
+clip_score | tight | gf2mat56 | 13.68 | 1.117 | 0.00 | 0.00 | 0.00 | 4.40 | 0.00 | 0.00
+clip_score | relaxed | mult14 | 3.29 | 0.993 | 0.73 | 0.62 | 0.00 | 1.03 | 0.62 | 0.00
+clip_score | tight | mult14 | 11.28 | 1.078 | 0.00 | 3.78 | 3.78 | 3.53 | 3.78 | 3.78
+clip_score | relaxed | mult26 | 8.27 | 1.000 | 0.60 | 9.58 | 0.00 | 1.85 | 9.58 | 0.00
+clip_score | tight | mult26 | 20.73 | 1.094 | 0.00 | 1.57 | 1.57 | 2.58 | 1.57 | 1.57
+clip_score | relaxed | sq16 | 4.07 | 0.997 | 0.67 | 0.00 | 0.00 | 3.53 | 0.00 | 0.00
+clip_score | tight | sq16 | 11.57 | 1.096 | 0.00 | 0.00 | 0.00 | 4.14 | 0.00 | 0.00
+clip_score | relaxed | sq24 | 6.85 | 0.999 | 0.60 | 11.30 | 0.00 | 1.53 | 11.30 | 0.00
+clip_score | tight | sq24 | 18.35 | 1.076 | 0.00 | 0.00 | 0.00 | 3.27 | 0.00 | 0.00
+clip_score | relaxed | xbar32x2 | 5.56 | 0.993 | 0.89 | 3.64 | 0.00 | 3.39 | 3.64 | 0.00
+clip_score | tight | xbar32x2 | 14.70 | 1.105 | 0.00 | 3.59 | 3.59 | 5.53 | 3.59 | 3.59
+
+mean regret: SW 2.73%, SWC 0.83%, skip-r1 2.91%, random 2.65%; SWC vs SW better 5, worse 0 (sign p = 0.062)
+
+design bootstrap 95% interval of mean (SWC - SW) on the blind cells: -3.63 to -0.41 points
+
+(1) chosen alpha is 1.25: True
+(2) blind SWC below SW: True
+(3) blind SWC better than SW in more cells than worse: True (5 better, 0 worse)
+(4) blind tight SWC within 0.1 points of SW: True
+(5) blind relaxed mult/sq routed delay/period in [0.97, 1.03]: True (mult14 0.993, mult26 1.000, sq16 0.997, sq24 0.999)
+(6) blind SWC below equal-cost random: True
