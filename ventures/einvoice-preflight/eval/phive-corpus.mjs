@@ -10,7 +10,12 @@
 //   cd phive-rules && git sparse-checkout set --no-cone 'phive-rules-peppol-pint/src/test/**' \
 //     'phive-rules-cius-ro/src/test/**' 'phive-rules-cius-pt/src/test/**' \
 //     'phive-rules-zatca/src/test/**' 'phive-rules-simplerinvoicing/src/test/**'
-//   node eval/phive-corpus.mjs <phive-rules checkout> [--set pint-aunz/1.1.3] [--files] [--json]
+//   node eval/phive-corpus.mjs <phive-rules checkout> [--set pint-aunz/1.1.3] [--files] [--json] [--good]
+//
+// --good scores only the files each module's CTestFiles.java lists as good cases
+// (getAllMatchingTestFiles / getAllMatchingGoodTestFiles; commented-out entries and
+// SimplerInvoicing's error list are left out). The NLCIUS, CIUS-RO, CIUS-PT and ZATCA
+// folders mix good and deliberately broken files, so only this mode scores them.
 //
 // The run of 2026-11-11 read phive-rules commit 36d1f09. The examples are not copied
 // here (each keeps its publisher's licence).
@@ -34,6 +39,38 @@ export const SETS = {
   "zatca/3.4.6": "phive-rules-zatca/src/test/resources/external/test-files/3.4.6",
 };
 
+// The module that owns each set's examples, for its CTestFiles.java good list.
+export const MODULES = {
+  "pint-aunz/1.1.3": "phive-rules-peppol-pint",
+  "pint-sg/1.4.1": "phive-rules-peppol-pint",
+  "nlcius/SI-UBL-2.0.3.2": "phive-rules-simplerinvoicing",
+  "nlcius-cii/1.0.3": "phive-rules-simplerinvoicing",
+  "cius-ro/1.0.9": "phive-rules-cius-ro",
+  "cius-pt/2.1.1": "phive-rules-cius-pt",
+  "zatca/3.4.6": "phive-rules-zatca",
+};
+
+// The good-case file names in a CTestFiles.java source: every ".xml" string literal
+// outside comments and before an error-file list (SimplerInvoicing's
+// getAllMatchingErrorTestFiles). Paths are as written, relative to the version folder.
+export function goodListFromJava(src) {
+  let text = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  const cut = text.search(/getAllMatchingErrorTestFiles\s*\(\s*@NonNull/);
+  if (cut !== -1) text = text.slice(0, cut);
+  const out = new Set();
+  for (const m of text.matchAll(/"([^"\n]+\.xml)"/g)) out.add(m[1]);
+  return out;
+}
+
+function findJava(dir) {
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) { const hit = findJava(path); if (hit) return hit; }
+    else if (name === "CTestFiles.java") return path;
+  }
+  return null;
+}
+
 function* walk(dir) {
   for (const name of readdirSync(dir).sort()) {
     const path = join(dir, name);
@@ -42,9 +79,12 @@ function* walk(dir) {
   }
 }
 
-export async function runSet(dir) {
+export async function runSet(dir, good = null) {
   const out = { files: 0, clean: 0, unread: 0, rules: {}, perFile: [] };
   for (const path of walk(dir)) {
+    // A module writes its list relative to the version folder (CIUS-RO, ZATCA) or to a
+    // subfolder passed separately (PINT's "billing/"), so a bare file name also matches.
+    if (good && !good.has(path.slice(dir.length + 1)) && !good.has(path.split("/").pop())) continue;
     const source = readFileSync(path, "utf8");
     const { reports, readErrors } = await preflightDocuments([{ name: path.split("/").pop(), source }], { schematron: true, maxBytes: 5_000_000 });
     out.files++;
@@ -65,7 +105,13 @@ for (const [name, rel] of Object.entries(SETS)) {
   if (only && name !== only) continue;
   const dir = join(root, rel);
   if (!existsSync(dir)) { console.log(`${name}: not in this checkout (${rel})`); continue; }
-  const r = await runSet(dir);
+  let good = null;
+  if (flag("--good")) {
+    const java = existsSync(join(root, MODULES[name], "src/test")) ? findJava(join(root, MODULES[name], "src/test")) : null;
+    if (!java) { console.log(`${name}: no CTestFiles.java in ${MODULES[name]}`); continue; }
+    good = goodListFromJava(readFileSync(java, "utf8"));
+  }
+  const r = await runSet(dir, good);
   results[name] = r;
   if (flag("--json")) continue;
   console.log(`\n${name}: ${r.files} files, ${r.clean} with no blocking finding, ${r.unread} unreadable`);
