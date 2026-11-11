@@ -254,10 +254,14 @@ flagships:
       timetables for 6 to 40 teams"): built-in sampled starters (starterOpp, STARTERS,
       eval/starter-search.mjs), search runs from both starts and keeps the better; 20 teams 448 to 360
       (floor, every count 0 or 1), 18 teams 412 to 318, 22 teams 654 to 516; the season search keeps
-      the plain mirror when better (20-team season 1,750/118 to 1,460/116, the floor). Next, most
-      valuable first: a better starter search past 22 teams (hill-climb on the starter; a 10,000-sample
-      scratch run found 22 teams 478, 24 teams 570 vs the table's 516/654), then other constructions
-      (Latin-square based, from the literature) for 12 teams (152 vs 120); a bound for the
+      the plain mirror when better (20-team season 1,750/118 to 1,460/116, the floor). Starters by
+      local search 2026-11-11 (README "Starters by local search", eval/starter-climb.mjs): an O(p)
+      exact cyclic score from one difference sequence, large-neighbourhood moves; 22 teams 516 to 440
+      and 21 teams 475 to 399 (floor, every count 0 or 1; 22-team season 1,782, the floor), 24 teams
+      654 to 570, 30 teams 1,110 to 948, 40 teams 2,112 to 1,816 (still 8-21% above the floor from 24
+      up). Next, most valuable first: close 24-40 (a tabu list, longer runs, seeding from the
+      literature's starters and terraces), then other constructions (Latin-square based) for 12 teams
+      (152 vs 120) and 6-18 where starters stall; a bound for the
       minimum-break pattern, or a 20-team leg at 22-30 breaks from a starter timetable; a real
       league's travel times and unavailable dates; a print check.
   - venture: open-tennis-robots

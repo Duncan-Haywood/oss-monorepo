@@ -93,3 +93,21 @@ test("the O(p) cyclic score (eval/starter-climb.mjs) equals the full carry-over 
     }
   }
 });
+
+test("22 teams (and 21 with a bye): the searched starter reaches the floor, the season too", () => {
+  for (const kind of ["even", "odd"]) {
+    const { step, pairs } = decode(STARTERS[22][kind]);
+    const n = kind === "even" ? 22 : 21;
+    let best = Infinity;
+    for (let start = 0; start < 21; start++) {
+      const c = carryOverFromOpponents(seqs(starterOpp(22, pairs, { step, start }), n));
+      if (c.value < best) best = c.value;
+      if (start === 0) assert.equal(carryOverFromOpponents(seqs(starterOpp(22, pairs, { step }), n), { cyclic: true }).max, 1);
+    }
+    assert.equal(best, n === 22 ? 440 : 399);
+  }
+  const r = lowCarryOverRounds(22, { effort: 0.2 });
+  assert.equal(r.coe, r.lowerBound);
+  const s = lowCarryOverDoubleRounds(22, { effort: 0.2 });
+  assert.equal(s.coe, s.lowerBound);
+});

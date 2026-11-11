@@ -1,0 +1,47 @@
+{"N":6,"teams":6,"value":42,"before":42,"floor":24,"max":3,"cyclic":60,"cyclicFloor":30,"restarts":33226,"moves":19935017,"seconds":40}
+{"N":6,"teams":5,"value":33,"before":33,"floor":15,"max":3,"cyclic":50,"cyclicFloor":20,"restarts":33608,"moves":20164775,"seconds":40}
+{"N":10,"teams":10,"value":94,"before":94,"floor":80,"max":2,"cyclic":108,"cyclicFloor":90,"restarts":8318,"moves":6338277,"seconds":40}
+{"N":10,"teams":9,"value":89,"before":89,"floor":63,"max":2,"cyclic":108,"cyclicFloor":72,"restarts":7811,"moves":5951744,"seconds":40}
+{"N":12,"teams":12,"value":156,"before":156,"floor":120,"max":2,"cyclic":176,"cyclicFloor":132,"restarts":2250,"moves":1893122,"seconds":40}
+{"N":12,"teams":11,"value":135,"before":135,"floor":99,"max":2,"cyclic":154,"cyclicFloor":110,"restarts":2358,"moves":1985384,"seconds":40}
+{"N":14,"teams":14,"value":212,"before":212,"floor":168,"max":2,"cyclic":234,"cyclicFloor":182,"restarts":3337,"moves":3093544,"seconds":40}
+{"N":14,"teams":13,"value":187,"before":187,"floor":143,"max":2,"cyclic":208,"cyclicFloor":156,"restarts":3206,"moves":2977604,"seconds":40}
+{"N":18,"teams":18,"value":318,"before":318,"floor":288,"max":2,"cyclic":340,"cyclicFloor":306,"restarts":3880,"moves":5160515,"seconds":40}
+{"N":18,"teams":17,"value":313,"before":313,"floor":255,"max":2,"cyclic":340,"cyclicFloor":272,"restarts":4067,"moves":5025146,"seconds":40}
+{"N":20,"teams":20,"value":360,"before":360,"floor":360,"max":1,"cyclic":380,"cyclicFloor":380,"restarts":59,"moves":83161,"seconds":0.7}
+{"N":20,"teams":19,"value":323,"before":323,"floor":323,"max":1,"cyclic":342,"cyclicFloor":342,"restarts":37,"moves":55341,"seconds":0.4}
+{"N":22,"teams":22,"value":440,"before":516,"floor":440,"max":1,"cyclic":462,"cyclicFloor":462,"restarts":726,"moves":1163925,"seconds":5.8}
+{"N":22,"teams":21,"value":399,"before":475,"floor":399,"max":1,"cyclic":420,"cyclicFloor":420,"restarts":265,"moves":428896,"seconds":1.9}
+{"N":24,"teams":24,"value":570,"before":654,"floor":528,"max":2,"cyclic":598,"cyclicFloor":552,"restarts":5219,"moves":9126114,"seconds":40}
+{"N":24,"teams":23,"value":565,"before":609,"floor":483,"max":2,"cyclic":598,"cyclicFloor":506,"restarts":5128,"moves":9029266,"seconds":40}
+{"N":26,"teams":26,"value":716,"before":762,"floor":624,"max":2,"cyclic":750,"cyclicFloor":650,"restarts":4917,"moves":9258938,"seconds":40}
+{"N":26,"teams":25,"value":665,"before":757,"floor":575,"max":2,"cyclic":700,"cyclicFloor":600,"restarts":4923,"moves":9354133,"seconds":40}
+{"N":28,"teams":28,"value":828,"before":878,"floor":728,"max":2,"cyclic":864,"cyclicFloor":756,"restarts":4830,"moves":9906965,"seconds":40}
+{"N":28,"teams":27,"value":823,"before":875,"floor":675,"max":2,"cyclic":864,"cyclicFloor":702,"restarts":4939,"moves":10174994,"seconds":40}
+{"N":30,"teams":30,"value":948,"before":1110,"floor":840,"max":2,"cyclic":986,"cyclicFloor":870,"restarts":4560,"moves":10050027,"seconds":40}
+{"N":30,"teams":29,"value":891,"before":1053,"floor":783,"max":2,"cyclic":928,"cyclicFloor":812,"restarts":4880,"moves":10718888,"seconds":40}
+{"N":34,"teams":34,"value":1274,"before":1460,"floor":1088,"max":2,"cyclic":1320,"cyclicFloor":1122,"restarts":2853,"moves":7150319,"seconds":40}
+{"N":34,"teams":33,"value":1269,"before":1455,"floor":1023,"max":2,"cyclic":1320,"cyclicFloor":1056,"restarts":3139,"moves":7926847,"seconds":40}
+{"N":36,"teams":36,"value":1422,"before":1620,"floor":1224,"max":2,"cyclic":1470,"cyclicFloor":1260,"restarts":2755,"moves":7401109,"seconds":40}
+{"N":36,"teams":35,"value":1419,"before":1551,"floor":1155,"max":2,"cyclic":1470,"cyclicFloor":1190,"restarts":2831,"moves":7636974,"seconds":40}
+{"N":38,"teams":38,"value":1648,"before":1928,"floor":1368,"max":2,"cyclic":1702,"cyclicFloor":1406,"restarts":2550,"moves":7295278,"seconds":40}
+{"N":38,"teams":37,"value":1575,"before":1855,"floor":1295,"max":2,"cyclic":1628,"cyclicFloor":1332,"restarts":2505,"moves":7140138,"seconds":40}
+{"N":40,"teams":40,"value":1816,"before":2112,"floor":1520,"max":2,"cyclic":1872,"cyclicFloor":1560,"restarts":2219,"moves":6786090,"seconds":40}
+{"N":40,"teams":39,"value":1813,"before":2035,"floor":1443,"max":2,"cyclic":1872,"cyclicFloor":1482,"restarts":2235,"moves":6759439,"seconds":40}
+export const STARTERS = {
+  6: { even: [1, 1, 4, 2, 3], odd: [1, 1, 4, 2, 3] },
+  10: { even: [4, 1, 4, 2, 6, 3, 5, 7, 8], odd: [4, 1, 4, 2, 6, 3, 5, 7, 8] },
+  12: { even: [2, 1, 4, 2, 8, 3, 10, 5, 6, 7, 9], odd: [2, 1, 4, 2, 8, 3, 10, 5, 6, 7, 9] },
+  14: { even: [2, 1, 2, 3, 6, 4, 11, 5, 9, 7, 12, 8, 10], odd: [2, 1, 5, 2, 9, 3, 8, 4, 6, 7, 10, 11, 12] },
+  18: { even: [5, 1, 8, 2, 13, 3, 11, 4, 16, 5, 7, 6, 10, 9, 12, 14, 15], odd: [5, 1, 8, 2, 13, 3, 11, 4, 16, 5, 7, 6, 10, 9, 12, 14, 15] },
+  20: { even: [9, 1, 6, 2, 11, 3, 7, 4, 16, 5, 18, 8, 10, 9, 17, 12, 15, 13, 14], odd: [9, 1, 6, 2, 11, 3, 7, 4, 16, 5, 18, 8, 10, 9, 17, 12, 15, 13, 14] },
+  22: { even: [1, 1, 9, 2, 5, 3, 19, 4, 10, 6, 17, 7, 14, 8, 20, 11, 15, 12, 13, 16, 18], odd: [1, 1, 9, 2, 5, 3, 19, 4, 10, 6, 17, 7, 14, 8, 20, 11, 15, 12, 13, 16, 18] },
+  24: { even: [1, 1, 3, 2, 19, 4, 18, 5, 8, 6, 11, 7, 17, 9, 13, 10, 22, 12, 20, 14, 21, 15, 16], odd: [1, 1, 13, 2, 9, 3, 11, 4, 21, 5, 19, 6, 16, 7, 8, 10, 14, 12, 17, 15, 18, 20, 22] },
+  26: { even: [1, 1, 18, 2, 22, 3, 7, 4, 16, 5, 8, 6, 15, 9, 20, 10, 17, 11, 12, 13, 19, 14, 24, 21, 23], odd: [1, 1, 12, 2, 4, 3, 16, 5, 8, 6, 23, 7, 17, 9, 10, 11, 18, 13, 22, 14, 19, 15, 21, 20, 24] },
+  28: { even: [1, 1, 17, 2, 12, 3, 4, 5, 24, 6, 18, 7, 14, 8, 26, 9, 13, 10, 16, 11, 25, 15, 20, 19, 22, 21, 23], odd: [1, 1, 19, 2, 24, 3, 20, 4, 17, 5, 26, 6, 14, 7, 18, 8, 10, 9, 21, 11, 15, 12, 13, 16, 23, 22, 25] },
+  30: { even: [1, 1, 3, 2, 5, 4, 19, 6, 26, 7, 11, 8, 25, 9, 15, 10, 21, 12, 17, 13, 20, 14, 27, 16, 24, 18, 28, 22, 23], odd: [1, 1, 20, 2, 24, 3, 6, 4, 18, 5, 23, 7, 9, 8, 17, 10, 27, 11, 15, 12, 28, 13, 21, 14, 19, 16, 22, 25, 26] },
+  34: { even: [1, 1, 2, 3, 15, 4, 17, 5, 31, 6, 11, 7, 18, 8, 16, 9, 13, 10, 28, 12, 26, 14, 30, 19, 25, 20, 29, 21, 23, 22, 32, 24, 27], odd: [1, 1, 9, 2, 23, 3, 12, 4, 21, 5, 6, 7, 10, 8, 31, 11, 29, 13, 26, 14, 19, 15, 22, 16, 20, 17, 28, 18, 32, 24, 30, 25, 27] },
+  36: { even: [1, 1, 23, 2, 4, 3, 6, 5, 14, 7, 12, 8, 32, 9, 25, 10, 28, 11, 19, 13, 34, 15, 22, 16, 20, 17, 29, 18, 33, 21, 31, 24, 30, 26, 27], odd: [1, 1, 28, 2, 18, 3, 34, 4, 6, 5, 14, 7, 8, 9, 21, 10, 16, 11, 25, 12, 23, 13, 30, 15, 22, 17, 32, 19, 29, 20, 33, 24, 27, 26, 31] },
+  38: { even: [1, 1, 11, 2, 6, 3, 22, 4, 10, 5, 20, 7, 24, 8, 29, 9, 33, 12, 19, 13, 15, 14, 26, 16, 27, 17, 31, 18, 21, 23, 32, 25, 30, 28, 36, 34, 35], odd: [1, 1, 9, 2, 36, 3, 22, 4, 25, 5, 15, 6, 7, 8, 21, 10, 19, 11, 23, 12, 14, 13, 28, 16, 27, 17, 34, 18, 32, 20, 26, 24, 31, 29, 33, 30, 35] },
+  40: { even: [1, 1, 8, 2, 24, 3, 18, 4, 27, 5, 13, 6, 19, 7, 16, 9, 28, 10, 20, 11, 22, 12, 15, 14, 35, 17, 29, 21, 25, 23, 37, 26, 32, 30, 31, 33, 38, 34, 36], odd: [1, 1, 23, 2, 32, 3, 7, 4, 17, 5, 37, 6, 26, 8, 29, 9, 14, 10, 18, 11, 12, 13, 19, 15, 30, 16, 28, 20, 31, 21, 35, 22, 38, 24, 34, 25, 27, 33, 36] },
+};

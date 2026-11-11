@@ -633,10 +633,62 @@ second start, a **starter** timetable, and the search keeps whichever start does
   starter {i, -i}; bad starters and steps refused; 20 and 19 teams at the floor; never worse than the
   circle start alone at 11, 12, 13, 18 and 22 teams, both weights, and on 12- and 20-team seasons);
   `carryover.test.mjs` reads the guide's new figures from the code.
-- Open: the sample is thin past 30 teams (122 to 289 starters in 20 s; a 10,000-starter scratch run
-  found 22 teams 478 and 24 teams 570 against the table's 516 and 654), so a longer or smarter
-  starter search (hill-climbing on the starter, or the literature's constructions) should lower 22 to
-  40; 12 teams is still 152 against 120.
+- Open: the sample was thin past 30 teams; replaced from 22 teams up by the local search below.
+  12 teams is still 152 against 120.
+
+## Starters by local search: 22 teams at the floor (2026-11-11, latest)
+
+The sampled starter table scored each starter with the full O(N^2) count at every step and start, so
+past 30 teams it saw 122 to 289 starters in 20 s. `eval/starter-climb.mjs` replaces it from 22 teams up.
+
+- **The count collapses to one sequence.** Take step 1 (step k with starter S is the same timetable
+  as step 1 with S / k, up to relabelling the teams). With f(u) the partner of u and f(0) the fixed
+  team, team t meets r + f(t - r) in round r, so over a cyclic timetable the count between two
+  ordinary teams depends only on their difference d:
+  D(d) = #{u not 0, 1 : f(u - 1) + 1 - f(u) = d (mod p)} + [d = 1] (the fixed team; with it as the
+  bye, that term is the jump over the bye round, [f(-1) + 2 - f(1) = d]). The cyclic carry-over is
+  p x sum D(d)^2 + 2p (all N play) or p x sum D(d)^2 (bye), and the floor is D(d) = 1 for every d.
+  An O(p) score. The script checks it against `carryOverFromOpponents` on every result;
+  `starter.test.mjs` checks it on every built-in starter at its stored step.
+- **Search.** Random starters, then large-neighbourhood moves: free 2 to 5 pairs, try every re-pairing
+  of their residues that uses each freed difference class once (backtracking, up to 2,000), keep the
+  best when no worse, restart after a stall of 400 + 40p moves. The best cyclic candidates (up to 40)
+  are then scored exactly, non-cyclic, at every start. 40 s per size and parity, 2 to 10 million
+  moves past 22 teams (`eval/starter-climb.txt`).
+- **Starter alone, one round robin, best start** (before = the sampled table):
+
+  | Teams | 21 (bye) | 22 | 24 | 26 | 28 | 30 | 34 | 36 | 38 | 40 |
+  |---|---|---|---|---|---|---|---|---|---|---|
+  | Before | 475 | 516 | 654 | 762 | 878 | 1,110 | 1,460 | 1,620 | 1,928 | 2,112 |
+  | Now | **399** | **440** | 570 | 716 | 828 | 948 | 1,274 | 1,422 | 1,648 | 1,816 |
+  | Floor | 399 | 440 | 528 | 624 | 728 | 840 | 1,088 | 1,224 | 1,368 | 1,520 |
+
+  22 teams and 21 have every count 0 or 1, cyclic too (462 = 22 x 21). Not checked against published
+  constructions; the tests count it. Below 22 nothing moved in 40 s (6, 10, 12, 14, 18 teams kept the
+  sampled values), so their floors probably need something other than a starter.
+- **End to end** (`node eval/field-start.mjs 21 22 23 24 25 26 28 30`, seed 1, effort 1, the search
+  from both starts, the better kept; `eval/starter-climb-start.txt`; carry-over / breaks, before -> now):
+
+  | Teams | Single, carry-over only | Season, carry-over only | Season, weight 10 | Floors |
+  |---|---|---|---|---|
+  | 21 | 475/90 -> 399/104 (floor) | 1,867/305 -> 1,617/216 (floor) | 1,919/162 -> 1,891/171 | 399, 1,617 |
+  | 22 | 516/68 -> 440/66 (floor) | 1,862/154 -> 1,782/148 (floor) | 1,920/150 -> 1,782/144 (floor) | 440, 1,782 |
+  | 23 | 609/125 -> 565/127 | 2,271/317 -> 2,207/338 | 2,407/213 -> 2,381/211 | 483, 1,955 |
+  | 24 | 654/76 -> 570/66 | 2,482/248 -> 2,222/218 | 2,488/172 -> 2,224/154 | 528, 2,136 |
+  | 25 | 749/160 -> 665/164 | 2,773/438 -> 2,631/351 | 2,791/285 -> 2,813/272 | 575, 2,325 |
+  | 26 | 762/98 -> 716/100 | 2,780/310 -> 2,708/256 | 3,098/208 -> 2,714/218 | 624, 2,522 |
+  | 28 | 878/114 -> 828/126 | 3,252/254 -> 3,148/270 | 3,252/254 -> 3,148/270 | 728, 2,940 |
+  | 30 | 1,042/132 -> 948/136 | 3,684/424 -> 3,614/288 | 3,726/278 -> 3,624/288 | 840, 3,390 |
+
+  Every row's score (carry-over + weight x breaks) is lower or equal; at 25 teams, weight 10, the
+  carry-over rises by 22 and breaks fall by 13. At 30 teams the starter start now beats the circle
+  start (it lost before). The single, weight-10 column matches the carry-over-only one at every size
+  here: the starter's breaks already win.
+- Tests: `starter.test.mjs` adds the O(p) score against the full count on every built-in starter, and
+  22 and 21 teams at the floor (starter, single search and home-and-away season).
+- Open: 24 to 40 teams are 8 to 21% above the floor; a longer run, a tabu list, or seeding from the
+  literature's constructions (Anderson's starters, the even-size terraces) might close more. Whether a
+  starter can reach the floor at 24 is not known to me; the search's best is sum D^2 = 24 against 22.
 
 ## Several divisions on shared courts (`divisions.mjs`)
 

@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVM8Bieojy7AaVdJEFF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T16:27:16Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship league-schedule-generator: better starter search past 22 teams",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": 14821,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-a-carry-over-score-in-one-pass.md"
+  ],
+  "goal": "Lower carry-over of the built-in starter timetables from 22 to 40 teams (flagship next item 1).",
+  "notes": "Found that a starter's cyclic carry-over reduces to an O(p) count over one difference sequence (verified against the full count on every result and every built-in starter). Large-neighbourhood search (eval/starter-climb.mjs, 40 s per size): 22 teams 516->440 and 21 teams 475->399 (floor, every count 0 or 1), 24 654->570, 30 1110->948, 40 2112->1816; 6-18 teams unchanged. End to end (eval/field-start.mjs 21-30, before via git stash on the same machine): every row's score lower or equal; 22-team season 1,782 (floor). Checks run here: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (280.5s), node platform/pages/venture-preflight.mjs league-schedule-generator -> preflight clean, check_post_frontmatter on the new post -> ok, check_post_links -> 0 broken.",
+  "corrections": [],
+  "redteam": null
+}
