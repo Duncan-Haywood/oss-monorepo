@@ -222,6 +222,11 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
   ${ld.map((x) => `<script type="application/ld+json">${JSON.stringify(x).replace(/</g, '\\u003c')}</script>`).join('\n  ')}
   <style>${chrome.style}
   .ask-app{margin:18px 0 28px}
+  /* The panel mounts after load at min-height 460px (client.js, .pa-inline).
+     Reserving it stops the article below jumping down: Lighthouse measured
+     CLS 0.219 on /ask/ at 390 px before this (2026-11-11). Only when scripts
+     run, so the no-JavaScript page keeps no empty box. */
+  @media (scripting:enabled){.ask-app{min-height:460px}}
   table{border-collapse:collapse;width:100%;font-size:15px}
   th,td{border:1px solid var(--pfs-line);padding:7px 9px;text-align:left;vertical-align:top}
   .tablewrap{overflow-x:auto}
