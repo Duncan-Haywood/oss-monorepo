@@ -87,3 +87,37 @@ test("2024 (a leap year): the worksheet divides 2024's periods by 366 and rounds
   const w = penaltyWorksheet(2024, [D(1000), 0, 0, 0], []);
   assert.deepEqual(w.columns[0].lines.map((l) => l.cents), [76, 92, 92].map((n) => Math.round((D(1000) * n * 0.08) / 366)).concat(Math.round((D(1000) * 105 * 0.07) / 365)));
 });
+
+test("January 31 rule: tax paid with a return filed by January 31 goes in column (d) and the January 15 installment owes nothing", () => {
+  // Instructions for Form 2210 (2025), "Line 11": "If you file your return and pay the tax due by
+  // January 31, 2026, include on line 11, column (d) ... you won't owe a penalty for the payment
+  // due on January 15, 2026."
+  const req = [0, 0, 0, D(4000)];
+  const at7 = (cents, n) => Math.round((cents * n * 0.07) / 365);
+  const onTime = form2210Penalty(2025, req, { payments: [{ date: "2026-01-30", cents: D(4000), withReturn: true }] });
+  assert.equal(onTime.credits[3], D(4000));
+  assert.equal(onTime.penalty, 0);
+  // January 31, 2026 is a Saturday, so IRC 7503 makes Monday, February 2 the last day: still on time.
+  const monday = form2210Penalty(2025, req, { payments: [{ date: "2026-02-02", cents: D(4000), withReturn: true }] });
+  assert.equal(monday.credits[3], D(4000));
+  assert.equal(monday.penalty, 0);
+  // Filed February 3: an ordinary payment dated the filing day (Table 1), 19 days late.
+  const late = form2210Penalty(2025, req, { payments: [{ date: "2026-02-03", cents: D(4000), withReturn: true }] });
+  assert.equal(late.credits[3], 0);
+  assert.equal(late.penalty, at7(D(4000), 19));
+  // Tax year 2024: January 31, 2025 was a Friday, so a return paid Saturday, February 1 is late.
+  const sat = form2210Penalty(2024, req, { payments: [{ date: "2025-02-01", cents: D(4000), withReturn: true }] });
+  assert.equal(sat.credits[3], 0);
+  assert.ok(sat.penalty > 0);
+  // The same January 30 payment not marked as paid with the return is an ordinary late payment.
+  assert.equal(form2210Penalty(2025, req, { payments: [{ date: "2026-01-30", cents: D(4000) }] }).penalty, at7(D(4000), 15));
+  // By January 31 it first pays earlier columns' shortfalls (line 1b), and never column (d) twice.
+  const mixed = form2210Penalty(2025, [D(1000), 0, 0, D(1000)], { payments: [{ date: "2026-01-31", cents: D(2000), withReturn: true }] });
+  assert.deepEqual(mixed.sectionA.map((c) => c.l17), [D(1000), 0, 0, 0]);
+  assert.deepEqual(mixed.worksheet[0].paidBy, [{ date: "2026-01-31", cents: D(1000) }]);
+  assert.deepEqual(mixed.worksheet[3].paidBy, []);
+});
+
+test("a missing quarter's rate prints as a plain percentage", () => {
+  assert.match(ratePeriods(2026).warnings[0], /; 7% \(the last one on file/);
+});
