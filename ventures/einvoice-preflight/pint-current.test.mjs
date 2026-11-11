@@ -21,18 +21,18 @@ const rules = (r) => r.findings.map((f) => f.rule).sort();
 const withText = (xml, element, text) => xml.replace(new RegExp(`<cbc:${element}>[^<]*`), `<cbc:${element}>${text}`);
 
 test("the current PINT ids pick the current rule sets; the older ids keep theirs", () => {
-  assert.equal(matchingProfile(read("pint1-sg-invoice.xml"), "ubl")[0], "pint-sg-1");
-  assert.equal(matchingProfile(read("pint1-aunz-invoice.xml"), "ubl")[0], "pint-aunz-1");
-  assert.equal(matchingProfile(withText(read("pint1-aunz-invoice.xml"), "CustomizationID", "urn:peppol:pint:selfbilling-1@aunz-1"), "ubl")[0], "pint-aunz-sb-1");
+  assert.equal(matchingProfile(read("pint-current-sg-invoice.xml"), "ubl")[0], "pint-sg-1");
+  assert.equal(matchingProfile(read("pint-current-aunz-invoice.xml"), "ubl")[0], "pint-aunz-1");
+  assert.equal(matchingProfile(withText(read("pint-current-aunz-invoice.xml"), "CustomizationID", "urn:peppol:pint:selfbilling-1@aunz-1"), "ubl")[0], "pint-aunz-sb-1");
   assert.equal(matchingProfile(read("pint-sg-invoice.xml"), "ubl")[0], "pint-sg");
   assert.equal(matchingProfile(read("pint-aunz-invoice.xml"), "ubl")[0], "pint-aunz");
-  assert.equal(matchingProfile(read("pint1-sg-invoice.xml"), "cii"), null);
+  assert.equal(matchingProfile(read("pint-current-sg-invoice.xml"), "cii"), null);
   // Japan, Malaysia and the other PINT jurisdictions are not loaded: no profile, EU base.
-  assert.equal(matchingProfile(withText(read("pint1-sg-invoice.xml"), "CustomizationID", "urn:peppol:pint:billing-1@jp-1"), "ubl"), null);
+  assert.equal(matchingProfile(withText(read("pint-current-sg-invoice.xml"), "CustomizationID", "urn:peppol:pint:billing-1@jp-1"), "ubl"), null);
 });
 
 test("clean current-release SG and A-NZ invoices pass with no rule skipped", { skip }, async () => {
-  for (const [file, set] of [["pint1-sg-invoice.xml", "pint-sg-1"], ["pint1-aunz-invoice.xml", "pint-aunz-1"]]) {
+  for (const [file, set] of [["pint-current-sg-invoice.xml", "pint-sg-1"], ["pint-current-aunz-invoice.xml", "pint-aunz-1"]]) {
     const r = await runPlain(read(file));
     assert.equal(r.status, "ok", file);
     assert.deepEqual(r.sets, [set], file);
@@ -42,15 +42,15 @@ test("clean current-release SG and A-NZ invoices pass with no rule skipped", { s
 });
 
 test("the current rules still fire: the old BT-23 draws the SG and A-NZ process rule", { skip }, async () => {
-  const sg = await runPlain(withText(read("pint1-sg-invoice.xml"), "ProfileID", "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0"));
+  const sg = await runPlain(withText(read("pint-current-sg-invoice.xml"), "ProfileID", "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0"));
   assert.ok(rules(sg).includes("PEPPOL-EN16931-R007-SG"), rules(sg).join(" "));
-  const au = await runPlain(withText(read("pint1-aunz-invoice.xml"), "ProfileID", "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0"));
+  const au = await runPlain(withText(read("pint-current-aunz-invoice.xml"), "ProfileID", "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0"));
   assert.ok(rules(au).includes("aligned-ibrp-002"), rules(au).join(" "));
 });
 
 // A price discount whose difference is inexact in doubles (70.10 - 20.10 is
 // 49.99999999999999), on a line of 10 x 50.00.
-const discounted = (gross, discount) => read("pint1-aunz-invoice.xml").replace(
+const discounted = (gross, discount) => read("pint-current-aunz-invoice.xml").replace(
   '<cac:Price><cbc:PriceAmount currencyID="AUD">50.00</cbc:PriceAmount></cac:Price>',
   `<cac:Price><cbc:PriceAmount currencyID="AUD">50.00</cbc:PriceAmount><cac:AllowanceCharge><cbc:ChargeIndicator>false</cbc:ChargeIndicator><cbc:Amount currencyID="AUD">${discount}</cbc:Amount><cbc:BaseAmount currencyID="AUD">${gross}</cbc:BaseAmount></cac:AllowanceCharge></cac:Price>`,
 );
@@ -76,7 +76,7 @@ test("slackTest loosens equalities inside top-level or/and chains only", () => {
 
 test("under PINT the EU conventions for BIC, payment means and exemption reasons step aside", { skip }, async () => {
   // An Australian BSB in the branch id, Singapore's GIRO code, a 0% line with no reason.
-  const au = read("pint1-aunz-invoice.xml").replace(
+  const au = read("pint-current-aunz-invoice.xml").replace(
     "<cac:PayeeFinancialAccount><cbc:ID>0011234567</cbc:ID></cac:PayeeFinancialAccount>",
     "<cac:PayeeFinancialAccount><cbc:ID>0011234567</cbc:ID><cac:FinancialInstitutionBranch><cbc:ID>062-000</cbc:ID></cac:FinancialInstitutionBranch></cac:PayeeFinancialAccount>",
   );

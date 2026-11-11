@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKibhud2jY153dPe5Hd",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T01:45:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship einvoice-preflight: run the full preflight over OpenPeppol's published PINT SG 1.4.1 and A-NZ 1.1.3 examples and fix what they exposed",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14658",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "Maven Central answered 429 once to the phive-rules-peppol-pint download; a rerun went through.",
+    "First corpus run had schematron 'unavailable' because slimdom/fontoxpath were not installed (npm i --no-save fixed it); the numbers before that were built-in checks only and were discarded.",
+    "Three of the new tests first failed because String.replace hit the profile id in the example's header comment before the element; fixed with an element-targeted replace."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper (top Deepen row) next step is 'one-off local merchants via the AI layer', which needs a model; huggingface.co, registry.ollama.ai, hf-mirror and modelscope are all refused by this container's proxy, so the top row is not doable from a cloud session. Cost ~10 tool calls to find out."
+    },
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "The PINT paragraph still says the Saxon route and server API run the EU base on a PINT file; report.mjs fixed that on 2026-11-10 (README line under 'Server API runs PINT and ZATCA rules'). Two statements disagree in one file. Fixed in this PR."
+    },
+    {
+      "file": "ventures/einvoice-preflight/plain-node.mjs",
+      "issue": "Without slimdom/fontoxpath installed the official rules silently report 'unavailable' and an eval still prints numbers; the eval scripts don't warn."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Default is the top Deepen row (ai-bookkeeper); its next item needs a model and every model host is blocked here.",
+      "did": "Took flagship 5 (einvoice-preflight) and its open item 'PINT SG and A-NZ rules on a real PINT file', using OpenPeppol's published examples as the closest public stand-in.",
+      "result": "Found that every current-release PINT file fell to the EU base; 0/40 -> 39/40 pass."
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "venture-preflight.mjs (site-wide checks) not run: the change adds no page and changes no HTML; the venture's own suite and run_workflow_locally --for-changes cover the diff.",
+      "did": "Ran run_venture_tests.py einvoice-preflight (pass, twice), python unittest (359 pass) and run_workflow_locally --for-changes.",
+      "result": "see notes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-pint-examples-zero-of-forty.md",
+    "ventures/einvoice-preflight/README.md (Current PINT releases, measured on OpenPeppol's own examples)"
+  ],
+  "goal": "Make the checker right for current Peppol PINT invoices in Singapore and Australia/New Zealand",
+  "notes": "Corpus: phax/phive-rules commit 36d1f09, good-case PINT files per CTestFiles.java. Before: pint-aunz/1.1.3 0/24 clean, pint-sg/1.4.1 0/16 (EU base ran). After: 24/24 and 15/16; the last is a real fault in OpenPeppol's SG example 07 (SR 7% charge of 2300 SGD with no SR breakdown and GST 0.00). NLCIUS/RO/PT/ZATCA folders were run but mix good and error files; not scored. Verification: run_venture_tests.py einvoice-preflight ok (18.6s) twice; PYTHONPATH=src python3 -m unittest discover -s tests: 359 OK; node --test pint-current.test.mjs 8/8.",
+  "corrections": [],
+  "redteam": null
+}
