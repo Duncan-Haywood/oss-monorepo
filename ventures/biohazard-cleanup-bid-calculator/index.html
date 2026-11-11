@@ -81,7 +81,16 @@
       a { text-decoration: none; color: inherit; }
       @page { margin: 16mm; }
     }
-/* proposal:end */</style></head>
+/* proposal:end */
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row and everything else stacks on the left, so the
+       sticky card has room to travel and never slides over the FAQ or the
+       proposal (docs/reports/polish-2026-11-11-result-column.md). */
+    @media (min-width: 721px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 2; }
+    }
+</style></head>
 <body>
 <header><p>FOR BIOHAZARD / TRAUMA-SCENE REMEDIATION TECHNICIANS</p><h1>"Day rate plus a hazmat fee" isn't a quote. It's a guess.</h1><p class="lede">Two costs quietly move a biohazard cleanup job past a flat day-rate-plus-hazmat-fee guess: PPE that has to be replaced every time a technician re-enters the scene, and regulated-waste disposal that your hauler bills per container, not per pound. This free calculator prices one job from crew labor, PPE decon cycles, container-rounded disposal, supplies, equipment, and travel, applies your target margin with a minimum-job floor, and lets you check a price you're already quoting against the real direct cost.</p><p class="note"><a href="./vs-a-flat-rate-per-pound-quote.html">Already pricing off a flat day rate and a per-pound hazmat estimate? Here's what it misses.</a> Wondering why a small scene still costs so much? Read <a href="./how-much-does-biohazard-cleanup-cost.html">how much does biohazard cleanup cost</a>.</p></header>
 
