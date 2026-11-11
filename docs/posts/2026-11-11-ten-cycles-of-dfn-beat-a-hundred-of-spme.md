@@ -1,8 +1,8 @@
 ---
 title: "Ten cycles of the full battery model rank cell designs better than a hundred cycles of the fast one"
-seo_title: "SPMe vs DFN for battery electrode design: cut cycles, not model fidelity"
+seo_title: "SPMe vs DFN for battery electrode design: cut cycles, not fidelity"
 date: 2026-11-11
-description: "On 128 lithium-ion electrode designs in PyBaMM, a 10-cycle DFN run ranks designs by 100-cycle energy with Spearman 0.96, against 0.64 for a 100-cycle SPMe run at the same cost. The plain SPM beat SPMe too."
+description: "On 128 Li-ion electrode designs, 10 cycles of DFN rank them by 100-cycle energy at Spearman 0.96; 100 cycles of SPMe, same cost, reach 0.64."
 tags: [research, batteries, pybamm, cell-fidelity, multi-fidelity]
 ---
 

@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtL9SKM8KM5ZUConSrw",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T14:06:39Z",
+  "ended": "2026-11-11T14:44:50Z",
+  "wall_minutes": 38.48,
+  "tokens_in": 5166853,
+  "tokens_out": 32765,
+  "cost_usd": 2.583,
+  "tool_calls": 52,
+  "task": "research programme cell-fidelity, milestone 2 (cycle count as a fidelity axis)",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14801",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Printed no CLAIM CHECK block for cell-fidelity although prompts/research/prompt-0.md says it prints one; I checked open PRs by hand (none for cell-fidelity)."
+    },
+    {
+      "file": "prompts/ideas.py / CLAUDE.md",
+      "issue": "`gh api -X GET search/issues` returned nothing parseable from this session (empty output), so the open-PR duplicate check went through mcp list_pull_requests instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/PROPOSAL.md",
+      "why": "Milestone 2 asked for 'a few hundred' Sobol designs; I ran 128 so the 384 runs (about 45 min on 4 cores) fit one session alongside the cost table",
+      "did": "128 designs x 3 models x 100 cycles, cached per cycle and resumable so later runs can extend it",
+      "result": "all three pre-registered hypotheses decided with bootstrap intervals; README names the sample size as a limit"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-ten-cycles-of-dfn-beat-a-hundred-of-spme.md",
+    "research/cell-fidelity/LOG.md (plan and outcome entries)"
+  ],
+  "goal": "PhD+ research programme, deep-tech (battery cell design)",
+  "notes": "Plan logged and pushed (commit before any run) then: prefix check exact (0 difference) and baseline reproduces energy-cell-dfn exactly; cost table on idle machine; 384-run benchmark (DFN 128/128, SPMe 121/128, SPM 128/128). H1 +0.32 Spearman (DFN@10 0.962 vs SPMe@100 0.641), H2 ratio 0.98, H3 regret 0%. Unplanned: SPM beats SPMe (0.984 vs 0.769 on SPMe-solved designs); 15/128 untrusted, r_min AUC 0.994 out of sample. Local checks: pytest research/cell-fidelity/tests 12 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok. No new citations, so cite_check not rerun.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8a2686b4-7d71-5676-9d2e-d9c566c3217e",
+    "transcripts": 1,
+    "first": "2026-11-11T14:06:39Z",
+    "last": "2026-11-11T14:45:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 90,
+        "output": 32765,
+        "thinking": 4388,
+        "cache_read": 5052149,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114614,
+        "api_equivalent_usd": 2.583,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 90,
+      "output": 32765,
+      "thinking": 4388,
+      "cache_read": 5052149,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114614,
+      "api_equivalent_usd": 2.583,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 43,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 38.48,
+      "active_minutes": 38.48,
+      "model_minutes": 6.56,
+      "tool_minutes": 31.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a battery-modelling engineer setting up a 384-run paired PyBaMM benchmark, cost table, analysis and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 387.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
