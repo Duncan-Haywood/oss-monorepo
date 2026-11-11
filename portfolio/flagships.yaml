@@ -119,7 +119,7 @@ flagships:
     next: >-
       History and every measurement: README, eval/README and git (inbox agent, daily
       run with sent mail as the done list (2026-11-11; recipients right on 7,801 of 7,836
-      Enron sent messages; the self-host server reads the Sent folder over IMAP for it, fakes only), self-host server with TLS and XOAUTH2, research agent, call prep, follow-ups,
+      Enron sent messages; self-host reads the Sent folder), self-host server with TLS and XOAUTH2, research agent, call prep, follow-ups,
       meeting slots and .ics invites, CRM write-back to Pipedrive/HubSpot against fake
       servers only; nineteen agent-written reply sets). Real people's mail (eval/enron.mjs,
       Enron corpus): seven rule rounds, each scored once on an unread half by a blind agent

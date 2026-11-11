@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
@@ -33,6 +33,10 @@
     {
       "what": "first venture-suite run failed dockerfile.test.mjs: agent.mjs now imports daily.mjs and mailfile.mjs, which the Dockerfile did not copy",
       "fix": "added both to the Dockerfile COPY line; rerun 505/505"
+    },
+    {
+      "what": "CI validate: flagships.yaml sales-agent next: was 2025 characters (cap 2000)",
+      "fix": "shortened the history parenthetical I had added; portfolio/router/validate.py passes locally"
     }
   ],
   "integrity_issues": [],
