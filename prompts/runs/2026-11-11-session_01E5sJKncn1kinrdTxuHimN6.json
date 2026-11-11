@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 1,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Portfolio Pages 'test' job red on this PR and on every PR since #14766: faq-visible.test.mjs failed because ventures/concrete-maturity/index.html carried FAQPage JSON-LD with no visible FAQ. Fixed forward in this PR (a visible Questions section with the same strings); faq-visible 4/4 and the venture's 23 tests pass locally."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,14 +41,21 @@
       "issue": "My first view with sed + tail overlapped, so the single __main__ block looked duplicated; cost one failed edit. Not a doc problem, noted for the next run."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Research work stays inside research/; this PR also touches ventures/concrete-maturity/index.html because main's Pages test was red from another PR and every PR inherits it.",
+      "did": "Added the missing visible FAQ section (strings copied from the page's own JSON-LD) instead of waiting for the owning run.",
+      "result": "faq-visible test passes locally; CI to confirm."
+    }
+  ],
   "writeups": [
     "docs/posts/2026-11-11-anderson-godel-plain-necessary-existence-de-re.md",
     "research/theism-formal-evidence/experiments/e14_plain_necessity/results.md",
     "research/theism-formal-evidence/LOG.md"
   ],
   "goal": "Advance the programme: test whether a plain necessary-existence axiom closes E13's de re gap, with a Lean proof",
-  "notes": "Security queue empty (no security-alerts branch); IDEAS.md and website requests empty. Prediction H19 committed (67d1015d) before any search code ran. Lean 4.15.0 toolchain fetched by lean/build.sh in the background (~1 min), built Plain.lean first try, no sorry. E14 search 17,440 frames, ~2 min; (a),(b),(c),(e) held; flagged guess (d) refuted. Local checks: python3 test_theism.py all ok; research/_homepage/build.py ok; check_md_links ok; research_live_links --write; run_workflow_locally --for-changes run (see PR).",
+  "notes": "Security queue empty (no security-alerts branch); IDEAS.md and website requests empty. Prediction H19 committed (67d1015d) before any search code ran. Lean 4.15.0 toolchain fetched by lean/build.sh in the background (~1 min), built Plain.lean first try, no sorry. E14 search 17,440 frames, ~2 min; (a),(b),(c),(e) held; flagged guess (d) refuted. Local checks: python3 test_theism.py all ok; research/_homepage/build.py ok; check_md_links ok; research_live_links --write; run_workflow_locally --for-changes run (see PR). run_workflow_locally: 8/10 workflows passed; portfolio-pages hit its 300 s local budget (not a real failure), so its test step was run directly: 1526 pass, 1 fail (the concrete-maturity FAQ, fixed here).",
   "corrections": [],
   "redteam": null,
   "usage": {
