@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 2,
   "review_findings": null,
   "tests_added": 31,
   "outcome": "success",
   "errors": [
     "First draft of the veto block was written through a non-raw Python string, so one '\\b' became a backspace byte in engine.mjs; caught by grepping for 0x08 before running anything.",
-    "First draft's 'not looking to' veto flipped one agent-written reply ('Not looking to cancel our contract') from not_interested to objection; caught by diffing all 792 agent-written replies before freezing."
+    "First draft's 'not looking to' veto flipped one agent-written reply ('Not looking to cancel our contract') from not_interested to objection; caught by diffing all 792 agent-written replies before freezing.",
+    "portfolio-pages 'test' red on this PR from a pre-existing main breakage (concrete-maturity FAQ not visible, #14766; fix in #14774); the job log tail (5,000 lines) did not reach the failure and the full-log host is blocked by the proxy, so it was reproduced locally with pull_request env."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -48,6 +49,10 @@
     {
       "file": "portfolio/flagships.yaml",
       "issue": "Rewriting a 'next:' block by regex can swallow the comment lines that sit between entries; I did and restored them. A promptctl/allocate helper that rewrites one venture's next: safely would remove the trap."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "faq-visible (and other hygiene checks) are fatal only on pull_request events, so a venture can land on main with the check red and every later PR inherits the failure; a local run without GITHUB_EVENT_NAME=pull_request passes and hides it. Worth a line on reproducing with that env."
     }
   ],
   "deviations": [
@@ -64,7 +69,7 @@
     "ventures/sales-agent/eval/enron-labels/READER.md"
   ],
   "goal": null,
-  "notes": "Method: round-6 stops on 7* saved unread before any rule change; rules frozen at engine.mjs sha256 52f6408406d0 (commit efbba2c2d); union of round-6/round-7 stops on 7* (90) shuffled seed 20261114 and labelled once by a separate agent from READER.md. Fresh 7*: round 6 49/38/3 (4.0 per 1,000), round 7 49/37/3 (3.9). Tuning: 6* wrong 41->17, 5* 45->32, 0*-4* 33->28, one right lost (reader conflict on a duplicated message). Duplicates: 43 of 88 round-6 stops on 6* and 49 of 90 on 7* share text with earlier halves' stops. Checks run here: node --test in ventures/sales-agent 471 pass; run_venture_tests.py sales-agent ok; opt-out recall 115/119 same misses before/after; 792 agent-written replies no category change; check_post_frontmatter, check_post_links ok; venture-preflight result in PR body.",
+  "notes": "Method: round-6 stops on 7* saved unread before any rule change; rules frozen at engine.mjs sha256 52f6408406d0 (commit efbba2c2d); union of round-6/round-7 stops on 7* (90) shuffled seed 20261114 and labelled once by a separate agent from READER.md. Fresh 7*: round 6 49/38/3 (4.0 per 1,000), round 7 49/37/3 (3.9). Tuning: 6* wrong 41->17, 5* 45->32, 0*-4* 33->28, one right lost (reader conflict on a duplicated message). Duplicates: 43 of 88 round-6 stops on 6* and 49 of 90 on 7* share text with earlier halves' stops. Checks run here: node --test in ventures/sales-agent 471 pass; run_venture_tests.py sales-agent ok; opt-out recall 115/119 same misses before/after; 792 agent-written replies no category change; check_post_frontmatter, check_post_links ok; venture-preflight result in PR body. CI: every check green except portfolio-pages 'test' (twice), reproduced locally with GITHUB_EVENT_NAME=pull_request: the one failure is faq-visible.test.mjs on ventures/concrete-maturity/index.html (FAQPage JSON-LD with no visible copy), inherited from main via #14766 and fixed in the open PR #14774; it is fatal only on pull_request events, so main's push runs passed. Without that env the full platform/pages suite passes on this branch. Merged with that one red check, reason recorded here.",
   "corrections": [],
   "redteam": null,
   "usage": {
