@@ -1130,3 +1130,82 @@ Caveats: synthetic respondent with uniform lapses, Bradley-Terry truth with
 slope 2 on a uniform spread (a wider spread of true preferences gives more
 easy pairs and more information about e); lists of 30 items or fewer; 20 to
 30 respondents per cell; no real pairwise answers.
+
+
+## Anchor pairs and a pooled survey prior: measured, not shipped (2026-11-11)
+
+The section above ended on two signals that might carry a respondent's lapse
+share e where the adaptive questions do not: pairs the person should find
+easy, and the lapse rates of everyone else in the same survey. Both built and
+measured the same day.
+
+**Anchor pairs** (`scripts/anchor-lapse-sweep.ts`, `--every N`). Every N-th
+answer, instead of the selector's pair, the survey asks the pair this
+respondent's own ratings call most lopsided (largest |p - 1/2| with rd folded
+in through Glicko's g; both items shown at least twice; not one of the last 10
+pairs; sides drawn at random so position bias cannot fake agreement). e is
+read from the anchor answers only, each scored with the chance the ratings gave
+it just before the answer. An honest person nearly always agrees with their
+own clear preferences; a coin-flipper disagrees half the time.
+
+**A pooled survey prior** (`src/lib/lapseEstimate.ts`, `pooledLapsePrior`
+and `posteriorMean`, unit-tested). The lapse distribution of one survey's
+respondents over the e grid, fitted by EM on the grid weights from everyone's
+anchor likelihoods (the nonparametric maximum-likelihood mixing distribution);
+each person's estimate is their likelihood times that prior.
+
+**Setup.** Each "survey" is 60 synthetic respondents (`infoGainSim.ts`) whose
+true e is drawn from 0 (60%), 0.1 (15%), 0.2 (10%) and 0.5 (15%); 3 surveys
+per cell (180 respondents), two seed sets (1000 / 50000); 15 and 30 items,
+4 and 8 answers per item; anchors every 10 or every 5 answers or none. The
+score is the AUC of the final estimate for telling honest respondents (e = 0)
+from lapsers (e >= 0.2): 0.5 is a coin, 1 is perfect. Raw rows:
+`docs/anchor-lapse-2026-11-11.jsonl`.
+
+AUC, uniform prior (run 1 / run 2), and mean rank accuracy:
+
+| selector | items x per item | no anchors | 1 in 10 | 1 in 5 | rank: none / 1 in 10 / 1 in 5 (run 1) |
+|---|---|---|---|---|---|
+| staged | 15 x 4 | 0.61 / 0.59 | 0.80 / 0.82 | 0.87 / 0.88 | 0.726 / 0.728 / 0.727 |
+| staged | 15 x 8 | 0.66 / 0.67 | 0.88 / 0.89 | 0.93 / 0.94 | 0.820 / 0.822 / 0.820 |
+| staged | 30 x 4 | 0.57 / 0.60 | 0.84 / 0.90 | 0.92 / 0.90 | 0.741 / 0.716 / 0.708 |
+| staged | 30 x 8 | 0.72 / 0.56 | 0.90 / 0.92 | 0.99 / 0.96 | 0.834 / 0.820 / 0.820 |
+| shipped | 15 x 4 | 0.88 / 0.83 | 0.78 / 0.77 | 0.83 / 0.89 | 0.709 / 0.716 / 0.681 |
+| shipped | 15 x 8 | 0.95 / 0.90 | 0.86 / 0.89 | 0.94 / 0.92 | 0.805 / 0.815 / 0.798 |
+| shipped | 30 x 4 | 0.93 / 0.88 | 0.88 / 0.84 | 0.90 / 0.88 | 0.708 / 0.703 / 0.678 |
+| shipped | 30 x 8 | 0.96 / 0.97 | 0.92 / 0.93 | 0.95 / 0.93 | 0.821 / 0.808 / 0.800 |
+
+What it shows:
+
+- **Under the staged selector, which the survey uses, anchors are the signal.**
+  Without them the estimate is close to a coin (AUC 0.56 to 0.72); one anchor
+  in five lifts it to 0.87 to 0.99, one in ten to 0.80 to 0.92. At 15 items
+  the rank accuracy does not move (within 0.01 on both seed sets); at 30 items
+  x 4 it falls 0.025 to 0.033, at 30 x 8 about 0.01 to 0.014.
+- **The shipped selector does not need them.** Its pairs are spread enough
+  that all answers already separate lapsers (AUC 0.83 to 0.97); anchors
+  replace informative answers and lower both the AUC and, at 1 in 5, the rank
+  accuracy (by up to 0.03).
+- **The pooled prior does not help the separation** (AUC within about 0.03 of
+  the uniform prior in every cell, often a little lower). It does lower the
+  level: honest respondents read 0.15 to 0.30 under the uniform prior with
+  anchors and 0.12 to 0.24 pooled, lapsers at 0.5 read 0.57 to 0.64 and 0.45
+  to 0.60. The estimate stays a ranking of respondents, not a calibrated e.
+- **The ceiling is not much higher.** Scoring the same anchor answers with the
+  respondent's true win chance (`oracle-flat` in the rows) gives about the
+  same AUC as the ratings' chance: the anchor pairs are lopsided enough that
+  the ratings' errors hardly matter. The limit is the number of anchors.
+
+**Decision.** Not shipped; the routes keep e = 0 and ask no anchor pairs. What
+this does change: a careless-answer flag on the staged selector is now
+possible, at one question in five or ten spent on an easy pair. Because the
+estimate ranks respondents well but reads honest people at 0.15 to 0.30, the
+useful form is a flag or a down-weight in the pooled report (a lapser's
+answers count less), not an e fed to the Glicko update. Next step: per-person
+weights from the anchor estimate in `pooling.ts`, scored on the pooled ranking
+with a mixed population, and the false-flag rate at a fixed threshold.
+
+Caveats: synthetic respondent with uniform lapses and a Bradley-Terry truth;
+lists of 30 items or fewer; one population mix; 180 respondents per cell; the
+anchor rule is one design (most lopsided pair), not tuned; no real pairwise
+answers.

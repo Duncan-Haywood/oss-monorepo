@@ -5,6 +5,7 @@ DRIVE_COUNTS_PER_M = 2000.0     # collector wheel encoder counts per metre (meas
 ROLLER_DUTY = 0.7               # collector pickup roller PWM duty
 BATTERY_DIVIDER = 11.0          # battery volts per ADC volt (100k/10k divider)
 LOW_BATTERY_MV = 24000          # 8S LiFePO4 (25.6 V nominal): ~3.0 V/cell under load
+WHEEL_RPM_FULL = 9000          # launcher wheel free speed at full ESC throttle, no ball (measure it with the tach)
 AZ_MICROSTEPS = 4               # azimuth driver's microstep setting (match its MS pins)
 AZ_RATIO = 10.0                 # 150-tooth sector over the 15-tooth pinion
 AZ_VMAX_DEG_S = 60.0            # peak turntable speed: 30 deg in 1 s, triangular (cad: Feeder.azimuth_drive)

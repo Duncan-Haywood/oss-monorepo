@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVNPTFc7cQy214N5A1T",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (prompt.md)",
+  "input_sha256": "e7710cfbf7593885a44c98515fb38155574d91e862caf0f63f8c83124ca0298e",
+  "follow_up_inputs": [],
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T17:09:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 10 open-tennis-robots: Pi side waits on FLAG_AIM_SETTLING",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": 14834,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "`record --model` writes a model id into a pushed file, which cloud-session instructions forbid; the record could omit it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py",
+      "why": "Removed the model field the record command writes: session instructions forbid model identifiers in pushed artifacts.",
+      "did": "dropped 'model' key",
+      "result": "record validates without it (checked)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-a-tachometer-that-could-only-say-zero-or-six-thousand.md"
+  ],
+  "goal": null,
+  "notes": "Built the Pi-side drill runner (host.py, `tennisbots run`) and a simulated feeder that runs the real controller.py and main.py. The sim exposed two firmware faults: the tach could only read 6000 rpm steps (now per-revolution timing) and the integral-only wheel loop rang (now feedforward+PI, 3%/150 ms steady gate); sweep over 36 plant cases: worst true speed error at release 6.6% -> 2.8%. Also launcher.aim AttributeError -> ValueError. Verification: unittest 65 OK; node --test 21 pass; fixtures unchanged; post checks pass. No real board yet.",
+  "corrections": [],
+  "redteam": null
+}

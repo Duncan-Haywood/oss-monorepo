@@ -17,6 +17,7 @@ with a fake hardware object), so it touches hardware only through `hw`.
     base_y_mm() -> int
     rpm() -> (top, bottom)
     battery_mv() -> int
+    balls_fed() -> int               feeder only: balls released through the gate since power-up (sent mod 256)
 """
 
 import math
@@ -127,6 +128,109 @@ class StepperAxis:
         self.v = v
         self.pos += step
         return self._emit()
+
+
+class PeriodTach:
+    """Wheel speed from the time between a once-per-revolution sensor's pulses (2026-11-11).
+
+    The old tachometer counted pulses in each 10 ms control tick and scaled by 60000 / dt, so its only readings were
+    0, 6000, 12000 rpm...: at a 3000 rpm wheel (50 rev/s) it read 0 and 6000 in turn, the wheel-speed loop chased
+    that noise and the feed gate's "within 5%" test almost never passed. Timing each revolution instead gives the
+    speed to a microsecond clock's resolution.
+
+    The board calls `edge(period_us)` from the pulse interrupt with the time since the previous pulse (integers
+    only, no allocation: safe in a MicroPython IRQ) and `rpm(since_us)` from the control loop with the time since the
+    last pulse. The reading is the mean of the last `n` periods; while the wheel slows and no pulse has come for
+    longer than that mean, the open period is used instead, so the reading falls rather than freezing. No pulse for
+    `stall_us` reads 0, and the first pulse after such a gap starts the average afresh. Edges closer together than `min_period_us` (above `max_rpm`) are electrical noise, ignored.
+    """
+
+    def __init__(self, n=4, max_rpm=12000, stall_us=250000):
+        self.periods = [0] * n
+        self.i = 0
+        self.count = 0
+        self.min_period = 60000000 // max_rpm
+        self.stall_us = stall_us
+        self._carry = 0
+
+    def edge(self, period_us):
+        if period_us > self.stall_us:
+            self.reset()                     # first pulse after a stop: its "period" is the whole time stopped
+            return
+        period_us += self._carry
+        if period_us < self.min_period:
+            self._carry = period_us          # a glitch: fold it into the revolution it interrupted
+            return
+        self._carry = 0
+        self.periods[self.i] = period_us
+        self.i = (self.i + 1) % len(self.periods)
+        if self.count < len(self.periods):
+            self.count += 1
+
+    def reset(self):
+        self.count = self.i = self._carry = 0
+
+    def rpm(self, since_us):
+        if self.count == 0 or since_us > self.stall_us:
+            return 0
+        k = self.count
+        mean = sum(self.periods[:k]) / k
+        period = since_us if since_us > mean else mean
+        return int(60000000 / period + 0.5)
+
+
+class WheelLoop:
+    """One launcher wheel's ESC command from its target and measured rpm: feedforward plus PI (2026-11-11).
+
+    The first loop was integral only (`cmd += err x 2e-6 x dt`). On a wheel that lags its command (inertia) and is
+    measured late (a once-per-rev tachometer averages the last revolutions), a pure integrator rings: in the simulated
+    feeder (tests/feeder_sim.py; a first-order wheel, an assumption) the bottom wheel at a 1955 rpm target swung
+    between about 1200 and 2900 rpm for ten seconds without settling. Here the command starts at target / `rpm_full`
+    (the wheel's free speed at full throttle, measured once on the build: `WHEEL_RPM_FULL` in config.py), so the
+    integrator only trims the error that feedforward leaves, and the proportional term damps it. The integrator is
+    frozen while the command is saturated and clamped to +-`i_max` (no wind-up). Gains from tests/wheel_loop_sweep.py
+    (README "Wheel speed loop"): steady within 2 s over free speeds 7000-11000 rpm and spin-up time constants
+    0.2-0.8 s while the firmware is told 9000.
+    """
+
+    def __init__(self, rpm_full, kp=2e-4, ki=6e-7, i_max=0.3):
+        self.ff = 1.0 / rpm_full
+        self.kp, self.ki, self.i_max = kp, ki, i_max
+        self.i = 0.0
+
+    def update(self, target, measured, dt_ms):
+        if target <= 0:
+            self.i = 0.0
+            return 0.0
+        err = target - measured
+        raw = target * self.ff + self.kp * err + self.i
+        if 0.0 < raw < 1.0 or (raw >= 1.0 and err < 0) or (raw <= 0.0 and err > 0):
+            self.i = _clamp(self.i + self.ki * err * dt_ms, -self.i_max, self.i_max)
+        return _clamp(target * self.ff + self.kp * err + self.i, 0.0, 1.0)
+
+
+class SteadyGate:
+    """True once every wheel has stayed within `tol` of its target for `hold_ms` without a break (2026-11-11).
+
+    The feed gate used one 5% in-band reading, so a ringing wheel passed it on the way through. A ball launched at the
+    wrong wheel speed flies to the wrong place, so the gate now wants the speed held. 3%, not 5%: the tachometer
+    averages the last revolutions, so the true speed trails what it reads; on the simulated feeder over the plant grid
+    (tests/wheel_loop_sweep.py) a 5% gate let balls go at up to 6.6% true error, a 3% gate at up to 2.8%, for at most
+    0.6 s more spin-up.
+    """
+
+    def __init__(self, tol=0.03, hold_ms=150):
+        self.tol, self.hold = tol, hold_ms
+        self.ok_ms = 0
+
+    def update(self, targets, measured, dt_ms):
+        inside = all(t and abs(m - t) < self.tol * t for t, m in zip(targets, measured))
+        self.ok_ms = self.ok_ms + dt_ms if inside else 0
+        return self.steady
+
+    @property
+    def steady(self):
+        return self.ok_ms >= self.hold
 
 
 class ElevationGeometry:
@@ -413,6 +517,7 @@ class Controller:
         if self.hw.bumper():
             flags |= P.FLAG_BUMPER
         top, bottom = self.hw.rpm()
+        fed = self.hw.balls_fed() if self.role == ROLE_FEEDER else 0
         return P.encode(P.TELEMETRY, flags & 0xFFFF, _clamp(self.hw.base_y_mm(), -32768, 32767),
                         _clamp(top, -32768, 32767), _clamp(bottom, -32768, 32767),
-                        _clamp(self.hw.battery_mv(), 0, 65535))
+                        _clamp(self.hw.battery_mv(), 0, 65535), (fed or 0) & 0xFF)
