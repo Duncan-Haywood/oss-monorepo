@@ -38,8 +38,8 @@
       <div><label for="size">Size</label><select id="size"><option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option><option>XXL</option></select></div>
     </div>
     <p><label class="btn" for="file" style="display:inline-block">Choose or take a photo</label><input id="file" type="file" accept="image/*" capture="user" hidden>
-       <button id="live" type="button">Use live camera</button> <button id="snap" type="button" hidden>Freeze frame</button> <button id="reset" type="button">Clear taps</button> <button id="auto" type="button" title="Loads an open-source pose model (about 6 MB) once from jsDelivr and Google model storage; your picture is not sent">Find my shoulders</button></p>
-    <p class="notes">"Find my shoulders" runs an open-source pose model (MediaPipe, about 6 MB, fetched once from cdn.jsdelivr.net and storage.googleapis.com when you click it) inside this page. Your picture is not sent to them or anyone. You can still tap the shoulders by hand.</p>
+       <button id="live" type="button">Use live camera</button> <button id="snap" type="button" hidden>Freeze frame</button> <button id="follow" type="button" hidden aria-pressed="false" title="Runs the same on-device pose model on the live camera a few times a second and keeps the outline on your shoulders as you move">Follow me live</button> <button id="reset" type="button">Clear taps</button> <button id="auto" type="button" title="Loads an open-source pose model (about 6 MB) once from jsDelivr and Google model storage; your picture is not sent">Find my shoulders</button></p>
+    <p class="notes">"Find my shoulders" runs an open-source pose model (MediaPipe, about 6 MB, fetched once from cdn.jsdelivr.net and storage.googleapis.com when you click it) inside this page. Your picture is not sent to them or anyone. You can still tap the shoulders by hand. With the live camera on, "Follow me live" keeps finding them as you move (about 15 times a second, smoothed so the outline does not shake).</p>
     <div id="stage"><canvas id="cv" width="600" height="800" aria-label="Your picture: tap the two shoulders"></canvas></div>
     <p id="status" class="notes" aria-live="polite">Choose a photo to start.</p>
     <div id="result" aria-live="polite"></div>
@@ -60,25 +60,27 @@
 <script type="module">
   import { cameraOverlay, overlayPath } from "./camera.mjs";
   import { recordUsage } from "./usage.mjs";
-  import { shouldersFromPose, detectPose } from "./pose.mjs";
+  import { shouldersFromPose, detectPose, detectPoseVideo, ShoulderTracker } from "./pose.mjs";
   const $ = s => document.querySelector(s);
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const cv = $("#cv"), ctx = cv.getContext("2d");
   let source = null, taps = [], stream = null, raf = 0, poseNotes = [];
+  let follow = false, tracker = new ShoulderTracker(), lastDetect = 0, busy = false;
+  const work = document.createElement("canvas"); work.width = cv.width; work.height = cv.height;
   const frame = () => ({ w: cv.width, h: cv.height });
-  function drawSource() {
-    ctx.fillStyle = "#e8e1d6"; ctx.fillRect(0, 0, cv.width, cv.height);
+  function drawSource(c = ctx) {
+    c.fillStyle = "#e8e1d6"; c.fillRect(0, 0, cv.width, cv.height);
     if (!source) return;
     const sw = source.videoWidth || source.naturalWidth || source.width, sh = source.videoHeight || source.naturalHeight || source.height;
     if (!sw) return;
     const k = Math.min(cv.width / sw, cv.height / sh), w = sw * k, h = sh * k;
-    ctx.drawImage(source, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
+    c.drawImage(source, (cv.width - w) / 2, (cv.height - h) / 2, w, h);
   }
   function draw() {
     drawSource();
     taps.forEach((p, i) => { ctx.fillStyle = "#fff"; ctx.strokeStyle = "#6b1e2c"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(p.x, p.y, 8, 0, 7); ctx.fill(); ctx.stroke(); });
     const out = $("#result");
-    if (taps.length < 2) { out.innerHTML = ""; $("#status").textContent = !source ? "Choose a photo to start." : taps.length ? "Now tap the other shoulder (the right of the picture)." : "Tap the left shoulder (the left of the picture)."; return; }
+    if (taps.length < 2) { out.innerHTML = ""; $("#status").textContent = !source ? "Choose a photo to start." : follow ? "Looking for your shoulders: stand back, square to the camera, with shoulders and hips in view." : taps.length ? "Now tap the other shoulder (the right of the picture)." : "Tap the left shoulder (the left of the picture)."; return; }
     const r = cameraOverlay(taps[0], taps[1], { chest: $("#chest").value, waist: $("#waist").value, hip: $("#hip").value, height: $("#height").value }, { garment: $("#garment").value, fit: $("#fit").value, size: $("#size").value }, frame());
     if (!r.ok) { $("#status").textContent = r.error; out.innerHTML = ""; return; }
     ctx.fillStyle = "rgba(61,111,180,.45)"; ctx.strokeStyle = "#274c80"; ctx.lineWidth = 3;
@@ -86,7 +88,23 @@
     $("#status").textContent = `Size ${r.size} drawn at ${r.pxPerCm} px per cm.`;
     out.innerHTML = (poseNotes.length ? `<p class="notes">${poseNotes.map(esc).join("<br>")}</p>` : "") + `<p>${esc(r.hemWord)}. Sleeve: ${esc(r.sleeveWord)}.</p><table><tr><th>Where</th><th>Ease</th><th>Reads as</th></tr>${r.checks.map(c => `<tr><td>${esc(c.where)}</td><td>${c.ease} cm</td><td>${esc(c.word)}</td></tr>`).join("")}</table><p class="notes">${r.notes.map(esc).join("<br>")}</p>`;
   }
-  const stop = () => { cancelAnimationFrame(raf); if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; $("#snap").hidden = true; };
+  function setFollow(on) { follow = on; tracker.reset(); const b = $("#follow"); b.setAttribute("aria-pressed", String(on)); b.textContent = on ? "Stop following" : "Follow me live"; }
+  // Live tracking: the frame is copied to a work canvas (no outline on it) and
+  // the pose model runs on that copy at most every 66 ms; the tracker smooths.
+  async function trackStep(now) {
+    if (!follow || !stream || busy || now - lastDetect < 66) return;
+    busy = true; lastDetect = now;
+    try {
+      drawSource(work.getContext("2d"));
+      const u = tracker.update(shouldersFromPose(await detectPoseVideo(work, now), frame()), now);
+      if (!follow) return;
+      if (u.state === "lost") { taps = []; poseNotes = []; $("#status").textContent = u.error || "Looking for your shoulders..."; }
+      else { taps = [u.left, u.right]; poseNotes = u.state === "holding" ? ["Shoulders out of view for a moment; the outline stays where they were."] : (u.notes || []).filter(n => !/tap the picture/i.test(n)); }
+    } catch (e) {
+      setFollow(false); $("#status").textContent = "The pose model could not load here (offline, or the host is blocked). Tap the two shoulders instead.";
+    } finally { busy = false; }
+  }
+  const stop = () => { cancelAnimationFrame(raf); if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; $("#snap").hidden = true; $("#follow").hidden = true; setFollow(false); };
   function setImage(img) { stop(); source = img; taps = []; draw(); }
   $("#file").addEventListener("change", e => {
     const f = e.target.files[0]; if (!f) return;
@@ -100,13 +118,18 @@
     try {
       stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
       const v = document.createElement("video"); v.srcObject = stream; v.muted = true; v.playsInline = true; await v.play();
-      source = v; taps = []; $("#snap").hidden = false; recordUsage("camera_live");
-      const loop = () => { draw(); raf = requestAnimationFrame(loop); }; loop();
+      source = v; taps = []; $("#snap").hidden = false; $("#follow").hidden = false; recordUsage("camera_live");
+      const loop = now => { trackStep(now ?? performance.now()); draw(); raf = requestAnimationFrame(loop); }; loop();
     } catch (err) { $("#status").textContent = "The camera was not allowed or not found. Use Choose or take a photo."; }
   });
   $("#snap").addEventListener("click", () => {
     const c = document.createElement("canvas"); c.width = cv.width; c.height = cv.height; drawSource(); c.getContext("2d").drawImage(cv, 0, 0);
     stop(); source = c; draw();
+  });
+  $("#follow").addEventListener("click", () => {
+    if (!stream) return;
+    setFollow(!follow);
+    if (follow) { taps = []; poseNotes = []; $("#status").textContent = "Loading the pose model (once) and looking for your shoulders..."; recordUsage("camera_follow"); }
   });
   $("#reset").addEventListener("click", () => { taps = []; poseNotes = []; draw(); });
   $("#auto").addEventListener("click", async () => {
@@ -124,6 +147,7 @@
   });
   cv.addEventListener("click", e => {
     if (!source) return;
+    if (follow) setFollow(false);
     const b = cv.getBoundingClientRect(), p = { x: (e.clientX - b.left) * cv.width / b.width, y: (e.clientY - b.top) * cv.height / b.height };
     if (taps.length >= 2) taps = []; poseNotes = []; taps.push(p); draw(); if (taps.length === 2) recordUsage("camera_overlay");
   });
