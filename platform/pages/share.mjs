@@ -21,7 +21,7 @@
 
 import { availableParallelism } from 'node:os';
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -419,14 +419,21 @@ export async function mapLimit(items, limit, fn) {
   return out;
 }
 
-async function listHtml(dir, out = []) {
-  for (const entry of await fs.readdir(dir, { withFileTypes: true })) {
+// Synchronous on purpose: `fs.promises` costs more per call than the work on
+// a site of ~8,800 mostly small pages, and nothing runs beside this pass
+// (docs/history/pages-build-perf-2026-11-12-share-identity-preload-sync.md).
+function listHtml(dir, out = []) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) await listHtml(full, out);
+    if (entry.isDirectory()) listHtml(full, out);
     else if (entry.name.endsWith('.html')) out.push(full);
   }
   return out;
 }
+
+const listHtmlOrNone = (dir) => {
+  try { return listHtml(dir); } catch { return []; }
+};
 
 /**
  * The pass itself: draw a card for every page still on the site-wide one,
@@ -434,19 +441,21 @@ async function listHtml(dir, out = []) {
  */
 export async function addShareCards({ outDir, baseUrl, siteName, siteCard = 'social-card.png', only = null }) {
   const files = only
-    ? (await Promise.all(only.map((dir) => listHtml(path.join(outDir, dir)).catch(() => [])))).flat()
-    : await listHtml(outDir);
-  // Each page is independent, so they are read and rewritten a few dozen at a
-  // time; one at a time, the disk sat idle between them. Results keep file order.
-  const results = await mapLimit(files, 32, async (file) => {
+    ? only.flatMap((dir) => listHtmlOrNone(path.join(outDir, dir)))
+    : listHtml(outDir);
+  // Read and rewritten one page after another with sync calls: measured on a
+  // full build, 32 promise reads in flight were slower than this
+  // (docs/history/pages-build-perf-2026-11-12-share-identity-preload-sync.md).
+  // `buildSite` awaits this pass with nothing beside it. Results keep file order.
+  const results = files.map((file) => {
     const relative = path.relative(outDir, file).split(path.sep).join('/');
-    const html = await fs.readFile(file, 'utf8');
+    const html = readFileSync(file, 'utf8');
     const plan = pageCardPlan(html, relative, { baseUrl, siteCard });
     const depth = relative.split('/').length - 1;
     const toRoot = '../'.repeat(depth);
     const url = baseUrl ? `${baseUrl}${servedPath(relative)}` : '';
     const next = completeShareTags(html, { card: plan ? `${baseUrl}${plan.file}` : '', siteName, toRoot, url });
-    if (next !== html) await fs.writeFile(file, next);
+    if (next !== html) writeFileSync(file, next);
     return { relative, plan, changed: next !== html };
   });
   const jobs = results.filter((r) => r.plan).map((r) => ({ file: path.join(outDir, r.plan.file), options: r.plan.options }));
