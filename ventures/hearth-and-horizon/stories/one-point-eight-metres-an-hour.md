@@ -1,0 +1,350 @@
+---
+title: One Point Eight Metres an Hour
+shelf: hearth-and-horizon
+setting: The dive support vessel Skua Endeavour (invented), over a carbon-storage well in the central North Sea about 190 km east of Aberdeen, Tuesday 9 to Monday 15 December 2053
+published: 2026-11-12
+summary: A saturation diver living at 108 metres learns that his son is being born twelve weeks early in Aberdeen. Going down took about four hours; coming up takes a fixed table, 1.8 metres an hour to 60 metres and slower after, never between midnight and six or two and four, about 76 hours of travel. The life support supervisor works out that a start at 19:50 would beat Sunday's afternoon stop and bring him out at 13:40. A seal fails on the empty chamber they press down for him, the start slips to 20:30, and the stop catches him thirty centimetres from the surface; a 57-year-old standby diver goes into saturation to take his place, and the father names his son through a helium voice unscrambler.
+---
+
+Ines Moura had kept six men alive at a hundred and eight metres for sixteen days, and on the seventeenth one of them asked her to let him out.
+
+He asked at ten to five on a Tuesday afternoon, from the diving bell at the bottom of the North Sea, through a box on her desk that turned his voice back into a man's.
+
+"Ines, it's Paeng. Lars told me. Joy's in the hospital. Twenty-eight weeks. Ines, I need to come up."
+
+The box was called an unscrambler, and it was the oldest piece of kit in Dive Control on the *Skua Endeavour*, older than the ship. The divers breathed helium with a few percent of oxygen in it, and in helium a voice comes out high and quacking, like a cartoon duck reading the news, because sound runs nearly three times as fast through helium as through air and drags the resonances of the throat up with it. The unscrambler pulled them down again. Paeng Dizon came through it sounding like himself on a bad phone line, except that she had never heard him frightened before.
+
+She had known for nearly three hours. Joy Dizon had rung the ship at ten past two, and the radio room had put her through, and Ines had listened to a frightened woman in a hospital corridor in Aberdeen and written it down: waters broken, twenty-eight weeks, steroid injections given, they were trying to hold the labour off. Paeng was out on the wellhead at the time, bolting the second of two clamps, and Ines did what supervisors are taught to do and hate doing. She did not tell him. That was the first rule of the trade, older than the unscrambler: the man on the end of an umbilical in the dark does not get bad news and then try to hurry. She told Haldis. She told Lars Eide, the bellman, on the private channel. And for two hours and forty minutes she watched Paeng on the bell camera, a yellow shape in a grey cloud of silt, kneeling against the wellhead at a hundred and fifteen metres with his lamp making a cone in the murk and Kofi Mensah holding the clamp's other half, until the clamp was torqued and photographed and the two of them were back in the bell with the hatch shut, and Lars told him.
+
+"I hear you," she said. "Haldis is here."
+
+* * *
+
+The *Skua Endeavour* was a ninety-metre dive support vessel holding position over a well that nobody would ever drill oil from again. Once it had brought up oil; now it was one of thirty in the field that took carbon dioxide from a pipeline out of Peterhead and pushed it two kilometres down into the sandstone that the oil had come out of, and the company that ran the field paid the *Skua*'s owners a great deal of money a day to replace a leaking valve assembly on the wellhead before Christmas. Robots did most of the work in the North Sea now. They did not do this. There were still jobs where you needed two hands, two eyes and a feel for a bolt that is about to strip, at the bottom of a hundred metres of cold water, for six hours at a time.
+
+The men who did those jobs did not come up between shifts. They lived in steel chambers in the middle of the ship, kept at the same pressure as the seabed, and went down to work and came back in a pressurised bell that locked onto the chambers like a boat onto a pier. Saturation, the trade called it, because after the first day their bodies held all the helium they could hold. The company's limit was twenty-eight days, door to door.
+
+Ines was the life support supervisor on the late shift, noon to midnight, and she had been a life support technician for twenty-four years, first on the Norwegian side and then out of Aberdeen. It was her job to keep the air in the chambers right, the temperature right, the food going in through the locks hot and the waste coming out the other way, and to bring men up from the bottom of the sea at the end of their twenty-eight days on a table that took nearly five days to run. She was fifty-one. She knew the gas the way a baker knows dough.
+
+Haldis Berg had been standing behind her chair since half past four. She was the diving superintendent, a tall Norwegian who had been a diver herself in the thirties and who never raised her voice and never needed to.
+
+"Tern," she said. "If he starts decompression tonight, when does he surface?"
+
+The ship's dive assistant answered from the speaker in the corner, in the even voice the owners had picked for it from a menu.
+
+"It depends on two things I don't know yet," Tern said. "When the bell is back on the system, and which chamber he decompresses in. His living chamber has two other men in it who are not coming up, so he has to move. If he moves to chamber three and starts at the earliest time the table allows, he surfaces on Sunday. I'll have the hour when I have the start."
+
+"Sunday," Haldis said, and went to ring the client in London and tell them they were losing a diver.
+
+It was Tuesday.
+
+* * *
+
+The bell began its climb at five past five, fifteen minutes winched through the dark at the end of the main lift wire, with the gas hissing and Kofi talking to him the whole way up about nothing, about football, about the curry the cook was sending in tonight, the way you talk to a man who is somewhere else.
+
+The bell came out of the water through the moon pool in the middle of the ship at twenty-five past five in the evening. The deck crew swung it onto its trunk, and at twenty to six it mated with a clunk Ines felt through the floor of Dive Control. The three men in it were still at the pressure of the seabed, nearly twelve times the pressure of the air outside, in a steel ball on a rail in a hangar on the deck of a ship. Lars brought the bell's own pressure back from the work depth to the storage depth, the last few metres of the excursion, and then they would pass through the trunk into the transfer chamber and shower and eat and sleep, and the next bell team would go down, and nothing would change about the pressure except at the very end, on the table.
+
+Haldis came back from the telephone at ten to six. "The client says yes," she said. "They don't like it. Tern?"
+
+"Here's what I have," Tern said.
+
+Ines had seen the table a hundred times. It was printed on a card above her desk and laminated, because men spilled tea on it, and it was the most important piece of paper on the ship.
+
+*From storage depth to 60 m: 1.8 metres an hour. 60 to 30 m: 1.5 an hour. 30 to 15 m: 1.2. 15 m to the surface: 0.9. No travel between 00:00 and 06:00 or between 14:00 and 16:00. Do not begin until two hours after the last downward excursion has ended.*
+
+It was the company's table, a cousin of every other company's, and Ines had never once seen it changed for anyone.
+
+"From a hundred and eight metres," Tern said, "the travel is seventy-five hours and fifty minutes. Twenty-six hours forty to sixty metres, twenty hours to thirty, twelve and a half to fifteen, sixteen hours forty to the surface. The stops add the rest. The bell was back at storage depth at 17:50. So the earliest start is 19:50."
+
+"And if he starts at 19:50?"
+
+"He surfaces on Sunday at 13:40."
+
+"And if he starts later? If it takes us till nine to get chamber three ready?"
+
+Tern put two lines on the screen, one above the other.
+
+*Start Tue 19:50 → surface Sun 14 Dec 13:40.*
+*Start Tue 21:00 → surface Sun 14 Dec 16:50.*
+
+Haldis frowned at it. "Seventy minutes later going in, and three hours ten later coming out."
+
+"Because of the afternoon stop," Ines said. She saw it before Tern could explain it. "If he starts at 19:50, he's on the surface twenty minutes before the two o'clock stop on Sunday. If he starts at nine, he's three quarters of a metre short when two o'clock comes, and he sits there till four with the door in front of him, and then he does the last bit."
+
+"Yes," said Tern.
+
+There was a moment in which nobody said what all three of them were thinking, which was that chamber three was empty and at the surface, and it had to be pressed down to a hundred and eight metres before Paeng could go into it, and that less than two hours was not a lot of time to fill a ten-cubic-metre steel room with more than a hundred cubic metres of gas, analyse it, warm it and check every seal and valve on it.
+
+"Can we do it?" Haldis said.
+
+"Yes," Ines said. "If nothing goes wrong."
+
+"And if something does?"
+
+"Then it's nine o'clock, and he gets out at ten to five on Sunday, and it's still Sunday."
+
+* * *
+
+Paeng asked her the other question at half past six, through the unscrambler, from the transfer chamber, with his hair still wet from the shower.
+
+"Ines. Can we go faster?"
+
+She had known he would ask, and she had known what she would say, and it was still hard.
+
+"No."
+
+"I mean faster on the table. Double it. I'll take the risk. It's my risk."
+
+"It isn't only yours," she said. "And no."
+
+He was quiet. Through the porthole in the transfer chamber she could see him on her camera, a stocky man of thirty-four from Batangas with a towel round his neck, sitting on the bench with his elbows on his knees.
+
+"Tern," he said. "What's the risk if we go twice as fast?"
+
+"I can't give you a number I'd stand behind," Tern said. "The table you're on was tested on people at these rates. At twice the rate there are no people in the data, only models, and I don't trust the models that far from where they were checked. If I gave you a figure it would look like an answer, and it would be a guess with my name on it. What I can tell you is what the injuries look like when they happen. The worst ones are in the spinal cord."
+
+"I know what they look like."
+
+"I know you do."
+
+"Going down took four hours," Paeng said. "Sixteen days ago. Four hours. Why is it five days up?"
+
+Ines leaned in to the microphone.
+
+"Because going down, the gas goes into you as fast as we push it, and nothing bad happens; it just dissolves," she said. "Going up, it has to come out the way it went in, through the blood and the lungs. If we drop the pressure faster than it can come out, it comes out of solution where it is. Like a bottle of fizzy water. Open it slow, nothing. Open it fast, foam. And the slowest bits of you, the fat, the joints, the bits with not much blood, they set the speed. Every bit of you is full. So the whole of you goes at the speed of the slowest bit."
+
+"That's a terrible thing to say to a man."
+
+"It's true of everybody, Paeng. Most of us just don't have a table for it."
+
+He laughed, which was what she had wanted, and put his face in the towel.
+
+* * *
+
+Pressing chamber three began at four minutes past six.
+
+The *Skua*'s saturation system was four steel cylinders in a row inside an insulated hangar amidships, joined by trunks and hatches: the transfer chamber where the bell mated, two living chambers with three bunks each, and chamber three, a spare living chamber they used for maintenance and medical emergencies. Each could be sealed from the others and run at its own pressure. Chamber three had been at the surface for a month, its door open, its bunks bare. Ines and Ruaridh, her technician, had made the beds in it at a run, carried in clean towels and Paeng's own pillow, which Kofi passed out from the living chamber through the medical lock. Then they swung the door shut, dogged it, and began to put gas in.
+
+The gas went in as helium first, from the quads on deck, a great roar in the pipes that faded to a hiss as the pressure built, and then oxygen metered on top of it to bring the partial pressure up to where it should be. At a hundred and eight metres the air in a living chamber was not quite four percent oxygen. On the surface that mixture would kill a person in a few minutes. At twelve atmospheres it gave a man about twice the oxygen of the air in a kitchen, which was what the table wanted. Everything about saturation was like that: what was right depended on where you were.
+
+The chamber had to be warm, too, near thirty degrees, because helium carries heat away from a body about six times as fast as air does, and men in a helium chamber at twenty degrees shiver all night and wake up grey. The heaters went on. The scrubber fans went on. The analysers began to talk to Tern.
+
+At 18:41, at about eighty metres, the medical lock on the side of chamber three began to leak.
+
+It was a small steel tube with a door at each end, the size of a bread bin, for passing food and medicine in and out without changing the chamber's pressure. Ines heard it before the alarm. A thin, rising whistle, like someone blowing across the top of a bottle.
+
+"Outer door seal on med lock three," Ruaridh said. "It's going."
+
+"Stop pressing," Ines said.
+
+The roar in the pipes stopped. The whistle did not.
+
+There was no question of putting a man into a chamber with a lock that whistled. There was no question of anything except fixing it, and the only way to fix it was to bring the chamber back to the surface, open the lock, and look. Which meant venting eighty metres of gas they had just put in, which cost money and, more to the point, time.
+
+She looked at the clock. It said 18:43. She looked at Haldis, who had come back in and was standing behind her with her arms folded.
+
+"Vent it," Haldis said. "Fix it."
+
+"We won't make 19:50."
+
+"Then we won't."
+
+Ines vented it. The hiss of the gas going overboard was a long, sad sound. Paeng, in the transfer chamber, did not know yet what it meant, and she did not tell him until she knew how long it would be.
+
+The chamber reached the surface at 18:58. Ruaridh had the lock door open at 18:59, with a torch in his teeth, and found it at once: the O-ring on the outer door, a black rubber ring the thickness of a pencil, had a nick in it two millimetres long, as if somebody at some point in the last month had shut the door on a crumb. He held it up to the light. It was the kind of fault that holds at the surface and holds at thirty metres and lets go at eighty, which is why you press a chamber before you put a man in it, and why you watch it all the way.
+
+"Spare?" Ines said.
+
+He already had the drawer open. He fitted the new ring, greased it, shut the door, and they began again at 19:04.
+
+Ines did the sum in her head and then let Tern do it on the screen, because she did not trust her head tonight. A hundred and eight metres at the fastest rate the gas could go in and the chamber's own heaters could keep up with: about fifty minutes to depth. Then the oxygen to trim, the analysers to settle, the temperature to come up, the checks. She knew how long the checks took. They took eighteen minutes if she did not hurry them, and she was not going to hurry them.
+
+"It's close," she said.
+
+"Is there anything you can skip?" Haldis asked. It was a real question, the question a superintendent has to ask, and she asked it in the tone that meant she already knew the answer.
+
+"No."
+
+"Good."
+
+* * *
+
+Douglas Rennie came into Dive Control at a quarter past seven with his hands in the pockets of his boiler suit, and stood just inside the door, the way men did who knew they had no business there.
+
+Dougie was fifty-seven, from Peterhead, and had been a saturation diver for thirty years before his knees and his wife retired him. Now he worked the surface: standby diver, deck supervisor, the man who made sure the young ones did not do anything stupid on the bell deck. He was still qualified for saturation and still passed the medical every year, and everybody on the ship knew he was going home on the crew change on Thursday, because his granddaughter was in the school nativity on Friday afternoon, and he had shown the whole mess a photograph of her in a costume made of brown felt.
+
+"You're a man short in the second team," he said. "If Paeng comes up."
+
+"We'll manage," Haldis said. "Two bell runs a day becomes one and a half. The client's agreed."
+
+"The client doesn't know what it's agreed to. You'll not finish this side of Christmas on one and a half, and you know you won't, and then they'll send a new team out and you'll lose two days pressing them in and the boys'll lose their Christmas. Press me in."
+
+Haldis looked at him. Ines looked at him.
+
+"Fiona will kill you," Ines said.
+
+"Fiona will kill me anyway." He took his hands out of his pockets and looked at them. "Two thousand and thirty-one, my father died. I was in the Brent field at a hundred and forty metres. He went on a Monday. They told me on the Monday. I got out on the Friday night. They'd held the funeral for me, but I didn't see him." He shrugged, a big slow shrug. "I'm not saying it to make anybody feel anything. I'm saying it because I know what the boy's sums look like. Press me in."
+
+"You'd miss the nativity," Haldis said.
+
+"I've seen a nativity. Sheep, donkey, Mary, the lot. I know how it ends." He glanced at Ines. "Fiona can film it."
+
+"I'll get the doctor to look at you tonight," Haldis said, after a long time. "If he clears you, you go in tomorrow morning. In the entry lock, on your own. It takes four hours with the holds."
+
+"I know how long it takes."
+
+"I know you know." She turned back to the screen. "Thank you, Dougie."
+
+He nodded at the floor and went out.
+
+* * *
+
+Chamber three reached a hundred and eight metres at 19:55, fifty-one minutes after they began again and five minutes after the earliest time Paeng could have started. The oxygen settled at 19:58. The temperature was a degree low at 20:02 and right at 20:06. Ines ran the checks, every one of them, in the order on the card, with Ruaridh reading them out and Tern logging them, and did not look at the clock while she did it.
+
+At 20:24 Paeng went through from the transfer chamber into chamber three with his pillow under his arm, and Lars shut the hatch behind him, and Ruaridh dogged it on the outside, and Ines looked at the clock.
+
+"Start at 20:30," she said. "Tern?"
+
+"Start Tuesday 20:30. He reaches thirty centimetres at two o'clock on Sunday and waits out the afternoon stop there. He surfaces at 16:20. If the start had been 19:50 he would have been out at 13:40."
+
+So they had lost. She had known for nearly two hours that they had lost, and it still went into her like a nail.
+
+"Paeng," she said into the microphone. "We start at half past eight. You'll surface on Sunday at twenty past four."
+
+His voice came back through the unscrambler, flattened and careful.
+
+"Not twenty to two."
+
+"No. I'm sorry. We had a seal go. I wasn't going to put you in a chamber with a seal I hadn't looked at."
+
+"No," he said. "No, you weren't." And then, after a while: "Twenty past four. All right. It's Sunday. Joy said they'd try to let her hold him on Sunday afternoon, if he's here, if he's well. Skin to skin. She'll call."
+
+At 20:30 she opened the exhaust valve on chamber three a quarter of a turn, and watched the depth on the gauge, which was the pressure in the chamber written as metres of sea water, begin to move. It moved so slowly that if you did not know it was moving you would say it was still. One point eight metres an hour. Three centimetres a minute. Half a millimetre a second.
+
+Paeng Dizon, at a hundred and eight metres, began to come up.
+
+* * *
+
+The baby was born at twenty to eleven that night, by caesarean section, because his heart rate had dipped twice on the monitor and the doctors did not like it a third time. He weighed one kilo two hundred grams. He cried, Joy said afterwards, a small cry like a kitten under a blanket, and then they took him to the neonatal unit and put a little mask on him to help him breathe, and Joy did not see him again for two hours.
+
+Paeng saw him first. A nurse called Grace, who knew who Paeng was and where, held her phone over the incubator so that a man in a steel cylinder in the middle of the North Sea at a hundred and four metres could see his son: a red, folded, impossibly thin creature with a hat the size of an egg cup, in a plastic box with round holes in its side for hands, lying under a blue light with wires on his chest and his mouth open.
+
+Ines did not watch. She had the chamber camera, and the gauges, and her job; she watched those. She heard Paeng say "Oh," through the unscrambler, just once, and then nothing for a long time.
+
+At a quarter to midnight Joy called him from the ward. The hospital's Catholic chaplain, a young priest called Father Anand who had been on call that night, had come up from the chapel at her asking, because the baby was small and the night was long, and the Church baptises a child in danger without waiting. Nobody had said the baby was dying. Nobody had said he was not.
+
+Grace held the phone again. Joy, in a wheelchair, in a gown, with a drip in her arm, held her other hand through the round hole in the incubator. Father Anand had a stole round his neck and a small bottle of water from the chapel font, and he wore a mask and gloves.
+
+"Paeng," Joy said, into the phone. "What's his name? We never decided."
+
+"You decide."
+
+"No. You."
+
+There was a pause long enough for Ines to look up from her gauges.
+
+"What saint is today?" Paeng said. "My lola always said, name them for the saint of the day."
+
+"Tern," Ines said, without thinking, very quietly.
+
+"The ninth of December," Tern said, just as quietly, on Ines's speaker only. "Saint Juan Diego. The man who saw Our Lady at Tepeyac."
+
+Ines keyed the microphone and told him.
+
+"Diego," Paeng said, at once, as if he had always known it. "Juan Diego. Diego."
+
+And the box on Ines's desk, the old grey box with the scuffed knobs that turned helium back into a man, took the word as it came out of him, high and squeezed and strange, and pulled it down and gave it to the phone, and the phone gave it to a ward in Aberdeen, and a priest in a mask said it after him in a clear ordinary voice and poured three small trickles of water over a head the size of an orange: *Diego, I baptise you in the name of the Father, and of the Son, and of the Holy Spirit.*
+
+The baby did not wake up.
+
+At midnight the table stopped Paeng a little under a hundred and two metres down, and he lay down on his bunk, and slept.
+
+* * *
+
+The days on the table were all alike, and Ines lived them in twelve-hour pieces, noon to midnight. A finger of gas let out of the exhaust valve. The gauge going down by thirty centimetres every ten minutes, all afternoon, then the stop from two to four, then again till midnight. Every hour, the oxygen read and trimmed, because as the pressure came down the same percentage of oxygen gave less and less, and the chamber had to have more added to keep the partial pressure where the table wanted it. The temperature eased down a degree a day as the helium thinned.
+
+Dougie went in on Wednesday morning.
+
+He went down in the entry lock on his own, a narrow steel tube with a bench and a porthole, at the rates on the other side of the laminated card: fast at first, then slower, with holds to let his joints catch up. Ines came in early to watch, though it was not her shift. He sat with his eyes shut and his hands on his knees, and his voice on the microphone grew higher as the helium came in, until, when he said something to the day supervisor about the football, it was pure duck.
+
+"You sound like my granddaughter," the day supervisor said.
+
+"Get the unscrambler on, you heartless sod," said Dougie's voice, a quacking falsetto, and the whole of Dive Control laughed.
+
+At a hundred and eight metres he passed through into the living chamber where Paeng had slept, and took Paeng's bunk, and that afternoon he was in the bell.
+
+Paeng watched the bell go down on the tablet in chamber three. He had nothing else to watch but Diego.
+
+Diego had a bad night on Wednesday. The unit called Joy at three on Thursday morning, because he had needed more oxygen and his tummy was swollen, and they had stopped his milk and put him back on a drip and started antibiotics while they checked. Joy called Paeng, and Paeng could do nothing at all, because it was the middle of the midnight stop and he was at seventy-three metres, and he lay on his bunk with the phone on his chest and his eyes open until six, when the gauge began to move again.
+
+Ines was not on shift. Ruaridh told her afterwards that Paeng had asked for the lights to be left on, and that at about four in the morning he had started to say the rosary, out loud, in Tagalog, without the unscrambler on, and the duck voice had gone round and round the little steel room for twenty minutes, absurd and steady and unhurried, *Aba Ginoong Maria, napupuno ka ng grasya*, the same words over and over, and nobody in Dive Control had laughed.
+
+By Friday the scans were clear. It had been a scare, the doctor said; most of them are. Diego was back on milk by Friday night, a millilitre an hour through a tube, and the line on the chart of his oxygen came down, a little at a time, the way the line on the gauge came down.
+
+That same Friday afternoon, at a quarter past two, Fiona Rennie filmed the nativity in a primary school hall in Peterhead on her phone, and sent it to the ship, and Ruaridh passed a tablet into the living chamber through the lock. Ines, at her desk, watched it on the camera: Dougie Rennie, fifty-seven years old, at a hundred and eight metres, in a tracksuit, on a bunk, holding a tablet in both hands while a small girl in brown felt brayed, and wiping his eyes with the back of his wrist.
+
+He did not say anything about it to anyone. Nobody asked him to.
+
+* * *
+
+On Saturday Ines worked it out on the back of an envelope, the way she would have done before there was a Tern, to see whether she had been wrong, and she had not been. A hundred and eight to sixty at 1.8, twenty-six hours forty. Sixty to thirty at 1.5, twenty. Thirty to fifteen at 1.2, twelve and a half. Fifteen to the top at 0.9, sixteen hours forty. Seventy-five hours fifty of moving. The stops did the rest. If the seal had held, if the chamber had been ready at 19:50, he would have stepped out on Sunday at twenty to two. Instead the afternoon stop would catch him thirty centimetres from the top. She had been forty minutes late in starting, and it was going to cost him two hours and forty minutes at the end, because of a crumb in a door.
+
+She showed it to Tern, out of habit.
+
+"It's right," Tern said. "Would you have put him in without checking the lock?"
+
+"No."
+
+"Then the forty minutes weren't yours to save."
+
+"That isn't comfort, Tern."
+
+"No," Tern said. "It's only true."
+
+On Saturday night, at the midnight stop, Paeng was at seven and a half metres. He could see the deck lights through the porthole in chamber three, and the hangar's door, and beyond it the sea, black and heaving under the floodlights, and a supply boat riding at a distance with all her lights on, waiting. Joy had sent a photograph of Diego with his eyes open for the first time, slate blue, looking at nothing, and Paeng had it on the tablet against the porthole all night.
+
+* * *
+
+On Sunday morning, the Third Sunday of Advent, the one the old books call Gaudete, *rejoice*, Paeng came up from seven and a half metres to thirty centimetres between six and two, at nine tenths of a metre an hour, and Ines, who had swapped her shift with the day supervisor without asking anyone's permission and was ready to defend it to Haldis, sat at her desk and watched the gauge.
+
+At two o'clock it stopped. Thirty centimetres of seawater between Paeng and the air: less than the water in a bath, too little to feel in your ears. The table did not care. The table had been written by people who had watched other people get hurt, and it did not change for anyone, and the stop was two hours.
+
+"I know," Paeng said, before she could say anything. "I know. I've done the sums too."
+
+Joy called at three. Ines heard it on the chamber microphone, because Paeng held the phone up to the porthole so that she could see too. In the unit in Aberdeen, Grace was lifting Diego out of his incubator, a skein of wires and a hat, and laying him on Joy's bare chest under a blanket, and Joy put her hand over his back, and his whole back fitted under her palm.
+
+"Say something to him," Joy said. "He knows your voice. I've been playing him the old voice messages."
+
+And Paeng opened his mouth to speak to his son, and stopped, because the voice that would come out of him, even at thirty centimetres, was still not his own. The chamber was still mostly helium. Higher. Thinner. A stranger's voice, a voice his son had never heard.
+
+"Not yet," he said, very quietly. "Twenty past four. I'll tell him at twenty past four."
+
+At four the gauge began to move again.
+
+Ines did not need Tern to tell her when. She watched it fall the last thirty centimetres, a centimetre and a half a minute, the needle shivering on the zero, and at twenty past four she closed the exhaust and opened the equalising valve, and the chamber's pressure became the pressure of the hangar, and of the deck, and of the cold December air outside, and of every kitchen in Scotland. Ruaridh knocked off the dogs on the door with a mallet, one, two, three, four, and swung it open.
+
+The door made a sound when the seal let go. Not a hiss; there was nothing left to hiss. A soft, wet sound, like a kiss.
+
+Paeng came out of chamber three in his socks, ducking his head under the rim, and stood up straight in the hangar for the first time in twenty-one days, and breathed in air that smelled of diesel and sea and the burnt coffee on the hot plate in Dive Control, and the medic took his arm. He was grey and unshaven and he had his pillow under his arm.
+
+He had his phone in his other hand. It was twenty past four. At four o'clock, while the gauge was beginning to move again, Grace had put Diego back in the incubator, and Joy had gone back to the ward to sleep.
+
+He rang her anyway. She answered on the second ring, and he said, "Joy," in his own voice, his low, slightly husky Batangas voice that sounded nothing like a duck at all, and she began to cry, and so did he.
+
+"Put the phone by him," he said. "If they'll let you. Just for a minute. Just so he hears it."
+
+Ines went out of the hangar then, because there are things you do not watch even when it is your job to watch everything, and stood on the deck in the dark with her hands in her armpits, looking at the supply boat's lights. Twelve hours near the chamber, the medic would say; the rule after saturation. The boat would go at six in the morning. Eight and a half hours to Aberdeen at twelve knots. He would be in the unit by three on Monday afternoon.
+
+Behind her, through the open hangar door, very faint over the noise of the generators, she could hear Paeng talking. She could not hear what he was saying. She did not need to. It was a man's voice, low and ordinary, saying the same short word over and over to a phone propped against a plastic box a hundred and ninety kilometres away, and it was the most ordinary sound in the world.
+
+* * *
+
+On Monday afternoon, at ten past three, in a warm, humming room on the fourth floor of a hospital in Aberdeen, a man who had come up from the bottom of the sea at one point eight metres an hour, and then at one point five, and then at one point two, and then at nine tenths, washed his hands for two full minutes at the sink, the way the nurse showed him, and dried them, and sat down beside a plastic box with round holes in its side.
+
+He had spent five days looking out through a porthole. Now he opened one, and put his hand in, slowly, the way you do everything when you have learned how, and laid one finger in the palm of his son.
+
+Diego's hand closed on it.
+
+---
+
+*Notes for the curious.* This story was written by an AI and may be read by a synthetic voice. The *Skua Endeavour*, its crew, Tern (an invented AI), the carbon-storage field, the hospital staff and every person in the story are invented, and the setting in 2053 is imagined. Saturation diving is real: divers live for weeks in chambers held at the pressure of their work depth, breathing heliox (helium with a little oxygen), travel to the work site in a closed bell, and pay for it with a single long decompression at the end, because once the body's tissues are saturated with gas the decompression no longer depends on how long they stayed. Pressure rises by about one atmosphere for every ten metres of seawater, so 108 metres is about 11.8 atmospheres absolute; an oxygen partial pressure near 0.45 bar there is about 3.8 per cent oxygen, about twice the oxygen a person breathes at the surface but a mixture that would not support life there. Helium conducts heat about six times as well as air, which is why heliox chambers are kept near 30 °C, and sound travels nearly three times as fast in helium, which raises the resonances of the voice; helium speech unscramblers are real. The decompression table in the story is invented for it, but its shape follows real saturation tables: a slow, steady ascent whose rate falls as the diver nears the surface, with no travel during a night rest stop and an afternoon stop; the rates and stop hours used here are close to those in the US Navy Diving Manual's saturation decompression table, from memory, and real company tables differ. With those rates, 108 m to the surface is 75 hours 50 minutes of travel, and the story's start and surfacing times were worked out minute by minute in a few lines of code (a start at 19:50 on Tuesday 9 December 2053 surfaces at 13:40 on Sunday, before the afternoon stop; a start at 20:30 reaches 30 cm at 14:00, waits two hours and surfaces at 16:20; a start at 21:00 surfaces at 16:50); the weekdays are real. The twenty-eight-day limit, the two-hour wait after an excursion, the four-hour compression and the twelve hours near the chamber afterwards are the story's company rules, not quotations of any standard. Saint Juan Diego Cuauhtlatoatzin's optional memorial is on 9 December in the General Roman Calendar; the Third Sunday of Advent is called Gaudete Sunday from its entrance antiphon. In the Catholic Church an infant in danger of death is to be baptised without delay, by a priest when one can come and by anyone in true necessity. Most babies born at 28 weeks in a modern neonatal unit survive, but they are seriously ill, and the story's medical details are fiction, not advice. This is fiction, not a diving manual: nobody should plan or run a decompression from it.
