@@ -133,7 +133,7 @@ function buildReport(csvText, fileName) {
   }
   const observations = checkRows(rows);
   return {
-    generatedOn: new Date().toISOString().slice(0, 10),
+    generatedOn: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10),
     fileName: fileName || "picks.csv",
     rowsChecked: rows.length,
     status: observations.length ? "observations" : "no-observations",

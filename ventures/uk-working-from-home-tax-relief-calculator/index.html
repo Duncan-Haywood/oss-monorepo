@@ -132,7 +132,7 @@
     const map = { asOf: "asOf", required: "required", rate: "rate", weeks2021: "weeks2021", weeks2022: "weeks2022", weeks2023: "weeks2023", weeks2024: "weeks2024", weeks2025: "weeks2025", reimbursed: "reimbursed", actual: "actual", sa: "sa" };
     const IDLE = "Fill in the figures, then click Work out my refund.";
     const DEFAULTS = { required: "yes", rate: "20", sa: "no" };
-    const today = () => new Date().toISOString().slice(0, 10);
+    const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     $("#asOf").value = today();
 
     function download(name, body, type) {

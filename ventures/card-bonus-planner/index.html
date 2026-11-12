@@ -144,7 +144,7 @@
     const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch { /* storage is optional */ } };
     $("optout").checked = usageOptedOut();
     $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
-    $("today").value = new Date().toISOString().slice(0, 10);
+    $("today").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     $("monthly").value = state.monthly;
     const today = () => $("today").value;
     const num = (id) => Number($(id).value) || 0;

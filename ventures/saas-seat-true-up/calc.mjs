@@ -86,7 +86,10 @@ export function evaluateNoticeDeadline({ renewalDate, noticeDays = 0, today } = 
   if (!Number.isFinite(days) || days < 0) {
     throw new Error('Notice period must be a non-negative number of days');
   }
-  const now = parseDateInput(today) || (today instanceof Date ? today : new Date());
+  // Today's local midnight, so the count is whole calendar days: a raw `new
+  // Date()` late in the evening rounded 2.98 days up to 3.
+  const clock = new Date();
+  const now = parseDateInput(today) || (today instanceof Date ? today : new Date(clock.getFullYear(), clock.getMonth(), clock.getDate()));
   const deadline = new Date(renewal.getTime() - days * MS_PER_DAY);
   const daysUntilDeadline = Math.round((deadline.getTime() - now.getTime()) / MS_PER_DAY);
   const daysUntilRenewal = Math.round((renewal.getTime() - now.getTime()) / MS_PER_DAY);

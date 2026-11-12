@@ -121,7 +121,7 @@
     const $ = (sel) => document.querySelector(sel);
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     $("#state").innerHTML = STATE_CODES.map((c) => `<option value="${c}">${esc(STATES[c].name)}</option>`).join("");
-    $("#today").value = new Date().toISOString().slice(0, 10);
+    $("#today").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     let lastLetter = "";
 
     const read = () => ({

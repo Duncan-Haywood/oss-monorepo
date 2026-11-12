@@ -215,7 +215,7 @@
       const d = deadlines($("#initialDate").value, $("#holidays").value);
       const out = $("#date-out");
       if (d.error) { out.textContent = d.error; return; }
-      const today = new Date().toISOString().slice(0, 10);
+      const today = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
       const left = daysUntil(d.initiateBy, today);
       out.textContent = `Open negotiation ends ${d.negotiationEnds}; start the IDR request by ${d.initiateBy}` + (left === null ? "" : left < 0 ? ` (${-left} calendar days ago).` : ` (${left} calendar days from today).`) + " " + d.warnings.join(" ") + " Verify against current federal guidance.";
     });

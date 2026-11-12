@@ -175,7 +175,7 @@ node cli.mjs --today 2026-10-11    # judge end-of-life as of a fixed date</pre>
     function escapeHtml(s) {
       return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     }
-    const isoToday = () => new Date().toISOString().slice(0, 10);
+    const isoToday = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     $("#in-today").value = isoToday();
 
     function renderCheck() {

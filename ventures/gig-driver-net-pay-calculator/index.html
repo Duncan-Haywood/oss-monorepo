@@ -422,7 +422,7 @@
       const writeLog = (entries) => { try { localStorage.setItem(LOG_KEY, JSON.stringify(entries)); return true; } catch { return false; } };
       const pct = value => value === null ? 'n/a' : `${(value * 100).toFixed(0)}%`;
       let memory = readLog();
-      el('logDate').value = new Date().toISOString().slice(0, 10);
+      el('logDate').value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 
       function renderLog() {
         const body = el('logWeeks').querySelector('tbody');

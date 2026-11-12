@@ -399,7 +399,7 @@
     } catch { /* storage blocked */ }
     // Return measurement (hypothesis: people come back as the year goes on). Counts a run on a different calendar day from the last one, on this device only.
     const DAY_KEY = "state-residency-day-counter:last-run-day";
-    function noteDay() { try { const d = new Date().toISOString().slice(0, 10), last = localStorage.getItem(DAY_KEY); if (last && last !== d) record("count_run_new_day"); localStorage.setItem(DAY_KEY, d); } catch { /* storage blocked */ } }
+    function noteDay() { try { const d = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10), last = localStorage.getItem(DAY_KEY); if (last && last !== d) record("count_run_new_day"); localStorage.setItem(DAY_KEY, d); } catch { /* storage blocked */ } }
     $("#remember").addEventListener("change", () => {
       try { if ($("#remember").checked) persist(); else localStorage.removeItem(KEY); } catch { /* storage blocked */ }
     });

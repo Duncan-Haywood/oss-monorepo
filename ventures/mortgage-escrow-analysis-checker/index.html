@@ -220,7 +220,7 @@
 
     function letter() {
       if (!last) return;
-      $("#letter").value = requestLetter(last, { name: $("#who-name").value.trim(), servicer: $("#who-servicer").value.trim(), loan: $("#who-loan").value.trim(), date: new Date().toISOString().slice(0, 10) });
+      $("#letter").value = requestLetter(last, { name: $("#who-name").value.trim(), servicer: $("#who-servicer").value.trim(), loan: $("#who-loan").value.trim(), date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
     }
 
     function run() {

@@ -164,7 +164,7 @@
 
     for (const [k, c] of Object.entries(CADENCES)) { const o = el("option", "", c.label); o.value = k; $("#cadence").append(o); }
     try { $("#tz").value = Intl.DateTimeFormat().resolvedOptions().timeZone || ""; } catch { /* optional */ }
-    const nextMonday = () => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return d.toISOString().slice(0, 10); };
+    const nextMonday = () => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
     $("#start").value = nextMonday();
 
     const sender = () => Object.fromEntries(SENDER.map((k) => [k, $("#" + k).value.trim()]));

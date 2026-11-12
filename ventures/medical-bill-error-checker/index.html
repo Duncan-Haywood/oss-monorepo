@@ -145,7 +145,7 @@
 
     function letter() {
       if (!last) return;
-      $("#letter").value = requestLetter(last, { patient: $("#patient").value.trim(), provider: $("#provider").value.trim(), account: $("#account").value.trim(), date: new Date().toISOString().slice(0, 10) });
+      $("#letter").value = requestLetter(last, { patient: $("#patient").value.trim(), provider: $("#provider").value.trim(), account: $("#account").value.trim(), date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
     }
 
     function run(text) {

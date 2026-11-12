@@ -495,11 +495,11 @@
     });
     $('reset').addEventListener('click', () => {
       const defaults = { amount: '1200', termsDays: '30', annualLateRate: '18', graceDays: '10', monthlyBurn: '3000', outstanding: '3', earlyPayDays: '10', earlyPayDiscountPct: '2', annualCarryRate: '24', takeRatePct: '100', factorFeePct: '3', advancePct: '90', reserveDays: '35', payRun: 'weekdays', payRunDay: '1', payRunWeekday: '5', projectValue: '6000', projectDays: '30', avgDaysLate: '12', depositCollectionDays: '5', depositPct: '30', exposureCeiling: '2000' };      Object.entries(defaults).forEach(([id, value]) => $(id).value = value);
-      $('invoiceDate').value = new Date().toISOString().slice(0, 10);
+      $('invoiceDate').value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
       update();
       updateSchedules(false);
     });
-    $('invoiceDate').value = new Date().toISOString().slice(0, 10);
+    $('invoiceDate').value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 
     // A shared scenario arrives in the fragment, which browsers never send
     // to a server or log in a Referer header. `search` is accepted too, in
