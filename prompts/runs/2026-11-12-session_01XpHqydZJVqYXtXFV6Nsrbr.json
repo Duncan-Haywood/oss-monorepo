@@ -27,18 +27,23 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 15,
   "outcome": "success",
   "errors": [
-    "First test version asserted exactness where a dead column and dead row cross; the ring is lopsided there by design, so the test was split (recorded in eval doc)."
+    "First test version asserted exactness where a dead column and dead row cross; the ring is lopsided there by design, so the test was split (recorded in eval doc).",
+    "First CI push failed lint (ruff E741 on `l` loop names) and validate (flagships next: 2018 chars, cap 2000); both fixed in a follow-up commit."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "portfolio/router/allocate.py",
       "issue": "'Start here' named sales-agent though none of its items is buildable without outside input and no BUILDABLE HERE note says so; the pick could skip flagships whose next: has only input-gated items."
+    },
+    {
+      "file": "ventures/photo-editing (ruff config)",
+      "issue": "Running plain `ruff check` locally reports 16 findings in existing code that CI's lint does not; the lint CI actually runs is not obvious from the venture, so E741 only surfaced in CI."
     }
   ],
   "deviations": [
