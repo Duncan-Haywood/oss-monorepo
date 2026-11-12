@@ -113,3 +113,30 @@ test("a duration with minutes or seconds past 59 is unreadable, not stretched", 
   assert.equal(parseDuration("1:75"), null);
   assert.equal(parseDuration("1:60:00"), null);
 });
+
+// Red team 2026-11-12: guards for mutants that escaped the suite above.
+test("a UTF-16LE export (Excel's Unicode text) is decoded, not read as UTF-8", async () => {
+  const { decodeBuffer } = await import("./calc.mjs");
+  const u16 = new Uint8Array([0xff, 0xfe, ...[..."Views"].flatMap((c) => [c.charCodeAt(0), 0])]);
+  assert.equal(decodeBuffer(u16.buffer), "Views");
+  assert.equal(decodeBuffer(new TextEncoder().encode("Views").buffer), "Views");
+});
+
+test("a first part of exactly 12 is not proof that dates are day-first", async () => {
+  const { detectDmy } = await import("./calc.mjs");
+  assert.equal(detectDmy(["12/05/2026", "01/06/2026"]), false);
+  assert.equal(detectDmy(["13/05/2026", "01/06/2026"]), true);
+});
+
+test("a one-second duration is a duration, not missing", () => {
+  assert.equal(parseDuration("1"), 1);
+  assert.equal(parseDuration("0"), null);
+});
+
+test("concentration shares are fractions of revenue and rows are ranked highest revenue first", () => {
+  const { r } = run("Video title,Views,Estimated revenue (USD)\nA,1000,10\nB,1000,60\nC,1000,30\n");
+  assert.deepEqual(r.byRev.map((x) => x.label), ["B", "C", "A"]);
+  near(r.concentration.topShare, 0.6, 1e-9);
+  near(r.concentration.topNShare, 0.6, 1e-9);
+  assert.equal(r.concentration.rowsFor80, 2);
+});
