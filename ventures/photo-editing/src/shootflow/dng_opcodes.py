@@ -189,7 +189,11 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
 
     gain_maps: list[GainMap] = []
     notes: list[str] = []
-    for tag, label in ((TAG_OPCODE_LIST_1, "OpcodeList1"), (TAG_OPCODE_LIST_2, "OpcodeList2"), (TAG_OPCODE_LIST_3, "OpcodeList3")):
+    for tag, label in (
+        (TAG_OPCODE_LIST_1, "OpcodeList1"),
+        (TAG_OPCODE_LIST_2, "OpcodeList2"),
+        (TAG_OPCODE_LIST_3, "OpcodeList3"),
+    ):
         blob = ifd.get(tag) or ifd0.get(tag)
         if not blob:
             continue
@@ -269,7 +273,9 @@ def apply_plane(maps: list[GainMap], plane, h: int, w: int, spp: int) -> None:
         ys = np.array(list(rows), dtype=np.int64)
         for p in range(gm.plane, min(gm.plane + gm.planes, spp)):
             q = min(p - gm.plane, gm.map_planes - 1)
-            table = np.array(gm.gains, dtype=np.float64).reshape(gm.points_v, gm.points_h, gm.map_planes)[..., q]
+            table = np.array(gm.gains, dtype=np.float64).reshape(gm.points_v, gm.points_h, gm.map_planes)[
+                ..., q
+            ]
             ent = (1.0 - rf) * table[i1] + rf * table[i2]  # (rows, points_h)
             g = (1.0 - cf) * ent[:, j1] + cf * ent[:, j2]
             xs = np.array(list(cols), dtype=np.int64) * spp + p

@@ -88,7 +88,12 @@ def corner_falloff(img) -> dict:
     h, w = y.shape
     th, tw = h // 8, w // 8
     centre = y[h // 2 - th // 2 : h // 2 + th // 2, w // 2 - tw // 2 : w // 2 + tw // 2].mean()
-    tiles = {"top_left": y[:th, :tw], "top_right": y[:th, -tw:], "bottom_left": y[-th:, :tw], "bottom_right": y[-th:, -tw:]}
+    tiles = {
+        "top_left": y[:th, :tw],
+        "top_right": y[:th, -tw:],
+        "bottom_left": y[-th:, :tw],
+        "bottom_right": y[-th:, -tw:],
+    }
     return {k: round(float(v.mean() / centre), 3) for k, v in tiles.items()}
 
 
@@ -125,8 +130,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("dng", type=Path)
     parser.add_argument("--colour", choices=("dcraw", "dng"), default="dcraw")
-    parser.add_argument("--opcodes", action="store_true", help="run the DNG opcode lists in ShootFlow's render")
-    parser.add_argument("--preview", action="store_true", help="corner falloff against the embedded preview (needs Pillow)")
+    parser.add_argument(
+        "--opcodes", action="store_true", help="run the DNG opcode lists in ShootFlow's render"
+    )
+    parser.add_argument(
+        "--preview", action="store_true", help="corner falloff against the embedded preview (needs Pillow)"
+    )
     args = parser.parse_args(argv)
 
     raw = with_active_area(rd.read_raw(args.dng))
@@ -171,7 +180,10 @@ def main(argv: list[str] | None = None) -> int:
         "shift_half_px": list(shift),
         "p50_8bit": round(float(np.percentile(diff, 50)), 3),
         "p99_8bit": round(float(np.percentile(diff, 99)), 3),
-        "channel_means": {"shootflow": a2.mean(axis=(0, 1)).round(4).tolist(), "libraw": b2.mean(axis=(0, 1)).round(4).tolist()},
+        "channel_means": {
+            "shootflow": a2.mean(axis=(0, 1)).round(4).tolist(),
+            "libraw": b2.mean(axis=(0, 1)).round(4).tolist(),
+        },
         "linear_ratio_median": linear_ratio(a2, b2),
         "notes": report.notes,
     }

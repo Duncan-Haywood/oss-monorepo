@@ -22,7 +22,9 @@ Scope, stated plainly:
 * The DNG rendering steps a viewer needs: linearization table, black level
   (repeat pattern and per-row/column deltas), white level, active area, default
   crop, as-shot white balance (``AsShotNeutral``), the camera colour matrix,
-  ``BaselineExposure`` and the IFD0 orientation.
+  ``BaselineExposure``, the IFD0 orientation and the ``GainMap`` opcodes in
+  ``OpcodeList2`` (lens shading, as phones write it; ``dng_opcodes``). Other
+  opcodes are named in the report, not run.
 * Colour (default ``colour="dng"``, since 2026-11-12): the DNG
   specification's model in ``dng_colour``: the as-shot white found from
   ``AsShotNeutral`` (or ``AsShotWhiteXY``), ``ColorMatrix``,

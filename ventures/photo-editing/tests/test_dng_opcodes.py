@@ -26,8 +26,23 @@ except ImportError:
     HAVE_NUMPY = False
 
 
-def gain_map_params(gains, pv, ph, *, top=0, left=0, bottom=1 << 20, right=1 << 20, plane=0, planes=1,
-                    row_pitch=1, col_pitch=1, spacing=None, origin=(0.0, 0.0), map_planes=1):
+def gain_map_params(
+    gains,
+    pv,
+    ph,
+    *,
+    top=0,
+    left=0,
+    bottom=1 << 20,
+    right=1 << 20,
+    plane=0,
+    planes=1,
+    row_pitch=1,
+    col_pitch=1,
+    spacing=None,
+    origin=(0.0, 0.0),
+    map_planes=1,
+):
     sv, sh = spacing or (1.0 / max(pv - 1, 1), 1.0 / max(ph - 1, 1))
     head = struct.pack(">10I", top, left, bottom, right, plane, planes, row_pitch, col_pitch, pv, ph)
     head += struct.pack(">4d", sv, sh, origin[0], origin[1]) + struct.pack(">I", map_planes)
@@ -68,7 +83,10 @@ class ParseTests(unittest.TestCase):
         self.assertEqual([op.name for op in ops], ["GainMap", "WarpRectilinear", "opcode 77"])
         self.assertEqual([op.optional for op in ops], [True, False, True])
         parsed = do.parse_gain_map(ops[0])
-        self.assertEqual((parsed.top, parsed.row_pitch, parsed.col_pitch, parsed.points_v, parsed.points_h), (1, 2, 2, 2, 2))
+        self.assertEqual(
+            (parsed.top, parsed.row_pitch, parsed.col_pitch, parsed.points_v, parsed.points_h),
+            (1, 2, 2, 2, 2),
+        )
         self.assertEqual(parsed.gain(1, 0, 0), 3.0)
 
     def test_truncated_list_raises(self):
@@ -103,7 +121,9 @@ class GainMapDevelopTests(unittest.TestCase):
         ]
         want = develop(make_dng(sensor, self.W, self.H), engine="python")
         got = develop(make_dng(dark, self.W, self.H, extra_raw_tags=[list_tag(ops)]), engine="python")
-        off = develop(make_dng(dark, self.W, self.H, extra_raw_tags=[list_tag(ops)]), engine="python", opcodes=False)
+        off = develop(
+            make_dng(dark, self.W, self.H, extra_raw_tags=[list_tag(ops)]), engine="python", opcodes=False
+        )
         self.assertIn("OpcodeList2: 2 GainMap applied (lens shading)", got[3].notes)
         self.assertIn("opcode lists not run (opcodes off)", off[3].notes)
         worst = max(abs(a - b) for a, b in zip(got[2], want[2]))
@@ -133,7 +153,13 @@ class GainMapDevelopTests(unittest.TestCase):
                 self.assertAlmostEqual(v, 1500 / span, delta=0.6 / span * (1 + k), msg=(x, y))
 
     def test_area_and_pitch_limit_where_it_applies(self):
-        ops = [(9, 1, gain_map_params([3.0] * 4, 2, 2, top=2, left=4, bottom=6, right=12, row_pitch=2, col_pitch=4))]
+        ops = [
+            (
+                9,
+                1,
+                gain_map_params([3.0] * 4, 2, 2, top=2, left=4, bottom=6, right=12, row_pitch=2, col_pitch=4),
+            )
+        ]
         raw = rd.parse_raw(make_dng([self.BLACK + 100] * (16 * 8), 16, 8, extra_raw_tags=[list_tag(ops)]))
         plan = do.plan(raw.ifd, raw.ifd0)
         for y in range(8):
@@ -152,7 +178,9 @@ class GainMapDevelopTests(unittest.TestCase):
         do.apply_row(plan.gain_maps, 0, row, 4, 8, 1)
         self.assertEqual(row, [0.5] * 8)
         row = [0.8] * 8
-        do.apply_row([do.GainMap(0, 0, 4, 8, 0, 1, 1, 1, 1, 1, 1.0, 1.0, 0.0, 0.0, 1, (2.0,))], 0, row, 4, 8, 1)
+        do.apply_row(
+            [do.GainMap(0, 0, 4, 8, 0, 1, 1, 1, 1, 1, 1.0, 1.0, 0.0, 0.0, 1, (2.0,))], 0, row, 4, 8, 1
+        )
         self.assertEqual(row, [1.0] * 8)
 
     def test_other_opcodes_are_named_not_run(self):
@@ -190,7 +218,11 @@ class GainMapCliTests(unittest.TestCase):
             notes = []
             for i, extra in enumerate(([], ["--no-opcodes"])):
                 out = io.StringIO()
-                code = main(["develop", str(src), "--out", str(Path(tmp) / f"m{i}"), "--half", *extra], stdout=out, stderr=io.StringIO())
+                code = main(
+                    ["develop", str(src), "--out", str(Path(tmp) / f"m{i}"), "--half", *extra],
+                    stdout=out,
+                    stderr=io.StringIO(),
+                )
                 self.assertEqual(code, 0)
                 notes.append(json.loads(out.getvalue())["developed"][0]["notes"])
         self.assertIn("OpcodeList2: 1 GainMap applied (lens shading)", notes[0])
@@ -205,9 +237,23 @@ class GainMapEngineTests(unittest.TestCase):
             sensor = [max(0, min(4095, v + rng.randint(-500, 500))) for v in patch_sensor(w, h, gain=1.4)]
             gains = [0.8 + rng.random() * 2.5 for _ in range(4 * 5)]
             ops = [
-                (9, 1, gain_map_params(gains, 4, 5, top=t, left=l, row_pitch=2, col_pitch=2, spacing=(0.3, 0.2), origin=(0.05, -0.1)))
+                (
+                    9,
+                    1,
+                    gain_map_params(
+                        gains,
+                        4,
+                        5,
+                        top=t,
+                        left=c,
+                        row_pitch=2,
+                        col_pitch=2,
+                        spacing=(0.3, 0.2),
+                        origin=(0.05, -0.1),
+                    ),
+                )
                 for t in (0, 1)
-                for l in (0, 1)
+                for c in (0, 1)
             ]
             blob = make_dng(sensor, w, h, extra_raw_tags=[list_tag(ops)])
             raw = rd.parse_raw(blob)
