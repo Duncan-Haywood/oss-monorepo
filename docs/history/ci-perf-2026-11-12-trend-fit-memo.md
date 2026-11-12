@@ -64,10 +64,21 @@ not steps.
   committed-eval checks pass unchanged.
 - **Faster.** Bench 27.1 s to **20.8 s**; the null195-ar1 eval 37.0 s to
   **27.9 s** (`date` around one run each).
-- Full suite (`run_venture_tests.py changepoint-detector`): SUITE_RESULT.
+- Full suite: `run_venture_tests.py changepoint-detector` passes (585
+  tests, 0 failed), and CI's `changed-ventures` job passed on the PR.
+- **Suite wall time did not measurably move.** Timed back to back on this
+  4-core container (`date` around `node --test`, one run each, the engine
+  swapped between runs): `engine.test.mjs` alone **178.0 s to 157.6 s**; the
+  whole suite 241.0 s before and 249.4 s after, within run-to-run noise. The
+  suite runs its files three at a time, so CPU saved in the trend-bend tests
+  goes to other files, and the wall time is set by the total, not by one file.
+  The saving is CPU time on every run that touches this venture, plus the
+  product's own `--trend bends` searches (about a quarter faster per call).
 
 ## Not changed, ranked for the next run
 
+0. To move the suite's wall time, the remaining big costs are spread over many
+   files (eval output checks at 9 to 30 s each): no single fix will do it.
 1. `pelt` is still most of the trend-bend time: about 115,000 calls remain,
    each a different detrended series. Replacing `/ s2` by a precomputed
    reciprocal would cut a division per step but changes the last bit of each

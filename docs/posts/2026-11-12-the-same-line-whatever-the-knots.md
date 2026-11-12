@@ -48,6 +48,12 @@ The bench's output hash is the same before and after, and the evaluation
 script's output matches the committed file byte for byte. A speed-up that
 moved a single knot would have been a model change, not a speed-up.
 
+That is CPU time, not yet wall time. The file holding those tests went from
+178 to 158 seconds, but the whole suite runs its files three at a time, and
+its four minutes did not measurably change: the other files filled the gap.
+Product users do get the gain, since every `--trend bends` call does about a
+quarter less work.
+
 What is left is mostly PELT on series that really do differ. The next easy
 saving would start each fit from its neighbour's slopes. That can settle on a
 different answer, so it is a modelling choice for later, not a performance
