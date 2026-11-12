@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-12",
+ "session": "https://claude.ai/code/session_01EhTJVMdKuxTQLXF723vzSw",
+ "track": "ventures",
+ "prompt_version": 1,
+ "input": null,
+ "input_sha256": null,
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-12T21:14:42Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": 15256,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "partial",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "portfolio/router/allocate.py",
+   "issue": "Two sessions took photo-editing's BUILDABLE HERE item (MapTable, Delta/ScalePerRow/Column) at the same time; #15255 landed first and this run's implementation (PR 15256) was dropped. This run opened its PR only after implementing, not as a draft at pick time as allocate.py asks: the claim would have shown in the table."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "portfolio/router/allocate.py",
+   "why": "Start-here named ai-bookkeeper, but every item in its next: needs a real outside input (bank exports, a hosted-model key, 2026 IRS tables not yet printed); took photo-editing's BUILDABLE HERE item instead.",
+   "did": "Built the same five opcodes; a parallel session merged them first, so this run's implementation was dropped and its non-overlapping tests were ported onto the landed code.",
+   "result": "6 cross-check tests pass on the landed implementation (other two axes end to end, closed forms, numpy vs pure); no discrepancy found."
+  }
+ ],
+ "writeups": [],
+ "goal": null,
+ "notes": "Local: PYTHONPATH=src:tests pytest tests/test_dng_opcodes_crosscheck.py tests/test_dng_table_per_line.py -> all passed. Earlier, the dropped implementation passed the full photo-editing suite (run_venture_tests.py) and CI.",
+ "corrections": [],
+ "redteam": null
+}
