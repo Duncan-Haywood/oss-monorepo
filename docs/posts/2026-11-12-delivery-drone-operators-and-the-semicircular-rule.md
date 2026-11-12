@@ -1,8 +1,8 @@
 ---
-title: "Several drone delivery operators in one city: hubs never collide, operators do, and crewed aviation's altitude rule helps most"
+title: "Drone delivery with several operators: hubs never collide, operators do, and the semicircular rule helps"
 date: 2026-11-12
 tags: [aerolog-scaling, drones, airspace, uam, simulation, theory]
-description: One operator's hubs never interfere; with four overlapping operators a third of en-route conflicts are crossings, and the semicircular altitude rule leaves 3x fewer than an outbound/inbound split.
+description: One operator's hubs never interfere. With four overlapping operators, a third of conflicts are crossings; the semicircular rule leaves 3x fewer.
 ---
 
 The last two steps of the `aerolog-scaling` programme counted how often one delivery hub's own drones lose separation in a cruise layer, and found a closed form that predicts it to about 1% from the destination map alone. Today's step (milestone 11c) asks what happens when a city has several hubs, and several companies.
