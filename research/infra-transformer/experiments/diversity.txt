@@ -1,0 +1,152 @@
+Heat-pump diversity: 20 groups x 10 homes, two-node homes at 1-minute steps, UA lognormal (mean 0.42 kW/K, cv 0.25),
+setpoint 20 +/- 1 C, deadband 1 K, capacity = design heat load at the 1st-percentile hourly temperature, 5 kW strip
+as stage 2 (1 K below the band). VS = variable-speed (modulating), SS = single-stage (on/off). Setback: 3 K, 22:00-06:00
+(sync) or ending uniformly 04:00-08:00 per home (stagger4h). Base load H0 and EVs as in results.txt (hourly, held flat
+within the hour). Transformer as in results.txt, sized to the baseline (no heat pump, no EV) peak / loading.
+Ranges are median [min-max] over the 20 groups. LOL columns: hourly = hourly-mean load on the hourly model (as results.txt);
+1min = one-minute load with the hot-spot gradient lagged by tau_w = 0.1 h.
+
+== greensboro
+A. Heat-pump load of the 10-home group
+case kWh_per_home peak_hourly_kW peak_1min_kW coincidence_factor(1min group peak / sum of home peaks) strip_h_per_home
+coincident(model.py) 6428 74.2 74.2 1 0
+VS 5967 72 [67.1-79.8] 92.5 [85.8-105] 0.865 [0.811-0.954] 1.4
+SS 5910 69.7 [64.9-77.2] 88.6 [77.7-97.1] 0.818 [0.756-0.906] 1.0
+SS setback sync 5438 105 [101-112] 106 [102-112] 1 [1-1] 41.3
+SS setback sync nostrip 5286 55.8 [52-62.2] 55.8 [52-62.2] 1 [1-1] 157.7
+SS setback stagger4h 5425 90.1 [84.8-101] 101 [97.1-109] 0.967 [0.948-0.993] 38.7
+VS setback sync 5372 104 [99.3-111] 106 [102-112] 1 [1-1] 21.5
+design temperature (1st percentile hourly) -9.4 C, mean heat-pump capacity 10.4 kW thermal
+SS group: mean (max 1-min / hourly mean) within the hour, by outdoor temperature bin, C: [-20,-5):1.06(n=309) [-5,0):1.34(n=483) [0,5):1.57(n=799) [5,10):2.13(n=1224) [10,16):3.02(n=1586)
+
+B. Annual transformer loss of life, %/yr, 100 % heat pumps (and 100 % EVs where named)
+loading ev case LOL_hourly LOL_1min peak_pu_1min
+0.5 none coincident 0.334 [0.334-0.334] 0.326 [0.326-0.326] 1.73 [1.73-1.73]
+0.5 none VS 0.107 [0.0414-0.554] 0.107 [0.041-0.553] 2.13 [1.99-2.41]
+0.5 none SS 0.096 [0.0391-0.455] 0.0957 [0.0388-0.454] 2.05 [1.81-2.23]
+0.5 none SS setback sync 3.91 [1.37-24.7] 3.22 [1.11-20.5] 2.49 [2.36-2.62]
+0.5 none SS setback sync nostrip 0.0986 [0.0441-0.396] 0.0952 [0.0425-0.381] 1.57 [1.5-1.69]
+0.5 none SS setback stagger4h 1.97 [0.672-14.5] 1.93 [0.618-13.7] 2.43 [2.25-2.62]
+0.5 none VS setback sync 1.82 [0.652-11.4] 1.46 [0.512-9.13] 2.43 [2.34-2.59]
+0.5 uncoord coincident 7.5 [5.23-32.9] 5.45 [4.06-16.8] 2.35 [2.2-2.78]
+0.5 uncoord VS 5.83 [1.87-75.7] 3.95 [1.36-40.2] 2.34 [2.13-2.87]
+0.5 uncoord SS 6.36 [2.09-77.6] 4.36 [1.54-41.5] 2.4 [2.13-2.87]
+0.5 uncoord SS setback sync 13.3 [4.67->100] 10 [3.51-71.7] 2.49 [2.36-2.87]
+0.5 uncoord SS setback sync nostrip 9.29 [3.19-83.8] 6.19 [2.31-45.8] 2.39 [2.13-2.87]
+0.5 uncoord SS setback stagger4h 11 [4.12->100] 8.27 [3.12-64.4] 2.47 [2.29-2.87]
+0.5 uncoord VS setback sync 8.75 [3.13-94.3] 6.2 [2.29-53.8] 2.43 [2.34-2.87]
+0.5 smart coincident 1.13 [1.03-1.32] 1.09 [1-1.28] 1.76 [1.74-1.79]
+0.5 smart VS 0.304 [0.117-1.54] 0.304 [0.117-1.54] 2.13 [2-2.41]
+0.5 smart SS 0.282 [0.112-1.34] 0.283 [0.112-1.34] 2.1 [1.91-2.25]
+0.5 smart SS setback sync 5.88 [2.13-35.3] 4.93 [1.76-30] 2.49 [2.36-2.62]
+0.5 smart SS setback sync nostrip 0.137 [0.06-0.577] 0.14 [0.0602-0.596] 1.87 [1.76-2.04]
+0.5 smart SS setback stagger4h 2.53 [0.852-18.9] 2.53 [0.803-18.3] 2.43 [2.25-2.62]
+0.5 smart VS setback sync 3.28 [1.21-19.8] 2.7 [0.971-16.4] 2.43 [2.34-2.59]
+0.7 none coincident >100 [>100->100] >100 [>100->100] 2.42 [2.42-2.42]
+0.7 none VS 98.3 [28.8->100] 97.8 [28.5->100] 2.98 [2.78-3.38]
+0.7 none SS 76.6 [24->100] 75.7 [23.6->100] 2.86 [2.53-3.13]
+0.7 none SS setback sync >100 [>100->100] >100 [>100->100] 3.48 [3.3-3.67]
+0.7 none SS setback sync nostrip 59.8 [20.8->100] 56.4 [19.5->100] 2.2 [2.1-2.37]
+0.7 none SS setback stagger4h >100 [>100->100] >100 [>100->100] 3.4 [3.15-3.67]
+0.7 none VS setback sync >100 [>100->100] >100 [>100->100] 3.4 [3.28-3.63]
+0.7 uncoord coincident >100 [>100->100] >100 [>100->100] 3.29 [3.09-3.89]
+0.7 uncoord VS >100 [>100->100] >100 [>100->100] 3.27 [2.98-4.02]
+0.7 uncoord SS >100 [>100->100] >100 [>100->100] 3.36 [2.98-4.02]
+0.7 uncoord SS setback sync >100 [>100->100] >100 [>100->100] 3.49 [3.3-4.02]
+0.7 uncoord SS setback sync nostrip >100 [>100->100] >100 [>100->100] 3.34 [2.98-4.02]
+0.7 uncoord SS setback stagger4h >100 [>100->100] >100 [>100->100] 3.45 [3.2-4.02]
+0.7 uncoord VS setback sync >100 [>100->100] >100 [>100->100] 3.4 [3.28-4.02]
+0.7 smart coincident >100 [>100->100] >100 [>100->100] 2.47 [2.44-2.51]
+0.7 smart VS >100 [>100->100] >100 [>100->100] 2.98 [2.79-3.38]
+0.7 smart SS >100 [88.3->100] >100 [88.4->100] 2.93 [2.68-3.14]
+0.7 smart SS setback sync >100 [>100->100] >100 [>100->100] 3.48 [3.3-3.67]
+0.7 smart SS setback sync nostrip >100 [33.8->100] >100 [34.3->100] 2.61 [2.46-2.85]
+0.7 smart SS setback stagger4h >100 [>100->100] >100 [>100->100] 3.4 [3.15-3.67]
+0.7 smart VS setback sync >100 [>100->100] >100 [>100->100] 3.4 [3.28-3.63]
+
+== sandpoint
+A. Heat-pump load of the 10-home group
+case kWh_per_home peak_hourly_kW peak_1min_kW coincidence_factor(1min group peak / sum of home peaks) strip_h_per_home
+coincident(model.py) 15048 51.3 51.3 1 0
+VS 14602 44.7 [41.7-49.9] 44.7 [41.7-49.9] 1 [1-1] 0.0
+SS 14608 44.7 [41.7-49.9] 44.7 [41.7-49.9] 1 [1-1] 0.0
+SS setback sync 13702 83.2 [77.7-90.7] 94.7 [91.3-99.9] 0.998 [0.995-1] 71.7
+SS setback sync nostrip 13434 44.7 [41.7-49.9] 44.7 [41.7-49.9] 1 [1-1] 342.1
+SS setback stagger4h 13691 71.2 [65.3-79.5] 89.6 [84.1-99.8] 0.946 [0.893-1] 70.0
+VS setback sync 13534 77.9 [73.9-85.1] 94.3 [91.1-99.9] 0.994 [0.994-1] 32.7
+design temperature (1st percentile hourly) -8.0 C, mean heat-pump capacity 9.8 kW thermal
+
+B. Annual transformer loss of life, %/yr, 100 % heat pumps (and 100 % EVs where named)
+loading ev case LOL_hourly LOL_1min peak_pu_1min
+0.5 none coincident 0.0827 [0.0827-0.0827] 0.0796 [0.0796-0.0796] 1.55 [1.55-1.55]
+0.5 none VS 0.0498 [0.0245-0.179] 0.0482 [0.0237-0.173] 1.46 [1.39-1.57]
+0.5 none SS 0.0574 [0.0277-0.21] 0.0571 [0.0275-0.208] 1.46 [1.39-1.57]
+0.5 none SS setback sync 0.457 [0.174-2.22] 0.388 [0.151-1.84] 2.33 [2.22-2.51]
+0.5 none SS setback sync nostrip 0.112 [0.0554-0.386] 0.108 [0.0531-0.369] 1.46 [1.39-1.57]
+0.5 none SS setback stagger4h 0.316 [0.108-1.5] 0.3 [0.106-1.4] 2.27 [2.14-2.51]
+0.5 none VS setback sync 0.15 [0.0695-0.624] 0.134 [0.0628-0.546] 2.29 [2.22-2.51]
+0.5 uncoord coincident 8.42 [5.91-12.5] 5.57 [4.16-7.59] 2.36 [2.15-2.5]
+0.5 uncoord VS 5.57 [2.73-20.2] 3.64 [1.75-13.3] 2.32 [2.1-2.48]
+0.5 uncoord SS 6.38 [3.25-23.4] 4.21 [2.12-15.7] 2.36 [2.2-2.52]
+0.5 uncoord SS setback sync 11.2 [6.71-42.4] 7.67 [4.38-29] 2.4 [2.31-2.59]
+0.5 uncoord SS setback sync nostrip 10.7 [6.68-38.9] 7.27 [4.32-26.3] 2.36 [2.21-2.5]
+0.5 uncoord SS setback stagger4h 10.8 [6.81-41.7] 7.33 [4.48-28.3] 2.39 [2.28-2.64]
+0.5 uncoord VS setback sync 8.49 [4.93-31.4] 5.6 [3.14-20.9] 2.36 [2.22-2.51]
+0.5 smart coincident 0.184 [0.184-0.186] 0.182 [0.181-0.183] 1.55 [1.55-1.55]
+0.5 smart VS 0.11 [0.0538-0.394] 0.109 [0.0532-0.389] 1.46 [1.39-1.57]
+0.5 smart SS 0.126 [0.0608-0.458] 0.128 [0.0617-0.464] 1.46 [1.39-1.57]
+0.5 smart SS setback sync 0.609 [0.234-2.91] 0.518 [0.203-2.41] 2.33 [2.22-2.51]
+0.5 smart SS setback sync nostrip 0.124 [0.062-0.423] 0.121 [0.0604-0.411] 1.74 [1.56-1.89]
+0.5 smart SS setback stagger4h 0.379 [0.132-1.83] 0.367 [0.131-1.72] 2.27 [2.14-2.51]
+0.5 smart VS setback sync 0.222 [0.101-0.937] 0.2 [0.0928-0.828] 2.29 [2.22-2.51]
+0.7 none coincident 44.2 [44.2-44.2] 41.6 [41.6-41.6] 2.17 [2.17-2.17]
+0.7 none VS 21 [7.87->100] 19.9 [7.45->100] 2.04 [1.95-2.2]
+0.7 none SS 25.1 [9.31->100] 24.3 [8.98->100] 2.04 [1.95-2.2]
+0.7 none SS setback sync >100 [>100->100] >100 [93.9->100] 3.27 [3.11-3.51]
+0.7 none SS setback sync nostrip 42 [16.1->100] 39.2 [15->100] 2.04 [1.95-2.2]
+0.7 none SS setback stagger4h >100 [61->100] >100 [58.4->100] 3.18 [3-3.52]
+0.7 none VS setback sync >100 [38->100] 87.7 [32.2->100] 3.21 [3.11-3.51]
+0.7 uncoord coincident >100 [>100->100] >100 [>100->100] 3.3 [3.01-3.5]
+0.7 uncoord VS >100 [>100->100] >100 [>100->100] 3.25 [2.93-3.48]
+0.7 uncoord SS >100 [>100->100] >100 [>100->100] 3.31 [3.08-3.52]
+0.7 uncoord SS setback sync >100 [>100->100] >100 [>100->100] 3.36 [3.23-3.63]
+0.7 uncoord SS setback sync nostrip >100 [>100->100] >100 [>100->100] 3.31 [3.1-3.5]
+0.7 uncoord SS setback stagger4h >100 [>100->100] >100 [>100->100] 3.34 [3.19-3.7]
+0.7 uncoord VS setback sync >100 [>100->100] >100 [>100->100] 3.3 [3.11-3.51]
+0.7 smart coincident >100 [>100->100] >100 [>100->100] 2.17 [2.17-2.17]
+0.7 smart VS 50.9 [19.1->100] 49.9 [18.7->100] 2.04 [1.95-2.2]
+0.7 smart SS 60 [22.5->100] 60.3 [22.5->100] 2.04 [1.95-2.2]
+0.7 smart SS setback sync >100 [>100->100] >100 [>100->100] 3.27 [3.11-3.51]
+0.7 smart SS setback sync nostrip 46.3 [18->100] 44.5 [17.1->100] 2.44 [2.19-2.65]
+0.7 smart SS setback stagger4h >100 [80.5->100] >100 [79.1->100] 3.18 [3-3.52]
+0.7 smart VS setback sync >100 [65.9->100] >100 [56.7->100] 3.21 [3.11-3.51]
+
+C. Sensitivity, Greensboro, 100 % heat pumps, no EV, loading 0.5: LOL_1min (%/yr) and 1-min group peak (kW)
+change SS SS_peak SS_setback_sync SSsb_peak
+default 0.0957 [0.0388-0.454] 88.6 3.22 [1.11-20.5] 105.8
+ua_cv 0.10 0.122 [0.0828-0.266] 90.1 5.37 [3.42-12.4] 106.8
+ua_cv 0.40 0.0777 [0.016-0.683] 89.8 2.15 [0.273-26.9] 104.9
+t_set_sd 0 0.109 [0.0403-0.389] 101.9 3.37 [1.08-17.4] 106.2
+t_set_sd 2 0.0946 [0.0371-0.545] 88.4 3.24 [1.13-24.7] 105.8
+deadband 0.5 K 0.151 [0.0532-0.868] 96.4 8.8 [3.08-53.7] 105.8
+deadband 2 K 0.0848 [0.0364-0.362] 55.8 0.316 [0.111-1.92] 105.8
+size 0.8 4.19 [1.22-28.7] 94.6 21 [8.01-97] 94.6
+size 1.25 0.262 [0.0876-1.6] 69.7 1.34 [0.428-8.17] 119.7
+strip 0 kW 0.078 [0.0334-0.337] 55.8 0.0952 [0.0425-0.381] 55.8
+strip 10 kW 0.103 [0.0409-0.511] 108.0 9.69 [2.61-76.6] 155.8
+mass Cm/UA 15 h 0.251 [0.079-1.66] 97.3 3.24 [1.15-20.3] 105.8
+mass Cm/UA 60 h 0.0796 [0.034-0.343] 55.8 2.27 [0.752-14.7] 105.8
+air Ca/UA 0.7 h 0.101 [0.0403-0.486] 89.3 2.97 [0.988-18.8] 105.8
+air Ca/UA 2.7 h 0.092 [0.0376-0.425] 86.2 4.11 [1.38-26] 105.8
+tau_w 0.0 h (SS, no setback): LOL_1min 0.101 [0.0405-0.486]
+tau_w 0.05 h (SS, no setback): LOL_1min 0.096 [0.0389-0.455]
+tau_w 0.15 h (SS, no setback): LOL_1min 0.0958 [0.0389-0.455]
+
+D. Group size: coincidence factor and 1-min peak per home (SS, no setback, Greensboro), 20 groups each
+homes cf peak_1min_kW_per_home peak_hourly_kW_per_home
+1 1 [1-1] 10.94 7.39
+2 1 [1-1] 10.70 7.11
+5 0.905 [0.8-0.999] 9.61 6.95
+10 0.818 [0.756-0.906] 8.86 6.97
+25 0.761 [0.725-0.832] 8.03 7.04
+50 0.735 [0.719-0.775] 7.82 7.03

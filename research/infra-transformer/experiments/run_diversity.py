@@ -8,8 +8,7 @@ About 10 minutes on one core.
 from dataclasses import replace
 from pathlib import Path
 import numpy as np
-from infra_transformer import (Xfmr, Params, load_inputs, scenario_load, heat_pump_kw, ev_kw, annual_lol_pct,
-                               simulate_dt, annual_lol_pct_dt, Pop, simulate_population, hourly_mean)
+from infra_transformer import (Xfmr, Params, load_inputs, scenario_load, heat_pump_kw, ev_kw, annual_lol_pct_dt, Pop, simulate_population, hourly_mean)
 
 HERE = Path(__file__).resolve().parent
 inp = load_inputs()
@@ -24,10 +23,15 @@ def p(s=""):
     print(s, flush=True)
 
 
-def rng_txt(a):
+def rng_txt(a, cap=True):
+    """median [min-max] over groups; loss of life above 100 %/yr means the insulation is gone within the year."""
     a = np.asarray(a, float)
-    f = (lambda v: ">100" if v > 100 else f"{v:.3g}")
-    return f"{f(a.mean())} [{f(a.min())}-{f(a.max())}]"
+    f = (lambda v: ">100" if cap and v > 100 else f"{v:.3g}")
+    return f"{f(np.median(a))} [{f(a.min())}-{f(a.max())}]"
+
+
+def kw_txt(a):
+    return rng_txt(a, cap=False)
 
 
 def minute(hourly):
@@ -48,7 +52,7 @@ p("setpoint 20 +/- 1 C, deadband 1 K, capacity = design heat load at the 1st-per
 p("as stage 2 (1 K below the band). VS = variable-speed (modulating), SS = single-stage (on/off). Setback: 3 K, 22:00-06:00")
 p("(sync) or ending uniformly 04:00-08:00 per home (stagger4h). Base load H0 and EVs as in results.txt (hourly, held flat")
 p("within the hour). Transformer as in results.txt, sized to the baseline (no heat pump, no EV) peak / loading.")
-p("Ranges are mean [min-max] over the 20 groups. LOL columns: hourly = hourly-mean load on the hourly model (as results.txt);")
+p("Ranges are median [min-max] over the 20 groups. LOL columns: hourly = hourly-mean load on the hourly model (as results.txt);")
 p(f"1min = one-minute load with the hot-spot gradient lagged by tau_w = {TAU_W} h.")
 p()
 
@@ -66,7 +70,7 @@ for clim in ("greensboro", "sandpoint"):
         g, info = simulate_population(temp, P, pop, HOMES, SEEDS, seed0=1)
         gh = hourly_mean(g)
         cf = g.max(axis=1) / info["home_peak"].sum(axis=1)
-        p(f"{name} {g.sum(1).mean()/60/HOMES:.0f} {rng_txt(gh.max(1))} {rng_txt(g.max(1))} {rng_txt(cf)} {info['strip_h_per_home']:.1f}")
+        p(f"{name} {g.sum(1).mean()/60/HOMES:.0f} {kw_txt(gh.max(1))} {kw_txt(g.max(1))} {kw_txt(cf)} {info['strip_h_per_home']:.1f}")
         series[name] = (g, gh)
         if clim == "greensboro" and name == "SS":
             # sub-hourly peaking by temperature: mean over hours of (max minute in the hour / hourly mean)
@@ -88,13 +92,15 @@ for clim in ("greensboro", "sandpoint"):
         x = replace(Xfmr(1.0), rated_kva=base.max() / loading)
         for ev in ("none", "uncoord", "smart"):
             for name, (g, gh) in series.items():
-                if g is None:
-                    tot_h = base + gh
-                    evl = ev_kw(tot_h, 0 if ev == "none" else HOMES, P, ev == "smart")
-                    tot_h = tot_h + evl
-                    lh = annual_lol_pct(tot_h, temp, x)
+                if g is None:   # coincident heat pumps, hourly; EV arrivals drawn with the same 20 seeds
+                    tot_h = np.repeat((base + gh)[None, :], SEEDS, axis=0)
+                    evh = np.array([ev_kw(tot_h[s], 0 if ev == "none" else HOMES, replace(P, seed=s), ev == "smart")
+                                    for s in range(SEEDS)])
+                    tot_h = tot_h + evh
+                    lh = annual_lol_pct_dt(tot_h, temp, x, 1.0, 0.0)
                     l1 = annual_lol_pct_dt(minute(tot_h), minute(temp), x, 1 / 60, TAU_W)
-                    p(f"{loading} {ev} {name} {rng_txt([lh])} {rng_txt([l1])} {tot_h.max()/x.rated_kva:.2f}")
+                    store[(clim, loading, ev, name)] = (lh, l1)
+                    p(f"{loading} {ev} {name} {rng_txt(lh)} {rng_txt(l1)} {kw_txt(tot_h.max(1)/x.rated_kva)}")
                     continue
                 tot_h = base[None, :] + gh
                 evh = np.array([ev_kw(tot_h[s], 0 if ev == "none" else HOMES, replace(P, seed=s), ev == "smart")
@@ -104,7 +110,7 @@ for clim in ("greensboro", "sandpoint"):
                 lh = annual_lol_pct_dt(tot_h, temp, x, 1.0, 0.0)
                 l1 = annual_lol_pct_dt(tot_m, minute(temp), x, 1 / 60, TAU_W)
                 store[(clim, loading, ev, name)] = (lh, l1)
-                p(f"{loading} {ev} {name} {rng_txt(lh)} {rng_txt(l1)} {rng_txt(tot_m.max(1)/x.rated_kva)}")
+                p(f"{loading} {ev} {name} {rng_txt(lh)} {rng_txt(l1)} {kw_txt(tot_m.max(1)/x.rated_kva)}")
     p()
 
 p("C. Sensitivity, Greensboro, 100 % heat pumps, no EV, loading 0.5: LOL_1min (%/yr) and 1-min group peak (kW)")
@@ -124,7 +130,7 @@ for name, kw in SENS:
     for sb in (0.0, 3.0):
         g, _ = simulate_population(temp, P, replace(Pop(setback_k=sb), **kw), HOMES, SEEDS, seed0=1)
         l1 = annual_lol_pct_dt(minute(base)[None, :] + g, minute(temp), x, 1 / 60, TAU_W)
-        row += [rng_txt(l1), f"{g.max(1).mean():.1f}"]
+        row += [rng_txt(l1), f"{np.median(g.max(1)):.1f}"]
     p(" ".join(row))
 g, _ = simulate_population(temp, P, Pop(), HOMES, SEEDS, seed0=1)
 tot_m = minute(base)[None, :] + g
@@ -137,6 +143,6 @@ p("homes cf peak_1min_kW_per_home peak_hourly_kW_per_home")
 for n in (1, 2, 5, 10, 25, 50):
     g, info = simulate_population(temp, P, Pop(), n, SEEDS, seed0=1)
     cf = g.max(axis=1) / info["home_peak"].sum(axis=1)
-    p(f"{n} {rng_txt(cf)} {g.max(1).mean()/n:.2f} {hourly_mean(g).max(1).mean()/n:.2f}")
+    p(f"{n} {kw_txt(cf)} {np.median(g.max(1))/n:.2f} {np.median(hourly_mean(g).max(1))/n:.2f}")
 
 (HERE / "diversity.txt").write_text("\n".join(out) + "\n")

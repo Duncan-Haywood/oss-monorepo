@@ -1,0 +1,14 @@
+{
+ "doi:10.1109/59.14584": {
+  "checked": "2026-11-12",
+  "title": "A stochastic computer model for heating and cooling loads (1988)"
+ },
+ "doi:10.1109/TDC.2008.4517260": {
+  "checked": "2026-11-12",
+  "title": "GridLAB-D: An open-source power systems modeling and simulation environment (2008)"
+ },
+ "doi:10.1109/TPAS.1981.316965": {
+  "checked": "2026-11-12",
+  "title": "Physically Based Modeling of Cold Load Pickup (1981)"
+ }
+}
