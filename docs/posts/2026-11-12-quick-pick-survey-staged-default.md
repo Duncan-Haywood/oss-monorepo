@@ -1,8 +1,8 @@
 ---
 title: "Switching a survey's default question order, after checking what it costs"
-seo_title: "Adaptive pairwise survey: making the information-gain order the default"
+seo_title: "Adaptive pairwise survey: the information-gain order as default"
 date: 2026-11-12
-description: "The question order that lets Quick Pick Survey name your favourite is now the default for lists up to 120 options. We re-ran three careless-respondent simulations under both orders first; one cost survived."
+description: "The question order that can name your favourite is now the default up to 120 options. Careless-respondent sims under both orders found one cost."
 tags: [quick-pick-survey, surveys, ranking, statistics, simulation]
 ---
 
