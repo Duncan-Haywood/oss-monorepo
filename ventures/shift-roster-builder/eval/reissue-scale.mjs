@@ -40,6 +40,20 @@ export function studyWeek(staffText, shiftsText, { days = [2, 3, 4, 5, 6], cap =
   return { posted: { status: posted.optimality?.status, pay: posted.cost, open: posted.unfilledHours, ms: postMs, copies: slots.length, people: staff.length }, cases };
 }
 
+// The seeded Mon-Fri weeks of eval/auto-exact.mjs (same generator and seed rule), as staff and shift CSV text.
+export function seededWeeks(P, S, cases, seed0 = Number(process.env.SEED || 20261022)) {
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+  let seed = seed0 + P * 100 + S;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const out = [];
+  for (let c = 0; c < cases; c++) {
+    const staff = ["name, wage, max hours, min hours, availability", ...Array.from({ length: P }, (_, p) => `P${p},${10 + rnd(12)},${12 + rnd(5) * 6},0,${days[rnd(3)]}-Fri ${6 + rnd(4)}-${16 + rnd(8)}`)].join("\n");
+    const shifts = ["day, start, end, people needed", ...Array.from({ length: S }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; })].join("\n");
+    out.push({ staff, shifts });
+  }
+  return out;
+}
+
 const PROVEN = ["optimal", "improved"];
 function add(t, v) {
   t.cases = (t.cases || 0) + 1; t.open = (t.open || 0) + v.open; t.changes = (t.changes || 0) + v.changes; t.owed = (t.owed || 0) + v.owed;
@@ -84,15 +98,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     sum("ALL", all);
   } else {
     const P = Number(process.argv[2] || 20), S = Number(process.argv[3] || 56), cases = Number(process.argv[4] || 2), cap = Number(process.argv[5] || 4), first = Number(process.argv[6] || 0);
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
-    let seed = Number(process.env.SEED || 20261022) + P * 100 + S;
-    const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
-    for (let c = 0; c < cases; c++) {
-      const st = ["name, wage, max hours, min hours, availability", ...Array.from({ length: P }, (_, p) => `P${p},${10 + rnd(12)},${12 + rnd(5) * 6},0,${days[rnd(3)]}-Fri ${6 + rnd(4)}-${16 + rnd(8)}`)].join("\n");
-      const sh = ["day, start, end, people needed", ...Array.from({ length: S }, () => { const a = 6 + rnd(9); return `${days[rnd(5)]},${a},${a + 4 + rnd(6)},${1 + rnd(2)}`; })].join("\n");
-      if (c < first) continue;
-      report(`${P}x${S} week ${c}`, studyWeek(st, sh, { days: [2, 3, 4], cap }), all);
-    }
+    seededWeeks(P, S, cases).forEach(({ staff: st, shifts: sh }, c) => { if (c >= first) report(`${P}x${S} week ${c}`, studyWeek(st, sh, { days: [2, 3, 4], cap }), all); });
     sum(`${P}x${S}`, all);
   }
 }

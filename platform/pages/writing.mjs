@@ -687,7 +687,8 @@ function relatedIndex(posts) {
 const dayNumber = (iso) => (iso ? Date.parse(`${iso}T00:00:00Z`) / 86400000 : 0);
 
 /**
- * Up to `n` other posts a reader of `post` would most likely want next.
+ * Up to `n` other posts ranked by how related they are to `post` (the list
+ * before `relatedPosts` balances it).
  *
  * Until 2026-11-12 this was "same topic, newest first", so every post in a topic
  * linked to the same five posts (the newest ones, alphabetical within a day):
@@ -698,7 +699,7 @@ const dayNumber = (iso) => (iso ? Date.parse(`${iso}T00:00:00Z`) / 86400000 : 0)
  * nearest in date, then the other topics' in the same order. A post never
  * lists itself.
  */
-export function relatedPosts(post, posts, n = 5) {
+export function rankRelated(post, posts, n = 5) {
   const { byTag, byWord, words, idf, days } = relatedIndex(posts);
   const score = new Map();
   const add = (list, weight) => {
@@ -724,6 +725,58 @@ export function relatedPosts(post, posts, n = 5) {
   return ranked
     .concat(fill(rest.filter((x) => x.p.topic === post.topic)), fill(rest.filter((x) => x.p.topic !== post.topic)))
     .slice(0, n);
+}
+
+// The balanced lists for one posts array and list length, built once.
+const RELATED_TABLES = new WeakMap();
+// How far down an orphan's own ranking to look for a post that can link back.
+const ORPHAN_REACH = 20;
+
+/**
+ * Up to `n` other posts a reader of `post` would most likely want next: the
+ * `rankRelated` list, balanced so every post is linked from at least one other.
+ *
+ * Ranking alone left 204 of 3,936 posts with no inbound related link (2026-11-12):
+ * a post whose best matches each had five closer matches of their own. For each
+ * such orphan, in posts order, this walks the orphan's own ranking (its best
+ * matches first) and gives the first post that can spare a slot a link back,
+ * in that post's last (weakest) slot. A post spares a slot when it does not
+ * already list the orphan, has not given a slot yet, and the post in its last
+ * slot is linked from somewhere else too, so no fix makes a new orphan. The
+ * score is symmetric, so the link back is as strong as the orphan's own link.
+ */
+export function relatedPosts(post, posts, n = 5) {
+  // Rebuilt if a caller grows the array between pages, as `siblingTargets` is.
+  let cached = RELATED_TABLES.get(posts);
+  if (!cached || cached.length !== posts.length) RELATED_TABLES.set(posts, (cached = { length: posts.length, byN: new Map() }));
+  let table = cached.byN.get(n);
+  if (!table) cached.byN.set(n, (table = balancedRelated(posts, n)));
+  // A post not in the array (a preview) gets the plain ranking.
+  return table.get(post.slug) ?? rankRelated(post, posts, n);
+}
+
+function balancedRelated(posts, n) {
+  const lists = new Map(posts.map((p) => [p.slug, rankRelated(p, posts, n)]));
+  if (n < 1 || posts.length < 3) return lists;
+  const inbound = new Map(posts.map((p) => [p.slug, 0]));
+  for (const list of lists.values()) for (const r of list) inbound.set(r.slug, inbound.get(r.slug) + 1);
+  const gave = new Set();
+  const bySlug = new Map(posts.map((p) => [p.slug, p]));
+  for (const orphan of posts) {
+    if (inbound.get(orphan.slug) > 0) continue;
+    for (const c of rankRelated(orphan, posts, ORPHAN_REACH)) {
+      const list = lists.get(c.slug);
+      if (gave.has(c.slug) || list.length < n || list.some((r) => r.slug === orphan.slug)) continue;
+      const dropped = list[n - 1];
+      if (inbound.get(dropped.slug) < 2) continue;
+      lists.set(c.slug, list.slice(0, n - 1).concat(bySlug.get(orphan.slug)));
+      inbound.set(dropped.slug, inbound.get(dropped.slug) - 1);
+      inbound.set(orphan.slug, 1);
+      gave.add(c.slug);
+      break;
+    }
+  }
+  return lists;
 }
 
 function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG } = {}) {

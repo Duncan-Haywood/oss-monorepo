@@ -126,6 +126,26 @@ class Cache(unittest.TestCase):
         self.assertFalse(self.cache.exists())
 
 
+    def test_paper_subdir_reads_the_project_cache(self):
+        import json
+        self.run_in(self.dir, self.FEED)  # README at the project root records the id
+        paper = self.dir / "paper"
+        paper.mkdir()
+        (paper / "README.md").write_text("eprint = {1706.03762}")
+        rc, out = self.run_in(paper, 403)
+        self.assertEqual(rc, 0)
+        self.assertIn("ok*  arxiv:1706.03762", out)
+        self.assertNotIn("SKIP", out)
+        self.assertFalse((paper / cite_check.CACHE_NAME).exists())  # nothing copied down
+
+    def test_ancestor_walk_stops_at_project_root(self):
+        import os
+        root = os.path.join(os.sep, "x", "research", "slug")
+        got = cite_check.ancestor_caches(os.path.join(root, "paper", "sec", "a.md"))
+        self.assertEqual(got, [os.path.join(root, "paper", "cite_check.json"), os.path.join(root, "cite_check.json")])
+        self.assertEqual(cite_check.ancestor_caches(os.path.join(root, "README.md")), [])
+
+
 class DataCiteFallback(unittest.TestCase):
     def lookup(self, datacite_code):
         import json, urllib.error
