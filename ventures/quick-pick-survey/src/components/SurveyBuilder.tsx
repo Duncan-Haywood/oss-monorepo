@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { AgreementSummary, Coverage, RankedItem } from "@/lib/groupRanking";
+import type { AgreementSummary, Coverage, PaceSummary, RankedItem } from "@/lib/groupRanking";
 import { CHECKOUT_URL } from "@/lib/checkout";
 import { buyLink } from "@/lib/licence";
 
-type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage; agreement?: AgreementSummary; leftOut?: { slotClickers: number; advice: string } };
+type Ranking = { title: string; participants: number; ranking: RankedItem[]; coverage?: Coverage; agreement?: AgreementSummary; pace?: PaceSummary; leftOut?: { slotClickers: number; fast?: number; advice: string } };
 
 const INPUT =
   "rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm outline-none focus:border-amber-500 dark:border-neutral-700 dark:bg-neutral-900";
@@ -55,16 +55,19 @@ export function SurveyBuilder() {
     setBusy(false);
   }
 
-  async function showRanking(slug: string) {
+  const [dropFast, setDropFast] = useState(false);
+
+  async function showRanking(slug: string, withoutFast = false) {
     setResultError(null);
     try {
-      const res = await fetch(`/api/admin/surveys/${slug}/ranking`);
+      const res = await fetch(`/api/admin/surveys/${slug}/ranking${withoutFast ? "?drop=fast" : ""}`);
       if (!res.ok) {
         setResult(null);
         setResultError("Couldn't load the ranking.");
         return;
       }
       setResult(await res.json());
+      setDropFast(withoutFast);
     } catch {
       setResult(null);
       setResultError("Couldn't reach the server.");
@@ -105,6 +108,11 @@ export function SurveyBuilder() {
           <span>Created with {created.items} options.</span>
           <code className="font-mono text-xs">{created.url}</code>
           <button type="button" onClick={() => showRanking(created.slug)} className="font-semibold underline underline-offset-2">Show ranking</button>
+          {result && (result.pace?.fast ?? 0) > 0 && (
+            <button type="button" aria-pressed={dropFast} onClick={() => showRanking(created.slug, !dropFast)} className="font-semibold underline underline-offset-2">
+              {dropFast ? "Rank everyone again" : "Rank without the fast answerers"}
+            </button>
+          )}
           <a href={`/api/admin/surveys/${created.slug}/ranking?format=csv`} className="font-semibold underline underline-offset-2">↓ CSV</a>
           {buy && (
             <span className="flex flex-wrap items-center gap-2">
@@ -145,6 +153,11 @@ function RankingTable({ r }: { r: Ranking }) {
       {r.agreement?.advice && (
         <p role="note" className="mt-1 rounded bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">
           {r.agreement.advice}
+        </p>
+      )}
+      {r.pace?.advice && (
+        <p role="note" className="mt-1 rounded bg-amber-50 p-2 text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">
+          {r.pace.advice}
         </p>
       )}
       {none ? (
