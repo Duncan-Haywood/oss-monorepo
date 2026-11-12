@@ -78,9 +78,9 @@ def match(ref: np.ndarray, img: np.ndarray, patch: int = 32, step: int = 24, sea
             if scores[iy, ix] < 0.9 or iy in (0, 2 * search) or ix in (0, 2 * search):
                 continue
 
-            def sub(c, l, r):  # parabola through three scores
-                den = l - 2 * c + r
-                return 0.0 if den == 0 else 0.5 * (l - r) / den
+            def sub(c, lo, hi):  # parabola through three scores
+                den = lo - 2 * c + hi
+                return 0.0 if den == 0 else 0.5 * (lo - hi) / den
 
             fx = ix - search + sub(scores[iy, ix], scores[iy, ix - 1], scores[iy, ix + 1])
             fy = iy - search + sub(scores[iy, ix], scores[iy - 1, ix], scores[iy + 1, ix])
