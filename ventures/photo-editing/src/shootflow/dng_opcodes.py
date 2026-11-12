@@ -440,7 +440,7 @@ class Plan:
 
     gain_maps: list[GainMap]
     notes: list[str]
-    warps: list[WarpRectilinear] = field(default_factory=list)
+    warps: list[WarpRectilinear | WarpFisheye] = field(default_factory=list)
     stage2: list = field(default_factory=list)
     stage3: list = field(default_factory=list)
     stage1: list = field(default_factory=list)  # FixBadPixelsConstant / FixBadPixelsList, for ``run_stage1``
@@ -459,7 +459,7 @@ def plan(ifd, ifd0, cfa: bool = True) -> Plan:
     """
 
     gain_maps: list[GainMap] = []
-    warps: list[WarpRectilinear] = []
+    warps: list[WarpRectilinear | WarpFisheye] = []
     stage1: list = []
     stage2: list = []
     stage3: list = []
