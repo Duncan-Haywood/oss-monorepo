@@ -44,6 +44,9 @@ Options:
   --confirm <k>             report a change once k points are on its far side (default: ${WATCH_DEFAULTS.confirm})
   --tolerance <k>           a change within k points of one already reported is the same change (default: ${WATCH_DEFAULTS.tolerance})
   --window <n>              refit only the newest n points (default: ${WATCH_DEFAULTS.window})
+  --hold-history            never alert on a change dated inside the history the first check called quiet (record it as held)
+  --persist <k>             alert only on a change also found at the previous check (k 2; default ${WATCH_DEFAULTS.persist ?? 1}, alert at once).
+                            Both are flicker guards: README, "Round 5".
   --webhook-env <NAME>      POST each new alert to the URL in environment variable NAME (Slack, Discord, Teams, Mattermost)
   --fail-on-alert           exit 1 when there is a new alert (a CI run then fails and its owner is emailed)
   --alert-history           on the first check, alert on the changes already in the history too (default: record them as the baseline)
@@ -72,6 +75,8 @@ export async function main(argv, { out = (s) => process.stdout.write(s), env = p
     else if (a === '--confirm') o.confirm = num(argv[++i], '--confirm');
     else if (a === '--tolerance') o.tolerance = Number(argv[++i]);
     else if (a === '--window') o.window = num(argv[++i], '--window');
+    else if (a === '--hold-history') o.holdHistory = true;
+    else if (a === '--persist') { o.persist = num(argv[++i], '--persist'); if (o.persist > 2) throw new Error('--persist takes 1 or 2.'); }
     else if (a === '--webhook-env') hookEnv = argv[++i];
     else if (a === '--fail-on-alert') failOnAlert = true;
     else if (a === '--dry-run') dry = true;

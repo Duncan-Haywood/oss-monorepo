@@ -45,7 +45,7 @@ export function detectBoth(values, labels, opts = {}) {
   const o = { ...WATCH_DEFAULTS, ...opts };
   const off = Math.max(0, values.length - o.window);
   const v = values.slice(off), l = labels.slice(off);
-  const { confirm, tolerance, window, detector, alertHistory, ar1Detectors, rhoCap, ...engine } = o;
+  const { confirm, tolerance, window, detector, alertHistory, ar1Detectors, rhoCap, holdHistory, persist, ...engine } = o;
   // With an AR(1) detector chosen and the plain lists not asked for, the plain engine run is skipped (half the time per check).
   const ar1Only = String(detector).startsWith('bocpd-ar1') && !o.ar1Detectors && (engine.model ?? 'mean') === 'mean';
   const map = (c) => ({
@@ -168,7 +168,10 @@ export function statusText(res, opts = {}) {
   if (res.alerts.length) lines.push(`New change${res.alerts.length > 1 ? 's' : ''}:`, alertText(res, opts).split('\n').map((l) => `  ${l}`).join('\n'));
   else if (res.baseline && res.baseline.length) lines.push(`First check: ${res.baseline.length} change${res.baseline.length > 1 ? 's' : ''} already in the history, recorded as the baseline, not alerted (${res.baseline.map((b) => b.label).join(', ')}).`);
   else lines.push('No new confirmed change.');
-  for (const p of res.pending) lines.push(`Watching: a possible change from ${p.label}, ${p.pointsAfter} point${p.pointsAfter === 1 ? '' : 's'} after it so far (reported at ${opts.confirm ?? WATCH_DEFAULTS.confirm}).`);
+  for (const p of res.pending) lines.push(p.unconfirmed
+    ? `Watching: a possible change from ${p.label}, found at this check for the first time; reported if the next check finds it too.`
+    : `Watching: a possible change from ${p.label}, ${p.pointsAfter} point${p.pointsAfter === 1 ? '' : 's'} after it so far (reported at ${opts.confirm ?? WATCH_DEFAULTS.confirm}).`);
+  for (const h of res.held ?? []) lines.push(`Held, not alerted: a change from ${h.label}, dated inside the history the first check called quiet.`);
   for (const n of res.notes) lines.push(`Note: ${n}`);
   lines.push(`Changes on record: ${res.state.alerted.length}. Points: ${res.state.n}.`);
   return lines.join('\n');
@@ -251,16 +254,27 @@ export function replayWatch(values, labels = null, opts = {}) {
   const from = Math.min(n, Math.max(4, Math.round(from0 ?? Math.max(Math.min(20, n), Math.floor(0.2 * n)))));
   const budget = budget0 ?? REPLAY_BUDGET;
   const endsFor = (s) => { const e = []; for (let x = from; x <= n; x += s) e.push(x); if (e[e.length - 1] !== n) e.push(n); return e; };
-  const cost = (e) => e.reduce((t, x) => t + Math.min(x, settings.window) ** 2, 0);
+  const cost = (e) => e.reduce((t, x) => t + Math.min(x, settings.window) ** 2, 0) * (settings.persist > 1 && e.length > 1 && e[1] - e[0] > 1 ? 2 : 1);
   let step = Math.max(1, Math.round(step0 ?? 1));
   while (step < n && cost(endsFor(step)) > budget) step = Math.max(step + 1, Math.ceil(step * 1.25));
-  const { confirm, tolerance, ...detOpts } = settings;
+  const { confirm, tolerance, holdHistory, persist, ...detOpts } = settings;
+  const pol = { confirm, tolerance, ...(holdHistory ? { holdHistory } : {}), ...(persist > 1 ? { persist } : {}) };
   let state = emptyState(), baseline = [], pending = [], checks = 0;
-  const alerts = [];
-  const check = (end) => { checks++; const ls = l.slice(0, end); return advance(state, detectChanges(v.slice(0, end), ls, detOpts), end, ls, { confirm, tolerance }); };
+  const alerts = [], held = [];
+  const det = (end) => detectChanges(v.slice(0, end), l.slice(0, end), detOpts);
+  const check = (end) => {
+    checks++;
+    const ls = l.slice(0, end);
+    // With persist, a check needs the detections one point earlier, as a watch run after every point would have
+    // seen them; a coarse or bisected check computes them (one more engine run).
+    let st = state;
+    if (persist > 1 && state.n && state.n !== end - 1) { checks++; st = { ...state, seen: det(end - 1).map((c) => ({ index: c.index, label: String(c.label) })) }; }
+    return advance(st, det(end), end, ls, pol);
+  };
   const commit = (r, end) => {
     if (end === from) baseline = r.baseline;
     for (const a of r.alerts) alerts.push({ ...a, reportedAt: end - 1, reportedAtLabel: l[end - 1] });
+    for (const a of r.held) held.push({ ...a, reportedAt: end - 1, reportedAtLabel: l[end - 1] });
     pending = r.pending;
     state = r.state;
   };
@@ -278,7 +292,7 @@ export function replayWatch(values, labels = null, opts = {}) {
     }
     prev = end;
   }
-  return { n, from, step, checks, settings, baseline, alerts, pending };
+  return { n, from, step, checks, settings, baseline, alerts, pending, held };
 }
 
 /** Plain sentences for a replay, for the page and an agent's answer. */
@@ -287,6 +301,7 @@ export function replayText(res, { column = 'the series', model = 'mean' } = {}) 
   const every = res.step > 1 ? `every ${res.step} points, each alert dated back to the point that would have sent it` : 'after each new point';
   lines.push(`Replayed as a watch started at point ${res.from} of ${res.n} and run ${every} (${res.checks} checks).`);
   if (res.baseline.length) lines.push(`Already in the history at the start, recorded and not alerted: ${res.baseline.map((b) => b.label).join(', ')}.`);
+  if (res.held && res.held.length) lines.push(`Found later but dated inside that history, so held and not alerted: ${res.held.map((h) => `${h.label} (found on ${h.reportedAtLabel})`).join(', ')}.`);
   if (!res.alerts.length) lines.push('It would have sent no alert.');
   else {
     lines.push(`It would have sent ${res.alerts.length} alert${res.alerts.length > 1 ? 's' : ''}:`);
