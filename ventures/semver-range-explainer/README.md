@@ -103,7 +103,12 @@ node cli.mjs --project .                          # package.json ranges vs packa
 Engine (`semver.mjs`, pure ES module): `parseRange`, `rangeString`,
 `satisfies`, `explainVersion`, `maxSatisfying`, `minSatisfying`,
 `minVersion`, `compareRanges`, `subset`, `intersects`, `explainRange`,
-`analyze`, `reportCsv`. Also callable as
+`analyze`, `reportCsv`. `minVersion` is the true lowest match, which is
+not always what node-semver's `minVersion()` prints: that one tries `0.0.0`
+before `0.0.0-0` and bumps `>1.2.3` to `1.2.4`, so with includePrerelease
+(or a range that names `0.0.0-0`) it can return a release where a lower
+prerelease also matches (`*` with includePrerelease: ours `0.0.0-0`, theirs
+`0.0.0`). Matching itself agrees with node-semver. Also callable as
 `node platform/agents/tools.mjs call semver-range-explainer analyze --input '{"range":"^1.2.0","versions":"1.9.0-rc.1"}'`.
 
 Tests: `node --test semver.test.mjs semver.diff.test.mjs cli.test.mjs page.test.mjs usage.test.mjs`.

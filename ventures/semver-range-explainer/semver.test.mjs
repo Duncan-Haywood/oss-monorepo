@@ -129,3 +129,57 @@ test("ranges and versions over 256 characters are refused like npm", () => {
   assert.throws(() => e.parseRange("1".repeat(300)));
   assert.equal(e.parseVersion("1.2.3-" + "a".repeat(300)), null);
 });
+
+// Red-team 2026-11-12: the plain-words layer had no tests, so mutants in
+// bounds(), upperWords() and describeSet() survived.
+test("words: the tighter bound wins, and < vs <= read differently", () => {
+  const words = (r, o) => e.explainRange(r, o).sets.map((s) => s.words).join(" || ");
+  assert.match(words("<=2.0.0"), /^any version up to and including 2\.0\.0;/);
+  assert.match(words("<2.0.0-beta"), /^any version below 2\.0\.0-beta;/);
+  assert.match(words("<=1.2.3 <1.2.3"), /^any version below 1\.2\.3;/);
+  assert.match(words("<1.2.3 <=1.2.3"), /^any version below 1\.2\.3;/);
+  assert.match(words("<2.0.0 <1.5.0"), /^any version below 1\.5\.0;/);
+  assert.match(words(">=1.2.3 >1.2.3"), /^above 1\.2\.3,/);
+  assert.match(words(">1.2.3 >=1.2.3"), /^above 1\.2\.3,/);
+  assert.match(words(">=1.0.0 >=1.4.0 <2.0.0"), /^at least 1\.4\.0, below 2\.0\.0; no prereleases$/);
+  assert.match(words(">=1.2.3 <2.0.0"), /^at least 1\.2\.3, below 2\.0\.0/);
+  assert.match(words(">=1.2.3"), /no upper limit/);
+});
+
+test("hyphen steps show what the range became", () => {
+  const steps = (r) => e.explainRange(r).sets[0].steps;
+  assert.deepEqual(steps("1.2.3 - 2.3.4").map((s) => [s.rule, s.becomes]), [["hyphen", ">=1.2.3 <=2.3.4"]]);
+  assert.deepEqual(steps("* - *").map((s) => [s.rule, s.becomes]), [["hyphen", "*"]]);
+});
+
+test("7.8 rejects an x followed by a number in either position; 7.7 reads it", () => {
+  for (const r of ["x.1", "*.2.3", "1.x.2"]) {
+    assert.throws(() => e.parseRange(r, { semver: "7.8" }), /number after an x/, r);
+    assert.doesNotThrow(() => e.parseRange(r, { semver: "7.7" }), r);
+  }
+});
+
+test("caret-zero names the next minor that is left out", () => {
+  const msg = (r) => e.explainRange(r).findings.filter((f) => f.code === "caret-zero").map((f) => f.message);
+  assert.match(msg("^0.2.3")[0], /allows 0\.2\.x patches only, not 0\.3\.0,/);
+  assert.match(msg("^0.0.3")[0], /allows only 0\.0\.3 itself/);
+});
+
+// Red-team 2026-11-12, real defect: caret-zero matched the raw text with a
+// regex, so the same narrow caret written with a space, a v, a prerelease,
+// build metadata or as a partial got no warning.
+test("caret-zero fires for every spelling npm reads as a 0.x caret", () => {
+  const msg = (r) => e.explainRange(r).findings.filter((f) => f.code === "caret-zero").map((f) => f.message);
+  for (const [r, re] of [
+    ["^ 0.2.3", /0\.2\.x patches only, not 0\.3\.0/], ["^v0.2.3", /0\.2\.x patches only/],
+    ["^0.2.3-beta", /0\.2\.x patches only/], ["^0.2.3+build", /0\.2\.x patches only/],
+    ["^0.1", /0\.1\.x patches only, not 0\.2\.0/], ["^0.2.x", /0\.2\.x patches only/],
+    ["^0.0", /0\.0\.x patches only, not 0\.1\.0/], ["^0.0.3-beta", /only 0\.0\.3 and its prereleases from 0\.0\.3-beta/],
+    ["1.0.0 || ^0.2.3", /0\.2\.x/],
+  ]) {
+    assert.equal(msg(r).length, 1, r);
+    assert.match(msg(r)[0], re, r);
+  }
+  for (const r of ["^0", "^0.x", "^1.2.3", "~0.2.3", "0.2.3"]) assert.deepEqual(msg(r), [], r);
+  assert.equal(msg("^0.2.3 ^0.2.3").length, 1);
+});
