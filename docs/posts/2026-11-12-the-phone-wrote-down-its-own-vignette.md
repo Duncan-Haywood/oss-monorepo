@@ -3,7 +3,7 @@ title: "The phone wrote down its own vignette, and we weren't reading it"
 seo_title: "Android DNG lens shading: running the OpcodeList2 GainMap"
 date: 2026-11-12
 tags: [photo-editing, ventures, raw, dng]
-description: "Android phone DNGs store the lens shading map as GainMap opcodes. ShootFlow now applies them, and three real camera DNGs match LibRaw to within a tenth of an 8-bit step."
+description: "Android phone DNGs store lens shading as GainMap opcodes. ShootFlow now applies them; three real camera DNGs match LibRaw within a tenth of a step."
 ---
 
 [ShootFlow](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/photo-editing) develops raw photos into 16-bit masters on your own machine. Until today every DNG we had checked against LibRaw was a DNG our own tools had written. So we fetched three DNGs written by real cameras from a public sample collection: an LG Nexus 5X phone, a Leica T and a Pentax Q-S1. We developed each one with ShootFlow and with LibRaw and compared the two.
