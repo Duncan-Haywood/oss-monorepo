@@ -1,8 +1,9 @@
 ---
 title: "A stricter penalty cleans up a sticky series, and loses three orange-juice freezes"
+seo_title: "A stricter changepoint penalty loses three orange-juice freezes"
 date: 2026-11-12
 tags: [changepoint-detector, time-series, negative-result, pre-registration]
-description: Doubling the drift model's penalty on sticky series levels the benchmark score and lifts cover, but finds only 5 of 8 documented freezes in frozen orange-juice prices.
+description: Doubling the drift penalty on sticky series holds benchmark F1 and lifts cover, but finds only 5 of 8 documented freezes in orange-juice prices.
 ---
 
 Some time series are sticky: a price quote that nobody updates, a sensor that sits still. In Florida frozen orange-juice prices, 41% of months repeat the previous month exactly. The [changepoint detector](https://marisstella.app/changepoint-detector/)'s drift model reads each flat run as a stretch with almost no noise and cuts at both ends. On those prices it reports 67 changes.
