@@ -198,8 +198,13 @@ is between: a 95% credible set for the favourite (`src/lib/favouriteSet.ts`), dr
 under the staged selector). It holds the true favourite for 93-96% of synthetic respondents shown
 the card (90-95% with careless answers), against 88-92% (76-83%) with the fixed prior and 68-74%
 for the three highest-rated items, at the cost of longer lists (about 7.5-8.7 names against 5-6).
+Since the latest 2026-11-12 change, each survey also stores a prior sd pooled over its 40 most recent
+respondents (`src/lib/surveyPrior.ts`, refreshed after the response once answers grow by a quarter),
+and the set uses the narrower of the person's and the survey's: in a synthetic survey mixing spreads
+and careless answers that held the favourite for 95.4-96.4% (own alone 92.2-94.3%), where the pooled
+value alone dropped to 83-92% for people whose likes are close together.
 The ratings, intervals and clear-pick rule keep the fixed prior: the estimated one makes pairwise
 intervals undercover. The stored states still drive question
 selection and the couple screen. Measurements: docs/INFORMATION-GAIN-SELECTOR.md, "Per-person
-intervals from a refit", "The clear-top-pick claim", "Who it's between" and "An empirical-Bayes
-prior" (2026-11-12).
+intervals from a refit", "The clear-top-pick claim", "Who it's between", "An empirical-Bayes
+prior" and "A stored survey prior" (2026-11-12).

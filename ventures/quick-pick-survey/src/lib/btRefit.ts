@@ -347,28 +347,65 @@ export function pooledPriorPhi(people: readonly { ids: readonly string[]; answer
   const ev = evidence === "laplace" ? refitEvidence : sampledEvidence;
   const used = people.filter((p) => p.answers.length > 0);
   if (used.length === 0 || min === max) return max;
+  const search = logPhiSearch(min, max, steps);
+  for (let r = search.next(); ; ) {
+    if (r.done) return r.value;
+    const x = r.value;
+    r = search.next(used.reduce((s, p) => s + ev(p.ids, p.answers, Math.exp(x)), 0));
+  }
+}
+
+/**
+ * pooledPriorPhi that yields to the event loop after each respondent's
+ * evidence, for a refresh that runs inside a live server (src/lib/surveyPriorStore.ts):
+ * 40 respondents at 30 items take seconds of CPU, which must not stall other
+ * requests. The same search, so the same answer.
+ */
+export async function pooledPriorPhiAsync(people: readonly { ids: readonly string[]; answers: readonly RefitAnswer[] }[], { min = EB_PHI_MIN, max = REFIT_PRIOR_PHI, steps = 8, evidence = "sampled" as EvidenceMethod } = {}): Promise<number> {
+  if (!(min > 0 && max >= min)) throw new RangeError("need 0 < min <= max");
+  const ev = evidence === "laplace" ? refitEvidence : sampledEvidence;
+  const used = people.filter((p) => p.answers.length > 0);
+  if (used.length === 0 || min === max) return max;
+  const search = logPhiSearch(min, max, steps);
+  for (let r = search.next(); ; ) {
+    if (r.done) return r.value;
+    let sum = 0;
+    for (const p of used) {
+      sum += ev(p.ids, p.answers, Math.exp(r.value));
+      await new Promise<void>((resolve) => setImmediate(resolve));
+    }
+    r = search.next(sum);
+  }
+}
+
+/**
+ * Golden-section search for the maximum on log phi in [log min, log max]:
+ * yields each point to evaluate, takes its value back, returns the best phi.
+ * Evaluations are cached, and both ends and the final midpoint are checked so
+ * a boundary optimum (the evidence can be monotone in phi) is returned exactly.
+ */
+function* logPhiSearch(min: number, max: number, steps: number): Generator<number, number, number> {
   const cache = new Map<number, number>();
-  const f = (x: number) => {
+  function* f(x: number): Generator<number, number, number> {
     let v = cache.get(x);
-    if (v === undefined) cache.set(x, (v = used.reduce((s, p) => s + ev(p.ids, p.answers, Math.exp(x)), 0)));
+    if (v === undefined) cache.set(x, (v = yield x));
     return v;
-  };
+  }
   const g = (Math.sqrt(5) - 1) / 2;
   let a = Math.log(min), b = Math.log(max);
   let c = b - g * (b - a), d = a + g * (b - a);
-  let fc = f(c), fd = f(d);
+  let fc = yield* f(c), fd = yield* f(d);
   for (let i = 0; i < steps; i++) {
     if (fc >= fd) {
       b = d; d = c; fd = fc;
-      c = b - g * (b - a); fc = f(c);
+      c = b - g * (b - a); fc = yield* f(c);
     } else {
       a = c; c = d; fc = fd;
-      d = a + g * (b - a); fd = f(d);
+      d = a + g * (b - a); fd = yield* f(d);
     }
   }
-  // The evidence can be monotone in phi; check the ends so a boundary optimum is returned exactly.
   const mid = (a + b) / 2;
-  const candidates: [number, number][] = [[Math.log(min), f(Math.log(min))], [Math.log(max), f(Math.log(max))], [mid, f(mid)]];
+  const candidates: [number, number][] = [[Math.log(min), yield* f(Math.log(min))], [Math.log(max), yield* f(Math.log(max))], [mid, yield* f(mid)]];
   candidates.sort((p, q) => q[1] - p[1]);
   return Math.exp(candidates[0][0]);
 }

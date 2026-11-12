@@ -254,18 +254,18 @@ flagships:
       docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Latest, 2026-11-12: the
       insights screen refits each person's answers (btRefit.ts), calls a pick
       clear only at 1.645 sd (clearPick.ts), and lists "it's between" as a 95%
-      credible set (favouriteSet.ts) drawn from a refit at the person's own
-      empirical-Bayes prior sd (importance-sampled evidence; Laplace collapses
-      under staged): 93-96% coverage (90-95% careless) vs 88-92% fixed, at
-      7.4-8.7 names vs 5-6. Pairwise intervals keep the fixed prior (EB
-      undercovers; "An empirical-Bayes prior"). Next, most valuable first:
-      (a) a stored per-survey pooled prior sd for the set (pooled sizes 6.9-7.8
-      at the same coverage), the PrefLib panels through the refit and the set,
-      and a heavier-tailed prior for the pairwise intervals; (b) half-time
-      salience (q = 0.5 still leaks +0.12 to +0.29: does pace see them?);
-      (c) check the answer-time model against the first real survey's
-      msToAnswer; (d) position bias that starts mid-session; (e) the switch
-      rule above 120 items; then real pairwise answers.
+      credible set (favouriteSet.ts) drawn at min(own empirical-Bayes prior sd,
+      the survey's stored pooled sd) (surveyPrior.ts, surveyPriorStore.ts;
+      refreshed after the response via next/server after). In a mixed
+      synthetic survey (spreads 0.5/1/2, lapse 0/0.2) min covers 0.954-0.964
+      vs own 0.922-0.943; pooled alone drops to 0.83-0.92 for narrow-spread
+      people ("A stored survey prior"). Pairwise intervals keep the fixed
+      prior. Next, most valuable first: (a) the PrefLib panels through the
+      refit and the set, and a heavier-tailed prior for the pairwise
+      intervals; (b) half-time salience (q = 0.5 still leaks +0.12 to +0.29:
+      does pace see them?); (c) check the answer-time model against the first
+      real survey's msToAnswer; (d) position bias that starts mid-session;
+      (e) the switch rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

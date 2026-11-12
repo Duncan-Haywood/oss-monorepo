@@ -166,20 +166,30 @@ model LoginAttempt {
 /// A single ranking survey (e.g. "activities", "professions", "combined",
 /// "financial", "conjoined"). Shareable at /s/[slug] with no auth.
 model Survey {
-  id                 String     @id @default(cuid())
-  slug               String     @unique
-  title              String
-  description        String?
-  kind               SurveyKind @default(ITEMS)
+  id                  String     @id @default(cuid())
+  slug                String     @unique
+  title               String
+  description         String?
+  kind                SurveyKind @default(ITEMS)
   /// For CONJOINED surveys: slug of the ITEMS survey whose ratings supply
   /// the fixed identity utilities (e.g. "combined").
-  identitySurveySlug String?
+  identitySurveySlug  String?
   /// How the next pair is chosen: null follows the PAIR_SELECTOR env var,
   /// "standard" is the shipped selector, "staged" uses the information score
   /// from the first answer on lists up to 120 items and after 120 answers on
   /// longer ones (hybridSwitchAt, docs/INFORMATION-GAIN-SELECTOR.md).
-  pairSelector       String?
-  createdAt          DateTime   @default(now())
+  pairSelector        String?
+  /// Pooled empirical-Bayes prior sd (internal logit scale) for the insights
+  /// card's "it's between" set, estimated over up to 40 recent respondents
+  /// and refreshed after the response when answers have grown by a quarter
+  /// (src/lib/surveyPrior.ts). Null until enough respondents have answered.
+  setPriorPhi         Float?
+  /// How many respondents the stored estimate pooled.
+  setPriorRespondents Int?
+  /// The survey's decided-answer count when it was estimated (the staleness test).
+  setPriorAnswers     Int?
+  setPriorAt          DateTime?
+  createdAt           DateTime   @default(now())
 
   items           Item[]
   participants    Participant[]
