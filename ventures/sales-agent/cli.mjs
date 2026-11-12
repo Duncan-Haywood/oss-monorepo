@@ -28,7 +28,7 @@ import { readFileSync, writeFileSync, mkdirSync, openSync, readSync, closeSync, 
 import { createCollector, MboxSplitter, isMbox, describe } from "./mailfile.mjs";
 import { join } from "node:path";
 import { csv, iso, runInbox, parseCsv } from "./engine.mjs";
-import { runDaily, csvQueue, csvLeftOut, callMarks } from "./daily.mjs";
+import { runDaily, csvQueue, csvLeftOut, callMarks, callLog } from "./daily.mjs";
 import { runResearch, briefOf, csvAccounts, csvLeftOutResearch } from "./research.mjs";
 import { runInboxWithModel } from "./ai.mjs";
 import { runPrep } from "./prep.mjs";
@@ -40,7 +40,7 @@ import { configFromEnv } from "./byok.mjs";
 const args = process.argv.slice(2), opt = (k) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : undefined; };
 const read = (k) => (opt(k) ? readFileSync(opt(k), "utf8") : "");
 // --calls: one row per call made (email,step,outcome,date), the CLI's version of the self-host page's call buttons.
-const callRows = () => parseCsv(read("calls")).map((c) => ({ email: String(c.email || "").trim().toLowerCase(), step: String(c.step ?? "").trim(), outcome: String(c.outcome || "done").trim().toLowerCase().replace(/[\s-]+/g, "_"), date: String(c.date || "").slice(0, 10) })).filter((c) => c.email && c.step);
+const callRows = () => callLog(read("calls"));
 if (opt("followup")) {
   const o = opt("out") || "sales-agent-out";
   const d = runFollowUp({ email: opt("followup"), prospects: read("prospects"), replies: read("replies"), notes: read("notes"), suppression: read("suppression"), offer: opt("offer") ? JSON.parse(read("offer")) : {}, today: opt("today") || iso(Date.now()) });
