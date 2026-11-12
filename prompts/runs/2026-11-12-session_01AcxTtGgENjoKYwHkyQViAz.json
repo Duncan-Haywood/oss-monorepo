@@ -58,7 +58,7 @@
       "file": "portfolio/flagships.yaml",
       "why": "main's validate check was red (shift-roster-builder next: 2089 chars, cap 2000) from another run's merge, failing every PR",
       "did": "trimmed two parentheticals whose detail is in that venture's README",
-      "result": "validate.py passes"
+      "result": "validate.py passed; main then fixed the same entry in parallel, so the merge took main's version and the trim did not land"
     }
   ],
   "writeups": [

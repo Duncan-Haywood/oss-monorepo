@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { usFederalHolidays, usBusinessHolidays, gbBankHolidays, easter, holidayChecker, caFederalHolidays, upcomingHolidays } from "./holidays.mjs";
+import { usFederalHolidays, usBusinessHolidays, gbBankHolidays, easter, holidayChecker, caFederalHolidays, caProvincialHolidays, upcomingHolidays } from "./holidays.mjs";
 import { addBusinessDays, businessDaysBetween } from "./engine.mjs";
 
 // Pinned from the rules (fixed dates moved off weekends; nth-weekday ones counted). 2026: July 4 is a Saturday, so
@@ -81,4 +81,25 @@ test("upcomingHolidays: the next days off with names, dates included, across the
   assert.deepEqual(upcomingHolidays("us-business", "2026-12-26", 2).map((h) => h.date), ["2027-01-01", "2027-05-31"]);
   assert.deepEqual(upcomingHolidays("", "2026-12-26"), []);
   assert.throws(() => upcomingHolidays("fr", "2026-12-26"), /not a date/);
+});
+
+// Provinces and territories against canada-holidays.ca's provincial lists (fixtures/canada-provincial-holidays.json,
+// fetched 2026-11-12; each province's entry names the government page the site cites). 13 x 7 years, 855 dates.
+test("ca-xx matches the provincial and territorial holidays canada-holidays.ca lists, 2022-2028", () => {
+  const f = JSON.parse(readFileSync(new URL("./fixtures/canada-provincial-holidays.json", import.meta.url), "utf8")).provinces;
+  let n = 0;
+  for (const [p, years] of Object.entries(f)) for (const [y, want] of Object.entries(years)) {
+    if (!/^\d{4}$/.test(y)) continue;
+    assert.deepEqual(caProvincialHolidays(Number(y), p).map((h) => h.date), want.map((x) => x[0]).sort(), `${p} ${y}`);
+    n += want.length;
+  }
+  assert.equal(n, 855);
+  const qc = holidayChecker("ca-qc"), on = holidayChecker("ca-on"), nl = holidayChecker("CA-NL");
+  assert.ok(qc("2026-06-24") && !on("2026-06-24"), "Saint-Jean-Baptiste is Quebec's");
+  assert.ok(on("2026-02-16") && !qc("2026-02-16"), "Family Day is Ontario's, not Quebec's");
+  assert.ok(on("2026-12-28") && !qc("2026-12-28"), "Ontario keeps Boxing Day (a Saturday in 2026) on Monday");
+  assert.ok(nl("2027-03-15") && nl("2026-08-05"), "NL: St Patrick's nearest Monday; Regatta Day, first Wednesday of August");
+  assert.equal(addBusinessDays("2026-06-23", 1, qc), "2026-06-25");
+  assert.throws(() => holidayChecker("ca-xx"), /province/);
+  assert.throws(() => caProvincialHolidays(2026, "zz"), /unknown province/);
 });

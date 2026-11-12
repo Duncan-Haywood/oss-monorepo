@@ -4,7 +4,7 @@
 // or hold a touch on its own, and it never sends one. Every touch it leaves out is listed with the reason, so the
 // run doubles as an audit trail.
 import { parseCsv, runInbox, toCsv, iso, toDay, DAY, addBusinessDays, businessDaysBetween } from "./engine.mjs";
-import { holidayChecker } from "./holidays.mjs";
+import { holidayChecker, upcomingHolidays } from "./holidays.mjs";
 import { suppressionIndex } from "./suppression.mjs";
 
 // Statuses the inbox agent sets that end the cadence for good (or, for closed_lost, until its 180-day pause).
@@ -34,6 +34,11 @@ const stepKey = (email, step) => `${String(email || "").toLowerCase()}|${String(
  * misses, the same person's later steps move back by the business days it slipped, so a third try at the day-3 call does
  * not land on the day-5 email's day. The task keeps its plan date as `planned` and says why in `moved_by`.
  * holidays: "us", "us-business", dates, or a day => boolean (holidays.mjs); retry and shifted dates skip them.
+ * Their days off too (added 2026-11-12): a prospect row (or the task row) may carry a `holidays` column in the same
+ * form ("ca-qc", "gb-sct", "us, 2026-12-24"), or a `region` ("CA-ON", "GB-SCT") or `country` ("CA", "GB", "US") that names a preset. A
+ * call due on one of the prospect's days off moves to their next working day that is also yours, keeps its plan date
+ * as `planned`, and says why in `their_day_off` ({ date, name }). Only calls move: an email waits in the inbox, and a
+ * call to a closed office is a wasted try. A column that names no preset is ignored (a country we have no list for).
  * Returns { today, queue, held, dropped, later, stale, sentMatched, summary, brief }.
  */
 export function runDaily(input) {
@@ -47,6 +52,7 @@ export function runDaily(input) {
     .filter((r) => r && r.email && r.step != null && Number.isFinite(toDay(r.on))).map((r) => [stepKey(r.email, r.step), { on: String(r.on).slice(0, 10), tries: Number(r.tries) || 1, last: r.last || "" }]));
   const isOff = holidayChecker(input.holidays);
   const shifts = input.shiftLater === false ? new Map() : laterShifts(rows, retry, input.moved, isOff);
+  const theirs = theirDaysOff();
   const maxOverdue = input.maxOverdueDays ?? 5, emailCap = input.emailCap ?? 40;
   const queue = [], held = [], dropped = [], stale = [], sentMatched = [];
   let later = 0, alreadyDone = 0;
@@ -63,6 +69,13 @@ export function runDaily(input) {
     const rt = retry.get(stepKey(t.email, t.step));
     if (rt) Object.assign(t, { planned: t.date, date: rt.on, tries: rt.tries, last: rt.last });
     else { const sh = shifts.get(stepKey(t.email, t.step)); if (sh) Object.assign(t, { planned: t.date, date: addBusinessDays(t.date, sh.days, isOff), moved_by: sh }); }
+    if (t.channel === "call" && Number.isFinite(toDay(t.date))) {
+      const spec = theirs(r, byEmail.get(t.email));
+      if (spec && spec.isOff(String(t.date).slice(0, 10))) {
+        const off = upcomingHolidays(spec.spec, String(t.date).slice(0, 10), 1)[0];
+        Object.assign(t, { planned: t.planned || t.date, date: addBusinessDays(t.date, 1, (d) => isOff(d) || spec.isOff(d)), their_day_off: { date: String(t.date).slice(0, 10), name: off?.name || "day off", holidays: spec.spec } });
+      }
+    }
     const day = toDay(t.date);
     if (!Number.isFinite(day)) { held.push({ ...t, reason: "no readable date in the task list" }); continue; }
     if (done.has(stepKey(t.email, t.step))) { alreadyDone++; continue; }
@@ -107,6 +120,24 @@ export function runDaily(input) {
   return { today, queue: final, held, dropped, stale, later, sentMatched, summary, brief: brief(today, final, held, dropped, stale, summary) };
 }
 
+/** A reader for a prospect's own days off: (task row, prospect row) => { spec, isOff } or null. The `holidays` column
+ * wins, then `region`, then `country`; a value that is not a known preset or dates is skipped, never an error, since a
+ * prospect list carries countries we have no calendar for. Checkers are cached per spec. */
+function theirDaysOff() {
+  const cache = new Map();
+  const tryOne = (v) => {
+    const spec = String(v || "").trim().toLowerCase();
+    if (!spec) return null;
+    if (!cache.has(spec)) { let c = null; try { c = { spec, isOff: holidayChecker(spec) }; } catch { c = null; } cache.set(spec, c); }
+    return cache.get(spec);
+  };
+  // A bare country "US" means the six days most businesses close, not the eleven federal ones (Columbus Day and
+  // Veterans Day are working days at most firms); write holidays=us to get the federal list.
+  // A region counts only in the two-part form ("CA-QC", "GB-SCT"): a bare region "CA" in a US list is California.
+  const pick = { holidays: (v) => v, region: (v) => (/^[a-z]{2}-[a-z]{2,3}$/i.test(String(v || "").trim()) ? v : ""), country: (v) => (String(v || "").trim().toLowerCase() === "us" ? "us-business" : v) };
+  return (row, p) => { for (const src of [row, p]) for (const k of ["holidays", "region", "country"]) { const c = src && tryOne(pick[k](src[k])); if (c) return c; } return null; };
+}
+
 /** For each person, walk their steps in plan order; a retried call (or one ended late after misses) that slipped N
  * business days pushes every later step back N (the largest slip so far wins). Returns Map stepKey -> { days, step }. */
 function laterShifts(rows, retry, moved, isOff) {
@@ -134,7 +165,7 @@ function brief(today, queue, held, dropped, stale, s) {
     const list = queue.filter((q) => q.channel === ch);
     if (!list.length) continue;
     out.push(`## ${{ call: "Calls", email: "Email", linkedin: "LinkedIn", letter: "Letters" }[ch]} (${list.length})`);
-    for (const q of list) out.push(`- ${q.overdue ? "[overdue " + q.date + "] " : ""}${q.prospect || q.email}${q.company ? ", " + q.company : ""} (${q.step})${ch === "call" && q.call_window ? " " + q.call_window : ""}${q.tries ? ` (try ${q.tries + 1}: no answer ${q.tries === 1 ? "once" : q.tries + " times"}${q.last ? ", last " + q.last : ""})` : ""}${q.moved_by ? ` (moved from ${q.planned}: step ${q.moved_by.step}'s call ran ${q.moved_by.days} business day${q.moved_by.days === 1 ? "" : "s"} late)` : ""}`);
+    for (const q of list) out.push(`- ${q.overdue ? "[overdue " + q.date + "] " : ""}${q.prospect || q.email}${q.company ? ", " + q.company : ""} (${q.step})${ch === "call" && q.call_window ? " " + q.call_window : ""}${q.tries ? ` (try ${q.tries + 1}: no answer ${q.tries === 1 ? "once" : q.tries + " times"}${q.last ? ", last " + q.last : ""})` : ""}${q.moved_by ? ` (moved from ${q.planned}: step ${q.moved_by.step}'s call ran ${q.moved_by.days} business day${q.moved_by.days === 1 ? "" : "s"} late)` : ""}${q.their_day_off ? ` (not ${q.their_day_off.date}: their day off, ${q.their_day_off.name})` : ""}`);
     out.push("");
   }
   const section = (title, list) => { if (list.length) { out.push(`## ${title} (${list.length})`); for (const x of list) out.push(`- ${x.prospect || x.email} (${x.step}, ${x.channel}): ${x.reason}`); out.push(""); } };
@@ -202,5 +233,5 @@ export function runMorning(input) {
   return { inbox, daily };
 }
 
-export const csvQueue = (d) => toCsv(d.queue, ["date", "overdue", "channel", "step", "prospect", "company", "email", "phone", "call_window", "subject", "body", "voicemail", "tries", "planned"]);
+export const csvQueue = (d) => toCsv(d.queue.map((q) => (q.their_day_off ? { ...q, their_day_off: `${q.their_day_off.date} ${q.their_day_off.name}` } : q)), ["date", "overdue", "channel", "step", "prospect", "company", "email", "phone", "call_window", "subject", "body", "voicemail", "tries", "planned", "their_day_off"]);
 export const csvLeftOut = (d) => toCsv([...(d.sentMatched || []).map((x) => ({ ...x, outcome: "already sent", reason: `in your sent mail on ${x.sent_on} ("${x.sent_subject}")` })), ...d.dropped.map((x) => ({ ...x, outcome: "dropped" })), ...d.held.map((x) => ({ ...x, outcome: "held" })), ...d.stale.map((x) => ({ ...x, outcome: "too old" }))], ["outcome", "date", "channel", "step", "prospect", "company", "email", "reason"]);

@@ -112,9 +112,13 @@ flagships:
       280 of 280 GOV.UK dates 2019-2028) landed 2026-11-12 (README "UK bank holidays");
       `ca` (federal, 85 of 85 dates 2022-2028 on canada-holidays.ca, a second source) and
       the page's next-five-days-off line landed 2026-11-12 later (README "Canada");
-      next on that queue: `ca` and `us` against canada.ca and OPM's own calendars (both
-      refused this host 2026-11-12: probe first), provincial presets (ca-on, ca-qc,
-      ca-bc), and a country per prospect so a call skips their holidays as well as the rep's.
+      provincial presets, all 13 provinces and territories (855 of 855 canada-holidays.ca
+      dates 2022-2028), and the prospect's own days off (a `holidays`, `region` CA-QC or
+      `country` column moves a call off their holiday) landed 2026-11-12 later still
+      (README "Provinces, and the prospect's own days off"); next on that queue: `ca`,
+      the provinces and `us` against canada.ca, provincial pages and OPM's calendar (all
+      refused this host 2026-11-12: probe first), US state holidays for a `region` like
+      US-TX, and call prep showing the prospect's next day off.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
@@ -189,16 +193,15 @@ flagships:
       cut, --count tickets; --backtest --score-closed 2026-11-11 (README "Scoring a staffed closure") counts a
       staffed closure as over, shows the break rules save 6-15 person-hours a week (French), and led to a
       one-date edge rule (Bread Basket 12-24 fewer off a week); 2026-11-11 later, half-life auto offers the
-      last 4 weeks under --score-closed only (README "A 4-week window in half-life auto"), and --last-weeks <n>. A fourth file agreed 2026-11-11 (eval/fourth-file.mjs,
-      UCI Online Retail II, pre-registered: 6 of 6 on both tests; auto with the window beats auto without
-      by 5.0-14.5 under the new score). 2026-11-12: the closure score is the --backtest and half-life-auto
+      last 4 weeks under --score-closed only (out of sample: 6 of 18 clearly better, 0 worse, -16%; no gain
+      under the default score; README "A 4-week window in half-life auto"), and --last-weeks <n>. A fourth file agreed 2026-11-11 (eval/fourth-file.mjs,
+      6 of 6 on both tests; README). 2026-11-12: the closure score is the --backtest and half-life-auto
       default with the window offered (--score-open-hours is the old score), and both are on the page; a
-      past-only closure reference kept 77% of the window's gain (eval/hindsight-closure.mjs,
-      6/12/0, -12.5%; README "The closure score is the default"). Next: close the 100-person gaps (tree,
+      past-only closure reference kept 77% of the window's gain (eval/hindsight-closure.mjs, pre-registered,
+      6/12/0, -12.5%; README "The closure score is the default"). `--standard` landed 2026-11-12 (README). Next: close the 100-person gaps (tree,
       not pricing); cuts or branching that move the score LP on the 60-person pay week; buildRoster end to
-      end on 40-person weeks with exact on; a real Square or Toast item export (their documented columns read since 2026-11-12: net over gross, Void? lines and refund events dropped, README "Square and Toast item exports"; made-up rows only); a labour standard
-      (minutes per ticket vs per euro) or a blend of the two drivers; a real published-schedule export for
-      --import-shifts; whether the priced cut's r = 1 default suits a real manager.
+      end on 40-person weeks with exact on; a real Square or Toast item export (columns read 2026-11-12, made-up rows only, README); a real published-schedule export for
+      --import-shifts; whether the priced cut's r = 1 default suits a real manager; a fixed per-open-hour term in `--standard`.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,

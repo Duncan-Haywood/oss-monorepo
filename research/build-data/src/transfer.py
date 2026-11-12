@@ -26,20 +26,26 @@ import harness, boosted, classmap  # noqa: E402
 TAUS = harness.TAUS
 CITIES = ["chicago", "sf", "austin", "seattle"]
 CLASSES, RULES, harmonise = classmap.CLASSES, classmap.RULES, classmap.harmonise  # moved, session 70
+FOLD = {"cascade2_nodemo": {"demolition": "alteration"}}  # session 76: configuration -> class merges
 
 
 def frame(path, target, classes="type"):
     """classes='type': permit_type only (sessions 10 to 69). 'cascade': permit_type, then
     work_class, then the loader's description class (session 70; needs a pull with desc_class).
-    'cascade2': the same with the session 71 description rules (column desc_class_v2)."""
+    'cascade2': the same with the session 71 description rules (column desc_class_v2).
+    'cascade2_nodemo': cascade2 with demolition folded into alteration (session 76), to test whether
+    naming demolition is what carries cascade2's i2c q0.9 transfer cost."""
     df, neg = boosted.load_frame(path, target)
     if classes == "type":
         df["cls"] = df["permit_type"].map(harmonise)
     else:
-        col = "desc_class_v2" if classes == "cascade2" else "desc_class"
+        col = "desc_class_v2" if classes.startswith("cascade2") else "desc_class"
         if col not in df:
             raise SystemExit(f"{path} has no {col} column: re-pull with src/permits.py")
         df["cls"] = [classmap.cascade(t, w, d) for t, w, d in zip(df.permit_type, df.work_class, df[col])]
+        if classes in FOLD:
+            df["cls_unfolded"] = df["cls"]
+            df["cls"] = df["cls"].replace(FOLD[classes])
     return df, neg
 
 
@@ -93,7 +99,7 @@ def run(frames, held, test_year, seeds, keep_rows=False):
     if keep_rows:  # per-row seed-mean losses for paired(); not written to json
         rows["own_baseline"] = {t: boosted.pin(yte, bq[t], t) for t in TAUS}
         res["_rows"] = dict(loss=rows, y=yte, weeks=wk, permit_id=te.permit_id.to_numpy(),
-                            cls=te.cls.to_numpy())
+                            cls=(te.cls_unfolded if "cls_unfolded" in te else te.cls).to_numpy())
     return res
 
 
@@ -126,7 +132,8 @@ def paired(ra, rb, a, b):
 
 def by_class(xa, xb, cls):
     """Session 75: where the b-minus-a difference sits. Rows are grouped by their class under
-    configuration b (cascade2 for the session 74 run). For each model, quantile and class: n rows,
+    configuration b (cascade2 for the session 74 run; for a folded configuration, its class before
+    the fold, so the folded rows stay visible). For each model, quantile and class: n rows,
     the class's mean difference in days, and its contribution to the overall mean difference
     (sum of the class's row differences over all test rows; contributions add up to the overall
     diff). No interval: a description, not a test."""
@@ -150,7 +157,7 @@ if __name__ == "__main__":
     ap.add_argument("--test-year", type=int, default=2024)
     ap.add_argument("--seeds", type=int, default=3)
     ap.add_argument("--held", nargs="*", default=None)
-    ap.add_argument("--classes", nargs="+", choices=["type", "cascade", "cascade2"], default=["type"],
+    ap.add_argument("--classes", nargs="+", choices=["type", "cascade", "cascade2", "cascade2_nodemo"], default=["type"],
                     help="one or more class configurations; with two or more, the first is compared "
                          "with each later one on the same test rows (paired_*.json)")
     a = ap.parse_args()
