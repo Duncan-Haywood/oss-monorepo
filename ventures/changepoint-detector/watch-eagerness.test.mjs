@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { eagernessReplay, eagernessText, eagerSettings, replayWatch, HINT_BUDGET } from './watch-core.mjs';
+import { eagernessReplay, eagernessText, eagerSettings, replayWatch, suggestFor, budgetFromPlain, HINT_BUDGET } from './watch-core.mjs';
 import { analyzeJob } from './analyze-job.mjs';
 
 function rng(seed) {
@@ -39,7 +39,8 @@ test('suggest: the most eager setting at or under the budget, else quiet', () =>
   assert.equal(r.suggest, within.length ? within[within.length - 1] : 'quiet');
   const none = eagernessReplay(v, null, { budget: -1 });
   assert.equal(none.suggest, 'quiet');
-  assert.match(eagernessText(none, { column: 'orders' }), /Suggested: Quiet\. Even Quiet would have sent/);
+  assert.match(eagernessText(none, { column: 'orders' }), /Suggested: Quiet, the least eager setting\. Even Quiet would have sent/);
+  assert.doesNotMatch(eagernessText(none), /wanders/, 'a budget under the default is the person asking for few alerts, not a wandering level');
   const all = eagernessReplay(v, null, { budget: 100 });
   assert.equal(all.suggest, 'eager');
   assert.match(eagernessText(all), /Suggested: Eager/);
@@ -76,4 +77,22 @@ test('the page runs it in the worker job and offers to set the watch card', () =
   assert.match(html, /\$\("#watch-detector"\)\.value = \$\("#eager-use"\)\.dataset\.value/);
   assert.match(html, /record\("watch_eagerness"\)/);
   assert.match(html, /<code>watch_eagerness<\/code>/);
+});
+
+test('the page\'s budget box: re-picking from one replay matches a fresh replay at that budget', () => {
+  const v = series(160, (i) => (i >= 100 ? 3 : 0), 7);
+  const r = eagernessReplay(v);
+  for (const plain of [{ alerts: 6, per: 'year' }, { alerts: 1, per: 'month' }, { alerts: 1, per: 'week' }, { alerts: 7, per: 'week' }, { alerts: 0, per: 'year' }]) {
+    const b = budgetFromPlain(plain);
+    assert.equal(suggestFor(r.settings, b), eagernessReplay(v, null, { budget: b }).suggest, JSON.stringify(plain));
+  }
+  assert.equal(suggestFor(r.settings), r.suggest, 'no budget is the shipped default');
+  // A budget other than the tested one says the evidence is for the tested one, and gives the plain-budget menu.
+  assert.doesNotMatch(eagernessText(r), /Those numbers are for the tested budget/);
+  const month = eagernessText({ ...r, budget: budgetFromPlain({ alerts: 1, per: 'month' }) }, { every: 'day' });
+  assert.match(month, /Budget: 3\.29 alerts per 100 checks, about 1 alert a month at a daily check\./);
+  assert.match(month, /Those numbers are for the tested budget of 2 per 100 \(about 7\.3 alerts a year at a daily check\); at about 1 a month the same series reached 19 of 31/);
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  for (const id of ['eager-alerts', 'eager-per', 'eager-every']) assert.match(html, new RegExp(`id="${id}"`));
+  assert.match(html, /suggestFor\(r\.settings, b\.budget\)/);
 });

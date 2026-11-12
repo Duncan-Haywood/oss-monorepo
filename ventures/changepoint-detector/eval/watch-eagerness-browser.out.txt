@@ -1,8 +1,15 @@
 PASS the replay card shows after a one-column run
-PASS a suggestion is shown: Suggested: Middle, the most eager setting that stayed at or under 2 alerts per 100 checks on this history.
+PASS a suggestion is shown: Suggested: Middle, the most eager setting that stayed at or under 2 alerts per 100 checks on this history. Budget: 2 alerts per 100 checks, about 7.3 alerts a year at a daily check.
 PASS the table has a header and three settings: Quiet11.36 | Middle (suggested)11.35 | Eager22.58
 PASS the note gives the evidence and says it is not a promise
 PASS "Use ..." sets the watch card's How eager: Use Middle for the watch below -> Middle (more real changes, about twice the false alerts)
+PASS a budget of 0 a year suggests Quiet and reads back: Suggested: Quiet, the least eager setting. Even Quiet would have sent 1.3 alerts per 100 checks on this history, above your 0. Budget: 0 alerts per 100 checks, about 0 alerts a year at a daily check.
+PASS 3 a week suggests Eager: Suggested: Eager, the most eager setting that stayed at or under 42.9 alerts per 100 checks on this history. Budget: 42.9 alerts per 100 checks, about 13 alerts a month at a daily check.
+PASS off the tested budget, the note says the evidence is for the tested one
+PASS "Use Eager" then sets the select
+PASS a negative budget is refused in words
+PASS more than one alert per check is refused in words: That is more than one alert per check (7 daily checks a week); give at most 7.
+PASS blank is the tested default again: Suggested: Middle, the most eager setting that stayed at or under 2 alerts per 100 checks on this history. Budget: 2 alerts per 100 checks, about 7.3 alerts a year at a daily check.
 PASS watch_eagerness counted locally: {"example_loaded":1,"analysis_run":1,"agreed_run":1,"watch_eagerness":1}
 PASS no horizontal scroll at 390 px
 PASS no page errors

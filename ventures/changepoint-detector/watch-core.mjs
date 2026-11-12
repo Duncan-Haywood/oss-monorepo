@@ -347,8 +347,15 @@ export function eagernessReplay(values, labels = null, opts = {}) {
     const daily = r.n - r.from;
     return { key, detector, alerts: r.alerts.length, checks: daily, step: r.step, per100: daily ? (100 * r.alerts.length) / daily : 0, medianDelay: d.length ? (d.length % 2 ? d[m] : (d[m - 1] + d[m]) / 2) : null };
   });
-  const suggest = [...settings].reverse().find((x) => x.per100 <= budget)?.key ?? 'quiet';
-  return { n, from, model, budget, suggest, settings };
+  return { n, from, model, budget, suggest: suggestFor(settings, budget), settings };
+}
+
+/**
+ * The round 6 rule on settings already replayed: the most eager one whose rate is at most `budget` alerts per 100
+ * checks, else quiet. The page uses it to re-pick when the person changes the budget, without replaying again.
+ */
+export function suggestFor(settings, budget = HINT_BUDGET) {
+  return [...settings].reverse().find((x) => x.per100 <= budget)?.key ?? 'quiet';
 }
 
 /** Round 6's pre-registered alert budget for the eagerness suggestion: alerts per 100 daily checks. */
@@ -365,11 +372,14 @@ export function eagernessText(res, { column = 'the series', every = 'day' } = {}
   const pick = res.settings.find((s) => s.key === res.suggest);
   lines.push(res.suggest === 'quiet'
     ? (pick.per100 > res.budget
-      ? `Suggested: Quiet. Even Quiet would have sent ${pick.per100.toFixed(1)} alerts per 100 checks, above ${fb}; a level that wanders all the time keeps alerting, so consider watching its daily change instead.`
+      ? (res.budget < HINT_BUDGET
+        ? `Suggested: Quiet, the least eager setting. Even Quiet would have sent ${pick.per100.toFixed(1)} alerts per 100 checks on this history, above your ${fb}.`
+        : `Suggested: Quiet. Even Quiet would have sent ${pick.per100.toFixed(1)} alerts per 100 checks, above ${fb}; a level that wanders all the time keeps alerting, so consider watching its daily change instead.`)
       : `Suggested: Quiet. The more eager settings would have sent more than ${fb} alerts per 100 checks on this history.`)
     : `Suggested: ${eagerName(res.suggest)}, the most eager setting that stayed at or under ${fb} alerts per 100 checks on this history.`);
   lines.push(`Budget: ${fb} alert${fb === 1 ? '' : 's'} per 100 checks, ${plainBudgetText(res.budget, every)}.`);
-  lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 16.0, and on 6 held-out series it changed nothing.');
+  lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 16.0, and on 6 held-out series it changed nothing.'
+    + (Math.abs(res.budget - HINT_BUDGET) > 1e-9 ? ` Those numbers are for the tested budget of ${HINT_BUDGET} per 100 (${plainBudgetText(HINT_BUDGET)}); at about 1 a month the same series reached 19 of 31 at 19.6 per 1,000, at about 1 a week 29 of 31 at 75.3 per 1,000.` : ''));
   return lines.join('\n');
 }
 
@@ -378,6 +388,7 @@ export function eagernessText(res, { column = 'the series', every = 'day' } = {}
 const DAYS_PER = { week: 7, month: 365.25 / 12, year: 365.25 };
 const DAYS_PER_CHECK = { hour: 1 / 24, day: 1, week: 7 };
 const EVERY_WORD = { hour: 'an hourly', day: 'a daily', week: 'a weekly' };
+const EVERY_ADJ = { hour: 'hourly', day: 'daily', week: 'weekly' };
 
 /** Alerts per 100 checks from "about `alerts` alerts a `per` (week | month | year), checked every `every` (hour | day | week)". */
 export function budgetFromPlain({ alerts, per = 'month', every = 'day' } = {}) {
@@ -386,7 +397,8 @@ export function budgetFromPlain({ alerts, per = 'month', every = 'day' } = {}) {
   if (!Object.hasOwn(DAYS_PER, per)) throw new Error('per takes week, month or year.');
   if (!Object.hasOwn(DAYS_PER_CHECK, every)) throw new Error('every takes hour, day or week.');
   const checks = DAYS_PER[per] / DAYS_PER_CHECK[every];
-  if (checks < 1) throw new Error(`A ${every}ly check runs less than once a ${per}; give a longer period.`);
+  if (checks < 1) throw new Error(`${EVERY_WORD[every][0].toUpperCase()}${EVERY_WORD[every].slice(1)} check runs less than once a ${per}; give a longer period.`);
+  if (a > checks) throw new Error(`That is more than one alert per check (${+checks.toPrecision(3)} ${EVERY_ADJ[every]} checks a ${per}); give at most ${Math.floor(checks)}.`);
   return (100 * a) / checks;
 }
 
