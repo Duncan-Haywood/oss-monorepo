@@ -56,6 +56,41 @@ class T(unittest.TestCase):
             r.append(twin_stop_distance(2 * s, 1.0, k) / real_stop_distance(2 * s, 1.0, 1.0, 0.5 * s))
         self.assertAlmostEqual(r[0], r[1], places=10)
 
+    # Added by quality audit round 53 (portfolio/quality/audits/2026-11-12-friction-twin.json): every test above
+    # used m = 1, the minimax numbers and results.txt values were unpinned, and b = 0 / c = 0 raised.
+    def test_mass_enters_affine_fit_and_distances(self):
+        m, b, c = 2.5, 0.8, 0.3
+        vs = [0.5 + i * 0.01 for i in range(300)]
+        bh, ch = fit_affine(vs, [(b * v + c) / m for v in vs], m)
+        self.assertAlmostEqual(bh, b, places=9)
+        self.assertAlmostEqual(ch, c, places=9)
+        d, t = simulate_coast(2.0, m, b, c, dt=1e-3)
+        self.assertAlmostEqual(d / real_stop_distance(2.0, m, b, c), 1, places=6)
+        self.assertAlmostEqual(t / real_stop_time(2.0, m, b, c), 1, places=6)
+
+    def test_pinned_values_from_results(self):
+        # hand values: 3 - 0.5 ln 7, and 1 + 0.5 * 2 / (13/3)
+        self.assertAlmostEqual(real_stop_distance(3, M, B, C), 3 - 0.5 * math.log(7), places=12)
+        self.assertAlmostEqual(fit_k_closed(1, 3, M, B, C), 16 / 13, places=12)
+        self.assertAlmostEqual(crossover_speed(M, B, C, 16 / 13), 7.339539, places=5)
+
+    def test_minimax_values_and_equal_end_errors(self):
+        # results.txt section 5, confirmed by an independent equal-end-error solve in the audit
+        for (v1, v2), (k_exp, e_exp) in {(1, 3): (1.8494, 0.1997), (0.2, 10): (3.7380, 0.6844),
+                                         (0.05, 3): (11.4014, 0.8702)}.items():
+            k, e = minimax_k(M, B, C, v1, v2)
+            self.assertAlmostEqual(k, k_exp, places=3)
+            self.assertAlmostEqual(e, e_exp, places=3)
+            lo = abs(twin_stop_distance(v1, M, k) / real_stop_distance(v1, M, B, C) - 1)
+            hi = abs(twin_stop_distance(v2, M, k) / real_stop_distance(v2, M, B, C) - 1)
+            self.assertAlmostEqual(lo, hi, places=3)
+
+    def test_pure_coulomb_and_pure_viscous_limits(self):
+        self.assertAlmostEqual(real_stop_distance(3, 2, 0, 0.5), 2 * 9 / 1.0)
+        self.assertAlmostEqual(real_stop_time(3, 2, 0, 0.5), 12.0)
+        self.assertAlmostEqual(real_stop_distance(3, 2, 1, 0), 6.0)
+        self.assertEqual(real_stop_time(3, 2, 1, 0), math.inf)
+
 
 if __name__ == "__main__":
     unittest.main()
