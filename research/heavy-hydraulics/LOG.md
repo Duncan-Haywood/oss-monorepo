@@ -2,6 +2,16 @@
 
 Newest first.
 
+## 2026-11-12 · Milestone 5w: a smaller fixed pump on the measured loader, priced in cycle time (predictions registered before any code was written)
+- Why: 5t to 5v kept the loader's own 63 cc pump in the open-centre counterfactual, so r (pump volume over demand volume while moving) was 1.79 and the break-even margin 87 bar. A designer building open-centre would pick a smaller fixed pump and accept slower peaks (3i/3k priced that trade on synthetic cycles). 5t, 5v "Next": how far does a smaller pump close the gap on real motion, and what does it cost in time?
+- Setup fixed before the run: fixed pump Vg swept 63, 56, 50, 45, 40, 36, 32, 28, 25 cc at the measured engine speed (2.5 L/min leak as before), 5t's case (b) (PVG 32 orifice floor sized per section at p99.9 flow, p_neutral 5 bar), q_sb 0, 5o's noise-floor masks. Where the open-centre demand exceeds the pump flow, the actuators slow so that the pump delivers the demanded volume: that sample lasts dt x q_dem / q_pump, the pump flow all goes to the work, and the hydraulic energy equals what `parts` already charges with q_oc = max(q_pump, q_dem) (the energy of a slowed sample is q_dem (p + d) dt either way). Time cost: open-centre record time over load-sensing record time, with load-sensing charged its own pump limit (the measured machine's 63 cc variable pump, max(1, q_dem / q_63) per sample), so the net ratio is 1 at 63 cc by construction only if the two demands agree. V_eq: the Vg at which the whole-record m* equals the measured 24.9 bar margin (linear interpolation on the sweep).
+- **Predictions:**
+  - W1: whole-record m* under (b) stays above 24.9 bar for every Vg of 40 cc or more. Prior 70%.
+  - W2: V_eq lies between 25 and 40 cc. Prior 50%.
+  - W3: at V_eq the net open-centre/load-sensing record time ratio exceeds 1.25. Prior 60%.
+  - W4: the surplus-flow pressure p_s at V_eq is below the 99.5 bar of 63 cc (the surplus that survives a small pump comes when demand, and pressure, are low). Prior 60%.
+  - W5: across the 18 Y-cycles, Spearman(r at 63 cc, net time ratio at V_eq) is below -0.5 (cycles with more spare flow lose less time). Prior 55%.
+
 ## 2026-11-12 · Milestone 5v: the volume-ratio split on the measured loader (V6 run; V7 to V10 registered before any code was written)
 - Why: 5u split the exact break-even margin into m* = beta [(r - 1) p_q + r (p_Q - p_q) + r d_bar] + I / B and explained the fourfold gap between the synthetic cycles (20.5 bar) and the measured loader (82.9 bar at no spool drop) by r (1.78 against 1.43) and an inferred loader working pressure near 100 bar. That pressure was inferred, not computed: zenodo.org refused the proxy in 5u, so V6 stayed registered and unrun. It answered (HTTP 200) at 03:45 UTC this session.
 - Setup fixed before the run: 5t's cases (a) floor, no drop, p_neutral 5; (b) PVG 32 orifice floor, p99.9 sizing, p_neutral 5; (c) 10 bar drop, p_neutral 10; q_sb 0; 5t's noise-floor motion masks and 18 Y-cycles. The numpy twin of `trace_breakeven` in `measured_breakeven.py` gains the 5u fields (r, p_Q, p_q, d_bar, beta, terms), checked against the stdlib function on the first 50,000 samples as in 5t.
