@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyfJqAaRNcQs1tK694m",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T08:39:14Z",
+  "ended": "2026-11-12T08:50:45Z",
+  "wall_minutes": 11.81,
+  "tokens_in": 8466029,
+  "tokens_out": 32745,
+  "cost_usd": 3.4147,
+  "tool_calls": 74,
+  "task": "Flagship 6 (shift-roster-builder): buildRoster end to end on 40-person weeks with exact on",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15064",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First version of the deferred cover passes let column generation spend 33 s on a 60-person week with a 20 s budget, leaving the roster 11 open hours worse",
+      "fix": "cap column generation at half the remaining budget when a budget applies; re-measured: same 300 h roster as before"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "The '179-315 s end to end' figure for 40-person weeks was stale (measured before the root dive and pay-oracle speed-ups); on today's code the old order took 15-57 s, so the milestone was smaller than the flagship note implied."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A heredoc-based python edit command was refused by the rm-safety check although it contained no rm; writing the script to the scratchpad first worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-proof-first.md",
+    "ventures/shift-roster-builder/README.md (section 'The exact check end to end on 40-person weeks')"
+  ],
+  "goal": null,
+  "notes": "Per-stage timings in buildRoster showed the exact tree (38-68 s against an 8 s limit, clock read every 1,024 nodes) and the coverage plateau walk (~10 s) were redundant once score column generation runs. Above 60 copies: tree skipped, CG gets 4x exactMs, cover passes deferred until CG fails. 20/30/40-person weeks: same rosters, all proven, 40-person 5.7-11.7 s vs 15-57 s. 60-person with 20 s budget: week 1 now proven (8.5 s, none before), week 0 same 300 h roster plus a 275 h floor. Readings in eval/end-to-end.out.txt; some rows ran alongside other benches on a 4-core machine. No agent doc in docs/reports: README section and flagships next: carry the handoff. Verification: run_venture_tests.py shift-roster-builder ok (176.4 s, 0 failed); venture-preflight.mjs shift-roster-builder clean; post front matter, links and similarity checks clean; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b2b69e88-2d43-50bf-a30e-4a1aa984e696",
+    "transcripts": 1,
+    "first": "2026-11-12T08:39:14Z",
+    "last": "2026-11-12T08:51:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 135,
+        "output": 32745,
+        "thinking": 7871,
+        "cache_read": 8329216,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136678,
+        "api_equivalent_usd": 3.4147,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 135,
+      "output": 32745,
+      "thinking": 7871,
+      "cache_read": 8329216,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136678,
+      "api_equivalent_usd": 3.4147,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 66,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.81,
+      "active_minutes": 11.81,
+      "model_minutes": 5.95,
+      "tool_minutes": 5.86,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "profiling a solver pipeline, two scheduling changes, benches at four sizes, a regression fix, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 175.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
