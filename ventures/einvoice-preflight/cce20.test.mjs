@@ -150,11 +150,36 @@ test("the ValorDolares finding says how the limits were computed for the CFDI's 
   assert.match(f.message, /Importe \(a CFDI in dollars\)/);
 });
 
-test("a four-digit colonia code is named as not checked", () => {
-  const tr = read("cfdi-4.0-cce20-traslado.xml").replace('NumeroExterior="1203"', 'NumeroExterior="1203" Colonia="0001"');
-  const r = checkCfdi(tr);
-  assert.deepEqual(r.findings, []);
-  assert.ok(r.skipped.some((s) => /^CCE129 \(Emisor colonia 0001\)/.test(s)), r.skipped.join(" | "));
+test("a colonia code is checked against the postal code's list in c_Colonia (CCE129)", () => {
+  // 86000 (Villahermosa, TAB) lists colonias 0001, 0002 and 1477 in c_Colonia.
+  const tr = read("cfdi-4.0-cce20-traslado.xml");
+  for (const c of ["0001", "0002", "1477"]) assert.deepEqual(checkCfdi(tr.replace('NumeroExterior="1203"', `NumeroExterior="1203" Colonia="${c}"`)).findings, [], c);
+  const r = checkCfdi(tr.replace('NumeroExterior="1203"', 'NumeroExterior="1203" Colonia="0003"'));
+  assert.equal(r.findings.length, 1);
+  assert.equal(r.findings[0].rule, "MX-064");
+  assert.match(r.findings[0].message, /^Colonia 0003 is not a c_Colonia code of postal code 86000, which lists 3 \(0001, 0002, 1477\)\. \(SAT CCE129\)$/);
+  assert.equal(r.findings[0].path.endsWith("/Emisor/Domicilio/@Colonia"), true);
+  // The issuer's Colonia is typed c_Colonia in ComercioExterior20.xsd, so a name is a schema finding there.
+  assert.deepEqual(checkCfdi(tr.replace('NumeroExterior="1203"', 'NumeroExterior="1203" Colonia="Centro"')).findings.map((f) => f.rule), ["MX-003"]);
+});
+
+test("the municipality and locality must be the postal code's in c_CodigoPostal (CCE130)", () => {
+  // c_CodigoPostal: 86000 is TAB, municipio 004 (Centro), localidad 02.
+  const tr = read("cfdi-4.0-cce20-traslado.xml");
+  assert.deepEqual(checkCfdi(tr.replace('Municipio="004"', 'Municipio="004" Localidad="02"')).findings, []);
+  const m = checkCfdi(tr.replace('Municipio="004"', 'Municipio="005"')).findings;
+  assert.deepEqual(m.map((f) => f.rule), ["MX-064"]);
+  assert.match(m[0].message, /^Municipio 005 is not the municipality of postal code 86000: c_CodigoPostal gives TAB 004\. \(SAT CCE130\)$/);
+  const l = checkCfdi(tr.replace('Municipio="004"', 'Municipio="004" Localidad="03"')).findings;
+  assert.deepEqual(l.map((f) => f.rule), ["MX-064"]);
+  assert.match(l[0].message, /^Localidad 03 is not the locality of postal code 86000.*\(SAT CCE130\)$/);
+});
+
+test("a postal code whose catalogue row names no municipality constrains nothing", () => {
+  // 86001 is in TAB's block of c_CodigoPostal but its municipality and locality columns are empty.
+  const tr = read("cfdi-4.0-cce20-traslado.xml").replaceAll('CodigoPostal="86000"', 'CodigoPostal="86001"');
+  const r = checkCfdi(tr.replace('Municipio="004"', 'Municipio="005"'));
+  assert.ok(!r.findings.some((f) => /CCE130|CCE129/.test(f.message)), r.findings.map((f) => f.message).join(" | "));
 });
 
 test("a transfer's Cantidad may have one, two or three decimals, not four (CCE154)", () => {

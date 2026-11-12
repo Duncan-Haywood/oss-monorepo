@@ -159,8 +159,9 @@ flagships:
       Nigeria, Thailand, Taiwan, Oman, Pakistan and Jordan pages
       (excerpts; Taiwan, Oman dates disagree); Mexico CFDI 4.0 and four complements landed 2026-11-12, Carta Porte 3.1 last
       (README "Mexico: waybills"; 314/314 xmllint on public files):
-      open: SAT's CP error matrix to map MX-070..079 to CP codes (omawww refused the proxy),
-      a real payroll or export file, a PAC rejection compared, postal code to municipality/colonia;
+      open: SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked),
+      a real payroll or export file, a PAC rejection compared; postal code to municipality,
+      locality and colonia (CCE129/130, MX-080) landed 2026-11-12 (README "Mexico: postal codes");
       Brazil NF-e 4.00 landed 2026-11-12 (README "Brazil: NF-e"; 35 real files, vII fix); PL_010_V1.30 reform layout and IBS/CBS/IS sums (BR-050..052, 4,987/4,987 vs xmllint) landed 2026-11-12; open: a real reform NF-e from a SEFAZ test environment, cClassTrib/rate tables, a real SEFAZ rejection, NFS-e; refresh the Bulgaria
       page when its draft passes. A run that lands a slice replaces its
       item here; keep this under 2,000 characters.
