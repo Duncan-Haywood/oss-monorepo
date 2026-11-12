@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { runCheck, formatText, parseArgs, main } from './check.mjs';
+import { verdictFor } from './analyze.mjs';
 
 function fakeChain(map) {
   return async (hostname) => map[hostname] ?? { chain: [hostname], finalTarget: null, truncated: false, error: null };
@@ -171,4 +172,34 @@ test('the CLI exits 1, not another code, for a confirmed dangling CNAME', async 
 test('the CLI exits 1 when a lookup could not complete (README: a failed lookup is not a pass)', async () => {
   const { code } = await runMain(['plain.example.com'], { dohStatus: 2 });
   assert.equal(code, 1);
+});
+
+// Red team 2026-11-12: a pasted URL went to the resolver as-is. Cloudflare
+// answers NXDOMAIN for "https://blog.example.com/", which read as no-cname,
+// so a dangling CNAME came back "No subdomain-takeover risk found", exit 0.
+test('runCheck looks up the hostname inside a pasted URL, not the URL', async () => {
+  const asked = [];
+  const report = await runCheck(['https://Blog.Example.com:443/path?q=1#x', 'blog.example.com.'], {
+    resolveCnameChainFn: async (h) => {
+      asked.push(h);
+      return fakeChain({
+        'blog.example.com': { chain: ['blog.example.com', 'old-app.herokuapp.com'], finalTarget: 'old-app.herokuapp.com', truncated: false, error: null },
+      })(h);
+    },
+    fetchHostnameFn: async () => ({ ok: true, status: 404, text: 'No such app', error: null }),
+  });
+  assert.deepEqual(asked, ['blog.example.com', 'blog.example.com']);
+  assert.equal(report.confirmedCount, 2);
+});
+
+test('runCheck never reads a non-hostname as a clean result', async () => {
+  let asked = 0;
+  const report = await runCheck(['not a hostname', 'exa mple.com', 'http://', '-bad.example.com'], {
+    resolveCnameChainFn: async (h) => { asked++; return fakeChain({})(h); },
+    fetchHostnameFn: async () => { throw new Error('no probe expected'); },
+  });
+  assert.equal(asked, 0, 'an input that is not a hostname is never sent to the resolver');
+  assert.equal(report.errors.length, 4);
+  assert.equal(verdictFor(report).clean, false);
+  assert.equal(verdictFor(report).exitCode, 1);
 });

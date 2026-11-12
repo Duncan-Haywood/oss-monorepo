@@ -190,3 +190,14 @@ test('verdictFor: clean, unconfirmed and confirmed reports', () => {
   const confirmed = buildReport(['blog.example.com'], [classify('blog.example.com', cname, { ok: true, status: 404, text: 'No such app', error: null })]);
   assert.match(verdictFor(confirmed).text, /^1 confirmed dangling CNAME\(s\) found\.$/);
 });
+
+// Red team 2026-11-12: `clean: true` on the unconfirmed branch escaped, and
+// the page paints the verdict green from `clean` (index.html, verdict.className).
+test('verdictFor: any finding is never clean, whatever the exit code', () => {
+  const cname = { chain: ['blog.example.com', 'old-app.herokuapp.com'], finalTarget: 'old-app.herokuapp.com', truncated: false, error: null };
+  const unconfirmed = verdictFor(buildReport(['blog.example.com'], [classify('blog.example.com', cname, null)]));
+  assert.equal(unconfirmed.clean, false);
+  const confirmed = verdictFor(buildReport(['blog.example.com'], [classify('blog.example.com', cname, { ok: true, status: 404, text: 'No such app', error: null })]));
+  assert.equal(confirmed.clean, false);
+  assert.equal(confirmed.exitCode, 1);
+});

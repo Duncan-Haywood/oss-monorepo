@@ -1,0 +1,422 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyesYPefWWXkdeVEFkX",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T23:39:10Z",
+  "ended": "2026-11-12T23:41:32Z",
+  "wall_minutes": 5.84,
+  "tokens_in": 4184742,
+  "tokens_out": 17707,
+  "cost_usd": 1.8471,
+  "tool_calls": 49,
+  "task": "redteam: subdomain-takeover-check analyze.mjs + ucr-fee-calculator calc.mjs campaigns; hunt real bugs in the takeover checker",
+  "projects": [
+    "subdomain-takeover-check",
+    "ucr-fee-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15297",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A PreToolUse hook blocked a command that both started http.server and ran pkill on it; the heredoc in the same command never ran",
+      "fix": "split into separate calls"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix every open entry first, but all 8 open entries were control-plane workflow edits already open as owner-gated PRs; redteam.py open could print the open PR next to each entry so a run does not have to search for it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: every open defect is a control-plane edit already open as a PR waiting for owner approval (#14877, #14808, #14612, #14698, #15201, #15248, #12928, #12926); opening another duplicate would add to the P061/P063 pile.",
+      "did": "Left patched:false and went straight to seeding and hunting.",
+      "result": "Found and fixed one new real defect instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-a-pasted-url-reads-clean.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: analyze.mjs 10 seeded, 8 caught, 1 equivalent (unreachable ?? fallback in matchedHop), 1 gap (clean:true on the unconfirmed verdict; index.html colours from clean). calc.mjs 8/8. Real defect: pasted URL -> DoH NXDOMAIN -> no-cname -> clean, exit 0. Reproduced against cloudflare-dns.com with curl (Status 3 for name https://www.github.com/). Fixed with parseHostname in analyze.mjs, used by check.mjs runCheck and index.html; failing tests first in check.test.mjs. Page checked in Chromium: non-hostname input shows a refusal, no page errors. Suite: run_venture_tests.py subdomain-takeover-check ok (105 tests). Sibling check: email-auth-check already strips scheme/path (normalizeDomainArg); caa-record-check and dns-configuration-evidence not audited this run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/subdomain-takeover-check/analyze.mjs",
+        "test": "node --test ventures/subdomain-takeover-check/**/*.test.mjs  (in .)",
+        "seed": 367112281,
+        "commit": "4c15cc94f",
+        "sites": 38,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 113,
+            "col": 93,
+            "operator": "const-plus-one",
+            "before": "return hops.find((h) => matchProvider(h)?.id === result.provider.id) ?? hops[hops.length - 1];",
+            "after": "return hops.find((h) => matchProvider(h)?.id === result.provider.id) ?? hops[hops.length - 2];",
+            "line_text": "  return hops.find((h) => matchProvider(h)?.id === result.provider.id) ?? hops[hops.length - 1];",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Unreachable fallback: classify sets provider = providerForChain(chain), which returns matchProvider of the first chain hop that matches, so hops.find(matchProvider(h)?.id === provider.id) always succeeds and the ?? branch never runs."
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 117,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "const last = result.chain[result.chain.length - 1];",
+            "after": "const last = result.chain[result.chain.length - 2];",
+            "line_text": "  const last = result.chain[result.chain.length - 1];",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 119,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "return last === target",
+            "after": "return last !== target",
+            "line_text": "  return last === target",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 125,
+            "col": 22,
+            "operator": "eq-flip",
+            "before": "if (result.category === 'dangling-confirmed') {",
+            "after": "if (result.category !== 'dangling-confirmed') {",
+            "line_text": "  if (result.category === 'dangling-confirmed') {",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 179,
+            "col": 30,
+            "operator": "gt-to-ge",
+            "before": "incomplete: errors.length > 0,",
+            "after": "incomplete: errors.length >= 0,",
+            "line_text": "    incomplete: errors.length > 0,",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 180,
+            "col": 23,
+            "operator": "eq-flip",
+            "before": "ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "after": "ok: confirmedCount !== 0 && unconfirmedCount === 0,",
+            "line_text": "    ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 180,
+            "col": 29,
+            "operator": "and-to-or",
+            "before": "ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "after": "ok: confirmedCount === 0 || unconfirmedCount === 0,",
+            "line_text": "    ok: confirmedCount === 0 && unconfirmedCount === 0,",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 191,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "if (report.confirmedCount > 0) {",
+            "after": "if (report.confirmedCount > 1) {",
+            "line_text": "  if (report.confirmedCount > 0) {",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 195,
+            "col": 20,
+            "operator": "false-to-true",
+            "before": "return { clean: false, exitCode: 1, text: `${report.unconfirmedCount} hostname(s) point at a takeover-prone provider, unconfirmed.${unread}` };",
+            "after": "return { clean: true, exitCode: 1, text: `${report.unconfirmedCount} hostname(s) point at a takeover-prone provider, unconfirmed.${unread}` };",
+            "line_text": "    return { clean: false, exitCode: 1, text: `${report.unconfirmedCount} hostname(s) point at a takeover-prone provider, unconfirmed.${unread}` };",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "verdictFor's unconfirmed branch was only checked for exitCode and text; index.html colours the verdict from clean, so a takeover-prone hostname would show the green 'ok' tone. Test: 'verdictFor: any finding is never clean' in analyze.test.mjs."
+          },
+          {
+            "file": "ventures/subdomain-takeover-check/analyze.mjs",
+            "line": 195,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "return { clean: false, exitCode: 1, text: `${report.unconfirmedCount} hostname(s) point at a takeover-prone provider, unconfirmed.${unread}` };",
+            "after": "return { clean: false, exitCode: 2, text: `${report.unconfirmedCount} hostname(s) point at a takeover-prone provider, unconfirmed.${unread}` };",
+            "line_text": "    return { clean: false, exitCode: 1, text: `${report.unconfirmedCount} hostname(s) point at a takeover-prone provider, unconfirmed.${unread}` };",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/ucr-fee-calculator/calc.mjs",
+        "test": "node --test ventures/ucr-fee-calculator/**/*.test.mjs  (in .)",
+        "seed": 227979837,
+        "commit": "4c15cc94f",
+        "sites": 68,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 21,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const min = Number(m[1]);",
+            "after": "const min = Number(m[2]);",
+            "line_text": "    const min = Number(m[1]);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 40,
+            "col": 41,
+            "operator": "and-to-or",
+            "before": "return brackets.find((b) => n >= b.min && n <= b.max) ?? null;",
+            "after": "return brackets.find((b) => n >= b.min || n <= b.max) ?? null;",
+            "line_text": "  return brackets.find((b) => n >= b.min && n <= b.max) ?? null;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 54,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "after": "if (!p[0] || !(p[1] ?? \"\") && !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "line_text": "    if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 54,
+            "col": 60,
+            "operator": "lt-to-le",
+            "before": "if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "after": "if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n <= 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "line_text": "    if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 54,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "after": "if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 1) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "line_text": "    if (!p[0] || !(p[1] ?? \"\") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need \"name, number of vehicles, type\".`);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 56,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "out.push({ name: p[0], n, type });",
+            "after": "out.push({ name: p[1], n, type });",
+            "line_text": "    out.push({ name: p[0], n, type });",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 63,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "if (fees.errors.length) return { error: fees.errors[0], errors: fees.errors };",
+            "after": "if (fees.errors.length) return { error: fees.errors[1], errors: fees.errors };",
+            "line_text": "  if (fees.errors.length) return { error: fees.errors[0], errors: fees.errors };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ucr-fee-calculator/calc.mjs",
+            "line": 118,
+            "col": 141,
+            "operator": "const-plus-one",
+            "before": "const lines = r.rows.map((x) => [x.name, x.type, x.n, span(x.bracket), x.fee.toFixed(2), x.perVehicle === null ? \"\" : x.perVehicle.toFixed(2)].map(csvCell).join(\",\"));",
+            "after": "const lines = r.rows.map((x) => [x.name, x.type, x.n, span(x.bracket), x.fee.toFixed(2), x.perVehicle === null ? \"\" : x.perVehicle.toFixed(3)].map(csvCell).join(\",\"));",
+            "line_text": "  const lines = r.rows.map((x) => [x.name, x.type, x.n, span(x.bracket), x.fee.toFixed(2), x.perVehicle === null ? \"\" : x.perVehicle.toFixed(2)].map(csvCell).join(\",\"));",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/subdomain-takeover-check/check.mjs",
+        "issue": "A pasted URL (https://host/path) or any non-hostname was sent to the DoH resolver as-is; Cloudflare answers NXDOMAIN, which classify reads as no-cname, so the CLI and page reported No subdomain-takeover risk found (exit 0) even for a dangling CNAME. Fixed with parseHostname() in analyze.mjs used by check.mjs and index.html; tests in check.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15297"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "50ada62c-1cb2-55c4-8f63-629948dd404b",
+    "transcripts": 1,
+    "first": "2026-11-12T23:39:10Z",
+    "last": "2026-11-12T23:45:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 93,
+        "output": 17707,
+        "thinking": 2839,
+        "cache_read": 4100589,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84060,
+        "api_equivalent_usd": 1.8471,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 93,
+      "output": 17707,
+      "thinking": 2839,
+      "cache_read": 4100589,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84060,
+      "api_equivalent_usd": 1.8471,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 44,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.84,
+      "active_minutes": 5.84,
+      "model_minutes": 3.06,
+      "tool_minutes": 2.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: two mutation campaigns, triage, reproduce and fix an input-normalisation bug with tests, browser check, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 162.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -18,7 +18,7 @@
 
 import { resolveCnameChain } from './lookup.mjs';
 import { fetchHostname } from './probe.mjs';
-import { classify, buildReport, verdictFor } from './analyze.mjs';
+import { classify, buildReport, verdictFor, parseHostname } from './analyze.mjs';
 import { providerForChain } from './fingerprints.mjs';
 
 export function formatText(report) {
@@ -73,7 +73,9 @@ export function parseArgs(argv) {
  * request that classify() cannot use either way. */
 export async function runCheck(hostnames, { resolveCnameChainFn = resolveCnameChain, fetchHostnameFn = fetchHostname, timeoutMs } = {}) {
   const results = await Promise.all(
-    hostnames.map(async (hostname) => {
+    hostnames.map(async (input) => {
+      const { hostname, error } = parseHostname(input);
+      if (error) return classify(String(input), { chain: [String(input)], finalTarget: null, truncated: false, error }, null);
       const cname = await resolveCnameChainFn(hostname, timeoutMs ? { timeoutMs } : undefined);
       if (cname.error || !cname.finalTarget || !providerForChain(cname.chain)) {
         return classify(hostname, cname, null);

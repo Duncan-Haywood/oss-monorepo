@@ -40,6 +40,37 @@
 
 import { providerForChain, matchProvider } from './fingerprints.mjs';
 
+const LABEL_RE = /^[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?$/;
+
+/**
+ * The hostname inside what a person typed or pasted: "https://Blog.Example.com/path"
+ * and "blog.example.com." both give "blog.example.com", and an internationalised
+ * name comes back in its punycode (xn--) form, which is what DNS holds. Shared by
+ * check.mjs and index.html. Without it a pasted URL went to the resolver as-is,
+ * got NXDOMAIN, and read as "no CNAME", a clean result (red team 2026-11-12).
+ *
+ * @returns {{hostname: string|null, error: string|null}} `error` is set, and
+ *   `hostname` null, when the input is not a hostname at all; a caller reports
+ *   that as a lookup error, never as a clean result.
+ */
+export function parseHostname(input) {
+  const raw = String(input ?? '').trim();
+  if (!raw) return { hostname: null, error: 'empty input' };
+  let host;
+  try {
+    const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(raw) ? raw : `https://${raw}`);
+    host = url.hostname;
+  } catch {
+    return { hostname: null, error: `not a hostname: ${JSON.stringify(raw)}` };
+  }
+  host = host.replace(/\.$/, '').toLowerCase();
+  const labels = host.split('.');
+  if (!host || host.length > 253 || !labels.every((l) => LABEL_RE.test(l))) {
+    return { hostname: null, error: `not a hostname: ${JSON.stringify(raw)}` };
+  }
+  return { hostname: host, error: null };
+}
+
 /**
  * @param {string} hostname - the hostname checked, for display only
  * @param {object} cname - lookup.mjs's `resolveCnameChain` result:
