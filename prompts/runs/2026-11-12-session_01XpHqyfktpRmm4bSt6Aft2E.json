@@ -37,7 +37,8 @@
     "Map coloured whole triangles past the boundary; now draws the clipped pieces.",
     "Push hook rejected the post description (223 chars > 160); shortened in a separate commit.",
     "CI ventures-tests: UNITS[input.units] flagged by inherited_keys.py (prototype keys); fixed with Object.hasOwn.",
-    "CI validate: optout-persistence pins the opt-out catalogue count (1311); raised to 1312 with an `earthwork-cut-fill graduated` note."
+    "CI validate: optout-persistence pins the opt-out catalogue count (1311); raised to 1312 with an `earthwork-cut-fill graduated` note.",
+    "Local site-builder tests: earthwork-cut-fill landed in the catch-all section, FAQ JSON-LD not visible on page, no launch date; filed under the trades section in build.mjs, rendered the FAQ visibly, ran launched.mjs --write."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -51,7 +52,7 @@
     },
     {
       "file": "ventures/CLAUDE.md",
-      "issue": "A new venture must bump SWITCHES_IN_THE_CATALOGUE in platform/privacy/optout-persistence.test.mjs and pass inherited_keys.py; neither is in the new-venture guidance, so both surfaced only in CI."
+      "issue": "A new venture must bump SWITCHES_IN_THE_CATALOGUE in platform/privacy/optout-persistence.test.mjs and pass inherited_keys.py; neither is in the new-venture guidance, so both surfaced only in CI. Same for the site builder's section list (build.mjs), visible-FAQ rule and launched.json; the semver-range-explainer run hit the FAQ one too."
     }
   ],
   "deviations": [

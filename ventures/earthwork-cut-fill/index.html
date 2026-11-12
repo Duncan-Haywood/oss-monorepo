@@ -127,6 +127,22 @@
     </div>
   </main>
 
+  <section class="faq" style="max-width:780px;margin-top:8px">
+    <h2>Questions</h2>
+    <h3>How does this calculate cut and fill?</h3>
+    <p>It joins your survey shots into a triangulated irregular network (a Delaunay TIN), the same kind of surface civil design software builds. Inside each triangle the ground is a plane and so is the design, so the depth between them changes linearly. The tool splits each triangle where that depth crosses zero and adds up the cut and fill parts exactly. There is no grid sampling on top of the triangulation.</p>
+    <h3>What is a balance elevation?</h3>
+    <p>The pad elevation at which the material you cut is just enough to build the fill, so nothing is hauled off or brought in. Cut soil loses volume when it is compacted into fill, so with a shrink factor the balance point sits a little higher than where cut and fill volumes are equal.</p>
+    <h3>What are shrink and swell?</h3>
+    <p>Shrink is the share of volume a cubic yard of undisturbed (bank) soil loses when it is placed and compacted as fill; 10 to 25 percent is common. Swell is the share it gains when dug and loaded loose in a truck; 15 to 40 percent is common for earth. Both depend on the soil and should come from the geotechnical report or your own experience on that material.</p>
+    <h3>What point file formats does it read?</h3>
+    <p>Comma, tab, semicolon or space separated text. With a header row it finds Northing, Easting and Elevation (or X, Y, Z) by name. Without one, four or more columns are read as PNEZD (point, northing, easting, elevation, description), the usual data-collector and Civil 3D export, and three columns as easting, northing, elevation. You can force PENZD, NEZ or ENZ.</p>
+    <h3>Can I bid on these numbers?</h3>
+    <p>Use them as a check, not as the only takeoff. A TIN is only as good as its shots: without breaklines it cuts straight across ditches, curbs and ridges between points, and it knows nothing about rock, unsuitable soil, over-excavation or the structural section under paving. Compare it with the engineer's grading plan and your own takeoff.</p>
+    <h3>Is my survey uploaded?</h3>
+    <p>No. Files are read and every calculation runs in your browser. Nothing is sent anywhere. An optional anonymous counter in this browser's local storage records only which features were used and the day.</p>
+  </section>
+
   <footer>
     <p><strong>No warranty.</strong> Free and as-is. An estimate between two triangulated surfaces, not engineering, surveying or construction advice. Without breaklines a TIN cuts straight across ditches, curbs and ridges between shots, and it knows nothing about rock, unsuitable soil or over-excavation. Check it against the engineer's grading plan and your own takeoff before you bid or move material.</p>
     <p>Nothing leaves your browser: your points are read and computed here. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/earthwork-cut-fill">Source and CLI</a> · <a href="LICENSE">MIT licence</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a> · Related: <a href="../concrete-maturity/">concrete maturity calculator</a>, <a href="../land-survey-bid-calculator/">land survey bid calculator</a>, <a href="../retaining-wall-bid-calculator/">retaining wall bid calculator</a></p>
