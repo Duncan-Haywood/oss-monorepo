@@ -1,0 +1,232 @@
+{
+ "date": "2026-11-12",
+ "subject": "research/chip-logic-script",
+ "stratum": "research",
+ "seed": "2026-11-12-m",
+ "drawn_by": "sample",
+ "round": 54,
+ "auditor": "agent session (Claude), quality-audit round 54",
+ "status": "audited",
+ "professional": "a digital-design / EDA researcher reviewing for a logic-synthesis workshop (IWLS-style); they check first that every mapped netlist is really equivalent, then whether the cost model (unit-cost generic gates, MUX = 1 cell, cells x topological depth) could be producing the headline ranking, whether the baseline flow is the one the predecessor result was measured with, and whether the 'session-written' winning structure and the script-sensitivity finding are already known (Oklobdzija's leading-zero detector; Fiser and Schmidt on structural bias in ABC)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Installed Yosys 0.33 (git sha1 2584903a060, the version the README names) and Icarus. Reran experiments/run.py into scratch (/tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/results_rerun.txt): identical to the committed experiments/results.txt line for line (diff of everything except the tool line empty). Independent checks the author did not write: (1) exhaustive Icarus simulation of all 37 RTL candidates (references, proposer files, generated sweep configs) over all 65,536 inputs against Python popcount/clz/|a-b| (/tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/chk/sim.py): 34 OK, the 3 seeded-fault files fail (p3: 32,768 mismatches; c3: 1, at a=0; d3: 32,640), exactly the gate's accept/reject; (2) the same exhaustive simulation of all 170 mapped netlists, 5 scripts each: 170/170 OK, so the '0 of 170 failed' claim holds without relying on Yosys sat; (3) cells and depth recomputed from write_json netlists with my own longest-path walk (/tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/chk/depth.py) for six (candidate, script) pairs including the headline c2/dch_map 36/6=216, c2/strash_map 37/6, tree_8/default 43/8, reference/strash_map 74/15: all equal to flow.score; (4) all 30 cells of the README results table recomputed from results.txt (/tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/chk/readme_tab.py): 0 mismatches; (5) resyn2 sequence compared with ABC's own abc.rc (raw.githubusercontent.com/berkeley-abc/abc, line 111 'b; rw; rf; b; rw; rwz; b; rfz; rwz; b'): identical. The numbers are right for the stated cost model; held at 3, not 4, because the headline ranking is not robust to that model (see domain).",
+  "completeness": "README features exercised: 'python3 experiments/run.py, about 40 s' -> 43.2 s, reproduces results.txt; '6 tests, a few seconds' -> 6 passed in 1.77 s; the RTL gate rejects one seeded fault per design (checked); 170 mapped-netlist proofs (checked independently); figure.py read, not run, because it writes into the tree (experiments/clz16_scripts.svg). Live page https://marisstella.app/research/chip-logic-script/ not loadable from this session (proxy CONNECT 403). No TODOs or stubs. The README's own next step 'add the nibble-combine structure to the sweep' is listed as not done although a 'nibble' config exists (see claims).",
+  "verification": "cd /home/user/oss-monorepo/research/chip-logic-script && /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests: 6 passed in 1.77 s. Six seeded mutations with platform/ci/quality_mutate.py, 1 caught: dropping -verify from sat (flow.py:49) caught. Survived: score_checked proving the RTL instead of the mapped netlist (flow.py:58), which is the one method step this project adds; dch_map silently replaced by 'strash; map' (flow.py:15); depth off by one (flow.py:42); sweep nibble config made wrong (sweep.py:64, only tree_8 is ever tested); score = cells + depth instead of cells x depth in run.py:36 (run.py has no test). The tests check that things run and the gate rejects faults, not any number the README reports.",
+  "craft": "Read src/chip_logic_script/flow.py (58 lines), sweep.py (82), experiments/run.py (78), tests/test_flow.py (52). Small and readable, but: score() returns cells=0/depth=0 when the stat or ltp regex misses (flow.py:41-42), so a parse failure would score 0 and win every comparison silently; flow.py and sweep.py are copied wholesale from chip-ppa-script and chip-ppa-logic (diff of sweep.py against chip-ppa-logic: identical) instead of imported; README and 'Outside dependencies' require Icarus Verilog but no file uses it (grep for iverilog/vvp in *.py: none); the predecessor's flow (synth -flatten then abc -g) was changed to synth -noabc without a note.",
+  "claims": "Checked: headline 222/216/336 vs 462/344/360 (results.txt, pass); '2 of 5 for clz16, 3 of 5 for |a-b|, all 5 for popcount' (pass); 'all 34 equivalent candidates', '0 of 170 (60+55+55)' (pass, independently simulated); 2.5x and 1.8x spreads (546/216=2.53, 1110/615=1.80, pass); popcount ratios 0.89/0.97/0.97/0.91 (pass); absd8 0.88/0.73 (pass); 'about 40 s' (43 s, pass); '6 tests' (pass). Not backed: 'the sweep ... does not contain the nibble-combine form' (README:47) while sweep.py:59 has a 'nibble' config scored as S:nibble in results.txt; 'chip-ppa-logic's statement ... holds for the default script only' (README:37) compares across an undisclosed flow change: chip-ppa-logic scored after 'synth -flatten; abc -g' (its results: c1 495, c0 726, absd8 reference 1122), this project after 'synth -noabc; abc -g' (c1 552, c0 600, absd8 reference 1071), so its 'yosys_default' column is not the predecessor's setup; the resyn2 hedge 'written from memory and may differ' is stale (it matches abc.rc exactly). AI-assistance and preliminary-status lines present.",
+  "fitness": "A researcher could rerun it in under a minute and the netlist-equivalence step is a good habit. Nearest prior work, not cited: the winning 'session-written' c2 structure (per-nibble 2-bit count plus valid, priority-selected and concatenated) is the hierarchical leading-zero detector of Oklobdzija, IEEE TVLSI 2(1):124-128, 1994 (which also compared against logic synthesis); the finding that ABC results depend on input structure and script is the subject of Fiser and Schmidt's structural-bias papers (CTU, IWLS 2009 onward; ABC's own 'lossless synthesis' docs). The result is new only as a three-block observation, and its headline does not survive a change of library (domain), so it is a note, not a building block.",
+  "domain": "Reran the clz16 comparison with two other generic libraries (/tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/chk/nomux.py): with MUX removed (AND,NAND,OR,NOR,XOR,XNOR,ANDNOT,ORNOT) dch_map flips back to the sweep (c2 396 vs tree_8 344), so c2 wins under 2 of 5 scripts, not 3; with AND,NAND,OR,NOR only, also 2 of 5. The 'wide margin' dch_map win (216 vs 344) depends on a 2:1 MUX costing one unit cell and one level, which an EDA reviewer would reject without a liberty or at least a weighted genlib. Other departures: 'strash; map' is mapping without optimisation, so a win there mostly shows the input structure survives, which is expected; ABC's implicit $_NOT_ cells are counted though NOT is not in the library; cells x depth is a single scalar where the field reports area-delay pairs. Limitations do say 'the ranking could change with a real library', but the specific sensitivity was cheap to test and was not."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "all 37 RTL candidates exhaustively simulated against an independent spec",
+   "method": "Icarus Verilog simulation of all 65,536 inputs vs Python popcount / clz / |a-b| written by the auditor",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/chk/sim.py /home/user/oss-monorepo/research/chip-logic-script",
+   "expected": "34 OK, the 3 seeded-fault files (p3, c3, d3) fail, matching the RTL gate",
+   "observed": "34 OK; p3 32768 mismatches, c3 1 (a=0 gives 15), d3 32640",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "all 170 mapped netlists equivalent to the spec",
+   "method": "exhaustive Icarus simulation of each write_verilog netlist, not Yosys sat",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/chk/sim.py /home/user/oss-monorepo/research/chip-logic-script mapped",
+   "expected": "170 OK (README: 0 of 170 failed)",
+   "observed": "170 lines, 0 not OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline score c2_nibble_combine under dch_map",
+   "method": "cells and longest input-output path recomputed from write_json netlist with an auditor-written graph walk, not Yosys stat/ltp",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/chk/depth.py /home/user/oss-monorepo/research/chip-logic-script",
+   "expected": "36 cells, depth 6, 216",
+   "observed": "36 6 216 (also c2/strash_map 37x6, tree_8/default 43x8, ref/strash_map 74x15, d0/dch_map 65x12, pop16 ref/default 64x14, all equal to flow.score)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "resyn2-style script vs the real ABC alias",
+   "method": "ABC source abc.rc (berkeley-abc/abc master, line 111)",
+   "command": "curl -sS https://raw.githubusercontent.com/berkeley-abc/abc/master/abc.rc | grep 'alias resyn2 '",
+   "expected": "b; rw; rf; b; rw; rwz; b; rfz; rwz; b",
+   "observed": "flow.py:16-17 is exactly balance; rewrite; refactor; balance; rewrite; rewrite -z; balance; refactor -z; rewrite -z; balance (+ map)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "experiment reproduces committed results",
+   "method": "rerun run.run() under Yosys 0.33 and diff",
+   "command": "cd /home/user/oss-monorepo/research/chip-logic-script && python3 -c \"import sys; sys.path.insert(0,'experiments'); import run; open('/tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/results_rerun.txt','w').write(run.run())\" && diff experiments/results.txt /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/results_rerun.txt",
+   "expected": "identical",
+   "observed": "identical (43.2 s)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README results table (30 cells) vs results.txt",
+   "method": "auditor parser",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/chk/readme_tab.py /home/user/oss-monorepo/research/chip-logic-script",
+   "expected": "0 mismatches",
+   "observed": "mismatches 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'the sweep ... does not contain the nibble-combine form'",
+   "method": "read sweep.py and results.txt",
+   "command": "grep -n nibble /home/user/oss-monorepo/research/chip-logic-script/src/chip_logic_script/sweep.py /home/user/oss-monorepo/research/chip-logic-script/experiments/results.txt",
+   "expected": "no nibble config in the sweep",
+   "observed": "sweep.py:59 'nibble' config, scored as S:nibble (504/488/504/396/396); it is a nibble form with adders rather than c2's concatenation, which the README does not say",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'yosys_default' column is the predecessor chip-ppa-logic's setup",
+   "method": "compare chip-ppa-logic flow.py and results.txt",
+   "command": "grep -n synth research/chip-ppa-logic/src/*/flow.py; grep -n c1_binary_search research/chip-ppa-logic/experiments/results.txt",
+   "expected": "same flow, same default numbers (c1 495, absd8 ref 1122)",
+   "observed": "predecessor used 'synth -flatten; abc -g' (double ABC); here 'synth -noabc; abc -g': c1 552, c0 600, absd8 ref 1071; change not disclosed",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "clz16 verdict robust to the gate library (MUX unit cost)",
+   "method": "rerun c2 vs every sweep config with MUX removed and with AND/NAND/OR/NOR only",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/cls/chk/nomux.py /home/user/oss-monorepo/research/chip-logic-script",
+   "expected": "c2 wins under strash_map, dch_map, resyn2_map (README)",
+   "observed": "with MUX: 3 of 5 as claimed; without MUX: dch_map flips to sweep (396 vs 344), 2 of 5; AND/NAND/OR/NOR: 2 of 5",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "runtime and test-count claims",
+   "method": "timed run",
+   "command": "cd /home/user/oss-monorepo/research/chip-logic-script && /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "6 tests, a few seconds; run about 40 s",
+   "observed": "6 passed in 1.77 s; run 43.2 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "novelty of the winning structure and of script sensitivity",
+   "method": "web search: Oklobdzija, IEEE TVLSI 2(1):124-128 (1994) doi 10.1109/92.273153; Fiser and Schmidt structural-bias papers (users.fit.cvut.cz/~fiserp)",
+   "command": "WebSearch 'Oklobdzija leading zero detector'; WebSearch 'ABC structural bias'",
+   "expected": "prior work cited",
+   "observed": "neither cited; c2 is the textbook hierarchical LZD; ABC structure/script dependence is published",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "curl",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/chip-logic-script/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403, not checkable from this session",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/chip_logic_script/flow.py:58",
+   "change": "equivalent(ref_file, ref_top, net, cand_top) -> equivalent(ref_file, ref_top, cand_file, cand_top) (prove RTL, not the mapped netlist)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/chip_logic_script/flow.py:15",
+   "change": "\"dch_map\": \"strash; dch; map\" -> \"strash; map\"",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/chip_logic_script/flow.py:49",
+   "change": "sat -verify -prove trigger 0 -> sat -prove trigger 0",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/chip_logic_script/sweep.py:64",
+   "change": "5'd12 + k0 -> 5'd8 + k0 (nibble sweep config wrong at low nibble)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/chip_logic_script/flow.py:42",
+   "change": "int(d.group(1)) -> int(d.group(1)) + 1 (depth off by one)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "experiments/run.py:36",
+   "change": "sc[\"cells\"] * sc[\"depth\"] -> sc[\"cells\"] + sc[\"depth\"]",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline 'c2 wins by a wide margin under dch_map (216 vs 344)' depends on MUX costing one unit cell and one level: with MUX removed from the generic library dch_map flips to the sweep (396 vs 344) and the 'verdict flips under 3 of 5 scripts' becomes 2 of 5; this sensitivity is not tested or stated",
+   "where": "research/chip-logic-script/README.md:5",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests cannot tell a mapped-netlist proof from an RTL proof: making score_checked prove the RTL candidate instead of the netlist leaves all 6 tests green (the wrong-netlist test uses a wrong RTL); 5 of 6 seeded mutations survived, run.py and all sweep configs but tree_8 are untested",
+   "where": "research/chip-logic-script/tests/test_flow.py:36",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "'yosys_default' is not the predecessor's flow (chip-ppa-logic ran synth -flatten then abc -g; here synth -noabc then abc -g), so default-script numbers differ (c1 495 -> 552, absd8 reference 1122 -> 1071) and the claim that chip-ppa-logic's verdict 'holds for the default script only' compares across an undisclosed flow change",
+   "where": "research/chip-logic-script/README.md:37",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README says the sweep 'does not contain the nibble-combine form' and lists adding it as a next step, but sweep.py has a 'nibble' config (scored as S:nibble); the real difference (adders vs c2's concatenation) is not stated",
+   "where": "research/chip-logic-script/README.md:47",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Nearest prior work not cited: c2 is Oklobdzija's hierarchical leading-zero detector (IEEE TVLSI 1994); ABC's input-structure and script sensitivity is studied by Fiser and Schmidt",
+   "where": "research/chip-logic-script/README.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "score() silently returns cells=0, depth=0 when the stat/ltp regex misses, which would make a broken parse win every comparison",
+   "where": "research/chip-logic-script/src/chip_logic_script/flow.py:41",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Icarus Verilog is listed as a required dependency but nothing uses it; the resyn2 hedge 'written from memory and may differ' is stale (matches abc.rc exactly)",
+   "where": "research/chip-logic-script/README.md:58",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15264"
+ ],
+ "verdict": "The numbers are right: the experiment reproduces byte for byte under Yosys 0.33, all 170 mapped netlists pass an independent exhaustive simulation, cells and depth recompute from the netlists, and all 30 README table cells match. But it does not meet the bar for an EDA workshop reviewer. The headline (the clz16 verdict flips under 3 of 5 ABC scripts, a 'wide margin' at 216 vs 344) rests on a unit-cost MUX: without MUX in the library it is 2 of 5 and dch_map goes back to the sweep. The comparison with chip-ppa-logic crosses an undisclosed flow change. The winning structure is Oklobdzija's 1994 leading-zero detector, and the script-sensitivity finding is published (Fiser and Schmidt); neither is cited. 5 of 6 seeded bugs survive the tests, including proving the RTL instead of the mapped netlist, the one step this project adds. Correctness 3, verification 1, claims 2, median 2."
+}

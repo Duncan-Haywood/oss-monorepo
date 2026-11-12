@@ -81,13 +81,17 @@ def simulate_rk4(kp, kd, T, x0, n, sub=200, v0=0.0):
 
 
 def inter_sample_extremes(kp, kd, T, x0, n, m=20):
-    """Minimum of x(t) over the whole continuous trajectory (evaluated at m points per period)."""
+    """Minimum of x(t) over the whole continuous trajectory.  Within a period x(t) = x + v tau + u tau^2 / 2 is a
+    parabola, so its minimum is at the period's end or at the vertex tau = -v/u when that falls inside (0, T): exact,
+    not sampled.  `m` is kept for call compatibility and is unused."""
     x, v = x0, 0.0
     lo = x
     for _ in range(n):
         u = -kp * x - kd * v
-        for j in range(1, m + 1):
-            tau = T * j / m
+        cands = [T]
+        if u != 0 and 0 < -v / u < T:
+            cands.append(-v / u)
+        for tau in cands:
             lo = min(lo, x + v * tau + u * tau * tau / 2)
         x, v = x + T * v + T * T * u / 2, v + T * u
     return lo

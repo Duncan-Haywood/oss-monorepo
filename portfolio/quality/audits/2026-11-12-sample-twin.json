@@ -1,0 +1,228 @@
+{
+ "date": "2026-11-12",
+ "subject": "research/sample-twin",
+ "stratum": "research",
+ "seed": "2026-11-12-m",
+ "drawn_by": "sample",
+ "round": 54,
+ "auditor": "agent session (Claude), quality-audit round 54",
+ "status": "audited",
+ "professional": "a senior control engineer reviewing for a sampled-data / digital-control venue (e.g. IEEE Control Systems Letters or an IFAC conference); they check first that the ZOH discretisation and the Jury reduction are right, then that the inter-sample behaviour (not only samples) is measured, then that the deadbeat and pole-placement gains match the textbook (Franklin, Powell & Workman; Astrom & Wittenmark), then what is new relative to the classical digital-PD stability-region literature",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Independent recomputation in /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/st/indep.py (numpy only, none of the author's code): ZOH discretisation by Van Loan augmented matrix exponential, eigenvalues by numpy.linalg.eigvals, Jury conditions re-derived by hand (1-tr+det = kpT^2, 1+tr+det = 4-2kdT, det<1 iff kd>kpT/2). Bisection on numpy eigenvalue modulus gives critical wnT 1, 2, 1.428571, 1, 0.5, 0.25 for zeta 0.25..4, identical to min(4z,1/z) and results.txt. Pole moduli at zeta=0.7, wnT 0.5/1/1.2/1.3/1.4: 0.65192/0.31623/0.2/0.625/0.91822, identical. Textbook Mp exp(-pi z/sqrt(1-z^2)) = 0.04599 (0.0460). Closed-form twin settle 6.4081 (6.407/6.408). Deadbeat K=[1/T^2, 3/(2T)] from FPW gives (A-BK)^2 = 0 exactly; Ackermann for rho=0.8, phi=0.3, T=0.2 gives kpT^2 0.1115, kdT 0.4157 (identical). Real settle at wnT 1.3/1.4/1.0 = 14.3/72.8/4.0 and at T=0.1 wn=10/14 = 0.4/5.2, identical. The one discrepancy: inter-sample overshoot is sampled at m=20 points per period instead of at the parabola's vertex, so it is under-read in the 4th printed digit (wnT 1.2: 0.2341 vs exact 0.2343; 1.4: 0.4847 vs 0.4852). Everything else matches to the printed precision; 3 not 4 because of that and because it is a textbook-sized model.",
+  "completeness": "Both README commands run: unittest 8 tests OK in 0.08 s (README: 8 tests, well under 1 s); experiments/run.py in 1.6 s (README: about 2 s), output byte-identical to the committed experiments/results.txt (diff empty). figure.py re-run on a scratch copy regenerates pole_vs_wnT.svg byte-identically. All four README results and five paper result sections are produced by run.py. Live page https://marisstella.app/research/sample-twin/ could not be loaded (proxy CONNECT 403), so checked from source only. No TODOs or stubs.",
+  "verification": "cd research/sample-twin && PYTHONPATH=src python3 -m unittest discover -s tests: 8 OK; /usr/bin/python3.13 -m pytest -q tests: 8 passed. Five mutations via platform/ci/quality_mutate.py: 2 caught (design_poles kd divisor 2->2.1; critical_wnT 1/zeta -> 1.05/zeta), 3 survived (overshoot evaluated only at the period end, i.e. inter-sample excursion ignored; settle_time on |x| instead of the state norm; settle_time off by one sample). The settling and overshoot metrics behind result sections 2 and 3 are untested except for the unstable->inf case and a T=1e-3 overshoot check that cannot see inter-sample effects. The 'independent RK4 check' is exact by construction for a polynomial flow (model.py:72 says so), so test_step_matrix_matches_rk4 and section 1's RK4 column compare two exact forms of the same map.",
+  "craft": "Read src/sample_twin/model.py (115 lines), tests/test_model.py, experiments/run.py, experiments/figure.py. Small, pure stdlib, readable, docstrings state definitions. Defects: inter_sample_extremes (model.py:83-92) grids 20 points where the minimum of the quadratic x+v tau+u tau^2/2 is available in closed form at tau=-v/u; inter_sample_extremes ignores a nonzero v0 although simulate takes one; simulate_rk4 duplicates simulate under an 'independent' label.",
+  "claims": "Checked every numeric claim in README.md line 3 and paper/whitepaper.md results 1-4 against results.txt and the independent recomputation: all match (boundary values, 4.40 samples per period, 0.0460->0.0463, 6.41 vs 6.30, 0.234, 14.3, 72.8, 247, settling series 6.3..10.2, instability from 14.3, deadbeat (1.1e-16, 0), 2T=0.4, '5x at 1.2' = 0.234/0.046=5.09, 'within 0.0007'). Limits and stylisation are stated in both files; the paper says the Jury reduction is classical. Two misstatements: README:3 says 'the twin's pole modulus e^{-zeta wn T} is optimistic: at wnT = 1.2 ...' but at 1.2 the real modulus is 0.200 vs the twin's 0.432, i.e. the twin is pessimistic about decay there (it is optimistic only from about 1.25; the paper's result 2 states this correctly); paper:13 rounds 0.65192 to 0.651.",
+  "fitness": "A researcher on the twin-fidelity family (timestep-twin, latency-twin) gets a clean, verified baseline. But the result is not new: closed-form stability regions for digital PD on rigid (double-integrator) and flexible plants via Jury critical constraints are published (Al-Salem et al., 'Stability analysis for digital PD control of flexible systems', found by WebSearch), and deadbeat for the ZOH double integrator is a standard course exercise (e.g. UCSB ECE147B module 6) and textbook example (FPW). The paper does not cite that digital-PD literature and offers no question beyond the textbook; against the PhD/publishable bar in research/CLAUDE.md it is a worked example, not a contribution.",
+  "domain": "The method is the standard one a control engineer uses (exact ZOH discretisation, Jury, direct discrete pole placement, inter-sample overshoot), and conclusions agree with practice (twin adequate for wnT <~ 0.2, consistent with the Astrom & Wittenmark sampling rules of thumb, which are not cited). Departures a reviewer would flag: no computation delay (the dominant practical effect; named in Limitations), inter-sample overshoot gridded rather than exact, settling metric sampled."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "critical wnT for zeta 0.25, 0.5, 0.7, 1, 2, 4",
+   "method": "Van Loan ZOH discretisation + numpy.linalg.eigvals bisection, and hand re-derivation of Jury conditions (Jury 1964; Astrom & Wittenmark ch. 3)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/st/indep.py",
+   "expected": "1, 2, 1.428571, 1, 0.5, 0.25 (min(4z,1/z))",
+   "observed": "1.0, 2.0, 1.428571, 1.0, 0.5, 0.25",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "deadbeat gains and two-step convergence at T=0.2",
+   "method": "Franklin, Powell & Workman deadbeat for ZOH double integrator K=[1/T^2, 3/(2T)]; (A-BK)^2 by numpy on Van Loan model",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/st/indep.py",
+   "expected": "kp=25, kd=7.5, (A-BK)^2 = 0",
+   "observed": "(A-BK)^2 = [[0,0],[0,0]]; results.txt kp=25 kd=7.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "pole placement rho=0.8 phi=0.3 T=0.2",
+   "method": "Ackermann's formula on the Van Loan ZOH model (not the author's trace/det inversion)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/st/indep.py",
+   "expected": "results.txt: kpT^2 0.1115, kdT 0.4157",
+   "observed": "0.1115, 0.4157",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "twin overshoot and settle at zeta=0.7",
+   "method": "textbook Mp = exp(-pi z/sqrt(1-z^2)) and closed-form underdamped solution on a 1e-5 grid",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/st/indep.py",
+   "expected": "0.0460, settle 6.407",
+   "observed": "0.04599, 6.4081",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "real inter-sample overshoot zeta=0.7 at wnT 1.2 and 1.4",
+   "method": "exact minimum of the per-period quadratic at its vertex tau=-v/u",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/st/indep.py",
+   "expected": "results.txt 0.2341, 0.4847",
+   "observed": "0.2343, 0.4852 (gridded m=20 under-reads in 4th digit)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "real 2% settle (state norm) at wnT 1.0/1.3/1.4 and at T=0.1, wn 10/14",
+   "method": "propagation with the Van Loan closed-loop matrix",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/81df4cd4-800b-55c5-bc31-b22ef2785d5d/scratchpad/st/indep.py",
+   "expected": "4.0, 14.3, 72.8; 0.4, 5.2",
+   "observed": "4.0, 14.3, 72.8; 0.4, 5.2",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results",
+   "method": "rerun and diff",
+   "command": "cd research/sample-twin && PYTHONPATH=src python3 experiments/run.py > $S/results.txt && diff $S/results.txt experiments/results.txt",
+   "expected": "no diff, ~2 s",
+   "observed": "IDENTICAL, 1.6 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates from results.txt",
+   "method": "run figure.py on a scratch copy and diff the SVG",
+   "command": "python3 $S/figcopy/figure.py && diff -q $S/figcopy/pole_vs_wnT.svg research/sample-twin/experiments/pole_vs_wnT.svg",
+   "expected": "identical",
+   "observed": "SVG_IDENTICAL",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run README command and pytest",
+   "command": "cd research/sample-twin && PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "8 tests OK, < 1 s",
+   "observed": "Ran 8 tests in 0.083s OK; pytest 8 passed",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README: twin pole modulus is optimistic at wnT = 1.2",
+   "method": "results.txt section 2 and numpy eigenvalues",
+   "command": "grep '^1.2 ' research/sample-twin/experiments/results.txt",
+   "expected": "real |pole| > twin |pole| if the twin is optimistic",
+   "observed": "real 0.20000 < twin 0.43171 (twin pessimistic at 1.2; optimistic only from 1.3)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "every other numeric claim in README:3 and paper results 1-4",
+   "method": "line-by-line against results.txt and indep.py",
+   "command": "cat research/sample-twin/experiments/results.txt",
+   "expected": "values as quoted",
+   "observed": "all match except paper:13 0.651 (0.65192 rounds to 0.652)",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "novelty against nearest prior work",
+   "method": "WebSearch 'sampled-data PD control double integrator zero-order hold stability region Jury deadbeat': Al-Salem et al., Stability analysis for digital PD control of flexible systems (closed-form Jury-based digital PD regions); UCSB ECE147B module 6 deadbeat double integrator",
+   "command": "WebSearch (standard)",
+   "expected": "a result not already in the digital-PD / textbook literature",
+   "observed": "core results (Jury region, deadbeat) are classical; the digital-PD stability-region paper is not cited",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "curl",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/sample-twin/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403; not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/sample_twin/model.py:45",
+   "change": "kd = (3 - tr - det) / (2 * T) -> kd = (3 - tr - det) / (2.1 * T)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/sample_twin/model.py:38",
+   "change": "return min(4 * zeta, 1 / zeta) -> return min(4 * zeta, 1.05 / zeta)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/sample_twin/model.py:89",
+   "change": "for j in range(1, m + 1): -> for j in range(m, m + 1): (overshoot only at sample instants)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/sample_twin/model.py:111",
+   "change": "if math.hypot(x, v / w) > tol * abs(x0): -> if abs(x) > tol * abs(x0):",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/sample_twin/model.py:113",
+   "change": "(last + 1) * T -> last * T",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The settling and inter-sample overshoot metrics that carry results 2 and 3 are untested on any stable non-trivial case: three seeded bugs (overshoot only at samples, settle on |x| not the norm, settle off by one sample) leave all 8 tests green.",
+   "where": "research/sample-twin/tests/test_model.py:49",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Novelty: the Jury stability region of digital PD on a double integrator and the deadbeat gains are classical (textbooks; Al-Salem et al. on digital PD stability regions; standard coursework). The paper cites the textbooks but not the digital-PD stability-region literature and poses no question beyond them; below the PhD/publishable bar of research/CLAUDE.md.",
+   "where": "research/sample-twin/paper/whitepaper.md:23",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "README says the twin's pole modulus is optimistic and cites wnT = 1.2, where the real modulus (0.200) is less than half the twin's (0.432); the twin is optimistic only from about wnT 1.25 (the paper's result 2 gets this right).",
+   "where": "research/sample-twin/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Inter-sample overshoot is evaluated on a 20-point grid per period instead of at the quadratic's vertex, under-reading printed values in the 4th digit (0.2341 vs exact 0.2343 at wnT 1.2; 0.4847 vs 0.4852 at 1.4); it also ignores v0.",
+   "where": "research/sample-twin/src/sample_twin/model.py:89",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "The 'independent RK4 held-input' check is exact for the polynomial flow (the code says so), so it re-derives the same map rather than independently checking it; presented as independent in README and paper result 1.",
+   "where": "research/sample-twin/src/sample_twin/model.py:72",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Paper rounds real pole modulus 0.65192 to 0.651.",
+   "where": "research/sample-twin/paper/whitepaper.md:13",
+   "category": "other",
+   "origin": "claims"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15264"
+ ],
+ "verdict": "Correct and reproducible: every boundary, pole modulus, settling time, deadbeat and pole-placement number recomputed independently with numpy (Van Loan ZOH, eigvals, Ackermann, closed-form twin) matches results.txt, except a 4th-digit under-read of inter-sample overshoot from a 20-point grid; run.py and figure.py reproduce the committed outputs byte for byte. It does not meet the bar: verification is 2 (3 of 5 seeded bugs in the settling and overshoot metrics survive), and as research it is a clean worked textbook example (Jury region of sampled PD, deadbeat) rather than a new result, with the digital-PD stability-region literature uncited. One README sentence misstates the pole-modulus comparison at wnT 1.2."
+}

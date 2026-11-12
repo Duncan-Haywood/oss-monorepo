@@ -35,6 +35,27 @@ const num = (v, d) => {
   return Number.isFinite(n) ? n : NaN;
 };
 
+// Same quote-aware splitter as calc.mjs splitCells (kept import-free): a quoted "$1,200" stays one cell.
+// Before 2026-11-12 this file split on every comma, so "$1,200" became price 1, cost 200 (quality audit round 54).
+function splitCells(line) {
+  const unq = (c) => { c = c.trim(); return /^".*"$/s.test(c) ? c.slice(1, -1).replace(/""/g, '"') : c; };
+  if (line.includes("\t")) return line.split("\t").map(unq);
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch !== '"') cur += ch;
+      else if (line[i + 1] === '"') { cur += '"'; i++; }
+      else q = false;
+    } else if (ch === '"' && cur.trim() === "") { cur = ""; q = true; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}
+
 // "name, client price, your cost, extra hours, tier" one per line. tier: good, better or best (the first tier that includes it).
 export function parseAddons(text) {
   const rows = [];
@@ -42,7 +63,7 @@ export function parseAddons(text) {
   for (const raw of String(text || "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line) continue;
-    const c = (line.includes("\t") ? line.split("\t") : line.split(",")).map((x) => x.trim().replace(/^"|"$/g, ""));
+    const c = splitCells(line);
     const price = num(c[1], NaN);
     if (c.length < 2 || !Number.isFinite(price)) { if (rows.length || !/price|add/i.test(line)) skipped++; continue; }
     const cost = num(c[2], 0), hours = num(c[3], 0);
