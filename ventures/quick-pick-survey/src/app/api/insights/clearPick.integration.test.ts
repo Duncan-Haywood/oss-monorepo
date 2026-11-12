@@ -71,4 +71,16 @@ describe("the clear-pick claims", () => {
     const rb = body.content["top-pick"].rating;
     expect(rb).toBeGreaterThan(1500);
   });
+
+  it("lists every item the answers have not ruled out as favourite, not just the three highest", async () => {
+    const p = await createParticipant("behaviors");
+    const items = await itemsOf("behaviors", 6);
+    // Five items each beat the sixth often and are never compared with each
+    // other: no answer separates them, so all five could be the favourite.
+    // The route before 2026-11-12 named only the three highest-rated.
+    for (const it of items.slice(0, 5)) await answer(p.id, it.id, items[5].id, "A", 8);
+    const body = await read(p.id);
+    expect(body.content["top-pick"].contested).toBe(true);
+    expect([...body.content["top-pick"].rivals].sort()).toEqual(items.slice(0, 5).map((i) => i.label).sort());
+  });
 });

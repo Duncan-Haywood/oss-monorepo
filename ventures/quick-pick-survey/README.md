@@ -182,6 +182,10 @@ reporting the stored one-answer-at-a-time Glicko states, whose 95% intervals hel
 of pairs under the staged selector (refit: 95% at the same width). The top and bottom pick are
 called clear only when they beat every other item by 1.645 sd of the difference
 (`src/lib/clearPick.ts`); the old "ahead by half its rd" rule named the wrong favourite in more
-than half of its claims on synthetic respondents. The stored states still drive question
+than half of its claims on synthetic respondents. When no pick is clear, the card lists who it
+is between: the refit's 95% credible set for the favourite (`src/lib/favouriteSet.ts`), which held
+the true favourite for 88-92% of synthetic respondents shown the card, against 68-74% for the
+three highest-rated items it replaced (it undercovers 95% because the prior is wider than the
+simulated truth). The stored states still drive question
 selection and the couple screen. Measurements: docs/INFORMATION-GAIN-SELECTOR.md, "Per-person
-intervals from a refit" and "The clear-top-pick claim" (2026-11-12).
+intervals from a refit", "The clear-top-pick claim" and "Who it's between" (2026-11-12).

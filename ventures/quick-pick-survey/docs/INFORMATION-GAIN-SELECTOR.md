@@ -1607,7 +1607,8 @@ pick clear only when it beats every other item by 1.645 sd of the difference
 (`src/lib/clearPick.ts`, one-sided 95%; the same rule for the bottom pick).
 It fires rarely (2-4% of staged respondents), and its claims are wrong 5-20% of
 the time on 10-22 claims per row, so those rates are rough. Everyone else sees the card's
-existing "it's between X, Y, Z" line, which is true. Pinned by
+"it's between X, Y, Z" line (the next section measured that line: as first
+shipped it held the true favourite only 68-74% of the time). Pinned by
 `src/app/api/insights/clearPick.integration.test.ts`, which fails on the old
 route (stored ratings 40 points apart at rd 70 with answers that do not back
 them: claimed clear before, contested now).
@@ -1618,3 +1619,78 @@ claims. Next: whether the "between X, Y, Z" list holds the true favourite (a
 top-3 credible set from the refit is the natural replacement for "the three
 highest"), and the PrefLib panels (`scripts/real-rankings-eval.ts`) through the
 refit.
+
+## Who it's between (2026-11-12, shipped on the insights screen)
+
+When the clear-pick rule above declines to name a favourite, the card says
+"still too close to call: it's between X, Y, Z". X, Y, Z were the three
+highest-rated items. The question this section answers: how often does that
+list hold the person's true favourite?
+
+**Measured** (`scripts/favourite-set-sweep.ts`, the same synthetic
+respondents: 8/15/30 items x 2/4/8 answers per item, 60 respondents per cell,
+honest unless stated; counted only for respondents the card is shown to, i.e.
+the clear-pick rule did not fire, 518-540 of 540 per row;
+`docs/favourite-set-2026-11-12.jsonl`). "Set p" is the refit's credible set
+(`src/lib/favouriteSet.ts`): the fewest items whose posterior chances of
+being the favourite sum to p, the chances read by 4,000 seeded draws from
+the Laplace posterior (full covariance). Coverage is the share of lists
+holding the true favourite; size is the list length, mean / 90th percentile.
+Seeds from 1000, then 50000:
+
+| respondent | selector | three highest | set 0.9 | set 0.95 | set 0.95 size | worst cell, three highest / set 0.95 |
+|---|---|---|---|---|---|---|
+| spread 1 | staged | 0.741, 0.730 | 0.818, 0.819 | 0.879, 0.881 | 5.2 / 11 | 0.42 / 0.75 |
+| spread 1 | shipped | 0.680, 0.700 | 0.829, 0.833 | 0.896, 0.916 | 6.1 / 12 | 0.30 / 0.77 |
+| spread 2 | staged | 0.822 | 0.878 | 0.934 | 5.0 / 10 | 0.50 / 0.82 |
+| spread 2 | shipped | 0.799 | 0.906 | 0.962 | 5.6 / 12 | 0.57 / 0.90 |
+| lapse 0.2 | staged | 0.609 | 0.671 | 0.763 | 5.2 / 11 | 0.27 / 0.62 |
+| lapse 0.2 | shipped | 0.624 | 0.743 | 0.826 | 6.5 / 12 | 0.32 / 0.63 |
+| bottom pick | staged | 0.747 | 0.823 | 0.892 | 5.2 / 11 | 0.55 / 0.77 |
+| bottom pick | shipped | 0.636 | 0.813 | 0.897 | 6.3 / 12 | 0.28 / 0.82 |
+
+By cell (spread 1, staged, seeds from 1000), three highest against set 0.95
+(mean size): 8 items 0.77-0.97 against 0.92-0.98 (3.0-4.3); 15 items
+0.70-0.89 against 0.90-0.92 (3.3-6.3); 30 items 0.42-0.66 against 0.75-0.83
+(4.3-11.5). The three-highest list is worst exactly where it matters, long
+lists with few answers (0.30 for shipped at 30 items and 2 answers each),
+because three is too few names there; with many answers on a short list the
+set shrinks to two or three names and is right more often than the fixed
+three.
+
+**The set undercovers, and the prior is why.** At spread 1 the 0.95 set
+holds the favourite 88-92% of the time, at spread 2 (stronger likes and
+dislikes) 93-96%. The refit's prior sd (Glicko's 350, 2.0 on the logit
+scale) is wider than the simulated truth (uniform on [-1, 1], sd 0.58), so
+the posterior shrinks the leader too little and is too sure of it, a
+winner's curse that per-pair intervals (previous sections, calibrated) do
+not show because the favourite is a maximum over many items. Refitting with
+a narrower prior only for the set (`--prior-phi`): sd 1.0 gives 0.953-0.968
+at the 0.95 level (size 7.5 / 15), the true sd 0.58 overcovers (0.987-0.994,
+size 9.4-10.5 / 19-20, the Gaussian prior on uniform truth). **Not shipped:**
+tuning the prior to the simulator's own truth would calibrate the set to an
+assumption, not to people; an empirical-Bayes prior sd estimated from each
+person's answers is the principled version and the next thing to try.
+
+**Shipped:** the card lists the 0.95 set, most likely first, never fewer than
+two names; past three it names the first three and counts the rest ("most
+likely A, B, C, or one of 4 more you rated near them"), so the card stays
+short without claiming a shorter list than the answers allow. No percentage
+is printed: the chances behind it are measurably overconfident (above).
+Items outside one refit (another survey's states, or past
+`REFIT_MAX_ITEMS`) enter as independent with their stored rd. Items more
+than 3.5 sd of the difference behind the leader are left out of the draws
+(a marginal of a Gaussian is exact, and such an item's chance against the
+leader alone is under 1 in 4,000); draws are seeded, so the same answers give
+the same card. Pinned by `src/lib/favouriteSet.test.ts` (the two-item closed
+form within 0.01, covariance, prefilter, determinism) and a case in
+`src/app/api/insights/clearPick.integration.test.ts` that fails on the old
+route: five items each beat a sixth and are never compared with each other,
+so all five could be the favourite; the old route named three.
+
+Caveats: synthetic Bradley-Terry respondents; with careless answers (lapse
+0.2) neither list is calibrated (0.61-0.62 and 0.76-0.83); 30 items or
+fewer; no real pairwise answers. Next: an empirical-Bayes prior sd for the
+refit (which would move the pairwise intervals too, so re-measure those);
+the PrefLib panels (`scripts/real-rankings-eval.ts`) through the refit and
+the set.

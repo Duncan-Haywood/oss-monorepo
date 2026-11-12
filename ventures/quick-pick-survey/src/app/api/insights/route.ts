@@ -4,6 +4,7 @@ import { loadRatedItems } from "@/lib/participantRatings";
 import { confidenceInterval95, GLICKO_SCALE } from "@/lib/glicko2";
 import { differenceSd, refitRatings, REFIT_MAX_ITEMS, type RefitResult } from "@/lib/btRefit";
 import { clearPick } from "@/lib/clearPick";
+import { contenders } from "@/lib/favouriteSet";
 import { answersUntilNextLevel, INSIGHTS, levelForAnswers } from "@/lib/insights";
 import { RANGES } from "@/lib/financialProfiles";
 import { describeDimensions, scoreDimensions } from "@/lib/dimensions";
@@ -165,15 +166,33 @@ export async function POST(req: NextRequest) {
         const fa = fitOf.get(a), fb = fitOf.get(b);
         return fa && fb && fa.fit === fb.fit ? GLICKO_SCALE * differenceSd(fa.fit, fa.itemId, fb.itemId) : Math.hypot(a.rd, b.rd);
       };
+      // Who it's between: the refit's 95% credible set for the favourite
+      // (lib/favouriteSet.ts), most likely first. Until 2026-11-12 this was
+      // the three highest-rated items, which held the true favourite for only
+      // 68-74% of synthetic respondents shown the line; the set holds it for
+      // 88-92% (docs/INFORMATION-GAIN-SELECTOR.md, "Who it's between").
+      // Items from different refits (or stored states) are independent.
+      const covariance = (a: RankedItem, b: RankedItem) => {
+        if (a === b) {
+          const fa = fitOf.get(a);
+          if (!fa) return a.rd * a.rd;
+          const i = fa.fit.ids.indexOf(fa.itemId), n = fa.fit.ids.length;
+          return GLICKO_SCALE * GLICKO_SCALE * fa.fit.cov[i * n + i];
+        }
+        const fa = fitOf.get(a), fb = fitOf.get(b);
+        if (!fa || !fb || fa.fit !== fb.fit) return 0;
+        const n = fa.fit.ids.length;
+        return GLICKO_SCALE * GLICKO_SCALE * fa.fit.cov[fa.fit.ids.indexOf(fa.itemId) * n + fa.fit.ids.indexOf(fb.itemId)];
+      };
       const top = clearPick(ranked, sd)!;
       content["top-pick"] = top.clear
         ? { ...top.leader, contested: false }
-        : { ...top.leader, contested: true, rivals: ranked.slice(0, 3).map((r) => r.label) };
+        : { ...top.leader, contested: true, rivals: contenders(ranked, covariance).map((r) => r.label) };
 
       const bottom = clearPick(ranked, sd, { bottom: true })!;
       content["bottom-pick"] = bottom.clear
         ? { ...bottom.leader, contested: false }
-        : { ...bottom.leader, contested: true, rivals: ranked.slice(-3).map((r) => r.label) };
+        : { ...bottom.leader, contested: true, rivals: contenders(ranked, covariance, { bottom: true }).map((r) => r.label) };
     }
 
     if (ranked.length >= 5) {
