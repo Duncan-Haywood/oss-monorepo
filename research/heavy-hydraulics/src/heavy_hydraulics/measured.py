@@ -181,3 +181,16 @@ def highest_live(row, live):
     if not vals:
         raise ValueError("no live channel")
     return max(vals)
+
+
+def cylinder_flow(omega, lever, bore, rod, extend_sign):
+    """Flow (L/min) a cylinder draws for joint speed omega (rad/s), 5z.
+
+    The rod speed is lever (m/rad) times |omega|; the cylinder extends when extend_sign * omega > 0,
+    filling the cap side (bore area), and retracts otherwise, filling the annulus. Bore and rod are
+    diameters in metres."""
+    if lever < 0 or bore <= rod or rod < 0 or extend_sign not in (1, -1):
+        raise ValueError("need lever >= 0, bore > rod >= 0 and extend_sign +1 or -1")
+    cap = math.pi * bore * bore / 4.0
+    area = cap if extend_sign * omega > 0 else cap - math.pi * rod * rod / 4.0
+    return area * lever * abs(omega) * 60000.0
