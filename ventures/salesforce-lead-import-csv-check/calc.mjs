@@ -127,14 +127,22 @@ function detectDelim(text) {
 
 // A date cell: returns { a, b, y, order } where order is "md", "dm", "ymd" or "?" when both
 // leading parts are 12 or less.
+// A real calendar day: 30 February and 31 April are not, nor 29 February in a common year.
+const realDay = (y, m, d) => {
+  if (!(m >= 1 && m <= 12 && d >= 1)) return false;
+  const t = new Date(Date.UTC(y, m - 1, d));
+  return t.getUTCMonth() === m - 1 && t.getUTCDate() === d;
+};
+
 export function parseDate(v) {
   let m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T ].*)?$/.exec(v.trim());
-  if (m) return { y: +m[1], a: +m[2], b: +m[3], order: "ymd" };
+  if (m) return { y: +m[1], a: +m[2], b: +m[3], order: realDay(+m[1], +m[2], +m[3]) ? "ymd" : "bad" };
   m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/.exec(v.trim());
   if (!m) return null;
   const a = +m[1], b = +m[2];
   const y = m[3].length === 2 ? 2000 + +m[3] : +m[3];
-  return { y, a, b, order: a > 12 && b <= 12 ? "dm" : b > 12 && a <= 12 ? "md" : a > 12 && b > 12 ? "bad" : "?" };
+  const md = realDay(y, a, b), dm = realDay(y, b, a);
+  return { y, a, b, order: md && dm ? "?" : md ? "md" : dm ? "dm" : "bad" };
 }
 
 const isDateHeader = (h) => /date|birth|anniversary/i.test(h);
@@ -288,12 +296,11 @@ export function validate(input) {
       const d = parseDate(v);
       if (!d) { unread++; if (!firstBad) firstBad = r.line; continue; }
       if (d.order === "md") md++; else if (d.order === "dm") dm++; else if (d.order === "?") amb++; else if (d.order === "ymd") iso++; else { bad++; if (!firstBad) firstBad = r.line; }
-      if (d.order === "ymd" && (d.a > 12 || d.b > 31)) { bad++; if (!firstBad) firstBad = r.line; }
     }
     if (md && dm) add("error", "date-mixed", 1, `"${h}" mixes month-first and day-first dates`, `${md} value${md === 1 ? "" : "s"} can only be month/day/year and ${dm} can only be day/month/year. The wizard reads dates in the importing user's locale and Data Loader wants yyyy-MM-dd, so one group lands on the wrong day or fails. Rewrite them as YYYY-MM-DD.`);
     else if (amb && (md || dm || iso)) add("warning", "date-mixed-ambiguous", 1, `"${h}" mixes date styles`, "Some values are written year-first and some with slashes. Rewrite them in one style, preferably YYYY-MM-DD.");
     else if (amb && !md && !dm && !iso) add("info", "date-ambiguous", 1, `"${h}" dates could be read either way`, `${amb} value${amb === 1 ? "" : "s"} such as 03/04/2026 are valid both ways. The wizard uses the importing user's locale; Data Loader will reject slashes.`);
-    if (bad) add("error", "date-invalid", firstBad, `"${h}" has ${bad} impossible date${bad === 1 ? "" : "s"}`, "A month above 12 or a day above 31 cannot be a date. Check the first one named here.");
+    if (bad) add("error", "date-invalid", firstBad, `"${h}" has ${bad} impossible date${bad === 1 ? "" : "s"}`, "A month above 12, or a day the month does not have (30 February, 31 April), cannot be a date. Check the first one named here.");
     if (unread) add("warning", "date-unreadable", firstBad, `"${h}" has ${unread} value${unread === 1 ? "" : "s"} that are not dates`, "Use YYYY-MM-DD, or leave the cell blank.");
   });
 
@@ -351,7 +358,7 @@ export function repair(input) {
       const d = r[c] === undefined ? null : parseDate(r[c].trim());
       if (o && d && (d.order === "md" || d.order === "dm" || d.order === "?")) {
         const [mo, dy] = o === "md" ? [d.a, d.b] : [d.b, d.a];
-        if (mo >= 1 && mo <= 12 && dy >= 1 && dy <= 31) edit(ri, c, `${d.y}-${pad(mo)}-${pad(dy)}`, `${o === "md" ? "month" : "day"}-first read from the rest of the column; written as YYYY-MM-DD`);
+        if (realDay(d.y, mo, dy)) edit(ri, c, `${d.y}-${pad(mo)}-${pad(dy)}`, `${o === "md" ? "month" : "day"}-first read from the rest of the column; written as YYYY-MM-DD`);
       }
     }
   }
