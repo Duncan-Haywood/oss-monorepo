@@ -1,0 +1,237 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/insurance-agency-book-valuation-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-12-h",
+  "drawn_by": "sample",
+  "round": 49,
+  "auditor": "agent session (Claude), quality-audit round 49",
+  "status": "audited",
+  "professional": "an insurance-agency M&A broker / valuation analyst who prices independent-agency books; they check first (1) normalized earnings: is the owner's own labour costed at market so margin is a realistic 20-35% EBITDA rather than 75%, (2) the retention history and how the purchase-price true-up works (dollar-for-dollar shortfall at the multiple, measured over the holdback period), (3) the deal structure: cash at close vs holdback vs multi-year earn-out / pay-as-you-go, (4) the resulting multiple against market ranges (roughly 1.5-3x revenue for small books, 6-10x+ EBITDA for agencies), and (5) after-tax proceeds (capital-gain sale vs ordinary-income commissions)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent Python model (/tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/model.py) built from the textbook growing-annuity closed form PV = C1/(r-g) x (1-((1+g)/(1+r))^n) with C1 = R x ret x margin and g = ret-1, not the geometric-series form calc.mjs uses, plus an offer model. Compared with node runs of analyze() (/tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/run.mjs). Sample book (250k, 90%, 25% servicing, 15%, 15 y, 1.5x offer, 70% upfront, 12 m, 90% required, 3% costs): keep $657,920.55 both; offer value $349,076.09 both; break-even 2.8271x both; one more point $31,785.25 both. Variant at 81% retention: keep $444,364.08 and offer $339,293.48 both, holdback factor 0.9. CSV rows (year 1: 225,000 / 168,750 / 146,739) match the hand schedule. The arithmetic of the stated model is right to the cent; the score is not 4 because the stated holdback rule departs from deal practice (see domain) and the retention test ignores the holdback period.",
+    "completeness": "Each README / page feature exercised through analyze() in node: keep value, offer value after costs and holdback, break-even multiple, keep-overtakes-year, one-point retention value, retention sensitivity table (adds the user's own row), year-by-year schedule, CSV export (reportCsv), example book, usage opt-out (usage.mjs, localStorage only). All work; no TODOs or stubs. Served page https://marisstella.app/insurance-agency-book-valuation-calculator/ returns 200 with the disclaimer; served calc.mjs is byte-identical to the source (diff empty).",
+    "verification": "node --test '*.test.mjs' in the subject dir: 30 tests, 30 pass, 0 fail (111 ms). Six hand-seeded mutations in calc.mjs, each reverted with git checkout -- calc.mjs and git status clean afterwards: 4 caught (costs on upfront only: 1 fail; holdback factor squared: 1 fail; keepValue horizon n-1: 2 fail; holdback discount months/24: 1 fail), 2 survived (onePoint step 0.01 -> 0.001, i.e. the headline 'one more point of retention' figure off by 10x, survives because calc.test.mjs:66 only asserts onePoint > 0; holdback-cut finding condition < -> <= survives because no test checks when that finding fires). Several caught mutations are caught by a single test. Expected values are the author's own hand calculations; no outside reference figures.",
+    "craft": "Read calc.mjs (136 lines), the index.html module script (lines 141-186), calc.test.mjs, page.test.mjs, usage.mjs. Pure dependency-free core, innerHTML writes go through esc() or numeric formatters, validation names each field. Defects: blank fields silently take defaults (num(v,d) at calc.mjs:16: blank retention becomes 90%, blank servicing 0%, blank required return 15%) with no notice; '$250k' is rejected with 'must be more than zero' rather than a parse message; retention 120% with 0% rate over 40 years returns $1.65 billion on a $250k book without warning beyond the generic >100% note; dead svg/.legend CSS (index.html:44-45) for a chart that does not exist.",
+    "claims": "Checked: the How-it-is-calculated text matches calc.mjs line by line (revenue x retention^t, margin, discounting, min(1, exp/req) holdback, costs on the whole price); Not-modelled list (taxes, contingent commissions, earn-outs, transition, E&O) present on page, README and FAQ; 'Unverified: checked by hand calculation and unit tests only' is honest; disclaimer on page and README; privacy claim backed (page.test.mjs asserts no fetch/XHR/sendBeacon; grep of index.html confirms; usage.mjs localStorage only, DNT/GPC honoured). Source llms.txt points at duncan-haywood.github.io but the served llms.txt carries marisstella.app (source-only, not filed). One loose claim: the no-offer break-even finding says 'A buyer using the same inputs can pay up to about this much and still earn the required return' (calc.mjs:122), but the break-even is computed from the seller's holdback factor and seller transaction costs, not a buyer's cash flows.",
+    "fitness": "Walked a selling agent's job: 250k book, an offer of 1.5x with 30% held back 12 months. The tool says keeping is worth $657,921 and the offer $308,844 less, break-even 2.83x. A broker would object in the first hour: the sample's 25% servicing and 0% payout leave a 75% margin with the owner's own labour uncosted (a normalized agency EBITDA margin is more like 20-35%), which is what pushes the break-even above typical small-book multiples; the holdback cut is proportional rather than the dollar-for-dollar true-up most agreements use; there is no multi-year pay-as-you-go / earn-out schedule (common for book sales), no after-tax comparison (sale proceeds often capital gain vs commissions as ordinary income), and no EBITDA-multiple view. The page states most of these limits, so the tool is honest, but the headline answer can steer a seller to reject a market-rate offer.",
+    "domain": "Compared with agency M&A practice: purchase-price true-ups are typically dollar-for-dollar: price = multiple x revenue retained at the measurement date, so a shortfall below the threshold costs multiple x lost revenue. At 81% vs 90% required on the sample, the tool cuts the $112,500 holdback by $11,250 (factor 0.9); a dollar-for-dollar true-up cuts $33,750 (offer value $339,293 vs $319,728). The retention test also ignores the holdback period: a 24-month holdback with 90% annual retention is measured at 90%, not the 81% of base revenue actually retained after two years (tool $336,316 vs true-up $310,796). Valuation as discounted retained cash flow is a legitimate income approach, and showing keep value as revenue and cash multiples is useful, but no market-multiple cross-check and no owner-comp normalization."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "sample book keep value",
+      "method": "growing-annuity closed form C1/(r-g)(1-((1+g)/(1+r))^n), independent of calc.mjs geometric form",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/model.py; node /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/run.mjs",
+      "expected": "657,920.55",
+      "observed": "657,920.55",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sample offer value after 70% upfront, 12-month holdback at 15%, 3% costs",
+      "method": "hand formula 375,000 x 0.7 + 112,500/1.15 - 11,250",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/model.py; node /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/run.mjs",
+      "expected": "349,076.09",
+      "observed": "349,076.09",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "break-even multiple and one-point retention value on the sample",
+      "method": "keep / (offer value per 1x); keep at 91% minus keep at 90% via the closed form",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/model.py; node /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/run.mjs",
+      "expected": "2.8271x; 31,785.25",
+      "observed": "2.8271x; 31,785.25",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "81% retention vs 90% required: keep, holdback factor, offer",
+      "method": "same independent model",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/model.py; node /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/run.mjs",
+      "expected": "keep 444,364.08; factor 0.9; offer 339,293.48",
+      "observed": "keep 444,364.08; 90%; offer 339,293.48",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "CSV schedule first rows",
+      "method": "hand: 250,000 x 0.9 = 225,000; x 0.75 = 168,750; /1.15 = 146,739",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/run.mjs",
+      "expected": "1,225000,168750,146739,146739",
+      "observed": "1,225000,168750,146739,146739",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "holdback reduction for a retention shortfall",
+      "method": "agency purchase-agreement practice: dollar-for-dollar true-up at the multiple on revenue below the threshold",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/model.py (offer_trueup)",
+      "expected": "offer 319,728 (cut 33,750 nominal)",
+      "observed": "339,293 (cut 11,250 nominal, proportional)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "retention test measured over a 24-month holdback",
+      "method": "retained share of base revenue after 2 years at 90%/yr = 81%",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/run.mjs (holdback 24); python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/model.py",
+      "expected": "holdback cut; ~310,796 under true-up",
+      "observed": "336,316, holdback paid in full",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "sample margin and multiples against market ranges",
+      "method": "normalized agency EBITDA margins ~20-35%; small-book sale multiples ~1.5-3x revenue",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/model.py (keep/EBITDA)",
+      "expected": "owner labour costed; margin in normal range",
+      "observed": "75% margin with 0% payout, keep 2.63x revenue / 3.5x cash, break-even 2.83x",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run shipped tests",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "30 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "How-it-is-calculated text and Not-modelled list vs calc.mjs",
+      "method": "read page text vs code lines 52-83",
+      "command": "sed -e 's/<[^>]*>/ /g' index.html; cat calc.mjs",
+      "expected": "text matches code",
+      "observed": "matches",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "privacy and served build",
+      "method": "grep for network calls; curl served page, llms.txt, calc.mjs",
+      "command": "grep -n 'fetch\\|sendBeacon' index.html; curl -sS https://marisstella.app/insurance-agency-book-valuation-calculator/{,llms.txt,calc.mjs}",
+      "expected": "no network calls; served = source",
+      "observed": "none; all 200, served calc.mjs identical, served llms.txt on marisstella.app",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "input handling of blank and formatted fields",
+      "method": "node analyze() with blank retention/servicing/rate and '$250k'",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/ins/run.mjs",
+      "expected": "an error or a visible notice",
+      "observed": "silent defaults 90% / 0% / 15%; '$250k' -> 'must be more than zero'",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:107",
+      "change": "onePoint retention + 0.01 -> + 0.001",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:82",
+      "change": "price * p.costs -> price * p.upfront * p.costs",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:76",
+      "change": "min(1, ret/req) -> min(1, (ret/req)^2)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:72",
+      "change": "q ** p.years -> q ** (p.years - 1)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:120",
+      "change": "holdback-cut finding retention < required -> <=",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:81",
+      "change": "holdback discount exponent months/12 -> months/24",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Holdback cut is proportional (min(1, expected/required)) rather than the dollar-for-dollar true-up at the multiple that agency purchase agreements typically use; at 81% vs 90% the tool cuts the $112,500 holdback by $11,250 instead of $33,750, overstating the offer by ~$19.6k PV.",
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:76",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Retention test ignores the holdback period: annual retention is compared directly with the required level, so a 24-month holdback at 90%/yr (81% of base retained) is paid in full; offer overstated ($336,316 vs ~$310,796).",
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:81",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Owner's own labour is not costed: with the sample's 0% payout and 25% servicing the book runs at a 75% margin, giving keep 2.63x revenue and a 2.83x break-even, which steers the headline finding ('offer is $308,844 below keeping') against a market-rate 1.5x offer; no normalized-EBITDA or market-multiple cross-check.",
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:136",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Two seeded mutations survive: the headline one-point-of-retention value can be off 10x (test only asserts > 0), and the holdback-cut finding's trigger is untested.",
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.test.mjs:66",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "No multi-year pay-as-you-go / earn-out tranches and no after-tax comparison (capital-gain sale vs ordinary-income commissions); stated as not modelled, but these are the common structures for book sales.",
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:78",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Blank fields silently take defaults (blank retention 90%, servicing 0%, required return 15%); '$250k' is reported as revenue not above zero.",
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:16",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "No-offer break-even finding claims a buyer 'can pay up to about this much and still earn the required return', but the figure uses the seller's holdback factor and transaction costs, not a buyer's cash flows.",
+      "where": "ventures/insurance-agency-book-valuation-calculator/calc.mjs:122",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Dead svg / .legend CSS for a chart the page does not have.",
+      "where": "ventures/insurance-agency-book-valuation-calculator/index.html:44",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, honest, correctly-implemented discounted-cash-flow keep-vs-sell calculator: five independent recomputations (keep value, offer value, break-even, one-point value, 81% variant) match to the cent, the page states its model and limits, and privacy holds. It misses the bar on verification (2 of 6 seeded mutations survive, including a 10x error in the headline one-point figure) and falls short of what an agency M&A broker would sign off: the holdback is cut proportionally rather than dollar-for-dollar, the retention test ignores the holdback period, and the sample's uncosted owner labour (75% margin) makes a market-rate 1.5x offer look $309k too low. Finished (completeness 3), not at the bar."
+}

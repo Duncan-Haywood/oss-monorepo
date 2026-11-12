@@ -1,0 +1,204 @@
+{
+ "date": "2026-11-12",
+ "subject": "research/error-feedback-sync",
+ "stratum": "research",
+ "round": 49,
+ "seed": "2026-11-12-h",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality-audit round 49",
+ "status": "audited",
+ "professional": "a distributed-optimization researcher working on communication-compressed SGD (error feedback, sparsification, local SGD). They would check first that the second-moment recursion for the residual is derived correctly (cross terms m_i(1-m_i)=0, the shared-x correlation R between residuals), that the stability limit and floor match an independent computation, that the baselines are at equal bytes and equal speed, and how the result sits against Seide et al. 2014, Stich, Cordonnier and Jaggi 2018 (sparsified SGD with memory), Karimireddy et al. 2019 (EF-SGD) and Stich and Karimireddy 2020 (EF as delayed gradients, leading noise term unaffected by compression)",
+ "scores": {
+  "correctness": 4,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Independent recomputation by a different method: I wrote /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/indep.py, which propagates the full covariance of the state (x, e_1..e_N) exactly by enumerating all 2^N Bernoulli masks (E[A Sigma A^T] + E[B V B^T], Kronecker form, numpy solve), not using the subject's moment_map. EF stationary E x^2 and E e^2 agree to 10 digits at 5 points (e.g. N=4, alpha=0.5, rho=0.25: 0.0534883721 both; N=6, alpha=1.5, rho=0.5: 0.1294117647 both); z_max by bisection on the full-state spectral radius matches the closed form 2(2-rho)N rho/(N rho^2+4(1-rho)) at 6 (N, rho) pairs to 6 digits (0.285714, 0.560000, 1.076923, 0.622951...). Unbiased and dropped baselines agree to 10 digits at 3 points each. Uncompressed floor recomputed by hand from the AR(1) stationary variance alpha^2 V/N/(1-(1-alpha s)^2). Mean-dynamics eigenvalues (result 4/table 6) recomputed with numpy.linalg.eigvals: 0.9786, 0.9747, 0.8660 as printed. experiments/run.py re-run: byte-identical to experiments/results.txt.",
+  "completeness": "Every README item works end to end: 9 tests (README says 9) pass in 2.1 s (README ~4 s); experiments/run.py reproduces results.txt byte-for-byte (exit 0, diff empty); live page https://marisstella.app/research/error-feedback-sync/ returns 200 with title 'Does error feedback rescue the noise floor...'. Top-k is declared simulation only and is. No stubs or TODOs found. Unequal-rate variance is simulation only, as stated in Limitations.",
+  "verification": "`cd research/error-feedback-sync && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests`: Ran 9 tests, OK. Four mutations seeded in model.py, each reverted with git checkout: moment_map C-row (N-1)/N dropped -> caught (2 failures); zmax_closed comparison z>=zm -> z>2*zm -> caught; unbiased_var finite-step term w/N -> w/(2N) -> SURVIVED (unbiased_var only tested at alpha=1e-6 and 1e-4 where the term vanishes); dropped_var loses the Bin(N,rho) variance term in E K^2 -> SURVIVED (1.5% shift, test tolerance is 3%). Both surviving mutations change baseline numbers the paper headlines (table 3, result 4: 4.11, 10.87, 0.909...). The EF core is well tested (closed form vs 4x4 vs spectral radius vs simulation); the baselines are not.",
+  "craft": "Read src/error_feedback_sync/model.py (278 lines), tests/test_model.py, experiments/run.py. Clean, dependency-free, closed forms cross-checked against a generic solver in the tests. Defects: simulate_topk_ef takes an unused `scale` parameter (model.py:224); __all__ is unsorted and long-lined; spectral_radius uses Durand-Kerner on a Faddeev-LeVerrier characteristic polynomial with a fixed 500-iteration cap and no convergence report (adequate for 4x4, verified by my independent numpy eigvals agreeing on z_max); `j in keep` on a list inside the D loop is O(Dk) but D=8.",
+  "claims": "Checked: 'Matched to simulation within 1%' (results.txt table 1, worst ratio 1.010: backed); 'z_max ... below unbiased rand-k for N=1, above the uncompressed limit 2 for large cohorts' (table 2, and my enumeration: backed); 'floor equals the solved 4x4 system to 3e-13' (2.8e-13 printed: backed); 'dropping is biased to the rate-weighted mean' (0.4903 vs 0.4902: backed). Not backed: paper/whitepaper.md:23 says that for exchangeable peers 'dropping with a rescaled step is as good', but the paper's own table 3 shows dropping at alpha/rho (equal mean speed) pays 4.01x-10.87x the uncompressed floor while EF at alpha pays 1.075x-3.33x, so EF is better at equal speed; README.md:3 says flatly 'the mean contracts at 1-alpha s', which my eigvals check shows holds only for z well below rho (z=0.1, rho=0.05: 0.9747 vs 0.9). No prior work is cited anywhere in README or paper, so novelty is implicitly claimed for results that are partly known.",
+  "fitness": "A researcher could build on it: the 4x4 moment closure and the z_max closed form are exact (independently confirmed) and the code is small. Nearest prior work: Stich, Cordonnier and Jaggi 2018 and Karimireddy et al. 2019 prove EF-SGD converges with biased (top-k, sign) compressors; Stich and Karimireddy 2020 show the leading stochastic (noise-floor) term of EF-SGD is that of uncompressed SGD with compression entering only higher-order terms, which is result 4 ('the floor comes back') in rate form; the rate-weighted fixed point of dropping is the objective-inconsistency effect of Wang et al. 2020 (FedNova). What looks new is the exact quadratic stationary variance with the explicit stability limit, its heavy-ball-like growth with N, and the finite-step price. None of this positioning is in the paper, and the deployment recommendation (whitepaper.md:23) contradicts its own table, so a reader would have to redo the literature placement before citing it.",
+  "domain": "Compared against the standard EF model (Seide 2014 / Stich 2018: send C(e+g), keep the remainder) with rand-k as a contraction compressor: the model follows it exactly, and the second-moment recursion is right (I rederived each row by hand: E m_i(1-m_i)=0 kills the same-worker term in C', R' gets (1-rho)^2, and confirmed numerically by the full-state enumeration). Baselines are at equal expected bytes and the paper also matches mean speed (alpha/rho for dropping), which is the right confound to control. Departures a practitioner would flag: top-k is only simulated on 8 modes, no momentum/outer optimiser (stated), no comparison to EF21 or to the scaled-EF variants used in practice, moment stability not almost-sure (stated)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "EF stationary E x^2 and E e^2 at 5 (N, alpha, rho) points",
+   "method": "independent full-state covariance propagation over all 2^N masks (numpy), not the subject's 4x4 moment map",
+   "command": "PYTHONDONTWRITEBYTECODE=1 python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/indep.py",
+   "expected": "N=4,a=0.5,rho=0.25: 0.0534883721 / 0.77093023 (indep)",
+   "observed": "subject ef_var 0.0534883721, residual_var 0.77093023; all 5 points agree to 10 digits",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "stability limit z_max at 6 (N, rho) pairs",
+   "method": "bisection on spectral radius of the full-state Kronecker second-moment operator (numpy eigvals)",
+   "command": "PYTHONDONTWRITEBYTECODE=1 python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/indep.py",
+   "expected": "N=2,rho=0.25: 0.560000; N=6,rho=0.1: 0.622951",
+   "observed": "zmax_closed 0.560000, 0.622951; all 6 agree to 6 digits",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "unbiased (send m d/rho) and dropped (send m d) baseline floors at 3 points",
+   "method": "same independent enumeration, plus hand derivation E(K/(rho N))^2 = 1 + w/N",
+   "command": "PYTHONDONTWRITEBYTECODE=1 python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/indep.py",
+   "expected": "N=4,a=0.5,rho=0.1: unbiased 0.4210526316, dropped 0.0260586319",
+   "observed": "0.4210526316, 0.0260586319",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "uncompressed floor",
+   "method": "hand: AR(1) x'=(1-alpha s)x + noise, Var = alpha^2 V/N / (1-(1-alpha s)^2)",
+   "command": "PYTHONDONTWRITEBYTECODE=1 python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/indep.py",
+   "expected": "N=8, alpha=1.3: 0.0481481",
+   "observed": "0.0481481",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "mean-dynamics slow eigenvalue (table 6, result 4)",
+   "method": "numpy.linalg.eigvals of [[1-rho z, -rho],[(1-rho) z, 1-rho]]",
+   "command": "PYTHONDONTWRITEBYTECODE=1 python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/indep.py",
+   "expected": "z=0.02,rho=0.25: 0.9786; z=0.1,rho=0.05: 0.9747 (=sqrt(0.95))",
+   "observed": "0.9786, 0.9747 as printed in results.txt",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "re-run every headline number",
+   "method": "byte diff of a fresh experiments/run.py against committed results.txt",
+   "command": "cd research/error-feedback-sync && PYTHONPATH=src python3 experiments/run.py > $SCRATCH/results_rerun.txt && diff experiments/results.txt $SCRATCH/results_rerun.txt",
+   "expected": "identical",
+   "observed": "identical (exit 0)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd research/error-feedback-sync && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "9 tests pass",
+   "observed": "Ran 9 tests in 2.122s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "whitepaper.md:23 'dropping with a rescaled step is as good' for exchangeable peers",
+   "method": "compare with the paper's own table 3 (equal mean speed: dropping at alpha/rho vs EF at alpha)",
+   "command": "sed -n '/== 3/,/== 4/p' research/error-feedback-sync/experiments/results.txt",
+   "expected": "dropped at alpha/rho floor about equal to EF floor",
+   "observed": "dropped at alpha/rho 4.010-10.874x uncompressed vs EF 1.075-3.333x",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README.md:3 'the mean contracts at 1-alpha s, not 1-alpha rho s' at small steps",
+   "method": "numpy eigvals of the mean dynamics",
+   "command": "PYTHONDONTWRITEBYTECODE=1 python3 /tmp/claude-0/-home-user-oss-monorepo/445518b1-5429-5297-9052-042574ff3b55/scratchpad/indep.py",
+   "expected": "max|eig| close to 1-z",
+   "observed": "z=0.02,rho=0.25: 0.9786 vs 0.98 (holds); z=0.1,rho=0.05: 0.9747 vs 0.90 (fails; complex pair, modulus sqrt(1-rho)). Paper result 4 states the cap, README does not",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Matched to simulation within 1%' and '9 tests'",
+   "method": "results.txt table 1 and test run",
+   "command": "cd research/error-feedback-sync && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "<=1% and 9 tests",
+   "observed": "worst ratio 1.010; 9 tests",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "prior work cited (EF-SGD, sparsified SGD with memory, 1-bit SGD)",
+   "method": "grep for Karimireddy|Stich|Seide|EF21|Alistarh in subject and its companion compressed-sync",
+   "command": "grep -rn 'Karimireddy\\|Stich\\|Seide\\|EF21\\|Alistarh' research/error-feedback-sync research/compressed-sync",
+   "expected": "at least the EF-SGD papers cited",
+   "observed": "no matches",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page served",
+   "method": "curl",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/error-feedback-sync/",
+   "expected": "200",
+   "observed": "200",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/error-feedback-sync/src/error_feedback_sync/model.py:42",
+   "change": "C row: -a*(N-1)/N*p*b -> -a*p*b",
+   "caught": true,
+   "test_cmd": "cd research/error-feedback-sync && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/error-feedback-sync/src/error_feedback_sync/model.py:137",
+   "change": "z >= zm -> z > 2*zm (closed form returns finite past the limit)",
+   "caught": true,
+   "test_cmd": "cd research/error-feedback-sync && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/error-feedback-sync/src/error_feedback_sync/model.py:161",
+   "change": "unbiased_var: alpha*s*w/N -> alpha*s*w/(2N)",
+   "caught": false,
+   "test_cmd": "cd research/error-feedback-sync && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/error-feedback-sync/src/error_feedback_sync/model.py:169",
+   "change": "dropped_var: EK2 = N rho(1-rho)+(N rho)^2 -> (N rho)^2 (drops binomial variance; 1.5% shift at the test point)",
+   "caught": false,
+   "test_cmd": "cd research/error-feedback-sync && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The deployment advice says that for exchangeable peers 'dropping with a rescaled step is as good' as error feedback, but the paper's own table 3 shows dropping at alpha/rho (equal mean speed) pays exactly the unbiased floor, 4.01x-10.87x uncompressed, while EF at alpha pays 1.075x-3.33x. A practitioner following the advice would give up a 3-4x lower floor.",
+   "where": "research/error-feedback-sync/paper/whitepaper.md:23",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work is cited. 'The floor comes back' is the known result that EF-SGD's leading stochastic term equals uncompressed SGD's (Stich and Karimireddy 2020; Karimireddy et al. 2019; Stich, Cordonnier and Jaggi 2018), and the rate-weighted fixed point of dropping is the objective-inconsistency effect of Wang et al. 2020. The new part (the exact quadratic floor and z_max) is not separated from the known part.",
+   "where": "research/error-feedback-sync/paper/whitepaper.md:6",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "The unbiased and dropped baselines, which every comparison in table 3 and result 4 rests on, are untested at finite steps: a halved finite-step term in unbiased_var and a missing binomial variance term in dropped_var both leave all 9 tests green (unbiased only tested at alpha<=1e-4; dropped only vs a simulation with 3% tolerance against a 1.5% effect).",
+   "where": "research/error-feedback-sync/tests/test_model.py:34",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "README states without qualification that at small steps 'the mean contracts at 1-alpha s'; it holds only for z well below rho (z=0.1, rho=0.05 gives |lambda|=0.9747 vs 1-z=0.90). The paper's result 4 states the sqrt(1-rho) cap; the README does not.",
+   "where": "research/error-feedback-sync/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "simulate_topk_ef takes a `scale` parameter that is never used.",
+   "where": "research/error-feedback-sync/src/error_feedback_sync/model.py:224",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The mathematics is right: an independent full-state covariance computation over all 2^N masks reproduces the error-feedback floor, the residual variance, the closed-form stability limit and both baselines to 6-10 digits, and every number in results.txt re-runs byte-identically. It misses the bar on verification and claims. Two of four seeded bugs, both in the baselines that every comparison rests on, leave the tests green. The paper's closing advice ('dropping with a rescaled step is as good' for exchangeable peers) contradicts its own table 3, where at equal speed error feedback has a 3-4x lower floor. No prior work is cited, although the headline 'the floor comes back' is the known EF-SGD result (Stich and Karimireddy 2020) in rate form. What is new is the exact quadratic stationary variance and z_max, and the paper should present it as that."
+}
