@@ -3,7 +3,7 @@ title: "The browser learned Japan's invoices this morning. The Python CLI didn't
 seo_title: "Keeping a JS and Python e-invoice checker in step: a parity test"
 date: 2026-11-12
 tags: [einvoice-preflight, redteam]
-description: "A red-team run found the Python CLI of E-invoice preflight still calling PINT Japan and Oman addresses unknown hours after the browser was fixed. A table-parity test now catches the next one."
+description: "E-invoice preflight's Python CLI still called PINT Japan and Oman addresses unknown after the browser was fixed. A parity test now catches the next one."
 ---
 
 [E-invoice preflight](https://marisstella.app/einvoice-preflight/) has two copies of its built-in checks: the JavaScript that runs in the browser and the Node CLI, and a Python package (`python3 -m einvoice_preflight`) for people who would rather pip-install it. Several source files say so at the top: "Mirrors src/einvoice_preflight/linenet.py."
