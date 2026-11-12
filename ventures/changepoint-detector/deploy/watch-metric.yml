@@ -1,0 +1,45 @@
+# Watch a metric for changes, in your own GitHub repository, on GitHub's free runners.
+# Made by deploy/make-watch-repo.sh from https://marisstella.app/changepoint-detector/ (MIT).
+#
+# Set in your repository (Settings > Secrets and variables > Actions):
+#   variable METRIC_CSV         a CSV file in this repository (data/metric.csv) or an https:// link to one
+#                               (a published Google Sheet's CSV link works); rows oldest first
+#   variable WATCH_OPTIONS      optional, e.g. "--column orders --model poisson --period 7"
+#   secret   WATCH_WEBHOOK_URL  optional: a Slack, Discord, Teams or Mattermost incoming-webhook URL
+# With no webhook, a new change fails the run and GitHub emails you (--fail-on-alert).
+name: watch-metric
+on:
+  schedule:
+    - cron: '17 7 * * *'   # daily at 07:17 UTC; change to suit how often a row arrives
+  workflow_dispatch:
+permissions:
+  contents: write          # to commit watch-state.json, which remembers what was already reported
+concurrency: watch-metric
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check for a new change
+        env:
+          METRIC_CSV: ${{ vars.METRIC_CSV }}
+          WATCH_OPTIONS: ${{ vars.WATCH_OPTIONS }}
+          WATCH_WEBHOOK_URL: ${{ secrets.WATCH_WEBHOOK_URL }}
+        run: |
+          set -u
+          if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable (see the top of this file)."; exit 2; fi
+          HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
+          FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
+          # word-splitting of WATCH_OPTIONS is intended
+          node watch.mjs "$METRIC_CSV" --state watch-state.json $HOOK $WATCH_OPTIONS $FAIL | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save what was reported
+        if: always()
+        run: |
+          [ -f watch-state.json ] || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add watch-state.json
+          git diff --cached --quiet || { git commit -m "watch: state after $(date -u +%F)" && git push; }

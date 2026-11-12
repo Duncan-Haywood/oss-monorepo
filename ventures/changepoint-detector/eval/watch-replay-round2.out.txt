@@ -1,0 +1,13 @@
+Part A: synthetic streams, 10 seeds each, 500 points, first check (the baseline) at 100, then one check per new point (400 checks per stream). A step, where there is one, is at point 301; an alert dated within 5 points of it counts as reporting it. False alerts are all other alerts, per 1,000 checks. Delay = points from the change to the check that reported it.
+
+  detector      confirm  FA/1000 null iid      FA/1000 null ar1 0.5  FA/1000 null t3       step 1sd iid found (median delay) step 2sd iid found (median delay) step 3sd iid found (median delay) step 2sd ar1 0.5 found (median delay)
+  bocpd               5  0.00                  7.00                  4.75                  2/10 (5.5)                        6/10 (5)                          8/10 (5)                          7/10 (5)                          
+  bocpd-window        5  0.25                  15.00                 7.50                  2/10 (5.5)                        10/10 (5)                         10/10 (5)                         10/10 (5)                         
+
+Round 2 rule: (a) bocpd-window finds at least as many steps in every cell and more overall: yes (2 vs 2, 6 vs 10, 8 vs 10, 7 vs 10); (b) null false alerts at most 1.0 per 1,000 above bocpd: no (3.92 vs 7.58). Not adopted: bocpd stays the default.
+
+Part B: TCPD replay, 31 univariate series that ship in the TCPD repository. Each series is watched from 20% of its length (the baseline check), then checked after every point. An alert is "marked" when an annotator put a change within 5 points of its date. Recall: of the locations a majority of annotators marked after the baseline, how many an alert reached. Delay: points from the nearest marked location to the check that reported it.
+
+  detector      confirm  alerts  marked (share)   per 1000 checks  majority locations reached  median delay
+  bocpd               5     193      63 (33%)          30.3         38/52                      5
+  bocpd-window        5     307      85 (28%)          48.2         46/52                      5

@@ -50,6 +50,12 @@ where it departs from the paper.
   model (the default) the text output leads with the changes all six settings agree on, as the page
   does (`--no-agreed` to skip it). The panel runs on worker threads beside the main analysis and is
   skipped on its own above 10,000 points (see "Agreed changes on worker threads in the CLI").
+- **Watch a metric** (2026-11-12): `node watch.mjs daily.csv --state watch-state.json` after each new row
+  reports each new change once, after 5 points on its far side, and can post to a Slack, Discord, Teams or
+  Mattermost webhook (`--webhook-env NAME`). `deploy/make-watch-repo.sh <folder>` makes a standalone
+  repository with a daily GitHub Actions workflow, so anyone can run it in their own account; page:
+  [watch-a-metric-for-changes.html](watch-a-metric-for-changes.html). How the defaults were chosen:
+  "Watching a growing series" below.
 - **AI agents / MCP:** from a clone of the repository,
   `node platform/agents/tools.mjs call changepoint-detector analyze --input '{"values":[...]}'`
   or the `call_tool` tool of the repository's MCP server
@@ -445,6 +451,7 @@ Free and open source (MIT, see `LICENSE`). Optional support:
   need a programming environment. This runs the same class of method in a browser tab, from a CSV.
 - **Eyeballing a chart:** fast, but cannot say whether a dip is noise or a shift, or how sure to be.
 - **Anomaly alerts in a monitoring product:** flag single odd points, not a lasting change in level.
+  `watch.mjs` is the lasting-change alert, run in the user's own account (see "Watching a growing series").
 
 
 **Page (2026-10-21).** The web page now has a "Known holidays" box (comma-separated dates or row numbers, counts model) that passes `holidays` to the engine. Checked on 200 seeded daily counts with every 17th day at 0.3x: 6 changes without the list, 0 with it (factor 0.304).
@@ -3174,3 +3181,72 @@ long runs are larger, but by less than a carried-forward random walk's k + 1 wou
 Next for this question: longer stretches (the ratio's noise falls with the number of catch-ups, so a
 power curve in n would say where a setting could pass both bars), or a likelihood for a rounded walk
 against a rounded walk carried forward; and a real series with documented carry-forward to check against.
+
+## Watching a growing series (2026-11-12, two pre-registered rounds; ships)
+
+The page and CLI answer "did this series change?" once. Most people with a metric want the other
+question: tell me, once, when it changes from now on. `watch.mjs` does that. Each run refits the newest
+`--window` points (default 1,000) with the same engine, compares the changes with the ones in a state
+file, and reports a change only when `--confirm` points (default 5) are on its far side and no change
+already on record lies within `--tolerance` points (default 5), so a change re-dated by a point or two as
+data arrives is not a second alert. The first run on a file with history records its changes as the
+baseline instead of alerting (`--alert-history` reports them). A change on record is found again by its
+label, so a rolling file that drops old rows keeps it; a shorter file or a vanished last label is
+reported as a note. `--webhook-env NAME` posts each alert to the URL in that environment variable as
+`{text, content}` (Slack, Teams and Mattermost read `text`, Discord `content`); when the webhook fails
+the state is not saved, so the next run retries. `--fail-on-alert` exits 1, which turns a CI run red and
+emails its owner. Tests: `watch.test.mjs` (12; a local HTTP server stands in for the webhook; no real
+chat service was called).
+
+**Self-deploy.** `sh deploy/make-watch-repo.sh <folder>` (or the `curl ... | sh -s -- <folder>` line in
+the script's header, which needs no clone) writes the engine, `watch.mjs`, the MIT licence, a README and
+`.github/workflows/watch-metric.yml`: a daily run that reads the `METRIC_CSV` variable (a file in the
+repository or an https link, such as a published Google Sheet's CSV), posts to the `WATCH_WEBHOOK_URL`
+secret if set, and commits `watch-state.json` back. Nothing in it calls anything the owner runs. The
+workflow itself has not been run on GitHub from this session; the folder it makes is run locally by
+`watch.test.mjs`.
+
+**Round 1: which detector and how much confirmation** (`eval/watch-replay.mjs`, output
+`eval/watch-replay.out.txt`). The rule was written in the script's header before the first run:
+candidates PELT level, PELT level and volatility, and the engine's Bayesian detections, each at
+`--confirm` 3, 5 and 10; among those reporting at least 90% of 2-sd steps in independent noise, take the
+fewest false alerts per 1,000 checks averaged over three null streams (independent, AR(1) 0.5, t with 3
+degrees of freedom); ties within 0.5 go to the shorter delay. Each stream is 500 points, watched from
+point 100 with one check per new point, 10 seeds per cell. All nine passed the power bar; the Bayesian
+detections with `--confirm 5` won: 0 / 7.5 / 2.5 false alerts per 1,000 checks on the three nulls
+against PELT level's 2.5 / 49.75 / 12.75, 9 of 10 two-sd steps reported with a median delay of 5 points.
+Its blind spot showed at once: 0 of 10 one-sd steps (PELT level 9 of 10). Level and volatility needs 10
+points per segment, so its confirmation setting changes nothing.
+
+Then the 31 univariate TCPD series, scored once and changing nothing, each watched from 20% of its
+length (6,369 checks):
+
+| setting (`--confirm 5`) | alerts | at an annotated change | per 1,000 checks | majority-marked changes reached | median delay |
+|---|---|---|---|---|---|
+| **Bayesian detections (default)** | 193 | 63 (33%) | 30.3 | 38 of 52 | 5 |
+| PELT level | 626 | 134 (21%) | 98.2 | 52 of 52 | 5 |
+| PELT level and volatility | 446 | 100 (22%) | 70.0 | 50 of 52 | 9 |
+
+`bank` alone gave 42 of the default's 193 alerts and none at a mark: a level that wanders all the time
+keeps alerting, so the page tells people to watch a quantity that holds a level, or its daily change.
+
+**Round 2: a windowed probability** (`--round2`, output `eval/watch-replay-round2.out.txt`). A unit
+test then found a clear 3-sd step that the default never reports: its Bayesian probability was split
+over neighbouring points (0.15, 0.03, 0.17, 0.36), so no single point reached 0.5. Candidate
+`bocpd-window` sums the probability over 5 neighbouring points. The rule, written before the run, on
+fresh seeds 11-20: adopt it if it reports at least as many steps in every step cell and more overall,
+and its mean null false-alert rate is at most 1.0 per 1,000 above the default's. It reported far more
+(2-sd steps 10 of 10 against 6 of 10; 3-sd 10 against 8; 2-sd in AR(1) noise 10 against 7) but raised
+false alerts from 3.92 to 7.58 per 1,000 (AR(1): 7.0 to 15.0). **Not adopted**; it is the option
+`--detector bocpd-window`. On TCPD it sent 307 alerts, 85 at a mark (28%), 46 of 52 marked changes.
+
+The fresh seeds also undercut round 1's pass: the default reported 6 of 10 two-sd steps there, so over
+both rounds it is 15 of 20, below the 90% the rule asked for. The default stays as pre-registered, and
+the page states the trade plainly: quiet, and it misses small steps; `--detector pelt` reaches every
+marked change at about three times the alerts.
+
+Next: a Bayesian pass with the AR(1) term the engine already has (`rho` in `bocpd`) as a round-3
+candidate, since sticky noise is where the windowed probability lost; the watch on the page (paste a
+URL, keep the state in the browser) and as an agent tool; a real deployer's repository run end to end
+on GitHub Actions.
+
