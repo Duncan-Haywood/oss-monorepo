@@ -4,6 +4,8 @@ Follow-up to `codesign-aero-cant-bound`, and five sibling READMEs that all defer
 
 **Live page:** https://marisstella.app/research/codesign-aero-cant-poshold/
 
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, the side force per unit roll torque used here, tan α / r, is √2 too large; the correct form is sin α / (L cos α − κ sin α).
+
 ![Left: held-out position error of each co-designed vehicle; right: yaw error. One dot per seed.](experiments/poshold.png)
 
 **Correction (2026-11-10).** `rollout_pos` multiplied a (N,1) drag coefficient into a (N,E,2) array. When the number of designs equals the number of episodes (CMA-ES training: population 16, 16 episodes) NumPy broadcast it without error over the wrong axis, so each training rollout used another design's drag coefficient. Held-out scoring (one design, 64 episodes) was unaffected, but the optimiser was misled. Fixed, a regression test added (it fails on the old code), and `run.py` and `run_restart.py` rerun. The numbers below are the rerun; the earlier ones (J 3.33/2.61 etc., restart J 3.73 to 2.99) are superseded. The qualitative findings hold; two claims change and are marked.

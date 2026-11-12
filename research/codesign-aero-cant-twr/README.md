@@ -4,6 +4,8 @@ Follow-up to `codesign-aero-cant-propdata` (track 14, `codesign`), taking its ne
 
 **Live page:** https://marisstella.app/research/codesign-aero-cant-twr/
 
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, its motor-headroom result does not survive (with altitude held the optimiser picks TWR 2.0–2.3).
+
 ![Held-out error of the four arms at three measured c values, per seed](experiments/twr.png)
 
 **Headline (all numbers from `experiments/results.txt`).** Held-out RMS attitude error, degrees, mean of 5 seeds:

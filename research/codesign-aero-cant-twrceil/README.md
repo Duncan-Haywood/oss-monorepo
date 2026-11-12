@@ -4,6 +4,8 @@ Follow-up to `codesign-aero-cant-twr` (track 14, `codesign`), taking its first n
 
 **Live page:** https://marisstella.app/research/codesign-aero-cant-twrceil/
 
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, the interior optimum near TWR 5 does not survive (with altitude held the optimiser picks TWR 2.0–2.3; with collective free, 3.3–4.7).
+
 ![Held-out error against the TWR ceiling, with and without cant](experiments/twr_ceiling.png)
 
 **Headline (all numbers from `experiments/results.txt`).** Held-out RMS attitude error, degrees, mean of 5 seeds:

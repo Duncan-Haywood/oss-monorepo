@@ -1,0 +1,74 @@
+{
+ "arxiv:2103.02142": {
+  "checked": "2026-11-12",
+  "title": "Learning to Fly -- a Gym Environment with PyBullet Physics for Reinforcement Learning of Multi-agent Quadcopter Control (2021)"
+ },
+ "arxiv:2306.04485": {
+  "checked": "2026-11-12",
+  "title": "RotorPy: A Python-based Multirotor Simulator with Aerodynamics for Education and Research (2023)"
+ },
+ "doi:10.1016/j.automatica.2013.01.035": {
+  "checked": "2026-11-12",
+  "title": "Control allocation—A survey (2013)"
+ },
+ "doi:10.1038/s41586-023-06419-4": {
+  "checked": "2026-11-12",
+  "title": "Champion-level drone racing using deep reinforcement learning (2023)"
+ },
+ "doi:10.1109/CDC.2010.5717652": {
+  "checked": "2026-11-12",
+  "title": "Geometric tracking control of a quadrotor UAV on SE(3) (2010)"
+ },
+ "doi:10.1109/ICRA.2015.7139759": {
+  "checked": "2026-11-12",
+  "title": "Modeling, control and design optimization for a fully-actuated hexarotor aerial vehicle with tilted propellers (2015)"
+ },
+ "doi:10.1109/ICRA.2016.7487497": {
+  "checked": "2026-11-12",
+  "title": "Design, modeling and control of an omni-directional aerial vehicle (2016)"
+ },
+ "doi:10.1109/ICRA.2019.8793926": {
+  "checked": "2026-11-12",
+  "title": "Robot Co-design: Beyond the Monotone Case (2019)"
+ },
+ "doi:10.1109/LRA.2017.2720851": {
+  "checked": "2026-11-12",
+  "title": "Control of a Quadrotor With Reinforcement Learning (2017)"
+ },
+ "doi:10.1109/TCST.2014.2330999": {
+  "checked": "2026-11-12",
+  "title": "A Novel Overactuated Quadrotor Unmanned Aerial Vehicle: Modeling, Control, and Experimental Validation (2015)"
+ },
+ "doi:10.1109/TRO.2018.2821155": {
+  "checked": "2026-11-12",
+  "title": "Fundamental Actuation Properties of Multirotors: Force–Moment Decoupling and Fail–Safe Robustness (2018)"
+ },
+ "doi:10.1145/2980179.2982427": {
+  "checked": "2026-11-12",
+  "title": "Computational multicopter design (2016)"
+ },
+ "doi:10.1145/3414685.3417831": {
+  "checked": "2026-11-12",
+  "title": "RoboGrammar (2020)"
+ },
+ "doi:10.1162/106365601750190398": {
+  "checked": "2026-11-12",
+  "title": "Completely Derandomized Self-Adaptation in Evolution Strategies (2001)"
+ },
+ "doi:10.1177/02783649211025998": {
+  "checked": "2026-11-12",
+  "title": "Design of multirotor aerial vehicles: A taxonomy based on input allocation (2021)"
+ },
+ "doi:10.2514/1.51186": {
+  "checked": "2026-11-12",
+  "title": "Kinematic Analysis and Control Design for a Nonplanar Multirotor Vehicle (2011)"
+ },
+ "doi:10.2514/1.G001490": {
+  "checked": "2026-11-12",
+  "title": "Adaptive Incremental Nonlinear Dynamic Inversion for Attitude Control of Micro Air Vehicles (2016)"
+ },
+ "doi:10.2514/6.2011-1255": {
+  "checked": "2026-11-12",
+  "title": "Propeller Performance Data at Low Reynolds Numbers (2011)"
+ }
+}
