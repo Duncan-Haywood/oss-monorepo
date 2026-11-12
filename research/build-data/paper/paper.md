@@ -323,7 +323,21 @@ Against the permit-type class the folded configuration's q0.9 cost falls from 3.
 (a difference of two paired estimates, with no interval of its own), while it keeps the lower-quantile
 gains and, for application-to-issue, the whole 3.9-day q0.9 gain (fold minus unfolded -0.07 days,
 interval spanning zero). That fold was chosen after seeing the per-class split of the same test year.
-<!-- tailfold -->
+A rule fixed before the test year exists does not reproduce it (session 77,
+`../results/*_cascade2_tailfold*.json`, `../results/truncation_check_seattle_i2c_*.json`; five predictions
+written before the runs). Comparing the sources' q0.9 with the held-out city's own history (years up to
+Y-2) instead of its test year, every Seattle class has the shorter tail on the source side, demolition
+included (665 against 952 days), so the rule folds nothing. The test year looks different because it is
+right-censored: a 2024 build-time row exists only if the permit was completed before the pull. Censoring
+Seattle's history to the same window gives demolition a q0.9 of 580 days against the test year's 552
+(2023: 629 against 612), and every large class within 8%. So the demolition cost of 4.4b is a property of
+scoring on censored labels. Folding demolition still helps in 2023 (-1.3 days, interval -2.1 to -0.4),
+which is what a censored-history rule would choose. On application-to-issue, where censoring matters
+little, the history rule folds six classes when Chicago is held out and lowers the transfer q0.9 loss by
+1.5 days (13% of the baseline's loss; interval 1.3 to 1.6), and folds four when Austin is held out and
+raises it by 3.0 days (8%; interval 1.7 to 4.3). Most of Austin's cost sits in classes the rule left alone
+(mechanical and plumbing), so merging classes changes the shared model in ways a per-class tail ratio
+does not predict.
 
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
@@ -423,7 +437,7 @@ configuration per library (defaults, untuned); the neural net (4.6) is one untun
 structured class map is a keyword rule not validated against hand labels (the description rules are, 4.4b: 85% and 95% held-out agreement with one labeller), and its classes barely overlap between cities (4.4a), so the transfer results test the generic fields only; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
 draws in 4.5 is not reported; i2c is not rerun for H5b; a fourth city (Seattle, 4.8) with partial coverage of the experiments (NYC DOB NOW
-licence unchecked). Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
+licence unchecked). Issue-to-completion test years are right-censored at the pull (a permit not yet completed has no row), which shortens recent build-time tails (Seattle new construction q0.9 957 days in history, 654 in 2024; 4.4b) and shapes every i2c score. Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
 
 ## 6 What a practitioner can take
 
@@ -441,4 +455,5 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2022 to 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
 6. Build a work-type class from the description text for Chicago and Seattle (4.4a: their structured fields do not name the work; overlap without "other" is 0.00 to 0.19) and from `work_class` for Austin, validate it on a hand-labelled sample, and rerun H4. Code in place (session 70: `src/classmap.py` cascade, the loader's `desc_class`, `transfer.py --classes cascade`, with a prediction in `../LOG.md`). Validated in session 71 (4.4b): the session 70 rules agree with hand labels on 60% (Chicago) and 78% (Seattle) of held-out rows, the revised rules (`desc_class_v2`, `--classes cascade2`) on 85% and 95%.
-7. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
+7. Score issue-to-completion with a censoring-aware evaluation (cohorts old enough to have completed, or a censored pinball loss) and rerun the class comparisons of 4.4b under it.
+8. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.

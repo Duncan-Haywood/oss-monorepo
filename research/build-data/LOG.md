@@ -1,6 +1,6 @@
 # build-data log
 
-## Session 77, 2026-11-12: a general fold rule, chosen from training-time data only
+## Session 77, 2026-11-12: a fold rule chosen from history helps Chicago and hurts Austin, and the demolition tail gap of sessions 75 and 76 is right-censoring of the test year (T1, T4 Austin refuted; T5, T6, T4 Chicago held)
 
 Why: session 76 showed that folding demolition into alteration removes two thirds of cascade2's Seattle i2c 2024 transfer q0.9 cost, but the fold was picked after seeing session 75's per-class split of that very test year. A rule a practitioner can use must decide the fold before the test year exists. Session 76's suggested rule read the ratio interval on the test year; this one does not.
 - New: `transfer.py --classes cascade2_tailfold`. `tailfold_map()` compares, per cascade2 class, the target's q0.9 among the sources' training rows (years <= Y-2) with the held-out city's own history (years <= Y-2, the rows its own baseline is fitted on). A class with at least 50 rows on each side whose source/held q0.9 ratio has a 95% bootstrap interval entirely above 1 folds into alteration (into "other" if alteration is itself flagged). The fold map and per-class diagnostics are written to the transfer json. 2 tests (flags only the longer source tail; changing every test-year row leaves the fold unchanged; small classes are never flagged).
@@ -15,6 +15,24 @@ Each is refuted if its condition fails.
 - T5 held (`src/truncation_check.py`, `results/truncation_check_seattle_i2c_{2024,2023}.json`). Censored history puts Seattle demolition q0.9 at 580 days against the test year's 552 (5% apart), and the ratio against it is 1.15 [1.11, 1.18]. 2023 also holds: 629 against 612, ratio 1.07 [1.03, 1.12].
 - Deviation: the queued 2023 run of `cascade2_tailfold` was stopped. The rule reads the same history and would give an identical configuration (difference 0, so T3 holds trivially). It was replaced with the fold that a censored-history rule picks, which is session 76's `cascade2_nodemo` (demolition is the only class flagged).
 - (T6, written before that run) Seattle i2c 2023, transfer q0.9, cascade2_nodemo minus cascade2: point estimate below zero and smaller in size than 2024's -1.98 days. Refuted otherwise.
+
+Outcome. Fresh four-feed pull 2026-11-12 06:40 to 07:05 UTC: Chicago, SF and Austin row counts equal session 76's, Seattle has 22 more rows (194,241; `results/manifest.json`). Runs one after another (`python3.13 src/transfer.py DIR ... --classes cascade2 cascade2_tailfold`, Seattle i2c 2023 with `cascade2_nodemo`), about 15 minutes each. The committed Seattle cascade2 single-configuration files keep their earlier pulls; the Chicago- and Austin-held cascade2 files are new.
+- Paired differences, transfer model, days of mean pinball loss [95% week-block interval] (share of own baseline loss); negative = the fold is better:
+
+| held / target / year | fold | n test | q0.1 | q0.5 | q0.9 |
+|---|---|---|---|---|---|
+| Seattle i2c 2024 | tailfold: none flagged | 4,313 | 0 | 0 | 0 |
+| Seattle i2c 2023 | nodemo (censored-history rule's choice) | 4,387 | -0.01 [-0.13, 0.16] | +0.05 [-0.26, 0.38] | **-1.29 [-2.09, -0.45] (-2.3%)** |
+| Chicago a2i 2024 | tailfold: 6 classes into "other" | 33,064 | -0.10 [-0.12, -0.09] | -1.08 [-1.24, -0.91] (-8.6%) | **-1.46 [-1.58, -1.34] (-13.2%)** |
+| Austin a2i 2024 | tailfold: 4 classes into "other" | 53,011 | 0.00 | +0.53 [0.37, 0.72] (+1.3%) | **+2.96 [1.67, 4.27] (+8.0%)** |
+
+- T1 refuted (above). T2 not testable: with nothing flagged the two configurations are identical. T3 not run as registered (deviation above); T6 held: -1.29 days, two thirds of 2024's -1.98. Demolition rows carry -0.63 of it (49%), new construction -0.39.
+- T4 held for Chicago, refuted for Austin. Chicago: the rule flags new construction, alteration, electrical, mechanical, demolition and fire (source tails 1.1 to 157 times Chicago's, which is issued-only with a short history tail) and folds them into "other", nearly removing the class. Transfer improves at every quantile, 13.2% at q0.9. Austin: the rule flags new construction, alteration, demolition and sign; the fold costs 2.96 days at q0.9. The cost sits in classes the rule did not touch: mechanical (+3.03 days of contribution) and plumbing (+2.32), whose source tails are far shorter than Austin's (ratios 0.01 and 0.0), plus new construction (+1.49); electrical gains (-2.97). A merge changes the shared trees for every class, so a per-class ratio does not predict its effect.
+- Edge case found: a class whose held-out q0.9 is 0 (Chicago plumbing) has no ratio and is never flagged.
+- What this does to sessions 75 and 76. Their i2c reading, that the sources' demolition tail is longer than Seattle's, holds only against the right-censored test year. Against Seattle's history the sources' demolition tail is the shorter one (0.70). So the session 76 fold scores better because the i2c test labels are censored at the pull, not because the sources mislead the model about real Seattle build times. The practical advice in session 76 ("merge any class whose source tail is longer than the target's") is withdrawn as stated: in a2i (little censoring) the same rule helps in Chicago and hurts in Austin.
+- Wider consequence: every i2c test-year score in this programme is on permits completed before the pull, so recent test years under-represent long builds (Seattle new construction q0.9: 957 days in history, 654 in 2024). The i2c scores need a censoring-aware evaluation, for example scoring on issue cohorts old enough to have completed, or a censored pinball loss.
+- Limits: one rule, one threshold, 3 seeds; the fold target ("other" when alteration is flagged) is a choice; the by-class contributions have no intervals.
+Next: score i2c with a censoring-aware evaluation and rerun the cascade2/type/nodemo comparison under it; a fold rule that predicts its effect by refitting on Y-1 (a validation-year paired check) instead of a tail ratio; a second labeller.
 
 ## Session 76, 2026-11-12: naming demolition is what costs cascade2 its i2c q0.9 transfer; folding it into alteration removes two thirds of the cost and keeps the gains (S1 to S4 held)
 
