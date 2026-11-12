@@ -37,6 +37,7 @@ export function emptyState() {
  */
 export function detectChanges(values, labels, opts = {}) {
   const d = opts.detector ?? WATCH_DEFAULTS.detector;
+  if (d.startsWith('bocpd-ar1') && (opts.model ?? 'mean') !== 'mean') throw new Error(`--detector ${d} is for the level model (--model mean) only.`);
   const all = detectBoth(values, labels, opts);
   if (!all[d]) throw new Error(`Unknown detector ${d}.`);
   return all[d];
@@ -179,7 +180,9 @@ Options:
   --period <n>              remove a seasonal cycle of n points first (7 for daily data, 12 for monthly)
   --log                     take logs first (positive values; percentage growth)
   --detector bocpd|pelt     which detector's changes to alert on (default: bocpd, the Bayesian detections: far fewer false
-                            alerts; pelt finds smaller steps, e.g. 1 noise sd, at about 3x the false alerts on real series)
+                            alerts; pelt finds smaller steps, e.g. 1 noise sd, at about 3x the false alerts on real series;
+                            bocpd-ar1 allows for sticky (autocorrelated) noise, level model only; *-window sums the
+                            probability over 5 neighbouring points: see the README, "Watching a growing series")
   --confirm <k>             report a change once k points are on its far side (default: ${WATCH_DEFAULTS.confirm})
   --tolerance <k>           a change within k points of one already reported is the same change (default: ${WATCH_DEFAULTS.tolerance})
   --window <n>              refit only the newest n points (default: ${WATCH_DEFAULTS.window})

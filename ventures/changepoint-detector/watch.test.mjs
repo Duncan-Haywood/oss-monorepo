@@ -140,3 +140,38 @@ test('the defaults are the ones the pre-registered replay chose (eval/watch-repl
   assert.equal(WATCH_DEFAULTS.detector, 'bocpd');
   assert.equal(WATCH_DEFAULTS.confirm, 5);
 });
+
+// Sticky noise: AR(1) 0.8 with marginal sd 1 (innovation sd 0.6), as in eval/watch-replay.mjs --round3.
+function ar1Series(n, seed, at = -1, size = 0) { const g = gauss(lcg(seed)); let e = 0; return Array.from({ length: n }, (_, i) => (at >= 0 && i >= at ? size : 0) + (e = 0.8 * e + 0.6 * g())); }
+
+test('bocpd-ar1: quiet on sticky noise with no change, where the default finds several', () => {
+  for (const seed of [1, 2, 4, 5]) {
+    const values = ar1Series(300, seed);
+    const labels = values.map((_, i) => String(i + 1));
+    assert.ok(detectChanges(values, labels).length >= 4, `seed ${seed}: default`);
+    assert.deepEqual(detectChanges(values, labels, { detector: 'bocpd-ar1' }), [], `seed ${seed}`);
+  }
+});
+
+test('bocpd-ar1: a 6-sd step in sticky noise is reported once, with no false alerts before it', () => {
+  const values = ar1Series(260, 101, 200, 6);
+  const labels = values.map((_, i) => String(i + 1));
+  let state = emptyState(), reports = [];
+  for (let n = 100; n <= values.length; n++) {
+    const r = advance(state, detectChanges(values.slice(0, n), labels.slice(0, n), { detector: 'bocpd-ar1' }), n, labels.slice(0, n));
+    for (const a of r.alerts) reports.push(a.index);
+    state = r.state;
+  }
+  assert.deepEqual(reports, [200]);
+});
+
+test('--detector bocpd-ar1 runs from the CLI and refuses the count and volatility models', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'watch-ar1-'));
+  const f = join(dir, 'm.csv');
+  writeFileSync(f, csvOf(ar1Series(260, 101, 200, 6)));
+  let text = '';
+  assert.equal(await main([f, '--dry-run', '--alert-history', '--detector', 'bocpd-ar1'], { out: (s) => { text += s; } }), 0);
+  assert.match(text, /New change:\n {2}orders changed from 2026-07-20: level up/);
+  await assert.rejects(main([f, '--dry-run', '--detector', 'bocpd-ar1', '--model', 'poisson']), /level model/);
+  await assert.rejects(main([f, '--dry-run', '--detector', 'nope']), /bocpd-ar1/);
+});
