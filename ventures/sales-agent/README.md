@@ -188,7 +188,7 @@ Enron label so far came from agents of one model family. `eval/model-reader.mjs`
 `READER.md` to any local or hosted OpenAI-compatible model and labels the same stops. Llama
 3.1 8B (CPU, no key) agreed with the agent reader on 54-76% of 298 stops, against 81%
 between two agent readers, and its disagreements lean toward the rules: on 160 stops the
-agent called `none`, it agreed with the rules on 74. So it can't check them. Where the two
+agent called `none`, it agreed with the rules on 74. Qwen2.5 7B, on one half, did better (66-74%) but leaned the same way. So neither can check them. Where the two
 families do agree a stop is wrong (12 of 56 on the eighth half), the faults are plain ("not
 interested in climbing a mountain"); one, "these dates don't work for him", is now vetoed.
 Details: [`eval/README.md`](eval/README.md), "A third reader from another model family".

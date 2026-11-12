@@ -723,6 +723,9 @@ Every answer parsed as a label; it never answered `ambiguous` and twice answered
 | `5*`: agent reader 1 vs agent reader 2 (107) | 87 (81%) | 89 | 0.71 |
 | `5*`: agent reader 1 vs Llama 8B | 58 (54%) | 67 | 0.39 |
 | `5*`: agent reader 2 vs Llama 8B | 65 (61%) | 75 | 0.49 |
+| `5*`: agent reader 1 vs Qwen2.5 7B | 71 (66%) | 79 | 0.52 |
+| `5*`: agent reader 2 vs Qwen2.5 7B | 79 (74%) | 85 | 0.64 |
+| `5*`: Llama 8B vs Qwen2.5 7B | 70 (65%) | 79 | 0.56 |
 | `6*`: agent reader vs Llama 8B (101) | 64 (63%) | 69 | 0.52 |
 | `7*`: agent reader vs Llama 8B (90) | 68 (76%) | 73 | 0.68 |
 
@@ -731,6 +734,12 @@ Every answer parsed as a label; it never answered `ambiguous` and twice answered
 vetoing. Over the three halves the agent reader called 160 of the stops `none`; Llama gave 74 of those (46%) the category
 the rules fired, and called 79 `none`. On the 128 the agent reader called right, Llama agreed 111 times (87%). A reader that
 falls for the same surface cues as the rules is not an independent check: it makes the rules look better than they are.
+
+**A second small model, to tell the family from the size.** Qwen2.5-7B-Instruct (Q4_K_M, same server and brief) on the
+same 107 `5*` stops (`enron-labels/sixth-qwen.json`): closer to the agent readers than Llama (66% and 74%, kappa 0.52 and
+0.64) and the only small model that used `ambiguous` (5 times), but still under the 81% the agent readers reach with each
+other. Of the 68 `5*` stops the first agent reader called `none`, Qwen sided with the rules on 25 and Llama on 36. Two 7-8B
+models from two more families both lean the same way, so the lean looks like a small-model trait, not one family's.
 
 | Wrong silent stops on today's rules, per 1,000 `RE:` replies | Agent reader 1 | Agent reader 2 | Llama 8B |
 |---|---|---|---|
@@ -754,7 +763,7 @@ scheduling ("Lay asked me to let you know that these dates don't work for him, e
 catches unchanged. `7*` is a read half, so this is tuning, not a score: wrong silent stops there go 17 to 15 under the agent
 reader.
 
-**What it means.** A small local model can't stand in for a second reader on this task: it agrees with the agent reader
+**What it means.** A 7-8B local model can't stand in for a second reader on this task: it agrees with the agent reader
 less than the two agent readers agree with each other, and its errors lean toward the rules. The agent-reader figures stay
 the reference. A person reading `READER.md`, or a larger model from another family, is still the missing second reader;
 `model-reader.mjs` runs either (a hosted one with `LLM_BASE_URL`/`LLM_API_KEY` on any OpenAI-compatible endpoint).
