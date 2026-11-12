@@ -62,7 +62,7 @@ if __name__ == "__main__":
         s = test_scores(x)
         rows.append((name, [round(float(v), 3) for v in x], T.score(x, NOMINAL, builds=1), s.mean(), np.percentile(s, 5), s.min()))
 
-    lines = [f"{N_DESIGNS} random feasible designs, nominal world (codesign-agri's 600 fruit, no tolerance) vs {N_TEST} held-out shifted worlds, 3 printed copies per design per world.", "",
+    lines = [f"{N_DESIGNS} random feasible designs, nominal world (one 600-fruit draw at codesign-agri's nominal parameters, seed 1000, no tolerance) vs {N_TEST} held-out shifted worlds, 3 printed copies per design per world.", "",
              f"Spearman rank correlation, nominal J vs mean J over worlds: {rho_mean:.3f}",
              f"Per-world Spearman: median {np.median(per_world):.3f}, min {min(per_world):.3f}, max {max(per_world):.3f}",
              f"Share of the nominal top 10% that is still in a world's top 10%: median {np.median(top_in_top):.2f}, min {min(top_in_top):.2f}",
