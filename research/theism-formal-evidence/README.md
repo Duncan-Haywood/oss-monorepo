@@ -114,18 +114,27 @@ individuals.
 Anderson's essence-based A5' with A5₀, "the property *exists at every world* is positive", every
 God-like individual of every model exists at every world, for any algebra and any domains (Lean 4,
 `lean/TheismFormal/Plain.lean`; the proof uses only A2 and A5₀). Plain necessary existence implies
-Anderson's, and in all 17,440 frames searched every A5₀ model also satisfies A5': 2,516 of E13's
-3,638 models survive, and the 1,122 lost include all 580 de re failures. So the step from
-"necessarily something God-like exists" to "a God-like being exists necessarily" costs either a
-property space that separates individuals or a premise stronger than Anderson's.
+Anderson's, and in all 17,440 frames searched (up to 6 cells) every A5₀ model also satisfies A5':
+2,516 of E13's 3,638 models survive, and the 1,122 lost include all 580 de re failures. So the
+step from "necessarily something God-like exists" to "a God-like being exists necessarily" costs
+either a property space that separates individuals or a different premise from Anderson's.
+
+**M2 (part), A5₀ does not imply A5' (E15, 2026-11-12).** E14 conjectured that every A5₀ model
+satisfies Anderson's A5'. It is false: an exact census finds 4,608 of 57,413 A5₀ models at
+2 worlds x 4 individuals and 11,520 of 160,645 at 3 x 3 where A5' fails (none at 4 x 2, as
+predicted). The smallest has 8 cells and 3 blocks with every individual existing somewhere,
+proved in Lean 4 (`lean/TheismFormal/Closure.lean`, `cm8`). The reason, also proved: given A1 and
+A5₀, A5' holds exactly when Anderson's necessary existents' cells form a property
+(`a5a_iff_closed`), which full property semantics guarantees and a coarse algebra need not. So the
+two necessary-existence axioms are independent, not nested; A5₀'s de re result stands.
 
 ## Layout
 
 - `src/logic.py`: decision procedures (S5 exact, K/T/B/S4 by certified countermodels, monadic first-order exact), minimal inconsistent and maximal consistent subsets.
 - `src/arguments.py`: the 11 arguments, each with its published source.
 - `src/ledger.py`, `src/bayes.py`: hypotheses, priors, the 13 evidence items, and the posterior arithmetic.
-- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) and E14's plain-necessity ones (`TheismFormal/Plain.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
-- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`: these regenerate `results.md` and `results.json`.
+- `lean/`: Lean 4 (core library only) theorems for every argument, the B/T frame results, the S4 countermodel, and E10's and E11's theorems on Anderson's emendation (`TheismFormal/Anderson.lean`) E12's varying-domain theorems (`TheismFormal/Varying.lean`) E13's actualist ones (`TheismFormal/Actualist.lean`) E14's plain-necessity ones (`TheismFormal/Plain.lean`) and E15's closure condition and 8-cell countermodel (`TheismFormal/Closure.lean`). `lean/build.sh` fetches the pinned toolchain if needed, builds, and prints each headline theorem's axioms.
+- `experiments/e1_arguments/run.py`, `experiments/e2_ledger/run.py`, `experiments/e3_leave_one_out/run.py`, `experiments/e4_godel_scott/run.py`, `experiments/e5_shared_cause/run.py`, `experiments/e6_shermer_check/run.py`, `experiments/e7_anderson/run.py`, `experiments/e8_restricted/run.py`, `experiments/e9_restricted_larger/run.py`, `experiments/e10_theorem/run.py`, `experiments/e11_anderson_a2/run.py`, `experiments/e12_varying_domains/run.py`, `experiments/e13_actualist_necessity/run.py`, `experiments/e14_plain_necessity/run.py`, `experiments/e15_a5z_not_a5/run.py`: these regenerate `results.md` and `results.json`.
 - `test_theism.py`: 23 tests (textbook modal axioms per system, genuine countermodels, the church positions, Unwin's reproduction, posterior identities). Stdlib only: `python3 test_theism.py`.
 
 ## Run
@@ -143,6 +152,7 @@ python3 research/theism-formal-evidence/experiments/e11_anderson_a2/run.py   # a
 python3 research/theism-formal-evidence/experiments/e12_varying_domains/run.py   # about 2 min
 python3 research/theism-formal-evidence/experiments/e13_actualist_necessity/run.py   # about 4 min
 python3 research/theism-formal-evidence/experiments/e14_plain_necessity/run.py   # about 2 min
+python3 research/theism-formal-evidence/experiments/e15_a5z_not_a5/run.py --3x3   # about 30 s
 research/theism-formal-evidence/lean/build.sh   # downloads Lean 4.15.0 (~250 MB) if lake is not on PATH; needs zstd
 ```
 

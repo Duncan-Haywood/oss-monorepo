@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKtJEpb2EPmzL31Bcu",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T23:07:12Z",
+  "ended": "2026-11-12T01:33:21Z",
+  "wall_minutes": 146.46,
+  "tokens_in": 7355110,
+  "tokens_out": 29446,
+  "cost_usd": 3.7219,
+  "tool_calls": 63,
+  "task": "build-data session 75: per-class decomposition of the cascade2 i2c q0.9 transfer penalty, tail_check, and the 2023 paired run (Q4)",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14919",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First attempt ran three transfer.py jobs in parallel; boosted.fit_predict hardcodes num_threads=4, so 12 OpenMP threads on 4 cores stalled all three for 100 minutes (OMP_NUM_THREADS ignored). Killed and reran sequentially: 5 to 8 minutes each."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says multiprocess BLAS work needs OMP_NUM_THREADS=1, but build-data's LightGBM sets num_threads=4 in code, so the env var does nothing; parallel transfer runs oversubscribe badly. The build-data LOG now records this; session 74's 'half speed' was probably the same cause."
+    },
+    {
+      "file": "research/build-data/LOG.md",
+      "issue": "Session 74 recorded the pull as ~15 min; this session's took 21 min at ~110k rows/min. Fine, but the 'feeds unchanged' assumption behind R3 did not hold, since every count grew."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 2 (land open research PRs first) was not swept beyond pick_track's claim check of 90 open PRs for this programme",
+      "did": "relied on pick_track CLAIM CHECK",
+      "result": "no conflicting build-data PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-build-data-demolition-tail.md",
+    "research/build-data/LOG.md (session 75)",
+    "research/build-data/paper/paper.md (4.4b paragraph)"
+  ],
+  "goal": null,
+  "notes": "Predictions R1 to R3 and Q4 committed before the runs (first commit). R1 refuted the other way round (Seattle's new-construction completion tail is longer, ratio 0.74 [0.72, 0.77]); R2 refuted (demolition carries 56% of the 2024 i2c q0.9 penalty, new construction 14%); R3 untestable (feeds changed); Q4 held (2023 a2i q0.9 -5.6 days [-6.5, -4.6]); the 2024 i2c q0.9 cost does not repeat in 2023 (interval spans zero). Checks: build-data tests 91 passed, 2 skipped (python3.13); research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post frontmatter/links/similarity ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e7766c8e-7740-5980-9ea1-161d9ab1515c",
+    "transcripts": 1,
+    "first": "2026-11-11T23:07:12Z",
+    "last": "2026-11-12T01:33:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 135,
+        "output": 29446,
+        "thinking": 6232,
+        "cache_read": 7141966,
+        "cache_write_5m": 0,
+        "cache_write_1h": 213009,
+        "api_equivalent_usd": 3.7219,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 135,
+      "output": 29446,
+      "thinking": 6232,
+      "cache_read": 7141966,
+      "cache_write_5m": 0,
+      "cache_write_1h": 213009,
+      "api_equivalent_usd": 3.7219,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 59,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 146.46,
+      "active_minutes": 14.32,
+      "model_minutes": 6.17,
+      "tool_minutes": 8.14,
+      "waiting_on_human_minutes": 132.14,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "data pull, two scripts with tests, three model runs, analysis and write-up for a research engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 161.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

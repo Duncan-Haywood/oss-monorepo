@@ -83,6 +83,10 @@ class Paired(unittest.TestCase):
         # the work type sets the lag here, so knowing it must cut the median loss, CI below zero
         self.assertLess(pr["transfer"]["0.5"]["hi"], 0)
         self.assertLess(pr["own_boosted"]["0.5"]["hi"], 0)
+        # session 75: per-class contributions add up to the overall difference
+        bc = pr["by_class"]["transfer"]["0.5"]
+        self.assertAlmostEqual(sum(v["contribution"] for v in bc.values()), pr["transfer"]["0.5"]["diff"])
+        self.assertEqual(sum(v["n"] for v in bc.values()), pr["n_test"])
 
     def test_different_test_rows_are_refused(self):
         ft = self.frames("type")
