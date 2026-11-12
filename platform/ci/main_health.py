@@ -5,7 +5,8 @@ A live fault on main (a check CI runs that is already red) is the best target
 for a run with no open backlog item; `promptctl.py measure` friction text mixes
 fixed and live items, this does not. Checks that need a built site
 (check_pages_links.py, and check_built_site.py unless `_site/` exists) are skipped; `prompts/promptctl.py validate` and `propose_seo_titles.py --check` are included
-(runs keep hitting it red by hand). Takes 40 s to 3 min, so start it with
+(runs keep hitting it red by hand). About 18 s on an idle 4-core container since
+check_js_syntax.py stopped starting one node per file (2026-11-12; ~76 s before), minutes under load, so start it with
 `run_in_background`; prints one line per check as it finishes and a final DONE line
 (so `wait_for.py out.log` works on it); exit 1 if any check fails.
 
