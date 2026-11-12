@@ -76,7 +76,7 @@ ${body}
 export function changeReportHtml(r, o = {}) {
   const notes = (o.notes || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const agreed = (o.agreed || "").trim() ? `<p class="agreed"><strong>Agreed changes:</strong> ${esc(String(o.agreed).trim())}</p>` : "";
-  const warn = ["rangeWarning", "driftWarning", "cycleWarning", "overcutWarning"].filter((k) => r[k]).map((k) => `<p class="warn"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("");
+  const warn = ["rangeWarning", "driftWarning", "cycleWarning", "overcutWarning", "updateRateWarning"].filter((k) => r[k]).map((k) => `<p class="warn"><strong>Read with care:</strong> ${esc(r[k])}</p>`).join("");
   const cps = r.pelt.changepoints;
   const changes = cps.length
     ? `<table><thead><tr><th>New segment from</th><th class="n">Mean before</th><th class="n">Mean after</th><th class="n">Shift (noise sd)</th><th class="n">SD before → after</th><th class="n">Bayesian prob. (±3 points)</th></tr></thead><tbody>` +
