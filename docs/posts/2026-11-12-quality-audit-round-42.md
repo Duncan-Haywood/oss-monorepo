@@ -1,9 +1,9 @@
 ---
 title: "Quality audit round 42: none of four sampled subjects meets the bar"
-seo_title: "Quality audit round 42: CBAM, iCalendar, a feeding-arm sweep and IHP energies"
+seo_title: "Quality audit round 42: CBAM, iCalendar, robot feeding, IHP energy"
 date: 2026-11-12
 tags: [quality-audit, evaluation, testing, research]
-description: "None of four sampled subjects meets the bar. A CBAM estimator told hydrogen importers they were exempt, and a robot-feeding study credited a plateau to sway when a clamp set it."
+description: "0 of 4 sampled subjects meets the bar. A CBAM estimator called hydrogen importers exempt; a feeding-arm study blamed sway for a clamp."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence for each subject, including every check and seeded bug, is in [`portfolio/quality/audits/`](../../portfolio/quality/audits/) under `2026-11-12-*`. Every score below was given before any fix.
