@@ -216,9 +216,11 @@ flagships:
       proxies, cull, RAW previews; DNG developer with DNG-spec colour, DCP
       tables, tone curves, triple-illuminant profiles and the default tone
       curve; numpy engine and native lossless-JPEG Huffman reader; Canon CR2
-      developed directly with a `.dcp`, eval/cr2-direct-2026-11-12.md).
-      Next, most valuable first: CR2 in the pipeline's grade stage (a
-      per-camera `.dcp` setting; `shootflow develop` already reads CR2), and
+      developed directly with a `.dcp`, eval/cr2-direct-2026-11-12.md; CR2 in
+      the pipeline's grade stage with per-camera profiles from
+      color/camera-profiles/, eval/cr2-pipeline-grade-2026-11-12.md).
+      Next, most valuable first: a real Adobe `.dcp` through the profile
+      chooser (its Adobe Standard rule is tested on synthetic profiles only),
       real CR2s from other Canon bodies (other ColorData versions, the
       per-model white level); a real DNG 1.6 three-light
       profile or DNG, and the SDK's own triple weights on a grid of whites

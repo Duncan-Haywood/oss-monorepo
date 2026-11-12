@@ -26,8 +26,9 @@ from shootflow.ffmpeg_media import (
 from shootflow.faces import FaceReport, detect_faces
 from shootflow.frame_analysis import FrameMetrics, analyze_media
 from shootflow.production import ProductionJob, ProductionPlan
-from shootflow.raw_develop import DevelopError, develop_file, still_for_review
-from shootflow.raw_preview import is_dng_path, is_raw_path
+from shootflow.camera_profiles import CAMERA_PROFILES_DIR, profile_for
+from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file, still_for_review
+from shootflow.raw_preview import is_cr2_path, is_developable_path, is_raw_path
 from shootflow.production_status import (
     ProductionJobStatus,
     ProductionStatusError,
@@ -1188,7 +1189,11 @@ def _materialize_ffmpeg_grade_production_outputs(
     a scratch directory (``raw_develop.develop_file``: linearization, black and
     white levels, as-shot white balance, camera matrix, BaselineExposure,
     orientation), and that TIFF is graded into ``graded/<job>/<name>.dng.tif``.
-    Other RAW formats stop here with a message naming the DNG route.
+    A Canon CR2 is developed the same way with its camera's ``.dcp`` profile
+    from the workspace's ``color/camera-profiles/`` (``camera_profiles``: by
+    file name, then by the profile's own camera tag, then Adobe Standard);
+    with no profile for its camera it stops here naming the folder. Other RAW
+    formats stop here with a message naming the DNG route.
     """
 
     _validate_grade_action_shape(action, expected_adapter=_FFMPEG_GRADE_PRODUCTION_ADAPTER)
@@ -1198,9 +1203,9 @@ def _materialize_ffmpeg_grade_production_outputs(
     source_path = _ffmpeg_source_path(
         root, action.inputs[0], label="grade production source input", allow_raw=True
     )
-    if is_raw_path(source_path) and not is_dng_path(source_path):
+    if is_raw_path(source_path) and not is_developable_path(source_path):
         raise ProductionAdapterError(
-            f"{source_path.name}: only DNG raw files are developed for grading; convert "
+            f"{source_path.name}: only DNG and Canon CR2 raw files are developed for grading; convert "
             f"{source_path.suffix.upper().lstrip('.')} to DNG (Adobe's free DNG Converter) and ingest the DNG"
         )
     _verify_grade_dependency_outputs(root, action=action, trusted_plan=trusted_plan)
@@ -1216,10 +1221,13 @@ def _materialize_ffmpeg_grade_production_outputs(
             lut_path = SHOOT_LOOK_LUT_PATH
         tools = find_ffmpeg_tools()
         with tempfile.TemporaryDirectory(prefix="shootflow-develop-") as scratch:
-            if review_source is None and is_dng_path(source_path):
+            if review_source is None and is_developable_path(source_path):
                 developed = Path(scratch) / "developed.tif"
                 try:
-                    develop_file(source_path, developed)
+                    settings = None
+                    if is_cr2_path(source_path):
+                        settings = DevelopSettings(dcp=_camera_profile(root, source_path).profile)
+                    develop_file(source_path, developed, settings)
                 except (DevelopError, OSError, ValueError) as exc:
                     raise ProductionAdapterError(f"could not develop {source_path.name}: {exc}") from exc
                 source_path = developed
@@ -1241,6 +1249,16 @@ def _materialize_ffmpeg_grade_production_outputs(
     except FfmpegMediaError as exc:
         raise ProductionAdapterError(str(exc)) from exc
     return tuple(materialized)
+
+
+def _camera_profile(root: Path, source_path: Path):
+    """The CR2's camera profile from ``color/camera-profiles/`` (no symlinks on the way)."""
+
+    directory = root / CAMERA_PROFILES_DIR
+    for part in (root / Path(CAMERA_PROFILES_DIR).parts[0], directory):
+        if part.is_symlink():
+            raise DevelopError(f"{part.relative_to(root)} is a symlink; camera profiles must live in the workspace")
+    return profile_for(source_path, directory)
 
 
 def grade_scope() -> str:
@@ -1497,7 +1515,7 @@ def _validate_grade_action_shape(
         raise ProductionAdapterError("Grade production adapter requires exactly one graded output")
     output_path = Path(action.outputs[0])
     expected_name = Path(action.inputs[0]).name
-    if action.output_kind == "graded_photo" and is_dng_path(Path(expected_name)):
+    if action.output_kind == "graded_photo" and is_developable_path(Path(expected_name)):
         expected_name += ".tif"
     if (
         len(output_path.parts) != 3
