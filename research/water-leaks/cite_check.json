@@ -1,0 +1,58 @@
+{
+ "arxiv:2512.15685": {
+  "checked": "2026-11-12",
+  "title": "A Multivariate Statistical Framework for Detection, Classification and Pre-localization of Anomalies in Water Distribution Networks (2025)"
+ },
+ "doi:10.1016/j.envsoft.2017.06.022": {
+  "checked": "2026-11-12",
+  "title": "A software framework for assessing the resilience of drinking water systems to disasters with an example earthquake case study (2017)"
+ },
+ "doi:10.1016/j.wroa.2024.100280": {
+  "checked": "2026-11-12",
+  "title": "Leak detection and localization in water distribution systems via multilayer networks (2025)"
+ },
+ "doi:10.1061/(ASCE)WR.1943-5452.0001515": {
+  "checked": "2026-11-12",
+  "title": "Pressure-Leak Duality for Leak Detection and Localization in Water Distribution Systems (2022)"
+ },
+ "doi:10.1061/(ASCE)WR.1943-5452.0001535": {
+  "checked": "2026-11-12",
+  "title": "A Sequential Pressure-Based Algorithm for Data-Driven Leakage Identification and Model-Based Localization in Water Distribution Networks (2022)"
+ },
+ "doi:10.1061/(ASCE)WR.1943-5452.0001542": {
+  "checked": "2026-11-12",
+  "title": "Leak Localization in Water Distribution Networks Using Data-Driven and Model-Based Approaches (2022)"
+ },
+ "doi:10.1061/(ASCE)WR.1943-5452.0001601": {
+  "checked": "2026-11-12",
+  "title": "Battle of the Leakage Detection and Isolation Methods (2022)"
+ },
+ "doi:10.1080/01621459.2012.737745": {
+  "checked": "2026-11-12",
+  "title": "Optimal Detection of Changepoints With a Linear Computational Cost (2012)"
+ },
+ "doi:10.1080/1573062X.2017.1279191": {
+  "checked": "2026-11-12",
+  "title": "A review of data-driven approaches for burst detection in water distribution systems (2017)"
+ },
+ "doi:10.1093/biomet/41.1-2.100": {
+  "checked": "2026-11-12",
+  "title": "CONTINUOUS INSPECTION SCHEMES (1954)"
+ },
+ "doi:10.1109/CCTA49430.2022.9966160": {
+  "checked": "2026-11-12",
+  "title": "Data-driven Leak Localization in Water Distribution Networks via Dictionary Learning and Graph-based Interpolation (2022)"
+ },
+ "doi:10.1214/23-STS894": {
+  "checked": "2026-11-12",
+  "title": "Game-Theoretic Statistics and Safe Anytime-Valid Inference (2023)"
+ },
+ "doi:10.2166/ws.2021.101": {
+  "checked": "2026-11-12",
+  "title": "Review of model-based and data-driven approaches for leak detection and location in water distribution systems (2021)"
+ },
+ "doi:10.5281/zenodo.4017659": {
+  "checked": "2026-11-12",
+  "title": "Dataset of BattLeDIM: Battle of the Leakage Detection and Isolation Methods (2020)"
+ }
+}
