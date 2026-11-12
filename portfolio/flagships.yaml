@@ -106,10 +106,10 @@ flagships:
       `eval/model-reader.mjs`, scored for agreement with the agent readers before its
       labels count. Without a model host: (6) call outcomes, later-step
       shift and holiday-aware retries landed 2026-11-12 (README "A late call moves the
-      rest of the cadence"); next on that queue: a HOLIDAYS field on the self-host page and
-      the static page's Today's queue (the page has no call outcomes yet: port the
-      Spoke/Voicemail/No answer buttons to index.html, kept in localStorage), and a
-      per-country holiday preset (CA, GB) checked against each government's own list.
+      rest of the cadence"); the static page's Today's queue got the call buttons, a days-off
+      box and localStorage the same day (README "Call outcomes on the page itself");
+      next on that queue: a HOLIDAYS field on the self-host page, and a per-country
+      holiday preset (CA, GB) checked against each government's own list.
     why: >-
       An AI sales agent built in stages with a person approving every outbound message; composes icp-lens,
       sales-cadence-builder, sales-call-notes-desk and deal-keeper as its tools. The hard problems are reading
