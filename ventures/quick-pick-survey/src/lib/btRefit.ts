@@ -186,3 +186,189 @@ export function differenceSd(fit: RefitResult, a: string, b: string): number {
   const v = fit.cov[i * n + i] + fit.cov[j * n + j] - 2 * fit.cov[i * n + j];
   return Math.sqrt(Math.max(v, 0));
 }
+
+/**
+ * Laplace approximation of the log marginal likelihood (the evidence) of the
+ * answers under prior sd `priorPhi`: log p(y | mu*) - |mu*|^2 / (2 phi^2) -
+ * n log phi - log det(H) / 2 (the 2 pi terms of prior and approximation
+ * cancel), with mu* the posterior mode and H the negative Hessian there. Items in no answer
+ * add exactly zero (mode 0, H = 1/phi^2 on their diagonal).
+ */
+export function refitEvidence(ids: readonly string[], answers: readonly RefitAnswer[], priorPhi: number): number {
+  const fit = refitRatings(ids, answers, { priorPhi });
+  const n = ids.length;
+  const index = new Map(ids.map((id, i) => [id, i]));
+  let s = 0;
+  for (const { winner, loser, tie } of answers) {
+    const d = fit.mu[index.get(winner)!] - fit.mu[index.get(loser)!];
+    const score = tie ? 0.5 : 1;
+    s -= score * Math.log1p(Math.exp(-d)) + (1 - score) * Math.log1p(Math.exp(d));
+  }
+  for (const m of fit.mu) s -= (0.5 * m * m) / (priorPhi * priorPhi);
+  s -= n * Math.log(priorPhi);
+  // log det H = -log det cov; the Cholesky factor of cov gives it stably.
+  let logDetCov = 0;
+  const l = cholesky(fit.cov, n);
+  for (let i = 0; i < n; i++) logDetCov += 2 * Math.log(l[i * n + i]);
+  return s + 0.5 * logDetCov;
+}
+
+function mulberry32(seed: number) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/** Draws for the sampled evidence: relative standard error of the estimate under 0.05 on 15 items x 4 answers each (scripts/eb-laplace-check.ts). */
+export const EVIDENCE_DRAWS = 2000;
+
+/**
+ * Importance-sampled log marginal likelihood, on the same scale as
+ * refitEvidence (both estimate log p(y | phi) itself): draws from the Laplace posterior with its
+ * covariance inflated 1.1^2 (wider proposals multiply the weights' variance
+ * per item: at 30 items 1.5 gave an sd of 0.3 in the log evidence, 1.1 gives 0.02), weighted by likelihood x prior / proposal. Seeded
+ * (the same seed for every phi, so a search over phi sees smooth noise), so
+ * the same answers always give the same number.
+ *
+ * Why it exists (docs/INFORMATION-GAIN-SELECTOR.md, "An empirical-Bayes
+ * prior"): the Laplace evidence is biased toward a small prior sd when the
+ * pairs were chosen to be close. Under the staged selector it peaks at 0.3 to
+ * 0.45 where the sampled evidence peaks at 1.2 (true spread 1.155); under the
+ * shipped selector the two agree (1.0).
+ */
+export function sampledEvidence(ids: readonly string[], answers: readonly RefitAnswer[], priorPhi: number, { draws = EVIDENCE_DRAWS, seed = 0xe71d, inflate = 1.1 } = {}): number {
+  const n = ids.length;
+  const index = new Map(ids.map((id, i) => [id, i]));
+  const fit = refitRatings(ids, answers, { priorPhi });
+  // Answers grouped by ordered pair: wins of the first item, ties, as counts, so a repeated pair costs one term.
+  const pairCounts = new Map<number, { a: number; b: number; wins: number; losses: number; ties: number }>();
+  for (const { winner, loser, tie } of answers) {
+    const w = index.get(winner)!, lo = index.get(loser)!;
+    const [a, b] = w < lo ? [w, lo] : [lo, w];
+    const key = a * n + b;
+    const c = pairCounts.get(key) ?? { a, b, wins: 0, losses: 0, ties: 0 };
+    if (tie) c.ties++;
+    else if (w === a) c.wins++;
+    else c.losses++;
+    pairCounts.set(key, c);
+  }
+  const pairs = [...pairCounts.values()];
+  const pa = Int32Array.from(pairs, (c) => c.a), pb = Int32Array.from(pairs, (c) => c.b);
+  // log p(a beats b) = -softplus(-d), log p(b beats a) = -softplus(d); a tie is half of each.
+  const winW = Float64Array.from(pairs, (c) => c.wins + 0.5 * c.ties), lossW = Float64Array.from(pairs, (c) => c.losses + 0.5 * c.ties);
+  const scaled = fit.cov.map((v) => inflate * inflate * v);
+  const l = cholesky(scaled, n);
+  let logDetL = 0;
+  for (let i = 0; i < n; i++) logDetL += Math.log(l[i * n + i]);
+  const rand = mulberry32(seed);
+  const z = new Float64Array(n), x = new Float64Array(n);
+  const logw = new Float64Array(draws);
+  const prec = 1 / (priorPhi * priorPhi);
+  const nLogPhi = n * Math.log(priorPhi);
+  for (let d = 0; d < draws; d++) {
+    for (let a = 0; a < n; a += 2) {
+      const u = 1 - rand(), v = rand();
+      const r = Math.sqrt(-2 * Math.log(u));
+      z[a] = r * Math.cos(2 * Math.PI * v);
+      if (a + 1 < n) z[a + 1] = r * Math.sin(2 * Math.PI * v);
+    }
+    let zz = 0, xx = 0;
+    for (let a = 0; a < n; a++) {
+      let s = fit.mu[a];
+      const row = a * n;
+      for (let b = 0; b <= a; b++) s += l[row + b] * z[b];
+      x[a] = s;
+      zz += z[a] * z[a];
+      xx += s * s;
+    }
+    let ll = 0;
+    for (let k = 0; k < pa.length; k++) {
+      const diff = x[pa[k]] - x[pb[k]];
+      // softplus(t) = max(t, 0) + log1p(exp(-|t|)); softplus(-d) = softplus(d) - d.
+      const sp = (diff > 0 ? diff : 0) + Math.log1p(Math.exp(-Math.abs(diff)));
+      ll -= winW[k] * (sp - diff) + lossW[k] * sp;
+    }
+    logw[d] = ll - 0.5 * prec * xx - nLogPhi + 0.5 * zz + logDetL;
+  }
+  let m = -Infinity;
+  for (const v of logw) if (v > m) m = v;
+  let sum = 0;
+  for (const v of logw) sum += Math.exp(v - m);
+  return m + Math.log(sum / draws);
+}
+
+/**
+ * Above this many answered items the insights route skips the empirical-Bayes
+ * prior and draws the favourite set from the fixed-prior refit (the search
+ * takes about 60 ms at 15 items and 4 answers each, 215 ms at 30 x 8, 600 ms
+ * at 60 x 8).
+ */
+export const EB_MAX_ITEMS = 40;
+
+/** Narrowest prior sd the empirical-Bayes search may pick (internal scale; 0.3 is about 52 rating points). */
+export const EB_PHI_MIN = 0.3;
+
+/**
+ * Empirical-Bayes prior sd for one respondent: the phi in [min, max] that
+ * maximises the evidence (sampledEvidence by default; refitEvidence, the
+ * Laplace form, with `evidence: "laplace"`), by golden-section search on
+ * log phi. The upper end defaults to REFIT_PRIOR_PHI, so the prior is never
+ * wider than the fixed one it replaces; the lower end stops the classic
+ * type-II failure where few, mixed answers drive the estimate to zero and make
+ * every interval falsely narrow.
+ *
+ * Why (docs/INFORMATION-GAIN-SELECTOR.md, "An empirical-Bayes prior"): with
+ * the fixed sd of 2.0 the favourite's credible set undercovers, because a
+ * prior wider than the person's real spread of likes shrinks the leader too
+ * little (a winner's curse on a maximum over many items).
+ */
+export type EvidenceMethod = "laplace" | "sampled";
+
+export function empiricalPriorPhi(ids: readonly string[], answers: readonly RefitAnswer[], options: { min?: number; max?: number; steps?: number; evidence?: EvidenceMethod } = {}): number {
+  return pooledPriorPhi([{ ids, answers }], options);
+}
+
+/**
+ * The same estimate from several respondents at once: the phi that maximises
+ * the sum of their evidences, i.e. one prior sd shared by everyone in
+ * a survey, each with their own scores. A single person's estimate is noisy
+ * (under the staged selector, whose close pairs say little about spread, a
+ * third of respondents hit the floor; docs/INFORMATION-GAIN-SELECTOR.md, "An
+ * empirical-Bayes prior"); pooling over a survey's respondents is the
+ * hierarchical fix.
+ */
+export function pooledPriorPhi(people: readonly { ids: readonly string[]; answers: readonly RefitAnswer[] }[], { min = EB_PHI_MIN, max = REFIT_PRIOR_PHI, steps = 8, evidence = "sampled" as EvidenceMethod } = {}): number {
+  if (!(min > 0 && max >= min)) throw new RangeError("need 0 < min <= max");
+  const ev = evidence === "laplace" ? refitEvidence : sampledEvidence;
+  const used = people.filter((p) => p.answers.length > 0);
+  if (used.length === 0 || min === max) return max;
+  const cache = new Map<number, number>();
+  const f = (x: number) => {
+    let v = cache.get(x);
+    if (v === undefined) cache.set(x, (v = used.reduce((s, p) => s + ev(p.ids, p.answers, Math.exp(x)), 0)));
+    return v;
+  };
+  const g = (Math.sqrt(5) - 1) / 2;
+  let a = Math.log(min), b = Math.log(max);
+  let c = b - g * (b - a), d = a + g * (b - a);
+  let fc = f(c), fd = f(d);
+  for (let i = 0; i < steps; i++) {
+    if (fc >= fd) {
+      b = d; d = c; fd = fc;
+      c = b - g * (b - a); fc = f(c);
+    } else {
+      a = c; c = d; fc = fd;
+      d = a + g * (b - a); fd = f(d);
+    }
+  }
+  // The evidence can be monotone in phi; check the ends so a boundary optimum is returned exactly.
+  const mid = (a + b) / 2;
+  const candidates: [number, number][] = [[Math.log(min), f(Math.log(min))], [Math.log(max), f(Math.log(max))], [mid, f(mid)]];
+  candidates.sort((p, q) => q[1] - p[1]);
+  return Math.exp(candidates[0][0]);
+}
