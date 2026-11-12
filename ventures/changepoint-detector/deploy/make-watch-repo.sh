@@ -36,6 +36,10 @@ day. Made with the free [Changepoint Detector](https://marisstella.app/changepoi
 Try it locally: `node watch.mjs data/metric.csv --state watch-state.json` (Node 18+). `node watch.mjs --help`
 lists the options (counts, volatility, a weekly cycle, logs).
 
+How eager to be: `node watch.mjs data/metric.csv --suggest --alerts-per 1/month` replays your history once per
+setting and suggests the most eager one that would have stayed within about one alert a month. To have the
+first run pick it and later runs keep it, set `WATCH_OPTIONS` to `--detector auto --alerts-per 1/month`.
+
 Statistical analysis of data you supply, not advice. If this saves you time, you can support the
 creator: https://github.com/sponsors/Duncan-Haywood
 MD
