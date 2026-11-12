@@ -219,10 +219,16 @@ flagships:
       mired for the as-shot white, ForwardMatrix, CameraCalibration,
       AnalogBalance, AsShotWhiteXY; equal to colour-hdri on 2,000 random
       profiles and on a real Canon 350D DNG's tags (3584 K; old method up to
-      35 8-bit steps away). Next, most valuable first: a tungsten-lit colour
-      chart (real DNG, known patches) to say which colour model is closer to
-      the scene, and a camera- or Adobe-written DNG with ForwardMatrix; DNG
-      1.6 ColorMatrix3 and profile HueSatMap/LookTable; the grade-scope
+      35 8-bit steps away). Profile HueSatMap/LookTable and `--dcp` camera
+      profiles landed 2026-11-12 later (README "Camera profiles",
+      eval/dcp-tables-2026-11-12.md: 161 of 161 RawTherapee DCPs read, greys
+      exact, numpy byte-identical; real 5D Mark II frame with its DCP). Next,
+      most valuable first: ProfileToneCurve (dng_sdk's hue-preserving RGB
+      tone through its cubic spline; in 126 of 161 DCPs), BUILDABLE HERE
+      with the same RawTherapee DCPs; a tungsten-lit colour chart (real DNG,
+      known patches) to say which colour model is closer to the scene, and a
+      camera- or Adobe-written DNG with ForwardMatrix; DNG 1.6 ColorMatrix3
+      and triple-illuminant tables; the grade-scope
       saving on real 4K footage and a long shoot; the Huffman loop (~85% of
       lossless-JPEG decoding) in native code; reading CR2 directly (needs
       per-model colour matrices); a camera- or phone-written lossless-JPEG

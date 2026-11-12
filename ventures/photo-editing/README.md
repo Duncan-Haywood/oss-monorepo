@@ -1064,3 +1064,44 @@ How it was checked (`eval/dng-colour-2026-11-12.md`):
   profile, not which is closer to the scene: a real tungsten-lit chart with known colours is
   still wanted for that, as is a DNG with `ForwardMatrix` written by a camera or Adobe.
 
+## Camera profiles: hue/saturation maps, look tables and `.dcp` files (2026-11-12)
+
+The matrices are only half of a camera profile. Adobe's profiles, and the ones RawTherapee
+and dcamprof make, also carry a **hue/saturation map**: a grid over hue, saturation and
+(sometimes) brightness that nudges each colour's hue, saturation and value. Many also carry
+a **look table**, the same kind of grid applied after the exposure. These are what give a raw
+converter its colour rendering. The developer now applies both by default, in the DNG
+specification's order: camera to linear ProPhoto, the map (two maps blended for the as-shot
+light like the matrices), the exposure, the look table, then sRGB.
+
+```
+shootflow develop IMG_0001.dng --out masters/                          # tables embedded in the DNG
+shootflow develop IMG_0001.dng --out masters/ --dcp "Canon EOS 5D Mark II.dcp"   # your own camera profile
+shootflow develop IMG_0001.dng --out masters/ --no-profile-tables      # matrices only
+```
+
+`--dcp` reads a `.dcp` camera profile, the file Adobe DNG Converter installs and dcamprof and
+RawTherapee write. Its matrices, maps and look table replace the DNG's own. The camera's
+`AnalogBalance` and `CameraCalibration` still come from the DNG, as the specification says.
+A profile made for another camera model renders with a note. The JSON report's `profile` field
+names the profile and the tables it applied (`"Canon EOS 5D Mark II: HueSatMap 90x30x1"`).
+
+How it was checked (`eval/dcp-tables-2026-11-12.md`):
+
+- `tests/test_dng_profile_tables.py` (15 tests): the table code against a second
+  implementation built on the stdlib's `colorsys`, worst difference under 1e-9 on four table
+  shapes; known hue, saturation and value edits; the hue wrap; the sRGB-encoded value axis;
+  renders against the plain render edited by hand (within 0.004 linear); DCP and embedded
+  tags giving the same bytes; the numpy engine byte-identical to pure Python.
+- `tools/dcp_check.py` on all 161 profiles RawTherapee ships: every one reads, greys stay
+  exactly grey, and numpy matches pure Python on 2,000 colours per profile. A typical profile
+  turns saturated colours' hue by about 10 degrees and raises their saturation about 27%.
+  One shipped profile (FUJIFILM X-A7) has a +/-180 degree angle-wrap fault in its map.
+- On a real Canon 5D Mark II raw frame with its RawTherapee profile, the maps move 36% of
+  pixels by more than 5 8-bit steps. The two engines give identical bytes, and numpy takes
+  3.8 s at half size against 1.3 s without the tables.
+
+Not yet: the profile's tone curve (`ProfileToneCurve`, in 126 of the 161 profiles; the sRGB
+curve is used instead), DNG 1.6's third illuminant, and a comparison against Adobe's own
+render of the same profile.
+

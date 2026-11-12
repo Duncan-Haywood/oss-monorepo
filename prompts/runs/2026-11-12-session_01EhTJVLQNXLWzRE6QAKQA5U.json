@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLQNXLWzRE6QAKQA5U",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled ventures prompt)",
+  "input_sha256": "d762a1accf8636c1bad7e6783f6fd99fcd274a62640200fc7d1c9fd45e718568",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T03:56:05Z",
+  "ended": "2026-11-12T04:09:37Z",
+  "wall_minutes": 13.69,
+  "tokens_in": 8298740,
+  "tokens_out": 67097,
+  "cost_usd": 4.2901,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14994",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First patch script for dng_colour.py failed on nested triple quotes; redone with Edit and heredoc."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "tests/test_workspace_health.py::test_unreadable_render_input_is_reported_for_review fails whenever the suite runs as root (cloud containers run as uid 0, so chmod 000 does not block reads); nothing says to expect it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-what-a-camera-profile-does-to-colour.md",
+    "ventures/photo-editing/eval/dcp-tables-2026-11-12.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 7 photo-editing: ProfileHueSatMap/LookTable from DNG or .dcp (--dcp), numpy byte-identical. Checks: new 15 tests pass; full photo-editing suite 589 passed, 1 root-only failure (workspace_health unreadable file, unrelated); tools/dcp_check.py on 161 RawTherapee DCPs: 161 read, greys exact, 0 numpy mismatches; real Canon 5D II frame python==numpy bytes.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "776acabc-5734-50c4-a689-ab9f752f0df1",
+    "transcripts": 1,
+    "first": "2026-11-12T03:56:05Z",
+    "last": "2026-11-12T04:09:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 115,
+        "output": 67097,
+        "thinking": 19922,
+        "cache_read": 8133497,
+        "cache_write_5m": 0,
+        "cache_write_1h": 165128,
+        "api_equivalent_usd": 4.2901,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 115,
+      "output": 67097,
+      "thinking": 19922,
+      "cache_read": 8133497,
+      "cache_write_5m": 0,
+      "cache_write_1h": 165128,
+      "api_equivalent_usd": 4.2901,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 59,
+      "Edit": 2,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.69,
+      "active_minutes": 13.69,
+      "model_minutes": 11.26,
+      "tool_minutes": 2.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "spec reading plus implementing and testing DNG HueSatMap/LookTable, DCP reader and a real-profile survey, senior imaging engineer estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 373.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
