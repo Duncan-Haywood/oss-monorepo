@@ -233,6 +233,72 @@ class NearDuplicateGroupingTests(unittest.TestCase):
         grouped = group_near_duplicates([plain, video, other])
         self.assertEqual([item.scene_label for item in grouped], ["frame_a.jpg", "frame_b.mp4", "frame_c.jpg"])
 
+    def test_indexed_grouping_matches_the_all_pairs_scan(self) -> None:
+        # The grouping searches a pigeonhole index instead of comparing every
+        # pair; pin it against the plain all-pairs single-linkage it replaced,
+        # on burst-heavy shoots, a shoot of identical frames, distances right at
+        # the threshold and short hashes (fewer bits than index blocks).
+        def all_pairs(analyses: list[AssetAnalysis]) -> dict[str, str]:
+            hashed = sorted(
+                (item for item in analyses if item.perceptual_hash and item.media_type == "photo"),
+                key=lambda item: item.asset_path,
+            )
+            parent = list(range(len(hashed)))
+
+            def find(index: int) -> int:
+                while parent[index] != index:
+                    index = parent[index]
+                return index
+
+            for i in range(len(hashed)):
+                for j in range(i + 1, len(hashed)):
+                    if hamming_distance(hashed[i].perceptual_hash or "", hashed[j].perceptual_hash or "") <= 8:
+                        root_i, root_j = find(i), find(j)
+                        if root_i != root_j:
+                            parent[max(root_i, root_j)] = min(root_i, root_j)
+            labels = {item.asset_path: hashed[find(index)].scene_label for index, item in enumerate(hashed)}
+            return {item.asset_path: labels.get(item.asset_path, item.scene_label) for item in analyses}
+
+        def shoot(seed: int, count: int, *, digits: int = 16, burst: float = 0.5, flips: int = 10) -> list[AssetAnalysis]:
+            rng = random.Random(seed)
+            bits = digits * 4
+            assets: list[AssetAnalysis] = []
+            previous: int | None = None
+            for index in range(count):
+                if previous is not None and rng.random() < burst:
+                    value = previous
+                    for _ in range(rng.randint(0, flips)):
+                        value ^= 1 << rng.randrange(bits)
+                else:
+                    value = rng.getrandbits(bits)
+                previous = value
+                media = "video" if rng.random() < 0.05 else "photo"
+                phash = None if rng.random() < 0.05 else f"{value:0{digits}x}"
+                assets.append(self._asset(f"IMG_{index:04d}.JPG", phash, media))
+            rng.shuffle(assets)
+            return assets
+
+        cases = [shoot(seed, 300) for seed in range(6)]
+        cases.append(shoot(10, 200, burst=0.9, flips=3))
+        cases.append(shoot(11, 60, burst=1.0, flips=0))
+        cases.append(shoot(12, 120, digits=1, burst=0.3))
+        cases.append(shoot(13, 120, digits=2))
+        threshold = [
+            self._asset("t0.jpg", "0000000000000000"),
+            self._asset("t1.jpg", "00000000000001ff"),  # 9 bits: not close
+            self._asset("t2.jpg", "8040201008040201"),  # 8 bits spread one per byte
+            self._asset("t3.jpg", "ffffffffffffffff"),
+            self._asset("t4.jpg", "FFFFFFFFFFFFFF00"),  # upper case, 8 bits from t3
+        ]
+        cases.append(threshold)
+        for analyses in cases:
+            grouped = {item.asset_path: item.scene_label for item in group_near_duplicates(analyses)}
+            self.assertEqual(grouped, all_pairs(analyses))
+        grouped = {item.asset_path: item.scene_label for item in group_near_duplicates(threshold)}
+        self.assertEqual(grouped["graded/t1.jpg"], "frame_t1.jpg")
+        self.assertEqual(grouped["graded/t2.jpg"], "frame_t0.jpg")
+        self.assertEqual(grouped["graded/t4.jpg"], "frame_t3.jpg")
+
 
 @unittest.skipUnless(FFMPEG, "ffmpeg is required")
 class AnalyzeMediaTests(unittest.TestCase):

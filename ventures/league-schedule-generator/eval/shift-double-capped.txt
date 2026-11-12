@@ -1,0 +1,67 @@
+Home-and-away season, break weight 10, effort 1: carry-over / breaks (score = carry-over + 1000 x repeats + 10 x breaks), before -> now
+| Teams | Seed | Before | Now | Score | Start | Time before / now |
+|---|---|---|---|---|---|---|
+| 9 | 1 | 309 / 11 | 309 / 11 | unchanged | starter | 2.8 / 3.0 s |
+| 9 | 2 | 317 / 12 | 317 / 12 | unchanged | circle | 2.5 / 2.9 s |
+| 10 | 1 | 330 / 38 | 330 / 38 | unchanged | starter, shift venues | 1.7 / 2.3 s |
+| 10 | 2 | 408 / 26 | 408 / 26 | unchanged | circle | 1.8 / 2.3 s |
+| 11 | 1 | 497 / 23 | **481 / 22** | 727 -> 701 | shift starter, shift venues, capped | 2.0 / 3.2 s |
+| 11 | 2 | 509 / 21 | **505 / 19** | 719 -> 695 | shift starter, shift venues, capped | 2.0 / 3.2 s |
+| 12 | 1 | 602 / 40 | 602 / 40 | unchanged | weighted starter | 3.9 / 4.9 s |
+| 12 | 2 | 622 / 36 | 622 / 36 | unchanged | starter | 3.9 / 4.8 s |
+| 13 | 1 | 733 / 35 | **721 / 32** | 1,083 -> 1,041 | shift starter, shift venues, capped | 2.2 / 3.2 s |
+| 13 | 2 | 739 / 32 | **721 / 29** | 1,059 -> 1,011 | shift starter, shift venues, capped | 2.1 / 3.2 s |
+| 14 | 1 | 870 / 50 | 870 / 50 | unchanged | weighted starter | 3.2 / 4.5 s |
+| 14 | 2 | 834 / 50 | 834 / 50 | unchanged | starter | 3.3 / 4.4 s |
+| 15 | 1 | 795 / 67 | 795 / 67 | unchanged | field, mirror | 0.7 / 1.3 s |
+| 15 | 2 | 795 / 67 | 795 / 67 | unchanged | field, mirror | 0.7 / 1.3 s |
+| 16 | 1 | 912 / 56 | 912 / 56 | unchanged | -, mirror | 0.7 / 0.7 s |
+| 16 | 2 | 912 / 56 | 912 / 56 | unchanged | -, mirror | 0.7 / 0.7 s |
+| 17 | 1 | 1,285 / 65 | 1,285 / 65 | unchanged | shift starter, shift venues | 2.7 / 3.9 s |
+| 17 | 2 | 1,249 / 72 | 1,249 / 72 | unchanged | shift starter, shift venues | 2.7 / 3.9 s |
+| 18 | 1 | 1,316 / 98 | 1,316 / 98 | unchanged | weighted starter | 3.9 / 5.0 s |
+| 18 | 2 | 1,310 / 94 | 1,310 / 94 | unchanged | weighted starter | 3.9 / 5.1 s |
+| 19 | 1 | 1,311 / 87 | 1,311 / 87 | unchanged | starter, shift venues, mirror | 2.1 / 2.6 s |
+| 19 | 2 | 1,311 / 87 | 1,311 / 87 | unchanged | starter, shift venues, mirror | 2.1 / 2.6 s |
+| 20 | 1 | 1,460 / 116 | 1,460 / 116 | unchanged | starter, mirror | 2.5 / 2.9 s |
+| 20 | 2 | 1,460 / 120 | 1,460 / 120 | unchanged | starter, mirror | 2.5 / 2.8 s |
+| 21 | 1 | 1,937 / 97 | 1,937 / 97 | unchanged | shift starter, shift venues, mirror | 3.0 / 4.2 s |
+| 21 | 2 | 1,937 / 97 | 1,937 / 97 | unchanged | shift starter, shift venues, mirror | 3.1 / 4.2 s |
+| 22 | 1 | 1,782 / 144 | 1,782 / 144 | unchanged | starter, mirror | 3.3 / 4.5 s |
+| 22 | 2 | 1,782 / 146 | 1,782 / 146 | unchanged | starter, mirror | 3.4 / 4.7 s |
+| 23 | 1 | 2,189 / 109 | 2,189 / 109 | unchanged | starter, shift venues | 3.1 / 3.8 s |
+| 23 | 2 | 2,303 / 107 | 2,303 / 107 | unchanged | starter, shift venues, mirror | 3.1 / 3.9 s |
+| 24 | 1 | 2,224 / 152 | 2,224 / 152 | unchanged | starter, shift venues | 3.4 / 4.2 s |
+| 24 | 2 | 2,224 / 152 | 2,224 / 152 | unchanged | starter | 3.4 / 4.3 s |
+| 25 | 1 | 2,685 / 117 | 2,685 / 117 | unchanged | shift starter, shift venues | 6.6 / 8.9 s |
+| 25 | 2 | 2,717 / 117 | 2,717 / 117 | unchanged | shift starter, shift venues | 6.4 / 8.8 s |
+| 26 | 1 | 2,714 / 164 | 2,714 / 164 | unchanged | weighted starter | 6.1 / 7.9 s |
+| 26 | 2 | 2,714 / 164 | 2,714 / 164 | unchanged | weighted starter, shift venues | 6.1 / 7.6 s |
+| 27 | 1 | 3,359 / 148 | 3,359 / 148 | unchanged | shift starter, shift venues | 4.6 / 6.5 s |
+| 27 | 2 | 3,449 / 127 | 3,449 / 127 | unchanged | shift starter, shift venues | 4.7 / 6.5 s |
+| 28 | 1 | 3,564 / 176 | 3,564 / 176 | unchanged | weighted starter, shift venues | 7.2 / 8.9 s |
+| 28 | 2 | 3,564 / 176 | 3,564 / 176 | unchanged | weighted starter, shift venues | 7.0 / 8.7 s |
+| 29 | 1 | 3,951 / 165 | 3,951 / 165 | unchanged | shift starter, shift venues | 5.1 / 7.0 s |
+| 29 | 2 | 3,997 / 173 | 3,997 / 173 | unchanged | shift starter, shift venues | 4.9 / 7.1 s |
+| 30 | 1 | 3,950 / 194 | 3,950 / 194 | unchanged | weighted starter | 8.3 / 11.4 s |
+| 30 | 2 | 3,950 / 194 | 3,950 / 194 | unchanged | weighted starter | 8.2 / 11.7 s |
+| 31 | 1 | 4,341 / 161 | 4,341 / 161 | unchanged | field | 2.0 / 4.1 s |
+| 31 | 2 | 4,337 / 167 | 4,337 / 167 | unchanged | field | 2.0 / 4.2 s |
+| 32 | 1 | 3,872 / 228 | 3,872 / 228 | unchanged | -, mirror | 2.0 / 2.1 s |
+| 32 | 2 | 3,872 / 230 | 3,872 / 230 | unchanged | -, mirror | 2.0 / 2.1 s |
+| 33 | 1 | 5,251 / 180 | 5,251 / 180 | unchanged | shift starter, shift venues | 11.4 / 15.1 s |
+| 33 | 2 | 5,245 / 179 | 5,245 / 179 | unchanged | shift starter, shift venues | 10.7 / 14.8 s |
+| 34 | 1 | 5,154 / 220 | 5,154 / 220 | unchanged | shift starter, shift venues | 11.2 / 16.0 s |
+| 34 | 2 | 5,166 / 218 | 5,166 / 218 | unchanged | shift starter, shift venues | 11.6 / 15.8 s |
+| 35 | 1 | 5,977 / 191 | 5,977 / 191 | unchanged | shift starter, shift venues | 7.8 / 10.9 s |
+| 35 | 2 | 6,047 / 194 | 6,047 / 194 | unchanged | shift starter, shift venues | 7.8 / 11.0 s |
+| 36 | 1 | 6,156 / 238 | 6,156 / 238 | unchanged | shift starter, shift venues | 12.9 / 17.6 s |
+| 36 | 2 | 6,156 / 238 | 6,156 / 238 | unchanged | shift starter, shift venues | 12.7 / 17.2 s |
+| 37 | 1 | 6,201 / 195 | 6,201 / 195 | unchanged | shift starter, shift venues | 8.4 / 12.2 s |
+| 37 | 2 | 6,125 / 192 | 6,125 / 192 | unchanged | shift starter, shift venues | 8.5 / 12.1 s |
+| 38 | 1 | 7,094 / 250 | 7,094 / 250 | unchanged | shift starter, shift venues | 14.2 / 19.8 s |
+| 38 | 2 | 7,094 / 250 | 7,094 / 250 | unchanged | shift starter, shift venues | 14.5 / 19.6 s |
+| 39 | 1 | 8,015 / 247 | 8,015 / 247 | unchanged | shift starter, shift venues | 10.0 / 13.9 s |
+| 39 | 2 | 7,991 / 213 | 7,991 / 213 | unchanged | shift starter, shift venues | 10.0 / 14.0 s |
+| 40 | 1 | 7,488 / 268 | 7,488 / 268 | unchanged | weighted starter | 16.1 / 22.6 s |
+| 40 | 2 | 7,488 / 262 | 7,488 / 262 | unchanged | weighted starter | 16.2 / 22.4 s |

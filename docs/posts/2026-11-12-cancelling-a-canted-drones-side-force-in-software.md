@@ -2,8 +2,8 @@
 title: "Cancelling a canted drone's side force in software evens the axes, and adds a rare crash"
 date: 2026-11-12
 tags: [codesign-cant, quadrotor, co-design, feed-forward, position-control, research]
-description: A position-loop feed-forward that leans against a canted quadrotor's own side force removed the one-axis penalty, but a fast filter made a few held-out flights diverge.
-seo_title: "Can a flight controller cancel the side force of canted quadrotor motors?"
+description: A feed-forward that leans against a canted quadrotor's own side force removed the one-axis penalty, but a fast filter made some flights diverge.
+seo_title: "Can a flight controller cancel canted quadrotor motors' side force?"
 ---
 
 Tilt each motor of a quadrotor by about 30° around its arm and you get much more yaw authority. The `codesign-cant` programme has found that all day, and it held again here. The catch, found in the last step, is a side force. Whenever the attitude controller makes roll or pitch torque, the tilted thrusts stop cancelling and push the body sideways. On a rigid frame, the steady counter-torque to a gust then pushes *with* the wind on one horizontal axis. After a wind step, that axis held position 1.9 to 3.4 times worse than the other.

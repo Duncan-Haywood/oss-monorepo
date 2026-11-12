@@ -1,0 +1,16 @@
+[project]
+name = "water-leaks"
+version = "0.1.0"
+description = "Leak detection on the BattLeDIM L-Town benchmark, scored against chance"
+requires-python = ">=3.9"
+dependencies = ["numpy"]
+license = { text = "MIT" }
+
+[project.optional-dependencies]
+figures = ["matplotlib"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

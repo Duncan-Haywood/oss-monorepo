@@ -8,7 +8,6 @@ from dataclasses import replace
 from pathlib import Path
 from typing import Literal
 
-from shootflow.frame_analysis import hamming_distance
 from shootflow.production import ProductionJob, ProductionPlan
 from shootflow.story import AssetAnalysis
 
@@ -75,13 +74,38 @@ def group_near_duplicates(analyses: list[AssetAnalysis]) -> list[AssetAnalysis]:
             index = parent[index]
         return index
 
-    for i in range(len(hashed)):
-        for j in range(i + 1, len(hashed)):
-            hash_i, hash_j = hashed[i].perceptual_hash or "", hashed[j].perceptual_hash or ""
-            if hamming_distance(hash_i, hash_j) <= NEAR_DUPLICATE_MAX_DISTANCE:
-                root_i, root_j = find(i), find(j)
-                if root_i != root_j:
-                    parent[max(root_i, root_j)] = min(root_i, root_j)
+    def union(i: int, j: int) -> None:
+        # The smaller index always becomes the root, so every group's root is
+        # its first member by asset path whatever order the pairs arrive in.
+        root_i, root_j = find(i), find(j)
+        if root_i != root_j:
+            parent[max(root_i, root_j)] = min(root_i, root_j)
+
+    # Identical hashes (burst frames, repeated stills) join at once; the search
+    # below then runs over distinct hash values only.
+    first_index_by_value: dict[int, int] = {}
+    for index, item in enumerate(hashed):
+        value = int(item.perceptual_hash or "", 16)
+        first = first_index_by_value.setdefault(value, index)
+        if first != index:
+            union(first, index)
+    distinct = list(first_index_by_value.items())
+
+    # Pigeonhole index, exact: cut the bits into NEAR_DUPLICATE_MAX_DISTANCE + 1
+    # disjoint blocks. Two hashes that differ in at most that many bits agree
+    # on at least one whole block, so comparing only hashes that share a block
+    # value finds every close pair the all-pairs scan did, in about linear time
+    # on a real shoot instead of n^2 / 2 comparisons.
+    width = max((value.bit_length() for value, _ in distinct), default=0)
+    for shift, mask in _hash_blocks(width, NEAR_DUPLICATE_MAX_DISTANCE + 1):
+        buckets: dict[int, list[tuple[int, int]]] = {}
+        for value, index in distinct:
+            buckets.setdefault((value >> shift) & mask, []).append((value, index))
+        for members in buckets.values():
+            for a, (value_a, index_a) in enumerate(members):
+                for value_b, index_b in members[a + 1 :]:
+                    if (value_a ^ value_b).bit_count() <= NEAR_DUPLICATE_MAX_DISTANCE:
+                        union(index_a, index_b)
     label_by_path = {
         item.asset_path: hashed[find(index)].scene_label for index, item in enumerate(hashed)
     }
@@ -89,6 +113,22 @@ def group_near_duplicates(analyses: list[AssetAnalysis]) -> list[AssetAnalysis]:
         replace(item, scene_label=label_by_path[item.asset_path]) if item.asset_path in label_by_path else item
         for item in analyses
     ]
+
+
+def _hash_blocks(width: int, count: int) -> list[tuple[int, int]]:
+    """Split `width` bits into `count` disjoint (shift, mask) blocks of near-equal size.
+
+    With fewer bits than blocks the trailing blocks are empty (mask 0), which
+    every pair shares, so the search stays exact for any hash width.
+    """
+
+    blocks: list[tuple[int, int]] = []
+    shift = 0
+    for position in range(count):
+        size = width // count + (1 if position < width % count else 0)
+        blocks.append((shift, (1 << size) - 1))
+        shift += size
+    return blocks
 
 
 def _grade_jobs_by_analysis_id(plan: ProductionPlan) -> dict[str, ProductionJob]:

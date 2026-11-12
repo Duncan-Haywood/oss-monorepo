@@ -18,6 +18,20 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 - **Cant still pays:** yaw −5.1° and −7.2° against no cant (6 of 6 seeds each), J better in 5 of 6. Chosen cant 33–34°.
 - For a builder: if you add the feed-forward, filter it slowly (1 s or more). Its gain is about a centimetre of late-window error on one axis.
 - Committed predictions: 4 of 7 held in both geometries; S2 (H3 within 5% with the feed-forward) was refuted in both, by the divergence tail.
+![Left: held-out composite score J of the 60 milestone-4 designs in RotorPy with canted rotors against the same designs in the stylised simulator, one colour per RotorPy condition; filled markers are canted designs, open ones uncanted. Right: held-out RMS attitude error, cant minus no cant, paired by seed, for PID, INDI and geometric control in the stylised simulator and the four RotorPy conditions.](experiments/m5_rotorpy/m5_rotorpy.png)
+
+## Milestone 5: do the co-designed quadrotors keep their ranking in RotorPy? (H5)
+
+**Question.** Every result here came from one stylised simulator. Do the designs keep their order, and does cant keep its advantage, in RotorPy (Folk et al. 2023), an independently written multirotor simulator with quaternion dynamics, motor-speed dynamics and rotor aerodynamics, once its rotors are canted?
+
+**Headline (`experiments/m5_rotorpy/results.txt` and `noise_ceiling.txt`; simulated; the 60 milestone-4 designs, not retuned, 32 held-out episodes each, four RotorPy conditions).**
+
+- **Cant still wins in RotorPy:** 10 of 10 seeds for PID, INDI and geometric control in every aerodynamic condition, by 4.8–5.8° (PID), 4.7–5.1° (geometric) and 3.1–3.5° (INDI) of RMS attitude error. INDI without cant is still worse than PID with cant in 10 of 10 seeds (H4 survives).
+- **H5 is refuted as written, but its test cannot be passed.** Spearman ρ over the top ten designs is 0.20–0.30 (threshold 0.5). Those ten are tied: their stylised scores span 0.064. Scored again in the *stylised* simulator on fresh episodes, they reach a top-ten ρ of only 0.26. The test measures episode noise.
+- **What a designer uses survives:** ρ over all 60 designs is 0.88–0.91 with RotorPy aerodynamics (0.80 with the stylised gust torque), against 0.95–0.97 for the stylised simulator against itself. The six law × cant arms keep their order (ρ 0.94–1.00); geometric control with cant is best everywhere.
+- **The stylised model is optimistic by 1–2°, and most for INDI.** Canted INDI designs lose 1.8–2.1° in RotorPy, PID 1.4–1.8°, geometric 0.9–1.1°. INDI's increment trusts a torque-lag actuator model; RotorPy's actuator is a speed lag with thrust ∝ ω².
+- Injecting the stylised gust torque into RotorPy is harsher than RotorPy's own aerodynamics: +3.4° and 2.8% divergent episodes (mostly uncanted), against +1.3–1.5° and ≤ 0.16%. Doubling the assumed rotor-drag coefficients moves mean error by under 0.25°.
+- Predictions committed before the run: F5 held; F2, F4 and F6 held in the aerodynamic conditions and failed under the injected torque; F1 (H5) and F3 were refuted.
 
 ![Left: position RMS with the canted rotor's side force on divided by off, for force-aware designs retrained with the centre of pressure above (blue) or below (red) the centre of mass, against the centre-of-pressure lever; dashed: H3's 20% line. Middle: late-window position error on the axis the side force hurts and the one it helps. Right: composite J, cant minus no cant, paired by seed.](experiments/m6b_cop/m6b_cop.png)
 
@@ -93,6 +107,8 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ## Method
 
+**Milestone 5.** `src/codesign_cant/rotorpy_twin.py` subclasses RotorPy 3.0.0's `Multirotor` (MIT) and replaces only its wrench: each rotor thrusts along its canted axis from `allocation.layout`, its rotor drag and induced inflow act in the rotor's own frame, its reaction torque turns with the axis, and the frame drag can act at a centre of pressure above the centre of mass. At zero cant the wrench equals RotorPy's own to 1e-12 (tested). Mass, inertia, arm, propeller, thrusts, motor lag and frame area come from `aero.size`. The aerodynamic coefficients come from RotorPy's AscTec Hummingbird file, scaled to each propeller by momentum-theory exponents (thrust with D⁴, rotor drag and inflow with D³, translational lift with D²). The controllers are the stylised ones with the same gains, measurements and mixer, plus an altitude loop. `experiments/m5_rotorpy/run.py` re-scores the 60 milestone-4 designs in four conditions: `torque` (aero off, the stylised gust torque injected), `aero` (RotorPy aerodynamics driven by the stylised wind), `aero_cop` (frame drag at the stylised centre-of-pressure lever) and `aero_cop2` (rotor-drag coefficients doubled). `noise_ceiling.py` (post hoc) re-scores the designs in the stylised simulator on five fresh episode sets.
+
 **Milestone 6b.** `poshold.cop_signs(h)` gives the per-axis gust-torque signs of a rigid centre-of-pressure offset, `rollout(dist_sign=(roll, pitch), lever_scale=...)` takes them, and `rollout` reports late-window position RMS per world axis. `experiments/m6b_cop/run.py` retrains milestone 6's `aware` and `nocant` arms under both rigid geometries (48 CMA-ES runs, same budget and seeds), then scores every design, and milestone 6's designs, on the 64 held-out episodes with the force on and off at lever 0, 0.5, 1 and 2 times the inherited value.
 
 **Milestone 6.** `src/codesign_cant/poshold.py` adds translation to the attitude model: perfect altitude hold, drag from the same gust that drives the disturbance torque, GNSS-class position and velocity noise, an outer PID that sets roll and pitch references, and the side force from the delivered (mixed, lagged, saturated) torque. All of these are inherited from `codesign-aero-cant-poshold` and assumed. Joint CMA-ES runs over arm, propeller, cant, six attitude and three position gains, with 3200 evaluations on 16 training episodes. J = −sqrt((pos/0.10 m)² + (yaw/10°)²) − 0.03·P_hover/100 W, which is milestone 4's power price in composite units. Each design is held-out scored on 64 episodes with the force on, off and in calm air. `dist_sign.py` re-scores the same designs with the gust torque's sign flipped.
@@ -109,7 +125,7 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 ```bash
 cd research/codesign-cant
 PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
-"$PY" -m pytest -q tests                        # 29 tests
+"$PY" -m pytest -q tests                        # 38 tests; the 9 in test_rotorpy_twin.py skip without RotorPy
 "$PY" experiments/m1_allocation/run.py          # about 9 minutes on 4 cores; results.txt, results.json
 "$PY" experiments/m1_allocation/figure.py       # m1_allocation.png
 "$PY" experiments/m2_polytope/run.py            # about 20 minutes on 4 cores
@@ -122,6 +138,10 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 "$PY" experiments/m6_poshold/figure.py          # m6_poshold.png
 "$PY" experiments/m6b_cop/run.py                # about 75 minutes on 4 cores; SMOKE=1 for a 1-minute pipeline check
 "$PY" experiments/m6b_cop/figure.py             # m6b_cop.png
+"$PY" -m pip install rotorpy==3.0.0 --no-deps    # milestone 5 only (its imports need only numpy and scipy)
+"$PY" experiments/m5_rotorpy/run.py             # about 60 minutes on 4 cores; M5_EP=4 M5_ONLY=0,10 for a smoke run
+"$PY" experiments/m5_rotorpy/noise_ceiling.py   # under a minute; post-hoc self-agreement of the stylised simulator
+"$PY" experiments/m5_rotorpy/figure.py          # m5_rotorpy.png
 ```
 
 ## Limitations
@@ -130,11 +150,12 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy scipy cma matplotlib)
 - Under the polytope mixer the search landscape is multimodal, so single-start results are unreliable. Three starts were used only for four arms.
 - Milestone 4 uses one power price and TWR 2; its INDI has no adaptive effectiveness estimation, and the geometric law no feed-forward (the references are steps).
 - Milestone 6's translation model (drag, noise, perfect altitude hold, one wind state driving both the drag and the disturbance torque) is inherited and assumed. Milestone 6b derives the rigid-frame signs and retrains under them, but the centre-of-pressure lever is still assumed (0.05 + 0.3 L, swept 0–2×), the gust torque goes from world-frame wind straight to body axes, and lever 2 was not retrained. Six seeds, two starts.
+- Milestone 5 re-scores designs without retuning them in RotorPy; its aerodynamic coefficients are the Hummingbird's scaled by momentum-theory exponents, not measured for these propellers; the altitude loop is assumed; 32 episodes.
 - Attitude steps only (milestones 1–4), 2 s episodes, five seeds (ten in milestone 4), one κ. The mass, cost and motor fits and the plant ranges are inherited assumptions, not catalogue data. No hardware.
 
 ## Next steps
 
-Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Then a RotorPy check of the top designs (milestone 5) and the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
+Milestone 6b follow-up: a mixer feed-forward that cancels the counter-torque's side force (the mixer knows lat), or a cant pattern whose side-force map is a rotation, so neither axis is singled out; a measured centre-of-pressure height for a real frame (wind-tunnel or CFD literature) to pin the lever. Milestone 3: motor catalogue data replacing the inherited fits, with TWR free under the polytope mixer. It needs a source this session could not reach (T-Motor's thrust tables are images and its store blocks the proxy); a transcription of a dozen datasheets with the source of each row would unblock it. Milestone 5 follow-up: retune the top designs inside RotorPy to separate model mismatch from overfitting to the stylised simulator, and give INDI a speed-lag actuator model. Then the paper draft (milestone 7) (`PROPOSAL.md`, "Milestones").
 
 ## Owner steps
 
@@ -142,7 +163,7 @@ Print canted motor mounts at 0° and about 32° for one frame. Then log yaw step
 
 ## Builds on
 
-The seven `codesign-aero-cant*` projects. Attitude laws: Smeur, Chu and de Croon (2016), *JGCD* 39(3), doi:10.2514/1.G001490; Lee, Leok and McClamroch (2010), IEEE CDC, doi:10.1109/CDC.2010.5717652. Allocation theory: Johansen and Fossen (2013), *Automatica* 49(5), doi:10.1016/j.automatica.2013.01.035; Crowther et al. (2011), *JGCD* 34(4), doi:10.2514/1.51186. Propeller data: Brandt and Selig (2011), AIAA 2011-1255, doi:10.2514/6.2011-1255. CMA-ES: Hansen and Ostermeier (2001), *Evolutionary Computation* 9(2), doi:10.1162/106365601750190398. The full related work is in `PROPOSAL.md`.
+The seven `codesign-aero-cant*` projects. Simulator: Folk, Paulos and Kumar (2023), "RotorPy: a Python-based multirotor simulator with aerodynamics for education and research", arXiv:2306.04485 (MIT). Attitude laws: Smeur, Chu and de Croon (2016), *JGCD* 39(3), doi:10.2514/1.G001490; Lee, Leok and McClamroch (2010), IEEE CDC, doi:10.1109/CDC.2010.5717652. Allocation theory: Johansen and Fossen (2013), *Automatica* 49(5), doi:10.1016/j.automatica.2013.01.035; Crowther et al. (2011), *JGCD* 34(4), doi:10.2514/1.51186. Propeller data: Brandt and Selig (2011), AIAA 2011-1255, doi:10.2514/6.2011-1255. CMA-ES: Hansen and Ostermeier (2001), *Evolutionary Computation* 9(2), doi:10.1162/106365601750190398. The full related work is in `PROPOSAL.md`.
 
 ## Lab tags
 
@@ -150,6 +171,6 @@ RECUV and the Autonomous Systems IRT (UAV simulation, safe autonomy), as a direc
 
 ## Outside dependencies (vitamins)
 
-numpy, scipy, cma, matplotlib. No model API is called. `data/propdata_c.csv` holds derived per-propeller ratios from the UIUC Propeller Data Site (copied from `codesign-aero-cant-propdata`).
+numpy, scipy, cma, matplotlib; RotorPy 3.0.0 (MIT) for milestone 5 only. No model API is called. `data/propdata_c.csv` holds derived per-propeller ratios from the UIUC Propeller Data Site (copied from `codesign-aero-cant-propdata`).
 
 MIT.

@@ -93,6 +93,23 @@ class MainTest(Fixture):
         assert code == 1, out
         assert json.loads(out.strip().splitlines()[-1])["caught"] is False
 
+    def test_cd_command_from_an_audit_row_runs_from_the_top(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "x > 100", "--new", "x >= 100",
+                            "--json", "--", f"cd ventures/a && {sys.executable} -m unittest -q"])
+        self.assertEqual(code, 0, out.getvalue())
+        row = json.loads(out.getvalue().strip().splitlines()[-1])
+        self.assertTrue(row["caught"])
+        self.assertTrue(row["test_cmd"].startswith("cd ventures/a && "))
+
+    def test_unquoted_cd_words_also_work(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "x > 100", "--new", "x >= 100",
+                            "--json", "--", "cd", "ventures/a", "&&", sys.executable, "-m", "unittest", "-q"])
+        self.assertEqual(code, 0, out.getvalue())
+
     def test_red_baseline_is_not_a_catch(self):
         (self.repo / "ventures/b/helper.py").write_text("def k():\n    return 8\n")
         code, _ = self.mutate("--old", "x > 100", "--new", "x >= 100")

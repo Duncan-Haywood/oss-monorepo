@@ -97,7 +97,9 @@ function statementParts(command) {
 }
 
 const RE_DOWNLOAD_START = /\b(curl|wget)\b/i;
-const RE_SHELL_INTERP_START = /^(sudo\s+)?(sh|bash|zsh|dash|ksh|python[23]?|node|perl|ruby|powershell(\.exe)?|pwsh)\b/i;
+// An optional sudo (with flags), an optional env, then the interpreter, each by
+// bare name or full path: `| /bin/bash`, `| sudo -E bash`, `| /usr/bin/env python3`.
+const RE_SHELL_INTERP_START = /^(?:(?:\S*\/)?sudo(?:\s+-\S+(?:\s+[^\s/-]\S*)?)*\s+)?(?:(?:\S*\/)?env\s+)?(?:\S*\/)?(sh|bash|zsh|dash|ksh|python[23]?|node|perl|ruby|powershell(\.exe)?|pwsh)\b/i;
 
 function checkRemotePipeToShell(command) {
   const segs = pipeSegments(command);

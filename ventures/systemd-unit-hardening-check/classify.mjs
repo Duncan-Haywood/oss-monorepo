@@ -56,7 +56,9 @@ const SECRET_KEY = /(?:PASSWORD|PASSWD|PASSPHRASE|SECRET|TOKEN|API_?KEY|PRIVATE_
 const TRUE = new Set(["1", "yes", "true", "on"]);
 const FALSE = new Set(["0", "no", "false", "off"]);
 const WRITABLE_DIRS = ["/tmp/", "/var/tmp/", "/dev/shm/"];
-const PIPE_SHELL = /\b(?:curl|wget)\b[^|]*\|\s*(?:sudo\s+)?(?:ba|z|da|k)?sh\b/;
+// After the pipe: an optional sudo (with flags), an optional env, then the shell,
+// each by bare name or full path (`| /bin/bash`, `| sudo -E bash`, `| /usr/bin/env sh`).
+const PIPE_SHELL = /\b(?:curl|wget)\b[^|]*\|\s*(?:(?:\S*\/)?sudo(?:\s+-\S+(?:\s+[^\s/-]\S*)?)*\s+)?(?:(?:\S*\/)?env\s+)?(?:\S*\/)?(?:ba|z|da|k)?sh\b/;
 const CONTAINER_RUN = /^(?:\S*\/)?(?:docker|podman|nerdctl)\s+(?:container\s+)?(?:run|start)\b/;
 const DROPIN = /(?:^|\/)([^/]+\.service)\.d\/[^/]+\.conf$/;
 

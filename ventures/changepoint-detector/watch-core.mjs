@@ -144,6 +144,8 @@ export function advance(state, changes, n, labels, opts = {}) {
     lastLabel: labels.length ? String(labels[labels.length - 1]) : null,
     ...(quiet ? { quietUntil: quiet } : {}),
     ...(persist > 1 ? { seen: changes.map((c) => ({ index: c.index, label: String(c.label) })) } : {}),
+    // The setting `--detector auto` picked at the first check (watch.mjs), kept so later checks use the same one.
+    ...(st.choice ? { choice: st.choice } : {}),
   };
   return { alerts, pending, baseline, held, state: next, notes };
 }
@@ -356,15 +358,66 @@ const EAGER_NAMES = { quiet: 'Quiet', middle: 'Middle', eager: 'Eager' };
 const eagerName = (k) => (Object.hasOwn(EAGER_NAMES, k) ? EAGER_NAMES[k] : String(k));
 
 /** Plain sentences for an eagerness replay, for the page and an agent's answer. */
-export function eagernessText(res, { column = 'the series' } = {}) {
+export function eagernessText(res, { column = 'the series', every = 'day' } = {}) {
   const lines = [`On the history of ${column} (a watch started at point ${res.from} of ${res.n}, then ${res.n - res.from} daily checks):`];
   for (const s of res.settings) lines.push(`  ${eagerName(s.key)} (${s.detector}): ${s.alerts} alert${s.alerts === 1 ? '' : 's'}, ${s.per100.toFixed(1)} per 100 checks${s.medianDelay !== null ? `, median ${s.medianDelay} rows late` : ''}.`);
+  const fb = Number(Number(res.budget).toPrecision(3));
   const pick = res.settings.find((s) => s.key === res.suggest);
   lines.push(res.suggest === 'quiet'
     ? (pick.per100 > res.budget
-      ? `Suggested: Quiet. Even Quiet would have sent ${pick.per100.toFixed(1)} alerts per 100 checks, above ${res.budget}; a level that wanders all the time keeps alerting, so consider watching its daily change instead.`
-      : `Suggested: Quiet. The more eager settings would have sent more than ${res.budget} alerts per 100 checks on this history.`)
-    : `Suggested: ${eagerName(res.suggest)}, the most eager setting that stayed at or under ${res.budget} alerts per 100 checks on this history.`);
+      ? `Suggested: Quiet. Even Quiet would have sent ${pick.per100.toFixed(1)} alerts per 100 checks, above ${fb}; a level that wanders all the time keeps alerting, so consider watching its daily change instead.`
+      : `Suggested: Quiet. The more eager settings would have sent more than ${fb} alerts per 100 checks on this history.`)
+    : `Suggested: ${eagerName(res.suggest)}, the most eager setting that stayed at or under ${fb} alerts per 100 checks on this history.`);
+  lines.push(`Budget: ${fb} alert${fb === 1 ? '' : 's'} per 100 checks, ${plainBudgetText(res.budget, every)}.`);
   lines.push('A suggestion from one past, not a promise: on 23 labelled series it reached 17 of 31 later marked changes against the default\'s 16, at 17.5 alerts per 1,000 checks against 16.0, and on 6 held-out series it changed nothing.');
   return lines.join('\n');
+}
+
+// A budget in plain terms (README "The hint in the CLI watch"). Days per period and per check; a month is a twelfth
+// of a 365.25-day year, so "1 alert a month at a daily check" is 100 / 30.44 = 3.29 per 100 checks.
+const DAYS_PER = { week: 7, month: 365.25 / 12, year: 365.25 };
+const DAYS_PER_CHECK = { hour: 1 / 24, day: 1, week: 7 };
+const EVERY_WORD = { hour: 'an hourly', day: 'a daily', week: 'a weekly' };
+
+/** Alerts per 100 checks from "about `alerts` alerts a `per` (week | month | year), checked every `every` (hour | day | week)". */
+export function budgetFromPlain({ alerts, per = 'month', every = 'day' } = {}) {
+  const a = Number(alerts);
+  if (!(a >= 0) || !Number.isFinite(a)) throw new Error('alerts takes a number of 0 or more.');
+  if (!Object.hasOwn(DAYS_PER, per)) throw new Error('per takes week, month or year.');
+  if (!Object.hasOwn(DAYS_PER_CHECK, every)) throw new Error('every takes hour, day or week.');
+  const checks = DAYS_PER[per] / DAYS_PER_CHECK[every];
+  if (checks < 1) throw new Error(`A ${every}ly check runs less than once a ${per}; give a longer period.`);
+  return (100 * a) / checks;
+}
+
+/** The same budget back in plain words, e.g. "about 0.6 alerts a month at a daily check". */
+export function plainBudgetText(budget, every = 'day') {
+  if (!Object.hasOwn(DAYS_PER_CHECK, every)) every = 'day';
+  const perMonth = (budget / 100) * (DAYS_PER.month / DAYS_PER_CHECK[every]);
+  const [x, unit] = perMonth >= 0.95 ? [perMonth, 'a month'] : [perMonth * 12, 'a year'];
+  const r = x >= 10 ? Math.round(x) : Math.round(x * 10) / 10;
+  return `about ${r} alert${r === 1 ? '' : 's'} ${unit} at ${EVERY_WORD[every]} check`;
+}
+
+/** Below this many points the history is too short to choose from (round 6 skipped series with fewer than 30). */
+export const AUTO_MIN_POINTS = 30;
+
+/**
+ * `--detector auto`: pick the "How eager" setting at the first check from the history, by the round 6 rule, and
+ * return { detector, key, budget, n, per100, reason }. Under AUTO_MIN_POINTS points it keeps the quiet default.
+ * opts: the watch options (model, penalty, period, log, rhoCap, confirm, tolerance, window) plus budget.
+ */
+export function chooseDetector(values, labels = null, opts = {}) {
+  const model = opts.model ?? 'mean';
+  const budget = opts.budget ?? HINT_BUDGET;
+  const fb = Number(Number(budget).toPrecision(3));
+  if (values.length < AUTO_MIN_POINTS) {
+    return { detector: defaultDetector(model), key: 'quiet', budget, n: values.length, per100: null, reason: `under ${AUTO_MIN_POINTS} points of history, so the quiet default` };
+  }
+  const { detector: _d, ...rest } = opts;
+  const r = eagernessReplay(values, labels, { ...rest, budget });
+  const pick = r.settings.find((s) => s.key === r.suggest);
+  return { detector: pick.detector, key: pick.key, budget, n: values.length, per100: Math.round(pick.per100 * 100) / 100, reason: r.suggest === 'quiet' && pick.per100 > budget
+    ? `even Quiet sent more than ${fb} alerts per 100 checks on the history, so Quiet`
+    : `the most eager setting at or under ${fb} alerts per 100 checks on the history`, replay: r };
 }

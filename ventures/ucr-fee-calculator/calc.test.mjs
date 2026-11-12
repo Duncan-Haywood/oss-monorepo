@@ -69,3 +69,46 @@ test("sample totals and csv", () => {
   assert.match(csv, /^registrant,type,vehicles/);
   assert.match(csv, /total,,,,277\.00,/);
 });
+
+// Red-team 2026-11-12: guards for mutants that escaped (overlap at a shared edge, per-vehicle at one
+// vehicle, the top bracket's toNext) and two real defects (gapped fee tables, hex/exponent counts).
+test("brackets that share an edge overlap", () => {
+  assert.deepEqual(parseFees("0-2: 55\n2-5: 100").errors, ["Fee brackets 0-2 and 2+ overlap."]);
+  assert.deepEqual(parseFees("0-2: 55\n3-5: 100").errors, []);
+});
+
+test("one vehicle has a per-vehicle figure", () => {
+  assert.equal(plan({ entities: "Solo, 1" }).rows[0].perVehicle, 55);
+});
+
+test("the top bracket has nothing to grow into and brokers have no next bracket", () => {
+  const r = plan({ entities: "Mega, 1500\nB, 0, broker" });
+  assert.equal(r.total, 54165 + 55);
+  assert.equal(r.rows[0].toNext, null);
+  assert.equal(r.rows[1].toNext, null);
+});
+
+test("a fee table with a gap is an error, not a wrong jump", () => {
+  const r = plan({ fees: "0-2: 55\n6-20: 333", entities: "A, 2" });
+  assert.match(r.error, /no bracket covers 3-5 vehicles/i);
+  assert.match(parseFees("0-2: 55\n3-5: 167\n10+: 400").errors.join("\n"), /6-9/);
+});
+
+test("vehicle counts are plain whole numbers", () => {
+  for (const bad of ["0x10", "1e3", "-0", "5.0", "+3"]) assert.ok(parseEntities(`A, ${bad}`).errors.length, bad);
+  assert.deepEqual(parseEntities("A, 1 200").entities[0].n, 1200);
+  assert.deepEqual(parseEntities("A, 1_200").entities[0].n, 1200);
+});
+
+
+test("overlap messages name an open bracket with +, not Infinity", () => {
+  assert.doesNotMatch(parseFees("0-2: 55\n3+: 100\n50-60: 9").errors.join("\n"), /Infinity/);
+});
+
+test("csv export defuses spreadsheet formulas in names", () => {
+  const csv = toCsv(plan({ entities: '=HYPERLINK("http://x.test"), 3\n@SUM(A1), 1\n-2+3, 2' }));
+  assert.match(csv, /^"'=HYPERLINK\(""http:\/\/x\.test""\)",/m);
+  assert.match(csv, /^'@SUM\(A1\),/m);
+  assert.match(csv, /^'-2\+3,/m);
+  assert.match(csv, /,3,3-5,167\.00,55\.67$/m);
+});
