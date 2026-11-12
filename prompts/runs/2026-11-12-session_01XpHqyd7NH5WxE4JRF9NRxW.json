@@ -27,13 +27,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
   "errors": [
     "First test draft asserted a plain-budget phrase ('0.6 a month') the formatter renders as '7.3 a year'; fixed the test and help text to match the formatter.",
-    "First preflight failed on the new post's front matter (description 196 > 160, seo_title 81 > 70); fixed and reran."
+    "First preflight failed on the new post's front matter (description 196 > 160, seo_title 81 > 70); fixed and reran.",
+    "CI validate failed: flagships.yaml changepoint-detector next: 2145 chars > 2000 cap (I appended instead of replacing); shortened, portfolio/router/validate.py passes locally."
   ],
   "integrity_issues": [],
   "doc_friction": [
