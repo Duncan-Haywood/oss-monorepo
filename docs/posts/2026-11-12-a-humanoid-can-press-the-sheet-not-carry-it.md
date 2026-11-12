@@ -3,7 +3,7 @@ title: "A stock humanoid can press the sheet, but it can't carry it there"
 date: 2026-11-12
 tags: [buildbot-sheathing, construction-robotics, mujoco, humanoid, unitree]
 seo_title: "Can a Unitree G1 or H1 humanoid hang a sheet of wall sheathing?"
-description: "Static MuJoCo checks: a G1 holds 8.7 kg at most and an H1 18.8 kg, short of a 21.8 kg OSB sheet, but on a ledger both can press it, and their stock gains let the ledger square it."
+description: "A G1 holds 8.7 kg at most and an H1 18.8 kg, short of a 21.8 kg OSB sheet, but on a ledger both press it and their stock gains let the ledger square it."
 ---
 
 The last step of the `buildbot-sheathing` programme found that a ledger board can square a sheet of wall sheathing for a robot. The robot sets the sheet on the board, lets it roll, and presses under about 100 N. This step asks whether a stock Unitree G1 or H1 humanoid can be that robot. We wrote down four hypotheses before running anything.
