@@ -1,8 +1,8 @@
 ---
-title: "\"It's between these three\" was wrong a third of the time: a credible set for your favourite in Quick Pick Survey"
-seo_title: "Which items could be your favourite? A credible set from pairwise answers"
+title: "\"It's between these three\" missed a third of the time: a credible set for your favourite"
+seo_title: "Which items could be your favourite? A credible set from pairwise data"
 date: 2026-11-12
-description: "When Quick Pick Survey can't name a clear favourite it lists the contenders. The old list of the three highest held the real favourite 68-74% of the time; a credible set from the refit holds it 88-92%."
+description: "The old list of the three highest-rated items held the real favourite 68-74% of the time; a credible set from the refit holds it 88-92%."
 tags: [quick-pick-survey, surveys, ranking, statistics, simulation]
 ---
 
