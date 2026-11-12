@@ -11823,13 +11823,16 @@ export async function collectOfflineBundle(outDir, surfaces) {
 export async function offlineCacheName(outDir, codeVersion) {
   const hash = crypto.createHash('sha256');
   hash.update(codeVersion ?? (await fs.readFile(path.join(HERE, 'offline.mjs'))));
-  // Each file hashed on its own, many at once, then the digests in path order:
-  // the same guarantee (any byte or name changes the cache) without reading
-  // the site one file at a time.
+  // Each file hashed on its own, then the digests in path order: any byte or
+  // name changes the cache. Read synchronously: the site is about 26k files
+  // and 1.1 GB, mostly small files, where `fs.promises.readFile`'s per-call
+  // overhead dominated (3.8 s read+hash with 32 in flight, 1.4 s sync, same
+  // digests). Nothing else in the build runs while this does
+  // (docs/history/pages-build-perf-2026-11-12-cache-name-sync-reads.md).
   const files = (await listFiles(outDir)).sort();
-  const digests = await mapLimit(files, 32, async (file) =>
-    crypto.createHash('sha256').update(await fs.readFile(file)).digest());
-  files.forEach((file, i) => hash.update(path.relative(outDir, file)).update(digests[i]));
+  for (const file of files) {
+    hash.update(path.relative(outDir, file)).update(crypto.createHash('sha256').update(readFileSync(file)).digest());
+  }
   return `portfolio-${hash.digest('hex').slice(0, 12)}`;
 }
 
