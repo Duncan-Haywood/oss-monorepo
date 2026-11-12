@@ -143,9 +143,10 @@ def prop_table(hotel=HOTEL):
     return out
 
 
-def foresight(sun, cap=C, hotel=HOTEL, table=None):
+def foresight(sun, cap=C, hotel=HOTEL, table=None, penalty=None):
     """Plan (F): backward DP on a GRID_WH pack grid, executed forward on exact energies. (km, down, dark)."""
     table = table or prop_table(hotel)
+    pen = DARK_PENALTY if penalty is None else penalty
     h = [harvest_wh(k) for k in sun]
     n = int(round(cap / GRID_WH))
     hd = hotel * 24.0
@@ -159,7 +160,7 @@ def foresight(sun, cap=C, hotel=HOTEL, table=None):
     def best(V, soc, e):
         avail = soc + e
         if avail < hd:
-            return (-(hd - avail) / hotel * DARK_PENALTY + V[0], 0.0, 0.0, (hd - avail) / hotel)
+            return (-(hd - avail) / hotel * pen + V[0], 0.0, 0.0, (hd - avail) / hotel)
         top = None
         for pe, km in table:
             left = avail - hd - pe
@@ -306,7 +307,26 @@ def main():
     p9 = c["North-Sea"] >= 60 and c["Gulf-of-Alaska"] >= 60 and c["Florida-Straits"] <= 10
     print(f"P9 (Y) down days North-Sea >= 60, Gulf-of-Alaska >= 60, Florida-Straits <= 10: "
           f"{'held' if p9 else 'refuted'} ({', '.join(f'{k} {v}' for k, v in c.items())})")
+    post_hoc(R)
     return R
+
+
+def post_hoc(R):
+    """Written after reading P1 to P9: at P+50, A+60 and Gulf-of-Alaska (F) covers fewer km than (Y). (F) puts dark
+    hours first, and there it already reaches the idle vehicle's minimum dark hours exactly, so any metre it moves
+    costs payload time later in the year. The other end of the trade-off: the same DP with no dark-hour penalty
+    (distance only, the payload still served whenever the pack can carry it that day)."""
+    print("\nPost hoc (after reading the predictions): the two ends of the dark-hours / distance trade-off")
+    print("   point             lat  (F) km  dark h | km-only km  dark h | (Y) km  dark h")
+    table = prop_table()
+    worse = 0
+    for p, r in R.items():
+        k0 = foresight(year_sun(p), table=table, penalty=0.0)
+        worse += k0[0] + 1e-6 < r["Y"][0]
+        if r["F"][1] or r["Y"][1]:
+            print(f"   {p:16s} {r['lat']:4d} {r['F'][0]:7.0f} {r['F'][2]:7.0f} | {k0[0]:10.0f} {k0[2]:7.0f} | "
+                  f"{r['Y'][0]:6.0f} {r['Y'][2]:7.0f}")
+    print(f"   (points with no down day in (F) or (Y) omitted; km-only foresight below (Y)'s km at {worse} of {len(R)} points)")
 
 
 if __name__ == "__main__":

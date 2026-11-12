@@ -33,6 +33,8 @@ only 4%. Milestone 5 adds a hydrofoil rung: in 2,916 swept cases a foilborne 200
 
 **Where does the Wave Glider or solar boat lead, month by month (milestone 6z)?** Along two ocean meridians (150 W and 30 W, 60 S to 60 N) for every month of 2024, using NASA POWER sunlight and ERA5 waves: a 4 m deck-solar survey boat with a 30 W payload goes further per day than the 2015 Wave Glider at its best in **every month within about 20 degrees of the equator** (11 to 12 months a year at 0 to 10 degrees), and the Wave Glider wins **everywhere poleward of about 40 degrees in that hemisphere's winter**, where the boat's panels cannot cover its payload and it sustains 0 km/day. The flip latitude swings about 30 degrees through the year (30 N in January, 50 N from April to August, no flip in June). On the year's mean the boat leads below about 30 degrees and the Wave Glider above about 35; a boat that starts every month with a full 10 kWh pack leads to 40 degrees. Eight of nine pre-registered predictions held; deflating the Wave Glider plan by ERA5's 10% bias changes 2.6% of winners. Calm-water solar boat; one year; the Wave Glider's payload power is not modelled. See [`experiments/results_flip_map.txt`](experiments/results_flip_map.txt) and the map [`experiments/waveglider_vs_solar_flip_map.svg`](experiments/waveglider_vs_solar_flip_map.svg).
 
+**A year at sea on one battery: how far does a solar survey boat get, and how long is its payload off (milestone 6zj)?** 6z gave the boat either the month's mean sun or a full pack every month (a monthly port call). Carrying one 10 kWh pack through all 366 days of 2024 from a 1 January launch, at 30 points along 150 W and 30 W and the five corridor sites: within **20 degrees of the equator the 30 W payload never goes dark** and a simple causal speed policy covers **27,000 to 39,000 km**, 1.25 to 1.86 times the 2015 Wave Glider's best-state year. At **30 degrees** the two tie on distance (0.97) and the payload is dark 13 to 76 days under the causal policy (0 to 54 with perfect foresight). At **40 degrees and beyond**, the payload is dark **77 to 214 days a year** with perfect foresight, exactly as many as a vehicle with the same 1.15 m² panel, pack and payload that never moves: the limit there is the power system, not the hull. The largest payload a full year carries with no dark day is 54 W at the equator, 31 W at 30 degrees, 17 to 22 W at 40, 10 to 13 W at 50 and 8 to 9 W at 60. A 20 kWh pack ends the dark days at 30 degrees but not at 40 or above. Seven of nine pre-registered predictions held; the causal policy reaches 81 to 99% of the foresight plan's distance where neither goes dark. Calm-water boat, daily energy steps, one year; the Wave Glider's own payload power is still not modelled. See [`experiments/results_year_pack.txt`](experiments/results_year_pack.txt).
+
 ![Wave Glider km/day planned from ERA5 waves on a 10 degree ocean grid, January and July 2024](experiments/waveglider_era5_map.svg)
 
 ![Fielded Wave Glider speed against buoy wave height, early and late in the 2015 mission, with the foil model](experiments/waveglider_speed.svg)
@@ -47,7 +49,7 @@ lab has reviewed this.
 
 ```bash
 cd research/marine-hull
-PYTHONPATH=src python3 -m pytest tests -q          # 118 tests
+PYTHONPATH=src python3 -m pytest tests -q          # 159 tests
 python3 experiments/fetch_waveglider.py   # milestone 6p data (NOAA ERDDAP + NDBC), under a minute
 PYTHONPATH=src python3 experiments/run_waveglider.py > experiments/results_waveglider.txt   # milestone 6p (Wave Glider vs foil model), 47 s
 PYTHONPATH=src python3 experiments/figure_waveglider.py   # experiments/waveglider_speed.svg
@@ -64,6 +66,8 @@ python3 experiments/run_waveglider_era5.py > experiments/results_waveglider_era5
 python3 experiments/fetch_era5_sites.py   # milestone 6x data: ERA5 at the 2024 buoys, corridor sites and a 10 degree grid (Open-Meteo; retries 429s, a few minutes)
 python3 experiments/run_waveglider_era5_sites.py > experiments/results_waveglider_era5_sites.txt   # milestone 6x, under 1 s
 python3 experiments/figure_waveglider_era5_map.py   # milestone 6x map
+PYTHONPATH=src python3 experiments/run_flip_map.py > experiments/results_flip_map.txt   # milestone 6z, under 1 s
+PYTHONPATH=src python3 experiments/run_year_pack.py > experiments/results_year_pack.txt   # milestone 6zj (year-long pack, no port call), about 40 s
 PYTHONPATH=src python3 experiments/run_suboff_bare.py > experiments/results_suboff_bare.txt   # milestone 3u (SUBOFF bare-hull form factor), under 1 s
 PYTHONPATH=src python3 experiments/run_solar.py > experiments/results_solar.txt   # milestone 5c, 5 s
 PYTHONPATH=src python3 experiments/run_solar_mass.py > experiments/results_solar_mass.txt   # milestone 5d, 10 s
@@ -222,3 +226,4 @@ Milestone 6w (Wave Glider, ERA5 in place of on-board waves): within-month corr o
 
 Milestone 6x (Wave Glider plan from ERA5 at the buoys and over open ocean): ERA5 plan 1.10 times the buoy plan (median, 20 buoy-months), Spearman 0.93 in July and -0.12 in January; post hoc period and height calibration explains the per-site error (r 0.991); open-ocean grid 50 to 79 km/day at the best state, no point above the 86 km/day solar ceiling; 33% of hours outside the law's range. `experiments/run_waveglider_era5_sites.py`, `LOG.md`.
 
+Milestone 6zj (year-long pack, no port call): one 10 kWh pack carried through 2024 from a 1 January launch. Payload never dark within 20 degrees, and the causal policy covers 1.31 to 1.86 times the Wave Glider's best-state year there; at 30 degrees a tie on distance (ratio 0.97) with 13 to 76 dark days; at 40 degrees and beyond 77 to 214 dark days a year with perfect foresight, equal to a vehicle that never moves (P8, gap 0 at all 30 points). Largest dark-free payload 54 W at the equator, 8 to 9 W at 60 degrees. P4 (causal within 15% of foresight) and P7 (causal within 5% of 6z's summed monthly (A)) refuted. Next: the same payload budget on the Wave Glider (a sourced SV3 panel and battery), added resistance in waves on the solar side, and a hybrid policy that holds the pack for the payload from the autumn equinox. `experiments/run_year_pack.py`, `LOG.md`.
