@@ -3127,3 +3127,50 @@ Test: `update-rate-columns.test.mjs`.
 
 Next: a long series with a documented change in collection to check a date against; a stale feed whose
 moves are about one tick (the case the rounding sentence cannot separate).
+
+### One-tick stale feeds: the catch-up check (2026-11-12, pre-registered twice; negative, not offered)
+
+The rounding sentence above names the case it cannot separate: a stale feed whose real moves are about
+one tick also has a median move of one tick, so it reads as `rounding`. What differs is the move that
+*ends* a run of repeats. A rounded slow walk leaves a run by crossing the next rounding boundary, so that
+move stays about one tick however long the run was. A stale figure catches up on every step it skipped,
+so after k repeats its move has about k + 1 times the variance. `catchUpRatio` (update-rate.mjs) is the
+mean squared move, in ticks, ending a run of `minRun` or more repeats over the mean squared move that
+follows a move: near 1 for rounding, about 2 to 4 for a one-tick stale feed.
+
+**Round one** (`eval/update-rate-catchup.mjs`, `.out.txt`; rule committed in 344f58cb3 before the
+confirmation ran; setting chosen on calibration seed 1, runs of 2+ and ratio 1.4). Cells as in the
+rounding check (R1-R3 rounded walks, F1-F3 stale feeds with large moves), plus three one-tick stale feeds
+(T1 walk sd 1 tick, carried forward 10% then 60%; T2 1.2 ticks, 60% then 10%; T3 1 tick, clumped).
+
+| seed 20261213, change nearest step 150 | catch-up among one-tick series | rule |
+|---|---|---|
+| R1 / R2 / R3, rounded walks | 3.0% / 0.5% / **6.0%** | <= 5% each: **fails on R3** |
+| T1 / T2 / T3, one-tick stale feeds | 89.7% / 95.8% / 93.2% | >= 80% each: pass |
+| F1-F3, rounding <= 5% (unchanged) | 0 / 0 / 0 | pass |
+
+R3 is a walk of 0.6 ticks a step: after a long run it now and then moves two ticks, and with five or so
+such moves the ratio is noisy enough to cross 1.4.
+
+**Round two** (`eval/update-rate-catchup-2.mjs`, `.out.txt`; rule committed after round one's verdict and
+before either step ran): pick on a new calibration seed (2) the setting with the best worst T cell among
+those with every R cell at or under 2.5%, then run round one's rule once on fresh seed 20261214. It picked
+runs of 3+ and ratio 1.8. R cells 1.5% / 0.0% / 1.5% (pass), F cells pass, T2 85.5% and T3 84.6%, but
+**T1 79.5% (116 of 146), bar 80%: fails**, by one series.
+
+**Verdict: not offered.** Two rounds bracket the trade-off: a ratio low enough to catch 90% of one-tick
+stale feeds calls a 0.6-tick rounded walk stale about 5% of the time, and one high enough to keep that to
+1.5% catches only about 80%. With about 300 steps there are too few catch-ups in a stretch to do better
+with this statistic. A third round tuned on the same cells would be a forking path, so there is none.
+`CATCHUP.ratio` is `Infinity`: the `rounding` flag and every sentence are exactly as before; each change
+carries `catchUpRatio` as a number, with no sentence. Test: `update-rate-catchup.test.mjs`.
+
+**On the juice file** (descriptive, seen after both verdicts): `ppi`, the rounded index, has a ratio of
+0.48 (runs 3+), what rounding predicts; the move that ends a run is *smaller* than a typical move. The
+`price` column, which the median-move test already calls stale (19.5 ticks), has 1.73: its moves after
+long runs are larger, but by less than a carried-forward random walk's k + 1 would give. Why is open
+(a price that mean-reverts, or one reset on its own schedule, would both do it); nothing here decides it.
+
+Next for this question: longer stretches (the ratio's noise falls with the number of catch-ups, so a
+power curve in n would say where a setting could pass both bars), or a likelihood for a rounded walk
+against a rounded walk carried forward; and a real series with documented carry-forward to check against.

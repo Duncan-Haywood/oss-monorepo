@@ -244,8 +244,12 @@ export function medianMoveTicks(values, from, to, tick) {
 // move that ends k repeats is a catch-up over k + 1 steps, with about k + 1 times the variance.
 // catchUpRatio: mean squared move (in ticks) ending a run of CATCHUP.minRun or more repeats, over the
 // mean squared move that follows a move. Near 1 for rounding, above CATCHUP.ratio for a catch-up.
-// Setting chosen on calibration seed 1 and checked once on fresh seeds by a committed rule.
-export const CATCHUP = { minRun: 2, ratio: 1.4, minMoves: 5 };
+// Not offered: two pre-registered rounds failed (eval/update-rate-catchup.out.txt: runs >= 2, ratio 1.4,
+// a 0.6-tick rounded walk called a catch-up in 6.0% of series, bar 5%; eval/update-rate-catchup-2.out.txt:
+// runs >= 3, ratio 1.8, one-tick stale feeds caught in 79.5% of one cell, bar 80%). So `ratio` is Infinity
+// and `catchUp` is always false; the ratio is still computed and returned (`catchUpRatio`) as a number,
+// with no sentence. A test checks this matches the files.
+export const CATCHUP = { minRun: 3, ratio: Infinity, minMoves: 5 };
 export function catchUpRatio(values, from, to, tick, { minRun = CATCHUP.minRun, minMoves = CATCHUP.minMoves } = {}) {
   if (!tick) return null;
   let after = 0, nAfter = 0, plain = 0, nPlain = 0, run = 0, prevMoved = false;
