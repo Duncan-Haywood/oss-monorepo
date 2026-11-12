@@ -57,6 +57,47 @@ function inRuns(type, value) {
   return false;
 }
 
+// Codes stored by build-cfdi-schema.mjs as packed runs per group (c_Estaciones,
+// c_MaterialPeligroso): "A1769.8" is group "A|4|1", number 17698.
+const CODE_RE = /^(\D*?)(\d+)(?:\.(\d+))?$/u;
+function groupKey(x) {
+  const m = x.match(CODE_RE);
+  if (!m || m[2].length + (m[3] || "").length > 15) return null;
+  return [`${m[1]}|${m[2].length}|${(m[3] || "").length}`, Number(m[2] + (m[3] || ""))];
+}
+const unpacked = new WeakMap();
+function unpack(type) {
+  if (!unpacked.has(type)) {
+    const out = {};
+    for (const [k, packed] of Object.entries(type.groups)) {
+      let end = 0;
+      out[k] = packed.split(",").map((t) => {
+        const [gap, len = "1"] = t.split(".");
+        const start = end + parseInt(gap, 36);
+        end = start + parseInt(len, 36);
+        return [start, end - start];
+      });
+    }
+    unpacked.set(type, out);
+  }
+  return unpacked.get(type);
+}
+function inGroups(type, v) {
+  if (type.extra?.includes(v)) return true;
+  const k = groupKey(v);
+  const list = k && unpack(type)[k[0]];
+  if (!list) return false;
+  let lo = 0, hi = list.length - 1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    const [start, len] = list[mid];
+    if (k[1] < start) hi = mid - 1;
+    else if (k[1] >= start + len) lo = mid + 1;
+    else return true;
+  }
+  return false;
+}
+
 const patternCache = new Map();
 function patternTest(p, v) {
   if (!patternCache.has(p)) patternCache.set(p, new RegExp(`^(?:${p})$`, "u"));
@@ -71,6 +112,7 @@ export function typeProblem(typeIn, raw) {
   const label = typeIn.ref ? ` (${typeIn.ref})` : "";
   if (type.enum && !type.enum.includes(v)) return `is not a code in SAT's catalogue${label}`;
   if (type.runs && !inRuns(type, v)) return `is not a code in SAT's catalogue${label}`;
+  if (type.groups && !inGroups(type, v)) return `is not a code in SAT's catalogue${label}`;
   const len = [...v].length;
   if (type.length !== undefined && len !== type.length) return `should be ${type.length} characters long, not ${len}`;
   if (type.minLength !== undefined && len < type.minLength) return `is shorter than ${type.minLength} characters`;
