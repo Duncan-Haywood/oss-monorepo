@@ -339,6 +339,25 @@ raises it by 3.0 days (8%; interval 1.7 to 4.3). Most of Austin's cost sits in c
 (mechanical and plumbing), so merging classes changes the shared model in ways a per-class tail ratio
 does not predict.
 
+Session 78 scored build time on labels the pull can see in full (`../src/censored_eval.py`,
+`../results/censored_eval_*.json`; five predictions written before the runs). Test years 2020, 2021
+and 2022 are 4 to 6 years old at the 2026 pull. Each was scored on all its rows, as a reference, and
+on the rows a pull two years after the test year would have seen, the same 681-to-1,046-day windows
+as the real 2024 test year. The rows were scored both complete-case (CC), as before, and with inverse
+probability of censoring weights (IPCW; Robins and Rotnitzky 1992; Graf et al. 1999), using the same
+fitted models. On complete labels, folding demolition costs 1.7, 2.5 and 2.4 days at transfer q0.9
+(intervals 0.2 to 3.2, 1.4 to 3.6, 1.6 to 3.3). CC on the truncated rows reports -0.9, -0.8 and
++0.9, a reversed sign in two of three years, which is the pattern the 2024 test year showed. IPCW
+brings the estimates only 10 to 40% closer to the reference. Its weights match the observed selection
+(seen share against G(y) within 0.1 in every bin), but 5 to 8% of each cohort takes longer than the
+longest window, and the cohort's q0.9 (810 to 945 days) lies in that region. No reweighting can
+recover it: the IPCW q0.9 is 16 to 34% short. So the 2024 fold gain (-2.0 days CC, -1.5 IPCW) is a
+censoring artefact, and session 76's fold is withdrawn. The same truncation hides most of the local
+model's tail gain: own-city boosted minus own baseline at q0.9 is -6.6 to -13.0 days on complete labels
+against -0.7 to -4.1 CC. The median results stand. Transfer beats Seattle's own baseline at q0.5 in
+every year, by more on complete labels (-5.3 to -8.3 days) than CC shows. From here, build-time q0.9 is
+scored only on test years whose shortest window exceeds the cohort's tail.
+
 Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
 0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
 
@@ -437,7 +456,7 @@ configuration per library (defaults, untuned); the neural net (4.6) is one untun
 structured class map is a keyword rule not validated against hand labels (the description rules are, 4.4b: 85% and 95% held-out agreement with one labeller), and its classes barely overlap between cities (4.4a), so the transfer results test the generic fields only; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
 draws in 4.5 is not reported; i2c is not rerun for H5b; a fourth city (Seattle, 4.8) with partial coverage of the experiments (NYC DOB NOW
-licence unchecked). Issue-to-completion test years are right-censored at the pull (a permit not yet completed has no row), which shortens recent build-time tails (Seattle new construction q0.9 957 days in history, 654 in 2024; 4.4b) and shapes every i2c score. Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
+licence unchecked). Issue-to-completion test years are right-censored at the pull (a permit not yet completed has no row), which shortens recent build-time tails (Seattle new construction q0.9 957 days in history, 654 in 2024; 4.4b) and shapes every i2c score: on a two-year window, complete-case scoring reversed the sign of a q0.9 class comparison in two of three mature years and IPCW could not repair it (4.4b, session 78). Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
 
 ## 6 What a practitioner can take
 
@@ -455,5 +474,5 @@ tighter quantile levels (4.2a) can halve the width, but pick them with drift in 
 4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2022 to 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
 5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
 6. Build a work-type class from the description text for Chicago and Seattle (4.4a: their structured fields do not name the work; overlap without "other" is 0.00 to 0.19) and from `work_class` for Austin, validate it on a hand-labelled sample, and rerun H4. Code in place (session 70: `src/classmap.py` cascade, the loader's `desc_class`, `transfer.py --classes cascade`, with a prediction in `../LOG.md`). Validated in session 71 (4.4b): the session 70 rules agree with hand labels on 60% (Chicago) and 78% (Seattle) of held-out rows, the revised rules (`desc_class_v2`, `--classes cascade2`) on 85% and 95%.
-7. Score issue-to-completion with a censoring-aware evaluation (cohorts old enough to have completed, or a censored pinball loss) and rerun the class comparisons of 4.4b under it.
+7. Score issue-to-completion with a censoring-aware evaluation: done for the demolition fold in session 78 (4.4b; IPCW cannot reach q0.9 on a two-year window, so tails are scored on mature cohorts). Still to do: rerun cascade2 against type (4.4b) on mature cohorts, other held-out cities, and a censored-quantile model that trains on incomplete permits.
 8. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
