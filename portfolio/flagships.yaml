@@ -185,50 +185,40 @@ flagships:
       youth labour rules, state overtime presets, roles) with a self-host
       server, .ics feeds and availability intake.
     next: >-
-      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price (bnp.mjs)
-      with a backtracking root dive and chain bound proves least open hours on every bench and 20-80 person
-      week; pay bound 12 of 12 pay-gap weeks, 4 of 4 30/40-person weeks within $0.50; 100x280 week 0 root
-      358 vs roster 359, week 1 347 vs 344; the 60-person pay week is $1.22 open. Forecast side
-      (--from-sales, three real bakery files): backtest, lunch breaks, half-life auto, --short-cost, priced
-      cut, --count tickets; --backtest --score-closed 2026-11-11 (README "Scoring a staffed closure") counts a
-      staffed closure as over, shows the break rules save 6-15 person-hours a week (French), and led to a
-      one-date edge rule (Bread Basket 12-24 fewer off a week); 2026-11-11 later, half-life auto offers the
-      last 4 weeks under --score-closed only (out of sample: 6 of 18 clearly better, 0 worse, -16%; no gain
-      under the default score; README "A 4-week window in half-life auto"), and --last-weeks <n>. A fourth file agreed 2026-11-11 (eval/fourth-file.mjs,
-      6 of 6 on both tests; README). 2026-11-12: the closure score is the --backtest and half-life-auto
-      default with the window offered (--score-open-hours is the old score), and both are on the page; a
-      past-only closure reference kept 77% of the window's gain (eval/hindsight-closure.mjs, pre-registered,
-      6/12/0, -12.5%; README "The closure score is the default"). Next: close the 100-person gaps (tree,
-      not pricing); cuts or branching that move the score LP on the 60-person pay week; buildRoster end to
-      end on 40-person weeks with exact on; a real Square or Toast item export (columns read 2026-11-12, made-up rows only, README); a real published-schedule export for
-      --import-shifts; whether the priced cut's r = 1 default suits a real manager; a manager's real task list for the fixed minutes in `--standard` (`/hour`, `/open`, `/close` landed 2026-11-12, README "Fixed work"); closing work placed after the last sale hour.
+      Landed work and every measurement are in the README and eval/*. Exact side: branch-and-price (bnp.mjs) proves
+      least open hours on every bench and 20-80 person week; pay bound within $0.50 on 12 of 12 pay-gap and 4 of 4
+      30/40-person weeks; 100x280 week 0 root 358 vs roster 359, week 1 347 vs 344; the 60-person pay week is $1.22
+      open. Forecast side (--from-sales, four real files): backtest with the closure score as default, half-life auto
+      with the 4-week window, lunch breaks, --short-cost, priced cut, --count tickets, labour standard with fixed work
+      (`/hour`, `/open`, `/close`) and, 2026-11-12 later, `/before-open` and `/after-close` in the shut hours with
+      minimum staff off there (README "Closing work after the last sale hour": one closer, 45 min after close +7 h a
+      week vs +20 h in the last hour; two closers, 0 vs +11). Next: close the 100-person gaps (tree, not pricing);
+      cuts or branching that move the score LP on the 60-person pay week; buildRoster end to end on 40-person weeks
+      with exact on; after-close work spread over part of an hour (90 minutes as one person, not two heads) and a
+      shut-hour minimum (lone-worker rules may want two at close); a real Square or Toast item export (columns read,
+      made-up rows only); a real published-schedule export for --import-shifts; whether the priced cut's r = 1
+      default suits a real manager; a manager's real task list for the fixed minutes.
   - venture: photo-editing
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
       catalog, ffmpeg proxies, LUT-graded masters, reels and carousels.
     next: >-
       History and every measurement: README and eval/ (ingest, catalog,
-      proxies, measured analysis, cull with XMP and picks scoring, RAW
-      previews; stdlib DNG developer matching LibRaw within one 8-bit step on
-      a real Nikon NEF and Canon CR2 in `--colour dcraw` mode; pipeline grade
-      stage develops DNG stills, eval/pipeline-dng-grade-2026-11-10.md; grade
-      only the picks, eval/grade-scope-2026-11-11.md; numpy engine and
-      lossless-JPEG decoder speed-ups, eval/ljpeg-*-2026-11-11.md). DNG-spec
-      colour landed 2026-11-12 (README "Colour for the light the photo was
-      taken in", eval/dng-colour-2026-11-12.md): both matrices blended in
-      mired for the as-shot white, ForwardMatrix, CameraCalibration,
-      AnalogBalance, AsShotWhiteXY; equal to colour-hdri on 2,000 random
-      profiles and on a real Canon 350D DNG's tags (3584 K; old method up to
-      35 8-bit steps away). Profile HueSatMap/LookTable and `--dcp` camera
-      profiles landed 2026-11-12 later (README "Camera profiles",
-      eval/dcp-tables-2026-11-12.md: 161 of 161 RawTherapee DCPs read, greys
-      exact, numpy byte-identical; real 5D Mark II frame with its DCP). Next,
-      most valuable first: ProfileToneCurve (dng_sdk's hue-preserving RGB
-      tone through its cubic spline; in 126 of 161 DCPs), BUILDABLE HERE
-      with the same RawTherapee DCPs; a tungsten-lit colour chart (real DNG,
-      known patches) to say which colour model is closer to the scene, and a
-      camera- or Adobe-written DNG with ForwardMatrix; DNG 1.6 ColorMatrix3
-      and triple-illuminant tables; the grade-scope
+      proxies, cull with XMP and picks scoring, RAW previews; stdlib DNG
+      developer matching LibRaw within one 8-bit step in `--colour dcraw`;
+      pipeline grade stage and grade-scope; numpy engine and lossless-JPEG
+      speed-ups; DNG-spec colour checked against colour-hdri,
+      eval/dng-colour-2026-11-12.md; HueSatMap/LookTable and `--dcp`,
+      eval/dcp-tables-2026-11-12.md; ProfileToneCurve with hue-preserving
+      RGB tone, eval/tone-curve-2026-11-12.md, all 2026-11-12).
+      Next, most valuable first: DNG 1.6 ColorMatrix3 and triple-illuminant
+      tables, BUILDABLE HERE as code against synthetic tags; a default tone
+      curve for profiles with none (68 RawTherapee profiles share one
+      8,192-point curve; check what it is before adopting it), BUILDABLE
+      HERE; a tungsten-lit colour chart (real DNG, known patches) to say
+      which colour model is closer to the scene, and a camera- or
+      Adobe-written DNG with ForwardMatrix; an Adobe render of a known frame
+      to compare the toned render with; the grade-scope
       saving on real 4K footage and a long shoot; the Huffman loop (~85% of
       lossless-JPEG decoding) in native code; reading CR2 directly (needs
       per-model colour matrices); a camera- or phone-written lossless-JPEG
@@ -243,34 +233,21 @@ flagships:
       deploy-to-your-own-Vercel button.
     next: >-
       History and every measurement: README, docs/INFORMATION-GAIN-SELECTOR.md,
-      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md (survey builder, pooled
-      random-effects ranking with rank ranges, information-gain and staged
-      selectors, pool cap, lapse, careless-pattern and position-bias studies,
-      PrefLib real rankings). Latest, 2026-11-12: the insights screen refits
-      each person's answers (src/lib/btRefit.ts, Bradley-Terry Laplace;
-      staged per-person coverage 0.90 to 0.947 at the same width) and calls a
-      top or bottom pick clear only at 1.645 sd of the refit difference against
-      every item (src/lib/clearPick.ts; the old half-rd rule was wrong in 50-70%
-      of its claims). The card's "between X, Y, Z" list is the refit's 95%
-      credible set for the favourite since 2026-11-12 (src/lib/favouriteSet.ts;
-      holds the true favourite 88-92% vs 68-74% for the three highest; it
-      undercovers because the prior is wider than the truth). Next, most
-      valuable first: (a) an empirical-Bayes prior sd for the refit (re-measure
-      pairwise intervals and the set), and the PrefLib panels through the
-      refit; (b) half-time salience (q = 0.5 still leaks +0.12 to
-      +0.29, only 5-13% fall under 0.2 agreement: does pace see them?);
+      docs/CONVERGENCE.md and docs/REAL-RANKINGS.md. Latest, 2026-11-12: the
+      insights screen refits each person's answers (btRefit.ts), calls a pick
+      clear only at 1.645 sd (clearPick.ts), and lists "it's between" as a 95%
+      credible set (favouriteSet.ts) drawn from a refit at the person's own
+      empirical-Bayes prior sd (importance-sampled evidence; Laplace collapses
+      under staged): 93-96% coverage (90-95% careless) vs 88-92% fixed, at
+      7.4-8.7 names vs 5-6. Pairwise intervals keep the fixed prior (EB
+      undercovers; "An empirical-Bayes prior"). Next, most valuable first:
+      (a) a stored per-survey pooled prior sd for the set (pooled sizes 6.9-7.8
+      at the same coverage), the PrefLib panels through the refit and the set,
+      and a heavier-tailed prior for the pairwise intervals; (b) half-time
+      salience (q = 0.5 still leaks +0.12 to +0.29: does pace see them?);
       (c) check the answer-time model against the first real survey's
-      msToAnswer (honest pace spread, slowing on close pairs, whether
-      out-of-step people are quicker); (d) position bias that starts
-      mid-session; (e) the switch rule above 120 items; then real pairwise
-      answers. Answer times landed 2026-11-12 (scripts/answer-time-sweep.ts,
-      INFORMATION-GAIN-SELECTOR.md "Answer times", simulated timing with its
-      assumptions swept): pace never mistakes a camp for the careless (AUC
-      0.50-0.56) and separates the careless as far as they are quicker
-      (0.83-0.98); the time-vs-closeness slope confuses camps like agreement.
-      Shipped as the ranking's `pace` note plus `?drop=fast` for comparison,
-      not a default (dropping costs up to 0.019 when the careless are no
-      faster).
+      msToAnswer; (d) position bias that starts mid-session; (e) the switch
+      rule above 120 items; then real pairwise answers.
   - venture: league-schedule-generator
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot

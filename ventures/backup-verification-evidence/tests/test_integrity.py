@@ -14,12 +14,12 @@ import bz2
 import gzip
 import io
 import lzma
-import os
 import sqlite3
 import sys
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
 from pathlib import Path
 
@@ -350,14 +350,22 @@ class UnsupportedAndEdgeCaseTests(ArtifactFixtureCase):
         result = inspect_artifact(self.dir / "nope.tar.gz")
         self.assertEqual(result["result"], INCONCLUSIVE)
 
-    @unittest.skipIf(os.geteuid() == 0, "root bypasses file permission bits")
     def test_unreadable_file_is_inconclusive_not_corrupt(self) -> None:
         # "I could not open it" and "it is damaged" are different answers, and
         # conflating them would page someone about a permissions bug.
+        # The permission error is raised directly rather than by chmod 000,
+        # which root (every cloud container) ignores; a root skip meant this
+        # case never ran in agent sessions.
         path = self.write("locked.gz", gzip.compress(PAYLOAD))
-        path.chmod(0o000)
-        self.addCleanup(path.chmod, 0o644)
-        result = inspect_artifact(path)
+        real_open = Path.open
+
+        def deny(self_path: Path, *args, **kwargs):
+            if self_path == path:
+                raise PermissionError(13, "Permission denied", str(self_path))
+            return real_open(self_path, *args, **kwargs)
+
+        with mock.patch.object(Path, "open", deny):
+            result = inspect_artifact(path)
         self.assertEqual(result["result"], INCONCLUSIVE)
 
 

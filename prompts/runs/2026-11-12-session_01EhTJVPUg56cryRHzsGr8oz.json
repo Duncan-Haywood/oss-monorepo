@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVPUg56cryRHzsGr8oz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing ventures brief)",
+  "input_sha256": "ab838dcdaa366e9a871897ade0296bc3024049aa8fb7f554a6b72a674dcf5c17",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T03:56:05Z",
+  "ended": "2026-11-12T04:50:19Z",
+  "wall_minutes": 54.58,
+  "tokens_in": 13906414,
+  "tokens_out": 73513,
+  "cost_usd": 5.6889,
+  "tool_calls": 99,
+  "task": "Deepen (flagship 8): quick-pick-survey item (a), an empirical-Bayes prior sd for the per-person refit; re-measure the favourite set and pairwise intervals",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14992",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "Laplace-evidence EB (first implementation) collapsed to the 0.3 floor under the staged selector; found by an importance-sampled cross-check (scripts/eb-laplace-check.ts) and replaced before shipping",
+    "First importance sampler used a 1.5x inflated proposal; seed-to-seed sd of 0.3 in log evidence at 30 items; reran every sampled sweep at 1.1x",
+    "One unit test (600-answer recovery) timed out under CPU contention from parallel sweeps; cut from 1500 answers"
+  ],
+  "integrity_issues": [
+    "Found and corrected a factor-of-two error in docs/INFORMATION-GAIN-SELECTOR.md 'Who it's between': the simulated truth's sd on the logit scale is 1.155, not 0.58 (simulate() uses slope 2)"
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pgrep/pkill bracket hook also refuses a command when the bare word appears anywhere else on the line (e.g. 'ci' inside a log file name 'npmci.log'); a wait loop had to go in a scratch script"
+    },
+    {
+      "file": "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md",
+      "issue": "Stated the simulated truth sd as 0.58 (it is 1.155 on the logit scale), which would have pointed a run at the wrong target prior; fixed in this PR"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Item (a) asked for an EB prior for 'the refit'; measurement showed it hurts the pairwise intervals, so it was shipped for the favourite set only",
+      "did": "Two refits on the insights route: fixed prior for ratings/intervals/clear-pick, EB prior for the 'it's between' set",
+      "result": "Set coverage 0.88-0.92 to 0.93-0.96 (careless 0.76-0.83 to 0.90-0.95); intervals unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-quick-pick-survey-empirical-bayes-prior.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md ('An empirical-Bayes prior')"
+  ],
+  "goal": "Deepen a flagship with a measured statistical improvement shipped to the product",
+  "notes": "Verification run here: quick-pick-survey vitest 57 files / 464 tests pass; integration suite (scripts/test-db.sh Postgres) 12 files / 118 tests pass; new integration case fails on the old route (checked by reverting route.ts); tsc and eslint clean; next build EXIT 0; node platform/pages/venture-preflight.mjs quick-pick-survey: 'preflight clean'. Sweeps: favourite-set-sweep --eb --pool (60 respondents x 9 cells, 4 configs) and refit-coverage-sweep --eb/--pool (40 x 18 cells), numbers in docs/eb-prior-2026-11-12.jsonl. Laplace vs sampled evidence peaks: staged 0.3-0.45 vs 1.2 (truth 1.155).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bdb693cd-0ddb-585a-9798-4bac9a8a7afb",
+    "transcripts": 1,
+    "first": "2026-11-12T03:56:05Z",
+    "last": "2026-11-12T04:50:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 94,
+        "input": 182,
+        "output": 73513,
+        "thinking": 16929,
+        "cache_read": 13722047,
+        "cache_write_5m": 0,
+        "cache_write_1h": 184185,
+        "api_equivalent_usd": 5.6889,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 94,
+      "input": 182,
+      "output": 73513,
+      "thinking": 16929,
+      "cache_read": 13722047,
+      "cache_write_5m": 0,
+      "cache_write_1h": 184185,
+      "api_equivalent_usd": 5.6889,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 99,
+    "tools": {
+      "Bash": 96,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 54.58,
+      "active_minutes": 54.58,
+      "model_minutes": 12.83,
+      "tool_minutes": 41.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a statistician implementing type-II ML with two evidence estimators, running and writing up the coverage sweeps, and wiring the route with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 281.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

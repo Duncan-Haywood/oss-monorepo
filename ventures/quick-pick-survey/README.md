@@ -192,9 +192,14 @@ of pairs under the staged selector (refit: 95% at the same width). The top and b
 called clear only when they beat every other item by 1.645 sd of the difference
 (`src/lib/clearPick.ts`); the old "ahead by half its rd" rule named the wrong favourite in more
 than half of its claims on synthetic respondents. When no pick is clear, the card lists who it
-is between: the refit's 95% credible set for the favourite (`src/lib/favouriteSet.ts`), which held
-the true favourite for 88-92% of synthetic respondents shown the card, against 68-74% for the
-three highest-rated items it replaced (it undercovers 95% because the prior is wider than the
-simulated truth). The stored states still drive question
+is between: a 95% credible set for the favourite (`src/lib/favouriteSet.ts`), drawn since
+2026-11-12 from a second refit whose prior sd is estimated from the person's own answers
+(empirical Bayes on importance-sampled evidence, `empiricalPriorPhi`; the Laplace evidence fails
+under the staged selector). It holds the true favourite for 93-96% of synthetic respondents shown
+the card (90-95% with careless answers), against 88-92% (76-83%) with the fixed prior and 68-74%
+for the three highest-rated items, at the cost of longer lists (about 7.5-8.7 names against 5-6).
+The ratings, intervals and clear-pick rule keep the fixed prior: the estimated one makes pairwise
+intervals undercover. The stored states still drive question
 selection and the couple screen. Measurements: docs/INFORMATION-GAIN-SELECTOR.md, "Per-person
-intervals from a refit", "The clear-top-pick claim" and "Who it's between" (2026-11-12).
+intervals from a refit", "The clear-top-pick claim", "Who it's between" and "An empirical-Bayes
+prior" (2026-11-12).
