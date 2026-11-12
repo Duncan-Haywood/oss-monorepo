@@ -1286,7 +1286,7 @@
         st.textContent = "Loading the photo reader…";
         const r = await readPhotos(files, { onProgress: (m) => { st.textContent = m.status === "reading" ? `Reading photo ${m.index + 1} of ${m.total}…` : m.status === "recognizing text" ? `Reading… ${Math.round((m.progress || 0) * 100)}%` : st.textContent; } });
         if (r.text) { const box = $("#receipts-text"); box.value = (box.value.trim() ? box.value.trim() + "\n---\n" : "") + r.text; record("receipt_photos_read"); }
-        st.textContent = `Read ${r.read} photo${r.read === 1 ? "" : "s"} into the box above (each read twice)${r.notes?.length ? `; ${r.notes.map((x) => `${x.name}: ${x.note}`).join("; ")}` : ""}${r.skipped.length ? `; skipped ${r.skipped.map((x) => `${x.name} (${x.why})`).join(", ")}` : ""}. Fix any misread amount, then press Read receipts.`;
+        st.textContent = `Read ${r.read} photo${r.read === 1 ? "" : "s"} into the box above (${r.readings ?? 2 * r.read} readings: two of each photo, two more of a small photo enlarged)${r.notes?.length ? `; ${r.notes.map((x) => `${x.name}: ${x.note}`).join("; ")}` : ""}${r.skipped.length ? `; skipped ${r.skipped.map((x) => `${x.name} (${x.why})`).join(", ")}` : ""}. Fix any misread amount, then press Read receipts.`;
       } catch (e) { st.textContent = e.message; }
     });
     $("#receipts-min").addEventListener("change", renderReceipts);

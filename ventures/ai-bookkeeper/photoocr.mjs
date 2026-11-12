@@ -37,19 +37,42 @@ export async function loadEngine(onProgress = () => {}) {
   return {
     // psm: tesseract's page-segmentation mode, "6" (one block, tesseract.js's
     // default) or "4" (one column of text of varying sizes)
-    recognize: async (file, { psm } = {}) => {
+    // grow: also read a grey copy drawn at that long side in pixels (null when the
+    // photo is already that big: those readings are skipped, see PASSES)
+    recognize: async (file, { psm, grow } = {}) => {
+      const img = grow ? await greyCopy(file, grow) : file;
+      if (!img) return null;
       if (psm) await worker.setParameters({ tessedit_pageseg_mode: psm });
-      return (await worker.recognize(file)).data.text;
+      return (await worker.recognize(img)).data.text;
     },
     close: () => worker.terminate(),
   };
 }
 
+// A grey copy of the photo drawn on a canvas with its long side at `side` pixels,
+// or null when the photo is already at least that big.
+async function greyCopy(file, side) {
+  const bmp = await createImageBitmap(file);
+  const k = side / Math.max(bmp.width, bmp.height);
+  if (k <= 1) { bmp.close?.(); return null; }
+  const c = document.createElement("canvas");
+  c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+  const g = c.getContext("2d");
+  g.imageSmoothingEnabled = true; g.imageSmoothingQuality = "high";
+  g.filter = "grayscale(1)";
+  g.drawImage(bmp, 0, 0, c.width, c.height);
+  bmp.close?.();
+  return c;
+}
+
 // Each photo is read in these modes, as the CLI's `receipts --two-pass` does.
 // On SROIE's 626 scans through tesseract.js the second reading moves the
 // total from the first reading's score to the settled one (README, "The page
-// reads each photo twice").
-export const PASSES = ["6", "4"];
+// reads each photo twice"). A photo under 2,000 pixels on its long side (a
+// downsized phone photo) is read twice more, as a grey copy drawn at 2,000: on
+// ExpressExpense's 200 US receipt photos (750 x 1000) the four readings' vote
+// takes the total from 60.7% to 67.9% right (README, "US receipt photos").
+export const PASSES = ["6", "4", { psm: "6", grow: 2000 }, { psm: "4", grow: 2000 }];
 
 const tidy = (raw) => cleanOcr(String(raw || "")).split(/\r?\n/).map((l) => l.trimEnd()).filter((l) => l.trim()).join("\n");
 
@@ -92,7 +115,8 @@ function settleTotals(readings) {
   const swapped = at >= 0 ? [...lines.slice(0, at), line, ...lines.slice(at + 1)] : [...lines, line];
   const text = swapped.join("\n");
   if (parseReceipt(text).cents !== both.cents) return { note: `the two readings disagree on the total (${money(one.cents)} and ${money(both.cents)}): check it`, text: first };
-  return { text, note: `total read as ${money(one.cents)} once and ${money(both.cents)} once; kept ${money(both.cents)}, which the receipt's own arithmetic confirms: check it` };
+  const said = t.length === 2 ? `${money(one.cents)} once and ${money(both.cents)} once` : `${money(one.cents)} first and ${money(both.cents)} in ${t.map((x) => parseReceipt(x).cents).filter((c) => c === both.cents).length} of ${t.length} readings`;
+  return { text, note: `total read as ${said}; kept ${money(both.cents)}, which the receipt's own arithmetic${t.length > 2 ? " and the other readings" : ""} confirm${t.length > 2 ? "" : "s"}: check it` };
 }
 
 // One text block per photo, `---` between them, ready for the receipts box.
@@ -106,17 +130,23 @@ export async function readPhotos(files, { loadEngine: load = loadEngine, onProgr
   if (!images.length) return { text: "", read: 0, skipped, notes: [] };
   const engine = await load(onProgress);
   const blocks = [], notes = [];
+  let readingsDone = 0;
   try {
     for (const [i, f] of images.entries()) {
       onProgress({ status: "reading", index: i, total: images.length, name: f.name });
       const readings = [];
       // one photo the reader cannot open is skipped; the others are still read
-      try { for (const psm of passes) readings.push(await engine.recognize(f, { psm })); }
+      try {
+        for (const pass of passes) {
+          const t = await engine.recognize(f, typeof pass === "string" ? { psm: pass } : pass);
+          if (t != null) { readings.push(t); readingsDone++; }
+        }
+      }
       catch (e) { skipped.push({ name: f.name, why: `could not be read (${String(e?.message ?? e).replace(/^Error: /, "")})` }); continue; }
       const { text, note } = settleReadings(readings);
       if (text) { blocks.push(text); if (note) notes.push({ name: f.name, note }); }
       else skipped.push({ name: f.name, why: "no text found in the photo" });
     }
   } finally { await engine.close?.(); }
-  return { text: blocks.join("\n---\n"), read: blocks.length, skipped, notes };
+  return { text: blocks.join("\n---\n"), read: blocks.length, readings: readingsDone, skipped, notes };
 }

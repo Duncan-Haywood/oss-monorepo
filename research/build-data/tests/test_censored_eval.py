@@ -54,6 +54,15 @@ class IPCW(unittest.TestCase):
         self.assertEqual(float(d["transfer:b-a"][0.9][0]), 10.0)
         self.assertEqual(float(d["a:transfer-own_baseline"][0.5][0]), 1.0)
 
+    def test_out_name_keeps_session_78_names_and_tags_other_class_lists(self):
+        pp = datetime.date(2023, 11, 12)
+        self.assertEqual(ce.out_name("validate", "seattle", 2021, pp, ["cascade2", "cascade2_nodemo"]),
+                         "censored_eval_validate_seattle_i2c_2021_pp2023.json")
+        self.assertEqual(ce.out_name("validate", "sf", 2021, pp, ["cascade2", "type", "cascade2_nodemo"]),
+                         "censored_eval_validate_sf_i2c_2021_pp2023_cascade2-type-cascade2_nodemo.json")
+        self.assertEqual(ce.out_name("rescore", "seattle", 2024, None, ["cascade2", "type"]),
+                         "censored_eval_rescore_seattle_i2c_2024_cascade2-type.json")
+
     def test_bins_compare_seen_share_with_g(self):
         y = np.array([100.0, 700.0, 700.0, 950.0])
         c = np.array([681.0, 1000.0, 690.0, 1000.0])
