@@ -39,7 +39,8 @@
     <input id="file" type="file" accept=".csv,.txt,text/csv,text/plain" aria-label="Load a CSV file">
     <button type="button" id="sample">Try a made-up fortnight</button>
     <div class="row2">
-      <div><label for="count">Staff to</label><select id="count"><option value="">sales (money taken)</option><option value="tickets">customers (count each ticket, order or receipt number once)</option><option value="rows">rows (count each row as one customer)</option></select></div>
+      <div><label for="count">Staff to</label><select id="count"><option value="">sales (money taken)</option><option value="tickets">customers (count each ticket, order or receipt number once)</option><option value="rows">rows (count each row as one customer)</option><option value="standard">minutes of work (a labour standard)</option></select></div>
+      <div id="stdbox" hidden><label for="std">Minutes of work per ticket, sale and item</label><input id="std" value="1.5/ticket + 0.3/item" aria-describedby="stdnote"><p class="note" id="stdnote">Blend any of the three, e.g. <code>2/ticket + 0.05/sale</code>: the minutes a ticket takes at the till, a unit of money (bigger orders, more to pack) and an item (each thing picked). The rate is then minutes of work per labor hour: 60 is someone busy every minute, 45 leaves a quarter of each hour for cleaning and restocking.</p></div>
       <div><label for="splh" id="splhlabel">Sales per labor hour ($)</label><input id="splh" inputmode="decimal" value="60"></div>
       <div><label for="minstaff">Minimum staff while open</label><input id="minstaff" inputmode="numeric" value="1"></div>
       <div><label for="minshift">Shortest shift (hours)</label><input id="minshift" inputmode="decimal" value="4"></div>
@@ -96,6 +97,8 @@
     // "auto" backtests the file, too slow to repeat on every keystroke, so the pick is kept until the sales or a
     // setting that changes the backtest changes.
     let autoKey = null, autoPick = null;
+    // What heads follow: money, tickets, rows, or a labour standard (minutes a ticket, a unit of money and an item).
+    const driver = () => { const c = $("#count").value; return c === "standard" ? { standard: $("#std").value } : { count: c || undefined }; };
     function run() {
       const problem = $("#problem");
       let r;
@@ -103,7 +106,7 @@
         const o = {
           splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"),
           skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: num("#shortcost"),
-          count: $("#count").value || undefined, scoreClosed: $("#scoreclosed").checked,
+          ...driver(), scoreClosed: $("#scoreclosed").checked,
         };
         const half = $("#half").value.trim().toLowerCase();
         let autoNote = null;
@@ -127,11 +130,11 @@
       const pageNote = (n) => n.replace(" (--keep-rare keeps it)", "").replace(" --open/--close or --keep-rare sets the hours yourself.", "");
       const notes = [...r.notes.map(pageNote), ...r.skipped.slice(0, 5)];
       $("#summary").innerHTML = r.rows ? `${r.needed} labor hours needed, ${r.scheduled} scheduled (${r.extra >= 0 ? `${r.extra} extra from minimum shift length` : `${-r.extra} fewer: short runs left unstaffed: a whole shift there costs more than it saves at your short cost (1 when blank)`}).<br>${notes.map(esc).join("<br>")}` : notes.map(esc).join("<br>");
-      $("#table").innerHTML = r.rows ? `<table><tr><th>Day</th><th>${r.count && r.count !== "sales" ? `Avg ${r.count}` : "Avg sales"}</th><th>Hours needed</th><th>Hours scheduled</th></tr>${r.days.map((d) => `<tr><td>${d.day}</td><td>${r.count && r.count !== "sales" ? "" : "$"}${Math.round(d.sales).toLocaleString("en-US")}</td><td>${d.needed}</td><td>${d.scheduled}</td></tr>`).join("")}</table>` : "";
+      $("#table").innerHTML = r.rows ? `<table><tr><th>Day</th><th>${r.count === "minutes" ? "Avg minutes of work" : r.count && r.count !== "sales" ? `Avg ${r.count}` : "Avg sales"}</th><th>Hours needed</th><th>Hours scheduled</th></tr>${r.days.map((d) => `<tr><td>${d.day}</td><td>${r.count && r.count !== "sales" ? "" : "$"}${Math.round(d.sales).toLocaleString("en-US")}</td><td>${d.needed}</td><td>${d.scheduled}</td></tr>`).join("")}</table>` : "";
     }
     // The rate box's label follows what is counted.
-    const labelFor = () => { const c = $("#count").value; $("#splhlabel").textContent = c === "tickets" ? "Customers (tickets) per labor hour" : c === "rows" ? "Rows per labor hour" : "Sales per labor hour ($)"; };
-    $("#count").addEventListener("change", () => { labelFor(); run(); });
+    const labelFor = () => { const c = $("#count").value; $("#stdbox").hidden = c !== "standard"; $("#splhlabel").textContent = c === "tickets" ? "Customers (tickets) per labor hour" : c === "rows" ? "Rows per labor hour" : c === "standard" ? "Minutes of work per labor hour" : "Sales per labor hour ($)"; };
+    $("#count").addEventListener("change", () => { if ($("#count").value === "standard") { $("#splh").value = "60"; record("sales_labour_standard"); } labelFor(); run(); });
     document.addEventListener("input", run);
     $("#sample").addEventListener("click", () => { $("#csv").value = sample(); run(); });
     $("#file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) { $("#csv").value = await f.text(); run(); } });
@@ -144,7 +147,7 @@
       const out = $("#btout");
       let b;
       const rc = num("#shortcost");
-      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc, shifts: true, count: $("#count").value || undefined, scoreClosed: $("#scoreclosed").checked }); }
+      try { b = backtestSales($("#csv").value, { splh: num("#splh"), minStaff: num("#minstaff"), minShift: num("#minshift"), maxShift: num("#maxshift"), skipDates: $("#skip").value.split(/[,\s]+/).filter(Boolean), shortCost: rc, shifts: true, ...driver(), scoreClosed: $("#scoreclosed").checked }); }
       catch (e) { out.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
       if (!b.weeks) { out.innerHTML = `<p class="err">${b.notes.map(esc).join(" ")}</p>`; return; }
       record("sales_backtest_run");
