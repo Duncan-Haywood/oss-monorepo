@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 7,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "what": "Second preflight reported platform/pages podcast.test.mjs failing; it passed 10/10 when rerun alone",
       "fix": "reran the preflight; likely a race with editing the post's front matter while the site tests ran"
+    },
+    {
+      "what": "CI validate failed: flagships.yaml changepoint-detector next: 2072 chars over the 2000 cap",
+      "fix": "shortened the round-6 clause; portfolio/router/validate.py passes locally"
     }
   ],
   "integrity_issues": [],
