@@ -3,7 +3,7 @@ title: "Budget the false disputes, don't chase the honest maximum"
 seo_title: "A quantile drift tolerance for verifying outsourced fp16 training"
 date: 2026-11-12
 tags: [research, verifiable-training, machine-learning, open-source]
-description: "Setting the replay-drift threshold at the honest 98% quantile catches a 2% training shrink in 79% of jobs for 13% of a job's compute, if a dispute costs one re-run."
+description: "An honest 98% quantile as the replay-drift threshold catches a 2% training shrink in 79% of jobs for 13% of the compute, if a dispute costs one re-run."
 ---
 
 The [verifiable-training-mechanisms](../../research/verifiable-training-mechanisms/)
