@@ -1378,7 +1378,13 @@ function checkBestOfK(tries, pick) {
 
 /** The seed try i of a best-of-k search uses: try 0 is the base seed itself. */
 export function carryOverTrySeed(seed, i) {
-  return i === 0 ? seed : ((seed * 7919 + i * 104729) % 2147483647) || 1;
+  if (i === 0) return seed;
+  // Past about 1.1e12, seed * 7919 is no longer a safe integer and swamps i * 104729 in floating
+  // point: a typed seed of 1e21 gave every try after the first the same seed, so "best of ten" ran
+  // two distinct searches. Such a seed is folded to seed >>> 0 first, the only part the search
+  // (mulberry32) ever reads; every smaller seed keeps exactly the tries it always had.
+  const base = Number.isSafeInteger(seed * 7919) ? seed : seed >>> 0;
+  return ((base * 7919 + i * 104729) % 2147483647) || 1;
 }
 
 /**
