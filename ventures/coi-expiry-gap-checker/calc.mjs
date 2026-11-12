@@ -67,6 +67,9 @@ export function normalizeCoverage(s) {
   if (/work|comp|\bwc\b|employers/.test(t)) return "WC";
   if (/auto|vehicle|\bba\b/.test(t)) return "AUTO";
   if (/profession|e&o|errors|omissions|\bpl\b/.test(t)) return "PRO";
+  // Other liability lines (pollution, liquor, cyber, garage ...) are not general liability and
+  // must not satisfy a GL requirement; they are left unrecognised.
+  if (/pollution|liquor|cyber|garage|recall|directors|d&o|employment practices|\bepl\b|fiduciary|crime|aircraft|aviation|marine/.test(t)) return null;
   if (/general|\bgl\b|\bcgl\b|\bclg\b|liability/.test(t)) return "GL";
   return null;
 }
@@ -234,7 +237,10 @@ export function check(text, req = {}, asOf) {
     for (const c of Object.keys(COVERAGES)) {
       const ps = v.policies.filter((p) => p.coverage === c && p.effective != null && p.expiry != null).sort((a, b) => a.effective - b.effective);
       for (let i = 1; i < ps.length; i++) {
-        const gap = ps[i].effective - ps[i - 1].expiry - 1;
+        // Policy periods run from 12:01 a.m. on the effective date to 12:01 a.m. on the expiration
+        // date, so a renewal effective on the old expiration date is continuous and one effective
+        // the next day leaves the expiration date itself uncovered (quality audit 2026-11-12).
+        const gap = ps[i].effective - ps[i - 1].expiry;
         if (gap > 0) add(v, { severity: "warning", coverage: c, line: ps[i].line, title: `${COVERAGES[c]}: ${gap}-day gap between policies`, detail: `The earlier policy ended ${isoDay(ps[i - 1].expiry)} and the next began ${isoDay(ps[i].effective)}. Work done in the gap was not covered by anything on this list.` });
       }
     }
