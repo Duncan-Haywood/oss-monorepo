@@ -2470,6 +2470,45 @@ export function toolTrendSentence(bids, nowMs) {
 }
 
 /**
+ * Where the shop-rates and saved-bids bars go on a tool page: the index just
+ * after the `</header>` that holds the page's `h1`, or -1 when there is no
+ * such header.
+ *
+ * The bars used to sit directly under the site nav, above the heading, so a
+ * first-time visitor's first line on ~170 tools was "Save your rates once"
+ * and a "Saved bids" button, and the tool's own name came third (measured
+ * 2026-11-12: the `h1` started 284 px down at 390 px wide, median of 174
+ * pages). The bars are about the form, so they belong between the heading
+ * block and the form: the name and the one-line pitch first, then "your
+ * rates, your bids", then the inputs they fill.
+ *
+ * 171 of the 174 pages put their `h1` in a `<header>` that closes before the
+ * first form control. Only that shape is trusted. If the header holds an
+ * input, or there is no header around the `h1` (three pages put it inside
+ * `<main>`), this returns -1 and the caller keeps the old place under the nav:
+ * a guess inside a venture's own layout would land somewhere different on
+ * each tool.
+ */
+export function toolHeadingEnd(html) {
+  if (typeof html !== 'string') return -1;
+  const navEnd = (() => {
+    const nav = /<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i.exec(html);
+    return nav ? nav.index + nav[0].length : 0;
+  })();
+  const h1 = html.slice(navEnd).search(/<h1[\s>]/i);
+  if (h1 < 0) return -1;
+  const h1At = navEnd + h1;
+  const before = html.slice(navEnd, h1At);
+  const open = before.search(/<header[\s>][^<]*(?:<(?!\/?header[\s>])[^<]*)*$/i);
+  if (open < 0) return -1;
+  const close = html.indexOf('</header>', h1At);
+  if (close < 0) return -1;
+  const inside = html.slice(h1At, close);
+  if (/<(?:input|select|textarea|form|header)[\s>]/i.test(inside)) return -1;
+  return close + '</header>'.length;
+}
+
+/**
  * Drop the indentation and the whole-line comments from a function's source.
  *
  * These bodies ship inside every one of the ~230 pages the build produces, and
@@ -3895,8 +3934,9 @@ const htmlAttr = (value) => String(value)
  * (`pageTakesSavedBids`), when there is no `<body>` to attach to, or when the
  * bar is already there — the pass has to be safe to run twice.
  *
- * Placed directly after the shop-rates bar when there is one, and under the
- * navigation chrome otherwise, for the reason `injectShopRates` gives: the form
+ * Placed directly after the shop-rates bar when there is one, otherwise just
+ * below the page's heading block (`toolHeadingEnd`), and under the navigation
+ * chrome when the page has no such block, for the reason `injectShopRates` gives: the form
  * is the one part of these pages that is genuinely different from venture to
  * venture, so there is no element every calculator has in the same place. The
  * two bands sit together above the form in the same order on every tool — your
@@ -3936,11 +3976,14 @@ export function injectSavedBids(html, slug = '', toRoot = './') {
 
   const rates = withStyle.match(/<section class="pf-rates"[\s\S]*?<\/section>/i);
   const nav = withStyle.match(/<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i);
-  const anchor = rates ? rates[0] : nav ? nav[0] : null;
+  const headingEnd = toolHeadingEnd(withStyle);
   const markup = JOBS_MARKUP(toRoot, amountSelector !== '');
+  const anchor = rates ? rates[0] : headingEnd < 0 && nav ? nav[0] : null;
   const anchored = anchor
     ? withStyle.replace(anchor, `${anchor}\n${stylePrefix}${markup}`)
-    : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
+    : headingEnd >= 0
+      ? `${withStyle.slice(0, headingEnd)}\n${stylePrefix}${markup}${withStyle.slice(headingEnd)}`
+      : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
 
   // A tag, not a body. The script is one file at the site root now — see
   // `renderSavedBidsModule` — and this is the only thing that varies per page.

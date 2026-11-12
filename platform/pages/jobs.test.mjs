@@ -61,6 +61,7 @@ import {
   MIN_SAVEABLE_FIELDS,
   SAVED_BIDS_KEY,
   injectSavedBids,
+  toolHeadingEnd,
   renderSavedBidsModule,
   renderSavedBidsStyle,
   SAVED_BIDS_STYLE_FILE,
@@ -273,6 +274,25 @@ test('the bar anchors under the nav when there is no rates bar', () => {
   const html = page(`<nav class="pf-chrome pf-chrome-top">n</nav>${inputs(6)}`);
   const out = injectSavedBids(html, 'x');
   assert.ok(out.indexOf('pf-chrome-top') < out.indexOf('data-pf-jobs-root'));
+});
+
+test('with no rates bar, the bar sits under the heading block when there is one', () => {
+  const html = page(`<nav class="pf-chrome pf-chrome-top">n</nav><header><h1>Deck</h1></header><main>${inputs(6)}</main>`);
+  const out = injectSavedBids(html, 'x');
+  const bar = out.indexOf('data-pf-jobs-root');
+  assert.ok(out.indexOf('</header>') < bar && bar < out.indexOf('<main>'));
+});
+
+test('toolHeadingEnd trusts only a header around the h1 that holds no form control', () => {
+  const nav = '<nav class="pf-chrome pf-chrome-top"><header>chrome</header></nav>';
+  const ok = `${nav}<div class="wrap"><header class="hero"><p>e</p><h1 class="t">T</h1><p>p</p></header><main><input id="a"></main></div>`;
+  assert.equal(ok.slice(toolHeadingEnd(ok) - 9, toolHeadingEnd(ok)), '</header>');
+  assert.equal(toolHeadingEnd(ok), ok.indexOf('<main>'));
+  assert.equal(toolHeadingEnd(`${nav}<header><h1>T</h1><input id="a"></header>`), -1);
+  assert.equal(toolHeadingEnd(`${nav}<main><h1>T</h1></main>`), -1);
+  assert.equal(toolHeadingEnd(`${nav}<header>logo</header><h1>T</h1>`), -1, 'a closed header is not the h1\'s');
+  assert.equal(toolHeadingEnd('<body><p>no heading</p></body>'), -1);
+  assert.equal(toolHeadingEnd(null), -1);
 });
 
 test('every button this injects stays inside the root, so a sweep can tell them apart', () => {
