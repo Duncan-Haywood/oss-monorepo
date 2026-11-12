@@ -27,19 +27,24 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
   "errors": [
     "Own sanity script used p (E+1) instead of (p-1)(E+1) for the shift-break formula and flagged 58 false mismatches; the code was right, the check was wrong.",
-    "eval/shift-carry.mjs first wrote a 'seed' mode key that overwrote the seed number in its JSON line; renamed to 'seeded' and re-ran for the committed output."
+    "eval/shift-carry.mjs first wrote a 'seed' mode key that overwrote the seed number in its JSON line; renamed to 'seeded' and re-ran for the committed output.",
+    "CI validate failed: flagships.yaml next: was 2,301 characters (cap 2,000) after appending; condensed the history to the README pointer. portfolio/router/validate.py catches it locally."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "portfolio/flagships.yaml",
       "issue": "The listed next item (seed assignVenues with the shift orientation after the moves) measured as nothing (1 row of 60 changed); the bigger gap, odd power-of-two sizes 15 and 31 with 41 and 245 breaks, was not on the list and was only visible from the eval table."
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Says to rewrite the venture's next: but does not mention the 2,000-character cap that portfolio/router/validate.py enforces; it surfaced only in CI."
     }
   ],
   "deviations": [
@@ -55,7 +60,7 @@
     "ventures/league-schedule-generator/README.md (section 'Shift venues carried through the search')"
   ],
   "goal": "Deepen flagship 9: fewer home/away breaks at the balanced setting without raising carry-over elsewhere.",
-  "notes": "Verification: node --test *.test.mjs in ventures/league-schedule-generator: 435 pass, 0 fail (81 s). Measurements: eval/field-shift.txt (7, 8, 15, 16, 31, 32 teams, seeds 1-2), eval/shift-carry.txt (9-40 teams, seeds 1-2, four modes), eval/starter-orient.txt (climb output for 8, 16, 32). Venture preflight run in the background; see the PR summary for its result. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
+  "notes": "Verification: node --test *.test.mjs in ventures/league-schedule-generator: 435 pass, 0 fail (81 s). Measurements: eval/field-shift.txt (7, 8, 15, 16, 31, 32 teams, seeds 1-2), eval/shift-carry.txt (9-40 teams, seeds 1-2, four modes), eval/starter-orient.txt (climb output for 8, 16, 32). node platform/pages/venture-preflight.mjs league-schedule-generator: clean (second run, after a front-matter fix). portfolio/router/validate.py: valid after the next: trim. No agent doc in docs/reports: the README section and flagships next: carry what the next run needs.",
   "corrections": [],
   "redteam": null,
   "usage": {
