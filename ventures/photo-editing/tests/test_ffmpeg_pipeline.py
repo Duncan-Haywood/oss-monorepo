@@ -362,7 +362,7 @@ class LocalPipelineTests(unittest.TestCase):
             preview = Path(tmp) / "preview.jpg"
             _make_photo(preview, color="green")
             fake_cr2 = b"II*\x00\x08\x00\x00\x00" + b"\x00" * 64 + preview.read_bytes() + b"\x00" * 16
-            manifest = _ingested_shoot(Path(tmp) / "shoot", extra_files={"IMG_0003.CR2": fake_cr2})
+            manifest = _ingested_shoot(Path(tmp) / "shoot", extra_files={"IMG_0003.NEF": fake_cr2})
 
             result = run_local_pipeline(manifest, clock=_ticking_clock())
 
@@ -370,7 +370,7 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertTrue(any(job_id.startswith("grade_asset_") for job_id in result.needs_review_ids), result)
             status = json.loads((manifest.parent / "production_status.json").read_text())
             messages = [job["error_message"] for job in status["job_statuses"] if job.get("error_message")]
-            self.assertTrue(any("convert CR2 to DNG" in message for message in messages), messages)
+            self.assertTrue(any("convert NEF to DNG" in message for message in messages), messages)
 
     def test_cli_exit_code_reports_review_needed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

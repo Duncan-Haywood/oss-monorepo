@@ -76,11 +76,11 @@ that preview downscaled to 1024 px (`proxies/<job>/IMG_0001.CR3.jpg`; synthetic 
 only, no real camera file yet). Since 2026-11-10 the pipeline develops DNG stills itself
 (see "Develop DNG raw files" below): the grade stage develops the sensor data into a 16-bit
 TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no embedded preview
-gets its proxy and its scores from a half-size development instead of failing. Other RAW
-formats (CR2, CR3, NEF, ARW, ...) are still scored from their preview but stop at the grade
-stage with a message to convert them to DNG (Adobe's free DNG Converter); since 2026-11-12
-`shootflow develop` reads a Canon CR2 directly when given the camera's `.dcp` profile
-("Develop a Canon CR2 directly" below), though the pipeline's grade stage does not yet; one with no preview
+gets its proxy and its scores from a half-size development instead of failing. Since
+2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
+from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below). Other RAW
+formats (CR3, NEF, ARW, ...) are still scored from their preview but stop at the grade
+stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
 counts only 8-bit lossy JPEGs as previews: CR2 sensor data is a lossless JPEG (SOF3) and DNG
@@ -1060,8 +1060,28 @@ within 3%). Full size, 21 MP to a 16-bit TIFF: 4.3 s with numpy and the native H
 phases and checks every inferred tag, the refusals (unclear phase, sRAW, no profile), a grey
 patch rendering neutral, the numpy and pure engines byte for byte, and the CLI. Not done: any
 Canon body but the 5D Mark II on real files (raw.pixls.us answers 403 here), a real Adobe
-profile (not in the build container), sRAW/mRAW, CR3, and the pipeline's grade stage, which
-still asks for DNG.
+profile (not in the build container), sRAW/mRAW and CR3. (The pipeline's grade stage reads CR2
+since later the same day: "CR2 in the pipeline".)
+
+## CR2 in the pipeline (2026-11-12)
+
+Copy your camera's profile into the shoot workspace's `color/camera-profiles/` (Adobe's free
+DNG Converter installs them under `CameraRaw/CameraProfiles`, several per body; copying the
+whole camera folder is fine) and the overnight pipeline's grade stage develops each CR2 into
+`graded/<job>/IMG_0001.CR2.tif` like a DNG. The profile is chosen per file by the camera that
+took it (`src/shootflow/camera_profiles.py`): a file named `<camera>.dcp` first, then the one
+profile tagged for that camera, then its Adobe Standard among several; anything else stops the
+file for review naming the candidates, rather than picking a colour silently. With no profile
+for the camera it stops naming the folder and the cameras it does hold. `shootflow develop
+--dcp FOLDER` does the same for a batch from several bodies.
+
+Checked (`eval/cr2-pipeline-grade-2026-11-12.md`, `tools/real_cr2_pipeline.py`): a real
+Canon 5D Mark II CR2 and a clip through the whole pipeline in 7.1 s, the 21 MP 16-bit master
+bit-identical to `shootflow develop --dcp` with the same profile, a decoy profile for another
+body left unused, proxy from the camera's preview and measured scores.
+`tests/test_camera_profiles.py` (12 tests) covers each rule, the refusals, symlinks, the CLI
+folder mode and a synthetic CR2 through the pipeline with and without a profile. Not done: a
+real Adobe profile, regional model names (rename the profile file), other bodies on real files.
 
 ## Colour for the light the photo was taken in (2026-11-12)
 

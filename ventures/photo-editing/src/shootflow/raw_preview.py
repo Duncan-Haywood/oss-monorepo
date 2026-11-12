@@ -46,6 +46,17 @@ def is_dng_path(path: Path) -> bool:
     return path.suffix.lower() == ".dng"
 
 
+def is_cr2_path(path: Path) -> bool:
+    return path.suffix.lower() == ".cr2"
+
+
+def is_developable_path(path: Path) -> bool:
+    """True for the RAW formats ``raw_develop`` reads from sensor data: DNG, and
+    Canon CR2 given a camera profile (``camera_profiles``)."""
+
+    return is_dng_path(path) or is_cr2_path(path)
+
+
 def extract_preview(path: Path) -> bytes | None:
     """Return the largest embedded JPEG in ``path``, or None if there is none."""
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -20,7 +20,9 @@ from shootflow.cull import (
     write_sidecars,
 )
 from shootflow.ffmpeg_media import FfmpegMediaError
+from shootflow.camera_profiles import profile_for
 from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file, read_dcp
+from shootflow.raw_preview import is_cr2_path
 from shootflow.assembly import (
     AssemblyPlan,
     AssemblyPlanError,
@@ -730,7 +732,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         use_baseline_exposure=not args.no_baseline_exposure,
         engine=args.engine,
         colour=args.colour,
-        dcp=read_dcp(args.dcp) if args.dcp else None,
+        dcp=read_dcp(args.dcp) if args.dcp and not Path(args.dcp).is_dir() else None,
         profile_tables=not args.no_profile_tables,
         tone_curve=not args.no_tone_curve,
         default_tone=args.default_tone_curve,
@@ -741,8 +743,13 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     results = []
     for source in sources:
         destination = out_dir / (source.stem + "." + args.format)
-        report = develop_file(source, destination, settings, png_bits=16 if args.format == "png16" else 8)
-        results.append({"source": str(source), "master": str(destination), **asdict(report)})
+        file_settings, chosen = settings, {}
+        if args.dcp and Path(args.dcp).is_dir() and is_cr2_path(source):
+            choice = profile_for(source, args.dcp)
+            file_settings = replace(settings, dcp=choice.profile)
+            chosen = {"camera_profile": str(choice.path), "camera_profile_rule": choice.rule}
+        report = develop_file(source, destination, file_settings, png_bits=16 if args.format == "png16" else 8)
+        results.append({"source": str(source), "master": str(destination), **asdict(report), **chosen})
     stdout.write(json.dumps({"developed": results}, sort_keys=True) + "\n")
 
 
@@ -1233,7 +1240,9 @@ def _build_parser() -> argparse.ArgumentParser:
         "--dcp",
         help="A .dcp camera profile (Adobe DNG Converter, dcamprof, RawTherapee) used in place of the DNG's "
         "own profile: its matrices, hue/saturation map and look table. dng colour only. Required for a CR2, "
-        "which carries no colour matrix (DNG Converter installs one per camera under CameraRaw/CameraProfiles).",
+        "which carries no colour matrix (DNG Converter installs one per camera under CameraRaw/CameraProfiles). "
+        "A folder of profiles picks one per CR2 by its camera: <camera>.dcp, else the profile tagged for "
+        "that camera, else its Adobe Standard.",
     )
     develop.add_argument(
         "--cfa",

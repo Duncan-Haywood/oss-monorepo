@@ -78,6 +78,24 @@ def is_cr2(data: bytes) -> bool:
     return len(data) >= 10 and data[:2] in (b"II", b"MM") and data[8:10] == b"CR"
 
 
+def unique_camera_model(ifd0: rd.Ifd) -> str:
+    """The camera's name as a DNG's UniqueCameraModel would give it: Model,
+    with Make in front unless Model already starts with it ("Canon EOS 5D Mark II")."""
+
+    make = bytes(ifd0.get(TAG_MAKE) or b"").rstrip(b"\0").decode("latin-1").strip()
+    model = bytes(ifd0.get(TAG_MODEL) or b"").rstrip(b"\0").decode("latin-1").strip()
+    return model if model.lower().startswith(make.lower()) else f"{make} {model}".strip()
+
+
+def camera_model(data: bytes) -> str:
+    """A CR2's camera name from IFD0 alone, without decoding the sensor."""
+
+    if not is_cr2(data):
+        raise rd.DevelopError("not a Canon CR2 (no 'CR' marker after the TIFF header)")
+    reader = rd._Reader(data)
+    return unique_camera_model(reader.read_ifd(reader.first_ifd_offset())[0])
+
+
 def _ifd_at(reader: rd._Reader, offset: int) -> rd.Ifd | None:
     try:
         return reader.read_ifd(offset)[0]
@@ -318,9 +336,7 @@ def parse_cr2(data: bytes, cfa: str | None = None) -> rd.RawImage:
     assert phase is not None
     notes.append(f"CR2: CFA {phase} from {method}")
 
-    make = bytes(ifd0.get(TAG_MAKE) or b"").rstrip(b"\0").decode("latin-1").strip()
-    model = bytes(ifd0.get(TAG_MODEL) or b"").rstrip(b"\0").decode("latin-1").strip()
-    unique = model if model.lower().startswith(make.lower()) else f"{make} {model}".strip()
+    unique = unique_camera_model(ifd0)
     white = float((1 << precision) - 1)
     synth = rd.Ifd(byte_order=reader.end)
     synth.entries = {
