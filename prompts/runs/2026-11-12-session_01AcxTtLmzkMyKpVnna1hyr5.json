@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtLmzkMyKpVnna1hyr5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T00:06:11Z",
+  "ended": "2026-11-12T00:29:49Z",
+  "wall_minutes": 24.2,
+  "tokens_in": 8202663,
+  "tokens_out": 46967,
+  "cost_usd": 3.6227,
+  "tool_calls": 67,
+  "task": "aerolog-scaling milestone 11b: wind and hub airspace conflicts (programme draw)",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14938",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First experiment run compared windy closed-form values with a still-air reference from a different Monte Carlo sample (200k vs 120k pairs), a constant +3.8% bias on grid factors; caught from the w = 0.1 row, run stopped, fixed with common random numbers, predictions unchanged (recorded in LOG.md).",
+    "New test put experiments/hub_airspace on sys.path and wind.py did `from run import`, shadowing vtol_sizing's own `run` module so 3 unrelated tests failed in the full suite; fixed by loading run.py under a unique module name."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The bracketed pkill -f '[n]ame' tip is not enough when the name also appears elsewhere on the command line (here the same command also edited wind.py in a heredoc); the hook wants the pkill alone in its own call."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Experiments in one project that each have a run.py and are imported by `from run import` collide in one pytest process; worth a line next to the linefig note: load sibling scripts with importlib under a unique name."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-delivery-drone-hub-conflicts-in-wind.md",
+    "research/aerolog-scaling/LOG.md (milestone 11b entry)"
+  ],
+  "goal": "Advance the aerolog-scaling programme with a pre-registered, real-data milestone",
+  "notes": "Predictions committed (f-commit 1) before ERA5 wind fetched. P1 single-layer held, split refuted; P2, P3, P5, P6 held; P4 refuted (too high). Local checks: project tests 45 passed; research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; ERA5 DOI checked on Crossref. run_workflow_locally --for-changes output in PR summary.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "28f760bd-f757-5f4d-8489-7228c9e72d73",
+    "transcripts": 1,
+    "first": "2026-11-12T00:06:11Z",
+    "last": "2026-11-12T00:30:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 127,
+        "output": 46967,
+        "thinking": 14208,
+        "cache_read": 8068905,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133631,
+        "api_equivalent_usd": 3.6227,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 127,
+      "output": 46967,
+      "thinking": 14208,
+      "cache_read": 8068905,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133631,
+      "api_equivalent_usd": 3.6227,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 62,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.2,
+      "active_minutes": 24.2,
+      "model_minutes": 9.03,
+      "tool_minutes": 15.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a researcher deriving and coding the generalised closed form, fetching ERA5, running and writing up the sweep: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 331.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

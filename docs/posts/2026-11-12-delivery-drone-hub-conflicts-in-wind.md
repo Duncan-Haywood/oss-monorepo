@@ -1,9 +1,9 @@
 ---
 title: "Wind and a delivery hub's own drones: conflicts rise by about as much as time aloft, and the layer split holds"
-seo_title: "Delivery drone hub conflicts in wind: a closed form checked on ERA5 hours"
+seo_title: "Delivery drone hub conflicts in wind: a closed form on ERA5 hours"
 date: 2026-11-12
 tags: [research, uav, logistics, airspace, wind]
-description: "In wind, one hub's head-on drone conflicts rise by about as much as flight time does: 6% on an average 2014 New York hour at 20 m/s. Splitting outbound and inbound layers still works."
+description: "Wind raises a delivery hub's head-on drone conflicts by about as much as flight time: 6% on an average 2014 NYC hour at 20 m/s. The layer split still works."
 ---
 
 Yesterday's step in the `aerolog-scaling` programme
