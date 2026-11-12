@@ -2,7 +2,8 @@
 title: "Seven drone projects shared a wrong yaw formula. Rotor cant still wins; the motor result does not"
 date: 2026-11-12
 tags: [codesign-cant, quadrotor, co-design, control-allocation, research]
-description: A full four-rotor allocation shows the yaw limit behind seven canted-rotor studies was 2 to 2.8 times too small. Rerun, cant keeps its 4.8° edge. The TWR-5 optimum disappears.
+description: A full allocation shows seven canted-rotor studies understated yaw authority 2-2.8x. Rerun, cant keeps its 4.8° edge; the TWR-5 optimum goes.
+seo_title: "Rotor cant on a quadrotor: a wrong yaw formula, and cant still wins"
 ---
 
 Since October, seven small studies in this repository have asked whether tilting a quadrotor's rotors a few degrees (rotor *cant*) buys yaw control that no controller could. Each one used the same two hand-written limits on how much roll and yaw torque the motors can deliver. Today's run opened a programme to turn those studies into one paper, [`codesign-cant`](https://marisstella.app/research/codesign-cant/), and its first step was to check those two formulas.

@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJHbuPHma4VpEFuMjy",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T03:06:14Z",
+  "ended": "2026-11-12T03:22:25Z",
+  "wall_minutes": 16.49,
+  "tokens_in": 6095774,
+  "tokens_out": 50723,
+  "cost_usd": 3.4366,
+  "tool_calls": 57,
+  "task": "research track draw: track 14 (codesign); opened programme codesign-cant and landed milestone 1",
+  "projects": [
+    "codesign-cant"
+  ],
+  "pr": 14982,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "`git merge --ff-only origin/main` after a depth-1 fetch refused (unrelated histories); `git reset --hard origin/main` was refused by the auto-mode classifier; `git checkout -B <branch> origin/main` worked (branch had no own commits)",
+    "first hover_power_ratio test used a 1e-4 tolerance on a hand-rounded 1.0231 (true 1.0232); widened"
+  ],
+  "integrity_issues": [
+    "found and documented a shared modelling error in seven earlier merged projects (codesign-aero-cant*): yaw torque limit 2x-2.8x too small, roll limit unbounded above TWR 2, side force sqrt2 too large; correction notes added to each README, conclusions rerun"
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "drew 'track 14' and said 'open a programme in this area or advance one' but listed 27 codesign-* projects with no programme; picking which next step or whether to open a programme took a full survey of READMEs"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "says clones are shallow and to fetch with --depth=40, but a depth-1 fetch of main then makes `git merge` refuse with unrelated histories; `git checkout -B <branch> origin/main` is the safe way to restart an empty branch"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-yaw-formula-was-wrong-and-cant-still-wins.md",
+    "research/codesign-cant/LOG.md",
+    "research/codesign-cant/PROPOSAL.md"
+  ],
+  "goal": "PhD-level research programme, deep-tech robotics (multirotor co-design)",
+  "notes": "Opened programme codesign-cant (PROPOSAL.md, 18 citations machine-checked with cite_check.py, all ok). Milestone 1: full 6x4 allocation of a canted X quadrotor, closed forms equal to LP to 1e-15; reran the twrceil co-design (75 CMA-ES runs, 9 min, 4 cores) with prior/hover/free actuator models; pre-registered P1-P6 (P1, P4, P6 held; P2, P3, P5 refuted). Cant advantage survives (-4.81 deg, 5/5), TWR-5 optimum does not. Local checks: pytest 8 passed, research/_homepage/build.py ok, research_live_links ok, check_md_links ok, programme_check ok, cite_check ok, post frontmatter ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "556cf1cf-f488-532b-80da-cb350500d559",
+    "transcripts": 1,
+    "first": "2026-11-12T03:06:14Z",
+    "last": "2026-11-12T03:22:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 94,
+        "output": 50723,
+        "thinking": 18109,
+        "cache_read": 5941496,
+        "cache_write_5m": 0,
+        "cache_write_1h": 154184,
+        "api_equivalent_usd": 3.4366,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 94,
+      "output": 50723,
+      "thinking": 18109,
+      "cache_read": 5941496,
+      "cache_write_5m": 0,
+      "cache_write_1h": 154184,
+      "api_equivalent_usd": 3.4366,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 45,
+      "Write": 8,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.49,
+      "active_minutes": 16.49,
+      "model_minutes": 9.16,
+      "tool_minutes": 7.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "derive and LP-verify allocation, rerun 75 co-design runs, write proposal with 18 checked refs, README, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 465.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
