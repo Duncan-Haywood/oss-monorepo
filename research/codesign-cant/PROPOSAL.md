@@ -90,6 +90,9 @@ side-force costs, with intervals, on two simulators and measured component data.
   by more than 20% with the force on.
 - H4. A stronger attitude law (INDI or geometric control) narrows but does not remove the cant
   advantage. Refuted if INDI without cant matches PID with cant.
+  Milestone 4 evidence (10 seeds, polytope mixer, 0.3° per 100 W): INDI narrows the advantage from 5.27° to
+  4.18° and geometric control to 4.88°; INDI without cant is 4.02° worse than PID with cant in 10 of 10 seeds.
+  Supported in simulation.
 - H5. The ranking of the top designs survives the move from the stylised rigid-body simulator to
   RotorPy with rotor drag and canted allocation. Refuted if Spearman ρ of the top ten is below 0.5.
 
@@ -123,7 +126,7 @@ hover-held, free collective), side force on or off, κ percentile.
 2. Attainable-torque polytope for combined commands in the simulator (replace the per-axis box),
    and a mixer that prioritises attitude (done 2026-11-12, with a price on hover power; `LOG.md`).
 3. Motor catalogue data (mass, max thrust with the chosen propeller, price) replacing the fits.
-4. INDI and geometric attitude baselines; 10 seeds per arm.
+4. INDI and geometric attitude baselines; 10 seeds per arm (done 2026-11-12: H4 supported; `LOG.md`).
 5. RotorPy (or equivalent) with canted rotors; re-score the top designs; H5.
 6. Position hold with the corrected side force and longer wind-step episodes; H3.
 7. Paper draft in `paper/` (RA-L format, 6 to 8 pages) with one command per figure.
