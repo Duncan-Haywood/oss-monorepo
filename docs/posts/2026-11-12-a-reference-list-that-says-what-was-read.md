@@ -3,7 +3,7 @@ title: "A reference list that says which sources were actually read"
 seo_title: "Citing valve manuals and theses in a reproducible hydraulics paper"
 date: 2026-11-12
 tags: [research, heavy-equipment, hydraulics, reproducibility, citations, latex]
-description: "The heavy-hydraulics paper now cites all 21 of its sources as numbered references; the 10 added today say whether and where we opened them, and 2 of them were not opened."
+description: "The heavy-hydraulics paper now cites all 21 sources as numbered references; the 10 added today say where each was opened, and 2 were not."
 ---
 
 The [`heavy-hydraulics`](../../research/heavy-hydraulics/README.md) programme
